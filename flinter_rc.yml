@@ -1,254 +1,208 @@
-# Flinter configuation file.
+# Flinter configuration file.
 
 # These are all the regexp rules
 
-# Set active to false is you want to skip  rule
-# All are regexp rules, meaning you can add new rules simply by editing this file
-# test your rule on https://regex101.com/ if needed
-
-extension: f\d*
-
+# Set active to false is you want to skip the rule.
+# All are regexp rules, meaning you can add new rules simply by editing this
+# file test your rule on https://regex101.com/ if needed
 regexp-rules:
-  intrinsics-should-be-lowercased:
-    message: Intrinsics keywords should be lowercased
-    regexp: \b({intrinsics_upper}|end(?:{blocks_upper}|{structs_upper}))\b
-    case-sensitive: true
+  line-too-long:
+    message: Line too long
+    regexp: "(?<=^)(.{{80}}.+)"
+    replacement: null
     active: true
 
-  # intrinsics-should-be-uppercased:
-  #   message: Intrinsics keywords should be uppercased
-  #   regexp: \b({intrinsics_lower}|end(?:{blocks_lower}|{structs_lower}))\b
-  #   case-sensitive: true
-  #   active: true
-
-  intrinsics-args-should-be-lowercased:
-    message: Intrinsics named argument should be lowercased
-    regexp: \b({named-args_upper})(?=\s*=)
-    case-sensitive: true
+  missing-spaces-around-operator:
+    message: Missing spaces around operator
+    regexp: (\w|\))({operators})(\w|\()
+    replacement: \1 \2 \3
     active: true
 
-  # intrinsics-args-should-be-uppercased:
-  #   message: Intrinsics named argument should be uppercased
-  #   regexp: \b({named-args_lower})(?=\s*=)
-  #   case-sensitive: true
-  #   active: true
-
-  types-should-be-lowercased:
-    message: Types should be lowercased
-    regexp: \b({types_upper})\b
-    case-sensitive: true
+  missing-spaces-before-operator:
+    message: Missing space before operator
+    regexp: (\w|\))({operators})
+    replacement: \1 \2
     active: true
 
-  # types-should-be-uppercased:
-  #   message: Types should be uppercased
-  #   regexp: \b({types_lower})\b
-  #   case-sensitive: true
-  #   active: true
+  missing-spaces-after-operator:
+    message: Missing space after operator
+    regexp: ({operators})(\w|\()
+    replacement: \1 \2
+    active: true
 
-  real-avbp-working-precision:
-    message: Use AVBP working precision
-    regexp: (?<=real)(?!\(\s*pr\s*\))\([^\(]*\)
-    replacement: (pr)
+  incorrect-spaces-before-separator:
+    message: Incorrect space before separator
+    regexp: (allocate\()?(^\s*\w+(?<!allocate)\b)?(?(1).*(?<=\s)::|(?(2).*(?<=\S)::|\0))
+    replacement: '\1 ::'
+    active: true
 
-  character-string-length:
-    message: Use strl or shortstrl
-    regexp: (?<=character)(\s*\(\s*len\s*=\s*)(?!\s*strl\b|\s*shortstrl\b)[^\(]*?(\s*\))
+  incorrect-spaces-after-separator:
+    message: Incorrect space after separator
+    regexp: (allocate\()?(^\s*\w+(?<!allocate)\b)?(?(1).*::(?=\s)|(?(2).*::(?=\S)|\0))
+    replacement: ':: \1'
+    active: true
 
-  missing-space-before-call-parameters:
-    message: Missing space between subroutine name and parenthesis
-    regexp: (?<=call\s)(\s*\w+)\(
+  # Look through the list of punctuation, but skip if inside format string '()'
+  # However, we do allow a single letter variable or 2 digit number to be used
+  # without spaces.
+  missing-spaces-after-punctuation:
+    message: Missing space after punctuation
+    regexp: ((,(?!.*\)[\'\"]))|(,(?=.*[\'\"]\()))(?=\d\d\d|[a-zA-Z]\w|[(\'\"])
+    replacement: \1 \2
+    active: true
+
+  missing-space-before-parenthesis:
+    message: Missing space before parenthesis
+    regexp: ({structs})\(
     replacement: \1 (
+    active: true
 
-  missing-space-after-call-parenthesis:
-    message: Missing space after first parenthesis
-    regexp: (?<=call\s)(\s*\w+\s*)\((\S)
-    replacement: ( \2
-
-  missing-space-before-call-parenthesis:
-    message: Missing space before last parenthesis
-    regexp: (?<=call\s)(\s*\w+\s*\([^)(]*(?:\([^)(]*(?:\([^)(]*\)[^)(]*)*\)[^)(]*)*(?<!\s))\)
-    replacement: \1 )
-
-  excessive-use-of-space:
-    message: Except for indentation, single spaces are sufficient
-    regexp: '(?<=\S)  +(?=[^\s!])'
-    replacement: " "
-
-  # missing-space-around-operator:
-  #   message: Missing space around operator
-  #   regexp: ([^\s=])({operators})([^\s=])
-  #   replacement: \1 \2 \3
-  #   active: false
-
-  # missing-space-before-operator:
-  #   message: Missing space before operator
-  #   regexp: ([^\s=])({operators})(?=\s)
-  #   replacement: \1 \2
-  #   active: false
-
-  # missing-space-after-operator:
-  #   message: Missing space after operator
-  #   regexp: (?<=\s)({operators})([^\s=])
-  #   replacement: \1 \2
-  #   active: false
-
-  # missing-space-around-separator:
-  #   message: Missing space around separator
-  #   regexp: (\S)::(\S)
-  #   replacement: '\1 :: \2'
-  #   active: false
-
-  # missing-space-before-separator:
-  #   message: Missing space before separator
-  #   regexp: (\S)::(?=\s)
-  #   replacement: '\1 ::'
-  #   active: false
-
-  # missing-space-after-separator:
-  #   message: Missing space after separator
-  #   regexp: (?<=\s)::(\S)
-  #   replacement: ':: \1'
-  #   active: false
-
-  # missing-space-after-punctuation:
-  #   message: Missing space after punctuation
-  #   regexp: ({punctuations})(\S)
-  #   replacement: \1 \2
-  #   active: false
-
-  # missing-space-before-parenthesis:
-  #   message: Missing space before parenthesis
-  #   regexp: ({structs})\(
-  #   replacement: \1 (
-  #   active: false
-
-  prepend-with-!$:
+  prepend-openmp-with-!$:
     message: Should prepend with "!$"
-    regexp: ^(\s*)(use\s+omp_lib)
-    replacement: '\1!$ \2'
+    regexp: ^(\s*)use omp_lib
+    replacement: '\1!$ use omp_lib'
+    active: true
 
-  tabulation-insteadof-twospaces:
+  tabulation-instead-of-two-spaces:
     message: Should use 2 spaces instead of tabulation
     regexp: \t
     replacement: "  "
+    active: true
+
+  double-spacing:
+    message: Double spacing
+    regexp: \S+\s{{2,}}\S+
+    replacement: \n
+    active: false
 
   use-new-syntax-type:
     message: Use new syntax TYPE(kind)
     regexp: ({types})\*(\w+)
     replacement: \1(\2)
+    active: false
 
+  # Exception: ´!` is allowed at the end of a string.
   one-space-before-comment:
     message: At least one space before comment
-    regexp: (\S)\!
+    regexp: (\S+)\!(?!'|")
     replacement: \1 !
+    active: false
 
   one-space-after-comment:
     message: Exactly one space after comment
-    regexp: \!(\S)
-    replacement: '! \1'
-    include-comments: true
+    regexp: (\!)(?![\!\'])(\S+)
+    replacement: '\1 \2'
+    active: false
 
-  useless-eol-dotcomma:
+  useless-eol-semicolon:
     message: Useless ";" at end of line
     regexp: ;\s*$
-    replacement: ""
-
-  nospace-endif:
-    message: Missing space after "end"
-    regexp: \#endif
-    replacement: null
+    replacement: \n
     active: true
 
   nospace-end:
-    message: Missing space after "end"
-    regexp: end({blocks}|{structs})
+    message: Missing space after `end'
+    regexp: (?<!\#)end(if|do|subroutine|function)
     replacement: end \1
+    active: true
 
-  missing-space-around-=:
-    message: Missing space around "="
-    regexp: ([^\s=])(?<!kind|.len)=([^\s=])
-    replacement: \1 = \2
+  missing-spaces-before-=:
+    message: Missing spaces before "="
+    regexp: ([^ \=\n]+)(?<!(kind|.len|..\'d|..\'n))=
+    replacement: ' = \2'
+    active: true
 
-  # missing-space-after-=:
-  #   message: Missing space after "="
-  #   regexp: (?<!kind|.len|...\s)\s+=([^\s=])
-  #   replacement: = \1
-  #   active: false
+  missing-spaces-after-=:
+    message: Missing spaces after "="
+    regexp: (?<!(kind|.len|..\'d|..\'n))=(?![=<>])([^ ]\S*)
+    replacement: ' = \2'
+    active: true
 
-  # missing-space-before-=:
-  #   message: Missing space before "="
-  #   regexp: ([^\s=])(?<!kind|.len)=(?=\s)
-  #   replacement: \1 =
-  #   active: false
-
-  trailing-whitespaces:
-    message: Trailing whitespaces
-    regexp: ([ \t])+$
+  trailing-white-spaces:
+    message: Trailing white-spaces
+    regexp: ([ ]+|\t+)\n
     replacement: ""
-    include-comments: true
+    active: true
 
-  reommended-use-of-sp-dp:
+  recommended-use-of-sp-dp:
     message: You should use "sp" or "dp" instead
     regexp: \(kind\s*=\s*\d\s*\)
+    replacement: null
+    active: true
 
-  reommended-use-of-brackets:
+  recommended-use-of-brackets:
     message: You should use "[]" instead
-    regexp: \(\\([^\)]*)\\\)
+    regexp: (\(\/)|(\/\))
     replacement: '[\1]'
+    active: true
 
-  reommended-use-mpi_f08:
-    message: Should use "use mpi_f08" instead (or "use mpi" if not available)
-    regexp: include\s+["\']mpif.h[\'"]
+  recommended-use-mpi_f08:
+    message: Should use `use mpi_f08` instead (or `use mpi` if not available)
+    regexp: include ["\']mpif.h[\'"]
+    replacement: null
+    active: true
 
   not-recommended-bare-end:
     message: Bare end statement not recommended
-    regexp: ^\s*end\s*$
+    regexp: \s^end$
+    replacement: null
+    active: true
 
   not-recommended-bare-stop:
     message: Bare stop statement not recommended
-    regexp: ^\s*stop\s*$
+    regexp: \s^stop$
+    replacement: null
+    active: true
 
   not-recommended-use-exit:
     message: exit is an extension and should be avoided
-    regexp: \bexit\b
+    regexp: ^exit$
+    replacement: null
+    active: true
 
   not-recommended-use-goto:
     message: goto is hard to maintain, prone to spaghetti code.
-    regexp: \bgoto\b
+    regexp: ^goto.*$
+    replacement: null
+    active: true
 
   not-recommended-use-double-precision:
     message: double precision is discouraged; use real instead.
-    regexp: \bdouble\s+precision\b
+    regexp: ^double precision.*$
+    replacement: null
+    active: true
 
   not-recommended-use-pause:
     message: pause is discouraged.
-    regexp: \bpause\b
+    regexp: ^pause.*$
+    replacement: null
+    active: true
 
   not-recommended-use-include:
     message: include is discouraged, prefer use.
-    regexp: \binclude\b
+    regexp: ^include.*$
+    replacement: null
+    active: true
 
 # These are rules that span over multiple lines, not accessible by regexp
-# If you want to edit these rules or add your own, two options:
+# You you want to edit these rules or add your own, two options:
 # - ask us.
 # - fork the code.
 structure-rules:
-  max-statements-in-context: 50
-  max-declared-locals: 12
-  min-varlen: 3
-  max-varlen: 20
-  max-arguments: 5
-  min-arglen: 3
-  max-arglen: 20
-  max-nesting-levels: 5
-  var-declaration: '(?:{types})\s*(?:\(.*\))?\s*(?:::| )\s*([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)'
+  file-line-length: 80
+  file-line-number: 2000
+  max-statements-in-context: 2000 # Subroutine of function
+  max-declared-locals: 35
+  min-varlen: 1
+  max-varlen: 30
+  max-arguments: 20
+  min-arglen: 1
+  max-arglen: 70
+  max-nesting-levels: 8
 
-######################################################################################
 # These are the fortran syntax we use to parse the source
 # A priori there is no need to edit, but Fortran is so vast in time...
-######################################################################################
-
-syntax:
+fortran-syntax:
   types:
     - real
     - character
@@ -276,134 +230,21 @@ syntax:
     - '\.or\.'
 
   structs:
-    - if
-    - select
-    - case
-    - while
+    - "if"
+    - "select"
+    - "case"
+    - "while"
+    - "is"
+    - "select type"
 
   punctuations:
     - ","
     - '\)'
     - ";"
 
-  namespace_blocks:
-    - program
-    - module
-
-  context_blocks:
-    - function
-    - subroutine
-
-  intrinsics:
-    - ALLOCATABLE
-    - ALLOCATE
-    - ASSIGN
-    - ASSIGNMENT
-    - BACKSPACE
-    - BLOCK
-    - CALL
-    - CASE
-    - CLOSE
-    - COMMON
-    - CONTAINS
-    - CONTINUE
-    - CYCLE
-    - DATA
-    - DEALLOCATE
-    - DEFAULT
-    - DIMENSION
-    - DO
-    - ELSE
-    - ELSEWHERE
-    - END
-    - ENDFILE
-    - ENTRY
-    - EQUIVALENCE
-    - EXIT
-    - EXTERNAL
-    - FUNCTION
-    - GO
-    - GOTO
-    - IF
-    - IMPLICIT
-    - IN
-    - INOUT
-    - INQUIRE
-    - INTENT
-    - INTERFACE
-    - INTRINSIC
-    - MODULE
-    - NAMELIST
-    - NONE
-    - NULLIFY
-    - ONLY
-    - OPEN
-    - OPERATOR
-    - OPTIONAL
-    - OUT
-    - PARAMETER
-    - PAUSE
-    - POINTER
-    - PRINT
-    - PRIVATE
-    - PROCEDURE
-    - PROGRAM
-    - PUBLIC
-    - READ
-    - RECURSIVE
-    - RESULT
-    - RETURN
-    - REWIND
-    - SAVE
-    - SELECT
-    - SEQUENCE
-    - STOP
-    - SUBROUTINE
-    - TARGET
-    - THEN
-    - TO
-    - TYPE
-    - USE
-    - WHERE
-    - WHILE
-    - WRITE
-    # should we or not?
-    #- IFDEF
-    #- IFNDEF
-
-  named-args:
-    - ACCESS
-    - ACTION
-    - ADVANCE
-    - BLANK
-    - DELIM
-    - DIRECT
-    - EOR
-    - ERR
-    - EXIST
-    - FILE
-    - FMT
-    - FORM
-    - FORMAT
-    - FORMATTED
-    - IOLENGTH
-    - IOSTAT
-    - KIND
-    - LEN
-    - NAME
-    - NAMED
-    - NEXTREC
-    - NML
-    - NUMBER
-    - OPENED
-    - PAD
-    - POSITION
-    - READWRITE
-    - REC
-    - RECL
-    - SEQUENTIAL
-    - SIZE
-    - STAT
-    - STATUS
-    - UNFORMATTED
-    - UNIT
+  blocks:
+    - "program"
+    - "subroutine"
+    - "module"
+    - "function"
+    - "blockdata"
