@@ -1,5 +1,7 @@
 # Flinter configuration file.
 
+extension: f\d*
+
 # These are all the regexp rules
 
 # Set active to false is you want to skip  rule
