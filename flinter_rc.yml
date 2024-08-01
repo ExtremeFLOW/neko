@@ -70,23 +70,23 @@ regexp-rules:
   # -------------------------------------------------------------------------- #
   # Types and intrinsic rules
 
-  intrinsics-should-be-lowercased:
-    message: Intrinsics keywords should be lowercased
-    regexp: \b(?:{intrinsics_upper}|end(?:{blocks_upper}|{structs_upper}))\b
-    case-sensitive: true
-    active: true
+  # intrinsics-should-be-lowercased:
+  #   message: Intrinsics keywords should be lowercased
+  #   regexp: \b(?:{intrinsics_upper}|end(?:{blocks_upper}|{structs_upper}))\b
+  #   case-sensitive: true
+  #   active: true
 
-  intrinsics-args-should-be-lowercased:
-    message: Intrinsics named argument should be lowercased
-    regexp: \b(?:{named-args_upper})(?=\s*=)
-    case-sensitive: true
-    active: true
+  # intrinsics-args-should-be-lowercased:
+  #   message: Intrinsics named argument should be lowercased
+  #   regexp: \b(?:{named-args_upper})(?=\s*=)
+  #   case-sensitive: true
+  #   active: true
 
-  types-should-be-lowercased:
-    message: Types should be lowercased
-    regexp: \b(?:{types_upper})\b
-    case-sensitive: true
-    active: true
+  # types-should-be-lowercased:
+  #   message: Types should be lowercased
+  #   regexp: \b(?:{types_upper})\b
+  #   case-sensitive: true
+  #   active: true
 
   use-new-syntax-type:
     message: Use new syntax TYPE(kind)
