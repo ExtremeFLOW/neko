@@ -15,31 +15,31 @@ regexp-rules:
     message: Line too long
     regexp: "(?<=^)(.{{80}}.+)"
     replacement: null
-    active: true
+    active: false
 
   prepend-openmp-with-!$:
     message: Should prepend with "!$"
     regexp: ^(\s*)use omp_lib
     replacement: '\1!$ use omp_lib'
-    active: true
+    active: false
 
   useless-eol-semicolon:
     message: Useless ";" at end of line
     regexp: ;\s*$
     replacement: \n
-    active: true
+    active: false
 
   recommended-use-mpi_f08:
     message: Should use `use mpi_f08` instead (or `use mpi` if not available)
     regexp: include ["\']mpif.h[\'"]
     replacement: null
-    active: true
+    active: false
 
   not-recommended-use-include:
     message: include is discouraged, prefer use.
     regexp: ^include.*$
     replacement: null
-    active: true
+    active: false
 
   # -------------------------------------------------------------------------- #
   # White space rules
@@ -48,7 +48,7 @@ regexp-rules:
     message: Trailing white-spaces
     regexp: ([ ]+|\t+)\n
     replacement: ""
-    active: true
+    active: false
     include-comments: true
 
   excessive-use-of-space:
@@ -66,7 +66,7 @@ regexp-rules:
     message: Should use 2 spaces instead of tabulation
     regexp: \t
     replacement: "  "
-    active: true
+    active: false
 
   # -------------------------------------------------------------------------- #
   # Types and intrinsic rules
@@ -75,19 +75,19 @@ regexp-rules:
     message: Intrinsics keywords should be lowercased
     regexp: \b({intrinsics_upper}|end(?:{blocks_upper}|{structs_upper}))\b
     case-sensitive: true
-    active: true
+    active: false
 
   intrinsics-args-should-be-lowercased:
     message: Intrinsics named argument should be lowercased
     regexp: \b({named-args_upper})(?=\s*=)
     case-sensitive: true
-    active: true
+    active: false
 
   types-should-be-lowercased:
     message: Types should be lowercased
     regexp: \b({types_upper})\b
     case-sensitive: true
-    active: true
+    active: false
 
   use-new-syntax-type:
     message: Use new syntax TYPE(kind)
@@ -99,13 +99,13 @@ regexp-rules:
     message: You should use "sp" or "dp" instead
     regexp: \(kind\s*=\s*\d\s*\)
     replacement: null
-    active: true
+    active: false
 
   not-recommended-use-double-precision:
     message: double precision is discouraged; use real instead.
     regexp: ^double precision.*$
     replacement: null
-    active: true
+    active: false
 
   # -------------------------------------------------------------------------- #
   # Syntax rules
@@ -114,37 +114,37 @@ regexp-rules:
     message: You should use "[]" instead
     regexp: (\(\/)|(\/\))
     replacement: '[\1]'
-    active: true
+    active: false
 
   not-recommended-bare-end:
     message: Bare end statement not recommended
     regexp: \s^end$
     replacement: null
-    active: true
+    active: false
 
   not-recommended-bare-stop:
     message: Bare stop statement not recommended
     regexp: \s^stop$
     replacement: null
-    active: true
+    active: false
 
   not-recommended-use-exit:
     message: exit is an extension and should be avoided
     regexp: ^exit$
     replacement: null
-    active: true
+    active: false
 
   not-recommended-use-goto:
     message: goto is hard to maintain, prone to spaghetti code.
     regexp: ^goto.*$
     replacement: null
-    active: true
+    active: false
 
   not-recommended-use-pause:
     message: pause is discouraged.
     regexp: ^pause.*$
     replacement: null
-    active: true
+    active: false
 
   # -------------------------------------------------------------------------- #
   # Formatting and code style rules
@@ -153,31 +153,31 @@ regexp-rules:
     message: Missing spaces around operator
     regexp: (\w|\))({operators})(\w|\()
     replacement: \1 \2 \3
-    active: true
+    active: false
 
   missing-spaces-before-operator:
     message: Missing space before operator
     regexp: (\w|\))({operators})
     replacement: \1 \2
-    active: true
+    active: false
 
   missing-spaces-after-operator:
     message: Missing space after operator
     regexp: ({operators})(\w|\()
     replacement: \1 \2
-    active: true
+    active: false
 
   incorrect-spaces-before-separator:
     message: Incorrect space before separator
     regexp: (allocate\()?(^\s*\w+(?<!allocate)\b)?(?(1).*(?<=\s)::|(?(2).*(?<=\S)::|\0))
     replacement: '\1 ::'
-    active: true
+    active: false
 
   incorrect-spaces-after-separator:
     message: Incorrect space after separator
     regexp: (allocate\()?(^\s*\w+(?<!allocate)\b)?(?(1).*::(?=\s)|(?(2).*::(?=\S)|\0))
     replacement: ':: \1'
-    active: true
+    active: false
 
   # Look through the list of punctuation, but skip if inside format string '()'
   # However, we do allow a single letter variable or 2 digit number to be used
@@ -186,13 +186,13 @@ regexp-rules:
     message: Missing space after punctuation
     regexp: ((,(?!.*\)[\'\"]))|(,(?=.*[\'\"]\()))(?=\d\d\d|[a-zA-Z]\w|[(\'\"])
     replacement: \1 \2
-    active: true
+    active: false
 
   missing-space-before-parenthesis:
     message: Missing space before parenthesis
     regexp: ({structs})\(
     replacement: \1 (
-    active: true
+    active: false
 
   # Exception: ´!` is allowed at the end of a string.
   one-space-before-comment:
@@ -211,19 +211,19 @@ regexp-rules:
     message: Missing space after `end'
     regexp: (?<!\#)end(if|do|subroutine|function)
     replacement: end \1
-    active: true
+    active: false
 
   missing-spaces-before-=:
     message: Missing spaces before "="
     regexp: ([^ \=\n]+)(?<!(kind|.len|..\'d|..\'n))=
     replacement: ' = \2'
-    active: true
+    active: false
 
   missing-spaces-after-=:
     message: Missing spaces after "="
     regexp: (?<!(kind|.len|..\'d|..\'n))=(?![=<>])([^ ]\S*)
     replacement: ' = \2'
-    active: true
+    active: false
 
 # ============================================================================ #
 # These are rules that span over multiple lines, not accessible by regexp
