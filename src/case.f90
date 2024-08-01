@@ -55,7 +55,7 @@ module case
   use comm
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, NEKO_LOG_QUIET, LOG_SIZE
-  use jobctrl, only :  jobctrl_set_time_limit
+  use jobctrl, only : jobctrl_set_time_limit
   use user_intf, only : user_t
   use scalar_pnpn, only : scalar_pnpn_t
   use json_module, only : json_file, json_core, json_value
@@ -83,7 +83,7 @@ module case
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar
-     type(material_properties_t):: material_properties
+     type(material_properties_t) :: material_properties
   end type case_t
 
   interface case_init
@@ -106,13 +106,13 @@ contains
                           NEKO_LOG_QUIET)
 
     if (pe_rank .eq. 0) then
-       call C%params%load_file(filename=trim(case_file))
+       call C%params%load_file(filename = trim(case_file))
        call C%params%print_to_string(json_buffer)
        integer_val = len(json_buffer)
     end if
 
     call MPI_Bcast(integer_val, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
-    if (pe_rank .ne. 0) allocate(character(len=integer_val)::json_buffer)
+    if (pe_rank .ne. 0) allocate(character(len=integer_val) :: json_buffer)
     call MPI_Bcast(json_buffer, integer_val, MPI_CHARACTER, 0, NEKO_COMM, ierr)
     call C%params%load_from_string(json_buffer)
 
@@ -149,7 +149,7 @@ contains
     real(kind=rp) :: real_val
     character(len=:), allocatable :: string_val
     real(kind=rp) :: stats_start_time, stats_output_val
-    integer ::  stats_sampling_interval
+    integer :: stats_sampling_interval
     integer :: output_dir_len
     integer :: precision
 
@@ -214,12 +214,12 @@ contains
     call fluid_scheme_factory(C%fluid, trim(string_val))
 
     call json_get(C%params, 'case.numerics.polynomial_order', lx)
-    lx = lx + 1 ! add 1 to get poly order
+    lx = lx + 1 ! add 1 to get number of gll points
     call C%fluid%init(C%msh, lx, C%params, C%usr, C%material_properties)
     C%fluid%chkp%tlag => C%tlag
     C%fluid%chkp%dtlag => C%dtlag
-    select type(f => C%fluid)
-    type is(fluid_pnpn_t)
+    select type (f => C%fluid)
+    type is (fluid_pnpn_t)
        f%chkp%abx1 => f%abx1
        f%chkp%abx2 => f%abx2
        f%chkp%aby1 => f%aby1
@@ -294,8 +294,8 @@ contains
     end if
 
     ! Add initial conditions to BDF scheme (if present)
-    select type(f => C%fluid)
-    type is(fluid_pnpn_t)
+    select type (f => C%fluid)
+    type is (fluid_pnpn_t)
        call f%ulag%set(f%u)
        call f%vlag%set(f%v)
        call f%wlag%set(f%w)
@@ -374,10 +374,10 @@ contains
     call C%s%init(C%end_time)
     if (scalar) then
        C%f_out = fluid_output_t(precision, C%fluid, C%scalar, &
-            path=trim(output_directory))
+            path = trim(output_directory))
     else
        C%f_out = fluid_output_t(precision, C%fluid, &
-            path=trim(output_directory))
+            path = trim(output_directory))
     end if
 
     call json_get_or_default(C%params, 'case.fluid.output_control',&
@@ -405,8 +405,8 @@ contains
     if (logical_val) then
        call json_get_or_default(C%params, 'case.checkpoint_format', &
             string_val, "chkp")
-       C%f_chkp = chkp_output_t(C%fluid%chkp, path=output_directory, &
-            fmt=trim(string_val))
+       C%f_chkp = chkp_output_t(C%fluid%chkp, path = output_directory, &
+            fmt = trim(string_val))
        call json_get_or_default(C%params, 'case.checkpoint_control', &
             string_val, "simulationtime")
        call json_get_or_default(C%params, 'case.checkpoint_value', real_val,&
@@ -442,7 +442,7 @@ contains
           call C%q%add(C%fluid%mean%p)
 
           C%f_mf = mean_flow_output_t(C%fluid%mean, stats_start_time, &
-                                      path=output_directory)
+                                      path = output_directory)
 
           call json_get(C%params, 'case.statistics.output_control', &
                         string_val)
@@ -453,25 +453,10 @@ contains
           call C%q%add(C%fluid%stats)
 
           C%f_stats_output = fluid_stats_output_t(C%fluid%stats, &
-            stats_start_time, path=output_directory)
+            stats_start_time, path = output_directory)
           call C%s%add(C%f_stats_output, stats_output_val, string_val)
        end if
     end if
-
-!    if (C%params%stats_mean_sqr_flow) then
-!       call C%q%add(C%fluid%mean_sqr%uu)
-!       call C%q%add(C%fluid%mean_sqr%vv)
-!       call C%q%add(C%fluid%mean_sqr%ww)
-!       call C%q%add(C%fluid%mean_sqr%pp)
-
-!       if (C%params%output_mean_sqr_flow) then
-!          C%f_msqrf = mean_sqr_flow_output_t(C%fluid%mean_sqr, &
-!                                             C%params%stats_begin, &
-!                                             path=output_directory)
-!          call C%s%add(C%f_msqrf, C%params%stats_write_par, &
-!               C%params%stats_write_control)
-!       end if
-!    end if
 
     !
     ! Setup joblimit
