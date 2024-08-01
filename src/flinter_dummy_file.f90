@@ -125,6 +125,17 @@ module device
 
 contains
 
+  subroutine test_patterns_flinter()
+    !> This was falsely flagged as an error (spaces arround the `=`)
+    character(kind=c_char, len=1024), target :: c_name
+    !> This was falsely flagged as an error (spaces before comments (`!`))
+    call neko_error("The fld file must match the current mesh! &
+         &Use 'interpolate': 'true' to enable interpolation.")
+    !> This was falsely flagged as an error (spaces after punctuation (`,`))
+    write(*, "(I5,A8)") '14', '.nek5000'
+
+  end subroutine test_patterns_flinter
+
   subroutine device_init
 #if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
     call device_addrtbl%init(64)
