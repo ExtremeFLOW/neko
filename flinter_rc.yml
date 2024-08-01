@@ -231,7 +231,7 @@ regexp-rules:
 # - ask us.
 # - fork the code.
 structure-rules:
-  max-statements-in-context: 0
+  max-statements-in-context: 2000
   max-declared-locals: 35
   min-varlen: 1
   max-varlen: 30
