@@ -115,7 +115,7 @@ contains
     character(len=10) :: suffix
     character(10) :: time
     character(8) :: date
-    integer :: argc, nthrds, rw, sw, num_devices
+    integer :: argc, nthrds, rw, sw
 
     call date_and_time(time = time, date = date)
 
@@ -158,8 +158,7 @@ contains
 
        ! Check the device count against the number of MPI ranks
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_count(num_devices)
-          if (num_devices .ne. 1) then
+          if (device_count() .ne. 1) then
              call neko_error('Only one device is supported per MPI rank')
           end if
        end if
