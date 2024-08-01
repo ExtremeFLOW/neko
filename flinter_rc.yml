@@ -74,19 +74,19 @@ regexp-rules:
     message: Intrinsics keywords should be lowercased
     regexp: \b(?:{intrinsics_upper}|end(?:{blocks_upper}|{structs_upper}))\b
     case-sensitive: true
-    active: false
+    active: true
 
   intrinsics-args-should-be-lowercased:
     message: Intrinsics named argument should be lowercased
     regexp: \b(?:{named-args_upper})(?=\s*=)
     case-sensitive: true
-    active: false
+    active: true
 
   types-should-be-lowercased:
     message: Types should be lowercased
     regexp: \b(?:{types_upper})\b
     case-sensitive: true
-    active: false
+    active: true
 
   use-new-syntax-type:
     message: Use new syntax TYPE(kind)
@@ -238,11 +238,13 @@ structure-rules:
   min-arglen: 1
   max-arglen: 70
   max-nesting-levels: 8
-  # var-declaration: '(?:{types})\s*(?:\(.*\))?\s*(?:::| )\s*([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)'
+  var-declaration: '(?:{types})\s*(?:\(.*\))?\s*(?:::| )\s*([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)'
 
 # ============================================================================ #
 # These are the fortran syntax we use to parse the source
 # A priori there is no need to edit, but Fortran is so vast in time...
+# ============================================================================ #
+
 fortran-syntax:
   types:
     - real
@@ -251,6 +253,14 @@ fortran-syntax:
     - integer
     - complex
     - double precision
+
+  types_upper:
+    - REAL
+    - CHARACTER
+    - LOGICAL
+    - INTEGER
+    - COMPLEX
+    - DOUBLE PRECISION
 
   operators:
     - '\.eq\.'
@@ -278,14 +288,134 @@ fortran-syntax:
     - "is"
     - "select type"
 
+  structs_upper:
+    - "IF"
+    - "SELECT"
+    - "CASE"
+    - "WHILE"
+    - "IS"
+    - "SELECT TYPE"
+
   punctuations:
     - ","
     - '\)'
     - ";"
 
-  blocks:
+  namespace_blocks:
     - "program"
-    - "subroutine"
     - "module"
-    - "function"
-    - "blockdata"
+
+  context_blocks:
+    - function
+    - subroutine
+
+  intrinsics_upper:
+    - ALLOCATABLE
+    - ALLOCATE
+    - ASSIGN
+    - ASSIGNMENT
+    - BACKSPACE
+    - BLOCK
+    - CALL
+    - CASE
+    - CLOSE
+    - COMMON
+    - CONTAINS
+    - CONTINUE
+    - CYCLE
+    - DATA
+    - DEALLOCATE
+    - DEFAULT
+    - DIMENSION
+    - DO
+    - ELSE
+    - ELSEWHERE
+    - END
+    - ENDFILE
+    - ENTRY
+    - EQUIVALENCE
+    - EXIT
+    - EXTERNAL
+    - FUNCTION
+    - GO
+    - GOTO
+    - IF
+    - IMPLICIT
+    - IN
+    - INOUT
+    - INQUIRE
+    - INTENT
+    - INTERFACE
+    - INTRINSIC
+    - MODULE
+    - NAMELIST
+    - NONE
+    - NULLIFY
+    - ONLY
+    - OPEN
+    - OPERATOR
+    - OPTIONAL
+    - OUT
+    - PARAMETER
+    - PAUSE
+    - POINTER
+    - PRINT
+    - PRIVATE
+    - PROCEDURE
+    - PROGRAM
+    - PUBLIC
+    - READ
+    - RECURSIVE
+    - RESULT
+    - RETURN
+    - REWIND
+    - SAVE
+    - SELECT
+    - SEQUENCE
+    - STOP
+    - SUBROUTINE
+    - TARGET
+    - THEN
+    - TO
+    - TYPE
+    - USE
+    - WHERE
+    - WHILE
+    - WRITE
+
+  named-args_upper:
+    - ACCESS
+    - ACTION
+    - ADVANCE
+    - BLANK
+    - DELIM
+    - DIRECT
+    - EOR
+    - ERR
+    - EXIST
+    - FILE
+    - FMT
+    - FORM
+    - FORMAT
+    - FORMATTED
+    - IOLENGTH
+    - IOSTAT
+    - KIND
+    - LEN
+    - NAME
+    - NAMED
+    - NEXTREC
+    - NML
+    - NUMBER
+    - OPENED
+    - PAD
+    - POSITION
+    - READWRITE
+    - REC
+    - RECL
+    - SEQUENTIAL
+    - SIZE
+    - STAT
+    - STATUS
+    - UNFORMATTED
+    - UNIT
