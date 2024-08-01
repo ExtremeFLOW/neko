@@ -153,31 +153,31 @@ regexp-rules:
     message: Missing spaces around operator
     regexp: (\w|\))({operators})(\w|\()
     replacement: \1 \2 \3
-    active: false
+    active: true
 
   missing-spaces-before-operator:
     message: Missing space before operator
     regexp: (\w|\))({operators})
     replacement: \1 \2
-    active: false
+    active: true
 
   missing-spaces-after-operator:
     message: Missing space after operator
     regexp: ({operators})(\w|\()
     replacement: \1 \2
-    active: false
+    active: true
 
   incorrect-spaces-before-separator:
     message: Incorrect space before separator
     regexp: (allocate\()?(^\s*\w+(?<!allocate)\b)?(?(1).*(?<=\s)::|(?(2).*(?<=\S)::|\0))
     replacement: '\1 ::'
-    active: false
+    active: true
 
   incorrect-spaces-after-separator:
     message: Incorrect space after separator
     regexp: (allocate\()?(^\s*\w+(?<!allocate)\b)?(?(1).*::(?=\s)|(?(2).*::(?=\S)|\0))
     replacement: ':: \1'
-    active: false
+    active: true
 
   # Look through the list of punctuation, but skip if inside format string '()'
   # However, we do allow a single letter variable or 2 digit number to be used
@@ -186,44 +186,44 @@ regexp-rules:
     message: Missing space after punctuation
     regexp: ((,(?!.*\)[\'\"]))|(,(?=.*[\'\"]\()))(?=\d\d\d|[a-zA-Z]\w|[(\'\"])
     replacement: \1 \2
-    active: false
+    active: true
 
   missing-space-before-parenthesis:
     message: Missing space before parenthesis
     regexp: ({structs})\(
     replacement: \1 (
-    active: false
+    active: true
 
   # Exception: ´!` is allowed at the end of a string.
   one-space-before-comment:
     message: At least one space before comment
     regexp: (\S+)\!(?!'|")
     replacement: \1 !
-    active: false
+    active: true
 
   one-space-after-comment:
     message: Exactly one space after comment
     regexp: (\!)(?![\!\'])(\S+)
     replacement: '\1 \2'
-    active: false
+    active: true
 
   nospace-end:
     message: Missing space after `end'
     regexp: (?<!\#)end(if|do|subroutine|function)
     replacement: end \1
-    active: false
+    active: true
 
   missing-spaces-before-=:
     message: Missing spaces before "="
     regexp: ([^ \=\n]+)(?<!(kind|.len|..\'d|..\'n))=
     replacement: ' = \2'
-    active: false
+    active: true
 
   missing-spaces-after-=:
     message: Missing spaces after "="
     regexp: (?<!(kind|.len|..\'d|..\'n))=(?![=<>])([^ ]\S*)
     replacement: ' = \2'
-    active: false
+    active: true
 
 # ============================================================================ #
 # These are rules that span over multiple lines, not accessible by regexp
