@@ -51,18 +51,6 @@ regexp-rules:
     active: true
     include-comments: true
 
-  excessive-use-of-space:
-    message: Except for indentation, single spaces are sufficient
-    regexp: '(?<=\S)  +(?=[^\s!])'
-    replacement: " "
-    active: true
-
-  double-spacing:
-    message: Double spacing
-    regexp: \S+\s{{2,}}\S+
-    replacement: \n
-    active: true
-
   tabulation-instead-of-two-spaces:
     message: Should use 2 spaces instead of tabulation
     regexp: \t
@@ -196,19 +184,6 @@ regexp-rules:
     replacement: \1 (
     active: true
 
-  # Exception: ´!` is allowed at the end of a string.
-  one-space-before-comment:
-    message: At least one space before comment
-    regexp: (\S+)\!(?!'|")
-    replacement: \1 !
-    active: true
-
-  one-space-after-comment:
-    message: Exactly one space after comment
-    regexp: (\!)(?![\!\'])(\S+)
-    replacement: '\1 \2'
-    active: true
-
   nospace-end:
     message: Missing space after `end'
     regexp: (?<!\#)end(if|do|subroutine|function)
@@ -226,6 +201,34 @@ regexp-rules:
     regexp: (?<!(kind|.len|..\'d|..\'n))=(?![=<>])([^ ]\S*)
     replacement: ' = \2'
     active: true
+
+  # -------------------------------------------------------------------------- #
+  # Work in progress rules
+
+  # Exception: ´!` is allowed at the end of a string.
+  one-space-before-comment:
+    message: At least one space before comment
+    regexp: (\S+)\!(?!'|")
+    replacement: \1 !
+    active: false
+
+  one-space-after-comment:
+    message: Exactly one space after comment
+    regexp: (\!)(?![\!\'])(\S+)
+    replacement: '\1 \2'
+    active: false
+
+  excessive-use-of-space:
+    message: Except for indentation, single spaces are sufficient
+    regexp: (?<=\S)  +(?=[^\s!])
+    replacement: " "
+    active: false
+
+  double-spacing:
+    message: Double spacing
+    regexp: \S+\s{{2,}}\S+
+    replacement: \n
+    active: false
 
 # ============================================================================ #
 # These are rules that span over multiple lines, not accessible by regexp
