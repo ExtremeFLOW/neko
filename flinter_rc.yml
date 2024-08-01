@@ -309,6 +309,13 @@ fortran-syntax:
     - function
     - subroutine
 
+  blocks:
+    - "program"
+    - "subroutine"
+    - "module"
+    - "function"
+    - "blockdata"
+
   blocks_upper:
     - PROGRAM
     - MODULE
