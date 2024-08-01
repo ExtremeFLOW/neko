@@ -21,7 +21,6 @@ var NAVTREEINDEX44 =
 "df/db9/interfaceopencl__intf_1_1clWaitForEvents.html#acb5d361ddb6b629d6869666602c1f8c6":[4,0,144,12,0],
 "df/db9/structgmres_1_1gmres__t.html":[4,0,97,0],
 "df/db9/structgmres_1_1gmres__t.html#a000f30c0d26bb2be85f59e613d33c94d":[4,0,97,0,1],
-"df/db9/structgmres_1_1gmres__t.html#a03a6a0ddb0498811de4843c4e3077942":[4,0,97,0,20],
 "df/db9/structgmres_1_1gmres__t.html#a0604caa64f407001658d0678f200e426":[4,0,97,0,14],
 "df/db9/structgmres_1_1gmres__t.html#a16962f97d91b299205a36eeb4bee34f8":[4,0,97,0,15],
 "df/db9/structgmres_1_1gmres__t.html#a26bde38e443524a43a7a14cd30b2e531":[4,0,97,0,9],
@@ -37,7 +36,7 @@ var NAVTREEINDEX44 =
 "df/db9/structgmres_1_1gmres__t.html#aa05a429156066082c789fe4588b20034":[4,0,97,0,0],
 "df/db9/structgmres_1_1gmres__t.html#aa2507024b78f504511edbf410b7b9388":[4,0,97,0,2],
 "df/db9/structgmres_1_1gmres__t.html#ac8461060f257f28e50083521e7079adc":[4,0,97,0,4],
-"df/db9/structgmres_1_1gmres__t.html#acac4ecfe117443804447392c95a06ebe":[4,0,97,0,21],
+"df/db9/structgmres_1_1gmres__t.html#acac4ecfe117443804447392c95a06ebe":[4,0,97,0,20],
 "df/db9/structgmres_1_1gmres__t.html#acd9307c1e22a69a6896a7da82291a6de":[4,0,97,0,11],
 "df/db9/structgmres_1_1gmres__t.html#ad4d5e427d84e8718bcdde1b13ed200df":[4,0,97,0,10],
 "df/db9/structgmres_1_1gmres__t.html#ada7bbef3e23bc8ab1a7ce508f44b2043":[4,0,97,0,6],
@@ -249,5 +248,6 @@ var NAVTREEINDEX44 =
 "dir_67b99d06cb05e45fd0b73bbcd51c0d32.html":[5,0,2,7,0,2,0],
 "dir_68267d1309a1af8e8297ef4c3efbcdba.html":[5,0,2],
 "dir_69139663d514f1ff7940acea25bbfa88.html":[5,0,2,16,0,0,2],
-"dir_6ac2283507a4fed10461ea6c78ce067a.html":[5,0,2,11]
+"dir_6ac2283507a4fed10461ea6c78ce067a.html":[5,0,2,11],
+"dir_702567638a028346607c31c39047d6bd.html":[5,0,2,17]
 };

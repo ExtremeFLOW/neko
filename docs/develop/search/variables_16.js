@@ -24,7 +24,7 @@ var searchData=
   ['which_5ffields_10256',['which_fields',['../d7/dd3/structprobes_1_1probes__t.html#a377e2ea94225c3adeb914c763e86b0d1',1,'probes::probes_t']]],
   ['width_10257',['width',['../d5/dae/structoctree_1_1oct__t.html#aa28e4c4ef129abb23d60917402b3666c',1,'octree::oct_t']]],
   ['wk_10258',['wk',['../dd/df1/structspectral__error__indicator_1_1spectral__error__indicator__t.html#a2c8654e8b307f9fbaaebf5e8e320d3b8',1,'spectral_error_indicator::spectral_error_indicator_t']]],
-  ['wk1_10259',['wk1',['../df/db9/structgmres_1_1gmres__t.html#a03a6a0ddb0498811de4843c4e3077942',1,'gmres::gmres_t::wk1()'],['../d3/d41/structgmres__sx_1_1sx__gmres__t.html#acb92ff4549f4fad973287b1ae31e6827',1,'gmres_sx::sx_gmres_t::wk1()']]],
+  ['wk1_10259',['wk1',['../d3/d41/structgmres__sx_1_1sx__gmres__t.html#acb92ff4549f4fad973287b1ae31e6827',1,'gmres_sx::sx_gmres_t']]],
   ['wlag_10260',['wlag',['../d9/d88/structcheckpoint_1_1chkp__t.html#af532c9de94325e6befcd9c0302437752',1,'checkpoint::chkp_t::wlag()'],['../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a0a6a20a89f1f3c37dd1784ac7fb465ce',1,'fluid_scheme::fluid_scheme_t::wlag()']]],
   ['work1_10261',['work1',['../d0/d9f/structschwarz_1_1schwarz__t.html#a6d155bdba3b6b7b3f5b573db4cf90006',1,'schwarz::schwarz_t']]],
   ['work1_5fd_10262',['work1_d',['../d0/d9f/structschwarz_1_1schwarz__t.html#af8b60d00e23aff1b6433ccf1da4b75ba',1,'schwarz::schwarz_t']]],

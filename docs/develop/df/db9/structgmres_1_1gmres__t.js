@@ -20,6 +20,5 @@ var structgmres_1_1gmres__t =
     [ "s", "df/db9/structgmres_1_1gmres__t.html#a612db7d2de470d47db45088f2824c8a4", null ],
     [ "v", "df/db9/structgmres_1_1gmres__t.html#a609cdc5492cb69c168830a4027e54c55", null ],
     [ "w", "df/db9/structgmres_1_1gmres__t.html#a2ca7a7535667e507c41b36c614d53e2f", null ],
-    [ "wk1", "df/db9/structgmres_1_1gmres__t.html#a03a6a0ddb0498811de4843c4e3077942", null ],
     [ "z", "df/db9/structgmres_1_1gmres__t.html#acac4ecfe117443804447392c95a06ebe", null ]
 ];
