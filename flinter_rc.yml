@@ -246,7 +246,7 @@ structure-rules:
 # A priori there is no need to edit, but Fortran is so vast in time...
 # ============================================================================ #
 
-syntax:
+fortran-syntax:
   types:
     - real
     - character
