@@ -15,31 +15,31 @@ regexp-rules:
     message: Line too long
     regexp: "(?<=^)(.{{80}}.+)"
     replacement: null
-    active: false
+    active: true
 
   prepend-openmp-with-!$:
     message: Should prepend with "!$"
     regexp: ^(\s*)use omp_lib
     replacement: '\1!$ use omp_lib'
-    active: false
+    active: true
 
   useless-eol-semicolon:
     message: Useless ";" at end of line
     regexp: ;\s*$
     replacement: \n
-    active: false
+    active: true
 
   recommended-use-mpi_f08:
     message: Should use `use mpi_f08` instead (or `use mpi` if not available)
     regexp: include ["\']mpif.h[\'"]
     replacement: null
-    active: false
+    active: true
 
   not-recommended-use-include:
     message: include is discouraged, prefer use.
     regexp: ^include.*$
     replacement: null
-    active: false
+    active: true
 
   # -------------------------------------------------------------------------- #
   # White space rules
