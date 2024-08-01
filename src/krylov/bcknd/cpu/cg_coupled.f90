@@ -40,7 +40,7 @@ module cg_cpld
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
-  use math, only : glsc3, glsc2, add2s1
+  use math, only : glsc3, glsc2
   use utils, only : neko_error
   implicit none
   private
@@ -230,7 +230,7 @@ contains
          w3 => this%w3)
 
       rtz1 = one
-      do i = 1, n
+      do concurrent (i = 1:n)
          x%x(i,1,1,1) = 0.0_rp
          y%x(i,1,1,1) = 0.0_rp
          z%x(i,1,1,1) = 0.0_rp
@@ -259,7 +259,7 @@ contains
          call this%M%solve(z3, this%r3, n)
          rtz2 = rtz1
 
-         do i = 1, n
+         do concurrent (i = 1:n)
             this%tmp(i) = z1(i) * r1(i) &
                         + z2(i) * r2(i) &
                         + z3(i) * r3(i)
@@ -269,9 +269,11 @@ contains
 
          beta = rtz1 / rtz2
          if (iter .eq. 1) beta = zero
-         call add2s1(p1, z1, beta, n)
-         call add2s1(p2, z2, beta, n)
-         call add2s1(p3, z3, beta, n)
+         do concurrent (i = 1:n)
+            p1(i) = p1(i) * beta + z1(i)
+            p2(i) = p2(i) * beta + z2(i)
+            p3(i) = p3(i) * beta + z3(i)
+         end do
 
          call Ax%compute_vector(w1, w2, w3, p1, p2, p3, coef, x%msh, x%Xh)
          call gs_h%op(w1, n, GS_OP_ADD)
@@ -281,7 +283,7 @@ contains
          call bc_list_apply(blsty, w2, n)
          call bc_list_apply(blstz, w3, n)
 
-         do i = 1, n
+         do concurrent (i = 1:n)
             tmp(i) = w1(i) * p1(i) &
                    + w2(i) * p2(i) &
                    + w3(i) * p3(i)
@@ -291,7 +293,7 @@ contains
 
          alpha = rtz1 / pap
          alphm = -alpha
-         do i = 1, n
+         do concurrent (i = 1:n)
             x%x(i,1,1,1) = x%x(i,1,1,1) + alpha * p1(i)
             y%x(i,1,1,1) = y%x(i,1,1,1) + alpha * p2(i)
             z%x(i,1,1,1) = z%x(i,1,1,1) + alpha * p3(i)
