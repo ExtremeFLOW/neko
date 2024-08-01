@@ -280,6 +280,14 @@ fortran-syntax:
     - "is"
     - "select type"
 
+  structs_upper:
+    - "IF"
+    - "SELECT"
+    - "CASE"
+    - "WHILE"
+    - "IS"
+    - "SELECT TYPE"
+
   punctuations:
     - ","
     - '\)'
@@ -293,7 +301,7 @@ fortran-syntax:
     - function
     - subroutine
 
-  intrinsics:
+  intrinsics_upper:
     - ALLOCATABLE
     - ALLOCATE
     - ASSIGN
@@ -367,7 +375,7 @@ fortran-syntax:
     - WHILE
     - WRITE
 
-  named-args:
+  named-args_upper:
     - ACCESS
     - ACTION
     - ADVANCE
