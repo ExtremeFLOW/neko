@@ -157,7 +157,7 @@ contains
     p2 => this%p(2)
     p3 => this%p(3)
 
-    do i = 1, NEKO_TRI_GDIM
+    do i = 1, NEKO_TRI_NPTS
        d1 = d1 + (p2%x(i) - p1%x(i))**2
        d2 = d2 + (p3%x(i) - p2%x(i))**2
        d3 = d3 + (p1%x(i) - p3%x(i))**2
@@ -179,7 +179,7 @@ contains
     p3 => this%p(3)
     res%x = 0d0
 
-    do i = 1, this%gdim()
+    do i = 1, NEKO_TRI_NPTS
        res%x(i) = 1d0/3d0 * (p1%x(i) + p2%x(i) + p3%x(i))
     end do
   end function tri_centroid
