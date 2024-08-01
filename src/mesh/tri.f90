@@ -114,8 +114,8 @@ contains
     p1 => this%p(edge_nodes(1, side))
     p2 => this%p(edge_nodes(2, side))
 
-    select type(t)
-    type is(tuple_i4_t)
+    select type (t)
+    type is (tuple_i4_t)
        if (p1 .lt. p2) then
           t%x = (/ p1%id(), p2%id() /)
        else
@@ -135,8 +135,8 @@ contains
     p1 => this%p(edge_nodes(1, side))
     p2 => this%p(edge_nodes(2, side))
 
-    select type(t)
-    type is(tuple_i4_t)
+    select type (t)
+    type is (tuple_i4_t)
        t%x = (/ p1%id(), p2%id() /)
     end select
 
@@ -193,7 +193,7 @@ contains
     logical :: res
 
     res = .false.
-    select type(other)
+    select type (other)
     class is (tri_t)
        if ((this%gdim() .eq. other%gdim()) .and. &
             (this%npts() .eq. other%npts())) then
