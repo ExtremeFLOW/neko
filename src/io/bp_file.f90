@@ -233,20 +233,21 @@ contains
     if (.not. allocated(outbuf_points)) allocate(buffer_1d_t::outbuf_points)
     call outbuf_points%init(this%dp_precision, gdim, glb_nelv, offset_el, nelv, lx, ly, lz)
 
-    if (.not. allocated(outbuf_npar)) allocate(buffer_1d_t::outbuf_npar)
-    select type(outbuf_npar)
-    type is (buffer_1d_t)
-       call outbuf_npar%init(this%dp_precision, gdim, glb_nelv, offset_el, nelv, lx, ly, lz)
-       this%layout = 1
-    type is (buffer_4d_t)
-       call outbuf_npar%init(this%dp_precision, gdim, glb_nelv, offset_el, nelv, lx, ly, lz)
-       this%layout = 2
-    type is (buffer_4d_npar_t)
-       call outbuf_npar%init(this%dp_precision, npar, glb_nelv, offset_el, nelv, lx, ly, lz)
-       this%layout = 4
-    class default
-       call neko_error('Invalid buffer')
-    end select
+    write(*,*) "writing layout ", this%layout
+    if (.not. allocated(outbuf_npar)) then
+       if (this%layout .eq. 1) then
+          allocate(buffer_1d_t::outbuf_npar)
+          call outbuf_npar%init(this%dp_precision, gdim, glb_nelv, offset_el, nelv, lx, ly, lz)
+       else if (this%layout .eq. 2) then
+          allocate(buffer_4d_t::outbuf_npar)
+          call outbuf_npar%init(this%dp_precision, gdim, glb_nelv, offset_el, nelv, lx, ly, lz)
+       else if (this%layout .eq. 4) then
+          allocate(buffer_4d_npar_t::outbuf_npar)
+          call outbuf_npar%init(this%dp_precision, npar, glb_nelv, offset_el, nelv, lx, ly, lz)
+       else
+          call neko_error('Invalid buffer')
+       end if
+    end if
 
     !
     ! Create fld header for NEKTON's multifile output

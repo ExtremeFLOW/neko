@@ -122,7 +122,7 @@ contains
     else if ((suffix .eq. "hdf5") .or. (suffix .eq. "h5")) then
        allocate(hdf5_file_t::this%file_type)
     else
-       call neko_error('Unknown file format ' // trim(fname) // ' ' // trim(suffix) // ' .')
+       call neko_error('Unknown file format')
     end if
 
     call this%file_type%init(fname)
@@ -135,7 +135,7 @@ contains
        call this%set_precision(precision)
     end if
 
-    if (present(layout)) then
+    if (present(layout) .and. (suffix .eq. "bp")) then
        call this%set_layout(layout)
     end if
 

@@ -146,7 +146,7 @@ contains
     real(kind=rp) :: real_val
     character(len = :), allocatable :: string_val
     integer :: output_dir_len
-    integer :: precision
+    integer :: precision, layout
 
     !
     ! Load mesh
@@ -367,6 +367,11 @@ contains
     end if
 
     !
+    ! Setup output layout of the field bp file
+    !
+    call json_get_or_default(this%params, 'case.output_layout', layout, 1)
+
+    !
     ! Setup output_controller
     !
     call json_get_or_default(this%params, 'case.output_format',&
@@ -374,10 +379,10 @@ contains
     call this%output_controller%init(this%end_time)
     if (scalar) then
        call this%f_out%init(precision, this%fluid, this%scalar, &
-            path=trim(this%output_directory), fmt=trim(string_val))
+            path=trim(this%output_directory), fmt=trim(string_val), layout=layout)
     else
        call this%f_out%init(precision, this%fluid, &
-            path=trim(this%output_directory), fmt=trim(string_val))
+            path=trim(this%output_directory), fmt=trim(string_val), layout=layout)
     end if
 
     call json_get_or_default(this%params, 'case.fluid.output_control',&
