@@ -39,7 +39,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -yq bc python3-dev python3-pip python3-tk
-          pip install nobvisual flinter
+          pip install nobvisual==0.2.0 flinter==0.4.0
 
       - name: Lint repository
         run: |
