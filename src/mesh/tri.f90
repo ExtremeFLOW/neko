@@ -157,7 +157,7 @@ contains
     p2 => this%p(2)
     p3 => this%p(3)
 
-    do i = 1, NEKO_TRI_NPTS
+    do i = 1, NEKO_TRI_GDIM
        d1 = d1 + (p2%x(i) - p1%x(i))**2
        d2 = d2 + (p3%x(i) - p2%x(i))**2
        d3 = d3 + (p1%x(i) - p3%x(i))**2
