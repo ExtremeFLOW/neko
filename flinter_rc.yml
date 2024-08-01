@@ -190,8 +190,8 @@ regexp-rules:
 # - fork the code.
 structure-rules:
   file-line-length: 80
-  file-line-number: 20000
-  max-statements-in-context: 800 # Subroutine of function
+  file-line-number: 2000
+  max-statements-in-context: 2000 # Subroutine of function
   max-declared-locals: 35
   min-varlen: 1
   max-varlen: 30
