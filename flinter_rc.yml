@@ -238,7 +238,7 @@ structure-rules:
   min-arglen: 1
   max-arglen: 70
   max-nesting-levels: 8
-  var-declaration: '(?:{types})\s*(?:\(.*\))?\s*(?:::| )\s*([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)'
+  # var-declaration: '(?:{types})\s*(?:\(.*\))?\s*(?:::| )\s*([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)'
 
 # ============================================================================ #
 # These are the fortran syntax we use to parse the source
