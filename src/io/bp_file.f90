@@ -60,10 +60,12 @@ module bp_file
   !> Interface for ADIOS2 bp files
   type, public, extends(generic_file_t) :: bp_file_t
      logical :: dp_precision = .false. !< Precision of output data
+     integer :: layout = 1 !< Dimensionality layout of data buffer
    contains
      procedure :: read => bp_file_read
      procedure :: write => bp_file_write
      procedure :: set_precision => bp_file_set_precision
+     procedure :: set_layout => bp_file_set_layout
   end type bp_file_t
 
 contains
@@ -89,7 +91,7 @@ contains
     type(array_ptr_t), allocatable :: scalar_fields(:)
     integer :: n_scalar_fields
     logical :: write_mesh, write_velocity, write_pressure, write_temperature
-    integer :: adios2_type, layout
+    integer :: adios2_type
     type(adios2_engine)   :: bpWriter
     type(adios2_variable) :: variable_idx, variable_hdr, variable, variable_msh
     type(adios2_variable) :: variable_v, variable_p, variable_temp
@@ -231,17 +233,17 @@ contains
     if (.not. allocated(outbuf_points)) allocate(buffer_1d_t::outbuf_points)
     call outbuf_points%init(this%dp_precision, gdim, glb_nelv, offset_el, nelv, lx, ly, lz)
 
-    if (.not. allocated(outbuf_npar)) allocate(buffer_4d_npar_t::outbuf_npar)
+    if (.not. allocated(outbuf_npar)) allocate(buffer_1d_t::outbuf_npar)
     select type(outbuf_npar)
     type is (buffer_1d_t)
        call outbuf_npar%init(this%dp_precision, gdim, glb_nelv, offset_el, nelv, lx, ly, lz)
-       layout = 1
+       this%layout = 1
     type is (buffer_4d_t)
        call outbuf_npar%init(this%dp_precision, gdim, glb_nelv, offset_el, nelv, lx, ly, lz)
-       layout = 2
+       this%layout = 2
     type is (buffer_4d_npar_t)
        call outbuf_npar%init(this%dp_precision, npar, glb_nelv, offset_el, nelv, lx, ly, lz)
-       layout = 4
+       this%layout = 4
     class default
        call neko_error('Invalid buffer')
     end select
@@ -282,7 +284,7 @@ contains
     end if
 
     ! Create binary header information
-    write(hdr, 1) adios2_type, lx, ly, lz, layout, glb_nelv,&
+    write(hdr, 1) adios2_type, lx, ly, lz, this%layout, glb_nelv,&
          time, this%counter, npar, (rdcode(i),i=1,10)
 1   format('#std',1x,i1,1x,i2,1x,i2,1x,i2,1x,i10,1x,i10,1x,e20.13,&
          1x,i9,1x,i6,1x,10a)
@@ -345,17 +347,17 @@ contains
 
     if (write_velocity) then
        call outbuf_npar%fill(u%ptr, n)
-       if (layout .le. 3) then
+       if (this%layout .le. 3) then
           call outbuf_npar%define(variable, ioWriter, 'velocity-u', ierr)
           call outbuf_npar%write(bpWriter, variable, ierr)
        endif
        call outbuf_npar%fill(v%ptr, n)
-       if (layout .le. 3) then
+       if (this%layout .le. 3) then
           call outbuf_npar%define(variable, ioWriter, 'velocity-v', ierr)
           call outbuf_npar%write(bpWriter, variable, ierr)
        endif
        call outbuf_npar%fill(w%ptr, n)
-       if (layout .le. 3) then
+       if (this%layout .le. 3) then
           call outbuf_npar%define(variable, ioWriter, 'velocity-w', ierr)
           call outbuf_npar%write(bpWriter, variable, ierr)
        endif
@@ -363,7 +365,7 @@ contains
 
     if (write_pressure) then
        call outbuf_npar%fill(p%ptr, n)
-       if (layout .le. 3) then
+       if (this%layout .le. 3) then
           call outbuf_npar%define(variable, ioWriter, 'pressure', ierr)
           call outbuf_npar%write(bpWriter, variable, ierr)
        endif
@@ -371,7 +373,7 @@ contains
 
     if (write_temperature) then
        call outbuf_npar%fill(tem%ptr, n)
-       if (layout .le. 3) then
+       if (this%layout .le. 3) then
           call outbuf_npar%define(variable, ioWriter, 'temperature', ierr)
           call outbuf_npar%write(bpWriter, variable, ierr)
        endif
@@ -379,14 +381,14 @@ contains
 
     do i = 1, n_scalar_fields
        call outbuf_npar%fill(scalar_fields(i)%ptr, n)
-       if (layout .le. 3) then
+       if (this%layout .le. 3) then
           write(id_str, '(a,i1,i1)') 's', i/10, i-10*(i/10)
           call outbuf_npar%define(variable, ioWriter, trim(id_str), ierr)
           call outbuf_npar%write(bpWriter, variable, ierr)
        endif
     end do
 
-    if (layout .gt. 3) then
+    if (this%layout .gt. 3) then
        call outbuf_npar%define(variable, ioWriter, 'fields', ierr)
        call outbuf_npar%write(bpWriter, variable, ierr)
     end if
@@ -425,7 +427,7 @@ contains
     logical :: read_temp
     character(len=8) :: id_str
     integer :: lx, ly, lz, glb_nelv, counter, lxyz
-    integer :: layout, npar
+    integer :: npar
     integer :: adios2_type, n_scalars, n
     real(kind=rp) :: time
     type(linear_dist_t) :: dist
@@ -500,7 +502,7 @@ contains
        end if
        call adios2_get(bpReader, variable_hdr, hdr, adios2_mode_sync, ierr)
 
-       read(hdr, 1) temp_str, adios2_type, lx, ly, lz, layout, glb_nelv,&
+       read(hdr, 1) temp_str, adios2_type, lx, ly, lz, this%layout, glb_nelv,&
           time, counter, npar, (rdcode(i),i=1,10)
 1      format(4a,1x,i1,1x,i2,1x,i2,1x,i2,1x,i10,1x,i10,1x,e20.13,&
          1x,i9,1x,i6,1x,10a)
@@ -534,12 +536,12 @@ contains
        call inpbuf_points%init(this%dp_precision, data%gdim, data%glb_nelv, data%offset_el, &
             data%nelv, lx, ly, lz)
 
-       write(*,*) "layout ", layout
-       if (layout .eq. 1) then
+       write(*,*) "layout ", this%layout
+       if (this%layout .eq. 1) then
           if (.not. allocated(inpbuf)) allocate(buffer_1d_t::inpbuf)
-       else if (layout .eq. 2) then
+       else if (this%layout .eq. 2) then
           if (.not. allocated(inpbuf)) allocate(buffer_4d_t::inpbuf)
-       else if (layout .eq. 4) then
+       else if (this%layout .eq. 4) then
           if (.not. allocated(inpbuf)) allocate(buffer_4d_npar_t::inpbuf)
        end if
 
@@ -648,23 +650,23 @@ contains
           call inpbuf_points%copy(data%z)
        end if
 
-       if (layout .gt. 3) then
+       if (this%layout .gt. 3) then
           call inpbuf%inquire(variable, ioReader, 'fields', ierr)
           call inpbuf%read(bpReader, variable, ierr)
        end if
 
        if (read_velocity) then
-          if (layout .le. 3) then
+          if (this%layout .le. 3) then
              call inpbuf%inquire(variable, ioReader, 'velocity-u', ierr)
              call inpbuf%read(bpReader, variable, ierr)
           end if
           call inpbuf%copy(data%u)
-          if (layout .le. 3) then
+          if (this%layout .le. 3) then
              call inpbuf%inquire(variable, ioReader, 'velocity-v', ierr)
              call inpbuf%read(bpReader, variable, ierr)
           end if
           call inpbuf%copy(data%v)
-          if (layout .le. 3) then
+          if (this%layout .le. 3) then
              call inpbuf%inquire(variable, ioReader, 'velocity-w', ierr)
              call inpbuf%read(bpReader, variable, ierr)
           end if
@@ -672,7 +674,7 @@ contains
        end if
 
        if (read_pressure) then
-          if (layout .le. 3) then
+          if (this%layout .le. 3) then
              call inpbuf%inquire(variable, ioReader, 'pressure', ierr)
              call inpbuf%read(bpReader, variable, ierr)
           endif
@@ -680,7 +682,7 @@ contains
        end if
 
        if (read_temp) then
-          if (layout .le. 3) then
+          if (this%layout .le. 3) then
              call inpbuf%inquire(variable, ioReader, 'temperature', ierr)
              call inpbuf%read(bpReader, variable, ierr)
           endif
@@ -688,7 +690,7 @@ contains
        end if
 
        do i = 1, n_scalars
-          if (layout .le. 3) then
+          if (this%layout .le. 3) then
              write(id_str, '(a,i1,i1)') 's', i/10, i-10*(i/10)
              call inpbuf%inquire(variable, ioReader, trim(id_str), ierr)
              call inpbuf%read(bpReader, variable, ierr)
@@ -724,5 +726,17 @@ contains
     end if
 
   end subroutine bp_file_set_precision
+
+  subroutine bp_file_set_layout(this, layout)
+    class(bp_file_t) :: this
+    integer, intent(in) :: layout
+
+    if (precision .le. 5) then
+       this%layout = layout
+    else
+       call neko_error('Invalid data layout')
+    end if
+
+  end subroutine bp_file_set_layout
 
 end module bp_file

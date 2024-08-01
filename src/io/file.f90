@@ -69,6 +69,8 @@ module file
      procedure :: set_header => file_set_header
      !> Set a file's output precision.
      procedure :: set_precision => file_set_precision
+     !> Set a file's output layout.
+     procedure :: set_layout => file_set_layout
      !> File operation destructor.
      final :: file_free
   end type file_t
@@ -81,10 +83,11 @@ contains
 
   !> File reader/writer constructor.
   !! @param fname Filename.
-  function file_init(fname, header, precision) result(this)
+  function file_init(fname, header, precision, layout) result(this)
     character(len=*) :: fname
     character(len=*), optional :: header
     integer, optional :: precision
+    integer, optional :: layout
     type(file_t), target :: this
     character(len=80) :: suffix
     class(generic_file_t), pointer :: q
@@ -119,7 +122,7 @@ contains
     else if ((suffix .eq. "hdf5") .or. (suffix .eq. "h5")) then
        allocate(hdf5_file_t::this%file_type)
     else
-       call neko_error('Unknown file format')
+       call neko_error('Unknown file format ' // trim(fname) // ' ' // trim(suffix) // ' .')
     end if
 
     call this%file_type%init(fname)
@@ -130,6 +133,10 @@ contains
 
     if (present(precision)) then
        call this%set_precision(precision)
+    end if
+
+    if (present(layout)) then
+       call this%set_layout(layout)
     end if
 
   end function file_init
@@ -243,5 +250,23 @@ contains
     end select
 
   end subroutine file_set_precision
+
+  !> Set a file's output layout.
+  !! @param layout The data layout as defined in bp_file.f90 and src/io/buffer/.
+  subroutine file_set_layout(this, layout)
+    class(file_t), intent(inout) :: this
+    integer, intent(in) :: layout
+
+    character(len=80) :: suffix
+
+    select type(ft => this%file_type)
+    type is (bp_file_t)
+       call ft%set_layout(layout)
+    class default
+       call filename_suffix(this%file_type%fname, suffix)
+       call neko_warning("No set_layout defined for " // trim(suffix) // " yet!")
+    end select
+
+  end subroutine file_set_layout
 
 end module file

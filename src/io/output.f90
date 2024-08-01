@@ -67,13 +67,18 @@ contains
   !> Output constructor.
   !! @param fname Name of the output file.
   !! @param precision Output precision (sp or dp).
-  subroutine output_init(this, fname, precision)
+  subroutine output_init(this, fname, precision, layout)
     class(output_t), intent(inout) :: this
     character(len=*), intent(inout) :: fname
     integer, intent(in), optional :: precision
+    integer, intent(in), optional :: layout
 
-    if (present(precision)) then
+    if (present(precision) .and. present(layout)) then
+       this%file_ = file_t(fname, precision=precision, layout=layout)
+    else if (present(precision)) then
        this%file_ = file_t(fname, precision=precision)
+    else if (present(layout)) then
+       this%file_ = file_t(fname, layout=layout)
     else
        this%file_ = file_t(fname)
     end if
