@@ -114,37 +114,37 @@ regexp-rules:
     message: You should use "[]" instead
     regexp: (\(\/)|(\/\))
     replacement: '[\1]'
-    active: false
+    active: true
 
   not-recommended-bare-end:
     message: Bare end statement not recommended
     regexp: \s^end$
     replacement: null
-    active: false
+    active: true
 
   not-recommended-bare-stop:
     message: Bare stop statement not recommended
     regexp: \s^stop$
     replacement: null
-    active: false
+    active: true
 
   not-recommended-use-exit:
     message: exit is an extension and should be avoided
     regexp: ^exit$
     replacement: null
-    active: false
+    active: true
 
   not-recommended-use-goto:
     message: goto is hard to maintain, prone to spaghetti code.
     regexp: ^goto.*$
     replacement: null
-    active: false
+    active: true
 
   not-recommended-use-pause:
     message: pause is discouraged.
     regexp: ^pause.*$
     replacement: null
-    active: false
+    active: true
 
   # -------------------------------------------------------------------------- #
   # Formatting and code style rules
