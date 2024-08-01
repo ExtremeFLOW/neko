@@ -225,25 +225,26 @@ regexp-rules:
     replacement: ' = \2'
     active: true
 
+# ============================================================================ #
 # These are rules that span over multiple lines, not accessible by regexp
 # If you want to edit these rules or add your own, two options:
 # - ask us.
 # - fork the code.
 structure-rules:
-  max-statements-in-context: 50
-  max-declared-locals: 12
-  min-varlen: 3
-  max-varlen: 20
-  max-arguments: 5
-  min-arglen: 3
-  max-arglen: 20
-  max-nesting-levels: 5
+  max-statements-in-context: 0
+  max-declared-locals: 35
+  min-varlen: 1
+  max-varlen: 30
+  max-arguments: 20
+  min-arglen: 1
+  max-arglen: 70
+  max-nesting-levels: 8
   var-declaration: '(?:{types})\s*(?:\(.*\))?\s*(?:::| )\s*([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)'
 
-######################################################################################
+# ============================================================================ #
 # These are the fortran syntax we use to parse the source
 # A priori there is no need to edit, but Fortran is so vast in time...
-######################################################################################
+# ============================================================================ #
 
 syntax:
   types:
