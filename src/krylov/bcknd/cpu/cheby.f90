@@ -49,92 +49,109 @@ module cheby
 
   !> Defines a Chebyshev preconditioner
   type, public, extends(ksp_t) :: cheby_t
-     class(ax_t), pointer :: ax
+     !!!!!!class(ax_t), pointer :: ax
      real(kind=rp), allocatable :: d(:)
      real(kind=rp), allocatable :: w(:)
      real(kind=rp), allocatable :: r(:)
      real(kind=rp) :: tha, dlt
-     integer :: power_its = 50
-     type(gs_t), pointer :: gs_h
-     type(coef_t), pointer :: coef
-     type(bc_list_t), pointer :: blst
-     type(mesh_t), pointer :: msh
-     type(space_t), pointer :: Xh
+     integer :: power_its = 150
+     logical :: recompute_eigs = .true.
    contains
      procedure, pass(this) :: init => cheby_init
-     procedure, pass(this) :: update => cheby_update
+     procedure, pass(this) :: free => cheby_free
      procedure, pass(this) :: solve => cheby_solve
      procedure, pass(this) :: solve_coupled => cheby_solve_coupled
-     procedure, pass(this) :: free => cheby_free
   end type cheby_t
 
 contains
 
-  subroutine cheby_init(this, n, Ax, coef, gs_h, blst, msh, Xh)
-    class(cheby_t), intent(inout) :: this
+  !> Initialise a standard solver
+  subroutine cheby_init(this, n, max_iter, M, rel_tol, abs_tol)
+    class(cheby_t), intent(inout), target :: this
+    integer, intent(in) :: max_iter
+    class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
-    class(ax_t), intent(inout), target :: Ax
-    type(coef_t), intent(inout), target :: coef
-    type(gs_t), intent(inout), target :: gs_h
-    type(bc_list_t), intent(inout), target :: blst
-    type(mesh_t), intent(inout), target :: msh
-    type(space_t), intent(inout), target :: Xh
+    real(kind=rp), optional, intent(inout) :: rel_tol
+    real(kind=rp), optional, intent(inout) :: abs_tol
 
     call this%free()
-    this%Ax => Ax
-    this%gs_h => gs_h
-    this%coef => coef
-    this%blst => blst
-    this%msh => msh
-    this%Xh => Xh
     allocate(this%d(n))
     allocate(this%w(n))
     allocate(this%r(n))
-    call cheby_update(this)
+
+    if (present(M)) then
+       this%M => M
+    end if
+
+    if (present(rel_tol) .and. present(abs_tol)) then
+       call this%ksp_init(max_iter, rel_tol, abs_tol)
+    else if (present(rel_tol)) then
+       call this%ksp_init(max_iter, rel_tol=rel_tol)
+    else if (present(abs_tol)) then
+       call this%ksp_init(max_iter, abs_tol=abs_tol)
+    else
+       call this%ksp_init(max_iter)
+    end if
 
   end subroutine cheby_init
-
-  !> Update Chebyshev preconditioner if the geometry G has changed
-  subroutine cheby_update(this)
-    class(cheby_t), intent(inout) :: this
-    real(kind=rp) :: lam, b, a
-    real(kind=rp) :: boost = 1.2
-    real(kind=rp) :: lam_factor = 30.0
-    integer :: i, n
-    associate(coef => this%coef, msh=>this%msh, Xh=>this%Xh, gs_h => this%gs_h, &
-        blst => this%blst, ax => this%ax, w => this%w, d => this%d)
-
-      n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
-
-      !Power method to get lamba max
-      do i = 1, this%power_its
-        call ax%compute(w, d, coef, msh, Xh)
-        call gs_h%op(w, n, GS_OP_ADD)
-        call bc_list_apply(blst, w, n)
-
-        call cmult2(d, w, 1.0/sqrt(glsc2(w, w, n)), n)
-      end do
-
-      call ax%compute(w, d, coef, msh, Xh)
-      call gs_h%op(w, n, GS_OP_ADD)
-      call bc_list_apply(blst, w, n)
-
-      lam = glsc2(d, w, n) / glsc2(d, d, n)
-      b = lam * boost
-      a = lam / lam_factor
-      this%tha = (b+a)/2.0
-      this%dlt = (b-a)/2.0
-    end associate
-  end subroutine cheby_update
 
   subroutine cheby_free(this)
     class(cheby_t), intent(inout) :: this
     if (allocated(this%d)) then
        deallocate(this%d)
     end if
-    nullify(this%gs_h)
-    nullify(this%coef)
   end subroutine cheby_free
+
+  subroutine cheby_power(this, Ax, x, n, coef, blst, gs_h)
+    class(cheby_t), intent(inout) :: this
+    class(ax_t), intent(inout) :: Ax
+    type(field_t), intent(inout) :: x
+    integer, intent(in) :: n
+    type(coef_t), intent(inout) :: coef
+    type(bc_list_t), intent(inout) :: blst
+    type(gs_t), intent(inout) :: gs_h
+    real(kind=rp) :: lam, b, a, rn
+    real(kind=rp) :: boost = 1.2_rp
+    real(kind=rp) :: lam_factor = 30.0_rp
+    real(kind=rp) :: wtw, dtw, dtd
+    integer :: i
+    associate(w => this%w, d => this%d)
+
+      do i = 1, n
+        !TODO: replace with a better way to initialize power method
+        call random_number(rn)
+        d(i) = rn + 10.0_rp
+      end do
+      call gs_h%op(d, n, GS_OP_ADD)
+      call bc_list_apply(blst, d, n)
+
+      !Power method to get lamba max
+      do i = 1, this%power_its
+        call ax%compute(w, d, coef, x%msh, x%Xh)
+        call gs_h%op(w, n, GS_OP_ADD)
+        call bc_list_apply(blst, w, n)
+
+        wtw = glsc3(w, coef%mult, w, n)
+        call cmult2(d, w, 1.0_rp/sqrt(wtw), n)
+        call bc_list_apply(blst, d, n)
+      end do
+
+      call ax%compute(w, d, coef, x%msh, x%Xh)
+      call gs_h%op(w, n, GS_OP_ADD)
+      call bc_list_apply(blst, w, n)
+
+      dtw = glsc3(d, coef%mult, w, n)
+      dtd = glsc3(d, coef%mult, d, n)
+      lam = dtw / dtd
+      print *, "LAM:", lam
+      b = lam * boost
+      a = lam / lam_factor
+      this%tha = (b+a)/2.0_rp
+      this%dlt = (b-a)/2.0_rp
+
+      this%recompute_eigs = .false.
+    end associate
+  end subroutine cheby_power
 
   !> A chebyshev preconditioner
   function cheby_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
@@ -149,7 +166,10 @@ contains
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter
-    real(kind=rp) :: a, b
+    real(kind=rp) :: a, b, rtr, rnorm, norm_fac
+
+    if (this%recompute_eigs) call cheby_power(this, Ax, x, n, coef, blst, gs_h)
+    norm_fac = 1.0_rp / sqrt(coef%volume)
 
     associate( w => this%w, r => this%r, d => this%d)
       ! calculate residual
@@ -159,9 +179,16 @@ contains
       call bc_list_apply(blst, w, n)
       call sub2(r, w, n)
 
+      rtr = glsc3(r, coef%mult, r, n)
+      rnorm = sqrt(rtr) * norm_fac
+      ksp_results%res_start = rnorm
+      ksp_results%res_final = rnorm
+      ksp_results%iter = 0
+
       ! First iteration
-      call copy(d, r, n)
-      a = 2.0 / this%tha
+      call this%M%solve(w, r, n)
+      call copy(d, w, n)
+      a = 2.0_rp / this%tha
       call add2s2(x%x, d, a, n)! x = x + a*d
 
       ! Rest of the iterations
@@ -172,13 +199,27 @@ contains
         call gs_h%op(w, n, GS_OP_ADD)
         call bc_list_apply(blst, w, n)
         call sub2(r, w, n)
+        print *,iter, sqrt(glsc3(r, coef%mult, r, n))
 
-        b = (this%dlt * a / 2.0)**2
-        a = 1.0 / (this%tha - b)
-        call add2s1(d, r, b, n)! d = r + b*d
+        call this%M%solve(w, r, n)
+
+        b = (this%dlt * a / 2.0_rp)**2
+        a = 1.0_rp / (this%tha - b)
+        call add2s1(d, w, b, n)! d = w + b*d
 
         call add2s2(x%x, d, a, n)! x = x + a*d
       end do
+
+      ! calculate residual
+      call copy(r, f, n)
+      call ax%compute(w, x%x, coef, x%msh, x%Xh)
+      call gs_h%op(w, n, GS_OP_ADD)
+      call bc_list_apply(blst, w, n)
+      call sub2(r, w, n)
+      rtr = glsc3(r, coef%mult, r, n)
+      rnorm = sqrt(rtr) * norm_fac
+      ksp_results%res_final = rnorm
+      ksp_results%iter = iter
     end associate
   end function cheby_solve
 
@@ -207,4 +248,7 @@ contains
     ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function cheby_solve_coupled
+
 end module cheby
+
+
