@@ -15,6 +15,7 @@ SUBDIRS = tuple\
 	mean_field\
 	mean_sqr_field\
 	gather_scatter\
+	geometric_operators\
 	krylov\
 	bc\
 	signal\
@@ -50,6 +51,7 @@ TESTS = device/device_test\
 	mean_field/mean_field_test\
 	mean_sqr_field/mean_sqr_field_test\
 	gather_scatter/gather_scatter_test\
+	geometric_operators/distance_test\
 	krylov/krylov_test\
 	bc/bc_test\
 	signal/signal_test\
@@ -111,6 +113,7 @@ EXTRA_DIST = \
 	device_math/device_math_parallel.pf\
 	mesh/mesh_test\
 	gather_scatter/gather_scatter_test\
+	geometric_operators/distance.pf\
 	dofmap/dofmap_test\
 	jobctrl/jobctrl_test\
 	math/math_test\
