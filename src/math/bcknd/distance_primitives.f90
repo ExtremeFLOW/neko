@@ -49,7 +49,7 @@ contains
   !! @return Unsigned distance value
   module function distance_point_real(p, point)
     real(kind=dp), dimension(3), intent(in) :: p
-    real(kind=dp), intent(in) :: point
+    real(kind=dp), dimension(3), intent(in) :: point
     real(kind=dp) :: distance_point_real
 
     distance_point_real = norm2(p - point)
