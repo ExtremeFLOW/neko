@@ -64,6 +64,7 @@ module tri
      procedure, pass(this) :: facet_order => tri_facet_order
      procedure, pass(this) :: diameter => tri_diameter
      procedure, pass(this) :: centroid => tri_centroid
+     procedure, pass(this) :: normal => tri_normal
      procedure, pass(this) :: equal => tri_equal
      generic :: operator(.eq.) => equal
   end type tri_t
@@ -179,10 +180,31 @@ contains
     p3 => this%p(3)
     res%x = 0d0
 
-    do i = 1, this%gdim()
+    do i = 1, NEKO_TRI_NPTS
        res%x(i) = 1d0/3d0 * (p1%x(i) + p2%x(i) + p3%x(i))
     end do
   end function tri_centroid
+
+  !> Compute the normal of a triangular element
+  function tri_normal(this) result(nrm)
+    class(tri_t), intent(in) :: this
+    type(point_t) :: nrm
+    type(point_t), pointer :: p1, p2, p3
+    integer :: i
+
+    p1 => this%p(1)
+    p2 => this%p(2)
+    p3 => this%p(3)
+
+    nrm%x(1) = ((p2%x(2) - p1%x(2)) * (p3%x(3) - p1%x(3))) &
+         - ((p3%x(2) - p1%x(2)) * (p2%x(3) - p1%x(3)))
+
+    nrm%x(2) = ((p2%x(3) - p1%x(3)) * (p3%x(1) - p1%x(1))) &
+         - ((p2%x(1) - p1%x(1)) * (p3%x(3) - p1%x(3)))
+
+    nrm%x(3) = ((p2%x(1) - p1%x(1)) * (p3%x(2) - p1%x(2))) &
+         - ((p3%x(1) - p1%x(1)) * (p2%x(2) - p1%x(2)))
+  end function tri_normal
 
   !> Check if two triangle elements are equal
   !! @note Based on coordinates not global ids
