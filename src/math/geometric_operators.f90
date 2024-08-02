@@ -22,20 +22,6 @@ module geometric_operators
   ! ========================================================================== !
   ! Distance for elements from the mesh structure.
 
-  !> \interface distance_elements
-  !! This interface defines the distance operator. The distance
-  !! operator is used to calculate the distance between a point and a geometric
-  !! object.
-  !! The distance is signed for volumetric objects, meaning that the distance is
-  !! positive if the point is outside the object, and negative if the point is
-  !! inside the object.
-  !! For non-volumetric objects, the distance is always positive.
-  interface distance_element
-     module procedure distance_point_t
-     module procedure distance_triangle
-     module procedure distance_tetrahedron
-  end interface distance_element
-
   !> \interface distance_point
   !! This interface defines the distance operator for a point.
   !! The distance operator calculates the distance between a query point and a
@@ -57,7 +43,7 @@ module geometric_operators
      !> Distance to a point
      module function distance_point_real(p, point)
        real(kind=dp), dimension(3), intent(in) :: p
-       real(kind=dp), intent(in) :: point
+       real(kind=dp), dimension(3), intent(in) :: point
        real(kind=dp) :: distance_point_real
      end function distance_point_real
 
@@ -107,7 +93,15 @@ module geometric_operators
   ! ========================================================================== !
   ! Distance to elements.
 
-  interface
+  !> \interface distance_elements
+  !! This interface defines the distance operator. The distance
+  !! operator is used to calculate the distance between a point and a geometric
+  !! object.
+  !! The distance is signed for volumetric objects, meaning that the distance is
+  !! positive if the point is outside the object, and negative if the point is
+  !! inside the object.
+  !! For non-volumetric objects, the distance is always positive.
+  interface distance_element
 
      !> Distance to a point
      module function distance_point_t(p, point)
@@ -130,6 +124,6 @@ module geometric_operators
        real(kind=dp) :: distance_tetrahedron
      end function distance_tetrahedron
 
-  end interface
+  end interface distance_element
 
 end module geometric_operators
