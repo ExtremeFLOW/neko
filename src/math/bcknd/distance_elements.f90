@@ -116,5 +116,78 @@ contains
 
   end function distance_triangle
 
+  !> @brief Distance function for a tetrahedron.
+  !! @details This routine computes the distance to a given tetrahedron.
+  !! We compute the barycentric coordinate of the point in relation to the
+  !! tetrahedron. If any of the barycentric coordinates are less than or equal
+  !! to zero, the point is off along a face, edge or by a vertex. Otherwise, the
+  !! distance is the perpendicular distance to the plane.
+  !!
+  !! @param p Query point
+  !! @param tetrahedron Tetrahedron
+  !! @return Unsigned distance value
+  real(kind=dp) module function distance_tetrahedron(p, tetrahedron)
+    real(kind=dp), dimension(3), intent(in) :: p
+    type(tet_t), intent(in) :: tetrahedron
+
+    type(point_t) :: v1, v2, v3, v4
+    real(kind=dp), dimension(3) :: normal
+    real(kind=dp) :: normal_length
+
+    real(kind=dp), dimension(4) :: barycoord
+    real(kind=dp), dimension(4, 4) :: barymatrix
+    real(kind=dp) :: tol = 1.0e-10_dp
+
+    type(tri_t) :: face
+    integer :: dummy_id
+
+    real(kind=dp) :: face_distance
+
+    ! .. Parameters ..
+    integer, parameter :: N = 4
+    integer :: info
+    integer, dimension(N) :: pivot_table
+
+    ! Get vertices and the normal vector
+    v1 = tetrahedron%pts(1)%p
+    v2 = tetrahedron%pts(2)%p
+    v3 = tetrahedron%pts(3)%p
+    v4 = tetrahedron%pts(4)%p
+
+    ! Compute Barycentric coordinates to determine if the point is inside the
+    ! tetrahedron, off along a face, edge or by a vertex.
+
+    barymatrix = transpose(reshape([[1.0_dp, 1.0_dp, 1.0_dp, 1.0_dp], &
+                                   [v1%x(1), v2%x(1), v3%x(1), v4%x(1)], &
+                                   [v1%x(2), v2%x(2), v3%x(2), v4%x(2)], &
+                                   [v1%x(3), v2%x(3), v3%x(3), v4%x(3)] &
+                                   ], shape(barymatrix)))
+    barycoord = reshape([1.0_dp, p], shape(barycoord))
+
+    ! Solve the system of linear equations
+    call dgesv(4, 1, barymatrix, 4, pivot_table, barycoord, 4, info )
+
+    ! Check for the exact singularity.
+    if (info .gt. 0) then
+       call neko_error('Tetrahedron is degenerate')
+    end if
+
+    ! Check if the point is inside the tetrahedron
+    select case (minloc(barycoord, 1))
+      case (1)
+       call face%init(dummy_id, v2, v3, v4)
+      case (2)
+       call face%init(dummy_id, v1, v3, v4)
+      case (3)
+       call face%init(dummy_id, v1, v2, v4)
+      case (4)
+       call face%init(dummy_id, v1, v2, v3)
+    end select
+
+    distance_tetrahedron = distance_triangle(p, face)
+    if (all(barycoord .ge. tol)) distance_tetrahedron = -distance_tetrahedron
+
+  end function distance_tetrahedron
+
 
 end submodule distance_elements
