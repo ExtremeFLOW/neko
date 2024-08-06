@@ -72,7 +72,7 @@
                     },
                     "filter": {
                     	 "type" : "PDE",
-                    	 "radius" : 0.02
+                    	 "radius" : 0.01
 						  }
                 }
             ]
