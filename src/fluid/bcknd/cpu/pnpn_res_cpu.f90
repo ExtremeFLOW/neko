@@ -48,6 +48,12 @@ contains
                               
     integer :: temp_indices(8)
 
+    real(kind=rp)  :: K
+
+    K = 0.000001_rp
+    K = 1_rp
+    K = 0_rp
+
     call neko_scratch_registry%request_field(ta1, temp_indices(1))
     call neko_scratch_registry%request_field(ta2, temp_indices(2))
     call neko_scratch_registry%request_field(ta3, temp_indices(3))
@@ -71,13 +77,16 @@ contains
     do i = 1, n
        ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho &
             - ((wa1%x(i,1,1,1) * (mu / rho)) * c_Xh%B(i,1,1,1)) & 
-            - chi%x(i,1,1,1) * u_e%x(i,1,1,1)  * c_Xh%B(i,1,1,1) 
+!            - chi%x(i,1,1,1) * u%x(i,1,1,1)  * c_Xh%B(i,1,1,1) 
+            - chi%x(i,1,1,1) * u%x(i,1,1,1)  * c_Xh%B(i,1,1,1)*K
        ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho &
             - ((wa2%x(i,1,1,1) * (mu / rho)) * c_Xh%B(i,1,1,1)) &
-            - chi%x(i,1,1,1) * v_e%x(i,1,1,1)  * c_Xh%B(i,1,1,1) 
+!            - chi%x(i,1,1,1) * v%x(i,1,1,1)  * c_Xh%B(i,1,1,1) 
+            - chi%x(i,1,1,1) * v%x(i,1,1,1)  * c_Xh%B(i,1,1,1)*K 
        ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho &
             - ((wa3%x(i,1,1,1) * (mu / rho)) * c_Xh%B(i,1,1,1)) &
-            - chi%x(i,1,1,1) * w_e%x(i,1,1,1)  * c_Xh%B(i,1,1,1) 
+!            - chi%x(i,1,1,1) * w%x(i,1,1,1)  * c_Xh%B(i,1,1,1) 
+            - chi%x(i,1,1,1) * w%x(i,1,1,1)  * c_Xh%B(i,1,1,1)*K 
     end do
 
     call gs_Xh%op(ta1, GS_OP_ADD)
@@ -149,6 +158,21 @@ contains
     integer, intent(in) :: n
     integer :: i
 
+    real(kind=rp)  :: K
+
+    K = 0.000001_rp
+    K = 1_rp
+    K = 0_rp
+
+    ! Martin's idea is to now remove the \chi u from the RHS
+    ! not sure about rho's or bm1's
+!    do i = 1, n
+       f_x%x(i,1,1,1) = f_x%x(i,1,1,1) + chi%x(i,1,1,1) * u%x(i,1,1,1) * K * c_Xh%B(i,1,1,1)
+       f_y%x(i,1,1,1) = f_y%x(i,1,1,1) + chi%x(i,1,1,1) * v%x(i,1,1,1) * K * c_Xh%B(i,1,1,1)
+       f_z%x(i,1,1,1) = f_z%x(i,1,1,1) + chi%x(i,1,1,1) * w%x(i,1,1,1) * K * c_Xh%B(i,1,1,1)
+!    end do
+
+
     do i = 1, n
        c_Xh%h1(i,1,1,1) = mu
        c_Xh%h2(i,1,1,1) = rho * (bd / dt) + rho * chi%x(i,1,1,1)
@@ -169,6 +193,12 @@ contains
        u_res%x(i,1,1,1) = (-u_res%x(i,1,1,1)) - ta1%x(i,1,1,1) + f_x%x(i,1,1,1)
        v_res%x(i,1,1,1) = (-v_res%x(i,1,1,1)) - ta2%x(i,1,1,1) + f_y%x(i,1,1,1)
        w_res%x(i,1,1,1) = (-w_res%x(i,1,1,1)) - ta3%x(i,1,1,1) + f_z%x(i,1,1,1)
+!       u_res%x(i,1,1,1) = (-u_res%x(i,1,1,1)) - ta1%x(i,1,1,1) + f_x%x(i,1,1,1) &
+!       + chi%x(i,1,1,1) * u%x(i,1,1,1) * 0.000001_rp * c_Xh%B(i,1,1,1)
+!       v_res%x(i,1,1,1) = (-v_res%x(i,1,1,1)) - ta2%x(i,1,1,1) + f_y%x(i,1,1,1) &
+!       + chi%x(i,1,1,1) * v%x(i,1,1,1) * 0.000001_rp * c_Xh%B(i,1,1,1)
+!       w_res%x(i,1,1,1) = (-w_res%x(i,1,1,1)) - ta3%x(i,1,1,1) + f_z%x(i,1,1,1) &
+!       + chi%x(i,1,1,1) * w%x(i,1,1,1) * 0.000001_rp * c_Xh%B(i,1,1,1)
     end do
 
     call neko_scratch_registry%relinquish_field(temp_indices)
