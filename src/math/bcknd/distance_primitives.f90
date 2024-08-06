@@ -66,10 +66,12 @@ contains
     real(kind=dp), dimension(3), intent(in) :: direction
     real(kind=dp) :: distance_line
 
-    real(kind=dp) :: t, projection(3)
+    real(kind=dp) :: t, normalized_direction(3), projection(3)
 
-    t = dot_product(p - point, direction) / norm2(direction)
-    projection = point + t * direction
+    normalized_direction = direction / norm2(direction)
+
+    t = dot_product(p - point, normalized_direction)
+    projection = point + t * normalized_direction
 
     distance_line = norm2(projection - p)
   end function distance_line
@@ -86,12 +88,13 @@ contains
     real(kind=dp), dimension(3), intent(in) :: direction
     real(kind=dp) :: distance_line_ray
 
-    real(kind=dp) :: t, projection(3)
+    real(kind=dp) :: t, normalized_direction(3), projection(3)
 
-    ! Project the point onto the ray
-    t = dot_product(p - point, direction) / norm2(direction)
+    normalized_direction = direction / norm2(direction)
+
+    t = dot_product(p - point, normalized_direction)
     t = max(t, 0.0_dp)
-    projection = point + t * direction
+    projection = point + t * normalized_direction
 
     distance_line_ray = norm2(projection - p)
   end function distance_line_ray
@@ -107,14 +110,14 @@ contains
     real(kind=dp), dimension(3), intent(in) :: point_1
     real(kind=dp) :: distance_line_segment
 
-    real(kind=dp) :: t, direction(3), projection(3)
+    real(kind=dp), dimension(3) :: direction, normalized_direction, projection
+    real(kind=dp) :: t
 
-    ! Compute direction of the segment
     direction = point_1 - point_0
+    normalized_direction = direction / norm2(direction)
 
-    ! Project the point onto the line segment
-    t = dot_product(p - point_0, direction) / norm2(direction)
-    t = min(1.0_dp, max(0.0_dp, t))
+    t = dot_product(p - point_0, normalized_direction) / norm2(direction)
+    t = max(min(t, 1.0_dp), 0.0_dp)
     projection = point_0 + t * direction
 
     distance_line_segment = norm2(projection - p)
@@ -131,12 +134,7 @@ contains
     real(kind=dp), dimension(3), intent(in) :: normal
     real(kind=dp) :: distance_plane
 
-    real(kind=dp) :: face_distance, projection(3)
-
-    face_distance = dot_product(p - point, normal) / norm2(normal)
-    projection = p - normal * face_distance / norm2(normal)
-
-    distance_plane = sign(norm2(projection - p), face_distance)
+    distance_plane = dot_product(p - point, normal) / norm2(normal)
   end function distance_plane
 
   !> Distance to a sphere defined by a center and a radius.
