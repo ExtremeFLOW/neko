@@ -39,6 +39,7 @@
 !! Geometric Operator module.
 submodule (geometric_operators) distance_elements
   use math, only: cross
+  use utils, only: neko_error
   implicit none
 
 contains
@@ -78,11 +79,9 @@ contains
     real(kind=dp) :: b1, b2, b3
 
     real(kind=dp), dimension(3) :: projection
-    real(kind=dp), dimension(3) :: edge
-    real(kind=dp) :: tol = 1e-10_dp
+    real(kind=dp) :: tol = 1.0e-10_dp
 
     real(kind=dp) :: face_distance
-    real(kind=dp) :: t
 
     ! Get vertices and the normal vector
     v1 = triangle%pts(1)%p%x
@@ -93,41 +92,27 @@ contains
     normal_length = norm2(normal)
 
     if (normal_length .lt. tol) then
-       distance_triangle = huge(1.0_dp)
-       return
+       call neko_error('Triangle is degenerate')
     end if
-    normal = normal / normal_length
 
     ! Compute Barycentric coordinates to determine if the point is inside the
-    ! triangular prism, of along an edge or by a face.
-    face_distance = dot_product(p - v1, normal)
+    ! triangular prism, off along an edge or by a vertex.
+    face_distance = distance_plane(p, v1, normal)
 
-    projection = p - normal * face_distance
-    b1 = dot_product(normal, cross(v2 - v1, projection - v1)) / normal_length
-    b2 = dot_product(normal, cross(v3 - v2, projection - v2)) / normal_length
-    b3 = dot_product(normal, cross(v1 - v3, projection - v3)) / normal_length
+    projection = p - normal * face_distance / normal_length
+    b1 = dot_product(normal, cross(v3 - v2, projection - v2)) / normal_length**2
+    b2 = dot_product(normal, cross(v1 - v3, projection - v3)) / normal_length**2
+    b3 = dot_product(normal, cross(v2 - v1, projection - v1)) / normal_length**2
 
     if (b1 .le. tol) then
-       edge = v2 - v1
-       t = dot_product(p - v1, edge) / norm2(edge)
-       t = max(0.0_dp, min(1.0_dp, t))
-
-       projection = v1 + t * edge
+       distance_triangle = distance_line_segment(p, v3, v2)
     else if (b2 .le. tol) then
-       edge = v3 - v2
-       t = dot_product(p - v2, edge) / norm2(edge)
-       t = max(0.0_dp, min(1.0_dp, t))
-
-       projection = v2 + t * edge
+       distance_triangle = distance_line_segment(p, v1, v3)
     else if (b3 .le. tol) then
-       edge = v1 - v3
-       t = dot_product(p - v3, edge) / norm2(edge)
-       t = max(0.0_dp, min(1.0_dp, t))
-
-       projection = v3 + t * edge
+       distance_triangle = distance_line_segment(p, v2, v1)
+    else
+       distance_triangle = abs(face_distance)
     end if
-
-    distance_triangle = norm2(projection - p)
 
   end function distance_triangle
 
