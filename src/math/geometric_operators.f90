@@ -17,6 +17,7 @@ module geometric_operators
   use point, only: point_t
   use tri, only: tri_t
   use tet, only: tet_t
+  use quad, only: quad_t
   implicit none
 
   ! ========================================================================== !

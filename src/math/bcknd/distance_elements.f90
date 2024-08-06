@@ -131,17 +131,12 @@ contains
     type(tet_t), intent(in) :: tetrahedron
 
     type(point_t) :: v1, v2, v3, v4
-    real(kind=dp), dimension(3) :: normal
-    real(kind=dp) :: normal_length
 
     real(kind=dp), dimension(4) :: barycoord
     real(kind=dp), dimension(4, 4) :: barymatrix
-    real(kind=dp) :: tol = 1.0e-10_dp
 
     type(tri_t) :: face
     integer :: dummy_id
-
-    real(kind=dp) :: face_distance
 
     ! .. Parameters ..
     integer, parameter :: N = 4
@@ -185,9 +180,8 @@ contains
     end select
 
     distance_tetrahedron = distance_triangle(p, face)
-    if (all(barycoord .ge. tol)) distance_tetrahedron = -distance_tetrahedron
+    if (all(barycoord .ge. 0.0_dp)) distance_tetrahedron = -distance_tetrahedron
 
   end function distance_tetrahedron
-
 
 end submodule distance_elements
