@@ -381,7 +381,7 @@ contains
 
     p = [0.0_dp, 0.0_dp, 0.0_dp]
     distance_1 = distance_tetrahedron(p, tetrahedron)
-    @assertEqual(- 1.0_dp / 3.0_dp, distance_1, 1e-12_dp, message)
+    @assertEqual(-1.0_dp / 3.0_dp, distance_1, 1e-12_dp, message)
 
     ! ------------------------------------------------------------------------ !
     message = "Simple tetrahedron centered on the origin, &
