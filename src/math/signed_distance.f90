@@ -32,6 +32,7 @@
 !
 !> @brief Module containing Signed Distance Functions.
 module signed_distance
+  use math, only: cross
   use num_types, only: dp, rp
   use field, only: field_t
   use tri, only: tri_t
@@ -111,7 +112,7 @@ contains
 
     if (search_tree%get_size() .ne. mesh%nelv) then
        call neko_error("signed_distance_field_tri_mesh: &
-         & Error building the search tree.")
+            & Error building the search tree.")
     end if
 
     do id = 1, total_size
@@ -412,20 +413,5 @@ contains
     end if
 
   end subroutine element_distance_triangle
-
-  !> Compute cross product of two vectors
-  !> @param[in] a First vector
-  !> @param[in] b Second vector
-  !> @return Cross product \f$ a \times b \f$
-  pure function cross(a, b) result(c)
-    real(kind=dp), dimension(3), intent(in) :: a
-    real(kind=dp), dimension(3), intent(in) :: b
-    real(kind=dp), dimension(3) :: c
-
-    c(1) = a(2) * b(3) - a(3) * b(2)
-    c(2) = a(3) * b(1) - a(1) * b(3)
-    c(3) = a(1) * b(2) - a(2) * b(1)
-
-  end function cross
 
 end module signed_distance
