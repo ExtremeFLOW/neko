@@ -81,8 +81,6 @@ contains
     real(kind=dp), dimension(3) :: projection
     real(kind=dp) :: tol = 1.0e-10_dp
 
-    real(kind=dp) :: face_distance
-
     ! Get vertices and the normal vector
     v1 = triangle%pts(1)%p%x
     v2 = triangle%pts(2)%p%x
@@ -97,21 +95,17 @@ contains
 
     ! Compute Barycentric coordinates to determine if the point is inside the
     ! triangular prism, off along an edge or by a vertex.
-    face_distance = distance_plane(p, v1, normal)
+    projection = p - normal * dot_product(p - v1, normal) / normal_length**2
+    b = barycentric_coordinate(projection, triangle)
 
-    projection = p - normal * face_distance / normal_length
-    b1 = dot_product(normal, cross(v3 - v2, projection - v2)) / normal_length**2
-    b2 = dot_product(normal, cross(v1 - v3, projection - v3)) / normal_length**2
-    b3 = dot_product(normal, cross(v2 - v1, projection - v1)) / normal_length**2
-
-    if (b1 .le. tol) then
+    if (b(1) .le. tol) then
        distance_triangle = distance_line_segment(p, v3, v2)
-    else if (b2 .le. tol) then
+    else if (b(2) .le. tol) then
        distance_triangle = distance_line_segment(p, v1, v3)
-    else if (b3 .le. tol) then
+    else if (b(3) .le. tol) then
        distance_triangle = distance_line_segment(p, v2, v1)
     else
-       distance_triangle = abs(face_distance)
+       distance_triangle = abs(distance_plane(p, v1, normal))
     end if
 
   end function distance_triangle
@@ -132,40 +126,21 @@ contains
 
     type(point_t) :: v1, v2, v3, v4
 
+    ! Variables for barycentric interpolation
     real(kind=dp), dimension(4) :: barycoord
-    real(kind=dp), dimension(4, 4) :: barymatrix
 
     type(tri_t) :: face
     integer :: dummy_id
 
-    ! .. Parameters ..
-    integer, parameter :: N = 4
-    integer :: info
-    integer, dimension(N) :: pivot_table
+    ! Compute Barycentric coordinates to determine if the point is inside the
+    ! tetrahedron, off along a face, edge or by a vertex.
+    barycoord = barycentric_coordinate(p, tetrahedron)
 
     ! Get vertices and the normal vector
     v1 = tetrahedron%pts(1)%p
     v2 = tetrahedron%pts(2)%p
     v3 = tetrahedron%pts(3)%p
     v4 = tetrahedron%pts(4)%p
-
-    ! Compute Barycentric coordinates to determine if the point is inside the
-    ! tetrahedron, off along a face, edge or by a vertex.
-
-    barymatrix = transpose(reshape([[1.0_dp, 1.0_dp, 1.0_dp, 1.0_dp], &
-                                   [v1%x(1), v2%x(1), v3%x(1), v4%x(1)], &
-                                   [v1%x(2), v2%x(2), v3%x(2), v4%x(2)], &
-                                   [v1%x(3), v2%x(3), v3%x(3), v4%x(3)] &
-                                   ], shape(barymatrix)))
-    barycoord = reshape([1.0_dp, p], shape(barycoord))
-
-    ! Solve the system of linear equations
-    call dgesv(4, 1, barymatrix, 4, pivot_table, barycoord, 4, info )
-
-    ! Check for the exact singularity.
-    if (info .gt. 0) then
-       call neko_error('Tetrahedron is degenerate')
-    end if
 
     ! Check if the point is inside the tetrahedron
     select case (minloc(barycoord, 1))

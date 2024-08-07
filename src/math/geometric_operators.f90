@@ -127,4 +127,29 @@ module geometric_operators
 
   end interface distance_element
 
+  ! ========================================================================== !
+  ! Interpolation operators.
+
+  !> \interface barycentric coordinates
+  !! This interface defines the barycentric coordinates operator. The
+  !! barycentric coordinates operator is used to calculate the barycentric
+  !! coordinates of a point with respect to a geometric object.
+  interface barycentric_coordinate
+
+     !> Barycentric coordinates for a point and a triangle
+     module function barycentric_coordinate_triangle(p, triangle)
+       real(kind=dp), dimension(3), intent(in) :: p
+       type(tri_t), intent(in) :: triangle
+       real(kind=dp), dimension(3) :: barycentric_coordinate_triangle
+     end function barycentric_coordinate_triangle
+
+     !> Barycentric coordinates for a point and a tetrahedron
+     module function barycentric_coordinate_tetrahedron(p, tetrahedron)
+       real(kind=dp), dimension(3), intent(in) :: p
+       type(tet_t), intent(in) :: tetrahedron
+       real(kind=dp), dimension(4) :: barycentric_coordinate_tetrahedron
+     end function barycentric_coordinate_tetrahedron
+
+  end interface barycentric_coordinate
+
 end module geometric_operators
