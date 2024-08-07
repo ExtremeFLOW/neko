@@ -192,13 +192,13 @@ regexp-rules:
 
   missing-spaces-before-=:
     message: Missing spaces before "="
-    regexp: ([^ \=\n]+)(?<!(kind|.len|..\'d|..\'n))((?<![\/=<>])=(?!=))
+    regexp: ([^ \=\n]+)(?<!(kind|.len|..\'d|..\'n))((?<![\/=<>])=(?![>=]))
     replacement: ' = \2'
     active: true
 
   missing-spaces-after-=:
     message: Missing spaces after "="
-    regexp: (?<!(kind|.len|..\'d|..\'n))((?<![=<>\/])=(?!=))([^ ]\S*)
+    regexp: (?<!(kind|.len|..\'d|..\'n))((?<![=<>\/])=(?![>=]))([^ ]\S*)
     replacement: ' = \2'
     active: true
 
