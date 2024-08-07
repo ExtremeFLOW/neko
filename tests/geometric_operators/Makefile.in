@@ -12,8 +12,8 @@ FC = @FC@
 check: distance_test
 
 
-distance_suite_TESTS := distance.pf
-distance_suite_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
+distance_test_TESTS := distance.pf
+distance_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko -llapack
 $(eval $(call make_pfunit_test,distance_test))
 
 

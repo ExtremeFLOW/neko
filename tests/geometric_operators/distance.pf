@@ -1,145 +1,403 @@
 module distance
   use pfunit
-  use num_types
   use geometric_operators
-  use point
-  use tri
-  use tet
+  use num_types, only: dp
+  use point, only: point_t
+  use tri, only: tri_t
+  use tet, only: tet_t
   implicit none
 
 contains
 
+  ! ========================================================================== !
+
   @test
   subroutine test_distance_point_real
-    real(kind=rp), dimension(3) :: p, point
-    real(kind=rp) :: distance
+    real(kind=dp), dimension(3) :: p, point
+    real(kind=dp) :: distance_1, distance_2
+    character(len=100) :: message
 
-    p = [1.0_rp, 2.0_rp, 3.0_rp]
-    point = [4.0_rp, 5.0_rp, 6.0_rp]
-    distance = distance_point_real(p, point)
-    @assertEqual(sqrt(27.0_rp), distance)
+    message = "Simple point test with arbitrary values"
+
+    p = [1.0_dp, 2.0_dp, 3.0_dp]
+    point = [4.0_dp, 5.0_dp, 6.0_dp]
+    distance_1 = distance_point_real(p, point)
+    distance_2 = distance_point(p, point)
+    @assertEqual(sqrt(27.0_dp), distance_1, 1e-12_dp, message)
+    @assertEqual(sqrt(27.0_dp), distance_2, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Simple point test with zero values"
+
+    p = [0.0_dp, 0.0_dp, 0.0_dp]
+    point = [0.0_dp, 0.0_dp, 0.0_dp]
+    distance_1 = distance_point_real(p, point)
+    distance_2 = distance_point(p, point)
+    @assertEqual(0.0_dp, distance_1, 1e-12_dp, message)
+    @assertEqual(0.0_dp, distance_2, 1e-12_dp, message)
 
   end subroutine test_distance_point_real
 
+  ! ========================================================================== !
+
   @test
   subroutine test_distance_line
-    real(kind=rp), dimension(3) :: p, point, direction
-    real(kind=rp) :: distance
+    real(kind=dp), dimension(3) :: p, point, direction
+    real(kind=dp) :: distance
+    character(len=100) :: message
 
-    p = [1.0_rp, 2.0_rp, 3.0_rp]
-    point = [4.0_rp, 5.0_rp, 6.0_rp]
-    direction = [1.0_rp, 1.0_rp, 1.0_rp]
+    ! ------------------------------------------------------------------------ !
+    message = "Simple line parallel to the x-axis"
+
+    p = [0.0_dp, 1.0_dp, 0.0_dp]
+    point = [0.0_dp, 0.0_dp, 0.0_dp]
+    direction = [1.0_dp, 0.0_dp, 0.0_dp]
     distance = distance_line(p, point, direction)
-    @assertEqual(sqrt(3.0_rp), distance)
+    @assertEqual(1.0_dp, distance, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Simple line with non-unit direction vector"
+
+    p = [0.0_dp, 1.0_dp, 0.0_dp]
+    point = [0.0_dp, 0.0_dp, 0.0_dp]
+    direction = [3.0_dp, 0.0_dp, 0.0_dp]
+    distance = distance_line(p, point, direction)
+    @assertEqual(1.0_dp, distance, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Line with point (4, 5, 6) and direction (1, 1, 1)"
+
+    p = [1.0_dp, 2.0_dp, 3.0_dp]
+    point = [4.0_dp, 5.0_dp, 6.0_dp]
+    direction = [1.0_dp, 1.0_dp, 1.0_dp]
+    distance = distance_line(p, point, direction)
+    @assertEqual(0.0_dp, distance, 1e-12_dp, message)
 
   end subroutine test_distance_line
 
+  ! ========================================================================== !
+
   @test
   subroutine test_distance_line_ray
-    real(kind=rp), dimension(3) :: p, point, direction
-    real(kind=rp) :: distance
+    real(kind=dp), dimension(3) :: p, point, direction
+    real(kind=dp) :: distance
 
-    p = [1.0_rp, 2.0_rp, 3.0_rp]
-    point = [4.0_rp, 5.0_rp, 6.0_rp]
-    direction = [1.0_rp, 1.0_rp, 1.0_rp]
+    p = [1.0_dp, 2.0_dp, 3.0_dp]
+    point = [4.0_dp, 5.0_dp, 6.0_dp]
+    direction = [1.0_dp, 1.0_dp, 1.0_dp]
     distance = distance_line_ray(p, point, direction)
-    @assertEqual(sqrt(3.0_rp), distance)
+    @assertEqual(sqrt(27.0_dp), distance, 1e-12_dp)
 
   end subroutine test_distance_line_ray
 
+  ! ========================================================================== !
+
   @test
   subroutine test_distance_line_segment
-    real(kind=rp), dimension(3) :: p, point_0, point_1
-    real(kind=rp) :: distance
+    real(kind=dp), dimension(3) :: p, point_0, point_1
+    real(kind=dp) :: distance
 
-    p = [1.0_rp, 2.0_rp, 3.0_rp]
-    point_0 = [4.0_rp, 5.0_rp, 6.0_rp]
-    point_1 = [7.0_rp, 8.0_rp, 9.0_rp]
+    character(len=100) :: message
+
+    point_0 = [0.0_dp, 0.0_dp, 0.0_dp]
+    point_1 = [1.0_dp, 0.0_dp, 0.0_dp]
+
+    message = "Point is on the line segment center"
+    p = [0.5_dp, 0.0_dp, 0.0_dp]
     distance = distance_line_segment(p, point_0, point_1)
-    @assertEqual(sqrt(27.0_rp), distance)
+    @assertEqual(0.0_dp, distance, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Point is on the line segment end points"
+
+    p = [0.0_dp, 0.0_dp, 0.0_dp]
+    distance = distance_line_segment(p, point_0, point_1)
+    @assertEqual(0.0_dp, distance, 1e-12_dp, message)
+    p = [1.0_dp, 0.0_dp, 0.0_dp]
+    distance = distance_line_segment(p, point_0, point_1)
+    @assertEqual(0.0_dp, distance, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Point is off the line segment center"
+
+    p = [0.5_dp, 1.0_dp, 0.0_dp]
+    distance = distance_line_segment(p, point_0, point_1)
+    @assertEqual(1.0_dp, distance, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Point is off the line segment end points"
+
+    p = [0.0_dp, 1.0_dp, 0.0_dp]
+    distance = distance_line_segment(p, point_0, point_1)
+    @assertEqual(1.0_dp, distance, 1e-12_dp, message)
+    p = [1.0_dp, 1.0_dp, 0.0_dp]
+    distance = distance_line_segment(p, point_0, point_1)
+    @assertEqual(1.0_dp, distance, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Line segment endpoints: [4, 5, 6] and [7, 8, 9] &
+         & Point: [1, 2, 3]"
+
+    p = [1.0_dp, 2.0_dp, 3.0_dp]
+    point_0 = [4.0_dp, 5.0_dp, 6.0_dp]
+    point_1 = [7.0_dp, 8.0_dp, 9.0_dp]
+    distance = distance_line_segment(p, point_0, point_1)
+    @assertEqual(sqrt(27.0_dp), distance, 1e-12_dp, message)
 
   end subroutine test_distance_line_segment
 
+  ! ========================================================================== !
+
   @test
   subroutine test_distance_plane
-    real(kind=rp), dimension(3) :: p, point, normal
-    real(kind=rp) :: distance
+    real(kind=dp), dimension(3) :: p, point, normal
+    real(kind=dp) :: distance
+    character(len=100) :: message
 
-    p = [1.0_rp, 2.0_rp, 3.0_rp]
-    point = [4.0_rp, 5.0_rp, 6.0_rp]
-    normal = [1.0_rp, 1.0_rp, 1.0_rp]
+    ! ------------------------------------------------------------------------ !
+    message = "Simple plane parallel to the x-axis"
+
+    p = [1.0_dp, 0.0_dp, 0.0_dp]
+    point = [0.0_dp, 0.0_dp, 0.0_dp]
+    normal = [1.0_dp, 0.0_dp, 0.0_dp]
     distance = distance_plane(p, point, normal)
-    @assertEqual(sqrt(3.0_rp), distance)
+    @assertEqual(1.0_dp, distance, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Simple plane with non-unit normal vector"
+
+    p = [1.0_dp, 0.0_dp, 0.0_dp]
+    point = [0.0_dp, 0.0_dp, 0.0_dp]
+    normal = [3.0_dp, 0.0_dp, 0.0_dp]
+    distance = distance_plane(p, point, normal)
+    @assertEqual(1.0_dp, distance, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Plane with point (4, 5, 6) and normal (1, 1, 1), &
+         & Point (1, 2, 3), distance should be -sqrt(27)"
+
+    p = [1.0_dp, 2.0_dp, 3.0_dp]
+    point = [4.0_dp, 5.0_dp, 6.0_dp]
+    normal = [1.0_dp, 1.0_dp, 1.0_dp]
+    distance = distance_plane(p, point, normal)
+    @assertEqual(-sqrt(27.0_dp), distance, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Plane with point (4, 5, 6) and normal (1, 1, 1), &
+         & Point (4, 5, 6), distance should be 0"
+
+    p = [4.0_dp, 5.0_dp, 6.0_dp]
+    distance = distance_plane(p, point, normal)
+    @assertEqual(0.0_dp, distance, 1e-12_dp, message)
 
   end subroutine test_distance_plane
 
+  ! ========================================================================== !
+
   @test
   subroutine test_distance_sphere
-    real(kind=rp), dimension(3) :: p, sphere_center
-    real(kind=rp) :: sphere_radius, distance
+    real(kind=dp), dimension(3) :: p, sphere_center
+    real(kind=dp) :: sphere_radius, distance
+    character(len=100) :: message
 
-    p = [1.0_rp, 2.0_rp, 3.0_rp]
-    sphere_center = [4.0_rp, 5.0_rp, 6.0_rp]
-    sphere_radius = 1.0_rp
+    ! ------------------------------------------------------------------------ !
+    message = "Simple sphere with center at (4, 5, 6) and radius 1, &
+         & Point is at (3, 5, 6), distance should be -1"
+
+    p = [4.0_dp, 5.0_dp, 6.0_dp]
+    sphere_center = [4.0_dp, 5.0_dp, 6.0_dp]
+    sphere_radius = 1.0_dp
     distance = distance_sphere(p, sphere_center, sphere_radius)
-    @assertEqual(sqrt(27.0_rp) - 1.0_rp, distance)
+    @assertEqual(-1.0_dp, distance, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Simple sphere with center at (4, 5, 6) and radius 1, &
+         & Point is at (5, 5, 6), distance should be 0"
+
+    p = [5.0_dp, 5.0_dp, 6.0_dp]
+    sphere_center = [4.0_dp, 5.0_dp, 6.0_dp]
+    sphere_radius = 1.0_dp
+    distance = distance_sphere(p, sphere_center, sphere_radius)
+    @assertEqual(0.0_dp, distance, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Simple sphere with center at (4, 5, 6) and radius 1, &
+         & Point is at (6, 5, 6), distance should be 1"
+
+    p = [6.0_dp, 5.0_dp, 6.0_dp]
+    sphere_center = [4.0_dp, 5.0_dp, 6.0_dp]
+    sphere_radius = 1.0_dp
+    distance = distance_sphere(p, sphere_center, sphere_radius)
+    @assertEqual(1.0_dp, distance, 1e-12_dp, message)
 
   end subroutine test_distance_sphere
 
+  ! ========================================================================== !
+
   @test
   subroutine test_distance_point_t
-    type(point_t) :: p, point
-    real(kind=rp) :: distance
+    real(kind=dp), dimension(3) :: p
+    type(point_t) :: point
+    real(kind=dp) :: distance_1, distance_2
+    character(len=100) :: message
 
-    p = point_t(1.0_rp, 2.0_rp, 3.0_rp)
-    point = point_t(4.0_rp, 5.0_rp, 6.0_rp)
-    distance = distance_point_t(p, point)
-    @assertEqual(sqrt(27.0_rp), distance)
+    message = "Simple point test with arbitrary values"
+
+    p = [1.0_dp, 2.0_dp, 3.0_dp]
+    point = point_t(4.0_dp, 5.0_dp, 6.0_dp)
+    distance_1 = distance_point_t(p, point)
+    distance_2 = distance_point(p, point)
+    @assertEqual(sqrt(27.0_dp), distance_1, 1e-12_dp, message)
+    @assertEqual(sqrt(27.0_dp), distance_2, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Simple point test with zero values"
+
+    p = [0.0_dp, 0.0_dp, 0.0_dp]
+    point = point_t(0.0_dp, 0.0_dp, 0.0_dp)
+    distance_1 = distance_point_t(p, point)
+    distance_2 = distance_point(p, point)
+    @assertEqual(0.0_dp, distance_1, 1e-12_dp, message)
+    @assertEqual(0.0_dp, distance_2, 1e-12_dp, message)
 
   end subroutine test_distance_point_t
 
+  ! ========================================================================== !
+
   @test
   subroutine test_distance_triangle
-    real(kind=rp), dimension(3) :: p
+    real(kind=dp), dimension(3) :: p
+
+    type(point_t) :: point_0, point_1, point_2
     type(tri_t) :: triangle
-    real(kind=rp) :: distance_1, distance_2
+    real(kind=dp) :: distance_1, distance_2
 
-    real(kind=rp), dimension(3) :: point_0, point_1, point_2
+    character(len=100) :: message
+    integer :: dummy_id
 
-    p = [1.0_rp, 2.0_rp, 3.0_rp]
-    point_0 = [4.0_rp, 5.0_rp, 6.0_rp]
-    point_1 = [7.0_rp, 8.0_rp, 9.0_rp]
-    point_2 = [10.0_rp, 11.0_rp, 12.0_rp]
-    call triangle%init(0, point_0, point_1, point_2)
+    dummy_id = 0
+    point_0 = point_t(0.0_dp, 0.0_dp, 0.0_dp)
+    point_1 = point_t(1.0_dp, 0.0_dp, 0.0_dp)
+    point_2 = point_t(0.0_dp, 1.0_dp, 0.0_dp)
+
+    call triangle%init(dummy_id, point_0, point_1, point_2)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Simple triangle parallel to the x-axis, &
+         & point is at (0.25, 0.25, 0), distance should be 0"
+    p = [0.25_dp, 0.25_dp, 0.0_dp]
 
     distance_1 = distance_triangle(p, triangle)
     distance_2 = distance_element(p, triangle)
-    @assertEqual(sqrt(27.0_rp), distance_1)
-    @assertEqual(sqrt(27.0_rp), distance_2)
+    @assertEqual(0.0_dp, distance_1, 1e-12_dp, message)
+    @assertEqual(0.0_dp, distance_2, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Simple triangle parallel to the x-axis, &
+         & point is at (-1, 0, 0), distance should be 1"
+
+    p = [-1.0_dp, 0.0_dp, 0.0_dp]
+    distance_1 = distance_triangle(p, triangle)
+    @assertEqual(1.0_dp, distance_1, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Simple triangle parallel to the x-axis, &
+         & point is at (0.5, 0.5, 0), distance should be 0"
+
+    p = [0.5_dp, 0.5_dp, 0.0_dp]
+    distance_1 = distance_triangle(p, triangle)
+    @assertEqual(0.0_dp, distance_1, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Simple triangle parallel to the x-axis, &
+         & point is at (0.25, 0.25, 1), distance should be 1"
+
+    p = [0.25_dp, 0.25_dp, 1.0_dp]
+    distance_1 = distance_triangle(p, triangle)
+    @assertEqual(1.0_dp, distance_1, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Simple triangle parallel to the x-axis, &
+         & point is at (0.5, 0.5, 1), distance should be 1"
+
+    p = [0.5_dp, 0.5_dp, 1.0_dp]
+    distance_1 = distance_triangle(p, triangle)
+    @assertEqual(1.0_dp, distance_1, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Simple triangle parallel to the x-axis, &
+         & point is at (1, 1, 0), distance should be 0.5*sqrt(2)"
+
+    p = [1.0_dp, 1.0_dp, 0.0_dp]
+    distance_1 = distance_triangle(p, triangle)
+    @assertEqual(0.5_dp*sqrt(2.0_dp), distance_1, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Simple triangle parallel to the x-axis, &
+         & point is at (-1, -1, 0), distance should be sqrt(2)"
+
+    p = [-1.0_dp, -1.0_dp, 0.0_dp]
+    distance_1 = distance_triangle(p, triangle)
+    @assertEqual(sqrt(2.0_dp), distance_1, 1e-12_dp, message)
 
   end subroutine test_distance_triangle
 
+  ! ========================================================================== !
+
   @test
   subroutine test_distance_tetrahedron
-    real(kind=rp), dimension(3) :: p
+    real(kind=dp), dimension(3) :: p
     type(tet_t) :: tetrahedron
-    real(kind=rp) :: distance_1, distance_2
+    real(kind=dp) :: distance_1, distance_2
 
-    real(kind=rp), dimension(3) :: point_0, point_1, point_2, point_3
+    type(point_t) :: point_0, point_1, point_2, point_3
+    integer :: dummy_id
+    character(len=100) :: message
 
-    p = [1.0_rp, 2.0_rp, 3.0_rp]
-    point_0 = [4.0_rp, 5.0_rp, 6.0_rp]
-    point_1 = [7.0_rp, 8.0_rp, 9.0_rp]
-    point_2 = [10.0_rp, 11.0_rp, 12.0_rp]
-    point_3 = [13.0_rp, 14.0_rp, 15.0_rp]
-    call tetrahedron%init(0, point_0, point_1, point_2, point_3)
+    ! Define a unit tetrahedron, centered on the origin
+    dummy_id = 0
+    point_0 = point_t(0.0_dp, 0.0_dp, 1.0_dp)
+    point_1 = point_t(sqrt(8.0_dp / 9.0_dp), 0.0_dp, &
+                      -1.0_dp / 3.0_dp)
+    point_2 = point_t(-sqrt(2.0_dp / 9.0_dp), sqrt(2.0_dp / 3.0_dp), &
+                      -1.0_dp / 3.0_dp)
+    point_3 = point_t(-sqrt(2.0_dp / 9.0_dp), -sqrt(2.0_dp / 3.0_dp), &
+                      -1.0_dp / 3.0_dp)
+    call tetrahedron%init(dummy_id, point_0, point_1, point_2, point_3)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Simple tetrahedron centered on the origin, &
+         & point is at (0, 0, 1), distance should be 0"
+    p = [0.0_dp, 0.0_dp, 1.0_dp]
 
     distance_1 = distance_tetrahedron(p, tetrahedron)
     distance_2 = distance_element(p, tetrahedron)
-    @assertEqual(sqrt(27.0_rp), distance_1)
-    @assertEqual(sqrt(27.0_rp), distance_2)
+    @assertEqual(0.0_dp, distance_1, 1e-12_dp, message)
+    @assertEqual(0.0_dp, distance_2, 1e-12_dp, message)
 
-    @assertEqual(1, 0)
+    ! ------------------------------------------------------------------------ !
+    message = "Simple tetrahedron centered on the origin, &
+         & point is at (0, 0, 0), distance should be -1/3"
+
+    p = [0.0_dp, 0.0_dp, 0.0_dp]
+    distance_1 = distance_tetrahedron(p, tetrahedron)
+    @assertEqual(- 1.0_dp / 3.0_dp, distance_1, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Simple tetrahedron centered on the origin, &
+         & point is at (0, 0, -1), distance should be 2/3"
+
+    p = [0.0_dp, 0.0_dp, -1.0_dp]
+    distance_1 = distance_tetrahedron(p, tetrahedron)
+    @assertEqual(2.0_dp / 3.0_dp, distance_1, 1e-12_dp, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Simple tetrahedron centered on the origin, &
+         & point is at (0, 0, 2), distance should be 1"
+
+    p = [0.0_dp, 0.0_dp, 2.0_dp]
+    distance_1 = distance_tetrahedron(p, tetrahedron)
+    @assertEqual(1.0_dp, distance_1, 1e-12_dp, message)
 
   end subroutine test_distance_tetrahedron
 
