@@ -33,9 +33,9 @@ contains
     p = [1.0_dp / 3.0_dp, 1.0_dp / 3.0_dp, 0.0_dp]
     barycoord = barycentric_coordinate(p, triangle)
 
-    @assertEqual(barycoord(1), 1.0_dp / 3.0_dp, tol, message)
-    @assertEqual(barycoord(2), 1.0_dp / 3.0_dp, tol, message)
-    @assertEqual(barycoord(3), 1.0_dp / 3.0_dp, tol, message)
+    @assertEqual(1.0_dp / 3.0_dp, barycoord(1), tol, trim(message))
+    @assertEqual(1.0_dp / 3.0_dp, barycoord(2), tol, trim(message))
+    @assertEqual(1.0_dp / 3.0_dp, barycoord(3), tol, trim(message))
 
     ! ------------------------------------------------------------------------ !
     message = "Unit triangle test, point at vertex"
@@ -43,9 +43,9 @@ contains
     p = [0.0_dp, 0.0_dp, 0.0_dp]
     barycoord = barycentric_coordinate(p, triangle)
 
-    @assertEqual(barycoord(1), 1.0_dp, tol, message)
-    @assertEqual(barycoord(2), 0.0_dp, tol, message)
-    @assertEqual(barycoord(3), 0.0_dp, tol, message)
+    @assertEqual(1.0_dp, barycoord(1), tol, trim(message))
+    @assertEqual(0.0_dp, barycoord(2), tol, trim(message))
+    @assertEqual(0.0_dp, barycoord(3), tol, trim(message))
 
     ! ------------------------------------------------------------------------ !
     message = "Unit triangle test, point at edge"
@@ -53,9 +53,9 @@ contains
     p = [0.5_dp, 0.0_dp, 0.0_dp]
     barycoord = barycentric_coordinate(p, triangle)
 
-    @assertEqual(barycoord(1), 0.5_dp, tol, message)
-    @assertEqual(barycoord(2), 0.5_dp, tol, message)
-    @assertEqual(barycoord(3), 0.0_dp, tol, message)
+    @assertEqual(0.5_dp, barycoord(1), tol, trim(message))
+    @assertEqual(0.5_dp, barycoord(2), tol, trim(message))
+    @assertEqual(0.0_dp, barycoord(3), tol, trim(message))
 
     ! ------------------------------------------------------------------------ !
     message = "Unit triangle test, point outside"
@@ -63,20 +63,301 @@ contains
     p = [-1.0_dp, -1.0_dp, 0.0_dp]
     barycoord = barycentric_coordinate(p, triangle)
 
-    @assertEqual(barycoord(1), 3.0_dp, tol, message)
-    @assertEqual(barycoord(2), -1.0_dp, tol, message)
-    @assertEqual(barycoord(3), -1.0_dp, tol, message)
+    @assertEqual(3.0_dp, barycoord(1), tol, trim(message))
+    @assertEqual(-1.0_dp, barycoord(2), tol, trim(message))
+    @assertEqual(-1.0_dp, barycoord(3), tol, trim(message))
 
     ! ------------------------------------------------------------------------ !
 
     ! Setup a more complex triangle
     call triangle%free()
     call triangle%init(dummy_id, &
-                       point_t([0.0_dp, 0.0_dp, 0.0_dp]), &
-                       point_t([1.0_dp, 0.0_dp, 0.0_dp]), &
-                       point_t([0.0_dp, 1.0_dp, 0.0_dp]))
+                       point_t([37.0_dp, 10.0_dp, 20.0_dp]), &
+                       point_t([1.0_dp, 20.0_dp, -3.0_dp]), &
+                       point_t([42.0_dp, -42.0_dp, 0.0_dp]))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex triangle test, point at center"
+
+    p = [80.0_dp / 3.0_dp, -4.0_dp, 17.0_dp / 3.0_dp]
+    barycoord = barycentric_coordinate(p, triangle)
+
+    @assertEqual(1.0_dp / 3.0_dp, barycoord(1), tol, trim(message))
+    @assertEqual(1.0_dp / 3.0_dp, barycoord(2), tol, trim(message))
+    @assertEqual(1.0_dp / 3.0_dp, barycoord(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex triangle test, point at vertex"
+
+    p = [37.0_dp, 10.0_dp, 20.0_dp]
+    barycoord = barycentric_coordinate(p, triangle)
+
+    @assertEqual(1.0_dp, barycoord(1), tol, trim(message))
+    @assertEqual(0.0_dp, barycoord(2), tol, trim(message))
+    @assertEqual(0.0_dp, barycoord(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex triangle test, point at edge"
+
+    p = [39.5_dp, -16.0_dp, 10.0_dp]
+    barycoord = barycentric_coordinate(p, triangle)
+
+    @assertEqual(0.5_dp, barycoord(1), tol, trim(message))
+    @assertEqual(0.0_dp, barycoord(2), tol, trim(message))
+    @assertEqual(0.5_dp, barycoord(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex triangle test, point outside"
+
+    p = [68.0_dp, 52.0_dp, 63.0_dp]
+    barycoord = barycentric_coordinate(p, triangle)
+
+    @assertEqual(3.0_dp, barycoord(1), tol, trim(message))
+    @assertEqual(-1.0_dp, barycoord(2), tol, trim(message))
+    @assertEqual(-1.0_dp, barycoord(3), tol, trim(message))
 
   end subroutine test_local_coordinate_triangle
 
+  ! ========================================================================== !
+
+  @test
+  subroutine test_local_coordinate_tetrahedron
+    real(kind=dp), dimension(3) :: p
+    type(tet_t) :: tetrahedron
+    integer :: dummy_id
+    real(kind=dp), dimension(4) :: barycoord
+    character(len=100) :: message
+    real(kind=dp), parameter :: tol = 1.0e-12_dp
+
+    dummy_id = 0
+    call tetrahedron%init(dummy_id, &
+                          point_t([0.0_dp, 0.0_dp, 0.0_dp]), &
+                          point_t([1.0_dp, 0.0_dp, 0.0_dp]), &
+                          point_t([0.0_dp, 1.0_dp, 0.0_dp]), &
+                          point_t([0.0_dp, 0.0_dp, 1.0_dp]))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit tetrahedron test, point at center"
+
+    p = [1.0_dp / 4.0_dp, 1.0_dp / 4.0_dp, 1.0_dp / 4.0_dp]
+    barycoord = barycentric_coordinate(p, tetrahedron)
+
+    @assertEqual(1.0_dp / 4.0_dp, barycoord(1), tol, trim(message))
+    @assertEqual(1.0_dp / 4.0_dp, barycoord(2), tol, trim(message))
+    @assertEqual(1.0_dp / 4.0_dp, barycoord(3), tol, trim(message))
+    @assertEqual(1.0_dp / 4.0_dp, barycoord(4), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit tetrahedron test, point at vertex"
+
+    p = [0.0_dp, 0.0_dp, 0.0_dp]
+    barycoord = barycentric_coordinate(p, tetrahedron)
+
+    @assertEqual(1.0_dp, barycoord(1), tol, trim(message))
+    @assertEqual(0.0_dp, barycoord(2), tol, trim(message))
+    @assertEqual(0.0_dp, barycoord(3), tol, trim(message))
+    @assertEqual(0.0_dp, barycoord(4), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit tetrahedron test, point at edge"
+
+    p = [0.5_dp, 0.0_dp, 0.0_dp]
+    barycoord = barycentric_coordinate(p, tetrahedron)
+
+    @assertEqual(0.5_dp, barycoord(1), tol, trim(message))
+    @assertEqual(0.5_dp, barycoord(2), tol, trim(message))
+    @assertEqual(0.0_dp, barycoord(3), tol, trim(message))
+    @assertEqual(0.0_dp, barycoord(4), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit tetrahedron test, point on face"
+
+    p = [1.0_dp / 3.0_dp, 1.0_dp /3.0_dp, 0.0_dp]
+    barycoord = barycentric_coordinate(p, tetrahedron)
+
+    @assertEqual(1.0_dp / 3.0_dp, barycoord(1), tol, trim(message))
+    @assertEqual(1.0_dp / 3.0_dp, barycoord(2), tol, trim(message))
+    @assertEqual(1.0_dp / 3.0_dp, barycoord(3), tol, trim(message))
+    @assertEqual(0.0_dp, barycoord(4), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit tetrahedron test, point outside"
+
+    p = [-1.0_dp, -1.0_dp, -1.0_dp]
+    barycoord = barycentric_coordinate(p, tetrahedron)
+
+    @assertEqual(4.0_dp, barycoord(1), tol, trim(message))
+    @assertEqual(-1.0_dp, barycoord(2), tol, trim(message))
+    @assertEqual(-1.0_dp, barycoord(3), tol, trim(message))
+    @assertEqual(-1.0_dp, barycoord(4), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    ! Setup a more complex tetrahedron
+
+    call tetrahedron%free()
+    call tetrahedron%init(dummy_id, &
+                          point_t([37.0_dp, 10.0_dp, 20.0_dp]), &
+                          point_t([1.0_dp, 20.0_dp, -3.0_dp]), &
+                          point_t([42.0_dp, -42.0_dp, 0.0_dp]), &
+                          point_t([0.0_dp, 0.0_dp, 0.0_dp]))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex tetrahedron test, point at center"
+
+    p = [20.0_dp, -3.0_dp, 4.25_dp]
+    barycoord = barycentric_coordinate(p, tetrahedron)
+
+    @assertEqual(1.0_dp / 4.0_dp, barycoord(1), tol, trim(message))
+    @assertEqual(1.0_dp / 4.0_dp, barycoord(2), tol, trim(message))
+    @assertEqual(1.0_dp / 4.0_dp, barycoord(3), tol, trim(message))
+    @assertEqual(1.0_dp / 4.0_dp, barycoord(4), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex tetrahedron test, point at vertex"
+
+    p = [37.0_dp, 10.0_dp, 20.0_dp]
+    barycoord = barycentric_coordinate(p, tetrahedron)
+
+    @assertEqual(1.0_dp, barycoord(1), tol, trim(message))
+    @assertEqual(0.0_dp, barycoord(2), tol, trim(message))
+    @assertEqual(0.0_dp, barycoord(3), tol, trim(message))
+    @assertEqual(0.0_dp, barycoord(4), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex tetrahedron test, point at edge"
+
+    p = [39.5_dp, -16.0_dp, 10.0_dp]
+    barycoord = barycentric_coordinate(p, tetrahedron)
+
+    @assertEqual(0.5_dp, barycoord(1), tol, trim(message))
+    @assertEqual(0.0_dp, barycoord(2), tol, trim(message))
+    @assertEqual(0.5_dp, barycoord(3), tol, trim(message))
+    @assertEqual(0.0_dp, barycoord(4), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex tetrahedron test, point on face"
+
+    p = [80.0_dp / 3.0_dp, -4.0_dp, 17.0_dp / 3.0_dp]
+    barycoord = barycentric_coordinate(p, tetrahedron)
+
+    @assertEqual(1.0_dp / 3.0_dp, barycoord(1), tol, trim(message))
+    @assertEqual(1.0_dp / 3.0_dp, barycoord(2), tol, trim(message))
+    @assertEqual(1.0_dp / 3.0_dp, barycoord(3), tol, trim(message))
+    @assertEqual(0.0_dp, barycoord(4), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex tetrahedron test, point outside"
+
+    p = [105.0_dp, 62.0_dp, 83.0_dp]
+    barycoord = barycentric_coordinate(p, tetrahedron)
+
+    @assertEqual(4.0_dp, barycoord(1), tol, trim(message))
+    @assertEqual(-1.0_dp, barycoord(2), tol, trim(message))
+    @assertEqual(-1.0_dp, barycoord(3), tol, trim(message))
+    @assertEqual(-1.0_dp, barycoord(4), tol, trim(message))
+
+  end subroutine test_local_coordinate_tetrahedron
+
+  ! ========================================================================== !
+
+  @test
+  subroutine test_local_coordinate_quadrilateral
+    real(kind=dp), dimension(3) :: p
+    type(quad_t) :: quadrilateral
+    integer :: dummy_id
+    real(kind=dp), dimension(4) :: linear_coord
+    character(len=100) :: message
+    real(kind=dp), parameter :: tol = 1.0e-12_dp
+
+    dummy_id = 0
+    call quadrilateral%init(dummy_id, &
+                            point_t([0.0_dp, 0.0_dp, 0.0_dp]), &
+                            point_t([1.0_dp, 0.0_dp, 0.0_dp]), &
+                            point_t([1.0_dp, 1.0_dp, 0.0_dp]), &
+                            point_t([0.0_dp, 1.0_dp, 0.0_dp]))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit quadrilateral test, point at center"
+
+    p = [0.5_dp, 0.5_dp, 0.0_dp]
+    linear_coord = bilinear_coordinate(p, quadrilateral)
+
+    @assertEqual(0.5_dp, linear_coord(1), tol, trim(message))
+    @assertEqual(0.5_dp, linear_coord(2), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit quadrilateral test, point at vertex"
+
+    p = [0.0_dp, 0.0_dp, 0.0_dp]
+    linear_coord = bilinear_coordinate(p, quadrilateral)
+
+    @assertEqual(0.0_dp, linear_coord(1), tol, trim(message))
+    @assertEqual(0.0_dp, linear_coord(2), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit quadrilateral test, point on edge"
+
+    p = [0.5_dp, 0.0_dp, 0.0_dp]
+    linear_coord = bilinear_coordinate(p, quadrilateral)
+
+    @assertEqual(0.5_dp, linear_coord(1), tol, trim(message))
+    @assertEqual(0.0_dp, linear_coord(2), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit quadrilateral test, point outside"
+
+    p = [-1.0_dp, -1.0_dp, 0.0_dp]
+    linear_coord = bilinear_coordinate(p, quadrilateral)
+
+    @assertEqual(-1.0_dp, linear_coord(1), tol, trim(message))
+    @assertEqual(-1.0_dp, linear_coord(2), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    ! Setup a more complex quadrilateral
+
+    call quadrilateral%free()
+    call quadrilateral%init(dummy_id, &
+                            point_t([37.0_dp, 10.0_dp, 20.0_dp]), &
+                            point_t([1.0_dp, 20.0_dp, -3.0_dp]), &
+                            point_t([42.0_dp, -42.0_dp, 0.0_dp]), &
+                            point_t([0.0_dp, 0.0_dp, 0.0_dp]))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex quadrilateral test, point at center"
+
+    p = [20.0_dp, -3.0_dp, 17.0_dp / 4.0_dp]
+    linear_coord = bilinear_coordinate(p, quadrilateral)
+
+    @assertEqual(0.5_dp, linear_coord(1), tol, trim(message))
+    @assertEqual(0.5_dp, linear_coord(2), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex quadrilateral test, point at vertex"
+
+    p = [37.0_dp, 10.0_dp, 20.0_dp]
+    linear_coord = bilinear_coordinate(p, quadrilateral)
+
+    @assertEqual(0.0_dp, linear_coord(1), tol, trim(message))
+    @assertEqual(0.0_dp, linear_coord(2), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex quadrilateral test, point on edge"
+
+    p = [19.0_dp, 15.0_dp, 8.5_dp]
+    linear_coord = bilinear_coordinate(p, quadrilateral)
+
+    @assertEqual(0.5_dp, linear_coord(1), tol, trim(message))
+    @assertEqual(0.0_dp, linear_coord(2), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex quadrilateral test, point outside"
+
+    p = [105.0_dp, 62.0_dp, 83.0_dp]
+    linear_coord = bilinear_coordinate(p, quadrilateral)
+
+    @assertEqual(2.0_dp, linear_coord(1), tol, trim(message))
+    @assertEqual(2.0_dp, linear_coord(2), tol, trim(message))
+
+  end subroutine test_local_coordinate_quadrilateral
 
 end module local_coordinates
