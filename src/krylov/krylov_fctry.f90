@@ -43,6 +43,7 @@ module krylov_fctry
   use fusedcg_cpld_device, only : fusedcg_cpld_device_t
   use bicgstab, only : bicgstab_t
   use gmres, only : gmres_t
+  use cheby, only : cheby_t
   use gmres_sx, only : sx_gmres_t
   use gmres_device, only : gmres_device_t
   use num_Types, only : rp
@@ -56,12 +57,13 @@ module krylov_fctry
   public :: krylov_solver_factory, krylov_solver_destroy
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KNOWN_TYPES(7) = [character(len=20) :: &
+  character(len=20) :: KNOWN_TYPES(8) = [character(len=20) :: &
      "cg", &
      "pipecg", &
      "fusedcg", &
      "cacg", &
      "gmres", &
+     "cheby", &
      "bicgstab", &
      "cpldcg"]
 
@@ -139,6 +141,11 @@ contains
           allocate(gmres_device_t::object)
        else
           allocate(gmres_t::object)
+       end if
+    else if (trim(type_name) .eq. 'cheby') then
+       allocate(cheby_t::object)
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call neko_error('Chebyshev only supported for CPU')
        end if
     else if (trim(type_name) .eq. 'bicgstab') then
        allocate(bicgstab_t::object)
