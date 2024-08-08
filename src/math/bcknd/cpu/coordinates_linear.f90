@@ -153,4 +153,252 @@ contains
 
   end function barycentric_coordinate_tetrahedron
 
+  !> @brief Linear coordinates for a point in a quadrilateral
+  !! @details This routine computes the bi-linear coordinates of a point with
+  !! respect to a quadrilateral.
+  !!
+  !! @param p Query point
+  !! @param quadrilateral Quadrilateral
+  !! @return Bi-linear coordinates
+  module function bilinear_coordinate_quadrilateral(p, quadrilateral) &
+       result(bilinear)
+    real(kind=dp), dimension(3), intent(in) :: p
+    type(quad_t), intent(in) :: quadrilateral
+    real(kind=dp), dimension(2) :: bilinear
+
+    real(kind=dp), dimension(3) :: v1, v2, v3, v4
+
+    ! Variables for barycentric interpolation
+    real(kind=dp), dimension(4, 2) :: barymatrix
+
+    ! Lapack variables
+    integer :: info
+    integer, dimension(4) :: pivot_table
+
+    ! Get vertices and the normal vector
+    v1 = quadrilateral%pts(1)%p%x
+    v2 = quadrilateral%pts(2)%p%x
+    v3 = quadrilateral%pts(3)%p%x
+    v4 = quadrilateral%pts(4)%p%x
+
+    ! Compute Barycentric coordinates to determine if the point is inside the
+    ! quadrilateral, off along a face, edge or by a vertex.
+
+    bilinear = 0.0_dp
+
+  end function bilinear_coordinate_quadrilateral
+
+  !> @brief Linear coordinates for a point in a hexahedron
+  !! @details This routine computes the tri-linear coordinates of a point with
+  !! respect to a hexahedron.
+  !!
+  !! @param p Query point
+  !! @param hexahedron Hexahedron
+  !! @return Tri-linear coordinates
+  module function trilinear_coordinate_hexahedron(p, hexahedron) &
+       result(trilinear)
+    real(kind=dp), dimension(3), intent(in) :: p
+    type(hex_t), intent(in) :: hexahedron
+    real(kind=dp), dimension(3) :: trilinear
+
+    real(kind=dp), dimension(3) :: v1, v2, v3, v4, v5, v6, v7, v8
+
+    ! Variables for barycentric interpolation
+    real(kind=dp), dimension(8, 3) :: barymatrix
+
+    ! Lapack variables
+    integer :: info
+    integer, dimension(8) :: pivot_table
+
+    ! Get vertices and the normal vector
+    v1 = hexahedron%pts(1)%p%x
+    v2 = hexahedron%pts(2)%p%x
+    v3 = hexahedron%pts(3)%p%x
+    v4 = hexahedron%pts(4)%p%x
+    v5 = hexahedron%pts(5)%p%x
+    v6 = hexahedron%pts(6)%p%x
+    v7 = hexahedron%pts(7)%p%x
+    v8 = hexahedron%pts(8)%p%x
+
+    ! Compute Barycentric coordinates to determine if the point is inside the
+    ! hexahedron, off along a face, edge or by a vertex.
+
+    trilinear = 0.0_dp
+
+  end function trilinear_coordinate_hexahedron
+
 end submodule coordinates_linear
+
+! /** Hexahedral element.
+! *
+! * These hexahedral are static hexahedral. They know only their corners
+! * and use those to compute local coordinates based on Linear Shape
+! * Functions.
+! *
+! * These are an implementation of the Hex8 elements in Exodus.
+! * https://sandialabs.github.io/seacas-docs/html/md_include_exodus_element_types.html#hex
+! */
+! class Hexahedron : public Polyhedron {
+
+!    /** Compute the local coordinates of a point inside the cell.
+!     *
+!     * The local coordinates are computed using the trilinear map.
+!     *
+!     * @param p: The point to be tested.
+!     * @return std::vector<double>: The local coordinates of the point.
+!     */
+!    std::vector<double> compute_local(CGLA::Vec3d p) const override {
+!        const CGLA::Vec3d q = trilinear_inverse(p);
+!        return S(q);
+!    }
+
+!  private:
+!    // ------------------------------------------------------------------ //
+!    // Element specific functions
+
+!    /** Computes the Standard hex coordinates.
+!     *
+!     * https://stackoverflow.com/a/18332009
+!     *
+!     * Computes the inverse of the trilinear map from [-1,1]^3 to the box
+!     * defined by corners c0,...,c7, where the corners are ordered
+!     * consistent with the exodus format. Uses Gauss-Newton method.
+!     *
+!     * We compute the standardized position q given a point p in the
+!     * generalized hex. "q" can then be used for trilinear interpolation.
+!     *
+!     * @todo We have only implemented a simple newton stepping method.
+!     * Probably should update it to run as a Gauss-Newton as described
+!     * above.
+!     */
+!    CGLA::Vec3d trilinear_inverse(CGLA::Vec3d p) const {
+
+!        const double tol  = 1e-9 * this->diagonal().length();
+!        const int    iter = 1000;
+
+!        // Convert to eigen3 notation
+!        const Eigen::Vector3d p_e(p[0], p[1], p[2]);
+
+!        // Setup new computation
+!        Eigen::Vector3d q_e(0.0, 0.0, 0.0);
+!        Eigen::Vector3d residual = estimate(q_e, vertices) - p_e;
+!        for (int k = 0; k < iter; k++) {
+
+!            if (residual.norm() < tol) break;
+
+!            const Eigen::Matrix3d J_e = jacobian(q_e, vertices);
+!            q_e -= J_e.fullPivLu().solve(residual);
+!            residual = estimate(q_e, vertices) - p_e;
+!        }
+
+!        // Return invalid point if we are too far away
+!        if (tol < residual.norm()) return CGLA::Vec3d(-1e16);
+
+!        const CGLA::Vec3d q(q_e[0], q_e[1], q_e[2]);
+!        return q;
+!    }
+
+!    /** Evaluate the linear shape functions.
+!     *
+!     * @param q: The local coordinates to be evaluated.
+!     * @return std::vector<double>: The shape functions evaluated at q.
+!     */
+!    template <typename T> std::vector<double> S(const T& q) const {
+!        return {
+!            0.125 * (1.0 - q[0]) * (1.0 - q[1]) * (1.0 - q[2]), //
+!            0.125 * (1.0 + q[0]) * (1.0 - q[1]) * (1.0 - q[2]), //
+!            0.125 * (1.0 + q[0]) * (1.0 + q[1]) * (1.0 - q[2]), //
+!            0.125 * (1.0 - q[0]) * (1.0 + q[1]) * (1.0 - q[2]), //
+!            0.125 * (1.0 - q[0]) * (1.0 - q[1]) * (1.0 + q[2]), //
+!            0.125 * (1.0 + q[0]) * (1.0 - q[1]) * (1.0 + q[2]), //
+!            0.125 * (1.0 + q[0]) * (1.0 + q[1]) * (1.0 + q[2]), //
+!            0.125 * (1.0 - q[0]) * (1.0 + q[1]) * (1.0 + q[2])  //
+!        };
+!    }
+
+!    /** Evaluate the derivative of the linear shape functions.
+!     *
+!     * @param q: The local coordinates to be evaluated.
+!     * @return std::vector<std::vector<double>>: The derivatives of the
+!     * shape functions evaluated at q.
+!     */
+!    template <typename T>
+!    std::vector<std::vector<double>> dS(const T& q) const {
+
+!        const std::vector<double> dSdu = {
+!            -0.125 * (1.0 - q[1]) * (1.0 - q[2]), //
+!            +0.125 * (1.0 - q[1]) * (1.0 - q[2]), //
+!            +0.125 * (1.0 + q[1]) * (1.0 - q[2]), //
+!            -0.125 * (1.0 + q[1]) * (1.0 - q[2]), //
+!            -0.125 * (1.0 - q[1]) * (1.0 + q[2]), //
+!            +0.125 * (1.0 - q[1]) * (1.0 + q[2]), //
+!            +0.125 * (1.0 + q[1]) * (1.0 + q[2]), //
+!            -0.125 * (1.0 + q[1]) * (1.0 + q[2])  //
+!        };
+!        const std::vector<double> dSdv = {
+!            -0.125 * (1.0 - q[0]) * (1.0 - q[2]), //
+!            -0.125 * (1.0 + q[0]) * (1.0 - q[2]), //
+!            +0.125 * (1.0 + q[0]) * (1.0 - q[2]), //
+!            +0.125 * (1.0 - q[0]) * (1.0 - q[2]), //
+!            -0.125 * (1.0 - q[0]) * (1.0 + q[2]), //
+!            -0.125 * (1.0 + q[0]) * (1.0 + q[2]), //
+!            +0.125 * (1.0 + q[0]) * (1.0 + q[2]), //
+!            +0.125 * (1.0 - q[0]) * (1.0 + q[2])  //
+!        };
+!        const std::vector<double> dSdw = {
+!            -0.125 * (1.0 - q[0]) * (1.0 - q[1]), //
+!            -0.125 * (1.0 + q[0]) * (1.0 - q[1]), //
+!            -0.125 * (1.0 + q[0]) * (1.0 + q[1]), //
+!            -0.125 * (1.0 - q[0]) * (1.0 + q[1]), //
+!            +0.125 * (1.0 - q[0]) * (1.0 - q[1]), //
+!            +0.125 * (1.0 + q[0]) * (1.0 - q[1]), //
+!            +0.125 * (1.0 + q[0]) * (1.0 + q[1]), //
+!            +0.125 * (1.0 - q[0]) * (1.0 + q[1])  //
+!        };
+
+!        return {dSdu, dSdv, dSdw};
+!    }
+
+!    /** Estimate the position of a point given local coordinates.
+!     *
+!     * @param q: The local coordinates to be evaluated.
+!     * @param C: The vertex positions of the current polyhedron.
+!     * @return CGLA::Vec3d: The position of the point.
+!     */
+!    template <typename T>
+!    T estimate(const T& q, const std::vector<CGLA::Vec3d>& C) const {
+
+!        const std::vector<double> N   = S(q);
+!        const CGLA::Vec3d         xyz = std::inner_product(
+!            begin(N), end(N), begin(C), CGLA::Vec3d{0.0});
+
+!        return T(xyz[0], xyz[1], xyz[2]);
+!    }
+
+!    /** Estimate the Jacobian of a point given local coordinates.
+!     *
+!     * @param q: The local coordinates to be evaluated.
+!     * @param C: The vertex positions of the current polyhedron.
+!     * @return Eigen::Matrix3d: The Jacobian of the point.
+!     */
+!    template <typename T>
+!    Eigen::Matrix3d
+!        jacobian(const T& q, const std::vector<CGLA::Vec3d>& C) const {
+
+!        const std::vector<std::vector<double>> dN = dS(q);
+
+!        const CGLA::Vec3d Ju = std::inner_product(
+!            begin(dN[0]), end(dN[0]), begin(C), CGLA::Vec3d{0.0});
+!        const CGLA::Vec3d Jv = std::inner_product(
+!            begin(dN[1]), end(dN[1]), begin(C), CGLA::Vec3d{0.0});
+!        const CGLA::Vec3d Jw = std::inner_product(
+!            begin(dN[2]), end(dN[2]), begin(C), CGLA::Vec3d{0.0});
+
+!        Eigen::Matrix3d J;
+!        J << Ju[0], Jv[0], Jw[0], //
+!            Ju[1], Jv[1], Jw[1],  //
+!            Ju[2], Jv[2], Jw[2];  //
+
+!        return J;
+!    }
+! };

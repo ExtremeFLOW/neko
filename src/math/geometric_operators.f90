@@ -11,7 +11,8 @@
 !! easily.
 !!
 !! Please note that this module only contains the interfaces, the actual
-!! implementation is located in approproate submodules.
+!! implementation is located in approproate submodules. The submodules are
+!! located in the backend directories.
 module geometric_operators
   use num_types, only: dp
   use point, only: point_t
@@ -154,18 +155,18 @@ module geometric_operators
      end function barycentric_coordinate_tetrahedron
 
      !> Linear coordinates for a point and a quadrilateral.
-     module function bilinear_coordinate(p, quadrilateral)
+     module function bilinear_coordinate_quadrilateral(p, quadrilateral)
        real(kind=dp), dimension(3), intent(in) :: p
        type(quad_t), intent(in) :: quadrilateral
-       real(kind=dp), dimension(2) :: bilinear_coordinate
-     end function bilinear_coordinate
+       real(kind=dp), dimension(2) :: bilinear_coordinate_quadrilateral
+     end function bilinear_coordinate_quadrilateral
 
      !> Linear coordinates for a point and a hexahedron.
-     module function trilinear_coordinate(p, hexahedron)
+     module function trilinear_coordinate_hexahedron(p, hexahedron)
        real(kind=dp), dimension(3), intent(in) :: p
        type(hex_t), intent(in) :: hexahedron
-       real(kind=dp), dimension(3) :: trilinear_coordinate
-     end function trilinear_coordinate
+       real(kind=dp), dimension(3) :: trilinear_coordinate_hexahedron
+     end function trilinear_coordinate_hexahedron
 
   end interface linear_coordinate
 
