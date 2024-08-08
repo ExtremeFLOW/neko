@@ -44,6 +44,7 @@ module krylov_fctry
   use bicgstab, only : bicgstab_t
   use gmres, only : gmres_t
   use cheby, only : cheby_t
+  use cheby_device, only : cheby_device_t
   use gmres_sx, only : sx_gmres_t
   use gmres_device, only : gmres_device_t
   use num_Types, only : rp
@@ -143,9 +144,10 @@ contains
           allocate(gmres_t::object)
        end if
     else if (trim(type_name) .eq. 'cheby') then
-       allocate(cheby_t::object)
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call neko_error('Chebyshev only supported for CPU')
+          allocate(cheby_device_t::object)
+       else
+          allocate(cheby_t::object)
        end if
     else if (trim(type_name) .eq. 'bicgstab') then
        allocate(bicgstab_t::object)
@@ -193,6 +195,8 @@ contains
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
        type is (cheby_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
+       type is (cheby_device_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol)
        end select
     else if (present(abstol)) then
        select type (obj => object)
@@ -225,6 +229,8 @@ contains
        type is (bicgstab_t)
           call obj%init(n, max_iter, abs_tol = abstol)
        type is (cheby_t)
+          call obj%init(n, max_iter, abs_tol = abstol)
+       type is (cheby_device_t)
           call obj%init(n, max_iter, abs_tol = abstol)
        end select
     else if (present(M)) then
@@ -259,6 +265,8 @@ contains
           call obj%init(n, max_iter, M = M)
        type is (cheby_t)
           call obj%init(n, max_iter, M = M)
+       type is (cheby_device_t)
+          call obj%init(n, max_iter, M = M)
        end select
     else
        select type (obj => object)
@@ -291,6 +299,8 @@ contains
        type is (bicgstab_t)
           call obj%init(n, max_iter)
        type is (cheby_t)
+          call obj%init(n, max_iter)
+       type is (cheby_device_t)
           call obj%init(n, max_iter)
        end select
     end if
