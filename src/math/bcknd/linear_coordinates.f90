@@ -31,14 +31,13 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 
-
-!> \submodule barycentric_coordinates
-!! This submodule contains the operators that are related to barycentric
+!> \submodule linear coordinates
+!! This submodule contains the operators that are related to linear
 !! coordinates for mesh elements.
 !!
 !! @note Please note that this module only contains the implementations for the
 !! Geometric Operator module.
-submodule (geometric_operators) barycentric_coordinates
+submodule (geometric_operators) linear_coordinates
   use utils, only: neko_error
   use math, only: cross
   implicit none
@@ -149,4 +148,4 @@ contains
 
   end function barycentric_coordinate_tetrahedron
 
-end submodule barycentric_coordinates
+end submodule linear_coordinates

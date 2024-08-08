@@ -115,7 +115,7 @@ EXTRA_DIST = \
 	mesh/mesh_test\
 	gather_scatter/gather_scatter_test\
 	geometric_operators/distance.pf\
-	geometric_operators/local_coordinates.pf\
+	geometric_operators/linear_coordinates.pf\
 	dofmap/dofmap_test\
 	jobctrl/jobctrl_test\
 	math/math_test\

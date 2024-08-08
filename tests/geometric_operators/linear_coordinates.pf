@@ -1,4 +1,4 @@
-module local_coordinates
+module linear_coordinates
   use pfunit
   use geometric_operators
   use num_types, only: dp
@@ -12,7 +12,7 @@ contains
   ! ========================================================================== !
 
   @test
-  subroutine test_local_coordinate_triangle
+  subroutine test_linear_coordinate_triangle
     real(kind=dp), dimension(3) :: p
     type(tri_t) :: triangle
     integer :: dummy_id
@@ -116,12 +116,12 @@ contains
     @assertEqual(-1.0_dp, barycoord(2), tol, trim(message))
     @assertEqual(-1.0_dp, barycoord(3), tol, trim(message))
 
-  end subroutine test_local_coordinate_triangle
+  end subroutine test_linear_coordinate_triangle
 
   ! ========================================================================== !
 
   @test
-  subroutine test_local_coordinate_tetrahedron
+  subroutine test_linear_coordinate_tetrahedron
     real(kind=dp), dimension(3) :: p
     type(tet_t) :: tetrahedron
     integer :: dummy_id
@@ -256,12 +256,12 @@ contains
     @assertEqual(-1.0_dp, barycoord(3), tol, trim(message))
     @assertEqual(-1.0_dp, barycoord(4), tol, trim(message))
 
-  end subroutine test_local_coordinate_tetrahedron
+  end subroutine test_linear_coordinate_tetrahedron
 
   ! ========================================================================== !
 
   @test
-  subroutine test_local_coordinate_quadrilateral
+  subroutine test_linear_coordinate_quadrilateral
     real(kind=dp), dimension(3) :: p
     type(quad_t) :: quadrilateral
     integer :: dummy_id
@@ -358,6 +358,6 @@ contains
     @assertEqual(2.0_dp, linear_coord(1), tol, trim(message))
     @assertEqual(2.0_dp, linear_coord(2), tol, trim(message))
 
-  end subroutine test_local_coordinate_quadrilateral
+  end subroutine test_linear_coordinate_quadrilateral
 
-end module local_coordinates
+end module linear_coordinates

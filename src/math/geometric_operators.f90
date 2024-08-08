@@ -131,11 +131,13 @@ module geometric_operators
   ! ========================================================================== !
   ! Local coordinate operators.
 
-  !> \interface barycentric coordinates
-  !! This interface defines the barycentric coordinates operator. The
-  !! barycentric coordinates operator is used to calculate the barycentric
-  !! coordinates of a point with respect to a geometric object.
-  interface barycentric_coordinate
+  !> \interface linear coordinates
+  !! This interface defines the linear coordinates operator. The linear
+  !! coordinates operator is used to calculate the linear coordinates of a point
+  !! with respect to a geometric object. The linear coordinates are bilinear for
+  !! a quad, trilinear for a hexahedron and baricentric for a triangle and
+  !! tetrahedron.
+  interface linear_coordinate
 
      !> Barycentric coordinates for a point and a triangle
      module function barycentric_coordinate_triangle(p, triangle)
@@ -151,15 +153,6 @@ module geometric_operators
        real(kind=dp), dimension(4) :: barycentric_coordinate_tetrahedron
      end function barycentric_coordinate_tetrahedron
 
-  end interface barycentric_coordinate
-
-  !> \interface linear coordinates
-  !! This interface defines the linear coordinates operator. The linear
-  !! coordinates operator is used to calculate the linear coordinates of a point
-  !! with respect to a geometric object. The linear coordinates are bilinear for
-  !! a quad and trilinear for a hexahedron.
-  interface
-
      !> Linear coordinates for a point and a quadrilateral.
      module function bilinear_coordinate(p, quadrilateral)
        real(kind=dp), dimension(3), intent(in) :: p
@@ -174,6 +167,47 @@ module geometric_operators
        real(kind=dp), dimension(3) :: trilinear_coordinate
      end function trilinear_coordinate
 
-  end interface
+  end interface linear_coordinate
+
+  !> \interface euclidean coordinates
+  !! This interface defines the euclidean coordinates operator. The euclidean
+  !! coordinates operator is used to calculate the euclidean coordinates of a
+  !! point with respect to a geometric object based on a given set of linear
+  !! coordinates.
+  interface euclidean_coordinate
+
+     !> Map barycentric coordinates to euclidean coordinates based on a given
+     !! triangle.
+     module function euclidean_coordinate_triangle(barycoord, triangle)
+       real(kind=dp), dimension(3), intent(in) :: barycoord
+       type(tri_t), intent(in) :: triangle
+       real(kind=dp), dimension(3) :: euclidean_coordinate_triangle
+     end function euclidean_coordinate_triangle
+
+     !> Map barycentric coordinates to euclidean coordinates based on a given
+     !! tetrahedron.
+     module function euclidean_coordinate_tetrahedron(barycoord, tetrahedron)
+       real(kind=dp), dimension(4), intent(in) :: barycoord
+       type(tet_t), intent(in) :: tetrahedron
+       real(kind=dp), dimension(3) :: euclidean_coordinate_tetrahedron
+     end function euclidean_coordinate_tetrahedron
+
+     !> Map linear coordinates to euclidean coordinates based on a given
+     !! quadrilateral.
+     module function euclidean_coordinate_quadrilateral(linearcoord, quadrilateral)
+       real(kind=dp), dimension(2), intent(in) :: linearcoord
+       type(quad_t), intent(in) :: quadrilateral
+       real(kind=dp), dimension(3) :: euclidean_coordinate_quadrilateral
+     end function euclidean_coordinate_quadrilateral
+
+     !> Map linear coordinates to euclidean coordinates based on a given
+     !! hexahedron.
+     module function euclidean_coordinate_hexahedron(linearcoord, hexahedron)
+       real(kind=dp), dimension(3), intent(in) :: linearcoord
+       type(hex_t), intent(in) :: hexahedron
+       real(kind=dp), dimension(3) :: euclidean_coordinate_hexahedron
+     end function euclidean_coordinate_hexahedron
+
+  end interface euclidean_coordinate
 
 end module geometric_operators
