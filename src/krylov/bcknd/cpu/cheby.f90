@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -86,9 +86,9 @@ contains
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol = abs_tol)
     else
        call this%ksp_init(max_iter)
     end if
