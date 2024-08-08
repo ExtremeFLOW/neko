@@ -9,16 +9,20 @@ FC = @FC@
 	$(FC) -c $(FFLAGS) $<
 
 
-check: distance_test
+check: distance_test local_coordinates_test
 
-
+# Test for the distance functions
 distance_test_TESTS := distance.pf
 distance_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko -llapack
 $(eval $(call make_pfunit_test,distance_test))
 
+# Tests for the local_coordinates functions
+local_coordinates_test_TESTS := local_coordinates.pf
+local_coordinates_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko -llapack
+$(eval $(call make_pfunit_test,local_coordinates_test))
 
 clean:
-	$(RM) *.o *.mod *.a *.inc *.F90 distance_test
+	$(RM) *.o *.mod *.a *.inc *.F90 distance_test local_coordinates_test
 
 
 

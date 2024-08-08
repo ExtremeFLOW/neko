@@ -1,0 +1,82 @@
+module local_coordinates
+  use pfunit
+  use geometric_operators
+  use num_types, only: dp
+  use point, only: point_t
+  use tri, only: tri_t
+  use tet, only: tet_t
+  implicit none
+
+contains
+
+  ! ========================================================================== !
+
+  @test
+  subroutine test_local_coordinate_triangle
+    real(kind=dp), dimension(3) :: p
+    type(tri_t) :: triangle
+    integer :: dummy_id
+    real(kind=dp), dimension(3) :: barycoord
+    character(len=100) :: message
+    real(kind=dp), parameter :: tol = 1.0e-12_dp
+
+
+    dummy_id = 0
+    call triangle%init(dummy_id, &
+                       point_t([0.0_dp, 0.0_dp, 0.0_dp]), &
+                       point_t([1.0_dp, 0.0_dp, 0.0_dp]), &
+                       point_t([0.0_dp, 1.0_dp, 0.0_dp]))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit triangle test, point at center"
+
+    p = [1.0_dp / 3.0_dp, 1.0_dp / 3.0_dp, 0.0_dp]
+    barycoord = barycentric_coordinate(p, triangle)
+
+    @assertEqual(barycoord(1), 1.0_dp / 3.0_dp, tol, message)
+    @assertEqual(barycoord(2), 1.0_dp / 3.0_dp, tol, message)
+    @assertEqual(barycoord(3), 1.0_dp / 3.0_dp, tol, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit triangle test, point at vertex"
+
+    p = [0.0_dp, 0.0_dp, 0.0_dp]
+    barycoord = barycentric_coordinate(p, triangle)
+
+    @assertEqual(barycoord(1), 1.0_dp, tol, message)
+    @assertEqual(barycoord(2), 0.0_dp, tol, message)
+    @assertEqual(barycoord(3), 0.0_dp, tol, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit triangle test, point at edge"
+
+    p = [0.5_dp, 0.0_dp, 0.0_dp]
+    barycoord = barycentric_coordinate(p, triangle)
+
+    @assertEqual(barycoord(1), 0.5_dp, tol, message)
+    @assertEqual(barycoord(2), 0.5_dp, tol, message)
+    @assertEqual(barycoord(3), 0.0_dp, tol, message)
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit triangle test, point outside"
+
+    p = [-1.0_dp, -1.0_dp, 0.0_dp]
+    barycoord = barycentric_coordinate(p, triangle)
+
+    @assertEqual(barycoord(1), 3.0_dp, tol, message)
+    @assertEqual(barycoord(2), -1.0_dp, tol, message)
+    @assertEqual(barycoord(3), -1.0_dp, tol, message)
+
+    ! ------------------------------------------------------------------------ !
+
+    ! Setup a more complex triangle
+    call triangle%free()
+    call triangle%init(dummy_id, &
+                       point_t([0.0_dp, 0.0_dp, 0.0_dp]), &
+                       point_t([1.0_dp, 0.0_dp, 0.0_dp]), &
+                       point_t([0.0_dp, 1.0_dp, 0.0_dp]))
+
+  end subroutine test_local_coordinate_triangle
+
+
+end module local_coordinates
