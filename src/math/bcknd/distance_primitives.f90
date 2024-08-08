@@ -47,12 +47,13 @@ contains
   !! @param p Query point
   !! @param point Point
   !! @return Unsigned distance value
-  module function distance_point_real(p, point)
+  module function distance_point_real(p, point) &
+       result(distance)
     real(kind=dp), dimension(3), intent(in) :: p
     real(kind=dp), dimension(3), intent(in) :: point
-    real(kind=dp) :: distance_point_real
+    real(kind=dp) :: distance
 
-    distance_point_real = norm2(p - point)
+    distance = norm2(p - point)
   end function distance_point_real
 
   !> Distance to the infinite line defined by a point and a direction.
@@ -60,11 +61,12 @@ contains
   !! @param point Point on the line
   !! @param direction Direction of the line
   !! @return Distance to the line
-  module function distance_line(p, point, direction)
+  module function distance_line(p, point, direction) &
+       result(distance)
     real(kind=dp), dimension(3), intent(in) :: p
     real(kind=dp), dimension(3), intent(in) :: point
     real(kind=dp), dimension(3), intent(in) :: direction
-    real(kind=dp) :: distance_line
+    real(kind=dp) :: distance
 
     real(kind=dp) :: t, normalized_direction(3), projection(3)
 
@@ -73,7 +75,7 @@ contains
     t = dot_product(p - point, normalized_direction)
     projection = point + t * normalized_direction
 
-    distance_line = norm2(projection - p)
+    distance = norm2(projection - p)
   end function distance_line
 
   !> Distance to the infinite ray starting at a point and going in a
@@ -82,11 +84,12 @@ contains
   !! @param point Point on the ray
   !! @param direction Direction of the ray
   !! @return Distance to the ray
-  module function distance_line_ray(p, point, direction)
+  module function distance_line_ray(p, point, direction) &
+       result(distance)
     real(kind=dp), dimension(3), intent(in) :: p
     real(kind=dp), dimension(3), intent(in) :: point
     real(kind=dp), dimension(3), intent(in) :: direction
-    real(kind=dp) :: distance_line_ray
+    real(kind=dp) :: distance
 
     real(kind=dp) :: t, normalized_direction(3), projection(3)
 
@@ -96,7 +99,7 @@ contains
     t = max(t, 0.0_dp)
     projection = point + t * normalized_direction
 
-    distance_line_ray = norm2(projection - p)
+    distance = norm2(projection - p)
   end function distance_line_ray
 
   !> Distance to a line segment defined by two points.
@@ -104,11 +107,12 @@ contains
   !! @param point_0 First point of the line segment
   !! @param point_1 Second point of the line segment
   !! @return Distance to the line segment
-  module function distance_line_segment(p, point_0, point_1)
+  module function distance_line_segment(p, point_0, point_1) &
+       result(distance)
     real(kind=dp), dimension(3), intent(in) :: p
     real(kind=dp), dimension(3), intent(in) :: point_0
     real(kind=dp), dimension(3), intent(in) :: point_1
-    real(kind=dp) :: distance_line_segment
+    real(kind=dp) :: distance
 
     real(kind=dp), dimension(3) :: direction, normalized_direction, projection
     real(kind=dp) :: t
@@ -120,7 +124,7 @@ contains
     t = max(min(t, 1.0_dp), 0.0_dp)
     projection = point_0 + t * direction
 
-    distance_line_segment = norm2(projection - p)
+    distance = norm2(projection - p)
   end function distance_line_segment
 
   !> Distance to a plane defined by a point and a normal.
@@ -128,13 +132,14 @@ contains
   !! @param point Point on the plane
   !! @param normal Normal of the plane
   !! @return Signed distance to the plane
-  module function distance_plane(p, point, normal)
+  module function distance_plane(p, point, normal) &
+       result(distance)
     real(kind=dp), dimension(3), intent(in) :: p
     real(kind=dp), dimension(3), intent(in) :: point
     real(kind=dp), dimension(3), intent(in) :: normal
-    real(kind=dp) :: distance_plane
+    real(kind=dp) :: distance
 
-    distance_plane = dot_product(p - point, normal) / norm2(normal)
+    distance = dot_product(p - point, normal) / norm2(normal)
   end function distance_plane
 
   !> Distance to a sphere defined by a center and a radius.
@@ -142,13 +147,14 @@ contains
   !! @param sphere_center Center of the sphere
   !! @param sphere_radius Radius of the sphere
   !! @return Signed distance to the sphere
-  module function distance_sphere(p, sphere_center, sphere_radius)
+  module function distance_sphere(p, sphere_center, sphere_radius) &
+       result(distance)
     real(kind=dp), dimension(3), intent(in) :: p
     real(kind=dp), dimension(3), intent(in) :: sphere_center
     real(kind=dp), intent(in) :: sphere_radius
-    real(kind=dp) :: distance_sphere
+    real(kind=dp) :: distance
 
-    distance_sphere = norm2(p - sphere_center) - sphere_radius
+    distance = norm2(p - sphere_center) - sphere_radius
   end function distance_sphere
 
 end submodule distance_primitives

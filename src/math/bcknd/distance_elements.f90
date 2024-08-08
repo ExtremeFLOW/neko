@@ -51,11 +51,13 @@ contains
   !! @param p Query point
   !! @param point Point
   !! @return Unsigned distance value
-  real(kind=dp) module function distance_point_t(p, point)
+  module function distance_point_t(p, point) &
+       result(distance)
     real(kind=dp), dimension(3), intent(in) :: p
     type(point_t), intent(in) :: point
+    real(kind=dp) :: distance
 
-    distance_point_t = norm2(p - point%x)
+    distance = norm2(p - point%x)
 
   end function distance_point_t
 
@@ -69,17 +71,19 @@ contains
   !! @param p Query point
   !! @param triangle Triangle
   !! @return Unsigned distance value
-  real(kind=dp) module function distance_triangle(p, triangle)
+  module function distance_triangle(p, triangle) &
+       result(distance)
     real(kind=dp), dimension(3), intent(in) :: p
     type(tri_t), intent(in) :: triangle
+    real(kind=dp) :: distance
 
     real(kind=dp), dimension(3) :: v1, v2, v3
     real(kind=dp), dimension(3) :: normal
     real(kind=dp) :: normal_length
-    real(kind=dp) :: b1, b2, b3
+    real(kind=dp), dimension(3) :: barycoord
 
     real(kind=dp), dimension(3) :: projection
-    real(kind=dp) :: tol = 1.0e-10_dp
+    real(kind=dp), parameter :: tol = 1.0e-12_dp
 
     ! Get vertices and the normal vector
     v1 = triangle%pts(1)%p%x
@@ -96,16 +100,16 @@ contains
     ! Compute Barycentric coordinates to determine if the point is inside the
     ! triangular prism, off along an edge or by a vertex.
     projection = p - normal * dot_product(p - v1, normal) / normal_length**2
-    b = barycentric_coordinate(projection, triangle)
+    barycoord = barycentric_coordinate(projection, triangle)
 
-    if (b(1) .le. tol) then
-       distance_triangle = distance_line_segment(p, v3, v2)
-    else if (b(2) .le. tol) then
-       distance_triangle = distance_line_segment(p, v1, v3)
-    else if (b(3) .le. tol) then
-       distance_triangle = distance_line_segment(p, v2, v1)
+    if (barycoord(1) .le. tol) then
+       distance = distance_line_segment(p, v3, v2)
+    else if (barycoord(2) .le. tol) then
+       distance = distance_line_segment(p, v1, v3)
+    else if (barycoord(3) .le. tol) then
+       distance = distance_line_segment(p, v2, v1)
     else
-       distance_triangle = abs(distance_plane(p, v1, normal))
+       distance = abs(distance_plane(p, v1, normal))
     end if
 
   end function distance_triangle
@@ -120,9 +124,11 @@ contains
   !! @param p Query point
   !! @param tetrahedron Tetrahedron
   !! @return Unsigned distance value
-  real(kind=dp) module function distance_tetrahedron(p, tetrahedron)
+  module function distance_tetrahedron(p, tetrahedron) &
+       result(distance)
     real(kind=dp), dimension(3), intent(in) :: p
     type(tet_t), intent(in) :: tetrahedron
+    real(kind=dp) :: distance
 
     type(point_t) :: v1, v2, v3, v4
 
@@ -154,8 +160,8 @@ contains
        call face%init(dummy_id, v1, v2, v3)
     end select
 
-    distance_tetrahedron = distance_triangle(p, face)
-    if (all(barycoord .ge. 0.0_dp)) distance_tetrahedron = -distance_tetrahedron
+    distance = distance_triangle(p, face)
+    if (all(barycoord .ge. 0.0_dp)) distance = -distance
 
   end function distance_tetrahedron
 

@@ -40,6 +40,7 @@
 !! Geometric Operator module.
 submodule (geometric_operators) barycentric_coordinates
   use utils, only: neko_error
+  use math, only: cross
   implicit none
 
 contains
@@ -65,10 +66,9 @@ contains
 
     ! Variables for barycentric interpolation
     real(kind=dp), dimension(3, 3) :: barymatrix
-
-    ! Lapack variables
-    integer :: info
-    integer, dimension(3) :: pivot_table
+    real(kind=dp), dimension(3) :: normal
+    real(kind=dp) :: normal_length
+    real(kind=dp), parameter :: tol = 1.0e-12_dp
 
     ! Get vertices and the normal vector
     v1 = triangle%pts(1)%p%x
@@ -86,17 +86,11 @@ contains
        call neko_error('Point is not in the plane of the triangle')
     end if
 
-    ! Compute Barycentric coordinates to determine if the point is inside the
-    ! triangular prism, off along an edge or by a vertex.
-    face_distance = distance_plane(p, v1, normal)
-
-    projection = p - normal * face_distance / normal_length
-    barycoord(1) = dot_product(normal, cross(v3 - v2, projection - v2)) &
-         / normal_length**2
-    barycoord(2) = dot_product(normal, cross(v1 - v3, projection - v3)) &
-         / normal_length**2
-    barycoord(3) = dot_product(normal, cross(v2 - v1, projection - v1)) &
-         / normal_length**2
+    barycoord = [ &
+         & dot_product(normal, cross(v3 - v2, p - v2)) / normal_length**2, &
+         & dot_product(normal, cross(v1 - v3, p - v3)) / normal_length**2, &
+         & dot_product(normal, cross(v2 - v1, p - v1)) / normal_length**2 &
+         & ]
 
   end function barycentric_coordinate_triangle
 
