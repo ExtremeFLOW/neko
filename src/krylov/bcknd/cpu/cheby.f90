@@ -42,7 +42,8 @@ module cheby
   use space, only : space_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
-  use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp, glsc2, add2s1, add2s2
+  use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp, glsc2,  &
+       add2s1, add2s2
   use comm
   implicit none
   private
@@ -153,7 +154,8 @@ contains
   end subroutine cheby_power
 
   !> A chebyshev preconditioner
-  function cheby_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+  function cheby_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+       result(ksp_results)
     class(cheby_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
