@@ -168,7 +168,15 @@ contains
     integer :: iter, max_iter
     real(kind=rp) :: a, b, rtr, rnorm, norm_fac
 
-    if (this%recompute_eigs) call cheby_power(this, Ax, x, n, coef, blst, gs_h)
+    if (this%recompute_eigs) then
+       call cheby_power(this, Ax, x, n, coef, blst, gs_h)
+    end if
+
+    if (present(niter)) then
+       max_iter = niter
+    else
+       max_iter = this%max_iter
+    end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
 
     associate( w => this%w, r => this%r, d => this%d)
@@ -192,7 +200,7 @@ contains
       call add2s2(x%x, d, a, n)! x = x + a*d
 
       ! Rest of the iterations
-      do iter = 2, this%max_iter
+      do iter = 2, max_iter
         ! calculate residual
         call copy(r, f, n)
         call ax%compute(w, x%x, coef, x%msh, x%Xh)
