@@ -89,9 +89,9 @@ neko_fortran_SOURCES = \
 	math/bcknd/sx/sx_lambda2.f90\
 	math/operators.f90\
     math/geometric_operators.f90\
-    math/bcknd/distance_primitives.f90\
-    math/bcknd/distance_elements.f90\
-    math/bcknd/linear_coordinates.f90\
+    math/bcknd/cpu/distance_primitives.f90\
+    math/bcknd/cpu/distance_elements.f90\
+    math/bcknd/cpu/coordinates_linear.f90\
 	math/bcknd/cpu/opr_cpu.f90\
 	math/bcknd/sx/opr_sx.f90\
 	math/bcknd/xsmm/opr_xsmm.F90\

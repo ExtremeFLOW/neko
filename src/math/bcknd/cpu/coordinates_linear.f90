@@ -31,15 +31,20 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 
-!> \submodule linear coordinates
+!> \submodule coordinates linear
 !! This submodule contains the operators that are related to linear
 !! coordinates for mesh elements.
 !!
 !! @note Please note that this module only contains the implementations for the
 !! Geometric Operator module.
-submodule (geometric_operators) linear_coordinates
+submodule (geometric_operators) coordinates_linear
+  use num_types, only: dp
   use utils, only: neko_error
   use math, only: cross
+  use tri, only: tri_t
+  use tet, only: tet_t
+  use quad, only: quad_t
+  use hex, only: hex_t
   implicit none
 
 contains
@@ -56,10 +61,10 @@ contains
   !! @param triangle Triangle
   !! @return Barycentric coordinates
   module function barycentric_coordinate_triangle(p, triangle) &
-       result(barycoord)
+       result(barycentric)
     real(kind=dp), dimension(3), intent(in) :: p
     type(tri_t), intent(in) :: triangle
-    real(kind=dp), dimension(3) :: barycoord
+    real(kind=dp), dimension(3) :: barycentric
 
     real(kind=dp), dimension(3) :: v1, v2, v3
 
@@ -85,7 +90,7 @@ contains
        call neko_error('Point is not in the plane of the triangle')
     end if
 
-    barycoord = [ &
+    barycentric = [ &
          & dot_product(normal, cross(v3 - v2, p - v2)) / normal_length**2, &
          & dot_product(normal, cross(v1 - v3, p - v3)) / normal_length**2, &
          & dot_product(normal, cross(v2 - v1, p - v1)) / normal_length**2 &
@@ -107,10 +112,10 @@ contains
   !! @param tetrahedron Tetrahedron
   !! @return Barycentric coordinates
   module function barycentric_coordinate_tetrahedron(p, tetrahedron) &
-       result(barycoord)
+       result(barycentric)
     real(kind=dp), dimension(3), intent(in) :: p
     type(tet_t), intent(in) :: tetrahedron
-    real(kind=dp), dimension(4) :: barycoord
+    real(kind=dp), dimension(4) :: barycentric
 
     real(kind=dp), dimension(3) :: v1, v2, v3, v4
 
@@ -130,7 +135,7 @@ contains
     ! Compute Barycentric coordinates to determine if the point is inside the
     ! tetrahedron, off along a face, edge or by a vertex.
 
-    barycoord = reshape([1.0_dp, p], shape(barycoord))
+    barycentric = reshape([1.0_dp, p], shape(barycentric))
     barymatrix = transpose(reshape( &
          & [1.0_dp, 1.0_dp, 1.0_dp, 1.0_dp, &
          & v1(1), v2(1), v3(1), v4(1), &
@@ -139,7 +144,7 @@ contains
          & shape(barymatrix)))
 
     ! Solve the system of linear equations
-    call dgesv(4, 1, barymatrix, 4, pivot_table, barycoord, 4, info )
+    call dgesv(4, 1, barymatrix, 4, pivot_table, barycentric, 4, info )
 
     ! Check for the exact singularity.
     if (info .gt. 0) then
@@ -148,4 +153,4 @@ contains
 
   end function barycentric_coordinate_tetrahedron
 
-end submodule linear_coordinates
+end submodule coordinates_linear

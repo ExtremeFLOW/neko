@@ -100,7 +100,7 @@ contains
     ! Compute Barycentric coordinates to determine if the point is inside the
     ! triangular prism, off along an edge or by a vertex.
     projection = p - normal * dot_product(p - v1, normal) / normal_length**2
-    barycoord = barycentric_coordinate(projection, triangle)
+    barycoord = linear_coordinate(projection, triangle)
 
     if (barycoord(1) .le. tol) then
        distance = distance_line_segment(p, v3, v2)
@@ -140,7 +140,7 @@ contains
 
     ! Compute Barycentric coordinates to determine if the point is inside the
     ! tetrahedron, off along a face, edge or by a vertex.
-    barycoord = barycentric_coordinate(p, tetrahedron)
+    barycoord = linear_coordinate(p, tetrahedron)
 
     ! Get vertices and the normal vector
     v1 = tetrahedron%pts(1)%p

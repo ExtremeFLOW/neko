@@ -1,6 +1,9 @@
 module distance
   use pfunit
-  use geometric_operators
+  use geometric_operators, only: distance_point, distance_point_real, &
+       distance_line, distance_line_ray, distance_line_segment, &
+       distance_plane, distance_sphere, distance_point_t, distance_triangle, &
+       distance_tetrahedron, distance_element
   use num_types, only: dp
   use point, only: point_t
   use tri, only: tri_t
