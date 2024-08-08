@@ -50,7 +50,6 @@ module cheby
 
   !> Defines a Chebyshev preconditioner
   type, public, extends(ksp_t) :: cheby_t
-     !!!!!!class(ax_t), pointer :: ax
      real(kind=rp), allocatable :: d(:)
      real(kind=rp), allocatable :: w(:)
      real(kind=rp), allocatable :: r(:)
