@@ -191,6 +191,8 @@ contains
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
        type is (bicgstab_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
+       type is (cheby_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol)
        end select
     else if (present(abstol)) then
        select type (obj => object)
@@ -221,6 +223,8 @@ contains
        type is (gmres_device_t)
           call obj%init(n, max_iter, abs_tol = abstol)
        type is (bicgstab_t)
+          call obj%init(n, max_iter, abs_tol = abstol)
+       type is (cheby_t)
           call obj%init(n, max_iter, abs_tol = abstol)
        end select
     else if (present(M)) then
@@ -253,6 +257,8 @@ contains
           call obj%init(n, max_iter, M = M)
        type is (bicgstab_t)
           call obj%init(n, max_iter, M = M)
+       type is (cheby_t)
+          call obj%init(n, max_iter, M = M)
        end select
     else
        select type (obj => object)
@@ -283,6 +289,8 @@ contains
        type is (gmres_device_t)
           call obj%init(n, max_iter)
        type is (bicgstab_t)
+          call obj%init(n, max_iter)
+       type is (cheby_t)
           call obj%init(n, max_iter)
        end select
     end if
@@ -322,6 +330,8 @@ contains
        type is (gmres_device_t)
           call obj%free()
        type is (bicgstab_t)
+          call obj%free()
+       type is (cheby_t)
           call obj%free()
        end select
     end if
