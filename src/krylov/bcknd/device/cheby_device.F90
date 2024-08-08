@@ -163,7 +163,7 @@ contains
          call random_number(rn)
          d(i) = rn + 10.0_rp
       end do
-      call device_memcpy(d, d_d, n, HOST_TO_DEVICE, sync=.true.)
+      call device_memcpy(d, d_d, n, HOST_TO_DEVICE, sync = .true.)
       
       call gs_h%op(d, n, GS_OP_ADD, this%gs_event)
       call bc_list_apply(blst, d, n)
