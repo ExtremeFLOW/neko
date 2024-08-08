@@ -143,7 +143,6 @@ contains
       dtw = glsc3(d, coef%mult, w, n)
       dtd = glsc3(d, coef%mult, d, n)
       lam = dtw / dtd
-      print *, "LAM:", lam
       b = lam * boost
       a = lam / lam_factor
       this%tha = (b+a)/2.0_rp
@@ -199,7 +198,6 @@ contains
         call gs_h%op(w, n, GS_OP_ADD)
         call bc_list_apply(blst, w, n)
         call sub2(r, w, n)
-        print *,iter, sqrt(glsc3(r, coef%mult, r, n))
 
         call this%M%solve(w, r, n)
 
