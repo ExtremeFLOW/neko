@@ -85,7 +85,7 @@ math/bcknd/sx/sx_opgrad.o : math/bcknd/sx/sx_opgrad.f90 config/num_types.o
 math/bcknd/sx/sx_cfl.o : math/bcknd/sx/sx_cfl.f90 config/num_types.o 
 math/bcknd/sx/sx_lambda2.o : math/bcknd/sx/sx_lambda2.f90 math/math.o config/num_types.o 
 math/operators.o : math/operators.f90 comm/comm.o field/scratch_registry.o math/bcknd/device/device_math.o device/device.o math/math.o field/field.o sem/coef.o sem/space.o math/bcknd/device/opr_device.o math/bcknd/xsmm/opr_xsmm.o math/bcknd/sx/opr_sx.o math/bcknd/cpu/opr_cpu.o config/num_types.o config/neko_config.o 
-math/geometric_operators.o : math/geometric_operators.f90 mesh/quad.o mesh/tet.o mesh/tri.o mesh/point.o config/num_types.o 
+math/geometric_operators.o : math/geometric_operators.f90 mesh/hex.o mesh/quad.o mesh/tet.o mesh/tri.o mesh/point.o config/num_types.o 
 math/bcknd/distance_primitives.o : math/bcknd/distance_primitives.f90 config/num_types.o math/geometric_operators.o 
 math/bcknd/distance_elements.o : math/bcknd/distance_elements.f90 common/utils.o math/math.o math/geometric_operators.o 
 math/bcknd/barycentric_coordinates.o : math/bcknd/barycentric_coordinates.f90 math/math.o common/utils.o math/geometric_operators.o 

@@ -18,6 +18,7 @@ module geometric_operators
   use tri, only: tri_t
   use tet, only: tet_t
   use quad, only: quad_t
+  use hex, only: hex_t
   implicit none
 
   ! ========================================================================== !
@@ -128,7 +129,7 @@ module geometric_operators
   end interface distance_element
 
   ! ========================================================================== !
-  ! Interpolation operators.
+  ! Local coordinate operators.
 
   !> \interface barycentric coordinates
   !! This interface defines the barycentric coordinates operator. The
@@ -151,5 +152,28 @@ module geometric_operators
      end function barycentric_coordinate_tetrahedron
 
   end interface barycentric_coordinate
+
+  !> \interface linear coordinates
+  !! This interface defines the linear coordinates operator. The linear
+  !! coordinates operator is used to calculate the linear coordinates of a point
+  !! with respect to a geometric object. The linear coordinates are bilinear for
+  !! a quad and trilinear for a hexahedron.
+  interface
+
+     !> Linear coordinates for a point and a quadrilateral.
+     module function bilinear_coordinate(p, quadrilateral)
+       real(kind=dp), dimension(3), intent(in) :: p
+       type(quad_t), intent(in) :: quadrilateral
+       real(kind=dp), dimension(2) :: bilinear_coordinate
+     end function bilinear_coordinate
+
+     !> Linear coordinates for a point and a hexahedron.
+     module function trilinear_coordinate(p, hexahedron)
+       real(kind=dp), dimension(3), intent(in) :: p
+       type(hex_t), intent(in) :: hexahedron
+       real(kind=dp), dimension(3) :: trilinear_coordinate
+     end function trilinear_coordinate
+
+  end interface
 
 end module geometric_operators
