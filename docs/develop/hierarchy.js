@@ -339,6 +339,7 @@ var hierarchy =
       [ "cg_cpld::cg_cpld_t", "d7/d45/structcg__cpld_1_1cg__cpld__t.html", null ],
       [ "cg_device::cg_device_t", "dd/d8e/structcg__device_1_1cg__device__t.html", null ],
       [ "cg_sx::sx_cg_t", "d5/d34/structcg__sx_1_1sx__cg__t.html", null ],
+      [ "cheby::cheby_t", "db/d28/structcheby_1_1cheby__t.html", null ],
       [ "fusedcg_cpld_device::fusedcg_cpld_device_t", "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html", null ],
       [ "fusedcg_device::fusedcg_device_t", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html", null ],
       [ "gmres::gmres_t", "df/db9/structgmres_1_1gmres__t.html", null ],

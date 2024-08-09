@@ -39,6 +39,7 @@ var namespaces_dup =
     [ "cg_cpld", "da/d8d/namespacecg__cpld.html", "da/d8d/namespacecg__cpld" ],
     [ "cg_device", "d6/d60/namespacecg__device.html", "d6/d60/namespacecg__device" ],
     [ "cg_sx", "d4/d31/namespacecg__sx.html", "d4/d31/namespacecg__sx" ],
+    [ "cheby", "d8/dec/namespacecheby.html", "d8/dec/namespacecheby" ],
     [ "checkpoint", "d3/d51/namespacecheckpoint.html", "d3/d51/namespacecheckpoint" ],
     [ "chkp_file", "dc/dcb/namespacechkp__file.html", "dc/dcb/namespacechkp__file" ],
     [ "chkp_output", "dc/d4e/namespacechkp__output.html", "dc/d4e/namespacechkp__output" ],
@@ -303,7 +304,7 @@ var namespaces_dup =
     [ "krylov_fctry", "d9/d77/namespacekrylov__fctry.html", [
       [ "krylov_solver_destroy", "d9/d77/namespacekrylov__fctry.html#a6aeb41860ae6067054a60c5ae6262d5f", null ],
       [ "krylov_solver_factory", "d9/d77/namespacekrylov__fctry.html#afbaa64cc1a8ad32e985748ce4e32f7d2", null ],
-      [ "known_types", "d9/d77/namespacekrylov__fctry.html#a5510070e099791b8657c849cf6a0fb49", null ]
+      [ "known_types", "d9/d77/namespacekrylov__fctry.html#aa3c6b5c44c836ab3cc34db913428f5a0", null ]
     ] ],
     [ "lambda2", "d0/d66/namespacelambda2.html", "d0/d66/namespacelambda2" ],
     [ "les_model", "dd/dfc/namespaceles__model.html", "dd/dfc/namespaceles__model" ],

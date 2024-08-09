@@ -101,6 +101,9 @@ var annotated_dup =
     [ "cg_sx", "d4/d31/namespacecg__sx.html", [
       [ "sx_cg_t", "d5/d34/structcg__sx_1_1sx__cg__t.html", "d5/d34/structcg__sx_1_1sx__cg__t" ]
     ] ],
+    [ "cheby", "d8/dec/namespacecheby.html", [
+      [ "cheby_t", "db/d28/structcheby_1_1cheby__t.html", "db/d28/structcheby_1_1cheby__t" ]
+    ] ],
     [ "checkpoint", "d3/d51/namespacecheckpoint.html", [
       [ "chkp_t", "d9/d88/structcheckpoint_1_1chkp__t.html", "d9/d88/structcheckpoint_1_1chkp__t" ]
     ] ],
