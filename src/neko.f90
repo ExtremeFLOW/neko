@@ -117,7 +117,7 @@ contains
     character(8) :: date
     integer :: argc, nthrds, rw, sw
 
-    call date_and_time(time=time, date=date)
+    call date_and_time(time = time, date = date)
 
     call comm_init
     call neko_mpi_types_init
@@ -128,15 +128,15 @@ contains
     call neko_field_registry%init()
 
     if (pe_rank .eq. 0) then
-       write(*,*) ''
-       write(*,*) '   _  __  ____  __ __  ____ '
-       write(*,*) '  / |/ / / __/ / //_/ / __ \'
-       write(*,*) ' /    / / _/  / ,<   / /_/ /'
-       write(*,*) '/_/|_/ /___/ /_/|_|  \____/ '
-       write(*,*) ''
-       write(*,*) '(version: ', trim(NEKO_VERSION),')'
-       write(*,*) trim(NEKO_BUILD_INFO)
-       write(*,*) ''
+       write(*, '(A)') ''
+       write(*, '(A)') '   _  __  ____  __ __  ____ '
+       write(*, '(A)') '  / |/ / / __/ / //_/ / __ \'
+       write(*, '(A)') ' /    / / _/  / ,<   / /_/ /'
+       write(*, '(A)') '/_/|_/ /___/ /_/|_|  \____/ '
+       write(*, '(A)') ''
+       write(*, '(A)') '(version: ', trim(NEKO_VERSION), ')'
+       write(*, '(A)') trim(NEKO_BUILD_INFO)
+       write(*, '(A)') ''
     end if
 
     if (present(C)) then
@@ -144,7 +144,7 @@ contains
        argc = command_argument_count()
 
        if ((argc .lt. 1) .or. (argc .gt. 1)) then
-          if (pe_rank .eq. 0) write(*,*) 'Usage: ./neko <case file>'
+          if (pe_rank .eq. 0) write(*,*) 'Usage: ./neko < case file >'
           stop
        end if
 
@@ -160,8 +160,9 @@ contains
        ! Job information
        !
        call neko_log%section("Job Information")
-       write(log_buf, '(A,A,A,A,1x,A,1x,A,A,A,A,A)') 'Start time: ',&
-         time(1:2),':',time(3:4), '/', date(1:4),'-', date(5:6),'-',date(7:8)
+       write(log_buf, '(A,A,A,A,1x,A,1x,A,A,A,A,A)') 'Start time: ', &
+         time(1:2), ':', time(3:4), &
+         '/', date(1:4), '-', date(5:6), '-', date(7:8)
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
        write(log_buf, '(a)') 'Running on: '
        sw = 10
