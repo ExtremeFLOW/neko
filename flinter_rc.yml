@@ -138,7 +138,7 @@ regexp-rules:
 
   scope-not-specified:
     message: Module usage should be explicit
-    regexp: ((use +)(?!(\bneko\b)|(\bdevice\b)|(\bcomm\b))\w+\b)(?!, only)
+    regexp: ((use +)(?!(\bneko\b)|(\bdevice\b)|(\bcomm\b)|(\bmpi_f08\b)|(\bhdf5\b))\w+\b)(?!, only)
     replacement: null
     active: true
 
