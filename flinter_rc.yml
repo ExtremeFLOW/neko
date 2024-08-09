@@ -136,6 +136,12 @@ regexp-rules:
     replacement: null
     active: true
 
+  scope-not-specified:
+    message: Module usage should be explicit
+    regexp: ((use +)(?!\bneko\b)\w+\b)(?!, only)
+    replacement: null
+    active: true
+
   # -------------------------------------------------------------------------- #
   # Formatting and code style rules
 
