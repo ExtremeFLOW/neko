@@ -20,17 +20,22 @@ program genmeshbox
   integer :: argc, gdim = 3
   integer :: el_idx, p_el_idx, pt_idx
   integer :: i, zone_id, e_x, e_y, e_z, ix, iy, iz, e_id
-  
+  character(len=50) :: log_fname
+  logical :: file_exists
+
   argc = command_argument_count()
 
   if ((argc .lt. 9) .or. (argc .gt. 12)) then
      write(*,*) 'Usage: ./genmeshbox x0 x1 y0 y1 z0 z1 nel_x nel_y nel_z'
-     write(*,*) '**optional** periodic in x? (.true./.false.) y? (.true./.false.) z? (.true./.false.)'
+     write(*,*) '**optional** periodic in x? (.true./.false.) y? (.true./&
+&.false.) z? (.true./.false.)'
      write(*,*)
-     write(*,*) 'Example command: ./genmeshbox 0 1 0 1 0 1 8 8 8 .true. .true. .false.'
-write(*,*) 'This examples generates a cube (box.nmsh) with side length 1 and with',&
-           ' 8 elements in each spatial direction and periodic  boundaries in x-y.'
-       write(*,*) 'BCs for face 5,6 (z zones) can then be set by setting bc_labels(5), bc_labels(6) in the parameter file'
+     write(*,*) 'Example command: ./genmeshbox 0 1 0 1 0 1 8 8 8 .true. &
+&.true. .false.'
+write(*,*) 'This examples generates a cube (box.nmsh) with side length 1 and &
+&with 8 elements in each spatial direction and periodic  boundaries in x-y.'
+       write(*,*) 'BCs for face 5,6 (z zones) can then be set by setting &
+&bc_labels(5), bc_labels(6) in the parameter file'
      stop
   end if
   
@@ -67,6 +72,43 @@ write(*,*) 'This examples generates a cube (box.nmsh) with side length 1 and wit
      read(inputchar, *) period_z
   end if
 
+  log_fname = "genmeshbox.log"
+
+  ! Write a log of what parameters we used with genmeshbox
+  if (pe_rank .eq. 0) then
+
+     do i = 1, 1000
+
+        inquire(file=trim(log_fname), exist=file_exists)
+        if (.not. file_exists) then
+
+           open(unit=10, file=trim(log_fname), status='new', action='write')
+           write (10, '(A,2(F10.6," "),I4,L2)') "xmin, xmax, Nel, periodic:", &
+                x0, x1, nelx, period_x
+           write (10, '(A,2(F10.6," "),I4,L2)') "ymin, ymax, Nel, periodic:", &
+                y0, y1, nely, period_y
+           write (10, '(A,2(F10.6," "),I4,L2)') "zmin, zmax, Nel, periodic:", &
+                z0, z1, nelz, period_z
+           close(10)
+           exit
+
+        end if
+
+        ! if the original genmeshbox.log does not exist, we create new
+        ! files with genmeshbox.log.1, .2, .3, etc
+        if (i .lt. 10) then
+           write(log_fname,'(A,I1,A)') "genmeshbox_", i, ".log"
+        else if (i .lt. 100) then
+           write(log_fname,'(A,I2,A)') "genmeshbox_", i, ".log"
+        else if (i .lt. 1000) then
+           write(log_fname,'(A,I3,A)') "genmeshbox_", i, ".log"
+        else
+           write(log_fname,'(A,I4,A)') "genmeshbox_", i, ".log"
+        end if
+
+     end do
+  end if
+
   nel = nelx*nely*nelz
   call msh%init(gdim, nel)
   call htable_pts%init( nel, gdim)
@@ -84,7 +126,8 @@ write(*,*) 'This examples generates a cube (box.nmsh) with side length 1 and wit
                     coord(1) = x0 + (ix+e_x)*el_len_x
                     coord(2) = y0 + (iy+e_y)*el_len_y
                     coord(3) = z0 + (iz+e_z)*el_len_z
-                    pt_idx = 1 + (ix+e_x) + (iy+e_y)*(nelx+1) + (iz+e_z)*(nelx+1)*(nely+1)
+                    pt_idx = 1 + (ix+e_x) + (iy+e_y)*(nelx+1) + (iz+e_z)*&
+                         (nelx+1)*(nely+1)
                     p(ix+1, iy+1, iz+1) = point_t(coord, pt_idx)
                  end do
               end do
