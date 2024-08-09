@@ -139,7 +139,7 @@ contains
   !> Initialize a case from its (loaded) params object
   subroutine case_init_common(C)
     type(case_t), target, intent(inout) :: C
-    character(len=:), allocatable :: output_directory
+    character(len = :), allocatable :: output_directory
     integer :: lx = 0
     logical :: scalar = .false.
     type(file_t) :: msh_file, bdry_file, part_file
@@ -147,7 +147,7 @@ contains
     logical :: found, logical_val
     integer :: integer_val
     real(kind=rp) :: real_val
-    character(len=:), allocatable :: string_val
+    character(len = :), allocatable :: string_val
     real(kind=rp) :: stats_start_time, stats_output_val
     integer :: stats_sampling_interval
     integer :: output_dir_len
@@ -274,6 +274,10 @@ contains
     !
     call json_get(C%params, 'case.fluid.initial_condition.type',&
                   string_val)
+
+    call neko_log%section("Fluid initial condition ")
+    call neko_log%message("Type: " // trim(string_val))
+
     if (trim(string_val) .ne. 'user') then
        call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
             C%fluid%c_Xh, C%fluid%gs_Xh, string_val, C%params)
@@ -282,8 +286,15 @@ contains
             C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_user_ic, C%params)
     end if
 
+    call neko_log%end_section()
+
     if (scalar) then
+
        call json_get(C%params, 'case.scalar.initial_condition.type', string_val)
+
+       call neko_log%section("Scalar initial condition ")
+       call neko_log%message("Type: " // trim(string_val))
+
        if (trim(string_val) .ne. 'user') then
           call set_scalar_ic(C%scalar%s, &
             C%scalar%c_Xh, C%scalar%gs_Xh, string_val, C%params)
@@ -291,6 +302,9 @@ contains
           call set_scalar_ic(C%scalar%s, &
             C%scalar%c_Xh, C%scalar%gs_Xh, C%usr%scalar_user_ic, C%params)
        end if
+
+       call neko_log%end_section()
+
     end if
 
     ! Add initial conditions to BDF scheme (if present)
