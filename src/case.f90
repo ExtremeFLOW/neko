@@ -201,6 +201,11 @@ contains
     call C%usr%init()
     call C%usr%user_mesh_setup(C%msh)
 
+    !
+    ! Set order of timestepper
+    !
+    call json_get(C%params, 'case.numerics.time_order', integer_val)
+    call C%ext_bdf%init(integer_val)
 
     !
     ! Material properties
@@ -215,11 +220,11 @@ contains
 
     call json_get(C%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get number of gll points
-    call C%fluid%init(C%msh, lx, C%params, C%usr, C%material_properties)
     C%fluid%chkp%tlag => C%tlag
     C%fluid%chkp%dtlag => C%dtlag
-    select type (f => C%fluid)
-    type is (fluid_pnpn_t)
+    call C%fluid%init(C%msh, lx, C%params, C%usr, C%material_properties, C%ext_bdf)
+    select type(f => C%fluid)
+    type is(fluid_pnpn_t)
        f%chkp%abx1 => f%abx1
        f%chkp%abx2 => f%abx2
        f%chkp%aby1 => f%aby1
@@ -227,7 +232,6 @@ contains
        f%chkp%abz1 => f%abz1
        f%chkp%abz2 => f%abz2
     end select
-
 
     !
     ! Setup scratch registry
@@ -245,8 +249,11 @@ contains
 
     if (scalar) then
        allocate(C%scalar)
+       C%scalar%chkp%tlag => C%tlag
+       C%scalar%chkp%dtlag => C%dtlag
        call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params, C%usr,&
-                          C%material_properties)
+                          C%material_properties, C%fluid%ulag, C%fluid%vlag, &
+                          C%fluid%wlag, C%ext_bdf)
        call C%fluid%chkp%add_scalar(C%scalar%s)
        C%fluid%chkp%abs1 => C%scalar%abx1
        C%fluid%chkp%abs2 => C%scalar%abx2
@@ -310,12 +317,6 @@ contains
        call C%scalar%slag%set(C%scalar%s)
        call C%scalar%validate
     end if
-
-    !
-    ! Set order of timestepper
-    !
-    call json_get(C%params, 'case.numerics.time_order', integer_val)
-    call C%ext_bdf%init(integer_val)
 
     !
     ! Get and process output directory

@@ -59,7 +59,8 @@ module advection
      !! @param Xh The function space.
      !! @param coef The coefficients of the (Xh, mesh) pair.
      !! @param n Typically the size of the mesh.
-     subroutine compute_adv(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
+     !! @param dt Current time step used in OIFS method.
+     subroutine compute_adv(this, vx, vy, vz, fx, fy, fz, Xh, coef, n, dt)
        import :: advection_t
        import :: coef_t
        import :: space_t
@@ -71,6 +72,7 @@ module advection
        type(field_t), intent(inout) :: vx, vy, vz
        type(field_t), intent(inout) :: fx, fy, fz
        integer, intent(in) :: n
+       real(kind=rp), intent(in), optional :: dt
      end subroutine compute_adv
   end interface
 
@@ -85,7 +87,8 @@ module advection
      !! @param Xh The function space.
      !! @param coef The coefficients of the (Xh, mesh) pair.
      !! @param n Typically the size of the mesh.
-     subroutine compute_scalar_adv(this, vx, vy, vz, s, fs, Xh, coef, n)
+     !! @param dt Current time step used in OIFS method.
+     subroutine compute_scalar_adv(this, vx, vy, vz, s, fs, Xh, coef, n, dt)
        import :: advection_t
        import :: coef_t
        import :: space_t
@@ -98,6 +101,7 @@ module advection
        type(space_t), intent(inout) :: Xh
        type(coef_t), intent(inout) :: coef
        integer, intent(in) :: n
+       real(kind=rp), intent(in), optional :: dt
      end subroutine compute_scalar_adv
   end interface
 
