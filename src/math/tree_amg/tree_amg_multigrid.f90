@@ -37,7 +37,7 @@ contains
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
-    call cheby(x,b,amg,lvl,n,sit)
+    !call cheby(x,b,amg,lvl,n,sit)
 
     !>----------<!
     !> Residual <!
@@ -61,7 +61,7 @@ contains
     !> Call Coarse solve <!
     !>-------------------<!
     tmp = 0d0
-    call tamg_mg_cycle(tmp, rc, amg, lvl+1, n)
+    call tamg_mg_cycle(tmp, rc, n, lvl+1, amg)
 
     !>----------<!
     !> Project  <!
@@ -79,7 +79,7 @@ contains
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
-    call cheby(x,b,amg,lvl,n,sit)
+    !call cheby(x,b,amg,lvl,n,sit)
 
     !>----------<!
     !> Residual <!
@@ -107,7 +107,7 @@ contains
     integer, intent(in) :: lvl
     integer :: i
     r = 0d0
-    call my_matvec(r, x, lvl, amg, n)
+    call my_matvec(r, x, n, lvl, amg)
     do  i = 1, n
       r(i) = b(i) - r(i)
     end do
@@ -120,7 +120,6 @@ contains
     integer, intent(in) :: lvl
     integer :: i
     call amg%gs_h%op(U, n, GS_OP_ADD)
-    call 
     do  i = 1, n
       U(i) = U(i) * amg%coef%mult(i,1,1,1)
     end do

@@ -2,9 +2,11 @@ module tree_amg
   use num_types
   use utils
   use math
-  use space
-  use coefs
-  use mesh
+  use coefs, only : coef_t
+  use mesh, only : mesh_t
+  use space, only : space_t
+  use ax_product, only: ax_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
   implicit none
   private
 
@@ -46,7 +48,7 @@ module tree_amg
 contains
 
   subroutine tamg_init(this, ax, Xh, coef, msh, gs_h, nlvls)
-    type(tamg_hierarchy_t), target, intent(inout) :: this
+    class(tamg_hierarchy_t), target, intent(inout) :: this
     class(ax_t), target, intent(in) :: ax
     type(space_t),target, intent(in) :: Xh
     type(coef_t), target, intent(in) :: coef
@@ -65,8 +67,8 @@ contains
 
     call aggregate_finest_level(this, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     print *, "Calling lazy aggregation"
-    print *, "-- target aggregates:", floor(msh%nelv/8)
-    call aggregate_elm(this, floor(msh%nelv/8))
+    print *, "-- target aggregates:", (msh%nelv/8)
+    call aggregate_elm(this, (msh%nelv/8))
     print *, "-- Aggregation done. Aggregates:", this%lvl(2)%nnodes
     call aggregate_end(this, 3)
 
@@ -80,7 +82,7 @@ contains
     tamg_lvl%lvl = lvl
     tamg_lvl%nnodes = nnodes
     allocate( tamg_lvl%nodes(tamg_lvl%nnodes) )
-  end subroutine level_init
+  end subroutine tamg_lvl_init
 
   subroutine tamg_node_init(node, gid, ndofs)
     type(tamg_node_t), intent(inout) :: node
@@ -95,7 +97,7 @@ contains
     allocate( node%interp_p( node%ndofs) )
     node%interp_r = 1.0
     node%interp_p = 1.0
-  end subroutine amg_node_init
+  end subroutine tamg_node_init
 
   ! Fill finest level
   subroutine aggregate_finest_level(tamg, lx, ly, lz, ne)
@@ -238,8 +240,8 @@ contains
       ntot = ntot + aggregate_size(l)
     end do
     tamg%lvl(lvl_id)%lvl_dofs = ntot
-    allocate( tamg%lvl(lvl_id)%wrk_in( ntot )
-    allocate( tamg%lvl(lvl_id)%wrk_out( ntot )
+    allocate( tamg%lvl(lvl_id)%wrk_in( ntot ) )
+    allocate( tamg%lvl(lvl_id)%wrk_out( ntot ) )
 
     end associate
   end subroutine aggregate_elm
@@ -249,7 +251,7 @@ contains
     integer, intent(in) :: lvl_id
     integer :: nt, i
     !> link all branches together at a point
-    call level_init( tamg%lvl(lvl_id), lvl_id, 1)
+    call tamg_lvl_init( tamg%lvl(lvl_id), lvl_id, 1)
     !> Allocate lvl
     nt = tamg%lvl(lvl_id-1)%nnodes
     tamg%lvl(lvl_id)%lvl_dofs = nt
@@ -260,7 +262,7 @@ contains
     call tamg_node_init( tamg%lvl(lvl_id)%nodes(1), 1, nt)
     !> Fill node
     do i = 1, tamg%lvl(lvl_id-1)%nnodes
-      tamg%lvl(lvl_id)%nodes(1)%dofs(i) = tamg%lvl(lvl_id-1)%nnodes(i)%gid
+      tamg%lvl(lvl_id)%nodes(1)%dofs(i) = tamg%lvl(lvl_id-1)%nodes(i)%gid
     end do
   end subroutine aggregate_end
 

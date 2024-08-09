@@ -1,5 +1,7 @@
 module tree_amg_matvec
   use tree_amg
+  use num_types
+  use gather_scatter, only : gs_t, GS_OP_ADD
   implicit none
 
 contains
@@ -58,7 +60,7 @@ contains
       !>
       call tamg%ax%compute(vec_out, vec_in, tamg%coef, tamg%msh, tamg%Xh)
       !>
-      call tamg_hierarchy%gs_h%op(vec_out, size(vec_out), GS_OP_ADD)
+      call tamg%gs_h%op(vec_out, size(vec_out), GS_OP_ADD)
       !>
     else !> pass down through hierarchy
       if (lvl_out .ge. lvl) then
