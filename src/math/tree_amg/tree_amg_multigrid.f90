@@ -1,15 +1,54 @@
 module tree_amg_multigrid
   use math
+  use tree_amg
   use tree_amg_matvec
+  use tree_amg_smoother
   implicit none
+  private
+
+  type, public :: tamg_solver_t
+    type(tamg_hierarchy_t), pointer :: amg
+    type(amg_cheby_t), allocatable :: smoo(:)
+    integer :: nlvls
+  contains
+    procedure, pass(this) :: init => tamg_mg_init
+    procedure, pass(this) :: solve => tamg_mg_solve
+  end type tamg_solver_t
 
 contains
 
-  recursive subroutine tamg_mg_cycle(x, b, n, lvl, amg)
+  subroutine tamg_mg_init(this, amg)
+    class(tamg_solver_t), intent(inout), target :: this
+    class(tamg_hierarchy_t), intent(inout), target :: amg
+    integer :: lvl, nlvls, n
+
+    this%amg => amg
+
+    nlvls = 3
+    this%nlvls = nlvls
+    allocate(this%smoo(nlvls))
+    do lvl = 1, nlvls
+      n = amg%lvl(lvl)%lvl_dofs
+      call this%smoo(lvl)%init(n ,lvl, 10)
+    end do
+
+  end subroutine tamg_mg_init
+
+  subroutine tamg_mg_solve(this, z, r, n)
+    integer, intent(in) :: n
+    class(tamg_solver_t), intent(inout) :: this
+    real(kind=rp), dimension(n), intent(inout) :: z
+    real(kind=rp), dimension(n), intent(inout) :: r
+
+    call tamg_mg_cycle(z, r, n, 1, this%amg, this)
+  end subroutine tamg_mg_solve
+
+  recursive subroutine tamg_mg_cycle(x, b, n, lvl, amg, mgstuff)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: x(n)
     real(kind=rp), intent(inout) :: b(n)
     type(tamg_hierarchy_t), intent(inout) :: amg
+    type(tamg_solver_t), intent(inout) :: mgstuff
     integer, intent(in) :: lvl
     real(kind=rp) :: r(n)
     real(kind=rp) :: rc(n)
@@ -37,7 +76,7 @@ contains
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
-    !call cheby(x,b,amg,lvl,n,sit)
+    call mgstuff%smoo(lvl)%solve(x,b, amg%lvl(lvl)%lvl_dofs, amg, sit)
 
     !>----------<!
     !> Residual <!
@@ -61,7 +100,7 @@ contains
     !> Call Coarse solve <!
     !>-------------------<!
     tmp = 0d0
-    call tamg_mg_cycle(tmp, rc, n, lvl+1, amg)
+    call tamg_mg_cycle(tmp, rc, n, lvl+1, amg, mgstuff)
 
     !>----------<!
     !> Project  <!
@@ -79,7 +118,7 @@ contains
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
-    !call cheby(x,b,amg,lvl,n,sit)
+    call mgstuff%smoo(lvl)%solve(x,b, amg%lvl(lvl)%lvl_dofs, amg, sit)
 
     !>----------<!
     !> Residual <!

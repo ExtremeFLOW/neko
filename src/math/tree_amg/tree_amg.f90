@@ -43,6 +43,7 @@ module tree_amg
 
     contains
       procedure, pass(this) :: init => tamg_init
+      procedure, pass(this) :: matvec => tamg_matvec
   end type tamg_hierarchy_t
 
 contains
@@ -265,5 +266,61 @@ contains
       tamg%lvl(lvl_id)%nodes(1)%dofs(i) = tamg%lvl(lvl_id-1)%nodes(i)%gid
     end do
   end subroutine aggregate_end
+
+  recursive subroutine tamg_matvec(this, vec_out, vec_in, lvl, lvl_out)
+    class(tamg_hierarchy_t), intent(inout) :: this
+    real(kind=rp), intent(inout) :: vec_out(:)
+    real(kind=rp), intent(inout) :: vec_in(:)
+    integer, intent(in) :: lvl
+    integer, intent(in) :: lvl_out
+    integer :: i, n, e
+
+    vec_out = 0d0
+
+    if (lvl .eq. 0) then !> isleaf true
+      !> Call local finite element assembly
+      call this%gs_h%op(vec_in, size(vec_in), GS_OP_ADD)
+      do i = 1, size(vec_in)
+        vec_in(i) = vec_in(i) * this%coef%mult(i,1,1,1)
+      end do
+      !>
+      call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
+      !>
+      call this%gs_h%op(vec_out, size(vec_out), GS_OP_ADD)
+      !>
+    else !> pass down through hierarchy
+      if (lvl_out .ge. lvl) then
+        !> lvl is finer than desired output
+        !> project input vector to finer grid
+        associate( wrk_in => this%lvl(lvl)%wrk_in, wrk_out => this%lvl(lvl)%wrk_out)
+        wrk_in = 0d0
+        wrk_out = 0d0
+        do n = 1, this%lvl(lvl)%nnodes
+          associate (node => this%lvl(lvl)%nodes(n))
+          do i = 1, node%ndofs
+            wrk_in( node%dofs(i) ) = wrk_in( node%dofs(i) ) + vec_in( node%gid ) * node%interp_p( i )
+          end do
+          end associate
+        end do
+
+        call this%matvec(wrk_out, wrk_in, lvl-1, lvl_out)
+
+        !> restrict to coarser grid
+        do n = 1, this%lvl(lvl)%nnodes
+          associate (node => this%lvl(lvl)%nodes(n))
+          do i = 1, node%ndofs
+            vec_out( node%gid ) = vec_out(node%gid ) + wrk_out( node%dofs(i) ) * node%interp_r( i )
+          end do
+          end associate
+        end do
+        end associate
+      else if (lvl_out .lt. lvl) then
+        !> lvl is coarser then desired output. Continue down tree
+        call this%matvec(vec_out, vec_in, lvl-1, lvl_out)
+      else
+        print *, "ERROR"
+      end if
+    end if
+  end subroutine tamg_matvec
 
 end module tree_amg
