@@ -104,6 +104,18 @@ module device_math
   end interface
 
   interface
+     subroutine hip_cadd2(a_d, b_d, c, n) &
+          bind(c, name='hip_cadd2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: b_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine hip_cadd2
+  end interface
+
+  interface
      subroutine hip_cfill(a_d, c, n) &
           bind(c, name='hip_cfill')
        use, intrinsic :: iso_c_binding
@@ -264,6 +276,16 @@ module device_math
   end interface
 
   interface
+     subroutine hip_add3(a_d, b_d, c_d, n) &
+          bind(c, name='hip_add3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine hip_add3
+  end interface
+
+  interface
      subroutine hip_addcol3(a_d, b_d, c_d, n) &
           bind(c, name='hip_addcol3')
        use, intrinsic :: iso_c_binding
@@ -402,7 +424,6 @@ module device_math
      end subroutine cuda_cmult2
   end interface
 
-
   interface
      subroutine cuda_cadd(a_d, c, n) &
           bind(c, name='cuda_cadd')
@@ -412,6 +433,18 @@ module device_math
        real(c_rp) :: c
        integer(c_int) :: n
      end subroutine cuda_cadd
+  end interface
+
+  interface
+     subroutine cuda_cadd2(a_d, b_d, c, n) &
+          bind(c, name='cuda_cadd2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: b_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine cuda_cadd2
   end interface
 
   interface
@@ -561,6 +594,16 @@ module device_math
        type(c_ptr), value :: a_d, b_d, c_d
        integer(c_int) :: n
      end subroutine cuda_sub3
+  end interface
+
+  interface
+     subroutine cuda_add3(a_d, b_d, c_d, n) &
+          bind(c, name='cuda_add3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine cuda_add3
   end interface
 
   interface
@@ -722,6 +765,18 @@ module device_math
        real(c_rp) :: c
        integer(c_int) :: n
      end subroutine opencl_cadd
+  end interface
+
+  interface
+     subroutine opencl_cadd2(a_d, b_d, c, n) &
+          bind(c, name='opencl_cadd2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: a_d
+       type(c_ptr), value :: b_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine opencl_cadd2
   end interface
 
   interface
@@ -893,6 +948,16 @@ module device_math
   end interface
 
   interface
+     subroutine opencl_add3(a_d, b_d, c_d, n) &
+          bind(c, name='opencl_add3')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine opencl_add3
+  end interface
+
+  interface
      subroutine opencl_addcol3(a_d, b_d, c_d, n) &
           bind(c, name='opencl_addcol3')
        use, intrinsic :: iso_c_binding
@@ -974,10 +1039,11 @@ module device_math
        device_col2, device_col3, device_subcol3, device_sub2, device_sub3, &
        device_addcol3, device_addcol4, device_vdot3, device_vlsc3, device_glsc3, &
        device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
-       device_masked_copy, device_cfill_mask
+       device_masked_copy, device_cfill_mask, device_add3, device_cadd2
   
 contains
 
+  !> Copy a vector \f$ a = b \f$
   subroutine device_copy(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
     integer :: n
@@ -992,6 +1058,7 @@ contains
 #endif
   end subroutine device_copy
 
+  !> Copy a masked vector \f$ a(mask) = b(mask) \f$.
   subroutine device_masked_copy(a_d, b_d, mask_d, n, m)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, m
@@ -1006,6 +1073,8 @@ contains
 #endif
   end subroutine device_masked_copy
 
+  !> @brief Fill a constant to a masked vector.
+  !! \f$ a_i = c, for i in mask \f$
   subroutine device_cfill_mask(a_d, c, size, mask_d, mask_size)
     type(c_ptr) :: a_d
     real(kind=rp), intent(in) :: c
@@ -1023,6 +1092,7 @@ contains
 #endif
   end subroutine device_cfill_mask
 
+  !> Zero a real vector
   subroutine device_rzero(a_d, n)
     type(c_ptr) :: a_d
     integer :: n
@@ -1037,6 +1107,7 @@ contains
 #endif
   end subroutine device_rzero
 
+  !> Set all elements to one
   subroutine device_rone(a_d, n)
     type(c_ptr) :: a_d
     integer :: n
@@ -1050,6 +1121,7 @@ contains
 #endif
   end subroutine device_rone
 
+  !> Multiplication by constant c \f$ a = c \cdot a \f$
   subroutine device_cmult(a_d, c, n)
     type(c_ptr) :: a_d
     real(kind=rp), intent(in) :: c
@@ -1065,6 +1137,7 @@ contains
 #endif
   end subroutine device_cmult
 
+  !> Multiplication by constant c \f$ a = c \cdot b \f$
   subroutine device_cmult2(a_d, b_d, c, n)
     type(c_ptr) :: a_d, b_d
     real(kind=rp), intent(in) :: c
@@ -1080,7 +1153,7 @@ contains
 #endif
   end subroutine device_cmult2
 
-
+  !> Add a scalar to vector \f$ a = a + s \f$
   subroutine device_cadd(a_d, c, n)
     type(c_ptr) :: a_d
     real(kind=rp), intent(in) :: c
@@ -1096,6 +1169,24 @@ contains
 #endif
   end subroutine device_cadd
 
+  !> Add a scalar to vector \f$ a = b + s \f$
+  subroutine device_cadd2(a_d, b_d, c, n)
+    type(c_ptr) :: a_d
+    type(c_ptr) :: b_d
+    real(kind=rp), intent(in) :: c
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_cadd2(a_d, b_d, c, n)
+#elif HAVE_CUDA
+    call cuda_cadd2(a_d, b_d, c, n)
+#elif HAVE_OPENCL
+    call opencl_cadd2(a_d, b_d, c, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_cadd2
+
+  !> Set all elements to a constant c \f$ a = c \f$
   subroutine device_cfill(a_d, c, n)
     type(c_ptr) :: a_d
     real(kind=rp), intent(in) :: c
@@ -1111,6 +1202,7 @@ contains
 #endif
   end subroutine device_cfill
 
+  !> Vector addition \f$ a = a + b \f$
   subroutine device_add2(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
     integer :: n
@@ -1140,6 +1232,8 @@ contains
 #endif
   end subroutine device_add2s1
 
+  !> Vector addition with scalar multiplication \f$ a = c_1 a + b \f$
+  !! (multiplication on first argument)
   subroutine device_add2s2(a_d, b_d, c1, n)
     type(c_ptr) :: a_d, b_d
     real(kind=rp) :: c1
@@ -1155,6 +1249,7 @@ contains
 #endif
   end subroutine device_add2s2
 
+  !> Returns \f$ a = a + c1 * (b * b )\f$
   subroutine device_addsqr2s2(a_d, b_d, c1, n)
     type(c_ptr) :: a_d, b_d
     real(kind=rp) :: c1
@@ -1170,6 +1265,22 @@ contains
 #endif
   end subroutine device_addsqr2s2
 
+  !> Vector addition \f$ a = b + c \f$
+  subroutine device_add3(a_d, b_d, c_d, n)
+    type(c_ptr) :: a_d, b_d, c_d
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_add3(a_d, b_d, c_d, n)
+#elif HAVE_CUDA
+    call cuda_add3(a_d, b_d, c_d, n)
+#elif HAVE_OPENCL
+    call opencl_add3(a_d, b_d, c_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_add3
+
+  !> Returns \f$ a = c1 * b + c2 * c \f$
   subroutine device_add3s2(a_d, b_d, c_d, c1, c2 ,n)
     type(c_ptr) :: a_d, b_d, c_d
     real(kind=rp) :: c1, c2
@@ -1185,6 +1296,7 @@ contains
 #endif
   end subroutine device_add3s2
 
+  !> Invert a vector \f$ a = 1 / a \f$
   subroutine device_invcol1(a_d, n)
     type(c_ptr) :: a_d
     integer :: n
@@ -1199,6 +1311,7 @@ contains
 #endif
   end subroutine device_invcol1
 
+  !> Vector division \f$ a = a / b \f$
   subroutine device_invcol2(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
     integer :: n
@@ -1213,6 +1326,7 @@ contains
 #endif
   end subroutine device_invcol2
 
+  !> Vector multiplication \f$ a = a \cdot b \f$
   subroutine device_col2(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
     integer :: n
@@ -1227,6 +1341,7 @@ contains
 #endif
   end subroutine device_col2
 
+  !> Vector multiplication with 3 vectors \f$ a =  b \cdot c \f$
   subroutine device_col3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
@@ -1241,6 +1356,7 @@ contains
 #endif
   end subroutine device_col3
 
+  !> Returns \f$ a = a - b*c \f$
   subroutine device_subcol3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
@@ -1255,6 +1371,7 @@ contains
 #endif
   end subroutine device_subcol3
 
+  !> Vector substraction \f$ a = a - b \f$
   subroutine device_sub2(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
     integer :: n
@@ -1269,6 +1386,7 @@ contains
 #endif
   end subroutine device_sub2
 
+  !> Vector subtraction \f$ a = b - c \f$
   subroutine device_sub3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
@@ -1283,6 +1401,7 @@ contains
 #endif
   end subroutine device_sub3
 
+  !> Returns \f$ a = a + b*c \f$
   subroutine device_addcol3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
@@ -1297,6 +1416,7 @@ contains
 #endif
   end subroutine device_addcol3
 
+  !> Returns \f$ a = a + b*c*d \f$
   subroutine device_addcol4(a_d, b_d, c_d, d_d, n)
     type(c_ptr) :: a_d, b_d, c_d, d_D
     integer :: n
@@ -1311,6 +1431,8 @@ contains
 #endif
   end subroutine device_addcol4
 
+  !> Compute a dot product \f$ dot = u \cdot v \f$ (3-d version)
+  !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
   subroutine device_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n)
     type(c_ptr) :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
     integer :: n
@@ -1325,6 +1447,7 @@ contains
 #endif
   end subroutine device_vdot3
 
+  !> Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$
   function device_vlsc3(u_d, v_d, w_d, n) result(res)
     type(c_ptr) :: u_d, v_d, w_d
     integer :: n
@@ -1342,6 +1465,7 @@ contains
 #endif
   end function device_vlsc3
 
+  !> Weighted inner product \f$ a^T b c \f$
   function device_glsc3(a_d, b_d, c_d, n) result(res)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n, ierr
@@ -1401,6 +1525,7 @@ contains
 #endif
   end subroutine device_add2s2_many
 
+  !> Weighted inner product \f$ a^T b \f$
   function device_glsc2(a_d, b_d, n) result(res)
     type(c_ptr) :: a_d, b_d
     integer :: n, ierr
@@ -1423,6 +1548,7 @@ contains
 #endif
   end function device_glsc2
 
+  !> Sum a vector of length n
   function device_glsum(a_d, n) result(res)
     type(c_ptr) :: a_d
     integer :: n, ierr

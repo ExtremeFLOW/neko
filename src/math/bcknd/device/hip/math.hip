@@ -119,7 +119,7 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
     
   }
-  /** Fortran wrapper for cmult
+  /** Fortran wrapper for cadd
    * Add a scalar to vector \f$ a = \sum a_i + s \f$
    */
   void hip_cadd(void *a, real *c, int *n) {
@@ -132,7 +132,22 @@ extern "C" {
                        (real *) a, *c, *n);
     HIP_CHECK(hipGetLastError()); 
   }
-  
+
+  /**
+   * Fortran wrapper for cadd2
+   * Add a scalar to a vector \f$ a = b + s \f$
+   */
+  void hip_cadd2(void *a, void *b, real *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(cadd2_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) a, (real *) b, *c, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
   /** Fortran wrapper for cfill
    * Multiplication by constant c \f$ a = c \cdot a \f$
    */
@@ -319,7 +334,7 @@ extern "C" {
                        (real *) a, (real *) b, *n);
     HIP_CHECK(hipGetLastError());
   }
- 
+
   /**
    * Fortran wrapper for sub3
    * Vector subtraction \f$ a = b - c \f$
@@ -531,6 +546,21 @@ extern "C" {
                        (real *) x, (const real **) p, (real *) alpha, *j, *n);
     HIP_CHECK(hipGetLastError());
 
+  }
+
+  /**
+   * Fortran wrapper for add3
+   * Vector addition \f$ a = b + c \f$
+   */
+  void hip_add3(void *a, void *b, void *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(add3_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) a, (real *) b, (real *) c, *n);
+    HIP_CHECK(hipGetLastError());
   }
 
   /**

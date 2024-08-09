@@ -1,0 +1,357 @@
+module matrix_parallel
+  use mpi
+  use pfunit
+  use neko_config
+  use matrix
+  use num_types
+  use device
+  use math
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  implicit none
+
+  @TestCase
+  type, extends(MPITestCase) :: test_matrix
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_matrix
+
+contains
+
+  subroutine setUp(this)
+    class(test_matrix), intent(inout) :: this
+    if ((NEKO_BCKND_DEVICE .eq. 1)) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_matrix), intent(inout) :: this
+    if ((NEKO_BCKND_DEVICE .eq. 1)) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+  @test(npes=[1])
+  subroutine test_matrix_init(this)
+    class (test_matrix), intent(inout) :: this
+    integer, parameter :: n = 42, m = 37
+    type(matrix_t) :: v
+    integer :: ierr
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    call v%init(n,m)
+    @assertTrue(allocated(v%x))
+    @assertEqual(v%n, n*m)
+    @assertEqual(size(v%x), n*m)
+    @assertEqual(v%size(), n*m)
+    @assertEqual(v%nrows, n)
+    @assertEqual(v%ncols, m)
+    @assertEqual(maxval(v%x), 0d0)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       @assertTrue(c_associated(v%x_d))
+    else
+       @assertFalse(c_associated(v%x_d))
+    end if
+
+  end subroutine test_matrix_init
+
+  @test(npes=[1])
+  subroutine test_matrix_free(this)
+    class (test_matrix), intent(inout) :: this
+    integer, parameter :: n = 42, m = 37
+    type(matrix_t) :: v
+    integer :: ierr
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    call v%init(n, m)
+    call v%free()
+    @assertFalse(allocated(v%x))
+    @assertEqual(v%n, 0)
+    @assertEqual(v%size(), 0)
+    @assertEqual(v%nrows, 0)
+    @assertEqual(v%ncols, 0)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       @assertFalse(c_associated(v%x_d))
+    end if
+    
+  end subroutine test_matrix_free
+
+  @test(npes=[1])
+  subroutine test_matrix_assign_matrix(this)
+    class (test_matrix), intent(inout) :: this
+    integer, parameter :: n = 42
+    integer, parameter :: m = 4711
+    type(matrix_t) :: v, w
+
+    call w%init(n,m)
+    v = w
+    @assertEqual(v%n, w%n)
+    @assertEqual(v%nrows, n)
+    @assertEqual(v%ncols, m)
+    @assertEqual(v%nrows, w%nrows)
+    @assertEqual(v%ncols, w%ncols)
+    @assertEqual(v%n, n*m)
+    @assertTrue(allocated(v%x))
+
+    call w%free()
+    call w%init(m,n)
+
+    v = w
+    @assertEqual(v%n, w%n)
+    @assertEqual(v%nrows, m)
+    @assertEqual(v%ncols, n)
+    @assertEqual(v%nrows, w%nrows)
+    @assertEqual(v%ncols, w%ncols)
+    @assertEqual(v%n, m*n)
+    @assertTrue(allocated(v%x))
+       
+  end subroutine test_matrix_assign_matrix
+
+  @test(npes[1])
+  subroutine test_matrix_assign_scalar(this)
+    class (test_matrix), intent(inout) :: this
+    integer, parameter :: n = 4711, m = 42
+    real(kind=rp), parameter :: s =42.0_rp
+    type(matrix_t) :: v
+    integer :: i, j
+
+    call v%init(n, m)
+    v = s
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(v%x, v%x_d, n*m, DEVICE_TO_HOST, sync=.true.)
+    end if
+
+    do j = 1, m
+       do i = 1, n
+          @assertEqual(42.0_rp, v%x(i,j), tolerance=NEKO_EPS)
+       end do
+    end do
+       
+  end subroutine test_matrix_assign_scalar
+  
+  @test(npes=[1])
+  subroutine test_matrix_add_matrix(this)
+    class (test_matrix), intent(inout) :: this
+    integer, parameter :: n = 42, m = 37
+    type(matrix_t) :: u, v, w
+    integer :: i, j
+
+    call w%init(n, m)
+    call v%init(n, m)
+
+    w = 1.0_rp
+    v = 3.0_rp
+
+    v = v + w
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(v%x, v%x_d, n*m, DEVICE_TO_HOST, sync=.true.)
+    end if
+
+    do j = 1, m
+       do i = 1, n
+          @assertEqual(4.0_rp, v%x(i,j), tolerance=NEKO_EPS)
+       end do
+    end do
+
+    u = v + w
+    @assertEqual(u%n, v%n)
+    @assertEqual(u%n, w%n)
+    @assertEqual(u%nrows, v%nrows)
+    @assertEqual(u%nrows, w%nrows)
+    @assertEqual(u%ncols, v%ncols)
+    @assertEqual(u%ncols, w%ncols)
+    @assertTrue(allocated(u%x))
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(u%x, u%x_d, n*m, DEVICE_TO_HOST, sync=.true.)
+    end if
+
+    do j = 1, m
+       do i = 1, n
+          @assertEqual(5.0_rp, u%x(i,j), tolerance=NEKO_EPS)
+       end do
+    end do
+
+  end subroutine test_matrix_add_matrix
+
+  @test(npes[1])
+  subroutine test_matrix_add_scalar(this)
+    class (test_matrix), intent(inout) :: this
+    integer, parameter :: n = 4711, m = 42
+    real(kind=rp), parameter :: s =42.0_rp
+    type(matrix_t) :: v, u
+    integer :: i, j
+
+    call v%init(n, m)
+    v = 2.0_rp
+    v = v + s
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(v%x, v%x_d, n*m, DEVICE_TO_HOST, sync=.true.)
+    end if
+
+    do j = 1, m
+       do i = 1, n
+          @assertEqual(44.0_rp, v%x(i,j), tolerance=NEKO_EPS)
+       end do
+    end do
+
+    u = v + s
+    @assertEqual(u%n, v%n)
+    @assertEqual(u%nrows, v%nrows)
+    @assertEqual(u%ncols, v%ncols)
+    @assertTrue(allocated(u%x))
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(u%x, u%x_d, n*m, DEVICE_TO_HOST, sync=.true.)
+    end if
+
+    do j = 1, m
+       do i = 1, n
+          @assertEqual(86.0_rp, u%x(i,j), tolerance=NEKO_EPS)
+       end do
+    end do
+
+  end subroutine test_matrix_add_scalar
+
+  @test(npes=[1])
+  subroutine test_matrix_sub_matrix(this)
+    class (test_matrix), intent(inout) :: this
+    integer, parameter :: n = 42, m = 37
+    type(matrix_t) :: u, v, w
+    integer :: i, j
+
+    call w%init(n, m)
+    call v%init(n, m)
+
+    v = 3.0_rp
+    w = 1.0_rp
+
+    do j = 1, m
+       do i = 1, n
+          @assertEqual(3.0_rp, v%x(i, j), tolerance=NEKO_EPS)
+          @assertEqual(1.0_rp, w%x(i, j), tolerance=NEKO_EPS)
+       end do
+    end do
+
+    v = v - w
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(v%x, v%x_d, n*m, DEVICE_TO_HOST, sync=.true.)
+    end if
+
+    do j = 1, m
+       do i = 1, n
+          @assertEqual(2.0_rp, v%x(i, j), tolerance=NEKO_EPS)
+       end do
+    end do
+
+    u = v - w
+    @assertEqual(u%n, v%n)
+    @assertEqual(u%n, w%n)
+    @assertEqual(u%nrows, v%nrows)
+    @assertEqual(u%nrows, w%nrows)
+    @assertEqual(u%ncols, v%ncols)
+    @assertEqual(u%ncols, w%ncols)
+    @assertTrue(allocated(u%x))
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(u%x, u%x_d, n*m, DEVICE_TO_HOST, sync=.true.)
+    end if
+
+    do j = 1, m
+       do i = 1, n
+          @assertEqual(1.0_rp, u%x(i, j), tolerance=NEKO_EPS)
+       end do
+    end do
+
+  end subroutine test_matrix_sub_matrix
+
+  @test(npes[1])
+  subroutine test_matrix_sub_scalar(this)
+    class (test_matrix), intent(inout) :: this
+    integer, parameter :: n = 4711, m = 42
+    real(kind=rp), parameter :: s =42.0_rp
+    type(matrix_t) :: v, u
+    integer :: i, j
+
+    call v%init(n, m)
+    v = 2.0_rp
+    v = v - s
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(v%x, v%x_d, n*m, DEVICE_TO_HOST, sync=.true.)
+    end if
+
+    do j = 1, m
+       do i = 1, n
+          @assertEqual(-40.0_rp, v%x(i, j), tolerance=NEKO_EPS)
+       end do
+    end do
+
+    u = v - s
+    @assertEqual(u%n, v%n)
+    @assertEqual(u%nrows, v%nrows)
+    @assertEqual(u%ncols, v%ncols)
+    @assertTrue(allocated(u%x))
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(u%x, u%x_d, n*m, DEVICE_TO_HOST, sync=.true.)
+    end if
+
+    do j = 1, m
+       do i = 1, n
+          @assertEqual(-82.0_rp, u%x(i, j), tolerance=NEKO_EPS)
+       end do
+    end do
+
+  end subroutine test_matrix_sub_scalar
+
+  @test(npes[1])
+  subroutine test_matrix_cmult_scalar(this)
+    class (test_matrix), intent(inout) :: this
+    integer, parameter :: n = 4711, m = 42
+    real(kind=rp), parameter :: s =42.0_rp
+    type(matrix_t) :: v, u
+    integer :: i, j
+
+    call v%init(n, m)
+    v = 2.0_rp
+    v = v*s
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(v%x, v%x_d, n*m, DEVICE_TO_HOST, sync=.true.)
+    end if
+
+    do j = 1, m
+       do i = 1, n
+          @assertEqual(84.0_rp, v%x(i, j), tolerance=NEKO_EPS)
+       end do
+    end do
+
+    u = s*v
+    @assertEqual(u%n, v%n)
+    @assertEqual(u%nrows, v%nrows)
+    @assertEqual(u%ncols, v%ncols)
+    @assertTrue(allocated(u%x))
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(u%x, u%x_d, n*m, DEVICE_TO_HOST, sync=.true.)
+    end if
+
+    do j = 1, m
+       do i = 1, n
+          @assertEqual(3528.0_rp, u%x(i, j), tolerance=NEKO_EPS)
+       end do
+    end do
+
+  end subroutine test_matrix_cmult_scalar
+
+end module matrix_parallel
