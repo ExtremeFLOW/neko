@@ -65,16 +65,25 @@ module idw_source_term
      type(intersect_detector_t) :: intersect
      type(global_interpolation_t) :: global_interp
      type(point_t), allocatable :: lag_pts(:)
+     type(point_t), allocatable :: lag_nrm(:)
      type(stack_i4_t), allocatable :: lag_el(:)
      real(kind=dp), allocatable :: xyz(:,:)
      real(kind=rp), allocatable :: fu_ib(:)
      real(kind=rp), allocatable :: fv_ib(:)
      real(kind=rp), allocatable :: fw_ib(:)
+     real(kind=rp), allocatable :: fum_ib(:)
+     real(kind=rp), allocatable :: fvm_ib(:)
+     real(kind=rp), allocatable :: fwm_ib(:)
      real(kind=rp)  :: pwr_param
      real(kind=rp) :: rmax
      type(field_t)  :: w
-     type(field_t)  :: ds 
+     type(field_t)  :: wm
+     type(field_t)  :: ds
+     type(field_t) :: mmsk
+     type(field_t) :: pmsk
+     type(field_t) :: tmp
      type(gs_t)  :: gs
+     logical :: one_sided
    contains
      !> The common constructor using a JSON object.
      procedure, pass(this) :: init => idw_source_term_init_from_json
@@ -103,9 +112,7 @@ contains
     real(kind=dp) :: aabb_padding,dx_max, dy_max, dz_max, ds_max, ds_min
     type(stack_i4_t) :: overlaps
     type(stack_pt_t) ::  lagrangian_points
-         
-
-    type(file_t) :: wf, dsf
+    type(stack_pt_t) ::  lagrangian_normals
 
     ! Mandatory fields for the general source term
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
@@ -122,11 +129,14 @@ contains
     call json_get_or_default(json, "power_parameter", this%pwr_param, 0.5_rp)
     write(log_buf, '(A,f5.2)')  'IDW Power  : ', this%pwr_param
     call neko_log%message(log_buf)
+    call json_get_or_default(json, "one_sided", this%one_sided, .false.)
+    write(log_buf, '(A,L1)')  'One sided  : ', this%one_sided
+    call neko_log%message(log_buf)
     
     ! Naive apporach to find the smallest distance between two dofs in the mesh
 
     ds_min = huge(0.0_rp)
-    ds_max = -huge(1.0_rp)
+    ds_max = -huge(0.0_rp)
 
     call this%ds%init(coef%dof)
 
@@ -218,10 +228,11 @@ contains
     write(log_buf, '(A,ES13.6)') 'Maximum ds :',  this%ds_max    
     call neko_log%message(log_buf)
 
-    aabb_padding = 4 * ds_max
+    aabb_padding = 4 * ds_max !2.0_rp !10000 * ds_max
     
     call this%intersect%init(coef%msh, aabb_padding)
     call lagrangian_points%init()
+    call lagrangian_normals%init()
     
     call json%get('objects', json_object_list)
     call json%info('objects', n_children=n_regions)
@@ -245,7 +256,8 @@ contains
        call neko_log%message('Type       : '// trim(object_type))
        select case (object_type)
        case ('boundary_mesh')
-          call this%init_boundary_mesh(lagrangian_points, object_settings)
+          call this%init_boundary_mesh(lagrangian_points, lagrangian_normals, &
+               object_settings)
        case ('none')
           call neko_error('IDW source term objects require a region type')
        case default
@@ -282,7 +294,11 @@ contains
     allocate(this%fu_ib(lagrangian_points%size()))
     allocate(this%fv_ib(lagrangian_points%size()))
     allocate(this%fw_ib(lagrangian_points%size()))
+    allocate(this%fum_ib(lagrangian_points%size()))
+    allocate(this%fvm_ib(lagrangian_points%size()))
+    allocate(this%fwm_ib(lagrangian_points%size()))
     allocate(this%lag_pts(lagrangian_points%size()))
+    allocate(this%lag_nrm(lagrangian_normals%size()))
     
     select type(pt => lagrangian_points%data)
     type is (point_t)
@@ -294,6 +310,12 @@ contains
        end do
     end select
 
+    select type(pt => lagrangian_normals%data)
+    type is (point_t)
+       do i = 1, lagrangian_normals%size()
+          this%lag_nrm(i) = pt(i)
+       end do
+    end select
     
     call this%global_interp%init(coef%dof)
 
@@ -315,6 +337,7 @@ contains
 
     ! Construct weight field
     call this%w%init(coef%dof, "ib_weight")
+    call this%wm%init(coef%dof, "ib_mweight")
 
     call this%gs%init(coef%dof)
 
@@ -326,22 +349,43 @@ contains
     this%ds%x = this%ds%x * coef%mult    
     call this%gs%op(this%ds, GS_OP_ADD)
 
+    call this%mmsk%init(coef%dof, "ib_mmask")
+    call this%pmsk%init(coef%dof, "ib_pmask")
+    call this%tmp%init(coef%dof, "ib_tmp")
+    
+    if (this%one_sided) then
+       call idw_compute_mask(this%mmsk, this%pmsk, this%lag_pts, this%lag_el, &
+            this%lag_nrm, coef%dof%x, coef%dof%y, coef%dof%z, &
+            coef%Xh%lx, coef%msh%nelv)
+    else
+       this%mmsk%x = 0.0_rp
+       this%pmsk%x = 1.0_rp
+    end if
 
-    call idw_compute_weight(this%w, this%lag_pts, this%lag_el, &
+
+    this%pmsk%x = this%pmsk%x * coef%mult
+
+    call this%gs%op(this%pmsk, GS_OP_ADD)
+
+    this%mmsk%x = this%mmsk%x * coef%mult
+
+    call this%gs%op(this%mmsk, GS_OP_ADD)
+    
+
+    call idw_compute_weight(this%w, this%wm, this%pmsk, this%lag_pts, this%lag_el, &
          coef%dof%x, coef%dof%y, coef%dof%z, this%ds%x, this%rmax, &
-         this%pwr_param, this%gs, coef%Xh%lx,coef%msh%nelv)
+         this%pwr_param, coef%Xh%lx,coef%msh%nelv)
 
     this%w%x = this%w%x * coef%mult
 
     call this%gs%op(this%w, GS_OP_ADD)
-    
-    wf = file_t("w.fld")
-    call wf%write(this%w)
 
-    dsf = file_t("ds.fld")
-    call dsf%write(this%ds)
-    
+    this%wm%x = this%wm%x * coef%mult
+        
+    call this%gs%op(this%wm, GS_OP_ADD)
+          
     call lagrangian_points%free()
+    call lagrangian_normals%free()
     
   end subroutine idw_source_term_init_from_json
 
@@ -350,8 +394,6 @@ contains
     integer :: i
     
     call this%free_base()
-
-
 
     call this%ds%free()
 
@@ -369,6 +411,18 @@ contains
 
     if (allocated(this%fw_ib)) then
        deallocate(this%fw_ib)
+    end if
+
+    if (allocated(this%fum_ib)) then
+       deallocate(this%fum_ib)
+    end if
+
+    if (allocated(this%fvm_ib)) then
+       deallocate(this%fvm_ib)
+    end if
+
+    if (allocated(this%fwm_ib)) then
+       deallocate(this%fwm_ib)
     end if
 
     if (allocated(this%lag_pts)) then
@@ -393,6 +447,7 @@ contains
     type(field_t), pointer :: u, v, w, fu, fv, fw
     integer :: i, j, k, l, e, ee, n
     real(kind=rp) :: r, idw, dt
+    
     n = this%fields%item_size(1)
 
     u => neko_field_registry%get_field('u')
@@ -405,59 +460,142 @@ contains
 
     !> @todo Change this once we have variable time-stepping
     dt = t / tstep
-
+    
     associate(global_interp => this%global_interp, &
          fu_ib => this%fu_ib, fv_ib => this%fv_ib, fw_ib => this%fw_ib, &
-         lag_pts => this%lag_pts, &
-         ds => this%ds%x, c => this%w%x, x => this%w%dof%x, &
+         fum_ib => this%fum_ib, fvm_ib => this%fvm_ib, fwm_ib => this%fwm_ib, &
+         lag_pts => this%lag_pts, tmp => this%tmp, &
+         ds => this%ds%x, x => this%w%dof%x, &
          y => this%w%dof%y, z => this%w%dof%z, lx => this%w%Xh%lx)
 
 
       fu_ib = 0.0_rp
       fv_ib = 0.0_rp
       fw_ib = 0.0_rp
-      
-      call global_interp%evaluate(fu_ib, u%x)
-      call global_interp%evaluate(fv_ib, v%x)
-      call global_interp%evaluate(fw_ib, w%x)
 
-      do i = 1, size(this%lag_pts)
-         select type (el => this%lag_el(i)%data)
-         type is (integer)
-            do ee = 1, this%lag_el(i)%size()
-               e = el(ee)
-               do l = 1, lx 
-                  do k = 1, lx
-                     do j = 1, lx
-                        if (abs(this%w%x(j,k,l,e)) .gt. 1e-4_rp) then
+      if (this%one_sided) then
+
+         fum_ib = 0.0_rp
+         fvm_ib = 0.0_rp
+         fwm_ib = 0.0_rp
+         
+         do i = 1, n
+            tmp%x(i,1,1,1) = u%x(i,1,1,1) * this%pmsk%x(i,1,1,1)
+         end do
+         call global_interp%evaluate(fu_ib, tmp%x)
+         
+         do i = 1, n
+            tmp%x(i,1,1,1) = v%x(i,1,1,1) * this%pmsk%x(i,1,1,1)
+         end do
+         call global_interp%evaluate(fv_ib, tmp%x)
+      
+         do i = 1, n
+            tmp%x(i,1,1,1) = w%x(i,1,1,1) * this%pmsk%x(i,1,1,1)
+         end do
+         call global_interp%evaluate(fw_ib, tmp%x)
+         
+         do i = 1, n
+            tmp%x(i,1,1,1) = u%x(i,1,1,1) * this%mmsk%x(i,1,1,1)
+         end do
+         call global_interp%evaluate(fum_ib, tmp%x)
+      
+         do i = 1, n
+            tmp%x(i,1,1,1) = v%x(i,1,1,1) * this%mmsk%x(i,1,1,1)
+         end do
+         call global_interp%evaluate(fvm_ib, tmp%x)
+         
+         do i = 1, n
+            tmp%x(i,1,1,1) = w%x(i,1,1,1) * this%mmsk%x(i,1,1,1)
+         end do
+         call global_interp%evaluate(fwm_ib, tmp%x)
+         
+         do i = 1, size(this%lag_pts)
+            select type (el => this%lag_el(i)%data)
+            type is (integer)
+               do ee = 1, this%lag_el(i)%size()
+                  e = el(ee)
+                  do l = 1, lx 
+                     do k = 1, lx
+                        do j = 1, lx
                            r = sqrt((x(j,k,l,e) - lag_pts(i)%x(1))**2 &
                                 + (y(j,k,l,e) - lag_pts(i)%x(2))**2 &
                                 + (z(j,k,l,e) - lag_pts(i)%x(3))**2)
                            r = r / ds(j,k,l,e)
                            idw = inv_dist_weight(r, this%rmax, this%pwr_param)
-
-                           fu%x(j,k,l,e) = fu%x(j,k,l,e) &
-                                + (-fu_ib(i) * idw) / (this%w%x(j,k,l,e) * dt)
                            
-                           fv%x(j,k,l,e) = fv%x(j,k,l,e) &
-                                + (-fv_ib(i) * idw) / (this%w%x(j,k,l,e) * dt)
-                           
-                           fw%x(j,k,l,e) = fw%x(j,k,l,e) &
-                                + (-fw_ib(i) * idw) / (this%w%x(j,k,l,e) * dt)
-                           
-
-                        end if
+                           if (this%pmsk%x(j,k,l,e) .gt. 0) then
+                              if (abs(this%w%x(j,k,l,e)) .gt. 1e-12_rp) then
+                                 fu%x(j,k,l,e) = fu%x(j,k,l,e) &
+                                      + (-fu_ib(i) * idw) / (this%w%x(j,k,l,e) * dt)
+                                 
+                                 fv%x(j,k,l,e) = fv%x(j,k,l,e) &
+                                   + (-fv_ib(i) * idw) / (this%w%x(j,k,l,e) * dt)
+                              
+                                 fw%x(j,k,l,e) = fw%x(j,k,l,e) &
+                                   + (-fw_ib(i) * idw) / (this%w%x(j,k,l,e) * dt)
+                              end if
+                           else
+                              if (abs(this%wm%x(j,k,l,e)) .gt. 1e-12_rp) then 
+                                 fu%x(j,k,l,e) = fu%x(j,k,l,e) &
+                                      + (-fum_ib(i) * idw) / (this%wm%x(j,k,l,e) * dt)
+                                 
+                                 fv%x(j,k,l,e) = fv%x(j,k,l,e) &
+                                      + (-fvm_ib(i) * idw) / (this%wm%x(j,k,l,e) * dt)
+                                 
+                                 fw%x(j,k,l,e) = fw%x(j,k,l,e) &
+                                      + (-fwm_ib(i) * idw) / (this%wm%x(j,k,l,e) * dt)
+                              end if
+                           end if
+                        end do
                      end do
                   end do
                end do
-            end do
-         end select
-      end do
-      
+            end select
+         end do
+      else
 
-      fu%x = fu%x * this%coef%mult
-      fv%x = fv%x * this%coef%mult
-      fw%x = fw%x * this%coef%mult
+         call global_interp%evaluate(fu_ib, u%x)
+         call global_interp%evaluate(fv_ib, v%x)
+         call global_interp%evaluate(fw_ib, w%x)
+         
+
+         do i = 1, size(this%lag_pts)
+            select type (el => this%lag_el(i)%data)
+            type is (integer)
+               do ee = 1, this%lag_el(i)%size()
+                  e = el(ee)
+                  do l = 1, lx 
+                     do k = 1, lx
+                        do j = 1, lx
+                           if (this%w%x(j,k,l,e) .gt. 1e-12_rp) then
+                              r = sqrt((x(j,k,l,e) - lag_pts(i)%x(1))**2 &
+                                   + (y(j,k,l,e) - lag_pts(i)%x(2))**2 &
+                                   + (z(j,k,l,e) - lag_pts(i)%x(3))**2)
+                              r = r / ds(j,k,l,e)
+                              idw = inv_dist_weight(r, this%rmax, this%pwr_param)
+                           
+                              fu%x(j,k,l,e) = fu%x(j,k,l,e) &
+                                   + (-fu_ib(i) * idw) / (this%w%x(j,k,l,e) * dt)
+                              
+                              fv%x(j,k,l,e) = fv%x(j,k,l,e) &
+                                   + (-fv_ib(i) * idw) / (this%w%x(j,k,l,e) * dt)
+                              
+                              fw%x(j,k,l,e) = fw%x(j,k,l,e) &
+                                   + (-fw_ib(i) * idw) / (this%w%x(j,k,l,e) * dt)
+                           end if
+                        end do
+                     end do
+                  end do
+               end do
+            end select
+         end do
+      end if
+         
+      do i = 1, n
+         fu%x(i,1,1,1) = fu%x(i,1,1,1) * this%coef%mult(i,1,1,1)
+         fv%x(i,1,1,1) = fv%x(i,1,1,1) * this%coef%mult(i,1,1,1)
+         fw%x(i,1,1,1) = fw%x(i,1,1,1) * this%coef%mult(i,1,1,1)         
+      end do
 
       call this%gs%op(fu, GS_OP_ADD)
       call this%gs%op(fv, GS_OP_ADD)
@@ -467,16 +605,18 @@ contains
     
   end subroutine idw_source_term_compute
 
-  subroutine idw_init_boundary_mesh(this, lag_pts, json)
+  subroutine idw_init_boundary_mesh(this, lag_pts, lag_nrm, json)
     class(idw_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(stack_pt_t), intent(inout) :: lag_pts
+    type(stack_pt_t), intent(inout) :: lag_nrm
     type(file_t) :: mesh_file
     type(tri_mesh_t) :: boundary_mesh
     character(len=:), allocatable :: mesh_file_name
     character(len=LOG_SIZE) :: log_buf
     integer :: i, j, el_idx
     type(stack_i4_t) :: overlaps
+    type(point_t) :: tri_nrm, tri_cntr
 
     call json_get(json, 'name', mesh_file_name)
     mesh_file = file_t(mesh_file_name)
@@ -506,39 +646,52 @@ contains
     end if
 
     call overlaps%init()
-    
-    do i = 1, boundary_mesh%mpts
-       call this%intersect%overlap(boundary_mesh%points(i), overlaps)
 
-!       if (overlaps%size() .gt. 0) then
-          call lag_pts%push(boundary_mesh%points(i))
+    do i = 1, boundary_mesh%nelv
+       
+       tri_cntr = boundary_mesh%el(i)%centroid()
+       tri_nrm = boundary_mesh%el(i)%normal()
 
-          do while (.not. overlaps%is_empty())
-             el_idx = overlaps%pop()
-          end do
+       
+       call this%intersect%overlap(tri_cntr, overlaps)
+          
+          !       if (overlaps%size() .gt. 0) then
+
+       call lag_pts%push(tri_cntr)
+       call lag_nrm%push(tri_nrm)
+          
+!       do while (.not. overlaps%is_empty())
+!          el_idx = overlaps%pop()
+!       end do
  !      end if
        call overlaps%clear()
 
     end do
+    
+
+
+       
+
     
     call boundary_mesh%free()
     
   end subroutine idw_init_boundary_mesh
 
   !> Compute IB weight field
-  subroutine idw_compute_weight(w, lag_pts, lag_el, x, y, z, ds, rmax, p, gs, lx, ne)
-    type(field_t), intent(inout) :: w
+  subroutine idw_compute_weight(w, wm, msk, lag_pts, lag_el, x, y, z, &
+       ds, rmax, p, lx, ne)
+    type(field_t), intent(inout) :: w, wm, msk
     type(point_t), allocatable, intent(inout) :: lag_pts(:)
     type(stack_i4_t), allocatable, intent(inout) :: lag_el(:)
     integer, intent(in) :: lx, ne
     real(kind=rp), dimension(lx,lx,lx,ne) :: x, y, z, ds
     real(kind=rp), intent(inout) :: p
     real(kind=rp), intent(inout) :: rmax
-    type(gs_t), intent(inout) :: gs
     integer :: i, j, k, l, e, ee
     real(kind=rp) :: r
 
     w%x = 0.0_rp
+    wm%x = 0.0_rp
 
     do i = 1, size(lag_pts)
        select type(el => lag_el(i)%data)
@@ -552,8 +705,53 @@ contains
                            + (y(j,k,l,e) - lag_pts(i)%x(2))**2 &
                            + (z(j,k,l,e) - lag_pts(i)%x(3))**2)
                       r = r / ds(j,k,l,e)
-                      w%x(j, k, l, e) = w%x(j, k, l, e) &
-                           + inv_dist_weight(r, rmax, p)
+                      if (msk%x(j,k,l,e) .gt. 0) then
+                         w%x(j, k, l, e) = w%x(j, k, l, e) &
+                              + inv_dist_weight(r, rmax, p)
+                      else
+                         wm%x(j, k, l, e) = wm%x(j, k, l, e) &
+                              + inv_dist_weight(r, rmax, p)
+                      end if
+                   end do
+                end do
+             end do
+          end do
+       end select
+    end do
+
+  end subroutine idw_compute_weight
+
+    !> Compute IB mask fields
+  subroutine idw_compute_mask(mmsk, pmsk, lag_pts, lag_el, lag_nrm,  x, y, z, lx, ne)
+    type(field_t), intent(inout) :: mmsk, pmsk
+    type(point_t), allocatable, intent(inout) :: lag_pts(:)
+    type(stack_i4_t), allocatable, intent(inout) :: lag_el(:)
+    type(point_t), allocatable, intent(inout) :: lag_nrm(:)
+    integer, intent(in) :: lx, ne
+    real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: x, y, z
+    real(kind=rp), allocatable :: dist(:,:,:,:)
+    real(kind=rp) :: euler_pt(3)
+    integer :: i, j, k, l, e, ee
+    real(kind=rp) :: r
+
+    mmsk%x = 1.0_rp
+    pmsk%x = 1.0_rp
+
+    allocate(dist(lx,lx,lx,ne))
+    dist = huge(0.0_rp)
+    
+    do i = 1, size(lag_pts)
+       select type(el => lag_el(i)%data)
+       type is (integer)
+          do ee = 1, lag_el(i)%size()
+             e = el(ee)           
+             do l = 1, lx 
+                do k = 1, lx
+                   do j = 1, lx
+                     r = sqrt((x(j,k,l,e) - lag_pts(i)%x(1))**2 &
+                           + (y(j,k,l,e) - lag_pts(i)%x(2))**2 &
+                           + (z(j,k,l,e) - lag_pts(i)%x(3))**2)
+                     dist(j,k,l,e) = min(dist(j,k,l,e), r)
                    end do
                 end do
              end do
@@ -561,7 +759,40 @@ contains
        end select
     end do
     
-  end subroutine idw_compute_weight
+    do i = 1, size(lag_pts)
+       select type(el => lag_el(i)%data)
+       type is (integer)
+          do ee = 1, lag_el(i)%size()
+             e = el(ee)           
+             do l = 1, lx 
+                do k = 1, lx
+                   do j = 1, lx
+                      r = sqrt((x(j,k,l,e) - lag_pts(i)%x(1))**2 &
+                           + (y(j,k,l,e) - lag_pts(i)%x(2))**2 &
+                           + (z(j,k,l,e) - lag_pts(i)%x(3))**2)
+
+                      if (r .le. dist(j,k,l,e)) then
+                         
+                         euler_pt(1) = (x(j,k,l,e) - lag_pts(i)%x(1))
+                         euler_pt(2) = (y(j,k,l,e) - lag_pts(i)%x(2))
+                         euler_pt(3) = (z(j,k,l,e) - lag_pts(i)%x(3))
+                         
+                         if (sum(euler_pt * lag_nrm(i)%x) .gt. 0) then
+                            mmsk%x(j,k,l,e) = 0.0_rp
+                         else
+                            pmsk%x(j,k,l,e) = 0.0_rp
+                         end if
+                      end if
+                   end do
+                end do
+             end do
+          end do
+       end select
+    end do
+
+    deallocate(dist)
+    
+  end subroutine idw_compute_mask
   
   !> Inverse distance weighting coefficient
   !! @param r Radial distance to Lagrangian point.
