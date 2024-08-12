@@ -1,0 +1,368 @@
+module euclidean_coordinates
+  use pfunit
+  use geometric_operators, only: euclidean_coordinate
+  use num_types, only: dp
+  use point, only: point_t
+  use tri, only: tri_t
+  use tet, only: tet_t
+  use quad, only: quad_t
+  use hex, only: hex_t
+  implicit none
+
+contains
+
+  ! ========================================================================== !
+
+  @test
+  subroutine test_euclidean_coordinate_triangle
+    real(kind=dp), dimension(3) :: p
+    type(tri_t) :: triangle
+    integer :: dummy_id
+    real(kind=dp), dimension(3) :: barycoord
+    character(len=100) :: message
+    real(kind=dp), parameter :: tol = 1.0e-12_dp
+
+    dummy_id = 0
+    call triangle%init(dummy_id, &
+                       point_t([0.0_dp, 0.0_dp, 0.0_dp]), &
+                       point_t([1.0_dp, 0.0_dp, 0.0_dp]), &
+                       point_t([0.0_dp, 1.0_dp, 0.0_dp]))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit triangle test, point at center"
+
+    barycoord = [1.0_dp / 3.0_dp, 1.0_dp / 3.0_dp, 1.0_dp / 3.0_dp]
+    p = euclidean_coordinate(barycoord, triangle)
+
+    @assertEqual(1.0_dp / 3.0_dp, p(1), tol, trim(message))
+    @assertEqual(1.0_dp / 3.0_dp, p(2), tol, trim(message))
+    @assertEqual(0.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit triangle test, point at vertex"
+
+    barycoord = [1.0_dp, 0.0_dp, 0.0_dp]
+    p = euclidean_coordinate(p, triangle)
+
+    @assertEqual(0.0_dp, p(1), tol, trim(message))
+    @assertEqual(0.0_dp, p(2), tol, trim(message))
+    @assertEqual(0.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit triangle test, point at edge"
+
+    barycoord = [0.5_dp, 0.5_dp, 0.0_dp]
+    p = euclidean_coordinate(p, triangle)
+
+    @assertEqual(0.5_dp, p(1), tol, trim(message))
+    @assertEqual(0.0_dp, p(2), tol, trim(message))
+    @assertEqual(0.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit triangle test, point outside"
+
+    barycoord = [ 3.0_dp, -1.0_dp, -1.0_dp]
+    p = euclidean_coordinate(p, triangle)
+
+    @assertEqual(-1.0_dp, p(1), tol, trim(message))
+    @assertEqual(-1.0_dp, p(2), tol, trim(message))
+    @assertEqual(0.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+
+    ! Setup a more complex triangle
+    call triangle%free()
+    call triangle%init(dummy_id, &
+                       point_t([37.0_dp, 10.0_dp, 20.0_dp]), &
+                       point_t([1.0_dp, 20.0_dp, -3.0_dp]), &
+                       point_t([42.0_dp, -42.0_dp, 0.0_dp]))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex triangle test, point at center"
+
+    barycoord = [1.0_dp / 3.0_dp, 1.0_dp / 3.0_dp, 1.0_dp / 3.0_dp]
+    p = euclidean_coordinate(p, triangle)
+
+    @assertEqual(80.0_dp / 3.0_dp, p(1), tol, trim(message))
+    @assertEqual(-4.0_dp, p(2), tol, trim(message))
+    @assertEqual(17.0_dp / 3.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex triangle test, point at vertex"
+
+    barycoord = [1.0_dp, 0.0_dp, 0.0_dp]
+    p = euclidean_coordinate(p, triangle)
+
+    @assertEqual(37.0_dp, p(1), tol, trim(message))
+    @assertEqual(10.0_dp, p(2), tol, trim(message))
+    @assertEqual(20.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex triangle test, point at edge"
+
+    barycoord = [0.5_dp, 0.0_dp, 0.5_dp]
+    p = euclidean_coordinate(p, triangle)
+
+    @assertEqual(39.5_dp, p(1), tol, trim(message))
+    @assertEqual(-16.0_dp, p(2), tol, trim(message))
+    @assertEqual(10.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex triangle test, point outside"
+
+    barycoord = [3.0_dp, -1.0_dp, -1.0_dp]
+    p = euclidean_coordinate(p, triangle)
+
+    @assertEqual(68.0_dp, p(1), tol, trim(message))
+    @assertEqual(52.0_dp, p(2), tol, trim(message))
+    @assertEqual(63.0_dp, p(3), tol, trim(message))
+
+  end subroutine test_euclidean_coordinate_triangle
+
+  ! ========================================================================== !
+
+  @test
+  subroutine test_euclidean_coordinate_tetrahedron
+    real(kind=dp), dimension(3) :: p
+    type(tet_t) :: tetrahedron
+    integer :: dummy_id
+    real(kind=dp), dimension(4) :: barycoord
+    character(len=100) :: message
+    real(kind=dp), parameter :: tol = 1.0e-12_dp
+
+    dummy_id = 0
+    call tetrahedron%init(dummy_id, &
+                          point_t([0.0_dp, 0.0_dp, 0.0_dp]), &
+                          point_t([1.0_dp, 0.0_dp, 0.0_dp]), &
+                          point_t([0.0_dp, 1.0_dp, 0.0_dp]), &
+                          point_t([0.0_dp, 0.0_dp, 1.0_dp]))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit tetrahedron test, point at center"
+
+    barycoord = [1.0_dp / 4.0_dp, &
+                 1.0_dp / 4.0_dp, &
+                 1.0_dp / 4.0_dp, &
+                 1.0_dp / 4.0_dp]
+    p = euclidean_coordinate(barycoord, tetrahedron)
+
+    @assertEqual(0.25_dp, p(1), tol, trim(message))
+    @assertEqual(0.25_dp, p(2), tol, trim(message))
+    @assertEqual(0.25_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit tetrahedron test, point at vertex"
+
+    barycoord = [1.0_dp, 0.0_dp, 0.0_dp, 0.0_dp]
+    p = euclidean_coordinate(p, tetrahedron)
+
+    @assertEqual(0.0_dp, p(1), tol, trim(message))
+    @assertEqual(0.0_dp, p(2), tol, trim(message))
+    @assertEqual(0.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit tetrahedron test, point at edge"
+
+    barycoord = [0.5_dp, 0.5_dp, 0.0_dp, 0.0_dp]
+    p = euclidean_coordinate(p, tetrahedron)
+
+    @assertEqual(0.5_dp, p(1), tol, trim(message))
+    @assertEqual(0.5_dp, p(2), tol, trim(message))
+    @assertEqual(0.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit tetrahedron test, point at face"
+
+    barycoord = [1.0_dp / 3.0_dp, 1.0_dp / 3.0_dp, 1.0_dp / 3.0_dp, 0.0_dp]
+    p = euclidean_coordinate(p, tetrahedron)
+
+    @assertEqual(1.0_dp / 3.0_dp, p(1), tol, trim(message))
+    @assertEqual(1.0_dp / 3.0_dp, p(2), tol, trim(message))
+    @assertEqual(1.0_dp / 3.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit tetrahedron test, point outside"
+
+    barycoord = [ 4.0_dp, -1.0_dp, -1.0_dp, -1.0_dp]
+    p = euclidean_coordinate(p, tetrahedron)
+
+    @assertEqual(-1.0_dp, p(1), tol, trim(message))
+    @assertEqual(-1.0_dp, p(2), tol, trim(message))
+    @assertEqual(-1.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+
+    ! Setup a more complex tetrahedron
+    call tetrahedron%free()
+    call tetrahedron%init(dummy_id, &
+                          point_t([37.0_dp, 10.0_dp, 20.0_dp]), &
+                          point_t([1.0_dp, 20.0_dp, -3.0_dp]), &
+                          point_t([42.0_dp, -42.0_dp, 0.0_dp]), &
+                          point_t([0.0_dp, 0.0_dp, 0.0_dp]))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex tetrahedron test, point at center"
+
+    barycoord = [1.0_dp / 4.0_dp, &
+                 1.0_dp / 4.0_dp, &
+                 1.0_dp / 4.0_dp, &
+                 1.0_dp / 4.0_dp]
+    p = euclidean_coordinate(p, tetrahedron)
+
+    @assertEqual(20.0_dp, p(1), tol, trim(message))
+    @assertEqual(-3.0_dp, p(2), tol, trim(message))
+    @assertEqual(4.25_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex tetrahedron test, point at vertex"
+
+    barycoord = [1.0_dp, 0.0_dp, 0.0_dp, 0.0_dp]
+    p = euclidean_coordinate(p, tetrahedron)
+
+    @assertEqual(37.0_dp, p(1), tol, trim(message))
+    @assertEqual(10.0_dp, p(2), tol, trim(message))
+    @assertEqual(20.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex tetrahedron test, point at edge"
+
+    barycoord = [0.5_dp, 0.5_dp, 0.0_dp, 0.0_dp]
+    p = euclidean_coordinate(p, tetrahedron)
+
+    @assertEqual(19.0_dp, p(1), tol, trim(message))
+    @assertEqual(-16.0_dp, p(2), tol, trim(message))
+    @assertEqual(10.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex tetrahedron test, point at face"
+
+    barycoord = [1.0_dp / 3.0_dp, 1.0_dp / 3.0_dp, 1.0_dp / 3.0_dp, 0.0_dp]
+    p = euclidean_coordinate(p, tetrahedron)
+
+    @assertEqual(26.0_dp, p(1), tol, trim(message))
+    @assertEqual(-4.0_dp, p(2), tol, trim(message))
+    @assertEqual(6.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex tetrahedron test, point outside"
+
+    barycoord = [3.0_dp, -1.0_dp, -1.0_dp, -1.0_dp]
+    p = euclidean_coordinate(p, tetrahedron)
+
+    @assertEqual(0.0_dp, p(1), tol, trim(message))
+    @assertEqual(0.0_dp, p(2), tol, trim(message))
+    @assertEqual(0.0_dp, p(3), tol, trim(message))
+
+  end subroutine test_euclidean_coordinate_tetrahedron
+
+  ! ========================================================================== !
+
+  @test
+  subroutine test_euclidean_coordinate_quadrilateral
+    real(kind=dp), dimension(3) :: p
+    type(quad_t) :: quadrilateral
+    integer :: dummy_id
+    real(kind=dp), dimension(2) :: linearcoord
+    character(len=100) :: message
+    real(kind=dp), parameter :: tol = 1.0e-12_dp
+
+    dummy_id = 0
+    call quadrilateral%init(dummy_id, &
+                            point_t([0.0_dp, 0.0_dp, 0.0_dp]), &
+                            point_t([1.0_dp, 0.0_dp, 0.0_dp]), &
+                            point_t([0.0_dp, 1.0_dp, 0.0_dp]), &
+                            point_t([1.0_dp, 1.0_dp, 0.0_dp]))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit quadrilateral test, point at center"
+
+    linearcoord = [0.5_dp, 0.5_dp]
+    p = euclidean_coordinate(linearcoord, quadrilateral)
+
+    @assertEqual(0.5_dp, p(1), tol, trim(message))
+    @assertEqual(0.5_dp, p(2), tol, trim(message))
+    @assertEqual(0.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit quadrilateral test, point at vertex"
+
+    linearcoord = [1.0_dp, 0.0_dp]
+    p = euclidean_coordinate(p, quadrilateral)
+
+    @assertEqual(0.0_dp, p(1), tol, trim(message))
+    @assertEqual(0.0_dp, p(2), tol, trim(message))
+    @assertEqual(0.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit quadrilateral test, point at edge"
+
+    linearcoord = [0.0_dp, 0.5_dp]
+    p = euclidean_coordinate(p, quadrilateral)
+
+    @assertEqual(0.0_dp, p(1), tol, trim(message))
+    @assertEqual(0.5_dp, p(2), tol, trim(message))
+    @assertEqual(0.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Unit quadrilateral test, point outside"
+
+    linearcoord = [ 2.0_dp, -1.0_dp]
+    p = euclidean_coordinate(p, quadrilateral)
+
+    @assertEqual(2.0_dp, p(1), tol, trim(message))
+    @assertEqual(-1.0_dp, p(2), tol, trim(message))
+    @assertEqual(0.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    ! Setup a more complex quadrilateral
+
+    call quadrilateral%free()
+    call quadrilateral%init(dummy_id, &
+                            point_t([37.0_dp, 10.0_dp, 20.0_dp]), &
+                            point_t([1.0_dp, 20.0_dp, -3.0_dp]), &
+                            point_t([0.0_dp, 0.0_dp, 0.0_dp]), &
+                            point_t([42.0_dp, -42.0_dp, 0.0_dp]))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex quadrilateral test, point at center"
+
+    linearcoord = [0.5_dp, 0.5_dp]
+    p = euclidean_coordinate(p, quadrilateral)
+
+    @assertEqual(86.0_dp / 4.0_dp, p(1), tol, trim(message))
+    @assertEqual(-3.0_dp, p(2), tol, trim(message))
+    @assertEqual(4.25_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex quadrilateral test, point at vertex"
+
+    linearcoord = [0.0_dp, 0.0_dp]
+    p = euclidean_coordinate(p, quadrilateral)
+
+    @assertEqual(37.0_dp, p(1), tol, trim(message))
+    @assertEqual(10.0_dp, p(2), tol, trim(message))
+    @assertEqual(20.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex quadrilateral test, point at edge"
+
+    linearcoord = [0.0_dp, 0.5_dp]
+    p = euclidean_coordinate(p, quadrilateral)
+
+    @assertEqual(37.0_dp, p(1), tol, trim(message))
+    @assertEqual(0.0_dp, p(2), tol, trim(message))
+    @assertEqual(10.0_dp, p(3), tol, trim(message))
+
+    ! ------------------------------------------------------------------------ !
+    message = "Complex quadrilateral test, point outside"
+
+    linearcoord = [ 2.0_dp, -1.0_dp]
+    p = euclidean_coordinate(p, quadrilateral)
+
+    @assertEqual(42.0_dp, p(1), tol, trim(message))
+    @assertEqual(-42.0_dp, p(2), tol, trim(message))
+    @assertEqual(0.0_dp, p(3), tol, trim(message))
+
+  end subroutine test_euclidean_coordinate_quadrilateral
+
+end module euclidean_coordinates
