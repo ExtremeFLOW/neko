@@ -179,32 +179,32 @@ module geometric_operators
 
      !> Map barycentric coordinates to euclidean coordinates based on a given
      !! triangle.
-     module function euclidean_coordinate_triangle(barycoord, triangle)
-       real(kind=dp), dimension(3), intent(in) :: barycoord
+     module function euclidean_coordinate_triangle(bary, triangle)
+       real(kind=dp), dimension(3), intent(in) :: bary
        type(tri_t), intent(in) :: triangle
        real(kind=dp), dimension(3) :: euclidean_coordinate_triangle
      end function euclidean_coordinate_triangle
 
      !> Map barycentric coordinates to euclidean coordinates based on a given
      !! tetrahedron.
-     module function euclidean_coordinate_tetrahedron(barycoord, tetrahedron)
-       real(kind=dp), dimension(4), intent(in) :: barycoord
+     module function euclidean_coordinate_tetrahedron(bary, tetrahedron)
+       real(kind=dp), dimension(4), intent(in) :: bary
        type(tet_t), intent(in) :: tetrahedron
        real(kind=dp), dimension(3) :: euclidean_coordinate_tetrahedron
      end function euclidean_coordinate_tetrahedron
 
      !> Map linear coordinates to euclidean coordinates based on a given
      !! quadrilateral.
-     module function euclidean_coordinate_quadrilateral(linearcoord, quadrilateral)
-       real(kind=dp), dimension(2), intent(in) :: linearcoord
+     module function euclidean_coordinate_quadrilateral(lin, quadrilateral)
+       real(kind=dp), dimension(2), intent(in) :: lin
        type(quad_t), intent(in) :: quadrilateral
        real(kind=dp), dimension(3) :: euclidean_coordinate_quadrilateral
      end function euclidean_coordinate_quadrilateral
 
      !> Map linear coordinates to euclidean coordinates based on a given
      !! hexahedron.
-     module function euclidean_coordinate_hexahedron(linearcoord, hexahedron)
-       real(kind=dp), dimension(3), intent(in) :: linearcoord
+     module function euclidean_coordinate_hexahedron(lin, hexahedron)
+       real(kind=dp), dimension(3), intent(in) :: lin
        type(hex_t), intent(in) :: hexahedron
        real(kind=dp), dimension(3) :: euclidean_coordinate_hexahedron
      end function euclidean_coordinate_hexahedron

@@ -49,10 +49,112 @@ submodule (geometric_operators) coordinates_euclidean
 
 contains
 
-  !> Euclidean coordinate transformation for a triangle
-  !! This function map the local barycentric coordinates of a point in a
-  !! triangle.
+  !> @brief Euclidean coordinates for a point in a triangle
+  !! @details This routine computes the euclidean coordinates of a local
+  !! barycentric point with respect to a triangle.
+  !!
+  !! @param bary Barycentric coordinates of the point
+  !! @param triangle Triangle
+  !! @return Euclidean coordinate
+  module function euclidean_coordinate_triangle(bary, triangle) &
+       result(point)
+    real(kind=dp), dimension(3), intent(in) :: bary
+    type(tri_t), intent(in) :: triangle
+    real(kind=dp), dimension(3) :: point
 
+    associate (p1 => triangle%pts(1)%p, &
+               p2 => triangle%pts(2)%p, &
+               p3 => triangle%pts(3)%p)
+      point = bary(1) * p1%x + &
+           bary(2) * p2%x + &
+           bary(3) * p3%x
+    end associate
 
+  end function euclidean_coordinate_triangle
+
+  !> @brief Euclidean coordinates for a point in a tetrahedron
+  !! @details This routine computes the euclidean coordinates of a local
+  !! barycentric point with respect to a tetrahedron.
+  !!
+  !! @param bary Barycentric coordinates of the point
+  !! @param tetrahedron Tetrahedron
+  !! @return Euclidean coordinates
+  module function euclidean_coordinate_tetrahedron(bary, tetrahedron) &
+       result(point)
+    real(kind=dp), dimension(4), intent(in) :: bary
+    type(tet_t), intent(in) :: tetrahedron
+    real(kind=dp), dimension(3) :: point
+
+    associate (p1 => tetrahedron%pts(1)%p, &
+               p2 => tetrahedron%pts(2)%p, &
+               p3 => tetrahedron%pts(3)%p, &
+               p4 => tetrahedron%pts(4)%p)
+      point = bary(1) * p1%x + &
+           bary(2) * p2%x + &
+           bary(3) * p3%x + &
+           bary(4) * p4%x
+    end associate
+
+  end function euclidean_coordinate_tetrahedron
+
+  !> @brief Euclidean coordinates for a point in a quadrilateral
+  !! @details This routine computes the euclidean coordinates of a local
+  !! bilinear point with respect to a quadrilateral.
+  !!
+  !! @param lin Bilinear coordinates of the point
+  !! @param quadrilateral Quadrilateral
+  !! @return Euclidean coordinates
+  module function euclidean_coordinate_quadrilateral(lin, quadrilateral) &
+       result(point)
+    real(kind=dp), dimension(2), intent(in) :: lin
+    type(quad_t), intent(in) :: quadrilateral
+    real(kind=dp), dimension(3) :: point
+
+    associate (p1 => quadrilateral%pts(1)%p, &
+               p2 => quadrilateral%pts(2)%p, &
+               p3 => quadrilateral%pts(3)%p, &
+               p4 => quadrilateral%pts(4)%p)
+      point = &
+           (1.0_dp - lin(1)) * (1.0_dp - lin(2)) * p1%x + &
+           (0.0_dp + lin(1)) * (1.0_dp - lin(2)) * p2%x + &
+           (1.0_dp - lin(1)) * (0.0_dp + lin(2)) * p3%x + &
+           (0.0_dp + lin(1)) * (0.0_dp + lin(2)) * p4%x
+    end associate
+
+  end function euclidean_coordinate_quadrilateral
+
+  !> @brief Euclidean coordinates for a point in a hexahedron
+  !! @details This routine computes the euclidean coordinates of a local
+  !! trilinear point with respect to a hexahedron.
+  !!
+  !! @param lin Trilinear coordinates of the point
+  !! @param hexahedron Hexahedron
+  !! @return Euclidean coordinates
+  module function euclidean_coordinate_hexahedron(lin, hexahedron) &
+       result(point)
+    real(kind=dp), dimension(3), intent(in) :: lin
+    type(hex_t), intent(in) :: hexahedron
+    real(kind=dp), dimension(3) :: point
+
+    associate (p1 => hexahedron%pts(1)%p, &
+               p2 => hexahedron%pts(2)%p, &
+               p3 => hexahedron%pts(3)%p, &
+               p4 => hexahedron%pts(4)%p, &
+               p5 => hexahedron%pts(5)%p, &
+               p6 => hexahedron%pts(6)%p, &
+               p7 => hexahedron%pts(7)%p, &
+               p8 => hexahedron%pts(8)%p)
+      point = &
+           (1.0_dp - lin(1)) * (1.0_dp - lin(2)) * (1.0_dp - lin(3)) * p1%x + &
+           (0.0_dp + lin(1)) * (1.0_dp - lin(2)) * (1.0_dp - lin(3)) * p2%x + &
+           (1.0_dp - lin(1)) * (0.0_dp + lin(2)) * (1.0_dp - lin(3)) * p3%x + &
+           (0.0_dp + lin(1)) * (0.0_dp + lin(2)) * (1.0_dp - lin(3)) * p4%x + &
+           (1.0_dp - lin(1)) * (1.0_dp - lin(2)) * (0.0_dp + lin(3)) * p5%x + &
+           (0.0_dp + lin(1)) * (1.0_dp - lin(2)) * (0.0_dp + lin(3)) * p6%x + &
+           (1.0_dp - lin(1)) * (0.0_dp + lin(2)) * (0.0_dp + lin(3)) * p7%x + &
+           (0.0_dp + lin(1)) * (0.0_dp + lin(2)) * (0.0_dp + lin(3)) * p8%x
+    end associate
+
+  end function euclidean_coordinate_hexahedron
 
 end submodule coordinates_euclidean

@@ -89,6 +89,7 @@ math/geometric_operators.o : math/geometric_operators.f90 mesh/hex.o mesh/quad.o
 math/bcknd/cpu/distance_primitives.o : math/bcknd/cpu/distance_primitives.f90 config/num_types.o math/geometric_operators.o 
 math/bcknd/cpu/distance_elements.o : math/bcknd/cpu/distance_elements.f90 common/utils.o math/math.o math/geometric_operators.o 
 math/bcknd/cpu/coordinates_linear.o : math/bcknd/cpu/coordinates_linear.f90 mesh/hex.o mesh/quad.o mesh/tet.o mesh/tri.o math/math.o common/utils.o config/num_types.o math/geometric_operators.o 
+math/bcknd/cpu/coordinates_euclidean.o : math/bcknd/cpu/coordinates_euclidean.f90 mesh/hex.o mesh/quad.o mesh/tet.o mesh/tri.o math/math.o common/utils.o config/num_types.o math/geometric_operators.o 
 math/bcknd/cpu/opr_cpu.o : math/bcknd/cpu/opr_cpu.f90 math/mathops.o gs/gather_scatter.o field/field.o math/math.o sem/coef.o sem/space.o config/num_types.o math/bcknd/cpu/conv1.o math/bcknd/cpu/cdtp.o math/bcknd/cpu/opgrad.o math/bcknd/cpu/dudxyz.o 
 math/bcknd/sx/opr_sx.o : math/bcknd/sx/opr_sx.f90 math/mathops.o field/field.o math/math.o sem/coef.o sem/space.o config/num_types.o gs/gather_scatter.o math/bcknd/sx/sx_lambda2.o math/bcknd/sx/sx_cfl.o math/bcknd/sx/sx_cdtp.o math/bcknd/sx/sx_conv1.o math/bcknd/sx/sx_opgrad.o math/bcknd/sx/sx_dudxyz.o 
 math/bcknd/xsmm/opr_xsmm.o : math/bcknd/xsmm/opr_xsmm.F90 math/mathops.o gs/gather_scatter.o field/field.o mesh/mesh.o math/math.o sem/coef.o sem/space.o math/mxm_wrapper.o config/num_types.o 
