@@ -157,4 +157,64 @@ contains
 
   end function euclidean_coordinate_hexahedron
 
+
+  !> @brief Jacobian of the euclidean coordinate transform for a point in a
+  !! hexahedron
+  !! @details This routine computes the jacobian of the  euclidean coordinate
+  !! transformation of a local trilinear point with respect to a hexahedron.
+  !!
+  !! @param lin Trilinear coordinates of the point
+  !! @param hexahedron Hexahedron
+  !! @return Jacobian of Euclidean coordinates
+  module function jacobian_coordinate_hexahedron(lin, hexahedron) &
+       result(jacobian)
+    real(kind=dp), dimension(3), intent(in) :: lin
+    type(hex_t), intent(in) :: hexahedron
+    real(kind=dp), dimension(3, 3) :: jacobian
+    real(kind=dp), dimension(3) :: Jr, Js, Jt
+
+    associate (p1 => hexahedron%pts(1)%p, &
+               p2 => hexahedron%pts(2)%p, &
+               p3 => hexahedron%pts(3)%p, &
+               p4 => hexahedron%pts(4)%p, &
+               p5 => hexahedron%pts(5)%p, &
+               p6 => hexahedron%pts(6)%p, &
+               p7 => hexahedron%pts(7)%p, &
+               p8 => hexahedron%pts(8)%p)
+
+      Jr = (-1.0_dp) * (1.0_dp - lin(2)) * (1.0_dp - lin(3)) * p1%x + &
+           (+1.0_dp) * (1.0_dp - lin(2)) * (1.0_dp - lin(3)) * p2%x + &
+           (-1.0_dp) * (0.0_dp + lin(2)) * (1.0_dp - lin(3)) * p3%x + &
+           (+1.0_dp) * (0.0_dp + lin(2)) * (1.0_dp - lin(3)) * p4%x + &
+           (-1.0_dp) * (1.0_dp - lin(2)) * (0.0_dp + lin(3)) * p5%x + &
+           (+1.0_dp) * (1.0_dp - lin(2)) * (0.0_dp + lin(3)) * p6%x + &
+           (-1.0_dp) * (0.0_dp + lin(2)) * (0.0_dp + lin(3)) * p7%x + &
+           (+1.0_dp) * (0.0_dp + lin(2)) * (0.0_dp + lin(3)) * p8%x
+
+      Js = (-1.0_dp) * (1.0_dp - lin(1)) * (1.0_dp - lin(3)) * p1%x + &
+           (-1.0_dp) * (0.0_dp + lin(1)) * (1.0_dp - lin(3)) * p2%x + &
+           (+1.0_dp) * (1.0_dp - lin(1)) * (1.0_dp - lin(3)) * p3%x + &
+           (+1.0_dp) * (0.0_dp + lin(1)) * (1.0_dp - lin(3)) * p4%x + &
+           (-1.0_dp) * (1.0_dp - lin(1)) * (0.0_dp + lin(3)) * p5%x + &
+           (-1.0_dp) * (0.0_dp + lin(1)) * (0.0_dp + lin(3)) * p6%x + &
+           (+1.0_dp) * (1.0_dp - lin(1)) * (0.0_dp + lin(3)) * p7%x + &
+           (+1.0_dp) * (0.0_dp + lin(1)) * (0.0_dp + lin(3)) * p8%x
+
+      Jt = (-1.0_dp) * (1.0_dp - lin(1)) * (1.0_dp - lin(2)) * p1%x + &
+           (-1.0_dp) * (0.0_dp + lin(1)) * (1.0_dp - lin(2)) * p2%x + &
+           (-1.0_dp) * (1.0_dp - lin(1)) * (0.0_dp + lin(2)) * p3%x + &
+           (-1.0_dp) * (0.0_dp + lin(1)) * (0.0_dp + lin(2)) * p4%x + &
+           (+1.0_dp) * (1.0_dp - lin(1)) * (1.0_dp - lin(2)) * p5%x + &
+           (+1.0_dp) * (0.0_dp + lin(1)) * (1.0_dp - lin(2)) * p6%x + &
+           (+1.0_dp) * (1.0_dp - lin(1)) * (0.0_dp + lin(2)) * p7%x + &
+           (+1.0_dp) * (0.0_dp + lin(1)) * (0.0_dp + lin(2)) * p8%x
+
+      jacobian(:, 1) = Jr
+      jacobian(:, 2) = Js
+      jacobian(:, 3) = Jt
+
+    end associate
+
+  end function jacobian_coordinate_hexahedron
+
 end submodule coordinates_euclidean

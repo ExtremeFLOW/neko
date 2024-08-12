@@ -211,4 +211,47 @@ module geometric_operators
 
   end interface euclidean_coordinate
 
+  ! ========================================================================== !
+  ! Jacobian operators.
+
+  !> \interface jacobian_coordinate
+  !! This interface defines the jacobian operator. The jacobian operator is used
+  !! to calculate the jacobian of a geometric object based on a given set of
+  !! linear coordinates.
+  interface jacobian_coordinate
+
+     !> Calculate the jacobian of a triangle based on a given set of barycentric
+     !! coordinates.
+     module function jacobian_coordinate_triangle(bary, triangle)
+       real(kind=dp), dimension(3), intent(in) :: bary
+       type(tri_t), intent(in) :: triangle
+       real(kind=dp), dimension(3, 3) :: jacobian_coordinate_triangle
+     end function jacobian_coordinate_triangle
+
+     !> Calculate the jacobian of a tetrahedron based on a given set of
+     !! barycentric coordinates.
+     module function jacobian_coordinate_tetrahedron(bary, tetrahedron)
+       real(kind=dp), dimension(4), intent(in) :: bary
+       type(tet_t), intent(in) :: tetrahedron
+       real(kind=dp), dimension(4, 4) :: jacobian_coordinate_tetrahedron
+     end function jacobian_coordinate_tetrahedron
+
+     !> Calculate the jacobian of a quadrilateral based on a given set of linear
+     !! coordinates.
+     module function jacobian_coordinate_quadrilateral(lin, quadrilateral)
+       real(kind=dp), dimension(2), intent(in) :: lin
+       type(quad_t), intent(in) :: quadrilateral
+       real(kind=dp), dimension(4, 2) :: jacobian_coordinate_quadrilateral
+     end function jacobian_coordinate_quadrilateral
+
+     !> Calculate the jacobian of a hexahedron based on a given set of linear
+     !! coordinates.
+     module function jacobian_coordinate_hexahedron(lin, hexahedron)
+       real(kind=dp), dimension(3), intent(in) :: lin
+       type(hex_t), intent(in) :: hexahedron
+       real(kind=dp), dimension(3, 3) :: jacobian_coordinate_hexahedron
+     end function jacobian_coordinate_hexahedron
+
+  end interface jacobian_coordinate
+
 end module geometric_operators

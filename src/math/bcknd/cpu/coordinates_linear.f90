@@ -201,29 +201,58 @@ contains
     type(hex_t), intent(in) :: hexahedron
     real(kind=dp), dimension(3) :: trilinear
 
-    real(kind=dp), dimension(3) :: v1, v2, v3, v4, v5, v6, v7, v8
+    real(kind=dp), dimension(3) :: p_est, residual
 
     ! Variables for barycentric interpolation
-    real(kind=dp), dimension(8, 3) :: barymatrix
+    real(kind=dp), dimension(3, 3) :: jacobian
+
+    ! Parameters for the solver
+    integer, parameter :: max_iter = 100
+    real(kind=dp), parameter :: tol = 1.0e-12_dp
+    integer :: iter
 
     ! Lapack variables
     integer :: info
-    integer, dimension(8) :: pivot_table
+    integer, dimension(3) :: pivot_table
 
-    ! Get vertices and the normal vector
-    v1 = hexahedron%pts(1)%p%x
-    v2 = hexahedron%pts(2)%p%x
-    v3 = hexahedron%pts(3)%p%x
-    v4 = hexahedron%pts(4)%p%x
-    v5 = hexahedron%pts(5)%p%x
-    v6 = hexahedron%pts(6)%p%x
-    v7 = hexahedron%pts(7)%p%x
-    v8 = hexahedron%pts(8)%p%x
+    ! Initialize the estimate
+    trilinear = 0.5_dp
+    p_est = euclidean_coordinate(trilinear, hexahedron)
+    residual = p_est - p
 
-    ! Compute Barycentric coordinates to determine if the point is inside the
-    ! hexahedron, off along a face, edge or by a vertex.
+    do iter = 1, max_iter
 
-    trilinear = 0.0_dp
+       ! Compute the residual and check for convergence
+       p_est = euclidean_coordinate(trilinear, hexahedron)
+       residual = euclidean_coordinate(trilinear, hexahedron) - p
+
+       if (norm2(residual) .lt. tol) exit
+
+       ! Compute the Jacobian
+       jacobian = jacobian_coordinate(trilinear, hexahedron)
+
+       write (*,*) "trilinear: ", trilinear
+       write (*,*) "p_est:     ", p_est
+       write (*,*) "residual:  ", residual
+       write (*,*) "Jacobian:  "
+       write (*,'(F6.2, F6.2, F6.2)') jacobian(1, :)
+       write (*,'(F6.2, F6.2, F6.2)') jacobian(2, :)
+       write (*,'(F6.2, F6.2, F6.2)') jacobian(3, :)
+
+       ! Solve the system of linear equations
+       call dgesv(3, 1, jacobian, 3, pivot_table, residual, 3, info)
+
+       ! Check for the exact singularity.
+       !  if (info .gt. 0) call neko_error('Hexahedron is degenerate')
+
+       ! Update the trilinear coordinates
+       trilinear = trilinear - residual
+    end do
+
+    ! Check for convergence
+    ! if (norm2(residual) .gt. tol) then
+    !    call neko_error('Hexahedron is degenerate')
+    ! end if
 
   end function trilinear_coordinate_hexahedron
 

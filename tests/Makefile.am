@@ -53,6 +53,7 @@ TESTS = device/device_test\
 	gather_scatter/gather_scatter_test\
 	geometric_operators/distance_test\
 	geometric_operators/linear_coordinates_test\
+    geometric_operators/euclidean_coordinates_test\
 	krylov/krylov_test\
 	bc/bc_test\
 	signal/signal_test\
