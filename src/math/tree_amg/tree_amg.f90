@@ -25,7 +25,7 @@ module tree_amg
     integer :: lvl = -1
     integer :: nnodes = 0
     type(tamg_node_t), allocatable :: nodes(:)
-    integer :: lvl_dofs = 0
+    integer :: fine_lvl_dofs = 0
     real(kind=rp), allocatable :: wrk_in(:)
     real(kind=rp), allocatable :: wrk_out(:)
   end type tamg_lvl_t
@@ -129,7 +129,7 @@ contains
         end do
       end do
     end do
-    tamg%lvl(lvl_id)%lvl_dofs = nt
+    tamg%lvl(lvl_id)%fine_lvl_dofs = nt
     allocate(tamg%lvl(lvl_id)%wrk_in( nt ))
     allocate(tamg%lvl(lvl_id)%wrk_out( nt ))
   end subroutine aggregate_finest_level
@@ -243,7 +243,7 @@ contains
       end do
       ntot = ntot + aggregate_size(l)
     end do
-    tamg%lvl(lvl_id)%lvl_dofs = ntot
+    tamg%lvl(lvl_id)%fine_lvl_dofs = ntot
     allocate( tamg%lvl(lvl_id)%wrk_in( ntot ) )
     allocate( tamg%lvl(lvl_id)%wrk_out( ntot ) )
 
@@ -258,7 +258,7 @@ contains
     call tamg_lvl_init( tamg%lvl(lvl_id), lvl_id, 1)
     !> Allocate lvl
     nt = tamg%lvl(lvl_id-1)%nnodes
-    tamg%lvl(lvl_id)%lvl_dofs = nt
+    tamg%lvl(lvl_id)%fine_lvl_dofs = nt
     allocate( tamg%lvl(lvl_id)%wrk_in( nt ) )
     allocate( tamg%lvl(lvl_id)%wrk_out( nt ) )
 

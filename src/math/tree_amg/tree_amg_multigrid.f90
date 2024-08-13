@@ -1,3 +1,14 @@
+!>
+!> USE:
+!>
+!>  type(tamg_hierarchy_t) :: amg
+!>  type(tamg_solver_t) :: amg_solver
+!>
+!>  call amg%init(ax, Xh, coef, msh, gs_h, 3)
+!>  call amg_solver%init(amg, niter)
+!>
+!>  call amg_solver%solve(x%x, f, n)
+!>
 module tree_amg_multigrid
   use math
   use tree_amg
@@ -10,6 +21,7 @@ module tree_amg_multigrid
     type(tamg_hierarchy_t), pointer :: amg
     type(amg_cheby_t), allocatable :: smoo(:)
     integer :: nlvls
+    integer :: max_iter
   contains
     procedure, pass(this) :: init => tamg_mg_init
     procedure, pass(this) :: solve => tamg_mg_solve
@@ -17,19 +29,22 @@ module tree_amg_multigrid
 
 contains
 
-  subroutine tamg_mg_init(this, amg)
+  subroutine tamg_mg_init(this, amg, max_iter)
     class(tamg_solver_t), intent(inout), target :: this
     class(tamg_hierarchy_t), intent(inout), target :: amg
+    integer, intent(in) :: max_iter
     integer :: lvl, nlvls, n
 
     this%amg => amg
 
+    this%max_iter = max_iter
+
     nlvls = 3
     this%nlvls = nlvls
-    allocate(this%smoo(0:nlvls))
-    do lvl = 1, nlvls
-      n = amg%lvl(lvl)%lvl_dofs
-      call this%smoo(lvl-1)%init(n ,lvl-1, 10)
+    allocate(this%smoo(0:(nlvls-1)))
+    do lvl = 0, nlvls-1
+      n = amg%lvl(lvl+1)%fine_lvl_dofs
+      call this%smoo(lvl)%init(n ,lvl, 10)
     end do
 
   end subroutine tamg_mg_init
@@ -39,8 +54,13 @@ contains
     class(tamg_solver_t), intent(inout) :: this
     real(kind=rp), dimension(n), intent(inout) :: z
     real(kind=rp), dimension(n), intent(inout) :: r
+    integer :: iter, max_iter
 
-    call tamg_mg_cycle(z, r, n, 0, this%amg, this)
+    max_iter = this%max_iter
+
+    do iter = 1, max_iter
+      call tamg_mg_cycle(z, r, n, 0, this%amg, this)
+    end do
   end subroutine tamg_mg_solve
 
   recursive subroutine tamg_mg_cycle(x, b, n, lvl, amg, mgstuff)
@@ -61,10 +81,8 @@ contains
     rc = 0d0
     tmp = 0d0
 
-    sit = 5
-    max_lvl = 2
-
-    print *, "MG LVL:", lvl, "n:", n
+    sit = 4
+    max_lvl = mgstuff%nlvls-1
 
     !>----------<!
     !> Residual <! NOT NEEDED
@@ -84,7 +102,7 @@ contains
     !> Residual <!
     !>----------<!
     call calc_resid(r,x,b,amg,lvl,n)
-    print *, "LVL:",lvl, "PRE RESID:", sqrt(glsc2(r, r, n))
+    !print *, "LVL:",lvl, "PRE RESID:", sqrt(glsc2(r, r, n))
 
     if (lvl .eq. max_lvl) then!TODO: move when done debugging
       return
@@ -115,7 +133,6 @@ contains
     !>----------<!
     !> Correct  <!
     !>----------<!
-    print *, "LVL:",lvl, "CORRECTION:", sqrt(glsc2(r, r, n))
     call add2(x, r, n)
 
     !>----------<!

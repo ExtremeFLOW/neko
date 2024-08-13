@@ -81,7 +81,7 @@ contains
       w = 0d0
       call amg%matvec(w, d, this%lvl)
 
-      if (this%lvl .eq. 1) then
+      if (this%lvl .eq. 0) then
         dtw = glsc3(d, coef%mult, w, n)
         dtd = glsc3(d, coef%mult, d, n)
       else
