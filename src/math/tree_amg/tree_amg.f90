@@ -41,9 +41,12 @@ module tree_amg
     type(coef_t), pointer :: coef
     type(gs_t), pointer :: gs_h
 
-    contains
-      procedure, pass(this) :: init => tamg_init
-      procedure, pass(this) :: matvec => tamg_matvec
+  contains
+    procedure, pass(this) :: init => tamg_init
+    procedure, pass(this) :: matvec => tamg_matvec
+    procedure, pass(this) :: matvec_impl => tamg_matvec_impl
+    procedure, pass(this) :: interp_f2c => tamg_restriction_operator
+    procedure, pass(this) :: interp_c2f => tamg_prolongation_operator
   end type tamg_hierarchy_t
 
 contains
@@ -267,7 +270,16 @@ contains
     end do
   end subroutine aggregate_end
 
-  recursive subroutine tamg_matvec(this, vec_out, vec_in, lvl, lvl_out)
+  recursive subroutine tamg_matvec(this, vec_out, vec_in, lvl_out)
+    class(tamg_hierarchy_t), intent(inout) :: this
+    real(kind=rp), intent(inout) :: vec_out(:)
+    real(kind=rp), intent(inout) :: vec_in(:)
+    integer, intent(in) :: lvl_out
+    integer :: i, n, e
+    call this%matvec_impl(vec_out, vec_in, this%nlvls, lvl_out)
+  end subroutine tamg_matvec
+
+  recursive subroutine tamg_matvec_impl(this, vec_out, vec_in, lvl, lvl_out)
     class(tamg_hierarchy_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: vec_out(:)
     real(kind=rp), intent(inout) :: vec_in(:)
@@ -303,7 +315,7 @@ contains
           end associate
         end do
 
-        call this%matvec(wrk_out, wrk_in, lvl-1, lvl_out)
+        call this%matvec_impl(wrk_out, wrk_in, lvl-1, lvl_out)
 
         !> restrict to coarser grid
         do n = 1, this%lvl(lvl)%nnodes
@@ -316,11 +328,45 @@ contains
         end associate
       else if (lvl_out .lt. lvl) then
         !> lvl is coarser then desired output. Continue down tree
-        call this%matvec(vec_out, vec_in, lvl-1, lvl_out)
+        call this%matvec_impl(vec_out, vec_in, lvl-1, lvl_out)
       else
         print *, "ERROR"
       end if
     end if
-  end subroutine tamg_matvec
+  end subroutine tamg_matvec_impl
+
+  subroutine tamg_restriction_operator(this, vec_out, vec_in, lvl)
+    class(tamg_hierarchy_t), intent(inout) :: this
+    real(kind=rp), intent(inout) :: vec_out(:)
+    real(kind=rp), intent(inout) :: vec_in(:)
+    integer, intent(in) :: lvl
+    integer :: i, n
+
+    vec_out = 0d0
+    do n = 1, this%lvl(lvl)%nnodes
+      associate (node => this%lvl(lvl)%nodes(n))
+      do i = 1, node%ndofs
+        vec_out( node%gid ) = vec_out( node%gid ) + vec_in( node%dofs(i) ) * node%interp_r( i )
+      end do
+      end associate
+    end do
+  end subroutine tamg_restriction_operator
+
+  subroutine tamg_prolongation_operator(this, vec_out, vec_in, lvl)
+    class(tamg_hierarchy_t), intent(inout) :: this
+    real(kind=rp), intent(inout) :: vec_out(:)
+    real(kind=rp), intent(inout) :: vec_in(:)
+    integer, intent(in) :: lvl
+    integer :: i, n
+
+    vec_out = 0d0
+    do n = 1, this%lvl(lvl)%nnodes
+      associate (node => this%lvl(lvl)%nodes(n))
+      do i = 1, node%ndofs
+        vec_out( node%dofs(i) ) = vec_out( node%dofs(i) ) + vec_in( node%gid ) * node%interp_p( i )
+      end do
+      end associate
+    end do
+  end subroutine tamg_prolongation_operator
 
 end module tree_amg

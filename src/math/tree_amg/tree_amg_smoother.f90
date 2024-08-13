@@ -14,7 +14,7 @@ module tree_amg_smoother
      real(kind=rp) :: tha, dlt
      integer :: lvl
      integer :: n
-     integer :: power_its = 150
+     integer :: power_its = 15
      integer :: max_iter = 10
      logical :: recompute_eigs = .true.
    contains
@@ -38,6 +38,8 @@ contains
     this%n = n
     this%lvl = lvl
     this%max_iter = max_iter
+    this%recompute_eigs = .true.
+    print *, "INIT SMOO ON LVL", lvl
 
   end subroutine amg_cheby_init
 
@@ -52,6 +54,7 @@ contains
     integer :: i
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, msh=>amg%msh, Xh=>amg%Xh)
 
+      print *, "COMP EIGS on lvl", this%lvl, "n", n
       do i = 1, n
         !TODO: replace with a better way to initialize power method
         call random_number(rn)
@@ -64,7 +67,8 @@ contains
 
       !Power method to get lamba max
       do i = 1, this%power_its
-        call amg%matvec(w, d, 1, this%lvl)
+        w = 0d0
+        call amg%matvec(w, d, this%lvl)
 
         if (this%lvl .eq. 1) then
           wtw = glsc3(w, coef%mult, w, n)
@@ -74,7 +78,8 @@ contains
         call cmult2(d, w, 1.0_rp/sqrt(wtw), n)
       end do
 
-      call amg%matvec(w, d, 1, this%lvl)
+      w = 0d0
+      call amg%matvec(w, d, this%lvl)
 
       if (this%lvl .eq. 1) then
         dtw = glsc3(d, coef%mult, w, n)
@@ -105,9 +110,9 @@ contains
     integer :: iter, max_iter
     real(kind=rp) :: a, b, rtr, rnorm
 
-    !--if (this%recompute_eigs) then
+    if (this%recompute_eigs) then
        call this%comp_eig(amg, n)
-    !--end if
+    end if
 
     if (present(niter)) then
        max_iter = niter
@@ -119,7 +124,7 @@ contains
       ! calculate residual
       call copy(r, f, n)
       w = 0d0
-      call amg%matvec(w, x, 1, this%lvl)
+      call amg%matvec(w, x, this%lvl)
       call sub2(r, w, n)
 
       rtr = glsc2(r, r, n)
@@ -139,7 +144,7 @@ contains
         ! calculate residual
         call copy(r, f, n)
         w = 0d0
-        call amg%matvec(w, x, 1, this%lvl)
+        call amg%matvec(w, x, this%lvl)
         call sub2(r, w, n)
 
         call copy(w, r, n)! PRECOND
@@ -154,7 +159,7 @@ contains
       ! calculate residual
       call copy(r, f, n)
       w = 0d0
-      call amg%matvec(w, x, 1, this%lvl)
+      call amg%matvec(w, x, this%lvl)
       call sub2(r, w, n)
       rtr = glsc2(r, r, n)
       rnorm = sqrt(rtr)

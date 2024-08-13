@@ -26,10 +26,10 @@ contains
 
     nlvls = 3
     this%nlvls = nlvls
-    allocate(this%smoo(nlvls))
+    allocate(this%smoo(0:nlvls))
     do lvl = 1, nlvls
       n = amg%lvl(lvl)%lvl_dofs
-      call this%smoo(lvl)%init(n ,lvl, 10)
+      call this%smoo(lvl-1)%init(n ,lvl-1, 10)
     end do
 
   end subroutine tamg_mg_init
@@ -40,7 +40,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: z
     real(kind=rp), dimension(n), intent(inout) :: r
 
-    call tamg_mg_cycle(z, r, n, 1, this%amg, this)
+    call tamg_mg_cycle(z, r, n, 0, this%amg, this)
   end subroutine tamg_mg_solve
 
   recursive subroutine tamg_mg_cycle(x, b, n, lvl, amg, mgstuff)
@@ -61,14 +61,16 @@ contains
     rc = 0d0
     tmp = 0d0
 
-    sit = 4
-    max_lvl = 1
+    sit = 5
+    max_lvl = 2
+
+    print *, "MG LVL:", lvl, "n:", n
 
     !>----------<!
     !> Residual <! NOT NEEDED
     !>----------<!
     call calc_resid(r,x,b,amg,lvl,n)
-    if (lvl .eq. 1) then
+    if (lvl .eq. 0) then
       call average_duplicates(r,amg,lvl,n)
     end if
     print *, "LVL:",lvl, "INIT RESID:", sqrt(glsc2(r, r, n))
@@ -76,7 +78,7 @@ contains
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
-    call mgstuff%smoo(lvl)%solve(x,b, amg%lvl(lvl)%lvl_dofs, amg, sit)
+    call mgstuff%smoo(lvl)%solve(x,b, n, amg, sit)
 
     !>----------<!
     !> Residual <!
@@ -91,34 +93,35 @@ contains
     !>----------<!
     !> Restrict <!
     !>----------<!
-    if (lvl .eq. 1) then
+    if (lvl .eq. 0) then
       call average_duplicates(r,amg,lvl,n)
     end if
-    call restriction_operator(rc, r, lvl+1, amg)
+    call amg%interp_f2c(rc, r, lvl+1)
 
     !>-------------------<!
     !> Call Coarse solve <!
     !>-------------------<!
     tmp = 0d0
-    call tamg_mg_cycle(tmp, rc, n, lvl+1, amg, mgstuff)
+    call tamg_mg_cycle(tmp, rc, amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff)
 
     !>----------<!
     !> Project  <!
     !>----------<!
-    call prolongation_operator(r, tmp, lvl+1, amg)
-    if (lvl .eq. 1) then
+    call amg%interp_c2f(r, tmp, lvl+1)
+    if (lvl .eq. 0) then
       call average_duplicates(r,amg,lvl,n)
     end if
 
     !>----------<!
     !> Correct  <!
     !>----------<!
+    print *, "LVL:",lvl, "CORRECTION:", sqrt(glsc2(r, r, n))
     call add2(x, r, n)
 
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
-    call mgstuff%smoo(lvl)%solve(x,b, amg%lvl(lvl)%lvl_dofs, amg, sit)
+    call mgstuff%smoo(lvl)%solve(x,b, n, amg, sit)
 
     !>----------<!
     !> Residual <!
@@ -133,8 +136,11 @@ contains
     real(kind=rp), intent(inout) :: vec_in(n)
     integer, intent(in) :: lvl
     type(tamg_hierarchy_t), intent(inout) :: amg
+    integer :: lvl_start
 
-    call matvec_operator(vec_out, vec_in, 1, lvl, amg)
+    lvl_start = amg%nlvls
+
+    call amg%matvec(vec_out, vec_in, lvl)
   end subroutine my_matvec
 
   subroutine calc_resid(r, x, b, amg, lvl, n)
