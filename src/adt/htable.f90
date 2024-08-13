@@ -324,7 +324,6 @@ contains
 
     c = 0
     i = log(1.0/this%size)/log(0.6)
-    !i = (this%size-1)/10
     index = 0
 
     do while (i .ge. 0)
@@ -390,7 +389,7 @@ contains
     integer :: index, i, c
 
     c = 0
-    i = this%size - 1
+    i = log(1.0/this%size)/log(0.6)
 
     do while (i .ge. 0)
        index = this%hash(key, c**2)
@@ -421,7 +420,7 @@ contains
     integer :: index, i, c
 
     c = 0
-    i = this%size - 1
+    i = log(1.0/this%size)/log(0.6)
 
     do while (i .ge. 0)
        index = this%hash(key, c**2)

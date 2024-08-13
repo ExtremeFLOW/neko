@@ -106,10 +106,9 @@ contains
 
     if (json%valid_path('case.scalar.source_terms')) then
        ! We package the fields for the source term to operate on in a field list.
-       allocate(rhs_fields%fields(2))
-       rhs_fields%fields(1)%f => f
-       ! and the implicit Brinkman as the second field
-       rhs_fields%fields(2)%f => chi
+       call rhs_fields%init(2)
+       call rhs_fields%assign(1, f)
+       call rhs_fields%assign(2, chi)
 
        call json%get_core(core)
        call json%get('case.scalar.source_terms', source_object, found)

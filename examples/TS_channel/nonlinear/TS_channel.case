@@ -1,0 +1,57 @@
+{
+"version": 1.0,
+"case": {
+    "mesh_file": "box.nmsh",
+    "output_at_end": false,
+    "output_boundary": false,
+    "output_checkpoints": false,
+    "output_precision": "single",
+    "checkpoint_control": "simulationtime",
+    "checkpoint_value": 100,
+    "end_time": 200,
+    "timestep": 0.02,
+    "constant_cfl": 0.4,
+    "numerics": {
+        "time_order": 3,
+        "polynomial_order": 7,
+        "dealias": true
+    },
+    "fluid": {
+        "scheme": "pnpn",
+        "Re": 5000,
+        "initial_condition": {
+            "type": "user"
+        },
+        "velocity_solver": {
+            "type": "cg",
+            "preconditioner": "jacobi",
+            "projection_space_size": 0,
+            "absolute_tolerance": 1e-7,
+            "max_iterations": 800
+        },
+        "pressure_solver": {
+            "type": "gmres",
+            "preconditioner": "hsmg",
+            "projection_space_size": 0,
+            "absolute_tolerance": 1e-5,
+            "max_iterations": 800
+        },
+        "flow_rate_force": {
+            "direction": 1,
+            "value": 0.66666666666666666666,
+            "use_averaged_flow": true
+        },
+        "boundary_types": ["", "", "w", "w"],
+        "output_control": "simulationtime",
+        "output_value": 1
+    },
+      "simulation_components":
+  [
+    {
+      "type": "lambda2",
+      "compute_control": "simulationtime",
+      "compute_value": 1
+    }
+  ]
+}
+}

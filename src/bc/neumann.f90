@@ -53,6 +53,8 @@ module neumann
      procedure, pass(this) :: apply_vector_dev => neumann_apply_vector_dev
      procedure, pass(this) :: init_neumann => neumann_init_neumann
      procedure, pass(this) :: flux => neumann_flux
+     !> Destructor.
+     procedure, pass(this) :: free => neumann_free
   end type neumann_t
 
 contains
@@ -145,5 +147,13 @@ contains
 
     flux = this%flux_
   end function neumann_flux
+
+  !> Destructor
+  subroutine neumann_free(this)
+    class(neumann_t), target, intent(inout) :: this
+
+    call this%free_base
+
+  end subroutine neumann_free
 
 end module neumann

@@ -32,17 +32,19 @@
 !
 !> Interfaces for user interaction with NEKO
 module user_intf
-  use field
+  use field, only : field_t
   use field_list, only : field_list_t
-  use fluid_user_source_term
-  use scalar_user_source_term
-  use coefs
+  use fluid_user_source_term, only : fluid_user_source_term_t, &
+    fluid_source_compute_pointwise, fluid_source_compute_vector
+  use scalar_user_source_term, only : scalar_user_source_term_t, &
+    scalar_source_compute_pointwise, scalar_source_compute_vector
+  use coefs, only : coef_t
   use bc, only: bc_list_t
-  use mesh
-  use usr_inflow
-  use usr_scalar
+  use mesh, only : mesh_t
+  use usr_inflow, only : usr_inflow_t, usr_inflow_eval
+  use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
   use field_dirichlet, only: field_dirichlet_update
-  use num_types
+  use num_types, only : rp
   use json_module, only : json_file
   use utils, only : neko_error,  neko_warning
   implicit none
@@ -88,6 +90,17 @@ module user_intf
      end subroutine user_initialize_modules
   end interface
 
+  !> Abstract interface for initializing user defined baseflows
+  abstract interface
+     subroutine user_baseflow_init(u_b, v_b, w_b, params)
+       import field_t
+       import json_file
+       type(field_t), intent(inout) :: u_b
+       type(field_t), intent(inout) :: v_b
+       type(field_t), intent(inout) :: w_b
+       type(json_file), intent(inout) :: params
+     end subroutine user_baseflow_init
+  end interface
 
   !> Abstract interface for user defined mesh deformation functions
   abstract interface
@@ -147,6 +160,7 @@ module user_intf
      procedure(useric), nopass, pointer :: fluid_user_ic => null()
      procedure(useric_scalar), nopass, pointer :: scalar_user_ic => null()
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
+     procedure(user_baseflow_init), nopass, pointer :: baseflow_user => null()
      procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
      procedure(usercheck), nopass, pointer :: user_check => null()
      procedure(user_final_modules), nopass, pointer :: user_finalize_modules => null()
@@ -164,7 +178,7 @@ module user_intf
   end type user_t
 
   public :: useric, useric_scalar, user_initialize_modules, usermsh, &
-            dummy_user_material_properties, user_material_properties
+    user_baseflow_init, dummy_user_material_properties, user_material_properties
 contains
 
   !> User interface initialization
@@ -202,7 +216,7 @@ contains
     if (.not. associated(u%user_dirichlet_update)) then
        u%user_dirichlet_update => dirichlet_do_nothing
     end if
-    
+
     if (.not. associated(u%user_mesh_setup)) then
        u%user_mesh_setup => dummy_user_mesh_setup
     end if
@@ -213,6 +227,10 @@ contains
 
     if (.not. associated(u%user_init_modules)) then
        u%user_init_modules => dummy_user_init_no_modules
+    end if
+
+    if (.not. associated(u%baseflow_user)) then
+       u%baseflow_user => dummy_user_init_no_baseflow
     end if
 
     if (.not. associated(u%user_finalize_modules)) then
@@ -334,6 +352,13 @@ contains
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_init_no_modules
 
+  subroutine dummy_user_init_no_baseflow(u_b, v_b, w_b, params)
+    type(field_t), intent(inout) :: u_b
+    type(field_t), intent(inout) :: v_b
+    type(field_t), intent(inout) :: w_b
+    type(json_file), intent(inout) :: params
+  end subroutine dummy_user_init_no_baseflow
+
   subroutine dummy_user_final_no_modules(t, params)
     real(kind=rp) :: t
     type(json_file), intent(inout) :: params
@@ -348,7 +373,7 @@ contains
     integer, intent(in) :: tstep
     character(len=*), intent(in) :: which_solver
   end subroutine dirichlet_do_nothing
-  
+
   subroutine dummy_user_material_properties(t, tstep, rho, mu, cp, lambda,&
                                             params)
     real(kind=rp), intent(in) :: t

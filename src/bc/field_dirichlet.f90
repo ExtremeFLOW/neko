@@ -44,16 +44,29 @@ module field_dirichlet
   use device_math, only: device_masked_copy
   use dofmap, only : dofmap_t
   use utils, only: neko_error
+  use field_list, only : field_list_t
   implicit none
   private
-  
+
   !> User defined dirichlet condition, for which the user can work
   !! with an entire field.
-  !! Would be neat to add another class that contains all three 
+  !! The type stores a separate dummy field `field_bc`, which is passed
+  !! to the user routine and can be populated with arbitrary values. The
+  !! boundary condition then copy-pastes these values to the actual solution
+  !! field using the mask of the boundary condition. So, in the end, only the
+  !! relevant boundary values are updated.
+  !! @note Would be neat to add another class that contains all three
   !! dirichlet bcs for the velocity, this bc would then implement
   !! apply_vector.
   type, public, extends(bc_t) :: field_dirichlet_t
+     !> A dummy field which can be manipulated by the user to set the boundary
+     !! values.
      type(field_t) :: field_bc
+     !> A field list, which just stores `field_bc`, for convenience.
+     type(field_list_t) :: field_list
+     !> Function pointer to the user routine performing the update of the values
+     !! of the boundary fields.
+     procedure(field_dirichlet_update), nopass, pointer :: update => null()
    contains
      !> Constructor.
      procedure, pass(this) :: init_field => field_dirichlet_init
@@ -65,15 +78,20 @@ module field_dirichlet
      procedure, pass(this) :: apply_vector_dev => field_dirichlet_apply_vector_dev
      !> Apply scalar (device).
      procedure, pass(this) :: apply_scalar_dev => field_dirichlet_apply_scalar_dev
+     !> Destructor
+     procedure, pass(this) :: free => field_dirichlet_free
+
   end type field_dirichlet_t
 
   !> Abstract interface defining a dirichlet condition on a list of fields.
-  !! @param field_bc_list List of fields that are used to extract values for field_dirichlet.
+  !! @param field_bc_list List of fields that are used to extract values for
+  !! field_dirichlet.
   !! @param dirichlet_bc_list List of BCs containing field_dirichlet_t BCs only.
   !! @param coef Coef object.
   !! @param t Current time.
   !! @param tstep Current time step.
-  !! @param which_solver Indicates wether the fields provided come from "fluid" or "scalar".
+  !! @param which_solver Indicates wether the fields provided come from "fluid"
+  !! or "scalar".
   abstract interface
      subroutine field_dirichlet_update(dirichlet_field_list, dirichlet_bc_list, coef, t, tstep, which_solver)
        import rp
@@ -92,25 +110,33 @@ module field_dirichlet
   public :: field_dirichlet_update
 
 contains
-     
+
   !> Initializes this%field_bc.
   !! @param bc_name Name of this%field_bc
   subroutine field_dirichlet_init(this, bc_name)
-    class(field_dirichlet_t), intent(inout) :: this
+    class(field_dirichlet_t), target, intent(inout) :: this
     character(len=*), intent(in) :: bc_name
 
     call this%field_bc%init(this%dof, bc_name)
+    call this%field_list%init(1)
+    call this%field_list%assign_to_field(1, this%field_bc)
 
   end subroutine field_dirichlet_init
 
   !> Destructor. Currently this%field_bc is being freed in `fluid_scheme::free`
   subroutine field_dirichlet_free(this)
-    type(field_dirichlet_t), intent(inout) :: this
+    class(field_dirichlet_t), target, intent(inout) :: this
 
+    call this%free_base
     call this%field_bc%free()
+    call this%field_list%free()
+
+    if (associated(this%update)) then
+       this%update => null()
+    end if
 
   end subroutine field_dirichlet_free
-  
+
   !> Apply scalar by performing a masked copy.
   !! @param x Field onto which to copy the values (e.g. u,v,w,p or s).
   !! @param n Size of the array `x`.
@@ -128,7 +154,7 @@ contains
     end if
 
   end subroutine field_dirichlet_apply_scalar
-  
+
   !> Apply scalar (device).
   !! @param x_d Device pointer to the field onto which to copy the values.
   !! @param t Time.
@@ -143,7 +169,7 @@ contains
        call device_masked_copy(x_d, this%field_bc%x_d, this%msk_d, &
             this%field_bc%dof%size(), this%msk(0))
     end if
-  
+
   end subroutine field_dirichlet_apply_scalar_dev
 
   !> (No-op) Apply vector.

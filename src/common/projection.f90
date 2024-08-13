@@ -61,21 +61,21 @@
 !! @note In this code we assume that the matrix project for the
 !! pressure Ax does not vary in time.
 module projection
-  use num_types
+  use num_types, only : rp
   use math
-  use coefs
-  use ax_product
-  use bc
+  use coefs, only : coef_t
+  use ax_product, only : ax_t
+  use bc, only : bc_list_t, bc_list_apply_scalar
   use comm
-  use gather_scatter
-  use neko_config
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use neko_config, only : NEKO_BCKND_DEVICE
   use device
   use device_math
   use device_projection
-  use profiler
-  use logger
+  use profiler, only : profiler_start_region, profiler_end_region
+  use logger, only : LOG_SIZE, neko_log
   use, intrinsic :: iso_c_binding
-  use time_step_controller
+  use time_step_controller, only : time_step_controller_t
 
   implicit none
   private
@@ -119,7 +119,7 @@ contains
     real(c_rp) :: dummy
 
     call this%free()
-    
+
     if (present(L)) then
        this%L = L
     else
@@ -228,7 +228,7 @@ contains
     if( tstep .gt. this%activ_step .and. this%L .gt. 0) then
        if (dt_controller%if_variable_dt) then
           if (dt_controller%dt_last_change .eq. 0) then ! the time step at which dt is changed
-             call this%clear(n) 
+             call this%clear(n)
           else if (dt_controller%dt_last_change .gt. this%activ_step - 1) then
              ! activate projection some steps after dt is changed
              ! note that dt_last_change start from 0
@@ -311,7 +311,7 @@ contains
        else
           this%m = min(this%m+1,this%L)
        end if
-       
+
        call copy        (this%xx(1,this%m),x,n)   ! Update (X,B)
     end if
 
@@ -629,7 +629,7 @@ contains
     class(projection_t) :: this
     character(len=*) :: string
     character(len=LOG_SIZE) :: log_buf
-    
+
     if (this%proj_m .gt. 0) then
        write(log_buf, '(A,A)') 'Projection ', string
        call neko_log%message(log_buf)
@@ -648,7 +648,7 @@ contains
 
     this%m = 0
     this%proj_m = 0
-    
+
     do i = 1, this%L
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_rzero(this%xx_d(i), n)

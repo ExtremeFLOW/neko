@@ -115,6 +115,7 @@ neko_fortran_SOURCES = \
 	io/nmsh_file.f90\
 	io/chkp_file.f90\
 	io/csv_file.f90\
+	io/hdf5_file.F90\
 	io/file.f90\
 	io/output.f90\
 	io/fluid_output.f90\
@@ -185,6 +186,7 @@ neko_fortran_SOURCES = \
 	fluid/fluid_scheme.f90\
 	fluid/fluid_aux.f90\
 	fluid/fluid_pnpn.f90\
+	fluid/fluid_pnpn_perturb.f90\
 	fluid/fluid_fctry.f90\
 	fluid/fluid_volflow.f90\
 	fluid/pnpn_res.f90\
@@ -194,8 +196,13 @@ neko_fortran_SOURCES = \
 	fluid/mean_sqr_flow.f90\
 	fluid/flow_profile.f90\
 	fluid/flow_ic.f90\
+	fluid/baseflow.f90\
 	fluid/advection.f90\
 	fluid/advection_fctry.f90\
+    fluid/bcknd/advection/adv_dealias.f90\
+    fluid/bcknd/advection/adv_no_dealias.f90\
+    fluid/bcknd/advection/adv_lin_dealias.f90\
+    fluid/bcknd/advection/adv_lin_no_dealias.f90\
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/pnpn_res_device.F90\
@@ -251,6 +258,8 @@ neko_fortran_SOURCES = \
 	simulation_components/simcomp_executor.f90\
 	simulation_components/vorticity.f90\
 	simulation_components/lambda2.f90\
+	simulation_components/weak_grad.f90\
+	simulation_components/derivative.f90\
 	simulation_components/les_simcomp.f90\
 	simulation_components/simulation_component_fctry.f90\
 	source_terms/source_term.f90\
@@ -266,6 +275,9 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/device/brinkman_source_term_device.f90\
 	source_terms/brinkman/filters.f90\
 	source_terms/bcknd/cpu/filters_cpu.f90\
+	source_terms/brinkman/filter.f90\
+	source_terms/brinkman/filter_fctry.f90\
+	source_terms/brinkman/PDE_filter.f90\
 	les/les_model.f90\
 	les/les_model_fctry.f90\
 	les/vreman.f90\

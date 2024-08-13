@@ -32,7 +32,7 @@
 !
 !> Implements the `brinkman_source_term_t` type.
 module brinkman_source_term
-  use num_types, only: rp, dp
+  use num_types, only: rp, dp, sp
   use field, only: field_t
   use field_list, only: field_list_t
   use json_module, only: json_file
@@ -46,6 +46,8 @@ module brinkman_source_term
   use brinkman_source_term_device, only: brinkman_source_term_compute_device
   use brinkman_source_term_cpu, only: implicit_brinkman_source_term_compute_cpu
   use brinkman_source_term_device, only: implicit_brinkman_source_term_compute_device
+  use filter, only: filter_t
+  use filter_fctry, only: filter_factory
   implicit none
   private
 
@@ -55,12 +57,17 @@ module brinkman_source_term
   type, public, extends(source_term_t) :: brinkman_source_term_t
      private
 
-     !> The value of the source term.
+     !> The unfiltered indicator field
+     type(field_t), pointer :: indicator_unfiltered => null()
+     !> The filtered indicator field
      type(field_t), pointer :: indicator => null()
      !> Brinkman permeability field.
      type(field_t), pointer :: brinkman => null()
      ! > Flag for implicit vs explicit
      logical :: is_implicit
+     !> Filter 
+     class(filter_t), allocatable :: filter
+     
    contains
      !> The common constructor using a JSON object.
      procedure, public, pass(this) :: init => brinkman_source_term_init_from_json
@@ -73,6 +80,7 @@ module brinkman_source_term
      ! Private methods
      procedure, pass(this) :: init_boundary_mesh
      procedure, pass(this) :: init_point_zone
+
   end type brinkman_source_term_t
 
 contains
@@ -88,10 +96,14 @@ contains
     use file, only: file_t
     use tri_mesh, only: tri_mesh_t
     use device, only: device_memcpy, HOST_TO_DEVICE
-    use filters, only: smooth_step_field, step_function_field, permeability_field
+    use filters, only: smooth_step_field, step_function_field, permeability_field, PDE_filter
     use signed_distance, only: signed_distance_field
     use profiler, only: profiler_start_region, profiler_end_region
     use json_module, only: json_core, json_value
+    use math, only : copy
+
+    ! delete later
+    use fld_file_output
     implicit none
 
     class(brinkman_source_term_t), intent(inout) :: this
@@ -101,6 +113,7 @@ contains
     real(kind=rp) :: start_time, end_time
 
     character(len=:), allocatable :: filter_type
+    real(kind=rp) :: filter_radius
     real(kind=rp), dimension(:), allocatable :: brinkman_limits
     logical :: brinkman_implicit
     real(kind=rp) :: brinkman_penalty
@@ -112,6 +125,12 @@ contains
     type(json_file) :: object_settings
     integer :: n_regions
     integer :: i
+
+
+    ! delete later,
+    ! I just want to look at them
+    type(field_t), pointer :: fu,fv
+    type(fld_file_output_t) :: fout
 
     ! Mandatory fields for the general source term
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
@@ -172,15 +191,51 @@ contains
 
     end do
 
-    ! Run filter on the full indicator field to smooth it out.
-    call json_get_or_default(json, 'filter.type', filter_type, 'none')
+    ! ------------------------------------------------------------------------ !
+    ! Initialize the filter
+    call filter_factory(this%filter, json, coef)
 
-    select case (filter_type)
-      case ('none')
-       ! Do nothing
-      case default
-       call neko_error('Brinkman source term unknown filter type')
-    end select
+    ! allocate the unfiltered design field
+    ! note, if you use no filter this is not needed...
+    ! not sure what to do here
+    ! 
+    ! also... I wanted to go with "unfiltered_brinkman_indicator" but it was too many
+    ! characters to be picked up by the probes
+    call neko_field_registry%add_field(coef%dof, 'UF_indicator')
+    this%indicator_unfiltered => neko_field_registry%get_field_by_name('UF_indicator')
+    ! copy 
+    call copy(this%indicator_unfiltered%x,this%indicator%x,this%indicator%dof%size())
+
+    ! now we try and compute the filter
+    ! filter
+    call this%filter%apply(this%indicator, this%indicator_unfiltered)
+    !call PDE_filter(this%indicator, this%indicator_unfiltered, filter_radius,coef) 
+
+
+    ! and spy on them
+    call fout%init(sp, "yofam", 2)
+    fu => neko_field_registry%get_field('UF_indicator')
+    fv => neko_field_registry%get_field('brinkman_indicator')
+    fout%fields%items(1)%ptr => fu
+    fout%fields%items(2)%ptr => fv
+    call fout%sample(1.0_rp)
+
+
+
+!    select case (filter_type)
+!      case ('PDE')
+!       ! allocate the unfiltered design field
+!    	 call neko_field_registry%add_field(coef%dof, 'unfiltered_brinkman_indicator')
+!    	 this%indicator_unfiltered => neko_field_registry%get_field_by_name('unfiltered_brinkman_indicator')
+!     	 ! copy 
+!       call copy(this%indicator_unfiltered%x,this%indicator%x,this%indicator%dof%size())
+!       ! filter
+!       call PDE_filter(this%indicator, this%indicator_unfiltered, filter_radius,coef) 
+!      case ('none')
+!       ! do nothing
+!      case default
+!       call neko_error('Brinkman source term unknown filter type')
+!    end select
 
     ! ------------------------------------------------------------------------ !
     ! Compute the permeability field
@@ -359,7 +414,6 @@ contains
 
     ! ------------------------------------------------------------------------ !
     ! Run filter on the temporary indicator field to smooth it out.
-    call json_get_or_default(json, 'filter.type', filter_type, 'none')
 
     select case (filter_type)
       case ('none')
@@ -413,6 +467,8 @@ contains
     ! Run filter on the temporary indicator field to smooth it out.
 
     select case (filter_type)
+      case ('PDE')
+       ! Do nothing
       case ('none')
        ! Do nothing
       case default

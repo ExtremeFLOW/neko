@@ -32,30 +32,36 @@
 !
 !> Defines a simulation case
 module case
-  use num_types
-  use fluid_fctry
-  use fluid_output
-  use chkp_output
-  use mean_sqr_flow_output
-  use mean_flow_output
-  use fluid_stats_output
+  use num_types, only : rp, sp, dp
+  use fluid_fctry, only : fluid_scheme_factory
+  use fluid_pnpn, only : fluid_pnpn_t
+  use fluid_pnpn_perturb, only : fluid_pnpn_perturb_t
+  use fluid_scheme, only : fluid_scheme_t
+  use fluid_output, only : fluid_output_t
+  use baseflow, only: set_baseflow
+  use chkp_output, only : chkp_output_t
+  use mean_sqr_flow_output, only : mean_sqr_flow_output_t
+  use mean_flow_output, only : mean_flow_output_t
+  use fluid_stats_output, only : fluid_stats_output_t
   use mpi_f08
-  use mesh_field
-  use parmetis
-  use redist
-  use sampler
-  use flow_ic
+  use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
+  use parmetis, only : parmetis_partmeshkway
+  use redist, only : redist_mesh
+  use sampler, only : sampler_t
+  use flow_ic, only : set_flow_ic
   use scalar_ic, only : set_scalar_ic
-  use stats
-  use file
-  use utils
-  use mesh
+  use field, only : field_t
+  use field_registry, only : neko_field_registry
+  use stats, only : stats_t
+  use file, only : file_t
+  use utils, only : neko_error
+  use mesh, only : mesh_t
   use comm
   use time_scheme_controller, only : time_scheme_controller_t
-  use logger
-  use jobctrl
-  use user_intf
-  use scalar_pnpn ! todo directly load the pnpn? can we have other
+  use logger, only : neko_log, NEKO_LOG_QUIET, LOG_SIZE
+  use jobctrl, only : jobctrl_set_time_limit
+  use user_intf, only : user_t
+  use scalar_pnpn, only : scalar_pnpn_t
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
@@ -80,7 +86,7 @@ module case
      type(stats_t) :: q
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
-     type(scalar_pnpn_t), allocatable :: scalar 
+     type(scalar_pnpn_t), allocatable :: scalar
      type(material_properties_t):: material_properties
   end type case_t
 
@@ -147,10 +153,11 @@ contains
     real(kind=rp) :: real_val
     character(len=:), allocatable :: string_val
     real(kind=rp) :: stats_start_time, stats_output_val
-    integer ::  stats_sampling_interval
+    integer :: stats_sampling_interval
     integer :: output_dir_len
     integer :: n_simcomps
     integer :: precision
+    type(field_t), pointer :: u_b, v_b, w_b
 
     !
     ! Load mesh
@@ -218,7 +225,7 @@ contains
     C%fluid%chkp%tlag => C%tlag
     C%fluid%chkp%dtlag => C%dtlag
     select type(f => C%fluid)
-    type is(fluid_pnpn_t)
+      type is(fluid_pnpn_t)
        f%chkp%abx1 => f%abx1
        f%chkp%abx2 => f%abx2
        f%chkp%aby1 => f%aby1
@@ -275,29 +282,51 @@ contains
                   string_val)
     if (trim(string_val) .ne. 'user') then
        call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
-            C%fluid%c_Xh, C%fluid%gs_Xh, string_val, C%params)
+                        C%fluid%c_Xh, C%fluid%gs_Xh, string_val, C%params)
     else
        call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
-            C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_user_ic, C%params)
+                        C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_user_ic, C%params)
     end if
 
     if (scalar) then
        call json_get(C%params, 'case.scalar.initial_condition.type', string_val)
        if (trim(string_val) .ne. 'user') then
           call set_scalar_ic(C%scalar%s, &
-            C%scalar%c_Xh, C%scalar%gs_Xh, string_val, C%params)
+                             C%scalar%c_Xh, C%scalar%gs_Xh, string_val, C%params)
        else
           call set_scalar_ic(C%scalar%s, &
-            C%scalar%c_Xh, C%scalar%gs_Xh, C%usr%scalar_user_ic, C%params)
+                             C%scalar%c_Xh, C%scalar%gs_Xh, C%usr%scalar_user_ic, C%params)
        end if
     end if
 
     ! Add initial conditions to BDF scheme (if present)
     select type(f => C%fluid)
-    type is(fluid_pnpn_t)
+      type is(fluid_pnpn_t)
        call f%ulag%set(f%u)
        call f%vlag%set(f%v)
        call f%wlag%set(f%w)
+      type is(fluid_pnpn_perturb_t)
+       call f%ulag%set(f%u)
+       call f%vlag%set(f%v)
+       call f%wlag%set(f%w)
+
+       u_b => neko_field_registry%get_field('u_b')
+       v_b => neko_field_registry%get_field('v_b')
+       w_b => neko_field_registry%get_field('w_b')
+
+       !
+       ! Setup initial baseflow
+       !
+       call json_get(C%params, 'case.fluid.baseflow.type', string_val)
+
+       if (trim(string_val) .ne. 'user') then
+          call set_baseflow(u_b, v_b, w_b, C%fluid%c_Xh, C%fluid%gs_Xh, &
+                            string_val, C%params)
+       else
+          call set_baseflow(u_b, v_b, w_b, C%fluid%c_Xh, C%fluid%gs_Xh, &
+                            C%usr%baseflow_user, C%params)
+       end if
+
     end select
 
     !
@@ -359,7 +388,7 @@ contains
     ! Setup output precision of the field files
     !
     call json_get_or_default(C%params, 'case.output_precision', string_val,&
-         'single')
+                             'single')
 
     if (trim(string_val) .eq. 'double') then
        precision = dp
@@ -373,10 +402,10 @@ contains
     call C%s%init(C%end_time)
     if (scalar) then
        C%f_out = fluid_output_t(precision, C%fluid, C%scalar, &
-            path=trim(output_directory))
+                                path=trim(output_directory))
     else
        C%f_out = fluid_output_t(precision, C%fluid, &
-            path=trim(output_directory))
+                                path=trim(output_directory))
     end if
 
     call json_get_or_default(C%params, 'case.fluid.output_control',&
@@ -402,11 +431,14 @@ contains
     call json_get_or_default(C%params, 'case.output_checkpoints',&
                              logical_val, .true.)
     if (logical_val) then
-       C%f_chkp = chkp_output_t(C%fluid%chkp, path=output_directory)
+       call json_get_or_default(C%params, 'case.checkpoint_format', &
+                                string_val, "chkp")
+       C%f_chkp = chkp_output_t(C%fluid%chkp, path=output_directory, &
+                                fmt=trim(string_val))
        call json_get_or_default(C%params, 'case.checkpoint_control', &
-            string_val, "simulationtime")
+                                string_val, "simulationtime")
        call json_get_or_default(C%params, 'case.checkpoint_value', real_val,&
-            1e10_rp)
+                                1e10_rp)
        call C%s%add(C%f_chkp, real_val, string_val)
     end if
 
@@ -418,11 +450,11 @@ contains
     ! Note, don't use json_get_or_default here, because that will break the
     ! valid_path if statement below (the path will become valid always).
     call C%params%get('case.statistics.start_time', stats_start_time,&
-                           found)
+                      found)
     if (.not. found) stats_start_time = 0.0_rp
 
     call C%params%get('case.statistics.sampling_interval', &
-                           stats_sampling_interval, found)
+                      stats_sampling_interval, found)
     if (.not. found) stats_sampling_interval = 10
 
     call C%q%init(stats_start_time, stats_sampling_interval)
@@ -449,7 +481,7 @@ contains
           call C%q%add(C%fluid%stats)
 
           C%f_stats_output = fluid_stats_output_t(C%fluid%stats, &
-            stats_start_time, path=output_directory)
+                                                  stats_start_time, path=output_directory)
           call C%s%add(C%f_stats_output, stats_output_val, string_val)
        end if
     end if

@@ -54,15 +54,15 @@ contains
     integer :: n
     type(field_t), pointer :: u, v, w
 
-    n = fields%fields(1)%f%dof%size()
+    n = fields%item_size(1)
 
     u => neko_field_registry%get_field('u')
     v => neko_field_registry%get_field('v')
     w => neko_field_registry%get_field('w')
 
-    call device_subcol3(fields%fields(1)%f%x_d, u%x_d, brinkman%x_d, n)
-    call device_subcol3(fields%fields(2)%f%x_d, v%x_d, brinkman%x_d, n)
-    call device_subcol3(fields%fields(3)%f%x_d, w%x_d, brinkman%x_d, n)
+    call device_subcol3(fields%x_d(1), u%x_d, brinkman%x_d, n)
+    call device_subcol3(fields%x_d(2), v%x_d, brinkman%x_d, n)
+    call device_subcol3(fields%x_d(3), w%x_d, brinkman%x_d, n)
 
   end subroutine brinkman_source_term_compute_device
 
