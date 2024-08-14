@@ -196,6 +196,7 @@ neko_fortran_SOURCES = \
 	fluid/fluid_scheme.f90\
 	fluid/fluid_aux.f90\
 	fluid/fluid_pnpn.f90\
+	fluid/fluid_pnpn_perturb.f90\
 	fluid/fluid_fctry.f90\
 	fluid/fluid_volflow.f90\
 	fluid/pnpn_res.f90\
@@ -205,10 +206,13 @@ neko_fortran_SOURCES = \
 	fluid/mean_sqr_flow.f90\
 	fluid/flow_profile.f90\
 	fluid/flow_ic.f90\
+	fluid/baseflow.f90\
 	fluid/advection.f90\
 	fluid/advection_fctry.f90\
 	fluid/bcknd/advection/adv_dealias.f90\
 	fluid/bcknd/advection/adv_no_dealias.f90\
+	fluid/bcknd/advection/adv_lin_dealias.f90\
+	fluid/bcknd/advection/adv_lin_no_dealias.f90\
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/pnpn_res_device.F90\
