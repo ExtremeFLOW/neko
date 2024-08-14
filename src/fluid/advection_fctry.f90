@@ -37,6 +37,8 @@ submodule (advection) advection_fctry
   ! Advection and derivatives
   use adv_dealias, only : adv_dealias_t
   use adv_no_dealias, only : adv_no_dealias_t
+  use adv_lin_dealias, only : adv_lin_dealias_t
+  use adv_lin_no_dealias, only : adv_lin_no_dealias_t
 
 
 contains
@@ -81,5 +83,45 @@ contains
 
   end subroutine advection_factory
 
+  !> A factory for \ref advection_t decendants.
+  !! @param object Polymorphic object of class \ref advection_t.
+  !! @param json The parameter file.
+  !! @param coef The coefficients of the (space, mesh) pair.
+  !! @note The factory both allocates and initializes `object`.
+  subroutine advection_lin_factory(object, json, coef)
+    implicit none
+    class(advection_lin_t), allocatable, intent(inout) :: object
+    type(json_file), intent(inout) :: json
+    type(coef_t), intent(inout), target :: coef
+    logical :: dealias
+    integer :: lxd, order
+
+    ! Read the parameters from the json file
+    call json_get(json, 'case.numerics.dealias', dealias)
+    call json_get(json, 'case.numerics.polynomial_order', order)
+
+    call json_get_or_default(json, 'case.numerics.dealiased_polynomial_order', &
+                             lxd, ( 3 * (order + 1) ) / 2)
+
+    ! Free allocatables if necessary
+    if (allocated(object)) then
+       call object%free
+       deallocate(object)
+    end if
+
+    if (dealias) then
+      allocate(adv_lin_dealias_t::object)
+   else
+      allocate(adv_lin_no_dealias_t::object)
+   end if
+
+   select type (adv => object)
+     type is (adv_lin_dealias_t)
+      call adv%init(lxd, coef)
+     type is (adv_lin_no_dealias_t)
+      call adv%init(coef)
+   end select
+
+  end subroutine advection_lin_factory
 
 end submodule advection_fctry

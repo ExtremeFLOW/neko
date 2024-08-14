@@ -33,9 +33,11 @@
 !> Defines a simulation case
 module case
   use num_types, only : rp, sp, dp
-  use fluid_pnpn, only : fluid_pnpn_t
   use fluid_scheme, only : fluid_scheme_t, fluid_scheme_factory
+  use fluid_pnpn, only : fluid_pnpn_t
+  use fluid_pnpn_perturb, only : fluid_pnpn_perturb_t
   use fluid_output, only : fluid_output_t
+  use baseflow, only: set_baseflow
   use chkp_output, only : chkp_output_t
   use mean_sqr_flow_output, only : mean_sqr_flow_output_t
   use mean_flow_output, only : mean_flow_output_t
@@ -46,6 +48,8 @@ module case
   use sampler, only : sampler_t
   use flow_ic, only : set_flow_ic
   use scalar_ic, only : set_scalar_ic
+  use field, only : field_t
+  use field_registry, only : neko_field_registry
   use stats, only : stats_t
   use file, only : file_t
   use utils, only : neko_error
@@ -151,6 +155,7 @@ contains
     integer :: stats_sampling_interval
     integer :: output_dir_len
     integer :: precision
+    type(field_t), pointer :: u_b, v_b, w_b
 
     !
     ! Load mesh
@@ -298,6 +303,28 @@ contains
        call f%ulag%set(f%u)
        call f%vlag%set(f%v)
        call f%wlag%set(f%w)
+      type is(fluid_pnpn_perturb_t)
+       call f%ulag%set(f%u)
+       call f%vlag%set(f%v)
+       call f%wlag%set(f%w)
+
+       u_b => neko_field_registry%get_field('u_b')
+       v_b => neko_field_registry%get_field('v_b')
+       w_b => neko_field_registry%get_field('w_b')
+
+       !
+       ! Setup initial baseflow
+       !
+       call json_get(C%params, 'case.fluid.baseflow.type', string_val)
+
+       if (trim(string_val) .ne. 'user') then
+          call set_baseflow(u_b, v_b, w_b, C%fluid%c_Xh, C%fluid%gs_Xh, &
+                            string_val, C%params)
+       else
+          call set_baseflow(u_b, v_b, w_b, C%fluid%c_Xh, C%fluid%gs_Xh, &
+                            C%usr%baseflow_user, C%params)
+       end if
+
     end select
 
     !

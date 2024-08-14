@@ -33,6 +33,7 @@
 !> Factory for all fluid schemes
 submodule (fluid_scheme) fluid_fctry
   use fluid_pnpn, only : fluid_pnpn_t
+  use fluid_pnpn_perturb, only: fluid_pnpn_perturb_t
   use utils, only : concat_string_array
 
   ! List of all possible types created by the factory routine
@@ -49,6 +50,8 @@ contains
 
     if (trim(type_name) .eq. 'pnpn') then
        allocate(fluid_pnpn_t::object)
+    else if (trim(type_name) .eq. 'pnpn_perturb') then
+       allocate(fluid_pnpn_perturb_t::object)
     else
        type_string = concat_string_array(FLUID_KNOWN_TYPES, &
             NEW_LINE('A') // "-  ", .true.)

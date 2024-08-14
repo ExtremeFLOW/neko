@@ -48,6 +48,16 @@ module advection
      procedure(advection_free), pass(this), deferred :: free
   end type advection_t
 
+  !> Base abstract type for computing the advection operator
+  type, public, abstract :: advection_lin_t
+   contains
+     procedure(compute_adv_lin), pass(this), deferred :: compute_linear
+     procedure(compute_adv_lin), pass(this), deferred :: compute_adjoint
+! TODO
+!     procedure(compute_scalar_adv_lin), pass(this), deferred :: compute_scalar
+     procedure(advection_lin_free), pass(this), deferred :: free
+  end type advection_lin_t
+
   interface
      !> A factory for \ref advection_t decendants. Both creates and initializes
      !! the object.
@@ -59,9 +69,23 @@ module advection
        type(json_file), intent(inout) :: json
        type(coef_t), intent(inout), target :: coef
      end subroutine advection_factory
+
+     !> A factory for \ref advection_lin_t decendants. Both creates and initializes
+     !! the object.
+     !! @param object The object allocated by the factory.
+     !! @param json The parameter file.
+     !! @param coef The coefficients of the (space, mesh) pair.
+     module subroutine advection_lin_factory(object, json, coef)
+       class(advection_lin_t), allocatable, intent(inout) :: object
+       type(json_file), intent(inout) :: json
+       type(coef_t), intent(inout), target :: coef
+     end subroutine advection_lin_factory
   end interface
 
-  public :: advection_factory
+  public :: advection_factory, advection_lin_factory
+
+  ! ========================================================================== !
+  ! Advection operator interface
 
   abstract interface
      !> Add advection operator to the right-hand-side for a fluld.
@@ -123,6 +147,74 @@ module advection
        import :: advection_t
        class(advection_t), intent(inout) :: this
      end subroutine advection_free
+  end interface
+
+
+  ! ========================================================================== !
+  ! Linearized advection operator interface
+
+  abstract interface
+     !> Add advection operator to the right-hand-side for a fluld.
+     !! @param this The object.
+     !! @param vx The x component of velocity.
+     !! @param vy The y component of velocity.
+     !! @param vz The z component of velocity.
+     !! @param fx The x component of source term.
+     !! @param fy The y component of source term.
+     !! @param fz The z component of source term.
+     !! @param Xh The function space.
+     !! @param coef The coefficients of the (Xh, mesh) pair.
+     !! @param n Typically the size of the mesh.
+     subroutine compute_adv_lin(this, vx, vy, vz, vxb, vyb, vzb, fx, fy, fz, &
+                                Xh, coef, n)
+       import :: advection_lin_t
+       import :: coef_t
+       import :: space_t
+       import :: field_t
+       import :: rp
+       class(advection_lin_t), intent(inout) :: this
+       type(space_t), intent(inout) :: Xh
+       type(coef_t), intent(inout) :: coef
+       type(field_t), intent(inout) :: vx, vy, vz
+       type(field_t), intent(inout) :: vxb, vyb, vzb
+       type(field_t), intent(inout) :: fx, fy, fz
+       integer, intent(in) :: n
+     end subroutine compute_adv_lin
+  end interface
+
+  abstract interface
+     !> Add advection operator to the right-hand-side for a scalar.
+     !! @param this The object.
+     !! @param vx The x component of velocity.
+     !! @param vy The y component of velocity.
+     !! @param vz The z component of velocity.
+     !! @param s The scalar.
+     !! @param fs The source term.
+     !! @param Xh The function space.
+     !! @param coef The coefficients of the (Xh, mesh) pair.
+     !! @param n Typically the size of the mesh.
+     subroutine compute_scalar_adv_lin(this, vx, vy, vz, s, fs, Xh, coef, n)
+       import :: advection_lin_t
+       import :: coef_t
+       import :: space_t
+       import :: field_t
+       import :: rp
+       class(advection_lin_t), intent(inout) :: this
+       type(field_t), intent(inout) :: vx, vy, vz
+       type(field_t), intent(inout) :: s
+       type(field_t), intent(inout) :: fs
+       type(space_t), intent(inout) :: Xh
+       type(coef_t), intent(inout) :: coef
+       integer, intent(in) :: n
+     end subroutine compute_scalar_adv_lin
+  end interface
+
+  abstract interface
+     !> Destructor
+     subroutine advection_lin_free(this)
+       import :: advection_lin_t
+       class(advection_lin_t), intent(inout) :: this
+     end subroutine advection_lin_free
   end interface
 
 end module advection

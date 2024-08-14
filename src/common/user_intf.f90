@@ -92,6 +92,18 @@ module user_intf
      end subroutine user_initialize_modules
   end interface
 
+  !> Abstract interface for initializing user defined baseflows
+  abstract interface
+     subroutine user_baseflow_init(u_b, v_b, w_b, params)
+       import field_t
+       import json_file
+       type(field_t), intent(inout) :: u_b
+       type(field_t), intent(inout) :: v_b
+       type(field_t), intent(inout) :: w_b
+       type(json_file), intent(inout) :: params
+     end subroutine user_baseflow_init
+  end interface
+
   !> Abstract interface for adding user defined simulation components
   abstract interface
      subroutine user_simcomp_init(params)
@@ -159,6 +171,7 @@ module user_intf
      procedure(useric), nopass, pointer :: fluid_user_ic => null()
      procedure(useric_scalar), nopass, pointer :: scalar_user_ic => null()
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
+     procedure(user_baseflow_init), nopass, pointer :: baseflow_user => null()
      procedure(user_simcomp_init), nopass, pointer :: init_user_simcomp => null()
      procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
      procedure(usercheck), nopass, pointer :: user_check => null()
@@ -178,7 +191,7 @@ module user_intf
 
   public :: useric, useric_scalar, user_initialize_modules, usermsh, &
     dummy_user_material_properties, user_material_properties, &
-    user_simcomp_init, simulation_component_user_settings
+    user_simcomp_init, simulation_component_user_settings, user_baseflow_init
 contains
 
   !> User interface initialization
@@ -279,6 +292,10 @@ contains
 
     if (.not. associated(u%init_user_simcomp)) then
        u%init_user_simcomp => dummy_user_init_no_simcomp
+    end if
+
+    if (.not. associated(u%baseflow_user)) then
+       u%baseflow_user => dummy_user_init_no_baseflow
     end if
 
     if (.not. associated(u%user_finalize_modules)) then
@@ -420,6 +437,13 @@ contains
   subroutine dummy_user_init_no_simcomp(params)
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_init_no_simcomp
+
+  subroutine dummy_user_init_no_baseflow(u_b, v_b, w_b, params)
+    type(field_t), intent(inout) :: u_b
+    type(field_t), intent(inout) :: v_b
+    type(field_t), intent(inout) :: w_b
+    type(json_file), intent(inout) :: params
+  end subroutine dummy_user_init_no_baseflow
 
   subroutine dummy_user_final_no_modules(t, params)
     real(kind=rp) :: t
