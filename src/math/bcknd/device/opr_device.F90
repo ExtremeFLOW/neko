@@ -64,11 +64,11 @@ module opr_device
 
   interface
      subroutine hip_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
-          dxt_d, dyt_d, dzt_d, B_d, jac_d, nel, lx) &
+          dxt_d, dyt_d, dzt_d, w3_d, nel, lx) &
           bind(c, name='hip_cdtp')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: dtx_d, x_d, dr_d, ds_d, dt_d
-       type(c_ptr), value :: dxt_d, dyt_d, dzt_d, B_d, jac_d
+       type(c_ptr), value :: dxt_d, dyt_d, dzt_d, w3_d
        integer(c_int) :: nel, lx
      end subroutine hip_cdtp
   end interface
@@ -153,11 +153,11 @@ module opr_device
 
   interface
      subroutine cuda_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
-          dxt_d, dyt_d, dzt_d, B_d, jac_d, nel, lx) &
+          dxt_d, dyt_d, dzt_d, w3_d, nel, lx) &
           bind(c, name='cuda_cdtp')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: dtx_d, x_d, dr_d, ds_d, dt_d
-       type(c_ptr), value :: dxt_d, dyt_d, dzt_d, B_d, jac_d
+       type(c_ptr), value :: dxt_d, dyt_d, dzt_d, w3_d
        integer(c_int) :: nel, lx
      end subroutine cuda_cdtp
   end interface
@@ -243,11 +243,11 @@ module opr_device
 
   interface
      subroutine opencl_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
-          dxt_d, dyt_d, dzt_d, B_d, jac_d, nel, lx) &
+          dxt_d, dyt_d, dzt_d, w3_d, nel, lx) &
           bind(c, name='opencl_cdtp')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: dtx_d, x_d, dr_d, ds_d, dt_d
-       type(c_ptr), value :: dxt_d, dyt_d, dzt_d, B_d, jac_d
+       type(c_ptr), value :: dxt_d, dyt_d, dzt_d, w3_d
        integer(c_int) :: nel, lx
      end subroutine opencl_cdtp
   end interface
@@ -448,16 +448,16 @@ contains
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
 #ifdef HAVE_HIP
       call hip_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
-           Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%B_d, &
-           coef%jac_d, msh%nelv, Xh%lx)
+           Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, Xh%w3_d, &
+           msh%nelv, Xh%lx)
 #elif HAVE_CUDA
       call cuda_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
-           Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%B_d, &
-           coef%jac_d, msh%nelv, Xh%lx)
+           Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, Xh%w3_d, &
+           msh%nelv, Xh%lx)
 #elif HAVE_OPENCL
       call opencl_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
-           Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%B_d, &
-           coef%jac_d, msh%nelv, Xh%lx)
+           Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, Xh%w3_d, &
+           msh%nelv, Xh%lx)
 #else
       call neko_error('No device backend configured')
 #endif
