@@ -6,6 +6,7 @@ module tree_amg
   use mesh, only : mesh_t
   use space, only : space_t
   use ax_product, only: ax_t
+  use bc, only: bc_list_t, bc_list_apply
   use gather_scatter, only : gs_t, GS_OP_ADD
   implicit none
   private
@@ -40,6 +41,7 @@ module tree_amg
     type(space_t), pointer :: Xh
     type(coef_t), pointer :: coef
     type(gs_t), pointer :: gs_h
+    type(bc_list_t), pointer :: blst
 
   contains
     procedure, pass(this) :: init => tamg_init
@@ -51,7 +53,7 @@ module tree_amg
 
 contains
 
-  subroutine tamg_init(this, ax, Xh, coef, msh, gs_h, nlvls)
+  subroutine tamg_init(this, ax, Xh, coef, msh, gs_h, nlvls, blst)
     class(tamg_hierarchy_t), target, intent(inout) :: this
     class(ax_t), target, intent(in) :: ax
     type(space_t),target, intent(in) :: Xh
@@ -59,12 +61,14 @@ contains
     type(mesh_t), target, intent(in) :: msh
     type(gs_t), target, intent(in) :: gs_h
     integer, intent(in) :: nlvls
+    type(bc_list_t), target, intent(in) :: blst
 
     this%ax => ax
     this%msh => msh
     this%Xh => Xh
     this%coef => coef
     this%gs_h => gs_h
+    this%blst => blst
 
     this%nlvls = nlvls
     allocate( this%lvl(this%nlvls) )

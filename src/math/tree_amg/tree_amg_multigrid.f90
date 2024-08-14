@@ -41,7 +41,8 @@ contains
 
     nlvls = 3
     this%nlvls = nlvls
-    allocate(this%smoo(0:(nlvls-1)))
+    !allocate(this%smoo(0:(nlvls-1)))
+    allocate(this%smoo(0:(nlvls)))
     do lvl = 0, nlvls-1
       n = amg%lvl(lvl+1)%fine_lvl_dofs
       call this%smoo(lvl)%init(n ,lvl, 10)
@@ -59,6 +60,7 @@ contains
     max_iter = this%max_iter
 
     do iter = 1, max_iter
+      print *, "MG iter:", iter
       call tamg_mg_cycle(z, r, n, 0, this%amg, this)
     end do
   end subroutine tamg_mg_solve
@@ -81,7 +83,7 @@ contains
     rc = 0d0
     tmp = 0d0
 
-    sit = 4
+    sit = 10
     max_lvl = mgstuff%nlvls-1
 
     !>----------<!

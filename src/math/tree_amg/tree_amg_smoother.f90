@@ -4,6 +4,8 @@ module tree_amg_smoother
   use utils
   use math
   use krylov, only : ksp_monitor_t
+  use bc, only: bc_list_t, bc_list_apply
+  use gather_scatter, only : gs_t, GS_OP_ADD
   implicit none
   private
 
@@ -14,7 +16,7 @@ module tree_amg_smoother
      real(kind=rp) :: tha, dlt
      integer :: lvl
      integer :: n
-     integer :: power_its = 15
+     integer :: power_its = 150
      integer :: max_iter = 10
      logical :: recompute_eigs = .true.
    contains
@@ -52,34 +54,41 @@ contains
     real(kind=rp) :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
     integer :: i
-    associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, msh=>amg%msh, Xh=>amg%Xh)
+    associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, msh=>amg%msh, Xh=>amg%Xh, blst=>amg%blst)
 
       print *, "COMP EIGS on lvl", this%lvl, "n", n
       do i = 1, n
         !TODO: replace with a better way to initialize power method
         call random_number(rn)
-        d(i) = rn + 10.0_rp
+        d(i) = i!rn + 10.0_rp
       end do
-      !!if (this%lvl .eq. 1) then
-      !!  call gs_h%op(d, n, GS_OP_ADD)TODO
-      !!  !--call bc_list_apply(blst, d, n)
-      !!end if
+      if (this%lvl .eq. 0) then
+        call gs_h%op(d, n, GS_OP_ADD)!TODO
+        !call bc_list_apply(blst, d, n)
+      end if
 
       !Power method to get lamba max
       do i = 1, this%power_its
         w = 0d0
         call amg%matvec(w, d, this%lvl)
 
-        if (this%lvl .eq. 1) then
+        if (this%lvl .eq. 0) then
+          !call bc_list_apply(blst, w, n)
           wtw = glsc3(w, coef%mult, w, n)
         else
           wtw = glsc2(w, w, n)
         end if
         call cmult2(d, w, 1.0_rp/sqrt(wtw), n)
+        if (this%lvl .eq. 0) then
+          !call bc_list_apply(blst, d, n)
+        end if
       end do
 
       w = 0d0
       call amg%matvec(w, d, this%lvl)
+      if (this%lvl .eq. 0) then
+        !call bc_list_apply(blst, w, n)
+      end if
 
       if (this%lvl .eq. 0) then
         dtw = glsc3(d, coef%mult, w, n)
@@ -120,11 +129,14 @@ contains
        max_iter = this%max_iter
     end if
 
-    associate( w => this%w, r => this%r, d => this%d)
+    associate( w => this%w, r => this%r, d => this%d, blst=>amg%blst)
       ! calculate residual
       call copy(r, f, n)
       w = 0d0
       call amg%matvec(w, x, this%lvl)
+      if (this%lvl .eq. 0) then
+        !call bc_list_apply(blst, w, n)
+      end if
       call sub2(r, w, n)
 
       rtr = glsc2(r, r, n)
@@ -145,6 +157,9 @@ contains
         call copy(r, f, n)
         w = 0d0
         call amg%matvec(w, x, this%lvl)
+        if (this%lvl .eq. 0) then
+          !call bc_list_apply(blst, w, n)
+        end if
         call sub2(r, w, n)
 
         call copy(w, r, n)! PRECOND
@@ -160,6 +175,9 @@ contains
       call copy(r, f, n)
       w = 0d0
       call amg%matvec(w, x, this%lvl)
+      if (this%lvl .eq. 0) then
+        !call bc_list_apply(blst, w, n)
+      end if
       call sub2(r, w, n)
       rtr = glsc2(r, r, n)
       rnorm = sqrt(rtr)
