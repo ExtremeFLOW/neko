@@ -64,6 +64,8 @@ rules. The linting rules are enforced by the
 [flint](https://github.com/marshallward/flint) tool. The rules are defined in the
 `flinter_rc.yml` file in the root of the repository. 
 
+Please note, newer versions of flint fails to execute for some of our large files (htable.f90 and stack.f90).
+
 One way to install flint is thorugh pip:
 ```sh
 pip install nobvisual==0.2.0 flinter==0.4.0
