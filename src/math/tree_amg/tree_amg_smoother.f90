@@ -16,7 +16,7 @@ module tree_amg_smoother
      real(kind=rp) :: tha, dlt
      integer :: lvl
      integer :: n
-     integer :: power_its = 150
+     integer :: power_its = 25
      integer :: max_iter = 10
      logical :: recompute_eigs = .true.
    contains
@@ -60,11 +60,11 @@ contains
       do i = 1, n
         !TODO: replace with a better way to initialize power method
         call random_number(rn)
-        d(i) = i!rn + 10.0_rp
+        d(i) = rn + 10.0_rp
       end do
       if (this%lvl .eq. 0) then
         call gs_h%op(d, n, GS_OP_ADD)!TODO
-        !call bc_list_apply(blst, d, n)
+        call bc_list_apply(blst, d, n)
       end if
 
       !Power method to get lamba max
@@ -78,7 +78,9 @@ contains
         else
           wtw = glsc2(w, w, n)
         end if
+
         call cmult2(d, w, 1.0_rp/sqrt(wtw), n)
+
         if (this%lvl .eq. 0) then
           !call bc_list_apply(blst, d, n)
         end if

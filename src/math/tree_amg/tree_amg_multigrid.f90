@@ -59,6 +59,8 @@ contains
 
     max_iter = this%max_iter
 
+    z = 0d0
+
     do iter = 1, max_iter
       print *, "MG iter:", iter
       call tamg_mg_cycle(z, r, n, 0, this%amg, this)

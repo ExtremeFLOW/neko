@@ -294,15 +294,17 @@ contains
     vec_out = 0d0
 
     if (lvl .eq. 0) then !> isleaf true
+      n = size(vec_in)
       !> Call local finite element assembly
-      call this%gs_h%op(vec_in, size(vec_in), GS_OP_ADD)
-      do i = 1, size(vec_in)
+      call this%gs_h%op(vec_in, n, GS_OP_ADD)
+      do i = 1, n
         vec_in(i) = vec_in(i) * this%coef%mult(i,1,1,1)
       end do
       !>
       call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
       !>
-      call this%gs_h%op(vec_out, size(vec_out), GS_OP_ADD)
+      call this%gs_h%op(vec_out, n, GS_OP_ADD)
+      call bc_list_apply(this%blst, vec_out, n)
       !>
     else !> pass down through hierarchy
       if (lvl_out .ge. lvl) then
