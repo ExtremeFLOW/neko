@@ -62,6 +62,7 @@ contains
     type(gs_t), target, intent(in) :: gs_h
     integer, intent(in) :: nlvls
     type(bc_list_t), target, intent(in) :: blst
+    integer, allocatable :: agg_nhbr(:,:)
 
     this%ax => ax
     this%msh => msh
@@ -76,9 +77,17 @@ contains
     call aggregate_finest_level(this, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     print *, "Calling lazy aggregation"
     print *, "-- target aggregates:", (msh%nelv/8)
-    call aggregate_elm(this, (msh%nelv/8))
+    call aggregate_elm(this, (msh%nelv/8), agg_nhbr)
     print *, "-- Aggregation done. Aggregates:", this%lvl(2)%nnodes
-    call aggregate_end(this, 3)
+
+    if (nlvls .gt. 3) then
+      print *, "Calling lazy aggregation"
+      print *, "-- target aggregates:", (this%lvl(2)%nnodes/8)
+      call aggregate_general(this, (this%lvl(2)%nnodes/8), 3, agg_nhbr)
+      print *, "-- Aggregation done. Aggregates:", this%lvl(3)%nnodes
+    end if
+
+    call aggregate_end(this, nlvls)
 
   end subroutine tamg_init
 
@@ -138,9 +147,10 @@ contains
     allocate(tamg%lvl(lvl_id)%wrk_out( nt ))
   end subroutine aggregate_finest_level
 
-  subroutine aggregate_elm(tamg, max_aggs)
+  subroutine aggregate_elm(tamg, max_aggs, agg_nhbr)
     type(tamg_hierarchy_t), intent(inout) :: tamg
     integer, intent(in) :: max_aggs
+    integer, intent(inout), allocatable :: agg_nhbr(:,:)
     integer :: naggs
     real(kind=dp) :: random_value
     integer :: i,j,k,l
@@ -150,6 +160,8 @@ contains
     integer, allocatable :: aggregate_size(:)
     integer :: tnt_agg, tst_agg
     integer :: tnt_size, tst_size
+    integer :: aa
+    logical :: agg_added
 
     lvl_id = 2
 
@@ -161,6 +173,8 @@ contains
     is_aggregated = -1!> fill with false
     allocate( aggregate_size( max_aggs*2 ) )
     aggregate_size = 999999!> Fill with large number
+    allocate( agg_nhbr(10, max_aggs*2) )
+    agg_nhbr = -1
 
     do while (naggs .le. max_aggs)
       call random_number(random_value)
@@ -232,6 +246,24 @@ contains
       end if
     end do
     print *, "done with second pass of aggregation: number of aggregates", naggs
+    do i = 1, n_elements!TODO: this is the lazy expensive way...
+      tnt_agg = is_aggregated(i)
+      do side = 1, 6
+        nhbr = msh%facet_neigh(side,i)
+        tst_agg = is_aggregated(nhbr)
+        if (tst_agg .ne. tnt_agg) then
+          agg_added = .false.
+          do j = 1, 10
+            if ((agg_nhbr(j,tnt_agg) .eq. tst_agg)) then
+              agg_added = .true.
+            else if ((agg_nhbr(j,tnt_agg) .ne. tst_agg).and.(agg_nhbr(j,tnt_agg).eq.-1).and.(.not.agg_added)) then
+              agg_nhbr(j,tnt_agg) = tst_agg
+              agg_added = .true.
+            end if
+          end do
+        end if
+      end do
+    end do
 
     !> Allocate and fill lvl and nodes
     ntot = 0
@@ -253,6 +285,141 @@ contains
 
     end associate
   end subroutine aggregate_elm
+
+  subroutine aggregate_general(tamg, max_aggs, lvl_id, agg_nhbr)
+    type(tamg_hierarchy_t), intent(inout) :: tamg
+    integer, intent(in) :: max_aggs
+    integer, intent(in) :: lvl_id
+    integer, intent(inout), allocatable :: agg_nhbr(:,:)
+    integer :: naggs
+    real(kind=dp) :: random_value
+    integer :: i,j,k,l
+    integer :: side, nhbr, n_elements
+    integer :: ntot
+    integer, allocatable :: is_aggregated(:)
+    integer, allocatable :: aggregate_size(:)
+    integer :: tnt_agg, tst_agg
+    integer :: tnt_size, tst_size
+    integer :: aa
+    logical :: agg_added
+
+    naggs = 0
+    n_elements = tamg%lvl(lvl_id-1)%nnodes
+    allocate( is_aggregated( n_elements ) )
+    is_aggregated = -1!> fill with false
+    allocate( aggregate_size( max_aggs*2 ) )
+    aggregate_size = 999999!> Fill with large number
+    !!allocate( agg_nhbr(10, max_aggs*2) )
+    !!agg_nhbr = -1
+
+    do while (naggs .le. max_aggs)
+      call random_number(random_value)
+      i = floor(random_value * n_elements + 1)
+      if (is_aggregated(i) .eq. -1) then!> if not aggregated, create new aggregate
+        naggs = naggs + 1
+        is_aggregated(i) = naggs
+        aggregate_size(naggs) = 1
+        !> Add neighbors to aggregate if unaggregated
+        do side = 1, 10!> loop through neighbors
+          nhbr = agg_nhbr(side, i)
+          if (nhbr .gt. 0) then!> if nhbr exists
+            if (is_aggregated(nhbr) .eq. -1) then!> if nhbr unaggregated
+              aggregate_size(naggs) = aggregate_size(naggs) + 1
+              is_aggregated(nhbr) = naggs
+            end if
+          end if
+        end do
+      endif
+    end do
+    print *, "done with first pass of aggregation"
+
+    !> Add remaining unaggregated nodes to aggregates
+    do i = 1, n_elements
+      if (is_aggregated(i) .eq. -1) then
+        !> dof i is unaggregated. Check neighbors, add to smallest neighbor
+        tnt_agg = -1
+        tnt_size = 999!TODO: replace with large number
+        tst_agg = -1
+        tst_size = 999!TODO: replace with large number
+        do side = 1, 10
+          nhbr = agg_nhbr(side, i)
+          if (nhbr .gt. 0) then
+            if (is_aggregated(nhbr) .ne. -1) then
+              tst_agg = is_aggregated(nhbr)
+              tst_size = aggregate_size(tst_agg)
+              if (tst_size .lt. tnt_size) then
+                tnt_size = tst_size
+                tnt_agg = tst_agg
+              end if
+            end if
+          end if
+        end do
+
+        if (tnt_agg .ne. -1) then
+          !> if neighbor aggregate found add to that aggregate
+          is_aggregated(i) = tnt_agg
+          aggregate_size(tnt_agg) = aggregate_size(tnt_agg) + 1
+        else
+          !> if none of the neignbors are aggregated. might as well make a new aggregate
+          naggs = naggs + 1
+          if (naggs .gt. max_aggs*2) then
+            call neko_error("I did not think of a way to handle creating too many aggregates... increase max_aggs")
+          end if
+          is_aggregated(i) = naggs
+          aggregate_size(naggs) = 1
+          !> Add neighbors to aggregate if unaggregated
+          do side = 1, 10
+            nhbr = agg_nhbr(side, i)
+            if (nhbr .gt. 0) then
+              if (is_aggregated(nhbr) .eq. -1) then
+                aggregate_size(naggs) = aggregate_size(naggs) + 1
+                is_aggregated(nhbr) = naggs
+              end if
+            end if
+          end do
+        end if
+
+      end if
+    end do
+    print *, "done with second pass of aggregation: number of aggregates", naggs
+    !do i = 1, n_elements!TODO: this is the lazy expensive way...
+    !  tnt_agg = is_aggregated(i)
+    !  do side = 1, 10
+    !    nhbr = msh_blah(side,i)
+    !    tst_agg = is_aggregated(nhbr)
+    !    if (tst_agg .ne. tnt_agg) then
+    !      agg_added = .false.
+    !      do j = 1, 10
+    !        if ((agg_nhbr(tnt_agg,j) .eq. tst_agg)) then
+    !          agg_added = .true.
+    !        else if ((agg_nhbr(tnt_agg,j) .ne. tst_agg).and.(agg_nhbr(tnt_agg,j).eq.-1).and.(.not.agg_added)) then
+    !          agg_nhbr(tnt_agg,j) = tst_agg
+    !          agg_added = .true.
+    !        end if
+    !      end do
+    !    end if
+    !  end do
+    !end do
+
+    !> Allocate and fill lvl and nodes
+    ntot = 0
+    call tamg_lvl_init( tamg%lvl(lvl_id), lvl_id, naggs)
+    do l = 1, naggs
+      call tamg_node_init( tamg%lvl(lvl_id)%nodes(l), l, aggregate_size(l))
+      j = 0
+      do i = 1, n_elements!TODO: this is the lazy expensive way...
+        if (is_aggregated(i) .eq. l) then
+          j = j+1
+          tamg%lvl(lvl_id)%nodes(l)%dofs(j) = i
+        end if
+      end do
+      ntot = ntot + aggregate_size(l)
+    end do
+    tamg%lvl(lvl_id)%fine_lvl_dofs = ntot
+    allocate( tamg%lvl(lvl_id)%wrk_in( ntot ) )
+    allocate( tamg%lvl(lvl_id)%wrk_out( ntot ) )
+
+  end subroutine aggregate_general
 
   subroutine aggregate_end( tamg, lvl_id)
     type(tamg_hierarchy_t), intent(inout) :: tamg

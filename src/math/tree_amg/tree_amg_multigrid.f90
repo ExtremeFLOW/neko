@@ -11,6 +11,7 @@
 !>
 module tree_amg_multigrid
   use math
+  use utils
   use tree_amg
   use tree_amg_matvec
   use tree_amg_smoother
@@ -39,8 +40,11 @@ contains
 
     this%max_iter = max_iter
 
-    nlvls = 3
+    nlvls = 4
     this%nlvls = nlvls
+    if (this%nlvls .gt. amg%nlvls) then
+      call neko_error("Requested number multigrid levels is greater than the initialized AMG levels")
+    end if
     !allocate(this%smoo(0:(nlvls-1)))
     allocate(this%smoo(0:(nlvls)))
     do lvl = 0, nlvls-1
