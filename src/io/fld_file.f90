@@ -100,7 +100,7 @@ contains
     integer :: FLD_DATA_SIZE, n_scalar_fields
 
     if (present(t)) then
-       time = real(t,dp)
+       time = real(t, dp)
     else
        time = 0d0
     end if
@@ -185,7 +185,7 @@ contains
           tem%ptr => data%items(5)%ptr%x(:,1,1,1)
           n_scalar_fields = data%size() - 5
           allocate(scalar_fields(n_scalar_fields))
-          do i = 1,n_scalar_fields
+          do i = 1, n_scalar_fields
              scalar_fields(i)%ptr => data%items(i+5)%ptr%x(:,1,1,1)
           end do
           write_pressure = .true.
@@ -296,8 +296,8 @@ contains
     !> @todo fix support for single precision output?
     write(hdr, 1) FLD_DATA_SIZE, lx, ly, lz,glb_nelv,glb_nelv,&
          time, this%counter, 1, 1, (rdcode(i),i = 1, 10)
-1   format('#std', 1x, i1, 1x, i2, 1x, i2, 1x, i2, 1x, i10, 1x, i10, 1x,e20.13,&
-         1x,i9, 1x, i6, 1x, i6, 1x, 10a)
+1   format('#std', 1x, i1, 1x, i2, 1x, i2, 1x, i2, 1x, i10, 1x, i10, &
+         1x, e20.13, 1x, i9, 1x, i6, 1x, i6, 1x, 10a)
 
     ! Change to NEKTON's fld file format
     suffix_pos = filename_suffix_pos(this%fname)
@@ -481,12 +481,12 @@ contains
     ! Write metadata file
     if (pe_rank .eq. 0) then
        tslash_pos = filename_tslash_pos(this%fname)
-       write(start_field,"(I5,A8)") this%start_counter,'.nek5000'
+       write(start_field, "(I5,A8)") this%start_counter, '.nek5000'
        open(unit = 9, &
             file = trim(this%fname(1:suffix_pos-1)) // &
             trim(adjustl(start_field)), status = 'replace')
        write(9, fmt = '(A,A,A)') 'filetemplate:         ', &
-            this%fname(tslash_pos+1:suffix_pos-1),'%01d.f%05d'
+            this%fname(tslash_pos+1:suffix_pos-1), '%01d.f%05d'
        write(9, fmt = '(A,i5)') 'firsttimestep: ', this%start_counter
        write(9, fmt = '(A,i5)') 'numtimesteps: ', &
             (this%counter + 1) - this%start_counter
@@ -568,7 +568,7 @@ contains
 
     if ( this%dp_precision) then
        do i = 1, n
-          tmp_dp(i) = real(p(i),dp)
+          tmp_dp(i) = real(p(i), dp)
        end do
 
        call MPI_File_write_at_all(fh, byte_offset, tmp_dp, n, &
@@ -597,16 +597,16 @@ contains
        i = 1
        do el = 1, nelv
           do j = 1, lxyz
-             tmp_dp(i) = real(x(j, el),dp)
+             tmp_dp(i) = real(x(j, el), dp)
              i = i +1
           end do
           do j = 1, lxyz
-             tmp_dp(i) = real(y(j, el),dp)
+             tmp_dp(i) = real(y(j, el), dp)
              i = i +1
           end do
           if (gdim .eq. 3) then
              do j = 1, lxyz
-                tmp_dp(i) = real(z(j, el),dp)
+                tmp_dp(i) = real(z(j, el), dp)
                 i = i +1
              end do
           end if
@@ -657,26 +657,26 @@ contains
     real(kind=sp) :: temp
     type(linear_dist_t) :: dist
     real(kind=sp), parameter :: test_pattern = 6.54321
-    character :: rdcode(10),temp_str(4)
+    character :: rdcode(10), temp_str(4)
 
     select type (data)
       type is (fld_file_data_t)
-       call filename_chsuffix(this%fname, meta_fname,'nek5000')
+       call filename_chsuffix(this%fname, meta_fname, 'nek5000')
 
        inquire(file = trim(meta_fname), exist = meta_file)
        if (meta_file .and. data%meta_nsamples .eq. 0) then
           if (pe_rank .eq. 0) then
              open(unit = 9, file = trim(meta_fname))
              read(9, fmt = '(A)') string
-             read(string(14:),fmt = '(A)') string
+             read(string(14:), fmt = '(A)') string
              string = trim(string)
              data%fld_series_fname = string(:scan(trim(string), '%')-1)
              data%fld_series_fname = adjustl(data%fld_series_fname)
              data%fld_series_fname = trim(data%fld_series_fname)//'0'
              read(9, fmt = '(A)') string
-             read(string(scan(string, ':')+1:),*) data%meta_start_counter
+             read(string(scan(string, ':')+1:), *) data%meta_start_counter
              read(9, fmt = '(A)') string
-             read(string(scan(string, ':')+1:),*) data%meta_nsamples
+             read(string(scan(string, ':')+1:), *) data%meta_nsamples
 
              close(9)
              write(*,*) 'Reading meta file for fld series'
