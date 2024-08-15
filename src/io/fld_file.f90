@@ -629,7 +629,7 @@ contains
     integer :: ierr, suffix_pos, i, j
     type(MPI_File) :: fh
     type(MPI_Status) :: status
-    character(len=1024) :: fname, meta_fname, string
+    character(len=1024) :: fname, meta_fname, string, path
     logical :: meta_file, read_mesh, read_velocity, read_pressure
     logical :: read_temp
     character(len=6) :: id_str
@@ -654,6 +654,7 @@ contains
              read(string(14:),fmt='(A)') string
              string = trim(string)
              data%fld_series_fname = string(:scan(trim(string), '%')-1)
+             data%fld_series_fname = adjustl(data%fld_series_fname)
              data%fld_series_fname = trim(data%fld_series_fname)//'0'
              read(9, fmt='(A)') string
              read(string(scan(string,':')+1:),*) data%meta_start_counter
@@ -673,7 +674,8 @@ contains
 
        if (meta_file) then
           write(id_str, '(a,i5.5)') 'f', this%counter
-          fname = trim(data%fld_series_fname)//'.'//id_str
+          path = trim(meta_fname(1:scan(meta_fname, '/', .true. )))
+          fname = trim(path)//trim(data%fld_series_fname)//'.'//id_str
           if (this%counter .ge. data%meta_nsamples+data%meta_start_counter) then
              call neko_error('Trying to read more fld files than exist')
           end if
