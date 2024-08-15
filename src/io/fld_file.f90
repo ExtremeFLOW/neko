@@ -294,7 +294,7 @@ contains
     end if
 
     !> @todo fix support for single precision output?
-    write(hdr, 1) FLD_DATA_SIZE, lx, ly, lz,glb_nelv,glb_nelv,&
+    write(hdr, 1) FLD_DATA_SIZE, lx, ly, lz, glb_nelv, glb_nelv,&
          time, this%counter, 1, 1, (rdcode(i),i = 1, 10)
 1   format('#std', 1x, i1, 1x, i2, 1x, i2, 1x, i2, 1x, i10, 1x, i10, &
          1x, e20.13, 1x, i9, 1x, i6, 1x, i6, 1x, 10a)
