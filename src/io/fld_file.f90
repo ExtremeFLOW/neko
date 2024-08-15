@@ -893,8 +893,8 @@ contains
        if (allocated(tmp_dp)) deallocate(tmp_dp)
        if (allocated(tmp_sp)) deallocate(tmp_sp)
       class default
-       call neko_error('Currently we only read into fld_file_data_t, ' &
-            'please use that data structure instead.')
+       call neko_error('Currently we only read into fld_file_data_t, &
+            &please use that data structure instead.')
     end select
 
   end subroutine fld_file_read
