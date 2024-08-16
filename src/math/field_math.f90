@@ -227,9 +227,15 @@ contains
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_vdot3(dot%x_d, u1%x_d, u2%x_d, u3%x_d, v1%x_d, v2%x_d, v3%x_d, size)
+       call device_vdot3(dot%x_d, &
+            u1%x_d, u2%x_d, u3%x_d, &
+            v1%x_d, v2%x_d, v3%x_d, &
+            size)
     else
-       call vdot3(dot%x, u1%x, u2%x, u3%x, v1%x, v2%x, v3%x, size)
+       call vdot3(dot%x, &
+            u1%x, u2%x, u3%x, &
+            v1%x, v2%x, v3%x, &
+            size)
     end if
 
   end subroutine field_vdot3
