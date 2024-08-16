@@ -74,8 +74,8 @@ contains
 
     call this%check_exists()
 
-    select type(data)
-    type is(tri_mesh_t)
+    select type (data)
+    type is (tri_mesh_t)
        tri_msh => data
     class default
        call neko_log%error('Invalid data')

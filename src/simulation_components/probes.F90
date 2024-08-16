@@ -44,17 +44,16 @@ module probes
   use field_registry, only : neko_field_registry
   use dofmap, only: dofmap_t
   use json_module, only : json_file, json_value, json_core
-  use json_utils, only : json_get, json_extract_item
+  use json_utils, only : json_get, json_extract_item, json_get_or_default
   use global_interpolation, only: global_interpolation_t
   use tensor, only: trsp
   use point_zone, only: point_zone_t
   use point_zone_registry, only: neko_point_zone_registry
   use comm
   use device
-  use file
-  use csv_file
-  use case
-  use device
+  use file, only : file_t, file_free
+  use csv_file, only : csv_file_t
+  use case, only : case_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -193,7 +192,7 @@ contains
           call this%read_point_zone(json_point, case%fluid%dm_Xh)
 
          case ('none')
-!          call json_point%print()
+          call json_point%print()
           call neko_error('No point type specified.')
          case default
           call neko_error('Unknown region type ' // point_type)
@@ -589,7 +588,7 @@ contains
     write(log_buf, '(A,I6)') "Number of fields: ", this%n_fields
     call neko_log%message(log_buf)
     do i = 1, this%n_fields
-       write(log_buf, '(A,I6, A ,A)') &
+       write(log_buf, '(A,I6,A,A)') &
             "Field: ", i, " ", trim(this%which_fields(i))
        call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
     end do

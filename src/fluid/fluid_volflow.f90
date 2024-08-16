@@ -70,8 +70,8 @@ module fluid_volflow
   use math, only : cfill, rzero, copy, glsc2, glmin, glmax, add2, add2s2
   use comm
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device_math, only : device_cfill, device_rzero, device_copy, device_add2, &
-       device_add2s2
+  use device_math, only : device_cfill, device_rzero, device_copy, &
+       device_add2, device_add2s2, device_glsc2
   use device_mathops, only : device_opchsign
   use gather_scatter, only : gs_t, GS_OP_ADD
   use json_module, only : json_file
