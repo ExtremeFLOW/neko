@@ -40,7 +40,7 @@ contains
 
     this%max_iter = max_iter
 
-    nlvls = 4
+    nlvls = amg%nlvls
     this%nlvls = nlvls
     if (this%nlvls .gt. amg%nlvls) then
       call neko_error("Requested number multigrid levels is greater than the initialized AMG levels")

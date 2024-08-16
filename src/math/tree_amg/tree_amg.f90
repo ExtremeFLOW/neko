@@ -410,7 +410,7 @@ contains
       do i = 1, n_elements!TODO: this is the lazy expensive way...
         if (is_aggregated(i) .eq. l) then
           j = j+1
-          tamg%lvl(lvl_id)%nodes(l)%dofs(j) = i
+          tamg%lvl(lvl_id)%nodes(l)%dofs(j) = tamg%lvl(lvl_id-1)%nodes(i)%gid
         end if
       end do
       ntot = ntot + aggregate_size(l)
