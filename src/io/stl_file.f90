@@ -32,16 +32,16 @@
 !
 !>  Stereolithography (STL) file
 module stl_file
-  use num_types
-  use generic_file
-  use tri_mesh
-  use logger
-  use point
-  use neko_mpi_types
+  use num_types, only : rp
+  use generic_file, only : generic_file_t
+  use tri_mesh, only : tri_mesh_t
+  use logger, only : neko_log
+  use point, only : point_t
+  use neko_mpi_types, only : MPI_STL_HEADER, MPI_STL_TRIANGLE
   use mpi_f08
   use utils, only: neko_error
   use comm
-  use stl
+  use stl, only : stl_hdr_t, stl_triangle_t
   implicit none
   private
 

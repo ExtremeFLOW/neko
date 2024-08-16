@@ -42,7 +42,8 @@ module boussinesq_source_term
   use neko_config, only : NEKO_BCKND_DEVICE
   use utils, only : neko_error
   use boussinesq_source_term_cpu, only : boussinesq_source_term_compute_cpu
-  use boussinesq_source_term_device, only : boussinesq_source_term_compute_device
+  use boussinesq_source_term_device, only : &
+       boussinesq_source_term_compute_device
   use field_registry, only : neko_field_registry
   implicit none
   private

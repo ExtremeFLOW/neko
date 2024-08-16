@@ -58,7 +58,8 @@ module brinkman_source_term
      type(field_t), pointer :: brinkman => null()
    contains
      !> The common constructor using a JSON object.
-     procedure, public, pass(this) :: init => brinkman_source_term_init_from_json
+     procedure, public, pass(this) :: init => &
+          brinkman_source_term_init_from_json
      !> Destructor.
      procedure, public, pass(this) :: free => brinkman_source_term_free
      !> Computes the source term and adds the result to `fields`.
@@ -83,7 +84,8 @@ contains
     use file, only: file_t
     use tri_mesh, only: tri_mesh_t
     use device, only: device_memcpy, HOST_TO_DEVICE
-    use filters, only: smooth_step_field, step_function_field, permeability_field
+    use filters, only: smooth_step_field, step_function_field, &
+         permeability_field
     use signed_distance, only: signed_distance_field
     use profiler, only: profiler_start_region, profiler_end_region
     use json_module, only: json_core, json_value
@@ -131,7 +133,8 @@ contains
     end if
 
     call neko_field_registry%add_field(coef%dof, 'brinkman_indicator')
-    this%indicator => neko_field_registry%get_field_by_name('brinkman_indicator')
+    this%indicator => &
+         neko_field_registry%get_field_by_name('brinkman_indicator')
 
     call neko_field_registry%add_field(coef%dof, 'brinkman')
     this%brinkman => neko_field_registry%get_field_by_name('brinkman')
@@ -140,10 +143,10 @@ contains
     ! Select which constructor should be called
 
     call json%get('objects', json_object_list)
-    call json%info('objects', n_children=n_regions)
+    call json%info('objects', n_children = n_regions)
     call json%get_core(core)
 
-    do i=1, n_regions
+    do i = 1, n_regions
        call json_extract_item(core, json_object_list, i, object_settings)
        call json_get_or_default(object_settings, 'type', object_type, 'none')
 
@@ -228,10 +231,11 @@ contains
     use file, only: file_t
     use tri_mesh, only: tri_mesh_t
     use device, only: device_memcpy, HOST_TO_DEVICE
-    use filters, only: smooth_step_field, step_function_field, permeability_field
+    use filters, only: smooth_step_field, step_function_field, &
+         permeability_field
     use signed_distance, only: signed_distance_field
     use profiler, only: profiler_start_region, profiler_end_region
-    use aabb
+    use aabb, only : aabb_t, get_aabb
     implicit none
 
     class(brinkman_source_term_t), intent(inout) :: this
@@ -279,7 +283,8 @@ contains
     ! ------------------------------------------------------------------------ !
     ! Transform the mesh if specified.
 
-    call json_get_or_default(json, 'mesh_transform.type', mesh_transform, 'none')
+    call json_get_or_default(json, 'mesh_transform.type', &
+         mesh_transform, 'none')
 
     select case (mesh_transform)
       case ('none')
@@ -363,7 +368,8 @@ contains
 
   !> Initializes the source term from a point zone.
   subroutine init_point_zone(this, json)
-    use filters, only: smooth_step_field, step_function_field, permeability_field
+    use filters, only: smooth_step_field, step_function_field, &
+         permeability_field
     use signed_distance, only: signed_distance_field
     use profiler, only: profiler_start_region, profiler_end_region
     use point_zone, only: point_zone_t
@@ -385,7 +391,7 @@ contains
     ! ------------------------------------------------------------------------ !
     ! Read the options for the point zone
 
-    call json_get(json,'name', zone_name)
+    call json_get(json, 'name', zone_name)
     call json_get_or_default(json, 'filter.type', filter_type, 'none')
 
     ! Compute the indicator field

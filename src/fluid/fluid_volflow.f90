@@ -70,8 +70,9 @@ module fluid_volflow
   use math, only : cfill, rzero, copy, glsc2, glmin, glmax, add2, add2s2
   use comm
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device_math
-  use device_mathops
+  use device_math, only : device_cfill, device_rzero, device_copy, device_add2, &
+       device_add2s2
+  use device_mathops, only : device_opchsign
   use gather_scatter, only : gs_t, GS_OP_ADD
   use json_module, only : json_file
   use json_utils, only: json_get
@@ -187,9 +188,15 @@ contains
       ylmax = glmax(c_Xh%dof%y, n)
       zlmin = glmin(c_Xh%dof%z, n)          !  for Z!
       zlmax = glmax(c_Xh%dof%z, n)
-      if (this%flow_dir.eq.1) this%domain_length = xlmax - xlmin
-      if (this%flow_dir.eq.2) this%domain_length = ylmax - ylmin
-      if (this%flow_dir.eq.3) this%domain_length = zlmax - zlmin
+      if (this%flow_dir .eq. 1) then
+         this%domain_length = xlmax - xlmin
+      end if
+      if (this%flow_dir .eq. 2) then
+         this%domain_length = ylmax - ylmin
+      end if
+      if (this%flow_dir .eq. 3) then
+         this%domain_length = zlmax - zlmin
+      end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_cfill(c_Xh%h1_d, 1.0_rp/rho, n)
@@ -362,7 +369,8 @@ contains
 
       ifcomp = 0.0_rp
 
-      if (dt .ne. this%dtlag .or. ext_bdf%diffusion_coeffs(1) .ne. this%bdlag) then
+      if (dt .ne. this%dtlag .or. &
+           ext_bdf%diffusion_coeffs(1) .ne. this%bdlag) then
          ifcomp = 1.0_rp
       end if
 
@@ -405,7 +413,7 @@ contains
          flow_rate = this%flow_rate*xsec
       else
          flow_rate = this%flow_rate
-      endif
+      end if
 
       delta_flow = flow_rate - current_flow
       scale = delta_flow / this%base_flow

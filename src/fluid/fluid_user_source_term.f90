@@ -183,7 +183,8 @@ contains
     if (trim(source_term_type) .eq. 'user_pointwise' .and. &
               present(eval_pointwise)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call neko_error('Pointwise source terms not supported on accelerators')
+          call neko_error('Pointwise source terms &
+               not supported on accelerators')
        end if
        this%compute_vector_ => pointwise_eval_driver
        this%compute_pw_ => eval_pointwise
@@ -255,7 +256,7 @@ contains
              do k = 1, size(this%u, 2)
                 kk = k
                 do j = 1, size(this%u, 1)
-                   jj =j
+                   jj = j
                    call this%compute_pw_(this%u(j,k,l,e), &
                                         this%v(j,k,l,e), &
                                         this%w(j,k,l,e), &

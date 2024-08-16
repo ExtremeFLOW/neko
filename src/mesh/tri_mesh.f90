@@ -33,7 +33,7 @@
 !> Defines a triangular surface mesh
 !! @details Mesh derived from a surface geometry
 module tri_mesh
-  use tri
+  use tri, only : tri_t, NEKO_TRI_NPTS
   use point, only : point_t
   implicit none
   private

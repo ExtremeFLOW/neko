@@ -193,7 +193,7 @@ contains
           call this%read_point_zone(json_point, case%fluid%dm_Xh)
 
          case ('none')
-          call json_point%print()
+!          call json_point%print()
           call neko_error('No point type specified.')
          case default
           call neko_error('Unknown region type ' // point_type)
