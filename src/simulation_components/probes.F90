@@ -40,7 +40,7 @@ module probes
   use logger, only: neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use utils, only: neko_error, nonlinear_index
   use field_list, only: field_list_t
-  use simulation_component
+  use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use dofmap, only: dofmap_t
   use json_module, only : json_file, json_value, json_core
