@@ -63,12 +63,13 @@ module field_math
   use field, only: field_t
   use math, only: rzero, rone, copy, cmult, cadd, cfill, invcol1, vdot3, add2, &
        sub2, sub3, add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, &
-       subcol3, add3s2, addcol3, addcol4
+       subcol3, add3s2, addcol3, addcol4, glsum, glsc2, glsc3
   use device_math, only: device_rzero, device_rone, device_copy, device_cmult, &
        device_cadd, device_cfill, device_invcol1, device_vdot3, device_add2, &
-       device_sub2, device_sub3, device_add2s1, device_add2s2, device_addsqr2s2, &
-       device_cmult2, device_invcol2, device_col2, device_col3, device_subcol3, &
-       device_add3s2, device_addcol3, device_addcol4
+       device_sub2, device_sub3, device_add2s1, device_add2s2, &
+       device_addsqr2s2, device_cmult2, device_invcol2, device_col2, &
+       device_col3, device_subcol3, device_add3s2, device_addcol3, &
+       device_addcol4, device_glsum, device_glsc2, device_glsc3
   implicit none
 
 contains
@@ -549,5 +550,65 @@ contains
     end if
 
   end subroutine field_addcol4
+
+  function field_glsum(a, n) result(sum)
+    integer, intent(in), optional :: n
+    type(field_t), intent(in) :: a
+    real(kind=rp) :: sum
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       sum = device_glsum(a%x_d, size)
+    else
+       sum = glsum(a%x, size)
+    end if
+
+  end function field_glsum
+
+  function field_glsc2(a, b, n) result(norm)
+    integer, intent(in), optional :: n
+    type(field_t), intent(in) :: a, b
+    real(kind=rp) :: norm
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       norm = device_glsc2(a%x_d, b%x_d, size)
+    else
+       norm = glsc2(a%x, b%x, size)
+    end if
+
+  end function field_glsc2
+
+  function field_glsc3(a, b, c, n) result(norm)
+    integer, intent(in), optional :: n
+    type(field_t), intent(in) :: a, b, c
+    real(kind=rp) :: norm
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       norm = device_glsc3(a%x_d, b%x_d, c%x_d, size)
+    else
+       norm = glsc3(a%x, b%x, c%x, size)
+    end if
+
+  end function field_glsc3
 
 end module field_math
