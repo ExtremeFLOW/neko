@@ -126,7 +126,7 @@ contains
     type(coef_t), intent(inout), target :: coef
 
     call neko_error("The user scalar source term &
-         should be init from components")
+&should be init from components")
 
   end subroutine scalar_user_source_term_init
 

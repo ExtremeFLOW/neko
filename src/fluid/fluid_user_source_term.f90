@@ -184,7 +184,7 @@ contains
               present(eval_pointwise)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call neko_error('Pointwise source terms &
-               not supported on accelerators')
+&not supported on accelerators')
        end if
        this%compute_vector_ => pointwise_eval_driver
        this%compute_pw_ => eval_pointwise
