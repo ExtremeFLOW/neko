@@ -85,7 +85,7 @@ contains
     class(boussinesq_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(inout), target :: coef
     real(kind=rp), allocatable :: values(:)
     real(kind=rp) :: start_time, end_time, ref_value
     character(len=:), allocatable :: scalar_name

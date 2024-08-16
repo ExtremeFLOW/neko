@@ -66,7 +66,7 @@ contains
   !> Initialize symmetry mask for each axis
   subroutine symmetry_init(this, coef)
     class(symmetry_t), intent(inout) :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     integer :: i, j, l
     type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx,sy,sz

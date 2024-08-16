@@ -103,7 +103,7 @@ contains
 
   subroutine fluid_vol_flow_init(this, dm_Xh, params)
     class(fluid_volflow_t), intent(inout) :: this
-    type(dofmap_t), intent(inout) :: dm_Xh
+    type(dofmap_t), target, intent(inout) :: dm_Xh
     type(json_file), intent(inout) :: params
     logical average
     integer :: direction

@@ -135,7 +135,7 @@ contains
     class(fluid_user_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(inout), target :: coef
 
     call neko_error("The user fluid source term should be init from components")
 
@@ -152,7 +152,7 @@ contains
     source_term_type, eval_vector, eval_pointwise)
     class(fluid_user_source_term_t), intent(inout) :: this
     type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(inout), target :: coef
     character(len=*) :: source_term_type
     procedure(fluid_source_compute_vector), optional :: eval_vector
     procedure(fluid_source_compute_pointwise), optional :: eval_pointwise

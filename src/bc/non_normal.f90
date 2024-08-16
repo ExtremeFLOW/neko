@@ -60,7 +60,7 @@ contains
   !> Constructor.
   subroutine non_normal_init(this, coef)
     class(non_normal_t), intent(inout) :: this
-    type(coef_t), intent(in) :: coef
+    type(coef_t), target, intent(in) :: coef
     integer :: i, j, l
     type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx,sy,sz

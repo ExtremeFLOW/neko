@@ -84,7 +84,7 @@ contains
   !> Add an element to a mesh
   subroutine tri_mesh_add_element(this, p1, p2, p3)
     class(tri_mesh_t), intent(inout) :: this
-    type(point_t), intent(inout) :: p1, p2, p3
+    type(point_t), target, intent(inout) :: p1, p2, p3
 
     this%points(this%mpts + 1) = p1
     this%points(this%mpts + 2) = p2

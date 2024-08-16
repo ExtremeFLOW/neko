@@ -123,7 +123,7 @@ contains
     class(scalar_user_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(inout), target :: coef
 
     call neko_error("The user scalar source term should be init from components")
 
