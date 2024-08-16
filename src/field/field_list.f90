@@ -56,7 +56,6 @@ contains
   subroutine field_list_init(this, size)
     class(field_list_t), intent(inout) :: this
     integer, intent(in) :: size
-    integer :: i
 
     call this%free()
 

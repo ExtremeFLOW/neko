@@ -68,7 +68,8 @@ module scalar_pnpn
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use time_step_controller
+  use time_step_controller, only : time_step_controller_t
+  use scratch_registry, only: neko_scratch_registry
   implicit none
   private
 
@@ -141,9 +142,6 @@ contains
     type(material_properties_t), intent(inout) :: material_properties
     integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
-    ! Variables for retrieving json parameters
-    logical :: found, logical_val
-    integer :: integer_val
 
     call this%free()
 
@@ -152,7 +150,7 @@ contains
                           material_properties)
 
     ! Setup backend dependent Ax routines
-    call ax_helm_factory(this%ax)
+    call ax_helm_factory(this%ax, full_formulation = .false.)
 
     ! Setup backend dependent scalar residual routines
     call scalar_residual_factory(this%res)
@@ -291,12 +289,13 @@ contains
 
     call profiler_start_region('Scalar', 2)
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
-         cp => this%cp, lambda => this%lambda, rho => this%rho, &
+         cp => this%cp, rho => this%rho, &
          ds => this%ds, &
          s_res =>this%s_res, &
          Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          slag => this%slag, &
+         lambda_field => this%lambda_field, &
          projection_dim => this%projection_dim, &
          msh => this%msh, res => this%res, &
          makeext => this%makeext, makebdf => this%makebdf, &
@@ -352,11 +351,14 @@ contains
            this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
       call bc_list_apply_scalar(this%bclst_dirichlet, this%s%x, this%dm_Xh%size())
 
+
+      ! Update material properties if necessary
+      call this%update_material_properties()
+
       ! Compute scalar residual.
       call profiler_start_region('Scalar residual', 20)
-      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, lambda, rho * cp, &
-          ext_bdf%diffusion_coeffs(1), dt, &
-          dm_Xh%size())
+      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, lambda_field, rho*cp,&
+          ext_bdf%diffusion_coeffs(1), dt, dm_Xh%size())
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 

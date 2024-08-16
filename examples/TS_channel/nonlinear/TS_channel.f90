@@ -4,9 +4,9 @@ module user
 
   implicit none
 
-  integer, parameter :: num_rows = 1500 ! resolution of TS wave in Cheb points
+  integer, parameter :: num_rows = 161 ! resolution of TS wave in Cheb points
   integer, parameter :: num_columns = 7 ! y, real and imag part of TS wave in Cheb points
-  integer, parameter :: num_ygll = 8*8 ! number of GLL points in the y direction
+  integer, parameter :: num_ygll = 8 * 8 ! number of GLL points in the y direction
   real (kind=rp) :: Re = 5000.0_rp
   real (kind=rp), parameter :: pi_rp = 4.0_rp * atan (1.0_rp)
 contains
@@ -29,8 +29,9 @@ contains
     integer :: i
 
     do i = 1, size(msh%points)
-       msh%points(i)%x(1) = pi_rp*msh%points(i)%x(1)/1.12_rp
-       msh%points(i)%x(3) = pi_rp*msh%points(i)%x(3)*2.0_rp/2.1_rp
+       msh%points(i)%x(1) = pi_rp * msh%points(i)%x(1) / 1.12_rp
+       msh%points(i)%x(3) = pi_rp * (msh%points(i)%x(3) - 0.5_rp) &
+                                  * 2.0_rp / 2.1_rp
     end do
 
   end subroutine user_mesh_scale
@@ -45,49 +46,35 @@ contains
     integer :: i, j, i_y
     real(kind=rp) :: uvw(3)
 
-    real(kind=rp), dimension(num_rows, num_columns):: data_mode_cheb_2D
-    real(kind=rp), dimension(num_rows, num_columns):: data_mode_cheb_3D
+    real(kind=rp), dimension(num_rows, num_columns) :: data_mode_cheb_2D
+    real(kind=rp), dimension(num_rows, num_columns) :: data_mode_cheb_3D
     real(kind=rp) :: y_GLC(num_rows)
-    real(kind=rp) :: TS2D_GLC(num_rows,num_columns-1)
-    real(kind=rp) :: TS3D_GLC(num_rows,num_columns-1)
-    integer :: ios
+    real(kind=rp) :: TS2D_GLC(num_rows, num_columns-1)
+    real(kind=rp) :: TS3D_GLC(num_rows, num_columns-1)
 
-    real(kind=rp) :: x_fixed, z_fixed
     real(kind=rp), dimension(num_ygll) :: y_GLL
-    real(kind=rp) :: TS2D_GLL(num_ygll,num_columns-1)
-    real(kind=rp) :: TS3D_GLL(num_ygll,num_columns-1)
+    real(kind=rp) :: TS2D_GLL(num_ygll, num_columns-1)
+    real(kind=rp) :: TS3D_GLL(num_ygll, num_columns-1)
 
     real(kind=rp) :: ur_2D, ui_2D, vr_2D, vi_2D
     real(kind=rp) :: ur_3D, ui_3D, vr_3D, vi_3D, wr_3D, wi_3D
 
     ! data reading
-    open(unit=10, file='TSwave_cheb_2D.csv', status='old', action='read', iostat=ios)
-       if (ios /= 0) then
-          print *, "2D TS wave: Error opening the file!"
-          stop
-       end if
-       do i = 1, num_rows
-          read(10,*) (data_mode_cheb_2D(i, j), j = 1, num_columns)
-       end do
+    open(unit = 10, file = 'TSwave_cheb_2D.bin', form = 'unformatted', &
+                  access = 'stream')
+       read(10) data_mode_cheb_2D
     close(10)
     y_GLC = data_mode_cheb_2D(:,1)
     TS2D_GLC = data_mode_cheb_2D(:,2:num_columns)
 
-    open(unit=10, file='TSwave_cheb_3D.csv', status='old', action='read', iostat=ios)
-       if (ios /= 0) then
-          print *, "3D TS wave: Error opening the file!"
-          stop
-       end if
-       do i = 1, num_rows
-          read(10,*) (data_mode_cheb_3D(i, j), j = 1, num_columns)
-       end do
+    open(unit = 10, file = 'TSwave_cheb_3D.bin', form = 'unformatted', &
+                  access = 'stream')
+       read(10) data_mode_cheb_3D
     close(10)
     TS3D_GLC = data_mode_cheb_3D(:,2:num_columns)
 
     ! alternative of point zone
     i_y = 1
-    x_fixed = u%dof%x(1,1,1,1)
-    z_fixed = u%dof%z(1,1,1,1)
     
     ! initialize y_GLL
     do i = 1, num_ygll
@@ -95,7 +82,7 @@ contains
     end do
 
     do i = 1, u%dof%size()
-       if (.not. in_array(u%dof%y(i,1,1,1),y_GLL)) then
+       if (.not. in_array(u%dof%y(i,1,1,1), y_GLL)) then
           y_GLL(i_y) = u%dof%y(i,1,1,1)
           i_y = i_y +1
        end if
@@ -103,25 +90,25 @@ contains
 
     do i = 1, num_columns-1
        do j = 1, num_ygll
-          TS2D_GLL(j,i) = GLC_GLL_interp(TS2D_GLC(:,i),y_GLC,y_GLL(j))
-          TS3D_GLL(j,i) = GLC_GLL_interp(TS3D_GLC(:,i),y_GLC,y_GLL(j))
+          TS2D_GLL(j,i) = GLC_GLL_interp(TS2D_GLC(:,i), y_GLC, y_GLL(j))
+          TS3D_GLL(j,i) = GLC_GLL_interp(TS3D_GLC(:,i), y_GLC, y_GLL(j))
        end do
     end do
 
     do i = 1, u%dof%size()
-       ur_2D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS2D_GLL(:,1))
-       ui_2D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS2D_GLL(:,2))
-       vr_2D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS2D_GLL(:,3))
-       vi_2D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS2D_GLL(:,4))
-       ur_3D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS3D_GLL(:,1))
-       ui_3D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS3D_GLL(:,2))
-       vr_3D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS3D_GLL(:,3))
-       vi_3D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS3D_GLL(:,4))
-       wr_3D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS3D_GLL(:,5))
-       wi_3D = pick_pt(u%dof%y(i,1,1,1),y_GLL,TS3D_GLL(:,6))
-       uvw = channel_ic(u%dof%x(i,1,1,1),u%dof%y(i,1,1,1),u%dof%z(i,1,1,1), &
-                        ur_2D,ui_2D,vr_2D,vi_2D, &
-                        ur_3D,ui_3D,vr_3D,vi_3D,wr_3D,wi_3D)
+       ur_2D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS2D_GLL(:,1))
+       ui_2D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS2D_GLL(:,2))
+       vr_2D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS2D_GLL(:,3))
+       vi_2D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS2D_GLL(:,4))
+       ur_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,1))
+       ui_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,2))
+       vr_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,3))
+       vi_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,4))
+       wr_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,5))
+       wi_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,6))
+       uvw = channel_ic(u%dof%x(i,1,1,1), u%dof%y(i,1,1,1), u%dof%z(i,1,1,1), &
+                        ur_2D, ui_2D, vr_2D, vi_2D, &
+                        ur_3D, ui_3D, vr_3D, vi_3D, wr_3D, wi_3D)
        u%x(i,1,1,1) = uvw(1)
        v%x(i,1,1,1) = uvw(2)
        w%x(i,1,1,1) = uvw(3)
@@ -129,50 +116,52 @@ contains
 
   end subroutine user_ic
 
-  function in_array(y,y_list) result(is_in)
+  function in_array(y, y_list) result(is_in)
     logical :: is_in
     real(kind=rp) :: y, y_list(num_ygll)
     integer :: i
     real(kind=rp) :: tol
 
-    tol = 1e-7_rp
+    tol = 1e-4_rp
     is_in = .false.
 
     do i = 1, num_ygll
-       if (abs(y-y_list(i)).le.tol) then
+       if (relcmp( y, y_list(i), tol)) then
           is_in = .true.
           exit
        end if
-    end do 
+    end do
 
   end function in_array
 
-  function pick_pt(y_target,y_source,Pt_source) result(Pt_target)
+  function pick_pt(y_target, y_source, Pt_source) result(Pt_target)
     real(kind=rp) :: y_target, Pt_target
     real(kind=rp), dimension(num_ygll) :: y_source, Pt_source
     real(kind=rp) :: tol
     integer :: i
     logical :: found
+    real(kind=rp) :: dist
     
-    tol = 1e-14_rp
+    tol = 1e-4_rp
     found = .false.
+    dist = 100
     do i = 1, num_ygll
-       if (abs(y_target-y_source(i)) .le. tol) then
+       if (relcmp(y_target, y_source(i), tol)) then
           Pt_target = Pt_source(i)
-          found = .true.
-          exit
+          dist = abs(y_target-y_source(i))
        end if
     end do
+    if ( dist .le. tol ) found = .true.
     
     if (.not. found) then
-       print *, 'tolerence too small for picking points!!!!!!'
+       write (*,*) 'tolerence too small for picking points. dist:', dist
     end if
 
   end function pick_pt
 
   function channel_ic(x, y, z, &
-                      ur_2D,ui_2D,vr_2D,vi_2D, &
-                      ur_3D,ui_3D,vr_3D,vi_3D,wr_3D,wi_3D) result(uvw)
+                      ur_2D, ui_2D, vr_2D, vi_2D, &
+                      ur_3D, ui_3D, vr_3D, vi_3D, wr_3D, wi_3D) result(uvw)
     real(kind=rp) :: x, y, z
     real(kind=rp) :: uvw(3)
     real(kind=rp) :: ub
@@ -195,46 +184,46 @@ contains
 
     ! amplitude for secondary instability TS wave:
     TS_amp_2D = 3e-2_rp
-    TS_amp_3D = 1e-4_rp
+    TS_amp_3D = 5e-4_rp
 
     alpha = 1.12_rp
     beta = 2.1_rp
 
     spa_osci_2D = exp((0.0_rp,1.0_rp)*alpha*x)
-    u_mode_2D = cmplx(ur_2D,ui_2D,rp)
-    v_mode_2D = cmplx(vr_2D,vi_2D,rp)
+    u_mode_2D = cmplx(ur_2D, ui_2D, rp)
+    v_mode_2D = cmplx(vr_2D, vi_2D, rp)
 
-    u_pert_TS_2D = TS_amp_2D*real(u_mode_2D*spa_osci_2D,rp)
-    v_pert_TS_2D = TS_amp_2D*real(v_mode_2D*spa_osci_2D,rp)
+    u_pert_TS_2D = TS_amp_2D * real(u_mode_2D * spa_osci_2D, rp)
+    v_pert_TS_2D = TS_amp_2D * real(v_mode_2D * spa_osci_2D, rp)
 
     spa_osci_3D_p = exp((0.0_rp,1.0_rp)*alpha*x+(0.0_rp,1.0_rp)*beta*z)
     spa_osci_3D_n = exp((0.0_rp,1.0_rp)*alpha*x-(0.0_rp,1.0_rp)*beta*z)
-    u_mode_3D = cmplx(ur_3D,ui_3D,rp)
-    v_mode_3D = cmplx(vr_3D,vi_3D,rp)
-    w_mode_3D = cmplx(wr_3D,wi_3D,rp)
+    u_mode_3D = cmplx(ur_3D, ui_3D, rp)
+    v_mode_3D = cmplx(vr_3D, vi_3D, rp)
+    w_mode_3D = cmplx(wr_3D, wi_3D, rp)
 
-    u_pert_TS_3D = TS_amp_3D*real(u_mode_3D*spa_osci_3D_p,rp)
-    u_pert_TS_3D = u_pert_TS_3D + TS_amp_3D*real(u_mode_3D*spa_osci_3D_n,rp)
-    v_pert_TS_3D = TS_amp_3D*real(v_mode_3D*spa_osci_3D_p,rp)
-    v_pert_TS_3D = v_pert_TS_3D + TS_amp_3D*real(v_mode_3D*spa_osci_3D_n,rp)
-    w_pert_TS_3D = TS_amp_3D*real(w_mode_3D*spa_osci_3D_p,rp)
-    w_pert_TS_3D = w_pert_TS_3D + TS_amp_3D*real(-w_mode_3D*spa_osci_3D_n,rp)
+    u_pert_TS_3D = TS_amp_3D*real(u_mode_3D*spa_osci_3D_p, rp)
+    u_pert_TS_3D = u_pert_TS_3D + TS_amp_3D*real(u_mode_3D*spa_osci_3D_n, rp)
+    v_pert_TS_3D = TS_amp_3D*real(v_mode_3D*spa_osci_3D_p, rp)
+    v_pert_TS_3D = v_pert_TS_3D + TS_amp_3D*real(v_mode_3D*spa_osci_3D_n, rp)
+    w_pert_TS_3D = TS_amp_3D*real(w_mode_3D*spa_osci_3D_p, rp)
+    w_pert_TS_3D = w_pert_TS_3D + TS_amp_3D*real(-w_mode_3D*spa_osci_3D_n, rp)
 
     ub = 1.0_rp-y*y
 
-    uvw(1)  = ub + u_pert_TS_2D + u_pert_TS_3D
-    uvw(2)  =      v_pert_TS_2D + v_pert_TS_3D
-    uvw(3)  =                     w_pert_TS_3D
+    uvw(1) = ub + u_pert_TS_2D + u_pert_TS_3D
+    uvw(2) = v_pert_TS_2D + v_pert_TS_3D
+    uvw(3) = w_pert_TS_3D
 
   end function channel_ic
 
   ! The raw data in .csv file is on GLC points,
   ! hence a interpolation from GLC points to GLL points is performed.
-  function GLC_GLL_interp(f_GLC,x_GLC,x_GLL) result(f_GLL)
+  function GLC_GLL_interp(f_GLC, x_GLC, x_GLL) result(f_GLL)
     real(kind=rp) :: x_GLL, f_GLL
     real(kind=rp), dimension(num_rows) :: f_GLC, x_GLC
     real(kind=rp), dimension(num_rows) :: chi, psi
-    real(kind=rp) :: xn, xs, xe, xnc, dchebyshev 
+    real(kind=rp) :: xn, xs, xe, xnc, dchebyshev
     integer :: i, N, cj
     logical :: is_nan
 
@@ -285,7 +274,7 @@ contains
 
     do j = 3, N+1
        nn = j - 2
-       tmp = eval_chebyshev(x,nn)
+       tmp = eval_chebyshev(x, nn)
        if (nn .eq. 1) then
           dT(j) = 2.0_rp*(nn+1.0_rp)*tmp
        else

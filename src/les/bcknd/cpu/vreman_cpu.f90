@@ -40,6 +40,8 @@ module vreman_cpu
   use field, only : field_t
   use operators, only : dudxyz
   use coefs, only : coef_t
+  use gs_ops, only : GS_OP_ADD
+  use math, only : col2
   implicit none
   private
 
@@ -78,7 +80,7 @@ contains
 
     u => neko_field_registry%get_field_by_name("u")
     v => neko_field_registry%get_field_by_name("v")
-    w => neko_field_registry%get_field_by_name("u")
+    w => neko_field_registry%get_field_by_name("w")
 
     call neko_scratch_registry%request_field(a11, temp_indices(1))
     call neko_scratch_registry%request_field(a12, temp_indices(2))
@@ -104,6 +106,26 @@ contains
     call dudxyz (a32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (a33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
+    call coef%gs_h%op(a11%x, a11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(a12%x, a11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(a13%x, a11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(a21%x, a11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(a22%x, a11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(a23%x, a11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(a31%x, a11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(a32%x, a11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(a33%x, a11%dof%size(), GS_OP_ADD)
+
+    call col2(a11%x, coef%mult, a11%dof%size())
+    call col2(a12%x, coef%mult, a11%dof%size())
+    call col2(a13%x, coef%mult, a11%dof%size())
+    call col2(a21%x, coef%mult, a11%dof%size())
+    call col2(a22%x, coef%mult, a11%dof%size())
+    call col2(a23%x, coef%mult, a11%dof%size())
+    call col2(a31%x, coef%mult, a11%dof%size())
+    call col2(a32%x, coef%mult, a11%dof%size())
+    call col2(a33%x, coef%mult, a11%dof%size())
+
     do e=1, coef%msh%nelv
        do i=1, coef%Xh%lxyz
           ! beta_ij = alpha_mi alpha_mj
@@ -128,7 +150,8 @@ contains
           ! alpha_ij alpha_ij
           aijaij = beta11 + beta22 + beta33
 
-          nut%x(i,1,1,e) = c*delta%x(i,1,1,e) * sqrt(b_beta/(aijaij + NEKO_EPS))
+          nut%x(i,1,1,e) = c*delta%x(i,1,1,e)*delta%x(i,1,1,e) &
+                            * sqrt(b_beta/(aijaij + NEKO_EPS))
        end do
     end do
 

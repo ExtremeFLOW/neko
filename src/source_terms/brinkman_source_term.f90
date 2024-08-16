@@ -48,6 +48,7 @@ module brinkman_source_term
   use brinkman_source_term_device, only: implicit_brinkman_source_term_compute_device
   use filter, only: filter_t
   use filter_fctry, only: filter_factory
+  use field_math, only: field_subcol3
   implicit none
   private
 
@@ -263,12 +264,25 @@ contains
   !! @param t The time value.
   !! @param tstep The current time-step.
   subroutine brinkman_source_term_compute(this, t, tstep)
-    use device, only: device_memcpy, HOST_TO_DEVICE
-    implicit none
-
     class(brinkman_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    type(field_t), pointer :: u, v, w, fu, fv, fw
+    integer :: n
+
+    n = this%fields%item_size(1)
+
+    u => neko_field_registry%get_field('u')
+    v => neko_field_registry%get_field('v')
+    w => neko_field_registry%get_field('w')
+
+    fu => this%fields%get(1)
+    fv => this%fields%get(2)
+    fw => this%fields%get(3)
+
+    call field_subcol3(fu, u, this%brinkman, n)
+    call field_subcol3(fv, v, this%brinkman, n)
+    call field_subcol3(fw, w, this%brinkman, n)
 
 	if(this%is_implicit) then
    ! this is implicit

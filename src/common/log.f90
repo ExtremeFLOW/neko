@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -278,7 +278,7 @@ contains
     use, intrinsic :: iso_c_binding
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
-    integer :: len, i
+    integer :: len
 
     if (pe_rank .eq. 0) then
        len = 0
@@ -300,7 +300,7 @@ contains
     use, intrinsic :: iso_c_binding
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
-    integer :: len, i
+    integer :: len
 
     if (pe_rank .eq. 0) then
        len = 0
@@ -322,7 +322,7 @@ contains
     use, intrinsic :: iso_c_binding
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
-    integer :: len, i
+    integer :: len
 
     if (pe_rank .eq. 0) then
        len = 0
@@ -344,7 +344,7 @@ contains
     use, intrinsic :: iso_c_binding
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
-    integer :: len, i
+    integer :: len
 
     if (pe_rank .eq. 0) then
        len = 0

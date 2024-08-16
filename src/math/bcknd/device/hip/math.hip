@@ -66,6 +66,22 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
   }
+  
+  /** Fortran wrapper for cfill_mask
+   * Fill a scalar to vector \f$ a_i = s, for i \in mask \f$
+   */
+  void hip_cfill_mask(void* a, real* c, int* size, void* mask, int* mask_size) {
+
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*mask_size) + 1024 - 1) / 1024, 1, 1);
+      
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(cfill_mask_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real*)a, *c, *size, (int*)mask, *mask_size);
+
+    HIP_CHECK(hipGetLastError());
+  }
+
   /** Fortran wrapper for rzero
    * Zero a real vector
    */

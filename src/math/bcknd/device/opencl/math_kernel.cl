@@ -52,6 +52,21 @@ __kernel void masked_copy_kernel(__global real * __restrict__ a,
 }
 
 /**
+ * Device kernel for cfill_mask
+ */
+__kernel void cfill_mask_kernel(__global real * __restrict__ a, 
+                                const T c, 
+                                const int size, 
+                                __global int * __restrict__ mask,
+                                const int mask_size) {
+  
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+    for (int i = idx; i < mask_size; i += str) { a[mask[i]-1] = c; }
+}
+
+/**
  * Device kernel for cmult
  */
 __kernel void cmult_kernel(__global real * __restrict__ a,
