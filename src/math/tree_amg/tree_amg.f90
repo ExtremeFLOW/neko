@@ -176,6 +176,7 @@ contains
     allocate( agg_nhbr(10, max_aggs*2) )
     agg_nhbr = -1
 
+    print *, "n_elements", msh%nelv, msh%offset_el
     do while (naggs .le. max_aggs)
       call random_number(random_value)
       i = floor(random_value * n_elements + 1)
@@ -185,8 +186,8 @@ contains
         aggregate_size(naggs) = 1
         !> Add neighbors to aggregate if unaggregated
         do side = 1, 6!> loop through neighbors
-          nhbr = msh%facet_neigh(side, i)
-          if (nhbr .gt. 0) then!> if nhbr exists
+          nhbr = msh%facet_neigh(side, i) - msh%offset_el
+          if ((nhbr .gt. 0).and.(nhbr .le. msh%nelv)) then!> if nhbr exists
             if (is_aggregated(nhbr) .eq. -1) then!> if nhbr unaggregated
               aggregate_size(naggs) = aggregate_size(naggs) + 1
               is_aggregated(nhbr) = naggs
@@ -206,8 +207,8 @@ contains
         tst_agg = -1
         tst_size = 999!TODO: replace with large number
         do side = 1, 6
-          nhbr = msh%facet_neigh(side, i)
-          if (nhbr .gt. 0) then
+          nhbr = msh%facet_neigh(side, i) - msh%offset_el
+          if ((nhbr .gt. 0).and.(nhbr .le. msh%nelv)) then
             if (is_aggregated(nhbr) .ne. -1) then
               tst_agg = is_aggregated(nhbr)
               tst_size = aggregate_size(tst_agg)
@@ -227,14 +228,15 @@ contains
           !> if none of the neignbors are aggregated. might as well make a new aggregate
           naggs = naggs + 1
           if (naggs .gt. max_aggs*2) then
+            print *, "AGGS:", naggs
             call neko_error("I did not think of a way to handle creating too many aggregates... increase max_aggs")
           end if
           is_aggregated(i) = naggs
           aggregate_size(naggs) = 1
           !> Add neighbors to aggregate if unaggregated
           do side = 1, 6
-            nhbr = msh%facet_neigh(side, i)
-            if (nhbr .gt. 0) then
+            nhbr = msh%facet_neigh(side, i) - msh%offset_el
+            if ((nhbr .gt. 0).and.(nhbr .le. msh%nelv)) then
               if (is_aggregated(nhbr) .eq. -1) then
                 aggregate_size(naggs) = aggregate_size(naggs) + 1
                 is_aggregated(nhbr) = naggs
@@ -249,18 +251,23 @@ contains
     do i = 1, n_elements!TODO: this is the lazy expensive way...
       tnt_agg = is_aggregated(i)
       do side = 1, 6
-        nhbr = msh%facet_neigh(side,i)
-        tst_agg = is_aggregated(nhbr)
-        if (tst_agg .ne. tnt_agg) then
-          agg_added = .false.
-          do j = 1, 10
-            if ((agg_nhbr(j,tnt_agg) .eq. tst_agg)) then
-              agg_added = .true.
-            else if ((agg_nhbr(j,tnt_agg) .ne. tst_agg).and.(agg_nhbr(j,tnt_agg).eq.-1).and.(.not.agg_added)) then
-              agg_nhbr(j,tnt_agg) = tst_agg
-              agg_added = .true.
-            end if
-          end do
+        nhbr = msh%facet_neigh(side,i) - msh%offset_el
+        if ((nhbr .gt. 0).and.(nhbr .le. msh%nelv)) then
+          tst_agg = is_aggregated(nhbr)
+          if (tst_agg .le. 0) then
+            call neko_error("Unaggregated element detected. We do not want to handle that here...")
+          end if
+          if (tst_agg .ne. tnt_agg) then
+            agg_added = .false.
+            do j = 1, 10
+              if ((agg_nhbr(j,tnt_agg) .eq. tst_agg)) then
+                agg_added = .true.
+              else if ((agg_nhbr(j,tnt_agg).eq.-1).and.(.not.agg_added)) then
+                agg_nhbr(j,tnt_agg) = tst_agg
+                agg_added = .true.
+              end if
+            end do
+          end if
         end if
       end do
     end do
@@ -277,6 +284,10 @@ contains
           tamg%lvl(lvl_id)%nodes(l)%dofs(j) = i
         end if
       end do
+      if (j .ne. tamg%lvl(lvl_id)%nodes(l)%ndofs) then
+        print *, j, tamg%lvl(lvl_id)%nodes(l)%ndofs
+        call neko_error("Aggregation problem. Not enough dofs in node.")
+      end if
       ntot = ntot + aggregate_size(l)
     end do
     tamg%lvl(lvl_id)%fine_lvl_dofs = ntot
@@ -363,6 +374,7 @@ contains
           !> if none of the neignbors are aggregated. might as well make a new aggregate
           naggs = naggs + 1
           if (naggs .gt. max_aggs*2) then
+            print *, "AGGS:", naggs
             call neko_error("I did not think of a way to handle creating too many aggregates... increase max_aggs")
           end if
           is_aggregated(i) = naggs
@@ -413,6 +425,9 @@ contains
           tamg%lvl(lvl_id)%nodes(l)%dofs(j) = tamg%lvl(lvl_id-1)%nodes(i)%gid
         end if
       end do
+      if (j .ne. tamg%lvl(lvl_id)%nodes(l)%ndofs) then
+        call neko_error("Aggregation problem. Not enough dofs in node.")
+      end if
       ntot = ntot + aggregate_size(l)
     end do
     tamg%lvl(lvl_id)%fine_lvl_dofs = ntot
