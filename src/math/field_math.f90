@@ -75,89 +75,138 @@ contains
 
   !> Zero a real vector
   subroutine field_rzero(a, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_rzero(a%x_d, n)
+       call device_rzero(a%x_d, size)
     else
-       call rzero(a%x, n)
+       call rzero(a%x, size)
     end if
   end subroutine field_rzero
 
   !> Set all elements to one
   subroutine field_rone(a, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_rone(a%x_d, n)
+       call device_rone(a%x_d, size)
     else
-       call rone(a%x, n)
+       call rone(a%x, size)
     end if
   end subroutine field_rone
 
   !> Copy a vector \f$ a = b \f$
   subroutine field_copy(a, b, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(in) :: b
     type(field_t), intent(inout) :: a
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_copy(a%x_d, b%x_d, n)
+       call device_copy(a%x_d, b%x_d, size)
     else
-       call copy(a%x, b%x, n)
+       call copy(a%x, b%x, size)
     end if
   end subroutine field_copy
 
   !> Multiplication by constant c \f$ a = c \cdot a \f$
   subroutine field_cmult(a, c, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
     real(kind=rp), intent(in) :: c
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cmult(a%x_d, c, n)
+       call device_cmult(a%x_d, c, size)
     else
-       call cmult(a%x, c, n)
+       call cmult(a%x, c, size)
     end if
   end subroutine field_cmult
 
   !> Add a scalar to vector \f$ a = \sum a_i + s \f$
   subroutine field_cadd(a, s, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
     real(kind=rp), intent(in) :: s
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cadd(a%x_d, s, n)
+       call device_cadd(a%x_d, s, size)
     else
-       call cadd(a%x, s, n)
+       call cadd(a%x, s, size)
     end if
   end subroutine field_cadd
 
   !> Set all elements to a constant c \f$ a = c \f$
   subroutine field_cfill(a, c, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
     real(kind=rp), intent(in) :: c
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cfill(a%x_d, c, n)
+       call device_cfill(a%x_d, c, size)
     else
-       call cfill(a%x, c, n)
+       call cfill(a%x, c, size)
     end if
   end subroutine field_cfill
 
   !> Invert a vector \f$ a = 1 / a \f$
   subroutine field_invcol1(a, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_invcol1(a%x_d, n)
+       call device_invcol1(a%x_d, size)
     else
-       call invcol1(a%x, n)
+       call invcol1(a%x, size)
     end if
 
   end subroutine field_invcol1
@@ -165,58 +214,86 @@ contains
   !> Compute a dot product \f$ dot = u \cdot v \f$ (3-d version)
   !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
   subroutine field_vdot3(dot, u1, u2, u3, v1, v2, v3, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(in) :: u1, u2, u3
     type(field_t), intent(in) :: v1, v2, v3
     type(field_t), intent(out) :: dot
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = dot%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_vdot3(dot%x_d, u1%x_d, u2%x_d, u3%x_d, v1%x_d, v2%x_d, v3%x_d, n)
+       call device_vdot3(dot%x_d, u1%x_d, u2%x_d, u3%x_d, v1%x_d, v2%x_d, v3%x_d, size)
     else
-       call vdot3(dot%x, u1%x, u2%x, u3%x, v1%x, v2%x, v3%x, n)
+       call vdot3(dot%x, u1%x, u2%x, u3%x, v1%x, v2%x, v3%x, size)
     end if
 
   end subroutine field_vdot3
 
   !> Vector addition \f$ a = a + b \f$
   subroutine field_add2(a, b, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
     type(field_t), intent(in) :: b
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_add2(a%x_d, b%x_d, n)
+       call device_add2(a%x_d, b%x_d, size)
     else
-       call add2(a%x, b%x, n)
+       call add2(a%x, b%x, size)
     end if
 
   end subroutine field_add2
 
   !> Vector substraction \f$ a = a - b \f$
   subroutine field_sub2(a, b, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
     type(field_t), intent(inout) :: b
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_sub2(a%x_d, b%x_d, n)
+       call device_sub2(a%x_d, b%x_d, size)
     else
-       call sub2(a%x, b%x, n)
+       call sub2(a%x, b%x, size)
     end if
 
   end subroutine field_sub2
 
   !> Vector subtraction \f$ a = b - c \f$
   subroutine field_sub3(a, b, c, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: c
     type(field_t), intent(inout) :: b
     type(field_t), intent(out) :: a
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_sub3(a%x_d, b%x_d, c%x_d, n)
+       call device_sub3(a%x_d, b%x_d, c%x_d, size)
     else
-       call sub3(a%x, b%x, c%x, n)
+       call sub3(a%x, b%x, c%x, size)
     end if
 
   end subroutine field_sub3
@@ -225,15 +302,22 @@ contains
   !> Vector addition with scalar multiplication \f$ a = c_1 a + b \f$
   !! (multiplication on first argument)
   subroutine field_add2s1(a, b, c1, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
     type(field_t), intent(inout) :: b
     real(kind=rp), intent(in) :: c1
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_add2s1(a%x_d, b%x_d, c1, n)
+       call device_add2s1(a%x_d, b%x_d, c1, size)
     else
-       call add2s1(a%x, b%x, c1, n)
+       call add2s1(a%x, b%x, c1, size)
     end if
 
   end subroutine field_add2s1
@@ -241,59 +325,87 @@ contains
   !> Vector addition with scalar multiplication  \f$ a = a + c_1 b \f$
   !! (multiplication on second argument)
   subroutine field_add2s2(a, b, c1, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
     type(field_t), intent(inout) :: b
     real(kind=rp), intent(in) :: c1
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_add2s2(a%x_d, b%x_d, c1, n)
+       call device_add2s2(a%x_d, b%x_d, c1, size)
     else
-       call add2s2(a%x, b%x, c1, n)
+       call add2s2(a%x, b%x, c1, size)
     end if
 
   end subroutine field_add2s2
 
   !> Returns \f$ a = a + c1 * (b * b )\f$
   subroutine field_addsqr2s2(a, b, c1, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
     type(field_t), intent(in) :: b
     real(kind=rp), intent(in) :: c1
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_addsqr2s2(a%x_d, b%x_d, c1, n)
+       call device_addsqr2s2(a%x_d, b%x_d, c1, size)
     else
-       call addsqr2s2(a%x, b%x, c1, n)
+       call addsqr2s2(a%x, b%x, c1, size)
     end if
 
   end subroutine field_addsqr2s2
 
   !> Multiplication by constant c \f$ a = c \cdot b \f$
   subroutine field_cmult2(a, b, c, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
     type(field_t), intent(in) :: b
     real(kind=rp), intent(in) :: c
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cmult2(a%x_d, b%x_d, c, n)
+       call device_cmult2(a%x_d, b%x_d, c, size)
     else
-       call cmult2(a%x, b%x, c, n)
+       call cmult2(a%x, b%x, c, size)
     end if
 
   end subroutine field_cmult2
 
   !> Vector division \f$ a = a / b \f$
   subroutine field_invcol2(a, b, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
     type(field_t), intent(in) :: b
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_invcol2(a%x_d, b%x_d, n)
+       call device_invcol2(a%x_d, b%x_d, size)
     else
-       call invcol2(a%x, b%x, n)
+       call invcol2(a%x, b%x, size)
     end if
 
   end subroutine field_invcol2
@@ -301,91 +413,133 @@ contains
 
   !> Vector multiplication \f$ a = a \cdot b \f$
   subroutine field_col2(a, b, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
     type(field_t), intent(in) :: b
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_col2(a%x_d, b%x_d, n)
+       call device_col2(a%x_d, b%x_d, size)
     else
-       call col2(a%x, b%x, n)
+       call col2(a%x, b%x, size)
     end if
 
   end subroutine field_col2
 
   !> Vector multiplication with 3 vectors \f$ a =  b \cdot c \f$
   subroutine field_col3(a, b, c, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
     type(field_t), intent(in) :: b
     type(field_t), intent(in) :: c
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_col3(a%x_d, b%x_d, c%x_d, n)
+       call device_col3(a%x_d, b%x_d, c%x_d, size)
     else
-       call col3(a%x, b%x, c%x, n)
+       call col3(a%x, b%x, c%x, size)
     end if
 
   end subroutine field_col3
 
   !> Returns \f$ a = a - b*c \f$
   subroutine field_subcol3(a, b, c, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
     type(field_t), intent(in) :: b
     type(field_t), intent(in) :: c
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_subcol3(a%x_d, b%x_d, c%x_d, n)
+       call device_subcol3(a%x_d, b%x_d, c%x_d, size)
     else
-       call subcol3(a%x, b%x, c%x, n)
+       call subcol3(a%x, b%x, c%x, size)
     end if
 
   end subroutine field_subcol3
 
   !> Returns \f$ a = c1 * b + c2 * c \f$
-  subroutine field_add3s2(a, b, c, c1, c2 ,n)
-    integer, intent(in) :: n
+  subroutine field_add3s2(a, b, c, c1, c2, n)
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
     type(field_t), intent(in) :: b
     type(field_t), intent(in) :: c
     real(kind=rp), intent(in) :: c1, c2
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_add3s2(a%x_d, b%x_d, c%x_d, c1, c2, n)
+       call device_add3s2(a%x_d, b%x_d, c%x_d, c1, c2, size)
     else
-       call add3s2(a%x, b%x, c%x, c1, c2, n)
+       call add3s2(a%x, b%x, c%x, c1, c2, size)
     end if
 
   end subroutine field_add3s2
 
   !> Returns \f$ a = a + b*c \f$
   subroutine field_addcol3(a, b, c, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
     type(field_t), intent(in) :: b
     type(field_t), intent(in) :: c
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_addcol3(a%x_d, b%x_d, c%x_d, n)
+       call device_addcol3(a%x_d, b%x_d, c%x_d, size)
     else
-       call addcol3(a%x, b%x, c%x, n)
+       call addcol3(a%x, b%x, c%x, size)
     end if
 
   end subroutine field_addcol3
 
   !> Returns \f$ a = a + b*c*d \f$
   subroutine field_addcol4(a, b, c, d, n)
-    integer, intent(in) :: n
+    integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
     type(field_t), intent(in) :: b
     type(field_t), intent(in) :: c
     type(field_t), intent(in) :: d
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_addcol4(a%x_d, b%x_d, c%x_d, d%x_d, n)
+       call device_addcol4(a%x_d, b%x_d, c%x_d, d%x_d, size)
     else
-       call addcol4(a%x, b%x, c%x, d%x, n)
+       call addcol4(a%x, b%x, c%x, d%x, size)
     end if
 
   end subroutine field_addcol4
