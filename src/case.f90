@@ -35,10 +35,8 @@ module case
   use num_types, only : rp, sp, dp
   use fluid_fctry, only : fluid_scheme_factory
   use fluid_pnpn, only : fluid_pnpn_t
-  use fluid_pnpn_perturb, only : fluid_pnpn_perturb_t
   use fluid_scheme, only : fluid_scheme_t
   use fluid_output, only : fluid_output_t
-  use baseflow, only: set_baseflow
   use chkp_output, only : chkp_output_t
   use mean_sqr_flow_output, only : mean_sqr_flow_output_t
   use mean_flow_output, only : mean_flow_output_t
@@ -50,8 +48,6 @@ module case
   use sampler, only : sampler_t
   use flow_ic, only : set_flow_ic
   use scalar_ic, only : set_scalar_ic
-  use field, only : field_t
-  use field_registry, only : neko_field_registry
   use stats, only : stats_t
   use file, only : file_t
   use utils, only : neko_error
@@ -156,7 +152,6 @@ contains
     integer :: stats_sampling_interval
     integer :: output_dir_len
     integer :: precision
-    type(field_t), pointer :: u_b, v_b, w_b
 
     !
     ! Load mesh
@@ -281,20 +276,20 @@ contains
                   string_val)
     if (trim(string_val) .ne. 'user') then
        call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
-                        C%fluid%c_Xh, C%fluid%gs_Xh, string_val, C%params)
+            C%fluid%c_Xh, C%fluid%gs_Xh, string_val, C%params)
     else
        call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
-                        C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_user_ic, C%params)
+            C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_user_ic, C%params)
     end if
 
     if (scalar) then
        call json_get(C%params, 'case.scalar.initial_condition.type', string_val)
        if (trim(string_val) .ne. 'user') then
           call set_scalar_ic(C%scalar%s, &
-                             C%scalar%c_Xh, C%scalar%gs_Xh, string_val, C%params)
+            C%scalar%c_Xh, C%scalar%gs_Xh, string_val, C%params)
        else
           call set_scalar_ic(C%scalar%s, &
-                             C%scalar%c_Xh, C%scalar%gs_Xh, C%usr%scalar_user_ic, C%params)
+            C%scalar%c_Xh, C%scalar%gs_Xh, C%usr%scalar_user_ic, C%params)
        end if
     end if
 
@@ -304,28 +299,6 @@ contains
        call f%ulag%set(f%u)
        call f%vlag%set(f%v)
        call f%wlag%set(f%w)
-      type is(fluid_pnpn_perturb_t)
-       call f%ulag%set(f%u)
-       call f%vlag%set(f%v)
-       call f%wlag%set(f%w)
-
-       u_b => neko_field_registry%get_field('u_b')
-       v_b => neko_field_registry%get_field('v_b')
-       w_b => neko_field_registry%get_field('w_b')
-
-       !
-       ! Setup initial baseflow
-       !
-       call json_get(C%params, 'case.fluid.baseflow.type', string_val)
-
-       if (trim(string_val) .ne. 'user') then
-          call set_baseflow(u_b, v_b, w_b, C%fluid%c_Xh, C%fluid%gs_Xh, &
-                            string_val, C%params)
-       else
-          call set_baseflow(u_b, v_b, w_b, C%fluid%c_Xh, C%fluid%gs_Xh, &
-                            C%usr%baseflow_user, C%params)
-       end if
-
     end select
 
     !
@@ -387,7 +360,7 @@ contains
     ! Setup output precision of the field files
     !
     call json_get_or_default(C%params, 'case.output_precision', string_val,&
-                             'single')
+         'single')
 
     if (trim(string_val) .eq. 'double') then
        precision = dp
@@ -435,9 +408,9 @@ contains
        C%f_chkp = chkp_output_t(C%fluid%chkp, path = output_directory, &
             fmt = trim(string_val))
        call json_get_or_default(C%params, 'case.checkpoint_control', &
-                                string_val, "simulationtime")
+            string_val, "simulationtime")
        call json_get_or_default(C%params, 'case.checkpoint_value', real_val,&
-                                1e10_rp)
+            1e10_rp)
        call C%s%add(C%f_chkp, real_val, string_val)
     end if
 
@@ -449,11 +422,11 @@ contains
     ! Note, don't use json_get_or_default here, because that will break the
     ! valid_path if statement below (the path will become valid always).
     call C%params%get('case.statistics.start_time', stats_start_time,&
-                      found)
+                           found)
     if (.not. found) stats_start_time = 0.0_rp
 
     call C%params%get('case.statistics.sampling_interval', &
-                      stats_sampling_interval, found)
+                           stats_sampling_interval, found)
     if (.not. found) stats_sampling_interval = 10
 
     call C%q%init(stats_start_time, stats_sampling_interval)

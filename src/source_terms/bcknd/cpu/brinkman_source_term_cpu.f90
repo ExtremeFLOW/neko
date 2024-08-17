@@ -35,7 +35,7 @@ module brinkman_source_term_cpu
   use num_types, only: rp
   use field, only: field_t
   use field_list, only: field_list_t
-  use math, only: subcol3, add2
+  use math, only: subcol3, add2, copy
   use field_registry, only: neko_field_registry
   implicit none
   private
@@ -75,9 +75,9 @@ contains
     integer :: n
 	 
 	 ! perhaps not the most clean.. we associate the field chi with the 4th field
-    n = fields%fields(1)%f%dof%size()
+    n = fields%item_size(1)
 
-    call add2(fields%fields(4)%f%x, brinkman%x, n)
+    call copy(fields%items(4)%ptr%x, brinkman%x, n)
 
   end subroutine implicit_brinkman_source_term_compute_cpu
 end module brinkman_source_term_cpu

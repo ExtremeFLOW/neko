@@ -281,10 +281,6 @@ contains
        u%init_user_simcomp => dummy_user_init_no_simcomp
     end if
 
-    if (.not. associated(u%baseflow_user)) then
-       u%baseflow_user => dummy_user_init_no_baseflow
-    end if
-
     if (.not. associated(u%user_finalize_modules)) then
        u%user_finalize_modules => dummy_user_final_no_modules
     else

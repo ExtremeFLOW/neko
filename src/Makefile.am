@@ -207,8 +207,10 @@ neko_fortran_SOURCES = \
 	fluid/flow_ic.f90\
 	fluid/advection.f90\
 	fluid/advection_fctry.f90\
-	fluid/bcknd/advection/adv_dealias.f90\
-	fluid/bcknd/advection/adv_no_dealias.f90\
+   fluid/bcknd/advection/adv_dealias.f90\
+   fluid/bcknd/advection/adv_no_dealias.f90\
+   fluid/bcknd/advection/adv_lin_dealias.f90\
+   fluid/bcknd/advection/adv_lin_no_dealias.f90\
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/pnpn_res_device.F90\
@@ -283,6 +285,11 @@ neko_fortran_SOURCES = \
 	source_terms/brinkman_source_term.f90\
 	source_terms/brinkman/filters.f90\
 	source_terms/bcknd/cpu/filters_cpu.f90\
+	source_terms/brinkman/filter.f90\
+	source_terms/brinkman/filter_fctry.f90\
+	source_terms/brinkman/PDE_filter.f90\
+	source_terms/bcknd/cpu/brinkman_source_term_cpu.f90\
+	source_terms/bcknd/device/brinkman_source_term_device.f90\
 	les/les_model.f90\
 	les/les_model_fctry.f90\
 	les/vreman.f90\
@@ -604,4 +611,3 @@ include .depends_device
 # HIP Build rules
 .hip.o:
 	$(HIPCC) @HIP_HIPCC_FLAGS@ -I@top_builddir@/src -I@top_srcdir@/src -o $@ -c $<
-

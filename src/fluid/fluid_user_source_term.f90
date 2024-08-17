@@ -240,7 +240,7 @@ contains
        call device_add2(this%fields%x_d(1), this%u_d, n)
        call device_add2(this%fields%x_d(2), this%v_d, n)
        call device_add2(this%fields%x_d(3), this%w_d, n)
-       call device_add2(this%fields%x_d(4), this%chi, n)
+       call device_add2(this%fields%x_d(4), this%chi_d, n)
     else
        call add2(this%fields%items(1)%ptr%x, this%u, n)
        call add2(this%fields%items(2)%ptr%x, this%v, n)

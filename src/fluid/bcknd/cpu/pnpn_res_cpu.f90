@@ -11,7 +11,7 @@ module pnpn_res_cpu
   use mesh, only : mesh_t
   use num_types, only : rp
   use space, only : space_t
-  use math, only : copy, cmult2, invers2, rzero
+  use math, only : copy, cmult2, invers2, rzero, glsc2
   implicit none
   private
 
@@ -52,8 +52,9 @@ contains
     real(kind=rp)  :: K
 
     K = 0.000001_rp
-    K = 1_rp
-    K = 0_rp
+    K = 0.0_rp
+    K = 1.0_rp
+    !K = 0.5_rp
 
     call neko_scratch_registry%request_field(ta1, temp_indices(1))
     call neko_scratch_registry%request_field(ta2, temp_indices(2))
@@ -79,20 +80,27 @@ contains
     call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
 
     ! ta = f / rho - wa * mu / rho * B
+
     do concurrent (i = 1:n)
        ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho_val &
-            - ((wa1%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1)) & 
-!            - chi%x(i,1,1,1) * u%x(i,1,1,1)  * c_Xh%B(i,1,1,1) 
-            - chi%x(i,1,1,1) * u%x(i,1,1,1)  * c_Xh%B(i,1,1,1)*K
+            - ((wa1%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1))  
        ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho_val &
-            - ((wa2%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1)) &
-!            - chi%x(i,1,1,1) * v%x(i,1,1,1)  * c_Xh%B(i,1,1,1) 
-            - chi%x(i,1,1,1) * v%x(i,1,1,1)  * c_Xh%B(i,1,1,1)*K 
+            - ((wa2%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1)) 
        ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho_val &
-            - ((wa3%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1)) &
-!            - chi%x(i,1,1,1) * w%x(i,1,1,1)  * c_Xh%B(i,1,1,1) 
-            - chi%x(i,1,1,1) * w%x(i,1,1,1)  * c_Xh%B(i,1,1,1)*K 
+            - ((wa3%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1)) 
     end do
+
+!    do concurrent (i = 1:n)
+!       ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho_val &
+!            - ((wa1%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1)) & 
+!            - chi%x(i,1,1,1) * u%x(i,1,1,1)  * c_Xh%B(i,1,1,1)*K
+!       ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho_val &
+!            - ((wa2%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1)) &
+!            - chi%x(i,1,1,1) * v%x(i,1,1,1)  * c_Xh%B(i,1,1,1)*K 
+!       ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho_val &
+!            - ((wa3%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1)) &
+!            - chi%x(i,1,1,1) * w%x(i,1,1,1)  * c_Xh%B(i,1,1,1)*K 
+!    end do
 
     call gs_Xh%op(ta1, GS_OP_ADD)
     call gs_Xh%op(ta2, GS_OP_ADD)
@@ -168,24 +176,26 @@ contains
     real(kind=rp)  :: K
 
     K = 0.000001_rp
-    K = 1_rp
-    K = 0_rp
+    K = 1.0_rp
+    K = 0.0_rp
+
+    K = 1.0_rp
 
     ! We assume the material properties are constant
     rho_val = rho%x(1,1,1,1)
     mu_val = mu%x(1,1,1,1)
-    ! Martin's idea is to now remove the \chi u from the RHS
-    ! not sure about rho's or bm1's
+!    ! Martin's idea is to now remove the \chi u from the RHS
+!    ! not sure about rho's or bm1's
 !    do i = 1, n
-       f_x%x(i,1,1,1) = f_x%x(i,1,1,1) + chi%x(i,1,1,1) * u%x(i,1,1,1) * K * c_Xh%B(i,1,1,1)
-       f_y%x(i,1,1,1) = f_y%x(i,1,1,1) + chi%x(i,1,1,1) * v%x(i,1,1,1) * K * c_Xh%B(i,1,1,1)
-       f_z%x(i,1,1,1) = f_z%x(i,1,1,1) + chi%x(i,1,1,1) * w%x(i,1,1,1) * K * c_Xh%B(i,1,1,1)
+!       f_x%x(i,1,1,1) = f_x%x(i,1,1,1) + chi%x(i,1,1,1) * u%x(i,1,1,1) * K * c_Xh%B(i,1,1,1)
+!       f_y%x(i,1,1,1) = f_y%x(i,1,1,1) + chi%x(i,1,1,1) * v%x(i,1,1,1) * K * c_Xh%B(i,1,1,1)
+!       f_z%x(i,1,1,1) = f_z%x(i,1,1,1) + chi%x(i,1,1,1) * w%x(i,1,1,1) * K * c_Xh%B(i,1,1,1)
 !    end do
 
 
     do i = 1, n
        c_Xh%h1(i,1,1,1) = mu_val
-       c_Xh%h2(i,1,1,1) = rho_val * (bd / dt) + rho * chi%x(i,1,1,1)
+       c_Xh%h2(i,1,1,1) = rho_val * (bd / dt) + rho_val * chi%x(i,1,1,1)
     end do
     c_Xh%ifh2 = .true.
 
@@ -202,12 +212,6 @@ contains
        u_res%x(i,1,1,1) = (-u_res%x(i,1,1,1)) - ta1%x(i,1,1,1) + f_x%x(i,1,1,1)
        v_res%x(i,1,1,1) = (-v_res%x(i,1,1,1)) - ta2%x(i,1,1,1) + f_y%x(i,1,1,1)
        w_res%x(i,1,1,1) = (-w_res%x(i,1,1,1)) - ta3%x(i,1,1,1) + f_z%x(i,1,1,1)
-!       u_res%x(i,1,1,1) = (-u_res%x(i,1,1,1)) - ta1%x(i,1,1,1) + f_x%x(i,1,1,1) &
-!       + chi%x(i,1,1,1) * u%x(i,1,1,1) * 0.000001_rp * c_Xh%B(i,1,1,1)
-!       v_res%x(i,1,1,1) = (-v_res%x(i,1,1,1)) - ta2%x(i,1,1,1) + f_y%x(i,1,1,1) &
-!       + chi%x(i,1,1,1) * v%x(i,1,1,1) * 0.000001_rp * c_Xh%B(i,1,1,1)
-!       w_res%x(i,1,1,1) = (-w_res%x(i,1,1,1)) - ta3%x(i,1,1,1) + f_z%x(i,1,1,1) &
-!       + chi%x(i,1,1,1) * w%x(i,1,1,1) * 0.000001_rp * c_Xh%B(i,1,1,1)
     end do
 
     call neko_scratch_registry%relinquish_field(temp_indices)

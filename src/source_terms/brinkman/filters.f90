@@ -190,12 +190,12 @@ contains
     call bc_list_init(bclst_filt)
     ! add all the neumann BCs
     call filter_bcs%init_base(coef)
-    call filter_bcs%init_neumann(0.0_rp)
+    !call filter_bcs%init_neumann(0.0_rp)
     call filter_bcs%finalize()
     call bc_list_add(bclst_filt, filter_bcs)
 
 	 ! Setup backend dependent Ax routines
-    call ax_helm_factory(Ax)
+    call ax_helm_factory(Ax, .false.)
 
 	 ! set up krylov solver
 	 call krylov_solver_factory(ksp_filt, n, ksp_solver, ksp_max_iter, abstol_filt)

@@ -160,12 +160,12 @@ contains
     call bc_list_init(this%bclst_filt)
     ! add all the neumann BCs
     call this%filter_bcs%init_base(this%coef)
-    call this%filter_bcs%init_neumann(0.0_rp)
+    !call this%filter_bcs%init_neumann(0.0_rp)
     call this%filter_bcs%finalize()
     call bc_list_add(this%bclst_filt, this%filter_bcs)
 
     ! Setup backend dependent Ax routines
-    call ax_helm_factory(this%Ax)
+    call ax_helm_factory(this%Ax, .false.)
 
     ! set up krylov solver
     call krylov_solver_factory(this%ksp_filt, n, this%ksp_solver, this%ksp_max_iter, this%abstol_filt)
@@ -240,6 +240,14 @@ contains
     write(log_buf, '(I11,3x, E15.7,5x, E15.7)') this%ksp_results%iter, &
          this%ksp_results%res_start, this%ksp_results%res_final
     call neko_log%message(log_buf)
+
+
+    ! I think it's a good idea to to trim everything!!!
+    do i = 1, n
+    	if(F_out%x(i,1,1,1).gt.1) F_out%x(i,1,1,1) = 1.0_rp
+    	if(F_out%x(i,1,1,1).lt.0) F_out%x(i,1,1,1) = 0.0_rp
+    end do
+
 
 
 	 ! YOU SHOULD RELINGUISH IF YOU GET THIS TO WORK!

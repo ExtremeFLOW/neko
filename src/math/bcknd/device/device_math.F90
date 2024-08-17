@@ -1006,13 +1006,7 @@ module device_math
        device_col2, device_col3, device_subcol3, device_sub2, device_sub3, &
        device_addcol3, device_addcol4, device_vdot3, device_vlsc3, device_glsc3, &
        device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
-<<<<<<< HEAD
-       device_masked_copy, device_add4
-
-=======
-       device_masked_copy, device_cfill_mask
-  
->>>>>>> develop
+       device_masked_copy, device_add4, device_cfill_mask
 contains
 
   subroutine device_copy(a_d, b_d, n)
