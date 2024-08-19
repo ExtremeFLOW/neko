@@ -122,7 +122,6 @@ module fluid_pnpn_perturb
      type(bc_list_t) :: bclst_dp
 
      class(advection_lin_t), allocatable :: adv
-     logical :: toggle_adjoint
 
      ! Time variables
      type(field_t) :: abx1, aby1, abz1

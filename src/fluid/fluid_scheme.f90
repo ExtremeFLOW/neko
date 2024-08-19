@@ -143,7 +143,8 @@ module fluid_scheme
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
-   contains
+     logical :: toggle_adjoint = .false.       !< Toggle adjoint mode
+     contains
      !> Constructor for the base type
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_common
