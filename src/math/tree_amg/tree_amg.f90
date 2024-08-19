@@ -523,6 +523,79 @@ contains
     end if
   end subroutine tamg_matvec_impl
 
+  recursive subroutine tamg_matvec_flat_impl(this, vec_out, vec_in, lvl_blah, lvl_out)
+    class(tamg_hierarchy_t), intent(inout) :: this
+    real(kind=rp), intent(inout) :: vec_out(:)
+    real(kind=rp), intent(inout) :: vec_in(:)
+    integer, intent(in) :: lvl_blah
+    integer, intent(in) :: lvl_out
+    integer :: i, n, e, nn, lvl
+
+    !> TODO: zero out all work vectors to start
+    !wrk_in = 0d0
+    !wrk_out = 0d0
+
+    do n = 1, this%lvl(lvl_out)%nnodes!> this loop is independent
+      do i = 1, this%lvl(lvl_out)%nodes(n)%ndofs
+        associate( wrk_in => this%lvl(lvl_out)%wrk_in, wrk_out => this%lvl(lvl_out)%wrk_out, node => this%lvl(lvl_out)%nodes(n))
+          wrk_in( node%gid ) = wrk_in(node%gid ) + vec_in( node%dofs(i) ) * node%interp_p( i )
+        end associate
+      end do!i
+      do lvl = lvl_out, 1, -1
+
+        associate( wrk_in => this%lvl(lvl)%wrk_in, wrk_out => this%lvl(lvl)%wrk_out)
+        do nn = 1, this%lvl(lvl)%nnodes
+          associate (node => this%lvl(lvl)%nodes(nn))
+          do i = 1, node%ndofs
+            wrk_in( node%dofs(i) ) = wrk_in( node%dofs(i) ) + this%lvl(lvl+1)%wrk_in( node%gid ) * node%interp_p( i )
+          end do!i
+          end associate
+        end do!nn
+        end associate
+
+      end do!lvl
+    end do!n
+
+    associate( wrk_in => this%lvl(1)%wrk_in, wrk_out => this%lvl(1)%wrk_out)
+    !> Do finest level matvec
+    n = size(wrk_in)
+    !> Call local finite element assembly
+    call this%gs_h%op(wrk_in, n, GS_OP_ADD)
+    do i = 1, n
+      wrk_in(i) = wrk_in(i) * this%coef%mult(i,1,1,1)
+    end do
+    !>
+    call this%ax%compute(wrk_out, wrk_in, this%coef, this%msh, this%Xh)
+    !>
+    call this%gs_h%op(wrk_out, n, GS_OP_ADD)
+    call bc_list_apply(this%blst, wrk_out, n)
+    !>
+    end associate
+
+
+    do n = 1, this%lvl(lvl_out)%nnodes!> this loop is independent
+      do lvl = lvl_out, 1, -1
+
+        associate( wrk_in => this%lvl(lvl)%wrk_in, wrk_out => this%lvl(lvl)%wrk_out)
+        do nn = 1, this%lvl(lvl)%nnodes
+          associate (node => this%lvl(lvl)%nodes(nn))
+          do i = 1, node%ndofs
+            wrk_out( node%dofs(i) ) = wrk_out( node%dofs(i) ) + this%lvl(lvl+1)%wrk_out( node%gid ) * node%interp_p( i )
+          end do!i
+          end associate
+        end do!nn
+        end associate
+
+      end do!lvl
+      do i = 1, this%lvl(lvl_out)%nodes(n)%ndofs
+        associate( wrk_in => this%lvl(lvl_out)%wrk_in, wrk_out => this%lvl(lvl_out)%wrk_out, node => this%lvl(lvl_out)%nodes(n))
+          vec_out( node%gid ) = vec_out(node%gid ) + wrk_out( node%dofs(i) ) * node%interp_r( i )
+        end associate
+      end do!i
+    end do!n
+  end subroutine tamg_matvec_flat_impl
+
+
   subroutine tamg_restriction_operator(this, vec_out, vec_in, lvl)
     class(tamg_hierarchy_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: vec_out(:)
