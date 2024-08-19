@@ -43,6 +43,8 @@ module krylov_fctry
   use fusedcg_cpld_device, only : fusedcg_cpld_device_t
   use bicgstab, only : bicgstab_t
   use gmres, only : gmres_t
+  use cheby, only : cheby_t
+  use cheby_device, only : cheby_device_t
   use gmres_sx, only : sx_gmres_t
   use gmres_device, only : gmres_device_t
   use num_Types, only : rp
@@ -56,12 +58,13 @@ module krylov_fctry
   public :: krylov_solver_factory, krylov_solver_destroy
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KNOWN_TYPES(7) = [character(len=20) :: &
+  character(len=20) :: KNOWN_TYPES(8) = [character(len=20) :: &
      "cg", &
      "pipecg", &
      "fusedcg", &
      "cacg", &
      "gmres", &
+     "cheby", &
      "bicgstab", &
      "cpldcg"]
 
@@ -140,6 +143,12 @@ contains
        else
           allocate(gmres_t::object)
        end if
+    else if (trim(type_name) .eq. 'cheby') then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          allocate(cheby_device_t::object)
+       else
+          allocate(cheby_t::object)
+       end if
     else if (trim(type_name) .eq. 'bicgstab') then
        allocate(bicgstab_t::object)
     else
@@ -184,6 +193,10 @@ contains
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
        type is (bicgstab_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
+       type is (cheby_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol)
+       type is (cheby_device_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol)
        end select
     else if (present(abstol)) then
        select type (obj => object)
@@ -214,6 +227,10 @@ contains
        type is (gmres_device_t)
           call obj%init(n, max_iter, abs_tol = abstol)
        type is (bicgstab_t)
+          call obj%init(n, max_iter, abs_tol = abstol)
+       type is (cheby_t)
+          call obj%init(n, max_iter, abs_tol = abstol)
+       type is (cheby_device_t)
           call obj%init(n, max_iter, abs_tol = abstol)
        end select
     else if (present(M)) then
@@ -246,6 +263,10 @@ contains
           call obj%init(n, max_iter, M = M)
        type is (bicgstab_t)
           call obj%init(n, max_iter, M = M)
+       type is (cheby_t)
+          call obj%init(n, max_iter, M = M)
+       type is (cheby_device_t)
+          call obj%init(n, max_iter, M = M)
        end select
     else
        select type (obj => object)
@@ -276,6 +297,10 @@ contains
        type is (gmres_device_t)
           call obj%init(n, max_iter)
        type is (bicgstab_t)
+          call obj%init(n, max_iter)
+       type is (cheby_t)
+          call obj%init(n, max_iter)
+       type is (cheby_device_t)
           call obj%init(n, max_iter)
        end select
     end if
@@ -315,6 +340,8 @@ contains
        type is (gmres_device_t)
           call obj%free()
        type is (bicgstab_t)
+          call obj%free()
+       type is (cheby_t)
           call obj%free()
        end select
     end if

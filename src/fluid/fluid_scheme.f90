@@ -304,6 +304,14 @@ contains
     call field_cfill(this%mu_field, this%mu, this%mu_field%size())
     call field_cfill(this%rho_field, this%rho, this%mu_field%size())
 
+    ! Since mu, rho is a field, and the none-stress simulation fetches
+    ! data from the host arrays, we need to mirror the constant
+    ! material properties on the host
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call cfill(this%mu_field%x, this%mu, this%mu_field%size())
+       call cfill(this%rho_field%x, this%rho, this%rho_field%size())
+    end if
+
 
     ! Projection spaces
     call json_get_or_default(params, &
