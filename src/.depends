@@ -198,7 +198,7 @@ fluid/fluid_volflow.o : fluid/fluid_volflow.f90 math/ax.o bc/bc.o field/scratch_
 fluid/pnpn_res.o : fluid/pnpn_res.f90 config/num_types.o mesh/mesh.o sem/space.o bc/facet_normal.o sem/coef.o field/field.o math/ax.o gs/gather_scatter.o 
 fluid/pnpn_res_fctry.o : fluid/pnpn_res_fctry.f90 fluid/bcknd/sx/pnpn_res_sx.o fluid/bcknd/cpu/pnpn_res_cpu.o fluid/bcknd/device/pnpn_res_device.o fluid/pnpn_res.o common/utils.o config/neko_config.o 
 fluid/mean_flow.o : fluid/mean_flow.f90 field/field.o field/mean_field.o 
-fluid/fluid_stats.o : fluid/fluid_stats.f90 common/utils.o config/neko_config.o device/device.o common/stats_quant.o gs/gather_scatter.o field/field_list.o field/field_registry.o field/field.o sem/coef.o math/operators.o math/math.o math/mathops.o math/bcknd/device/device_mathops.o math/bcknd/device/device_math.o field/mean_field.o 
+fluid/fluid_stats.o : fluid/fluid_stats.f90 common/utils.o config/neko_config.o device/device.o common/stats_quant.o field/field_list.o field/field.o sem/coef.o math/operators.o math/math.o config/num_types.o math/bcknd/device/device_math.o field/mean_field.o 
 fluid/mean_sqr_flow.o : fluid/mean_sqr_flow.f90 field/field.o field/mean_sqr_field.o 
 fluid/flow_profile.o : fluid/flow_profile.f90 config/num_types.o 
 fluid/flow_ic.o : fluid/flow_ic.f90 mesh/point_zone_registry.o mesh/point_zone.o common/json_utils.o common/user_intf.o math/bcknd/device/device_math.o math/math.o sem/coef.o common/utils.o field/field.o device/device.o fluid/flow_profile.o config/neko_config.o gs/gather_scatter.o config/num_types.o 
