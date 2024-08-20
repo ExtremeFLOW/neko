@@ -152,7 +152,7 @@ contains
 
   !> Initialize the fields associated with fluid_stats
   subroutine fluid_stats_init(this, coef, u_mf,v_mf,w_mf,p_mf)
-    class(fluid_stats_t), intent(inout), target:: this
+    class(fluid_stats_t), intent(inout), target :: this
     type(coef_t), target, optional :: coef
     type(mean_field_t), target, intent(inout) :: u_mf, v_mf, w_mf, p_mf
     this%coef => coef
