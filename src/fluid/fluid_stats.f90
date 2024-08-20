@@ -406,9 +406,9 @@ contains
 
 
       end if
-      call opgrad(this%dudx%x, this%dudy%x, this%dudz%x,this%u%x,this%coef)
-      call opgrad(this%dvdx%x, this%dvdy%x, this%dvdz%x,this%v%x,this%coef)
-      call opgrad(this%dwdx%x, this%dwdy%x, this%dwdz%x,this%w%x,this%coef)
+      call opgrad(this%dudx%x, this%dudy%x, this%dudz%x, this%u%x, this%coef)
+      call opgrad(this%dvdx%x, this%dvdy%x, this%dvdz%x, this%v%x, this%coef)
+      call opgrad(this%dwdx%x, this%dwdy%x, this%dwdz%x, this%w%x, this%coef)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_col3(stats_work%x_d, this%dudx%x_d, this%p%x_d,n)
@@ -675,10 +675,10 @@ contains
        call subcol3(reynolds%items(2)%ptr%x, this%u_mean%x, this%u_mean%x, n)
 
        call copy(reynolds%items(3)%ptr%x, this%vv%mf%x, n)
-       call subcol3(reynolds%items(3)%ptr%x, this%v_mean%x,this%v_mean%x,n)
+       call subcol3(reynolds%items(3)%ptr%x, this%v_mean%x, this%v_mean%x,n)
 
        call copy(reynolds%items(4)%ptr%x, this%ww%mf%x, n)
-       call subcol3(reynolds%items(4)%ptr%x, this%w_mean%x,this%w_mean%x,n)
+       call subcol3(reynolds%items(4)%ptr%x, this%w_mean%x, this%w_mean%x,n)
 
        call copy(reynolds%items(5)%ptr%x, this%uv%mf%x, n)
        call subcol3(reynolds%items(5)%ptr%x, this%u_mean%x, this%v_mean%x, n)
@@ -742,12 +742,12 @@ contains
           call device_memcpy(this%dwdz%x, this%dwdz%x_d, n, &
                              DEVICE_TO_HOST, sync = .true.)
        else
-          call opgrad(this%dudx%x,this%dudy%x, this%dudz%x, &
-               this%u_mean%x,this%coef)
-          call opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x, &
-               this%v_mean%x,this%coef)
-          call opgrad(this%dwdx%x,this%dwdy%x, this%dwdz%x, &
-               this%w_mean%x,this%coef)
+          call opgrad(this%dudx%x, this%dudy%x, this%dudz%x, &
+               this%u_mean%x, this%coef)
+          call opgrad(this%dvdx%x, this%dvdy%x, this%dvdz%x, &
+               this%v_mean%x, this%coef)
+          call opgrad(this%dwdx%x, this%dwdy%x, this%dwdz%x, &
+               this%w_mean%x, this%coef)
        end if
        call invers2(this%stats_work%x, this%coef%B,n)
        call col3(mean_vel_grad%items(1)%ptr%x, this%dudx%x, &
