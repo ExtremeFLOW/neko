@@ -282,7 +282,7 @@ contains
     call json_get(json, "amount", n_points)
 
     ! If either start or end is not of length 3, error out
-    if (size(start) /= 3 .or. size(end) /= 3) then
+    if (size(start) .ne. 3 .or. size(end) .ne. 3) then
        call neko_error('Invalid start or end coordinates.')
     end if
 
@@ -331,16 +331,16 @@ contains
     call json_get(json, "axis", axis)
 
     ! If either center or normal is not of length 3, error out
-    if (size(center) /= 3 .or. size(normal) /= 3) then
+    if (size(center) .ne. 3 .or. size(normal) .ne. 3) then
        call neko_error('Invalid center or normal coordinates.')
     end if
-    if (axis /= 'x' .and. axis /= 'y' .and. axis /= 'z') then
+    if (axis .ne. 'x' .and. axis .ne. 'y' .and. axis .ne. 'z') then
        call neko_error('Invalid axis.')
     end if
-    if (radius <= 0) then
+    if (radius .le. 0) then
        call neko_error('Invalid radius.')
     end if
-    if (n_points <= 0) then
+    if (n_points .le. 0) then
        call neko_error('Invalid number of points.')
     end if
 

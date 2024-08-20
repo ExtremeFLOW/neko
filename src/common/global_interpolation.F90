@@ -528,14 +528,14 @@ contains
           end if
        end do
        if (k .ne. n_points_per_pe(i)) then
-          write(*,*) 'PE: ', pe_rank, ' has k= ', k,&
-                     'points for PE:', i,' but should have: ',&
+          write(*,*) 'PE: ', pe_rank, ' has k= ', k, &
+                     'points for PE:', i,' but should have: ', &
                      n_points_per_pe(i)
           call neko_error('Error in redistribution of points')
        end if
-       call MPI_Gatherv(xyz_send_to_pe,3*n_points_per_pe(i),&
-                        MPI_DOUBLE_PRECISION, new_xyz,3*n_points_from_pe,&
-                        3*n_point_offset_from_pe,&
+       call MPI_Gatherv(xyz_send_to_pe,3*n_points_per_pe(i), &
+                        MPI_DOUBLE_PRECISION, new_xyz,3*n_points_from_pe, &
+                        3*n_point_offset_from_pe, &
                         MPI_DOUBLE_PRECISION, i, NEKO_COMM, ierr)
 
     end do
@@ -572,7 +572,7 @@ contains
                                 this%n_points, field)
     else
        if (this%n_points .gt. 0) &
-          call this%local_interp%evaluate(interp_values, this%el_owner,&
+          call this%local_interp%evaluate(interp_values, this%el_owner, &
                                           field, this%nelv)
     end if
 #else

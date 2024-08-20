@@ -485,7 +485,7 @@ contains
        open(unit = 9, file = trim(this%fname(1:suffix_pos-1)) // &
             trim(adjustl(start_field)), status = 'replace')
        write(9, fmt = '(A,A,A)') 'filetemplate:         ', &
-            this%fname(tslash_pos+1:suffix_pos-1),'%01d.f%05d'
+            this%fname(tslash_pos+1:suffix_pos-1), '%01d.f%05d'
        write(9, fmt = '(A,i5)') 'firsttimestep: ', this%start_counter
        write(9, fmt = '(A,i5)') 'numtimesteps: ', (this%counter + 1) - &
             this%start_counter
@@ -684,17 +684,17 @@ contains
              data%fld_series_fname = string(:scan(trim(string), '%') - 1)
              data%fld_series_fname = trim(data%fld_series_fname) // '0'
              read(9, fmt = '(A)') string
-             read(string(scan(string,':') + 1:), *) data%meta_start_counter
+             read(string(scan(string, ':') + 1:), *) data%meta_start_counter
              read(9, fmt = '(A)') string
-             read(string(scan(string,':') + 1:), *) data%meta_nsamples
+             read(string(scan(string, ':') + 1:), *) data%meta_nsamples
 
              close(9)
              call neko_log%message('Reading meta file for fld series')
              call neko_log%message('Name: ' // trim(data%fld_series_fname))
-             write (log_buf,'(A,I7)') 'Start counter    : ', &
+             write (log_buf, '(A,I7)') 'Start counter    : ', &
                   data%meta_start_counter
              call neko_log%message(log_buf)
-             write (log_buf,'(A,I7)') 'Number of samples: ', &
+             write (log_buf, '(A,I7)') 'Number of samples: ', &
                   data%meta_nsamples
              call neko_log%message(log_buf)
 

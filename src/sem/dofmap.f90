@@ -979,7 +979,7 @@ contains
 !
 !  z-edges
 !
-    do kk= 1, n, n-1
+    do kk = 1, n, n-1
        do k = 1, n
           do j = 1, n
              do i = 1, n
@@ -1104,7 +1104,7 @@ contains
     ! make length radius
     xys = sqrt(xs**2 + ys**2)
     ! sanity check
-    if (abs(2.0 * radius) <= xys * 1.00001) &
+    if (abs(2.0 * radius) .le. xys * 1.00001) &
     & call neko_error('Radius to small for arced element surface')
     ! find center
     dtheta = abs(asin(0.5*xys/radius))
@@ -1141,7 +1141,7 @@ contains
        call addtnsr(y, ycrved, h(1,2, iyt), h(1,3, izt), Xh%lx, Xh%ly, Xh%lz)
     end if
   end subroutine arc_surface
-,
+
   subroutine compute_h(h, zgml, gdim, lx)
     integer, intent(in) :: lx, gdim
     real(kind=rp), intent(inout) ::  h(lx, 3, 2)
