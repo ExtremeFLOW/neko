@@ -35,6 +35,7 @@
 module filter_fctry
   use filter, only : filter_t
   use PDE_filter, only : PDE_filter_t
+  use no_filter, only : no_filter_t
   use json_module, only : json_file
   use coefs, only : coef_t
   use json_utils, only : json_get
@@ -57,17 +58,19 @@ contains
 ! fuck the json for now
 ! Tim I'm going to need you to come in and do this properly
 
-!    call json_get(json, "type", filter_type)
-!
-!    if (trim(filter_type) .eq. "PDE") then
-!       allocate(PDE_filter_t::filter)
-!    else
-!       call neko_log%error("Unknown filter type: " &
-!                           // trim(filter_type))
-!       stop
-!    end if
+    call json_get(json, "filter.type", filter_type)
 
-    allocate(PDE_filter_t::filter)
+    if (trim(filter_type) .eq. "PDE") then
+       allocate(PDE_filter_t::filter)
+    elseif (trim(filter_type) .eq. "none") then
+       allocate(no_filter_t::filter)
+    else
+       call neko_log%error("Unknown filter type: " &
+                           // trim(filter_type))
+       stop
+    end if
+
+    !allocate(PDE_filter_t::filter)
     ! Initialize
     call filter%init(json, coef)
 
