@@ -32,18 +32,18 @@
 !
 !> Fluid formulations
 module fluid_scheme
-  use gather_scatter
+  use gather_scatter, only : gs_t
   use mean_sqr_flow, only : mean_sqr_flow_t
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use checkpoint, only : chkp_t
   use mean_flow, only : mean_flow_t
-  use num_types
+  use num_types, only : rp
   use comm
   use fluid_user_source_term, only: fluid_user_source_term_t
   use fluid_source_term, only: fluid_source_term_t
   use field_list, only : field_list_t
   use field, only : field_t
-  use space
+  use space, only : space_t, GLL
   use dofmap, only : dofmap_t
   use krylov, only : ksp_t
   use coefs, only: coef_t
@@ -62,26 +62,26 @@ module fluid_scheme
   use device_jacobi, only : device_jacobi_t
   use hsmg, only : hsmg_t
   use precon, only : pc_t
-  use krylov_fctry
-  use precon_fctry
+  use krylov_fctry, only : krylov_solver_factory, krylov_solver_destroy
+  use precon_fctry, only : precon_factory, precon_destroy
   use fluid_stats, only : fluid_stats_t
-  use bc
-  use mesh
-  use math
+  use bc, only : bc_t, bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
+       bc_list_apply_scalar, bc_list_apply_vector
+  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
+  use math, only : cfill, add2s2
   use device_math, only : device_cfill, device_add2s2
   use time_scheme_controller, only : time_scheme_controller_t
-  use mathops
   use operators, only : cfl
-  use logger
-  use field_registry
+  use logger, only : neko_log, LOG_SIZE
+  use field_registry, only : neko_field_registry
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file, json_core, json_value
   use scratch_registry, only : scratch_registry_t
   use user_intf, only : user_t
   use utils, only : neko_warning, neko_error
   use material_properties, only : material_properties_t
-  use field_series
-  use time_step_controller
+  use field_series, only : field_series_t
+  use time_step_controller, only : time_step_controller_t
   use field_math, only : field_cfill
   implicit none
 
@@ -935,7 +935,7 @@ contains
   !> Set boundary types for the diagnostic output.
   !! @param params The JSON case file.
   subroutine fluid_scheme_set_bc_type_output(this, params)
-    class(fluid_scheme_t), intent(inout) :: this
+    class(fluid_scheme_t), target, intent(inout) :: this
     type(json_file), intent(inout) :: params
     type(dirichlet_t) :: bdry_mask
     logical :: found
