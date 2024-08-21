@@ -217,7 +217,7 @@ contains
     call this%bc_sym_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'sym', this%bc_labels)
     ! Same here, should du, dv, dw be marked here?
-    call this%bc_sym_surface%finalize()
+    call this%bc_sym_surface%finalize(.true.)
     ! Initialize dirichlet bcs for velocity residual
     call this%bc_vel_res_non_normal%init_base(this%c_Xh)
     call this%bc_vel_res_non_normal%mark_zone(msh%outlet_normal)
@@ -267,7 +267,7 @@ contains
     call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
                                               'v', this%bc_labels)
     call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
-                                              'w', this%bc_labels)
+                                              'w', this%bc_labels) 
     call this%bc_vel_res%finalize()
     call this%bc_vel_res%set_g(0.0_rp)
     call bc_list_init(this%bclst_vel_res)

@@ -369,11 +369,14 @@ contains
     logical :: only_facet = .false.
     integer :: i, j, k, l, msk_c
     integer :: lx, ly, lz, n
-
     lx = this%Xh%lx
     ly = this%Xh%ly
     lz = this%Xh%lz
-    if ( present(only_facets)) only_facet = only_facets
+    if ( present(only_facets)) then
+       only_facet = only_facets
+    else
+       only_facet = .false.
+    end if
     !>@todo add 2D case
 
     ! Note we assume that lx = ly = lz
@@ -446,24 +449,24 @@ contains
     if ( .not. only_facet) then
        !Makes check for points not on facet that should have bc applied
        call test_field%init(this%dof)
-       test_field = 1.0_rp
+       test_field = 0.0_rp
        !Apply this bc once
        do i = 1, msk_c
-          test_field%x(this%msk(i),1,1,1) = 0.0
+          test_field%x(this%msk(i),1,1,1) = 1.0
        end do
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(test_field%x, test_field%x_d, n, &
                              HOST_TO_DEVICE, sync=.true.)
        end if
        !Check if some point that was not zeroed was zeroed on another element
-       call this%coef%gs_h%op(test_field,GS_OP_MIN)
+       call this%coef%gs_h%op(test_field,GS_OP_ADD)
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(test_field%x, test_field%x_d, n, &
                              DEVICE_TO_HOST, sync=.true.)
        end if
        msk_c = 0
        do i = 1, this%dof%size()
-          if (relcmp(test_field%x(i,1,1,1),0.0_rp,1e-6_rp)) then
+          if (test_field%x(i,1,1,1) .gt. 0.5) then
              msk_c = msk_c + 1
           end if
        end do
@@ -472,7 +475,7 @@ contains
        allocate(this%msk(0:msk_c))
        j = 1
        do i = 1, this%dof%size()
-          if (relcmp(test_field%x(i,1,1,1),0.0_rp,1e-6_rp)) then
+          if (test_field%x(i,1,1,1) .gt. 0.5) then
              this%msk(j) = i
              j = j + 1
           end if
