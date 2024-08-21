@@ -449,7 +449,9 @@ contains
     if ( .not. only_facet) then
        !Makes check for points not on facet that should have bc applied
        call test_field%init(this%dof)
-       test_field = 0.0_rp
+       
+       n = test_field%size()
+       test_field%x = 0.0_rp
        !Apply this bc once
        do i = 1, msk_c
           test_field%x(this%msk(i),1,1,1) = 1.0
@@ -488,7 +490,7 @@ contains
     this%facet(0) = msk_c
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       n = facet_size * this%marked_facet%size() + 1
+       n = msk_c + 1
        call device_map(this%msk, this%msk_d, n)
        call device_map(this%facet, this%facet_d, n)
 
@@ -549,7 +551,8 @@ contains
     type(bcp_t), allocatable :: tmp(:)
 
     !> Do not add if bc is empty
-    if(bc%marked_facet%size() .eq. 0) return
+    !! What about the outliers...
+    if(bc%msk(0) .eq. 0) return
 
     if (bclst%n .ge. bclst%size) then
        bclst%size = bclst%size * 2
