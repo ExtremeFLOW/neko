@@ -192,6 +192,12 @@ contains
 !       f_z%x(i,1,1,1) = f_z%x(i,1,1,1) + chi%x(i,1,1,1) * w%x(i,1,1,1) * K * c_Xh%B(i,1,1,1)
 !    end do
 
+! BIG NOTE,
+! This we don't need to do this... because technicaly we never added it onto v_hat_hat when
+! we did v_hat - grad p
+!
+! so this is already v_hat_hat - chi v
+
 
     do i = 1, n
        c_Xh%h1(i,1,1,1) = mu_val
