@@ -31,18 +31,123 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> CFL SX-Aurora kernels
-module sx_cfl
+submodule (opr_sx) sx_cfl
   use num_types, only : rp
   implicit none
-  private
-
-  public :: sx_cfl_lx, sx_cfl_lx14, sx_cfl_lx13, sx_cfl_lx12, &
-       sx_cfl_lx11, sx_cfl_lx10, sx_cfl_lx9, sx_cfl_lx8, &
-       sx_cfl_lx7, sx_cfl_lx6, sx_cfl_lx5, sx_cfl_lx4, &
-       sx_cfl_lx3, sx_cfl_lx2
 
 contains
 
+  module function opr_sx_cfl(dt, u, v, w, Xh, coef, nelv) result(cfl)
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: nelv
+    real(kind=rp), intent(in) :: dt
+    real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w
+    real(kind=rp) :: cfl
+
+    select case(Xh%lx)
+    case (14)
+       cfl = sx_cfl_lx14(dt, u, v, w, &
+           coef%drdx, coef%dsdx, coef%dtdx, &
+           coef%drdy, coef%dsdy, coef%dtdy, &
+           coef%drdz, coef%dsdz, coef%dtdz, &
+           Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
+           coef%jacinv, nelv)
+    case (13)
+       cfl = sx_cfl_lx13(dt, u, v, w, &
+           coef%drdx, coef%dsdx, coef%dtdx, &
+           coef%drdy, coef%dsdy, coef%dtdy, &
+           coef%drdz, coef%dsdz, coef%dtdz, &
+           Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
+           coef%jacinv, nelv)
+    case (12)
+       cfl = sx_cfl_lx12(dt, u, v, w, &
+           coef%drdx, coef%dsdx, coef%dtdx, &
+           coef%drdy, coef%dsdy, coef%dtdy, &
+           coef%drdz, coef%dsdz, coef%dtdz, &
+           Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
+           coef%jacinv, nelv)
+    case (11)
+       cfl = sx_cfl_lx11(dt, u, v, w, &
+           coef%drdx, coef%dsdx, coef%dtdx, &
+           coef%drdy, coef%dsdy, coef%dtdy, &
+           coef%drdz, coef%dsdz, coef%dtdz, &
+           Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
+           coef%jacinv, nelv)
+    case (10)
+       cfl = sx_cfl_lx10(dt, u, v, w, &
+           coef%drdx, coef%dsdx, coef%dtdx, &
+           coef%drdy, coef%dsdy, coef%dtdy, &
+           coef%drdz, coef%dsdz, coef%dtdz, &
+           Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
+           coef%jacinv, nelv)
+    case (9)
+       cfl = sx_cfl_lx9(dt, u, v, w, &
+           coef%drdx, coef%dsdx, coef%dtdx, &
+           coef%drdy, coef%dsdy, coef%dtdy, &
+           coef%drdz, coef%dsdz, coef%dtdz, &
+           Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
+           coef%jacinv, nelv)
+    case (8)
+       cfl = sx_cfl_lx8(dt, u, v, w, &
+           coef%drdx, coef%dsdx, coef%dtdx, &
+           coef%drdy, coef%dsdy, coef%dtdy, &
+           coef%drdz, coef%dsdz, coef%dtdz, &
+           Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
+           coef%jacinv, nelv)
+    case (7)
+       cfl = sx_cfl_lx7(dt, u, v, w, &
+           coef%drdx, coef%dsdx, coef%dtdx, &
+           coef%drdy, coef%dsdy, coef%dtdy, &
+           coef%drdz, coef%dsdz, coef%dtdz, &
+           Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
+           coef%jacinv, nelv)
+    case (6)
+       cfl = sx_cfl_lx6(dt, u, v, w, &
+           coef%drdx, coef%dsdx, coef%dtdx, &
+           coef%drdy, coef%dsdy, coef%dtdy, &
+           coef%drdz, coef%dsdz, coef%dtdz, &
+           Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
+           coef%jacinv, nelv)
+    case (5)
+       cfl = sx_cfl_lx5(dt, u, v, w, &
+           coef%drdx, coef%dsdx, coef%dtdx, &
+           coef%drdy, coef%dsdy, coef%dtdy, &
+           coef%drdz, coef%dsdz, coef%dtdz, &
+           Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
+           coef%jacinv, nelv)
+    case (4)
+       cfl = sx_cfl_lx4(dt, u, v, w, &
+           coef%drdx, coef%dsdx, coef%dtdx, &
+           coef%drdy, coef%dsdy, coef%dtdy, &
+           coef%drdz, coef%dsdz, coef%dtdz, &
+           Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
+           coef%jacinv, nelv)
+    case (3)
+       cfl = sx_cfl_lx3(dt, u, v, w, &
+           coef%drdx, coef%dsdx, coef%dtdx, &
+           coef%drdy, coef%dsdy, coef%dtdy, &
+           coef%drdz, coef%dsdz, coef%dtdz, &
+           Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
+           coef%jacinv, nelv)
+    case (2)
+       cfl = sx_cfl_lx2(dt, u, v, w, &
+           coef%drdx, coef%dsdx, coef%dtdx, &
+           coef%drdy, coef%dsdy, coef%dtdy, &
+           coef%drdz, coef%dsdz, coef%dtdz, &
+           Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
+           coef%jacinv, nelv)
+    case default
+       cfl = sx_cfl_lx(dt, u, v, w, &
+           coef%drdx, coef%dsdx, coef%dtdx, &
+           coef%drdy, coef%dsdy, coef%dtdy, &
+           coef%drdz, coef%dsdz, coef%dtdz, &
+           Xh%dr_inv, Xh%ds_inv, Xh%dt_inv, &
+           coef%jacinv, nelv, Xh%lx)
+    end select
+
+  end function opr_sx_cfl
+  
   function sx_cfl_lx(dt, u, v, w, drdx, dsdx, dtdx, drdy, dsdy, dtdy, &
        drdz, dsdz, dtdz, dr_inv, ds_inv, dt_inv, &
        jacinv, nelv, lx) result(cfl)
@@ -672,4 +777,4 @@ contains
 
   end function sx_cfl_lx2
 
-end module sx_cfl
+end submodule sx_cfl

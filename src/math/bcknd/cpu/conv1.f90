@@ -31,11 +31,117 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> conv1 kernels
-module cpu_conv1
+submodule (opr_cpu) cpu_conv1
   use num_types, only : rp
   implicit none
 
 contains
+
+  module subroutine opr_cpu_conv1(du, u, vx, vy, vz, Xh, coef, e_start, e_end)
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: e_start, e_end
+    real(kind=rp), intent(inout) ::  du(Xh%lxyz,e_end-e_start+1)
+    real(kind=rp), intent(inout) ::  u(Xh%lx,Xh%ly,Xh%lz,e_end-e_start+1)
+    real(kind=rp), intent(inout) ::  vx(Xh%lx,Xh%ly,Xh%lz,e_end-e_start+1)
+    real(kind=rp), intent(inout) ::  vy(Xh%lx,Xh%ly,Xh%lz,e_end-e_start+1)
+    real(kind=rp), intent(inout) ::  vz(Xh%lx,Xh%ly,Xh%lz,e_end-e_start+1)
+    integer :: e_len
+
+    e_len = e_end-e_start+1
+    associate(drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
+         dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
+         dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz, &
+         jacinv => coef%jacinv)
+      select case(Xh%lx)
+      case(14)
+         call cpu_conv1_lx14(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              jacinv(1,1,1,e_start), e_len)
+      case(13)
+         call cpu_conv1_lx13(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              jacinv(1,1,1,e_start), e_len)
+      case(12)
+         call cpu_conv1_lx12(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              jacinv(1,1,1,e_start), e_len)
+      case(11)
+         call cpu_conv1_lx11(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              jacinv(1,1,1,e_start), e_len)
+      case(10)
+         call cpu_conv1_lx10(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              jacinv(1,1,1,e_start), e_len)
+      case(9)
+         call cpu_conv1_lx9(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              jacinv(1,1,1,e_start), e_len)
+      case(8)
+         call cpu_conv1_lx8(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              jacinv(1,1,1,e_start), e_len)
+      case(7)
+         call cpu_conv1_lx7(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              jacinv(1,1,1,e_start), e_len)
+      case(6)
+         call cpu_conv1_lx6(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              jacinv(1,1,1,e_start), e_len)
+      case(5)
+         call cpu_conv1_lx5(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              jacinv(1,1,1,e_start), e_len)
+      case(4)
+         call cpu_conv1_lx4(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              jacinv(1,1,1,e_start), e_len)
+      case(3)
+         call cpu_conv1_lx3(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              jacinv(1,1,1,e_start), e_len)
+      case(2)
+         call cpu_conv1_lx2(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              jacinv(1,1,1,e_start), e_len)
+      case default
+         call cpu_conv1_lx(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
+              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
+              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
+              jacinv(1,1,1,e_start), e_len, Xh%lx)
+      end select
+    end associate
+
+  end subroutine opr_cpu_conv1
 
   subroutine cpu_conv1_lx(du, u, vx, vy, vz, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, &
@@ -1120,4 +1226,4 @@ contains
 
   end subroutine cpu_conv1_lx2
 
-end module cpu_conv1
+end submodule cpu_conv1
