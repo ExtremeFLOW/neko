@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Linearized Navier Stokes solver based on Pn/Pn formulation.
-module adjoint_pnpn_perturb
+module adjoint_pnpn
   use num_types, only : rp, dp
   use krylov, only : ksp_monitor_t
   use pnpn_res_fctry, only : pnpn_prs_res_factory, pnpn_vel_res_factory
@@ -87,7 +87,7 @@ module adjoint_pnpn_perturb
   private
 
 
-  type, public, extends(adjoint_scheme_t) :: adjoint_pnpn_perturb_t
+  type, public, extends(adjoint_scheme_t) :: adjoint_pnpn_t
      type(field_t) :: p_res, u_res, v_res, w_res
 
      type(field_t) :: dp, du, dv, dw
@@ -167,19 +167,19 @@ module adjoint_pnpn_perturb
      type(file_t) :: file_output
 
    contains
-     procedure, pass(this) :: init => adjoint_pnpn_perturb_init
-     procedure, pass(this) :: free => adjoint_pnpn_perturb_free
-     procedure, pass(this) :: step => adjoint_pnpn_perturb_step
-     procedure, pass(this) :: restart => adjoint_pnpn_perturb_restart
+     procedure, pass(this) :: init => adjoint_pnpn_init
+     procedure, pass(this) :: free => adjoint_pnpn_free
+     procedure, pass(this) :: step => adjoint_pnpn_step
+     procedure, pass(this) :: restart => adjoint_pnpn_restart
 
      !> Compute the power_iterations field.
      procedure, public, pass(this) :: PW_compute_ => power_iterations_compute
-  end type adjoint_pnpn_perturb_t
+  end type adjoint_pnpn_t
 
 contains
 
-  subroutine adjoint_pnpn_perturb_init(this, msh, lx, params, user, material_properties)
-    class(adjoint_pnpn_perturb_t), target, intent(inout) :: this
+  subroutine adjoint_pnpn_init(this, msh, lx, params, user, material_properties)
+    class(adjoint_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
@@ -383,8 +383,6 @@ contains
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
 
-    call json_get_or_default(params, 'case.fluid.adjoint', this%toggle_adjoint,&
-         .false.)
     call advection_lin_factory(this%adv, params, this%c_Xh)
 
     if (params%valid_path('case.fluid.flow_rate_force')) then
@@ -421,31 +419,31 @@ contains
     write(header_line, '(A)') 'Time, Norm, Scaling'
     call this%file_output%set_header(header_line)
 
-  end subroutine adjoint_pnpn_perturb_init
+  end subroutine adjoint_pnpn_init
 
-  subroutine adjoint_pnpn_perturb_restart(this, dtlag, tlag)
-    class(adjoint_pnpn_perturb_t), target, intent(inout) :: this
+  subroutine adjoint_pnpn_restart(this, dtlag, tlag)
+    class(adjoint_pnpn_t), target, intent(inout) :: this
     real(kind=rp) :: dtlag(10), tlag(10)
     integer :: i, n
 
-    n = this%u%dof%size()
+    n = this%u_adj%dof%size()
     ! Make sure that continuity is maintained (important for interpolation)
     ! Do not do this for lagged rhs
     ! (derivatives are not necessairly coninous across elements)
-    call col2(this%u%x, this%c_Xh%mult, this%u%dof%size())
-    call col2(this%v%x, this%c_Xh%mult, this%u%dof%size())
-    call col2(this%w%x, this%c_Xh%mult, this%u%dof%size())
-    call col2(this%p%x, this%c_Xh%mult, this%u%dof%size())
+    call col2(this%u_adj%x, this%c_Xh%mult, this%u_adj%dof%size())
+    call col2(this%v_adj%x, this%c_Xh%mult, this%u_adj%dof%size())
+    call col2(this%w_adj%x, this%c_Xh%mult, this%u_adj%dof%size())
+    call col2(this%p_adj%x, this%c_Xh%mult, this%u_adj%dof%size())
     do i = 1, this%ulag%size()
-       call col2(this%ulag%lf(i)%x, this%c_Xh%mult, this%u%dof%size())
-       call col2(this%vlag%lf(i)%x, this%c_Xh%mult, this%u%dof%size())
-       call col2(this%wlag%lf(i)%x, this%c_Xh%mult, this%u%dof%size())
+       call col2(this%ulag%lf(i)%x, this%c_Xh%mult, this%u_adj%dof%size())
+       call col2(this%vlag%lf(i)%x, this%c_Xh%mult, this%u_adj%dof%size())
+       call col2(this%wlag%lf(i)%x, this%c_Xh%mult, this%u_adj%dof%size())
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       associate(u => this%u, v => this%v, w => this%w, &
+       associate(u => this%u_adj, v => this%v_adj, w => this%w_adj, &
             ulag => this%ulag, vlag => this%vlag, wlag => this%wlag,&
-            p => this%p)
+            p => this%p_adj)
          call device_memcpy(u%x, u%x_d, u%dof%size(), &
               HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(v%x, v%x_d, v%dof%size(), &
@@ -484,10 +482,10 @@ contains
     end if
 
 
-    call this%gs_Xh%op(this%u, GS_OP_ADD)
-    call this%gs_Xh%op(this%v, GS_OP_ADD)
-    call this%gs_Xh%op(this%w, GS_OP_ADD)
-    call this%gs_Xh%op(this%p, GS_OP_ADD)
+    call this%gs_Xh%op(this%u_adj, GS_OP_ADD)
+    call this%gs_Xh%op(this%v_adj, GS_OP_ADD)
+    call this%gs_Xh%op(this%w_adj, GS_OP_ADD)
+    call this%gs_Xh%op(this%p_adj, GS_OP_ADD)
 
     do i = 1, this%ulag%size()
        call this%gs_Xh%op(this%ulag%lf(i), GS_OP_ADD)
@@ -505,14 +503,14 @@ contains
     !
     !! Pre-multiply the source terms with the mass matrix.
     !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, this%c_Xh%B_d, this%msh%gdim, n)
+    !   call device_opcolv(this%f_adj_x%x_d, this%f_adj_y%x_d, this%f_adj_z%x_d, this%c_Xh%B_d, this%msh%gdim, n)
     !else
-    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, this%c_Xh%B, this%msh%gdim, n)
+    !   call opcolv(this%f_adj_x%x, this%f_adj_y%x, this%f_adj_z%x, this%c_Xh%B, this%msh%gdim, n)
     !end if
 
     !! Add the advection operators to the right-hand-side.
     !call this%adv%compute(u_temp, v_temp, w_temp, &
-    !                      this%f_x%x, this%f_y%x, this%f_z%x, &
+    !                      this%f_adj_x%x, this%f_adj_y%x, this%f_adj_z%x, &
     !                      this%Xh, this%c_Xh, this%dm_Xh%size())
     !this%abx2 = this%f_x
     !this%aby2 = this%f_y
@@ -525,29 +523,29 @@ contains
 
     !! Pre-multiply the source terms with the mass matrix.
     !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, this%c_Xh%B_d, this%msh%gdim, n)
+    !   call device_opcolv(this%f_adj_x%x_d, this%f_adj_y%x_d, this%f_adj_z%x_d, this%c_Xh%B_d, this%msh%gdim, n)
     !else
-    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, this%c_Xh%B, this%msh%gdim, n)
+    !   call opcolv(this%f_adj_x%x, this%f_adj_y%x, this%f_adj_z%x, this%c_Xh%B, this%msh%gdim, n)
     !end if
 
     !! Pre-multiply the source terms with the mass matrix.
     !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, this%c_Xh%B_d, this%msh%gdim, n)
+    !   call device_opcolv(this%f_adj_x%x_d, this%f_adj_y%x_d, this%f_adj_z%x_d, this%c_Xh%B_d, this%msh%gdim, n)
     !else
-    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, this%c_Xh%B, this%msh%gdim, n)
+    !   call opcolv(this%f_adj_x%x, this%f_adj_y%x, this%f_adj_z%x, this%c_Xh%B, this%msh%gdim, n)
     !end if
 
     !call this%adv%compute(u_temp, v_temp, w_temp, &
-    !                      this%f_x%x, this%f_y%x, this%f_z%x, &
+    !                      this%f_adj_x%x, this%f_adj_y%x, this%f_adj_z%x, &
     !                      this%Xh, this%c_Xh, this%dm_Xh%size())
     !this%abx1 = this%f_x
     !this%aby1 = this%f_y
     !this%abz1 = this%f_z
 
-  end subroutine adjoint_pnpn_perturb_restart
+  end subroutine adjoint_pnpn_restart
 
-  subroutine adjoint_pnpn_perturb_free(this)
-    class(adjoint_pnpn_perturb_t), intent(inout) :: this
+  subroutine adjoint_pnpn_free(this)
+    class(adjoint_pnpn_t), intent(inout) :: this
 
     !Deallocate velocity and pressure fields
     call this%scheme_free()
@@ -609,7 +607,7 @@ contains
 
     call this%vol_flow%free()
 
-  end subroutine adjoint_pnpn_perturb_free
+  end subroutine adjoint_pnpn_free
 
   !> Advance fluid simulation in time.
   !! @param t The time value.
@@ -617,8 +615,8 @@ contains
   !! @param dt The timestep
   !! @param ext_bdf Time integration logic.
   !! @param dt_controller timestep controller
-  subroutine adjoint_pnpn_perturb_step(this, t, tstep, dt, ext_bdf, dt_controller)
-    class(adjoint_pnpn_perturb_t), target, intent(inout) :: this
+  subroutine adjoint_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
+    class(adjoint_pnpn_t), target, intent(inout) :: this
     real(kind=rp), intent(inout) :: t
     integer, intent(inout) :: tstep
     real(kind=rp), intent(in) :: dt
@@ -638,7 +636,7 @@ contains
     n = this%dm_Xh%size()
 
     call profiler_start_region('Fluid', 1)
-    associate(u => this%u, v => this%v, w => this%w, p => this%p, &
+    associate(u => this%u_adj, v => this%v_adj, w => this%w_adj, p => this%p_adj, &
          du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
          u_b => this%u_b, v_b => this%v_b, w_b => this%w_b, &
          u_res => this%u_res, v_res => this%v_res, w_res => this%w_res, &
@@ -654,7 +652,7 @@ contains
          pr_projection_dim => this%pr_projection_dim, &
          rho => this%rho, mu => this%mu, &
          rho_field => this%rho_field, mu_field => this%mu_field, &
-         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
+         f_x => this%f_adj_x, f_y => this%f_adj_y, f_z => this%f_adj_z, &
          if_variable_dt => dt_controller%if_variable_dt, &
          dt_last_change => dt_controller%dt_last_change)
 
@@ -676,15 +674,10 @@ contains
       end if
 
       ! Add the advection operators to the right-hand-side.
-      if (this%toggle_adjoint) then
-         call this%adv%compute_adjoint(u, v, w, u_b, v_b, w_b, &
-              f_x, f_y, f_z, &
-              Xh, this%c_Xh, dm_Xh%size())
-      else
-         call this%adv%compute_linear(u, v, w, u_b, v_b, w_b, &
-              f_x, f_y, f_z, &
-              Xh, this%c_Xh, dm_Xh%size())
-      end if
+
+      call this%adv%compute_adjoint(u, v, w, u_b, v_b, w_b, &
+           f_x, f_y, f_z, &
+           Xh, this%c_Xh, dm_Xh%size())
 
       ! At this point the RHS contains the sum of the advection operator and
       ! additional source terms, evaluated using the velocity field from the
@@ -822,14 +815,14 @@ contains
     ! Compute the norm of the field and determine if we should do a rescale.
     call this%PW_compute_(t, tstep)
 
-  end subroutine adjoint_pnpn_perturb_step
+  end subroutine adjoint_pnpn_step
 
   subroutine rescale_fluid(fluid_data, scale)
     use neko_config, only : NEKO_BCKND_DEVICE
     implicit none
 
     !> Fluid data
-    class(adjoint_pnpn_perturb_t), intent(inout) :: fluid_data
+    class(adjoint_pnpn_t), intent(inout) :: fluid_data
     !> Scaling factor
     real(kind=rp), intent(in) :: scale
 
@@ -838,20 +831,20 @@ contains
 
     ! Scale the velocity fields
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cmult(fluid_data%u%x_d, scale, fluid_data%u%size())
-       call device_cmult(fluid_data%v%x_d, scale, fluid_data%v%size())
-       call device_cmult(fluid_data%w%x_d, scale, fluid_data%w%size())
+       call device_cmult(fluid_data%u_adj%x_d, scale, fluid_data%u_adj%size())
+       call device_cmult(fluid_data%v_adj%x_d, scale, fluid_data%v_adj%size())
+       call device_cmult(fluid_data%w_adj%x_d, scale, fluid_data%w_adj%size())
     else
-       call cmult(fluid_data%u%x, scale, fluid_data%u%size())
-       call cmult(fluid_data%v%x, scale, fluid_data%v%size())
-       call cmult(fluid_data%w%x, scale, fluid_data%w%size())
+       call cmult(fluid_data%u_adj%x, scale, fluid_data%u_adj%size())
+       call cmult(fluid_data%v_adj%x, scale, fluid_data%v_adj%size())
+       call cmult(fluid_data%w_adj%x, scale, fluid_data%w_adj%size())
     end if
 
     ! Scale the right hand sides
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cmult(fluid_data%f_x%x_d, scale, fluid_data%f_x%size())
-       call device_cmult(fluid_data%f_y%x_d, scale, fluid_data%f_y%size())
-       call device_cmult(fluid_data%f_z%x_d, scale, fluid_data%f_z%size())
+       call device_cmult(fluid_data%f_adj_x%x_d, scale, fluid_data%f_adj_x%size())
+       call device_cmult(fluid_data%f_adj_y%x_d, scale, fluid_data%f_adj_y%size())
+       call device_cmult(fluid_data%f_adj_z%x_d, scale, fluid_data%f_adj_z%size())
        ! HARRY
        ! maybe the abx's too
        call device_cmult(fluid_data%abx1%x_d, scale, fluid_data%abx1%size())
@@ -862,9 +855,9 @@ contains
        call device_cmult(fluid_data%abz2%x_d, scale, fluid_data%abz2%size())
 
     else
-       call cmult(fluid_data%f_x%x, scale, fluid_data%f_x%size())
-       call cmult(fluid_data%f_y%x, scale, fluid_data%f_y%size())
-       call cmult(fluid_data%f_z%x, scale, fluid_data%f_z%size())
+       call cmult(fluid_data%f_adj_x%x, scale, fluid_data%f_adj_x%size())
+       call cmult(fluid_data%f_adj_y%x, scale, fluid_data%f_adj_y%size())
+       call cmult(fluid_data%f_adj_z%x, scale, fluid_data%f_adj_z%size())
 
        call cmult(fluid_data%abx1%x, scale, fluid_data%abx1%size())
        call cmult(fluid_data%aby1%x, scale, fluid_data%aby1%size())
@@ -962,7 +955,7 @@ contains
   !! @param t The time value.
   !! @param tstep The current time-step
   subroutine power_iterations_compute(this, t, tstep)
-    class(adjoint_pnpn_perturb_t), target, intent(inout) :: this
+    class(adjoint_pnpn_t), target, intent(inout) :: this
 
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
@@ -979,10 +972,10 @@ contains
     n = this%c_Xh%dof%size()
     if (tstep .eq. 1) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          norm_l2_base = device_norm(this%u%x_d, this%v%x_d, this%w%x_d, &
+          norm_l2_base = device_norm(this%u_adj%x_d, this%v_adj%x_d, this%w_adj%x_d, &
                this%c_Xh%B_d, this%c_Xh%volume, n)
        else
-          norm_l2_base = this%norm_scaling * norm(this%u%x, this%v%x, this%w%x, &
+          norm_l2_base = this%norm_scaling * norm(this%u_adj%x, this%v_adj%x, this%w_adj%x, &
                this%c_Xh%B, this%c_Xh%volume, n)
        end if
        if (this%norm_target .lt. 0.0_rp) then
@@ -996,10 +989,10 @@ contains
 
     ! Compute the norm of the velocity field and eigenvalue estimate
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       norm_l2 = device_norm(this%u%x_d, this%v%x_d, this%w%x_d, &
+       norm_l2 = device_norm(this%u_adj%x_d, this%v_adj%x_d, this%w_adj%x_d, &
             this%c_Xh%B_d, this%c_Xh%volume, n)
     else
-       norm_l2 = norm(this%u%x, this%v%x, this%w%x, &
+       norm_l2 = norm(this%u_adj%x, this%v_adj%x, this%w_adj%x, &
             this%c_Xh%B, this%c_Xh%volume, n)
     end if
     norm_l2 = sqrt(this%norm_scaling) * norm_l2
@@ -1034,4 +1027,4 @@ contains
   end subroutine power_iterations_compute
 
 
-end module adjoint_pnpn_perturb
+end module adjoint_pnpn

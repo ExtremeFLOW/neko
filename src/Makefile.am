@@ -219,7 +219,7 @@ neko_fortran_SOURCES = \
 	fluid/fluid_user_source_term.f90\
 	fluid/fluid_source_term.f90\
 	fluid/adjoint_scheme.f90\
-	fluid/adjoint_pnpn_perturb.f90\
+	fluid/adjoint_pnpn.f90\
 	common/time_step_controller.f90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\

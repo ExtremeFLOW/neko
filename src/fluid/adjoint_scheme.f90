@@ -87,10 +87,10 @@ module adjoint_scheme
 
   !> Base type of all fluid formulations
   type, abstract :: adjoint_scheme_t
-     type(field_t), pointer :: u => null() !< x-component of Velocity
-     type(field_t), pointer :: v => null() !< y-component of Velocity
-     type(field_t), pointer :: w => null() !< z-component of Velocity
-     type(field_t), pointer :: p => null() !< Pressure
+     type(field_t), pointer :: u_adj => null() !< x-component of Velocity
+     type(field_t), pointer :: v_adj => null() !< y-component of Velocity
+     type(field_t), pointer :: w_adj => null() !< z-component of Velocity
+     type(field_t), pointer :: p_adj => null() !< Pressure
      type(field_series_t) :: ulag, vlag, wlag !< fluid field (lag)
      type(space_t) :: Xh !< Function space \f$ X_h \f$
      type(dofmap_t) :: dm_Xh !< Dofmap associated with \f$ X_h \f$
@@ -99,11 +99,11 @@ module adjoint_scheme
      !> The source term for the momentum equation.
      type(fluid_source_term_t) :: source_term
      !> X-component of the right-hand side.
-     type(field_t), pointer :: f_x => null()
+     type(field_t), pointer :: f_adj_x => null()
      !> Y-component of the right-hand side.
-     type(field_t), pointer :: f_y => null()
+     type(field_t), pointer :: f_adj_y => null()
      !> Z-component of the right-hand side.
-     type(field_t), pointer :: f_z => null()
+     type(field_t), pointer :: f_adj_z => null()
      class(ksp_t), allocatable :: ksp_vel !< Krylov solver for velocity
      class(ksp_t), allocatable :: ksp_prs !< Krylov solver for pressure
      class(pc_t), allocatable :: pc_vel !< Velocity Preconditioner
@@ -147,7 +147,6 @@ module adjoint_scheme
      type(scratch_registry_t) :: scratch !< Manager for temporary fields
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
-     logical :: toggle_adjoint = .false. !< Toggle adjoint mode
    contains
      !> Constructor for the base type
      procedure, pass(this) :: adjoint_scheme_init_all
@@ -527,15 +526,15 @@ contains
     !
     ! Setup right-hand side fields.
     !
-    allocate(this%f_x)
-    allocate(this%f_y)
-    allocate(this%f_z)
-    call this%f_x%init(this%dm_Xh, fld_name = "fluid_rhs_x")
-    call this%f_y%init(this%dm_Xh, fld_name = "fluid_rhs_y")
-    call this%f_z%init(this%dm_Xh, fld_name = "fluid_rhs_z")
+    allocate(this%f_adj_x)
+    allocate(this%f_adj_y)
+    allocate(this%f_adj_z)
+    call this%f_adj_x%init(this%dm_Xh, fld_name = "adjoint_rhs_x")
+    call this%f_adj_y%init(this%dm_Xh, fld_name = "adjoint_rhs_y")
+    call this%f_adj_z%init(this%dm_Xh, fld_name = "adjoint_rhs_z")
 
     ! Initialize the source term
-    call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%c_Xh,&
+    call this%source_term%init(params, this%f_adj_x, this%f_adj_y, this%f_adj_z, this%c_Xh,&
          user)
 
     ! If case.output_boundary is true, set the values for the bc types in the
@@ -567,17 +566,17 @@ contains
     end if
 
     ! Assign velocity fields
-    call neko_field_registry%add_field(this%dm_Xh, 'u')
-    call neko_field_registry%add_field(this%dm_Xh, 'v')
-    call neko_field_registry%add_field(this%dm_Xh, 'w')
-    this%u => neko_field_registry%get_field('u')
-    this%v => neko_field_registry%get_field('v')
-    this%w => neko_field_registry%get_field('w')
+    call neko_field_registry%add_field(this%dm_Xh, 'u_adj')
+    call neko_field_registry%add_field(this%dm_Xh, 'v_adj')
+    call neko_field_registry%add_field(this%dm_Xh, 'w_adj')
+    this%u_adj => neko_field_registry%get_field('u_adj')
+    this%v_adj => neko_field_registry%get_field('v_adj')
+    this%w_adj => neko_field_registry%get_field('w_adj')
 
     !! Initialize time-lag fields
-    call this%ulag%init(this%u, 2)
-    call this%vlag%init(this%v, 2)
-    call this%wlag%init(this%w, 2)
+    call this%ulag%init(this%u_adj, 2)
+    call this%vlag%init(this%v_adj, 2)
+    call this%wlag%init(this%w_adj, 2)
 
 
   end subroutine adjoint_scheme_init_common
@@ -603,8 +602,8 @@ contains
     call adjoint_scheme_init_common(this, msh, lx, params, scheme, user, &
          material_properties, kspv_init)
 
-    call neko_field_registry%add_field(this%dm_Xh, 'p')
-    this%p => neko_field_registry%get_field('p')
+    call neko_field_registry%add_field(this%dm_Xh, 'p_adj')
+    this%p_adj => neko_field_registry%get_field('p_adj')
 
     !
     ! Setup pressure boundary conditions
@@ -742,31 +741,31 @@ contains
 
     nullify(this%params)
 
-    nullify(this%u)
-    nullify(this%v)
-    nullify(this%w)
-    nullify(this%p)
+    nullify(this%u_adj)
+    nullify(this%v_adj)
+    nullify(this%w_adj)
+    nullify(this%p_adj)
 
     call this%ulag%free()
     call this%vlag%free()
     call this%wlag%free()
 
 
-    if (associated(this%f_x)) then
-       call this%f_x%free()
+    if (associated(this%f_adj_x)) then
+       call this%f_adj_x%free()
     end if
 
-    if (associated(this%f_y)) then
-       call this%f_y%free()
+    if (associated(this%f_adj_y)) then
+       call this%f_adj_y%free()
     end if
 
-    if (associated(this%f_z)) then
-       call this%f_z%free()
+    if (associated(this%f_adj_z)) then
+       call this%f_adj_z%free()
     end if
 
-    nullify(this%f_x)
-    nullify(this%f_y)
-    nullify(this%f_z)
+    nullify(this%f_adj_x)
+    nullify(this%f_adj_y)
+    nullify(this%f_adj_z)
 
     call this%mu_field%free()
 
@@ -780,17 +779,17 @@ contains
     ! Variables for retrieving json parameters
     logical :: logical_val
 
-    if ( (.not. associated(this%u)) .or. &
-         (.not. associated(this%v)) .or. &
-         (.not. associated(this%w)) .or. &
-         (.not. associated(this%p))) then
+    if ( (.not. associated(this%u_adj)) .or. &
+         (.not. associated(this%v_adj)) .or. &
+         (.not. associated(this%w_adj)) .or. &
+         (.not. associated(this%p_adj))) then
        call neko_error('Fields are not registered')
     end if
 
-    if ( (.not. allocated(this%u%x)) .or. &
-         (.not. allocated(this%v%x)) .or. &
-         (.not. allocated(this%w%x)) .or. &
-         (.not. allocated(this%p%x))) then
+    if ( (.not. allocated(this%u_adj%x)) .or. &
+         (.not. allocated(this%v_adj%x)) .or. &
+         (.not. allocated(this%w_adj%x)) .or. &
+         (.not. allocated(this%p_adj%x))) then
        call neko_error('Fields are not allocated')
     end if
 
@@ -816,7 +815,7 @@ contains
     !
     ! Setup checkpoint structure (if everything is fine)
     !
-    call this%chkp%init(this%u, this%v, this%w, this%p)
+    call this%chkp%init(this%u_adj, this%v_adj, this%w_adj, this%p_adj)
 
     !
     ! Setup mean flow fields if requested
@@ -825,7 +824,7 @@ contains
        call json_get_or_default(this%params, 'case.statistics.enabled',&
             logical_val, .true.)
        if (logical_val) then
-          call this%mean%init(this%u, this%v, this%w, this%p)
+          call this%mean%init(this%u_adj, this%v_adj, this%w_adj, this%p_adj)
           call this%stats%init(this%c_Xh, this%mean%u, &
                this%mean%v, this%mean%w, this%mean%p)
        end if
@@ -843,7 +842,7 @@ contains
     integer, intent(in) :: tstep
 
     call bc_list_apply_vector(this%bclst_vel,&
-         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
+         this%u_adj%x, this%v_adj%x, this%w_adj%x, this%dm_Xh%size(), t, tstep)
 
   end subroutine adjoint_scheme_bc_apply_vel
 
@@ -854,8 +853,8 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    call bc_list_apply_scalar(this%bclst_prs, this%p%x, &
-         this%p%dof%size(), t, tstep)
+    call bc_list_apply_scalar(this%bclst_prs, this%p_adj%x, &
+         this%p_adj%dof%size(), t, tstep)
 
   end subroutine adjoint_scheme_bc_apply_prs
 
@@ -928,7 +927,7 @@ contains
     real(kind=rp), intent(in) :: dt
     real(kind=rp) :: c
 
-    c = cfl(dt, this%u%x, this%v%x, this%w%x, &
+    c = cfl(dt, this%u_adj%x, this%v_adj%x, this%w_adj%x, &
          this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim)
 
   end function adjoint_compute_cfl
