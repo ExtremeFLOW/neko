@@ -572,10 +572,10 @@ contains
   !> Vector addition \f$ a = b + c + d\f$
   subroutine add4(a, b, c, d, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: d
-    real(kind=rp), dimension(n), intent(inout) :: c
-    real(kind=rp), dimension(n), intent(inout) :: b
     real(kind=rp), dimension(n), intent(out) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n), intent(in) :: c
+    real(kind=rp), dimension(n), intent(in) :: d
     integer :: i
 
     do i = 1, n
