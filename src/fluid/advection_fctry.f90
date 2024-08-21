@@ -32,13 +32,15 @@
 !
 !> Contains the factory routine for `advection_t` children.
 module advection_fctry
-  use num_types, only : rp
-  use advection, only : advection_t, adv_no_dealias_t, adv_dealias_t
   use coefs, only : coef_t
-  use device, only : device_free
-  use, intrinsic :: iso_c_binding, only : c_associated
-  use json_utils, only : json_get
+  use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
+
+  ! Advection and derivatives
+  use advection, only : advection_t
+  use adv_dealias, only : adv_dealias_t
+  use adv_no_dealias, only : adv_no_dealias_t
+
   implicit none
   private
 
@@ -46,47 +48,42 @@ module advection_fctry
 
 contains
 
-  !> A factory for \ref advection_t decendants.
-  !! @param this Polymorphic object of class \ref advection_t.
+  !> A factory for \ref advection_t decendants. Both creates and initializes the
+  !! object.
+  !! @param object The object allocated by the factory.
   !! @param json The parameter file.
   !! @param coef The coefficients of the (space, mesh) pair.
-  !! @note The factory both allocates and initializes `this`.
-  subroutine advection_factory(this, json, coef)
+  subroutine advection_factory(object, json, coef)
     implicit none
-    class(advection_t), allocatable, intent(inout) :: this
+    class(advection_t), allocatable, intent(inout) :: object
     type(json_file), intent(inout) :: json
     type(coef_t), target :: coef
-    logical :: dealias, found
+    logical :: dealias
     integer :: lxd, order
 
+    ! Read the parameters from the json file
     call json_get(json, 'case.numerics.dealias', dealias)
-    call json%get('case.numerics.dealiased_polynomial_order', lxd, found)
-    if (.not. found) then
-       call json_get(json, 'case.numerics.polynomial_order', order)
-       ! Note, assumes odd polynomial order
-       lxd =  3.0_rp / 2.0_rp * (order + 1)
-    end if
+    call json_get(json, 'case.numerics.polynomial_order', order)
+
+    call json_get_or_default(json, 'case.numerics.dealiased_polynomial_order', &
+                             lxd, ( 3 * (order + 1) ) / 2)
 
     ! Free allocatables if necessary
-    if (allocated(this)) then
-       call this%free
-       deallocate(this)
+    if (allocated(object)) then
+       call object%free
+       deallocate(object)
     end if
 
     if (dealias) then
-       allocate(adv_dealias_t::this)
+       allocate(adv_dealias_t::object)
     else
-       allocate(adv_no_dealias_t::this)
+       allocate(adv_no_dealias_t::object)
     end if
 
-    select type(adv => this)
-    type is(adv_dealias_t)
-       if (lxd .gt. 0) then
-          call adv%init(lxd, coef)
-       else
-          call adv%init(coef%Xh%lx * 3/2,  coef)
-       end if
-    type is(adv_no_dealias_t)
+    select type(adv => object)
+      type is(adv_dealias_t)
+       call adv%init(lxd, coef)
+      type is(adv_no_dealias_t)
        call adv%init(coef)
     end select
 

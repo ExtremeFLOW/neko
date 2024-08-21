@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module ax_helm
-  use ax_product, only : ax_t
+module ax_helm_cpu
+  use ax_helm, only : ax_helm_t
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
@@ -41,11 +41,11 @@ module ax_helm
   private
 
   !> CPU matrix-vector product for a Helmholtz problem.
-  type, public, extends(ax_t) :: ax_helm_t
+  type, public, extends(ax_helm_t) :: ax_helm_cpu_t
    contains
      !> Compute the product.
      procedure, nopass :: compute => ax_helm_compute
-  end type ax_helm_t
+  end type ax_helm_cpu_t
 
 contains
 
@@ -68,46 +68,60 @@ contains
     select case(Xh%lx)
     case (14)
        call ax_helm_lx14(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
     case (13)
        call ax_helm_lx13(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
     case (12)
        call ax_helm_lx12(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
     case (11)
        call ax_helm_lx11(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(10)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
+    case (10)
        call ax_helm_lx10(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(9)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
+    case (9)
        call ax_helm_lx9(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(8)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
+    case (8)
        call ax_helm_lx8(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(7)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
+    case (7)
        call ax_helm_lx7(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(6)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
+    case (6)
        call ax_helm_lx6(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(5)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
+    case (5)
        call ax_helm_lx5(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(4)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
+    case (4)
        call ax_helm_lx4(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(3)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
+    case (3)
        call ax_helm_lx3(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
-    case(2)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
+    case (2)
        call ax_helm_lx2(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, &
-            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv)
+            coef%h1, coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, &
+            coef%G23, msh%nelv)
     case default
        call ax_helm_lx(w, u, Xh%dx, Xh%dy, Xh%dz, Xh%dxt, Xh%dyt, Xh%dzt, coef%h1, &
-            coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, msh%nelv, Xh%lx)
+            coef%G11, coef%G22, coef%G33, coef%G12, coef%G13, coef%G23, &
+            msh%nelv, Xh%lx)
     end select
 
     if (coef%ifh2) call addcol4 (w,coef%h2,coef%B,u,coef%dof%size())
@@ -115,7 +129,18 @@ contains
 
   end subroutine ax_helm_compute
 
-  !> Generic CPU kernel for the Helmholtz matrix-vector product.
+  !> Generic CPU kernel for the Helmholz matrix-vector product.
+  !! @param w Result.
+  !! @param u Velocity field.
+  !! @param Dx Derivative operator in first dimension.
+  !! @param Dy Derivative operator in second dimension.
+  !! @param Dz Derivative operator in third dimension.
+  !! @param Dxt Derivative operator transpose in first dimension.
+  !! @param Dyt Derivative operator transpose in second dimension.
+  !! @param Dzt Derivative operator transpose in third dimension.
+  !! @param G11 Geometric factor.
+  !! @param n Number of elements.
+  !! @param lx Polynomial order.
   subroutine ax_helm_lx(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
        h1, G11, G22, G33, G12, G13, G23, n, lx)
     integer, intent(in) :: n, lx
@@ -1917,4 +1942,4 @@ contains
     end do
   end subroutine ax_helm_lx2
 
-end module ax_helm
+end module ax_helm_cpu

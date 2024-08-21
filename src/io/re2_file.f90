@@ -33,11 +33,11 @@
 !> NEKTON mesh data in re2 format
 !! @details This module is used to read/write binary NEKTION mesh data
 module re2_file
-  use generic_file
-  use num_types
+  use generic_file, only: generic_file_t
+  use num_types, only: rp
   use utils
-  use mesh
-  use point
+  use mesh, only: mesh_t
+  use point, only: point_t
   use comm
   use mpi_f08
   use neko_mpi_types
@@ -46,10 +46,17 @@ module re2_file
   use map
   use map_file
   use htable
-  use logger
+  use logger, only: neko_log, LOG_SIZE
   implicit none
   private
 
+  ! Defines the conventions for conversion of re2 labels to labeled zones.
+  integer, public :: NEKO_W_BC_LABEL = -1
+  integer, public :: NEKO_V_BC_LABEL = -1
+  integer, public :: NEKO_O_BC_LABEL = -1
+  integer, public :: NEKO_SYM_BC_LABEL = -1
+  integer, public :: NEKO_ON_BC_LABEL = -1
+  integer, public :: NEKO_SHL_BC_LABEL = -1
 
   !> Interface for NEKTON re2 files
   type, public, extends(generic_file_t) :: re2_file_t
@@ -224,8 +231,7 @@ contains
     integer :: element_offset
     integer :: re2_data_xy_size
     integer :: re2_data_xyz_size
-    character(len=LOG_SIZE) :: log_buf
-
+ 
     select type(data)
     type is (mesh_t)
        msh => data
@@ -321,7 +327,6 @@ contains
     type(point_t) :: p(8)
     integer :: pt_idx, nelv
     integer :: i, j, ierr
-
 
     nelv = dist%num_local()
     element_offset = dist%start_idx()
@@ -440,7 +445,8 @@ contains
           end do
        end do
     end do
-    write(*,*) 'reading curved data'
+
+    call neko_log%message('Reading curved data')
     if (.not. v2_format) then
        allocate(re2v1_data_curve(ncurve))
        call MPI_File_read_at_all(fh, mpi_offset, re2v1_data_curve, ncurve, &
@@ -528,7 +534,19 @@ contains
     logical :: periodic
     type(re2v1_bc_t), allocatable :: re2v1_data_bc(:)
     type(re2v2_bc_t), allocatable :: re2v2_data_bc(:)
+    character(len=LOG_SIZE) :: log_buf
 
+    ! ---- Offsets for conversion from internal zones to labeled zones
+    integer :: user_labeled_zones(NEKO_MSH_MAX_ZLBLS)
+    integer :: labeled_zone_offsets(NEKO_MSH_MAX_ZLBLS)
+    integer :: total_labeled_zone_offset, current_internal_zone
+    total_labeled_zone_offset = 0
+    labeled_zone_offsets = 0
+    user_labeled_zones = 0
+    current_internal_zone = 1
+    ! ----
+
+    call neko_log%message("Reading boundary conditions")
     if (.not. v2_format) then
        allocate(re2v1_data_bc(nbcs))
        call MPI_File_read_at_all(fh, mpi_offset, re2v1_data_bc, nbcs, &
@@ -543,21 +561,119 @@ contains
 
     !> @todo Use element offset in parallel
     if (v2_format) then ! V2 format
+
+       !
+       ! Search for user labeled zones
+       !
+       do i = 1, nbcs
+
+          el_idx = int(re2v2_data_bc(i)%elem) - dist%start_idx()
+          sym_facet = facet_map(int(re2v2_data_bc(i)%face))
+
+          select case(trim(re2v2_data_bc(i)%type))
+          case ('MSH', 'msh')
+
+             label = int(re2v2_data_bc(i)%bc_data(5))
+
+             if (label .lt. 1 .or. label .gt. NEKO_MSH_MAX_ZLBLS) then
+                call neko_error('Invalid label id (valid range [1,...,20])')
+             end if
+
+             if (user_labeled_zones(label) .eq. 0) then
+                write (log_buf, "(A,I2,A)") "Labeled zone ", label, &
+                     " found."
+                call neko_log%message(log_buf)
+                user_labeled_zones(label) = 1
+             end if
+
+             call msh%mark_labeled_facet(sym_facet, el_idx, label)
+
+             ! Get the largest label possible in case we need to convert
+             ! re2 labels to labeled zones (see below).
+             total_labeled_zone_offset = max(total_labeled_zone_offset, label)
+
+
+          end select
+       end do
+
        do i = 1, nbcs
           el_idx = int(re2v2_data_bc(i)%elem) - dist%start_idx()
           sym_facet = facet_map(int(re2v2_data_bc(i)%face))
 
           select case(trim(re2v2_data_bc(i)%type))
           case ('W')
-             call msh%mark_wall_facet(sym_facet, el_idx)
+             if (NEKO_W_BC_LABEL .eq. -1) then
+                NEKO_W_BC_LABEL = current_internal_zone
+                current_internal_zone = current_internal_zone + 1
+             end if
+
+             call re2_file_mark_labeled_bc(msh, el_idx, sym_facet, &
+                  re2v2_data_bc(i)%type, &
+                  NEKO_W_BC_LABEL, total_labeled_zone_offset, &
+                  labeled_zone_offsets(NEKO_W_BC_LABEL) .eq. 0)
+
+             labeled_zone_offsets(NEKO_W_BC_LABEL) = 1
+
           case ('v', 'V')
-             call msh%mark_inlet_facet(sym_facet, el_idx)
+             if (NEKO_V_BC_LABEL .eq. -1) then
+                NEKO_V_BC_LABEL = current_internal_zone
+                current_internal_zone = current_internal_zone + 1
+             end if
+
+             call re2_file_mark_labeled_bc(msh, el_idx, sym_facet, &
+                  re2v2_data_bc(i)%type, &
+                  NEKO_V_BC_LABEL, total_labeled_zone_offset, &
+                  labeled_zone_offsets(NEKO_V_BC_LABEL) .eq. 0)
+
+             labeled_zone_offsets(NEKO_V_BC_LABEL) = 1
           case ('O', 'o')
-             call msh%mark_outlet_facet(sym_facet, el_idx)
-          case ('ON', 'on')
-             call msh%mark_outlet_normal_facet(sym_facet, el_idx)
+             if (NEKO_O_BC_LABEL .eq. -1) then
+                NEKO_O_BC_LABEL = current_internal_zone
+                current_internal_zone = current_internal_zone + 1
+             end if
+
+             call re2_file_mark_labeled_bc(msh, el_idx, sym_facet, &
+                  re2v2_data_bc(i)%type, &
+                  NEKO_O_BC_LABEL, total_labeled_zone_offset, &
+                  labeled_zone_offsets(NEKO_O_BC_LABEL) .eq. 0)
+
+             labeled_zone_offsets(NEKO_O_BC_LABEL) = 1
           case ('SYM')
-             call msh%mark_sympln_facet(sym_facet, el_idx)
+             if (NEKO_SYM_BC_LABEL .eq. -1) then
+                NEKO_SYM_BC_LABEL = current_internal_zone
+                current_internal_zone = current_internal_zone + 1
+             end if
+
+             call re2_file_mark_labeled_bc(msh, el_idx, sym_facet, &
+                  re2v2_data_bc(i)%type, &
+                  NEKO_SYM_BC_LABEL, total_labeled_zone_offset, &
+                  labeled_zone_offsets(NEKO_SYM_BC_LABEL) .eq. 0)
+
+             labeled_zone_offsets(NEKO_SYM_BC_LABEL) = 1
+          case ('ON', 'on')
+             if (NEKO_ON_BC_LABEL .eq. -1) then
+                NEKO_ON_BC_LABEL = current_internal_zone
+                current_internal_zone = current_internal_zone + 1
+             end if
+
+             call re2_file_mark_labeled_bc(msh, el_idx, sym_facet, &
+                  re2v2_data_bc(i)%type, &
+                  NEKO_ON_BC_LABEL, total_labeled_zone_offset, &
+                  labeled_zone_offsets(NEKO_ON_BC_LABEL) .eq. 0)
+
+             labeled_zone_offsets(NEKO_ON_BC_LABEL) = 1
+          case ('s', 'sl', 'sh', 'shl', 'S', 'SL', 'SH', 'SHL')
+             if (NEKO_SHL_BC_LABEL .eq. -1) then
+                NEKO_SHL_BC_LABEL = current_internal_zone
+                current_internal_zone = current_internal_zone + 1
+             end if
+
+             call re2_file_mark_labeled_bc(msh, el_idx, sym_facet, &
+                  re2v2_data_bc(i)%type, &
+                  NEKO_SHL_BC_LABEL, total_labeled_zone_offset, &
+                  labeled_zone_offsets(NEKO_SHL_BC_LABEL) .eq. 0)
+
+             labeled_zone_offsets(NEKO_SHL_BC_LABEL) = 1
           case ('P')
              periodic = .true.
              p_el_idx = int(re2v2_data_bc(i)%bc_data(1))
@@ -565,15 +681,9 @@ contains
              call msh%get_facet_ids(sym_facet, el_idx, pids)
              call msh%mark_periodic_facet(sym_facet, el_idx, &
                   p_facet, p_el_idx, pids)
-          case ('MSH', 'msh', 'EXO', 'exo')
-             label = int(re2v2_data_bc(i)%bc_data(5))
-             if (label .lt. 1 .or. label .gt. NEKO_MSH_MAX_ZLBLS) then
-                call neko_error('Invalid label id (valid range [1,...,20])')
-             end if
-             call msh%mark_labeled_facet(sym_facet, el_idx, label)
           case default
-             write (*,*) re2v2_data_bc(i)%type, 'bc type not supported yet'
-             write (*,*) re2v2_data_bc(i)%bc_data
+             write (*,*) re2v1_data_bc(i)%type, 'bc type not supported yet'
+             write (*,*) re2v1_data_bc(i)%bc_data
           end select
        end do
 
@@ -598,18 +708,118 @@ contains
        deallocate(re2v2_data_bc)
 
     else ! V! format
+
+       !
+       ! Search for user labeled zones
+       !
        do i = 1, nbcs
+
+          el_idx = re2v1_data_bc(i)%elem - dist%start_idx()
+          sym_facet = facet_map(re2v1_data_bc(i)%face)
+
+          select case(trim(re2v1_data_bc(i)%type))
+          case ('MSH', 'msh')
+
+             label = int(re2v1_data_bc(i)%bc_data(5))
+
+             if (label .lt. 1 .or. label .gt. NEKO_MSH_MAX_ZLBLS) then
+                call neko_error('Invalid label id (valid range [1,...,20])')
+             end if
+
+             if (user_labeled_zones(label) .eq. 0) then
+                write (log_buf, "(A,I2,A,I3)") "Labeled zone ", label, &
+                     " found."
+                call neko_log%message(log_buf)
+                user_labeled_zones(label) = 1
+             end if
+
+             ! Get the largest label possible in case we need to convert
+             ! re2 labels to labeled zones (see below).
+             total_labeled_zone_offset = max(total_labeled_zone_offset, label)
+
+             call msh%mark_labeled_facet(sym_facet, el_idx, label)
+
+          end select
+       end do
+
+       do i = 1, nbcs
+
           el_idx = re2v1_data_bc(i)%elem - dist%start_idx()
           sym_facet = facet_map(re2v1_data_bc(i)%face)
           select case(trim(re2v1_data_bc(i)%type))
           case ('W')
-             call msh%mark_wall_facet(sym_facet, el_idx)
+             if (NEKO_W_BC_LABEL .eq. -1) then
+                NEKO_W_BC_LABEL = current_internal_zone
+                current_internal_zone = current_internal_zone + 1
+             end if
+
+             call re2_file_mark_labeled_bc(msh, el_idx, sym_facet, &
+                  re2v1_data_bc(i)%type, &
+                  NEKO_W_BC_LABEL, total_labeled_zone_offset, &
+                  labeled_zone_offsets(NEKO_W_BC_LABEL) .eq. 0)
+
+             labeled_zone_offsets(NEKO_W_BC_LABEL) = 1
+
           case ('v', 'V')
-             call msh%mark_inlet_facet(sym_facet, el_idx)
+             if (NEKO_V_BC_LABEL .eq. -1) then
+                NEKO_V_BC_LABEL = current_internal_zone
+                current_internal_zone = current_internal_zone + 1
+             end if
+
+             call re2_file_mark_labeled_bc(msh, el_idx, sym_facet, &
+                  re2v1_data_bc(i)%type, &
+                  NEKO_V_BC_LABEL, total_labeled_zone_offset, &
+                  labeled_zone_offsets(NEKO_V_BC_LABEL) .eq. 0)
+
+             labeled_zone_offsets(NEKO_V_BC_LABEL) = 1
           case ('O', 'o')
-             call msh%mark_outlet_facet(sym_facet, el_idx)
+             if (NEKO_O_BC_LABEL .eq. -1) then
+                NEKO_O_BC_LABEL = current_internal_zone
+                current_internal_zone = current_internal_zone + 1
+             end if
+
+             call re2_file_mark_labeled_bc(msh, el_idx, sym_facet, &
+                  re2v1_data_bc(i)%type, &
+                  NEKO_O_BC_LABEL, total_labeled_zone_offset, &
+                  labeled_zone_offsets(NEKO_O_BC_LABEL) .eq. 0)
+
+             labeled_zone_offsets(NEKO_O_BC_LABEL) = 1
           case ('SYM')
-             call msh%mark_sympln_facet(sym_facet, el_idx)
+             if (NEKO_SYM_BC_LABEL .eq. -1) then
+                NEKO_SYM_BC_LABEL = current_internal_zone
+                current_internal_zone = current_internal_zone + 1
+             end if
+
+             call re2_file_mark_labeled_bc(msh, el_idx, sym_facet, &
+                  re2v1_data_bc(i)%type, &
+                  NEKO_SYM_BC_LABEL, total_labeled_zone_offset, &
+                  labeled_zone_offsets(NEKO_SYM_BC_LABEL) .eq. 0)
+
+             labeled_zone_offsets(NEKO_SYM_BC_LABEL) = 1
+          case ('ON', 'on')
+             if (NEKO_ON_BC_LABEL .eq. -1) then
+                NEKO_ON_BC_LABEL = current_internal_zone
+                current_internal_zone = current_internal_zone + 1
+             end if
+
+             call re2_file_mark_labeled_bc(msh, el_idx, sym_facet, &
+                  re2v1_data_bc(i)%type, &
+                  NEKO_ON_BC_LABEL, total_labeled_zone_offset, &
+                  labeled_zone_offsets(NEKO_ON_BC_LABEL) .eq. 0)
+
+             labeled_zone_offsets(NEKO_ON_BC_LABEL) = 1
+          case ('s', 'sl', 'sh', 'shl', 'S', 'SL', 'SH', 'SHL')
+             if (NEKO_SHL_BC_LABEL .eq. -1) then
+                NEKO_SHL_BC_LABEL = current_internal_zone
+                current_internal_zone = current_internal_zone + 1
+             end if
+
+             call re2_file_mark_labeled_bc(msh, el_idx, sym_facet, &
+                  re2v1_data_bc(i)%type, &
+                  NEKO_SHL_BC_LABEL, total_labeled_zone_offset, &
+                  labeled_zone_offsets(NEKO_SHL_BC_LABEL) .eq. 0)
+
+             labeled_zone_offsets(NEKO_SHL_BC_LABEL) = 1
           case ('P')
              periodic = .true.
              p_el_idx = int(re2v1_data_bc(i)%bc_data(1))
@@ -617,13 +827,9 @@ contains
              call msh%get_facet_ids(sym_facet, el_idx, pids)
              call msh%mark_periodic_facet(sym_facet, el_idx, &
                   p_facet, p_el_idx, pids)
-          case ('MSH', 'msh')
-             label = int(re2v1_data_bc(i)%bc_data(5))
-             call msh%mark_labeled_facet(sym_facet, el_idx, label)
           case default
              write (*,*) re2v1_data_bc(i)%type, 'bc type not supported yet'
              write (*,*) re2v1_data_bc(i)%bc_data
-
           end select
        end do
 
@@ -651,6 +857,45 @@ contains
 
   end subroutine re2_file_read_bcs
 
+  !> Mark a labeled zone based on an offset
+  !! @param msh The mesh on which to mark the labeled zone.
+  !! @param el_idx The index of the element on which to mark the labeled zone.
+  !! @param facet The facet index to mark.
+  !! @param type The re2 label type (e.g. "W", "ON", "SYM", etc).
+  !! @param label The integer label with which to mark the labeled zone.
+  !! @param offset The offset with which to increment the label, in case there
+  !! are any existing user labeled zones.
+  !! @param print_info Wether or not to print information to the standard
+  !! output.
+  subroutine re2_file_mark_labeled_bc(msh, el_idx, facet, type, label, offset, print_info)
+    type(mesh_t), intent(inout) :: msh
+    integer, intent(in) :: el_idx
+    integer, intent(in) :: facet
+    character(len=*), intent(in) :: type
+    integer, intent(in) :: label
+    integer, intent(in) :: offset
+    logical, intent(in) :: print_info
+
+    integer :: mark_label
+    character(len=LOG_SIZE) :: log_buf
+
+    mark_label = offset + label
+
+    if (mark_label .lt. 1 .or. mark_label .gt. NEKO_MSH_MAX_ZLBLS) then
+       call neko_error("You have reached the maximum amount of allowed labeled&
+& zones (max allowed: 20). This happened when converting re2 internal labels&
+& like e.g. 'w', 'V' or 'o' to labeled zones. Please reduce the number of&
+& labeled zones that you have defined or make sure that they are labeled&
+& from [1,...,20].")
+    end if
+
+    if (print_info) then
+       write (log_buf, "(A3,A,I2)") trim(type), " => Labeled index ", mark_label
+       call neko_log%message(log_buf)
+    end if
+    call msh%mark_labeled_facet(facet, el_idx, mark_label)
+
+  end subroutine re2_file_mark_labeled_bc
 
   subroutine re2_file_add_point(htp, p, idx)
     type(htable_pt_t), intent(inout) :: htp

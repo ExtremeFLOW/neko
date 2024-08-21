@@ -40,7 +40,7 @@ module scalar_scheme
   use field, only : field_t
   use field_list, only: field_list_t
   use space, only : space_t
-  use dofmap, only :  dofmap_t
+  use dofmap, only : dofmap_t
   use krylov, only : ksp_t
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
@@ -50,7 +50,8 @@ module scalar_scheme
   use device_jacobi, only : device_jacobi_t
   use sx_jacobi, only : sx_jacobi_t
   use hsmg, only : hsmg_t
-  use precon_fctry, only : precon_factory, pc_t, precon_destroy
+  use precon_fctry, only : precon_factory, precon_destroy
+  use precon, only : pc_t
   use bc, only : bc_t, bc_list_t, bc_list_free, bc_list_init, &
                  bc_list_apply_scalar, bc_list_add
   use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
@@ -67,8 +68,11 @@ module scalar_scheme
   use utils, only : neko_error
   use comm, only: NEKO_COMM, MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
+  use math, only : cfill, add2s2
+  use device_math, only : device_cfill, device_add2s2
+  use neko_config, only : NEKO_BCKND_DEVICE
   use field_series
-  use time_step_controller
+  use time_step_controller, only : time_step_controller_t
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -90,13 +94,13 @@ module scalar_scheme
      !> Gather-scatter associated with \f$ X_h \f$.
      type(gs_t), pointer :: gs_Xh
      !> Coefficients associated with \f$ X_h \f$.
-     type(coef_t), pointer  :: c_Xh
+     type(coef_t), pointer :: c_Xh
      !> Right-hand side.
      type(field_t), pointer :: f_Xh => null()
      !> The source term for equation.
      type(scalar_source_term_t) :: source_term
      !> Krylov solver.
-     class(ksp_t), allocatable  :: ksp
+     class(ksp_t), allocatable :: ksp
      !> Max iterations in the Krylov solver.
      integer :: ksp_maxiter
      !> Projection space size.
@@ -109,13 +113,8 @@ module scalar_scheme
      type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)
      !> Field Dirichlet conditions.
      type(field_dirichlet_t) :: field_dir_bc
-     !> Pointer to user_dirichlet_update to be called in fluid_scheme_step
-     procedure(field_dirichlet_update), nopass, pointer :: dirichlet_update_ &
-          => null()
      !> List of BC objects to pass to user_dirichlet_update
      type(bc_list_t) :: field_dirichlet_bcs
-     !< List of fields to pass to user_dirichlet_update
-     type(field_list_t) :: field_dirichlet_fields
      !> Neumann conditions.
      type(neumann_t) :: neumann_bcs(NEKO_MSH_MAX_ZLBLS)
      !> User Dirichlet conditions.
@@ -136,10 +135,18 @@ module scalar_scheme
      type(chkp_t) :: chkp
      !> Thermal diffusivity.
      real(kind=rp), pointer :: lambda
+     !> The variable lambda field
+     type(field_t) :: lambda_field
+     !> The turbulent kinematic viscosity field name
+     character(len=:), allocatable :: nut_field_name
      !> Density.
      real(kind=rp), pointer :: rho
      !> Specific heat capacity.
      real(kind=rp), pointer :: cp
+     !> Turbulent Prandtl number.
+     real(kind=rp) :: pr_turb
+     !> Is lambda varying in time? Currently only due to LES models.
+     logical :: variable_material_properties = .false.
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
    contains
@@ -149,8 +156,11 @@ module scalar_scheme
      procedure, pass(this) :: scheme_free => scalar_scheme_free
      !> Validate successful initialization.
      procedure, pass(this) :: validate => scalar_scheme_validate
-     !> Assings the evaluation function for  `user_bc`.
+     !> Assigns the evaluation function for  `user_bc`.
      procedure, pass(this) :: set_user_bc => scalar_scheme_set_user_bc
+     !> Update variable material properties
+     procedure, pass(this) :: update_material_properties => &
+       scalar_scheme_update_material_properties
      !> Constructor.
      procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
      !> Destructor.
@@ -203,7 +213,8 @@ module scalar_scheme
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf, dt_controller)
+     subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf, &
+          dt_controller)
        import scalar_scheme_t
        import time_scheme_controller_t
        import time_step_controller_t
@@ -228,8 +239,8 @@ contains
     type(facet_zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
     character(len=NEKO_MSH_MAX_ZLBL_LEN), intent(in) :: bc_labels(:)
     character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_label
-    integer :: i, j, bc_idx
-    real(kind=rp) :: dir_value, flux_value
+    integer :: i
+    real(kind=rp) :: dir_value, flux
     logical :: bc_exists
 
     do i = 1, size(bc_labels)
@@ -255,15 +266,15 @@ contains
           call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
           read(bc_label(3:), *) dir_value
           call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
-!          end if
+          call this%dir_bcs(this%n_dir_bcs)%finalize()
        end if
 
        if (bc_label(1:2) .eq. 'n=') then
           this%n_neumann_bcs = this%n_neumann_bcs + 1
           call this%neumann_bcs(this%n_neumann_bcs)%init_base(this%c_Xh)
           call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
-          read(bc_label(3:), *) flux_value
-          call this%neumann_bcs(this%n_neumann_bcs)%init_neumann(flux_value)
+          read(bc_label(3:), *) flux
+          call this%neumann_bcs(this%n_neumann_bcs)%finalize_neumann(flux)
        end if
 
        !> Check if user bc on this zone
@@ -274,14 +285,12 @@ contains
     end do
 
     do i = 1, this%n_dir_bcs
-       call this%dir_bcs(i)%finalize()
        call bc_list_add(this%bclst_dirichlet, this%dir_bcs(i))
     end do
 
     ! Create list with just Neumann bcs
     call bc_list_init(this%bclst_neumann, this%n_neumann_bcs)
-    do i=1, this%n_neumann_bcs
-       call this%neumann_bcs(i)%finalize()
+    do i = 1, this%n_neumann_bcs
        call bc_list_add(this%bclst_neumann, this%neumann_bcs(i))
     end do
 
@@ -303,7 +312,7 @@ contains
     type(json_file), target, intent(inout) :: params
     character(len=*), intent(in) :: scheme
     type(user_t), target, intent(in) :: user
-    type(material_properties_t), target,  intent(inout) :: material_properties
+    type(material_properties_t), target, intent(inout) :: material_properties
     ! IO buffer for log output
     character(len=LOG_SIZE) :: log_buf
     ! Variables for retrieving json parameters
@@ -322,20 +331,6 @@ contains
                   solver_precon)
     call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance',&
                   solver_abstol)
-
-    !
-    ! Material properties
-    !
-    this%rho => material_properties%rho
-    this%lambda => material_properties%lambda
-    this%cp => material_properties%cp
-
-    write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'lambda     :',  this%lambda
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'cp         :',  this%cp
-    call neko_log%message(log_buf)
 
     call json_get_or_default(params, &
                             'case.fluid.velocity_solver.projection_space_size',&
@@ -366,6 +361,39 @@ contains
     this%gs_Xh => gs_Xh
     this%c_Xh => c_Xh
 
+    !
+    ! Material properties
+    !
+    this%rho => material_properties%rho
+    this%lambda => material_properties%lambda
+    this%cp => material_properties%cp
+
+    write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'lambda     :',  this%lambda
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.6)') 'cp         :',  this%cp
+    call neko_log%message(log_buf)
+
+    !
+    ! Turbulence modelling and variable material properties
+    !
+    if (params%valid_path('case.scalar.nut_field')) then
+       call json_get(params, 'case.scalar.Pr_t', this%pr_turb)
+       call json_get(params, 'case.scalar.nut_field', this%nut_field_name)
+       this%variable_material_properties = .true.
+    else
+       this%nut_field_name = ""
+    end if
+
+    ! Fill lambda field with the physical value
+    call this%lambda_field%init(this%dm_Xh, "lambda")
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cfill(this%lambda_field%x_d, this%lambda, &
+                         this%lambda_field%size())
+    else
+       call cfill(this%lambda_field%x, this%lambda, this%lambda_field%size())
+    end if
 
     !
     ! Setup scalar boundary conditions
@@ -380,17 +408,15 @@ contains
     this%bc_labels = "not"
 
     if (params%valid_path('case.scalar.boundary_types')) then
-       call json_get(params, &
-                     'case.scalar.boundary_types', &
-                     this%bc_labels)
+       call json_get(params, 'case.scalar.boundary_types', this%bc_labels,&
+                     'not')
     end if
-
 
     !
     ! Setup right-hand side field.
     !
     allocate(this%f_Xh)
-    call this%f_Xh%init(this%dm_Xh, fld_name="scalar_rhs")
+    call this%f_Xh%init(this%dm_Xh, fld_name = "scalar_rhs")
 
     ! Initialize the source term
     call this%source_term%init(params, this%f_Xh, this%c_Xh, user)
@@ -421,21 +447,15 @@ contains
     !
     ! Associate our field dirichlet update to the user one.
     !
-    this%dirichlet_update_ => user%user_dirichlet_update
+    this%field_dir_bc%update => user%user_dirichlet_update
 
-    !
-    ! Initialize field list and bc list for user_dirichlet_update
-    !
-    allocate(this%field_dirichlet_fields%items(1))
-    this%field_dirichlet_fields%items(1)%ptr => &
-         this%field_dir_bc%field_bc
-
-    call bc_list_init(this%field_dirichlet_bcs, size=1)
+    call bc_list_init(this%field_dirichlet_bcs, size = 1)
     call bc_list_add(this%field_dirichlet_bcs, this%field_dir_bc)
 
 
     ! todo parameter file ksp tol should be added
-    call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
+    call json_get_or_default(params, &
+                             'case.fluid.velocity_solver.max_iterations', &
                              integer_val, 800)
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, integer_val, solver_abstol)
@@ -476,16 +496,12 @@ contains
     call bc_list_free(this%bclst_dirichlet)
     call bc_list_free(this%bclst_neumann)
 
+    call this%lambda_field%free()
     call this%slag%free()
 
     ! Free everything related to field dirichlet BCs
-    call this%field_dirichlet_fields%free()
     call bc_list_free(this%field_dirichlet_bcs)
-    call this%field_dir_bc%field_bc%free()
     call this%field_dir_bc%free()
-    if (associated(this%dirichlet_update_)) then
-       this%dirichlet_update_ => null()
-    end if
 
   end subroutine scalar_scheme_free
 
@@ -558,18 +574,18 @@ contains
 
     call precon_factory(pc, pctype)
 
-    select type(pcp => pc)
-    type is(jacobi_t)
+    select type (pcp => pc)
+    type is (jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (sx_jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (device_jacobi_t)
        call pcp%init(coef, dof, gs)
-    type is(hsmg_t)
+    type is (hsmg_t)
        if (len_trim(pctype) .gt. 4) then
           if (index(pctype, '+') .eq. 5) then
-             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, &
-                  bclst, trim(pctype(6:)))
+             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &
+                  trim(pctype(6:)))
           else
              call neko_error('Unknown coarse grid solver')
           end if
@@ -591,6 +607,30 @@ contains
     call this%user_bc%set_eval(usr_eval)
 
   end subroutine scalar_scheme_set_user_bc
+
+  !> Update the values of `lambda_field` if necessary.
+  subroutine scalar_scheme_update_material_properties(this)
+    class(scalar_scheme_t), intent(inout) :: this
+    type(field_t), pointer :: nut
+    integer :: n
+    ! Factor to transform nu_t to lambda_t
+    real(kind=rp) :: lambda_factor
+
+    lambda_factor = this%rho*this%cp/this%pr_turb
+
+    if (this%variable_material_properties) then
+      nut => neko_field_registry%get_field(this%nut_field_name)
+      n = nut%size()
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_cfill(this%lambda_field%x_d, this%lambda, n)
+         call device_add2s2(this%lambda_field%x_d, nut%x_d, lambda_factor, n)
+      else
+         call cfill(this%lambda_field%x, this%lambda, n)
+         call add2s2(this%lambda_field%x, nut%x, lambda_factor, n)
+      end if
+    end if
+
+  end subroutine scalar_scheme_update_material_properties
 
 
 end module scalar_scheme

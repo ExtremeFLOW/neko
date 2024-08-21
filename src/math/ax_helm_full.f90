@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,39 +30,42 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements the cpu kernel for the `brinkman_source_term_t` type.
-module brinkman_source_term_cpu
-  use num_types, only: rp
-  use field, only: field_t
-  use field_list, only: field_list_t
-  use math, only: subcol3
-  use field_registry, only: neko_field_registry
+module ax_helm_full
+  use ax_product, only : ax_t
+  use num_types, only : rp
+  use coefs, only : coef_t
+  use space, only : space_t
+  use mesh, only : mesh_t
+  use math, only : addcol4
+  use utils, only : neko_error
   implicit none
   private
 
-  public :: brinkman_source_term_compute_cpu
+  !> Matrix-vector product for a Helmholtz problem.
+  type, public, abstract, extends(ax_t) :: ax_helm_full_t
+   contains
+     !> Compute the product for 3 fields.
+     procedure, nopass :: compute => ax_helm_full_compute
+  end type ax_helm_full_t
 
 contains
 
-  !> Computes the Brinkman source term on the cpu.
-  !! @param fields The right-hand side.
-  !! @param values The values of the source components.
-  subroutine brinkman_source_term_compute_cpu(fields, brinkman)
-    type(field_list_t), intent(inout) :: fields
-    type(field_t), intent(in) :: brinkman
-    type(field_t), pointer :: u, v, w
-    integer :: n
+  !> Compute the product for a single vector. Not implemented for the full
+  !! stress formulation.
+  !! @param w Vector of size @a (lx,ly,lz,nelv).
+  !! @param u Vector of size @a (lx,ly,lz,nelv).
+  !! @param coef Coefficients.
+  !! @param msh Mesh.
+  !! @param Xh Function space \f$ X_h \f$.
+  subroutine ax_helm_full_compute(w, u, coef, msh, Xh)
+    type(mesh_t), intent(inout) :: msh
+    type(space_t), intent(inout) :: Xh
+    type(coef_t), intent(inout) :: coef
+    real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    n = fields%item_size(1)
+    call neko_error("The full Helmholtz operators cannot be applied to a &
+                   &single field")
+  end subroutine ax_helm_full_compute
 
-    u => neko_field_registry%get_field('u')
-    v => neko_field_registry%get_field('v')
-    w => neko_field_registry%get_field('w')
-
-    call subcol3(fields%items(1)%ptr%x, u%x, brinkman%x, n)
-    call subcol3(fields%items(2)%ptr%x, v%x, brinkman%x, n)
-    call subcol3(fields%items(3)%ptr%x, w%x, brinkman%x, n)
-
-  end subroutine brinkman_source_term_compute_cpu
-
-end module brinkman_source_term_cpu
+end module ax_helm_full

@@ -70,8 +70,9 @@ module fluid_volflow
   use math, only : cfill, rzero, copy, glsc2, glmin, glmax, add2, add2s2
   use comm
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device_math
-  use device_mathops
+  use device_math, only : device_cfill, device_rzero, device_copy, &
+       device_add2, device_add2s2, device_glsc2
+  use device_mathops, only : device_opchsign
   use gather_scatter, only : gs_t, GS_OP_ADD
   use json_module, only : json_file
   use json_utils, only: json_get
@@ -103,9 +104,9 @@ contains
 
   subroutine fluid_vol_flow_init(this, dm_Xh, params)
     class(fluid_volflow_t), intent(inout) :: this
-    type(dofmap_t), intent(inout) :: dm_Xh
+    type(dofmap_t), target, intent(inout) :: dm_Xh
     type(json_file), intent(inout) :: params
-    logical average, found
+    logical average
     integer :: direction
     real(kind=rp) :: rate
 
@@ -187,9 +188,15 @@ contains
       ylmax = glmax(c_Xh%dof%y, n)
       zlmin = glmin(c_Xh%dof%z, n)          !  for Z!
       zlmax = glmax(c_Xh%dof%z, n)
-      if (this%flow_dir.eq.1) this%domain_length = xlmax - xlmin
-      if (this%flow_dir.eq.2) this%domain_length = ylmax - ylmin
-      if (this%flow_dir.eq.3) this%domain_length = zlmax - zlmin
+      if (this%flow_dir .eq. 1) then
+         this%domain_length = xlmax - xlmin
+      end if
+      if (this%flow_dir .eq. 2) then
+         this%domain_length = ylmax - ylmin
+      end if
+      if (this%flow_dir .eq. 3) then
+         this%domain_length = zlmax - zlmin
+      end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_cfill(c_Xh%h1_d, 1.0_rp/rho, n)
@@ -348,10 +355,9 @@ contains
     class(pc_t), intent(inout) :: pc_prs, pc_vel
     integer, intent(in) :: prs_max_iter, vel_max_iter
     real(kind=rp) :: ifcomp, flow_rate, xsec
-    real(kind=rp) :: current_flow, delta_flow, base_flow, scale
+    real(kind=rp) :: current_flow, delta_flow, scale
     integer :: n, ierr
     type(field_t), pointer :: ta1, ta2, ta3
-    integer :: temp_indices(3)
 
     associate(u_vol => this%u_vol, v_vol => this%v_vol, &
          w_vol => this%w_vol, p_vol => this%p_vol)
@@ -363,7 +369,8 @@ contains
 
       ifcomp = 0.0_rp
 
-      if (dt .ne. this%dtlag .or. ext_bdf%diffusion_coeffs(1) .ne. this%bdlag) then
+      if (dt .ne. this%dtlag .or. &
+           ext_bdf%diffusion_coeffs(1) .ne. this%bdlag) then
          ifcomp = 1.0_rp
       end if
 
@@ -406,7 +413,7 @@ contains
          flow_rate = this%flow_rate*xsec
       else
          flow_rate = this%flow_rate
-      endif
+      end if
 
       delta_flow = flow_rate - current_flow
       scale = delta_flow / this%base_flow

@@ -1,0 +1,67 @@
+name: ReFrame
+
+# Controls when the action will run.
+on:
+  workflow_call:
+    inputs:
+      json-fortran-version:
+        description: "The version of the JSON-Fortran library to use."
+        type: string
+        required: false
+        default: "8.3.0"
+
+jobs:
+  ReFrame:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: true
+      matrix:
+        precision: [sp, dp]
+        compiler: [gfortran-10]
+    env:
+      FC: ${{ matrix.compiler }}
+      OMPI_FC: ${{ matrix.compiler}}
+      OMPI_ALLOW_RUN_AS_ROOT: 1
+      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+      RP: ${{ matrix.precision }}
+    name: ReFrame - ${{ matrix.compiler}} - ${{ matrix.precision }}
+    steps:
+      - name: Setup env.
+        id: setup-env
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openmpi-bin libopenmpi-dev \
+            autoconf automake autotools-dev libopenblas-dev make git m4 python3
+          pip install reframe-hpc
+          echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Get JSON-Fortran
+        id: get-json-fortran
+        uses: ./.github/actions/setup_json-fortran
+        with:
+          version: ${{ inputs.json-fortran-version }}
+          os: ${{ steps.setup-env.outputs.os-version }}
+          compiler: ${{ matrix.compiler }}
+
+      - name: Add JSON-Fortran to environment
+        env:
+          JSON_FORTRAN_DIR: ${{ steps.get-json-fortran.outputs.install-dir }}
+        run: |
+          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$JSON_FORTRAN_DIR/lib/pkgconfig/" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$JSON_FORTRAN_DIR/lib/" >> $GITHUB_ENV
+
+      - name: Topology
+        run: |
+          reframe --detect-host-topology
+
+      - name: Regression tests
+        run: |
+          ./regen.sh
+          cd reframe
+          env NEKO_REAL=${RP} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -n MiniTgv8 -n MiniRB -r --performance-report --system github-actions:cpu

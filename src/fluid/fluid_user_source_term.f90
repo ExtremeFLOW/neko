@@ -135,7 +135,7 @@ contains
     class(fluid_user_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(inout), target :: coef
 
     call neko_error("The user fluid source term should be init from components")
 
@@ -152,7 +152,7 @@ contains
     source_term_type, eval_vector, eval_pointwise)
     class(fluid_user_source_term_t), intent(inout) :: this
     type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(inout), target :: coef
     character(len=*) :: source_term_type
     procedure(fluid_source_compute_vector), optional :: eval_vector
     procedure(fluid_source_compute_pointwise), optional :: eval_pointwise
@@ -183,7 +183,8 @@ contains
     if (trim(source_term_type) .eq. 'user_pointwise' .and. &
               present(eval_pointwise)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call neko_error('Pointwise source terms not supported on accelerators')
+          call neko_error('Pointwise source terms &
+&not supported on accelerators')
        end if
        this%compute_vector_ => pointwise_eval_driver
        this%compute_pw_ => eval_pointwise
@@ -255,7 +256,7 @@ contains
              do k = 1, size(this%u, 2)
                 kk = k
                 do j = 1, size(this%u, 1)
-                   jj =j
+                   jj = j
                    call this%compute_pw_(this%u(j,k,l,e), &
                                         this%v(j,k,l,e), &
                                         this%w(j,k,l,e), &
