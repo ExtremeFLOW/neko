@@ -186,7 +186,7 @@ regexp-rules:
 
   missing-space-before-parenthesis:
     message: Missing space before parenthesis
-    regexp: ({structs})\(
+    regexp: (\b{structs}\b)\(
     replacement: \1 (
     active: true
 
