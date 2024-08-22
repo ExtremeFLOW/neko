@@ -84,7 +84,7 @@ math/bcknd/sx/sx_dudxyz.o : math/bcknd/sx/sx_dudxyz.f90 math/math.o config/num_t
 math/bcknd/sx/sx_opgrad.o : math/bcknd/sx/sx_opgrad.f90 config/num_types.o math/bcknd/sx/opr_sx.o 
 math/bcknd/sx/sx_cfl.o : math/bcknd/sx/sx_cfl.f90 config/num_types.o math/bcknd/sx/opr_sx.o 
 math/bcknd/sx/sx_lambda2.o : math/bcknd/sx/sx_lambda2.f90 math/math.o config/num_types.o math/bcknd/sx/opr_sx.o 
-math/operators.o : math/operators.f90 comm/comm.o field/scratch_registry.o math/bcknd/device/device_math.o 
+math/operators.o : math/operators.f90 comm/comm.o field/scratch_registry.o math/bcknd/device/device_math.o device/device.o math/math.o field/field.o sem/coef.o sem/space.o math/bcknd/device/opr_device.o math/bcknd/xsmm/opr_xsmm.o math/bcknd/sx/opr_sx.o math/bcknd/cpu/opr_cpu.o config/num_types.o config/neko_config.o 
 math/bcknd/cpu/opr_cpu.o : math/bcknd/cpu/opr_cpu.f90 math/mathops.o gs/gather_scatter.o field/field.o math/math.o sem/coef.o sem/space.o config/num_types.o 
 math/bcknd/sx/opr_sx.o : math/bcknd/sx/opr_sx.f90 math/mathops.o field/field.o math/math.o sem/coef.o sem/space.o config/num_types.o gs/gather_scatter.o 
 math/bcknd/xsmm/opr_xsmm.o : math/bcknd/xsmm/opr_xsmm.F90 math/mathops.o gs/gather_scatter.o field/field.o mesh/mesh.o math/math.o sem/coef.o sem/space.o math/mxm_wrapper.o config/num_types.o 
