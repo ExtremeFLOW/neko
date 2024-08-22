@@ -456,7 +456,6 @@ neko_SOURCES = $(libneko_a_SOURCES) driver.f90
 
 pkginclude_HEADERS = \
 	$(wildcard *.mod)\
-	$(wildcard *.smod)\
 	device/device_config.h\
 	common/neko_log.h
 
