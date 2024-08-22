@@ -1137,7 +1137,7 @@ contains
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx, lx, lx, nelv) :: dudr
     real(kind=rp), dimension(lx, lx, lx, nelv) :: duds
-    real(kind=rp), dimension(lx, lx, lx, nelvv) :: dudt
+    real(kind=rp), dimension(lx, lx, lx, nelv) :: dudt
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
