@@ -96,9 +96,9 @@ contains
 
   subroutine cpu_dudxyz_lx(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, lx)
     integer, intent(in) :: nel, lx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) ::  du
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
     real(kind=rp), dimension(lx, lx, lx) :: drst
     real(kind=rp) :: tmp

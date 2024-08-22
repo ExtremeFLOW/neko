@@ -49,39 +49,44 @@ module opr_cpu
      module subroutine opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
        type(coef_t), intent(in), target :: coef
        real(kind=rp), intent(inout), &
-            dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv) :: du
+            dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: du
        real(kind=rp), intent(in), &
-            dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv) :: &
+            dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: &
             u, dr, ds, dt
      end subroutine opr_cpu_dudxyz
 
      module subroutine opr_cpu_opgrad(ux, uy, uz, u, coef, e_start, e_end)
        type(coef_t), intent(in) :: coef
        integer, intent(in) :: e_start, e_end
-       real(kind=rp), intent(inout) :: ux(coef%Xh%lxyz,e_end-e_start+1)
-       real(kind=rp), intent(inout) :: uy(coef%Xh%lxyz,e_end-e_start+1)
-       real(kind=rp), intent(inout) :: uz(coef%Xh%lxyz,e_end-e_start+1)
-       real(kind=rp), intent(in) :: u(coef%Xh%lxyz,e_end-e_start+1)
+       real(kind=rp), intent(inout) :: ux(coef%Xh%lxyz, e_end - e_start + 1)
+       real(kind=rp), intent(inout) :: uy(coef%Xh%lxyz, e_end - e_start + 1)
+       real(kind=rp), intent(inout) :: uz(coef%Xh%lxyz, e_end - e_start + 1)
+       real(kind=rp), intent(in) :: u(coef%Xh%lxyz, e_end - e_start + 1)
      end subroutine opr_cpu_opgrad
 
      module subroutine opr_cpu_cdtp(dtx, x, dr, ds, dt, coef)
        type(coef_t), intent(in) :: coef
-       real(kind=rp), intent(inout) :: dtx(coef%Xh%lxyz,coef%msh%nelv)
-       real(kind=rp), intent(inout) :: x(coef%Xh%lxyz,coef%msh%nelv)
-       real(kind=rp), intent(in) :: dr(coef%Xh%lxyz,coef%msh%nelv)
-       real(kind=rp), intent(in) :: ds(coef%Xh%lxyz,coef%msh%nelv)
-       real(kind=rp), intent(in) :: dt(coef%Xh%lxyz,coef%msh%nelv)
+       real(kind=rp), intent(inout) :: dtx(coef%Xh%lxyz ,coef%msh%nelv)
+       real(kind=rp), intent(inout) :: x(coef%Xh%lxyz, coef%msh%nelv)
+       real(kind=rp), intent(in) :: dr(coef%Xh%lxyz, coef%msh%nelv)
+       real(kind=rp), intent(in) :: ds(coef%Xh%lxyz, coef%msh%nelv)
+       real(kind=rp), intent(in) :: dt(coef%Xh%lxyz, coef%msh%nelv)
      end subroutine opr_cpu_cdtp
 
-     module subroutine opr_cpu_conv1(du, u, vx, vy, vz, Xh, coef, e_start, e_end)
+     module subroutine opr_cpu_conv1(du, u, vx, vy, vz, Xh, &
+          coef, e_start, e_end)
         type(space_t), intent(in) :: Xh
         type(coef_t), intent(in) :: coef
         integer, intent(in) :: e_start, e_end
-        real(kind=rp), intent(inout) ::  du(Xh%lxyz,e_end-e_start+1)
-        real(kind=rp), intent(inout) ::  u(Xh%lx,Xh%ly,Xh%lz,e_end-e_start+1)
-        real(kind=rp), intent(inout) ::  vx(Xh%lx,Xh%ly,Xh%lz,e_end-e_start+1)
-        real(kind=rp), intent(inout) ::  vy(Xh%lx,Xh%ly,Xh%lz,e_end-e_start+1)
-        real(kind=rp), intent(inout) ::  vz(Xh%lx,Xh%ly,Xh%lz,e_end-e_start+1)
+        real(kind=rp), intent(inout) ::  du(Xh%lxyz, e_end - e_start + 1)
+        real(kind=rp), intent(inout) :: &
+             u(Xh%lx, Xh%ly, Xh%lz, e_end - e_start + 1)
+        real(kind=rp), intent(inout) ::  &
+             vx(Xh%lx, Xh%ly, Xh%lz, e_end - e_start + 1)
+        real(kind=rp), intent(inout) ::  &
+             vy(Xh%lx, Xh%ly, Xh%lz, e_end - e_start + 1)
+        real(kind=rp), intent(inout) ::  &
+             vz(Xh%lx, Xh%ly, Xh%lz, e_end - e_start + 1)
       end subroutine opr_cpu_conv1
   end interface
 
@@ -204,11 +209,11 @@ contains
 
     do e = 1, coef%msh%nelv
        call opr_cpu_opgrad(grad(1,1,1), grad(1,1,2), grad(1,1,3), &
-                           u%x(1,1,1,e),coef,e,e)
+                           u%x(1,1,1,e), coef,e,e)
        call opr_cpu_opgrad(grad(1,2,1), grad(1,2,2), grad(1,2,3), &
-                           v%x(1,1,1,e),coef,e,e)
+                           v%x(1,1,1,e), coef,e,e)
        call opr_cpu_opgrad(grad(1,3,1), grad(1,3,2), grad(1,3,3), &
-                           w%x(1,1,1,e),coef,e,e)
+                           w%x(1,1,1,e), coef,e,e)
 
        do i = 1, coef%Xh%lxyz
           s11 = grad(i,1,1)
