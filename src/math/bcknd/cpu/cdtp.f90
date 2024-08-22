@@ -39,11 +39,11 @@ contains
 
   module subroutine opr_cpu_cdtp(dtx, x, dr, ds, dt, coef)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dtx
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: x
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dr
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: ds
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: dtx
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: x
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dr
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: ds
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dt
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
       select case (Xh%lx)
@@ -96,10 +96,11 @@ contains
 
   subroutine cpu_cdtp_lx(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, lx)
     integer, intent(in) :: nel, lx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jac, B
+    real(kind=rp), intent(in) :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx) :: wx, ta1
     real(kind=rp) :: tmp
     integer :: e, i, j, k, l
 
@@ -162,10 +163,11 @@ contains
   subroutine cpu_cdtp_lx14(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 14
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jac, B
+    real(kind=rp), intent(in) :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx) :: wx, ta1
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -253,10 +255,11 @@ contains
   subroutine cpu_cdtp_lx13(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 13
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jac, B
+    real(kind=rp), intent(in) :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx) :: wx, ta1
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -341,10 +344,11 @@ contains
   subroutine cpu_cdtp_lx12(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 12
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jac, B
+    real(kind=rp), intent(in) :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx) :: wx, ta1
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -426,10 +430,11 @@ contains
   subroutine cpu_cdtp_lx11(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 11
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jac, B
+    real(kind=rp), intent(in) :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx) :: wx, ta1
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -508,10 +513,11 @@ contains
   subroutine cpu_cdtp_lx10(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 10
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jac, B
+    real(kind=rp), intent(in) :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx) :: wx, ta1
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -588,10 +594,11 @@ contains
   subroutine cpu_cdtp_lx9(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 9
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jac, B
+    real(kind=rp), intent(in) :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx) :: wx, ta1
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -664,10 +671,11 @@ contains
   subroutine cpu_cdtp_lx8(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 8
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jac, B
+    real(kind=rp), intent(in) :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx) :: wx, ta1
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -737,10 +745,11 @@ contains
   subroutine cpu_cdtp_lx7(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 7
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jac, B
+    real(kind=rp), intent(in) :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx) :: wx, ta1
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -807,10 +816,11 @@ contains
   subroutine cpu_cdtp_lx6(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 6
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jac, B
+    real(kind=rp), intent(in) :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx) :: wx, ta1
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -874,10 +884,11 @@ contains
   subroutine cpu_cdtp_lx5(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 5
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jac, B
+    real(kind=rp), intent(in) :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx) :: wx, ta1
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -938,10 +949,11 @@ contains
   subroutine cpu_cdtp_lx4(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 4
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jac, B
+    real(kind=rp), intent(in) :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx) :: wx, ta1
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -999,10 +1011,11 @@ contains
   subroutine cpu_cdtp_lx3(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 3
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jac, B
+    real(kind=rp), intent(in) :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx) :: wx, ta1
     integer :: e, i, j, k
 
     do e = 1, nel
@@ -1057,10 +1070,11 @@ contains
   subroutine cpu_cdtp_lx2(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel)
     integer, parameter :: lx = 2
     integer, intent(in) :: nel
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in) :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jac, B
+    real(kind=rp), intent(in) :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx) :: wx, ta1
     integer :: e, i, j, k
 
     do e = 1, nel
