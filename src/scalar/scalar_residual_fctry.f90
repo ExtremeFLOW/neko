@@ -32,8 +32,9 @@
 !
 !> Defines Pressure residual factory for the Pn-Pn formulation
 module scalar_residual_fctry
-  use neko_config
-  use scalar_residual
+  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_HIP, &
+       NEKO_BCKND_CUDA, NEKO_BCKND_OPENCL
+  use scalar_residual, only : scalar_residual_t
   use scalar_residual_device, only : scalar_residual_device_t
   use scalar_residual_cpu, only : scalar_residual_cpu_t
   use scalar_residual_sx, only : scalar_residual_sx_t

@@ -32,8 +32,7 @@
 !
 !> Defines Pressure residual factory for the Pn-Pn formulation
 module pnpn_res_stress_fctry
-  use neko_config
-  use utils
+  use neko_config, only : NEKO_BCKND_DEVICE
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
   use pnpn_res_stress_cpu, only : pnpn_prs_res_stress_cpu_t, &
                                   pnpn_vel_res_stress_cpu_t
