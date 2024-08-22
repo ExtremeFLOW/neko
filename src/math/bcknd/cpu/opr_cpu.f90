@@ -66,7 +66,7 @@ module opr_cpu
 
      module subroutine opr_cpu_cdtp(dtx, x, dr, ds, dt, coef)
        type(coef_t), intent(in) :: coef
-       real(kind=rp), intent(inout) :: dtx(coef%Xh%lxyz ,coef%msh%nelv)
+       real(kind=rp), intent(inout) :: dtx(coef%Xh%lxyz, coef%msh%nelv)
        real(kind=rp), intent(inout) :: x(coef%Xh%lxyz, coef%msh%nelv)
        real(kind=rp), intent(in) :: dr(coef%Xh%lxyz, coef%msh%nelv)
        real(kind=rp), intent(in) :: ds(coef%Xh%lxyz, coef%msh%nelv)
@@ -144,17 +144,17 @@ contains
     type(coef_t) :: coef
     integer :: nelv, gdim
     real(kind=rp) :: dt
-    real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w
+    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) ::  u, v, w
     real(kind=rp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
     integer :: i, j, k, e
     cfl = 0d0
     if (gdim .eq. 3) then
-       do e = 1,nelv
-          do k = 1,Xh%lz
-             do j = 1,Xh%ly
-                do i = 1,Xh%lx
+       do e = 1, nelv
+          do k = 1, Xh%lz
+             do j = 1, Xh%ly
+                do i = 1, Xh%lx
                    ur = ( u(i,j,k,e)*coef%drdx(i,j,k,e) &
                       +   v(i,j,k,e)*coef%drdy(i,j,k,e) &
                       +   w(i,j,k,e)*coef%drdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
@@ -176,9 +176,9 @@ contains
           end do
        end do
     else
-       do e = 1,nelv
-          do j = 1,Xh%ly
-             do i = 1,Xh%lx
+       do e = 1, nelv
+          do j = 1, Xh%ly
+             do i = 1, Xh%lx
                 ur = ( u(i,j,1,e)*coef%drdx(i,j,1,e) &
                    +   v(i,j,1,e)*coef%drdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)
                 us = ( u(i,j,1,e)*coef%dsdx(i,j,1,e) &
@@ -188,7 +188,7 @@ contains
                 cfls = abs(dt*us*Xh%ds_inv(j))
 
                 cflm = cflr + cfls
-                cfl  = max(cfl,cflm)
+                cfl  = max(cfl, cflm)
 
              end do
           end do

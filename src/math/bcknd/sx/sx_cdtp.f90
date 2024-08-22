@@ -38,13 +38,13 @@ submodule (opr_sx) sx_cdtp
 
 contains
 
-  module subroutine opr_sx_cdtp(dtx,x,dr,ds,dt, coef)
+  module subroutine opr_sx_cdtp(dtx, x, dr, ds, dt, coef)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), intent(inout) :: dtx(coef%Xh%lxyz,coef%msh%nelv)
-    real(kind=rp), intent(inout) :: x(coef%Xh%lxyz,coef%msh%nelv)
-    real(kind=rp), intent(in) :: dr(coef%Xh%lxyz,coef%msh%nelv)
-    real(kind=rp), intent(in) :: ds(coef%Xh%lxyz,coef%msh%nelv)
-    real(kind=rp), intent(in) :: dt(coef%Xh%lxyz,coef%msh%nelv)
+    real(kind=rp), intent(inout) :: dtx(coef%Xh%lxyz, coef%msh%nelv)
+    real(kind=rp), intent(inout) :: x(coef%Xh%lxyz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: dr(coef%Xh%lxyz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: ds(coef%Xh%lxyz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: dt(coef%Xh%lxyz, coef%msh%nelv)
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
       select case (Xh%lx)
@@ -111,10 +111,11 @@ contains
   
   subroutine sx_cdtp_lx(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, nd, lx)
     integer, intent(in) :: nel, nd, lx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx,nel) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt, &
+         jac, B
+    real(kind=rp), intent(in)  :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx, nel) :: wx, ta1
     real(kind=rp) :: tmp
     integer :: e, i, j, k, kk, jj
 
@@ -158,7 +159,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -171,10 +172,11 @@ contains
   subroutine sx_cdtp_lx14(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, nd)
     integer, parameter :: lx = 14
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx,nel) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt, &
+         jac, B
+    real(kind=rp), intent(in)  :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx, nel) :: wx, ta1
     real(kind=rp) :: tmp
     integer :: e, i, j, k, kk, jj
 
@@ -218,7 +220,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -231,10 +233,11 @@ contains
   subroutine sx_cdtp_lx13(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, nd)
     integer, parameter :: lx = 13
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx,nel) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt, &
+         jac, B
+    real(kind=rp), intent(in)  :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx, nel) :: wx, ta1
     real(kind=rp) :: tmp
     integer :: e, i, j, k, kk, jj
 
@@ -278,7 +281,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -291,10 +294,11 @@ contains
   subroutine sx_cdtp_lx12(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, nd)
     integer, parameter :: lx = 12
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx,nel) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt, &
+         jac, B
+    real(kind=rp), intent(in)  :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx, nel) :: wx, ta1
     real(kind=rp) :: tmp
     integer :: e, i, j, k, kk, jj
 
@@ -351,10 +355,11 @@ contains
   subroutine sx_cdtp_lx11(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, nd)
     integer, parameter :: lx = 11
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx,nel) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt, &
+         jac, B
+    real(kind=rp), intent(in)  :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx, nel) :: wx, ta1
     real(kind=rp) :: tmp
     integer :: e, i, j, k, kk, jj
 
@@ -411,10 +416,11 @@ contains
   subroutine sx_cdtp_lx10(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, nd)
     integer, parameter :: lx = 10
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx,nel) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt, &
+         jac, B
+    real(kind=rp), intent(in)  :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx, nel) :: wx, ta1
     real(kind=rp) :: tmp
     integer :: e, i, j, k, kk, jj
 
@@ -458,7 +464,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -471,10 +477,11 @@ contains
   subroutine sx_cdtp_lx9(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, nd)
     integer, parameter :: lx = 9
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx,nel) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt, &
+         jac, B
+    real(kind=rp), intent(in)  :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx, nel) :: wx, ta1
     real(kind=rp) :: tmp
     integer :: e, i, j, k, kk, jj
 
@@ -518,7 +525,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -531,10 +538,11 @@ contains
   subroutine sx_cdtp_lx8(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, nd)
     integer, parameter :: lx = 8
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx,nel) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt, &
+         jac, B
+    real(kind=rp), intent(in)  :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx, nel) :: wx, ta1
     real(kind=rp) :: tmp
     integer :: e, i, j, k, kk, jj
 
@@ -578,7 +586,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -591,10 +599,11 @@ contains
   subroutine sx_cdtp_lx7(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, nd)
     integer, parameter :: lx = 7
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx,nel) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt, &
+         jac, B
+    real(kind=rp), intent(in)  :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx, nel) :: wx, ta1
     real(kind=rp) :: tmp
     integer :: e, i, j, k, kk, jj
 
@@ -638,7 +647,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -651,10 +660,11 @@ contains
   subroutine sx_cdtp_lx6(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, nd)
     integer, parameter :: lx = 6
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx,nel) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt, &
+         jac, B
+    real(kind=rp), intent(in)  :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx, nel) :: wx, ta1
     real(kind=rp) :: tmp
     integer :: e, i, j, k, kk, jj
 
@@ -698,7 +708,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -711,10 +721,11 @@ contains
   subroutine sx_cdtp_lx5(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, nd)
     integer, parameter :: lx = 5
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx,nel) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt, &
+         jac, B
+    real(kind=rp), intent(in)  :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx, nel) :: wx, ta1
     real(kind=rp) :: tmp
     integer :: e, i, j, k, kk, jj
 
@@ -758,7 +769,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -771,10 +782,11 @@ contains
   subroutine sx_cdtp_lx4(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, nd)
     integer, parameter :: lx = 4
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx,nel) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt, &
+         jac, B
+    real(kind=rp), intent(in)  :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx, nel) :: wx, ta1
     real(kind=rp) :: tmp
     integer :: e, i, j, k, kk, jj
 
@@ -818,7 +830,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -831,10 +843,11 @@ contains
   subroutine sx_cdtp_lx3(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, nd)
     integer, parameter :: lx = 3
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx,nel) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt, &
+         jac, B
+    real(kind=rp), intent(in)  :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx, nel) :: wx, ta1
     real(kind=rp) :: tmp
     integer :: e, i, j, k, kk, jj
 
@@ -878,7 +891,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -891,10 +904,11 @@ contains
   subroutine sx_cdtp_lx2(dtx, x, dr, ds, dt, dxt, dyt, dzt, B, jac, nel, nd)
     integer, parameter :: lx = 2
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) :: dtx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: x, dr, ds, dt, jac, B
-    real(kind=rp), intent(in)  :: dxt(lx,lx), dyt(lx,lx), dzt(lx,lx)
-    real(kind=rp), dimension(lx,lx,lx,nel) :: wx, ta1
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: dtx
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: x, dr, ds, dt, &
+         jac, B
+    real(kind=rp), intent(in)  :: dxt(lx, lx), dyt(lx, lx), dzt(lx, lx)
+    real(kind=rp), dimension(lx, lx, lx, nel) :: wx, ta1
     real(kind=rp) :: tmp
     integer :: e, i, j, k, kk, jj
 
@@ -938,7 +952,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do

@@ -180,16 +180,16 @@ contains
   subroutine sx_opgrad_lx(ux, uy, uz, u, dx, dy, dz, &
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n, lx)
     integer, intent(in) :: n, lx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx,n)
-    real(kind=rp) :: us(lx,lx,lx,n)
-    real(kind=rp) :: ut(lx,lx,lx,n)
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
@@ -197,7 +197,7 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i,kk) * u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
@@ -210,7 +210,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk) * u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -225,7 +225,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -257,16 +257,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 18
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx, n)
-    real(kind=rp) :: us(lx,lx,lx, n)
-    real(kind=rp) :: ut(lx,lx,lx, n)
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
@@ -274,7 +274,7 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i,kk) * u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
@@ -287,7 +287,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk) * u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -302,7 +302,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -334,16 +334,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 17
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx, n)
-    real(kind=rp) :: us(lx,lx,lx, n)
-    real(kind=rp) :: ut(lx,lx,lx, n)
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
@@ -351,7 +351,7 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i,kk) * u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
@@ -364,7 +364,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk) * u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -379,7 +379,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -411,16 +411,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 16
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx, n)
-    real(kind=rp) :: us(lx,lx,lx, n)
-    real(kind=rp) :: ut(lx,lx,lx, n)
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
@@ -428,7 +428,7 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i,kk) * u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
@@ -441,7 +441,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk) * u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -456,7 +456,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -488,16 +488,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 15
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx, n)
-    real(kind=rp) :: us(lx,lx,lx, n)
-    real(kind=rp) :: ut(lx,lx,lx, n)
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
@@ -505,7 +505,7 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i,kk) * u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
@@ -518,7 +518,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk) * u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -533,7 +533,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -565,16 +565,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 14
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx, n)
-    real(kind=rp) :: us(lx,lx,lx, n)
-    real(kind=rp) :: ut(lx,lx,lx, n)
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
@@ -582,7 +582,7 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i,kk) * u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
@@ -595,7 +595,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk) * u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -610,7 +610,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -642,16 +642,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 13
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx, n)
-    real(kind=rp) :: us(lx,lx,lx, n)
-    real(kind=rp) :: ut(lx,lx,lx, n)
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
@@ -659,7 +659,7 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i,kk) * u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
@@ -672,7 +672,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk) * u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -687,7 +687,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -719,16 +719,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 12
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx, n)
-    real(kind=rp) :: us(lx,lx,lx, n)
-    real(kind=rp) :: ut(lx,lx,lx, n)
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
@@ -736,7 +736,7 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i,kk) * u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
@@ -749,7 +749,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1,lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk) * u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -764,7 +764,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -796,16 +796,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 11
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx, n)
-    real(kind=rp) :: us(lx,lx,lx, n)
-    real(kind=rp) :: ut(lx,lx,lx, n)
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
@@ -813,7 +813,7 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i,kk) * u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
@@ -826,7 +826,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk) * u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -841,7 +841,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -873,16 +873,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 10
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx, n)
-    real(kind=rp) :: us(lx,lx,lx, n)
-    real(kind=rp) :: ut(lx,lx,lx, n)
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
@@ -890,7 +890,7 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i,kk) * u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
@@ -903,7 +903,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk) * u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -918,7 +918,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -950,16 +950,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 9
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx, n)
-    real(kind=rp) :: us(lx,lx,lx, n)
-    real(kind=rp) :: ut(lx,lx,lx, n)
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
@@ -967,7 +967,7 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i,kk) * u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
@@ -980,7 +980,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk) * u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -995,7 +995,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -1027,16 +1027,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 8
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx, n)
-    real(kind=rp) :: us(lx,lx,lx, n)
-    real(kind=rp) :: ut(lx,lx,lx, n)
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
@@ -1044,7 +1044,7 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i,kk) * u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
@@ -1057,7 +1057,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk) * u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -1072,7 +1072,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -1104,16 +1104,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 7
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx, n)
-    real(kind=rp) :: us(lx,lx,lx, n)
-    real(kind=rp) :: ut(lx,lx,lx, n)
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
@@ -1121,7 +1121,7 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i,kk) * u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
@@ -1134,7 +1134,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk) * u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -1149,7 +1149,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -1181,16 +1181,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 6
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx, n)
-    real(kind=rp) :: us(lx,lx,lx, n)
-    real(kind=rp) :: ut(lx,lx,lx, n)
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
@@ -1198,7 +1198,7 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i,kk) * u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
@@ -1211,7 +1211,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk) * u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -1226,7 +1226,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -1258,16 +1258,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 5
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx, n)
-    real(kind=rp) :: us(lx,lx,lx, n)
-    real(kind=rp) :: ut(lx,lx,lx, n)
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
@@ -1275,7 +1275,7 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i,kk) * u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
@@ -1288,7 +1288,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk) * u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -1303,7 +1303,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -1335,16 +1335,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 4
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx, n)
-    real(kind=rp) :: us(lx,lx,lx, n)
-    real(kind=rp) :: ut(lx,lx,lx, n)
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
@@ -1352,7 +1352,7 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i,kk) * u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
@@ -1365,7 +1365,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk) * u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -1380,7 +1380,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -1412,16 +1412,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 3
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx, n)
-    real(kind=rp) :: us(lx,lx,lx, n)
-    real(kind=rp) :: ut(lx,lx,lx, n)
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
@@ -1429,7 +1429,7 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i,kk) * u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
@@ -1442,7 +1442,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk) * u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -1457,7 +1457,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do
@@ -1489,16 +1489,16 @@ contains
        drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, n)
     integer, parameter :: lx = 2
     integer, intent(in) :: n
-    real(kind=rp), dimension(lx,lx,lx,n), intent(inout) :: ux, uy, uz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: u
+    real(kind=rp), dimension(lx, lx, lx, n), intent(inout) :: ux, uy, uz
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: u
     real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
-    real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx, n)
-    real(kind=rp) :: us(lx,lx,lx, n)
-    real(kind=rp) :: ut(lx,lx,lx, n)
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, n), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
+    real(kind=rp) :: ur(lx, lx, lx, n)
+    real(kind=rp) :: us(lx, lx, lx, n)
+    real(kind=rp) :: ut(lx, lx, lx, n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
@@ -1506,7 +1506,7 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i,kk) * u(kk,jj,1,1)
           end do
           ur(i,jj,1,1) = wr
        end do
@@ -1519,7 +1519,7 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j,kk) * u(i,kk,k,e)
                 end do
                 us(i,j,k,e) = ws
              end do
@@ -1534,7 +1534,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 ut(i,j,k,e) = wt
              end do

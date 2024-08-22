@@ -45,7 +45,7 @@ contains
     real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w
     real(kind=rp) :: cfl
 
-    select case(Xh%lx)
+    select case (Xh%lx)
     case (14)
        cfl = sx_cfl_lx14(dt, u, v, w, &
            coef%drdx, coef%dsdx, coef%dtdx, &
@@ -153,12 +153,12 @@ contains
        jacinv, nelv, lx) result(cfl)
     integer, intent(in) :: nelv, lx
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
@@ -184,7 +184,7 @@ contains
                 cflt = abs(dt*ut*dt_inv(k))
 
                 cflm = cflr + cfls + cflt
-                cfl  = max(cfl,cflm)
+                cfl  = max(cfl, cflm)
              end do
           end do
        end do
@@ -195,15 +195,15 @@ contains
   function sx_cfl_lx14(dt, u, v, w, drdx, dsdx, dtdx, drdy, dsdy, dtdy, &
        drdz, dsdz, dtdz, dr_inv, ds_inv, dt_inv, &
        jacinv, nelv) result(cfl)
-    integer, parameter :: lx =14
+    integer, parameter :: lx = 14
     integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
@@ -229,7 +229,7 @@ contains
                 cflt = abs(dt*ut*dt_inv(k))
 
                 cflm = cflr + cfls + cflt
-                cfl  = max(cfl,cflm)
+                cfl  = max(cfl, cflm)
              end do
           end do
        end do
@@ -243,12 +243,12 @@ contains
     integer, parameter :: lx = 13
     integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
@@ -274,7 +274,7 @@ contains
                 cflt = abs(dt*ut*dt_inv(k))
 
                 cflm = cflr + cfls + cflt
-                cfl  = max(cfl,cflm)
+                cfl  = max(cfl, cflm)
              end do
           end do
        end do
@@ -288,12 +288,12 @@ contains
     integer, parameter :: lx = 12
     integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
@@ -319,7 +319,7 @@ contains
                 cflt = abs(dt*ut*dt_inv(k))
 
                 cflm = cflr + cfls + cflt
-                cfl  = max(cfl,cflm)
+                cfl  = max(cfl, cflm)
              end do
           end do
        end do
@@ -333,12 +333,12 @@ contains
     integer, parameter :: lx = 11
     integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
@@ -364,7 +364,7 @@ contains
                 cflt = abs(dt*ut*dt_inv(k))
 
                 cflm = cflr + cfls + cflt
-                cfl  = max(cfl,cflm)
+                cfl  = max(cfl, cflm)
              end do
           end do
        end do
@@ -378,12 +378,12 @@ contains
     integer, parameter :: lx = 10
     integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
@@ -409,7 +409,7 @@ contains
                 cflt = abs(dt*ut*dt_inv(k))
 
                 cflm = cflr + cfls + cflt
-                cfl  = max(cfl,cflm)
+                cfl  = max(cfl, cflm)
              end do
           end do
        end do
@@ -423,12 +423,12 @@ contains
     integer, parameter :: lx = 9
     integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
@@ -454,7 +454,7 @@ contains
                 cflt = abs(dt*ut*dt_inv(k))
 
                 cflm = cflr + cfls + cflt
-                cfl  = max(cfl,cflm)
+                cfl  = max(cfl, cflm)
              end do
           end do
        end do
@@ -468,12 +468,12 @@ contains
     integer, parameter :: lx = 8
     integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
@@ -499,7 +499,7 @@ contains
                 cflt = abs(dt*ut*dt_inv(k))
 
                 cflm = cflr + cfls + cflt
-                cfl  = max(cfl,cflm)
+                cfl  = max(cfl, cflm)
              end do
           end do
        end do
@@ -513,12 +513,12 @@ contains
     integer, parameter :: lx = 7
     integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
@@ -544,7 +544,7 @@ contains
                 cflt = abs(dt*ut*dt_inv(k))
 
                 cflm = cflr + cfls + cflt
-                cfl  = max(cfl,cflm)
+                cfl  = max(cfl, cflm)
              end do
           end do
        end do
@@ -558,12 +558,12 @@ contains
     integer, parameter :: lx = 6
     integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
@@ -589,7 +589,7 @@ contains
                 cflt = abs(dt*ut*dt_inv(k))
 
                 cflm = cflr + cfls + cflt
-                cfl  = max(cfl,cflm)
+                cfl  = max(cfl, cflm)
              end do
           end do
        end do
@@ -603,12 +603,12 @@ contains
     integer, parameter :: lx = 5
     integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
@@ -634,7 +634,7 @@ contains
                 cflt = abs(dt*ut*dt_inv(k))
 
                 cflm = cflr + cfls + cflt
-                cfl  = max(cfl,cflm)
+                cfl  = max(cfl, cflm)
              end do
           end do
        end do
@@ -648,12 +648,12 @@ contains
     integer, parameter :: lx = 4
     integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
@@ -679,7 +679,7 @@ contains
                 cflt = abs(dt*ut*dt_inv(k))
 
                 cflm = cflr + cfls + cflt
-                cfl  = max(cfl,cflm)
+                cfl  = max(cfl, cflm)
              end do
           end do
        end do
@@ -693,12 +693,12 @@ contains
     integer, parameter :: lx = 3
     integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
@@ -724,7 +724,7 @@ contains
                 cflt = abs(dt*ut*dt_inv(k))
 
                 cflm = cflr + cfls + cflt
-                cfl  = max(cfl,cflm)
+                cfl  = max(cfl, cflm)
              end do
           end do
        end do
@@ -738,12 +738,12 @@ contains
     integer, parameter :: lx = 2
     integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(lx,lx,lx,nelv) ::  u, v, w
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdx, dsdx, dtdx
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdy, dsdy, dtdy
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: drdz, dsdz, dtdz
+    real(kind=rp), dimension(lx, lx, lx, nelv) ::  u, v, w
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdx, dsdx, dtdx
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdy, dsdy, dtdy
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx), intent(in) :: dr_inv, ds_inv, dt_inv
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: jacinv
     real(kind=rp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
@@ -769,7 +769,7 @@ contains
                 cflt = abs(dt*ut*dt_inv(k))
 
                 cflm = cflr + cfls + cflt
-                cfl  = max(cfl,cflm)
+                cfl  = max(cfl, cflm)
              end do
           end do
        end do

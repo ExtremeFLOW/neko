@@ -18,38 +18,38 @@ module opr_sx
      module subroutine opr_sx_dudxyz(du, u, dr, ds, dt, coef)
        type(coef_t), intent(in), target :: coef
        real(kind=rp), intent(inout), &
-            dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv) ::  du
+            dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) ::  du
        real(kind=rp), intent(in), &
-            dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv) :: &
+            dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: &
             u, dr, ds, dt
      end subroutine opr_sx_dudxyz
 
-     module subroutine opr_sx_opgrad(ux,uy,uz,u,coef)
+     module subroutine opr_sx_opgrad(ux, uy, uz, u, coef)
        type(coef_t), intent(in) :: coef
-       real(kind=rp), intent(inout) :: ux(coef%Xh%lxyz,coef%msh%nelv)
-       real(kind=rp), intent(inout) :: uy(coef%Xh%lxyz,coef%msh%nelv)
-       real(kind=rp), intent(inout) :: uz(coef%Xh%lxyz,coef%msh%nelv)
-       real(kind=rp), intent(in) :: u(coef%Xh%lxyz,coef%msh%nelv)
+       real(kind=rp), intent(inout) :: ux(coef%Xh%lxyz, coef%msh%nelv)
+       real(kind=rp), intent(inout) :: uy(coef%Xh%lxyz, coef%msh%nelv)
+       real(kind=rp), intent(inout) :: uz(coef%Xh%lxyz, coef%msh%nelv)
+       real(kind=rp), intent(in) :: u(coef%Xh%lxyz, coef%msh%nelv)
      end subroutine opr_sx_opgrad
 
-     module subroutine opr_sx_cdtp(dtx,x,dr,ds,dt, coef)
+     module subroutine opr_sx_cdtp(dtx, x, dr, ds, dt, coef)
        type(coef_t), intent(in) :: coef
-       real(kind=rp), intent(inout) :: dtx(coef%Xh%lxyz,coef%msh%nelv)
-       real(kind=rp), intent(inout) :: x(coef%Xh%lxyz,coef%msh%nelv)
-       real(kind=rp), intent(in) :: dr(coef%Xh%lxyz,coef%msh%nelv)
-       real(kind=rp), intent(in) :: ds(coef%Xh%lxyz,coef%msh%nelv)
-       real(kind=rp), intent(in) :: dt(coef%Xh%lxyz,coef%msh%nelv)
+       real(kind=rp), intent(inout) :: dtx(coef%Xh%lxyz, coef%msh%nelv)
+       real(kind=rp), intent(inout) :: x(coef%Xh%lxyz, coef%msh%nelv)
+       real(kind=rp), intent(in) :: dr(coef%Xh%lxyz, coef%msh%nelv)
+       real(kind=rp), intent(in) :: ds(coef%Xh%lxyz, coef%msh%nelv)
+       real(kind=rp), intent(in) :: dt(coef%Xh%lxyz, coef%msh%nelv)
      end subroutine opr_sx_cdtp
 
-     module subroutine opr_sx_conv1(du,u, vx, vy, vz, Xh, coef, nelv)
+     module subroutine opr_sx_conv1(du, u, vx, vy, vz, Xh, coef, nelv)
        type(space_t), intent(inout) :: Xh
        type(coef_t), intent(inout) :: coef
        integer, intent(in) :: nelv
-       real(kind=rp), intent(inout) ::  du(Xh%lxyz,nelv)
-       real(kind=rp), intent(inout) ::  u(Xh%lx,Xh%ly,Xh%lz,nelv)
-       real(kind=rp), intent(inout) ::  vx(Xh%lx,Xh%ly,Xh%lz,nelv)
-       real(kind=rp), intent(inout) ::  vy(Xh%lx,Xh%ly,Xh%lz,nelv)
-       real(kind=rp), intent(inout) ::  vz(Xh%lx,Xh%ly,Xh%lz,nelv)
+       real(kind=rp), intent(inout) ::  du(Xh%lxyz, nelv)
+       real(kind=rp), intent(inout) ::  u(Xh%lx, Xh%ly, Xh%lz, nelv)
+       real(kind=rp), intent(inout) ::  vx(Xh%lx, Xh%ly, Xh%lz, nelv)
+       real(kind=rp), intent(inout) ::  vy(Xh%lx, Xh%ly, Xh%lz, nelv)
+       real(kind=rp), intent(inout) ::  vz(Xh%lx, Xh%ly, Xh%lz, nelv)
      end subroutine opr_sx_conv1
     
      module function opr_sx_cfl(dt, u, v, w, Xh, coef, nelv) result(cfl)
@@ -57,7 +57,7 @@ module opr_sx
        type(coef_t), intent(in) :: coef
        integer, intent(in) :: nelv
        real(kind=rp), intent(in) :: dt
-       real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w
+       real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) ::  u, v, w
        real(kind=rp) :: cfl
      end function opr_sx_cfl
 
@@ -109,11 +109,11 @@ contains
     call sub3(w3%x, work1%x, work2%x, n)
     !!    BC dependent, Needs to change if cyclic
 
-    call opcolv(w1%x,w2%x,w3%x,c_Xh%B, gdim, n)
+    call opcolv(w1%x, w2%x, w3%x, c_Xh%B, gdim, n)
     call c_Xh%gs_h%op(w1, GS_OP_ADD)
     call c_Xh%gs_h%op(w2, GS_OP_ADD)
     call c_Xh%gs_h%op(w3, GS_OP_ADD)
-    call opcolv(w1%x,w2%x,w3%x,c_Xh%Binv, gdim, n)
+    call opcolv(w1%x, w2%x, w3%x, c_Xh%Binv, gdim, n)
 
   end subroutine opr_sx_curl
 
