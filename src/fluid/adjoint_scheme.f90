@@ -339,7 +339,7 @@ contains
     ! First section of fluid log
     !
 
-    call neko_log%section('Fluid')
+    call neko_log%section('Adjoint scheme')
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
     call neko_log%message(log_buf)
     if (lx .lt. 10) then

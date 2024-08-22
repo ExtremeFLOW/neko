@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Factory for all fluid schemes
+!> Factory for all adjoint schemes
 module adjoint_fctry
   use adjoint_scheme, only : adjoint_scheme_t
   use adjoint_pnpn, only: adjoint_pnpn_t
@@ -46,7 +46,7 @@ module adjoint_fctry
 
 contains
 
-  !> Initialise a fluid scheme
+  !> Initialise a adjoint scheme
   subroutine adjoint_scheme_factory(object, type_name)
     class(adjoint_scheme_t), intent(inout), allocatable :: object
     character(len=*) :: type_name
@@ -57,7 +57,7 @@ contains
     else
        type_string = concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
             .true.)
-       call neko_error("Unknown fluid scheme type: " &
+       call neko_error("Unknown adjoint scheme type: " &
             // trim(type_name) // ". Known types are: " &
             // type_string)
     end if
