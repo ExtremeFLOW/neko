@@ -47,44 +47,44 @@ contains
          u, dr, ds, dt
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
-      select case(coef%Xh%lx)
-      case(14)
+      select case (coef%Xh%lx)
+      case (14)
          call sx_dudxyz_lx14(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(13)
+      case (13)
          call sx_dudxyz_lx13(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(12)
+      case (12)
          call sx_dudxyz_lx12(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(11)
+      case (11)
          call sx_dudxyz_lx11(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(10)
+      case (10)
          call sx_dudxyz_lx10(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(9)
+      case (9)
          call sx_dudxyz_lx9(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(8)
+      case (8)
          call sx_dudxyz_lx8(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(7)
+      case (7)
          call sx_dudxyz_lx7(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(6)
+      case (6)
          call sx_dudxyz_lx6(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(5)
+      case (5)
          call sx_dudxyz_lx5(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(4)
+      case (4)
          call sx_dudxyz_lx4(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(3)
+      case (3)
          call sx_dudxyz_lx3(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
-      case(2)
+      case (2)
          call sx_dudxyz_lx2(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
               coef%jacinv, msh%nelv, dof%size())
       case default

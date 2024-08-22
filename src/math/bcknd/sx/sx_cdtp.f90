@@ -47,56 +47,56 @@ contains
     real(kind=rp), intent(in) :: dt(coef%Xh%lxyz,coef%msh%nelv)
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
-      select case(Xh%lx)
-      case(14)
+      select case (Xh%lx)
+      case (14)
          call sx_cdtp_lx14(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(13)
+      case (13)
          call sx_cdtp_lx13(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(12)
+      case (12)
          call sx_cdtp_lx12(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(11)
+      case (11)
          call sx_cdtp_lx11(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(10)
+      case (10)
          call sx_cdtp_lx10(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(9)
+      case (9)
          call sx_cdtp_lx9(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(8)
+      case (8)
          call sx_cdtp_lx8(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(7)
+      case (7)
          call sx_cdtp_lx7(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(6)
+      case (6)
          call sx_cdtp_lx6(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(5)
+      case (5)
          call sx_cdtp_lx5(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(4)
+      case (4)
          call sx_cdtp_lx4(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(3)
+      case (3)
          call sx_cdtp_lx3(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())
-      case(2)
+      case (2)
          call sx_cdtp_lx2(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, &
               coef%B, coef%jac, msh%nelv, dof%size())

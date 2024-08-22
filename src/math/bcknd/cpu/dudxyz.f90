@@ -45,44 +45,44 @@ contains
          intent(in) ::  u, dr, ds, dt
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
-      select case(coef%Xh%lx)
-      case(14)
+      select case (coef%Xh%lx)
+      case (14)
          call cpu_dudxyz_lx14(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(13)
+      case (13)
          call cpu_dudxyz_lx13(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(12)
+      case (12)
          call cpu_dudxyz_lx12(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(11)
+      case (11)
          call cpu_dudxyz_lx11(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(10)
+      case (10)
          call cpu_dudxyz_lx10(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(9)
+      case (9)
          call cpu_dudxyz_lx9(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(8)
+      case (8)
          call cpu_dudxyz_lx8(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(7)
+      case (7)
          call cpu_dudxyz_lx7(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(6)
+      case (6)
          call cpu_dudxyz_lx6(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(5)
+      case (5)
          call cpu_dudxyz_lx5(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(4)
+      case (4)
          call cpu_dudxyz_lx4(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(3)
+      case (3)
          call cpu_dudxyz_lx3(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(2)
+      case (2)
          call cpu_dudxyz_lx2(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case default

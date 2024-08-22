@@ -37,128 +37,128 @@ submodule (opr_sx) sx_opgrad
 
 contains
 
-  module subroutine opr_sx_opgrad(ux,uy,uz,u,coef)
+  module subroutine opr_sx_opgrad(ux, uy, uz, u, coef)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), intent(inout) :: ux(coef%Xh%lxyz,coef%msh%nelv)
-    real(kind=rp), intent(inout) :: uy(coef%Xh%lxyz,coef%msh%nelv)
-    real(kind=rp), intent(inout) :: uz(coef%Xh%lxyz,coef%msh%nelv)
-    real(kind=rp), intent(in) :: u(coef%Xh%lxyz,coef%msh%nelv)
+    real(kind=rp), intent(inout) :: ux(coef%Xh%lxyz, coef%msh%nelv)
+    real(kind=rp), intent(inout) :: uy(coef%Xh%lxyz, coef%msh%nelv)
+    real(kind=rp), intent(inout) :: uz(coef%Xh%lxyz, coef%msh%nelv)
+    real(kind=rp), intent(in) :: u(coef%Xh%lxyz, coef%msh%nelv)
 
     associate(Xh => coef%Xh, msh => coef%msh)
-      select case(Xh%lx)
-      case(18)
+      select case (Xh%lx)
+      case (18)
          call sx_opgrad_lx18(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(17)
+      case (17)
          call sx_opgrad_lx17(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(16)
+      case (16)
          call sx_opgrad_lx16(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(15)
+      case (15)
          call sx_opgrad_lx15(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(14)
+      case (14)
          call sx_opgrad_lx14(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(13)
+      case (13)
          call sx_opgrad_lx13(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(12)
+      case (12)
          call sx_opgrad_lx12(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(11)
+      case (11)
          call sx_opgrad_lx11(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(10)
+      case (10)
          call sx_opgrad_lx10(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(9)
+      case (9)
          call sx_opgrad_lx9(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(8)
+      case (8)
          call sx_opgrad_lx8(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(7)
+      case (7)
          call sx_opgrad_lx7(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(6)
+      case (6)
          call sx_opgrad_lx6(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(5)
+      case (5)
          call sx_opgrad_lx5(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(4)
+      case (4)
          call sx_opgrad_lx4(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(3)
+      case (3)
          call sx_opgrad_lx3(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case(2)
+      case (2)
          call sx_opgrad_lx2(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
@@ -187,9 +187,9 @@ contains
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdy, dsdy, dtdy
     real(kind=rp), dimension(lx,lx,lx,n), intent(in) :: drdz, dsdz, dtdz
     real(kind=rp), dimension(lx,lx,lx), intent(in) :: w3
-    real(kind=rp) :: ur(lx,lx,lx, n)
-    real(kind=rp) :: us(lx,lx,lx, n)
-    real(kind=rp) :: ut(lx,lx,lx, n)
+    real(kind=rp) :: ur(lx,lx,lx,n)
+    real(kind=rp) :: us(lx,lx,lx,n)
+    real(kind=rp) :: ut(lx,lx,lx,n)
     real(kind=rp) :: wr, ws, wt
     integer :: e, i, j, k, jj, kk
 
