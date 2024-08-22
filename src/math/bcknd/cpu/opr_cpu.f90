@@ -170,7 +170,7 @@ contains
                    cflt = abs(dt*ut*Xh%dt_inv(k))
 
                    cflm = cflr + cfls + cflt
-                   cfl  = max(cfl,cflm)
+                   cfl  = max(cfl, cflm)
                 end do
              end do
           end do

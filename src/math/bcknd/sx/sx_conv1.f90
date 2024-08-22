@@ -1096,7 +1096,7 @@ contains
              do e = 1, nelv
                 wt = 0d0
                 !NEC$ unroll_completely
-                do kk=1, lx
+                do kk = 1, lx
                    wt = wt + dz(k,kk) * u(i,j,kk,e)
                 end do
                 dudt(i,j,k,e) = wt

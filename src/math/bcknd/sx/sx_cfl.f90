@@ -42,7 +42,7 @@ contains
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w
+    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) ::  u, v, w
     real(kind=rp) :: cfl
 
     select case (Xh%lx)
