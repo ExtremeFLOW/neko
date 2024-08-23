@@ -2,7 +2,7 @@
 module pnpn_res_stress_device
   use gather_scatter, only : gs_t, GS_OP_ADD
   use utils, only : neko_error
-  use operators, only : dudxyz, cdtp
+  use operators, only : dudxyz, cdtp, curl, opgrad, strain_rate
   use field, only : field_t
   use ax_product, only : ax_t
   use coefs, only : coef_t
