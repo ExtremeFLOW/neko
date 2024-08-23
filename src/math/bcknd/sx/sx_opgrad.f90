@@ -5,17 +5,17 @@
 ! modification, are permitted provided that the following conditions
 ! are met:
 !
-!   * Redistributions of source code must retain the above copyright
-!     notice, this list of conditions and the following disclaimer.
+!  * Redistributions of source code must retain the above copyright
+!   notice, this list of conditions and the following disclaimer.
 !
-!   * Redistributions in binary form must reproduce the above
-!     copyright notice, this list of conditions and the following
-!     disclaimer in the documentation and/or other materials provided
-!     with the distribution.
+!  * Redistributions in binary form must reproduce the above
+!   copyright notice, this list of conditions and the following
+!   disclaimer in the documentation and/or other materials provided
+!   with the distribution.
 !
-!   * Neither the name of the authors nor the names of its
-!     contributors may be used to endorse or promote products derived
-!     from this software without specific prior written permission.
+!  * Neither the name of the authors nor the names of its
+!   contributors may be used to endorse or promote products derived
+!   from this software without specific prior written permission.
 !
 ! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 ! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -46,126 +46,126 @@ contains
 
     associate(Xh => coef%Xh, msh => coef%msh)
       select case (Xh%lx)
-      case (18)
+        case (18)
          call sx_opgrad_lx18(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case (17)
+        case (17)
          call sx_opgrad_lx17(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case (16)
+        case (16)
          call sx_opgrad_lx16(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case (15)
+        case (15)
          call sx_opgrad_lx15(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case (14)
+        case (14)
          call sx_opgrad_lx14(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case (13)
+        case (13)
          call sx_opgrad_lx13(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case (12)
+        case (12)
          call sx_opgrad_lx12(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case (11)
+        case (11)
          call sx_opgrad_lx11(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case (10)
+        case (10)
          call sx_opgrad_lx10(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case (9)
+        case (9)
          call sx_opgrad_lx9(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case (8)
+        case (8)
          call sx_opgrad_lx8(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case (7)
+        case (7)
          call sx_opgrad_lx7(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case (6)
+        case (6)
          call sx_opgrad_lx6(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case (5)
+        case (5)
          call sx_opgrad_lx5(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case (4)
+        case (4)
          call sx_opgrad_lx4(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case (3)
+        case (3)
          call sx_opgrad_lx3(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case (2)
+        case (2)
          call sx_opgrad_lx2(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
               coef%drdy, coef%dsdy, coef%dtdy, &
               coef%drdz, coef%dsdz, coef%dtdz, &
               Xh%w3, msh%nelv)
-      case default
+        case default
          call sx_opgrad_lx(ux, uy, uz, u, &
               Xh%dx, Xh%dy, Xh%dz, &
               coef%drdx, coef%dsdx, coef%dtdx, &
@@ -197,9 +197,9 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk) * u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          ur(i,jj,1,1) = wr
+          ur(i, jj,1,1) = wr
        end do
     end do
 
@@ -210,9 +210,9 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk) * u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk, k,e)
                 end do
-                us(i,j,k,e) = ws
+                us(i, j, k,e) = ws
              end do
           end do
        end do
@@ -225,9 +225,9 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk) * u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i, j, kk, e)
                 end do
-                ut(i,j,k,e) = wt
+                ut(i, j, k, e) = wt
              end do
           end do
        end do
@@ -274,9 +274,9 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk) * u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          ur(i,jj,1,1) = wr
+          ur(i, jj,1,1) = wr
        end do
     end do
 
@@ -287,9 +287,9 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk) * u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk, k,e)
                 end do
-                us(i,j,k,e) = ws
+                us(i, j, k,e) = ws
              end do
           end do
        end do
@@ -302,9 +302,9 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk) * u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i, j, kk,e)
                 end do
-                ut(i,j,k,e) = wt
+                ut(i, j, k,e) = wt
              end do
           end do
        end do
@@ -351,9 +351,9 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk) * u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj, 1, 1)
           end do
-          ur(i,jj,1,1) = wr
+          ur(i, jj, 1, 1) = wr
        end do
     end do
 
@@ -364,9 +364,9 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk) * u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk, k,e)
                 end do
-                us(i,j,k,e) = ws
+                us(i, j, k,e) = ws
              end do
           end do
        end do
@@ -379,9 +379,9 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk) * u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i, j, kk, e)
                 end do
-                ut(i,j,k,e) = wt
+                ut(i, j, k, e) = wt
              end do
           end do
        end do
@@ -428,9 +428,9 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk) * u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          ur(i,jj,1,1) = wr
+          ur(i, jj,1,1) = wr
        end do
     end do
 
@@ -441,9 +441,9 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk) * u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk, k,e)
                 end do
-                us(i,j,k,e) = ws
+                us(i, j, k,e) = ws
              end do
           end do
        end do
@@ -456,9 +456,9 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk) * u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i, j, kk,e)
                 end do
-                ut(i,j,k,e) = wt
+                ut(i, j, k,e) = wt
              end do
           end do
        end do
@@ -505,9 +505,9 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk) * u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj, 1, 1)
           end do
-          ur(i,jj,1,1) = wr
+          ur(i, jj,1,1) = wr
        end do
     end do
 
@@ -518,9 +518,9 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk) * u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk, k, e)
                 end do
-                us(i,j,k,e) = ws
+                us(i, j, k, e) = ws
              end do
           end do
        end do
@@ -533,9 +533,9 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk) * u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i, j, kk, e)
                 end do
-                ut(i,j,k,e) = wt
+                ut(i, j, k, e) = wt
              end do
           end do
        end do
@@ -582,9 +582,9 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk) * u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          ur(i,jj,1,1) = wr
+          ur(i, jj,1,1) = wr
        end do
     end do
 
@@ -595,9 +595,9 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk) * u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk, k, e)
                 end do
-                us(i,j,k,e) = ws
+                us(i, j, k,e) = ws
              end do
           end do
        end do
@@ -610,9 +610,9 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk) * u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i, j, kk,e)
                 end do
-                ut(i,j,k,e) = wt
+                ut(i, j, k,e) = wt
              end do
           end do
        end do
@@ -659,9 +659,9 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk) * u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          ur(i,jj,1,1) = wr
+          ur(i, jj,1,1) = wr
        end do
     end do
 
@@ -672,9 +672,9 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk) * u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk, k,e)
                 end do
-                us(i,j,k,e) = ws
+                us(i, j, k,e) = ws
              end do
           end do
        end do
@@ -687,9 +687,9 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk) * u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i, j, kk,e)
                 end do
-                ut(i,j,k,e) = wt
+                ut(i, j, k,e) = wt
              end do
           end do
        end do
@@ -736,9 +736,9 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk) * u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          ur(i,jj,1,1) = wr
+          ur(i, jj,1,1) = wr
        end do
     end do
 
@@ -749,9 +749,9 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk) * u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk, k,e)
                 end do
-                us(i,j,k,e) = ws
+                us(i, j, k,e) = ws
              end do
           end do
        end do
@@ -764,9 +764,9 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk) * u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i, j, kk,e)
                 end do
-                ut(i,j,k,e) = wt
+                ut(i, j, k,e) = wt
              end do
           end do
        end do
@@ -813,9 +813,9 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk) * u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          ur(i,jj,1,1) = wr
+          ur(i, jj,1,1) = wr
        end do
     end do
 
@@ -826,9 +826,9 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk) * u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk, k,e)
                 end do
-                us(i,j,k,e) = ws
+                us(i, j, k,e) = ws
              end do
           end do
        end do
@@ -841,9 +841,9 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk) * u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i, j, kk,e)
                 end do
-                ut(i,j,k,e) = wt
+                ut(i, j, k,e) = wt
              end do
           end do
        end do
@@ -890,9 +890,9 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk) * u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          ur(i,jj,1,1) = wr
+          ur(i, jj,1,1) = wr
        end do
     end do
 
@@ -903,9 +903,9 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk) * u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk, k,e)
                 end do
-                us(i,j,k,e) = ws
+                us(i, j, k,e) = ws
              end do
           end do
        end do
@@ -918,9 +918,9 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk) * u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i, j, kk,e)
                 end do
-                ut(i,j,k,e) = wt
+                ut(i, j, k,e) = wt
              end do
           end do
        end do
@@ -967,9 +967,9 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk) * u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          ur(i,jj,1,1) = wr
+          ur(i, jj,1,1) = wr
        end do
     end do
 
@@ -980,9 +980,9 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk) * u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk, k,e)
                 end do
-                us(i,j,k,e) = ws
+                us(i, j, k,e) = ws
              end do
           end do
        end do
@@ -995,9 +995,9 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk) * u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i, j, kk,e)
                 end do
-                ut(i,j,k,e) = wt
+                ut(i, j, k,e) = wt
              end do
           end do
        end do
@@ -1044,9 +1044,9 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk) * u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          ur(i,jj,1,1) = wr
+          ur(i, jj,1,1) = wr
        end do
     end do
 
@@ -1057,9 +1057,9 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk) * u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk, k,e)
                 end do
-                us(i,j,k,e) = ws
+                us(i, j, k,e) = ws
              end do
           end do
        end do
@@ -1072,9 +1072,9 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk) * u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i, j, kk,e)
                 end do
-                ut(i,j,k,e) = wt
+                ut(i, j, k,e) = wt
              end do
           end do
        end do
@@ -1121,9 +1121,9 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk) * u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          ur(i,jj,1,1) = wr
+          ur(i, jj,1,1) = wr
        end do
     end do
 
@@ -1134,9 +1134,9 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk) * u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk, k,e)
                 end do
-                us(i,j,k,e) = ws
+                us(i, j, k,e) = ws
              end do
           end do
        end do
@@ -1149,9 +1149,9 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk) * u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i, j, kk,e)
                 end do
-                ut(i,j,k,e) = wt
+                ut(i, j, k,e) = wt
              end do
           end do
        end do
@@ -1198,9 +1198,9 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk) * u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          ur(i,jj,1,1) = wr
+          ur(i, jj,1,1) = wr
        end do
     end do
 
@@ -1211,9 +1211,9 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk) * u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk, k,e)
                 end do
-                us(i,j,k,e) = ws
+                us(i, j, k,e) = ws
              end do
           end do
        end do
@@ -1226,9 +1226,9 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk) * u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i, j, kk,e)
                 end do
-                ut(i,j,k,e) = wt
+                ut(i, j, k,e) = wt
              end do
           end do
        end do
@@ -1275,9 +1275,9 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk) * u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          ur(i,jj,1,1) = wr
+          ur(i, jj,1,1) = wr
        end do
     end do
 
@@ -1288,9 +1288,9 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk) * u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk, k,e)
                 end do
-                us(i,j,k,e) = ws
+                us(i, j, k,e) = ws
              end do
           end do
        end do
@@ -1303,9 +1303,9 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk) * u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i, j, kk,e)
                 end do
-                ut(i,j,k,e) = wt
+                ut(i, j, k,e) = wt
              end do
           end do
        end do
@@ -1352,9 +1352,9 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk) * u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          ur(i,jj,1,1) = wr
+          ur(i, jj,1,1) = wr
        end do
     end do
 
@@ -1365,9 +1365,9 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk) * u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk, k,e)
                 end do
-                us(i,j,k,e) = ws
+                us(i, j, k,e) = ws
              end do
           end do
        end do
@@ -1380,9 +1380,9 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk) * u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i, j, kk,e)
                 end do
-                ut(i,j,k,e) = wt
+                ut(i, j, k,e) = wt
              end do
           end do
        end do
@@ -1429,9 +1429,9 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk) * u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          ur(i,jj,1,1) = wr
+          ur(i, jj,1,1) = wr
        end do
     end do
 
@@ -1442,9 +1442,9 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk) * u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk, k,e)
                 end do
-                us(i,j,k,e) = ws
+                us(i, j, k,e) = ws
              end do
           end do
        end do
@@ -1457,9 +1457,9 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk) * u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i, j, kk,e)
                 end do
-                ut(i,j,k,e) = wt
+                ut(i, j, k,e) = wt
              end do
           end do
        end do
@@ -1506,9 +1506,9 @@ contains
        do jj = 1, lx * lx * n
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk) * u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          ur(i,jj,1,1) = wr
+          ur(i, jj,1,1) = wr
        end do
     end do
 
@@ -1519,9 +1519,9 @@ contains
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk) * u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk, k,e)
                 end do
-                us(i,j,k,e) = ws
+                us(i, j, k,e) = ws
              end do
           end do
        end do
@@ -1534,9 +1534,9 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk) * u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i, j, kk,e)
                 end do
-                ut(i,j,k,e) = wt
+                ut(i, j, k,e) = wt
              end do
           end do
        end do

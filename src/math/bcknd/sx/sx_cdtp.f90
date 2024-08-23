@@ -127,9 +127,9 @@ contains
        do jj = 1, lx * lx * nel
           tmp = 0d0
           do kk = 1, lx
-             tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
+             tmp = tmp + dxt(i, kk) * ta1(kk, jj,1,1)
           end do
-          dtx(i,jj,1,1) = tmp
+          dtx(i, jj,1,1) = tmp
        end do
     end do
 
@@ -142,7 +142,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
+                   tmp = tmp + dyt(j, kk) * ta1(i, kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -159,7 +159,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j, kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -188,9 +188,9 @@ contains
        do jj = 1, lx * lx * nel
           tmp = 0d0
           do kk = 1, lx
-             tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
+             tmp = tmp + dxt(i, kk) * ta1(kk, jj,1,1)
           end do
-          dtx(i,jj,1,1) = tmp
+          dtx(i, jj,1,1) = tmp
        end do
     end do
 
@@ -203,7 +203,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
+                   tmp = tmp + dyt(j, kk) * ta1(i, kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -220,7 +220,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j, kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -249,9 +249,9 @@ contains
        do jj = 1, lx * lx * nel
           tmp = 0d0
           do kk = 1, lx
-             tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
+             tmp = tmp + dxt(i, kk) * ta1(kk, jj,1,1)
           end do
-          dtx(i,jj,1,1) = tmp
+          dtx(i, jj,1,1) = tmp
        end do
     end do
 
@@ -264,7 +264,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
+                   tmp = tmp + dyt(j, kk) * ta1(i, kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -281,7 +281,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j, kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -310,9 +310,9 @@ contains
        do jj = 1, lx * lx * nel
           tmp = 0d0
           do kk = 1, lx
-             tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
+             tmp = tmp + dxt(i, kk) * ta1(kk, jj,1,1)
           end do
-          dtx(i,jj,1,1) = tmp
+          dtx(i, jj,1,1) = tmp
        end do
     end do
 
@@ -325,7 +325,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
+                   tmp = tmp + dyt(j, kk) * ta1(i, kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -342,7 +342,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk)*ta1(i,j, kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -371,9 +371,9 @@ contains
        do jj = 1, lx * lx * nel
           tmp = 0d0
           do kk = 1, lx
-             tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
+             tmp = tmp + dxt(i, kk) * ta1(kk, jj,1,1)
           end do
-          dtx(i,jj,1,1) = tmp
+          dtx(i, jj,1,1) = tmp
        end do
     end do
 
@@ -386,7 +386,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
+                   tmp = tmp + dyt(j, kk) * ta1(i, kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -403,7 +403,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk)*ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk)*ta1(i,j, kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -432,9 +432,9 @@ contains
        do jj = 1, lx * lx * nel
           tmp = 0d0
           do kk = 1, lx
-             tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
+             tmp = tmp + dxt(i, kk) * ta1(kk, jj,1,1)
           end do
-          dtx(i,jj,1,1) = tmp
+          dtx(i, jj,1,1) = tmp
        end do
     end do
 
@@ -447,7 +447,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
+                   tmp = tmp + dyt(j, kk) * ta1(i, kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -464,7 +464,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j, kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -493,9 +493,9 @@ contains
        do jj = 1, lx * lx * nel
           tmp = 0d0
           do kk = 1, lx
-             tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
+             tmp = tmp + dxt(i, kk) * ta1(kk, jj,1,1)
           end do
-          dtx(i,jj,1,1) = tmp
+          dtx(i, jj,1,1) = tmp
        end do
     end do
 
@@ -508,7 +508,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
+                   tmp = tmp + dyt(j, kk) * ta1(i, kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -525,7 +525,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j, kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -554,9 +554,9 @@ contains
        do jj = 1, lx * lx * nel
           tmp = 0d0
           do kk = 1, lx
-             tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
+             tmp = tmp + dxt(i, kk) * ta1(kk, jj,1,1)
           end do
-          dtx(i,jj,1,1) = tmp
+          dtx(i, jj,1,1) = tmp
        end do
     end do
 
@@ -569,7 +569,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
+                   tmp = tmp + dyt(j, kk) * ta1(i, kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -586,7 +586,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j, kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -615,9 +615,9 @@ contains
        do jj = 1, lx * lx * nel
           tmp = 0d0
           do kk = 1, lx
-             tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
+             tmp = tmp + dxt(i, kk) * ta1(kk, jj,1,1)
           end do
-          dtx(i,jj,1,1) = tmp
+          dtx(i, jj,1,1) = tmp
        end do
     end do
 
@@ -630,7 +630,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
+                   tmp = tmp + dyt(j, kk) * ta1(i, kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -647,7 +647,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j, kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -676,9 +676,9 @@ contains
        do jj = 1, lx * lx * nel
           tmp = 0d0
           do kk = 1, lx
-             tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
+             tmp = tmp + dxt(i, kk) * ta1(kk, jj,1,1)
           end do
-          dtx(i,jj,1,1) = tmp
+          dtx(i, jj,1,1) = tmp
        end do
     end do
 
@@ -691,7 +691,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
+                   tmp = tmp + dyt(j, kk) * ta1(i, kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -708,7 +708,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j, kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -737,9 +737,9 @@ contains
        do jj = 1, lx * lx * nel
           tmp = 0d0
           do kk = 1, lx
-             tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
+             tmp = tmp + dxt(i, kk) * ta1(kk, jj,1,1)
           end do
-          dtx(i,jj,1,1) = tmp
+          dtx(i, jj,1,1) = tmp
        end do
     end do
 
@@ -752,7 +752,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
+                   tmp = tmp + dyt(j, kk) * ta1(i, kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -769,7 +769,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j, kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -798,9 +798,9 @@ contains
        do jj = 1, lx * lx * nel
           tmp = 0d0
           do kk = 1, lx
-             tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
+             tmp = tmp + dxt(i, kk) * ta1(kk, jj,1,1)
           end do
-          dtx(i,jj,1,1) = tmp
+          dtx(i, jj,1,1) = tmp
        end do
     end do
 
@@ -813,7 +813,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
+                   tmp = tmp + dyt(j, kk) * ta1(i, kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -830,7 +830,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j, kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -859,9 +859,9 @@ contains
        do jj = 1, lx * lx * nel
           tmp = 0d0
           do kk = 1, lx
-             tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
+             tmp = tmp + dxt(i, kk) * ta1(kk, jj,1,1)
           end do
-          dtx(i,jj,1,1) = tmp
+          dtx(i, jj,1,1) = tmp
        end do
     end do
 
@@ -874,7 +874,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
+                   tmp = tmp + dyt(j, kk) * ta1(i, kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -891,7 +891,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j, kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -920,9 +920,9 @@ contains
        do jj = 1, lx * lx * nel
           tmp = 0d0
           do kk = 1, lx
-             tmp = tmp + dxt(i,kk) * ta1(kk,jj,1,1)
+             tmp = tmp + dxt(i, kk) * ta1(kk, jj,1,1)
           end do
-          dtx(i,jj,1,1) = tmp
+          dtx(i, jj,1,1) = tmp
        end do
     end do
 
@@ -935,7 +935,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dyt(j, kk) * ta1(i,kk,k,e)
+                   tmp = tmp + dyt(j, kk) * ta1(i, kk,k,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
@@ -952,7 +952,7 @@ contains
                 tmp = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   tmp = tmp + dzt(k, kk) * ta1(i,j,kk,e)
+                   tmp = tmp + dzt(k, kk) * ta1(i,j, kk,e)
                 end do
                 dtx(i,j,k,e) = dtx(i,j,k,e) + tmp
              end do
