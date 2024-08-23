@@ -84,6 +84,7 @@ module fluid_scheme
   use time_step_controller, only : time_step_controller_t
   use field_math, only : field_cfill
   implicit none
+  private
 
   !> Base type of all fluid formulations
   type, abstract :: fluid_scheme_t
@@ -232,6 +233,8 @@ module fluid_scheme
 
      end subroutine fluid_scheme_restart_intrf
   end interface
+
+  public :: fluid_scheme_t
 
 contains
 
