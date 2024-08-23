@@ -32,7 +32,6 @@
 !
 !> Gradient kernels
 submodule (opr_cpu) cpu_opgrad
-  use num_types, only : rp
   implicit none
 
 contains

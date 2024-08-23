@@ -32,7 +32,6 @@
 !
 !> Derivative kernels
 submodule (opr_cpu) cpu_dudxyz
-  use num_types, only : rp
   implicit none
 
 contains

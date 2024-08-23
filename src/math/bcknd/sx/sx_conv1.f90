@@ -32,7 +32,6 @@
 !
 !> conv1 SX-Aurora kernels
 submodule (opr_sx) sx_conv1
-  use num_types, only : rp
   implicit none
 
 contains

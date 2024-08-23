@@ -32,7 +32,6 @@
 !
 !> Derivative kernels for SX-Aurora
 submodule (opr_sx) sx_dudxyz
-  use num_types, only : rp
   use math, only : addcol3, col2
   implicit none
 

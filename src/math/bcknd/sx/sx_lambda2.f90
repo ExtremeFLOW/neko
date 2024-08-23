@@ -32,7 +32,6 @@
 !
 !> Lambda2 kernels for SX-Aurora
 submodule (opr_sx) sx_lambda2
-  use num_types, only : rp
   use math, only : pi
   implicit none
 

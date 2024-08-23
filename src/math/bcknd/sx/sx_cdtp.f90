@@ -32,7 +32,6 @@
 !
 !> DT*X kernels for SX-Aurora
 submodule (opr_sx) sx_cdtp
-  use num_types, only : rp
   use math, only : col3, invcol2
   implicit none
 

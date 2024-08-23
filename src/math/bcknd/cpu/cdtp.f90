@@ -32,7 +32,6 @@
 !
 !> DT*X kernels
 submodule (opr_cpu) cpu_cdtp
-  use num_types, only : rp
   implicit none
 
 contains

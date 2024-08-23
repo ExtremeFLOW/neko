@@ -32,7 +32,6 @@
 !
 !> conv1 kernels
 submodule (opr_cpu) cpu_conv1
-  use num_types, only : rp
   implicit none
 
 contains
