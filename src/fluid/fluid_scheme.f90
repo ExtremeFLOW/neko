@@ -39,9 +39,7 @@ module fluid_scheme
   use mean_flow, only : mean_flow_t
   use num_types, only : rp
   use comm
-  use fluid_user_source_term, only: fluid_user_source_term_t
   use fluid_source_term, only: fluid_source_term_t
-  use field_list, only : field_list_t
   use field, only : field_t
   use space, only : space_t, GLL
   use dofmap, only : dofmap_t
@@ -54,8 +52,7 @@ module fluid_scheme
   use dirichlet, only : dirichlet_t
   use dong_outflow, only : dong_outflow_t
   use symmetry, only : symmetry_t
-  use non_normal, only : non_normal_t
-  use field_dirichlet, only : field_dirichlet_t, field_dirichlet_update
+  use field_dirichlet, only : field_dirichlet_t
   use field_dirichlet_vector, only: field_dirichlet_vector_t
   use jacobi, only : jacobi_t
   use sx_jacobi, only : sx_jacobi_t
@@ -75,10 +72,10 @@ module fluid_scheme
   use logger, only : neko_log, LOG_SIZE
   use field_registry, only : neko_field_registry
   use json_utils, only : json_get, json_get_or_default
-  use json_module, only : json_file, json_core, json_value
+  use json_module, only : json_file
   use scratch_registry, only : scratch_registry_t
   use user_intf, only : user_t
-  use utils, only : neko_warning, neko_error
+  use utils, only : neko_error
   use material_properties, only : material_properties_t
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
