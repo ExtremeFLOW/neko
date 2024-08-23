@@ -1,0 +1,38 @@
+USEMPI=NO
+ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
+include @PFUNIT_DIR@/include/PFUNIT.mk
+endif
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) -I@top_builddir@/src
+FC = @FC@
+
+%.o : %.F90
+	$(FC) -c $(FFLAGS) $<
+
+
+check: distance_test linear_coordinates_test euclidean_coordinates_test
+
+# Test for the distance functions
+distance_test_TESTS := distance.pf
+distance_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko -llapack
+$(eval $(call make_pfunit_test,distance_test))
+
+# Tests for the linear_coordinates functions
+linear_coordinates_test_TESTS := linear_coordinates.pf
+linear_coordinates_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko -llapack
+$(eval $(call make_pfunit_test,linear_coordinates_test))
+
+# Tests for the euclidean_coordinates functions
+euclidean_coordinates_test_TESTS := euclidean_coordinates.pf
+euclidean_coordinates_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko -llapack
+$(eval $(call make_pfunit_test,euclidean_coordinates_test))
+
+clean:
+	$(RM) *.o *.mod *.a *.inc *.F90 distance_test linear_coordinates_test \
+    euclidean_coordinates_test
+
+
+
+all:
+html:
+install:
+distdir:

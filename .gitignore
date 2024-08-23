@@ -9,6 +9,7 @@
 
 # General list of files to ignore
 *.mod
+*.smod
 *.o
 *.dirstamp
 *.Po

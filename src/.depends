@@ -85,6 +85,11 @@ math/bcknd/sx/sx_opgrad.o : math/bcknd/sx/sx_opgrad.f90 config/num_types.o
 math/bcknd/sx/sx_cfl.o : math/bcknd/sx/sx_cfl.f90 config/num_types.o 
 math/bcknd/sx/sx_lambda2.o : math/bcknd/sx/sx_lambda2.f90 math/math.o config/num_types.o 
 math/operators.o : math/operators.f90 comm/comm.o field/scratch_registry.o math/bcknd/device/device_math.o device/device.o math/math.o field/field.o sem/coef.o sem/space.o math/bcknd/device/opr_device.o math/bcknd/xsmm/opr_xsmm.o math/bcknd/sx/opr_sx.o math/bcknd/cpu/opr_cpu.o config/num_types.o config/neko_config.o 
+math/geometric_operators.o : math/geometric_operators.f90 mesh/hex.o mesh/quad.o mesh/tet.o mesh/tri.o mesh/point.o config/num_types.o 
+math/bcknd/cpu/distance_primitives.o : math/bcknd/cpu/distance_primitives.f90 config/num_types.o math/geometric_operators.o 
+math/bcknd/cpu/distance_elements.o : math/bcknd/cpu/distance_elements.f90 common/utils.o math/math.o math/geometric_operators.o 
+math/bcknd/cpu/coordinates_linear.o : math/bcknd/cpu/coordinates_linear.f90 mesh/hex.o mesh/quad.o mesh/tet.o mesh/tri.o math/math.o common/utils.o config/num_types.o math/geometric_operators.o 
+math/bcknd/cpu/coordinates_euclidean.o : math/bcknd/cpu/coordinates_euclidean.f90 mesh/hex.o mesh/quad.o mesh/tet.o mesh/tri.o math/math.o common/utils.o config/num_types.o math/geometric_operators.o 
 math/bcknd/cpu/opr_cpu.o : math/bcknd/cpu/opr_cpu.f90 math/mathops.o gs/gather_scatter.o field/field.o math/math.o sem/coef.o sem/space.o config/num_types.o math/bcknd/cpu/conv1.o math/bcknd/cpu/cdtp.o math/bcknd/cpu/opgrad.o math/bcknd/cpu/dudxyz.o 
 math/bcknd/sx/opr_sx.o : math/bcknd/sx/opr_sx.f90 math/mathops.o field/field.o math/math.o sem/coef.o sem/space.o config/num_types.o gs/gather_scatter.o math/bcknd/sx/sx_lambda2.o math/bcknd/sx/sx_cfl.o math/bcknd/sx/sx_cdtp.o math/bcknd/sx/sx_conv1.o math/bcknd/sx/sx_opgrad.o math/bcknd/sx/sx_dudxyz.o 
 math/bcknd/xsmm/opr_xsmm.o : math/bcknd/xsmm/opr_xsmm.F90 math/mathops.o gs/gather_scatter.o field/field.o mesh/mesh.o math/math.o sem/coef.o sem/space.o math/mxm_wrapper.o config/num_types.o 
@@ -100,7 +105,7 @@ math/bcknd/xsmm/fdm_xsmm.o : math/bcknd/xsmm/fdm_xsmm.f90 math/bcknd/xsmm/tensor
 math/schwarz.o : math/schwarz.f90 config/neko_config.o device/device.o math/fdm.o math/bcknd/device/device_math.o math/bcknd/device/device_schwarz.o gs/gather_scatter.o bc/bc.o sem/dofmap.o sem/space.o mesh/mesh.o math/math.o config/num_types.o 
 math/vector.o : math/vector.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o config/neko_config.o 
 math/matrix.o : math/matrix.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o config/neko_config.o 
-math/signed_distance.o : math/signed_distance.f90 adt/stack.o mesh/search_tree/aabb.o mesh/point.o common/utils.o mesh/aabb_tree.o mesh/tri_mesh.o mesh/tri.o field/field.o config/num_types.o 
+math/signed_distance.o : math/signed_distance.f90 adt/stack.o mesh/search_tree/aabb.o mesh/point.o common/utils.o mesh/aabb_tree.o mesh/tri_mesh.o mesh/tri.o field/field.o config/num_types.o math/math.o 
 common/checkpoint.o : common/checkpoint.f90 mesh/mesh.o common/utils.o field/field.o device/device.o sem/space.o field/field_series.o config/num_types.o config/neko_config.o 
 io/generic_file.o : io/generic_file.f90 comm/comm.o common/utils.o config/num_types.o 
 io/map_file.o : io/map_file.f90 io/format/map.o comm/comm.o common/utils.o io/generic_file.o 

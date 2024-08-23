@@ -1,36 +1,37 @@
 SUBDIRS = tuple\
-	  stack\
-	  point\
-	  htable\
-	  uset\
-	  quad\
-	  hex\
-	  tet\
-	  tri\
-	  math\
-	  mesh\
-	  space\
-	  dofmap\
-	  field\
-	  mean_field\
-	  mean_sqr_field\
-	  gather_scatter\
-	  krylov\
-	  bc\
-	  signal\
-	  jobctrl\
-	  device\
-	  device_math\
-	  mathops\
-	  device_mathops\
-	  octree\
-	  vector\
-	  scratch_registry\
-	  fast3d\
-	  time_scheme\
-	  time_scheme_controller\
-	  time_based_controller\
-	  point_interpolation
+	stack\
+	point\
+	htable\
+	uset\
+	quad\
+	hex\
+	tet\
+	tri\
+	math\
+	mesh\
+	space\
+	dofmap\
+	field\
+	mean_field\
+	mean_sqr_field\
+	gather_scatter\
+	geometric_operators\
+	krylov\
+	bc\
+	signal\
+	jobctrl\
+	device\
+	device_math\
+	mathops\
+	device_mathops\
+	octree\
+	vector\
+	scratch_registry\
+	fast3d\
+	time_scheme\
+	time_scheme_controller\
+	time_based_controller\
+	point_interpolation
 
 TESTS = device/device_test\
 	tuple/tuple_test\
@@ -50,6 +51,9 @@ TESTS = device/device_test\
 	mean_field/mean_field_test\
 	mean_sqr_field/mean_sqr_field_test\
 	gather_scatter/gather_scatter_test\
+	geometric_operators/distance_test\
+	geometric_operators/linear_coordinates_test\
+    geometric_operators/euclidean_coordinates_test\
 	krylov/krylov_test\
 	bc/bc_test\
 	signal/signal_test\
@@ -111,6 +115,9 @@ EXTRA_DIST = \
 	device_math/device_math_parallel.pf\
 	mesh/mesh_test\
 	gather_scatter/gather_scatter_test\
+	geometric_operators/distance.pf\
+	geometric_operators/linear_coordinates.pf\
+    geometric_operators/euclidean_coordinates.pf\
 	dofmap/dofmap_test\
 	jobctrl/jobctrl_test\
 	math/math_test\

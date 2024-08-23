@@ -102,7 +102,7 @@ module math
        add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
        glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
-       swap, reord, flipv
+       swap, reord, flipv, cross
 
 contains
 
@@ -455,6 +455,18 @@ contains
     end do
 
   end subroutine invers2
+
+  !> Compute a cross product \f$ v \times w\f$
+  !! assuming single set of vectors.
+  pure function cross(v, w)
+    real(kind=rp), dimension(3), intent(in) :: v, w
+    real(kind=rp), dimension(3) :: cross
+
+    cross(1) = v(2)*w(3) - v(3)*w(2)
+    cross(2) = v(3)*w(1) - v(1)*w(3)
+    cross(3) = v(1)*w(2) - v(2)*w(1)
+
+  end function cross
 
   !> Compute a cross product \f$ u = v \times w \f$
   !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
@@ -955,12 +967,12 @@ contains
     do while (.true.)
        if (l.gt.1) then
           l = l - 1
-          aa  = a  (l)
-          ii  = ind(l)
+          aa = a (l)
+          ii = ind(l)
        else
-          aa =   a(ir)
+          aa = a(ir)
           ii = ind(ir)
-          a(ir) =   a( 1)
+          a(ir) = a( 1)
           ind(ir) = ind( 1)
           ir = ir - 1
           if (ir .eq. 1) then
