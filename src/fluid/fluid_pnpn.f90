@@ -44,17 +44,13 @@ module fluid_pnpn
   use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_bdf_t, rhs_maker_ext_t
   use fluid_volflow, only : fluid_volflow_t
   use fluid_scheme, only : fluid_scheme_t
-  use field_series, only : field_series_t
-  use device_math, only : device_add2, device_col2
   use device_mathops, only : device_opcolv, device_opadd2cm
   use fluid_aux, only : fluid_step_info
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
   use device, only : device_memcpy, HOST_TO_DEVICE
-  use logger, only : neko_log
   use advection, only : advection_t
   use profiler, only : profiler_start_region, profiler_end_region
-  use json_utils, only : json_get
   use json_module, only : json_file
   use material_properties, only : material_properties_t
   use advection_fctry, only : advection_factory
@@ -65,11 +61,10 @@ module fluid_pnpn
   use non_normal, only : non_normal_t
   use mesh, only : mesh_t
   use user_intf, only : user_t
-  use coefs, only : coef_t
   use time_step_controller, only : time_step_controller_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
-  use math, only : col2, add2
+  use math, only : col2
   use mathops, only : opadd2cm, opcolv
   use bc, only: bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
                 bc_list_apply_scalar, bc_list_apply_vector
