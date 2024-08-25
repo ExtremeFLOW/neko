@@ -41,8 +41,7 @@ module pnpn_res_fctry
   implicit none
   private
 
-  public :: pnpn_prs_res_t, pnpn_vel_res_t, &
-       pnpn_prs_res_factory, pnpn_vel_res_factory
+  public :: pnpn_prs_res_factory, pnpn_vel_res_factory
 
 contains
 
