@@ -41,7 +41,6 @@ module case
   use mean_sqr_flow_output, only : mean_sqr_flow_output_t
   use mean_flow_output, only : mean_flow_output_t
   use fluid_stats_output, only : fluid_stats_output_t
-  use mpi_f08
   use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
   use parmetis, only : parmetis_partmeshkway
   use redist, only : redist_mesh
@@ -64,8 +63,9 @@ module case
   use point_zone_registry, only: neko_point_zone_registry
   use material_properties, only : material_properties_t
   implicit none
-
-  type :: case_t
+  private
+  
+  type, public :: case_t
      type(mesh_t) :: msh
      type(json_file) :: params
      type(time_scheme_controller_t) :: ext_bdf
@@ -90,7 +90,7 @@ module case
      module procedure case_init_from_file, case_init_from_json
   end interface case_init
 
-  private :: case_init_from_file, case_init_from_json, case_init_common
+  public :: case_init, case_free
 
 contains
 
