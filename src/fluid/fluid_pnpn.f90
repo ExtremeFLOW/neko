@@ -62,7 +62,7 @@ module fluid_pnpn
   use mesh, only : mesh_t
   use user_intf, only : user_t
   use time_step_controller, only : time_step_controller_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use math, only : col2
   use mathops, only : opadd2cm, opcolv

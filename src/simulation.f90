@@ -32,21 +32,19 @@
 !
 !> Simulation driver
 module simulation
-  use case
-  use gather_scatter
+  use mpi_f08
+  use case, only : case_t
+  use num_types, only : rp, dp
   use time_scheme_controller
-  use file
-  use math
-  use logger
-  use device
-  use device_math
-  use jobctrl
+  use file, only : file_t
+  use logger, only : LOG_SIZE, neko_log
+  use jobctrl, only : jobctrl_time_limit
   use field, only : field_t
-  use profiler
-  use math, only : col2
+  use profiler, only : profiler_start, profiler_stop, &
+       profiler_start_region, profiler_end_region
   use simcomp_executor, only : neko_simcomps
   use json_utils, only : json_get_or_default
-  use time_step_controller
+  use time_step_controller, only : time_step_controller_t
   implicit none
   private
 
