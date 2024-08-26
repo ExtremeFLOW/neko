@@ -78,6 +78,7 @@ contains
     type(point_t), target :: p(8)
     type(linear_dist_t) :: dist
     character(len=LOG_SIZE) :: log_buf
+    real(kind=rp) :: t_start, t_end
 
     call this%check_exists()
 
@@ -240,9 +241,16 @@ contains
 
        call MPI_File_close(fh, ierr)
        call neko_log%message('Mesh read, setting up connectivity')
-
+       
+       t_start = MPI_WTIME()
        call msh%finalize()
-       call neko_log%message('Done setting up mesh and connectivity')
+       call MPI_Barrier(NEKO_COMM, ierr)
+       t_end = MPI_WTIME()
+       write(log_buf, '(A)') 'Done setting up mesh and connectivity'
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,F9.6)') 'Mesh and connectivity setup (excluding read) time (s): ', & 
+                                  t_end - t_start
+       call neko_log%message(log_buf)
 
        call neko_log%end_section()
     end if
