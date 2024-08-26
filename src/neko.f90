@@ -39,7 +39,7 @@ module neko
   use math
   use speclib
   use dofmap, only : dofmap_t
-  use space
+  use space, only : space_t, GL, GLL, GJ
   use htable
   use uset
   use stack
@@ -54,7 +54,7 @@ module neko
   use field, only : field_t, field_ptr_t
   use neko_mpi_types
   use gather_scatter
-  use coefs
+  use coefs, only : coef_t
   use bc
   use wall
   use dirichlet
@@ -82,8 +82,8 @@ module neko
   use field_list, only : field_list_t
   use fluid_user_source_term
   use scalar_user_source_term
-  use vector
-  use matrix
+  use vector, only : vector_t, vector_ptr_t
+  use matrix, only : matrix_t
   use tensor
   use simulation_component
   use probes
@@ -102,6 +102,7 @@ module neko
   use point_zone_registry, only: neko_point_zone_registry
   use field_dirichlet, only : field_dirichlet_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
+  use json_module, only: json_file
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
