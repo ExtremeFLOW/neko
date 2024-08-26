@@ -256,10 +256,10 @@ contains
 
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')
-    write(log_buf,'(A,A)') 'File :   ', &
+    write(log_buf, '(A,A)') 'File :   ', &
       trim(restart_file)
     call neko_log%message(log_buf)
-    write(log_buf,'(A,E15.7)') 'Time : ', t
+    write(log_buf, '(A,E15.7)') 'Time : ', t
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
