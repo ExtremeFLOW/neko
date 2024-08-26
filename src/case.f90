@@ -156,7 +156,10 @@ contains
     !
     ! Load mesh
     !
-    call json_get(C%params, 'case.mesh_file', string_val)
+    call json_get_or_default(C%params, 'case.mesh_file', string_val,'no mesh')
+    if (trim(string_val) .eq. 'no mesh') then
+       call neko_error('No mesh found, likely the json case file is incorrect.')
+    end if
     msh_file = file_t(string_val)
 
     call msh_file%read(C%msh)
