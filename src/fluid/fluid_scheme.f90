@@ -369,25 +369,27 @@ contains
     if (logical_val) then
        write(log_buf, '(A)') 'bdry keys: '
        call neko_log%message(log_buf)
-       write(log_buf, '(A)') 'No-slip wall             ''w'' = 1.0'
+       write(log_buf, '(A)') 'No-slip wall             ''w'' = 1'
        call neko_log%message(log_buf)
-       write(log_buf, '(A)') 'Inlet/velocity dirichlet ''v'' = 2.0'
+       write(log_buf, '(A)') 'Inlet/velocity dirichlet ''v'' = 2'
        call neko_log%message(log_buf)
-       write(log_buf, '(A)') 'Outlet                   ''o'' = 3.0'
+       write(log_buf, '(A)') 'Outlet                   ''o'' = 3'
        call neko_log%message(log_buf)
-       write(log_buf, '(A)') 'Symmetry               ''sym'' = 4.0'
+       write(log_buf, '(A)') 'Symmetry               ''sym'' = 4'
        call neko_log%message(log_buf)
-       write(log_buf, '(A)') 'Outlet-normal           ''on'' = 5.0'
+       write(log_buf, '(A)') 'Outlet-normal           ''on'' = 5'
        call neko_log%message(log_buf)
-       write(log_buf, '(A)') 'Periodic                     = 6.0'
+       write(log_buf, '(A)') 'Periodic                     = 6'
        call neko_log%message(log_buf)
        write(log_buf, '(A)') 'Dirichlet on velocity components: '
        call neko_log%message(log_buf)
-       write(log_buf, '(A)') ' ''d_vel_u, d_vel_v, d_vel_w'' = 7.0'
+       write(log_buf, '(A)') ' ''d_vel_u, d_vel_v, d_vel_w'' = 7'
        call neko_log%message(log_buf)
-       write(log_buf, '(A)') 'Pressure dirichlet  ''d_pres'' = 8.0'
+       write(log_buf, '(A)') 'Pressure dirichlet  ''d_pres'' = 8'
        call neko_log%message(log_buf)
-       write(log_buf, '(A)') '''d_vel_(u,v,w)'' and ''d_pres'' = 8.0'
+       write(log_buf, '(A)') '''d_vel_(u,v,w)'' and ''d_pres'' = 8'
+       call neko_log%message(log_buf)
+       write(log_buf, '(A)') 'No boundary condition set    = 0'
        call neko_log%message(log_buf)
     end if
 
