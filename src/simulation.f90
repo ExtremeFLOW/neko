@@ -35,7 +35,7 @@ module simulation
   use mpi_f08
   use case, only : case_t
   use num_types, only : rp, dp
-  use time_scheme_controller
+  use time_scheme_controller, only : time_scheme_controller_t
   use file, only : file_t
   use logger, only : LOG_SIZE, neko_log
   use jobctrl, only : jobctrl_time_limit
@@ -68,14 +68,14 @@ contains
     t = 0d0
     tstep = 0
     call neko_log%section('Starting simulation')
-    write(log_buf,'(A, E15.7,A,E15.7,A)') 'T  : [', 0d0,',',C%end_time,')'
+    write(log_buf, '(A, E15.7,A,E15.7,A)') 'T  : [', 0d0, ',', C%end_time, ')'
     call neko_log%message(log_buf)
     call dt_controller%init(C%params)
     if (.not. dt_controller%if_variable_dt) then
-       write(log_buf,'(A, E15.7)') 'dt :  ', C%dt
+       write(log_buf, '(A, E15.7)') 'dt :  ', C%dt
        call neko_log%message(log_buf)
     else
-       write(log_buf,'(A, E15.7)') 'CFL :  ', dt_controller%set_cfl
+       write(log_buf, '(A, E15.7)') 'CFL :  ', dt_controller%set_cfl
        call neko_log%message(log_buf)
     end if
 

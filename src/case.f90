@@ -112,7 +112,7 @@ contains
     end if
 
     call MPI_Bcast(integer_val, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
-    if (pe_rank .ne. 0) allocate(character(len=integer_val) :: json_buffer)
+    if (pe_rank .ne. 0) allocate(character(len=integer_val)::json_buffer)
     call MPI_Bcast(json_buffer, integer_val, MPI_CHARACTER, 0, NEKO_COMM, ierr)
     call C%params%load_from_string(json_buffer)
 
