@@ -158,8 +158,8 @@ contains
     !
     call json_get_or_default(C%params, 'case.mesh_file', string_val, 'no mesh')
     if (trim(string_val) .eq. 'no mesh') then
-       call neko_error('No mesh found, often caused by that the json ' //&
-                       '(.case) file is incorrectly formatted somewhere.')
+       call neko_error('The mesh_file keyword could not be found in the .' // &
+                       'case file. Often caused by incorrectly formatted json.')
     end if
     msh_file = file_t(string_val)
 
