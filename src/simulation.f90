@@ -58,7 +58,7 @@ contains
   subroutine neko_solve(C)
     type(case_t), target, intent(inout) :: C
     real(kind=rp) :: t, cfl
-    real(kind=dp) :: start_time_org, start_time, end_time
+    real(kind=dp) :: start_time_org, start_time, end_time, tstep_start_time
     character(len=LOG_SIZE) :: log_buf
     integer :: tstep
     character(len=:), allocatable :: restart_file
@@ -108,6 +108,7 @@ contains
        call profiler_start_region('Time-Step')
        tstep = tstep + 1
        start_time = MPI_WTIME()
+       tstep_start_time = start_time
        if (dt_controller%dt_last_change .eq. 0) then
           cfl_avrg = cfl
        end if
@@ -132,9 +133,11 @@ contains
        call neko_log%section('Fluid')
        call C%fluid%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
        end_time = MPI_WTIME()
-       write(log_buf, '(A,E15.7,A,E15.7)') &
-         'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
-         end_time-start_time
+       write(log_buf, '(A,E15.7)') &
+            'Total elapsed time (s):', end_time-start_time_org
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,E15.7)') &
+            'Fluid step time (s):   ', end_time-start_time
        call neko_log%end_section(log_buf)
 
        ! Scalar step
@@ -143,9 +146,11 @@ contains
           call neko_log%section('Scalar')
           call C%scalar%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
           end_time = MPI_WTIME()
-          write(log_buf, '(A,E15.7,A,E15.7)') &
-            'Elapsed time (s):', end_time-start_time_org, ' Step time:', &
-            end_time-start_time
+          write(log_buf, '(A,E15.7)') &
+            'Total elapsed time (s):', end_time-start_time_org
+          call neko_log%message(log_buf)
+          write(log_buf, '(A,E15.7)') &
+            'Scalar step time:      ', end_time-start_time
           call neko_log%end_section(log_buf)
        end if
 
@@ -167,7 +172,15 @@ contains
                              C%fluid%p, C%fluid%c_Xh, C%params)
 
        call neko_log%end_section()
-
+       end_time = MPI_WTIME()
+       call neko_log%section('Step summary')
+       write(log_buf, '(A,I8,A,E15.7)') &
+            'Total time for step ', tstep,' (s): ', end_time-start_time
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,E15.7)') &
+            'Total elapsed time (s):           ', end_time-start_time_org
+       call neko_log%message(log_buf)
+       call neko_log%end_section()
        call neko_log%end()
        call profiler_end_region
     end do
