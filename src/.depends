@@ -74,10 +74,10 @@ field/mesh_field.o : field/mesh_field.f90 mesh/mesh.o
 field/mean_field.o : field/mean_field.f90 math/field_math.o field/field.o config/num_types.o common/stats_quant.o config/neko_config.o 
 field/mean_sqr_field.o : field/mean_sqr_field.f90 math/math.o math/bcknd/device/device_math.o field/mean_field.o config/neko_config.o config/num_types.o 
 io/format/rea.o : io/format/rea.f90 mesh/mesh.o config/num_types.o 
-math/bcknd/cpu/cdtp.o : math/bcknd/cpu/cdtp.f90 math/bcknd/cpu/opr_cpu.o 
-math/bcknd/cpu/conv1.o : math/bcknd/cpu/conv1.f90 math/bcknd/cpu/opr_cpu.o 
-math/bcknd/cpu/dudxyz.o : math/bcknd/cpu/dudxyz.f90 math/bcknd/cpu/opr_cpu.o 
-math/bcknd/cpu/opgrad.o : math/bcknd/cpu/opgrad.f90 math/bcknd/cpu/opr_cpu.o 
+math/bcknd/cpu/cpu_cdtp.o : math/bcknd/cpu/cpu_cdtp.f90 math/bcknd/cpu/opr_cpu.o 
+math/bcknd/cpu/cpu_conv1.o : math/bcknd/cpu/cpu_conv1.f90 math/bcknd/cpu/opr_cpu.o 
+math/bcknd/cpu/cpu_dudxyz.o : math/bcknd/cpu/cpu_dudxyz.f90 math/bcknd/cpu/opr_cpu.o 
+math/bcknd/cpu/cpu_opgrad.o : math/bcknd/cpu/cpu_opgrad.f90 math/bcknd/cpu/opr_cpu.o 
 math/bcknd/sx/sx_cdtp.o : math/bcknd/sx/sx_cdtp.f90 math/math.o math/bcknd/sx/opr_sx.o 
 math/bcknd/sx/sx_conv1.o : math/bcknd/sx/sx_conv1.f90 math/bcknd/sx/opr_sx.o 
 math/bcknd/sx/sx_dudxyz.o : math/bcknd/sx/sx_dudxyz.f90 math/math.o math/bcknd/sx/opr_sx.o 
