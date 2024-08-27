@@ -999,7 +999,7 @@ contains
       call bdry_mask%mark_zone(this%msh%outlet)
       call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
                      'o', this%bc_labels)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
+      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
                      'o+dong', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(3.0_rp)
@@ -1019,7 +1019,7 @@ contains
       call bdry_mask%mark_zone(this%msh%outlet_normal)
       call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
                      'on', this%bc_labels)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
+      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
                      'on+dong', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(5.0_rp)
@@ -1034,11 +1034,11 @@ contains
       call bdry_mask%free()
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
+      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
                      'd_vel_u', this%bc_labels)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
+      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
                      'd_vel_v', this%bc_labels)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
+      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
                      'd_vel_w', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(7.0_rp)
@@ -1046,7 +1046,7 @@ contains
       call bdry_mask%free()
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
+      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
                      'd_pres', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(8.0_rp)
