@@ -368,6 +368,32 @@ contains
                              .false.)
     write(log_buf, '(A, L1)') 'Save bdry  : ',  logical_val
     call neko_log%message(log_buf)
+    if (logical_val) then
+       write(log_buf, '(A)') 'bdry keys: '
+       call neko_log%message(log_buf)
+       write(log_buf, '(A)') 'No-slip wall             ''w'' = 1'
+       call neko_log%message(log_buf)
+       write(log_buf, '(A)') 'Inlet/velocity dirichlet ''v'' = 2'
+       call neko_log%message(log_buf)
+       write(log_buf, '(A)') 'Outlet                   ''o'' = 3'
+       call neko_log%message(log_buf)
+       write(log_buf, '(A)') 'Symmetry               ''sym'' = 4'
+       call neko_log%message(log_buf)
+       write(log_buf, '(A)') 'Outlet-normal           ''on'' = 5'
+       call neko_log%message(log_buf)
+       write(log_buf, '(A)') 'Periodic                     = 6'
+       call neko_log%message(log_buf)
+       write(log_buf, '(A)') 'Dirichlet on velocity components: '
+       call neko_log%message(log_buf)
+       write(log_buf, '(A)') ' ''d_vel_u, d_vel_v, d_vel_w'' = 7'
+       call neko_log%message(log_buf)
+       write(log_buf, '(A)') 'Pressure dirichlet  ''d_pres'' = 8'
+       call neko_log%message(log_buf)
+       write(log_buf, '(A)') '''d_vel_(u,v,w)'' and ''d_pres'' = 8'
+       call neko_log%message(log_buf)
+       write(log_buf, '(A)') 'No boundary condition set    = 0'
+       call neko_log%message(log_buf)
+    end if
 
 
     !
@@ -973,6 +999,8 @@ contains
       call bdry_mask%mark_zone(this%msh%outlet)
       call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
                      'o', this%bc_labels)
+      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
+                     'o+dong', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(3.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
@@ -991,6 +1019,8 @@ contains
       call bdry_mask%mark_zone(this%msh%outlet_normal)
       call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
                      'on', this%bc_labels)
+      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
+                     'on+dong', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(5.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
@@ -1002,6 +1032,27 @@ contains
       call bdry_mask%set_g(6.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
       call bdry_mask%free()
+
+      call bdry_mask%init_base(this%c_Xh)
+      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
+                     'd_vel_u', this%bc_labels)
+      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
+                     'd_vel_v', this%bc_labels)
+      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
+                     'd_vel_w', this%bc_labels)
+      call bdry_mask%finalize()
+      call bdry_mask%set_g(7.0_rp)
+      call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+      call bdry_mask%free()
+
+      call bdry_mask%init_base(this%c_Xh)
+      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
+                     'd_pres', this%bc_labels)
+      call bdry_mask%finalize()
+      call bdry_mask%set_g(8.0_rp)
+      call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+      call bdry_mask%free()
+
     end if
 
   end subroutine fluid_scheme_set_bc_type_output
