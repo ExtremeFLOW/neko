@@ -169,6 +169,31 @@ module krylov
      end subroutine ksp_t_free
   end interface
 
+  interface
+     !> Factory for Krylov solvers. Both creates and initializes the object.
+     !! @param object The object to be allocated.
+     !! @param n Size of the vectors the solver operates on.
+     !! @param type_name The name of the solver type.
+     !! @param max_iter The maximum number of iterations
+     !! @param abstol The absolute tolerance, optional.
+     !! @param M The preconditioner, optional.
+     module subroutine krylov_solver_factory(object, n, type_name, &
+          max_iter, abstol, M)
+       class(ksp_t), allocatable, target, intent(inout) :: object
+       integer, intent(in), value :: n
+       character(len=*), intent(in) :: type_name
+       integer, intent(in) :: max_iter
+       real(kind=rp), optional :: abstol
+       class(pc_t), optional, intent(inout), target :: M
+     end subroutine krylov_solver_factory
+
+     !> Destroy an iterative Krylov type_name
+     module subroutine krylov_solver_destroy(object)
+       class(ksp_t), allocatable, intent(inout) :: object
+     end subroutine krylov_solver_destroy
+  end interface
+
+  public :: krylov_solver_factory, krylov_solver_destroy
 contains
 
   !> Constructor for the base type.

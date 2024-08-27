@@ -64,8 +64,7 @@ module hsmg
   use math
   use utils, only : neko_error
   use precon, only : pc_t
-  use ax_product, only : ax_t
-  use ax_helm_fctry, only : ax_helm_factory
+  use ax_product, only : ax_t, ax_helm_factory
   use gather_scatter
   use interpolation
   use bc
@@ -82,8 +81,8 @@ module hsmg
   use field, only : field_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
-  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use krylov_fctry, only : krylov_solver_factory, krylov_solver_destroy
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
+       krylov_solver_factory, krylov_solver_destroy
   !$ use omp_lib
   implicit none
   private

@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2018-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -131,5 +131,32 @@ module rhs_maker
        real(kind=rp), intent(in) :: dt, rho, bd(4)
      end subroutine scalar_rhs_maker_bdf
   end interface
+
+  interface
+     !> Factory routine for computing the extrapolated velocity values used in
+     !! the pressure equation for the PnPn fluid scheme.
+     !! @details Only selects the compute backend.
+     !! @param object The object to be allocated by the factory.
+     module subroutine rhs_maker_sumab_fctry(object)
+       class(rhs_maker_sumab_t), allocatable, intent(inout) :: object
+     end subroutine rhs_maker_sumab_fctry
+
+     !> Factory routine for computing the explicit-in-time
+     !! contribution to the RHS.
+     !! @details Only selects the compute backend.
+     !! @param object The object to be allocated by the factory.
+     module subroutine rhs_maker_ext_fctry(object)
+       class(rhs_maker_ext_t), allocatable, intent(inout) :: object
+     end subroutine rhs_maker_ext_fctry
+
+     !> Factory routine for computing the RHS contributions from the BDF scheme.
+     !! @details Only selects the compute backend.
+     !! @param object The object to be allocated by the factory.
+     module subroutine rhs_maker_bdf_fctry(object)
+       class(rhs_maker_bdf_t), allocatable, intent(inout) :: object
+     end subroutine rhs_maker_bdf_fctry     
+  end interface
+
+  public :: rhs_maker_sumab_fctry, rhs_maker_ext_fctry, rhs_maker_bdf_fctry
 
 end module rhs_maker

@@ -35,9 +35,8 @@
 module scalar_pnpn
   use num_types, only: rp
   use scalar_residual_fctry, only : scalar_residual_factory
-  use ax_helm_fctry, only: ax_helm_factory
-  use rhs_maker_fctry, only : rhs_maker_ext_fctry, rhs_maker_bdf_fctry
-  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t
+  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, &
+       rhs_maker_ext_fctry, rhs_maker_bdf_fctry
   use scalar_scheme, only : scalar_scheme_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
@@ -50,7 +49,7 @@ module scalar_pnpn
   use device, only : HOST_TO_DEVICE, device_memcpy
   use gather_scatter, only : gs_t, GS_OP_ADD
   use scalar_residual, only :scalar_residual_t
-  use ax_product, only : ax_t
+  use ax_product, only : ax_t, ax_helm_factory
   use field_series, only: field_series_t
   use facet_normal, only : facet_normal_t
   use krylov, only : ksp_monitor_t
@@ -60,8 +59,7 @@ module scalar_pnpn
   use projection, only : projection_t
   use math, only : glsc2, col2, add2s2
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
-  use advection, only : advection_t
-  use advection_fctry, only : advection_factory
+  use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_utils, only: json_get
   use json_module, only : json_file

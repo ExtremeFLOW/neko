@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,23 +30,19 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module precon_fctry
-  use precon
-  use identity
-  use device_identity
-  use jacobi
-  use sx_jacobi
-  use device_jacobi
-  use hsmg
-  use utils
+submodule (precon) precon_fctry
+  use identity, only : ident_t
+  use device_identity, only : device_ident_t
+  use jacobi, only : jacobi_t
+  use sx_jacobi, only : sx_jacobi_t
+  use device_jacobi, only : device_jacobi_t
+  use hsmg, only : hsmg_t
+  use utils, only : concat_string_array, neko_error
   use neko_config
   implicit none
- ! private
-
-  public :: precon_factory, precon_destroy
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KNOWN_TYPES(3) = [character(len=20) :: &
+  character(len=20) :: PC_KNOWN_TYPES(3) = [character(len=20) :: &
      "jacobi", &
      "hsmg", &
      "ident"]
@@ -54,7 +50,7 @@ module precon_fctry
 contains
 
   !> Create a preconditioner
-  subroutine precon_factory(pc, type_name)
+  module subroutine precon_factory(pc, type_name)
     class(pc_t), target, allocatable, intent(inout) :: pc
     character(len=*), intent(in) :: type_name
     character(len=:), allocatable :: type_string
@@ -81,8 +77,8 @@ contains
           allocate(ident_t::pc)
        end if
     else
-       type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
-                                          .true.)
+       type_string =  concat_string_array(PC_KNOWN_TYPES, &
+            NEW_LINE('A') // "-  ",  .true.)
        call neko_error("Unknown preconditioner type: " &
                        // trim(type_name) // ".  Known types are: " &
                        // type_string)
@@ -91,7 +87,7 @@ contains
   end subroutine precon_factory
 
   !> Destroy a preconditioner
-  subroutine precon_destroy(pc)
+  module subroutine precon_destroy(pc)
     class(pc_t), allocatable, intent(inout) :: pc
 
     if (allocated(pc)) then
@@ -109,4 +105,4 @@ contains
 
   end subroutine precon_destroy
 
-end module precon_fctry
+end submodule precon_fctry

@@ -58,9 +58,6 @@ module neko
   use bc
   use wall
   use dirichlet
-  use krylov_fctry
-  use precon_fctry
-  use ax_helm_fctry
   use ax_product
   use neko_config
   use case

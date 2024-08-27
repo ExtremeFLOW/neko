@@ -38,10 +38,8 @@ module fluid_pnpn
   use pnpn_res_stress_fctry, only : pnpn_prs_res_stress_factory, &
        pnpn_vel_res_stress_factory
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
-  use ax_helm_fctry, only : ax_helm_factory
-  use rhs_maker_fctry, only : rhs_maker_sumab_fctry, rhs_maker_bdf_fctry, &
-                              rhs_maker_ext_fctry
-  use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_bdf_t, rhs_maker_ext_t
+  use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_bdf_t, rhs_maker_ext_t, &
+       rhs_maker_sumab_fctry, rhs_maker_bdf_fctry, rhs_maker_ext_fctry
   use fluid_volflow, only : fluid_volflow_t
   use fluid_scheme, only : fluid_scheme_t
   use device_mathops, only : device_opcolv, device_opadd2cm
@@ -49,12 +47,11 @@ module fluid_pnpn
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
   use device, only : device_memcpy, HOST_TO_DEVICE
-  use advection, only : advection_t
+  use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_module, only : json_file
   use material_properties, only : material_properties_t
-  use advection_fctry, only : advection_factory
-  use ax_product, only : ax_t
+  use ax_product, only : ax_t, ax_helm_factory
   use field, only : field_t
   use dirichlet, only : dirichlet_t
   use facet_normal, only : facet_normal_t
