@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2018-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -62,8 +62,16 @@ module rhs_maker
      procedure(scalar_rhs_maker_bdf), nopass, deferred :: compute_scalar
   end type rhs_maker_bdf_t
 
+  !> Abstract type to sum up contributions to kth order extrapolation scheme
+  type, public, abstract :: rhs_maker_oifs_t
+   contains
+     procedure(rhs_maker_oifs), nopass, deferred :: compute_fluid
+     procedure(scalar_rhs_maker_oifs), nopass, deferred :: compute_scalar
+  end type rhs_maker_oifs_t
+
   abstract interface
-     subroutine rhs_maker_sumab(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, ab, nab)
+     subroutine rhs_maker_sumab(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, &
+                                ab, nab)
        import field_t
        import field_series_t
        import rp
@@ -118,7 +126,7 @@ module rhs_maker
   end interface
 
   abstract interface
-     subroutine scalar_rhs_maker_bdf(s_lag, fs, s, B, rho, dt,&
+     subroutine scalar_rhs_maker_bdf(s_lag, fs, s, B, rho, dt, &
           bd, nbd, n)
        import field_series_t
        import field_t
@@ -130,6 +138,27 @@ module rhs_maker
        real(kind=rp), intent(in) :: B(n)
        real(kind=rp), intent(in) :: dt, rho, bd(4)
      end subroutine scalar_rhs_maker_bdf
+  end interface
+
+  abstract interface
+     subroutine rhs_maker_oifs(phi_x, phi_y, phi_z, bf_x, bf_y, bf_z, &
+                               rho, dt, n)
+       import rp
+       real(kind=rp), intent(in) :: rho, dt
+       integer, intent(in) :: n
+       real(kind=rp), intent(inout) :: bf_x(n), bf_y(n), bf_z(n)
+       real(kind=rp), intent(inout) :: phi_x(n), phi_y(n), phi_z(n)
+     end subroutine rhs_maker_oifs
+  end interface
+
+  abstract interface
+     subroutine scalar_rhs_maker_oifs(phi_s, bf_s, rho, dt, n)
+       import rp
+       real(kind=rp), intent(in) :: rho, dt
+       integer, intent(in) :: n
+       real(kind=rp), intent(inout) :: bf_s(n)
+       real(kind=rp), intent(inout) :: phi_s(n)
+     end subroutine scalar_rhs_maker_oifs
   end interface
 
 end module rhs_maker

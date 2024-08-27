@@ -32,71 +32,104 @@
 !
 !> Operators CPU backend
 module opr_cpu
-  use cpu_dudxyz
-  use cpu_opgrad
-  use cpu_cdtp
-  use cpu_conv1
+  use cpu_dudxyz, only : cpu_dudxyz_lx14, cpu_dudxyz_lx13, cpu_dudxyz_lx12, &
+      cpu_dudxyz_lx11, cpu_dudxyz_lx10, cpu_dudxyz_lx9, cpu_dudxyz_lx8, &
+      cpu_dudxyz_lx7, cpu_dudxyz_lx6, cpu_dudxyz_lx5, cpu_dudxyz_lx4, &
+      cpu_dudxyz_lx3, cpu_dudxyz_lx2, cpu_dudxyz_lx
+  use cpu_opgrad, only : cpu_opgrad_lx18, cpu_opgrad_lx17, cpu_opgrad_lx16, &
+      cpu_opgrad_lx15, cpu_opgrad_lx14, cpu_opgrad_lx13, cpu_opgrad_lx12, &
+      cpu_opgrad_lx11, cpu_opgrad_lx10, cpu_opgrad_lx9, cpu_opgrad_lx8, &
+      cpu_opgrad_lx7, cpu_opgrad_lx6, cpu_opgrad_lx5, cpu_opgrad_lx4, &
+      cpu_opgrad_lx3, cpu_opgrad_lx2, cpu_opgrad_lx
+  use cpu_cdtp, only : cpu_cdtp_lx14, cpu_cdtp_lx13, cpu_cdtp_lx12, &
+      cpu_cdtp_lx11, cpu_cdtp_lx10, cpu_cdtp_lx9, cpu_cdtp_lx8, &
+      cpu_cdtp_lx7, cpu_cdtp_lx6, cpu_cdtp_lx5, cpu_cdtp_lx4, &
+      cpu_cdtp_lx3, cpu_cdtp_lx2, cpu_cdtp_lx
+  use cpu_conv1, only : cpu_conv1_lx14, cpu_conv1_lx13, cpu_conv1_lx12, &
+      cpu_conv1_lx11, cpu_conv1_lx10, cpu_conv1_lx9, cpu_conv1_lx9, &
+      cpu_conv1_lx8, cpu_conv1_lx7, cpu_conv1_lx6, cpu_conv1_lx5, &
+      cpu_conv1_lx4, cpu_conv1_lx3, cpu_conv1_lx2, cpu_conv1_lx
+  use cpu_convect_scalar, only : cpu_convect_scalar_lx18, &
+      cpu_convect_scalar_lx17, cpu_convect_scalar_lx16, &
+      cpu_convect_scalar_lx15, cpu_convect_scalar_lx14, &
+      cpu_convect_scalar_lx13, cpu_convect_scalar_lx12, &
+      cpu_convect_scalar_lx11, cpu_convect_scalar_lx10, &
+      cpu_convect_scalar_lx9, cpu_convect_scalar_lx8, cpu_convect_scalar_lx7, &
+      cpu_convect_scalar_lx6, cpu_convect_scalar_lx5, cpu_convect_scalar_lx4, &
+      cpu_convect_scalar_lx3, cpu_convect_scalar_lx2, cpu_convect_scalar_lx
+  use cpu_set_convect_rst, only : cpu_set_convect_rst_lx18, &
+      cpu_set_convect_rst_lx17, cpu_set_convect_rst_lx16, &
+      cpu_set_convect_rst_lx15, cpu_set_convect_rst_lx14, &
+      cpu_set_convect_rst_lx13, cpu_set_convect_rst_lx12, &
+      cpu_set_convect_rst_lx11, cpu_set_convect_rst_lx10, &
+      cpu_set_convect_rst_lx9, cpu_set_convect_rst_lx8, &
+      cpu_set_convect_rst_lx7, cpu_set_convect_rst_lx6, &
+      cpu_set_convect_rst_lx5, cpu_set_convect_rst_lx4, &
+      cpu_set_convect_rst_lx3, cpu_set_convect_rst_lx2, &
+      cpu_set_convect_rst_lx
   use num_types, only : rp
   use space, only : space_t
   use coefs, only : coef_t
-  use math
+  use math, only : pi, copy, rzero, sub3
   use field, only : field_t
-  use gather_scatter
-  use mathops
+  use interpolation, only : interpolator_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use mathops, only : opcolv
   implicit none
   private
 
   public :: opr_cpu_dudxyz, opr_cpu_opgrad, opr_cpu_cdtp, &
-       opr_cpu_conv1, opr_cpu_curl, opr_cpu_cfl, opr_cpu_lambda2
+       opr_cpu_conv1, opr_cpu_curl, opr_cpu_cfl, opr_cpu_lambda2, &
+       opr_cpu_convect_scalar, opr_cpu_set_convect_rst
 
 contains
 
   subroutine opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
     type(coef_t), intent(in), target :: coef
-    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), &
-         intent(inout) ::  du
-    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), &
-         intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
+                             coef%msh%nelv), intent(inout) :: du
+    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
+                             coef%msh%nelv), intent(in) :: u, dr, ds, dt
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
-      select case(coef%Xh%lx)
-      case(14)
+      select case (coef%Xh%lx)
+      case (14)
          call cpu_dudxyz_lx14(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(13)
+      case (13)
          call cpu_dudxyz_lx13(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(12)
+      case (12)
          call cpu_dudxyz_lx12(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(11)
+      case (11)
          call cpu_dudxyz_lx11(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(10)
+      case (10)
          call cpu_dudxyz_lx10(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(9)
+      case (9)
          call cpu_dudxyz_lx9(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(8)
+      case (8)
          call cpu_dudxyz_lx8(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(7)
+      case (7)
          call cpu_dudxyz_lx7(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(6)
+      case (6)
          call cpu_dudxyz_lx6(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(5)
+      case (5)
          call cpu_dudxyz_lx5(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(4)
+      case (4)
          call cpu_dudxyz_lx4(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(3)
+      case (3)
          call cpu_dudxyz_lx3(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
-      case(2)
+      case (2)
          call cpu_dudxyz_lx2(du, u, dr, ds, dt, &
               Xh%dx, Xh%dy, Xh%dz, coef%jacinv, msh%nelv)
       case default
@@ -111,10 +144,14 @@ contains
   subroutine opr_cpu_opgrad(ux, uy, uz, u, coef, e_start, e_end)
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: e_start, e_end
-    real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(inout) :: ux
-    real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(inout) :: uy
-    real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(inout) :: uz
-    real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(in) :: u
+    real(kind=rp), dimension(coef%Xh%lxyz, e_end-e_start+1), &
+                   intent(inout) :: ux
+    real(kind=rp), dimension(coef%Xh%lxyz, e_end-e_start+1), &
+                   intent(inout) :: uy
+    real(kind=rp), dimension(coef%Xh%lxyz, e_end-e_start+1), &
+                   intent(inout) :: uz
+    real(kind=rp), dimension(coef%Xh%lxyz, e_end-e_start+1), &
+                   intent(in) :: u
     integer :: e_len
     e_len = e_end-e_start+1
     associate(Xh => coef%Xh, msh => coef%msh, &
@@ -122,134 +159,134 @@ contains
          dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
          dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz)
 
-      select case(Xh%lx)
-      case(18)
-         call cpu_opgrad_lx18(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
-      case(17)
-         call cpu_opgrad_lx17(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
-      case(16)
-         call cpu_opgrad_lx16(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
-      case(15)
-         call cpu_opgrad_lx15(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
-      case(14)
-         call cpu_opgrad_lx14(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
-      case(13)
-         call cpu_opgrad_lx13(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
-      case(12)
-         call cpu_opgrad_lx12(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
-      case(11)
-         call cpu_opgrad_lx11(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
-      case(10)
-         call cpu_opgrad_lx10(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
+      select case (Xh%lx)
+      case (18)
+         call cpu_opgrad_lx18(ux, uy, uz, u, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), Xh%w3, e_len)
+      case (17)
+         call cpu_opgrad_lx17(ux, uy, uz, u, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), Xh%w3, e_len)
+      case (16)
+         call cpu_opgrad_lx16(ux, uy, uz, u, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), Xh%w3, e_len)
+      case (15)
+         call cpu_opgrad_lx15(ux, uy, uz, u, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), Xh%w3, e_len)
+      case (14)
+         call cpu_opgrad_lx14(ux, uy, uz, u, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), Xh%w3, e_len)
+      case (13)
+         call cpu_opgrad_lx13(ux, uy, uz, u, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), Xh%w3, e_len)
+      case (12)
+         call cpu_opgrad_lx12(ux, uy, uz, u, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), Xh%w3, e_len)
+      case (11)
+         call cpu_opgrad_lx11(ux, uy, uz, u, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), Xh%w3, e_len)
+      case (10)
+         call cpu_opgrad_lx10(ux, uy, uz, u, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), Xh%w3, e_len)
 
-      case(9)
-         call cpu_opgrad_lx9(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
-      case(8)
-         call cpu_opgrad_lx8(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
-      case(7)
-         call cpu_opgrad_lx7(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
-      case(6)
-         call cpu_opgrad_lx6(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
-      case(5)
-         call cpu_opgrad_lx5(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
-      case(4)
-         call cpu_opgrad_lx4(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
-      case(3)
-         call cpu_opgrad_lx3(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
-      case(2)
-         call cpu_opgrad_lx2(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len)
+      case (9)
+         call cpu_opgrad_lx9(ux, uy, uz, u, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), Xh%w3, e_len)
+      case (8)
+         call cpu_opgrad_lx8(ux, uy, uz, u, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), Xh%w3, e_len)
+      case (7)
+         call cpu_opgrad_lx7(ux, uy, uz, u, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), Xh%w3, e_len)
+      case (6)
+         call cpu_opgrad_lx6(ux, uy, uz, u, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), Xh%w3, e_len)
+      case (5)
+         call cpu_opgrad_lx5(ux, uy, uz, u, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), Xh%w3, e_len)
+      case (4)
+         call cpu_opgrad_lx4(ux, uy, uz, u, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), Xh%w3, e_len)
+      case (3)
+         call cpu_opgrad_lx3(ux, uy, uz, u, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), Xh%w3, e_len)
+      case (2)
+         call cpu_opgrad_lx2(ux, uy, uz, u, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), Xh%w3, e_len)
       case default
-         call cpu_opgrad_lx(ux, uy, uz, u, &
-              Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              Xh%w3, e_len, Xh%lx)
+         call cpu_opgrad_lx(ux, uy, uz, u, Xh%dx, Xh%dy, Xh%dz, &
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), Xh%w3, e_len, Xh%lx)
       end select
     end associate
 
@@ -257,51 +294,51 @@ contains
 
   subroutine opr_cpu_cdtp(dtx, x, dr, ds, dt, coef)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dtx
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: x
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dr
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: ds
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: dtx
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: x
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dr
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: ds
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dt
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
-      select case(Xh%lx)
-      case(14)
+      select case (Xh%lx)
+      case (14)
          call cpu_cdtp_lx14(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
-      case(13)
+      case (13)
          call cpu_cdtp_lx13(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
-      case(12)
+      case (12)
          call cpu_cdtp_lx12(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
-      case(11)
+      case (11)
          call cpu_cdtp_lx11(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
-      case(10)
+      case (10)
          call cpu_cdtp_lx10(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
-      case(9)
+      case (9)
          call cpu_cdtp_lx9(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
-      case(8)
+      case (8)
          call cpu_cdtp_lx8(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
-      case(7)
+      case (7)
          call cpu_cdtp_lx7(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
-      case(6)
+      case (6)
          call cpu_cdtp_lx6(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
-      case(5)
+      case (5)
          call cpu_cdtp_lx5(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
-      case(4)
+      case (4)
          call cpu_cdtp_lx4(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
-      case(3)
+      case (3)
          call cpu_cdtp_lx3(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
-      case(2)
+      case (2)
          call cpu_cdtp_lx2(dtx, x, dr, ds, dt, &
               Xh%dxt, Xh%dyt, Xh%dzt, coef%B, coef%jac, msh%nelv)
       case default
@@ -316,11 +353,15 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: e_start, e_end
-    real(kind=rp), intent(inout) ::  du(Xh%lxyz,e_end-e_start+1)
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,e_end-e_start+1) ::  u
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,e_end-e_start+1) ::  vx
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,e_end-e_start+1) ::  vy
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,e_end-e_start+1) ::  vz
+    real(kind=rp), intent(inout) ::  du(Xh%lxyz, e_end-e_start+1)
+    real(kind=rp), intent(inout), &
+                   dimension(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1) ::  u
+    real(kind=rp), intent(inout), &
+                   dimension(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1) ::  vx
+    real(kind=rp), intent(inout), &
+                   dimension(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1) ::  vy
+    real(kind=rp), intent(inout), &
+                   dimension(Xh%lx, Xh%ly, Xh%lz, e_end-e_start+1) ::  vz
     integer :: e_len
 
     e_len = e_end-e_start+1
@@ -328,95 +369,184 @@ contains
          dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
          dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz, &
          jacinv => coef%jacinv)
-      select case(Xh%lx)
-      case(14)
+      select case (Xh%lx)
+      case (14)
          call cpu_conv1_lx14(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              jacinv(1,1,1,e_start), e_len)
-      case(13)
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), jacinv(1,1,1, e_start), e_len)
+      case (13)
          call cpu_conv1_lx13(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              jacinv(1,1,1,e_start), e_len)
-      case(12)
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), jacinv(1,1,1, e_start), e_len)
+      case (12)
          call cpu_conv1_lx12(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              jacinv(1,1,1,e_start), e_len)
-      case(11)
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), jacinv(1,1,1, e_start), e_len)
+      case (11)
          call cpu_conv1_lx11(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              jacinv(1,1,1,e_start), e_len)
-      case(10)
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), jacinv(1,1,1, e_start), e_len)
+      case (10)
          call cpu_conv1_lx10(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              jacinv(1,1,1,e_start), e_len)
-      case(9)
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), jacinv(1,1,1, e_start), e_len)
+      case (9)
          call cpu_conv1_lx9(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              jacinv(1,1,1,e_start), e_len)
-      case(8)
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), jacinv(1,1,1, e_start), e_len)
+      case (8)
          call cpu_conv1_lx8(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              jacinv(1,1,1,e_start), e_len)
-      case(7)
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), jacinv(1,1,1, e_start), e_len)
+      case (7)
          call cpu_conv1_lx7(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              jacinv(1,1,1,e_start), e_len)
-      case(6)
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), jacinv(1,1,1, e_start), e_len)
+      case (6)
          call cpu_conv1_lx6(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              jacinv(1,1,1,e_start), e_len)
-      case(5)
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), jacinv(1,1,1, e_start), e_len)
+      case (5)
          call cpu_conv1_lx5(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              jacinv(1,1,1,e_start), e_len)
-      case(4)
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), jacinv(1,1,1, e_start), e_len)
+      case (4)
          call cpu_conv1_lx4(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              jacinv(1,1,1,e_start), e_len)
-      case(3)
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), jacinv(1,1,1, e_start), e_len)
+      case (3)
          call cpu_conv1_lx3(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              jacinv(1,1,1,e_start), e_len)
-      case(2)
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), jacinv(1,1,1, e_start), e_len)
+      case (2)
          call cpu_conv1_lx2(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              jacinv(1,1,1,e_start), e_len)
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), jacinv(1,1,1, e_start), e_len)
       case default
          call cpu_conv1_lx(du, u, vx, vy, vz, Xh%dx, Xh%dy, Xh%dz, &
-              drdx(1,1,1,e_start), dsdx(1,1,1,e_start), dtdx(1,1,1,e_start), &
-              drdy(1,1,1,e_start), dsdy(1,1,1,e_start), dtdy(1,1,1,e_start), &
-              drdz(1,1,1,e_start), dsdz(1,1,1,e_start), dtdz(1,1,1,e_start), &
-              jacinv(1,1,1,e_start), e_len, Xh%lx)
+              drdx(1,1,1, e_start), dsdx(1,1,1, e_start), &
+              dtdx(1,1,1, e_start), drdy(1,1,1, e_start), &
+              dsdy(1,1,1, e_start), dtdy(1,1,1, e_start), &
+              drdz(1,1,1, e_start), dsdz(1,1,1, e_start), &
+              dtdz(1,1,1, e_start), jacinv(1,1,1, e_start), e_len, Xh%lx)
       end select
     end associate
 
   end subroutine opr_cpu_conv1
+
+  subroutine opr_cpu_convect_scalar(du, u, c, Xh_GLL, Xh_GL, coef_GLL, &
+                                    coef_GL, GLL_to_GL)
+    type(space_t), intent(in) :: Xh_GL
+    type(space_t), intent(in) :: Xh_GLL
+    type(coef_t), intent(in) :: coef_GLL
+    type(coef_t), intent(in) :: coef_GL
+    type(interpolator_t), intent(inout) :: GLL_to_GL
+    real(kind=rp), intent(inout) :: &
+                   du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
+    real(kind=rp), intent(inout) :: &
+                   u(Xh_GL%lx, Xh_GL%lx, Xh_GL%lx, coef_GL%msh%nelv)
+    real(kind=rp), intent(inout) :: c(Xh_GL%lxyz, coef_GL%msh%nelv, 3)
+    associate(dx => Xh_GL%dx, dy => Xh_GL%dy, dz => Xh_GL%dz, &
+         lx => Xh_GL%lx, nelv => coef_GL%msh%nelv)
+
+      select case (lx)
+      case (18)
+         call cpu_convect_scalar_lx18(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case (17)
+         call cpu_convect_scalar_lx17(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case (16)
+         call cpu_convect_scalar_lx16(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case (15)
+         call cpu_convect_scalar_lx15(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case (14)
+         call cpu_convect_scalar_lx14(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case (13)
+         call cpu_convect_scalar_lx13(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case (12)
+         call cpu_convect_scalar_lx12(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case (11)
+         call cpu_convect_scalar_lx11(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case (10)
+         call cpu_convect_scalar_lx10(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case (9)
+         call cpu_convect_scalar_lx9(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case (8)
+         call cpu_convect_scalar_lx8(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case (7)
+         call cpu_convect_scalar_lx7(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case (6)
+         call cpu_convect_scalar_lx6(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case (5)
+         call cpu_convect_scalar_lx5(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case (4)
+         call cpu_convect_scalar_lx4(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case (3)
+         call cpu_convect_scalar_lx3(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case (2)
+         call cpu_convect_scalar_lx2(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv)
+      case default
+         call cpu_convect_scalar_lx(du, u, c, dx, dy, dz, &
+              Xh_GLL, coef_GLL, GLL_to_GL, nelv, lx)
+      end select
+    end associate
+
+  end subroutine opr_cpu_convect_scalar
 
   subroutine opr_cpu_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
     type(field_t), intent(inout) :: w1
@@ -436,19 +566,23 @@ contains
     !     this%work1=dw/dy ; this%work2=dv/dz
     call opr_cpu_dudxyz(work1%x, u3%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
     if (gdim .eq. 3) then
-       call opr_cpu_dudxyz(work2%x, u2%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
+       call opr_cpu_dudxyz(work2%x, u2%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, &
+                           c_Xh)
        call sub3(w1%x, work1%x, work2%x, n)
     else
        call copy(w1%x, work1%x, n)
     end if
     !     this%work1=du/dz ; this%work2=dw/dx
     if (gdim .eq. 3) then
-       call opr_cpu_dudxyz(work1%x, u1%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
-       call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
+       call opr_cpu_dudxyz(work1%x, u1%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, &
+                           c_Xh)
+       call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, &
+                           c_Xh)
        call sub3(w2%x, work1%x, work2%x, n)
     else
        call rzero(work1%x, n)
-       call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
+       call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, &
+                           c_Xh)
        call sub3(w2%x, work1%x, work2%x, n)
     end if
     !     this%work1=dv/dx ; this%work2=du/dy
@@ -470,41 +604,44 @@ contains
     type(coef_t) :: coef
     integer :: nelv, gdim
     real(kind=rp) :: dt
-    real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w
+    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) ::  u, v, w
     real(kind=rp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
     integer :: i, j, k, e
     cfl = 0d0
     if (gdim .eq. 3) then
-       do e = 1,nelv
-          do k = 1,Xh%lz
-             do j = 1,Xh%ly
-                do i = 1,Xh%lx
+       do e = 1, nelv
+          do k = 1, Xh%lz
+             do j = 1, Xh%ly
+                do i = 1, Xh%lx
                    ur = ( u(i,j,k,e)*coef%drdx(i,j,k,e) &
                       +   v(i,j,k,e)*coef%drdy(i,j,k,e) &
-                      +   w(i,j,k,e)*coef%drdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
+                      +   w(i,j,k,e)*coef%drdz(i,j,k,e) ) &
+                      * coef%jacinv(i,j,k,e)
                    us = ( u(i,j,k,e)*coef%dsdx(i,j,k,e) &
                       +   v(i,j,k,e)*coef%dsdy(i,j,k,e) &
-                      +   w(i,j,k,e)*coef%dsdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
+                      +   w(i,j,k,e)*coef%dsdz(i,j,k,e) ) &
+                      * coef%jacinv(i,j,k,e)
                    ut = ( u(i,j,k,e)*coef%dtdx(i,j,k,e) &
                       +   v(i,j,k,e)*coef%dtdy(i,j,k,e) &
-                      +   w(i,j,k,e)*coef%dtdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
+                      +   w(i,j,k,e)*coef%dtdz(i,j,k,e) ) &
+                      * coef%jacinv(i,j,k,e)
 
                    cflr = abs(dt*ur*Xh%dr_inv(i))
                    cfls = abs(dt*us*Xh%ds_inv(j))
                    cflt = abs(dt*ut*Xh%dt_inv(k))
 
                    cflm = cflr + cfls + cflt
-                   cfl  = max(cfl,cflm)
+                   cfl  = max(cfl, cflm)
                 end do
              end do
           end do
        end do
     else
-       do e = 1,nelv
-          do j = 1,Xh%ly
-             do i = 1,Xh%lx
+       do e = 1, nelv
+          do j = 1, Xh%ly
+             do i = 1, Xh%lx
                 ur = ( u(i,j,1,e)*coef%drdx(i,j,1,e) &
                    +   v(i,j,1,e)*coef%drdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)
                 us = ( u(i,j,1,e)*coef%dsdx(i,j,1,e) &
@@ -514,7 +651,7 @@ contains
                 cfls = abs(dt*us*Xh%ds_inv(j))
 
                 cflm = cflr + cfls
-                cfl  = max(cfl,cflm)
+                cfl  = max(cfl, cflm)
 
              end do
           end do
@@ -535,46 +672,46 @@ contains
 
     do e = 1, coef%msh%nelv
        call opr_cpu_opgrad(grad(1,1,1), grad(1,1,2), grad(1,1,3), &
-                           u%x(1,1,1,e),coef,e,e)
+                           u%x(1,1,1,e), coef,e,e)
        call opr_cpu_opgrad(grad(1,2,1), grad(1,2,2), grad(1,2,3), &
-                           v%x(1,1,1,e),coef,e,e)
+                           v%x(1,1,1,e), coef,e,e)
        call opr_cpu_opgrad(grad(1,3,1), grad(1,3,2), grad(1,3,3), &
-                           w%x(1,1,1,e),coef,e,e)
+                           w%x(1,1,1,e), coef,e,e)
 
        do i = 1, coef%Xh%lxyz
           s11 = grad(i,1,1)
           s22 = grad(i,2,2)
           s33 = grad(i,3,3)
 
-          
+
           s12 = 0.5*(grad(i,1,2) + grad(i,2,1))
           s13 = 0.5*(grad(i,1,3) + grad(i,3,1))
           s23 = 0.5*(grad(i,2,3) + grad(i,3,2))
-          
+
           o12 = 0.5*(grad(i,1,2) - grad(i,2,1))
           o13 = 0.5*(grad(i,1,3) - grad(i,3,1))
           o23 = 0.5*(grad(i,2,3) - grad(i,3,2))
 
-          a11 = s11*s11 + s12*s12 + s13*s13 - o12*o12 - o13*o13
-          a12 = s11 * s12  +  s12 * s22  +  s13 * s23 - o13 * o23
-          a13 = s11 * s13  +  s12 * s23  +  s13 * s33 + o12 * o23
+          a11 = s11 * s11 + s12 * s12 + s13 * s13 - o12 * o12 - o13 * o13
+          a12 = s11 * s12 + s12 * s22 + s13 * s23 - o13 * o23
+          a13 = s11 * s13 + s12 * s23 + s13 * s33 + o12 * o23
 
-          a22 = s12*s12 + s22*s22 + s23*s23 - o12*o12 - o23*o23
+          a22 = s12 * s12 + s22 * s22 + s23 * s23 - o12 * o12 - o23 * o23
           a23 = s12 * s13 + s22 * s23 + s23 * s33 - o12 * o13
-          a33 = s13*s13 + s23*s23 + s33*s33 - o13*o13 - o23*o23
+          a33 = s13 * s13 + s23 * s23 + s33 * s33 - o13 * o13 - o23 * o23
 
 
           B = -(a11 + a22 + a33)
-          C = -(a12*a12 + a13*a13 + a23*a23 &
+          C = -(a12 * a12 + a13 * a13 + a23 * a23 &
               - a11 * a22 - a11 * a33 - a22 * a33)
-          D = -(2.0 * a12 * a13 * a23 - a11 * a23*a23 &
-              - a22 * a13*a13 - a33 * a12*a12  +  a11 * a22 * a33)
+          D = -(2.0 * a12 * a13 * a23 - a11 * a23 * a23 &
+              - a22 * a13 * a13 - a33 * a12 * a12  +  a11 * a22 * a33)
 
 
           q = (3.0 * C - B*B) / 9.0
           r = (9.0 * C * B - 27.0 * D - 2.0 * B*B*B) / 54.0
           theta = acos( r / sqrt(-q*q*q) )
-          
+
           eigen(1) = 2.0 * sqrt(-q) * cos(theta / 3.0) - B / 3.0
           eigen(2) = 2.0 * sqrt(-q) * cos((theta + 2.0 * pi) / 3.0) - B / 3.0
           eigen(3) = 2.0 * sqrt(-q) * cos((theta + 4.0 * pi) / 3.0) - B / 3.0
@@ -594,7 +731,79 @@ contains
           lambda2%x(i,1,1,e) = l2/(coef%B(i,1,1,e)**2)
        end do
     end do
-       
-  end subroutine opr_cpu_lambda2  
+
+  end subroutine opr_cpu_lambda2
+
+  subroutine opr_cpu_set_convect_rst(cr, cs, ct, cx, cy, cz, Xh, coef)
+    type(space_t), intent(inout) :: Xh
+    type(coef_t), intent(inout) :: coef
+    real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
+                   intent(inout) :: cr, cs, ct
+    real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
+                   intent(in) :: cx, cy, cz
+    associate(drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
+      dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
+      dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz, &
+      nelv => coef%msh%nelv, lx => Xh%lx, w3 => Xh%w3)
+
+      select case (lx)
+      case (18)
+         call cpu_set_convect_rst_lx18(cr, cs, ct, cx, cy, cz, &
+              drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+      case (17)
+         call cpu_set_convect_rst_lx17(cr, cs, ct, cx, cy, cz, &
+              drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+      case (16)
+         call cpu_set_convect_rst_lx16(cr, cs, ct, cx, cy, cz, &
+              drdx, dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+      case (15)
+         call cpu_set_convect_rst_lx15(cr, cs, ct, cx, cy, cz, drdx, &
+              dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+      case (14)
+         call cpu_set_convect_rst_lx14(cr, cs, ct, cx, cy, cz, drdx, &
+              dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+      case (13)
+         call cpu_set_convect_rst_lx13(cr, cs, ct, cx, cy, cz, drdx, &
+              dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+      case (12)
+         call cpu_set_convect_rst_lx12(cr, cs, ct, cx, cy, cz, drdx, &
+              dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+      case (11)
+         call cpu_set_convect_rst_lx11(cr, cs, ct, cx, cy, cz, drdx, &
+              dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+      case (10)
+         call cpu_set_convect_rst_lx10(cr, cs, ct, cx, cy, cz, drdx, &
+              dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+      case (9)
+         call cpu_set_convect_rst_lx9(cr, cs, ct, cx, cy, cz, drdx, &
+              dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+      case (8)
+         call cpu_set_convect_rst_lx8(cr, cs, ct, cx, cy, cz, drdx, &
+              dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+      case (7)
+         call cpu_set_convect_rst_lx7(cr, cs, ct, cx, cy, cz, drdx, &
+              dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+      case (6)
+         call cpu_set_convect_rst_lx6(cr, cs, ct, cx, cy, cz, drdx, &
+              dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+      case (5)
+         call cpu_set_convect_rst_lx5(cr, cs, ct, cx, cy, cz, drdx, &
+              dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+      case (4)
+         call cpu_set_convect_rst_lx4(cr, cs, ct, cx, cy, cz, drdx, &
+              dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+      case (3)
+         call cpu_set_convect_rst_lx3(cr, cs, ct, cx, cy, cz, drdx, &
+              dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+      case (2)
+         call cpu_set_convect_rst_lx2(cr, cs, ct, cx, cy, cz, drdx, &
+              dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv)
+      case default
+         call cpu_set_convect_rst_lx(cr, cs, ct, cx, cy, cz, drdx, &
+              dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv, lx)
+      end select
+    end associate
+
+  end subroutine opr_cpu_set_convect_rst
 
 end module opr_cpu

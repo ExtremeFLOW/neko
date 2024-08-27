@@ -1,5 +1,6 @@
 module rhs_maker_sx
-  use rhs_maker
+  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_sumab_t, &
+                        rhs_maker_oifs_t
   use field_series, only : field_series_t
   use field, only : field_t
   use num_types, only : rp, c_rp
@@ -24,9 +25,16 @@ module rhs_maker_sx
      procedure, nopass :: compute_scalar => scalar_rhs_maker_bdf_sx
   end type rhs_maker_bdf_sx_t
 
+  type, public, extends(rhs_maker_oifs_t) :: rhs_maker_oifs_sx_t
+   contains
+     procedure, nopass :: compute_fluid => rhs_maker_oifs_sx
+     procedure, nopass :: compute_scalar => scalar_rhs_maker_oifs_sx
+  end type rhs_maker_oifs_sx_t
+
 contains
 
-  subroutine rhs_maker_sumab_sx(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, ab, nab)
+  subroutine rhs_maker_sumab_sx(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, &
+                                ab, nab)
     type(field_t), intent(inout) :: u,v, w
     type(field_t), intent(inout) :: uu, vv, ww
     type(field_series_t), intent(inout) :: uulag, vvlag, wwlag
@@ -209,6 +217,35 @@ contains
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine scalar_rhs_maker_bdf_sx
+
+  subroutine rhs_maker_oifs_sx(phi_x, phi_y, phi_z, bf_x, bf_y, bf_z, &
+                               rho, dt, n)
+    real(kind=rp), intent(in) :: rho, dt
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: bf_x(n), bf_y(n), bf_z(n)
+    real(kind=rp), intent(inout) :: phi_x(n), phi_y(n), phi_z(n)
+    integer :: i
+
+    do i = 1, n
+       bf_x(i) = bf_x(i) + phi_x(i) * (rho / dt)
+       bf_y(i) = bf_y(i) + phi_y(i) * (rho / dt)
+       bf_z(i) = bf_z(i) + phi_z(i) * (rho / dt)
+    end do
+
+  end subroutine rhs_maker_oifs_sx
+
+  subroutine scalar_rhs_maker_oifs_sx(phi_s, bf_s, rho, dt, n)
+    real(kind=rp), intent(in) :: rho, dt
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: bf_s(n)
+    real(kind=rp), intent(inout) :: phi_s(n)
+    integer :: i
+
+    do i = 1, n
+       bf_s(i) = bf_s(i) + phi_s(i) * (rho / dt)
+    end do
+
+  end subroutine scalar_rhs_maker_oifs_sx
 
 end module rhs_maker_sx
 

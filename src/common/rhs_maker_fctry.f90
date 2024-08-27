@@ -32,17 +32,20 @@
 !
 !> Fluid right-hand-side factory for the Pn-Pn formulation
 module rhs_maker_fctry
-  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_sumab_t
+  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_sumab_t, &
+                        rhs_maker_oifs_t
   use rhs_maker_cpu, only : rhs_maker_bdf_cpu_t, rhs_maker_ext_cpu_t, &
-                            rhs_maker_sumab_cpu_t
+                            rhs_maker_sumab_cpu_t, rhs_maker_oifs_cpu_t
   use rhs_maker_sx, only : rhs_maker_bdf_sx_t, rhs_maker_ext_sx_t, &
-                           rhs_maker_sumab_sx_t
-  use rhs_maker_device
+                           rhs_maker_sumab_sx_t, rhs_maker_oifs_sx_t
+  use rhs_maker_device, only :rhs_maker_bdf_device_t, rhs_maker_ext_device_t, &
+                              rhs_maker_sumab_device_t
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX
   implicit none
   private
 
-  public :: rhs_maker_sumab_fctry, rhs_maker_ext_fctry, rhs_maker_bdf_fctry
+  public :: rhs_maker_sumab_fctry, rhs_maker_ext_fctry, rhs_maker_bdf_fctry, &
+            rhs_maker_oifs_fctry
 
 contains
 
@@ -106,5 +109,23 @@ contains
     end if
 
   end subroutine rhs_maker_bdf_fctry
+
+  !> Factory routine for computing the RHS contributions from the OIFS scheme.
+  !! @details Only selects the compute backend.
+  !! @param object The object to be allocated by the factory.
+  subroutine rhs_maker_oifs_fctry(object)
+    class(rhs_maker_oifs_t), allocatable, intent(inout) :: object
+
+    if (allocated(object)) then
+       deallocate(object)
+    end if
+
+    if (NEKO_BCKND_SX .eq. 1) then
+       allocate(rhs_maker_oifs_sx_t::object)
+    else
+       allocate(rhs_maker_oifs_cpu_t::object)
+    end if
+
+  end subroutine rhs_maker_oifs_fctry
 
 end module rhs_maker_fctry

@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,21 +32,20 @@
 !
 !> Simulation driver
 module simulation
-  use case
-  use gather_scatter
-  use time_scheme_controller
-  use file
-  use math
-  use logger
-  use device
-  use device_math
-  use jobctrl
+  use num_types, only : rp, sp, dp
+  use case, only : case_t
+  use mpi_f08, only : MPI_WTIME
+  use gather_scatter, only : gs_t
+  use time_scheme_controller, only : time_scheme_controller_t
+  use file, only : file_t
+  use logger, only : neko_log, NEKO_LOG_QUIET, LOG_SIZE
+  use jobctrl, only : jobctrl_time_limit
   use field, only : field_t
-  use profiler
-  use math, only : col2
+  use profiler, only : profiler_start, profiler_stop, &
+                       profiler_start_region, profiler_end_region
   use simcomp_executor, only : neko_simcomps
   use json_utils, only : json_get_or_default
-  use time_step_controller
+  use time_step_controller, only : time_step_controller_t
   implicit none
   private
 
@@ -70,14 +69,14 @@ contains
     t = 0d0
     tstep = 0
     call neko_log%section('Starting simulation')
-    write(log_buf,'(A, E15.7,A,E15.7,A)') 'T  : [', 0d0,',',C%end_time,')'
+    write(log_buf, '(A, E15.7,A,E15.7, A)') 'T :  [', 0d0, ',', C%end_time, ')'
     call neko_log%message(log_buf)
     call dt_controller%init(C%params)
     if (.not. dt_controller%if_variable_dt) then
-       write(log_buf,'(A, E15.7)') 'dt :  ', C%dt
+       write(log_buf, '(A, E15.7)') 'dt :  ', C%dt
        call neko_log%message(log_buf)
     else
-       write(log_buf,'(A, E15.7)') 'CFL :  ', dt_controller%set_cfl
+       write(log_buf, '(A, E15.7)') 'CFL :  ', dt_controller%set_cfl
        call neko_log%message(log_buf)
     end if
 
@@ -258,10 +257,10 @@ contains
 
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')
-    write(log_buf,'(A,A)') 'File :   ', &
+    write(log_buf, '(A,A)') 'File :  ', &
       trim(restart_file)
     call neko_log%message(log_buf)
-    write(log_buf,'(A,E15.7)') 'Time : ', t
+    write(log_buf, '(A,E15.7)') 'Time : ', t
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
@@ -294,5 +293,3 @@ contains
   end subroutine simulation_joblimit_chkp
 
 end module simulation
-
-

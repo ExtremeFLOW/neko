@@ -167,13 +167,16 @@ contains
   !! @param Xh The function space.
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
-  subroutine compute_advection_dealias(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
+  !! @param dt Current time-step, not required for this method.
+  subroutine compute_advection_dealias(this, vx, vy, vz, fx, fy, fz, Xh, &
+                                       coef, n, dt)
     class(adv_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: fx, fy, fz
     integer, intent(in) :: n
+    real(kind=rp), intent(in), optional :: dt
 
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: tx, ty, tz
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: tfx, tfy, tfz
@@ -282,8 +285,9 @@ contains
   !! @param Xh The function space.
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
+  !! @param dt Current time-step, not required for this method.
   subroutine compute_scalar_advection_dealias(this, vx, vy, vz, s, fs, Xh, &
-                                              coef, n)
+                                              coef, n, dt)
     class(adv_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
@@ -291,6 +295,7 @@ contains
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     integer, intent(in) :: n
+    real(kind=rp), intent(in), optional :: dt
 
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: vx_GL, vy_GL, vz_GL, s_GL
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: dsdx, dsdy, dsdz

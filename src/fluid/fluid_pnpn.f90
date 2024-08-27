@@ -40,8 +40,9 @@ module fluid_pnpn
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
   use ax_helm_fctry, only : ax_helm_factory
   use rhs_maker_fctry, only : rhs_maker_sumab_fctry, rhs_maker_bdf_fctry, &
-                              rhs_maker_ext_fctry
-  use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_bdf_t, rhs_maker_ext_t
+                              rhs_maker_ext_fctry, rhs_maker_oifs_fctry
+  use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_bdf_t, rhs_maker_ext_t, &
+                        rhs_maker_oifs_t
   use fluid_volflow, only : fluid_volflow_t
   use fluid_scheme, only : fluid_scheme_t
   use device_mathops, only : device_opcolv, device_opadd2cm
@@ -51,6 +52,7 @@ module fluid_pnpn
   use device, only : device_memcpy, HOST_TO_DEVICE
   use advection, only : advection_t
   use profiler, only : profiler_start_region, profiler_end_region
+  use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
   use material_properties, only : material_properties_t
   use advection_fctry, only : advection_factory
@@ -105,9 +107,14 @@ module fluid_pnpn
 
      class(advection_t), allocatable :: adv
 
+     ! Time interpolation scheme
+     logical :: oifs
+
      ! Time variables
      type(field_t) :: abx1, aby1, abz1
      type(field_t) :: abx2, aby2, abz2
+     ! Advection terms for the oifs method
+     type(field_t) :: advx, advy, advz
 
      !> Pressure residual
      class(pnpn_prs_res_t), allocatable :: prs_res
@@ -124,6 +131,9 @@ module fluid_pnpn
      !> Contributions to F from lagged BD terms
      class(rhs_maker_bdf_t), allocatable :: makebdf
 
+     !> Contributions to the RHS from the operator-integration-factor splitting method
+     class(rhs_maker_oifs_t), allocatable :: makeoifs
+
      !> Adjust flow volume
      type(fluid_volflow_t) :: vol_flow
 
@@ -136,13 +146,15 @@ module fluid_pnpn
 
 contains
 
-  subroutine fluid_pnpn_init(this, msh, lx, params, user, material_properties)
+  subroutine fluid_pnpn_init(this, msh, lx, params, user, &
+                             material_properties, time_scheme)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), intent(in) :: user
     type(material_properties_t), target, intent(inout) :: material_properties
+    type(time_scheme_controller_t), target, intent(in) :: time_scheme
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
 
     call this%free()
@@ -184,6 +196,9 @@ contains
     ! Setup backend depenent contributions to F from lagged BD terms
     call rhs_maker_bdf_fctry(this%makebdf)
 
+    ! Setup backend dependent summations of the operator-integration-factor splitting method
+    call rhs_maker_oifs_fctry(this%makeoifs)
+
     ! Initialize variables specific to this plan
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
          dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
@@ -198,12 +213,18 @@ contains
       call this%abx2%init(dm_Xh, "abx2")
       call this%aby2%init(dm_Xh, "aby2")
       call this%abz2%init(dm_Xh, "abz2")
+      call this%advx%init(dm_Xh, "advx")
+      call this%advy%init(dm_Xh, "advy")
+      call this%advz%init(dm_Xh, "advz")
       this%abx1 = 0.0_rp
       this%aby1 = 0.0_rp
       this%abz1 = 0.0_rp
       this%abx2 = 0.0_rp
       this%aby2 = 0.0_rp
       this%abz2 = 0.0_rp
+      this%advx = 0.0_rp
+      this%advy = 0.0_rp
+      this%advz = 0.0_rp
 
       call this%du%init(dm_Xh, 'du')
       call this%dv%init(dm_Xh, 'dv')
@@ -333,7 +354,13 @@ contains
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
 
-    call advection_factory(this%adv, params, this%c_Xh)
+    ! Determine the time-interpolation scheme
+    call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
+
+    ! Initialize the advection factory
+    call advection_factory(this%adv, params, this%c_Xh, &
+                           this%ulag, this%vlag, this%wlag, &
+                           this%chkp%dtlag, this%chkp%tlag, time_scheme)
 
     if (params%valid_path('case.fluid.flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)
@@ -398,6 +425,12 @@ contains
          call device_memcpy(this%abz1%x, this%abz1%x_d, &
                             w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(this%abz2%x, this%abz2%x_d, &
+                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(this%advx%x, this%advx%x_d, &
+                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(this%advy%x, this%advy%x_d, &
+                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(this%advz%x, this%advz%x_d, &
                             w%dof%size(), HOST_TO_DEVICE, sync = .false.)
        end associate
     end if
@@ -498,6 +531,10 @@ contains
     call this%aby2%free()
     call this%abz2%free()
 
+    call this%advx%free()
+    call this%advy%free()
+    call this%advz%free()
+
     if (allocated(this%Ax_vel)) then
        deallocate(this%Ax_vel)
     end if
@@ -524,6 +561,10 @@ contains
 
     if (allocated(this%makebdf)) then
        deallocate(this%makebdf)
+    end if
+
+    if (allocated(this%makeoifs)) then
+       deallocate(this%makeoifs)
     end if
 
     call this%vol_flow%free()
@@ -565,12 +606,12 @@ contains
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
          msh => this%msh, prs_res => this%prs_res, &
-         source_term => this%source_term, &
-         vel_res => this%vel_res, sumab => this%sumab, &
+         source_term => this%source_term, vel_res => this%vel_res, &
+         sumab => this%sumab, makeoifs => this%makeoifs, &
          makeabf => this%makeabf, makebdf => this%makebdf, &
          vel_projection_dim => this%vel_projection_dim, &
          pr_projection_dim => this%pr_projection_dim, &
-         rho => this%rho, mu => this%mu, &
+         rho => this%rho, mu => this%mu, oifs => this%oifs, &
          rho_field => this%rho_field, mu_field => this%mu_field, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
          if_variable_dt => dt_controller%if_variable_dt, &
@@ -593,24 +634,45 @@ contains
          call opcolv(f_x%x, f_y%x, f_z%x, c_Xh%B, msh%gdim, n)
       end if
 
-      ! Add the advection operators to the right-hand-side.
-      call this%adv%compute(u, v, w, &
-                            f_x, f_y, f_z, &
-                            Xh, this%c_Xh, dm_Xh%size())
+      if (oifs) then
+         ! Add the advection operators to the right-hand-side.
+         call this%adv%compute(u, v, w, &
+                               this%advx, this%advy, this%advz, &
+                               Xh, this%c_Xh, dm_Xh%size(), dt)
 
-      ! At this point the RHS contains the sum of the advection operator and
-      ! additional source terms, evaluated using the velocity field from the
-      ! previous time-step. Now, this value is used in the explicit time
-      ! scheme to advance both terms in time.
-      call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
-                           this%abx2, this%aby2, this%abz2, &
-                           f_x%x, f_y%x, f_z%x, &
-                           rho, ext_bdf%advection_coeffs, n)
+         ! At this point the RHS contains the sum of the advection operator and
+         ! additional source terms, evaluated using the velocity field from the
+         ! previous time-step. Now, this value is used in the explicit time
+         ! scheme to advance both terms in time.
+         call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
+                                    this%abx2, this%aby2, this%abz2, &
+                                    f_x%x, f_y%x, f_z%x, &
+                                    rho, ext_bdf%advection_coeffs, n)
 
-      ! Add the RHS contributions coming from the BDF scheme.
-      call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
-                           u, v, w, c_Xh%B, rho, dt, &
-                           ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+         ! Now, the source terms from the previous time step are added to the RHS.
+         call makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &
+                                     f_x%x, f_y%x, f_z%x, &
+                                     rho, dt, n)
+      else
+        ! Add the advection operators to the right-hand-side.
+         call this%adv%compute(u, v, w, &
+                               f_x, f_y, f_z, &
+                               Xh, this%c_Xh, dm_Xh%size())
+
+         ! At this point the RHS contains the sum of the advection operator and
+         ! additional source terms, evaluated using the velocity field from the
+         ! previous time-step. Now, this value is used in the explicit time
+         ! scheme to advance both terms in time.
+         call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
+                              this%abx2, this%aby2, this%abz2, &
+                              f_x%x, f_y%x, f_z%x, &
+                              rho, ext_bdf%advection_coeffs, n)
+
+         ! Add the RHS contributions coming from the BDF scheme.
+         call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
+                              u, v, w, c_Xh%B, rho, dt, &
+                              ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+      end if
 
       call ulag%update()
       call vlag%update()
