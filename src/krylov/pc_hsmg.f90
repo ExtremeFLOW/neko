@@ -113,6 +113,7 @@ module hsmg
      type(field_t) :: e, e_mg, e_crs !< Solve fields
      type(field_t) :: wf !< Work fields
      class(ksp_t), allocatable :: crs_solver !< Solver for course problem
+     logical :: do_crs_grid !< If crs grid solve is carried out
      integer :: niter = 10 !< Number of iter of crs sovlve
      class(pc_t), allocatable :: pc_crs !< Some basic precon for crs
      class(ax_t), allocatable :: ax !< Matrix for crs solve
@@ -200,11 +201,18 @@ contains
 
     ! Create a backend specific krylov solver
     if (present(crs_pctype)) then
-       call krylov_solver_factory(this%crs_solver, &
-            this%dm_crs%size(), trim(crs_pctype), KSP_MAX_ITER, M = this%pc_crs)
+       if (crs_pctype .eq. 'none') then
+          this%do_crs_grid = .false.
+       else
+          call krylov_solver_factory(this%crs_solver, &
+               this%dm_crs%size(), trim(crs_pctype), &
+               KSP_MAX_ITER, M = this%pc_crs)
+          this%do_crs_grid = .true.
+       end if
     else
        call krylov_solver_factory(this%crs_solver, &
             this%dm_crs%size(), 'cg', KSP_MAX_ITER, M = this%pc_crs)
+       this%do_crs_grid = .true.
     end if
 
     call this%bc_crs%init_base(this%c_crs)
@@ -389,12 +397,14 @@ contains
        call device_col2(this%w_d, this%grids(2)%coef%mult_d, &
                         this%grids(2)%dof%size())
        !restrict residual to crs
-       call this%interp_mid_crs%map(this%wf%x, this%w,this%msh%nelv, &
-                                    this%grids(1)%Xh)
-       !Crs solve
-       call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
-       call bc_list_apply_scalar(this%bclst_mg, this%w, &
-                                 this%grids(2)%dof%size())
+       if (this%do_crs_grid) then
+          call this%interp_mid_crs%map(this%wf%x, this%w,this%msh%nelv, &
+                                       this%grids(1)%Xh)
+          !Crs solve
+          call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
+          call bc_list_apply_scalar(this%bclst_mg, this%w, &
+                                    this%grids(2)%dof%size())
+       end if
 
        !$omp parallel private(thrdid, nthrds)
 
@@ -409,7 +419,7 @@ contains
           call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)
           call profiler_end_region
        end if
-       if (nthrds .eq. 1 .or. thrdid .eq. 1) then
+       if (nthrds .eq. 1 .or. thrdid .eq. 1 .and. this%do_crs_grid) then
           call profiler_start_region('HSMG coarse grid', 10)
           call this%grids(1)%gs_h%op(this%wf%x, &
                this%grids(1)%dof%size(), GS_OP_ADD, this%gs_event)
@@ -428,11 +438,11 @@ contains
           call profiler_end_region
        end if
        !$omp end parallel
-
-       call this%interp_mid_crs%map(this%w, this%grids(1)%e%x, &
+       if (this%do_crs_grid) then
+          call this%interp_mid_crs%map(this%w, this%grids(1)%e%x, &
                                     this%msh%nelv, this%grids(2)%Xh)
-       call device_add2(this%grids(2)%e%x_d, this%w_d, this%grids(2)%dof%size())
-
+          call device_add2(this%grids(2)%e%x_d, this%w_d, this%grids(2)%dof%size())
+       end if
        call this%interp_fine_mid%map(this%w, this%grids(2)%e%x, &
                                      this%msh%nelv, this%grids(3)%Xh)
        call device_add2(z_d, this%w_d, this%grids(3)%dof%size())
@@ -457,23 +467,28 @@ contains
        call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)
        call col2(this%w, this%grids(2)%coef%mult, this%grids(2)%dof%size())
        !restrict residual to crs
-       call this%interp_mid_crs%map(this%r,this%w,this%msh%nelv,this%grids(1)%Xh)
-       !Crs solve
+       call this%interp_mid_crs%map(this%r,this%w,this%msh%nelv, &
+            this%grids(1)%Xh)
+          call this%grids(1)%gs_h%op(this%r, this%grids(1)%dof%size(), &
+               GS_OP_ADD)
+          call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
+                                    this%grids(1)%dof%size())
+       call copy(this%grids(1)%e%x,this%r,this%grids(1)%dof%size())
+       if (this%do_crs_grid) then
+          !Crs solve
 
-       call this%grids(1)%gs_h%op(this%r, this%grids(1)%dof%size(), GS_OP_ADD)
-       call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
-                                 this%grids(1)%dof%size())
-       call profiler_start_region('HSMG coarse-solve', 11)
-       crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
-                                    this%grids(1)%dof%size(), &
-                                    this%grids(1)%coef, &
-                                    this%grids(1)%bclst, &
-                                    this%grids(1)%gs_h, this%niter)
-       call profiler_end_region
-       call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
-                                 this%grids(1)%dof%size())
+          call profiler_start_region('HSMG coarse-solve', 11)
+          crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
+                                       this%grids(1)%dof%size(), &
+                                       this%grids(1)%coef, &
+                                       this%grids(1)%bclst, &
+                                       this%grids(1)%gs_h, this%niter)
+          call profiler_end_region
+          call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
+                                    this%grids(1)%dof%size())
 
 
+       end if
        call this%interp_mid_crs%map(this%w, this%grids(1)%e%x, &
                                     this%msh%nelv, this%grids(2)%Xh)
        call add2(this%grids(2)%e%x, this%w, this%grids(2)%dof%size())
