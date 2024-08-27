@@ -175,7 +175,7 @@ contains
        end_time = MPI_WTIME()
        call neko_log%section('Step summary')
        write(log_buf, '(A,I8,A,E15.7)') &
-            'Total time for step ', tstep,' (s): ', end_time-tstep_start_time
+            'Total time for step ', tstep, ' (s): ', end_time-tstep_start_time
        call neko_log%message(log_buf)
        write(log_buf, '(A,E15.7)') &
             'Total elapsed time (s):           ', end_time-start_time_org
