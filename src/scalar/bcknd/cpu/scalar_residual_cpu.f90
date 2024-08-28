@@ -1,8 +1,12 @@
 !> Residuals in the scalar equation (CPU version).
 module scalar_residual_cpu
-  use gather_scatter
-  use scalar_residual
-  use operators
+  use scalar_residual, only : scalar_residual_t
+  use ax_product, only : ax_t
+  use field, only : field_t
+  use coefs, only : coef_t
+  use space, only : space_t
+  use mesh, only : mesh_t
+  use num_types, only : rp    
   use math, only : copy, cfill
   implicit none
   private
