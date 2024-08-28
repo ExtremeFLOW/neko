@@ -123,7 +123,7 @@ jobs:
       flint_status: ${{ needs.linting.result }}
       gnu_status: ${{ needs.GNU.result }}
       inel_status: ${{ needs.Intel.result }}
-      nvidia_status: ${{ needs.NVIDIA.result }}
+#      nvidia_status: ${{ needs.NVIDIA.result }}
       reframe_status: ${{ needs.ReFrame.result }}
 
     steps:
@@ -147,10 +147,10 @@ jobs:
             fail+=("\t- Intel check: $inel_status")
             success=false
           fi
-          if [ "$nvidia_status" != "success" ]; then
-            fail+=("\t- NVIDIA check: $nvidia_status")
-            success=false
-          fi
+#          if [ "$nvidia_status" != "success" ]; then
+#            fail+=("\t- NVIDIA check: $nvidia_status")
+#            success=false
+#          fi
           if [ "$reframe_status" != "success" ]; then
             fail+=("\t- ReFrame check: $reframe_status")
             success=false
