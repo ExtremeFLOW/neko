@@ -38,12 +38,8 @@ submodule (ax_product) ax_helm_fctry
   use ax_helm, only : ax_helm_t
   use ax_helm_cpu, only : ax_helm_cpu_t
   use ax_helm_full_cpu, only : ax_helm_full_cpu_t
- ! use ax_product, only : ax_t
   use utils, only : neko_error
   implicit none
-!  private
-
-!  public :: ax_helm_factory
 
 contains
 
