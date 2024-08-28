@@ -85,8 +85,8 @@ jobs:
       # Check if the current branch has a lower score than the develop branch.
       # If it does, we will lint the changed files.
       # If it doesn't, we will skip the linting.
-      - name: Check environment
-        id: check-env
+      - name: Check the scores
+        id: check-score
         env:
           develop_score: ${{ needs.lint-develop.outputs.develop_score }}
           current_score: ${{ needs.lint-current.outputs.current_score }}
@@ -102,20 +102,18 @@ jobs:
 
           if (($(echo "$current_score <= $develop_score" | bc -l))); then
             echo "Current score is lower than develop score, linting changed files."
-            echo "skip_lint=false" >> $GITHUB_OUTPUT
+            echo "degraded=false" >> $GITHUB_OUTPUT
           else
             echo "Current score is higher than develop score, skipping linting."
-            echo "skip_lint=true" >> $GITHUB_OUTPUT
+            echo "degraded=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Checkout
-        if: ${{ steps.check-env.outputs.skip_lint == 'false' }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
       - name: Setup env.
-        if: ${{ steps.check-env.outputs.skip_lint == 'false' }}
         run: |
           sudo apt-get update
           sudo apt-get install -yq bc python3-dev python3-pip python3-tk
@@ -123,7 +121,6 @@ jobs:
 
         # Get a list of the changed files and store them for later use.
       - name: Get changed files
-        if: ${{ steps.check-env.outputs.skip_lint == 'false' }}
         id: get-changed-files
         env:
           target: ${{ github.event.pull_request.base.ref }}
@@ -150,7 +147,6 @@ jobs:
           echo "changed-files=${changes[@]}" >> $GITHUB_OUTPUT
 
       - name: Lint changed files
-        if: ${{ steps.check-env.outputs.skip_lint == 'false' }}
         id: lint-changed-files
         env:
           changed_files: ${{ steps.get-changed-files.outputs.changed-files }}
@@ -185,6 +181,7 @@ jobs:
         if: ${{ steps.lint-changed-files.outputs.failed-files != '' }}
         env:
           failed_files: ${{ steps.lint-changed-files.outputs.failed-files }}
+          degraded: ${{ steps.check-score.outputs.degraded }}
         run: |
           printf "Files that failed linting:\n"
           printf "\t${failed_files[@]}\n"
@@ -200,6 +197,14 @@ jobs:
               fi
               echo "$report"
             done
-            exit 2
+
+            if [ "$degraded" == "false" ]; then
+              echo "Linting failed, but the score is higher than the develop branch."
+              echo "Please update files at your convenience."
+            else
+              echo "Linting failed, and the score is lower than the develop branch."
+              echo "Please fix the linting errors."
+              exit 2
+            fi
           fi
 
