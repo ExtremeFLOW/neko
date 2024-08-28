@@ -69,7 +69,7 @@ module scalar_scheme
   use math, only : cfill, add2s2
   use device_math, only : device_cfill, device_add2s2
   use neko_config, only : NEKO_BCKND_DEVICE
-  use field_series
+  use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
   implicit none
 

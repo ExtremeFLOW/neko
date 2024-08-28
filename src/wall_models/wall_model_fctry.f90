@@ -53,7 +53,8 @@ contains
   !! @param nu The molecular kinematic viscosity.
   !! @param h_index The off-wall index of the sampling cell.
   !! @param json A dictionary with parameters.
-  module subroutine wall_model_factory(object, coef, msk, facet, nu, h_index, json)
+  module subroutine wall_model_factory(object, coef, msk, facet, nu, &
+       h_index, json)
     class(wall_model_t), allocatable, target, intent(inout) :: object
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)

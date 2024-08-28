@@ -191,7 +191,7 @@ contains
     this%h_index = index
 
     call neko_field_registry%add_field(this%dof, "tau", &
-                                       ignore_existing=.true.)
+                                       ignore_existing = .true.)
 
     this%tau_field => neko_field_registry%get_field("tau")
 
@@ -264,27 +264,27 @@ contains
        normal = -normal
 
        select case (fid)
-       case(1)
+       case (1)
          this%ind_r(i) = idx(1) + this%h_index
          this%ind_s(i) = idx(2)
          this%ind_t(i) = idx(3)
-       case(2)
+       case (2)
          this%ind_r(i) = idx(1) - this%h_index
          this%ind_s(i) = idx(2)
          this%ind_t(i) = idx(3)
-       case(3)
+       case (3)
          this%ind_r(i) = idx(1)
          this%ind_s(i) = idx(2) + this%h_index
          this%ind_t(i) = idx(3)
-       case(4)
+       case (4)
          this%ind_r(i) = idx(1)
          this%ind_s(i) = idx(2) - this%h_index
          this%ind_t(i) = idx(3)
-       case(5)
+       case (5)
          this%ind_r(i) = idx(1)
          this%ind_s(i) = idx(2)
          this%ind_t(i) = idx(3) + this%h_index
-       case(6)
+       case (6)
          this%ind_r(i) = idx(1)
          this%ind_s(i) = idx(2)
          this%ind_t(i) = idx(3) - this%h_index
@@ -339,13 +339,13 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
       call device_memcpy(this%h%x, this%h%x_d, n_nodes, HOST_TO_DEVICE,&
-                         sync=.false.)
+                         sync = .false.)
       call device_memcpy(this%n_x%x, this%n_x%x_d, n_nodes, HOST_TO_DEVICE, &
-                         sync=.false.)
+                         sync = .false.)
       call device_memcpy(this%n_y%x, this%n_y%x_d, n_nodes, HOST_TO_DEVICE, &
-                         sync=.false.)
+                         sync = .false.)
       call device_memcpy(this%n_z%x, this%n_z%x_d, n_nodes, HOST_TO_DEVICE, &
-                         sync=.true.)
+                         sync = .true.)
     end if
   end subroutine wall_model_find_points
 

@@ -65,6 +65,7 @@ module neko
   use wall, only : no_slip_wall_t
   use dirichlet, only : dirichlet_t
   use ax_product, only : ax_t, ax_helm_factory
+  use parmetis, only : parmetis_partgeom, parmetis_partmeshkway
   use neko_config
   use case, only : case_t, case_init, case_free
   use sampler, only : sampler_t
