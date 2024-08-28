@@ -118,7 +118,7 @@ contains
     character(8) :: date
     integer :: argc, nthrds, rw, sw
 
-    call date_and_time(time=time, date=date)
+    call date_and_time(time = time, date = date)
 
     call comm_init
     call neko_mpi_types_init
@@ -161,8 +161,9 @@ contains
        ! Job information
        !
        call neko_log%section("Job Information")
-       write(log_buf, '(A,A,A,A,1x,A,1x,A,A,A,A,A)') 'Start time: ',&
-         time(1:2),':',time(3:4), '/', date(1:4),'-', date(5:6),'-',date(7:8)
+       write(log_buf, '(A,A,A,A,1x,A,1x,A,A,A,A,A)') 'Start time: ', &
+         time(1:2), ':', time(3:4), '/', &
+         date(1:4), '-', date(5:6), '-', date(7:8)
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
        write(log_buf, '(a)') 'Running on: '
        sw = 10
