@@ -917,14 +917,7 @@ contains
           ii = ind(ir)
           a(ir) = a(1)
           ind(ir) = ind(1)
-<<<<<<< HEAD
           ir = ir - 1
-=======
-          ir = ir-1
-<<<<<<< HEAD
-=======
->>>>>>> bc73a9b4 (fix linter fault)
->>>>>>> ExtremeFLOW-develop
           if (ir .eq. 1) then
              a(1) = aa
              ind(1) = ii
@@ -935,15 +928,7 @@ contains
        j = l+l
        do while (j .le. ir)
           if (j .lt. ir) then
-<<<<<<< HEAD
-             if ( a(j) .lt. a(j+1) ) j = j+1
-=======
-<<<<<<< HEAD
              if ( a(j) .lt. a(j+1) ) j = j + 1
-=======
-             if ( a(j) .lt. a(j+1) ) j = j+1
->>>>>>> bc73a9b4 (fix linter fault)
->>>>>>> ExtremeFLOW-develop
           end if
           if (aa .lt. a(j)) then
              a(i) = a(j)
