@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,9 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines Pressure residual factory for the Pn-Pn formulation
-module scalar_residual_fctry
+submodule (scalar_residual) scalar_residual_fctry
   use neko_config
-  use scalar_residual
   use scalar_residual_device, only : scalar_residual_device_t
   use scalar_residual_cpu, only : scalar_residual_cpu_t
   use scalar_residual_sx, only : scalar_residual_sx_t
@@ -44,7 +43,7 @@ contains
   !> Factory for the scalar advection-diffusion residual.
   !! @details Only selects the compute backend.
   !! @param object The object to be allocated by the factory.
-  subroutine scalar_residual_factory(object)
+  module subroutine scalar_residual_factory(object)
     class(scalar_residual_t), allocatable, intent(inout) :: object
 
     if (allocated(object)) then
@@ -59,7 +58,7 @@ contains
     else
        allocate(scalar_residual_cpu_t::object)
     end if
-
-
+    
   end subroutine scalar_residual_factory
-end module scalar_residual_fctry
+  
+end submodule scalar_residual_fctry

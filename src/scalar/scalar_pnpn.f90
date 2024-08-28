@@ -34,7 +34,6 @@
 
 module scalar_pnpn
   use num_types, only: rp
-  use scalar_residual_fctry, only : scalar_residual_factory
   use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, &
        rhs_maker_ext_fctry, rhs_maker_bdf_fctry
   use scalar_scheme, only : scalar_scheme_t
@@ -48,7 +47,7 @@ module scalar_pnpn
   use coefs, only : coef_t
   use device, only : HOST_TO_DEVICE, device_memcpy
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use scalar_residual, only :scalar_residual_t
+  use scalar_residual, only : scalar_residual_t, scalar_residual_factory
   use ax_product, only : ax_t, ax_helm_factory
   use field_series, only: field_series_t
   use facet_normal, only : facet_normal_t

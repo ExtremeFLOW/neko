@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,24 +30,16 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module wall_model_fctry
-  use num_types, only : rp
-  use wall_model, only : wall_model_t
+submodule (wall_model) wall_model_fctry
   use vreman, only : vreman_t
-  use dofmap, only : dofmap_t
-  use coefs, only : coef_t
-  use json_module, only : json_file
   use spalding, only : spalding_t
   use rough_log_law, only : rough_log_law_t
-  use utils, only : concat_string_array, neko_error
+  use utils, only : concat_string_array
   use json_utils, only : json_get
   implicit none
-  private
-
-  public :: wall_model_factory
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KNOWN_TYPES(2) = [character(len=20) :: &
+  character(len=20) :: WALLM_KNOWN_TYPES(2) = [character(len=20) :: &
      "spalding", &
      "rough_log_law"]
 
@@ -61,7 +53,7 @@ contains
   !! @param nu The molecular kinematic viscosity.
   !! @param h_index The off-wall index of the sampling cell.
   !! @param json A dictionary with parameters.
-  subroutine wall_model_factory(object, coef, msk, facet, nu, h_index, json)
+  module subroutine wall_model_factory(object, coef, msk, facet, nu, h_index, json)
     class(wall_model_t), allocatable, target, intent(inout) :: object
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
@@ -72,8 +64,8 @@ contains
     character(len=:), allocatable :: type_name
     character(len=:), allocatable :: type_string
 
-    type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
-                                       prepend=.true.)
+    type_string =  concat_string_array(WALLM_KNOWN_TYPES, &
+         NEW_LINE('A') // "-  ", prepend=.true.)
 
     call json_get(json, "model", type_name)
 
@@ -92,4 +84,4 @@ contains
 
   end subroutine wall_model_factory
 
-end module wall_model_fctry
+end submodule wall_model_fctry

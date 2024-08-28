@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2023-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,23 +32,16 @@
 !
 !
 !> Defines a factory subroutine for source terms.
-module source_term_fctry
-  use source_term, only : source_term_t
+submodule (source_term) source_term_fctry
   use const_source_term, only : const_source_term_t
   use boussinesq_source_term, only : boussinesq_source_term_t
   use brinkman_source_term, only: brinkman_source_term_t
-  use json_module, only : json_file
   use json_utils, only : json_get
-  use field_list, only : field_list_t
   use utils, only : concat_string_array, neko_error
-  use coefs, only : coef_t
   implicit none
-  private
-
-  public :: source_term_factory
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KNOWN_TYPES(3) = [character(len=20) :: &
+  character(len=20) :: SOURCE_KNOWN_TYPES(3) = [character(len=20) :: &
      "constant", &
      "boussinesq", &
      "brinkman"]
@@ -76,8 +69,8 @@ contains
     else if (trim(type_name) .eq. "brinkman") then
        allocate(brinkman_source_term_t::object)
     else
-       type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
-                                          .true.)
+       type_string =  concat_string_array(SOURCE_KNOWN_TYPES, &
+            NEW_LINE('A') // "-  ", .true.)
        call neko_error("Unknown source term type: " &
                        // trim(type_name) // ".  Known types are: " &
                        // type_string)
@@ -88,4 +81,4 @@ contains
 
   end subroutine source_term_factory
 
-end module source_term_fctry
+end submodule source_term_fctry

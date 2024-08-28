@@ -31,11 +31,14 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module scalar_residual_device
-  use scalar_residual
-  use gather_scatter
-  use operators
-  use device_math
-  use device_mathops
+  use scalar_residual, only : scalar_residual_t
+  use device_math, only : device_copy, device_cfill
+  use ax_product, only : ax_t
+  use field, only : field_t
+  use coefs, only : coef_t
+  use space, only : space_t
+  use mesh, only : mesh_t
+  use num_types, only : rp    
   use, intrinsic :: iso_c_binding
   implicit none
   private

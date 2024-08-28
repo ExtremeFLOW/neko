@@ -145,6 +145,29 @@ module wall_model
      end subroutine wall_model_free
   end interface
 
+  interface
+     !> Wall model factory. Both constructs and initializes the object.
+     !! @param object The object to be allocated.
+     !! @param coef SEM coefficients.
+     !! @param msk The boundary mask.
+     !! @param facet The boundary facets.
+     !! @param nu The molecular kinematic viscosity.
+     !! @param h_index The off-wall index of the sampling cell.
+     !! @param json A dictionary with parameters.
+     module subroutine wall_model_factory(object, coef, msk, facet, nu, &
+          h_index, json)
+       class(wall_model_t), allocatable, target, intent(inout) :: object
+       type(coef_t), intent(in) :: coef
+       integer, intent(in) :: msk(:)
+       integer, intent(in) :: facet(:)
+       real(kind=rp), intent(in) :: nu
+       integer, intent(in) :: h_index
+       type(json_file), intent(inout) :: json
+     end subroutine wall_model_factory
+  end interface
+
+  public :: wall_model_factory
+
 contains
   !> Constructor for the wall_model_t (base) class.
   !! @param dof SEM map of degrees of freedom.

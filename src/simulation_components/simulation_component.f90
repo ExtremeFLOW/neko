@@ -107,6 +107,21 @@ module simulation_component
      end subroutine simulation_component_free
   end interface
 
+  interface
+     !> Simulation component factory.
+     !! Both constructs and initializes the object.
+     !! @param object The object to be created and initialized.
+     !! @param json JSON object initializing the simulation component.
+     !! @param case The simulation case.
+     module subroutine simulation_component_factory(object, json, case)
+       class(simulation_component_t), allocatable, intent(inout) :: object
+       type(json_file), intent(inout) :: json
+       class(case_t), intent(inout), target :: case
+     end subroutine simulation_component_factory
+  end interface
+
+  public :: simulation_component_factory
+
 contains
   !> Constructor for the `simulation_component_t` (base) class.
   subroutine simulation_component_init_base(this, json, case)

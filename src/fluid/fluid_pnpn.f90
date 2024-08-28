@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,10 +34,9 @@
 module fluid_pnpn
   use num_types, only : rp
   use krylov, only : ksp_monitor_t
-  use pnpn_res_fctry, only : pnpn_prs_res_factory, pnpn_vel_res_factory
-  use pnpn_res_stress_fctry, only : pnpn_prs_res_stress_factory, &
-       pnpn_vel_res_stress_factory
-  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
+  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t, &
+       pnpn_prs_res_factory, pnpn_vel_res_factory, &
+       pnpn_prs_res_stress_factory, pnpn_vel_res_stress_factory
   use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_bdf_t, rhs_maker_ext_t, &
        rhs_maker_sumab_fctry, rhs_maker_bdf_fctry, rhs_maker_ext_fctry
   use fluid_volflow, only : fluid_volflow_t
