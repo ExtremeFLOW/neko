@@ -102,10 +102,10 @@ jobs:
 
           if (($(echo "$current_score <= $develop_score" | bc -l))); then
             echo "Current score is lower than develop score, linting changed files."
-            echo "degraded=false" >> $GITHUB_OUTPUT
+            echo "degraded=true" >> $GITHUB_OUTPUT
           else
             echo "Current score is higher than develop score, skipping linting."
-            echo "degraded=true" >> $GITHUB_OUTPUT
+            echo "degraded=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Checkout
