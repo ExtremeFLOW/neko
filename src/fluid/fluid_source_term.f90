@@ -181,7 +181,7 @@ contains
     nullify(this%f_z)
 
     if (allocated(this%source_terms)) then
-       do i=1, size(this%source_terms)
+       do i = 1, size(this%source_terms)
           call this%source_terms(i)%free()
        end do
        deallocate(this%source_terms)
