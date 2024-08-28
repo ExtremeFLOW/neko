@@ -31,18 +31,13 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines Pressure residual factory for the Pn-Pn formulation
-module pnpn_res_stress_fctry
+submodule (pnpn_residual) pnpn_res_stress_fctry
   use neko_config, only : NEKO_BCKND_DEVICE
-  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
   use pnpn_res_stress_cpu, only : pnpn_prs_res_stress_cpu_t, &
                                   pnpn_vel_res_stress_cpu_t
   use pnpn_res_stress_device, only : pnpn_prs_res_stress_device_t, &
                                      pnpn_vel_res_stress_device_t
-
   implicit none
-  private
-
-  public :: pnpn_prs_res_stress_factory, pnpn_vel_res_stress_factory
 
 contains
 
@@ -50,7 +45,7 @@ contains
   !! scheme with full viscous stress forumlation.
   !! @details Only selects the compute backend.
   !! @param object The object to be allocated by the factory.
-  subroutine pnpn_prs_res_stress_factory(object)
+  module subroutine pnpn_prs_res_stress_factory(object)
     class(pnpn_prs_res_t), allocatable, intent(inout) :: object
 
     if (allocated(object)) then
@@ -69,7 +64,7 @@ contains
   !! scheme with full viscous stress forumlation.
   !! @details Only selects the compute backend.
   !! @param object The object to be allocated by the factory.
-  subroutine pnpn_vel_res_stress_factory(object)
+  module subroutine pnpn_vel_res_stress_factory(object)
     class(pnpn_vel_res_t), allocatable, intent(inout) :: object
 
     if (allocated(object)) then
@@ -84,4 +79,4 @@ contains
 
   end subroutine pnpn_vel_res_stress_factory
 
-end module pnpn_res_stress_fctry
+end submodule pnpn_res_stress_fctry

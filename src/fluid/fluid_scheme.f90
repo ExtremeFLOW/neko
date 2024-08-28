@@ -43,7 +43,7 @@ module fluid_scheme
   use field, only : field_t
   use space, only : space_t, GLL
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t
+  use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy
   use coefs, only: coef_t
   use wall, only : no_slip_wall_t
   use inflow, only : inflow_t
@@ -58,9 +58,7 @@ module fluid_scheme
   use sx_jacobi, only : sx_jacobi_t
   use device_jacobi, only : device_jacobi_t
   use hsmg, only : hsmg_t
-  use precon, only : pc_t
-  use krylov_fctry, only : krylov_solver_factory, krylov_solver_destroy
-  use precon_fctry, only : precon_factory, precon_destroy
+  use precon, only : pc_t, precon_factory, precon_destroy
   use fluid_stats, only : fluid_stats_t
   use bc, only : bc_t, bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
        bc_list_apply_scalar, bc_list_apply_vector
@@ -231,7 +229,15 @@ module fluid_scheme
      end subroutine fluid_scheme_restart_intrf
   end interface
 
-  public :: fluid_scheme_t
+  interface
+     !> Initialise a fluid scheme
+     module subroutine fluid_scheme_factory(object, type_name)
+       class(fluid_scheme_t), intent(inout), allocatable :: object
+       character(len=*) :: type_name
+     end subroutine fluid_scheme_factory
+  end interface
+
+  public :: fluid_scheme_t, fluid_scheme_factory
 
 contains
 

@@ -1,7 +1,12 @@
 !> Residuals in the Pn-Pn formulation (SX version)
 module scalar_residual_sx
   use scalar_residual, only : scalar_residual_t
-  use num_types, only : rp
+  use ax_product, only : ax_t
+  use field, only : field_t
+  use coefs, only : coef_t
+  use space, only : space_t
+  use mesh, only : mesh_t
+  use num_types, only : rp    
   use math, only : copy, cfill
   use field, only : field_t
   use mesh, only : mesh_t

@@ -33,12 +33,12 @@
 module scalar_residual_device
   use scalar_residual, only : scalar_residual_t
   use device_math, only : device_copy, device_cfill
-  use num_types, only : rp
-  use field, only : field_t
-  use mesh, only : mesh_t
   use ax_product, only : ax_t
-  use space, only : space_t
+  use field, only : field_t
   use coefs, only : coef_t
+  use space, only : space_t
+  use mesh, only : mesh_t
+  use num_types, only : rp    
   use, intrinsic :: iso_c_binding
   implicit none
   private

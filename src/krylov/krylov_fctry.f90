@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module krylov_fctry
+submodule (krylov) krylov_fctry
   use cg, only : cg_t
   use cg_sx, only : sx_cg_t
   use cg_cpld, only : cg_cpld_t
@@ -48,17 +48,13 @@ module krylov_fctry
   use gmres_sx, only : sx_gmres_t
   use gmres_device, only : gmres_device_t
   use num_Types, only : rp
-  use krylov, only : ksp_t, ksp_monitor_t
   use precon, only : pc_t
-  use utils, only : concat_string_array, neko_error
-  use neko_config
+  use utils, only : concat_string_array
+  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_OPENCL
   implicit none
-  private
-
-  public :: krylov_solver_factory, krylov_solver_destroy
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KNOWN_TYPES(8) = [character(len=20) :: &
+  character(len=20) :: KSP_KNOWN_TYPES(8) = [character(len=20) :: &
      "cg", &
      "pipecg", &
      "fusedcg", &
@@ -77,7 +73,8 @@ contains
   !! @param max_iter The maximum number of iterations
   !! @param abstol The absolute tolerance, optional.
   !! @param M The preconditioner, optional.
-  subroutine krylov_solver_factory(object, n, type_name, max_iter, abstol, M)
+  module subroutine krylov_solver_factory(object, n, type_name, &
+       max_iter, abstol, M)
     class(ksp_t), allocatable, target, intent(inout) :: object
     integer, intent(in), value :: n
     character(len=*), intent(in) :: type_name
@@ -152,8 +149,8 @@ contains
     else if (trim(type_name) .eq. 'bicgstab') then
        allocate(bicgstab_t::object)
     else
-       type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
-                                          .true.)
+       type_string =  concat_string_array(KSP_KNOWN_TYPES,&
+            NEW_LINE('A') // "-  ",  .true.)
        call neko_error("Unknown Krylov solver type: " &
                        // trim(type_name) // ". Known types are: " &
                        // type_string)
@@ -307,8 +304,8 @@ contains
 
   end subroutine krylov_solver_factory
 
-  !> Destroy an interative Krylov type_name
-  subroutine krylov_solver_destroy(object)
+  !> Destroy an iterative Krylov type_name
+  module subroutine krylov_solver_destroy(object)
     class(ksp_t), allocatable, intent(inout) :: object
 
     if (allocated(object)) then
@@ -348,5 +345,5 @@ contains
 
   end subroutine krylov_solver_destroy
 
-end module krylov_fctry
+end submodule krylov_fctry
 
