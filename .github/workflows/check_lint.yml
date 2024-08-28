@@ -37,7 +37,8 @@ jobs:
             echo "No score found, check flint.txt"
             exit 1
           fi
-          echo "develop_score=$score" >> $GITHUB_ENV
+          echo "Develop score=$score"
+          echo "develop_score=$score" >> $GITHUB_OUTPUT
 
   lint-current:
     name: "Lint current branch"
@@ -70,7 +71,8 @@ jobs:
             echo "No score found, check flint.txt"
             exit 1
           fi
-          echo "current_score=$score" >> $GITHUB_ENV
+          echo "Current score=$score"
+          echo "current_score=$score" >> $GITHUB_OUTPUT
 
 
   lint-changed-files:
@@ -177,13 +179,13 @@ jobs:
       - name: Print failed files and their errors
         if: ${{ steps.lint-changed-files.outputs.failed-files != '' }}
         env:
-          fails: ${{ steps.lint-changed-files.outputs.failed-files }}
+          failed_files: ${{ steps.lint-changed-files.outputs.failed-files }}
         run: |
           printf "Files that failed linting:\n"
-          printf "\t${fails[@]}\n"
+          printf "\t${failed_files[@]}\n"
 
-          if [ ${#fails[@]} -gt 0 ]; then
-            for fail in ${fails[@]}; do
+          if [ ${#failed_files[@]} -gt 0 ]; then
+            for fail in ${failed_files[@]}; do
               printf "%.s-" {1..80} && printf "\n"
               printf "Linting failed for \n\t$fail\n\n"
 
