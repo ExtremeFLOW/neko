@@ -32,7 +32,7 @@
 !
 !> Defines Pressure residual factory for the Pn-Pn formulation
 submodule (scalar_residual) scalar_residual_fctry
-  use neko_config
+  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_DEVICE
   use scalar_residual_device, only : scalar_residual_device_t
   use scalar_residual_cpu, only : scalar_residual_cpu_t
   use scalar_residual_sx, only : scalar_residual_sx_t
@@ -52,8 +52,7 @@ contains
 
     if (NEKO_BCKND_SX .eq. 1) then
        allocate(scalar_residual_sx_t::object)
-    else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1)) then
+    else if (NEKO_BCKND_DEVICE .eq. 1) then
        allocate(scalar_residual_device_t::object)
     else
        allocate(scalar_residual_cpu_t::object)
