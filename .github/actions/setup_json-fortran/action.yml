@@ -90,7 +90,7 @@ runs:
         WORKING_DIR: ${{ inputs.working-dir }}
         INSTALL_DIR: ${{ inputs.install-dir }}
       run: |
-        TAG=${{ inputs.version }}-${{ inputs.os }}-{{ inputs.arch }}-${{ inputs.compiler }}
+        TAG=${{ inputs.version }}-${{ inputs.os }}-${{ inputs.arch }}-${{ inputs.compiler }}
         WORKING_DIR=$WORKING_DIR/json-fortran-$TAG
         INSTALL_DIR=$INSTALL_DIR/json-fortran-$TAG
 
