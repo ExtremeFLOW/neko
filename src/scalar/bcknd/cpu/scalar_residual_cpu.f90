@@ -8,6 +8,11 @@ module scalar_residual_cpu
   use mesh, only : mesh_t
   use num_types, only : rp    
   use math, only : copy, cfill
+  use field, only : field_t
+  use mesh, only : mesh_t
+  use ax_product, only : ax_t
+  use space, only : space_t
+  use coefs, only : coef_t
   implicit none
   private
 
