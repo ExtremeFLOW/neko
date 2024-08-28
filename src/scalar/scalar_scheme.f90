@@ -40,7 +40,7 @@ module scalar_scheme
   use field, only : field_t
   use field_list, only: field_list_t
   use space, only : space_t
-  use dofmap, only :  dofmap_t
+  use dofmap, only : dofmap_t
   use krylov, only : ksp_t
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
@@ -74,6 +74,7 @@ module scalar_scheme
   use field_series
   use gradient_jump_penalty
   use time_step_controller, only : time_step_controller_t
+  use gradient_jump_penalty
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -95,13 +96,13 @@ module scalar_scheme
      !> Gather-scatter associated with \f$ X_h \f$.
      type(gs_t), pointer :: gs_Xh
      !> Coefficients associated with \f$ X_h \f$.
-     type(coef_t), pointer  :: c_Xh
+     type(coef_t), pointer :: c_Xh
      !> Right-hand side.
      type(field_t), pointer :: f_Xh => null()
      !> The source term for equation.
      type(scalar_source_term_t) :: source_term
      !> Krylov solver.
-     class(ksp_t), allocatable  :: ksp
+     class(ksp_t), allocatable :: ksp
      !> Max iterations in the Krylov solver.
      integer :: ksp_maxiter
      !> Projection space size.
@@ -218,7 +219,7 @@ module scalar_scheme
   !> Abstract interface to compute a time-step
   abstract interface
      subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf, &
-                                         dt_controller)
+          dt_controller)
        import scalar_scheme_t
        import time_scheme_controller_t
        import time_step_controller_t
@@ -316,7 +317,7 @@ contains
     type(json_file), target, intent(inout) :: params
     character(len=*), intent(in) :: scheme
     type(user_t), target, intent(in) :: user
-    type(material_properties_t), target,  intent(inout) :: material_properties
+    type(material_properties_t), target, intent(inout) :: material_properties
     ! IO buffer for log output
     character(len=LOG_SIZE) :: log_buf
     ! Variables for retrieving json parameters
@@ -324,6 +325,7 @@ contains
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val, ierr
     character(len=:), allocatable :: solver_type, solver_precon
+    real(kind=rp) :: GJP_param_a, GJP_param_b
 
     this%u => neko_field_registry%get_field('u')
     this%v => neko_field_registry%get_field('v')
@@ -469,11 +471,25 @@ contains
    
     ! Initiate gradient jump penalty
     call json_get_or_default(params, &
-                            'case.scalar.gradient_jump_penalty',&
+                            'case.scalar.gradient_jump_penalty.enabled',&
                             this%if_gradient_jump_penalty, .false.)
 
     if (this%if_gradient_jump_penalty .eqv. .true.) then
-       call this%gradient_jump_penalty%init(this%dm_Xh, this%c_Xh)
+       if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
+          call json_get_or_default(params, &
+                            'case.scalar.gradient_jump_penalty.tau',&
+                            GJP_param_a, 0.02_rp)
+          GJP_param_b = 0.0_rp
+       else
+          call json_get_or_default(params, &
+                        'case.scalar.gradient_jump_penalty.scaling_factor',&
+                            GJP_param_a, 0.8_rp)
+          call json_get_or_default(params, &
+                        'case.scalar.gradient_jump_penalty.scaling_exponent',&
+                            GJP_param_b, 4.0_rp)
+       end if
+       call this%gradient_jump_penalty%init(params, this%dm_Xh, this%c_Xh, &
+                                            GJP_param_a, GJP_param_b)
     end if
 
     call neko_log%end_section()
@@ -640,7 +656,6 @@ contains
     if (this%variable_material_properties) then
       nut => neko_field_registry%get_field(this%nut_field_name)
       n = nut%size()
-
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_cfill(this%lambda_field%x_d, this%lambda, n)
          call device_add2s2(this%lambda_field%x_d, nut%x_d, lambda_factor, n)

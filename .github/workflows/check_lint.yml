@@ -49,6 +49,11 @@ jobs:
         run: |
           score=$(awk '$1==0{print $3}' flint.txt)
 
+          if [ -z "$score" ]; then
+            echo "No score found, check flint.txt"
+            exit 1
+          fi
+
           printf "Current score: $score\n"
           printf "Minimum score: $global_min\n"
           if (( $(echo "$score < $global_min" | bc -l) )); then
@@ -106,8 +111,10 @@ jobs:
           changes=($(git diff --name-only --diff-filter=d origin/$target))
 
           printf "Detected fortran changes:\n"
-          for file in $changes; do
-            if [[ ${file: -4} != ".f90" ]]; then continue; fi
+          for file in ${changes[@]}; do
+            if [[ ${file: -4} != ".f90" && ${file: -4} != ".F90" ]]; then
+              continue
+            fi
             printf "\t- $file"
           done
 
@@ -128,7 +135,9 @@ jobs:
           for file in $changed_files; do
 
             # If the file is not a Fortran file, skip it.
-            if [[ ${file: -4} != ".f90" ]]; then continue; fi
+            if [[ ${file: -4} != ".f90" && ${file: -4} != ".F90" ]]; then
+              continue
+            fi
 
             printf "\t- $file"
             score=$(flint score -r flinter_rc.yml $(realpath $file) 2> /dev/null |

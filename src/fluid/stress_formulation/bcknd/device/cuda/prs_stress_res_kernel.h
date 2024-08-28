@@ -48,10 +48,10 @@ __global__ void prs_stress_res_part1_kernel(T * __restrict__ ta1,
                                             const T * __restrict__ B,
                                             const T * __restrict__ rho,
                                             const int n) {
-  
+
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
-  
+
   for (int i = idx; i < n; i += str) {
     ta1[i] = (f_u[i] / rho[i]) - ((wa1[i] / rho[i]) * B[i]);
     ta2[i] = (f_v[i] / rho[i]) - ((wa2[i] / rho[i]) * B[i]);
@@ -73,7 +73,7 @@ __global__ void prs_stress_res_part3_kernel(T * __restrict__ p_res,
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
-  
+
   for (int i = idx; i < n; i += str) {
     p_res[i] = p_res[i] - (dtbd * (ta1[i] + ta2[i] + ta3[i]))
       - (wa1[i] + wa2[i] + wa3[i]);

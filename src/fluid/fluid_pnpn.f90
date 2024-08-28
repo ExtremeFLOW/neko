@@ -35,6 +35,8 @@ module fluid_pnpn
   use num_types, only : rp
   use krylov, only : ksp_monitor_t
   use pnpn_res_fctry, only : pnpn_prs_res_factory, pnpn_vel_res_factory
+  use pnpn_res_stress_fctry, only : pnpn_prs_res_stress_factory, &
+       pnpn_vel_res_stress_factory
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
   use ax_helm_fctry, only : ax_helm_factory
   use rhs_maker_fctry, only : rhs_maker_sumab_fctry, rhs_maker_bdf_fctry, &
@@ -42,17 +44,13 @@ module fluid_pnpn
   use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_bdf_t, rhs_maker_ext_t
   use fluid_volflow, only : fluid_volflow_t
   use fluid_scheme, only : fluid_scheme_t
-  use field_series, only : field_series_t
-  use device_math, only : device_add2, device_col2
   use device_mathops, only : device_opcolv, device_opadd2cm
   use fluid_aux, only : fluid_step_info
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
   use device, only : device_memcpy, HOST_TO_DEVICE
-  use logger, only : neko_log
   use advection, only : advection_t
   use profiler, only : profiler_start_region, profiler_end_region
-  use json_utils, only : json_get
   use json_module, only : json_file
   use material_properties, only : material_properties_t
   use advection_fctry, only : advection_factory
@@ -63,11 +61,10 @@ module fluid_pnpn
   use non_normal, only : non_normal_t
   use mesh, only : mesh_t
   use user_intf, only : user_t
-  use coefs, only : coef_t
   use time_step_controller, only : time_step_controller_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
-  use math, only : col2, add2
+  use math, only : col2
   use mathops, only : opadd2cm, opcolv
   use bc, only: bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
                 bc_list_apply_scalar, bc_list_apply_vector
@@ -82,7 +79,10 @@ module fluid_pnpn
 
      type(field_t) :: dp, du, dv, dw
 
-     class(ax_t), allocatable :: Ax
+     ! Coupled Helmholz operator for velocity
+     class(ax_t), allocatable :: Ax_vel
+     ! Helmholz operator for pressure
+     class(ax_t), allocatable :: Ax_prs
 
      type(projection_t) :: proj_prs
      type(projection_t) :: proj_u
@@ -92,11 +92,11 @@ module fluid_pnpn
      type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
      type(facet_normal_t) :: bc_sym_surface !< Surface term in pressure rhs
      type(dirichlet_t) :: bc_vel_res   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_p   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_u   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_v   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_w   !< Dirichlet condition vel. res.
-     type(non_normal_t) :: bc_vel_res_non_normal   !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_p  !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_u  !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_v  !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_w  !< Dirichlet condition vel. res.
+     type(non_normal_t) :: bc_vel_res_non_normal !< Dirichlet condition vel. res
      type(bc_list_t) :: bclst_vel_res
      type(bc_list_t) :: bclst_du
      type(bc_list_t) :: bclst_dv
@@ -152,17 +152,28 @@ contains
                           material_properties)
 
     if (this%variable_material_properties .eqv. .true.) then
-       call neko_error("Variable material properties not supported.")
+       ! Setup backend dependent Ax routines
+       call ax_helm_factory(this%Ax_vel, full_formulation = .true.)
+
+       ! Setup backend dependent prs residual routines
+       call pnpn_prs_res_stress_factory(this%prs_res)
+
+       ! Setup backend dependent vel residual routines
+       call pnpn_vel_res_stress_factory(this%vel_res)
+    else
+       ! Setup backend dependent Ax routines
+       call ax_helm_factory(this%Ax_vel, full_formulation = .false.)
+
+       ! Setup backend dependent prs residual routines
+       call pnpn_prs_res_factory(this%prs_res)
+
+       ! Setup backend dependent vel residual routines
+       call pnpn_vel_res_factory(this%vel_res)
     end if
 
-    ! Setup backend dependent Ax routines
-    call ax_helm_factory(this%ax, full_formulation = .false.)
+    ! Setup Ax for the pressure
+    call ax_helm_factory(this%Ax_prs, full_formulation = .false.)
 
-    ! Setup backend dependent prs residual routines
-    call pnpn_prs_res_factory(this%prs_res)
-
-    ! Setup backend dependent vel residual routines
-    call pnpn_vel_res_factory(this%vel_res)
 
     ! Setup backend dependent summation of AB/BDF
     call rhs_maker_sumab_fctry(this%sumab)
@@ -206,7 +217,8 @@ contains
     call this%bc_prs_surface%mark_zone(msh%inlet)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'v', this%bc_labels)
-    !This impacts the rhs of the pressure, need to check what is correct to add here
+    ! This impacts the rhs of the pressure, 
+    ! need to check what is correct to add here
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'd_vel_u', this%bc_labels)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
@@ -300,6 +312,14 @@ contains
     call bc_list_add(this%bclst_dw, this%bc_field_dirichlet_w)
 
     !Intialize projection space thingy
+
+    if (this%variable_material_properties .and. &
+          this%vel_projection_dim .gt. 0) then
+       call neko_error("Velocity projection not available for full stress &
+             &formulation")
+    end if
+
+
     call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
                               this%pr_projection_activ_step)
 
@@ -395,7 +415,8 @@ contains
        call this%gs_Xh%op(this%wlag%lf(i), GS_OP_ADD)
     end do
 
-    !! If we would decide to only restart from lagged fields instead of asving abx1, aby1 etc.
+    !! If we would decide to only restart from lagged fields instead of saving 
+    !! abx1, aby1 etc.
     !! Observe that one also needs to recompute the focing at the old time steps
     !u_temp = this%ulag%lf(2)
     !v_temp = this%vlag%lf(2)
@@ -405,9 +426,11 @@ contains
     !
     !! Pre-multiply the source terms with the mass matrix.
     !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, this%c_Xh%B_d, this%msh%gdim, n)
+    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, &
+    !                      this%c_Xh%B_d, this%msh%gdim, n)
     !else
-    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, this%c_Xh%B, this%msh%gdim, n)
+    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, &
+    !               this%c_Xh%B, this%msh%gdim, n)
     !end if
 
     !! Add the advection operators to the right-hand-side.
@@ -425,16 +448,20 @@ contains
 
     !! Pre-multiply the source terms with the mass matrix.
     !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, this%c_Xh%B_d, this%msh%gdim, n)
+    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, &
+    !                      this%c_Xh%B_d, this%msh%gdim, n)
     !else
-    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, this%c_Xh%B, this%msh%gdim, n)
+    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, &
+    !               this%c_Xh%B, this%msh%gdim, n)
     !end if
 
     !! Pre-multiply the source terms with the mass matrix.
     !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, this%c_Xh%B_d, this%msh%gdim, n)
+    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, &
+    !                      this%c_Xh%B_d, this%msh%gdim, n)
     !else
-    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, this%c_Xh%B, this%msh%gdim, n)
+    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, &
+    !               this%c_Xh%B, this%msh%gdim, n)
     !end if
 
     !call this%adv%compute(u_temp, v_temp, w_temp, &
@@ -479,8 +506,12 @@ contains
     call this%aby2%free()
     call this%abz2%free()
 
-    if (allocated(this%Ax)) then
-       deallocate(this%Ax)
+    if (allocated(this%Ax_vel)) then
+       deallocate(this%Ax_vel)
+    end if
+
+    if (allocated(this%Ax_prs)) then
+       deallocate(this%Ax_prs)
     end if
 
     if (allocated(this%prs_res)) then
@@ -537,7 +568,8 @@ contains
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
          du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
          u_res => this%u_res, v_res => this%v_res, w_res => this%w_res, &
-         p_res => this%p_res, Ax => this%Ax, Xh => this%Xh, &
+         p_res => this%p_res, Ax_vel => this%Ax_vel, Ax_prs => this%Ax_prs, &
+         Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
          msh => this%msh, prs_res => this%prs_res, &
@@ -547,6 +579,7 @@ contains
          vel_projection_dim => this%vel_projection_dim, &
          pr_projection_dim => this%pr_projection_dim, &
          rho => this%rho, mu => this%mu, &
+         rho_field => this%rho_field, mu_field => this%mu_field, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
          if_variable_dt => dt_controller%if_variable_dt, &
          dt_last_change => dt_controller%dt_last_change)
@@ -610,6 +643,19 @@ contains
       call this%bc_apply_vel(t, tstep)
       call this%bc_apply_prs(t, tstep)
 
+      ! Update material properties if necessary
+      call this%update_material_properties()
+
+      ! Compute the grandient jump penalty term
+      if (this%if_gradient_jump_penalty .eqv. .true.) then
+         call this%gradient_jump_penalty_u%compute(u, v, w, u)
+         call this%gradient_jump_penalty_v%compute(u, v, w, v)
+         call this%gradient_jump_penalty_w%compute(u, v, w, w)
+         call this%gradient_jump_penalty_u%perform(f_x)
+         call this%gradient_jump_penalty_v%perform(f_y)
+         call this%gradient_jump_penalty_w%perform(f_z)
+      end if
+
       ! Compute pressure.
       call profiler_start_region('Pressure residual', 18)
       call prs_res%compute(p, p_res,&
@@ -618,8 +664,8 @@ contains
                            f_x, f_y, f_z, &
                            c_Xh, gs_Xh, &
                            this%bc_prs_surface, this%bc_sym_surface,&
-                           Ax, ext_bdf%diffusion_coeffs(1), dt, &
-                           mu, rho)
+                           Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
+                           mu_field, rho_field)
 
       call gs_Xh%op(p_res, GS_OP_ADD)
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
@@ -631,23 +677,23 @@ contains
       call this%pc_prs%update()
       call profiler_start_region('Pressure solve', 3)
       ksp_results(1) = &
-         this%ksp_prs%solve(Ax, dp, p_res%x, n, c_Xh,  this%bclst_dp, gs_Xh)
+         this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, this%bclst_dp, gs_Xh)
 
       call profiler_end_region
 
-      call this%proj_prs%post_solving(dp%x, Ax, c_Xh, &
+      call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
                                  this%bclst_dp, gs_Xh, n, tstep, dt_controller)
 
       call field_add2(p, dp, n)
 
       ! Compute velocity.
       call profiler_start_region('Velocity residual', 19)
-      call vel_res%compute(Ax, u, v, w, &
+      call vel_res%compute(Ax_vel, u, v, w, &
                            u_res, v_res, w_res, &
                            p, &
                            f_x, f_y, f_z, &
                            c_Xh, msh, Xh, &
-                           mu, rho, ext_bdf%diffusion_coeffs(1), &
+                           mu_field, rho_field, ext_bdf%diffusion_coeffs(1), &
                            dt, dm_Xh%size())
 
       call gs_Xh%op(u_res, GS_OP_ADD)
@@ -658,14 +704,15 @@ contains
                                 u_res%x, v_res%x, w_res%x, dm_Xh%size(),&
                                 t, tstep)
 
-      !We should implement a bc that takes three field_bcs and implements vector_apply
+      ! We should implement a bc that takes three field_bcs and implements 
+      ! vector_apply
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call this%bc_field_dirichlet_u%apply_scalar_dev(u_res%x_d, t, tstep)
          call this%bc_field_dirichlet_v%apply_scalar_dev(v_res%x_d, t, tstep)
          call this%bc_field_dirichlet_w%apply_scalar_dev(w_res%x_d, t, tstep)
       else
          call this%bc_field_dirichlet_u%apply_scalar(u_res%x, n, t, tstep)
-         call this%bc_field_dirichlet_v%apply_scalar(v_res%x, n,  t, tstep)
+         call this%bc_field_dirichlet_v%apply_scalar(v_res%x, n, t, tstep)
          call this%bc_field_dirichlet_w%apply_scalar(w_res%x, n, t, tstep)
       end if
 
@@ -678,16 +725,16 @@ contains
       call this%pc_vel%update()
 
       call profiler_start_region("Velocity solve", 4)
-      ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax, du, dv, dw, &
+      ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax_vel, du, dv, dw, &
            u_res%x, v_res%x, w_res%x, n, c_Xh, &
            this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh)
       call profiler_end_region
 
-      call this%proj_u%post_solving(du%x, Ax, c_Xh, &
+      call this%proj_u%post_solving(du%x, Ax_vel, c_Xh, &
                                  this%bclst_du, gs_Xh, n, tstep, dt_controller)
-      call this%proj_v%post_solving(dv%x, Ax, c_Xh, &
+      call this%proj_v%post_solving(dv%x, Ax_vel, c_Xh, &
                                  this%bclst_dv, gs_Xh, n, tstep, dt_controller)
-      call this%proj_w%post_solving(dw%x, Ax, c_Xh, &
+      call this%proj_w%post_solving(dw%x, Ax_vel, c_Xh, &
                                  this%bclst_dw, gs_Xh, n, tstep, dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -701,7 +748,7 @@ contains
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
               c_Xh, gs_Xh, ext_bdf, rho, mu,&
               dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
-              this%bclst_dw, this%bclst_vel_res, Ax, this%ksp_prs, &
+              this%bclst_dw, this%bclst_vel_res, Ax_vel, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
               this%ksp_vel%max_iter)
       end if

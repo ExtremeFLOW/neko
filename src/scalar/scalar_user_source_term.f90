@@ -66,11 +66,11 @@ module scalar_user_source_term
      !> Device pointer for `s`.
      type(c_ptr) :: s_d = C_NULL_PTR
      !> Compute the source term for a single point
-     procedure(scalar_source_compute_pointwise), nopass, pointer :: compute_pw_ &
-       => null()
+     procedure(scalar_source_compute_pointwise), nopass, pointer :: &
+          compute_pw_ => null()
      !> Compute the source term for the entire boundary
-     procedure(scalar_source_compute_vector), nopass, pointer :: compute_vector_&
-       => null()
+     procedure(scalar_source_compute_vector), nopass, pointer :: &
+          compute_vector_ => null()
    contains
      !> Constructor from JSON (will throw!).
      procedure, pass(this) :: init => scalar_user_source_term_init
@@ -123,9 +123,10 @@ contains
     class(scalar_user_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(inout), target :: coef
 
-    call neko_error("The user scalar source term should be init from components")
+    call neko_error("The user scalar source term &
+&should be init from components")
 
   end subroutine scalar_user_source_term_init
 
@@ -163,7 +164,8 @@ contains
     if (trim(source_term_type) .eq. 'user_pointwise' .and. &
               present(eval_pointwise)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call neko_error('Pointwise source terms not supported on accelerators')
+          call neko_error('Pointwise source terms not &
+&supported on accelerators')
        end if
        this%compute_vector_ => pointwise_eval_driver
        this%compute_pw_ => eval_pointwise
@@ -227,7 +229,7 @@ contains
              do k = 1, size(this%s, 2)
                 kk = k
                 do j = 1, size(this%s, 1)
-                   jj =j
+                   jj = j
                    call this%compute_pw_(this%s(j,k,l,e), jj, kk, ll, ee, t)
                 end do
              end do

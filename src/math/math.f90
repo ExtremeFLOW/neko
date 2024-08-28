@@ -102,7 +102,7 @@ module math
        add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
        glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
-       swap, reord, flipv, absval
+       swap, reord, flipv, absval, cadd2
 
 contains
 
@@ -272,7 +272,6 @@ contains
 
   end subroutine cfill_mask
 
-
   !> Multiplication by constant c \f$ a = c \cdot a \f$
   subroutine cmult(a, c, n)
     integer, intent(in) :: n
@@ -285,7 +284,7 @@ contains
     end do
   end subroutine cmult
 
-  !> Add a scalar to vector \f$ a = \sum a_i + s \f$
+  !> Add a scalar to vector \f$ a_i = a_i + s \f$
   subroutine cadd(a, s, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
@@ -296,6 +295,19 @@ contains
        a(i) = a(i) + s
     end do
   end subroutine cadd
+
+  !> Add a scalar to vector \f$ a_i = b_i + s \f$
+  subroutine cadd2(a, b, s, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), intent(in) :: s
+    integer :: i
+
+    do i = 1, n
+       a(i) = b(i) + s
+    end do
+  end subroutine cadd2
 
   !> Set all elements to a constant c \f$ a = c \f$
   subroutine cfill(a, c, n)
@@ -309,7 +321,7 @@ contains
     end do
   end subroutine cfill
 
-  !>Sum a vector of length n
+  !> Sum a vector of length n
   function glsum(a, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n) :: a
@@ -401,7 +413,7 @@ contains
     real(kind=rp), intent(in) :: vec(n)
     real(kind=rp) :: tmax
     tmax = real(-99d20, rp)
-    do i = 1,n
+    do i = 1, n
        tmax = max(tmax, vec(i))
     end do
   end function vlmax
@@ -413,7 +425,7 @@ contains
     real(kind=rp) :: tmin
     integer :: i
     tmin = real(99.0e20, rp)
-    do i = 1,n
+    do i = 1, n
        tmin = min(tmin, vec(i))
     end do
   end function vlmin
@@ -546,9 +558,9 @@ contains
   !> Vector addition \f$ a = b + c \f$
   subroutine add3(a, b, c, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: c
-    real(kind=rp), dimension(n), intent(inout) :: b
-    real(kind=rp), dimension(n), intent(out) :: a
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
     do i = 1, n
@@ -588,9 +600,9 @@ contains
   !> Vector subtraction \f$ a = b - c \f$
   subroutine sub3(a, b, c, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: c
-    real(kind=rp), dimension(n), intent(inout) :: b
-    real(kind=rp), dimension(n), intent(out) :: a
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(n), intent(in) :: c
     integer :: i
 
     do i = 1, n
@@ -819,7 +831,7 @@ contains
 
   end subroutine x_update
 
-  !> Weighted inner product \f$ a^T b c \f$
+  !> Weighted inner product \f$ a^T b \f$
   function glsc2(a, b, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: a
@@ -905,7 +917,7 @@ contains
           ii = ind(ir)
           a(ir) = a(1)
           ind(ir) = ind(1)
-          ir = ir-1
+          ir = ir - 1
           if (ir .eq. 1) then
              a(1) = aa
              ind(1) = ii
@@ -916,7 +928,7 @@ contains
        j = l+l
        do while (j .le. ir)
           if (j .lt. ir) then
-             if ( a(j) .lt. a(j+1) ) j = j+1
+             if ( a(j) .lt. a(j+1) ) j = j + 1
           end if
           if (aa .lt. a(j)) then
              a(i) = a(j)
