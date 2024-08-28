@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@
 module krylov_fctry
   use cg, only : cg_t
   use cg_sx, only : sx_cg_t
+  use cg_cpld, only : cg_cpld_t
   use cg_device, only : cg_device_t
   use cacg, only : cacg_t
   use pipecg, only : pipecg_t
@@ -42,6 +43,8 @@ module krylov_fctry
   use fusedcg_cpld_device, only : fusedcg_cpld_device_t
   use bicgstab, only : bicgstab_t
   use gmres, only : gmres_t
+  use cheby, only : cheby_t
+  use cheby_device, only : cheby_device_t
   use gmres_sx, only : sx_gmres_t
   use gmres_device, only : gmres_device_t
   use num_Types, only : rp
@@ -55,13 +58,15 @@ module krylov_fctry
   public :: krylov_solver_factory, krylov_solver_destroy
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KNOWN_TYPES(6) = [character(len=20) :: &
+  character(len=20) :: KNOWN_TYPES(8) = [character(len=20) :: &
      "cg", &
      "pipecg", &
      "fusedcg", &
      "cacg", &
      "gmres", &
-     "bicgstab"]
+     "cheby", &
+     "bicgstab", &
+     "cpldcg"]
 
 contains
 
@@ -93,6 +98,11 @@ contains
           allocate(cg_device_t::object)
        else
           allocate(cg_t::object)
+       end if
+    else if (trim(type_name) .eq. 'cpldcg') then
+       allocate(cg_cpld_t::object)
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call neko_error('Coupled CG only supported for CPU')
        end if
     else if (trim(type_name) .eq. 'pipecg') then
        if (NEKO_BCKND_SX .eq. 1) then
@@ -133,13 +143,19 @@ contains
        else
           allocate(gmres_t::object)
        end if
+    else if (trim(type_name) .eq. 'cheby') then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          allocate(cheby_device_t::object)
+       else
+          allocate(cheby_t::object)
+       end if
     else if (trim(type_name) .eq. 'bicgstab') then
        allocate(bicgstab_t::object)
     else
        type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
                                           .true.)
        call neko_error("Unknown Krylov solver type: " &
-                       // trim(type_name) // ".  Known types are: " &
+                       // trim(type_name) // ". Known types are: " &
                        // type_string)
     end if
 
@@ -148,45 +164,53 @@ contains
     ! should check if we can get away with just having one obj%init statement.
     ! Same applies to the code in the "destroy" routine below.
     if (present(abstol) .and. present(M)) then
-       select type(obj => object)
-       type is(cg_t)
+       select type (obj => object)
+       type is (cg_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
-       type is(sx_cg_t)
+       type is (sx_cg_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
-       type is(cg_device_t)
+       type is (cg_cpld_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
-       type is(pipecg_t)
+       type is (cg_device_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
-       type is(sx_pipecg_t)
+       type is (pipecg_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
-       type is(pipecg_device_t)
+       type is (sx_pipecg_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
-       type is(fusedcg_device_t)
+       type is (pipecg_device_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
-       type is(fusedcg_cpld_device_t)
+       type is (fusedcg_device_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
-       type is(cacg_t)
+       type is (fusedcg_cpld_device_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
-       type is(gmres_t)
+       type is (cacg_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
-       type is(sx_gmres_t)
+       type is (gmres_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
-       type is(gmres_device_t)
+       type is (sx_gmres_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
-       type is(bicgstab_t)
+       type is (gmres_device_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol)
+       type is (bicgstab_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol)
+       type is (cheby_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol)
+       type is (cheby_device_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
        end select
     else if (present(abstol)) then
-       select type(obj => object)
-       type is(cg_t)
+       select type (obj => object)
+       type is (cg_t)
           call obj%init(n, max_iter, abs_tol = abstol)
-       type is(sx_cg_t)
+       type is (sx_cg_t)
           call obj%init(n, max_iter, abs_tol = abstol)
-       type is(cg_device_t)
+       type is (cg_cpld_t)
           call obj%init(n, max_iter, abs_tol = abstol)
-       type is(pipecg_t)
+       type is (cg_device_t)
           call obj%init(n, max_iter, abs_tol = abstol)
-       type is(sx_pipecg_t)
+       type is (pipecg_t)
+          call obj%init(n, max_iter, abs_tol = abstol)
+       type is (sx_pipecg_t)
           call obj%init(n, max_iter, abs_tol = abstol)
        type is (pipecg_device_t)
           call obj%init(n, max_iter, abs_tol = abstol)
@@ -194,28 +218,34 @@ contains
           call obj%init(n, max_iter, abs_tol = abstol)
        type is (fusedcg_cpld_device_t)
           call obj%init(n, max_iter, abs_tol = abstol)
-       type is(cacg_t)
+       type is (cacg_t)
           call obj%init(n, max_iter, abs_tol = abstol)
-       type is(gmres_t)
+       type is (gmres_t)
           call obj%init(n, max_iter, abs_tol = abstol)
-       type is(sx_gmres_t)
+       type is (sx_gmres_t)
           call obj%init(n, max_iter, abs_tol = abstol)
-       type is(gmres_device_t)
+       type is (gmres_device_t)
           call obj%init(n, max_iter, abs_tol = abstol)
-       type is(bicgstab_t)
+       type is (bicgstab_t)
+          call obj%init(n, max_iter, abs_tol = abstol)
+       type is (cheby_t)
+          call obj%init(n, max_iter, abs_tol = abstol)
+       type is (cheby_device_t)
           call obj%init(n, max_iter, abs_tol = abstol)
        end select
     else if (present(M)) then
-       select type(obj => object)
-       type is(cg_t)
+       select type (obj => object)
+       type is (cg_t)
           call obj%init(n, max_iter, M = M)
-       type is(sx_cg_t)
+       type is (sx_cg_t)
           call obj%init(n, max_iter, M = M)
-       type is(cg_device_t)
+       type is (cg_cpld_t)
           call obj%init(n, max_iter, M = M)
-       type is(pipecg_t)
+       type is (cg_device_t)
           call obj%init(n, max_iter, M = M)
-       type is(sx_pipecg_t)
+       type is (pipecg_t)
+          call obj%init(n, max_iter, M = M)
+       type is (sx_pipecg_t)
           call obj%init(n, max_iter, M = M)
        type is (pipecg_device_t)
           call obj%init(n, max_iter, M = M)
@@ -223,28 +253,34 @@ contains
           call obj%init(n, max_iter, M = M)
        type is (fusedcg_cpld_device_t)
           call obj%init(n, max_iter, M = M)
-       type is(cacg_t)
+       type is (cacg_t)
           call obj%init(n, max_iter, M = M)
-       type is(gmres_t)
+       type is (gmres_t)
           call obj%init(n, max_iter, M = M)
-       type is(sx_gmres_t)
+       type is (sx_gmres_t)
           call obj%init(n, max_iter, M = M)
-       type is(gmres_device_t)
+       type is (gmres_device_t)
           call obj%init(n, max_iter, M = M)
-       type is(bicgstab_t)
+       type is (bicgstab_t)
+          call obj%init(n, max_iter, M = M)
+       type is (cheby_t)
+          call obj%init(n, max_iter, M = M)
+       type is (cheby_device_t)
           call obj%init(n, max_iter, M = M)
        end select
     else
-       select type(obj => object)
-       type is(cg_t)
+       select type (obj => object)
+       type is (cg_t)
           call obj%init(n, max_iter)
-       type is(sx_cg_t)
+       type is (sx_cg_t)
           call obj%init(n, max_iter)
-       type is(cg_device_t)
+       type is (cg_cpld_t)
           call obj%init(n, max_iter)
-       type is(pipecg_t)
+       type is (cg_device_t)
           call obj%init(n, max_iter)
-       type is(sx_pipecg_t)
+       type is (pipecg_t)
+          call obj%init(n, max_iter)
+       type is (sx_pipecg_t)
           call obj%init(n, max_iter)
        type is (pipecg_device_t)
           call obj%init(n, max_iter)
@@ -252,15 +288,19 @@ contains
           call obj%init(n, max_iter)
        type is (fusedcg_cpld_device_t)
           call obj%init(n, max_iter)
-       type is(cacg_t)
+       type is (cacg_t)
           call obj%init(n, max_iter)
-       type is(gmres_t)
+       type is (gmres_t)
           call obj%init(n, max_iter)
-       type is(sx_gmres_t)
+       type is (sx_gmres_t)
           call obj%init(n, max_iter)
-       type is(gmres_device_t)
+       type is (gmres_device_t)
           call obj%init(n, max_iter)
-       type is(bicgstab_t)
+       type is (bicgstab_t)
+          call obj%init(n, max_iter)
+       type is (cheby_t)
+          call obj%init(n, max_iter)
+       type is (cheby_device_t)
           call obj%init(n, max_iter)
        end select
     end if
@@ -272,16 +312,18 @@ contains
     class(ksp_t), allocatable, intent(inout) :: object
 
     if (allocated(object)) then
-       select type(obj => object)
-       type is(cg_t)
+       select type (obj => object)
+       type is (cg_t)
           call obj%free()
-       type is(sx_cg_t)
+       type is (sx_cg_t)
           call obj%free()
-       type is(cg_device_t)
+       type is (cg_cpld_t)
           call obj%free()
-       type is(pipecg_t)
+       type is (cg_device_t)
           call obj%free()
-       type is(sx_pipecg_t)
+       type is (pipecg_t)
+          call obj%free()
+       type is (sx_pipecg_t)
           call obj%free()
        type is (pipecg_device_t)
           call obj%free()
@@ -289,15 +331,17 @@ contains
           call obj%free()
        type is (fusedcg_cpld_device_t)
           call obj%free()
-       type is(cacg_t)
+       type is (cacg_t)
           call obj%free()
-       type is(gmres_t)
+       type is (gmres_t)
           call obj%free()
-       type is(sx_gmres_t)
+       type is (sx_gmres_t)
           call obj%free()
-       type is(gmres_device_t)
+       type is (gmres_device_t)
           call obj%free()
-       type is(bicgstab_t)
+       type is (bicgstab_t)
+          call obj%free()
+       type is (cheby_t)
           call obj%free()
        end select
     end if

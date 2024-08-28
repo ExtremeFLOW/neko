@@ -150,7 +150,7 @@ contains
   subroutine les_model_compute_delta(this)
     class(les_model_t), intent(inout) :: this
     integer :: e, i, j, k
-    integer ::  im, ip, jm, jp, km, kp
+    integer :: im, ip, jm, jp, km, kp
     real(kind=rp) :: di, dj, dk, ndim_inv
     integer :: lx_half, ly_half, lz_half
 
@@ -161,7 +161,7 @@ contains
     if (this%delta_type .eq. "elementwise") then
        ! use a same length scale throughout an entire element
        ! the length scale is based on maximum GLL spacing
-       do e = 1, this%coef%msh%nelv  
+       do e = 1, this%coef%msh%nelv
           di = (this%coef%dof%x(lx_half, 1, 1, e) &
               - this%coef%dof%x(lx_half + 1, 1, 1, e))**2 &
              + (this%coef%dof%y(lx_half, 1, 1, e) &
@@ -233,7 +233,7 @@ contains
           end do
        end do
     end if
-    
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
       call device_memcpy(this%delta%x, this%delta%x_d, this%delta%dof%size(),&
                           HOST_TO_DEVICE, sync = .false.)

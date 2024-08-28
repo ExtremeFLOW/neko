@@ -361,6 +361,12 @@ contains
       ! Update material properties if necessary
       call this%update_material_properties()
 
+      ! Compute the grandient jump penalty term
+      if (this%if_gradient_jump_penalty .eqv. .true.) then
+         call this%gradient_jump_penalty%compute(u, v, w, s)
+         call this%gradient_jump_penalty%perform(f_Xh)
+      end if
+
       ! Compute scalar residual.
       call profiler_start_region('Scalar residual', 20)
       call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, &

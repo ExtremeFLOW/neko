@@ -37,13 +37,11 @@ module les_simcomp
   use num_types, only : rp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
-  use field_registry, only : neko_field_registry
-  use field, only : field_t
-  use operators, only : curl
   use case, only : case_t
   use les_model, only : les_model_t
   use les_model_fctry, only : les_model_factory
-  use json_utils, only : json_get
+  use json_utils, only : json_get, json_get_or_default
+  use field_writer, only : field_writer_t
   implicit none
   private
 
@@ -52,6 +50,8 @@ module les_simcomp
    type, public, extends(simulation_component_t) :: les_simcomp_t
      !> The LES model.
      class(les_model_t), allocatable :: les_model
+     !> Output writer.
+     type(field_writer_t) :: writer
    contains
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => les_simcomp_init_from_json
@@ -69,12 +69,23 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: name
+    character(len=:), allocatable :: nut_field
+    character(len=20) :: fields(2)
 
     call this%free()
 
-    call json_get(json, "model", name)
+    ! Add fields keyword to the json so that the field_writer picks it up.
+    ! Will also add fields to the registry if missing.
+    call json_get_or_default(json, "nut_field", nut_field, "nut")
+    fields(1) = "les_delta"
+    fields(2) = nut_field
+
+    call json%add("fields", fields)
 
     call this%init_base(json, case)
+    call this%writer%init(json, case)
+
+    call json_get(json, "model", name)
 
     call les_model_factory(this%les_model, name, case%fluid%dm_Xh,&
                            case%fluid%c_Xh, json)
@@ -85,6 +96,7 @@ contains
   subroutine les_simcomp_free(this)
     class(les_simcomp_t), intent(inout) :: this
     call this%free_base()
+    call this%writer%free()
 
     if (allocated(this%les_model)) then
       call this%les_model%free()
@@ -101,7 +113,6 @@ contains
     integer, intent(in) :: tstep
 
     call this%les_model%compute(t, tstep)
-
   end subroutine les_simcomp_compute
 
 end module les_simcomp

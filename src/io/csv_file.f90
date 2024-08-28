@@ -73,26 +73,26 @@ contains
     nullify(vec)
     nullify(mat)
 
-    select type(data)
+    select type (data)
     type is (vector_t)
        if (.not. allocated(data%x)) then
-          call neko_error("Vector is not allocated! Use &
-          &vector%init() to associate your array &
-          &with a vector_t object")
+          call neko_error("Vector is not allocated. Use &
+&vector%init() to associate your array &
+&with a vector_t object")
        end if
        vec => data
 
     type is (matrix_t)
        if (.not. allocated(data%x)) then
-          call neko_error("Matrix is not allocated! Use &
-          &matrix%init() to associate your array &
-          &with a matrix_t object")
+          call neko_error("Matrix is not allocated. Use &
+&matrix%init() to associate your array &
+&with a matrix_t object")
        end if
        mat => data
 
     class default
        call neko_error("Invalid data. Expected vector_t or &
-       &matrix_t")
+&matrix_t")
     end select
 
     ! Write is performed on rank 0
@@ -123,7 +123,8 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer :: file_unit, ierr
 
-    open(file=trim(f%fname), position="append", iostat=ierr, newunit=file_unit)
+    open(file = trim(f%fname), position = "append", iostat = ierr, &
+         newunit = file_unit)
     if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
     ! write header if not empty and if not already written
@@ -133,10 +134,10 @@ contains
     end if
 
     ! Add time at the beginning if specified
-    if (present(t)) write (file_unit, '(g0,",")', advance="no") t
+    if (present(t)) write (file_unit, '(g0,",")', advance = "no") t
 
-    write (file_unit, '(*(g0,","))', advance="no") data%x(1:data%n-1)
-    write(file_unit,'(g0)') data%x(data%n)
+    write (file_unit, '(*(g0,","))', advance = "no") data%x(1:data%n-1)
+    write (file_unit,'(g0)') data%x(data%n)
 
     close(file_unit)
 
@@ -153,7 +154,8 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer :: file_unit, i, ierr
 
-    open(file=trim(f%fname), position="append", iostat=ierr, newunit=file_unit)
+    open(file = trim(f%fname), position = "append", iostat = ierr, &
+         newunit = file_unit)
     if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
     ! write header if not empty and if not already written
@@ -163,9 +165,10 @@ contains
     end if
 
     do i = 1, data%nrows
-       if (present(t)) write (file_unit, '(g0,",")', advance="no") t
-       write (file_unit, '(*(g0,","))', advance="no") data%x(i,1:data%ncols-1)
-       write (file_unit, '(g0)') data%x(i,data%ncols)
+       if (present(t)) write (file_unit, '(g0,",")', advance = "no") t
+       write (file_unit, '(*(g0,","))', advance = "no") &
+            data%x(i, 1:data%ncols-1)
+       write (file_unit, '(g0)') data%x(i, data%ncols)
     end do
 
     close(file_unit)
@@ -186,27 +189,27 @@ contains
     nullify(vec)
     nullify(mat)
 
-    select type(data)
+    select type (data)
     type is (vector_t)
        vec => data
        if (.not. allocated(data%x)) then
-          call neko_error("Vector is not allocated! Use &
-          &vector%init() to associate your array &
-          &with a vector_t object")
+          call neko_error("Vector is not allocated. Use &
+&vector%init() to associate your array &
+&with a vector_t object")
        end if
 
     type is (matrix_t)
        mat => data
        if (.not. allocated(data%x)) then
-          call neko_error("Matrix is not allocated! Use &
-          &matrix%init() to associate your array &
-          &with a matrix_t object")
+          call neko_error("Matrix is not allocated. Use &
+&matrix%init() to associate your array &
+&with a matrix_t object")
        end if
 
 
     class default
        call neko_error("Invalid data type for csv_file (expected: vector_t, &
-       &matrix_t)")
+&matrix_t)")
     end select
 
     if (pe_rank .eq. 0) then
@@ -238,17 +241,18 @@ contains
 
     n_lines = f%count_lines()
 
-    open(file=trim(f%fname), status='old', newunit=file_unit, iostat = ierr)
+    open(file = trim(f%fname), status = 'old', newunit = file_unit, &
+         iostat = ierr)
     if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
     ! If there is more than 1 line, assume that means there is a header
-    if (n_lines .lt. 1) then
+    if (n_lines .gt. 1) then
        read (file_unit, '(A)') tmp
        f%header = trim(tmp)
     end if
 
     read (file_unit,*) vec%x
-    close(unit=file_unit)
+    close(unit = file_unit)
 
 
   end subroutine csv_file_read_vector
@@ -266,20 +270,21 @@ contains
 
     n_lines = f%count_lines()
 
-    open(file=trim(f%fname), status='old', newunit=file_unit, iostat = ierr)
+    open(file = trim(f%fname), status = 'old', newunit = file_unit, &
+         iostat = ierr)
     if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
     ! If the number of lines is larger than the number of rows in the
     ! matrix, assume that means there is a header
-    if (n_lines .lt. mat%nrows) then
+    if (n_lines .gt. mat%nrows) then
        read (file_unit, '(A)') tmp
        f%header = trim(tmp)
     end if
 
-    do i=1, mat%nrows
+    do i = 1, mat%nrows
        read (file_unit,*) mat%x(i,:)
     end do
-    close(unit=file_unit)
+    close(unit = file_unit)
 
   end subroutine csv_file_read_matrix
 
@@ -303,19 +308,19 @@ contains
     integer :: n
     integer :: ierr, file_unit
 
-    open(file=trim(this%fname), status='old', newunit=file_unit)
+    open(file = trim(this%fname), status = 'old', newunit = file_unit)
     rewind(file_unit)
 
     n = 0
 
     ! Keep reading (ierr = 0) until we reach the end (ierr != 0)
     do
-       read (file_unit,*,iostat=ierr)
+       read (file_unit, *, iostat = ierr)
        if (ierr .ne. 0) exit
        n = n + 1
     end do
     rewind(file_unit)
-    close(unit=file_unit)
+    close(unit = file_unit)
 
   end function csv_file_count_lines
 

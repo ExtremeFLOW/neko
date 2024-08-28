@@ -33,7 +33,7 @@
 !> Defines various GMRES methods
 module gmres
   use krylov, only : ksp_t, ksp_monitor_t
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only: rp
   use field, only : field_t
@@ -56,7 +56,6 @@ module gmres
      real(kind=rp), allocatable :: v(:,:)
      real(kind=rp), allocatable :: s(:)
      real(kind=rp), allocatable :: gam(:)
-     real(kind=rp), allocatable :: wk1(:)
    contains
      procedure, pass(this) :: init => gmres_init
      procedure, pass(this) :: free => gmres_free
@@ -91,24 +90,23 @@ contains
 
     allocate(this%w(n))
     allocate(this%r(n))
-    allocate(this%wk1(n))
 
     allocate(this%c(this%lgmres))
     allocate(this%s(this%lgmres))
     allocate(this%gam(this%lgmres + 1))
 
-    allocate(this%z(n,this%lgmres))
-    allocate(this%v(n,this%lgmres))
+    allocate(this%z(n, this%lgmres))
+    allocate(this%v(n, this%lgmres))
 
-    allocate(this%h(this%lgmres,this%lgmres))
+    allocate(this%h(this%lgmres, this%lgmres))
 
 
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol = abs_tol)
     else
        call this%ksp_init(max_iter)
     end if
@@ -154,16 +152,13 @@ contains
        deallocate(this%gam)
     end if
 
-    if (allocated(this%wk1)) then
-       deallocate(this%wk1)
-    end if
-
     nullify(this%M)
 
   end subroutine gmres_free
 
   !> Standard GMRES solve
-  function gmres_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+  function gmres_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+       result(ksp_results)
     class(gmres_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
@@ -190,7 +185,7 @@ contains
     end if
 
     associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
-          v => this%v, s => this%s, gam => this%gam, wk1 =>this%wk1)
+          v => this%v, s => this%s, gam => this%gam)
 
       norm_fac = 1.0_rp / sqrt(coef%volume)
       call rzero(x%x, n)
@@ -200,7 +195,7 @@ contains
       call rzero(h, this%lgmres * this%lgmres)
       do while (.not. conv .and. iter .lt. max_iter)
 
-         if(iter.eq.0) then
+         if (iter .eq. 0) then
             call copy(r, f, n)
          else
             call copy(r, f, n)
@@ -211,7 +206,7 @@ contains
          end if
 
          gam(1) = sqrt(glsc3(r, r, coef%mult, n))
-         if(iter.eq.0) then
+         if (iter .eq. 0) then
             ksp_results%res_start = gam(1) * norm_fac
          end if
 
@@ -231,7 +226,7 @@ contains
 
             do l = 1, j
                h(l,j) = 0.0_rp
-            enddo
+            end do
 
             do i = 0, n, NEKO_BLK_SIZE
                if (i + NEKO_BLK_SIZE .le. n) then
@@ -251,12 +246,11 @@ contains
                end if
             end do
 
-            call MPI_Allreduce(h(1,j), wk1, j, &
+            call MPI_Allreduce(MPI_IN_PLACE, h(1,j), j, &
                   MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-            call copy(h(1,j), wk1, j)
 
             alpha2 = 0.0_rp
-            do i = 0,n,NEKO_BLK_SIZE
+            do i = 0, n, NEKO_BLK_SIZE
                if (i + NEKO_BLK_SIZE .le. n) then
                   do k = 1, NEKO_BLK_SIZE
                      w_plus(k) = 0.0_rp
@@ -286,25 +280,25 @@ contains
                   MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
             alpha2 = temp
             alpha = sqrt(alpha2)
-            do i=1,j-1
+            do i = 1, j-1
                temp = h(i,j)
-               h(i  ,j) =  c(i)*temp + s(i) * h(i+1,j)
+               h(i,j) = c(i)*temp + s(i) * h(i+1,j)
                h(i+1,j) = -s(i)*temp + c(i) * h(i+1,j)
             end do
 
             rnorm = 0.0_rp
-            if(abscmp(alpha, 0.0_rp)) then
+            if (abscmp(alpha, 0.0_rp)) then
                conv = .true.
                exit
             end if
 
-            lr = sqrt(h(j,j) * h(j,j) + alpha**2)
+            lr = sqrt(h(j,j) * h(j,j) + alpha2)
             temp = 1.0_rp / lr
             c(j) = h(j,j) * temp
-            s(j) = alpha  * temp
+            s(j) = alpha * temp
             h(j,j) = lr
             gam(j+1) = -s(j) * gam(j)
-            gam(j)   =  c(j) * gam(j)
+            gam(j) = c(j) * gam(j)
 
             rnorm = abs(gam(j+1)) * norm_fac
             if (rnorm .lt. this%abs_tol) then
@@ -314,7 +308,7 @@ contains
 
             if (iter + 1 .gt. max_iter) exit
 
-            if( j .lt. this%lgmres) then
+            if (j .lt. this%lgmres) then
                temp = 1.0_rp / alpha
                call cmult2(v(1,j+1), w, temp, n)
             end if
@@ -382,9 +376,9 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function gmres_solve_coupled
 

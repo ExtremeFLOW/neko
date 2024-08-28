@@ -40,7 +40,7 @@
 
 extern "C" {
 
-  void pnpn_prs_stress_res_part1_cuda(void *ta1, void *ta2, void *ta3, 
+  void pnpn_prs_stress_res_part1_cuda(void *ta1, void *ta2, void *ta3,
                                       void *wa1, void *wa2, void *wa3,
                                       void *f_u, void *f_v, void *f_w,
                                       void *B, void *h1, void *rho, int *n) {
@@ -48,7 +48,7 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-    
+
     prs_stress_res_part1_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) ta1, (real *) ta2,
                                       (real *) ta3, (real *) wa1,
@@ -73,8 +73,8 @@ extern "C" {
                                       (real *) wa1, (real *) wa2,
                                       (real *) wa3, *dtbd, *n);
      CUDA_CHECK(cudaGetLastError());
-    
+
   }
-  
+
 }
 
