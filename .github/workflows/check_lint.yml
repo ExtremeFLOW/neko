@@ -182,8 +182,7 @@ jobs:
           echo "failed-files=${fails[@]}" >> $GITHUB_OUTPUT
 
       - name: Print failed files and their errors
-        if: ${{ steps.check-env.outputs.skip_lint == 'false' }} ||
-            ${{ steps.lint-changed-files.outputs.failed-files != '' }}
+        if: ${{ steps.lint-changed-files.outputs.failed-files != '' }}
         env:
           failed_files: ${{ steps.lint-changed-files.outputs.failed-files }}
         run: |
