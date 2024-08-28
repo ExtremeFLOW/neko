@@ -72,7 +72,7 @@ module hsmg
   use dirichlet, only : dirichlet_t
   use schwarz, only : schwarz_t
   use device
-  use device_math, only : device_copy, device_col2
+  use device_math, only : device_copy, device_col2, device_add2
   use profiler, only : profiler_start_region, profiler_end_region
   use space, only : space_t, GLL
   use dofmap, only : dofmap_t
