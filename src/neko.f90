@@ -115,7 +115,8 @@ module neko
   use point_zone_registry, only: neko_point_zone_registry
   use field_dirichlet, only : field_dirichlet_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
-  use json_module, only: json_file
+  use json_module, only : json_file
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
