@@ -56,7 +56,7 @@ module neko
   use map
   use mxm_wrapper, only : mxm
   use global_interpolation
-  use file, only : file_t
+  use file
   use field, only : field_t, field_ptr_t
   use neko_mpi_types
   use gather_scatter

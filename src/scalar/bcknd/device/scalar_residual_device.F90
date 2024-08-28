@@ -50,7 +50,7 @@ module scalar_residual_device
 
 #ifdef HAVE_HIP
   interface
-     subroutine scalar_residual_update_hip(s_res_d,f_s_d, n) &
+     subroutine scalar_residual_update_hip(s_res_d, f_s_d, n) &
           bind(c, name = 'scalar_residual_update_hip')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -62,7 +62,7 @@ module scalar_residual_device
 #elif HAVE_CUDA
 
   interface
-     subroutine scalar_residual_update_cuda(s_res_d,f_s_d, n) &
+     subroutine scalar_residual_update_cuda(s_res_d, f_s_d, n) &
           bind(c, name = 'scalar_residual_update_cuda')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -74,7 +74,7 @@ module scalar_residual_device
 #elif HAVE_OPENCL
 
   interface
-     subroutine scalar_residual_update_opencl(s_res_d,f_s_d, n) &
+     subroutine scalar_residual_update_opencl(s_res_d, f_s_d, n) &
           bind(c, name = 'scalar_residual_update_opencl')
        use, intrinsic :: iso_c_binding
        implicit none
