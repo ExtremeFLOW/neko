@@ -31,7 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 submodule (ax_product) ax_helm_fctry
-  use neko_config
+  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
+       NEKO_BCKND_DEVICE
   use ax_helm_device, only : ax_helm_device_t
   use ax_helm_xsmm, only : ax_helm_xsmm_t
   use ax_helm_sx, only : ax_helm_sx_t

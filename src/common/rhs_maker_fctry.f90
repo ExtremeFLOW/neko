@@ -36,7 +36,8 @@ submodule (rhs_maker) rhs_maker_fctry
                             rhs_maker_sumab_cpu_t
   use rhs_maker_sx, only : rhs_maker_bdf_sx_t, rhs_maker_ext_sx_t, &
                            rhs_maker_sumab_sx_t
-  use rhs_maker_device
+  use rhs_maker_device, only : rhs_maker_bdf_device_t, &
+       rhs_maker_ext_device_t, rhs_maker_sumab_device_t
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX
 
 contains
@@ -85,7 +86,7 @@ contains
   !> Factory routine for computing the RHS contributions from the BDF scheme.
   !! @details Only selects the compute backend.
   !! @param object The object to be allocated by the factory.
-  subroutine rhs_maker_bdf_fctry(object)
+  module subroutine rhs_maker_bdf_fctry(object)
     class(rhs_maker_bdf_t), allocatable, intent(inout) :: object
 
     if (allocated(object)) then

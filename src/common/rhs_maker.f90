@@ -63,7 +63,8 @@ module rhs_maker
   end type rhs_maker_bdf_t
 
   abstract interface
-     subroutine rhs_maker_sumab(u, v, w, uu, vv, ww, uulag, vvlag, wwlag, ab, nab)
+     subroutine rhs_maker_sumab(u, v, w, uu, vv, ww, &
+          uulag, vvlag, wwlag, ab, nab)
        import field_t
        import field_series_t
        import rp

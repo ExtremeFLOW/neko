@@ -38,7 +38,7 @@ submodule (precon) precon_fctry
   use device_jacobi, only : device_jacobi_t
   use hsmg, only : hsmg_t
   use utils, only : concat_string_array, neko_error
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX
   implicit none
 
   ! List of all possible types created by the factory routine
@@ -91,12 +91,12 @@ contains
     class(pc_t), allocatable, intent(inout) :: pc
 
     if (allocated(pc)) then
-       select type(pcp => pc)
-       type is(jacobi_t)
+       select type (pcp => pc)
+       type is (jacobi_t)
           call pcp%free()
-       type is(sx_jacobi_t)
+       type is (sx_jacobi_t)
           call pcp%free()
-       type is(device_jacobi_t)
+       type is (device_jacobi_t)
           call pcp%free()
        type is (hsmg_t)
           call pcp%free()

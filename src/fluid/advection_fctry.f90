@@ -72,10 +72,10 @@ contains
        allocate(adv_no_dealias_t::object)
     end if
 
-    select type(adv => object)
-      type is(adv_dealias_t)
+    select type (adv => object)
+      type is (adv_dealias_t)
        call adv%init(lxd, coef)
-      type is(adv_no_dealias_t)
+      type is (adv_no_dealias_t)
        call adv%init(coef)
     end select
 

@@ -35,7 +35,7 @@ module krylov
   use gather_scatter, only : gs_t, GS_OP_ADD
   use ax_product, only : ax_t
   use num_types, only: rp, c_rp
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use field, only : field_t
@@ -43,7 +43,7 @@ module krylov
   use bc, only : bc_list_t
   use identity, only : ident_t
   use device_identity, only : device_ident_t
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   implicit none
   private
 
@@ -94,7 +94,8 @@ module krylov
   !! @param gs_h Gather-scatter handle
   !! @param niter iteration trip count
   abstract interface
-     function ksp_method(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+     function ksp_method(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+          result(ksp_results)
        import :: bc_list_t
        import :: field_t
        import :: ksp_t
@@ -254,7 +255,7 @@ contains
     class(pc_t), target, intent(in) :: M
 
     if (associated(this%M)) then
-       select type(pc => this%M)
+       select type (pc => this%M)
        type is (ident_t)
        type is (device_ident_t)
        class default

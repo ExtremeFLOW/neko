@@ -118,7 +118,7 @@ contains
        allocate(this%source_terms(n_sources))
 
 
-       do i=1, n_sources
+       do i = 1, n_sources
           ! Create a new json containing just the subdict for this source.
           call core%get_child(source_object, i, source_pointer, found)
           call core%print_to_string(source_pointer, buffer)
@@ -204,7 +204,7 @@ contains
 
     ! Add contribution from all source terms.
     if (allocated(this%source_terms)) then
-       do i=1, size(this%source_terms)
+       do i = 1, size(this%source_terms)
           call this%source_terms(i)%source_term%compute(t, tstep)
        end do
     end if
