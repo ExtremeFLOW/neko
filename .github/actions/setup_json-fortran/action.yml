@@ -35,6 +35,10 @@ inputs:
     description: "The version of the JSON-Fortran library to use."
     required: false
     default: "8.3.0"
+  arch:
+    description: "The architecture to use."
+    required: false
+    default: "${{ runner.arch }}"
 
 outputs:
   install-dir:
@@ -51,6 +55,7 @@ runs:
         OS: ${{ inputs.os }}
         COMPILER: ${{ inputs.compiler }}
         VERSION: ${{ inputs.version }}
+        ARCH: ${{ inputs.arch }}
       shell: bash
       run: |
         if [ -z "$INSTALL_DIR" ]; then
@@ -73,6 +78,10 @@ runs:
           echo "version is not set" >&2
           exit 1
         fi
+        if [ -z "$ARCH" ]; then
+          echo "arch is not set" >&2
+          exit 1
+        fi
 
     - name: Set up environment
       id: setup-env
@@ -81,7 +90,7 @@ runs:
         WORKING_DIR: ${{ inputs.working-dir }}
         INSTALL_DIR: ${{ inputs.install-dir }}
       run: |
-        TAG=${{ inputs.version }}-${{ inputs.os }}-${{ inputs.compiler }}
+        TAG=${{ inputs.version }}-${{ inputs.os }}-{{ inputs.arch }}-${{ inputs.compiler }}
         WORKING_DIR=$WORKING_DIR/json-fortran-$TAG
         INSTALL_DIR=$INSTALL_DIR/json-fortran-$TAG
 
