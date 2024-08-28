@@ -79,15 +79,15 @@ jobs:
     needs:
       - lint-develop
       - lint-current
-    env:
-      develop_score: ${{ needs.lint-develop.outputs.develop_score }}
-      current_score: ${{ needs.lint-current.outputs.current_score }}
 
     steps:
       # Check if the current branch has a lower score than the develop branch.
       # If it does, we will lint the changed files.
       # If it doesn't, we will skip the linting.
       - name: Check environment
+        env:
+          develop_score: ${{ needs.lint-develop.outputs.develop_score }}
+          current_score: ${{ needs.lint-current.outputs.current_score }}
         run: |
           if [ -z "$develop_score" ]; then
             echo "Develop score not set: '$develop_score'" >&2
