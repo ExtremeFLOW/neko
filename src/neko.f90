@@ -38,23 +38,23 @@ module neko
   use logger
   use math
   use speclib
-  use dofmap
-  use space
+  use dofmap, only : dofmap_t
+  use space, only : space_t, GL, GLL, GJ
   use htable
   use uset
   use stack
   use tuple
-  use mesh
+  use mesh, only : mesh_t
   use point
-  use mesh_field
+  use mesh_field, only : mesh_fld_t
   use map
   use mxm_wrapper
   use global_interpolation
   use file
-  use field
+  use field, only : field_t, field_ptr_t
   use neko_mpi_types
   use gather_scatter
-  use coefs
+  use coefs, only : coef_t
   use bc
   use wall
   use dirichlet
@@ -79,30 +79,30 @@ module neko
   use map_1d
   use cpr
   use fluid_stats
-  use field_list
+  use field_list, only : field_list_t
   use fluid_user_source_term
   use scalar_user_source_term
-  use vector
-  use matrix
+  use vector, only : vector_t, vector_ptr_t
+  use matrix, only : matrix_t
   use tensor
   use simulation_component
   use probes
   use spectral_error_indicator
   use system
   use drag_torque
-  use field_registry
-  use scratch_registry
-  use simcomp_executor
+  use field_registry, only : neko_field_registry
+  use scratch_registry, only : neko_scratch_registry
+  use simcomp_executor, only : neko_simcomps
   use data_streamer
   use time_interpolator
-  use point_interpolator
-  use point_zone
-  use box_point_zone
-  use sphere_point_zone
-  use point_zone_registry
-  use field_dirichlet
-  use field_dirichlet_vector
-  use json_module
+  use point_interpolator, only : point_interpolator_t
+  use point_zone, only: point_zone_t
+  use box_point_zone, only: box_point_zone_t
+  use sphere_point_zone, only: sphere_point_zone_t
+  use point_zone_registry, only: neko_point_zone_registry
+  use field_dirichlet, only : field_dirichlet_t
+  use field_dirichlet_vector, only : field_dirichlet_vector_t
+  use json_module, only: json_file
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
@@ -118,7 +118,7 @@ contains
     character(8) :: date
     integer :: argc, nthrds, rw, sw
 
-    call date_and_time(time = time, date = date)
+    call date_and_time(time=time, date=date)
 
     call comm_init
     call neko_mpi_types_init
@@ -130,10 +130,10 @@ contains
 
     if (pe_rank .eq. 0) then
        write(*,*) ''
-       write(*,*) '   _  __  ____  __ __  ____  '
-       write(*,*) '  / |/ / / __/ / //_/ / __ \ '
-       write(*,*) ' /    / / _/  / ,<   / /_/ / '
-       write(*,*) '/_/|_/ /___/ /_/|_|  \____/  '
+       write(*,*) '   _  __  ____  __ __  ____ '
+       write(*,*) '  / |/ / / __/ / //_/ / __ \'
+       write(*,*) ' /    / / _/  / ,<   / /_/ /'
+       write(*,*) '/_/|_/ /___/ /_/|_|  \____/ '
        write(*,*) ''
        write(*,*) '(version: ', trim(NEKO_VERSION),')'
        write(*,*) trim(NEKO_BUILD_INFO)
@@ -161,9 +161,8 @@ contains
        ! Job information
        !
        call neko_log%section("Job Information")
-       write(log_buf, '(A,A,A,A,1x,A,1x,A,A,A,A,A)') 'Start time: ', &
-            time(1:2), ':', time(3:4), '/', &
-            date(1:4), '-', date(5:6), '-', date(7:8)
+       write(log_buf, '(A,A,A,A,1x,A,1x,A,A,A,A,A)') 'Start time: ',&
+         time(1:2),':',time(3:4), '/', date(1:4),'-', date(5:6),'-',date(7:8)
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
        write(log_buf, '(a)') 'Running on: '
        sw = 10
@@ -203,16 +202,16 @@ contains
        if (nthrds .gt. 1) then
           if (nthrds .lt. 1e1) then
              write(log_buf(13 + rw + sw:), '(a,i1,a)') ', using ', &
-                  nthrds, ' thrds each'
+               nthrds, ' thrds each'
           else if (nthrds .lt. 1e2) then
              write(log_buf(13 + rw + sw:), '(a,i2,a)') ', using ', &
-                  nthrds, ' thrds each'
+               nthrds, ' thrds each'
           else if (nthrds .lt. 1e3) then
              write(log_buf(13 + rw + sw:), '(a,i3,a)') ', using ', &
-                  nthrds, ' thrds each'
+               nthrds, ' thrds each'
           else if (nthrds .lt. 1e4) then
              write(log_buf(13 + rw + sw:), '(a,i4,a)') ', using ', &
-                  nthrds, ' thrds each'
+               nthrds, ' thrds each'
           end if
        end if
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
@@ -238,7 +237,7 @@ contains
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
 
        if (NEKO_BCKND_HIP .eq. 1 .or. NEKO_BCKND_CUDA .eq. 1 .or. &
-            NEKO_BCKND_OPENCL .eq. 1) then
+           NEKO_BCKND_OPENCL .eq. 1) then
           write(log_buf, '(a)') 'Dev. name : '
           call device_name(log_buf(13:))
           call neko_log%message(log_buf, NEKO_LOG_QUIET)
