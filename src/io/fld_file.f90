@@ -355,7 +355,7 @@ contains
             int(FLD_DATA_SIZE, i8))
        call fld_file_write_vector_field(this, fh, byte_offset, u%ptr, v%ptr, w%ptr, n, gdim, lxyz, nelv)
 
-       temp_offset = mpi_offset + int(glb_nelv, i8) * &
+       mpi_offset = mpi_offset + int(glb_nelv, i8) * &
             (int(gdim * (lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
 
@@ -363,13 +363,9 @@ contains
 
 
     if (write_pressure) then
-        mpi_offset = temp_offset
        byte_offset = mpi_offset + int(offset_el, i8) * &
             (int((lxyz), i8) * &
             int(FLD_DATA_SIZE, i8))
-          mpi_offset = int(temp_offset,i8) + int(1_i8*glb_nelv, i8) * &
-                           (int(lxyz, i8) * &
-                       int(FLD_DATA_SIZE, i8))
        
        call fld_file_write_field(this, fh, byte_offset, p%ptr, n)
        mpi_offset = mpi_offset + int(glb_nelv, i8) * &
