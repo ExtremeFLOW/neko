@@ -71,6 +71,9 @@ module hsmg
        bc_list_init
   use dirichlet, only : dirichlet_t
   use schwarz, only : schwarz_t
+  use jacobi, only : jacobi_t
+  use sx_jacobi, only : sx_jacobi_t
+  use device_jacobi, only : device_jacobi_t
   use device
   use device_math, only : device_copy, device_col2, device_add2
   use profiler, only : profiler_start_region, profiler_end_region
@@ -244,6 +247,15 @@ contains
        call device_map(this%r, this%r_d, n)
     end if
 
+    select type(pc => this%pc_crs)
+    type is (jacobi_t)
+       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+    type is (sx_jacobi_t)
+       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+    type is (device_jacobi_t)
+       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+    end select
+    
     call device_event_create(this%hsmg_event, 2)
     call device_event_create(this%gs_event, 2)
   end subroutine hsmg_init
