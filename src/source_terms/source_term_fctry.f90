@@ -52,7 +52,7 @@ contains
   !! @param json JSON object initializing the source term.
   !! @param fields The list of fields updated by the source term.
   !! @param coef The SEM coefficients.
-  subroutine source_term_factory(object, json, fields, coef)
+  module subroutine source_term_factory(object, json, fields, coef)
     class(source_term_t), allocatable, intent(inout) :: object
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(inout) :: fields
