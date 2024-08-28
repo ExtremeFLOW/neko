@@ -123,6 +123,7 @@ jobs:
       flint_status: ${{ needs.linting.result }}
       gnu_status: ${{ needs.GNU.result }}
       inel_status: ${{ needs.Intel.result }}
+      nvidia_status: ${{ needs.NVIDIA.result }}
       reframe_status: ${{ needs.ReFrame.result }}
 
     steps:
