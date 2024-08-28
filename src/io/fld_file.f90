@@ -115,6 +115,14 @@ contains
 
     select type (data)
       type is (fld_file_data_t)
+       nelv = data%nelv
+       lx = data%lx
+       ly = data%ly
+       lz = data%lz
+       gdim = data%gdim
+       glb_nelv = data%glb_nelv
+       offset_el = data%offset_el
+ 
        if (data%x%n .gt. 0) x%ptr => data%x%x
        if (data%y%n .gt. 0) y%ptr => data%y%x
        if (data%z%n .gt. 0) z%ptr => data%z%x
@@ -132,18 +140,22 @@ contains
           write_temperature = .true.
           tem%ptr => data%t%x
        end if
-       n_scalar_fields = data%n_scalars
-       allocate(scalar_fields(n_scalar_fields))
-       do i = 1, n_scalar_fields
-          scalar_fields(i)%ptr => data%s(i)%x
-       end do
-       nelv = data%nelv
-       lx = data%lx
-       ly = data%ly
-       lz = data%lz
-       gdim = data%gdim
-       glb_nelv = data%glb_nelv
-       offset_el = data%offset_el
+       
+       if (gdim .eq. 2 .and. data%w%n .gt. 0) then
+          n_scalar_fields = data%n_scalars + 1
+          allocate(scalar_fields(n_scalar_fields))
+          do i = 1, n_scalar_fields -1
+             scalar_fields(i)%ptr => data%s(i)%x
+          end do
+          scalar_fields(n_scalar_fields)%ptr => data%w%x
+       else 
+          n_scalar_fields = data%n_scalars 
+          allocate(scalar_fields(n_scalar_fields+1))
+          do i = 1, n_scalar_fields 
+             scalar_fields(i)%ptr => data%s(i)%x
+          end do
+          scalar_fields(n_scalar_fields+1)%ptr => data%w%x
+       end if
 
        allocate(idx(nelv))
        do i = 1, nelv
@@ -263,7 +275,17 @@ contains
     !
 
     write_mesh = (this%counter .eq. this%start_counter)
-
+    call MPI_Allreduce(MPI_IN_PLACE, write_mesh, 1, &
+         MPI_LOGICAL, MPI_LOR, NEKO_COMM) 
+    call MPI_Allreduce(MPI_IN_PLACE, write_velocity, 1, &
+         MPI_LOGICAL, MPI_LOR, NEKO_COMM) 
+    call MPI_Allreduce(MPI_IN_PLACE, write_pressure, 1, &
+         MPI_LOGICAL, MPI_LOR, NEKO_COMM) 
+    call MPI_Allreduce(MPI_IN_PLACE, write_temperature, 1, & 
+         MPI_LOGICAL, MPI_LOR, NEKO_COMM) 
+    call MPI_Allreduce(MPI_IN_PLACE, n_scalar_fields, 1, &
+         MPI_INTEGER, MPI_MAX, NEKO_COMM) 
+ 
     ! Build rdcode note that for field_t, we only support scalar
     ! fields at the moment
     rdcode = ' '
@@ -518,9 +540,11 @@ contains
        buffer(j+2) = real(vlmin(y(1, el), lxyz), sp)
        buffer(j+3) = real(vlmax(y(1, el), lxyz), sp)
        j = j + 4
-       buffer(j+0) = real(vlmin(z(1, el), lxyz), sp)
-       buffer(j+1) = real(vlmax(z(1, el), lxyz), sp)
-       j = j + 2
+       if (gdim .eq. 3) then
+          buffer(j+0) = real(vlmin(z(1, el), lxyz), sp)
+          buffer(j+1) = real(vlmax(z(1, el), lxyz), sp)
+          j = j + 2 
+       end if
     end do
 
     ! write out data
