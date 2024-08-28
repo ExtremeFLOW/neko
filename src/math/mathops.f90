@@ -65,7 +65,10 @@
 module mathops
   use num_types, only : rp
   implicit none
+  private
 
+  public :: opchsign, opcolv, opcolv3c, opadd2cm, opadd2col
+  
 contains
 
   !> \f$ a_i(j) = -a_i(j) \f$ for \f$j=1 \ldots n\f$ and \f$i=1 \ldots gdim\f$.
