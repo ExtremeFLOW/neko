@@ -70,6 +70,6 @@ The following steps describe how to add a new Fortran file to Neko's build syste
       - Regenerate build system by running `./regen.sh` at the top level.
 4. Finally reconfigure using `configure` and rebuild Neko with your new contribution!
 
-For more information, please refer to the documentation https://extremeflow.github.io/neko
+For more information, please refer to the documentation at https://neko.cfd
 
 **Happy hacking!** 🍻
