@@ -39,71 +39,71 @@ contains
   module subroutine opr_cpu_cdtp(dtx, x, dr, ds, dt, coef, e_start, e_end)
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: e_start, e_end
-    real(kind=rp), dimension(coef%Xh%lxyz, e_end-e_start+1), intent(inout) :: dtx
-    real(kind=rp), dimension(coef%Xh%lxyz, e_end-e_start+1), intent(inout) :: x
-    real(kind=rp), dimension(coef%Xh%lxyz, e_end-e_start+1), intent(in) :: dr
-    real(kind=rp), dimension(coef%Xh%lxyz, e_end-e_start+1), intent(in) :: ds
-    real(kind=rp), dimension(coef%Xh%lxyz, e_end-e_start+1), intent(in) :: dt
+    real(kind=rp), intent(inout) :: dtx(coef%Xh%lxyz, e_end - e_start + 1)
+    real(kind=rp), intent(inout) :: x(coef%Xh%lxyz, e_end - e_start + 1)
+    real(kind=rp), intent(in) :: dr(coef%Xh%lxyz, e_end - e_start + 1)
+    real(kind=rp), intent(in) :: ds(coef%Xh%lxyz, e_end - e_start + 1)
+    real(kind=rp), intent(in) :: dt(coef%Xh%lxyz, e_end - e_start + 1)
     integer :: e_len
-    e_len = e_end-e_start+1
+    e_len = e_end - e_start + 1
 
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
       select case(Xh%lx)
-      case(14)
+        case(14)
          call cpu_cdtp_lx14(dtx, x, &
-         dr(1, e_start), ds(1, e_start), dt(1, e_start), &
+              dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-      case(13)
+        case(13)
          call cpu_cdtp_lx13(dtx, x, &
-         dr(1, e_start), ds(1, e_start), dt(1, e_start), &
+              dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-      case(12)
+        case(12)
          call cpu_cdtp_lx12(dtx, x, &
-         dr(1, e_start), ds(1, e_start), dt(1, e_start), &
+              dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-      case(11)
+        case(11)
          call cpu_cdtp_lx11(dtx, x, &
-         dr(1, e_start), ds(1, e_start), dt(1, e_start), &
+              dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-      case(10)
+        case(10)
          call cpu_cdtp_lx10(dtx, x, &
-         dr(1, e_start), ds(1, e_start), dt(1, e_start), &
+              dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-      case(9)
+        case(9)
          call cpu_cdtp_lx9(dtx, x, &
-         dr(1, e_start), ds(1, e_start), dt(1, e_start), &
+              dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-      case(8)
+        case(8)
          call cpu_cdtp_lx8(dtx, x, &
-         dr(1, e_start), ds(1, e_start), dt(1, e_start), &
+              dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-      case(7)
+        case(7)
          call cpu_cdtp_lx7(dtx, x, &
-         dr(1, e_start), ds(1, e_start), dt(1, e_start), &
+              dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-      case(6)
+        case(6)
          call cpu_cdtp_lx6(dtx, x, &
-         dr(1, e_start), ds(1, e_start), dt(1, e_start), &
+              dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-      case(5)
+        case(5)
          call cpu_cdtp_lx5(dtx, x, &
-         dr(1, e_start), ds(1, e_start), dt(1, e_start), &
+              dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-      case(4)
+        case(4)
          call cpu_cdtp_lx4(dtx, x, &
-         dr(1, e_start), ds(1, e_start), dt(1, e_start), &
+              dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-      case(3)
+        case(3)
          call cpu_cdtp_lx3(dtx, x, &
-         dr(1, e_start), ds(1, e_start), dt(1, e_start), &
+              dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-      case(2)
+        case(2)
          call cpu_cdtp_lx2(dtx, x, &
-         dr(1, e_start), ds(1, e_start), dt(1, e_start), &
+              dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len)
-      case default
+        case default
          call cpu_cdtp_lx(dtx, x, &
-         dr(1, e_start), ds(1, e_start), dt(1, e_start), &
+              dr(1, e_start), ds(1, e_start), dt(1, e_start), &
               Xh%dxt, Xh%dyt, Xh%dzt, Xh%w3, e_len, Xh%lx)
       end select
     end associate
@@ -199,19 +199,19 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              dtx(i,j,1,e) = dxt(i,1) * ta1(1,j,1) &
-                          + dxt(i,2) * ta1(2,j,1) &
-                          + dxt(i,3) * ta1(3,j,1) &
-                          + dxt(i,4) * ta1(4,j,1) &
-                          + dxt(i,5) * ta1(5,j,1) &
-                          + dxt(i,6) * ta1(6,j,1) &
-                          + dxt(i,7) * ta1(7,j,1) &
-                          + dxt(i,8) * ta1(8,j,1) &
-                          + dxt(i,9) * ta1(9,j,1) &
-                          + dxt(i,10) * ta1(10,j,1) &
-                          + dxt(i,11) * ta1(11,j,1) &
-                          + dxt(i,12) * ta1(12,j,1) &
-                          + dxt(i,13) * ta1(13,j,1) &
-                          + dxt(i,14) * ta1(14,j,1)
+                  + dxt(i,2) * ta1(2,j,1) &
+                  + dxt(i,3) * ta1(3,j,1) &
+                  + dxt(i,4) * ta1(4,j,1) &
+                  + dxt(i,5) * ta1(5,j,1) &
+                  + dxt(i,6) * ta1(6,j,1) &
+                  + dxt(i,7) * ta1(7,j,1) &
+                  + dxt(i,8) * ta1(8,j,1) &
+                  + dxt(i,9) * ta1(9,j,1) &
+                  + dxt(i,10) * ta1(10,j,1) &
+                  + dxt(i,11) * ta1(11,j,1) &
+                  + dxt(i,12) * ta1(12,j,1) &
+                  + dxt(i,13) * ta1(13,j,1) &
+                  + dxt(i,14) * ta1(14,j,1)
           end do
        end do
 
@@ -223,20 +223,20 @@ contains
           do j = 1, lx
              do i = 1, lx
                 dtx(i,j,k,e) = dtx(i,j,k,e) &
-                             + dyt(j,1) * ta1(i,1,k) &
-                             + dyt(j,2) * ta1(i,2,k) &
-                             + dyt(j,3) * ta1(i,3,k) &
-                             + dyt(j,4) * ta1(i,4,k) &
-                             + dyt(j,5) * ta1(i,5,k) &
-                             + dyt(j,6) * ta1(i,6,k) &
-                             + dyt(j,7) * ta1(i,7,k) &
-                             + dyt(j,8) * ta1(i,8,k) &
-                             + dyt(j,9) * ta1(i,9,k) &
-                             + dyt(j,10) * ta1(i,10,k) &
-                             + dyt(j,11) * ta1(i,11,k) &
-                             + dyt(j,12) * ta1(i,12,k) &
-                             + dyt(j,13) * ta1(i,13,k) &
-                             + dyt(j,14) * ta1(i,14,k)
+                     + dyt(j,1) * ta1(i,1,k) &
+                     + dyt(j,2) * ta1(i,2,k) &
+                     + dyt(j,3) * ta1(i,3,k) &
+                     + dyt(j,4) * ta1(i,4,k) &
+                     + dyt(j,5) * ta1(i,5,k) &
+                     + dyt(j,6) * ta1(i,6,k) &
+                     + dyt(j,7) * ta1(i,7,k) &
+                     + dyt(j,8) * ta1(i,8,k) &
+                     + dyt(j,9) * ta1(i,9,k) &
+                     + dyt(j,10) * ta1(i,10,k) &
+                     + dyt(j,11) * ta1(i,11,k) &
+                     + dyt(j,12) * ta1(i,12,k) &
+                     + dyt(j,13) * ta1(i,13,k) &
+                     + dyt(j,14) * ta1(i,14,k)
              end do
           end do
        end do
@@ -248,20 +248,20 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dtx(i,1,k,e) = dtx(i,1,k,e) &
-                          + dzt(k,1) * ta1(i,1,1) &
-                          + dzt(k,2) * ta1(i,1,2) &
-                          + dzt(k,3) * ta1(i,1,3) &
-                          + dzt(k,4) * ta1(i,1,4) &
-                          + dzt(k,5) * ta1(i,1,5) &
-                          + dzt(k,6) * ta1(i,1,6) &
-                          + dzt(k,7) * ta1(i,1,7) &
-                          + dzt(k,8) * ta1(i,1,8) &
-                          + dzt(k,9) * ta1(i,1,9) &
-                          + dzt(k,10) * ta1(i,1,10) &
-                          + dzt(k,11) * ta1(i,1,11) &
-                          + dzt(k,12) * ta1(i,1,12) &
-                          + dzt(k,13) * ta1(i,1,13) &
-                          + dzt(k,14) * ta1(i,1,14)
+                  + dzt(k,1) * ta1(i,1,1) &
+                  + dzt(k,2) * ta1(i,1,2) &
+                  + dzt(k,3) * ta1(i,1,3) &
+                  + dzt(k,4) * ta1(i,1,4) &
+                  + dzt(k,5) * ta1(i,1,5) &
+                  + dzt(k,6) * ta1(i,1,6) &
+                  + dzt(k,7) * ta1(i,1,7) &
+                  + dzt(k,8) * ta1(i,1,8) &
+                  + dzt(k,9) * ta1(i,1,9) &
+                  + dzt(k,10) * ta1(i,1,10) &
+                  + dzt(k,11) * ta1(i,1,11) &
+                  + dzt(k,12) * ta1(i,1,12) &
+                  + dzt(k,13) * ta1(i,1,13) &
+                  + dzt(k,14) * ta1(i,1,14)
           end do
        end do
 
@@ -291,18 +291,18 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              dtx(i,j,1,e) = dxt(i,1) * ta1(1,j,1) &
-                          + dxt(i,2) * ta1(2,j,1) &
-                          + dxt(i,3) * ta1(3,j,1) &
-                          + dxt(i,4) * ta1(4,j,1) &
-                          + dxt(i,5) * ta1(5,j,1) &
-                          + dxt(i,6) * ta1(6,j,1) &
-                          + dxt(i,7) * ta1(7,j,1) &
-                          + dxt(i,8) * ta1(8,j,1) &
-                          + dxt(i,9) * ta1(9,j,1) &
-                          + dxt(i,10) * ta1(10,j,1) &
-                          + dxt(i,11) * ta1(11,j,1) &
-                          + dxt(i,12) * ta1(12,j,1) &
-                          + dxt(i,13) * ta1(13,j,1)
+                  + dxt(i,2) * ta1(2,j,1) &
+                  + dxt(i,3) * ta1(3,j,1) &
+                  + dxt(i,4) * ta1(4,j,1) &
+                  + dxt(i,5) * ta1(5,j,1) &
+                  + dxt(i,6) * ta1(6,j,1) &
+                  + dxt(i,7) * ta1(7,j,1) &
+                  + dxt(i,8) * ta1(8,j,1) &
+                  + dxt(i,9) * ta1(9,j,1) &
+                  + dxt(i,10) * ta1(10,j,1) &
+                  + dxt(i,11) * ta1(11,j,1) &
+                  + dxt(i,12) * ta1(12,j,1) &
+                  + dxt(i,13) * ta1(13,j,1)
           end do
        end do
 
@@ -314,19 +314,19 @@ contains
           do j = 1, lx
              do i = 1, lx
                 dtx(i,j,k,e) = dtx(i,j,k,e) &
-                             + dyt(j,1) * ta1(i,1,k) &
-                             + dyt(j,2) * ta1(i,2,k) &
-                             + dyt(j,3) * ta1(i,3,k) &
-                             + dyt(j,4) * ta1(i,4,k) &
-                             + dyt(j,5) * ta1(i,5,k) &
-                             + dyt(j,6) * ta1(i,6,k) &
-                             + dyt(j,7) * ta1(i,7,k) &
-                             + dyt(j,8) * ta1(i,8,k) &
-                             + dyt(j,9) * ta1(i,9,k) &
-                             + dyt(j,10) * ta1(i,10,k) &
-                             + dyt(j,11) * ta1(i,11,k) &
-                             + dyt(j,12) * ta1(i,12,k) &
-                             + dyt(j,13) * ta1(i,13,k)
+                     + dyt(j,1) * ta1(i,1,k) &
+                     + dyt(j,2) * ta1(i,2,k) &
+                     + dyt(j,3) * ta1(i,3,k) &
+                     + dyt(j,4) * ta1(i,4,k) &
+                     + dyt(j,5) * ta1(i,5,k) &
+                     + dyt(j,6) * ta1(i,6,k) &
+                     + dyt(j,7) * ta1(i,7,k) &
+                     + dyt(j,8) * ta1(i,8,k) &
+                     + dyt(j,9) * ta1(i,9,k) &
+                     + dyt(j,10) * ta1(i,10,k) &
+                     + dyt(j,11) * ta1(i,11,k) &
+                     + dyt(j,12) * ta1(i,12,k) &
+                     + dyt(j,13) * ta1(i,13,k)
              end do
           end do
        end do
@@ -338,19 +338,19 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dtx(i,1,k,e) = dtx(i,1,k,e) &
-                          + dzt(k,1) * ta1(i,1,1) &
-                          + dzt(k,2) * ta1(i,1,2) &
-                          + dzt(k,3) * ta1(i,1,3) &
-                          + dzt(k,4) * ta1(i,1,4) &
-                          + dzt(k,5) * ta1(i,1,5) &
-                          + dzt(k,6) * ta1(i,1,6) &
-                          + dzt(k,7) * ta1(i,1,7) &
-                          + dzt(k,8) * ta1(i,1,8) &
-                          + dzt(k,9) * ta1(i,1,9) &
-                          + dzt(k,10) * ta1(i,1,10) &
-                          + dzt(k,11) * ta1(i,1,11) &
-                          + dzt(k,12) * ta1(i,1,12) &
-                          + dzt(k,13) * ta1(i,1,13)
+                  + dzt(k,1) * ta1(i,1,1) &
+                  + dzt(k,2) * ta1(i,1,2) &
+                  + dzt(k,3) * ta1(i,1,3) &
+                  + dzt(k,4) * ta1(i,1,4) &
+                  + dzt(k,5) * ta1(i,1,5) &
+                  + dzt(k,6) * ta1(i,1,6) &
+                  + dzt(k,7) * ta1(i,1,7) &
+                  + dzt(k,8) * ta1(i,1,8) &
+                  + dzt(k,9) * ta1(i,1,9) &
+                  + dzt(k,10) * ta1(i,1,10) &
+                  + dzt(k,11) * ta1(i,1,11) &
+                  + dzt(k,12) * ta1(i,1,12) &
+                  + dzt(k,13) * ta1(i,1,13)
           end do
        end do
 
@@ -380,17 +380,17 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              dtx(i,j,1,e) = dxt(i,1) * ta1(1,j,1) &
-                          + dxt(i,2) * ta1(2,j,1) &
-                          + dxt(i,3) * ta1(3,j,1) &
-                          + dxt(i,4) * ta1(4,j,1) &
-                          + dxt(i,5) * ta1(5,j,1) &
-                          + dxt(i,6) * ta1(6,j,1) &
-                          + dxt(i,7) * ta1(7,j,1) &
-                          + dxt(i,8) * ta1(8,j,1) &
-                          + dxt(i,9) * ta1(9,j,1) &
-                          + dxt(i,10) * ta1(10,j,1) &
-                          + dxt(i,11) * ta1(11,j,1) &
-                          + dxt(i,12) * ta1(12,j,1)
+                  + dxt(i,2) * ta1(2,j,1) &
+                  + dxt(i,3) * ta1(3,j,1) &
+                  + dxt(i,4) * ta1(4,j,1) &
+                  + dxt(i,5) * ta1(5,j,1) &
+                  + dxt(i,6) * ta1(6,j,1) &
+                  + dxt(i,7) * ta1(7,j,1) &
+                  + dxt(i,8) * ta1(8,j,1) &
+                  + dxt(i,9) * ta1(9,j,1) &
+                  + dxt(i,10) * ta1(10,j,1) &
+                  + dxt(i,11) * ta1(11,j,1) &
+                  + dxt(i,12) * ta1(12,j,1)
           end do
        end do
 
@@ -402,18 +402,18 @@ contains
           do j = 1, lx
              do i = 1, lx
                 dtx(i,j,k,e) = dtx(i,j,k,e) &
-                             + dyt(j,1) * ta1(i,1,k) &
-                             + dyt(j,2) * ta1(i,2,k) &
-                             + dyt(j,3) * ta1(i,3,k) &
-                             + dyt(j,4) * ta1(i,4,k) &
-                             + dyt(j,5) * ta1(i,5,k) &
-                             + dyt(j,6) * ta1(i,6,k) &
-                             + dyt(j,7) * ta1(i,7,k) &
-                             + dyt(j,8) * ta1(i,8,k) &
-                             + dyt(j,9) * ta1(i,9,k) &
-                             + dyt(j,10) * ta1(i,10,k) &
-                             + dyt(j,11) * ta1(i,11,k) &
-                             + dyt(j,12) * ta1(i,12,k)
+                     + dyt(j,1) * ta1(i,1,k) &
+                     + dyt(j,2) * ta1(i,2,k) &
+                     + dyt(j,3) * ta1(i,3,k) &
+                     + dyt(j,4) * ta1(i,4,k) &
+                     + dyt(j,5) * ta1(i,5,k) &
+                     + dyt(j,6) * ta1(i,6,k) &
+                     + dyt(j,7) * ta1(i,7,k) &
+                     + dyt(j,8) * ta1(i,8,k) &
+                     + dyt(j,9) * ta1(i,9,k) &
+                     + dyt(j,10) * ta1(i,10,k) &
+                     + dyt(j,11) * ta1(i,11,k) &
+                     + dyt(j,12) * ta1(i,12,k)
              end do
           end do
        end do
@@ -425,18 +425,18 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dtx(i,1,k,e) = dtx(i,1,k,e) &
-                          + dzt(k,1) * ta1(i,1,1) &
-                          + dzt(k,2) * ta1(i,1,2) &
-                          + dzt(k,3) * ta1(i,1,3) &
-                          + dzt(k,4) * ta1(i,1,4) &
-                          + dzt(k,5) * ta1(i,1,5) &
-                          + dzt(k,6) * ta1(i,1,6) &
-                          + dzt(k,7) * ta1(i,1,7) &
-                          + dzt(k,8) * ta1(i,1,8) &
-                          + dzt(k,9) * ta1(i,1,9) &
-                          + dzt(k,10) * ta1(i,1,10) &
-                          + dzt(k,11) * ta1(i,1,11) &
-                          + dzt(k,12) * ta1(i,1,12)
+                  + dzt(k,1) * ta1(i,1,1) &
+                  + dzt(k,2) * ta1(i,1,2) &
+                  + dzt(k,3) * ta1(i,1,3) &
+                  + dzt(k,4) * ta1(i,1,4) &
+                  + dzt(k,5) * ta1(i,1,5) &
+                  + dzt(k,6) * ta1(i,1,6) &
+                  + dzt(k,7) * ta1(i,1,7) &
+                  + dzt(k,8) * ta1(i,1,8) &
+                  + dzt(k,9) * ta1(i,1,9) &
+                  + dzt(k,10) * ta1(i,1,10) &
+                  + dzt(k,11) * ta1(i,1,11) &
+                  + dzt(k,12) * ta1(i,1,12)
           end do
        end do
 
@@ -466,16 +466,16 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              dtx(i,j,1,e) = dxt(i,1) * ta1(1,j,1) &
-                          + dxt(i,2) * ta1(2,j,1) &
-                          + dxt(i,3) * ta1(3,j,1) &
-                          + dxt(i,4) * ta1(4,j,1) &
-                          + dxt(i,5) * ta1(5,j,1) &
-                          + dxt(i,6) * ta1(6,j,1) &
-                          + dxt(i,7) * ta1(7,j,1) &
-                          + dxt(i,8) * ta1(8,j,1) &
-                          + dxt(i,9) * ta1(9,j,1) &
-                          + dxt(i,10) * ta1(10,j,1) &
-                          + dxt(i,11) * ta1(11,j,1)
+                  + dxt(i,2) * ta1(2,j,1) &
+                  + dxt(i,3) * ta1(3,j,1) &
+                  + dxt(i,4) * ta1(4,j,1) &
+                  + dxt(i,5) * ta1(5,j,1) &
+                  + dxt(i,6) * ta1(6,j,1) &
+                  + dxt(i,7) * ta1(7,j,1) &
+                  + dxt(i,8) * ta1(8,j,1) &
+                  + dxt(i,9) * ta1(9,j,1) &
+                  + dxt(i,10) * ta1(10,j,1) &
+                  + dxt(i,11) * ta1(11,j,1)
           end do
        end do
 
@@ -487,17 +487,17 @@ contains
           do j = 1, lx
              do i = 1, lx
                 dtx(i,j,k,e) = dtx(i,j,k,e) &
-                             + dyt(j,1) * ta1(i,1,k) &
-                             + dyt(j,2) * ta1(i,2,k) &
-                             + dyt(j,3) * ta1(i,3,k) &
-                             + dyt(j,4) * ta1(i,4,k) &
-                             + dyt(j,5) * ta1(i,5,k) &
-                             + dyt(j,6) * ta1(i,6,k) &
-                             + dyt(j,7) * ta1(i,7,k) &
-                             + dyt(j,8) * ta1(i,8,k) &
-                             + dyt(j,9) * ta1(i,9,k) &
-                             + dyt(j,10) * ta1(i,10,k) &
-                             + dyt(j,11) * ta1(i,11,k)
+                     + dyt(j,1) * ta1(i,1,k) &
+                     + dyt(j,2) * ta1(i,2,k) &
+                     + dyt(j,3) * ta1(i,3,k) &
+                     + dyt(j,4) * ta1(i,4,k) &
+                     + dyt(j,5) * ta1(i,5,k) &
+                     + dyt(j,6) * ta1(i,6,k) &
+                     + dyt(j,7) * ta1(i,7,k) &
+                     + dyt(j,8) * ta1(i,8,k) &
+                     + dyt(j,9) * ta1(i,9,k) &
+                     + dyt(j,10) * ta1(i,10,k) &
+                     + dyt(j,11) * ta1(i,11,k)
              end do
           end do
        end do
@@ -509,17 +509,17 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dtx(i,1,k,e) = dtx(i,1,k,e) &
-                          + dzt(k,1) * ta1(i,1,1) &
-                          + dzt(k,2) * ta1(i,1,2) &
-                          + dzt(k,3) * ta1(i,1,3) &
-                          + dzt(k,4) * ta1(i,1,4) &
-                          + dzt(k,5) * ta1(i,1,5) &
-                          + dzt(k,6) * ta1(i,1,6) &
-                          + dzt(k,7) * ta1(i,1,7) &
-                          + dzt(k,8) * ta1(i,1,8) &
-                          + dzt(k,9) * ta1(i,1,9) &
-                          + dzt(k,10) * ta1(i,1,10) &
-                          + dzt(k,11) * ta1(i,1,11)
+                  + dzt(k,1) * ta1(i,1,1) &
+                  + dzt(k,2) * ta1(i,1,2) &
+                  + dzt(k,3) * ta1(i,1,3) &
+                  + dzt(k,4) * ta1(i,1,4) &
+                  + dzt(k,5) * ta1(i,1,5) &
+                  + dzt(k,6) * ta1(i,1,6) &
+                  + dzt(k,7) * ta1(i,1,7) &
+                  + dzt(k,8) * ta1(i,1,8) &
+                  + dzt(k,9) * ta1(i,1,9) &
+                  + dzt(k,10) * ta1(i,1,10) &
+                  + dzt(k,11) * ta1(i,1,11)
           end do
        end do
 
@@ -549,15 +549,15 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              dtx(i,j,1,e) = dxt(i,1) * ta1(1,j,1) &
-                          + dxt(i,2) * ta1(2,j,1) &
-                          + dxt(i,3) * ta1(3,j,1) &
-                          + dxt(i,4) * ta1(4,j,1) &
-                          + dxt(i,5) * ta1(5,j,1) &
-                          + dxt(i,6) * ta1(6,j,1) &
-                          + dxt(i,7) * ta1(7,j,1) &
-                          + dxt(i,8) * ta1(8,j,1) &
-                          + dxt(i,9) * ta1(9,j,1) &
-                          + dxt(i,10) * ta1(10,j,1)
+                  + dxt(i,2) * ta1(2,j,1) &
+                  + dxt(i,3) * ta1(3,j,1) &
+                  + dxt(i,4) * ta1(4,j,1) &
+                  + dxt(i,5) * ta1(5,j,1) &
+                  + dxt(i,6) * ta1(6,j,1) &
+                  + dxt(i,7) * ta1(7,j,1) &
+                  + dxt(i,8) * ta1(8,j,1) &
+                  + dxt(i,9) * ta1(9,j,1) &
+                  + dxt(i,10) * ta1(10,j,1)
           end do
        end do
 
@@ -569,16 +569,16 @@ contains
           do j = 1, lx
              do i = 1, lx
                 dtx(i,j,k,e) = dtx(i,j,k,e) &
-                             + dyt(j,1) * ta1(i,1,k) &
-                             + dyt(j,2) * ta1(i,2,k) &
-                             + dyt(j,3) * ta1(i,3,k) &
-                             + dyt(j,4) * ta1(i,4,k) &
-                             + dyt(j,5) * ta1(i,5,k) &
-                             + dyt(j,6) * ta1(i,6,k) &
-                             + dyt(j,7) * ta1(i,7,k) &
-                             + dyt(j,8) * ta1(i,8,k) &
-                             + dyt(j,9) * ta1(i,9,k) &
-                             + dyt(j,10) * ta1(i,10,k)
+                     + dyt(j,1) * ta1(i,1,k) &
+                     + dyt(j,2) * ta1(i,2,k) &
+                     + dyt(j,3) * ta1(i,3,k) &
+                     + dyt(j,4) * ta1(i,4,k) &
+                     + dyt(j,5) * ta1(i,5,k) &
+                     + dyt(j,6) * ta1(i,6,k) &
+                     + dyt(j,7) * ta1(i,7,k) &
+                     + dyt(j,8) * ta1(i,8,k) &
+                     + dyt(j,9) * ta1(i,9,k) &
+                     + dyt(j,10) * ta1(i,10,k)
 
              end do
           end do
@@ -591,16 +591,16 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dtx(i,1,k,e) = dtx(i,1,k,e) &
-                          + dzt(k,1) * ta1(i,1,1) &
-                          + dzt(k,2) * ta1(i,1,2) &
-                          + dzt(k,3) * ta1(i,1,3) &
-                          + dzt(k,4) * ta1(i,1,4) &
-                          + dzt(k,5) * ta1(i,1,5) &
-                          + dzt(k,6) * ta1(i,1,6) &
-                          + dzt(k,7) * ta1(i,1,7) &
-                          + dzt(k,8) * ta1(i,1,8) &
-                          + dzt(k,9) * ta1(i,1,9) &
-                          + dzt(k,10) * ta1(i,1,10)
+                  + dzt(k,1) * ta1(i,1,1) &
+                  + dzt(k,2) * ta1(i,1,2) &
+                  + dzt(k,3) * ta1(i,1,3) &
+                  + dzt(k,4) * ta1(i,1,4) &
+                  + dzt(k,5) * ta1(i,1,5) &
+                  + dzt(k,6) * ta1(i,1,6) &
+                  + dzt(k,7) * ta1(i,1,7) &
+                  + dzt(k,8) * ta1(i,1,8) &
+                  + dzt(k,9) * ta1(i,1,9) &
+                  + dzt(k,10) * ta1(i,1,10)
           end do
        end do
 
@@ -630,14 +630,14 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              dtx(i,j,1,e) = dxt(i,1) * ta1(1,j,1) &
-                          + dxt(i,2) * ta1(2,j,1) &
-                          + dxt(i,3) * ta1(3,j,1) &
-                          + dxt(i,4) * ta1(4,j,1) &
-                          + dxt(i,5) * ta1(5,j,1) &
-                          + dxt(i,6) * ta1(6,j,1) &
-                          + dxt(i,7) * ta1(7,j,1) &
-                          + dxt(i,8) * ta1(8,j,1) &
-                          + dxt(i,9) * ta1(9,j,1)
+                  + dxt(i,2) * ta1(2,j,1) &
+                  + dxt(i,3) * ta1(3,j,1) &
+                  + dxt(i,4) * ta1(4,j,1) &
+                  + dxt(i,5) * ta1(5,j,1) &
+                  + dxt(i,6) * ta1(6,j,1) &
+                  + dxt(i,7) * ta1(7,j,1) &
+                  + dxt(i,8) * ta1(8,j,1) &
+                  + dxt(i,9) * ta1(9,j,1)
           end do
        end do
 
@@ -649,15 +649,15 @@ contains
           do j = 1, lx
              do i = 1, lx
                 dtx(i,j,k,e) = dtx(i,j,k,e) &
-                             + dyt(j,1) * ta1(i,1,k) &
-                             + dyt(j,2) * ta1(i,2,k) &
-                             + dyt(j,3) * ta1(i,3,k) &
-                             + dyt(j,4) * ta1(i,4,k) &
-                             + dyt(j,5) * ta1(i,5,k) &
-                             + dyt(j,6) * ta1(i,6,k) &
-                             + dyt(j,7) * ta1(i,7,k) &
-                             + dyt(j,8) * ta1(i,8,k) &
-                             + dyt(j,9) * ta1(i,9,k)
+                     + dyt(j,1) * ta1(i,1,k) &
+                     + dyt(j,2) * ta1(i,2,k) &
+                     + dyt(j,3) * ta1(i,3,k) &
+                     + dyt(j,4) * ta1(i,4,k) &
+                     + dyt(j,5) * ta1(i,5,k) &
+                     + dyt(j,6) * ta1(i,6,k) &
+                     + dyt(j,7) * ta1(i,7,k) &
+                     + dyt(j,8) * ta1(i,8,k) &
+                     + dyt(j,9) * ta1(i,9,k)
              end do
           end do
        end do
@@ -669,15 +669,15 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dtx(i,1,k,e) = dtx(i,1,k,e) &
-                          + dzt(k,1) * ta1(i,1,1) &
-                          + dzt(k,2) * ta1(i,1,2) &
-                          + dzt(k,3) * ta1(i,1,3) &
-                          + dzt(k,4) * ta1(i,1,4) &
-                          + dzt(k,5) * ta1(i,1,5) &
-                          + dzt(k,6) * ta1(i,1,6) &
-                          + dzt(k,7) * ta1(i,1,7) &
-                          + dzt(k,8) * ta1(i,1,8) &
-                          + dzt(k,9) * ta1(i,1,9)
+                  + dzt(k,1) * ta1(i,1,1) &
+                  + dzt(k,2) * ta1(i,1,2) &
+                  + dzt(k,3) * ta1(i,1,3) &
+                  + dzt(k,4) * ta1(i,1,4) &
+                  + dzt(k,5) * ta1(i,1,5) &
+                  + dzt(k,6) * ta1(i,1,6) &
+                  + dzt(k,7) * ta1(i,1,7) &
+                  + dzt(k,8) * ta1(i,1,8) &
+                  + dzt(k,9) * ta1(i,1,9)
           end do
        end do
 
@@ -707,13 +707,13 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              dtx(i,j,1,e) = dxt(i,1) * ta1(1,j,1) &
-                          + dxt(i,2) * ta1(2,j,1) &
-                          + dxt(i,3) * ta1(3,j,1) &
-                          + dxt(i,4) * ta1(4,j,1) &
-                          + dxt(i,5) * ta1(5,j,1) &
-                          + dxt(i,6) * ta1(6,j,1) &
-                          + dxt(i,7) * ta1(7,j,1) &
-                          + dxt(i,8) * ta1(8,j,1)
+                  + dxt(i,2) * ta1(2,j,1) &
+                  + dxt(i,3) * ta1(3,j,1) &
+                  + dxt(i,4) * ta1(4,j,1) &
+                  + dxt(i,5) * ta1(5,j,1) &
+                  + dxt(i,6) * ta1(6,j,1) &
+                  + dxt(i,7) * ta1(7,j,1) &
+                  + dxt(i,8) * ta1(8,j,1)
           end do
        end do
 
@@ -725,14 +725,14 @@ contains
           do j = 1, lx
              do i = 1, lx
                 dtx(i,j,k,e) = dtx(i,j,k,e) &
-                             + dyt(j,1) * ta1(i,1,k) &
-                             + dyt(j,2) * ta1(i,2,k) &
-                             + dyt(j,3) * ta1(i,3,k) &
-                             + dyt(j,4) * ta1(i,4,k) &
-                             + dyt(j,5) * ta1(i,5,k) &
-                             + dyt(j,6) * ta1(i,6,k) &
-                             + dyt(j,7) * ta1(i,7,k) &
-                             + dyt(j,8) * ta1(i,8,k)
+                     + dyt(j,1) * ta1(i,1,k) &
+                     + dyt(j,2) * ta1(i,2,k) &
+                     + dyt(j,3) * ta1(i,3,k) &
+                     + dyt(j,4) * ta1(i,4,k) &
+                     + dyt(j,5) * ta1(i,5,k) &
+                     + dyt(j,6) * ta1(i,6,k) &
+                     + dyt(j,7) * ta1(i,7,k) &
+                     + dyt(j,8) * ta1(i,8,k)
              end do
           end do
        end do
@@ -744,14 +744,14 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dtx(i,1,k,e) = dtx(i,1,k,e) &
-                         + dzt(k,1) * ta1(i,1,1) &
-                         + dzt(k,2) * ta1(i,1,2) &
-                         + dzt(k,3) * ta1(i,1,3) &
-                         + dzt(k,4) * ta1(i,1,4) &
-                         + dzt(k,5) * ta1(i,1,5) &
-                         + dzt(k,6) * ta1(i,1,6) &
-                         + dzt(k,7) * ta1(i,1,7) &
-                         + dzt(k,8) * ta1(i,1,8)
+                  + dzt(k,1) * ta1(i,1,1) &
+                  + dzt(k,2) * ta1(i,1,2) &
+                  + dzt(k,3) * ta1(i,1,3) &
+                  + dzt(k,4) * ta1(i,1,4) &
+                  + dzt(k,5) * ta1(i,1,5) &
+                  + dzt(k,6) * ta1(i,1,6) &
+                  + dzt(k,7) * ta1(i,1,7) &
+                  + dzt(k,8) * ta1(i,1,8)
           end do
        end do
 
@@ -781,12 +781,12 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              dtx(i,j,1,e) = dxt(i,1) * ta1(1,j,1) &
-                          + dxt(i,2) * ta1(2,j,1) &
-                          + dxt(i,3) * ta1(3,j,1) &
-                          + dxt(i,4) * ta1(4,j,1) &
-                          + dxt(i,5) * ta1(5,j,1) &
-                          + dxt(i,6) * ta1(6,j,1) &
-                          + dxt(i,7) * ta1(7,j,1)
+                  + dxt(i,2) * ta1(2,j,1) &
+                  + dxt(i,3) * ta1(3,j,1) &
+                  + dxt(i,4) * ta1(4,j,1) &
+                  + dxt(i,5) * ta1(5,j,1) &
+                  + dxt(i,6) * ta1(6,j,1) &
+                  + dxt(i,7) * ta1(7,j,1)
           end do
        end do
 
@@ -798,13 +798,13 @@ contains
           do j = 1, lx
              do i = 1, lx
                 dtx(i,j,k,e) = dtx(i,j,k,e) &
-                             + dyt(j,1) * ta1(i,1,k) &
-                             + dyt(j,2) * ta1(i,2,k) &
-                             + dyt(j,3) * ta1(i,3,k) &
-                             + dyt(j,4) * ta1(i,4,k) &
-                             + dyt(j,5) * ta1(i,5,k) &
-                             + dyt(j,6) * ta1(i,6,k) &
-                             + dyt(j,7) * ta1(i,7,k)
+                     + dyt(j,1) * ta1(i,1,k) &
+                     + dyt(j,2) * ta1(i,2,k) &
+                     + dyt(j,3) * ta1(i,3,k) &
+                     + dyt(j,4) * ta1(i,4,k) &
+                     + dyt(j,5) * ta1(i,5,k) &
+                     + dyt(j,6) * ta1(i,6,k) &
+                     + dyt(j,7) * ta1(i,7,k)
              end do
           end do
        end do
@@ -816,13 +816,13 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dtx(i,1,k,e) = dtx(i,1,k,e) &
-                          + dzt(k,1) * ta1(i,1,1) &
-                          + dzt(k,2) * ta1(i,1,2) &
-                          + dzt(k,3) * ta1(i,1,3) &
-                          + dzt(k,4) * ta1(i,1,4) &
-                          + dzt(k,5) * ta1(i,1,5) &
-                          + dzt(k,6) * ta1(i,1,6) &
-                          + dzt(k,7) * ta1(i,1,7)
+                  + dzt(k,1) * ta1(i,1,1) &
+                  + dzt(k,2) * ta1(i,1,2) &
+                  + dzt(k,3) * ta1(i,1,3) &
+                  + dzt(k,4) * ta1(i,1,4) &
+                  + dzt(k,5) * ta1(i,1,5) &
+                  + dzt(k,6) * ta1(i,1,6) &
+                  + dzt(k,7) * ta1(i,1,7)
           end do
        end do
 
@@ -852,11 +852,11 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              dtx(i,j,1,e) = dxt(i,1) * ta1(1,j,1) &
-                          + dxt(i,2) * ta1(2,j,1) &
-                          + dxt(i,3) * ta1(3,j,1) &
-                          + dxt(i,4) * ta1(4,j,1) &
-                          + dxt(i,5) * ta1(5,j,1) &
-                          + dxt(i,6) * ta1(6,j,1)
+                  + dxt(i,2) * ta1(2,j,1) &
+                  + dxt(i,3) * ta1(3,j,1) &
+                  + dxt(i,4) * ta1(4,j,1) &
+                  + dxt(i,5) * ta1(5,j,1) &
+                  + dxt(i,6) * ta1(6,j,1)
           end do
        end do
 
@@ -868,12 +868,12 @@ contains
           do j = 1, lx
              do i = 1, lx
                 dtx(i,j,k,e) = dtx(i,j,k,e) &
-                             + dyt(j,1) * ta1(i,1,k) &
-                             + dyt(j,2) * ta1(i,2,k) &
-                             + dyt(j,3) * ta1(i,3,k) &
-                             + dyt(j,4) * ta1(i,4,k) &
-                             + dyt(j,5) * ta1(i,5,k) &
-                             + dyt(j,6) * ta1(i,6,k)
+                     + dyt(j,1) * ta1(i,1,k) &
+                     + dyt(j,2) * ta1(i,2,k) &
+                     + dyt(j,3) * ta1(i,3,k) &
+                     + dyt(j,4) * ta1(i,4,k) &
+                     + dyt(j,5) * ta1(i,5,k) &
+                     + dyt(j,6) * ta1(i,6,k)
              end do
           end do
        end do
@@ -885,12 +885,12 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dtx(i,1,k,e) = dtx(i,1,k,e) &
-                          + dzt(k,1) * ta1(i,1,1) &
-                          + dzt(k,2) * ta1(i,1,2) &
-                          + dzt(k,3) * ta1(i,1,3) &
-                          + dzt(k,4) * ta1(i,1,4) &
-                          + dzt(k,5) * ta1(i,1,5) &
-                          + dzt(k,6) * ta1(i,1,6)
+                  + dzt(k,1) * ta1(i,1,1) &
+                  + dzt(k,2) * ta1(i,1,2) &
+                  + dzt(k,3) * ta1(i,1,3) &
+                  + dzt(k,4) * ta1(i,1,4) &
+                  + dzt(k,5) * ta1(i,1,5) &
+                  + dzt(k,6) * ta1(i,1,6)
           end do
        end do
 
@@ -920,10 +920,10 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              dtx(i,j,1,e) = dxt(i,1) * ta1(1,j,1) &
-                          + dxt(i,2) * ta1(2,j,1) &
-                          + dxt(i,3) * ta1(3,j,1) &
-                          + dxt(i,4) * ta1(4,j,1) &
-                          + dxt(i,5) * ta1(5,j,1)
+                  + dxt(i,2) * ta1(2,j,1) &
+                  + dxt(i,3) * ta1(3,j,1) &
+                  + dxt(i,4) * ta1(4,j,1) &
+                  + dxt(i,5) * ta1(5,j,1)
           end do
        end do
 
@@ -935,11 +935,11 @@ contains
           do j = 1, lx
              do i = 1, lx
                 dtx(i,j,k,e) = dtx(i,j,k,e) &
-                             + dyt(j,1) * ta1(i,1,k) &
-                             + dyt(j,2) * ta1(i,2,k) &
-                             + dyt(j,3) * ta1(i,3,k) &
-                             + dyt(j,4) * ta1(i,4,k) &
-                             + dyt(j,5) * ta1(i,5,k)
+                     + dyt(j,1) * ta1(i,1,k) &
+                     + dyt(j,2) * ta1(i,2,k) &
+                     + dyt(j,3) * ta1(i,3,k) &
+                     + dyt(j,4) * ta1(i,4,k) &
+                     + dyt(j,5) * ta1(i,5,k)
              end do
           end do
        end do
@@ -951,11 +951,11 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dtx(i,1,k,e) = dtx(i,1,k,e) &
-                          + dzt(k,1) * ta1(i,1,1) &
-                          + dzt(k,2) * ta1(i,1,2) &
-                          + dzt(k,3) * ta1(i,1,3) &
-                          + dzt(k,4) * ta1(i,1,4) &
-                          + dzt(k,5) * ta1(i,1,5)
+                  + dzt(k,1) * ta1(i,1,1) &
+                  + dzt(k,2) * ta1(i,1,2) &
+                  + dzt(k,3) * ta1(i,1,3) &
+                  + dzt(k,4) * ta1(i,1,4) &
+                  + dzt(k,5) * ta1(i,1,5)
           end do
        end do
 
@@ -985,9 +985,9 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              dtx(i,j,1,e) = dxt(i,1) * ta1(1,j,1) &
-                          + dxt(i,2) * ta1(2,j,1) &
-                          + dxt(i,3) * ta1(3,j,1) &
-                          + dxt(i,4) * ta1(4,j,1)
+                  + dxt(i,2) * ta1(2,j,1) &
+                  + dxt(i,3) * ta1(3,j,1) &
+                  + dxt(i,4) * ta1(4,j,1)
           end do
        end do
 
@@ -999,10 +999,10 @@ contains
           do j = 1, lx
              do i = 1, lx
                 dtx(i,j,k,e) = dtx(i,j,k,e) &
-                             + dyt(j,1) * ta1(i,1,k) &
-                             + dyt(j,2) * ta1(i,2,k) &
-                             + dyt(j,3) * ta1(i,3,k) &
-                             + dyt(j,4) * ta1(i,4,k)
+                     + dyt(j,1) * ta1(i,1,k) &
+                     + dyt(j,2) * ta1(i,2,k) &
+                     + dyt(j,3) * ta1(i,3,k) &
+                     + dyt(j,4) * ta1(i,4,k)
              end do
           end do
        end do
@@ -1014,10 +1014,10 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dtx(i,1,k,e) = dtx(i,1,k,e) &
-                          + dzt(k,1) * ta1(i,1,1) &
-                          + dzt(k,2) * ta1(i,1,2) &
-                          + dzt(k,3) * ta1(i,1,3) &
-                          + dzt(k,4) * ta1(i,1,4)
+                  + dzt(k,1) * ta1(i,1,1) &
+                  + dzt(k,2) * ta1(i,1,2) &
+                  + dzt(k,3) * ta1(i,1,3) &
+                  + dzt(k,4) * ta1(i,1,4)
           end do
        end do
 
@@ -1047,8 +1047,8 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              dtx(i,j,1,e) = dxt(i,1) * ta1(1,j,1) &
-                          + dxt(i,2) * ta1(2,j,1) &
-                          + dxt(i,3) * ta1(3,j,1)
+                  + dxt(i,2) * ta1(2,j,1) &
+                  + dxt(i,3) * ta1(3,j,1)
           end do
        end do
 
@@ -1060,9 +1060,9 @@ contains
           do j = 1, lx
              do i = 1, lx
                 dtx(i,j,k,e) = dtx(i,j,k,e) &
-                             + dyt(j,1) * ta1(i,1,k) &
-                             + dyt(j,2) * ta1(i,2,k) &
-                             + dyt(j,3) * ta1(i,3,k)
+                     + dyt(j,1) * ta1(i,1,k) &
+                     + dyt(j,2) * ta1(i,2,k) &
+                     + dyt(j,3) * ta1(i,3,k)
              end do
           end do
        end do
@@ -1074,9 +1074,9 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dtx(i,1,k,e) = dtx(i,1,k,e) &
-                          + dzt(k,1) * ta1(i,1,1) &
-                          + dzt(k,2) * ta1(i,1,2) &
-                          + dzt(k,3) * ta1(i,1,3)
+                  + dzt(k,1) * ta1(i,1,1) &
+                  + dzt(k,2) * ta1(i,1,2) &
+                  + dzt(k,3) * ta1(i,1,3)
           end do
        end do
 
@@ -1106,7 +1106,7 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              dtx(i,j,1,e) = dxt(i,1) * ta1(1,j,1) &
-                          + dxt(i,2) * ta1(2,j,1)
+                  + dxt(i,2) * ta1(2,j,1)
           end do
        end do
 
@@ -1118,8 +1118,8 @@ contains
           do j = 1, lx
              do i = 1, lx
                 dtx(i,j,k,e) = dtx(i,j,k,e) &
-                             + dyt(j,1) * ta1(i,1,k) &
-                             + dyt(j,2) * ta1(i,2,k)
+                     + dyt(j,1) * ta1(i,1,k) &
+                     + dyt(j,2) * ta1(i,2,k)
              end do
           end do
        end do
@@ -1131,8 +1131,8 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              dtx(i,1,k,e) = dtx(i,1,k,e) &
-                          + dzt(k,1) * ta1(i,1,1) &
-                          + dzt(k,2) * ta1(i,1,2)
+                  + dzt(k,1) * ta1(i,1,1) &
+                  + dzt(k,2) * ta1(i,1,2)
           end do
        end do
 

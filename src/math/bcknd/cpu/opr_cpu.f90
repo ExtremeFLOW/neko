@@ -67,11 +67,11 @@ module opr_cpu
      module subroutine opr_cpu_cdtp(dtx, x, dr, ds, dt, coef, e_start, e_end)
       type(coef_t), intent(in) :: coef
       integer, intent(in) :: e_start, e_end
-      real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(inout) :: dtx
-      real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(inout) :: x
-      real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(in) :: dr
-      real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(in) :: ds
-      real(kind=rp), dimension(coef%Xh%lxyz,e_end-e_start+1), intent(in) :: dt
+      real(kind=rp), intent(inout) :: dtx(coef%Xh%lxyz, e_end - e_start + 1)
+      real(kind=rp), intent(inout) :: x(coef%Xh%lxyz, e_end - e_start + 1)
+      real(kind=rp), intent(in) :: dr(coef%Xh%lxyz, e_end - e_start + 1)
+      real(kind=rp), intent(in) :: ds(coef%Xh%lxyz, e_end - e_start + 1)
+      real(kind=rp), intent(in) :: dt(coef%Xh%lxyz, e_end - e_start + 1)
      end subroutine opr_cpu_cdtp
 
      module subroutine opr_cpu_conv1(du, u, vx, vy, vz, Xh, &
