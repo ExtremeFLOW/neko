@@ -34,13 +34,12 @@
 module fluid_pnpn_perturb
   use num_types, only : rp, dp
   use krylov, only : ksp_monitor_t
-  use pnpn_res_fctry, only : pnpn_prs_res_factory, pnpn_vel_res_factory
-  use pnpn_res_stress_fctry, only : pnpn_prs_res_stress_factory, &
-       pnpn_vel_res_stress_factory
+  use pnpn_residual, only : pnpn_prs_res_factory, pnpn_vel_res_factory, &
+       pnpn_prs_res_stress_factory, pnpn_vel_res_stress_factory
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
-  use ax_helm_fctry, only : ax_helm_factory
-  use rhs_maker_fctry, only : rhs_maker_sumab_fctry, rhs_maker_bdf_fctry, &
-                              rhs_maker_ext_fctry
+  use ax_product, only : ax_t, ax_helm_factory
+  use rhs_maker, only : rhs_maker_sumab_fctry, rhs_maker_bdf_fctry, &
+       rhs_maker_ext_fctry
   use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_bdf_t, rhs_maker_ext_t
   use fluid_volflow, only : fluid_volflow_t
   use fluid_scheme, only : fluid_scheme_t
@@ -57,8 +56,7 @@ module fluid_pnpn_perturb
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
   use material_properties, only : material_properties_t
-  use advection_fctry, only : advection_lin_factory
-  use ax_product, only : ax_t
+  use advection, only : advection_lin_factory
   use field, only : field_t
   use dirichlet, only : dirichlet_t
   use facet_normal, only : facet_normal_t
@@ -72,7 +70,7 @@ module fluid_pnpn_perturb
   use math, only : col2, add2, copy, glsc2, vdot3, cmult
   use mathops, only : opadd2cm, opcolv
   use bc, only: bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
-                bc_list_apply_scalar, bc_list_apply_vector
+       bc_list_apply_scalar, bc_list_apply_vector
   use utils, only : neko_error
   use field_math, only : field_add2
   use flow_ic, only : set_flow_ic
@@ -109,12 +107,12 @@ module fluid_pnpn_perturb
 
      type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
      type(facet_normal_t) :: bc_sym_surface !< Surface term in pressure rhs
-     type(dirichlet_t) :: bc_vel_res   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_p   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_u   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_v   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_w   !< Dirichlet condition vel. res.
-     type(non_normal_t) :: bc_vel_res_non_normal   !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_vel_res !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_p !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_u !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_v !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_w !< Dirichlet condition vel. res.
+     type(non_normal_t) :: bc_vel_res_non_normal !< Dirichlet condition vel. res.
      type(bc_list_t) :: bclst_vel_res
      type(bc_list_t) :: bclst_du
      type(bc_list_t) :: bclst_dv
@@ -199,7 +197,7 @@ contains
 
     ! Initialize base class
     call this%scheme_init(msh, lx, params, .true., .true., scheme, user, &
-                          material_properties)
+         material_properties)
 
     if (this%variable_material_properties .eqv. .true.) then
        ! Setup backend dependent Ax routines
@@ -266,40 +264,40 @@ contains
     call this%bc_prs_surface%init_base(this%c_Xh)
     call this%bc_prs_surface%mark_zone(msh%inlet)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'v', this%bc_labels)
+         'v', this%bc_labels)
     !This impacts the rhs of the pressure, need to check what is correct to add here
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'd_vel_u', this%bc_labels)
+         'd_vel_u', this%bc_labels)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'd_vel_v', this%bc_labels)
+         'd_vel_v', this%bc_labels)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'd_vel_w', this%bc_labels)
+         'd_vel_w', this%bc_labels)
     call this%bc_prs_surface%finalize()
     ! Initialize symmetry surface terms in pressure rhs
     call this%bc_sym_surface%init_base(this%c_Xh)
     call this%bc_sym_surface%mark_zone(msh%sympln)
     call this%bc_sym_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'sym', this%bc_labels)
+         'sym', this%bc_labels)
     ! Same here, should du, dv, dw be marked here?
     call this%bc_sym_surface%finalize()
     ! Initialize dirichlet bcs for velocity residual
     call this%bc_vel_res_non_normal%init_base(this%c_Xh)
     call this%bc_vel_res_non_normal%mark_zone(msh%outlet_normal)
     call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
-                                                         'on', this%bc_labels)
+         'on', this%bc_labels)
     call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
-                                                         'on+dong', &
-                                                         this%bc_labels)
+         'on+dong', &
+         this%bc_labels)
     call this%bc_vel_res_non_normal%finalize()
     call this%bc_vel_res_non_normal%init(this%c_Xh)
 
     call this%bc_field_dirichlet_p%init_base(this%c_Xh)
     call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, &
-      'on+dong', this%bc_labels)
+         'on+dong', this%bc_labels)
     call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, &
-      'o+dong', this%bc_labels)
+         'o+dong', this%bc_labels)
     call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, &
-      'd_pres', this%bc_labels)
+         'd_pres', this%bc_labels)
     call this%bc_field_dirichlet_p%finalize()
     call this%bc_field_dirichlet_p%set_g(0.0_rp)
     call bc_list_init(this%bclst_dp)
@@ -309,21 +307,21 @@ contains
 
     call this%bc_field_dirichlet_u%init_base(this%c_Xh)
     call this%bc_field_dirichlet_u%mark_zones_from_list( &
-      msh%labeled_zones, 'd_vel_u', this%bc_labels)
+         msh%labeled_zones, 'd_vel_u', this%bc_labels)
     call this%bc_field_dirichlet_u%finalize()
     call this%bc_field_dirichlet_u%set_g(0.0_rp)
 
     call this%bc_field_dirichlet_v%init_base(this%c_Xh)
     call this%bc_field_dirichlet_v%mark_zones_from_list(msh%labeled_zones, &
-                                                        'd_vel_v', &
-                                                        this%bc_labels)
+         'd_vel_v', &
+         this%bc_labels)
     call this%bc_field_dirichlet_v%finalize()
     call this%bc_field_dirichlet_v%set_g(0.0_rp)
 
     call this%bc_field_dirichlet_w%init_base(this%c_Xh)
     call this%bc_field_dirichlet_w%mark_zones_from_list(msh%labeled_zones, &
-                                                       'd_vel_w', &
-                                                        this%bc_labels)
+         'd_vel_w', &
+         this%bc_labels)
     call this%bc_field_dirichlet_w%finalize()
     call this%bc_field_dirichlet_w%set_g(0.0_rp)
 
@@ -331,9 +329,9 @@ contains
     call this%bc_vel_res%mark_zone(msh%inlet)
     call this%bc_vel_res%mark_zone(msh%wall)
     call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
-                                              'v', this%bc_labels)
+         'v', this%bc_labels)
     call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
-                                              'w', this%bc_labels)
+         'w', this%bc_labels)
     call this%bc_vel_res%finalize()
     call this%bc_vel_res%set_g(0.0_rp)
     call bc_list_init(this%bclst_vel_res)
@@ -363,28 +361,28 @@ contains
     !Intialize projection space thingy
 
     if (this%variable_material_properties .and. &
-          this%vel_projection_dim .gt. 0) then
+         this%vel_projection_dim .gt. 0) then
        call neko_error("Velocity projection not available for full stress &
-             &formulation")
+            &formulation")
     end if
 
 
     call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
-                              this%pr_projection_activ_step)
+         this%pr_projection_activ_step)
 
     call this%proj_u%init(this%dm_Xh%size(), this%vel_projection_dim, &
-                              this%vel_projection_activ_step)
+         this%vel_projection_activ_step)
     call this%proj_v%init(this%dm_Xh%size(), this%vel_projection_dim, &
-                              this%vel_projection_activ_step)
+         this%vel_projection_activ_step)
     call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim, &
-                              this%vel_projection_activ_step)
+         this%vel_projection_activ_step)
 
 
     ! Add lagged term to checkpoint
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
 
     call json_get_or_default(params, 'case.fluid.adjoint', this%toggle_adjoint,&
-                             .false.)
+         .false.)
     call advection_lin_factory(this%adv, params, this%c_Xh)
 
     if (params%valid_path('case.fluid.flow_rate_force')) then
@@ -396,7 +394,7 @@ contains
 
     ! Read the norm scaling from the json file
     call json_get_or_default(params, 'norm_scaling', &
-                             this%norm_scaling, 0.5_rp)
+         this%norm_scaling, 0.5_rp)
 
     ! Read the baseflow from file or user input.
     call neko_field_registry%add_field(this%dm_Xh, 'u_b')
@@ -410,13 +408,13 @@ contains
 
     ! Read the json file
     call json_get_or_default(params, 'norm_target', &
-                             this%norm_target, -1.0_rp)
+         this%norm_target, -1.0_rp)
     call json_get_or_default(params, 'norm_tolerance', &
-                             this%norm_tolerance, 10.0_rp)
+         this%norm_tolerance, 10.0_rp)
 
     ! Build the header
     call json_get_or_default(params, 'output_file', &
-                             file_name, 'power_iterations.csv')
+         file_name, 'power_iterations.csv')
     this%file_output = file_t(trim(file_name))
     write(header_line, '(A)') 'Time, Norm, Scaling'
     call this%file_output%set_header(header_line)
@@ -447,39 +445,39 @@ contains
             ulag => this%ulag, vlag => this%vlag, wlag => this%wlag,&
             p => this%p)
          call device_memcpy(u%x, u%x_d, u%dof%size(), &
-                            HOST_TO_DEVICE, sync = .false.)
+              HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(v%x, v%x_d, v%dof%size(), &
-                            HOST_TO_DEVICE, sync = .false.)
+              HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(w%x, w%x_d, w%dof%size(), &
-                            HOST_TO_DEVICE, sync = .false.)
+              HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(p%x, p%x_d, p%dof%size(), &
-                            HOST_TO_DEVICE, sync = .false.)
+              HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, &
-                            u%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              u%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, &
-                            u%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              u%dof%size(), HOST_TO_DEVICE, sync = .false.)
 
          call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, &
-                            v%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              v%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, &
-                            v%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              v%dof%size(), HOST_TO_DEVICE, sync = .false.)
 
          call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(this%abx1%x, this%abx1%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(this%abx2%x, this%abx2%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(this%aby1%x, this%aby1%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(this%aby2%x, this%aby2%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(this%abz1%x, this%abz1%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(this%abz2%x, this%abz2%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
        end associate
     end if
 
@@ -678,12 +676,12 @@ contains
       ! Add the advection operators to the right-hand-side.
       if (this%toggle_adjoint) then
          call this%adv%compute_adjoint(u, v, w, u_b, v_b, w_b, &
-                                       f_x, f_y, f_z, &
-                                       Xh, this%c_Xh, dm_Xh%size())
+              f_x, f_y, f_z, &
+              Xh, this%c_Xh, dm_Xh%size())
       else
          call this%adv%compute_linear(u, v, w, u_b, v_b, w_b, &
-                                      f_x, f_y, f_z, &
-                                      Xh, this%c_Xh, dm_Xh%size())
+              f_x, f_y, f_z, &
+              Xh, this%c_Xh, dm_Xh%size())
       end if
 
       ! At this point the RHS contains the sum of the advection operator and
@@ -691,14 +689,14 @@ contains
       ! previous time-step. Now, this value is used in the explicit time
       ! scheme to advance both terms in time.
       call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
-                           this%abx2, this%aby2, this%abz2, &
-                           f_x%x, f_y%x, f_z%x, &
-                           rho, ext_bdf%advection_coeffs, n)
+           this%abx2, this%aby2, this%abz2, &
+           f_x%x, f_y%x, f_z%x, &
+           rho, ext_bdf%advection_coeffs, n)
 
       ! Add the RHS contributions coming from the BDF scheme.
       call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
-                           u, v, w, c_Xh%B, rho, dt, &
-                           ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+           u, v, w, c_Xh%B, rho, dt, &
+           ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
 
       call ulag%update()
       call vlag%update()
@@ -708,7 +706,7 @@ contains
       !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
       !> Apply the user dirichlet boundary condition
       call this%user_field_bc_vel%update(this%user_field_bc_vel%field_list, &
-              this%user_field_bc_vel%bc_list, this%c_Xh, t, tstep, "fluid")
+           this%user_field_bc_vel%bc_list, this%c_Xh, t, tstep, "fluid")
 
       call this%bc_apply_vel(t, tstep)
       call this%bc_apply_prs(t, tstep)
@@ -719,50 +717,50 @@ contains
       ! Compute pressure.
       call profiler_start_region('Pressure residual', 18)
       call prs_res%compute(p, p_res,&
-                           u, v, w, &
-                           u_e, v_e, w_e, &
-                           f_x, f_y, f_z, &
-                           c_Xh, gs_Xh, &
-                           this%bc_prs_surface, this%bc_sym_surface,&
-                           Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
-                           mu_field, rho_field)
+           u, v, w, &
+           u_e, v_e, w_e, &
+           f_x, f_y, f_z, &
+           c_Xh, gs_Xh, &
+           this%bc_prs_surface, this%bc_sym_surface,&
+           Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
+           mu_field, rho_field)
 
       call gs_Xh%op(p_res, GS_OP_ADD)
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
       call profiler_end_region
 
       call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
-                                     'Pressure')
+           'Pressure')
 
       call this%pc_prs%update()
       call profiler_start_region('Pressure solve', 3)
       ksp_results(1) = &
-         this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, this%bclst_dp, gs_Xh)
+           this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, this%bclst_dp, gs_Xh)
 
       call profiler_end_region
 
       call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
-                                 this%bclst_dp, gs_Xh, n, tstep, dt_controller)
+           this%bclst_dp, gs_Xh, n, tstep, dt_controller)
 
       call field_add2(p, dp, n)
 
       ! Compute velocity.
       call profiler_start_region('Velocity residual', 19)
       call vel_res%compute(Ax_vel, u, v, w, &
-                           u_res, v_res, w_res, &
-                           p, &
-                           f_x, f_y, f_z, &
-                           c_Xh, msh, Xh, &
-                           mu_field, rho_field, ext_bdf%diffusion_coeffs(1), &
-                           dt, dm_Xh%size())
+           u_res, v_res, w_res, &
+           p, &
+           f_x, f_y, f_z, &
+           c_Xh, msh, Xh, &
+           mu_field, rho_field, ext_bdf%diffusion_coeffs(1), &
+           dt, dm_Xh%size())
 
       call gs_Xh%op(u_res, GS_OP_ADD)
       call gs_Xh%op(v_res, GS_OP_ADD)
       call gs_Xh%op(w_res, GS_OP_ADD)
 
       call bc_list_apply_vector(this%bclst_vel_res,&
-                                u_res%x, v_res%x, w_res%x, dm_Xh%size(),&
-                                t, tstep)
+           u_res%x, v_res%x, w_res%x, dm_Xh%size(),&
+           t, tstep)
 
       !We should implement a bc that takes three field_bcs and implements vector_apply
       if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -790,11 +788,11 @@ contains
       call profiler_end_region
 
       call this%proj_u%post_solving(du%x, Ax_vel, c_Xh, &
-                                 this%bclst_du, gs_Xh, n, tstep, dt_controller)
+           this%bclst_du, gs_Xh, n, tstep, dt_controller)
       call this%proj_v%post_solving(dv%x, Ax_vel, c_Xh, &
-                                 this%bclst_dv, gs_Xh, n, tstep, dt_controller)
+           this%bclst_dv, gs_Xh, n, tstep, dt_controller)
       call this%proj_w%post_solving(dw%x, Ax_vel, c_Xh, &
-                                 this%bclst_dw, gs_Xh, n, tstep, dt_controller)
+           this%bclst_dw, gs_Xh, n, tstep, dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opadd2cm(u%x_d, v%x_d, w%x_d, &
@@ -879,32 +877,32 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, fluid_data%ulag%size()
           call device_cmult(fluid_data%ulag%lf(i)%x_d, &
-                            scale, fluid_data%ulag%lf(i)%size())
+               scale, fluid_data%ulag%lf(i)%size())
        end do
 
        do i = 1, fluid_data%vlag%size()
           call device_cmult(fluid_data%vlag%lf(i)%x_d, &
-                            scale, fluid_data%vlag%lf(i)%size())
+               scale, fluid_data%vlag%lf(i)%size())
        end do
 
        do i = 1, fluid_data%wlag%size()
           call device_cmult(fluid_data%wlag%lf(i)%x_d, &
-                            scale, fluid_data%wlag%lf(i)%size())
+               scale, fluid_data%wlag%lf(i)%size())
        end do
     else
        do i = 1, fluid_data%ulag%size()
           call cmult(fluid_data%ulag%lf(i)%x, &
-                     scale, fluid_data%ulag%lf(i)%size())
+               scale, fluid_data%ulag%lf(i)%size())
        end do
 
        do i = 1, fluid_data%vlag%size()
           call cmult(fluid_data%vlag%lf(i)%x, &
-                     scale, fluid_data%vlag%lf(i)%size())
+               scale, fluid_data%vlag%lf(i)%size())
        end do
 
        do i = 1, fluid_data%wlag%size()
           call cmult(fluid_data%wlag%lf(i)%x, &
-                     scale, fluid_data%wlag%lf(i)%size())
+               scale, fluid_data%wlag%lf(i)%size())
        end do
     end if
 
@@ -912,7 +910,7 @@ contains
 
   function norm(x, y, z, B, volume, n)
     use mpi_f08, only : MPI_SUM, MPI_COMM_WORLD, &
-      MPI_IN_PLACE, mpi_allreduce
+         MPI_IN_PLACE, mpi_allreduce
     use comm, only : MPI_REAL_PRECISION
     use math, only : vlsc3
 
@@ -926,7 +924,7 @@ contains
     norm = vlsc3(x, x, B, n) + vlsc3(y, y, B, n) + vlsc3(z, z, B, n)
 
     call mpi_allreduce(MPI_IN_PLACE, norm, 1, &
-                       MPI_REAL_PRECISION, MPI_SUM, MPI_COMM_WORLD)
+         MPI_REAL_PRECISION, MPI_SUM, MPI_COMM_WORLD)
 
     norm = sqrt(norm / volume)
   end function norm
@@ -936,7 +934,7 @@ contains
     use device_math, only : device_vlsc3
     use comm, only : MPI_REAL_PRECISION
     use mpi_f08, only : MPI_SUM, MPI_COMM_WORLD, &
-      MPI_IN_PLACE, mpi_allreduce
+         MPI_IN_PLACE, mpi_allreduce
 
     implicit none
 
@@ -948,11 +946,11 @@ contains
     real(kind=rp) :: device_norm
 
     device_norm = device_vlsc3(x_d, x_d, B_d, n) + &
-      device_vlsc3(y_d, y_d, B_d, n) + &
-      device_vlsc3(z_d, z_d, B_d, n)
+         device_vlsc3(y_d, y_d, B_d, n) + &
+         device_vlsc3(z_d, z_d, B_d, n)
 
     call mpi_allreduce(MPI_IN_PLACE, device_norm, 1, &
-                       MPI_REAL_PRECISION, MPI_SUM, MPI_COMM_WORLD)
+         MPI_REAL_PRECISION, MPI_SUM, MPI_COMM_WORLD)
 
     device_norm = sqrt(device_norm / volume)
 
@@ -980,10 +978,10 @@ contains
     if (tstep .eq. 1) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           norm_l2_base = device_norm(this%u%x_d, this%v%x_d, this%w%x_d, &
-                                     this%c_Xh%B_d, this%c_Xh%volume, n)
+               this%c_Xh%B_d, this%c_Xh%volume, n)
        else
           norm_l2_base = this%norm_scaling * norm(this%u%x, this%v%x, this%w%x, &
-                                                  this%c_Xh%B, this%c_Xh%volume, n)
+               this%c_Xh%B, this%c_Xh%volume, n)
        end if
        if (this%norm_target .lt. 0.0_rp) then
           this%norm_target = norm_l2_base
@@ -997,17 +995,17 @@ contains
     ! Compute the norm of the velocity field and eigenvalue estimate
     if (NEKO_BCKND_DEVICE .eq. 1) then
        norm_l2 = device_norm(this%u%x_d, this%v%x_d, this%w%x_d, &
-                             this%c_Xh%B_d, this%c_Xh%volume, n)
+            this%c_Xh%B_d, this%c_Xh%volume, n)
     else
        norm_l2 = norm(this%u%x, this%v%x, this%w%x, &
-                      this%c_Xh%B, this%c_Xh%volume, n)
+            this%c_Xh%B, this%c_Xh%volume, n)
     end if
     norm_l2 = sqrt(this%norm_scaling) * norm_l2
     scaling_factor = 1.0_rp
 
     ! Rescale the flow if necessary
     if (norm_l2 .gt. this%norm_l2_upper &
-        .or. norm_l2 .lt. this%norm_l2_lower) then
+         .or. norm_l2 .lt. this%norm_l2_lower) then
        scaling_factor = this%norm_target / norm_l2
        call rescale_fluid(this, scaling_factor)
        norm_l2 = this%norm_target

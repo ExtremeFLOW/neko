@@ -40,14 +40,14 @@ module adv_lin_dealias
   use field, only : field_t
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
-    NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
+       NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
   use operators, only : opgrad, conv1, cdtp
   use interpolation, only : interpolator_t
   use device_math
   use device, only : device_free, device_map, device_get_ptr, device_memcpy, &
-    HOST_TO_DEVICE
+       HOST_TO_DEVICE
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
-    c_associated
+       c_associated
   implicit none
   private
 
@@ -162,8 +162,8 @@ contains
     call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-       (NEKO_BCKND_OPENCL .eq. 1) .or. (NEKO_BCKND_SX .eq. 1) .or. &
-       (NEKO_BCKND_XSMM .eq. 1)) then
+         (NEKO_BCKND_OPENCL .eq. 1) .or. (NEKO_BCKND_SX .eq. 1) .or. &
+         (NEKO_BCKND_XSMM .eq. 1)) then
        allocate(this%temp(n_GL))
        allocate(this%tbf(n_GL))
        allocate(this%tx(n_GL))
@@ -217,7 +217,7 @@ contains
   end subroutine free_dealias
 
 
-  !> Add the adjoint advection term for the fluid in weak form, i.e. 
+  !> Add the adjoint advection term for the fluid in weak form, i.e.
   !! \f$ \int_\Omega v \cdot u' (\nabla \bar{U})^T u^\dagger d\Omega
   !! + \int_\Omega \nabla v \cdot (\bar{U} \otimes u^\dagger) d \Omega  \f$, to
   !! the RHS.
@@ -283,17 +283,17 @@ contains
 
          ! traspose and multiply
          call device_vdot3(this%vr_d, this%tx_d, this%ty_d, this%tz_d, &
-                           this%duxb_d, this%dvxb_d, this%dwxb_d, n_GL)
+              this%duxb_d, this%dvxb_d, this%dwxb_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%vr, nel, this%Xh_GLL)
          call device_sub2(fx%x_d, this%temp_d, n)
 
          call device_vdot3(this%vr_d, this%tx_d, this%ty_d, this%tz_d, &
-                           this%duyb_d, this%dvyb_d, this%dwyb_d, n_GL)
+              this%duyb_d, this%dvyb_d, this%dwyb_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%vr, nel, this%Xh_GLL)
          call device_sub2(fy%x_d, this%temp_d, n)
 
          call device_vdot3(this%vr_d, this%tx_d, this%ty_d, this%tz_d, &
-                           this%duzb_d, this%dvzb_d, this%dwzb_d, n_GL)
+              this%duzb_d, this%dvzb_d, this%dwzb_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%vr, nel, this%Xh_GLL)
          call device_sub2(fz%x_d, this%temp_d, n)
 
@@ -478,7 +478,7 @@ contains
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
   subroutine compute_linear_advection_dealias(this, vx, vy, vz, vxb, vyb, vzb, &
-                                              fx, fy, fz, Xh, coef, n)
+       fx, fy, fz, Xh, coef, n)
     implicit none
     class(adv_lin_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
@@ -514,40 +514,40 @@ contains
          ! u'.grad U
          call opgrad(this%vr, this%vs, this%vt, this%txb, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
-                           this%tx_d, this%ty_d, this%tz_d, n_GL)
+              this%tx_d, this%ty_d, this%tz_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call device_sub2(fx%x_d, this%temp_d, n)
 
 
          call opgrad(this%vr, this%vs, this%vt, this%tyb, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
-                           this%tx_d, this%ty_d, this%tz_d, n_GL)
+              this%tx_d, this%ty_d, this%tz_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call device_sub2(fy%x_d, this%temp_d, n)
 
          call opgrad(this%vr, this%vs, this%vt, this%tzb, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
-                           this%tx_d, this%ty_d, this%tz_d, n_GL)
+              this%tx_d, this%ty_d, this%tz_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call device_sub2(fz%x_d, this%temp_d, n)
 
          ! U.grad u'
          call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
-                           this%txb_d, this%tyb_d, this%tzb_d, n_GL)
+              this%txb_d, this%tyb_d, this%tzb_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call device_sub2(fx%x_d, this%temp_d, n)
 
 
          call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
-                           this%txb_d, this%tyb_d, this%tzb_d, n_GL)
+              this%txb_d, this%tyb_d, this%tzb_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call device_sub2(fy%x_d, this%temp_d, n)
 
          call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
          call device_vdot3(this%tbf_d, this%vr_d, this%vs_d, this%vt_d, &
-                           this%txb_d, this%tyb_d, this%tzb_d, n_GL)
+              this%txb_d, this%tyb_d, this%tzb_d, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call device_sub2(fz%x_d, this%temp_d, n)
 
@@ -565,40 +565,40 @@ contains
          ! u'.grad U
          call opgrad(this%vr, this%vs, this%vt, this%txb, c_GL)
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
-                    this%tx, this%ty, this%tz, n_GL)
+              this%tx, this%ty, this%tz, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call sub2(fx%x, this%temp, n)
 
 
          call opgrad(this%vr, this%vs, this%vt, this%tyb, c_GL)
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
-                    this%tx, this%ty, this%tz, n_GL)
+              this%tx, this%ty, this%tz, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call sub2(fy%x, this%temp, n)
 
          call opgrad(this%vr, this%vs, this%vt, this%tzb, c_GL)
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
-                    this%tx, this%ty, this%tz, n_GL)
+              this%tx, this%ty, this%tz, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call sub2(fz%x, this%temp, n)
 
          ! U.grad u'
          call opgrad(this%vr, this%vs, this%vt, this%tx, c_GL)
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
-                    this%txb, this%tyb, this%tzb, n_GL)
+              this%txb, this%tyb, this%tzb, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call sub2(fx%x, this%temp, n)
 
 
          call opgrad(this%vr, this%vs, this%vt, this%ty, c_GL)
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
-                    this%txb, this%tyb, this%tzb, n_GL)
+              this%txb, this%tyb, this%tzb, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call sub2(fy%x, this%temp, n)
 
          call opgrad(this%vr, this%vs, this%vt, this%tz, c_GL)
          call vdot3(this%tbf, this%vr, this%vs, this%vt, &
-                    this%txb, this%tyb, this%tzb, n_GL)
+              this%txb, this%tyb, this%tzb, n_GL)
          call this%GLL_to_GL%map(this%temp, this%tbf, nel, this%Xh_GLL)
          call sub2(fz%x, this%temp, n)
       else
