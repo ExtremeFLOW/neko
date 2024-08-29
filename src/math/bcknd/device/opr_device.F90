@@ -34,8 +34,6 @@
 module opr_device
   use gather_scatter
   use num_types, only : rp, c_rp
-  use device_math
-  use device_mathops
   use device, only : device_get_ptr
   use space, only : space_t
   use coefs, only : coef_t
@@ -54,7 +52,7 @@ module opr_device
   interface
      subroutine hip_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
           dx_d, dy_d, dz_d, jacinv_d, nel, lx) &
-          bind(c, name='hip_dudxyz')
+          bind(c, name = 'hip_dudxyz')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: du_d, u_d, dr_d, ds_d, dt_d
        type(c_ptr), value :: dx_d, dy_d, dz_d, jacinv_d
@@ -65,7 +63,7 @@ module opr_device
   interface
      subroutine hip_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
           dxt_d, dyt_d, dzt_d, w3_d, nel, lx) &
-          bind(c, name='hip_cdtp')
+          bind(c, name = 'hip_cdtp')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: dtx_d, x_d, dr_d, ds_d, dt_d
        type(c_ptr), value :: dxt_d, dyt_d, dzt_d, w3_d
@@ -78,7 +76,7 @@ module opr_device
           dx_d, dy_d, dz_d, drdx_d, dsdx_d, dtdx_d, &
           drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d, &
           jacinv_d, nel, gdim, lx) &
-          bind(c, name='hip_conv1')
+          bind(c, name = 'hip_conv1')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: du_d, u_d, vx_d, vy_d, vz_d
        type(c_ptr), value :: dx_d, dy_d, dz_d, drdx_d, dsdx_d, dtdx_d
@@ -94,7 +92,7 @@ module opr_device
           drdx_d, dsdx_d, dtdx_d, &
           drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, w3_d, nel, lx) &
-          bind(c, name='hip_opgrad')
+          bind(c, name = 'hip_opgrad')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: ux_d, uy_d, uz_d, u_d
        type(c_ptr), value :: dx_d, dy_d, dz_d
@@ -112,7 +110,7 @@ module opr_device
           drdx_d, dsdx_d, dtdx_d, &
           drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, jacinv_d, nel, lx) &
-          bind(c, name='hip_lambda2')
+          bind(c, name = 'hip_lambda2')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: lambda2_d, u_d, v_d, w_d
        type(c_ptr), value :: dx_d, dy_d, dz_d
@@ -129,7 +127,7 @@ module opr_device
           drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, dr_inv_d, ds_inv_d, dt_inv_d, &
           jacinv_d, nel, lx) &
-          bind(c, name='hip_cfl')
+          bind(c, name = 'hip_cfl')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: u_d, v_d, w_d, drdx_d, dsdx_d, dtdx_d
@@ -143,7 +141,7 @@ module opr_device
   interface
      subroutine cuda_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
           dx_d, dy_d, dz_d, jacinv_d, nel, lx) &
-          bind(c, name='cuda_dudxyz')
+          bind(c, name = 'cuda_dudxyz')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: du_d, u_d, dr_d, ds_d, dt_d
        type(c_ptr), value :: dx_d, dy_d, dz_d, jacinv_d
@@ -154,7 +152,7 @@ module opr_device
   interface
      subroutine cuda_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
           dxt_d, dyt_d, dzt_d, w3_d, nel, lx) &
-          bind(c, name='cuda_cdtp')
+          bind(c, name = 'cuda_cdtp')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: dtx_d, x_d, dr_d, ds_d, dt_d
        type(c_ptr), value :: dxt_d, dyt_d, dzt_d, w3_d
@@ -167,7 +165,7 @@ module opr_device
           dx_d, dy_d, dz_d, drdx_d, dsdx_d, dtdx_d, &
           drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d, &
           jacinv_d, nel, gdim, lx) &
-          bind(c, name='cuda_conv1')
+          bind(c, name = 'cuda_conv1')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: du_d, u_d, vx_d, vy_d, vz_d
        type(c_ptr), value :: dx_d, dy_d, dz_d, drdx_d, dsdx_d, dtdx_d
@@ -183,7 +181,7 @@ module opr_device
           drdx_d, dsdx_d, dtdx_d, &
           drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, w3_d, nel, lx) &
-          bind(c, name='cuda_opgrad')
+          bind(c, name = 'cuda_opgrad')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: ux_d, uy_d, uz_d, u_d
        type(c_ptr), value :: dx_d, dy_d, dz_d
@@ -201,7 +199,7 @@ module opr_device
           drdx_d, dsdx_d, dtdx_d, &
           drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, jacinv_d, nel, lx) &
-          bind(c, name='cuda_lambda2')
+          bind(c, name = 'cuda_lambda2')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: lambda2_d, u_d, v_d, w_d
        type(c_ptr), value :: dx_d, dy_d, dz_d
@@ -219,7 +217,7 @@ module opr_device
           drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, dr_inv_d, ds_inv_d, dt_inv_d, &
           jacinv_d, nel, lx) &
-          bind(c, name='cuda_cfl')
+          bind(c, name = 'cuda_cfl')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: u_d, v_d, w_d, drdx_d, dsdx_d, dtdx_d
@@ -233,7 +231,7 @@ module opr_device
   interface
      subroutine opencl_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
           dx_d, dy_d, dz_d, jacinv_d, nel, lx) &
-          bind(c, name='opencl_dudxyz')
+          bind(c, name = 'opencl_dudxyz')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: du_d, u_d, dr_d, ds_d, dt_d
        type(c_ptr), value :: dx_d, dy_d, dz_d, jacinv_d
@@ -244,7 +242,7 @@ module opr_device
   interface
      subroutine opencl_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
           dxt_d, dyt_d, dzt_d, w3_d, nel, lx) &
-          bind(c, name='opencl_cdtp')
+          bind(c, name = 'opencl_cdtp')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: dtx_d, x_d, dr_d, ds_d, dt_d
        type(c_ptr), value :: dxt_d, dyt_d, dzt_d, w3_d
@@ -257,7 +255,7 @@ module opr_device
           dx_d, dy_d, dz_d, drdx_d, dsdx_d, dtdx_d, &
           drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d, &
           jacinv_d, nel, gdim, lx) &
-          bind(c, name='opencl_conv1')
+          bind(c, name = 'opencl_conv1')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: du_d, u_d, vx_d, vy_d, vz_d
        type(c_ptr), value :: dx_d, dy_d, dz_d, drdx_d, dsdx_d, dtdx_d
@@ -273,7 +271,7 @@ module opr_device
           drdx_d, dsdx_d, dtdx_d, &
           drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, w3_d, nel, lx) &
-          bind(c, name='opencl_opgrad')
+          bind(c, name = 'opencl_opgrad')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: ux_d, uy_d, uz_d, u_d
        type(c_ptr), value :: dx_d, dy_d, dz_d
@@ -290,7 +288,7 @@ module opr_device
           drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, dr_inv_d, ds_inv_d, dt_inv_d, &
           jacinv_d, nel, lx) &
-          bind(c, name='opencl_cfl')
+          bind(c, name = 'opencl_cfl')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: u_d, v_d, w_d, drdx_d, dsdx_d, dtdx_d
@@ -307,7 +305,7 @@ module opr_device
           drdx_d, dsdx_d, dtdx_d, &
           drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, jacinv_d, nel, lx) &
-          bind(c, name='opencl_lambda2')
+          bind(c, name = 'opencl_lambda2')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: lambda2_d, u_d, v_d, w_d
        type(c_ptr), value :: dx_d, dy_d, dz_d
