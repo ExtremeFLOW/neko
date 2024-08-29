@@ -167,7 +167,7 @@ contains
     real(kind=rp) :: wut(lx, lx, lx)
     real(kind=rp) :: tmp
     integer :: e, i, j, k, l
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -249,6 +249,7 @@ contains
        end do
 
     end do
+    !$omp end do
   end subroutine ax_helm_lx
 
   subroutine ax_helm_lx14(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
@@ -277,7 +278,7 @@ contains
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -415,6 +416,7 @@ contains
        end do
 
     end do
+    !$omp end do
   end subroutine ax_helm_lx14
 
   subroutine ax_helm_lx13(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
@@ -443,7 +445,7 @@ contains
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -576,6 +578,7 @@ contains
        end do
 
     end do
+    !$omp end do
   end subroutine ax_helm_lx13
 
   subroutine ax_helm_lx12(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
@@ -604,7 +607,7 @@ contains
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -730,6 +733,7 @@ contains
        end do
 
     end do
+    !$omp end do
   end subroutine ax_helm_lx12
 
   subroutine ax_helm_lx11(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
@@ -758,7 +762,7 @@ contains
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -878,6 +882,7 @@ contains
        end do
 
     end do
+    !$omp end do
   end subroutine ax_helm_lx11
 
   subroutine ax_helm_lx10(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
@@ -906,7 +911,7 @@ contains
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1020,6 +1025,7 @@ contains
        end do
 
     end do
+    !$omp end do
   end subroutine ax_helm_lx10
 
   subroutine ax_helm_lx9(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
@@ -1048,7 +1054,7 @@ contains
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1156,6 +1162,7 @@ contains
        end do
 
     end do
+    !$omp end do
   end subroutine ax_helm_lx9
 
   subroutine ax_helm_lx8(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
@@ -1184,7 +1191,7 @@ contains
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1286,6 +1293,7 @@ contains
        end do
 
     end do
+    !$omp end do
   end subroutine ax_helm_lx8
 
   subroutine ax_helm_lx7(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
@@ -1314,7 +1322,7 @@ contains
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1410,6 +1418,7 @@ contains
        end do
 
     end do
+    !$omp end do
   end subroutine ax_helm_lx7
 
   subroutine ax_helm_lx6(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
@@ -1438,7 +1447,7 @@ contains
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1528,6 +1537,7 @@ contains
        end do
 
     end do
+    !$omp end do
   end subroutine ax_helm_lx6
 
   subroutine ax_helm_lx5(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
@@ -1556,7 +1566,7 @@ contains
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1640,6 +1650,7 @@ contains
        end do
 
     end do
+    !$omp end do
   end subroutine ax_helm_lx5
 
   subroutine ax_helm_lx4(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
@@ -1668,7 +1679,7 @@ contains
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1746,6 +1757,7 @@ contains
        end do
 
     end do
+    !$omp end do
   end subroutine ax_helm_lx4
 
   subroutine ax_helm_lx3(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
@@ -1774,7 +1786,7 @@ contains
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1846,6 +1858,7 @@ contains
        end do
 
     end do
+    !$omp end do
   end subroutine ax_helm_lx3
 
   subroutine ax_helm_lx2(w, u, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
@@ -1874,7 +1887,7 @@ contains
     real(kind=rp) :: wus(lx, lx, lx)
     real(kind=rp) :: wut(lx, lx, lx)
     integer :: e, i, j, k
-
+    !$omp do
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -1940,6 +1953,7 @@ contains
        end do
 
     end do
+    !$omp end do
   end subroutine ax_helm_lx2
 
 end module ax_helm_cpu

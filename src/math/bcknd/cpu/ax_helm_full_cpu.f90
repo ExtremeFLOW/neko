@@ -214,7 +214,7 @@ contains
     real(kind=rp) :: dj, t1, t2, t3
     real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
-
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -364,7 +364,7 @@ contains
           end do
        end do
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx
 
   subroutine ax_helm_stress_lx14(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
@@ -412,7 +412,7 @@ contains
     real(kind=rp) :: dj
     real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
-
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -769,7 +769,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx14
 
   subroutine ax_helm_stress_lx13(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -817,7 +817,7 @@ contains
     real(kind=rp) :: dj
     real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
-
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -1155,7 +1155,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx13
 
   subroutine ax_helm_stress_lx12(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -1203,7 +1203,7 @@ contains
     real(kind=rp) :: dj
     real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
-
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -1523,7 +1523,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx12
 
   subroutine ax_helm_stress_lx11(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
@@ -1571,7 +1571,7 @@ contains
     real(kind=rp) :: dj
     real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
-
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -1872,7 +1872,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx11
 
   subroutine ax_helm_stress_lx10(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, Dzt, &
@@ -1920,7 +1920,7 @@ contains
     real(kind=rp) :: dj
     real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
-
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -2203,7 +2203,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx10
 
   subroutine ax_helm_stress_lx9(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt,  &
@@ -2251,7 +2251,7 @@ contains
     real(kind=rp) :: dj
     real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
-
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -2516,7 +2516,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx9
 
   subroutine ax_helm_stress_lx8(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -2564,7 +2564,7 @@ contains
     real(kind=rp) :: dj
     real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
-
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -2812,7 +2812,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx8
 
   subroutine ax_helm_stress_lx7(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -2860,7 +2860,7 @@ contains
     real(kind=rp) :: dj
     real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
-
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -3091,7 +3091,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx7
 
   subroutine ax_helm_stress_lx6(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -3139,7 +3139,7 @@ contains
     real(kind=rp) :: dj
     real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
-
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -3350,7 +3350,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx6
 
   subroutine ax_helm_stress_lx5(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -3398,7 +3398,7 @@ contains
     real(kind=rp) :: dj
     real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
-
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -3592,7 +3592,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx5
 
   subroutine ax_helm_stress_lx4(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -3640,7 +3640,7 @@ contains
     real(kind=rp) :: dj
     real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
-
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -3815,7 +3815,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx4
 
   subroutine ax_helm_stress_lx3(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -3863,7 +3863,7 @@ contains
     real(kind=rp) :: dj
     real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
-
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -4020,7 +4020,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx3
 
   subroutine ax_helm_stress_lx2(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
@@ -4068,7 +4068,7 @@ contains
     real(kind=rp) :: dj
     real(kind=rp) :: s11, s12, s13, s21, s22, s23, s31, s32, s33
     real(kind=rp) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
-
+    !$omp do
     do e = 1, n
 
        do j = 1, lx * lx
@@ -4207,7 +4207,7 @@ contains
        end do
 
     end do
-
+    !$omp end do
   end subroutine ax_helm_stress_lx2
 
 end module
