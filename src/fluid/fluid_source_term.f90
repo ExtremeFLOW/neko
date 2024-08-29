@@ -36,8 +36,8 @@ module fluid_source_term
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use fluid_user_source_term, only: fluid_user_source_term_t
-  use source_term, only : source_term_wrapper_t, source_term_t
-  use source_term_fctry, only : source_term_factory
+  use source_term, only : source_term_wrapper_t, source_term_t, &
+       source_term_factory
   use field, only : field_t
   use field_list, only : field_list_t
   use json_utils, only : json_get
@@ -118,7 +118,7 @@ contains
        allocate(this%source_terms(n_sources))
 
 
-       do i=1, n_sources
+       do i = 1, n_sources
           ! Create a new json containing just the subdict for this source.
           call core%get_child(source_object, i, source_pointer, found)
           call core%print_to_string(source_pointer, buffer)
@@ -181,7 +181,7 @@ contains
     nullify(this%f_z)
 
     if (allocated(this%source_terms)) then
-       do i=1, size(this%source_terms)
+       do i = 1, size(this%source_terms)
           call this%source_terms(i)%free()
        end do
        deallocate(this%source_terms)
@@ -204,7 +204,7 @@ contains
 
     ! Add contribution from all source terms.
     if (allocated(this%source_terms)) then
-       do i=1, size(this%source_terms)
+       do i = 1, size(this%source_terms)
           call this%source_terms(i)%source_term%compute(t, tstep)
        end do
     end if

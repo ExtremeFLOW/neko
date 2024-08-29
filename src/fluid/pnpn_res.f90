@@ -108,4 +108,43 @@ module pnpn_residual
 
   end interface
 
+  interface
+
+     !> Factory for the pressure residual computation routine for the PnPn fluid
+     !! scheme with the constant-viscosity stress formulation.
+     !! @details Only selects the compute backend.
+     !! @param object The object to be allocated by the factory.
+     module subroutine pnpn_prs_res_factory(object)
+       class(pnpn_prs_res_t), allocatable, intent(inout) :: object
+     end subroutine pnpn_prs_res_factory
+
+     !> Factory for the velocity residual computation routine for the PnPn fluid
+     !! scheme with the constant-viscosity stress formulation.
+     !! @details Only selects the compute backend.
+     !! @param object The object to be allocated by the factory.
+     module subroutine pnpn_vel_res_factory(object)
+       class(pnpn_vel_res_t), allocatable, intent(inout) :: object
+     end subroutine pnpn_vel_res_factory
+
+     !> Factory for the pressure residual computation routine for the PnPn fluid
+     !! scheme with full viscous stress forumlation.
+     !! @details Only selects the compute backend.
+     !! @param object The object to be allocated by the factory.
+     module subroutine pnpn_prs_res_stress_factory(object)
+       class(pnpn_prs_res_t), allocatable, intent(inout) :: object
+     end subroutine pnpn_prs_res_stress_factory
+
+     !> Factory for the velocity residual computation routine for the PnPn fluid
+     !! scheme with full viscous stress forumlation.
+     !! @details Only selects the compute backend.
+     !! @param object The object to be allocated by the factory.
+     module subroutine pnpn_vel_res_stress_factory(object)
+       class(pnpn_vel_res_t), allocatable, intent(inout) :: object
+     end subroutine pnpn_vel_res_stress_factory
+     
+  end interface
+
+  public :: pnpn_prs_res_factory, pnpn_vel_res_factory, &
+       pnpn_prs_res_stress_factory, pnpn_vel_res_stress_factory
+  
 end module pnpn_residual

@@ -31,18 +31,12 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines Pressure residual factory for the Pn-Pn formulation
-module pnpn_res_fctry
+submodule (pnpn_residual) pnpn_res_fctry
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX
-  use utils
-  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
   use pnpn_res_device, only : pnpn_prs_res_device_t, pnpn_vel_res_device_t
   use pnpn_res_cpu, only : pnpn_prs_res_cpu_t, pnpn_vel_res_cpu_t
   use pnpn_res_sx, only : pnpn_prs_res_sx_t, pnpn_vel_res_sx_t
   implicit none
-  private
-
-  public :: pnpn_prs_res_t, pnpn_vel_res_t, &
-       pnpn_prs_res_factory, pnpn_vel_res_factory
 
 contains
 
@@ -50,7 +44,7 @@ contains
   !! scheme with the constant-viscosity stress formulation.
   !! @details Only selects the compute backend.
   !! @param object The object to be allocated by the factory.
-  subroutine pnpn_prs_res_factory(object)
+  module subroutine pnpn_prs_res_factory(object)
     class(pnpn_prs_res_t), allocatable, intent(inout) :: object
 
     if (allocated(object)) then
@@ -72,7 +66,7 @@ contains
   !! scheme with the constant-viscosity stress formulation.
   !! @details Only selects the compute backend.
   !! @param object The object to be allocated by the factory.
-  subroutine pnpn_vel_res_factory(object)
+  module subroutine pnpn_vel_res_factory(object)
     class(pnpn_vel_res_t), allocatable, intent(inout) :: object
 
     if (allocated(object)) then
@@ -89,4 +83,4 @@ contains
 
   end subroutine pnpn_vel_res_factory
 
-end module pnpn_res_fctry
+end submodule pnpn_res_fctry

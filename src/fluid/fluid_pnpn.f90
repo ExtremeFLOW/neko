@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,14 +34,11 @@
 module fluid_pnpn
   use num_types, only : rp
   use krylov, only : ksp_monitor_t
-  use pnpn_res_fctry, only : pnpn_prs_res_factory, pnpn_vel_res_factory
-  use pnpn_res_stress_fctry, only : pnpn_prs_res_stress_factory, &
-       pnpn_vel_res_stress_factory
-  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
-  use ax_helm_fctry, only : ax_helm_factory
-  use rhs_maker_fctry, only : rhs_maker_sumab_fctry, rhs_maker_bdf_fctry, &
-                              rhs_maker_ext_fctry
-  use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_bdf_t, rhs_maker_ext_t
+  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t, &
+       pnpn_prs_res_factory, pnpn_vel_res_factory, &
+       pnpn_prs_res_stress_factory, pnpn_vel_res_stress_factory
+  use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_bdf_t, rhs_maker_ext_t, &
+       rhs_maker_sumab_fctry, rhs_maker_bdf_fctry, rhs_maker_ext_fctry
   use fluid_volflow, only : fluid_volflow_t
   use fluid_scheme, only : fluid_scheme_t
   use device_mathops, only : device_opcolv, device_opadd2cm
@@ -49,12 +46,11 @@ module fluid_pnpn
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
   use device, only : device_memcpy, HOST_TO_DEVICE
-  use advection, only : advection_t
+  use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_module, only : json_file
   use material_properties, only : material_properties_t
-  use advection_fctry, only : advection_factory
-  use ax_product, only : ax_t
+  use ax_product, only : ax_t, ax_helm_factory
   use field, only : field_t
   use dirichlet, only : dirichlet_t
   use facet_normal, only : facet_normal_t
@@ -62,7 +58,7 @@ module fluid_pnpn
   use mesh, only : mesh_t
   use user_intf, only : user_t
   use time_step_controller, only : time_step_controller_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use math, only : col2
   use mathops, only : opadd2cm, opcolv
@@ -92,11 +88,11 @@ module fluid_pnpn
      type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
      type(facet_normal_t) :: bc_sym_surface !< Surface term in pressure rhs
      type(dirichlet_t) :: bc_vel_res   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_p   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_u   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_v   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_w   !< Dirichlet condition vel. res.
-     type(non_normal_t) :: bc_vel_res_non_normal   !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_p  !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_u  !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_v  !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_w  !< Dirichlet condition vel. res.
+     type(non_normal_t) :: bc_vel_res_non_normal !< Dirichlet condition vel. res
      type(bc_list_t) :: bclst_vel_res
      type(bc_list_t) :: bclst_du
      type(bc_list_t) :: bclst_dv
@@ -217,7 +213,8 @@ contains
     call this%bc_prs_surface%mark_zone(msh%inlet)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'v', this%bc_labels)
-    !This impacts the rhs of the pressure, need to check what is correct to add here
+    ! This impacts the rhs of the pressure, 
+    ! need to check what is correct to add here
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
                                                  'd_vel_u', this%bc_labels)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
@@ -414,7 +411,8 @@ contains
        call this%gs_Xh%op(this%wlag%lf(i), GS_OP_ADD)
     end do
 
-    !! If we would decide to only restart from lagged fields instead of asving abx1, aby1 etc.
+    !! If we would decide to only restart from lagged fields instead of saving 
+    !! abx1, aby1 etc.
     !! Observe that one also needs to recompute the focing at the old time steps
     !u_temp = this%ulag%lf(2)
     !v_temp = this%vlag%lf(2)
@@ -424,9 +422,11 @@ contains
     !
     !! Pre-multiply the source terms with the mass matrix.
     !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, this%c_Xh%B_d, this%msh%gdim, n)
+    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, &
+    !                      this%c_Xh%B_d, this%msh%gdim, n)
     !else
-    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, this%c_Xh%B, this%msh%gdim, n)
+    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, &
+    !               this%c_Xh%B, this%msh%gdim, n)
     !end if
 
     !! Add the advection operators to the right-hand-side.
@@ -444,16 +444,20 @@ contains
 
     !! Pre-multiply the source terms with the mass matrix.
     !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, this%c_Xh%B_d, this%msh%gdim, n)
+    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, &
+    !                      this%c_Xh%B_d, this%msh%gdim, n)
     !else
-    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, this%c_Xh%B, this%msh%gdim, n)
+    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, &
+    !               this%c_Xh%B, this%msh%gdim, n)
     !end if
 
     !! Pre-multiply the source terms with the mass matrix.
     !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, this%c_Xh%B_d, this%msh%gdim, n)
+    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, &
+    !                      this%c_Xh%B_d, this%msh%gdim, n)
     !else
-    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, this%c_Xh%B, this%msh%gdim, n)
+    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, &
+    !               this%c_Xh%B, this%msh%gdim, n)
     !end if
 
     !call this%adv%compute(u_temp, v_temp, w_temp, &
@@ -676,7 +680,8 @@ contains
                                 u_res%x, v_res%x, w_res%x, dm_Xh%size(),&
                                 t, tstep)
 
-      !We should implement a bc that takes three field_bcs and implements vector_apply
+      ! We should implement a bc that takes three field_bcs and implements 
+      ! vector_apply
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call this%bc_field_dirichlet_u%apply_scalar_dev(u_res%x_d, t, tstep)
          call this%bc_field_dirichlet_v%apply_scalar_dev(v_res%x_d, t, tstep)
