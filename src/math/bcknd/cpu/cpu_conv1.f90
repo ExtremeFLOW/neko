@@ -65,7 +65,6 @@ contains
     real(kind=rp), intent(inout) ::  vx(Xh%lx, Xh%ly, Xh%lz, e_len)
     real(kind=rp), intent(inout) ::  vy(Xh%lx, Xh%ly, Xh%lz, e_len)
     real(kind=rp), intent(inout) ::  vz(Xh%lx, Xh%ly, Xh%lz, e_len)
-    integer :: e_len
     
     associate(drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
          dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
@@ -1254,7 +1253,6 @@ contains
     real(kind=rp), intent(inout) ::  vx(Xh%lx, Xh%ly, Xh%lz, e_len)
     real(kind=rp), intent(inout) ::  vy(Xh%lx, Xh%ly, Xh%lz, e_len)
     real(kind=rp), intent(inout) ::  vz(Xh%lx, Xh%ly, Xh%lz, e_len)
-    integer :: e_len
     
     associate(drdx => coef%drdx, drdy => coef%drdy, drdz => coef%drdz, &
          dsdx => coef%dsdx, dsdy => coef%dsdy, dsdz => coef%dsdz, &
