@@ -33,17 +33,17 @@
 !> Operators
 module operators
   use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_DEVICE, NEKO_BCKND_XSMM,&
-                          NEKO_DEVICE_MPI
+       NEKO_DEVICE_MPI
   use num_types, only : rp
   use opr_cpu, only : opr_cpu_cfl, opr_cpu_curl, opr_cpu_opgrad, opr_cpu_conv1,&
-                      opr_cpu_cdtp, opr_cpu_dudxyz, opr_cpu_lambda2
+       opr_cpu_cdtp, opr_cpu_dudxyz, opr_cpu_lambda2
   use opr_sx, only : opr_sx_cfl, opr_sx_curl, opr_sx_dudxyz, opr_sx_opgrad, &
-                     opr_sx_cdtp, opr_sx_conv1, opr_sx_lambda2
+       opr_sx_cdtp, opr_sx_conv1, opr_sx_lambda2
   use opr_xsmm, only : opr_xsmm_cdtp, opr_xsmm_conv1, opr_xsmm_curl, &
-                       opr_xsmm_dudxyz, opr_xsmm_opgrad
+       opr_xsmm_dudxyz, opr_xsmm_opgrad
   use opr_device, only : opr_device_cdtp, opr_device_cfl, opr_device_curl, &
-                         opr_device_conv1, opr_device_dudxyz, &
-                         opr_device_lambda2, opr_device_opgrad
+       opr_device_conv1, opr_device_dudxyz, &
+       opr_device_lambda2, opr_device_opgrad
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
@@ -56,7 +56,7 @@ module operators
   private
 
   public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl,&
-            lambda2op, strain_rate, div, grad
+       lambda2op, strain_rate, div, grad
 
 contains
 
@@ -215,6 +215,8 @@ contains
   !! @param ds The derivative of s with respect to the chosen direction.
   !! @param dt The derivative of t with respect to the chosen direction.
   !! @param coef The SEM coefficients.
+  !! @param es Starting element index, optional, defaults to 1.
+  !! @param ee Ending element index, optional, defaults to `nelv`.
   !> @note This needs to be revised... the loop over n1,n2 is probably
   !! unesccssary
   subroutine cdtp (dtx, x, dr, ds, dt, coef, es, ee)
@@ -227,18 +229,17 @@ contains
     integer, optional :: es, ee
     integer :: eblk_start, eblk_end
 
+    if (present(es)) then
+       eblk_start = es
+    else
+       eblk_start = 1
+    end if
 
-     if (present(es)) then
-        eblk_start = es
-     else
-        eblk_start = 1
-     end if
-
-     if (present(ee)) then
-        eblk_end = ee
-     else
-        eblk_end = coef%msh%nelv
-     end if
+    if (present(ee)) then
+       eblk_end = ee
+    else
+       eblk_end = coef%msh%nelv
+    end if
 
     if (NEKO_BCKND_SX .eq. 1) then
        call opr_sx_cdtp(dtx, x, dr, ds, dt, coef)
