@@ -33,9 +33,8 @@
 !> Defines a simulation case
 module case
   use num_types, only : rp, sp, dp
-  use fluid_fctry, only : fluid_scheme_factory
   use fluid_pnpn, only : fluid_pnpn_t
-  use fluid_scheme, only : fluid_scheme_t
+  use fluid_scheme, only : fluid_scheme_t, fluid_scheme_factory
   use fluid_output, only : fluid_output_t
   use chkp_output, only : chkp_output_t
   use mean_sqr_flow_output, only : mean_sqr_flow_output_t
@@ -156,7 +155,11 @@ contains
     !
     ! Load mesh
     !
-    call json_get(C%params, 'case.mesh_file', string_val)
+    call json_get_or_default(C%params, 'case.mesh_file', string_val, 'no mesh')
+    if (trim(string_val) .eq. 'no mesh') then
+       call neko_error('The mesh_file keyword could not be found in the .' // &
+                       'case file. Often caused by incorrectly formatted json.')
+    end if
     msh_file = file_t(string_val)
 
     call msh_file%read(C%msh)

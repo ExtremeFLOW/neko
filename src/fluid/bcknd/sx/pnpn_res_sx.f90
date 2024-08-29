@@ -1,7 +1,7 @@
 !> Residuals in the Pn-Pn formulation (SX version)
 module pnpn_res_sx
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use operators
+  use operators, only : opgrad, curl, cdtp
   use field, only : field_t
   use ax_product, only : ax_t
   use coefs, only : coef_t

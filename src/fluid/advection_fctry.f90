@@ -31,33 +31,25 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Contains the factory routine for `advection_t` children.
-module advection_fctry
-  use coefs, only : coef_t
+submodule (advection) advection_fctry
   use json_utils, only : json_get, json_get_or_default
-  use json_module, only : json_file
 
   ! Advection and derivatives
-  use advection, only : advection_t
   use adv_dealias, only : adv_dealias_t
   use adv_no_dealias, only : adv_no_dealias_t
 
-  implicit none
-  private
-
-  public :: advection_factory
 
 contains
 
-  !> A factory for \ref advection_t decendants. Both creates and initializes the
-  !! object.
+  !> A factory for \ref advection_t decendants. Both creates and initializes
+  !! the object.
   !! @param object The object allocated by the factory.
   !! @param json The parameter file.
   !! @param coef The coefficients of the (space, mesh) pair.
-  subroutine advection_factory(object, json, coef)
-    implicit none
+  module subroutine advection_factory(object, json, coef)
     class(advection_t), allocatable, intent(inout) :: object
     type(json_file), intent(inout) :: json
-    type(coef_t), target :: coef
+    type(coef_t), intent(inout), target :: coef
     logical :: dealias
     integer :: lxd, order
 
@@ -80,14 +72,14 @@ contains
        allocate(adv_no_dealias_t::object)
     end if
 
-    select type(adv => object)
-      type is(adv_dealias_t)
+    select type (adv => object)
+      type is (adv_dealias_t)
        call adv%init(lxd, coef)
-      type is(adv_no_dealias_t)
+      type is (adv_no_dealias_t)
        call adv%init(coef)
     end select
 
   end subroutine advection_factory
 
 
-end module advection_fctry
+end submodule advection_fctry

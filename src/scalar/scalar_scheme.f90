@@ -41,17 +41,15 @@ module scalar_scheme
   use field_list, only: field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t
+  use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
-  use krylov_fctry, only : krylov_solver_factory, krylov_solver_destroy
   use jacobi, only : jacobi_t
   use device_jacobi, only : device_jacobi_t
   use sx_jacobi, only : sx_jacobi_t
   use hsmg, only : hsmg_t
-  use precon_fctry, only : precon_factory, precon_destroy
-  use precon, only : pc_t
+  use precon, only : pc_t, precon_factory, precon_destroy
   use bc, only : bc_t, bc_list_t, bc_list_free, bc_list_init, &
                  bc_list_apply_scalar, bc_list_add
   use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
@@ -71,8 +69,7 @@ module scalar_scheme
   use math, only : cfill, add2s2
   use device_math, only : device_cfill, device_add2s2
   use neko_config, only : NEKO_BCKND_DEVICE
-  use field_series
-  use gradient_jump_penalty
+  use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
   use gradient_jump_penalty
   implicit none

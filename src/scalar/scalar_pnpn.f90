@@ -34,10 +34,8 @@
 
 module scalar_pnpn
   use num_types, only: rp
-  use scalar_residual_fctry, only : scalar_residual_factory
-  use ax_helm_fctry, only: ax_helm_factory
-  use rhs_maker_fctry, only : rhs_maker_ext_fctry, rhs_maker_bdf_fctry
-  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t
+  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, &
+       rhs_maker_ext_fctry, rhs_maker_bdf_fctry
   use scalar_scheme, only : scalar_scheme_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
@@ -49,8 +47,8 @@ module scalar_pnpn
   use coefs, only : coef_t
   use device, only : HOST_TO_DEVICE, device_memcpy
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use scalar_residual, only :scalar_residual_t
-  use ax_product, only : ax_t
+  use scalar_residual, only : scalar_residual_t, scalar_residual_factory
+  use ax_product, only : ax_t, ax_helm_factory
   use field_series, only: field_series_t
   use facet_normal, only : facet_normal_t
   use krylov, only : ksp_monitor_t
@@ -60,8 +58,7 @@ module scalar_pnpn
   use projection, only : projection_t
   use math, only : glsc2, col2, add2s2
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
-  use advection, only : advection_t
-  use advection_fctry, only : advection_factory
+  use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_utils, only: json_get
   use json_module, only : json_file
@@ -303,13 +300,13 @@ contains
          dt_last_change => dt_controller%dt_last_change)
 
       if (neko_log%level_ .ge. NEKO_LOG_DEBUG) then
-         write(log_buf,'(A,A,E15.7,A,E15.7,A,E15.7)') 'Scalar debug', &
-              ' l2norm s', glsc2(this%s%x, this%s%x, n), &
-              ' slag1', glsc2(this%slag%lf(1)%x, this%slag%lf(1)%x, n), &
+         write(log_buf,'(A,A,E15.7,A,E15.7,A,E15.7)') 'Scalar debug',&
+              ' l2norm s', glsc2(this%s%x, this%s%x, n),&
+              ' slag1', glsc2(this%slag%lf(1)%x, this%slag%lf(1)%x, n),&
               ' slag2', glsc2(this%slag%lf(2)%x, this%slag%lf(2)%x, n)
          call neko_log%message(log_buf)
-         write(log_buf,'(A,A,E15.7,A,E15.7)') 'Scalar debug2', &
-              ' l2norm abx1', glsc2(this%abx1%x, this%abx1%x, n), &
+         write(log_buf,'(A,A,E15.7,A,E15.7)') 'Scalar debug2',&
+              ' l2norm abx1', glsc2(this%abx1%x, this%abx1%x, n),&
               ' abx2', glsc2(this%abx2%x, this%abx2%x, n)
          call neko_log%message(log_buf)
       end if
@@ -355,8 +352,9 @@ contains
       !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
       call this%field_dir_bc%update(this%field_dir_bc%field_list, &
            this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
-      call bc_list_apply_scalar(this%bclst_dirichlet, this%s%x, &
-                                this%dm_Xh%size())
+      call bc_list_apply_scalar(this%bclst_dirichlet, &
+           this%s%x, this%dm_Xh%size())
+
 
       ! Update material properties if necessary
       call this%update_material_properties()
@@ -369,9 +367,8 @@ contains
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar residual', 20)
-      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, &
-                       lambda_field, rho*cp, &
-                       ext_bdf%diffusion_coeffs(1), dt, dm_Xh%size())
+      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, lambda_field, &
+           rho*cp, ext_bdf%diffusion_coeffs(1), dt, dm_Xh%size())
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 
