@@ -54,7 +54,7 @@ contains
 
   !> Main driver to solve a case @a C
   subroutine neko_solve(C)
-    type(case_t), target, intent(inout) :: C
+    class(case_t), target, intent(inout) :: C
     real(kind=rp) :: t, cfl
     real(kind=dp) :: start_time_org, start_time, end_time, tstep_start_time
     character(len=LOG_SIZE) :: log_buf
@@ -94,7 +94,7 @@ contains
     call C%s%sample(t, tstep)
 
     call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
-                                 C%fluid%p, C%fluid%c_Xh, C%params)
+         C%fluid%p, C%fluid%c_Xh, C%params)
     call neko_log%end_section()
     call neko_log%newline()
 
@@ -145,10 +145,10 @@ contains
           call C%scalar%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
           end_time = MPI_WTIME()
           write(log_buf, '(A,E15.7)') &
-            'Scalar step time:      ', end_time-start_time
+               'Scalar step time:      ', end_time-start_time
           call neko_log%message(log_buf)
           write(log_buf, '(A,E15.7)') &
-            'Total elapsed time (s):', end_time-start_time_org
+               'Total elapsed time (s):', end_time-start_time_org
           call neko_log%end_section(log_buf)
        end if
 
@@ -161,13 +161,13 @@ contains
 
        ! Update material properties
        call C%usr%material_properties(t, tstep, C%material_properties%rho,&
-                                      C%material_properties%mu, &
-                                      C%material_properties%cp, &
-                                      C%material_properties%lambda, &
-                                      C%params)
+            C%material_properties%mu, &
+            C%material_properties%cp, &
+            C%material_properties%lambda, &
+            C%params)
 
        call C%usr%user_check(t, tstep, C%fluid%u, C%fluid%v, C%fluid%w, &
-                             C%fluid%p, C%fluid%c_Xh, C%params)
+            C%fluid%p, C%fluid%c_Xh, C%params)
 
        call neko_log%end_section()
        end_time = MPI_WTIME()
@@ -185,7 +185,7 @@ contains
     call profiler_stop
 
     call json_get_or_default(C%params, 'case.output_at_end',&
-                             output_at_end, .true.)
+         output_at_end, .true.)
     call C%s%sample(t, tstep, output_at_end)
 
     if (.not. (output_at_end) .and. t .lt. C%end_time) then
@@ -241,7 +241,7 @@ contains
 
     call C%params%get('case.restart_file', restart_file, found)
     call C%params%get('case.restart_mesh_file', restart_mesh_file,&
-                      found)
+         found)
 
     if (found) then
        previous_meshf = file_t(trim(restart_mesh_file))
@@ -249,7 +249,7 @@ contains
     end if
 
     call C%params%get('case.mesh2mesh_tolerance', tol,&
-                      found)
+         found)
 
     if (found) C%fluid%chkp%mesh2mesh_tol = tol
 
@@ -270,7 +270,7 @@ contains
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')
     write(log_buf, '(A,A)') 'File :   ', &
-      trim(restart_file)
+         trim(restart_file)
     call neko_log%message(log_buf)
     write(log_buf, '(A,E15.7)') 'Time : ', t
     call neko_log%message(log_buf)
