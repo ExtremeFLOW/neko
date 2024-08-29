@@ -64,7 +64,7 @@ contains
     real(kind=rp), intent(in) :: ds(coef%Xh%lxyz, e_len)
     real(kind=rp), intent(in) :: dt(coef%Xh%lxyz, e_len)
 
-    associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
+    associate(Xh => coef%Xh)
       select case (Xh%lx)
         case (14)
          call cpu_cdtp_lx14(dtx, x, &
@@ -137,7 +137,7 @@ contains
     real(kind=rp), intent(in) :: ds(coef%Xh%lxyz, e_len)
     real(kind=rp), intent(in) :: dt(coef%Xh%lxyz, e_len)
 
-    associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
+    associate(Xh => coef%Xh)
       select case (Xh%lx)
         case (14)
          call cpu_cdtp_lx14_single(dtx, x, dr(1,e), ds(1,e), dt(1,e), &
