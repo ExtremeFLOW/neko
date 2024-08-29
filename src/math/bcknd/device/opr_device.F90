@@ -32,14 +32,15 @@
 !
 !> Operators accelerator backends
 module opr_device
-  use gather_scatter
+  use gather_scatter, only : GS_OP_ADD
   use num_types, only : rp, c_rp
   use device, only : device_get_ptr
   use space, only : space_t
   use coefs, only : coef_t
-  use mesh, only : mesh_t
   use field, only : field_t
   use utils, only : neko_error
+  use device_math, only : device_sub3, device_rzero, device_copy
+  use device_mathops, only : device_opcolv
   use comm
   use, intrinsic :: iso_c_binding
   implicit none
@@ -427,7 +428,7 @@ contains
 #endif
   end subroutine opr_device_lambda2
 
-  subroutine opr_device_cdtp(dtx, x, dr,ds, dt, coef)
+  subroutine opr_device_cdtp(dtx, x, dr, ds, dt, coef)
     type(coef_t), intent(in) :: coef
     real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: dtx
     real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: x
@@ -467,11 +468,11 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp), intent(inout) :: du(Xh%lxyz,nelv)
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz,nelv) :: u
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz,nelv) :: vx
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz,nelv) :: vy
-    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz,nelv) :: vz
+    real(kind=rp), intent(inout) :: du(Xh%lxyz, nelv)
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vx
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vy
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vz
     type(c_ptr) :: du_d, u_d, vx_d, vy_d, vz_d
 
     du_d = device_get_ptr(du)
@@ -665,7 +666,7 @@ contains
     type(coef_t) :: coef
     integer :: nelv, gdim
     real(kind=rp) :: dt
-    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz,nelv) :: u, v, w
+    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u, v, w
     real(kind=rp) :: cfl
     type(c_ptr) :: u_d, v_d, w_d
 
