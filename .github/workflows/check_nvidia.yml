@@ -77,7 +77,6 @@ jobs:
         if: matrix.backend == 'cpu'
         run: |
           git apply patches/nvhpc_bge.patch
-          git apply patches/nvhpc_opr.patch
           ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
           make
@@ -86,7 +85,6 @@ jobs:
         if: matrix.backend == 'cuda'
         run: |
           git apply patches/nvhpc_bge.patch
-          git apply patches/nvhpc_opr.patch
           ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.7/cuda/
           make
@@ -100,7 +98,6 @@ jobs:
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
           patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
-          patch -u src/fluid/bcknd/cpu/pnpn_res_cpu.f90 -i patches/nvhpc_opr.patch
           ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
           make -j $(nproc)
 
@@ -113,6 +110,5 @@ jobs:
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
           patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
-          patch -u src/fluid/bcknd/cpu/pnpn_res_cpu.f90 -i patches/nvhpc_opr.patch
           ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.7/cuda/
           make -j $(nproc)

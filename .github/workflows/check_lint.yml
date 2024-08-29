@@ -3,37 +3,20 @@ name: Linting
 # Controls when the action will run.
 on:
   workflow_call:
-    inputs:
-      global-minimum-score:
-        description: "The minimum score required for the repository."
-        required: false
-        type: string
-        default: "10.0"
-      changed-files-minimum-score:
-        description: "The minimum score required for changed files."
-        required: false
-        type: string
-        default: "10.0"
 
 jobs:
-  lint-repository:
-    name: "Lint repository"
+  lint-develop:
+    name: "Lint develop branch"
     runs-on: ubuntu-20.04
-    env:
-      global_min: ${{ inputs.global-minimum-score }}
+    outputs:
+      develop_score: ${{ steps.check-lint.outputs.develop_score }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-
-      - name: Check environment
-        run: |
-          if [ -z "$global_min" ]; then
-            echo "Minimum score not set: '$global_min'" >&2
-            exit 1
-          fi
+          ref: develop
 
       - name: Setup env.
         run: |
@@ -45,7 +28,8 @@ jobs:
         run: |
           flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
 
-      - name: Check the score
+      - name: Save the score
+        id: check-lint
         run: |
           score=$(awk '$1==0{print $3}' flint.txt)
 
@@ -53,26 +37,14 @@ jobs:
             echo "No score found, check flint.txt"
             exit 1
           fi
+          echo "Develop score=$score"
+          echo "develop_score=$score" >> $GITHUB_OUTPUT
 
-          printf "Current score: $score\n"
-          printf "Minimum score: $global_min\n"
-          if (( $(echo "$score < $global_min" | bc -l) )); then
-            echo "Linting requirement not met, $score < $global_min"
-            exit 1
-          fi
-
-      - name: Archive linter report
-        uses: actions/upload-artifact@v4
-        with:
-          name: flint-report
-          path: flint.txt
-          retention-days: 5
-
-  lint-changed-files:
-    name: "Lint changed files"
+  lint-current:
+    name: "Lint current branch"
     runs-on: ubuntu-20.04
-    env:
-      changed_min: ${{ inputs.changed-files-minimum-score }}
+    outputs:
+      current_score: ${{ steps.check-lint.outputs.current_score }}
 
     steps:
       - name: Checkout
@@ -80,12 +52,66 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Check environment
+      - name: Setup env.
         run: |
-          if [ -z "$changed_min" ]; then
-            echo "Minimum score not set: '$changed_min'" >&2
+          sudo apt-get update
+          sudo apt-get install -yq bc python3-dev python3-pip python3-tk
+          pip install nobvisual==0.2.0 flinter==0.4.0
+
+      - name: Lint repository
+        run: |
+          flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
+
+      - name: Save the score
+        id: check-lint
+        run: |
+          score=$(awk '$1==0{print $3}' flint.txt)
+
+          if [ -z "$score" ]; then
+            echo "No score found, check flint.txt"
             exit 1
           fi
+          echo "Current score=$score"
+          echo "current_score=$score" >> $GITHUB_OUTPUT
+
+  lint-changed-files:
+    name: "Lint changed files"
+    runs-on: ubuntu-20.04
+    needs:
+      - lint-develop
+      - lint-current
+
+    steps:
+      # Check if the current branch has a lower score than the develop branch.
+      # If it does, we will lint the changed files.
+      # If it doesn't, we will skip the linting.
+      - name: Check the scores
+        id: check-score
+        env:
+          develop_score: ${{ needs.lint-develop.outputs.develop_score }}
+          current_score: ${{ needs.lint-current.outputs.current_score }}
+        run: |
+          if [ -z "$develop_score" ]; then
+            echo "Develop score not set: '$develop_score'" >&2
+            exit 1
+          fi
+          if [ -z "$current_score" ]; then
+            echo "Current score not set: '$current_score'" >&2
+            exit 1
+          fi
+
+          if (($(echo "$current_score < $develop_score" | bc -l))); then
+            echo "Current score is lower than develop score, linting changed files."
+            echo "degraded=true" >> $GITHUB_OUTPUT
+          else
+            echo "Current score is higher than develop score, skipping linting."
+            echo "degraded=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Setup env.
         run: |
@@ -144,7 +170,7 @@ jobs:
                   grep -oP '(?<=\>\|)[^\|\<]+(?=\|\<)')
             printf ": $score\n"
 
-            if (($(echo "$score < $changed_min" | bc -l))); then
+            if (($(echo "$score < 10" | bc -l))); then
                 fails+=($file)
             fi
           done
@@ -154,13 +180,14 @@ jobs:
       - name: Print failed files and their errors
         if: ${{ steps.lint-changed-files.outputs.failed-files != '' }}
         env:
-          fails: ${{ steps.lint-changed-files.outputs.failed-files }}
+          failed_files: ${{ steps.lint-changed-files.outputs.failed-files }}
+          degraded: ${{ steps.check-score.outputs.degraded }}
         run: |
           printf "Files that failed linting:\n"
-          printf "\t${fails[@]}\n"
+          printf "\t${failed_files[@]}\n"
 
-          if [ ${#fails[@]} -gt 0 ]; then
-            for fail in ${fails[@]}; do
+          if [ ${#failed_files[@]} -gt 0 ]; then
+            for fail in ${failed_files[@]}; do
               printf "%.s-" {1..80} && printf "\n"
               printf "Linting failed for \n\t$fail\n\n"
 
@@ -170,6 +197,14 @@ jobs:
               fi
               echo "$report"
             done
-            exit 2
+
+            if [ "$degraded" == "false" ]; then
+              echo "Linting failed, but the score is higher than the develop branch."
+              echo "Please update files at your convenience."
+            else
+              echo "Linting failed, and the score is lower than the develop branch."
+              echo "Please fix the linting errors."
+              exit 2
+            fi
           fi
 
