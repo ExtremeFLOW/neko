@@ -38,8 +38,7 @@ module les_simcomp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use case, only : case_t
-  use les_model, only : les_model_t
-  use les_model_fctry, only : les_model_factory
+  use les_model, only : les_model_t, les_model_factory
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
   implicit none

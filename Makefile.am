@@ -101,7 +101,8 @@ EXTRA_DIST = \
 	reframe/src/rocm_select_gpu_device\
 	reframe/src/tgv.case.template\
 	reframe/src/tgv.f90\
-	patches/nvhpc_bge.patch
+	patches/nvhpc_bge.patch\
+	patches/json-fortran71.patch
 
 if ENABLE_FLINT
 lint:

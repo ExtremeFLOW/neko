@@ -3,6 +3,7 @@
 subroutine test_mathops_opchsign
   use pfunit
   use mathops
+  use num_types
   implicit none 
   integer, parameter :: n = 17
   real(kind=rp), dimension(n) :: a1, a2, a3
@@ -28,6 +29,7 @@ end subroutine test_mathops_opchsign
 subroutine test_mathops_opcolv
   use pfunit
   use mathops
+  use num_types
   implicit none 
   integer, parameter :: n = 17
   real(kind=rp), parameter :: c(n) = 42.0_rp
@@ -54,6 +56,7 @@ end subroutine test_mathops_opcolv
 subroutine test_mathops_opcolv3c
   use pfunit
   use mathops
+  use num_types
   implicit none 
   integer, parameter :: n = 17
   real(kind=rp), parameter :: c(n) = 42.0_rp
@@ -86,6 +89,7 @@ end subroutine test_mathops_opcolv3c
 subroutine test_mathops_opadd2cm
   use pfunit
   use mathops
+  use num_types
   implicit none 
   integer, parameter :: n = 17
   real(kind=rp), parameter :: c = 42.0_rp
@@ -117,6 +121,7 @@ end subroutine test_mathops_opadd2cm
 subroutine test_mathops_opadd2col
   use pfunit
   use mathops
+  use num_types
   implicit none 
   integer, parameter :: n = 17
   real(kind=rp), parameter :: c(n) = 42.0_rp
