@@ -45,7 +45,7 @@ module opr_cpu
   public :: opr_cpu_dudxyz, opr_cpu_opgrad, opr_cpu_cdtp, &
        opr_cpu_conv1, opr_cpu_curl, opr_cpu_cfl, opr_cpu_lambda2
 
-  interface     
+  interface
      module subroutine opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
        type(coef_t), intent(in), target :: coef
        real(kind=rp), intent(inout), &
@@ -65,30 +65,30 @@ module opr_cpu
      end subroutine opr_cpu_opgrad
 
      module subroutine opr_cpu_cdtp(dtx, x, dr, ds, dt, coef, e_start, e_end)
-      type(coef_t), intent(in) :: coef
-      integer, intent(in) :: e_start, e_end
-      real(kind=rp), intent(inout) :: dtx(coef%Xh%lxyz, e_end - e_start + 1)
-      real(kind=rp), intent(inout) :: x(coef%Xh%lxyz, e_end - e_start + 1)
-      real(kind=rp), intent(in) :: dr(coef%Xh%lxyz, e_end - e_start + 1)
-      real(kind=rp), intent(in) :: ds(coef%Xh%lxyz, e_end - e_start + 1)
-      real(kind=rp), intent(in) :: dt(coef%Xh%lxyz, e_end - e_start + 1)
+       type(coef_t), intent(in) :: coef
+       integer, intent(in) :: e_start, e_end
+       real(kind=rp), intent(inout) :: dtx(coef%Xh%lxyz, e_end - e_start + 1)
+       real(kind=rp), intent(inout) :: x(coef%Xh%lxyz, e_end - e_start + 1)
+       real(kind=rp), intent(in) :: dr(coef%Xh%lxyz, e_end - e_start + 1)
+       real(kind=rp), intent(in) :: ds(coef%Xh%lxyz, e_end - e_start + 1)
+       real(kind=rp), intent(in) :: dt(coef%Xh%lxyz, e_end - e_start + 1)
      end subroutine opr_cpu_cdtp
 
      module subroutine opr_cpu_conv1(du, u, vx, vy, vz, Xh, &
           coef, e_start, e_end)
-        type(space_t), intent(in) :: Xh
-        type(coef_t), intent(in) :: coef
-        integer, intent(in) :: e_start, e_end
-        real(kind=rp), intent(inout) ::  du(Xh%lxyz, e_end - e_start + 1)
-        real(kind=rp), intent(inout) :: &
-             u(Xh%lx, Xh%ly, Xh%lz, e_end - e_start + 1)
-        real(kind=rp), intent(inout) ::  &
-             vx(Xh%lx, Xh%ly, Xh%lz, e_end - e_start + 1)
-        real(kind=rp), intent(inout) ::  &
-             vy(Xh%lx, Xh%ly, Xh%lz, e_end - e_start + 1)
-        real(kind=rp), intent(inout) ::  &
-             vz(Xh%lx, Xh%ly, Xh%lz, e_end - e_start + 1)
-      end subroutine opr_cpu_conv1
+       type(space_t), intent(in) :: Xh
+       type(coef_t), intent(in) :: coef
+       integer, intent(in) :: e_start, e_end
+       real(kind=rp), intent(inout) :: du(Xh%lxyz, e_end - e_start + 1)
+       real(kind=rp), intent(inout) :: &
+            u(Xh%lx, Xh%ly, Xh%lz, e_end - e_start + 1)
+       real(kind=rp), intent(inout) :: &
+            vx(Xh%lx, Xh%ly, Xh%lz, e_end - e_start + 1)
+       real(kind=rp), intent(inout) :: &
+            vy(Xh%lx, Xh%ly, Xh%lz, e_end - e_start + 1)
+       real(kind=rp), intent(inout) :: &
+            vz(Xh%lx, Xh%ly, Xh%lz, e_end - e_start + 1)
+     end subroutine opr_cpu_conv1
   end interface
 
 contains
@@ -102,7 +102,7 @@ contains
     type(field_t), intent(inout) :: u3
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
-    type(coef_t), intent(in)  :: c_Xh
+    type(coef_t), intent(in) :: c_Xh
     integer :: gdim, n
 
     n = w1%dof%size()
@@ -145,7 +145,7 @@ contains
     type(coef_t) :: coef
     integer :: nelv, gdim
     real(kind=rp) :: dt
-    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) ::  u, v, w
+    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u, v, w
     real(kind=rp) :: cflr, cfls, cflt, cflm
     real(kind=rp) :: ur, us, ut
     real(kind=rp) :: cfl
@@ -157,21 +157,21 @@ contains
              do j = 1, Xh%ly
                 do i = 1, Xh%lx
                    ur = ( u(i,j,k,e)*coef%drdx(i,j,k,e) &
-                      +   v(i,j,k,e)*coef%drdy(i,j,k,e) &
-                      +   w(i,j,k,e)*coef%drdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
+                        + v(i,j,k,e)*coef%drdy(i,j,k,e) &
+                        + w(i,j,k,e)*coef%drdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
                    us = ( u(i,j,k,e)*coef%dsdx(i,j,k,e) &
-                      +   v(i,j,k,e)*coef%dsdy(i,j,k,e) &
-                      +   w(i,j,k,e)*coef%dsdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
+                        + v(i,j,k,e)*coef%dsdy(i,j,k,e) &
+                        + w(i,j,k,e)*coef%dsdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
                    ut = ( u(i,j,k,e)*coef%dtdx(i,j,k,e) &
-                      +   v(i,j,k,e)*coef%dtdy(i,j,k,e) &
-                      +   w(i,j,k,e)*coef%dtdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
+                        + v(i,j,k,e)*coef%dtdy(i,j,k,e) &
+                        + w(i,j,k,e)*coef%dtdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
 
                    cflr = abs(dt*ur*Xh%dr_inv(i))
                    cfls = abs(dt*us*Xh%ds_inv(j))
                    cflt = abs(dt*ut*Xh%dt_inv(k))
 
                    cflm = cflr + cfls + cflt
-                   cfl  = max(cfl, cflm)
+                   cfl = max(cfl, cflm)
                 end do
              end do
           end do
@@ -181,15 +181,15 @@ contains
           do j = 1, Xh%ly
              do i = 1, Xh%lx
                 ur = ( u(i,j,1,e)*coef%drdx(i,j,1,e) &
-                   +   v(i,j,1,e)*coef%drdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)
+                     + v(i,j,1,e)*coef%drdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)
                 us = ( u(i,j,1,e)*coef%dsdx(i,j,1,e) &
-                   +   v(i,j,1,e)*coef%dsdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)
+                     + v(i,j,1,e)*coef%dsdy(i,j,1,e) ) * coef%jacinv(i,j,1,e)
 
                 cflr = abs(dt*ur*Xh%dr_inv(i))
                 cfls = abs(dt*us*Xh%ds_inv(j))
 
                 cflm = cflr + cfls
-                cfl  = max(cfl, cflm)
+                cfl = max(cfl, cflm)
 
              end do
           end do
@@ -210,29 +210,29 @@ contains
 
     do e = 1, coef%msh%nelv
        call opr_cpu_opgrad(grad(1,1,1), grad(1,1,2), grad(1,1,3), &
-                           u%x(1,1,1,e), coef,e,e)
+            u%x(1,1,1,e), coef,e,e)
        call opr_cpu_opgrad(grad(1,2,1), grad(1,2,2), grad(1,2,3), &
-                           v%x(1,1,1,e), coef,e,e)
+            v%x(1,1,1,e), coef,e,e)
        call opr_cpu_opgrad(grad(1,3,1), grad(1,3,2), grad(1,3,3), &
-                           w%x(1,1,1,e), coef,e,e)
+            w%x(1,1,1,e), coef,e,e)
 
        do i = 1, coef%Xh%lxyz
           s11 = grad(i,1,1)
           s22 = grad(i,2,2)
           s33 = grad(i,3,3)
 
-          
+
           s12 = 0.5*(grad(i,1,2) + grad(i,2,1))
           s13 = 0.5*(grad(i,1,3) + grad(i,3,1))
           s23 = 0.5*(grad(i,2,3) + grad(i,3,2))
-          
+
           o12 = 0.5*(grad(i,1,2) - grad(i,2,1))
           o13 = 0.5*(grad(i,1,3) - grad(i,3,1))
           o23 = 0.5*(grad(i,2,3) - grad(i,3,2))
 
           a11 = s11*s11 + s12*s12 + s13*s13 - o12*o12 - o13*o13
-          a12 = s11 * s12  +  s12 * s22  +  s13 * s23 - o13 * o23
-          a13 = s11 * s13  +  s12 * s23  +  s13 * s33 + o12 * o23
+          a12 = s11 * s12 + s12 * s22 + s13 * s23 - o13 * o23
+          a13 = s11 * s13 + s12 * s23 + s13 * s33 + o12 * o23
 
           a22 = s12*s12 + s22*s22 + s23*s23 - o12*o12 - o23*o23
           a23 = s12 * s13 + s22 * s23 + s23 * s33 - o12 * o13
@@ -241,35 +241,35 @@ contains
 
           B = -(a11 + a22 + a33)
           C = -(a12*a12 + a13*a13 + a23*a23 &
-              - a11 * a22 - a11 * a33 - a22 * a33)
+               - a11 * a22 - a11 * a33 - a22 * a33)
           D = -(2.0 * a12 * a13 * a23 - a11 * a23*a23 &
-              - a22 * a13*a13 - a33 * a12*a12  +  a11 * a22 * a33)
+               - a22 * a13*a13 - a33 * a12*a12 + a11 * a22 * a33)
 
 
           q = (3.0 * C - B*B) / 9.0
           r = (9.0 * C * B - 27.0 * D - 2.0 * B*B*B) / 54.0
           theta = acos( r / sqrt(-q*q*q) )
-          
+
           eigen(1) = 2.0 * sqrt(-q) * cos(theta / 3.0) - B / 3.0
           eigen(2) = 2.0 * sqrt(-q) * cos((theta + 2.0 * pi) / 3.0) - B / 3.0
           eigen(3) = 2.0 * sqrt(-q) * cos((theta + 4.0 * pi) / 3.0) - B / 3.0
 
           msk1 = merge(1.0_rp, 0.0_rp, eigen(2) .le. eigen(1) &
-                       .and. eigen(1) .le. eigen(3) .or.  eigen(3) &
-                       .le. eigen(1) .and. eigen(1) .le. eigen(2) )
+               .and. eigen(1) .le. eigen(3) .or. eigen(3) &
+               .le. eigen(1) .and. eigen(1) .le. eigen(2) )
           msk2 = merge(1.0_rp, 0.0_rp, eigen(1) .le. eigen(2) &
-                       .and. eigen(2) .le. eigen(3) .or. eigen(3) &
-                       .le. eigen(2) .and. eigen(2) .le. eigen(1))
+               .and. eigen(2) .le. eigen(3) .or. eigen(3) &
+               .le. eigen(2) .and. eigen(2) .le. eigen(1))
           msk3 = merge(1.0_rp, 0.0_rp, eigen(1) .le. eigen(3) &
-                       .and. eigen(3) .le. eigen(2) .or. eigen(2) &
-                       .le. eigen(3) .and. eigen(3) .le. eigen(1))
+               .and. eigen(3) .le. eigen(2) .or. eigen(2) &
+               .le. eigen(3) .and. eigen(3) .le. eigen(1))
 
           l2 = msk1 * eigen(1) + msk2 * eigen(2) + msk3 * eigen(3)
 
           lambda2%x(i,1,1,e) = l2/(coef%B(i,1,1,e)**2)
        end do
     end do
-       
-  end subroutine opr_cpu_lambda2  
+
+  end subroutine opr_cpu_lambda2
 
 end module opr_cpu

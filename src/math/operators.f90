@@ -215,6 +215,8 @@ contains
   !! @param ds The derivative of s with respect to the chosen direction.
   !! @param dt The derivative of t with respect to the chosen direction.
   !! @param coef The SEM coefficients.
+  !! @param es Starting element index, optional, defaults to 1.
+  !! @param ee Ending element index, optional, defaults to `nelv`.
   !> @note This needs to be revised... the loop over n1,n2 is probably
   !! unesccssary
   subroutine cdtp (dtx, x, dr, ds, dt, coef, es, ee)
@@ -226,7 +228,6 @@ contains
     real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dt
     integer, optional :: es, ee
     integer :: eblk_start, eblk_end
-
 
      if (present(es)) then
         eblk_start = es

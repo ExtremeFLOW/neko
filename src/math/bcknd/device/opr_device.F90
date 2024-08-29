@@ -324,10 +324,10 @@ contains
 
   subroutine opr_device_dudxyz(du, u, dr, ds, dt, coef)
     type(coef_t), intent(in), target :: coef
-    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly, &
-         coef%Xh%lz,coef%msh%nelv), intent(inout) ::  du
-    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly, &
-         coef%Xh%lz,coef%msh%nelv), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, &
+         coef%Xh%lz, coef%msh%nelv), intent(inout) :: du
+    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, &
+         coef%Xh%lz, coef%msh%nelv), intent(in) :: u, dr, ds, dt
     type(c_ptr) :: du_d, u_d, dr_d, ds_d, dt_d
 
     du_d = device_get_ptr(du)
@@ -359,10 +359,10 @@ contains
 
   subroutine opr_device_opgrad(ux, uy, uz, u, coef)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: ux
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uy
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uz
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: u
     type(c_ptr) :: ux_d, uy_d, uz_d, u_d
 
     ux_d = device_get_ptr(ux)
@@ -405,25 +405,25 @@ contains
     type(field_t), intent(in) :: u, v, w
 #ifdef HAVE_HIP
     call hip_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
-           coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
-           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-           coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
+         coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
+         coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+         coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+         coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+         coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
 #elif HAVE_CUDA
     call cuda_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
-           coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
-           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-           coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
+         coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
+         coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+         coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+         coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+         coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
 #elif HAVE_OPENCL
     call opencl_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
-           coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
-           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-           coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
+         coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
+         coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+         coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+         coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+         coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -431,11 +431,11 @@ contains
 
   subroutine opr_device_cdtp(dtx, x, dr,ds, dt, coef)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dtx
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: x
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dr
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: ds
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: dtx
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: x
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dr
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: ds
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dt
     type(c_ptr) :: dtx_d, x_d, dr_d, ds_d, dt_d
 
     dtx_d = device_get_ptr(dtx)
@@ -469,11 +469,11 @@ contains
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp), intent(inout) ::  du(Xh%lxyz,nelv)
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vx
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vy
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
+    real(kind=rp), intent(inout) :: du(Xh%lxyz,nelv)
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz,nelv) :: u
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz,nelv) :: vx
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz,nelv) :: vy
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz,nelv) :: vz
     type(c_ptr) :: du_d, u_d, vx_d, vy_d, vz_d
 
     du_d = device_get_ptr(du)
@@ -486,25 +486,25 @@ contains
     associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
 #ifdef HAVE_HIP
       call hip_conv1(du_d, u_d, vx_d, vy_d, vz_d, &
-                     Xh%dx_d, Xh%dy_d, Xh%dz_d, &
-                     coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-                     coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-                     coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-                     coef%jacinv_d, msh%nelv, msh%gdim, Xh%lx)
+           Xh%dx_d, Xh%dy_d, Xh%dz_d, &
+           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+           coef%jacinv_d, msh%nelv, msh%gdim, Xh%lx)
 #elif HAVE_CUDA
       call cuda_conv1(du_d, u_d, vx_d, vy_d, vz_d, &
-                      Xh%dx_d, Xh%dy_d, Xh%dz_d, &
-                      coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-                      coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-                      coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-                      coef%jacinv_d, msh%nelv, msh%gdim, Xh%lx)
+           Xh%dx_d, Xh%dy_d, Xh%dz_d, &
+           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+           coef%jacinv_d, msh%nelv, msh%gdim, Xh%lx)
 #elif HAVE_OPENCL
       call opencl_conv1(du_d, u_d, vx_d, vy_d, vz_d, &
-                        Xh%dx_d, Xh%dy_d, Xh%dz_d, &
-                        coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-                        coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-                        coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-                        coef%jacinv_d, msh%nelv, msh%gdim, Xh%lx)
+           Xh%dx_d, Xh%dy_d, Xh%dz_d, &
+           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+           coef%jacinv_d, msh%nelv, msh%gdim, Xh%lx)
 #else
       call neko_error('No device backend configured')
 #endif
@@ -521,7 +521,7 @@ contains
     type(field_t), intent(inout) :: u3
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
-    type(coef_t), intent(in)  :: c_Xh
+    type(coef_t), intent(in) :: c_Xh
     integer :: gdim, n, nelv
 
     n = w1%dof%size()
@@ -532,19 +532,19 @@ contains
 #if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
 #ifdef HAVE_HIP
     call hip_dudxyz(work1%x_d, u3%x_d, &
-           c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
-           c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
-           c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
+         c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
+         c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+         c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
 #elif HAVE_CUDA
     call cuda_dudxyz(work1%x_d, u3%x_d, &
-           c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
-           c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
-           c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
+         c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
+         c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+         c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
 #elif HAVE_OPENCL
     call opencl_dudxyz(work1%x_d, u3%x_d, &
-           c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
-           c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
-           c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
+         c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
+         c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+         c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
 #endif
     if (gdim .eq. 3) then
 #ifdef HAVE_HIP
@@ -667,7 +667,7 @@ contains
     type(coef_t) :: coef
     integer :: nelv, gdim
     real(kind=rp) :: dt
-    real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w
+    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz,nelv) :: u, v, w
     real(kind=rp) :: cfl
     type(c_ptr) :: u_d, v_d, w_d
 
@@ -676,26 +676,26 @@ contains
     w_d = device_get_ptr(w)
 
 #ifdef HAVE_HIP
-    cfl  = hip_cfl(dt, u_d, v_d, w_d, &
-                   coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-                   coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-                   coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-                   Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
-                   coef%jacinv_d, nelv, Xh%lx)
+    cfl = hip_cfl(dt, u_d, v_d, w_d, &
+         coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+         coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+         coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+         Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
+         coef%jacinv_d, nelv, Xh%lx)
 #elif HAVE_CUDA
-    cfl  = cuda_cfl(dt, u_d, v_d, w_d, &
-                    coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-                    coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-                    coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-                    Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
-                    coef%jacinv_d, nelv, Xh%lx)
+    cfl = cuda_cfl(dt, u_d, v_d, w_d, &
+         coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+         coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+         coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+         Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
+         coef%jacinv_d, nelv, Xh%lx)
 #elif HAVE_OPENCL
-    cfl  = opencl_cfl(dt, u_d, v_d, w_d, &
-                      coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-                      coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-                      coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-                      Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
-                      coef%jacinv_d, nelv, Xh%lx)
+    cfl = opencl_cfl(dt, u_d, v_d, w_d, &
+         coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+         coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+         coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+         Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
+         coef%jacinv_d, nelv, Xh%lx)
 #else
     cfl = 0.0_rp
     call neko_error('No device backend configured')
