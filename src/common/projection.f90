@@ -62,7 +62,7 @@
 !! pressure Ax does not vary in time.
 module projection
   use num_types, only : rp, c_rp
-  use math, only : rzero, glsc3, add2, copy
+  use math, only : rzero, glsc3, add2, copy, cmult
   use coefs, only : coef_t
   use ax_product, only : ax_t
   use bc, only : bc_list_t, bc_list_apply_scalar
@@ -71,7 +71,7 @@ module projection
   use neko_config, only : NEKO_BCKND_DEVICE
   use device
   use device_math, only : device_glsc3, device_add2s2, device_cmult, &
-       device_rzero, device_copy
+       device_rzero, device_copy, device_add2
   use device_projection, only : device_proj_on, device_project_ortho
   use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : LOG_SIZE, neko_log
