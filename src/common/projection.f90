@@ -71,7 +71,8 @@ module projection
   use neko_config, only : NEKO_BCKND_DEVICE
   use device
   use device_math, only : device_glsc3, device_add2s2, device_cmult, &
-       device_rzero, device_copy, device_add2
+       device_rzero, device_copy, device_add2, device_add2s2_many, &
+       device_glsc3_many
   use device_projection, only : device_proj_on, device_project_ortho
   use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : LOG_SIZE, neko_log
