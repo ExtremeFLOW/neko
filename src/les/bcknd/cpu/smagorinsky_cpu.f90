@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2023-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,14 +34,12 @@
 module smagorinsky_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
-  use math, only : cadd, NEKO_EPS
   use scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use operators, only : strain_rate
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
-  use math, only : col2
   implicit none
   private
 
@@ -91,15 +89,17 @@ contains
     call coef%gs_h%op(s13%x, s11%dof%size(), GS_OP_ADD)
     call coef%gs_h%op(s23%x, s11%dof%size(), GS_OP_ADD)
 
-    call col2(s11%x, coef%mult, s11%dof%size())
-    call col2(s22%x, coef%mult, s11%dof%size())
-    call col2(s33%x, coef%mult, s11%dof%size())
-    call col2(s12%x, coef%mult, s11%dof%size())
-    call col2(s13%x, coef%mult, s11%dof%size())
-    call col2(s23%x, coef%mult, s11%dof%size())
+    do concurrent (i = 1:s11%dof%size())
+       s11%x(i,1,1,1) = s11%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s22%x(i,1,1,1) = s22%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s33%x(i,1,1,1) = s33%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s12%x(i,1,1,1) = s12%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s13%x(i,1,1,1) = s13%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s23%x(i,1,1,1) = s23%x(i,1,1,1) * coef%mult(i,1,1,1)
+    end do
 
-    do e=1, coef%msh%nelv
-       do i=1, coef%Xh%lxyz
+    do concurrent (e = 1:coef%msh%nelv)
+       do concurrent (i = 1:coef%Xh%lxyz)
           s_abs = sqrt(2.0_rp * (s11%x(i,1,1,e)*s11%x(i,1,1,e) + &
                                  s22%x(i,1,1,e)*s22%x(i,1,1,e) + &
                                  s33%x(i,1,1,e)*s33%x(i,1,1,e)) + &
