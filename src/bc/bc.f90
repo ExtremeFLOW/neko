@@ -116,6 +116,11 @@ module bc
      class(bc_t), pointer :: ptr
   end type bc_ptr_t
 
+  ! Helper type to have an array of polymorphic bc_t objects.
+  type, public :: bc_alloc_t
+     class(bc_t), allocatable :: obj
+  end type
+
   abstract interface
      !> Apply the boundary condition to a scalar field
      !! @param x The field for which to apply the boundary condition.

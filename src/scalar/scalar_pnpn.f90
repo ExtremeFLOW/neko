@@ -178,7 +178,7 @@ contains
     ! todo: look that this works
     call this%bc_res%init(this%c_Xh, params)
     do i = 1, this%n_strong
-       call this%bc_res%mark_facets(this%bcs%items(i)%ptr%marked_facet)
+       call this%bc_res%mark_facets(this%bcs%items(i)%obj%marked_facet)
     end do
 
 !    call this%bc_res%mark_zones_from_list('d_s', this%bc_labels)

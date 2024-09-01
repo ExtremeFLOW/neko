@@ -205,9 +205,9 @@ contains
     call this%bc_reg%init_base(coef)
     if (bclst%size() .gt. 0) then
        do i = 1, bclst%size()
-          call this%bc_reg%mark_facets(bclst%items(i)%ptr%marked_facet)
-          call this%bc_crs%mark_facets(bclst%items(i)%ptr%marked_facet)
-          call this%bc_mg%mark_facets(bclst%items(i)%ptr%marked_facet)
+          call this%bc_reg%mark_facets(bclst%items(i)%obj%marked_facet)
+          call this%bc_crs%mark_facets(bclst%items(i)%obj%marked_facet)
+          call this%bc_mg%mark_facets(bclst%items(i)%obj%marked_facet)
        end do
     end if
     call this%bc_reg%finalize()

@@ -139,8 +139,6 @@ module scalar_scheme
      real(kind=rp) :: pr_turb
      !> Is lambda varying in time? Currently only due to LES models.
      logical :: variable_material_properties = .false.
-     !> Boundary condition labels (if any)
-     character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
    contains
      !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init
@@ -252,7 +250,7 @@ contains
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
 
-          call bc_factory(this%bcs%items(i)%ptr, bc_subdict, &
+          call bc_factory(this%bcs%items(i)%obj, bc_subdict, &
                           this%c_Xh, user)
 
           if (this%bcs%strong(i)) then
