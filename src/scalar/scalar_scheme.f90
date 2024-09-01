@@ -226,25 +226,18 @@ contains
     class(scalar_scheme_t), intent(inout) :: this
     type(user_t), target, intent(in) :: user
     integer :: i, j, n_bcs, ierr
-    real(kind=rp) :: dir_value, flux_value
-    logical :: bc_exists
     type(json_core) :: core
     type(json_value), pointer :: bc_object
     type(json_file) :: bc_subdict
     logical :: found
 
-    call this%bcs%init()
 
     if (this%params%valid_path('case.scalar.boundary_conditions')) then
        call this%params%info('case.scalar.boundary_conditions', n_children=n_bcs)
        call this%params%get_core(core)
        call this%params%get('case.scalar.boundary_conditions', bc_object, found)
+
        call this%bcs%init(n_bcs)
-
-       ! Gotta set this manually, becase we don't append to the list but
-       ! rather directly allocate in the factory.
-       this%bcs%size_ = n_bcs
-
 
        do i=1, n_bcs
           ! Create a new json containing just the subdict for this bc
