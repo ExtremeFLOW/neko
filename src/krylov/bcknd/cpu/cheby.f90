@@ -41,7 +41,7 @@ module cheby
   use mesh, only : mesh_t
   use space, only : space_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp, glsc2,  &
        add2s1, add2s2
   use comm
@@ -123,22 +123,22 @@ contains
         d(i) = rn + 10.0_rp
       end do
       call gs_h%op(d, n, GS_OP_ADD)
-      call bc_list_apply(blst, d, n)
+      call blst%apply(d, n)
 
       !Power method to get lamba max
       do i = 1, this%power_its
         call ax%compute(w, d, coef, x%msh, x%Xh)
         call gs_h%op(w, n, GS_OP_ADD)
-        call bc_list_apply(blst, w, n)
+        call blst%apply(w, n)
 
         wtw = glsc3(w, coef%mult, w, n)
         call cmult2(d, w, 1.0_rp/sqrt(wtw), n)
-        call bc_list_apply(blst, d, n)
+        call blst%apply(d, n)
       end do
 
       call ax%compute(w, d, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD)
-      call bc_list_apply(blst, w, n)
+      call blst%apply(w, n)
 
       dtw = glsc3(d, coef%mult, w, n)
       dtd = glsc3(d, coef%mult, d, n)
@@ -184,7 +184,7 @@ contains
       call copy(r, f, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD)
-      call bc_list_apply(blst, w, n)
+      call blst%apply(w, n)
       call sub2(r, w, n)
 
       rtr = glsc3(r, coef%mult, r, n)
@@ -205,7 +205,7 @@ contains
         call copy(r, f, n)
         call ax%compute(w, x%x, coef, x%msh, x%Xh)
         call gs_h%op(w, n, GS_OP_ADD)
-        call bc_list_apply(blst, w, n)
+        call blst%apply(w, n)
         call sub2(r, w, n)
 
         call this%M%solve(w, r, n)
@@ -221,7 +221,7 @@ contains
       call copy(r, f, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD)
-      call bc_list_apply(blst, w, n)
+      call blst%apply(w, n)
       call sub2(r, w, n)
       rtr = glsc3(r, coef%mult, r, n)
       rnorm = sqrt(rtr) * norm_fac

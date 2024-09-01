@@ -60,8 +60,7 @@ module fluid_scheme
   use hsmg, only : hsmg_t
   use precon, only : pc_t, precon_factory, precon_destroy
   use fluid_stats, only : fluid_stats_t
-  use bc, only : bc_t, bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
-       bc_list_apply_scalar, bc_list_apply_vector
+  use bc, only : bc_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use math, only : cfill, add2s2
   use device_math, only : device_cfill, device_add2s2
@@ -978,20 +977,16 @@ contains
       call bdry_mask%free()
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
-                     'd_vel_u', this%bc_labels)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
-                     'd_vel_v', this%bc_labels)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
-                     'd_vel_w', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('d_vel_u', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('d_vel_v', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('d_vel_w', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(7.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
       call bdry_mask%free()
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones,&
-                     'd_pres', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('d_pres', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(8.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())

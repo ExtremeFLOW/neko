@@ -63,8 +63,6 @@ module neko
   use coefs, only : coef_t
   use bc
   use zero_dirichlet, only : zero_dirichlet_t
-  use krylov_fctry
-  use precon_fctry
   use dirichlet, only : dirichlet_t
   use ax_product, only : ax_t, ax_helm_factory
   use parmetis, only : parmetis_partgeom, parmetis_partmeshkway
