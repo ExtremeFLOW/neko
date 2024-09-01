@@ -123,12 +123,15 @@ contains
     if(bc%marked_facet%size() .eq. 0) return
 
     if (this%size_ .ge. this%capacity) then
+       call move_alloc(this%items, tmp)
        this%capacity = this%capacity * 2
-       allocate(tmp(this%capacity))
-       do i = 1, this%size_
-          tmp(i)%obj = this%items(i)%obj
-       end do
-       call move_alloc(tmp, this%items)
+       allocate(this%items(this%capacity))
+
+       if (allocated(tmp)) then
+          do i = 1, this%size_
+             call move_alloc(tmp(i)%obj, this%items(i)%obj)
+          end do
+       end if
     end if
 
     this%size_ = this%size_ + 1
