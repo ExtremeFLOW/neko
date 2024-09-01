@@ -252,49 +252,73 @@ contains
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           !Reverse order of tranversal if edge is reversed
-          do j = 2, Xh%lx - 1
-             k = j
-             if(int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) k = Xh%lx+1-j
-             this%dof(k, 1, 1, i) = edge_id
-             this%shared_dof(k, 1, 1, i) = shared_dof
-             edge_id = edge_id + 1
-          end do
-
+          if(int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
+             do concurrent (j = 2:Xh%lx - 1)
+                k = Xh%lx+1-j
+                this%dof(k, 1, 1, i) = edge_id + (j-2)
+                this%shared_dof(k, 1, 1, i) = shared_dof
+             end do
+          else
+             do concurrent (j = 2:Xh%lx - 1)
+                k = j
+                this%dof(k, 1, 1, i) = edge_id + (j-2)
+                this%shared_dof(k, 1, 1, i) = shared_dof
+             end do
+          end if
+          
           call ep%edge_id(edge, 3)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
-          do j = 2, Xh%lx - 1
-             k = j
-             if(int(edge%x(1), i8) .ne. this%dof(1,1,Xh%lz,i)) k = Xh%lx+1-j
-             this%dof(k, 1, Xh%lz, i) = edge_id
-             this%shared_dof(k, 1, Xh%lz, i) = shared_dof
-             edge_id = edge_id + 1
-          end do
-
+          if(int(edge%x(1), i8) .ne. this%dof(1,1,Xh%lz,i)) then
+             do concurrent (j = 2:Xh%lx - 1)
+                k = Xh%lx+1-j
+                this%dof(k, 1, Xh%lz, i) = edge_id + (j-2)
+                this%shared_dof(k, 1, Xh%lz, i) = shared_dof
+             end do
+          else
+             do concurrent (j = 2:Xh%lx - 1)
+                k = j
+                this%dof(k, 1, Xh%lz, i) = edge_id + (j-2)
+                this%shared_dof(k, 1, Xh%lz, i) = shared_dof
+             end do
+          end if
+             
           call ep%edge_id(edge, 2)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
-          do j = 2, Xh%lx - 1
-             k = j
-             if(int(edge%x(1), i8) .ne. this%dof(1,Xh%ly,1,i)) k = Xh%lx+1-j
-             this%dof(k, Xh%ly, 1, i) = edge_id
-             this%shared_dof(k, Xh%ly, 1, i) = shared_dof
-             edge_id = edge_id + 1
-          end do
-
+          if(int(edge%x(1), i8) .ne. this%dof(1,Xh%ly,1,i)) then
+             do concurrent (j = 2:Xh%lx - 1)
+                k = Xh%lx+1-j
+                this%dof(k, Xh%ly, 1, i) = edge_id + (j-2)
+                this%shared_dof(k, Xh%ly, 1, i) = shared_dof
+             end do
+          else
+             do concurrent (j = 2:Xh%lx - 1)
+                k = j
+                this%dof(k, Xh%ly, 1, i) = edge_id + (j-2)
+                this%shared_dof(k, Xh%ly, 1, i) = shared_dof
+             end do
+          end if
+          
           call ep%edge_id(edge, 4)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
-          do j = 2, Xh%lx - 1
-             k = j
-             if(int(edge%x(1), i8) .ne. this%dof(1,Xh%ly,Xh%lz,i)) k = Xh%lx+1-j
-             this%dof(k, Xh%ly, Xh%lz, i) = edge_id
-             this%shared_dof(k, Xh%ly, Xh%lz, i) = shared_dof
-             edge_id = edge_id + 1
-          end do
+          if(int(edge%x(1), i8) .ne. this%dof(1,Xh%ly,Xh%lz,i)) then
+             do concurrent (j = 2:Xh%lx - 1)
+                k = Xh%lx+1-j
+                this%dof(k, Xh%ly, Xh%lz, i) = edge_id + (j-2)
+                this%shared_dof(k, Xh%ly, Xh%lz, i) = shared_dof
+             end do
+          else
+             do concurrent (j = 2:Xh%lx - 1)
+                k = j
+                this%dof(k, Xh%ly, Xh%lz, i) = edge_id + (j-2)
+                this%shared_dof(k, Xh%ly, Xh%lz, i) = shared_dof
+             end do
+          end if
 
 
           !
@@ -304,49 +328,73 @@ contains
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
-          do j = 2, Xh%ly - 1
-             k = j
-             if(int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) k = Xh%ly+1-j
-             this%dof(1, k, 1, i) = edge_id
-             this%shared_dof(1, k, 1, i) = shared_dof
-             edge_id = edge_id + 1
-          end do
-
+          if(int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
+             do concurrent (j = 2:Xh%ly - 1)
+                k = Xh%ly+1-j
+                this%dof(1, k, 1, i) = edge_id + (j-2)
+                this%shared_dof(1, k, 1, i) = shared_dof
+             end do
+          else
+             do concurrent (j = 2:Xh%ly - 1)
+                k = j
+                this%dof(1, k, 1, i) = edge_id + (j-2)
+                this%shared_dof(1, k, 1, i) = shared_dof
+             end do
+          end if
+          
           call ep%edge_id(edge, 7)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
-          do j = 2, Xh%ly - 1
-             k = j
-             if(int(edge%x(1), i8) .ne. this%dof(1,1,Xh%lz,i)) k = Xh%ly+1-j
-             this%dof(1, k, Xh%lz, i) = edge_id
-             this%shared_dof(1, k, Xh%lz, i) = shared_dof
-             edge_id = edge_id + 1
-          end do
+          if(int(edge%x(1), i8) .ne. this%dof(1,1,Xh%lz,i)) then
+             do concurrent (j = 2:Xh%ly - 1)
+                k = Xh%ly+1-j
+                this%dof(1, k, Xh%lz, i) = edge_id + (j-2)
+                this%shared_dof(1, k, Xh%lz, i) = shared_dof
+             end do
+          else
+             do concurrent (j = 2:Xh%ly - 1)
+                k = j
+                this%dof(1, k, Xh%lz, i) = edge_id + (j-2)
+                this%shared_dof(1, k, Xh%lz, i) = shared_dof
+             end do
+          end if
 
           call ep%edge_id(edge, 6)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
-          do j = 2, Xh%ly - 1
-             k = j
-             if(int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,1,i)) k = Xh%ly+1-j
-             this%dof(Xh%lx, k, 1, i) = edge_id
-             this%shared_dof(Xh%lx, k, 1, i) = shared_dof
-             edge_id = edge_id + 1
-          end do
+          if(int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,1,i)) then
+             do concurrent (j = 2:Xh%ly - 1)
+                k = Xh%ly+1-j
+                this%dof(Xh%lx, k, 1, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, k, 1, i) = shared_dof
+             end do
+          else
+             do concurrent (j = 2:Xh%ly - 1)
+                k = j
+                this%dof(Xh%lx, k, 1, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, k, 1, i) = shared_dof
+             end do
+          end if
 
           call ep%edge_id(edge, i8)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
-          do j = 2, Xh%ly - 1
-             k = j
-             if(int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,Xh%lz,i)) k = Xh%lz+1-j
-             this%dof(Xh%lx, k, Xh%lz, i) = edge_id
-             this%shared_dof(Xh%lx, k, Xh%lz, i) = shared_dof
-             edge_id = edge_id + 1
-          end do
+          if(int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,Xh%lz,i)) then
+             do concurrent (j = 2:Xh%ly - 1)
+                k = Xh%lz+1-j
+                this%dof(Xh%lx, k, Xh%lz, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, k, Xh%lz, i) = shared_dof
+             end do
+          else
+             do concurrent (j = 2:Xh%ly - 1)
+                k = j
+                this%dof(Xh%lx, k, Xh%lz, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, k, Xh%lz, i) = shared_dof
+             end do
+          end if
 
           !
           ! Number edges in t-direction
@@ -355,49 +403,73 @@ contains
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
-          do j = 2, Xh%lz - 1
-             k = j
-             if(int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) k = Xh%lz+1-j
-             this%dof(1, 1, k, i) = edge_id
-             this%shared_dof(1, 1, k, i) = shared_dof
-             edge_id = edge_id + 1
-          end do
+          if(int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
+             do concurrent (j = 2:Xh%lz - 1)
+                k = Xh%lz+1-j
+                this%dof(1, 1, k, i) = edge_id + (j-2)
+                this%shared_dof(1, 1, k, i) = shared_dof
+             end do
+          else
+             do concurrent (j = 2:Xh%lz - 1)
+                k = j
+                this%dof(1, 1, k, i) = edge_id + (j-2)
+                this%shared_dof(1, 1, k, i) = shared_dof
+             end do
+          end if
 
           call ep%edge_id(edge, 10)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
-          do j = 2, Xh%lz - 1
-             k = j
-             if(int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,1,i)) k = Xh%lz+1-j
-             this%dof(Xh%lx, 1, k, i) = edge_id
-             this%shared_dof(Xh%lx, 1, k, i) = shared_dof
-             edge_id = edge_id + 1
-          end do
+          if(int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,1,i))  then
+             do concurrent (j = 2:Xh%lz - 1)
+                k = Xh%lz+1-j
+                this%dof(Xh%lx, 1, k, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, 1, k, i) = shared_dof
+             end do
+          else
+             do concurrent (j = 2:Xh%lz - 1)
+                k = j
+                this%dof(Xh%lx, 1, k, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, 1, k, i) = shared_dof
+             end do
+          end if
 
           call ep%edge_id(edge, 11)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
-          do j = 2, Xh%lz - 1
-             k = j
-             if(int(edge%x(1), i8) .ne. this%dof(1,Xh%ly,1,i)) k = Xh%lz+1-j
-             this%dof(1, Xh%ly, k, i) = edge_id
-             this%shared_dof(1, Xh%ly, k, i) = shared_dof
-             edge_id = edge_id + 1
-          end do
-
+          if(int(edge%x(1), i8) .ne. this%dof(1,Xh%ly,1,i)) then
+             do concurrent (j = 2:Xh%lz - 1)
+                k = Xh%lz+1-j
+                this%dof(1, Xh%ly, k, i) = edge_id + (j-2)
+                this%shared_dof(1, Xh%ly, k, i) = shared_dof
+             end do
+          else
+             do concurrent (j = 2:Xh%lz - 1)
+                k = j
+                this%dof(1, Xh%ly, k, i) = edge_id + (j-2)
+                this%shared_dof(1, Xh%ly, k, i) = shared_dof
+             end do
+          end if
+          
           call ep%edge_id(edge, 12)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(3)
-          do j = 2, Xh%lz - 1
-             k = j
-             if(int(edge%x(1), i8) .ne. this%dof(Xh%lx,Xh%ly,1,i)) k = Xh%lz+1-j
-             this%dof(Xh%lx, Xh%ly, k, i) = edge_id
-             this%shared_dof(Xh%lx, Xh%ly, k, i) = shared_dof
-             edge_id = edge_id + 1
-          end do
+          if(int(edge%x(1), i8) .ne. this%dof(Xh%lx,Xh%ly,1,i)) then
+             do concurrent (j = 2:Xh%lz - 1)
+                k = Xh%lz+1-j
+                this%dof(Xh%lx, Xh%ly, k, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, Xh%ly, k, i) = shared_dof
+             end do
+          else
+             do concurrent (j = 2:Xh%lz - 1)
+                k = j
+                this%dof(Xh%lx, Xh%ly, k, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, Xh%ly, k, i) = shared_dof
+             end do
+          end if
        type is (quad_t)
           !
           ! Number edges in r-direction
@@ -407,25 +479,37 @@ contains
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
           !Reverse order of tranversal if edge is reversed
-          do j = 2, Xh%lx - 1
-             k = j
-             if(int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) k = Xh%lx+1-j
-             this%dof(k, 1, 1, i) = edge_id
-             this%shared_dof(k, 1, 1, i) = shared_dof
-             edge_id = edge_id + 1
-          end do
+          if(int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
+             do concurrent (j = 2:Xh%lx - 1)
+                k = Xh%lx+1-j
+                this%dof(k, 1, 1, i) = edge_id + (j-2)
+                this%shared_dof(k, 1, 1, i) = shared_dof
+             end do
+          else
+             do concurrent (j = 2:Xh%lx - 1)
+                k = j
+                this%dof(k, 1, 1, i) = edge_id + (j-2)
+                this%shared_dof(k, 1, 1, i) = shared_dof
+             end do
+          end if
 
           call ep%facet_id(edge, 4)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(1)
-          do j = 2, Xh%lx - 1
-             k = j
-             if(int(edge%x(1), i8) .ne. this%dof(1,Xh%ly,1,i)) k = Xh%lx+1-j
-             this%dof(k, Xh%ly, 1, i) = edge_id
-             this%shared_dof(k, Xh%ly, 1, i) = shared_dof
-             edge_id = edge_id + 1
-          end do
+          if(int(edge%x(1), i8) .ne. this%dof(1,Xh%ly,1,i)) then
+             do concurrent (j = 2:Xh%lx - 1)
+                k = Xh%lx+1-j
+                this%dof(k, Xh%ly, 1, i) = edge_id + (j-2)
+                this%shared_dof(k, Xh%ly, 1, i) = shared_dof
+             end do
+          else
+             do concurrent (j = 2:Xh%lx - 1)
+                k = j
+                this%dof(k, Xh%ly, 1, i) = edge_id + (j-2)
+                this%shared_dof(k, Xh%ly, 1, i) = shared_dof
+             end do
+          end if
 
           !
           ! Number edges in s-direction
@@ -434,26 +518,37 @@ contains
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
-          do j = 2, Xh%ly - 1
-             k = j
-             if(int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) k = Xh%ly+1-j
-             this%dof(1, k, 1, i) = edge_id
-             this%shared_dof(1, k, 1, i) = shared_dof
-             edge_id = edge_id + 1
-          end do
-
+          if(int(edge%x(1), i8) .ne. this%dof(1,1,1,i)) then
+             do concurrent (j = 2:Xh%ly - 1)
+                k = Xh%ly+1-j 
+                this%dof(1, k, 1, i) = edge_id + (j-2)
+                this%shared_dof(1, k, 1, i) = shared_dof
+             end do
+          else
+             do concurrent (j = 2:Xh%ly - 1)
+                k = j
+                this%dof(1, k, 1, i) = edge_id + (j-2)
+                this%shared_dof(1, k, 1, i) = shared_dof
+             end do
+          end if
+          
           call ep%facet_id(edge, 2)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
-          do j = 2, Xh%ly - 1
-             k = j
-             if(int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,1,i)) k = Xh%ly+1-j
-             this%dof(Xh%lx, k, 1, i) = edge_id
-             this%shared_dof(Xh%lx, k, 1, i) = shared_dof
-             edge_id = edge_id + 1
-          end do
-
+          if(int(edge%x(1), i8) .ne. this%dof(Xh%lx,1,1,i)) then
+             do concurrent (j = 2:Xh%ly - 1)
+                k = Xh%ly+1-j
+                this%dof(Xh%lx, k, 1, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, k, 1, i) = shared_dof
+             end do
+          else
+             do concurrent (j = 2:Xh%ly - 1)
+                k = j
+                this%dof(Xh%lx, k, 1, i) = edge_id + (j-2)
+                this%shared_dof(Xh%lx, k, 1, i) = shared_dof
+             end do
+          end if
        end select
 
     end do
@@ -493,12 +588,10 @@ contains
        shared_dof = msh%is_shared(face)
        global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(1)
-       do k = 2, Xh%lz -1
-          do j = 2, Xh%ly - 1
-             this%dof(1, j, k, i) = &
-                  dofmap_facetidx(face_order,face,facet_id,j,k,Xh%lz,Xh%ly)
-             this%shared_dof(1, j, k, i) = shared_dof
-          end do
+       do concurrent (j = 2:(Xh%ly - 1), k = 2:(Xh%lz -1))
+          this%dof(1, j, k, i) = &
+               dofmap_facetidx(face_order,face,facet_id,j,k,Xh%lz,Xh%ly)
+          this%shared_dof(1, j, k, i) = shared_dof
        end do
 
        call msh%elements(i)%e%facet_id(face, 2)
@@ -506,12 +599,10 @@ contains
        shared_dof = msh%is_shared(face)
        global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(1)
-       do k = 2, Xh%lz -1
-          do j = 2, Xh%ly - 1
-             this%dof(Xh%lx, j, k, i) = &
+       do concurrent (j = 2:(Xh%ly - 1), k = 2:(Xh%lz -1))
+          this%dof(Xh%lx, j, k, i) = &
                   dofmap_facetidx(face_order,face,facet_id,j,k,Xh%lz,Xh%ly)
-             this%shared_dof(Xh%lx, j, k, i) = shared_dof
-          end do
+          this%shared_dof(Xh%lx, j, k, i) = shared_dof
        end do
 
 
@@ -523,12 +614,10 @@ contains
        shared_dof = msh%is_shared(face)
        global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(2)
-       do k = 2, Xh%lz - 1
-          do j = 2, Xh%lx - 1
-             this%dof(j, 1, k, i) = &
-                  dofmap_facetidx(face_order,face,facet_id,k,j,Xh%lz,Xh%lx)
-             this%shared_dof(j, 1, k, i) = shared_dof
-          end do
+       do concurrent (j = 2:(Xh%lx - 1), k = 2:(Xh%lz - 1))
+          this%dof(j, 1, k, i) = &
+               dofmap_facetidx(face_order,face,facet_id,k,j,Xh%lz,Xh%lx)
+          this%shared_dof(j, 1, k, i) = shared_dof
        end do
 
        call msh%elements(i)%e%facet_id(face, 4)
@@ -536,12 +625,10 @@ contains
        shared_dof = msh%is_shared(face)
        global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(2)
-       do k = 2, Xh%lz - 1
-          do j = 2, Xh%lx - 1
-             this%dof(j, Xh%ly, k, i) = &
-                  dofmap_facetidx(face_order,face,facet_id,k,j,Xh%lz,Xh%lx)
-             this%shared_dof(j, Xh%ly, k, i) = shared_dof
-          end do
+       do concurrent (j = 2:(Xh%lx - 1), k = 2:(Xh%lz - 1))
+          this%dof(j, Xh%ly, k, i) = &
+               dofmap_facetidx(face_order,face,facet_id,k,j,Xh%lz,Xh%lx)
+          this%shared_dof(j, Xh%ly, k, i) = shared_dof
        end do
 
 
@@ -553,12 +640,10 @@ contains
        shared_dof = msh%is_shared(face)
        global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(3)
-       do k = 2, Xh%ly - 1
-          do j = 2, Xh%lx - 1
-             this%dof(j, k, 1, i) = &
-                  dofmap_facetidx(face_order,face,facet_id,k,j,Xh%ly,Xh%lx)
-             this%shared_dof(j, k, 1, i) = shared_dof
-          end do
+       do concurrent (j = 2:(Xh%lx - 1), k = 2:(Xh%ly - 1))
+          this%dof(j, k, 1, i) = &
+               dofmap_facetidx(face_order,face,facet_id,k,j,Xh%ly,Xh%lx)
+          this%shared_dof(j, k, 1, i) = shared_dof
        end do
 
        call msh%elements(i)%e%facet_id(face, 6)
@@ -566,22 +651,21 @@ contains
        shared_dof = msh%is_shared(face)
        global_id = msh%get_global(face)
        facet_id = facet_offset + int((global_id - 1), i8) * num_dofs_faces(3)
-       do k = 2, Xh%ly - 1
-          do j = 2, Xh%lx - 1
-             this%dof(j, k, Xh%lz, i) = &
-                  dofmap_facetidx(face_order,face,facet_id,k,j,Xh%lz,Xh%lx)
-             this%shared_dof(j, k, Xh%lz, i) = shared_dof
-          end do
+       do concurrent (j = 2:(Xh%lx - 1), k = 2:(Xh%ly - 1))
+          this%dof(j, k, Xh%lz, i) = &
+               dofmap_facetidx(face_order,face,facet_id,k,j,Xh%lz,Xh%lx)
+          this%shared_dof(j, k, Xh%lz, i) = shared_dof
        end do
     end do
 
   end subroutine dofmap_number_faces
 
   !> Get idx for GLL point on face depending on face ordering k and j
-  function dofmap_facetidx(face_order, face, facet_id, k1, j1, lk1, lj1) result(facet_idx)
-    type(tuple4_i4_t) :: face_order, face
-    integer(kind=i8) :: facet_idx, facet_id
-    integer :: k1, j1, lk1, lj1
+  pure function dofmap_facetidx(face_order, face, facet_id, k1, j1, lk1, lj1) result(facet_idx)
+    type(tuple4_i4_t), intent(in) :: face_order, face
+    integer(kind=i8), intent(in) :: facet_id
+    integer(kind=i8) :: facet_idx
+    integer, intent(in) :: k1, j1, lk1, lj1
     integer :: k,j,lk,lj
 
     k = k1 - 2
@@ -737,19 +821,26 @@ contains
        jzt = 1d0
     end if
 
-    do j = 1, msh%gdim
-       xyzb(1,1,1,j) = element%pts(1)%p%x(j)
-       xyzb(2,1,1,j) = element%pts(2)%p%x(j)
-       xyzb(1,2,1,j) = element%pts(3)%p%x(j)
-       xyzb(2,2,1,j) = element%pts(4)%p%x(j)
-
-       if (msh%gdim .gt. 2) then
+    if (msh%gdim .gt. 2) then
+       do concurrent (j = 1:msh%gdim)
+          xyzb(1,1,1,j) = element%pts(1)%p%x(j)
+          xyzb(2,1,1,j) = element%pts(2)%p%x(j)
+          xyzb(1,2,1,j) = element%pts(3)%p%x(j)
+          xyzb(2,2,1,j) = element%pts(4)%p%x(j)
+          
           xyzb(1,1,2,j) = element%pts(5)%p%x(j)
           xyzb(2,1,2,j) = element%pts(6)%p%x(j)
           xyzb(1,2,2,j) = element%pts(7)%p%x(j)
           xyzb(2,2,2,j) = element%pts(8)%p%x(j)
-       end if
-    end do
+       end do
+    else
+       do concurrent (j = 1:msh%gdim)
+          xyzb(1,1,1,j) = element%pts(1)%p%x(j)
+          xyzb(2,1,1,j) = element%pts(2)%p%x(j)
+          xyzb(1,2,1,j) = element%pts(3)%p%x(j)
+          xyzb(2,2,1,j) = element%pts(4)%p%x(j)
+       end do
+    end if
     if (msh%gdim .eq. 3) then
        call tensr3(tmp, Xh%lx, xyzb(1,1,1,1), 2, jx, jyt, jzt, w)
        call copy(x, tmp, Xh%lx*Xh%ly*Xh%lz)
@@ -854,137 +945,102 @@ contains
     integer :: gh_type, ntot, kk, jj, ii, k, j, i
     real(kind=rp) :: si, sj, sk, hi, hj, hk
 
-!
-!  Build vertex interpolant
-!
+    !
+    !  Build vertex interpolant
+    !
     ntot = n**3
-    call rzero(v, ntot)
-    do kk = 1, n, n-1
-       do jj = 1, n, n-1
-          do ii = 1, n, n-1
-             do k = 1, n
-                do j = 1, n
-                   do i = 1, n
-                      si       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-                      sj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-                      sk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
-                      v(i,j,k) = v(i,j,k) + si*sj*sk*x(ii,jj,kk)
-                   end do
-                end do
-             end do
-          end do
-       end do
+    do concurrent (i = 1:ntot)
+       v(i,1,1) = 0.0_rp
+    end do
+
+    do concurrent (i = 1:n, j = 1:n, k = 1:n, ii = 1:n, jj = 1:n:n-1, kk = 1:n:n-1)
+       si       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+       sj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+       sk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+       v(i,j,k) = v(i,j,k) + si*sj*sk*x(ii,jj,kk)
     end do
 
     if (gh_type .eq. 1) then
-       call copy(x, v, ntot)
+       do concurrent (i = 1:ntot)
+          x(i,1,1) = v(i,1,1)
+       end do
        return
     end if
-!
-!
-!  Extend 12 edges
-    call rzero(e, ntot)
-!
-!  x-edges
-!
-    do kk = 1, n, n-1
-       do jj = 1, n, n-1
-          do k = 1, n
-             do j = 1, n
-                do i = 1, n
-                   hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-                   hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
-                   e(i,j,k) = e(i,j,k) + hj*hk*(x(i,jj,kk)-v(i,jj,kk))
-                end do
-             end do
-          end do
-       end do
+    !
+    !
+    !  Extend 12 edges
+    do concurrent (i = 1:ntot)
+       e(i,1,1) = 0.0_rp
     end do
-!
-!  y-edges
-!
-    do kk = 1, n, n-1
-       do ii = 1, n, n-1
-          do k = 1, n
-             do j = 1, n
-                do i = 1, n
-                   hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-                   hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
-                   e(i,j,k) = e(i,j,k) + hi*hk*(x(ii,j,kk)-v(ii,j,kk))
-                end do
-             end do
-          end do
-       end do
+    !
+    !  x-edges
+    !
+    do concurrent (i = 1:n, j = 1:n, k = 1:n, jj=1:n:n-1, kk = 1:n:n-1)
+       hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+       hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+       e(i,j,k) = e(i,j,k) + hj*hk*(x(i,jj,kk)-v(i,jj,kk))
     end do
-!
-!  z-edges
-!
-    do jj = 1, n, n-1
-       do ii = 1, n, n-1
-          do k = 1, n
-             do j = 1, n
-                do i = 1, n
-                   hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-                   hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-                   e(i,j,k) = e(i,j,k) + hi*hj*(x(ii,jj,k)-v(ii,jj,k))
-                end do
-             end do
-          end do
-       end do
+    !
+    !  y-edges
+    !
+    do concurrent (i = 1:n, j = 1:n, k = 1:n, ii = 1:n:n-1, kk = 1:n:n-1)
+       hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+       hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+       e(i,j,k) = e(i,j,k) + hi*hk*(x(ii,j,kk)-v(ii,j,kk))
+    end do
+    !
+    !  z-edges
+    !
+    do concurrent (i = 1:n, j = 1:n, k = 1:n, ii = 1:n:n-1, jj = 1:n:n-1)
+       hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+       hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+       e(i,j,k) = e(i,j,k) + hi*hj*(x(ii,jj,k)-v(ii,jj,k))
     end do
 
-    call add2(e, v, ntot)
+    do concurrent (i = 1:ntot)
+       e(i,1,1) = e(i,1,1) + v(i,1,1)
+    end do
 
     if (gh_type .eq. 2) then
-       call copy(x, e, ntot)
+       do concurrent (i = 1:ntot)
+          x(i,1,1) = e(i,1,1)
+       end do
        return
     end if
-!
-!  Extend faces
-!
-    call rzero(v, ntot)
-!
-!  x-edges
-!
-    do ii = 1, n, n-1
-       do k = 1, n
-          do j = 1, n
-             do i = 1, n
-                hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
-                v(i,j,k) = v(i,j,k) + hi*(x(ii,j,k)-e(ii,j,k))
-             end do
-          end do
-       end do
+    !
+    !  Extend faces
+    !
+    do concurrent (i = 1:ntot)
+       v(i,1,1) = 0.0_rp
     end do
-!
-! y-edges
-!
-    do jj = 1, n, n-1
-       do k = 1, n
-          do j = 1, n
-             do i = 1, n
-                hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
-                v(i,j,k) = v(i,j,k) + hj*(x(i,jj,k)-e(i,jj,k))
-             end do
-          end do
-       end do
-    end do
-!
-!  z-edges
-!
-    do kk= 1 , n, n-1
-       do k = 1, n
-          do j = 1, n
-             do i = 1, n
-                hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
-                v(i,j,k) = v(i,j,k) + hk*(x(i,j,kk)-e(i,j,kk))
-             end do
-          end do
-       end do
+    !
+    !  x-edges
+    !
+    do concurrent (i = 1:n, j = 1:n, k = 1:n, ii = 1:n:n-1)
+       hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
+       v(i,j,k) = v(i,j,k) + hi*(x(ii,j,k)-e(ii,j,k))
     end do
 
-    call add2(v, e, ntot)
-    call copy(x, v ,ntot)
+    !
+    ! y-edges
+    !
+    do concurrent (i = 1:n, j = 1:n, k = 1:n, jj = 1:n:n-1)
+       hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
+       v(i,j,k) = v(i,j,k) + hj*(x(i,jj,k)-e(i,jj,k))
+    end do
+
+    !
+    !  z-edges
+    !
+    do concurrent (i = 1:n, j = 1:n, k = 1:n, kk = 1:n:n-1)
+       hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
+       v(i,j,k) = v(i,j,k) + hk*(x(i,j,kk)-e(i,j,kk))
+    end do
+
+    do concurrent (i = 1:ntot)
+       v(i,1,1) = v(i,1,1) + e(i,1,1)
+       x(i,1,1) = v(i,1,1)
+    end do
 
   end subroutine gh_face_extend_3d
 

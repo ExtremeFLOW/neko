@@ -33,7 +33,7 @@
 !> Defines various GMRES methods
 module gmres_device
   use krylov, only : ksp_t, ksp_monitor_t
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only: rp, c_rp
   use field, only : field_t
@@ -82,8 +82,8 @@ module gmres_device
 
 #ifdef HAVE_HIP
   interface
-     real(c_rp) function hip_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n) &
-          bind(c, name='hip_gmres_part2')
+     real(c_rp) function hip_gmres_part2(w_d, v_d_d, h_d, mult_d, j, n) &
+          bind(c, name = 'hip_gmres_part2')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -94,8 +94,8 @@ module gmres_device
 #elif HAVE_CUDA
 
   interface
-     real(c_rp) function cuda_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n) &
-          bind(c, name='cuda_gmres_part2')
+     real(c_rp) function cuda_gmres_part2(w_d, v_d_d, h_d, mult_d, j, n) &
+          bind(c, name = 'cuda_gmres_part2')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -107,15 +107,15 @@ module gmres_device
 
 contains
 
-  function device_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n) result(alpha)
+  function device_gmres_part2(w_d, v_d_d, h_d, mult_d, j, n) result(alpha)
     type(c_ptr), value :: h_d, w_d, v_d_d, mult_d
     integer(c_int) :: j, n
     real(c_rp) :: alpha
     integer :: ierr
 #ifdef HAVE_HIP
-    alpha = hip_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n)
+    alpha = hip_gmres_part2(w_d, v_d_d, h_d, mult_d, j, n)
 #elif HAVE_CUDA
-    alpha = cuda_gmres_part2(w_d,v_d_d,h_d,mult_d,j,n)
+    alpha = cuda_gmres_part2(w_d, v_d_d, h_d, mult_d, j, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -130,8 +130,9 @@ contains
   end function device_gmres_part2
 
   !> Initialise a standard GMRES solver
-  subroutine gmres_device_init(this, n, max_iter, M, m_restart, rel_tol, abs_tol)
-    class(gmres_device_t), target,  intent(inout) :: this
+  subroutine gmres_device_init(this, n, max_iter, M, m_restart, &
+       rel_tol, abs_tol)
+    class(gmres_device_t), target, intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(inout), target :: M
@@ -170,9 +171,9 @@ contains
     call device_map(this%s, this%s_d, this%m_restart)
     call device_map(this%gam, this%gam_d, this%m_restart+1)
 
-    allocate(this%z(n,this%m_restart))
-    allocate(this%v(n,this%m_restart))
-    allocate(this%h(this%m_restart,this%m_restart))
+    allocate(this%z(n, this%m_restart))
+    allocate(this%v(n, this%m_restart))
+    allocate(this%h(this%m_restart, this%m_restart))
     allocate(this%z_d(this%m_restart))
     allocate(this%v_d(this%m_restart))
     allocate(this%h_d(this%m_restart))
@@ -192,22 +193,22 @@ contains
     call device_alloc(this%v_d_d, z_size)
     call device_alloc(this%h_d_d, z_size)
     ptr = c_loc(this%z_d)
-    call device_memcpy(ptr,this%z_d_d, z_size, &
-                       HOST_TO_DEVICE, sync=.false.)
+    call device_memcpy(ptr, this%z_d_d, z_size, &
+                       HOST_TO_DEVICE, sync = .false.)
     ptr = c_loc(this%v_d)
-    call device_memcpy(ptr,this%v_d_d, z_size, &
-                       HOST_TO_DEVICE, sync=.false.)
+    call device_memcpy(ptr, this%v_d_d, z_size, &
+                       HOST_TO_DEVICE, sync = .false.)
     ptr = c_loc(this%h_d)
-    call device_memcpy(ptr,this%h_d_d, z_size, &
-                       HOST_TO_DEVICE, sync=.false.)
+    call device_memcpy(ptr, this%h_d_d, z_size, &
+                       HOST_TO_DEVICE, sync = .false.)
 
 
     if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
     else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol = abs_tol)
     else
        call this%ksp_init(max_iter)
     end if
@@ -304,7 +305,8 @@ contains
   end subroutine gmres_device_free
 
   !> Standard GMRES solve
-  function gmres_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+  function gmres_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+       result(ksp_results)
     class(gmres_device_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
@@ -333,9 +335,10 @@ contains
     end if
 
     associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
-          v => this%v, s => this%s, gam => this%gam, v_d => this%v_d, &
-          w_d => this%w_d, r_d => this%r_d, h_d => this%h_d, v_d_d => this%v_d_d, &
-          x_d => x%x_d, z_d_d => this%z_d_d, c_d => this%c_d)
+         v => this%v, s => this%s, gam => this%gam, v_d => this%v_d, &
+         w_d => this%w_d, r_d => this%r_d, h_d => this%h_d, &
+         v_d_d => this%v_d_d, x_d => x%x_d, z_d_d => this%z_d_d, &
+         c_d => this%c_d)
 
       norm_fac = 1.0_rp / sqrt(coef%volume)
       call rzero(gam, this%m_restart + 1)
@@ -353,7 +356,7 @@ contains
 !       end do
       do while (.not. conv .and. iter .lt. max_iter)
 
-         if(iter.eq.0) then
+         if (iter .eq. 0) then
             call device_copy(r_d, f_d, n)
          else
             call device_copy(r_d, f_d, n)
@@ -365,7 +368,7 @@ contains
          end if
 
          gam(1) = sqrt(device_glsc3(r_d, r_d, coef%mult_d, n))
-         if(iter.eq.0) then
+         if (iter .eq. 0) then
             ksp_results%res_start = gam(1) * norm_fac
          end if
 
@@ -396,34 +399,35 @@ contains
                call device_glsc3_many(h(1,j), w_d, v_d_d, coef%mult_d, j, n)
 
                call device_memcpy(h(:,j), h_d(j), j, &
-                                   HOST_TO_DEVICE, sync=.false.)
+                                   HOST_TO_DEVICE, sync = .false.)
 
-               alpha2 = device_gmres_part2(w_d, v_d_d, h_d(j), coef%mult_d, j, n)
+               alpha2 = device_gmres_part2(w_d, v_d_d, h_d(j), &
+                    coef%mult_d, j, n)
 
             end if
 
             alpha = sqrt(alpha2)
-            do i=1,j-1
+            do i = 1, j-1
                temp = h(i,j)
-               h(i  ,j) =  c(i)*temp + s(i) * h(i+1,j)
+               h(i,j) = c(i)*temp + s(i) * h(i+1,j)
                h(i+1,j) = -s(i)*temp + c(i) * h(i+1,j)
             end do
 
             rnorm = 0.0_rp
-            if(abscmp(alpha, 0.0_rp)) then
+            if (abscmp(alpha, 0.0_rp)) then
                conv = .true.
                exit
             end if
 
-            lr = sqrt(h(j,j) * h(j,j) + alpha**2)
+            lr = sqrt(h(j,j) * h(j,j) + alpha2)
             temp = 1.0_rp / lr
             c(j) = h(j,j) * temp
-            s(j) = alpha  * temp
+            s(j) = alpha * temp
             h(j,j) = lr
             call device_memcpy(h(:,j), h_d(j), j, &
-                                HOST_TO_DEVICE, sync=.false.)
+                                HOST_TO_DEVICE, sync = .false.)
             gam(j+1) = -s(j) * gam(j)
-            gam(j)   =  c(j) * gam(j)
+            gam(j) = c(j) * gam(j)
 
             rnorm = abs(gam(j+1)) * norm_fac
             if (rnorm .lt. this%abs_tol) then
@@ -433,7 +437,7 @@ contains
 
             if (iter + 1 .gt. max_iter) exit
 
-            if( j .lt. this%m_restart) then
+            if (j .lt. this%m_restart) then
                temp = 1.0_rp / alpha
                call device_cmult2(v_d(j+1), w_d, temp, n)
             end if
@@ -454,7 +458,7 @@ contains
                call device_add2s2(x_d, this%z_d(i), c(i), n)
             end do
          else
-            call device_memcpy(c, c_d, j, HOST_TO_DEVICE, sync=.false.)
+            call device_memcpy(c, c_d, j, HOST_TO_DEVICE, sync = .false.)
             call device_add2s2_many(x_d, z_d_d, c_d, j, n)
          end if
       end do
@@ -486,9 +490,9 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function gmres_device_solve_coupled
 

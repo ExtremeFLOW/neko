@@ -69,10 +69,10 @@ contains
   !! @param coef The SEM coefficients.
   subroutine dudxyz (du, u, dr, ds, dt, coef)
     type(coef_t), intent(in), target :: coef
-    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), &
-         intent(inout) ::  du
-    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), &
-         intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
+         coef%msh%nelv), intent(inout) :: du
+    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
+         coef%msh%nelv), intent(in) :: u, dr, ds, dt
 
     if (NEKO_BCKND_SX .eq. 1) then
        call opr_sx_dudxyz(du, u, dr, ds, dt, coef)
@@ -94,10 +94,10 @@ contains
   !! @param coef The SEM coefficients.
   subroutine div(res, ux, uy, uz, coef)
     type(coef_t), intent(in), target :: coef
-    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), &
-         intent(inout) :: res
-    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly,coef%Xh%lz,coef%msh%nelv), &
-         intent(in) ::  ux, uy, uz
+    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
+         coef%msh%nelv), intent(inout) :: res
+    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
+         coef%msh%nelv), intent(in) :: ux, uy, uz
     type(field_t), pointer :: work
     integer :: ind
     type(c_ptr) :: res_d
@@ -130,8 +130,6 @@ contains
   end subroutine div
 
   !> Compute the gradient of a scalar field.
-  !! @details By providing `es` and `ee`, it is possible to compute only for a
-  !! range of element indices.
   !! @param ux Will store the x component of the gradient.
   !! @param uy Will store the y component of the gradient.
   !! @param uz Will store the z component of the gradient.
@@ -139,10 +137,10 @@ contains
   !! @param coef The SEM coefficients.
   subroutine grad(ux, uy, uz, u, coef)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: ux
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uy
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uz
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: u
 
     call dudxyz(ux, u, coef%drdx, coef%dsdx, coef%dtdx, coef)
     call dudxyz(uy, u, coef%drdy, coef%dsdy, coef%dtdy, coef)
@@ -164,10 +162,10 @@ contains
   !! @note Equals wgradm1 in Nek5000, the weak form of the gradient.
   subroutine opgrad(ux, uy, uz, u, coef, es, ee)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: ux
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uy
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uz
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: u
     integer, optional :: es, ee
     integer :: eblk_start, eblk_end
 
@@ -217,15 +215,31 @@ contains
   !! @param ds The derivative of s with respect to the chosen direction.
   !! @param dt The derivative of t with respect to the chosen direction.
   !! @param coef The SEM coefficients.
+  !! @param es Starting element index, optional, defaults to 1.
+  !! @param ee Ending element index, optional, defaults to `nelv`.
   !> @note This needs to be revised... the loop over n1,n2 is probably
   !! unesccssary
-  subroutine cdtp (dtx, x, dr, ds, dt, coef)
+  subroutine cdtp (dtx, x, dr, ds, dt, coef, es, ee)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dtx
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: x
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dr
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: ds
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: dtx
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: x
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dr
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: ds
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dt
+    integer, optional :: es, ee
+    integer :: eblk_start, eblk_end
+
+     if (present(es)) then
+        eblk_start = es
+     else
+        eblk_start = 1
+     end if
+
+     if (present(ee)) then
+        eblk_end = ee
+     else
+        eblk_end = coef%msh%nelv
+     end if
 
     if (NEKO_BCKND_SX .eq. 1) then
        call opr_sx_cdtp(dtx, x, dr, ds, dt, coef)
@@ -234,7 +248,7 @@ contains
     else if (NEKO_BCKND_DEVICE .eq. 1) then
        call opr_device_cdtp(dtx, x, dr, ds, dt, coef)
     else
-       call opr_cpu_cdtp(dtx, x, dr, ds, dt, coef)
+       call opr_cpu_cdtp(dtx, x, dr, ds, dt, coef, eblk_start, eblk_end)
     end if
 
   end subroutine cdtp
@@ -252,11 +266,11 @@ contains
   subroutine conv1(du, u, vx, vy, vz, Xh, coef, es, ee)
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(inout) :: du(Xh%lxyz,coef%msh%nelv)
-    real(kind=rp), intent(inout) :: u(Xh%lx,Xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(inout) :: vx(Xh%lx,Xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(inout) :: vy(Xh%lx,Xh%ly,Xh%lz,coef%msh%nelv)
-    real(kind=rp), intent(inout) :: vz(Xh%lx,Xh%ly,Xh%lz,coef%msh%nelv)
+    real(kind=rp), intent(inout) :: du(Xh%lxyz, coef%msh%nelv)
+    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(inout) :: vx(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(inout) :: vy(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
+    real(kind=rp), intent(inout) :: vz(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
     integer, optional :: es, ee
     integer :: eblk_end, eblk_start
 
@@ -305,7 +319,7 @@ contains
     type(field_t), intent(inout) :: u3
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
-    type(coef_t), intent(in)  :: coef
+    type(coef_t), intent(in) :: coef
 
     if (NEKO_BCKND_SX .eq. 1) then
        call opr_sx_curl(w1, w2, w3, u1, u2, u3, work1, work2, coef)
@@ -333,7 +347,7 @@ contains
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
     real(kind=rp), intent(in) :: dt
-    real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv), intent(in) ::  u, v, w
+    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv), intent(in) :: u, v, w
     real(kind=rp) :: cfl
     integer :: ierr
 
@@ -371,8 +385,8 @@ contains
     real(kind=rp), intent(inout) :: s22(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
     real(kind=rp), intent(inout) :: s33(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
     real(kind=rp), intent(inout) :: s12(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
-    real(kind=rp), intent(inout) :: s23(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
     real(kind=rp), intent(inout) :: s13(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
+    real(kind=rp), intent(inout) :: s23(u%Xh%lx, u%Xh%ly, u%Xh%lz, u%msh%nelv)
 
     type(c_ptr) :: s11_d, s22_d, s33_d, s12_d, s23_d, s13_d
 
@@ -385,7 +399,7 @@ contains
        s12_d = device_get_ptr(s12)
        s23_d = device_get_ptr(s23)
        s13_d = device_get_ptr(s13)
-    endif
+    end if
 
     nelv = u%msh%nelv
     lxyz = u%Xh%lxyz
@@ -397,7 +411,7 @@ contains
        call device_add2(s12_d, s11_d, nelv*lxyz)
     else
        call add2(s12, s11, nelv*lxyz)
-    endif
+    end if
 
     call dudxyz (s13, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
     call dudxyz (s11, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
@@ -405,7 +419,7 @@ contains
        call device_add2(s13_d, s11_d, nelv*lxyz)
     else
        call add2(s13, s11, nelv*lxyz)
-    endif
+    end if
 
     call dudxyz (s23, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
     call dudxyz (s11, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
@@ -413,7 +427,7 @@ contains
        call device_add2(s23_d, s11_d, nelv*lxyz)
     else
        call add2(s23, s11, nelv*lxyz)
-    endif
+    end if
 
     call dudxyz (s11, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
     call dudxyz (s22, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
@@ -427,7 +441,7 @@ contains
        call cmult(s12, 0.5_rp, nelv*lxyz)
        call cmult(s13, 0.5_rp, nelv*lxyz)
        call cmult(s23, 0.5_rp, nelv*lxyz)
-    endif
+    end if
 
   end subroutine strain_rate
 

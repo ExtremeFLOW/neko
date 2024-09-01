@@ -1,12 +1,12 @@
 !> Residuals in the Pn-Pn formulation (CPU version)
 module pnpn_res_stress_cpu
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use operators
+  use operators, only : dudxyz, cdtp, curl, opgrad, strain_rate
   use field, only : field_t
   use ax_product, only : ax_t
   use coefs, only : coef_t
   use facet_normal, only : facet_normal_t
-  use pnpn_residual_stress, only : pnpn_prs_res_stress_t, pnpn_vel_res_stress_t
+  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
   use scratch_registry, only: neko_scratch_registry
   use mesh, only : mesh_t
   use num_types, only : rp
@@ -17,22 +17,23 @@ module pnpn_res_stress_cpu
 
   !> CPU implementation of the pressure residual for the PnPn fluid with
   !! full viscous stress formulation.
-  type, public, extends(pnpn_prs_res_stress_t) :: pnpn_prs_res_stress_cpu_t
+  type, public, extends(pnpn_prs_res_t) :: pnpn_prs_res_stress_cpu_t
    contains
      procedure, nopass :: compute => pnpn_prs_res_stress_cpu_compute
   end type pnpn_prs_res_stress_cpu_t
 
   !> CPU implementation of the velocity residual for the PnPn fluid with
   !! full viscous stress formulation.
-  type, public, extends(pnpn_vel_res_stress_t) :: pnpn_vel_res_stress_cpu_t
+  type, public, extends(pnpn_vel_res_t) :: pnpn_vel_res_stress_cpu_t
    contains
      procedure, nopass :: compute => pnpn_vel_res_stress_cpu_compute
   end type pnpn_vel_res_stress_cpu_t
 
 contains
 
-  subroutine pnpn_prs_res_stress_cpu_compute(p, p_res, u, v, w, u_e, v_e, w_e, f_x, &
-       f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, mu, rho)
+  subroutine pnpn_prs_res_stress_cpu_compute(p, p_res, u, v, w, u_e, v_e, w_e,&
+       f_x, f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt,&
+       mu, rho)
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
@@ -105,18 +106,21 @@ contains
     call cmult(ta3%x, 2.0_rp, n)
 
     ! S^T grad \mu
-    do e=1, nelv
+    do e = 1, nelv
        call vdot3(work1%x(:, :, :, e), &
                   ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :, e), &
-                  s11%x(:, :, :, e), s12%x(:, :, :, e), s13%x(:, :, :, e), lxyz)
+                  s11%x(:, :, :, e), s12%x(:, :, :, e), s13%x(:, :, :, e), &
+                  lxyz)
 
        call vdot3 (work2%x(:, :, :, e), &
-                   ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :,  e), &
-                   s12%x(:, :, :, e), s22%x(:, :, :, e), s23%x(:, :, :, e), lxyz)
+                   ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :, e), &
+                   s12%x(:, :, :, e), s22%x(:, :, :, e), s23%x(:, :, :, e), &
+                   lxyz)
 
        call vdot3 (work3%x(:, :, :, e), &
-                   ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :,  e), &
-                   s13%x(:, :, :, e), s23%x(:, :, :, e), s33%x(:, :, :, e), lxyz)
+                   ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :, e), &
+                   s13%x(:, :, :, e), s23%x(:, :, :, e), s33%x(:, :, :, e), &
+                   lxyz)
     end do
 
     ! Subtract the two terms of the viscous stress to get
@@ -127,7 +131,7 @@ contains
     call sub2(wa2%x, work2%x, n)
     call sub2(wa3%x, work3%x, n)
 
-    do i = 1, n
+    do concurrent (i = 1:n)
         ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho%x(i,1,1,1) &
              - ((wa1%x(i,1,1,1) / rho%x(i,1,1,1)) * c_Xh%B(i,1,1,1))
         ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho%x(i,1,1,1) &
@@ -168,7 +172,8 @@ contains
        wa3%x(i,1,1,1) = 0.0_rp
     end do
 
-    call bc_sym_surface%apply_surfvec(wa1%x,wa2%x,wa3%x,ta1%x, ta2%x, ta3%x, n)
+    call bc_sym_surface%apply_surfvec(wa1%x, wa2%x, wa3%x, ta1%x, ta2%x, ta3%x,&
+                                      n)
 
     dtbd = bd / dt
     do i = 1, n

@@ -32,17 +32,11 @@
 !
 !> Dirichlet condition on axis aligned plane in the non normal direction
 module non_normal
-  use symmetry
-  use neko_config
-  use num_types
-  use dirichlet
-  use tuple
-  use device
-  use coefs
-  use math
-  use utils
-  use stack
   use json_module, only : json_file
+  use symmetry, only : symmetry_t
+  use num_types, only : rp
+  use tuple, only : tuple_i4_t
+  use coefs, only : coef_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -83,7 +77,7 @@ contains
     class(non_normal_t), target, intent(inout) :: this
     integer :: i, j, k, l
     type(tuple_i4_t), pointer :: bfp(:)
-    real(kind=rp) :: sx,sy,sz
+    real(kind=rp) :: sx, sy, sz
     real(kind=rp), parameter :: TOL = 1d-3
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el

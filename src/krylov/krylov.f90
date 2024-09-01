@@ -35,7 +35,7 @@ module krylov
   use gather_scatter, only : gs_t, GS_OP_ADD
   use ax_product, only : ax_t
   use num_types, only: rp, c_rp
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use field, only : field_t
@@ -43,7 +43,7 @@ module krylov
   use bc_list, only : bc_list_t
   use identity, only : ident_t
   use device_identity, only : device_ident_t
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   implicit none
   private
 
@@ -94,7 +94,8 @@ module krylov
   !! @param gs_h Gather-scatter handle
   !! @param niter iteration trip count
   abstract interface
-     function ksp_method(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+     function ksp_method(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+          result(ksp_results)
        import :: bc_list_t
        import :: field_t
        import :: ksp_t
@@ -169,6 +170,31 @@ module krylov
      end subroutine ksp_t_free
   end interface
 
+  interface
+     !> Factory for Krylov solvers. Both creates and initializes the object.
+     !! @param object The object to be allocated.
+     !! @param n Size of the vectors the solver operates on.
+     !! @param type_name The name of the solver type.
+     !! @param max_iter The maximum number of iterations
+     !! @param abstol The absolute tolerance, optional.
+     !! @param M The preconditioner, optional.
+     module subroutine krylov_solver_factory(object, n, type_name, &
+          max_iter, abstol, M)
+       class(ksp_t), allocatable, target, intent(inout) :: object
+       integer, intent(in), value :: n
+       character(len=*), intent(in) :: type_name
+       integer, intent(in) :: max_iter
+       real(kind=rp), optional :: abstol
+       class(pc_t), optional, intent(inout), target :: M
+     end subroutine krylov_solver_factory
+
+     !> Destroy an iterative Krylov type_name
+     module subroutine krylov_solver_destroy(object)
+       class(ksp_t), allocatable, intent(inout) :: object
+     end subroutine krylov_solver_destroy
+  end interface
+
+  public :: krylov_solver_factory, krylov_solver_destroy
 contains
 
   !> Constructor for the base type.
@@ -229,7 +255,7 @@ contains
     class(pc_t), target, intent(in) :: M
 
     if (associated(this%M)) then
-       select type(pc => this%M)
+       select type (pc => this%M)
        type is (ident_t)
        type is (device_ident_t)
        class default

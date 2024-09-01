@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2023-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,22 +32,16 @@
 !
 !
 !> Defines a factory subroutine for point zones.
-module point_zone_fctry
-  use point_zone, only: point_zone_t
+submodule (point_zone) point_zone_fctry
   use box_point_zone, only: box_point_zone_t
   use sphere_point_zone, only: sphere_point_zone_t
   use cylinder_point_zone, only: cylinder_point_zone_t
-  use json_module, only: json_file
   use json_utils, only: json_get
-  use dofmap, only: dofmap_t
-  use utils, only : concat_string_array, neko_error
+  use utils, only : concat_string_array
   implicit none
-  private
-
-  public :: point_zone_factory
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KNOWN_TYPES(3) = [character(len=20) :: &
+  character(len=20) :: POINTZ_KNOWN_TYPES(3) = [character(len=20) :: &
      "box", &
      "sphere", &
      "cylinder"]
@@ -59,13 +53,12 @@ contains
   !! @param object The object allocated by the factory.
   !! @param json JSON object initializing the point zone.
   !! @param dof Dofmap from which to map the point zone.
-  subroutine point_zone_factory(object, json, dof)
+  module subroutine point_zone_factory(object, json, dof)
     class(point_zone_t), allocatable, intent(inout) :: object
     type(json_file), intent(inout) :: json
-    type(dofmap_t), intent(inout) :: dof
+    type(dofmap_t), intent(inout), optional :: dof
     character(len=:), allocatable :: type_name
     character(len=:), allocatable :: type_string
-
 
     call json_get(json, "geometry", type_name)
 
@@ -76,17 +69,25 @@ contains
     else if (trim(type_name) .eq. "cylinder") then
        allocate(cylinder_point_zone_t::object)
     else
-       type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
-                                          .true.)
+       type_string =  concat_string_array(POINTZ_KNOWN_TYPES, &
+            new_line('A') // "-  ", .true.)
        call neko_error("Unknown point zone type: " &
                        // trim(type_name) // ".  Known types are: " &
                        // type_string)
     end if
 
-    call object%init(json, dof%size())
-    call object%map(dof)
-    call object%finalize()
+    if (present(dof)) then
+       call object%init(json, dof%size())
+       call object%map(dof)
+       call object%finalize()
+    else
+       ! This is for initializing zones inside a combine point zone,
+       ! as they don't need to be mapped
+       call object%init(json, 1)
+       call object%finalize()
+    end if
+
 
   end subroutine point_zone_factory
 
-end module point_zone_fctry
+end submodule point_zone_fctry

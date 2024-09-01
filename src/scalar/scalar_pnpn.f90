@@ -34,10 +34,8 @@
 
 module scalar_pnpn
   use num_types, only: rp
-  use scalar_residual_fctry, only : scalar_residual_factory
-  use ax_helm_fctry, only: ax_helm_factory
-  use rhs_maker_fctry, only : rhs_maker_ext_fctry, rhs_maker_bdf_fctry
-  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t
+  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, &
+       rhs_maker_ext_fctry, rhs_maker_bdf_fctry
   use scalar_scheme, only : scalar_scheme_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
@@ -48,8 +46,8 @@ module scalar_pnpn
   use coefs, only : coef_t
   use device, only : HOST_TO_DEVICE, device_memcpy
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use scalar_residual, only :scalar_residual_t
-  use ax_product, only : ax_t
+  use scalar_residual, only : scalar_residual_t, scalar_residual_factory
+  use ax_product, only : ax_t, ax_helm_factory
   use field_series, only: field_series_t
   use facet_normal, only : facet_normal_t
   use krylov, only : ksp_monitor_t
@@ -59,8 +57,7 @@ module scalar_pnpn
   use projection, only : projection_t
   use math, only : glsc2, col2, add2s2
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
-  use advection, only : advection_t
-  use advection_fctry, only : advection_factory
+  use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_utils, only: json_get
   use json_module, only : json_file
@@ -216,20 +213,20 @@ contains
     call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s%x, this%s%x_d, &
-                          n, HOST_TO_DEVICE, sync=.false.)
+                          n, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%slag%lf(1)%x, this%slag%lf(1)%x_d, &
-                          n, HOST_TO_DEVICE, sync=.false.)
+                          n, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%slag%lf(2)%x, this%slag%lf(2)%x_d, &
-                          n, HOST_TO_DEVICE, sync=.false.)
+                          n, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%abx1%x, this%abx1%x_d, &
-                          n, HOST_TO_DEVICE, sync=.false.)
+                          n, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%abx2%x, this%abx2%x_d, &
-                          n, HOST_TO_DEVICE, sync=.false.)
+                          n, HOST_TO_DEVICE, sync = .false.)
     end if
 
-    call this%gs_Xh%op(this%s,GS_OP_ADD)
-    call this%gs_Xh%op(this%slag%lf(1),GS_OP_ADD)
-    call this%gs_Xh%op(this%slag%lf(2),GS_OP_ADD)
+    call this%gs_Xh%op(this%s, GS_OP_ADD)
+    call this%gs_Xh%op(this%slag%lf(1), GS_OP_ADD)
+    call this%gs_Xh%op(this%slag%lf(2), GS_OP_ADD)
 
   end subroutine scalar_pnpn_restart
 
@@ -286,7 +283,7 @@ contains
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
          cp => this%cp, rho => this%rho, &
          ds => this%ds, &
-         s_res =>this%s_res, &
+         s_res => this%s_res, &
          Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          slag => this%slag, &
@@ -335,6 +332,7 @@ contains
       !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
       call this%field_dir_bc%update(this%field_dir_bc%field_list, &
            this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
+
       call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), t, tstep, &
                                  strong=.true.)
 
@@ -344,8 +342,8 @@ contains
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar residual', 20)
-      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, lambda_field, rho*cp,&
-          ext_bdf%diffusion_coeffs(1), dt, dm_Xh%size())
+      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, lambda_field, &
+           rho*cp, ext_bdf%diffusion_coeffs(1), dt, dm_Xh%size())
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 

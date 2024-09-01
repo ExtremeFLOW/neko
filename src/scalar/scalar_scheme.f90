@@ -40,20 +40,18 @@ module scalar_scheme
   use field, only : field_t
   use field_list, only: field_list_t
   use space, only : space_t
-  use dofmap, only :  dofmap_t
-  use krylov, only : ksp_t
+  use dofmap, only : dofmap_t
+  use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
-  use krylov_fctry, only : krylov_solver_factory, krylov_solver_destroy
   use jacobi, only : jacobi_t
   use device_jacobi, only : device_jacobi_t
   use sx_jacobi, only : sx_jacobi_t
   use hsmg, only : hsmg_t
   use bc, only : bc_t
   use bc_list, only : bc_list_t
-  use precon_fctry, only : precon_factory, precon_destroy
-  use precon, only : pc_t
+  use precon, only : pc_t, precon_factory, precon_destroy
   use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use facet_zone, only : facet_zone_t
@@ -73,6 +71,7 @@ module scalar_scheme
   use math, only : cfill, add2s2
   use device_math, only : device_cfill, device_add2s2
   use neko_config, only : NEKO_BCKND_DEVICE
+  use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
   implicit none
 
@@ -95,13 +94,13 @@ module scalar_scheme
      !> Gather-scatter associated with \f$ X_h \f$.
      type(gs_t), pointer :: gs_Xh
      !> Coefficients associated with \f$ X_h \f$.
-     type(coef_t), pointer  :: c_Xh
+     type(coef_t), pointer :: c_Xh
      !> Right-hand side.
      type(field_t), pointer :: f_Xh => null()
      !> The source term for equation.
      type(scalar_source_term_t) :: source_term
      !> Krylov solver.
-     class(ksp_t), allocatable  :: ksp
+     class(ksp_t), allocatable :: ksp
      !> Max iterations in the Krylov solver.
      integer :: ksp_maxiter
      !> Projection space size.
@@ -206,7 +205,8 @@ module scalar_scheme
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf, dt_controller)
+     subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf, &
+          dt_controller)
        import scalar_scheme_t
        import time_scheme_controller_t
        import time_step_controller_t
@@ -262,6 +262,7 @@ contains
     end if
   end subroutine scalar_scheme_setup_bcs
 
+
   !> Initialize all related components of the current scheme
   !! @param msh The mesh.
   !! @param c_Xh The coefficients.
@@ -278,7 +279,7 @@ contains
     type(json_file), target, intent(inout) :: params
     character(len=*), intent(in) :: scheme
     type(user_t), target, intent(in) :: user
-    type(material_properties_t), target,  intent(inout) :: material_properties
+    type(material_properties_t), target, intent(inout) :: material_properties
     ! IO buffer for log output
     character(len=LOG_SIZE) :: log_buf
     ! Variables for retrieving json parameters
@@ -371,7 +372,7 @@ contains
     ! Setup right-hand side field.
     !
     allocate(this%f_Xh)
-    call this%f_Xh%init(this%dm_Xh, fld_name="scalar_rhs")
+    call this%f_Xh%init(this%dm_Xh, fld_name = "scalar_rhs")
 
     ! Initialize the source term
     call this%source_term%init(params, this%f_Xh, this%c_Xh, user)
@@ -400,13 +401,14 @@ contains
     !
     ! Associate our field dirichlet update to the user one.
     !
-!    this%field_dir_bc%update => user%user_dirichlet_update
 
+!    this%field_dir_bc%update => user%user_dirichlet_update
 !    call bc_list_init(this%field_dirichlet_bcs, size=1)
 !    call bc_list_add(this%field_dirichlet_bcs, this%field_dir_bc)
 
     ! todo parameter file ksp tol should be added
-    call json_get_or_default(params, 'case.fluid.velocity_solver.max_iterations',&
+    call json_get_or_default(params, &
+                             'case.fluid.velocity_solver.max_iterations', &
                              integer_val, 800)
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, integer_val, solver_abstol)
@@ -520,14 +522,14 @@ contains
 
     call precon_factory(pc, pctype)
 
-    select type(pcp => pc)
-    type is(jacobi_t)
+    select type (pcp => pc)
+    type is (jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (sx_jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (device_jacobi_t)
        call pcp%init(coef, dof, gs)
-    type is(hsmg_t)
+    type is (hsmg_t)
        if (len_trim(pctype) .gt. 4) then
           if (index(pctype, '+') .eq. 5) then
              call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &
@@ -567,7 +569,6 @@ contains
     if (this%variable_material_properties) then
       nut => neko_field_registry%get_field(this%nut_field_name)
       n = nut%size()
-
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_cfill(this%lambda_field%x_d, this%lambda, n)
          call device_add2s2(this%lambda_field%x_d, nut%x_d, lambda_factor, n)

@@ -32,15 +32,11 @@
 !
 !> Mixed Dirichlet-Neumann axis aligned symmetry plane
 module symmetry
-  use device_symmetry
-  use neko_config
-  use num_types
-  use dirichlet
-  use bc
-  use math
-  use utils
-  use stack
-  use tuple
+  use device_symmetry, only : device_symmetry_apply_vector
+  use dirichlet, only : dirichlet_t
+  use num_types, only : rp
+  use bc, only : bc_t
+  use tuple, only : tuple_i4_t
   use coefs, only : coef_t
   use json_module, only : json_file
   use zero_dirichlet, only : zero_dirichlet_t
@@ -94,14 +90,14 @@ contains
     class(symmetry_t), target, intent(inout) :: this
     integer :: i, m, j, l
     type(tuple_i4_t), pointer :: bfp(:)
-    real(kind=rp) :: sx,sy,sz
+    real(kind=rp) :: sx, sy, sz
     real(kind=rp), parameter :: TOL = 1d-3
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
 
     call this%finalize_base()
 
-    associate(c=>this%coef, nx => this%coef%nx, ny => this%coef%ny, &
+    associate(c => this%coef, nx => this%coef%nx, ny => this%coef%ny, &
               nz => this%coef%nz)
       bfp => this%marked_facet%array()
       do i = 1, this%marked_facet%size()

@@ -32,69 +32,84 @@
 !
 !> Master module
 module neko
-  use num_types
+  use num_types, only : rp, sp, dp, qp
   use comm
   use utils
   use logger
-  use math
+  use math, only : abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, &
+       cfill, glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, &
+       invers2, vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, &
+       sub3, add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
+       add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
+       glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
+       swap, reord, flipv, cadd2, pi
   use speclib
   use dofmap, only : dofmap_t
-  use space
+  use space, only : space_t, GL, GLL, GJ
   use htable
   use uset
   use stack
   use tuple
   use mesh, only : mesh_t
-  use point
+  use point, only : point_t
   use mesh_field, only : mesh_fld_t
   use map
-  use mxm_wrapper
+  use mxm_wrapper, only : mxm
   use global_interpolation
   use file
   use field, only : field_t, field_ptr_t
   use neko_mpi_types
   use gather_scatter
-  use coefs
+  use coefs, only : coef_t
   use bc
-  use zero_dirichlet
-  use dirichlet
+  use zero_dirichlet, only : zero_dirichlet_t
   use krylov_fctry
   use precon_fctry
-  use ax_helm_fctry
-  use ax_product
+  use dirichlet, only : dirichlet_t
+  use ax_product, only : ax_t, ax_helm_factory
+  use parmetis, only : parmetis_partgeom, parmetis_partmeshkway
   use neko_config
-  use case
-  use sampler
-  use output
-  use simulation
-  use operators
-  use mathops
+  use case, only : case_t, case_init, case_free
+  use sampler, only : sampler_t
+  use output, only : output_t
+  use simulation, only : neko_solve
+  use operators, only : dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl,&
+            lambda2op, strain_rate, div, grad
+  use mathops, only : opchsign, opcolv, opcolv3c, opadd2cm, opadd2col
   use projection
   use user_intf
-  use parmetis
   use signal
-  use jobctrl
+  use jobctrl, only : jobctrl_init, jobctrl_set_time_limit, &
+       jobctrl_time_limit, jobctrl_jobtime
   use device
-  use device_math
-  use map_1d
-  use cpr
-  use fluid_stats
+  use device_math, only : device_copy, device_rzero, device_rone, &
+       device_cmult, device_cmult2, device_cadd, device_cfill, device_add2, &
+       device_add2s1, device_add2s2, device_addsqr2s2, device_add3s2, &
+       device_invcol1, device_invcol2, device_col2, device_col3, &
+       device_subcol3,  device_sub2, device_sub3, device_addcol3, &
+       device_addcol4, device_vdot3, device_vlsc3, device_glsc3, &
+       device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
+       device_masked_copy, device_cfill_mask, device_add3, device_cadd2
+  use map_1d, only : map_1d_t
+  use cpr, only : cpr_t, cpr_init, cpr_free
+  use fluid_stats, only : fluid_stats_t
   use field_list, only : field_list_t
   use fluid_user_source_term
   use scalar_user_source_term
-  use vector
-  use matrix
+  use vector, only : vector_t, vector_ptr_t
+  use matrix, only : matrix_t
   use tensor
-  use simulation_component
-  use probes
+  use simulation_component, only : simulation_component_t, &
+       simulation_component_wrapper_t
+  use probes, only : probes_t
   use spectral_error_indicator
-  use system
-  use drag_torque
+  use system, only : system_cpu_name, system_cpuid
+  use drag_torque, only : drag_torque_zone, drag_torque_facet, drag_torque_pt
   use field_registry, only : neko_field_registry
   use scratch_registry, only : neko_scratch_registry
   use simcomp_executor, only : neko_simcomps
-  use data_streamer
-  use time_interpolator
+  use data_streamer, only : data_streamer_t
+  use time_interpolator, only : time_interpolator_t
   use point_interpolator, only : point_interpolator_t
   use point_zone, only: point_zone_t
   use box_point_zone, only: box_point_zone_t
@@ -102,6 +117,8 @@ module neko
   use point_zone_registry, only: neko_point_zone_registry
   use field_dirichlet, only : field_dirichlet_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
+  use json_module, only : json_file
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
@@ -117,7 +134,7 @@ contains
     character(8) :: date
     integer :: argc, nthrds, rw, sw
 
-    call date_and_time(time=time, date=date)
+    call date_and_time(time = time, date = date)
 
     call comm_init
     call neko_mpi_types_init
@@ -129,12 +146,12 @@ contains
 
     if (pe_rank .eq. 0) then
        write(*,*) ''
-       write(*,*) '   _  __  ____  __ __  ____ '
-       write(*,*) '  / |/ / / __/ / //_/ / __ \'
-       write(*,*) ' /    / / _/  / ,<   / /_/ /'
-       write(*,*) '/_/|_/ /___/ /_/|_|  \____/ '
+       write(*,*) '   _  __  ____  __ __  ____  '
+       write(*,*) '  / |/ / / __/ / //_/ / __ \ '
+       write(*,*) ' /    / / _/  / ,<   / /_/ / '
+       write(*,*) '/_/|_/ /___/ /_/|_|  \____/  '
        write(*,*) ''
-       write(*,*) '(version: ', trim(NEKO_VERSION),')'
+       write(*,*) '(version: ', trim(NEKO_VERSION), ')'
        write(*,*) trim(NEKO_BUILD_INFO)
        write(*,*) ''
     end if
@@ -144,7 +161,7 @@ contains
        argc = command_argument_count()
 
        if ((argc .lt. 1) .or. (argc .gt. 1)) then
-          if (pe_rank .eq. 0) write(*,*) 'Usage: ./neko <case file>'
+          if (pe_rank .eq. 0) write(*,*) 'Usage: ./neko < case file >'
           stop
        end if
 
@@ -156,12 +173,20 @@ contains
           call neko_error('Invalid case file')
        end if
 
+       ! Check the device count against the number of MPI ranks
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          if (device_count() .ne. 1) then
+             call neko_error('Only one device is supported per MPI rank')
+          end if
+       end if
+
        !
        ! Job information
        !
        call neko_log%section("Job Information")
        write(log_buf, '(A,A,A,A,1x,A,1x,A,A,A,A,A)') 'Start time: ',&
-         time(1:2),':',time(3:4), '/', date(1:4),'-', date(5:6),'-',date(7:8)
+            time(1:2), ':', time(3:4), &
+            '/', date(1:4), '-', date(5:6), '-', date(7:8)
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
        write(log_buf, '(a)') 'Running on: '
        sw = 10
@@ -201,16 +226,16 @@ contains
        if (nthrds .gt. 1) then
           if (nthrds .lt. 1e1) then
              write(log_buf(13 + rw + sw:), '(a,i1,a)') ', using ', &
-               nthrds, ' thrds each'
+                  nthrds, ' thrds each'
           else if (nthrds .lt. 1e2) then
              write(log_buf(13 + rw + sw:), '(a,i2,a)') ', using ', &
-               nthrds, ' thrds each'
+                  nthrds, ' thrds each'
           else if (nthrds .lt. 1e3) then
              write(log_buf(13 + rw + sw:), '(a,i3,a)') ', using ', &
-               nthrds, ' thrds each'
+                  nthrds, ' thrds each'
           else if (nthrds .lt. 1e4) then
              write(log_buf(13 + rw + sw:), '(a,i4,a)') ', using ', &
-               nthrds, ' thrds each'
+                  nthrds, ' thrds each'
           end if
        end if
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
