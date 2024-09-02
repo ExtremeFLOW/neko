@@ -405,96 +405,98 @@ contains
             (int(lxyz, i8) * &
             int(FLD_DATA_SIZE, i8))
     end do
+    
+    if (gdim .eq. 3) then
 
-
-    !> Include metadata with bounding boxes (Just copying from nek5000)
-    if (write_mesh) then
-       !The offset is:
-       ! mpioff + element_off * 2(min max value)
-       !           * 4(single precision) * gdim(dimensions)
-       byte_offset = int(mpi_offset, i8) + &
-            int(offset_el, i8) * &
-            int(2, i8) * &
-            int(MPI_REAL_SIZE, i8) * &
-            int(gdim, i8)
-       call fld_file_write_metadata_vector(this, fh, byte_offset, &
-            x%ptr, y%ptr, z%ptr, gdim, lxyz, nelv)
-       mpi_offset = int(mpi_offset, i8) + &
-            int(glb_nelv, i8) * &
-            int(2, i8) * &
-            int(MPI_REAL_SIZE, i8) * &
-            int(gdim, i8)
-    end if
-
-    if (write_velocity) then
-       byte_offset = int(mpi_offset, i8) + &
-            int(offset_el, i8) * &
-            int(2, i8) * &
-            int(MPI_REAL_SIZE, i8) * &
-            int(gdim, i8)
-       call fld_file_write_metadata_vector(this, fh, byte_offset, &
-            u%ptr, v%ptr, w%ptr, gdim, lxyz, nelv)
-       mpi_offset = int(mpi_offset, i8) + &
-            int(glb_nelv, i8) * &
-            int(2, i8) * &
-            int(MPI_REAL_SIZE, i8) * &
-            int(gdim, i8)
-
-    end if
-
-    if (write_pressure) then
-       byte_offset = int(mpi_offset, i8) + &
-            int(offset_el, i8) * &
-            int(2, i8) * &
-            int(MPI_REAL_SIZE, i8)
-       call fld_file_write_metadata_scalar(this, fh, byte_offset, &
-            p%ptr, lxyz, nelv)
-       mpi_offset = int(mpi_offset, i8) + &
-            int(glb_nelv, i8) * &
-            int(2, i8) * &
-            int(MPI_REAL_SIZE, i8)
-
-    end if
-
-    if (write_temperature) then
-       byte_offset = int(mpi_offset, i8) + &
-            int(offset_el, i8) * &
-            int(2, i8) * &
-            int(MPI_REAL_SIZE, i8)
-       call fld_file_write_metadata_scalar(this, fh, byte_offset, &
-            tem%ptr, lxyz, nelv)
-       mpi_offset = int(mpi_offset, i8) + &
-            int(glb_nelv, i8) * &
-            int(2, i8) * &
-            int(MPI_REAL_SIZE, i8)
-
-    end if
-
-
-
-    temp_offset = mpi_offset
-
-    do i = 1, n_scalar_fields
-       ! Without this redundant if statement, Cray optimizes this loop to
-       ! Oblivion
-       if (i .eq. 2) then
-          mpi_offset = int(temp_offset, i8) + &
-               int(1_i8*glb_nelv, i8) * &
+       !> Include metadata with bounding boxes (Just copying from nek5000)
+       if (write_mesh) then
+          !The offset is:
+          ! mpioff + element_off * 2(min max value)
+          !           * 4(single precision) * gdim(dimensions)
+          byte_offset = int(mpi_offset, i8) + &
+               int(offset_el, i8) * &
                int(2, i8) * &
-               int(MPI_REAL_SIZE, i8)
+               int(MPI_REAL_SIZE, i8) * &
+               int(gdim, i8)
+          call fld_file_write_metadata_vector(this, fh, byte_offset, &
+               x%ptr, y%ptr, z%ptr, gdim, lxyz, nelv)
+          mpi_offset = int(mpi_offset, i8) + &
+               int(glb_nelv, i8) * &
+               int(2, i8) * &
+               int(MPI_REAL_SIZE, i8) * &
+               int(gdim, i8)
        end if
 
-       byte_offset = int(mpi_offset, i8) + &
-            int(offset_el, i8) * &
-            int(2, i8) * &
-            int(MPI_REAL_SIZE, i8)
-       call fld_file_write_metadata_scalar(this, fh, byte_offset, &
-            scalar_fields(i)%ptr, lxyz, nelv)
-       mpi_offset = int(mpi_offset, i8) + &
-            int(glb_nelv, i8) * &
-            int(2, i8) * &
-            int(MPI_REAL_SIZE, i8)
-    end do
+       if (write_velocity) then
+          byte_offset = int(mpi_offset, i8) + &
+               int(offset_el, i8) * &
+               int(2, i8) * &
+               int(MPI_REAL_SIZE, i8) * &
+               int(gdim, i8)
+          call fld_file_write_metadata_vector(this, fh, byte_offset, &
+               u%ptr, v%ptr, w%ptr, gdim, lxyz, nelv)
+          mpi_offset = int(mpi_offset, i8) + &
+               int(glb_nelv, i8) * &
+               int(2, i8) * &
+               int(MPI_REAL_SIZE, i8) * &
+               int(gdim, i8)
+
+       end if
+
+       if (write_pressure) then
+          byte_offset = int(mpi_offset, i8) + &
+               int(offset_el, i8) * &
+               int(2, i8) * &
+               int(MPI_REAL_SIZE, i8)
+          call fld_file_write_metadata_scalar(this, fh, byte_offset, &
+               p%ptr, lxyz, nelv)
+          mpi_offset = int(mpi_offset, i8) + &
+               int(glb_nelv, i8) * &
+               int(2, i8) * &
+               int(MPI_REAL_SIZE, i8)
+
+       end if
+
+       if (write_temperature) then
+          byte_offset = int(mpi_offset, i8) + &
+               int(offset_el, i8) * &
+               int(2, i8) * &
+               int(MPI_REAL_SIZE, i8)
+          call fld_file_write_metadata_scalar(this, fh, byte_offset, &
+               tem%ptr, lxyz, nelv)
+          mpi_offset = int(mpi_offset, i8) + &
+               int(glb_nelv, i8) * &
+               int(2, i8) * &
+               int(MPI_REAL_SIZE, i8)
+
+       end if
+
+
+
+       temp_offset = mpi_offset
+
+       do i = 1, n_scalar_fields
+          ! Without this redundant if statement, Cray optimizes this loop to
+          ! Oblivion
+          if (i .eq. 2) then
+             mpi_offset = int(temp_offset, i8) + &
+                  int(1_i8*glb_nelv, i8) * &
+                  int(2, i8) * &
+                  int(MPI_REAL_SIZE, i8)
+          end if
+
+          byte_offset = int(mpi_offset, i8) + &
+               int(offset_el, i8) * &
+               int(2, i8) * &
+               int(MPI_REAL_SIZE, i8)
+          call fld_file_write_metadata_scalar(this, fh, byte_offset, &
+               scalar_fields(i)%ptr, lxyz, nelv)
+          mpi_offset = int(mpi_offset, i8) + &
+               int(glb_nelv, i8) * &
+               int(2, i8) * &
+               int(MPI_REAL_SIZE, i8)
+       end do
+    end if
 
 
     call MPI_File_sync(fh, ierr)
