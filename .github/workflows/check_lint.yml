@@ -108,8 +108,8 @@ jobs:
       - name: Get changed files
         id: get-changed-files
         run: |
-          git fetch --unshallow origin $target
-          changes=($(git diff --name-only --diff-filter=d origin/$target))
+          git fetch --unshallow origin develop
+          changes=($(git diff --name-only --diff-filter=d origin/develop))
 
           printf "Detected fortran changes:\n"
           for file in ${changes[@]}; do
