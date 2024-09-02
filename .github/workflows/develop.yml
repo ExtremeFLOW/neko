@@ -106,65 +106,6 @@ jobs:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
   # ========================================================================== #
-  # Create badges
-
-  create-compilation-badges:
-    if: ${{ !cancelled() }}
-    name: "Create Compilation badges"
-    runs-on: ubuntu-20.04
-    needs:
-      - GNU
-      - Intel
-      - Nvidia
-
-    steps:
-      - name: Check status
-        run: |
-          if [ "${{ needs.GNU.result }}" == "skipped" ]; then
-            exit 1
-          fi
-          if [ "${{ needs.Intel.result }}" == "skipped" ]; then
-            exit 1
-          fi
-          if [ "${{ needs.Nvidia.result }}" == "skipped" ]; then
-            exit 1
-          fi
-
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup env.
-        run: |
-          sudo apt-get update
-          sudo apt-get install -yq python3-pip
-          pip install anybadge
-
-      - name: create directory
-        run: |
-          mkdir -p doc/media
-
-      - name: Create badge GNU
-        run: |
-          anybadge -l GNU -v ${{ needs.GNU.result }} -o \
-            -f=doc/media/gnu-badge.svg success=green failure=red
-
-      - name: Create badge Intel
-        run: |
-          anybadge -l Intel -v ${{ needs.Intel.result }} -o \
-            -f=doc/media/intel-badge.svg success=green failure=red
-
-      - name: Create badge Nvidia
-        run: |
-          anybadge -l Nvidia -v ${{ needs.Nvidia.result }} -o \
-            -f=doc/media/nvidia-badge.svg success=green failure=red
-
-      - name: Save artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: compilation-badge
-          path: doc/media/*-badge.svg
-
-  # ========================================================================== #
   # Upload the badges
 
   upload-badges:
@@ -172,11 +113,9 @@ jobs:
     runs-on: ubuntu-20.04
     needs:
       - linting
-      - create-compilation-badges
 
     if: ${{ !cancelled() }} &&
         ${{ needs.linting.result == 'success' }} &&
-        ${{ needs.create-compilation-badges.result == 'success' }}
 
     steps:
       - name: Checkout
