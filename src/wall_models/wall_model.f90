@@ -145,6 +145,29 @@ module wall_model
      end subroutine wall_model_free
   end interface
 
+  interface
+     !> Wall model factory. Both constructs and initializes the object.
+     !! @param object The object to be allocated.
+     !! @param coef SEM coefficients.
+     !! @param msk The boundary mask.
+     !! @param facet The boundary facets.
+     !! @param nu The molecular kinematic viscosity.
+     !! @param h_index The off-wall index of the sampling cell.
+     !! @param json A dictionary with parameters.
+     module subroutine wall_model_factory(object, coef, msk, facet, nu, &
+          h_index, json)
+       class(wall_model_t), allocatable, target, intent(inout) :: object
+       type(coef_t), intent(in) :: coef
+       integer, intent(in) :: msk(:)
+       integer, intent(in) :: facet(:)
+       real(kind=rp), intent(in) :: nu
+       integer, intent(in) :: h_index
+       type(json_file), intent(inout) :: json
+     end subroutine wall_model_factory
+  end interface
+
+  public :: wall_model_factory
+
 contains
   !> Constructor for the wall_model_t (base) class.
   !! @param dof SEM map of degrees of freedom.
@@ -168,7 +191,7 @@ contains
     this%h_index = index
 
     call neko_field_registry%add_field(this%dof, "tau", &
-                                       ignore_existing=.true.)
+                                       ignore_existing = .true.)
 
     this%tau_field => neko_field_registry%get_field("tau")
 
@@ -241,27 +264,27 @@ contains
        normal = -normal
 
        select case (fid)
-       case(1)
+       case (1)
          this%ind_r(i) = idx(1) + this%h_index
          this%ind_s(i) = idx(2)
          this%ind_t(i) = idx(3)
-       case(2)
+       case (2)
          this%ind_r(i) = idx(1) - this%h_index
          this%ind_s(i) = idx(2)
          this%ind_t(i) = idx(3)
-       case(3)
+       case (3)
          this%ind_r(i) = idx(1)
          this%ind_s(i) = idx(2) + this%h_index
          this%ind_t(i) = idx(3)
-       case(4)
+       case (4)
          this%ind_r(i) = idx(1)
          this%ind_s(i) = idx(2) - this%h_index
          this%ind_t(i) = idx(3)
-       case(5)
+       case (5)
          this%ind_r(i) = idx(1)
          this%ind_s(i) = idx(2)
          this%ind_t(i) = idx(3) + this%h_index
-       case(6)
+       case (6)
          this%ind_r(i) = idx(1)
          this%ind_s(i) = idx(2)
          this%ind_t(i) = idx(3) - this%h_index
@@ -316,13 +339,13 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
       call device_memcpy(this%h%x, this%h%x_d, n_nodes, HOST_TO_DEVICE,&
-                         sync=.false.)
+                         sync = .false.)
       call device_memcpy(this%n_x%x, this%n_x%x_d, n_nodes, HOST_TO_DEVICE, &
-                         sync=.false.)
+                         sync = .false.)
       call device_memcpy(this%n_y%x, this%n_y%x_d, n_nodes, HOST_TO_DEVICE, &
-                         sync=.false.)
+                         sync = .false.)
       call device_memcpy(this%n_z%x, this%n_z%x_d, n_nodes, HOST_TO_DEVICE, &
-                         sync=.true.)
+                         sync = .true.)
     end if
   end subroutine wall_model_find_points
 

@@ -77,10 +77,10 @@ neko_fortran_SOURCES = \
 	field/mean_field.f90\
 	field/mean_sqr_field.f90\
 	io/format/rea.f90\
-	math/bcknd/cpu/cdtp.f90\
-	math/bcknd/cpu/conv1.f90\
-	math/bcknd/cpu/dudxyz.f90\
-	math/bcknd/cpu/opgrad.f90\
+	math/bcknd/cpu/cpu_cdtp.f90\
+	math/bcknd/cpu/cpu_conv1.f90\
+	math/bcknd/cpu/cpu_dudxyz.f90\
+	math/bcknd/cpu/cpu_opgrad.f90\
 	math/bcknd/sx/sx_cdtp.f90\
 	math/bcknd/sx/sx_conv1.f90\
 	math/bcknd/sx/sx_dudxyz.f90\
@@ -472,7 +472,8 @@ pkginclude_HEADERS += device/opencl/check.h
 endif
 
 
-CLEANFILES = *.mod
+CLEANFILES = *.mod\
+	     *.smod
 
 if ENABLE_OPENCL
 CLEANFILES += \

@@ -33,15 +33,13 @@
 !> Defines a simulation case
 module case
   use num_types, only : rp, sp, dp
-  use fluid_fctry, only : fluid_scheme_factory
   use fluid_pnpn, only : fluid_pnpn_t
-  use fluid_scheme, only : fluid_scheme_t
+  use fluid_scheme, only : fluid_scheme_t, fluid_scheme_factory
   use fluid_output, only : fluid_output_t
   use chkp_output, only : chkp_output_t
   use mean_sqr_flow_output, only : mean_sqr_flow_output_t
   use mean_flow_output, only : mean_flow_output_t
   use fluid_stats_output, only : fluid_stats_output_t
-  use mpi_f08
   use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
   use parmetis, only : parmetis_partmeshkway
   use redist, only : redist_mesh
@@ -64,8 +62,9 @@ module case
   use point_zone_registry, only: neko_point_zone_registry
   use material_properties, only : material_properties_t
   implicit none
-
-  type :: case_t
+  private
+  
+  type, public :: case_t
      type(mesh_t) :: msh
      type(json_file) :: params
      type(time_scheme_controller_t) :: ext_bdf
@@ -90,7 +89,7 @@ module case
      module procedure case_init_from_file, case_init_from_json
   end interface case_init
 
-  private :: case_init_from_file, case_init_from_json, case_init_common
+  public :: case_init, case_free
 
 contains
 
@@ -112,7 +111,7 @@ contains
     end if
 
     call MPI_Bcast(integer_val, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
-    if (pe_rank .ne. 0) allocate(character(len=integer_val) :: json_buffer)
+    if (pe_rank .ne. 0) allocate(character(len=integer_val)::json_buffer)
     call MPI_Bcast(json_buffer, integer_val, MPI_CHARACTER, 0, NEKO_COMM, ierr)
     call C%params%load_from_string(json_buffer)
 
@@ -156,7 +155,11 @@ contains
     !
     ! Load mesh
     !
-    call json_get(C%params, 'case.mesh_file', string_val)
+    call json_get_or_default(C%params, 'case.mesh_file', string_val, 'no mesh')
+    if (trim(string_val) .eq. 'no mesh') then
+       call neko_error('The mesh_file keyword could not be found in the .' // &
+                       'case file. Often caused by incorrectly formatted json.')
+    end if
     msh_file = file_t(string_val)
 
     call msh_file%read(C%msh)
