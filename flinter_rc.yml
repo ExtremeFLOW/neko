@@ -136,6 +136,12 @@ regexp-rules:
     replacement: null
     active: true
 
+  scope-not-specified:
+    message: Module usage should be explicit
+    regexp: ((^\s+use +)(?!(\bneko\b)|(\bdevice\b)|(\bcomm\b)|(\bmpi_f08\b)|(\bhdf5\b))\w+\b)(?!, only)
+    replacement: null
+    active: true
+
   # -------------------------------------------------------------------------- #
   # Formatting and code style rules
 
@@ -161,13 +167,13 @@ regexp-rules:
     message: Incorrect space before separator
     regexp: (allocate\()?(^\s*\w+(?<!allocate)\b)?(?(1).*(?<=\s)::|(?(2).*(?<=\S)::|\0))
     replacement: '\1 ::'
-    active: true
+    active: false
 
   incorrect-spaces-after-separator:
     message: Incorrect space after separator
     regexp: (allocate\()?(^\s*\w+(?<!allocate)\b)?(?(1).*::(?=\s)|(?(2).*::(?=\S)|\0))
     replacement: ':: \1'
-    active: true
+    active: false
 
   # Look through the list of punctuation, but skip if inside format string '()'
   # However, we do allow a single letter variable or 2 digit number to be used
@@ -180,7 +186,7 @@ regexp-rules:
 
   missing-space-before-parenthesis:
     message: Missing space before parenthesis
-    regexp: ({structs})\(
+    regexp: (\b{structs}\b)\(
     replacement: \1 (
     active: true
 
@@ -192,13 +198,13 @@ regexp-rules:
 
   missing-spaces-before-=:
     message: Missing spaces before "="
-    regexp: ([^ \=\n]+)(?<!(kind|.len|..\'d|..\'n))=
+    regexp: ([^ \=\n]+)(?<!(kind|.len|..\'d|..\'n))((?<![\/=<>])=(?![>=]))
     replacement: ' = \2'
     active: true
 
   missing-spaces-after-=:
     message: Missing spaces after "="
-    regexp: (?<!(kind|.len|..\'d|..\'n))=(?![=<>])([^ ]\S*)
+    regexp: (?<!(kind|.len|..\'d|..\'n))((?<![=<>\/])=(?![>=]))([^ ]\S*)
     replacement: ' = \2'
     active: true
 

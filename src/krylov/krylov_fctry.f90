@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module krylov_fctry
+submodule (krylov) krylov_fctry
   use cg, only : cg_t
   use cg_sx, only : sx_cg_t
   use cg_cpld, only : cg_cpld_t
@@ -43,25 +43,24 @@ module krylov_fctry
   use fusedcg_cpld_device, only : fusedcg_cpld_device_t
   use bicgstab, only : bicgstab_t
   use gmres, only : gmres_t
+  use cheby, only : cheby_t
+  use cheby_device, only : cheby_device_t
   use gmres_sx, only : sx_gmres_t
   use gmres_device, only : gmres_device_t
   use num_Types, only : rp
-  use krylov, only : ksp_t, ksp_monitor_t
   use precon, only : pc_t
-  use utils, only : concat_string_array, neko_error
-  use neko_config
+  use utils, only : concat_string_array
+  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_OPENCL
   implicit none
-  private
-
-  public :: krylov_solver_factory, krylov_solver_destroy
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KNOWN_TYPES(7) = [character(len=20) :: &
+  character(len=20) :: KSP_KNOWN_TYPES(8) = [character(len=20) :: &
      "cg", &
      "pipecg", &
      "fusedcg", &
      "cacg", &
      "gmres", &
+     "cheby", &
      "bicgstab", &
      "cpldcg"]
 
@@ -74,7 +73,8 @@ contains
   !! @param max_iter The maximum number of iterations
   !! @param abstol The absolute tolerance, optional.
   !! @param M The preconditioner, optional.
-  subroutine krylov_solver_factory(object, n, type_name, max_iter, abstol, M)
+  module subroutine krylov_solver_factory(object, n, type_name, &
+       max_iter, abstol, M)
     class(ksp_t), allocatable, target, intent(inout) :: object
     integer, intent(in), value :: n
     character(len=*), intent(in) :: type_name
@@ -140,11 +140,17 @@ contains
        else
           allocate(gmres_t::object)
        end if
+    else if (trim(type_name) .eq. 'cheby') then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          allocate(cheby_device_t::object)
+       else
+          allocate(cheby_t::object)
+       end if
     else if (trim(type_name) .eq. 'bicgstab') then
        allocate(bicgstab_t::object)
     else
-       type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
-                                          .true.)
+       type_string =  concat_string_array(KSP_KNOWN_TYPES,&
+            NEW_LINE('A') // "-  ",  .true.)
        call neko_error("Unknown Krylov solver type: " &
                        // trim(type_name) // ". Known types are: " &
                        // type_string)
@@ -184,6 +190,10 @@ contains
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
        type is (bicgstab_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
+       type is (cheby_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol)
+       type is (cheby_device_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol)
        end select
     else if (present(abstol)) then
        select type (obj => object)
@@ -214,6 +224,10 @@ contains
        type is (gmres_device_t)
           call obj%init(n, max_iter, abs_tol = abstol)
        type is (bicgstab_t)
+          call obj%init(n, max_iter, abs_tol = abstol)
+       type is (cheby_t)
+          call obj%init(n, max_iter, abs_tol = abstol)
+       type is (cheby_device_t)
           call obj%init(n, max_iter, abs_tol = abstol)
        end select
     else if (present(M)) then
@@ -246,6 +260,10 @@ contains
           call obj%init(n, max_iter, M = M)
        type is (bicgstab_t)
           call obj%init(n, max_iter, M = M)
+       type is (cheby_t)
+          call obj%init(n, max_iter, M = M)
+       type is (cheby_device_t)
+          call obj%init(n, max_iter, M = M)
        end select
     else
        select type (obj => object)
@@ -277,13 +295,17 @@ contains
           call obj%init(n, max_iter)
        type is (bicgstab_t)
           call obj%init(n, max_iter)
+       type is (cheby_t)
+          call obj%init(n, max_iter)
+       type is (cheby_device_t)
+          call obj%init(n, max_iter)
        end select
     end if
 
   end subroutine krylov_solver_factory
 
-  !> Destroy an interative Krylov type_name
-  subroutine krylov_solver_destroy(object)
+  !> Destroy an iterative Krylov type_name
+  module subroutine krylov_solver_destroy(object)
     class(ksp_t), allocatable, intent(inout) :: object
 
     if (allocated(object)) then
@@ -316,10 +338,12 @@ contains
           call obj%free()
        type is (bicgstab_t)
           call obj%free()
+       type is (cheby_t)
+          call obj%free()
        end select
     end if
 
   end subroutine krylov_solver_destroy
 
-end module krylov_fctry
+end submodule krylov_fctry
 

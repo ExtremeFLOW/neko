@@ -62,12 +62,24 @@ to use a plain `integer`.
 Submitting a pull request to Neko requires that the code passes the linting
 rules. The linting rules are enforced by the
 [flint](https://github.com/marshallward/flint) tool. The rules are defined in the
-`.flinter_rc` file in the root of the repository. 
+`flinter_rc.yml` file in the root of the repository. 
+
+Please note, newer versions of flint fails to execute for some of our large files (htable.f90 and stack.f90).
+
+One way to install flint is thorugh pip:
+```sh
+pip install nobvisual==0.2.0 flinter==0.4.0
+```
+
 
 To test your code against the linting rules, you can run the following command:
 
 ```sh
-flint score -r .flinter_rc <file>.f90
+flint score -r flinter_rc.yml <file>.f90
+```
+The whole src directory can be checked with:
+```sh
+flint score -r flinter_rc.yml src/
 ```
 
 The rules are as follows:

@@ -77,10 +77,10 @@ neko_fortran_SOURCES = \
 	field/mean_field.f90\
 	field/mean_sqr_field.f90\
 	io/format/rea.f90\
-	math/bcknd/cpu/cdtp.f90\
-	math/bcknd/cpu/conv1.f90\
-	math/bcknd/cpu/dudxyz.f90\
-	math/bcknd/cpu/opgrad.f90\
+	math/bcknd/cpu/cpu_cdtp.f90\
+	math/bcknd/cpu/cpu_conv1.f90\
+	math/bcknd/cpu/cpu_dudxyz.f90\
+	math/bcknd/cpu/cpu_opgrad.f90\
 	math/bcknd/sx/sx_cdtp.f90\
 	math/bcknd/sx/sx_conv1.f90\
 	math/bcknd/sx/sx_dudxyz.f90\
@@ -153,6 +153,7 @@ neko_fortran_SOURCES = \
 	krylov/krylov_fctry.f90\
 	krylov/bcknd/cpu/cg.f90\
 	krylov/bcknd/cpu/cacg.f90\
+	krylov/bcknd/cpu/cheby.f90\
 	krylov/bcknd/cpu/pipecg.f90\
 	krylov/bcknd/cpu/bicgstab.f90\
 	krylov/bcknd/cpu/gmres.f90\
@@ -163,6 +164,7 @@ neko_fortran_SOURCES = \
 	krylov/bcknd/sx/gmres_sx.f90\
 	krylov/bcknd/sx/pc_jacobi_sx.f90\
 	krylov/bcknd/device/cg_device.f90\
+	krylov/bcknd/device/cheby_device.F90\
 	krylov/bcknd/device/pipecg_device.F90\
 	krylov/bcknd/device/fusedcg_device.F90\
 	krylov/bcknd/device/fusedcg_cpld_device.F90\
@@ -237,7 +239,7 @@ neko_fortran_SOURCES = \
 	device/opencl/prgm_lib.F90\
 	device/dummy_device.F90\
 	device/device.F90\
-	math/bcknd/field_math.f90\
+	math/field_math.f90\
 	math/bcknd/device/device_math.F90\
 	math/bcknd/device/device_schwarz.F90\
 	math/bcknd/device/tensor_device.F90\
@@ -470,7 +472,8 @@ pkginclude_HEADERS += device/opencl/check.h
 endif
 
 
-CLEANFILES = *.mod
+CLEANFILES = *.mod\
+	     *.smod
 
 if ENABLE_OPENCL
 CLEANFILES += \

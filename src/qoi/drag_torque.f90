@@ -59,15 +59,14 @@
 !
 
 module drag_torque
-  use field, only: field_t
-  use coefs, only: coef_t
-  use mesh
-  use facet_zone
+  use field, only : field_t
+  use coefs, only : coef_t
+  use mesh, only : mesh_t
+  use facet_zone, only : facet_zone_t
   use comm
-  use math
+  use math, only : rzero
   use space, only: space_t
   use num_types, only: rp
-  use operators
   implicit none
   private
   !> Some functions to calculate the lift/drag and torque
@@ -149,7 +148,7 @@ contains
          torqvx = torqvx + dgtq(1,4)  ! viscous
          torqvy = torqvy + dgtq(2,4)
          torqvz = torqvz + dgtq(3,4)
-      enddo
+      end do
 !
 !     Sum contributions from all processors
 !

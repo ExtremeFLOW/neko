@@ -36,6 +36,7 @@ module advection
   use space, only : space_t
   use field, only : field_t
   use coefs, only : coef_t
+  use json_module, only : json_file
   implicit none
   private
 
@@ -46,6 +47,21 @@ module advection
      procedure(compute_scalar_adv), pass(this), deferred :: compute_scalar
      procedure(advection_free), pass(this), deferred :: free
   end type advection_t
+
+  interface
+     !> A factory for \ref advection_t decendants. Both creates and initializes
+     !! the object.
+     !! @param object The object allocated by the factory.
+     !! @param json The parameter file.
+     !! @param coef The coefficients of the (space, mesh) pair.
+     module subroutine advection_factory(object, json, coef)
+       class(advection_t), allocatable, intent(inout) :: object
+       type(json_file), intent(inout) :: json
+       type(coef_t), intent(inout), target :: coef
+     end subroutine advection_factory
+  end interface
+
+  public :: advection_factory
 
   abstract interface
      !> Add advection operator to the right-hand-side for a fluld.
