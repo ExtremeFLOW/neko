@@ -25,6 +25,8 @@ program genmeshbox
   type(vector_t) :: dist_x, dist_y, dist_z
   type(file_t) :: dist_x_file, dist_y_file, dist_z_file
   character(len = 80) :: dist_x_fname, dist_y_fname, dist_z_fname
+  character(len=80) :: log_fname = "genmeshbox.log"
+  logical :: file_exists
 
   argc = command_argument_count()
 
@@ -95,8 +97,6 @@ program genmeshbox
      call get_command_argument(15, inputchar)
      read(inputchar, *) dist_z_fname
   end if
-
-  log_fname = "genmeshbox.log"
 
   ! Write a log of what parameters we used with genmeshbox
   if (pe_rank .eq. 0) then
