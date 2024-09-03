@@ -44,6 +44,7 @@ module bc
   use tuple, only : tuple_i4_t
   use utils, only : neko_error, linear_index, split_string
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
+  use json_module, only : json_file
   implicit none
   private
 
@@ -67,6 +68,10 @@ module bc
      type(c_ptr) :: msk_d = C_NULL_PTR
      !> Device pointer for facet
      type(c_ptr) :: facet_d = C_NULL_PTR
+     !> Wether the bc is strongly enforced. Essentially valid for all Dirichlet
+     !! types of bcs. These need to be masked out for solvers etc, so that
+     !! values are not affected.
+     logical :: strong = .true.
    contains
      !> Constructor
      procedure, pass(this) :: init_base => bc_init_base
@@ -82,32 +87,39 @@ module bc
      procedure, pass(this) :: mark_zone => bc_mark_zone
      !> Finalize the construction of the bc by populting the msk and facet
      !! arrays
-     procedure, pass(this) :: finalize => bc_finalize
-     !> Apply the boundary condition to a scalar field
+     procedure, pass(this) :: finalize_base => bc_finalize_base
+
+     !> Apply the boundary condition to a scalar field. Dispatches to the CPU
+     !! or the device version.
+     procedure, pass(this) :: apply_scalar_generic => bc_apply_scalar_generic
+     !> Apply the boundary condition to a vector field. Dispatches to the CPU
+     !! or the device version.
+     procedure, pass(this) :: apply_vector_generic => bc_apply_vector_generic
+     !> Apply the boundary condition to a scalar field on the CPU.
      procedure(bc_apply_scalar), pass(this), deferred :: apply_scalar
-     !> Apply the boundary condition to a vector field
+     !> Apply the boundary condition to a vector field on the CPU.
      procedure(bc_apply_vector), pass(this), deferred :: apply_vector
-     !> Device version of \ref apply_scalar
+     !> Device version of \ref apply_scalar on the device.
      procedure(bc_apply_scalar_dev), pass(this), deferred :: apply_scalar_dev
-     !> Device version of \ref apply_vector
+     !> Device version of \ref apply_vector on the device.
      procedure(bc_apply_vector_dev), pass(this), deferred :: apply_vector_dev
-     !> Destructor
+     !> Deferred destructor.
      procedure(bc_destructor), pass(this), deferred :: free
+     !> Deferred constructor.
+     procedure(bc_constructor), pass(this), deferred :: init
+     !> Deferred finalizer.
+     procedure(bc_finalize), pass(this), deferred :: finalize
   end type bc_t
 
-  !> Pointer to boundary condtiion
-  type, private :: bcp_t
-     class(bc_t), pointer :: bcp
-  end type bcp_t
+  !> Pointer to a @ref `bc_t`.
+  type, public :: bc_ptr_t
+     class(bc_t), pointer :: ptr
+  end type bc_ptr_t
 
-  !> A list of boundary conditions
-  type, public :: bc_list_t
-     type(bcp_t), allocatable :: bc(:)
-     !> Number of items.
-     integer :: n
-     !> Capacity.
-     integer :: size
-  end type bc_list_t
+  ! Helper type to have an array of polymorphic bc_t objects.
+  type, public :: bc_alloc_t
+     class(bc_t), allocatable :: obj
+  end type
 
   abstract interface
      !> Apply the boundary condition to a scalar field
@@ -148,11 +160,29 @@ module bc
   end interface
 
   abstract interface
+     !> Constructor
+     subroutine bc_constructor(this, coef, json)
+       import :: bc_t, coef_t, json_file
+       class(bc_t), intent(inout), target :: this
+       type(coef_t), intent(in) :: coef
+       type(json_file), intent(inout) ::json
+     end subroutine bc_constructor
+  end interface
+
+  abstract interface
      !> Destructor
      subroutine bc_destructor(this)
        import :: bc_t
        class(bc_t), intent(inout), target :: this
      end subroutine bc_destructor
+  end interface
+
+  abstract interface
+     !> Finalize by building the mask and facet arrays.
+     subroutine bc_finalize(this)
+       import :: bc_t
+       class(bc_t), intent(inout), target :: this
+     end subroutine bc_finalize
   end interface
 
   abstract interface
@@ -186,13 +216,6 @@ module bc
        integer, intent(in), optional :: tstep
      end subroutine bc_apply_vector_dev
   end interface
-
-  interface bc_list_apply
-     module procedure bc_list_apply_scalar, bc_list_apply_vector
-  end interface bc_list_apply
-
-  public :: bc_list_init, bc_list_free, bc_list_add, &
-  bc_list_apply_scalar, bc_list_apply_vector, bc_list_apply
 
 contains
 
@@ -244,6 +267,98 @@ contains
 
   end subroutine bc_free_base
 
+  !> Apply the boundary condition to a vector field. Dispatches to the CPU
+  !! or the device version.
+  !! @param x The x comp of the field for which to apply the bc.
+  !! @param y The y comp of the field for which to apply the bc.
+  !! @param z The z comp of the field for which to apply the bc.
+  !! @param n The size of x, y, and z.
+  !! @param t Current time.
+  !! @param tstep The current time iteration.
+  subroutine bc_apply_vector_generic(this, x, y, z, n, t, tstep)
+    class(bc_t), intent(inout) :: this
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
+    type(c_ptr) :: x_d
+    type(c_ptr) :: y_d
+    type(c_ptr) :: z_d
+    integer :: i
+
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       x_d = device_get_ptr(x)
+       y_d = device_get_ptr(y)
+       z_d = device_get_ptr(z)
+       if (present(t) .and. present(tstep)) then
+          call this%apply_vector_dev(x_d, y_d, z_d, t=t, tstep=tstep)
+       else if (present(t)) then
+          call this%apply_vector_dev(x_d, y_d, z_d, t=t)
+       else if (present(tstep)) then
+          call this%apply_vector_dev(x_d, y_d, z_d, tstep=tstep)
+       else
+          call this%apply_vector_dev(x_d, y_d, z_d)
+       end if
+    else
+       if (present(t) .and. present(tstep)) then
+          call this%apply_vector(x, y, z, n, t=t, tstep=tstep)
+       else if (present(t)) then
+          call this%apply_vector(x, y, z, n, t=t)
+       else if (present(tstep)) then
+          call this%apply_vector(x, y, z, n, tstep=tstep)
+       else
+          call this%apply_vector(x, y, z, n)
+       end if
+    end if
+
+  end subroutine bc_apply_vector_generic
+
+  !> Apply the boundary condition to a scalar field. Dispatches to the CPU
+  !! or the device version.
+  !! @param x The x comp of the field for which to apply the bc.
+  !! @param y The y comp of the field for which to apply the bc.
+  !! @param z The z comp of the field for which to apply the bc.
+  !! @param n The size of x, y, and z.
+  !! @param t Current time.
+  !! @param tstep The current time iteration.
+  subroutine bc_apply_scalar_generic(this, x, n, t, tstep)
+    class(bc_t), intent(inout) :: this
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
+    type(c_ptr) :: x_d
+    integer :: i
+
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       x_d = device_get_ptr(x)
+       if (present(t) .and. present(tstep)) then
+          call this%apply_scalar_dev(x_d, t=t, tstep=tstep)
+       else if (present(t)) then
+          call this%apply_scalar_dev(x_d, t=t)
+       else if (present(tstep)) then
+          call this%apply_scalar_dev(x_d, tstep=tstep)
+       else
+          call this%apply_scalar_dev(x_d)
+       end if
+    else
+       if (present(t) .and. present(tstep)) then
+          call this%apply_scalar(x, n, t=t, tstep=tstep)
+       else if (present(t)) then
+          call this%apply_scalar(x, n, t=t)
+       else if (present(tstep)) then
+          call this%apply_scalar(x, n, tstep=tstep)
+       else
+          call this%apply_scalar(x, n)
+       end if
+    end if
+
+  end subroutine bc_apply_scalar_generic
+
   !> Mark @a facet on element @a el as part of the boundary condition
   !! @param facet The index of the facet.
   !! @param el The index of the element.
@@ -284,15 +399,14 @@ contains
     end do
   end subroutine bc_mark_zone
 
-  !> Mark all facets from a list of zones, also marks type of bc in the mesh.
+  !> Mark all facets from the list of zones in th mesh.
+  !! Also marks type of bc in the mesh.
   !! The facet_type in mesh is because of the fdm from Nek5000...
   !! That is a hack that should be removed at some point...
-  !! @param bc_zone Array of boundary zones.
   !! @param bc_key Boundary condition label, e.g. 'w' for wall.
   !! @param bc_label List of boundary condition labels.
-  subroutine bc_mark_zones_from_list(this, bc_zones, bc_key, bc_labels)
+  subroutine bc_mark_zones_from_list(this, bc_key, bc_labels)
     class(bc_t), intent(inout) :: this
-    class(facet_zone_t), intent(inout) :: bc_zones(:)
     character(len=*) :: bc_key
     character(len=100), allocatable :: split_key(:)
     character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
@@ -318,45 +432,46 @@ contains
        msh_bc_type = 2
     end if
 
+
     do i = 1, NEKO_MSH_MAX_ZLBLS
-       !Check if several bcs are defined for this zone
-       !bcs are seperated by /, but we could use something else
-       if (index(trim(bc_labels(i)), '/') .eq. 0) then
-          if (trim(bc_key) .eq. trim(bc_labels(i))) then
-             call bc_mark_zone(this, bc_zones(i))
-             ! Loop across all faces in the mesh
-             do j = 1,this%msh%nelv
-                do k = 1, 2 * this%msh%gdim
-                   if (this%msh%facet_type(k,j) .eq. -i) then
-                      this%msh%facet_type(k,j) = msh_bc_type
-                   end if
-                end do
-             end do
-          end if
-       else
-          split_key = split_string(trim(bc_labels(i)),'/')
-          do l = 1, size(split_key)
-             if (trim(split_key(l)) .eq. trim(bc_key)) then
-                call bc_mark_zone(this, bc_zones(i))
-                ! Loop across all faces in the mesh
-                do j = 1,this%msh%nelv
-                   do k = 1, 2 * this%msh%gdim
-                      if (this%msh%facet_type(k,j) .eq. -i) then
-                         this%msh%facet_type(k,j) = msh_bc_type
-                      end if
-                   end do
-                end do
-             end if
-          end do
-       end if
-    end do
+      !Check if several bcs are defined for this zone
+      !bcs are seperated by /, but we could use something else
+      if (index(trim(bc_labels(i)), '/') .eq. 0) then
+         if (trim(bc_key) .eq. trim(bc_labels(i))) then
+            call bc_mark_zone(this, this%msh%labeled_zones(i))
+            ! Loop across all faces in the mesh
+            do j = 1,this%msh%nelv
+               do k = 1, 2 * this%msh%gdim
+                  if (this%msh%facet_type(k,j) .eq. -i) then
+                     this%msh%facet_type(k,j) = msh_bc_type
+                  end if
+               end do
+            end do
+         end if
+      else
+         split_key = split_string(trim(bc_labels(i)),'/')
+         do l = 1, size(split_key)
+            if (trim(split_key(l)) .eq. trim(bc_key)) then
+               call bc_mark_zone(this, this%msh%labeled_zones(i))
+               ! Loop across all faces in the mesh
+               do j = 1,this%msh%nelv
+                  do k = 1, 2 * this%msh%gdim
+                     if (this%msh%facet_type(k,j) .eq. -i) then
+                        this%msh%facet_type(k,j) = msh_bc_type
+                     end if
+                  end do
+               end do
+            end if
+         end do
+      end if
+   end do
   end subroutine bc_mark_zones_from_list
 
 
   !> Finalize the construction of the bc by populting the `msk` and `facet`
   !! arrays.
   !! @details This will linearize the marked facet's indicies in the msk array.
-  subroutine bc_finalize(this)
+  subroutine bc_finalize_base(this)
     class(bc_t), target, intent(inout) :: this
     type(tuple_i4_t), pointer :: bfp(:)
     type(tuple_i4_t) :: bc_facet
@@ -452,188 +567,6 @@ contains
                           HOST_TO_DEVICE, sync=.false.)
     end if
 
-  end subroutine bc_finalize
-
-  !> Constructor for a list of boundary conditions
-  !! @param size The size of the list to allocate.
-  subroutine bc_list_init(bclst, size)
-    type(bc_list_t), intent(inout), target :: bclst
-    integer, optional :: size
-    integer :: n, i
-
-    call bc_list_free(bclst)
-
-    if (present(size)) then
-       n = size
-    else
-       n = 1
-    end if
-
-    allocate(bclst%bc(n))
-
-    do i = 1, n
-       bclst%bc(i)%bcp => null()
-    end do
-
-    bclst%n = 0
-    bclst%size = n
-
-  end subroutine bc_list_init
-
-  !> Destructor for a list of boundary conditions
-  !! @note This will only nullify all pointers, not deallocate any
-  !! conditions pointed to by the list
-  subroutine bc_list_free(bclst)
-    type(bc_list_t), intent(inout) :: bclst
-
-    if (allocated(bclst%bc)) then
-       deallocate(bclst%bc)
-    end if
-
-    bclst%n = 0
-    bclst%size = 0
-
-  end subroutine bc_list_free
-
-  !> Add a condition to a list of boundary conditions
-  !! @param bc The boundary condition to add.
-  subroutine bc_list_add(bclst, bc)
-    type(bc_list_t), intent(inout) :: bclst
-    class(bc_t), intent(inout), target :: bc
-    type(bcp_t), allocatable :: tmp(:)
-
-    !> Do not add if bc is empty
-    if(bc%marked_facet%size() .eq. 0) return
-
-    if (bclst%n .ge. bclst%size) then
-       bclst%size = bclst%size * 2
-       allocate(tmp(bclst%size))
-       tmp(1:bclst%n) = bclst%bc
-       call move_alloc(tmp, bclst%bc)
-    end if
-
-    bclst%n = bclst%n + 1
-    bclst%bc(bclst%n)%bcp => bc
-
-  end subroutine bc_list_add
-
-  !> Apply a list of boundary conditions to a scalar field
-  !! @param x The field to apply the boundary conditions to.
-  !! @param n The size of x.
-  !! @param t Current time.
-  !! @param tstep Current time-step.
-  subroutine bc_list_apply_scalar(bclst, x, n, t, tstep)
-    type(bc_list_t), intent(inout) :: bclst
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout), dimension(n) :: x
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
-    type(c_ptr) :: x_d
-    integer :: i
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       x_d = device_get_ptr(x)
-       if (present(t) .and. present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar_dev(x_d, t=t, tstep=tstep)
-          end do
-       else if (present(t)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar_dev(x_d, t=t)
-          end do
-       else if (present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar_dev(x_d, tstep=tstep)
-          end do
-       else
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar_dev(x_d)
-          end do
-       end if
-    else
-       if (present(t) .and. present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar(x, n, t, tstep)
-          end do
-       else if (present(t)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar(x, n, t=t)
-          end do
-       else if (present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar(x, n, tstep=tstep)
-          end do
-       else
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_scalar(x, n)
-          end do
-       end if
-    end if
-
-  end subroutine bc_list_apply_scalar
-
-  !> Apply a list of boundary conditions to a vector field.
-  !! @param x The x comp of the field for which to apply the bcs.
-  !! @param y The y comp of the field for which to apply the bcs.
-  !! @param z The z comp of the field for which to apply the bcs.
-  !! @param n The size of x, y, z.
-  !! @param t Current time.
-  !! @param tstep Current time-step.
-  subroutine bc_list_apply_vector(bclst, x, y, z, n, t, tstep)
-    type(bc_list_t), intent(inout) :: bclst
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
-    real(kind=rp), intent(inout),  dimension(n) :: y
-    real(kind=rp), intent(inout),  dimension(n) :: z
-    real(kind=rp), intent(in), optional :: t
-    integer, intent(in), optional :: tstep
-    type(c_ptr) :: x_d
-    type(c_ptr) :: y_d
-    type(c_ptr) :: z_d
-    integer :: i
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       x_d = device_get_ptr(x)
-       y_d = device_get_ptr(y)
-       z_d = device_get_ptr(z)
-       if (present(t) .and. present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, t, tstep)
-          end do
-       else if (present(t)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, t=t)
-          end do
-       else if (present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d, tstep=tstep)
-          end do
-       else
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector_dev(x_d, y_d, z_d)
-          end do
-       end if
-    else
-       if (present(t) .and. present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector(x, y, z, n, t, tstep)
-          end do
-       else if (present(t)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector(x, y, z, n, t=t)
-          end do
-       else if (present(tstep)) then
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector(x, y, z, n, tstep=tstep)
-          end do
-       else
-          do i = 1, bclst%n
-             call bclst%bc(i)%bcp%apply_vector(x, y, z, n)
-          end do
-       end if
-    end if
-
-  end subroutine bc_list_apply_vector
-
+  end subroutine bc_finalize_base
 
 end module bc

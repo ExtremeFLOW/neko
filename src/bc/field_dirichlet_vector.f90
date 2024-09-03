@@ -35,7 +35,8 @@ module field_dirichlet_vector
   use num_types, only: rp
   use coefs, only: coef_t
   use dirichlet, only: dirichlet_t
-  use bc, only: bc_list_t, bc_t, bc_list_free
+  use bc, only: bc_t
+  use bc_list, only: bc_list_t
   use device, only: c_ptr, c_size_t
   use utils, only: split_string
   use field, only : field_t
@@ -45,6 +46,7 @@ module field_dirichlet_vector
   use dofmap, only : dofmap_t
   use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
   use utils, only: neko_error
+  use json_module, only : json_file
   use field_list, only : field_list_t
   implicit none
   private
@@ -67,9 +69,13 @@ module field_dirichlet_vector
      procedure(field_dirichlet_update), nopass, pointer :: update => null()
    contains
      !> Initializes this%field_bc.
-     procedure, pass(this) :: init_field => field_dirichlet_vector_init
+     procedure, pass(this) :: init_field => field_dirichlet_vector_init_field
+     !> Constructor
+     procedure, pass(this) :: init => field_dirichlet_vector_init
      !> Destructor
      procedure, pass(this) :: free => field_dirichlet_vector_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => field_dirichlet_vector_finalize
      !> Apply scalar by performing a masked copy.
      procedure, pass(this) :: apply_scalar => field_dirichlet_vector_apply_scalar
      !> (No-op) Apply vector.
@@ -84,14 +90,25 @@ module field_dirichlet_vector
 
 contains
 
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine field_dirichlet_vector_init(this, coef, json)
+    class(field_dirichlet_vector_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
+
+    call this%init_base(coef)
+  end subroutine field_dirichlet_vector_init
+
   !> Initializes this%field_bc.
-  subroutine field_dirichlet_vector_init(this, bc_name)
+  subroutine field_dirichlet_vector_init_field(this, bc_name)
     class(field_dirichlet_vector_t), intent(inout) :: this
     character(len=*), intent(in) :: bc_name
 
     call neko_error("Fields must be initialized individually!")
 
-  end subroutine field_dirichlet_vector_init
+  end subroutine field_dirichlet_vector_init_field
 
   !> Destructor. Currently unused as is, all field_dirichlet attributes
   !! are freed in `fluid_scheme::free`.
@@ -103,7 +120,7 @@ contains
     call this%bc_w%free()
 
     call this%field_list%free()
-    call bc_list_free(this%bc_list)
+    call this%bc_list%free()
 
     if (associated(this%update)) then
        nullify(this%update)
@@ -205,5 +222,12 @@ contains
     end if
 
    end subroutine field_dirichlet_vector_apply_vector_dev
+
+  !> Finalize
+  subroutine field_dirichlet_vector_finalize(this)
+    class(field_dirichlet_vector_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine field_dirichlet_vector_finalize
 
 end module field_dirichlet_vector

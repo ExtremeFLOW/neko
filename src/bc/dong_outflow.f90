@@ -68,14 +68,20 @@ module dong_outflow
      procedure, pass(this) :: apply_vector => dong_outflow_apply_vector
      procedure, pass(this) :: apply_scalar_dev => dong_outflow_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => dong_outflow_apply_vector_dev
+     !> Constructor
      procedure, pass(this) :: init => dong_outflow_init
      !> Destructor.
      procedure, pass(this) :: free => dong_outflow_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => dong_outflow_finalize
   end type dong_outflow_t
 
 contains
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine dong_outflow_init(this, coef, json)
-    class(dong_outflow_t), intent(inout) :: this
+    class(dong_outflow_t), target, intent(inout) :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
     real(kind=rp), allocatable :: temp_x(:)
@@ -85,7 +91,8 @@ contains
     integer :: i, m, k, facet, idx(4)
     real(kind=rp) :: normal_xyz(3)
 
-!    call this%dirichlet_t%init
+    call this%free()
+    call this%init_base(coef)
 
     call json_get_or_default(json, 'case.fluid.outflow_condition.delta', &
                              this%delta, 0.01_rp)
@@ -202,5 +209,12 @@ contains
     call this%free_base
 
   end subroutine dong_outflow_free
+
+  !> Finalize
+  subroutine dong_outflow_finalize(this)
+    class(dong_outflow_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine dong_outflow_finalize
 
 end module dong_outflow

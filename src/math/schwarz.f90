@@ -71,6 +71,7 @@ module schwarz
   use fdm, only : fdm_t
   use device
   use neko_config
+  use bc_list, only : bc_list_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -425,11 +426,11 @@ contains
          call device_event_sync(this%event)
 
          call this%gs_h%op(e, n, GS_OP_ADD, this%event)
-         call bc_list_apply_scalar(this%bclst, e, n)
+         call this%bclst%apply_scalar(e, n)
          call device_col2(e_d,this%wt_d, n)
          call device_stream_wait_event(aux_cmd_queue, this%event, 0)
       else
-         call bc_list_apply_scalar(this%bclst, r, n)
+         call this%bclst%apply_scalar(r, n)
          call schwarz_toext3d(work1, r, this%Xh%lx, this%msh%nelv)
 
          !  exchange interior nodes
@@ -454,7 +455,7 @@ contains
 
          ! sum border nodes
          call this%gs_h%op(e, n, GS_OP_ADD)
-         call bc_list_apply_scalar(this%bclst, e, n)
+         call this%bclst%apply_scalar(e, n)
 
          call schwarz_wt3d(e, this%wt, this%Xh%lx, this%msh%nelv)
       end if

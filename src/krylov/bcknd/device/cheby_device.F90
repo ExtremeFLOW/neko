@@ -41,7 +41,7 @@ module cheby_device
   use mesh, only : mesh_t
   use space, only : space_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use device_math, only : device_cmult2, device_sub2, &
        device_add2s1, device_add2s2, device_glsc3, device_copy
   use device
@@ -102,14 +102,14 @@ contains
     end if
 
     call device_event_create(this%gs_event, 2)
-    
+
   end subroutine cheby_device_init
 
   subroutine cheby_device_free(this)
     class(cheby_device_t), intent(inout) :: this
 
     call this%ksp_free()
-    
+
     if (allocated(this%d)) then
        deallocate(this%d)
     end if
@@ -123,7 +123,7 @@ contains
     end if
 
     nullify(this%M)
-    
+
     if (c_associated(this%d_d)) then
        call device_free(this%d_d)
     end if
@@ -139,7 +139,7 @@ contains
     if (c_associated(this%gs_event)) then
        call device_event_destroy(this%gs_event)
     end if
-    
+
   end subroutine cheby_device_free
 
   subroutine cheby_device_power(this, Ax, x, n, coef, blst, gs_h)
@@ -157,31 +157,31 @@ contains
     integer :: i
 
     associate(w => this%w, w_d => this%w_d, d => this%d, d_d => this%d_d)
-      
+
       do i = 1, n
          !TODO: replace with a better way to initialize power method
          call random_number(rn)
          d(i) = rn + 10.0_rp
       end do
       call device_memcpy(d, d_d, n, HOST_TO_DEVICE, sync = .true.)
-      
+
       call gs_h%op(d, n, GS_OP_ADD, this%gs_event)
-      call bc_list_apply(blst, d, n)
+      call blst%apply(d, n)
 
       !Power method to get lamba max
       do i = 1, this%power_its
         call ax%compute(w, d, coef, x%msh, x%Xh)
         call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-        call bc_list_apply(blst, w, n)
+        call blst%apply(w, n)
 
         wtw = device_glsc3(w_d, coef%mult_d, w_d, n)
         call device_cmult2(d_d, w_d, 1.0_rp/sqrt(wtw), n)
-        call bc_list_apply(blst, d, n)
+        call blst%apply(d, n)
       end do
 
       call ax%compute(w, d, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-      call bc_list_apply(blst, w, n)
+      call blst%apply(w, n)
 
       dtw = device_glsc3(d_d, coef%mult_d, w_d, n)
       dtd = device_glsc3(d_d, coef%mult_d, d_d, n)
@@ -217,7 +217,7 @@ contains
     if (this%recompute_eigs) then
        call cheby_device_power(this, Ax, x, n, coef, blst, gs_h)
     end if
-    
+
     if (present(niter)) then
        max_iter = niter
     else
@@ -231,7 +231,7 @@ contains
       call device_copy(r_d, f_d, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-      call bc_list_apply(blst, w, n)
+      call blst%apply(w, n)
       call device_sub2(r_d, w_d, n)
 
       rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
@@ -252,7 +252,7 @@ contains
         call device_copy(r_d, f_d, n)
         call ax%compute(w, x%x, coef, x%msh, x%Xh)
         call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-        call bc_list_apply(blst, w, n)
+        call blst%apply(w, n)
         call device_sub2(r_d, w_d, n)
 
         call this%M%solve(w, r, n)
@@ -268,7 +268,7 @@ contains
       call device_copy(r_d, f_d, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-      call bc_list_apply(blst, w, n)
+      call blst%apply(w, n)
       call device_sub2(r_d, w_d, n)
       rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
       rnorm = sqrt(rtr) * norm_fac

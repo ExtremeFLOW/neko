@@ -40,8 +40,7 @@ module scalar_pnpn
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
   use field, only : field_t
-  use bc, only : bc_list_t, bc_list_init, bc_list_free, bc_list_apply_scalar, &
-                 bc_list_add
+  use bc_list, only : bc_list_t
   use mesh, only : mesh_t
   use checkpoint, only : chkp_t
   use coefs, only : coef_t
@@ -65,6 +64,7 @@ module scalar_pnpn
   use user_intf, only : user_t
   use material_properties, only : material_properties_t
   use neko_config, only : NEKO_BCKND_DEVICE
+  use zero_dirichlet, only : zero_dirichlet_t
   use time_step_controller, only : time_step_controller_t
   use scratch_registry, only: neko_scratch_registry
   implicit none
@@ -88,10 +88,12 @@ module scalar_pnpn
      !> Dirichlet conditions for the residual
      !! Collects all the Dirichlet condition facets into one bc and applies 0,
      !! Since the values never change there during the solve.
-     type(dirichlet_t) :: bc_res
+     type(zero_dirichlet_t) :: bc_res
 
      !> A bc list for the bc_res. Contains only that, essentially just to wrap
      !! the if statement determining whether to apply on the device or CPU.
+     !! Also needed since a bc_list is the type that is sent to, e.g. solvers,
+     !! cannot just send `bc_res` on its own.
      type(bc_list_t) :: bclst_ds
 
      !> Advection operator.
@@ -174,23 +176,16 @@ contains
 
     ! Initialize dirichlet bcs for scalar residual
     ! todo: look that this works
-    call this%bc_res%init_base(this%c_Xh)
-    do i = 1, this%n_dir_bcs
-       call this%bc_res%mark_facets(this%dir_bcs(i)%marked_facet)
+    call this%bc_res%init(this%c_Xh, params)
+    do i = 1, this%n_strong
+       call this%bc_res%mark_facets(this%bcs%items(i)%obj%marked_facet)
     end do
 
-    ! Check for user bcs
-    if (this%user_bc%msk(0) .gt. 0) then
-       call this%bc_res%mark_facets(this%user_bc%marked_facet)
-    end if
-
-    call this%bc_res%mark_zones_from_list(msh%labeled_zones, 'd_s', &
-                                         this%bc_labels)
+!    call this%bc_res%mark_zones_from_list('d_s', this%bc_labels)
     call this%bc_res%finalize()
-    call this%bc_res%set_g(0.0_rp)
 
-    call bc_list_init(this%bclst_ds)
-    call bc_list_add(this%bclst_ds, this%bc_res)
+    call this%bclst_ds%init()
+    call this%bclst_ds%append(this%bc_res)
 
 
     ! Intialize projection space
@@ -241,7 +236,7 @@ contains
     !Deallocate scalar field
     call this%scheme_free()
 
-    call bc_list_free(this%bclst_ds)
+    call this%bclst_ds%free()
     call this%proj_s%free()
 
     call this%s_res%free()
@@ -299,17 +294,8 @@ contains
          if_variable_dt => dt_controller%if_variable_dt, &
          dt_last_change => dt_controller%dt_last_change)
 
-      if (neko_log%level_ .ge. NEKO_LOG_DEBUG) then
-         write(log_buf,'(A,A,E15.7,A,E15.7,A,E15.7)') 'Scalar debug',&
-              ' l2norm s', glsc2(this%s%x, this%s%x, n),&
-              ' slag1', glsc2(this%slag%lf(1)%x, this%slag%lf(1)%x, n),&
-              ' slag2', glsc2(this%slag%lf(2)%x, this%slag%lf(2)%x, n)
-         call neko_log%message(log_buf)
-         write(log_buf,'(A,A,E15.7,A,E15.7)') 'Scalar debug2',&
-              ' l2norm abx1', glsc2(this%abx1%x, this%abx1%x, n),&
-              ' abx2', glsc2(this%abx2%x, this%abx2%x, n)
-         call neko_log%message(log_buf)
-      end if
+      ! Logs extra information the log level is NEKO_LOG_DEBUG or above.
+      call print_debug(this)
 
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
@@ -320,9 +306,9 @@ contains
       else
          call col2(f_Xh%x, c_Xh%B, n)
       end if
-
-      ! Apply Neumann boundary conditions
-      call bc_list_apply_scalar(this%bclst_neumann, this%f_Xh%x, dm_Xh%size())
+      ! Apply weak boundary conditions, that contribute to the source terms.
+      call this%bcs%apply_scalar(this%f_Xh%x, dm_Xh%size(), t, &
+                                             tstep, strong=.false.)
 
       ! Add the advection operators to the right-hans-side.
       call this%adv%compute_scalar(u, v, w, s, f_Xh, &
@@ -341,13 +327,14 @@ contains
 
       call slag%update()
 
-      !> Apply Dirichlet boundary conditions
+      !> Apply strong boundary conditions.
       !! We assume that no change of boundary conditions
       !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
       call this%field_dir_bc%update(this%field_dir_bc%field_list, &
            this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
-      call bc_list_apply_scalar(this%bclst_dirichlet, &
-           this%s%x, this%dm_Xh%size())
+
+      call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), t, tstep, &
+                                 strong=.true.)
 
 
       ! Update material properties if necessary
@@ -360,8 +347,9 @@ contains
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 
+
       ! Apply a 0-valued Dirichlet boundary conditions on the ds.
-      call bc_list_apply_scalar(this%bclst_ds, s_res%x, dm_Xh%size())
+      call this%bclst_ds%apply_scalar(s_res%x, dm_Xh%size())
 
       call profiler_end_region
 
@@ -373,8 +361,8 @@ contains
            c_Xh, this%bclst_ds, gs_Xh)
       call profiler_end_region
 
-     call this%proj_s%post_solving(ds%x, Ax, c_Xh, &
-                                 this%bclst_ds, gs_Xh, n, tstep, dt_controller)
+     call this%proj_s%post_solving(ds%x, Ax, c_Xh, this%bclst_ds, gs_Xh, &
+                                   n, tstep, dt_controller)
 
       ! Update the solution
       if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -388,6 +376,26 @@ contains
     end associate
     call profiler_end_region
   end subroutine scalar_pnpn_step
+
+  subroutine print_debug(this)
+    class(scalar_pnpn_t), intent(inout) :: this
+    character(len=LOG_SIZE) :: log_buf
+    integer :: n
+
+    n = this%dm_Xh%size()
+
+    if (neko_log%level_ .ge. NEKO_LOG_DEBUG) then
+       write(log_buf,'(A,A,E15.7,A,E15.7,A,E15.7)') 'Scalar debug',&
+            ' l2norm s', glsc2(this%s%x,this%s%x,n),&
+            ' slag1', glsc2(this%slag%lf(1)%x,this%slag%lf(1)%x,n),&
+            ' slag2', glsc2(this%slag%lf(2)%x,this%slag%lf(2)%x,n)
+       call neko_log%message(log_buf)
+       write(log_buf,'(A,A,E15.7,A,E15.7)') 'Scalar debug2',&
+            ' l2norm abx1', glsc2(this%abx1%x,this%abx1%x,n),&
+            ' abx2', glsc2(this%abx2%x,this%abx2%x,n)
+       call neko_log%message(log_buf)
+    end if
+  end subroutine print_debug
 
 
 end module scalar_pnpn

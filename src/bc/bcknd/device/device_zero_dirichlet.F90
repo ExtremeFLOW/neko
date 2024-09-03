@@ -30,107 +30,107 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_wall
+module device_zero_dirichlet
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   private
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_no_slip_wall_apply_scalar(msk, x, m) &
-          bind(c, name='hip_no_slip_wall_apply_scalar')
+     subroutine hip_zero_dirichlet_apply_scalar(msk, x, m) &
+          bind(c, name='hip_zero_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
        type(c_ptr), value :: msk, x
-     end subroutine hip_no_slip_wall_apply_scalar
+     end subroutine hip_zero_dirichlet_apply_scalar
   end interface
 
   interface
-     subroutine hip_no_slip_wall_apply_vector(msk, x, y, z, m) &
-          bind(c, name='hip_no_slip_wall_apply_vector')
+     subroutine hip_zero_dirichlet_apply_vector(msk, x, y, z, m) &
+          bind(c, name='hip_zero_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
        type(c_ptr), value :: msk, x, y, z
-     end subroutine hip_no_slip_wall_apply_vector
+     end subroutine hip_zero_dirichlet_apply_vector
   end interface
 #elif HAVE_CUDA
   interface
-     subroutine cuda_no_slip_wall_apply_scalar(msk, x, m) &
-          bind(c, name='cuda_no_slip_wall_apply_scalar')
+     subroutine cuda_zero_dirichlet_apply_scalar(msk, x, m) &
+          bind(c, name='cuda_zero_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
        type(c_ptr), value :: msk, x
-     end subroutine cuda_no_slip_wall_apply_scalar
+     end subroutine cuda_zero_dirichlet_apply_scalar
   end interface
 
   interface
-     subroutine cuda_no_slip_wall_apply_vector(msk, x, y, z, m) &
-          bind(c, name='cuda_no_slip_wall_apply_vector')
+     subroutine cuda_zero_dirichlet_apply_vector(msk, x, y, z, m) &
+          bind(c, name='cuda_zero_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
        type(c_ptr), value :: msk, x, y, z
-     end subroutine cuda_no_slip_wall_apply_vector
+     end subroutine cuda_zero_dirichlet_apply_vector
   end interface
 #elif HAVE_OPENCL
   interface
-     subroutine opencl_no_slip_wall_apply_scalar(msk, x, m) &
-          bind(c, name='opencl_no_slip_wall_apply_scalar')
+     subroutine opencl_zero_dirichlet_apply_scalar(msk, x, m) &
+          bind(c, name='opencl_zero_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
        type(c_ptr), value :: msk, x
-     end subroutine opencl_no_slip_wall_apply_scalar
+     end subroutine opencl_zero_dirichlet_apply_scalar
   end interface
 
   interface
-     subroutine opencl_no_slip_wall_apply_vector(msk, x, y, z, m) &
-          bind(c, name='opencl_no_slip_wall_apply_vector')
+     subroutine opencl_zero_dirichlet_apply_vector(msk, x, y, z, m) &
+          bind(c, name='opencl_zero_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
        type(c_ptr), value :: msk, x, y, z
-     end subroutine opencl_no_slip_wall_apply_vector
+     end subroutine opencl_zero_dirichlet_apply_vector
   end interface
 #endif
 
-  public :: device_no_slip_wall_apply_scalar, device_no_slip_wall_apply_vector
+  public :: device_zero_dirichlet_apply_scalar, device_zero_dirichlet_apply_vector
 
 contains
 
-  subroutine device_no_slip_wall_apply_scalar(msk, x, m)
+  subroutine device_zero_dirichlet_apply_scalar(msk, x, m)
     integer, intent(in) :: m
     type(c_ptr) :: msk, x
 
 #ifdef HAVE_HIP
-    call hip_no_slip_wall_apply_scalar(msk, x, m)
+    call hip_zero_dirichlet_apply_scalar(msk, x, m)
 #elif HAVE_CUDA
-    call cuda_no_slip_wall_apply_scalar(msk, x, m)
+    call cuda_zero_dirichlet_apply_scalar(msk, x, m)
 #elif HAVE_OPENCL
-    call opencl_no_slip_wall_apply_scalar(msk, x, m)
+    call opencl_zero_dirichlet_apply_scalar(msk, x, m)
 #else
     call neko_error('No device backend configured')
 #endif
 
-  end subroutine device_no_slip_wall_apply_scalar
+  end subroutine device_zero_dirichlet_apply_scalar
 
-  subroutine device_no_slip_wall_apply_vector(msk, x, y, z, m)
+  subroutine device_zero_dirichlet_apply_vector(msk, x, y, z, m)
     integer, intent(in) :: m
     type(c_ptr) :: msk, x, y, z
 
 #ifdef HAVE_HIP
-    call hip_no_slip_wall_apply_vector(msk, x, y, z, m)
+    call hip_zero_dirichlet_apply_vector(msk, x, y, z, m)
 #elif HAVE_CUDA
-    call cuda_no_slip_wall_apply_vector(msk, x, y, z, m)
+    call cuda_zero_dirichlet_apply_vector(msk, x, y, z, m)
 #elif HAVE_OPENCL
-    call opencl_no_slip_wall_apply_vector(msk, x, y, z, m)
+    call opencl_zero_dirichlet_apply_vector(msk, x, y, z, m)
 #else
     call neko_error('No device backend configured')
 #endif
 
-  end subroutine device_no_slip_wall_apply_vector
+  end subroutine device_zero_dirichlet_apply_vector
 
-end module device_wall
+end module device_zero_dirichlet
