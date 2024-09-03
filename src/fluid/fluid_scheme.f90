@@ -70,7 +70,7 @@ module fluid_scheme
   use logger, only : neko_log, LOG_SIZE
   use field_registry, only : neko_field_registry
   use json_utils, only : json_get, json_get_or_default
-  use json_module, only : json_file
+  use json_module, only : json_file, json_core, json_value
   use scratch_registry, only : scratch_registry_t
   use user_intf, only : user_t
   use utils, only : neko_error
@@ -263,6 +263,13 @@ contains
     character(len=:), allocatable :: string_val1, string_val2
 
 
+    ! HARRY
+    ! I think these are what we need to change the subdict
+    type(json_core) :: core
+    type(json_value), pointer :: ptr
+    character(len=:), allocatable :: buffer
+    logical :: found
+    type(json_file) :: fluid_json
     !
     ! SEM simulation fundamentals
     !
@@ -567,7 +574,15 @@ contains
     call this%f_z%init(this%dm_Xh, fld_name = "fluid_rhs_z")
 
     ! Initialize the source term
-    call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%c_Xh,&
+    !call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%c_Xh,&
+    !                           user)
+    ! HARRY
+    ! we're going to pass a subdict instead
+    ! not sure if this is the best way of constructing subdicts...
+    call params%get("case.fluid", ptr, found)
+    call core%print_to_string(ptr, buffer)
+    call fluid_json%load_from_string(buffer)
+    call this%source_term%init(fluid_json, this%f_x, this%f_y, this%f_z, this%c_Xh,&
                                user)
 
     ! If case.output_boundary is true, set the values for the bc types in the

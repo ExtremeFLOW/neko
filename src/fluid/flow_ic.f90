@@ -75,20 +75,21 @@ contains
     character(len=:), allocatable :: blasius_approximation
     character(len=:), allocatable :: zone_name
 
+! we now assume that a subdict containing case.fluid is being passed in
     if (trim(type) .eq. 'uniform') then
-       call json_get(params, 'case.fluid.initial_condition.value', uinf)
+       call json_get(params, 'initial_condition.value', uinf)
        call set_flow_ic_uniform(u, v, w, uinf)
     else if (trim(type) .eq. 'blasius') then
-       call json_get(params, 'case.fluid.blasius.delta', delta)
-       call json_get(params, 'case.fluid.blasius.approximation', &
+       call json_get(params, 'blasius.delta', delta)
+       call json_get(params, 'blasius.approximation', &
                      blasius_approximation)
-       call json_get(params, 'case.fluid.blasius.freestream_velocity', uinf)
+       call json_get(params, 'blasius.freestream_velocity', uinf)
        call set_flow_ic_blasius(u, v, w, delta, uinf, blasius_approximation)
     else if (trim(type) .eq. 'point_zone') then
-       call json_get(params, 'case.fluid.initial_condition.base_value', uinf)
-       call json_get(params, 'case.fluid.initial_condition.zone_name', &
+       call json_get(params, 'initial_condition.base_value', uinf)
+       call json_get(params, 'initial_condition.zone_name', &
                      zone_name)
-       call json_get(params, 'case.fluid.initial_condition.zone_value', &
+       call json_get(params, 'initial_condition.zone_value', &
                      zone_value)
        call set_flow_ic_point_zone(u, v, w, uinf, zone_name, zone_value)
     else

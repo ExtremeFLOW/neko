@@ -156,6 +156,12 @@ contains
     integer :: output_dir_len
     integer :: precision
     type(field_t), pointer :: u_b, v_b, w_b
+    ! HARRY
+    ! extra things for json
+    type(json_file) :: fluid_json
+    type(json_core) :: core
+    type(json_value), pointer :: ptr
+    character(len=:), allocatable :: buffer
 
     !
     ! Load mesh
@@ -280,15 +286,28 @@ contains
     !
     ! Setup initial conditions
     !
-    call json_get(C%params, 'case.fluid.initial_condition.type',&
+    ! HARRY
+    ! ------------------------------------------------------------
+    ! I want to give a subdictionary to IC's so we can different ICs
+    ! for different solvers,
+    ! (not hardcoded to fluid)
+    call C%params%get("case.fluid", ptr, found)
+    call core%print_to_string(ptr, buffer)
+    call fluid_json%load_from_string(buffer)
+    call json_get(fluid_json, 'initial_condition.type',&
                   string_val)
     if (trim(string_val) .ne. 'user') then
-       call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
-            C%fluid%c_Xh, C%fluid%gs_Xh, string_val, C%params)
+    !   call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
+    !        C%fluid%c_Xh, C%fluid%gs_Xh, string_val, C%params)
+        call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
+             C%fluid%c_Xh, C%fluid%gs_Xh, string_val, fluid_json)
     else
+    	! TODO
+    	! I haven't looked into user ICs yet
        call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
             C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_user_ic, C%params)
     end if
+    ! ------------------------------------------------------------
 
     if (scalar) then
        call json_get(C%params, 'case.scalar.initial_condition.type', string_val)

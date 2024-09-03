@@ -104,7 +104,9 @@ contains
     this%f_z => f_z
 
 
-    if (json%valid_path('case.fluid.source_terms')) then
+	 ! I'm assuming we can pass in the case.fluid subdict as json.
+    !if (json%valid_path('case.fluid.source_terms')) then
+    if (json%valid_path('source_terms')) then
        ! We package the fields for the source term to operate on in a field list.
        call rhs_fields%init(3)
        call rhs_fields%assign(1, f_x)
@@ -112,7 +114,7 @@ contains
        call rhs_fields%assign(3, f_z)
 
        call json%get_core(core)
-       call json%get('case.fluid.source_terms', source_object, found)
+       call json%get('source_terms', source_object, found)
 
        n_sources = core%count(source_object)
        allocate(this%source_terms(n_sources))
