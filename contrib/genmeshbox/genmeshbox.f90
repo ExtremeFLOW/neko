@@ -103,10 +103,10 @@ program genmeshbox
 
      do i = 1, 1000
 
-        inquire(file=trim(log_fname), exist=file_exists)
+        inquire(file = trim(log_fname), exist = file_exists)
         if (.not. file_exists) then
 
-           open(unit=10, file=trim(log_fname), status='new', action='write')
+           open(unit=10, file=trim(log_fname), status = 'new', action = 'write')
            write (10, '(A,2(F10.6," "),I4,L2)') "xmin, xmax, Nel, periodic:", &
                 x0, x1, nelx, period_x
            write (10, '(A,2(F10.6," "),I4,L2)') "ymin, ymax, Nel, periodic:", &
@@ -121,13 +121,13 @@ program genmeshbox
         ! if the original genmeshbox.log does not exist, we create new
         ! files with genmeshbox.log.1, .2, .3, etc
         if (i .lt. 10) then
-           write(log_fname,'(A,I1,A)') "genmeshbox_", i, ".log"
+           write(log_fname, '(A,I1,A)') "genmeshbox_", i, ".log"
         else if (i .lt. 100) then
-           write(log_fname,'(A,I2,A)') "genmeshbox_", i, ".log"
+           write(log_fname, '(A,I2,A)') "genmeshbox_", i, ".log"
         else if (i .lt. 1000) then
-           write(log_fname,'(A,I3,A)') "genmeshbox_", i, ".log"
+           write(log_fname, '(A,I3,A)') "genmeshbox_", i, ".log"
         else
-           write(log_fname,'(A,I4,A)') "genmeshbox_", i, ".log"
+           write(log_fname, '(A,I4,A)') "genmeshbox_", i, ".log"
         end if
 
      end do
