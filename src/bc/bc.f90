@@ -42,6 +42,9 @@ module bc
   use facet_zone, only : facet_zone_t
   use stack, only : stack_i4t2_t
   use tuple, only : tuple_i4_t
+  use field, only : field_t
+  use gather_scatter
+  use math, only : relcmp
   use utils, only : neko_error, linear_index, split_string
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
@@ -356,18 +359,24 @@ contains
   !> Finalize the construction of the bc by populting the `msk` and `facet`
   !! arrays.
   !! @details This will linearize the marked facet's indicies in the msk array.
-  subroutine bc_finalize(this)
+  subroutine bc_finalize(this, only_facets)
     class(bc_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
     type(tuple_i4_t), pointer :: bfp(:)
     type(tuple_i4_t) :: bc_facet
+    type(field_t) :: test_field
     integer :: facet_size, facet, el
+    logical :: only_facet = .false.
     integer :: i, j, k, l, msk_c
     integer :: lx, ly, lz, n
-
     lx = this%Xh%lx
     ly = this%Xh%ly
     lz = this%Xh%lz
-
+    if ( present(only_facets)) then
+       only_facet = only_facets
+    else
+       only_facet = .false.
+    end if
     !>@todo add 2D case
 
     ! Note we assume that lx = ly = lz
@@ -437,19 +446,58 @@ contains
           end do
        end select
     end do
+    if ( .not. only_facet) then
+       !Makes check for points not on facet that should have bc applied
+       call test_field%init(this%dof)
+       
+       n = test_field%size()
+       test_field%x = 0.0_rp
+       !Apply this bc once
+       do i = 1, msk_c
+          test_field%x(this%msk(i),1,1,1) = 1.0
+       end do
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_memcpy(test_field%x, test_field%x_d, n, &
+                             HOST_TO_DEVICE, sync=.true.)
+       end if
+       !Check if some point that was not zeroed was zeroed on another element
+       call this%coef%gs_h%op(test_field,GS_OP_ADD)
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_memcpy(test_field%x, test_field%x_d, n, &
+                             DEVICE_TO_HOST, sync=.true.)
+       end if
+       msk_c = 0
+       do i = 1, this%dof%size()
+          if (test_field%x(i,1,1,1) .gt. 0.5) then
+             msk_c = msk_c + 1
+          end if
+       end do
+       !Allocate new mask
+       deallocate(this%msk)
+       allocate(this%msk(0:msk_c))
+       j = 1
+       do i = 1, this%dof%size()
+          if (test_field%x(i,1,1,1) .gt. 0.5) then
+             this%msk(j) = i
+             j = j + 1
+          end if
+       end do
+
+       call test_field%free()
+    end if
 
     this%msk(0) = msk_c
     this%facet(0) = msk_c
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       n = facet_size * this%marked_facet%size() + 1
+       n = msk_c + 1
        call device_map(this%msk, this%msk_d, n)
        call device_map(this%facet, this%facet_d, n)
 
        call device_memcpy(this%msk, this%msk_d, n, &
                           HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%facet, this%facet_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync=.true.)
     end if
 
   end subroutine bc_finalize
@@ -503,7 +551,8 @@ contains
     type(bcp_t), allocatable :: tmp(:)
 
     !> Do not add if bc is empty
-    if(bc%marked_facet%size() .eq. 0) return
+    !! What about the outliers...
+    if(bc%msk(0) .eq. 0) return
 
     if (bclst%n .ge. bclst%size) then
        bclst%size = bclst%size * 2
