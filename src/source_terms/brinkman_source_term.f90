@@ -56,6 +56,9 @@ module brinkman_source_term
      type(field_t) :: indicator
      !> Brinkman permeability field.
      type(field_t) :: brinkman
+     ! damn... if we're adjoint then this is proportional to adjoint velocity
+     logical :: adjoint_flag
+     character(len=:), allocatable :: my_u, my_v, my_w
    contains
      !> The common constructor using a JSON object.
      procedure, public, pass(this) :: init => &
@@ -116,6 +119,20 @@ contains
     ! Read the options for the permeability field
     call json_get(json, 'brinkman.limits', brinkman_limits)
     call json_get(json, 'brinkman.penalty', brinkman_penalty)
+
+    ! check if we're adjoint
+    ! hopefully something is implemented soon that doesn't rely on the 
+    ! registry so much
+    call json_get_or_default(json, "brinkman.adjoint", this%adjoint_flag, .false.)
+    if(this%adjoint_flag) then
+    	this%my_u = 'u_adj'
+    	this%my_v = 'v_adj'
+    	this%my_w = 'w_adj'
+    else
+    	this%my_u = 'u'
+    	this%my_v = 'v'
+    	this%my_w = 'w'
+    endif
 
     if (size(brinkman_limits) .ne. 2) then
        call neko_error('brinkman_limits must be a 2 element array of reals')
@@ -206,9 +223,9 @@ contains
 
     n = this%fields%item_size(1)
 
-    u => neko_field_registry%get_field('u')
-    v => neko_field_registry%get_field('v')
-    w => neko_field_registry%get_field('w')
+    u => neko_field_registry%get_field(this%my_u)
+    v => neko_field_registry%get_field(this%my_v)
+    w => neko_field_registry%get_field(this%my_w)
 
     fu => this%fields%get(1)
     fv => this%fields%get(2)
