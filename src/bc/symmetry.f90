@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -74,9 +74,9 @@ contains
     call this%bc_x%free()
     call this%bc_y%free()
     call this%bc_z%free()
-    call this%bc_x%init_base(this%coef)
-    call this%bc_y%init_base(this%coef)
-    call this%bc_z%init_base(this%coef)
+    call this%bc_x%init(this%coef)
+    call this%bc_y%init(this%coef)
+    call this%bc_z%init(this%coef)
 
     associate(c=>this%coef, nx => this%coef%nx, ny => this%coef%ny, &
               nz => this%coef%nz)
