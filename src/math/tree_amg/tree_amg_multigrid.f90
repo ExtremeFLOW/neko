@@ -66,7 +66,7 @@ contains
     z = 0d0
 
     do iter = 1, max_iter
-      print *, "MG iter:", iter
+      !print *, "MG iter:", iter
       call tamg_mg_cycle(z, r, n, 0, this%amg, this)
     end do
   end subroutine tamg_mg_solve
@@ -93,28 +93,17 @@ contains
     max_lvl = mgstuff%nlvls-1
 
     !>----------<!
-    !> Residual <! NOT NEEDED
-    !>----------<!
-    call calc_resid(r,x,b,amg,lvl,n)
-    if (lvl .eq. 0) then
-      call average_duplicates(r,amg,lvl,n)
-    end if
-    print *, "LVL:",lvl, "INIT RESID:", sqrt(glsc2(r, r, n))
-
-    !>----------<!
     !> SMOOTH   <!
     !>----------<!
     call mgstuff%smoo(lvl)%solve(x,b, n, amg, sit)
+    if (lvl .eq. max_lvl) then !> Is coarsest grid.
+      return
+    end if
 
     !>----------<!
     !> Residual <!
     !>----------<!
     call calc_resid(r,x,b,amg,lvl,n)
-    !print *, "LVL:",lvl, "PRE RESID:", sqrt(glsc2(r, r, n))
-
-    if (lvl .eq. max_lvl) then!TODO: move when done debugging
-      return
-    end if
 
     !>----------<!
     !> Restrict <!
@@ -151,8 +140,8 @@ contains
     !>----------<!
     !> Residual <!
     !>----------<!
-    call calc_resid(r,x,b,amg,lvl,n)
-    print *, "LVL:",lvl, "POST RESID:", sqrt(glsc2(r, r, n))
+    !call calc_resid(r,x,b,amg,lvl,n)!> TODO: for debug
+    !print *, "LVL:",lvl, "POST RESID:", sqrt(glsc2(r, r, n))
   end subroutine tamg_mg_cycle
 
   subroutine my_matvec(vec_out, vec_in, n, lvl, amg)
