@@ -66,7 +66,22 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
   }
-  
+ 
+  /** Fortran wrapper for masked copy
+   * Copy a vector \f$ a(mask) = b(mask) \f$
+   */
+  void hip_masked_red_copy(void *a, void *b, void *mask, int *n, int *m) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_red_copy_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) a, (real *) b, (int *) mask, *n, *m);
+
+    HIP_CHECK(hipGetLastError());
+
+  } 
   /** Fortran wrapper for cfill_mask
    * Fill a scalar to vector \f$ a_i = s, for i \in mask \f$
    */
@@ -140,10 +155,11 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
+    if (*n > 0) { 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(cfill_kernel<real>),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a, *c, *n);
+    }
     HIP_CHECK(hipGetLastError());
   }
 
@@ -592,7 +608,7 @@ extern "C" {
       HIP_CHECK(hipHostMalloc(&bufred,nb*sizeof(real),hipHostMallocDefault));
       HIP_CHECK(hipMalloc(&bufred_d, nb*sizeof(real)));
     }
-     
+    if( *n > 0) { 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsum_kernel<real>),
                        nblcks, nthrds, 0, stream,
                        (real *) a, bufred_d, *n);
@@ -600,7 +616,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
                        1, 1024, 0, stream, bufred_d, nb);
     HIP_CHECK(hipGetLastError());
-
+    }
 #ifdef HAVE_DEVICE_MPI
     hipStreamSynchronize(stream);
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
