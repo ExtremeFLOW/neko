@@ -365,4 +365,4 @@ module opencl_math
      end function opencl_glsum
   end interface
 
-end module device_math
+end module opencl_math

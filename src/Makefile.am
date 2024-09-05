@@ -20,7 +20,6 @@ neko_fortran_SOURCES = \
 	sem/speclib.f90 \
 	qoi/drag_torque.f90\
 	sem/local_interpolation.f90 \
-	math/math.f90\
 	math/mathops.f90\
 	math/fast3d.f90\
 	sem/space.f90\
@@ -239,8 +238,13 @@ neko_fortran_SOURCES = \
 	device/opencl/prgm_lib.F90\
 	device/dummy_device.F90\
 	device/device.F90\
-	math/field_math.f90\
-	math/bcknd/device/device_math.F90\
+	math/math.f90\
+	math/bcknd/host_math.f90\
+	math/bcknd/field_math.f90\
+	math/bcknd/device_math.f90\
+    math/bcknd/device/hip_math.f90\
+    math/bcknd/device/cuda_math.f90\
+    math/bcknd/device/opencl_math.f90\
 	math/bcknd/device/device_schwarz.F90\
 	math/bcknd/device/tensor_device.F90\
 	math/bcknd/device/fdm_device.F90\

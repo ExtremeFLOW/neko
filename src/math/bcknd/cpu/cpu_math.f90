@@ -72,37 +72,37 @@ module cpu_math
   !> \f$ \pi \f$
   real(kind=rp), public, parameter :: pi = 4._rp*atan(1._rp)
 
-  interface abscmp
-     module procedure sabscmp, dabscmp, qabscmp
-  end interface abscmp
+  interface cpu_abscmp
+     module procedure cpu_sabscmp, cpu_dabscmp, cpu_qabscmp
+  end interface cpu_abscmp
 
-  interface sort
-     module procedure sortrp, sorti4
-  end interface sort
+  interface cpu_sort
+     module procedure cpu_sortrp, cpu_sorti4
+  end interface cpu_sort
 
-  interface swap
-     module procedure swapdp, swapi4
-  end interface swap
+  interface cpu_swap
+     module procedure cpu_swapdp, cpu_swapi4
+  end interface cpu_swap
 
-  interface reord
-     module procedure reorddp, reordi4
-  end interface reord
+  interface cpu_reord
+     module procedure cpu_reorddp, cpu_reordi4
+  end interface cpu_reord
 
-  interface flipv
-     module procedure flipvdp, flipvi4
-  end interface flipv
+  interface cpu_flipv
+     module procedure cpu_flipvdp, cpu_flipvi4
+  end interface cpu_flipv
 
-  interface relcmp
-     module procedure srelcmp, drelcmp, qrelcmp
-  end interface relcmp
+  interface cpu_relcmp
+     module procedure cpu_srelcmp, cpu_drelcmp, cpu_qrelcmp
+  end interface cpu_relcmp
 
-  public :: abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
+  public :: cpu_abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
        glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, invers2, &
        vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, &
        add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
-       glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
-       swap, reord, flipv, cadd2
+       glsc3, glsc4, cpu_sort, masked_copy, cfill_mask, cpu_relcmp, glimax, glimin, &
+       cpu_swap, cpu_reord, cpu_flipv, cadd2
 
 contains
 
@@ -110,9 +110,9 @@ contains
   pure function cpu_sabscmp(x, y)
     real(kind=sp), intent(in) :: x
     real(kind=sp), intent(in) :: y
-    logical :: sabscmp
+    logical :: cpu_sabscmp
 
-    sabscmp = abs(x - y) .lt. NEKO_EPS
+    cpu_sabscmp = abs(x - y) .lt. NEKO_EPS
 
   end function cpu_sabscmp
 
@@ -120,9 +120,9 @@ contains
   pure function cpu_dabscmp(x, y)
     real(kind=dp), intent(in) :: x
     real(kind=dp), intent(in) :: y
-    logical :: dabscmp
+    logical :: cpu_dabscmp
 
-    dabscmp = abs(x - y) .lt. NEKO_EPS
+    cpu_dabscmp = abs(x - y) .lt. NEKO_EPS
 
   end function cpu_dabscmp
 
@@ -130,9 +130,9 @@ contains
   pure function cpu_qabscmp(x, y)
     real(kind=qp), intent(in) :: x
     real(kind=qp), intent(in) :: y
-    logical :: qabscmp
+    logical :: cpu_qabscmp
 
-    qabscmp = abs(x - y) .lt. NEKO_EPS
+    cpu_qabscmp = abs(x - y) .lt. NEKO_EPS
 
   end function cpu_qabscmp
 
@@ -141,12 +141,12 @@ contains
     real(kind=sp), intent(in) :: x
     real(kind=sp), intent(in) :: y
     real(kind=sp), intent(in), optional :: eps
-    logical :: srelcmp
+    logical :: cpu_srelcmp
 
     if (present(eps)) then
-       srelcmp = abs(x - y) .le. abs(y) * eps
+       cpu_srelcmp = abs(x - y) .le. abs(y) * eps
     else
-       srelcmp = abs(x - y) .le. abs(y) * NEKO_EPS
+       cpu_srelcmp = abs(x - y) .le. abs(y) * NEKO_EPS
     end if
 
   end function cpu_srelcmp
@@ -156,12 +156,12 @@ contains
     real(kind=dp), intent(in) :: x
     real(kind=dp), intent(in) :: y
     real(kind=dp), intent(in), optional :: eps
-    logical :: drelcmp
+    logical :: cpu_drelcmp
 
     if (present(eps)) then
-       drelcmp = abs(x - y) .le. abs(y) * eps
+       cpu_drelcmp = abs(x - y) .le. abs(y) * eps
     else
-       drelcmp = abs(x - y) .le. abs(y) * NEKO_EPS
+       cpu_drelcmp = abs(x - y) .le. abs(y) * NEKO_EPS
     end if
 
   end function cpu_drelcmp
@@ -172,11 +172,11 @@ contains
     real(kind=qp), intent(in) :: x
     real(kind=qp), intent(in) :: y
     real(kind=qp), intent(in), optional :: eps
-    logical :: qrelcmp
+    logical :: cpu_qrelcmp
     if (present(eps)) then
-       qrelcmp = abs(x - y) .le. abs(y) * eps
+       cpu_qrelcmp = abs(x - y) .le. abs(y) * eps
     else
-       qrelcmp = abs(x - y) .le. abs(y) * NEKO_EPS
+       cpu_qrelcmp = abs(x - y) .le. abs(y) * NEKO_EPS
     end if
 
   end function cpu_qrelcmp
@@ -857,7 +857,7 @@ contains
     end do
   end subroutine cpu_sorti4
 
-  !> sort double precision array acording to ind vector
+  !> cpu_sort double precision array acording to ind vector
   !! @param[inout]  b   vector to be reordered
   !! @param[in]   ind  permutation array
   !! @param[in]   n   array size
@@ -875,7 +875,7 @@ contains
     end do
   end subroutine cpu_swapdp
 
-  !> sort single integer array acording to ind vector
+  !> cpu_sort single integer array acording to ind vector
   !! @param[inout]  b   vector to be reordered
   !! @param[in]   ind  permutation array
   !! @param[in]   n   array size
@@ -893,7 +893,7 @@ contains
     end do
   end subroutine cpu_swapi4
 
-  !> reorder double precision array - inverse of swap
+  !> reorder double precision array - inverse of cpu_swap
   !! @param[inout]  b   vector to be reordered
   !! @param[in]   ind  permutation array
   !! @param[in]   n   array size
@@ -911,7 +911,7 @@ contains
     end do
   end subroutine cpu_reorddp
 
-  !> reorder single integer array - inverse of swap
+  !> reorder single integer array - inverse of cpu_swap
   !! @param[inout]  b   vector to be reordered
   !! @param[in]   ind  permutation array
   !! @param[in]   n   array size

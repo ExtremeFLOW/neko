@@ -57,20 +57,20 @@
 ! Government or UCHICAGO ARGONNE, LLC, and shall
 ! not be used for advertising or product endorsement purposes.
 !
-submodule(math) host_math
+module host_math
   use num_types, only : rp, dp, sp, qp, i4
   use comm
   implicit none
   private
 
   !> Machine epsilon \f$ \epsilon \f$
-  real(kind=rp), public, parameter :: NEKO_EPS = epsilon(1.0_rp)
+  real(kind=rp), private, parameter :: NEKO_EPS = epsilon(1.0_rp)
 
   !> \f$ ln(2) \f$
-  real(kind=rp), public, parameter :: NEKO_M_LN2 = log(2.0_rp)
+  real(kind=rp), private, parameter :: NEKO_M_LN2 = log(2.0_rp)
 
   !> \f$ \pi \f$
-  real(kind=rp), public, parameter :: pi = 4._rp*atan(1._rp)
+  real(kind=rp), private, parameter :: pi = 4._rp*atan(1._rp)
 
   interface host_abscmp
      module procedure host_sabscmp, host_dabscmp, host_qabscmp
@@ -96,13 +96,20 @@ submodule(math) host_math
      module procedure host_srelcmp, host_drelcmp, host_qrelcmp
   end interface host_relcmp
 
-  public :: host_abscmp, host_rzero, host_izero, host_row_zero, host_rone, host_copy, host_cmult, host_cadd, host_cfill, &
-       host_glsum, host_glmax, host_glmin, host_chsign, host_vlmax, host_vlmin, host_invcol1, host_invcol3, host_invers2, &
-       host_vcross, host_vdot2, host_vdot3, host_vlsc3, host_vlsc2, host_add2, host_add3, host_add4, host_sub2, host_sub3, &
-       host_add2s1, host_add2s2, host_addsqr2s2, host_cmult2, host_invcol2, host_col2, host_col3, host_subcol3, &
-       host_add3s2, host_subcol4, host_addcol3, host_addcol4, host_ascol5, host_p_update, host_x_update, host_glsc2, &
-       host_glsc3, host_glsc4, host_host_sort, host_masked_copy, host_cfill_mask, host_relcmp, host_glimax, host_glimin, &
-       host_swap, host_reord, host_flipv, host_cadd2
+  public :: host_abscmp, host_rzero, host_izero, host_row_zero, host_rone, &
+       host_copy, host_cmult, host_cadd, host_cfill, host_glsum, host_glmax, &
+       host_glmin, host_chsign, host_vlmax, host_vlmin, host_invcol1, &
+       host_invcol3, host_invers2, host_vcross, host_vdot2, host_vdot3, &
+       host_vlsc3, host_vlsc2, host_add2, host_add3, host_add4, host_sub2, &
+       host_sub3, host_add2s1, host_add2s2, host_addsqr2s2, host_cmult2, &
+       host_invcol2, host_col2, host_col3, host_subcol3, host_add3s2, &
+       host_subcol4, host_addcol3, host_addcol4, host_ascol5, host_p_update, &
+       host_x_update, host_glsc2, host_glsc3, host_glsc4, host_host_sort, &
+       host_masked_copy, host_cfill_mask, host_relcmp, host_glimax, &
+       host_glimin, host_swap, host_reord, host_flipv, host_cadd2, &
+       host_sabscmp, host_dabscmp, host_qabscmp, host_sortrp, host_sorti4, &
+       host_swapdp, host_swapi4, host_reorddp, host_reordi4, host_flipvdp, &
+       host_flipvi4, host_srelcmp, host_drelcmp, host_qrelcmp
 
 contains
 
@@ -569,7 +576,7 @@ contains
   end subroutine host_add2s2
 
   !> Returns \f$ a = a + c1 * (b * b)\f$
-  subroutine subaddsqr2s2(a, b, c1, n)
+  subroutine host_addsqr2s2(a, b, c1, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -577,10 +584,10 @@ contains
 
     a = a + c1 * (b * b)
 
-  end subroutine subaddsqr2s2
+  end subroutine host_addsqr2s2
 
   !> Multiplication by constant c \f$ a = c \cdot b \f$
-  subroutine subcmult2(a, b, c, n)
+  subroutine host_cmult2(a, b, c, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(out) :: a
     real(kind=rp), dimension(n), intent(in) :: b
@@ -588,48 +595,48 @@ contains
 
     a = c * b
 
-  end subroutine subcmult2
+  end subroutine host_cmult2
 
   !> Vector division \f$ a = a / b \f$
-  subroutine subinvcol2(a, b, n)
+  subroutine host_invcol2(a, b, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
 
     a = a / b
 
-  end subroutine subinvcol2
+  end subroutine host_invcol2
 
 
   !> Vector multiplication \f$ a = a \cdot b \f$
-  subroutine subcol2(a, b, n)
+  subroutine host_col2(a, b, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b
 
     a = a * b
 
-  end subroutine subcol2
+  end subroutine host_col2
 
   !> Vector multiplication with 3 vectors \f$ a = b \cdot c \f$
-  subroutine broutsubcol3(a, b, c, n)
+  subroutine host_col3(a, b, c, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(out) :: a
     real(kind=rp), dimension(n), intent(in) :: b, c
 
     a = b * c
 
-  end subroutine broutsubcol3
+  end subroutine host_col3
 
   !> Returns \f$ a = a - b*c \f$
-  subroutine subrosubcol3(a, b, c, n)
+  subroutine host_subcol3(a, b, c, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), dimension(n), intent(in) :: b, c
 
     a = a - b * c
 
-  end subroutine subrosubcol3
+  end subroutine host_subcol3
 
   !> Returns \f$ a = c1 * b + c2 * c \f$
   subroutine host_add3s2(a, b, c, c1, c2 ,n)
@@ -974,4 +981,4 @@ contains
     ind = tempind
   end subroutine host_flipvi4
 
-end submodule host_math
+end module host_math

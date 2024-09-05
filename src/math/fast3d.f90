@@ -185,17 +185,17 @@ contains
     do i = 0,n
        call fd_weights_full(z(i), z, n, 1, w)
        do j = 0,n
-          d(i,j) = w(j+np)                   !  Derivative matrix
+          d(i,j) = w(j+np) !  Derivative matrix
        end do
     end do
 
-    if (n.eq.1) return                       !  No interpolation for n=1
+    if (n.eq.1) return !  No interpolation for n=1
 
     do i = 0,n
        call fd_weights_full(z(i), z(1), n2, 1, w(1))
        do j = 1,nm
-          jgll(i,j) = w(j   )                  !  Interpolation matrix
-          dgll(i,j) = w(j+nm)                  !  Derivative    matrix
+          jgll(i,j) = w(j ) !  Interpolation matrix
+          dgll(i,j) = w(j+nm) !  Derivative    matrix
        end do
     end do
     call rzero(a, np*np)
@@ -211,8 +211,8 @@ contains
     do i = 1,n-1
        call fd_weights_full(zgl(i), z, n, 1, w)
        do j = 0,n
-          jgl(i,j) = w(j   )                  !  Interpolation matrix
-          dgl(i,j) = w(j+np)                  !  Derivative    matrix
+          jgl(i,j) = w(j ) !  Interpolation matrix
+          dgl(i,j) = w(j+np) !  Derivative    matrix
        end do
     end do
   end subroutine semhat
@@ -244,7 +244,7 @@ contains
     integer, intent(in) :: n_to, n_from, derivative
     real(kind=rp), intent(inout) :: jh(n_to, n_from), jht(n_from, n_to)
     real(kind=rp), intent(inout) :: z_to(n_to), z_from(n_from)
-    real(kind=rp) ::  w(n_from, 0:derivative)
+    real(kind=rp) :: w(n_from, 0:derivative)
     integer :: i, j
     do i = 1, n_to
        ! This will assign w the weights for interpolating to point

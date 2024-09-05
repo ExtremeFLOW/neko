@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_math
+module cuda_math
   use num_types, only : rp, c_rp
   use, intrinsic :: iso_c_binding
   implicit none
@@ -368,4 +368,4 @@ module device_math
      end function cuda_glsum
   end interface
 
-end module device_math
+end module cuda_math

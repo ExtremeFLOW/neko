@@ -34,6 +34,11 @@ module device_math
   use comm
   use utils, only : neko_error
   use num_types, only : rp, c_rp
+
+  use hip_math
+  use cuda_math
+  use opencl_math
+
   use, intrinsic :: iso_c_binding
   implicit none
   private
