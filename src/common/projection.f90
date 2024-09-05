@@ -61,8 +61,8 @@
 !! @note In this code we assume that the matrix project for the
 !! pressure Ax does not vary in time.
 module projection
-  use num_types, only : rp
-  use math
+  use num_types, only : rp, c_rp
+  use math, only : rzero, glsc3, add2, copy, cmult
   use coefs, only : coef_t
   use ax_product, only : ax_t
   use bc, only : bc_list_t, bc_list_apply_scalar
@@ -70,10 +70,13 @@ module projection
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use device
-  use device_math
-  use device_projection
+  use device_math, only : device_glsc3, device_add2s2, device_cmult, &
+       device_rzero, device_copy, device_add2, device_add2s2_many, &
+       device_glsc3_many
+  use device_projection, only : device_proj_on, device_project_ortho
   use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : LOG_SIZE, neko_log
+  use utils, only : neko_warning
   use, intrinsic :: iso_c_binding
   use time_step_controller, only : time_step_controller_t
 
@@ -334,8 +337,8 @@ contains
     integer, intent(inout) :: n
     class(coef_t), intent(inout) :: coef
     real(kind=rp), intent(inout), dimension(n) :: b
-    integer :: i, j, k, ierr
-    real(kind=rp) :: work(this%L), alpha(this%L)
+    integer :: i, j, k, l, ierr
+    real(kind=rp) :: work(this%L), alpha(this%L), s
 
     associate(xbar => this%xbar, xx => this%xx, &
               bb => this%bb)
@@ -349,7 +352,11 @@ contains
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, this%m
-            alpha(k) = alpha(k) + vlsc3(xx(i,k), coef%mult(i,1,1,1), b(i), j)
+            s = 0.0_rp
+            do l = 0, (j-1)
+               s = s + xx(i+l,k) * coef%mult(i+l,1,1,1) * b(i+l)
+            end do
+            alpha(k) = alpha(k) + s
          end do
       end do
 
@@ -361,15 +368,23 @@ contains
 
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
-         call cmult2(xbar(i), xx(i,1), alpha(1), j)
-         call add2s2(b(i), bb(i,1), -alpha(1), j)
+         do l = 0, (j-1)
+            xbar(i+l) = alpha(1) * xx(i+l,1)
+            b(i+l) = b(i+l) - alpha(1) * bb(i+l,1)
+         end do
          do k = 2,this%m
-            call add2s2(xbar(i), xx(i,k), alpha(k), j)
-            call add2s2(b(i), bb(i,k), -alpha(k), j)
+            do l = 0, (j-1)
+               xbar(i+l) = xbar(i+l) + alpha(k) * xx(i+l,k)
+               b(i+l) = b(i+l)- alpha(k) * bb(i+l,k)
+            end do
          end do
          !Second round of CGS
          do k = 1, this%m
-            work(k) = work(k) + vlsc3(xx(i,k), coef%mult(i,1,1,1), b(i), j)
+            s = 0.0_rp
+            do l = 0, (j-1)
+               s = s + xx(i+l,k) * coef%mult(i+l,1,1,1) * b(i+l)
+            end do
+            work(k) = work(k) + s
          end do
       end do
 
@@ -379,8 +394,10 @@ contains
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1,this%m
-            call add2s2(xbar(i), xx(i,k), alpha(k), j)
-            call add2s2(b(i), bb(i,k), -alpha(k), j)
+            do l = 0, (j-1)
+               xbar(i+l) = xbar(i+l) + alpha(k) * xx(i+l,k)
+               b(i+l) = b(i+l) - alpha(k) * bb(i+l,k)
+            end do
          end do
       end do
     end associate
@@ -544,7 +561,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: w
     real(kind=rp) :: nrm, scl1, scl2, c, s
     real(kind=rp) :: alpha(this%L), beta(this%L)
-    integer :: i, j, k, h, ierr
+    integer :: i, j, k, l, h, ierr
 
     associate(m => this%m)
 
@@ -556,8 +573,13 @@ contains
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, m !First round CGS
-            alpha(k) = alpha(k) + 0.5_rp * (vlsc3(xx(i,k), w(i), bb(i,m), j) &
-                 + vlsc3(bb(i,k), w(i), xx(i,m), j))
+            s = 0.0_rp
+            c = 0.0_rp
+            do l = 0, (j-1)
+               s = s + xx(i+l,k) * w(i+l) * bb(i+l,m)
+               c = c + bb(i+l,k) * w(i+l) * xx(i+l,m)
+            end do
+            alpha(k) = alpha(k) + 0.5_rp * (s + c)
          end do
       end do
 
@@ -570,8 +592,10 @@ contains
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1,m-1
-            call add2s2(xx(i,m), xx(i,k), -alpha(k), j)
-            call add2s2(bb(i,m), bb(i,k), -alpha(k), j)
+            do l = 0, (j-1)
+               xx(i+l,m) = xx(i+l,m) - alpha(k) * xx(i+l,k)
+               bb(i+l,m) = bb(i+l,m) - alpha(k) * bb(i+l,k)
+            end do
          end do
       end do
       call rzero(beta,m)
@@ -579,8 +603,13 @@ contains
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1,m-1
-            beta(k) = beta(k) + 0.5_rp * (vlsc3(xx(i,k), w(i), bb(i,m), j) &
-                 + vlsc3(bb(i,k), w(i), xx(i,m), j))
+            s = 0.0_rp
+            c = 0.0_rp
+            do l = 0, (j-1)
+               s = s + xx(i+l,k) * w(i+l) * bb(i+l,m)
+               c = c + bb(i+l,k) * w(i+l) * xx(i+l,m)
+            end do
+            beta(k) = beta(k) + 0.5_rp * (s + c)
          end do
       end do
 
@@ -592,10 +621,16 @@ contains
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE,n-i+1)
          do k = 1, m-1
-            call add2s2(xx(i,m), xx(i,k), -beta(k), j)
-            call add2s2(bb(i,m), bb(i,k), -beta(k), j)
+            do l = 0, (j-1)
+               xx(i+l,m) = xx(i+l,m) - beta(k) * xx(i+l,k)
+               bb(i+l,m) = bb(i+l,m) - beta(k) * bb(i+l,k)
+            end do
          end do
-         alpha(m) = alpha(m) + vlsc3(xx(i,m), w(i), bb(i,m), j)
+         s = 0.0_rp
+         do l = 0, (j-1)
+            s = s + xx(i+l,m) * w(i+l) * bb(i+l,m)
+         end do
+         alpha(m) = alpha(m) + s
       end do
       do k = 1, m-1
          alpha(k) = alpha(k) + beta(k)
@@ -610,8 +645,10 @@ contains
       if(alpha(m) .gt. this%tol*nrm) then !New vector is linearly independent
          !Normalize dx and db
          scl1 = 1.0_rp / alpha(m)
-         call cmult(xx(1,m), scl1, n)
-         call cmult(bb(1,m), scl1, n)
+         do i = 0, (n - 1)
+            xx(1+i,m) = scl1 * xx(1+i,m)
+            bb(1+i,m) = scl1 * bb(1+i,m) 
+         end do
 
       else !New vector is not linearly independent, forget about it
          k = m !location of rank deficient column
@@ -644,7 +681,7 @@ contains
   subroutine bcknd_clear(this, n)
     class(projection_t) :: this
     integer, intent(in) :: n
-    integer :: i
+    integer :: i, j
 
     this%m = 0
     this%proj_m = 0
@@ -654,8 +691,10 @@ contains
           call device_rzero(this%xx_d(i), n)
           call device_rzero(this%xx_d(i), n)
        else
-          call rzero(this%xx(1,i),n)
-          call rzero(this%bb(1,i),n)
+          do j = 1, n
+             this%xx(j,i) = 0.0_rp
+             this%bb(j,i) = 0.0_rp
+          end do
        end if
     end do
 

@@ -3,13 +3,14 @@ name: Linting
 # Controls when the action will run.
 on:
   workflow_call:
+  workflow_dispatch:
 
 jobs:
   lint-develop:
     name: "Lint develop branch"
     runs-on: ubuntu-20.04
     outputs:
-      develop_score: ${{ steps.check-lint.outputs.develop_score }}
+      score: ${{ steps.save-score.outputs.score }}
 
     steps:
       - name: Checkout
@@ -18,33 +19,25 @@ jobs:
           fetch-depth: 1
           ref: develop
 
-      - name: Setup env.
-        run: |
-          sudo apt-get update
-          sudo apt-get install -yq bc python3-dev python3-pip python3-tk
-          pip install nobvisual==0.2.0 flinter==0.4.0
-
-      - name: Lint repository
-        run: |
-          flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
+      - name: Run flint
+        id: lint
+        uses: ./.github/actions/flint
+        with:
+          directory: src/
+          depth: 10
+          rc-file: flinter_rc.yml
 
       - name: Save the score
-        id: check-lint
+        id: save-score
         run: |
-          score=$(awk '$1==0{print $3}' flint.txt)
-
-          if [ -z "$score" ]; then
-            echo "No score found, check flint.txt"
-            exit 1
-          fi
-          echo "Develop score=$score"
-          echo "develop_score=$score" >> $GITHUB_OUTPUT
+          echo "Develop score=${{ steps.lint.outputs.score }}"
+          echo "score=${{ steps.lint.outputs.score }}" >> $GITHUB_OUTPUT
 
   lint-current:
     name: "Lint current branch"
     runs-on: ubuntu-20.04
     outputs:
-      current_score: ${{ steps.check-lint.outputs.current_score }}
+      score: ${{ steps.save-score.outputs.score }}
 
     steps:
       - name: Checkout
@@ -52,27 +45,19 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Setup env.
-        run: |
-          sudo apt-get update
-          sudo apt-get install -yq bc python3-dev python3-pip python3-tk
-          pip install nobvisual==0.2.0 flinter==0.4.0
-
       - name: Lint repository
-        run: |
-          flint score src/ -d 10 -r flinter_rc.yml | tee flint.txt
+        id: lint
+        uses: ./.github/actions/flint
+        with:
+          directory: src/
+          depth: 10
+          rc-file: flinter_rc.yml
 
       - name: Save the score
-        id: check-lint
+        id: save-score
         run: |
-          score=$(awk '$1==0{print $3}' flint.txt)
-
-          if [ -z "$score" ]; then
-            echo "No score found, check flint.txt"
-            exit 1
-          fi
-          echo "Current score=$score"
-          echo "current_score=$score" >> $GITHUB_OUTPUT
+          echo "Current score=${{ steps.lint.outputs.score }}"
+          echo "score=${{ steps.lint.outputs.score }}" >> $GITHUB_OUTPUT
 
   lint-changed-files:
     name: "Lint changed files"
@@ -88,8 +73,8 @@ jobs:
       - name: Check the scores
         id: check-score
         env:
-          develop_score: ${{ needs.lint-develop.outputs.develop_score }}
-          current_score: ${{ needs.lint-current.outputs.current_score }}
+          develop_score: ${{ needs.lint-develop.outputs.score }}
+          current_score: ${{ needs.lint-current.outputs.score }}
         run: |
           if [ -z "$develop_score" ]; then
             echo "Develop score not set: '$develop_score'" >&2
@@ -122,26 +107,16 @@ jobs:
         # Get a list of the changed files and store them for later use.
       - name: Get changed files
         id: get-changed-files
-        env:
-          target: ${{ github.event.pull_request.base.ref }}
-          current: ${{ github.event.pull_request.head.ref }}
         run: |
-          if [ -z "$target" ]; then
-            target="develop"
-          fi
-          if [ -z "$current" ]; then
-            current="HEAD"
-          fi
-
-          git fetch --unshallow origin $target
-          changes=($(git diff --name-only --diff-filter=d origin/$target))
+          git fetch --unshallow origin develop
+          changes=($(git diff --name-only --diff-filter=d origin/develop))
 
           printf "Detected fortran changes:\n"
           for file in ${changes[@]}; do
             if [[ ${file: -4} != ".f90" && ${file: -4} != ".F90" ]]; then
               continue
             fi
-            printf "\t- $file"
+            printf "\t- $file\n"
           done
 
           echo "changed-files=${changes[@]}" >> $GITHUB_OUTPUT
@@ -156,7 +131,7 @@ jobs:
             exit 0
           fi
 
-          fails=()
+          failed_files=()
           printf "Linting files:\n"
           for file in $changed_files; do
 
@@ -171,39 +146,38 @@ jobs:
             printf ": $score\n"
 
             if (($(echo "$score < 10" | bc -l))); then
-                fails+=($file)
+                failed_files+=($file)
             fi
           done
 
-          echo "failed-files=${fails[@]}" >> $GITHUB_OUTPUT
+          echo "failed-files=${failed_files[@]}" >> $GITHUB_OUTPUT
 
-      - name: Print failed files and their errors
+      - name: Print possible improvements
         if: ${{ steps.lint-changed-files.outputs.failed-files != '' }}
         env:
           failed_files: ${{ steps.lint-changed-files.outputs.failed-files }}
           degraded: ${{ steps.check-score.outputs.degraded }}
         run: |
-          printf "Files that failed linting:\n"
-          printf "\t${failed_files[@]}\n"
+          printf "Files that can be improved:\n"
+          for file in ${failed_files[@]}; do
+            printf "\t- $file\n"
+          done
 
           if [ ${#failed_files[@]} -gt 0 ]; then
-            for fail in ${failed_files[@]}; do
+            for file in ${failed_files[@]}; do
               printf "%.s-" {1..80} && printf "\n"
-              printf "Linting failed for \n\t$fail\n\n"
+              printf "Linting improvements for \n\t$file\n\n"
 
-              report=$(flint lint -r flinter_rc.yml $fail)
+              report=$(flint lint -r flinter_rc.yml $file)
               if [ -z "$report" ]; then
-                report=$(flint stats -r flinter_rc.yml $fail)
+                report=$(flint stats -r flinter_rc.yml $file)
               fi
               echo "$report"
             done
 
-            if [ "$degraded" == "false" ]; then
-              echo "Linting failed, but the score is higher than the develop branch."
-              echo "Please update files at your convenience."
-            else
+            if [ "$degraded" == "true" ]; then
               echo "Linting failed, and the score is lower than the develop branch."
-              echo "Please fix the linting errors."
+              echo "Please improve linting by applying above suggestions."
               exit 2
             fi
           fi

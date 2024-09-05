@@ -472,7 +472,8 @@ pkginclude_HEADERS += device/opencl/check.h
 endif
 
 
-CLEANFILES = *.mod
+CLEANFILES = *.mod\
+	     *.smod
 
 if ENABLE_OPENCL
 CLEANFILES += \
