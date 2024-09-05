@@ -52,6 +52,7 @@ module force_torque
   use comm
   use math, only : masked_red_copy, cadd, glsum
   use device_math, only : device_masked_red_copy, device_cadd, device_glsum
+  use device
   
   implicit none
   private
@@ -176,6 +177,14 @@ contains
     call cadd(this%r1%x,-center(1),n_pts)
     call cadd(this%r2%x,-center(2),n_pts)
     call cadd(this%r3%x,-center(3),n_pts)
+    if (NEKO_BCKND_DEVICE .eq. 1 .and. n_pts .gt. 0) then
+       call device_memcpy(this%n1%x,this%n1%x_d,n_pts,HOST_TO_DEVICE,.false.)   
+       call device_memcpy(this%n2%x,this%n2%x_d,n_pts,HOST_TO_DEVICE,.false.)   
+       call device_memcpy(this%n3%x,this%n3%x_d,n_pts,HOST_TO_DEVICE,.true.)   
+       call device_memcpy(this%r1%x,this%r1%x_d,n_pts,HOST_TO_DEVICE,.false.)   
+       call device_memcpy(this%r2%x,this%r2%x_d,n_pts,HOST_TO_DEVICE,.false.)   
+       call device_memcpy(this%r3%x,this%r3%x_d,n_pts,HOST_TO_DEVICE,.true.)   
+    end if
 
   end subroutine force_torque_init_from_attributes
 
@@ -225,7 +234,6 @@ contains
                              this%n3%x,&
                              this%case%material_properties%mu,&
                              n_pts)
-                                
        dgtq(1) = glsum(this%force1%x,n_pts)
        dgtq(2) = glsum(this%force2%x,n_pts)
        dgtq(3) = glsum(this%force3%x,n_pts)
@@ -233,6 +241,7 @@ contains
        dgtq(5) = glsum(this%force5%x,n_pts)
        dgtq(6) = glsum(this%force6%x,n_pts)
     else
+       if (n_pts .gt. 0) then
        call device_masked_red_copy(this%s11msk%x_d,this%s11%x_d,this%bc%msk_d,this%u%size(),n_pts)
        call device_masked_red_copy(this%s22msk%x_d,this%s22%x_d,this%bc%msk_d,this%u%size(),n_pts)
        call device_masked_red_copy(this%s33msk%x_d,this%s33%x_d,this%bc%msk_d,this%u%size(),n_pts)
@@ -241,7 +250,7 @@ contains
        call device_masked_red_copy(this%s23msk%x_d,this%s23%x_d,this%bc%msk_d,this%u%size(),n_pts)
        call device_masked_red_copy(this%pmsk%x_d,this%p%x_d,this%bc%msk_d,this%u%size(),n_pts)
 
-      call device_calc_force_array(this%force1%x_d, this%force2%x_d, this%force3%x_d,&
+       call device_calc_force_array(this%force1%x_d, this%force2%x_d, this%force3%x_d,&
                              this%force4%x_d, this%force5%x_d, this%force6%x_d,&
                              this%s11msk%x_d,&
                              this%s22msk%x_d,&
@@ -255,6 +264,7 @@ contains
                              this%n3%x_d,&
                              this%case%material_properties%mu,&
                              n_pts)    
+       end if   
        dgtq(1) = device_glsum(this%force1%x_d,n_pts)
        dgtq(2) = device_glsum(this%force2%x_d,n_pts)
        dgtq(3) = device_glsum(this%force3%x_d,n_pts)

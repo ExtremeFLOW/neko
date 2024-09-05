@@ -77,7 +77,7 @@ module drag_torque
   !! Calculation can be done on a zone, a facet, or a point
   !! Currently everything is CPU only
   public :: drag_torque_zone, drag_torque_facet, drag_torque_pt, setup_normals,&
-            calc_force_array
+            calc_force_array, device_calc_force_array
 
 contains
   !> Calculate drag and torque over a zone.
