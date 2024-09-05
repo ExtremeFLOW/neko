@@ -35,6 +35,7 @@
 module simulation_component_fctry
   use simulation_component, only : simulation_component_t
   use vorticity, only : vorticity_t
+  use force_torque, only : force_torque_t
   use lambda2, only : lambda2_t
   use probes, only : probes_t
   use user_stats, only : user_stats_t
@@ -53,8 +54,9 @@ module simulation_component_fctry
   public :: simulation_component_factory
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KNOWN_TYPES(7) = [character(len=20) :: &
+  character(len=20) :: KNOWN_TYPES(8) = [character(len=20) :: &
      "vorticity", &
+     "force_torque", &
      "lambda2", &
      "probes", &
      "les_model", &
@@ -98,6 +100,8 @@ contains
        allocate(user_stats_t::object)
     else if (trim(type_name) .eq. "derivative") then
        allocate(derivative_t::object)
+    else if (trim(type_name) .eq. "force_torque") then
+       allocate(force_torque_t::object)
     else if (trim(type_name) .eq. "fluid_stats") then
        allocate(fluid_stats_simcomp_t::object)
     else

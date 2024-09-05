@@ -79,7 +79,7 @@ module simulation_component
      procedure, pass(this) :: preprocess_
      !> The main function to be executed during the run.
      procedure, pass(this) :: compute_
-     !> The restart function
+     !> The restart function to be called upon restarting simulation
      procedure, pass(this) :: restart_
   end type simulation_component_t
 
