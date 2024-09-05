@@ -74,9 +74,6 @@ contains
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
 
-    call this%free()
-
-    call this%init_base(coef)
     call this%bc_x%init_base(this%coef)
     call this%bc_y%init_base(this%coef)
     call this%bc_z%init_base(this%coef)
