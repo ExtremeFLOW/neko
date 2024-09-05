@@ -181,6 +181,7 @@ neko_fortran_SOURCES = \
 	common/rhs_maker.f90\
 	common/rhs_maker_fctry.f90\
 	simulation_components/probes.F90\
+	simulation_components/force_torque.f90\
 	simulation_components/fluid_stats_simcomp.f90\
 	simulation_components/user_statistics.f90\
 	simulation_components/field_writer.f90\
