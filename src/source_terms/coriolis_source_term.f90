@@ -51,6 +51,8 @@ module coriolis_source_term
   type, public, extends(source_term_t) :: coriolis_source_term_t
      !> The rotation vector.
      real(kind=rp) :: omega(3)
+     !> The geostrophic wind.
+     real(kind=rp) :: u_geo(3) = 0
    contains
      !> The common constructor using a JSON object.
      procedure, pass(this) :: init => coriolis_source_term_init_from_json
@@ -73,30 +75,64 @@ contains
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(inout), target :: fields
     type(coef_t), intent(inout), target :: coef
-    real(kind=rp), allocatable :: omega(:)
+    ! Rotation vector and geostrophic wind
+    real(kind=rp), allocatable :: rotation_vec(:), u_geo(:)
+    ! Alternative parameters to set the rotation vector
+    real(kind=rp) :: omega, phi, f 
     real(kind=rp) :: start_time, end_time
 
-    call json_get(json, "omega", omega)
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
 
+    if (json%valid_path("geostrophic_wind")) then
+       call json_get(json, "geostrophic_wind", u_geo)
+    else
+       allocate(u_geo(3))
+       u_geo = 0.0_rp
+    end if
 
-    call coriolis_source_term_init_from_components(this, fields, omega, coef, &
-          start_time, end_time)
+    if (json%valid_path("rotation_vector")) then
+       call json_get(json, "rotation_vector", rotation_vec)
+    else if (json%valid_path("omega") .and. json%valid_path("phi")) then
+       call json_get(json, "phi", phi)
+       call json_get(json, "omega", omega)
+
+       allocate(rotation_vec(3))
+       rotation_vec(1) = 0.0_rp
+       rotation_vec(2) = omega * cos(phi)
+       rotation_vec(3) = omega * sin(phi)
+    else if (json%valid_path("f")) then
+       call json_get(json, "f", phi)
+
+       allocate(rotation_vec(3))
+       rotation_vec(1) = 0.0_rp
+       rotation_vec(2) = 0.0_rp
+       rotation_vec(3) = 0.5_rp * f
+    else
+       call neko_error("Specify either rotation_vector, phi and omega, or f &
+             & for the Coriolis source term.")
+    end if
+
+
+
+    call coriolis_source_term_init_from_components(this, fields, rotation_vec, &
+          u_geo, coef, start_time, end_time)
 
   end subroutine coriolis_source_term_init_from_json
 
   !> The constructor from type components.
   !! @param fields A list of fields for adding the source values.
   !! @param omega The rotation vector.
+  !! @param u_geo The geostrophic wind.
   !! @param coef The SEM coeffs.
   !! @param start_time When to start adding the source term.
   !! @param end_time When to stop adding the source term.
   subroutine coriolis_source_term_init_from_components(this, fields, omega, &
-       coef, start_time, end_time)
+       u_geo, coef, start_time, end_time)
     class(coriolis_source_term_t), intent(inout) :: this
     class(field_list_t), intent(inout), target :: fields
-    real(kind=rp), intent(in) :: omega(:)
+    real(kind=rp), intent(in) :: omega(3)
+    real(kind=rp), intent(in) :: u_geo(3)
     type(coef_t) :: coef
     real(kind=rp), intent(in) :: start_time
     real(kind=rp), intent(in) :: end_time
@@ -108,12 +144,8 @@ contains
        call neko_error("Number of fields for the Coriolis force must be 3.")
     end if
 
-    if (size(omega) .ne. 3) then
-       call neko_error("The Coriolis force rotation vector must have 3 &
-             & components")
-    end if
-
-    this%omega = omega(1:3)
+    this%omega = omega
+    this%u_geo = u_geo 
   end subroutine coriolis_source_term_init_from_components
 
   !> Destructor.

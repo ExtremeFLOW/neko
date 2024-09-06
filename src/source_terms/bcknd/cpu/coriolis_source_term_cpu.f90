@@ -45,15 +45,17 @@ module coriolis_source_term_cpu
 
 contains
 
-  !> Computes the constant source term on the cpu.
-  !! @param fields The right-hand side.
-  !! @param values The values of the source components.
-  subroutine coriolis_source_term_compute_cpu(fields, omega)
+  !> Computes the generic Coriolis source term on the cpu.
+  !! @param fields The right-hand side, which should be the velocity components.
+  !! @param omega The rotation vector.
+  !! @param omega The geostrophic wind.
+  subroutine coriolis_source_term_compute_cpu(fields, omega, u_geo)
     type(field_list_t), intent(inout) :: fields
     real(kind=rp), intent(in) :: omega(3)
+    real(kind=rp), intent(in) :: u_geo(3)
     integer :: i, n
     type(field_t), pointer :: u, v, w
-    real(kind=rp) :: fx, fy, fz
+    real(kind=rp) :: ui, vi, wi
 
     n = fields%item_size(1)
 
@@ -62,10 +64,13 @@ contains
     w = fields%get_by_index(3)
 
     do concurrent (i = 1:n)
-       u%x(i,1,1,1) = u%x(i,1,1,1) + 2.0_rp * (v%x(i,1,1,1)*omega(3) - &
-            w%x(i,1,1,1)*omega(2))
-       v%x(i,1,1,1) = v%x(i,1,1,1) - 2.0_rp * u%x(i,1,1,1)*omega(3)
-       w%x(i,1,1,1) = w%x(i,1,1,1) + 2.0_rp * u%x(i,1,1,1)*omega(2)
+       ui = u%x(i,1,1,1) - u_geo(1)
+       vi = v%x(i,1,1,1) - u_geo(2)
+       wi = w%x(i,1,1,1) - u_geo(3)
+
+       u%x(i,1,1,1) = u%x(i,1,1,1) + 2.0_rp * (vi * omega(3) - wi * omega(2))
+       v%x(i,1,1,1) = v%x(i,1,1,1) + 2.0_rp * (wi * omega(1) - ui * omega(3))
+       w%x(i,1,1,1) = w%x(i,1,1,1) + 2.0_rp * (ui * omega(2) - vi * omega(1))
     end do
 
   end subroutine coriolis_source_term_compute_cpu
