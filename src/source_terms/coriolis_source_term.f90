@@ -166,7 +166,8 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
 !       call coriolis_source_term_compute_device(this%fields, this%omega)
     else
-       call coriolis_source_term_compute_cpu(this%fields, this%omega)
+       call coriolis_source_term_compute_cpu(this%fields, this%omega, &
+            this%u_geo)
     end if
   end subroutine coriolis_source_term_compute
 
