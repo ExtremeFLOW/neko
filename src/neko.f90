@@ -142,6 +142,7 @@ contains
 
     call neko_log%init()
     call neko_field_registry%init()
+
     if (pe_rank .eq. 0) then
        write(*,*) ''
        write(*,*) '   _  __  ____  __ __  ____  '
