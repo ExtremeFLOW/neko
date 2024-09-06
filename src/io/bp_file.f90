@@ -732,7 +732,8 @@ contains
     class(bp_file_t) :: this
     integer, intent(in) :: layout
 
-    if (precision .le. 5) then
+    !> Messy at the moment but anticipates other layouts.
+    if (layout .ge. 1 .and. layout .le. 4 .and. layout .ne. 3) then
        this%layout = layout
     else
        call neko_error('Invalid data layout')
