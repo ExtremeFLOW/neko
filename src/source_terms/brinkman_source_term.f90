@@ -52,10 +52,23 @@ module brinkman_source_term
   type, public, extends(source_term_t) :: brinkman_source_term_t
      private
 
+     ! HARRY
+     ! Tim, this may be a stupid idea, 
+     ! but I think it would be nice if we return to pointers for the indicator 
+     ! and maybe also brinkman, 
+     ! then we can have an init that could either initialize your own or point
+     ! to the registry.
+     !
+     ! keep in my we'll ultimately define our design externally have this source
+     ! term point to it.
+     ! option from the json 
      !> The value of the source term.
-     type(field_t) :: indicator
+     type(field_t), pointer :: indicator
      !> Brinkman permeability field.
      type(field_t) :: brinkman
+    ! these would be if you want to define it privately
+    type(field_t) :: indicator_private
+     
      ! damn... if we're adjoint then this is proportional to adjoint velocity
      logical :: adjoint_flag
      character(len=:), allocatable :: my_u, my_v, my_w
@@ -108,9 +121,14 @@ contains
     type(json_core) :: core
 
     character(len=:), allocatable :: object_type
+    character(len=:), allocatable :: registry_name
     type(json_file) :: object_settings
     integer :: n_regions
     integer :: i
+
+    logical :: brinkman_in_registry = .false.
+    ! I don't understand why I can't have a target higher up..
+    type(field_t), target :: indicator_private_target
 
     ! Mandatory fields for the general source term
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
@@ -125,10 +143,12 @@ contains
     ! registry so much
     call json_get_or_default(json, "brinkman.adjoint", this%adjoint_flag, .false.)
     if(this%adjoint_flag) then
+    	print *, "ADJOINT FORCING"
     	this%my_u = 'u_adj'
     	this%my_v = 'v_adj'
     	this%my_w = 'w_adj'
     else
+    	print *, "FORWARD FORCING"
     	this%my_u = 'u'
     	this%my_v = 'v'
     	this%my_w = 'w'
@@ -149,9 +169,6 @@ contains
        call neko_error('Brinkman field already exists.')
     end if
 
-    call this%indicator%init(coef%dof)
-    call this%brinkman%init(coef%dof)
-
     ! ------------------------------------------------------------------------ !
     ! Select which constructor should be called
 
@@ -159,6 +176,8 @@ contains
     call json%info('objects', n_children = n_regions)
     call json%get_core(core)
 
+    	
+    call this%indicator_private%init(coef%dof)
     do i = 1, n_regions
        call json_extract_item(core, json_object_list, i, object_settings)
        call json_get_or_default(object_settings, 'type', object_type, 'none')
@@ -172,11 +191,39 @@ contains
          case ('none')
           call object_settings%print()
           call neko_error('Brinkman source term objects require a region type')
+
+         case ('registry')
+         if(n_regions.gt.1) then
+          call neko_error('Brinkman source term can only point to one registry location')
+         else
+           ! here we can point to the registry
+           ! I'm assuming the "name" is the name in the registry
+           call json_get(object_settings, 'name', registry_name)
+           	if (neko_field_registry%field_exists(registry_name)) then
+               print *,'pointing to ', registry_name
+					this%indicator => neko_field_registry%get_field(registry_name)
+           	else
+               print *,'creating ', registry_name
+					call neko_field_registry%add_field(this%coef%dof, registry_name)
+					this%indicator => neko_field_registry%get_field(registry_name)
+    			end if
+    			brinkman_in_registry = .true.
+         endif
+
          case default
           call neko_error('Brinkman source term unknown region type')
        end select
 
     end do
+
+    if(.not.brinkman_in_registry) then
+    	! I don't understand this target stuff...
+    	indicator_private_target = this%indicator_private 
+    	this%indicator => indicator_private_target
+    endif
+
+    call this%brinkman%init(coef%dof)
+
 
     ! Run filter on the full indicator field to smooth it out.
     call json_get_or_default(json, 'filter.type', filter_type, 'none')
@@ -206,7 +253,7 @@ contains
   subroutine brinkman_source_term_free(this)
     class(brinkman_source_term_t), intent(inout) :: this
 
-    call this%indicator%free()
+    call this%indicator_private%free()
     call this%brinkman%free()
     call this%free_base()
   end subroutine brinkman_source_term_free
@@ -342,7 +389,7 @@ contains
     ! compute the signed distance function. This should be replaced with a
     ! more efficient method, such as a tree search.
 
-    call temp_field%init(this%indicator%dof)
+    call temp_field%init(this%indicator_private%dof)
 
     ! Select how to transform the distance field to a design field
     select case (distance_transform)
@@ -376,7 +423,7 @@ contains
     end select
 
     ! Update the global indicator field by max operator
-    this%indicator%x = max(this%indicator%x, temp_field%x)
+    this%indicator_private%x = max(this%indicator_private%x, temp_field%x)
 
   end subroutine init_boundary_mesh
 
@@ -410,7 +457,7 @@ contains
 
     ! Compute the indicator field
 
-    call temp_field%init(this%indicator%dof)
+    call temp_field%init(this%indicator_private%dof)
 
     my_point_zone => neko_point_zone_registry%get_point_zone(zone_name)
 
@@ -428,7 +475,7 @@ contains
     end select
 
     ! Update the global indicator field by max operator
-    this%indicator%x = max(this%indicator%x, temp_field%x)
+    this%indicator_private%x = max(this%indicator_private%x, temp_field%x)
 
   end subroutine init_point_zone
 
