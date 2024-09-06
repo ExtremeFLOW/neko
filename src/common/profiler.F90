@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,7 @@ module profiler
   use nvtx
   use roctx
   use craypat
+  use runtime_stats, only : neko_rt_stats
   implicit none
   private
 
@@ -88,6 +89,12 @@ contains
     !   call craypat_region_begin(name)
 #endif
 
+    if (present(region_id)) then
+       call neko_rt_stats%start_region(name, region_id)
+    else
+       call neko_rt_stats%start_region(name)
+    end if
+    
   end subroutine profiler_start_region
 
   !> End the most recently started profiler region
@@ -101,6 +108,8 @@ contains
     !   call craypat_region_end
 #endif
 
+    call neko_rt_stats%end_region
+    
   end subroutine profiler_end_region
 
 end module profiler

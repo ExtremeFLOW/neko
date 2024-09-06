@@ -217,7 +217,7 @@ contains
        force = .false.
     end if
 
-    call profiler_start_region('Sampler')
+    call profiler_start_region('Sampler', 22)
     !Do we need this Barrier?
     call MPI_Barrier(NEKO_COMM, ierr)
     sample_start_time = MPI_WTIME()
