@@ -262,11 +262,28 @@ The following types are currently implemented.
    - `g`: The gravity vector.
    - `beta`: The thermal expansion coefficient, defaults to the inverse of
       `ref_value`.
-3. `user_pointwise`, the values are set inside the compiled user file, using the
+3. `coriolis`, a source term introducing a Coriolis force, define as \f$ -2
+   \Omega \times (u - U_g) \f$. Here, \f$ \Omega \f$ is the rotation vector and
+   \f$ u \f$ is the velocity vector, and \f$ U_g \f$ is the geostrophic wind.
+   Several ways of setting \f$ \Omega \f$ are provided via the following
+   keywords.
+
+   - `rotation_vector`: Array with 3 values. Directly assigns \f$ \Omega \f$ to
+     the provided vector.
+   - `omega` and `phi`: Both scalars. Sets \f$ \Omega = [0, \omega \cos \phi,
+     \omega \sin \phi ] \f$. Common notation when modelling the atmosphere. This
+     assumes that the \f$ z \f$ axis is normal to the ground. 
+   - `f`: Scalar, referred to as the Coriolis parameter, \f$ f = 2 \omega \sin
+     \phi \f$. Sets \f$ \Omega = [0, 0, 0.5f ] \f$. This further assumes that the
+     ground-normal component of the Coriolis force is negligible.
+
+   The geostrophic wind is set to 0 for all components by default. Other values
+   are set via the `geostrophic_wind` keyword.
+4. `user_pointwise`, the values are set inside the compiled user file, using the
    pointwise user file subroutine. Only works on CPUs!
-4. `user_vector`, the values are set inside the compiled user file, using the
+5. `user_vector`, the values are set inside the compiled user file, using the
    non-pointwise user file subroutine. Should be used when running on the GPU.
-4. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
+6. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
