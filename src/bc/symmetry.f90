@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -71,8 +71,9 @@ contains
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
 
-    call symmetry_free(this)
-
+    call this%bc_x%free()
+    call this%bc_y%free()
+    call this%bc_z%free()
     call this%bc_x%init(this%coef)
     call this%bc_y%init(this%coef)
     call this%bc_z%init(this%coef)
