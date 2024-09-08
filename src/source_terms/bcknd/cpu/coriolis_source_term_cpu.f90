@@ -57,11 +57,12 @@ contains
     type(field_t), pointer :: u, v, w
     real(kind=rp) :: ui, vi, wi
 
+
     n = fields%item_size(1)
 
-    u = fields%get_by_index(1)
-    v = fields%get_by_index(2)
-    w = fields%get_by_index(3)
+    u => fields%get_by_index(1)
+    v => fields%get_by_index(2)
+    w => fields%get_by_index(3)
 
     do concurrent (i = 1:n)
        ui = u%x(i,1,1,1) - u_geo(1)
