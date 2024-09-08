@@ -77,7 +77,7 @@ contains
     ! Rotation vector and geostrophic wind
     real(kind=rp), allocatable :: rotation_vec(:), u_geo(:)
     ! Alternative parameters to set the rotation vector
-    real(kind=rp) :: omega, phi, f 
+    real(kind=rp) :: omega, phi, f, pi
     real(kind=rp) :: start_time, end_time
 
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
@@ -97,9 +97,10 @@ contains
        call json_get(json, "omega", omega)
 
        allocate(rotation_vec(3))
+       pi = 4 * atan(1.0_rp)
        rotation_vec(1) = 0.0_rp
-       rotation_vec(2) = omega * cos(phi)
-       rotation_vec(3) = omega * sin(phi)
+       rotation_vec(2) = omega * cos(phi * pi / 180 )
+       rotation_vec(3) = omega * sin(phi * pi / 180)
     else if (json%valid_path("f")) then
        call json_get(json, "f", phi)
 
