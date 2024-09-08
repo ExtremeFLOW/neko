@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2023-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -41,8 +41,7 @@ module vreman_cpu
   use operators, only : dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
-  use math, only : col2
-  implicit none
+   implicit none
   private
 
   public :: vreman_compute_cpu
@@ -116,18 +115,20 @@ contains
     call coef%gs_h%op(a32%x, a11%dof%size(), GS_OP_ADD)
     call coef%gs_h%op(a33%x, a11%dof%size(), GS_OP_ADD)
 
-    call col2(a11%x, coef%mult, a11%dof%size())
-    call col2(a12%x, coef%mult, a11%dof%size())
-    call col2(a13%x, coef%mult, a11%dof%size())
-    call col2(a21%x, coef%mult, a11%dof%size())
-    call col2(a22%x, coef%mult, a11%dof%size())
-    call col2(a23%x, coef%mult, a11%dof%size())
-    call col2(a31%x, coef%mult, a11%dof%size())
-    call col2(a32%x, coef%mult, a11%dof%size())
-    call col2(a33%x, coef%mult, a11%dof%size())
+    do concurrent (i = 1:a11%dof%size())
+       a11%x(i,1,1,1) = a11%x(i,1,1,1) * coef%mult(i,1,1,1)
+       a12%x(i,1,1,1) = a12%x(i,1,1,1) * coef%mult(i,1,1,1)
+       a13%x(i,1,1,1) = a13%x(i,1,1,1) * coef%mult(i,1,1,1)
+       a21%x(i,1,1,1) = a21%x(i,1,1,1) * coef%mult(i,1,1,1)
+       a22%x(i,1,1,1) = a22%x(i,1,1,1) * coef%mult(i,1,1,1)
+       a23%x(i,1,1,1) = a23%x(i,1,1,1) * coef%mult(i,1,1,1)
+       a31%x(i,1,1,1) = a31%x(i,1,1,1) * coef%mult(i,1,1,1)
+       a32%x(i,1,1,1) = a32%x(i,1,1,1) * coef%mult(i,1,1,1)
+       a33%x(i,1,1,1) = a33%x(i,1,1,1) * coef%mult(i,1,1,1)
+    end do
 
-    do e=1, coef%msh%nelv
-       do i=1, coef%Xh%lxyz
+    do concurrent (e = 1:coef%msh%nelv)
+       do concurrent (i = 1:coef%Xh%lxyz)
           ! beta_ij = alpha_mi alpha_mj
           beta11 = a11%x(i,1,1,e)**2 + a21%x(i,1,1,e)**2 + a31%x(i,1,1,e)**2
           beta22 = a12%x(i,1,1,e)**2 + a22%x(i,1,1,e)**2 + a32%x(i,1,1,e)**2

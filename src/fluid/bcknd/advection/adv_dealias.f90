@@ -262,9 +262,11 @@ contains
             call this%GLL_to_GL%map(tempz, tfz, 1, this%Xh_GLL)
 
             idx = (e-1)*this%Xh_GLL%lxyz+1
-            call sub2(fx%x(idx, 1, 1, 1), tempx, this%Xh_GLL%lxyz)
-            call sub2(fy%x(idx, 1, 1, 1), tempy, this%Xh_GLL%lxyz)
-            call sub2(fz%x(idx, 1, 1, 1), tempz, this%Xh_GLL%lxyz)
+            do concurrent (i = 0:this%Xh_GLL%lxyz-1)
+               fx%x(i+idx,1,1,1) = fx%x(i+idx,1,1,1) - tempx(i+1)
+               fy%x(i+idx,1,1,1) = fy%x(i+idx,1,1,1) - tempy(i+1)
+               fz%x(i+idx,1,1,1) = fz%x(i+idx,1,1,1) - tempz(i+1)
+            end do
          end do
       end if
     end associate
