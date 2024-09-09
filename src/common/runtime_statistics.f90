@@ -114,6 +114,10 @@ contains
        if (region_id .le. RT_STATS_MAX_REGIONS) then
           if (len_trim(this%rt_stats_id(region_id)) .eq. 0) then
              this%rt_stats_id(region_id) = trim(name)
+          else
+             if (trim(this%rt%stats_id(region_id)) .ne. trim(name)) then
+                call neko_error('Profile region renamed')
+             end if
           end if
           region_data%y = MPI_Wtime()
           region_data%x = region_id
