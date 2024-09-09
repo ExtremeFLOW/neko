@@ -1017,4 +1017,62 @@ contains
 
   end subroutine fluid_scheme_update_material_properties
 
+
+  subroutine fluid_scheme_setup_bcs(this, user)
+    class(fluid_scheme_t), intent(inout) :: this
+    type(user_t), target, intent(in) :: user
+    integer :: i, j, n_bcs, ierr
+    real(kind=rp) :: dir_value, flux_value
+    type(json_core) :: core
+    type(json_value), pointer :: bc_object
+    type(json_file) :: bc_subdict
+    logical :: found
+
+
+    if (this%params%valid_path('case.fluid.boundary_conditions')) then
+       call this%params%info('case.fluid.boundary_conditions', n_children=n_bcs)
+       call this%params%get_core(core)
+       call this%params%get('case.fluid.boundary_conditions', bc_object, found)
+
+       call this%bcs%init(n_bcs)
+
+       do i=1, n_bcs
+          ! Create a new json containing just the subdict for this bc
+          call json_extract_item(core, bc_object, i, bc_subdict)
+
+          call fluid_bc_factory(this%bcs%items(i)%obj, bc_subdict, &
+                          this%c_Xh, user)
+
+          if (this%bcs%strong(i)) then
+             this%n_strong = this%n_strong + 1
+          end if
+       end do
+    end if
+
+
+  end subroutine
+
+  subroutine fluid_bc_factory(object, json, coef, user)
+    class(bc_t), allocatable, intent(inout) :: object
+    type(json_file), intent(inout) :: json
+    type(coef_t), intent(in) :: coef
+    type(user_t), intent(in) :: user
+    character(len=:), allocatable :: type
+    integer :: zone_index
+
+    call json_get(json, "type", type)
+
+    if (trim(type) .eq. "symmetry") then
+       allocate(symmetry_t::object)
+    else if (trim(type) .eq. "dirichlet") then
+    else if (trim(type) .eq. "blasius") then
+       allocate(blasius_t::object)
+    end if
+
+    call json_get(json, "zone_index", zone_index)
+    call object%init(coef, json)
+    call object%mark_zone(coef%msh%labeled_zones(zone_index))
+    call object%finalize()
+
+  end subroutine
 end module fluid_scheme
