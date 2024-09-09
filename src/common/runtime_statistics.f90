@@ -91,7 +91,7 @@ contains
        deallocate(this%rt_stats_id)
     end if
 
-    if (allocated(this%elapsed_time_)) then       
+    if (allocated(this%elapsed_time_)) then
        do i = 1, size(this%elapsed_time_)
           call this%elapsed_time_(i)%free()
        end do
@@ -119,8 +119,8 @@ contains
                 call neko_error('Profile region renamed')
              end if
           end if
-          region_data%y = MPI_Wtime()
           region_data%x = region_id
+          region_data%y = MPI_Wtime()
           call this%region_timestamp_%push(region_data)
        end if
     else
