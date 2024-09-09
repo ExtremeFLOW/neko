@@ -115,8 +115,8 @@ contains
           if (len_trim(this%rt_stats_id(region_id)) .eq. 0) then
              this%rt_stats_id(region_id) = trim(name)
           end if
-          region_data%y = MPI_Wtime()
           region_data%x = region_id
+          region_data%y = MPI_Wtime()
           call this%region_timestamp_%push(region_data)
        end if
     else
