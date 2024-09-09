@@ -43,6 +43,8 @@ related to coding style and IDEs.
 code base with pFUnit.
   - [Accelerators](@ref accelerators) discusses important concepts and 
 conventions related to GPU programming in the Neko framework.
+  - [Run-time selectable types](@ref rts_types) presents the standard programming
+pattern used to select object types at run time.
 - \subpage appendices
   - [Governing Equations](@ref governing-equations) used in our solvers.
   - [Publications](@ref publications)

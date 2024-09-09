@@ -19,6 +19,7 @@ EXTRA_DIST = pages/appendices/governing-equations.md \
 			pages/appendices/publications.md \
 			pages/developer-guide \
 			pages/developer-guide/accelerators.md \
+			pages/developer-guide/run_time_selectable_types.md \
 			pages/developer-guide/code-style.md \
 			pages/developer-guide/contributing.md \
 			pages/developer-guide/dev_patterns.md \
