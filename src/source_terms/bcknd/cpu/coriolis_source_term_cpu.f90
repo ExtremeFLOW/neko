@@ -69,9 +69,9 @@ contains
        vi = v%x(i,1,1,1) - u_geo(2)
        wi = w%x(i,1,1,1) - u_geo(3)
 
-       u%x(i,1,1,1) = u%x(i,1,1,1) + 2.0_rp * (vi * omega(3) - wi * omega(2))
-       v%x(i,1,1,1) = v%x(i,1,1,1) + 2.0_rp * (wi * omega(1) - ui * omega(3))
-       w%x(i,1,1,1) = w%x(i,1,1,1) + 2.0_rp * (ui * omega(2) - vi * omega(1))
+       u%x(i,1,1,1) = u%x(i,1,1,1) - 2.0_rp * (omega(2) * wi - omega(3) * vi)
+       v%x(i,1,1,1) = v%x(i,1,1,1) - 2.0_rp * (omega(3) * ui - omega(1) * wi)
+       w%x(i,1,1,1) = w%x(i,1,1,1) - 2.0_rp * (omega(1) * vi - omega(2) * ui)
     end do
 
   end subroutine coriolis_source_term_compute_cpu
