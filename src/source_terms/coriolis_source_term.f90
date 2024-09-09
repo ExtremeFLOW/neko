@@ -145,7 +145,7 @@ contains
     end if
 
     this%omega = omega
-    this%u_geo = u_geo 
+    this%u_geo = u_geo
   end subroutine coriolis_source_term_init_from_components
 
   !> Destructor.

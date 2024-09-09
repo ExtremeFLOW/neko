@@ -262,7 +262,7 @@ The following types are currently implemented.
    - `g`: The gravity vector.
    - `beta`: The thermal expansion coefficient, defaults to the inverse of
       `ref_value`.
-3. `coriolis`, a source term introducing a Coriolis force, define as \f$ -2
+3. `coriolis`, a source term introducing a Coriolis force, defined as \f$ -2
    \Omega \times (u - U_g) \f$. Here, \f$ \Omega \f$ is the rotation vector and
    \f$ u \f$ is the velocity vector, and \f$ U_g \f$ is the geostrophic wind.
    Several ways of setting \f$ \Omega \f$ are provided via the following
@@ -273,7 +273,7 @@ The following types are currently implemented.
    - `omega` and `phi`: Both scalars. The latitude `phi` should be provided in
      degrees. Sets \f$ \Omega = [0, \omega \cos \phi, \omega \sin \phi ] \f$.
      Common notation when modelling the atmosphere. This assumes that the \f$ z
-     \f$ axis is normal to the ground. 
+     \f$ axis is normal to the ground.
    - `f`: Scalar, referred to as the Coriolis parameter, \f$ f = 2 \omega \sin
      \phi \f$. Sets \f$ \Omega = [0, 0, 0.5f ] \f$. This further assumes that the
      ground-normal component of the Coriolis force is negligible.
