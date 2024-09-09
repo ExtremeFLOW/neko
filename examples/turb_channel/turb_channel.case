@@ -17,6 +17,13 @@
         "dealias": true
     },
     "fluid": {
+	"wall_modelling": {
+		"type": "rough_log_law",
+		"h_index": 2,
+		"kappa": 0.41,
+		"B": 0.0,
+		"z0": 0.01,
+	},
         "scheme": "pnpn",
         "Re": 2800,
         "initial_condition": {
@@ -41,7 +48,7 @@
             "value": 1.0,
             "use_averaged_flow": true
         },
-        "boundary_types": ["", "", "w", "w"],
+        "boundary_types": ["", "", "w", "wm"],
         "output_control": "simulationtime",
         "output_value": 1.0
     },

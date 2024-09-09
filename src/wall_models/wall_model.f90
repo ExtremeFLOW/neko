@@ -177,7 +177,7 @@ contains
     class(wall_model_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
     integer, target, intent(in) :: msk(0:)
-    integer, target, intent(in) :: facet(:)
+    integer, target, intent(in) :: facet(0:)
     real(kind=rp), intent(in) :: nu
     integer, intent(in) :: index
 
@@ -186,9 +186,11 @@ contains
     this%coef => coef
     this%dof => coef%dof
     this%msk(0:msk(0)) => msk
-    this%facet => facet
+    this%facet(0:msk(0)) => facet
     this%nu = nu
     this%h_index = index
+
+    write(*,*) "INIT WM BASE", msk(0), size(this%msk), nu, index
 
     call neko_field_registry%add_field(this%dof, "tau", &
                                        ignore_existing = .true.)
@@ -263,6 +265,8 @@ contains
        ! inward normal
        normal = -normal
 
+!       write(*,*) "FID", i, fid, normal, linear, n_nodes
+!       write(*,*) "facet", this%facet(i), this%facet(i+1)
        select case (fid)
        case (1)
          this%ind_r(i) = idx(1) + this%h_index
@@ -289,7 +293,7 @@ contains
          this%ind_s(i) = idx(2)
          this%ind_t(i) = idx(3) - this%h_index
        case default
-         call neko_error("The face index is not correct")
+         call neko_error("The face index is not correct ")
        end select
        this%ind_e(i) = idx(4)
 
@@ -299,7 +303,7 @@ contains
        zw = this%dof%z(idx(1), idx(2), idx(3), idx(4))
 
        ! Location of the sampling point
-!       write(*,*) "IND", this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i), fid
+       write(*,*) "IND", this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i), fid
        x = this%dof%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
                       this%ind_e(i))
        y = this%dof%y(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
@@ -332,7 +336,7 @@ contains
     hmax = glmax(this%h%x, n_nodes)
 
     if (pe_rank .eq. 0) then
-       write(*,*) "h min / max", hmin, hmax
+       write(*,*) "h min / max", hmin, hmax, this%msk(0)
     end if
 
 

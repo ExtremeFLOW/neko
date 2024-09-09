@@ -78,6 +78,9 @@ module fluid_scheme
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
   use field_math, only : field_cfill
+  use wall_model_bc, only : wall_model_bc_t
+  use spalding, only : spalding_t
+  use rough_log_law, only : rough_log_law_t
   implicit none
   private
 
@@ -110,6 +113,7 @@ module fluid_scheme
      integer :: pr_projection_activ_step   !< Steps to activate projection for ksp_pr
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
+     type(wall_model_bc_t) :: bc_wallmodel !< Wall model boundary condition
 
      ! Attributes for field dirichlet BCs
      type(field_dirichlet_vector_t) :: user_field_bc_vel   !< User-computed Dirichlet velocity condition
@@ -256,7 +260,7 @@ contains
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp), allocatable :: real_vec(:)
-    real(kind=rp) :: real_val
+    real(kind=rp) :: real_val, kappa, B, z0
     logical :: logical_val
     integer :: integer_val, ierr
     character(len=:), allocatable :: string_val1, string_val2
@@ -464,6 +468,48 @@ contains
           end select
        else if (trim(string_val1) .eq. "user") then
        end if
+    end if
+
+    !
+    ! Wall models
+    !
+    if (params%valid_path('case.fluid.wall_modelling')) then
+
+       call this%bc_wallmodel%init_wall_model_bc(this%c_Xh)
+       call this%bc_wallmodel%mark_zones_from_list(msh%labeled_zones,&
+                        'wm', this%bc_labels)
+       call this%bc_wallmodel%finalize()
+       write(*,*) this%bc_wallmodel%msk(0), this%bc_wallmodel%facet(1), size(this%bc_wallmodel%facet)
+
+       call json_get(params, 'case.fluid.wall_modelling.h_index', integer_val)
+
+       call json_get(params, 'case.fluid.wall_modelling.type', string_val1)
+       if (trim(string_val1) .eq. "spalding") then
+          allocate(spalding_t::this%bc_wallmodel%wall_model)
+          call json_get(params, 'case.fluid.wall_modelling.kappa', kappa)
+          call json_get(params, 'case.fluid.wall_modelling.B', B)
+          select type (wm => this%bc_wallmodel%wall_model)
+          type is (spalding_t)
+             call wm%init_from_components(&
+                   this%c_Xh, this%bc_wallmodel%msk, this%bc_wallmodel%facet, &
+                   this%mu / this%rho, integer_val, kappa, B)
+          end select
+       else if (trim(string_val1) .eq. "rough_log_law") then
+          allocate(rough_log_law_t::this%bc_wallmodel%wall_model)
+          call json_get(params, 'case.fluid.wall_modelling.kappa', kappa)
+          call json_get(params, 'case.fluid.wall_modelling.B', B)
+          call json_get(params, 'case.fluid.wall_modelling.z0', z0)
+          select type (wm => this%bc_wallmodel%wall_model)
+          type is (rough_log_law_t)
+             call wm%init_from_components(&
+                   this%c_Xh, this%bc_wallmodel%msk, this%bc_wallmodel%facet, &
+                   this%mu / this%rho, integer_val, kappa, B, z0)
+          end select
+       else
+          call neko_error('Invalid wall model type '//string_val1)
+       end if
+
+       call bc_list_add(this%bclst_vel, this%bc_wallmodel)
     end if
 
     call this%bc_wall%init_base(this%c_Xh)

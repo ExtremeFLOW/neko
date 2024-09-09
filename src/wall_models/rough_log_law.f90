@@ -147,6 +147,7 @@ contains
     integer :: i
     real(kind=rp) :: ui, vi, wi, magu, utau, normu
 
+    write(*,*) "COMPUTE"
     u => neko_field_registry%get_field("u")
     v => neko_field_registry%get_field("v")
     w => neko_field_registry%get_field("w")
@@ -169,7 +170,7 @@ contains
       ! Compute the stress
       utau = (magu - this%B) * this%kappa / log(this%h%x(i) / this%z0)
 
-      write(*,*) ui, vi, wi, utau
+!      write(*,*) ui, vi, wi, utau
 
       ! Distribute according to the velocity vector
       this%tau_x(i) = -utau**2 * ui / magu
@@ -177,7 +178,7 @@ contains
       this%tau_z(i) = -utau**2 * wi / magu
     end do
 
-    write(*,*) this%tau_x(1:3)
+!    write(*,*) this%tau_x(1:3)
   end subroutine rough_log_law_compute
 
 

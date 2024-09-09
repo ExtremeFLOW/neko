@@ -190,6 +190,7 @@ module shear_stress
       real(kind=rp), intent(in) :: tau1(this%msk(0))
       real(kind=rp), intent(in) :: tau2(this%msk(0))
 
+      write(*,*) this%msk(0), size(this%tau1_), size(tau1)
       call copy(this%tau1_, tau1, this%msk(0))
       call copy(this%tau2_, tau2, this%msk(0))
 
