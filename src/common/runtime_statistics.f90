@@ -91,7 +91,7 @@ contains
        deallocate(this%rt_stats_id)
     end if
 
-    if (allocated(this%elapsed_time_)) then       
+    if (allocated(this%elapsed_time_)) then
        do i = 1, size(this%elapsed_time_)
           call this%elapsed_time_(i)%free()
        end do
