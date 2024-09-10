@@ -363,7 +363,7 @@ contains
       ! Apply a 0-valued Dirichlet boundary conditions on the ds.
       call bc_list_apply_scalar(this%bclst_ds, s_res%x, dm_Xh%size())
 
-      call profiler_end_region
+      call profiler_end_region('Scalar residual', 20)
 
       call this%proj_s%pre_solving(s_res%x, tstep, c_Xh, n, dt_controller)
 
@@ -371,7 +371,7 @@ contains
       call profiler_start_region('Scalar solve', 21)
       ksp_results(1) = this%ksp%solve(Ax, ds, s_res%x, n, &
            c_Xh, this%bclst_ds, gs_Xh)
-      call profiler_end_region
+      call profiler_end_region('Scalar solve', 21)
 
      call this%proj_s%post_solving(ds%x, Ax, c_Xh, &
                                  this%bclst_ds, gs_Xh, n, tstep, dt_controller)
@@ -386,7 +386,7 @@ contains
       call scalar_step_info(tstep, t, dt, ksp_results)
 
     end associate
-    call profiler_end_region
+    call profiler_end_region('Scalar', 2)
   end subroutine scalar_pnpn_step
 
 

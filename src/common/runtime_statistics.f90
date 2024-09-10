@@ -124,37 +124,35 @@ contains
   subroutine runtime_stats_start_region(this, name, region_id)
     class(runtime_stats_t), intent(inout) :: this
     character(len=*) :: name
-    integer, optional, intent(in) :: region_id
+    integer, intent(in) :: region_id
     type(tuple_i4r8_t) :: region_data
 
     if (.not. this%enabled_) then
        return
     end if
     
-    if (present(region_id)) then
-       if (region_id .le. RT_STATS_MAX_REGIONS) then
-          if (len_trim(this%rt_stats_id(region_id)) .eq. 0) then
-             this%rt_stats_id(region_id) = trim(name)
-          else
-             if (trim(this%rt_stats_id(region_id)) .ne. trim(name)) then
-                call neko_error('Profile region renamed')
-             end if
+    if (region_id .gt. 0 .and. region_id .le. RT_STATS_MAX_REGIONS) then
+       if (len_trim(this%rt_stats_id(region_id)) .eq. 0) then
+          this%rt_stats_id(region_id) = trim(name)
+       else
+          if (trim(this%rt_stats_id(region_id)) .ne. trim(name)) then
+             call neko_error('Profile region renamed')
           end if
-          region_data%x = region_id
-          region_data%y = MPI_Wtime()
-          call this%region_timestamp_%push(region_data)
        end if
-    else
-       region_data%x = 0
+       region_data%x = region_id
        region_data%y = MPI_Wtime()
        call this%region_timestamp_%push(region_data)
+    else
+       call neko_error('Invalid profiling region id')
     end if
     
   end subroutine runtime_stats_start_region
 
   !> Compute elapsed time for the current region
-  subroutine runtime_stats_end_region(this)
+  subroutine runtime_stats_end_region(this, name, region_id)
     class(runtime_stats_t), intent(inout) :: this
+    character(len=*) :: name
+    integer, intent(in) :: region_id
     real(kind=dp) :: end_time, elapsed_time
     type(tuple_i4r8_t) :: region_data
 
@@ -163,6 +161,11 @@ contains
     end if
 
     end_time = MPI_Wtime()
+
+    if (trim(this%rt_stats_id(region_id)) .ne. trim(name)) then
+       call neko_error('Invalid profiler region closed (' // name // ', &
+            &expected: ' // trim(this%rt_stats_id(region_id)) // ')')
+    end if
     region_data = this%region_timestamp_%pop()
     
     if (region_data%x .gt. 0) then

@@ -91,15 +91,15 @@ contains
 
     if (present(region_id)) then
        call neko_rt_stats%start_region(name, region_id)
-    else
-       call neko_rt_stats%start_region(name)
     end if
     
   end subroutine profiler_start_region
 
   !> End the most recently started profiler region
-  subroutine profiler_end_region
-
+  subroutine profiler_end_region(name, region_id)
+    character(kind=c_char,len=*), optional :: name
+    integer, optional :: region_id
+    
 #ifdef HAVE_NVTX
     call nvtxRangePop
 #elif HAVE_ROCTX
@@ -108,8 +108,10 @@ contains
     !   call craypat_region_end
 #endif
 
-    call neko_rt_stats%end_region
-    
+    if (present(name) .and. present(region_id)) then
+       call neko_rt_stats%end_region(name, region_id)
+    end if
+
   end subroutine profiler_end_region
 
 end module profiler

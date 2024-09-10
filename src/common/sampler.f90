@@ -275,7 +275,7 @@ contains
        call neko_log%message(log_buf)
        call neko_log%end_section()
     end if
-    call profiler_end_region
+    call profiler_end_region('Sampler', 22)
   end subroutine sampler_sample
 
   !> Set sampling counter based on time (after restart)

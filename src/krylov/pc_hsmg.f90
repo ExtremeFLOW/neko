@@ -395,7 +395,7 @@ contains
           call profiler_start_region('HSMG schwarz', 9)
           call this%grids(3)%schwarz%compute(z, this%r)
           call this%grids(2)%schwarz%compute(this%grids(2)%e%x, this%w)
-          call profiler_end_region
+          call profiler_end_region('HSMG schwarz', 9)
        end if
        if (nthrds .eq. 1 .or. thrdid .eq. 1) then
           call profiler_start_region('HSMG coarse grid', 10)
@@ -411,10 +411,10 @@ contains
                                        this%grids(1)%coef, &
                                        this%grids(1)%bclst, &
                                        this%grids(1)%gs_h, this%niter)
-          call profiler_end_region
+          call profiler_end_region('HSMG coarse-solve', 11)
           call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
                                     this%grids(1)%dof%size())
-          call profiler_end_region
+          call profiler_end_region('HSMG coarse grid', 10)
        end if
        !$omp end parallel
 
@@ -460,7 +460,7 @@ contains
                                     this%grids(1)%coef, &
                                     this%grids(1)%bclst, &
                                     this%grids(1)%gs_h, this%niter)
-       call profiler_end_region
+       call profiler_end_region('HSMG coarse-solve', 11)
        call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
                                  this%grids(1)%dof%size())
 
@@ -476,6 +476,6 @@ contains
        call col2(z, this%grids(3)%coef%mult, this%grids(3)%dof%size())
 
     end if
-    call profiler_end_region
+    call profiler_end_region('HSMG solve', 8)
   end subroutine hsmg_solve
 end module hsmg
