@@ -36,6 +36,10 @@ module runtime_stats
   use stack, only : stack_r8_t, stack_i4r8t2_t
   use tuple, only : tuple_i4r8_t
   use num_types, only : dp
+  use json_utils, only : json_get, json_get_or_default
+  use json_module, only : json_file
+  use file, only : file_t
+  use matrix, only : matrix_t
   use comm
   use mpi_f08
   implicit none
@@ -50,6 +54,8 @@ module runtime_stats
      type(stack_r8_t), allocatable :: elapsed_time_(:)
      !> Stack to hold current active region timestamps
      type(stack_i4r8t2_t) :: region_timestamp_
+     logical :: enabled_
+     logical :: output_profile_
     contains
      procedure, pass(this) :: init => runtime_stats_init
      procedure, pass(this) :: free => runtime_stats_free
@@ -63,22 +69,33 @@ module runtime_stats
 contains
 
   !> Initialise runtime statistics
-  subroutine runtime_stats_init(this)
+  subroutine runtime_stats_init(this, params)
     class(runtime_stats_t), intent(inout) :: this
+    type(json_file), intent(inout) :: params
     integer :: i
     
     call this%free()
 
-    allocate(this%rt_stats_id(RT_STATS_MAX_REGIONS))
+    call json_get_or_default(params, 'case.runtime_statistics.enabled', &
+         this%enabled_, .false.)
+    call json_get_or_default(params, &
+         'case.runtime_statistics.output_profile', &
+         this%output_profile_, .false.)
 
-    this%rt_stats_id = ''
+    if (this%enabled_) then
 
-    allocate(this%elapsed_time_(RT_STATS_MAX_REGIONS))
-    do i = 1, RT_STATS_MAX_REGIONS
-       call this%elapsed_time_(i)%init()
-    end do
+       allocate(this%rt_stats_id(RT_STATS_MAX_REGIONS))
+       
+       this%rt_stats_id = ''
+       
+       allocate(this%elapsed_time_(RT_STATS_MAX_REGIONS))
+       do i = 1, RT_STATS_MAX_REGIONS
+          call this%elapsed_time_(i)%init()
+       end do
+       
+       call this%region_timestamp_%init(100)
 
-    call this%region_timestamp_%init(100)
+    end if
     
   end subroutine runtime_stats_init
 
@@ -110,12 +127,16 @@ contains
     integer, optional, intent(in) :: region_id
     type(tuple_i4r8_t) :: region_data
 
+    if (.not. this%enabled_) then
+       return
+    end if
+    
     if (present(region_id)) then
        if (region_id .le. RT_STATS_MAX_REGIONS) then
           if (len_trim(this%rt_stats_id(region_id)) .eq. 0) then
              this%rt_stats_id(region_id) = trim(name)
           else
-             if (trim(this%rt%stats_id(region_id)) .ne. trim(name)) then
+             if (trim(this%rt_stats_id(region_id)) .ne. trim(name)) then
                 call neko_error('Profile region renamed')
              end if
           end if
@@ -137,6 +158,10 @@ contains
     real(kind=dp) :: end_time, elapsed_time
     type(tuple_i4r8_t) :: region_data
 
+    if (.not. this%enabled_) then
+       return
+    end if
+
     end_time = MPI_Wtime()
     region_data = this%region_timestamp_%pop()    
     
@@ -151,9 +176,15 @@ contains
   subroutine runtime_stats_report(this)
     class(runtime_stats_t), intent(inout) :: this    
     character(len=LOG_SIZE) :: log_buf
+    character(len=1250) :: hdr
     real(kind=dp) :: avg, std, sem, total
-    integer :: i, nsamples
+    integer :: i, nsamples, ncols, nrows, col_idx
+    type(matrix_t) :: profile_data
 
+    if (.not. this%enabled_) then
+       return
+    end if
+    
     call neko_log%section('Runtime statistics')
     call neko_log%newline()
     write(log_buf, '(A,A,1x,A,1x,A)') '                  ',&
@@ -163,9 +194,15 @@ contains
          '--------------------------------------------------------------------'
     call neko_log%message(log_buf)
 
+    ncols = 0
+    nrows = 0
+    hdr = ''
     do i = 1, size(this%elapsed_time_)
        if (len_trim(this%rt_stats_id(i)) .gt. 0) then
           nsamples = this%elapsed_time_(i)%size()
+          ncols = ncols + 1          
+          hdr = trim(hdr) // trim(this%rt_stats_id(i)) // ', '
+          nrows = max(nrows, nsamples)             
           if (nsamples .gt. 0) then
              select type (region_sample => this%elapsed_time_(i)%data)
              type is (double precision)
@@ -183,9 +220,43 @@ contains
           end if
        end if
     end do
-    
+
     call neko_log%newline()
+
+    if (this%output_profile_) then
+       col_idx = 0
+       call profile_data%init(nrows, ncols)
+       do i = 1, size(this%elapsed_time_)
+          if (len_trim(this%rt_stats_id(i)) .gt. 0) then
+             nsamples = this%elapsed_time_(i)%size()
+             col_idx = col_idx + 1             
+             if (nsamples .gt. 0) then
+                select type (region_sample => this%elapsed_time_(i)%data)
+                type is (double precision)
+                   profile_data%x(1:nsamples,col_idx) = &
+                        region_sample(1:nsamples)
+                   call MPI_Allreduce(MPI_IN_PLACE, &
+                        profile_data%x(1:nsamples,col_idx), nsamples, &
+                        MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM)
+                   profile_data%x(1:nsamples, col_idx) = &
+                        profile_data%x(1:nsamples, col_idx) / pe_size
+                end select
+             end if
+          end if
+       end do
+       
+       if (pe_rank .eq. 0) then
+          block
+            type(file_t) :: profile_file    
+            profile_file = file_t('profile.csv')
+            call profile_file%set_header(hdr)
+            call profile_file%write(profile_data)
+          end block
+       end if
+    end if
     call neko_log%end_section()
+
+    call this$profile_data%free()
 
   end subroutine runtime_stats_report
   

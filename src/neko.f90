@@ -172,9 +172,6 @@ contains
           call neko_error('Invalid case file')
        end if
 
-       ! Setup runtime statistics
-       call neko_rt_stats%init()
-
        ! Check the device count against the number of MPI ranks
        if (NEKO_BCKND_DEVICE .eq. 1) then
           if (device_count() .ne. 1) then
@@ -286,6 +283,12 @@ contains
        ! Create case
        !
        call case_init(C, case_file)
+
+       !
+       ! Setup runtime statistics
+       !
+       call neko_rt_stats%init(C%params)
+
 
        !
        ! Create simulation components

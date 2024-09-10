@@ -13,7 +13,7 @@ common/distdata.o : common/distdata.f90 adt/uset.o adt/tuple.o adt/stack.o
 common/utils.o : common/utils.f90 
 common/json_utils.o : common/json_utils.f90 common/utils.o config/num_types.o 
 common/system.o : common/system.f90 
-common/runtime_statistics.o : common/runtime_statistics.f90 comm/comm.o config/num_types.o adt/tuple.o adt/stack.o common/log.o 
+common/runtime_statistics.o : common/runtime_statistics.f90 comm/comm.o math/matrix.o io/file.o common/json_utils.o config/num_types.o adt/tuple.o adt/stack.o common/log.o 
 math/mxm_wrapper.o : math/mxm_wrapper.F90 common/utils.o config/num_types.o 
 sem/speclib.o : sem/speclib.f90 common/utils.o config/num_types.o 
 qoi/drag_torque.o : qoi/drag_torque.f90 config/num_types.o sem/space.o math/math.o comm/comm.o mesh/facet_zone.o mesh/mesh.o sem/coef.o field/field.o 
