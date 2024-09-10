@@ -256,7 +256,7 @@ contains
     end if
     call neko_log%end_section()
 
-    call this%profile_data%free()
+    call profile_data%free()
 
   end subroutine runtime_stats_report
   
