@@ -33,10 +33,14 @@
 !> Interface to CrayPat F77 API
 module craypat
   implicit none
+  private
   
 #ifdef CRAYPAT
   include 'pat_apif.h'
 
+  public :: craypat_record_start, craypat_record_stop, &
+       craypat_region_begin, craypat_region_end
+  
 contains
 
   !> Turn on CrayPat recording
