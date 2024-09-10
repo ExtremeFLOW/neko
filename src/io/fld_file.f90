@@ -229,9 +229,9 @@ contains
     end select
     ! Fix things for pointers that do not exist in all data types...
     if (associated(dof)) then
-       x%ptr => dof%x(:, 1, 1, 1)
-       y%ptr => dof%y(:, 1, 1, 1)
-       z%ptr => dof%z(:, 1, 1, 1)
+       x%ptr => dof%x(:,1,1,1)
+       y%ptr => dof%y(:,1,1,1)
+       z%ptr => dof%z(:,1,1,1)
        msh => dof%msh
        Xh => dof%Xh
     end if
@@ -637,7 +637,7 @@ contains
              end do
           end if
        end do
-       call MPI_File_write_at_all(fh, byte_offset, tmp_dp, gdim * n, &
+       call MPI_File_write_at_all(fh, byte_offset, tmp_dp, gdim*n, &
             MPI_DOUBLE_PRECISION, status, ierr)
     else
        i = 1
@@ -657,7 +657,7 @@ contains
              end do
           end if
        end do
-       call MPI_File_write_at_all(fh, byte_offset, tmp_sp, gdim * n, &
+       call MPI_File_write_at_all(fh, byte_offset, tmp_sp, gdim*n, &
             MPI_REAL, status, ierr)
     end if
 
@@ -726,16 +726,11 @@ contains
           if (this%counter .ge. data%meta_nsamples+data%meta_start_counter) then
              call neko_error('Trying to read more fld files than exist')
           end if
-
-       ! Reappend path to the file series name since we lose it during the
-       ! meta file reading
-       if (trim(path) .ne. "none") fname = trim(path) // trim(fname)
        else
           suffix_pos = filename_suffix_pos(this%fname)
           write(id_str, '(a,i5.5)') 'f', this%counter
-          fname = trim(this%fname(1:suffix_pos - 1)) // '.'//id_str
+          fname = trim(this%fname(1:suffix_pos-1))//'.'//id_str
        end if
-
        call MPI_File_open(NEKO_COMM, trim(fname), &
             MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
 
@@ -776,9 +771,9 @@ contains
           this%dp_precision = .false.
        end if
        if (this%dp_precision) then
-          allocate(tmp_dp(data%gdim * n))
+          allocate(tmp_dp(data%gdim*n))
        else
-          allocate(tmp_sp(data%gdim * n))
+          allocate(tmp_sp(data%gdim*n))
        end if
 
 
@@ -814,10 +809,10 @@ contains
        n_scalars = 0
        if (rdcode(i) .eq. 'S') then
           i = i + 1
-          read(rdcode(i), *) n_scalars
+          read(rdcode(i),*) n_scalars
           n_scalars = n_scalars*10
           i = i + 1
-          read(rdcode(i), *) j
+          read(rdcode(i),*) j
           n_scalars = n_scalars+j
           i = i + 1
           if (allocated(data%s)) then
@@ -978,8 +973,8 @@ contains
     integer :: n, ierr, lxyz, i, j, e, nd
 
     n = x%n
-    nd = n * fld_data%gdim
-    lxyz = fld_data%lx * fld_data%ly * fld_data%lz
+    nd = n*fld_data%gdim
+    lxyz = fld_data%lx*fld_data%ly*fld_data%lz
 
     if (this%dp_precision) then
        call MPI_File_read_at_all(fh, byte_offset, tmp_dp, nd, &
@@ -994,17 +989,17 @@ contains
        i = 1
        do e = 1, fld_data%nelv
           do j = 1, lxyz
-             x%x((e - 1)*lxyz+j) = tmp_dp(i)
-             i = i + 1
+             x%x((e-1)*lxyz+j) = tmp_dp(i)
+             i = i +1
           end do
           do j = 1, lxyz
-             y%x((e - 1)*lxyz+j) = tmp_dp(i)
-             i = i + 1
+             y%x((e-1)*lxyz+j) = tmp_dp(i)
+             i = i +1
           end do
           if (fld_data%gdim .eq. 3) then
              do j = 1, lxyz
-                z%x((e - 1)*lxyz+j) = tmp_dp(i)
-                i = i + 1
+                z%x((e-1)*lxyz+j) = tmp_dp(i)
+                i = i +1
              end do
           end if
        end do
@@ -1012,17 +1007,17 @@ contains
        i = 1
        do e = 1, fld_data%nelv
           do j = 1, lxyz
-             x%x((e - 1)*lxyz+j) = tmp_sp(i)
-             i = i + 1
+             x%x((e-1)*lxyz+j) = tmp_sp(i)
+             i = i +1
           end do
           do j = 1, lxyz
-             y%x((e - 1)*lxyz+j) = tmp_sp(i)
-             i = i + 1
+             y%x((e-1)*lxyz+j) = tmp_sp(i)
+             i = i +1
           end do
           if (fld_data%gdim .eq. 3) then
              do j = 1, lxyz
-                z%x((e - 1)*lxyz+j) = tmp_sp(i)
-                i = i + 1
+                z%x((e-1)*lxyz+j) = tmp_sp(i)
+                i = i +1
              end do
           end if
        end do
