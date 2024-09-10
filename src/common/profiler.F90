@@ -92,6 +92,12 @@ contains
     end if
 #endif
 
+#if defined(__FUJITSU) && defined(NEKO_FJPROF)
+    if (present(region_id)) then
+       call fapp_start(trim(name), region_id, 0)
+    end if
+#endif
+    
     if (present(region_id)) then
        call neko_rt_stats%start_region(name, region_id)
     end if
@@ -110,6 +116,12 @@ contains
 #elif CRAYPAT
     if (present(region_id)) then
        call craypat_region_end(region_id)
+    end if
+#endif
+    
+#if defined(__FUJITSU) && defined(NEKO_FJPROF)
+    if (present(name) .and. present(region_id)) then
+       call fapp_stop(trim(name), region_id, 0)
     end if
 #endif
 
