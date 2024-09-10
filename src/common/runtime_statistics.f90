@@ -174,7 +174,7 @@ contains
 
   !> Report runtime statistics for all recorded regions
   subroutine runtime_stats_report(this)
-    class(runtime_stats_t), intent(inout) :: this    
+    class(runtime_stats_t), intent(inout) :: this
     character(len=LOG_SIZE) :: log_buf
     character(len=1250) :: hdr
     real(kind=dp) :: avg, std, sem, total
