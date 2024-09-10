@@ -1284,7 +1284,7 @@ contains
     m = gs%nlocal
     l = gs%nshared
 
-    call profiler_start_region("gather-scatter", 5)
+    call profiler_start_region("gather_scatter", 5)
     ! Gather shared dofs
     if (pe_size .gt. 1) then
        call profiler_start_region("gs_nbrecv", 13)
@@ -1328,7 +1328,7 @@ contains
        call profiler_end_region("gs_scatter_shared", 15)
     end if
 
-    call profiler_end_region("gather-scatter", 5)
+    call profiler_end_region("gather_scatter", 5)
 
   end subroutine gs_op_vector
 
