@@ -71,7 +71,16 @@ module field_math
        device_col3, device_subcol3, device_add3s2, device_addcol3, &
        device_addcol4, device_glsum, device_glsc2, device_glsc3
   implicit none
+  private
 
+  public :: field_rzero, field_rone, field_copy, field_cmult, &
+       field_cadd, field_cfill, field_invcol1, field_vdot3, &
+       field_add2, field_sub2, field_sub3, field_add2s1, &
+       field_add2s2, field_addsqr2s2, field_cmult2, &
+       field_invcol2, field_col2, field_col3, field_subcol3, &
+       field_add3s2, field_addcol3, field_addcol4, field_glsum, &
+       field_glsc2, field_glsc3
+  
 contains
 
   !> Zero a real vector

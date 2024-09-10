@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2023-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,8 +38,7 @@
 module sigma_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
-  use math, only : cadd, NEKO_EPS, col2
-  use scratch_registry, only : neko_scratch_registry
+   use scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use operators, only : dudxyz
@@ -125,18 +124,20 @@ contains
     call coef%gs_h%op(g32%x, g11%dof%size(), GS_OP_ADD)
     call coef%gs_h%op(g33%x, g11%dof%size(), GS_OP_ADD)
 
-    call col2(g11%x, coef%mult, g11%dof%size())
-    call col2(g12%x, coef%mult, g11%dof%size())
-    call col2(g13%x, coef%mult, g11%dof%size())
-    call col2(g21%x, coef%mult, g11%dof%size())
-    call col2(g22%x, coef%mult, g11%dof%size())
-    call col2(g23%x, coef%mult, g11%dof%size())
-    call col2(g31%x, coef%mult, g11%dof%size())
-    call col2(g32%x, coef%mult, g11%dof%size())
-    call col2(g33%x, coef%mult, g11%dof%size())
+    do concurrent (i = 1:g11%dof%size())
+       g11%x(i,1,1,1) = g11%x(i,1,1,1) * coef%mult(i,1,1,1)
+       g12%x(i,1,1,1) = g12%x(i,1,1,1) * coef%mult(i,1,1,1)
+       g13%x(i,1,1,1) = g13%x(i,1,1,1) * coef%mult(i,1,1,1)
+       g21%x(i,1,1,1) = g21%x(i,1,1,1) * coef%mult(i,1,1,1)
+       g22%x(i,1,1,1) = g22%x(i,1,1,1) * coef%mult(i,1,1,1)
+       g23%x(i,1,1,1) = g23%x(i,1,1,1) * coef%mult(i,1,1,1)
+       g31%x(i,1,1,1) = g31%x(i,1,1,1) * coef%mult(i,1,1,1)
+       g32%x(i,1,1,1) = g32%x(i,1,1,1) * coef%mult(i,1,1,1)
+       g33%x(i,1,1,1) = g33%x(i,1,1,1) * coef%mult(i,1,1,1)
+    end do
 
-    do e = 1, coef%msh%nelv
-       do i = 1, coef%Xh%lxyz
+    do concurrent (e = 1:coef%msh%nelv)
+       do concurrent (i = 1:coef%Xh%lxyz)
           ! G_ij = g^t g = g_mi g_mj
           sigG11 = g11%x(i,1,1,e)**2 + g21%x(i,1,1,e)**2 + g31%x(i,1,1,e)**2
           sigG22 = g12%x(i,1,1,e)**2 + g22%x(i,1,1,e)**2 + g32%x(i,1,1,e)**2

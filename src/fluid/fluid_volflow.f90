@@ -67,7 +67,7 @@ module fluid_volflow
   use field, only : field_t
   use coefs, only : coef_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use math, only : cfill, rzero, copy, glsc2, glmin, glmax, add2, add2s2
+  use math, only : copy, glsc2, glmin, glmax, add2, add2s2
   use comm
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_rzero, device_copy, &
@@ -356,7 +356,7 @@ contains
     integer, intent(in) :: prs_max_iter, vel_max_iter
     real(kind=rp) :: ifcomp, flow_rate, xsec
     real(kind=rp) :: current_flow, delta_flow, scale
-    integer :: n, ierr
+    integer :: n, ierr, i
     type(field_t), pointer :: ta1, ta2, ta3
 
     associate(u_vol => this%u_vol, v_vol => this%v_vol, &
@@ -424,10 +424,12 @@ contains
          call device_add2s2(w%x_d, w_vol%x_d, scale, n)
          call device_add2s2(p%x_d, p_vol%x_d, scale, n)
       else
-         call add2s2(u%x, u_vol%x, scale, n)
-         call add2s2(v%x, v_vol%x, scale, n)
-         call add2s2(w%x, w_vol%x, scale, n)
-         call add2s2(p%x, p_vol%x, scale, n)
+         do concurrent (i = 1: n)
+            u%x(i,1,1,1) = u%x(i,1,1,1) + scale * u_vol%x(i,1,1,1)
+            v%x(i,1,1,1) = v%x(i,1,1,1) + scale * v_vol%x(i,1,1,1)
+            w%x(i,1,1,1) = w%x(i,1,1,1) + scale * w_vol%x(i,1,1,1)
+            p%x(i,1,1,1) = p%x(i,1,1,1) + scale * p_vol%x(i,1,1,1)
+         end do
       end if
     end associate
 

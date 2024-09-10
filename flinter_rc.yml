@@ -167,13 +167,13 @@ regexp-rules:
     message: Incorrect space before separator
     regexp: (allocate\()?(^\s*\w+(?<!allocate)\b)?(?(1).*(?<=\s)::|(?(2).*(?<=\S)::|\0))
     replacement: '\1 ::'
-    active: true
+    active: false
 
   incorrect-spaces-after-separator:
     message: Incorrect space after separator
     regexp: (allocate\()?(^\s*\w+(?<!allocate)\b)?(?(1).*::(?=\s)|(?(2).*::(?=\S)|\0))
     replacement: ':: \1'
-    active: true
+    active: false
 
   # Look through the list of punctuation, but skip if inside format string '()'
   # However, we do allow a single letter variable or 2 digit number to be used
@@ -186,7 +186,7 @@ regexp-rules:
 
   missing-space-before-parenthesis:
     message: Missing space before parenthesis
-    regexp: ({structs})\(
+    regexp: (\b{structs}\b)\(
     replacement: \1 (
     active: true
 
