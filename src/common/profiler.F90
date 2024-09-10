@@ -38,6 +38,7 @@ module profiler
   use roctx
   use craypat
   use runtime_stats, only : neko_rt_stats
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -86,7 +87,9 @@ contains
 #elif HAVE_ROCTX
     call roctxStartRange(name)
 #elif CRAYPAT
-    !   call craypat_region_begin(name)
+    if (present(region_id)) then
+       call craypat_region_begin(name, region_id)
+    end if
 #endif
 
     if (present(region_id)) then
@@ -97,7 +100,7 @@ contains
 
   !> End the most recently started profiler region
   subroutine profiler_end_region(name, region_id)
-    character(kind=c_char,len=*), optional :: name
+    character(kind=c_char, len=*), optional :: name
     integer, optional :: region_id
     
 #ifdef HAVE_NVTX
@@ -105,7 +108,9 @@ contains
 #elif HAVE_ROCTX
     call roctxRangePop
 #elif CRAYPAT
-    !   call craypat_region_end
+    if (present(region_id)) then
+       call craypat_region_end(region_id)
+    end if
 #endif
 
     if (present(name) .and. present(region_id)) then
