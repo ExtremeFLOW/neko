@@ -38,6 +38,7 @@ module profiler
   use roctx
   use craypat
   use runtime_stats, only : neko_rt_stats
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
