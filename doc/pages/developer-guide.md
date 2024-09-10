@@ -9,4 +9,4 @@ style, testing and usage of accelerators.
 - \subpage code-style
 - \subpage testing
 - \subpage accelerators
-- \subpage run_time_selectable_types
+- \subpage rts_types
