@@ -163,7 +163,7 @@ contains
     end if
 
     end_time = MPI_Wtime()
-    region_data = this%region_timestamp_%pop()    
+    region_data = this%region_timestamp_%pop()
     
     if (region_data%x .gt. 0) then
        elapsed_time = end_time - region_data%y
