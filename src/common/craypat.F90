@@ -63,7 +63,7 @@ contains
 
     call PAT_record(PAT_STATE_QUERY, ierr)
     if (ierr .eq. PAT_STATE_ON) then
-       call PAT_region_begin(region_id, name, ierr)
+       call PAT_region_begin(region_id, trim(name), ierr)
     end if
 
   end subroutine craypat_region_begin
