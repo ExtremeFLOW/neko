@@ -171,8 +171,9 @@ module scalar_scheme
 
   !> Abstract interface to initialize a scalar formulation
   abstract interface
-     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, user,&
-                                         material_properties)
+     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, user, &
+                                         material_properties, &
+                                         ulag, vlag, wlag, time_scheme)
        import scalar_scheme_t
        import json_file
        import coef_t
@@ -180,6 +181,8 @@ module scalar_scheme
        import mesh_t
        import user_t
        import material_properties_t
+       import field_series_t
+       import time_scheme_controller_t
        class(scalar_scheme_t), target, intent(inout) :: this
        type(mesh_t), target, intent(inout) :: msh
        type(coef_t), target, intent(inout) :: coef
@@ -187,6 +190,8 @@ module scalar_scheme
        type(json_file), target, intent(inout) :: params
        type(user_t), target, intent(in) :: user
        type(material_properties_t), intent(inout) :: material_properties
+       type(field_series_t), target, intent(in) :: ulag, vlag, wlag
+       type(time_scheme_controller_t), target, intent(in) :: time_scheme
      end subroutine scalar_scheme_init_intrf
   end interface
 
@@ -325,17 +330,17 @@ contains
 
     call neko_log%section('Scalar')
     call json_get(params, 'case.fluid.velocity_solver.type', solver_type)
-    call json_get(params, 'case.fluid.velocity_solver.preconditioner',&
+    call json_get(params, 'case.fluid.velocity_solver.preconditioner', &
                   solver_precon)
-    call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance',&
+    call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance', &
                   solver_abstol)
 
     call json_get_or_default(params, &
-                            'case.fluid.velocity_solver.projection_space_size',&
-                            this%projection_dim, 20)
+                        'case.fluid.velocity_solver.projection_space_size', &
+                        this%projection_dim, 20)
     call json_get_or_default(params, &
-                            'case.fluid.velocity_solver.projection_hold_steps',&
-                            this%projection_activ_step, 5)
+                        'case.fluid.velocity_solver.projection_hold_steps', &
+                        this%projection_activ_step, 5)
 
 
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
@@ -406,7 +411,7 @@ contains
     this%bc_labels = "not"
 
     if (params%valid_path('case.scalar.boundary_types')) then
-       call json_get(params, 'case.scalar.boundary_types', this%bc_labels,&
+       call json_get(params, 'case.scalar.boundary_types', this%bc_labels, &
                      'not')
     end if
 
@@ -428,7 +433,7 @@ contains
     call this%user_bc%mark_zone(msh%outlet_normal)
     call this%user_bc%mark_zone(msh%sympln)
     call this%user_bc%finalize()
-    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet,&
+    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet, &
                                                      this%user_bc)
 
     ! Add field dirichlet BCs
@@ -561,7 +566,8 @@ contains
   end subroutine scalar_scheme_solver_factory
 
   !> Initialize a Krylov preconditioner
-  subroutine scalar_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, pctype)
+  subroutine scalar_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, &
+                                          pctype)
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
     type(coef_t), target, intent(inout) :: coef

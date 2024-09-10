@@ -81,12 +81,16 @@ neko_fortran_SOURCES = \
 	math/bcknd/cpu/cpu_conv1.f90\
 	math/bcknd/cpu/cpu_dudxyz.f90\
 	math/bcknd/cpu/cpu_opgrad.f90\
+	math/bcknd/cpu/convect_scalar.f90\
+	math/bcknd/cpu/set_convect_rst.f90\
 	math/bcknd/sx/sx_cdtp.f90\
 	math/bcknd/sx/sx_conv1.f90\
 	math/bcknd/sx/sx_dudxyz.f90\
 	math/bcknd/sx/sx_opgrad.f90\
 	math/bcknd/sx/sx_cfl.f90\
 	math/bcknd/sx/sx_lambda2.f90\
+	math/bcknd/sx/sx_convect_scalar.f90\
+	math/bcknd/sx/sx_set_convect_rst.f90\
 	math/operators.f90\
 	math/bcknd/cpu/opr_cpu.f90\
 	math/bcknd/sx/opr_sx.f90\
@@ -209,6 +213,7 @@ neko_fortran_SOURCES = \
 	fluid/advection_fctry.f90\
 	fluid/bcknd/advection/adv_dealias.f90\
 	fluid/bcknd/advection/adv_no_dealias.f90\
+	fluid/bcknd/advection/adv_oifs.f90\
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/pnpn_res_device.F90\
