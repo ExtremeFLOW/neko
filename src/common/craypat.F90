@@ -34,7 +34,6 @@
 module craypat
   implicit none
   
-  logical, private :: craypat_on = .false.
 #ifdef CRAYPAT
   include 'pat_apif.h'
 
@@ -44,14 +43,12 @@ contains
   subroutine craypat_record_start
     integer :: ierr
     call PAT_record(PAT_STATE_ON, ierr)
-    craypat_on = .true.
   end subroutine craypat_record_start
 
   !> Turn off CrayPat recording
   subroutine craypat_record_stop
     integer :: ierr
     call PAT_record(PAT_STATE_OFF, ierr)
-    craypat_on = .false.
   end subroutine craypat_record_stop
 
   !> Start a CrayPat region
@@ -60,7 +57,8 @@ contains
     integer, intent(in) :: region_id
     integer :: ierr
 
-    if (craypat_on) then
+    call PAT_record(PAT_STATE_QUERY, ierr)
+    if (ierr .eq. PAT_STATE_ON) then
        call PAT_region_begin(region_id, name, ierr)
     end if
 
@@ -71,7 +69,8 @@ contains
     integer, intent(in) :: region_id
     integer :: ierr
 
-    if (craypat_on) then
+    call PAT_record(PAT_STATE_QUERY, ierr)
+    if (ierr .eq. PAT_STATE_ON) then
        call PAT_region_end(region_id, ierr)
     end if
 
