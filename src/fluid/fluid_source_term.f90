@@ -69,7 +69,8 @@ module fluid_source_term
      !> Add all the source terms to the passed right-hand side fields.
      procedure, pass(this) :: compute => fluid_source_term_compute
      !> Append a new source term to the source_terms array.
-     procedure, pass(this) :: add_source_term => fluid_source_term_add_source_term
+     procedure, pass(this) :: add_source_term => &
+          fluid_source_term_add_source_term
      !> Initialize the user source term.
      procedure, nopass, private :: init_user_source
 
@@ -107,7 +108,7 @@ contains
 
 
     if (json%valid_path('case.fluid.source_terms')) then
-       ! We package the fields for the source term to operate on in a field list.
+       ! We package the fields for the source term to operate on in a field list
        call rhs_fields%init(3)
        call rhs_fields%assign(1, f_x)
        call rhs_fields%assign(2, f_y)
