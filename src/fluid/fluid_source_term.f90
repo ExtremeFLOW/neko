@@ -127,20 +127,20 @@ contains
 
           ! The user source is treated separately
           if ((trim(type) .eq. "user_vector") .or. &
-              (trim(type) .eq. "user_pointwise")) then
+               (trim(type) .eq. "user_pointwise")) then
 
              if (source_subdict%valid_path("start_time") .or. &
-                 source_subdict%valid_path("end_time")) then
-                 call neko_warning("The start_time and end_time parameters have&
-                                    & no effect on the fluid user source term")
+                  source_subdict%valid_path("end_time")) then
+                call neko_warning("The start_time and end_time parameters have&
+                     & no effect on the fluid user source term")
              end if
 
              call init_user_source(this%source_terms(i)%source_term, &
-                                    rhs_fields, coef, type, user)
+                  rhs_fields, coef, type, user)
           else
 
              call source_term_factory(this%source_terms(i)%source_term, &
-                                       source_subdict, rhs_fields, coef)
+                  source_subdict, rhs_fields, coef)
           end if
        end do
     end if
@@ -164,10 +164,10 @@ contains
     allocate(fluid_user_source_term_t::source_term)
 
     select type (source_term)
-    type is (fluid_user_source_term_t)
+      type is (fluid_user_source_term_t)
        call source_term%init_from_components(rhs_fields, coef, type, &
-                                            user%fluid_user_f_vector, &
-                                            user%fluid_user_f)
+            user%fluid_user_f_vector, &
+            user%fluid_user_f)
     end select
   end subroutine init_user_source
 
