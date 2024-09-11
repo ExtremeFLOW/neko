@@ -41,7 +41,8 @@ module scalar_scheme
   use field_list, only: field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy
+  use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy, &
+                     KSP_MAX_ITER
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
@@ -459,9 +460,12 @@ contains
     ! todo parameter file ksp tol should be added
     call json_get_or_default(params, &
                              'case.fluid.velocity_solver.max_iterations', &
-                             integer_val, 800)
+                             integer_val, KSP_MAX_ITER)
+    call json_get_or_default(params, &
+                             'case.fluid.velocity_solver.monitor', &
+                             logical_val, .false.)
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
-         solver_type, integer_val, solver_abstol)
+         solver_type, integer_val, solver_abstol, logical_val)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_dirichlet, solver_precon)
 
@@ -554,14 +558,17 @@ contains
 
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
-  subroutine scalar_scheme_solver_factory(ksp, n, solver, max_iter, abstol)
+  subroutine scalar_scheme_solver_factory(ksp, n, solver, max_iter, &
+                                          abstol, monitor)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
     integer, intent(in) :: max_iter
     character(len=*), intent(in) :: solver
     real(kind=rp) :: abstol
+    logical monitor
 
-    call krylov_solver_factory(ksp, n, solver, max_iter, abstol)
+    call krylov_solver_factory(ksp, n, solver, max_iter, &
+                               abstol, monitor = monitor)
 
   end subroutine scalar_scheme_solver_factory
 

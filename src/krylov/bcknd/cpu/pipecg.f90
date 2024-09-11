@@ -72,13 +72,14 @@ module pipecg
 contains
 
   !> Initialise a pipelined PCG solver
-  subroutine pipecg_init(this, n, max_iter, M, rel_tol, abs_tol)
+  subroutine pipecg_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
     class(pipecg_t), intent(inout) :: this
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
+    logical, optional :: monitor
 
     call this%free()
 
@@ -95,12 +96,20 @@ contains
        this%M => M
     end if
 
-    if (present(rel_tol) .and. present(abs_tol)) then
+    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
+    else if (present(monitor) .and. present(abs_tol)) then
+       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
     else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol = abs_tol)
+    else if (present(monitor)) then
+       call this%ksp_init(max_iter, monitor = monitor)
     else
        call this%ksp_init(max_iter)
     end if
@@ -210,6 +219,7 @@ contains
       reduction(2) = tmp2
       reduction(3) = tmp3
 
+      call this%monitor_start('PipeCG')
       do iter = 1, max_iter
          call MPI_Iallreduce(MPI_IN_PLACE, reduction, 3, &
               MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, request, ierr)
@@ -226,6 +236,7 @@ contains
          rtr = reduction(3)
 
          rnorm = sqrt(rtr)*norm_fac
+         call this%monitor_iter(iter, rnorm)
          if (rnorm .lt. this%abs_tol) exit
 
          if (iter .gt. 1) then
@@ -348,7 +359,7 @@ contains
             end if
          end do
       end if
-
+      call this%monitor_stop()
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
 

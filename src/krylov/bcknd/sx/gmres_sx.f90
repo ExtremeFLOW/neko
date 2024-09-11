@@ -70,7 +70,8 @@ module gmres_sx
 contains
 
   !> Initialise a standard GMRES solver
-  subroutine sx_gmres_init(this, n, max_iter, M, lgmres, rel_tol, abs_tol)
+  subroutine sx_gmres_init(this, n, max_iter, M, lgmres, &
+                           rel_tol, abs_tol, monitor)
     class(sx_gmres_t), intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
@@ -78,6 +79,7 @@ contains
     integer, optional, intent(inout) :: lgmres
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
+    logical, optional :: monitor
 
     if (present(lgmres)) then
        this%lgmres = lgmres
@@ -108,12 +110,20 @@ contains
     allocate(this%h(this%lgmres,this%lgmres))
 
 
-    if (present(rel_tol) .and. present(abs_tol)) then
+    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
+    else if (present(monitor) .and. present(abs_tol)) then
+       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
     else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol = abs_tol)
+    else if (present(monitor)) then
+       call this%ksp_init(max_iter, monitor = monitor)
     else
        call this%ksp_init(max_iter)
     end if
@@ -214,6 +224,7 @@ contains
     call rone(this%c, this%lgmres)
     call rzero(this%h, this%lgmres * this%lgmres)
     outer = 0
+    call this%monitor_start('GMRES')
     do while (.not. conv .and. iter .lt. max_iter)
        outer = outer + 1
 
@@ -292,6 +303,7 @@ contains
           this%gam(j)   =  this%c(j) * this%gam(j)
 
           rnorm = abs(this%gam(j+1)) * norm_fac
+          call this%monitor_iter(iter, rnorm)
           ratio = rnorm / div0
           if (rnorm .lt. this%abs_tol) then
              conv = .true.
@@ -321,7 +333,7 @@ contains
           end do
        end do
     end do
-
+    call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
   end function sx_gmres_solve

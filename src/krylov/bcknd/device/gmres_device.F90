@@ -131,7 +131,7 @@ contains
 
   !> Initialise a standard GMRES solver
   subroutine gmres_device_init(this, n, max_iter, M, m_restart, &
-       rel_tol, abs_tol)
+       rel_tol, abs_tol, monitor)
     class(gmres_device_t), target, intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
@@ -139,6 +139,7 @@ contains
     integer, optional, intent(inout) :: m_restart
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
+    logical, optional :: monitor
     type(device_ident_t), target :: M_ident
     type(c_ptr) :: ptr
     integer(c_size_t) :: z_size
@@ -203,12 +204,20 @@ contains
                        HOST_TO_DEVICE, sync = .false.)
 
 
-    if (present(rel_tol) .and. present(abs_tol)) then
+    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
+    else if (present(monitor) .and. present(abs_tol)) then
+       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
     else if (present(rel_tol)) then
        call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
        call this%ksp_init(max_iter, abs_tol = abs_tol)
+    else if (present(monitor)) then
+       call this%ksp_init(max_iter, monitor = monitor)
     else
        call this%ksp_init(max_iter)
     end if
@@ -354,6 +363,8 @@ contains
 !       do j = 1, this%m_restart
 !          call device_rzero(h_d(j), this%m_restart)
 !       end do
+
+      call this%monitor_start('GMRES')
       do while (.not. conv .and. iter .lt. max_iter)
 
          if (iter .eq. 0) then
@@ -430,6 +441,7 @@ contains
             gam(j) = c(j) * gam(j)
 
             rnorm = abs(gam(j+1)) * norm_fac
+            call this%monitor_iter(iter, rnorm)
             if (rnorm .lt. this%abs_tol) then
                conv = .true.
                exit
@@ -464,7 +476,7 @@ contains
       end do
 
     end associate
-
+    call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
 
