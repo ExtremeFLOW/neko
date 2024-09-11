@@ -93,8 +93,6 @@ contains
     type(json_file) :: source_subdict
     ! Source type
     character(len=:), allocatable :: type
-    ! Dummy source strenth values
-    real(kind=rp) :: values(3)
     logical :: found
     integer :: n_sources, i
 
@@ -202,7 +200,7 @@ contains
     class(scalar_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    integer :: i, n
+    integer :: i
 
     this%f = 0.0_rp
 
