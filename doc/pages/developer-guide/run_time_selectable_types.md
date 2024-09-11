@@ -50,7 +50,7 @@ could, for example, be read from the case file. For LES models, one provides the
 `model` keyword in the case file, and this gets passed to the factory. So if
 `"model": "smagorinsky"` is in the case file, the factory will allocate the
 pointer to a `smagorinsky_t` and initialize it using the common `init`
-constructor. Calling  `compute` on the allocated pointer will then run the
+constructor. Calling `compute` on the allocated pointer will then run the
 routine defined for the `smagorinsky_t` type.
 
 For the particular case of LES models, the pointer to `les_model_t` is stored in
