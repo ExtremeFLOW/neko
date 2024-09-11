@@ -204,8 +204,9 @@ It is mandatory.
 Note that this currently pertains to both the fluid, but also scalars.
 The means of prescribing the values are controlled via the `type` keyword:
 
-1. `user`, the values are set inside the compiled user file. The only way to
-   initialize scalars.
+1. `user`, the values are set inside the compiled user file.  as explained in the 
+[user defined initial condition](@ref user-file_user-ic) section of the user
+file documentation.
 2. `uniform`, the value is a constant vector, looked up under the `value`
    keyword.
 3. `blasius`, a Blasius profile is prescribed. Its properties are looked up
@@ -250,8 +251,8 @@ The following types are currently implemented.
 1. `constant`, constant forcing. Strength defined by the `values` array with 3
    reals corresponding to the 3 components of the forcing.
 2. `boussinesq`, a source term introducing boyancy based on the Boussinesq
-   approximation, \f$ \rho \beta (T - T_{ref} \cdot g) \f$. Here, \f$ rho \f$ is
-   density, \f$ \beta \f$ the thermal expansion coefficient, \f$ g \f$ the
+   approximation, \f$ \rho \beta (T - T_{ref}) \cdot \mathbf{g} \f$. Here, \f$ \rho \f$ is
+   density, \f$ \beta \f$ the thermal expansion coefficient, \f$ \mathbf{g} \f$ the
    gravity vector, and \f$ T_{ref} \f$ a reference value of the scalar, typically
    temperature.
 
@@ -489,7 +490,9 @@ The object `initial_condition` is used to provide initial conditions.
 It is mandatory.
 The means of prescribing the values are controlled via the `type` keyword:
 
-1. `user`, the values are set inside the compiled user file.
+1. `user`, the values are set inside the compiled user file as explained in the 
+[user defined initial condition](@ref user-file_user-ic) section of the user
+file documentation.
 2. `uniform`, the value is a constant scalar, looked up under the `value`
    keyword.
 3. `point_zone`, the values are set to a constant base value, supplied under the
