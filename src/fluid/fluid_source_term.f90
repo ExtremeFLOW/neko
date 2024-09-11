@@ -197,11 +197,20 @@ contains
   subroutine fluid_source_term_add_source_term(this, source_term)
     class(fluid_source_term_t), intent(inout) :: this
     class(source_term_t), intent(in) :: source_term
+    class(source_term_wrapper_t), dimension(:), allocatable :: temp
 
-    integer :: n_sources
+    integer :: n_sources, i
 
     n_sources = size(this%source_terms)
+    call move_alloc(this%source_terms, temp)
     allocate(this%source_terms(n_sources + 1))
+
+    if (allocated(temp)) then
+       do i = 1, n_sources
+          call move_alloc(temp(i)%source_term, this%source_terms(i)%source_term)
+       end do
+    end if
+
     this%source_terms(n_sources + 1)%source_term = source_term
 
   end subroutine fluid_source_term_add_source_term
