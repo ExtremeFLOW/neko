@@ -64,6 +64,9 @@ module scalar_source_term
      procedure, pass(this) :: free => scalar_source_term_free
      !> Add all the source terms to the passed right-hand side fields.
      procedure, pass(this) :: compute => scalar_source_term_compute
+     !> Append a new source term to the source_terms array.
+     procedure, pass(this) :: add_source_term => &
+          scalar_source_term_add_source_term
      !> Initialize the user source term.
      procedure, nopass, private :: init_user_source
 
@@ -177,6 +180,20 @@ contains
     end if
 
   end subroutine scalar_source_term_free
+
+  !> Add new sourceterm to the list.
+  !! @param source_term The source term to be added.
+  subroutine scalar_source_term_add_source_term(this, source_term)
+    class(scalar_source_term_t), intent(inout) :: this
+    class(source_term_t), intent(in) :: source_term
+
+    integer :: n_sources
+
+    n_sources = size(this%source_terms)
+    allocate(this%source_terms(n_sources + 1))
+    this%source_terms(n_sources + 1)%source_term = source_term
+
+  end subroutine scalar_source_term_add_source_term
 
   !> Add all the source term to the passed right-hand side fields.
   !! @param t The time value.
