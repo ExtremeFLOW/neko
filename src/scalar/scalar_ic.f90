@@ -132,7 +132,7 @@ contains
        ! Get the index of the file to sample
        !
        call json_get_or_default(params, &
-            'case.fluid.initial_condition.sample_index', sample_idx, -1)
+            'case.scalar.initial_condition.sample_index', sample_idx, -1)
 
        ! In case we interpolate, the default index of the file in which to
        ! look for the coordinates
@@ -380,14 +380,14 @@ contains
     ! two different meshes have the same dimension and same # of elements
     ! but this should be enough to cover the most obvious cases.
     !
-    if ( fld_data%glb_nelv .ne. s%msh%glb_nelv .and. &
+    if ( fld_data%glb_nelv .ne. s%msh%glb_nelv .or. &
+         fld_data%gdim .ne. s%msh%gdim .and. &
          .not. interpolate) then
        call neko_error("The fld file must match the current mesh! &
             &Use 'interpolate': 'true' to enable interpolation.")
     else if (interpolate) then
-       call neko_log%warning("You have activated interpolation but you may &
+       call neko_log%warning("You have activated interpolation but you might &
             &still be using the same mesh.")
-       call neko_log%message("(disregard if this was done on purpose)")
     end if
 
     ! Mesh interpolation if specified
@@ -412,7 +412,7 @@ contains
        call global_interp%evaluate(s%x, fld_data%t%x)
        call global_interp%free
 
-    else ! No interpolation
+    else ! No interpolation, just potentially from different spaces
 
        ! Build a space_t object from the data in the fld file
        call prev_Xh%init(GLL, fld_data%lx, fld_data%ly, fld_data%lz)
