@@ -48,13 +48,13 @@ module fluid_source_term
   !! @details
   !! Exists mainly to keep the `fluid_scheme_t` type smaller and also as
   !! placeholder for future optimizations.
-  type, extends(source_term_handler_t), public :: fluid_source_term_t
+  type, public, extends(source_term_handler_t) :: fluid_source_term_t
 
    contains
      !> Constructor.
      procedure, pass(this) :: init => fluid_source_term_init
      !> Initialize the user source term.
-     procedure, nopass, private :: init_user_source => fluid_init_user_source
+     procedure, nopass :: init_user_source => fluid_init_user_source
 
   end type fluid_source_term_t
 

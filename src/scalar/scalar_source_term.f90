@@ -54,7 +54,7 @@ module scalar_source_term
      !> Constructor.
      procedure, pass(this) :: init => scalar_source_term_init
      !> Initialize the user source term.
-     procedure, nopass, private :: init_user_source => scalar_init_user_source
+     procedure, nopass :: init_user_source => scalar_init_user_source
 
   end type scalar_source_term_t
 

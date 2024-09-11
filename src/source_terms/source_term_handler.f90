@@ -76,7 +76,7 @@ module source_term_handler
           source_term_handler_add_source_term
      !> Initialize the user source term.
      procedure(source_term_handler_init_user_source), &
-          nopass, private, deferred :: init_user_source
+          nopass, deferred :: init_user_source
   end type source_term_handler_t
 
   abstract interface
