@@ -71,4 +71,4 @@ statement in the factory to allocated to the new type given the corresponding
 type name. The same steps are followed for a lot of other functionality! There
 are some minor variations, for example, not all factories initialize the object,
 some just allocate it and leave the construction to the callee. Eventually these
-differences may be ironed out. 
+differences may be ironed out.
