@@ -157,7 +157,7 @@ contains
 
           ! Get tolerance for potential interpolation
           call json_get_or_default(params, &
-               'case.fluid.initial_condition.tolerance', tol, 1d-6)
+               'case.fluid.initial_condition.tolerance', tol, 0.000001_rp)
 
           if (found_previous_mesh) then
              prev_mesh = trim(read_str)
@@ -209,7 +209,7 @@ contains
           ! Get the tolerance for potential interpolationm defaults to
           ! the same value as for interpolation in chkp_t
           call json_get_or_default(params, &
-               'case.fluid.initial_condition.tolerance', tol, 1d-6)
+               'case.fluid.initial_condition.tolerance', tol, 0.000001_rp)
 
           ! Attempt to find a path to where the coordinates are written
           call json_get_or_default(params, &
@@ -483,8 +483,10 @@ contains
 
           f = file_t(trim(previous_mesh_file_name))
 
-          ! Only set the counter if its not the exact same file, this
-          ! is to prevent reading the same file twice
+          ! Only set the counter if the previous mesh is located in a
+          ! different file or if the index of the mesh is different
+          ! from the sample index.
+          ! This is to prevent reading the same file twice
           if (trim(previous_mesh_file_name) .eq. trim(file_name) .and. &
                sample_mesh_idx .ne. sample_idx) &
                call f%set_counter(sample_mesh_idx)

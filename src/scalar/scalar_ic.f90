@@ -70,7 +70,9 @@ contains
   !> Set scalar initial condition (builtin)
   !! @details Set scalar initial condition using one of the builtin types
   !! currently supported:
-  !! - uniform.
+  !! - uniform
+  !! - point zone
+  !! - field
   !! @param s Scalar field.
   !! @param coef Coefficient.
   !! @param gs Gather-Scatter object.
@@ -134,7 +136,7 @@ contains
 
           ! Get tolerance for potential interpolation
           call json_get_or_default(params, &
-               'case.scalar.initial_condition.tolerance', tol, 1d-6)
+               'case.scalar.initial_condition.tolerance', tol, 0.000001_rp)
 
           if (found_previous_mesh) then
              prev_mesh = trim(read_str)
@@ -186,7 +188,7 @@ contains
           ! Get the tolerance for potential interpolationm defaults to
           ! the same value as for interpolation in chkp_t
           call json_get_or_default(params, &
-               'case.scalar.initial_condition.tolerance', tol, 1d-6)
+               'case.scalar.initial_condition.tolerance', tol, 0.000001_rp)
 
           ! Get the index of the file that contains the mesh
           call json_get_or_default(params, &
