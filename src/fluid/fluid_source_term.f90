@@ -33,52 +33,16 @@
 !
 !> Implements the `fluid_source_term_t` type.
 module fluid_source_term
-  use neko_config, only : NEKO_BCKND_DEVICE
-  use num_types, only : rp
   use fluid_user_source_term, only: fluid_user_source_term_t
-  use source_term, only : source_term_wrapper_t, source_term_t, &
-       source_term_factory
-  use field, only : field_t
-  use field_list, only : field_list_t
-  use json_utils, only : json_get, json_extract_item
-  use json_module, only : json_file, json_core, json_value
-  use coefs, only : coef_t
-  use user_intf, only : user_t
-  use utils, only : neko_warning
+  use source_term, only: source_term_t
+  use source_term_handler, only: source_term_handler_t
+  use field, only: field_t
+  use field_list, only: field_list_t
+  use json_module, only: json_file
+  use coefs, only: coef_t
+  use user_intf, only: user_t
   implicit none
   private
-
-  !> Wrapper contaning and executing the fluid source terms.
-  !! @details
-  !! Exists mainly to keep the `fluid_scheme_t` type smaller and also as
-  !! placeholder for future optimizations.
-  type, abstract :: source_term_handler_t
-     !> Array of ordinary source terms.
-     class(source_term_wrapper_t), allocatable :: source_terms(:)
-     !> The right-hand side.
-     type(field_list_t) :: rhs_fields
-
-   contains
-     !> Constructor.
-     procedure, pass(this) :: init_base => source_term_handler_init_base
-     !> Destructor.
-     procedure, pass(this) :: free => source_term_handler_free
-     !> Add all the source terms to the passed right-hand side fields.
-     procedure, pass(this) :: compute => source_term_handler_compute
-     !> Initialize the user source term.
-     procedure(init_user_source_interface), nopass, private, deferred :: init_user_source
-  end type source_term_handler_t
-
-  abstract interface
-     subroutine init_user_source_interface(source_term, rhs_fields, coef, type, user)
-       import :: source_term_t, field_list_t, coef_t, user_t
-       class(source_term_t), allocatable, intent(inout) :: source_term
-       type(field_list_t) :: rhs_fields
-       type(coef_t), intent(inout) :: coef
-       character(len=*) :: type
-       type(user_t), intent(in) :: user
-     end subroutine init_user_source_interface
-  end interface
 
   !> Wrapper contaning and executing the fluid source terms.
   !! @details
@@ -96,7 +60,7 @@ module fluid_source_term
 
 contains
 
-  !> Costructor.
+  !> Constructor.
   subroutine fluid_source_term_init(this, json, f_x, f_y, f_z, coef, user)
     class(fluid_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
@@ -117,58 +81,6 @@ contains
 
     call this%init_base(json, name, rhs_fields, coef, user)
   end subroutine fluid_source_term_init
-
-  !> Costructor.
-  subroutine source_term_handler_init_base(this, json, name, rhs_fields, coef, user)
-    class(source_term_handler_t), intent(inout) :: this
-    type(json_file), intent(inout) :: json
-    character(len=*), intent(in) :: name
-    type(field_list_t), intent(in) :: rhs_fields
-    type(coef_t), intent(inout) :: coef
-    type(user_t), intent(in) :: user
-
-    ! A single source term as its own json_file.
-    type(json_file) :: source_subdict
-    ! Source type
-    character(len=:), allocatable :: type
-    integer :: n_sources, i
-
-    call this%free()
-
-    ! We package the fields for the source term to operate on in a field list.
-    this%rhs_fields = rhs_fields
-
-    if (json%valid_path(name)) then
-       ! Get the number of source terms.
-       call json%info(name, n_children=n_sources)
-       allocate(this%source_terms(n_sources))
-
-       do i = 1, n_sources
-          ! Create a new json containing just the subdict for this source.
-          call json_extract_item(json, name, i, source_subdict)
-          call json_get(source_subdict, "type", type)
-
-          ! The user source is treated separately
-          if ((trim(type) .eq. "user_vector") .or. &
-               (trim(type) .eq. "user_pointwise")) then
-
-             if (source_subdict%valid_path("start_time") .or. &
-                  source_subdict%valid_path("end_time")) then
-                call neko_warning("The start_time and end_time parameters have&
-                     & no effect on the fluid user source term")
-             end if
-
-             call this%init_user_source(this%source_terms(i)%source_term, &
-                  this%rhs_fields, coef, type, user)
-          else
-
-             call source_term_factory(this%source_terms(i)%source_term, &
-                  source_subdict, this%rhs_fields, coef)
-          end if
-       end do
-    end if
-
-  end subroutine source_term_handler_init_base
 
   !> Initialize the user source term.
   !! @param source_term The allocatable source term to be initialized to a user.
@@ -194,41 +106,4 @@ contains
     end select
   end subroutine fluid_init_user_source
 
-  !> Destructor.
-  subroutine source_term_handler_free(this)
-    class(source_term_handler_t), intent(inout) :: this
-    integer :: i
-
-    call this%rhs_fields%free()
-
-    if (allocated(this%source_terms)) then
-       do i = 1, size(this%source_terms)
-          call this%source_terms(i)%free()
-       end do
-       deallocate(this%source_terms)
-    end if
-
-  end subroutine source_term_handler_free
-
-  !> Add all the source term to the passed right-hand side fields.
-  !! @param t The time value.
-  !! @param tstep The current time step.
-  subroutine source_term_handler_compute(this, t, tstep)
-    class(source_term_handler_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    integer :: i
-
-    do i = 1, this%rhs_fields%size()
-       this%rhs_fields%get(i) = 0.0_rp
-    end do
-
-    ! Add contribution from all source terms.
-    if (allocated(this%source_terms)) then
-       do i = 1, size(this%source_terms)
-          call this%source_terms(i)%source_term%compute(t, tstep)
-       end do
-    end if
-
-  end subroutine source_term_handler_compute
 end module fluid_source_term
