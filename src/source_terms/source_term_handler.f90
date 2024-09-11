@@ -71,6 +71,9 @@ module source_term_handler
      procedure, pass(this) :: free => source_term_handler_free
      !> Add all the source terms to the passed right-hand side fields.
      procedure, pass(this) :: compute => source_term_handler_compute
+     !> Append a new source term to the source_terms array.
+     procedure, pass(this) :: add_source_term => &
+          source_term_handler_add_source_term
      !> Initialize the user source term.
      procedure(source_term_handler_init_user_source), &
           nopass, private, deferred :: init_user_source
@@ -182,4 +185,27 @@ contains
     end if
 
   end subroutine source_term_handler_compute
+
+  !> Add new source term to the list.
+  !! @param source_term The source term to be added.
+  subroutine source_term_handler_add_source_term(this, source_term)
+    class(source_term_handler_t), intent(inout) :: this
+    class(source_term_t), intent(in) :: source_term
+    class(source_term_wrapper_t), dimension(:), allocatable :: temp
+
+    integer :: n_sources, i
+
+    n_sources = size(this%source_terms)
+    call move_alloc(this%source_terms, temp)
+    allocate(this%source_terms(n_sources + 1))
+
+    if (allocated(temp)) then
+       do i = 1, n_sources
+          call move_alloc(temp(i)%source_term, this%source_terms(i)%source_term)
+       end do
+    end if
+
+    this%source_terms(n_sources + 1)%source_term = source_term
+
+  end subroutine source_term_handler_add_source_term
 end module source_term_handler
