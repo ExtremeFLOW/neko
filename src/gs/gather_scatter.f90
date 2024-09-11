@@ -1284,20 +1284,20 @@ contains
     m = gs%nlocal
     l = gs%nshared
 
-    call profiler_start_region("gather-scatter", 5)
+    call profiler_start_region("gather_scatter", 5)
     ! Gather shared dofs
     if (pe_size .gt. 1) then
        call profiler_start_region("gs_nbrecv", 13)
        call gs%comm%nbrecv()
-       call profiler_end_region
+       call profiler_end_region("gs_nbrecv", 13)
        call profiler_start_region("gs_gather_shared", 14)
        call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op, .true.)
-       call profiler_end_region
+       call profiler_end_region("gs_gather_shared", 14)
        call profiler_start_region("gs_nbsend", 6)
        call gs%comm%nbsend(gs%shared_gs, l, &
             gs%bcknd%gather_event, gs%bcknd%gs_stream)
-       call profiler_end_region
+       call profiler_end_region("gs_nbsend", 6)
 
     end if
 
@@ -1307,12 +1307,12 @@ contains
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op, .false.)
     call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, .false., C_NULL_PTR)
-    call profiler_end_region
+    call profiler_end_region("gs_local", 12)
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
        call profiler_start_region("gs_nbwait", 7)
        call gs%comm%nbwait(gs%shared_gs, l, op, gs%bcknd%gs_stream)
-       call profiler_end_region
+       call profiler_end_region("gs_nbwait",  7)
        call profiler_start_region("gs_scatter_shared", 15)
        if (present(event)) then
           call gs%bcknd%scatter(gs%shared_gs, l,&
@@ -1325,10 +1325,10 @@ contains
                                 gs%shared_gs_dof, gs%nshared_blks, &
                                 gs%shared_blk_len, .true., C_NULL_PTR)
        end if
-       call profiler_end_region
+       call profiler_end_region("gs_scatter_shared", 15)
     end if
 
-    call profiler_end_region
+    call profiler_end_region("gather_scatter", 5)
 
   end subroutine gs_op_vector
 

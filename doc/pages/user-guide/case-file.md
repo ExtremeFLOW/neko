@@ -521,3 +521,16 @@ file.
 
 A more detailed description as well as a  full list of available components and
  their setup is provided in a [separate page of the manual](point-zones.md).
+
+## Runtime statistics
+
+This object adds the collection of runtime statistics (timings) for identified
+profiling regions. A region is defined as all functions between a call to
+`profiler_start_region(name, id)` and `profiler_end_region(name, id)`. Neko
+currently supports 50 regions, with id 1..25 being reserved for internal use.
+
+
+| Name                | Description                                                          | Admissible values | Default value |
+| ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
+| `enabled`           | Whether to enable gathering of runtime statistics                    | `true` or `false` | `false`       |
+| `output_profile`    | Wheter to output all gathered profiling data as a CSV file           | `true` or `false` | `false`       |
