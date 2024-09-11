@@ -43,6 +43,7 @@ module source_term_handler
   use coefs, only: coef_t
   use user_intf, only: user_t
   use utils, only: neko_warning
+  use field_math, only: field_rzero
   implicit none
   private
 
@@ -167,7 +168,7 @@ contains
     integer :: i
 
     do i = 1, this%rhs_fields%size()
-       this%rhs_fields%get(i) = 0.0_rp
+       call field_rzero(this%rhs_fields%get(i))
     end do
 
     ! Add contribution from all source terms.
