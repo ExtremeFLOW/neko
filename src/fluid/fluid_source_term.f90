@@ -52,24 +52,45 @@ module fluid_source_term
   !! @details
   !! Exists mainly to keep the `fluid_scheme_t` type smaller and also as
   !! placeholder for future optimizations.
-  type, public :: fluid_source_term_t
+  type, abstract :: source_term_handler_t
      !> Array of ordinary source terms.
      class(source_term_wrapper_t), allocatable :: source_terms(:)
-     !> X-component of the right-hand side.
-     type(field_t), pointer :: f_x => null()
-     !> Y-component of the right-hand side.
-     type(field_t), pointer :: f_y => null()
-     !> Z-component of the right-hand side.
-     type(field_t), pointer :: f_z => null()
+     !> The right-hand side.
+     type(field_list_t) :: rhs_fields
+
+   contains
+     !> Constructor.
+     procedure, pass(this) :: init_base => source_term_handler_init_base
+     !> Destructor.
+     procedure, pass(this) :: free => source_term_handler_free
+     !> Add all the source terms to the passed right-hand side fields.
+     procedure, pass(this) :: compute => source_term_handler_compute
+     !> Initialize the user source term.
+     procedure(init_user_source_interface), nopass, private, deferred :: init_user_source
+  end type source_term_handler_t
+
+  abstract interface
+     subroutine init_user_source_interface(source_term, rhs_fields, coef, type, user)
+       import :: source_term_t, field_list_t, coef_t, user_t
+       class(source_term_t), allocatable, intent(inout) :: source_term
+       type(field_list_t) :: rhs_fields
+       type(coef_t), intent(inout) :: coef
+       character(len=*) :: type
+       type(user_t), intent(in) :: user
+     end subroutine init_user_source_interface
+  end interface
+
+  !> Wrapper contaning and executing the fluid source terms.
+  !! @details
+  !! Exists mainly to keep the `fluid_scheme_t` type smaller and also as
+  !! placeholder for future optimizations.
+  type, extends(source_term_handler_t), public :: fluid_source_term_t
+
    contains
      !> Constructor.
      procedure, pass(this) :: init => fluid_source_term_init
-     !> Destructor.
-     procedure, pass(this) :: free => fluid_source_term_free
-     !> Add all the source terms to the passed right-hand side fields.
-     procedure, pass(this) :: compute => fluid_source_term_compute
      !> Initialize the user source term.
-     procedure, nopass, private :: init_user_source
+     procedure, nopass, private :: init_user_source => fluid_init_user_source
 
   end type fluid_source_term_t
 
@@ -83,29 +104,41 @@ contains
     type(coef_t), intent(inout) :: coef
     type(user_t), intent(in) :: user
 
+    character(len=:), allocatable :: name
     type(field_list_t) :: rhs_fields
+
+    name = 'case.fluid.source_terms'
+
+    ! We package the fields for the source term to operate on in a field list.
+    call rhs_fields%init(3)
+    call rhs_fields%assign(1, f_x)
+    call rhs_fields%assign(2, f_y)
+    call rhs_fields%assign(3, f_z)
+
+    call this%init_base(json, name, rhs_fields, coef, user)
+  end subroutine fluid_source_term_init
+
+  !> Costructor.
+  subroutine source_term_handler_init_base(this, json, name, rhs_fields, coef, user)
+    class(source_term_handler_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+    type(field_list_t), intent(in) :: rhs_fields
+    type(coef_t), intent(inout) :: coef
+    type(user_t), intent(in) :: user
+
     ! A single source term as its own json_file.
     type(json_file) :: source_subdict
     ! Source type
     character(len=:), allocatable :: type
-    character(len=:), allocatable :: name
     integer :: n_sources, i
-
-    name = 'case.fluid.source_terms'
 
     call this%free()
 
-    this%f_x => f_x
-    this%f_y => f_y
-    this%f_z => f_z
+    ! We package the fields for the source term to operate on in a field list.
+    this%rhs_fields = rhs_fields
 
     if (json%valid_path(name)) then
-       ! We package the fields for the source term to operate on in a field list.
-       call rhs_fields%init(3)
-       call rhs_fields%assign(1, f_x)
-       call rhs_fields%assign(2, f_y)
-       call rhs_fields%assign(3, f_z)
-
        ! Get the number of source terms.
        call json%info(name, n_children=n_sources)
        allocate(this%source_terms(n_sources))
@@ -117,25 +150,25 @@ contains
 
           ! The user source is treated separately
           if ((trim(type) .eq. "user_vector") .or. &
-              (trim(type) .eq. "user_pointwise")) then
+               (trim(type) .eq. "user_pointwise")) then
 
              if (source_subdict%valid_path("start_time") .or. &
-                 source_subdict%valid_path("end_time")) then
-                 call neko_warning("The start_time and end_time parameters have&
-                                    & no effect on the fluid user source term")
+                  source_subdict%valid_path("end_time")) then
+                call neko_warning("The start_time and end_time parameters have&
+                     & no effect on the fluid user source term")
              end if
 
-             call init_user_source(this%source_terms(i)%source_term, &
-                                    rhs_fields, coef, type, user)
+             call this%init_user_source(this%source_terms(i)%source_term, &
+                  this%rhs_fields, coef, type, user)
           else
 
              call source_term_factory(this%source_terms(i)%source_term, &
-                                       source_subdict, rhs_fields, coef)
+                  source_subdict, this%rhs_fields, coef)
           end if
        end do
     end if
 
-  end subroutine fluid_source_term_init
+  end subroutine source_term_handler_init_base
 
   !> Initialize the user source term.
   !! @param source_term The allocatable source term to be initialized to a user.
@@ -144,7 +177,7 @@ contains
   !! @param type The type of the user source term, "user_vector" or
   !! "user_poinwise".
   !! @param user The user type containing the user source term routines.
-  subroutine init_user_source(source_term, rhs_fields, coef, type, user)
+  subroutine fluid_init_user_source(source_term, rhs_fields, coef, type, user)
     class(source_term_t), allocatable, intent(inout) :: source_term
     type(field_list_t) :: rhs_fields
     type(coef_t), intent(inout) :: coef
@@ -154,21 +187,19 @@ contains
     allocate(fluid_user_source_term_t::source_term)
 
     select type (source_term)
-    type is (fluid_user_source_term_t)
+      type is (fluid_user_source_term_t)
        call source_term%init_from_components(rhs_fields, coef, type, &
-                                            user%fluid_user_f_vector, &
-                                            user%fluid_user_f)
+            user%fluid_user_f_vector, &
+            user%fluid_user_f)
     end select
-  end subroutine init_user_source
+  end subroutine fluid_init_user_source
 
   !> Destructor.
-  subroutine fluid_source_term_free(this)
-    class(fluid_source_term_t), intent(inout) :: this
+  subroutine source_term_handler_free(this)
+    class(source_term_handler_t), intent(inout) :: this
     integer :: i
 
-    nullify(this%f_x)
-    nullify(this%f_y)
-    nullify(this%f_z)
+    call this%rhs_fields%free()
 
     if (allocated(this%source_terms)) then
        do i = 1, size(this%source_terms)
@@ -177,20 +208,20 @@ contains
        deallocate(this%source_terms)
     end if
 
-  end subroutine fluid_source_term_free
+  end subroutine source_term_handler_free
 
   !> Add all the source term to the passed right-hand side fields.
   !! @param t The time value.
   !! @param tstep The current time step.
-  subroutine fluid_source_term_compute(this, t, tstep)
-    class(fluid_source_term_t), intent(inout) :: this
+  subroutine source_term_handler_compute(this, t, tstep)
+    class(source_term_handler_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     integer :: i
 
-    this%f_x = 0.0_rp
-    this%f_y = 0.0_rp
-    this%f_z = 0.0_rp
+    do i = 1, this%rhs_fields%size()
+       this%rhs_fields%get(i) = 0.0_rp
+    end do
 
     ! Add contribution from all source terms.
     if (allocated(this%source_terms)) then
@@ -199,5 +230,5 @@ contains
        end do
     end if
 
-  end subroutine fluid_source_term_compute
+  end subroutine source_term_handler_compute
 end module fluid_source_term
