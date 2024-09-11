@@ -50,7 +50,7 @@ could, for example, be read from the case file. For LES models, one provides the
 `model` keyword in the case file, and this gets passed to the factory. So if
 `"model": "smagorinsky"` is in the case file, the factory will allocate the
 pointer to a `smagorinsky_t` and initialize it using the common `init`
-constructor. Calling  `compute` on the allocated pointer will then run the
+constructor. Calling `compute` on the allocated pointer will then run the
 routine defined for the `smagorinsky_t` type.
 
 For the particular case of LES models, the pointer to `les_model_t` is stored in
@@ -67,8 +67,8 @@ the `init` routine of the simcomp.
 So, what needs to be done to add a new LES model? Simple, one creates a new type
 descending from `les_model_t`, implements all the deferred routines, adds the
 type name to the known types of the factory, and finally expands the `if`
-statement in the factory to allocated to the new type given the corresponding
+statement in the factory to allocate to the new type given the corresponding
 type name. The same steps are followed for a lot of other functionality! There
 are some minor variations, for example, not all factories initialize the object,
 some just allocate it and leave the construction to the callee. Eventually these
-differences may be ironed out. 
+differences may be ironed out.
