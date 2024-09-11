@@ -37,6 +37,7 @@ module source_term_handler
   use num_types, only: rp
   use source_term, only: source_term_wrapper_t, source_term_t, &
        source_term_factory
+  use field, only: field_t
   use field_list, only: field_list_t
   use json_utils, only: json_get, json_extract_item
   use json_module, only: json_file
@@ -166,9 +167,11 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     integer :: i
+    type(field_t), pointer :: f
 
     do i = 1, this%rhs_fields%size()
-       call field_rzero(this%rhs_fields%get(i))
+       f => this%rhs_fields%get(i)
+       call field_rzero(f)
     end do
 
     ! Add contribution from all source terms.
