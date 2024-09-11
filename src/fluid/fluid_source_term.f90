@@ -40,7 +40,7 @@ module fluid_source_term
        source_term_factory
   use field, only : field_t
   use field_list, only : field_list_t
-  use json_utils, only : json_get
+  use json_utils, only : json_get, json_extract_item
   use json_module, only : json_file, json_core, json_value
   use coefs, only : coef_t
   use user_intf, only : user_t
@@ -84,18 +84,14 @@ contains
     type(user_t), intent(in) :: user
 
     type(field_list_t) :: rhs_fields
-    ! Json low-level manipulator.
-    type(json_core) :: core
-    ! Pointer to the source_terms JSON object and the individual sources.
-    type(json_value), pointer :: source_object, source_pointer
-    ! Buffer for serializing the json.
-    character(len=:), allocatable :: buffer
     ! A single source term as its own json_file.
     type(json_file) :: source_subdict
     ! Source type
     character(len=:), allocatable :: type
-    logical :: found
+    character(len=:), allocatable :: name
     integer :: n_sources, i
+
+    name = 'case.fluid.source_terms'
 
     call this%free()
 
@@ -103,26 +99,20 @@ contains
     this%f_y => f_y
     this%f_z => f_z
 
-
-    if (json%valid_path('case.fluid.source_terms')) then
+    if (json%valid_path(name)) then
        ! We package the fields for the source term to operate on in a field list.
        call rhs_fields%init(3)
        call rhs_fields%assign(1, f_x)
        call rhs_fields%assign(2, f_y)
        call rhs_fields%assign(3, f_z)
 
-       call json%get_core(core)
-       call json%get('case.fluid.source_terms', source_object, found)
-
-       n_sources = core%count(source_object)
+       ! Get the number of source terms.
+       call json%info(name, n_children=n_sources)
        allocate(this%source_terms(n_sources))
-
 
        do i = 1, n_sources
           ! Create a new json containing just the subdict for this source.
-          call core%get_child(source_object, i, source_pointer, found)
-          call core%print_to_string(source_pointer, buffer)
-          call source_subdict%load_from_string(buffer)
+          call json_extract_item(json, name, i, source_subdict)
           call json_get(source_subdict, "type", type)
 
           ! The user source is treated separately
