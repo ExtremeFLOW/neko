@@ -696,7 +696,7 @@ contains
       call this%update_material_properties()
 
       ! Compute pressure.
-      call profiler_start_region('Pressure residual', 18)
+      call profiler_start_region('Pressure_residual', 18)
       call prs_res%compute(p, p_res,&
                            u, v, w, &
                            u_e, v_e, w_e, &
@@ -708,17 +708,17 @@ contains
 
       call gs_Xh%op(p_res, GS_OP_ADD)
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
-      call profiler_end_region
+      call profiler_end_region('Pressure_residual', 18)
 
       call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
                                      'Pressure')
 
       call this%pc_prs%update()
-      call profiler_start_region('Pressure solve', 3)
+      call profiler_start_region('Pressure_solve', 3)
       ksp_results(1) = &
          this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, this%bclst_dp, gs_Xh)
 
-      call profiler_end_region
+      call profiler_end_region('Pressure_solve', 3)
 
       call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
                                  this%bclst_dp, gs_Xh, n, tstep, dt_controller)
@@ -726,7 +726,7 @@ contains
       call field_add2(p, dp, n)
 
       ! Compute velocity.
-      call profiler_start_region('Velocity residual', 19)
+      call profiler_start_region('Velocity_residual', 19)
       call vel_res%compute(Ax_vel, u, v, w, &
                            u_res, v_res, w_res, &
                            p, &
@@ -755,7 +755,7 @@ contains
          call this%bc_field_dirichlet_w%apply_scalar(w_res%x, n, t, tstep)
       end if
 
-      call profiler_end_region
+      call profiler_end_region('Velocity_residual', 19)
 
       call this%proj_u%pre_solving(u_res%x, tstep, c_Xh, n, dt_controller)
       call this%proj_v%pre_solving(v_res%x, tstep, c_Xh, n, dt_controller)
@@ -763,11 +763,11 @@ contains
 
       call this%pc_vel%update()
 
-      call profiler_start_region("Velocity solve", 4)
+      call profiler_start_region("Velocity_solve", 4)
       ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax_vel, du, dv, dw, &
            u_res%x, v_res%x, w_res%x, n, c_Xh, &
            this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh)
-      call profiler_end_region
+      call profiler_end_region("Velocity_solve", 4)
 
       call this%proj_u%post_solving(du%x, Ax_vel, c_Xh, &
                                  this%bclst_du, gs_Xh, n, tstep, dt_controller)
@@ -797,7 +797,7 @@ contains
       call this%scratch%relinquish_field(temp_indices)
 
     end associate
-    call profiler_end_region
+    call profiler_end_region('Fluid', 1)
   end subroutine fluid_pnpn_step
 
 

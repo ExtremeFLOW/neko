@@ -396,7 +396,7 @@ contains
       call this%update_material_properties()
 
       ! Compute scalar residual.
-      call profiler_start_region('Scalar residual', 20)
+      call profiler_start_region('Scalar_residual', 20)
       call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, lambda_field, &
            rho*cp, ext_bdf%diffusion_coeffs(1), dt, dm_Xh%size())
 
@@ -405,15 +405,15 @@ contains
       ! Apply a 0-valued Dirichlet boundary conditions on the ds.
       call bc_list_apply_scalar(this%bclst_ds, s_res%x, dm_Xh%size())
 
-      call profiler_end_region
+      call profiler_end_region('Scalar_residual', 20)
 
       call this%proj_s%pre_solving(s_res%x, tstep, c_Xh, n, dt_controller)
 
       call this%pc%update()
-      call profiler_start_region('Scalar solve', 21)
+      call profiler_start_region('Scalar_solve', 21)
       ksp_results(1) = this%ksp%solve(Ax, ds, s_res%x, n, &
            c_Xh, this%bclst_ds, gs_Xh)
-      call profiler_end_region
+      call profiler_end_region('Scalar_solve', 21)
 
      call this%proj_s%post_solving(ds%x, Ax, c_Xh, &
                                  this%bclst_ds, gs_Xh, n, tstep, dt_controller)
@@ -428,7 +428,7 @@ contains
       call scalar_step_info(tstep, t, dt, ksp_results)
 
     end associate
-    call profiler_end_region
+    call profiler_end_region('Scalar', 2)
   end subroutine scalar_pnpn_step
 
 

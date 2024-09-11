@@ -204,8 +204,9 @@ It is mandatory.
 Note that this currently pertains to both the fluid, but also scalars.
 The means of prescribing the values are controlled via the `type` keyword:
 
-1. `user`, the values are set inside the compiled user file. The only way to
-   initialize scalars.
+1. `user`, the values are set inside the compiled user file.  as explained in the 
+[user defined initial condition](@ref user-file_user-ic) section of the user
+file documentation.
 2. `uniform`, the value is a constant vector, looked up under the `value`
    keyword.
 3. `blasius`, a Blasius profile is prescribed. Its properties are looked up
@@ -277,9 +278,9 @@ The following types are currently implemented.
 1. `constant`, constant forcing. Strength defined by the `values` array with 3
    reals corresponding to the 3 components of the forcing.
 2. `boussinesq`, a source term introducing boyancy based on the Boussinesq
-   approximation, \f$ \rho \beta (T - T_{ref} \cdot g) \f$. Here, \f$ rho \f$ is
-   density, \f$ \beta \f$ the thermal expansion coefficient, \f$ g \f$ the
-   gravity vector, and $T_{ref}$ a reference value of the scalar, typically
+   approximation, \f$ \rho \beta (T - T_{ref}) \cdot \mathbf{g} \f$. Here, \f$ \rho \f$ is
+   density, \f$ \beta \f$ the thermal expansion coefficient, \f$ \mathbf{g} \f$ the
+   gravity vector, and \f$ T_{ref} \f$ a reference value of the scalar, typically
    temperature.
 
    Reads the following entries:
@@ -293,7 +294,7 @@ The following types are currently implemented.
    pointwise user file subroutine. Only works on CPUs!
 4. `user_vector`, the values are set inside the compiled user file, using the
    non-pointwise user file subroutine. Should be used when running on the GPU.
-4. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
+5. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
@@ -487,6 +488,8 @@ Some properties of the object are inherited from `fluid`: the properties of the
 linear solver, the value of the density, and the output
 control.
 
+### Material properties
+
 The scalar equation requires defining additional material properties: the
 specific heat capacity and thermal conductivity. These are provided as `cp` and
 `lambda`. Similarly to the fluid, one can provide the Peclet number, `Pe`, as an
@@ -497,31 +500,56 @@ the name matching that set for the simulation component with the LES model.
 Additionally, the turbulent Prandtl number, `Pr_t` should be set. The eddy
 viscosity values will be divided by it to produce eddy diffusivity.
 
+### Boundary types
+
 The boundary conditions for the scalar are specified through the
 `boundary_types` keyword.
-It is possible to directly specify a uniform value for a Dirichlet boundary.
-The syntax is, e.g. `d=1`, to set the value to 1, see the Ryleigh-Benard
-example case.
+
+The value of the keyword is an array of strings, with the following possible values:
+* Standard boundary conditions
+  * `d=x`, sets a uniform Dirichlet boundary of value `x` (e.g. `d=1` to set 
+  `s` to `1` on the boundary, see the Rayleigh-Benard example case).
+  
+* Advanced boundary conditions
+    * `d_s`, a Dirichlet boundary condition for more complex, non-uniform 
+    and/or time-dependent profiles. This boundary condition uses a 
+    [more advanced user interface](#user-file_field-dirichlet-update).
+
+### Initial conditions
+
+The object `initial_condition` is used to provide initial conditions.
+It is mandatory.
+The means of prescribing the values are controlled via the `type` keyword:
+
+1. `user`, the values are set inside the compiled user file as explained in the 
+[user defined initial condition](@ref user-file_user-ic) section of the user
+file documentation.
+2. `uniform`, the value is a constant scalar, looked up under the `value`
+   keyword.
+3. `point_zone`, the values are set to a constant base value, supplied under the
+   `base_value` keyword, and then assigned a zone value inside a point zone. The
+   point zone is specified by the `name` keyword, and should be defined in the
+   `case.point_zones` object. See more about point zones @ref point-zones.md.
+
+### Source terms
 
 The configuration of source terms is the same as for the fluid. A demonstration
 of using source terms for the scalar can be found in the `scalar_mms` example.
 
-| Name                              | Description                                                                                   | Admissible values                        | Default value |
-| --------------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------- | ------------- |
-| `enabled`                         | Whether to enable the scalar computation.                                                     | `true` or `false`                        | `true`        |
-| `Pe`                              | The Peclet number.                                                                            | Positive real                            | -             |
-| `cp`                              | Specific heat cpacity.                                                                        | Positive real                            | -             |
-| `lambda`                          | Thermal conductivity.                                                                         | Positive real                            | -             |
-| `nut_field`                       | Name of the turbulent kinematic viscosity field.                                              | String                                   | Empty string  |
-| `Pr_t`                            | Turbulent Prandtl number                                                                      | Positive real                            | -             |
-| `boundary_types`                  | Boundary types/conditions labels.                                                             | Array of strings                         | -             |
-| `initial_condition.type`          | Initial condition type.                                                                       | `user`, `uniform`, `point_zone`, `field` | -             |
-| `initial_condition.value`         | Value of the velocity initial condition.                                                      | Real                                     | -             |
-| `initial_condition.file_name`     | If `"type" = "field"`, the path to the field file to read from.                               | String ending with `.fld`, `.chkp`, `.nek5000` or `f*****`.  | -             |
-| `initial_condition.sample_index`  | If `"type" = "field"`, and file type is `fld` or `nek5000`, the index of the file to sampled. | Positive integer.                        | -1            |
-| `initial_condition.previous_mesh` | If `"type" = "field"`, and file type is `chkp`, the previous mesh from which to interpolate.  | String ending with `.nmsh`.              | -             |
-| `initial_condition.tolerance`     | If `"type" = "field"`, and file type is `chkp`, tolerance to use for mesh interpolation.      | Positive real.                           | 1e-6          |
-| `source_terms`                    | Array of JSON objects, defining additional source terms.                                      | See list of source terms above           | -             |
+### Full parameter table
+
+| Name                      | Description                                              | Admissible values               | Default value |
+| ------------------------- | -------------------------------------------------------- | ------------------------------- | ------------- |
+| `enabled`                 | Whether to enable the scalar computation.                | `true` or `false`               | `true`        |
+| `Pe`                      | The Peclet number.                                       | Positive real                   | -             |
+| `cp`                      | Specific heat cpacity.                                   | Positive real                   | -             |
+| `lambda`                  | Thermal conductivity.                                    | Positive real                   | -             |
+| `nut_field`               | Name of the turbulent kinematic viscosity field.         | String                          | Empty string  |
+| `Pr_t`                    | Turbulent Prandtl number                                 | Positive real                   | -             |
+| `boundary_types`          | Boundary types/conditions labels.                        | Array of strings                | -             |
+| `initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`, `point_zone` | -             |
+| `initial_condition.value` | Value of the velocity initial condition.                 | Real                            | -             |
+| `source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above  | -             |
 
 ## Statistics
 
@@ -556,3 +584,16 @@ file.
 
 A more detailed description as well as a  full list of available components and
  their setup is provided in a [separate page of the manual](point-zones.md).
+
+## Runtime statistics
+
+This object adds the collection of runtime statistics (timings) for identified
+profiling regions. A region is defined as all functions between a call to
+`profiler_start_region(name, id)` and `profiler_end_region(name, id)`. Neko
+currently supports 50 regions, with id 1..25 being reserved for internal use.
+
+
+| Name                | Description                                                          | Admissible values | Default value |
+| ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
+| `enabled`           | Whether to enable gathering of runtime statistics                    | `true` or `false` | `false`       |
+| `output_profile`    | Wheter to output all gathered profiling data as a CSV file           | `true` or `false` | `false`       |
