@@ -214,43 +214,34 @@ The means of prescribing the values are controlled via the `type` keyword:
    `base_value` keyword, and then assigned a zone value inside a point zone. The
    point zone is specified by the `name` keyword, and should be defined in the
    `case.point_zones` object. See more about point zones @ref point-zones.md.
-5. `field`, where the initial condition is retrieved from an output field file
-   provided by the `file_name` keyword. Supported
-   file types are:
-   - `.chkp` files. To interpolate a `chkp` file, use the `previous_mesh`
-   keyword to provide the mesh from which to interpolate.
-   - `.fld`, `.nek5000` that refer to a series of `.f*****` files, where the 
-   index of the file to use is provided by the `sample_index` keyword. 
-       - For example, in a series of 3 files `field0.f00000, field0.f00001, 
-       field0.f00002`, `sample_index` can take values `0`,`1` or `2`. In this 
-       case we would set `"file_name" = "field0.fld"`. 
-       - If no `sample_index` is
-       provided, and a `field0.nek5000` file exists, the last field file in the
-       series will be used by default.
-   - `.f*****` which refers to a single `field0.f*****` file. In this case 
-   the sample index will be extracted from the file extension, e.g. `f00012`
-   means a sample index of `12`.
-   - **Interpolation** for `fld`, `nek5000` and `f*****` files is activated by
-   setting the keyword `interpolate` to `true`. 
-       - Note that the tolerance
-       for interpolation defaults to `1e-6`, but can otherwise be changed by the
-       keyword `tolerance`. 
-       - The coordinates are retrieved by default from the first file in the 
-       `fld` series. If the coordinates are located in another file, you can
-       indicate the path to that file with `mesh_file_name`. If the coordinates
-       are located at a different index in the `fld` series, you can indicate
-       that index with `sample_mesh_index`. Note that `mesh_file_name` takes
-       precedence over `sample_mesh_index`.
-  
-   @note When interpolating, it is recommended to use files in double precision,
-   which includes any `chkp` file or `fld` files that were written in double
-   precision. To check if your `fld` file was written in double precision, run
-   the command `head -1 field0.f00000`. `#std 4 ...` indicates single precision, 
+5. `field`, where the initial condition is retrieved from a field file.
+   The following keywords can be used:
+   
+| Name                | Description                                                                                                            | Admissible values                                  | Default value                             |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- | ----------------------------------------- |
+| `file_name`         | Name of the field file (e.g. `field0.f00034`) or the field file series to use (e.g. `field0.fld` or `field0.nek5000`). | Strings ending with `.fld`, `.nek5000` or `f*****` | -                                         |
+| `sample_index`      | In the case of a field series, the index of the field file to read. By default, reads the last file in the series.     | Integer values                                     | `-1`, i.e. the last sample in the series. |
+| `interpolate`       | Whether to interpolate the velocity and pressure fields from the field file onto the current mesh.                     | `true` or `false`                                  | `false`                         |
+| `sample_mesh_index` | If interpolation is enabled, the index of the field file that contains the coordinates.                                | Integer values                                     | `0` for a field series. |
+ 
+   @attention Neko does not detect wether interpolation is needed or not. 
+   Interpolation will always be performed if `"interpolate"` is set 
+   to `true` even if the field file matches with the current simulation.
+ 
+   @note It is recommended to interpolate from `fld` files that were 
+   written in double precision. 
+   To check if your `fld` file was written in double precision, run
+   the command:
+   ~~~~~~~~~~~~~~~{.sh}
+   head -1 field0.f00000
+   ~~~~~~~~~~~~~~~
+   The output `#std 4 ...` indicates single precision, 
    whereas `#std 8 ...` indicates double precision.
-   @attention Neko write single precision `fld` files by default. To write your 
+   Neko write single precision `fld` files by default. To write your 
    files in double precision, set `case.output_precision` to
    `"double"`. 
-   
+
+
 ### Blasius profile
 The `blasius` object is used to specify the Blasius profile that can be used for the
 initial and inflow condition.
