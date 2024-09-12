@@ -85,9 +85,12 @@ contains
 
     call this%init_base(coef)
 
-    call json_get(json, 'case.fluid.blasius.delta', delta)
-    call json_get(json, 'case.fluid.blasius.approximation', approximation)
-    call json_get(json, 'case.fluid.blasius.freestream_velocity', uinf)
+    !call json_get(json, 'case.fluid.blasius.delta', delta)
+    !call json_get(json, 'case.fluid.blasius.approximation', approximation)
+    !call json_get(json, 'case.fluid.blasius.freestream_velocity', uinf)
+    call json_get(json, 'delta', delta)
+    call json_get(json, 'approximation', approximation)
+    call json_get(json, 'freestream_velocity', uinf)
 
     this%delta = delta
     this%uinf = uinf

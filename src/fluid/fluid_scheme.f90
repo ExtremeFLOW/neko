@@ -68,8 +68,8 @@ module fluid_scheme
   use operators, only : cfl
   use logger, only : neko_log, LOG_SIZE
   use field_registry, only : neko_field_registry
-  use json_utils, only : json_get, json_get_or_default
-  use json_module, only : json_file
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_module, only : json_file, json_core, json_value
   use scratch_registry, only : scratch_registry_t
   use user_intf, only : user_t
   use utils, only : neko_error
@@ -114,11 +114,13 @@ module fluid_scheme
      ! Attributes for field dirichlet BCs
      type(field_dirichlet_vector_t) :: user_field_bc_vel   !< User-computed Dirichlet velocity condition
      type(field_dirichlet_t) :: user_field_bc_prs   !< User-computed Dirichlet pressure condition
-     type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
+     type(zero_dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
      type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
+     type(bc_list_t) :: bcs                    !< List of pressure conditions
+     integer :: n_strong = 0
      type(field_t) :: bdry                     !< Boundary markings
      type(json_file), pointer :: params        !< Parameters
      type(mesh_t), pointer :: msh => null()    !< Mesh
@@ -152,6 +154,7 @@ module fluid_scheme
      procedure, pass(this) :: scheme_free => fluid_scheme_free
      !> Validate that all components are properly allocated
      procedure, pass(this) :: validate => fluid_scheme_validate
+     procedure, pass(this) :: setup_bcs => fluid_scheme_setup_bcs
      !> Apply pressure boundary conditions
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      !> Apply velocity boundary conditions
@@ -440,10 +443,10 @@ contains
        call this%bclst_vel%append(this%bc_inflow)
     end if
 
-    call this%bc_wall%init(this%c_Xh, params)
-    call this%bc_wall%mark_zones_from_list('w', this%bc_labels)
-    call this%bc_wall%finalize()
-    call this%bclst_vel%append(this%bc_wall)
+!    call this%bc_wall%init(this%c_Xh, params)
+!    call this%bc_wall%mark_zones_from_list('w', this%bc_labels)
+!    call this%bc_wall%finalize()
+!    call this%bclst_vel%append(this%bc_wall)
 
     ! Setup field dirichlet bc for u-velocity
     call this%user_field_bc_vel%bc_u%init_base(this%c_Xh)
@@ -516,6 +519,10 @@ contains
     call this%user_field_bc_vel%bc_list%append(this%user_field_bc_vel%bc_u)
     call this%user_field_bc_vel%bc_list%append(this%user_field_bc_vel%bc_v)
     call this%user_field_bc_vel%bc_list%append(this%user_field_bc_vel%bc_w)
+
+
+    write(*,*) "SETTING UP BCS"
+    call this%setup_bcs(user)
 
     !
     ! Check if we need to output boundary types to a separate field
@@ -829,6 +836,10 @@ contains
     call this%bclst_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
 
+    write(*,*) "APPLYING BCS", this%bcs%size()
+    call this%bcs%apply_vector(&
+         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
+
   end subroutine fluid_scheme_bc_apply_vel
 
   !> Apply all boundary conditions defined for pressure
@@ -1035,18 +1046,22 @@ contains
        call this%params%get('case.fluid.boundary_conditions', bc_object, found)
 
        call this%bcs%init(n_bcs)
+       this%bcs%size_ = n_bcs
 
        do i=1, n_bcs
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
 
+          write(*,*) "i", i
           call fluid_bc_factory(this%bcs%items(i)%obj, bc_subdict, &
                           this%c_Xh, user)
 
+          write(*,*) "Done", i
           if (this%bcs%strong(i)) then
              this%n_strong = this%n_strong + 1
           end if
        end do
+       write(*,*) "N_BCS", n_bcs, this%bcs%size()
     end if
 
 
@@ -1064,9 +1079,14 @@ contains
 
     if (trim(type) .eq. "symmetry") then
        allocate(symmetry_t::object)
-    else if (trim(type) .eq. "dirichlet") then
-    else if (trim(type) .eq. "blasius") then
+    else if (trim(type) .eq. "inflow") then
+       allocate(inflow_t::object)
+    else if (trim(type) .eq. "no_slip") then
+       allocate(zero_dirichlet_t::object)
+    else if (trim(type) .eq. "blasius_profile") then
        allocate(blasius_t::object)
+    else
+       call neko_error("Unknown boundary condition for fluid")
     end if
 
     call json_get(json, "zone_index", zone_index)

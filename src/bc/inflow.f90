@@ -70,7 +70,8 @@ contains
     real(kind=rp), allocatable :: x(:)
 
     call this%init_base(coef)
-    call json_get(json, 'case.fluid.inflow_condition.value', x)
+    !call json_get(json, 'case.fluid.inflow_condition.value', x)
+    call json_get(json, 'value', x)
     this%x = x
   end subroutine inflow_init
 
@@ -102,7 +103,11 @@ contains
     integer, intent(in), optional :: tstep
     integer :: i, m, k
 
+
     m = this%msk(0)
+
+    write(*,*) "Applying inflow", m
+
     do i = 1, m
        k = this%msk(i)
        x(k) = this%x(1)
