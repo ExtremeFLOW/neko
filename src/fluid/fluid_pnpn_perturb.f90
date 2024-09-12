@@ -176,13 +176,14 @@ module fluid_pnpn_perturb
 
 contains
 
-  subroutine fluid_pnpn_perturb_init(this, msh, lx, params, user, material_properties)
+  subroutine fluid_pnpn_perturb_init(this, msh, lx, params, user, material_properties, time_scheme)
     class(fluid_pnpn_perturb_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), intent(in) :: user
     type(material_properties_t), target, intent(inout) :: material_properties
+    type(time_scheme_controller_t), target, intent(in) :: time_scheme
     character(len=20), parameter :: scheme = 'Perturbation (Pn/Pn)'
     type(file_t) :: field_file, out_file
     type(fld_file_data_t) :: field_data
