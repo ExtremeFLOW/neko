@@ -2,7 +2,8 @@
 !! Provides an interface to the different fields sotred in a fld file
 !! Also provides simple functions to scale and add different fld files.
 !! An example of using this module is shown in contrib/average_fields.f90
-!! The fld_file_data_t should dynamically update each time one reads a new fld file
+!! The fld_file_data_t should dynamically update each time one reads a new fld
+!! file.
 !! Martin Karp 1/2-2023
 module fld_file_data
   use num_types, only : rp
@@ -39,9 +40,11 @@ module fld_file_data
      integer :: lz = 0
      integer :: t_counter = 0 !< counter of samples
      ! meta file information (if any)
-     integer :: meta_nsamples = 0 !< number of samples specified in .nek5000 file
+     !> number of samples specified in .nek5000 file
+     integer :: meta_nsamples = 0
      integer :: meta_start_counter = 0 !< number of first field
-     character(len=1024) :: fld_series_fname !< name of fld series as specified in .nek5000 (meta) file
+     !> name of fld series as specified in .nek5000 (meta) file
+     character(len=1024) :: fld_series_fname
    contains
      procedure, pass(this) :: init => fld_file_data_init
      procedure, pass(this) :: free => fld_file_data_free

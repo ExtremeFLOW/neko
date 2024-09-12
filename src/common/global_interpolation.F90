@@ -38,12 +38,12 @@
 module global_interpolation
   use num_types, only: rp
   use space, only: space_t
+  use dofmap, only: dofmap_t
+  use mesh, only: mesh_t
   use logger, only: neko_log, LOG_SIZE
   use utils, only: neko_error, neko_warning
   use local_interpolation
   use comm
-  use dofmap, only: dofmap_t
-  use mesh, only: mesh_t
   use math, only: copy
   use neko_mpi_types
   use structs, only: array_ptr_t
@@ -52,46 +52,46 @@ module global_interpolation
   private
   !> Implements global interpolation for arbitrary points in the domain.
   type, public :: global_interpolation_t
-     !> X coordinates from which to interpolate
+     !> X coordinates from which to interpolate.
      type(array_ptr_t) :: x
-     !> Y coordinates from which to interpolate
+     !> Y coordinates from which to interpolate.
      type(array_ptr_t) :: y
-     !> Z coordinates from which to interpolate
+     !> Z coordinates from which to interpolate.
      type(array_ptr_t) :: z
-     !> Geometric dimension of the simulation
+     !> Geometric dimension of the simulation.
      integer :: gdim
-     !> Number of elements
+     !> Number of elements.
      integer :: nelv
-     !> Space
+     !> Space.
      type(space_t), pointer :: Xh
-     !> Interpolator for local points
+     !> Interpolator for local points.
      type(local_interpolator_t) :: local_interp
-     !> If all points are local on this PE
+     !> If all points are local on this PE.
      logical :: all_points_local = .false.
-     !! Gslib handle
-     !! @note: Remove when we remove gslib
+     !! Gslib handle.
+     !! @note: Remove when we remove gslib.
      integer :: gs_handle
      logical :: gs_init = .false.
      !> Components related to the points we want to evalute
      !> Number of points we want to evaluate
      integer :: n_points
-     !> x,y,z coordinates, findpts format
+     !> x,y,z coordinates, findpts format.
      !! @note: When replacing gs we can change format
      real(kind=rp), allocatable :: xyz(:,:)
-     !> List of owning processes
+     !> List of owning processes.
      integer, allocatable :: proc_owner(:)
-     !> List of owning elements
+     !> List of owning elements.
      integer, allocatable :: el_owner(:)
      type(c_ptr) :: el_owner_d = c_null_ptr
-     !> r,s,t coordinates findpts format
+     !> r,s,t coordinates findpts format.
      !! @note: When replacing gs we can change format
      real(kind=rp), allocatable :: rst(:,:)
-     !> Distance squared between original and interpolated point
+     !> Distance squared between original and interpolated point.
      !! (in xyz space) (according to gslib)
      real(kind=rp), allocatable :: dist2(:)
-     !> Error code for each point, needed for gslib
+     !> Error code for each point, needed for gslib.
      integer, allocatable :: error_code(:)
-     !> Tolerance for distance squared between original and interpolated point
+     !> Tolerance for distance squared between original and interpolated point.
      real(kind=rp) :: tol = 5d-13
    contains
      !> Initialize the global interpolation object on a dofmap.
@@ -123,8 +123,6 @@ contains
   !> Initialize the global interpolation object on a dofmap.
   !! @param dof Dofmap on which the interpolation is to be carried out.
   !! @param tol Tolerance for Newton iterations.
-  !! @param Xh Space on which to interpolate.
-  !! @param msh Mesh on which to interp
   subroutine global_interpolation_init_dof(this, dof, tol)
     class(global_interpolation_t), intent(inout) :: this
     type(dofmap_t), target :: dof
@@ -140,7 +138,8 @@ contains
   !! @param y y-coordinates.
   !! @param z z-coordinates.
   !! @param gdim Geometric dimension.
-  !! @param nelv Number of elements.
+  !! @param nelv Number of elements of the mesh in which to search for the
+  !! points.
   !! @param Xh Space on which to interpolate.
   !! @param tol Tolerance for Newton iterations.
   subroutine global_interpolation_init_xyz(this, x, y, z, gdim, nelv, Xh, tol)
@@ -347,8 +346,8 @@ contains
   !! in the correct global element as well as which process that owns the point.
   !! After this the values at these points can be evaluated.
   !! If the locations of the points change this must be called again.
-  !! - `error_code`: returns `0` if point found, `1` if closest point on a border
-  !! (check dist2), `2` if not found
+  !! - `error_code`: returns `0` if point found, `1` if closest point on a
+  !! border (check dist2), `2` if not found
   !! - `dist2`: distance squared (used to compare the points found by each
   !! processor)
   !! @param x The x-coordinates of the points.
@@ -401,8 +400,8 @@ contains
   !! in the correct global element as well as which process that owns the point.
   !! After this the values at these points can be evaluated.
   !! If the locations of the points change this must be called again.
-  !! - `error_code`: returns `0` if point found, `1` if closest point on a border
-  !! (check dist2), `2` if not found
+  !! - `error_code`: returns `0` if point found, `1` if closest point on a
+  !! border (check dist2), `2` if not found
   !! - `dist2`: distance squared (used to compare the points found by each
   !! processor)
   !! @param xyz The coordinates of the points.
@@ -427,12 +426,13 @@ contains
 
   end subroutine global_interpolation_find_xyz
 
-  !> Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank
-  !! in the correct global element as well as which process that owns the point.
+  !> Finds the corresponding r,s,t coordinates and redistributes the points to
+  !! the owning rank in the correct global element as well as which process
+  !! that owns the point.
   !! After this the values at these points can be evaluated.
   !! If the locations of the points change this must be called again.
-  !! - `error_code`: returns `0` if point found, `1` if closest point on a border
-  !! (check dist2), `2` if not found
+  !! - `error_code`: returns `0` if point found, `1` if closest point on a
+  !! border (check dist2), `2` if not found.
   !! - `dist2`: distance squared (used to compare the points found by each
   !! processor)
   !! @param xyz The coordinates of the points.
@@ -562,6 +562,8 @@ contains
     class(global_interpolation_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: interp_values(this%n_points)
     real(kind=rp), intent(inout) :: field(this%nelv*this%Xh%lxyz)
+
+    integer :: ioioi
 
 #ifdef HAVE_GSLIB
     if (.not. this%all_points_local) then

@@ -41,7 +41,7 @@ module scalar_ic
   use utils, only : neko_error, filename_chsuffix, filename_suffix, &
        neko_warning, NEKO_FNAME_LEN
   use coefs, only : coef_t
-  use math, only : col2, cfill, cfill_mask, copy
+  use math, only : col2, cfill, cfill_mask
   use user_intf, only : useric_scalar
   use json_module, only : json_file
   use json_utils, only: json_get, json_get_or_default
@@ -91,7 +91,7 @@ contains
     character(len=80) :: suffix
     character(len=NEKO_FNAME_LEN) :: fname
     real(kind=rp) :: zone_value, tol
-    logical :: found, found_previous_mesh, interpolate
+    logical :: interpolate
     integer :: sample_idx, fpos, sample_mesh_idx, default_sample_mesh_idx
     character(len=LOG_SIZE) :: log_buf
 

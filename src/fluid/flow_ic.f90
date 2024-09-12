@@ -43,7 +43,7 @@ module flow_ic
   use utils, only : neko_error, filename_suffix, filename_chsuffix, &
        neko_warning, NEKO_FNAME_LEN
   use coefs, only : coef_t
-  use math, only : col2, cfill, cfill_mask, copy
+  use math, only : col2, cfill, cfill_mask
   use device_math, only : device_col2, device_cfill, device_cfill_mask
   use user_intf, only : useric
   use json_module, only : json_file
@@ -52,7 +52,6 @@ module flow_ic
   use point_zone_registry, only: neko_point_zone_registry
   use fld_file_data, only: fld_file_data_t
   use fld_file, only: fld_file_t
-  use checkpoint, only: chkp_t
   use file, only: file_t
   use global_interpolation, only: global_interpolation_t
   use interpolation, only: interpolator_t
@@ -85,7 +84,7 @@ contains
     character(len=80) :: suffix
     character(len=NEKO_FNAME_LEN) :: fname
     integer :: sample_idx, fpos, sample_mesh_idx, default_sample_mesh_idx
-    logical :: found_previous_mesh, interpolate
+    logical :: interpolate
     character(len=LOG_SIZE) :: log_buf
 
     !
