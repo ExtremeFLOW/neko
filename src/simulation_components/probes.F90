@@ -220,7 +220,7 @@ contains
 
     integer :: n_local, n_global
 
-    !if (pe_rank .ne. 0) return
+    if (pe_rank .ne. 0) return
 
     call json_get(json, 'file_name', input_file)
 
@@ -242,7 +242,7 @@ contains
     logical :: found
 
     ! Ensure only rank 0 reads the coordinates.
-    !if (pe_rank .ne. 0) return
+    if (pe_rank .ne. 0) return
     call json%get('coordinates', rp_list_reader, found)
 
     ! Check if the coordinates were found and were valid
@@ -276,7 +276,7 @@ contains
     integer :: n_points, i
 
     ! Ensure only rank 0 reads the coordinates.
-    !if (pe_rank .ne. 0) return
+    if (pe_rank .ne. 0) return
     call json_get(json, "start", start)
     call json_get(json, "end", end)
     call json_get(json, "amount", n_points)
@@ -323,7 +323,7 @@ contains
     real(kind=rp) :: pi
 
     ! Ensure only rank 0 reads the coordinates.
-    !if (pe_rank .ne. 0) return
+    if (pe_rank .ne. 0) return
     call json_get(json, "center", center)
     call json_get(json, "normal", normal)
     call json_get(json, "radius", radius)
@@ -396,7 +396,7 @@ contains
     real(kind=rp) :: x, y, z
 
     ! Ensure only rank 0 reads the coordinates.
-    !if (pe_rank .ne. 0) return
+    if (pe_rank .ne. 0) return
 
     call json_get(json, "name", point_zone_name)
     zone => neko_point_zone_registry%get_point_zone(point_zone_name)
