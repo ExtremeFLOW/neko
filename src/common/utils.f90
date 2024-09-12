@@ -33,6 +33,7 @@
 !> Utilities
 !! @details Various utility functions
 module utils
+  use, intrinsic :: iso_fortran_env, only: error_unit
   implicit none
   private
 
@@ -179,10 +180,10 @@ contains
     integer, optional :: error_code
 
     if (present(error_code)) then
-       write(*,*) '*** ERROR ***', error_code
+       write(error_unit,*) '*** ERROR ***', error_code
        error stop
     else
-       write(*,*) '*** ERROR ***'
+       write(error_unit,*) '*** ERROR ***'
        error stop
     end if
 
@@ -190,7 +191,7 @@ contains
 
   subroutine neko_error_msg(error_msg)
     character(len=*) :: error_msg
-    write(*,*) '*** ERROR: ', error_msg,' ***'
+    write(error_unit,*) '*** ERROR: ', error_msg,' ***'
     error stop
   end subroutine neko_error_msg
 
