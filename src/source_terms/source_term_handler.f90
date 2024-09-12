@@ -39,7 +39,7 @@ module source_term_handler
        source_term_factory
   use field, only: field_t
   use field_list, only: field_list_t
-  use json_utils, only: json_get, json_extract_item
+  use json_utils, only: json_get, json_extract_item, json_get_or_default
   use json_module, only: json_file
   use coefs, only: coef_t
   use user_intf, only: user_t
@@ -63,6 +63,10 @@ module source_term_handler
      class(source_term_wrapper_t), allocatable :: source_terms(:)
      !> The right-hand side.
      type(field_list_t) :: rhs_fields
+     !> The coefficients of the (space, mesh) pair.
+     type(coef_t), pointer :: coef
+     !> The user object.
+     type(user_t), pointer :: user
 
    contains
      !> Constructor.
@@ -71,9 +75,14 @@ module source_term_handler
      procedure, pass(this) :: free => source_term_handler_free
      !> Add all the source terms to the passed right-hand side fields.
      procedure, pass(this) :: compute => source_term_handler_compute
+     !> Generic interface to add a source term to the list.
+     generic :: add => add_source_term, add_json_source_terms
      !> Append a new source term to the source_terms array.
      procedure, pass(this) :: add_source_term => &
           source_term_handler_add_source_term
+     !> Read from the json file and initialize the source terms.
+     procedure, pass(this) :: add_json_source_terms => &
+          source_term_handler_add_json_source_terms
      !> Initialize the user source term.
      procedure(source_term_handler_init_user_source), &
           nopass, deferred :: init_user_source
@@ -94,57 +103,21 @@ module source_term_handler
 contains
 
   !> Constructor.
-  subroutine source_term_handler_init_base(this, json, name, rhs_fields, coef, &
-       user)
+  subroutine source_term_handler_init_base(this, rhs_fields, coef, user)
     class(source_term_handler_t), intent(inout) :: this
-    type(json_file), intent(inout) :: json
-    character(len=*), intent(in) :: name
     type(field_list_t), intent(in) :: rhs_fields
-    type(coef_t), intent(inout) :: coef
-    type(user_t), intent(in) :: user
-
-    ! A single source term as its own json_file.
-    type(json_file) :: source_subdict
-    ! Source type
-    character(len=:), allocatable :: type
-    integer :: n_sources, i
+    type(coef_t), target, intent(inout) :: coef
+    type(user_t), target, intent(in) :: user
 
     call this%free()
 
     ! We package the fields for the source term to operate on in a field list.
     this%rhs_fields = rhs_fields
-
-    if (json%valid_path(name)) then
-       ! Get the number of source terms.
-       call json%info(name, n_children=n_sources)
-       allocate(this%source_terms(n_sources))
-
-       do i = 1, n_sources
-          ! Create a new json containing just the subdict for this source.
-          call json_extract_item(json, name, i, source_subdict)
-          call json_get(source_subdict, "type", type)
-
-          ! The user source is treated separately
-          if ((trim(type) .eq. "user_vector") .or. &
-               (trim(type) .eq. "user_pointwise")) then
-
-             if (source_subdict%valid_path("start_time") .or. &
-                  source_subdict%valid_path("end_time")) then
-                call neko_warning("The start_time and end_time parameters have&
-                     & no effect on the fluid user source term")
-             end if
-
-             call this%init_user_source(this%source_terms(i)%source_term, &
-                  this%rhs_fields, coef, type, user)
-          else
-
-             call source_term_factory(this%source_terms(i)%source_term, &
-                  source_subdict, this%rhs_fields, coef)
-          end if
-       end do
-    end if
+    this%coef => coef
+    this%user => user
 
   end subroutine source_term_handler_init_base
+
 
   !> Destructor.
   subroutine source_term_handler_free(this)
@@ -177,7 +150,7 @@ contains
        call field_rzero(f)
     end do
 
-    ! Add contribution from all source terms.
+    ! Add contribution from all source terms. If time permits.
     if (allocated(this%source_terms)) then
        do i = 1, size(this%source_terms)
           call this%source_terms(i)%source_term%compute(t, tstep)
@@ -185,6 +158,63 @@ contains
     end if
 
   end subroutine source_term_handler_compute
+
+  !> Read from the json file and initialize the source terms.
+  subroutine source_term_handler_add_json_source_terms(this, json, name)
+    class(source_term_handler_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+
+    class(source_term_wrapper_t), dimension(:), allocatable :: temp
+
+    ! A single source term as its own json_file.
+    type(json_file) :: source_subdict
+    character(len=:), allocatable :: type
+    integer :: n_sources, i, i0
+
+    if (json%valid_path(name)) then
+       ! Get the number of source terms.
+       call json%info(name, n_children=n_sources)
+
+       if (allocated(this%source_terms)) then
+          i0 = size(this%source_terms)
+          call move_alloc(this%source_terms, temp)
+          allocate(this%source_terms(i0 + n_sources))
+          if (allocated(temp)) then
+             do i = 1, i0
+                call move_alloc(temp(i)%source_term, this%source_terms(i)%source_term)
+             end do
+          end if
+       else
+          i0 = 0
+          allocate(this%source_terms(n_sources))
+       end if
+
+       do i = 1, n_sources
+          ! Create a new json containing just the subdict for this source.
+          call json_extract_item(json, name, i, source_subdict)
+          call json_get(source_subdict, "type", type)
+
+          ! The user source is treated separately
+          if ((trim(type) .eq. "user_vector") .or. &
+               (trim(type) .eq. "user_pointwise")) then
+
+             call this%init_user_source(this%source_terms(i+ i0)%source_term, &
+                  this%rhs_fields, this%coef, type, this%user)
+
+             call json_get_or_default(source_subdict, "start_time", &
+                  this%source_terms(i + i0)%source_term%start_time, 0.0_rp)
+             call json_get_or_default(source_subdict, "end_time", &
+                  this%source_terms(i + i0)%source_term%end_time, huge(0.0_rp))
+          else
+
+             call source_term_factory(this%source_terms(i + i0)%source_term, &
+                  source_subdict, this%rhs_fields, this%coef)
+          end if
+       end do
+    end if
+
+  end subroutine source_term_handler_add_json_source_terms
 
   !> Add new source term to the list.
   !! @param source_term The source term to be added.

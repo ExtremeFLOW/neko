@@ -65,8 +65,8 @@ contains
     class(scalar_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_t), pointer, intent(in) :: f
-    type(coef_t), intent(inout), target :: coef
-    type(user_t), intent(in) :: user
+    type(coef_t), target, intent(inout) :: coef
+    type(user_t), target, intent(in) :: user
 
     character(len=:), allocatable :: name
     type(field_list_t) :: rhs_fields
@@ -77,8 +77,8 @@ contains
     call rhs_fields%init(1)
     call rhs_fields%assign(1, f)
 
-    call this%init_base(json, name, rhs_fields, coef, user)
-
+    call this%init_base(rhs_fields, coef, user)
+    call this%add(json, name)
   end subroutine scalar_source_term_init
 
   !> Initialize the user source term.

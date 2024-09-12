@@ -65,8 +65,8 @@ contains
     class(fluid_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_t), pointer, intent(in) :: f_x, f_y, f_z
-    type(coef_t), intent(inout) :: coef
-    type(user_t), intent(in) :: user
+    type(coef_t), target, intent(inout) :: coef
+    type(user_t), target, intent(in) :: user
 
     character(len=:), allocatable :: name
     type(field_list_t) :: rhs_fields
@@ -79,7 +79,8 @@ contains
     call rhs_fields%assign(2, f_y)
     call rhs_fields%assign(3, f_z)
 
-    call this%init_base(json, name, rhs_fields, coef, user)
+    call this%init_base(rhs_fields, coef, user)
+    call this%add(json, name)
   end subroutine fluid_source_term_init
 
   !> Initialize the user source term.
