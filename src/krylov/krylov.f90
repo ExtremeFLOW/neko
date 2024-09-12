@@ -195,7 +195,7 @@ module krylov
        integer, intent(in) :: max_iter
        real(kind=rp), optional :: abstol
        class(pc_t), optional, intent(inout), target :: M
-       logical, optional :: monitor
+       logical, optional, intent(in) :: monitor
      end subroutine krylov_solver_factory
 
      !> Destroy an iterative Krylov type_name
@@ -218,7 +218,7 @@ contains
     real(kind=rp), optional, intent(in) :: rel_tol
     real(kind=rp), optional, intent(in) :: abs_tol
     class(pc_t), optional, target, intent(in) :: M
-    logical, optional :: monitor
+    logical, optional, intent(in) :: monitor
 
     call krylov_free(this)
 

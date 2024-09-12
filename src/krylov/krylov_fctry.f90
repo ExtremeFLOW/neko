@@ -82,7 +82,7 @@ contains
     integer, intent(in) :: max_iter
     real(kind=rp), optional :: abstol
     class(pc_t), optional, intent(inout), target :: M
-    logical, optional :: monitor
+    logical, optional, intent(in) :: monitor
     character(len=:), allocatable :: type_string
 
     if (allocated(object)) then

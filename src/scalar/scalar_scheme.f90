@@ -565,7 +565,7 @@ contains
     integer, intent(in) :: max_iter
     character(len=*), intent(in) :: solver
     real(kind=rp) :: abstol
-    logical monitor
+    logical, intent(in) :: monitor
 
     call krylov_solver_factory(ksp, n, solver, max_iter, &
                                abstol, monitor = monitor)
