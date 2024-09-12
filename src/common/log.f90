@@ -34,6 +34,7 @@
 module logger
   use comm, only : pe_rank
   use num_types, only : rp
+  use, intrinsic :: iso_fortran_env, only: stdout => output_unit
   implicit none
   private
 
@@ -43,12 +44,13 @@ module logger
      integer :: indent_
      integer :: section_id_
      integer :: level_
+     integer :: unit_
    contains
      procedure, pass(this) :: init => log_init
      procedure, pass(this) :: begin => log_begin
      procedure, pass(this) :: end => log_end
      procedure, pass(this) :: indent => log_indent
-     procedure, nopass :: newline => log_newline
+     procedure, pass(this) :: newline => log_newline
      procedure, pass(this) :: message => log_message
      procedure, pass(this) :: section => log_section
      procedure, pass(this) :: status => log_status
@@ -74,6 +76,7 @@ contains
   subroutine log_init(this)
     class(log_t), intent(inout) :: this
     character(len=255) :: log_level
+    character(len=255) :: log_file
     integer :: envvar_len
 
     this%indent_ = 1
@@ -84,6 +87,15 @@ contains
        read(log_level(1:envvar_len), *) this%level_
     else
        this%level_ = NEKO_LOG_INFO
+    end if
+
+    call get_environment_variable("NEKO_LOG_FILE", log_file, envvar_len)
+    if (envvar_len .gt. 0) then
+       this%unit_ = 69
+       open(unit=this%unit_, file=trim(log_file), status='replace', &
+            action='write')
+    else
+       this%unit_ = stdout
     end if
 
   end subroutine log_init
@@ -115,17 +127,31 @@ contains
 
     if (pe_rank .eq. 0) then
        do i = 1, this%indent_
-          write(*,'(A)', advance='no') ' '
+          write(this%unit_,'(A)', advance='no') ' '
        end do
     end if
 
   end subroutine log_indent
 
   !> Write a new line to a log
-  subroutine log_newline
+  subroutine log_newline(this, lvl)
+    class(log_t), intent(in) :: this
+    integer, optional :: lvl
+
+    integer :: lvl_
+
+    if (present(lvl)) then
+       lvl_ = lvl
+    else
+       lvl_ = NEKO_LOG_INFO
+    end if
+
+    if (lvl_ .gt. this%level_) then
+       return
+    end if
 
     if (pe_rank .eq. 0) then
-       write(*,*) ' '
+       write(this%unit_,*) ' '
     end if
 
   end subroutine log_newline
@@ -149,7 +175,7 @@ contains
 
     if (pe_rank .eq. 0) then
        call this%indent()
-       write(*, '(A)') trim(msg)
+       write(this%unit_, '(A)') trim(msg)
     end if
 
   end subroutine log_message
@@ -161,7 +187,7 @@ contains
 
     if (pe_rank .eq. 0) then
        call this%indent()
-       write(*, '(A,A,A)') '*** ERROR: ', trim(msg),'  ***'
+       write(this%unit_, '(A,A,A)') '*** ERROR: ', trim(msg),'  ***'
     end if
 
   end subroutine log_error
@@ -173,7 +199,7 @@ contains
 
     if (pe_rank .eq. 0) then
        call this%indent()
-       write(*, '(A,A,A)') '*** WARNING: ', trim(msg),'  ***'
+       write(this%unit_, '(A,A,A)') '*** WARNING: ', trim(msg),'  ***'
     end if
 
   end subroutine log_warning
@@ -204,17 +230,17 @@ contains
 
        pre = (30 - len_trim(msg)) / 2
 
-       write(*,*) ' '
+       write(this%unit_,*) ' '
        call this%indent()
        do i = 1, pre
-          write(*,'(A)', advance='no') '-'
+          write(this%unit_,'(A)', advance='no') '-'
        end do
 
-       write(*,'(A)', advance='no') trim(msg)
+       write(this%unit_,'(A)', advance='no') trim(msg)
        do i = 1, 30 - (len_trim(msg) + pre)
-          write(*,'(A)', advance='no') '-'
+          write(this%unit_,'(A)', advance='no') '-'
        end do
-       write(*,*) ' '
+       write(this%unit_,*) ' '
     end if
 
   end subroutine log_section
@@ -259,13 +285,13 @@ contains
     t_prog = 100d0 * t / T_end
 
     call this%message('----------------------------------------------------------------', &
-                      NEKO_LOG_QUIET)
+         NEKO_LOG_QUIET)
     write(log_buf, '(A,E15.7,A,F6.2,A)') &
-      't = ', t, '                                  [ ',t_prog,'% ]'
+         't = ', t, '                                  [ ',t_prog,'% ]'
 
     call this%message(log_buf, NEKO_LOG_QUIET)
     call this%message('----------------------------------------------------------------', &
-                      NEKO_LOG_QUIET)
+         NEKO_LOG_QUIET)
   end subroutine log_status
 
   !
