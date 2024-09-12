@@ -38,7 +38,6 @@ module fluid_source_term
   use source_term_handler, only: source_term_handler_t
   use field, only: field_t
   use field_list, only: field_list_t
-  use json_module, only: json_file
   use coefs, only: coef_t
   use user_intf, only: user_t
   implicit none
@@ -61,17 +60,13 @@ module fluid_source_term
 contains
 
   !> Constructor.
-  subroutine fluid_source_term_init(this, json, f_x, f_y, f_z, coef, user)
+  subroutine fluid_source_term_init(this, f_x, f_y, f_z, coef, user)
     class(fluid_source_term_t), intent(inout) :: this
-    type(json_file), intent(inout) :: json
     type(field_t), pointer, intent(in) :: f_x, f_y, f_z
     type(coef_t), target, intent(inout) :: coef
     type(user_t), target, intent(in) :: user
 
-    character(len=:), allocatable :: name
     type(field_list_t) :: rhs_fields
-
-    name = 'case.fluid.source_terms'
 
     ! We package the fields for the source term to operate on in a field list.
     call rhs_fields%init(3)
@@ -80,7 +75,6 @@ contains
     call rhs_fields%assign(3, f_z)
 
     call this%init_base(rhs_fields, coef, user)
-    call this%add(json, name)
   end subroutine fluid_source_term_init
 
   !> Initialize the user source term.
