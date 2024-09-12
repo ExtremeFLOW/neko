@@ -68,6 +68,9 @@ module fluid_source_term
      procedure, pass(this) :: free => fluid_source_term_free
      !> Add all the source terms to the passed right-hand side fields.
      procedure, pass(this) :: compute => fluid_source_term_compute
+     !> Append a new source term to the source_terms array.
+     procedure, pass(this) :: add_source_term => &
+          fluid_source_term_add_source_term
      !> Initialize the user source term.
      procedure, nopass, private :: init_user_source
 
@@ -117,20 +120,20 @@ contains
 
           ! The user source is treated separately
           if ((trim(type) .eq. "user_vector") .or. &
-              (trim(type) .eq. "user_pointwise")) then
+               (trim(type) .eq. "user_pointwise")) then
 
              if (source_subdict%valid_path("start_time") .or. &
-                 source_subdict%valid_path("end_time")) then
-                 call neko_warning("The start_time and end_time parameters have&
-                                    & no effect on the fluid user source term")
+                  source_subdict%valid_path("end_time")) then
+                call neko_warning("The start_time and end_time parameters have&
+                     & no effect on the fluid user source term")
              end if
 
              call init_user_source(this%source_terms(i)%source_term, &
-                                    rhs_fields, coef, type, user)
+                  rhs_fields, coef, type, user)
           else
 
              call source_term_factory(this%source_terms(i)%source_term, &
-                                       source_subdict, rhs_fields, coef)
+                  source_subdict, rhs_fields, coef)
           end if
        end do
     end if
@@ -154,10 +157,10 @@ contains
     allocate(fluid_user_source_term_t::source_term)
 
     select type (source_term)
-    type is (fluid_user_source_term_t)
+      type is (fluid_user_source_term_t)
        call source_term%init_from_components(rhs_fields, coef, type, &
-                                            user%fluid_user_f_vector, &
-                                            user%fluid_user_f)
+            user%fluid_user_f_vector, &
+            user%fluid_user_f)
     end select
   end subroutine init_user_source
 
@@ -178,6 +181,30 @@ contains
     end if
 
   end subroutine fluid_source_term_free
+
+  !> Add new sourceterm to the list.
+  !! @param source_term The source term to be added.
+  subroutine fluid_source_term_add_source_term(this, source_term)
+    class(fluid_source_term_t), intent(inout) :: this
+    class(source_term_t), intent(in) :: source_term
+    class(source_term_wrapper_t), dimension(:), allocatable :: temp
+
+    integer :: n_sources, i
+
+    n_sources = size(this%source_terms)
+    call move_alloc(this%source_terms, temp)
+    allocate(this%source_terms(n_sources + 1))
+
+    if (allocated(temp)) then
+       do i = 1, n_sources
+          call move_alloc(temp(i)%source_term, this%source_terms(i)%source_term)
+       end do
+    end if
+
+    this%source_terms(n_sources + 1)%source_term = source_term
+
+  end subroutine fluid_source_term_add_source_term
+
 
   !> Add all the source term to the passed right-hand side fields.
   !! @param t The time value.

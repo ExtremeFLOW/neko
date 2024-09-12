@@ -64,6 +64,9 @@ module scalar_source_term
      procedure, pass(this) :: free => scalar_source_term_free
      !> Add all the source terms to the passed right-hand side fields.
      procedure, pass(this) :: compute => scalar_source_term_compute
+     !> Append a new source term to the source_terms array.
+     procedure, pass(this) :: add_source_term => &
+          scalar_source_term_add_source_term
      !> Initialize the user source term.
      procedure, nopass, private :: init_user_source
 
@@ -90,8 +93,6 @@ contains
     type(json_file) :: source_subdict
     ! Source type
     character(len=:), allocatable :: type
-    ! Dummy source strenth values
-    real(kind=rp) :: values(3)
     logical :: found
     integer :: n_sources, i
 
@@ -99,9 +100,8 @@ contains
 
     this%f => f
 
-
     if (json%valid_path('case.scalar.source_terms')) then
-       ! We package the fields for the source term to operate on in a field list.
+       ! We package the fields for the source term to operate on in a field list
        call rhs_fields%init(1)
        call rhs_fields%assign(1, f)
 
@@ -110,7 +110,6 @@ contains
 
        n_sources = core%count(source_object)
        allocate(this%source_terms(n_sources))
-
 
        do i = 1, n_sources
           ! Create a new json containing just the subdict for this source.
@@ -121,19 +120,19 @@ contains
 
           ! The user source is treated separately
           if ((trim(type) .eq. "user_vector") .or. &
-              (trim(type) .eq. "user_pointwise")) then
+               (trim(type) .eq. "user_pointwise")) then
              if (source_subdict%valid_path("start_time") .or. &
-                 source_subdict%valid_path("end_time")) then
-                 call neko_warning("The start_time and end_time parameters have&
-                                    & no effect on the scalar user source term")
+                  source_subdict%valid_path("end_time")) then
+                call neko_warning("The start_time and end_time parameters have&
+                     & no effect on the scalar user source term")
              end if
 
              call init_user_source(this%source_terms(i)%source_term, &
-                                    rhs_fields, coef, type, user)
+                  rhs_fields, coef, type, user)
           else
 
              call source_term_factory(this%source_terms(i)%source_term, &
-                                       source_subdict, rhs_fields, coef)
+                  source_subdict, rhs_fields, coef)
           end if
        end do
     end if
@@ -157,10 +156,10 @@ contains
     allocate(scalar_user_source_term_t::source_term)
 
     select type (source_term)
-    type is (scalar_user_source_term_t)
+      type is (scalar_user_source_term_t)
        call source_term%init_from_components(rhs_fields, coef, type, &
-                                            user%scalar_user_f_vector, &
-                                            user%scalar_user_f)
+            user%scalar_user_f_vector, &
+            user%scalar_user_f)
     end select
   end subroutine init_user_source
 
@@ -180,6 +179,29 @@ contains
 
   end subroutine scalar_source_term_free
 
+  !> Add new sourceterm to the list.
+  !! @param source_term The source term to be added.
+  subroutine scalar_source_term_add_source_term(this, source_term)
+    class(scalar_source_term_t), intent(inout) :: this
+    class(source_term_t), intent(in) :: source_term
+    class(source_term_wrapper_t), dimension(:), allocatable :: temp
+
+    integer :: n_sources, i
+
+    n_sources = size(this%source_terms)
+    call move_alloc(this%source_terms, temp)
+    allocate(this%source_terms(n_sources + 1))
+
+    if (allocated(temp)) then
+       do i = 1, n_sources
+          call move_alloc(temp(i)%source_term, this%source_terms(i)%source_term)
+       end do
+    end if
+
+    this%source_terms(n_sources + 1)%source_term = source_term
+
+  end subroutine scalar_source_term_add_source_term
+
   !> Add all the source term to the passed right-hand side fields.
   !! @param t The time value.
   !! @param tstep The current time step.
@@ -187,7 +209,7 @@ contains
     class(scalar_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    integer :: i, n
+    integer :: i
 
     this%f = 0.0_rp
 
