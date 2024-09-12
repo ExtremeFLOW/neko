@@ -40,7 +40,7 @@ module fluid_source_term
        source_term_factory
   use field, only : field_t
   use field_list, only : field_list_t
-  use json_utils, only : json_get
+  use json_utils, only : json_get, json_extract_item
   use json_module, only : json_file, json_core, json_value
   use coefs, only : coef_t
   use user_intf, only : user_t
@@ -68,6 +68,9 @@ module fluid_source_term
      procedure, pass(this) :: free => fluid_source_term_free
      !> Add all the source terms to the passed right-hand side fields.
      procedure, pass(this) :: compute => fluid_source_term_compute
+     !> Append a new source term to the source_terms array.
+     procedure, pass(this) :: add_source_term => &
+          fluid_source_term_add_source_term
      !> Initialize the user source term.
      procedure, nopass, private :: init_user_source
 
@@ -84,18 +87,14 @@ contains
     type(user_t), intent(in) :: user
 
     type(field_list_t) :: rhs_fields
-    ! Json low-level manipulator.
-    type(json_core) :: core
-    ! Pointer to the source_terms JSON object and the individual sources.
-    type(json_value), pointer :: source_object, source_pointer
-    ! Buffer for serializing the json.
-    character(len=:), allocatable :: buffer
     ! A single source term as its own json_file.
     type(json_file) :: source_subdict
     ! Source type
     character(len=:), allocatable :: type
-    logical :: found
+    character(len=:), allocatable :: name
     integer :: n_sources, i
+
+    name = 'case.fluid.source_terms'
 
     call this%free()
 
@@ -103,46 +102,38 @@ contains
     this%f_y => f_y
     this%f_z => f_z
 
-
-	 ! I'm assuming we can pass in the case.fluid subdict as json.
-    !if (json%valid_path('case.fluid.source_terms')) then
-    if (json%valid_path('source_terms')) then
+    if (json%valid_path(name)) then
        ! We package the fields for the source term to operate on in a field list.
        call rhs_fields%init(3)
        call rhs_fields%assign(1, f_x)
        call rhs_fields%assign(2, f_y)
        call rhs_fields%assign(3, f_z)
 
-       call json%get_core(core)
-       call json%get('source_terms', source_object, found)
-
-       n_sources = core%count(source_object)
+       ! Get the number of source terms.
+       call json%info(name, n_children=n_sources)
        allocate(this%source_terms(n_sources))
-
 
        do i = 1, n_sources
           ! Create a new json containing just the subdict for this source.
-          call core%get_child(source_object, i, source_pointer, found)
-          call core%print_to_string(source_pointer, buffer)
-          call source_subdict%load_from_string(buffer)
+          call json_extract_item(json, name, i, source_subdict)
           call json_get(source_subdict, "type", type)
 
           ! The user source is treated separately
           if ((trim(type) .eq. "user_vector") .or. &
-              (trim(type) .eq. "user_pointwise")) then
+               (trim(type) .eq. "user_pointwise")) then
 
              if (source_subdict%valid_path("start_time") .or. &
-                 source_subdict%valid_path("end_time")) then
-                 call neko_warning("The start_time and end_time parameters have&
-                                    & no effect on the fluid user source term")
+                  source_subdict%valid_path("end_time")) then
+                call neko_warning("The start_time and end_time parameters have&
+                     & no effect on the fluid user source term")
              end if
 
              call init_user_source(this%source_terms(i)%source_term, &
-                                    rhs_fields, coef, type, user)
+                  rhs_fields, coef, type, user)
           else
 
              call source_term_factory(this%source_terms(i)%source_term, &
-                                       source_subdict, rhs_fields, coef)
+                  source_subdict, rhs_fields, coef)
           end if
        end do
     end if
@@ -166,10 +157,10 @@ contains
     allocate(fluid_user_source_term_t::source_term)
 
     select type (source_term)
-    type is (fluid_user_source_term_t)
+      type is (fluid_user_source_term_t)
        call source_term%init_from_components(rhs_fields, coef, type, &
-                                            user%fluid_user_f_vector, &
-                                            user%fluid_user_f)
+            user%fluid_user_f_vector, &
+            user%fluid_user_f)
     end select
   end subroutine init_user_source
 
@@ -190,6 +181,30 @@ contains
     end if
 
   end subroutine fluid_source_term_free
+
+  !> Add new sourceterm to the list.
+  !! @param source_term The source term to be added.
+  subroutine fluid_source_term_add_source_term(this, source_term)
+    class(fluid_source_term_t), intent(inout) :: this
+    class(source_term_t), intent(in) :: source_term
+    class(source_term_wrapper_t), dimension(:), allocatable :: temp
+
+    integer :: n_sources, i
+
+    n_sources = size(this%source_terms)
+    call move_alloc(this%source_terms, temp)
+    allocate(this%source_terms(n_sources + 1))
+
+    if (allocated(temp)) then
+       do i = 1, n_sources
+          call move_alloc(temp(i)%source_term, this%source_terms(i)%source_term)
+       end do
+    end if
+
+    this%source_terms(n_sources + 1)%source_term = source_term
+
+  end subroutine fluid_source_term_add_source_term
+
 
   !> Add all the source term to the passed right-hand side fields.
   !! @param t The time value.
