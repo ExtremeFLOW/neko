@@ -36,7 +36,7 @@ as subroutines.
 - [case_t](#case::case_t): Holds some data shared by both the fluid and the
   scalar solver, which it also stores as components.
 - [fluid_scheme_t](#fluid_scheme::fluid_scheme_t): Navier-Stokes solvers.
-- [sclar_scheme_t](#scalar_scheme::scalar_scheme_t): Scalar
+- [scalar_scheme_t](#scalar_scheme::scalar_scheme_t): Scalar
   advection-diffusion-reaction solvers.
 - [bc_t](#bc::bc_t): Boundary conditions.
 - [time_scheme_t](#time_scheme::time_scheme_t): Time integration schemes.
