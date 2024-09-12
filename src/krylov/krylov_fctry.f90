@@ -73,14 +73,16 @@ contains
   !! @param max_iter The maximum number of iterations
   !! @param abstol The absolute tolerance, optional.
   !! @param M The preconditioner, optional.
+  !! @param monitor Enable/disable residual history, optional.
   module subroutine krylov_solver_factory(object, n, type_name, &
-       max_iter, abstol, M)
+       max_iter, abstol, M, monitor)
     class(ksp_t), allocatable, target, intent(inout) :: object
     integer, intent(in), value :: n
     character(len=*), intent(in) :: type_name
     integer, intent(in) :: max_iter
     real(kind=rp), optional :: abstol
     class(pc_t), optional, intent(inout), target :: M
+    logical, optional, intent(in) :: monitor
     character(len=:), allocatable :: type_string
 
     if (allocated(object)) then
@@ -160,7 +162,42 @@ contains
     ! issues with compilers, when it was not there. However, at some point we
     ! should check if we can get away with just having one obj%init statement.
     ! Same applies to the code in the "destroy" routine below.
-    if (present(abstol) .and. present(M)) then
+    if (present(abstol) .and. present(M) .and. present(monitor)) then
+       select type (obj => object)
+       type is (cg_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+       type is (sx_cg_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+       type is (cg_cpld_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+       type is (cg_device_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+       type is (pipecg_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+       type is (sx_pipecg_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+       type is (pipecg_device_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+       type is (fusedcg_device_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+       type is (fusedcg_cpld_device_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+       type is (cacg_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+       type is (gmres_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+       type is (sx_gmres_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+       type is (gmres_device_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+       type is (bicgstab_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+       type is (cheby_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+       type is (cheby_device_t)
+          call obj%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
+       end select
+    else if (present(abstol) .and. present(M)) then
        select type (obj => object)
        type is (cg_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
@@ -194,6 +231,76 @@ contains
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
        type is (cheby_device_t)
           call obj%init(n, max_iter, M = M, abs_tol = abstol)
+       end select
+    else if (present(monitor) .and. present(M)) then
+       select type (obj => object)
+       type is (cg_t)
+          call obj%init(n, max_iter, M = M, monitor = monitor)
+       type is (sx_cg_t)
+          call obj%init(n, max_iter, M = M, monitor = monitor)
+       type is (cg_cpld_t)
+          call obj%init(n, max_iter, M = M, monitor = monitor)
+       type is (cg_device_t)
+          call obj%init(n, max_iter, M = M, monitor = monitor)
+       type is (pipecg_t)
+          call obj%init(n, max_iter, M = M, monitor = monitor)
+       type is (sx_pipecg_t)
+          call obj%init(n, max_iter, M = M, monitor = monitor)
+       type is (pipecg_device_t)
+          call obj%init(n, max_iter, M = M, monitor = monitor)
+       type is (fusedcg_device_t)
+          call obj%init(n, max_iter, M = M, monitor = monitor)
+       type is (fusedcg_cpld_device_t)
+          call obj%init(n, max_iter, M = M, monitor = monitor)
+       type is (cacg_t)
+          call obj%init(n, max_iter, M = M, monitor = monitor)
+       type is (gmres_t)
+          call obj%init(n, max_iter, M = M, monitor = monitor)
+       type is (sx_gmres_t)
+          call obj%init(n, max_iter, M = M, monitor = monitor)
+       type is (gmres_device_t)
+          call obj%init(n, max_iter, M = M, monitor = monitor)
+       type is (bicgstab_t)
+          call obj%init(n, max_iter, M = M, monitor = monitor)
+       type is (cheby_t)
+          call obj%init(n, max_iter, M = M, monitor = monitor)
+       type is (cheby_device_t)
+          call obj%init(n, max_iter, M = M, monitor = monitor)
+       end select
+    else if (present(abstol) .and. present(monitor)) then
+          select type (obj => object)
+       type is (cg_t)
+          call obj%init(n, max_iter, monitor = monitor, abs_tol = abstol)
+       type is (sx_cg_t)
+          call obj%init(n, max_iter, monitor = monitor, abs_tol = abstol)
+       type is (cg_cpld_t)
+          call obj%init(n, max_iter, monitor = monitor, abs_tol = abstol)
+       type is (cg_device_t)
+          call obj%init(n, max_iter, monitor = monitor, abs_tol = abstol)
+       type is (pipecg_t)
+          call obj%init(n, max_iter, monitor = monitor, abs_tol = abstol)
+       type is (sx_pipecg_t)
+          call obj%init(n, max_iter, monitor = monitor, abs_tol = abstol)
+       type is (pipecg_device_t)
+          call obj%init(n, max_iter, monitor = monitor, abs_tol = abstol)
+       type is (fusedcg_device_t)
+          call obj%init(n, max_iter, monitor = monitor, abs_tol = abstol)
+       type is (fusedcg_cpld_device_t)
+          call obj%init(n, max_iter, monitor = monitor, abs_tol = abstol)
+       type is (cacg_t)
+          call obj%init(n, max_iter, monitor = monitor, abs_tol = abstol)
+       type is (gmres_t)
+          call obj%init(n, max_iter, monitor = monitor, abs_tol = abstol)
+       type is (sx_gmres_t)
+          call obj%init(n, max_iter, monitor = monitor, abs_tol = abstol)
+       type is (gmres_device_t)
+          call obj%init(n, max_iter, monitor = monitor, abs_tol = abstol)
+       type is (bicgstab_t)
+          call obj%init(n, max_iter, monitor = monitor, abs_tol = abstol)
+       type is (cheby_t)
+          call obj%init(n, max_iter, monitor = monitor, abs_tol = abstol)
+       type is (cheby_device_t)
+          call obj%init(n, max_iter, monitor = monitor, abs_tol = abstol)
        end select
     else if (present(abstol)) then
        select type (obj => object)
@@ -229,6 +336,41 @@ contains
           call obj%init(n, max_iter, abs_tol = abstol)
        type is (cheby_device_t)
           call obj%init(n, max_iter, abs_tol = abstol)
+       end select
+    else if (present(monitor)) then
+       select type (obj => object)
+       type is (cg_t)
+          call obj%init(n, max_iter, monitor = monitor)
+       type is (sx_cg_t)
+          call obj%init(n, max_iter, monitor = monitor)
+       type is (cg_cpld_t)
+          call obj%init(n, max_iter, monitor = monitor)
+       type is (cg_device_t)
+          call obj%init(n, max_iter, monitor = monitor)
+       type is (pipecg_t)
+          call obj%init(n, max_iter, monitor = monitor)
+       type is (sx_pipecg_t)
+          call obj%init(n, max_iter, monitor = monitor)
+       type is (pipecg_device_t)
+          call obj%init(n, max_iter, monitor = monitor)
+       type is (fusedcg_device_t)
+          call obj%init(n, max_iter, monitor = monitor)
+       type is (fusedcg_cpld_device_t)
+          call obj%init(n, max_iter, monitor = monitor)
+       type is (cacg_t)
+          call obj%init(n, max_iter, monitor = monitor)
+       type is (gmres_t)
+          call obj%init(n, max_iter, monitor = monitor)
+       type is (sx_gmres_t)
+          call obj%init(n, max_iter, monitor = monitor)
+       type is (gmres_device_t)
+          call obj%init(n, max_iter, monitor = monitor)
+       type is (bicgstab_t)
+          call obj%init(n, max_iter, monitor = monitor)
+       type is (cheby_t)
+          call obj%init(n, max_iter, monitor = monitor)
+       type is (cheby_device_t)
+          call obj%init(n, max_iter, monitor = monitor)
        end select
     else if (present(M)) then
        select type (obj => object)
