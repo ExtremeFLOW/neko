@@ -70,8 +70,8 @@ contains
     integer, intent(in) :: max_iter
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
-    logical, optional :: monitor
-    integer, optional, intent(inout) :: s    
+    logical, optional, intent(in) :: monitor
+    integer, optional, intent(inout) :: s
     call this%free()
 
     if (present(s)) then

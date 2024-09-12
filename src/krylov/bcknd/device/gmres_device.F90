@@ -139,7 +139,7 @@ contains
     integer, optional, intent(inout) :: m_restart
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
-    logical, optional :: monitor
+    logical, optional, intent(in) :: monitor
     type(device_ident_t), target :: M_ident
     type(c_ptr) :: ptr
     integer(c_size_t) :: z_size

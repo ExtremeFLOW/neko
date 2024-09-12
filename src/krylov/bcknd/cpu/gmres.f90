@@ -75,7 +75,7 @@ contains
     integer, optional, intent(inout) :: lgmres
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
-    logical, optional :: monitor
+    logical, optional, intent(in) :: monitor
 
     if (present(lgmres)) then
        this%lgmres = lgmres
