@@ -212,13 +212,15 @@ contains
   end function device_fusedcg_cpld_part2
 
   !> Initialise a fused PCG solver
-  subroutine fusedcg_cpld_device_init(this, n, max_iter, M, rel_tol, abs_tol)
+  subroutine fusedcg_cpld_device_init(this, n, max_iter, M, &
+                                      rel_tol, abs_tol, monitor)
     class(fusedcg_cpld_device_t), target, intent(inout) :: this
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
+    logical, optional, intent(in) :: monitor
     type(c_ptr) :: ptr
     integer(c_size_t) :: p_size
     integer :: i
@@ -282,12 +284,20 @@ contains
     ptr = c_loc(this%p3_d)
     call device_memcpy(ptr, this%p3_d_d, p_size, &
                        HOST_TO_DEVICE, sync=.false.)   
-    if (present(rel_tol) .and. present(abs_tol)) then
+    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
+    else if (present(monitor) .and. present(abs_tol)) then
+       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
     else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol = abs_tol)
+    else if (present(monitor)) then
+       call this%ksp_init(max_iter, monitor = monitor)
     else
        call this%ksp_init(max_iter)
     end if
@@ -518,7 +528,7 @@ contains
       ksp_results(1)%iter = 0
       ksp_results(2:3)%iter = -1
       if(abscmp(rnorm, 0.0_rp)) return
-
+      call this%monitor_start('fcpldCG')
       do iter = 1, max_iter
          call this%M%solve(z1, r1, n)
          call this%M%solve(z2, r2, n)
@@ -556,7 +566,7 @@ contains
          rtr = device_fusedcg_cpld_part2(r1_d, r2_d, r3_d, coef%mult_d, &
               w1_d, w2_d, w3_d, alpha_d, alpha(p_cur), p_cur, n)
          rnorm = sqrt(rtr)*norm_fac
-
+         call this%monitor_iter(iter, rnorm)
          if ((p_cur .eq. DEVICE_FUSEDCG_CPLD_P_SPACE) .or. &
               (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
             call device_fusedcg_cpld_update_x(x%x_d, y%x_d, z%x_d, &
@@ -569,7 +579,7 @@ contains
             p_cur = p_cur + 1
          end if
       end do
-
+      call this%monitor_stop()
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
 
@@ -578,7 +588,8 @@ contains
   end function fusedcg_cpld_device_solve_coupled
 
   !> Pipelined PCG solve
-  function fusedcg_cpld_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+  function fusedcg_cpld_device_solve(this, Ax, x, f, n, coef, blst, &
+       gs_h, niter)  result(ksp_results)
     class(fusedcg_cpld_device_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
