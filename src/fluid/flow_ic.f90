@@ -195,8 +195,7 @@ contains
        call json_get_or_default(params, &
             'case.fluid.initial_condition.tolerance', tol, 0.000001_rp)
 
-       ! If no mesh file is provided, try to get the index of the
-       ! file that contains the mesh.
+       ! Get the index of the file that contains the mesh.
        call json_get_or_default(params, &
             'case.fluid.initial_condition.sample_mesh_index', &
             sample_mesh_idx, default_sample_mesh_idx)
@@ -378,16 +377,23 @@ contains
 
   end subroutine set_flow_ic_point_zone
 
-  !> Set the initial condition of the flow based on a point zone.
-  !! @details The initial condition is set to the base value and then the
-  !! zone is filled with the zone value.
+  !> Set the initial condition of the flow based on a field.
+  !! @detail The fields are read from an `fld` file. If enabled, interpolation
+  !! is also possible. In that case, the mesh coordinates can be read from
+  !! another field in the `fld` field series.
   !! @param u The x-component of the velocity field.
   !! @param v The y-component of the velocity field.
   !! @param w The z-component of the velocity field.
   !! @param p The pressure field.
   !! @param file_name The name of the "fld" file series.
   !! @param sample_idx index of the field file .f000* to read, default is
-  !! -1..
+  !! -1.
+  !! @param interpolate Flag to indicate wether or not to interpolate the
+  !! values onto the current mesh.
+  !! @param tolerance If interpolation is enabled, tolerance for finding the
+  !! points in the mesh.
+  !! @param sample_mesh_idx If interpolation is enabled, index of the field
+  !! file where the mesh coordinates are located.
   subroutine set_flow_ic_fld(u, v, w, p, file_name, sample_idx, &
        interpolate, tolerance, sample_mesh_idx)
     type(field_t), intent(inout) :: u
@@ -454,7 +460,7 @@ contains
           ! Read the actual fld file
           call f%read(fld_data)
           f = file_t(trim(file_name))
-       end if ! interpolate
+       end if
 
        call f%set_counter(sample_idx)
        call f%read(fld_data)
@@ -462,10 +468,10 @@ contains
     end if ! sample_idx .eq. -1
 
     !
-    ! Check if the data in the fld file matches the current case.
+    ! Check that the data in the fld file matches the current case.
     ! Note that this is a safeguard and there are corner cases where
     ! two different meshes have the same dimension and same # of elements
-    ! but this should be enough to cover the most obvious cases.
+    ! but this should be enough to cover obvious cases.
     !
     if ( fld_data%glb_nelv .ne. u%msh%glb_nelv .or. &
          fld_data%gdim .ne. u%msh%gdim .and. &
@@ -487,13 +493,14 @@ contains
              call neko_warning("The coordinates read from the field file are &
 &in single precision.")
              call neko_log%message("It is recommended to use a mesh in double &
-                  &precision for better interpolation results.")
-             call neko_log%message("Reduce the tolerance if the interpolation &
-                  &does not work.")
+&precision for better interpolation results.")
+             call neko_log%message("If the interpolation does not work, you&
+&can try to increase the tolerance.")
           end if
        class default
        end select
 
+       ! Generates an interpolator object and performs the point search
        global_interp = fld_data%generate_interpolator(u%dof, u%msh, &
             tolerance)
 
@@ -511,6 +518,7 @@ contains
        call prev_Xh%init(GLL, fld_data%lx, fld_data%ly, fld_data%lz)
        call space_interp%init(u%Xh, prev_Xh)
 
+       ! Do the space-to-space interpolation
        call space_interp%map_host(u%x, fld_data%u%x, fld_data%nelv, u%Xh)
        call space_interp%map_host(v%x, fld_data%v%x, fld_data%nelv, u%Xh)
        call space_interp%map_host(w%x, fld_data%w%x, fld_data%nelv, u%Xh)
@@ -520,7 +528,7 @@ contains
 
     end if
 
-    ! NOTE: we do not copy (u,v,w) on the GPU since `set_flow_ic_common` does
+    ! NOTE: we do not copy (u,v,w) to the GPU since `set_flow_ic_common` does
     ! the copy for us
     if (NEKO_BCKND_DEVICE .eq. 1) call device_memcpy(p%x, p%x_d, p%dof%size(), &
          HOST_TO_DEVICE, sync = .false.)

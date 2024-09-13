@@ -181,8 +181,7 @@ contains
             'case.scalar.initial_condition.sample_mesh_index', &
             sample_mesh_idx, 0)
 
-       ! If no mesh file is provided, try to get the index of the
-       ! file that contains the mesh.
+       ! Get the index of the file that contains the mesh.
        call json_get_or_default(params, &
             'case.scalar.initial_condition.sample_mesh_index', &
             sample_mesh_idx, 0)
@@ -297,13 +296,20 @@ contains
 
   end subroutine set_scalar_ic_point_zone
 
-  !> Set the initial condition of the flow based on a point zone.
-  !! @details The initial condition is set to the base value and then the
-  !! zone is filled with the zone value.
+  !> Set the initial condition of the scalar based on a field.
+  !! @detail The field is read from an `fld` file. If enabled, interpolation
+  !! is also possible. In that case, the mesh coordinates can be read from
+  !! another file in the `fld` field series.
   !! @param s The scalar field.
   !! @param file_name The name of the "fld" file series.
   !! @param sample_idx index of the field file .f000* to read, default is
-  !! -1..
+  !! -1.
+  !! @param interpolate Flag to indicate wether or not to interpolate the
+  !! values onto the current mesh.
+  !! @param tolerance If interpolation is enabled, tolerance for finding the
+  !! points in the mesh.
+  !! @param sample_mesh_idx If interpolation is enabled, index of the field
+  !! file where the mesh coordinates are located.
   subroutine set_scalar_ic_fld(s, file_name, sample_idx, &
        interpolate, tolerance, sample_mesh_idx)
     type(field_t), intent(inout) :: s
@@ -367,7 +373,7 @@ contains
           ! Read the actual fld file
           call f%read(fld_data)
           f = file_t(trim(file_name))
-       end if ! interpolate
+       end if
 
        call f%set_counter(sample_idx)
        call f%read(fld_data)
@@ -375,10 +381,10 @@ contains
     end if ! sample_idx .eq. -1
 
     !
-    ! Check if the data in the fld file matches the current case.
+    ! Check that the data in the fld file matches the current case.
     ! Note that this is a safeguard and there are corner cases where
     ! two different meshes have the same dimension and same # of elements
-    ! but this should be enough to cover the most obvious cases.
+    ! but this should be enough to cover obvious cases.
     !
     if ( fld_data%glb_nelv .ne. s%msh%glb_nelv .or. &
          fld_data%gdim .ne. s%msh%gdim .and. &
@@ -397,15 +403,16 @@ contains
        type is (fld_file_t)
           if (.not. ft%dp_precision) then
              call neko_warning("The coordinates read from the field file are &
-                  &in single precision.")
+&in single precision.")
              call neko_log%message("It is recommended to use a mesh in double &
-                  &precision for better interpolation results.")
-             call neko_log%message("Reduce the tolerance if the interpolation &
-                  &does not work.")
+&precision for better interpolation results.")
+             call neko_log%message("If the interpolation does not work, you&
+&can try to increase the tolerance.")
           end if
        class default
        end select
 
+       ! Generates an interpolator object and performs the point search
        global_interp = fld_data%generate_interpolator(s%dof, s%msh, tolerance)
 
        ! Evaluate scalar
@@ -418,6 +425,7 @@ contains
        call prev_Xh%init(GLL, fld_data%lx, fld_data%ly, fld_data%lz)
        call space_interp%init(s%Xh, prev_Xh)
 
+       ! Do the space-to-space interpolation
        call space_interp%map_host(s%x, fld_data%t%x, fld_data%nelv, s%Xh)
 
        call space_interp%free
