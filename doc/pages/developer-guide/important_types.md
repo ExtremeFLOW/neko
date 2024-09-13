@@ -24,17 +24,20 @@ explore the descendants.
   essentially everything else that lives on the mesh. 
 
 ## Basic math routines
-Here, we list file names rather than types, since the basic math is implemented
+Here, we also list file names rather than types, since the basic math is implemented
 as subroutines.
 
 - `math.f90`: Basic math operations on raw arrays.
 - `field_math.f90`: Basic math operations on [field_t](#field::field_t).
 - `operators.f90`: Various explicit operators, including derivatives, etc.
+- [vector_t](#vector::vector_t) and [matrix_t](#matrix::matrix_t): 1D and 2D arrays
+  with support for computation on [accelerators](#accelerators).
 
 ## Governing equation solvers and related types
 
-- [case_t](#case::case_t): Holds some data shared by both the fluid and the
-  scalar solver, which it also stores as components.
+- [case_t](#case::case_t): An abstraction for the simulation case. Stores the
+  fluid and scalar solver as components, handles IO via
+  [sampler_t](#sampler::sampler_t).
 - [fluid_scheme_t](#fluid_scheme::fluid_scheme_t): Navier-Stokes solvers.
 - [scalar_scheme_t](#scalar_scheme::scalar_scheme_t): Scalar
   advection-diffusion-reaction solvers.
