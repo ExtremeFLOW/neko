@@ -43,7 +43,8 @@ module fluid_scheme
   use field, only : field_t
   use space, only : space_t, GLL
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy
+  use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy, &
+                     KSP_MAX_ITER
   use coefs, only: coef_t
   use wall, only : no_slip_wall_t
   use inflow, only : inflow_t
@@ -569,9 +570,9 @@ contains
     call this%f_z%init(this%dm_Xh, fld_name = "fluid_rhs_z")
 
     ! Initialize the source term
-    call this%source_term%init(params, this%f_x, this%f_y, this%f_z, &
-                               this%c_Xh, user)
-
+    call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user)
+    call this%source_term%add(params, 'case.fluid.source_term')
+    
     ! If case.output_boundary is true, set the values for the bc types in the
     ! output of the field.
     call this%set_bc_type_output(params)
@@ -581,20 +582,23 @@ contains
        call neko_log%section("Velocity solver")
        call json_get_or_default(params, &
                                 'case.fluid.velocity_solver.max_iterations', &
-                                integer_val, 800)
+                                integer_val, KSP_MAX_ITER)
        call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
        call json_get(params, 'case.fluid.velocity_solver.preconditioner', &
                      string_val2)
        call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance', &
                      real_val)
-
+       call json_get_or_default(params, &
+                                'case.fluid.velocity_solver.monitor', &
+                                logical_val, .false.)
+       
        call neko_log%message('Type       : ('// trim(string_val1) // &
            ', ' // trim(string_val2) // ')')
 
        write(log_buf, '(A,ES13.6)') 'Abs tol    :',  real_val
        call neko_log%message(log_buf)
        call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
-            string_val1, integer_val, real_val)
+            string_val1, integer_val, real_val, logical_val)
        call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, string_val2)
        call neko_log%end_section()
@@ -628,10 +632,11 @@ contains
     type(user_t), target, intent(in) :: user
     type(material_properties_t), target, intent(inout) :: material_properties
     logical :: kspv_init
-    logical :: kspp_init
+    logical :: kspp_init    
     character(len=*), intent(in) :: scheme
     real(kind=rp) :: abs_tol
     integer :: integer_val, ierr
+    logical :: logical_val
     character(len=:), allocatable :: solver_type, precon_type
     character(len=LOG_SIZE) :: log_buf
 
@@ -691,19 +696,22 @@ contains
 
        call json_get_or_default(params, &
                                'case.fluid.pressure_solver.max_iterations', &
-                               integer_val, 800)
+                               integer_val, KSP_MAX_ITER)
        call json_get(params, 'case.fluid.pressure_solver.type', solver_type)
        call json_get(params, 'case.fluid.pressure_solver.preconditioner', &
                      precon_type)
        call json_get(params, 'case.fluid.pressure_solver.absolute_tolerance', &
                      abs_tol)
+       call json_get_or_default(params, &
+                                'case.fluid.pressure_solver.monitor', &
+                                logical_val, .false.)
        call neko_log%message('Type       : ('// trim(solver_type) // &
              ', ' // trim(precon_type) // ')')
        write(log_buf, '(A,ES13.6)') 'Abs tol    :',  abs_tol
        call neko_log%message(log_buf)
 
        call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), &
-            solver_type, integer_val, abs_tol)
+            solver_type, integer_val, abs_tol, logical_val)
        call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, precon_type)
 
@@ -896,14 +904,17 @@ contains
 
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
-  subroutine fluid_scheme_solver_factory(ksp, n, solver, max_iter, abstol)
+  subroutine fluid_scheme_solver_factory(ksp, n, solver, &
+                                         max_iter, abstol, monitor)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
     character(len=*), intent(in) :: solver
     integer, intent(in) :: max_iter
     real(kind=rp), intent(in) :: abstol
+    logical, intent(in) :: monitor
 
-    call krylov_solver_factory(ksp, n, solver, max_iter, abstol)
+    call krylov_solver_factory(ksp, n, solver, max_iter, abstol, &
+                               monitor = monitor)
 
   end subroutine fluid_scheme_solver_factory
 
