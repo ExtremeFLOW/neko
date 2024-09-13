@@ -28,6 +28,7 @@ Here, we list file names rather than types, since the basic math is implemented
 as subroutines.
 
 - `math.f90`: Basic math operations on raw arrays.
+- `device_math.f90`: Basic math operations on device arrays.
 - `field_math.f90`: Basic math operations on [field_t](#field::field_t).
 - `operators.f90`: Various explicit operators, including derivatives, etc.
 
