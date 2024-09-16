@@ -33,26 +33,26 @@
 !> Operators
 module operators
   use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_DEVICE, NEKO_BCKND_XSMM, &
-       NEKO_DEVICE_MPI
+                          NEKO_DEVICE_MPI
   use num_types, only : rp
   use opr_cpu, only : opr_cpu_cfl, opr_cpu_curl, opr_cpu_opgrad, &
-       opr_cpu_conv1, opr_cpu_convect_scalar, opr_cpu_cdtp, &
-       opr_cpu_dudxyz, opr_cpu_lambda2, opr_cpu_set_convect_rst
+                      opr_cpu_conv1, opr_cpu_convect_scalar, opr_cpu_cdtp, &
+                      opr_cpu_dudxyz, opr_cpu_lambda2, opr_cpu_set_convect_rst
   use opr_sx, only : opr_sx_cfl, opr_sx_curl, opr_sx_opgrad, &
-       opr_sx_conv1, opr_sx_convect_scalar, opr_sx_cdtp, &
-       opr_sx_dudxyz, opr_sx_lambda2, opr_sx_set_convect_rst
+                     opr_sx_conv1, opr_sx_convect_scalar, opr_sx_cdtp, &
+                     opr_sx_dudxyz, opr_sx_lambda2, opr_sx_set_convect_rst
   use opr_xsmm, only : opr_xsmm_cdtp, opr_xsmm_conv1, opr_xsmm_curl, &
-       opr_xsmm_dudxyz, opr_xsmm_opgrad, &
-       opr_xsmm_convect_scalar, opr_xsmm_set_convect_rst
+                       opr_xsmm_dudxyz, opr_xsmm_opgrad, &
+                       opr_xsmm_convect_scalar, opr_xsmm_set_convect_rst
   use opr_device, only : opr_device_cdtp, opr_device_cfl, opr_device_curl, &
-       opr_device_conv1, opr_device_dudxyz, &
-       opr_device_lambda2, opr_device_opgrad
+                         opr_device_conv1, opr_device_dudxyz, &
+                         opr_device_lambda2, opr_device_opgrad
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
   use interpolation, only : interpolator_t
   use math, only : glsum, cmult, add2, add3s2, cadd, copy, col2, invcol2, &
-       invcol3, rzero
+                   invcol3, rzero
   use device, only : c_ptr, device_get_ptr
   use device_math, only : device_add2, device_cmult, device_copy
   use scratch_registry, only : neko_scratch_registry
@@ -61,7 +61,7 @@ module operators
   private
 
   public :: dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl, &
-       lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta
+            lambda2op, strain_rate, div, grad, set_convect_rst, runge_kutta
 
 contains
 
@@ -234,17 +234,17 @@ contains
     integer, optional :: es, ee
     integer :: eblk_start, eblk_end
 
-    if (present(es)) then
-       eblk_start = es
-    else
-       eblk_start = 1
-    end if
+     if (present(es)) then
+        eblk_start = es
+     else
+        eblk_start = 1
+     end if
 
-    if (present(ee)) then
-       eblk_end = ee
-    else
-       eblk_end = coef%msh%nelv
-    end if
+     if (present(ee)) then
+        eblk_end = ee
+     else
+        eblk_end = coef%msh%nelv
+     end if
 
     if (NEKO_BCKND_SX .eq. 1) then
        call opr_sx_cdtp(dtx, x, dr, ds, dt, coef)
@@ -321,27 +321,27 @@ contains
   !! going through an ADD gatter scatter operation at the element boundaries,
   !! before being multiplied by inverse of mass matrix.
   subroutine convect_scalar(du, u, c, Xh_GLL, Xh_GL, coef_GLL, &
-       coef_GL, GLL_to_GL)
+                            coef_GL, GLL_to_GL)
     type(space_t), intent(in) :: Xh_GL
     type(space_t), intent(in) :: Xh_GLL
     type(coef_t), intent(in) :: coef_GLL
     type(coef_t), intent(in) :: coef_GL
     type(interpolator_t), intent(inout) :: GLL_to_GL
     real(kind=rp), intent(inout) :: &
-         du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
+                   du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
     real(kind=rp), intent(inout) :: &
-         u(Xh_GL%lx, Xh_GL%lx, Xh_GL%lx, coef_GL%msh%nelv)
+                   u(Xh_GL%lx, Xh_GL%lx, Xh_GL%lx, coef_GL%msh%nelv)
     real(kind=rp), intent(inout) :: c(Xh_GL%lxyz, coef_GL%msh%nelv, 3)
 
     if (NEKO_BCKND_SX .eq. 1) then
        call opr_sx_convect_scalar(du, u, c, Xh_GLL, Xh_GL, &
-            coef_GLL, coef_GL, GLL_to_GL)
+                               coef_GLL, coef_GL, GLL_to_GL)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_convect_scalar(du, u, c, Xh_GLL, Xh_GL, &
-            coef_GLL, coef_GL, GLL_to_GL)
+                                 coef_GLL, coef_GL, GLL_to_GL)
     else
        call opr_cpu_convect_scalar(du, u, c, Xh_GLL, Xh_GL, &
-            coef_GLL, coef_GL, GLL_to_GL)
+                                coef_GLL, coef_GL, GLL_to_GL)
     end if
 
   end subroutine convect_scalar
@@ -526,9 +526,9 @@ contains
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
-         intent(inout) :: cr, cs, ct
+                   intent(inout) :: cr, cs, ct
     real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
-         intent(in) :: cx, cy, cz
+                   intent(in) :: cx, cy, cz
 
     if (NEKO_BCKND_SX .eq. 1) then
        call opr_sx_set_convect_rst(cr, cs, ct, cx, cy, cz, Xh, coef)
@@ -556,7 +556,7 @@ contains
   !! @param nel Total number of elements
   !! @param n_GL the size in the GL space
   subroutine runge_kutta(phi, c_r1, c_r23, c_r4, Xh_GLL, Xh_GL, coef, &
-       coef_GL, GLL_to_GL, tau, dtau, n, nel, n_GL)
+                         coef_GL, GLL_to_GL, tau, dtau, n, nel, n_GL)
     type(space_t), intent(inout) :: Xh_GLL
     type(space_t), intent(inout) :: Xh_GL
     type(coef_t), intent(inout) :: coef
@@ -568,7 +568,7 @@ contains
     real(kind=rp), dimension(3 * n_GL), intent(inout) :: c_r1, c_r23, c_r4
     real(kind=rp) :: c1, c2, c3
     ! Work Arrays
-    real(kind=rp), dimension(n) :: u1, r1, r2, r3, r4
+    real(kind=rp), dimension(n) ::  u1, r1, r2, r3, r4
     real(kind=rp), dimension(n_GL) :: u1_GL
     integer :: i, e
 
@@ -580,7 +580,7 @@ contains
     call invcol3 (u1, phi, coef%B, n)
     call GLL_to_GL%map(u1_GL, u1, nel, Xh_GL)
     call convect_scalar(r1, u1_GL, c_r1, Xh_GLL, Xh_GL, coef, &
-         coef_GL, GLL_to_GL)
+                        coef_GL, GLL_to_GL)
     call col2(r1, coef%B, n)
 
     ! Stage 2:
@@ -588,15 +588,15 @@ contains
     call invcol2 (u1, coef%B, n)
     call GLL_to_GL%map(u1_GL, u1, nel, Xh_GL)
     call convect_scalar(r2, u1_GL, c_r23, Xh_GLL, Xh_GL, coef, &
-         coef_GL, GLL_to_GL)
+                        coef_GL, GLL_to_GL)
     call col2(r2, coef%B, n)
 
     ! Stage 3:
     call add3s2 (u1, phi, r2, c1, c2, n)
-    call invcol2 (u1, coef%B, n)
+    call invcol2 (u1,  coef%B, n)
     call GLL_to_GL%map(u1_GL, u1, nel, Xh_GL)
     call convect_scalar(r3, u1_GL, c_r23, Xh_GLL, Xh_GL, coef, &
-         coef_GL, GLL_to_GL)
+                        coef_GL, GLL_to_GL)
     call col2(r3, coef%B, n)
 
     ! Stage 4:
@@ -604,7 +604,7 @@ contains
     call invcol2 (u1, coef%B, n)
     call GLL_to_GL%map(u1_GL, u1, nel, Xh_GL)
     call convect_scalar(r4, u1_GL, c_r4, Xh_GLL, Xh_GL, coef, &
-         coef_GL, GLL_to_GL)
+                        coef_GL, GLL_to_GL)
     call col2(r4, coef%B, n)
 
     c1 = -dtau/6.

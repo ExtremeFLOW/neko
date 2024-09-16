@@ -164,6 +164,8 @@ module fluid_pnpn_perturb
      !> Output file
      type(file_t) :: file_output
 
+     !> Toggle for adjoint
+     logical :: toggle_adjoint = .false.
    contains
      procedure, pass(this) :: init => fluid_pnpn_perturb_init
      procedure, pass(this) :: free => fluid_pnpn_perturb_free

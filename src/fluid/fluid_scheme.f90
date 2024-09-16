@@ -71,7 +71,7 @@ module fluid_scheme
   use logger, only : neko_log, LOG_SIZE
   use field_registry, only : neko_field_registry
   use json_utils, only : json_get, json_get_or_default
-  use json_module, only : json_file, json_core, json_value
+  use json_module, only : json_file
   use scratch_registry, only : scratch_registry_t
   use user_intf, only : user_t
   use utils, only : neko_error
@@ -144,8 +144,7 @@ module fluid_scheme
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
-     logical :: toggle_adjoint = .false.       !< Toggle adjoint mode
-     contains
+   contains
      !> Constructor for the base type
      procedure, pass(this) :: fluid_scheme_init_all
      procedure, pass(this) :: fluid_scheme_init_common
@@ -267,13 +266,6 @@ contains
     character(len=:), allocatable :: string_val1, string_val2
 
 
-    ! HARRY
-    ! I think these are what we need to change the subdict
-    type(json_core) :: core
-    type(json_value), pointer :: ptr
-    character(len=:), allocatable :: buffer
-    logical :: found
-    type(json_file) :: fluid_json
     !
     ! SEM simulation fundamentals
     !
