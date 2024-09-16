@@ -59,20 +59,25 @@
 !
 
 module drag_torque
-  use field, only : field_t
-  use coefs, only : coef_t
-  use mesh, only : mesh_t
-  use facet_zone, only : facet_zone_t
+  use field, only: field_t
+  use coefs, only: coef_t
+  use mesh
+  use facet_zone
   use comm
-  use math, only : rzero
+  use math
   use space, only: space_t
   use num_types, only: rp
+  use operators
+  use utils, only : nonlinear_index
+  use device
+  use device_math
   implicit none
   private
   !> Some functions to calculate the lift/drag and torque
   !! Calculation can be done on a zone, a facet, or a point
   !! Currently everything is CPU only
-  public :: drag_torque_zone, drag_torque_facet, drag_torque_pt
+  public :: drag_torque_zone, drag_torque_facet, drag_torque_pt, setup_normals,&
+            calc_force_array, device_calc_force_array
 
 contains
   !> Calculate drag and torque over a zone.
@@ -148,7 +153,7 @@ contains
          torqvx = torqvx + dgtq(1,4)  ! viscous
          torqvy = torqvy + dgtq(2,4)
          torqvz = torqvz + dgtq(3,4)
-      end do
+      enddo
 !
 !     Sum contributions from all processors
 !
@@ -361,5 +366,150 @@ contains
     dgtq(2,4) = (r3*dgtq(1,2)-r1*dgtq(3,2))
     dgtq(3,4) = (r1*dgtq(2,2)-r2*dgtq(1,2))
   end subroutine drag_torque_pt
+
+  !> Calculate drag and torque from array of points
+  !! @param force, the computed force
+  !! @param s11-s23, the strain rate tensor
+  !! @param p, the pressure
+  !! @param n1, normal vector x
+  !! @param n2, normal vector y
+  !! @param n3, normal vector z
+  !! @param v, the viscosity
+  !! @param n_pts, the number of points
+  subroutine calc_force_array(force1, force2, force3, force4, force5, force6,&
+                              s11, s22, s33, s12, s13, s23,&
+                              p, n1, n2, n3, v, n_pts)
+    integer :: n_pts
+    real(kind=rp), intent(inout),dimension(n_pts) :: force1, force2, force3
+    real(kind=rp), intent(inout),dimension(n_pts) :: force4, force5, force6
+    real(kind=rp), intent(in) :: p(n_pts)
+    real(kind=rp), intent(in) :: v
+    real(kind=rp), intent(in) :: n1(n_pts), n2(n_pts), n3(n_pts)
+    real(kind=rp), intent(in), dimension(n_pts) :: s11, s12, s22, s13, s23, s33
+    real(kind=rp) :: v2
+    call rzero(force4,n_pts)
+    call rzero(force5,n_pts)
+    call rzero(force6,n_pts)
+    !pressure force
+    call col3(force1,p,n1,n_pts)
+    call col3(force2,p,n2,n_pts)
+    call col3(force3,p,n3,n_pts)
+    ! viscous force
+    v2 = -2.0_rp*v
+    call vdot3(force4,s11,s12,s13,n1,n2,n3,n_pts)
+    call vdot3(force5,s12,s22,s23,n1,n2,n3,n_pts)
+    call vdot3(force6,s13,s23,s33,n1,n2,n3,n_pts)
+    call cmult(force4,v2,n_pts)
+    call cmult(force5,v2,n_pts)
+    call cmult(force6,v2,n_pts)
+  end subroutine calc_force_array
+  !> Calculate drag and torque from array of points
+  !! @param force, the computed force
+  !! @param s11-s23, the strain rate tensor
+  !! @param p, the pressure
+  !! @param n1, normal vector x
+  !! @param n2, normal vector y
+  !! @param n3, normal vector z
+  !! @param v, the viscosity
+  !! @param n_pts, the number of points
+  subroutine device_calc_force_array(force1, force2, force3,&
+                                     force4, force5, force6,&
+                                     s11, s22, s33, s12, s13, s23,&
+                                     p, n1, n2, n3, v, n_pts)
+    integer :: n_pts
+    type(c_ptr) :: force1, force2, force3
+    type(c_ptr) :: force4, force5, force6
+    type(c_ptr) :: p, n1, n2, n3
+    type(c_ptr) :: s11, s12, s22, s13, s23, s33
+    real(kind=rp) :: v
+    real(kind=rp) :: v2
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_rzero(force4,n_pts)
+       call device_rzero(force5,n_pts)
+       call device_rzero(force6,n_pts)
+       !pressure force
+       call device_col3(force1,p,n1,n_pts)
+       call device_col3(force2,p,n2,n_pts)
+       call device_col3(force3,p,n3,n_pts)
+       ! viscous force
+       v2 = -2.0_rp*v
+       call device_vdot3(force4,s11,s12,s13,n1,n2,n3,n_pts)
+       call device_vdot3(force5,s12,s22,s23,n1,n2,n3,n_pts)
+       call device_vdot3(force6,s13,s23,s33,n1,n2,n3,n_pts)
+       call device_cmult(force4,v2,n_pts)
+       call device_cmult(force5,v2,n_pts)
+       call device_cmult(force6,v2,n_pts)
+    else
+       call neko_error('error in drag_torque, no device bcklnd configured')
+    end if
+  end subroutine device_calc_force_array
+
+
+  !> Calculate drag and torque from array of points
+  !! @param dgtq, the computed drag and torque
+  !! @param xm0, the x coord
+  !! @param ym0, the y coord
+  !! @param zm0, the z coord
+  !! @param center, the point around which we calculate the torque
+  !! @param s11-s23, the strain rate tensor
+  !! @param p, the pressure
+  !! @param n1, normal vector x
+  !! @param n2, normal vector y
+  !! @param n3, normal vector z
+  !! @param v, the viscosity
+  !! @param n_pts, the number of points
+  subroutine calc_torque_array(torque, r1, r2, r3, force, n_pts)
+    integer :: n_pts
+    real(kind=rp), intent(inout) :: torque(n_pts,3,2)
+    real(kind=rp), intent(in) :: r1(n_pts)
+    real(kind=rp), intent(in) :: r2(n_pts)
+    real(kind=rp), intent(in) :: r3(n_pts)
+    real(kind=rp), intent(inout) :: force(n_pts,3,2)
+    call rzero(torque,6*n_pts)
+
+    !pressure torque
+    call col3( torque(1,1,1), force(1,3,1), r2, n_pts)
+    call subcol3( torque(1,1,1), force(1,2,1), r3, n_pts)
+    call col3(torque(1,2,1),force(1,3,1),r3,n_pts)
+    call subcol3(torque(1,2,1),force(1,2,1),r1,n_pts)
+    call col3(torque(1,3,1),force(1,3,1),r1,n_pts)
+    call subcol3(torque(1,3,1),force(1,2,1),r2,n_pts)
+
+    !torque(1,1) = (r2*force(3,1)-r3*force(2,1))
+    !torque(2,1) = (r3*force(1,1)-r1*force(3,1))
+    !torque(3,1) = (r1*force(2,1)-r2*force(1,1))
+    !viscous torque
+    call col3( torque(1,1,2), force(1,3,2), r2, n_pts)
+    call subcol3( torque(1,1,2), force(1,2,2), r3, n_pts)
+    call col3(torque(1,2,2),force(1,3,2),r3,n_pts)
+    call subcol3(torque(1,2,2),force(1,2,2),r1,n_pts)
+    call col3(torque(1,3,2),force(1,3,2),r1,n_pts)
+    call subcol3(torque(1,3,2),force(1,2,2),r2,n_pts)
+    !torque(1,2) = (r2*force(3,2)-r3*force(2,2))
+    !torque(2,2) = (r3*force(1,2)-r1*force(3,2))
+    !torque(3,2) = (r1*force(2,2)-r2*force(1,2))
+  end subroutine calc_torque_array
+  
+  subroutine setup_normals(coef,mask,facets,n1,n2,n3,n_pts)
+    type(coef_t) :: coef
+    integer :: n_pts
+    real(kind=rp), dimension(n_pts) :: n1, n2, n3
+    integer :: mask(0:n_pts), facets(0:n_pts), fid, idx(4)
+    real(kind=rp) :: normal(3), area(3)
+    integer :: i
+    
+    do i = 1, n_pts
+       fid = facets(i)
+       idx = nonlinear_index(mask(i), coef%Xh%lx, coef%Xh%lx,&
+                             coef%Xh%lx)
+       normal = coef%get_normal(idx(1), idx(2), idx(3), idx(4), fid)
+       area = coef%get_area(idx(1), idx(2), idx(3), idx(4), fid)
+       n1(i) = normal(1)*area(1)
+       n2(i) = normal(2)*area(2)
+       n3(i) = normal(3)*area(3)
+
+    end do
+
+  end subroutine setup_normals
 
 end module drag_torque
