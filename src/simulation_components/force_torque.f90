@@ -275,22 +275,22 @@ contains
     end if
     if (pe_rank .eq. 0) then
        write(*,*) 'Zone id', this%zone_id, this%zone_name,'calc forces and torque'
-       write(*,*) tstep,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),'dragx'
-       write(*,*) tstep,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),'dragy'
-       write(*,*) tstep,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),'dragz'
+       write(*,*) tstep,t,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),', dragx'
+       write(*,*) tstep,t,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),', dragy'
+       write(*,*) tstep,t,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),', dragz'
     end if
-    call drag_torque_zone(dgtq,tstep, &
-                          this%case%msh%labeled_zones(this%zone_id),&
-                          this%center,&
-                          this%s11%x, this%s22%x, this%s33%x, this%s12%x,&
-                          this%s13%x, this%s23%x, this%p, this%coef,&
-                          this%case%material_properties%mu)
-     if (pe_rank .eq. 0) then
-        write(*,*) 'Zone id', this%zone_id, this%zone_name,'calc forces and torque'
-        write(*,*) tstep,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),'dragx'
-        write(*,*) tstep,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),'dragy'
-        write(*,*) tstep,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),'dragz'
-     end if
+    !call drag_torque_zone(dgtq,tstep, &
+    !                      this%case%msh%labeled_zones(this%zone_id),&
+    !                      this%center,&
+    !                      this%s11%x, this%s22%x, this%s33%x, this%s12%x,&
+    !                      this%s13%x, this%s23%x, this%p, this%coef,&
+    !                      this%case%material_properties%mu)
+    ! if (pe_rank .eq. 0) then
+    !    write(*,*) 'Zone id', this%zone_id, this%zone_name,'calc forces and torque'
+    !    write(*,*) tstep,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),'dragx'
+    !    write(*,*) tstep,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),'dragy'
+    !    write(*,*) tstep,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),'dragz'
+    ! end if
   end subroutine force_torque_compute
 
 end module force_torque

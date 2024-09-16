@@ -111,7 +111,6 @@ contains
     write_velocity = .false.
     write_temperature = .false.
     p%ptr => NULL()
-    print*, 'in writer'
 
     select type(data)
     type is (fld_file_data_t)
@@ -283,7 +282,6 @@ contains
     call MPI_Allreduce(MPI_IN_PLACE,n_scalar_fields,1,MPI_INTEGER,MPI_MAX,NEKO_COMM) 
     rdcode = ' '
     i = 1
-    print *,n_scalar_fields
     if (write_mesh) then
        rdcode(i) = 'X'
        i = i + 1
