@@ -145,6 +145,7 @@ contains
     class(PDE_filter_t), intent(inout) :: this
     type(coef_t), intent(inout) :: coef
     integer :: n
+	 character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_labels_all_neuman(NEKO_MSH_MAX_ZLBLS)
 
 
     ! HARRY
@@ -153,6 +154,8 @@ contains
     !
     ! so maybe it's ok if I've fucked this up.
 
+	 bc_labels_all_neuman = 'o'
+	 print *, bc_labels_all_neuman
     n = this%coef%dof%size()
 
     ! init filter BCs (all Neumann)
@@ -160,7 +163,11 @@ contains
     call bc_list_init(this%bclst_filt)
     ! add all the neumann BCs
     call this%filter_bcs%init_base(this%coef)
-    call this%filter_bcs%init_neumann(0.0_rp)
+    call this%filter_bcs%mark_zones_from_list(coef%msh%labeled_zones,&
+                        'o', bc_labels_all_neuman)
+
+    !call this%filter_bcs%init_neumann(0.0_rp)
+
     call this%filter_bcs%finalize()
     call bc_list_add(this%bclst_filt, this%filter_bcs)
 
