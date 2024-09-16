@@ -56,7 +56,16 @@ module device_math
        integer(c_int) :: n, m
      end subroutine hip_masked_copy
   end interface
-  
+   
+  interface
+     subroutine hip_masked_red_copy(a_d, b_d, mask_d, n, m) &
+          bind(c, name='hip_masked_red_copy')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d, b_d, mask_d
+       integer(c_int) :: n, m
+     end subroutine hip_masked_red_copy
+  end interface
+ 
   interface
      subroutine hip_cfill_mask(a_d, c, size, mask_d, mask_size) &
           bind(c, name='hip_cfill_mask')
@@ -387,6 +396,15 @@ module device_math
        type(c_ptr), value :: a_d, b_d, mask_d
        integer(c_int) :: n, m
      end subroutine cuda_masked_copy
+  end interface
+
+  interface
+     subroutine cuda_masked_red_copy(a_d, b_d, mask_d, n, m) &
+          bind(c, name='cuda_masked_red_copy')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d, b_d, mask_d
+       integer(c_int) :: n, m
+     end subroutine cuda_masked_red_copy
   end interface
 
   interface
@@ -1039,7 +1057,8 @@ module device_math
        device_col2, device_col3, device_subcol3, device_sub2, device_sub3, &
        device_addcol3, device_addcol4, device_vdot3, device_vlsc3, device_glsc3, &
        device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
-       device_masked_copy, device_cfill_mask, device_add3, device_cadd2
+       device_masked_copy, device_cfill_mask, device_add3, device_cadd2, &
+       device_masked_red_copy
   
 contains
 
@@ -1072,6 +1091,20 @@ contains
     call neko_error('no device backend configured')
 #endif
   end subroutine device_masked_copy
+
+  subroutine device_masked_red_copy(a_d, b_d, mask_d, n, m)
+    type(c_ptr) :: a_d, b_d, mask_d
+    integer :: n, m
+#ifdef HAVE_HIP
+    call hip_masked_red_copy(a_d, b_d, mask_d, n, m)
+#elif HAVE_CUDA
+    call cuda_masked_red_copy(a_d, b_d, mask_d, n, m)
+#elif HAVE_OPENCL
+    call neko_error('No OpenCL bcknd, masked red copy')
+#else
+    call neko_error('no device backend configured')
+#endif
+  end subroutine device_masked_red_copy
 
   !> @brief Fill a constant to a masked vector.
   !! \f$ a_i = c, for i in mask \f$
