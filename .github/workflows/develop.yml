@@ -105,36 +105,36 @@ jobs:
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
-  # ========================================================================== #
-  # Upload the badges
+  # # ========================================================================== #
+  # # Upload the badges
 
-  upload-badges:
-    name: "Upload badges"
-    runs-on: ubuntu-20.04
-    needs:
-      - linting
+  # upload-badges:
+  #   name: "Upload badges"
+  #   runs-on: ubuntu-20.04
+  #   needs:
+  #     - linting
 
-    if: ${{ !cancelled() }} &&
-        ${{ needs.linting.result == 'success' }} &&
+  #   if: ${{ !cancelled() }} &&
+  #       ${{ needs.linting.result == 'success' }} &&
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          pattern: "*-badge"
-          path: doc/media/
-          merge-multiple: true
+  #     - name: Download artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         pattern: "*-badge"
+  #         path: doc/media/
+  #         merge-multiple: true
 
-      - name: Push badges
-        uses: EndBug/add-and-commit@v9
-        with:
-          add: "doc/media/*-badge.svg"
-          message: "Add badges"
-          author_name: "GitHub Actions"
-          default_author: github_actor
+  #     - name: Push badges
+  #       uses: EndBug/add-and-commit@v9
+  #       with:
+  #         add: "doc/media/*-badge.svg"
+  #         message: "Add badges"
+  #         author_name: "GitHub Actions"
+  #         default_author: github_actor
 
   check_complete:
     name: Develop PR Ready

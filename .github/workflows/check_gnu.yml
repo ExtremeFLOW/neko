@@ -19,11 +19,6 @@ on:
         required: false
         default: "v4.4.2"
 
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   GNU:
     runs-on: ${{matrix.os}}

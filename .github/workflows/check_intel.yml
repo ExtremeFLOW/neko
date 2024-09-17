@@ -14,10 +14,6 @@ on:
         required: false
         default: "8.3.0"
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   Intel:
     runs-on: ${{matrix.os}}
