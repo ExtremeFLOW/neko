@@ -3,7 +3,6 @@
 [![GNU](https://github.com/ExtremeFLOW/neko/actions/workflows/check_gnu.yml/badge.svg?branch=develop)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_gnu.yml)
 [![Intel](https://github.com/ExtremeFLOW/neko/actions/workflows/check_intel.yml/badge.svg?branch=develop)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_intel.yml)
 [![Nvidia](https://github.com/ExtremeFLOW/neko/actions/workflows/check_nvidia.yml/badge.svg?branch=develop)](https://github.com/ExtremeFLOW/neko/actions/workflows/check_nvidia.yml)
-![Flint](./doc/media/lint-badge.svg)
 
 ## About
 Neko is a portable framework for high-order spectral element flow simulations. Written in modern Fortran, Neko adopts an object-oriented approach, allowing multi-tier abstractions of the solver stack and facilitating various hardware backends ranging from general-purpose processors, CUDA and HIP enabled accelerators to SX-Aurora vector processors. Neko has its roots in the spectral element code Nek5000 from UChicago/ANL, from where many of the namings, code structure and numerical methods are adopted.
