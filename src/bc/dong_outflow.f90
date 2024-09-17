@@ -33,13 +33,13 @@
 !> Defines a dong outflow condition
 module dong_outflow
   use neko_config
-  use dirichlet
+  use dirichlet, only : dirichlet_t
   use device
-  use num_types
-  use bc
-  use field
-  use dofmap
-  use coefs
+  use num_types, only : rp, c_rp
+  use bc, only : bc_t
+  use field, only : field_t
+  use dofmap, only : dofmap_t
+  use coefs, only : coef_t
   use utils
   use device_dong_outflow
   use field_registry, only : neko_field_registry
@@ -116,18 +116,18 @@ contains
           facet = this%facet(i)
           idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx,this%Xh%lx)
           normal_xyz = &
-                 this%coef%get_normal(idx(1), idx(2), idx(3), idx(4),facet)
-            temp_x(i) = normal_xyz(1)
-            temp_y(i) = normal_xyz(2)
-            temp_z(i) = normal_xyz(3)
-         end do
-         call device_memcpy(temp_x, this%normal_x_d, m, &
-                            HOST_TO_DEVICE, sync=.false.)
-         call device_memcpy(temp_y, this%normal_y_d, m, &
-                            HOST_TO_DEVICE, sync=.false.)
-         call device_memcpy(temp_z, this%normal_z_d, m, &
-                            HOST_TO_DEVICE, sync=.true.)
-         deallocate( temp_x, temp_y, temp_z)
+                this%coef%get_normal(idx(1), idx(2), idx(3), idx(4),facet)
+          temp_x(i) = normal_xyz(1)
+          temp_y(i) = normal_xyz(2)
+          temp_z(i) = normal_xyz(3)
+       end do
+       call device_memcpy(temp_x, this%normal_x_d, m, HOST_TO_DEVICE, &
+             sync=.false.)
+       call device_memcpy(temp_y, this%normal_y_d, m, HOST_TO_DEVICE, &
+             sync=.false.)
+       call device_memcpy(temp_z, this%normal_z_d, m, HOST_TO_DEVICE, &
+             sync=.true.)
+       deallocate( temp_x, temp_y, temp_z)
       end if
   end subroutine dong_outflow_init
 
@@ -154,7 +154,7 @@ contains
        vn = ux*normal_xyz(1) + uy*normal_xyz(2) + uz*normal_xyz(3)
        S0 = 0.5_rp*(1.0_rp - tanh(vn / (this%uinf * this%delta)))
 
-       x(k)=-0.5*(ux*ux+uy*uy+uz*uz)*S0
+       x(k) = -0.5*(ux*ux+uy*uy+uz*uz)*S0
     end do
   end subroutine dong_outflow_apply_scalar
 
