@@ -52,6 +52,7 @@ module fluid_scheme
   use dirichlet, only : dirichlet_t
   use dong_outflow, only : dong_outflow_t
   use symmetry, only : symmetry_t
+  use non_normal, only : non_normal_t
   use field_dirichlet, only : field_dirichlet_t
   use field_dirichlet_vector, only: field_dirichlet_vector_t
   use jacobi, only : jacobi_t
@@ -417,10 +418,10 @@ contains
 
     call this%bclst_vel%init()
 
-    call this%bc_sym%init(this%c_Xh, params)
-    call this%bc_sym%mark_zones_from_list('sym', this%bc_labels)
-    call this%bc_sym%finalize()
-    call this%bclst_vel%append(this%bc_sym)
+!    call this%bc_sym%init(this%c_Xh, params)
+!    call this%bc_sym%mark_zones_from_list('sym', this%bc_labels)
+!    call this%bc_sym%finalize()
+!    call this%bclst_vel%append(this%bc_sym)
 
     !
     ! Inflow
@@ -631,15 +632,11 @@ contains
 
     call this%bc_prs%finalize()
     call this%bclst_prs%append(this%bc_prs)
-    call this%bc_dong%init_base(this%c_Xh)
+    call this%bc_dong%init(this%c_Xh, params)
     call this%bc_dong%mark_zones_from_list('o+dong', this%bc_labels)
     call this%bc_dong%mark_zones_from_list('on+dong', this%bc_labels)
     call this%bc_dong%finalize()
 
-
-    call this%bc_dong%init(this%c_Xh, params)
-
-    call this%bclst_prs%append(this%bc_dong)
 
     ! Pressure solver
     if (kspp_init) then
@@ -1032,8 +1029,7 @@ contains
   subroutine fluid_scheme_setup_bcs(this, user)
     class(fluid_scheme_t), intent(inout) :: this
     type(user_t), target, intent(in) :: user
-    integer :: i, j, n_bcs, ierr
-    real(kind=rp) :: dir_value, flux_value
+    integer :: i, j, n_bcs
     type(json_core) :: core
     type(json_value), pointer :: bc_object
     type(json_file) :: bc_subdict
@@ -1046,22 +1042,30 @@ contains
        call this%params%get('case.fluid.boundary_conditions', bc_object, found)
 
        call this%bcs%init(n_bcs)
-       this%bcs%size_ = n_bcs
 
+       j = 1
        do i=1, n_bcs
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
 
           write(*,*) "i", i
-          call fluid_bc_factory(this%bcs%items(i)%obj, bc_subdict, &
-                          this%c_Xh, user)
+          call fluid_bc_factory(this%bcs%items(j)%obj, bc_subdict, &
+               this%c_Xh, user)
+          ! Not all bcs require an allocation for velocity in particular,
+          ! so we check.
+          if (allocated(this%bcs%items(j)%obj)) then
+             write(*,*) "Allocating", j
+             if (this%bcs%strong(j)) then
+                this%n_strong = this%n_strong + 1
+             end if
+             j = j + 1
+             this%bcs%size_ = this%bcs%size_ + 1
+
+          end if
 
           write(*,*) "Done", i
-          if (this%bcs%strong(i)) then
-             this%n_strong = this%n_strong + 1
-          end if
        end do
-       write(*,*) "N_BCS", n_bcs, this%bcs%size()
+       write(*,*) "N_BCS", j-1, this%bcs%size()
     end if
 
 
@@ -1083,10 +1087,13 @@ contains
        allocate(inflow_t::object)
     else if (trim(type) .eq. "no_slip") then
        allocate(zero_dirichlet_t::object)
+    else if (trim(type) .eq. "normal_outlet") then
+       allocate(non_normal_t::object)
     else if (trim(type) .eq. "blasius_profile") then
        allocate(blasius_t::object)
     else
-       call neko_error("Unknown boundary condition for fluid")
+       return
+       !call neko_error("Unknown boundary condition for the fluid.")
     end if
 
     call json_get(json, "zone_index", zone_index)

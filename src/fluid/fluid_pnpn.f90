@@ -48,7 +48,7 @@ module fluid_pnpn
   use device, only : device_memcpy, HOST_TO_DEVICE
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
-  use json_module, only : json_file
+  use json_module, only : json_file, json_core, json_value
   use material_properties, only : material_properties_t
   use ax_product, only : ax_t, ax_helm_factory
   use field, only : field_t
@@ -64,8 +64,12 @@ module fluid_pnpn
   use mathops, only : opadd2cm, opcolv
   use bc_list, only: bc_list_t
   use zero_dirichlet, only : zero_dirichlet_t
+  use dong_outflow, only : dong_outflow_t
   use utils, only : neko_error
   use field_math, only : field_add2
+  use bc, only : bc_t
+  use coefs, only: coef_t
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
   implicit none
   private
 
@@ -99,6 +103,9 @@ module fluid_pnpn
      type(bc_list_t) :: bclst_dw
      type(bc_list_t) :: bclst_dp
 
+     ! TEMP
+     type(bc_list_t) :: bcs_prs
+
      class(advection_t), allocatable :: adv
 
      ! Time variables
@@ -128,6 +135,7 @@ module fluid_pnpn
      procedure, pass(this) :: free => fluid_pnpn_free
      procedure, pass(this) :: step => fluid_pnpn_step
      procedure, pass(this) :: restart => fluid_pnpn_restart
+     procedure, pass(this) :: pnpn_setup_bcs => fluid_pnpn_setup_bcs
   end type fluid_pnpn_t
 
 contains
@@ -284,6 +292,9 @@ contains
     call this%bclst_dw%append(this%bc_vel_res_non_normal%bc_z)
     call this%bclst_dw%append(this%bc_vel_res)
     call this%bclst_dw%append(this%bc_field_dirichlet_w)
+
+    call this%pnpn_setup_bcs(user)
+
 
     !Intialize projection space thingy
 
@@ -715,5 +726,81 @@ contains
     call profiler_end_region
   end subroutine fluid_pnpn_step
 
+  subroutine fluid_pnpn_setup_bcs(this, user)
+    class(fluid_pnpn_t), intent(inout) :: this
+    type(user_t), target, intent(in) :: user
+    integer :: i, j, n_bcs
+    type(json_core) :: core
+    type(json_value), pointer :: bc_object
+    type(json_file) :: bc_subdict
+    logical :: found
+
+
+    if (this%params%valid_path('case.fluid.boundary_conditions')) then
+       call this%params%info('case.fluid.boundary_conditions', n_children=n_bcs)
+       call this%params%get_core(core)
+       call this%params%get('case.fluid.boundary_conditions', bc_object, found)
+
+       call this%bcs_prs%init(n_bcs)
+
+       write(*,*) "PRESSURE BCS"
+       j = 1
+       do i=1, n_bcs
+          ! Create a new json containing just the subdict for this bc
+          call json_extract_item(core, bc_object, i, bc_subdict)
+
+          write(*,*) "i", i
+          call pressure_bc_factory(this%bcs_prs%items(j)%obj, bc_subdict, &
+               this%c_Xh, user)
+
+          ! Not all bcs require an allocation for pressure in particular,
+          ! so we check.
+          if (allocated(this%bcs_prs%items(j)%obj)) then
+             write(*,*) "Allocated", j
+             if (this%bcs_prs%strong(j)) then
+!                this%n_strong = this%n_strong + 1
+             end if
+             j = j + 1
+             this%bcs_prs%size_ = this%bcs_prs%size_ + 1
+
+          end if
+
+          write(*,*) "Done", i
+       end do
+       write(*,*) "N_BCS", j-1, this%bcs_prs%size()
+    end if
+  end subroutine
+
+  subroutine pressure_bc_factory(object, json, coef, user)
+    class(bc_t), allocatable, intent(inout) :: object
+    type(json_file), intent(inout) :: json
+    type(coef_t), intent(in) :: coef
+    type(user_t), intent(in) :: user
+    character(len=:), allocatable :: type
+    integer :: zone_index
+
+    call json_get(json, "type", type)
+
+    if (trim(type) .eq. "outflow") then
+       allocate(zero_dirichlet_t::object)
+    else if (trim(type) .eq. "dong_outflow") then
+       allocate(dong_outflow_t::object)
+!    else if (trim(type) .eq. "no_slip") then
+!       allocate(zero_dirichlet_t::object)
+!    else if (trim(type) .eq. "normal_outlet") then
+!       allocate(non_normal_t::object)
+!    else if (trim(type) .eq. "blasius_profile") then
+!       allocate(blasius_t::object)
+!    else
+!       call neko_error("Unknown boundary condition for the fluid.")
+    else
+      return
+    end if
+
+    call json_get(json, "zone_index", zone_index)
+    call object%init(coef, json)
+    call object%mark_zone(coef%msh%labeled_zones(zone_index))
+    call object%finalize()
+  end subroutine
 
 end module fluid_pnpn
