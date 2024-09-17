@@ -147,7 +147,6 @@ jobs:
       - Intel
       - Nvidia
       - ReFrame
-      - upload-badges
     runs-on: ubuntu-latest
     env:
       draft_status: ${{ needs.prepare.result }}
