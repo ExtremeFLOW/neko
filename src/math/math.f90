@@ -332,7 +332,7 @@ contains
        tmp = tmp + a(i)
     end do
     call MPI_Allreduce(tmp, glsum, 1, &
-                       MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsum
 
@@ -347,7 +347,7 @@ contains
        tmp = max(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glmax, 1, &
-                       MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
   end function glmax
 
   !>Max of an integer vector of length n
@@ -361,7 +361,7 @@ contains
        tmp = max(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glimax, 1, &
-                       MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
+         MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
   end function glimax
 
   !>Min of a vector of length n
@@ -375,7 +375,7 @@ contains
        tmp = min(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glmin, 1, &
-                       MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
   end function glmin
 
   !>Min of an integer vector of length n
@@ -389,7 +389,7 @@ contains
        tmp = min(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glimin, 1, &
-                       MPI_INTEGER, MPI_MIN, NEKO_COMM, ierr)
+         MPI_INTEGER, MPI_MIN, NEKO_COMM, ierr)
   end function glimin
 
 
@@ -572,10 +572,10 @@ contains
   !> Vector addition \f$ a = b + c + d\f$
   subroutine add4(a, b, c, d, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: d
-    real(kind=rp), dimension(n), intent(inout) :: c
-    real(kind=rp), dimension(n), intent(inout) :: b
     real(kind=rp), dimension(n), intent(out) :: a
+    real(kind=rp), dimension(n), intent(in) :: d
+    real(kind=rp), dimension(n), intent(in) :: c
+    real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
     do i = 1, n
@@ -845,7 +845,7 @@ contains
     end do
 
     call MPI_Allreduce(tmp, glsc2, 1, &
-                       MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsc2
 
@@ -864,7 +864,7 @@ contains
     end do
 
     call MPI_Allreduce(tmp, glsc3, 1, &
-                       MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsc3
   function glsc4(a, b, c, d, n)
@@ -882,7 +882,7 @@ contains
     end do
 
     call MPI_Allreduce(tmp, glsc4, 1, &
-                       MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsc4
 
@@ -967,12 +967,12 @@ contains
     do while (.true.)
        if (l .gt. 1) then
           l = l - 1
-          aa  = a  (l)
-          ii  = ind(l)
+          aa = a (l)
+          ii = ind(l)
        else
-          aa =   a(ir)
+          aa = a(ir)
           ii = ind(ir)
-          a(ir) =   a( 1)
+          a(ir) = a( 1)
           ind(ir) = ind( 1)
           ir = ir - 1
           if (ir .eq. 1) then
