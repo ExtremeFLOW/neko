@@ -54,6 +54,7 @@ module logger
      procedure, pass(this) :: message => log_message
      procedure, pass(this) :: section => log_section
      procedure, pass(this) :: status => log_status
+     procedure, pass(this) :: header => log_header
      procedure, pass(this) :: error => log_error
      procedure, pass(this) :: warning => log_warning
      procedure, pass(this) :: end_section => log_end_section
@@ -179,6 +180,26 @@ contains
     end if
 
   end subroutine log_message
+
+  !> Write the Neko header to a log
+  subroutine log_header(this, version, build_info)
+    class(log_t), intent(in) :: this
+    character(len=*), intent(in) :: version
+    character(len=*), intent(in) :: build_info
+
+    if (pe_rank .eq. 0) then
+       write(this%unit_,*) ' '
+       write(this%unit_,*) '   _  __  ____  __ __  ____  '
+       write(this%unit_,*) '  / |/ / / __/ / //_/ / __ \ '
+       write(this%unit_,*) ' /    / / _/  / ,<   / /_/ / '
+       write(this%unit_,*) '/_/|_/ /___/ /_/|_|  \____/  '
+       write(this%unit_,*) ' '
+       write(this%unit_,*) '(version: ', trim(version), ')'
+       write(this%unit_,*) trim(build_info)
+       write(this%unit_,*) ' '
+    end if
+
+  end subroutine log_header
 
   !> Write an error message to a log
   subroutine log_error(this, msg)
