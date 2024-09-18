@@ -325,6 +325,19 @@ module device_math
   end interface
 
   interface
+     subroutine hip_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
+                           w1_d, w2_d, w3_d,  n) &
+          bind(c, name='hip_vcross')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: u1_d, u2_d, u3_d
+       type(c_ptr), value :: v1_d, v2_d, v3_d
+       type(c_ptr), value :: w1_d, w2_d, w3_d
+       integer(c_int) :: n
+     end subroutine hip_vcross
+  end interface
+
+  interface
      real(c_rp) function hip_vlsc3(u_d, v_d, w_d, n) &
           bind(c, name='hip_vlsc3')
        use, intrinsic :: iso_c_binding
@@ -652,6 +665,19 @@ module device_math
        type(c_ptr), value :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
        integer(c_int) :: n
      end subroutine cuda_vdot3
+  end interface
+
+  interface
+     subroutine cude_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
+                           w1_d, w2_d, w3_d,  n) &
+          bind(c, name='cuda_vcross')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: u1_d, u2_d, u3_d
+       type(c_ptr), value :: v1_d, v2_d, v3_d
+       type(c_ptr), value :: w1_d, w2_d, w3_d
+       integer(c_int) :: n
+     end subroutine cuda_vcross
   end interface
 
   interface
@@ -1479,6 +1505,28 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_vdot3
+
+  !> Compute a cross product \f$ u1, u2, u3 = v1,v2,v3 \cross w1,w2,w3 \f$ (3-d version)
+  !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
+  subroutine device_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
+                           w1_d, w2_d, w3_d, n)
+    type(c_ptr) :: u1_d, u2_d, u3_d
+    type(c_ptr) :: v1_d, v2_d, v3_d
+    type(c_ptr) :: w1_d, w2_d, w3_d
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, & 
+                    w1_d, w2_d, w3_d, n)
+#elif HAVE_CUDA
+    call cuda_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, & 
+                     w1_d, w2_d, w3_d, n)
+#elif HAVE_OPENCL
+    call neko_error("no opencl backedn vcross")
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_vcross
+
 
   !> Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$
   function device_vlsc3(u_d, v_d, w_d, n) result(res)

@@ -436,6 +436,28 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
   }
 
+  /**
+   * Fortran wrapper for vcross
+   * \f$ u = v \cross w \f$
+   */
+  void cuda_vcross(void *u1, void *u2, void *u3,
+                  void *v1, void *v2, void *v3,
+                  void *w1, void *w2, void *w3, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    
+    vcross_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) dot, (real *) u1,
+                                      (real *) u2, (real *) u3,
+                                      (real *) v1, (real *) v2,
+                                      (real *) v3, 
+                                      (real *) w1, (real *) w2,
+                                      (real *) w3, *n);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
+
   /*
    * Reduction buffer
    */
