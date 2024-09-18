@@ -70,7 +70,7 @@ module drag_torque
   use utils, only : nonlinear_index
   use device
   use device_math, only : device_cmult, device_masked_red_copy, &
-                          device_col3, device_vdot3
+                          device_col3, device_vdot3, device_rzero
   implicit none
   private
   !> Some functions to calculate the lift/drag and torque
