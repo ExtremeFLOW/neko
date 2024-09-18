@@ -154,7 +154,6 @@ contains
     call this%bc%mark_zone(this%case%msh%labeled_zones(this%zone_id))
     call this%bc%finalize()
     n_pts = this%bc%msk(0)
-    print *, n_pts, center
     call this%n1%init(n_pts)
     call this%n2%init(n_pts)
     call this%n3%init(n_pts)
@@ -315,8 +314,10 @@ contains
     if (pe_rank .eq. 0) then
        dgtq = this%scale*dgtq
        write(*,*) 'Calculate force and torque'
-       write(*,*) 'Zone id', this%zone_id, this%zone_name,'Center:', this%center
-       write(*,*) 'tstep, time, total force/torque, pressure, viscous, direction'
+       write(*,*) 'Zone id', this%zone_id, this%zone_name
+       write(*,*) 'Center:', this%center
+       write(*,*) 'Scale:', this%scale
+       write(*,*) 'Time step, time, total force/torque, pressure, viscous, direction'
        write(*,*) tstep,t,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),', forcex'
        write(*,*) tstep,t,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),', forcey'
        write(*,*) tstep,t,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),', forcez'
