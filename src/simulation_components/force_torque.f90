@@ -154,6 +154,7 @@ contains
     call this%bc%mark_zone(this%case%msh%labeled_zones(this%zone_id))
     call this%bc%finalize()
     n_pts = this%bc%msk(0)
+    print *, n_pts, center
     call this%n1%init(n_pts)
     call this%n2%init(n_pts)
     call this%n3%init(n_pts)
@@ -211,7 +212,7 @@ contains
     class(force_torque_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    real(kind=rp) :: dgtq(12)
+    real(kind=rp) :: dgtq(12) = 0.0_rp
     integer :: n_pts
     n_pts = this%bc%msk(0)
     call strain_rate(this%s11%x, this%s22%x, this%s33%x, this%s12%x, this%s13%x,&
@@ -246,6 +247,9 @@ contains
        dgtq(5) = glsum(this%force5%x,n_pts)
        dgtq(6) = glsum(this%force6%x,n_pts)
        !Overwriting masked s11, s22, s33 as they are no longer needed
+       this%s11msk = 0.0_rp
+       this%s22msk = 0.0_rp
+       this%s33msk = 0.0_rp
        call vcross(this%s11msk%x,this%s22msk%x,this%s33msk%x, &
                     this%r1%x, this%r2%x, this%r3%x, &
                     this%force1%x, this%force2%x, this%force3%x,n_pts)
@@ -253,12 +257,15 @@ contains
        dgtq(7) = glsum(this%s11msk%x,n_pts)
        dgtq(8) = glsum(this%s22msk%x,n_pts)
        dgtq(9) = glsum(this%s33msk%x,n_pts)
+       this%s11msk = 0.0_rp
+       this%s22msk = 0.0_rp
+       this%s33msk = 0.0_rp
        call vcross(this%s11msk%x,this%s22msk%x,this%s33msk%x, &
                     this%r1%x, this%r2%x, this%r3%x, &
                     this%force4%x, this%force5%x, this%force6%x,n_pts)
-       dgtq(10) = glsum(this%s11%x,n_pts)
-       dgtq(11) = glsum(this%s22%x,n_pts)
-       dgtq(12) = glsum(this%s33%x,n_pts)
+       dgtq(10) = glsum(this%s11msk%x,n_pts)
+       dgtq(11) = glsum(this%s22msk%x,n_pts)
+       dgtq(12) = glsum(this%s33msk%x,n_pts)
     else
        if (n_pts .gt. 0) then
        call device_masked_red_copy(this%s11msk%x_d,this%s11%x_d,this%bc%msk_d,this%u%size(),n_pts)
@@ -283,6 +290,14 @@ contains
                              this%n3%x_d,&
                              this%case%material_properties%mu,&
                              n_pts)    
+       !Overwriting masked s11, s22, s33 as they are no longer needed
+          call device_vcross(this%s11msk%x_d,this%s22msk%x_d,this%s33msk%x_d, &
+                              this%r1%x_d, this%r2%x_d, this%r3%x_d, &
+                              this%force1%x_d, this%force2%x_d, this%force3%x_d,n_pts)
+          call device_vcross(this%s12msk%x_d,this%s13msk%x_d,this%s23msk%x_d, &
+                      this%r1%x_d, this%r2%x_d, this%r3%x_d, &
+                      this%force4%x_d, this%force5%x_d, this%force6%x_d,n_pts)      
+  
        end if   
        dgtq(1) = device_glsum(this%force1%x_d,n_pts)
        dgtq(2) = device_glsum(this%force2%x_d,n_pts)
@@ -290,20 +305,12 @@ contains
        dgtq(4) = device_glsum(this%force4%x_d,n_pts)
        dgtq(5) = device_glsum(this%force5%x_d,n_pts)
        dgtq(6) = device_glsum(this%force6%x_d,n_pts)
-       !Overwriting masked s11, s22, s33 as they are no longer needed
-       call device_vcross(this%s11msk%x_d,this%s22msk%x_d,this%s33msk%x_d, &
-                    this%r1%x_d, this%r2%x_d, this%r3%x_d, &
-                    this%force1%x_d, this%force2%x_d, this%force3%x_d,n_pts)
-       
        dgtq(7) = device_glsum(this%s11msk%x_d,n_pts)
        dgtq(8) = device_glsum(this%s22msk%x_d,n_pts)
        dgtq(9) = device_glsum(this%s33msk%x_d,n_pts)
-       call device_vcross(this%s11msk%x_d,this%s22msk%x_d,this%s33msk%x_d, &
-                    this%r1%x_d, this%r2%x_d, this%r3%x_d, &
-                    this%force4%x_d, this%force5%x_d, this%force6%x_d,n_pts)
-       dgtq(10) = device_glsum(this%s11%x_d,n_pts)
-       dgtq(11) = device_glsum(this%s22%x_d,n_pts)
-       dgtq(12) = device_glsum(this%s33%x_d,n_pts)
+       dgtq(10) = device_glsum(this%s12msk%x_d,n_pts)
+       dgtq(11) = device_glsum(this%s13msk%x_d,n_pts)
+       dgtq(12) = device_glsum(this%s23msk%x_d,n_pts)
     end if
     if (pe_rank .eq. 0) then
        dgtq = this%scale*dgtq
