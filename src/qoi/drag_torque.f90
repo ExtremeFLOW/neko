@@ -59,18 +59,18 @@
 !
 
 module drag_torque
-  use field, only: field_t
-  use coefs, only: coef_t
-  use mesh
-  use facet_zone
+  use field, only :  field_t
+  use coefs, only : coef_t
+  use mesh, only : mesh_t
+  use facet_zone, only : facet_zone_t
   use comm
-  use math
-  use space, only: space_t
-  use num_types, only: rp
-  use operators
+  use math, only : rzero, masked_red_copy, col3, vdot3, cmult
+  use space, only : space_t
+  use num_types, only : rp
   use utils, only : nonlinear_index
   use device
-  use device_math
+  use device_math, only : device_cmult, device_masked_red_copy, &
+                          device_col3, device_vdot3
   implicit none
   private
   !> Some functions to calculate the lift/drag and torque
@@ -445,51 +445,6 @@ contains
   end subroutine device_calc_force_array
 
 
-  !> Calculate drag and torque from array of points
-  !! @param dgtq, the computed drag and torque
-  !! @param xm0, the x coord
-  !! @param ym0, the y coord
-  !! @param zm0, the z coord
-  !! @param center, the point around which we calculate the torque
-  !! @param s11-s23, the strain rate tensor
-  !! @param p, the pressure
-  !! @param n1, normal vector x
-  !! @param n2, normal vector y
-  !! @param n3, normal vector z
-  !! @param v, the viscosity
-  !! @param n_pts, the number of points
-  subroutine calc_torque_array(torque, r1, r2, r3, force, n_pts)
-    integer :: n_pts
-    real(kind=rp), intent(inout) :: torque(n_pts,3,2)
-    real(kind=rp), intent(in) :: r1(n_pts)
-    real(kind=rp), intent(in) :: r2(n_pts)
-    real(kind=rp), intent(in) :: r3(n_pts)
-    real(kind=rp), intent(inout) :: force(n_pts,3,2)
-    call rzero(torque,6*n_pts)
-
-    !pressure torque
-    call col3( torque(1,1,1), force(1,3,1), r2, n_pts)
-    call subcol3( torque(1,1,1), force(1,2,1), r3, n_pts)
-    call col3(torque(1,2,1),force(1,3,1),r3,n_pts)
-    call subcol3(torque(1,2,1),force(1,2,1),r1,n_pts)
-    call col3(torque(1,3,1),force(1,3,1),r1,n_pts)
-    call subcol3(torque(1,3,1),force(1,2,1),r2,n_pts)
-
-    !torque(1,1) = (r2*force(3,1)-r3*force(2,1))
-    !torque(2,1) = (r3*force(1,1)-r1*force(3,1))
-    !torque(3,1) = (r1*force(2,1)-r2*force(1,1))
-    !viscous torque
-    call col3( torque(1,1,2), force(1,3,2), r2, n_pts)
-    call subcol3( torque(1,1,2), force(1,2,2), r3, n_pts)
-    call col3(torque(1,2,2),force(1,3,2),r3,n_pts)
-    call subcol3(torque(1,2,2),force(1,2,2),r1,n_pts)
-    call col3(torque(1,3,2),force(1,3,2),r1,n_pts)
-    call subcol3(torque(1,3,2),force(1,2,2),r2,n_pts)
-    !torque(1,2) = (r2*force(3,2)-r3*force(2,2))
-    !torque(2,2) = (r3*force(1,2)-r1*force(3,2))
-    !torque(3,2) = (r1*force(2,2)-r2*force(1,2))
-  end subroutine calc_torque_array
-  
   subroutine setup_normals(coef,mask,facets,n1,n2,n3,n_pts)
     type(coef_t) :: coef
     integer :: n_pts

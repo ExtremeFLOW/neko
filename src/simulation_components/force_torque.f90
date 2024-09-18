@@ -50,7 +50,7 @@ module force_torque
   use dirichlet
   use drag_torque
   use comm
-  use math, only : masked_red_copy, cadd, glsum
+  use math, only : masked_red_copy, cadd, glsum, vcross
   use device_math, only : device_masked_red_copy, device_cadd, device_glsum
   use device
   
@@ -78,6 +78,7 @@ module force_torque
      type(vector_t) :: pmsk
      type(vector_t) :: s11msk, s22msk, s33msk, s12msk, s13msk, s23msk
      real(kind=rp) :: center(3) = 0.0_rp
+     real(kind=rp) :: scale
      integer :: zone_id
      character(len=20) :: zone_name 
      type(coef_t), pointer :: coef
@@ -105,25 +106,27 @@ contains
     integer :: zone_id
     real(kind=rp), allocatable :: center(:)
     character(len=:), allocatable :: zone_name
-    real(kind=rp) :: def_center(3)
-
+    real(kind=rp) :: scale
+    
     ! Add fields keyword to the json so that the field_writer picks it up.
     ! Will also add fields to the registry.
 
     call this%init_base(json, case)
-    def_center = 0.0
-    call json_get(json, 'zone_id',zone_id)
-    call json_get(json, 'zone_name',zone_name)
-    call json_get(json, 'center', center)
 
+    call json_get(json, 'zone_id',zone_id)
+    call json_get_or_default(json, 'zone_name',zone_name,' ')
+    call json_get_or_default(json, 'scale',scale,1.0_rp)
+    call json_get(json, 'center', center)
     call force_torque_init_from_attributes(this, zone_id, zone_name, &
-                                           center, case%fluid%c_xh)
+                                           center, scale, case%fluid%c_xh)
   end subroutine force_torque_init_from_json
 
   !> Actual constructor.
-  subroutine force_torque_init_from_attributes(this, zone_id, zone_name, center, coef)
+  subroutine force_torque_init_from_attributes(this, zone_id, zone_name, &
+                                               center, scale, coef)
     class(force_torque_t), intent(inout) :: this
     real(kind=rp) :: center(3)
+    real(kind=rp) :: scale
     character(len=*):: zone_name
     integer :: zone_id
     type(coef_t), target :: coef
@@ -132,6 +135,7 @@ contains
     this%coef => coef
     this%zone_id = zone_id
     this%center = center
+    this%scale = scale
     this%zone_name = zone_name
 
     this%u => neko_field_registry%get_field_by_name("u")
@@ -212,6 +216,7 @@ contains
     n_pts = this%bc%msk(0)
     call strain_rate(this%s11%x, this%s22%x, this%s33%x, this%s12%x, this%s13%x,&
                      this%s23%x, this%u, this%v, this%w, this%coef)
+    ! On the CPU we can actually just use the original subroutines...
     if (NEKO_BCKND_DEVICE .eq. 0) then
        call masked_red_copy(this%s11msk%x,this%s11%x,this%bc%msk,this%u%size(),n_pts)
        call masked_red_copy(this%s22msk%x,this%s22%x,this%bc%msk,this%u%size(),n_pts)
@@ -240,6 +245,20 @@ contains
        dgtq(4) = glsum(this%force4%x,n_pts)
        dgtq(5) = glsum(this%force5%x,n_pts)
        dgtq(6) = glsum(this%force6%x,n_pts)
+       !Overwriting masked s11, s22, s33 as they are no longer needed
+       call vcross(this%s11msk%x,this%s22msk%x,this%s33msk%x, &
+                    this%r1%x, this%r2%x, this%r3%x, &
+                    this%force1%x, this%force2%x, this%force3%x,n_pts)
+       
+       dgtq(7) = glsum(this%s11msk%x,n_pts)
+       dgtq(8) = glsum(this%s22msk%x,n_pts)
+       dgtq(9) = glsum(this%s33msk%x,n_pts)
+       call vcross(this%s11msk%x,this%s22msk%x,this%s33msk%x, &
+                    this%r1%x, this%r2%x, this%r3%x, &
+                    this%force4%x, this%force5%x, this%force6%x,n_pts)
+       dgtq(10) = glsum(this%s11%x,n_pts)
+       dgtq(11) = glsum(this%s22%x,n_pts)
+       dgtq(12) = glsum(this%s33%x,n_pts)
     else
        if (n_pts .gt. 0) then
        call device_masked_red_copy(this%s11msk%x_d,this%s11%x_d,this%bc%msk_d,this%u%size(),n_pts)
@@ -274,23 +293,15 @@ contains
 
     end if
     if (pe_rank .eq. 0) then
+       dgtq = this%scale*dgtq
        write(*,*) 'Zone id', this%zone_id, this%zone_name,'calc forces and torque'
-       write(*,*) tstep,t,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),', dragx'
-       write(*,*) tstep,t,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),', dragy'
-       write(*,*) tstep,t,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),', dragz'
+       write(*,*) tstep,t,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),', forcex'
+       write(*,*) tstep,t,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),', forcey'
+       write(*,*) tstep,t,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),', forcez'
+       write(*,*) tstep,t,dgtq(7)+dgtq(10),dgtq(7),dgtq(10),', torquex'
+       write(*,*) tstep,t,dgtq(8)+dgtq(11),dgtq(8),dgtq(11),', torquey'
+       write(*,*) tstep,t,dgtq(9)+dgtq(12),dgtq(9),dgtq(12),', torquez'
     end if
-    !call drag_torque_zone(dgtq,tstep, &
-    !                      this%case%msh%labeled_zones(this%zone_id),&
-    !                      this%center,&
-    !                      this%s11%x, this%s22%x, this%s33%x, this%s12%x,&
-    !                      this%s13%x, this%s23%x, this%p, this%coef,&
-    !                      this%case%material_properties%mu)
-    ! if (pe_rank .eq. 0) then
-    !    write(*,*) 'Zone id', this%zone_id, this%zone_name,'calc forces and torque'
-    !    write(*,*) tstep,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),'dragx'
-    !    write(*,*) tstep,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),'dragy'
-    !    write(*,*) tstep,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),'dragz'
-    ! end if
   end subroutine force_torque_compute
 
 end module force_torque
