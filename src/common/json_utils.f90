@@ -45,7 +45,7 @@ module json_utils
      module procedure json_get_real, json_get_double, json_get_integer, &
           json_get_logical, json_get_string, json_get_real_array, &
           json_get_double_array, json_get_integer_array, json_get_logical_array, &
-          json_get_string_array
+          json_get_string_array, json_get_subdict
   end interface json_get
 
   !> Retrieves a parameter by name or assigns a provided default value.
@@ -248,6 +248,28 @@ contains
     end do
 
   end subroutine json_get_string_array
+
+  !> Extract a sub-object from a json object.
+  subroutine json_get_subdict(json, key, output)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: key
+    type(json_file), intent(out) :: output
+
+    type(json_value), pointer :: child
+    logical :: valid
+
+    valid = .false.
+    call json%get(key, child, valid)
+    if (.not. valid) then
+       call neko_error('Parameter "' // &
+            trim(key) // '" missing from the case file')
+    end if
+
+    call output%initialize()
+    call output%add(child)
+    nullify(child)
+
+  end subroutine json_get_subdict
 
   !> Retrieves a real parameter by name or assigns a provided default value.
   !! In the latter case also adds the missing paramter to the json.
