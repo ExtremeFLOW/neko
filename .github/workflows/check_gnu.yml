@@ -24,7 +24,7 @@ jobs:
   GNU:
     runs-on: ${{matrix.os}}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         os: [ubuntu-20.04, macos-13]
         compiler: [gfortran-10, gfortran-11, gfortran-12]
