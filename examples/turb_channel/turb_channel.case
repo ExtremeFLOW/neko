@@ -51,7 +51,18 @@
         "output_value": 20,
         "start_time": 70.0,
         "sampling_interval": 10
-  }
+    },
+ "simulation_components": 
+  [
+    {
+      "type": "force_torque",
+      "compute_control": "tsteps",
+      "compute_value": 5,
+      "zone_id": 3,
+      "scale": 0.01899,
+      "center": [0,0,0]
+    }
+  ]   
 
 }
 }
