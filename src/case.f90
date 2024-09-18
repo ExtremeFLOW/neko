@@ -137,7 +137,6 @@ contains
 
   !> Initialize a case from its (loaded) params object
   subroutine case_init_common(C)
-    type(case_t), target, intent(inout) :: C
     character(len=:), allocatable :: output_directory
     integer :: lx = 0
     logical :: scalar = .false.

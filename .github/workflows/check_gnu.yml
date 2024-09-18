@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - develop
+      - fix/release_badges
 
   workflow_call:
     inputs:
