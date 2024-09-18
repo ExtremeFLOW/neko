@@ -290,11 +290,25 @@ contains
        dgtq(4) = device_glsum(this%force4%x_d,n_pts)
        dgtq(5) = device_glsum(this%force5%x_d,n_pts)
        dgtq(6) = device_glsum(this%force6%x_d,n_pts)
-
+       !Overwriting masked s11, s22, s33 as they are no longer needed
+       call device_vcross(this%s11msk%x_d,this%s22msk%x_d,this%s33msk%x_d, &
+                    this%r1%x_d, this%r2%x_d, this%r3%x_d, &
+                    this%force1%x_d, this%force2%x_d, this%force3%x_d,n_pts)
+       
+       dgtq(7) = device_glsum(this%s11msk%x_d,n_pts)
+       dgtq(8) = device_glsum(this%s22msk%x_d,n_pts)
+       dgtq(9) = device_glsum(this%s33msk%x_d,n_pts)
+       call device_vcross(this%s11msk%x_d,this%s22msk%x_d,this%s33msk%x_d, &
+                    this%r1%x_d, this%r2%x_d, this%r3%x_d, &
+                    this%force4%x_d, this%force5%x_d, this%force6%x_d,n_pts)
+       dgtq(10) = device_glsum(this%s11%x_d,n_pts)
+       dgtq(11) = device_glsum(this%s22%x_d,n_pts)
+       dgtq(12) = device_glsum(this%s33%x_d,n_pts)
     end if
     if (pe_rank .eq. 0) then
        dgtq = this%scale*dgtq
        write(*,*) 'Zone id', this%zone_id, this%zone_name,'calc forces and torque'
+       write(*,*) 'tstep, time, total force/torque, pressure, viscous, direction '
        write(*,*) tstep,t,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),', forcex'
        write(*,*) tstep,t,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),', forcey'
        write(*,*) tstep,t,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),', forcez'
