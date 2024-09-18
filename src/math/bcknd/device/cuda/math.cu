@@ -438,7 +438,7 @@ extern "C" {
 
   /**
    * Fortran wrapper for vcross
-   * \f$ u = v \cross w \f$
+   * \f$ u = v \times w \f$
    */
   void cuda_vcross(void *u1, void *u2, void *u3,
                   void *v1, void *v2, void *v3,

@@ -415,6 +415,26 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
+  /**
+   * Fortran wrapper for vdot3
+   * \f$ u = v \times w \f$
+   */
+  void hip_vcross(void *u1, void *u2, void *u3,
+                 void *v1, void *v2, void *v3,
+                 void *w1, void *w2, void *w3, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(vcross_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) u1, (real *) u2, (real *) u3,
+                       (real *) v1, (real *) v2, (real *) v3, 
+                       (real *) w1, (real *) w2, (real *) w3, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+
   /*
    * Reduction buffer
    */
