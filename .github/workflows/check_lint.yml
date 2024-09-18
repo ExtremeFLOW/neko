@@ -182,3 +182,32 @@ jobs:
             fi
           fi
 
+  # Create a badge for the flint score
+  create-badge-lint:
+    name: "Create linting badge"
+    runs-on: ubuntu-20.04
+    needs:
+      - lint-current
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup env.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -yq python3-pip
+          pip install anybadge
+
+      - name: Create badge
+        env:
+            score: ${{ needs.lint-current.outputs.score }}
+        run: |
+            mkdir -p doc/media
+            anybadge -l Flint -o --file=doc/media/lint-badge.svg -v $score 9.0=red 9.9=yellow 10=green
+
+      - name: Save artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-badge
+          path: doc/media/lint-badge.svg

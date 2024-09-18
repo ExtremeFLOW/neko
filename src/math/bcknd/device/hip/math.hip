@@ -451,7 +451,7 @@ extern "C" {
 
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
                              hipMemcpyDeviceToHost, stream));
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
 
     return bufred[0];
   }
@@ -488,12 +488,12 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
 #ifdef HAVE_DEVICE_MPI
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
                              hipMemcpyDeviceToHost, stream));
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
 #endif
     return bufred[0];
   }
@@ -536,12 +536,12 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
 #ifdef HAVE_DEVICE_MPI
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
     device_mpi_allreduce(bufred_d, h, (*j), sizeof(real), DEVICE_MPI_SUM);
 #else
     HIP_CHECK(hipMemcpyAsync(h, bufred_d, (*j)* sizeof(real),
                              hipMemcpyDeviceToHost, stream));
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
 #endif    
   }
 
@@ -608,12 +608,12 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
 #ifdef HAVE_DEVICE_MPI
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
                              hipMemcpyDeviceToHost, stream));
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
 #endif
     return bufred[0];
   }
@@ -647,12 +647,12 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
 #ifdef HAVE_DEVICE_MPI
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d,sizeof(real),
                              hipMemcpyDeviceToHost, stream));
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
 #endif    
     return bufred[0];
   }

@@ -1,7 +1,11 @@
-name: GNU Matrix
+name: GNU Fortran
 
 # Controls when the action will run.
 on:
+  push:
+    branches:
+      - develop
+
   workflow_call:
     inputs:
       json-fortran-version:
@@ -78,12 +82,24 @@ jobs:
         id: setup-env
         run: ${{ matrix.setup-env }}
 
+      - name: Setup dependencies
+        id: setup-deps
+        env:
+          PFUNIT_VERSION: ${{ inputs.pfunit-version }}
+          JSON_FORTRAN_VERSION: ${{ inputs.json-fortran-version }}
+        run: |
+          if [ -z "$PFUNIT_VERSION" ]; then PFUNIT_VERSION="v4.4.2"; fi
+          if [ -z "$JSON_FORTRAN_VERSION" ]; then JSON_FORTRAN_VERSION="8.3.0"; fi
+
+          echo "pfunit-version=$PFUNIT_VERSION" >> $GITHUB_OUTPUT
+          echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
+
       - name: Get pFunit
         id: get-pfunit
         if: matrix.backend == 'cpu'
         uses: ./.github/actions/setup_pfunit
         with:
-          version: ${{ inputs.pfunit-version }}
+          version: ${{ steps.setup-deps.outputs.pfunit-version }}
           os: ${{ steps.setup-env.outputs.os-version }}
           compiler: ${{ matrix.compiler }}
 
@@ -91,7 +107,7 @@ jobs:
         id: get-json-fortran
         uses: ./.github/actions/setup_json-fortran
         with:
-          version: ${{ inputs.json-fortran-version }}
+          version: ${{ steps.setup-deps.outputs.json-fortran-version }}
           os: ${{ steps.setup-env.outputs.os-version }}
           compiler: ${{ matrix.compiler }}
 
