@@ -481,16 +481,16 @@ __global__ void vcross_kernel(T * __restrict__ u1,
                              const T * __restrict__ v3,
                              const T * __restrict__ w1,
                              const T * __restrict__ w2,
-                             const T * __restrict__ w3
+                             const T * __restrict__ w3,
                              const int n) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
   for (int i = idx; i < n; i += str) {
-    u1[i] = v2[i]*w3[i] - v3[i]*w2[i]
-    u2[i] = v3[i]*w1[i] - v1[i]*w3[i]
-    u3[i] = v1[i]*w2[i] - v2[i]*w1[i]
+    u1[i] = v2[i]*w3[i] - v3[i]*w2[i];
+    u2[i] = v3[i]*w1[i] - v1[i]*w3[i];
+    u3[i] = v1[i]*w2[i] - v2[i]*w1[i];
   }  
   
 }

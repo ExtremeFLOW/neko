@@ -668,7 +668,7 @@ module device_math
   end interface
 
   interface
-     subroutine cude_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
+     subroutine cuda_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
                            w1_d, w2_d, w3_d,  n) &
           bind(c, name='cuda_vcross')
        use, intrinsic :: iso_c_binding

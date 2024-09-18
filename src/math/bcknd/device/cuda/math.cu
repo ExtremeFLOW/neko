@@ -448,7 +448,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     
     vcross_kernel<real><<<nblcks, nthrds, 0,
-      (cudaStream_t) glb_cmd_queue>>>((real *) dot, (real *) u1,
+      (cudaStream_t) glb_cmd_queue>>>((real *) u1,
                                       (real *) u2, (real *) u3,
                                       (real *) v1, (real *) v2,
                                       (real *) v3, 
