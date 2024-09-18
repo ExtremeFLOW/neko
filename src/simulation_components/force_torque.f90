@@ -314,8 +314,9 @@ contains
     end if
     if (pe_rank .eq. 0) then
        dgtq = this%scale*dgtq
-       write(*,*) 'Zone id', this%zone_id, this%zone_name,'calc forces and torque'
-       write(*,*) 'tstep, time, total force/torque, pressure, viscous, direction '
+       write(*,*) 'Calculate force and torque'
+       write(*,*) 'Zone id', this%zone_id, this%zone_name,'Center:', this%center
+       write(*,*) 'tstep, time, total force/torque, pressure, viscous, direction'
        write(*,*) tstep,t,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),', forcex'
        write(*,*) tstep,t,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),', forcey'
        write(*,*) tstep,t,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),', forcez'
