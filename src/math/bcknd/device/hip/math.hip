@@ -67,6 +67,23 @@ extern "C" {
 
   }
   
+ 
+  /** Fortran wrapper for masked reduced copy
+   * Copy a vector \f$ a = b(mask) \f$
+   */
+  void hip_masked_red_copy(void *a, void *b, void *mask, int *n, int *m) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_red_copy_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) a, (real *) b, (int *) mask, *n, *m);
+
+    HIP_CHECK(hipGetLastError());
+
+  } 
+
   /** Fortran wrapper for cfill_mask
    * Fill a scalar to vector \f$ a_i = s, for i \in mask \f$
    */
@@ -155,11 +172,12 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(cfill_kernel<real>),
-                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                       (real *) a, *c, *n);
-    HIP_CHECK(hipGetLastError());
+    if (*n > 0) { 
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(cfill_kernel<real>),
+                         nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                         (real *) a, *c, *n);
+      HIP_CHECK(hipGetLastError());
+    }
   }
 
   /**
@@ -412,6 +430,26 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
+  /**
+   * Fortran wrapper for vdot3
+   * \f$ u = v \times w \f$
+   */
+  void hip_vcross(void *u1, void *u2, void *u3,
+                 void *v1, void *v2, void *v3,
+                 void *w1, void *w2, void *w3, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(vcross_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) u1, (real *) u2, (real *) u3,
+                       (real *) v1, (real *) v2, (real *) v3, 
+                       (real *) w1, (real *) w2, (real *) w3, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+
   /*
    * Reduction buffer
    */
@@ -637,15 +675,15 @@ extern "C" {
       HIP_CHECK(hipHostMalloc(&bufred,nb*sizeof(real),hipHostMallocDefault));
       HIP_CHECK(hipMalloc(&bufred_d, nb*sizeof(real)));
     }
-     
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(glsum_kernel<real>),
+    if( *n > 0) { 
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsum_kernel<real>),
                        nblcks, nthrds, 0, stream,
                        (real *) a, bufred_d, *n);
-    HIP_CHECK(hipGetLastError());
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
+      HIP_CHECK(hipGetLastError());
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
                        1, 1024, 0, stream, bufred_d, nb);
-    HIP_CHECK(hipGetLastError());
-
+      HIP_CHECK(hipGetLastError());
+    }
 #ifdef HAVE_DEVICE_MPI
     HIP_CHECK(hipStreamSynchronize(stream));
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);

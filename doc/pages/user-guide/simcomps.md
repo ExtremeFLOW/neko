@@ -28,6 +28,7 @@ in Neko. The list will be updated as new simcomps are added.
 - Probing of fields at selected points \ref simcomp_probes
 - Output of registered fields to an `.fld` file \ref simcomp_field_writer
 - Computation of the derivative of a field \ref simcomp_derivative
+- Computation of forces and torque on a surface \ref simcomp_force_torque
 - Computation of the weak gradient of a field \ref simcomp_weak_grad
 - User defined components \ref user-file_simcomps
 
@@ -206,6 +207,23 @@ fields to disk via the usual common keywords.
    "direction", "y",
    "output_control" : "simulation_time",
    "output_value" : 1.0
+ }
+ ~~~~~~~~~~~~~~~
+ 
+### force_torque {#simcomp_force_torque}
+Computes the force on a specified zone and the corresponding torque
+around a center point. The compute control specifies how often they are
+computed and printed into the log. Subroutines used in the simcomp can be 
+found in src/qoi/drag_torque.f90 
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "force_torque",
+   "zone_id": 1,
+   "center": [0.0, 0.0, 0.0],
+   "zone_name": "some chosen name, optional",
+   "output_control" : "tsteps",
+   "output_value" : 10
  }
  ~~~~~~~~~~~~~~~
  
