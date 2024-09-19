@@ -94,8 +94,8 @@ contains
     call get_environment_variable("NEKO_LOG_FILE", log_file, envvar_len)
     if (envvar_len .gt. 0) then
        this%unit_ = 69
-       open(unit=this%unit_, file=trim(log_file), status='replace', &
-            action='write')
+       open(unit = this%unit_, file = trim(log_file), status = 'replace', &
+            action = 'write')
     else
        this%unit_ = stdout
     end if
@@ -129,7 +129,7 @@ contains
 
     if (pe_rank .eq. 0) then
        do i = 1, this%indent_
-          write(this%unit_,'(A)', advance='no') ' '
+          write(this%unit_, '(A)', advance = 'no') ' '
        end do
     end if
 
@@ -153,7 +153,7 @@ contains
     end if
 
     if (pe_rank .eq. 0) then
-       write(this%unit_,*) ' '
+       write(this%unit_, *) ' '
     end if
 
   end subroutine log_newline
@@ -189,15 +189,15 @@ contains
     character(len=*), intent(in) :: build_info
 
     if (pe_rank .eq. 0) then
-       write(this%unit_,*) ' '
-       write(this%unit_,*) '   _  __  ____  __ __  ____  '
-       write(this%unit_,*) '  / |/ / / __/ / //_/ / __ \ '
-       write(this%unit_,*) ' /    / / _/  / ,<   / /_/ / '
-       write(this%unit_,*) '/_/|_/ /___/ /_/|_|  \____/  '
-       write(this%unit_,*) ' '
-       write(this%unit_,*) '(version: ', trim(version), ')'
-       write(this%unit_,*) trim(build_info)
-       write(this%unit_,*) ' '
+       write(this%unit_, *) ' '
+       write(this%unit_, *) '   _  __  ____  __ __  ____  '
+       write(this%unit_, *) '  / |/ / / __/ / //_/ / __ \ '
+       write(this%unit_, *) ' /    / / _/  / ,<   / /_/ / '
+       write(this%unit_, *) '/_/|_/ /___/ /_/|_|  \____/  '
+       write(this%unit_, *) ' '
+       write(this%unit_, *) '(version: ', trim(version), ')'
+       write(this%unit_, *) trim(build_info)
+       write(this%unit_, *) ' '
     end if
 
   end subroutine log_header
@@ -209,7 +209,7 @@ contains
 
     if (pe_rank .eq. 0) then
        call this%indent()
-       write(stderr, '(A,A,A)') '*** ERROR: ', trim(msg),'  ***'
+       write(stderr, '(A,A,A)') '*** ERROR: ', trim(msg), '  ***'
     end if
 
   end subroutine log_error
@@ -221,7 +221,7 @@ contains
 
     if (pe_rank .eq. 0) then
        call this%indent()
-       write(this%unit_, '(A,A,A)') '*** WARNING: ', trim(msg),'  ***'
+       write(this%unit_, '(A,A,A)') '*** WARNING: ', trim(msg), '  ***'
     end if
 
   end subroutine log_warning
@@ -252,17 +252,17 @@ contains
 
        pre = (30 - len_trim(msg)) / 2
 
-       write(this%unit_,*) ' '
+       write(this%unit_, *) ' '
        call this%indent()
        do i = 1, pre
-          write(this%unit_,'(A)', advance='no') '-'
+          write(this%unit_, '(A)', advance = 'no') '-'
        end do
 
-       write(this%unit_,'(A)', advance='no') trim(msg)
+       write(this%unit_, '(A)', advance = 'no') trim(msg)
        do i = 1, 30 - (len_trim(msg) + pre)
-          write(this%unit_,'(A)', advance='no') '-'
+          write(this%unit_, '(A)', advance = 'no') '-'
        end do
-       write(this%unit_,*) ' '
+       write(this%unit_, *) ' '
     end if
 
   end subroutine log_section
@@ -305,15 +305,12 @@ contains
     real(kind=rp) :: t_prog
 
     t_prog = 100d0 * t / T_end
+    write(log_buf, '(A4,E15.7,34X,A2,F6.2,A3)') 't = ', t, '[ ', t_prog, '% ]'
 
-    call this%message('----------------------------------------------------------------', &
-         NEKO_LOG_QUIET)
-    write(log_buf, '(A,E15.7,A,F6.2,A)') &
-         't = ', t, '                                  [ ',t_prog,'% ]'
-
+    call this%message(repeat('-', 64), NEKO_LOG_QUIET)
     call this%message(log_buf, NEKO_LOG_QUIET)
-    call this%message('----------------------------------------------------------------', &
-         NEKO_LOG_QUIET)
+    call this%message(repeat('-', 64), NEKO_LOG_QUIET)
+
   end subroutine log_status
 
   !
@@ -322,7 +319,7 @@ contains
 
   !> Write a message to a log (from C)
   !! @note This assumes the global log stream @a neko_log
-  subroutine log_message_c(c_msg) bind(c, name='log_message')
+  subroutine log_message_c(c_msg) bind(c, name = 'log_message')
     use, intrinsic :: iso_c_binding
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
@@ -344,7 +341,7 @@ contains
 
   !> Write an error message to a log (from C)
   !! @note This assumes the global log stream @a neko_log
-  subroutine log_error_c(c_msg) bind(c, name="log_error")
+  subroutine log_error_c(c_msg) bind(c, name = "log_error")
     use, intrinsic :: iso_c_binding
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
@@ -359,14 +356,14 @@ contains
        end do
 
        call neko_log%indent()
-       write(stderr, '(A,A,A)') '*** ERROR: ',trim(msg(1:len)),'  ***'
+       write(stderr, '(A,A,A)') '*** ERROR: ', trim(msg(1:len)), '  ***'
     end if
 
   end subroutine log_error_c
 
   !> Write a warning message to a log (from C)
   !! @note This assumes the global log stream @a neko_log
-  subroutine log_warning_c(c_msg) bind(c, name="log_warning")
+  subroutine log_warning_c(c_msg) bind(c, name = "log_warning")
     use, intrinsic :: iso_c_binding
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
@@ -381,14 +378,15 @@ contains
        end do
 
        call neko_log%indent()
-       write(neko_log%unit_, '(A,A,A)') '*** WARNING: ',trim(msg(1:len)),'  ***'
+       write(neko_log%unit_, '(A,A,A)') &
+            '*** WARNING: ', trim(msg(1:len)), '  ***'
     end if
 
   end subroutine log_warning_c
 
   !> Begin a new log section (from C)
   !! @note This assumes the global log stream @a neko_log
-  subroutine log_section_c(c_msg) bind(c, name="log_section")
+  subroutine log_section_c(c_msg) bind(c, name = "log_section")
     use, intrinsic :: iso_c_binding
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
@@ -409,7 +407,7 @@ contains
 
   !> End a log section (from C)
   !! @note This assumes the global log stream @a neko_log
-  subroutine log_end_section_c() bind(c, name="log_end_section")
+  subroutine log_end_section_c() bind(c, name = "log_end_section")
 
     call neko_log%end_section()
 

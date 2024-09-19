@@ -33,7 +33,7 @@
 !> Utilities
 !! @details Various utility functions
 module utils
-  use, intrinsic :: iso_fortran_env, only: error_unit
+  use, intrinsic :: iso_fortran_env, only: error_unit, output_unit
   implicit none
   private
 
@@ -44,9 +44,9 @@ module utils
   end interface neko_error
 
   public :: neko_error, neko_warning, nonlinear_index, filename_chsuffix, &
-            filename_suffix, filename_suffix_pos, filename_tslash_pos, &
-            linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
-            concat_string_array
+       filename_suffix, filename_suffix_pos, filename_tslash_pos, &
+       linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
+       concat_string_array
 
 
 contains
@@ -55,14 +55,14 @@ contains
   pure function filename_suffix_pos(fname) result(suffix_pos)
     character(len=*), intent(in) :: fname
     integer :: suffix_pos
-    suffix_pos = scan(trim(fname), '.', back=.true.)
+    suffix_pos = scan(trim(fname), '.', back = .true.)
   end function filename_suffix_pos
 
   !> Find position (in the string) of a filename's trailing slash
   pure function filename_tslash_pos(fname) result(tslash_pos)
     character(len=*), intent(in) :: fname
     integer :: tslash_pos
-    tslash_pos = scan(trim(fname), '/', back=.true.)
+    tslash_pos = scan(trim(fname), '/', back = .true.)
   end function filename_tslash_pos
 
   !> Extract a filename's suffix
@@ -85,7 +85,8 @@ contains
   end subroutine filename_chsuffix
 
   !> Split a string based on delimiter (tokenizer)
-  !! OBS: very hacky, this should really be improved, it is rather embarrasing code.
+  !! OBS: very hacky, this should really be improved, it is rather embarrasing
+  !! code.
   function split_string(string, delimiter) result(split_str)
     character(len=*) :: string
     character(len=*) :: delimiter
@@ -99,8 +100,8 @@ contains
        split_str(1) = trim(string)
        return
     end if
-    do while( .true.)
-       i = scan(string(offset:), delimiter, back=.false.)
+    do while (.true.)
+       i = scan(string(offset:), delimiter, back = .false.)
        if (i .eq. 0) exit
        length = length + 1
        offset = offset + i
@@ -109,9 +110,9 @@ contains
     allocate(split_str(length))
     i = 0
     j = 1
-    offset=1
-    do while( .true.)
-       i2 = scan(trim(string(offset:)), delimiter, back=.false.)
+    offset = 1
+    do while (.true.)
+       i2 = scan(trim(string(offset:)), delimiter, back = .false.)
        if (i2 .eq. 0) then
           split_str(j) = trim(string(offset:))
           exit
@@ -122,45 +123,18 @@ contains
     end do
   end function split_string
 
-
-
-
   !> Compute the address of a (i,j,k,l) array
   !! with sizes (1:lx, 1:ly, 1:lz, :)
-  pure function linear_index(i,j,k,l,lx,ly,lz) result(index)
+  pure function linear_index(i, j, k, l, lx, ly, lz) result(index)
     integer, intent(in) :: i, j, k, l, lx, ly, lz
     integer :: index
 
     index = (i + lx * ((j - 1) + ly * ((k - 1) + lz * ((l - 1)))))
   end function linear_index
 
-  pure function index_is_on_facet(i, j, k, lx, ly, lz, facet) result(is_on)
-    integer, intent(in) :: i, j, k, lx, ly, lz, facet
-    logical :: is_on
-
-    is_on = .false.
-    select case(facet)
-    case(1)
-       if (i .eq. 1) is_on = .true.
-    case(2)
-       if (i .eq. lx) is_on = .true.
-    case(3)
-       if (j .eq. 1) is_on = .true.
-    case(4)
-       if (j .eq. ly) is_on = .true.
-    case(5)
-       if (k .eq. 1) is_on = .true.
-    case(6)
-       if (k .eq. lz) is_on = .true.
-    end select
-
-
-  end function index_is_on_facet
-
-
   !> Compute (i,j,k,l) array given linear index
   !! with sizes (1:lx, 1:ly, 1:lz, :)
-  pure function nonlinear_index(linear_index,lx,ly,lz) result(index)
+  pure function nonlinear_index(linear_index, lx, ly, lz) result(index)
     integer, intent(in) :: linear_index, lx, ly, lz
     integer :: index(4)
     integer :: lin_idx
@@ -176,6 +150,30 @@ contains
 
   end function nonlinear_index
 
+  pure function index_is_on_facet(i, j, k, lx, ly, lz, facet) result(is_on)
+    integer, intent(in) :: i, j, k, lx, ly, lz, facet
+    logical :: is_on
+
+    is_on = .false.
+    select case (facet)
+      case (1)
+       if (i .eq. 1) is_on = .true.
+      case (2)
+       if (i .eq. lx) is_on = .true.
+      case (3)
+       if (j .eq. 1) is_on = .true.
+      case (4)
+       if (j .eq. ly) is_on = .true.
+      case (5)
+       if (k .eq. 1) is_on = .true.
+      case (6)
+       if (k .eq. lz) is_on = .true.
+    end select
+
+  end function index_is_on_facet
+
+  !> Reports an error and stops execution
+  !! @param[optional] error_code The error code to report.
   subroutine neko_error_plain(error_code)
     integer, optional :: error_code
 
@@ -189,15 +187,18 @@ contains
 
   end subroutine neko_error_plain
 
+  !> Reports an error and stops execution
+  !! @param error_msg The error message to report.
   subroutine neko_error_msg(error_msg)
     character(len=*) :: error_msg
     write(error_unit,*) '*** ERROR: ', error_msg,' ***'
     error stop
   end subroutine neko_error_msg
 
+  !> Reports a warning to standard output
   subroutine neko_warning(warning_msg)
     character(len=*) :: warning_msg
-    write(*,*) '*** WARNING: ', warning_msg,' ***'
+    write(output_unit,*) '*** WARNING: ', warning_msg,' ***'
   end subroutine neko_warning
 
   !> Concatenate an array of strings into one string with array items
@@ -213,14 +214,14 @@ contains
     integer :: i
 
     result = trim(array(1))
-    do i=2, size(array)
+    do i = 2, size(array)
        result = result // sep // trim(array(i))
     end do
 
     if (prepend .eqv. .true.) then
-      result = sep // result
+       result = sep // result
     end if
 
-   end function concat_string_array
+  end function concat_string_array
 
 end module utils
