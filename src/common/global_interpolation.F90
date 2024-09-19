@@ -566,7 +566,6 @@ contains
     real(kind=rp), intent(inout) :: interp_values(this%n_points)
     real(kind=rp), intent(inout) :: field(this%nelv*this%Xh%lxyz)
 
-    integer :: ioioi
 
 #ifdef HAVE_GSLIB
     if (.not. this%all_points_local) then
