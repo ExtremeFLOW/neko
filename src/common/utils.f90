@@ -45,7 +45,7 @@ module utils
   public :: neko_error, neko_warning, nonlinear_index, filename_chsuffix, &
             filename_suffix, filename_suffix_pos, filename_tslash_pos, &
             linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
-            concat_string_array
+            concat_string_array, extract_fld_file_index
 
 
 contains
@@ -82,6 +82,53 @@ contains
     new_fname = trim(fname(1:suffix_pos))//new_suffix
 
   end subroutine filename_chsuffix
+
+  !> Extracts the index of a field file. For example, "myfield.f00045"
+  !! will return `45`. If the suffix of the file name is invalid, returns
+  !! a default index value.
+  !! @param fld_filename Name of the fld file, e.g. `myfield0.f00035`.
+  !! @param default_index The index to return in case the suffix of
+  !! `fld_filename` is invalid.
+  function extract_fld_file_index(fld_filename, default_index) result(index)
+    character(len=*), intent(inout) :: fld_filename
+    integer, intent(in) :: default_index
+
+    character(len=80) :: suffix
+    integer :: index, fpos, i
+    logical :: valid
+
+    call filename_suffix(fld_filename, suffix)
+
+    valid = .true.
+
+    ! This value will be modified when reading the file name extension
+    ! e.g. "field0.f00035" will set sample_idx = 35
+    index = default_index
+
+    !
+    ! Try to extract the index of the field file from the suffix "fxxxxx"
+    !
+    fpos = scan(trim(suffix), 'f')
+    if (fpos .eq. 1) then
+
+       ! Make sure that the suffix only contains integers from 0 to 9
+       do i = 2, len(trim(suffix))
+          if (.not. (iachar(suffix(i:i)) >= iachar('0') &
+               .and. iachar(suffix(i:i)) <= iachar('9'))) then
+             valid = .false.
+          end if
+       end do
+
+       ! Must be exactly "fxxxxx", i.e. an 'f' with 5 integers after
+       if (len(trim(suffix)) .ne. 6) valid = .false.
+
+    else
+       valid = .false.
+    end if
+
+    if (valid) read (suffix(2:), "(I5.5)") index
+
+  end function extract_fld_file_index
 
   !> Split a string based on delimiter (tokenizer)
   !! OBS: very hacky, this should really be improved, it is rather embarrasing code.

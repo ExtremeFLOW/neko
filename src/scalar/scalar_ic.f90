@@ -39,7 +39,7 @@ module scalar_ic
   use device, only : device_memcpy, HOST_TO_DEVICE
   use field, only : field_t
   use utils, only : neko_error, filename_chsuffix, filename_suffix, &
-       neko_warning, NEKO_FNAME_LEN
+       neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
   use coefs, only : coef_t
   use math, only : col2, cfill, cfill_mask
   use user_intf, only : useric_scalar
@@ -88,11 +88,10 @@ contains
     ! Variables for retrieving JSON parameters
     real(kind=rp) :: ic_value
     character(len=:), allocatable :: read_str
-    character(len=80) :: suffix
-    character(len=NEKO_FNAME_LEN) :: fname
+    character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
     real(kind=rp) :: zone_value, tol
     logical :: interpolate
-    integer :: sample_idx, fpos, sample_mesh_idx, default_sample_mesh_idx
+    integer :: sample_idx, sample_mesh_idx
     character(len=LOG_SIZE) :: log_buf
 
     if (trim(type) .eq. 'uniform') then
@@ -124,75 +123,63 @@ contains
 
        call json_get(params, 'case.scalar.initial_condition.file_name', &
             read_str)
+
+       ! Read field file
        fname = trim(read_str)
-       call filename_suffix(fname, suffix)
        call neko_log%message("File name: " // trim(fname))
 
-       !
-       ! Get the index of the file to sample
-       !
-       call json_get_or_default(params, &
-            'case.scalar.initial_condition.sample_index', sample_idx, -1)
+       ! Get the sample index from the file name, e.g. "field0.f00015" will
+       ! return 15
+       sample_idx = extract_fld_file_index(fname, -1)
 
-       ! In case we interpolate, the default index of the file in which to
-       ! look for the coordinates
-       default_sample_mesh_idx = 0
-
-       if (sample_idx .ne. -1) then
-          write (log_buf, '(A,I5)') "Sample index: ", sample_idx
-          call neko_log%message(log_buf)
+       if (sample_idx .eq. -1) then
+          call neko_error("Invalid file name for the initial condition. The&
+& file format must be e.g. 'mean0.f00001'")
        end if
 
-       ! If it's not fld assume it's either .nek5000 or .f00*
-       if (trim(suffix) .ne. "fld") then
+       call filename_chsuffix(fname, fname, 'fld')
 
-          ! Check if the suffix is of type "f000*", and if so extract
-          ! the index e.g. "f00035" --> 35
-          ! NOTE: overwrites whatever is in sampled_index
-          fpos = scan(suffix, 'f')
-          if (fpos .eq. 1) then
-             if (sample_idx .ne. -1) &
-                  call neko_warning("Overwriting sample index.")
-             read (suffix(2:), "(I5.5)") sample_idx
-
-             ! In case we interpolate we assume the mesh is also in this file
-             default_sample_mesh_idx = sample_idx
-          end if
-
-          call filename_chsuffix(fname, fname, 'fld')
-
-       end if
-
-       !
        ! Check if we want to interpolate from the field file, default is no
-       !
        call json_get_or_default(params, &
             'case.scalar.initial_condition.interpolate', interpolate, &
             .false.)
-
-       !
        ! Get the tolerance for potential interpolation, defaults to 1e-6
-       !
        call json_get_or_default(params, &
             'case.scalar.initial_condition.tolerance', tol, 0.000001_rp)
 
-       ! Get the index of the file that contains the mesh
-       call json_get_or_default(params, &
-            'case.scalar.initial_condition.sample_mesh_index', &
-            sample_mesh_idx, 0)
-
-       ! Get the index of the file that contains the mesh.
-       call json_get_or_default(params, &
-            'case.scalar.initial_condition.sample_mesh_index', &
-            sample_mesh_idx, 0)
-
        if (interpolate) then
+
           call neko_log%message("Interpolation   : yes")
           write (log_buf, '(A,E15.7)') "Tolerance       : ", tol
           call neko_log%message(log_buf)
-          write (log_buf, '(A,I5.5)') "Coordinates at sample index : ", &
-               sample_mesh_idx
-          call neko_log%message(log_buf)
+
+          ! Get the index of the file that contains the mesh.
+          call json_get_or_default(params, &
+               'case.scalar.initial_condition.mesh_file_name', read_str, &
+               "none")
+
+          mesh_fname = trim(read_str)
+
+          ! If no mesh file is specified, use the default file name
+          if (mesh_fname .eq. "none") then
+             mesh_fname = trim(fname)
+             sample_mesh_idx = sample_idx
+          else
+             ! Get the sample index from the mesh file name
+             sample_mesh_idx = extract_fld_file_index(mesh_fname, -1)
+
+             if (sample_mesh_idx .eq. -1) then
+                call neko_error("Invalid file name for the initial condition. The&
+& file format must be e.g. 'mean0.f00001'")
+             end if
+
+             write (log_buf, '(A,A)') "Coordinates file : ", &
+                  trim(mesh_fname)
+             call neko_log%message(log_buf)
+          end if
+
+       else
+          call neko_log%message("Interpolation: no")
        end if
 
        call set_scalar_ic_fld(s, fname, sample_idx, interpolate, &
@@ -322,6 +309,7 @@ contains
     integer :: last_index
     type(fld_file_data_t) :: fld_data
     type(file_t) :: f
+    logical :: mesh_mismatch
 
     ! ---- For the mesh to mesh interpolation
     type(global_interpolation_t) :: global_interp
@@ -335,50 +323,17 @@ contains
     call fld_data%init
     f = file_t(trim(file_name))
 
-    ! If no sample is specified, we read as a classic fld series
-    ! with the mesh located at index 0
-    if (sample_idx .eq. -1) then
-
-       ! Read one time to get all information about the fld series
-       ! and read the first file in the series.
-       call f%read(fld_data)
-
-       last_index = fld_data%meta_nsamples + fld_data%meta_start_counter - 1
-
-       if (interpolate) then
-          ! Read the coordinates if they are neither at index 0 or at the
-          ! last index
-          if (sample_mesh_idx .ne. 0 .and. &
-               sample_mesh_idx .ne. last_index) then
-             call f%set_counter(sample_mesh_idx)
-             call f%read(fld_data)
-          end if
-       end if ! interpolate
-
-       ! If there is more than one file, read the last one in the series.
-       if (fld_data%meta_nsamples .gt. 1) then
-          call f%set_counter(last_index)
+    if (interpolate) then
+       ! Read the mesh coordinates if they are not in our fld file
+       if (sample_mesh_idx .ne. sample_idx) then
+          call f%set_counter(sample_mesh_idx)
           call f%read(fld_data)
        end if
+    end if
 
-    else ! In this case we have a specific sample to read in the fld series
-
-       if (interpolate) then
-          ! Read the mesh coordinates if they are not in our fld file
-          if (sample_mesh_idx .ne. sample_idx) then
-             call f%set_counter(sample_mesh_idx)
-             call f%read(fld_data)
-          end if
-
-          ! Read the actual fld file
-          call f%read(fld_data)
-          f = file_t(trim(file_name))
-       end if
-
-       call f%set_counter(sample_idx)
-       call f%read(fld_data)
-
-    end if ! sample_idx .eq. -1
+    ! Read the field file containing (u,v,w,p)
+    call f%set_counter(sample_idx)
+    call f%read(fld_data)
 
     !
     ! Check that the data in the fld file matches the current case.
@@ -386,15 +341,17 @@ contains
     ! two different meshes have the same dimension and same # of elements
     ! but this should be enough to cover obvious cases.
     !
-    if ( fld_data%glb_nelv .ne. s%msh%glb_nelv .or. &
-         fld_data%gdim .ne. s%msh%gdim .and. &
-         .not. interpolate) then
+    mesh_mismatch = (fld_data%glb_nelv .ne. s%msh%glb_nelv .or. &
+         fld_data%gdim .ne. s%msh%gdim)
+
+    if (mesh_mismatch .and. .not. interpolate) then
        call neko_error("The fld file must match the current mesh! &
-            &Use 'interpolate': 'true' to enable interpolation.")
-    else if (interpolate) then
+&Use 'interpolate': 'true' to enable interpolation.")
+    else if (.not. mesh_mismatch .and. interpolate) then
        call neko_log%warning("You have activated interpolation but you might &
-            &still be using the same mesh.")
+&still be using the same mesh.")
     end if
+
 
     ! Mesh interpolation if specified
     if (interpolate) then
