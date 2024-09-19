@@ -45,13 +45,6 @@
         "output_control": "simulationtime",
         "output_value": 1.0
     },
-    "statistics": {
-        "enabled": true,
-        "output_control": "simulationtime",
-        "output_value": 20,
-        "start_time": 70.0,
-        "sampling_interval": 10
-    },
  "simulation_components": 
   [
     {
@@ -61,7 +54,16 @@
       "zone_id": 3,
       "scale": 0.01899,
       "center": [0,0,0]
-    }
+    },    
+    { 
+      "type": "fluid_stats",
+      "output_control": "simulationtime",
+      "output_value": 20,
+      "start_time": 70.0,
+      "sampling_interval": 10,
+      "avg_direction": "xz" 
+    },
+
   ]   
 
 }
