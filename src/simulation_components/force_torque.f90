@@ -51,7 +51,8 @@ module force_torque
   use drag_torque
   use comm
   use math, only : masked_red_copy, cadd, glsum, vcross
-  use device_math, only : device_masked_red_copy, device_cadd, device_glsum
+  use device_math, only : device_masked_red_copy, device_cadd, &
+                          device_glsum, device_vcross
   use device
   
   implicit none
