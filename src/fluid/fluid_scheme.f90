@@ -861,19 +861,6 @@ contains
     !
     call this%chkp%init(this%u, this%v, this%w, this%p)
 
-    !
-    ! Setup mean flow fields if requested
-    !
-    if (this%params%valid_path('case.statistics')) then
-       call json_get_or_default(this%params, 'case.statistics.enabled', &
-                                logical_val, .true.)
-       if (logical_val) then
-          call this%mean%init(this%u, this%v, this%w, this%p)
-          call this%stats%init(this%c_Xh, this%mean%u, &
-               this%mean%v, this%mean%w, this%mean%p)
-       end if
-    end if
-
   end subroutine fluid_scheme_validate
 
   !> Apply all boundary conditions defined for velocity
