@@ -222,6 +222,7 @@ file documentation.
 | ---------------- | -------------------------------------------------------------------------------------------------- | ---------------------------- | ------------- |
 | `file_name`      | Name of the field file to use (e.g. `myfield0.f00034`).                                            | Strings ending with `f*****` | -             |
 | `interpolate`    | Whether to interpolate the velocity and pressure fields from the field file onto the current mesh. | `true` or `false`            | `false`       |
+| `tolerance`      | Tolerance for the point search.                                                                    | Positive real.               | `1e-6`        |
 | `mesh_file_name` | If interpolation is enabled, the name of the field file that contains the mesh coordinates.        | Strings ending with `f*****` | `file_name`   |
 
    @attention Interpolating a field from the same mesh but different 
