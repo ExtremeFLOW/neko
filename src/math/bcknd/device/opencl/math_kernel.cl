@@ -55,7 +55,7 @@ __kernel void masked_copy_kernel(__global real * __restrict__ a,
  * Device kernel for cfill_mask
  */
 __kernel void cfill_mask_kernel(__global real * __restrict__ a, 
-                                const T c, 
+                                const real c, 
                                 const int size, 
                                 __global int * __restrict__ mask,
                                 const int mask_size) {
