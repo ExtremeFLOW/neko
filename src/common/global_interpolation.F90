@@ -128,6 +128,9 @@ contains
     type(dofmap_t), target :: dof
     real(kind=rp), optional :: tol
 
+    ! NOTE: Passing dof%x(:,1,1,1), etc in init_xyz passes down the entire
+    ! dof%x array and not a slice. It is done this way for
+    ! this%x%ptr to point to dof%x (see global_interpolation_init_xyz).
     call this%init_xyz(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
          dof%msh%gdim, dof%msh%nelv, dof%Xh, tol = tol)
 
