@@ -178,6 +178,21 @@ extern "C" {
   }
   
   /**
+   * Fortran wrapper for add4
+   * Vector addition \f$ a = b + c + d\f$
+   */
+  void hip_add4(void *a, void *b, void *c, void *d, int *n) {
+    
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(add4_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) a, (real *) b, (real *) c, (real *) d, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  /**
    * Fortran wrapper for add2s1
    * Vector addition with scalar multiplication \f$ a = c_1 a + b \f$
    * (multiplication on first argument) 
