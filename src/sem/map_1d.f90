@@ -285,6 +285,12 @@ contains
 
   end subroutine map_1d_free
 
+
+  !> Computes average if field list in two directions and outputs matrix
+  !! with averaged values
+  !! avg_planes contains coordinates in first row, avg. of fields in the rest
+  !! @param avg_planes output averages
+  !! @param field_list list of fields to be averaged
   subroutine map_1d_average_field_list(this, avg_planes, field_list)
     class(map_1d_t), intent(inout) :: this
     type(field_list_t), intent(inout) :: field_list
@@ -318,7 +324,12 @@ contains
 
 
   end subroutine map_1d_average_field_list
-
+  
+  !> Computes average if vector_pt in two directions and outputs matrix
+  !! with averaged values
+  !! avg_planes contains coordinates in first row, avg. of fields in the rest
+  !! @param avg_planes output averages
+  !! @param vector_pts to vectors to be averaged
   subroutine map_1d_average_vector_ptr(this, avg_planes, vector_ptr)
     class(map_1d_t), intent(inout) :: this
     !Observe is an array...

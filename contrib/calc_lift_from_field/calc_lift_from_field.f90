@@ -1,4 +1,4 @@
-!> Program to calculate the force and acting on a single boundary zone as well as
+	!> Program to calculate the force and acting on a single boundary zone as well as
 !! the torque around a point if one changes the value of center (defaults to 0,0,0).
 !! Outputs the x,y,z prjections of the pressure and viscous forces and torques and
 !! additionally saves the distribution of these quantities along a selected homogenous
@@ -116,7 +116,7 @@ program calc_lift_from_field
   else 
      call neko_error('The homogeneous direction should be "x", "y"or "z"')
   end if
-  call map_1d%init(dof, gs_h, dir, 1e-7_rp)
+  call map_1d%init(coef, dir, 1e-7_rp)
 
 
   call u%init(dof)
