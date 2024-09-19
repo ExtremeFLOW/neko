@@ -110,7 +110,6 @@ contains
     !
     fpos = scan(trim(suffix), 'f')
     if (fpos .eq. 1) then
-
        ! Make sure that the suffix only contains integers from 0 to 9
        do i = 2, len(trim(suffix))
           if (.not. (iachar(suffix(i:i)) >= iachar('0') &
@@ -118,13 +117,12 @@ contains
              valid = .false.
           end if
        end do
-
-       ! Must be exactly "fxxxxx", i.e. an 'f' with 5 integers after
-       if (len(trim(suffix)) .ne. 6) valid = .false.
-
     else
        valid = .false.
     end if
+
+    ! Must be exactly 6 characters long, i.e. an 'f' with 5 integers after
+    if (len(trim(suffix)) .ne. 6) valid = .false.
 
     if (valid) read (suffix(2:), "(I5.5)") index
 
