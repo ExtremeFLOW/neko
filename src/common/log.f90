@@ -34,7 +34,8 @@
 module logger
   use comm, only : pe_rank
   use num_types, only : rp
-  use, intrinsic :: iso_fortran_env, only: stdout => output_unit
+  use, intrinsic :: iso_fortran_env, only: stdout => output_unit, &
+       stderr => error_unit
   implicit none
   private
 
@@ -208,7 +209,7 @@ contains
 
     if (pe_rank .eq. 0) then
        call this%indent()
-       write(this%unit_, '(A,A,A)') '*** ERROR: ', trim(msg),'  ***'
+       write(stderr, '(A,A,A)') '*** ERROR: ', trim(msg),'  ***'
     end if
 
   end subroutine log_error
@@ -336,7 +337,7 @@ contains
        end do
 
        call neko_log%indent()
-       write(*, '(A)') trim(msg(1:len))
+       write(neko_log%unit_, '(A)') trim(msg(1:len))
     end if
 
   end subroutine log_message_c
@@ -358,7 +359,7 @@ contains
        end do
 
        call neko_log%indent()
-       write(*, '(A,A,A)') '*** ERROR: ',trim(msg(1:len)),'  ***'
+       write(stderr, '(A,A,A)') '*** ERROR: ',trim(msg(1:len)),'  ***'
     end if
 
   end subroutine log_error_c
@@ -380,7 +381,7 @@ contains
        end do
 
        call neko_log%indent()
-       write(*, '(A,A,A)') '*** WARNING: ',trim(msg(1:len)),'  ***'
+       write(neko_log%unit_, '(A,A,A)') '*** WARNING: ',trim(msg(1:len)),'  ***'
     end if
 
   end subroutine log_warning_c
