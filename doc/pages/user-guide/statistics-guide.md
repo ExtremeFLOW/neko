@@ -29,7 +29,7 @@ where \f$ u_0 \f$ is the fields value at \f$ T_0 \f$ and \f$ N \f$ is the number
 In the statistics in Neko, various averages of the the different velocity components, derivatives and pressure are computed. In total, 44 "raw statistics" are computed that are required to compute the Reynolds stress budgets, mean fields, and the different terms in the turbulent kinetic energy equation.
 
 ## Using statistics
-Statistics are enable in the the case file as a simcomp with the added argument avg_direction and start_time:
+Statistics are enable in the the case file as a simcomp with the added argument avg_direction, set_of_stats, and start_time:
 
 | Name                | Description                                                          | Admissible values | Default value |
 | ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
@@ -40,7 +40,7 @@ Statistics are enable in the the case file as a simcomp with the added argument 
 
 In addition to the usual controls for the output, which then outputs the averages computes from the last time the statistics were written to file.
 
-For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute the averages in time intervals of 20 and write the output every 20 time units, and start collecting statistics after an initial transient of 50 time units the following would work:
+For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 50 time units the following would work:
 
 ~~~~~~~~~~~~~~~{.json}
 "simulation\_components": 
