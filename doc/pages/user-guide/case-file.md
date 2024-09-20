@@ -276,8 +276,9 @@ The following types are currently implemented.
      Common notation when modelling the atmosphere. This assumes that the \f$ z
      \f$ axis is normal to the ground.
    - `f`: Scalar, referred to as the Coriolis parameter, \f$ f = 2 \omega \sin
-     \phi \f$. Sets \f$ \Omega = [0, 0, 0.5f ] \f$. This further assumes that the
-     ground-normal component of the Coriolis force is negligible.
+     \phi \f$. Sets \f$ \Omega = [0, 0, 0.5f ] \f$. This assumes both that \f$ z
+     \f$ axis is normal to the ground and that the ground-normal component of
+     the Coriolis force is negligible.
 
    The geostrophic wind is set to 0 for all components by default. Other values
    are set via the `geostrophic_wind` keyword.
