@@ -79,6 +79,7 @@ contains
     class(*), target, intent(in) :: data
     real(kind=rp), intent(in), optional :: t
     type(array_ptr_t) :: x, y, z, u, v, w, p, tem
+    real(kind=rp), allocatable, target :: tempo(:)
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dof
     type(space_t), pointer :: Xh
@@ -157,6 +158,19 @@ contains
              scalar_fields(i)%ptr => data%s(i)%x
           end do
           scalar_fields(n_scalar_fields+1)%ptr => data%w%x
+       end if
+       ! This is very stupid...
+       ! Some compilers cannot handle that these pointers dont point to anything
+       ! (although they are not used) this fixes a segfault due to this.
+       if (nelv .eq. 0) then
+          allocate(tempo(1))
+          x%ptr => tempo
+          y%ptr => tempo
+          z%ptr => tempo
+          u%ptr => tempo
+          v%ptr => tempo
+          w%ptr => tempo
+          p%ptr => tempo
        end if
 
        allocate(idx(nelv))
@@ -355,7 +369,6 @@ contains
             (int(gdim *lxyz, i8) * &
             int(FLD_DATA_SIZE, i8))
     end if
-
     if (write_velocity) then
        byte_offset = mpi_offset + int(offset_el, i8) * &
             (int(gdim * (lxyz), i8) * int(FLD_DATA_SIZE, i8))
