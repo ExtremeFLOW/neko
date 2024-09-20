@@ -82,7 +82,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        if (pe_rank .eq. 0) then
-          call neko_warning('map_1d does not copy indices to device,'\\ &
+          call neko_warning('map_1d does not copy indices to device,'// &
                             ' but ok if used on cpu and for io')
        end if
     end if
