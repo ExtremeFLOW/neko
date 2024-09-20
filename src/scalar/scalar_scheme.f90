@@ -41,7 +41,8 @@ module scalar_scheme
   use field_list, only: field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy
+  use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy, &
+       KSP_MAX_ITER
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
@@ -51,7 +52,7 @@ module scalar_scheme
   use hsmg, only : hsmg_t
   use precon, only : pc_t, precon_factory, precon_destroy
   use bc, only : bc_t, bc_list_t, bc_list_free, bc_list_init, &
-                 bc_list_apply_scalar, bc_list_add
+       bc_list_apply_scalar, bc_list_add
   use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use facet_zone, only : facet_zone_t
@@ -158,7 +159,7 @@ module scalar_scheme
      procedure, pass(this) :: set_user_bc => scalar_scheme_set_user_bc
      !> Update variable material properties
      procedure, pass(this) :: update_material_properties => &
-       scalar_scheme_update_material_properties
+          scalar_scheme_update_material_properties
      !> Constructor.
      procedure(scalar_scheme_init_intrf), pass(this), deferred :: init
      !> Destructor.
@@ -171,8 +172,9 @@ module scalar_scheme
 
   !> Abstract interface to initialize a scalar formulation
   abstract interface
-     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, user,&
-                                         material_properties)
+     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, user, &
+          material_properties, &
+          ulag, vlag, wlag, time_scheme)
        import scalar_scheme_t
        import json_file
        import coef_t
@@ -180,6 +182,8 @@ module scalar_scheme
        import mesh_t
        import user_t
        import material_properties_t
+       import field_series_t
+       import time_scheme_controller_t
        class(scalar_scheme_t), target, intent(inout) :: this
        type(mesh_t), target, intent(inout) :: msh
        type(coef_t), target, intent(inout) :: coef
@@ -187,6 +191,8 @@ module scalar_scheme
        type(json_file), target, intent(inout) :: params
        type(user_t), target, intent(in) :: user
        type(material_properties_t), intent(inout) :: material_properties
+       type(field_series_t), target, intent(in) :: ulag, vlag, wlag
+       type(time_scheme_controller_t), target, intent(in) :: time_scheme
      end subroutine scalar_scheme_init_intrf
   end interface
 
@@ -302,7 +308,7 @@ contains
   !! @param scheme The name of the scalar scheme.
   !! @param user Type with user-defined procedures.
   subroutine scalar_scheme_init(this, msh, c_Xh, gs_Xh, params, scheme, user, &
-                                material_properties)
+       material_properties)
     class(scalar_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     type(coef_t), target, intent(inout) :: c_Xh
@@ -325,24 +331,24 @@ contains
 
     call neko_log%section('Scalar')
     call json_get(params, 'case.fluid.velocity_solver.type', solver_type)
-    call json_get(params, 'case.fluid.velocity_solver.preconditioner',&
-                  solver_precon)
-    call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance',&
-                  solver_abstol)
+    call json_get(params, 'case.fluid.velocity_solver.preconditioner', &
+         solver_precon)
+    call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance', &
+         solver_abstol)
 
     call json_get_or_default(params, &
-                            'case.fluid.velocity_solver.projection_space_size',&
-                            this%projection_dim, 20)
+         'case.fluid.velocity_solver.projection_space_size', &
+         this%projection_dim, 20)
     call json_get_or_default(params, &
-                            'case.fluid.velocity_solver.projection_hold_steps',&
-                            this%projection_activ_step, 5)
+         'case.fluid.velocity_solver.projection_hold_steps', &
+         this%projection_activ_step, 5)
 
 
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
     call neko_log%message(log_buf)
     call neko_log%message('Ksp scalar : ('// trim(solver_type) // &
          ', ' // trim(solver_precon) // ')')
-    write(log_buf, '(A,ES13.6)') ' `-abs tol :',  solver_abstol
+    write(log_buf, '(A,ES13.6)') ' `-abs tol :', solver_abstol
     call neko_log%message(log_buf)
 
     this%Xh => this%u%Xh
@@ -366,11 +372,11 @@ contains
     this%lambda => material_properties%lambda
     this%cp => material_properties%cp
 
-    write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
+    write(log_buf, '(A,ES13.6)') 'rho        :', this%rho
     call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'lambda     :',  this%lambda
+    write(log_buf, '(A,ES13.6)') 'lambda     :', this%lambda
     call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'cp         :',  this%cp
+    write(log_buf, '(A,ES13.6)') 'cp         :', this%cp
     call neko_log%message(log_buf)
 
     !
@@ -388,7 +394,7 @@ contains
     call this%lambda_field%init(this%dm_Xh, "lambda")
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(this%lambda_field%x_d, this%lambda, &
-                         this%lambda_field%size())
+            this%lambda_field%size())
     else
        call cfill(this%lambda_field%x, this%lambda, this%lambda_field%size())
     end if
@@ -406,8 +412,8 @@ contains
     this%bc_labels = "not"
 
     if (params%valid_path('case.scalar.boundary_types')) then
-       call json_get(params, 'case.scalar.boundary_types', this%bc_labels,&
-                     'not')
+       call json_get(params, 'case.scalar.boundary_types', this%bc_labels, &
+            'not')
     end if
 
     !
@@ -417,7 +423,8 @@ contains
     call this%f_Xh%init(this%dm_Xh, fld_name = "scalar_rhs")
 
     ! Initialize the source term
-    call this%source_term%init(params, this%f_Xh, this%c_Xh, user)
+    call this%source_term%init(this%f_Xh, this%c_Xh, user)
+    call this%source_term%add(params, 'case.scalar.source_terms')
 
     call scalar_scheme_add_bcs(this, msh%labeled_zones, this%bc_labels)
 
@@ -428,8 +435,8 @@ contains
     call this%user_bc%mark_zone(msh%outlet_normal)
     call this%user_bc%mark_zone(msh%sympln)
     call this%user_bc%finalize()
-    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet,&
-                                                     this%user_bc)
+    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet, &
+         this%user_bc)
 
     ! Add field dirichlet BCs
     call this%field_dir_bc%init_base(this%c_Xh)
@@ -453,10 +460,13 @@ contains
 
     ! todo parameter file ksp tol should be added
     call json_get_or_default(params, &
-                             'case.fluid.velocity_solver.max_iterations', &
-                             integer_val, 800)
+         'case.fluid.velocity_solver.max_iterations', &
+         integer_val, KSP_MAX_ITER)
+    call json_get_or_default(params, &
+         'case.fluid.velocity_solver.monitor', &
+         logical_val, .false.)
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
-         solver_type, integer_val, solver_abstol)
+         solver_type, integer_val, solver_abstol, logical_val)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_dirichlet, solver_precon)
 
@@ -549,19 +559,23 @@ contains
 
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
-  subroutine scalar_scheme_solver_factory(ksp, n, solver, max_iter, abstol)
+  subroutine scalar_scheme_solver_factory(ksp, n, solver, max_iter, &
+       abstol, monitor)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
     integer, intent(in) :: max_iter
     character(len=*), intent(in) :: solver
     real(kind=rp) :: abstol
+    logical, intent(in) :: monitor
 
-    call krylov_solver_factory(ksp, n, solver, max_iter, abstol)
+    call krylov_solver_factory(ksp, n, solver, max_iter, &
+         abstol, monitor = monitor)
 
   end subroutine scalar_scheme_solver_factory
 
   !> Initialize a Krylov preconditioner
-  subroutine scalar_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, pctype)
+  subroutine scalar_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, &
+       pctype)
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
     type(coef_t), target, intent(inout) :: coef
@@ -573,13 +587,13 @@ contains
     call precon_factory(pc, pctype)
 
     select type (pcp => pc)
-    type is (jacobi_t)
+      type is (jacobi_t)
        call pcp%init(coef, dof, gs)
-    type is (sx_jacobi_t)
+      type is (sx_jacobi_t)
        call pcp%init(coef, dof, gs)
-    type is (device_jacobi_t)
+      type is (device_jacobi_t)
        call pcp%init(coef, dof, gs)
-    type is (hsmg_t)
+      type is (hsmg_t)
        if (len_trim(pctype) .gt. 4) then
           if (index(pctype, '+') .eq. 5) then
              call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &
@@ -617,15 +631,15 @@ contains
     lambda_factor = this%rho*this%cp/this%pr_turb
 
     if (this%variable_material_properties) then
-      nut => neko_field_registry%get_field(this%nut_field_name)
-      n = nut%size()
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_cfill(this%lambda_field%x_d, this%lambda, n)
-         call device_add2s2(this%lambda_field%x_d, nut%x_d, lambda_factor, n)
-      else
-         call cfill(this%lambda_field%x, this%lambda, n)
-         call add2s2(this%lambda_field%x, nut%x, lambda_factor, n)
-      end if
+       nut => neko_field_registry%get_field(this%nut_field_name)
+       n = nut%size()
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_cfill(this%lambda_field%x_d, this%lambda, n)
+          call device_add2s2(this%lambda_field%x_d, nut%x_d, lambda_factor, n)
+       else
+          call cfill(this%lambda_field%x, this%lambda, n)
+          call add2s2(this%lambda_field%x, nut%x, lambda_factor, n)
+       end if
     end if
 
   end subroutine scalar_scheme_update_material_properties

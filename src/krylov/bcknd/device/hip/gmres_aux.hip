@@ -78,14 +78,14 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
 #ifdef HAVE_DEVICE_MPI
-    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
+    HIP_CHECK(hipStreamSynchronize((hipStream_t) glb_cmd_queue));
     device_mpi_allreduce(gmres_bfd1, gmres_bf1, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
     
     HIP_CHECK(hipMemcpyAsync(gmres_bf1, gmres_bfd1, sizeof(real),
                              hipMemcpyDeviceToHost,
                              (hipStream_t) glb_cmd_queue));
-    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
+    HIP_CHECK(hipStreamSynchronize((hipStream_t) glb_cmd_queue));
 #endif
     return gmres_bf1[0];
 

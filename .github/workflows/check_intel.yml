@@ -1,7 +1,11 @@
-name: Intel Matrix
+name: Intel Fortran
 
 # Controls when the action will run.
 on:
+  push:
+    branches:
+      - develop
+
   workflow_call:
     inputs:
       json-fortran-version:
@@ -49,11 +53,20 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Setup dependencies
+        id: setup-deps
+        env:
+          JSON_FORTRAN_VERSION: ${{ inputs.json-fortran-version }}
+        run: |
+          if [ -z "$JSON_FORTRAN_VERSION" ]; then JSON_FORTRAN_VERSION="8.3.0"; fi
+
+          echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
+
       - name: Get JSON-Fortran
         id: get-json-fortran
         uses: ./.github/actions/setup_json-fortran
         with:
-          version: ${{ inputs.json-fortran-version }}
+          version: ${{ steps.setup-deps.outputs.json-fortran-version }}
           os: ${{ steps.setup-env.outputs.os-version }}
           compiler: ${{ matrix.compiler }}
 
