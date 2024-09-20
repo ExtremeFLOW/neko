@@ -25,14 +25,14 @@
         "velocity_solver": {
             "type": "cg",
             "preconditioner": "jacobi",
-            "projection_space_size": 5,
+            "projection_space_size": 0,
             "absolute_tolerance": 1e-4,
             "max_iterations": 800
         },
         "pressure_solver": {
             "type": "gmres",
             "preconditioner": "hsmg",
-            "projection_space_size": 20,
+            "projection_space_size": 5,
             "absolute_tolerance": 1e-3,
             "max_iterations": 800
         },
@@ -43,28 +43,29 @@
         },
         "boundary_types": ["", "", "w", "w"],
         "output_control": "simulationtime",
-        "output_value": 1.0
+        "output_value": 2.0
     },
  "simulation_components": 
   [
     {
       "type": "force_torque",
       "compute_control": "tsteps",
-      "compute_value": 5,
+      "compute_value": 10,
       "zone_id": 3,
-      "scale": 0.01899,
-      "center": [0,0,0]
+      "zone_name": "wall",
+      "center": [0,0,0],
+      "scale": 0.01899
     },    
     { 
       "type": "fluid_stats",
       "output_control": "simulationtime",
       "output_value": 20,
-      "start_time": 70.0,
-      "sampling_interval": 10,
-      "avg_direction": "xz" 
-    },
-
+      "start_time": 60.0,
+      "compute_control": "tsteps",
+      "compute_value": 50,
+      "avg_direction": "xz",
+      "set_of_stats": "full"
+    }
   ]   
-
 }
 }
