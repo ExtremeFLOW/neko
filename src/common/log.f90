@@ -128,9 +128,7 @@ contains
     integer :: i
 
     if (pe_rank .eq. 0) then
-       do i = 1, this%indent_
-          write(this%unit_, '(A)', advance = 'no') ' '
-       end do
+       write(this%unit_, '(A)', advance = 'no') repeat(' ', this%indent_)
     end if
 
   end subroutine log_indent
@@ -153,7 +151,7 @@ contains
     end if
 
     if (pe_rank .eq. 0) then
-       write(this%unit_, *) ' '
+       write(this%unit_, '(A)') ''
     end if
 
   end subroutine log_newline
@@ -189,15 +187,15 @@ contains
     character(len=*), intent(in) :: build_info
 
     if (pe_rank .eq. 0) then
-       write(this%unit_, *) ' '
-       write(this%unit_, *) '   _  __  ____  __ __  ____  '
-       write(this%unit_, *) '  / |/ / / __/ / //_/ / __ \ '
-       write(this%unit_, *) ' /    / / _/  / ,<   / /_/ / '
-       write(this%unit_, *) '/_/|_/ /___/ /_/|_|  \____/  '
-       write(this%unit_, *) ' '
-       write(this%unit_, *) '(version: ', trim(version), ')'
-       write(this%unit_, *) trim(build_info)
-       write(this%unit_, *) ' '
+       write(this%unit_, '(A)') ''
+       write(this%unit_, '(1X,A)') '   _  __  ____  __ __  ____  '
+       write(this%unit_, '(1X,A)') '  / |/ / / __/ / //_/ / __ \ '
+       write(this%unit_, '(1X,A)') ' /    / / _/  / ,<   / /_/ / '
+       write(this%unit_, '(1X,A)') '/_/|_/ /___/ /_/|_|  \____/  '
+       write(this%unit_, '(A)') ''
+       write(this%unit_, '(1X,A,A,A)') '(version: ', trim(version), ')'
+       write(this%unit_, '(1X,A)') trim(build_info)
+       write(this%unit_, '(A)') ''
     end if
 
   end subroutine log_header
@@ -232,7 +230,7 @@ contains
     character(len=*), intent(in) :: msg
     integer, optional :: lvl
 
-    integer :: i, pre
+    integer :: i, pre, pos
     integer :: lvl_
 
     if (present(lvl)) then
@@ -251,18 +249,13 @@ contains
        this%section_id_ = this%section_id_ + 1
 
        pre = (30 - len_trim(msg)) / 2
+       pos = 30 - (len_trim(msg) + pre)
 
-       write(this%unit_, *) ' '
+       write(this%unit_, '(A)') ''
        call this%indent()
-       do i = 1, pre
-          write(this%unit_, '(A)', advance = 'no') '-'
-       end do
+       write(this%unit_, '(A,A,A)') &
+            repeat('-', pre), trim(msg), repeat('-', pos)
 
-       write(this%unit_, '(A)', advance = 'no') trim(msg)
-       do i = 1, 30 - (len_trim(msg) + pre)
-          write(this%unit_, '(A)', advance = 'no') '-'
-       end do
-       write(this%unit_, *) ' '
     end if
 
   end subroutine log_section
