@@ -35,6 +35,7 @@ Statistics are enable in the the case file as a simcomp with the added argument 
 | ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
 | `start_time`        | Time at which to start gathering statistics.                         | Positive real     | 0             |
 | `avg_direction`        | Directions to compute spatial average.                         | x,y,z,xy,xz,yz  |  No spatial average           |
+| `set_of_stats`        | What set of stats to compute.                         | basic, full  |  full         |
 | `compute_value` | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int  | Not set (but recommendwe with every 50 timesteps or so         |
 
 In addition to the usual controls for the output, which then outputs the averages computes from the last time the statistics were written to file.
@@ -55,11 +56,13 @@ For example, if one wants to sample the fields every 4 time steps and compute th
     }1
   ]
 ~~~~~~~~~~~~~~~
-The argument "avg\_direction" is optional and if ignored we output 3d fields. The statistics are saved in a fld file according to the following in 2D and 3D. Observe that in 2D the value in Z-veclocity is not stored, but is omitted. The correct velocity components are stored in X-velocity and Y-velocity respectively. All other fields are kept the same.
+The argument "avg\_direction" is optional and if ignored we output 3d fields. The statistics are saved in a fld file according to the following in 2D and 3D. Observe that in 2D the mean velocity in the homogenous direction is not stored in Z-velocity, but is stored in a last scalar field. The correct velocity components are stored in X-velocity and Y-velocity respectively. All other fields are kept the same. This is due to a limitation of the fld file format.
 
-For 1D statistics a CSV file is outputted. The first column is the time at which the statistics are collected, the second column the spatial coordinate, and the rest of the data is stored in the order below.
+For 1D statistics a CSV file is outputted. The first column is the time at which the statistics are collected, the second column the spatial coordinate, and the rest of the data is stored in the order below. In this case all statistics are kept in the same order as in 3D.
 
 ## List of fields in output files
+
+When only the basic set of stats is enabled, only stats 1-11 are computed. 
 
 | Number | Statistic | Stored in variable (for fld files) |
 | ------ | --------- | ------------------ |
@@ -122,50 +125,10 @@ $$
 
 
 # Postprocessing
-Of course, these statistics are only the "raw statistics" in the sense that in general we are not interested in \f$ \langle uu\rangle \f$, but rather say the rms of the velocity fluctuation. FOr this we need to postprocess the statistics. 
+These statistics are only the "raw statistics" in the sense that in general we are not interested in \f$ \langle uu\rangle \f$, but rather say \f$ \langle u'u'\rangle\f$. For this we need to postprocess the statistics. 
 
-There is some rudimentary postprocessing to compute the spatial averages of fld filesa and also to combine the statistics collected from several runs (compute average in time) and also compute both the mean velocity gradient and the Reynolds stresses available among the contrib scripts. By running the contrib scripts without any arguments one gets a hint on their usage, and also the text below gives a guide on how to postprocess the raw statistics. The postprocessing part of Neko is expanding and changing quite a lot at the moment, where we currently envision primarily using python for the postprocessing of the final statistics.
+There is some rudimentary postprocessing to compute the spatial averages of fld files and also to combine the statistics collected from several runs (compute average in time) and also compute both the mean velocity gradient and the Reynolds stresses available ub the contrib scripts. By running the contrib scripts without any arguments one gets a hint on their usage, (e.g. by running `./average_fields_in_time` will give the options). 
 
-
-
-## Notes on the statistics calculation in Neko OBSOLETE
-***Daniele Massaro, Martin Karp (KTH)***
-
-1) Run your simulations and collect mean_field* and stats* files by having the statistics object added to the case file,  and specifying the write interval to something suitable.
-
-2) For each RUN_i, you get a set of mean_field* and stats* files. You can average them for each single RUN_i, or average all of them only once (after re-ordering them properly). If you follow the second approach, go to step 4. 
-Here, for each RUN_i, we compute the averaged means with "average_fields_in_time":
---mean
-`srun --unbuffered /your/location/neko/bin/average_fields_in_time meanXX.fld T0 mean_p.fld`
-where T0 is the initial time. To get some hints on the input for the script one can simply run `./average_fields_in_time` without any arguments. For RUN_1 the time T0 can be taken from the log of the first simulation, or from the header of the first mean_field* file; in this way you discard that file. For RUN_i, with i>1, it can be taken from header of the last file mean_field* of the previous simulation RUN_{i-1}. 
-In the command line, for the name "meanXX.fld", XX indicates the number of the nek5000 file. In mean_fieldXX.nek5000 you set the number of the first mean0* file to read and the number of steps corresponding to the number of files. In this way, the code generates a mean_p0.f00000 and mean_post0.nek5000. It is suggested to rename mean_p0.f00000 as mean_p0.f0000i and move it to a separate folder where you take the average with all the others. 
---stats
-`srun --unbuffered /your/location/neko/bin/average_fields_in_time statXX.fld T0 stat_p.fld`
-T0 is the same as before. In stat0.nek5000 you set the number of the first stat0* file to read and the number of steps corresponds to the number of files. It is suggested to rename stat_p0.f00000 as stat_p0.f0000i and move it to a separate folder where you take the average with all the others. 
-Repeat this for each RUN_i folder. Eventually, given n RUN_i folders, you will get n mean_p* and stat_p* files.
-
-3) Take the average of the averaged runs. Now, the time average over all the n simulations is taken. The procedure is similar, but changing the output name is recommended to  avoid over-writing.
--- mean
-`srun --unbuffered /your/location/neko/bin/average_fields mean_p0.fld T0 mean_post.fld`
-where T0 is the initial time which has been used to compute mean_p* for RUN_1.
--- stats
-`srun --unbuffered /your/location/neko/bin/average_fields stat_p0.fld T0 stat_post.fld`
-where T0 is the initial time which has been used to compute mean_p* for RUN_1.
-
-
-
-
-
-4) Compute Reynolds stress tensors and other statistical moments (see the list).
-`srun --unbuffered /your/location/neko/bin/postprocess_fluid_stats mesh_file.nmsh mean_post0.fld stat_post0.fld`
-
-5) We also provide a tool to average the resulting field in a homogenous direction in `bin/average_field_in_space`. The required arguments are shown if one runs the program without any input. Currently it requires the number of elements in the homogenous direction as an input argument, e.g. 
-`./average_field_in_space mesh.nmsh field.fld x 18 outfield.fld`
-if we want to average a field in the x direction on a mesh with 18 elements in x and output the averaged field in outfield0.nek5000.
-
-
-
-
-
+To further postprocess the statistics it is suggested to look into PyNekTools which introduces convenient functions for prostprocessing, largely based on the PyMech library with the addition of an exapnding set of tools for interpolation, computing derivatives and more advaned functionality.  PyNekTools is entirely parallelized in MPI and can also handle large data sets for postprocessing.
 
 
