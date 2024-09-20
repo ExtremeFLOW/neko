@@ -140,7 +140,8 @@ contains
           write_temperature = .true.
           tem%ptr => data%t%x
        end if
-       
+       ! If gdim = 2 and Z-velocity component exists,
+       ! it is stored in last scalar field 
        if (gdim .eq. 2 .and. data%w%n .gt. 0) then
           n_scalar_fields = data%n_scalars + 1
           allocate(scalar_fields(n_scalar_fields))

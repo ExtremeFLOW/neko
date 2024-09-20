@@ -86,6 +86,7 @@ contains
     character(len=:), allocatable :: precision
     character(len=20), allocatable :: fields(:)
     character(len=:), allocatable :: hom_dir
+    character(len=:), allocatable :: stat_set
     real(kind=rp) :: start_time
     type(field_t), pointer :: u, v, w, p
     type(coef_t), pointer :: coef
@@ -95,13 +96,16 @@ contains
          hom_dir, 'none')
     call json_get_or_default(json, 'start_time', &
          start_time, 0.0_rp)
+    call json_get_or_default(json, 'set_of_stats', &
+         stat_set, 'full')
 
     u => neko_field_registry%get_field("u")
     v => neko_field_registry%get_field("v")
     w => neko_field_registry%get_field("w")
     p => neko_field_registry%get_field("p")
     coef => case%fluid%c_Xh
-    call fluid_stats_simcomp_init_from_attributes(this, u, v, w, p, coef, start_time, hom_dir)
+    call fluid_stats_simcomp_init_from_attributes(this, u, v, w, p, coef, &
+         start_time, hom_dir, stat_set)
 
   end subroutine fluid_stats_simcomp_init_from_json
 
@@ -112,15 +116,18 @@ contains
   !! @param coef sem coefs
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
-  subroutine fluid_stats_simcomp_init_from_attributes(this, u, v, w, p, coef, start_time, hom_dir)
+  !! @param stat_set Set of statistics to compute (basic/full)
+  subroutine fluid_stats_simcomp_init_from_attributes(this, u, v, w, p, coef, &
+                                                      start_time, hom_dir, stat_set)
     class(fluid_stats_simcomp_t), intent(inout) :: this
     character(len=*), intent(in) :: hom_dir
+    character(len=*), intent(in) :: stat_set
     real(kind=rp), intent(in) :: start_time
     type(field_t), intent(inout) :: u, v, w, p !>Should really be intent in I think
     type(coef_t), intent(in) :: coef
 
     call this%stats%init(coef, u, &
-         v, w, p)
+         v, w, p, stat_set)
     this%start_time = start_time
     this%time = start_time
 

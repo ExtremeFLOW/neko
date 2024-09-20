@@ -127,15 +127,7 @@ module fluid_stats
 
      type(coef_t), pointer :: coef
      integer :: n_stats = 44
-     !> Used to write stats output
-     !! pressure=pp
-     !! x-vel=uu
-     !! y-vel=vv
-     !! z-vel=ww
-     !! temp=uv
-     !! scalar1=uw
-     !! scalar2=vw
-     !! The rest are stored in the above order in scalar fields
+     character(5) :: stat_set
      type(field_list_t)  :: stat_fields !< Used to write the output
    contains
      procedure, pass(this) :: init => fluid_stats_init
@@ -149,10 +141,11 @@ module fluid_stats
 contains
 
   !> Initialize the fields associated with fluid_stats
-  subroutine fluid_stats_init(this, coef, u,v,w,p)
+  subroutine fluid_stats_init(this, coef, u,v,w,p,set)
     class(fluid_stats_t), intent(inout), target:: this
     type(coef_t), target, optional :: coef
     type(field_t), target, intent(inout) :: u, v, w, p
+    character(*), intent(in), optional :: set
 
     call this%free()
     this%coef => coef
@@ -162,22 +155,21 @@ contains
     this%w => w
     this%p => p
 
+    if (present(set)) then 
+       this%stat_set  = trim(set)
+       if (this%stat_set .eq. 'basic') then
+          this%n_stats = 11
+       end if
+    else
+       this%stat_set = 'full'
+       this%n_stats = 44
+    end if
+     
     call this%stats_work%init(this%u%dof, 'stats')
     call this%stats_u%init(this%u%dof, 'u temp')
     call this%stats_v%init(this%u%dof, 'v temp')
     call this%stats_w%init(this%u%dof, 'w temp')
     call this%stats_p%init(this%u%dof, 'p temp')
-
-    call this%dudx%init(this%u%dof, 'dudx')
-    call this%dudy%init(this%u%dof, 'dudy')
-    call this%dudz%init(this%u%dof, 'dudz')
-    call this%dvdx%init(this%u%dof, 'dvdx')
-    call this%dvdy%init(this%u%dof, 'dvdy')
-    call this%dvdz%init(this%u%dof, 'dvdz')
-    call this%dwdx%init(this%u%dof, 'dwdx')
-    call this%dwdy%init(this%u%dof, 'dwdy')
-    call this%dwdz%init(this%u%dof, 'dwdz')
-
     call this%u_mean%init(this%u)
     call this%v_mean%init(this%v)
     call this%w_mean%init(this%w)
@@ -188,44 +180,57 @@ contains
     call this%uv%init(this%stats_work, 'uv')
     call this%uw%init(this%stats_work, 'uw')
     call this%vw%init(this%stats_work, 'vw')
-    call this%uuu%init(this%stats_work, 'uuu')!< <uuu>
-    call this%vvv%init(this%stats_work, 'vvv')!< <vvv>
-    call this%www%init(this%stats_work, 'www')!< <www>
-    call this%uuv%init(this%stats_work, 'uuv')!< <uuv>
-    call this%uuw%init(this%stats_work, 'uuw')!< <uuw>
-    call this%uvv%init(this%stats_work, 'uvv')!< <uvv>
-    call this%uvw%init(this%stats_work, 'uvw')!< <uvv>
-    call this%vvw%init(this%stats_work, 'vvw')!< <vvw>
-    call this%uww%init(this%stats_work, 'uww')!< <uww>
-    call this%vww%init(this%stats_work, 'vww')!< <vww>
-    call this%uuuu%init(this%stats_work, 'uuuu') !< <uuuu>
-    call this%vvvv%init(this%stats_work, 'vvvv') !< <vvvv>
-    call this%wwww%init(this%stats_work, 'wwww') !< <wwww>
-    !> Pressure
     call this%pp%init(this%stats_p, 'pp')
-    call this%ppp%init(this%stats_work, 'ppp')
-    call this%pppp%init(this%stats_work, 'pppp')
-    !> Pressure * velocity
-    call this%pu%init(this%stats_work, 'pu')
-    call this%pv%init(this%stats_work, 'pv')
-    call this%pw%init(this%stats_work, 'pw')
+ 
+    if (this%n_stats .eq. 44) then
+       call this%dudx%init(this%u%dof, 'dudx')
+       call this%dudy%init(this%u%dof, 'dudy')
+       call this%dudz%init(this%u%dof, 'dudz')
+       call this%dvdx%init(this%u%dof, 'dvdx')
+       call this%dvdy%init(this%u%dof, 'dvdy')
+       call this%dvdz%init(this%u%dof, 'dvdz')
+       call this%dwdx%init(this%u%dof, 'dwdx')
+       call this%dwdy%init(this%u%dof, 'dwdy')
+       call this%dwdz%init(this%u%dof, 'dwdz')
 
-    call this%pdudx%init(this%stats_work, 'pdudx')
-    call this%pdudy%init(this%stats_work, 'pdudy')
-    call this%pdudz%init(this%stats_work, 'pdudz')
-    call this%pdvdx%init(this%stats_work, 'pdvdx')
-    call this%pdvdy%init(this%stats_work, 'pdvdy')
-    call this%pdvdz%init(this%stats_work, 'pdvdz')
-    call this%pdwdx%init(this%stats_work, 'pdwdx')
-    call this%pdwdy%init(this%stats_work, 'pdwdy')
-    call this%pdwdz%init(this%stats_work, 'pdwdz')
+       call this%uuu%init(this%stats_work, 'uuu')!< <uuu>
+       call this%vvv%init(this%stats_work, 'vvv')!< <vvv>
+       call this%www%init(this%stats_work, 'www')!< <www>
+       call this%uuv%init(this%stats_work, 'uuv')!< <uuv>
+       call this%uuw%init(this%stats_work, 'uuw')!< <uuw>
+       call this%uvv%init(this%stats_work, 'uvv')!< <uvv>
+       call this%uvw%init(this%stats_work, 'uvw')!< <uvv>
+       call this%vvw%init(this%stats_work, 'vvw')!< <vvw>
+       call this%uww%init(this%stats_work, 'uww')!< <uww>
+       call this%vww%init(this%stats_work, 'vww')!< <vww>
+       call this%uuuu%init(this%stats_work, 'uuuu') !< <uuuu>
+       call this%vvvv%init(this%stats_work, 'vvvv') !< <vvvv>
+       call this%wwww%init(this%stats_work, 'wwww') !< <wwww>
+       !> Pressure
+       call this%ppp%init(this%stats_work, 'ppp')
+       call this%pppp%init(this%stats_work, 'pppp')
+       !> Pressure * velocity
+       call this%pu%init(this%stats_work, 'pu')
+       call this%pv%init(this%stats_work, 'pv')
+       call this%pw%init(this%stats_work, 'pw')
 
-    call this%e11%init(this%stats_work, 'e11')
-    call this%e22%init(this%stats_work, 'e22')
-    call this%e33%init(this%stats_work, 'e33')
-    call this%e12%init(this%stats_work, 'e12')
-    call this%e13%init(this%stats_work, 'e13')
-    call this%e23%init(this%stats_work, 'e23')
+       call this%pdudx%init(this%stats_work, 'pdudx')
+       call this%pdudy%init(this%stats_work, 'pdudy')
+       call this%pdudz%init(this%stats_work, 'pdudz')
+       call this%pdvdx%init(this%stats_work, 'pdvdx')
+       call this%pdvdy%init(this%stats_work, 'pdvdy')
+       call this%pdvdz%init(this%stats_work, 'pdvdz')
+       call this%pdwdx%init(this%stats_work, 'pdwdx')
+       call this%pdwdy%init(this%stats_work, 'pdwdy')
+       call this%pdwdz%init(this%stats_work, 'pdwdz')
+
+       call this%e11%init(this%stats_work, 'e11')
+       call this%e22%init(this%stats_work, 'e22')
+       call this%e33%init(this%stats_work, 'e33')
+       call this%e12%init(this%stats_work, 'e12')
+       call this%e13%init(this%stats_work, 'e13')
+       call this%e23%init(this%stats_work, 'e23')
+    end if
 
     allocate(this%stat_fields%items(this%n_stats))
 
@@ -240,41 +245,43 @@ contains
     call this%stat_fields%assign_to_field(9, this%uv%mf)
     call this%stat_fields%assign_to_field(10, this%uw%mf)
     call this%stat_fields%assign_to_field(11, this%vw%mf)
-    call this%stat_fields%assign_to_field(12, this%uuu%mf) !< <uuu>
-    call this%stat_fields%assign_to_field(13, this%vvv%mf) !< <vvv>
-    call this%stat_fields%assign_to_field(14, this%www%mf) !< <www>
-    call this%stat_fields%assign_to_field(15, this%uuv%mf) !< <uuv>
-    call this%stat_fields%assign_to_field(16, this%uuw%mf) !< <uuw>
-    call this%stat_fields%assign_to_field(17, this%uvv%mf) !< <uvv>
-    call this%stat_fields%assign_to_field(18, this%uvw%mf) !< <uvv>
-    call this%stat_fields%assign_to_field(19, this%vvw%mf) !< <vvw>
-    call this%stat_fields%assign_to_field(20, this%uww%mf) !< <uww>
-    call this%stat_fields%assign_to_field(21, this%vww%mf) !< <vww>
-    call this%stat_fields%assign_to_field(22, this%uuuu%mf) !< <uuuu>
-    call this%stat_fields%assign_to_field(23, this%vvvv%mf) !< <vvvv>
-    call this%stat_fields%assign_to_field(24, this%wwww%mf) !< <wwww>
-    call this%stat_fields%assign_to_field(25, this%ppp%mf)
-    call this%stat_fields%assign_to_field(26, this%pppp%mf)
-    call this%stat_fields%assign_to_field(27, this%pu%mf)
-    call this%stat_fields%assign_to_field(28, this%pv%mf)
-    call this%stat_fields%assign_to_field(29, this%pw%mf)
 
-    call this%stat_fields%assign_to_field(30, this%pdudx%mf)
-    call this%stat_fields%assign_to_field(31, this%pdudy%mf)
-    call this%stat_fields%assign_to_field(32, this%pdudz%mf)
-    call this%stat_fields%assign_to_field(33, this%pdvdx%mf)
-    call this%stat_fields%assign_to_field(34, this%pdvdy%mf)
-    call this%stat_fields%assign_to_field(35, this%pdvdz%mf)
-    call this%stat_fields%assign_to_field(36, this%pdwdx%mf)
-    call this%stat_fields%assign_to_field(37, this%pdwdy%mf)
-    call this%stat_fields%assign_to_field(38, this%pdwdz%mf)
-    call this%stat_fields%assign_to_field(39, this%e11%mf)
-    call this%stat_fields%assign_to_field(40, this%e22%mf)
-    call this%stat_fields%assign_to_field(41, this%e33%mf)
-    call this%stat_fields%assign_to_field(42, this%e12%mf)
-    call this%stat_fields%assign_to_field(43, this%e13%mf)
-    call this%stat_fields%assign_to_field(44, this%e23%mf)
+    if (this%n_stats .eq. 44) then
+       call this%stat_fields%assign_to_field(12, this%uuu%mf) !< <uuu>
+       call this%stat_fields%assign_to_field(13, this%vvv%mf) !< <vvv>
+       call this%stat_fields%assign_to_field(14, this%www%mf) !< <www>
+       call this%stat_fields%assign_to_field(15, this%uuv%mf) !< <uuv>
+       call this%stat_fields%assign_to_field(16, this%uuw%mf) !< <uuw>
+       call this%stat_fields%assign_to_field(17, this%uvv%mf) !< <uvv>
+       call this%stat_fields%assign_to_field(18, this%uvw%mf) !< <uvv>
+       call this%stat_fields%assign_to_field(19, this%vvw%mf) !< <vvw>
+       call this%stat_fields%assign_to_field(20, this%uww%mf) !< <uww>
+       call this%stat_fields%assign_to_field(21, this%vww%mf) !< <vww>
+       call this%stat_fields%assign_to_field(22, this%uuuu%mf) !< <uuuu>
+       call this%stat_fields%assign_to_field(23, this%vvvv%mf) !< <vvvv>
+       call this%stat_fields%assign_to_field(24, this%wwww%mf) !< <wwww>
+       call this%stat_fields%assign_to_field(25, this%ppp%mf)
+       call this%stat_fields%assign_to_field(26, this%pppp%mf)
+       call this%stat_fields%assign_to_field(27, this%pu%mf)
+       call this%stat_fields%assign_to_field(28, this%pv%mf)
+       call this%stat_fields%assign_to_field(29, this%pw%mf)
 
+       call this%stat_fields%assign_to_field(30, this%pdudx%mf)
+       call this%stat_fields%assign_to_field(31, this%pdudy%mf)
+       call this%stat_fields%assign_to_field(32, this%pdudz%mf)
+       call this%stat_fields%assign_to_field(33, this%pdvdx%mf)
+       call this%stat_fields%assign_to_field(34, this%pdvdy%mf)
+       call this%stat_fields%assign_to_field(35, this%pdvdz%mf)
+       call this%stat_fields%assign_to_field(36, this%pdwdx%mf)
+       call this%stat_fields%assign_to_field(37, this%pdwdy%mf)
+       call this%stat_fields%assign_to_field(38, this%pdwdz%mf)
+       call this%stat_fields%assign_to_field(39, this%e11%mf)
+       call this%stat_fields%assign_to_field(40, this%e22%mf)
+       call this%stat_fields%assign_to_field(41, this%e33%mf)
+       call this%stat_fields%assign_to_field(42, this%e12%mf)
+       call this%stat_fields%assign_to_field(43, this%e13%mf)
+       call this%stat_fields%assign_to_field(44, this%e23%mf)
+    end if
 
   end subroutine fluid_stats_init
 
@@ -314,7 +321,7 @@ contains
          call this%uw%update(k)
          call device_col3(stats_work%x_d,this%v%x_d, this%w%x_d,n)
          call this%vw%update(k)
-
+         if (this%n_stats .eq. 11) return
          call device_col2(stats_work%x_d, this%u%x_d,n)
          call this%uvw%update(k)
          call device_col3(stats_work%x_d,this%stats_u%x_d, this%u%x_d,n)
@@ -377,6 +384,8 @@ contains
          call this%uw%update(k)
          call col3(stats_work%x,this%v%x, this%w%x,n)
          call this%vw%update(k)
+
+         if (this%n_stats .eq. 11) return
 
          call col2(stats_work%x, this%u%x,n)
          call this%uvw%update(k)
@@ -567,51 +576,57 @@ contains
     call this%uv%reset()
     call this%uw%reset()
     call this%vw%reset()
-    call this%uuu%reset()
-    call this%vvv%reset()
-    call this%www%reset()
-    call this%uuv%reset()
-    call this%uuw%reset()
-    call this%uvv%reset()
-    call this%uvw%reset()
-    call this%vvw%reset()
-    call this%uww%reset()
-    call this%vww%reset()
-    call this%uuuu%reset()
-    call this%vvvv%reset()
-    call this%wwww%reset()
-    !> Pressure
     call this%pp%reset()
-    call this%ppp%reset()
-    call this%pppp%reset()
-    !> Pressure * velocity
-    call this%pu%reset()
-    call this%pv%reset()
-    call this%pw%reset()
+    if (this%n_stats .eq. 44) then
+       call this%uuu%reset()
+       call this%vvv%reset()
+       call this%www%reset()
+       call this%uuv%reset()
+       call this%uuw%reset()
+       call this%uvv%reset()
+       call this%uvw%reset()
+       call this%vvw%reset()
+       call this%uww%reset()
+       call this%vww%reset()
+       call this%uuuu%reset()
+       call this%vvvv%reset()
+       call this%wwww%reset()
+       !> Pressure
+       call this%ppp%reset()
+       call this%pppp%reset()
+       !> Pressure * velocity
+       call this%pu%reset()
+       call this%pv%reset()
+       call this%pw%reset()
 
-    call this%pdudx%reset()
-    call this%pdudy%reset()
-    call this%pdudz%reset()
-    call this%pdvdx%reset()
-    call this%pdvdy%reset()
-    call this%pdvdz%reset()
-    call this%pdwdx%reset()
-    call this%pdwdy%reset()
-    call this%pdwdz%reset()
+       call this%pdudx%reset()
+       call this%pdudy%reset()
+       call this%pdudz%reset()
+       call this%pdvdx%reset()
+       call this%pdvdy%reset()
+       call this%pdvdz%reset()
+       call this%pdwdx%reset()
+       call this%pdwdy%reset()
+       call this%pdwdz%reset()
 
-    call this%e11%reset()
-    call this%e22%reset()
-    call this%e33%reset()
-    call this%e12%reset()
-    call this%e13%reset()
-    call this%e23%reset()
+       call this%e11%reset()
+       call this%e22%reset()
+       call this%e33%reset()
+       call this%e12%reset()
+       call this%e13%reset()
+       call this%e23%reset()
+    end if
 
   end subroutine fluid_stats_reset
 
   subroutine fluid_stats_make_strong_grad(this)
     class(fluid_stats_t) :: this
     integer :: n
+ 
+    if (this%n_stats .eq. 11) return
+ 
     n = size(this%coef%B)
+ 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(this%stats_work%x_d, 1.0_rp,n)
        call device_invcol2(this%stats_work%x_d, this%coef%B_d,n)
@@ -659,7 +674,8 @@ contains
   end subroutine fluid_stats_make_strong_grad
 
   subroutine fluid_stats_post_process(this, mean, reynolds, pressure_flatness,&
-                                      pressure_skewness, skewness_tensor, mean_vel_grad, dissipation_tensor)
+                                      pressure_skewness, skewness_tensor, &
+                                      mean_vel_grad, dissipation_tensor)
     class(fluid_stats_t) :: this
     type(field_list_t), intent(inout), optional :: mean
     type(field_list_t), intent(inout), optional :: reynolds
@@ -703,17 +719,20 @@ contains
     end if
     if (present(pressure_skewness)) then
 
-       call neko_warning('Presssure skewness stat not implemented in fluid_stats yet, please help!')
+       call neko_warning('Presssure skewness stat not implemented'// &
+                         ' in fluid_stats, process stats in python instead')
 
     end if
 
     if (present(pressure_flatness)) then
-       call neko_warning('Presssure flatness stat not implemented yet, please help!')
+       call neko_warning('Presssure flatness stat not implemented'// &
+                         ' in fluid_stats, process stats in python instead')
 
     end if
 
     if (present(skewness_tensor)) then
-       call neko_warning('Skewness tensor stat not implemented yet, please help!')
+       call neko_warning('Skewness tensor stat not implemented'// &
+                         ' in fluid_stats, process stats in python instead')
     end if
 
     if (present(mean_vel_grad)) then
@@ -751,25 +770,38 @@ contains
           call device_memcpy(this%dwdz%x, this%dwdz%x_d, n, &
                              DEVICE_TO_HOST, sync=.true.)
        else
-          call opgrad(this%dudx%x,this%dudy%x, this%dudz%x, this%u_mean%mf%x,this%coef)
-          call opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x, this%v_mean%mf%x,this%coef)
-          call opgrad(this%dwdx%x,this%dwdy%x, this%dwdz%x, this%w_mean%mf%x,this%coef)
+          call opgrad(this%dudx%x,this%dudy%x, this%dudz%x, &
+                      this%u_mean%mf%x,this%coef)
+          call opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x, &
+                      this%v_mean%mf%x,this%coef)
+          call opgrad(this%dwdx%x,this%dwdy%x, this%dwdz%x, & 
+                      this%w_mean%mf%x,this%coef)
        end if
        call invers2(this%stats_work%x, this%coef%B,n)
-       call col3(mean_vel_grad%items(1)%ptr%x, this%dudx%x, this%stats_work%x, n)
-       call col3(mean_vel_grad%items(2)%ptr%x, this%dudy%x, this%stats_work%x, n)
-       call col3(mean_vel_grad%items(3)%ptr%x, this%dudz%x, this%stats_work%x, n)
-       call col3(mean_vel_grad%items(4)%ptr%x, this%dvdx%x, this%stats_work%x, n)
-       call col3(mean_vel_grad%items(5)%ptr%x, this%dvdy%x, this%stats_work%x, n)
-       call col3(mean_vel_grad%items(6)%ptr%x, this%dvdz%x, this%stats_work%x, n)
-       call col3(mean_vel_grad%items(7)%ptr%x, this%dwdx%x, this%stats_work%x, n)
-       call col3(mean_vel_grad%items(8)%ptr%x, this%dwdy%x, this%stats_work%x, n)
-       call col3(mean_vel_grad%items(9)%ptr%x, this%dwdz%x, this%stats_work%x, n)
+       call col3(mean_vel_grad%items(1)%ptr%x, this%dudx%x, & 
+                 this%stats_work%x, n)
+       call col3(mean_vel_grad%items(2)%ptr%x, this%dudy%x, &
+                 this%stats_work%x, n)
+       call col3(mean_vel_grad%items(3)%ptr%x, this%dudz%x, &
+                 this%stats_work%x, n)
+       call col3(mean_vel_grad%items(4)%ptr%x, this%dvdx%x, &
+                 this%stats_work%x, n)
+       call col3(mean_vel_grad%items(5)%ptr%x, this%dvdy%x, &
+                 this%stats_work%x, n)
+       call col3(mean_vel_grad%items(6)%ptr%x, this%dvdz%x, &
+                 this%stats_work%x, n)
+       call col3(mean_vel_grad%items(7)%ptr%x, this%dwdx%x, &
+                 this%stats_work%x, n)
+       call col3(mean_vel_grad%items(8)%ptr%x, this%dwdy%x, &
+                 this%stats_work%x, n)
+       call col3(mean_vel_grad%items(9)%ptr%x, this%dwdz%x, &
+                 this%stats_work%x, n)
 
     end if
 
     if (present(dissipation_tensor)) then
-
+       call neko_warning('Dissipation tensor stat not implemented'// &
+                         ' in fluid_stats, process stats in python instead')
     end if
 
   end subroutine fluid_stats_post_process

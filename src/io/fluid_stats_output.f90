@@ -35,12 +35,12 @@ module fluid_stats_output
   use fluid_stats, only : fluid_stats_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
-  use map_1d
-  use map_2d
-  use fld_file_data
+  use map_1d, only : map_1d_t
+  use map_2d, only : map_2d_t
+  use fld_file_data, only : fld_file_data_t
   use device
   use output, only : output_t
-  use matrix
+  use matrix, only : matrix_t
   implicit none
   private
 
@@ -106,7 +106,7 @@ contains
     this%T_begin = T_begin
   end subroutine fluid_stats_output_init
 
-  !> Sample a mean flow field at time @a t
+  !> Sample fluid_stats at time @a t
   subroutine fluid_stats_output_sample(this, t)
     class(fluid_stats_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
@@ -120,12 +120,13 @@ contains
          if ( NEKO_BCKND_DEVICE .eq. 1) then
             do i = 1, size(out_fields)
                call device_memcpy(out_fields(i)%ptr%x, out_fields(i)%ptr%x_d,&
-                  out_fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
-                  sync=(i .eq. size(out_fields))) ! Sync on last field
+                    out_fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
+                    sync=(i .eq. size(out_fields))) ! Sync on last field
             end do
          end if
          if (this%output_dim .eq. 1) then
-            call this%map_1d%average_planes(avg_output_1d, this%stats%stat_fields)
+            call this%map_1d%average_planes(avg_output_1d, &
+                 this%stats%stat_fields)
             call this%file_%write(avg_output_1d, t)
          else if (this%output_dim .eq. 2) then
             call this%map_2d%average(output_2d,this%stats%stat_fields)
