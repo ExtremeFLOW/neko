@@ -89,10 +89,10 @@ module fluid_scheme
      type(field_t), pointer :: w => null() !< z-component of Velocity
      type(field_t), pointer :: p => null() !< Pressure
      type(field_series_t) :: ulag, vlag, wlag !< fluid field (lag)
-     type(space_t) :: Xh        !< Function space \f$ X_h \f$
-     type(dofmap_t) :: dm_Xh    !< Dofmap associated with \f$ X_h \f$
-     type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
-     type(coef_t) :: c_Xh       !< Coefficients associated with \f$ X_h \f$
+     type(space_t), pointer :: Xh        !< Function space \f$ X_h \f$
+     type(dofmap_t), pointer :: dm_Xh    !< Dofmap associated with \f$ X_h \f$
+     type(gs_t), pointer :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
+     type(coef_t), pointer :: c_Xh       !< Coefficients associated with \f$ X_h \f$
      !> The source term for the momentum equation.
      type(fluid_source_term_t) :: source_term
      !> X-component of the right-hand side.
@@ -178,17 +178,17 @@ module fluid_scheme
 
   !> Abstract interface to initialize a fluid formulation
   abstract interface
-     subroutine fluid_scheme_init_intrf(this, msh, lx, params, user, &
+     subroutine fluid_scheme_init_intrf(this, coef, lx, params, user, &
                                         material_properties, time_scheme)
        import fluid_scheme_t
        import json_file
-       import mesh_t
+       import coef_t
        import user_t
        import material_properties_t
        import time_scheme_controller_t
        class(fluid_scheme_t), target, intent(inout) :: this
-       type(mesh_t), target, intent(inout) :: msh
-       integer, intent(inout) :: lx
+       type(coef_t), target, intent(in) :: coef
+       integer, intent(in) :: lx
        type(json_file), target, intent(inout) :: params
        type(user_t), intent(in) :: user
        type(material_properties_t), &
@@ -246,12 +246,12 @@ module fluid_scheme
 contains
 
   !> Initialize common data for the current scheme
-  subroutine fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
+  subroutine fluid_scheme_init_common(this, coef, lx, params, scheme, user, &
       material_properties, kspv_init)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
-    type(mesh_t), target, intent(inout) :: msh
-    integer, intent(inout) :: lx
+    type(coef_t), target, intent(in) :: coef
+    integer, intent(in) :: lx
     character(len=*), intent(in) :: scheme
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
@@ -270,19 +270,11 @@ contains
     ! SEM simulation fundamentals
     !
 
-    this%msh => msh
-
-    if (msh%gdim .eq. 2) then
-       call this%Xh%init(GLL, lx, lx)
-    else
-       call this%Xh%init(GLL, lx, lx, lx)
-    end if
-
-    this%dm_Xh = dofmap_t(msh, this%Xh)
-
-    call this%gs_Xh%init(this%dm_Xh)
-
-    call this%c_Xh%init(this%gs_Xh)
+    this%c_Xh => coef
+    this%msh => coef%msh
+    this%Xh => coef%Xh
+    this%dm_Xh => coef%dof
+    this%gs_Xh => coef%gs_h
 
     ! Local scratch registry
     this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
@@ -419,8 +411,8 @@ contains
     call bc_list_init(this%bclst_vel)
 
     call this%bc_sym%init_base(this%c_Xh)
-    call this%bc_sym%mark_zone(msh%sympln)
-    call this%bc_sym%mark_zones_from_list(msh%labeled_zones, &
+    call this%bc_sym%mark_zone(this%msh%sympln)
+    call this%bc_sym%mark_zones_from_list(this%msh%labeled_zones, &
                         'sym', this%bc_labels)
     call this%bc_sym%finalize()
     call this%bc_sym%init(this%c_Xh)
@@ -442,8 +434,8 @@ contains
        end if
 
        call this%bc_inflow%init_base(this%c_Xh)
-       call this%bc_inflow%mark_zone(msh%inlet)
-       call this%bc_inflow%mark_zones_from_list(msh%labeled_zones, &
+       call this%bc_inflow%mark_zone(this%msh%inlet)
+       call this%bc_inflow%mark_zones_from_list(this%msh%labeled_zones, &
                         'v', this%bc_labels)
        call this%bc_inflow%finalize()
        call bc_list_add(this%bclst_vel, this%bc_inflow)
@@ -471,15 +463,15 @@ contains
     end if
 
     call this%bc_wall%init_base(this%c_Xh)
-    call this%bc_wall%mark_zone(msh%wall)
-    call this%bc_wall%mark_zones_from_list(msh%labeled_zones, &
+    call this%bc_wall%mark_zone(this%msh%wall)
+    call this%bc_wall%mark_zones_from_list(this%msh%labeled_zones, &
                         'w', this%bc_labels)
     call this%bc_wall%finalize()
     call bc_list_add(this%bclst_vel, this%bc_wall)
 
     ! Setup field dirichlet bc for u-velocity
     call this%user_field_bc_vel%bc_u%init_base(this%c_Xh)
-    call this%user_field_bc_vel%bc_u%mark_zones_from_list(msh%labeled_zones, &
+    call this%user_field_bc_vel%bc_u%mark_zones_from_list(this%msh%labeled_zones, &
                         'd_vel_u', this%bc_labels)
     call this%user_field_bc_vel%bc_u%finalize()
 
@@ -491,7 +483,7 @@ contains
 
     ! Setup field dirichlet bc for v-velocity
     call this%user_field_bc_vel%bc_v%init_base(this%c_Xh)
-    call this%user_field_bc_vel%bc_v%mark_zones_from_list(msh%labeled_zones, &
+    call this%user_field_bc_vel%bc_v%mark_zones_from_list(this%msh%labeled_zones, &
                         'd_vel_v', this%bc_labels)
     call this%user_field_bc_vel%bc_v%finalize()
 
@@ -503,7 +495,7 @@ contains
 
     ! Setup field dirichlet bc for w-velocity
     call this%user_field_bc_vel%bc_w%init_base(this%c_Xh)
-    call this%user_field_bc_vel%bc_w%mark_zones_from_list(msh%labeled_zones, &
+    call this%user_field_bc_vel%bc_w%mark_zones_from_list(this%msh%labeled_zones, &
                         'd_vel_w', this%bc_labels)
     call this%user_field_bc_vel%bc_w%finalize()
 
@@ -515,11 +507,11 @@ contains
 
     ! Setup our global field dirichlet bc
     call this%user_field_bc_vel%init_base(this%c_Xh)
-    call this%user_field_bc_vel%mark_zones_from_list(msh%labeled_zones, &
+    call this%user_field_bc_vel%mark_zones_from_list(this%msh%labeled_zones, &
                         'd_vel_u', this%bc_labels)
-    call this%user_field_bc_vel%mark_zones_from_list(msh%labeled_zones, &
+    call this%user_field_bc_vel%mark_zones_from_list(this%msh%labeled_zones, &
                         'd_vel_v', this%bc_labels)
-    call this%user_field_bc_vel%mark_zones_from_list(msh%labeled_zones, &
+    call this%user_field_bc_vel%mark_zones_from_list(this%msh%labeled_zones, &
                         'd_vel_w', this%bc_labels)
     call this%user_field_bc_vel%finalize()
 
@@ -621,13 +613,13 @@ contains
   end subroutine fluid_scheme_init_common
 
   !> Initialize all components of the current scheme
-  subroutine fluid_scheme_init_all(this, msh, lx, params, kspv_init, &
+  subroutine fluid_scheme_init_all(this, coef, lx, params, kspv_init, &
                                    kspp_init, scheme, user, &
                                    material_properties)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
-    type(mesh_t), target, intent(inout) :: msh
-    integer, intent(inout) :: lx
+    type(coef_t), target, intent(in) :: coef 
+    integer, intent(in) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
     type(material_properties_t), target, intent(inout) :: material_properties
@@ -640,7 +632,7 @@ contains
     character(len=:), allocatable :: solver_type, precon_type
     character(len=LOG_SIZE) :: log_buf
 
-    call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
+    call fluid_scheme_init_common(this, coef, lx, params, scheme, user, &
                                   material_properties, kspv_init)
 
     call neko_field_registry%add_field(this%dm_Xh, 'p')
@@ -651,14 +643,14 @@ contains
     !
     call bc_list_init(this%bclst_prs)
     call this%bc_prs%init_base(this%c_Xh)
-    call this%bc_prs%mark_zones_from_list(msh%labeled_zones, &
+    call this%bc_prs%mark_zones_from_list(this%msh%labeled_zones, &
                         'o', this%bc_labels)
-    call this%bc_prs%mark_zones_from_list(msh%labeled_zones, &
+    call this%bc_prs%mark_zones_from_list(this%msh%labeled_zones, &
                         'on', this%bc_labels)
 
     ! Field dirichlet pressure bc
     call this%user_field_bc_prs%init_base(this%c_Xh)
-    call this%user_field_bc_prs%mark_zones_from_list(msh%labeled_zones, &
+    call this%user_field_bc_prs%mark_zones_from_list(this%msh%labeled_zones, &
                         'd_pres', this%bc_labels)
     call this%user_field_bc_prs%finalize()
     call MPI_Allreduce(this%user_field_bc_prs%msk(0), integer_val, 1, &
@@ -668,20 +660,20 @@ contains
     call bc_list_add(this%bclst_prs, this%user_field_bc_prs)
     call bc_list_add(this%user_field_bc_vel%bc_list, this%user_field_bc_prs)
 
-    if (msh%outlet%size .gt. 0) then
-       call this%bc_prs%mark_zone(msh%outlet)
+    if (this%msh%outlet%size .gt. 0) then
+       call this%bc_prs%mark_zone(this%msh%outlet)
     end if
-    if (msh%outlet_normal%size .gt. 0) then
-       call this%bc_prs%mark_zone(msh%outlet_normal)
+    if (this%msh%outlet_normal%size .gt. 0) then
+       call this%bc_prs%mark_zone(this%msh%outlet_normal)
     end if
 
     call this%bc_prs%finalize()
     call this%bc_prs%set_g(0.0_rp)
     call bc_list_add(this%bclst_prs, this%bc_prs)
     call this%bc_dong%init_base(this%c_Xh)
-    call this%bc_dong%mark_zones_from_list(msh%labeled_zones, &
+    call this%bc_dong%mark_zones_from_list(this%msh%labeled_zones, &
                         'o+dong', this%bc_labels)
-    call this%bc_dong%mark_zones_from_list(msh%labeled_zones, &
+    call this%bc_dong%mark_zones_from_list(this%msh%labeled_zones, &
                         'on+dong', this%bc_labels)
     call this%bc_dong%finalize()
 
@@ -747,7 +739,7 @@ contains
     call this%user_field_bc_vel%bc_w%field_bc%free()
     call this%user_field_bc_vel%free()
 
-    call this%Xh%free()
+    nullify(this%Xh)
 
     if (allocated(this%ksp_vel)) then
        call krylov_solver_destroy(this%ksp_vel)
@@ -775,9 +767,9 @@ contains
 
     call this%source_term%free()
 
-    call this%gs_Xh%free()
+    nullify(this%gs_Xh)
 
-    call this%c_Xh%free()
+    nullify(this%c_Xh)
 
     call bc_list_free(this%bclst_vel)
 

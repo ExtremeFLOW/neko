@@ -119,7 +119,7 @@ contains
     call json_get_or_default(json, 'scale', scale, 1.0_rp)
     call json_get(json, 'center', center)
     call force_torque_init_from_attributes(this, zone_id, zone_name, &
-                                           center, scale, case%fluid%c_xh)
+                                           center, scale, case%coef)
   end subroutine force_torque_init_from_json
 
   !> Actual constructor.

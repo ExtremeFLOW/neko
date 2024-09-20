@@ -189,7 +189,7 @@ contains
           call this%read_circle(json_point)
 
          case ('point_zone')
-          call this%read_point_zone(json_point, case%fluid%dm_Xh)
+          call this%read_point_zone(json_point, case%dofmap)
 
          case ('none')
           call json_point%print()
@@ -203,7 +203,7 @@ contains
                        MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
     call probes_show(this)
-    call this%init_from_attributes(case%fluid%dm_Xh, output_file)
+    call this%init_from_attributes(case%dofmap, output_file)
 
   end subroutine probes_init_from_json
 

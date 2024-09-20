@@ -136,7 +136,7 @@ contains
     integer, intent(in) :: tstep
 
     call opgrad(this%grad_x%x, this%grad_y%x, this%grad_z%x, this%u%x,&
-                this%case%fluid%c_Xh)
+                this%case%coef)
   end subroutine weak_grad_compute
 
 end module weak_grad

@@ -172,9 +172,8 @@ module scalar_scheme
 
   !> Abstract interface to initialize a scalar formulation
   abstract interface
-     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, user, &
-          material_properties, &
-          ulag, vlag, wlag, time_scheme)
+     subroutine scalar_scheme_init_intrf(this, coef, params, user, &
+          material_properties, ulag, vlag, wlag, time_scheme)
        import scalar_scheme_t
        import json_file
        import coef_t
@@ -185,9 +184,7 @@ module scalar_scheme
        import field_series_t
        import time_scheme_controller_t
        class(scalar_scheme_t), target, intent(inout) :: this
-       type(mesh_t), target, intent(inout) :: msh
-       type(coef_t), target, intent(inout) :: coef
-       type(gs_t), target, intent(inout) :: gs
+       type(coef_t), target, intent(in) :: coef
        type(json_file), target, intent(inout) :: params
        type(user_t), target, intent(in) :: user
        type(material_properties_t), intent(inout) :: material_properties
@@ -240,7 +237,7 @@ contains
   !! currently dirichlet 'd=X' and 'user' supported
   subroutine scalar_scheme_add_bcs(this, zones, bc_labels)
     class(scalar_scheme_t), intent(inout) :: this
-    type(facet_zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
+    type(facet_zone_t), intent(in) :: zones(NEKO_MSH_MAX_ZLBLS)
     character(len=NEKO_MSH_MAX_ZLBL_LEN), intent(in) :: bc_labels(:)
     character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_label
     integer :: i
@@ -301,18 +298,14 @@ contains
   end subroutine scalar_scheme_add_bcs
 
   !> Initialize all related components of the current scheme
-  !! @param msh The mesh.
   !! @param c_Xh The coefficients.
-  !! @param gs_Xh The gather-scatter.
   !! @param params The case parameter file in json.
   !! @param scheme The name of the scalar scheme.
   !! @param user Type with user-defined procedures.
-  subroutine scalar_scheme_init(this, msh, c_Xh, gs_Xh, params, scheme, user, &
+  subroutine scalar_scheme_init(this, c_Xh, params, scheme, user, &
        material_properties)
     class(scalar_scheme_t), target, intent(inout) :: this
-    type(mesh_t), target, intent(inout) :: msh
-    type(coef_t), target, intent(inout) :: c_Xh
-    type(gs_t), target, intent(inout) :: gs_Xh
+    type(coef_t), target, intent(in) :: c_Xh
     type(json_file), target, intent(inout) :: params
     character(len=*), intent(in) :: scheme
     type(user_t), target, intent(in) :: user
@@ -351,10 +344,18 @@ contains
     write(log_buf, '(A,ES13.6)') ' `-abs tol :', solver_abstol
     call neko_log%message(log_buf)
 
-    this%Xh => this%u%Xh
-    this%dm_Xh => this%u%dof
     this%params => params
-    this%msh => msh
+
+    !
+    ! SEM
+    !
+
+    this%c_Xh => c_Xh 
+    this%msh => c_Xh%msh
+    this%Xh => c_Xh%Xh
+    this%dm_Xh => c_Xh%dof
+    this%gs_Xh => c_Xh%gs_h
+
     if (.not. neko_field_registry%field_exists('s')) then
        call neko_field_registry%add_field(this%dm_Xh, 's')
     end if
@@ -362,8 +363,6 @@ contains
 
     call this%slag%init(this%s, 2)
 
-    this%gs_Xh => gs_Xh
-    this%c_Xh => c_Xh
 
     !
     ! Material properties
@@ -426,21 +425,21 @@ contains
     call this%source_term%init(this%f_Xh, this%c_Xh, user)
     call this%source_term%add(params, 'case.scalar.source_terms')
 
-    call scalar_scheme_add_bcs(this, msh%labeled_zones, this%bc_labels)
+    call scalar_scheme_add_bcs(this, this%msh%labeled_zones, this%bc_labels)
 
     ! Mark BC zones
-    call this%user_bc%mark_zone(msh%wall)
-    call this%user_bc%mark_zone(msh%inlet)
-    call this%user_bc%mark_zone(msh%outlet)
-    call this%user_bc%mark_zone(msh%outlet_normal)
-    call this%user_bc%mark_zone(msh%sympln)
+    call this%user_bc%mark_zone(this%msh%wall)
+    call this%user_bc%mark_zone(this%msh%inlet)
+    call this%user_bc%mark_zone(this%msh%outlet)
+    call this%user_bc%mark_zone(this%msh%outlet_normal)
+    call this%user_bc%mark_zone(this%msh%sympln)
     call this%user_bc%finalize()
     if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet, &
          this%user_bc)
 
     ! Add field dirichlet BCs
     call this%field_dir_bc%init_base(this%c_Xh)
-    call this%field_dir_bc%mark_zones_from_list(msh%labeled_zones, &
+    call this%field_dir_bc%mark_zones_from_list(this%msh%labeled_zones, &
          'd_s', this%bc_labels)
     call this%field_dir_bc%finalize()
     call MPI_Allreduce(this%field_dir_bc%msk(0), integer_val, 1, &

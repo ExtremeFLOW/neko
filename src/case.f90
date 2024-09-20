@@ -61,11 +61,19 @@ module case
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
   use material_properties, only : material_properties_t
+  use dofmap, only : dofmap_t
+  use coefs, only : coef_t
+  use space, only : space_t, GLL
+  use gather_scatter, only : gs_t
   implicit none
   private
 
   type, public :: case_t
      type(mesh_t) :: msh
+     type(space_t) :: Xh
+     type(gs_t) :: gs
+     type(dofmap_t) :: dofmap
+     type(coef_t) :: coef
      type(json_file) :: params
      type(time_scheme_controller_t) :: ext_bdf
      real(kind=rp), dimension(10) :: tlag
@@ -165,6 +173,25 @@ contains
     call msh_file%read(C%msh)
 
     !
+    ! SEM
+    !
+
+    call json_get(C%params, 'case.numerics.polynomial_order', lx)
+    lx = lx + 1 ! add 1 to get number of gll points
+
+    if (C%msh%gdim .eq. 2) then
+       call C%Xh%init(GLL, lx, lx)
+    else
+       call C%Xh%init(GLL, lx, lx, lx)
+    end if
+
+    C%dofmap = dofmap_t(C%msh, C%Xh)
+
+    call C%gs%init(C%dofmap)
+
+    call C%coef%init(C%gs)
+
+    !
     ! Load Balancing
     !
     call json_get_or_default(C%params, 'case.load_balancing', logical_val,&
@@ -222,11 +249,10 @@ contains
     call json_get(C%params, 'case.fluid.scheme', string_val)
     call fluid_scheme_factory(C%fluid, trim(string_val))
 
-    call json_get(C%params, 'case.numerics.polynomial_order', lx)
-    lx = lx + 1 ! add 1 to get number of gll points
+
     C%fluid%chkp%tlag => C%tlag
     C%fluid%chkp%dtlag => C%dtlag
-    call C%fluid%init(C%msh, lx, C%params, C%usr, C%material_properties, &
+    call C%fluid%init(C%coef, lx, C%params, C%usr, C%material_properties, &
                       C%ext_bdf)
     select type (f => C%fluid)
     type is (fluid_pnpn_t)
@@ -257,7 +283,7 @@ contains
        allocate(C%scalar)
        C%scalar%chkp%tlag => C%tlag
        C%scalar%chkp%dtlag => C%dtlag
-       call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params, C%usr,&
+       call C%scalar%init(C%fluid%c_Xh, C%params, C%usr,&
                           C%material_properties, C%fluid%ulag, C%fluid%vlag, &
                           C%fluid%wlag, C%ext_bdf)
        call C%fluid%chkp%add_scalar(C%scalar%s)

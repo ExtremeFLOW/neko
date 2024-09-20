@@ -86,8 +86,8 @@ contains
 
     call json_get(json, "model", name)
 
-    call les_model_factory(this%les_model, name, case%fluid%dm_Xh,&
-                           case%fluid%c_Xh, json)
+    call les_model_factory(this%les_model, name, case%dofmap,&
+                           case%coef, json)
 
   end subroutine les_simcomp_init_from_json
 

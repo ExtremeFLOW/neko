@@ -277,7 +277,7 @@ contains
   !! @param bc_zone Boundary zone to be marked.
   subroutine bc_mark_zone(this, bc_zone)
     class(bc_t), intent(inout) :: this
-    class(facet_zone_t), intent(inout) :: bc_zone
+    class(facet_zone_t), intent(in) :: bc_zone
     integer :: i
     do i = 1, bc_zone%size
        call this%marked_facet%push(bc_zone%facet_el(i))
@@ -292,7 +292,7 @@ contains
   !! @param bc_label List of boundary condition labels.
   subroutine bc_mark_zones_from_list(this, bc_zones, bc_key, bc_labels)
     class(bc_t), intent(inout) :: this
-    class(facet_zone_t), intent(inout) :: bc_zones(:)
+    class(facet_zone_t), intent(in) :: bc_zones(:)
     character(len=*) :: bc_key
     character(len=100), allocatable :: split_key(:)
     character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
