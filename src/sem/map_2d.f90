@@ -17,7 +17,8 @@ module map_2d
   use vector, only: vector_ptr_t
   use logger, only: neko_log, LOG_SIZE
   use utils, only: neko_error, neko_warning
-  use math, only: glmax, glmin, glimax, glimin, relcmp, cmult, add2s1, col2, copy, rzero
+  use math, only: glmax, glmin, glimax, glimin, relcmp, cmult, &
+                  add2s1, col2, copy, rzero
   use neko_mpi_types
   use fld_file_data
   use field
@@ -123,9 +124,12 @@ contains
        !direction in local coords (r,s,t) that is hom is stored in map_1d%dir_el
        !set element to height
        !we assume elements are stacked on eachother...
-       el_dim(1,:) = abs(this%msh%elements(i)%e%pts(1)%p%x-this%msh%elements(i)%e%pts(2)%p%x)
-       el_dim(2,:) = abs(this%msh%elements(i)%e%pts(1)%p%x-this%msh%elements(i)%e%pts(3)%p%x)
-       el_dim(3,:) = abs(this%msh%elements(i)%e%pts(1)%p%x-this%msh%elements(i)%e%pts(5)%p%x)
+       el_dim(1,:) = abs(this%msh%elements(i)%e%pts(1)%p%x-&
+                     this%msh%elements(i)%e%pts(2)%p%x)
+       el_dim(2,:) = abs(this%msh%elements(i)%e%pts(1)%p%x-&
+                     this%msh%elements(i)%e%pts(3)%p%x)
+       el_dim(3,:) = abs(this%msh%elements(i)%e%pts(1)%p%x-&
+                     this%msh%elements(i)%e%pts(5)%p%x)
        ! 1 corresponds to x, 2 to y, 3 to z
        el_h = el_dim(this%map_1d%dir_el(i),dir)
        this%el_heights%x(:,:,:,i) = el_h
@@ -136,7 +140,8 @@ contains
     call copy(this%u%x,this%el_heights%x,n)
     call copy(this%old_u%x,this%el_heights%x,n)
     call copy(this%avg_u%x,this%el_heights%x,n)
-    call perform_global_summation(this%u, this%avg_u, this%old_u, this%map_1d%n_el_lvls, &
+    call perform_global_summation(this%u, this%avg_u, this%old_u, &
+         this%map_1d%n_el_lvls, &
          this%map_1d%dir_el,this%coef%gs_h, this%coef%mult, this%msh%nelv, lx)
     this%domain_height = this%u%x(1,1,1,1)
 
@@ -219,12 +224,15 @@ contains
     this%avg_u = 0.0_rp
     do i = 1, fld_data3D%size()
        call copy(this%old_u%x,fld_data3D%items(i)%ptr%x,n)
-       call perform_local_summation(this%u,this%old_u, this%el_heights, this%domain_height, &
+       call perform_local_summation(this%u,this%old_u, &
+            this%el_heights, this%domain_height, &
             this%map_1d%dir_el, this%coef, this%msh%nelv, lx)
        call copy(this%old_u%x,this%u%x,n)
        call copy(this%avg_u%x,this%u%x,n)
-       call perform_global_summation(this%u, this%avg_u, this%old_u, this%map_1d%n_el_lvls, &
-            this%map_1d%dir_el,this%coef%gs_h, this%coef%mult, this%msh%nelv, lx)
+       call perform_global_summation(this%u, this%avg_u, & 
+            this%old_u, this%map_1d%n_el_lvls, &
+            this%map_1d%dir_el,this%coef%gs_h, this%coef%mult, &
+            this%msh%nelv, lx)
        call copy(fld_data3D%items(i)%ptr%x,this%u%x,n)
     end do
     call fld_data2D%get_list(fields2d,fld_data2D%size())
@@ -293,12 +301,15 @@ contains
     this%avg_u = 0.0_rp
     do i = 1, fld_data3D%size()
        call copy(this%old_u%x,fields3D(i)%ptr%x,n)
-       call perform_local_summation(this%u,this%old_u, this%el_heights, this%domain_height, &
+       call perform_local_summation(this%u,this%old_u,&
+            this%el_heights, this%domain_height, &
             this%map_1d%dir_el, this%coef, this%msh%nelv, lx)
        call copy(this%old_u%x,this%u%x,n)
        call copy(this%avg_u%x,this%u%x,n)
-       call perform_global_summation(this%u, this%avg_u, this%old_u, this%map_1d%n_el_lvls, &
-            this%map_1d%dir_el,this%coef%gs_h, this%coef%mult, this%msh%nelv, lx)
+       call perform_global_summation(this%u, this%avg_u, &
+            this%old_u, this%map_1d%n_el_lvls, &
+            this%map_1d%dir_el,this%coef%gs_h,&
+            this%coef%mult, this%msh%nelv, lx)
        call copy(fields3D(i)%ptr%x,this%u%x,n)
     end do
     call fld_data2D%get_list(fields2d,fld_data2D%size())
@@ -309,7 +320,8 @@ contains
     end do
   end subroutine map_2d_average
  
-  subroutine perform_global_summation(u, avg_u, old_u, n_levels, hom_dir_el, gs_h, mult, nelv,lx)
+  subroutine perform_global_summation(u, avg_u, old_u, n_levels, &
+                                     hom_dir_el, gs_h, mult, nelv, lx)
     type(field_t), intent(inout) :: u, avg_u, old_u
     type(gs_t), intent(inout) :: gs_h
     integer, intent(in) :: n_levels, nelv, lx
@@ -364,7 +376,8 @@ contains
     end do
   end subroutine perform_global_summation
   
-  subroutine perform_local_summation(u_out, u, el_heights,domain_height, hom_dir_el, coef, nelv,lx)
+  subroutine perform_local_summation(u_out, u, el_heights, domain_height,&
+                                     hom_dir_el, coef, nelv, lx)
     type(field_t), intent(inout) :: u, u_out, el_heights
     type(coef_t), intent(inout) :: coef
     integer, intent(in) :: nelv, lx
