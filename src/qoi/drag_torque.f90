@@ -153,7 +153,7 @@ contains
          torqvx = torqvx + dgtq(1,4)  ! viscous
          torqvy = torqvy + dgtq(2,4)
          torqvz = torqvz + dgtq(3,4)
-      enddo
+      end do
 !
 !     Sum contributions from all processors
 !
