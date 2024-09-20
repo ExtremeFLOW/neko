@@ -107,8 +107,8 @@ contains
     class(fld_file_data_t), target, intent(inout) :: this
     integer, intent(in) :: n, n_fields
     integer :: i, j
-    
-     
+
+
     if(n_fields .gt. 0) then
        call this%u%init(n)
     end if
@@ -226,7 +226,6 @@ contains
        end do
        deallocate(this%s)
     end if
-   
     this%n_scalars = 0
     this%time = 0.0
     this%glb_nelv = 0

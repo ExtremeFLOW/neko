@@ -1,4 +1,4 @@
-	!> Program to calculate the force and acting on a single boundary zone as well as
+!> Program to calculate the force and acting on a single boundary zone as well as
 !! the torque around a point if one changes the value of center (defaults to 0,0,0).
 !! Outputs the x,y,z prjections of the pressure and viscous forces and torques and
 !! additionally saves the distribution of these quantities along a selected homogenous

@@ -126,7 +126,7 @@ program average_field_in_space
   if (avg_to_1d) then
      call map_1d%init(coef, dir, 1e-7_rp)
   else
-     call map_2d%init(coef,  dir, 1e-7_rp)
+     call map_2d%init(coef, dir, 1e-7_rp)
   end if
   
   !allocate array with pointers to all vectors in the file
