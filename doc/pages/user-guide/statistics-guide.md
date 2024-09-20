@@ -40,7 +40,7 @@ Statistics are enable in the the case file as a simcomp with the added argument 
 
 In addition to the usual controls for the output, which then outputs the averages computes from the last time the statistics were written to file.
 
-For example, if one wants to sample the fields every 4 time steps and compute the averages in time intervals of 20 and write the output every 20 time units, and start collecting statistics after an initial transient of 50 time units the following would work:
+For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute the averages in time intervals of 20 and write the output every 20 time units, and start collecting statistics after an initial transient of 50 time units the following would work:
 
 ~~~~~~~~~~~~~~~{.json}
 "simulation\_components": 
@@ -52,7 +52,8 @@ For example, if one wants to sample the fields every 4 time steps and compute th
       "output_control": "simulationtime",
       "output_value": 20,
       "start_time":50.0,
-      "avg_direction":"xz"
+      "avg_direction":"xz",
+      "set_of_stats":"basic"
     }1
   ]
 ~~~~~~~~~~~~~~~
