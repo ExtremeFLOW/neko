@@ -238,7 +238,7 @@ contains
                              this%n1%x,&
                              this%n2%x,&
                              this%n3%x,&
-                             this%case%material_properties%mu,&
+                             this%case%fluid%mu,&
                              n_pts)
        dgtq(1) = glsum(this%force1%x,n_pts)
        dgtq(2) = glsum(this%force2%x,n_pts)
@@ -288,7 +288,7 @@ contains
                              this%n1%x_d,&
                              this%n2%x_d,&
                              this%n3%x_d,&
-                             this%case%material_properties%mu,&
+                             this%case%fluid%mu,&
                              n_pts)    
        !Overwriting masked s11, s22, s33 as they are no longer needed
           call device_vcross(this%s11msk%x_d,this%s22msk%x_d,this%s33msk%x_d, &
