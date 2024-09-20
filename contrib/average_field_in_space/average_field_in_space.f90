@@ -124,16 +124,15 @@ program average_field_in_space
      call neko_error('homogenous direction not supported')
   end if
   if (avg_to_1d) then
-     call map_1d%init(coef,  dir, 1e-7_rp)
+     call map_1d%init(coef, dir, 1e-7_rp)
   else
-     call map_2d%init(coef,  dir, 1e-7_rp)
+     call map_2d%init(coef, dir, 1e-7_rp)
   end if
   
   !allocate array with pointers to all vectors in the file
 
   output_file = file_t(trim(output_fname))
   do tstep = 0, field_data%meta_nsamples-1
-     print *,'whatup in loop', field_data%meta_nsamples
     if (pe_rank .eq. 0) write(*,*) 'Averaging field:', tstep
      if (tstep .gt. 0) call field_file%read(field_data)
      if (avg_to_1d) then
@@ -143,9 +142,7 @@ program average_field_in_space
         ! Should output a 2d field in principle
      else
         call map_2d%average(output_data,field_data)
-        print *,'lol'
         call output_file%write(output_data,field_data%time)
-        print *,'lol2'
      end if
   end do
   if (pe_rank .eq. 0) write(*,*) 'Done'

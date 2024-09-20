@@ -57,7 +57,7 @@ __global__ void cmult_kernel(T * __restrict__ a,
 template< typename T >
 __global__ void masked_red_copy_kernel(T * __restrict__ a,
                                    T * __restrict__ b,
-                                   int * __restrict__ mask,                    
+                                   int * __restrict__ mask,
                                    const int n,
                                    const int m) {
 

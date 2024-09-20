@@ -21,9 +21,11 @@ module map_1d
   private
   !> Type that encapsulates a mapping from each gll point in the mesh
   !! to its corresponding (global) GLL point index in one direction.
-  !! @remark Could also be rather easily extended to say polar coordinates as well.
+  !! @remark Could also be rather easily extended to say polar coordinates
+  !! as well ( I think). Martin Karp
   type, public :: map_1d_t
-     !> Checks whether the specified direction is in the r,s, or t direction for each element.
+     !> Checks whether the specified direction is in the r,s, or t
+     !! direction for each element.
      integer, allocatable :: dir_el(:)
      !> Checks which level an element belongs to.
      integer, allocatable :: el_lvl(:)
@@ -80,7 +82,8 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        if (pe_rank .eq. 0) then
-          call neko_warning('map_1d does not copy indices to device, but ok if used on cpu and for io')
+          call neko_warning('map_1d does not copy indices to device,'// &
+                            ' but ok if used on cpu and for io')
        end if
     end if
 
@@ -118,11 +121,14 @@ contains
        !we assume elements are stacked on each other...
        ! Check which one of the normalized vectors are closest to dir
        ! If we want to incorporate other directions, we should look here
-       el_dim(1,:) = abs(this%msh%elements(i)%e%pts(1)%p%x - this%msh%elements(i)%e%pts(2)%p%x)
+       el_dim(1,:) = abs(this%msh%elements(i)%e%pts(1)%p%x - &
+                     this%msh%elements(i)%e%pts(2)%p%x)
        el_dim(1,:) = el_dim(1,:)/norm2(el_dim(1,:))
-       el_dim(2,:) = abs(this%msh%elements(i)%e%pts(1)%p%x - this%msh%elements(i)%e%pts(3)%p%x)
+       el_dim(2,:) = abs(this%msh%elements(i)%e%pts(1)%p%x - &
+                     this%msh%elements(i)%e%pts(3)%p%x)
        el_dim(2,:) = el_dim(2,:)/norm2(el_dim(2,:))
-       el_dim(3,:) = abs(this%msh%elements(i)%e%pts(1)%p%x - this%msh%elements(i)%e%pts(5)%p%x)
+       el_dim(3,:) = abs(this%msh%elements(i)%e%pts(1)%p%x - &
+                     this%msh%elements(i)%e%pts(5)%p%x)
        el_dim(3,:) = el_dim(3,:)/norm2(el_dim(3,:))
        ! Checks which directions in rst the xyz corresponds to
        ! 1 corresponds to r, 2 to s, 3 to t and are stored in dir_el
@@ -142,7 +148,8 @@ contains
           if(this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
        end if
     end do
-    ! While loop where at each iteation the global maximum value propagates down one level.
+    ! While loop where at each iteation the global maximum value 
+    ! propagates down one level.
     ! When the minumum value has propagated to the highest level this stops.
     ! Only works when the bottom plate of the domain is flat.
     do while (.not. relcmp(glmax(min_vals,n), glb_min, this%tol))
@@ -313,7 +320,8 @@ contains
     do j = 2, field_list%size() + 1
        do i = 1, n
           avg_planes%x(this%pt_lvl(i,1,1,1),j) = &
-          avg_planes%x(this%pt_lvl(i,1,1,1),j) + field_list%items(j-1)%ptr%x(i,1,1,1)*this%coef%B(i,1,1,1) &
+          avg_planes%x(this%pt_lvl(i,1,1,1),j) + &
+          field_list%items(j-1)%ptr%x(i,1,1,1)*this%coef%B(i,1,1,1) &
           /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
        end do
     end do
@@ -355,7 +363,8 @@ contains
     do j = 2, size(vector_ptr)+1
        do i = 1, n
           avg_planes%x(this%pt_lvl(i,1,1,1),j) = &
-          avg_planes%x(this%pt_lvl(i,1,1,1),j) + vector_ptr(j-1)%ptr%x(i)*this%coef%B(i,1,1,1) &
+          avg_planes%x(this%pt_lvl(i,1,1,1),j) + &
+          vector_ptr(j-1)%ptr%x(i)*this%coef%B(i,1,1,1) &
           /this%volume_per_gll_lvl(this%pt_lvl(i,1,1,1))
        end do
     end do

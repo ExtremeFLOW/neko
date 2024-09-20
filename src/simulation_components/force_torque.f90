@@ -114,9 +114,9 @@ contains
 
     call this%init_base(json, case)
 
-    call json_get(json, 'zone_id',zone_id)
-    call json_get_or_default(json, 'zone_name',zone_name,' ')
-    call json_get_or_default(json, 'scale',scale,1.0_rp)
+    call json_get(json, 'zone_id', zone_id)
+    call json_get_or_default(json, 'zone_name', zone_name, ' ')
+    call json_get_or_default(json, 'scale', scale, 1.0_rp)
     call json_get(json, 'center', center)
     call force_torque_init_from_attributes(this, zone_id, zone_name, &
                                            center, scale, case%fluid%c_xh)

@@ -1,4 +1,4 @@
-# Simulation components {#simcomps}
+# Simulaticn components {#simcomps}
 
 \tableofcontents
 
@@ -213,8 +213,9 @@ fields to disk via the usual common keywords.
 ### force_torque {#simcomp_force_torque}
 Computes the force on a specified zone and the corresponding torque
 around a center point. The compute control specifies how often they are
-computed and printed into the log. Subroutines used in the simcomp can be 
-found in src/qoi/drag_torque.f90 
+computed and printed into the log. Scale specifies a scale for the computed
+force/torque. Conventient if one wants to scale with the area or similar.
+Subroutines used in the simcomp can be found in src/qoi/drag_torque.f90
 
  ~~~~~~~~~~~~~~~{.json}
  {
@@ -222,8 +223,9 @@ found in src/qoi/drag_torque.f90
    "zone_id": 1,
    "center": [0.0, 0.0, 0.0],
    "zone_name": "some chosen name, optional",
-   "output_control" : "tsteps",
-   "output_value" : 10
+   "scale": 1.0
+   "compute_control" : "tsteps",
+   "compute_value" : 10
  }
  ~~~~~~~~~~~~~~~
  
