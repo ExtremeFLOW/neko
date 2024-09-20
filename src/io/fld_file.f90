@@ -126,6 +126,7 @@ contains
        if (data%x%n .gt. 0) x%ptr => data%x%x
        if (data%y%n .gt. 0) y%ptr => data%y%x
        if (data%z%n .gt. 0) z%ptr => data%z%x
+       if (gdim .eq. 2) z%ptr => data%y%x
        if (data%u%n .gt. 0) then
           u%ptr => data%u%x
           write_velocity = .true.
@@ -263,7 +264,6 @@ contains
     else
        FLD_DATA_SIZE = MPI_REAL_SIZE
     end if
-
     if (this%dp_precision) then
        allocate(tmp_dp(gdim*n))
     else
@@ -342,15 +342,12 @@ contains
     call MPI_File_write_at_all(fh, byte_offset, idx, nelv, &
          MPI_INTEGER, status, ierr)
     mpi_offset = mpi_offset + int(glb_nelv, i8) * int(MPI_INTEGER_SIZE, i8)
-
     deallocate(idx)
-
     if (write_mesh) then
 
        byte_offset = mpi_offset + int(offset_el, i8) * &
             (int(gdim*lxyz, i8) * &
             int(FLD_DATA_SIZE, i8))
-
        call fld_file_write_vector_field(this, fh, byte_offset, &
             x%ptr, y%ptr, z%ptr, &
             n, gdim, lxyz, nelv)
@@ -502,7 +499,6 @@ contains
 
     call MPI_File_sync(fh, ierr)
     call MPI_File_close(fh, ierr)
-
     ! Write metadata file
     if (pe_rank .eq. 0) then
        tslash_pos = filename_tslash_pos(this%fname)
