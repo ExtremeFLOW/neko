@@ -29,6 +29,7 @@ in Neko. The list will be updated as new simcomps are added.
 - Output of registered fields to an `.fld` file \ref simcomp_field_writer
 - Computation of the derivative of a field \ref simcomp_derivative
 - Computation of the weak gradient of a field \ref simcomp_weak_grad
+- Computation of subgrid scale velocity via an LES model.
 - User defined components \ref user-file_simcomps
 
 ## Controling execution and file output
@@ -223,6 +224,41 @@ writing the computed fields to disk via the usual common keywords.
  {
    "type": "weak_gradient"
    "field": "u",
+   "output_control" : "never"
+ }
+ ~~~~~~~~~~~~~~~
+
+### les_model {#simcomp_les_model}
+Computes a subgrid viscosity field using an LES model. **Note*:* The simcomp
+*only* computes the viscosity field. You have to select the corresponding
+`nut_field` in the fluid and/or scalar JSON object to actually enable LES, see
+corresponding documentation. The simcomp is controlled by the following
+keywords:
+
+- `model`: Selects the LES model. Currently available models are:
+  - `smagorinsky`: The standard Smagorinsky model. Configured by the
+    following additional keyword:
+    - `c_s`: The Smagorinsky constant, defaults to 0.17.
+  - `dynamic_smagorinsky`: The dynamic Smagorinsky model. Configured by the
+    following additional keyword:
+  - `vreman`: The Vreman model. Configured by the following additional keyword:
+    - `c`: The model constant, defaults to 0.07.
+  - `sigma`: The Sigma model. Configured by the following additional keyword:
+    - `c`: The model constant, defaults to 1.35.
+- `les_delta`: Selects the way to compute the LES length scale. Currently two
+  alternatives are provided:
+  - `pointwise`: Computes a local value based on the spacing of the GLL nodes.
+  - `elementwise`: Computes a single value for the whole element based on the
+    maximum spacing of the GLL nodes within the element.
+  The `les_delta` field is added to the registry and written to the .fld files.
+- `nut_field`: The name of the SGS viscosity field added to the registry.
+  Defaults to `nut`. This allows to have two different LES models active, saved
+  to different fields. For example, one for the scalar and one to the fluid.
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "les_model"
+   "model": "smagorinsky",
    "output_control" : "never"
  }
  ~~~~~~~~~~~~~~~
