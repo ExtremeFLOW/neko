@@ -124,7 +124,7 @@ program average_field_in_space
      call neko_error('homogenous direction not supported')
   end if
   if (avg_to_1d) then
-     call map_1d%init(coef,  dir, 1e-7_rp)
+     call map_1d%init(coef, dir, 1e-7_rp)
   else
      call map_2d%init(coef,  dir, 1e-7_rp)
   end if
