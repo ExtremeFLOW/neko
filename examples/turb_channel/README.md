@@ -1,11 +1,11 @@
-#Simple turbulent channel case at Re_tau=180 with 5832 elements and N=5 
+# Simple turbulent channel case at Re_tau=180 with 5832 elements and N=5 
 Simulation of a turbulent channel in a domain of size $(4\pi\delta,2\delta,4/3\pi\delta)$  where $\delta$ is the height of half then channel. The bulk Reynolds number is specified ($U_b=1$) with constant mass flux s.t. $Re_b=\delta U_b/\nu=2800$. The mesh is deformed and refined closer to the wall in turb_channel.f90 (the original box.nmsh is of size (4, 2, 1.5) and centered in (2, 0, 0.75)).
 
 The channel starts with a slightly perturbed initial condition which becomes turbulent after around 10 time units. 
 
 This case can be run if one has 4GB of DRAM and a relatively modern CPU. On a Macbook Air 2024 M3 running to $T=100\delta/U_b$ takes around 1 hour. On one RTX2060 GPU it takes less than 10 min instead. In single precision the case can be run faster and the memory requirement is lower as well (enabled by configuring with --enable-real=sp).
 
-#Enabled features in turb_channel.case 
+# Enabled features in turb_channel.case 
 
 - The force exerted on the walls of the channel is calculated and normalized by the channel area to obtain the wall-shear stress. This is printed in the log for the top and bottom wall every 10 time steps. This can be modified in the case file as well. One can for example extract the stress in the stream-wise direction as (assuming one saves the log in my_log) and put it into a textfile out:
 ```bash
@@ -43,7 +43,7 @@ y_coords = dat[np.abs(dat[:,0]-65)<0.1,1]
 #plot the profile
 plt.plot(y_coords,U_vel)
 #If you run longer you can compute better averages by adding many batches together, for somewhat converged statistics you will need at least 100 time units.
-plt.ylabel(r'$u ($U_b$)')
+plt.ylabel(r'$u$ ($U_b$)')
 plt.xlabel(r'$y$ ($\delta$)')
 plt.legend()
 plt.show()
