@@ -147,7 +147,7 @@ contains
   subroutine fluid_stats_simcomp_restart(this, t)
     class(fluid_stats_simcomp_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
-    if(t .gt. this%time) this%time = t
+    if (t .gt. this%time) this%time = t
   end subroutine fluid_stats_simcomp_restart
 
   !> fluid_stats, called depending on compute_control and compute_value
