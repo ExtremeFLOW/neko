@@ -31,21 +31,23 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module device_math
-  use comm
+  use comm, only: NEKO_COMM, pe_size, MPI_REAL_PRECISION
+  use mpi_f08, only: MPI_SUM, MPI_IN_PLACE, &
+       MPI_Allreduce
+
   use utils, only : neko_error
   use num_types, only : rp, c_rp
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only: c_ptr, c_int
 
-#if HAVE_HIP
-  use hip_math, only: hip_copy, hip_rzero, hip_rone, hip_cmult, hip_cmult2, &
+  use hip_math, only: hip_copy, hip_rzero, hip_cmult, hip_cmult2, &
        hip_cadd, hip_cadd2, hip_cfill, hip_add2, hip_add3, hip_add4, &
        hip_add2s1, hip_add2s2, hip_addsqr2s2, hip_add3s2, hip_invcol1, &
        hip_invcol2, hip_col2, hip_col3, hip_subcol3, hip_sub2, hip_sub3, &
        hip_addcol3, hip_addcol4, hip_vdot3, hip_vlsc3, hip_glsc3, &
        hip_glsc3_many, hip_add2s2_many, hip_glsc2, hip_glsum, hip_masked_copy, &
        hip_cfill_mask, hip_masked_red_copy, hip_vcross
-#elif HAVE_CUDA
-  use cuda_math, only: cuda_copy, cuda_rzero, cuda_rone, cuda_cmult, &
+
+  use cuda_math, only: cuda_copy, cuda_rzero, cuda_cmult, &
        cuda_cmult2, cuda_cadd, cuda_cadd2, cuda_cfill, cuda_add2, cuda_add3, &
        cuda_add4, cuda_add2s1, cuda_add2s2, cuda_addsqr2s2, cuda_add3s2, &
        cuda_invcol1, cuda_invcol2, cuda_col2, cuda_col3, cuda_subcol3, &
@@ -53,17 +55,15 @@ module device_math
        cuda_vlsc3, cuda_glsc3, cuda_glsc3_many, cuda_add2s2_many, cuda_glsc2, &
        cuda_glsum, cuda_masked_copy, cuda_cfill_mask, cuda_masked_red_copy, &
        cuda_vcross
-#elif HAVE_OPENCL
+
   use opencl_math, only: opencl_copy, opencl_rzero, opencl_rone, opencl_cmult, &
        opencl_cmult2, opencl_cadd, opencl_cadd2, opencl_cfill, opencl_add2, &
        opencl_add3, opencl_add4, opencl_add2s1, opencl_add2s2, &
        opencl_addsqr2s2, opencl_add3s2, opencl_invcol1, opencl_invcol2, &
        opencl_col2, opencl_col3, opencl_subcol3, opencl_sub2, opencl_sub3, &
-       opencl_addcol3, opencl_addcol4, opencl_vdot3, opencl_vlsc3, &
+       opencl_addcol3, opencl_addcol4, opencl_vdot3, &
        opencl_glsc3, opencl_glsc3_many, opencl_add2s2_many, opencl_glsc2, &
-       opencl_glsum, opencl_masked_copy, opencl_cfill_mask, &
-       opencl_masked_red_copy, opencl_vcross
-#endif
+       opencl_glsum, opencl_masked_copy, opencl_cfill_mask
 
   implicit none
   private
@@ -162,11 +162,9 @@ contains
   subroutine device_rone(a_d, n)
     type(c_ptr) :: a_d
     integer :: n
-    real(kind=rp) :: one = 1.0_rp
-#if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
+    real(kind=rp), parameter :: one = 1.0_rp
+#if HAVE_HIP || HAVE_CUDA || HAVE_OPENCL
     call device_cfill(a_d, one, n)
-#elif HAVE_OPENCL
-    call opencl_rone(a_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
