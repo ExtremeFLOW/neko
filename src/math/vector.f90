@@ -33,7 +33,7 @@
 !> Defines a vector
 module vector
   use neko_config, only: NEKO_BCKND_DEVICE
-  use math, only: sub3, chsign, add3, cmult2, cadd2, cfill, copy, col3
+  use math, only: sub3, chsign, add3, cmult2, cadd2, cfill, copy, col3, cdiv2
   use num_types, only: rp
   use device, only: device_map, device_free
   use device_math, only: device_copy, device_cfill, device_cmult, &
@@ -77,7 +77,11 @@ module vector
      procedure, pass(a) :: vector_cmult_left
      !> Scalar-vector multiplication \f$ v = c*a \f$.
      procedure, pass(a) :: vector_cmult_right
-     !> Pointwise-vector multiplication \f$ v = a*b \f$.
+     !> Scalar-vector division \f$ v = c / a \f$.
+     procedure, pass(a) :: vector_cdiv_left
+     !> Vector-scalar division \f$ v = a / c \f$.
+     procedure, pass(a) :: vector_cdiv_right
+     !> Pointwise vector multiplication \f$ v = a*b \f$.
      procedure, pass(a) :: vector_pointwise_mult
 
      generic :: assignment(=) => vector_assign_vector, &
@@ -88,6 +92,7 @@ module vector
           vector_sub_scalar_left, vector_sub_scalar_right
      generic :: operator(*) => vector_cmult_left, vector_cmult_right, &
           vector_pointwise_mult
+     generic :: operator(/) => vector_cdiv_left, vector_cdiv_right
   end type vector_t
 
   type, public :: vector_ptr_t
@@ -347,4 +352,48 @@ contains
     end if
 
   end function vector_pointwise_mult
+
+  !> Scalar-vector division \f$ v = c / a \f$.
+  function vector_cdiv_left(c, a) result(v)
+    real(kind=rp), intent(in) :: c
+    class(vector_t), intent(in) :: a
+    type(vector_t) :: v
+
+    v%n = a%n
+    allocate(v%x(v%n))
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(v%x, v%x_d, v%n)
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       !  call device_cdiv2(v%x_d, a%x_d, 1.0_rp/c, v%n)
+       call neko_error('Not implemented')
+    else
+       call cdiv2(v%x, a%x, 1.0_rp/c, v%n)
+    end if
+
+  end function vector_cdiv_left
+
+  !> Vector-scalar division \f$ v = a / c \f$.
+  function vector_cdiv_right(a, c) result(v)
+    class(vector_t), intent(in) :: a
+    real(kind=rp), intent(in) :: c
+    type(vector_t) :: v
+
+    v%n = a%n
+    allocate(v%x(v%n))
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(v%x, v%x_d, v%n)
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       !  call device_cmult2(v%x_d, a%x_d, 1.0_rp/c, v%n)
+       call neko_error('Not implemented')
+    else
+       call cmult2(v%x, a%x, 1.0_rp/c, v%n)
+    end if
+
+  end function vector_cdiv_right
 end module vector
