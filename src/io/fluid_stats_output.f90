@@ -121,7 +121,7 @@ contains
             do i = 1, size(out_fields)
                call device_memcpy(out_fields(i)%ptr%x, out_fields(i)%ptr%x_d,&
                     out_fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
-                    sync=(i .eq. size(out_fields))) ! Sync on last field
+                    sync = (i .eq. size(out_fields))) ! Sync on last field
             end do
          end if
          if (this%output_dim .eq. 1) then
@@ -129,7 +129,7 @@ contains
                  this%stats%stat_fields)
             call this%file_%write(avg_output_1d, t)
          else if (this%output_dim .eq. 2) then
-            call this%map_2d%average(output_2d,this%stats%stat_fields)
+            call this%map_2d%average(output_2d, this%stats%stat_fields)
             !Switch around fields to get correct orders
             !Put average direction mean_vel in scalar45
             do i = 1, this%map_2d%n_2d

@@ -39,7 +39,7 @@ module fluid_stats_simcomp
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use field, only : field_t
-  use fluid_stats
+  use fluid_stats, only: fluid_stats_t
   use fluid_stats_output, only : fluid_stats_output_t
   use case, only : case_t
   use coefs, only : coef_t
@@ -118,13 +118,24 @@ contains
   !! @param hom_dir directions to average in
   !! @param stat_set Set of statistics to compute (basic/full)
   subroutine fluid_stats_simcomp_init_from_attributes(this, u, v, w, p, coef, &
-                                                      start_time, hom_dir, stat_set)
+                                                      start_time, hom_dir, &
+                                                      stat_set)
     class(fluid_stats_simcomp_t), intent(inout) :: this
     character(len=*), intent(in) :: hom_dir
     character(len=*), intent(in) :: stat_set
     real(kind=rp), intent(in) :: start_time
     type(field_t), intent(inout) :: u, v, w, p !>Should really be intent in I think
     type(coef_t), intent(in) :: coef
+    character(len=LOG_SIZE) :: log_buf
+    
+    call neko_log%section('Fluid stats')
+    write(log_buf, '(A,E15.7)') 'Start time: ', start_time
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,A)') 'Set of statistics: ', trim(stat_set)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,A)') 'Averaging in direction: ', trim(hom_dir)
+    call neko_log%message(log_buf)
+
 
     call this%stats%init(coef, u, &
          v, w, p, stat_set)
@@ -132,10 +143,14 @@ contains
     this%time = start_time
 
     call this%stats_output%init(this%stats, &
-            this%start_time, hom_dir=hom_dir, path=this%case%output_directory)
-    call this%case%s%add(this%stats_output,&
-                        this%output_controller%control_value,&
+            this%start_time, hom_dir = hom_dir, &
+            path = this%case%output_directory)
+    call this%case%s%add(this%stats_output, &
+                        this%output_controller%control_value, &
                         this%output_controller%control_mode)
+ 
+    call neko_log%end_section()
+  
   end subroutine fluid_stats_simcomp_init_from_attributes
 
   !> Destructor.
@@ -176,11 +191,11 @@ contains
        sample_time = MPI_WTIME() - sample_start_time
 
        call neko_log%section('Fluid stats')
-       write(log_buf,'(A,E15.7)') 'Sampling at time:', t
+       write(log_buf, '(A,E15.7)') 'Sampling at time:', t
        call neko_log%message(log_buf)
-       write(log_buf,'(A33,E15.7)') 'Simulationtime since last sample:', deltaT
+       write(log_buf, '(A33,E15.7)') 'Simulationtime since last sample:', deltaT
        call neko_log%message(log_buf)
-       write(log_buf,'(A,E15.7)') 'Sampling time (s):', sample_time
+       write(log_buf, '(A,E15.7)') 'Sampling time (s):', sample_time
        call neko_log%message(log_buf)
        call neko_log%end_section()
     end if
