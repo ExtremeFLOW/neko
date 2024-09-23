@@ -124,7 +124,7 @@ jobs:
           PFUNIT_DIR: ${{ steps.get-pfunit.outputs.install-dir }}
         run: |
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --with-pfunit=$PFUNIT_DIR --enable-real=${RP}
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -cpp" --with-pfunit=$PFUNIT_DIR --enable-real=${RP}
           make -j${{ steps.setup-env.outputs.nproc }}
 
       - name: Build (CUDA backend)
@@ -132,7 +132,7 @@ jobs:
         run: |
           sudo apt-get install -y nvidia-cuda-toolkit
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --enable-real=${RP} --with-cuda=/usr
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -cpp" --enable-real=${RP} --with-cuda=/usr
           make -j${{ steps.setup-env.outputs.nproc }}
 
       - name: Build (HIP backend)
@@ -146,14 +146,14 @@ jobs:
           ROCM_DIR=$(ls -d /opt/rocm-*)
 
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=$ROCM_DIR
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -cpp" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=$ROCM_DIR
           make -j ${{ steps.setup-env.outputs.nproc }}
 
       - name: Build (OpenCL backend)
         if: matrix.backend == 'opencl'
         run: |
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --enable-real=${RP} --with-opencl
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -cpp" --enable-real=${RP} --with-opencl
           make -j ${{ steps.setup-env.outputs.nproc }}
 
       - name: Check
