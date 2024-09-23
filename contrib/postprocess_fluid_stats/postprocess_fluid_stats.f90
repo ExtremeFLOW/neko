@@ -25,8 +25,10 @@ program postprocess_fluid_stats
      if (pe_rank .eq. 0) then
         write(*,*) 'Usage: ./postprocess_fluid_stats mesh.nmsh stats.fld'
         write(*,*) 'Example command: ./postprocess_fluid_stats mesh.nmsh statsblabla.fld'
-        write(*,*) 'Computes the statstics from the fld files described in statsblabla.nek5000'
-        write(*,*) 'Currently we output two new fld files reynolds and mean_vei_grad'
+        write(*,*) 'Computes the statstics from the (3D) fld files described in statsblabla.nek5000'
+        write(*,*) 'Recommended to use PyNekTools for more advanced postprocessing.'
+        write(*,*) 'If this does not work, switch to that.'
+        write(*,*) 'Currently we output two new fld files reynolds and mean_vel_grad'
         write(*,*) 'In Reynolds the fields are ordered as:'
         write(*,*) 'x-velocity=<u`u`>'
         write(*,*) 'y-velocity=<v`v`>'
