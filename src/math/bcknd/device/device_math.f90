@@ -36,12 +36,33 @@ module device_math
   use num_types, only : rp, c_rp
   use, intrinsic :: iso_c_binding
 
-#ifdef HAVE_HIP
-  use hip_math
+#if HAVE_HIP
+  use hip_math, only: hip_copy, hip_rzero, hip_rone, hip_cmult, hip_cmult2, &
+       hip_cadd, hip_cadd2, hip_cfill, hip_add2, hip_add3, hip_add4, &
+       hip_add2s1, hip_add2s2, hip_addsqr2s2, hip_add3s2, hip_invcol1, &
+       hip_invcol2, hip_col2, hip_col3, hip_subcol3, hip_sub2, hip_sub3, &
+       hip_addcol3, hip_addcol4, hip_vdot3, hip_vlsc3, hip_glsc3, &
+       hip_glsc3_many, hip_add2s2_many, hip_glsc2, hip_glsum, hip_masked_copy, &
+       hip_cfill_mask, hip_masked_red_copy, hip_vcross
 #elif HAVE_CUDA
-  use cuda_math
+  use cuda_math, only: cuda_copy, cuda_rzero, cuda_rone, cuda_cmult, &
+       cuda_cmult2, cuda_cadd, cuda_cadd2, cuda_cfill, cuda_add2, cuda_add3, &
+       cuda_add4, cuda_add2s1, cuda_add2s2, cuda_addsqr2s2, cuda_add3s2, &
+       cuda_invcol1, cuda_invcol2, cuda_col2, cuda_col3, cuda_subcol3, &
+       cuda_sub2, cuda_sub3, cuda_addcol3, cuda_addcol4, cuda_vdot3, &
+       cuda_vlsc3, cuda_glsc3, cuda_glsc3_many, cuda_add2s2_many, cuda_glsc2, &
+       cuda_glsum, cuda_masked_copy, cuda_cfill_mask, cuda_masked_red_copy, &
+       cuda_vcross
 #elif HAVE_OPENCL
-  use opencl_math
+  use opencl_math, only: opencl_copy, opencl_rzero, opencl_rone, opencl_cmult, &
+       opencl_cmult2, opencl_cadd, opencl_cadd2, opencl_cfill, opencl_add2, &
+       opencl_add3, opencl_add4, opencl_add2s1, opencl_add2s2, &
+       opencl_addsqr2s2, opencl_add3s2, opencl_invcol1, opencl_invcol2, &
+       opencl_col2, opencl_col3, opencl_subcol3, opencl_sub2, opencl_sub3, &
+       opencl_addcol3, opencl_addcol4, opencl_vdot3, opencl_vlsc3, &
+       opencl_glsc3, opencl_glsc3_many, opencl_add2s2_many, opencl_glsc2, &
+       opencl_glsum, opencl_masked_copy, opencl_cfill_mask, &
+       opencl_masked_red_copy, opencl_vcross
 #endif
 
   implicit none
@@ -63,7 +84,7 @@ contains
   subroutine device_copy(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_copy(a_d, b_d, n)
 #elif HAVE_CUDA
     call cuda_copy(a_d, b_d, n)
@@ -78,7 +99,7 @@ contains
   subroutine device_masked_copy(a_d, b_d, mask_d, n, m)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, m
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_masked_copy(a_d, b_d, mask_d, n, m)
 #elif HAVE_CUDA
     call cuda_masked_copy(a_d, b_d, mask_d, n, m)
@@ -92,7 +113,7 @@ contains
   subroutine device_masked_red_copy(a_d, b_d, mask_d, n, m)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, m
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_masked_red_copy(a_d, b_d, mask_d, n, m)
 #elif HAVE_CUDA
     call cuda_masked_red_copy(a_d, b_d, mask_d, n, m)
@@ -111,7 +132,7 @@ contains
     integer :: size
     type(c_ptr) :: mask_d
     integer :: mask_size
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_cfill_mask(a_d, c, size, mask_d, mask_size)
 #elif HAVE_CUDA
     call cuda_cfill_mask(a_d, c, size, mask_d, mask_size)
@@ -126,7 +147,7 @@ contains
   subroutine device_rzero(a_d, n)
     type(c_ptr) :: a_d
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_rzero(a_d, n)
 #elif HAVE_CUDA
     call cuda_rzero(a_d, n)
@@ -156,7 +177,7 @@ contains
     type(c_ptr) :: a_d
     real(kind=rp), intent(in) :: c
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_cmult(a_d, c, n)
 #elif HAVE_CUDA
     call cuda_cmult(a_d, c, n)
@@ -172,7 +193,7 @@ contains
     type(c_ptr) :: a_d, b_d
     real(kind=rp), intent(in) :: c
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_cmult2(a_d, b_d, c, n)
 #elif HAVE_CUDA
     call cuda_cmult2(a_d, b_d, c, n)
@@ -188,7 +209,7 @@ contains
     type(c_ptr) :: a_d
     real(kind=rp), intent(in) :: c
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_cadd(a_d, c, n)
 #elif HAVE_CUDA
     call cuda_cadd(a_d, c, n)
@@ -205,7 +226,7 @@ contains
     type(c_ptr) :: b_d
     real(kind=rp), intent(in) :: c
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_cadd2(a_d, b_d, c, n)
 #elif HAVE_CUDA
     call cuda_cadd2(a_d, b_d, c, n)
@@ -221,7 +242,7 @@ contains
     type(c_ptr) :: a_d
     real(kind=rp), intent(in) :: c
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_cfill(a_d, c, n)
 #elif HAVE_CUDA
     call cuda_cfill(a_d, c, n)
@@ -236,7 +257,7 @@ contains
   subroutine device_add2(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_add2(a_d, b_d, n)
 #elif HAVE_CUDA
     call cuda_add2(a_d, b_d, n)
@@ -250,7 +271,7 @@ contains
   subroutine device_add4(a_d, b_d, c_d, d_d, n)
     type(c_ptr) :: a_d, b_d, c_d, d_d
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_add4(a_d, b_d, c_d, d_d, n)
 #elif HAVE_CUDA
     call cuda_add4(a_d, b_d, c_d, d_d, n)
@@ -265,7 +286,7 @@ contains
     type(c_ptr) :: a_d, b_d
     real(kind=rp) :: c1
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_add2s1(a_d, b_d, c1, n)
 #elif HAVE_CUDA
     call cuda_add2s1(a_d, b_d, c1, n)
@@ -282,7 +303,7 @@ contains
     type(c_ptr) :: a_d, b_d
     real(kind=rp) :: c1
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_add2s2(a_d, b_d, c1, n)
 #elif HAVE_CUDA
     call cuda_add2s2(a_d, b_d, c1, n)
@@ -298,7 +319,7 @@ contains
     type(c_ptr) :: a_d, b_d
     real(kind=rp) :: c1
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_addsqr2s2(a_d, b_d, c1, n)
 #elif HAVE_CUDA
     call cuda_addsqr2s2(a_d, b_d, c1, n)
@@ -313,7 +334,7 @@ contains
   subroutine device_add3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_add3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
     call cuda_add3(a_d, b_d, c_d, n)
@@ -329,7 +350,7 @@ contains
     type(c_ptr) :: a_d, b_d, c_d
     real(kind=rp) :: c1, c2
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_add3s2(a_d, b_d, c_d, c1, c2, n)
 #elif HAVE_CUDA
     call cuda_add3s2(a_d, b_d, c_d, c1, c2, n)
@@ -344,7 +365,7 @@ contains
   subroutine device_invcol1(a_d, n)
     type(c_ptr) :: a_d
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_invcol1(a_d, n)
 #elif HAVE_CUDA
     call cuda_invcol1(a_d, n)
@@ -359,7 +380,7 @@ contains
   subroutine device_invcol2(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_invcol2(a_d, b_d, n)
 #elif HAVE_CUDA
     call cuda_invcol2(a_d, b_d, n)
@@ -374,7 +395,7 @@ contains
   subroutine device_col2(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_col2(a_d, b_d, n)
 #elif HAVE_CUDA
     call cuda_col2(a_d, b_d, n)
@@ -389,7 +410,7 @@ contains
   subroutine device_col3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_col3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
     call cuda_col3(a_d, b_d, c_d, n)
@@ -404,7 +425,7 @@ contains
   subroutine device_subcol3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_subcol3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
     call cuda_subcol3(a_d, b_d, c_d, n)
@@ -419,7 +440,7 @@ contains
   subroutine device_sub2(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_sub2(a_d, b_d, n)
 #elif HAVE_CUDA
     call cuda_sub2(a_d, b_d, n)
@@ -434,7 +455,7 @@ contains
   subroutine device_sub3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_sub3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
     call cuda_sub3(a_d, b_d, c_d, n)
@@ -449,7 +470,7 @@ contains
   subroutine device_addcol3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_addcol3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
     call cuda_addcol3(a_d, b_d, c_d, n)
@@ -464,7 +485,7 @@ contains
   subroutine device_addcol4(a_d, b_d, c_d, d_d, n)
     type(c_ptr) :: a_d, b_d, c_d, d_D
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_addcol4(a_d, b_d, c_d, d_d, n)
 #elif HAVE_CUDA
     call cuda_addcol4(a_d, b_d, c_d, d_d, n)
@@ -480,7 +501,7 @@ contains
   subroutine device_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n)
     type(c_ptr) :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n)
 #elif HAVE_CUDA
     call cuda_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n)
@@ -499,7 +520,7 @@ contains
     type(c_ptr) :: v1_d, v2_d, v3_d
     type(c_ptr) :: w1_d, w2_d, w3_d
     integer :: n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
          w1_d, w2_d, w3_d, n)
 #elif HAVE_CUDA
@@ -519,7 +540,7 @@ contains
     integer :: n
     real(kind=rp) :: res
     res = 0.0_rp
-#ifdef HAVE_HIP
+#if HAVE_HIP
     res = hip_vlsc3(u_d, v_d, w_d, n)
 #elif HAVE_CUDA
     res = cuda_vlsc3(u_d, v_d, w_d, n)
@@ -536,7 +557,7 @@ contains
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n, ierr
     real(kind=rp) :: res
-#ifdef HAVE_HIP
+#if HAVE_HIP
     res = hip_glsc3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
     res = cuda_glsc3(a_d, b_d, c_d, n)
@@ -559,7 +580,7 @@ contains
     integer(c_int) :: j, n
     real(c_rp) :: h(j)
     integer :: ierr
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_glsc3_many(h,w_d,v_d_d,mult_d,j,n)
 #elif HAVE_CUDA
     call cuda_glsc3_many(h,w_d,v_d_d,mult_d,j,n)
@@ -580,7 +601,7 @@ contains
   subroutine device_add2s2_many(y_d,x_d_d,a_d,j,n)
     type(c_ptr), value :: y_d, x_d_d, a_d
     integer(c_int) :: j, n
-#ifdef HAVE_HIP
+#if HAVE_HIP
     call hip_add2s2_many(y_d,x_d_d,a_d,j,n)
 #elif HAVE_CUDA
     call cuda_add2s2_many(y_d,x_d_d,a_d,j,n)
@@ -596,7 +617,7 @@ contains
     type(c_ptr) :: a_d, b_d
     integer :: n, ierr
     real(kind=rp) :: res
-#ifdef HAVE_HIP
+#if HAVE_HIP
     res = hip_glsc2(a_d, b_d, n)
 #elif HAVE_CUDA
     res = cuda_glsc2(a_d, b_d, n)
@@ -619,7 +640,7 @@ contains
     type(c_ptr) :: a_d
     integer :: n, ierr
     real(kind=rp) :: res
-#ifdef HAVE_HIP
+#if HAVE_HIP
     res = hip_glsum(a_d, n)
 #elif HAVE_CUDA
     res = cuda_glsum(a_d, n)
