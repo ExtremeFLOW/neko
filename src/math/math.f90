@@ -58,9 +58,18 @@
 ! not be used for advertising or product endorsement purposes.
 !
 module math
-  use num_types, only : rp, dp, sp, qp, i4
-  use host_math
-  use comm
+  use num_types, only: rp, dp, sp, qp, i4
+  use host_math, only: host_abscmp, host_relcmp, host_rzero, host_izero, host_row_zero, &
+       host_rone, host_copy, host_cmult, host_cadd, host_cfill, host_glsum, host_glmax, &
+       host_glmin, host_chsign, host_vlmax, host_vlmin, host_invcol1, host_invcol3, &
+       host_invers2, host_vcross, host_vdot2, host_vdot3, host_vlsc3, host_vlsc2, &
+       host_add2, host_add3, host_add4, host_sub2, host_sub3, host_add2s1, host_add2s2, &
+       host_addsqr2s2, host_cmult2, host_invcol2, host_col2, host_col3, host_subcol3, &
+       host_add3s2, host_subcol4, host_addcol3, host_addcol4, host_ascol5, host_p_update, &
+       host_x_update, host_glsc2, host_glsc3, host_glsc4, host_sortrp, host_sorti4, &
+       host_swapdp, host_swapi4, host_reorddp, host_reordi4, host_flipvdp, host_flipvi4, &
+       host_masked_copy, host_cfill_mask, host_glimax, host_glimin, host_cadd2, &
+       host_qabscmp, host_qrelcmp, host_sabscmp, host_dabscmp, host_srelcmp, host_drelcmp
   implicit none
   private
 
