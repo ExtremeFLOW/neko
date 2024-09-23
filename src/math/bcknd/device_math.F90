@@ -56,7 +56,7 @@ module device_math
        integer(c_int) :: n, m
      end subroutine hip_masked_copy
   end interface
-   
+
   interface
      subroutine hip_masked_red_copy(a_d, b_d, mask_d, n, m) &
           bind(c, name='hip_masked_red_copy')
@@ -65,7 +65,7 @@ module device_math
        integer(c_int) :: n, m
      end subroutine hip_masked_red_copy
   end interface
- 
+
   interface
      subroutine hip_cfill_mask(a_d, c, size, mask_d, mask_size) &
           bind(c, name='hip_cfill_mask')
@@ -337,7 +337,7 @@ module device_math
 
   interface
      subroutine hip_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
-                           w1_d, w2_d, w3_d,  n) &
+          w1_d, w2_d, w3_d, n) &
           bind(c, name='hip_vcross')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -691,7 +691,7 @@ module device_math
 
   interface
      subroutine cuda_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
-                           w1_d, w2_d, w3_d,  n) &
+          w1_d, w2_d, w3_d, n) &
           bind(c, name='cuda_vcross')
        use, intrinsic :: iso_c_binding
        implicit none
@@ -1556,17 +1556,17 @@ contains
   !> Compute a cross product \f$ u1, u2, u3 = v1,v2,v3 \cross w1,w2,w3 \f$ (3-d version)
   !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
   subroutine device_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
-                           w1_d, w2_d, w3_d, n)
+       w1_d, w2_d, w3_d, n)
     type(c_ptr) :: u1_d, u2_d, u3_d
     type(c_ptr) :: v1_d, v2_d, v3_d
     type(c_ptr) :: w1_d, w2_d, w3_d
     integer :: n
 #ifdef HAVE_HIP
-    call hip_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, & 
-                    w1_d, w2_d, w3_d, n)
+    call hip_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
+         w1_d, w2_d, w3_d, n)
 #elif HAVE_CUDA
-    call cuda_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, & 
-                     w1_d, w2_d, w3_d, n)
+    call cuda_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
+         w1_d, w2_d, w3_d, n)
 #elif HAVE_OPENCL
     call neko_error("no opencl backedn vcross")
 #else
