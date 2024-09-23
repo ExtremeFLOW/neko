@@ -2,8 +2,6 @@
 
 \tableofcontents
 
-Under development, updated incrementally
-
 Statistics in the context of Neko, is the common name for fields that are averaged in time and possible also space.
 
 The statistics module in Neko computes the temporal average of a wide range of fields.
@@ -33,17 +31,17 @@ Statistics are enable in the the case file as a simcomp with the added argument 
 
 | Name                | Description                                                          | Admissible values | Default value |
 | ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
-| `start_time`        | Time at which to start gathering statistics.                         | Positive real     | 0             |
+| `start_time`        | Time at which to start gathering statistics.                        | Positive real     | 0             |
 | `avg_direction`        | Directions to compute spatial average.                         | x,y,z,xy,xz,yz  |  No spatial average           |
 | `set_of_stats`        | What set of stats to compute.                         | basic, full  |  full         |
-| `compute_value` | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int  | Not set (but recommendwe with every 50 timesteps or so         |
+| `compute_value` | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int  | Not set (but recommended with every 50 timesteps or so  |
 
 In addition to the usual controls for the output, which then outputs the averages computes from the last time the statistics were written to file.
 
-For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 50 time units the following would work:
+For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work:
 
 ~~~~~~~~~~~~~~~{.json}
-"simulation\_components": 
+"simulation_components": 
   [
     {
       "type": "fluid_stats",
@@ -51,13 +49,16 @@ For example, if one wants to compute only the basic statistics and sample the fi
       "compute_value": 4,
       "output_control": "simulationtime",
       "output_value": 20,
-      "start_time":50.0,
+      "start_time":60.0,
       "avg_direction":"xz",
       "set_of_stats":"basic"
     }1
   ]
 ~~~~~~~~~~~~~~~
-The argument "avg\_direction" is optional and if ignored we output 3d fields. The statistics are saved in a fld file according to the following in 2D and 3D. Observe that in 2D the mean velocity in the homogenous direction is not stored in Z-velocity, but is stored in a last scalar field. The correct velocity components are stored in X-velocity and Y-velocity respectively. All other fields are kept the same. This is due to a limitation of the fld file format.
+
+Preferably set the initial transient to a multiple of output_value as otherwise the first output will be slightly shorter than the rest. The code related to fluid statistics are located in fluid_stats and fluid_stats_simcomp.
+
+The argument "avg_direction" is optional and if ignored we output 3d fields. The statistics are saved in a fld file according to the following in 2D and 3D. Observe that in 2D the mean velocity in the homogenous direction is not stored in Z-velocity, but is stored in a last scalar field. The correct velocity components are stored in X-velocity and Y-velocity respectively. All other fields are kept the same. This is due to a limitation of the fld file format.
 
 For 1D statistics a CSV file is outputted. The first column is the time at which the statistics are collected, the second column the spatial coordinate, and the rest of the data is stored in the order below. In this case all statistics are kept in the same order as in 3D.
 
@@ -128,8 +129,8 @@ $$
 # Postprocessing
 These statistics are only the "raw statistics" in the sense that in general we are not interested in \f$ \langle uu\rangle \f$, but rather say \f$ \langle u'u'\rangle\f$. For this we need to postprocess the statistics. 
 
-There is some rudimentary postprocessing to compute the spatial averages of fld files and also to combine the statistics collected from several runs (compute average in time) and also compute both the mean velocity gradient and the Reynolds stresses available ub the contrib scripts. By running the contrib scripts without any arguments one gets a hint on their usage, (e.g. by running `./average_fields_in_time` will give the options). 
+There is some rudimentary postprocessing to compute the spatial averages of fld files and also to combine the statistics collected from several runs (compute average in time) and also compute both the mean velocity gradient and the Reynolds stresses available in the contrib scripts. By running the contrib scripts without any arguments one gets a hint on their usage, (e.g. by running `./average_fields_in_time` will give the options). 
 
-To further postprocess the statistics it is suggested to look into PyNekTools which introduces convenient functions for prostprocessing, largely based on the PyMech library with the addition of an exapnding set of tools for interpolation, computing derivatives and more advaned functionality.  PyNekTools is entirely parallelized in MPI and can also handle large data sets for postprocessing.
+To further postprocess the statistics it is suggested to look into PyNekTools which introduces convenient functions for postprocessing, largely based on the PyMech library with the addition of an expanding set of tools for interpolation, computing derivatives and more advanced functionality.  PyNekTools is entirely parallelized in MPI and can also handle large data sets for postprocessing.
 
 
