@@ -69,7 +69,8 @@ module math
        host_x_update, host_glsc2, host_glsc3, host_glsc4, host_sortrp, host_sorti4, &
        host_swapdp, host_swapi4, host_reorddp, host_reordi4, host_flipvdp, host_flipvi4, &
        host_masked_copy, host_cfill_mask, host_glimax, host_glimin, host_cadd2, &
-       host_qabscmp, host_qrelcmp, host_sabscmp, host_dabscmp, host_srelcmp, host_drelcmp
+       host_qabscmp, host_qrelcmp, host_sabscmp, host_dabscmp, host_srelcmp, host_drelcmp, &
+       host_masked_red_copy
   implicit none
   private
 
@@ -160,19 +161,9 @@ module math
   !! the length of the mask array.
   !! @param n Size of the array `b`.
   !! @param m Size of the mask array `mask` and `a`.
-  subroutine masked_red_copy(a, b, mask, n, m)
-    integer, intent(in) :: n, m
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(m), intent(inout) :: a
-    integer, dimension(0:m) :: mask
-    integer :: i, j
-
-    do i = 1, m
-       j = mask(i)
-       a(i) = b(j)
-    end do
-
-  end subroutine masked_red_copy
+  interface masked_red_copy
+     module procedure host_masked_red_copy
+  end interface masked_red_copy
 
 
   !> @brief Fill a constant to a masked vector.

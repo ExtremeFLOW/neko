@@ -61,7 +61,6 @@ module host_math
   use num_types, only : rp, dp, sp, qp, i4
   use comm
   implicit none
-  private
 
   !> Machine epsilon \f$ \epsilon \f$
   real(kind=rp), private, parameter :: NEKO_EPS = epsilon(1.0_rp)
@@ -95,21 +94,6 @@ module host_math
   interface host_relcmp
      module procedure host_srelcmp, host_drelcmp, host_qrelcmp
   end interface host_relcmp
-
-  public :: host_abscmp, host_rzero, host_izero, host_row_zero, host_rone, &
-       host_copy, host_cmult, host_cadd, host_cfill, host_glsum, host_glmax, &
-       host_glmin, host_chsign, host_vlmax, host_vlmin, host_invcol1, &
-       host_invcol3, host_invers2, host_vcross, host_vdot2, host_vdot3, &
-       host_vlsc3, host_vlsc2, host_add2, host_add3, host_add4, host_sub2, &
-       host_sub3, host_add2s1, host_add2s2, host_addsqr2s2, host_cmult2, &
-       host_invcol2, host_col2, host_col3, host_subcol3, host_add3s2, &
-       host_subcol4, host_addcol3, host_addcol4, host_ascol5, host_p_update, &
-       host_x_update, host_glsc2, host_glsc3, host_glsc4, host_host_sort, &
-       host_masked_copy, host_cfill_mask, host_relcmp, host_glimax, &
-       host_glimin, host_swap, host_reord, host_flipv, host_cadd2, &
-       host_sabscmp, host_dabscmp, host_qabscmp, host_sortrp, host_sorti4, &
-       host_swapdp, host_swapi4, host_reorddp, host_reordi4, host_flipvdp, &
-       host_flipvi4, host_srelcmp, host_drelcmp, host_qrelcmp
 
 contains
 
@@ -256,6 +240,28 @@ contains
     end do
 
   end subroutine host_masked_copy
+
+  !> Copy a masked vector to reduced contigous vector
+  !! \f$ a = b(mask) \f$.
+  !! @param a Destination array of size `m`.
+  !! @param b Source array of size `n`.
+  !! @param mask Mask array of length m+1, where `mask(0) =m`
+  !! the length of the mask array.
+  !! @param n Size of the array `b`.
+  !! @param m Size of the mask array `mask` and `a`.
+  subroutine host_masked_red_copy(a, b, mask, n, m)
+    integer, intent(in) :: n, m
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(m), intent(inout) :: a
+    integer, dimension(0:m) :: mask
+    integer :: i, j
+
+    do i = 1, m
+       j = mask(i)
+       a(i) = b(j)
+    end do
+
+  end subroutine host_masked_red_copy
 
   !> @brief Fill a constant to a masked vector.
   !! \f$ a_i = c, for i in mask \f$

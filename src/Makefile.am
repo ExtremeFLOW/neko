@@ -249,10 +249,10 @@ neko_fortran_SOURCES = \
 	math/math.f90\
 	math/bcknd/host_math.f90\
 	math/bcknd/field_math.f90\
-	math/bcknd/device_math.f90\
-    math/bcknd/device/hip_math.f90\
-    math/bcknd/device/cuda_math.f90\
-    math/bcknd/device/opencl_math.f90\
+	math/bcknd/device/device_math.F90\
+	math/bcknd/device/hip/hip_math.f90\
+	math/bcknd/device/cuda/cuda_math.f90\
+	math/bcknd/device/opencl/opencl_math.f90\
 	math/bcknd/device/device_schwarz.F90\
 	math/bcknd/device/tensor_device.F90\
 	math/bcknd/device/fdm_device.F90\
