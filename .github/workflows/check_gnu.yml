@@ -186,7 +186,7 @@ jobs:
           mkdir releng
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
-          ./configure FC=${FC} FCFLAGS="-cpp" --enable-real=${RP} --with-cuda=/usr
+          ./configure FC=${FC} --enable-real=${RP} --with-cuda=/usr
           make -j ${{ steps.setup-env.outputs.nproc }}
 
       - name: Dist (HIP backend)
@@ -197,7 +197,7 @@ jobs:
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
           ROCM_DIR=$(ls -d /opt/rocm-*)
-          ./configure FC=${FC} FCFLAGS="-fPIE -cpp" --enable-real=${RP} HIP_HIPCC_FLAGS="-O2 -fPIE" --with-hip=$ROCM_DIR
+          ./configure FC=${FC} FCFLAGS="-fPIE" --enable-real=${RP} HIP_HIPCC_FLAGS="-O2 -fPIE" --with-hip=$ROCM_DIR
           make -j ${{ steps.setup-env.outputs.nproc }}
 
       - name: Dist (OpenCL backend)
@@ -207,5 +207,5 @@ jobs:
           mkdir releng
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
-          ./configure FC=${FC} FCFLAGS="-cpp" --enable-real=${RP} --with-opencl
+          ./configure FC=${FC} --enable-real=${RP} --with-opencl
           make -j ${{ steps.setup-env.outputs.nproc }}
