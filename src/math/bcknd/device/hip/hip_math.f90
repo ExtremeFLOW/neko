@@ -37,28 +37,28 @@ module hip_math
 
   interface
      subroutine hip_copy(a_d, b_d, n) &
-          bind(c, name='hip_copy')
+          bind(c, name = 'hip_copy')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        type(c_ptr), value :: a_d, b_d
        integer(c_int) :: n
      end subroutine hip_copy
 
      subroutine hip_masked_copy(a_d, b_d, mask_d, n, m) &
-          bind(c, name='hip_masked_copy')
+          bind(c, name = 'hip_masked_copy')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        type(c_ptr), value :: a_d, b_d, mask_d
        integer(c_int) :: n, m
      end subroutine hip_masked_copy
 
      subroutine hip_masked_red_copy(a_d, b_d, mask_d, n, m) &
-          bind(c, name='hip_masked_red_copy')
+          bind(c, name = 'hip_masked_red_copy')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        type(c_ptr), value :: a_d, b_d, mask_d
        integer(c_int) :: n, m
      end subroutine hip_masked_red_copy
 
      subroutine hip_cfill_mask(a_d, c, size, mask_d, mask_size) &
-          bind(c, name='hip_cfill_mask')
+          bind(c, name = 'hip_cfill_mask')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a_d
@@ -69,7 +69,7 @@ module hip_math
      end subroutine hip_cfill_mask
 
      subroutine hip_cmult(a_d, c, n) &
-          bind(c, name='hip_cmult')
+          bind(c, name = 'hip_cmult')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a_d
@@ -78,7 +78,7 @@ module hip_math
      end subroutine hip_cmult
 
      subroutine hip_cmult2(a_d, b_d, c, n) &
-          bind(c, name='hip_cmult2')
+          bind(c, name = 'hip_cmult2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a_d, b_d
@@ -87,7 +87,7 @@ module hip_math
      end subroutine hip_cmult2
 
      subroutine hip_cadd(a_d, c, n) &
-          bind(c, name='hip_cadd')
+          bind(c, name = 'hip_cadd')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a_d
@@ -96,7 +96,7 @@ module hip_math
      end subroutine hip_cadd
 
      subroutine hip_cadd2(a_d, b_d, c, n) &
-          bind(c, name='hip_cadd2')
+          bind(c, name = 'hip_cadd2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a_d
@@ -106,7 +106,7 @@ module hip_math
      end subroutine hip_cadd2
 
      subroutine hip_cfill(a_d, c, n) &
-          bind(c, name='hip_cfill')
+          bind(c, name = 'hip_cfill')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a_d
@@ -115,14 +115,14 @@ module hip_math
      end subroutine hip_cfill
 
      subroutine hip_rzero(a_d, n) &
-          bind(c, name='hip_rzero')
+          bind(c, name = 'hip_rzero')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        type(c_ptr), value :: a_d
        integer(c_int) :: n
      end subroutine hip_rzero
 
      subroutine hip_add2(a_d, b_d, n) &
-          bind(c, name='hip_add2')
+          bind(c, name = 'hip_add2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
 
@@ -131,7 +131,7 @@ module hip_math
      end subroutine hip_add2
 
      subroutine hip_add4(a_d, b_d, c_d, d_d, n) &
-          bind(c, name='hip_add4')
+          bind(c, name = 'hip_add4')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
 
@@ -140,7 +140,7 @@ module hip_math
      end subroutine hip_add4
 
      subroutine hip_add2s1(a_d, b_d, c1, n) &
-          bind(c, name='hip_add2s1')
+          bind(c, name = 'hip_add2s1')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
 
@@ -150,7 +150,7 @@ module hip_math
      end subroutine hip_add2s1
 
      subroutine hip_add2s2(a_d, b_d, c1, n) &
-          bind(c, name='hip_add2s2')
+          bind(c, name = 'hip_add2s2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
 
@@ -159,8 +159,8 @@ module hip_math
        integer(c_int) :: n
      end subroutine hip_add2s2
 
-     subroutine hip_add2s2_many(y_d,x_d_d,a_d,j,n) &
-          bind(c, name='hip_add2s2_many')
+     subroutine hip_add2s2_many(y_d, x_d_d, a_d, j, n) &
+          bind(c, name = 'hip_add2s2_many')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
 
@@ -169,7 +169,7 @@ module hip_math
      end subroutine hip_add2s2_many
 
      subroutine hip_addsqr2s2(a_d, b_d, c1, n) &
-          bind(c, name='hip_addsqr2s2')
+          bind(c, name = 'hip_addsqr2s2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
 
@@ -179,7 +179,7 @@ module hip_math
      end subroutine hip_addsqr2s2
 
      subroutine hip_add3s2(a_d, b_d, c_d, c1, c2, n) &
-          bind(c, name='hip_add3s2')
+          bind(c, name = 'hip_add3s2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
 
@@ -189,7 +189,7 @@ module hip_math
      end subroutine hip_add3s2
 
      subroutine hip_invcol1(a_d, n) &
-          bind(c, name='hip_invcol1')
+          bind(c, name = 'hip_invcol1')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
 
        type(c_ptr), value :: a_d
@@ -197,7 +197,7 @@ module hip_math
      end subroutine hip_invcol1
 
      subroutine hip_invcol2(a_d, b_d, n) &
-          bind(c, name='hip_invcol2')
+          bind(c, name = 'hip_invcol2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
 
        type(c_ptr), value :: a_d, b_d
@@ -205,7 +205,7 @@ module hip_math
      end subroutine hip_invcol2
 
      subroutine hip_col2(a_d, b_d, n) &
-          bind(c, name='hip_col2')
+          bind(c, name = 'hip_col2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
 
        type(c_ptr), value :: a_d, b_d
@@ -213,7 +213,7 @@ module hip_math
      end subroutine hip_col2
 
      subroutine hip_col3(a_d, b_d, c_d, n) &
-          bind(c, name='hip_col3')
+          bind(c, name = 'hip_col3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
 
        type(c_ptr), value :: a_d, b_d, c_d
@@ -221,7 +221,7 @@ module hip_math
      end subroutine hip_col3
 
      subroutine hip_subcol3(a_d, b_d, c_d, n) &
-          bind(c, name='hip_subcol3')
+          bind(c, name = 'hip_subcol3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
 
        type(c_ptr), value :: a_d, b_d, c_d
@@ -229,7 +229,7 @@ module hip_math
      end subroutine hip_subcol3
 
      subroutine hip_sub2(a_d, b_d, n) &
-          bind(c, name='hip_sub2')
+          bind(c, name = 'hip_sub2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
 
        type(c_ptr), value :: a_d, b_d
@@ -237,7 +237,7 @@ module hip_math
      end subroutine hip_sub2
 
      subroutine hip_sub3(a_d, b_d, c_d, n) &
-          bind(c, name='hip_sub3')
+          bind(c, name = 'hip_sub3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
 
        type(c_ptr), value :: a_d, b_d, c_d
@@ -245,7 +245,7 @@ module hip_math
      end subroutine hip_sub3
 
      subroutine hip_add3(a_d, b_d, c_d, n) &
-          bind(c, name='hip_add3')
+          bind(c, name = 'hip_add3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
 
        type(c_ptr), value :: a_d, b_d, c_d
@@ -253,7 +253,7 @@ module hip_math
      end subroutine hip_add3
 
      subroutine hip_addcol3(a_d, b_d, c_d, n) &
-          bind(c, name='hip_addcol3')
+          bind(c, name = 'hip_addcol3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
 
        type(c_ptr), value :: a_d, b_d, c_d
@@ -261,7 +261,7 @@ module hip_math
      end subroutine hip_addcol3
 
      subroutine hip_addcol4(a_d, b_d, c_d, d_d, n) &
-          bind(c, name='hip_addcol4')
+          bind(c, name = 'hip_addcol4')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
 
        type(c_ptr), value :: a_d, b_d, c_d, d_d
@@ -269,7 +269,7 @@ module hip_math
      end subroutine hip_addcol4
 
      subroutine hip_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n) &
-          bind(c, name='hip_vdot3')
+          bind(c, name = 'hip_vdot3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
 
        type(c_ptr), value :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
@@ -278,7 +278,7 @@ module hip_math
 
      subroutine hip_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
           w1_d, w2_d, w3_d, n) &
-          bind(c, name='hip_vcross')
+          bind(c, name = 'hip_vcross')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
 
        type(c_ptr), value :: u1_d, u2_d, u3_d
@@ -288,7 +288,7 @@ module hip_math
      end subroutine hip_vcross
 
      real(c_rp) function hip_vlsc3(u_d, v_d, w_d, n) &
-          bind(c, name='hip_vlsc3')
+          bind(c, name = 'hip_vlsc3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
 
@@ -297,7 +297,7 @@ module hip_math
      end function hip_vlsc3
 
      real(c_rp) function hip_glsc3(a_d, b_d, c_d, n) &
-          bind(c, name='hip_glsc3')
+          bind(c, name = 'hip_glsc3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
 
@@ -305,8 +305,8 @@ module hip_math
        integer(c_int) :: n
      end function hip_glsc3
 
-     subroutine hip_glsc3_many(h,w_d,v_d_d,mult_d,j,n) &
-          bind(c, name='hip_glsc3_many')
+     subroutine hip_glsc3_many(h, w_d, v_d_d, mult_d, j, n) &
+          bind(c, name = 'hip_glsc3_many')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
 
@@ -316,7 +316,7 @@ module hip_math
      end subroutine hip_glsc3_many
 
      real(c_rp) function hip_glsc2(a_d, b_d, n) &
-          bind(c, name='hip_glsc2')
+          bind(c, name = 'hip_glsc2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
 
@@ -325,7 +325,7 @@ module hip_math
      end function hip_glsc2
 
      real(c_rp) function hip_glsum(a_d, n) &
-          bind(c, name='hip_glsum')
+          bind(c, name = 'hip_glsum')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
 

@@ -344,7 +344,7 @@ contains
   end subroutine device_add3
 
   !> Returns \f$ a = c1 * b + c2 * c \f$
-  subroutine device_add3s2(a_d, b_d, c_d, c1, c2 ,n)
+  subroutine device_add3s2(a_d, b_d, c_d, c1, c2 , n)
     type(c_ptr) :: a_d, b_d, c_d
     real(kind=rp) :: c1, c2
     integer :: n
@@ -510,7 +510,7 @@ contains
 #endif
   end subroutine device_vdot3
 
-  !> Compute a cross product \f$ u1, u2, u3 = v1,v2,v3 \cross w1,w2,w3 \f$ (3-d version)
+  !> Compute a cross product \f$ u = v \times w \f$ (3-d version)
   !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
   subroutine device_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
        w1_d, w2_d, w3_d, n)
@@ -573,17 +573,17 @@ contains
 #endif
   end function device_glsc3
 
-  subroutine device_glsc3_many(h,w_d,v_d_d,mult_d,j,n)
+  subroutine device_glsc3_many(h, w_d, v_d_d, mult_d, j, n)
     type(c_ptr), value :: w_d, v_d_d, mult_d
     integer(c_int) :: j, n
     real(c_rp) :: h(j)
     integer :: ierr
 #if HAVE_HIP
-    call hip_glsc3_many(h,w_d,v_d_d,mult_d,j,n)
+    call hip_glsc3_many(h, w_d, v_d_d, mult_d, j, n)
 #elif HAVE_CUDA
-    call cuda_glsc3_many(h,w_d,v_d_d,mult_d,j,n)
+    call cuda_glsc3_many(h, w_d, v_d_d, mult_d, j, n)
 #elif HAVE_OPENCL
-    call opencl_glsc3_many(h,w_d,v_d_d,mult_d,j,n)
+    call opencl_glsc3_many(h, w_d, v_d_d, mult_d, j, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -596,15 +596,15 @@ contains
 #endif
   end subroutine device_glsc3_many
 
-  subroutine device_add2s2_many(y_d,x_d_d,a_d,j,n)
+  subroutine device_add2s2_many(y_d, x_d_d, a_d, j, n)
     type(c_ptr), value :: y_d, x_d_d, a_d
     integer(c_int) :: j, n
 #if HAVE_HIP
-    call hip_add2s2_many(y_d,x_d_d,a_d,j,n)
+    call hip_add2s2_many(y_d, x_d_d, a_d, j, n)
 #elif HAVE_CUDA
-    call cuda_add2s2_many(y_d,x_d_d,a_d,j,n)
+    call cuda_add2s2_many(y_d, x_d_d, a_d, j, n)
 #elif HAVE_OPENCL
-    call opencl_add2s2_many(y_d,x_d_d,a_d,j,n)
+    call opencl_add2s2_many(y_d, x_d_d, a_d, j, n)
 #else
     call neko_error('No device backend configured')
 #endif

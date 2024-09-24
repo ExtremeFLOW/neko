@@ -37,21 +37,21 @@ module opencl_math
 
   interface
      subroutine opencl_copy(a_d, b_d, n) &
-          bind(c, name='opencl_copy')
+          bind(c, name = 'opencl_copy')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        type(c_ptr), value :: a_d, b_d
        integer(c_int) :: n
      end subroutine opencl_copy
 
      subroutine opencl_masked_copy(a_d, b_d, mask_d, n, m) &
-          bind(c, name='opencl_masked_copy')
+          bind(c, name = 'opencl_masked_copy')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        type(c_ptr), value :: a_d, b_d, mask_d
        integer(c_int) :: n, m
      end subroutine opencl_masked_copy
 
      subroutine opencl_cfill_mask(a_d, c, size, mask_d, mask_size) &
-          bind(c, name='opencl_cfill_mask')
+          bind(c, name = 'opencl_cfill_mask')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a_d
@@ -62,7 +62,7 @@ module opencl_math
      end subroutine opencl_cfill_mask
 
      subroutine opencl_cmult(a_d, c, n) &
-          bind(c, name='opencl_cmult')
+          bind(c, name = 'opencl_cmult')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a_d
@@ -71,7 +71,7 @@ module opencl_math
      end subroutine opencl_cmult
 
      subroutine opencl_cmult2(a_d, b_d, c, n) &
-          bind(c, name='opencl_cmult2')
+          bind(c, name = 'opencl_cmult2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a_d, b_d
@@ -80,7 +80,7 @@ module opencl_math
      end subroutine opencl_cmult2
 
      subroutine opencl_cadd(a_d, c, n) &
-          bind(c, name='opencl_cadd')
+          bind(c, name = 'opencl_cadd')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a_d
@@ -89,7 +89,7 @@ module opencl_math
      end subroutine opencl_cadd
 
      subroutine opencl_cadd2(a_d, b_d, c, n) &
-          bind(c, name='opencl_cadd2')
+          bind(c, name = 'opencl_cadd2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a_d
@@ -99,7 +99,7 @@ module opencl_math
      end subroutine opencl_cadd2
 
      subroutine opencl_cfill(a_d, c, n) &
-          bind(c, name='opencl_cfill')
+          bind(c, name = 'opencl_cfill')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a_d
@@ -108,21 +108,21 @@ module opencl_math
      end subroutine opencl_cfill
 
      subroutine opencl_rzero(a_d, n) &
-          bind(c, name='opencl_rzero')
+          bind(c, name = 'opencl_rzero')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        type(c_ptr), value :: a_d
        integer(c_int) :: n
      end subroutine opencl_rzero
 
      subroutine opencl_rone(a_d, n) &
-          bind(c, name='opencl_rone')
+          bind(c, name = 'opencl_rone')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        type(c_ptr), value :: a_d
        integer(c_int) :: n
      end subroutine opencl_rone
 
      subroutine opencl_add2(a_d, b_d, n) &
-          bind(c, name='opencl_add2')
+          bind(c, name = 'opencl_add2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        implicit none
        type(c_ptr), value :: a_d, b_d
@@ -130,7 +130,7 @@ module opencl_math
      end subroutine opencl_add2
 
      subroutine opencl_add4(a_d, b_d, c_d, d_d, n) &
-          bind(c, name='opencl_add4')
+          bind(c, name = 'opencl_add4')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        implicit none
        type(c_ptr), value :: a_d, b_d, c_d, d_d
@@ -138,7 +138,7 @@ module opencl_math
      end subroutine opencl_add4
 
      subroutine opencl_add2s1(a_d, b_d, c1, n) &
-          bind(c, name='opencl_add2s1')
+          bind(c, name = 'opencl_add2s1')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        implicit none
@@ -148,7 +148,7 @@ module opencl_math
      end subroutine opencl_add2s1
 
      subroutine opencl_add2s2(a_d, b_d, c1, n) &
-          bind(c, name='opencl_add2s2')
+          bind(c, name = 'opencl_add2s2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        implicit none
@@ -157,8 +157,8 @@ module opencl_math
        integer(c_int) :: n
      end subroutine opencl_add2s2
 
-     subroutine opencl_add2s2_many(y_d,x_d_d,a_d,j,n) &
-          bind(c, name='opencl_add2s2_many')
+     subroutine opencl_add2s2_many(y_d, x_d_d, a_d, j, n) &
+          bind(c, name = 'opencl_add2s2_many')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        implicit none
@@ -167,7 +167,7 @@ module opencl_math
      end subroutine opencl_add2s2_many
 
      subroutine opencl_addsqr2s2(a_d, b_d, c1, n) &
-          bind(c, name='opencl_addsqr2s2')
+          bind(c, name = 'opencl_addsqr2s2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        implicit none
@@ -177,7 +177,7 @@ module opencl_math
      end subroutine opencl_addsqr2s2
 
      subroutine opencl_add3s2(a_d, b_d, c_d, c1, c2, n) &
-          bind(c, name='opencl_add3s2')
+          bind(c, name = 'opencl_add3s2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        implicit none
@@ -187,7 +187,7 @@ module opencl_math
      end subroutine opencl_add3s2
 
      subroutine opencl_invcol1(a_d, n) &
-          bind(c, name='opencl_invcol1')
+          bind(c, name = 'opencl_invcol1')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        implicit none
        type(c_ptr), value :: a_d
@@ -195,7 +195,7 @@ module opencl_math
      end subroutine opencl_invcol1
 
      subroutine opencl_invcol2(a_d, b_d, n) &
-          bind(c, name='opencl_invcol2')
+          bind(c, name = 'opencl_invcol2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        implicit none
        type(c_ptr), value :: a_d, b_d
@@ -203,7 +203,7 @@ module opencl_math
      end subroutine opencl_invcol2
 
      subroutine opencl_col2(a_d, b_d, n) &
-          bind(c, name='opencl_col2')
+          bind(c, name = 'opencl_col2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        implicit none
        type(c_ptr), value :: a_d, b_d
@@ -211,7 +211,7 @@ module opencl_math
      end subroutine opencl_col2
 
      subroutine opencl_col3(a_d, b_d, c_d, n) &
-          bind(c, name='opencl_col3')
+          bind(c, name = 'opencl_col3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        implicit none
        type(c_ptr), value :: a_d, b_d, c_d
@@ -219,7 +219,7 @@ module opencl_math
      end subroutine opencl_col3
 
      subroutine opencl_subcol3(a_d, b_d, c_d, n) &
-          bind(c, name='opencl_subcol3')
+          bind(c, name = 'opencl_subcol3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        implicit none
        type(c_ptr), value :: a_d, b_d, c_d
@@ -227,7 +227,7 @@ module opencl_math
      end subroutine opencl_subcol3
 
      subroutine opencl_sub2(a_d, b_d, n) &
-          bind(c, name='opencl_sub2')
+          bind(c, name = 'opencl_sub2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        implicit none
        type(c_ptr), value :: a_d, b_d
@@ -235,7 +235,7 @@ module opencl_math
      end subroutine opencl_sub2
 
      subroutine opencl_sub3(a_d, b_d, c_d, n) &
-          bind(c, name='opencl_sub3')
+          bind(c, name = 'opencl_sub3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        implicit none
        type(c_ptr), value :: a_d, b_d, c_d
@@ -243,7 +243,7 @@ module opencl_math
      end subroutine opencl_sub3
 
      subroutine opencl_add3(a_d, b_d, c_d, n) &
-          bind(c, name='opencl_add3')
+          bind(c, name = 'opencl_add3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        implicit none
        type(c_ptr), value :: a_d, b_d, c_d
@@ -251,7 +251,7 @@ module opencl_math
      end subroutine opencl_add3
 
      subroutine opencl_addcol3(a_d, b_d, c_d, n) &
-          bind(c, name='opencl_addcol3')
+          bind(c, name = 'opencl_addcol3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        implicit none
        type(c_ptr), value :: a_d, b_d, c_d
@@ -259,7 +259,7 @@ module opencl_math
      end subroutine opencl_addcol3
 
      subroutine opencl_addcol4(a_d, b_d, c_d, d_d, n) &
-          bind(c, name='opencl_addcol4')
+          bind(c, name = 'opencl_addcol4')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        implicit none
        type(c_ptr), value :: a_d, b_d, c_d, d_d
@@ -267,7 +267,7 @@ module opencl_math
      end subroutine opencl_addcol4
 
      subroutine opencl_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n) &
-          bind(c, name='opencl_vdot3')
+          bind(c, name = 'opencl_vdot3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        implicit none
        type(c_ptr), value :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
@@ -275,7 +275,7 @@ module opencl_math
      end subroutine opencl_vdot3
 
      real(c_rp) function opencl_glsc3(a_d, b_d, c_d, n) &
-          bind(c, name='opencl_glsc3')
+          bind(c, name = 'opencl_glsc3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        implicit none
@@ -284,7 +284,7 @@ module opencl_math
      end function opencl_glsc3
 
      subroutine opencl_glsc3_many(h, w_d, v_d_d, mult_d, j, n) &
-          bind(c, name='opencl_glsc3_many')
+          bind(c, name = 'opencl_glsc3_many')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        implicit none
@@ -294,7 +294,7 @@ module opencl_math
      end subroutine opencl_glsc3_many
 
      real(c_rp) function opencl_glsc2(a_d, b_d, n) &
-          bind(c, name='opencl_glsc2')
+          bind(c, name = 'opencl_glsc2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        implicit none
@@ -303,7 +303,7 @@ module opencl_math
      end function opencl_glsc2
 
      real(c_rp) function opencl_glsum(a_d, n) &
-          bind(c, name='opencl_glsum')
+          bind(c, name = 'opencl_glsum')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        implicit none
