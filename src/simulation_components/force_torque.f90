@@ -85,6 +85,7 @@ module force_torque
      character(len=20) :: zone_name 
      type(coef_t), pointer :: coef
      type(dirichlet_t) :: bc
+     character(len=80) :: print_format
 
    contains
      !> Constructor from json, wrapping the actual constructor.
@@ -109,6 +110,7 @@ contains
     real(kind=rp), allocatable :: center(:)
     character(len=:), allocatable :: zone_name
     real(kind=rp) :: scale
+    logical :: long_print
     
     ! Add fields keyword to the json so that the field_writer picks it up.
     ! Will also add fields to the registry.
@@ -118,28 +120,36 @@ contains
     call json_get(json, 'zone_id', zone_id)
     call json_get_or_default(json, 'zone_name', zone_name, ' ')
     call json_get_or_default(json, 'scale', scale, 1.0_rp)
+    call json_get_or_default(json, 'long_print', long_print, .false.)
     call json_get(json, 'center', center)
     call force_torque_init_from_attributes(this, zone_id, zone_name, &
-                                           center, scale, case%fluid%c_xh)
+                                           center, scale, case%fluid%c_xh, &
+                                           long_print)
   end subroutine force_torque_init_from_json
 
   !> Actual constructor.
   subroutine force_torque_init_from_attributes(this, zone_id, zone_name, &
-                                               center, scale, coef)
+                                               center, scale, coef, long_print)
     class(force_torque_t), intent(inout) :: this
-    real(kind=rp) :: center(3)
-    real(kind=rp) :: scale
-    character(len=*):: zone_name
-    integer :: zone_id
-    type(coef_t), target :: coef
+    real(kind=rp), intent(in) :: center(3)
+    real(kind=rp), intent(in) :: scale
+    character(len=*), intent(in) :: zone_name
+    integer, intent(in) :: zone_id
+    type(coef_t), target, intent(in) :: coef
+    logical, intent(in) :: long_print
     integer :: n_pts, glb_n_pts, ierr
-    character(len=LOG_SIZE) :: log_buf
+    character(len=1000) :: log_buf
 
     this%coef => coef
     this%zone_id = zone_id
     this%center = center
     this%scale = scale
     this%zone_name = zone_name
+    if (long_print ) then
+       this%print_format = '(I7,E20.10,E20.10,E20.10,E20.10,A)'    
+    else
+       this%print_format = '(I7,E13.5,E13.5,E13.5,E13.5,A)'    
+    end if
 
     this%u => neko_field_registry%get_field_by_name("u")
     this%v => neko_field_registry%get_field_by_name("v")
@@ -230,7 +240,7 @@ contains
     real(kind=rp) :: dgtq(12) = 0.0_rp
     integer :: n_pts, temp_indices(6)
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23
-    character(len=LOG_SIZE) :: log_buf
+    character(len=1000) :: log_buf
     n_pts = this%bc%msk(0)
     call neko_scratch_registry%request_field(s11, temp_indices(1))
     call neko_scratch_registry%request_field(s12, temp_indices(2))
@@ -351,17 +361,17 @@ contains
     call neko_log%message(log_buf)
     write(log_buf,'(A)') 'Time step, time, total force/torque, pressure, viscous, direction'
     call neko_log%message(log_buf)
-    write(log_buf, '(I7,E13.5,E13.5,E13.5,E13.5,A)') tstep,t,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),', forcex'
+    write(log_buf, this%print_format) tstep,t,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),', forcex'
     call neko_log%message(log_buf)
-    write(log_buf, '(I7,E13.5,E13.5,E13.5,E13.5,A)') tstep,t,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),', forcey'
+    write(log_buf, this%print_format) tstep,t,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),', forcey'
     call neko_log%message(log_buf)
-    write(log_buf, '(I7,E13.5,E13.5,E13.5,E13.5,A)') tstep,t,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),', forcez'
+    write(log_buf, this%print_format) tstep,t,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),', forcez'
     call neko_log%message(log_buf)
-    write(log_buf, '(I7,E13.5,E13.5,E13.5,E13.5,A)') tstep,t,dgtq(7)+dgtq(10),dgtq(7),dgtq(10),', torquex'
+    write(log_buf, this%print_format) tstep,t,dgtq(7)+dgtq(10),dgtq(7),dgtq(10),', torquex'
     call neko_log%message(log_buf)
-    write(log_buf, '(I7,E13.5,E13.5,E13.5,E13.5,A)') tstep,t,dgtq(8)+dgtq(11),dgtq(8),dgtq(11),', torquey'
+    write(log_buf, this%print_format) tstep,t,dgtq(8)+dgtq(11),dgtq(8),dgtq(11),', torquey'
     call neko_log%message(log_buf)
-    write(log_buf, '(I7,E13.5,E13.5,E13.5,E13.5,A)') tstep,t,dgtq(9)+dgtq(12),dgtq(9),dgtq(12),', torquez'
+    write(log_buf, this%print_format) tstep,t,dgtq(9)+dgtq(12),dgtq(9),dgtq(12),', torquez'
     call neko_log%message(log_buf)
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine force_torque_compute
