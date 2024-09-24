@@ -67,6 +67,7 @@ mesh/search_tree/aabb.o : mesh/search_tree/aabb.f90 common/utils.o mesh/tet_mesh
 mesh/aabb_tree.o : mesh/aabb_tree.f90 adt/stack.o common/utils.o config/num_types.o mesh/tri.o mesh/search_tree/aabb.o 
 mesh/tet_mesh.o : mesh/tet_mesh.f90 common/utils.o mesh/point.o mesh/tet.o mesh/mesh.o 
 mesh/tri_mesh.o : mesh/tri_mesh.f90 mesh/point.o mesh/tri.o 
+mesh/intersection_detector.o : mesh/intersection_detector.f90 mesh/search_tree/aabb.o adt/stack.o common/utils.o mesh/point.o mesh/hex.o mesh/mesh.o mesh/aabb_tree.o config/num_types.o 
 field/field_registry.o : field/field_registry.f90 adt/htable.o common/utils.o sem/dofmap.o field/field.o 
 field/scratch_registry.o : field/scratch_registry.f90 sem/dofmap.o field/field.o 
 field/field.o : field/field.f90 sem/dofmap.o sem/space.o mesh/mesh.o math/math.o device/device.o config/num_types.o math/bcknd/device/device_math.o config/neko_config.o 
