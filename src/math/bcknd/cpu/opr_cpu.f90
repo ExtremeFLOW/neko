@@ -38,12 +38,14 @@ module opr_cpu
   use math, only : sub3, copy, rzero, PI
   use field, only : field_t
   use gather_scatter, only : GS_OP_ADD
+  use interpolation, only : interpolator_t
   use mathops, only : opcolv
   implicit none
   private
 
   public :: opr_cpu_dudxyz, opr_cpu_opgrad, opr_cpu_cdtp, &
-       opr_cpu_conv1, opr_cpu_curl, opr_cpu_cfl, opr_cpu_lambda2
+       opr_cpu_conv1, opr_cpu_curl, opr_cpu_cfl, opr_cpu_lambda2, &
+       opr_cpu_convect_scalar, opr_cpu_set_convect_rst
 
   interface
      module subroutine opr_cpu_dudxyz(du, u, dr, ds, dt, coef)
@@ -89,6 +91,31 @@ module opr_cpu
        real(kind=rp), intent(inout) :: &
             vz(Xh%lx, Xh%ly, Xh%lz, e_end - e_start + 1)
      end subroutine opr_cpu_conv1
+
+     module subroutine opr_cpu_convect_scalar(du, u, c, Xh_GLL, Xh_GL, &
+                                              coef_GLL, coef_GL, GLL_to_GL)
+        type(space_t), intent(in) :: Xh_GL
+        type(space_t), intent(in) :: Xh_GLL
+        type(coef_t), intent(in) :: coef_GLL
+        type(coef_t), intent(in) :: coef_GL
+        type(interpolator_t), intent(inout) :: GLL_to_GL
+        real(kind=rp), intent(inout) :: &
+                   du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
+        real(kind=rp), intent(inout) :: &
+                   u(Xh_GL%lx, Xh_GL%lx, Xh_GL%lx, coef_GL%msh%nelv)
+        real(kind=rp), intent(inout) :: c(Xh_GL%lxyz, coef_GL%msh%nelv, 3)
+
+      end subroutine opr_cpu_convect_scalar
+
+      module subroutine opr_cpu_set_convect_rst(cr, cs, ct, cx, cy, cz, &
+                                                Xh, coef)
+         type(space_t), intent(inout) :: Xh
+         type(coef_t), intent(inout) :: coef
+         real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
+                        intent(inout) :: cr, cs, ct
+         real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
+                        intent(in) :: cx, cy, cz
+       end subroutine opr_cpu_set_convect_rst
   end interface
 
 contains
@@ -111,19 +138,23 @@ contains
     !     this%work1=dw/dy ; this%work2=dv/dz
     call opr_cpu_dudxyz(work1%x, u3%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
     if (gdim .eq. 3) then
-       call opr_cpu_dudxyz(work2%x, u2%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
+       call opr_cpu_dudxyz(work2%x, u2%x, c_Xh%drdz, c_Xh%dsdz, &
+                           c_Xh%dtdz, c_Xh)
        call sub3(w1%x, work1%x, work2%x, n)
     else
        call copy(w1%x, work1%x, n)
     end if
     !     this%work1=du/dz ; this%work2=dw/dx
     if (gdim .eq. 3) then
-       call opr_cpu_dudxyz(work1%x, u1%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
-       call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
+       call opr_cpu_dudxyz(work1%x, u1%x, c_Xh%drdz, c_Xh%dsdz, &
+                           c_Xh%dtdz, c_Xh)
+       call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, &
+                           c_Xh%dtdx, c_Xh)
        call sub3(w2%x, work1%x, work2%x, n)
     else
        call rzero(work1%x, n)
-       call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
+       call opr_cpu_dudxyz(work2%x, u3%x, c_Xh%drdx, c_Xh%dsdx, &
+                           c_Xh%dtdx, c_Xh)
        call sub3(w2%x, work1%x, work2%x, n)
     end if
     !     this%work1=dv/dx ; this%work2=du/dy
@@ -158,13 +189,16 @@ contains
                 do i = 1, Xh%lx
                    ur = ( u(i,j,k,e)*coef%drdx(i,j,k,e) &
                         + v(i,j,k,e)*coef%drdy(i,j,k,e) &
-                        + w(i,j,k,e)*coef%drdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
+                        + w(i,j,k,e)*coef%drdz(i,j,k,e) ) &
+                        * coef%jacinv(i,j,k,e)
                    us = ( u(i,j,k,e)*coef%dsdx(i,j,k,e) &
                         + v(i,j,k,e)*coef%dsdy(i,j,k,e) &
-                        + w(i,j,k,e)*coef%dsdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
+                        + w(i,j,k,e)*coef%dsdz(i,j,k,e) ) &
+                        * coef%jacinv(i,j,k,e)
                    ut = ( u(i,j,k,e)*coef%dtdx(i,j,k,e) &
                         + v(i,j,k,e)*coef%dtdy(i,j,k,e) &
-                        + w(i,j,k,e)*coef%dtdz(i,j,k,e) ) * coef%jacinv(i,j,k,e)
+                        + w(i,j,k,e)*coef%dtdz(i,j,k,e) ) &
+                        * coef%jacinv(i,j,k,e)
 
                    cflr = abs(dt*ur*Xh%dr_inv(i))
                    cfls = abs(dt*us*Xh%ds_inv(j))

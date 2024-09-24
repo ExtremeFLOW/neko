@@ -152,6 +152,29 @@ module math
      module procedure host_masked_copy
   end interface masked_copy
 
+  !> Copy a masked vector to reduced contigous vector
+  !! \f$ a = b(mask) \f$.
+  !! @param a Destination array of size `m`.
+  !! @param b Source array of size `n`.
+  !! @param mask Mask array of length m+1, where `mask(0) =m`
+  !! the length of the mask array.
+  !! @param n Size of the array `b`.
+  !! @param m Size of the mask array `mask` and `a`.
+  subroutine masked_red_copy(a, b, mask, n, m)
+    integer, intent(in) :: n, m
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(m), intent(inout) :: a
+    integer, dimension(0:m) :: mask
+    integer :: i, j
+
+    do i = 1, m
+       j = mask(i)
+       a(i) = b(j)
+    end do
+
+  end subroutine masked_red_copy
+
+
   !> @brief Fill a constant to a masked vector.
   !! \f$ a_i = c, for i in mask \f$
   interface cfill_mask

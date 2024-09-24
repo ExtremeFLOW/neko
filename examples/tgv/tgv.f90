@@ -187,7 +187,7 @@ contains
 
     if (pe_rank .eq. 0) then
        write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
-         'POST: t:', t, ' Ekin:', e1, ' enst:', e2
+            'POST: t:', t, ' Ekin:', e1, ' enst:', e2
     end if
 
   end subroutine user_calc_quantities

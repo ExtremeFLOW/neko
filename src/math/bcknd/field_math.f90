@@ -271,6 +271,48 @@ contains
 
   end subroutine field_add2
 
+  !> Vector addition \f$ a = b + c \f$
+  subroutine field_add3(a, b, c, n)
+    integer, intent(in), optional :: n
+    type(field_t), intent(inout) :: a
+    type(field_t), intent(in) :: b, c
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_add3(a%x_d, b%x_d, c%x_d, size)
+    else
+       call add3(a%x, b%x, c%x, size)
+    end if
+
+  end subroutine field_add3
+
+  !> Vector addition \f$ a = b + c + d \f$
+  subroutine field_add4(a, b, c, d, n)
+    integer, intent(in), optional :: n
+    type(field_t), intent(inout) :: a
+    type(field_t), intent(in) :: b, c, d
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_add4(a%x_d, b%x_d, c%x_d, d%x_d, size)
+    else
+       call add4(a%x, b%x, c%x, d%x, size)
+    end if
+
+  end subroutine field_add4
+
   !> Vector substraction \f$ a = a - b \f$
   subroutine field_sub2(a, b, n)
     integer, intent(in), optional :: n

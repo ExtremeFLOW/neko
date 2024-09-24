@@ -89,6 +89,7 @@ module neko
        device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
        device_masked_copy, device_cfill_mask, device_add3, device_cadd2
   use map_1d, only : map_1d_t
+  use map_2d, only : map_2d_t
   use cpr, only : cpr_t, cpr_init, cpr_free
   use fluid_stats, only : fluid_stats_t
   use field_list, only : field_list_t
@@ -115,6 +116,7 @@ module neko
   use point_zone_registry, only: neko_point_zone_registry
   use field_dirichlet, only : field_dirichlet_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
+  use runtime_stats, only : neko_rt_stats
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use, intrinsic :: iso_fortran_env
@@ -284,6 +286,12 @@ contains
        call case_init(C, case_file)
 
        !
+       ! Setup runtime statistics
+       !
+       call neko_rt_stats%init(C%params)
+
+
+       !
        ! Create simulation components
        !
        call neko_simcomps%init(C)
@@ -295,6 +303,9 @@ contains
   subroutine neko_finalize(C)
     type(case_t), intent(inout), optional :: C
 
+    call neko_rt_stats%report()
+    call neko_rt_stats%free()
+    
     if (present(C)) then
        call case_free(C)
     end if
