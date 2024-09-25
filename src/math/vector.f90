@@ -89,18 +89,25 @@ module vector
      procedure, pass(a) :: vector_cdiv_right
      !> Pointwise vector division \f$ v = a / b \f$.
      procedure, pass(a) :: vector_pointwise_div
+     !> Change the sign of the vector.
+     procedure, pass(a) :: vector_chsign
 
      generic :: assignment(=) => vector_assign_vector, &
           vector_assign_scalar
      generic :: operator(+) => vector_add_vector, &
           vector_add_scalar_left, vector_add_scalar_right
      generic :: operator(-) => vector_sub_vector, &
-          vector_sub_scalar_left, vector_sub_scalar_right
+          vector_sub_scalar_left, vector_sub_scalar_right, &
+          vector_chsign
      generic :: operator(*) => vector_cmult_left, vector_cmult_right, &
           vector_pointwise_mult
      generic :: operator(/) => vector_cdiv_left, vector_cdiv_right, &
           vector_pointwise_div
      generic :: operator(**) => vector_pointwise_power
+
+     ! Private procedures.
+     procedure, private, nopass :: alloc => vector_allocate
+
   end type vector_t
 
   type, public :: vector_ptr_t
@@ -127,6 +134,21 @@ contains
     v%n = n
 
   end subroutine vector_init
+
+  !> Vector allocation without initialisation.
+  subroutine vector_allocate(v, n)
+    class(vector_t), intent(inout) :: v
+    integer, intent(in) :: n
+
+    call v%free()
+
+    v%n = n
+    allocate(v%x(n))
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(v%x, v%x_d, n)
+    end if
+
+  end subroutine vector_allocate
 
   !> Deallocate a vector.
   subroutine vector_free(v)
@@ -203,12 +225,7 @@ contains
 
     if (a%n .ne. b%n) call neko_error("Vectors must be the same length!")
 
-    v%n = a%n
-    allocate(v%x(v%n))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
+    call alloc(v, a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add3(v%x_d, a%x_d, b%x_d, v%n)
@@ -224,12 +241,7 @@ contains
     real(kind=rp), intent(in) :: c
     type(vector_t) :: v
 
-    v%n = a%n
-    allocate(v%x(v%n))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
+    call alloc(v, a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cadd2(v%x_d, a%x_d, c, v%n)
@@ -256,12 +268,7 @@ contains
 
     if (a%n .ne. b%n) call neko_error("Vectors must be the same length!")
 
-    v%n = a%n
-    allocate(v%x(v%n))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
+    call alloc(v, a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_sub3(v%x_d, a%x_d, b%x_d, v%n)
@@ -277,12 +284,7 @@ contains
     real(kind=rp), intent(in) :: c
     type(vector_t) :: v
 
-    v%n = a%n
-    allocate(v%x(v%n))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
+    call alloc(v, a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cadd2(v%x_d, a%x_d, -1.0_rp*c, v%n)
@@ -308,18 +310,28 @@ contains
 
   end function vector_sub_scalar_right
 
+  !> Change the sign of the vector.
+  function vector_chsign(a) result(v)
+    class(vector_t), intent(in) :: a
+    type(vector_t) :: v
+
+    call alloc(v, a%n)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cmult(v%x_d, -1.0_rp, v%n)
+    else
+       v%x = -v%x
+    end if
+
+  end function vector_chsign
+
   !> Vector-scalar multiplication \f$ v = a*c \f$.
   function vector_cmult_left(a, c) result(v)
     class(vector_t), intent(in) :: a
     real(kind=rp), intent(in) :: c
     type(vector_t) :: v
 
-    v%n = a%n
-    allocate(v%x(v%n))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
+    call alloc(v, a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cmult2(v%x_d, a%x_d, c, v%n)
@@ -346,12 +358,7 @@ contains
 
     if (a%n .ne. b%n) call neko_error("Vectors must be the same length!")
 
-    v%n = a%n
-    allocate(v%x(v%n))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
+    call alloc(v, a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col3(v%x_d, a%x_d, b%x_d, v%n)
@@ -369,12 +376,7 @@ contains
     type(vector_t) :: v
     integer :: i
 
-    v%n = a%n
-    allocate(v%x(v%n))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
+    call alloc(v, a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_copy(v%x_d, a%x_d, v%n)
@@ -398,16 +400,10 @@ contains
     class(vector_t), intent(in) :: a
     type(vector_t) :: v
 
-    v%n = a%n
-    allocate(v%x(v%n))
+    call alloc(v, a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       !  call device_cdiv2(v%x_d, a%x_d, 1.0_rp/c, v%n)
-       call neko_error('Not implemented')
+       call device_cdiv2(v%x_d, a%x_d, 1.0_rp/c, v%n)
     else
        call cdiv2(v%x, a%x, 1.0_rp/c, v%n)
     end if
@@ -420,16 +416,10 @@ contains
     real(kind=rp), intent(in) :: c
     type(vector_t) :: v
 
-    v%n = a%n
-    allocate(v%x(v%n))
+    call alloc(v, a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       !  call device_cmult2(v%x_d, a%x_d, 1.0_rp/c, v%n)
-       call neko_error('Not implemented')
+       call device_cmult2(v%x_d, a%x_d, 1.0_rp/c, v%n)
     else
        call cmult2(v%x, a%x, 1.0_rp/c, v%n)
     end if
@@ -443,12 +433,7 @@ contains
 
     if (a%n .ne. b%n) call neko_error("Vectors must be the same length!")
 
-    v%n = a%n
-    allocate(v%x(v%n))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
+    call alloc(v, a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_invcol3(v%x_d, a%x_d, b%x_d, v%n)
