@@ -9,6 +9,7 @@ More documentation and more effort is spent to make sure these cases work. Illsu
 Examples that illustrate certain features and usages of Neko. May be less documented and up to date.
 - compression, illustrates compression with ADIOS
 - 2d_cylinder, Running Neko with a 2D mesh (creates a 1 element thick mesh)
+- TS_channel, subcritical transition due to interaction between two low-amplitude TS-waves.
 - advecting_cone, Test case to check for dissipation and other nuermcial aspects
 - hemi, One of the original cases from Nek5000.
 - immersed bunny, shows usage of Brinkman source term simulate an immersed boundary.
