@@ -105,8 +105,8 @@ module vector
           vector_pointwise_div
      generic :: operator(**) => vector_pointwise_power
 
-     ! Private procedures.
-     procedure, private, nopass :: alloc => vector_allocate
+     ! Private interfaces
+     procedure, pass(a), private :: alloc => vector_allocate
 
   end type vector_t
 
@@ -136,16 +136,16 @@ contains
   end subroutine vector_init
 
   !> Vector allocation without initialisation.
-  subroutine vector_allocate(v, n)
-    class(vector_t), intent(inout) :: v
+  subroutine vector_allocate(a, n)
+    class(vector_t), intent(inout) :: a
     integer, intent(in) :: n
 
-    call v%free()
+    call a%free()
 
-    v%n = n
-    allocate(v%x(n))
+    a%n = n
+    allocate(a%x(n))
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, n)
+       call device_map(a%x, a%x_d, n)
     end if
 
   end subroutine vector_allocate
@@ -225,7 +225,7 @@ contains
 
     if (a%n .ne. b%n) call neko_error("Vectors must be the same length!")
 
-    call alloc(v, a%n)
+    call v%alloc(a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add3(v%x_d, a%x_d, b%x_d, v%n)
@@ -241,7 +241,7 @@ contains
     real(kind=rp), intent(in) :: c
     type(vector_t) :: v
 
-    call alloc(v, a%n)
+    call v%alloc(a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cadd2(v%x_d, a%x_d, c, v%n)
@@ -268,7 +268,7 @@ contains
 
     if (a%n .ne. b%n) call neko_error("Vectors must be the same length!")
 
-    call alloc(v, a%n)
+    call v%alloc(a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_sub3(v%x_d, a%x_d, b%x_d, v%n)
@@ -284,7 +284,7 @@ contains
     real(kind=rp), intent(in) :: c
     type(vector_t) :: v
 
-    call alloc(v, a%n)
+    call v%alloc(a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cadd2(v%x_d, a%x_d, -1.0_rp*c, v%n)
@@ -315,7 +315,7 @@ contains
     class(vector_t), intent(in) :: a
     type(vector_t) :: v
 
-    call alloc(v, a%n)
+    call v%alloc(a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cmult(v%x_d, -1.0_rp, v%n)
@@ -331,7 +331,7 @@ contains
     real(kind=rp), intent(in) :: c
     type(vector_t) :: v
 
-    call alloc(v, a%n)
+    call v%alloc(a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cmult2(v%x_d, a%x_d, c, v%n)
@@ -358,7 +358,7 @@ contains
 
     if (a%n .ne. b%n) call neko_error("Vectors must be the same length!")
 
-    call alloc(v, a%n)
+    call v%alloc(a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col3(v%x_d, a%x_d, b%x_d, v%n)
@@ -376,7 +376,7 @@ contains
     type(vector_t) :: v
     integer :: i
 
-    call alloc(v, a%n)
+    call v%alloc(a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_copy(v%x_d, a%x_d, v%n)
@@ -400,7 +400,7 @@ contains
     class(vector_t), intent(in) :: a
     type(vector_t) :: v
 
-    call alloc(v, a%n)
+    call v%alloc(a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cdiv2(v%x_d, a%x_d, 1.0_rp/c, v%n)
@@ -416,7 +416,7 @@ contains
     real(kind=rp), intent(in) :: c
     type(vector_t) :: v
 
-    call alloc(v, a%n)
+    call v%alloc(a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cmult2(v%x_d, a%x_d, 1.0_rp/c, v%n)
@@ -433,7 +433,7 @@ contains
 
     if (a%n .ne. b%n) call neko_error("Vectors must be the same length!")
 
-    call alloc(v, a%n)
+    call v%alloc(a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_invcol3(v%x_d, a%x_d, b%x_d, v%n)
