@@ -46,8 +46,8 @@ contains
     integer :: i, j, i_y
     real(kind=rp) :: uvw(3)
 
-    real(kind=rp), dimension(num_rows, num_columns) :: data_mode_cheb_2D
-    real(kind=rp), dimension(num_rows, num_columns) :: data_mode_cheb_3D
+    real(kind=dp), dimension(num_rows, num_columns) :: data_mode_cheb_2D
+    real(kind=dp), dimension(num_rows, num_columns) :: data_mode_cheb_3D
     real(kind=rp) :: y_GLC(num_rows)
     real(kind=rp) :: TS2D_GLC(num_rows, num_columns-1)
     real(kind=rp) :: TS3D_GLC(num_rows, num_columns-1)
