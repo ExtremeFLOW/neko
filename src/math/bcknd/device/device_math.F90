@@ -56,7 +56,16 @@ module device_math
        integer(c_int) :: n, m
      end subroutine hip_masked_copy
   end interface
-  
+   
+  interface
+     subroutine hip_masked_red_copy(a_d, b_d, mask_d, n, m) &
+          bind(c, name='hip_masked_red_copy')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d, b_d, mask_d
+       integer(c_int) :: n, m
+     end subroutine hip_masked_red_copy
+  end interface
+ 
   interface
      subroutine hip_cfill_mask(a_d, c, size, mask_d, mask_size) &
           bind(c, name='hip_cfill_mask')
@@ -144,6 +153,17 @@ module device_math
        type(c_ptr), value :: a_d, b_d
        integer(c_int) :: n
      end subroutine hip_add2
+  end interface
+
+  interface
+     subroutine hip_add4(a_d, b_d, c_d, d_d, n) &
+          bind(c, name='hip_add4')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d, d_d
+       integer(c_int) :: n
+     end subroutine hip_add4
   end interface
 
   interface
@@ -316,6 +336,19 @@ module device_math
   end interface
 
   interface
+     subroutine hip_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
+                           w1_d, w2_d, w3_d,  n) &
+          bind(c, name='hip_vcross')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: u1_d, u2_d, u3_d
+       type(c_ptr), value :: v1_d, v2_d, v3_d
+       type(c_ptr), value :: w1_d, w2_d, w3_d
+       integer(c_int) :: n
+     end subroutine hip_vcross
+  end interface
+
+  interface
      real(c_rp) function hip_vlsc3(u_d, v_d, w_d, n) &
           bind(c, name='hip_vlsc3')
        use, intrinsic :: iso_c_binding
@@ -399,6 +432,15 @@ module device_math
        type(c_ptr), value :: a_d, b_d, mask_d
        integer(c_int) :: n, m
      end subroutine cuda_masked_copy
+  end interface
+
+  interface
+     subroutine cuda_masked_red_copy(a_d, b_d, mask_d, n, m) &
+          bind(c, name='cuda_masked_red_copy')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: a_d, b_d, mask_d
+       integer(c_int) :: n, m
+     end subroutine cuda_masked_red_copy
   end interface
 
   interface
@@ -488,6 +530,17 @@ module device_math
        type(c_ptr), value :: a_d, b_d
        integer(c_int) :: n
      end subroutine cuda_add2
+  end interface
+
+  interface
+     subroutine cuda_add4(a_d, b_d, c_d, d_d, n) &
+          bind(c, name='cuda_add4')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d, d_d
+       integer(c_int) :: n
+     end subroutine cuda_add4
   end interface
 
   interface
@@ -646,6 +699,19 @@ module device_math
        type(c_ptr), value :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
        integer(c_int) :: n
      end subroutine cuda_vdot3
+  end interface
+
+  interface
+     subroutine cuda_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
+                           w1_d, w2_d, w3_d,  n) &
+          bind(c, name='cuda_vcross')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: u1_d, u2_d, u3_d
+       type(c_ptr), value :: v1_d, v2_d, v3_d
+       type(c_ptr), value :: w1_d, w2_d, w3_d
+       integer(c_int) :: n
+     end subroutine cuda_vcross
   end interface
 
   interface
@@ -839,6 +905,16 @@ module device_math
        type(c_ptr), value :: a_d, b_d
        integer(c_int) :: n
      end subroutine opencl_add2
+  end interface
+
+  interface
+     subroutine opencl_add4(a_d, b_d, c_d, d_d, n) &
+          bind(c, name='opencl_add4')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: a_d, b_d, c_d, d_d
+       integer(c_int) :: n
+     end subroutine opencl_add4
   end interface
 
   interface
@@ -1057,13 +1133,16 @@ module device_math
 #endif
 
   public :: device_copy, device_rzero, device_rone, device_cmult, device_cmult2,&
-       device_cadd, device_cfill, device_add2, device_add2s1, device_add2s2, &
-       device_addsqr2s2, device_add3s2, device_invcol1, device_invcol2, &
-       device_col2, device_col3, device_subcol3, device_sub2, device_sub3, &
-       device_addcol3, device_addcol4, device_vdot3, device_vlsc3, device_glsc3, &
+       device_cadd, device_cadd2, device_cfill, device_add2, device_add3, &
+       device_add4, device_add2s1, device_add2s2, device_addsqr2s2, &
+       device_add3s2, device_invcol1, device_invcol2, device_col2, &
+       device_col3, device_subcol3, device_sub2, device_sub3, device_addcol3, &
+       device_addcol4, device_vdot3, device_vlsc3, device_glsc3, &
        device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
-       device_masked_copy, device_cfill_mask, device_absval, device_add3, device_cadd2
-  
+       device_masked_copy, device_cfill_mask, &
+       device_masked_red_copy, device_vcross, &
+       device_absval, device_add3, device_cadd2
+
 contains
 
   !> Copy a vector \f$ a = b \f$
@@ -1095,6 +1174,20 @@ contains
     call neko_error('no device backend configured')
 #endif
   end subroutine device_masked_copy
+
+  subroutine device_masked_red_copy(a_d, b_d, mask_d, n, m)
+    type(c_ptr) :: a_d, b_d, mask_d
+    integer :: n, m
+#ifdef HAVE_HIP
+    call hip_masked_red_copy(a_d, b_d, mask_d, n, m)
+#elif HAVE_CUDA
+    call cuda_masked_red_copy(a_d, b_d, mask_d, n, m)
+#elif HAVE_OPENCL
+    call neko_error('No OpenCL bcknd, masked red copy')
+#else
+    call neko_error('no device backend configured')
+#endif
+  end subroutine device_masked_red_copy
 
   !> @brief Fill a constant to a masked vector.
   !! \f$ a_i = c, for i in mask \f$
@@ -1239,6 +1332,20 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_add2
+
+  subroutine device_add4(a_d, b_d, c_d, d_d, n)
+    type(c_ptr) :: a_d, b_d, c_d, d_d
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_add4(a_d, b_d, c_d, d_d, n)
+#elif HAVE_CUDA
+    call cuda_add4(a_d, b_d, c_d, d_d, n)
+#elif HAVE_OPENCL
+    call opencl_add4(a_d, b_d, c_d, d_d, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_add4
 
   subroutine device_add2s1(a_d, b_d, c1, n)
     type(c_ptr) :: a_d, b_d
@@ -1469,6 +1576,28 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine device_vdot3
+
+  !> Compute a cross product \f$ u1, u2, u3 = v1,v2,v3 \cross w1,w2,w3 \f$ (3-d version)
+  !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
+  subroutine device_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
+                           w1_d, w2_d, w3_d, n)
+    type(c_ptr) :: u1_d, u2_d, u3_d
+    type(c_ptr) :: v1_d, v2_d, v3_d
+    type(c_ptr) :: w1_d, w2_d, w3_d
+    integer :: n
+#ifdef HAVE_HIP
+    call hip_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, & 
+                    w1_d, w2_d, w3_d, n)
+#elif HAVE_CUDA
+    call cuda_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, & 
+                     w1_d, w2_d, w3_d, n)
+#elif HAVE_OPENCL
+    call neko_error("no opencl backedn vcross")
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_vcross
+
 
   !> Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$
   function device_vlsc3(u_d, v_d, w_d, n) result(res)

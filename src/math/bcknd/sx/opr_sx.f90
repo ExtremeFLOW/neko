@@ -1,6 +1,7 @@
 !> Operators SX-Aurora backend
 module opr_sx
   use gather_scatter, only : gs_t, GS_OP_ADD
+  use interpolation, only : interpolator_t
   use num_types, only : rp
   use space, only : space_t
   use coefs, only : coef_t
@@ -11,7 +12,8 @@ module opr_sx
   private
 
   public :: opr_sx_dudxyz, opr_sx_opgrad, opr_sx_cdtp, opr_sx_conv1, &
-       opr_sx_curl, opr_sx_cfl, opr_sx_lambda2
+       opr_sx_curl, opr_sx_cfl, opr_sx_lambda2, opr_sx_convect_scalar, &
+       opr_sx_set_convect_rst
 
 
   interface
@@ -51,7 +53,22 @@ module opr_sx
        real(kind=rp), intent(inout) ::  vy(Xh%lx, Xh%ly, Xh%lz, nelv)
        real(kind=rp), intent(inout) ::  vz(Xh%lx, Xh%ly, Xh%lz, nelv)
      end subroutine opr_sx_conv1
-    
+
+     module subroutine opr_sx_convect_scalar(du, u, c, Xh_GLL, Xh_GL, &
+                                             coef_GLL, coef_GL, GLL_to_GL)
+       type(space_t), intent(in) :: Xh_GL
+       type(space_t), intent(in) :: Xh_GLL
+       type(coef_t), intent(in) :: coef_GLL
+       type(coef_t), intent(in) :: coef_GL
+       type(interpolator_t), intent(inout) :: GLL_to_GL
+       real(kind=rp), intent(inout) :: &
+                      du(Xh_GLL%lx, Xh_GLL%ly, Xh_GLL%lz, coef_GL%msh%nelv)
+       real(kind=rp), intent(inout) :: &
+                      u(Xh_GL%lx, Xh_GL%lx, Xh_GL%lx, coef_GL%msh%nelv)
+       real(kind=rp), intent(inout) :: c(Xh_GL%lxyz, coef_GL%msh%nelv, 3)
+
+     end subroutine opr_sx_convect_scalar
+
      module function opr_sx_cfl(dt, u, v, w, Xh, coef, nelv) result(cfl)
        type(space_t), intent(in) :: Xh
        type(coef_t), intent(in) :: coef
@@ -66,6 +83,15 @@ module opr_sx
        type(field_t), intent(inout) :: lambda2
        type(field_t), intent(in) :: u, v, w
      end subroutine opr_sx_lambda2
+
+     module subroutine opr_sx_set_convect_rst(cr, cs, ct, cx, cy, cz, Xh, coef)
+       type(space_t), intent(inout) :: Xh
+       type(coef_t), intent(inout) :: coef
+       real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
+                      intent(inout) :: cr, cs, ct
+       real(kind=rp), dimension(Xh%lxyz, coef%msh%nelv), &
+                      intent(in) :: cx, cy, cz
+     end subroutine opr_sx_set_convect_rst
   end interface
 
 contains
@@ -117,8 +143,8 @@ contains
 
   end subroutine opr_sx_curl
 
- 
 
- 
+
+
 
 end module opr_sx

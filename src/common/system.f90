@@ -45,7 +45,7 @@ module system
           bind(c, name='system_cpuid')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: name
-       integer(c_int), value :: len
+       integer(c_size_t), value :: len
      end subroutine system_cpuid
   end interface
 
@@ -59,8 +59,9 @@ contains
     character(len=*), intent(inout) :: name
     character(kind=c_char, len=80), target :: c_name
     integer :: end_pos
+    integer(c_size_t), parameter :: len = 80
 
-    call system_cpuid(c_loc(c_name), 80)
+    call system_cpuid(c_loc(c_name), len)
 
     end_pos = scan(c_name, C_NULL_CHAR)
     if(end_pos .ge. 2) then

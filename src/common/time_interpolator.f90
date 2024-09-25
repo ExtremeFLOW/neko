@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,9 +36,10 @@ module time_interpolator
   use field, only : field_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_add3s2
-  use math, only : add3s2
+  use math, only : add3s2, rzero
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding
+  use fast3d, only: fd_weights_full
   implicit none
   private
 
@@ -53,6 +54,8 @@ module time_interpolator
      procedure, pass(this) :: free => time_interpolator_free
      !> Calculate the indicator
      procedure, pass(this) :: interpolate => time_interpolator_interpolate
+     !> Interpolate a velocity field
+     procedure, pass(this) :: interpolate_scalar => time_interpolator_scalar
 
   end type time_interpolator_t
 
@@ -86,7 +89,8 @@ contains
   !! @param f_past field in the past for interpolation
   !! @param t_future time in future for interpolation
   !! @param f_future time in future for interpolation
-  subroutine time_interpolator_interpolate(this, t, f, t_past, f_past, t_future, f_future)
+  subroutine time_interpolator_interpolate(this, t, f, t_past, f_past, &
+                                           t_future, f_future)
     class(time_interpolator_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: t, t_past, t_future
     type(field_t), intent(inout) :: f, f_past, f_future
@@ -107,9 +111,48 @@ contains
        end if
 
     else
-       call neko_error("Time interpolation of required order is not implemented")
+       call neko_error("Time interpolation of required order &
+                       &is not implemented")
     end if
 
   end subroutine time_interpolator_interpolate
+
+  !> Interpolate a scalar field at time t from known scalar fields at different time steps.
+  !! @param t time to get interpolated field
+  !! @param f_interpolated the interpolated field
+  !! @param f_n an array of known fields
+  !! @param tlag an array of the time steps corresponding to f_n.
+  !! @param n size of the array
+  !! @note This subroutine is similar to the int_vel subroutine of NEK5000
+  subroutine time_interpolator_scalar(this, t, f_interpolated, f_n, tlag, n)
+    class(time_interpolator_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n, 0:this%order - 1), intent(in) :: f_n
+    real(kind=rp), dimension(n), intent(inout) :: f_interpolated
+    real(kind=rp), dimension(0:this%order), intent(in) :: tlag
+    integer :: no, i, l
+
+
+    integer, parameter :: lwtmax = 10
+    real(kind=rp) :: wt(0:lwtmax)
+    wt = 0
+
+    if (this%order .gt. lwtmax) then
+      call neko_error("lwtmax is smaller than the number &
+                      &of stored convecting fields")
+    end if
+
+    no = this%order - 1
+    call fd_weights_full(t, tlag, no, 0, wt) ! interpolation weights
+    call rzero(f_interpolated, n)
+
+    do concurrent (i = 1:n)
+       do l = 0, no
+        f_interpolated(i) = f_interpolated(i) + wt(l) * f_n(i,l)
+      end do
+    end do
+
+  end subroutine time_interpolator_scalar
 
 end module time_interpolator

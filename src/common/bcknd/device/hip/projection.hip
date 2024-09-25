@@ -86,7 +86,7 @@ extern "C" {
                              (hipStream_t) glb_cmd_queue));
     HIP_CHECK(hipMemsetAsync(xbar, 0, (*n) * sizeof(real)));
 
-    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
+    HIP_CHECK(hipStreamSynchronize((hipStream_t) glb_cmd_queue));
     device_mpi_allreduce_inplace(alpha, (*j), sizeof(real), DEVICE_MPI_SUM);
 
     const dim3 vec_nthrds(1024, 1, 1);
@@ -113,7 +113,7 @@ extern "C" {
                              hipMemcpyDeviceToDevice,
                              (hipStream_t) glb_cmd_queue));
 
-    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
+    HIP_CHECK(hipStreamSynchronize((hipStream_t) glb_cmd_queue));
     device_mpi_allreduce_inplace(alpha, (*j), sizeof(real), DEVICE_MPI_SUM);
 
     /* Second vector operation block */
@@ -158,7 +158,7 @@ extern "C" {
                              hipMemcpyDeviceToDevice,
                              (hipStream_t) glb_cmd_queue));
 
-    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
+    HIP_CHECK(hipStreamSynchronize((hipStream_t) glb_cmd_queue));
     device_mpi_allreduce_inplace(alpha, (*j), sizeof(real), DEVICE_MPI_SUM);
 
     HIP_CHECK(hipMemcpyAsync(nrm, (real *) alpha + (*j - 1),
@@ -191,7 +191,7 @@ extern "C" {
                              hipMemcpyDeviceToDevice,
                              (hipStream_t) glb_cmd_queue));
 
-    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
+    HIP_CHECK(hipStreamSynchronize((hipStream_t) glb_cmd_queue));
     device_mpi_allreduce_inplace(alpha, (*j), sizeof(real), DEVICE_MPI_SUM);
 
     /* Second vector operation block */

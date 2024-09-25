@@ -953,7 +953,8 @@ contains
        v(i,1,1) = 0.0_rp
     end do
 
-    do concurrent (i = 1:n, j = 1:n, k = 1:n, ii = 1:n, jj = 1:n:n-1, kk = 1:n:n-1)
+    do concurrent (i = 1:n, j = 1:n, k = 1:n, &
+                   ii = 1:n:n-1, jj = 1:n:n-1, kk = 1:n:n-1)
        si       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)
        sj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)
        sk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)
