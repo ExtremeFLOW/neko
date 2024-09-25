@@ -15,6 +15,9 @@ if ENABLE_DOXYGEN
 SUBDIRS += doc
 endif
 
+CLEANFILES = *.mod\
+	     *.smod
+
 
 bin_SCRIPTS = makeneko
 EXTRA_DIST = \

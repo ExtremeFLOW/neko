@@ -34,7 +34,7 @@
 module dynamic_smagorinsky_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
-  use math, only : cadd, NEKO_EPS, col2, add3s2, sub2, col3, cmult
+  use math, only : cadd, NEKO_EPS, col2, sub2, col3, cmult
   use scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
   use field, only : field_t
@@ -109,14 +109,16 @@ contains
     call coef%gs_h%op(s13%x, s11%dof%size(), GS_OP_ADD)
     call coef%gs_h%op(s23%x, s11%dof%size(), GS_OP_ADD)
 
-    call col2(s11%x, coef%mult, s11%dof%size())
-    call col2(s22%x, coef%mult, s11%dof%size())
-    call col2(s33%x, coef%mult, s11%dof%size())
-    call col2(s12%x, coef%mult, s11%dof%size())
-    call col2(s13%x, coef%mult, s11%dof%size())
-    call col2(s23%x, coef%mult, s11%dof%size())
+    do concurrent (i = 1:s11%dof%size())
+       s11%x(i,1,1,1) = s11%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s22%x(i,1,1,1) = s22%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s33%x(i,1,1,1) = s33%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s12%x(i,1,1,1) = s12%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s13%x(i,1,1,1) = s13%x(i,1,1,1) * coef%mult(i,1,1,1)
+       s23%x(i,1,1,1) = s23%x(i,1,1,1) * coef%mult(i,1,1,1)
+    end do
 
-    do i=1, u%dof%size()
+    do concurrent (i = 1:u%dof%size())
        s_abs%x(i,1,1,1) = sqrt(2.0_rp * (s11%x(i,1,1,1)*s11%x(i,1,1,1) + &
                                s22%x(i,1,1,1)*s22%x(i,1,1,1) + &
                                s33%x(i,1,1,1)*s33%x(i,1,1,1)) + &
@@ -130,7 +132,7 @@ contains
                              s_abs, test_filter, delta, u%dof%size(), u%msh%nelv)
     call compute_num_den_cpu(num, den, lij, mij, alpha, u%dof%size())
 
-    do i=1, u%dof%size()
+    do concurrent (i =1:u%dof%size())
        if (den%x(i,1,1,1) .gt. 0.0_rp) then
           c_dyn%x(i,1,1,1) = 0.5_rp * (num%x(i,1,1,1)/den%x(i,1,1,1))
        else
@@ -158,6 +160,7 @@ contains
     type(elementwise_filter_t), intent(inout) :: test_filter
     integer, intent(in) :: n
     integer, intent(inout) :: nelv
+    integer :: i
     !> filtered u,v,w by the test filter
     real(kind=rp), dimension(u%dof%size()) :: fu, fv, fw
 
@@ -167,12 +170,14 @@ contains
     call test_filter%filter_3d(fw, w%x, nelv)
 
     !! The first term
-    call col3(lij(1)%x, fu, fu, n)
-    call col3(lij(2)%x, fv, fv, n)
-    call col3(lij(3)%x, fw, fw, n)
-    call col3(lij(4)%x, fu, fv, n)
-    call col3(lij(5)%x, fu, fw, n)
-    call col3(lij(6)%x, fv, fw, n)
+    do concurrent (i = 1:n)
+       lij(1)%x(i,1,1,1) = fu(i) * fu(i)
+       lij(2)%x(i,1,1,1) = fv(i) * fv(i)
+       lij(3)%x(i,1,1,1) = fw(i) * fw(i)
+       lij(4)%x(i,1,1,1) = fu(i) * fv(i)
+       lij(5)%x(i,1,1,1) = fu(i) * fw(i)
+       lij(6)%x(i,1,1,1) = fv(i) * fw(i)
+    end do
 
     !! Subtract the second term:
     !! use test filter for the cross terms
@@ -285,7 +290,7 @@ contains
     call sub2(mij(6)%x, fs22, n)
 
     !! Lastly multiplied by delta^2
-    do i=1, n
+    do concurrent (i = 1:n)
        delta2 = delta%x(i,1,1,1)**2
        mij(1)%x(i,1,1,1) = mij(1)%x(i,1,1,1) * delta2
        mij(2)%x(i,1,1,1) = mij(2)%x(i,1,1,1) * delta2
@@ -312,7 +317,7 @@ contains
     real(kind=rp), dimension(n) :: num_curr, den_curr
     integer :: i
 
-    do i=1, n
+    do concurrent (i = 1:n)
        num_curr(i) = mij(1)%x(i,1,1,1)*lij(1)%x(i,1,1,1) + &
                      mij(2)%x(i,1,1,1)*lij(2)%x(i,1,1,1) + &
                      mij(3)%x(i,1,1,1)*lij(3)%x(i,1,1,1) + &
@@ -328,8 +333,10 @@ contains
     end do
 
     ! running average over time
-    call add3s2(num%x, num%x, num_curr, alpha, 1.0_rp-alpha, n)
-    call add3s2(den%x, den%x, den_curr, alpha, 1.0_rp-alpha, n)
+    do concurrent (i = 1:n)
+       num%x(i,1,1,1) = alpha * num%x(i,1,1,1) + (1.0_rp - alpha) * num_curr(i)
+       den%x(i,1,1,1) = alpha * den%x(i,1,1,1) + (1.0_rp - alpha) * den_curr(i)
+    end do
 
   end subroutine compute_num_den_cpu
 

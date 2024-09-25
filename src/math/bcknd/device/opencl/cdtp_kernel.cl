@@ -1,7 +1,7 @@
 #ifndef __MATH_CDTP_KERNEL_CL__
 #define __MATH_CDTP_KERNEL_CL__
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2024, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -47,8 +47,7 @@ __kernel void cdtp_kernel_lx##LX(__global real * __restrict__ dtx,             \
                                  __global const real * __restrict__ dxt,       \
                                  __global const real * __restrict__ dyt,       \
                                  __global const real * __restrict__ dzt,       \
-                                 __global const real * __restrict__ B,         \
-                                 __global const real * __restrict__ jac) {     \
+                                 __global const real * __restrict__ w3) {      \
                                                                                \
                                                                                \
   __local real shdxt[LX * LX];                                                 \
@@ -74,8 +73,7 @@ __kernel void cdtp_kernel_lx##LX(__global real * __restrict__ dtx,             \
   j = iii;                                                                     \
   while(j < (LX * LX * LX)) {                                                  \
                                                                                \
-    real wx = (x[j + e * LX * LX * LX] * B[j + e * LX * LX * LX]) /            \
-      jac[j + e * LX * LX * LX];                                               \
+    real wx = x[j + e * LX * LX * LX] * w3[j];                                 \
                                                                                \
     shtar[j] = wx*dr[j + e * LX * LX * LX];                                    \
     shtas[j] = wx*ds[j + e * LX * LX * LX];                                    \
