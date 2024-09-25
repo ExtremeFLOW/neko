@@ -808,7 +808,7 @@ contains
               dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax_vel, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
-              this%ksp_vel%max_iter)Gjp
+              this%ksp_vel%max_iter)
       end if
 
       call fluid_step_info(tstep, t, dt, ksp_results)

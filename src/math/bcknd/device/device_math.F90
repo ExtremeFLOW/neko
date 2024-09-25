@@ -1141,7 +1141,7 @@ module device_math
        device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
        device_masked_copy, device_cfill_mask, &
        device_masked_red_copy, device_vcross, &
-       device_absval, device_add3, device_cadd2
+       device_absval
 
 contains
 

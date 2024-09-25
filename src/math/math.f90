@@ -102,7 +102,7 @@ module math
        add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
        glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
-       swap, reord, flipv, cadd2, masked_red_copy, absval, cadd2
+       swap, reord, flipv, cadd2, masked_red_copy, absval
 
 contains
 
