@@ -32,7 +32,7 @@
 !
 !> Operators CPU backend
 module opr_cpu
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use space, only : space_t
   use coefs, only : coef_t
   use math, only : sub3, copy, rzero, PI
@@ -237,7 +237,7 @@ contains
     type(field_t), intent(in) :: u, v, w
     real(kind=rp) :: grad(coef%Xh%lxyz,3,3)
     integer :: e, i
-    real(kind=rp) :: eigen(3), B, C, D, q, r, theta, l2
+    real(kind=dp) :: eigen(3), B, C, D, q, r, theta, l2
     real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
     real(kind=rp) :: a11, a22, a33, a12, a13, a23
     real(kind=rp) :: msk1, msk2, msk3
@@ -287,7 +287,6 @@ contains
           eigen(1) = 2.0 * sqrt(-q) * cos(theta / 3.0) - B / 3.0
           eigen(2) = 2.0 * sqrt(-q) * cos((theta + 2.0 * pi) / 3.0) - B / 3.0
           eigen(3) = 2.0 * sqrt(-q) * cos((theta + 4.0 * pi) / 3.0) - B / 3.0
-
           msk1 = merge(1.0_rp, 0.0_rp, eigen(2) .le. eigen(1) &
                .and. eigen(1) .le. eigen(3) .or. eigen(3) &
                .le. eigen(1) .and. eigen(1) .le. eigen(2) )
@@ -299,8 +298,7 @@ contains
                .le. eigen(3) .and. eigen(3) .le. eigen(1))
 
           l2 = msk1 * eigen(1) + msk2 * eigen(2) + msk3 * eigen(3)
-
-          lambda2%x(i,1,1,e) = l2/(coef%B(i,1,1,e)**2)
+          lambda2%x(i,1,1,e) = l2/(real(coef%B(i,1,1,e)**2,dp))
        end do
     end do
 
