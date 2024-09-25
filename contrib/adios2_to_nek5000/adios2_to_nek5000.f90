@@ -48,12 +48,12 @@ program adios2_to_nek5000
   call output_file%write(field_data, field_data%time)
 
   ! output for t>0
-  !do i = 1, field_data%meta_nsamples-1
-     !if (pe_rank .eq. 0) write(*,*) 'Reading file:', i+1
-     !call field_file%read(field_data)
+  do i = 1, field_data%meta_nsamples-1
+     if (pe_rank .eq. 0) write(*,*) 'Reading file:', i+1
+     call field_file%read(field_data)
      ! output for t>0
-     !call output_file%write(field_data, field_data%time)
-  !end do
+     call output_file%write(field_data, field_data%time)
+  end do
 
   if (pe_rank .eq. 0) write(*,*) 'Done'
 
