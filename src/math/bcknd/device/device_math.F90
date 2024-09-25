@@ -403,6 +403,18 @@ module device_math
        integer(c_int) :: n
      end function hip_glsum
   end interface
+
+  interface
+     subroutine hip_absval(a_d, n) &
+          bind(c, name = 'hip_absval')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end subroutine hip_absval
+  end interface
+
 #elif HAVE_CUDA
   interface
      subroutine cuda_copy(a_d, b_d, n) &
@@ -768,6 +780,17 @@ module device_math
        integer(c_int) :: n
      end function cuda_glsum
   end interface
+
+  interface
+     subroutine cuda_absval(a_d, n) &
+          bind(c, name = 'cuda_absval')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end subroutine cuda_absval
+  end interface
 #elif HAVE_OPENCL
   interface
      subroutine opencl_copy(a_d, b_d, n) &
@@ -1117,7 +1140,8 @@ module device_math
        device_addcol4, device_vdot3, device_vlsc3, device_glsc3, &
        device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
        device_masked_copy, device_cfill_mask, &
-       device_masked_red_copy, device_vcross
+       device_masked_red_copy, device_vcross, &
+       device_absval, device_add3, device_cadd2
 
 contains
 
@@ -1698,6 +1722,21 @@ contains
     end if
 #endif
   end function device_glsum
+
+  subroutine device_absval(a_d, n)
+    integer, intent(in) :: n
+    type(c_ptr) :: a_d
+#ifdef HAVE_HIP
+    call hip_absval(a_d, n)
+#elif HAVE_CUDA
+    call cuda_absval(a_d, n)
+#elif HAVE_OPENCL
+    call neko_error('OPENCL is not implemented for device_absval')
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine device_absval
 
 
 end module device_math

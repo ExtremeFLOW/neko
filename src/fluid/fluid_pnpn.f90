@@ -638,6 +638,16 @@ contains
          call opcolv(f_x%x, f_y%x, f_z%x, c_Xh%B, msh%gdim, n)
       end if
 
+      ! Compute the grandient jump penalty term
+      if (this%if_gradient_jump_penalty .eqv. .true.) then
+         call this%gradient_jump_penalty_u%compute(u, v, w, u)
+         call this%gradient_jump_penalty_v%compute(u, v, w, v)
+         call this%gradient_jump_penalty_w%compute(u, v, w, w)
+         call this%gradient_jump_penalty_u%perform(f_x)
+         call this%gradient_jump_penalty_v%perform(f_y)
+         call this%gradient_jump_penalty_w%perform(f_z)
+      end if
+      
       if (oifs) then
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
@@ -678,7 +688,6 @@ contains
                               ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
       end if
 
-
       call ulag%update()
       call vlag%update()
       call wlag%update()
@@ -694,6 +703,16 @@ contains
 
       ! Update material properties if necessary
       call this%update_material_properties()
+
+      ! Compute the grandient jump penalty term
+      if (this%if_gradient_jump_penalty .eqv. .true.) then
+         call this%gradient_jump_penalty_u%compute(u, v, w, u)
+         call this%gradient_jump_penalty_v%compute(u, v, w, v)
+         call this%gradient_jump_penalty_w%compute(u, v, w, w)
+         call this%gradient_jump_penalty_u%perform(f_x)
+         call this%gradient_jump_penalty_v%perform(f_y)
+         call this%gradient_jump_penalty_w%perform(f_z)
+      end if
 
       ! Compute pressure.
       call profiler_start_region('Pressure_residual', 18)
@@ -789,7 +808,7 @@ contains
               dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax_vel, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
-              this%ksp_vel%max_iter)
+              this%ksp_vel%max_iter)Gjp
       end if
 
       call fluid_step_info(tstep, t, dt, ksp_results)

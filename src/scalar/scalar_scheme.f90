@@ -72,6 +72,7 @@ module scalar_scheme
   use neko_config, only : NEKO_BCKND_DEVICE
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
+  use gradient_jump_penalty
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -148,6 +149,9 @@ module scalar_scheme
      logical :: variable_material_properties = .false.
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
+     !> Gradient jump panelty
+     logical :: if_gradient_jump_penalty
+     type(gradient_jump_penalty_t) :: gradient_jump_penalty
    contains
      !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init
@@ -324,6 +328,7 @@ contains
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val, ierr
     character(len=:), allocatable :: solver_type, solver_precon
+    real(kind=rp) :: GJP_param_a, GJP_param_b
 
     this%u => neko_field_registry%get_field('u')
     this%v => neko_field_registry%get_field('v')
@@ -468,7 +473,31 @@ contains
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, integer_val, solver_abstol, logical_val)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_dirichlet, solver_precon)
+                                      this%c_Xh, this%dm_Xh, this%gs_Xh, &
+                                      this%bclst_dirichlet, solver_precon)
+   
+    ! Initiate gradient jump penalty
+    call json_get_or_default(params, &
+                            'case.scalar.gradient_jump_penalty.enabled',&
+                            this%if_gradient_jump_penalty, .false.)
+
+    if (this%if_gradient_jump_penalty .eqv. .true.) then
+       if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
+          call json_get_or_default(params, &
+                            'case.scalar.gradient_jump_penalty.tau',&
+                            GJP_param_a, 0.02_rp)
+          GJP_param_b = 0.0_rp
+       else
+          call json_get_or_default(params, &
+                        'case.scalar.gradient_jump_penalty.scaling_factor',&
+                            GJP_param_a, 0.8_rp)
+          call json_get_or_default(params, &
+                        'case.scalar.gradient_jump_penalty.scaling_exponent',&
+                            GJP_param_b, 4.0_rp)
+       end if
+       call this%gradient_jump_penalty%init(params, this%dm_Xh, this%c_Xh, &
+                                            GJP_param_a, GJP_param_b)
+    end if
 
     call neko_log%end_section()
 
@@ -510,6 +539,11 @@ contains
     ! Free everything related to field dirichlet BCs
     call bc_list_free(this%field_dirichlet_bcs)
     call this%field_dir_bc%free()
+
+    ! Free gradient jump penalty
+    if (this%if_gradient_jump_penalty .eqv. .true.) then
+       call this%gradient_jump_penalty%free()
+    end if
 
   end subroutine scalar_scheme_free
 
