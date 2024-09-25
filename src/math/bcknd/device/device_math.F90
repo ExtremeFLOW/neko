@@ -40,30 +40,9 @@ module device_math
   ! ========================================================================== !
   ! Device math interfaces
 
-  use hip_math, only: hip_copy, hip_rzero, hip_cmult, hip_cmult2, hip_cadd, &
-       hip_cadd2, hip_cfill, hip_add2, hip_add4, hip_add2s1, hip_add2s2, &
-       hip_addsqr2s2, hip_add3, hip_add3s2, hip_invcol1, hip_invcol2, &
-       hip_col2, hip_col3, hip_subcol3, hip_sub2, hip_sub3, hip_addcol3, &
-       hip_addcol4, hip_vdot3, hip_vlsc3, hip_glsc3, hip_glsc3_many, &
-       hip_add2s2_many, hip_glsc2, hip_glsum, hip_masked_copy, hip_cfill_mask, &
-       hip_masked_red_copy, hip_vcross
-
-  use cuda_math, only: cuda_copy, cuda_rzero, cuda_cmult, cuda_cmult2, &
-       cuda_cadd, cuda_cadd2, cuda_cfill, cuda_add2, cuda_add4, cuda_add2s1, &
-       cuda_add2s2, cuda_addsqr2s2, cuda_add3, cuda_add3s2, cuda_invcol1, &
-       cuda_invcol2, cuda_col2, cuda_col3, cuda_subcol3, cuda_sub2, cuda_sub3, &
-       cuda_addcol3, cuda_addcol4, cuda_vdot3, cuda_vlsc3, cuda_glsc3, &
-       cuda_glsc3_many, cuda_add2s2_many, cuda_glsc2, cuda_glsum, &
-       cuda_masked_copy, cuda_cfill_mask, cuda_masked_red_copy, cuda_vcross
-
-  use opencl_math, only: opencl_copy, opencl_rzero, opencl_cmult, &
-       opencl_cmult2, opencl_cadd, opencl_cadd2, opencl_cfill, opencl_add2, &
-       opencl_add4, opencl_add2s1, opencl_add2s2, opencl_addsqr2s2, &
-       opencl_add3, opencl_add3s2, opencl_invcol1, opencl_invcol2, &
-       opencl_col2, opencl_col3, opencl_subcol3, opencl_sub2, opencl_sub3, &
-       opencl_addcol3, opencl_addcol4, opencl_vdot3, opencl_glsc3, &
-       opencl_glsc3_many, opencl_add2s2_many, opencl_glsc2, opencl_glsum, &
-       opencl_masked_copy, opencl_cfill_mask
+  use hip_math
+  use cuda_math
+  use opencl_math
 
   implicit none
   private
