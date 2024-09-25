@@ -238,9 +238,9 @@ contains
     real(kind=rp) :: grad(coef%Xh%lxyz,3,3)
     integer :: e, i
     real(kind=dp) :: eigen(3), B, C, D, q, r, theta, l2
-    real(kind=rp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
-    real(kind=rp) :: a11, a22, a33, a12, a13, a23
-    real(kind=rp) :: msk1, msk2, msk3
+    real(kind=dp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
+    real(kind=dp) :: a11, a22, a33, a12, a13, a23
+    real(kind=dp) :: msk1, msk2, msk3
 
     do e = 1, coef%msh%nelv
        call opr_cpu_opgrad(grad(1,1,1), grad(1,1,2), grad(1,1,3), &
