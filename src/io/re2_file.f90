@@ -571,7 +571,7 @@ contains
           sym_facet = facet_map(int(re2v2_data_bc(i)%face))
 
           select case(trim(re2v2_data_bc(i)%type))
-          case ('MSH', 'msh')
+          case ('MSH', 'msh', 'EXO','exo')
 
              label = int(re2v2_data_bc(i)%bc_data(5))
 
@@ -599,9 +599,8 @@ contains
        do i = 1, nbcs
           el_idx = int(re2v2_data_bc(i)%elem) - dist%start_idx()
           sym_facet = facet_map(int(re2v2_data_bc(i)%face))
-
           select case(trim(re2v2_data_bc(i)%type))
-          case ('MSH','msh')
+          case ('MSH', 'msh', 'EXO','exo')
                !Do nothing, already handled
           case ('W')
              if (NEKO_W_BC_LABEL .eq. -1) then
@@ -640,7 +639,7 @@ contains
                   labeled_zone_offsets(NEKO_O_BC_LABEL) .eq. 0)
 
              labeled_zone_offsets(NEKO_O_BC_LABEL) = 1
-          case ('SYM')
+          case ('SYM','sym')
              if (NEKO_SYM_BC_LABEL .eq. -1) then
                 NEKO_SYM_BC_LABEL = current_internal_zone
                 current_internal_zone = current_internal_zone + 1
@@ -684,8 +683,8 @@ contains
              call msh%mark_periodic_facet(sym_facet, el_idx, &
                   p_facet, p_el_idx, pids)
           case default
-             write (*,*) re2v1_data_bc(i)%type, 'bc type not supported yet'
-             write (*,*) re2v1_data_bc(i)%bc_data
+             write (*,*) trim(re2v2_data_bc(i)%type), 'bc type not supported yet'
+             write (*,*) re2v2_data_bc(i)%bc_data
           end select
        end do
 
@@ -720,7 +719,7 @@ contains
           sym_facet = facet_map(re2v1_data_bc(i)%face)
 
           select case(trim(re2v1_data_bc(i)%type))
-          case ('MSH', 'msh')
+          case ('MSH', 'msh', 'EXO','exo')
 
              label = int(re2v1_data_bc(i)%bc_data(5))
 
@@ -749,7 +748,7 @@ contains
           el_idx = re2v1_data_bc(i)%elem - dist%start_idx()
           sym_facet = facet_map(re2v1_data_bc(i)%face)
           select case(trim(re2v1_data_bc(i)%type))
-          case ('MSH', 'msh')
+          case ('MSH', 'msh', 'EXO','exo')
              !Do nothing, already handled
           case ('W')
              if (NEKO_W_BC_LABEL .eq. -1) then
@@ -788,7 +787,7 @@ contains
                   labeled_zone_offsets(NEKO_O_BC_LABEL) .eq. 0)
 
              labeled_zone_offsets(NEKO_O_BC_LABEL) = 1
-          case ('SYM')
+          case ('SYM','sym')
              if (NEKO_SYM_BC_LABEL .eq. -1) then
                 NEKO_SYM_BC_LABEL = current_internal_zone
                 current_internal_zone = current_internal_zone + 1
