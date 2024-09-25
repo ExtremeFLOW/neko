@@ -79,7 +79,7 @@
       "start_time": 60,
       "_start_time_comment":"Compute statistics after an initial transient of ~60 convective time units.",
       "compute_control": "tsteps",
-      "compute_value": 0.01,
+      "compute_value": 50,
       "avg_direction": "xz",
       "_avg_direction_comment":"Computes average in homogenous directions xz.",
       "set_of_stats": "full"
