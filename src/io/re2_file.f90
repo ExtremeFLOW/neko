@@ -601,6 +601,8 @@ contains
           sym_facet = facet_map(int(re2v2_data_bc(i)%face))
 
           select case(trim(re2v2_data_bc(i)%type))
+          case ('MSH','msh')
+               !Do nothing, already handled
           case ('W')
              if (NEKO_W_BC_LABEL .eq. -1) then
                 NEKO_W_BC_LABEL = current_internal_zone
@@ -747,6 +749,8 @@ contains
           el_idx = re2v1_data_bc(i)%elem - dist%start_idx()
           sym_facet = facet_map(re2v1_data_bc(i)%face)
           select case(trim(re2v1_data_bc(i)%type))
+          case ('MSH', 'msh')
+             !Do nothing, already handled
           case ('W')
              if (NEKO_W_BC_LABEL .eq. -1) then
                 NEKO_W_BC_LABEL = current_internal_zone
