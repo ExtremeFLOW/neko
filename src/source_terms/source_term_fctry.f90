@@ -36,14 +36,16 @@ submodule (source_term) source_term_fctry
   use const_source_term, only : const_source_term_t
   use boussinesq_source_term, only : boussinesq_source_term_t
   use brinkman_source_term, only: brinkman_source_term_t
+  use coriolis_source_term, only : coriolis_source_term_t
   use json_utils, only : json_get
   use utils, only : concat_string_array, neko_error
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SOURCE_KNOWN_TYPES(3) = [character(len=20) :: &
+  character(len=20) :: SOURCE_KNOWN_TYPES(4) = [character(len=20) :: &
      "constant", &
      "boussinesq", &
+     "coriolis", &
      "brinkman"]
 
 contains
@@ -66,6 +68,8 @@ contains
        allocate(const_source_term_t::object)
     else if (trim(type_name) .eq. "boussinesq") then
        allocate(boussinesq_source_term_t::object)
+    else if (trim(type_name) .eq. "coriolis") then
+       allocate(coriolis_source_term_t::object)
     else if (trim(type_name) .eq. "brinkman") then
        allocate(brinkman_source_term_t::object)
     else
