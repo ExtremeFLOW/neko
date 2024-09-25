@@ -90,7 +90,7 @@ contains
   !! @param default_index The index to return in case the suffix of
   !! `fld_filename` is invalid.
   function extract_fld_file_index(fld_filename, default_index) result(index)
-    character(len=*), intent(inout) :: fld_filename
+    character(len=*), intent(in) :: fld_filename
     integer, intent(in) :: default_index
 
     character(len=80) :: suffix

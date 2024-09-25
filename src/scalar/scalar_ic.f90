@@ -91,15 +91,10 @@ contains
     character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
     real(kind=rp) :: zone_value, tol
     logical :: interpolate
-    integer :: sample_idx, sample_mesh_idx
-    character(len=LOG_SIZE) :: log_buf
 
     if (trim(type) .eq. 'uniform') then
 
        call json_get(params, 'case.scalar.initial_condition.value', ic_value)
-       write (log_buf, '(A,F10.6)') "Value: ", ic_value
-       call neko_log%message(log_buf)
-
        call set_scalar_ic_uniform(s, ic_value)
 
     else if (trim(type) .eq. 'point_zone') then
@@ -111,79 +106,24 @@ contains
        call json_get(params, 'case.scalar.initial_condition.zone_value', &
             zone_value)
 
-       write (log_buf, '(A,F10.6)') "Base value: ", ic_value
-       call neko_log%message(log_buf)
-       call neko_log%message("Zone name : " // trim(read_str))
-       write (log_buf, '(A,F10.6)') "Zone value: ", zone_value
-       call neko_log%message(log_buf)
-
        call set_scalar_ic_point_zone(s, ic_value, read_str, zone_value)
 
     else if (trim(type) .eq. 'field') then
 
        call json_get(params, 'case.scalar.initial_condition.file_name', &
             read_str)
-
-       ! Read field file
        fname = trim(read_str)
-       call neko_log%message("File name: " // trim(fname))
-
-       ! Get the sample index from the file name, e.g. "field0.f00015" will
-       ! return 15
-       sample_idx = extract_fld_file_index(fname, -1)
-
-       if (sample_idx .eq. -1) then
-          call neko_error("Invalid file name for the initial condition. The&
-& file format must be e.g. 'mean0.f00001'")
-       end if
-
-       call filename_chsuffix(fname, fname, 'fld')
-
-       ! Check if we want to interpolate from the field file, default is no
        call json_get_or_default(params, &
             'case.scalar.initial_condition.interpolate', interpolate, &
             .false.)
-       ! Get the tolerance for potential interpolation, defaults to 1e-6
        call json_get_or_default(params, &
             'case.scalar.initial_condition.tolerance', tol, 0.000001_rp)
+       call json_get_or_default(params, &
+            'case.scalar.initial_condition.mesh_file_name', read_str, &
+            "none")
+       mesh_fname = trim(read_str)
 
-       if (interpolate) then
-
-          call neko_log%message("Interpolation   : yes")
-          write (log_buf, '(A,E15.7)') "Tolerance       : ", tol
-          call neko_log%message(log_buf)
-
-          ! Get the index of the file that contains the mesh.
-          call json_get_or_default(params, &
-               'case.scalar.initial_condition.mesh_file_name', read_str, &
-               "none")
-
-          mesh_fname = trim(read_str)
-
-          ! If no mesh file is specified, use the default file name
-          if (mesh_fname .eq. "none") then
-             mesh_fname = trim(fname)
-             sample_mesh_idx = sample_idx
-          else
-             ! Get the sample index from the mesh file name
-             sample_mesh_idx = extract_fld_file_index(mesh_fname, -1)
-
-             if (sample_mesh_idx .eq. -1) then
-                call neko_error("Invalid file name for the initial condition. The&
-& file format must be e.g. 'mean0.f00001'")
-             end if
-
-             write (log_buf, '(A,A)') "Coordinates file : ", &
-                  trim(mesh_fname)
-             call neko_log%message(log_buf)
-          end if
-
-       else
-          call neko_log%message("Interpolation: no")
-       end if
-
-       call set_scalar_ic_fld(s, fname, sample_idx, interpolate, &
-            tolerance = tol, sample_mesh_idx = sample_mesh_idx)
+       call set_scalar_ic_fld(s, fname, interpolate, tol, mesh_fname)
 
     else
        call neko_error('Invalid initial condition')
@@ -250,6 +190,12 @@ contains
     type(field_t), intent(inout) :: s
     real(kind=rp), intent(in) :: ic_value
     integer :: n
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_log%message("Type : uniform")
+    write (log_buf, '(A,F10.6)') "Value: ", ic_value
+    call neko_log%message(log_buf)
+
     s = ic_value
     n = s%dof%size()
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -272,8 +218,16 @@ contains
     real(kind=rp), intent(in) :: zone_value
 
     ! Internal variables
+    character(len=LOG_SIZE) :: log_buf
     class(point_zone_t), pointer :: zone
     integer :: size
+
+    call neko_log%message("Type       : point_zone")
+    write (log_buf, '(A,F10.6)') "Base value: ", base_value
+    call neko_log%message(log_buf)
+    call neko_log%message("Zone name : " // trim(zone_name))
+    write (log_buf, '(A,F10.6)') "Zone value: ", zone_value
+    call neko_log%message(log_buf)
 
     size = s%dof%size()
     zone => neko_point_zone_registry%get_point_zone(trim(zone_name))
@@ -297,15 +251,16 @@ contains
   !! points in the mesh.
   !! @param sample_mesh_idx If interpolation is enabled, index of the field
   !! file where the mesh coordinates are located.
-  subroutine set_scalar_ic_fld(s, file_name, sample_idx, &
-       interpolate, tolerance, sample_mesh_idx)
+  subroutine set_scalar_ic_fld(s, file_name, &
+       interpolate, tolerance, mesh_file_name)
     type(field_t), intent(inout) :: s
     character(len=*), intent(in) :: file_name
-    integer, intent(in) :: sample_idx
     logical, intent(in) :: interpolate
     real(kind=rp), intent(in) :: tolerance
-    integer, intent(in) :: sample_mesh_idx
+    character(len=*), intent(inout) :: mesh_file_name
 
+    character(len=LOG_SIZE) :: log_buf
+    integer :: sample_idx, sample_mesh_idx
     integer :: last_index
     type(fld_file_data_t) :: fld_data
     type(file_t) :: f
@@ -320,15 +275,55 @@ contains
     type(interpolator_t) :: space_interp
     ! ----
 
+    call neko_log%message("Type          : field")
+    call neko_log%message("File name     : " // trim(file_name))
+    write (log_buf, '(A,L1)') "Interpolation : ", interpolate
+    call neko_log%message(log_buf)
+    if (interpolate) then
+    end if
+
+    ! Extract sample index from the file name
+    sample_idx = extract_fld_file_index(file_name, -1)
+
+    if (sample_idx .eq. -1) &
+         call neko_error("Invalid file name for the initial condition. The&
+         & file format must be e.g. 'mean0.f00001'")
+
+    ! Change from "field0.f000*" to "field0.fld" for the fld reader
+    call filename_chsuffix(file_name, file_name, 'fld')
+
     call fld_data%init
     f = file_t(trim(file_name))
 
     if (interpolate) then
+
+       ! If no mesh file is specified, use the default file name
+       if (mesh_file_name .eq. "none") then
+          mesh_file_name = trim(file_name)
+          sample_mesh_idx = sample_idx
+       else
+
+          ! Extract sample index from the mesh file name
+          sample_mesh_idx = extract_fld_file_index(mesh_file_name, -1)
+
+          if (sample_mesh_idx .eq. -1) &
+               call neko_error("Invalid file name for the initial condition. &
+&The file format must be e.g. 'mean0.f00001'")
+
+          write (log_buf, '(A,ES13.6)') "Tolerance     :", tolerance
+          call neko_log%message(log_buf)
+          write (log_buf, '(A,A)')     "Mesh file     : ", &
+               trim(mesh_file_name)
+          call neko_log%message(log_buf)
+
+       end if ! if mesh_file_name .eq. none
+
        ! Read the mesh coordinates if they are not in our fld file
        if (sample_mesh_idx .ne. sample_idx) then
           call f%set_counter(sample_mesh_idx)
           call f%read(fld_data)
        end if
+
     end if
 
     ! Read the field file containing (u,v,w,p)
