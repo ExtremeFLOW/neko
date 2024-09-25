@@ -704,16 +704,6 @@ contains
       ! Update material properties if necessary
       call this%update_material_properties()
 
-      ! Compute the grandient jump penalty term
-      if (this%if_gradient_jump_penalty .eqv. .true.) then
-         call this%gradient_jump_penalty_u%compute(u, v, w, u)
-         call this%gradient_jump_penalty_v%compute(u, v, w, v)
-         call this%gradient_jump_penalty_w%compute(u, v, w, w)
-         call this%gradient_jump_penalty_u%perform(f_x)
-         call this%gradient_jump_penalty_v%perform(f_y)
-         call this%gradient_jump_penalty_w%perform(f_z)
-      end if
-
       ! Compute pressure.
       call profiler_start_region('Pressure_residual', 18)
       call prs_res%compute(p, p_res,&
