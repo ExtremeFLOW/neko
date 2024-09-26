@@ -1,0 +1,6 @@
+<map id="file::file_set_header" name="file::file_set_header">
+<area shape="rect" id="node1" title="Set a file&#39;s header." alt="" coords="5,31,155,57"/>
+<area shape="rect" id="node2" href="$d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85" title="Extract a filename&#39;s suffix." alt="" coords="203,5,361,32"/>
+<area shape="rect" id="node4" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title=" " alt="" coords="208,56,356,83"/>
+<area shape="rect" id="node3" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="409,5,597,32"/>
+</map>

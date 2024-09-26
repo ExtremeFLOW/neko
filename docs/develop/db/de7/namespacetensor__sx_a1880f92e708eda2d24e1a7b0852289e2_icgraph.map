@@ -1,0 +1,9 @@
+<map id="tensor_sx::tnsr2d_el_sx" name="tensor_sx::tnsr2d_el_sx">
+<area shape="rect" id="node1" title=" " alt="" coords="1248,31,1423,57"/>
+<area shape="rect" id="node2" href="$d3/d45/namespacefdm__sx.html#a762fb6300072552516a196633c67e7c4" title=" " alt="" coords="1019,5,1200,32"/>
+<area shape="rect" id="node3" href="$dd/d8c/namespacetensor.html#aa50503d37312ded5c29134df83216e65" title="Computes ." alt="" coords="1044,56,1175,83"/>
+<area shape="rect" id="node4" href="$dd/dd2/namespacedofmap.html#ad3de108e62dbf0bc0c617b43f620bed8" title="Generate the x, y, z coordinates of the dofs in a signle element, assuming linear element edges." alt="" coords="795,31,971,57"/>
+<area shape="rect" id="node7" href="$dd/dd2/namespacedofmap.html#a14be7fe99925dc0fb0e2e30c0d654b44" title=" " alt="" coords="555,81,747,108"/>
+<area shape="rect" id="node5" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="281,56,507,83"/>
+<area shape="rect" id="node6" href="$d0/df0/structdofmap_1_1dofmap__t.html#ad6ff31d68c77f1c7625d5b8cd5eb8328" title=" " alt="" coords="5,56,233,83"/>
+</map>

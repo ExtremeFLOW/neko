@@ -1,0 +1,26 @@
+var structmatrix_1_1matrix__t =
+[
+    [ "assignment", "da/d95/structmatrix_1_1matrix__t.html#a585a4f4b4de2b6f8fce869712c823780", null ],
+    [ "free", "da/d95/structmatrix_1_1matrix__t.html#a4443677a6bc6f406132022cce50b4eed", null ],
+    [ "init", "da/d95/structmatrix_1_1matrix__t.html#afab315bafc35a5d47e3594424acc4300", null ],
+    [ "inverse", "da/d95/structmatrix_1_1matrix__t.html#ab61e3a2626d59f2f3d31c40f57286627", null ],
+    [ "matrix_add_matrix", "da/d95/structmatrix_1_1matrix__t.html#a356bcaebfedc40fad394b1f9427442e5", null ],
+    [ "matrix_add_scalar_left", "da/d95/structmatrix_1_1matrix__t.html#aa941347eeb4cbe57dc18694e4076cb2c", null ],
+    [ "matrix_add_scalar_right", "da/d95/structmatrix_1_1matrix__t.html#a03070551fe169d7f5d3a4c404f010587", null ],
+    [ "matrix_assign_matrix", "da/d95/structmatrix_1_1matrix__t.html#aca62c88a7994037289c4d301a6db3794", null ],
+    [ "matrix_assign_scalar", "da/d95/structmatrix_1_1matrix__t.html#a22beece51fcbd996b7b3898bfa03b448", null ],
+    [ "matrix_cmult_left", "da/d95/structmatrix_1_1matrix__t.html#a976bec50ebed1fc5df8d4864d748a3a7", null ],
+    [ "matrix_cmult_right", "da/d95/structmatrix_1_1matrix__t.html#a5e978a25869466179a50ea096743a8b9", null ],
+    [ "matrix_sub_matrix", "da/d95/structmatrix_1_1matrix__t.html#afffb1f4462ad04b4325bc71b6131ab36", null ],
+    [ "matrix_sub_scalar_left", "da/d95/structmatrix_1_1matrix__t.html#a02fba582f7912bbd5c6405bd88e52ddd", null ],
+    [ "matrix_sub_scalar_right", "da/d95/structmatrix_1_1matrix__t.html#a87a21cd04104995af27c74162bd416b5", null ],
+    [ "operator", "da/d95/structmatrix_1_1matrix__t.html#a92daca85646bf4c73e758f99475188ea", null ],
+    [ "operator", "da/d95/structmatrix_1_1matrix__t.html#ac605ae6a2f6d71029da30ffe45975e96", null ],
+    [ "operator", "da/d95/structmatrix_1_1matrix__t.html#a2d7f664d8d1f43f44e9cf5cd7e53ca43", null ],
+    [ "size", "da/d95/structmatrix_1_1matrix__t.html#ad8c3290f31a445d0aeb128ff891510be", null ],
+    [ "n", "da/d95/structmatrix_1_1matrix__t.html#ac52d033a469999544ad7e1aecc7d7d5d", null ],
+    [ "ncols", "da/d95/structmatrix_1_1matrix__t.html#ad3a3adcb86e5995e1c1d7970bc942bb7", null ],
+    [ "nrows", "da/d95/structmatrix_1_1matrix__t.html#ab5cae739da58ace35a455fb3108478c6", null ],
+    [ "x", "da/d95/structmatrix_1_1matrix__t.html#a918c450d7742caccbb6749e620359675", null ],
+    [ "x_d", "da/d95/structmatrix_1_1matrix__t.html#a5362a03d787bb0e4ae3fba8d16c58f4e", null ]
+];

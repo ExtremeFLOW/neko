@@ -1,0 +1,18 @@
+<map id="adv_no_dealias::compute_advection_no_dealias" name="adv_no_dealias::compute_advection_no_dealias">
+<area shape="rect" id="node1" title="Add the advection term for the fluid, i.e. &#160;to the RHS." alt="" coords="5,241,193,282"/>
+<area shape="rect" id="node2" href="$dd/d30/namespaceoperators.html#af4d7e0e187615ed2bb3cd3b90d77bd45" title="Compute the advection term." alt="" coords="255,88,385,115"/>
+<area shape="rect" id="node9" href="$d2/d73/namespacedevice__math.html#a2b8132d3d15d4b553af3a1b55d6f8d87" title="Zero a real vector." alt="" coords="241,175,399,217"/>
+<area shape="rect" id="node12" href="$d2/d73/namespacedevice__math.html#ae0f24e98e78f0aafc483b8aa8865c0cc" title="Returns ." alt="" coords="241,241,399,282"/>
+<area shape="rect" id="node15" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="271,307,369,333"/>
+<area shape="rect" id="node16" href="$dd/d47/namespacemath.html#a690b20ca46eb975541f8e6787f04043f" title="Returns ." alt="" coords="263,357,377,384"/>
+<area shape="rect" id="node3" href="$d3/d4d/namespaceopr__device.html#a795bba73c5389fb6ab225ff277af5a60" title=" " alt="" coords="447,15,619,57"/>
+<area shape="rect" id="node7" href="$d9/d5a/namespaceopr__xsmm.html#af292cc34652bea326c44a8024cccd14f" title=" " alt="" coords="449,81,617,122"/>
+<area shape="rect" id="node4" href="$d2/d79/opr__conv1_8cu.html#a2b1b534f6f070dbbefdf14808df129e9" title=" " alt="" coords="697,5,795,32"/>
+<area shape="rect" id="node5" href="$d1/dc1/opr__conv1_8c.html#ab07cb7910eb3d0e828e2220814aeb52f" title=" " alt="" coords="691,56,801,83"/>
+<area shape="rect" id="node6" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="873,168,1005,195"/>
+<area shape="rect" id="node8" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="667,107,825,133"/>
+<area shape="rect" id="node10" href="$de/d1e/math_8cu.html#a929f7979761fc7dfdb31c1bc7dcd3897" title=" " alt="" coords="486,147,579,173"/>
+<area shape="rect" id="node11" href="$d6/da3/math_8c.html#a4759a87ec336639cbcd865aea0801da7" title=" " alt="" coords="480,197,585,224"/>
+<area shape="rect" id="node13" href="$de/d1e/math_8cu.html#a62d8b6c255c11576170bbf10068c5645" title=" " alt="" coords="477,248,588,275"/>
+<area shape="rect" id="node14" href="$d6/da3/math_8c.html#a6e88855af43b300be89ca9c1ba0aedcc" title=" " alt="" coords="685,219,807,245"/>
+</map>

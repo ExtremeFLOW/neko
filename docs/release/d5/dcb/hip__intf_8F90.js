@@ -1,0 +1,28 @@
+var hip__intf_8F90 =
+[
+    [ "hipMalloc", "d0/dee/interfacehip__intf_1_1hipMalloc.html", "d0/dee/interfacehip__intf_1_1hipMalloc" ],
+    [ "hipFree", "d8/d3c/interfacehip__intf_1_1hipFree.html", "d8/d3c/interfacehip__intf_1_1hipFree" ],
+    [ "hipMemcpy", "d8/d3d/interfacehip__intf_1_1hipMemcpy.html", "d8/d3d/interfacehip__intf_1_1hipMemcpy" ],
+    [ "hipMemcpyAsync", "d7/d9d/interfacehip__intf_1_1hipMemcpyAsync.html", "d7/d9d/interfacehip__intf_1_1hipMemcpyAsync" ],
+    [ "hipDeviceSynchronize", "d3/de8/interfacehip__intf_1_1hipDeviceSynchronize.html", "d3/de8/interfacehip__intf_1_1hipDeviceSynchronize" ],
+    [ "hipDeviceGetName", "d1/da4/interfacehip__intf_1_1hipDeviceGetName.html", "d1/da4/interfacehip__intf_1_1hipDeviceGetName" ],
+    [ "hipStreamCreate", "de/d87/interfacehip__intf_1_1hipStreamCreate.html", "de/d87/interfacehip__intf_1_1hipStreamCreate" ],
+    [ "hipStreamCreateWithFlags", "d0/d1f/interfacehip__intf_1_1hipStreamCreateWithFlags.html", "d0/d1f/interfacehip__intf_1_1hipStreamCreateWithFlags" ],
+    [ "hipStreamCreateWithPriority", "d3/d66/interfacehip__intf_1_1hipStreamCreateWithPriority.html", "d3/d66/interfacehip__intf_1_1hipStreamCreateWithPriority" ],
+    [ "hipStreamDestroy", "dc/d44/interfacehip__intf_1_1hipStreamDestroy.html", "dc/d44/interfacehip__intf_1_1hipStreamDestroy" ],
+    [ "hipStreamSynchronize", "d1/d3c/interfacehip__intf_1_1hipStreamSynchronize.html", "d1/d3c/interfacehip__intf_1_1hipStreamSynchronize" ],
+    [ "hipStreamWaitEvent", "d8/d61/interfacehip__intf_1_1hipStreamWaitEvent.html", "d8/d61/interfacehip__intf_1_1hipStreamWaitEvent" ],
+    [ "hipDeviceGetStreamPriorityRange", "dc/da6/interfacehip__intf_1_1hipDeviceGetStreamPriorityRange.html", "dc/da6/interfacehip__intf_1_1hipDeviceGetStreamPriorityRange" ],
+    [ "hipEventCreate", "d2/d8d/interfacehip__intf_1_1hipEventCreate.html", "d2/d8d/interfacehip__intf_1_1hipEventCreate" ],
+    [ "hipEventDestroy", "d5/d99/interfacehip__intf_1_1hipEventDestroy.html", "d5/d99/interfacehip__intf_1_1hipEventDestroy" ],
+    [ "hipEventCreateWithFlags", "d1/d50/interfacehip__intf_1_1hipEventCreateWithFlags.html", "d1/d50/interfacehip__intf_1_1hipEventCreateWithFlags" ],
+    [ "hipEventRecord", "d2/d17/interfacehip__intf_1_1hipEventRecord.html", "d2/d17/interfacehip__intf_1_1hipEventRecord" ],
+    [ "hipEventSynchronize", "dd/dfb/interfacehip__intf_1_1hipEventSynchronize.html", "dd/dfb/interfacehip__intf_1_1hipEventSynchronize" ],
+    [ "hip_device_name", "d5/dcb/hip__intf_8F90.html#a1c8e3cf5e89ffe1b50253b6b38e45a93", null ],
+    [ "hip_finalize", "d5/dcb/hip__intf_8F90.html#a46ebe304218d34d01b56a41e65488e1f", null ],
+    [ "hip_init", "d5/dcb/hip__intf_8F90.html#a1fe3302af910fad64b1e7c2ba5b29d3e", null ],
+    [ "aux_cmd_queue", "d5/dcb/hip__intf_8F90.html#a19e001b16b32fe3b03a6a42aa67b41fb", null ],
+    [ "glb_cmd_queue", "d5/dcb/hip__intf_8F90.html#a5fd1f28f420d73314c95a40edd15d37f", null ],
+    [ "strm_high_prio", "d5/dcb/hip__intf_8F90.html#a8996afbeeb8e8c59a38280475e1b3549", null ],
+    [ "strm_low_prio", "d5/dcb/hip__intf_8F90.html#a1a75fbd54838dbeba03536ea8a7a0ffd", null ]
+];

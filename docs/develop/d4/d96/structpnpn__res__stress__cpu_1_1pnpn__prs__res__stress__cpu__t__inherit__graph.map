@@ -1,0 +1,4 @@
+<map id="pnpn_res_stress_cpu::pnpn_prs_res_stress_cpu_t" name="pnpn_res_stress_cpu::pnpn_prs_res_stress_cpu_t">
+<area shape="rect" id="node1" title="CPU implementation of the pressure residual for the PnPn fluid with full viscous stress formulation." alt="" coords="5,95,209,136"/>
+<area shape="rect" id="node2" href="$d2/dc3/structpnpn__residual_1_1pnpn__prs__res__t.html" title="Abstract type to compute pressure residual." alt="" coords="31,5,184,47"/>
+</map>

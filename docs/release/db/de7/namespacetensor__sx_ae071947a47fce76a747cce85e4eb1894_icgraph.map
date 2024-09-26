@@ -1,0 +1,7 @@
+<map id="tensor_sx::tnsr3d_el_sx" name="tensor_sx::tnsr3d_el_sx">
+<area shape="rect" id="node1" title=" " alt="" coords="428,60,603,87"/>
+<area shape="rect" id="node2" href="$dd/d8c/namespacetensor.html#afb27d9f86d0c3799290bb235cbad97df" title="Tensor product &#160;performed on a single element." alt="" coords="235,28,366,55"/>
+<area shape="rect" id="node4" href="$dd/d8c/namespacetensor.html#a9578e54c6fd6906866131eec193169b0" title="Tensor product &#160;performed on a subset of the elements." alt="" coords="221,85,380,112"/>
+<area shape="rect" id="node3" href="$dc/d32/interfacetensor_1_1triple__tensor__product.html#a70ef42619fcb8aed48dfd008029ce644" title="Computes the tensor product . This operation is usually performed for spectral interpolation of a sca..." alt="" coords="5,5,173,61"/>
+<area shape="rect" id="node5" href="$da/d80/namespacelocal__interpolation.html#a4707f5b542b2a511476d0bdf808ab48d" title="Interpolates a list of fields based on a set of element ids." alt="" coords="17,85,161,141"/>
+</map>

@@ -1,0 +1,26 @@
+var structadv__oifs_1_1adv__oifs__t =
+[
+    [ "compute", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a0b8c12ef694548b6eb98ca4ff8edc1d5", null ],
+    [ "compute_scalar", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a6eb98fcd382a7efba6841faff40ca7c1", null ],
+    [ "free", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#abe9777e1ce68c38f53cec4fe74c9d534", null ],
+    [ "init", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a203dd01379dff1025b0b5e19a122febf", null ],
+    [ "set_conv_velocity_fst", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a81a3e36d2b5fa65b2caad29f15aca746", null ],
+    [ "c", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a79bdccc7682c36318a1c1a88687a4c07", null ],
+    [ "coef_gl", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a1c5e1f1b3c24dc4ae8814bebba6c93db", null ],
+    [ "coef_gll", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a1ba8f457e466f8e80600800c7c6537f1", null ],
+    [ "ctlag", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a585052188ed318bf441083713349169b", null ],
+    [ "cx", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a19fea17842da7a0f5631ffd3b57e6da3", null ],
+    [ "cy", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a69fe87e76c88fe985295851ec29fd113", null ],
+    [ "cz", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a7d628610e38de2a4f4f9667b8d80c10c", null ],
+    [ "dctlag", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#ad8d9684fccf64040d63a271f32cbc9bc", null ],
+    [ "dtime", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a36ec179eaa42435443eb682e11c6e0c2", null ],
+    [ "gll_to_gl", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a11a3b8595aa827e1d750f55f42fa9dd1", null ],
+    [ "ntaubd", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#ad110d75260ba6d63decfdcb27c9f6b16", null ],
+    [ "oifs_scheme", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a1c5935076155a59fa053117cd8c5fcef", null ],
+    [ "slag", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#aacbef0fe24da4d924fb605af039798c4", null ],
+    [ "ulag", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a3162d70e0b19bf49a5051a848a6a71d4", null ],
+    [ "vlag", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#aed64391e8f959477e05e82ecd595713d", null ],
+    [ "wlag", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#afae9c15f62c2945c1db479cf0b14d83f", null ],
+    [ "xh_gl", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#ab97bee1acb8c9bc203962fb31f8f01f7", null ],
+    [ "xh_gll", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#ac7f2b69e90f881f027e27199be6ff4b2", null ]
+];

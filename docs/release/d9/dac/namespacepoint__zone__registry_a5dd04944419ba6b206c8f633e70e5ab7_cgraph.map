@@ -1,0 +1,4 @@
+<map id="point_zone_registry::point_zone_registry_init" name="point_zone_registry::point_zone_registry_init">
+<area shape="rect" id="node1" title="Constructor, reading from json point zones." alt="" coords="5,5,192,47"/>
+<area shape="rect" id="node2" href="$df/deb/namespacepoint__zone__fctry.html#a1f5a6202e14f2b8bef64e0159d68b70b" title="Point zone factory. Constructs, initializes, and maps the point zone object." alt="" coords="240,5,411,47"/>
+</map>

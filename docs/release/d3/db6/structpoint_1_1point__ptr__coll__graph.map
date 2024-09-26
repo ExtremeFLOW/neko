@@ -1,0 +1,5 @@
+<map id="point::point_ptr" name="point::point_ptr">
+<area shape="rect" id="node1" title="Defines a pointer to a point type." alt="" coords="5,171,127,197"/>
+<area shape="rect" id="node2" href="$db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="12,81,120,108"/>
+<area shape="rect" id="node3" href="$da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="7,5,125,32"/>
+</map>

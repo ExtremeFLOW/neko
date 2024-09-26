@@ -1,0 +1,11 @@
+<map id="operators::conv1" name="operators::conv1">
+<area shape="rect" id="node1" title="Compute the advection term." alt="" coords="5,93,136,120"/>
+<area shape="rect" id="node2" href="$d0/d94/namespaceopr__cpu.html#a76af39d4162d3b2edaff2c12816fef48" title=" " alt="" coords="184,5,363,32"/>
+<area shape="rect" id="node3" href="$d3/d4d/namespaceopr__device.html#a795bba73c5389fb6ab225ff277af5a60" title=" " alt="" coords="187,57,359,98"/>
+<area shape="rect" id="node7" href="$df/db5/namespaceopr__sx.html#a261b72a402008e447b2d4d07c9d21271" title=" " alt="" coords="192,123,355,149"/>
+<area shape="rect" id="node8" href="$d9/d5a/namespaceopr__xsmm.html#af292cc34652bea326c44a8024cccd14f" title=" " alt="" coords="189,174,357,215"/>
+<area shape="rect" id="node4" href="$d2/d79/opr__conv1_8cu.html#a2b1b534f6f070dbbefdf14808df129e9" title=" " alt="" coords="441,39,539,65"/>
+<area shape="rect" id="node5" href="$d1/dc1/opr__conv1_8c.html#ab07cb7910eb3d0e828e2220814aeb52f" title=" " alt="" coords="435,89,545,116"/>
+<area shape="rect" id="node6" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="617,89,749,116"/>
+<area shape="rect" id="node9" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="411,181,569,208"/>
+</map>

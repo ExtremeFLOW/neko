@@ -1,0 +1,6 @@
+<map id="global_interpolation::global_interpolation_find_xyz" name="global_interpolation::global_interpolation_find_xyz">
+<area shape="rect" id="node1" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,56,165,112"/>
+<area shape="rect" id="node2" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="246,5,341,32"/>
+<area shape="rect" id="node3" href="$dd/de1/namespaceglobal__interpolation.html#ac86ce66619281a9b322688bf9d527c28" title="Common routine for finding the points." alt="" coords="213,56,373,112"/>
+<area shape="rect" id="node4" href="$dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3" title=" " alt="" coords="213,136,373,192"/>
+</map>

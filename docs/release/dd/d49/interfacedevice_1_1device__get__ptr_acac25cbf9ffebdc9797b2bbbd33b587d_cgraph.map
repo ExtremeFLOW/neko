@@ -1,0 +1,4 @@
+<map id="device::device_get_ptr::device_get_ptr_r4" name="device::device_get_ptr::device_get_ptr_r4">
+<area shape="rect" id="node1" title="Return the device pointer for an associated Fortran rank 4 array." alt="" coords="5,5,176,47"/>
+<area shape="rect" id="node2" href="$d0/dbe/namespacedevice.html#a26badb1d73815164d18b2c4a340ff608" title="Return the device pointer for an associated Fortran rank 4 array." alt="" coords="224,5,368,47"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="bc::bc_mark_zones_from_list" name="bc::bc_mark_zones_from_list">
+<area shape="rect" id="node1" title="Mark all facets from a list of zones, also marks type of bc in the mesh. The facet_type in mesh is be..." alt="" coords="5,31,216,57"/>
+<area shape="rect" id="node2" href="$d0/dc0/namespacebc.html#a09216b9fa74d0d37e1cc4c54376b7afe" title="Mark all facets from a zone." alt="" coords="264,5,403,32"/>
+<area shape="rect" id="node3" href="$d6/d84/namespaceutils.html#a1f476700446cfbcefbfaa897cdeb3fa6" title="Split a string based on delimiter (tokenizer) OBS: very hacky, this should really be improved,..." alt="" coords="268,56,399,83"/>
+</map>

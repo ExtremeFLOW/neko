@@ -1,0 +1,18 @@
+<map id="operators::dudxyz" name="operators::dudxyz">
+<area shape="rect" id="node1" title="Compute derivative of a scalar field along a single direction." alt="" coords="805,198,944,225"/>
+<area shape="rect" id="node2" href="$d6/dbc/namespacederivative.html#a644e64ee3bb510ed6375d1fc698447ac" title="Compute the derivative field." alt="" coords="559,5,721,47"/>
+<area shape="rect" id="node3" href="$dd/d30/namespaceoperators.html#a6b1d2baa65e8e676f66e5cda841d3681" title="Compute the divergence of a vector field." alt="" coords="584,71,696,98"/>
+<area shape="rect" id="node4" href="$dd/d30/namespaceoperators.html#a91f918cda1627fb384dd63393c822991" title="Compute the gradient of a scalar field." alt="" coords="579,122,701,149"/>
+<area shape="rect" id="node5" href="$de/d0d/namespacepnpn__res__stress__cpu.html#a65abda9efa01dca34d23bec127576d73" title=" " alt="" coords="280,99,443,155"/>
+<area shape="rect" id="node6" href="$dd/d1f/namespacepnpn__res__stress__device.html#ad79870e59f983bbe89231d1581579827" title=" " alt="" coords="273,179,450,235"/>
+<area shape="rect" id="node7" href="$d7/d87/namespacesigma__cpu.html#ad5639c13d4ac097ec8fcf954271feb9c" title="Compute eddy viscosity on the CPU." alt="" coords="523,359,757,386"/>
+<area shape="rect" id="node9" href="$dd/d30/namespaceoperators.html#ab2babd24679efca34a9310107b346969" title="Compute the strain rate tensor, i.e 0.5 * du_i/dx_j + du_j/dx_i." alt="" coords="559,274,721,301"/>
+<area shape="rect" id="node15" href="$d9/da0/namespacevreman__cpu.html#afd690af29ff96e9cde941ebdafd9ca44" title="Compute eddy viscosity on the CPU." alt="" coords="560,480,720,521"/>
+<area shape="rect" id="node8" href="$d6/dcd/namespacesigma.html#a4382f10d4f01fe94f14c5b63666c8a01" title="Compute eddy viscosity." alt="" coords="274,471,449,498"/>
+<area shape="rect" id="node10" href="$da/def/namespacedynamic__smagorinsky__cpu.html#afc315d593e38cf654ffdc958baa9a5c6" title="Compute eddy viscosity on the CPU." alt="" coords="258,259,465,315"/>
+<area shape="rect" id="node12" href="$d6/daa/namespaceforce__torque.html#ab407c7b9763b091d7165c5d7d19044de" title="Compute the force_torque field." alt="" coords="289,340,434,381"/>
+<area shape="rect" id="node13" href="$dd/d73/namespacesmagorinsky__cpu.html#a4c7509e1ca11400eb45a26eaa7ce4de8" title="Compute eddy viscosity on the CPU." alt="" coords="248,405,475,447"/>
+<area shape="rect" id="node11" href="$d4/d9c/namespacedynamic__smagorinsky.html#ad9e829fe19717511484cca0fe4524c52" title="Compute eddy viscosity." alt="" coords="15,259,191,315"/>
+<area shape="rect" id="node14" href="$d9/d9a/namespacesmagorinsky.html#a7e50d1b4992ed399dae8d96bed4a0d5b" title="Compute eddy viscosity." alt="" coords="5,405,200,447"/>
+<area shape="rect" id="node16" href="$d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="264,522,459,549"/>
+</map>

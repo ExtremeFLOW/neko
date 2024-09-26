@@ -1,0 +1,12 @@
+<map id="distdata::distdata_t" name="distdata::distdata_t">
+<area shape="rect" id="node1" title=" " alt="" coords="85,379,233,405"/>
+<area shape="rect" id="node2" href="$d1/d93/structstack_1_1stack__i4t2__t.html" title="Integer 2&#45;tuple based stack." alt="" coords="9,260,153,287"/>
+<area shape="rect" id="node3" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="5,171,117,197"/>
+<area shape="rect" id="node4" href="$d6/db2/structuset_1_1uset__i4__t.html" title="Integer based unordered set." alt="" coords="215,260,332,287"/>
+<area shape="rect" id="node5" href="$d8/d9e/structuset_1_1uset__t.html" title="Base type for an unordered set." alt="" coords="141,171,240,197"/>
+<area shape="rect" id="node6" href="$dc/d23/structhtable_1_1htable__iter__i4__t.html" title="Iterator for an integer based hash table." alt="" coords="265,171,437,197"/>
+<area shape="rect" id="node7" href="$d1/dec/structhtable_1_1htable__iter__t.html" title="Base type for a hash table iterator." alt="" coords="274,95,427,121"/>
+<area shape="rect" id="node8" href="$db/d4d/structhtable_1_1htable__i4__t.html" title="Integer based hash table." alt="" coords="461,171,603,197"/>
+<area shape="rect" id="node9" href="$d0/d2e/structhtable_1_1htable__t.html" title="Base type for a hash table." alt="" coords="470,95,594,121"/>
+<area shape="rect" id="node10" href="$d8/d5b/structhtable_1_1h__tuple__t.html" title="Hash table entry, tuple (key, data)" alt="" coords="467,5,597,32"/>
+</map>

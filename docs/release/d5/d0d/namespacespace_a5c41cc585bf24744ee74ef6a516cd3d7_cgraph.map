@@ -1,0 +1,6 @@
+<map id="space::space_generate_transformation_matrices" name="space::space_generate_transformation_matrices">
+<area shape="rect" id="node1" title="Generate spectral tranform matrices." alt="" coords="5,49,196,90"/>
+<area shape="rect" id="node2" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="276,5,371,32"/>
+<area shape="rect" id="node3" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="244,56,403,83"/>
+<area shape="rect" id="node4" href="$dd/d8c/namespacetensor.html#a56be5127b81c9f41faab546d3d175e19" title="In&#45;place transpose of a square tensor." alt="" coords="271,107,375,133"/>
+</map>

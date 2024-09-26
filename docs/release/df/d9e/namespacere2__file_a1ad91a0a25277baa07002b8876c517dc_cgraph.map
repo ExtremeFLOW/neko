@@ -1,0 +1,9 @@
+<map id="re2_file::re2_file_read" name="re2_file::re2_file_read">
+<area shape="rect" id="node1" title="Load a binary NEKTON mesh from a re2 file." alt="" coords="5,97,168,124"/>
+<area shape="rect" id="node2" href="$d6/d84/namespaceutils.html#ad035259b0db318528da0384dd484945d" title="Change a filename&#39;s suffix." alt="" coords="216,5,389,32"/>
+<area shape="rect" id="node4" href="$df/d9e/namespacere2__file.html#a83f78b1bd3723662d8f8f30fc1470b2e" title=" " alt="" coords="239,57,366,98"/>
+<area shape="rect" id="node5" href="$df/d9e/namespacere2__file.html#ac6a6e7f12b8abdc9e5f94ac9fa688eb2" title=" " alt="" coords="239,122,366,163"/>
+<area shape="rect" id="node6" href="$df/d9e/namespacere2__file.html#ae1e316c6fcaff6907f305abd16968d56" title=" " alt="" coords="239,187,366,229"/>
+<area shape="rect" id="node3" href="$d6/d84/namespaceutils.html#a590765fef437ae3c76556bf6b967afae" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="437,5,625,32"/>
+<area shape="rect" id="node7" href="$df/d9e/namespacere2__file.html#a859e702ddca0f77f1d6f6659b4c6ca41" title=" " alt="" coords="468,187,595,229"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="htable::htable_remove" name="htable::htable_remove">
+<area shape="rect" id="node1" title="Remove a key from the hash table." alt="" coords="243,195,412,222"/>
+<area shape="rect" id="node2" href="$dc/df5/namespacehtable.html#a5c5f58e990d4e82da9ba15e85021d116" title="Remove a C pointer with key key from the hash table." alt="" coords="28,5,172,47"/>
+<area shape="rect" id="node3" href="$dc/df5/namespacehtable.html#ac1d688e90617fae2555108bd9d420616" title="Remove an integer with key key from the hash table." alt="" coords="6,71,194,98"/>
+<area shape="rect" id="node4" href="$dc/df5/namespacehtable.html#aaf5baceb5bb4df1cc90e298f1873030f" title="Remove an integer 2&#45;tuple with key key from the hash table." alt="" coords="28,123,172,164"/>
+<area shape="rect" id="node5" href="$dc/df5/namespacehtable.html#a79a2bb81961418c0bc13256f75dac82f" title="Remove an integer 4&#45;tuple with key key from the hash table." alt="" coords="28,188,172,229"/>
+<area shape="rect" id="node6" href="$dc/df5/namespacehtable.html#acc68be9993225c5755d5b3339e1de9e5" title="Remove an integer*8 with key key from the hash table." alt="" coords="6,254,194,281"/>
+<area shape="rect" id="node7" href="$dc/df5/namespacehtable.html#a58e7a40136c7a1d3490e47ba0226ed94" title="Remove a point with key key from the hash table." alt="" coords="5,305,195,331"/>
+<area shape="rect" id="node8" href="$dc/df5/namespacehtable.html#a9368da5028b57f58be9c9cdaf379c08f" title="Remove a double precision key key from the hash table." alt="" coords="5,355,195,382"/>
+</map>

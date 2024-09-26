@@ -1,0 +1,26 @@
+<map id="fluid_stats::fluid_stats_update" name="fluid_stats::fluid_stats_update">
+<area shape="rect" id="node1" title="Updates all fields." alt="" coords="5,158,131,199"/>
+<area shape="rect" id="node2" href="$dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="217,5,331,32"/>
+<area shape="rect" id="node3" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="229,56,319,83"/>
+<area shape="rect" id="node4" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="229,107,319,133"/>
+<area shape="rect" id="node5" href="$d2/d73/namespacedevice__math.html#a07d4f69bef8f8e5cd58ca113e8651314" title=" " alt="" coords="195,158,353,199"/>
+<area shape="rect" id="node9" href="$d2/d73/namespacedevice__math.html#a14206e58118cce6865c6ce1bb6454061" title=" " alt="" coords="179,224,369,251"/>
+<area shape="rect" id="node12" href="$d2/d73/namespacedevice__math.html#a51b3ae540684036a51e44558a8e7650b" title=" " alt="" coords="179,296,369,323"/>
+<area shape="rect" id="node15" href="$dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the gradient of a scalar field." alt="" coords="205,456,343,483"/>
+<area shape="rect" id="node6" href="$de/d1e/math_8cu.html#a5b8f06c31bbc6f55853580db51f5f500" title=" " alt="" coords="454,93,565,120"/>
+<area shape="rect" id="node7" href="$d6/da3/math_8c.html#a03656599b99262f874e657d978cd7b27" title=" " alt="" coords="699,171,822,197"/>
+<area shape="rect" id="node8" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="933,297,1065,324"/>
+<area shape="rect" id="node10" href="$de/d1e/math_8cu.html#a40678eabb334647d2b2ddfc1b530b1bb" title=" " alt="" coords="466,195,553,221"/>
+<area shape="rect" id="node11" href="$d6/da3/math_8c.html#a50e530ce31fce86fc27271f0a6277691" title=" " alt="" coords="711,259,810,285"/>
+<area shape="rect" id="node13" href="$de/d1e/math_8cu.html#ac02acb02b1d805ed68f5c5ad9c5b9ee5" title=" " alt="" coords="466,296,553,323"/>
+<area shape="rect" id="node14" href="$d6/da3/math_8c.html#a691550cff5b7c41017424d9a9ce5c952" title=" " alt="" coords="711,335,810,361"/>
+<area shape="rect" id="node16" href="$d0/d94/namespaceopr__cpu.html#afdd18136c0ce66bc38ea740be2798416" title=" " alt="" coords="417,397,601,424"/>
+<area shape="rect" id="node17" href="$d3/d4d/namespaceopr__device.html#ad5bf8b83c33e9c73125c466a6fab72df" title=" " alt="" coords="423,449,595,490"/>
+<area shape="rect" id="node20" href="$df/db5/namespaceopr__sx.html#a3b4a270c453ead264e0628673c2e5e4a" title=" " alt="" coords="425,515,593,541"/>
+<area shape="rect" id="node21" href="$d9/d5a/namespaceopr__xsmm.html#ac368e7ac69182681cdbea4a3f378bc50" title=" " alt="" coords="425,566,593,607"/>
+<area shape="rect" id="node18" href="$d6/d68/opr__opgrad_8cu.html#a47a2678dd1f3bc0187df518f5fce764d" title=" " alt="" coords="708,405,813,432"/>
+<area shape="rect" id="node19" href="$d0/d82/opr__opgrad_8c.html#a8844437d901cf613744a5f9b55d1a72c" title=" " alt="" coords="702,456,819,483"/>
+<area shape="rect" id="node22" href="$d9/d5a/namespaceopr__xsmm.html#ae87af796709692f90edc89ad48a47e93" title=" " alt="" coords="673,548,848,575"/>
+<area shape="rect" id="node24" href="$d9/d5a/namespaceopr__xsmm.html#a3d01aa528301a7ba984a8f558994c137" title=" " alt="" coords="649,599,872,625"/>
+<area shape="rect" id="node23" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="920,548,1079,575"/>
+</map>

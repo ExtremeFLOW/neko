@@ -1,0 +1,5 @@
+<map id="flow_profile::blasius_cubic" name="flow_profile::blasius_cubic">
+<area shape="rect" id="node1" title="Cubic approximate Blasius Profile ." alt="" coords="395,5,545,47"/>
+<area shape="rect" id="node2" href="$d2/d13/namespaceflow__ic.html#aff7567086e0593009521c74afc760ff4" title="Set a Blasius profile as initial condition." alt="" coords="200,5,347,47"/>
+<area shape="rect" id="node3" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="5,5,152,47"/>
+</map>

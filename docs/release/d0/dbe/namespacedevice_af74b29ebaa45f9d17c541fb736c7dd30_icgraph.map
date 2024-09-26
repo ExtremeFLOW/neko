@@ -1,0 +1,4 @@
+<map id="device::device_stream_destroy" name="device::device_stream_destroy">
+<area shape="rect" id="node1" title="Destroy a device stream/command queue." alt="" coords="245,5,415,47"/>
+<area shape="rect" id="node2" href="$d9/dfa/namespacegs__device__mpi.html#a467e70ece8c5500ace71594579ccd501" title="Deallocate MPI based communication method." alt="" coords="5,5,197,47"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="distdata::distdata_init" name="distdata::distdata_init">
+<area shape="rect" id="node1" title="Initialise a distdata type." alt="" coords="461,31,625,57"/>
+<area shape="rect" id="node2" href="$db/dfc/namespacemesh.html#a84fb89799d74a310f3612f5334cf5b74" title=" " alt="" coords="219,31,413,57"/>
+<area shape="rect" id="node3" href="$db/dfc/namespacemesh.html#a18c5812c7d48ae7807feb209f54c567c" title="Initialise a mesh this based on a distribution dist." alt="" coords="7,5,169,32"/>
+<area shape="rect" id="node4" href="$db/dfc/namespacemesh.html#a9af024aab70a8f87cca5f68e9625a361" title="Initialise a mesh this with nelv elements." alt="" coords="5,56,171,83"/>
+</map>

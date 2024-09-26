@@ -1,0 +1,4 @@
+<map id="data_streamer::data_streamer_free" name="data_streamer::data_streamer_free">
+<area shape="rect" id="node1" title="Destructor wraps the adios2 finalize routine. Closes insitu writer." alt="" coords="5,5,160,47"/>
+<area shape="rect" id="node2" href="$d6/d84/namespaceutils.html#a2d69c93bf37f2e6ef3e1134b5bda2f1b" title=" " alt="" coords="208,13,356,39"/>
+</map>

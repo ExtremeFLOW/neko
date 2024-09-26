@@ -1,0 +1,7 @@
+<map id="dong_outflow::dong_outflow_apply_scalar_dev" name="dong_outflow::dong_outflow_apply_scalar_dev">
+<area shape="rect" id="node1" title="Boundary condition apply for a generic Dirichlet condition to a vector x (device version)" alt="" coords="5,39,203,80"/>
+<area shape="rect" id="node2" href="$d6/d2d/namespacedevice__dong__outflow.html#aba05d2f25e6eebdfcc8e4e53229ecf91" title=" " alt="" coords="251,31,417,87"/>
+<area shape="rect" id="node3" href="$dc/d78/dong__outflow_8cu.html#ac2a23d02cacc1749b3bc50f966ca326b" title=" " alt="" coords="465,5,656,47"/>
+<area shape="rect" id="node4" href="$d4/dce/dong__outflow_8c.html#aad58a7c1e5641e428baad2edca38c410" title=" " alt="" coords="481,71,640,112"/>
+<area shape="rect" id="node5" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="704,78,836,105"/>
+</map>

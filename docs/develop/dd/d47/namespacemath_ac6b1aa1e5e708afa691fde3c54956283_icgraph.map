@@ -1,0 +1,8 @@
+<map id="math::vdot3" name="math::vdot3">
+<area shape="rect" id="node1" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="421,107,523,134"/>
+<area shape="rect" id="node2" href="$d0/d6f/namespacedrag__torque.html#a9e75f4c39a6a1935ce464821d85dbbbe" title="Calculate drag and torque from array of points." alt="" coords="199,5,373,47"/>
+<area shape="rect" id="node4" href="$d9/df7/namespaceadv__dealias.html#a0f913568bed6e07a9be491c39fa5752f" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="203,71,369,112"/>
+<area shape="rect" id="node5" href="$d5/de6/namespacefield__math.html#aec3d5a9d2e66f8b6d1200f02d5169c35" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="201,137,371,163"/>
+<area shape="rect" id="node6" href="$de/d0d/namespacepnpn__res__stress__cpu.html#a65abda9efa01dca34d23bec127576d73" title=" " alt="" coords="205,187,367,243"/>
+<area shape="rect" id="node3" href="$d6/daa/namespaceforce__torque.html#ab407c7b9763b091d7165c5d7d19044de" title="Compute the force_torque field." alt="" coords="5,5,151,47"/>
+</map>

@@ -1,0 +1,16 @@
+<map id="stack::stack_t" name="stack::stack_t">
+<area shape="rect" id="node1" title="Base type for a stack." alt="" coords="5,309,117,336"/>
+<area shape="rect" id="node2" href="$dc/d04/structstack_1_1stack__2i4r8t3__t.html" title="Mixed integer&#45;double precision 3&#45;tuple based stack." alt="" coords="165,5,331,32"/>
+<area shape="rect" id="node3" href="$d1/ddd/structstack_1_1stack__curve__t.html" title="Curved element stack." alt="" coords="171,56,325,83"/>
+<area shape="rect" id="node4" href="$d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="183,107,313,133"/>
+<area shape="rect" id="node5" href="$d9/d9d/structstack_1_1stack__i4r8t2__t.html" title="Mixed integer&#45;double precision 2&#45;tuple based stack." alt="" coords="169,157,327,184"/>
+<area shape="rect" id="node6" href="$d1/d93/structstack_1_1stack__i4t2__t.html" title="Integer 2&#45;tuple based stack." alt="" coords="176,208,320,235"/>
+<area shape="rect" id="node7" href="$df/d1c/structstack_1_1stack__i4t4__t.html" title="Integer 4&#45;tuple based stack." alt="" coords="176,259,320,285"/>
+<area shape="rect" id="node8" href="$d8/d8f/structstack_1_1stack__i8__t.html" title="Integer*8 based stack." alt="" coords="183,309,313,336"/>
+<area shape="rect" id="node9" href="$dd/da0/structstack_1_1stack__nc__t.html" title="Neko curve info based stack." alt="" coords="181,360,315,387"/>
+<area shape="rect" id="node10" href="$de/d19/structstack_1_1stack__nh__t.html" title="Neko hex element based stack." alt="" coords="181,411,315,437"/>
+<area shape="rect" id="node11" href="$de/d3d/structstack_1_1stack__nq__t.html" title="Neko quad element based stack." alt="" coords="181,461,315,488"/>
+<area shape="rect" id="node12" href="$d6/d71/structstack_1_1stack__nz__t.html" title="Neko zone based stack." alt="" coords="181,512,315,539"/>
+<area shape="rect" id="node13" href="$dc/d33/structstack_1_1stack__pt__t.html" title="Point based stack." alt="" coords="182,563,314,589"/>
+<area shape="rect" id="node14" href="$d9/d3d/structstack_1_1stack__r8__t.html" title="Double precision based stack." alt="" coords="182,613,314,640"/>
+</map>

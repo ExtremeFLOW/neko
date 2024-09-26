@@ -1,0 +1,7 @@
+<map id="drag_torque::calc_force_array" name="drag_torque::calc_force_array">
+<area shape="rect" id="node1" title="Calculate drag and torque from array of points." alt="" coords="5,74,180,115"/>
+<area shape="rect" id="node2" href="$dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1" title="Multiplication by constant c ." alt="" coords="228,5,329,32"/>
+<area shape="rect" id="node3" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="233,56,324,83"/>
+<area shape="rect" id="node4" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="230,107,327,133"/>
+<area shape="rect" id="node5" href="$dd/d47/namespacemath.html#ac6b1aa1e5e708afa691fde3c54956283" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="228,157,329,184"/>
+</map>

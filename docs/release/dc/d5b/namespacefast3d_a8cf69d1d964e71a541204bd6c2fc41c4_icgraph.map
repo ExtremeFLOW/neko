@@ -1,0 +1,20 @@
+<map id="fast3d::fd_weights_full" name="fast3d::fd_weights_full">
+<area shape="rect" id="node1" title="Compute finite&#45;difference stencil weights for evaluating derivatives up to order &#160;at a point." alt="" coords="1079,321,1249,348"/>
+<area shape="rect" id="node2" href="$dd/dd2/namespacedofmap.html#ad3de108e62dbf0bc0c617b43f620bed8" title="Generate the x, y, z coordinates of the dofs in a signle element, assuming linear element edges." alt="" coords="837,5,1013,32"/>
+<area shape="rect" id="node5" href="$dd/dd2/namespacedofmap.html#a14be7fe99925dc0fb0e2e30c0d654b44" title=" " alt="" coords="567,56,759,83"/>
+<area shape="rect" id="node6" href="$da/d80/namespacelocal__interpolation.html#a0349147244f7d71fcb553ff667630974" title="Computes interpolation weights &#160;for a list of points." alt="" coords="853,107,997,163"/>
+<area shape="rect" id="node7" href="$df/d77/namespacepoint__interpolator.html#af81d2b24f9d9cb447b62493589af79dc" title="Computes interpolation weights &#160;for a list of points." alt="" coords="852,187,999,243"/>
+<area shape="rect" id="node8" href="$df/d77/namespacepoint__interpolator.html#ae10ae860d6ec95fb423e1b43ab5244cb" title="Constructs the Jacobian, returns a 3&#45;by&#45;3 array where ." alt="" coords="844,267,1007,323"/>
+<area shape="rect" id="node10" href="$df/d77/namespacepoint__interpolator.html#a7689f68ebb0265b461cb9c89ab23a554" title="Interpolates a scalar field &#160;on a set of &#160;points . Returns a vector of N coordinates ." alt="" coords="852,427,999,483"/>
+<area shape="rect" id="node12" href="$df/d77/namespacepoint__interpolator.html#a6369442e4f15fa851dd02e592a3d1310" title="Interpolates a vector field &#160;on a set of &#160;points . Returns an array of N points ." alt="" coords="851,507,999,563"/>
+<area shape="rect" id="node13" href="$df/d77/namespacepoint__interpolator.html#a1a52275b306e17305274789c30f0eca8" title="Interpolates a vector field &#160;and constructs the Jacobian at a point . Returns a vector ." alt="" coords="820,347,1031,403"/>
+<area shape="rect" id="node14" href="$dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4" title="Generate matrices for single element, 1D operators: a = Laplacian b = diagonal mass matrix c = convec..." alt="" coords="865,587,985,613"/>
+<area shape="rect" id="node16" href="$dc/d5b/namespacefast3d.html#aaf25d1aac3262e9adea18d25b10b2ddc" title="Compute interpolation weights for points z_to using values at points z_from." alt="" coords="856,637,995,664"/>
+<area shape="rect" id="node3" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="281,31,507,57"/>
+<area shape="rect" id="node4" href="$d0/df0/structdofmap_1_1dofmap__t.html#ad6ff31d68c77f1c7625d5b8cd5eb8328" title=" " alt="" coords="5,31,233,57"/>
+<area shape="rect" id="node9" href="$d6/d23/structpoint__interpolator_1_1point__interpolator__t.html#af5ca4649f7a516ab3ebe2484b16380cb" title="Constructs the Jacobian for a point ." alt="" coords="590,307,737,363"/>
+<area shape="rect" id="node11" href="$d6/d23/structpoint__interpolator_1_1point__interpolator__t.html#af586e49329da60a0510bdf0ada15f8e1" title="Interpolates a scalar or vector field on a set of points." alt="" coords="590,467,737,523"/>
+<area shape="rect" id="node15" href="$d3/d4c/namespacefdm.html#af3a1a3b08ecd8ff4dd376ac7afaa555f" title=" " alt="" coords="608,587,719,613"/>
+<area shape="rect" id="node17" href="$d9/da0/namespaceinterpolation.html#a6a92fc2e5eae67e1580de676d2ecaae8" title="Constructor to initialize with two different spaces." alt="" coords="555,637,772,664"/>
+<area shape="rect" id="node18" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="596,688,731,715"/>
+</map>

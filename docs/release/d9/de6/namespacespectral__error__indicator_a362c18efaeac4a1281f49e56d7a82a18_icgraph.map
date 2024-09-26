@@ -1,0 +1,6 @@
+<map id="spectral_error_indicator::speri_extrap" name="spectral_error_indicator::speri_extrap">
+<area shape="rect" id="node1" title="Extrapolate the Legendre spectrum from the last points." alt="" coords="677,5,853,47"/>
+<area shape="rect" id="node2" href="$d9/de6/namespacespectral__error__indicator.html#adca28e22f14112b2b37756eeda8b6ce2" title="Calculate the indicator in a specified variable." alt="" coords="453,5,629,47"/>
+<area shape="rect" id="node3" href="$d9/de6/namespacespectral__error__indicator.html#ade0d0da5b7a3aa412783550980c006bf" title="Wrapper for old fortran 77 subroutines." alt="" coords="229,5,405,47"/>
+<area shape="rect" id="node4" href="$d9/de6/namespacespectral__error__indicator.html#aaa3ee3ddda5b06b29141cce65f860688" title="Transform and get the spectral error indicators." alt="" coords="5,5,181,47"/>
+</map>

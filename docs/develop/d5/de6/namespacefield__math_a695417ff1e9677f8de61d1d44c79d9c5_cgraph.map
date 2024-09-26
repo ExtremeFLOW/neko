@@ -1,0 +1,9 @@
+<map id="field_math::field_glsum" name="field_math::field_glsum">
+<area shape="rect" id="node1" title=" " alt="" coords="5,60,180,87"/>
+<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#ad690c17ceae42edb16e83f3f518a65fd" title="Sum a vector of length n." alt="" coords="228,23,385,65"/>
+<area shape="rect" id="node7" href="$dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="255,89,359,116"/>
+<area shape="rect" id="node3" href="$de/d1e/math_8cu.html#a7cce06711ad27eb80cb6ff22647cf013" title=" " alt="" coords="439,5,539,32"/>
+<area shape="rect" id="node5" href="$d6/da3/math_8c.html#aed03de21002366623bffce735dea6076" title=" " alt="" coords="433,56,545,83"/>
+<area shape="rect" id="node4" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="593,5,757,32"/>
+<area shape="rect" id="node6" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="609,56,741,83"/>
+</map>

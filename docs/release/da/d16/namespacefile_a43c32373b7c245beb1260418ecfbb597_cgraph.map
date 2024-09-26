@@ -1,0 +1,6 @@
+<map id="file::file_set_precision" name="file::file_set_precision">
+<area shape="rect" id="node1" title="Set a file&#39;s output precision." alt="" coords="5,31,168,57"/>
+<area shape="rect" id="node2" href="$d6/d84/namespaceutils.html#a1867761c68e88c73ae0e8c2b987fe8a7" title="Extract a filename&#39;s suffix." alt="" coords="216,5,375,32"/>
+<area shape="rect" id="node4" href="$d6/d84/namespaceutils.html#a2d69c93bf37f2e6ef3e1134b5bda2f1b" title=" " alt="" coords="221,56,369,83"/>
+<area shape="rect" id="node3" href="$d6/d84/namespaceutils.html#a590765fef437ae3c76556bf6b967afae" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="423,5,611,32"/>
+</map>

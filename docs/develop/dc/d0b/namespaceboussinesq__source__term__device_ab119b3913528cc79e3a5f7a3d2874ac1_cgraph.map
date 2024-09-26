@@ -1,0 +1,10 @@
+<map id="boussinesq_source_term_device::boussinesq_source_term_compute_device" name="boussinesq_source_term_device::boussinesq_source_term_compute_device">
+<area shape="rect" id="node1" title="Computes the Boussinesq source term on the device." alt="" coords="5,67,208,123"/>
+<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#a3b9c190380a831ba86fa3fe155dae8f7" title="Vector addition with scalar multiplication &#160;(multiplication on first argument)" alt="" coords="275,45,432,86"/>
+<area shape="rect" id="node6" href="$d2/d73/namespacedevice__math.html#a57a55eb4b4133985ea76f49b3e620e62" title="Add a scalar to vector ." alt="" coords="256,111,451,137"/>
+<area shape="rect" id="node3" href="$de/d1e/math_8cu.html#a305b5c802852471c9a4ecc0ae078cedd" title=" " alt="" coords="505,5,611,32"/>
+<area shape="rect" id="node4" href="$d6/da3/math_8c.html#a299eb8d523ba1c7d895b2430c2c2726b" title=" " alt="" coords="499,56,617,83"/>
+<area shape="rect" id="node5" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="665,107,797,133"/>
+<area shape="rect" id="node7" href="$de/d1e/math_8cu.html#acb502d9ea006e450918004135eb025e6" title=" " alt="" coords="513,107,603,133"/>
+<area shape="rect" id="node8" href="$d6/da3/math_8c.html#a1f45cde822dd4e80412f0cd54ab4482c" title=" " alt="" coords="507,157,609,184"/>
+</map>

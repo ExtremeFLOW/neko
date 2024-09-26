@@ -1,0 +1,8 @@
+<map id="flow_ic::set_flow_ic_blasius" name="flow_ic::set_flow_ic_blasius">
+<area shape="rect" id="node1" title="Set a Blasius profile as initial condition." alt="" coords="5,136,152,177"/>
+<area shape="rect" id="node2" href="$d4/d1e/namespaceflow__profile.html#a675343752ca619abf48214e6bb95095c" title="Cubic approximate Blasius Profile ." alt="" coords="213,5,364,47"/>
+<area shape="rect" id="node3" href="$d4/d1e/namespaceflow__profile.html#a8841e362e134dad68bc73cd0bc6e507a" title="Linear approximate Blasius profile ." alt="" coords="213,71,364,112"/>
+<area shape="rect" id="node4" href="$d4/d1e/namespaceflow__profile.html#a220500e864fd4fa303d16adef9fd673b" title="Quadratic approximate Blasius Profile ." alt="" coords="213,136,364,177"/>
+<area shape="rect" id="node5" href="$d4/d1e/namespaceflow__profile.html#ac3a9f80326b8d524d18e253b29f890f4" title="Quartic approximate Blasius Profile ." alt="" coords="213,201,364,243"/>
+<area shape="rect" id="node6" href="$d4/d1e/namespaceflow__profile.html#a3101b568156cdad9c53643b5658a8a59" title="Sinusoidal approximate Blasius Profile ." alt="" coords="200,267,377,294"/>
+</map>

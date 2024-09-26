@@ -1,0 +1,7 @@
+<map id="tensor::tensr3" name="tensor::tensr3">
+<area shape="rect" id="node1" title="Tensor product ." alt="" coords="1019,31,1131,57"/>
+<area shape="rect" id="node2" href="$dd/dd2/namespacedofmap.html#ad3de108e62dbf0bc0c617b43f620bed8" title="Generate the x, y, z coordinates of the dofs in a signle element, assuming linear element edges." alt="" coords="795,5,971,32"/>
+<area shape="rect" id="node5" href="$dd/dd2/namespacedofmap.html#a14be7fe99925dc0fb0e2e30c0d654b44" title=" " alt="" coords="555,56,747,83"/>
+<area shape="rect" id="node3" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="281,31,507,57"/>
+<area shape="rect" id="node4" href="$d0/df0/structdofmap_1_1dofmap__t.html#ad6ff31d68c77f1c7625d5b8cd5eb8328" title=" " alt="" coords="5,31,233,57"/>
+</map>

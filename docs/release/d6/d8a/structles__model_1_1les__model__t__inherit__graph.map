@@ -1,0 +1,4 @@
+<map id="les_model::les_model_t" name="les_model::les_model_t">
+<area shape="rect" id="node1" title="Base abstract type for LES models based on the Boussinesq approximation." alt="" coords="5,5,181,32"/>
+<area shape="rect" id="node2" href="$de/d91/structvreman_1_1vreman__t.html" title="Implements the Vreman LES model." alt="" coords="22,80,165,107"/>
+</map>

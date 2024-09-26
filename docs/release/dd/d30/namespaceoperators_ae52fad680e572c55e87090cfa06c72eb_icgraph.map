@@ -1,0 +1,6 @@
+<map id="operators::dudxyz" name="operators::dudxyz">
+<area shape="rect" id="node1" title="Compute derivative of a scalar field along a single direction." alt="" coords="459,35,597,61"/>
+<area shape="rect" id="node2" href="$dd/d30/namespaceoperators.html#ab2babd24679efca34a9310107b346969" title="Compute double the strain rate tensor, i.e du_i/dx_j + du_j/dx_i." alt="" coords="248,5,411,32"/>
+<area shape="rect" id="node3" href="$d9/da0/namespacevreman__cpu.html#afd690af29ff96e9cde941ebdafd9ca44" title="Compute eddy viscosity on the CPU." alt="" coords="249,57,409,98"/>
+<area shape="rect" id="node4" href="$d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="5,64,200,91"/>
+</map>

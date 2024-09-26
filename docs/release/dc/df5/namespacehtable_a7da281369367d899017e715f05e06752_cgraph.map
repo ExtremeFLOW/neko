@@ -1,0 +1,6 @@
+<map id="htable::htable_pt_get" name="htable::htable_pt_get">
+<area shape="rect" id="node1" title="Retrive a point with key key from the hash table." alt="" coords="5,31,165,57"/>
+<area shape="rect" id="node2" href="$dc/df5/namespacehtable.html#a79fcf205911f6949e773f526a578f7f7" title="Retrieve data associated with key into the hash table." alt="" coords="213,31,353,57"/>
+<area shape="rect" id="node3" href="$dc/df5/namespacehtable.html#aaf0eaa6f045b8177f467c12a9fd33f23" title="Compare key at idx to key." alt="" coords="407,5,572,32"/>
+<area shape="rect" id="node4" href="$dc/df5/namespacehtable.html#a7650c1e3815c77e36893bfaebc238ab0" title="Return data at idx in value." alt="" coords="401,56,577,83"/>
+</map>

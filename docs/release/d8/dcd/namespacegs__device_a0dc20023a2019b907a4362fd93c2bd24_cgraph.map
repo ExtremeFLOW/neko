@@ -1,0 +1,7 @@
+<map id="gs_device::gs_gather_device" name="gs_device::gs_gather_device">
+<area shape="rect" id="node1" title="Gather kernel." alt="" coords="5,57,164,98"/>
+<area shape="rect" id="node2" href="$de/df6/gs_8cu.html#a92dd9777088d543713dc659d261fda68" title=" " alt="" coords="218,5,367,32"/>
+<area shape="rect" id="node3" href="$d0/dbe/namespacedevice.html#a00bc2d2b16f268496f2a31bb8cb8017f" title="Record a device event." alt="" coords="213,57,373,98"/>
+<area shape="rect" id="node4" href="$d3/d3b/gs_8c.html#a45148d45c8cc297537c04418fbabd6c6" title=" " alt="" coords="212,123,373,149"/>
+<area shape="rect" id="node5" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="421,123,553,149"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="operators::opgrad" name="operators::opgrad">
+<area shape="rect" id="node1" title="Compute the gradient of a scalar field." alt="" coords="5,93,143,120"/>
+<area shape="rect" id="node2" href="$d0/d94/namespaceopr__cpu.html#afdd18136c0ce66bc38ea740be2798416" title=" " alt="" coords="191,5,375,32"/>
+<area shape="rect" id="node3" href="$d3/d4d/namespaceopr__device.html#ad5bf8b83c33e9c73125c466a6fab72df" title=" " alt="" coords="197,57,369,98"/>
+<area shape="rect" id="node7" href="$df/db5/namespaceopr__sx.html#a3b4a270c453ead264e0628673c2e5e4a" title=" " alt="" coords="199,123,367,149"/>
+<area shape="rect" id="node8" href="$d9/d5a/namespaceopr__xsmm.html#ac368e7ac69182681cdbea4a3f378bc50" title=" " alt="" coords="199,174,367,215"/>
+<area shape="rect" id="node4" href="$d6/d68/opr__opgrad_8cu.html#a47a2678dd1f3bc0187df518f5fce764d" title=" " alt="" coords="481,31,587,57"/>
+<area shape="rect" id="node5" href="$d0/d82/opr__opgrad_8c.html#a8844437d901cf613744a5f9b55d1a72c" title=" " alt="" coords="475,81,593,108"/>
+<area shape="rect" id="node6" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="707,81,839,108"/>
+<area shape="rect" id="node9" href="$d9/d5a/namespaceopr__xsmm.html#ae87af796709692f90edc89ad48a47e93" title=" " alt="" coords="447,148,621,175"/>
+<area shape="rect" id="node11" href="$d9/d5a/namespaceopr__xsmm.html#a3d01aa528301a7ba984a8f558994c137" title=" " alt="" coords="423,199,645,225"/>
+<area shape="rect" id="node10" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="693,148,852,175"/>
+</map>

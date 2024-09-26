@@ -1,0 +1,9 @@
+<map id="cpu_dudxyz::cpu_dudxyz_lx8" name="cpu_dudxyz::cpu_dudxyz_lx8">
+<area shape="rect" id="node1" title=" " alt="" coords="904,60,1115,87"/>
+<area shape="rect" id="node2" href="$d0/d94/namespaceopr__cpu.html#a6f64e6857cccfc2f7fb6aafe89a22e2c" title=" " alt="" coords="669,60,856,87"/>
+<area shape="rect" id="node3" href="$dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute derivative of a scalar field along a single direction." alt="" coords="471,35,609,61"/>
+<area shape="rect" id="node7" href="$d0/d94/namespaceopr__cpu.html#a12d6237f85e66a10649781a905bb60d2" title=" " alt="" coords="459,85,621,112"/>
+<area shape="rect" id="node4" href="$dd/d30/namespaceoperators.html#ab2babd24679efca34a9310107b346969" title="Compute double the strain rate tensor, i.e du_i/dx_j + du_j/dx_i." alt="" coords="248,5,411,32"/>
+<area shape="rect" id="node5" href="$d9/da0/namespacevreman__cpu.html#afd690af29ff96e9cde941ebdafd9ca44" title="Compute eddy viscosity on the CPU." alt="" coords="249,57,409,98"/>
+<area shape="rect" id="node6" href="$d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="5,64,200,91"/>
+</map>

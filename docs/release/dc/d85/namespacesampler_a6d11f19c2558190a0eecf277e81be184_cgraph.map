@@ -1,0 +1,5 @@
+<map id="sampler::sampler_sample" name="sampler::sampler_sample">
+<area shape="rect" id="node1" title="Sample all outputs in the sampler." alt="" coords="5,46,196,73"/>
+<area shape="rect" id="node2" href="$dc/dfc/namespaceprofiler.html#ab75ba79eb99446464f54c2138c88b883" title="End the most recently started profiler region." alt="" coords="244,5,367,47"/>
+<area shape="rect" id="node3" href="$dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="244,71,367,112"/>
+</map>

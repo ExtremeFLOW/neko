@@ -1,0 +1,4 @@
+<map id="mesh::mesh_generate_facet_numbering" name="mesh::mesh_generate_facet_numbering">
+<area shape="rect" id="node1" title="Generate a unique facet numbering." alt="" coords="5,5,172,47"/>
+<area shape="rect" id="node2" href="$dc/d48/namespacedistdata.html#a21b01a3e652f6cd332611cce8b4f46b9" title="Set local to global mapping (facets)" alt="" coords="220,5,415,47"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="opencl_glsc3" name="opencl_glsc3">
+<area shape="rect" id="node1" title=" " alt="" coords="647,243,753,269"/>
+<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#ac80b69645b556fc4dc3022739f00bbd1" title="Weighted inner product ." alt="" coords="441,202,599,243"/>
+<area shape="rect" id="node10" href="$d2/d73/namespacedevice__math.html#a384b19e4831cef680a3f660edcccb98b" title="Compute multiplication sum ." alt="" coords="441,267,599,309"/>
+<area shape="rect" id="node3" href="$d6/d60/namespacecg__device.html#a6e1d10056d59ba4295673097d13ac0f4" title="Standard PCG solve." alt="" coords="223,137,383,178"/>
+<area shape="rect" id="node4" href="$d4/dc5/namespacecheby__device.html#a1fe96a382f49e92446c4971ff6e6702f" title=" " alt="" coords="223,202,382,243"/>
+<area shape="rect" id="node6" href="$d5/de6/namespacefield__math.html#ad4771a764f05b8b745e4de4a5b9573ab" title=" " alt="" coords="219,5,387,32"/>
+<area shape="rect" id="node7" href="$d3/dbc/namespacefusedcg__cpld__device.html#a9844bbc6cb9fbd22596218e113247c82" title="Pipelined PCG solve coupled solve." alt="" coords="220,56,385,112"/>
+<area shape="rect" id="node8" href="$d9/db1/interfacedevice__math_1_1hip__glsum.html#abc45240d9a859b5daa0f46d251d95e44" title=" " alt="" coords="212,267,393,309"/>
+<area shape="rect" id="node9" href="$da/d46/namespacepipecg__device.html#a97a1fd422c4c03f238038a1d3e8154fe" title="Pipelined PCG solve." alt="" coords="219,333,386,374"/>
+<area shape="rect" id="node5" href="$d4/dc5/namespacecheby__device.html#ad7bb5882d196d0e7b3ffb2448241b36c" title="A chebyshev preconditioner." alt="" coords="5,202,164,243"/>
+</map>

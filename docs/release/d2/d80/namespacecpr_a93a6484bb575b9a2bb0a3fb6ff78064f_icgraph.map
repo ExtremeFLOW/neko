@@ -1,0 +1,5 @@
+<map id="cpr::flipv" name="cpr::flipv">
+<area shape="rect" id="node1" title="Flip vector b and ind." alt="" coords="365,5,444,32"/>
+<area shape="rect" id="node2" href="$d2/d80/namespacecpr.html#a5981c6c763b1b2a220da71f67f2b42a2" title="Sort the spectral coefficient in descending order array vsort. The original indices are stored in the..." alt="" coords="211,5,317,32"/>
+<area shape="rect" id="node3" href="$d2/d80/namespacecpr.html#a4308ec221b361a16cb3a371e5172d721" title="Truncate the frequencies." alt="" coords="5,5,163,32"/>
+</map>

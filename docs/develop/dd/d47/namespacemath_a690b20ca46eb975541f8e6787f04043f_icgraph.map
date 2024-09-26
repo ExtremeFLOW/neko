@@ -1,0 +1,9 @@
+<map id="math::subcol3" name="math::subcol3">
+<area shape="rect" id="node1" title="Returns ." alt="" coords="497,111,612,138"/>
+<area shape="rect" id="node2" href="$d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="262,5,421,47"/>
+<area shape="rect" id="node4" href="$d9/de3/namespaceadv__no__dealias.html#a15ec3562225515cf69db81a0d29bc956" title="Add the advection term for the fluid, i.e. &#160;to the RHS." alt="" coords="247,71,435,112"/>
+<area shape="rect" id="node5" href="$d9/de3/namespaceadv__no__dealias.html#a444dbbe3da36640a6ac5ef1de5983bc5" title="Add the advection term for a scalar, i.e. , to the RHS." alt="" coords="233,136,449,177"/>
+<area shape="rect" id="node6" href="$d5/de6/namespacefield__math.html#aa8a83165a055588be30d198cc8701605" title="Returns ." alt="" coords="249,202,433,229"/>
+<area shape="rect" id="node3" href="$d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8" title="Initialize coefficients." alt="" coords="23,13,167,39"/>
+<area shape="rect" id="node7" href="$d0/d7b/namespacebrinkman__source__term.html#a720d472803e4fe61add63e18da4bd69a" title="Computes the source term and adds the result to fields." alt="" coords="5,187,185,243"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="cuda_vdot3" name="cuda_vdot3">
+<area shape="rect" id="node1" title=" " alt="" coords="633,137,731,163"/>
+<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#a62afd65bc6fb07e354fde87dad4d7c8c" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="428,129,585,171"/>
+<area shape="rect" id="node3" href="$d9/df7/namespaceadv__dealias.html#a0f913568bed6e07a9be491c39fa5752f" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="207,5,372,47"/>
+<area shape="rect" id="node4" href="$d0/d6f/namespacedrag__torque.html#a61b5e329f88dba02fd50bbabcbad0ec0" title="Calculate drag and torque from array of points." alt="" coords="214,71,365,112"/>
+<area shape="rect" id="node6" href="$d5/de6/namespacefield__math.html#aec3d5a9d2e66f8b6d1200f02d5169c35" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="204,137,375,163"/>
+<area shape="rect" id="node7" href="$d9/db1/interfacedevice__math_1_1hip__glsum.html#abc45240d9a859b5daa0f46d251d95e44" title=" " alt="" coords="199,188,380,229"/>
+<area shape="rect" id="node8" href="$dd/d1f/namespacepnpn__res__stress__device.html#ad79870e59f983bbe89231d1581579827" title=" " alt="" coords="201,254,378,310"/>
+<area shape="rect" id="node5" href="$d6/daa/namespaceforce__torque.html#ab407c7b9763b091d7165c5d7d19044de" title="Compute the force_torque field." alt="" coords="5,71,151,112"/>
+</map>

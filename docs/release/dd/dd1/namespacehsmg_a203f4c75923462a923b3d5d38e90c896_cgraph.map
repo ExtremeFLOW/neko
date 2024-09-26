@@ -1,0 +1,16 @@
+<map id="hsmg::hsmg_init" name="hsmg::hsmg_init">
+<area shape="rect" id="node1" title=" " alt="" coords="5,181,136,207"/>
+<area shape="rect" id="node2" href="$d8/dbc/namespaceax__helm__fctry.html#a752579c6d570903a2f38dd01a98a0807" title="Factory routine for the a Helmholtz problem matrix&#45;vector product. The selection is based on the comp..." alt="" coords="184,5,363,47"/>
+<area shape="rect" id="node3" href="$d0/dc0/namespacebc.html#a132f9467b1f6ee956b4e31bf758b1199" title="Add a condition to a list of boundary conditions." alt="" coords="214,71,333,98"/>
+<area shape="rect" id="node4" href="$d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="216,122,331,149"/>
+<area shape="rect" id="node6" href="$d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479" title="Create a device event queue." alt="" coords="193,173,353,215"/>
+<area shape="rect" id="node7" href="$dd/dd1/namespacehsmg.html#a986352b1944e92cc1fff998ff3a834c6" title=" " alt="" coords="195,239,352,266"/>
+<area shape="rect" id="node8" href="$dd/dd1/namespacehsmg.html#a25c9fa74d9a25ea39e51a25695e12cf3" title=" " alt="" coords="201,290,345,317"/>
+<area shape="rect" id="node13" href="$d9/d77/namespacekrylov__fctry.html#ab34f81283355e144f26825624c538b32" title="Initialize an iterative Krylov solver." alt="" coords="199,341,347,383"/>
+<area shape="rect" id="node5" href="$d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="448,122,568,149"/>
+<area shape="rect" id="node9" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="461,239,555,266"/>
+<area shape="rect" id="node10" href="$d2/d73/namespacedevice__math.html#addb4596de81a7518fcafd9e40aa7ed57" title=" " alt="" coords="411,290,605,317"/>
+<area shape="rect" id="node11" href="$de/d1e/math_8cu.html#aaa922bf0afc80480ef12d8260376bf53" title=" " alt="" coords="659,265,750,291"/>
+<area shape="rect" id="node12" href="$d6/da3/math_8c.html#af2055c7811d3d143b549d14a0f302079" title=" " alt="" coords="653,315,756,342"/>
+<area shape="rect" id="node14" href="$d9/d77/namespacekrylov__fctry.html#a7dfe5acfded2cc272ea672dce234367c" title="Destroy an interative Krylov solver." alt="" coords="434,341,582,383"/>
+</map>

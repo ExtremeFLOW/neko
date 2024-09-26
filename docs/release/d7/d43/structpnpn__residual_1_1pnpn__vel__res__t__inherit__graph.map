@@ -1,0 +1,6 @@
+<map id="pnpn_residual::pnpn_vel_res_t" name="pnpn_residual::pnpn_vel_res_t">
+<area shape="rect" id="node1" title="Abstract type to compute velocity residual." alt="" coords="5,71,159,112"/>
+<area shape="rect" id="node2" href="$d6/d0d/structpnpn__res__cpu_1_1pnpn__vel__res__cpu__t.html" title=" " alt="" coords="217,5,367,47"/>
+<area shape="rect" id="node3" href="$d0/d22/structpnpn__res__device_1_1pnpn__vel__res__device__t.html" title=" " alt="" coords="207,71,377,112"/>
+<area shape="rect" id="node4" href="$d0/d28/structpnpn__res__sx_1_1pnpn__vel__res__sx__t.html" title=" " alt="" coords="207,136,377,177"/>
+</map>

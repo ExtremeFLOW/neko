@@ -1,0 +1,16 @@
+<map id="drag_torque::device_calc_force_array" name="drag_torque::device_calc_force_array">
+<area shape="rect" id="node1" title="Calculate drag and torque from array of points." alt="" coords="5,175,156,217"/>
+<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#a6e9089e626320f54bad8af5f0a13fc99" title="Multiplication by constant c ." alt="" coords="221,49,378,90"/>
+<area shape="rect" id="node6" href="$d2/d73/namespacedevice__math.html#a51b3ae540684036a51e44558a8e7650b" title="Vector multiplication with 3 vectors ." alt="" coords="204,153,395,180"/>
+<area shape="rect" id="node9" href="$d2/d73/namespacedevice__math.html#a2b8132d3d15d4b553af3a1b55d6f8d87" title="Zero a real vector." alt="" coords="221,205,378,246"/>
+<area shape="rect" id="node12" href="$d2/d73/namespacedevice__math.html#a62afd65bc6fb07e354fde87dad4d7c8c" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="221,302,378,343"/>
+<area shape="rect" id="node3" href="$de/d1e/math_8cu.html#a648456d6676ee2347f6b5cb6f4070d02" title=" " alt="" coords="449,5,546,32"/>
+<area shape="rect" id="node4" href="$d6/da3/math_8c.html#a11c52e9ccd9a49cda63423bb5ca32f94" title=" " alt="" coords="443,56,552,83"/>
+<area shape="rect" id="node5" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="600,157,732,184"/>
+<area shape="rect" id="node7" href="$de/d1e/math_8cu.html#ac02acb02b1d805ed68f5c5ad9c5b9ee5" title=" " alt="" coords="454,107,541,133"/>
+<area shape="rect" id="node8" href="$d6/da3/math_8c.html#a691550cff5b7c41017424d9a9ce5c952" title=" " alt="" coords="448,157,547,184"/>
+<area shape="rect" id="node10" href="$de/d1e/math_8cu.html#a929f7979761fc7dfdb31c1bc7dcd3897" title=" " alt="" coords="451,208,544,235"/>
+<area shape="rect" id="node11" href="$d6/da3/math_8c.html#a4759a87ec336639cbcd865aea0801da7" title=" " alt="" coords="445,259,550,285"/>
+<area shape="rect" id="node13" href="$de/d1e/math_8cu.html#a5088cf1d6ee092b07ba008457a7a86f8" title=" " alt="" coords="449,309,546,336"/>
+<area shape="rect" id="node14" href="$d6/da3/math_8c.html#ae027b835301b8c2ab4f4bd5c808899a4" title=" " alt="" coords="443,360,552,387"/>
+</map>

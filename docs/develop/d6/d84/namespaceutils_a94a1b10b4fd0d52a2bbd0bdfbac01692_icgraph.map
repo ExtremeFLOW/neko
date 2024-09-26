@@ -1,0 +1,5 @@
+<map id="utils::filename_chsuffix" name="utils::filename_chsuffix">
+<area shape="rect" id="node1" title="Change a filename&#39;s suffix." alt="" coords="216,31,389,57"/>
+<area shape="rect" id="node2" href="$df/d9e/namespacere2__file.html#a1ad91a0a25277baa07002b8876c517dc" title="Load a binary NEKTON mesh from a re2 file." alt="" coords="5,5,168,32"/>
+<area shape="rect" id="node3" href="$d0/df9/namespacerea__file.html#a4c96bc73ea56a4b82eee98d8e9d621a0" title="Load NEKTON session data from an ascii file." alt="" coords="5,56,168,83"/>
+</map>

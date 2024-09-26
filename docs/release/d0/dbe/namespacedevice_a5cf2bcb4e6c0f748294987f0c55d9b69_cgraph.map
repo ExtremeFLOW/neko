@@ -1,0 +1,4 @@
+<map id="device::device_memcpy_common" name="device::device_memcpy_common">
+<area shape="rect" id="node1" title="Copy data between host and device." alt="" coords="5,5,185,47"/>
+<area shape="rect" id="node2" href="$d0/dbe/namespacedevice.html#a64443968b2f6b9f8c1c410f0c6d213a2" title="Synchronize a device stream." alt="" coords="233,5,387,47"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="user_intf::dummy_user_ic" name="user_intf::dummy_user_ic">
+<area shape="rect" id="node1" title="Dummy user initial condition." alt="" coords="224,5,413,32"/>
+<area shape="rect" id="node2" href="$d9/dbc/namespaceuser__intf.html#a3aea51eae7110590baa40d9133620914" title="User interface initialization." alt="" coords="5,5,176,32"/>
+</map>

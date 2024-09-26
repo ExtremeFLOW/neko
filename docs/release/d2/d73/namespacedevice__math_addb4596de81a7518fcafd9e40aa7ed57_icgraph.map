@@ -1,0 +1,16 @@
+<map id="device_math::device_copy" name="device_math::device_copy">
+<area shape="rect" id="node1" title=" " alt="" coords="537,289,732,316"/>
+<area shape="rect" id="node2" href="$d3/d06/namespaceprojection.html#a25be6cf95eeacd177d57821fe46a5e18" title=" " alt="" coords="265,5,489,32"/>
+<area shape="rect" id="node3" href="$d6/d60/namespacecg__device.html#a6e1d10056d59ba4295673097d13ac0f4" title="Standard PCG solve." alt="" coords="297,57,457,98"/>
+<area shape="rect" id="node4" href="$d0/d69/namespacedevice__identity.html#a657ba9ae56308ecc16c802275fc26046" title="The (default) naive preconditioner ." alt="" coords="291,122,463,163"/>
+<area shape="rect" id="node5" href="$d6/d21/namespacefluid__volflow.html#a4e6f81545892d5562ed3f93cf0a8949a" title="Compute flow adjustment." alt="" coords="304,187,451,229"/>
+<area shape="rect" id="node6" href="$d9/db1/interfacedevice__math_1_1hip__glsum.html#abc45240d9a859b5daa0f46d251d95e44" title=" " alt="" coords="287,253,468,294"/>
+<area shape="rect" id="node7" href="$dd/dd1/namespacehsmg.html#a25c9fa74d9a25ea39e51a25695e12cf3" title=" " alt="" coords="305,319,449,345"/>
+<area shape="rect" id="node9" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="305,369,449,396"/>
+<area shape="rect" id="node10" href="$d0/de4/namespacematrix.html#a36163990dadbd00ca417c0ef70c015be" title="Assignment ." alt="" coords="295,421,460,462"/>
+<area shape="rect" id="node12" href="$da/d46/namespacepipecg__device.html#a97a1fd422c4c03f238038a1d3e8154fe" title="Pipelined PCG solve." alt="" coords="294,486,461,527"/>
+<area shape="rect" id="node13" href="$d7/d34/namespacevector.html#adf84e91648ab6f856558d8b290614cef" title="Assignment ." alt="" coords="297,551,458,593"/>
+<area shape="rect" id="node8" href="$dd/dd1/namespacehsmg.html#a203f4c75923462a923b3d5d38e90c896" title=" " alt="" coords="46,319,177,345"/>
+<area shape="rect" id="node11" href="$da/d95/structmatrix_1_1matrix__t.html#a585a4f4b4de2b6f8fce869712c823780" title=" " alt="" coords="5,428,217,455"/>
+<area shape="rect" id="node14" href="$d3/d5b/structvector_1_1vector__t.html#ad971c7564a6e3ba5ad429e93b4427929" title=" " alt="" coords="7,559,215,585"/>
+</map>

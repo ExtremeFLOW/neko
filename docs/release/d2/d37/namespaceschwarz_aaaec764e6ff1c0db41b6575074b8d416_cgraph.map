@@ -1,0 +1,7 @@
+<map id="schwarz::schwarz_compute" name="schwarz::schwarz_compute">
+<area shape="rect" id="node1" title=" " alt="" coords="5,81,205,108"/>
+<area shape="rect" id="node2" href="$d2/d37/namespaceschwarz.html#a7a6b8a1e76d325b84a8abe931d3e7384" title="Sum values along rows l1, l2 with weights f1, f2 and store along row l1. Helps us avoid complicated c..." alt="" coords="253,5,447,32"/>
+<area shape="rect" id="node3" href="$d2/d37/namespaceschwarz.html#abb186b40351fea36a94645705dfefc48" title="convert array a from original size to size extended array with border" alt="" coords="253,56,447,83"/>
+<area shape="rect" id="node4" href="$d2/d37/namespaceschwarz.html#a27c7d0c843a7c38b51e7550059b65970" title="convert array a from extended size to regular" alt="" coords="253,107,447,133"/>
+<area shape="rect" id="node5" href="$d2/d37/namespaceschwarz.html#aac3358ce98e9c604fb514399d8e95cbe" title=" " alt="" coords="263,157,437,184"/>
+</map>

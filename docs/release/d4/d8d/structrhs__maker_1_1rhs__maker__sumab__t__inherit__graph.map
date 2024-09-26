@@ -1,0 +1,6 @@
+<map id="rhs_maker::rhs_maker_sumab_t" name="rhs_maker::rhs_maker_sumab_t">
+<area shape="rect" id="node1" title="Abstract type to compute extrapolated velocity field for the pressure equation." alt="" coords="5,71,172,112"/>
+<area shape="rect" id="node2" href="$df/dbe/structrhs__maker__cpu_1_1rhs__maker__sumab__cpu__t.html" title=" " alt="" coords="233,5,395,47"/>
+<area shape="rect" id="node3" href="$d0/df8/structrhs__maker__device_1_1rhs__maker__sumab__device__t.html" title=" " alt="" coords="223,71,405,112"/>
+<area shape="rect" id="node4" href="$d9/d26/structrhs__maker__sx_1_1rhs__maker__sumab__sx__t.html" title=" " alt="" coords="220,136,408,177"/>
+</map>

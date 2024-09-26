@@ -1,0 +1,13 @@
+<map id="math::glsc3" name="math::glsc3">
+<area shape="rect" id="node1" title="Weighted inner product ." alt="" coords="504,223,603,250"/>
+<area shape="rect" id="node2" href="$dd/d2f/namespacebicgstab.html#afdcb9c0f169349daf77759d283479c43" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="289,5,429,47"/>
+<area shape="rect" id="node3" href="$d2/d10/namespacecacg.html#a96a12044cfb692eb6d097ee3ed4aeda0" title="S&#45;step CA PCG solve." alt="" coords="293,71,425,98"/>
+<area shape="rect" id="node4" href="$d9/df6/namespacecg.html#aa74f8eea3f12b0f69c7eae810e63bf96" title="Standard PCG solve." alt="" coords="308,122,411,149"/>
+<area shape="rect" id="node5" href="$d3/d06/namespaceprojection.html#ac63a40c6adff939561cd8b6b8432d1e4" title=" " alt="" coords="263,173,456,199"/>
+<area shape="rect" id="node7" href="$dc/d48/namespacegmres.html#a96f21cb206d8da8611f3c630ae4459ca" title="Standard GMRES solve." alt="" coords="282,223,437,250"/>
+<area shape="rect" id="node8" href="$de/d49/namespacepipecg.html#ae519e8f58edbf66c6b746e28363de31f" title="Pipelined PCG solve." alt="" coords="280,274,439,301"/>
+<area shape="rect" id="node9" href="$d4/d31/namespacecg__sx.html#ad95ff640cfe7fb8cf4e04e7d05ff8434" title="Standard PCG solve." alt="" coords="286,325,433,351"/>
+<area shape="rect" id="node10" href="$d5/d6a/namespacegmres__sx.html#a9c2ada127fe243736199ecbeb712c3ea" title="Standard PCG solve." alt="" coords="281,376,437,417"/>
+<area shape="rect" id="node11" href="$df/d53/namespacepipecg__sx.html#abfc7a63551155da4bc1f25257eea7d5f" title="Pipelined PCG solve." alt="" coords="279,441,439,483"/>
+<area shape="rect" id="node6" href="$d3/d06/namespaceprojection.html#ab9388020e6233dbfc903db3a50502bd6" title=" " alt="" coords="5,173,215,199"/>
+</map>
