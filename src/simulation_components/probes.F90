@@ -239,10 +239,16 @@ contains
 
     real(kind=rp), dimension(:,:), allocatable :: point_list
     real(kind=rp), dimension(:), allocatable :: rp_list_reader
+    logical :: found
 
     ! Ensure only rank 0 reads the coordinates.
     if (pe_rank .ne. 0) return
-    call json_get(json, 'coordinates', rp_list_reader)
+    call json%get('coordinates', rp_list_reader, found)
+
+    ! Check if the coordinates were found and were valid
+    if (.not. found) then
+       call neko_error('No coordinates found.')
+    end if
 
     if (mod(size(rp_list_reader), 3) /= 0) then
        call neko_error('Invalid number of coordinates.')
