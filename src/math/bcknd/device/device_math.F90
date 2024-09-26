@@ -601,7 +601,7 @@ contains
 #elif HAVE_OPENCL
     res = opencl_glsc2(a_d, b_d, n)
 #else
-    call neko_error('No device backend configured') ... 
+    call neko_error('No device backend configured') 
 #endif
 
 #ifndef HAVE_DEVICE_MPI
