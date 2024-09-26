@@ -463,6 +463,7 @@ contains
     integer, intent(in) :: lvl_out
     integer :: i, n, e
     call this%matvec_impl(vec_out, vec_in, this%nlvls, lvl_out)
+    !call tamg_matvec_flat_impl(this, vec_out, vec_in, this%nlvls, lvl_out)
   end subroutine tamg_matvec
 
   recursive subroutine tamg_matvec_impl(this, vec_out, vec_in, lvl, lvl_out)
@@ -523,6 +524,7 @@ contains
     end if
   end subroutine tamg_matvec_impl
 
+
   recursive subroutine tamg_matvec_flat_impl(this, vec_out, vec_in, lvl_blah, lvl_out)
     class(tamg_hierarchy_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: vec_out(:)
@@ -531,30 +533,40 @@ contains
     integer, intent(in) :: lvl_out
     integer :: i, n, e, nn, lvl
 
-    !> TODO: zero out all work vectors to start
-    !wrk_in = 0d0
-    !wrk_out = 0d0
+    vec_out = 0d0
+    do lvl = 1, lvl_out+1
+      associate( wrk_in => this%lvl(lvl)%wrk_in, wrk_out => this%lvl(lvl)%wrk_out)
+        wrk_in = 0d0
+        wrk_out = 0d0
+      end associate
+    end do
 
-    do n = 1, this%lvl(lvl_out)%nnodes!> this loop is independent
-      do i = 1, this%lvl(lvl_out)%nodes(n)%ndofs
-        associate( wrk_in => this%lvl(lvl_out)%wrk_in, wrk_out => this%lvl(lvl_out)%wrk_out, node => this%lvl(lvl_out)%nodes(n))
-          wrk_in( node%gid ) = wrk_in(node%gid ) + vec_in( node%dofs(i) ) * node%interp_p( i )
+    !> copy to make things easier to think about
+    do n = 1, this%lvl(lvl_out+1)%nnodes
+      do i = 1, this%lvl(lvl_out+1)%nodes(n)%ndofs
+        associate( wrk_in => this%lvl(lvl_out+1)%wrk_in, node => this%lvl(lvl_out+1)%nodes(n))
+          wrk_in( node%dofs(i) ) = vec_in( node%dofs(i) )
         end associate
       end do!i
-      do lvl = lvl_out, 1, -1
-
-        associate( wrk_in => this%lvl(lvl)%wrk_in, wrk_out => this%lvl(lvl)%wrk_out)
-        do nn = 1, this%lvl(lvl)%nnodes
-          associate (node => this%lvl(lvl)%nodes(nn))
-          do i = 1, node%ndofs
-            wrk_in( node%dofs(i) ) = wrk_in( node%dofs(i) ) + this%lvl(lvl+1)%wrk_in( node%gid ) * node%interp_p( i )
-          end do!i
-          end associate
-        end do!nn
-        end associate
-
-      end do!lvl
     end do!n
+
+    if(lvl_out .gt. 0) then
+      do n = 1, this%lvl(lvl_out)%nnodes!> this loop is independent
+        do lvl = lvl_out, 1, -1
+
+          associate( wrk_in => this%lvl(lvl)%wrk_in, wrk_out => this%lvl(lvl)%wrk_out)
+          do nn = 1, this%lvl(lvl)%nnodes
+            associate (node => this%lvl(lvl)%nodes(nn))
+            do i = 1, node%ndofs
+              wrk_in( node%dofs(i) ) = wrk_in( node%dofs(i) ) + this%lvl(lvl+1)%wrk_in( node%gid ) * node%interp_p( i )
+            end do!i
+            end associate
+          end do!nn
+          end associate
+
+        end do!lvl
+      end do!n
+    end if
 
     associate( wrk_in => this%lvl(1)%wrk_in, wrk_out => this%lvl(1)%wrk_out)
     !> Do finest level matvec
@@ -573,23 +585,29 @@ contains
     end associate
 
 
-    do n = 1, this%lvl(lvl_out)%nnodes!> this loop is independent
-      do lvl = lvl_out, 1, -1
+    if(lvl_out .gt. 0) then
+      do n = 1, this%lvl(lvl_out)%nnodes!> this loop is independent
+        do lvl = 2, lvl_out+1
 
-        associate( wrk_in => this%lvl(lvl)%wrk_in, wrk_out => this%lvl(lvl)%wrk_out)
-        do nn = 1, this%lvl(lvl)%nnodes
-          associate (node => this%lvl(lvl)%nodes(nn))
-          do i = 1, node%ndofs
-            wrk_out( node%dofs(i) ) = wrk_out( node%dofs(i) ) + this%lvl(lvl+1)%wrk_out( node%gid ) * node%interp_p( i )
-          end do!i
+          associate( wrk_in => this%lvl(lvl)%wrk_in, wrk_out => this%lvl(lvl)%wrk_out)
+          do nn = 1, this%lvl(lvl)%nnodes
+            associate (node => this%lvl(lvl)%nodes(nn))
+            do i = 1, node%ndofs
+              wrk_out( node%gid ) = wrk_out( node%gid ) + this%lvl(lvl-1)%wrk_out( node%dofs(i) ) * node%interp_r( i )
+            end do!i
+            end associate
+          end do!nn
           end associate
-        end do!nn
-        end associate
 
-      end do!lvl
-      do i = 1, this%lvl(lvl_out)%nodes(n)%ndofs
-        associate( wrk_in => this%lvl(lvl_out)%wrk_in, wrk_out => this%lvl(lvl_out)%wrk_out, node => this%lvl(lvl_out)%nodes(n))
-          vec_out( node%gid ) = vec_out(node%gid ) + wrk_out( node%dofs(i) ) * node%interp_r( i )
+        end do!lvl
+      end do!n
+    end if
+
+    !> copy here to make things easier to think about
+    do n = 1, this%lvl(lvl_out+1)%nnodes
+      do i = 1, this%lvl(lvl_out+1)%nodes(n)%ndofs
+        associate( wrk_out => this%lvl(lvl_out+1)%wrk_out, node => this%lvl(lvl_out+1)%nodes(n))
+          vec_out( node%dofs(i) ) = wrk_out( node%dofs(i) )
         end associate
       end do!i
     end do!n
