@@ -396,17 +396,17 @@ The penalty term is performed on the weak form equation of quantity \f$ T \f$
 
 \f$ - < \tau |u \cdot n| h^2_{\Omega ^e} G(T) \phi_{t1} \phi_{t2} \frac{\partial \phi_{n}}{\partial n}>\f$,
 
-where \f$ <> \f$ refers to the integral over all facets of the element, \f$ \tau \f$ is the strength of the penalty, 
-\f$ |u \cdot n| \f$ is the absolute velocity flux over one specific facet at the point projected onto the surface in the function space, \f$ h^2_{\Omega ^e} \f$ is the mesh size, \f$ G(T) \f$ is the gradient jump over the facet at the point, \f$ \phi_{t1} \phi_{t2} \f$ are the polynomial on the tangential direction of the facet, and finally \f$ \frac{\partial \phi_{n}}{\partial n} \f$ is the gradient of the normal polynomial on the facet.
+where \f$ <> \f$ refers to the integral over all facets of the element, \f$ \tau \f$ is the penalty parameter, 
+\f$ |u \cdot n| \f$ is the absolute velocity flux over the facet, \f$ h^2_{\Omega ^e} \f$ is the mesh size, \f$ G(T) \f$ is the gradient jump over the facet, \f$ \phi_{t1} \phi_{t2} \f$ are the polynomial on the tangential direction of the facet, and finally \f$ \frac{\partial \phi_{n}}{\partial n} \f$ is the gradient of the normal polynomial on the facet.
 
 Here in our Neko context where hexahedral mesh is adopted, \f$ h^2_{\Omega ^e} \f$ is measured by the average distance from the vertices of the facet to the facet on the opposite side. And the distance of a vertex to another facet is defined by the average distance from the vertex to the plane constituted by 3 vertices from the other facet.
 
-The strength  \f$ \tau \f$ of the penalty could be expressed as the form \f$ \tau = a * (P + 1) ^ {-b}\f$, 
+The penalty parameter  \f$ \tau \f$ could be expressed as the form \f$ \tau = a * (P + 1) ^ {-b}\f$, 
 for \f$ P > 1 \f$ where \f$ P \f$ is the polynomial order while \f$ a \f$ and \f$ b \f$ are user-defined parameters.
 The configuration uses the following parameters:
 
 * `enable`, boolean to turn on and off the gradient jump penalty option, default to be `false`.
-* `tau`, penalty strength that can be only used for \f$ P = 1 \f$, default to be `0.02`.
+* `tau`, penalty parameter that can be only used for \f$ P = 1 \f$, default to be `0.02`.
 * `scaling_factor`, the scaling parameter \f$ a \f$ for \f$ P > 1 \f$, default to be `0.8`.
 * `scaling_exponent`, the scaling parameter \f$ b \f$ for \f$ P > 1 \f$, default to be `4.0`.
 
