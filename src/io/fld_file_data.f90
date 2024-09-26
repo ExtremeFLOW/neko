@@ -51,7 +51,9 @@ module fld_file_data
      procedure, pass(this) :: scale => fld_file_data_scale
      procedure, pass(this) :: add => fld_file_data_add
      procedure, pass(this) :: size => fld_file_data_size
-     procedure, pass(this) :: get_list => fld_file_data_get_list
+     procedure, pass(this) :: get_list => fld_file_get_list
+     procedure, pass(this) :: init_same => fld_file_init_same
+     procedure, pass(this) :: init_n_fields => fld_file_init_n_fields
      !> Generates a global_interpolation object to interpolate the fld data.
      procedure, pass(this) :: generate_interpolator => &
           fld_file_data_generate_interpolator
