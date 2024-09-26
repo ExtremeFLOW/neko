@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines an output for a mean flow field
+!> Implements `fluid_stats_ouput_t`.
 module fluid_stats_output
   use fluid_stats, only : fluid_stats_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -44,20 +44,29 @@ module fluid_stats_output
   implicit none
   private
 
+  !> Defines an output for the fluid statistics computed using the 
+  !! `fluid_stats_t` object.
   type, public, extends(output_t) :: fluid_stats_output_t
+     !> Pointer to the object computing the statistics.
      type(fluid_stats_t), pointer :: stats
+     !> Space averaging object for 2 homogeneous directions.
      type(map_1d_t) :: map_1d
+     !> Space averaging object for 1 homogeneous direction.
      type(map_2d_t) :: map_2d
      real(kind=rp) :: T_begin
+     !> The dimension of the output fields. Either 1, 2, or 3.
      integer :: output_dim
    contains
-     procedure, pass(this) :: sample => fluid_stats_output_sample
+     !> Constructor.
      procedure, pass(this) :: init => fluid_stats_output_init
+     !> Samples the fields computed by the `stats` component.
+     procedure, pass(this) :: sample => fluid_stats_output_sample
   end type fluid_stats_output_t
 
 
 contains
 
+  !> Constructor.
   subroutine fluid_stats_output_init(this, stats, T_begin, hom_dir, name, path)
     type(fluid_stats_t), intent(inout), target :: stats
     real(kind=rp), intent(in) :: T_begin
@@ -66,6 +75,7 @@ contains
     character(len=*), intent(in), optional :: path
     class(fluid_stats_output_t), intent(inout) :: this
     character(len=1024) :: fname
+
     if (trim(hom_dir) .eq. 'none' .or. &
         trim(hom_dir) .eq. 'x' .or.&
         trim(hom_dir) .eq. 'y' .or.&
@@ -80,7 +90,9 @@ contains
        else
           fname = 'fluid_stats.fld'
        end if
+
        this%output_dim = 3
+
        if (trim(hom_dir) .eq. 'x' .or.&
            trim(hom_dir) .eq. 'y' .or.&
            trim(hom_dir) .eq. 'z' ) then
