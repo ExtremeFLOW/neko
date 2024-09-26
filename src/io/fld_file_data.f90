@@ -51,9 +51,9 @@ module fld_file_data
      procedure, pass(this) :: scale => fld_file_data_scale
      procedure, pass(this) :: add => fld_file_data_add
      procedure, pass(this) :: size => fld_file_data_size
-     procedure, pass(this) :: get_list => fld_file_get_list
-     procedure, pass(this) :: init_same => fld_file_init_same
-     procedure, pass(this) :: init_n_fields => fld_file_init_n_fields
+     procedure, pass(this) :: get_list => fld_file_data_get_list
+     procedure, pass(this) :: init_same => fld_file_data_init_same
+     procedure, pass(this) :: init_n_fields => fld_file_data_init_n_fields
      !> Generates a global_interpolation object to interpolate the fld data.
      procedure, pass(this) :: generate_interpolator => &
           fld_file_data_generate_interpolator
@@ -86,7 +86,7 @@ contains
   end function fld_file_data_size
 
   !> Genereate same fields as in another fld_file
-  subroutine fld_file_init_same(this, fld_file, n)
+  subroutine fld_file_data_init_same(this, fld_file, n)
     class(fld_file_data_t), target, intent(inout) :: this
     class(fld_file_data_t), target, intent(in) :: fld_file
     integer, intent(in) :: n
@@ -113,10 +113,10 @@ contains
        call this%s(j)%init(n)
     end do
 
-  end subroutine fld_file_init_same
+  end subroutine fld_file_data_init_same
 
   !> Genereate same fields as in another fld_file
-  subroutine fld_file_init_n_fields(this, n_fields, n)
+  subroutine fld_file_data_init_n_fields(this, n_fields, n)
     class(fld_file_data_t), target, intent(inout) :: this
     integer, intent(in) :: n, n_fields
     integer :: i, j
@@ -145,10 +145,7 @@ contains
        end do
     end if
 
-  end subroutine fld_file_init_n_fields
-
-
-
+  end subroutine fld_file_data_init_n_fields
 
   !> Get a list with pointers to the fields in the fld file
   subroutine fld_file_data_get_list(this, ptr_list, n)
