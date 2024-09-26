@@ -31,6 +31,7 @@ in Neko. The list will be updated as new simcomps are added.
 - Computation of forces and torque on a surface \ref simcomp_force_torque
 - Computation of the weak gradient of a field \ref simcomp_weak_grad
 - User defined components \ref user-file_simcomps
+- Fluid statistics simcomp, "fluid_stats", for more details see the [statistics guide](@ref statistics-guide)
 
 ## Controling execution and file output
 Each simulation component is, by default, executed once per time step to perform

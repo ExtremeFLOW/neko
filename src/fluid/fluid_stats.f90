@@ -728,25 +728,32 @@ contains
     if (present(reynolds)) then
        n = reynolds%item_size(1)
        call copy(reynolds%items(1)%ptr%x, this%pp%mf%x, n)
-       call subcol3(reynolds%items(1)%ptr%x, this%p_mean%mf%x, this%p_mean%mf%x, n)
+       call subcol3(reynolds%items(1)%ptr%x, this%p_mean%mf%x, &
+            this%p_mean%mf%x, n)
 
        call copy(reynolds%items(2)%ptr%x, this%uu%mf%x, n)
-       call subcol3(reynolds%items(2)%ptr%x, this%u_mean%mf%x, this%u_mean%mf%x, n)
+       call subcol3(reynolds%items(2)%ptr%x, this%u_mean%mf%x, &
+            this%u_mean%mf%x, n)
 
        call copy(reynolds%items(3)%ptr%x, this%vv%mf%x, n)
-       call subcol3(reynolds%items(3)%ptr%x, this%v_mean%mf%x,this%v_mean%mf%x,n)
+       call subcol3(reynolds%items(3)%ptr%x, this%v_mean%mf%x, &
+            this%v_mean%mf%x,n)
 
        call copy(reynolds%items(4)%ptr%x, this%ww%mf%x, n)
-       call subcol3(reynolds%items(4)%ptr%x, this%w_mean%mf%x,this%w_mean%mf%x,n)
+       call subcol3(reynolds%items(4)%ptr%x, this%w_mean%mf%x, &
+            this%w_mean%mf%x,n)
 
        call copy(reynolds%items(5)%ptr%x, this%uv%mf%x, n)
-       call subcol3(reynolds%items(5)%ptr%x, this%u_mean%mf%x, this%v_mean%mf%x, n)
+       call subcol3(reynolds%items(5)%ptr%x, this%u_mean%mf%x, &
+            this%v_mean%mf%x, n)
 
        call copy(reynolds%items(6)%ptr%x, this%uw%mf%x, n)
-       call subcol3(reynolds%items(6)%ptr%x, this%u_mean%mf%x, this%w_mean%mf%x, n)
+       call subcol3(reynolds%items(6)%ptr%x, this%u_mean%mf%x, &
+            this%w_mean%mf%x, n)
 
        call copy(reynolds%items(7)%ptr%x, this%vw%mf%x, n)
-       call subcol3(reynolds%items(7)%ptr%x, this%v_mean%mf%x, this%w_mean%mf%x, n)
+       call subcol3(reynolds%items(7)%ptr%x, this%v_mean%mf%x, &
+            this%w_mean%mf%x, n)
     end if
     if (present(pressure_skewness)) then
 
@@ -771,11 +778,11 @@ contains
        n = mean_vel_grad%item_size(1)
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(this%u_mean%mf%x, this%u_mean%mf%x_d, n, &
-                             HOST_TO_DEVICE, sync=.false.)
+                             HOST_TO_DEVICE, sync = .false.)
           call device_memcpy(this%v_mean%mf%x, this%v_mean%mf%x_d, n, &
-                             HOST_TO_DEVICE, sync=.false.)
+                             HOST_TO_DEVICE, sync = .false.)
           call device_memcpy(this%w_mean%mf%x, this%w_mean%mf%x_d, n, &
-                             HOST_TO_DEVICE, sync=.false.)
+                             HOST_TO_DEVICE, sync = .false.)
           call opgrad(this%dudx%x, this%dudy%x, this%dudz%x, &
                       this%u_mean%mf%x, this%coef)
           call opgrad(this%dvdx%x, this%dvdy%x, this%dvdz%x, &
@@ -783,30 +790,30 @@ contains
           call opgrad(this%dwdx%x, this%dwdy%x, this%dwdz%x, &
                       this%w_mean%mf%x, this%coef)
           call device_memcpy(this%dudx%x, this%dudx%x_d, n, &
-                             DEVICE_TO_HOST, sync=.false.)
+                             DEVICE_TO_HOST, sync = .false.)
           call device_memcpy(this%dvdx%x, this%dvdx%x_d, n, &
-                             DEVICE_TO_HOST, sync=.false.)
+                             DEVICE_TO_HOST, sync = .false.)
           call device_memcpy(this%dwdx%x, this%dwdx%x_d, n, &
-                             DEVICE_TO_HOST, sync=.false.)
+                             DEVICE_TO_HOST, sync = .false.)
           call device_memcpy(this%dudy%x, this%dudy%x_d, n, &
-                             DEVICE_TO_HOST, sync=.false.)
+                             DEVICE_TO_HOST, sync = .false.)
           call device_memcpy(this%dvdy%x, this%dvdy%x_d, n, &
-                             DEVICE_TO_HOST, sync=.false.)
+                             DEVICE_TO_HOST, sync = .false.)
           call device_memcpy(this%dwdy%x, this%dwdy%x_d, n, &
-                             DEVICE_TO_HOST, sync=.false.)
+                             DEVICE_TO_HOST, sync = .false.)
           call device_memcpy(this%dudz%x, this%dudz%x_d, n, &
-                             DEVICE_TO_HOST, sync=.false.)
+                             DEVICE_TO_HOST, sync = .false.)
           call device_memcpy(this%dvdz%x, this%dvdz%x_d, n, &
-                             DEVICE_TO_HOST, sync=.false.)
+                             DEVICE_TO_HOST, sync = .false.)
           call device_memcpy(this%dwdz%x, this%dwdz%x_d, n, &
-                             DEVICE_TO_HOST, sync=.true.)
+                             DEVICE_TO_HOST, sync = .true.)
        else
-          call opgrad(this%dudx%x,this%dudy%x, this%dudz%x, &
-                      this%u_mean%mf%x,this%coef)
-          call opgrad(this%dvdx%x,this%dvdy%x, this%dvdz%x, &
-                      this%v_mean%mf%x,this%coef)
-          call opgrad(this%dwdx%x,this%dwdy%x, this%dwdz%x, & 
-                      this%w_mean%mf%x,this%coef)
+          call opgrad(this%dudx%x, this%dudy%x, this%dudz%x, &
+                      this%u_mean%mf%x, this%coef)
+          call opgrad(this%dvdx%x, this%dvdy%x, this%dvdz%x, &
+                      this%v_mean%mf%x, this%coef)
+          call opgrad(this%dwdx%x, this%dwdy%x, this%dwdz%x, & 
+                      this%w_mean%mf%x, this%coef)
        end if
        call invers2(this%stats_work%x, this%coef%B,n)
        call col3(mean_vel_grad%items(1)%ptr%x, this%dudx%x, & 
