@@ -308,5 +308,13 @@ module cuda_math
        type(c_ptr), value :: a_d
        integer(c_int) :: n
      end function cuda_glsum
+
+     real(c_rp) function cuda_absval(a_d, n) &
+          bind(c, name = 'cuda_absval')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end function cuda_glsum
   end interface
 end module cuda_math
