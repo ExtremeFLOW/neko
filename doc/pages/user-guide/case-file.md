@@ -405,8 +405,8 @@ The penalty parameter  \f$ \tau \f$ could be expressed as the form \f$ \tau = a 
 for \f$ P > 1 \f$ where \f$ P \f$ is the polynomial order while \f$ a \f$ and \f$ b \f$ are user-defined parameters.
 The configuration uses the following parameters:
 
-* `enable`, boolean to turn on and off the gradient jump penalty option, default to be `false`.
-* `tau`, penalty parameter that can be only used for \f$ P = 1 \f$, default to be `0.02`.
+* `enable`, the boolean to turn on and off the gradient jump penalty option, default to be `false`.
+* `tau`, the penalty parameter that can be only used for \f$ P = 1 \f$, default to be `0.02`.
 * `scaling_factor`, the scaling parameter \f$ a \f$ for \f$ P > 1 \f$, default to be `0.8`.
 * `scaling_exponent`, the scaling parameter \f$ b \f$ for \f$ P > 1 \f$, default to be `4.0`.
 
