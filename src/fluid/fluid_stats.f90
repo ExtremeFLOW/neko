@@ -484,6 +484,10 @@ contains
          call device_addcol3(this%stats_work%x_d, this%dudz%x_d, &
               this%dvdz%x_d, n)
          call this%e12%update(k)
+         call device_col3(this%stats_work%x_d,this%dudx%x_d, this%dwdx%x_d,n)
+         call device_addcol3(this%stats_work%x_d,this%dudy%x_d, this%dwdy%x_d,n)
+         call device_addcol3(this%stats_work%x_d,this%dudz%x_d, this%dwdz%x_d,n)
+         call this%e13%update(k)
          call device_col3(this%stats_work%x_d, this%dvdx%x_d, &
               this%dwdx%x_d, n)
          call device_addcol3(this%stats_work%x_d, this%dvdy%x_d, &
