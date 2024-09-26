@@ -397,7 +397,7 @@ The penalty term is performed on the weak form equation of quantity \f$ T \f$
 \f$ - < \tau |u \cdot n| h^2_{\Omega ^e} G(T) \phi_{t1} \phi_{t2} \frac{\partial \phi_{n}}{\partial n}>\f$,
 
 where \f$ <> \f$ refers to the integral over all facets of the element, \f$ \tau \f$ is the strength of the penalty, 
-\f$ |u \cdot n| \f$ is the velocity flux over one specific facet at the point projected onto the surface in the function space, \f$ h^2_{\Omega ^e} \f$ is the mesh size, \f$ G(T) \f$ is the gradient jump over the facet at the point, \f$ \phi_{t1} \phi_{t2} \f$ are the polynomial on the tangential direction of the facet, and finally \f$ \frac{\partial \phi_{n}}{\partial n} \f$ is the gradient of the normal polynomial on the facet.
+\f$ |u \cdot n| \f$ is the absolute velocity flux over one specific facet at the point projected onto the surface in the function space, \f$ h^2_{\Omega ^e} \f$ is the mesh size, \f$ G(T) \f$ is the gradient jump over the facet at the point, \f$ \phi_{t1} \phi_{t2} \f$ are the polynomial on the tangential direction of the facet, and finally \f$ \frac{\partial \phi_{n}}{\partial n} \f$ is the gradient of the normal polynomial on the facet.
 
 Here in our Neko context where hexahedral mesh is adopted, \f$ h^2_{\Omega ^e} \f$ is measured by the average distance from the vertices of the facet to the facet on the opposite side. And the distance of a vertex to another facet is defined by the average distance from the vertex to the plane constituted by 3 vertices from the other facet.
 
