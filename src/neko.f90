@@ -89,6 +89,7 @@ module neko
        device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
        device_masked_copy, device_cfill_mask, device_add3, device_cadd2
   use map_1d, only : map_1d_t
+  use map_2d, only : map_2d_t
   use cpr, only : cpr_t, cpr_init, cpr_free
   use fluid_stats, only : fluid_stats_t
   use field_list, only : field_list_t

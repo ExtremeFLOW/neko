@@ -102,7 +102,7 @@ module math
        add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
        glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
-       swap, reord, flipv, cadd2
+       swap, reord, flipv, cadd2, masked_red_copy
 
 contains
 
@@ -257,6 +257,29 @@ contains
 
   end subroutine masked_copy
 
+  !> Copy a masked vector to reduced contigous vector
+  !! \f$ a = b(mask) \f$.
+  !! @param a Destination array of size `m`.
+  !! @param b Source array of size `n`.
+  !! @param mask Mask array of length m+1, where `mask(0) =m`
+  !! the length of the mask array.
+  !! @param n Size of the array `b`.
+  !! @param m Size of the mask array `mask` and `a`.
+  subroutine masked_red_copy(a, b, mask, n, m)
+    integer, intent(in) :: n, m
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), dimension(m), intent(inout) :: a
+    integer, dimension(0:m) :: mask
+    integer :: i, j
+
+    do i = 1, m
+       j = mask(i)
+       a(i) = b(j)
+    end do
+
+  end subroutine masked_red_copy
+
+
   !> @brief Fill a constant to a masked vector.
   !! \f$ a_i = c, for i in mask \f$
   subroutine cfill_mask(a, c, size, mask, mask_size)
@@ -332,7 +355,7 @@ contains
        tmp = tmp + a(i)
     end do
     call MPI_Allreduce(tmp, glsum, 1, &
-                       MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsum
 
@@ -347,7 +370,7 @@ contains
        tmp = max(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glmax, 1, &
-                       MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
   end function glmax
 
   !>Max of an integer vector of length n
@@ -361,7 +384,7 @@ contains
        tmp = max(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glimax, 1, &
-                       MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
+         MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
   end function glimax
 
   !>Min of a vector of length n
@@ -375,7 +398,7 @@ contains
        tmp = min(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glmin, 1, &
-                       MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
   end function glmin
 
   !>Min of an integer vector of length n
@@ -389,7 +412,7 @@ contains
        tmp = min(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glimin, 1, &
-                       MPI_INTEGER, MPI_MIN, NEKO_COMM, ierr)
+         MPI_INTEGER, MPI_MIN, NEKO_COMM, ierr)
   end function glimin
 
 
@@ -572,10 +595,10 @@ contains
   !> Vector addition \f$ a = b + c + d\f$
   subroutine add4(a, b, c, d, n)
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: d
-    real(kind=rp), dimension(n), intent(inout) :: c
-    real(kind=rp), dimension(n), intent(inout) :: b
     real(kind=rp), dimension(n), intent(out) :: a
+    real(kind=rp), dimension(n), intent(in) :: d
+    real(kind=rp), dimension(n), intent(in) :: c
+    real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
     do i = 1, n
@@ -845,7 +868,7 @@ contains
     end do
 
     call MPI_Allreduce(tmp, glsc2, 1, &
-                       MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsc2
 
@@ -864,7 +887,7 @@ contains
     end do
 
     call MPI_Allreduce(tmp, glsc3, 1, &
-                       MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsc3
   function glsc4(a, b, c, d, n)
@@ -882,7 +905,7 @@ contains
     end do
 
     call MPI_Allreduce(tmp, glsc4, 1, &
-                       MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsc4
 
@@ -967,12 +990,12 @@ contains
     do while (.true.)
        if (l .gt. 1) then
           l = l - 1
-          aa  = a  (l)
-          ii  = ind(l)
+          aa = a (l)
+          ii = ind(l)
        else
-          aa =   a(ir)
+          aa = a(ir)
           ii = ind(ir)
-          a(ir) =   a( 1)
+          a(ir) = a( 1)
           ind(ir) = ind( 1)
           ir = ir - 1
           if (ir .eq. 1) then
