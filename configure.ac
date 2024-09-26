@@ -62,9 +62,11 @@ AX_MPIF08
 AX_MPI_DTYPE
 
 # Test for OpenMP (if requested)
+openmp_bcknd="0"
 if test "x${enable_openmp}" != xno; then
    AX_OPENMP([have_openmp=yes], [have_openmp=no])
    if test "x${have_openmp}" != xno; then
+      openmp_bcknd="1"
       FCFLAGS="$FCFLAGS $OPENMP_FCFLAGS"
       AC_LANG(C)
       AX_OPENMP([have_openmp=yes], [have_openmp=no])
@@ -74,6 +76,7 @@ if test "x${enable_openmp}" != xno; then
       AC_LANG(Fortran)
    fi
 fi
+AC_SUBST(openmp_bcknd)
 
 AC_FC_PP_SRCEXT([F90])
 AX_COMPILER_VENDOR

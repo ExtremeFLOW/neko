@@ -64,12 +64,11 @@ contains
 
   function tgv_ic(x, y, z) result(uvw)
     real(kind=rp) :: x, y, z
-    real(kind=rp) :: ux, uy, uz
     real(kind=rp) :: uvw(3)
 
-    uvw(1)   = sin(x)*cos(y)*cos(z)
-    uvw(2)   = -cos(x)*sin(y)*cos(z)
-    uvw(3)   = 0._rp
+    uvw(1) = sin(x)*cos(y)*cos(z)
+    uvw(2) = -cos(x)*sin(y)*cos(z)
+    uvw(3) = 0.0_rp
   end function tgv_ic
 
   ! User-defined initialization called just before time loop starts
@@ -93,7 +92,7 @@ contains
     call user_calc_quantities(t, tstep, u, v, w, p, coef, params)
 
   end subroutine user_initialize
- 
+
   ! User-defined routine called at the end of every time step
   subroutine user_calc_quantities(t, tstep, u, v, w, p, coef, params)
     real(kind=rp), intent(in) :: t
@@ -116,59 +115,81 @@ contains
 
     ntot = u%dof%size()
 
-!    Option 1:    
-!    sum_e1 = 0._rp
-!    sum_e2 = 0._rp
-!    do i = 1, ntot
-!       vv = u%x(i,1,1,1)**2 + v%x(i,1,1,1)**2 + w%x(i,1,1,1)**2
-!       oo = om1%x(i,1,1,1)**2 + om2%x(i,1,1,1)**2 + om3%x(i,1,1,1)**2 
-!       sum_e1 = sum_e1 + vv*coef%B(i,1,1,1) 
-!       sum_e2 = sum_e2 + oo*coef%B(i,1,1,1) 
-!    end do
-!    e1 = 0.5 * glsum(sum_e1,1) / coef%volume
-!    e2 = 0.5 * glsum(sum_e2,1) / coef%volume
+    ! Option 1:
+    ! sum_e1 = 0._rp
+    ! sum_e2 = 0._rp
+    ! do i = 1, ntot
+    !    vv = u%x(i,1,1,1)**2 + v%x(i,1,1,1)**2 + w%x(i,1,1,1)**2
+    !    oo = om1%x(i,1,1,1)**2 + om2%x(i,1,1,1)**2 + om3%x(i,1,1,1)**2
+    !    sum_e1 = sum_e1 + vv*coef%B(i,1,1,1)
+    !    sum_e2 = sum_e2 + oo*coef%B(i,1,1,1)
+    ! end do
+    ! e1 = 0.5 * glsum(sum_e1,1) / coef%volume
+    ! e2 = 0.5 * glsum(sum_e2,1) / coef%volume
 
-!    Option 2:    
-!    do i = 1, ntot
-!       w1%x(i,1,1,1) = u%x(i,1,1,1)**2 + v%x(i,1,1,1)**2 + w%x(i,1,1,1)**2
-!       w2%x(i,1,1,1) = om1%x(i,1,1,1)**2 + om2%x(i,1,1,1)**2 + om3%x(i,1,1,1)**2
-!    end do
-!    e1 = 0.5 * glsc2(w1%x,coef%B,ntot) / coef%volume
-!    e2 = 0.5 * glsc2(w2%x,coef%B,ntot) / coef%volume
+    ! Option 2:
+    ! do i = 1, ntot
+    !    w1%x(i,1,1,1) = u%x(i,1,1,1)**2 + v%x(i,1,1,1)**2 + w%x(i,1,1,1)**2
+    !    w2%x(i,1,1,1) = om1%x(i,1,1,1)**2 + om2%x(i,1,1,1)**2 + om3%x(i,1,1,1)**2
+    ! end do
+    ! e1 = 0.5 * glsc2(w1%x,coef%B,ntot) / coef%volume
+    ! e2 = 0.5 * glsc2(w2%x,coef%B,ntot) / coef%volume
 
-!    Option 3:
-!    w1%x = u%x**2 + v%x**2 + w%x**2
-!    w2%x = om1%x**2 + om2%x**2 + om3%x**2
-!    e1 = 0.5 * glsc2(w1%x,coef%B,ntot) / coef%volume
-!    e2 = 0.5 * glsc2(w2%x,coef%B,ntot) / coef%volume
+    ! Option 3:
+    ! w1%x = u%x**2 + v%x**2 + w%x**2
+    ! w2%x = om1%x**2 + om2%x**2 + om3%x**2
+    ! e1 = 0.5 * glsc2(w1%x,coef%B,ntot) / coef%volume
+    ! e2 = 0.5 * glsc2(w2%x,coef%B,ntot) / coef%volume
 
-!    Option 4:
+    ! Option 4:
+    ! if (NEKO_BCKND_DEVICE .eq. 1) then
+    !    call device_col3(w1%x_d, u%x_d, u%x_d, ntot)
+    !    call device_addcol3(w1%x_d, v%x_d, v%x_d, ntot)
+    !    call device_addcol3(w1%x_d, w%x_d, w%x_d, ntot)
+    !    e1 = 0.5 * device_glsc2(w1%x_d, coef%B_d, ntot) / coef%volume
+
+    !    call device_col3(w1%x_d, omega_x%x_d, omega_x%x_d, ntot)
+    !    call device_addcol3(w1%x_d, omega_x%x_d, omega_y%x_d, ntot)
+    !    call device_addcol3(w1%x_d, omega_z%x_d, omega_z%x_d, ntot)
+    !    e2 = 0.5 * device_glsc2(w1%x_d, coef%B_d, ntot) / coef%volume
+    ! else
+    !    call col3(w1%x, u%x, u%x, ntot)
+    !    call addcol3(w1%x, v%x, v%x, ntot)
+    !    call addcol3(w1%x, w%x, w%x, ntot)
+    !    e1 = 0.5 * glsc2(w1%x, coef%B, ntot) / coef%volume
+
+    !    call col3(w1%x, omega_x%x, omega_x%x, ntot)
+    !    call addcol3(w1%x, omega_y%x, omega_y%x, ntot)
+    !    call addcol3(w1%x, omega_z%x, omega_z%x, ntot)
+    !    e2 = 0.5 * glsc2(w1%x, coef%B, ntot) / coef%volume
+    ! end if
+
+    ! Option 5:
+    call field_col3(w1, u, u, ntot)
+    call field_addcol3(w1, v, v, ntot)
+    call field_addcol3(w1, w, w, ntot)
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_col3(w1%x_d, u%x_d, u%x_d, ntot)
-       call device_addcol3(w1%x_d, v%x_d, v%x_d, ntot)
-       call device_addcol3(w1%x_d, w%x_d, w%x_d, ntot)
        e1 = 0.5 * device_glsc2(w1%x_d, coef%B_d, ntot) / coef%volume
-       
-       call device_col3(w1%x_d, omega_x%x_d, omega_x%x_d, ntot)
-       call device_addcol3(w1%x_d, omega_y%x_d, omega_y%x_d, ntot)
-       call device_addcol3(w1%x_d, omega_z%x_d, omega_z%x_d, ntot)
+    else
+       e1 = 0.5 * glsc2(w1%x, coef%B, ntot) / coef%volume
+    end if
+
+    call field_col3(w1, omega_x, omega_x, ntot)
+    call field_addcol3(w1, omega_x, omega_y, ntot)
+    call field_addcol3(w1, omega_z, omega_z, ntot)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        e2 = 0.5 * device_glsc2(w1%x_d, coef%B_d, ntot) / coef%volume
     else
-       call col3(w1%x, u%x, u%x, ntot)
-       call addcol3(w1%x, v%x, v%x, ntot)
-       call addcol3(w1%x, w%x, w%x, ntot)
-       e1 = 0.5 * glsc2(w1%x, coef%B, ntot) / coef%volume
-       
-       call col3(w1%x, omega_x%x, omega_x%x, ntot)
-       call addcol3(w1%x, omega_y%x, omega_y%x, ntot)
-       call addcol3(w1%x, omega_z%x, omega_z%x, ntot)
        e2 = 0.5 * glsc2(w1%x, coef%B, ntot) / coef%volume
     end if
-      
-    if (pe_rank .eq. 0) &
-         &  write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
-         &  'POST: t:', t, ' Ekin:', e1, ' enst:', e2
-    
+
+    if (pe_rank .eq. 0) then
+       write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
+            'POST: t:', t, ' Ekin:', e1, ' enst:', e2
+    end if
+
   end subroutine user_calc_quantities
 
   ! User-defined finalization routine called at the end of the simulation
