@@ -315,6 +315,6 @@ module cuda_math
        import c_rp
        type(c_ptr), value :: a_d
        integer(c_int) :: n
-     end function cuda_glsum
+     end function cuda_absval
   end interface
 end module cuda_math
