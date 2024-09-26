@@ -32,7 +32,6 @@
 !
 !
 !> Implements the `fluid_stats_simcomp_t` type.
-
 module fluid_stats_simcomp
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
@@ -49,14 +48,22 @@ module fluid_stats_simcomp
   implicit none
   private
 
-  !> A simulation component that computes the statistics needed for various budgets
-  !> See Turbulence Statistics in a Spectral-Element Code: A Toolbox for High-Fidelity Simulations
-  !> or the origin KTH NEk500 framework for details. 
-  !> Also documented in the Neko documentation
+  !> A simulation component that computes the velocity and pressure statistics 
+  !! up to 4th order. Can be used to reconstruct the term budget of transport
+  !! equations for, e.g. the Reynolds stresses and the turbulent kinetic energy.
+  !! 
+  !! Similar in functionality to the satistics module in the KTH Framework for
+  !! Nek5000: https://github.com/KTH-Nek5000/KTH_Framework
+  !! See Turbulence Statistics in a Spectral-Element Code: A Toolbox for 
+  !! High-Fidelity Simulations or the origin KTH Nek5000 framework for details. 
+  !!
+  !! For further details see the Neko documentation.
   type, public, extends(simulation_component_t) :: fluid_stats_simcomp_t
+     !> Backbone object computing the satistics
+     type(fluid_stats_t) :: stats
      !> Output writer.
-     type(fluid_stats_t) :: stats              !< Fluid statistics
      type(fluid_stats_output_t) :: stats_output
+     !> Time value at which the sampling of statistics is initiated.
      real(kind=rp) :: start_time
      real(kind=rp) :: time
    contains
@@ -67,9 +74,11 @@ module fluid_stats_simcomp
         fluid_stats_simcomp_init_from_attributes
      !> Destructor.
      procedure, pass(this) :: free => fluid_stats_simcomp_free
-     !> Does sampling for statistics
+     !> Does sampling for statistics.
      procedure, pass(this) :: compute_ => fluid_stats_simcomp_compute
+     !> Write the statistics to disk.
      procedure, pass(this) :: output_ => fluid_stats_simcomp_compute
+     !> Restart the simcomp.
      procedure, pass(this) :: restart_ => fluid_stats_simcomp_restart
   end type fluid_stats_simcomp_t
 
@@ -118,8 +127,7 @@ contains
   !! @param hom_dir directions to average in
   !! @param stat_set Set of statistics to compute (basic/full)
   subroutine fluid_stats_simcomp_init_from_attributes(this, u, v, w, p, coef, &
-                                                      start_time, hom_dir, &
-                                                      stat_set)
+       start_time, hom_dir, stat_set)
     class(fluid_stats_simcomp_t), intent(inout) :: this
     character(len=*), intent(in) :: hom_dir
     character(len=*), intent(in) :: stat_set
@@ -137,17 +145,17 @@ contains
     call neko_log%message(log_buf)
 
 
-    call this%stats%init(coef, u, &
-         v, w, p, stat_set)
+    call this%stats%init(coef, u, v, w, p, stat_set)
+
     this%start_time = start_time
     this%time = start_time
 
-    call this%stats_output%init(this%stats, &
-            this%start_time, hom_dir = hom_dir, &
-            path = this%case%output_directory)
+    call this%stats_output%init(this%stats, this%start_time, & 
+         hom_dir = hom_dir, path = this%case%output_directory)
+
     call this%case%s%add(this%stats_output, &
-                        this%output_controller%control_value, &
-                        this%output_controller%control_mode)
+         this%output_controller%control_value, &
+         this%output_controller%control_mode)
  
     call neko_log%end_section()
   
@@ -172,19 +180,19 @@ contains
     class(fluid_stats_simcomp_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    real(kind=rp) :: deltaT
+    real(kind=rp) :: delta_t
     real(kind=rp) :: sample_start_time, sample_time
     character(len=LOG_SIZE) :: log_buf
     integer :: ierr
 
     if (t .ge. this%start_time) then
-       deltaT = t - this%time
+       delta_t = t - this%time
 
        call MPI_Barrier(NEKO_COMM, ierr)
 
        sample_start_time = MPI_WTIME()
 
-       call this%stats%update(deltaT)
+       call this%stats%update(delta_t)
        call MPI_Barrier(NEKO_COMM, ierr)
        this%time = t
 
@@ -193,7 +201,8 @@ contains
        call neko_log%section('Fluid stats')
        write(log_buf, '(A,E15.7)') 'Sampling at time:', t
        call neko_log%message(log_buf)
-       write(log_buf, '(A33,E15.7)') 'Simulationtime since last sample:', deltaT
+       write(log_buf, '(A33,E15.7)') 'Simulationtime since last sample:', &
+            delta_t
        call neko_log%message(log_buf)
        write(log_buf, '(A,E15.7)') 'Sampling time (s):', sample_time
        call neko_log%message(log_buf)

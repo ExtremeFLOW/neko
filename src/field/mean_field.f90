@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines a mean field
+!> Implements mean_field_t.
 !
 module mean_field
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -41,42 +41,53 @@ module mean_field
   implicit none
   private
 
+  !> Computes the temporal mean of a field.
   type, public, extends(stats_quant_t) :: mean_field_t
+     !> Pointer to the averaged field.
      type(field_t), pointer :: f => null()
+     !> Stores the mean field.
      type(field_t) :: mf
+     !> Total time across which the mean has been computed.
      real(kind=rp) :: time
    contains
+     !> Constructor.
      procedure, pass(this) :: init => mean_field_init
+     !> Destructor.
      procedure, pass(this) :: free => mean_field_free
+     !> Updates the mean value with a new sample.
      procedure, pass(this) :: update => mean_field_update
+     !> Resets the mean field.
      procedure, pass(this) :: reset => mean_field_reset
   end type mean_field_t
 
 contains
 
-  !> Initialize a mean field for a field @a f
+  !> Constructor.
+  !! @param f The field that will be averaged.
+  !! @param field_name. Optional name for the mean field. By default the name of
+  !! `f` prepended with `mean_` is used.
   subroutine mean_field_init(this, f, field_name)
     class(mean_field_t), intent(inout) :: this
     type(field_t), intent(inout), target :: f
     character(len=*), optional, intent(in) :: field_name
     character(len=80) :: name
 
-
     call this%free()
 
     this%f => f
     this%time = 0.0_rp
+
     if (present(field_name)) then
        name = field_name
     else
-       write(name, '(A,A)') 'mean_',trim(f%name)
+       write(name, '(A,A)') 'mean_', trim(f%name)
     end if
 
     call this%mf%init(f%dof, name)
 
   end subroutine mean_field_init
 
-  !> Deallocates a mean field
+  !> Destructor.
   subroutine mean_field_free(this)
     class(mean_field_t), intent(inout) :: this
 
@@ -87,7 +98,7 @@ contains
 
   end subroutine mean_field_free
 
-  !> Resets a mean field
+  !> Resets a the mean field and the averaging time value to zero.
   subroutine mean_field_reset(this)
     class(mean_field_t), intent(inout) :: this
 
@@ -96,10 +107,11 @@ contains
   end subroutine mean_field_reset
 
 
-  !> Update a mean field
+  !> Update the mean field with a new sample.
+  !! @param k Time since last sample.
   subroutine mean_field_update(this, k)
     class(mean_field_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: k !< Time since last sample
+    real(kind=rp), intent(in) :: k 
 
     call field_cmult(this%mf, this%time, size(this%mf%x))
     call field_add2s2(this%mf, this%f, k, size(this%mf%x))
