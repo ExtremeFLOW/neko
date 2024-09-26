@@ -43,11 +43,11 @@ module mean_field
 
   !> Computes the temporal mean of a field.
   type, public, extends(stats_quant_t) :: mean_field_t
-     !> Pointer to the avreged field.
+     !> Pointer to the averaged field.
      type(field_t), pointer :: f => null()
      !> Stores the mean field.
      type(field_t) :: mf
-     !> Total time accross which the mean has been computed.
+     !> Total time across which the mean has been computed.
      real(kind=rp) :: time
    contains
      !> Constructor.
