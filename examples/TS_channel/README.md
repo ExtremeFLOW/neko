@@ -10,5 +10,8 @@ A 2D ($k_z=0$) TS wave and two 3D ($k_z=\pm 1$) oblique TS waves are settled up 
 
 After running the simulation, one can use contrib/map_to_equidistant_1d twice (once in x and once in z) to interpolate the fields onto a mesh whose grid points are equidistant in x- and z- directions. One can then apply the Fourier transform to get the amplitude of the TS waves as the develop in time. This is done in the jupyter notebook plot_modes.ypynb.
 
+# Simulation components
+In this case lambda2 and the force on the top and bottom walls are calculated. 
+
 Reference:
 [1] Schlatter, P.C., 2005. Large-eddy simulation of transition and turbulence in wall-bounded shear flow (Doctoral dissertation, ETH Zurich).
