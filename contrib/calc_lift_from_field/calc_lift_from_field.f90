@@ -97,7 +97,7 @@ program calc_lift_from_field
 
   call Xh%init(GLL, field_data%lx, field_data%ly, field_data%lz)
 
-  call dof%(msh, Xh)
+  call dof%init(msh, Xh)
   call gs_h%init(dof)
   call coef%init(gs_h)
   ! Center around which we calculate the torque
