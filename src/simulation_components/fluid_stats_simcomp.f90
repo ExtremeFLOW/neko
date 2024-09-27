@@ -165,6 +165,7 @@ contains
   subroutine fluid_stats_simcomp_free(this)
     class(fluid_stats_simcomp_t), intent(inout) :: this
     call this%free_base()
+    call this%stats%free()
   end subroutine fluid_stats_simcomp_free
 
   subroutine fluid_stats_simcomp_restart(this, t)
