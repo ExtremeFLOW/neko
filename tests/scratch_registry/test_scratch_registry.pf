@@ -63,7 +63,7 @@ contains
     call test_scratch_registry_gen_msh(msh)
   
     call Xh%init(GLL, lx, lx, lx)
-    dm = dofmap_t(msh, Xh)
+    call dm%init(msh, Xh)
     
     scratch = scratch_registry_t(dm) 
 
@@ -86,7 +86,7 @@ contains
 
     call test_scratch_registry_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
-    dm = dofmap_t(msh, Xh)
+    call dm%init(msh, Xh)
     
     scratch = scratch_registry_t(dm, 5, 3) 
 
@@ -110,7 +110,7 @@ contains
     ! write(*,*) "TEST FRESH"
     call test_scratch_registry_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
-    dm = dofmap_t(msh, Xh)
+    call dm%init(msh, Xh)
     
     scratch = scratch_registry_t(dm, 5, 3) 
     
@@ -145,7 +145,7 @@ contains
 
     call test_scratch_registry_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
-    dm = dofmap_t(msh, Xh)
+    call dm%init(msh, Xh)
     
     scratch = scratch_registry_t(dm, 5, 3) 
     
@@ -170,7 +170,7 @@ contains
 
     call test_scratch_registry_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
-    dm = dofmap_t(msh, Xh)
+    call dm%init(msh, Xh)
     
     scratch = scratch_registry_t(dm, 1, 1) 
 
@@ -208,7 +208,7 @@ contains
 
    call test_scratch_registry_gen_msh(msh)
    call Xh%init(GLL, lx, lx, lx)
-   dm = dofmap_t(msh, Xh)
+   call dm%init(msh, Xh)
     
   !  write(*,*) "TEST COMBO"
    scratch = scratch_registry_t(dm, 2, 2) 
@@ -282,7 +282,7 @@ end subroutine test_scratch_registry_combo
 
    call test_scratch_registry_gen_msh(msh)
    call Xh%init(GLL, lx, lx, lx)
-   dm = dofmap_t(msh, Xh)
+   call dm%init(msh, Xh)
     
   !  write(*,*) "TEST COMBO"
    scratch = scratch_registry_t(dm, 2, 2) 

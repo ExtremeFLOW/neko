@@ -276,7 +276,7 @@ contains
        call this%Xh%init(GLL, lx, lx, lx)
     end if
 
-    this%dm_Xh = dofmap_t(msh, this%Xh)
+    call this%dm_Xh%init(msh, this%Xh)
 
     call this%gs_Xh%init(this%dm_Xh)
 

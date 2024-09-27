@@ -69,20 +69,21 @@ module dofmap
      type(c_ptr) :: z_d = C_NULL_PTR
 
    contains
+     !> Constructor
+     procedure, pass(this) :: init => dofmap_init
      procedure, pass(this) :: size => dofmap_size
 !     final :: dofmap_free
   end type dofmap_t
 
-  interface dofmap_t
-     module procedure dofmap_init
-  end interface dofmap_t
-
 contains
 
-  function dofmap_init(msh, Xh) result(this)
-    type(mesh_t), target, intent(inout) :: msh !< Mesh
-    type(space_t), target, intent(inout) :: Xh !< Function space \f$ X_h \f$
-    type(dofmap_t) :: this
+  !> Constructor.
+  !! @param msh The mesh.
+  !! @param Xh The SEM function space.
+  subroutine dofmap_init(this, msh, Xh)
+    class(dofmap_t) :: this
+    type(mesh_t), target, intent(inout) :: msh
+    type(space_t), target, intent(inout) :: Xh
 
     if ((msh%gdim .eq. 3 .and. Xh%lz .eq. 1) .or. &
          (msh%gdim .eq. 2 .and. Xh%lz .gt. 1)) then
@@ -145,7 +146,7 @@ contains
                           HOST_TO_DEVICE, sync=.false.)
     end if
 
-  end function dofmap_init
+   end subroutine dofmap_init
 
   !> Deallocate the dofmap
   subroutine dofmap_free(this)
