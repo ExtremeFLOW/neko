@@ -51,7 +51,6 @@ module fluid_pnpn
   use profiler, only : profiler_start_region, profiler_end_region
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
-  use material_properties, only : material_properties_t
   use ax_product, only : ax_t, ax_helm_factory
   use field, only : field_t
   use dirichlet, only : dirichlet_t
@@ -142,22 +141,19 @@ module fluid_pnpn
 
 contains
 
-  subroutine fluid_pnpn_init(this, msh, lx, params, user, &
-                             material_properties, time_scheme)
+  subroutine fluid_pnpn_init(this, msh, lx, params, user, time_scheme)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), intent(in) :: user
-    type(material_properties_t), target, intent(inout) :: material_properties
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
 
     call this%free()
 
     ! Initialize base class
-    call this%scheme_init(msh, lx, params, .true., .true., scheme, user, &
-                          material_properties)
+    call this%scheme_init(msh, lx, params, .true., .true., scheme, user)
 
     if (this%variable_material_properties .eqv. .true.) then
        ! Setup backend dependent Ax routines
