@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> Implements the `vorticity_t` type.
+!> Implements the `user_stats_t` type.
 
 module user_stats
   use num_types, only : rp, dp, sp
@@ -43,8 +43,7 @@ module user_stats
   use mean_field_output, only : mean_field_output_t
   use json_utils, only : json_get, json_get_or_default
   use mean_field, only : mean_field_t
-
-
+  use coefs, only : coef_t
   implicit none
   private
 
@@ -82,7 +81,7 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: filename
-    character(len=:), allocatable :: precision
+    character(len=:), allocatable :: avg_dir
 
     call this%init_base(json, case)
 
@@ -91,8 +90,10 @@ contains
     call json_get(json, 'fields', this%field_names)
     call json_get_or_default(json, 'start_time', &
          this%start_time, 0.0_rp)
+    call json_get_or_default(json, 'avg_direction', &
+         avg_dir, 'none')
     this%time = this%start_time
-    call user_stats_init_from_attributes(this,this%start_time,filename="user_stats")
+    call user_stats_init_from_attributes(this,this%start_time, case%fluid%c_Xh, avg_dir,filename="user_stats")
    ! if (json%valid_path("output_filename")) then
    !    call json_get_or_default(json, "output_filename", filename,'user_stats')
    !    if (json%valid_path("output_precision")) then
@@ -118,11 +119,13 @@ contains
 
 
   !> Actual constructor.
-  subroutine user_stats_init_from_attributes(this,start_time, filename, precision)
+  subroutine user_stats_init_from_attributes(this,start_time, coef, avg_dir, filename, precision)
     class(user_stats_t), intent(inout) :: this
     character(len=*), intent(in) :: filename
     integer, intent(in), optional :: precision
     real(kind=rp), intent(in) :: start_time
+    character(len=*), intent(in) :: avg_dir
+    type(coef_t), intent(inout) :: coef
     integer :: i
     type(field_t), pointer :: field_to_avg
 
@@ -136,7 +139,8 @@ contains
        call this%mean_fields(i)%init(field_to_avg)
     end do
 
-    call this%output%init(this%mean_fields, this%n_avg_fields,this%start_time, sp, name=filename)
+    call this%output%init(this%mean_fields, this%n_avg_fields, &
+                          this%start_time, coef, avg_dir,  name=filename)
     call this%case%s%add(this%output, this%output_controller%control_value, &
                          this%output_controller%control_mode)
 
