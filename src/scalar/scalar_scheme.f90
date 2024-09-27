@@ -677,10 +677,10 @@ contains
        else if (params%valid_path('case.scalar.Pe')) then
           write(log_buf, '(A)') 'Non-dimensional scalar material properties &
           & input.'
-          call neko_log%message(log_buf, lvl=NEKO_LOG_VERBOSE)
+          call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
           write(log_buf, '(A)') 'Specific heat capacity will be set to 1, &
           & conductivity to 1/Pe. Assumes density is 1.'
-          call neko_log%message(log_buf, lvl=NEKO_LOG_VERBOSE)
+          call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
           ! Read Pe into lambda for further manipulation.
           call json_get(params, 'case.scalar.Pe', this%lambda)

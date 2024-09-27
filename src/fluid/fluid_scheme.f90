@@ -1128,10 +1128,10 @@ contains
 
           write(log_buf, '(A)') 'Non-dimensional fluid material properties &
           & input.'
-          call neko_log%message(log_buf, lvl=NEKO_LOG_VERBOSE)
+          call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
           write(log_buf, '(A)') 'Density will be set to 1, dynamic viscosity to&
           & 1/Re.'
-          call neko_log%message(log_buf, lvl=NEKO_LOG_VERBOSE)
+          call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
           ! Read Re into mu for further manipulation.
           call json_get(params, 'case.fluid.Re', this%mu)
