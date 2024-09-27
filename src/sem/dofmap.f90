@@ -71,8 +71,10 @@ module dofmap
    contains
      !> Constructor
      procedure, pass(this) :: init => dofmap_init
+     !> Destructor
+     procedure, pass(this) :: free => dofmap_free
+     !> Return ntot
      procedure, pass(this) :: size => dofmap_size
-!     final :: dofmap_free
   end type dofmap_t
 
 contains
@@ -91,7 +93,7 @@ contains
     end if
 
 
-    call dofmap_free(this)
+    call this%free()
 
     this%msh => msh
     this%Xh => Xh
@@ -148,9 +150,9 @@ contains
 
    end subroutine dofmap_init
 
-  !> Deallocate the dofmap
+  !> Destructor.
   subroutine dofmap_free(this)
-    type(dofmap_t), intent(inout) :: this
+    class(dofmap_t), intent(inout) :: this
 
     if (allocated(this%dof)) then
        deallocate(this%dof)
