@@ -33,52 +33,91 @@
 !> Defines an output for a fluid
 module mean_field_output
   use num_types, only : rp
-  use fluid_scheme, only : fluid_scheme_t
-  use scalar_scheme, only : scalar_scheme_t
   use field_list, only : field_list_t
   use neko_config, only : NEKO_BCKND_DEVICE
+  use fld_file_data, only : fld_file_data_t
+  use map_2d, only : map_2d_t
+  use map_1d, only : map_1d_t
+  use coefs, only : coef_t
   use device
   use mean_field, only : mean_field_t
   use output, only : output_t
+  use matrix, only : matrix_t
   implicit none
   private
 
   !> Output for a list of mean fields
   type, public, extends(output_t) :: mean_field_output_t
+     !> list of mean fields
      type(mean_field_t), pointer :: mean_fields(:) 
      type(field_list_t) :: fields
-     real(kind=rp) :: start_time
-     integer :: n_fields
+     real(kind=rp) :: start_time !> Time to start output
+     integer :: n_fields !> Number of fields
+     !> Space averaging object for 2 homogeneous directions.
+     type(map_1d_t) :: map_1d
+     !> Space averaging object for 1 homogeneous direction.
+     type(map_2d_t) :: map_2d
+     !> The dimension of the output fields. Either 1, 2, or 3.
+     integer :: output_dim
    contains
-     procedure, pass(this) :: sample => mean_field_output_sample
+     procedure, pass(this) :: sample => mean_field_output_write
      procedure, pass(this) :: init => mean_field_output_init
   end type mean_field_output_t
 
 contains
 
-  subroutine mean_field_output_init(this,mean_fields, n_fields, start_time, precision, name, path) 
+  subroutine mean_field_output_init(this,mean_fields, n_fields, start_time, coef, avg_dir, name, path) 
     class(mean_field_output_t), intent(inout):: this
-    integer, intent(in) :: precision
     integer, intent(in) :: n_fields
     class(mean_field_t), intent(inout), target :: mean_fields(n_fields)
+    type(coef_t), intent(inout) :: coef
+    character(len=*), intent(in) :: avg_dir
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
     real(kind=rp), intent(in) :: start_time
     character(len=1024) :: fname
     integer :: i
-
-    if (present(name) .and. present(path)) then
-       fname = trim(path) // trim(name) // '.fld'
-    else if (present(name)) then
-       fname = trim(name) // '.fld'
-    else if (present(path)) then
-       fname = trim(path) // 'mean_fields.fld'
-    else
-       fname = 'mean_fields.fld'
-    end if
  
+    if (trim(avg_dir) .eq. 'none' .or. &
+        trim(avg_dir) .eq. 'x' .or.&
+        trim(avg_dir) .eq. 'y' .or.&
+        trim(avg_dir) .eq. 'z'&
+       ) then
+       if (present(name) .and. present(path)) then
+          fname = trim(path) // trim(name) // '.fld'
+       else if (present(name)) then
+          fname = trim(name) // '.fld'
+       else if (present(path)) then
+          fname = trim(path) // 'user_stats.fld'
+       else
+          fname = 'user_stats.fld'
+       end if
 
-    call this%init_base(fname, precision)
+       this%output_dim = 3
+
+       if (trim(avg_dir) .eq. 'x' .or.&
+           trim(avg_dir) .eq. 'y' .or.&
+           trim(avg_dir) .eq. 'z' ) then
+          call this%map_2d%init_char(coef, avg_dir, 1e-7_rp)
+          this%output_dim = 2
+       end if
+    else
+       if (present(name) .and. present(path)) then
+          fname = trim(path) // trim(name) // '.csv'
+       else if (present(name)) then
+          fname = trim(name) // '.csv'
+       else if (present(path)) then
+          fname = trim(path) // 'user_stats.csv'
+       else
+          fname = 'user_stats.csv'
+       end if
+       call this%map_1d%init_char(coef, avg_dir, 1e-7_rp)
+       this%output_dim = 1
+    end if
+
+
+
+    call this%init_base(fname)
 
     call this%fields%init(n_fields)
     this%n_fields = n_fields
@@ -90,28 +129,64 @@ contains
   end subroutine mean_field_output_init
 
   !> Sample the mean solution at time @a t and reset
-  subroutine mean_field_output_sample(this, t)
+  subroutine mean_field_output_write(this, t)
     class(mean_field_output_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer :: i
+    type(fld_file_data_t) :: output_2d
+    type(matrix_t) :: avg_output_1d
+    real(kind=rp) :: u, v, w, p
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+    !if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       associate(fields => this%fields%items)
-         do i = 1, size(fields)
-            call device_memcpy(fields(i)%ptr%x, fields(i)%ptr%x_d, &
-                 fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
-                 sync=(i .eq. size(fields))) ! Sync on the last field
-         end do
-       end associate
-    end if
+    !   associate(fields => this%fields%items)
+    !     do i = 1, size(fields)
+    !        call device_memcpy(fields(i)%ptr%x, fields(i)%ptr%x_d, &
+    !             fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
+    !             sync=(i .eq. size(fields))) ! Sync on the last field
+    !     end do
+    !   end associate
+    !end if
 
-    call this%file_%write(this%fields, t)
-
+    !call this%file_%write(this%fields, t)
+    associate (out_fields => this%fields%items)
+      if (t .ge. this%start_time) then
+         if ( NEKO_BCKND_DEVICE .eq. 1) then
+            do i = 1, size(out_fields)
+               call device_memcpy(out_fields(i)%ptr%x, out_fields(i)%ptr%x_d,&
+                    out_fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
+                    sync = (i .eq. size(out_fields))) ! Sync on last field
+            end do
+         end if
+         if (this%output_dim .eq. 1) then
+            call this%map_1d%average_planes(avg_output_1d, &
+                 this%fields)
+            call this%file_%write(avg_output_1d, t)
+         else if (this%output_dim .eq. 2) then
+            call this%map_2d%average(output_2d, this%fields)
+            !!Switch around fields to get correct orders
+            !!Put average direction mean_vel in scalar45
+            !do i = 1, this%map_2d%n_2d
+            !   u = output_2d%v%x(i)
+            !   v = output_2d%w%x(i)
+            !   w = output_2d%p%x(i)
+            !   p = output_2d%u%x(i)
+            !   output_2d%p%x(i) = p
+            !   output_2d%u%x(i) = u
+            !   output_2d%v%x(i) = v
+            !   output_2d%w%x(i) = w
+            !end do
+            
+            call this%file_%write(output_2d, t)
+         else
+            call this%file_%write(this%fields, t)
+         end if
     do i = 1, this%n_fields
        call this%mean_fields(i)%reset()
     end do
+      end if
+    end associate
 
-  end subroutine mean_field_output_sample
+  end subroutine mean_field_output_write
 
 end module mean_field_output
