@@ -1,14 +1,9 @@
 <map id="mean_field::mean_field_update" name="mean_field::mean_field_update">
 <area shape="rect" id="node1" title="Update a mean field." alt="" coords="5,86,180,127"/>
 <area shape="rect" id="node2" href="$d5/de6/namespacefield__math.html#a65da9611ed2cfe6c591ada458d0b8bfd" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="228,64,409,91"/>
-<area shape="rect" id="node8" href="$d5/de6/namespacefield__math.html#ace939df7b2efd9fc297be656077298f8" title="Multiplication by constant c ." alt="" coords="233,123,404,149"/>
+<area shape="rect" id="node5" href="$d5/de6/namespacefield__math.html#ace939df7b2efd9fc297be656077298f8" title="Multiplication by constant c ." alt="" coords="233,123,404,149"/>
 <area shape="rect" id="node3" href="$dd/d47/namespacemath.html#aec2e1cbc631a4cb73db0d17b89e9e596" title="Vector addition with scalar multiplication &#160;(multiplication on second argument)" alt="" coords="481,5,591,32"/>
 <area shape="rect" id="node4" href="$d2/d73/namespacedevice__math.html#a3b9c190380a831ba86fa3fe155dae8f7" title="Vector addition with scalar multiplication &#160;(multiplication on first argument)" alt="" coords="457,57,615,98"/>
-<area shape="rect" id="node5" href="$de/d1e/math_8cu.html#a305b5c802852471c9a4ecc0ae078cedd" title=" " alt="" coords="669,47,775,73"/>
-<area shape="rect" id="node6" href="$d6/da3/math_8c.html#a299eb8d523ba1c7d895b2430c2c2726b" title=" " alt="" coords="663,97,781,124"/>
-<area shape="rect" id="node7" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="829,148,961,175"/>
-<area shape="rect" id="node9" href="$dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1" title="Multiplication by constant c ." alt="" coords="485,123,587,149"/>
-<area shape="rect" id="node10" href="$d2/d73/namespacedevice__math.html#a6e9089e626320f54bad8af5f0a13fc99" title="Multiplication by constant c ." alt="" coords="457,174,615,215"/>
-<area shape="rect" id="node11" href="$de/d1e/math_8cu.html#a648456d6676ee2347f6b5cb6f4070d02" title=" " alt="" coords="673,148,771,175"/>
-<area shape="rect" id="node12" href="$d6/da3/math_8c.html#a11c52e9ccd9a49cda63423bb5ca32f94" title=" " alt="" coords="667,199,777,225"/>
+<area shape="rect" id="node6" href="$dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1" title="Multiplication by constant c ." alt="" coords="485,123,587,149"/>
+<area shape="rect" id="node7" href="$d2/d73/namespacedevice__math.html#a6e9089e626320f54bad8af5f0a13fc99" title="Multiplication by constant c ." alt="" coords="457,174,615,215"/>
 </map>

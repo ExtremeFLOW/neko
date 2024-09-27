@@ -1,7 +1,5 @@
 <map id="field_math::field_rzero" name="field_math::field_rzero">
-<area shape="rect" id="node1" title="Zero a real vector." alt="" coords="5,60,172,87"/>
-<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#a2b8132d3d15d4b553af3a1b55d6f8d87" title="Zero a real vector." alt="" coords="220,23,377,65"/>
-<area shape="rect" id="node5" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="250,89,347,116"/>
-<area shape="rect" id="node3" href="$de/d1e/math_8cu.html#a929f7979761fc7dfdb31c1bc7dcd3897" title=" " alt="" coords="431,5,525,32"/>
-<area shape="rect" id="node4" href="$d6/da3/math_8c.html#a4759a87ec336639cbcd865aea0801da7" title=" " alt="" coords="425,56,531,83"/>
+<area shape="rect" id="node1" title="Zero a real vector." alt="" coords="5,42,172,69"/>
+<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#a2b8132d3d15d4b553af3a1b55d6f8d87" title="Zero a real vector." alt="" coords="220,5,377,47"/>
+<area shape="rect" id="node3" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="250,71,347,98"/>
 </map>

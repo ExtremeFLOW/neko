@@ -1,8 +1,7 @@
 <map id="device_math::device_subcol3" name="device_math::device_subcol3">
-<area shape="rect" id="node1" title="Returns ." alt="" coords="497,100,655,141"/>
+<area shape="rect" id="node1" title="Returns ." alt="" coords="497,71,655,112"/>
 <area shape="rect" id="node2" href="$d9/de3/namespaceadv__no__dealias.html#a15ec3562225515cf69db81a0d29bc956" title="Add the advection term for the fluid, i.e. &#160;to the RHS." alt="" coords="247,5,435,47"/>
 <area shape="rect" id="node3" href="$d9/de3/namespaceadv__no__dealias.html#a444dbbe3da36640a6ac5ef1de5983bc5" title="Add the advection term for a scalar, i.e. , to the RHS." alt="" coords="233,71,449,112"/>
 <area shape="rect" id="node4" href="$d5/de6/namespacefield__math.html#aa8a83165a055588be30d198cc8701605" title="Returns ." alt="" coords="249,137,433,163"/>
-<area shape="rect" id="node6" href="$d9/db1/interfacedevice__math_1_1hip__glsum.html#abc45240d9a859b5daa0f46d251d95e44" title=" " alt="" coords="251,188,432,229"/>
 <area shape="rect" id="node5" href="$d0/d7b/namespacebrinkman__source__term.html#a720d472803e4fe61add63e18da4bd69a" title="Computes the source term and adds the result to fields." alt="" coords="5,122,185,178"/>
 </map>

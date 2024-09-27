@@ -143,54 +143,55 @@ $(document).ready(function(){initNavTree('d3/d18/fdm_8c_source.html','../../'); 
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160; </div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="preprocessor">#include &quot;fdm_kernel.cl.h&quot;</span></div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160; </div>
-<div class="line"><a name="l00049"></a><span class="lineno"><a class="line" href="../../d3/d18/fdm_8c.html#a65b6e22a9686f4446beb20d32dbc38f0">   49</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="../../d3/d18/fdm_8c.html#a65b6e22a9686f4446beb20d32dbc38f0">opencl_fdm_do_fast</a>(<span class="keywordtype">void</span> *<a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a83e52139e060d0c1ba0475539f657304">e</a>, <span class="keywordtype">void</span> *r, <span class="keywordtype">void</span> *s, <span class="keywordtype">void</span> *d, <span class="keywordtype">int</span> *nl, <span class="keywordtype">int</span> *nel) {</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  cl_int err;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <span class="keywordflow">if</span> (<a class="code" href="../../d1/df7/prgm__lib_8h.html#a61a425b33d465bba7397980ea4bff37b">fdm_program</a> == NULL)</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <a class="code" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6">opencl_kernel_jit</a>(fdm_kernel, (cl_program *) &amp;<a class="code" href="../../d1/df7/prgm__lib_8h.html#a61a425b33d465bba7397980ea4bff37b">fdm_program</a>);</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160; </div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">size_t</span> global_item_size = 256 * (*nel);</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">size_t</span> local_item_size = 256;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160; </div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="preprocessor">#define STR(X) #X</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="preprocessor">#define CASE(NL)                                                               \</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="preprocessor">  case NL:                                                                     \</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="preprocessor">    {                                                                          \</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="preprocessor">      cl_kernel kernel = clCreateKernel(fdm_program,                           \</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="preprocessor">                                        STR(fdm_do_fast_kernel_nl##NL), &amp;err); \</span></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="preprocessor">      CL_CHECK(err);                                                           \</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor">                                                                               \</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="preprocessor">      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &amp;e));        \</span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="preprocessor">      CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &amp;r));        \</span></div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="preprocessor">      CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &amp;s));        \</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="preprocessor">      CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &amp;d));        \</span></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="preprocessor">                                                                               \</span></div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="preprocessor">      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel,\</span></div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="preprocessor">                                      1, NULL, &amp;global_item_size,              \</span></div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="preprocessor">                                      &amp;local_item_size, 0, NULL, NULL));       \</span></div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="preprocessor">    }                                                                          \</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="preprocessor">   break</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160; </div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  <span class="keywordflow">switch</span>(*nl) {</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(2);</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(3);</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(4);</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(5);</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(6);</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(7);</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(8);</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(9);</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(10);</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(11);</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(12);</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(13);</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(14);</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(15);</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  }</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;}</div>
+<div class="line"><a name="l00049"></a><span class="lineno"><a class="line" href="../../d3/d18/fdm_8c.html#a38e1ee6ab4b76b8f0bb0e763e0d76700">   49</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="../../d3/d18/fdm_8c.html#a38e1ee6ab4b76b8f0bb0e763e0d76700">opencl_fdm_do_fast</a>(<span class="keywordtype">void</span> *<a class="code" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a83e52139e060d0c1ba0475539f657304">e</a>, <span class="keywordtype">void</span> *r, <span class="keywordtype">void</span> *s, <span class="keywordtype">void</span> *d, <span class="keywordtype">int</span> *nl, <span class="keywordtype">int</span> *nel,</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;                        cl_command_queue cmd_queue) {</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  cl_int err;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160; </div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <span class="keywordflow">if</span> (<a class="code" href="../../d1/df7/prgm__lib_8h.html#a61a425b33d465bba7397980ea4bff37b">fdm_program</a> == NULL)</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    <a class="code" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6">opencl_kernel_jit</a>(fdm_kernel, (cl_program *) &amp;<a class="code" href="../../d1/df7/prgm__lib_8h.html#a61a425b33d465bba7397980ea4bff37b">fdm_program</a>);</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">size_t</span> global_item_size = 256 * (*nel);</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">size_t</span> local_item_size = 256;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160; </div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="preprocessor">#define STR(X) #X</span></div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="preprocessor">#define CASE(NL)                                                               \</span></div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="preprocessor">  case NL:                                                                     \</span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="preprocessor">    {                                                                          \</span></div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="preprocessor">      cl_kernel kernel = clCreateKernel(fdm_program,                           \</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="preprocessor">                                        STR(fdm_do_fast_kernel_nl##NL), &amp;err); \</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="preprocessor">      CL_CHECK(err);                                                           \</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="preprocessor">                                                                               \</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="preprocessor">      CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &amp;e));        \</span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="preprocessor">      CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &amp;r));        \</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="preprocessor">      CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &amp;s));        \</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="preprocessor">      CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &amp;d));        \</span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="preprocessor">                                                                               \</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="preprocessor">      CL_CHECK(clEnqueueNDRangeKernel(cmd_queue, kernel,                       \</span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="preprocessor">                                      1, NULL, &amp;global_item_size,              \</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="preprocessor">                                      &amp;local_item_size, 0, NULL, NULL));       \</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="preprocessor">    }                                                                          \</span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="preprocessor">   break</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  <span class="keywordflow">switch</span>(*nl) {</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(2);</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(3);</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(4);</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(5);</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(6);</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(7);</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(8);</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(9);</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(10);</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(11);</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(12);</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(13);</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(14);</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <a class="code" href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a>(15);</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  }</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;}</div>
 <div class="ttc" id="acuda_2cdtp__kernel_8h_html_a83e52139e060d0c1ba0475539f657304"><div class="ttname"><a href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a83e52139e060d0c1ba0475539f657304">e</a></div><div class="ttdeci">const int e</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/dd9/cuda_2cdtp__kernel_8h_source.html#l00126">cdtp_kernel.h:126</a></div></div>
 <div class="ttc" id="adevice__config_8h_html"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html">device_config.h</a></div></div>
-<div class="ttc" id="afdm_8c_html_a65b6e22a9686f4446beb20d32dbc38f0"><div class="ttname"><a href="../../d3/d18/fdm_8c.html#a65b6e22a9686f4446beb20d32dbc38f0">opencl_fdm_do_fast</a></div><div class="ttdeci">void opencl_fdm_do_fast(void *e, void *r, void *s, void *d, int *nl, int *nel)</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/d18/fdm_8c_source.html#l00049">fdm.c:49</a></div></div>
+<div class="ttc" id="afdm_8c_html_a38e1ee6ab4b76b8f0bb0e763e0d76700"><div class="ttname"><a href="../../d3/d18/fdm_8c.html#a38e1ee6ab4b76b8f0bb0e763e0d76700">opencl_fdm_do_fast</a></div><div class="ttdeci">void opencl_fdm_do_fast(void *e, void *r, void *s, void *d, int *nl, int *nel, cl_command_queue cmd_queue)</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/d18/fdm_8c_source.html#l00049">fdm.c:49</a></div></div>
 <div class="ttc" id="afdm_8c_html_ad4e70dfe7a27f9912db93f6093cc2b9e"><div class="ttname"><a href="../../d3/d18/fdm_8c.html#ad4e70dfe7a27f9912db93f6093cc2b9e">CASE</a></div><div class="ttdeci">#define CASE(NL)</div></div>
 <div class="ttc" id="ajit_8c_html_a7f4d1566adfd93b0565147e32387abf6"><div class="ttname"><a href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6">opencl_kernel_jit</a></div><div class="ttdeci">void opencl_kernel_jit(const char *kernel, cl_program *program)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/df3/jit_8c_source.html#l00050">jit.c:50</a></div></div>
 <div class="ttc" id="ajit_8h_html"><div class="ttname"><a href="../../d4/d0f/jit_8h.html">jit.h</a></div></div>
@@ -203,7 +204,7 @@ $(document).ready(function(){initNavTree('d3/d18/fdm_8c_source.html','../../'); 
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_a753435b69305af25b1972a8c16b18f4.html">opencl</a></li><li class="navelem"><a class="el" href="../../d3/d18/fdm_8c.html">fdm.c</a></li>
-    <li class="footer">Generated on Thu Sep 26 2024 03:38:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Sep 27 2024 03:38:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

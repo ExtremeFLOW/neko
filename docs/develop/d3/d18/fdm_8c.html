@@ -132,8 +132,8 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a65b6e22a9686f4446beb20d32dbc38f0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d18/fdm_8c.html#a65b6e22a9686f4446beb20d32dbc38f0">opencl_fdm_do_fast</a> (void *<a class="el" href="../../dd/d9e/hip_2opgrad__kernel_8h.html#a83e52139e060d0c1ba0475539f657304">e</a>, void *r, void *s, void *d, int *nl, int *nel)</td></tr>
-<tr class="separator:a65b6e22a9686f4446beb20d32dbc38f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38e1ee6ab4b76b8f0bb0e763e0d76700"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d18/fdm_8c.html#a38e1ee6ab4b76b8f0bb0e763e0d76700">opencl_fdm_do_fast</a> (void *<a class="el" href="../../dd/d9e/hip_2opgrad__kernel_8h.html#a83e52139e060d0c1ba0475539f657304">e</a>, void *r, void *s, void *d, int *nl, int *nel, cl_command_queue cmd_queue)</td></tr>
+<tr class="separator:a38e1ee6ab4b76b8f0bb0e763e0d76700"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="ad4e70dfe7a27f9912db93f6093cc2b9e"></a>
@@ -162,13 +162,12 @@ Functions</h2></td></tr>
 <div class="line">      CL_CHECK(clSetKernelArg(kernel, 2, <span class="keyword">sizeof</span>(cl_mem), (<span class="keywordtype">void</span> *) &amp;s));        \</div>
 <div class="line">      CL_CHECK(clSetKernelArg(kernel, 3, <span class="keyword">sizeof</span>(cl_mem), (<span class="keywordtype">void</span> *) &amp;d));        <a class="code" href="../../d0/d05/opencl_2check_8h.html#abad39b8c90d964c59e364be683ff5a14">\</a></div>
 <div class="line"><a class="code" href="../../d0/d05/opencl_2check_8h.html#abad39b8c90d964c59e364be683ff5a14">                                                                               \</a></div>
-<div class="line"><a class="code" href="../../d0/d05/opencl_2check_8h.html#abad39b8c90d964c59e364be683ff5a14">      CL_CHECK</a>(clEnqueueNDRangeKernel((cl_command_queue) <a class="code" href="../../d8/dc8/device__config_8h.html#a470d6592467cf6e88606a04749c50d83">glb_cmd_queue</a>, kernel,\</div>
+<div class="line"><a class="code" href="../../d0/d05/opencl_2check_8h.html#abad39b8c90d964c59e364be683ff5a14">      CL_CHECK</a>(clEnqueueNDRangeKernel(cmd_queue, kernel,                       \</div>
 <div class="line">                                      1, NULL, &amp;global_item_size,              \</div>
 <div class="line">                                      &amp;local_item_size, 0, NULL, NULL));       \</div>
 <div class="line">    }                                                                          \</div>
 <div class="line">   break</div>
 <div class="ttc" id="acuda_2cdtp__kernel_8h_html_a83e52139e060d0c1ba0475539f657304"><div class="ttname"><a href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a83e52139e060d0c1ba0475539f657304">e</a></div><div class="ttdeci">const int e</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/dd9/cuda_2cdtp__kernel_8h_source.html#l00126">cdtp_kernel.h:126</a></div></div>
-<div class="ttc" id="adevice__config_8h_html_a470d6592467cf6e88606a04749c50d83"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html#a470d6592467cf6e88606a04749c50d83">glb_cmd_queue</a></div><div class="ttdeci">void * glb_cmd_queue</div></div>
 <div class="ttc" id="afdm_8c_html_aae57f17e11e61cf0519e2004414f5629"><div class="ttname"><a href="../../d3/d18/fdm_8c.html#aae57f17e11e61cf0519e2004414f5629">STR</a></div><div class="ttdeci">#define STR(X)</div></div>
 <div class="ttc" id="aopencl_2check_8h_html_abad39b8c90d964c59e364be683ff5a14"><div class="ttname"><a href="../../d0/d05/opencl_2check_8h.html#abad39b8c90d964c59e364be683ff5a14">CL_CHECK</a></div><div class="ttdeci">#define CL_CHECK(err)</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/d05/opencl_2check_8h_source.html#l00012">check.h:12</a></div></div>
 <div class="ttc" id="aprgm__lib_8h_html_a61a425b33d465bba7397980ea4bff37b"><div class="ttname"><a href="../../d1/df7/prgm__lib_8h.html#a61a425b33d465bba7397980ea4bff37b">fdm_program</a></div><div class="ttdeci">void * fdm_program</div></div>
@@ -194,8 +193,8 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a65b6e22a9686f4446beb20d32dbc38f0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a65b6e22a9686f4446beb20d32dbc38f0">&#9670;&nbsp;</a></span>opencl_fdm_do_fast()</h2>
+<a id="a38e1ee6ab4b76b8f0bb0e763e0d76700"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38e1ee6ab4b76b8f0bb0e763e0d76700">&#9670;&nbsp;</a></span>opencl_fdm_do_fast()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -234,7 +233,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int *&#160;</td>
-          <td class="paramname"><em>nel</em>&#160;</td>
+          <td class="paramname"><em>nel</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">cl_command_queue&#160;</td>
+          <td class="paramname"><em>cmd_queue</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -248,8 +253,8 @@ Functions</h2></td></tr>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d3/d18/fdm_8c_a65b6e22a9686f4446beb20d32dbc38f0_cgraph.png" border="0" usemap="#ad3/d18/fdm_8c_a65b6e22a9686f4446beb20d32dbc38f0_cgraph" alt=""/></div>
-<map name="ad3/d18/fdm_8c_a65b6e22a9686f4446beb20d32dbc38f0_cgraph" id="ad3/d18/fdm_8c_a65b6e22a9686f4446beb20d32dbc38f0_cgraph">
+<div class="center"><img src="../../d3/d18/fdm_8c_a38e1ee6ab4b76b8f0bb0e763e0d76700_cgraph.png" border="0" usemap="#ad3/d18/fdm_8c_a38e1ee6ab4b76b8f0bb0e763e0d76700_cgraph" alt=""/></div>
+<map name="ad3/d18/fdm_8c_a38e1ee6ab4b76b8f0bb0e763e0d76700_cgraph" id="ad3/d18/fdm_8c_a38e1ee6ab4b76b8f0bb0e763e0d76700_cgraph">
 <area shape="rect" title=" " alt="" coords="5,5,159,32"/>
 <area shape="rect" href="../../d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="207,5,339,32"/>
 </map>
@@ -257,8 +262,8 @@ Here is the call graph for this function:</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d3/d18/fdm_8c_a65b6e22a9686f4446beb20d32dbc38f0_icgraph.png" border="0" usemap="#ad3/d18/fdm_8c_a65b6e22a9686f4446beb20d32dbc38f0_icgraph" alt=""/></div>
-<map name="ad3/d18/fdm_8c_a65b6e22a9686f4446beb20d32dbc38f0_icgraph" id="ad3/d18/fdm_8c_a65b6e22a9686f4446beb20d32dbc38f0_icgraph">
+<div class="center"><img src="../../d3/d18/fdm_8c_a38e1ee6ab4b76b8f0bb0e763e0d76700_icgraph.png" border="0" usemap="#ad3/d18/fdm_8c_a38e1ee6ab4b76b8f0bb0e763e0d76700_icgraph" alt=""/></div>
+<map name="ad3/d18/fdm_8c_a38e1ee6ab4b76b8f0bb0e763e0d76700_icgraph" id="ad3/d18/fdm_8c_a38e1ee6ab4b76b8f0bb0e763e0d76700_icgraph">
 <area shape="rect" title=" " alt="" coords="449,13,603,39"/>
 <area shape="rect" href="../../d9/d21/namespacefdm__device.html#a8a8ab5c4ed1eba5383efee8a94bc7496" title=" " alt="" coords="247,5,401,47"/>
 <area shape="rect" href="../../dd/d18/interfacefdm__device_1_1hip__fdm__do__fast.html#abea7cd14fbf4bebf8424b791ad7fd8f7" title=" " alt="" coords="5,5,199,47"/>
@@ -273,7 +278,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_a753435b69305af25b1972a8c16b18f4.html">opencl</a></li><li class="navelem"><a class="el" href="../../d3/d18/fdm_8c.html">fdm.c</a></li>
-    <li class="footer">Generated on Thu Sep 26 2024 03:38:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Sep 27 2024 03:38:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

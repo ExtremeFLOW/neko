@@ -1,8 +1,5 @@
 <map id="matrix::matrix_sub_matrix" name="matrix::matrix_sub_matrix">
-<area shape="rect" id="node1" title="Matrix&#45;matrix subtraction ." alt="" coords="5,49,152,90"/>
-<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#ab9e58c9754184290830b9fe3cdefab5f" title="Vector subtraction ." alt="" coords="200,31,395,57"/>
-<area shape="rect" id="node6" href="$dd/d47/namespacemath.html#a797f1134edbf7948a9f9c040fd5061d0" title="Vector subtraction ." alt="" coords="250,81,345,108"/>
-<area shape="rect" id="node3" href="$de/d1e/math_8cu.html#afd3505ee33f144d75471a6468cf40857" title=" " alt="" coords="449,5,539,32"/>
-<area shape="rect" id="node4" href="$d6/da3/math_8c.html#a1afa5bd7206ea75ecca86f7034d940cb" title=" " alt="" coords="443,56,545,83"/>
-<area shape="rect" id="node5" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="593,56,725,83"/>
+<area shape="rect" id="node1" title="Matrix&#45;matrix subtraction ." alt="" coords="5,23,152,65"/>
+<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#ab9e58c9754184290830b9fe3cdefab5f" title="Vector subtraction ." alt="" coords="200,5,395,32"/>
+<area shape="rect" id="node3" href="$dd/d47/namespacemath.html#a797f1134edbf7948a9f9c040fd5061d0" title="Vector subtraction ." alt="" coords="250,56,345,83"/>
 </map>

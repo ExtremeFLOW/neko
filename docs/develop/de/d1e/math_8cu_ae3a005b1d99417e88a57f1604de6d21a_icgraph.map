@@ -1,6 +1,0 @@
-<map id="cuda_vcross" name="cuda_vcross">
-<area shape="rect" id="node1" title=" " alt="" coords="440,46,543,73"/>
-<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#a6bc3df8a4c7cced80415d84b79479692" title="Compute a cross product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="235,39,392,80"/>
-<area shape="rect" id="node3" href="$d6/daa/namespaceforce__torque.html#ab407c7b9763b091d7165c5d7d19044de" title="Compute the force_torque field." alt="" coords="23,5,169,47"/>
-<area shape="rect" id="node4" href="$d9/db1/interfacedevice__math_1_1hip__glsum.html#abc45240d9a859b5daa0f46d251d95e44" title=" " alt="" coords="5,71,187,112"/>
-</map>
