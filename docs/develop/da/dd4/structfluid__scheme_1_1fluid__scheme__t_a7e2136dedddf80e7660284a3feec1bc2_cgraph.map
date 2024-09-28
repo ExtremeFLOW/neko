@@ -1,7 +1,7 @@
 <map id="fluid_scheme::fluid_scheme_t::scheme_init" name="fluid_scheme::fluid_scheme_t::scheme_init">
 <area shape="rect" id="node1" title=" " alt="" coords="5,50,184,91"/>
-<area shape="rect" id="node2" href="$d8/d09/namespacefluid__scheme.html#a144b95d642fd4be4de512b2b9d37e77b" title="Initialize all components of the current scheme." alt="" coords="246,17,390,58"/>
-<area shape="rect" id="node6" href="$d8/d09/namespacefluid__scheme.html#ab8289185c523ab7039d9076f81d2c2cc" title="Initialise a fluid scheme." alt="" coords="232,82,404,123"/>
+<area shape="rect" id="node2" href="$d8/d09/namespacefluid__scheme.html#a394523005f7e024eff53a66eed66fd5a" title="Initialize all components of the current scheme." alt="" coords="246,17,390,58"/>
+<area shape="rect" id="node6" href="$d8/d09/namespacefluid__scheme.html#a954fd0e94a3e06097351d3ca34709ad4" title="Initialise a fluid scheme." alt="" coords="232,82,404,123"/>
 <area shape="rect" id="node3" href="$d0/dc0/namespacebc.html#a132f9467b1f6ee956b4e31bf758b1199" title="Add a condition to a list of boundary conditions." alt="" coords="471,5,590,32"/>
 <area shape="rect" id="node4" href="$d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="473,56,588,83"/>
 <area shape="rect" id="node5" href="$d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="676,56,796,83"/>

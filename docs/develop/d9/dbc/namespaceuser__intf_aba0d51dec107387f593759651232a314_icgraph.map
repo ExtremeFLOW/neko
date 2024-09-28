@@ -1,6 +1,7 @@
 <map id="user_intf::dummy_user_material_properties" name="user_intf::dummy_user_material_properties">
-<area shape="rect" id="node1" title=" " alt="" coords="240,57,411,98"/>
-<area shape="rect" id="node2" href="$d7/da0/structuser__intf_1_1user__t.html#a8f935babf9caeb74e8f4b0ae200bf2a9" title=" " alt="" coords="21,5,176,32"/>
-<area shape="rect" id="node3" href="$d8/d15/namespacematerial__properties.html#a1784032a3dde2a255f256110ac85c19f" title="Constructor." alt="" coords="5,57,192,98"/>
-<area shape="rect" id="node4" href="$d9/dbc/namespaceuser__intf.html#a3aea51eae7110590baa40d9133620914" title="User interface initialization." alt="" coords="13,123,184,149"/>
+<area shape="rect" id="node1" title=" " alt="" coords="224,111,395,153"/>
+<area shape="rect" id="node2" href="$d8/d09/namespacefluid__scheme.html#a0ae759800139b4307245257061446a8d" title="Sets rho and mu." alt="" coords="6,5,175,61"/>
+<area shape="rect" id="node3" href="$d7/da0/structuser__intf_1_1user__t.html#a8f935babf9caeb74e8f4b0ae200bf2a9" title=" " alt="" coords="13,85,168,112"/>
+<area shape="rect" id="node4" href="$da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415" title="Set lamdba and cp." alt="" coords="6,136,175,192"/>
+<area shape="rect" id="node5" href="$d9/dbc/namespaceuser__intf.html#a3aea51eae7110590baa40d9133620914" title="User interface initialization." alt="" coords="5,216,176,243"/>
 </map>

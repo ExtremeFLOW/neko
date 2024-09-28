@@ -131,9 +131,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a52d0bdcd6d81c223bb1e543b0d504bfc"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a52d0bdcd6d81c223bb1e543b0d504bfc">scalar_scheme::scalar_scheme_add_bcs</a> (this, zones, bc_labels)</td></tr>
 <tr class="memdesc:a52d0bdcd6d81c223bb1e543b0d504bfc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize boundary conditions.  <a href="../../da/de3/namespacescalar__scheme.html#a52d0bdcd6d81c223bb1e543b0d504bfc">More...</a><br /></td></tr>
 <tr class="separator:a52d0bdcd6d81c223bb1e543b0d504bfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a442e39894b529b2b2644ad3adba880ae"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a442e39894b529b2b2644ad3adba880ae">scalar_scheme::scalar_scheme_init</a> (this, msh, c_Xh, gs_Xh, params, scheme, user, material_properties)</td></tr>
-<tr class="memdesc:a442e39894b529b2b2644ad3adba880ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize all related components of the current scheme.  <a href="../../da/de3/namespacescalar__scheme.html#a442e39894b529b2b2644ad3adba880ae">More...</a><br /></td></tr>
-<tr class="separator:a442e39894b529b2b2644ad3adba880ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59759d81fe41003de9f041ca2b650fed"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a59759d81fe41003de9f041ca2b650fed">scalar_scheme::scalar_scheme_init</a> (this, msh, c_Xh, gs_Xh, params, scheme, user, rho)</td></tr>
+<tr class="memdesc:a59759d81fe41003de9f041ca2b650fed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize all related components of the current scheme.  <a href="../../da/de3/namespacescalar__scheme.html#a59759d81fe41003de9f041ca2b650fed">More...</a><br /></td></tr>
+<tr class="separator:a59759d81fe41003de9f041ca2b650fed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a57f35ef15b838ab8da7ab18d002a352b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a57f35ef15b838ab8da7ab18d002a352b">scalar_scheme::scalar_scheme_free</a> (this)</td></tr>
 <tr class="memdesc:a57f35ef15b838ab8da7ab18d002a352b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a scalar formulation.  <a href="../../da/de3/namespacescalar__scheme.html#a57f35ef15b838ab8da7ab18d002a352b">More...</a><br /></td></tr>
 <tr class="separator:a57f35ef15b838ab8da7ab18d002a352b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -152,6 +152,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a6efc05586b621fca40333f4f6b2d76a2"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a6efc05586b621fca40333f4f6b2d76a2">scalar_scheme::scalar_scheme_update_material_properties</a> (this)</td></tr>
 <tr class="memdesc:a6efc05586b621fca40333f4f6b2d76a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the values of <code>lambda_field</code> if necessary.  <a href="../../da/de3/namespacescalar__scheme.html#a6efc05586b621fca40333f4f6b2d76a2">More...</a><br /></td></tr>
 <tr class="separator:a6efc05586b621fca40333f4f6b2d76a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab72269e4be11d711d345d540ff333415"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415">scalar_scheme::scalar_scheme_set_material_properties</a> (this, params, user)</td></tr>
+<tr class="memdesc:ab72269e4be11d711d345d540ff333415"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set lamdba and cp.  <a href="../../da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415">More...</a><br /></td></tr>
+<tr class="separator:ab72269e4be11d711d345d540ff333415"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -159,7 +162,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_0691d6202b68dc26b40b4865e3c53c6d.html">scalar</a></li><li class="navelem"><a class="el" href="../../da/dc7/scalar__scheme_8f90.html">scalar_scheme.f90</a></li>
-    <li class="footer">Generated on Fri Sep 27 2024 03:38:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Sep 28 2024 03:37:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -1,82 +1,81 @@
 <map id="derivative::derivative_t" name="derivative::derivative_t">
-<area shape="rect" id="node1" title="A simulation component that computes a derivative of a field. Wraps the duxyz operator." alt="" coords="467,2593,641,2620"/>
-<area shape="rect" id="node2" href="$dc/d0d/structsimulation__component_1_1simulation__component__t.html" title="Base abstract class for simulation components." alt="" coords="784,2399,975,2440"/>
-<area shape="rect" id="node79" href="$de/d1a/structfield__writer_1_1field__writer__t.html" title="A simulation component that writes a 3d field to a file." alt="" coords="489,2489,619,2531"/>
-<area shape="rect" id="node3" href="$db/d7a/structcase_1_1case__t.html" title=" " alt="" coords="952,2309,1055,2336"/>
-<area shape="rect" id="node4" href="$d5/dff/structstats_1_1stats__t.html" title="Statistics backend." alt="" coords="1418,2183,1525,2210"/>
-<area shape="rect" id="node5" href="$d3/de2/structstats_1_1quantp__t.html" title="Pointer to an arbitrary quantitiy." alt="" coords="1412,2079,1531,2106"/>
-<area shape="rect" id="node6" href="$d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html" title=" " alt="" coords="2065,2176,2211,2217"/>
-<area shape="rect" id="node7" href="$dd/ded/structscalar__scheme_1_1scalar__scheme__t.html" title="Base type for a scalar advection&#45;diffusion solver." alt="" coords="2175,2072,2341,2113"/>
-<area shape="rect" id="node8" href="$db/d55/structscalar__source__term_1_1scalar__source__term__t.html" title="Wrapper contaning and executing the scalar source terms." alt="" coords="2001,1939,2171,1980"/>
-<area shape="rect" id="node9" href="$dc/d80/structsource__term__handler_1_1source__term__handler__t.html" title="Abstract class for handling source terms." alt="" coords="1949,1775,2127,1816"/>
-<area shape="rect" id="node10" href="$d7/da0/structuser__intf_1_1user__t.html" title=" " alt="" coords="1872,1455,1999,1482"/>
-<area shape="rect" id="node11" href="$d3/d90/structfield__list_1_1field__list__t.html" title="field_list_t, To be able to group fields together" alt="" coords="1077,1455,1229,1482"/>
-<area shape="rect" id="node47" href="$d9/da8/structfield__dirichlet_1_1field__dirichlet__t.html" title="User defined dirichlet condition, for which the user can work with an entire field...." alt="" coords="2202,1775,2349,1816"/>
-<area shape="rect" id="node60" href="$da/d8a/structfluid__stats_1_1fluid__stats__t.html" title=" " alt="" coords="1113,1775,1238,1816"/>
-<area shape="rect" id="node63" href="$de/d0d/structfluid__output_1_1fluid__output__t.html" title="Fluid output." alt="" coords="580,2072,715,2113"/>
-<area shape="rect" id="node80" href="$d4/d72/structfld__file__output_1_1fld__file__output__t.html" title="A simple output saving a list of fields to a .fld file." alt="" coords="203,2072,342,2113"/>
-<area shape="rect" id="node12" href="$dc/dd8/structfield_1_1field__ptr__t.html" title="field_ptr_t, To easily obtain a pointer to a field" alt="" coords="1259,1145,1382,1171"/>
-<area shape="rect" id="node13" href="$d3/d5f/structfield_1_1field__t.html" title=" " alt="" coords="1603,1048,1702,1075"/>
-<area shape="rect" id="node46" href="$d1/d6e/structfield__series_1_1field__series__t.html" title=" " alt="" coords="1587,1775,1719,1816"/>
-<area shape="rect" id="node50" href="$d9/d88/structcheckpoint_1_1chkp__t.html" title=" " alt="" coords="1246,1946,1390,1973"/>
-<area shape="rect" id="node62" href="$dc/d4a/structmean__field_1_1mean__field__t.html" title=" " alt="" coords="809,1455,995,1482"/>
-<area shape="rect" id="node14" href="$d0/df0/structdofmap_1_1dofmap__t.html" title=" " alt="" coords="2341,877,2484,903"/>
-<area shape="rect" id="node43" href="$d0/dea/structcoefs_1_1coef__t.html" title="Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,..." alt="" coords="2540,1145,2645,1171"/>
-<area shape="rect" id="node44" href="$dd/db8/structgather__scatter_1_1gs__t.html" title=" " alt="" coords="2733,1048,2884,1075"/>
-<area shape="rect" id="node48" href="$d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="2534,1455,2606,1482"/>
-<area shape="rect" id="node15" href="$da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="2493,699,2612,726"/>
-<area shape="rect" id="node16" title=" " alt="" coords="2447,424,2501,451"/>
-<area shape="rect" id="node53" href="$d5/d57/structusr__scalar_1_1usr__scalar__t.html" title="User defined dirichlet condition for scalars." alt="" coords="2475,1782,2649,1809"/>
-<area shape="rect" id="node56" href="$d5/dcf/structprojection_1_1projection__t.html" title=" " alt="" coords="2963,759,3135,785"/>
+<area shape="rect" id="node1" title="A simulation component that computes a derivative of a field. Wraps the duxyz operator." alt="" coords="283,2593,457,2620"/>
+<area shape="rect" id="node2" href="$dc/d0d/structsimulation__component_1_1simulation__component__t.html" title="Base abstract class for simulation components." alt="" coords="871,2399,1061,2440"/>
+<area shape="rect" id="node78" href="$de/d1a/structfield__writer_1_1field__writer__t.html" title="A simulation component that writes a 3d field to a file." alt="" coords="305,2489,435,2531"/>
+<area shape="rect" id="node3" href="$db/d7a/structcase_1_1case__t.html" title=" " alt="" coords="1013,2309,1116,2336"/>
+<area shape="rect" id="node4" href="$d5/dff/structstats_1_1stats__t.html" title="Statistics backend." alt="" coords="1425,2183,1531,2210"/>
+<area shape="rect" id="node5" href="$d3/de2/structstats_1_1quantp__t.html" title="Pointer to an arbitrary quantitiy." alt="" coords="1425,2079,1544,2106"/>
+<area shape="rect" id="node6" href="$d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html" title=" " alt="" coords="2090,2176,2237,2217"/>
+<area shape="rect" id="node7" href="$dd/ded/structscalar__scheme_1_1scalar__scheme__t.html" title="Base type for a scalar advection&#45;diffusion solver." alt="" coords="2183,2072,2349,2113"/>
+<area shape="rect" id="node8" href="$db/d55/structscalar__source__term_1_1scalar__source__term__t.html" title="Wrapper contaning and executing the scalar source terms." alt="" coords="2015,1939,2184,1980"/>
+<area shape="rect" id="node9" href="$dc/d80/structsource__term__handler_1_1source__term__handler__t.html" title="Abstract class for handling source terms." alt="" coords="1962,1775,2141,1816"/>
+<area shape="rect" id="node10" href="$d7/da0/structuser__intf_1_1user__t.html" title=" " alt="" coords="1916,1455,2043,1482"/>
+<area shape="rect" id="node11" href="$d3/d90/structfield__list_1_1field__list__t.html" title="field_list_t, To be able to group fields together" alt="" coords="1091,1455,1243,1482"/>
+<area shape="rect" id="node47" href="$d9/da8/structfield__dirichlet_1_1field__dirichlet__t.html" title="User defined dirichlet condition, for which the user can work with an entire field...." alt="" coords="2215,1775,2362,1816"/>
+<area shape="rect" id="node60" href="$da/d8a/structfluid__stats_1_1fluid__stats__t.html" title=" " alt="" coords="1119,1775,1245,1816"/>
+<area shape="rect" id="node63" href="$de/d0d/structfluid__output_1_1fluid__output__t.html" title="Fluid output." alt="" coords="593,2072,728,2113"/>
+<area shape="rect" id="node79" href="$d4/d72/structfld__file__output_1_1fld__file__output__t.html" title="A simple output saving a list of fields to a .fld file." alt="" coords="217,2072,355,2113"/>
+<area shape="rect" id="node12" href="$dc/dd8/structfield_1_1field__ptr__t.html" title="field_ptr_t, To easily obtain a pointer to a field" alt="" coords="1262,1145,1385,1171"/>
+<area shape="rect" id="node13" href="$d3/d5f/structfield_1_1field__t.html" title=" " alt="" coords="1613,1048,1711,1075"/>
+<area shape="rect" id="node46" href="$d1/d6e/structfield__series_1_1field__series__t.html" title=" " alt="" coords="1600,1775,1732,1816"/>
+<area shape="rect" id="node50" href="$d9/d88/structcheckpoint_1_1chkp__t.html" title=" " alt="" coords="1259,1946,1403,1973"/>
+<area shape="rect" id="node62" href="$dc/d4a/structmean__field_1_1mean__field__t.html" title=" " alt="" coords="811,1455,998,1482"/>
+<area shape="rect" id="node14" href="$d0/df0/structdofmap_1_1dofmap__t.html" title=" " alt="" coords="2356,877,2499,903"/>
+<area shape="rect" id="node43" href="$d0/dea/structcoefs_1_1coef__t.html" title="Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,..." alt="" coords="2555,1145,2660,1171"/>
+<area shape="rect" id="node44" href="$dd/db8/structgather__scatter_1_1gs__t.html" title=" " alt="" coords="2747,1048,2897,1075"/>
+<area shape="rect" id="node48" href="$d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="2551,1455,2623,1482"/>
+<area shape="rect" id="node15" href="$da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="2505,699,2624,726"/>
+<area shape="rect" id="node16" title=" " alt="" coords="2441,424,2496,451"/>
+<area shape="rect" id="node53" href="$d5/d57/structusr__scalar_1_1usr__scalar__t.html" title="User defined dirichlet condition for scalars." alt="" coords="2488,1782,2663,1809"/>
+<area shape="rect" id="node56" href="$d5/dcf/structprojection_1_1projection__t.html" title=" " alt="" coords="2976,759,3148,785"/>
 <area shape="rect" id="node68" href="$d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html" title="Implements the logic to compute the time coefficients for the advection and diffusion operators in a ..." alt="" coords="180,692,379,733"/>
-<area shape="rect" id="node17" href="$d7/d28/structmesh_1_1mesh__t.html" title=" " alt="" coords="1693,699,1807,726"/>
-<area shape="rect" id="node18" href="$dd/d69/structcurve_1_1curve__t.html" title=" " alt="" coords="1719,273,1834,300"/>
-<area shape="rect" id="node19" href="$d0/d10/structstructs_1_1struct__curve__t.html" title=" " alt="" coords="1699,171,1865,197"/>
-<area shape="rect" id="node20" href="$d1/ddd/structstack_1_1stack__curve__t.html" title="Curved element stack." alt="" coords="1519,171,1674,197"/>
-<area shape="rect" id="node21" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="1463,95,1575,121"/>
-<area shape="rect" id="node26" href="$d1/d93/structstack_1_1stack__i4t2__t.html" title="Integer 2&#45;tuple based stack." alt="" coords="1301,171,1445,197"/>
-<area shape="rect" id="node36" href="$df/d1c/structstack_1_1stack__i4t4__t.html" title="Integer 4&#45;tuple based stack." alt="" coords="1525,221,1669,248"/>
-<area shape="rect" id="node41" href="$d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="1841,334,1971,361"/>
-<area shape="rect" id="node22" href="$d8/d53/structhtable_1_1htable__i4t4__t.html" title="Integer 4&#45;tuple based hash table." alt="" coords="2037,334,2193,361"/>
-<area shape="rect" id="node23" href="$d0/d2e/structhtable_1_1htable__t.html" title="Base type for a hash table." alt="" coords="2404,95,2528,121"/>
-<area shape="rect" id="node31" href="$db/d4d/structhtable_1_1htable__i4__t.html" title="Integer based hash table." alt="" coords="2260,171,2403,197"/>
-<area shape="rect" id="node42" href="$da/d93/structhtable_1_1htable__i4t2__t.html" title="Integer 2&#45;tuple based hash table." alt="" coords="2332,334,2488,361"/>
-<area shape="rect" id="node45" href="$df/da3/structhtable_1_1htable__i8__t.html" title="Integer*8 based hash table." alt="" coords="2739,221,2881,248"/>
-<area shape="rect" id="node24" href="$d8/d5b/structhtable_1_1h__tuple__t.html" title="Hash table entry, tuple (key, data)" alt="" coords="2401,5,2531,32"/>
-<area shape="rect" id="node25" href="$d4/ddd/structdistdata_1_1distdata__t.html" title=" " alt="" coords="1676,424,1824,451"/>
-<area shape="rect" id="node32" href="$d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html" title=" " alt="" coords="1240,417,1412,458"/>
-<area shape="rect" id="node33" href="$d2/d94/structfacet__zone_1_1facet__zone__t.html" title=" " alt="" coords="994,273,1178,300"/>
-<area shape="rect" id="node27" href="$d6/db2/structuset_1_1uset__i4__t.html" title="Integer based unordered set." alt="" coords="1993,273,2110,300"/>
-<area shape="rect" id="node28" href="$d8/d9e/structuset_1_1uset__t.html" title="Base type for an unordered set." alt="" coords="1941,171,2039,197"/>
-<area shape="rect" id="node29" href="$dc/d23/structhtable_1_1htable__iter__i4__t.html" title="Iterator for an integer based hash table." alt="" coords="2064,171,2236,197"/>
-<area shape="rect" id="node30" href="$d1/dec/structhtable_1_1htable__iter__t.html" title="Base type for a hash table iterator." alt="" coords="2073,95,2227,121"/>
-<area shape="rect" id="node34" href="$d5/d16/structtuple_1_1tuple__i4__t.html" title="Integer based 2&#45;tuple." alt="" coords="960,171,1087,197"/>
-<area shape="rect" id="node35" href="$d1/d3b/structtuple_1_1tuple__t.html" title="Base type for an n&#45;tuple." alt="" coords="1045,95,1153,121"/>
-<area shape="rect" id="node37" href="$dd/de4/structtuple_1_1tuple4__i4__t.html" title="Integer based 4&#45;tuple." alt="" coords="1088,221,1223,248"/>
-<area shape="rect" id="node38" href="$d1/d4c/structmesh_1_1mesh__element__t.html" title=" " alt="" coords="899,424,1073,451"/>
-<area shape="rect" id="node39" href="$db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="752,424,860,451"/>
-<area shape="rect" id="node40" href="$da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="733,273,850,300"/>
-<area shape="rect" id="node54" href="$d5/d84/structneumann_1_1neumann__t.html" title="Generic Neumann boundary condition. This sets the flux of the field to the chosen value." alt="" coords="2549,1872,2713,1899"/>
-<area shape="rect" id="node55" href="$df/dd9/structdirichlet_1_1dirichlet__t.html" title="Generic Dirichlet boundary condition &#160;on ." alt="" coords="2720,1946,2868,1973"/>
-<area shape="rect" id="node49" title=" " alt="" coords="1647,1946,1723,1973"/>
-<area shape="rect" id="node64" href="$da/d51/structchkp__output_1_1chkp__output__t.html" title=" " alt="" coords="950,2079,1153,2106"/>
-<area shape="rect" id="node51" href="$d8/dd8/structbc_1_1bc__list__t.html" title="A list of boundary conditions." alt="" coords="1878,1946,1977,1973"/>
-<area shape="rect" id="node52" href="$dc/d46/structbc_1_1bcp__t.html" title="Pointer to boundary condtiion." alt="" coords="1845,1782,1925,1809"/>
-<area shape="rect" id="node57" href="$d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html" title=" " alt="" coords="1177,2072,1336,2113"/>
-<area shape="rect" id="node58" href="$dd/d5f/structoutput_1_1output__t.html" title="Abstract type defining an output type." alt="" coords="701,1946,828,1973"/>
-<area shape="rect" id="node65" href="$d4/de3/structmean__sqr__flow__output_1_1mean__sqr__flow__output__t.html" title=" " alt="" coords="366,2072,555,2113"/>
-<area shape="rect" id="node77" href="$db/dca/structmean__flow__output_1_1mean__flow__output__t.html" title=" " alt="" coords="739,2072,926,2113"/>
-<area shape="rect" id="node59" href="$d6/dae/structfile_1_1file__t.html" title="A wrapper around a polymorphic generic_file_t that handles its init. This is essentially a factory fo..." alt="" coords="723,1782,806,1809"/>
-<area shape="rect" id="node61" href="$d5/d8f/structstats__quant_1_1stats__quant__t.html" title="Abstract type defining a statistical quantity." alt="" coords="945,1137,1083,1179"/>
-<area shape="rect" id="node67" href="$db/dc5/structmean__sqr__field_1_1mean__sqr__field__t.html" title=" " alt="" coords="377,1775,544,1816"/>
-<area shape="rect" id="node78" href="$dc/d45/structmean__flow_1_1mean__flow__t.html" title=" " alt="" coords="808,1872,991,1899"/>
-<area shape="rect" id="node66" href="$d8/d91/structmean__sqr__flow_1_1mean__sqr__flow__t.html" title=" " alt="" coords="379,1939,543,1980"/>
+<area shape="rect" id="node17" href="$d7/d28/structmesh_1_1mesh__t.html" title=" " alt="" coords="1677,699,1791,726"/>
+<area shape="rect" id="node18" href="$dd/d69/structcurve_1_1curve__t.html" title=" " alt="" coords="1695,273,1810,300"/>
+<area shape="rect" id="node19" href="$d0/d10/structstructs_1_1struct__curve__t.html" title=" " alt="" coords="1680,171,1847,197"/>
+<area shape="rect" id="node20" href="$d1/ddd/structstack_1_1stack__curve__t.html" title="Curved element stack." alt="" coords="1501,171,1655,197"/>
+<area shape="rect" id="node21" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="1445,95,1557,121"/>
+<area shape="rect" id="node26" href="$d1/d93/structstack_1_1stack__i4t2__t.html" title="Integer 2&#45;tuple based stack." alt="" coords="1282,171,1426,197"/>
+<area shape="rect" id="node36" href="$df/d1c/structstack_1_1stack__i4t4__t.html" title="Integer 4&#45;tuple based stack." alt="" coords="1506,221,1650,248"/>
+<area shape="rect" id="node41" href="$d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="1823,334,1954,361"/>
+<area shape="rect" id="node22" href="$d8/d53/structhtable_1_1htable__i4t4__t.html" title="Integer 4&#45;tuple based hash table." alt="" coords="2052,334,2208,361"/>
+<area shape="rect" id="node23" href="$d0/d2e/structhtable_1_1htable__t.html" title="Base type for a hash table." alt="" coords="2385,95,2509,121"/>
+<area shape="rect" id="node31" href="$db/d4d/structhtable_1_1htable__i4__t.html" title="Integer based hash table." alt="" coords="2241,171,2384,197"/>
+<area shape="rect" id="node42" href="$da/d93/structhtable_1_1htable__i4t2__t.html" title="Integer 2&#45;tuple based hash table." alt="" coords="2344,334,2500,361"/>
+<area shape="rect" id="node45" href="$df/da3/structhtable_1_1htable__i8__t.html" title="Integer*8 based hash table." alt="" coords="2751,221,2893,248"/>
+<area shape="rect" id="node24" href="$d8/d5b/structhtable_1_1h__tuple__t.html" title="Hash table entry, tuple (key, data)" alt="" coords="2382,5,2513,32"/>
+<area shape="rect" id="node25" href="$d4/ddd/structdistdata_1_1distdata__t.html" title=" " alt="" coords="1660,424,1808,451"/>
+<area shape="rect" id="node32" href="$d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html" title=" " alt="" coords="1216,417,1388,458"/>
+<area shape="rect" id="node33" href="$d2/d94/structfacet__zone_1_1facet__zone__t.html" title=" " alt="" coords="970,273,1154,300"/>
+<area shape="rect" id="node27" href="$d6/db2/structuset_1_1uset__i4__t.html" title="Integer based unordered set." alt="" coords="1974,273,2091,300"/>
+<area shape="rect" id="node28" href="$d8/d9e/structuset_1_1uset__t.html" title="Base type for an unordered set." alt="" coords="1922,171,2021,197"/>
+<area shape="rect" id="node29" href="$dc/d23/structhtable_1_1htable__iter__i4__t.html" title="Iterator for an integer based hash table." alt="" coords="2045,171,2217,197"/>
+<area shape="rect" id="node30" href="$d1/dec/structhtable_1_1htable__iter__t.html" title="Base type for a hash table iterator." alt="" coords="2055,95,2208,121"/>
+<area shape="rect" id="node34" href="$d5/d16/structtuple_1_1tuple__i4__t.html" title="Integer based 2&#45;tuple." alt="" coords="936,171,1063,197"/>
+<area shape="rect" id="node35" href="$d1/d3b/structtuple_1_1tuple__t.html" title="Base type for an n&#45;tuple." alt="" coords="1020,95,1128,121"/>
+<area shape="rect" id="node37" href="$dd/de4/structtuple_1_1tuple4__i4__t.html" title="Integer based 4&#45;tuple." alt="" coords="1064,221,1199,248"/>
+<area shape="rect" id="node38" href="$d1/d4c/structmesh_1_1mesh__element__t.html" title=" " alt="" coords="875,424,1049,451"/>
+<area shape="rect" id="node39" href="$db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="728,424,836,451"/>
+<area shape="rect" id="node40" href="$da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="709,273,826,300"/>
+<area shape="rect" id="node54" href="$d5/d84/structneumann_1_1neumann__t.html" title="Generic Neumann boundary condition. This sets the flux of the field to the chosen value." alt="" coords="2563,1872,2727,1899"/>
+<area shape="rect" id="node55" href="$df/dd9/structdirichlet_1_1dirichlet__t.html" title="Generic Dirichlet boundary condition &#160;on ." alt="" coords="2733,1946,2881,1973"/>
+<area shape="rect" id="node49" title=" " alt="" coords="1660,1946,1736,1973"/>
+<area shape="rect" id="node64" href="$da/d51/structchkp__output_1_1chkp__output__t.html" title=" " alt="" coords="963,2079,1166,2106"/>
+<area shape="rect" id="node51" href="$d8/dd8/structbc_1_1bc__list__t.html" title="A list of boundary conditions." alt="" coords="1891,1946,1990,1973"/>
+<area shape="rect" id="node52" href="$dc/d46/structbc_1_1bcp__t.html" title="Pointer to boundary condtiion." alt="" coords="1858,1782,1938,1809"/>
+<area shape="rect" id="node57" href="$d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html" title=" " alt="" coords="1191,2072,1349,2113"/>
+<area shape="rect" id="node58" href="$dd/d5f/structoutput_1_1output__t.html" title="Abstract type defining an output type." alt="" coords="709,1946,836,1973"/>
+<area shape="rect" id="node65" href="$d4/de3/structmean__sqr__flow__output_1_1mean__sqr__flow__output__t.html" title=" " alt="" coords="379,2072,569,2113"/>
+<area shape="rect" id="node76" href="$db/dca/structmean__flow__output_1_1mean__flow__output__t.html" title=" " alt="" coords="753,2072,939,2113"/>
+<area shape="rect" id="node59" href="$d6/dae/structfile_1_1file__t.html" title="A wrapper around a polymorphic generic_file_t that handles its init. This is essentially a factory fo..." alt="" coords="731,1782,814,1809"/>
+<area shape="rect" id="node61" href="$d5/d8f/structstats__quant_1_1stats__quant__t.html" title="Abstract type defining a statistical quantity." alt="" coords="947,1137,1086,1179"/>
+<area shape="rect" id="node67" href="$db/dc5/structmean__sqr__field_1_1mean__sqr__field__t.html" title=" " alt="" coords="391,1775,557,1816"/>
+<area shape="rect" id="node77" href="$dc/d45/structmean__flow_1_1mean__flow__t.html" title=" " alt="" coords="813,1872,996,1899"/>
+<area shape="rect" id="node66" href="$d8/d91/structmean__sqr__flow_1_1mean__sqr__flow__t.html" title=" " alt="" coords="392,1939,556,1980"/>
 <area shape="rect" id="node69" href="$d7/dac/structbdf__time__scheme_1_1bdf__time__scheme__t.html" title="Implicit backward&#45;differencing scheme for time integration." alt="" coords="5,417,172,458"/>
 <area shape="rect" id="node70" href="$de/da4/structtime__scheme_1_1time__scheme__t.html" title="Base abstract class for time integration schemes." alt="" coords="170,273,389,300"/>
 <area shape="rect" id="node71" href="$d2/d90/structext__time__scheme_1_1ext__time__scheme__t.html" title="Explicit extrapolation scheme for time integration." alt="" coords="196,417,363,458"/>
 <area shape="rect" id="node72" href="$d2/d88/structab__time__scheme_1_1ab__time__scheme__t.html" title="Explicit Adam&#45;Bashforth scheme for time integration." alt="" coords="387,417,545,458"/>
-<area shape="rect" id="node73" href="$d1/dd5/structmaterial__properties_1_1material__properties__t.html" title="Contains all the material properties necessary in the simulation." alt="" coords="1223,2176,1394,2217"/>
-<area shape="rect" id="node74" href="$de/de8/structsampler_1_1sampler__t.html" title="Sampler." alt="" coords="1549,2183,1697,2210"/>
-<area shape="rect" id="node75" href="$db/de7/structtime__based__controller_1_1time__based__controller__t.html" title="A utility type for determening whether an action should be executed based on the current time value...." alt="" coords="1805,2072,1991,2113"/>
-<area shape="rect" id="node76" href="$d7/d8b/structsampler_1_1outp__t.html" title="Pointer to an arbitrary output." alt="" coords="1555,2079,1679,2106"/>
+<area shape="rect" id="node73" href="$de/de8/structsampler_1_1sampler__t.html" title="Sampler." alt="" coords="1556,2183,1704,2210"/>
+<area shape="rect" id="node74" href="$db/de7/structtime__based__controller_1_1time__based__controller__t.html" title="A utility type for determening whether an action should be executed based on the current time value...." alt="" coords="1818,2072,2005,2113"/>
+<area shape="rect" id="node75" href="$d7/d8b/structsampler_1_1outp__t.html" title="Pointer to an arbitrary output." alt="" coords="1568,2079,1692,2106"/>
 </map>

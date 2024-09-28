@@ -104,15 +104,15 @@ $(document).ready(function(){initNavTree('db/d60/interfacescalar__scheme_1_1scal
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a1b606f40aa09a2a5fee9121094e819d1"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d60/interfacescalar__scheme_1_1scalar__scheme__init__intrf.html#a1b606f40aa09a2a5fee9121094e819d1">scalar_scheme_init_intrf</a> (this, msh, coef, gs, params, user, material_properties, ulag, vlag, wlag, time_scheme)</td></tr>
-<tr class="separator:a1b606f40aa09a2a5fee9121094e819d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a893a76974925748244115301f866f041"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d60/interfacescalar__scheme_1_1scalar__scheme__init__intrf.html#a893a76974925748244115301f866f041">scalar_scheme_init_intrf</a> (this, msh, coef, gs, params, user, ulag, vlag, wlag, time_scheme, rho)</td></tr>
+<tr class="separator:a893a76974925748244115301f866f041"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00175">175</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00178">178</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a1b606f40aa09a2a5fee9121094e819d1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1b606f40aa09a2a5fee9121094e819d1">&#9670;&nbsp;</a></span>scalar_scheme_init_intrf()</h2>
+<a id="a893a76974925748244115301f866f041"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a893a76974925748244115301f866f041">&#9670;&nbsp;</a></span>scalar_scheme_init_intrf()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -156,12 +156,6 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d1/dd5/structmaterial__properties_1_1material__properties__t.html">material_properties_t</a>), intent(inout)&#160;</td>
-          <td class="paramname"><em>material_properties</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">type(<a class="el" href="../../d1/d6e/structfield__series_1_1field__series__t.html">field_series_t</a>), intent(in), target&#160;</td>
           <td class="paramname"><em>ulag</em>, </td>
         </tr>
@@ -181,7 +175,13 @@ Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html">time_scheme_controller_t</a>), intent(in), target&#160;</td>
-          <td class="paramname"><em>time_scheme</em>&#160;</td>
+          <td class="paramname"><em>time_scheme</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(in)&#160;</td>
+          <td class="paramname"><em>rho</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -191,7 +191,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00175">175</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00178">178</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -204,7 +204,7 @@ Public Member Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../da/de3/namespacescalar__scheme.html">scalar_scheme</a></li><li class="navelem"><a class="el" href="../../db/d60/interfacescalar__scheme_1_1scalar__scheme__init__intrf.html">scalar_scheme_init_intrf</a></li>
-    <li class="footer">Generated on Fri Sep 27 2024 03:38:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Sep 28 2024 03:37:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

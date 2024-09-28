@@ -627,9 +627,6 @@ var annotated_dup =
     [ "map_file", "dc/da2/namespacemap__file.html", [
       [ "map_file_t", "de/d14/structmap__file_1_1map__file__t.html", "de/d14/structmap__file_1_1map__file__t" ]
     ] ],
-    [ "material_properties", "d8/d15/namespacematerial__properties.html", [
-      [ "material_properties_t", "d1/dd5/structmaterial__properties_1_1material__properties__t.html", "d1/dd5/structmaterial__properties_1_1material__properties__t" ]
-    ] ],
     [ "math", "dd/d47/namespacemath.html", [
       [ "abscmp", "de/d34/interfacemath_1_1abscmp.html", "de/d34/interfacemath_1_1abscmp" ],
       [ "sort", "d1/dc3/interfacemath_1_1sort.html", "d1/dc3/interfacemath_1_1sort" ],

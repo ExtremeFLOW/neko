@@ -205,6 +205,9 @@ Private Member Functions</h2></td></tr>
 <tr class="memitem:ab7f1fdde35cbd15bb8fdf06b44d2c3bc"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#ab7f1fdde35cbd15bb8fdf06b44d2c3bc">compute_cfl</a> =&gt; <a class="el" href="../../d8/d09/namespacefluid__scheme.html#a2275b69b1d1959f4c8cf29b011dee8e8">fluid_compute_cfl</a></td></tr>
 <tr class="memdesc:ab7f1fdde35cbd15bb8fdf06b44d2c3bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the CFL number.  <a href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#ab7f1fdde35cbd15bb8fdf06b44d2c3bc">More...</a><br /></td></tr>
 <tr class="separator:ab7f1fdde35cbd15bb8fdf06b44d2c3bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20bb734af00ced4e992d3ed5bddcc4b5"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a20bb734af00ced4e992d3ed5bddcc4b5">set_material_properties</a> =&gt; <a class="el" href="../../d8/d09/namespacefluid__scheme.html#a0ae759800139b4307245257061446a8d">fluid_scheme_set_material_properties</a></td></tr>
+<tr class="memdesc:a20bb734af00ced4e992d3ed5bddcc4b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set rho and mu.  <a href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a20bb734af00ced4e992d3ed5bddcc4b5">More...</a><br /></td></tr>
+<tr class="separator:a20bb734af00ced4e992d3ed5bddcc4b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec00a05680ca7961df0a878ae30ca335"><td class="memItemLeft" align="right" valign="top">procedure(<a class="el" href="../../d1/de2/interfacefluid__scheme_1_1fluid__scheme__init__intrf.html">fluid_scheme_init_intrf</a>), deferred, pass&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#aec00a05680ca7961df0a878ae30ca335">init</a></td></tr>
 <tr class="memdesc:aec00a05680ca7961df0a878ae30ca335"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#aec00a05680ca7961df0a878ae30ca335">More...</a><br /></td></tr>
 <tr class="separator:aec00a05680ca7961df0a878ae30ca335"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -346,9 +349,9 @@ Private Attributes</h2></td></tr>
 <tr class="memitem:a2d26d89c6d31790cb2761fb2d6fa041b"><td class="memItemLeft" align="right" valign="top">logical&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a2d26d89c6d31790cb2761fb2d6fa041b">freeze</a> = .false.</td></tr>
 <tr class="memdesc:a2d26d89c6d31790cb2761fb2d6fa041b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Freeze velocity at initial condition?  <a href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a2d26d89c6d31790cb2761fb2d6fa041b">More...</a><br /></td></tr>
 <tr class="separator:a2d26d89c6d31790cb2761fb2d6fa041b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae7426589d25357a596393bcf3e4fb6ca"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), pointer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#ae7426589d25357a596393bcf3e4fb6ca">mu</a> =&gt; null()</td></tr>
-<tr class="memdesc:ae7426589d25357a596393bcf3e4fb6ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dynamic viscosity.  <a href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#ae7426589d25357a596393bcf3e4fb6ca">More...</a><br /></td></tr>
-<tr class="separator:ae7426589d25357a596393bcf3e4fb6ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5795f802b434ed8a631b293c72593f0b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a5795f802b434ed8a631b293c72593f0b">mu</a></td></tr>
+<tr class="memdesc:a5795f802b434ed8a631b293c72593f0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dynamic viscosity.  <a href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a5795f802b434ed8a631b293c72593f0b">More...</a><br /></td></tr>
+<tr class="separator:a5795f802b434ed8a631b293c72593f0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aacd3738e71498eaee5404aed432010f9"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#aacd3738e71498eaee5404aed432010f9">mu_field</a></td></tr>
 <tr class="memdesc:aacd3738e71498eaee5404aed432010f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">The variable mu field.  <a href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#aacd3738e71498eaee5404aed432010f9">More...</a><br /></td></tr>
 <tr class="separator:aacd3738e71498eaee5404aed432010f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -358,9 +361,9 @@ Private Attributes</h2></td></tr>
 <tr class="memitem:a0ed4ee80ae9853473a446d55664dc61d"><td class="memItemLeft" align="right" valign="top">logical&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a0ed4ee80ae9853473a446d55664dc61d">variable_material_properties</a> = .false.</td></tr>
 <tr class="memdesc:a0ed4ee80ae9853473a446d55664dc61d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is mu varying in time? Currently only due to LES models.  <a href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a0ed4ee80ae9853473a446d55664dc61d">More...</a><br /></td></tr>
 <tr class="separator:a0ed4ee80ae9853473a446d55664dc61d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae46a1d877119413b14c1951e1a56093a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), pointer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#ae46a1d877119413b14c1951e1a56093a">rho</a> =&gt; null()</td></tr>
-<tr class="memdesc:ae46a1d877119413b14c1951e1a56093a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Density.  <a href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#ae46a1d877119413b14c1951e1a56093a">More...</a><br /></td></tr>
-<tr class="separator:ae46a1d877119413b14c1951e1a56093a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6c638f463c17a7ad9f7d34f5d942fc0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#ad6c638f463c17a7ad9f7d34f5d942fc0">rho</a></td></tr>
+<tr class="memdesc:ad6c638f463c17a7ad9f7d34f5d942fc0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Density.  <a href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#ad6c638f463c17a7ad9f7d34f5d942fc0">More...</a><br /></td></tr>
+<tr class="separator:ad6c638f463c17a7ad9f7d34f5d942fc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adff2dfca0487f909e46c219463fa652e"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#adff2dfca0487f909e46c219463fa652e">rho_field</a></td></tr>
 <tr class="memdesc:adff2dfca0487f909e46c219463fa652e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The variable density field.  <a href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#adff2dfca0487f909e46c219463fa652e">More...</a><br /></td></tr>
 <tr class="separator:adff2dfca0487f909e46c219463fa652e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -515,7 +518,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00167">167</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00170">170</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -539,7 +542,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00165">165</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00168">168</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -563,7 +566,7 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00171">171</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00174">174</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -618,8 +621,8 @@ Here is the call graph for this function:</div>
 <div class="center"><img src="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t_a7e2136dedddf80e7660284a3feec1bc2_cgraph.png" border="0" usemap="#ada/dd4/structfluid__scheme_1_1fluid__scheme__t_a7e2136dedddf80e7660284a3feec1bc2_cgraph" alt=""/></div>
 <map name="ada/dd4/structfluid__scheme_1_1fluid__scheme__t_a7e2136dedddf80e7660284a3feec1bc2_cgraph" id="ada/dd4/structfluid__scheme_1_1fluid__scheme__t_a7e2136dedddf80e7660284a3feec1bc2_cgraph">
 <area shape="rect" title=" " alt="" coords="5,50,184,91"/>
-<area shape="rect" href="../../d8/d09/namespacefluid__scheme.html#a144b95d642fd4be4de512b2b9d37e77b" title="Initialize all components of the current scheme." alt="" coords="246,17,390,58"/>
-<area shape="rect" href="../../d8/d09/namespacefluid__scheme.html#ab8289185c523ab7039d9076f81d2c2cc" title="Initialise a fluid scheme." alt="" coords="232,82,404,123"/>
+<area shape="rect" href="../../d8/d09/namespacefluid__scheme.html#a394523005f7e024eff53a66eed66fd5a" title="Initialize all components of the current scheme." alt="" coords="246,17,390,58"/>
+<area shape="rect" href="../../d8/d09/namespacefluid__scheme.html#a954fd0e94a3e06097351d3ca34709ad4" title="Initialise a fluid scheme." alt="" coords="232,82,404,123"/>
 <area shape="rect" href="../../d0/dc0/namespacebc.html#a132f9467b1f6ee956b4e31bf758b1199" title="Add a condition to a list of boundary conditions." alt="" coords="471,5,590,32"/>
 <area shape="rect" href="../../d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="473,56,588,83"/>
 <area shape="rect" href="../../d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="676,56,796,83"/>
@@ -651,7 +654,31 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00172">172</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00175">175</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+
+</div>
+</div>
+<a id="a20bb734af00ced4e992d3ed5bddcc4b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a20bb734af00ced4e992d3ed5bddcc4b5">&#9670;&nbsp;</a></span>set_material_properties()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">procedure, pass(this) fluid_scheme::fluid_scheme_t::set_material_properties</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00165">165</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -699,7 +726,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00169">169</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00172">172</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -723,7 +750,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00175">175</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html#l00178">178</a> of file <a class="el" href="../../d0/df5/fluid__scheme_8f90_source.html">fluid_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -1304,8 +1331,8 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a id="ae7426589d25357a596393bcf3e4fb6ca"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae7426589d25357a596393bcf3e4fb6ca">&#9670;&nbsp;</a></span>mu</h2>
+<a id="a5795f802b434ed8a631b293c72593f0b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5795f802b434ed8a631b293c72593f0b">&#9670;&nbsp;</a></span>mu</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1314,7 +1341,7 @@ Here is the call graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), pointer fluid_scheme::fluid_scheme_t::mu =&gt; null()</td>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) fluid_scheme::fluid_scheme_t::mu</td>
         </tr>
       </table>
   </td>
@@ -1520,8 +1547,8 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a id="ae46a1d877119413b14c1951e1a56093a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae46a1d877119413b14c1951e1a56093a">&#9670;&nbsp;</a></span>rho</h2>
+<a id="ad6c638f463c17a7ad9f7d34f5d942fc0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad6c638f463c17a7ad9f7d34f5d942fc0">&#9670;&nbsp;</a></span>rho</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1530,7 +1557,7 @@ Here is the call graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), pointer fluid_scheme::fluid_scheme_t::rho =&gt; null()</td>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp) fluid_scheme::fluid_scheme_t::rho</td>
         </tr>
       </table>
   </td>
@@ -1937,7 +1964,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/d09/namespacefluid__scheme.html">fluid_scheme</a></li><li class="navelem"><a class="el" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html">fluid_scheme_t</a></li>
-    <li class="footer">Generated on Fri Sep 27 2024 03:38:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Sep 28 2024 03:37:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

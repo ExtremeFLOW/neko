@@ -109,9 +109,9 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:aac6893ab4309ebcac320109e0b00e44c"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#aac6893ab4309ebcac320109e0b00e44c">scalar_pnpn_init</a> (this, msh, coef, gs, params, user, material_properties, ulag, vlag, wlag, time_scheme)</td></tr>
-<tr class="memdesc:aac6893ab4309ebcac320109e0b00e44c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="../../db/d56/namespacescalar__pnpn.html#aac6893ab4309ebcac320109e0b00e44c">More...</a><br /></td></tr>
-<tr class="separator:aac6893ab4309ebcac320109e0b00e44c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7798b78c597dcaca586191d419a72512"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#a7798b78c597dcaca586191d419a72512">scalar_pnpn_init</a> (this, msh, coef, gs, params, user, ulag, vlag, wlag, time_scheme, rho)</td></tr>
+<tr class="memdesc:a7798b78c597dcaca586191d419a72512"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="../../db/d56/namespacescalar__pnpn.html#a7798b78c597dcaca586191d419a72512">More...</a><br /></td></tr>
+<tr class="separator:a7798b78c597dcaca586191d419a72512"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acbd003dc39aa26721ccb63f6d5fed292"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d56/namespacescalar__pnpn.html#acbd003dc39aa26721ccb63f6d5fed292">scalar_pnpn_restart</a> (this, dtlag, tlag)</td></tr>
 <tr class="memdesc:acbd003dc39aa26721ccb63f6d5fed292"><td class="mdescLeft">&#160;</td><td class="mdescRight">I envision the arguments to this func might need to be expanded.  <a href="../../db/d56/namespacescalar__pnpn.html#acbd003dc39aa26721ccb63f6d5fed292">More...</a><br /></td></tr>
 <tr class="separator:acbd003dc39aa26721ccb63f6d5fed292"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -145,12 +145,12 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00263">263</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00260">260</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
-<a id="aac6893ab4309ebcac320109e0b00e44c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aac6893ab4309ebcac320109e0b00e44c">&#9670;&nbsp;</a></span>scalar_pnpn_init()</h2>
+<a id="a7798b78c597dcaca586191d419a72512"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7798b78c597dcaca586191d419a72512">&#9670;&nbsp;</a></span>scalar_pnpn_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -194,12 +194,6 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d1/dd5/structmaterial__properties_1_1material__properties__t.html">material_properties_t</a>), intent(inout)&#160;</td>
-          <td class="paramname"><em>material_properties</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
           <td class="paramtype">type(<a class="el" href="../../d1/d6e/structfield__series_1_1field__series__t.html">field_series_t</a>), intent(in), target&#160;</td>
           <td class="paramname"><em>ulag</em>, </td>
         </tr>
@@ -219,7 +213,13 @@ Functions/Subroutines</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html">time_scheme_controller_t</a>), intent(in), target&#160;</td>
-          <td class="paramname"><em>time_scheme</em>&#160;</td>
+          <td class="paramname"><em>time_scheme</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(in)&#160;</td>
+          <td class="paramname"><em>rho</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -239,12 +239,12 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00140">140</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00139">139</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../db/d56/namespacescalar__pnpn_aac6893ab4309ebcac320109e0b00e44c_cgraph.png" border="0" usemap="#adb/d56/namespacescalar__pnpn_aac6893ab4309ebcac320109e0b00e44c_cgraph" alt=""/></div>
-<map name="adb/d56/namespacescalar__pnpn_aac6893ab4309ebcac320109e0b00e44c_cgraph" id="adb/d56/namespacescalar__pnpn_aac6893ab4309ebcac320109e0b00e44c_cgraph">
+<div class="center"><img src="../../db/d56/namespacescalar__pnpn_a7798b78c597dcaca586191d419a72512_cgraph.png" border="0" usemap="#adb/d56/namespacescalar__pnpn_a7798b78c597dcaca586191d419a72512_cgraph" alt=""/></div>
+<map name="adb/d56/namespacescalar__pnpn_a7798b78c597dcaca586191d419a72512_cgraph" id="adb/d56/namespacescalar__pnpn_a7798b78c597dcaca586191d419a72512_cgraph">
 <area shape="rect" title="Constructor." alt="" coords="5,23,152,65"/>
 <area shape="rect" href="../../d0/dc0/namespacebc.html#a132f9467b1f6ee956b4e31bf758b1199" title="Add a condition to a list of boundary conditions." alt="" coords="200,5,319,32"/>
 <area shape="rect" href="../../d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="202,56,317,83"/>
@@ -294,7 +294,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00231">231</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00228">228</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -357,7 +357,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <p>Apply Dirichlet boundary conditions We assume that no change of boundary conditions occurs between elements. i.e. we do not apply gsop here like in Nek5000</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00303">303</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00300">300</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -367,7 +367,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../db/d56/namespacescalar__pnpn.html">scalar_pnpn</a></li>
-    <li class="footer">Generated on Fri Sep 27 2024 03:38:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Sep 28 2024 03:37:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -282,7 +282,6 @@ var namespaces_dup =
     [ "map_1d", "d8/d8b/namespacemap__1d.html", "d8/d8b/namespacemap__1d" ],
     [ "map_2d", "d1/d99/namespacemap__2d.html", "d1/d99/namespacemap__2d" ],
     [ "map_file", "dc/da2/namespacemap__file.html", "dc/da2/namespacemap__file" ],
-    [ "material_properties", "d8/d15/namespacematerial__properties.html", "d8/d15/namespacematerial__properties" ],
     [ "math", "dd/d47/namespacemath.html", "dd/d47/namespacemath" ],
     [ "mathops", "d2/dd4/namespacemathops.html", [
       [ "opadd2cm", "d2/dd4/namespacemathops.html#a84b6bac8aefd25c9f6eca96ed0c17aff", null ],

@@ -125,9 +125,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a52d0bdcd6d81c223bb1e543b0d504bfc"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a52d0bdcd6d81c223bb1e543b0d504bfc">scalar_scheme_add_bcs</a> (this, zones, bc_labels)</td></tr>
 <tr class="memdesc:a52d0bdcd6d81c223bb1e543b0d504bfc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize boundary conditions.  <a href="../../da/de3/namespacescalar__scheme.html#a52d0bdcd6d81c223bb1e543b0d504bfc">More...</a><br /></td></tr>
 <tr class="separator:a52d0bdcd6d81c223bb1e543b0d504bfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a442e39894b529b2b2644ad3adba880ae"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a442e39894b529b2b2644ad3adba880ae">scalar_scheme_init</a> (this, msh, c_Xh, gs_Xh, params, scheme, user, material_properties)</td></tr>
-<tr class="memdesc:a442e39894b529b2b2644ad3adba880ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize all related components of the current scheme.  <a href="../../da/de3/namespacescalar__scheme.html#a442e39894b529b2b2644ad3adba880ae">More...</a><br /></td></tr>
-<tr class="separator:a442e39894b529b2b2644ad3adba880ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59759d81fe41003de9f041ca2b650fed"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a59759d81fe41003de9f041ca2b650fed">scalar_scheme_init</a> (this, msh, c_Xh, gs_Xh, params, scheme, user, rho)</td></tr>
+<tr class="memdesc:a59759d81fe41003de9f041ca2b650fed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize all related components of the current scheme.  <a href="../../da/de3/namespacescalar__scheme.html#a59759d81fe41003de9f041ca2b650fed">More...</a><br /></td></tr>
+<tr class="separator:a59759d81fe41003de9f041ca2b650fed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a57f35ef15b838ab8da7ab18d002a352b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a57f35ef15b838ab8da7ab18d002a352b">scalar_scheme_free</a> (this)</td></tr>
 <tr class="memdesc:a57f35ef15b838ab8da7ab18d002a352b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a scalar formulation.  <a href="../../da/de3/namespacescalar__scheme.html#a57f35ef15b838ab8da7ab18d002a352b">More...</a><br /></td></tr>
 <tr class="separator:a57f35ef15b838ab8da7ab18d002a352b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -146,6 +146,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a6efc05586b621fca40333f4f6b2d76a2"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#a6efc05586b621fca40333f4f6b2d76a2">scalar_scheme_update_material_properties</a> (this)</td></tr>
 <tr class="memdesc:a6efc05586b621fca40333f4f6b2d76a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the values of <code>lambda_field</code> if necessary.  <a href="../../da/de3/namespacescalar__scheme.html#a6efc05586b621fca40333f4f6b2d76a2">More...</a><br /></td></tr>
 <tr class="separator:a6efc05586b621fca40333f4f6b2d76a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab72269e4be11d711d345d540ff333415"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415">scalar_scheme_set_material_properties</a> (this, params, user)</td></tr>
+<tr class="memdesc:ab72269e4be11d711d345d540ff333415"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set lamdba and cp.  <a href="../../da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415">More...</a><br /></td></tr>
+<tr class="separator:ab72269e4be11d711d345d540ff333415"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a52d0bdcd6d81c223bb1e543b0d504bfc"></a>
@@ -188,7 +191,7 @@ Functions/Subroutines</h2></td></tr>
 </dl>
 <p>Check if user bc on this zone</p>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00241">241</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00243">243</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -206,7 +209,7 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="../../da/de3/namespacescalar__scheme_a52d0bdcd6d81c223bb1e543b0d504bfc_icgraph.png" border="0" usemap="#ada/de3/namespacescalar__scheme_a52d0bdcd6d81c223bb1e543b0d504bfc_icgraph" alt=""/></div>
 <map name="ada/de3/namespacescalar__scheme_a52d0bdcd6d81c223bb1e543b0d504bfc_icgraph" id="ada/de3/namespacescalar__scheme_a52d0bdcd6d81c223bb1e543b0d504bfc_icgraph">
 <area shape="rect" title="Initialize boundary conditions." alt="" coords="220,5,387,47"/>
-<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a442e39894b529b2b2644ad3adba880ae" title="Initialize all related components of the current scheme." alt="" coords="5,5,172,47"/>
+<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a59759d81fe41003de9f041ca2b650fed" title="Initialize all related components of the current scheme." alt="" coords="5,5,172,47"/>
 </map>
 </div>
 
@@ -228,7 +231,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00479">479</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00481">481</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -241,8 +244,8 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a id="a442e39894b529b2b2644ad3adba880ae"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a442e39894b529b2b2644ad3adba880ae">&#9670;&nbsp;</a></span>scalar_scheme_init()</h2>
+<a id="a59759d81fe41003de9f041ca2b650fed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a59759d81fe41003de9f041ca2b650fed">&#9670;&nbsp;</a></span>scalar_scheme_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -292,8 +295,8 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d1/dd5/structmaterial__properties_1_1material__properties__t.html">material_properties_t</a>), intent(inout), target&#160;</td>
-          <td class="paramname"><em>material_properties</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(in)&#160;</td>
+          <td class="paramname"><em>rho</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -310,16 +313,17 @@ Here is the call graph for this function:</div>
     <tr><td class="paramname">params</td><td>The case parameter file in json. </td></tr>
     <tr><td class="paramname">scheme</td><td>The name of the scalar scheme. </td></tr>
     <tr><td class="paramname">user</td><td>Type with user-defined procedures. </td></tr>
+    <tr><td class="paramname">rho</td><td>The density of the fluid. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00310">310</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00313">313</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../da/de3/namespacescalar__scheme_a442e39894b529b2b2644ad3adba880ae_cgraph.png" border="0" usemap="#ada/de3/namespacescalar__scheme_a442e39894b529b2b2644ad3adba880ae_cgraph" alt=""/></div>
-<map name="ada/de3/namespacescalar__scheme_a442e39894b529b2b2644ad3adba880ae_cgraph" id="ada/de3/namespacescalar__scheme_a442e39894b529b2b2644ad3adba880ae_cgraph">
+<div class="center"><img src="../../da/de3/namespacescalar__scheme_a59759d81fe41003de9f041ca2b650fed_cgraph.png" border="0" usemap="#ada/de3/namespacescalar__scheme_a59759d81fe41003de9f041ca2b650fed_cgraph" alt=""/></div>
+<map name="ada/de3/namespacescalar__scheme_a59759d81fe41003de9f041ca2b650fed_cgraph" id="ada/de3/namespacescalar__scheme_a59759d81fe41003de9f041ca2b650fed_cgraph">
 <area shape="rect" title="Initialize all related components of the current scheme." alt="" coords="5,158,172,200"/>
 <area shape="rect" href="../../d0/dc0/namespacebc.html#a132f9467b1f6ee956b4e31bf758b1199" title="Add a condition to a list of boundary conditions." alt="" coords="452,19,571,46"/>
 <area shape="rect" href="../../d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="454,132,569,159"/>
@@ -390,14 +394,66 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00577">577</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00579">579</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../da/de3/namespacescalar__scheme_a9ab0bf4dfdd4312aef79f94f07faa1f8_icgraph.png" border="0" usemap="#ada/de3/namespacescalar__scheme_a9ab0bf4dfdd4312aef79f94f07faa1f8_icgraph" alt=""/></div>
 <map name="ada/de3/namespacescalar__scheme_a9ab0bf4dfdd4312aef79f94f07faa1f8_icgraph" id="ada/de3/namespacescalar__scheme_a9ab0bf4dfdd4312aef79f94f07faa1f8_icgraph">
 <area shape="rect" title="Initialize a Krylov preconditioner." alt="" coords="220,5,404,47"/>
-<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a442e39894b529b2b2644ad3adba880ae" title="Initialize all related components of the current scheme." alt="" coords="5,5,172,47"/>
+<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a59759d81fe41003de9f041ca2b650fed" title="Initialize all related components of the current scheme." alt="" coords="5,5,172,47"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="ab72269e4be11d711d345d540ff333415"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab72269e4be11d711d345d540ff333415">&#9670;&nbsp;</a></span>scalar_scheme_set_material_properties()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine scalar_scheme::scalar_scheme_set_material_properties </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../dd/ded/structscalar__scheme_1_1scalar__scheme__t.html">scalar_scheme_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), intent(inout)&#160;</td>
+          <td class="paramname"><em>params</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/da0/structuser__intf_1_1user__t.html">user_t</a>), intent(in), target&#160;</td>
+          <td class="paramname"><em>user</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">params</td><td>The case parameter file. </td></tr>
+    <tr><td class="paramname">user</td><td>The user interface. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00652">652</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../da/de3/namespacescalar__scheme_ab72269e4be11d711d345d540ff333415_cgraph.png" border="0" usemap="#ada/de3/namespacescalar__scheme_ab72269e4be11d711d345d540ff333415_cgraph" alt=""/></div>
+<map name="ada/de3/namespacescalar__scheme_ab72269e4be11d711d345d540ff333415_cgraph" id="ada/de3/namespacescalar__scheme_ab72269e4be11d711d345d540ff333415_cgraph">
+<area shape="rect" title="Set lamdba and cp." alt="" coords="5,5,175,61"/>
+<area shape="rect" href="../../d9/dbc/namespaceuser__intf.html#aba0d51dec107387f593759651232a314" title=" " alt="" coords="223,13,393,54"/>
 </map>
 </div>
 
@@ -435,7 +491,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00615">615</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00617">617</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -490,14 +546,14 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>Currently only supporting Krylov solvers </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00562">562</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00564">564</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../da/de3/namespacescalar__scheme_a5f6ead3b733850e84a4bfb55ce3c1bbe_icgraph.png" border="0" usemap="#ada/de3/namespacescalar__scheme_a5f6ead3b733850e84a4bfb55ce3c1bbe_icgraph" alt=""/></div>
 <map name="ada/de3/namespacescalar__scheme_a5f6ead3b733850e84a4bfb55ce3c1bbe_icgraph" id="ada/de3/namespacescalar__scheme_a5f6ead3b733850e84a4bfb55ce3c1bbe_icgraph">
 <area shape="rect" title="Initialize a linear solver." alt="" coords="220,5,400,47"/>
-<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a442e39894b529b2b2644ad3adba880ae" title="Initialize all related components of the current scheme." alt="" coords="5,5,172,47"/>
+<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a59759d81fe41003de9f041ca2b650fed" title="Initialize all related components of the current scheme." alt="" coords="5,5,172,47"/>
 </map>
 </div>
 
@@ -519,7 +575,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00624">624</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00626">626</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -551,7 +607,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00518">518</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html#l00520">520</a> of file <a class="el" href="../../da/dc7/scalar__scheme_8f90_source.html">scalar_scheme.f90</a>.</p>
 
 </div>
 </div>
@@ -561,7 +617,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../da/de3/namespacescalar__scheme.html">scalar_scheme</a></li>
-    <li class="footer">Generated on Fri Sep 27 2024 03:38:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Sep 28 2024 03:37:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

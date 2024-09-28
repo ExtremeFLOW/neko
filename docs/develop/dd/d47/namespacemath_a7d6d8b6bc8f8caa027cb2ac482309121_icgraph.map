@@ -1,12 +1,12 @@
 <map id="math::cfill" name="math::cfill">
 <area shape="rect" id="node1" title="Set all elements to a constant c ." alt="" coords="743,348,829,375"/>
 <area shape="rect" id="node2" href="$d5/de6/namespacefield__math.html#a5f4fa1c48a8799a2d0d956fb7c9807e0" title="Set all elements to a constant c ." alt="" coords="513,5,670,32"/>
-<area shape="rect" id="node3" href="$d8/d09/namespacefluid__scheme.html#ab8289185c523ab7039d9076f81d2c2cc" title="Initialise a fluid scheme." alt="" coords="250,23,422,65"/>
+<area shape="rect" id="node3" href="$d8/d09/namespacefluid__scheme.html#a954fd0e94a3e06097351d3ca34709ad4" title="Initialise a fluid scheme." alt="" coords="250,23,422,65"/>
 <area shape="rect" id="node5" href="$d8/d09/namespacefluid__scheme.html#a17447dcd8f1416c9e71540d16be95a6b" title="Update the values of mu_field if necessary." alt="" coords="494,107,689,163"/>
 <area shape="rect" id="node6" href="$d9/d75/namespaceneumann.html#ad6bbeb34722212cccb3d64001e23bfad" title="Finalize by setting the flux." alt="" coords="488,187,695,229"/>
 <area shape="rect" id="node7" href="$da/d78/namespacescalar__residual__cpu.html#aa3d264e4caa57c16d5739df3ce56a738" title="Compute the residual." alt="" coords="512,253,671,309"/>
 <area shape="rect" id="node8" href="$d9/db6/namespacescalar__residual__sx.html#ae37bff172360fda59c8480a83f561183" title=" " alt="" coords="516,333,667,389"/>
-<area shape="rect" id="node9" href="$da/de3/namespacescalar__scheme.html#a442e39894b529b2b2644ad3adba880ae" title="Initialize all related components of the current scheme." alt="" coords="508,414,675,455"/>
+<area shape="rect" id="node9" href="$da/de3/namespacescalar__scheme.html#a59759d81fe41003de9f041ca2b650fed" title="Initialize all related components of the current scheme." alt="" coords="508,414,675,455"/>
 <area shape="rect" id="node10" href="$da/de3/namespacescalar__scheme.html#a6efc05586b621fca40333f4f6b2d76a2" title="Update the values of lambda_field if necessary." alt="" coords="494,480,689,536"/>
 <area shape="rect" id="node11" href="$d2/d13/namespaceflow__ic.html#a6b4c73702cac8cb46dd2a803491ea0ac" title="Uniform initial condition." alt="" coords="518,561,665,602"/>
 <area shape="rect" id="node14" href="$d8/ddf/namespacescalar__ic.html#a09ded6a29d28776765c85df12aca2a67" title="Uniform initial condition." alt="" coords="515,626,668,667"/>

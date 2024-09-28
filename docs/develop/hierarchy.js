@@ -406,7 +406,6 @@ var hierarchy =
     [ "map_2d::map_2d_t", "d0/d18/structmap__2d_1_1map__2d__t.html", null ],
     [ "map::map_init", "d2/d3d/interfacemap_1_1map__init.html", null ],
     [ "map::map_t", "da/d40/structmap_1_1map__t.html", null ],
-    [ "material_properties::material_properties_t", "d1/dd5/structmaterial__properties_1_1material__properties__t.html", null ],
     [ "matrix::matrix_t", "da/d95/structmatrix_1_1matrix__t.html", null ],
     [ "mean_flow::mean_flow_t", "dc/d45/structmean__flow_1_1mean__flow__t.html", null ],
     [ "mean_sqr_flow::mean_sqr_flow_t", "d8/d91/structmean__sqr__flow_1_1mean__sqr__flow__t.html", null ],

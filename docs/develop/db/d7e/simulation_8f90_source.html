@@ -254,10 +254,10 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90_source.html','.
 <div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;       <span class="keyword">call </span>c%s%sample(t, tstep)</div>
 <div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160; </div>
 <div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;       <span class="comment">! Update material properties</span></div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;       <span class="keyword">call </span>c%usr%material_properties(t, tstep, c%material_properties%rho,&amp;</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;                                      c%material_properties%mu, &amp;</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;                                      c%material_properties%cp, &amp;</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;                                      c%material_properties%lambda, &amp;</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;       <span class="keyword">call </span>c%usr%material_properties(t, tstep, c%fluid%rho,&amp;</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;                                      c%fluid%mu, &amp;</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;                                      c%scalar%cp, &amp;</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;                                      c%scalar%lambda, &amp;</div>
 <div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;                                      c%params)</div>
 <div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160; </div>
 <div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;       <span class="keyword">call </span>c%usr%user_check(t, tstep, c%fluid%u, c%fluid%v, c%fluid%w, &amp;</div>
@@ -426,7 +426,7 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90_source.html','.
 <div class="ttc" id="anamespacesimulation_html_af82971b79cd67a50aaed87190a60dd9d"><div class="ttname"><a href="../../d1/d2d/namespacesimulation.html#af82971b79cd67a50aaed87190a60dd9d">simulation::simulation_restart</a></div><div class="ttdeci">subroutine simulation_restart(C, t)</div><div class="ttdoc">Restart a case C from a given checkpoint.</div><div class="ttdef"><b>Definition:</b> <a href="../../db/d7e/simulation_8f90_source.html#l00230">simulation.f90:231</a></div></div>
 <div class="ttc" id="anamespacetime__scheme__controller_html"><div class="ttname"><a href="../../dc/dfb/namespacetime__scheme__controller.html">time_scheme_controller</a></div><div class="ttdoc">Compound scheme for the advection and diffusion operators in a transport equation.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d67/time__scheme__controller_8f90_source.html#l00035">time_scheme_controller.f90:35</a></div></div>
 <div class="ttc" id="anamespacetime__step__controller_html"><div class="ttname"><a href="../../d3/dda/namespacetime__step__controller.html">time_step_controller</a></div><div class="ttdoc">Implements type time_step_controller.</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/da8/time__step__controller_8f90_source.html#l00034">time_step_controller.f90:34</a></div></div>
-<div class="ttc" id="astructcase_1_1case__t_html"><div class="ttname"><a href="../../db/d7a/structcase_1_1case__t.html">case::case_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d0f/case_8f90_source.html#l00067">case.f90:67</a></div></div>
+<div class="ttc" id="astructcase_1_1case__t_html"><div class="ttname"><a href="../../db/d7a/structcase_1_1case__t.html">case::case_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d0f/case_8f90_source.html#l00066">case.f90:66</a></div></div>
 <div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d3/dc1/field_8f90_source.html#l00046">field.f90:46</a></div></div>
 <div class="ttc" id="astructfile_1_1file__t_html"><div class="ttname"><a href="../../d6/dae/structfile_1_1file__t.html">file::file_t</a></div><div class="ttdoc">A wrapper around a polymorphic generic_file_t that handles its init. This is essentially a factory fo...</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d96/file_8f90_source.html#l00054">file.f90:54</a></div></div>
 <div class="ttc" id="astructtime__scheme__controller_1_1time__scheme__controller__t_html"><div class="ttname"><a href="../../d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html">time_scheme_controller::time_scheme_controller_t</a></div><div class="ttdoc">Implements the logic to compute the time coefficients for the advection and diffusion operators in a ...</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d67/time__scheme__controller_8f90_source.html#l00071">time_scheme_controller.f90:71</a></div></div>
@@ -437,7 +437,7 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../db/d7e/simulation_8f90.html">simulation.f90</a></li>
-    <li class="footer">Generated on Fri Sep 27 2024 03:38:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Sep 28 2024 03:37:29 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
