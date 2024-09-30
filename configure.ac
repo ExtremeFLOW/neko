@@ -5,8 +5,11 @@ AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_HOST
 AC_LANG(Fortran)
-AC_PROG_RANLIB
 AC_PROG_INSTALL
+AC_PROG_LIBTOOL
+AC_PROG_MAKE_SET
+LT_INIT([disable-shared])
+LT_LANG(Fortran)
 
 AC_ARG_ENABLE(contrib,
               AS_HELP_STRING([--enable-contrib],[Compile various tools]), 

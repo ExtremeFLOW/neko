@@ -1,5 +1,6 @@
 
-lib_LIBRARIES = libneko.a
+lib_LTLIBRARIES = libneko.la
+libneko_la_LDFLAGS = -release ${PACKAGE_VERSION}
 neko_fortran_SOURCES = \
 	config/num_types.f90\
 	common/structs.f90\
@@ -322,16 +323,16 @@ neko_c_SOURCES = \
 	gs/bcknd/device/device_mpi.c\
 	math/bcknd/device/device_mpi_reduce.c
 
-libneko_a_SOURCES = \
+libneko_la_SOURCES = \
 	$(neko_fortran_SOURCES)\
 	$(neko_c_SOURCES)
 
 if ENABLE_PARMETIS
-libneko_a_SOURCES += comm/parmetis_wrapper.c
+libneko_la_SOURCES += comm/parmetis_wrapper.c
 endif
 
 if ENABLE_HIP
-libneko_a_SOURCES += \
+libneko_la_SOURCES += \
 	device/hip/check.hip\
 	math/bcknd/device/hip/math.hip\
 	math/bcknd/device/hip/schwarz.hip\
@@ -365,7 +366,7 @@ libneko_a_SOURCES += \
 endif
 
 if ENABLE_CUDA
-libneko_a_SOURCES += \
+libneko_la_SOURCES += \
 	device/cuda/check.cu\
 	math/bcknd/device/cuda/math.cu\
 	math/bcknd/device/cuda/schwarz.cu\
@@ -401,7 +402,7 @@ libneko_a_SOURCES += \
 endif
 
 if ENABLE_OPENCL
-libneko_a_SOURCES += \
+libneko_la_SOURCES += \
 	device/opencl/check.c\
 	device/opencl/jit.c\
 	math/bcknd/device/opencl/math.c\
@@ -456,17 +457,20 @@ if ENABLE_ADIOS2
 io/nek_adios2.o: io/nek_adios2.cpp
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ -c $^
 
-libneko_a_LIBADD = \
+libneko_la_LIBADD = \
 	io/nek_adios2.o
 
-neko_LDADD = \
-	io/nek_adios2.o
+#neko_LDADD = \
+#	io/nek_adios2.o
 
 endif
 
 
 bin_PROGRAMS = neko
-neko_SOURCES = $(libneko_a_SOURCES) driver.f90
+#neko_SOURCES = $(libneko_la_SOURCES) driver.f90
+neko_SOURCES = driver.f90
+neko_LDADD= libneko.la
+
 
 pkginclude_HEADERS = \
 	$(wildcard *.mod)\
@@ -502,7 +506,7 @@ endif
 
 if ENABLE_MAKEDEPF90
 depend:
-	$(MAKEDEPF90) $(neko_fortran_SOURCES) driver.f90  > .depends
+	$(MAKEDEPF90) -m "%f.lo" $(neko_fortran_SOURCES) driver.f90  > .depends
 endif
 
 # Note we need to list any headers etc here for the dist. script
