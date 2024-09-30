@@ -313,6 +313,7 @@ contains
     open(file = trim(this%fname), status = 'old', newunit = file_unit, &
          iostat = ierr)
     if (ierr .ne. 0) call neko_error("Error while opening " // trim(this%fname))
+    rewind(file_unit)
 
     n = 0
 
