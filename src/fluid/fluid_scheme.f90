@@ -569,7 +569,7 @@ contains
 
     ! Initialize the source term
     call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user)
-    call this%source_term%add(params, 'case.fluid.source_term')
+    call this%source_term%add(params, 'case.fluid.source_terms')
     
     ! If case.output_boundary is true, set the values for the bc types in the
     ! output of the field.
