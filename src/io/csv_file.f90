@@ -308,8 +308,9 @@ contains
     integer :: n
     integer :: ierr, file_unit
 
-    open(file = trim(this%fname), status = 'old', newunit = file_unit)
-    rewind(file_unit)
+    open(file = trim(f%fname), status = 'old', newunit = file_unit, &
+         iostat = ierr)
+    if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
 
     n = 0
 
