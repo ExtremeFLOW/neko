@@ -308,6 +308,8 @@ contains
     integer :: n
     integer :: ierr, file_unit
 
+    call this%check_exists()
+
     open(file = trim(f%fname), status = 'old', newunit = file_unit, &
          iostat = ierr)
     if (ierr .ne. 0) call neko_error("Error while opening " // trim(f%fname))
