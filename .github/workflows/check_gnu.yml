@@ -173,7 +173,8 @@ jobs:
         if: matrix.backend == 'cpu'
         run: |
            cd reg_test/cylinder
-           ./test.sh ${{ steps.setup-env.outputs.nproc }}
+           ./test.sh $(nproc)
+           ./test.sh 4
            cd ../..
 
       - name: Dist (CPU backend)
