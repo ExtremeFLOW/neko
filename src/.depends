@@ -107,9 +107,10 @@ math/schwarz.o : math/schwarz.f90 config/neko_config.o device/device.o math/fdm.
 math/vector.o : math/vector.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o math/math.o config/neko_config.o 
 math/matrix.o : math/matrix.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o math/math.o config/neko_config.o 
 math/signed_distance.o : math/signed_distance.f90 adt/stack.o mesh/search_tree/aabb.o mesh/point.o common/utils.o mesh/aabb_tree.o mesh/tri_mesh.o mesh/tri.o field/field.o config/num_types.o 
-multigrid/tree_amg.o : multigrid/tree_amg.f90 gs/gather_scatter.o math/ax.o sem/space.o mesh/mesh.o sem/coef.o math/math.o common/utils.o config/num_types.o 
-multigrid/tree_amg_multigrid.o : multigrid/tree_amg_multigrid.f90 multigrid/tree_amg_smoother.o multigrid/tree_amg.o math/math.o config/num_types.o gs/gather_scatter.o 
-multigrid/tree_amg_smoother.o : multigrid/tree_amg_smoother.f90 krylov/krylov.o math/math.o common/utils.o config/num_types.o multigrid/tree_amg.o 
+multigrid/tree_amg.o : multigrid/tree_amg.f90 gs/gather_scatter.o bc/bc.o math/ax.o sem/space.o mesh/mesh.o sem/coef.o math/math.o common/utils.o config/num_types.o 
+multigrid/tree_amg_aggregate.o : multigrid/tree_amg_aggregate.f90 mesh/mesh.o config/num_types.o common/utils.o multigrid/tree_amg.o 
+multigrid/tree_amg_multigrid.o : multigrid/tree_amg_multigrid.f90 multigrid/tree_amg_smoother.o multigrid/tree_amg_aggregate.o multigrid/tree_amg.o gs/gather_scatter.o bc/bc.o math/ax.o sem/space.o mesh/mesh.o sem/coef.o math/math.o common/utils.o config/num_types.o 
+multigrid/tree_amg_smoother.o : multigrid/tree_amg_smoother.f90 gs/gather_scatter.o bc/bc.o krylov/krylov.o math/math.o common/utils.o config/num_types.o multigrid/tree_amg.o 
 common/checkpoint.o : common/checkpoint.f90 mesh/mesh.o common/utils.o field/field.o device/device.o sem/space.o field/field_series.o config/num_types.o config/neko_config.o 
 io/generic_file.o : io/generic_file.f90 comm/comm.o common/utils.o config/num_types.o 
 io/map_file.o : io/map_file.f90 io/format/map.o comm/comm.o common/utils.o io/generic_file.o 

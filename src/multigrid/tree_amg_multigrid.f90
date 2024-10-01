@@ -10,18 +10,23 @@
 !>  call amg_solver%solve(x%x, f, n)
 !>
 module tree_amg_multigrid
-  use math
-  use utils
   use num_types
-  use tree_amg
-  !use tree_amg_matvec
-  use tree_amg_smoother
+  use utils
+  use math
+  use coefs, only : coef_t
+  use mesh, only : mesh_t
+  use space, only : space_t
+  use ax_product, only: ax_t
+  use bc, only: bc_list_t, bc_list_apply
   use gather_scatter, only : gs_t, GS_OP_ADD
+  use tree_amg, only : tamg_hierarchy_t, tamg_lvl_init, tamg_node_init
+  use tree_amg_aggregate
+  use tree_amg_smoother
   implicit none
   private
 
   type, public :: tamg_solver_t
-    type(tamg_hierarchy_t), pointer :: amg
+    type(tamg_hierarchy_t), allocatable :: amg
     type(amg_cheby_t), allocatable :: smoo(:)
     integer :: nlvls
     integer :: max_iter
@@ -32,25 +37,47 @@ module tree_amg_multigrid
 
 contains
 
-  subroutine tamg_mg_init(this, amg, max_iter)
+  subroutine tamg_mg_init(this, ax, Xh, coef, msh, gs_h, nlvls, blst, max_iter)
     class(tamg_solver_t), intent(inout), target :: this
-    class(tamg_hierarchy_t), intent(inout), target :: amg
+    class(ax_t), target, intent(in) :: ax
+    type(space_t),target, intent(in) :: Xh
+    type(coef_t), target, intent(in) :: coef
+    type(mesh_t), target, intent(in) :: msh
+    type(gs_t), target, intent(in) :: gs_h
+    type(bc_list_t), target, intent(in) :: blst
+    integer, intent(in) :: nlvls
     integer, intent(in) :: max_iter
-    integer :: lvl, nlvls, n
+    integer :: lvl, n
+    integer, allocatable :: agg_nhbr(:,:)
 
-    this%amg => amg
+    allocate( this%amg )
+    call this%amg%init(ax, Xh, coef, msh, gs_h, nlvls, blst)
+
+    call aggregate_finest_level(this%amg, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    print *, "Calling lazy aggregation"
+    print *, "-- target aggregates:", (msh%nelv/8)
+    call aggregate_elm(this%amg, (msh%nelv/8), agg_nhbr)
+    print *, "-- Aggregation done. Aggregates:", this%amg%lvl(2)%nnodes
+
+    if (nlvls .gt. 3) then
+      print *, "Calling lazy aggregation"
+      print *, "-- target aggregates:", (this%amg%lvl(2)%nnodes/8)
+      call aggregate_general(this%amg, (this%amg%lvl(2)%nnodes/8), 3, agg_nhbr)
+      print *, "-- Aggregation done. Aggregates:", this%amg%lvl(3)%nnodes
+    end if
+
+    call aggregate_end(this%amg, nlvls)
 
     this%max_iter = max_iter
 
-    nlvls = amg%nlvls
-    this%nlvls = nlvls
-    if (this%nlvls .gt. amg%nlvls) then
+    this%nlvls = this%amg%nlvls!TODO: read from parameter
+    if (this%nlvls .gt. this%amg%nlvls) then
       call neko_error("Requested number multigrid levels is greater than the initialized AMG levels")
     end if
     !allocate(this%smoo(0:(nlvls-1)))
     allocate(this%smoo(0:(nlvls)))
     do lvl = 0, nlvls-1
-      n = amg%lvl(lvl+1)%fine_lvl_dofs
+      n = this%amg%lvl(lvl+1)%fine_lvl_dofs
       call this%smoo(lvl)%init(n ,lvl, 10)
     end do
 
