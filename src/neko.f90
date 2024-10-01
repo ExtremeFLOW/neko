@@ -72,7 +72,7 @@ module neko
   use output, only : output_t
   use simulation, only : neko_solve
   use operators, only : dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl,&
-            lambda2op, strain_rate, div, grad
+       lambda2op, strain_rate, div, grad
   use mathops, only : opchsign, opcolv, opcolv3c, opadd2cm, opadd2col
   use projection
   use user_intf
@@ -84,7 +84,7 @@ module neko
        device_cmult, device_cmult2, device_cadd, device_cfill, device_add2, &
        device_add2s1, device_add2s2, device_addsqr2s2, device_add3s2, &
        device_invcol1, device_invcol2, device_col2, device_col3, &
-       device_subcol3,  device_sub2, device_sub3, device_addcol3, &
+       device_subcol3, device_sub2, device_sub3, device_addcol3, &
        device_addcol4, device_vdot3, device_vlsc3, device_glsc3, &
        device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
        device_masked_copy, device_cfill_mask, device_add3, device_cadd2, &
@@ -145,17 +145,7 @@ contains
     call neko_log%init()
     call neko_field_registry%init()
 
-    if (pe_rank .eq. 0) then
-       write(*,*) ''
-       write(*,*) '   _  __  ____  __ __  ____  '
-       write(*,*) '  / |/ / / __/ / //_/ / __ \ '
-       write(*,*) ' /    / / _/  / ,<   / /_/ / '
-       write(*,*) '/_/|_/ /___/ /_/|_|  \____/  '
-       write(*,*) ''
-       write(*,*) '(version: ', trim(NEKO_VERSION), ')'
-       write(*,*) trim(NEKO_BUILD_INFO)
-       write(*,*) ''
-    end if
+    call neko_log%header(NEKO_VERSION, NEKO_BUILD_INFO)
 
     if (present(C)) then
 
@@ -262,7 +252,7 @@ contains
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
 
        if (NEKO_BCKND_HIP .eq. 1 .or. NEKO_BCKND_CUDA .eq. 1 .or. &
-           NEKO_BCKND_OPENCL .eq. 1) then
+            NEKO_BCKND_OPENCL .eq. 1) then
           write(log_buf, '(a)') 'Dev. name : '
           call device_name(log_buf(13:))
           call neko_log%message(log_buf, NEKO_LOG_QUIET)
@@ -306,7 +296,7 @@ contains
 
     call neko_rt_stats%report()
     call neko_rt_stats%free()
-    
+
     if (present(C)) then
        call case_free(C)
     end if

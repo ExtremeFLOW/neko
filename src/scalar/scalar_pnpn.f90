@@ -63,7 +63,6 @@ module scalar_pnpn
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
   use user_intf, only : user_t
-  use material_properties, only : material_properties_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use time_step_controller, only : time_step_controller_t
   use scratch_registry, only: neko_scratch_registry
@@ -138,25 +137,23 @@ contains
   !! @param params The case parameter file in json.
   !! @param user Type with user-defined procedures.
   subroutine scalar_pnpn_init(this, msh, coef, gs, params, user, &
-                              material_properties, ulag, vlag, wlag, &
-                              time_scheme)
+       ulag, vlag, wlag, time_scheme, rho)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     type(coef_t), target, intent(inout) :: coef
     type(gs_t), target, intent(inout) :: gs
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
-    type(material_properties_t), intent(inout) :: material_properties
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
+    real(kind=rp), intent(in) :: rho
     integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
 
     call this%free()
 
     ! Initiliaze base type.
-    call this%scheme_init(msh, coef, gs, params, scheme, user, &
-                          material_properties)
+    call this%scheme_init(msh, coef, gs, params, scheme, user, rho)
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax, full_formulation = .false.)

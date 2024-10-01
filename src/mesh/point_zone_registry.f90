@@ -125,7 +125,7 @@ contains
     else
        call Xh%init(GLL, order, order, order)
     end if
-    dof = dofmap_t(msh, Xh)
+    call dof%init(msh, Xh)
 
     call this%free()
 

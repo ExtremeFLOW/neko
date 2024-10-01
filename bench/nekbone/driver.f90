@@ -34,7 +34,7 @@ program nekobone
 
   call space_init(Xh, GLL, lx, lx, lx)
 
-  dm = dofmap_t(msh, Xh)
+  call dm%init(msh, Xh)
   call gs_init(gs_h, dm)
   
   call field_init(x, msh, Xh, "x")
