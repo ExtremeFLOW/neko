@@ -79,7 +79,7 @@ module fluid_scheme
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
   use field_math, only : field_cfill
-  use gradient_jump_penalty
+  use gradient_jump_penalty, only : gradient_jump_penalty_t
   implicit none
   private
 

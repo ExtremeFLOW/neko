@@ -273,7 +273,7 @@ contains
 
     ! Initialize Gather-Scatter
     call this%Xh_GJP%init(GLL, this%lx+2, this%lx+2, this%lx+2)
-    this%dm_GJP = dofmap_t(this%coef%msh, this%Xh_GJP)
+    call this%dm_GJP%init(this%coef%msh, this%Xh_GJP)
     call this%gs_GJP%init(this%dm_GJP)
 
     ! Initialize pointers for device

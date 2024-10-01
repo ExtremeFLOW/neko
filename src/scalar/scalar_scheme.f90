@@ -72,7 +72,7 @@ module scalar_scheme
   use neko_config, only : NEKO_BCKND_DEVICE
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
-  use gradient_jump_penalty
+  use gradient_jump_penalty, only : gradient_jump_penalty_t
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
