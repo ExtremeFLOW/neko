@@ -239,8 +239,7 @@ keywords:
   - `smagorinsky`: The standard Smagorinsky model. Configured by the
     following additional keyword:
     - `c_s`: The Smagorinsky constant, defaults to 0.17.
-  - `dynamic_smagorinsky`: The dynamic Smagorinsky model. Configured by the
-    following additional keyword:
+  - `dynamic_smagorinsky`: The dynamic Smagorinsky model.
   - `vreman`: The Vreman model. Configured by the following additional keyword:
     - `c`: The model constant, defaults to 0.07.
   - `sigma`: The Sigma model. Configured by the following additional keyword:
