@@ -1,5 +1,6 @@
 var NAVTREEINDEX41 =
 {
+"de/d11/ax__helm_8hip_source.html":[5,0,2,12,0,1,1,0],
 "de/d14/interfaceopencl__math_1_1opencl__glsum.html":[4,0,151,31],
 "de/d14/interfaceopencl__math_1_1opencl__glsum.html#a17933504097417fcff4109138dea6725":[4,0,151,31,0],
 "de/d14/structmap__file_1_1map__file__t.html":[4,0,133,0],
@@ -248,6 +249,5 @@ var NAVTREEINDEX41 =
 "de/d54/tuple_8f90.html#a1e23cd3f19402e99013586bf2698d795":[5,0,2,0,2,10],
 "de/d54/tuple_8f90.html#a2757c2e5c077e785637e5977d1fd858d":[5,0,2,0,2,27],
 "de/d54/tuple_8f90.html#a320f39ed44aadd289fd1d2b2b87ea3b6":[5,0,2,0,2,13],
-"de/d54/tuple_8f90.html#a520489d80ce00b487a440e0cbed853d9":[5,0,2,0,2,23],
-"de/d54/tuple_8f90.html#a53c498126f1dd0691c92e1965e552e45":[5,0,2,0,2,15]
+"de/d54/tuple_8f90.html#a520489d80ce00b487a440e0cbed853d9":[5,0,2,0,2,23]
 };

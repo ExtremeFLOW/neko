@@ -1,5 +1,6 @@
 var NAVTREEINDEX10 =
 {
+"d3/da1/namespacehex.html#a3e80e5a0d44501718c559000c578dc36":[3,0,133,9],
 "d3/da1/namespacehex.html#a4c769a9ee8e039a4de8273c129336c73":[3,0,133,10],
 "d3/da1/namespacehex.html#a581a1a6c53eeab5bd63d61a8c031122b":[3,0,133,13],
 "d3/da1/namespacehex.html#a73131328f21224f720a9f35a3896ab1e":[3,0,133,12],
@@ -248,6 +249,5 @@ var NAVTREEINDEX10 =
 "d4/d41/structsx__jacobi_1_1sx__jacobi__t.html#a0139d9bfbefbb528b3d2760a4e732134":[4,0,213,0,1],
 "d4/d41/structsx__jacobi_1_1sx__jacobi__t.html#a41435b9b12029e133d13bb62b2eaeea8":[4,0,213,0,6],
 "d4/d41/structsx__jacobi_1_1sx__jacobi__t.html#a6451aa5e31dc97ac54b13043de107ea3":[4,0,213,0,0],
-"d4/d41/structsx__jacobi_1_1sx__jacobi__t.html#a79f3ace3d98ad2ae5794f01e3618abde":[4,0,213,0,2],
-"d4/d41/structsx__jacobi_1_1sx__jacobi__t.html#a80d3dcba11bb6a7997b6323dd9af7041":[4,0,213,0,5]
+"d4/d41/structsx__jacobi_1_1sx__jacobi__t.html#a79f3ace3d98ad2ae5794f01e3618abde":[4,0,213,0,2]
 };

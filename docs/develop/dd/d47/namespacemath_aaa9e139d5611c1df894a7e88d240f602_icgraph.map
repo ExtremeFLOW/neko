@@ -1,43 +1,43 @@
 <map id="math::copy" name="math::copy">
-<area shape="rect" id="node1" title="Copy a vector ." alt="" coords="1067,937,1161,964"/>
-<area shape="rect" id="node2" href="$d3/d06/namespaceprojection.html#a25be6cf95eeacd177d57821fe46a5e18" title=" " alt="" coords="795,5,1019,32"/>
-<area shape="rect" id="node3" href="$dd/d2f/namespacebicgstab.html#afdcb9c0f169349daf77759d283479c43" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="837,57,977,98"/>
-<area shape="rect" id="node4" href="$dd/d26/namespaceelementwise__filter__cpu.html#aafca1eafd7fe7847fb28b285189ca02f" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="834,122,979,163"/>
-<area shape="rect" id="node6" href="$d2/d10/namespacecacg.html#a96a12044cfb692eb6d097ee3ed4aeda0" title="S&#45;step CA PCG solve." alt="" coords="841,188,973,215"/>
-<area shape="rect" id="node7" href="$d9/df6/namespacecg.html#aa74f8eea3f12b0f69c7eae810e63bf96" title="Standard PCG solve." alt="" coords="855,239,958,265"/>
-<area shape="rect" id="node8" href="$d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="827,290,986,331"/>
-<area shape="rect" id="node10" href="$d2/d80/namespacecpr.html#ae689f520261060721e9a32eee074c3d7" title="Generate spectral tranform matrices." alt="" coords="807,356,1006,383"/>
-<area shape="rect" id="node12" href="$dd/dd2/namespacedofmap.html#ad3de108e62dbf0bc0c617b43f620bed8" title="Generate the x, y, z coordinates of the dofs in a signle element, assuming linear element edges." alt="" coords="819,407,995,433"/>
-<area shape="rect" id="node15" href="$dd/dd2/namespacedofmap.html#a14be7fe99925dc0fb0e2e30c0d654b44" title=" " alt="" coords="555,461,747,488"/>
-<area shape="rect" id="node16" href="$d5/de6/namespacefield__math.html#aa5845ed239a9f547eade8d05338cfbad" title="Copy a vector ." alt="" coords="824,508,989,535"/>
-<area shape="rect" id="node17" href="$d6/d21/namespacefluid__volflow.html#a4e6f81545892d5562ed3f93cf0a8949a" title="Compute flow adjustment." alt="" coords="833,559,980,601"/>
-<area shape="rect" id="node18" href="$dd/dd2/namespacedofmap.html#a1036efd4469d06921a6eacca861cad39" title="Extend 2D faces into interior via gordon hall gh_type: 1 &#45; vertex only 2 &#45; vertex and faces." alt="" coords="803,625,1010,652"/>
-<area shape="rect" id="node19" href="$dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d" title="Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the corr..." alt="" coords="571,735,731,791"/>
-<area shape="rect" id="node20" href="$dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="827,727,987,783"/>
-<area shape="rect" id="node21" href="$dd/de1/namespaceglobal__interpolation.html#ae67a17085d264b5f5d490d1047042ee2" title=" " alt="" coords="827,807,987,863"/>
-<area shape="rect" id="node22" href="$dc/d48/namespacegmres.html#a96f21cb206d8da8611f3c630ae4459ca" title="Standard GMRES solve." alt="" coords="829,887,984,913"/>
-<area shape="rect" id="node23" href="$dd/dd1/namespacehsmg.html#a25c9fa74d9a25ea39e51a25695e12cf3" title=" " alt="" coords="835,937,979,964"/>
-<area shape="rect" id="node25" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="835,988,979,1015"/>
-<area shape="rect" id="node26" href="$d2/d1a/namespaceidentity.html#a32e4a4d8b76faa83b2c07af7c2032615" title="The (default) naive preconditioner ." alt="" coords="829,1039,984,1065"/>
-<area shape="rect" id="node27" href="$d1/d99/namespacemap__2d.html#a297d7d6292508a38afd4ca7f4104a06a" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="809,1089,1004,1116"/>
-<area shape="rect" id="node28" href="$d1/d99/namespacemap__2d.html#a8a72ce61d76d8c2ab9e93ec9da8c926e" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="809,1141,1004,1182"/>
-<area shape="rect" id="node29" href="$d1/d99/namespacemap__2d.html#a8fee1d1cfda3a0841ff70ec0db2ff1d7" title=" " alt="" coords="825,1207,988,1233"/>
-<area shape="rect" id="node30" href="$d0/d94/namespaceopr__cpu.html#a12d6237f85e66a10649781a905bb60d2" title=" " alt="" coords="825,1257,988,1284"/>
-<area shape="rect" id="node31" href="$df/db5/namespaceopr__sx.html#aa4b37924e1cf872be2526581325b9ec9" title=" " alt="" coords="833,1308,980,1335"/>
-<area shape="rect" id="node32" href="$d9/d5a/namespaceopr__xsmm.html#acd8813ad0719f1353d493f684bfcdca6" title=" " alt="" coords="807,1359,1006,1385"/>
-<area shape="rect" id="node33" href="$de/d49/namespacepipecg.html#ae519e8f58edbf66c6b746e28363de31f" title="Pipelined PCG solve." alt="" coords="827,1409,986,1436"/>
-<area shape="rect" id="node34" href="$de/d0d/namespacepnpn__res__stress__cpu.html#adc043101f8e4334fbb0d00c366907df5" title=" " alt="" coords="825,1460,988,1516"/>
-<area shape="rect" id="node35" href="$da/d78/namespacescalar__residual__cpu.html#aa3d264e4caa57c16d5739df3ce56a738" title="Compute the residual." alt="" coords="827,1540,986,1596"/>
-<area shape="rect" id="node36" href="$d9/db6/namespacescalar__residual__sx.html#ae37bff172360fda59c8480a83f561183" title=" " alt="" coords="831,1620,982,1676"/>
-<area shape="rect" id="node37" href="$dd/d97/namespaceadv__oifs.html#abf88b9e745adde6b8cb80b4a00930cba" title="Mapping the velocity fields to GL space and transforming them to the rst format." alt="" coords="835,1701,978,1742"/>
-<area shape="rect" id="node38" href="$da/dea/namespaceshear__stress.html#a361657d6037d7af0e52b6cbac1092ef9" title="Set the shear stress components." alt="" coords="833,1766,981,1807"/>
-<area shape="rect" id="node39" href="$d5/d0d/namespacespace.html#a5c41cc585bf24744ee74ef6a516cd3d7" title="Generate spectral tranform matrices." alt="" coords="811,1831,1002,1873"/>
-<area shape="rect" id="node41" href="$d5/d6a/namespacegmres__sx.html#a9c2ada127fe243736199ecbeb712c3ea" title="Standard PCG solve." alt="" coords="829,1897,985,1938"/>
-<area shape="rect" id="node5" href="$dd/d52/namespaceelementwise__filter.html#ac2f5a8a0a33529944fc5302eee1e04f5" title="Build the 1d filter for an element." alt="" coords="579,122,722,163"/>
-<area shape="rect" id="node9" href="$d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8" title="Initialize coefficients." alt="" coords="579,293,723,320"/>
-<area shape="rect" id="node11" href="$d0/d6c/interfacecpr_1_1cpr__init.html#a13d7775a54aa77d22ca967b13c0fbe64" title="Initialize cpr." alt="" coords="587,345,714,386"/>
-<area shape="rect" id="node13" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="281,436,507,463"/>
-<area shape="rect" id="node14" href="$d0/df0/structdofmap_1_1dofmap__t.html#ad6ff31d68c77f1c7625d5b8cd5eb8328" title=" " alt="" coords="5,436,233,463"/>
-<area shape="rect" id="node24" href="$dd/dd1/namespacehsmg.html#a203f4c75923462a923b3d5d38e90c896" title=" " alt="" coords="585,937,716,964"/>
-<area shape="rect" id="node40" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="583,1839,718,1865"/>
+<area shape="rect" id="node1" title="Copy a vector ." alt="" coords="997,937,1092,964"/>
+<area shape="rect" id="node2" href="$d3/d06/namespaceprojection.html#a25be6cf95eeacd177d57821fe46a5e18" title=" " alt="" coords="725,5,949,32"/>
+<area shape="rect" id="node3" href="$dd/d2f/namespacebicgstab.html#afdcb9c0f169349daf77759d283479c43" title="Bi&#45;Conjugate Gradient Stabilized method solve." alt="" coords="767,57,907,98"/>
+<area shape="rect" id="node4" href="$dd/d26/namespaceelementwise__filter__cpu.html#aafca1eafd7fe7847fb28b285189ca02f" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="765,122,910,163"/>
+<area shape="rect" id="node6" href="$d2/d10/namespacecacg.html#a96a12044cfb692eb6d097ee3ed4aeda0" title="S&#45;step CA PCG solve." alt="" coords="771,188,903,215"/>
+<area shape="rect" id="node7" href="$d9/df6/namespacecg.html#aa74f8eea3f12b0f69c7eae810e63bf96" title="Standard PCG solve." alt="" coords="786,239,889,265"/>
+<area shape="rect" id="node8" href="$d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="758,290,917,331"/>
+<area shape="rect" id="node10" href="$d2/d80/namespacecpr.html#ae689f520261060721e9a32eee074c3d7" title="Generate spectral tranform matrices." alt="" coords="738,356,937,383"/>
+<area shape="rect" id="node12" href="$dd/dd2/namespacedofmap.html#ad3de108e62dbf0bc0c617b43f620bed8" title="Generate the x, y, z coordinates of the dofs in a signle element, assuming linear element edges." alt="" coords="749,407,925,433"/>
+<area shape="rect" id="node15" href="$dd/dd2/namespacedofmap.html#a14be7fe99925dc0fb0e2e30c0d654b44" title=" " alt="" coords="485,461,677,488"/>
+<area shape="rect" id="node16" href="$d5/de6/namespacefield__math.html#aa5845ed239a9f547eade8d05338cfbad" title="Copy a vector ." alt="" coords="755,508,920,535"/>
+<area shape="rect" id="node17" href="$d6/d21/namespacefluid__volflow.html#a4e6f81545892d5562ed3f93cf0a8949a" title="Compute flow adjustment." alt="" coords="764,559,911,601"/>
+<area shape="rect" id="node18" href="$dd/dd2/namespacedofmap.html#a1036efd4469d06921a6eacca861cad39" title="Extend 2D faces into interior via gordon hall gh_type: 1 &#45; vertex only 2 &#45; vertex and faces." alt="" coords="734,625,941,652"/>
+<area shape="rect" id="node19" href="$dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d" title="Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the corr..." alt="" coords="501,735,661,791"/>
+<area shape="rect" id="node20" href="$dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="757,727,917,783"/>
+<area shape="rect" id="node21" href="$dd/de1/namespaceglobal__interpolation.html#ae67a17085d264b5f5d490d1047042ee2" title=" " alt="" coords="757,807,917,863"/>
+<area shape="rect" id="node22" href="$dc/d48/namespacegmres.html#a96f21cb206d8da8611f3c630ae4459ca" title="Standard GMRES solve." alt="" coords="760,887,915,913"/>
+<area shape="rect" id="node23" href="$dd/dd1/namespacehsmg.html#a25c9fa74d9a25ea39e51a25695e12cf3" title=" " alt="" coords="765,937,909,964"/>
+<area shape="rect" id="node25" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="765,988,909,1015"/>
+<area shape="rect" id="node26" href="$d2/d1a/namespaceidentity.html#a32e4a4d8b76faa83b2c07af7c2032615" title="The (default) naive preconditioner ." alt="" coords="760,1039,915,1065"/>
+<area shape="rect" id="node27" href="$d1/d99/namespacemap__2d.html#a297d7d6292508a38afd4ca7f4104a06a" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="740,1089,935,1116"/>
+<area shape="rect" id="node28" href="$d1/d99/namespacemap__2d.html#a8a72ce61d76d8c2ab9e93ec9da8c926e" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="740,1141,935,1182"/>
+<area shape="rect" id="node29" href="$d1/d99/namespacemap__2d.html#a8fee1d1cfda3a0841ff70ec0db2ff1d7" title=" " alt="" coords="756,1207,919,1233"/>
+<area shape="rect" id="node30" href="$d0/d94/namespaceopr__cpu.html#a12d6237f85e66a10649781a905bb60d2" title=" " alt="" coords="756,1257,919,1284"/>
+<area shape="rect" id="node31" href="$df/db5/namespaceopr__sx.html#aa4b37924e1cf872be2526581325b9ec9" title=" " alt="" coords="764,1308,911,1335"/>
+<area shape="rect" id="node32" href="$d9/d5a/namespaceopr__xsmm.html#acd8813ad0719f1353d493f684bfcdca6" title=" " alt="" coords="738,1359,937,1385"/>
+<area shape="rect" id="node33" href="$de/d49/namespacepipecg.html#ae519e8f58edbf66c6b746e28363de31f" title="Pipelined PCG solve." alt="" coords="758,1409,917,1436"/>
+<area shape="rect" id="node34" href="$de/d0d/namespacepnpn__res__stress__cpu.html#adc043101f8e4334fbb0d00c366907df5" title=" " alt="" coords="756,1460,919,1516"/>
+<area shape="rect" id="node35" href="$da/d78/namespacescalar__residual__cpu.html#aa3d264e4caa57c16d5739df3ce56a738" title="Compute the residual." alt="" coords="758,1540,917,1596"/>
+<area shape="rect" id="node36" href="$d9/db6/namespacescalar__residual__sx.html#ae37bff172360fda59c8480a83f561183" title=" " alt="" coords="762,1620,913,1676"/>
+<area shape="rect" id="node37" href="$dd/d97/namespaceadv__oifs.html#abf88b9e745adde6b8cb80b4a00930cba" title="Mapping the velocity fields to GL space and transforming them to the rst format." alt="" coords="766,1701,909,1742"/>
+<area shape="rect" id="node38" href="$da/dea/namespaceshear__stress.html#a361657d6037d7af0e52b6cbac1092ef9" title="Set the shear stress components." alt="" coords="763,1766,911,1807"/>
+<area shape="rect" id="node39" href="$d5/d0d/namespacespace.html#a5c41cc585bf24744ee74ef6a516cd3d7" title="Generate spectral tranform matrices." alt="" coords="742,1831,933,1873"/>
+<area shape="rect" id="node41" href="$d5/d6a/namespacegmres__sx.html#a9c2ada127fe243736199ecbeb712c3ea" title="Standard PCG solve." alt="" coords="759,1897,915,1938"/>
+<area shape="rect" id="node5" href="$dd/d52/namespaceelementwise__filter.html#ac2f5a8a0a33529944fc5302eee1e04f5" title="Build the 1d filter for an element." alt="" coords="510,122,653,163"/>
+<area shape="rect" id="node9" href="$d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8" title="Initialize coefficients." alt="" coords="509,293,653,320"/>
+<area shape="rect" id="node11" href="$d0/d6c/interfacecpr_1_1cpr__init.html#a13d7775a54aa77d22ca967b13c0fbe64" title="Initialize cpr." alt="" coords="518,345,645,386"/>
+<area shape="rect" id="node13" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="212,436,437,463"/>
+<area shape="rect" id="node14" href="$dd/dd2/namespacedofmap.html#aa41679fd135ea23696a6083d07b8ba08" title="Constructor." alt="" coords="5,436,164,463"/>
+<area shape="rect" id="node24" href="$dd/dd1/namespacehsmg.html#a203f4c75923462a923b3d5d38e90c896" title=" " alt="" coords="516,937,647,964"/>
+<area shape="rect" id="node40" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="514,1839,649,1865"/>
 </map>

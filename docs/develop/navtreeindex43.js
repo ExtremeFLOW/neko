@@ -1,5 +1,6 @@
 var NAVTREEINDEX43 =
 {
+"de/da4/namespaceblasius.html#af72bfa9aed6f9f6496bb9c6f16b2e7ac":[3,0,18,6],
 "de/da4/structtime__scheme_1_1time__scheme__t.html":[4,0,222,0],
 "de/da4/structtime__scheme_1_1time__scheme__t.html#a05974f0e59d97df079e2187d9497dac2":[4,0,222,0,0],
 "de/da8/interfacecuda__math_1_1cuda__invcol1.html":[4,0,41,16],
@@ -248,6 +249,5 @@ var NAVTREEINDEX43 =
 "df/d21/structrough__log__law_1_1rough__log__law__t.html#a32d428eaf2c56dad9391df100efb491f":[4,0,180,0,7],
 "df/d21/structrough__log__law_1_1rough__log__law__t.html#a37e08c38170546915315b26431b7141d":[4,0,180,0,10],
 "df/d21/structrough__log__law_1_1rough__log__law__t.html#a45b8ad451fd4552869c5a7ecce6a3b65":[4,0,180,0,0],
-"df/d21/structrough__log__law_1_1rough__log__law__t.html#a4666e5cca0931ad2671607393b2eb857":[4,0,180,0,27],
-"df/d21/structrough__log__law_1_1rough__log__law__t.html#a49350755e6873695f4913278bb2e5304":[4,0,180,0,2]
+"df/d21/structrough__log__law_1_1rough__log__law__t.html#a4666e5cca0931ad2671607393b2eb857":[4,0,180,0,27]
 };

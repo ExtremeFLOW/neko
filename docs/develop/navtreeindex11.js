@@ -1,5 +1,6 @@
 var NAVTREEINDEX11 =
 {
+"d4/d41/structsx__jacobi_1_1sx__jacobi__t.html#a80d3dcba11bb6a7997b6323dd9af7041":[4,0,213,0,5],
 "d4/d41/structsx__jacobi_1_1sx__jacobi__t.html#a927125724788d5a3bbeac0b5b878788a":[4,0,213,0,7],
 "d4/d41/structsx__jacobi_1_1sx__jacobi__t.html#ae0583933c7a45a1baef40c3a03d94d09":[4,0,213,0,3],
 "d4/d41/structsx__jacobi_1_1sx__jacobi__t.html#afc45938215ecdb395c267a5e0006e227":[4,0,213,0,4],
@@ -248,6 +249,5 @@ var NAVTREEINDEX11 =
 "d4/dbc/inhom__dirichlet_8hip.html":[5,0,2,1,0,0,1,8],
 "d4/dbc/inhom__dirichlet_8hip.html#a9e032d895df6b8cd21e53e0406a24b5d":[5,0,2,1,0,0,1,8,1],
 "d4/dbc/inhom__dirichlet_8hip.html#aa4165094e1a8ef5dc9bb6bc50f82b793":[5,0,2,1,0,0,1,8,0],
-"d4/dbc/inhom__dirichlet_8hip_source.html":[5,0,2,1,0,0,1,8],
-"d4/dbc/interfacecuda__math_1_1cuda__add3.html":[4,0,41,23]
+"d4/dbc/inhom__dirichlet_8hip_source.html":[5,0,2,1,0,0,1,8]
 };

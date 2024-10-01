@@ -1,5 +1,6 @@
 var NAVTREEINDEX26 =
 {
+"d9/d9a/namespacesmagorinsky.html#a4f505e8cfae8f2235929180f0a5987f7":[3,0,237,4],
 "d9/d9a/namespacesmagorinsky.html#a7ad692040326e846db35999b9002f9bf":[3,0,237,2],
 "d9/d9a/namespacesmagorinsky.html#a7e50d1b4992ed399dae8d96bed4a0d5b":[3,0,237,1],
 "d9/d9a/namespacesmagorinsky.html#ad583126b2494f54412c0b1cda2ba9976":[3,0,237,3],
@@ -248,6 +249,5 @@ var NAVTREEINDEX26 =
 "d9/dfa/namespacegs__device__mpi.html#afe2c32b8ff7fe4f3941b8653b47ec885":[3,0,128,14],
 "d9/dfc/interfacehip__math_1_1hip__add2.html":[4,0,115,10],
 "d9/dfc/interfacehip__math_1_1hip__add2.html#a08e4179b48322d8d9f87e7a9399419bb":[4,0,115,10,0],
-"d9/dfc/rhs__maker_8hip.html":[5,0,2,3,0,1,1,4],
-"d9/dfc/rhs__maker_8hip.html#a0f870df5218d26d28a1d69f6d8757fba":[5,0,2,3,0,1,1,4,0]
+"d9/dfc/rhs__maker_8hip.html":[5,0,2,3,0,1,1,4]
 };

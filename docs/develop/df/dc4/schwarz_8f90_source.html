@@ -207,7 +207,7 @@ $(document).ready(function(){initNavTree('df/dc4/schwarz_8f90_source.html','../.
 <div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="keyword">call </span>this%free()</div>
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160; </div>
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <span class="keyword">call </span>this%Xh_schwarz%init(<a class="code" href="../../d5/d0d/namespacespace.html#a9dbfc4fd0750ee0878eec8a16370a91d">gll</a>, xh%lx+2, xh%lx+2, xh%lx+2)</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    this%dm_schwarz = <a class="code" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>(msh, this%Xh_schwarz)</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keyword">call </span>this%dm_schwarz%init(msh, this%Xh_schwarz)</div>
 <div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keyword">call </span>this%gs_schwarz%init(this%dm_schwarz)</div>
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160; </div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    <span class="keyword">allocate</span>(this%work1(this%dm_schwarz%size()))</div>
@@ -632,7 +632,7 @@ $(document).ready(function(){initNavTree('df/dc4/schwarz_8f90_source.html','../.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../df/dc4/schwarz_8f90.html">schwarz.f90</a></li>
-    <li class="footer">Generated on Mon Sep 30 2024 03:40:12 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Oct 1 2024 03:41:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

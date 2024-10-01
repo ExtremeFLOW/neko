@@ -1,5 +1,6 @@
 var NAVTREEINDEX29 =
 {
+"da/d73/interfacedevice_1_1device__deassociate.html#ac623886978c3feb9ad49422e8af00371":[4,0,47,4,0],
 "da/d73/interfacedevice_1_1device__deassociate.html#acd04a0497c6c8f29059f7a7f6917efdb":[4,0,47,4,2],
 "da/d78/namespacescalar__residual__cpu.html":[3,0,221],
 "da/d78/namespacescalar__residual__cpu.html#aa3d264e4caa57c16d5739df3ce56a738":[3,0,221,1],
@@ -248,6 +249,5 @@ var NAVTREEINDEX29 =
 "da/da7/cuda_2opgrad__kernel_8h.html#a3dc56328a2c8b9af0be84f6fdc19c447":[5,0,2,12,0,1,0,14,6],
 "da/da7/cuda_2opgrad__kernel_8h.html#a48933f3e6d864c65301c4708fe39e247":[5,0,2,12,0,1,0,14,24],
 "da/da7/cuda_2opgrad__kernel_8h.html#a516e79afaff41160487af846f7360b3d":[5,0,2,12,0,1,0,14,18],
-"da/da7/cuda_2opgrad__kernel_8h.html#a57e5cc9475a550dda4acbff7c26c58f5":[5,0,2,12,0,1,0,14,10],
-"da/da7/cuda_2opgrad__kernel_8h.html#a5bd8dc2d8498c77e4b299f4388b435f7":[5,0,2,12,0,1,0,14,19]
+"da/da7/cuda_2opgrad__kernel_8h.html#a57e5cc9475a550dda4acbff7c26c58f5":[5,0,2,12,0,1,0,14,10]
 };

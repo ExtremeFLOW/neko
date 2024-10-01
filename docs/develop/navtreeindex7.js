@@ -1,5 +1,6 @@
 var NAVTREEINDEX7 =
 {
+"d2/d73/namespacedevice__math.html#ab57c11009415162bd0eff486c8fb1616":[3,0,62,19],
 "d2/d73/namespacedevice__math.html#ab9e58c9754184290830b9fe3cdefab5f":[3,0,62,30],
 "d2/d73/namespacedevice__math.html#ac80b69645b556fc4dc3022739f00bbd1":[3,0,62,20],
 "d2/d73/namespacedevice__math.html#ac8b7865ff9ffc5288df93cb9eb480478":[3,0,62,4],
@@ -248,6 +249,5 @@ var NAVTREEINDEX7 =
 "d2/dd4/namespacemathops.html#aa2f2a0acced4e41f59ab479b7ba1bfe0":[3,0,155,4],
 "d2/dd7/structtri__mesh_1_1tri__mesh__t.html":[4,0,226,0],
 "d2/dd7/structtri__mesh_1_1tri__mesh__t.html#a03be4d11721049168cdfa2c8a883d6a9":[4,0,226,0,2],
-"d2/dd7/structtri__mesh_1_1tri__mesh__t.html#a139bea823d97b62bd1f82f61f1f90b12":[4,0,226,0,3],
-"d2/dd7/structtri__mesh_1_1tri__mesh__t.html#a22a0915eb1736afd79a9edd0c2693829":[4,0,226,0,6]
+"d2/dd7/structtri__mesh_1_1tri__mesh__t.html#a139bea823d97b62bd1f82f61f1f90b12":[4,0,226,0,3]
 };

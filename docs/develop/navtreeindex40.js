@@ -1,5 +1,6 @@
 var NAVTREEINDEX40 =
 {
+"dd/ddc/structdevice__identity_1_1device__ident__t.html":[4,0,52,0],
 "dd/ddc/structdevice__identity_1_1device__ident__t.html#a7e7bfe9a6dd43c0c271409c4ce8f2460":[4,0,52,0,0],
 "dd/ddc/structdevice__identity_1_1device__ident__t.html#ab95cee1946acf1dd0d0aecd7cdefa9b9":[4,0,52,0,1],
 "dd/ddf/interfaceopencl__math_1_1opencl__addcol4.html":[4,0,151,26],
@@ -248,6 +249,5 @@ var NAVTREEINDEX40 =
 "de/d11/ax__helm_8hip.html#a84f44270dc4fa7113cde5e675ba64c57":[5,0,2,12,0,1,1,0,10],
 "de/d11/ax__helm_8hip.html#a946ea4d3c1efc7593a51a12627001329":[5,0,2,12,0,1,1,0,9],
 "de/d11/ax__helm_8hip.html#ac18ad298df4b5740abfefdc9d9b737b8":[5,0,2,12,0,1,1,0,13],
-"de/d11/ax__helm_8hip.html#ac3318de6e7784e8415692b030bcf4d11":[5,0,2,12,0,1,1,0,8],
-"de/d11/ax__helm_8hip_source.html":[5,0,2,12,0,1,1,0]
+"de/d11/ax__helm_8hip.html#ac3318de6e7784e8415692b030bcf4d11":[5,0,2,12,0,1,1,0,8]
 };

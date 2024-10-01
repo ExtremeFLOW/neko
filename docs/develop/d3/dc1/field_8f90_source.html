@@ -184,7 +184,7 @@ $(document).ready(function(){initNavTree('d3/dc1/field_8f90_source.html','../../
 <div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    this%msh =&gt; msh</div>
 <div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160; </div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keyword">allocate</span>(this%dof)</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    this%dof = <a class="code" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>(this%msh, this%Xh)</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    <span class="keyword">call </span>this%dof%init(this%msh, this%Xh)</div>
 <div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    this%internal_dofmap = .true.</div>
 <div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160; </div>
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <span class="keywordflow">if</span> (<span class="keyword">present</span>(fld_name)) <span class="keywordflow">then</span></div>
@@ -391,7 +391,7 @@ $(document).ready(function(){initNavTree('d3/dc1/field_8f90_source.html','../../
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_f1f26b6a678699e1bc545555832794f2.html">field</a></li><li class="navelem"><a class="el" href="../../d3/dc1/field_8f90.html">field.f90</a></li>
-    <li class="footer">Generated on Mon Sep 30 2024 03:40:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Oct 1 2024 03:41:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

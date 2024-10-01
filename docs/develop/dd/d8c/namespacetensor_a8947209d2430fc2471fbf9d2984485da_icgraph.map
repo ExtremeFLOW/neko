@@ -1,9 +1,9 @@
 <map id="tensor::trsp" name="tensor::trsp">
-<area shape="rect" id="node1" title="Transpose of a rectangular tensor ." alt="" coords="1019,71,1115,98"/>
-<area shape="rect" id="node2" href="$dd/d26/namespaceelementwise__filter__cpu.html#aafca1eafd7fe7847fb28b285189ca02f" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="810,5,955,47"/>
-<area shape="rect" id="node4" href="$dd/dd2/namespacedofmap.html#ad3de108e62dbf0bc0c617b43f620bed8" title="Generate the x, y, z coordinates of the dofs in a signle element, assuming linear element edges." alt="" coords="795,71,971,98"/>
-<area shape="rect" id="node7" href="$dd/dd2/namespacedofmap.html#a14be7fe99925dc0fb0e2e30c0d654b44" title=" " alt="" coords="555,122,747,149"/>
-<area shape="rect" id="node3" href="$dd/d52/namespaceelementwise__filter.html#ac2f5a8a0a33529944fc5302eee1e04f5" title="Build the 1d filter for an element." alt="" coords="579,5,722,47"/>
-<area shape="rect" id="node5" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="281,97,507,123"/>
-<area shape="rect" id="node6" href="$d0/df0/structdofmap_1_1dofmap__t.html#ad6ff31d68c77f1c7625d5b8cd5eb8328" title=" " alt="" coords="5,97,233,123"/>
+<area shape="rect" id="node1" title="Transpose of a rectangular tensor ." alt="" coords="949,71,1045,98"/>
+<area shape="rect" id="node2" href="$dd/d26/namespaceelementwise__filter__cpu.html#aafca1eafd7fe7847fb28b285189ca02f" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="741,5,886,47"/>
+<area shape="rect" id="node4" href="$dd/dd2/namespacedofmap.html#ad3de108e62dbf0bc0c617b43f620bed8" title="Generate the x, y, z coordinates of the dofs in a signle element, assuming linear element edges." alt="" coords="725,71,901,98"/>
+<area shape="rect" id="node7" href="$dd/dd2/namespacedofmap.html#a14be7fe99925dc0fb0e2e30c0d654b44" title=" " alt="" coords="485,122,677,149"/>
+<area shape="rect" id="node3" href="$dd/d52/namespaceelementwise__filter.html#ac2f5a8a0a33529944fc5302eee1e04f5" title="Build the 1d filter for an element." alt="" coords="510,5,653,47"/>
+<area shape="rect" id="node5" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="212,97,437,123"/>
+<area shape="rect" id="node6" href="$dd/dd2/namespacedofmap.html#aa41679fd135ea23696a6083d07b8ba08" title="Constructor." alt="" coords="5,97,164,123"/>
 </map>

@@ -1,5 +1,6 @@
 var NAVTREEINDEX38 =
 {
+"dd/d49/namespacejacobi.html#af10b8cc98854a2409158672fb31f020d":[3,0,141,7],
 "dd/d49/rough__log__law_8f90.html":[5,0,2,20,0],
 "dd/d49/rough__log__law_8f90.html#a2de23d62377fc3f0d4030b636903ade1":[5,0,2,20,0,4],
 "dd/d49/rough__log__law_8f90.html#acd8e1540cc6f17ba4698e68217d2cb9d":[5,0,2,20,0,3],
@@ -248,6 +249,5 @@ var NAVTREEINDEX38 =
 "dd/d97/namespaceadv__oifs.html":[3,0,5],
 "dd/d97/namespaceadv__oifs.html#a3e6f14d22d412d1165dbca5d5d087aca":[3,0,5,1],
 "dd/d97/namespaceadv__oifs.html#abf88b9e745adde6b8cb80b4a00930cba":[3,0,5,5],
-"dd/d97/namespaceadv__oifs.html#ad7d8754b3195cd10200466cc1959d693":[3,0,5,2],
-"dd/d97/namespaceadv__oifs.html#ae09ccdb55142e86ed6fb78ca5d6a90b4":[3,0,5,4]
+"dd/d97/namespaceadv__oifs.html#ad7d8754b3195cd10200466cc1959d693":[3,0,5,2]
 };
