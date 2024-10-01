@@ -22,6 +22,9 @@ def test_cylinder():
     # Get the path to the neko executable
     neko = get_neko()
 
+    # Number of ranks to launch on
+    nprocs = 2
+
     log_file = "cylinder.log"
 
     # Either specify a case, or load it here into a json, manipulate
@@ -31,7 +34,7 @@ def test_cylinder():
     # Run Neko
     with open("logs/" + log_file, "w") as log:
         result = subprocess.run(
-            [neko, f"case_templates/{case_file}"],
+            ["mpirun", "-n", str(nprocs), neko, f"case_templates/{case_file}"],
             stdout=log,
             stderr=subprocess.STDOUT,
         )
