@@ -160,10 +160,10 @@ contains
        call C%s%sample(t, tstep)
 
        ! Update material properties
-       call C%usr%material_properties(t, tstep, C%material_properties%rho,&
-                                      C%material_properties%mu, &
-                                      C%material_properties%cp, &
-                                      C%material_properties%lambda, &
+       call C%usr%material_properties(t, tstep, C%fluid%rho,&
+                                      C%fluid%mu, &
+                                      C%scalar%cp, &
+                                      C%scalar%lambda, &
                                       C%params)
 
        call C%usr%user_check(t, tstep, C%fluid%u, C%fluid%v, C%fluid%w, &
