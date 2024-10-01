@@ -167,6 +167,7 @@ jobs:
            pytest --tb=no
            cd ..
 
+
       - name: Check
         if: matrix.backend == 'cpu'
         run: |
@@ -179,6 +180,14 @@ jobs:
           name: Test report - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
           path: tests/test-suite.log
           retention-days: 2
+
+      - name: Archive integration test report
+        if: matrix.backend == 'cpu' && failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
+          path: integration_tests/logs
+          retention-days: 1
 
       - name: Dist (CPU backend)
         if: matrix.backend == 'cpu'

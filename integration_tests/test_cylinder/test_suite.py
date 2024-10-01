@@ -43,3 +43,5 @@ def test_cylinder():
     assert (
         result.returncode == 0
     ), f"neko process failed with exit code {result.returncode}"
+
+    assert (False), "Intentional failure"
