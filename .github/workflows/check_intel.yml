@@ -81,4 +81,4 @@ jobs:
         run: |
           ./regen.sh
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP}
-          make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc)
+          make FCFLAGS="-diag-disable:10448 -O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc)
