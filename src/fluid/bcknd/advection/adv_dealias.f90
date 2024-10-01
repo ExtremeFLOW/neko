@@ -167,13 +167,16 @@ contains
   !! @param Xh The function space.
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
-  subroutine compute_advection_dealias(this, vx, vy, vz, fx, fy, fz, Xh, coef, n)
+  !! @param dt Current time-step, not required for this method.
+  subroutine compute_advection_dealias(this, vx, vy, vz, fx, fy, fz, Xh, &
+                                       coef, n, dt)
     class(adv_dealias_t), intent(inout) :: this
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: fx, fy, fz
     integer, intent(in) :: n
+    real(kind=rp), intent(in), optional :: dt
 
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: tx, ty, tz
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: tfx, tfy, tfz
@@ -262,9 +265,11 @@ contains
             call this%GLL_to_GL%map(tempz, tfz, 1, this%Xh_GLL)
 
             idx = (e-1)*this%Xh_GLL%lxyz+1
-            call sub2(fx%x(idx, 1, 1, 1), tempx, this%Xh_GLL%lxyz)
-            call sub2(fy%x(idx, 1, 1, 1), tempy, this%Xh_GLL%lxyz)
-            call sub2(fz%x(idx, 1, 1, 1), tempz, this%Xh_GLL%lxyz)
+            do concurrent (i = 0:this%Xh_GLL%lxyz-1)
+               fx%x(i+idx,1,1,1) = fx%x(i+idx,1,1,1) - tempx(i+1)
+               fy%x(i+idx,1,1,1) = fy%x(i+idx,1,1,1) - tempy(i+1)
+               fz%x(i+idx,1,1,1) = fz%x(i+idx,1,1,1) - tempz(i+1)
+            end do
          end do
       end if
     end associate
@@ -282,8 +287,9 @@ contains
   !! @param Xh The function space.
   !! @param coef The coefficients of the (Xh, mesh) pair.
   !! @param n Typically the size of the mesh.
+  !! @param dt Current time-step, not required for this method.
   subroutine compute_scalar_advection_dealias(this, vx, vy, vz, s, fs, Xh, &
-                                              coef, n)
+                                              coef, n, dt)
     class(adv_dealias_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
@@ -291,6 +297,7 @@ contains
     type(space_t), intent(inout) :: Xh
     type(coef_t), intent(inout) :: coef
     integer, intent(in) :: n
+    real(kind=rp), intent(in), optional :: dt
 
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: vx_GL, vy_GL, vz_GL, s_GL
     real(kind=rp), dimension(this%Xh_GL%lxyz) :: dsdx, dsdy, dsdz

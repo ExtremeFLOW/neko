@@ -35,7 +35,7 @@ module krylov
   use gather_scatter, only : gs_t, GS_OP_ADD
   use ax_product, only : ax_t
   use num_types, only: rp, c_rp
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use field, only : field_t
@@ -43,11 +43,12 @@ module krylov
   use bc, only : bc_list_t
   use identity, only : ident_t
   use device_identity, only : device_ident_t
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use logger, only : neko_log, LOG_SIZE
   implicit none
   private
 
-  integer, public, parameter :: KSP_MAX_ITER = 1e4       !< Maximum number of iters.
+  integer, public, parameter :: KSP_MAX_ITER = 1e3       !< Maximum number of iters.
   real(kind=rp), public, parameter :: KSP_ABS_TOL = 1d-9 !< Absolut tolerance
   real(kind=rp), public, parameter :: KSP_REL_TOL = 1d-9 !< Relative tolerance
 
@@ -68,6 +69,7 @@ module krylov
      real(kind=rp) :: abs_tol            !< Absolute tolerance
      integer :: max_iter                 !< Maximum number of iterations
      class(pc_t), allocatable :: M_ident !< Internal preconditioner (Identity)
+     logical :: monitor                  !< Turn on/off monitoring
    contains
      !> Base type constructor.
      procedure, pass(this) :: ksp_init => krylov_init
@@ -79,6 +81,12 @@ module krylov
      procedure(ksp_method), pass(this), deferred :: solve
      !> Solve the system (coupled version).
      procedure(ksp_method_coupled), pass(this), deferred :: solve_coupled
+     !> Monitor start
+     procedure, pass(this) :: monitor_start => krylov_monitor_start
+     !> Monitor stop
+     procedure, pass(this) :: monitor_stop => krylov_monitor_stop
+     !> Monitor iteration
+     procedure, pass(this) :: monitor_iter => krylov_monitor_iter
      !> Destructor.
      procedure(ksp_t_free), pass(this), deferred :: free
   end type ksp_t
@@ -94,7 +102,8 @@ module krylov
   !! @param gs_h Gather-scatter handle
   !! @param niter iteration trip count
   abstract interface
-     function ksp_method(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+     function ksp_method(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+          result(ksp_results)
        import :: bc_list_t
        import :: field_t
        import :: ksp_t
@@ -169,6 +178,33 @@ module krylov
      end subroutine ksp_t_free
   end interface
 
+  interface
+     !> Factory for Krylov solvers. Both creates and initializes the object.
+     !! @param object The object to be allocated.
+     !! @param n Size of the vectors the solver operates on.
+     !! @param type_name The name of the solver type.
+     !! @param max_iter The maximum number of iterations
+     !! @param abstol The absolute tolerance, optional.
+     !! @param M The preconditioner, optional.
+     !! @param monitor Enable/disable monitoring, optional.
+     module subroutine krylov_solver_factory(object, n, type_name, &
+          max_iter, abstol, M, monitor)
+       class(ksp_t), allocatable, target, intent(inout) :: object
+       integer, intent(in), value :: n
+       character(len=*), intent(in) :: type_name
+       integer, intent(in) :: max_iter
+       real(kind=rp), optional :: abstol
+       class(pc_t), optional, intent(inout), target :: M
+       logical, optional, intent(in) :: monitor
+     end subroutine krylov_solver_factory
+
+     !> Destroy an iterative Krylov type_name
+     module subroutine krylov_solver_destroy(object)
+       class(ksp_t), allocatable, intent(inout) :: object
+     end subroutine krylov_solver_destroy
+  end interface
+
+  public :: krylov_solver_factory, krylov_solver_destroy
 contains
 
   !> Constructor for the base type.
@@ -176,12 +212,13 @@ contains
   !! @param rel_tol Relative tolarance for converence.
   !! @param rel_tol Absolute tolarance for converence.
   !! @param M The preconditioner.
-  subroutine krylov_init(this, max_iter, rel_tol, abs_tol, M)
+  subroutine krylov_init(this, max_iter, rel_tol, abs_tol, M, monitor)
     class(ksp_t), target, intent(inout) :: this
     integer, intent(in) :: max_iter
     real(kind=rp), optional, intent(in) :: rel_tol
     real(kind=rp), optional, intent(in) :: abs_tol
     class(pc_t), optional, target, intent(in) :: M
+    logical, optional, intent(in) :: monitor
 
     call krylov_free(this)
 
@@ -212,6 +249,12 @@ contains
        end if
     end if
 
+    if (present(monitor)) then
+       this%monitor = monitor
+    else
+       this%monitor = .false.
+    end if
+
   end subroutine krylov_init
 
   !> Deallocate a Krylov solver
@@ -229,7 +272,7 @@ contains
     class(pc_t), target, intent(in) :: M
 
     if (associated(this%M)) then
-       select type(pc => this%M)
+       select type (pc => this%M)
        type is (ident_t)
        type is (device_ident_t)
        class default
@@ -240,5 +283,49 @@ contains
     this%M => M
 
   end subroutine krylov_set_pc
+
+  !> Monitor start
+  subroutine krylov_monitor_start(this, name)
+    class(ksp_t), intent(in) :: this
+    character(len=*) :: name
+    character(len=LOG_SIZE) :: log_buf
+    
+    if (this%monitor) then
+       write(log_buf, '(A)') 'Krylov monitor (' // trim(name) // ')'
+       call neko_log%section(trim(log_buf))
+       call neko_log%newline()
+       call neko_log%begin()
+       write(log_buf, '(A)') ' Iter.       Residual'
+       call neko_log%message(log_buf)
+       write(log_buf, '(A)') '---------------------'
+       call neko_log%message(log_buf)
+    end if
+  end subroutine krylov_monitor_start
+
+  !> Monitor stop
+  subroutine krylov_monitor_stop(this)
+    class(ksp_t), intent(in) :: this
+
+    if (this%monitor) then
+       call neko_log%end()
+       call neko_log%end_section()
+       call neko_log%newline()
+    end if
+  end subroutine krylov_monitor_stop
+
+  
+  !> Monitor iteration
+  subroutine krylov_monitor_iter(this, iter, rnorm)
+    class(ksp_t), intent(in) :: this
+    integer, intent(in) :: iter
+    real(kind=rp), intent(in) :: rnorm
+    character(len=LOG_SIZE) :: log_buf
+
+    if (this%monitor) then
+       write(log_buf, '(I6,E15.7)') iter, rnorm
+       call neko_log%message(log_buf)
+    end if
+    
+  end subroutine krylov_monitor_iter
 
 end module krylov

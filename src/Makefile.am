@@ -16,6 +16,7 @@ neko_fortran_SOURCES = \
 	common/utils.f90\
 	common/json_utils.f90\
 	common/system.f90\
+	common/runtime_statistics.f90\
 	math/mxm_wrapper.F90\
 	sem/speclib.f90 \
 	qoi/drag_torque.f90\
@@ -25,6 +26,7 @@ neko_fortran_SOURCES = \
 	math/fast3d.f90\
 	sem/space.f90\
 	sem/map_1d.f90\
+	sem/map_2d.f90\
 	sem/dofmap.f90\
 	sem/coef.f90\
 	sem/cpr.f90\
@@ -77,16 +79,20 @@ neko_fortran_SOURCES = \
 	field/mean_field.f90\
 	field/mean_sqr_field.f90\
 	io/format/rea.f90\
-	math/bcknd/cpu/cdtp.f90\
-	math/bcknd/cpu/conv1.f90\
-	math/bcknd/cpu/dudxyz.f90\
-	math/bcknd/cpu/opgrad.f90\
+	math/bcknd/cpu/cpu_cdtp.f90\
+	math/bcknd/cpu/cpu_conv1.f90\
+	math/bcknd/cpu/cpu_dudxyz.f90\
+	math/bcknd/cpu/cpu_opgrad.f90\
+	math/bcknd/cpu/convect_scalar.f90\
+	math/bcknd/cpu/set_convect_rst.f90\
 	math/bcknd/sx/sx_cdtp.f90\
 	math/bcknd/sx/sx_conv1.f90\
 	math/bcknd/sx/sx_dudxyz.f90\
 	math/bcknd/sx/sx_opgrad.f90\
 	math/bcknd/sx/sx_cfl.f90\
 	math/bcknd/sx/sx_lambda2.f90\
+	math/bcknd/sx/sx_convect_scalar.f90\
+	math/bcknd/sx/sx_set_convect_rst.f90\
 	math/operators.f90\
 	math/bcknd/cpu/opr_cpu.f90\
 	math/bcknd/sx/opr_sx.f90\
@@ -167,6 +173,7 @@ neko_fortran_SOURCES = \
 	krylov/bcknd/sx/gmres_sx.f90\
 	krylov/bcknd/sx/pc_jacobi_sx.f90\
 	krylov/bcknd/device/cg_device.f90\
+	krylov/bcknd/device/cheby_device.F90\
 	krylov/bcknd/device/pipecg_device.F90\
 	krylov/bcknd/device/fusedcg_device.F90\
 	krylov/bcknd/device/fusedcg_cpld_device.F90\
@@ -184,11 +191,11 @@ neko_fortran_SOURCES = \
 	common/rhs_maker.f90\
 	common/rhs_maker_fctry.f90\
 	simulation_components/probes.F90\
+	simulation_components/force_torque.f90\
 	simulation_components/field_writer.f90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
 	common/bcknd/sx/rhs_maker_sx.f90\
 	common/bcknd/device/rhs_maker_device.F90\
-	common/material_properties.f90\
 	config/neko_config.f90\
 	case.f90\
 	common/user_intf.f90\
@@ -211,6 +218,7 @@ neko_fortran_SOURCES = \
 	fluid/advection_fctry.f90\
 	fluid/bcknd/advection/adv_dealias.f90\
 	fluid/bcknd/advection/adv_no_dealias.f90\
+	fluid/bcknd/advection/adv_oifs.f90\
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/pnpn_res_device.F90\
@@ -241,8 +249,11 @@ neko_fortran_SOURCES = \
 	device/opencl/prgm_lib.F90\
 	device/dummy_device.F90\
 	device/device.F90\
-	math/bcknd/field_math.f90\
+	math/field_math.f90\
 	math/bcknd/device/device_math.F90\
+	math/bcknd/device/hip/hip_math.f90\
+	math/bcknd/device/cuda/cuda_math.f90\
+	math/bcknd/device/opencl/opencl_math.f90\
 	math/bcknd/device/device_schwarz.F90\
 	math/bcknd/device/tensor_device.F90\
 	math/bcknd/device/fdm_device.F90\
@@ -275,6 +286,9 @@ neko_fortran_SOURCES = \
 	simulation_components/les_simcomp.f90\
 	simulation_components/simulation_component_fctry.f90\
 	source_terms/source_term.f90\
+	source_terms/coriolis_source_term.f90\
+	source_terms/bcknd/cpu/coriolis_source_term_cpu.f90\
+	source_terms/source_term_handler.f90\
 	source_terms/const_source_term.f90\
 	source_terms/bcknd/cpu/const_source_term_cpu.f90\
 	source_terms/bcknd/device/const_source_term_device.f90\
@@ -474,7 +488,8 @@ pkginclude_HEADERS += device/opencl/check.h
 endif
 
 
-CLEANFILES = *.mod
+CLEANFILES = *.mod\
+	     *.smod
 
 if ENABLE_OPENCL
 CLEANFILES += \

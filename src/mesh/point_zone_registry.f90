@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2021, The Neko Authors
+! Copyright (c) 2019-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,15 +32,15 @@
 !
 ! Implements a point zone registry for storing point zones.
 module point_zone_registry
-  use point_zone, only: point_zone_t, point_zone_wrapper_t
-  use point_zone_fctry, only: point_zone_factory
-  use combine_point_zone, only: combine_point_zone_t
-  use dofmap, only: dofmap_t
-  use mesh, only: mesh_t
-  use space, only: space_t, GLL
-  use utils, only: neko_error
-  use json_utils, only: json_get
-  use json_module, only: json_file, json_core, json_value
+  use point_zone, only : point_zone_t, point_zone_wrapper_t, &
+       point_zone_factory
+  use combine_point_zone, only : combine_point_zone_t
+  use dofmap, only : dofmap_t
+  use mesh, only : mesh_t
+  use space, only : space_t, GLL
+  use utils, only : neko_error
+  use json_utils, only : json_get
+  use json_module, only : json_file, json_core, json_value
   implicit none
   private
 
@@ -125,7 +125,7 @@ contains
     else
        call Xh%init(GLL, order, order, order)
     end if
-    dof = dofmap_t(msh, Xh)
+    call dof%init(msh, Xh)
 
     call this%free()
 

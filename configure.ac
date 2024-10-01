@@ -27,6 +27,9 @@ AC_ARG_ENABLE(device-mpi,
 	      AS_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
 	      [enable_device_mpi=${enableval}], [enable_device_mpi=no])
 
+AC_ARG_ENABLE(openmp, AC_HELP_STRING([--enable-openmp], [Enable OpenMP]),
+              [enable_openmp=${enableval}], [enable_openmp=no])
+
 # Test for a sane fortran environment (^-^)
 AC_LANG(Fortran)
 AC_PROG_FC(,90)
@@ -57,6 +60,20 @@ else
 fi
 AX_MPIF08
 AX_MPI_DTYPE
+
+# Test for OpenMP (if requested)
+if test "x${enable_openmp}" != xno; then
+   AX_OPENMP([have_openmp=yes], [have_openmp=no])
+   if test "x${have_openmp}" != xno; then
+      FCFLAGS="$FCFLAGS $OPENMP_FCFLAGS"
+      AC_LANG(C)
+      AX_OPENMP([have_openmp=yes], [have_openmp=no])
+      if test "x${have_openmp}" != xno; then
+         CFLAGS="$CFLAGS $OPENMP_CFLAGS"
+      fi
+      AC_LANG(Fortran)
+   fi
+fi
 
 AC_FC_PP_SRCEXT([F90])
 AX_COMPILER_VENDOR
@@ -328,6 +345,7 @@ AC_CONFIG_FILES([tests/stack/Makefile\
 		 tests/device_mathops/Makefile\
 		 tests/octree/Makefile\
                  tests/vector/Makefile\
+                 tests/matrix/Makefile\
                  tests/scratch_registry/Makefile\
                  tests/fast3d/Makefile\
                  tests/time_scheme/Makefile\

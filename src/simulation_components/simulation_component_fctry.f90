@@ -32,31 +32,25 @@
 !
 !
 !> Defines a factory subroutine for simulation components.
-module simulation_component_fctry
-  use simulation_component, only : simulation_component_t
+submodule (simulation_component) simulation_component_fctry
   use vorticity, only : vorticity_t
+  use force_torque, only : force_torque_t
   use lambda2, only : lambda2_t
   use probes, only : probes_t
   use les_simcomp, only : les_simcomp_t
-  use json_module, only : json_file
-  use case, only : case_t
-  use json_utils, only : json_get, json_get_or_default
   use utils, only : concat_string_array, neko_error
   use field_writer, only : field_writer_t
   use weak_grad, only : weak_grad_t
   use derivative, only : derivative_t
-  implicit none
-  private
-
-  public :: simulation_component_factory
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KNOWN_TYPES(5) = [character(len=20) :: &
+  character(len=20) :: SIMCOMPS_KNOWN_TYPES(6) = [character(len=20) :: &
      "vorticity", &
      "lambda2", &
      "probes", &
      "les_model", &
-     "field_writer"]
+     "field_writer", &
+     "force_torque"]
 
 contains
 
@@ -64,7 +58,7 @@ contains
   !! @param object The object to be created and initialized.
   !! @param json JSON object initializing the simulation component.
   !! @param case The simulation case.
-  subroutine simulation_component_factory(object, json, case)
+  module subroutine simulation_component_factory(object, json, case)
     class(simulation_component_t), allocatable, intent(inout) :: object
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
@@ -92,9 +86,11 @@ contains
        allocate(weak_grad_t::object)
     else if (trim(type_name) .eq. "derivative") then
        allocate(derivative_t::object)
+    else if (trim(type_name) .eq. "force_torque") then
+       allocate(force_torque_t::object)
     else
-       type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
-                                          .true.)
+       type_string =  concat_string_array(SIMCOMPS_KNOWN_TYPES, &
+            NEW_LINE('A') // "-  ",  .true.)
        call neko_error("Unknown simulation component type: " &
                        // trim(type_name) // ".  Known types are: " &
                        // type_string)
@@ -107,4 +103,4 @@ contains
   end subroutine simulation_component_factory
 
 
-end module simulation_component_fctry
+end submodule simulation_component_fctry

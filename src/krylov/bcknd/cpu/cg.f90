@@ -64,13 +64,14 @@ module cg
 contains
 
   !> Initialise a standard PCG solver
-  subroutine cg_init(this, n, max_iter, M, rel_tol, abs_tol)
+  subroutine cg_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
     class(cg_t), intent(inout), target :: this
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
+    logical, optional, intent(in) :: monitor
 
     call this%free()
 
@@ -83,13 +84,20 @@ contains
     if (present(M)) then
        this%M => M
     end if
-
-    if (present(rel_tol) .and. present(abs_tol)) then
+    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
+    else if (present(monitor) .and. present(abs_tol)) then
+       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
     else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol = abs_tol)
+    else if (present(monitor)) then
+       call this%ksp_init(max_iter, monitor = monitor)
     else
        call this%ksp_init(max_iter)
     end if
@@ -165,6 +173,7 @@ contains
       p_prev = CG_P_SPACE
       p_cur = 1
       if(abscmp(rnorm, 0.0_rp)) return
+      call this%monitor_start('CG')
       do iter = 1, max_iter
          call this%M%solve(z, r, n)
          rtz2 = rtz1
@@ -185,6 +194,7 @@ contains
          alpha(p_cur) = rtz1 / pap
          call second_cg_part(rtr, r, coef%mult, w, alpha(p_cur), n)
          rnorm = sqrt(rtr) * norm_fac
+         call this%monitor_iter(iter, rnorm)
 
          if ((p_cur .eq. CG_P_SPACE) .or. &
              (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
@@ -220,7 +230,7 @@ contains
          end if
       end do
     end associate
-
+    call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
 
