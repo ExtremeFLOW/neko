@@ -302,6 +302,7 @@ neko_fortran_SOURCES = \
 	les/les_model_fctry.f90\
 	les/vreman.f90\
 	les/bcknd/cpu/vreman_cpu.f90\
+	les/bcknd/device/vreman_device.f90\
 	les/smagorinsky.f90\
 	les/bcknd/cpu/smagorinsky_cpu.f90\
 	les/dynamic_smagorinsky.f90\

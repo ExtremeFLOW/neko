@@ -675,7 +675,7 @@ extern "C" {
 
   /** 
    * Fortran wrapper absval
-   * Sum a vector of length n
+   * Take the abs value of a vector of length n
    */
   void cuda_absval(void *a, int *n) {
 
@@ -689,4 +689,35 @@ extern "C" {
     
   }
 
+  /** 
+   * Fortran wrapper vecsqrt1
+   * Take the sqrt of a vector of length n
+   */
+  void cuda_vecsqrt1(void *a, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue; 
+
+    vecsqrt1_kernel<real>
+    <<<nblcks, nthrds,0, stream>>>((real *) a, * n);  
+    CUDA_CHECK(cudaGetLastError());
+    
+  }
+  
+  /** 
+   * Fortran wrapper rmneg
+   * Zero the negative elements in a vector of length n
+   */
+  void cuda_rmneg(void *a, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue; 
+
+    rmneg_kernel<real>
+    <<<nblcks, nthrds,0, stream>>>((real *) a, * n);  
+    CUDA_CHECK(cudaGetLastError());
+    
+  }
 }
