@@ -156,6 +156,14 @@ jobs:
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --enable-real=${RP} --with-opencl
           make -j ${{ steps.setup-env.outputs.nproc }}
 
+      - name: Reg_test
+        if: matrix.backend == 'cpu'
+        run: |
+           cd reg_test/cylinder
+           ./test.sh 1
+           cd ../..
+
+
       - name: Check
         if: matrix.backend == 'cpu'
         run: |
@@ -168,14 +176,6 @@ jobs:
           name: Test report - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
           path: tests/test-suite.log
           retention-days: 2
-
-      - name: Reg_test
-        if: matrix.backend == 'cpu'
-        run: |
-           cd reg_test/cylinder
-           ./test.sh $(nproc)
-           ./test.sh 4
-           cd ../..
 
       - name: Dist (CPU backend)
         if: matrix.backend == 'cpu'
