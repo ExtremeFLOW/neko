@@ -31,7 +31,7 @@ def test_cylinder():
     # Run Neko
     with open("logs/" + log_file, "w") as log:
         result = subprocess.run(
-            ["neko", f"case_templates/{case_file}"],
+            [neko, f"case_templates/{case_file}"],
             stdout=log,
             stderr=subprocess.STDOUT,
         )
