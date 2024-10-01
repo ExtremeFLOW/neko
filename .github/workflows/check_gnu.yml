@@ -61,6 +61,8 @@ jobs:
               brew install automake
               brew install gcc@11
               brew install gcc@12
+              brew install python
+              pip3 install pytest
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 
