@@ -49,7 +49,8 @@ jobs:
               sudo apt-get update
               sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
                 automake autotools-dev libopenblas-dev make git m4 python3 \
-                cmake-curses-gui
+                python3-pip cmake-curses-gui
+              sudo pip3 install pytest
               echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
@@ -155,6 +156,13 @@ jobs:
           ./regen.sh
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-opencl
           make -j ${{ steps.setup-env.outputs.nproc }}
+
+      - name: Regresion tests
+        if: matrix.backend == 'cpu'
+        run: |
+           cd integration_tests
+           pytest --tb=no
+           cd ..
 
       - name: Check
         if: matrix.backend == 'cpu'
