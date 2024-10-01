@@ -273,6 +273,15 @@ module opencl_intf
      end function clEnqueueMarker
   end interface
 
+    interface
+     integer(c_int) function clEnqueueBarrier(cmd_queue) &
+          bind(c, name = 'clEnqueueBarrier')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: cmd_queue
+     end function clEnqueueBarrier
+  end interface
+
   interface
      integer(c_int) function clEnqueueWaitForEvents(queue, &
                                                     num_events, event_list) &
@@ -432,7 +441,12 @@ contains
 
     glb_cmd_queue = clCreateCommandQueue(glb_ctx, glb_device_id, queue_props, &
                                          ierr)
+    if (ierr .ne. CL_SUCCESS) then
+       call neko_error('Failed to create a command queue')
+    end if
 
+    aux_cmd_queue = clCreateCommandQueue(glb_ctx, glb_device_id, queue_props, &
+                                         ierr)
     if (ierr .ne. CL_SUCCESS) then
        call neko_error('Failed to create a command queue')
     end if
