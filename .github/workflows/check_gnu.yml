@@ -169,6 +169,13 @@ jobs:
           path: tests/test-suite.log
           retention-days: 2
 
+      - name: Reg_test
+        if: matrix.backend == 'cpu'
+        run: |
+           cd reg_test/cylinder
+           ./test.sh ${{ steps.setup-env.outputs.nproc }}
+           cd ../..
+
       - name: Dist (CPU backend)
         if: matrix.backend == 'cpu'
         run: |
