@@ -101,6 +101,9 @@ math/schwarz.o : math/schwarz.f90 config/neko_config.o device/device.o math/fdm.
 math/vector.o : math/vector.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o config/neko_config.o 
 math/matrix.o : math/matrix.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o config/neko_config.o 
 math/signed_distance.o : math/signed_distance.f90 adt/stack.o mesh/search_tree/aabb.o mesh/point.o common/utils.o mesh/aabb_tree.o mesh/tri_mesh.o mesh/tri.o field/field.o config/num_types.o 
+multigrid/tree_amg.o : multigrid/tree_amg.f90 gs/gather_scatter.o math/ax.o sem/space.o mesh/mesh.o sem/coef.o math/math.o common/utils.o config/num_types.o 
+multigrid/tree_amg_multigrid.o : multigrid/tree_amg_multigrid.f90 multigrid/tree_amg_smoother.o multigrid/tree_amg.o math/math.o config/num_types.o gs/gather_scatter.o 
+multigrid/tree_amg_smoother.o : multigrid/tree_amg_smoother.f90 krylov/krylov.o math/math.o common/utils.o config/num_types.o multigrid/tree_amg.o 
 common/checkpoint.o : common/checkpoint.f90 mesh/mesh.o common/utils.o field/field.o device/device.o sem/space.o field/field_series.o config/num_types.o config/neko_config.o 
 io/generic_file.o : io/generic_file.f90 comm/comm.o common/utils.o config/num_types.o 
 io/map_file.o : io/map_file.f90 io/format/map.o comm/comm.o common/utils.o io/generic_file.o 
@@ -224,7 +227,7 @@ common/projection.o : common/projection.f90 common/time_step_controller.o common
 common/bcknd/device/device_projection.o : common/bcknd/device/device_projection.F90 common/utils.o config/num_types.o 
 comm/parmetis.o : comm/parmetis.F90 mesh/mesh.o field/mesh_field.o config/num_types.o common/utils.o mesh/point.o comm/comm.o 
 comm/redist.o : comm/redist.f90 mesh/element.o mesh/facet_zone.o io/format/nmsh.o mesh/mesh.o comm/comm.o mesh/curve.o adt/stack.o mesh/point.o adt/htable.o comm/mpi_types.o field/mesh_field.o 
-krylov/pc_hsmg.o : krylov/pc_hsmg.f90 krylov/krylov_fctry.o krylov/krylov.o mesh/mesh.o sem/coef.o field/field.o sem/dofmap.o sem/space.o common/profiler.o math/bcknd/device/device_math.o device/device.o krylov/bcknd/device/pc_jacobi_device.o krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/cpu/pc_jacobi.o math/schwarz.o bc/dirichlet.o bc/bc.o sem/interpolation.o gs/gather_scatter.o math/ax_helm_fctry.o math/ax.o krylov/precon.o common/utils.o math/math.o config/num_types.o config/neko_config.o 
+krylov/pc_hsmg.o : krylov/pc_hsmg.f90 math/tree_amg/tree_amg_multigrid.o math/tree_amg/tree_amg.o krylov/krylov_fctry.o krylov/krylov.o mesh/mesh.o sem/coef.o field/field.o sem/dofmap.o sem/space.o common/profiler.o math/bcknd/device/device_math.o device/device.o krylov/bcknd/device/pc_jacobi_device.o krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/cpu/pc_jacobi.o math/schwarz.o bc/dirichlet.o bc/bc.o sem/interpolation.o gs/gather_scatter.o math/ax_helm_fctry.o math/ax.o krylov/precon.o common/utils.o math/math.o config/num_types.o config/neko_config.o
 common/signal.o : common/signal.f90 common/utils.o 
 common/jobctrl.o : common/jobctrl.f90 common/log.o comm/comm.o common/utils.o common/signal.o config/num_types.o 
 device/cuda_intf.o : device/cuda_intf.F90 common/utils.o 

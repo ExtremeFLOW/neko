@@ -12,9 +12,11 @@
 module tree_amg_multigrid
   use math
   use utils
+  use num_types
   use tree_amg
-  use tree_amg_matvec
+  !use tree_amg_matvec
   use tree_amg_smoother
+  use gather_scatter, only : gs_t, GS_OP_ADD
   implicit none
   private
 

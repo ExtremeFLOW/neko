@@ -104,6 +104,9 @@ neko_fortran_SOURCES = \
 	math/vector.f90\
 	math/matrix.f90\
 	math/signed_distance.f90\
+	multigrid/tree_amg.f90\
+	multigrid/tree_amg_multigrid.f90\
+	multigrid/tree_amg_smoother.f90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\
