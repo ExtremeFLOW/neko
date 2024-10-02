@@ -37,7 +37,7 @@ module dofmap
   use mesh, only : mesh_t
   use space, only : space_t, GLL
   use tuple, only : tuple_i4_t, tuple4_i4_t
-  use num_types, only : i4, i8, rp
+  use num_types, only : i4, i8, rp, xp
   use utils, only : neko_error, neko_warning
   use fast3d, only : fd_weights_full
   use tensor, only : tensr3, tnsr2d_el, trsp, addtnsr
@@ -946,7 +946,7 @@ contains
     real(kind=rp), intent(inout) ::  e(n, n, n)
     real(kind=rp), intent(inout) ::  v(n, n, n)
     integer :: gh_type, ntot, kk, jj, ii, k, j, i
-    real(kind=rp) :: si, sj, sk, hi, hj, hk
+    real(kind=xp) :: si, sj, sk, hi, hj, hk
 
     !
     !  Build vertex interpolant
