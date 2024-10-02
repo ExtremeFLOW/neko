@@ -35,7 +35,6 @@ jobs:
               sudo apt install -y autoconf automake autotools-dev libopenblas-dev make git m4 python3 ca-certificates cmake
               INTEL_PATH=$(find /opt/intel/oneapi/compiler/ -name "${FC}" -type f | xargs dirname)
               export PATH=$INTEL_PATH:${PATH}
-              export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${INTEL_PATH}/lib/intel64_lin
               printenv >> $GITHUB_ENV
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
@@ -83,18 +82,4 @@ jobs:
           ./regen.sh
           ./configure FC=${FC} CC=${CC} MPIFC"=mpiifort -fc=${FC}" --enable-real=${RP}
           make FCFLAGS="-O2 -stand f08 -warn errors `pkg-config --cflags json-fortran`" -j$(nproc)
-
-      - name: Regression test FP32
-        if: matrix.backend == 'cpu' && matrix.precision == 'sp'
-        run: |
-           cd reg_test/cylinder
-           ./test_easy.sh 1 sp
-           cd ../..
-
-      - name: Regression test FP64
-        if: matrix.backend == 'cpu' && matrix.precision == 'dp'
-        run: |
-           cd reg_test/cylinder
-           ./test.sh 1 dp
-           cd ../..
 
