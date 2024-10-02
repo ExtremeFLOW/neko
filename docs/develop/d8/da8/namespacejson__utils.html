@@ -145,6 +145,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ab8b46e0f866a8f20e9b0c3c963d2caa5"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/da8/namespacejson__utils.html#ab8b46e0f866a8f20e9b0c3c963d2caa5">json_get_string_array</a> (json, name, value, filler)</td></tr>
 <tr class="memdesc:ab8b46e0f866a8f20e9b0c3c963d2caa5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a string array parameter by name or throws an error.  <a href="../../d8/da8/namespacejson__utils.html#ab8b46e0f866a8f20e9b0c3c963d2caa5">More...</a><br /></td></tr>
 <tr class="separator:ab8b46e0f866a8f20e9b0c3c963d2caa5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f4db096e193f8435427e3cf4dfc9643"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/da8/namespacejson__utils.html#a5f4db096e193f8435427e3cf4dfc9643">json_get_subdict</a> (json, key, output)</td></tr>
+<tr class="memdesc:a5f4db096e193f8435427e3cf4dfc9643"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extract a sub-object from a json object.  <a href="../../d8/da8/namespacejson__utils.html#a5f4db096e193f8435427e3cf4dfc9643">More...</a><br /></td></tr>
+<tr class="separator:a5f4db096e193f8435427e3cf4dfc9643"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a73918c678535381512ddc98027258e43"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/da8/namespacejson__utils.html#a73918c678535381512ddc98027258e43">json_get_or_default_real</a> (json, name, value, default)</td></tr>
 <tr class="memdesc:a73918c678535381512ddc98027258e43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a real parameter by name or assigns a provided default value. In the latter case also adds the missing paramter to the json.  <a href="../../d8/da8/namespacejson__utils.html#a73918c678535381512ddc98027258e43">More...</a><br /></td></tr>
 <tr class="separator:a73918c678535381512ddc98027258e43"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -223,7 +226,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00357">357</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00379">379</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -282,7 +285,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00377">377</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00399">399</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -329,7 +332,7 @@ Functions/Subroutines</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter </td></tr>
   </table>
   </dd>
 </dl>
@@ -381,7 +384,7 @@ Functions/Subroutines</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter </td></tr>
   </table>
   </dd>
 </dl>
@@ -433,7 +436,7 @@ Functions/Subroutines</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter </td></tr>
   </table>
   </dd>
 </dl>
@@ -485,7 +488,7 @@ Functions/Subroutines</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter </td></tr>
   </table>
   </dd>
 </dl>
@@ -537,7 +540,7 @@ Functions/Subroutines</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter </td></tr>
   </table>
   </dd>
 </dl>
@@ -589,7 +592,7 @@ Functions/Subroutines</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter </td></tr>
   </table>
   </dd>
 </dl>
@@ -647,12 +650,12 @@ Functions/Subroutines</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00277">277</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00299">299</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -705,12 +708,12 @@ Functions/Subroutines</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00297">297</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00319">319</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -763,12 +766,12 @@ Functions/Subroutines</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00317">317</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00339">339</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -821,12 +824,12 @@ Functions/Subroutines</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00257">257</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00279">279</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -879,12 +882,12 @@ Functions/Subroutines</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00337">337</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00359">359</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
 
 </div>
 </div>
@@ -983,7 +986,7 @@ Functions/Subroutines</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter </td></tr>
   </table>
   </dd>
 </dl>
@@ -1035,7 +1038,7 @@ Functions/Subroutines</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter </td></tr>
   </table>
   </dd>
 </dl>
@@ -1093,7 +1096,7 @@ Functions/Subroutines</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>The json to retrieve the parameter from. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The full path to the parameter. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>The variable to be populated with the retrieved parameter </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">filler</td><td>The default string to fill empty array items with. </td></tr>
   </table>
   </dd>
@@ -1103,13 +1106,57 @@ Functions/Subroutines</h2></td></tr>
 
 </div>
 </div>
+<a id="a5f4db096e193f8435427e3cf4dfc9643"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f4db096e193f8435427e3cf4dfc9643">&#9670;&nbsp;</a></span>json_get_subdict()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine json_utils::json_get_subdict </td>
+          <td>(</td>
+          <td class="paramtype">type(json_file), intent(inout)&#160;</td>
+          <td class="paramname"><em>json</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">character(len=*), intent(in)&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), intent(out)&#160;</td>
+          <td class="paramname"><em>output</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d44/json__utils_8f90_source.html#l00253">253</a> of file <a class="el" href="../../d6/d44/json__utils_8f90_source.html">json_utils.f90</a>.</p>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/da8/namespacejson__utils.html">json_utils</a></li>
-    <li class="footer">Generated on Tue Oct 1 2024 03:41:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Oct 2 2024 03:38:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

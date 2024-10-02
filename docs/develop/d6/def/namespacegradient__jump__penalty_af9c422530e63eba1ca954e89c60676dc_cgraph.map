@@ -1,0 +1,5 @@
+<map id="gradient_jump_penalty::eval_h2_hex" name="gradient_jump_penalty::eval_h2_hex">
+<area shape="rect" id="node1" title="Evaluate h^2 for each element for hexahedral mesh." alt="" coords="5,5,177,47"/>
+<area shape="rect" id="node2" href="$d6/def/namespacegradient__jump__penalty.html#ae35e672a084ba135b7dda025a563d4ca" title="&quot;Distrance&quot; of two facets of a hexahedral element" alt="" coords="225,5,397,47"/>
+<area shape="rect" id="node3" href="$d6/def/namespacegradient__jump__penalty.html#a70d026cdd41e5c9ab752159b801570ce" title="Distance from a vertex to a plane in a 3d space." alt="" coords="445,5,635,47"/>
+</map>

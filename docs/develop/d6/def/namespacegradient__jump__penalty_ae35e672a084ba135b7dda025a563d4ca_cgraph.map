@@ -1,0 +1,4 @@
+<map id="gradient_jump_penalty::dist2_facets_hex" name="gradient_jump_penalty::dist2_facets_hex">
+<area shape="rect" id="node1" title="&quot;Distrance&quot; of two facets of a hexahedral element" alt="" coords="5,5,177,47"/>
+<area shape="rect" id="node2" href="$d6/def/namespacegradient__jump__penalty.html#a70d026cdd41e5c9ab752159b801570ce" title="Distance from a vertex to a plane in a 3d space." alt="" coords="225,5,415,47"/>
+</map>

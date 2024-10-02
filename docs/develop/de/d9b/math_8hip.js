@@ -1,5 +1,6 @@
 var math_8hip =
 [
+    [ "hip_absval", "de/d9b/math_8hip.html#aa98ca203c1ca0e8763d90495f6cbf850", null ],
     [ "hip_add2", "de/d9b/math_8hip.html#a50a8d100792b5761338def8103273fab", null ],
     [ "hip_add2s1", "de/d9b/math_8hip.html#af52f57b62085043e17814d8f84932a75", null ],
     [ "hip_add2s2", "de/d9b/math_8hip.html#a7736fcccb74b8901c0e7d850fd57596c", null ],

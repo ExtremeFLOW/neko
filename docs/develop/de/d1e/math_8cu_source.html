@@ -226,7 +226,7 @@ $(document).ready(function(){initNavTree('de/d1e/math_8cu_source.html','../../')
 <div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    <a class="code" href="../../d5/d08/cuda_2check_8h.html#a8e448e02bd4547864857b4de87a9deda">CUDA_CHECK</a>(cudaGetLastError());</div>
 <div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160; </div>
 <div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;  }</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;  </div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160; </div>
 <div class="line"><a name="l00164"></a><span class="lineno"><a class="line" href="../../de/d1e/math_8cu.html#acb4fe9bc0a09e3ef698a39bb71086356">  164</a></span>&#160;  <span class="keywordtype">void</span> <a class="code" href="../../de/d1e/math_8cu.html#acb4fe9bc0a09e3ef698a39bb71086356">cuda_cfill</a>(<span class="keywordtype">void</span> *a, <a class="code" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *c, <span class="keywordtype">int</span> *n) {</div>
 <div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160; </div>
 <div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    <span class="keyword">const</span> dim3 nthrds(1024, 1, 1);</div>
@@ -250,7 +250,7 @@ $(document).ready(function(){initNavTree('de/d1e/math_8cu_source.html','../../')
 <div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    <a class="code" href="../../d5/d08/cuda_2check_8h.html#a8e448e02bd4547864857b4de87a9deda">CUDA_CHECK</a>(cudaGetLastError());</div>
 <div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    </div>
 <div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;  }</div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160; </div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;  </div>
 <div class="line"><a name="l00196"></a><span class="lineno"><a class="line" href="../../de/d1e/math_8cu.html#a3d27524ec471703532b0f22377fdf231">  196</a></span>&#160;  <span class="keywordtype">void</span> <a class="code" href="../../de/d1e/math_8cu.html#a3d27524ec471703532b0f22377fdf231">cuda_add3</a>(<span class="keywordtype">void</span> *a, <span class="keywordtype">void</span> *b, <span class="keywordtype">void</span> *c, <span class="keywordtype">int</span> *n) {</div>
 <div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160; </div>
 <div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;    <span class="keyword">const</span> dim3 nthrds(1024, 1, 1);</div>
@@ -637,7 +637,19 @@ $(document).ready(function(){initNavTree('de/d1e/math_8cu_source.html','../../')
 <div class="line"><a name="l00673"></a><span class="lineno">  673</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="../../de/d1e/math_8cu.html#a6cdfbdf0e87be0023af50b3b86363cf8">bufred</a>[0];</div>
 <div class="line"><a name="l00674"></a><span class="lineno">  674</span>&#160;  }</div>
 <div class="line"><a name="l00675"></a><span class="lineno">  675</span>&#160; </div>
-<div class="line"><a name="l00676"></a><span class="lineno">  676</span>&#160;}</div>
+<div class="line"><a name="l00680"></a><span class="lineno"><a class="line" href="../../de/d1e/math_8cu.html#a01da55723adde88ed8ecf8601feef547">  680</a></span>&#160;  <span class="keywordtype">void</span> <a class="code" href="../../de/d1e/math_8cu.html#a01da55723adde88ed8ecf8601feef547">cuda_absval</a>(<span class="keywordtype">void</span> *a, <span class="keywordtype">int</span> *n) {</div>
+<div class="line"><a name="l00681"></a><span class="lineno">  681</span>&#160; </div>
+<div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160;    <span class="keyword">const</span> dim3 nthrds(1024, 1, 1);</div>
+<div class="line"><a name="l00683"></a><span class="lineno">  683</span>&#160;    <span class="keyword">const</span> dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);</div>
+<div class="line"><a name="l00684"></a><span class="lineno">  684</span>&#160;    <span class="keyword">const</span> cudaStream_t stream = (cudaStream_t) <a class="code" href="../../d8/dc8/device__config_8h.html#a470d6592467cf6e88606a04749c50d83">glb_cmd_queue</a>; </div>
+<div class="line"><a name="l00685"></a><span class="lineno">  685</span>&#160; </div>
+<div class="line"><a name="l00686"></a><span class="lineno">  686</span>&#160;    absval_kernel&lt;real&gt;</div>
+<div class="line"><a name="l00687"></a><span class="lineno">  687</span>&#160;    &lt;&lt;&lt;nblcks, nthrds,0, stream&gt;&gt;&gt;((<a class="code" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) a, * n);  </div>
+<div class="line"><a name="l00688"></a><span class="lineno">  688</span>&#160;    <a class="code" href="../../d5/d08/cuda_2check_8h.html#a8e448e02bd4547864857b4de87a9deda">CUDA_CHECK</a>(cudaGetLastError());</div>
+<div class="line"><a name="l00689"></a><span class="lineno">  689</span>&#160;    </div>
+<div class="line"><a name="l00690"></a><span class="lineno">  690</span>&#160;  }</div>
+<div class="line"><a name="l00691"></a><span class="lineno">  691</span>&#160; </div>
+<div class="line"><a name="l00692"></a><span class="lineno">  692</span>&#160;}</div>
 <div class="ttc" id="acuda_2cdtp__kernel_8h_html_a3b35a10334f641ae16ea1c310523d458"><div class="ttname"><a href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a3b35a10334f641ae16ea1c310523d458">x</a></div><div class="ttdeci">__global__ void const T *__restrict__ x</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/dd9/cuda_2cdtp__kernel_8h_source.html#l00106">cdtp_kernel.h:106</a></div></div>
 <div class="ttc" id="acuda_2cdtp__kernel_8h_html_a97bfa79c186ff7f943a8d8865fc31df8"><div class="ttname"><a href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#a97bfa79c186ff7f943a8d8865fc31df8">w3</a></div><div class="ttdeci">__global__ void const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ const T *__restrict__ w3</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/dd9/cuda_2cdtp__kernel_8h_source.html#l00113">cdtp_kernel.h:113</a></div></div>
 <div class="ttc" id="acuda_2cdtp__kernel_8h_html_ad5cebda4bfa014cb7a1f859d5afb5cc1"><div class="ttname"><a href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#ad5cebda4bfa014cb7a1f859d5afb5cc1">j</a></div><div class="ttdeci">const int j</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/dd9/cuda_2cdtp__kernel_8h_source.html#l00127">cdtp_kernel.h:127</a></div></div>
@@ -655,6 +667,7 @@ $(document).ready(function(){initNavTree('de/d1e/math_8cu_source.html','../../')
 <div class="ttc" id="adevice__mpi__reduce_8h_html"><div class="ttname"><a href="../../d0/d4a/device__mpi__reduce_8h.html">device_mpi_reduce.h</a></div></div>
 <div class="ttc" id="ahip_2math__kernel_8h_html"><div class="ttname"><a href="../../d8/d17/hip_2math__kernel_8h.html">math_kernel.h</a></div></div>
 <div class="ttc" id="amath_8cu_html_a00a17024d6fa8195fdad61194329885e"><div class="ttname"><a href="../../de/d1e/math_8cu.html#a00a17024d6fa8195fdad61194329885e">cuda_masked_red_copy</a></div><div class="ttdeci">void cuda_masked_red_copy(void *a, void *b, void *mask, int *n, int *m)</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d1e/math_8cu_source.html#l00072">math.cu:72</a></div></div>
+<div class="ttc" id="amath_8cu_html_a01da55723adde88ed8ecf8601feef547"><div class="ttname"><a href="../../de/d1e/math_8cu.html#a01da55723adde88ed8ecf8601feef547">cuda_absval</a></div><div class="ttdeci">void cuda_absval(void *a, int *n)</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d1e/math_8cu_source.html#l00680">math.cu:680</a></div></div>
 <div class="ttc" id="amath_8cu_html_a0a5482ae60456664d32a9c509f28bee0"><div class="ttname"><a href="../../de/d1e/math_8cu.html#a0a5482ae60456664d32a9c509f28bee0">cuda_invcol1</a></div><div class="ttdeci">void cuda_invcol1(void *a, int *n)</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d1e/math_8cu_source.html#l00309">math.cu:309</a></div></div>
 <div class="ttc" id="amath_8cu_html_a0b475b2fbd72b22336d16fbb0ae3fe98"><div class="ttname"><a href="../../de/d1e/math_8cu.html#a0b475b2fbd72b22336d16fbb0ae3fe98">cuda_add2s2_many</a></div><div class="ttdeci">void cuda_add2s2_many(void *x, void **p, void *alpha, int *j, int *n)</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d1e/math_8cu_source.html#l00259">math.cu:259</a></div></div>
 <div class="ttc" id="amath_8cu_html_a117e24e769cafa4e2bb20a6120bc41c6"><div class="ttname"><a href="../../de/d1e/math_8cu.html#a117e24e769cafa4e2bb20a6120bc41c6">cuda_cadd2</a></div><div class="ttdeci">void cuda_cadd2(void *a, void *b, real *c, int *n)</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d1e/math_8cu_source.html#l00150">math.cu:150</a></div></div>
@@ -697,7 +710,7 @@ $(document).ready(function(){initNavTree('de/d1e/math_8cu_source.html','../../')
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_4c3596ec6e7f8d381657f6ce7bbe76a2.html">cuda</a></li><li class="navelem"><a class="el" href="../../de/d1e/math_8cu.html">math.cu</a></li>
-    <li class="footer">Generated on Tue Oct 1 2024 03:41:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Oct 2 2024 03:38:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -42,7 +42,8 @@ var dir_f48359d827d7566deae6b1b647b520e2 =
       [ "hip_glsc3", "d6/d9d/interfacehip__math_1_1hip__glsc3.html", "d6/d9d/interfacehip__math_1_1hip__glsc3" ],
       [ "hip_glsc3_many", "d4/da3/interfacehip__math_1_1hip__glsc3__many.html", "d4/da3/interfacehip__math_1_1hip__glsc3__many" ],
       [ "hip_glsc2", "d8/d3d/interfacehip__math_1_1hip__glsc2.html", "d8/d3d/interfacehip__math_1_1hip__glsc2" ],
-      [ "hip_glsum", "db/d09/interfacehip__math_1_1hip__glsum.html", "db/d09/interfacehip__math_1_1hip__glsum" ]
+      [ "hip_glsum", "db/d09/interfacehip__math_1_1hip__glsum.html", "db/d09/interfacehip__math_1_1hip__glsum" ],
+      [ "hip_absval", "d0/d22/interfacehip__math_1_1hip__absval.html", "d0/d22/interfacehip__math_1_1hip__absval" ]
     ] ],
     [ "lambda2_kernel.h", "d8/dca/hip_2lambda2__kernel_8h.html", "d8/dca/hip_2lambda2__kernel_8h" ],
     [ "math.hip", "de/d9b/math_8hip.html", "de/d9b/math_8hip" ],

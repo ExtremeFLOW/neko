@@ -1,0 +1,5 @@
+<map id="gradient_jump_penalty::dist2_facets_hex" name="gradient_jump_penalty::dist2_facets_hex">
+<area shape="rect" id="node1" title="&quot;Distrance&quot; of two facets of a hexahedral element" alt="" coords="481,5,653,47"/>
+<area shape="rect" id="node2" href="$d6/def/namespacegradient__jump__penalty.html#af9c422530e63eba1ca954e89c60676dc" title="Evaluate h^2 for each element for hexahedral mesh." alt="" coords="261,5,433,47"/>
+<area shape="rect" id="node3" href="$d6/def/namespacegradient__jump__penalty.html#ab7234be3b26833675975cce3bdd66935" title="Constructor." alt="" coords="5,5,213,47"/>
+</map>

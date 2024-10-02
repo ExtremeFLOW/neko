@@ -405,8 +405,17 @@ $(document).ready(function(){initNavTree('d5/dc6/cuda__math_8f90_source.html','.
 <div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
 <div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;       <span class="keywordtype">integer(c_int)</span> :: n</div>
 <div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;     <span class="keyword">end function </span><a class="code" href="../../d1/d88/interfacecuda__math_1_1cuda__glsum.html">cuda_glsum</a></div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;  <span class="keyword">end interface</span></div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d5/d2a/namespacecuda__math.html">cuda_math</a></div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160; </div>
+<div class="line"><a name="l00312"></a><span class="lineno"><a class="line" href="../../db/d5a/interfacecuda__math_1_1cuda__absval.html#a34fbfef25e15eda3ca5e04a8e5a497f0">  312</a></span>&#160;     <span class="keyword">subroutine </span><a class="code" href="../../db/d5a/interfacecuda__math_1_1cuda__absval.html">cuda_absval</a>(a_d, n) &amp;</div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;          bind(c, name = <span class="stringliteral">&#39;cuda_absval&#39;</span>)</div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_int, c_ptr</div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;       <span class="keywordtype">import </span>c_rp</div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;     <span class="keyword">end subroutine </span><a class="code" href="../../db/d5a/interfacecuda__math_1_1cuda__absval.html">cuda_absval</a></div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;  <span class="keyword">end interface</span></div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d5/d2a/namespacecuda__math.html">cuda_math</a></div>
+<div class="ttc" id="ainterfacecuda__math_1_1cuda__absval_html"><div class="ttname"><a href="../../db/d5a/interfacecuda__math_1_1cuda__absval.html">cuda_math::cuda_absval</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00312">cuda_math.f90:312</a></div></div>
 <div class="ttc" id="ainterfacecuda__math_1_1cuda__add2_html"><div class="ttname"><a href="../../d7/d19/interfacecuda__math_1_1cuda__add2.html">cuda_math::cuda_add2</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00124">cuda_math.f90:124</a></div></div>
 <div class="ttc" id="ainterfacecuda__math_1_1cuda__add2s1_html"><div class="ttname"><a href="../../d5/d4b/interfacecuda__math_1_1cuda__add2s1.html">cuda_math::cuda_add2s1</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00140">cuda_math.f90:140</a></div></div>
 <div class="ttc" id="ainterfacecuda__math_1_1cuda__add2s2__many_html"><div class="ttname"><a href="../../da/d1a/interfacecuda__math_1_1cuda__add2s2__many.html">cuda_math::cuda_add2s2_many</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d5/dc6/cuda__math_8f90_source.html#l00271">cuda_math.f90:271</a></div></div>
@@ -451,7 +460,7 @@ $(document).ready(function(){initNavTree('d5/dc6/cuda__math_8f90_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_4c3596ec6e7f8d381657f6ce7bbe76a2.html">cuda</a></li><li class="navelem"><a class="el" href="../../d5/dc6/cuda__math_8f90.html">cuda_math.f90</a></li>
-    <li class="footer">Generated on Tue Oct 1 2024 03:41:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Oct 2 2024 03:38:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

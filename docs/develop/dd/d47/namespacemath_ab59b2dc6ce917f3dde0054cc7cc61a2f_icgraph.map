@@ -1,4 +1,6 @@
 <map id="math::add4" name="math::add4">
-<area shape="rect" id="node1" title="Vector addition ." alt="" coords="220,5,316,32"/>
-<area shape="rect" id="node2" href="$d5/de6/namespacefield__math.html#a24b3d994a5dfd34e99fd333ee854d01b" title="Vector addition ." alt="" coords="5,5,172,32"/>
+<area shape="rect" id="node1" title="Vector addition ." alt="" coords="481,42,577,69"/>
+<area shape="rect" id="node2" href="$d6/def/namespacegradient__jump__penalty.html#a50a5857c26b3634d6e9bf80c7ac5182f" title="Initialize the facet factor array." alt="" coords="261,5,433,47"/>
+<area shape="rect" id="node4" href="$d5/de6/namespacefield__math.html#a24b3d994a5dfd34e99fd333ee854d01b" title="Vector addition ." alt="" coords="264,71,431,98"/>
+<area shape="rect" id="node3" href="$d6/def/namespacegradient__jump__penalty.html#ab7234be3b26833675975cce3bdd66935" title="Constructor." alt="" coords="5,5,213,47"/>
 </map>

@@ -717,173 +717,182 @@ $(document).ready(function(){initNavTree('d7/db9/fluid__pnpn_8f90_source.html','
 <div class="line"><a name="l00634"></a><span class="lineno">  634</span>&#160;         <span class="keyword">call </span>opcolv(f_x%x, f_y%x, f_z%x, c_xh%B, msh%gdim, n)</div>
 <div class="line"><a name="l00635"></a><span class="lineno">  635</span>&#160;<span class="keywordflow">      end if</span></div>
 <div class="line"><a name="l00636"></a><span class="lineno">  636</span>&#160; </div>
-<div class="line"><a name="l00637"></a><span class="lineno">  637</span>&#160;      <span class="keywordflow">if</span> (oifs) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00638"></a><span class="lineno">  638</span>&#160;         <span class="comment">! Add the advection operators to the right-hand-side.</span></div>
-<div class="line"><a name="l00639"></a><span class="lineno">  639</span>&#160;         <span class="keyword">call </span>this%adv%compute(u, v, w, &amp;</div>
-<div class="line"><a name="l00640"></a><span class="lineno">  640</span>&#160;                               this%advx, this%advy, this%advz, &amp;</div>
-<div class="line"><a name="l00641"></a><span class="lineno">  641</span>&#160;                               xh, this%c_Xh, dm_xh%size(), dt)</div>
-<div class="line"><a name="l00642"></a><span class="lineno">  642</span>&#160; </div>
-<div class="line"><a name="l00643"></a><span class="lineno">  643</span>&#160;         <span class="comment">! At this point the RHS contains the sum of the advection operator and</span></div>
-<div class="line"><a name="l00644"></a><span class="lineno">  644</span>&#160;         <span class="comment">! additional source terms, evaluated using the velocity field from the</span></div>
-<div class="line"><a name="l00645"></a><span class="lineno">  645</span>&#160;         <span class="comment">! previous time-step. Now, this value is used in the explicit time</span></div>
-<div class="line"><a name="l00646"></a><span class="lineno">  646</span>&#160;         <span class="comment">! scheme to advance both terms in time.</span></div>
-<div class="line"><a name="l00647"></a><span class="lineno">  647</span>&#160;         <span class="keyword">call </span>makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&amp;</div>
-<div class="line"><a name="l00648"></a><span class="lineno">  648</span>&#160;                                    this%abx2, this%aby2, this%abz2, &amp;</div>
-<div class="line"><a name="l00649"></a><span class="lineno">  649</span>&#160;                                    f_x%x, f_y%x, f_z%x, &amp;</div>
-<div class="line"><a name="l00650"></a><span class="lineno">  650</span>&#160;                                    rho, ext_bdf%advection_coeffs, n)</div>
-<div class="line"><a name="l00651"></a><span class="lineno">  651</span>&#160; </div>
-<div class="line"><a name="l00652"></a><span class="lineno">  652</span>&#160;         <span class="comment">! Now, the source terms from the previous time step are added to the RHS.</span></div>
-<div class="line"><a name="l00653"></a><span class="lineno">  653</span>&#160;         <span class="keyword">call </span>makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &amp;</div>
-<div class="line"><a name="l00654"></a><span class="lineno">  654</span>&#160;                                     f_x%x, f_y%x, f_z%x, &amp;</div>
-<div class="line"><a name="l00655"></a><span class="lineno">  655</span>&#160;                                     rho, dt, n)</div>
-<div class="line"><a name="l00656"></a><span class="lineno">  656</span>&#160;      <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00657"></a><span class="lineno">  657</span>&#160;        <span class="comment">! Add the advection operators to the right-hand-side.</span></div>
-<div class="line"><a name="l00658"></a><span class="lineno">  658</span>&#160;         <span class="keyword">call </span>this%adv%compute(u, v, w, &amp;</div>
-<div class="line"><a name="l00659"></a><span class="lineno">  659</span>&#160;                               f_x, f_y, f_z, &amp;</div>
-<div class="line"><a name="l00660"></a><span class="lineno">  660</span>&#160;                               xh, this%c_Xh, dm_xh%size())</div>
+<div class="line"><a name="l00637"></a><span class="lineno">  637</span>&#160;      <span class="comment">! Compute the grandient jump penalty term</span></div>
+<div class="line"><a name="l00638"></a><span class="lineno">  638</span>&#160;      <span class="keywordflow">if</span> (this%if_gradient_jump_penalty .eqv. .true.) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00639"></a><span class="lineno">  639</span>&#160;         <span class="keyword">call </span>this%gradient_jump_penalty_u%compute(u, v, w, u)</div>
+<div class="line"><a name="l00640"></a><span class="lineno">  640</span>&#160;         <span class="keyword">call </span>this%gradient_jump_penalty_v%compute(u, v, w, v)</div>
+<div class="line"><a name="l00641"></a><span class="lineno">  641</span>&#160;         <span class="keyword">call </span>this%gradient_jump_penalty_w%compute(u, v, w, w)</div>
+<div class="line"><a name="l00642"></a><span class="lineno">  642</span>&#160;         <span class="keyword">call </span>this%gradient_jump_penalty_u%perform(f_x)</div>
+<div class="line"><a name="l00643"></a><span class="lineno">  643</span>&#160;         <span class="keyword">call </span>this%gradient_jump_penalty_v%perform(f_y)</div>
+<div class="line"><a name="l00644"></a><span class="lineno">  644</span>&#160;         <span class="keyword">call </span>this%gradient_jump_penalty_w%perform(f_z)</div>
+<div class="line"><a name="l00645"></a><span class="lineno">  645</span>&#160;<span class="keywordflow">      end if</span></div>
+<div class="line"><a name="l00646"></a><span class="lineno">  646</span>&#160;      </div>
+<div class="line"><a name="l00647"></a><span class="lineno">  647</span>&#160;      <span class="keywordflow">if</span> (oifs) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00648"></a><span class="lineno">  648</span>&#160;         <span class="comment">! Add the advection operators to the right-hand-side.</span></div>
+<div class="line"><a name="l00649"></a><span class="lineno">  649</span>&#160;         <span class="keyword">call </span>this%adv%compute(u, v, w, &amp;</div>
+<div class="line"><a name="l00650"></a><span class="lineno">  650</span>&#160;                               this%advx, this%advy, this%advz, &amp;</div>
+<div class="line"><a name="l00651"></a><span class="lineno">  651</span>&#160;                               xh, this%c_Xh, dm_xh%size(), dt)</div>
+<div class="line"><a name="l00652"></a><span class="lineno">  652</span>&#160; </div>
+<div class="line"><a name="l00653"></a><span class="lineno">  653</span>&#160;         <span class="comment">! At this point the RHS contains the sum of the advection operator and</span></div>
+<div class="line"><a name="l00654"></a><span class="lineno">  654</span>&#160;         <span class="comment">! additional source terms, evaluated using the velocity field from the</span></div>
+<div class="line"><a name="l00655"></a><span class="lineno">  655</span>&#160;         <span class="comment">! previous time-step. Now, this value is used in the explicit time</span></div>
+<div class="line"><a name="l00656"></a><span class="lineno">  656</span>&#160;         <span class="comment">! scheme to advance both terms in time.</span></div>
+<div class="line"><a name="l00657"></a><span class="lineno">  657</span>&#160;         <span class="keyword">call </span>makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&amp;</div>
+<div class="line"><a name="l00658"></a><span class="lineno">  658</span>&#160;                                    this%abx2, this%aby2, this%abz2, &amp;</div>
+<div class="line"><a name="l00659"></a><span class="lineno">  659</span>&#160;                                    f_x%x, f_y%x, f_z%x, &amp;</div>
+<div class="line"><a name="l00660"></a><span class="lineno">  660</span>&#160;                                    rho, ext_bdf%advection_coeffs, n)</div>
 <div class="line"><a name="l00661"></a><span class="lineno">  661</span>&#160; </div>
-<div class="line"><a name="l00662"></a><span class="lineno">  662</span>&#160;         <span class="comment">! At this point the RHS contains the sum of the advection operator and</span></div>
-<div class="line"><a name="l00663"></a><span class="lineno">  663</span>&#160;         <span class="comment">! additional source terms, evaluated using the velocity field from the</span></div>
-<div class="line"><a name="l00664"></a><span class="lineno">  664</span>&#160;         <span class="comment">! previous time-step. Now, this value is used in the explicit time</span></div>
-<div class="line"><a name="l00665"></a><span class="lineno">  665</span>&#160;         <span class="comment">! scheme to advance both terms in time.</span></div>
-<div class="line"><a name="l00666"></a><span class="lineno">  666</span>&#160;         <span class="keyword">call </span>makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&amp;</div>
-<div class="line"><a name="l00667"></a><span class="lineno">  667</span>&#160;                              this%abx2, this%aby2, this%abz2, &amp;</div>
-<div class="line"><a name="l00668"></a><span class="lineno">  668</span>&#160;                              f_x%x, f_y%x, f_z%x, &amp;</div>
-<div class="line"><a name="l00669"></a><span class="lineno">  669</span>&#160;                              rho, ext_bdf%advection_coeffs, n)</div>
-<div class="line"><a name="l00670"></a><span class="lineno">  670</span>&#160; </div>
-<div class="line"><a name="l00671"></a><span class="lineno">  671</span>&#160;         <span class="comment">! Add the RHS contributions coming from the BDF scheme.</span></div>
-<div class="line"><a name="l00672"></a><span class="lineno">  672</span>&#160;         <span class="keyword">call </span>makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &amp;</div>
-<div class="line"><a name="l00673"></a><span class="lineno">  673</span>&#160;                              u, v, w, c_xh%B, rho, dt, &amp;</div>
-<div class="line"><a name="l00674"></a><span class="lineno">  674</span>&#160;                              ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)</div>
-<div class="line"><a name="l00675"></a><span class="lineno">  675</span>&#160;<span class="keywordflow">      end if</span></div>
-<div class="line"><a name="l00676"></a><span class="lineno">  676</span>&#160; </div>
-<div class="line"><a name="l00677"></a><span class="lineno">  677</span>&#160; </div>
-<div class="line"><a name="l00678"></a><span class="lineno">  678</span>&#160;      <span class="keyword">call </span>ulag%update()</div>
-<div class="line"><a name="l00679"></a><span class="lineno">  679</span>&#160;      <span class="keyword">call </span>vlag%update()</div>
-<div class="line"><a name="l00680"></a><span class="lineno">  680</span>&#160;      <span class="keyword">call </span>wlag%update()</div>
-<div class="line"><a name="l00681"></a><span class="lineno">  681</span>&#160; </div>
-<div class="line"><a name="l00685"></a><span class="lineno">  685</span>&#160;      <span class="keyword">call </span>this%user_field_bc_vel%update(this%user_field_bc_vel%field_list, &amp;</div>
-<div class="line"><a name="l00686"></a><span class="lineno">  686</span>&#160;              this%user_field_bc_vel%bc_list, this%c_Xh, t, tstep, <span class="stringliteral">&quot;fluid&quot;</span>)</div>
-<div class="line"><a name="l00687"></a><span class="lineno">  687</span>&#160; </div>
-<div class="line"><a name="l00688"></a><span class="lineno">  688</span>&#160;      <span class="keyword">call </span>this%bc_apply_vel(t, tstep)</div>
-<div class="line"><a name="l00689"></a><span class="lineno">  689</span>&#160;      <span class="keyword">call </span>this%bc_apply_prs(t, tstep)</div>
+<div class="line"><a name="l00662"></a><span class="lineno">  662</span>&#160;         <span class="comment">! Now, the source terms from the previous time step are added to the RHS.</span></div>
+<div class="line"><a name="l00663"></a><span class="lineno">  663</span>&#160;         <span class="keyword">call </span>makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &amp;</div>
+<div class="line"><a name="l00664"></a><span class="lineno">  664</span>&#160;                                     f_x%x, f_y%x, f_z%x, &amp;</div>
+<div class="line"><a name="l00665"></a><span class="lineno">  665</span>&#160;                                     rho, dt, n)</div>
+<div class="line"><a name="l00666"></a><span class="lineno">  666</span>&#160;      <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00667"></a><span class="lineno">  667</span>&#160;        <span class="comment">! Add the advection operators to the right-hand-side.</span></div>
+<div class="line"><a name="l00668"></a><span class="lineno">  668</span>&#160;         <span class="keyword">call </span>this%adv%compute(u, v, w, &amp;</div>
+<div class="line"><a name="l00669"></a><span class="lineno">  669</span>&#160;                               f_x, f_y, f_z, &amp;</div>
+<div class="line"><a name="l00670"></a><span class="lineno">  670</span>&#160;                               xh, this%c_Xh, dm_xh%size())</div>
+<div class="line"><a name="l00671"></a><span class="lineno">  671</span>&#160; </div>
+<div class="line"><a name="l00672"></a><span class="lineno">  672</span>&#160;         <span class="comment">! At this point the RHS contains the sum of the advection operator and</span></div>
+<div class="line"><a name="l00673"></a><span class="lineno">  673</span>&#160;         <span class="comment">! additional source terms, evaluated using the velocity field from the</span></div>
+<div class="line"><a name="l00674"></a><span class="lineno">  674</span>&#160;         <span class="comment">! previous time-step. Now, this value is used in the explicit time</span></div>
+<div class="line"><a name="l00675"></a><span class="lineno">  675</span>&#160;         <span class="comment">! scheme to advance both terms in time.</span></div>
+<div class="line"><a name="l00676"></a><span class="lineno">  676</span>&#160;         <span class="keyword">call </span>makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&amp;</div>
+<div class="line"><a name="l00677"></a><span class="lineno">  677</span>&#160;                              this%abx2, this%aby2, this%abz2, &amp;</div>
+<div class="line"><a name="l00678"></a><span class="lineno">  678</span>&#160;                              f_x%x, f_y%x, f_z%x, &amp;</div>
+<div class="line"><a name="l00679"></a><span class="lineno">  679</span>&#160;                              rho, ext_bdf%advection_coeffs, n)</div>
+<div class="line"><a name="l00680"></a><span class="lineno">  680</span>&#160; </div>
+<div class="line"><a name="l00681"></a><span class="lineno">  681</span>&#160;         <span class="comment">! Add the RHS contributions coming from the BDF scheme.</span></div>
+<div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160;         <span class="keyword">call </span>makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &amp;</div>
+<div class="line"><a name="l00683"></a><span class="lineno">  683</span>&#160;                              u, v, w, c_xh%B, rho, dt, &amp;</div>
+<div class="line"><a name="l00684"></a><span class="lineno">  684</span>&#160;                              ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)</div>
+<div class="line"><a name="l00685"></a><span class="lineno">  685</span>&#160;<span class="keywordflow">      end if</span></div>
+<div class="line"><a name="l00686"></a><span class="lineno">  686</span>&#160; </div>
+<div class="line"><a name="l00687"></a><span class="lineno">  687</span>&#160;      <span class="keyword">call </span>ulag%update()</div>
+<div class="line"><a name="l00688"></a><span class="lineno">  688</span>&#160;      <span class="keyword">call </span>vlag%update()</div>
+<div class="line"><a name="l00689"></a><span class="lineno">  689</span>&#160;      <span class="keyword">call </span>wlag%update()</div>
 <div class="line"><a name="l00690"></a><span class="lineno">  690</span>&#160; </div>
-<div class="line"><a name="l00691"></a><span class="lineno">  691</span>&#160;      <span class="comment">! Update material properties if necessary</span></div>
-<div class="line"><a name="l00692"></a><span class="lineno">  692</span>&#160;      <span class="keyword">call </span>this%update_material_properties()</div>
-<div class="line"><a name="l00693"></a><span class="lineno">  693</span>&#160; </div>
-<div class="line"><a name="l00694"></a><span class="lineno">  694</span>&#160;      <span class="comment">! Compute pressure.</span></div>
-<div class="line"><a name="l00695"></a><span class="lineno">  695</span>&#160;      <span class="keyword">call </span>profiler_start_region(<span class="stringliteral">&#39;Pressure_residual&#39;</span>, 18)</div>
-<div class="line"><a name="l00696"></a><span class="lineno">  696</span>&#160;      <span class="keyword">call </span>prs_res%compute(p, p_res,&amp;</div>
-<div class="line"><a name="l00697"></a><span class="lineno">  697</span>&#160;                           u, v, w, &amp;</div>
-<div class="line"><a name="l00698"></a><span class="lineno">  698</span>&#160;                           u_e, v_e, w_e, &amp;</div>
-<div class="line"><a name="l00699"></a><span class="lineno">  699</span>&#160;                           f_x, f_y, f_z, &amp;</div>
-<div class="line"><a name="l00700"></a><span class="lineno">  700</span>&#160;                           c_xh, gs_xh, &amp;</div>
-<div class="line"><a name="l00701"></a><span class="lineno">  701</span>&#160;                           this%bc_prs_surface, this%bc_sym_surface,&amp;</div>
-<div class="line"><a name="l00702"></a><span class="lineno">  702</span>&#160;                           ax_prs, ext_bdf%diffusion_coeffs(1), dt, &amp;</div>
-<div class="line"><a name="l00703"></a><span class="lineno">  703</span>&#160;                           mu_field, rho_field)</div>
-<div class="line"><a name="l00704"></a><span class="lineno">  704</span>&#160; </div>
-<div class="line"><a name="l00705"></a><span class="lineno">  705</span>&#160;      <span class="keyword">call </span>gs_xh%op(p_res, gs_op_add)</div>
-<div class="line"><a name="l00706"></a><span class="lineno">  706</span>&#160;      <span class="keyword">call </span>bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)</div>
-<div class="line"><a name="l00707"></a><span class="lineno">  707</span>&#160;      <span class="keyword">call </span>profiler_end_region(<span class="stringliteral">&#39;Pressure_residual&#39;</span>, 18)</div>
-<div class="line"><a name="l00708"></a><span class="lineno">  708</span>&#160; </div>
-<div class="line"><a name="l00709"></a><span class="lineno">  709</span>&#160;      <span class="keyword">call </span>this%proj_prs%pre_solving(p_res%x, tstep, c_xh, n, dt_controller, &amp;</div>
-<div class="line"><a name="l00710"></a><span class="lineno">  710</span>&#160;                                     <span class="stringliteral">&#39;Pressure&#39;</span>)</div>
-<div class="line"><a name="l00711"></a><span class="lineno">  711</span>&#160; </div>
-<div class="line"><a name="l00712"></a><span class="lineno">  712</span>&#160;      <span class="keyword">call </span>this%pc_prs%update()</div>
-<div class="line"><a name="l00713"></a><span class="lineno">  713</span>&#160;      <span class="keyword">call </span>profiler_start_region(<span class="stringliteral">&#39;Pressure_solve&#39;</span>, 3)</div>
-<div class="line"><a name="l00714"></a><span class="lineno">  714</span>&#160;      ksp_results(1) = &amp;</div>
-<div class="line"><a name="l00715"></a><span class="lineno">  715</span>&#160;         this%ksp_prs%solve(ax_prs, dp, p_res%x, n, c_xh, this%bclst_dp, gs_xh)</div>
-<div class="line"><a name="l00716"></a><span class="lineno">  716</span>&#160; </div>
-<div class="line"><a name="l00717"></a><span class="lineno">  717</span>&#160;      <span class="keyword">call </span>profiler_end_region(<span class="stringliteral">&#39;Pressure_solve&#39;</span>, 3)</div>
-<div class="line"><a name="l00718"></a><span class="lineno">  718</span>&#160; </div>
-<div class="line"><a name="l00719"></a><span class="lineno">  719</span>&#160;      <span class="keyword">call </span>this%proj_prs%post_solving(dp%x, ax_prs, c_xh, &amp;</div>
-<div class="line"><a name="l00720"></a><span class="lineno">  720</span>&#160;                                 this%bclst_dp, gs_xh, n, tstep, dt_controller)</div>
-<div class="line"><a name="l00721"></a><span class="lineno">  721</span>&#160; </div>
-<div class="line"><a name="l00722"></a><span class="lineno">  722</span>&#160;      <span class="keyword">call </span>field_add2(p, dp, n)</div>
-<div class="line"><a name="l00723"></a><span class="lineno">  723</span>&#160; </div>
-<div class="line"><a name="l00724"></a><span class="lineno">  724</span>&#160;      <span class="comment">! Compute velocity.</span></div>
-<div class="line"><a name="l00725"></a><span class="lineno">  725</span>&#160;      <span class="keyword">call </span>profiler_start_region(<span class="stringliteral">&#39;Velocity_residual&#39;</span>, 19)</div>
-<div class="line"><a name="l00726"></a><span class="lineno">  726</span>&#160;      <span class="keyword">call </span>vel_res%compute(ax_vel, u, v, w, &amp;</div>
-<div class="line"><a name="l00727"></a><span class="lineno">  727</span>&#160;                           u_res, v_res, w_res, &amp;</div>
-<div class="line"><a name="l00728"></a><span class="lineno">  728</span>&#160;                           p, &amp;</div>
-<div class="line"><a name="l00729"></a><span class="lineno">  729</span>&#160;                           f_x, f_y, f_z, &amp;</div>
-<div class="line"><a name="l00730"></a><span class="lineno">  730</span>&#160;                           c_xh, msh, xh, &amp;</div>
-<div class="line"><a name="l00731"></a><span class="lineno">  731</span>&#160;                           mu_field, rho_field, ext_bdf%diffusion_coeffs(1), &amp;</div>
-<div class="line"><a name="l00732"></a><span class="lineno">  732</span>&#160;                           dt, dm_xh%size())</div>
-<div class="line"><a name="l00733"></a><span class="lineno">  733</span>&#160; </div>
-<div class="line"><a name="l00734"></a><span class="lineno">  734</span>&#160;      <span class="keyword">call </span>gs_xh%op(u_res, gs_op_add)</div>
-<div class="line"><a name="l00735"></a><span class="lineno">  735</span>&#160;      <span class="keyword">call </span>gs_xh%op(v_res, gs_op_add)</div>
-<div class="line"><a name="l00736"></a><span class="lineno">  736</span>&#160;      <span class="keyword">call </span>gs_xh%op(w_res, gs_op_add)</div>
-<div class="line"><a name="l00737"></a><span class="lineno">  737</span>&#160; </div>
-<div class="line"><a name="l00738"></a><span class="lineno">  738</span>&#160;      <span class="keyword">call </span>bc_list_apply_vector(this%bclst_vel_res,&amp;</div>
-<div class="line"><a name="l00739"></a><span class="lineno">  739</span>&#160;                                u_res%x, v_res%x, w_res%x, dm_xh%size(),&amp;</div>
-<div class="line"><a name="l00740"></a><span class="lineno">  740</span>&#160;                                t, tstep)</div>
-<div class="line"><a name="l00741"></a><span class="lineno">  741</span>&#160; </div>
-<div class="line"><a name="l00742"></a><span class="lineno">  742</span>&#160;      <span class="comment">! We should implement a bc that takes three field_bcs and implements</span></div>
-<div class="line"><a name="l00743"></a><span class="lineno">  743</span>&#160;      <span class="comment">! vector_apply</span></div>
-<div class="line"><a name="l00744"></a><span class="lineno">  744</span>&#160;      <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00745"></a><span class="lineno">  745</span>&#160;         <span class="keyword">call </span>this%bc_field_dirichlet_u%apply_scalar_dev(u_res%x_d, t, tstep)</div>
-<div class="line"><a name="l00746"></a><span class="lineno">  746</span>&#160;         <span class="keyword">call </span>this%bc_field_dirichlet_v%apply_scalar_dev(v_res%x_d, t, tstep)</div>
-<div class="line"><a name="l00747"></a><span class="lineno">  747</span>&#160;         <span class="keyword">call </span>this%bc_field_dirichlet_w%apply_scalar_dev(w_res%x_d, t, tstep)</div>
-<div class="line"><a name="l00748"></a><span class="lineno">  748</span>&#160;      <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00749"></a><span class="lineno">  749</span>&#160;         <span class="keyword">call </span>this%bc_field_dirichlet_u%apply_scalar(u_res%x, n, t, tstep)</div>
-<div class="line"><a name="l00750"></a><span class="lineno">  750</span>&#160;         <span class="keyword">call </span>this%bc_field_dirichlet_v%apply_scalar(v_res%x, n, t, tstep)</div>
-<div class="line"><a name="l00751"></a><span class="lineno">  751</span>&#160;         <span class="keyword">call </span>this%bc_field_dirichlet_w%apply_scalar(w_res%x, n, t, tstep)</div>
-<div class="line"><a name="l00752"></a><span class="lineno">  752</span>&#160;<span class="keywordflow">      end if</span></div>
-<div class="line"><a name="l00753"></a><span class="lineno">  753</span>&#160; </div>
-<div class="line"><a name="l00754"></a><span class="lineno">  754</span>&#160;      <span class="keyword">call </span>profiler_end_region(<span class="stringliteral">&#39;Velocity_residual&#39;</span>, 19)</div>
-<div class="line"><a name="l00755"></a><span class="lineno">  755</span>&#160; </div>
-<div class="line"><a name="l00756"></a><span class="lineno">  756</span>&#160;      <span class="keyword">call </span>this%proj_u%pre_solving(u_res%x, tstep, c_xh, n, dt_controller)</div>
-<div class="line"><a name="l00757"></a><span class="lineno">  757</span>&#160;      <span class="keyword">call </span>this%proj_v%pre_solving(v_res%x, tstep, c_xh, n, dt_controller)</div>
-<div class="line"><a name="l00758"></a><span class="lineno">  758</span>&#160;      <span class="keyword">call </span>this%proj_w%pre_solving(w_res%x, tstep, c_xh, n, dt_controller)</div>
-<div class="line"><a name="l00759"></a><span class="lineno">  759</span>&#160; </div>
-<div class="line"><a name="l00760"></a><span class="lineno">  760</span>&#160;      <span class="keyword">call </span>this%pc_vel%update()</div>
-<div class="line"><a name="l00761"></a><span class="lineno">  761</span>&#160; </div>
-<div class="line"><a name="l00762"></a><span class="lineno">  762</span>&#160;      <span class="keyword">call </span>profiler_start_region(<span class="stringliteral">&quot;Velocity_solve&quot;</span>, 4)</div>
-<div class="line"><a name="l00763"></a><span class="lineno">  763</span>&#160;      ksp_results(2:4) = this%ksp_vel%solve_coupled(ax_vel, du, dv, dw, &amp;</div>
-<div class="line"><a name="l00764"></a><span class="lineno">  764</span>&#160;           u_res%x, v_res%x, w_res%x, n, c_xh, &amp;</div>
-<div class="line"><a name="l00765"></a><span class="lineno">  765</span>&#160;           this%bclst_du, this%bclst_dv, this%bclst_dw, gs_xh)</div>
-<div class="line"><a name="l00766"></a><span class="lineno">  766</span>&#160;      <span class="keyword">call </span>profiler_end_region(<span class="stringliteral">&quot;Velocity_solve&quot;</span>, 4)</div>
-<div class="line"><a name="l00767"></a><span class="lineno">  767</span>&#160; </div>
-<div class="line"><a name="l00768"></a><span class="lineno">  768</span>&#160;      <span class="keyword">call </span>this%proj_u%post_solving(du%x, ax_vel, c_xh, &amp;</div>
-<div class="line"><a name="l00769"></a><span class="lineno">  769</span>&#160;                                 this%bclst_du, gs_xh, n, tstep, dt_controller)</div>
-<div class="line"><a name="l00770"></a><span class="lineno">  770</span>&#160;      <span class="keyword">call </span>this%proj_v%post_solving(dv%x, ax_vel, c_xh, &amp;</div>
-<div class="line"><a name="l00771"></a><span class="lineno">  771</span>&#160;                                 this%bclst_dv, gs_xh, n, tstep, dt_controller)</div>
-<div class="line"><a name="l00772"></a><span class="lineno">  772</span>&#160;      <span class="keyword">call </span>this%proj_w%post_solving(dw%x, ax_vel, c_xh, &amp;</div>
-<div class="line"><a name="l00773"></a><span class="lineno">  773</span>&#160;                                 this%bclst_dw, gs_xh, n, tstep, dt_controller)</div>
-<div class="line"><a name="l00774"></a><span class="lineno">  774</span>&#160; </div>
-<div class="line"><a name="l00775"></a><span class="lineno">  775</span>&#160;      <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00776"></a><span class="lineno">  776</span>&#160;         <span class="keyword">call </span>device_opadd2cm(u%x_d, v%x_d, w%x_d, &amp;</div>
-<div class="line"><a name="l00777"></a><span class="lineno">  777</span>&#160;              du%x_d, dv%x_d, dw%x_d, 1.0_rp, n, msh%gdim)</div>
-<div class="line"><a name="l00778"></a><span class="lineno">  778</span>&#160;      <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00779"></a><span class="lineno">  779</span>&#160;         <span class="keyword">call </span>opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, 1.0_rp, n, msh%gdim)</div>
-<div class="line"><a name="l00780"></a><span class="lineno">  780</span>&#160;<span class="keywordflow">      end if</span></div>
-<div class="line"><a name="l00781"></a><span class="lineno">  781</span>&#160; </div>
-<div class="line"><a name="l00782"></a><span class="lineno">  782</span>&#160;      <span class="keywordflow">if</span> (this%forced_flow_rate) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00783"></a><span class="lineno">  783</span>&#160;         <span class="keyword">call </span>this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &amp;</div>
-<div class="line"><a name="l00784"></a><span class="lineno">  784</span>&#160;              c_xh, gs_xh, ext_bdf, rho, mu,&amp;</div>
-<div class="line"><a name="l00785"></a><span class="lineno">  785</span>&#160;              dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &amp;</div>
-<div class="line"><a name="l00786"></a><span class="lineno">  786</span>&#160;              this%bclst_dw, this%bclst_vel_res, ax_vel, this%ksp_prs, &amp;</div>
-<div class="line"><a name="l00787"></a><span class="lineno">  787</span>&#160;              this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &amp;</div>
-<div class="line"><a name="l00788"></a><span class="lineno">  788</span>&#160;              this%ksp_vel%max_iter)</div>
+<div class="line"><a name="l00694"></a><span class="lineno">  694</span>&#160;      <span class="keyword">call </span>this%user_field_bc_vel%update(this%user_field_bc_vel%field_list, &amp;</div>
+<div class="line"><a name="l00695"></a><span class="lineno">  695</span>&#160;              this%user_field_bc_vel%bc_list, this%c_Xh, t, tstep, <span class="stringliteral">&quot;fluid&quot;</span>)</div>
+<div class="line"><a name="l00696"></a><span class="lineno">  696</span>&#160; </div>
+<div class="line"><a name="l00697"></a><span class="lineno">  697</span>&#160;      <span class="keyword">call </span>this%bc_apply_vel(t, tstep)</div>
+<div class="line"><a name="l00698"></a><span class="lineno">  698</span>&#160;      <span class="keyword">call </span>this%bc_apply_prs(t, tstep)</div>
+<div class="line"><a name="l00699"></a><span class="lineno">  699</span>&#160; </div>
+<div class="line"><a name="l00700"></a><span class="lineno">  700</span>&#160;      <span class="comment">! Update material properties if necessary</span></div>
+<div class="line"><a name="l00701"></a><span class="lineno">  701</span>&#160;      <span class="keyword">call </span>this%update_material_properties()</div>
+<div class="line"><a name="l00702"></a><span class="lineno">  702</span>&#160; </div>
+<div class="line"><a name="l00703"></a><span class="lineno">  703</span>&#160;      <span class="comment">! Compute pressure.</span></div>
+<div class="line"><a name="l00704"></a><span class="lineno">  704</span>&#160;      <span class="keyword">call </span>profiler_start_region(<span class="stringliteral">&#39;Pressure_residual&#39;</span>, 18)</div>
+<div class="line"><a name="l00705"></a><span class="lineno">  705</span>&#160;      <span class="keyword">call </span>prs_res%compute(p, p_res,&amp;</div>
+<div class="line"><a name="l00706"></a><span class="lineno">  706</span>&#160;                           u, v, w, &amp;</div>
+<div class="line"><a name="l00707"></a><span class="lineno">  707</span>&#160;                           u_e, v_e, w_e, &amp;</div>
+<div class="line"><a name="l00708"></a><span class="lineno">  708</span>&#160;                           f_x, f_y, f_z, &amp;</div>
+<div class="line"><a name="l00709"></a><span class="lineno">  709</span>&#160;                           c_xh, gs_xh, &amp;</div>
+<div class="line"><a name="l00710"></a><span class="lineno">  710</span>&#160;                           this%bc_prs_surface, this%bc_sym_surface,&amp;</div>
+<div class="line"><a name="l00711"></a><span class="lineno">  711</span>&#160;                           ax_prs, ext_bdf%diffusion_coeffs(1), dt, &amp;</div>
+<div class="line"><a name="l00712"></a><span class="lineno">  712</span>&#160;                           mu_field, rho_field)</div>
+<div class="line"><a name="l00713"></a><span class="lineno">  713</span>&#160; </div>
+<div class="line"><a name="l00714"></a><span class="lineno">  714</span>&#160;      <span class="keyword">call </span>gs_xh%op(p_res, gs_op_add)</div>
+<div class="line"><a name="l00715"></a><span class="lineno">  715</span>&#160;      <span class="keyword">call </span>bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)</div>
+<div class="line"><a name="l00716"></a><span class="lineno">  716</span>&#160;      <span class="keyword">call </span>profiler_end_region(<span class="stringliteral">&#39;Pressure_residual&#39;</span>, 18)</div>
+<div class="line"><a name="l00717"></a><span class="lineno">  717</span>&#160; </div>
+<div class="line"><a name="l00718"></a><span class="lineno">  718</span>&#160;      <span class="keyword">call </span>this%proj_prs%pre_solving(p_res%x, tstep, c_xh, n, dt_controller, &amp;</div>
+<div class="line"><a name="l00719"></a><span class="lineno">  719</span>&#160;                                     <span class="stringliteral">&#39;Pressure&#39;</span>)</div>
+<div class="line"><a name="l00720"></a><span class="lineno">  720</span>&#160; </div>
+<div class="line"><a name="l00721"></a><span class="lineno">  721</span>&#160;      <span class="keyword">call </span>this%pc_prs%update()</div>
+<div class="line"><a name="l00722"></a><span class="lineno">  722</span>&#160;      <span class="keyword">call </span>profiler_start_region(<span class="stringliteral">&#39;Pressure_solve&#39;</span>, 3)</div>
+<div class="line"><a name="l00723"></a><span class="lineno">  723</span>&#160;      ksp_results(1) = &amp;</div>
+<div class="line"><a name="l00724"></a><span class="lineno">  724</span>&#160;         this%ksp_prs%solve(ax_prs, dp, p_res%x, n, c_xh, this%bclst_dp, gs_xh)</div>
+<div class="line"><a name="l00725"></a><span class="lineno">  725</span>&#160; </div>
+<div class="line"><a name="l00726"></a><span class="lineno">  726</span>&#160;      <span class="keyword">call </span>profiler_end_region(<span class="stringliteral">&#39;Pressure_solve&#39;</span>, 3)</div>
+<div class="line"><a name="l00727"></a><span class="lineno">  727</span>&#160; </div>
+<div class="line"><a name="l00728"></a><span class="lineno">  728</span>&#160;      <span class="keyword">call </span>this%proj_prs%post_solving(dp%x, ax_prs, c_xh, &amp;</div>
+<div class="line"><a name="l00729"></a><span class="lineno">  729</span>&#160;                                 this%bclst_dp, gs_xh, n, tstep, dt_controller)</div>
+<div class="line"><a name="l00730"></a><span class="lineno">  730</span>&#160; </div>
+<div class="line"><a name="l00731"></a><span class="lineno">  731</span>&#160;      <span class="keyword">call </span>field_add2(p, dp, n)</div>
+<div class="line"><a name="l00732"></a><span class="lineno">  732</span>&#160; </div>
+<div class="line"><a name="l00733"></a><span class="lineno">  733</span>&#160;      <span class="comment">! Compute velocity.</span></div>
+<div class="line"><a name="l00734"></a><span class="lineno">  734</span>&#160;      <span class="keyword">call </span>profiler_start_region(<span class="stringliteral">&#39;Velocity_residual&#39;</span>, 19)</div>
+<div class="line"><a name="l00735"></a><span class="lineno">  735</span>&#160;      <span class="keyword">call </span>vel_res%compute(ax_vel, u, v, w, &amp;</div>
+<div class="line"><a name="l00736"></a><span class="lineno">  736</span>&#160;                           u_res, v_res, w_res, &amp;</div>
+<div class="line"><a name="l00737"></a><span class="lineno">  737</span>&#160;                           p, &amp;</div>
+<div class="line"><a name="l00738"></a><span class="lineno">  738</span>&#160;                           f_x, f_y, f_z, &amp;</div>
+<div class="line"><a name="l00739"></a><span class="lineno">  739</span>&#160;                           c_xh, msh, xh, &amp;</div>
+<div class="line"><a name="l00740"></a><span class="lineno">  740</span>&#160;                           mu_field, rho_field, ext_bdf%diffusion_coeffs(1), &amp;</div>
+<div class="line"><a name="l00741"></a><span class="lineno">  741</span>&#160;                           dt, dm_xh%size())</div>
+<div class="line"><a name="l00742"></a><span class="lineno">  742</span>&#160; </div>
+<div class="line"><a name="l00743"></a><span class="lineno">  743</span>&#160;      <span class="keyword">call </span>gs_xh%op(u_res, gs_op_add)</div>
+<div class="line"><a name="l00744"></a><span class="lineno">  744</span>&#160;      <span class="keyword">call </span>gs_xh%op(v_res, gs_op_add)</div>
+<div class="line"><a name="l00745"></a><span class="lineno">  745</span>&#160;      <span class="keyword">call </span>gs_xh%op(w_res, gs_op_add)</div>
+<div class="line"><a name="l00746"></a><span class="lineno">  746</span>&#160; </div>
+<div class="line"><a name="l00747"></a><span class="lineno">  747</span>&#160;      <span class="keyword">call </span>bc_list_apply_vector(this%bclst_vel_res,&amp;</div>
+<div class="line"><a name="l00748"></a><span class="lineno">  748</span>&#160;                                u_res%x, v_res%x, w_res%x, dm_xh%size(),&amp;</div>
+<div class="line"><a name="l00749"></a><span class="lineno">  749</span>&#160;                                t, tstep)</div>
+<div class="line"><a name="l00750"></a><span class="lineno">  750</span>&#160; </div>
+<div class="line"><a name="l00751"></a><span class="lineno">  751</span>&#160;      <span class="comment">! We should implement a bc that takes three field_bcs and implements</span></div>
+<div class="line"><a name="l00752"></a><span class="lineno">  752</span>&#160;      <span class="comment">! vector_apply</span></div>
+<div class="line"><a name="l00753"></a><span class="lineno">  753</span>&#160;      <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00754"></a><span class="lineno">  754</span>&#160;         <span class="keyword">call </span>this%bc_field_dirichlet_u%apply_scalar_dev(u_res%x_d, t, tstep)</div>
+<div class="line"><a name="l00755"></a><span class="lineno">  755</span>&#160;         <span class="keyword">call </span>this%bc_field_dirichlet_v%apply_scalar_dev(v_res%x_d, t, tstep)</div>
+<div class="line"><a name="l00756"></a><span class="lineno">  756</span>&#160;         <span class="keyword">call </span>this%bc_field_dirichlet_w%apply_scalar_dev(w_res%x_d, t, tstep)</div>
+<div class="line"><a name="l00757"></a><span class="lineno">  757</span>&#160;      <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00758"></a><span class="lineno">  758</span>&#160;         <span class="keyword">call </span>this%bc_field_dirichlet_u%apply_scalar(u_res%x, n, t, tstep)</div>
+<div class="line"><a name="l00759"></a><span class="lineno">  759</span>&#160;         <span class="keyword">call </span>this%bc_field_dirichlet_v%apply_scalar(v_res%x, n, t, tstep)</div>
+<div class="line"><a name="l00760"></a><span class="lineno">  760</span>&#160;         <span class="keyword">call </span>this%bc_field_dirichlet_w%apply_scalar(w_res%x, n, t, tstep)</div>
+<div class="line"><a name="l00761"></a><span class="lineno">  761</span>&#160;<span class="keywordflow">      end if</span></div>
+<div class="line"><a name="l00762"></a><span class="lineno">  762</span>&#160; </div>
+<div class="line"><a name="l00763"></a><span class="lineno">  763</span>&#160;      <span class="keyword">call </span>profiler_end_region(<span class="stringliteral">&#39;Velocity_residual&#39;</span>, 19)</div>
+<div class="line"><a name="l00764"></a><span class="lineno">  764</span>&#160; </div>
+<div class="line"><a name="l00765"></a><span class="lineno">  765</span>&#160;      <span class="keyword">call </span>this%proj_u%pre_solving(u_res%x, tstep, c_xh, n, dt_controller)</div>
+<div class="line"><a name="l00766"></a><span class="lineno">  766</span>&#160;      <span class="keyword">call </span>this%proj_v%pre_solving(v_res%x, tstep, c_xh, n, dt_controller)</div>
+<div class="line"><a name="l00767"></a><span class="lineno">  767</span>&#160;      <span class="keyword">call </span>this%proj_w%pre_solving(w_res%x, tstep, c_xh, n, dt_controller)</div>
+<div class="line"><a name="l00768"></a><span class="lineno">  768</span>&#160; </div>
+<div class="line"><a name="l00769"></a><span class="lineno">  769</span>&#160;      <span class="keyword">call </span>this%pc_vel%update()</div>
+<div class="line"><a name="l00770"></a><span class="lineno">  770</span>&#160; </div>
+<div class="line"><a name="l00771"></a><span class="lineno">  771</span>&#160;      <span class="keyword">call </span>profiler_start_region(<span class="stringliteral">&quot;Velocity_solve&quot;</span>, 4)</div>
+<div class="line"><a name="l00772"></a><span class="lineno">  772</span>&#160;      ksp_results(2:4) = this%ksp_vel%solve_coupled(ax_vel, du, dv, dw, &amp;</div>
+<div class="line"><a name="l00773"></a><span class="lineno">  773</span>&#160;           u_res%x, v_res%x, w_res%x, n, c_xh, &amp;</div>
+<div class="line"><a name="l00774"></a><span class="lineno">  774</span>&#160;           this%bclst_du, this%bclst_dv, this%bclst_dw, gs_xh)</div>
+<div class="line"><a name="l00775"></a><span class="lineno">  775</span>&#160;      <span class="keyword">call </span>profiler_end_region(<span class="stringliteral">&quot;Velocity_solve&quot;</span>, 4)</div>
+<div class="line"><a name="l00776"></a><span class="lineno">  776</span>&#160; </div>
+<div class="line"><a name="l00777"></a><span class="lineno">  777</span>&#160;      <span class="keyword">call </span>this%proj_u%post_solving(du%x, ax_vel, c_xh, &amp;</div>
+<div class="line"><a name="l00778"></a><span class="lineno">  778</span>&#160;                                 this%bclst_du, gs_xh, n, tstep, dt_controller)</div>
+<div class="line"><a name="l00779"></a><span class="lineno">  779</span>&#160;      <span class="keyword">call </span>this%proj_v%post_solving(dv%x, ax_vel, c_xh, &amp;</div>
+<div class="line"><a name="l00780"></a><span class="lineno">  780</span>&#160;                                 this%bclst_dv, gs_xh, n, tstep, dt_controller)</div>
+<div class="line"><a name="l00781"></a><span class="lineno">  781</span>&#160;      <span class="keyword">call </span>this%proj_w%post_solving(dw%x, ax_vel, c_xh, &amp;</div>
+<div class="line"><a name="l00782"></a><span class="lineno">  782</span>&#160;                                 this%bclst_dw, gs_xh, n, tstep, dt_controller)</div>
+<div class="line"><a name="l00783"></a><span class="lineno">  783</span>&#160; </div>
+<div class="line"><a name="l00784"></a><span class="lineno">  784</span>&#160;      <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00785"></a><span class="lineno">  785</span>&#160;         <span class="keyword">call </span>device_opadd2cm(u%x_d, v%x_d, w%x_d, &amp;</div>
+<div class="line"><a name="l00786"></a><span class="lineno">  786</span>&#160;              du%x_d, dv%x_d, dw%x_d, 1.0_rp, n, msh%gdim)</div>
+<div class="line"><a name="l00787"></a><span class="lineno">  787</span>&#160;      <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00788"></a><span class="lineno">  788</span>&#160;         <span class="keyword">call </span>opadd2cm(u%x, v%x, w%x, du%x, dv%x, dw%x, 1.0_rp, n, msh%gdim)</div>
 <div class="line"><a name="l00789"></a><span class="lineno">  789</span>&#160;<span class="keywordflow">      end if</span></div>
 <div class="line"><a name="l00790"></a><span class="lineno">  790</span>&#160; </div>
-<div class="line"><a name="l00791"></a><span class="lineno">  791</span>&#160;      <span class="keyword">call </span>fluid_step_info(tstep, t, dt, ksp_results)</div>
-<div class="line"><a name="l00792"></a><span class="lineno">  792</span>&#160; </div>
-<div class="line"><a name="l00793"></a><span class="lineno">  793</span>&#160;      <span class="keyword">call </span>this%scratch%relinquish_field(temp_indices)</div>
-<div class="line"><a name="l00794"></a><span class="lineno">  794</span>&#160; </div>
-<div class="line"><a name="l00795"></a><span class="lineno">  795</span>&#160;    <span class="keyword">end </span>associate</div>
-<div class="line"><a name="l00796"></a><span class="lineno">  796</span>&#160;    <span class="keyword">call </span>profiler_end_region(<span class="stringliteral">&#39;Fluid&#39;</span>, 1)</div>
-<div class="line"><a name="l00797"></a><span class="lineno">  797</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../dc/da3/namespacefluid__pnpn.html#a4e184cd1988892da656514f7d11efb53">fluid_pnpn_step</a></div>
-<div class="line"><a name="l00798"></a><span class="lineno">  798</span>&#160; </div>
+<div class="line"><a name="l00791"></a><span class="lineno">  791</span>&#160;      <span class="keywordflow">if</span> (this%forced_flow_rate) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00792"></a><span class="lineno">  792</span>&#160;         <span class="keyword">call </span>this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &amp;</div>
+<div class="line"><a name="l00793"></a><span class="lineno">  793</span>&#160;              c_xh, gs_xh, ext_bdf, rho, mu,&amp;</div>
+<div class="line"><a name="l00794"></a><span class="lineno">  794</span>&#160;              dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &amp;</div>
+<div class="line"><a name="l00795"></a><span class="lineno">  795</span>&#160;              this%bclst_dw, this%bclst_vel_res, ax_vel, this%ksp_prs, &amp;</div>
+<div class="line"><a name="l00796"></a><span class="lineno">  796</span>&#160;              this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &amp;</div>
+<div class="line"><a name="l00797"></a><span class="lineno">  797</span>&#160;              this%ksp_vel%max_iter)</div>
+<div class="line"><a name="l00798"></a><span class="lineno">  798</span>&#160;<span class="keywordflow">      end if</span></div>
 <div class="line"><a name="l00799"></a><span class="lineno">  799</span>&#160; </div>
-<div class="line"><a name="l00800"></a><span class="lineno">  800</span>&#160;<span class="keyword">end module </span><a class="code" href="../../dc/da3/namespacefluid__pnpn.html">fluid_pnpn</a></div>
+<div class="line"><a name="l00800"></a><span class="lineno">  800</span>&#160;      <span class="keyword">call </span>fluid_step_info(tstep, t, dt, ksp_results)</div>
+<div class="line"><a name="l00801"></a><span class="lineno">  801</span>&#160; </div>
+<div class="line"><a name="l00802"></a><span class="lineno">  802</span>&#160;      <span class="keyword">call </span>this%scratch%relinquish_field(temp_indices)</div>
+<div class="line"><a name="l00803"></a><span class="lineno">  803</span>&#160; </div>
+<div class="line"><a name="l00804"></a><span class="lineno">  804</span>&#160;    <span class="keyword">end </span>associate</div>
+<div class="line"><a name="l00805"></a><span class="lineno">  805</span>&#160;    <span class="keyword">call </span>profiler_end_region(<span class="stringliteral">&#39;Fluid&#39;</span>, 1)</div>
+<div class="line"><a name="l00806"></a><span class="lineno">  806</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../dc/da3/namespacefluid__pnpn.html#a4e184cd1988892da656514f7d11efb53">fluid_pnpn_step</a></div>
+<div class="line"><a name="l00807"></a><span class="lineno">  807</span>&#160; </div>
+<div class="line"><a name="l00808"></a><span class="lineno">  808</span>&#160; </div>
+<div class="line"><a name="l00809"></a><span class="lineno">  809</span>&#160;<span class="keyword">end module </span><a class="code" href="../../dc/da3/namespacefluid__pnpn.html">fluid_pnpn</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d2a/device_8F90_source.html#l00051">device.F90:51</a></div></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get__or__default_html"><div class="ttname"><a href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_utils::json_get_or_default</a></div><div class="ttdoc">Retrieves a parameter by name or assigns a provided default value. In the latter case also adds the m...</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00053">json_utils.f90:53</a></div></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get_html"><div class="ttname"><a href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_utils::json_get</a></div><div class="ttdoc">Retrieves a parameter by name or throws an error.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00044">json_utils.f90:44</a></div></div>
 <div class="ttc" id="ainterfacepnpn__residual_1_1prs__res_html"><div class="ttname"><a href="../../dc/d18/interfacepnpn__residual_1_1prs__res.html">pnpn_residual::prs_res</a></div><div class="ttdef"><b>Definition:</b> <a href="../../da/d32/pnpn__res_8f90_source.html#l00059">pnpn_res.f90:59</a></div></div>
 <div class="ttc" id="ainterfacepnpn__residual_1_1vel__res_html"><div class="ttname"><a href="../../dd/d55/interfacepnpn__residual_1_1vel__res.html">pnpn_residual::vel_res</a></div><div class="ttdef"><b>Definition:</b> <a href="../../da/d32/pnpn__res_8f90_source.html#l00085">pnpn_res.f90:85</a></div></div>
-<div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition:</b> <a href="../../df/d80/utils_8f90_source.html#l00041">utils.f90:41</a></div></div>
+<div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition:</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
 <div class="ttc" id="anamespaceadvection_html"><div class="ttname"><a href="../../d3/d69/namespaceadvection.html">advection</a></div><div class="ttdoc">Subroutines to add advection terms to the RHS of a transport equation.</div><div class="ttdef"><b>Definition:</b> <a href="../../d8/d71/advection_8f90_source.html#l00034">advection.f90:34</a></div></div>
 <div class="ttc" id="anamespaceax__product_html"><div class="ttname"><a href="../../d2/dd1/namespaceax__product.html">ax_product</a></div><div class="ttdoc">Defines a Matrix-vector product.</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dd6/ax_8f90_source.html#l00034">ax.f90:34</a></div></div>
 <div class="ttc" id="anamespacebc_html"><div class="ttname"><a href="../../d0/dc0/namespacebc.html">bc</a></div><div class="ttdoc">Defines a boundary condition.</div><div class="ttdef"><b>Definition:</b> <a href="../../df/df6/bc_8f90_source.html#l00034">bc.f90:34</a></div></div>
@@ -945,7 +954,7 @@ $(document).ready(function(){initNavTree('d7/db9/fluid__pnpn_8f90_source.html','
 <div class="ttc" id="astructfacet__normal_1_1facet__normal__t_html"><div class="ttname"><a href="../../d1/d1e/structfacet__normal_1_1facet__normal__t.html">facet_normal::facet_normal_t</a></div><div class="ttdoc">Dirichlet condition in facet normal direction.</div><div class="ttdef"><b>Definition:</b> <a href="../../d8/d63/facet__normal_8f90_source.html#l00046">facet_normal.f90:46</a></div></div>
 <div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d3/dc1/field_8f90_source.html#l00046">field.f90:46</a></div></div>
 <div class="ttc" id="astructfluid__pnpn_1_1fluid__pnpn__t_html"><div class="ttname"><a href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn::fluid_pnpn_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d7/db9/fluid__pnpn_8f90_source.html#l00074">fluid_pnpn.f90:74</a></div></div>
-<div class="ttc" id="astructfluid__scheme_1_1fluid__scheme__t_html"><div class="ttname"><a href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html">fluid_scheme::fluid_scheme_t</a></div><div class="ttdoc">Base type of all fluid formulations.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00086">fluid_scheme.f90:86</a></div></div>
+<div class="ttc" id="astructfluid__scheme_1_1fluid__scheme__t_html"><div class="ttname"><a href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html">fluid_scheme::fluid_scheme_t</a></div><div class="ttdoc">Base type of all fluid formulations.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00087">fluid_scheme.f90:87</a></div></div>
 <div class="ttc" id="astructfluid__volflow_1_1fluid__volflow__t_html"><div class="ttname"><a href="../../d5/db8/structfluid__volflow_1_1fluid__volflow__t.html">fluid_volflow::fluid_volflow_t</a></div><div class="ttdoc">Defines volume flow.</div><div class="ttdef"><b>Definition:</b> <a href="../../dd/d8d/fluid__volflow_8f90_source.html#l00086">fluid_volflow.f90:86</a></div></div>
 <div class="ttc" id="astructkrylov_1_1ksp__monitor__t_html"><div class="ttname"><a href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">krylov::ksp_monitor_t</a></div><div class="ttdoc">Type for storing initial and final residuals in a Krylov solver.</div><div class="ttdef"><b>Definition:</b> <a href="../../d9/da5/krylov_8f90_source.html#l00056">krylov.f90:56</a></div></div>
 <div class="ttc" id="astructmesh_1_1mesh__t_html"><div class="ttname"><a href="../../d7/d28/structmesh_1_1mesh__t.html">mesh::mesh_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../de/d0a/mesh_8f90_source.html#l00064">mesh.f90:64</a></div></div>
@@ -966,7 +975,7 @@ $(document).ready(function(){initNavTree('d7/db9/fluid__pnpn_8f90_source.html','
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d7/db9/fluid__pnpn_8f90.html">fluid_pnpn.f90</a></li>
-    <li class="footer">Generated on Tue Oct 1 2024 03:41:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Oct 2 2024 03:38:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

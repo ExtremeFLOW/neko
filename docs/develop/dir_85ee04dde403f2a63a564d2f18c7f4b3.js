@@ -1,5 +1,7 @@
 var dir_85ee04dde403f2a63a564d2f18c7f4b3 =
 [
+    [ "gradient_jump_penalty.cu", "da/d26/gradient__jump__penalty_8cu.html", "da/d26/gradient__jump__penalty_8cu" ],
+    [ "gradient_jump_penalty_kernel.h", "d0/d60/cuda_2gradient__jump__penalty__kernel_8h.html", "d0/d60/cuda_2gradient__jump__penalty__kernel_8h" ],
     [ "makebdf_kernel.h", "df/d1f/cuda_2makebdf__kernel_8h.html", "df/d1f/cuda_2makebdf__kernel_8h" ],
     [ "makeext_kernel.h", "d0/d1e/cuda_2makeext__kernel_8h.html", "d0/d1e/cuda_2makeext__kernel_8h" ],
     [ "projection.cu", "d9/dab/projection_8cu.html", "d9/dab/projection_8cu" ],

@@ -33,5 +33,6 @@ var namespacehip__math =
     [ "hip_glsc3", "d6/d9d/interfacehip__math_1_1hip__glsc3.html", "d6/d9d/interfacehip__math_1_1hip__glsc3" ],
     [ "hip_glsc3_many", "d4/da3/interfacehip__math_1_1hip__glsc3__many.html", "d4/da3/interfacehip__math_1_1hip__glsc3__many" ],
     [ "hip_glsc2", "d8/d3d/interfacehip__math_1_1hip__glsc2.html", "d8/d3d/interfacehip__math_1_1hip__glsc2" ],
-    [ "hip_glsum", "db/d09/interfacehip__math_1_1hip__glsum.html", "db/d09/interfacehip__math_1_1hip__glsum" ]
+    [ "hip_glsum", "db/d09/interfacehip__math_1_1hip__glsum.html", "db/d09/interfacehip__math_1_1hip__glsum" ],
+    [ "hip_absval", "d0/d22/interfacehip__math_1_1hip__absval.html", "d0/d22/interfacehip__math_1_1hip__absval" ]
 ];

@@ -1,0 +1,6 @@
+<map id="gradient_jump_penalty::pick_facet_value_hex" name="gradient_jump_penalty::pick_facet_value_hex">
+<area shape="rect" id="node1" title="Pick facet values of a field." alt="" coords="453,39,625,80"/>
+<area shape="rect" id="node2" href="$d6/def/namespacegradient__jump__penalty.html#a2b8c031f9224640b2c4108710bc00ffb" title="Compute the average of the volumetric flux over facets." alt="" coords="233,5,405,47"/>
+<area shape="rect" id="node4" href="$d6/def/namespacegradient__jump__penalty.html#a7823cfe996241912364520378aceafbf" title="Compute the average of the flux over facets." alt="" coords="233,71,405,112"/>
+<area shape="rect" id="node3" href="$d6/def/namespacegradient__jump__penalty.html#a0734914600660d530280d0e77899d744" title="Compute the gradient jump penalty term." alt="" coords="5,31,185,87"/>
+</map>

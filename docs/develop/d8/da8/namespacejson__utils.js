@@ -19,5 +19,6 @@ var namespacejson__utils =
     [ "json_get_real", "d8/da8/namespacejson__utils.html#ad0df66cefad23e45b5e872ccc030f8c6", null ],
     [ "json_get_real_array", "d8/da8/namespacejson__utils.html#a49cc7045db3b5af6399786dab6a3a475", null ],
     [ "json_get_string", "d8/da8/namespacejson__utils.html#a6a877546952415f968ce799d22d78dff", null ],
-    [ "json_get_string_array", "d8/da8/namespacejson__utils.html#ab8b46e0f866a8f20e9b0c3c963d2caa5", null ]
+    [ "json_get_string_array", "d8/da8/namespacejson__utils.html#ab8b46e0f866a8f20e9b0c3c963d2caa5", null ],
+    [ "json_get_subdict", "d8/da8/namespacejson__utils.html#a5f4db096e193f8435427e3cf4dfc9643", null ]
 ];

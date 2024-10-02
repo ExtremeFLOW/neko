@@ -39,7 +39,8 @@ var dir_4c3596ec6e7f8d381657f6ce7bbe76a2 =
       [ "cuda_glsc3", "d8/d9d/interfacecuda__math_1_1cuda__glsc3.html", "d8/d9d/interfacecuda__math_1_1cuda__glsc3" ],
       [ "cuda_glsc3_many", "de/d67/interfacecuda__math_1_1cuda__glsc3__many.html", "de/d67/interfacecuda__math_1_1cuda__glsc3__many" ],
       [ "cuda_glsc2", "d7/de4/interfacecuda__math_1_1cuda__glsc2.html", "d7/de4/interfacecuda__math_1_1cuda__glsc2" ],
-      [ "cuda_glsum", "d1/d88/interfacecuda__math_1_1cuda__glsum.html", "d1/d88/interfacecuda__math_1_1cuda__glsum" ]
+      [ "cuda_glsum", "d1/d88/interfacecuda__math_1_1cuda__glsum.html", "d1/d88/interfacecuda__math_1_1cuda__glsum" ],
+      [ "cuda_absval", "db/d5a/interfacecuda__math_1_1cuda__absval.html", "db/d5a/interfacecuda__math_1_1cuda__absval" ]
     ] ],
     [ "dudxyz_kernel.h", "dc/dd2/cuda_2dudxyz__kernel_8h.html", "dc/dd2/cuda_2dudxyz__kernel_8h" ],
     [ "fdm.cu", "d2/d4f/fdm_8cu.html", "d2/d4f/fdm_8cu" ],

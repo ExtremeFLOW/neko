@@ -1,5 +1,6 @@
 var math_8cu =
 [
+    [ "cuda_absval", "de/d1e/math_8cu.html#a01da55723adde88ed8ecf8601feef547", null ],
     [ "cuda_add2", "de/d1e/math_8cu.html#aaa6924194d49c85252879439e1c5378d", null ],
     [ "cuda_add2s1", "de/d1e/math_8cu.html#a77141a0277a105d29cbbcee0095dc17e", null ],
     [ "cuda_add2s2", "de/d1e/math_8cu.html#a305b5c802852471c9a4ecc0ae078cedd", null ],

@@ -1,5 +1,5 @@
 <map id="utils::neko_warning" name="utils::neko_warning">
-<area shape="rect" id="node1" title=" " alt="" coords="725,377,873,404"/>
+<area shape="rect" id="node1" title="Reports a warning to standard output." alt="" coords="725,377,873,404"/>
 <area shape="rect" id="node2" href="$d2/d10/namespacecacg.html#a88218a31c14bb0fffc1053d15c3562ef" title="Initialise a s&#45;step CA PCG solver." alt="" coords="522,5,641,32"/>
 <area shape="rect" id="node3" href="$da/d5b/namespacedata__streamer.html#af48fb46251b09f987f2fddf675d164e8" title="Destructor wraps the adios2 finalize routine. Closes insitu writer." alt="" coords="504,57,659,98"/>
 <area shape="rect" id="node4" href="$da/d5b/namespacedata__streamer.html#abb4826f60d303253383ba8f20137f652" title="Constructor Wraps the adios2 set&#45;up." alt="" coords="504,122,659,163"/>

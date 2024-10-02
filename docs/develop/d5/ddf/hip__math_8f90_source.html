@@ -429,9 +429,19 @@ $(document).ready(function(){initNavTree('d5/ddf/hip__math_8f90_source.html','..
 <div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
 <div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;       <span class="keywordtype">integer(c_int)</span> :: n</div>
 <div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;     <span class="keyword">end function </span><a class="code" href="../../db/d09/interfacehip__math_1_1hip__glsum.html">hip_glsum</a></div>
-<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;  <span class="keyword">end interface</span></div>
-<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160; </div>
-<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d7/de1/namespacehip__math.html">hip_math</a></div>
+<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160; </div>
+<div class="line"><a name="l00336"></a><span class="lineno"><a class="line" href="../../d0/d22/interfacehip__math_1_1hip__absval.html#a45cce6098a0b73abea2ad3163cff6583">  336</a></span>&#160;     <span class="keyword">subroutine </span><a class="code" href="../../d0/d22/interfacehip__math_1_1hip__absval.html">hip_absval</a>(a_d, n) &amp;</div>
+<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;          bind(c, name = <span class="stringliteral">&#39;hip_absval&#39;</span>)</div>
+<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;       <span class="keywordtype">import </span>c_rp</div>
+<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160; </div>
+<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a_d</div>
+<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;     <span class="keyword">end subroutine </span><a class="code" href="../../d0/d22/interfacehip__math_1_1hip__absval.html">hip_absval</a></div>
+<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;  <span class="keyword">end interface</span></div>
+<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160; </div>
+<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d7/de1/namespacehip__math.html">hip_math</a></div>
+<div class="ttc" id="ainterfacehip__math_1_1hip__absval_html"><div class="ttname"><a href="../../d0/d22/interfacehip__math_1_1hip__absval.html">hip_math::hip_absval</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d5/ddf/hip__math_8f90_source.html#l00336">hip_math.f90:336</a></div></div>
 <div class="ttc" id="ainterfacehip__math_1_1hip__add2_html"><div class="ttname"><a href="../../d9/dfc/interfacehip__math_1_1hip__add2.html">hip_math::hip_add2</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d5/ddf/hip__math_8f90_source.html#l00124">hip_math.f90:124</a></div></div>
 <div class="ttc" id="ainterfacehip__math_1_1hip__add2s1_html"><div class="ttname"><a href="../../de/dd0/interfacehip__math_1_1hip__add2s1.html">hip_math::hip_add2s1</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d5/ddf/hip__math_8f90_source.html#l00142">hip_math.f90:142</a></div></div>
 <div class="ttc" id="ainterfacehip__math_1_1hip__add2s2__many_html"><div class="ttname"><a href="../../de/d7d/interfacehip__math_1_1hip__add2s2__many.html">hip_math::hip_add2s2_many</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d5/ddf/hip__math_8f90_source.html#l00162">hip_math.f90:162</a></div></div>
@@ -476,7 +486,7 @@ $(document).ready(function(){initNavTree('d5/ddf/hip__math_8f90_source.html','..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_f48359d827d7566deae6b1b647b520e2.html">hip</a></li><li class="navelem"><a class="el" href="../../d5/ddf/hip__math_8f90.html">hip_math.f90</a></li>
-    <li class="footer">Generated on Tue Oct 1 2024 03:41:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Oct 2 2024 03:38:09 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

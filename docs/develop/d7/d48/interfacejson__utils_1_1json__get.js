@@ -9,5 +9,6 @@ var interfacejson__utils_1_1json__get =
     [ "json_get_real", "d7/d48/interfacejson__utils_1_1json__get.html#ab032acf002507bcac37459ca4d73bfca", null ],
     [ "json_get_real_array", "d7/d48/interfacejson__utils_1_1json__get.html#a0f08f94f0f50fbf553178bb789fb1f9e", null ],
     [ "json_get_string", "d7/d48/interfacejson__utils_1_1json__get.html#a413b80615c332d2bf83b2dcf06dd39d4", null ],
-    [ "json_get_string_array", "d7/d48/interfacejson__utils_1_1json__get.html#a7ac996bbd82bd0564dc811209fde26ff", null ]
+    [ "json_get_string_array", "d7/d48/interfacejson__utils_1_1json__get.html#a7ac996bbd82bd0564dc811209fde26ff", null ],
+    [ "json_get_subdict", "d7/d48/interfacejson__utils_1_1json__get.html#a470bd5363d6b60e2a8078a0b2ef5cf20", null ]
 ];

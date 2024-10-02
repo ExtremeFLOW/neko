@@ -200,7 +200,8 @@ var annotated_dup =
       [ "cuda_glsc3", "d8/d9d/interfacecuda__math_1_1cuda__glsc3.html", "d8/d9d/interfacecuda__math_1_1cuda__glsc3" ],
       [ "cuda_glsc3_many", "de/d67/interfacecuda__math_1_1cuda__glsc3__many.html", "de/d67/interfacecuda__math_1_1cuda__glsc3__many" ],
       [ "cuda_glsc2", "d7/de4/interfacecuda__math_1_1cuda__glsc2.html", "d7/de4/interfacecuda__math_1_1cuda__glsc2" ],
-      [ "cuda_glsum", "d1/d88/interfacecuda__math_1_1cuda__glsum.html", "d1/d88/interfacecuda__math_1_1cuda__glsum" ]
+      [ "cuda_glsum", "d1/d88/interfacecuda__math_1_1cuda__glsum.html", "d1/d88/interfacecuda__math_1_1cuda__glsum" ],
+      [ "cuda_absval", "db/d5a/interfacecuda__math_1_1cuda__absval.html", "db/d5a/interfacecuda__math_1_1cuda__absval" ]
     ] ],
     [ "curve", "d0/d69/namespacecurve.html", [
       [ "curve_t", "dd/d69/structcurve_1_1curve__t.html", "dd/d69/structcurve_1_1curve__t" ]
@@ -240,6 +241,10 @@ var annotated_dup =
     ] ],
     [ "device_facet_normal", "db/db7/namespacedevice__facet__normal.html", [
       [ "hip_facet_normal_apply_surfvec", "d3/da7/interfacedevice__facet__normal_1_1hip__facet__normal__apply__surfvec.html", "d3/da7/interfacedevice__facet__normal_1_1hip__facet__normal__apply__surfvec" ]
+    ] ],
+    [ "device_gradient_jump_penalty", "da/d7e/namespacedevice__gradient__jump__penalty.html", [
+      [ "hip_pick_facet_value_hex", "dd/d8b/interfacedevice__gradient__jump__penalty_1_1hip__pick__facet__value__hex.html", "dd/d8b/interfacedevice__gradient__jump__penalty_1_1hip__pick__facet__value__hex" ],
+      [ "hip_gradient_jump_penalty_finalize", "d1/dda/interfacedevice__gradient__jump__penalty_1_1hip__gradient__jump__penalty__finalize.html", "d1/dda/interfacedevice__gradient__jump__penalty_1_1hip__gradient__jump__penalty__finalize" ]
     ] ],
     [ "device_identity", "d0/d69/namespacedevice__identity.html", [
       [ "device_ident_t", "dd/ddc/structdevice__identity_1_1device__ident__t.html", "dd/ddc/structdevice__identity_1_1device__ident__t" ]
@@ -438,6 +443,9 @@ var annotated_dup =
     [ "gmres_sx", "d5/d6a/namespacegmres__sx.html", [
       [ "sx_gmres_t", "d3/d41/structgmres__sx_1_1sx__gmres__t.html", "d3/d41/structgmres__sx_1_1sx__gmres__t" ]
     ] ],
+    [ "gradient_jump_penalty", "d6/def/namespacegradient__jump__penalty.html", [
+      [ "gradient_jump_penalty_t", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t" ]
+    ] ],
     [ "gs_bcknd", "de/d93/namespacegs__bcknd.html", [
       [ "gs_bcknd_t", "d9/d7d/structgs__bcknd_1_1gs__bcknd__t.html", "d9/d7d/structgs__bcknd_1_1gs__bcknd__t" ],
       [ "gs_backend_init", "dc/d59/interfacegs__bcknd_1_1gs__backend__init.html", "dc/d59/interfacegs__bcknd_1_1gs__backend__init" ],
@@ -542,7 +550,8 @@ var annotated_dup =
       [ "hip_glsc3", "d6/d9d/interfacehip__math_1_1hip__glsc3.html", "d6/d9d/interfacehip__math_1_1hip__glsc3" ],
       [ "hip_glsc3_many", "d4/da3/interfacehip__math_1_1hip__glsc3__many.html", "d4/da3/interfacehip__math_1_1hip__glsc3__many" ],
       [ "hip_glsc2", "d8/d3d/interfacehip__math_1_1hip__glsc2.html", "d8/d3d/interfacehip__math_1_1hip__glsc2" ],
-      [ "hip_glsum", "db/d09/interfacehip__math_1_1hip__glsum.html", "db/d09/interfacehip__math_1_1hip__glsum" ]
+      [ "hip_glsum", "db/d09/interfacehip__math_1_1hip__glsum.html", "db/d09/interfacehip__math_1_1hip__glsum" ],
+      [ "hip_absval", "d0/d22/interfacehip__math_1_1hip__absval.html", "d0/d22/interfacehip__math_1_1hip__absval" ]
     ] ],
     [ "hsmg", "dd/dd1/namespacehsmg.html", [
       [ "multigrid_t", "dd/d1b/structhsmg_1_1multigrid__t.html", "dd/d1b/structhsmg_1_1multigrid__t" ],

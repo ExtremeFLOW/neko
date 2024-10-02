@@ -1,0 +1,4 @@
+<map id="gradient_jump_penalty::g_compute" name="gradient_jump_penalty::g_compute">
+<area shape="rect" id="node1" title="Compute the average of the flux over facets." alt="" coords="233,13,405,54"/>
+<area shape="rect" id="node2" href="$d6/def/namespacegradient__jump__penalty.html#a0734914600660d530280d0e77899d744" title="Compute the gradient jump penalty term." alt="" coords="5,5,185,61"/>
+</map>

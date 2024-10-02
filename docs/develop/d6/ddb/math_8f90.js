@@ -6,6 +6,7 @@ var math_8f90 =
     [ "reord", "d6/d4c/interfacemath_1_1reord.html", "d6/d4c/interfacemath_1_1reord" ],
     [ "flipv", "d2/db7/interfacemath_1_1flipv.html", "d2/db7/interfacemath_1_1flipv" ],
     [ "relcmp", "d9/d4d/interfacemath_1_1relcmp.html", "d9/d4d/interfacemath_1_1relcmp" ],
+    [ "absval", "d6/ddb/math_8f90.html#a7f0feef1d5e8da2763f4d1e03a02ca49", null ],
     [ "add2", "d6/ddb/math_8f90.html#a7bd6ecfc03be3f80d20e06e85af6b791", null ],
     [ "add2s1", "d6/ddb/math_8f90.html#a60f5dff321be727d37884a696c2ffc96", null ],
     [ "add2s2", "d6/ddb/math_8f90.html#aec2e1cbc631a4cb73db0d17b89e9e596", null ],

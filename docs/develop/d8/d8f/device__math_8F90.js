@@ -1,5 +1,6 @@
 var device__math_8F90 =
 [
+    [ "device_absval", "d8/d8f/device__math_8F90.html#a8ea42a1ac625aeec4a60616c86a42161", null ],
     [ "device_add2", "d8/d8f/device__math_8F90.html#a01473fcab0cde33512431de42b050384", null ],
     [ "device_add2s1", "d8/d8f/device__math_8F90.html#a15efe533d8411a3ff44ea486c8ce276d", null ],
     [ "device_add2s2", "d8/d8f/device__math_8F90.html#a3b9c190380a831ba86fa3fe155dae8f7", null ],

@@ -1,17 +1,18 @@
 var searchData=
 [
-  ['gather_5fscatter_5921',['gather_scatter',['../d0/d78/namespacegather__scatter.html',1,'']]],
-  ['generic_5ffile_5922',['generic_file',['../dc/d92/namespacegeneric__file.html',1,'']]],
-  ['global_5finterpolation_5923',['global_interpolation',['../dd/de1/namespaceglobal__interpolation.html',1,'']]],
-  ['gmres_5924',['gmres',['../dc/d48/namespacegmres.html',1,'']]],
-  ['gmres_5fdevice_5925',['gmres_device',['../de/df2/namespacegmres__device.html',1,'']]],
-  ['gmres_5fsx_5926',['gmres_sx',['../d5/d6a/namespacegmres__sx.html',1,'']]],
-  ['gs_5fbcknd_5927',['gs_bcknd',['../de/d93/namespacegs__bcknd.html',1,'']]],
-  ['gs_5fcomm_5928',['gs_comm',['../d6/d7c/namespacegs__comm.html',1,'']]],
-  ['gs_5fcpu_5929',['gs_cpu',['../d5/d22/namespacegs__cpu.html',1,'']]],
-  ['gs_5fdevice_5930',['gs_device',['../d8/dcd/namespacegs__device.html',1,'']]],
-  ['gs_5fdevice_5fmpi_5931',['gs_device_mpi',['../d9/dfa/namespacegs__device__mpi.html',1,'']]],
-  ['gs_5fmpi_5932',['gs_mpi',['../d0/d25/namespacegs__mpi.html',1,'']]],
-  ['gs_5fops_5933',['gs_ops',['../dd/d18/namespacegs__ops.html',1,'']]],
-  ['gs_5fsx_5934',['gs_sx',['../d2/dc3/namespacegs__sx.html',1,'']]]
+  ['gather_5fscatter_6008',['gather_scatter',['../d0/d78/namespacegather__scatter.html',1,'']]],
+  ['generic_5ffile_6009',['generic_file',['../dc/d92/namespacegeneric__file.html',1,'']]],
+  ['global_5finterpolation_6010',['global_interpolation',['../dd/de1/namespaceglobal__interpolation.html',1,'']]],
+  ['gmres_6011',['gmres',['../dc/d48/namespacegmres.html',1,'']]],
+  ['gmres_5fdevice_6012',['gmres_device',['../de/df2/namespacegmres__device.html',1,'']]],
+  ['gmres_5fsx_6013',['gmres_sx',['../d5/d6a/namespacegmres__sx.html',1,'']]],
+  ['gradient_5fjump_5fpenalty_6014',['gradient_jump_penalty',['../d6/def/namespacegradient__jump__penalty.html',1,'']]],
+  ['gs_5fbcknd_6015',['gs_bcknd',['../de/d93/namespacegs__bcknd.html',1,'']]],
+  ['gs_5fcomm_6016',['gs_comm',['../d6/d7c/namespacegs__comm.html',1,'']]],
+  ['gs_5fcpu_6017',['gs_cpu',['../d5/d22/namespacegs__cpu.html',1,'']]],
+  ['gs_5fdevice_6018',['gs_device',['../d8/dcd/namespacegs__device.html',1,'']]],
+  ['gs_5fdevice_5fmpi_6019',['gs_device_mpi',['../d9/dfa/namespacegs__device__mpi.html',1,'']]],
+  ['gs_5fmpi_6020',['gs_mpi',['../d0/d25/namespacegs__mpi.html',1,'']]],
+  ['gs_5fops_6021',['gs_ops',['../dd/d18/namespacegs__ops.html',1,'']]],
+  ['gs_5fsx_6022',['gs_sx',['../d2/dc3/namespacegs__sx.html',1,'']]]
 ];

@@ -1,0 +1,6 @@
+<map id="gradient_jump_penalty::dist_vertex_to_plane_3d" name="gradient_jump_penalty::dist_vertex_to_plane_3d">
+<area shape="rect" id="node1" title="Distance from a vertex to a plane in a 3d space." alt="" coords="701,5,891,47"/>
+<area shape="rect" id="node2" href="$d6/def/namespacegradient__jump__penalty.html#ae35e672a084ba135b7dda025a563d4ca" title="&quot;Distrance&quot; of two facets of a hexahedral element" alt="" coords="481,5,653,47"/>
+<area shape="rect" id="node3" href="$d6/def/namespacegradient__jump__penalty.html#af9c422530e63eba1ca954e89c60676dc" title="Evaluate h^2 for each element for hexahedral mesh." alt="" coords="261,5,433,47"/>
+<area shape="rect" id="node4" href="$d6/def/namespacegradient__jump__penalty.html#ab7234be3b26833675975cce3bdd66935" title="Constructor." alt="" coords="5,5,213,47"/>
+</map>
