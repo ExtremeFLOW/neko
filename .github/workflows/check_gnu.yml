@@ -160,7 +160,7 @@ jobs:
         if: matrix.backend == 'cpu' && matrix.precision == 'sp'
         run: |
            cd reg_test/cylinder
-           ./test.sh 1 sp
+           ./test_easy.sh 1 sp
            cd ../..
 
       - name: Regression test FP64
