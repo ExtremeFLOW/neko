@@ -108,7 +108,7 @@ contains
     type(c_ptr) :: res_d
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-    res_d = device_get_ptr(res)
+       res_d = device_get_ptr(res)
     end if
 
     call neko_scratch_registry%request_field(work, ind)
