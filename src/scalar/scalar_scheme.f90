@@ -712,8 +712,9 @@ contains
           write(log_buf, '(A)') 'Non-dimensional scalar material properties &
           & input.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
-          write(log_buf, '(A)') 'Specific heat capacity will be set to 1, &
-          & conductivity to 1/Pe. Assumes density is 1.'
+          write(log_buf, '(A)') 'Specific heat capacity will be set to 1,'
+          call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+          write(log_buf, '(A)') 'conductivity to 1/Pe. Assumes density is 1.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
           ! Read Pe into lambda for further manipulation.
