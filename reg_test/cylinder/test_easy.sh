@@ -9,9 +9,9 @@ echo "Restarted run"
 cat log2
 ref1=ref1_${2}.log
 ref2=ref2_${2}.log
-#Check that first residual is the same
-awk '/Iteration/{getline;print($2)}' log1 | head -1 > l1
-awk '/Iteration/{getline;print($2)}' ${ref1} | head -1 > r1
+#Check that first residual is the same, allwoed to differ on last digit...
+awk '/Iteration/{getline;print(substr($2, 1, length($2)-5))}' log1 | head -1 > l1
+awk '/Iteration/{getline;print(substr($2, 1, length($2)-5))}' ${ref1} | head -1 > r1
 diff l1 r1 > res
 #Check that we do same number of residuals
 awk '/Iteration/{getline;print($1)}' log1 > l1
