@@ -54,10 +54,12 @@ contains
     call this%amg%init(ax, Xh, coef, msh, gs_h, nlvls, blst)
 
     call aggregate_finest_level(this%amg, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    print *, "Calling lazy aggregation"
-    print *, "-- target aggregates:", (msh%nelv/8)
-    call aggregate_elm(this%amg, (msh%nelv/8), agg_nhbr)
-    print *, "-- Aggregation done. Aggregates:", this%amg%lvl(2)%nnodes
+    if (nlvls .gt. 2) then
+      print *, "Calling lazy aggregation"
+      print *, "-- target aggregates:", (msh%nelv/8)
+      call aggregate_elm(this%amg, (msh%nelv/8), agg_nhbr)
+      print *, "-- Aggregation done. Aggregates:", this%amg%lvl(2)%nnodes
+    end if
 
     if (nlvls .gt. 3) then
       print *, "Calling lazy aggregation"
