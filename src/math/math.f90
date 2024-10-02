@@ -462,7 +462,7 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) = 1.0_rp / a(i)
+       a(i) = 1.0_xp / real(a(i),xp)
     end do
 
   end subroutine invcol1
@@ -475,7 +475,7 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) = b(i) / c(i)
+       a(i) = real(b(i),xp) / c(i)
     end do
 
   end subroutine invcol3
@@ -488,7 +488,7 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) = 1.0_rp / b(i)
+       a(i) = 1.0_xp / b(i)
     end do
 
   end subroutine invers2
@@ -703,7 +703,7 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) = a(i) /b(i)
+       a(i) = real(a(i),xp) /b(i)
     end do
 
   end subroutine invcol2
