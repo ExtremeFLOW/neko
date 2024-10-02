@@ -49,6 +49,8 @@ module bp_file
   use buffer_1d
   use buffer_4d
   use buffer_4d_npar
+  implicit none
+  private
 
   class(buffer_t), private, allocatable :: outbuf_points
   class(buffer_t), private, allocatable :: outbuf_npar
@@ -84,7 +86,7 @@ contains
     character(len=8) :: id_str
     character(len=1024) :: fname
     character(len=1024) :: start_field
-    integer :: i, ierr, n, suffix_pos, tslash_pos
+    integer :: i, j, ierr, n, suffix_pos, tslash_pos
     integer :: lx, ly, lz, lxyz, gdim, glb_nelv, nelv, offset_el
     integer :: npar
     integer, allocatable :: idx(:)
@@ -527,7 +529,7 @@ contains
           data%gdim = 3
        end if
 
-       if (adios2_type .eq. adios2_type_double) then
+       if (adios2_type .eq. adios2_type_dp) then
           this%dp_precision = .true.
        else
           this%dp_precision = .false.
