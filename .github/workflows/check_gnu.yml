@@ -138,9 +138,12 @@ jobs:
       - name: Build (HIP backend)
         if: matrix.backend == 'HIP'
         run: |
-          wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key | sudo apt-key add -
-          echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/debian/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
-          sudo apt-get update && sudo apt-get install -y rocm-dev
+          # Following the instructions from https://rocm.docs.amd.com/projects/install-on-linux/en/latest/install/quick-start.html
+
+          wget -r -np -nd -A 'amdgpu*.deb' https://repo.radeon.com/amdgpu-install/latest/ubuntu/focal/
+          sudo apt install ./amdgpu-install_*.deb
+
+          sudo apt-get update && sudo apt-get install -y amdgpu-dkms rocm-dev
 
           # Lets not hardcode the version
           ROCM_DIR=$(ls -d /opt/rocm-*)
