@@ -431,6 +431,8 @@ contains
        call neko_error("'Matrix transpose' not implemented on accelarators.")
     else
        v%x = transpose(v%x)
+       v%nrows = m%ncols
+       v%ncols = m%nrows
     end if
   end function matrix_bcknd_transpose
 
