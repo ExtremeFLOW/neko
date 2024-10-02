@@ -488,7 +488,7 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) = 1.0_xp / b(i)
+       a(i) = 1.0_xp / real(b(i),xp)
     end do
 
   end subroutine invers2
