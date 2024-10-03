@@ -1,5 +1,7 @@
 var NAVTREEINDEX24 =
 {
+"d8/dbc/namespacepoint.html#a928f67359c8af4dc8d535b92ff03c1c2":[3,0,197,3],
+"d8/dbc/namespacepoint.html#a9819a265bcbe215004f79a2a576d5877":[3,0,197,12],
 "d8/dbc/namespacepoint.html#aabf55e4db3e60706e7cde5defe457658":[3,0,197,9],
 "d8/dbc/namespacepoint.html#ada5de3a268ca455d0d95dd01d1024eb0":[3,0,197,5],
 "d8/dbc/namespacepoint.html#adf10ffea141065b2c9c075b689e5fc2e":[3,0,197,2],
@@ -193,8 +195,8 @@ var NAVTREEINDEX24 =
 "d8/ddf/namespacescalar__ic.html#a284c2151baaf62794c62dfa896b63a6b":[3,0,220,1],
 "d8/ddf/namespacescalar__ic.html#a7dacfe3b90b1cf374baad9c4ebe95707":[3,0,220,5],
 "d8/ddf/namespacescalar__ic.html#aafd45e7abb0491db2357902eb2dddae5":[3,0,220,2],
-"d8/de8/interfaceopencl__intf_1_1clGetDeviceInfo.html":[4,0,152,14],
-"d8/de8/interfaceopencl__intf_1_1clGetDeviceInfo.html#ab1e8b0c5346f62192927df12a3b14ae7":[4,0,152,14,0],
+"d8/de8/interfaceopencl__intf_1_1clGetDeviceInfo.html":[4,0,152,15],
+"d8/de8/interfaceopencl__intf_1_1clGetDeviceInfo.html#ab1e8b0c5346f62192927df12a3b14ae7":[4,0,152,15,0],
 "d8/dea/namespacepnpn__res__device.html":[3,0,192],
 "d8/dea/namespacepnpn__res__device.html#a55ee2fb2b8a79727bd59543ce201fe58":[3,0,192,7],
 "d8/dea/namespacepnpn__res__device.html#a59d926fd1cfc56254cdd2575d4b977ac":[3,0,192,6],
@@ -247,7 +249,5 @@ var NAVTREEINDEX24 =
 "d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f":[5,0,2,12,0,1,0,23,3],
 "d9/d0b/tensor_8cu_source.html":[5,0,2,12,0,1,0,23],
 "d9/d13/namespacescalar__source__term.html":[3,0,227],
-"d9/d13/namespacescalar__source__term.html#a1cc802ec37336c0f50e6dfcdeb0cc7d3":[3,0,227,1],
-"d9/d13/namespacescalar__source__term.html#a75b69c3ded8211f18f6b1308cfb8be28":[3,0,227,2],
-"d9/d19/hip_2projection__kernel_8h.html":[5,0,2,3,0,1,1,5]
+"d9/d13/namespacescalar__source__term.html#a1cc802ec37336c0f50e6dfcdeb0cc7d3":[3,0,227,1]
 };

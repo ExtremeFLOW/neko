@@ -1,5 +1,7 @@
 var NAVTREEINDEX32 =
 {
+"db/d3a/structtet__mesh_1_1tet__mesh__t.html#ae30dce43720418b4901e86d38feee8bf":[4,0,221,0,0],
+"db/d3c/structscalar__residual__cpu_1_1scalar__residual__cpu__t.html":[4,0,188,0],
 "db/d3c/structscalar__residual__cpu_1_1scalar__residual__cpu__t.html#abe1e1e6487e69f7ca8f9daac65128fb5":[4,0,188,0,0],
 "db/d41/cg__device_8f90.html":[5,0,2,10,0,1,3],
 "db/d41/cg__device_8f90.html#a2a2d58e39dea08af9dea73e03a58a49d":[5,0,2,10,0,1,3,2],
@@ -247,7 +249,5 @@ var NAVTREEINDEX32 =
 "db/d87/hip_2fusedcg__kernel_8h.html":[5,0,2,10,0,1,1,1],
 "db/d87/hip_2fusedcg__kernel_8h.html#a11412f070fecd1f34ae9f908e2bbd02d":[5,0,2,10,0,1,1,1,1],
 "db/d87/hip_2fusedcg__kernel_8h.html#a11b8204f669769d54d9a84cc326896d7":[5,0,2,10,0,1,1,1,0],
-"db/d87/hip_2fusedcg__kernel_8h.html#adf021f8c375f6f77ef105f81e78a0616":[5,0,2,10,0,1,1,1,2],
-"db/d87/hip_2fusedcg__kernel_8h_source.html":[5,0,2,10,0,1,1,1],
-"db/d8c/chkp__file_8f90.html":[5,0,2,9,1]
+"db/d87/hip_2fusedcg__kernel_8h.html#adf021f8c375f6f77ef105f81e78a0616":[5,0,2,10,0,1,1,1,2]
 };

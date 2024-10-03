@@ -11,6 +11,7 @@ var namespaceopencl__intf =
     [ "clEnqueueCopyBuffer", "d1/d89/interfaceopencl__intf_1_1clEnqueueCopyBuffer.html", "d1/d89/interfaceopencl__intf_1_1clEnqueueCopyBuffer" ],
     [ "clEnqueueMarkerWithWaitList", "df/db6/interfaceopencl__intf_1_1clEnqueueMarkerWithWaitList.html", "df/db6/interfaceopencl__intf_1_1clEnqueueMarkerWithWaitList" ],
     [ "clEnqueueMarker", "da/d87/interfaceopencl__intf_1_1clEnqueueMarker.html", "da/d87/interfaceopencl__intf_1_1clEnqueueMarker" ],
+    [ "clEnqueueBarrier", "d5/d2e/interfaceopencl__intf_1_1clEnqueueBarrier.html", "d5/d2e/interfaceopencl__intf_1_1clEnqueueBarrier" ],
     [ "clEnqueueWaitForEvents", "d0/dbd/interfaceopencl__intf_1_1clEnqueueWaitForEvents.html", "d0/dbd/interfaceopencl__intf_1_1clEnqueueWaitForEvents" ],
     [ "clWaitForEvents", "df/db9/interfaceopencl__intf_1_1clWaitForEvents.html", "df/db9/interfaceopencl__intf_1_1clWaitForEvents" ],
     [ "clSetUserEventStatus", "df/d51/interfaceopencl__intf_1_1clSetUserEventStatus.html", "df/d51/interfaceopencl__intf_1_1clSetUserEventStatus" ],

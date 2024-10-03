@@ -1,5 +1,7 @@
 var NAVTREEINDEX33 =
 {
+"db/d87/hip_2fusedcg__kernel_8h_source.html":[5,0,2,10,0,1,1,1],
+"db/d8c/chkp__file_8f90.html":[5,0,2,9,1],
 "db/d8c/chkp__file_8f90.html#a4c185a9e0ef7d3da7ac1eccae3411f42":[5,0,2,9,1,2],
 "db/d8c/chkp__file_8f90.html#a4fee4d082fd1bdc65e9873aa954d7108":[5,0,2,9,1,1],
 "db/d8c/chkp__file_8f90.html#abdd803205d3c07f2564e810040947279":[5,0,2,9,1,3],
@@ -144,8 +146,8 @@ var NAVTREEINDEX33 =
 "db/dc5/structmean__sqr__field_1_1mean__sqr__field__t.html#afa872da735673c0ee119653af74e8f0d":[4,0,141,0,6],
 "db/dc5/structmean__sqr__field_1_1mean__sqr__field__t.html#afa8b6065dfe910705d7cfdbd2ce00af8":[4,0,141,0,0],
 "db/dc5/structmean__sqr__field_1_1mean__sqr__field__t.html#afaaf478d8e403b7c765547d399bb640f":[4,0,141,0,2],
-"db/dca/interfaceopencl__intf_1_1clReleaseContext.html":[4,0,152,15],
-"db/dca/interfaceopencl__intf_1_1clReleaseContext.html#ac867911611b5f315eafec93b6fbff8a7":[4,0,152,15,0],
+"db/dca/interfaceopencl__intf_1_1clReleaseContext.html":[4,0,152,16],
+"db/dca/interfaceopencl__intf_1_1clReleaseContext.html#ac867911611b5f315eafec93b6fbff8a7":[4,0,152,16,0],
 "db/dca/structmean__flow__output_1_1mean__flow__output__t.html":[4,0,140,0],
 "db/dca/structmean__flow__output_1_1mean__flow__output__t.html#a1e7ea3ee5e89cecb107db87af2b1cd0f":[4,0,140,0,6],
 "db/dca/structmean__flow__output_1_1mean__flow__output__t.html#a3ea952ebe54a31ff0412b5406c7f13fa":[4,0,140,0,7],
@@ -247,7 +249,5 @@ var NAVTREEINDEX33 =
 "db/de3/mpi__types_8f90.html#a6492ffb373546d8836d2aa2a03339eb6":[5,0,2,2,3,18],
 "db/de3/mpi__types_8f90.html#a692afee6f38d8a74612652dba38a5c94":[5,0,2,2,3,22],
 "db/de3/mpi__types_8f90.html#a6a84caefb772503cb0c3c46ab95f6cdb":[5,0,2,2,3,39],
-"db/de3/mpi__types_8f90.html#a6db42947561a610ff314927baf3518d8":[5,0,2,2,3,11],
-"db/de3/mpi__types_8f90.html#a7b3738b574c1175ace5f8269105ca4d7":[5,0,2,2,3,12],
-"db/de3/mpi__types_8f90.html#a7c916f3854f8c8b3adaeec014470f260":[5,0,2,2,3,24]
+"db/de3/mpi__types_8f90.html#a6db42947561a610ff314927baf3518d8":[5,0,2,2,3,11]
 };

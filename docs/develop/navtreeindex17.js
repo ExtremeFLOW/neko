@@ -1,5 +1,7 @@
 var NAVTREEINDEX17 =
 {
+"d6/d84/namespaceutils.html#a76ff64218112fb6d5a8a02d15b2628e7":[3,0,277,13],
+"d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f":[3,0,277,10],
 "d6/d84/namespaceutils.html#a94a1b10b4fd0d52a2bbd0bdfbac01692":[3,0,277,2],
 "d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85":[3,0,277,3],
 "d6/d84/namespaceutils.html#acd2a2375ca2ed5c299af5a955f53389b":[3,0,277,11],
@@ -134,8 +136,8 @@ var NAVTREEINDEX17 =
 "d6/da9/coef_8c.html":[5,0,2,16,0,0,2,0],
 "d6/da9/coef_8c.html#a27c2b72bb169aa1b08ab3dda17a631aa":[5,0,2,16,0,0,2,0,1],
 "d6/da9/coef_8c.html#a7efd443816e810ea3561622c009a9ec0":[5,0,2,16,0,0,2,0,5],
-"d6/da9/coef_8c.html#aae57f17e11e61cf0519e2004414f5629":[5,0,2,16,0,0,2,0,2],
 "d6/da9/coef_8c.html#aae57f17e11e61cf0519e2004414f5629":[5,0,2,16,0,0,2,0,3],
+"d6/da9/coef_8c.html#aae57f17e11e61cf0519e2004414f5629":[5,0,2,16,0,0,2,0,2],
 "d6/da9/coef_8c.html#aafbd283d930483605855d2397a10ab8d":[5,0,2,16,0,0,2,0,4],
 "d6/da9/coef_8c.html#af59fd4f84c5c6eacc06be9c08ce34542":[5,0,2,16,0,0,2,0,0],
 "d6/da9/coef_8c_source.html":[5,0,2,16,0,0,2,0],
@@ -247,7 +249,5 @@ var NAVTREEINDEX17 =
 "d6/dbc/namespacederivative.html":[3,0,52],
 "d6/dbc/namespacederivative.html#a06f02464758b3d07744cacf7d9fadc27":[3,0,52,3],
 "d6/dbc/namespacederivative.html#a39b775f5a1e401f7e18ad700c23654ba":[3,0,52,2],
-"d6/dbc/namespacederivative.html#a644e64ee3bb510ed6375d1fc698447ac":[3,0,52,1],
-"d6/dbc/namespacederivative.html#acd82a2cfad3733928800db9f3bf33a9d":[3,0,52,4],
-"d6/dbe/namespacecoefs.html":[3,0,35]
+"d6/dbc/namespacederivative.html#a644e64ee3bb510ed6375d1fc698447ac":[3,0,52,1]
 };

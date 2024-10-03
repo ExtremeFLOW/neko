@@ -60,6 +60,7 @@ var hierarchy =
     [ "opencl_intf::clCreateCommandQueue", "db/dce/interfaceopencl__intf_1_1clCreateCommandQueue.html", null ],
     [ "opencl_intf::clCreateContext", "da/d58/interfaceopencl__intf_1_1clCreateContext.html", null ],
     [ "opencl_intf::clCreateUserEvent", "dc/d37/interfaceopencl__intf_1_1clCreateUserEvent.html", null ],
+    [ "opencl_intf::clEnqueueBarrier", "d5/d2e/interfaceopencl__intf_1_1clEnqueueBarrier.html", null ],
     [ "opencl_intf::clEnqueueCopyBuffer", "d1/d89/interfaceopencl__intf_1_1clEnqueueCopyBuffer.html", null ],
     [ "opencl_intf::clEnqueueMarker", "da/d87/interfaceopencl__intf_1_1clEnqueueMarker.html", null ],
     [ "opencl_intf::clEnqueueMarkerWithWaitList", "df/db6/interfaceopencl__intf_1_1clEnqueueMarkerWithWaitList.html", null ],

@@ -1,3 +1,4 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$d2/dfe/interfacescalar__user__source__term_1_1scalar__source__compute__pointwise.html" title="Computes the source term at a single point." alt="" coords="5,5,163,61"/>
+<area shape="rect" id="node1" href="$dd/ded/structscalar__scheme_1_1scalar__scheme__t.html" title="Base type for a scalar advection&#45;diffusion solver." alt="" coords="5,5,172,47"/>
+<area shape="rect" id="node2" href="$d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html" title=" " alt="" coords="220,5,367,47"/>
 </map>

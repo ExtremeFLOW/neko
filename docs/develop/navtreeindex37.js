@@ -1,5 +1,7 @@
 var NAVTREEINDEX37 =
 {
+"dc/de5/spalding_8f90.html#ab3d31337b92045fc9b54a7243f10db67":[5,0,2,20,1,5],
+"dc/de5/spalding_8f90.html#ad588e3751bb9734297a449647e137d2c":[5,0,2,20,1,3],
 "dc/de5/spalding_8f90_source.html":[5,0,2,20,1],
 "dc/de7/namespacescalar__residual.html":[3,0,222],
 "dc/dee/const__source__term_8f90.html":[5,0,2,18,4],
@@ -247,7 +249,5 @@ var NAVTREEINDEX37 =
 "dd/d30/namespaceoperators.html#a9343ee2d446da0065a98c1767b36c709":[3,0,181,4],
 "dd/d30/namespaceoperators.html#ab2babd24679efca34a9310107b346969":[3,0,181,13],
 "dd/d30/namespaceoperators.html#ab94fb6f7ef7c7147e433b1c0c3b67510":[3,0,181,8],
-"dd/d30/namespaceoperators.html#acb1a9324befa61399e2b6267cfc070f5":[3,0,181,10],
-"dd/d30/namespaceoperators.html#ae0083f86c7db2d6aaee644b4cdcc02f6":[3,0,181,0],
-"dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb":[3,0,181,6]
+"dd/d30/namespaceoperators.html#acb1a9324befa61399e2b6267cfc070f5":[3,0,181,10]
 };
