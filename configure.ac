@@ -14,9 +14,10 @@ AC_ARG_ENABLE(contrib,
 
 AC_ARG_ENABLE(real,
 	      AS_HELP_STRING([--enable-real=Xp  Specify working precision of REAL types:
-                    sp -- REAL(kind=4)
-	            dp -- REAL(kind=8) (default)
-	            qp -- REAL(kind=16)]),
+                    ssp -- REAL(kind=4) xp -- sp 
+                    sp -- REAL(kind=4) xp -- dp  
+	            dp -- REAL(kind=8) xp -- dp (default)
+	            qp -- REAL(kind=16) xp -- qp]),
 	        [enable_real=${enableval}], [enable_real=dp])
 
 AC_ARG_ENABLE(blk_size,
@@ -179,21 +180,42 @@ AX_ADIOS2
 AX_GSLIB
 
 # Select Working precision of REAL
-if test "x$enable_real" = xsp; then
+if test "x$enable_real" = xssp; then
    AC_SUBST(NEKO_REAL_TYPE, "sp")
    AC_SUBST(NEKO_C_REAL_TYPE, "c_float")
    AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_REAL")
    AC_SUBST(NEKO_DEV_REAL_TYPE, "float")   				
+   AC_SUBST(NEKO_XREAL_TYPE, "sp")
+   AC_SUBST(NEKO_C_XREAL_TYPE, "c_float")
+   AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_REAL")
+   AC_SUBST(NEKO_DEV_XREAL_TYPE, "float")   				
+elif test "x$enable_real" = xsp; then
+   AC_SUBST(NEKO_REAL_TYPE, "sp")
+   AC_SUBST(NEKO_C_REAL_TYPE, "c_float")
+   AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_REAL")
+   AC_SUBST(NEKO_DEV_REAL_TYPE, "float")   				
+   AC_SUBST(NEKO_XREAL_TYPE, "dp")
+   AC_SUBST(NEKO_C_XREAL_TYPE, "c_double")
+   AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_DOUBLE_PRECISION")
+   AC_SUBST(NEKO_DEV_XREAL_TYPE, "double") 
 elif test "x$enable_real" = xdp; then
    AC_SUBST(NEKO_REAL_TYPE, "dp")
    AC_SUBST(NEKO_C_REAL_TYPE, "c_double")
    AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_DOUBLE_PRECISION")
    AC_SUBST(NEKO_DEV_REAL_TYPE, "double")   				
+   AC_SUBST(NEKO_XREAL_TYPE, "dp")
+   AC_SUBST(NEKO_C_XREAL_TYPE, "c_double")
+   AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_DOUBLE_PRECISION")
+   AC_SUBST(NEKO_DEV_XREAL_TYPE, "double")   				
 elif test "x$enable_real" = xqp; then
    AC_SUBST(NEKO_REAL_TYPE, "qp")
    AC_SUBST(NEKO_C_REAL_TYPE, "c_long_double")
    AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_REAL16")
    AC_SUBST(NEKO_DEV_REAL_TYPE, "long double")   				
+   AC_SUBST(NEKO_XREAL_TYPE, "qp")
+   AC_SUBST(NEKO_C_XREAL_TYPE, "c_long_double")
+   AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_REAL16")
+   AC_SUBST(NEKO_DEV_XREAL_TYPE, "long double")   				
 else
    AC_MSG_ERROR([Invalid working precision])
 fi

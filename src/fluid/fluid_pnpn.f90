@@ -368,8 +368,6 @@ contains
     integer :: i, n
 
     n = this%u%dof%size()
-    !print *, glsum(this%u%x,n)
-    !print *, glsum(this%v%x,n)
     if (allocated(this%chkp%previous_mesh%elements) .or. &
         this%chkp%previous_Xh%lx .ne. this%Xh%lx) then
        call col2(this%u%x, this%c_Xh%mult, this%u%dof%size())
@@ -429,6 +427,10 @@ contains
                             w%dof%size(), HOST_TO_DEVICE, sync = .false.)
        end associate
     end if
+    ! Make sure that continuity is maintained (important for interpolation)
+    ! Do not do this for lagged rhs
+    ! (derivatives are not necessairly coninous across elements)
+       
     if (allocated(this%chkp%previous_mesh%elements) .or. this%chkp%previous_Xh%lx .ne. this%Xh%lx) then
        call this%gs_Xh%op(this%u, GS_OP_ADD)
        call this%gs_Xh%op(this%v, GS_OP_ADD)
@@ -441,11 +443,6 @@ contains
           call this%gs_Xh%op(this%wlag%lf(i), GS_OP_ADD)
        end do
     end if
-     ! Make sure that continuity is maintained (important for interpolation)
-    ! Do not do this for lagged rhs
-    ! (derivatives are not necessairly coninous across elements)
-       
-    !!print *, glsum(this%v%x,n)
     !! If we would decide to only restart from lagged fields instead of saving
     !! abx1, aby1 etc.
     !! Observe that one also needs to recompute the focing at the old time steps
@@ -603,13 +600,6 @@ contains
 
     n = this%dm_Xh%size()
 
-    !print *,'step glsumu', glsum(this%u%x,n)
-    !print *,'step glsumv', glsum(this%v%x,n)
-    !print *,'step glsumw', glsum(this%w%x,n)
-    !print *,'step glsump', glsum(this%p%x,n)
-    !print *,'step volume', this%c_Xh%volume
-    !print *,'step jac', glsum(this%c_Xh%jac,n)
-    !print *,'step jacinv', glsum(this%c_Xh%jacinv,n)
     call profiler_start_region('Fluid', 1)
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
          du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
@@ -646,10 +636,6 @@ contains
       else
          call opcolv(f_x%x, f_y%x, f_z%x, c_Xh%B, msh%gdim, n)
       end if
-      !print *, 'glsumBstep ',glsum(c_Xh%B,n)
-      !print *, 'glsumf_xstep ',glsum(f_x%x,n)
-      !print *, 'glsumf_ystep ',glsum(f_y%x,n)
-      !print *, 'glsumf_zstep ',glsum(f_z%x,n)
 
       if (oifs) then
          ! Add the advection operators to the right-hand-side.
@@ -675,9 +661,6 @@ contains
          call this%adv%compute(u, v, w, &
                                f_x, f_y, f_z, &
                                Xh, this%c_Xh, dm_Xh%size())
-      !print *, 'glsumf_xstep ',glsum(f_x%x,n)
-      !print *, 'glsumf_ystep ',glsum(f_y%x,n)
-      !print *, 'glsumf_zstep ',glsum(f_z%x,n)
 
          ! At this point the RHS contains the sum of the advection operator and
          ! additional source terms, evaluated using the velocity field from the
@@ -688,16 +671,10 @@ contains
                               f_x%x, f_y%x, f_z%x, &
                               rho, ext_bdf%advection_coeffs, n)
 
-      !print *, 'glsumf_xstep ',glsum(f_x%x,n)
-      !print *, 'glsumf_ystep ',glsum(f_y%x,n)
-      !print *, 'glsumf_zstep ',glsum(f_z%x,n)
          ! Add the RHS contributions coming from the BDF scheme.
          call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
                               u, v, w, c_Xh%B, rho, dt, &
                               ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
-      !print *, 'glsumf_xstep ',glsum(f_x%x,n)
-      !print *, 'glsumf_ystep ',glsum(f_y%x,n)
-      !print *, 'glsumf_zstep ',glsum(f_z%x,n)
       end if
 
 
@@ -727,21 +704,16 @@ contains
                            this%bc_prs_surface, this%bc_sym_surface,&
                            Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
                            mu_field, rho_field)
-      !print *, 'glsumf_p_res ',glsum(p_res%x,n)
 
       call gs_Xh%op(p_res, GS_OP_ADD)
-      !print *, 'glsumf_p_res2 ',glsum(p_res%x,n)
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
-      !print *, 'glsumf_p_res ',glsum(p_res%x,n)
       call profiler_end_region('Pressure_residual', 18)
-      !print *, 'glsumf_p_res ',glsum(p_res%x,n)
 
       call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
                                      'Pressure')
 
       call this%pc_prs%update()
       call profiler_start_region('Pressure_solve', 3)
-      !print *, 'glsumf_p_res ',glsum(p_res%x,n)
       ksp_results(1) = &
          this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, this%bclst_dp, gs_Xh)
 
