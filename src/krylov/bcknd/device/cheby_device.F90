@@ -266,8 +266,12 @@ contains
 
         call this%M%solve(w, r, n)
 
-        b = (this%dlt * a / 2.0_rp)**2
-        a = 1.0_rp / (this%tha - b)
+        if (iter .eq. 2) then
+          b = 0.5_rp * (this%dlt * a)**2
+        else
+          b = (this%dlt * a / 2.0_rp)**2
+        end if
+        a = 1/(this%tha - b/a)
         call device_add2s1(d_d, w_d, b, n)! d = w + b*d
 
         call device_add2s2(x%x_d, d_d, a, n)! x = x + a*d
