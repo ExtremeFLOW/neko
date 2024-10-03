@@ -226,9 +226,9 @@ contains
     integer :: n_sources, i
 
     if(allocated(this%source_terms)) then
-    	n_sources = size(this%source_terms)
+       n_sources = size(this%source_terms)
     else
-    	n_sources = 0
+       n_sources = 0
     endif
 
     call move_alloc(this%source_terms, temp)
