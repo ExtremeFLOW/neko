@@ -47,8 +47,9 @@ contains
     type(bc_list_t), target, intent(in) :: blst
     integer, intent(in) :: nlvls
     integer, intent(in) :: max_iter
-    integer :: lvl, n
+    integer :: lvl, n, cheby_degree, env_len
     integer, allocatable :: agg_nhbr(:,:)
+    character(len=255) :: env_cheby_degree
 
     allocate( this%amg )
     call this%amg%init(ax, Xh, coef, msh, gs_h, nlvls, blst)
@@ -76,11 +77,19 @@ contains
     if (this%nlvls .gt. this%amg%nlvls) then
       call neko_error("Requested number multigrid levels is greater than the initialized AMG levels")
     end if
-    !allocate(this%smoo(0:(nlvls-1)))
+
+    call get_environment_variable("NEKO_TAMG_CHEBY_DEGREE", &
+         env_cheby_degree, env_len)
+    if (env_len .eq. 0) then
+       cheby_degree = 10
+    else
+       read(env_cheby_degree(1:env_len), *) cheby_degree
+    end if
+    
     allocate(this%smoo(0:(nlvls)))
     do lvl = 0, nlvls-1
       n = this%amg%lvl(lvl+1)%fine_lvl_dofs
-      call this%smoo(lvl)%init(n ,lvl, 10)
+      call this%smoo(lvl)%init(n ,lvl, cheby_degree)
     end do
 
   end subroutine tamg_mg_init
