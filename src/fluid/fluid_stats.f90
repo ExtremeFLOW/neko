@@ -48,8 +48,8 @@ module fluid_stats
   use neko_config, only : NEKO_BCKND_DEVICE
   use utils, only : neko_warning
   implicit none
-  private  
-  
+  private
+
   type, public, extends(stats_quant_t) :: fluid_stats_t
      !> Work fields
      type(field_t) :: stats_u
