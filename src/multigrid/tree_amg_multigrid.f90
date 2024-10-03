@@ -62,6 +62,9 @@ contains
        nlvls = mlvl
     end if
     print *, "Creating AMG hierarchy with", nlvls, "levels"
+    if (nlvls .gt. 4) then
+      call neko_error("Can not do more than four levels right now. I recommend two or three.")
+    end if
 
     allocate( this%amg )
     call this%amg%init(ax, Xh, coef, msh, gs_h, nlvls, blst)
