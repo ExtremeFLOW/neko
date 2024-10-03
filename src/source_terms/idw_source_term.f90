@@ -107,7 +107,7 @@ contains
     type(json_core) :: core
     type(json_file) :: object_settings
     character(len=:), allocatable :: object_type
-    integer :: n_regions, i, j, k, e
+    integer :: n_regions, i, j, k, e, n_lags
     character(len=LOG_SIZE) :: log_buf
     real(kind=dp) :: aabb_padding,dx_max, dy_max, dz_max, ds_max, ds_min
     type(stack_i4_t) :: overlaps
@@ -228,7 +228,7 @@ contains
     write(log_buf, '(A,ES13.6)') 'Maximum ds :',  this%ds_max    
     call neko_log%message(log_buf)
 
-    aabb_padding = 4 * ds_max !2.0_rp !10000 * ds_max
+    aabb_padding = 4 * ds_max 
     
     call this%intersect%init(coef%msh, aabb_padding)
     call lagrangian_points%init()
@@ -267,26 +267,32 @@ contains
     end do
     call neko_log%end()
 
-
+    
     ! Report total number of lagrangian points generated, this might differ
-    ! from the STL sources due to refinement (not implemented yet!)   
-    if (lagrangian_points%size() .lt. 1e1) then
+    ! from the STL sources due to refinement (not implemented yet!)
+    n_lags = lagrangian_points%size()
+    call MPI_Allreduce(MPI_IN_PLACE, n_lags, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM)
+    if (n_lags .lt. 1e1) then
            call neko_log%message('Type       : '// trim(object_type))
-       write(log_buf, '(A, I1)') 'Tot lagpts : ', lagrangian_points%size()
-    else if (lagrangian_points%size() .lt. 1e2) then
-       write(log_buf, '(A, I2)') 'Tot lagpts : ', lagrangian_points%size()
-    else if (lagrangian_points%size() .lt. 1e3) then
-       write(log_buf, '(A, I3)') 'Tot lagpts : ', lagrangian_points%size()
-    else if (lagrangian_points%size() .lt. 1e4) then
-       write(log_buf, '(A, I4)') 'Tot lagpts : ', lagrangian_points%size()
-    else if (lagrangian_points%size() .lt. 1e5) then
-       write(log_buf, '(A, I5)') 'Tot lagpts : ', lagrangian_points%size()
-    else if (lagrangian_points%size() .ge. 1e6) then
-       write(log_buf, '(A, I6)') 'Tot lagpts : ', lagrangian_points%size()
-    else if (lagrangian_points%size() .ge. 1e7) then
-       write(log_buf, '(A, I7)') 'Tot lagpts : ', lagrangian_points%size()
-    else if (lagrangian_points%size() .ge. 1e8) then
-       write(log_buf, '(A, I8)') 'Tot lagpts : ', lagrangian_points%size()
+       write(log_buf, '(A, I1)') 'Tot lagpts : ', n_lags
+    else if (n_lags .lt. 1e2) then
+       write(log_buf, '(A, I2)') 'Tot lagpts : ', n_lags
+    else if (n_lags .lt. 1e3) then
+       write(log_buf, '(A, I3)') 'Tot lagpts : ', n_lags
+    else if (n_lags .lt. 1e4) then
+       write(log_buf, '(A, I4)') 'Tot lagpts : ', n_lags
+    else if (n_lags .lt. 1e5) then
+       write(log_buf, '(A, I5)') 'Tot lagpts : ', n_lags
+    else if (n_lags .lt. 1e6) then
+       write(log_buf, '(A, I6)') 'Tot lagpts : ', n_lags
+    else if (n_lags .lt. 1e7) then
+       write(log_buf, '(A, I7)') 'Tot lagpts : ', n_lags
+    else if (n_lags .lt. 1e8) then
+       write(log_buf, '(A, I8)') 'Tot lagpts : ', n_lags
+    else if (n_lags .lt. 1e9) then
+       write(log_buf, '(A, I9)') 'Tot lagpts : ', n_lags
+    else if (n_lags .lt. 1e10) then
+       write(log_buf, '(A, I10)') 'Tot lagpts : ', n_lags
     end if
     call neko_log%message(log_buf)
     
@@ -319,8 +325,8 @@ contains
     
     call this%global_interp%init(coef%dof)
 
-    call this%global_interp%find_points_xyz(this%xyz, &
-         lagrangian_points%size())
+    n_lags = lagrangian_points%size()
+    call this%global_interp%find_points_and_redist(this%xyz, n_lags)
 
     ! Construct list of overlapping elements for each lagrangian particle    
     allocate(this%lag_el(lagrangian_points%size()))
@@ -632,12 +638,16 @@ contains
        write(log_buf, '(A, I4)') ' `-Points  : ', boundary_mesh%mpts
     else if (boundary_mesh%mpts .lt. 1e5) then
        write(log_buf, '(A, I5)') ' `-Points  : ', boundary_mesh%mpts
-    else if (boundary_mesh%mpts .ge. 1e6) then
+    else if (boundary_mesh%mpts .lt. 1e6) then
        write(log_buf, '(A, I6)') ' `-Points  : ', boundary_mesh%mpts
-    else if (boundary_mesh%mpts .ge. 1e7) then
+    else if (boundary_mesh%mpts .lt. 1e7) then
        write(log_buf, '(A, I7)') ' `-Points  : ', boundary_mesh%mpts
-    else if (boundary_mesh%mpts .ge. 1e8) then
+    else if (boundary_mesh%mpts .lt. 1e8) then
        write(log_buf, '(A, I8)') ' `-Points  : ', boundary_mesh%mpts
+    else if (boundary_mesh%mpts .lt. 1e9) then
+       write(log_buf, '(A, I9)') ' `-Points  : ', boundary_mesh%mpts
+    else if (boundary_mesh%mpts .lt. 1e10) then
+       write(log_buf, '(A, I10)') ' `-Points  : ', boundary_mesh%mpts
     end if
     call neko_log%message(log_buf)
 
@@ -654,16 +664,16 @@ contains
 
        
        call this%intersect%overlap(tri_cntr, overlaps)
-          
-          !       if (overlaps%size() .gt. 0) then
+       
+       if (overlaps%size() .gt. 0) then
 
-       call lag_pts%push(tri_cntr)
-       call lag_nrm%push(tri_nrm)
+          call lag_pts%push(tri_cntr)
+          call lag_nrm%push(tri_nrm)
           
-!       do while (.not. overlaps%is_empty())
-!          el_idx = overlaps%pop()
-!       end do
- !      end if
+          do while (.not. overlaps%is_empty())
+             el_idx = overlaps%pop()
+          end do
+       end if
        call overlaps%clear()
 
     end do
