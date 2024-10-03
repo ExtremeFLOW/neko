@@ -171,6 +171,7 @@ contains
           v%ptr => tempo
           w%ptr => tempo
           p%ptr => tempo
+          tem%ptr => tempo
        end if
 
        allocate(idx(nelv))
