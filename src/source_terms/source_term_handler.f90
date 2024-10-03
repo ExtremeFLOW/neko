@@ -225,7 +225,7 @@ contains
 
     integer :: n_sources, i
 
-	 if(allocated(this%source_terms)) then
+    if(allocated(this%source_terms)) then
     	n_sources = size(this%source_terms)
     else
     	n_sources = 0
