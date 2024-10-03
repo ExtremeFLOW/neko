@@ -194,7 +194,6 @@ neko_fortran_SOURCES = \
 	common/bcknd/cpu/rhs_maker_cpu.f90\
 	common/bcknd/sx/rhs_maker_sx.f90\
 	common/bcknd/device/rhs_maker_device.F90\
-	common/material_properties.f90\
 	config/neko_config.f90\
 	case.f90\
 	common/user_intf.f90\
@@ -224,6 +223,8 @@ neko_fortran_SOURCES = \
 	fluid/fluid_user_source_term.f90\
 	fluid/fluid_source_term.f90\
 	common/time_step_controller.f90\
+	common/gradient_jump_penalty.f90\
+	common/bcknd/device/device_gradient_jump_penalty.F90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
 	math/ax_helm.f90\
@@ -250,6 +251,9 @@ neko_fortran_SOURCES = \
 	device/device.F90\
 	math/field_math.f90\
 	math/bcknd/device/device_math.F90\
+	math/bcknd/device/hip/hip_math.f90\
+	math/bcknd/device/cuda/cuda_math.f90\
+	math/bcknd/device/opencl/opencl_math.f90\
 	math/bcknd/device/device_schwarz.F90\
 	math/bcknd/device/tensor_device.F90\
 	math/bcknd/device/fdm_device.F90\
@@ -282,6 +286,8 @@ neko_fortran_SOURCES = \
 	simulation_components/les_simcomp.f90\
 	simulation_components/simulation_component_fctry.f90\
 	source_terms/source_term.f90\
+	source_terms/coriolis_source_term.f90\
+	source_terms/bcknd/cpu/coriolis_source_term_cpu.f90\
 	source_terms/source_term_handler.f90\
 	source_terms/const_source_term.f90\
 	source_terms/bcknd/cpu/const_source_term_cpu.f90\
@@ -355,6 +361,7 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/hip/dong_outflow.hip\
 	common/bcknd/device/hip/rhs_maker.hip\
 	common/bcknd/device/hip/projection.hip\
+	common/bcknd/device/hip/gradient_jump_penalty.hip\
 	fluid/bcknd/device/hip/pnpn_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
 	sem/bcknd/device/hip/coef.hip
@@ -390,6 +397,7 @@ libneko_a_SOURCES += \
 	bc/bcknd/device/cuda/dong_outflow.cu\
 	common/bcknd/device/cuda/rhs_maker.cu\
 	common/bcknd/device/cuda/projection.cu\
+	common/bcknd/device/cuda/gradient_jump_penalty.cu\
 	fluid/bcknd/device/cuda/pnpn_res.cu\
 	fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
@@ -527,6 +535,7 @@ EXTRA_DIST = \
 	common/bcknd/device/cuda/makeext_kernel.h\
 	common/bcknd/device/cuda/makebdf_kernel.h\
 	common/bcknd/device/cuda/projection_kernel.h\
+	common/bcknd/device/cuda/gradient_jump_penalty_kernel.h\
 	fluid/bcknd/device/cuda/prs_res_kernel.h\
 	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
 	fluid/stress_formulation/bcknd/device/cuda/prs_stress_res_kernel.h\
@@ -556,6 +565,7 @@ EXTRA_DIST = \
 	common/bcknd/device/hip/makeext_kernel.h\
 	common/bcknd/device/hip/makebdf_kernel.h\
 	common/bcknd/device/hip/projection_kernel.h\
+	common/bcknd/device/hip/gradient_jump_penalty_kernel.h\
 	fluid/bcknd/device/hip/prs_res_kernel.h\
 	fluid/bcknd/device/hip/vel_res_update_kernel.h\
 	scalar/bcknd/device/hip/scalar_residual_update_kernel.h\

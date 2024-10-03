@@ -219,8 +219,12 @@ contains
 
         call this%M%solve(w, r, n)
 
-        b = (this%dlt * a / 2.0_rp)**2
-        a = 1.0_rp / (this%tha - b)
+        if (iter .eq. 2) then
+          b = 0.5_rp * (this%dlt * a)**2
+        else
+          b = (this%dlt * a / 2.0_rp)**2
+        end if
+        a = 1.0_rp/(this%tha - b/a)
         call add2s1(d, w, b, n)! d = w + b*d
 
         call add2s2(x%x, d, a, n)! x = x + a*d

@@ -173,13 +173,13 @@ contains
     call this%wf%init(dof, 'work 2')
 
     call this%Xh_crs%init(GLL, lx_crs, lx_crs, lx_crs)
-    this%dm_crs = dofmap_t(msh, this%Xh_crs)
+    call this%dm_crs%init(msh, this%Xh_crs)
     call this%gs_crs%init(this%dm_crs)
     call this%e_crs%init(this%dm_crs, 'work crs')
     call this%c_crs%init(this%gs_crs)
 
     call this%Xh_mg%init(GLL, lx_mid, lx_mid, lx_mid)
-    this%dm_mg = dofmap_t(msh, this%Xh_mg)
+    call this%dm_mg%init(msh, this%Xh_mg)
     call this%gs_mg%init(this%dm_mg)
     call this%e_mg%init(this%dm_mg, 'work midl')
     call this%c_mg%init(this%gs_mg)

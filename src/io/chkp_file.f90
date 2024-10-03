@@ -478,7 +478,7 @@ contains
        call this%chkp_Xh%init(GLL, lx, lx)
     end if
     if (this%mesh2mesh) then
-       dof = dofmap_t(msh, this%chkp_Xh)
+       call dof%init(msh, this%chkp_Xh)
        allocate(x_coord(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
        allocate(y_coord(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
        allocate(z_coord(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
