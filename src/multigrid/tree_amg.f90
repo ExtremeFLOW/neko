@@ -72,6 +72,10 @@ contains
     this%gs_h => gs_h
     this%blst => blst
 
+    if (nlvls .lt. 2) then
+      call neko_error("Need to request at least two multigrid levels.")
+    end if
+
     this%nlvls = nlvls
     allocate( this%lvl(this%nlvls) )
 

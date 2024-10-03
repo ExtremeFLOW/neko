@@ -13,6 +13,7 @@ module tree_amg_multigrid
   use num_types
   use utils
   use math
+  use comm
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use space, only : space_t
@@ -37,7 +38,7 @@ module tree_amg_multigrid
 
 contains
 
-  subroutine tamg_mg_init(this, ax, Xh, coef, msh, gs_h, nlvls, blst, max_iter)
+  subroutine tamg_mg_init(this, ax, Xh, coef, msh, gs_h, nlvls_in, blst, max_iter)
     class(tamg_solver_t), intent(inout), target :: this
     class(ax_t), target, intent(in) :: ax
     type(space_t),target, intent(in) :: Xh
@@ -45,11 +46,22 @@ contains
     type(mesh_t), target, intent(in) :: msh
     type(gs_t), target, intent(in) :: gs_h
     type(bc_list_t), target, intent(in) :: blst
-    integer, intent(in) :: nlvls
+    integer, intent(in) :: nlvls_in
     integer, intent(in) :: max_iter
-    integer :: lvl, n, cheby_degree, env_len
+    integer :: nlvls, lvl, n, cheby_degree, env_len, mlvl
     integer, allocatable :: agg_nhbr(:,:)
-    character(len=255) :: env_cheby_degree
+    character(len=255) :: env_cheby_degree, env_mlvl
+
+    call get_environment_variable("NEKO_TAMG_MAX_LVL", &
+         env_mlvl, env_len)
+    if (env_len .eq. 0) then
+       !yeah...
+       nlvls = nlvls_in
+    else
+       read(env_mlvl(1:env_len), *) mlvl
+       nlvls = mlvl
+    end if
+    print *, "Creating AMG hierarchy with", nlvls, "levels"
 
     allocate( this%amg )
     call this%amg%init(ax, Xh, coef, msh, gs_h, nlvls, blst)
@@ -122,20 +134,21 @@ contains
     real(kind=rp) :: rc(n)
     real(kind=rp) :: tmp(n)
     integer :: iter, num_iter
-    integer :: sit, max_lvl
+    integer :: max_lvl
     integer :: i, cyt
 
     r = 0d0
     rc = 0d0
     tmp = 0d0
 
-    sit = 10
     max_lvl = mgstuff%nlvls-1
 
+    !call calc_resid(r,x,b,amg,lvl,n)!> TODO: for debug
+    !print *, "LVL:",lvl, "PRE RESID:", sqrt(glsc2(r, r, n))
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
-    call mgstuff%smoo(lvl)%solve(x,b, n, amg, sit)
+    call mgstuff%smoo(lvl)%solve(x,b, n, amg)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
       return
     end if
@@ -175,7 +188,7 @@ contains
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
-    call mgstuff%smoo(lvl)%solve(x,b, n, amg, sit)
+    call mgstuff%smoo(lvl)%solve(x,b, n, amg)
 
     !>----------<!
     !> Residual <!

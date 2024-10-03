@@ -16,7 +16,7 @@ module tree_amg_smoother
      real(kind=rp) :: tha, dlt
      integer :: lvl
      integer :: n
-     integer :: power_its = 25
+     integer :: power_its = 250
      integer :: max_iter = 10
      logical :: recompute_eigs = .true.
    contains
@@ -50,7 +50,8 @@ contains
     type(tamg_hierarchy_t), intent(inout) :: amg
     integer, intent(in) :: n
     real(kind=rp) :: lam, b, a, rn
-    real(kind=rp) :: boost = 1.2_rp
+    !real(kind=rp) :: boost = 1.2_rp
+    real(kind=rp) :: boost = 1.1_rp
     real(kind=rp) :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
     integer :: i
@@ -59,8 +60,9 @@ contains
       print *, "COMP EIGS on lvl", this%lvl, "n", n
       do i = 1, n
         !TODO: replace with a better way to initialize power method
-        call random_number(rn)
-        d(i) = rn + 10.0_rp
+        !call random_number(rn)
+        !d(i) = rn + 10.0_rp
+        d(i) = sin(real(i))
       end do
       if (this%lvl .eq. 0) then
         call gs_h%op(d, n, GS_OP_ADD)!TODO
@@ -100,6 +102,7 @@ contains
         dtd = glsc2(d, d, n)
       end if
       lam = dtw / dtd
+      !print *, "LAM:", lam
       b = lam * boost
       a = lam / lam_factor
       this%tha = (b+a)/2.0_rp
@@ -110,6 +113,7 @@ contains
   end subroutine amg_cheby_power
 
   !> A chebyshev preconditioner
+  !> From Saad's iterative methods textbook
   subroutine amg_cheby_solve(this, x, f, n, amg, niter)
     class(amg_cheby_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -119,7 +123,8 @@ contains
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter
-    real(kind=rp) :: a, b, rtr, rnorm
+    real(kind=rp) :: rtr, rnorm
+    real(kind=rp) :: rhok, rhokp1, s1, thet, delt, tmp1, tmp2
 
     if (this%recompute_eigs) then
        call this%comp_eig(amg, n)
@@ -132,59 +137,35 @@ contains
     end if
 
     associate( w => this%w, r => this%r, d => this%d, blst=>amg%blst)
-      ! calculate residual
       call copy(r, f, n)
       w = 0d0
       call amg%matvec(w, x, this%lvl)
-      if (this%lvl .eq. 0) then
-        !call bc_list_apply(blst, w, n)
-      end if
       call sub2(r, w, n)
 
-      rtr = glsc2(r, r, n)
-      rnorm = sqrt(rtr)
-      ksp_results%res_start = rnorm
-      ksp_results%res_final = rnorm
-      ksp_results%iter = 0
+      thet = this%tha
+      delt = this%dlt
+      s1 = thet / delt
+      rhok = 1.0_rp / s1
 
-      ! First iteration
-      call copy(w, r, n) ! PRECOND
-      call copy(d, w, n)
-      a = 2.0_rp / this%tha
-      call add2s2(x, d, a, n)! x = x + a*d
+      call copy(d, r, n)
+      call cmult(d, 1.0_rp/thet, n)
 
-      ! Rest of the iterations
-      do iter = 2, max_iter
-        ! calculate residual
-        call copy(r, f, n)
+      do iter = 1, max_iter
+        call add2(x,d,n)
+
         w = 0d0
-        call amg%matvec(w, x, this%lvl)
-        if (this%lvl .eq. 0) then
-          !call bc_list_apply(blst, w, n)
-        end if
+        call amg%matvec(w, d, this%lvl)
         call sub2(r, w, n)
 
-        call copy(w, r, n)! PRECOND
+        rhokp1 = 1.0_rp / (2.0_rp * s1 - rhok)
+        tmp1 = rhokp1 * rhok
+        tmp2 = 2.0_rp * rhokp1 / delt
+        rhok = rhokp1
 
-        b = (this%dlt * a / 2.0_rp)**2
-        a = 1.0_rp / (this%tha - b)
-        call add2s1(d, w, b, n)! d = w + b*d
-
-        call add2s2(x, d, a, n)! x = x + a*d
+        call cmult(d, tmp1, n)
+        call add2s2(d, r, tmp2, n)
       end do
 
-      ! calculate residual
-      call copy(r, f, n)
-      w = 0d0
-      call amg%matvec(w, x, this%lvl)
-      if (this%lvl .eq. 0) then
-        !call bc_list_apply(blst, w, n)
-      end if
-      call sub2(r, w, n)
-      rtr = glsc2(r, r, n)
-      rnorm = sqrt(rtr)
-      ksp_results%res_final = rnorm
-      ksp_results%iter = iter
     end associate
   end subroutine amg_cheby_solve
 
