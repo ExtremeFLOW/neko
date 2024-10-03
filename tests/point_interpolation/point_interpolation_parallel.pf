@@ -74,7 +74,7 @@ contains
     type(space_t) :: Xh
 
     call Xh%init(GLL, lx, lx, lx)
-    dof = dofmap_t(msh, Xh)
+    call dof%init(msh, Xh)
     call gs%init(dof)
     call coef%init(gs)
 
@@ -106,7 +106,7 @@ contains
 
     call msh%generate_conn()
     call Xh%init(GLL, lx, lx, lx)
-    dof = dofmap_t(msh, Xh)
+    call dof%init(msh, Xh)
     call gs%init(dof)
     call coef%init(gs)
 
@@ -145,7 +145,7 @@ contains
     call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
     call msh%generate_conn()
     call Xh%init(GLL, lx, lx, lx)
-    dof = dofmap_t(msh, Xh)
+    call dof%init(msh, Xh)
     call gs%init(dof)
     call coef%init(gs)
 
@@ -209,7 +209,7 @@ contains
     call msh%add_element(1, p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
     call msh%generate_conn()
     call Xh%init(GLL, lx, lx, lx)
-    dof = dofmap_t(msh, Xh)
+    call dof%init(msh, Xh)
     call gs%init(dof)
     call coef%init(gs)
 

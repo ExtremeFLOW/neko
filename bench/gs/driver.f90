@@ -38,7 +38,7 @@ program gsbench
 
   call Xh%init(GLL, lx, lx, lx)
 
-  dm = dofmap_t(msh, Xh)
+  call dm%init(msh, Xh)
   call gs_h%init(dm)
 
   n = Xh%lx * Xh%ly * Xh%lz * msh%nelv

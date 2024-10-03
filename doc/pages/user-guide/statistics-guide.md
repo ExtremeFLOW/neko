@@ -58,20 +58,20 @@ For example, if one wants to compute only the basic statistics and sample the fi
 
 Preferably set the initial transient to a multiple of output_value as otherwise the first output will be slightly shorter than the rest. The code related to fluid statistics are located in fluid_stats and fluid_stats_simcomp.
 
-The argument "avg_direction" is optional and if ignored we output 3d fields. The statistics are saved in a fld file according to the following in 2D and 3D. Observe that in 2D the mean velocity in the homogenous direction is not stored in Z-velocity, but is stored in a last scalar field. The correct velocity components are stored in X-velocity and Y-velocity respectively. All other fields are kept the same. This is due to a limitation of the fld file format.
+The argument "avg_direction" is optional and if ignored we output 3d fields. The statistics are saved in a fld file according to the following in 2D and 3D. Observe that in 2D the mean Z-velocity is stored in a last scalar field. All other fields are kept the same. This is due to a limitation of the fld file format.
 
 For 1D statistics a CSV file is outputted. The first column is the time at which the statistics are collected, the second column the spatial coordinate, and the rest of the data is stored in the order below. In this case all statistics are kept in the same order as in 3D.
 
 ## List of fields in output files
 
-When only the basic set of stats is enabled, only stats 1-11 are computed. 
+When only the basic set of stats is enabled, only stats 1-11 are computed. When 2D stats are enabled \f$ \langle w \rangle \f$ is stored in s7 for basic stats and in s40 for the full set of statistics.
 
 | Number | Statistic | Stored in variable (for fld files) |
 | ------ | --------- | ------------------ |
 | 1 | \f$ \langle p \rangle \f$ | Pressure|
 | 2 | \f$ \langle u \rangle \f$ | X-Velocity|
 | 3 | \f$ \langle v \rangle \f$ | Y-Velocity|
-| 4 | \f$ \langle w \rangle \f$ | Z-Velocity|
+| 4 | \f$ \langle w \rangle \f$ | Z-Velocity |
 | 5 | \f$ \langle pp \rangle \f$ | Temperature|
 | 6 | \f$ \langle uu \rangle \f$ | Scalar 1 (s1)|
 | 7 | \f$ \langle vv \rangle \f$ | Scalar 2 (s2)|

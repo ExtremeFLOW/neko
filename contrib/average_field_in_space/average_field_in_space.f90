@@ -97,7 +97,7 @@ program average_field_in_space
 
   call Xh%init(GLL, field_data%lx, field_data%ly, field_data%lz)
 
-  dof = dofmap_t(msh, Xh)
+  call dof%init(msh, Xh)
   call gs_h%init(dof)
   call coef%init(gs_h)
 

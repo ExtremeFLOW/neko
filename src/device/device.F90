@@ -437,19 +437,19 @@ contains
 #elif HAVE_OPENCL
     if (sync_device) then
        if (dir .eq. HOST_TO_DEVICE) then
-          if (clEnqueueWriteBuffer(glb_cmd_queue, x_d, CL_TRUE, 0_i8, s, &
+          if (clEnqueueWriteBuffer(stream, x_d, CL_TRUE, 0_i8, s, &
                                    ptr_h, 0, C_NULL_PTR, C_NULL_PTR) &
               .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (host-to-device) failed')
           end if
        else if (dir .eq. DEVICE_TO_HOST) then
-          if (clEnqueueReadBuffer(glb_cmd_queue, x_d, CL_TRUE, 0_i8, s, ptr_h, &
+          if (clEnqueueReadBuffer(stream, x_d, CL_TRUE, 0_i8, s, ptr_h, &
                                   0, C_NULL_PTR, C_NULL_PTR) &
               .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (device-to-host) failed')
           end if
        else if (dir .eq. DEVICE_TO_DEVICE) then
-          if (clEnqueueCopyBuffer(glb_cmd_queue, x_d, ptr_h, 0_i8, 0_i8, s, &
+          if (clEnqueueCopyBuffer(stream, x_d, ptr_h, 0_i8, 0_i8, s, &
                                   0, C_NULL_PTR, C_NULL_PTR) &
               .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (device-to-device) failed')
@@ -459,19 +459,19 @@ contains
        end if
     else
        if (dir .eq. HOST_TO_DEVICE) then
-          if (clEnqueueWriteBuffer(glb_cmd_queue, x_d, CL_FALSE, 0_i8, s, &
+          if (clEnqueueWriteBuffer(stream, x_d, CL_FALSE, 0_i8, s, &
                                    ptr_h, 0, C_NULL_PTR, C_NULL_PTR) &
               .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (host-to-device) failed')
           end if
        else if (dir .eq. DEVICE_TO_HOST) then
-          if (clEnqueueReadBuffer(glb_cmd_queue, x_d, CL_FALSE, 0_i8, s, ptr_h,&
+          if (clEnqueueReadBuffer(stream, x_d, CL_FALSE, 0_i8, s, ptr_h,&
                                   0, C_NULL_PTR, C_NULL_PTR) &
               .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (device-to-host) failed')
           end if
        else if (dir .eq. DEVICE_TO_DEVICE) then
-          if (clEnqueueCopyBuffer(glb_cmd_queue, x_d, ptr_h, 0_i8, 0_i8, s, &
+          if (clEnqueueCopyBuffer(stream, x_d, ptr_h, 0_i8, 0_i8, s, &
                                   0, C_NULL_PTR, C_NULL_PTR) &
               .ne. CL_SUCCESS) then
              call neko_error('Device memcpy (device-to-device) failed')
@@ -1121,7 +1121,7 @@ contains
   !> Synchronize a device stream with an event
   subroutine device_stream_wait_event(stream, event, flags)
     type(c_ptr), intent(in) :: stream
-    type(c_ptr), intent(in) :: event
+    type(c_ptr), target, intent(in) :: event
     integer :: flags
 #ifdef HAVE_HIP
     if (hipStreamWaitEvent(stream, event, flags) .ne. hipSuccess) then
@@ -1132,7 +1132,10 @@ contains
        call neko_error('Error during stream sync')
     end if
 #elif HAVE_OPENCL
-    if (clEnqueueWaitForEvents(stream, 1, event) .ne. CL_SUCCESS) then
+    if (clEnqueueBarrier(stream) .ne. CL_SUCCESS) then
+       call neko_error('Error during barrier')
+    end if
+    if (clEnqueueWaitForEvents(stream, 1, c_loc(event)) .ne. CL_SUCCESS) then
        call neko_error('Error during stream sync')
     end if
 #endif
@@ -1198,15 +1201,13 @@ contains
        call neko_error('Error during event destroy')
     end if
 #elif HAVE_OPENCL
-    if (clReleaseEvent(event) .ne. CL_SUCCESS) then
-       call neko_error('Error during event destroy')
-    end if
+    event = C_NULL_PTR
 #endif
   end subroutine device_event_destroy
 
   !> Record a device event
   subroutine device_event_record(event, stream)
-    type(c_ptr), intent(in) :: event
+    type(c_ptr), target, intent(in) :: event
     type(c_ptr), intent(in) :: stream
 #ifdef HAVE_HIP
     if (hipEventRecord(event, stream) .ne. hipSuccess) then
@@ -1217,8 +1218,7 @@ contains
        call neko_error('Error recording an event')
     end if
 #elif HAVE_OPENCL
-    if (clEnqueueMarkerWithWaitList(stream, 0, C_NULL_PTR, event) &
-        .ne. CL_SUCCESS) then
+    if (clEnqueueMarker(stream, c_loc(event)) .ne. CL_SUCCESS) then
        call neko_error('Error recording an event')
     end if
 #endif
@@ -1226,7 +1226,7 @@ contains
 
   !> Synchronize an event
   subroutine device_event_sync(event)
-    type(c_ptr), intent(in) :: event
+    type(c_ptr), target, intent(in) :: event
 #ifdef HAVE_HIP
     if (hipEventSynchronize(event) .ne. hipSuccess) then
        call neko_error('Error during event sync')
@@ -1236,11 +1236,12 @@ contains
        call neko_error('Error during event sync')
     end if
 #elif HAVE_OPENCL
-    if (clWaitForEvents(1, event) .ne. CL_SUCCESS) then
-       call neko_error('Error during event sync')
+    if (c_associated(event)) then
+       if (clWaitForEvents(1, c_loc(event)) .ne. CL_SUCCESS) then
+          call neko_error('Error during event sync')
+       end if
     end if
 #endif
   end subroutine device_event_sync
-
 
 end module device

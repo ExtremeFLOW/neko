@@ -388,6 +388,28 @@ the boundary mesh is computed using a step function with a cut-off distance of
 ]
 ~~~~~~~~~~~~~~~
 
+### Gradient Jump Penalty
+The optional `gradient_jump_penalty` object can be used to perform gradient jump penalty 
+as an continuous interior penalty option. 
+The penalty term is performed on the weak form equation of quantity \f$ T \f$ 
+(could either be velocity or scalar) as a right hand side term
+
+\f$ - < \tau |u \cdot n| h^2_{\Omega ^e} G(T) \phi_{t1} \phi_{t2} \frac{\partial \phi_{n}}{\partial n}>\f$,
+
+where \f$ <> \f$ refers to the integral over all facets of the element, \f$ \tau \f$ is the penalty parameter, 
+\f$ |u \cdot n| \f$ is the absolute velocity flux over the facet, \f$ h^2_{\Omega ^e} \f$ is the mesh size, \f$ G(T) \f$ is the gradient jump over the facet, \f$ \phi_{t1} \phi_{t2} \f$ are the polynomial on the tangential direction of the facet, and finally \f$ \frac{\partial \phi_{n}}{\partial n} \f$ is the gradient of the normal polynomial on the facet.
+
+Here in our Neko context where hexahedral mesh is adopted, \f$ h^2_{\Omega ^e} \f$ is measured by the average distance from the vertices of the facet to the facet on the opposite side. And the distance of a vertex to another facet is defined by the average distance from the vertex to the plane constituted by 3 vertices from the other facet.
+
+The penalty parameter  \f$ \tau \f$ could be expressed as the form \f$ \tau = a * (P + 1) ^ {-b}\f$, 
+for \f$ P > 1 \f$ where \f$ P \f$ is the polynomial order while \f$ a \f$ and \f$ b \f$ are user-defined parameters.
+The configuration uses the following parameters:
+
+* `enable`, the boolean to turn on and off the gradient jump penalty option, default to be `false`.
+* `tau`, the penalty parameter that can be only used for \f$ P = 1 \f$, default to be `0.02`.
+* `scaling_factor`, the scaling parameter \f$ a \f$ for \f$ P > 1 \f$, default to be `0.8`.
+* `scaling_exponent`, the scaling parameter \f$ b \f$ for \f$ P > 1 \f$, default to be `4.0`.
+
 
 ## Linear solver configuration
 The mandatory `velocity_solver` and `pressure_solver` objects are used to
@@ -451,6 +473,7 @@ that can be described concisely directly in the table.
 | `blasius.freestream_velocity`           | Free-stream velocity in the Blasius profile.                                                      | Vector of 3 reals                                | -             |
 | `blasius.approximation`                 | Numerical approximation of the Blasius profile.                                                   | `linear`, `quadratic`, `cubic`, `quartic`, `sin` | -             |
 | `source_terms`                          | Array of JSON objects, defining additional source terms.                                          | See list of source terms above                   | -             |
+|`gradient_jump_penalty`                  | Array of JSON objects, defining additional gradient jump penalty.                                 | See list of gradient jump penalty above                 | -  |
 | `boundary_types`                        | Boundary types/conditions labels.                                                                 | Array of strings                                 | -             |
 | `velocity_solver.type`                  | Linear solver for the momentum equation.                                                          | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`      | -             |
 | `velocity_solver.preconditioner`        | Linear solver preconditioner for the momentum equation.                                           | `ident`, `hsmg`, `jacobi`                        | -             |
@@ -541,6 +564,7 @@ of using source terms for the scalar can be found in the `scalar_mms` example.
 | `initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`, `point_zone` | -             |
 | `initial_condition.value` | Value of the velocity initial condition.                 | Real                            | -             |
 | `source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above  | -             |
+|`gradient_jump_penalty`    | Array of JSON objects, defining additional gradient jump penalty. | See list of gradient jump penalty above | -  |
 
 ## Statistics
 

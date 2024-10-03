@@ -57,13 +57,13 @@ module scalar_scheme
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use facet_zone, only : facet_zone_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use logger, only : neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry
   use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
-  use user_intf, only : user_t
-  use material_properties, only : material_properties_t
+  use user_intf, only : user_t, dummy_user_material_properties, &
+                        user_material_properties
   use utils, only : neko_error
   use comm, only: NEKO_COMM, MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
@@ -72,6 +72,7 @@ module scalar_scheme
   use neko_config, only : NEKO_BCKND_DEVICE
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
+  use gradient_jump_penalty, only : gradient_jump_penalty_t
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -133,21 +134,24 @@ module scalar_scheme
      !> Checkpoint for restarts.
      type(chkp_t) :: chkp
      !> Thermal diffusivity.
-     real(kind=rp), pointer :: lambda
+     real(kind=rp) :: lambda
      !> The variable lambda field
      type(field_t) :: lambda_field
      !> The turbulent kinematic viscosity field name
      character(len=:), allocatable :: nut_field_name
      !> Density.
-     real(kind=rp), pointer :: rho
+     real(kind=rp) :: rho
      !> Specific heat capacity.
-     real(kind=rp), pointer :: cp
+     real(kind=rp) :: cp
      !> Turbulent Prandtl number.
      real(kind=rp) :: pr_turb
      !> Is lambda varying in time? Currently only due to LES models.
      logical :: variable_material_properties = .false.
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
+     !> Gradient jump panelty
+     logical :: if_gradient_jump_penalty
+     type(gradient_jump_penalty_t) :: gradient_jump_penalty
    contains
      !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init
@@ -157,6 +161,9 @@ module scalar_scheme
      procedure, pass(this) :: validate => scalar_scheme_validate
      !> Assigns the evaluation function for  `user_bc`.
      procedure, pass(this) :: set_user_bc => scalar_scheme_set_user_bc
+     !> Set lambda and cp
+     procedure, pass(this) :: set_material_properties => &
+          scalar_scheme_set_material_properties
      !> Update variable material properties
      procedure, pass(this) :: update_material_properties => &
           scalar_scheme_update_material_properties
@@ -173,26 +180,25 @@ module scalar_scheme
   !> Abstract interface to initialize a scalar formulation
   abstract interface
      subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, user, &
-          material_properties, &
-          ulag, vlag, wlag, time_scheme)
+          ulag, vlag, wlag, time_scheme, rho)
        import scalar_scheme_t
        import json_file
        import coef_t
        import gs_t
        import mesh_t
        import user_t
-       import material_properties_t
        import field_series_t
        import time_scheme_controller_t
+       import rp
        class(scalar_scheme_t), target, intent(inout) :: this
        type(mesh_t), target, intent(inout) :: msh
        type(coef_t), target, intent(inout) :: coef
        type(gs_t), target, intent(inout) :: gs
        type(json_file), target, intent(inout) :: params
        type(user_t), target, intent(in) :: user
-       type(material_properties_t), intent(inout) :: material_properties
        type(field_series_t), target, intent(in) :: ulag, vlag, wlag
        type(time_scheme_controller_t), target, intent(in) :: time_scheme
+       real(kind=rp), intent(in) :: rho
      end subroutine scalar_scheme_init_intrf
   end interface
 
@@ -307,8 +313,9 @@ contains
   !! @param params The case parameter file in json.
   !! @param scheme The name of the scalar scheme.
   !! @param user Type with user-defined procedures.
+  !! @param rho The density of the fluid.
   subroutine scalar_scheme_init(this, msh, c_Xh, gs_Xh, params, scheme, user, &
-       material_properties)
+       rho)
     class(scalar_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     type(coef_t), target, intent(inout) :: c_Xh
@@ -316,7 +323,7 @@ contains
     type(json_file), target, intent(inout) :: params
     character(len=*), intent(in) :: scheme
     type(user_t), target, intent(in) :: user
-    type(material_properties_t), target, intent(inout) :: material_properties
+    real(kind=rp), intent(in) :: rho
     ! IO buffer for log output
     character(len=LOG_SIZE) :: log_buf
     ! Variables for retrieving json parameters
@@ -324,6 +331,7 @@ contains
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val, ierr
     character(len=:), allocatable :: solver_type, solver_precon
+    real(kind=rp) :: GJP_param_a, GJP_param_b
 
     this%u => neko_field_registry%get_field('u')
     this%v => neko_field_registry%get_field('v')
@@ -368,9 +376,8 @@ contains
     !
     ! Material properties
     !
-    this%rho => material_properties%rho
-    this%lambda => material_properties%lambda
-    this%cp => material_properties%cp
+    this%rho = rho
+    call this%set_material_properties(params, user)
 
     write(log_buf, '(A,ES13.6)') 'rho        :', this%rho
     call neko_log%message(log_buf)
@@ -468,7 +475,31 @@ contains
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, integer_val, solver_abstol, logical_val)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_dirichlet, solver_precon)
+                                      this%c_Xh, this%dm_Xh, this%gs_Xh, &
+                                      this%bclst_dirichlet, solver_precon)
+   
+    ! Initiate gradient jump penalty
+    call json_get_or_default(params, &
+                            'case.scalar.gradient_jump_penalty.enabled',&
+                            this%if_gradient_jump_penalty, .false.)
+
+    if (this%if_gradient_jump_penalty .eqv. .true.) then
+       if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
+          call json_get_or_default(params, &
+                            'case.scalar.gradient_jump_penalty.tau',&
+                            GJP_param_a, 0.02_rp)
+          GJP_param_b = 0.0_rp
+       else
+          call json_get_or_default(params, &
+                        'case.scalar.gradient_jump_penalty.scaling_factor',&
+                            GJP_param_a, 0.8_rp)
+          call json_get_or_default(params, &
+                        'case.scalar.gradient_jump_penalty.scaling_exponent',&
+                            GJP_param_b, 4.0_rp)
+       end if
+       call this%gradient_jump_penalty%init(params, this%dm_Xh, this%c_Xh, &
+                                            GJP_param_a, GJP_param_b)
+    end if
 
     call neko_log%end_section()
 
@@ -510,6 +541,11 @@ contains
     ! Free everything related to field dirichlet BCs
     call bc_list_free(this%field_dirichlet_bcs)
     call this%field_dir_bc%free()
+
+    ! Free gradient jump penalty
+    if (this%if_gradient_jump_penalty .eqv. .true.) then
+       call this%gradient_jump_penalty%free()
+    end if
 
   end subroutine scalar_scheme_free
 
@@ -643,6 +679,63 @@ contains
     end if
 
   end subroutine scalar_scheme_update_material_properties
+
+  !> Set lamdba and cp.
+  !! @param params The case parameter file.
+  !! @param user The user interface.
+  subroutine scalar_scheme_set_material_properties(this, params, user)
+    class(scalar_scheme_t), intent(inout) :: this
+    type(json_file), intent(inout) :: params
+    type(user_t), target, intent(in) :: user
+    character(len=LOG_SIZE) :: log_buf
+    ! A local pointer that is needed to make Intel happy
+    procedure(user_material_properties),  pointer :: dummy_mp_ptr
+    real(kind=rp) :: dummy_mu, dummy_rho
+
+    dummy_mp_ptr => dummy_user_material_properties
+
+    if (.not. associated(user%material_properties, dummy_mp_ptr)) then
+
+       write(log_buf, '(A)') "Material properties must be set in the user&
+       & file!"
+       call neko_log%message(log_buf)
+       call user%material_properties(0.0_rp, 0, dummy_rho, dummy_mu, &
+                                        this%cp, this%lambda, params)
+    else
+       if (params%valid_path('case.scalar.Pe') .and. &
+           (params%valid_path('case.fluid.lambda') .or. &
+            params%valid_path('case.fluid.cp'))) then
+          call neko_error("To set the material properties for the scalar,&
+          & either provide Pe OR lambda and pc in the case file.")
+          ! Non-dimensional case
+       else if (params%valid_path('case.scalar.Pe')) then
+          write(log_buf, '(A)') 'Non-dimensional scalar material properties &
+          & input.'
+          call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+          write(log_buf, '(A)') 'Specific heat capacity will be set to 1,'
+          call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+          write(log_buf, '(A)') 'conductivity to 1/Pe. Assumes density is 1.'
+          call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+
+          ! Read Pe into lambda for further manipulation.
+          call json_get(params, 'case.scalar.Pe', this%lambda)
+          write(log_buf, '(A,ES13.6)') 'Pe         :',  this%lambda
+          call neko_log%message(log_buf)
+
+          ! Set cp and rho to 1 since the setup is non-dimensional.
+          this%cp = 1.0_rp
+          this%rho = 1.0_rp
+          ! Invert the Pe to get conductivity
+          this%lambda = 1.0_rp/this%lambda
+          ! Dimensional case
+       else
+          call json_get(params, 'case.scalar.lambda', this%lambda)
+          call json_get(params, 'case.scalar.cp', this%cp)
+       end if
+
+    end if
+  end subroutine scalar_scheme_set_material_properties
+
 
 
 end module scalar_scheme

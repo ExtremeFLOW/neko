@@ -48,7 +48,7 @@ module force_torque
   use coefs, only : coef_t
   use operators, only : strain_rate
   use vector, only : vector_t
-  use dirichlet, only: dirichlet_t
+  use dirichlet, only : dirichlet_t
   use drag_torque
   use logger, only : LOG_SIZE, neko_log
   use comm
@@ -181,10 +181,14 @@ contains
     call this%s23msk%init(n_pts)
     call this%pmsk%init(n_pts)
     call setup_normals(this%coef, this%bc%msk, this%bc%facet, &
-                       this%n1%x, this%n2%x, this%n3%x, n_pts)
-    call masked_red_copy(this%r1%x,this%coef%dof%x,this%bc%msk,this%u%size(),n_pts)
-    call masked_red_copy(this%r2%x,this%coef%dof%y,this%bc%msk,this%u%size(),n_pts)
-    call masked_red_copy(this%r3%x,this%coef%dof%z,this%bc%msk,this%u%size(),n_pts)
+         this%n1%x, this%n2%x, this%n3%x, n_pts)
+    call masked_red_copy(this%r1%x, this%coef%dof%x, this%bc%msk, &
+         this%u%size(), n_pts)
+    call masked_red_copy(this%r2%x, this%coef%dof%y, this%bc%msk, &
+         this%u%size(), n_pts)
+    call masked_red_copy(this%r3%x, this%coef%dof%z, this%bc%msk, & 
+         this%u%size(), n_pts)
+
     call MPI_Allreduce(n_pts, glb_n_pts, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
     ! Print some information
@@ -204,17 +208,23 @@ contains
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    call cadd(this%r1%x,-center(1),n_pts)
-    call cadd(this%r2%x,-center(2),n_pts)
-    call cadd(this%r3%x,-center(3),n_pts)
+    call cadd(this%r1%x,-center(1), n_pts)
+    call cadd(this%r2%x,-center(2), n_pts)
+    call cadd(this%r3%x,-center(3), n_pts)
     if (NEKO_BCKND_DEVICE .eq. 1 .and. n_pts .gt. 0) then
-       call device_memcpy(this%n1%x,this%n1%x_d,n_pts,HOST_TO_DEVICE,.false.)   
-       call device_memcpy(this%n2%x,this%n2%x_d,n_pts,HOST_TO_DEVICE,.false.)   
-       call device_memcpy(this%n3%x,this%n3%x_d,n_pts,HOST_TO_DEVICE,.true.)   
-       call device_memcpy(this%r1%x,this%r1%x_d,n_pts,HOST_TO_DEVICE,.false.)   
-       call device_memcpy(this%r2%x,this%r2%x_d,n_pts,HOST_TO_DEVICE,.false.)   
-       call device_memcpy(this%r3%x,this%r3%x_d,n_pts,HOST_TO_DEVICE,.true.)   
-    end if 
+       call device_memcpy(this%n1%x, this%n1%x_d, n_pts, HOST_TO_DEVICE, &
+            .false.)   
+       call device_memcpy(this%n2%x, this%n2%x_d, n_pts, HOST_TO_DEVICE, &
+            .false.)   
+       call device_memcpy(this%n3%x, this%n3%x_d, n_pts, HOST_TO_DEVICE, &
+            .true.)   
+       call device_memcpy(this%r1%x, this%r1%x_d, n_pts, HOST_TO_DEVICE, &
+            .false.)   
+       call device_memcpy(this%r2%x, this%r2%x_d, n_pts, HOST_TO_DEVICE, &
+            .false.)   
+       call device_memcpy(this%r3%x, this%r3%x_d, n_pts, HOST_TO_DEVICE, &
+            .true.)   
+    end if
 
   end subroutine force_torque_init_from_attributes
 
@@ -241,64 +251,75 @@ contains
     integer :: n_pts, temp_indices(6)
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23
     character(len=1000) :: log_buf
+
     n_pts = this%bc%msk(0)
+
     call neko_scratch_registry%request_field(s11, temp_indices(1))
     call neko_scratch_registry%request_field(s12, temp_indices(2))
     call neko_scratch_registry%request_field(s13, temp_indices(3))
     call neko_scratch_registry%request_field(s22, temp_indices(4))
     call neko_scratch_registry%request_field(s23, temp_indices(5))
     call neko_scratch_registry%request_field(s33, temp_indices(6))
-    call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x,&
-                     s23%x, this%u, this%v, this%w, this%coef)
+
+    call strain_rate(s11%x, s22%x, s33%x, s12%x, &
+         s13%x, s23%x, this%u, this%v, this%w, this%coef)
+
     ! On the CPU we can actually just use the original subroutines...
     if (NEKO_BCKND_DEVICE .eq. 0) then
-       call masked_red_copy(this%s11msk%x,s11%x,this%bc%msk,this%u%size(),n_pts)
-       call masked_red_copy(this%s22msk%x,s22%x,this%bc%msk,this%u%size(),n_pts)
-       call masked_red_copy(this%s33msk%x,s33%x,this%bc%msk,this%u%size(),n_pts)
-       call masked_red_copy(this%s12msk%x,s12%x,this%bc%msk,this%u%size(),n_pts)
-       call masked_red_copy(this%s13msk%x,s13%x,this%bc%msk,this%u%size(),n_pts)
-       call masked_red_copy(this%s23msk%x,s23%x,this%bc%msk,this%u%size(),n_pts)
-       call masked_red_copy(this%pmsk%x,this%p%x,this%bc%msk,this%u%size(),n_pts)
-       call calc_force_array(this%force1%x, this%force2%x, this%force3%x,&
-                             this%force4%x, this%force5%x, this%force6%x,&
-                             this%s11msk%x,&
-                             this%s22msk%x,&
-                             this%s33msk%x,&
-                             this%s12msk%x,&
-                             this%s13msk%x,&
-                             this%s23msk%x,&
-                             this%pmsk%x,&
-                             this%n1%x,&
-                             this%n2%x,&
-                             this%n3%x,&
-                             this%case%material_properties%mu,&
+       call masked_red_copy(this%s11msk%x, s11%x, this%bc%msk, &
+            this%u%size(), n_pts)
+       call masked_red_copy(this%s22msk%x, s22%x, this%bc%msk, &
+            this%u%size(), n_pts)
+       call masked_red_copy(this%s33msk%x, s33%x, this%bc%msk, &
+            this%u%size(), n_pts)
+       call masked_red_copy(this%s12msk%x, s12%x, this%bc%msk, &
+            this%u%size(), n_pts)
+       call masked_red_copy(this%s13msk%x, s13%x, this%bc%msk, &
+            this%u%size(), n_pts)
+       call masked_red_copy(this%s23msk%x, s23%x, this%bc%msk, &
+            this%u%size(), n_pts)
+       call masked_red_copy(this%pmsk%x, this%p%x, this%bc%msk, &
+            this%u%size(), n_pts)
+       call calc_force_array(this%force1%x, this%force2%x, this%force3%x, &
+                             this%force4%x, this%force5%x, this%force6%x, &
+                             this%s11msk%x, &
+                             this%s22msk%x, &
+                             this%s33msk%x, &
+                             this%s12msk%x, &
+                             this%s13msk%x, &
+                             this%s23msk%x, &
+                             this%pmsk%x, &
+                             this%n1%x, &
+                             this%n2%x, &
+                             this%n3%x, &
+                             this%case%fluid%mu, &
                              n_pts)
-       dgtq(1) = glsum(this%force1%x,n_pts)
-       dgtq(2) = glsum(this%force2%x,n_pts)
-       dgtq(3) = glsum(this%force3%x,n_pts)
-       dgtq(4) = glsum(this%force4%x,n_pts)
-       dgtq(5) = glsum(this%force5%x,n_pts)
-       dgtq(6) = glsum(this%force6%x,n_pts)
+       dgtq(1) = glsum(this%force1%x, n_pts)
+       dgtq(2) = glsum(this%force2%x, n_pts)
+       dgtq(3) = glsum(this%force3%x, n_pts)
+       dgtq(4) = glsum(this%force4%x, n_pts)
+       dgtq(5) = glsum(this%force5%x, n_pts)
+       dgtq(6) = glsum(this%force6%x, n_pts)
        !Overwriting masked s11, s22, s33 as they are no longer needed
        this%s11msk = 0.0_rp
        this%s22msk = 0.0_rp
        this%s33msk = 0.0_rp
-       call vcross(this%s11msk%x,this%s22msk%x,this%s33msk%x, &
-                    this%r1%x, this%r2%x, this%r3%x, &
-                    this%force1%x, this%force2%x, this%force3%x,n_pts)
+       call vcross(this%s11msk%x, this%s22msk%x, this%s33msk%x, &
+                   this%r1%x, this%r2%x, this%r3%x, &
+                   this%force1%x, this%force2%x, this%force3%x, n_pts)
        
-       dgtq(7) = glsum(this%s11msk%x,n_pts)
-       dgtq(8) = glsum(this%s22msk%x,n_pts)
-       dgtq(9) = glsum(this%s33msk%x,n_pts)
+       dgtq(7) = glsum(this%s11msk%x, n_pts)
+       dgtq(8) = glsum(this%s22msk%x, n_pts)
+       dgtq(9) = glsum(this%s33msk%x, n_pts)
        this%s11msk = 0.0_rp
        this%s22msk = 0.0_rp
        this%s33msk = 0.0_rp
-       call vcross(this%s11msk%x,this%s22msk%x,this%s33msk%x, &
+       call vcross(this%s11msk%x, this%s22msk%x, this%s33msk%x, &
                     this%r1%x, this%r2%x, this%r3%x, &
-                    this%force4%x, this%force5%x, this%force6%x,n_pts)
-       dgtq(10) = glsum(this%s11msk%x,n_pts)
-       dgtq(11) = glsum(this%s22msk%x,n_pts)
-       dgtq(12) = glsum(this%s33msk%x,n_pts)
+                    this%force4%x, this%force5%x, this%force6%x, n_pts)
+       dgtq(10) = glsum(this%s11msk%x, n_pts)
+       dgtq(11) = glsum(this%s22msk%x, n_pts)
+       dgtq(12) = glsum(this%s33msk%x, n_pts)
     else
        if (n_pts .gt. 0) then
           call device_masked_red_copy(this%s11msk%x_d, s11%x_d, &
@@ -331,7 +352,7 @@ contains
                              this%n1%x_d, &
                              this%n2%x_d, &
                              this%n3%x_d, &
-                             this%case%material_properties%mu, &
+                             this%case%fluid%mu, &
                              n_pts)    
           !Overwriting masked s11, s22, s33 as they are no longer needed
           call device_vcross(this%s11msk%x_d, this%s22msk%x_d, &
@@ -343,37 +364,46 @@ contains
                       this%r1%x_d, this%r2%x_d, this%r3%x_d, &
                       this%force4%x_d, this%force5%x_d, this%force6%x_d, n_pts)
        end if   
-       dgtq(1) = device_glsum(this%force1%x_d,n_pts)
-       dgtq(2) = device_glsum(this%force2%x_d,n_pts)
-       dgtq(3) = device_glsum(this%force3%x_d,n_pts)
-       dgtq(4) = device_glsum(this%force4%x_d,n_pts)
-       dgtq(5) = device_glsum(this%force5%x_d,n_pts)
-       dgtq(6) = device_glsum(this%force6%x_d,n_pts)
-       dgtq(7) = device_glsum(this%s11msk%x_d,n_pts)
-       dgtq(8) = device_glsum(this%s22msk%x_d,n_pts)
-       dgtq(9) = device_glsum(this%s33msk%x_d,n_pts)
-       dgtq(10) = device_glsum(this%s12msk%x_d,n_pts)
-       dgtq(11) = device_glsum(this%s13msk%x_d,n_pts)
-       dgtq(12) = device_glsum(this%s23msk%x_d,n_pts)
+       dgtq(1) = device_glsum(this%force1%x_d, n_pts)
+       dgtq(2) = device_glsum(this%force2%x_d, n_pts)
+       dgtq(3) = device_glsum(this%force3%x_d, n_pts)
+       dgtq(4) = device_glsum(this%force4%x_d, n_pts)
+       dgtq(5) = device_glsum(this%force5%x_d, n_pts)
+       dgtq(6) = device_glsum(this%force6%x_d, n_pts)
+       dgtq(7) = device_glsum(this%s11msk%x_d, n_pts)
+       dgtq(8) = device_glsum(this%s22msk%x_d, n_pts)
+       dgtq(9) = device_glsum(this%s33msk%x_d, n_pts)
+       dgtq(10) = device_glsum(this%s12msk%x_d, n_pts)
+       dgtq(11) = device_glsum(this%s13msk%x_d, n_pts)
+       dgtq(12) = device_glsum(this%s23msk%x_d, n_pts)
     end if
     dgtq = this%scale*dgtq
-    write(log_buf,'(A, I4, A, A)') 'Force and torque on zone ', this%zone_id,'  ', this%zone_name
+    write(log_buf,'(A, I4, A, A)') 'Force and torque on zone ', &
+          this%zone_id,'  ', this%zone_name
     call neko_log%message(log_buf)
-    write(log_buf,'(A)') 'Time step, time, total force/torque, pressure, viscous, direction'
+    write(log_buf,'(A)') &
+          'Time step, time, total force/torque, pressure, viscous, direction'
     call neko_log%message(log_buf)
-    write(log_buf, this%print_format) tstep,t,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),', forcex'
+    write(log_buf, this%print_format) &
+          tstep,t,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),', forcex'
     call neko_log%message(log_buf)
-    write(log_buf, this%print_format) tstep,t,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),', forcey'
+    write(log_buf, this%print_format) &
+         tstep,t,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),', forcey'
     call neko_log%message(log_buf)
-    write(log_buf, this%print_format) tstep,t,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),', forcez'
+    write(log_buf, this%print_format) &
+         tstep,t,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),', forcez'
     call neko_log%message(log_buf)
-    write(log_buf, this%print_format) tstep,t,dgtq(7)+dgtq(10),dgtq(7),dgtq(10),', torquex'
+    write(log_buf, this%print_format) &
+         tstep,t,dgtq(7)+dgtq(10),dgtq(7),dgtq(10),', torquex'
     call neko_log%message(log_buf)
-    write(log_buf, this%print_format) tstep,t,dgtq(8)+dgtq(11),dgtq(8),dgtq(11),', torquey'
+    write(log_buf, this%print_format) &
+         tstep,t,dgtq(8)+dgtq(11),dgtq(8),dgtq(11),', torquey'
     call neko_log%message(log_buf)
-    write(log_buf, this%print_format) tstep,t,dgtq(9)+dgtq(12),dgtq(9),dgtq(12),', torquez'
+    write(log_buf, this%print_format) &
+         tstep,t,dgtq(9)+dgtq(12),dgtq(9),dgtq(12),', torquez'
     call neko_log%message(log_buf)
     call neko_scratch_registry%relinquish_field(temp_indices)
+
   end subroutine force_torque_compute
 
 end module force_torque

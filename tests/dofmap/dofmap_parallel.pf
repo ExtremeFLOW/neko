@@ -71,7 +71,7 @@ contains
     call Xh%init(GLL, 2, 2, 2)
 
     call m%generate_conn()
-    d = dofmap_t(m, Xh)
+    call d%init(m, Xh)
 
     @assertEqual(d%x(1,1,1,1), p(1)%x(1), tolerance=1d-14)
     @assertEqual(d%x(2,1,1,1), p(2)%x(1), tolerance=1d-14)
@@ -138,7 +138,7 @@ contains
          p(6), p(11), p(7), p(12))
     
     call m%generate_conn() 
-    d = dofmap_t(m, Xh)
+    call d%init(m, Xh)
     do i = 1,lx
       do j = 1,lx
       @assertEqual(d%dof(lx,j,i,1), d%dof(1,j,i,2))
@@ -212,7 +212,7 @@ contains
          p(6), p(11), p(7), p(12))
 
     call m%generate_conn()
-    d = dofmap_t(m, Xh)
+    call d%init(m, Xh)
     do i = 1,lx
       do j = 1,lx
       @assertEqual(d%dof(lx+1-i,j,lx,1), d%dof(1,j,i,2))
@@ -284,7 +284,7 @@ contains
     call m%add_element(2, p(2), p(9), p(3), p(10), &
          p(6), p(11), p(7), p(12))
     call m%generate_conn()
-    d = dofmap_t(m, Xh)
+    call d%init(m, Xh)
     do i = 1,lx
       do j = 1,lx
       @assertEqual(d%dof(1,lx+1-j,lx+1-i,1), d%dof(1,j,i,2))
@@ -357,7 +357,7 @@ contains
          p(6), p(11), p(7), p(12))
 
     call m%generate_conn()
-    d = dofmap_t(m, Xh)
+    call d%init(m, Xh)
     do i = 1,lx
       do j = 1,lx
       @assertEqual(d%dof(1,j,lx+1-i,1), d%dof(1,j,i,2))
@@ -431,7 +431,7 @@ contains
     call m%generate_conn()
 
     call m%generate_conn()
-    d = dofmap_t(m, Xh)
+    call d%init(m, Xh)
     do i = 1,lx
       do j = 1,lx
       @assertEqual(d%dof(i,j,1,1), d%dof(1,j,i,2))
@@ -504,7 +504,7 @@ contains
          p(6), p(11), p(7), p(12))
 
     call m%generate_conn()
-    d = dofmap_t(m, Xh)
+    call d%init(m, Xh)
     do i = 1,lx
       do j = 1,lx
       @assertEqual(d%dof(lx+1-j,lx,i,1), d%dof(1,j,i,2))
@@ -577,7 +577,7 @@ contains
          p(6), p(11), p(7), p(12))
 
     call m%generate_conn()
-    d = dofmap_t(m, Xh)
+    call d%init(m, Xh)
     do i = 1,lx
       do j = 1,lx
       @assertEqual(d%dof(j,1,i,1), d%dof(1,j,i,2))
