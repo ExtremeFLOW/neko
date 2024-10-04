@@ -30,6 +30,7 @@ neko_fortran_SOURCES = \
 	sem/dofmap.f90\
 	sem/coef.f90\
 	sem/cpr.f90\
+	sem/sem.f90\
 	sem/spectral_error_indicator.f90\
 	common/time_interpolator.f90\
 	sem/interpolation.f90\

@@ -113,7 +113,7 @@ contains
     ! Regsiter fields if they don't exist.
     do i=1, size(fields)
       fieldi = trim(fields(i))
-      call neko_field_registry%add_field(this%case%fluid%dm_Xh, fieldi,&
+      call neko_field_registry%add_field(this%case%dofmap, fieldi,&
                                          ignore_existing=.true.)
     end do
 

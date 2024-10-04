@@ -131,29 +131,24 @@ module scalar_pnpn
 contains
 
   !> Constructor.
-  !! @param msh The mesh.
   !! @param coef The coefficients.
-  !! @param gs The gather-scatter.
   !! @param params The case parameter file in json.
   !! @param user Type with user-defined procedures.
-  subroutine scalar_pnpn_init(this, msh, coef, gs, params, user, &
-       ulag, vlag, wlag, time_scheme, rho)
+  subroutine scalar_pnpn_init(this, coef, params, user, &
+       ulag, vlag, wlag, time_scheme)
     class(scalar_pnpn_t), target, intent(inout) :: this
-    type(mesh_t), target, intent(inout) :: msh
-    type(coef_t), target, intent(inout) :: coef
-    type(gs_t), target, intent(inout) :: gs
+    type(coef_t), target, intent(in) :: coef
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
-    real(kind=rp), intent(in) :: rho
     integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
 
     call this%free()
 
     ! Initiliaze base type.
-    call this%scheme_init(msh, coef, gs, params, scheme, user, rho)
+    call this%scheme_init(coef, params, scheme, user)
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax, full_formulation = .false.)
@@ -198,7 +193,7 @@ contains
        call this%bc_res%mark_facets(this%user_bc%marked_facet)
     end if
 
-    call this%bc_res%mark_zones_from_list(msh%labeled_zones, 'd_s', &
+    call this%bc_res%mark_zones_from_list(this%msh%labeled_zones, 'd_s', &
                                          this%bc_labels)
     call this%bc_res%finalize()
     call this%bc_res%set_g(0.0_rp)

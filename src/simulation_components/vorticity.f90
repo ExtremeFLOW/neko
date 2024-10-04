@@ -149,7 +149,7 @@ contains
     integer, intent(in) :: tstep
 
     call curl(this%omega_x, this%omega_y, this%omega_z, this%u, this%v, &
-                 this%w, this%temp1, this%temp2, this%case%fluid%c_Xh)
+                 this%w, this%temp1, this%temp2, this%case%coef)
   end subroutine vorticity_compute
 
 end module vorticity
