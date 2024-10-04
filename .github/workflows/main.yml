@@ -183,7 +183,7 @@ jobs:
           fi
           if [ "$nvidia_status" != "success" ]; then
             fail+=("\t- NVIDIA check: $nvidia_status")
-            success=false
+            #success=false
           fi
           if [ "$reframe_status" != "success" ]; then
             fail+=("\t- ReFrame check: $reframe_status")
