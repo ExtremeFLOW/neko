@@ -69,7 +69,7 @@ module case
      real(kind=rp) :: dt
      real(kind=rp) :: end_time
      character(len=:), allocatable :: output_directory
-     type(sampler_t) :: s
+     type(sampler_t) :: sampler
      type(fluid_output_t) :: f_out
      type(chkp_output_t) :: f_chkp
      type(user_t) :: usr
@@ -383,7 +383,7 @@ contains
     !
     ! Setup sampler
     !
-    call this%s%init(this%end_time)
+    call this%sampler%init(this%end_time)
     if (scalar) then
        this%f_out = fluid_output_t(precision, this%fluid, this%scalar, &
             path = trim(this%output_directory))
@@ -398,15 +398,15 @@ contains
     if (trim(string_val) .eq. 'org') then
        ! yes, it should be real_val below for type compatibility
        call json_get(this%params, 'case.nsamples', real_val)
-       call this%s%add(this%f_out, real_val, 'nsamples')
+       call this%sampler%add(this%f_out, real_val, 'nsamples')
     else if (trim(string_val) .eq. 'never') then
        ! Fix a dummy 0.0 output_value
        call json_get_or_default(this%params, 'case.fluid.output_value', &
             real_val, 0.0_rp)
-       call this%s%add(this%f_out, 0.0_rp, string_val)
+       call this%sampler%add(this%f_out, 0.0_rp, string_val)
     else
        call json_get(this%params, 'case.fluid.output_value', real_val)
-       call this%s%add(this%f_out, real_val, string_val)
+       call this%sampler%add(this%f_out, real_val, string_val)
     end if
 
     !
@@ -423,7 +423,7 @@ contains
             string_val, "simulationtime")
        call json_get_or_default(this%params, 'case.checkpoint_value', real_val,&
             1e10_rp)
-       call this%s%add(this%f_chkp, real_val, string_val)
+       call this%sampler%add(this%f_chkp, real_val, string_val)
     end if
 
     !
@@ -454,7 +454,7 @@ contains
 
     call this%msh%free()
 
-    call this%s%free()
+    call this%sampler%free()
 
   end subroutine case_free
 
