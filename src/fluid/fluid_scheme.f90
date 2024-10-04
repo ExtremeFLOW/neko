@@ -68,17 +68,18 @@ module fluid_scheme
   use device_math, only : device_cfill, device_add2s2
   use time_scheme_controller, only : time_scheme_controller_t
   use operators, only : cfl
-  use logger, only : neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
   use scratch_registry, only : scratch_registry_t
-  use user_intf, only : user_t
+  use user_intf, only : user_t, dummy_user_material_properties, &
+                        user_material_properties
   use utils, only : neko_error
-  use material_properties, only : material_properties_t
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
   use field_math, only : field_cfill
+  use gradient_jump_penalty, only : gradient_jump_penalty_t
   implicit none
   private
 
@@ -111,6 +112,11 @@ module fluid_scheme
      integer :: pr_projection_activ_step   !< Steps to activate projection for ksp_pr
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
+     !> Gradient jump panelty
+     logical :: if_gradient_jump_penalty
+     type(gradient_jump_penalty_t) :: gradient_jump_penalty_u
+     type(gradient_jump_penalty_t) :: gradient_jump_penalty_v
+     type(gradient_jump_penalty_t) :: gradient_jump_penalty_w
 
      ! Attributes for field dirichlet BCs
      type(field_dirichlet_vector_t) :: user_field_bc_vel   !< User-computed Dirichlet velocity condition
@@ -130,7 +136,7 @@ module fluid_scheme
      logical :: forced_flow_rate = .false.     !< Is the flow rate forced?
      logical :: freeze = .false.               !< Freeze velocity at initial condition?
      !> Dynamic viscosity
-     real(kind=rp), pointer :: mu => null()
+     real(kind=rp) :: mu
      !> The variable mu field
      type(field_t) :: mu_field
      !> The turbulent kinematic viscosity field name
@@ -138,7 +144,7 @@ module fluid_scheme
      !> Is mu varying in time? Currently only due to LES models.
      logical :: variable_material_properties = .false.
      !> Density
-     real(kind=rp), pointer :: rho => null()
+     real(kind=rp) :: rho
      !> The variable density field
      type(field_t) :: rho_field
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
@@ -161,6 +167,9 @@ module fluid_scheme
      procedure, pass(this) :: set_usr_inflow => fluid_scheme_set_usr_inflow
      !> Compute the CFL number
      procedure, pass(this) :: compute_cfl => fluid_compute_cfl
+     !> Set rho and mu
+     procedure, pass(this) :: set_material_properties => &
+          fluid_scheme_set_material_properties
      !> Constructor
      procedure(fluid_scheme_init_intrf), pass(this), deferred :: init
      !> Destructor
@@ -178,21 +187,19 @@ module fluid_scheme
 
   !> Abstract interface to initialize a fluid formulation
   abstract interface
+<<<<<<< HEAD
      subroutine fluid_scheme_init_intrf(this, coef, lx, params, user, &
-                                        material_properties, time_scheme)
+          time_scheme)
        import fluid_scheme_t
        import json_file
        import coef_t
        import user_t
-       import material_properties_t
        import time_scheme_controller_t
        class(fluid_scheme_t), target, intent(inout) :: this
        type(coef_t), target, intent(in) :: coef
        integer, intent(in) :: lx
        type(json_file), target, intent(inout) :: params
        type(user_t), intent(in) :: user
-       type(material_properties_t), &
-                            target, intent(inout) :: material_properties
        type(time_scheme_controller_t), target, intent(in) :: time_scheme
      end subroutine fluid_scheme_init_intrf
   end interface
@@ -246,8 +253,13 @@ module fluid_scheme
 contains
 
   !> Initialize common data for the current scheme
+<<<<<<< HEAD
   subroutine fluid_scheme_init_common(this, coef, lx, params, scheme, user, &
       material_properties, kspv_init)
+=======
+  subroutine fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
+      kspv_init)
+>>>>>>> develop
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
@@ -255,7 +267,6 @@ contains
     character(len=*), intent(in) :: scheme
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
-    type(material_properties_t), target, intent(inout) :: material_properties
     logical, intent(in) :: kspv_init
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
@@ -265,16 +276,31 @@ contains
     integer :: integer_val, ierr
     character(len=:), allocatable :: string_val1, string_val2
 
-
     !
     ! SEM simulation fundamentals
     !
 
+<<<<<<< HEAD
     this%c_Xh => coef
     this%msh => coef%msh
     this%Xh => coef%Xh
     this%dm_Xh => coef%dof
     this%gs_Xh => coef%gs_h
+=======
+    this%msh => msh
+
+    if (msh%gdim .eq. 2) then
+       call this%Xh%init(GLL, lx, lx)
+    else
+       call this%Xh%init(GLL, lx, lx, lx)
+    end if
+
+    call this%dm_Xh%init(msh, this%Xh)
+
+    call this%gs_Xh%init(this%dm_Xh)
+
+    call this%c_Xh%init(this%gs_Xh)
+>>>>>>> develop
 
     ! Local scratch registry
     this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
@@ -282,12 +308,19 @@ contains
     ! Case parameters
     this%params => params
 
+
+    !
+    ! First section of fluid log
+    !
+
+    call neko_log%section('Fluid')
+    write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
+    call neko_log%message(log_buf)
+
     !
     ! Material properties
     !
-
-    this%rho => material_properties%rho
-    this%mu => material_properties%mu
+    call this%set_material_properties(params, user)
 
     !
     ! Turbulence modelling and variable material properties
@@ -337,13 +370,6 @@ contains
     end if
 
 
-    !
-    ! First section of fluid log
-    !
-
-    call neko_log%section('Fluid')
-    write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
-    call neko_log%message(log_buf)
     if (lx .lt. 10) then
        write(log_buf, '(A, I1)') 'Poly order : ', lx-1
     else if (lx .ge. 10) then
@@ -563,7 +589,7 @@ contains
 
     ! Initialize the source term
     call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user)
-    call this%source_term%add(params, 'case.fluid.source_term')
+    call this%source_term%add(params, 'case.fluid.source_terms')
     
     ! If case.output_boundary is true, set the values for the bc types in the
     ! output of the field.
@@ -614,15 +640,13 @@ contains
 
   !> Initialize all components of the current scheme
   subroutine fluid_scheme_init_all(this, coef, lx, params, kspv_init, &
-                                   kspp_init, scheme, user, &
-                                   material_properties)
+       kspp_init, scheme, user)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(coef_t), target, intent(in) :: coef 
     integer, intent(in) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
-    type(material_properties_t), target, intent(inout) :: material_properties
     logical :: kspv_init
     logical :: kspp_init    
     character(len=*), intent(in) :: scheme
@@ -631,9 +655,10 @@ contains
     logical :: logical_val
     character(len=:), allocatable :: solver_type, precon_type
     character(len=LOG_SIZE) :: log_buf
+    real(kind=rp) :: GJP_param_a, GJP_param_b
 
     call fluid_scheme_init_common(this, coef, lx, params, scheme, user, &
-                                  material_properties, kspv_init)
+                                  kspv_init)
 
     call neko_field_registry%add_field(this%dm_Xh, 'p')
     this%p => neko_field_registry%get_field('p')
@@ -711,6 +736,32 @@ contains
 
     end if
 
+    ! Initiate gradient jump penalty
+    call json_get_or_default(params, &
+                            'case.fluid.gradient_jump_penalty.enabled',&
+                            this%if_gradient_jump_penalty, .false.)
+
+    if (this%if_gradient_jump_penalty .eqv. .true.) then
+       if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
+          call json_get_or_default(params, &
+                            'case.fluid.gradient_jump_penalty.tau',&
+                            GJP_param_a, 0.02_rp)
+          GJP_param_b = 0.0_rp
+       else
+          call json_get_or_default(params, &
+                        'case.fluid.gradient_jump_penalty.scaling_factor',&
+                            GJP_param_a, 0.8_rp)
+          call json_get_or_default(params, &
+                        'case.fluid.gradient_jump_penalty.scaling_exponent',&
+                            GJP_param_b, 4.0_rp)
+       end if
+       call this%gradient_jump_penalty_u%init(params, this%dm_Xh, this%c_Xh, &
+                                              GJP_param_a, GJP_param_b)
+       call this%gradient_jump_penalty_v%init(params, this%dm_Xh, this%c_Xh, &
+                                              GJP_param_a, GJP_param_b)
+       call this%gradient_jump_penalty_w%init(params, this%dm_Xh, this%c_Xh, &
+                                              GJP_param_a, GJP_param_b)
+    end if
 
     call neko_log%end_section()
 
@@ -805,6 +856,13 @@ contains
 
     call this%mu_field%free()
 
+    ! Free gradient jump penalty
+    if (this%if_gradient_jump_penalty .eqv. .true.) then
+       call this%gradient_jump_penalty_u%free()
+       call this%gradient_jump_penalty_v%free()
+       call this%gradient_jump_penalty_w%free()
+    end if
+
 
   end subroutine fluid_scheme_free
 
@@ -852,19 +910,6 @@ contains
     ! Setup checkpoint structure (if everything is fine)
     !
     call this%chkp%init(this%u, this%v, this%w, this%p)
-
-    !
-    ! Setup mean flow fields if requested
-    !
-    if (this%params%valid_path('case.statistics')) then
-       call json_get_or_default(this%params, 'case.statistics.enabled', &
-                                logical_val, .true.)
-       if (logical_val) then
-          call this%mean%init(this%u, this%v, this%w, this%p)
-          call this%stats%init(this%c_Xh, this%mean%u, &
-               this%mean%v, this%mean%w, this%mean%p)
-       end if
-    end if
 
   end subroutine fluid_scheme_validate
 
@@ -1088,5 +1133,65 @@ contains
     end if
 
   end subroutine fluid_scheme_update_material_properties
+
+  !> Sets rho and mu
+  !! @param params The case paramter file.
+  !! @param user The user interface.
+  subroutine fluid_scheme_set_material_properties(this, params, user)
+    class(fluid_scheme_t), intent(inout) :: this
+    type(json_file), intent(inout) :: params
+    type(user_t), target, intent(in) :: user
+    character(len=LOG_SIZE) :: log_buf
+    ! A local pointer that is needed to make Intel happy
+    procedure(user_material_properties),  pointer :: dummy_mp_ptr
+    logical :: nondimensional
+    real(kind=rp) :: dummy_lambda, dummy_cp
+
+    dummy_mp_ptr => dummy_user_material_properties
+
+    if (.not. associated(user%material_properties, dummy_mp_ptr)) then
+
+       write(log_buf, '(A)') "Material properties must be set in the user&
+       & file!"
+       call neko_log%message(log_buf)
+       call user%material_properties(0.0_rp, 0, this%rho, this%mu, &
+            dummy_cp, dummy_lambda, params)
+    else
+       ! Incorrect user input
+       if (params%valid_path('case.fluid.Re') .and. &
+           (params%valid_path('case.fluid.mu') .or. &
+            params%valid_path('case.fluid.rho'))) then
+          call neko_error("To set the material properties for the fluid,&
+          & either provide Re OR mu and rho in the case file.")
+
+          ! Non-dimensional case
+       else if (params%valid_path('case.fluid.Re')) then
+
+          write(log_buf, '(A)') 'Non-dimensional fluid material properties &
+          & input.'
+          call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+          write(log_buf, '(A)') 'Density will be set to 1, dynamic viscosity to&
+          & 1/Re.'
+          call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+
+          ! Read Re into mu for further manipulation.
+          call json_get(params, 'case.fluid.Re', this%mu)
+          write(log_buf, '(A)') 'Read non-dimensional material properties'
+          call neko_log%message(log_buf)
+          write(log_buf, '(A,ES13.6)') 'Re         :',  this%mu
+          call neko_log%message(log_buf)
+
+          ! Set rho to 1 since the setup is non-dimensional.
+          this%rho = 1.0_rp
+          ! Invert the Re to get viscosity.
+          this%mu = 1.0_rp/this%mu
+          ! Dimensional case
+       else
+          call json_get(params, 'case.fluid.mu', this%mu)
+          call json_get(params, 'case.fluid.rho', this%rho)
+       end if
+
+    end if
+  end subroutine fluid_scheme_set_material_properties
 
 end module fluid_scheme

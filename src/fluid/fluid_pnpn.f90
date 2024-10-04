@@ -51,7 +51,6 @@ module fluid_pnpn
   use profiler, only : profiler_start_region, profiler_end_region
   use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
-  use material_properties, only : material_properties_t
   use ax_product, only : ax_t, ax_helm_factory
   use field, only : field_t
   use dirichlet, only : dirichlet_t
@@ -143,22 +142,19 @@ module fluid_pnpn
 
 contains
 
-  subroutine fluid_pnpn_init(this, coef, lx, params, user, &
-                             material_properties, time_scheme)
+  subroutine fluid_pnpn_init(this, coef, lx, params, user, time_scheme)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
     integer, intent(in) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), intent(in) :: user
-    type(material_properties_t), target, intent(inout) :: material_properties
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
 
     call this%free()
 
     ! Initialize base class
-    call this%scheme_init(coef, lx, params, .true., .true., scheme, user, &
-                          material_properties)
+    call this%scheme_init(coef, lx, params, .true., .true., scheme, user)
 
     if (this%variable_material_properties .eqv. .true.) then
        ! Setup backend dependent Ax routines
@@ -639,6 +635,16 @@ contains
          call opcolv(f_x%x, f_y%x, f_z%x, c_Xh%B, msh%gdim, n)
       end if
 
+      ! Compute the grandient jump penalty term
+      if (this%if_gradient_jump_penalty .eqv. .true.) then
+         call this%gradient_jump_penalty_u%compute(u, v, w, u)
+         call this%gradient_jump_penalty_v%compute(u, v, w, v)
+         call this%gradient_jump_penalty_w%compute(u, v, w, w)
+         call this%gradient_jump_penalty_u%perform(f_x)
+         call this%gradient_jump_penalty_v%perform(f_y)
+         call this%gradient_jump_penalty_w%perform(f_z)
+      end if
+      
       if (oifs) then
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
@@ -678,7 +684,6 @@ contains
                               u, v, w, c_Xh%B, rho, dt, &
                               ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
       end if
-
 
       call ulag%update()
       call vlag%update()

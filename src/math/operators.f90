@@ -107,7 +107,9 @@ contains
     integer :: ind
     type(c_ptr) :: res_d
 
-    res_d = device_get_ptr(res)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       res_d = device_get_ptr(res)
+    end if
 
     call neko_scratch_registry%request_field(work, ind)
 

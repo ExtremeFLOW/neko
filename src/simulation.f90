@@ -90,7 +90,6 @@ contains
 
     !> Call stats, samplers and user-init before time loop
     call neko_log%section('Postprocessing')
-    call C%q%eval(t, C%dt, tstep)
     call C%s%sample(t, tstep)
 
     call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
@@ -156,14 +155,13 @@ contains
        ! Execute all simulation components
        call neko_simcomps%compute(t, tstep)
 
-       call C%q%eval(t, C%dt, tstep)
        call C%s%sample(t, tstep)
 
        ! Update material properties
-       call C%usr%material_properties(t, tstep, C%material_properties%rho,&
-                                      C%material_properties%mu, &
-                                      C%material_properties%cp, &
-                                      C%material_properties%lambda, &
+       call C%usr%material_properties(t, tstep, C%fluid%rho,&
+                                      C%fluid%mu, &
+                                      C%scalar%cp, &
+                                      C%scalar%lambda, &
                                       C%params)
 
        call C%usr%user_check(t, tstep, C%fluid%u, C%fluid%v, C%fluid%w, &

@@ -31,6 +31,7 @@ in Neko. The list will be updated as new simcomps are added.
 - Computation of forces and torque on a surface \ref simcomp_force_torque
 - Computation of the weak gradient of a field \ref simcomp_weak_grad
 - User defined components \ref user-file_simcomps
+- Fluid statistics simcomp, "fluid_stats", for more details see the [statistics guide](@ref statistics-guide)
 
 ## Controling execution and file output
 Each simulation component is, by default, executed once per time step to perform
@@ -231,8 +232,8 @@ Subroutines used in the simcomp can be found in src/qoi/drag_torque.f90
  
 ### weak_grad {#simcomp_weak_grad}
 Computes the weak gradient of a field. The weak gradient is value of the
-gradeint multiplied by the local value of the mass matrix. This is how a
-gradient term appears in the weak formulation of the governing equations The
+gradient multiplied by the local value of the mass matrix. This is how a
+gradient term appears in the weak formulation of the governing equations. The
 field to derivate is controlled by the `field` keyword. The simcomp will
 register the computed components of the gradients in the registry as
 `weak_grad_[field]_x`, `weak_grad_[field]_y`, `weak_grad_[field]_z` where the
