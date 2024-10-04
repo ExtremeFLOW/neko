@@ -215,6 +215,36 @@ file documentation.
    `base_value` keyword, and then assigned a zone value inside a point zone. The
    point zone is specified by the `name` keyword, and should be defined in the
    `case.point_zones` object. See more about point zones @ref point-zones.md.
+5. `field`, where the initial condition is retrieved from a field file.
+   The following keywords can be used:
+   
+| Name             | Description                                                                                        | Admissible values            | Default value |
+| ---------------- | -------------------------------------------------------------------------------------------------- | ---------------------------- | ------------- |
+| `file_name`      | Name of the field file to use (e.g. `myfield0.f00034`).                                            | Strings ending with `f*****` | -             |
+| `interpolate`    | Whether to interpolate the velocity and pressure fields from the field file onto the current mesh. | `true` or `false`            | `false`       |
+| `tolerance`      | Tolerance for the point search.                                                                    | Positive real.               | `1e-6`        |
+| `mesh_file_name` | If interpolation is enabled, the name of the field file that contains the mesh coordinates.        | Strings ending with `f*****` | `file_name`   |
+
+   @attention Interpolating a field from the same mesh but different 
+   polynomial order is performed implicitly and does not require to enable
+   interpolation.
+   
+   @note It is recommended to interpolate from `fld` files that were 
+   written in double precision. 
+   To check if your `fld` file was written in double precision, run
+   the command:
+   ~~~~~~~~~~~~~~~{.sh}
+   head -1 field0.f00000
+   ~~~~~~~~~~~~~~~
+   The output `#std 4 ...` indicates single precision, 
+   whereas `#std 8 ...` indicates double precision.
+   Neko write single precision `fld` files by default. To write your 
+   files in double precision, set `case.output_precision` to
+   `"double"`. 
+  
+   @attention Neko does not detect wether interpolation is needed or not. 
+   Interpolation will always be performed if `"interpolate"` is set 
+   to `true` even if the field file matches with the current simulation. 
 
 ### Blasius profile
 The `blasius` object is used to specify the Blasius profile that can be used for the
@@ -467,8 +497,12 @@ that can be described concisely directly in the table.
 | `output_value`                          | The frequency of sampling in terms of `output_control`.                                           | Positive real or integer                         | -             |
 | `inflow_condition.type`                 | Velocity inflow condition type.                                                                   | `user`, `uniform`, `blasius`                     | -             |
 | `inflow_condition.value`                | Value of the inflow velocity.                                                                     | Vector of 3 reals                                | -             |
-| `initial_condition.type`                | Initial condition type.                                                                           | `user`, `uniform`, `blasius`                     | -             |
+| `initial_condition.type`                | Initial condition type.                                                                           | `user`, `uniform`, `blasius`, `field`            | -             |
 | `initial_condition.value`               | Value of the velocity initial condition.                                                          | Vector of 3 reals                                | -             |
+| `initial_condition.file_name`           | If `"type" = "field"`, the path to the field file to read from.                                   | String ending with `.fld`, `.chkp`, `.nek5000` or `f*****`.  | -             |
+| `initial_condition.sample_index`        | If `"type" = "field"`, and file type is `fld` or `nek5000`, the index of the file to sampled.     | Positive integer.                                | -1            |
+| `initial_condition.previous_mesh`       | If `"type" = "field"`, and file type is `chkp`, the previous mesh from which to interpolate.      | String ending with `.nmsh`.                      | -             |
+| `initial_condition.tolerance`           | If `"type" = "field"`, and file type is `chkp`, tolerance to use for mesh interpolation.          | Positive real.                                   | 1e-6          |
 | `blasius.delta`                         | Boundary layer thickness in the Blasius profile.                                                  | Positive real                                    | -             |
 | `blasius.freestream_velocity`           | Free-stream velocity in the Blasius profile.                                                      | Vector of 3 reals                                | -             |
 | `blasius.approximation`                 | Numerical approximation of the Blasius profile.                                                   | `linear`, `quadratic`, `cubic`, `quartic`, `sin` | -             |
@@ -544,7 +578,10 @@ file documentation.
    `base_value` keyword, and then assigned a zone value inside a point zone. The
    point zone is specified by the `name` keyword, and should be defined in the
    `case.point_zones` object. See more about point zones @ref point-zones.md.
-
+4. `field`, where the initial condition is retrieved from a field file. Works
+   in the same way as for the fluid. See the 
+   [fluid section](@ref case-file_fluid-ic) for detailed explanations.
+  
 ### Source terms
 
 The configuration of source terms is the same as for the fluid. A demonstration

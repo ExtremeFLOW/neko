@@ -113,7 +113,7 @@ io/map_file.o : io/map_file.f90 io/format/map.o comm/comm.o common/utils.o io/ge
 io/re2_file.o : io/re2_file.f90 common/log.o adt/htable.o io/map_file.o io/format/map.o io/format/re2.o common/datadist.o comm/mpi_types.o comm/comm.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o 
 io/rea_file.o : io/rea_file.f90 common/log.o adt/htable.o common/datadist.o comm/comm.o io/map_file.o io/re2_file.o io/format/rea.o io/format/map.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o 
 io/fld_file.o : io/fld_file.f90 comm/mpi_types.o math/math.o common/datadist.o comm/comm.o common/utils.o mesh/mesh.o fluid/mean_sqr_flow.o fluid/mean_flow.o io/fld_file_data.o math/vector.o common/structs.o sem/space.o sem/dofmap.o field/field_list.o field/field.o io/generic_file.o config/num_types.o 
-io/fld_file_data.o : io/fld_file_data.f90 math/vector.o math/math.o config/num_types.o 
+io/fld_file_data.o : io/fld_file_data.f90 mesh/mesh.o common/utils.o common/global_interpolation.o sem/space.o sem/dofmap.o field/field.o math/vector.o math/math.o config/num_types.o 
 io/vtk_file.o : io/vtk_file.f90 comm/comm.o common/log.o mesh/tri_mesh.o mesh/tet_mesh.o field/mesh_field.o sem/dofmap.o field/field.o mesh/mesh.o common/utils.o io/generic_file.o config/num_types.o 
 io/stl_file.o : io/stl_file.f90 io/format/stl.o comm/comm.o common/utils.o comm/mpi_types.o mesh/point.o common/log.o mesh/tri_mesh.o io/generic_file.o config/num_types.o 
 io/nmsh_file.o : io/nmsh_file.f90 common/log.o comm/mpi_types.o common/datadist.o mesh/element.o io/format/nmsh.o adt/tuple.o mesh/point.o common/utils.o mesh/mesh.o config/num_types.o comm/comm.o io/generic_file.o 
@@ -130,7 +130,7 @@ io/fluid_stats_output.o : io/fluid_stats_output.f90 math/matrix.o io/output.o de
 io/mean_sqr_flow_output.o : io/mean_sqr_flow_output.f90 io/output.o config/num_types.o fluid/mean_sqr_flow.o 
 io/data_streamer.o : io/data_streamer.F90 config/neko_config.o comm/mpi_types.o comm/comm.o device/device.o common/utils.o sem/coef.o field/field.o config/num_types.o 
 common/sampler.o : common/sampler.f90 common/time_based_controller.o config/num_types.o common/profiler.o common/utils.o common/log.o comm/comm.o io/fld_file.o io/output.o 
-common/global_interpolation.o : common/global_interpolation.F90 comm/mpi_types.o math/math.o comm/comm.o sem/local_interpolation.o common/utils.o common/log.o mesh/mesh.o sem/dofmap.o sem/space.o config/num_types.o 
+common/global_interpolation.o : common/global_interpolation.F90 common/structs.o comm/mpi_types.o math/math.o comm/comm.o sem/local_interpolation.o common/utils.o common/log.o mesh/mesh.o sem/dofmap.o sem/space.o config/num_types.o 
 common/profiler.o : common/profiler.F90 common/runtime_statistics.o common/craypat.o device/hip/roctx.o device/cuda/nvtx.o device/device.o config/neko_config.o 
 common/craypat.o : common/craypat.F90 
 bc/bc.o : bc/bc.f90 common/utils.o adt/tuple.o adt/stack.o mesh/facet_zone.o mesh/mesh.o sem/space.o sem/coef.o sem/dofmap.o device/device.o config/num_types.o config/neko_config.o 
@@ -208,7 +208,7 @@ fluid/mean_flow.o : fluid/mean_flow.f90 field/field.o field/mean_field.o
 fluid/fluid_stats.o : fluid/fluid_stats.f90 common/utils.o config/neko_config.o device/device.o common/stats_quant.o field/field_list.o field/field.o sem/coef.o math/operators.o math/math.o config/num_types.o math/bcknd/device/device_math.o field/mean_field.o 
 fluid/mean_sqr_flow.o : fluid/mean_sqr_flow.f90 field/field.o field/mean_sqr_field.o 
 fluid/flow_profile.o : fluid/flow_profile.f90 config/num_types.o 
-fluid/flow_ic.o : fluid/flow_ic.f90 mesh/point_zone_registry.o mesh/point_zone.o common/json_utils.o common/user_intf.o math/bcknd/device/device_math.o math/math.o sem/coef.o common/utils.o field/field.o device/device.o fluid/flow_profile.o config/neko_config.o gs/gather_scatter.o config/num_types.o 
+fluid/flow_ic.o : fluid/flow_ic.f90 sem/space.o sem/interpolation.o common/global_interpolation.o io/file.o io/fld_file.o io/fld_file_data.o mesh/point_zone_registry.o mesh/point_zone.o common/json_utils.o common/user_intf.o math/bcknd/device/device_math.o math/math.o sem/coef.o common/utils.o field/field.o device/device.o fluid/flow_profile.o config/neko_config.o gs/gather_scatter.o common/log.o config/num_types.o 
 fluid/advection.o : fluid/advection.f90 time_schemes/time_scheme_controller.o field/field_series.o sem/coef.o field/field.o sem/space.o config/num_types.o 
 fluid/advection_fctry.o : fluid/advection_fctry.f90 fluid/bcknd/advection/adv_oifs.o fluid/bcknd/advection/adv_no_dealias.o fluid/bcknd/advection/adv_dealias.o common/json_utils.o fluid/advection.o 
 fluid/bcknd/advection/adv_dealias.o : fluid/bcknd/advection/adv_dealias.f90 device/device.o sem/interpolation.o math/operators.o config/neko_config.o math/bcknd/device/device_math.o sem/coef.o field/field.o sem/space.o math/math.o config/num_types.o fluid/advection.o 
@@ -268,7 +268,7 @@ scalar/scalar_pnpn.o : scalar/scalar_pnpn.f90 field/scratch_registry.o common/ti
 scalar/scalar_aux.o : scalar/scalar_aux.f90 krylov/krylov.o config/num_types.o common/log.o 
 scalar/scalar_residual.o : scalar/scalar_residual.f90 config/num_types.o mesh/mesh.o sem/space.o bc/facet_normal.o scalar/source_scalar.o sem/coef.o field/field.o math/ax.o gs/gather_scatter.o 
 scalar/scalar_residual_fctry.o : scalar/scalar_residual_fctry.f90 scalar/bcknd/sx/scalar_residual_sx.o scalar/bcknd/cpu/scalar_residual_cpu.o scalar/bcknd/device/scalar_residual_device.o config/neko_config.o scalar/scalar_residual.o 
-scalar/scalar_ic.o : scalar/scalar_ic.f90 mesh/point_zone_registry.o mesh/point_zone.o common/json_utils.o common/user_intf.o math/math.o sem/coef.o common/utils.o field/field.o device/device.o math/bcknd/device/device_math.o config/num_types.o config/neko_config.o gs/gather_scatter.o 
+scalar/scalar_ic.o : scalar/scalar_ic.f90 sem/space.o sem/interpolation.o common/global_interpolation.o io/file.o common/checkpoint.o io/fld_file.o io/fld_file_data.o common/log.o field/field_registry.o mesh/point_zone_registry.o mesh/point_zone.o common/json_utils.o common/user_intf.o math/math.o sem/coef.o common/utils.o field/field.o device/device.o math/bcknd/device/device_math.o config/num_types.o config/neko_config.o gs/gather_scatter.o 
 scalar/scalar_source_term.o : scalar/scalar_source_term.f90 common/user_intf.o sem/coef.o field/field_list.o field/field.o source_terms/source_term_handler.o source_terms/source_term.o scalar/scalar_user_source_term.o 
 scalar/scalar_user_source_term.o : scalar/scalar_user_source_term.f90 sem/dofmap.o math/math.o math/bcknd/device/device_math.o device/device.o sem/coef.o field/field_list.o source_terms/source_term.o common/utils.o config/num_types.o config/neko_config.o 
 scalar/bcknd/cpu/scalar_residual_cpu.o : scalar/bcknd/cpu/scalar_residual_cpu.f90 math/math.o config/num_types.o mesh/mesh.o sem/space.o sem/coef.o field/field.o math/ax.o scalar/scalar_residual.o 
