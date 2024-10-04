@@ -148,7 +148,7 @@ contains
     type(coef_t), target, intent(in) :: coef
     real(kind=rp), intent(in) :: a, b
 
-    class(element_t), pointer :: ep
+!    class(element_t), pointer :: ep
     integer :: i, j
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
 
@@ -169,8 +169,7 @@ contains
 
     allocate(this%n_facet(this%coef%msh%nelv))
     do i = 1, this%coef%msh%nelv
-       ep => this%coef%msh%elements(i)%e
-       select type (ep)
+       select type (ep  => this%coef%msh%elements(i)%e)
        type is (hex_t)
           this%n_facet(i) = 6
        type is (quad_t)
@@ -184,8 +183,7 @@ contains
                         this%lx + 2, this%coef%msh%nelv))
 
     do i = 1, this%coef%msh%nelv
-       ep => this%coef%msh%elements(i)%e
-       select type (ep)
+       select type (ep => this%coef%msh%elements(i)%e)
        type is (hex_t)
           call eval_h2_hex(this%h2(:, :, :, i), this%lx, ep)
        type is (quad_t)
@@ -323,7 +321,7 @@ contains
   subroutine eval_h2_hex(h2_el, n, ep)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: h2_el(n + 2, n + 2, n + 2)
-    type(hex_t), pointer, intent(in) :: ep
+    type(hex_t), target, intent(in) :: ep
 
     integer :: i
     type(point_t), pointer :: p1, p2, p3, p4, p5, p6, p7, p8
