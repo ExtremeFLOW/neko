@@ -209,10 +209,6 @@ contains
     end do
     this%n_el_lvls = glimax(this%el_lvl,nelv)
     this%n_gll_lvls = this%n_el_lvls*lx
-    if ( pe_rank .eq. 0) then
-       write(*,*) 'Number of element levels', this%n_el_lvls
-       write(*,*) 'Total number of levels', this%n_gll_lvls
-    end if
     !Numbers the points in each element based on the element level
     !and its orientation
     do e = 1, nelv
