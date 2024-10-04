@@ -5,7 +5,7 @@
     "output_at_end": true,
     "output_boundary": true,
     "output_checkpoints": false,
-    "end_time": 2,
+    "end_time": 0.002,
     "timestep": 0.001,
     "numerics": {
         "time_order": 3,
@@ -16,9 +16,6 @@
         "scheme": "pnpn",
         "Re": 1400,
         "initial_condition": {
-            "type": "blasius"
-        },
-        "inflow_condition": {
             "type": "blasius"
         },
         "blasius": {
@@ -41,8 +38,25 @@
             "max_iterations": 800
         },
         "boundary_types": ["sym", "w", "o", "v"],
+        "boundary_conditions": [
+            {
+              "type": "no_slip",
+              "zone_index": 2
+            },
+            {
+              "type": "outflow",
+              "zone_index": 3
+            },
+            {
+              "type": "blasius_profile",
+              "approximation": "sin",
+              "delta": 0.6,
+              "freestream_velocity": [1.0, 0.0, 0.0],
+              "zone_index": 4
+            }
+        ],
         "output_control": "nsamples",
-        "output_value": 100
+        "output_value": 2
     }
 }
 }

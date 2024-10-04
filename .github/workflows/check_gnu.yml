@@ -49,7 +49,8 @@ jobs:
               sudo apt-get update
               sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
                 automake autotools-dev libopenblas-dev make git m4 python3 \
-                cmake-curses-gui
+                python3-pip cmake-curses-gui
+              sudo pip3 install pytest
               echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
@@ -60,6 +61,8 @@ jobs:
               brew install automake
               brew install gcc@11
               brew install gcc@12
+              brew install python
+              pip3 install pytest
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 
@@ -71,6 +74,7 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
       RP: ${{ matrix.precision }}
+      NEKO_BIN: ${{ github.workspace }}/src
 
     steps:
       - name: Checkout
@@ -159,6 +163,14 @@ jobs:
           ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-opencl
           make -j ${{ steps.setup-env.outputs.nproc }}
 
+      - name: Regresion tests
+        if: matrix.backend == 'cpu'
+        run: |
+           cd integration_tests
+           pytest --tb=no
+           cd ..
+
+
       - name: Check
         if: matrix.backend == 'cpu'
         run: |
@@ -171,6 +183,14 @@ jobs:
           name: Test report - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
           path: tests/test-suite.log
           retention-days: 2
+
+      - name: Archive integration test report
+        if: matrix.backend == 'cpu' && failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Integration test logs - ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
+          path: integration_tests/logs
+          retention-days: 1
 
       - name: Dist (CPU backend)
         if: matrix.backend == 'cpu'
