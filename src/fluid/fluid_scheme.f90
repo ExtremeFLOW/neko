@@ -187,7 +187,6 @@ module fluid_scheme
 
   !> Abstract interface to initialize a fluid formulation
   abstract interface
-<<<<<<< HEAD
      subroutine fluid_scheme_init_intrf(this, coef, lx, params, user, &
           time_scheme)
        import fluid_scheme_t
@@ -253,13 +252,8 @@ module fluid_scheme
 contains
 
   !> Initialize common data for the current scheme
-<<<<<<< HEAD
   subroutine fluid_scheme_init_common(this, coef, lx, params, scheme, user, &
-      material_properties, kspv_init)
-=======
-  subroutine fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
       kspv_init)
->>>>>>> develop
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
@@ -280,27 +274,11 @@ contains
     ! SEM simulation fundamentals
     !
 
-<<<<<<< HEAD
     this%c_Xh => coef
     this%msh => coef%msh
     this%Xh => coef%Xh
     this%dm_Xh => coef%dof
     this%gs_Xh => coef%gs_h
-=======
-    this%msh => msh
-
-    if (msh%gdim .eq. 2) then
-       call this%Xh%init(GLL, lx, lx)
-    else
-       call this%Xh%init(GLL, lx, lx, lx)
-    end if
-
-    call this%dm_Xh%init(msh, this%Xh)
-
-    call this%gs_Xh%init(this%dm_Xh)
-
-    call this%c_Xh%init(this%gs_Xh)
->>>>>>> develop
 
     ! Local scratch registry
     this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
