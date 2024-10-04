@@ -208,12 +208,12 @@ contains
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     real(kind=rp), intent(in) :: uinf(3)
-    integer :: n
+    integer :: n, i
     character(len=LOG_SIZE) :: log_buf
 
     call neko_log%message("Type : uniform")
-    write (log_buf, '(A,"[",2(F10.6,","),F10.6,"]")') "Value: ", uinf(1), &
-         uinf(2), uinf(3)
+    write (log_buf, '(A, 3(ES12.6, A))') "Value: [", (uinf(i), ", ", i=1, 2), &
+         uinf(3), "]"
     call neko_log%message(log_buf)
 
     u = uinf(1)
@@ -242,10 +242,10 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     call neko_log%message("Type         : blasius")
-    write (log_buf, '(A,F10.6)') "delta        : ", delta
+    write (log_buf, '(A,ES12.6)') "delta        : ", delta
     call neko_log%message(log_buf)
     call neko_log%message("Approximation : " // trim(type))
-    write (log_buf, '(A,"[",2(F10.6,","),F10.6,"]")') "Value         : ", &
+    write (log_buf, '(A,"[",2(ES12.6,","),ES12.6,"]")') "Value         : ", &
          uinf(1), uinf(2), uinf(3)
     call neko_log%message(log_buf)
 
@@ -312,10 +312,10 @@ contains
     integer :: size
 
     call neko_log%message("Type       : point_zone")
-    write (log_buf, '(A,F10.6)') "Base value : ", base_value
+    write (log_buf, '(A,ES12.6)') "Base value : ", base_value
     call neko_log%message(log_buf)
     call neko_log%message("Zone name : " // trim(zone_name))
-    write (log_buf, '(A,"[",2(F10.6,","),F10.6,"]")') "Value      : ", &
+    write (log_buf, '(A,"[",2(ES12.6,","),ES12.6," ]")') "Value      : ", &
          zone_value(1), zone_value(2), zone_value(3)
     call neko_log%message(log_buf)
 
@@ -409,7 +409,7 @@ contains
                call neko_error("Invalid file name for the initial condition. &
 &The file format must be e.g. 'mean0.f00001'")
 
-          write (log_buf, '(A,ES13.6)') "Tolerance     :", tolerance
+          write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance
           call neko_log%message(log_buf)
           write (log_buf, '(A,A)')     "Mesh file     : ", &
                trim(mesh_file_name)

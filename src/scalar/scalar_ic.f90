@@ -194,7 +194,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     call neko_log%message("Type : uniform")
-    write (log_buf, '(A,F10.6)') "Value: ", ic_value
+    write (log_buf, '(A,ES12.6)') "Value: ", ic_value
     call neko_log%message(log_buf)
 
     s = ic_value
@@ -224,10 +224,10 @@ contains
     integer :: size
 
     call neko_log%message("Type       : point_zone")
-    write (log_buf, '(A,F10.6)') "Base value: ", base_value
+    write (log_buf, '(A,ES12.6)') "Base value: ", base_value
     call neko_log%message(log_buf)
     call neko_log%message("Zone name : " // trim(zone_name))
-    write (log_buf, '(A,F10.6)') "Zone value: ", zone_value
+    write (log_buf, '(A,ES12.6)') "Zone value: ", zone_value
     call neko_log%message(log_buf)
 
     size = s%dof%size()
@@ -311,7 +311,7 @@ contains
                call neko_error("Invalid file name for the initial condition. &
 &The file format must be e.g. 'mean0.f00001'")
 
-          write (log_buf, '(A,ES13.6)') "Tolerance     :", tolerance
+          write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance
           call neko_log%message(log_buf)
           write (log_buf, '(A,A)')     "Mesh file     : ", &
                trim(mesh_file_name)
