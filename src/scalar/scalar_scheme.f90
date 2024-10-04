@@ -309,12 +309,14 @@ contains
   !! @param params The case parameter file in json.
   !! @param scheme The name of the scalar scheme.
   !! @param user Type with user-defined procedures.
-  subroutine scalar_scheme_init(this, c_Xh, params, scheme, user)
+  !! @param rho The density of the fluid
+  subroutine scalar_scheme_init(this, c_Xh, params, scheme, user, rho)
     class(scalar_scheme_t), target, intent(inout) :: this
     type(coef_t), target, intent(in) :: c_Xh
     type(json_file), target, intent(inout) :: params
     character(len=*), intent(in) :: scheme
     type(user_t), target, intent(in) :: user
+    real(kind=rp), intent(in) :: rho
     ! IO buffer for log output
     character(len=LOG_SIZE) :: log_buf
     ! Variables for retrieving json parameters
@@ -373,6 +375,7 @@ contains
     !
     ! Material properties
     !
+    this%rho = rho
     call this%set_material_properties(params, user)
 
     write(log_buf, '(A,ES13.6)') 'rho        :', this%rho

@@ -135,20 +135,21 @@ contains
   !! @param params The case parameter file in json.
   !! @param user Type with user-defined procedures.
   subroutine scalar_pnpn_init(this, coef, params, user, &
-       ulag, vlag, wlag, time_scheme)
+       ulag, vlag, wlag, time_scheme, rho)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
+    real(kind=rp), intent(in) :: rho
     integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
 
     call this%free()
 
     ! Initiliaze base type.
-    call this%scheme_init(coef, params, scheme, user)
+    call this%scheme_init(coef, params, scheme, user, rho)
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax, full_formulation = .false.)
