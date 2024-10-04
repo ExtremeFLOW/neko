@@ -292,20 +292,25 @@ $(document).ready(function(){initNavTree('d2/dc4/source__term__handler_8f90_sour
 <div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160; </div>
 <div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;    <span class="keywordtype">integer</span> :: n_sources, i</div>
 <div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160; </div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;    n_sources = <span class="keyword">size</span>(this%source_terms)</div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;    <span class="keyword">call </span>move_alloc(this%source_terms, temp)</div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    <span class="keyword">allocate</span>(this%source_terms(n_sources + 1))</div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160; </div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(temp)) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;       <span class="keywordflow">do</span> i = 1, n_sources</div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;          <span class="keyword">call </span>move_alloc(temp(i)%source_term, this%source_terms(i)%source_term)</div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;<span class="keywordflow">       end do</span></div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;<span class="keywordflow">    end if</span></div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160; </div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;    this%source_terms(n_sources + 1)%source_term = <a class="code" href="../../de/de7/namespacesource__term.html">source_term</a></div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160; </div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../db/d94/namespacesource__term__handler.html#ae377433d10ad5c802bb3888db110ff68">source_term_handler_add_source_term</a></div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;<span class="keyword">end module </span><a class="code" href="../../db/d94/namespacesource__term__handler.html">source_term_handler</a></div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;    <span class="keywordflow">if</span>(<span class="keyword">allocated</span>(this%source_terms)) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;       n_sources = <span class="keyword">size</span>(this%source_terms)</div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;       n_sources = 0</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;<span class="keywordflow">    endif</span></div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160; </div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;    <span class="keyword">call </span>move_alloc(this%source_terms, temp)</div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;    <span class="keyword">allocate</span>(this%source_terms(n_sources + 1))</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160; </div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(temp)) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;       <span class="keywordflow">do</span> i = 1, n_sources</div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;          <span class="keyword">call </span>move_alloc(temp(i)%source_term, this%source_terms(i)%source_term)</div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;<span class="keywordflow">       end do</span></div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160; </div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    this%source_terms(n_sources + 1)%source_term = <a class="code" href="../../de/de7/namespacesource__term.html">source_term</a></div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160; </div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../db/d94/namespacesource__term__handler.html#ae377433d10ad5c802bb3888db110ff68">source_term_handler_add_source_term</a></div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;<span class="keyword">end module </span><a class="code" href="../../db/d94/namespacesource__term__handler.html">source_term_handler</a></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__extract__item_html"><div class="ttname"><a href="../../d9/d2b/interfacejson__utils_1_1json__extract__item.html">json_utils::json_extract_item</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00059">json_utils.f90:59</a></div></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get__or__default_html"><div class="ttname"><a href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_utils::json_get_or_default</a></div><div class="ttdoc">Retrieves a parameter by name or assigns a provided default value. In the latter case also adds the m...</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00053">json_utils.f90:53</a></div></div>
 <div class="ttc" id="ainterfacejson__utils_1_1json__get_html"><div class="ttname"><a href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_utils::json_get</a></div><div class="ttdoc">Retrieves a parameter by name or throws an error.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d44/json__utils_8f90_source.html#l00044">json_utils.f90:44</a></div></div>
@@ -343,7 +348,7 @@ $(document).ready(function(){initNavTree('d2/dc4/source__term__handler_8f90_sour
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_5333ab263fff069c320f5b66c5911c96.html">source_terms</a></li><li class="navelem"><a class="el" href="../../d2/dc4/source__term__handler_8f90.html">source_term_handler.f90</a></li>
-    <li class="footer">Generated on Thu Oct 3 2024 03:38:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Oct 4 2024 03:38:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

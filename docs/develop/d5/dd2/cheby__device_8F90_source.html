@@ -359,54 +359,58 @@ $(document).ready(function(){initNavTree('d5/dd2/cheby__device_8F90_source.html'
 <div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160; </div>
 <div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;        <span class="keyword">call </span>this%M%solve(w, r, n)</div>
 <div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160; </div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;        b = (this%dlt * a / 2.0_rp)**2</div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;        a = 1.0_rp / (this%tha - b)</div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;        <span class="keyword">call </span>device_add2s1(d_d, w_d, b, n)<span class="comment">! d = w + b*d</span></div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160; </div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;        <span class="keyword">call </span>device_add2s2(x%x_d, d_d, a, n)<span class="comment">! x = x + a*d</span></div>
-<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;<span class="keywordflow">      end do</span></div>
-<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160; </div>
-<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;      <span class="comment">! calculate residual</span></div>
-<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;      <span class="keyword">call </span>device_copy(r_d, f_d, n)</div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;      <span class="keyword">call </span>ax%compute(w, x%x, coef, x%msh, x%Xh)</div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;      <span class="keyword">call </span>gs_h%op(w, n, gs_op_add, this%gs_event)</div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;      <span class="keyword">call </span>bc_list_apply(blst, w, n)</div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;      <span class="keyword">call </span>device_sub2(r_d, w_d, n)</div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;      rtr = device_glsc3(r_d, coef%mult_d, r_d, n)</div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;      rnorm = sqrt(rtr) * norm_fac</div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;      ksp_results%res_final = rnorm</div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;      ksp_results%iter = iter</div>
-<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;    <span class="keyword">end </span>associate</div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;  <span class="keyword">end function </span><a class="code" href="../../d4/dc5/namespacecheby__device.html#ad7bb5882d196d0e7b3ffb2448241b36c">cheby_device_solve</a></div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160; </div>
-<div class="line"><a name="l00290"></a><span class="lineno"><a class="line" href="../../d4/dc5/namespacecheby__device.html#acb951f5c7ac950d097ca08cadf72f6ef">  290</a></span>&#160;  <span class="keyword">function </span><a class="code" href="../../d4/dc5/namespacecheby__device.html#acb951f5c7ac950d097ca08cadf72f6ef">cheby_device_solve_coupled</a>(this, Ax, x, y, z, fx, fy, fz, &amp;</div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;       n, coef, blstx, blsty, blstz, gs_h, niter) <span class="keyword">result</span>(ksp_results)</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d7/d81/structcheby__device_1_1cheby__device__t.html">cheby_device_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    <span class="keywordtype">class</span>(ax_t), <span class="keywordtype">intent(inout)</span> :: ax</div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: x</div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: y</div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: z</div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(inout)</span> :: fx</div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(inout)</span> :: fy</div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(inout)</span> :: fz</div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: coef</div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blstx</div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blsty</div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blstz</div>
-<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    <span class="keywordtype">type</span>(gs_t), <span class="keywordtype">intent(inout)</span> :: gs_h</div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;    <span class="keywordtype">type</span>(ksp_monitor_t), <span class="keywordtype">dimension(3)</span> :: ksp_results</div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: niter</div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160; </div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;    ksp_results(1) = this%solve(ax, x, fx, n, coef, blstx, gs_h, niter)</div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;    ksp_results(2) = this%solve(ax, y, fy, n, coef, blsty, gs_h, niter)</div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;    ksp_results(3) = this%solve(ax, z, fz, n, coef, blstz, gs_h, niter)</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;        <span class="keywordflow">if</span> (iter .eq. 2) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;          b = 0.5_rp * (this%dlt * a)**2</div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;        <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;          b = (this%dlt * a / 2.0_rp)**2</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;<span class="keywordflow">        end if</span></div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;        a = 1.0_rp/(this%tha - b/a)</div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;        <span class="keyword">call </span>device_add2s1(d_d, w_d, b, n)<span class="comment">! d = w + b*d</span></div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160; </div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;        <span class="keyword">call </span>device_add2s2(x%x_d, d_d, a, n)<span class="comment">! x = x + a*d</span></div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;<span class="keywordflow">      end do</span></div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160; </div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;      <span class="comment">! calculate residual</span></div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;      <span class="keyword">call </span>device_copy(r_d, f_d, n)</div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;      <span class="keyword">call </span>ax%compute(w, x%x, coef, x%msh, x%Xh)</div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;      <span class="keyword">call </span>gs_h%op(w, n, gs_op_add, this%gs_event)</div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;      <span class="keyword">call </span>bc_list_apply(blst, w, n)</div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;      <span class="keyword">call </span>device_sub2(r_d, w_d, n)</div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;      rtr = device_glsc3(r_d, coef%mult_d, r_d, n)</div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;      rnorm = sqrt(rtr) * norm_fac</div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;      ksp_results%res_final = rnorm</div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;      ksp_results%iter = iter</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    <span class="keyword">end </span>associate</div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;  <span class="keyword">end function </span><a class="code" href="../../d4/dc5/namespacecheby__device.html#ad7bb5882d196d0e7b3ffb2448241b36c">cheby_device_solve</a></div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160; </div>
+<div class="line"><a name="l00294"></a><span class="lineno"><a class="line" href="../../d4/dc5/namespacecheby__device.html#acb951f5c7ac950d097ca08cadf72f6ef">  294</a></span>&#160;  <span class="keyword">function </span><a class="code" href="../../d4/dc5/namespacecheby__device.html#acb951f5c7ac950d097ca08cadf72f6ef">cheby_device_solve_coupled</a>(this, Ax, x, y, z, fx, fy, fz, &amp;</div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;       n, coef, blstx, blsty, blstz, gs_h, niter) <span class="keyword">result</span>(ksp_results)</div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d7/d81/structcheby__device_1_1cheby__device__t.html">cheby_device_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;    <span class="keywordtype">class</span>(ax_t), <span class="keywordtype">intent(inout)</span> :: ax</div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: x</div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: y</div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: z</div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(inout)</span> :: fx</div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(inout)</span> :: fy</div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;<span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(inout)</span> :: fz</div>
+<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: coef</div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blstx</div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blsty</div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;    <span class="keywordtype">type</span>(bc_list_t), <span class="keywordtype">intent(inout)</span> :: blstz</div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;    <span class="keywordtype">type</span>(gs_t), <span class="keywordtype">intent(inout)</span> :: gs_h</div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;    <span class="keywordtype">type</span>(ksp_monitor_t), <span class="keywordtype">dimension(3)</span> :: ksp_results</div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: niter</div>
 <div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160; </div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;  <span class="keyword">end function </span><a class="code" href="../../d4/dc5/namespacecheby__device.html#acb951f5c7ac950d097ca08cadf72f6ef">cheby_device_solve_coupled</a></div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160; </div>
-<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d4/dc5/namespacecheby__device.html">cheby_device</a></div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;    ksp_results(1) = this%solve(ax, x, fx, n, coef, blstx, gs_h, niter)</div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;    ksp_results(2) = this%solve(ax, y, fy, n, coef, blsty, gs_h, niter)</div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;    ksp_results(3) = this%solve(ax, z, fz, n, coef, blstz, gs_h, niter)</div>
 <div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160; </div>
-<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160; </div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;  <span class="keyword">end function </span><a class="code" href="../../d4/dc5/namespacecheby__device.html#acb951f5c7ac950d097ca08cadf72f6ef">cheby_device_solve_coupled</a></div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160; </div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d4/dc5/namespacecheby__device.html">cheby_device</a></div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160; </div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160; </div>
 <div class="ttc" id="ainterfacebc_1_1bc__list__apply_html"><div class="ttname"><a href="../../df/d54/interfacebc_1_1bc__list__apply.html">bc::bc_list_apply</a></div><div class="ttdef"><b>Definition:</b> <a href="../../df/df6/bc_8f90_source.html#l00190">bc.f90:190</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__map_html"><div class="ttname"><a href="../../da/db0/interfacedevice_1_1device__map.html">device::device_map</a></div><div class="ttdoc">Map a Fortran array to a device (allocate and associate)</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d2a/device_8F90_source.html#l00057">device.F90:57</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d2a/device_8F90_source.html#l00051">device.F90:51</a></div></div>
@@ -416,7 +420,7 @@ $(document).ready(function(){initNavTree('d5/dd2/cheby__device_8F90_source.html'
 <div class="ttc" id="anamespacecheby__device_html_a1fe96a382f49e92446c4971ff6e6702f"><div class="ttname"><a href="../../d4/dc5/namespacecheby__device.html#a1fe96a382f49e92446c4971ff6e6702f">cheby_device::cheby_device_power</a></div><div class="ttdeci">subroutine cheby_device_power(this, Ax, x, n, coef, blst, gs_h)</div><div class="ttdef"><b>Definition:</b> <a href="../../d5/dd2/cheby__device_8F90_source.html#l00154">cheby_device.F90:155</a></div></div>
 <div class="ttc" id="anamespacecheby__device_html_a95d8c91cca28c3baac7e63521d511416"><div class="ttname"><a href="../../d4/dc5/namespacecheby__device.html#a95d8c91cca28c3baac7e63521d511416">cheby_device::cheby_device_init</a></div><div class="ttdeci">subroutine cheby_device_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)</div><div class="ttdoc">Initialise a standard solver.</div><div class="ttdef"><b>Definition:</b> <a href="../../d5/dd2/cheby__device_8F90_source.html#l00073">cheby_device.F90:74</a></div></div>
 <div class="ttc" id="anamespacecheby__device_html_aa0ac1e13e350c208f5b20a9c674b8c4a"><div class="ttname"><a href="../../d4/dc5/namespacecheby__device.html#aa0ac1e13e350c208f5b20a9c674b8c4a">cheby_device::cheby_device_free</a></div><div class="ttdeci">subroutine cheby_device_free(this)</div><div class="ttdef"><b>Definition:</b> <a href="../../d5/dd2/cheby__device_8F90_source.html#l00117">cheby_device.F90:118</a></div></div>
-<div class="ttc" id="anamespacecheby__device_html_acb951f5c7ac950d097ca08cadf72f6ef"><div class="ttname"><a href="../../d4/dc5/namespacecheby__device.html#acb951f5c7ac950d097ca08cadf72f6ef">cheby_device::cheby_device_solve_coupled</a></div><div class="ttdeci">type(ksp_monitor_t) function, dimension(3) cheby_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, n, coef, blstx, blsty, blstz, gs_h, niter)</div><div class="ttdoc">Standard Cheby_Deviceshev coupled solve.</div><div class="ttdef"><b>Definition:</b> <a href="../../d5/dd2/cheby__device_8F90_source.html#l00290">cheby_device.F90:292</a></div></div>
+<div class="ttc" id="anamespacecheby__device_html_acb951f5c7ac950d097ca08cadf72f6ef"><div class="ttname"><a href="../../d4/dc5/namespacecheby__device.html#acb951f5c7ac950d097ca08cadf72f6ef">cheby_device::cheby_device_solve_coupled</a></div><div class="ttdeci">type(ksp_monitor_t) function, dimension(3) cheby_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, n, coef, blstx, blsty, blstz, gs_h, niter)</div><div class="ttdoc">Standard Cheby_Deviceshev coupled solve.</div><div class="ttdef"><b>Definition:</b> <a href="../../d5/dd2/cheby__device_8F90_source.html#l00294">cheby_device.F90:296</a></div></div>
 <div class="ttc" id="anamespacecheby__device_html_ad7bb5882d196d0e7b3ffb2448241b36c"><div class="ttname"><a href="../../d4/dc5/namespacecheby__device.html#ad7bb5882d196d0e7b3ffb2448241b36c">cheby_device::cheby_device_solve</a></div><div class="ttdeci">type(ksp_monitor_t) function cheby_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter)</div><div class="ttdoc">A chebyshev preconditioner.</div><div class="ttdef"><b>Definition:</b> <a href="../../d5/dd2/cheby__device_8F90_source.html#l00208">cheby_device.F90:210</a></div></div>
 <div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition:</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
 <div class="ttc" id="anamespacedevice__math_html"><div class="ttname"><a href="../../d2/d73/namespacedevice__math.html">device_math</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d8/d8f/device__math_8F90_source.html#l00033">device_math.F90:33</a></div></div>
@@ -456,7 +460,7 @@ $(document).ready(function(){initNavTree('d5/dd2/cheby__device_8F90_source.html'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e1eebdd739dbe665ed101a65279c9fe9.html">krylov</a></li><li class="navelem"><a class="el" href="../../dir_579bd9dcbaa72a162125f0b560cd82ab.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_5b344269ce3b5a4183603946c5547674.html">device</a></li><li class="navelem"><a class="el" href="../../d5/dd2/cheby__device_8F90.html">cheby_device.F90</a></li>
-    <li class="footer">Generated on Thu Oct 3 2024 03:38:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Oct 4 2024 03:38:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
