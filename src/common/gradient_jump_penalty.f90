@@ -148,7 +148,6 @@ contains
     type(coef_t), target, intent(in) :: coef
     real(kind=rp), intent(in) :: a, b
 
-!    class(element_t), pointer :: ep
     integer :: i, j
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
 
