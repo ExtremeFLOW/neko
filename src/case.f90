@@ -61,10 +61,12 @@ module case
   use coefs, only : coef_t
   use space, only : space_t, GLL
   use gather_scatter, only : gs_t
+  use sem, only : sem_t
   implicit none
   private
 
   type, public :: case_t
+     type(sem_t) :: sem
      type(mesh_t) :: msh
      type(space_t) :: Xh
      type(gs_t) :: gs
@@ -163,6 +165,7 @@ contains
 
     call msh_file%read(C%msh)
 
+
     !
     ! SEM
     !
@@ -170,13 +173,15 @@ contains
     call json_get(C%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get number of gll points
 
+    call C%sem%init(string_val, GLL)
+
     if (C%msh%gdim .eq. 2) then
        call C%Xh%init(GLL, lx, lx)
     else
        call C%Xh%init(GLL, lx, lx, lx)
     end if
 
-    C%dofmap = dofmap_t(C%msh, C%Xh)
+    call C%dofmap%init(C%msh, C%Xh)
 
     call C%gs%init(C%dofmap)
 
@@ -269,7 +274,7 @@ contains
        C%scalar%chkp%tlag => C%tlag
        C%scalar%chkp%dtlag => C%dtlag
        call C%scalar%init(C%fluid%c_Xh, C%params, C%usr,&
-            C%fluid%ulag, C%fluid%vlag, C%fluid%wlag, C%ext_bdf)
+            C%fluid%ulag, C%fluid%vlag, C%fluid%wlag, C%ext_bdf, C%fluid%rho)
        call C%fluid%chkp%add_scalar(C%scalar%s)
        C%fluid%chkp%abs1 => C%scalar%abx1
        C%fluid%chkp%abs2 => C%scalar%abx2

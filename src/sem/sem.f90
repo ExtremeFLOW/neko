@@ -37,24 +37,71 @@ module sem
   use space, only : space_t
   use gather_scatter, only : gs_t
   use coefs, only : coef_t
+  use dofmap, only : dofmap_t
   use num_types, only : rp
   use utils, only : neko_error
-  use device
+  use file, only : file_t
+  use mesh, only : mesh_t
   implicit none
   private
 
+  !> Wrapper type containing the entire SEM backbone.
   type, public :: sem_t
+     !> Approximation space.
      type(space_t) :: Xh 
+     !> Computational mesh.
+     type(mesh_t) :: msh
+     !> Direct stiffness summation kernels (gather-scatter)
+     !! Often denoted QQ^T in matrix notation in the literature.
+     type(gs_t) :: gs
+     !> Map of degrees of freedom.
+     type(dofmap_t) :: dofmap
+     !> Coeffients, including transormation metrics.
+     type(coef_t) :: coef
    contains
+     !> Constructor
      procedure, pass(this) :: init => sem_init
+     !> Destructor
+     procedure, pass(this) :: free => sem_free
 
 
   end type sem_t
 
 contains
-  subroutine sem_init(this)
+  !> Constructor.
+  subroutine sem_init(this, mesh_file, quadrature, lx, ly, lz)
     class(sem_t), intent(inout) :: this
+    character(len=*), intent(in) :: mesh_file
+    integer, intent(in) :: quadrature   !< Quadrature type
+    integer, intent(in) :: lx           !< Polynomial dimension in x-direction
+    integer, intent(in) :: ly           !< Polynomial dimension in y-direction
+    integer, intent(in) :: lz !< Polynomial dimension in z-direction
+
+    type(file_t) :: msh_file
+
+    call this%free()
+
+    call this%Xh%init(quadrature, lx, ly, lz)
+    msh_file = file_t(mesh_file)
+
+    call msh_file%read(this%msh)
+
+    call this%dofmap%init(this%msh, this%Xh)
+    call this%gs%init(this%dofmap)
+    call this%coef%init(this%gs)
 
   end subroutine sem_init
+
+  !> Destructor.
+  subroutine sem_free(this)
+    class(sem_t), intent(inout) :: this
+    
+    call this%Xh%free()
+    call this%msh%free()
+    call this%dofmap%free()
+    call this%coef%free()
+    call this%gs%free()
+
+  end subroutine sem_free
 
 end module sem
