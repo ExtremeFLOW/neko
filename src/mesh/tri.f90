@@ -114,8 +114,8 @@ contains
     p1 => this%p(edge_nodes(1, side))
     p2 => this%p(edge_nodes(2, side))
 
-    select type(t)
-    type is(tuple_i4_t)
+    select type (t)
+    type is (tuple_i4_t)
        if (p1 .lt. p2) then
           t%x = (/ p1%id(), p2%id() /)
        else
@@ -135,8 +135,8 @@ contains
     p1 => this%p(edge_nodes(1, side))
     p2 => this%p(edge_nodes(2, side))
 
-    select type(t)
-    type is(tuple_i4_t)
+    select type (t)
+    type is (tuple_i4_t)
        t%x = (/ p1%id(), p2%id() /)
     end select
 
@@ -179,7 +179,7 @@ contains
     p3 => this%p(3)
     res%x = 0d0
 
-    do i = 1, this%gdim()
+    do i = 1, NEKO_TRI_NPTS
        res%x(i) = 1d0/3d0 * (p1%x(i) + p2%x(i) + p3%x(i))
     end do
   end function tri_centroid
@@ -193,7 +193,7 @@ contains
     logical :: res
 
     res = .false.
-    select type(other)
+    select type (other)
     class is (tri_t)
        if ((this%gdim() .eq. other%gdim()) .and. &
             (this%npts() .eq. other%npts())) then
