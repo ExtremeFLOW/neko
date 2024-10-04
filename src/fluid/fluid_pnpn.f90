@@ -431,7 +431,8 @@ contains
     ! Do not do this for lagged rhs
     ! (derivatives are not necessairly coninous across elements)
        
-    if (allocated(this%chkp%previous_mesh%elements) .or. this%chkp%previous_Xh%lx .ne. this%Xh%lx) then
+    if (allocated(this%chkp%previous_mesh%elements) &
+         .or. this%chkp%previous_Xh%lx .ne. this%Xh%lx) then
        call this%gs_Xh%op(this%u, GS_OP_ADD)
        call this%gs_Xh%op(this%v, GS_OP_ADD)
        call this%gs_Xh%op(this%w, GS_OP_ADD)

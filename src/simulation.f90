@@ -266,7 +266,7 @@ contains
     call C%fluid%restart(C%dtlag, C%tlag)
     call C%fluid%chkp%previous_mesh%free()
     if (allocated(C%scalar)) &
-    call C%scalar%restart( C%dtlag, C%tlag)
+       call C%scalar%restart( C%dtlag, C%tlag)
 
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')
