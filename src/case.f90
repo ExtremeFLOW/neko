@@ -46,7 +46,6 @@ module case
   use stats, only : stats_t
   use file, only : file_t
   use utils, only : neko_error
-  use mesh, only : mesh_t
   use comm
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, NEKO_LOG_QUIET, LOG_SIZE
@@ -57,21 +56,13 @@ module case
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
-  use dofmap, only : dofmap_t
-  use coefs, only : coef_t
-  use space, only : space_t, GLL
-  use gather_scatter, only : gs_t
   use sem, only : sem_t
+  use space, only : GLL
   implicit none
   private
 
   type, public :: case_t
      type(sem_t) :: sem
-     type(mesh_t) :: msh
-     type(space_t) :: Xh
-     type(gs_t) :: gs
-     type(dofmap_t) :: dofmap
-     type(coef_t) :: coef
      type(json_file) :: params
      type(time_scheme_controller_t) :: ext_bdf
      real(kind=rp), dimension(10) :: tlag
@@ -154,38 +145,15 @@ contains
     integer :: precision
 
     !
-    ! Load mesh
+    ! Initialize the SEM backbone
     !
     call json_get_or_default(C%params, 'case.mesh_file', string_val, 'no mesh')
     if (trim(string_val) .eq. 'no mesh') then
        call neko_error('The mesh_file keyword could not be found in the .' // &
                        'case file. Often caused by incorrectly formatted json.')
     end if
-    msh_file = file_t(string_val)
 
-    call msh_file%read(C%msh)
-
-
-    !
-    ! SEM
-    !
-
-    call json_get(C%params, 'case.numerics.polynomial_order', lx)
-    lx = lx + 1 ! add 1 to get number of gll points
-
-    call C%sem%init(string_val, GLL)
-
-    if (C%msh%gdim .eq. 2) then
-       call C%Xh%init(GLL, lx, lx)
-    else
-       call C%Xh%init(GLL, lx, lx, lx)
-    end if
-
-    call C%dofmap%init(C%msh, C%Xh)
-
-    call C%gs%init(C%dofmap)
-
-    call C%coef%init(C%gs)
+    call C%sem%init(string_val, GLL, lx, lx, lx)
 
     !
     ! Load Balancing
@@ -195,8 +163,8 @@ contains
 
     if (pe_size .gt. 1 .and. logical_val) then
        call neko_log%section('Load Balancing')
-       call parmetis_partmeshkway(C%msh, parts)
-       call redist_mesh(C%msh, parts)
+       call parmetis_partmeshkway(C%sem%msh, parts)
+       call redist_mesh(C%sem%msh, parts)
        call neko_log%end_section()
     end if
 
@@ -219,13 +187,13 @@ contains
     !
     ! Initialize point_zones registry
     !
-    call neko_point_zone_registry%init(C%params, C%msh)
+    call neko_point_zone_registry%init(C%params, C%sem%msh)
 
     !
     ! Setup user defined functions
     !
     call C%usr%init()
-    call C%usr%user_mesh_setup(C%msh)
+    call C%usr%user_mesh_setup(C%sem%msh)
 
     !
     ! Set order of timestepper
@@ -242,7 +210,7 @@ contains
 
     C%fluid%chkp%tlag => C%tlag
     C%fluid%chkp%dtlag => C%dtlag
-    call C%fluid%init(C%coef, lx, C%params, C%usr, C%ext_bdf)
+    call C%fluid%init(C%sem%coef, lx, C%params, C%usr, C%ext_bdf)
 
     select type (f => C%fluid)
     type is (fluid_pnpn_t)
@@ -371,7 +339,7 @@ contains
     call json_get_or_default(C%params, 'case.output_partitions',&
                              logical_val, .false.)
     if (logical_val) then
-       call mesh_field_init(msh_part, C%msh, 'MPI_Rank')
+       call mesh_field_init(msh_part, C%sem%msh, 'MPI_Rank')
        msh_part%data = pe_rank
        part_file = file_t(trim(C%output_directory)//'partitions.vtk')
        call part_file%write(msh_part)
@@ -462,7 +430,7 @@ contains
        deallocate(C%scalar)
     end if
 
-    call C%msh%free()
+      call C%sem%free()
 
     call C%s%free()
 

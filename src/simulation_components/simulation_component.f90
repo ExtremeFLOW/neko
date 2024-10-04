@@ -39,6 +39,7 @@ module simulation_component
   use num_types, only : rp
   use json_module, only : json_file
   use case, only : case_t
+  use sem, only : sem_t
   use time_based_controller, only : time_based_controller_t
   use json_utils, only : json_get_or_default, json_get
   implicit none
@@ -48,6 +49,8 @@ module simulation_component
   type, abstract, public :: simulation_component_t
      !> Pointer to the simulation case.
      type(case_t), pointer :: case
+     !> Pointer to the SEM backbone.
+     type(sem_t), pointer :: sem
      !> Controller for when to run `preprocess`.
      type(time_based_controller_t) :: preprocess_controller
      !> Controller for when to run `compute`.
@@ -135,6 +138,7 @@ contains
     integer :: order
 
     this%case => case
+    this%sem => case%sem
 
     ! We default to preprocess every time-step
     call json_get_or_default(json, "preprocess_control", preprocess_control, &

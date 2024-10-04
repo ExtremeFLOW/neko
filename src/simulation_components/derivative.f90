@@ -113,17 +113,17 @@ contains
                         "d" // fieldname // "_d" // direction)
 
     if (direction .eq. "x") then
-       this%dr => this%case%coef%drdx
-       this%ds => this%case%coef%dsdx
-       this%dt => this%case%coef%dtdx
+       this%dr => this%sem%coef%drdx
+       this%ds => this%sem%coef%dsdx
+       this%dt => this%sem%coef%dtdx
     else if (direction .eq. "y") then
-       this%dr => this%case%coef%drdy
-       this%ds => this%case%coef%dsdy
-       this%dt => this%case%coef%dtdy
+       this%dr => this%sem%coef%drdy
+       this%ds => this%sem%coef%dsdy
+       this%dt => this%sem%coef%dtdy
     else if (direction .eq. "z") then
-       this%dr => this%case%coef%drdz
-       this%ds => this%case%coef%dsdz
-       this%dt => this%case%coef%dtdz
+       this%dr => this%sem%coef%drdz
+       this%ds => this%sem%coef%dsdz
+       this%dt => this%sem%coef%dtdz
     else
         call neko_error("The direction of the derivative must be x, y or z")
     end if
@@ -150,7 +150,7 @@ contains
     integer, intent(in) :: tstep
 
     call dudxyz(this%du%x, this%u%x, this%dr, this%dr, this%dr,&
-                this%case%coef)
+                this%sem%coef)
   end subroutine derivative_compute
 
 end module derivative

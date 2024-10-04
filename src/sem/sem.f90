@@ -81,10 +81,15 @@ contains
 
     call this%free()
 
-    call this%Xh%init(quadrature, lx, ly, lz)
+    ! Read the mesh from a file
     msh_file = file_t(mesh_file)
-
     call msh_file%read(this%msh)
+
+    if (this%msh%gdim .eq. 2) then
+       call this%Xh%init(quadrature, lx, ly)
+    else
+       call this%Xh%init(quadrature, lx, ly, lz)
+    end if
 
     call this%dofmap%init(this%msh, this%Xh)
     call this%gs%init(this%dofmap)

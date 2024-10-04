@@ -119,7 +119,7 @@ contains
     call json_get_or_default(json, 'scale', scale, 1.0_rp)
     call json_get(json, 'center', center)
     call force_torque_init_from_attributes(this, zone_id, zone_name, &
-                                           center, scale, case%coef)
+                                           center, scale, this%sem%coef)
   end subroutine force_torque_init_from_json
 
   !> Actual constructor.
@@ -152,7 +152,7 @@ contains
     call this%s23%init(this%u%dof) 
     
     call this%bc%init_base(this%coef) 
-    call this%bc%mark_zone(this%case%msh%labeled_zones(this%zone_id))
+    call this%bc%mark_zone(this%sem%msh%labeled_zones(this%zone_id))
     call this%bc%finalize()
     n_pts = this%bc%msk(0)
     call this%n1%init(n_pts)
