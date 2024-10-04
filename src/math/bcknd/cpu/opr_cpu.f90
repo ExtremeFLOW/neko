@@ -32,7 +32,7 @@
 !
 !> Operators CPU backend
 module opr_cpu
-  use num_types, only : rp, dp
+  use num_types, only : rp, dp, xp
   use space, only : space_t
   use coefs, only : coef_t
   use math, only : sub3, copy, rzero, PI
@@ -237,10 +237,10 @@ contains
     type(field_t), intent(in) :: u, v, w
     real(kind=rp) :: grad(coef%Xh%lxyz,3,3)
     integer :: e, i
-    real(kind=dp) :: eigen(3), B, C, D, q, r, theta, l2
-    real(kind=dp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
-    real(kind=dp) :: a11, a22, a33, a12, a13, a23
-    real(kind=dp) :: msk1, msk2, msk3
+    real(kind=xp) :: eigen(3), B, C, D, q, r, theta, l2
+    real(kind=xp) :: s11, s22, s33, s12, s13, s23, o12, o13, o23
+    real(kind=xp) :: a11, a22, a33, a12, a13, a23
+    real(kind=xp) :: msk1, msk2, msk3
 
     do e = 1, coef%msh%nelv
        call opr_cpu_opgrad(grad(1,1,1), grad(1,1,2), grad(1,1,3), &
@@ -256,13 +256,13 @@ contains
           s33 = grad(i,3,3)
 
 
-          s12 = 0.5*(grad(i,1,2) + grad(i,2,1))
-          s13 = 0.5*(grad(i,1,3) + grad(i,3,1))
-          s23 = 0.5*(grad(i,2,3) + grad(i,3,2))
+          s12 = 0.5_xp*(grad(i,1,2) + grad(i,2,1))
+          s13 = 0.5_xp*(grad(i,1,3) + grad(i,3,1))
+          s23 = 0.5_xp*(grad(i,2,3) + grad(i,3,2))
 
-          o12 = 0.5*(grad(i,1,2) - grad(i,2,1))
-          o13 = 0.5*(grad(i,1,3) - grad(i,3,1))
-          o23 = 0.5*(grad(i,2,3) - grad(i,3,2))
+          o12 = 0.5_xp*(grad(i,1,2) - grad(i,2,1))
+          o13 = 0.5_xp*(grad(i,1,3) - grad(i,3,1))
+          o23 = 0.5_xp*(grad(i,2,3) - grad(i,3,2))
 
           a11 = s11*s11 + s12*s12 + s13*s13 - o12*o12 - o13*o13
           a12 = s11 * s12 + s12 * s22 + s13 * s23 - o13 * o23
@@ -276,17 +276,17 @@ contains
           B = -(a11 + a22 + a33)
           C = -(a12*a12 + a13*a13 + a23*a23 &
                - a11 * a22 - a11 * a33 - a22 * a33)
-          D = -(2.0 * a12 * a13 * a23 - a11 * a23*a23 &
+          D = -(2.0_xp * a12 * a13 * a23 - a11 * a23*a23 &
                - a22 * a13*a13 - a33 * a12*a12 + a11 * a22 * a33)
 
 
-          q = (3.0 * C - B*B) / 9.0
-          r = (9.0 * C * B - 27.0 * D - 2.0 * B*B*B) / 54.0
+          q = (3.0_xp * C - B*B) / 9.0_xp
+          r = (9.0_xp * C * B - 27.0_xp * D - 2.0_xp * B*B*B) / 54.0_xp
           theta = acos( r / sqrt(-q*q*q) )
 
-          eigen(1) = 2.0 * sqrt(-q) * cos(theta / 3.0) - B / 3.0
-          eigen(2) = 2.0 * sqrt(-q) * cos((theta + 2.0 * pi) / 3.0) - B / 3.0
-          eigen(3) = 2.0 * sqrt(-q) * cos((theta + 4.0 * pi) / 3.0) - B / 3.0
+          eigen(1) = 2.0_xp * sqrt(-q) * cos(theta / 3.0_xp) - B / 3.0_xp
+          eigen(2) = 2.0_xp * sqrt(-q) * cos((theta + 2.0_xp * pi) / 3.0_xp) - B / 3.0_xp
+          eigen(3) = 2.0_xp * sqrt(-q) * cos((theta + 4.0_xp * pi) / 3.0_xp) - B / 3.0_xp
           msk1 = merge(1.0_rp, 0.0_rp, eigen(2) .le. eigen(1) &
                .and. eigen(1) .le. eigen(3) .or. eigen(3) &
                .le. eigen(1) .and. eigen(1) .le. eigen(2) )
@@ -298,7 +298,7 @@ contains
                .le. eigen(3) .and. eigen(3) .le. eigen(1))
 
           l2 = msk1 * eigen(1) + msk2 * eigen(2) + msk3 * eigen(3)
-          lambda2%x(i,1,1,e) = l2/(real(coef%B(i,1,1,e)**2,dp))
+          lambda2%x(i,1,1,e) = l2/(real(coef%B(i,1,1,e)**2,xp))
        end do
     end do
 
