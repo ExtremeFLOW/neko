@@ -55,7 +55,7 @@ module device_math
        device_addcol3, device_addcol4, device_vdot3, device_vlsc3, &
        device_glsc3, device_glsc3_many, device_add2s2_many, device_glsc2, &
        device_glsum, device_masked_copy, device_cfill_mask, &
-       device_masked_red_copy, device_vcross
+       device_masked_red_copy, device_vcross, device_absval
 
 contains
 
@@ -634,6 +634,21 @@ contains
     end if
 #endif
   end function device_glsum
+
+  subroutine device_absval(a_d, n)
+    integer, intent(in) :: n
+    type(c_ptr) :: a_d
+#ifdef HAVE_HIP
+    call hip_absval(a_d, n)
+#elif HAVE_CUDA
+    call cuda_absval(a_d, n)
+#elif HAVE_OPENCL
+    call neko_error('OPENCL is not implemented for device_absval')
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine device_absval
 
 
 end module device_math

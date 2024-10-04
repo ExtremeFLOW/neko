@@ -60,7 +60,6 @@ module case
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
-  use material_properties, only : material_properties_t
   implicit none
   private
 
@@ -82,7 +81,6 @@ module case
      type(user_t) :: usr
      class(fluid_scheme_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar
-     type(material_properties_t) :: material_properties
   end type case_t
 
   interface case_init
@@ -210,12 +208,6 @@ contains
     call json_get(C%params, 'case.numerics.time_order', integer_val)
     call C%ext_bdf%init(integer_val)
 
-
-    !
-    ! Material properties
-    !
-    call C%material_properties%init(C%params, C%usr)
-
     !
     ! Setup fluid scheme
     !
@@ -226,8 +218,7 @@ contains
     lx = lx + 1 ! add 1 to get number of gll points
     C%fluid%chkp%tlag => C%tlag
     C%fluid%chkp%dtlag => C%dtlag
-    call C%fluid%init(C%msh, lx, C%params, C%usr, C%material_properties, &
-                      C%ext_bdf)
+    call C%fluid%init(C%msh, lx, C%params, C%usr, C%ext_bdf)
     select type (f => C%fluid)
     type is (fluid_pnpn_t)
        f%chkp%abx1 => f%abx1
@@ -258,8 +249,7 @@ contains
        C%scalar%chkp%tlag => C%tlag
        C%scalar%chkp%dtlag => C%dtlag
        call C%scalar%init(C%msh, C%fluid%c_Xh, C%fluid%gs_Xh, C%params, C%usr,&
-                          C%material_properties, C%fluid%ulag, C%fluid%vlag, &
-                          C%fluid%wlag, C%ext_bdf)
+            C%fluid%ulag, C%fluid%vlag, C%fluid%wlag, C%ext_bdf, C%fluid%rho)
        call C%fluid%chkp%add_scalar(C%scalar%s)
        C%fluid%chkp%abs1 => C%scalar%abx1
        C%fluid%chkp%abs2 => C%scalar%abx2

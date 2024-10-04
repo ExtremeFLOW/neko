@@ -332,6 +332,15 @@ module hip_math
        type(c_ptr), value :: a_d
        integer(c_int) :: n
      end function hip_glsum
+
+     subroutine hip_absval(a_d, n) &
+          bind(c, name = 'hip_absval')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+
+       type(c_ptr), value :: a_d
+       integer(c_int) :: n
+     end subroutine hip_absval
   end interface
 
 end module hip_math
