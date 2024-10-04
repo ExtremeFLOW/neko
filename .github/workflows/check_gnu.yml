@@ -124,7 +124,7 @@ jobs:
           PFUNIT_DIR: ${{ steps.get-pfunit.outputs.install-dir }}
         run: |
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --with-pfunit=$PFUNIT_DIR --enable-real=${RP}
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --with-pfunit=$PFUNIT_DIR --enable-real=${RP}
           make -j${{ steps.setup-env.outputs.nproc }}
 
       - name: Build (CUDA backend)
@@ -132,29 +132,47 @@ jobs:
         run: |
           sudo apt-get install -y nvidia-cuda-toolkit
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --enable-real=${RP} --with-cuda=/usr
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-cuda=/usr
           make -j${{ steps.setup-env.outputs.nproc }}
 
       - name: Build (HIP backend)
         if: matrix.backend == 'HIP'
         run: |
-          wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key | sudo apt-key add -
-          echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/debian/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
-          sudo apt-get update && sudo apt-get install -y rocm-dev
+          # Following the instructions from https://rocm.docs.amd.com/projects/install-on-linux/en/latest/install/quick-start.html
+
+          wget -r -np -nd -A 'amdgpu*.deb' https://repo.radeon.com/amdgpu-install/latest/ubuntu/focal/
+          sudo apt install ./amdgpu-install_*.deb
+
+          sudo apt-get update && sudo apt-get install -y amdgpu-dkms rocm-dev
 
           # Lets not hardcode the version
           ROCM_DIR=$(ls -d /opt/rocm-*)
 
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=$ROCM_DIR
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" HIP_HIPCC_FLAGS="-O2 -fPIE" --enable-real=${RP} --with-hip=$ROCM_DIR
           make -j ${{ steps.setup-env.outputs.nproc }}
 
       - name: Build (OpenCL backend)
         if: matrix.backend == 'opencl'
         run: |
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008" --enable-real=${RP} --with-opencl
+          ./configure FC=${FC} FCFLAGS="-O2 -pedantic -std=f2008 -w" --enable-real=${RP} --with-opencl
           make -j ${{ steps.setup-env.outputs.nproc }}
+
+      - name: Regression test FP32
+        if: matrix.backend == 'cpu' && matrix.precision == 'sp'
+        run: |
+           cd reg_test/cylinder
+           ./test_easy.sh 1 sp
+           cd ../..
+
+      - name: Regression test FP64
+        if: matrix.backend == 'cpu' && matrix.precision == 'dp'
+        run: |
+           cd reg_test/cylinder
+           ./test.sh 1 dp
+           cd ../..
+
 
       - name: Check
         if: matrix.backend == 'cpu'

@@ -227,7 +227,7 @@ contains
     real(kind=rp), intent(inout) :: phi_x(n), phi_y(n), phi_z(n)
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        bf_x(i) = bf_x(i) + phi_x(i) * (rho / dt)
        bf_y(i) = bf_y(i) + phi_y(i) * (rho / dt)
        bf_z(i) = bf_z(i) + phi_z(i) * (rho / dt)
@@ -242,7 +242,7 @@ contains
     real(kind=rp), intent(inout) :: phi_s(n)
     integer :: i
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        bf_s(i) = bf_s(i) + phi_s(i) * (rho / dt)
     end do
 
