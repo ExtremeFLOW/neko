@@ -337,12 +337,13 @@ contains
   end subroutine aabb_tree_init
 
   !> @brief Builds the tree.
-  subroutine aabb_tree_build_tree(this, objects)
+  subroutine aabb_tree_build_tree(this, objects, padding)
     use utils, only: neko_error
     implicit none
 
     class(aabb_tree_t), intent(inout) :: this
     class(*), dimension(:), intent(in) :: objects
+    real(kind=dp), optional, intent(in) :: padding
 
     integer :: i_obj, i_node, i
     logical :: done
@@ -352,6 +353,8 @@ contains
     type(aabb_t), dimension(:), allocatable :: box_list
     integer, dimension(:), allocatable :: sorted_indices
 
+    real(kind=dp) :: aabb_padding
+
     call this%init(size(objects) * 2)
 
     ! ------------------------------------------------------------------------ !
@@ -360,8 +363,14 @@ contains
 
     allocate(box_list(size(objects)))
 
+    if (present(padding)) then
+       aabb_padding = padding
+    else
+       aabb_padding = 0.0_dp
+    end if
+       
     do i_obj = 1, size(objects)
-       box_list(i_obj) = get_aabb(objects(i_obj))
+       box_list(i_obj) = get_aabb(objects(i_obj), aabb_padding)
     end do
     sorted_indices = sort(box_list)
 
@@ -608,14 +617,14 @@ contains
     class(aabb_tree_t), intent(in) :: this
     class(*), intent(in) :: object
     integer, intent(in) :: object_index
-    integer, intent(out) :: overlaps(:)
+    type(stack_i4_t), intent(inout) :: overlaps
 
     type(stack_i4_t) :: simple_stack
     type(aabb_t) :: object_box
 
     integer :: root_index, left_index, right_index
 
-    integer :: node_index
+    integer :: node_index, tmp_index
 
     object_box = get_aabb(object)
     root_index = this%get_root_index()
@@ -631,7 +640,8 @@ contains
        if (this%nodes(node_index)%aabb%overlaps(object_box)) then
           if (this%nodes(node_index)%is_leaf()) then
              if (this%nodes(node_index)%object_index .ne. object_index) then
-                overlaps = [this%nodes(node_index)%object_index, overlaps]
+                tmp_index = this%nodes(node_index)%object_index
+                call overlaps%push(tmp_index)
              end if
           else
              left_index = this%get_left_index(node_index)
