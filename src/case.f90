@@ -103,7 +103,7 @@ contains
     end if
 
     call MPI_Bcast(integer_val, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
-    if (pe_rank .ne. 0) allocate(character(len=integer_val)::json_buffer)
+    if (pe_rank .ne. 0) allocate(character(len = integer_val) :: json_buffer)
     call MPI_Bcast(json_buffer, integer_val, MPI_CHARACTER, 0, NEKO_COMM, ierr)
     call C%params%load_from_string(json_buffer)
 
@@ -137,7 +137,7 @@ contains
     logical :: found, logical_val
     integer :: integer_val
     real(kind=rp) :: real_val
-    character(len=:), allocatable :: string_val
+    character(len = :), allocatable :: string_val
     real(kind=rp) :: stats_start_time, stats_output_val
     integer :: stats_sampling_interval
     integer :: output_dir_len
@@ -270,6 +270,9 @@ contains
     !
     call json_get(C%params, 'case.fluid.initial_condition.type',&
                   string_val)
+
+    call neko_log%section("Fluid initial condition ")
+
     if (trim(string_val) .ne. 'user') then
        call set_flow_ic(C%fluid%u, C%fluid%v, C%fluid%w, C%fluid%p, &
             C%fluid%c_Xh, C%fluid%gs_Xh, string_val, C%params)
@@ -278,8 +281,14 @@ contains
             C%fluid%c_Xh, C%fluid%gs_Xh, C%usr%fluid_user_ic, C%params)
     end if
 
+    call neko_log%end_section()
+
     if (scalar) then
+
        call json_get(C%params, 'case.scalar.initial_condition.type', string_val)
+
+       call neko_log%section("Scalar initial condition ")
+
        if (trim(string_val) .ne. 'user') then
           call set_scalar_ic(C%scalar%s, &
             C%scalar%c_Xh, C%scalar%gs_Xh, string_val, C%params)
@@ -287,6 +296,9 @@ contains
           call set_scalar_ic(C%scalar%s, &
             C%scalar%c_Xh, C%scalar%gs_Xh, C%usr%scalar_user_ic, C%params)
        end if
+
+       call neko_log%end_section()
+
     end if
 
     ! Add initial conditions to BDF scheme (if present)
