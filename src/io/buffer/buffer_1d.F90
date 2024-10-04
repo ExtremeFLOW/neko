@@ -34,7 +34,9 @@
 module buffer_1d
   use num_types
   use vector
+#ifdef HAVE_ADIOS2_FORTRAN
   use adios2
+#endif
   use buffer
   implicit none
 
@@ -45,10 +47,12 @@ module buffer_1d
    contains
      procedure :: init => buffer_1d_init
      procedure :: fill => buffer_1d_fill
+#ifdef HAVE_ADIOS2_FORTRAN
      procedure :: define => buffer_1d_define
      procedure :: inquire => buffer_1d_inquire
      procedure :: write => buffer_1d_write
      procedure :: read => buffer_1d_read
+#endif
      procedure :: copy => buffer_1d_copy
   end type buffer_1d_t
 
@@ -99,6 +103,8 @@ contains
     end if
 
   end subroutine buffer_1d_fill
+
+#ifdef HAVE_ADIOS2_FORTRAN
 
   subroutine buffer_1d_define(this, variable, io, variable_name, ierr)
     class(buffer_1d_t), intent(inout) :: this
@@ -169,6 +175,8 @@ contains
     end if
 
   end subroutine buffer_1d_read
+
+#endif
 
   subroutine buffer_1d_copy(this, x)
     class(buffer_1d_t), intent(inout) :: this

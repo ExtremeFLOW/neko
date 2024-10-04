@@ -45,7 +45,9 @@ module bp_file
   use utils
   use datadist
   use comm
+#ifdef HAVE_ADIOS2_FORTRAN
   use adios2
+#endif
   use buffer_1d
   use buffer_4d
   use buffer_4d_npar
@@ -55,9 +57,11 @@ module bp_file
   class(buffer_t), private, allocatable :: outbuf_points
   class(buffer_t), private, allocatable :: outbuf_npar
 
+#ifdef HAVE_ADIOS2_FORTRAN
   type(adios2_adios)    :: adios
   type(adios2_io)       :: ioWriter
   type(adios2_io)       :: ioReader
+#endif
 
   !> Interface for ADIOS2 bp files
   type, public, extends(generic_file_t) :: bp_file_t
@@ -71,6 +75,8 @@ module bp_file
   end type bp_file_t
 
 contains
+
+#ifdef HAVE_ADIOS2_FORTRAN
 
   subroutine bp_file_write(this, data, t)
     class(bp_file_t), intent(inout) :: this
@@ -715,6 +721,23 @@ contains
     end select
 
   end subroutine bp_file_read
+
+#else
+
+  subroutine bp_file_write(this, data, t)
+    class(bp_file_t), intent(inout) :: this
+    class(*), target, intent(in) :: data
+    real(kind=rp), intent(in), optional :: t
+    call neko_error('Neko needs to be built with ADIOS2 Fortran support')
+  end subroutine bp_file_write
+
+  subroutine bp_file_read(this, data)
+    class(bp_file_t) :: this
+    class(*), target, intent(inout) :: data
+    call neko_error('Neko needs to be built with ADIOS2 Fortran support')
+  end subroutine bp_file_read
+
+#endif
 
   subroutine bp_file_set_precision(this, precision)
     class(bp_file_t) :: this

@@ -34,7 +34,9 @@
 module buffer
   use num_types
   use vector
+#ifdef HAVE_ADIOS2_FORTRAN
   use adios2
+#endif
   implicit none
 
   type, abstract :: buffer_t
@@ -42,10 +44,12 @@ module buffer
    contains
      procedure :: init => buffer_init
      procedure :: fill => buffer_fill
+#ifdef HAVE_ADIOS2_FORTRAN
      procedure :: define => buffer_define
      procedure :: inquire => buffer_inquire
      procedure :: write => buffer_write
      procedure :: read => buffer_read
+#endif
      procedure :: copy => buffer_copy
      procedure :: set_precision => buffer_set_precision
   end type buffer_t
@@ -63,6 +67,8 @@ contains
     integer, intent(inout) :: n
     real(kind=rp), intent(inout) :: x(n)
   end subroutine buffer_fill
+
+#ifdef HAVE_ADIOS2_FORTRAN
 
   subroutine buffer_define(this, variable, io, variable_name, ierr)
     class(buffer_t), intent(inout) :: this
@@ -93,6 +99,8 @@ contains
     type(adios2_variable), intent(in) :: variable
     integer, intent(inout) :: ierr
   end subroutine buffer_read
+
+#endif
 
   subroutine buffer_copy(this, x)
     class(buffer_t), intent(inout) :: this

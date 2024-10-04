@@ -31,35 +31,44 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Generic buffer that is extended with buffers of varying rank
-module buffer_4d
+module buffer_4d_npar
   use num_types
   use vector
+#ifdef HAVE_ADIOS2_FORTRAN
   use adios2
+#endif
   use buffer
   implicit none
 
-  type, extends(buffer_t) :: buffer_4d_t
-     integer(kind=8), dimension(4) :: shape_dims, start_dims, count_dims
-     real(kind=dp), private, allocatable :: data_dp(:,:,:,:)
-     real(kind=sp), private, allocatable :: data_sp(:,:,:,:)
+  integer, private :: nthpar
+  integer, private :: npar
+
+  type, extends(buffer_t) :: buffer_4d_npar_t
+     integer(kind=8), dimension(5) :: shape_dims, start_dims, count_dims
+     real(kind=dp), private, allocatable :: data_dp(:,:,:,:,:)
+     real(kind=sp), private, allocatable :: data_sp(:,:,:,:,:)
    contains
-     procedure :: init => buffer_4d_init
-     procedure :: fill => buffer_4d_fill
-     procedure :: define => buffer_4d_define
-     procedure :: inquire => buffer_4d_inquire
-     procedure :: write => buffer_4d_write
-     procedure :: read => buffer_4d_read
-     procedure :: copy => buffer_4d_copy
-  end type buffer_4d_t
+     procedure :: init => buffer_4d_npar_init
+     procedure :: fill => buffer_4d_npar_fill
+#ifdef HAVE_ADIOS2_FORTRAN
+     procedure :: define => buffer_4d_npar_define
+     procedure :: inquire => buffer_4d_npar_inquire
+     procedure :: write => buffer_4d_npar_write
+     procedure :: read => buffer_4d_npar_read
+#endif
+     procedure :: copy => buffer_4d_npar_copy
+  end type buffer_4d_npar_t
 
 contains
 
-  subroutine buffer_4d_init(this, precision, gdim, glb_nelv, offset_el, nelv, lx, ly, lz)
-    class(buffer_4d_t), intent(inout) :: this
+  subroutine buffer_4d_npar_init(this, precision, gdim, glb_nelv, offset_el, nelv, lx, ly, lz)
+    class(buffer_4d_npar_t), intent(inout) :: this
     logical, intent(in) :: precision
     integer, intent(in) :: gdim, glb_nelv, offset_el, nelv, lx, ly, lz
     integer :: lxyz
 
+    nthpar = 0
+    npar = gdim
     lxyz = lx*ly*lz
 
     call buffer_set_precision(this, precision)
@@ -68,25 +77,28 @@ contains
        if (allocated(this%data_dp)) then
           deallocate(this%data_dp)
        end if
-       allocate(this%data_dp(nelv, lx, ly, lz))
+       allocate(this%data_dp(nelv, lx, ly, lz, npar))
     else
        if (allocated(this%data_sp)) then
           deallocate(this%data_sp)
        end if
-       allocate(this%data_sp(nelv, lx, ly, lz))
+       allocate(this%data_sp(nelv, lx, ly, lz, npar))
     end if
 
-    this%shape_dims = [int(glb_nelv, i8), int(lx, i8), int(ly, i8), int(lz, i8)]
-    this%start_dims = [int(offset_el, i8), int(0, i8), int(0, i8), int(0, i8)]
-    this%count_dims = [int(nelv, i8), int(lx, i8), int(ly, i8), int(lz, i8)]
+    this%shape_dims = [int(glb_nelv, i8), int(lx, i8), int(ly, i8), int(lz, i8), int(npar, i8)]
+    this%start_dims = [int(offset_el, i8), int(0, i8), int(0, i8), int(0, i8), int(0, i8)]
+    this%count_dims = [int(nelv, i8), int(lx, i8), int(ly, i8), int(lz, i8), int(npar, i8)]
 
-  end subroutine buffer_4d_init
+  end subroutine buffer_4d_npar_init
 
-  subroutine buffer_4d_fill(this, x, n)
-    class(buffer_4d_t), intent(inout) :: this
+  subroutine buffer_4d_npar_fill(this, x, n)
+    class(buffer_4d_npar_t), intent(inout) :: this
     integer, intent(inout) :: n
     real(kind=rp), intent(inout) :: x(n)
     integer :: i, j, k, l, nelv, lx, ly, lz, index
+
+    nthpar = nthpar + 1
+    if (nthpar .le. npar) then
 
     nelv = this%count_dims(1)
     lx = this%count_dims(2)
@@ -99,7 +111,7 @@ contains
              do k = 1, ly
                 do l = 1, lx
                    index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) + 1
-                   this%data_dp(i,l,k,j) = real(x(index),dp)
+                   this%data_dp(i,l,k,j,nthpar) = real(x(index),dp)
                 end do
              end do
           end do
@@ -110,17 +122,21 @@ contains
              do k = 1, ly
                 do l = 1, lx
                    index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) + 1
-                   this%data_sp(i,l,k,j) = real(x(index),sp)
+                   this%data_sp(i,l,k,j,nthpar) = real(x(index),sp)
                 end do
              end do
           end do
        end do
     end if
 
-  end subroutine buffer_4d_fill
+    end if
 
-  subroutine buffer_4d_define(this, variable, io, variable_name, ierr)
-    class(buffer_4d_t), intent(inout) :: this
+  end subroutine buffer_4d_npar_fill
+
+#ifdef HAVE_ADIOS2_FORTRAN
+
+  subroutine buffer_4d_npar_define(this, variable, io, variable_name, ierr)
+    class(buffer_4d_npar_t), intent(inout) :: this
     type(adios2_variable), intent(inout) :: variable
     type(adios2_io), intent(inout) :: io
     character(len=*), intent(in) :: variable_name
@@ -144,10 +160,10 @@ contains
             this%start_dims, this%count_dims, ierr)
     end if
 
-  end subroutine buffer_4d_define
+  end subroutine buffer_4d_npar_define
 
-  subroutine buffer_4d_inquire(this, variable, io, variable_name, ierr)
-    class(buffer_4d_t), intent(inout) :: this
+  subroutine buffer_4d_npar_inquire(this, variable, io, variable_name, ierr)
+    class(buffer_4d_npar_t), intent(inout) :: this
     type(adios2_variable), intent(inout) :: variable
     type(adios2_io), intent(inout) :: io
     character(len=*), intent(in) :: variable_name
@@ -159,10 +175,10 @@ contains
             this%start_dims, this%count_dims, ierr)
     end if
 
-  end subroutine buffer_4d_inquire
+  end subroutine buffer_4d_npar_inquire
 
-  subroutine buffer_4d_write(this, engine, variable, ierr)
-    class(buffer_4d_t), intent(inout) :: this
+  subroutine buffer_4d_npar_write(this, engine, variable, ierr)
+    class(buffer_4d_npar_t), intent(inout) :: this
     type(adios2_engine), intent(in) :: engine
     type(adios2_variable), intent(in) :: variable
     integer, intent(inout) :: ierr
@@ -173,10 +189,10 @@ contains
        call adios2_put(engine, variable, this%data_sp, adios2_mode_sync, ierr)
     end if
 
-  end subroutine buffer_4d_write
-
-  subroutine buffer_4d_read(this, engine, variable, ierr)
-    class(buffer_4d_t), intent(inout) :: this
+  end subroutine buffer_4d_npar_write
+  
+  subroutine buffer_4d_npar_read(this, engine, variable, ierr)
+    class(buffer_4d_npar_t), intent(inout) :: this
     type(adios2_engine), intent(in) :: engine
     type(adios2_variable), intent(in) :: variable
     integer, intent(inout) :: ierr
@@ -187,12 +203,17 @@ contains
        call adios2_get(engine, variable, this%data_sp, adios2_mode_sync, ierr)
     end if
 
-  end subroutine buffer_4d_read
+  end subroutine buffer_4d_npar_read
 
-  subroutine buffer_4d_copy(this, x)
-    class(buffer_4d_t), intent(inout) :: this
+#endif
+
+  subroutine buffer_4d_npar_copy(this, x)
+    class(buffer_4d_npar_t), intent(inout) :: this
     type(vector_t), intent(inout) :: x
     integer :: i, j, k, l, nelv, lx, ly, lz, index
+
+    nthpar = nthpar + 1
+    if (nthpar .le. npar) then
 
     nelv = this%count_dims(1)
     lx = this%count_dims(2)
@@ -205,7 +226,7 @@ contains
              do k = 1, ly
                 do l = 1, lx
                    index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) + 1
-                   x%x(index) = this%data_dp(i,l,k,j)
+                   x%x(index) = this%data_dp(i,l,k,j,nthpar)
                 end do
              end do
           end do
@@ -216,13 +237,15 @@ contains
              do k = 1, ly
                 do l = 1, lx
                    index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) + 1
-                   x%x(index) = this%data_sp(i,l,k,j)
+                   x%x(index) = this%data_sp(i,l,k,j,nthpar)
                 end do
              end do
           end do
        end do
     end if
 
-  end subroutine buffer_4d_copy
+    end if
 
-end module buffer_4d
+  end subroutine buffer_4d_npar_copy
+
+end module buffer_4d_npar

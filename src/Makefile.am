@@ -8,10 +8,10 @@ neko_fortran_SOURCES = \
 	io/format/re2.f90\
 	io/format/map.f90\
 	io/format/stl.f90\
-	io/buffer/buffer.f90\
-	io/buffer/buffer_1d.f90\
-	io/buffer/buffer_4d.f90\
-	io/buffer/buffer_4d_npar.f90\
+	io/buffer/buffer.F90\
+	io/buffer/buffer_1d.F90\
+	io/buffer/buffer_4d.F90\
+	io/buffer/buffer_4d_npar.F90\
 	common/log.f90\
 	comm/comm.F90\
 	mesh/curve.f90\
@@ -127,7 +127,7 @@ neko_fortran_SOURCES = \
 	io/map_file.f90\
 	io/re2_file.f90\
 	io/rea_file.f90\
-	io/bp_file.f90\
+	io/bp_file.F90\
 	io/fld_file.f90\
 	io/fld_file_data.f90\
 	io/vtk_file.f90\
