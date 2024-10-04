@@ -157,6 +157,8 @@ contains
     procedure(useric) :: usr_ic
     type(json_file), intent(inout) :: params
 
+
+    call neko_log%message("Type: user")
     call usr_ic(u, v, w, p, params)
 
     call set_flow_ic_common(u, v, w, p, coef, gs)

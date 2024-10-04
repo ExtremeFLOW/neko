@@ -147,6 +147,7 @@ contains
     procedure(useric_scalar) :: usr_ic
     type(json_file), intent(inout) :: params
 
+    call neko_log%message("Type: user")
     call usr_ic(s, params)
 
     call set_scalar_ic_common(s, coef, gs)
