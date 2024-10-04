@@ -203,6 +203,7 @@ contains
 
     if(lvl_out .gt. 0) then
       do n = 1, this%lvl(lvl_out)%nnodes!> this loop is independent
+        !TODO THIS LOOP INDEX n IS NOT USED..... (probably same problem below)
         do lvl = lvl_out, 1, -1
 
           associate( wrk_in => this%lvl(lvl)%wrk_in, wrk_out => this%lvl(lvl)%wrk_out)
