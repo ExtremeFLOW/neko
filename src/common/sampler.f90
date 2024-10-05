@@ -32,7 +32,7 @@
 !
 !> Defines a sampler
 module sampler
-  use output, only: output_t
+  use output, only: output_t, output_ptr_t
   use fld_file, only: fld_file_t
   use comm
   use logger, only : neko_log, LOG_SIZE
@@ -43,15 +43,14 @@ module sampler
   implicit none
   private
 
-  !> Pointer to an arbitrary output
-  type, private :: outp_t
-     class(output_t), pointer :: outp
-  end type outp_t
 
-  !> Sampler
+  !> Sampler. Centralized output handler.
+  !! @details Holds a list of `output_t` and corresponding 
+  !! `time_based_controller_t`s. Uses the latter to determine, which outputs
+  !! need to be sampled and written to disk at a given time step.
   type, public :: sampler_t
      !> List of outputs.
-     type(outp_t), allocatable :: output_list(:)
+     type(output_ptr_t), allocatable :: output_list(:)
      !> List of controllers for determining wether we should write.
      type(time_based_controller_t), allocatable :: controllers(:)
      !> Number of outputs.
@@ -59,7 +58,7 @@ module sampler
      !> Number of entries in the list.
      integer :: size
      !> Final time of the simulation.
-     real(kind=rp) :: T_end
+     real(kind=rp) :: time_end
    contains
      !> Constructor.
      procedure, pass(this) :: init => sampler_init
@@ -76,13 +75,12 @@ module sampler
 contains
 
   !> Initialize a sampler
-  subroutine sampler_init(this, T_end, size)
+  subroutine sampler_init(this, time_end, size)
     class(sampler_t), intent(inout) :: this
     integer, intent(in), optional :: size
-    real(kind=rp), intent(in) :: T_end
+    real(kind=rp), intent(in) :: time_end
     character(len=LOG_SIZE) :: log_buf
     integer :: n, i
-
 
     call this%free()
 
@@ -96,12 +94,12 @@ contains
     allocate(this%controllers(n))
 
     do i = 1, n
-       this%output_list(i)%outp => null()
+       this%output_list(i)%ptr => null()
     end do
 
     this%size = n
     this%n = 0
-    this%T_end = T_end
+    this%time_end = time_end
 
   end subroutine sampler_init
 
@@ -127,7 +125,7 @@ contains
     class(output_t), intent(inout), target :: out
     real(kind=rp), intent(in) :: write_par
     character(len=*), intent(in) :: write_control
-    type(outp_t), allocatable :: tmp(:)
+    type(output_ptr_t), allocatable :: tmp(:)
     type(time_based_controller_t), allocatable :: tmp_ctrl(:)
     character(len=LOG_SIZE) :: log_buf
     integer :: n
@@ -147,22 +145,22 @@ contains
 
     this%n = this%n + 1
     n = this%n
-    this%output_list(this%n)%outp => out
+    this%output_list(this%n)%ptr => out
 
     if (trim(write_control) .eq. "org") then
        this%controllers(n) = this%controllers(1)
     else
-       call this%controllers(n)%init(this%T_end, write_control, write_par)
+       call this%controllers(n)%init(this%time_end, write_control, write_par)
     end if
 
     ! The code below only prints to console
     call neko_log%section('Adding write output')
     call neko_log%message('File name        : '// &
-          trim(this%output_list(this%n)%outp%file_%file_type%fname))
+          trim(this%output_list(this%n)%ptr%file_%file_type%fname))
     call neko_log%message('Write control    : '//trim(write_control))
 
     ! Show the output precision if we are outputting an fld file
-    select type(ft => out%file_%file_type)
+    select type (ft => out%file_%file_type)
     type is (fld_file_t)
        if (ft%dp_precision) then
           call neko_log%message('Output precision : double')
@@ -250,13 +248,13 @@ contains
        do i = 1, this%n
           if (this%controllers(i)%check(t, tstep, force)) then
              call neko_log%message('File name     : '// &
-                  trim(samp%output_list(i)%outp%file_%file_type%fname))
+                  trim(samp%output_list(i)%ptr%file_%file_type%fname))
 
              write(log_buf, '(A,I6)') 'Output number :', &
                   int(this%controllers(i)%nexecutions)
              call neko_log%message(log_buf)
 
-             call samp%output_list(i)%outp%sample(t)
+             call samp%output_list(i)%ptr%sample(t)
 
              call this%controllers(i)%register_execution()
           end if
@@ -270,7 +268,7 @@ contains
 
     sample_time = sample_end_time - sample_start_time
     if (write_output) then
-       write(log_buf,'(A16,1x,F10.6,A,F9.6)') 'Writing at time:', t, &
+       write(log_buf, '(A16,1x,F10.6,A,F9.6)') 'Writing at time:', t, &
             ' Output time (s): ', sample_time
        call neko_log%message(log_buf)
        call neko_log%end_section()
@@ -279,25 +277,27 @@ contains
   end subroutine sampler_sample
 
   !> Set sampling counter based on time (after restart)
+  !> @param t Time value.
   subroutine sampler_set_counter(this, t)
     class(sampler_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
-    integer :: i
+    integer :: i, nexecutions
 
 
     do i = 1, this%n
        if (this%controllers(i)%nsteps .eq. 0) then
-          this%controllers(i)%nexecutions = &
-            int(t / this%controllers(i)%time_interval) + 1
+          nexecutions = int(t / this%controllers(i)%time_interval) + 1
+          this%controllers(i)%nexecutions = nexecutions
 
-          call this%output_list(i)%outp%set_counter(this%controllers(i)%nexecutions)
-          call this%output_list(i)%outp%set_start_counter(this%controllers(i)%nexecutions)
+          call this%output_list(i)%ptr%set_counter(nexecutions)
+          call this%output_list(i)%ptr%set_start_counter(nexecutions)
        end if
     end do
 
   end subroutine sampler_set_counter
 
   !> Set sampling counter (after restart) explicitly
+  !> @param sample_number The sample number to be set.
   subroutine sampler_set_sample_count(this, sample_number)
     class(sampler_t), intent(inout) :: this
     integer, intent(in) :: sample_number
@@ -305,8 +305,8 @@ contains
 
     do i = 1, this%n
        this%controllers(i)%nexecutions = sample_number
-       call this%output_list(i)%outp%set_counter(this%controllers(i)%nexecutions)
-       call this%output_list(i)%outp%set_start_counter(this%controllers(i)%nexecutions)
+       call this%output_list(i)%ptr%set_counter(sample_number)
+       call this%output_list(i)%ptr%set_start_counter(sample_number)
     end do
 
   end subroutine sampler_set_sample_count
