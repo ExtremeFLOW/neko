@@ -958,286 +958,273 @@ $(document).ready(function(){initNavTree('d0/df5/fluid__scheme_8f90_source.html'
 <div class="line"><a name="l00897"></a><span class="lineno">  897</span>&#160;    <span class="comment">!</span></div>
 <div class="line"><a name="l00898"></a><span class="lineno">  898</span>&#160;    <span class="keyword">call </span>this%chkp%init(this%u, this%v, this%w, this%p)</div>
 <div class="line"><a name="l00899"></a><span class="lineno">  899</span>&#160; </div>
-<div class="line"><a name="l00900"></a><span class="lineno">  900</span>&#160;    <span class="comment">!</span></div>
-<div class="line"><a name="l00901"></a><span class="lineno">  901</span>&#160;    <span class="comment">! Setup mean flow fields if requested</span></div>
-<div class="line"><a name="l00902"></a><span class="lineno">  902</span>&#160;    <span class="comment">!</span></div>
-<div class="line"><a name="l00903"></a><span class="lineno">  903</span>&#160;    <span class="keywordflow">if</span> (this%params%valid_path(<span class="stringliteral">&#39;case.statistics&#39;</span>)) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00904"></a><span class="lineno">  904</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(this%params, <span class="stringliteral">&#39;case.statistics.enabled&#39;</span>, &amp;</div>
-<div class="line"><a name="l00905"></a><span class="lineno">  905</span>&#160;                                logical_val, .true.)</div>
-<div class="line"><a name="l00906"></a><span class="lineno">  906</span>&#160;       <span class="keywordflow">if</span> (logical_val) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00907"></a><span class="lineno">  907</span>&#160;          <span class="keyword">call </span>this%mean%init(this%u, this%v, this%w, this%p)</div>
-<div class="line"><a name="l00908"></a><span class="lineno">  908</span>&#160;          <span class="keyword">call </span>this%stats%init(this%c_Xh, this%mean%u, &amp;</div>
-<div class="line"><a name="l00909"></a><span class="lineno">  909</span>&#160;               this%mean%v, this%mean%w, this%mean%p)</div>
-<div class="line"><a name="l00910"></a><span class="lineno">  910</span>&#160;<span class="keywordflow">       end if</span></div>
-<div class="line"><a name="l00911"></a><span class="lineno">  911</span>&#160;<span class="keywordflow">    end if</span></div>
-<div class="line"><a name="l00912"></a><span class="lineno">  912</span>&#160; </div>
-<div class="line"><a name="l00913"></a><span class="lineno">  913</span>&#160;  <span class="keyword">end subroutine </span>fluid_scheme_validate</div>
-<div class="line"><a name="l00914"></a><span class="lineno">  914</span>&#160; </div>
-<div class="line"><a name="l00919"></a><span class="lineno"><a class="line" href="../../d8/d09/namespacefluid__scheme.html#a9bdf3634a28f508c4892c1a02fe6c8b0">  919</a></span>&#160;  <span class="keyword">subroutine </span>fluid_scheme_bc_apply_vel(this, t, tstep)</div>
-<div class="line"><a name="l00920"></a><span class="lineno">  920</span>&#160;    <span class="keywordtype">class</span>(fluid_scheme_t), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a name="l00921"></a><span class="lineno">  921</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: t</div>
-<div class="line"><a name="l00922"></a><span class="lineno">  922</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tstep</div>
-<div class="line"><a name="l00923"></a><span class="lineno">  923</span>&#160; </div>
-<div class="line"><a name="l00924"></a><span class="lineno">  924</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d0/dc0/namespacebc.html#a1f087abac946e8ecf412faf1e715dd42">bc_list_apply_vector</a>(this%bclst_vel, &amp;</div>
-<div class="line"><a name="l00925"></a><span class="lineno">  925</span>&#160;         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)</div>
-<div class="line"><a name="l00926"></a><span class="lineno">  926</span>&#160; </div>
-<div class="line"><a name="l00927"></a><span class="lineno">  927</span>&#160;  <span class="keyword">end subroutine </span>fluid_scheme_bc_apply_vel</div>
-<div class="line"><a name="l00928"></a><span class="lineno">  928</span>&#160; </div>
-<div class="line"><a name="l00931"></a><span class="lineno"><a class="line" href="../../d8/d09/namespacefluid__scheme.html#af53df9e2dca6bd4b6ae9cdccc2e35bb7">  931</a></span>&#160;  <span class="keyword">subroutine </span>fluid_scheme_bc_apply_prs(this, t, tstep)</div>
-<div class="line"><a name="l00932"></a><span class="lineno">  932</span>&#160;    <span class="keywordtype">class</span>(fluid_scheme_t), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a name="l00933"></a><span class="lineno">  933</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: t</div>
-<div class="line"><a name="l00934"></a><span class="lineno">  934</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tstep</div>
-<div class="line"><a name="l00935"></a><span class="lineno">  935</span>&#160; </div>
-<div class="line"><a name="l00936"></a><span class="lineno">  936</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d0/dc0/namespacebc.html#ad2f682d4c03f5b33164d1e2f10fc41ef">bc_list_apply_scalar</a>(this%bclst_prs, this%p%x, &amp;</div>
-<div class="line"><a name="l00937"></a><span class="lineno">  937</span>&#160;                              this%p%dof%size(), t, tstep)</div>
+<div class="line"><a name="l00900"></a><span class="lineno">  900</span>&#160;  <span class="keyword">end subroutine </span>fluid_scheme_validate</div>
+<div class="line"><a name="l00901"></a><span class="lineno">  901</span>&#160; </div>
+<div class="line"><a name="l00906"></a><span class="lineno"><a class="line" href="../../d8/d09/namespacefluid__scheme.html#a9bdf3634a28f508c4892c1a02fe6c8b0">  906</a></span>&#160;  <span class="keyword">subroutine </span>fluid_scheme_bc_apply_vel(this, t, tstep)</div>
+<div class="line"><a name="l00907"></a><span class="lineno">  907</span>&#160;    <span class="keywordtype">class</span>(fluid_scheme_t), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a name="l00908"></a><span class="lineno">  908</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: t</div>
+<div class="line"><a name="l00909"></a><span class="lineno">  909</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tstep</div>
+<div class="line"><a name="l00910"></a><span class="lineno">  910</span>&#160; </div>
+<div class="line"><a name="l00911"></a><span class="lineno">  911</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d0/dc0/namespacebc.html#a1f087abac946e8ecf412faf1e715dd42">bc_list_apply_vector</a>(this%bclst_vel, &amp;</div>
+<div class="line"><a name="l00912"></a><span class="lineno">  912</span>&#160;         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)</div>
+<div class="line"><a name="l00913"></a><span class="lineno">  913</span>&#160; </div>
+<div class="line"><a name="l00914"></a><span class="lineno">  914</span>&#160;  <span class="keyword">end subroutine </span>fluid_scheme_bc_apply_vel</div>
+<div class="line"><a name="l00915"></a><span class="lineno">  915</span>&#160; </div>
+<div class="line"><a name="l00918"></a><span class="lineno"><a class="line" href="../../d8/d09/namespacefluid__scheme.html#af53df9e2dca6bd4b6ae9cdccc2e35bb7">  918</a></span>&#160;  <span class="keyword">subroutine </span>fluid_scheme_bc_apply_prs(this, t, tstep)</div>
+<div class="line"><a name="l00919"></a><span class="lineno">  919</span>&#160;    <span class="keywordtype">class</span>(fluid_scheme_t), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a name="l00920"></a><span class="lineno">  920</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: t</div>
+<div class="line"><a name="l00921"></a><span class="lineno">  921</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: tstep</div>
+<div class="line"><a name="l00922"></a><span class="lineno">  922</span>&#160; </div>
+<div class="line"><a name="l00923"></a><span class="lineno">  923</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d0/dc0/namespacebc.html#ad2f682d4c03f5b33164d1e2f10fc41ef">bc_list_apply_scalar</a>(this%bclst_prs, this%p%x, &amp;</div>
+<div class="line"><a name="l00924"></a><span class="lineno">  924</span>&#160;                              this%p%dof%size(), t, tstep)</div>
+<div class="line"><a name="l00925"></a><span class="lineno">  925</span>&#160; </div>
+<div class="line"><a name="l00926"></a><span class="lineno">  926</span>&#160;  <span class="keyword">end subroutine </span>fluid_scheme_bc_apply_prs</div>
+<div class="line"><a name="l00927"></a><span class="lineno">  927</span>&#160; </div>
+<div class="line"><a name="l00930"></a><span class="lineno"><a class="line" href="../../d8/d09/namespacefluid__scheme.html#ac0524c5d30f0f75b3ccba65c70aa1d97">  930</a></span>&#160;  <span class="keyword">subroutine </span>fluid_scheme_solver_factory(ksp, n, solver, &amp;</div>
+<div class="line"><a name="l00931"></a><span class="lineno">  931</span>&#160;                                         max_iter, abstol, monitor)</div>
+<div class="line"><a name="l00932"></a><span class="lineno">  932</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d0/d3b/structkrylov_1_1ksp__t.html">ksp_t</a>), <span class="keywordtype">allocatable</span>, <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: ksp</div>
+<div class="line"><a name="l00933"></a><span class="lineno">  933</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">value</span> :: n</div>
+<div class="line"><a name="l00934"></a><span class="lineno">  934</span>&#160;    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: solver</div>
+<div class="line"><a name="l00935"></a><span class="lineno">  935</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: max_iter</div>
+<div class="line"><a name="l00936"></a><span class="lineno">  936</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: abstol</div>
+<div class="line"><a name="l00937"></a><span class="lineno">  937</span>&#160;    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span> :: monitor</div>
 <div class="line"><a name="l00938"></a><span class="lineno">  938</span>&#160; </div>
-<div class="line"><a name="l00939"></a><span class="lineno">  939</span>&#160;  <span class="keyword">end subroutine </span>fluid_scheme_bc_apply_prs</div>
-<div class="line"><a name="l00940"></a><span class="lineno">  940</span>&#160; </div>
-<div class="line"><a name="l00943"></a><span class="lineno"><a class="line" href="../../d8/d09/namespacefluid__scheme.html#ac0524c5d30f0f75b3ccba65c70aa1d97">  943</a></span>&#160;  <span class="keyword">subroutine </span>fluid_scheme_solver_factory(ksp, n, solver, &amp;</div>
-<div class="line"><a name="l00944"></a><span class="lineno">  944</span>&#160;                                         max_iter, abstol, monitor)</div>
-<div class="line"><a name="l00945"></a><span class="lineno">  945</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d0/d3b/structkrylov_1_1ksp__t.html">ksp_t</a>), <span class="keywordtype">allocatable</span>, <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: ksp</div>
-<div class="line"><a name="l00946"></a><span class="lineno">  946</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">value</span> :: n</div>
-<div class="line"><a name="l00947"></a><span class="lineno">  947</span>&#160;    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: solver</div>
-<div class="line"><a name="l00948"></a><span class="lineno">  948</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: max_iter</div>
-<div class="line"><a name="l00949"></a><span class="lineno">  949</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: abstol</div>
-<div class="line"><a name="l00950"></a><span class="lineno">  950</span>&#160;    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span> :: monitor</div>
-<div class="line"><a name="l00951"></a><span class="lineno">  951</span>&#160; </div>
-<div class="line"><a name="l00952"></a><span class="lineno">  952</span>&#160;    <span class="keyword">call </span>krylov_solver_factory(ksp, n, solver, max_iter, abstol, &amp;</div>
-<div class="line"><a name="l00953"></a><span class="lineno">  953</span>&#160;                               monitor = monitor)</div>
+<div class="line"><a name="l00939"></a><span class="lineno">  939</span>&#160;    <span class="keyword">call </span>krylov_solver_factory(ksp, n, solver, max_iter, abstol, &amp;</div>
+<div class="line"><a name="l00940"></a><span class="lineno">  940</span>&#160;                               monitor = monitor)</div>
+<div class="line"><a name="l00941"></a><span class="lineno">  941</span>&#160; </div>
+<div class="line"><a name="l00942"></a><span class="lineno">  942</span>&#160;  <span class="keyword">end subroutine </span>fluid_scheme_solver_factory</div>
+<div class="line"><a name="l00943"></a><span class="lineno">  943</span>&#160; </div>
+<div class="line"><a name="l00945"></a><span class="lineno"><a class="line" href="../../d8/d09/namespacefluid__scheme.html#ae118e3aebe30e81422421926063456d0">  945</a></span>&#160;  <span class="keyword">subroutine </span>fluid_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, &amp;</div>
+<div class="line"><a name="l00946"></a><span class="lineno">  946</span>&#160;                                         pctype)</div>
+<div class="line"><a name="l00947"></a><span class="lineno">  947</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d7/d3a/structprecon_1_1pc__t.html">pc_t</a>), <span class="keywordtype">allocatable</span>, <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: pc</div>
+<div class="line"><a name="l00948"></a><span class="lineno">  948</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d0/d3b/structkrylov_1_1ksp__t.html">ksp_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: ksp</div>
+<div class="line"><a name="l00949"></a><span class="lineno">  949</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: coef</div>
+<div class="line"><a name="l00950"></a><span class="lineno">  950</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: dof</div>
+<div class="line"><a name="l00951"></a><span class="lineno">  951</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: gs</div>
+<div class="line"><a name="l00952"></a><span class="lineno">  952</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: bclst</div>
+<div class="line"><a name="l00953"></a><span class="lineno">  953</span>&#160;    <span class="keywordtype">character(len=*)</span> :: pctype</div>
 <div class="line"><a name="l00954"></a><span class="lineno">  954</span>&#160; </div>
-<div class="line"><a name="l00955"></a><span class="lineno">  955</span>&#160;  <span class="keyword">end subroutine </span>fluid_scheme_solver_factory</div>
+<div class="line"><a name="l00955"></a><span class="lineno">  955</span>&#160;    <span class="keyword">call </span>precon_factory(pc, pctype)</div>
 <div class="line"><a name="l00956"></a><span class="lineno">  956</span>&#160; </div>
-<div class="line"><a name="l00958"></a><span class="lineno"><a class="line" href="../../d8/d09/namespacefluid__scheme.html#ae118e3aebe30e81422421926063456d0">  958</a></span>&#160;  <span class="keyword">subroutine </span>fluid_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, &amp;</div>
-<div class="line"><a name="l00959"></a><span class="lineno">  959</span>&#160;                                         pctype)</div>
-<div class="line"><a name="l00960"></a><span class="lineno">  960</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d7/d3a/structprecon_1_1pc__t.html">pc_t</a>), <span class="keywordtype">allocatable</span>, <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: pc</div>
-<div class="line"><a name="l00961"></a><span class="lineno">  961</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../d0/d3b/structkrylov_1_1ksp__t.html">ksp_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: ksp</div>
-<div class="line"><a name="l00962"></a><span class="lineno">  962</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: coef</div>
-<div class="line"><a name="l00963"></a><span class="lineno">  963</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: dof</div>
-<div class="line"><a name="l00964"></a><span class="lineno">  964</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: gs</div>
-<div class="line"><a name="l00965"></a><span class="lineno">  965</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: bclst</div>
-<div class="line"><a name="l00966"></a><span class="lineno">  966</span>&#160;    <span class="keywordtype">character(len=*)</span> :: pctype</div>
-<div class="line"><a name="l00967"></a><span class="lineno">  967</span>&#160; </div>
-<div class="line"><a name="l00968"></a><span class="lineno">  968</span>&#160;    <span class="keyword">call </span>precon_factory(pc, pctype)</div>
-<div class="line"><a name="l00969"></a><span class="lineno">  969</span>&#160; </div>
-<div class="line"><a name="l00970"></a><span class="lineno">  970</span>&#160;    <span class="keywordflow">select type</span> (pcp =&gt; pc)</div>
-<div class="line"><a name="l00971"></a><span class="lineno">  971</span>&#160;<span class="keywordflow">    type is</span> (<a class="code" href="../../da/d72/structjacobi_1_1jacobi__t.html">jacobi_t</a>)</div>
-<div class="line"><a name="l00972"></a><span class="lineno">  972</span>&#160;       <span class="keyword">call </span>pcp%init(coef, dof, gs)</div>
-<div class="line"><a name="l00973"></a><span class="lineno">  973</span>&#160;<span class="keywordflow">    type is</span> (<a class="code" href="../../d4/d41/structsx__jacobi_1_1sx__jacobi__t.html">sx_jacobi_t</a>)</div>
-<div class="line"><a name="l00974"></a><span class="lineno">  974</span>&#160;       <span class="keyword">call </span>pcp%init(coef, dof, gs)</div>
-<div class="line"><a name="l00975"></a><span class="lineno">  975</span>&#160;<span class="keywordflow">    type is</span> (<a class="code" href="../../d8/dca/structdevice__jacobi_1_1device__jacobi__t.html">device_jacobi_t</a>)</div>
-<div class="line"><a name="l00976"></a><span class="lineno">  976</span>&#160;       <span class="keyword">call </span>pcp%init(coef, dof, gs)</div>
-<div class="line"><a name="l00977"></a><span class="lineno">  977</span>&#160;<span class="keywordflow">    type is</span> (<a class="code" href="../../dd/d81/structhsmg_1_1hsmg__t.html">hsmg_t</a>)</div>
-<div class="line"><a name="l00978"></a><span class="lineno">  978</span>&#160;       <span class="keywordflow">if</span> (len_trim(pctype) .gt. 4) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00979"></a><span class="lineno">  979</span>&#160;          <span class="keywordflow">if</span> (index(pctype, <span class="stringliteral">&#39;+&#39;</span>) .eq. 5) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00980"></a><span class="lineno">  980</span>&#160;             <span class="keyword">call </span>pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &amp;</div>
-<div class="line"><a name="l00981"></a><span class="lineno">  981</span>&#160;                  trim(pctype(6:)))</div>
-<div class="line"><a name="l00982"></a><span class="lineno">  982</span>&#160;          <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00983"></a><span class="lineno">  983</span>&#160;             <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Unknown coarse grid solver&#39;</span>)</div>
-<div class="line"><a name="l00984"></a><span class="lineno">  984</span>&#160;<span class="keywordflow">          end if</span></div>
-<div class="line"><a name="l00985"></a><span class="lineno">  985</span>&#160;       <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00986"></a><span class="lineno">  986</span>&#160;          <span class="keyword">call </span>pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)</div>
-<div class="line"><a name="l00987"></a><span class="lineno">  987</span>&#160;<span class="keywordflow">       end if</span></div>
-<div class="line"><a name="l00988"></a><span class="lineno">  988</span>&#160;<span class="keywordflow">    end select</span></div>
-<div class="line"><a name="l00989"></a><span class="lineno">  989</span>&#160; </div>
-<div class="line"><a name="l00990"></a><span class="lineno">  990</span>&#160;    <span class="keyword">call </span>ksp%set_pc(pc)</div>
-<div class="line"><a name="l00991"></a><span class="lineno">  991</span>&#160; </div>
-<div class="line"><a name="l00992"></a><span class="lineno">  992</span>&#160;  <span class="keyword">end subroutine </span>fluid_scheme_precon_factory</div>
+<div class="line"><a name="l00957"></a><span class="lineno">  957</span>&#160;    <span class="keywordflow">select type</span> (pcp =&gt; pc)</div>
+<div class="line"><a name="l00958"></a><span class="lineno">  958</span>&#160;<span class="keywordflow">    type is</span> (<a class="code" href="../../da/d72/structjacobi_1_1jacobi__t.html">jacobi_t</a>)</div>
+<div class="line"><a name="l00959"></a><span class="lineno">  959</span>&#160;       <span class="keyword">call </span>pcp%init(coef, dof, gs)</div>
+<div class="line"><a name="l00960"></a><span class="lineno">  960</span>&#160;<span class="keywordflow">    type is</span> (<a class="code" href="../../d4/d41/structsx__jacobi_1_1sx__jacobi__t.html">sx_jacobi_t</a>)</div>
+<div class="line"><a name="l00961"></a><span class="lineno">  961</span>&#160;       <span class="keyword">call </span>pcp%init(coef, dof, gs)</div>
+<div class="line"><a name="l00962"></a><span class="lineno">  962</span>&#160;<span class="keywordflow">    type is</span> (<a class="code" href="../../d8/dca/structdevice__jacobi_1_1device__jacobi__t.html">device_jacobi_t</a>)</div>
+<div class="line"><a name="l00963"></a><span class="lineno">  963</span>&#160;       <span class="keyword">call </span>pcp%init(coef, dof, gs)</div>
+<div class="line"><a name="l00964"></a><span class="lineno">  964</span>&#160;<span class="keywordflow">    type is</span> (<a class="code" href="../../dd/d81/structhsmg_1_1hsmg__t.html">hsmg_t</a>)</div>
+<div class="line"><a name="l00965"></a><span class="lineno">  965</span>&#160;       <span class="keywordflow">if</span> (len_trim(pctype) .gt. 4) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00966"></a><span class="lineno">  966</span>&#160;          <span class="keywordflow">if</span> (index(pctype, <span class="stringliteral">&#39;+&#39;</span>) .eq. 5) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00967"></a><span class="lineno">  967</span>&#160;             <span class="keyword">call </span>pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &amp;</div>
+<div class="line"><a name="l00968"></a><span class="lineno">  968</span>&#160;                  trim(pctype(6:)))</div>
+<div class="line"><a name="l00969"></a><span class="lineno">  969</span>&#160;          <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00970"></a><span class="lineno">  970</span>&#160;             <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Unknown coarse grid solver&#39;</span>)</div>
+<div class="line"><a name="l00971"></a><span class="lineno">  971</span>&#160;<span class="keywordflow">          end if</span></div>
+<div class="line"><a name="l00972"></a><span class="lineno">  972</span>&#160;       <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00973"></a><span class="lineno">  973</span>&#160;          <span class="keyword">call </span>pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)</div>
+<div class="line"><a name="l00974"></a><span class="lineno">  974</span>&#160;<span class="keywordflow">       end if</span></div>
+<div class="line"><a name="l00975"></a><span class="lineno">  975</span>&#160;<span class="keywordflow">    end select</span></div>
+<div class="line"><a name="l00976"></a><span class="lineno">  976</span>&#160; </div>
+<div class="line"><a name="l00977"></a><span class="lineno">  977</span>&#160;    <span class="keyword">call </span>ksp%set_pc(pc)</div>
+<div class="line"><a name="l00978"></a><span class="lineno">  978</span>&#160; </div>
+<div class="line"><a name="l00979"></a><span class="lineno">  979</span>&#160;  <span class="keyword">end subroutine </span>fluid_scheme_precon_factory</div>
+<div class="line"><a name="l00980"></a><span class="lineno">  980</span>&#160; </div>
+<div class="line"><a name="l00982"></a><span class="lineno"><a class="line" href="../../d8/d09/namespacefluid__scheme.html#a6561f8852ca35ecee87cf24c92abc5ff">  982</a></span>&#160;  <span class="keyword">subroutine </span>fluid_scheme_set_usr_inflow(this, usr_eval)</div>
+<div class="line"><a name="l00983"></a><span class="lineno">  983</span>&#160;    <span class="keywordtype">class</span>(fluid_scheme_t), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a name="l00984"></a><span class="lineno">  984</span>&#160;    <span class="keywordtype">procedure</span>(<a class="code" href="../../d6/d76/interfaceusr__inflow_1_1usr__inflow__eval.html">usr_inflow_eval</a>) :: usr_eval</div>
+<div class="line"><a name="l00985"></a><span class="lineno">  985</span>&#160; </div>
+<div class="line"><a name="l00986"></a><span class="lineno">  986</span>&#160;    <span class="keywordflow">select type</span> (bc_if =&gt; this%bc_inflow)</div>
+<div class="line"><a name="l00987"></a><span class="lineno">  987</span>&#160;<span class="keywordflow">    type is</span> (<a class="code" href="../../d8/d63/structusr__inflow_1_1usr__inflow__t.html">usr_inflow_t</a>)</div>
+<div class="line"><a name="l00988"></a><span class="lineno">  988</span>&#160;       <span class="keyword">call </span>bc_if%set_eval(usr_eval)</div>
+<div class="line"><a name="l00989"></a><span class="lineno">  989</span>&#160;<span class="keywordflow">    class default</span></div>
+<div class="line"><a name="l00990"></a><span class="lineno">  990</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Not a user defined inflow condition&quot;</span>)</div>
+<div class="line"><a name="l00991"></a><span class="lineno">  991</span>&#160;<span class="keywordflow">    end select</span></div>
+<div class="line"><a name="l00992"></a><span class="lineno">  992</span>&#160;  <span class="keyword">end subroutine </span>fluid_scheme_set_usr_inflow</div>
 <div class="line"><a name="l00993"></a><span class="lineno">  993</span>&#160; </div>
-<div class="line"><a name="l00995"></a><span class="lineno"><a class="line" href="../../d8/d09/namespacefluid__scheme.html#a6561f8852ca35ecee87cf24c92abc5ff">  995</a></span>&#160;  <span class="keyword">subroutine </span>fluid_scheme_set_usr_inflow(this, usr_eval)</div>
-<div class="line"><a name="l00996"></a><span class="lineno">  996</span>&#160;    <span class="keywordtype">class</span>(fluid_scheme_t), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a name="l00997"></a><span class="lineno">  997</span>&#160;    <span class="keywordtype">procedure</span>(<a class="code" href="../../d6/d76/interfaceusr__inflow_1_1usr__inflow__eval.html">usr_inflow_eval</a>) :: usr_eval</div>
-<div class="line"><a name="l00998"></a><span class="lineno">  998</span>&#160; </div>
-<div class="line"><a name="l00999"></a><span class="lineno">  999</span>&#160;    <span class="keywordflow">select type</span> (bc_if =&gt; this%bc_inflow)</div>
-<div class="line"><a name="l01000"></a><span class="lineno"> 1000</span>&#160;<span class="keywordflow">    type is</span> (<a class="code" href="../../d8/d63/structusr__inflow_1_1usr__inflow__t.html">usr_inflow_t</a>)</div>
-<div class="line"><a name="l01001"></a><span class="lineno"> 1001</span>&#160;       <span class="keyword">call </span>bc_if%set_eval(usr_eval)</div>
-<div class="line"><a name="l01002"></a><span class="lineno"> 1002</span>&#160;<span class="keywordflow">    class default</span></div>
-<div class="line"><a name="l01003"></a><span class="lineno"> 1003</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Not a user defined inflow condition&quot;</span>)</div>
-<div class="line"><a name="l01004"></a><span class="lineno"> 1004</span>&#160;<span class="keywordflow">    end select</span></div>
-<div class="line"><a name="l01005"></a><span class="lineno"> 1005</span>&#160;  <span class="keyword">end subroutine </span>fluid_scheme_set_usr_inflow</div>
-<div class="line"><a name="l01006"></a><span class="lineno"> 1006</span>&#160; </div>
-<div class="line"><a name="l01008"></a><span class="lineno"><a class="line" href="../../d8/d09/namespacefluid__scheme.html#a2275b69b1d1959f4c8cf29b011dee8e8"> 1008</a></span>&#160;  <span class="keyword">function </span>fluid_compute_cfl(this, dt) <span class="keyword">result</span>(c)</div>
-<div class="line"><a name="l01009"></a><span class="lineno"> 1009</span>&#160;    <span class="keywordtype">class</span>(fluid_scheme_t), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a name="l01010"></a><span class="lineno"> 1010</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: dt</div>
-<div class="line"><a name="l01011"></a><span class="lineno"> 1011</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: c</div>
+<div class="line"><a name="l00995"></a><span class="lineno"><a class="line" href="../../d8/d09/namespacefluid__scheme.html#a2275b69b1d1959f4c8cf29b011dee8e8">  995</a></span>&#160;  <span class="keyword">function </span>fluid_compute_cfl(this, dt) <span class="keyword">result</span>(c)</div>
+<div class="line"><a name="l00996"></a><span class="lineno">  996</span>&#160;    <span class="keywordtype">class</span>(fluid_scheme_t), <span class="keywordtype">intent(in)</span> :: this</div>
+<div class="line"><a name="l00997"></a><span class="lineno">  997</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: dt</div>
+<div class="line"><a name="l00998"></a><span class="lineno">  998</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: c</div>
+<div class="line"><a name="l00999"></a><span class="lineno">  999</span>&#160; </div>
+<div class="line"><a name="l01000"></a><span class="lineno"> 1000</span>&#160;    c = <a class="code" href="../../dd/d30/namespaceoperators.html#aeffe4ba1f69ec5149b0adbf62fc46d16">cfl</a>(dt, this%u%x, this%v%x, this%w%x, &amp;</div>
+<div class="line"><a name="l01001"></a><span class="lineno"> 1001</span>&#160;         this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim)</div>
+<div class="line"><a name="l01002"></a><span class="lineno"> 1002</span>&#160; </div>
+<div class="line"><a name="l01003"></a><span class="lineno"> 1003</span>&#160;  <span class="keyword">end function </span>fluid_compute_cfl</div>
+<div class="line"><a name="l01004"></a><span class="lineno"> 1004</span>&#160; </div>
+<div class="line"><a name="l01007"></a><span class="lineno"><a class="line" href="../../d8/d09/namespacefluid__scheme.html#a1f22a47782aa9ed193e551870ec02e2c"> 1007</a></span>&#160;  <span class="keyword">subroutine </span>fluid_scheme_set_bc_type_output(this, params)</div>
+<div class="line"><a name="l01008"></a><span class="lineno"> 1008</span>&#160;    <span class="keywordtype">class</span>(fluid_scheme_t), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a name="l01009"></a><span class="lineno"> 1009</span>&#160;    <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: params</div>
+<div class="line"><a name="l01010"></a><span class="lineno"> 1010</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../df/dd9/structdirichlet_1_1dirichlet__t.html">dirichlet_t</a>) :: bdry_mask</div>
+<div class="line"><a name="l01011"></a><span class="lineno"> 1011</span>&#160;    <span class="keywordtype">logical</span> :: found</div>
 <div class="line"><a name="l01012"></a><span class="lineno"> 1012</span>&#160; </div>
-<div class="line"><a name="l01013"></a><span class="lineno"> 1013</span>&#160;    c = <a class="code" href="../../dd/d30/namespaceoperators.html#aeffe4ba1f69ec5149b0adbf62fc46d16">cfl</a>(dt, this%u%x, this%v%x, this%w%x, &amp;</div>
-<div class="line"><a name="l01014"></a><span class="lineno"> 1014</span>&#160;         this%Xh, this%c_Xh, this%msh%nelv, this%msh%gdim)</div>
-<div class="line"><a name="l01015"></a><span class="lineno"> 1015</span>&#160; </div>
-<div class="line"><a name="l01016"></a><span class="lineno"> 1016</span>&#160;  <span class="keyword">end function </span>fluid_compute_cfl</div>
+<div class="line"><a name="l01013"></a><span class="lineno"> 1013</span>&#160;    <span class="comment">!</span></div>
+<div class="line"><a name="l01014"></a><span class="lineno"> 1014</span>&#160;    <span class="comment">! Check if we need to output boundaries</span></div>
+<div class="line"><a name="l01015"></a><span class="lineno"> 1015</span>&#160;    <span class="comment">!</span></div>
+<div class="line"><a name="l01016"></a><span class="lineno"> 1016</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(params, <span class="stringliteral">&#39;case.output_boundary&#39;</span>, found, .false.)</div>
 <div class="line"><a name="l01017"></a><span class="lineno"> 1017</span>&#160; </div>
-<div class="line"><a name="l01020"></a><span class="lineno"><a class="line" href="../../d8/d09/namespacefluid__scheme.html#a1f22a47782aa9ed193e551870ec02e2c"> 1020</a></span>&#160;  <span class="keyword">subroutine </span>fluid_scheme_set_bc_type_output(this, params)</div>
-<div class="line"><a name="l01021"></a><span class="lineno"> 1021</span>&#160;    <span class="keywordtype">class</span>(fluid_scheme_t), <span class="keywordtype">target</span>, <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a name="l01022"></a><span class="lineno"> 1022</span>&#160;    <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: params</div>
-<div class="line"><a name="l01023"></a><span class="lineno"> 1023</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../df/dd9/structdirichlet_1_1dirichlet__t.html">dirichlet_t</a>) :: bdry_mask</div>
-<div class="line"><a name="l01024"></a><span class="lineno"> 1024</span>&#160;    <span class="keywordtype">logical</span> :: found</div>
-<div class="line"><a name="l01025"></a><span class="lineno"> 1025</span>&#160; </div>
-<div class="line"><a name="l01026"></a><span class="lineno"> 1026</span>&#160;    <span class="comment">!</span></div>
-<div class="line"><a name="l01027"></a><span class="lineno"> 1027</span>&#160;    <span class="comment">! Check if we need to output boundaries</span></div>
-<div class="line"><a name="l01028"></a><span class="lineno"> 1028</span>&#160;    <span class="comment">!</span></div>
-<div class="line"><a name="l01029"></a><span class="lineno"> 1029</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(params, <span class="stringliteral">&#39;case.output_boundary&#39;</span>, found, .false.)</div>
+<div class="line"><a name="l01018"></a><span class="lineno"> 1018</span>&#160;    <span class="keywordflow">if</span> (found) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l01019"></a><span class="lineno"> 1019</span>&#160;      <span class="keyword">call </span>this%bdry%init(this%dm_Xh, <span class="stringliteral">&#39;bdry&#39;</span>)</div>
+<div class="line"><a name="l01020"></a><span class="lineno"> 1020</span>&#160;      this%bdry = 0.0_rp</div>
+<div class="line"><a name="l01021"></a><span class="lineno"> 1021</span>&#160; </div>
+<div class="line"><a name="l01022"></a><span class="lineno"> 1022</span>&#160;      <span class="keyword">call </span>bdry_mask%init_base(this%c_Xh)</div>
+<div class="line"><a name="l01023"></a><span class="lineno"> 1023</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zone(this%msh%wall)</div>
+<div class="line"><a name="l01024"></a><span class="lineno"> 1024</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
+<div class="line"><a name="l01025"></a><span class="lineno"> 1025</span>&#160;                     <span class="stringliteral">&#39;w&#39;</span>, this%bc_labels)</div>
+<div class="line"><a name="l01026"></a><span class="lineno"> 1026</span>&#160;      <span class="keyword">call </span>bdry_mask%finalize()</div>
+<div class="line"><a name="l01027"></a><span class="lineno"> 1027</span>&#160;      <span class="keyword">call </span>bdry_mask%set_g(1.0_rp)</div>
+<div class="line"><a name="l01028"></a><span class="lineno"> 1028</span>&#160;      <span class="keyword">call </span>bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())</div>
+<div class="line"><a name="l01029"></a><span class="lineno"> 1029</span>&#160;      <span class="keyword">call </span>bdry_mask%free()</div>
 <div class="line"><a name="l01030"></a><span class="lineno"> 1030</span>&#160; </div>
-<div class="line"><a name="l01031"></a><span class="lineno"> 1031</span>&#160;    <span class="keywordflow">if</span> (found) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l01032"></a><span class="lineno"> 1032</span>&#160;      <span class="keyword">call </span>this%bdry%init(this%dm_Xh, <span class="stringliteral">&#39;bdry&#39;</span>)</div>
-<div class="line"><a name="l01033"></a><span class="lineno"> 1033</span>&#160;      this%bdry = 0.0_rp</div>
-<div class="line"><a name="l01034"></a><span class="lineno"> 1034</span>&#160; </div>
-<div class="line"><a name="l01035"></a><span class="lineno"> 1035</span>&#160;      <span class="keyword">call </span>bdry_mask%init_base(this%c_Xh)</div>
-<div class="line"><a name="l01036"></a><span class="lineno"> 1036</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zone(this%msh%wall)</div>
-<div class="line"><a name="l01037"></a><span class="lineno"> 1037</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
-<div class="line"><a name="l01038"></a><span class="lineno"> 1038</span>&#160;                     <span class="stringliteral">&#39;w&#39;</span>, this%bc_labels)</div>
-<div class="line"><a name="l01039"></a><span class="lineno"> 1039</span>&#160;      <span class="keyword">call </span>bdry_mask%finalize()</div>
-<div class="line"><a name="l01040"></a><span class="lineno"> 1040</span>&#160;      <span class="keyword">call </span>bdry_mask%set_g(1.0_rp)</div>
-<div class="line"><a name="l01041"></a><span class="lineno"> 1041</span>&#160;      <span class="keyword">call </span>bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())</div>
-<div class="line"><a name="l01042"></a><span class="lineno"> 1042</span>&#160;      <span class="keyword">call </span>bdry_mask%free()</div>
-<div class="line"><a name="l01043"></a><span class="lineno"> 1043</span>&#160; </div>
-<div class="line"><a name="l01044"></a><span class="lineno"> 1044</span>&#160;      <span class="keyword">call </span>bdry_mask%init_base(this%c_Xh)</div>
-<div class="line"><a name="l01045"></a><span class="lineno"> 1045</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zone(this%msh%inlet)</div>
-<div class="line"><a name="l01046"></a><span class="lineno"> 1046</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
-<div class="line"><a name="l01047"></a><span class="lineno"> 1047</span>&#160;                     <span class="stringliteral">&#39;v&#39;</span>, this%bc_labels)</div>
-<div class="line"><a name="l01048"></a><span class="lineno"> 1048</span>&#160;      <span class="keyword">call </span>bdry_mask%finalize()</div>
-<div class="line"><a name="l01049"></a><span class="lineno"> 1049</span>&#160;      <span class="keyword">call </span>bdry_mask%set_g(2.0_rp)</div>
-<div class="line"><a name="l01050"></a><span class="lineno"> 1050</span>&#160;      <span class="keyword">call </span>bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())</div>
-<div class="line"><a name="l01051"></a><span class="lineno"> 1051</span>&#160;      <span class="keyword">call </span>bdry_mask%free()</div>
-<div class="line"><a name="l01052"></a><span class="lineno"> 1052</span>&#160; </div>
-<div class="line"><a name="l01053"></a><span class="lineno"> 1053</span>&#160;      <span class="keyword">call </span>bdry_mask%init_base(this%c_Xh)</div>
-<div class="line"><a name="l01054"></a><span class="lineno"> 1054</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zone(this%msh%outlet)</div>
-<div class="line"><a name="l01055"></a><span class="lineno"> 1055</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
-<div class="line"><a name="l01056"></a><span class="lineno"> 1056</span>&#160;                     <span class="stringliteral">&#39;o&#39;</span>, this%bc_labels)</div>
-<div class="line"><a name="l01057"></a><span class="lineno"> 1057</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
-<div class="line"><a name="l01058"></a><span class="lineno"> 1058</span>&#160;                     <span class="stringliteral">&#39;o+dong&#39;</span>, this%bc_labels)</div>
-<div class="line"><a name="l01059"></a><span class="lineno"> 1059</span>&#160;      <span class="keyword">call </span>bdry_mask%finalize()</div>
-<div class="line"><a name="l01060"></a><span class="lineno"> 1060</span>&#160;      <span class="keyword">call </span>bdry_mask%set_g(3.0_rp)</div>
-<div class="line"><a name="l01061"></a><span class="lineno"> 1061</span>&#160;      <span class="keyword">call </span>bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())</div>
-<div class="line"><a name="l01062"></a><span class="lineno"> 1062</span>&#160;      <span class="keyword">call </span>bdry_mask%free()</div>
-<div class="line"><a name="l01063"></a><span class="lineno"> 1063</span>&#160; </div>
-<div class="line"><a name="l01064"></a><span class="lineno"> 1064</span>&#160;      <span class="keyword">call </span>bdry_mask%init_base(this%c_Xh)</div>
-<div class="line"><a name="l01065"></a><span class="lineno"> 1065</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zone(this%msh%sympln)</div>
-<div class="line"><a name="l01066"></a><span class="lineno"> 1066</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
-<div class="line"><a name="l01067"></a><span class="lineno"> 1067</span>&#160;                     <span class="stringliteral">&#39;sym&#39;</span>, this%bc_labels)</div>
-<div class="line"><a name="l01068"></a><span class="lineno"> 1068</span>&#160;      <span class="keyword">call </span>bdry_mask%finalize()</div>
-<div class="line"><a name="l01069"></a><span class="lineno"> 1069</span>&#160;      <span class="keyword">call </span>bdry_mask%set_g(4.0_rp)</div>
-<div class="line"><a name="l01070"></a><span class="lineno"> 1070</span>&#160;      <span class="keyword">call </span>bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())</div>
-<div class="line"><a name="l01071"></a><span class="lineno"> 1071</span>&#160;      <span class="keyword">call </span>bdry_mask%free()</div>
-<div class="line"><a name="l01072"></a><span class="lineno"> 1072</span>&#160; </div>
-<div class="line"><a name="l01073"></a><span class="lineno"> 1073</span>&#160;      <span class="keyword">call </span>bdry_mask%init_base(this%c_Xh)</div>
-<div class="line"><a name="l01074"></a><span class="lineno"> 1074</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zone(this%msh%outlet_normal)</div>
-<div class="line"><a name="l01075"></a><span class="lineno"> 1075</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
-<div class="line"><a name="l01076"></a><span class="lineno"> 1076</span>&#160;                     <span class="stringliteral">&#39;on&#39;</span>, this%bc_labels)</div>
-<div class="line"><a name="l01077"></a><span class="lineno"> 1077</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
-<div class="line"><a name="l01078"></a><span class="lineno"> 1078</span>&#160;                     <span class="stringliteral">&#39;on+dong&#39;</span>, this%bc_labels)</div>
-<div class="line"><a name="l01079"></a><span class="lineno"> 1079</span>&#160;      <span class="keyword">call </span>bdry_mask%finalize()</div>
-<div class="line"><a name="l01080"></a><span class="lineno"> 1080</span>&#160;      <span class="keyword">call </span>bdry_mask%set_g(5.0_rp)</div>
-<div class="line"><a name="l01081"></a><span class="lineno"> 1081</span>&#160;      <span class="keyword">call </span>bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())</div>
-<div class="line"><a name="l01082"></a><span class="lineno"> 1082</span>&#160;      <span class="keyword">call </span>bdry_mask%free()</div>
-<div class="line"><a name="l01083"></a><span class="lineno"> 1083</span>&#160; </div>
-<div class="line"><a name="l01084"></a><span class="lineno"> 1084</span>&#160;      <span class="keyword">call </span>bdry_mask%init_base(this%c_Xh)</div>
-<div class="line"><a name="l01085"></a><span class="lineno"> 1085</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zone(this%msh%periodic)</div>
-<div class="line"><a name="l01086"></a><span class="lineno"> 1086</span>&#160;      <span class="keyword">call </span>bdry_mask%finalize()</div>
-<div class="line"><a name="l01087"></a><span class="lineno"> 1087</span>&#160;      <span class="keyword">call </span>bdry_mask%set_g(6.0_rp)</div>
-<div class="line"><a name="l01088"></a><span class="lineno"> 1088</span>&#160;      <span class="keyword">call </span>bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())</div>
-<div class="line"><a name="l01089"></a><span class="lineno"> 1089</span>&#160;      <span class="keyword">call </span>bdry_mask%free()</div>
-<div class="line"><a name="l01090"></a><span class="lineno"> 1090</span>&#160; </div>
-<div class="line"><a name="l01091"></a><span class="lineno"> 1091</span>&#160;      <span class="keyword">call </span>bdry_mask%init_base(this%c_Xh)</div>
-<div class="line"><a name="l01092"></a><span class="lineno"> 1092</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
-<div class="line"><a name="l01093"></a><span class="lineno"> 1093</span>&#160;                     <span class="stringliteral">&#39;d_vel_u&#39;</span>, this%bc_labels)</div>
-<div class="line"><a name="l01094"></a><span class="lineno"> 1094</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
-<div class="line"><a name="l01095"></a><span class="lineno"> 1095</span>&#160;                     <span class="stringliteral">&#39;d_vel_v&#39;</span>, this%bc_labels)</div>
-<div class="line"><a name="l01096"></a><span class="lineno"> 1096</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
-<div class="line"><a name="l01097"></a><span class="lineno"> 1097</span>&#160;                     <span class="stringliteral">&#39;d_vel_w&#39;</span>, this%bc_labels)</div>
-<div class="line"><a name="l01098"></a><span class="lineno"> 1098</span>&#160;      <span class="keyword">call </span>bdry_mask%finalize()</div>
-<div class="line"><a name="l01099"></a><span class="lineno"> 1099</span>&#160;      <span class="keyword">call </span>bdry_mask%set_g(7.0_rp)</div>
-<div class="line"><a name="l01100"></a><span class="lineno"> 1100</span>&#160;      <span class="keyword">call </span>bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())</div>
-<div class="line"><a name="l01101"></a><span class="lineno"> 1101</span>&#160;      <span class="keyword">call </span>bdry_mask%free()</div>
-<div class="line"><a name="l01102"></a><span class="lineno"> 1102</span>&#160; </div>
-<div class="line"><a name="l01103"></a><span class="lineno"> 1103</span>&#160;      <span class="keyword">call </span>bdry_mask%init_base(this%c_Xh)</div>
-<div class="line"><a name="l01104"></a><span class="lineno"> 1104</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
-<div class="line"><a name="l01105"></a><span class="lineno"> 1105</span>&#160;                     <span class="stringliteral">&#39;d_pres&#39;</span>, this%bc_labels)</div>
-<div class="line"><a name="l01106"></a><span class="lineno"> 1106</span>&#160;      <span class="keyword">call </span>bdry_mask%finalize()</div>
-<div class="line"><a name="l01107"></a><span class="lineno"> 1107</span>&#160;      <span class="keyword">call </span>bdry_mask%set_g(8.0_rp)</div>
-<div class="line"><a name="l01108"></a><span class="lineno"> 1108</span>&#160;      <span class="keyword">call </span>bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())</div>
-<div class="line"><a name="l01109"></a><span class="lineno"> 1109</span>&#160;      <span class="keyword">call </span>bdry_mask%free()</div>
-<div class="line"><a name="l01110"></a><span class="lineno"> 1110</span>&#160; </div>
-<div class="line"><a name="l01111"></a><span class="lineno"> 1111</span>&#160;<span class="keywordflow">    end if</span></div>
-<div class="line"><a name="l01112"></a><span class="lineno"> 1112</span>&#160; </div>
-<div class="line"><a name="l01113"></a><span class="lineno"> 1113</span>&#160;  <span class="keyword">end subroutine </span>fluid_scheme_set_bc_type_output</div>
-<div class="line"><a name="l01114"></a><span class="lineno"> 1114</span>&#160; </div>
-<div class="line"><a name="l01116"></a><span class="lineno"><a class="line" href="../../d8/d09/namespacefluid__scheme.html#a17447dcd8f1416c9e71540d16be95a6b"> 1116</a></span>&#160;  <span class="keyword">subroutine </span>fluid_scheme_update_material_properties(this)</div>
-<div class="line"><a name="l01117"></a><span class="lineno"> 1117</span>&#160;    <span class="keywordtype">class</span>(fluid_scheme_t), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a name="l01118"></a><span class="lineno"> 1118</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span> :: nut</div>
-<div class="line"><a name="l01119"></a><span class="lineno"> 1119</span>&#160;    <span class="keywordtype">integer</span> :: n</div>
+<div class="line"><a name="l01031"></a><span class="lineno"> 1031</span>&#160;      <span class="keyword">call </span>bdry_mask%init_base(this%c_Xh)</div>
+<div class="line"><a name="l01032"></a><span class="lineno"> 1032</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zone(this%msh%inlet)</div>
+<div class="line"><a name="l01033"></a><span class="lineno"> 1033</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
+<div class="line"><a name="l01034"></a><span class="lineno"> 1034</span>&#160;                     <span class="stringliteral">&#39;v&#39;</span>, this%bc_labels)</div>
+<div class="line"><a name="l01035"></a><span class="lineno"> 1035</span>&#160;      <span class="keyword">call </span>bdry_mask%finalize()</div>
+<div class="line"><a name="l01036"></a><span class="lineno"> 1036</span>&#160;      <span class="keyword">call </span>bdry_mask%set_g(2.0_rp)</div>
+<div class="line"><a name="l01037"></a><span class="lineno"> 1037</span>&#160;      <span class="keyword">call </span>bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())</div>
+<div class="line"><a name="l01038"></a><span class="lineno"> 1038</span>&#160;      <span class="keyword">call </span>bdry_mask%free()</div>
+<div class="line"><a name="l01039"></a><span class="lineno"> 1039</span>&#160; </div>
+<div class="line"><a name="l01040"></a><span class="lineno"> 1040</span>&#160;      <span class="keyword">call </span>bdry_mask%init_base(this%c_Xh)</div>
+<div class="line"><a name="l01041"></a><span class="lineno"> 1041</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zone(this%msh%outlet)</div>
+<div class="line"><a name="l01042"></a><span class="lineno"> 1042</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
+<div class="line"><a name="l01043"></a><span class="lineno"> 1043</span>&#160;                     <span class="stringliteral">&#39;o&#39;</span>, this%bc_labels)</div>
+<div class="line"><a name="l01044"></a><span class="lineno"> 1044</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
+<div class="line"><a name="l01045"></a><span class="lineno"> 1045</span>&#160;                     <span class="stringliteral">&#39;o+dong&#39;</span>, this%bc_labels)</div>
+<div class="line"><a name="l01046"></a><span class="lineno"> 1046</span>&#160;      <span class="keyword">call </span>bdry_mask%finalize()</div>
+<div class="line"><a name="l01047"></a><span class="lineno"> 1047</span>&#160;      <span class="keyword">call </span>bdry_mask%set_g(3.0_rp)</div>
+<div class="line"><a name="l01048"></a><span class="lineno"> 1048</span>&#160;      <span class="keyword">call </span>bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())</div>
+<div class="line"><a name="l01049"></a><span class="lineno"> 1049</span>&#160;      <span class="keyword">call </span>bdry_mask%free()</div>
+<div class="line"><a name="l01050"></a><span class="lineno"> 1050</span>&#160; </div>
+<div class="line"><a name="l01051"></a><span class="lineno"> 1051</span>&#160;      <span class="keyword">call </span>bdry_mask%init_base(this%c_Xh)</div>
+<div class="line"><a name="l01052"></a><span class="lineno"> 1052</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zone(this%msh%sympln)</div>
+<div class="line"><a name="l01053"></a><span class="lineno"> 1053</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
+<div class="line"><a name="l01054"></a><span class="lineno"> 1054</span>&#160;                     <span class="stringliteral">&#39;sym&#39;</span>, this%bc_labels)</div>
+<div class="line"><a name="l01055"></a><span class="lineno"> 1055</span>&#160;      <span class="keyword">call </span>bdry_mask%finalize()</div>
+<div class="line"><a name="l01056"></a><span class="lineno"> 1056</span>&#160;      <span class="keyword">call </span>bdry_mask%set_g(4.0_rp)</div>
+<div class="line"><a name="l01057"></a><span class="lineno"> 1057</span>&#160;      <span class="keyword">call </span>bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())</div>
+<div class="line"><a name="l01058"></a><span class="lineno"> 1058</span>&#160;      <span class="keyword">call </span>bdry_mask%free()</div>
+<div class="line"><a name="l01059"></a><span class="lineno"> 1059</span>&#160; </div>
+<div class="line"><a name="l01060"></a><span class="lineno"> 1060</span>&#160;      <span class="keyword">call </span>bdry_mask%init_base(this%c_Xh)</div>
+<div class="line"><a name="l01061"></a><span class="lineno"> 1061</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zone(this%msh%outlet_normal)</div>
+<div class="line"><a name="l01062"></a><span class="lineno"> 1062</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
+<div class="line"><a name="l01063"></a><span class="lineno"> 1063</span>&#160;                     <span class="stringliteral">&#39;on&#39;</span>, this%bc_labels)</div>
+<div class="line"><a name="l01064"></a><span class="lineno"> 1064</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
+<div class="line"><a name="l01065"></a><span class="lineno"> 1065</span>&#160;                     <span class="stringliteral">&#39;on+dong&#39;</span>, this%bc_labels)</div>
+<div class="line"><a name="l01066"></a><span class="lineno"> 1066</span>&#160;      <span class="keyword">call </span>bdry_mask%finalize()</div>
+<div class="line"><a name="l01067"></a><span class="lineno"> 1067</span>&#160;      <span class="keyword">call </span>bdry_mask%set_g(5.0_rp)</div>
+<div class="line"><a name="l01068"></a><span class="lineno"> 1068</span>&#160;      <span class="keyword">call </span>bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())</div>
+<div class="line"><a name="l01069"></a><span class="lineno"> 1069</span>&#160;      <span class="keyword">call </span>bdry_mask%free()</div>
+<div class="line"><a name="l01070"></a><span class="lineno"> 1070</span>&#160; </div>
+<div class="line"><a name="l01071"></a><span class="lineno"> 1071</span>&#160;      <span class="keyword">call </span>bdry_mask%init_base(this%c_Xh)</div>
+<div class="line"><a name="l01072"></a><span class="lineno"> 1072</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zone(this%msh%periodic)</div>
+<div class="line"><a name="l01073"></a><span class="lineno"> 1073</span>&#160;      <span class="keyword">call </span>bdry_mask%finalize()</div>
+<div class="line"><a name="l01074"></a><span class="lineno"> 1074</span>&#160;      <span class="keyword">call </span>bdry_mask%set_g(6.0_rp)</div>
+<div class="line"><a name="l01075"></a><span class="lineno"> 1075</span>&#160;      <span class="keyword">call </span>bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())</div>
+<div class="line"><a name="l01076"></a><span class="lineno"> 1076</span>&#160;      <span class="keyword">call </span>bdry_mask%free()</div>
+<div class="line"><a name="l01077"></a><span class="lineno"> 1077</span>&#160; </div>
+<div class="line"><a name="l01078"></a><span class="lineno"> 1078</span>&#160;      <span class="keyword">call </span>bdry_mask%init_base(this%c_Xh)</div>
+<div class="line"><a name="l01079"></a><span class="lineno"> 1079</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
+<div class="line"><a name="l01080"></a><span class="lineno"> 1080</span>&#160;                     <span class="stringliteral">&#39;d_vel_u&#39;</span>, this%bc_labels)</div>
+<div class="line"><a name="l01081"></a><span class="lineno"> 1081</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
+<div class="line"><a name="l01082"></a><span class="lineno"> 1082</span>&#160;                     <span class="stringliteral">&#39;d_vel_v&#39;</span>, this%bc_labels)</div>
+<div class="line"><a name="l01083"></a><span class="lineno"> 1083</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
+<div class="line"><a name="l01084"></a><span class="lineno"> 1084</span>&#160;                     <span class="stringliteral">&#39;d_vel_w&#39;</span>, this%bc_labels)</div>
+<div class="line"><a name="l01085"></a><span class="lineno"> 1085</span>&#160;      <span class="keyword">call </span>bdry_mask%finalize()</div>
+<div class="line"><a name="l01086"></a><span class="lineno"> 1086</span>&#160;      <span class="keyword">call </span>bdry_mask%set_g(7.0_rp)</div>
+<div class="line"><a name="l01087"></a><span class="lineno"> 1087</span>&#160;      <span class="keyword">call </span>bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())</div>
+<div class="line"><a name="l01088"></a><span class="lineno"> 1088</span>&#160;      <span class="keyword">call </span>bdry_mask%free()</div>
+<div class="line"><a name="l01089"></a><span class="lineno"> 1089</span>&#160; </div>
+<div class="line"><a name="l01090"></a><span class="lineno"> 1090</span>&#160;      <span class="keyword">call </span>bdry_mask%init_base(this%c_Xh)</div>
+<div class="line"><a name="l01091"></a><span class="lineno"> 1091</span>&#160;      <span class="keyword">call </span>bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &amp;</div>
+<div class="line"><a name="l01092"></a><span class="lineno"> 1092</span>&#160;                     <span class="stringliteral">&#39;d_pres&#39;</span>, this%bc_labels)</div>
+<div class="line"><a name="l01093"></a><span class="lineno"> 1093</span>&#160;      <span class="keyword">call </span>bdry_mask%finalize()</div>
+<div class="line"><a name="l01094"></a><span class="lineno"> 1094</span>&#160;      <span class="keyword">call </span>bdry_mask%set_g(8.0_rp)</div>
+<div class="line"><a name="l01095"></a><span class="lineno"> 1095</span>&#160;      <span class="keyword">call </span>bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())</div>
+<div class="line"><a name="l01096"></a><span class="lineno"> 1096</span>&#160;      <span class="keyword">call </span>bdry_mask%free()</div>
+<div class="line"><a name="l01097"></a><span class="lineno"> 1097</span>&#160; </div>
+<div class="line"><a name="l01098"></a><span class="lineno"> 1098</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l01099"></a><span class="lineno"> 1099</span>&#160; </div>
+<div class="line"><a name="l01100"></a><span class="lineno"> 1100</span>&#160;  <span class="keyword">end subroutine </span>fluid_scheme_set_bc_type_output</div>
+<div class="line"><a name="l01101"></a><span class="lineno"> 1101</span>&#160; </div>
+<div class="line"><a name="l01103"></a><span class="lineno"><a class="line" href="../../d8/d09/namespacefluid__scheme.html#a17447dcd8f1416c9e71540d16be95a6b"> 1103</a></span>&#160;  <span class="keyword">subroutine </span>fluid_scheme_update_material_properties(this)</div>
+<div class="line"><a name="l01104"></a><span class="lineno"> 1104</span>&#160;    <span class="keywordtype">class</span>(fluid_scheme_t), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a name="l01105"></a><span class="lineno"> 1105</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span> :: nut</div>
+<div class="line"><a name="l01106"></a><span class="lineno"> 1106</span>&#160;    <span class="keywordtype">integer</span> :: n</div>
+<div class="line"><a name="l01107"></a><span class="lineno"> 1107</span>&#160; </div>
+<div class="line"><a name="l01108"></a><span class="lineno"> 1108</span>&#160;    <span class="keywordflow">if</span> (this%variable_material_properties) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l01109"></a><span class="lineno"> 1109</span>&#160;      nut =&gt; <a class="code" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%get_field(this%nut_field_name)</div>
+<div class="line"><a name="l01110"></a><span class="lineno"> 1110</span>&#160;      n = nut%size()</div>
+<div class="line"><a name="l01111"></a><span class="lineno"> 1111</span>&#160; </div>
+<div class="line"><a name="l01112"></a><span class="lineno"> 1112</span>&#160;      <span class="keywordflow">if</span> (<a class="code" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l01113"></a><span class="lineno"> 1113</span>&#160;         <span class="keyword">call </span><a class="code" href="../../d2/d73/namespacedevice__math.html#aead3fc7e68e8d685332f0305dcc1d612">device_cfill</a>(this%mu_field%x_d, this%mu, n)</div>
+<div class="line"><a name="l01114"></a><span class="lineno"> 1114</span>&#160;         <span class="keyword">call </span><a class="code" href="../../d2/d73/namespacedevice__math.html#a3b9c190380a831ba86fa3fe155dae8f7">device_add2s2</a>(this%mu_field%x_d, nut%x_d, this%rho, n)</div>
+<div class="line"><a name="l01115"></a><span class="lineno"> 1115</span>&#160;      <span class="keywordflow">else</span></div>
+<div class="line"><a name="l01116"></a><span class="lineno"> 1116</span>&#160;         <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#a7d6d8b6bc8f8caa027cb2ac482309121">cfill</a>(this%mu_field%x, this%mu, n)</div>
+<div class="line"><a name="l01117"></a><span class="lineno"> 1117</span>&#160;         <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#aec2e1cbc631a4cb73db0d17b89e9e596">add2s2</a>(this%mu_field%x, nut%x, this%rho, n)</div>
+<div class="line"><a name="l01118"></a><span class="lineno"> 1118</span>&#160;<span class="keywordflow">      end if</span></div>
+<div class="line"><a name="l01119"></a><span class="lineno"> 1119</span>&#160;<span class="keywordflow">    end if</span></div>
 <div class="line"><a name="l01120"></a><span class="lineno"> 1120</span>&#160; </div>
-<div class="line"><a name="l01121"></a><span class="lineno"> 1121</span>&#160;    <span class="keywordflow">if</span> (this%variable_material_properties) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l01122"></a><span class="lineno"> 1122</span>&#160;      nut =&gt; <a class="code" href="../../d1/dc4/namespacefield__registry.html#a6722b2b3dba13aaff3bf5222aecbb643">neko_field_registry</a>%get_field(this%nut_field_name)</div>
-<div class="line"><a name="l01123"></a><span class="lineno"> 1123</span>&#160;      n = nut%size()</div>
-<div class="line"><a name="l01124"></a><span class="lineno"> 1124</span>&#160; </div>
-<div class="line"><a name="l01125"></a><span class="lineno"> 1125</span>&#160;      <span class="keywordflow">if</span> (<a class="code" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l01126"></a><span class="lineno"> 1126</span>&#160;         <span class="keyword">call </span><a class="code" href="../../d2/d73/namespacedevice__math.html#aead3fc7e68e8d685332f0305dcc1d612">device_cfill</a>(this%mu_field%x_d, this%mu, n)</div>
-<div class="line"><a name="l01127"></a><span class="lineno"> 1127</span>&#160;         <span class="keyword">call </span><a class="code" href="../../d2/d73/namespacedevice__math.html#a3b9c190380a831ba86fa3fe155dae8f7">device_add2s2</a>(this%mu_field%x_d, nut%x_d, this%rho, n)</div>
-<div class="line"><a name="l01128"></a><span class="lineno"> 1128</span>&#160;      <span class="keywordflow">else</span></div>
-<div class="line"><a name="l01129"></a><span class="lineno"> 1129</span>&#160;         <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#a7d6d8b6bc8f8caa027cb2ac482309121">cfill</a>(this%mu_field%x, this%mu, n)</div>
-<div class="line"><a name="l01130"></a><span class="lineno"> 1130</span>&#160;         <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#aec2e1cbc631a4cb73db0d17b89e9e596">add2s2</a>(this%mu_field%x, nut%x, this%rho, n)</div>
-<div class="line"><a name="l01131"></a><span class="lineno"> 1131</span>&#160;<span class="keywordflow">      end if</span></div>
-<div class="line"><a name="l01132"></a><span class="lineno"> 1132</span>&#160;<span class="keywordflow">    end if</span></div>
-<div class="line"><a name="l01133"></a><span class="lineno"> 1133</span>&#160; </div>
-<div class="line"><a name="l01134"></a><span class="lineno"> 1134</span>&#160;  <span class="keyword">end subroutine </span>fluid_scheme_update_material_properties</div>
+<div class="line"><a name="l01121"></a><span class="lineno"> 1121</span>&#160;  <span class="keyword">end subroutine </span>fluid_scheme_update_material_properties</div>
+<div class="line"><a name="l01122"></a><span class="lineno"> 1122</span>&#160; </div>
+<div class="line"><a name="l01126"></a><span class="lineno"><a class="line" href="../../d8/d09/namespacefluid__scheme.html#a0ae759800139b4307245257061446a8d"> 1126</a></span>&#160;  <span class="keyword">subroutine </span>fluid_scheme_set_material_properties(this, params, user)</div>
+<div class="line"><a name="l01127"></a><span class="lineno"> 1127</span>&#160;    <span class="keywordtype">class</span>(fluid_scheme_t), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a name="l01128"></a><span class="lineno"> 1128</span>&#160;    <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: params</div>
+<div class="line"><a name="l01129"></a><span class="lineno"> 1129</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d7/da0/structuser__intf_1_1user__t.html">user_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(in)</span> :: user</div>
+<div class="line"><a name="l01130"></a><span class="lineno"> 1130</span>&#160;    <span class="keywordtype">character(len=LOG_SIZE)</span> :: log_buf</div>
+<div class="line"><a name="l01131"></a><span class="lineno"> 1131</span>&#160;    <span class="comment">! A local pointer that is needed to make Intel happy</span></div>
+<div class="line"><a name="l01132"></a><span class="lineno"> 1132</span>&#160;    <span class="keywordtype">procedure</span>(<a class="code" href="../../dd/db6/interfaceuser__intf_1_1user__material__properties.html">user_material_properties</a>),  <span class="keywordtype">pointer</span> :: dummy_mp_ptr</div>
+<div class="line"><a name="l01133"></a><span class="lineno"> 1133</span>&#160;    <span class="keywordtype">logical</span> :: nondimensional</div>
+<div class="line"><a name="l01134"></a><span class="lineno"> 1134</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: dummy_lambda, dummy_cp</div>
 <div class="line"><a name="l01135"></a><span class="lineno"> 1135</span>&#160; </div>
-<div class="line"><a name="l01139"></a><span class="lineno"><a class="line" href="../../d8/d09/namespacefluid__scheme.html#a0ae759800139b4307245257061446a8d"> 1139</a></span>&#160;  <span class="keyword">subroutine </span>fluid_scheme_set_material_properties(this, params, user)</div>
-<div class="line"><a name="l01140"></a><span class="lineno"> 1140</span>&#160;    <span class="keywordtype">class</span>(fluid_scheme_t), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a name="l01141"></a><span class="lineno"> 1141</span>&#160;    <span class="keywordtype">type</span>(json_file), <span class="keywordtype">intent(inout)</span> :: params</div>
-<div class="line"><a name="l01142"></a><span class="lineno"> 1142</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d7/da0/structuser__intf_1_1user__t.html">user_t</a>), <span class="keywordtype">target</span>, <span class="keywordtype">intent(in)</span> :: user</div>
-<div class="line"><a name="l01143"></a><span class="lineno"> 1143</span>&#160;    <span class="keywordtype">character(len=LOG_SIZE)</span> :: log_buf</div>
-<div class="line"><a name="l01144"></a><span class="lineno"> 1144</span>&#160;    <span class="comment">! A local pointer that is needed to make Intel happy</span></div>
-<div class="line"><a name="l01145"></a><span class="lineno"> 1145</span>&#160;    <span class="keywordtype">procedure</span>(<a class="code" href="../../dd/db6/interfaceuser__intf_1_1user__material__properties.html">user_material_properties</a>),  <span class="keywordtype">pointer</span> :: dummy_mp_ptr</div>
-<div class="line"><a name="l01146"></a><span class="lineno"> 1146</span>&#160;    <span class="keywordtype">logical</span> :: nondimensional</div>
-<div class="line"><a name="l01147"></a><span class="lineno"> 1147</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: dummy_lambda, dummy_cp</div>
-<div class="line"><a name="l01148"></a><span class="lineno"> 1148</span>&#160; </div>
-<div class="line"><a name="l01149"></a><span class="lineno"> 1149</span>&#160;    dummy_mp_ptr =&gt; <a class="code" href="../../d9/dbc/namespaceuser__intf.html#aba0d51dec107387f593759651232a314">dummy_user_material_properties</a></div>
-<div class="line"><a name="l01150"></a><span class="lineno"> 1150</span>&#160; </div>
-<div class="line"><a name="l01151"></a><span class="lineno"> 1151</span>&#160;    <span class="keywordflow">if</span> (.not. <span class="keyword">associated</span>(user%material_properties, dummy_mp_ptr)) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l01136"></a><span class="lineno"> 1136</span>&#160;    dummy_mp_ptr =&gt; <a class="code" href="../../d9/dbc/namespaceuser__intf.html#aba0d51dec107387f593759651232a314">dummy_user_material_properties</a></div>
+<div class="line"><a name="l01137"></a><span class="lineno"> 1137</span>&#160; </div>
+<div class="line"><a name="l01138"></a><span class="lineno"> 1138</span>&#160;    <span class="keywordflow">if</span> (.not. <span class="keyword">associated</span>(user%material_properties, dummy_mp_ptr)) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l01139"></a><span class="lineno"> 1139</span>&#160; </div>
+<div class="line"><a name="l01140"></a><span class="lineno"> 1140</span>&#160;       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&quot;Material properties must be set in the user&amp;</span></div>
+<div class="line"><a name="l01141"></a><span class="lineno"> 1141</span>&#160;<span class="stringliteral"></span><span class="stringliteral">       &amp; file!&quot;</span></div>
+<div class="line"><a name="l01142"></a><span class="lineno"> 1142</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
+<div class="line"><a name="l01143"></a><span class="lineno"> 1143</span>&#160;       <span class="keyword">call </span>user%material_properties(0.0_rp, 0, this%rho, this%mu, &amp;</div>
+<div class="line"><a name="l01144"></a><span class="lineno"> 1144</span>&#160;            dummy_cp, dummy_lambda, params)</div>
+<div class="line"><a name="l01145"></a><span class="lineno"> 1145</span>&#160;    <span class="keywordflow">else</span></div>
+<div class="line"><a name="l01146"></a><span class="lineno"> 1146</span>&#160;       <span class="comment">! Incorrect user input</span></div>
+<div class="line"><a name="l01147"></a><span class="lineno"> 1147</span>&#160;       <span class="keywordflow">if</span> (params%valid_path(<span class="stringliteral">&#39;case.fluid.Re&#39;</span>) .and. &amp;</div>
+<div class="line"><a name="l01148"></a><span class="lineno"> 1148</span>&#160;           (params%valid_path(<span class="stringliteral">&#39;case.fluid.mu&#39;</span>) .or. &amp;</div>
+<div class="line"><a name="l01149"></a><span class="lineno"> 1149</span>&#160;            params%valid_path(<span class="stringliteral">&#39;case.fluid.rho&#39;</span>))) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l01150"></a><span class="lineno"> 1150</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;To set the material properties for the fluid,&amp;</span></div>
+<div class="line"><a name="l01151"></a><span class="lineno"> 1151</span>&#160;<span class="stringliteral"></span><span class="stringliteral">          &amp; either provide Re OR mu and rho in the case file.&quot;</span>)</div>
 <div class="line"><a name="l01152"></a><span class="lineno"> 1152</span>&#160; </div>
-<div class="line"><a name="l01153"></a><span class="lineno"> 1153</span>&#160;       <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&quot;Material properties must be set in the user&amp;</span></div>
-<div class="line"><a name="l01154"></a><span class="lineno"> 1154</span>&#160;<span class="stringliteral"></span><span class="stringliteral">       &amp; file!&quot;</span></div>
-<div class="line"><a name="l01155"></a><span class="lineno"> 1155</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
-<div class="line"><a name="l01156"></a><span class="lineno"> 1156</span>&#160;       <span class="keyword">call </span>user%material_properties(0.0_rp, 0, this%rho, this%mu, &amp;</div>
-<div class="line"><a name="l01157"></a><span class="lineno"> 1157</span>&#160;            dummy_cp, dummy_lambda, params)</div>
-<div class="line"><a name="l01158"></a><span class="lineno"> 1158</span>&#160;    <span class="keywordflow">else</span></div>
-<div class="line"><a name="l01159"></a><span class="lineno"> 1159</span>&#160;       <span class="comment">! Incorrect user input</span></div>
-<div class="line"><a name="l01160"></a><span class="lineno"> 1160</span>&#160;       <span class="keywordflow">if</span> (params%valid_path(<span class="stringliteral">&#39;case.fluid.Re&#39;</span>) .and. &amp;</div>
-<div class="line"><a name="l01161"></a><span class="lineno"> 1161</span>&#160;           (params%valid_path(<span class="stringliteral">&#39;case.fluid.mu&#39;</span>) .or. &amp;</div>
-<div class="line"><a name="l01162"></a><span class="lineno"> 1162</span>&#160;            params%valid_path(<span class="stringliteral">&#39;case.fluid.rho&#39;</span>))) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l01163"></a><span class="lineno"> 1163</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;To set the material properties for the fluid,&amp;</span></div>
-<div class="line"><a name="l01164"></a><span class="lineno"> 1164</span>&#160;<span class="stringliteral"></span><span class="stringliteral">          &amp; either provide Re OR mu and rho in the case file.&quot;</span>)</div>
-<div class="line"><a name="l01165"></a><span class="lineno"> 1165</span>&#160; </div>
-<div class="line"><a name="l01166"></a><span class="lineno"> 1166</span>&#160;          <span class="comment">! Non-dimensional case</span></div>
-<div class="line"><a name="l01167"></a><span class="lineno"> 1167</span>&#160;       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (params%valid_path(<span class="stringliteral">&#39;case.fluid.Re&#39;</span>)) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l01168"></a><span class="lineno"> 1168</span>&#160; </div>
-<div class="line"><a name="l01169"></a><span class="lineno"> 1169</span>&#160;          <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&#39;Non-dimensional fluid material properties &amp;</span></div>
-<div class="line"><a name="l01170"></a><span class="lineno"> 1170</span>&#160;<span class="stringliteral"></span><span class="stringliteral">          &amp; input.&#39;</span></div>
-<div class="line"><a name="l01171"></a><span class="lineno"> 1171</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf, lvl = <a class="code" href="../../d8/da0/namespacelogger.html#a5399c64f888a732c061c518a5558a1bb">neko_log_verbose</a>)</div>
-<div class="line"><a name="l01172"></a><span class="lineno"> 1172</span>&#160;          <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&#39;Density will be set to 1, dynamic viscosity to&amp;</span></div>
-<div class="line"><a name="l01173"></a><span class="lineno"> 1173</span>&#160;<span class="stringliteral"></span><span class="stringliteral">          &amp; 1/Re.&#39;</span></div>
-<div class="line"><a name="l01174"></a><span class="lineno"> 1174</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf, lvl = <a class="code" href="../../d8/da0/namespacelogger.html#a5399c64f888a732c061c518a5558a1bb">neko_log_verbose</a>)</div>
-<div class="line"><a name="l01175"></a><span class="lineno"> 1175</span>&#160; </div>
-<div class="line"><a name="l01176"></a><span class="lineno"> 1176</span>&#160;          <span class="comment">! Read Re into mu for further manipulation.</span></div>
-<div class="line"><a name="l01177"></a><span class="lineno"> 1177</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(params, <span class="stringliteral">&#39;case.fluid.Re&#39;</span>, this%mu)</div>
-<div class="line"><a name="l01178"></a><span class="lineno"> 1178</span>&#160;          <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&#39;Read non-dimensional material properties&#39;</span></div>
-<div class="line"><a name="l01179"></a><span class="lineno"> 1179</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
-<div class="line"><a name="l01180"></a><span class="lineno"> 1180</span>&#160;          <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,ES13.6)&#39;</span>) <span class="stringliteral">&#39;Re         :&#39;</span>,  this%mu</div>
-<div class="line"><a name="l01181"></a><span class="lineno"> 1181</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
+<div class="line"><a name="l01153"></a><span class="lineno"> 1153</span>&#160;          <span class="comment">! Non-dimensional case</span></div>
+<div class="line"><a name="l01154"></a><span class="lineno"> 1154</span>&#160;       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (params%valid_path(<span class="stringliteral">&#39;case.fluid.Re&#39;</span>)) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l01155"></a><span class="lineno"> 1155</span>&#160; </div>
+<div class="line"><a name="l01156"></a><span class="lineno"> 1156</span>&#160;          <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&#39;Non-dimensional fluid material properties &amp;</span></div>
+<div class="line"><a name="l01157"></a><span class="lineno"> 1157</span>&#160;<span class="stringliteral"></span><span class="stringliteral">          &amp; input.&#39;</span></div>
+<div class="line"><a name="l01158"></a><span class="lineno"> 1158</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf, lvl = <a class="code" href="../../d8/da0/namespacelogger.html#a5399c64f888a732c061c518a5558a1bb">neko_log_verbose</a>)</div>
+<div class="line"><a name="l01159"></a><span class="lineno"> 1159</span>&#160;          <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&#39;Density will be set to 1, dynamic viscosity to&amp;</span></div>
+<div class="line"><a name="l01160"></a><span class="lineno"> 1160</span>&#160;<span class="stringliteral"></span><span class="stringliteral">          &amp; 1/Re.&#39;</span></div>
+<div class="line"><a name="l01161"></a><span class="lineno"> 1161</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf, lvl = <a class="code" href="../../d8/da0/namespacelogger.html#a5399c64f888a732c061c518a5558a1bb">neko_log_verbose</a>)</div>
+<div class="line"><a name="l01162"></a><span class="lineno"> 1162</span>&#160; </div>
+<div class="line"><a name="l01163"></a><span class="lineno"> 1163</span>&#160;          <span class="comment">! Read Re into mu for further manipulation.</span></div>
+<div class="line"><a name="l01164"></a><span class="lineno"> 1164</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(params, <span class="stringliteral">&#39;case.fluid.Re&#39;</span>, this%mu)</div>
+<div class="line"><a name="l01165"></a><span class="lineno"> 1165</span>&#160;          <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A)&#39;</span>) <span class="stringliteral">&#39;Read non-dimensional material properties&#39;</span></div>
+<div class="line"><a name="l01166"></a><span class="lineno"> 1166</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
+<div class="line"><a name="l01167"></a><span class="lineno"> 1167</span>&#160;          <span class="keyword">write</span>(log_buf, <span class="stringliteral">&#39;(A,ES13.6)&#39;</span>) <span class="stringliteral">&#39;Re         :&#39;</span>,  this%mu</div>
+<div class="line"><a name="l01168"></a><span class="lineno"> 1168</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
+<div class="line"><a name="l01169"></a><span class="lineno"> 1169</span>&#160; </div>
+<div class="line"><a name="l01170"></a><span class="lineno"> 1170</span>&#160;          <span class="comment">! Set rho to 1 since the setup is non-dimensional.</span></div>
+<div class="line"><a name="l01171"></a><span class="lineno"> 1171</span>&#160;          this%rho = 1.0_rp</div>
+<div class="line"><a name="l01172"></a><span class="lineno"> 1172</span>&#160;          <span class="comment">! Invert the Re to get viscosity.</span></div>
+<div class="line"><a name="l01173"></a><span class="lineno"> 1173</span>&#160;          this%mu = 1.0_rp/this%mu</div>
+<div class="line"><a name="l01174"></a><span class="lineno"> 1174</span>&#160;          <span class="comment">! Dimensional case</span></div>
+<div class="line"><a name="l01175"></a><span class="lineno"> 1175</span>&#160;       <span class="keywordflow">else</span></div>
+<div class="line"><a name="l01176"></a><span class="lineno"> 1176</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(params, <span class="stringliteral">&#39;case.fluid.mu&#39;</span>, this%mu)</div>
+<div class="line"><a name="l01177"></a><span class="lineno"> 1177</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(params, <span class="stringliteral">&#39;case.fluid.rho&#39;</span>, this%rho)</div>
+<div class="line"><a name="l01178"></a><span class="lineno"> 1178</span>&#160;<span class="keywordflow">       end if</span></div>
+<div class="line"><a name="l01179"></a><span class="lineno"> 1179</span>&#160; </div>
+<div class="line"><a name="l01180"></a><span class="lineno"> 1180</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l01181"></a><span class="lineno"> 1181</span>&#160;  <span class="keyword">end subroutine </span>fluid_scheme_set_material_properties</div>
 <div class="line"><a name="l01182"></a><span class="lineno"> 1182</span>&#160; </div>
-<div class="line"><a name="l01183"></a><span class="lineno"> 1183</span>&#160;          <span class="comment">! Set rho to 1 since the setup is non-dimensional.</span></div>
-<div class="line"><a name="l01184"></a><span class="lineno"> 1184</span>&#160;          this%rho = 1.0_rp</div>
-<div class="line"><a name="l01185"></a><span class="lineno"> 1185</span>&#160;          <span class="comment">! Invert the Re to get viscosity.</span></div>
-<div class="line"><a name="l01186"></a><span class="lineno"> 1186</span>&#160;          this%mu = 1.0_rp/this%mu</div>
-<div class="line"><a name="l01187"></a><span class="lineno"> 1187</span>&#160;          <span class="comment">! Dimensional case</span></div>
-<div class="line"><a name="l01188"></a><span class="lineno"> 1188</span>&#160;       <span class="keywordflow">else</span></div>
-<div class="line"><a name="l01189"></a><span class="lineno"> 1189</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(params, <span class="stringliteral">&#39;case.fluid.mu&#39;</span>, this%mu)</div>
-<div class="line"><a name="l01190"></a><span class="lineno"> 1190</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d7/d48/interfacejson__utils_1_1json__get.html">json_get</a>(params, <span class="stringliteral">&#39;case.fluid.rho&#39;</span>, this%rho)</div>
-<div class="line"><a name="l01191"></a><span class="lineno"> 1191</span>&#160;<span class="keywordflow">       end if</span></div>
-<div class="line"><a name="l01192"></a><span class="lineno"> 1192</span>&#160; </div>
-<div class="line"><a name="l01193"></a><span class="lineno"> 1193</span>&#160;<span class="keywordflow">    end if</span></div>
-<div class="line"><a name="l01194"></a><span class="lineno"> 1194</span>&#160;  <span class="keyword">end subroutine </span>fluid_scheme_set_material_properties</div>
-<div class="line"><a name="l01195"></a><span class="lineno"> 1195</span>&#160; </div>
-<div class="line"><a name="l01196"></a><span class="lineno"> 1196</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d8/d09/namespacefluid__scheme.html">fluid_scheme</a></div>
+<div class="line"><a name="l01183"></a><span class="lineno"> 1183</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d8/d09/namespacefluid__scheme.html">fluid_scheme</a></div>
 <div class="ttc" id="ainterfacefluid__scheme_1_1fluid__scheme__free__intrf_html"><div class="ttname"><a href="../../d7/dc7/interfacefluid__scheme_1_1fluid__scheme__free__intrf.html">fluid_scheme::fluid_scheme_free_intrf</a></div><div class="ttdoc">Abstract interface to dealocate a fluid formulation.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00208">fluid_scheme.f90:208</a></div></div>
 <div class="ttc" id="ainterfacefluid__scheme_1_1fluid__scheme__init__intrf_html"><div class="ttname"><a href="../../d1/de2/interfacefluid__scheme_1_1fluid__scheme__init__intrf.html">fluid_scheme::fluid_scheme_init_intrf</a></div><div class="ttdoc">Abstract interface to initialize a fluid formulation.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00190">fluid_scheme.f90:190</a></div></div>
 <div class="ttc" id="ainterfacefluid__scheme_1_1fluid__scheme__restart__intrf_html"><div class="ttname"><a href="../../de/de1/interfacefluid__scheme_1_1fluid__scheme__restart__intrf.html">fluid_scheme::fluid_scheme_restart_intrf</a></div><div class="ttdoc">Abstract interface to restart a fluid scheme.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00233">fluid_scheme.f90:233</a></div></div>
@@ -1274,17 +1261,17 @@ $(document).ready(function(){initNavTree('d0/df5/fluid__scheme_8f90_source.html'
 <div class="ttc" id="anamespacefield__series_html"><div class="ttname"><a href="../../d6/d32/namespacefield__series.html">field_series</a></div><div class="ttdoc">Stores a series fields.</div><div class="ttdef"><b>Definition:</b> <a href="../../db/dd7/field__series_8f90_source.html#l00034">field_series.f90:34</a></div></div>
 <div class="ttc" id="anamespacefield_html"><div class="ttname"><a href="../../dc/da9/namespacefield.html">field</a></div><div class="ttdoc">Defines a field.</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/dc1/field_8f90_source.html#l00034">field.f90:34</a></div></div>
 <div class="ttc" id="anamespacefluid__scheme_html"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html">fluid_scheme</a></div><div class="ttdoc">Fluid formulations.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00034">fluid_scheme.f90:34</a></div></div>
-<div class="ttc" id="anamespacefluid__scheme_html_a0ae759800139b4307245257061446a8d"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html#a0ae759800139b4307245257061446a8d">fluid_scheme::fluid_scheme_set_material_properties</a></div><div class="ttdeci">subroutine fluid_scheme_set_material_properties(this, params, user)</div><div class="ttdoc">Sets rho and mu.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l01139">fluid_scheme.f90:1140</a></div></div>
+<div class="ttc" id="anamespacefluid__scheme_html_a0ae759800139b4307245257061446a8d"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html#a0ae759800139b4307245257061446a8d">fluid_scheme::fluid_scheme_set_material_properties</a></div><div class="ttdeci">subroutine fluid_scheme_set_material_properties(this, params, user)</div><div class="ttdoc">Sets rho and mu.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l01126">fluid_scheme.f90:1127</a></div></div>
 <div class="ttc" id="anamespacefluid__scheme_html_a163ce93c7c8e760a2172e915aab75525"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html#a163ce93c7c8e760a2172e915aab75525">fluid_scheme::fluid_scheme_free</a></div><div class="ttdeci">subroutine fluid_scheme_free(this)</div><div class="ttdoc">Deallocate a fluid formulation.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00757">fluid_scheme.f90:758</a></div></div>
-<div class="ttc" id="anamespacefluid__scheme_html_a17447dcd8f1416c9e71540d16be95a6b"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html#a17447dcd8f1416c9e71540d16be95a6b">fluid_scheme::fluid_scheme_update_material_properties</a></div><div class="ttdeci">subroutine fluid_scheme_update_material_properties(this)</div><div class="ttdoc">Update the values of mu_field if necessary.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l01116">fluid_scheme.f90:1117</a></div></div>
-<div class="ttc" id="anamespacefluid__scheme_html_a1f22a47782aa9ed193e551870ec02e2c"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html#a1f22a47782aa9ed193e551870ec02e2c">fluid_scheme::fluid_scheme_set_bc_type_output</a></div><div class="ttdeci">subroutine fluid_scheme_set_bc_type_output(this, params)</div><div class="ttdoc">Set boundary types for the diagnostic output.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l01020">fluid_scheme.f90:1021</a></div></div>
-<div class="ttc" id="anamespacefluid__scheme_html_a2275b69b1d1959f4c8cf29b011dee8e8"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html#a2275b69b1d1959f4c8cf29b011dee8e8">fluid_scheme::fluid_compute_cfl</a></div><div class="ttdeci">real(kind=rp) function fluid_compute_cfl(this, dt)</div><div class="ttdoc">Compute CFL.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l01008">fluid_scheme.f90:1009</a></div></div>
+<div class="ttc" id="anamespacefluid__scheme_html_a17447dcd8f1416c9e71540d16be95a6b"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html#a17447dcd8f1416c9e71540d16be95a6b">fluid_scheme::fluid_scheme_update_material_properties</a></div><div class="ttdeci">subroutine fluid_scheme_update_material_properties(this)</div><div class="ttdoc">Update the values of mu_field if necessary.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l01103">fluid_scheme.f90:1104</a></div></div>
+<div class="ttc" id="anamespacefluid__scheme_html_a1f22a47782aa9ed193e551870ec02e2c"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html#a1f22a47782aa9ed193e551870ec02e2c">fluid_scheme::fluid_scheme_set_bc_type_output</a></div><div class="ttdeci">subroutine fluid_scheme_set_bc_type_output(this, params)</div><div class="ttdoc">Set boundary types for the diagnostic output.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l01007">fluid_scheme.f90:1008</a></div></div>
+<div class="ttc" id="anamespacefluid__scheme_html_a2275b69b1d1959f4c8cf29b011dee8e8"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html#a2275b69b1d1959f4c8cf29b011dee8e8">fluid_scheme::fluid_compute_cfl</a></div><div class="ttdeci">real(kind=rp) function fluid_compute_cfl(this, dt)</div><div class="ttdoc">Compute CFL.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00995">fluid_scheme.f90:996</a></div></div>
 <div class="ttc" id="anamespacefluid__scheme_html_a394523005f7e024eff53a66eed66fd5a"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html#a394523005f7e024eff53a66eed66fd5a">fluid_scheme::fluid_scheme_init_all</a></div><div class="ttdeci">subroutine fluid_scheme_init_all(this, msh, lx, params, kspv_init, kspp_init, scheme, user)</div><div class="ttdoc">Initialize all components of the current scheme.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00628">fluid_scheme.f90:630</a></div></div>
-<div class="ttc" id="anamespacefluid__scheme_html_a6561f8852ca35ecee87cf24c92abc5ff"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html#a6561f8852ca35ecee87cf24c92abc5ff">fluid_scheme::fluid_scheme_set_usr_inflow</a></div><div class="ttdeci">subroutine fluid_scheme_set_usr_inflow(this, usr_eval)</div><div class="ttdoc">Initialize a user defined inflow condition.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00995">fluid_scheme.f90:996</a></div></div>
+<div class="ttc" id="anamespacefluid__scheme_html_a6561f8852ca35ecee87cf24c92abc5ff"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html#a6561f8852ca35ecee87cf24c92abc5ff">fluid_scheme::fluid_scheme_set_usr_inflow</a></div><div class="ttdeci">subroutine fluid_scheme_set_usr_inflow(this, usr_eval)</div><div class="ttdoc">Initialize a user defined inflow condition.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00982">fluid_scheme.f90:983</a></div></div>
 <div class="ttc" id="anamespacefluid__scheme_html_a954fd0e94a3e06097351d3ca34709ad4"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html#a954fd0e94a3e06097351d3ca34709ad4">fluid_scheme::fluid_scheme_init_common</a></div><div class="ttdeci">subroutine fluid_scheme_init_common(this, msh, lx, params, scheme, user, kspv_init)</div><div class="ttdoc">Initialise a fluid scheme.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00255">fluid_scheme.f90:257</a></div></div>
-<div class="ttc" id="anamespacefluid__scheme_html_a9bdf3634a28f508c4892c1a02fe6c8b0"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html#a9bdf3634a28f508c4892c1a02fe6c8b0">fluid_scheme::fluid_scheme_bc_apply_vel</a></div><div class="ttdeci">subroutine fluid_scheme_bc_apply_vel(this, t, tstep)</div><div class="ttdoc">Apply all boundary conditions defined for velocity Here we perform additional gs operations to take c...</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00919">fluid_scheme.f90:920</a></div></div>
+<div class="ttc" id="anamespacefluid__scheme_html_a9bdf3634a28f508c4892c1a02fe6c8b0"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html#a9bdf3634a28f508c4892c1a02fe6c8b0">fluid_scheme::fluid_scheme_bc_apply_vel</a></div><div class="ttdeci">subroutine fluid_scheme_bc_apply_vel(this, t, tstep)</div><div class="ttdoc">Apply all boundary conditions defined for velocity Here we perform additional gs operations to take c...</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00906">fluid_scheme.f90:907</a></div></div>
 <div class="ttc" id="anamespacefluid__scheme_html_ab37cf7d940c2ae123b80872660bf07fe"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html#ab37cf7d940c2ae123b80872660bf07fe">fluid_scheme::fluid_scheme_validate</a></div><div class="ttdeci">subroutine fluid_scheme_validate(this)</div><div class="ttdoc">Validate that all fields, solvers etc necessary for performing time-stepping are defined.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00857">fluid_scheme.f90:858</a></div></div>
-<div class="ttc" id="anamespacefluid__scheme_html_af53df9e2dca6bd4b6ae9cdccc2e35bb7"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html#af53df9e2dca6bd4b6ae9cdccc2e35bb7">fluid_scheme::fluid_scheme_bc_apply_prs</a></div><div class="ttdeci">subroutine fluid_scheme_bc_apply_prs(this, t, tstep)</div><div class="ttdoc">Apply all boundary conditions defined for pressure.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00931">fluid_scheme.f90:932</a></div></div>
+<div class="ttc" id="anamespacefluid__scheme_html_af53df9e2dca6bd4b6ae9cdccc2e35bb7"><div class="ttname"><a href="../../d8/d09/namespacefluid__scheme.html#af53df9e2dca6bd4b6ae9cdccc2e35bb7">fluid_scheme::fluid_scheme_bc_apply_prs</a></div><div class="ttdeci">subroutine fluid_scheme_bc_apply_prs(this, t, tstep)</div><div class="ttdoc">Apply all boundary conditions defined for pressure.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/df5/fluid__scheme_8f90_source.html#l00918">fluid_scheme.f90:919</a></div></div>
 <div class="ttc" id="anamespacefluid__source__term_html"><div class="ttname"><a href="../../df/d09/namespacefluid__source__term.html">fluid_source_term</a></div><div class="ttdoc">Implements the fluid_source_term_t type.</div><div class="ttdef"><b>Definition:</b> <a href="../../d5/d2d/fluid__source__term_8f90_source.html#l00035">fluid_source_term.f90:35</a></div></div>
 <div class="ttc" id="anamespacefluid__stats_html"><div class="ttname"><a href="../../d9/d7d/namespacefluid__stats.html">fluid_stats</a></div><div class="ttdoc">Computes various statistics for the fluid fields. We use the Reynolds decomposition for a field u =  ...</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d05/fluid__stats_8f90_source.html#l00036">fluid_stats.f90:36</a></div></div>
 <div class="ttc" id="anamespacegather__scatter_html"><div class="ttname"><a href="../../d0/d78/namespacegather__scatter.html">gather_scatter</a></div><div class="ttdoc">Gather-scatter.</div><div class="ttdef"><b>Definition:</b> <a href="../../d5/d7e/gather__scatter_8f90_source.html#l00034">gather_scatter.f90:34</a></div></div>
@@ -1301,7 +1288,7 @@ $(document).ready(function(){initNavTree('d0/df5/fluid__scheme_8f90_source.html'
 <div class="ttc" id="anamespacelogger_html_ade757cfc4235350ea17397117ea3c4a6"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6">logger::log_size</a></div><div class="ttdeci">integer, parameter, public log_size</div><div class="ttdef"><b>Definition:</b> <a href="../../da/d53/log_8f90_source.html#l00042">log.f90:42</a></div></div>
 <div class="ttc" id="anamespacemath_html"><div class="ttname"><a href="../../dd/d47/namespacemath.html">math</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d6/ddb/math_8f90_source.html#l00060">math.f90:60</a></div></div>
 <div class="ttc" id="anamespacemath_html_a7d6d8b6bc8f8caa027cb2ac482309121"><div class="ttname"><a href="../../dd/d47/namespacemath.html#a7d6d8b6bc8f8caa027cb2ac482309121">math::cfill</a></div><div class="ttdeci">subroutine, public cfill(a, c, n)</div><div class="ttdoc">Set all elements to a constant c .</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/ddb/math_8f90_source.html#l00336">math.f90:337</a></div></div>
-<div class="ttc" id="anamespacemath_html_aec2e1cbc631a4cb73db0d17b89e9e596"><div class="ttname"><a href="../../dd/d47/namespacemath.html#aec2e1cbc631a4cb73db0d17b89e9e596">math::add2s2</a></div><div class="ttdeci">subroutine, public add2s2(a, b, c1, n)</div><div class="ttdoc">Vector addition with scalar multiplication  (multiplication on second argument)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/ddb/math_8f90_source.html#l00655">math.f90:656</a></div></div>
+<div class="ttc" id="anamespacemath_html_aec2e1cbc631a4cb73db0d17b89e9e596"><div class="ttname"><a href="../../dd/d47/namespacemath.html#aec2e1cbc631a4cb73db0d17b89e9e596">math::add2s2</a></div><div class="ttdeci">subroutine, public add2s2(a, b, c1, n)</div><div class="ttdoc">Vector addition with scalar multiplication  (multiplication on second argument)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/ddb/math_8f90_source.html#l00657">math.f90:658</a></div></div>
 <div class="ttc" id="anamespacemean__flow_html"><div class="ttname"><a href="../../d5/d8d/namespacemean__flow.html">mean_flow</a></div><div class="ttdoc">Defines a mean flow field.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/d73/mean__flow_8f90_source.html#l00034">mean_flow.f90:34</a></div></div>
 <div class="ttc" id="anamespacemean__sqr__flow_html"><div class="ttname"><a href="../../d9/d70/namespacemean__sqr__flow.html">mean_sqr_flow</a></div><div class="ttdoc">Defines a mean squared flow field.</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/dea/mean__sqr__flow_8f90_source.html#l00034">mean_sqr_flow.f90:34</a></div></div>
 <div class="ttc" id="anamespacemesh_html"><div class="ttname"><a href="../../db/dfc/namespacemesh.html">mesh</a></div><div class="ttdoc">Defines a mesh.</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d0a/mesh_8f90_source.html#l00034">mesh.f90:34</a></div></div>
@@ -1369,7 +1356,7 @@ $(document).ready(function(){initNavTree('d0/df5/fluid__scheme_8f90_source.html'
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d0/df5/fluid__scheme_8f90.html">fluid_scheme.f90</a></li>
-    <li class="footer">Generated on Fri Oct 4 2024 03:38:04 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Oct 5 2024 03:37:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

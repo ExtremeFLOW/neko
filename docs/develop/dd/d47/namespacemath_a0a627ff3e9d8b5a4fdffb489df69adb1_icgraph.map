@@ -12,7 +12,7 @@
 <area shape="rect" id="node5" href="$da/def/namespacedynamic__smagorinsky__cpu.html#afc315d593e38cf654ffdc958baa9a5c6" title="Compute eddy viscosity on the CPU." alt="" coords="230,71,437,127"/>
 <area shape="rect" id="node6" href="$d4/d9c/namespacedynamic__smagorinsky.html#ad9e829fe19717511484cca0fe4524c52" title="Compute eddy viscosity." alt="" coords="5,71,181,127"/>
 <area shape="rect" id="node8" href="$d6/def/namespacegradient__jump__penalty.html#ab7234be3b26833675975cce3bdd66935" title="Constructor." alt="" coords="229,152,437,193"/>
-<area shape="rect" id="node10" href="$d1/d26/namespacemean__field.html#a93a16c515f8dae835a404ebdd95f75d3" title="Update a mean field." alt="" coords="246,217,421,259"/>
+<area shape="rect" id="node10" href="$d1/d26/namespacemean__field.html#a93a16c515f8dae835a404ebdd95f75d3" title="Update the mean field with a new sample." alt="" coords="246,217,421,259"/>
 <area shape="rect" id="node14" href="$d1/d99/namespacemap__2d.html#a297d7d6292508a38afd4ca7f4104a06a" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="236,362,431,389"/>
 <area shape="rect" id="node15" href="$d1/d99/namespacemap__2d.html#a8a72ce61d76d8c2ab9e93ec9da8c926e" title="Computes average if field list in one direction and outputs 2D field with averaged values." alt="" coords="236,413,431,455"/>
 </map>

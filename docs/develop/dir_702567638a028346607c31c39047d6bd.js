@@ -2,6 +2,7 @@ var dir_702567638a028346607c31c39047d6bd =
 [
     [ "derivative.f90", "dc/d11/derivative_8f90.html", "dc/d11/derivative_8f90" ],
     [ "field_writer.f90", "d2/d66/field__writer_8f90.html", "d2/d66/field__writer_8f90" ],
+    [ "fluid_stats_simcomp.f90", "d9/d93/fluid__stats__simcomp_8f90.html", "d9/d93/fluid__stats__simcomp_8f90" ],
     [ "force_torque.f90", "d2/d3e/force__torque_8f90.html", "d2/d3e/force__torque_8f90" ],
     [ "lambda2.f90", "de/d87/lambda2_8f90.html", "de/d87/lambda2_8f90" ],
     [ "les_simcomp.f90", "d2/da6/les__simcomp_8f90.html", "d2/da6/les__simcomp_8f90" ],

@@ -101,19 +101,19 @@ $(document).ready(function(){initNavTree('d8/d36/interfacecase_1_1case__init.htm
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
-<tr class="memitem:a96fd088f5a85b607a614f31a86b826e6"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d36/interfacecase_1_1case__init.html#a96fd088f5a85b607a614f31a86b826e6">case_init_from_file</a> (C, case_file)</td></tr>
-<tr class="memdesc:a96fd088f5a85b607a614f31a86b826e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a case from an input file <em>case_file</em>.  <a href="../../d8/d36/interfacecase_1_1case__init.html#a96fd088f5a85b607a614f31a86b826e6">More...</a><br /></td></tr>
-<tr class="separator:a96fd088f5a85b607a614f31a86b826e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3fe242ef6c179c5b11d1004ac20f043e"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d36/interfacecase_1_1case__init.html#a3fe242ef6c179c5b11d1004ac20f043e">case_init_from_json</a> (C, case_json)</td></tr>
-<tr class="memdesc:a3fe242ef6c179c5b11d1004ac20f043e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a case from a JSON object describing a case.  <a href="../../d8/d36/interfacecase_1_1case__init.html#a3fe242ef6c179c5b11d1004ac20f043e">More...</a><br /></td></tr>
-<tr class="separator:a3fe242ef6c179c5b11d1004ac20f043e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd7b02470b540d948eb556eecfc40e81"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d36/interfacecase_1_1case__init.html#acd7b02470b540d948eb556eecfc40e81">case_init_from_file</a> (this, case_file)</td></tr>
+<tr class="memdesc:acd7b02470b540d948eb556eecfc40e81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a case from an input file <em>case_file</em>.  <a href="../../d8/d36/interfacecase_1_1case__init.html#acd7b02470b540d948eb556eecfc40e81">More...</a><br /></td></tr>
+<tr class="separator:acd7b02470b540d948eb556eecfc40e81"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a685c8e7a3bb9754492dbb77fcc05efc6"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d36/interfacecase_1_1case__init.html#a685c8e7a3bb9754492dbb77fcc05efc6">case_init_from_json</a> (this, case_json)</td></tr>
+<tr class="memdesc:a685c8e7a3bb9754492dbb77fcc05efc6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a case from a JSON object describing a case.  <a href="../../d8/d36/interfacecase_1_1case__init.html#a685c8e7a3bb9754492dbb77fcc05efc6">More...</a><br /></td></tr>
+<tr class="separator:a685c8e7a3bb9754492dbb77fcc05efc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d2/d0f/case_8f90_source.html#l00086">86</a> of file <a class="el" href="../../d2/d0f/case_8f90_source.html">case.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d0f/case_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d2/d0f/case_8f90_source.html">case.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
-<a id="a96fd088f5a85b607a614f31a86b826e6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a96fd088f5a85b607a614f31a86b826e6">&#9670;&nbsp;</a></span>case_init_from_file()</h2>
+<a id="acd7b02470b540d948eb556eecfc40e81"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd7b02470b540d948eb556eecfc40e81">&#9670;&nbsp;</a></span>case_init_from_file()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -125,7 +125,7 @@ Private Member Functions</h2></td></tr>
           <td class="memname">subroutine case::case_init::case_init_from_file </td>
           <td>(</td>
           <td class="paramtype">type(<a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), intent(inout), target&#160;</td>
-          <td class="paramname"><em>C</em>, </td>
+          <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -146,14 +146,14 @@ Private Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d0f/case_8f90_source.html#l00095">95</a> of file <a class="el" href="../../d2/d0f/case_8f90_source.html">case.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d0f/case_8f90_source.html#l00089">89</a> of file <a class="el" href="../../d2/d0f/case_8f90_source.html">case.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d8/d36/interfacecase_1_1case__init_a96fd088f5a85b607a614f31a86b826e6_cgraph.png" border="0" usemap="#ad8/d36/interfacecase_1_1case__init_a96fd088f5a85b607a614f31a86b826e6_cgraph" alt=""/></div>
-<map name="ad8/d36/interfacecase_1_1case__init_a96fd088f5a85b607a614f31a86b826e6_cgraph" id="ad8/d36/interfacecase_1_1case__init_a96fd088f5a85b607a614f31a86b826e6_cgraph">
+<div class="center"><img src="../../d8/d36/interfacecase_1_1case__init_acd7b02470b540d948eb556eecfc40e81_cgraph.png" border="0" usemap="#ad8/d36/interfacecase_1_1case__init_acd7b02470b540d948eb556eecfc40e81_cgraph" alt=""/></div>
+<map name="ad8/d36/interfacecase_1_1case__init_acd7b02470b540d948eb556eecfc40e81_cgraph" id="ad8/d36/interfacecase_1_1case__init_acd7b02470b540d948eb556eecfc40e81_cgraph">
 <area shape="rect" title="Initialize a case from an input file case_file." alt="" coords="5,53,161,94"/>
-<area shape="rect" href="../../dd/da8/namespacecase.html#a1f123b5cfdd165331416b3c798efb4db" title="Initialize a case from its (loaded) params object." alt="" coords="209,60,392,87"/>
+<area shape="rect" href="../../dd/da8/namespacecase.html#ac7d52a7009f92ec7c1cf6abf9e33ae68" title="Initialize a case from its (loaded) params object." alt="" coords="209,60,392,87"/>
 <area shape="rect" href="../../da/dc3/namespacemesh__field.html#a8db8f80b2676dca5b068e135557fcf53" title=" " alt="" coords="1108,5,1313,32"/>
 <area shape="rect" href="../../da/dc3/namespacemesh__field.html#aaa97d6c142cefd8fa464a140d00aeb77" title=" " alt="" coords="860,31,1060,57"/>
 <area shape="rect" href="../../d1/dd7/namespaceparmetis.html#a7015f5a8d7bb32005378d0df25fc45e7" title="Compute a k&#45;way partitioning of a mesh msh." alt="" coords="440,107,587,149"/>
@@ -168,8 +168,8 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a id="a3fe242ef6c179c5b11d1004ac20f043e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3fe242ef6c179c5b11d1004ac20f043e">&#9670;&nbsp;</a></span>case_init_from_json()</h2>
+<a id="a685c8e7a3bb9754492dbb77fcc05efc6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a685c8e7a3bb9754492dbb77fcc05efc6">&#9670;&nbsp;</a></span>case_init_from_json()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -181,7 +181,7 @@ Here is the call graph for this function:</div>
           <td class="memname">subroutine case::case_init::case_init_from_json </td>
           <td>(</td>
           <td class="paramtype">type(<a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>), intent(inout), target&#160;</td>
-          <td class="paramname"><em>C</em>, </td>
+          <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -202,14 +202,14 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d0f/case_8f90_source.html#l00123">123</a> of file <a class="el" href="../../d2/d0f/case_8f90_source.html">case.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d0f/case_8f90_source.html#l00117">117</a> of file <a class="el" href="../../d2/d0f/case_8f90_source.html">case.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d8/d36/interfacecase_1_1case__init_a3fe242ef6c179c5b11d1004ac20f043e_cgraph.png" border="0" usemap="#ad8/d36/interfacecase_1_1case__init_a3fe242ef6c179c5b11d1004ac20f043e_cgraph" alt=""/></div>
-<map name="ad8/d36/interfacecase_1_1case__init_a3fe242ef6c179c5b11d1004ac20f043e_cgraph" id="ad8/d36/interfacecase_1_1case__init_a3fe242ef6c179c5b11d1004ac20f043e_cgraph">
+<div class="center"><img src="../../d8/d36/interfacecase_1_1case__init_a685c8e7a3bb9754492dbb77fcc05efc6_cgraph.png" border="0" usemap="#ad8/d36/interfacecase_1_1case__init_a685c8e7a3bb9754492dbb77fcc05efc6_cgraph" alt=""/></div>
+<map name="ad8/d36/interfacecase_1_1case__init_a685c8e7a3bb9754492dbb77fcc05efc6_cgraph" id="ad8/d36/interfacecase_1_1case__init_a685c8e7a3bb9754492dbb77fcc05efc6_cgraph">
 <area shape="rect" title="Initialize a case from a JSON object describing a case." alt="" coords="5,53,161,94"/>
-<area shape="rect" href="../../dd/da8/namespacecase.html#a1f123b5cfdd165331416b3c798efb4db" title="Initialize a case from its (loaded) params object." alt="" coords="209,60,392,87"/>
+<area shape="rect" href="../../dd/da8/namespacecase.html#ac7d52a7009f92ec7c1cf6abf9e33ae68" title="Initialize a case from its (loaded) params object." alt="" coords="209,60,392,87"/>
 <area shape="rect" href="../../da/dc3/namespacemesh__field.html#a8db8f80b2676dca5b068e135557fcf53" title=" " alt="" coords="1108,5,1313,32"/>
 <area shape="rect" href="../../da/dc3/namespacemesh__field.html#aaa97d6c142cefd8fa464a140d00aeb77" title=" " alt="" coords="860,31,1060,57"/>
 <area shape="rect" href="../../d1/dd7/namespaceparmetis.html#a7015f5a8d7bb32005378d0df25fc45e7" title="Compute a k&#45;way partitioning of a mesh msh." alt="" coords="440,107,587,149"/>
@@ -233,7 +233,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/da8/namespacecase.html">case</a></li><li class="navelem"><a class="el" href="../../d8/d36/interfacecase_1_1case__init.html">case_init</a></li>
-    <li class="footer">Generated on Fri Oct 4 2024 03:38:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Oct 5 2024 03:37:02 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

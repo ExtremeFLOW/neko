@@ -19,6 +19,7 @@ var structcheckpoint_1_1chkp__t =
     [ "mesh2mesh_tol", "d9/d88/structcheckpoint_1_1chkp__t.html#a7138e23096c2ce285bfc540ebde9ca54", null ],
     [ "p", "d9/d88/structcheckpoint_1_1chkp__t.html#a51ef7bf4780b05648f450fd65af51582", null ],
     [ "previous_mesh", "d9/d88/structcheckpoint_1_1chkp__t.html#a5cdc095671197441bced2d2530728ce3", null ],
+    [ "previous_xh", "d9/d88/structcheckpoint_1_1chkp__t.html#ad300d4d0e1a2c57eb152411373ba6792", null ],
     [ "s", "d9/d88/structcheckpoint_1_1chkp__t.html#af409d7eee1c85522b5d8aac86672b7a9", null ],
     [ "slag", "d9/d88/structcheckpoint_1_1chkp__t.html#a90584524aa61e8e7cbeea4aa7fbb68b2", null ],
     [ "t", "d9/d88/structcheckpoint_1_1chkp__t.html#ad8c0636e0a1c4d1a6ccf8915f9a7c6d8", null ],

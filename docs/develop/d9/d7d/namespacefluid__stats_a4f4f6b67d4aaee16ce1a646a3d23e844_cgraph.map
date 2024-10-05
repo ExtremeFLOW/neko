@@ -1,5 +1,5 @@
 <map id="fluid_stats::fluid_stats_update" name="fluid_stats::fluid_stats_update">
-<area shape="rect" id="node1" title="Updates all fields." alt="" coords="5,158,131,199"/>
+<area shape="rect" id="node1" title="Updates all fields with a new sample." alt="" coords="5,158,131,199"/>
 <area shape="rect" id="node2" href="$dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="217,5,331,32"/>
 <area shape="rect" id="node3" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="229,56,319,83"/>
 <area shape="rect" id="node4" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="229,107,319,133"/>

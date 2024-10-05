@@ -3,7 +3,7 @@
 <area shape="rect" id="node2" href="$dd/d5f/structoutput_1_1output__t.html" title="Abstract type defining an output type." alt="" coords="2364,93,2491,119"/>
 <area shape="rect" id="node3" href="$d6/dae/structfile_1_1file__t.html" title="A wrapper around a polymorphic generic_file_t that handles its init. This is essentially a factory fo..." alt="" coords="2121,82,2204,109"/>
 <area shape="rect" id="node4" href="$dc/d45/structmean__flow_1_1mean__flow__t.html" title=" " alt="" coords="2336,153,2519,179"/>
-<area shape="rect" id="node5" href="$dc/d4a/structmean__field_1_1mean__field__t.html" title=" " alt="" coords="2069,171,2256,198"/>
+<area shape="rect" id="node5" href="$dc/d4a/structmean__field_1_1mean__field__t.html" title="Computes the temporal mean of a field." alt="" coords="2069,171,2256,198"/>
 <area shape="rect" id="node6" href="$d5/d8f/structstats__quant_1_1stats__quant__t.html" title="Abstract type defining a statistical quantity." alt="" coords="1864,135,2003,176"/>
 <area shape="rect" id="node7" href="$d3/d5f/structfield_1_1field__t.html" title=" " alt="" coords="1884,201,1983,227"/>
 <area shape="rect" id="node8" href="$d0/df0/structdofmap_1_1dofmap__t.html" title=" " alt="" coords="1648,174,1791,201"/>

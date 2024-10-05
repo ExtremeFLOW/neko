@@ -2,7 +2,7 @@
 <area shape="rect" id="node1" title="Vector multiplication ." alt="" coords="441,218,632,245"/>
 <area shape="rect" id="node2" href="$d2/da7/namespacedevice__jacobi.html#abcae239f5ab6ef4a8a597e7cca1d804b" title=" " alt="" coords="223,5,386,47"/>
 <area shape="rect" id="node4" href="$d5/de6/namespacefield__math.html#a35c4acba25db9dc1e0193df356dc9dad" title="Vector multiplication ." alt="" coords="224,71,385,98"/>
-<area shape="rect" id="node5" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields." alt="" coords="242,123,367,164"/>
+<area shape="rect" id="node5" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields with a new sample." alt="" coords="242,123,367,164"/>
 <area shape="rect" id="node6" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="233,189,377,215"/>
 <area shape="rect" id="node7" href="$dd/dfc/namespaceles__model.html#ad3a4476d84e498dafd7a2fdeca51c242" title="Compute the LES lengthscale. For each GLL point, we take the distance between its neighbours in all 3..." alt="" coords="223,240,387,281"/>
 <area shape="rect" id="node8" href="$dd/d1f/namespacepnpn__res__stress__device.html#ad79870e59f983bbe89231d1581579827" title=" " alt="" coords="216,306,393,362"/>

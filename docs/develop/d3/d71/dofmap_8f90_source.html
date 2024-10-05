@@ -132,7 +132,7 @@ $(document).ready(function(){initNavTree('d3/d71/dofmap_8f90_source.html','../..
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../db/dfc/namespacemesh.html">mesh</a>, <span class="keywordtype">only</span> : <a class="code" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a></div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d5/d0d/namespacespace.html">space</a>, <span class="keywordtype">only</span> : <a class="code" href="../../da/d99/structspace_1_1space__t.html">space_t</a>, <a class="code" href="../../d5/d0d/namespacespace.html#a9dbfc4fd0750ee0878eec8a16370a91d">gll</a></div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../df/dec/namespacetuple.html">tuple</a>, <span class="keywordtype">only</span> : <a class="code" href="../../d5/d16/structtuple_1_1tuple__i4__t.html">tuple_i4_t</a>, <a class="code" href="../../dd/de4/structtuple_1_1tuple4__i4__t.html">tuple4_i4_t</a></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code" href="../../df/d48/namespacenum__types.html#a6139309b3b8f44ccf7f0f295f78e1a22">i4</a>, <a class="code" href="../../df/d48/namespacenum__types.html#a2dcabd7f1f2ece3f847d06202dd2ee2c">i8</a>, <a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code" href="../../df/d48/namespacenum__types.html#a6139309b3b8f44ccf7f0f295f78e1a22">i4</a>, <a class="code" href="../../df/d48/namespacenum__types.html#a2dcabd7f1f2ece3f847d06202dd2ee2c">i8</a>, <a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>, <a class="code" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a></div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span> : <a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>, <a class="code" href="../../d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f">neko_warning</a></div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../dc/d5b/namespacefast3d.html">fast3d</a>, <span class="keywordtype">only</span> : <a class="code" href="../../dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4">fd_weights_full</a></div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../dd/d8c/namespacetensor.html">tensor</a>, <span class="keywordtype">only</span> : <a class="code" href="../../dd/d8c/namespacetensor.html#a1b363bd341668a929386a65996c56d68">tensr3</a>, <a class="code" href="../../dd/d8c/namespacetensor.html#aa50503d37312ded5c29134df83216e65">tnsr2d_el</a>, <a class="code" href="../../dd/d8c/namespacetensor.html#a8947209d2430fc2471fbf9d2984485da">trsp</a>, <a class="code" href="../../dd/d8c/namespacetensor.html#a602319f4b98e03843c70cd7a416d0866">addtnsr</a></div>
@@ -1011,7 +1011,7 @@ $(document).ready(function(){initNavTree('d3/d71/dofmap_8f90_source.html','../..
 <div class="line"><a name="l00946"></a><span class="lineno">  946</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> ::  e(n, n, n)</div>
 <div class="line"><a name="l00947"></a><span class="lineno">  947</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> ::  v(n, n, n)</div>
 <div class="line"><a name="l00948"></a><span class="lineno">  948</span>&#160;    <span class="keywordtype">integer</span> :: gh_type, ntot, kk, jj, ii, k, j, i</div>
-<div class="line"><a name="l00949"></a><span class="lineno">  949</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: si, sj, sk, hi, hj, hk</div>
+<div class="line"><a name="l00949"></a><span class="lineno">  949</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: si, sj, sk, hi, hj, hk</div>
 <div class="line"><a name="l00950"></a><span class="lineno">  950</span>&#160; </div>
 <div class="line"><a name="l00951"></a><span class="lineno">  951</span>&#160;    <span class="comment">!</span></div>
 <div class="line"><a name="l00952"></a><span class="lineno">  952</span>&#160;    <span class="comment">!  Build vertex interpolant</span></div>
@@ -1023,9 +1023,9 @@ $(document).ready(function(){initNavTree('d3/d71/dofmap_8f90_source.html','../..
 <div class="line"><a name="l00958"></a><span class="lineno">  958</span>&#160; </div>
 <div class="line"><a name="l00959"></a><span class="lineno">  959</span>&#160;    <span class="keywordflow">do</span> concurrent(i = 1:n, j = 1:n, k = 1:n, &amp;</div>
 <div class="line"><a name="l00960"></a><span class="lineno">  960</span>&#160;                   ii = 1:n:n-1, jj = 1:n:n-1, kk = 1:n:n-1)</div>
-<div class="line"><a name="l00961"></a><span class="lineno">  961</span>&#160;       si       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)</div>
-<div class="line"><a name="l00962"></a><span class="lineno">  962</span>&#160;       sj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)</div>
-<div class="line"><a name="l00963"></a><span class="lineno">  963</span>&#160;       sk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)</div>
+<div class="line"><a name="l00961"></a><span class="lineno">  961</span>&#160;       si       = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)</div>
+<div class="line"><a name="l00962"></a><span class="lineno">  962</span>&#160;       sj       = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)</div>
+<div class="line"><a name="l00963"></a><span class="lineno">  963</span>&#160;       sk       = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)</div>
 <div class="line"><a name="l00964"></a><span class="lineno">  964</span>&#160;       v(i,j,k) = v(i,j,k) + si * sj* sk * x(ii, jj, kk)</div>
 <div class="line"><a name="l00965"></a><span class="lineno">  965</span>&#160;<span class="keywordflow">    end do</span></div>
 <div class="line"><a name="l00966"></a><span class="lineno">  966</span>&#160; </div>
@@ -1045,24 +1045,24 @@ $(document).ready(function(){initNavTree('d3/d71/dofmap_8f90_source.html','../..
 <div class="line"><a name="l00980"></a><span class="lineno">  980</span>&#160;    <span class="comment">!  x-edges</span></div>
 <div class="line"><a name="l00981"></a><span class="lineno">  981</span>&#160;    <span class="comment">!</span></div>
 <div class="line"><a name="l00982"></a><span class="lineno">  982</span>&#160;    <span class="keywordflow">do</span> concurrent(i = 1:n, j = 1:n, k = 1:n, jj = 1:n:n-1, kk = 1:n:n-1)</div>
-<div class="line"><a name="l00983"></a><span class="lineno">  983</span>&#160;       hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)</div>
-<div class="line"><a name="l00984"></a><span class="lineno">  984</span>&#160;       hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)</div>
+<div class="line"><a name="l00983"></a><span class="lineno">  983</span>&#160;       hj       = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)</div>
+<div class="line"><a name="l00984"></a><span class="lineno">  984</span>&#160;       hk       = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)</div>
 <div class="line"><a name="l00985"></a><span class="lineno">  985</span>&#160;       e(i,j,k) = e(i,j,k) + hj*hk*(x(i, jj, kk) - v(i, jj, kk))</div>
 <div class="line"><a name="l00986"></a><span class="lineno">  986</span>&#160;<span class="keywordflow">    end do</span></div>
 <div class="line"><a name="l00987"></a><span class="lineno">  987</span>&#160;    <span class="comment">!</span></div>
 <div class="line"><a name="l00988"></a><span class="lineno">  988</span>&#160;    <span class="comment">!  y-edges</span></div>
 <div class="line"><a name="l00989"></a><span class="lineno">  989</span>&#160;    <span class="comment">!</span></div>
 <div class="line"><a name="l00990"></a><span class="lineno">  990</span>&#160;    <span class="keywordflow">do</span> concurrent(i = 1:n, j = 1:n, k = 1:n, ii = 1:n:n-1, kk = 1:n:n-1)</div>
-<div class="line"><a name="l00991"></a><span class="lineno">  991</span>&#160;       hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)</div>
-<div class="line"><a name="l00992"></a><span class="lineno">  992</span>&#160;       hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)</div>
+<div class="line"><a name="l00991"></a><span class="lineno">  991</span>&#160;       hi       = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)</div>
+<div class="line"><a name="l00992"></a><span class="lineno">  992</span>&#160;       hk       = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)</div>
 <div class="line"><a name="l00993"></a><span class="lineno">  993</span>&#160;       e(i,j,k) = e(i,j,k) + hi*hk*(x(ii, j, kk) - v(ii, j, kk))</div>
 <div class="line"><a name="l00994"></a><span class="lineno">  994</span>&#160;<span class="keywordflow">    end do</span></div>
 <div class="line"><a name="l00995"></a><span class="lineno">  995</span>&#160;    <span class="comment">!</span></div>
 <div class="line"><a name="l00996"></a><span class="lineno">  996</span>&#160;    <span class="comment">!  z-edges</span></div>
 <div class="line"><a name="l00997"></a><span class="lineno">  997</span>&#160;    <span class="comment">!</span></div>
 <div class="line"><a name="l00998"></a><span class="lineno">  998</span>&#160;    <span class="keywordflow">do</span> concurrent(i = 1:n, j = 1:n, k = 1:n, ii = 1:n:n-1, jj = 1:n:n-1)</div>
-<div class="line"><a name="l00999"></a><span class="lineno">  999</span>&#160;       hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)</div>
-<div class="line"><a name="l01000"></a><span class="lineno"> 1000</span>&#160;       hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)</div>
+<div class="line"><a name="l00999"></a><span class="lineno">  999</span>&#160;       hi       = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)</div>
+<div class="line"><a name="l01000"></a><span class="lineno"> 1000</span>&#160;       hj       = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)</div>
 <div class="line"><a name="l01001"></a><span class="lineno"> 1001</span>&#160;       e(i,j,k) = e(i,j,k) + hi*hj*(x(ii, jj, k) - v(ii, jj, k))</div>
 <div class="line"><a name="l01002"></a><span class="lineno"> 1002</span>&#160;<span class="keywordflow">    end do</span></div>
 <div class="line"><a name="l01003"></a><span class="lineno"> 1003</span>&#160; </div>
@@ -1086,7 +1086,7 @@ $(document).ready(function(){initNavTree('d3/d71/dofmap_8f90_source.html','../..
 <div class="line"><a name="l01021"></a><span class="lineno"> 1021</span>&#160;    <span class="comment">!  x-edges</span></div>
 <div class="line"><a name="l01022"></a><span class="lineno"> 1022</span>&#160;    <span class="comment">!</span></div>
 <div class="line"><a name="l01023"></a><span class="lineno"> 1023</span>&#160;    <span class="keywordflow">do</span> concurrent(i = 1:n, j = 1:n, k = 1:n, ii = 1:n:n-1)</div>
-<div class="line"><a name="l01024"></a><span class="lineno"> 1024</span>&#160;       hi       = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)</div>
+<div class="line"><a name="l01024"></a><span class="lineno"> 1024</span>&#160;       hi       = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)</div>
 <div class="line"><a name="l01025"></a><span class="lineno"> 1025</span>&#160;       v(i,j,k) = v(i,j,k) + hi*(x(ii,j,k)-e(ii,j,k))</div>
 <div class="line"><a name="l01026"></a><span class="lineno"> 1026</span>&#160;<span class="keywordflow">    end do</span></div>
 <div class="line"><a name="l01027"></a><span class="lineno"> 1027</span>&#160; </div>
@@ -1094,7 +1094,7 @@ $(document).ready(function(){initNavTree('d3/d71/dofmap_8f90_source.html','../..
 <div class="line"><a name="l01029"></a><span class="lineno"> 1029</span>&#160;    <span class="comment">! y-edges</span></div>
 <div class="line"><a name="l01030"></a><span class="lineno"> 1030</span>&#160;    <span class="comment">!</span></div>
 <div class="line"><a name="l01031"></a><span class="lineno"> 1031</span>&#160;    <span class="keywordflow">do</span> concurrent(i = 1:n, j = 1:n, k = 1:n, jj = 1:n:n-1)</div>
-<div class="line"><a name="l01032"></a><span class="lineno"> 1032</span>&#160;       hj       = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)</div>
+<div class="line"><a name="l01032"></a><span class="lineno"> 1032</span>&#160;       hj       = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)</div>
 <div class="line"><a name="l01033"></a><span class="lineno"> 1033</span>&#160;       v(i,j,k) = v(i,j,k) + hj*(x(i, jj, k) - e(i, jj, k))</div>
 <div class="line"><a name="l01034"></a><span class="lineno"> 1034</span>&#160;<span class="keywordflow">    end do</span></div>
 <div class="line"><a name="l01035"></a><span class="lineno"> 1035</span>&#160; </div>
@@ -1102,7 +1102,7 @@ $(document).ready(function(){initNavTree('d3/d71/dofmap_8f90_source.html','../..
 <div class="line"><a name="l01037"></a><span class="lineno"> 1037</span>&#160;    <span class="comment">!  z-edges</span></div>
 <div class="line"><a name="l01038"></a><span class="lineno"> 1038</span>&#160;    <span class="comment">!</span></div>
 <div class="line"><a name="l01039"></a><span class="lineno"> 1039</span>&#160;    <span class="keywordflow">do</span> concurrent(i = 1:n, j = 1:n, k = 1:n, kk = 1:n:n-1)</div>
-<div class="line"><a name="l01040"></a><span class="lineno"> 1040</span>&#160;       hk       = 0.5*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)</div>
+<div class="line"><a name="l01040"></a><span class="lineno"> 1040</span>&#160;       hk       = 0.5_xp*((n-kk)*(1-zg(k))+(kk-1)*(1+zg(k)))/(n-1)</div>
 <div class="line"><a name="l01041"></a><span class="lineno"> 1041</span>&#160;       v(i,j,k) = v(i,j,k) + hk*(x(i, j, kk) - e(i, j, kk))</div>
 <div class="line"><a name="l01042"></a><span class="lineno"> 1042</span>&#160;<span class="keywordflow">    end do</span></div>
 <div class="line"><a name="l01043"></a><span class="lineno"> 1043</span>&#160; </div>
@@ -1131,8 +1131,8 @@ $(document).ready(function(){initNavTree('d3/d71/dofmap_8f90_source.html','../..
 <div class="line"><a name="l01069"></a><span class="lineno"> 1069</span>&#160;       <span class="keywordflow">do</span> ii = 1, n, n-1</div>
 <div class="line"><a name="l01070"></a><span class="lineno"> 1070</span>&#160;          <span class="keywordflow">do</span> j = 1, n</div>
 <div class="line"><a name="l01071"></a><span class="lineno"> 1071</span>&#160;             <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a name="l01072"></a><span class="lineno"> 1072</span>&#160;                si     = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)</div>
-<div class="line"><a name="l01073"></a><span class="lineno"> 1073</span>&#160;                sj     = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)</div>
+<div class="line"><a name="l01072"></a><span class="lineno"> 1072</span>&#160;                si     = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)</div>
+<div class="line"><a name="l01073"></a><span class="lineno"> 1073</span>&#160;                sj     = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)</div>
 <div class="line"><a name="l01074"></a><span class="lineno"> 1074</span>&#160;                v(i,j) = v(i,j) + si*sj*x(ii, jj)</div>
 <div class="line"><a name="l01075"></a><span class="lineno"> 1075</span>&#160;<span class="keywordflow">             end do</span></div>
 <div class="line"><a name="l01076"></a><span class="lineno"> 1076</span>&#160;<span class="keywordflow">          end do</span></div>
@@ -1151,7 +1151,7 @@ $(document).ready(function(){initNavTree('d3/d71/dofmap_8f90_source.html','../..
 <div class="line"><a name="l01089"></a><span class="lineno"> 1089</span>&#160;    <span class="keywordflow">do</span> jj = 1, n, n-1</div>
 <div class="line"><a name="l01090"></a><span class="lineno"> 1090</span>&#160;       <span class="keywordflow">do</span> j = 1, n</div>
 <div class="line"><a name="l01091"></a><span class="lineno"> 1091</span>&#160;          <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a name="l01092"></a><span class="lineno"> 1092</span>&#160;             hj     = 0.5*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)</div>
+<div class="line"><a name="l01092"></a><span class="lineno"> 1092</span>&#160;             hj     = 0.5_xp*((n-jj)*(1-zg(j))+(jj-1)*(1+zg(j)))/(n-1)</div>
 <div class="line"><a name="l01093"></a><span class="lineno"> 1093</span>&#160;             e(i,j) = e(i,j) + hj*(x(i, jj) - v(i, jj))</div>
 <div class="line"><a name="l01094"></a><span class="lineno"> 1094</span>&#160;<span class="keywordflow">          end do</span></div>
 <div class="line"><a name="l01095"></a><span class="lineno"> 1095</span>&#160;<span class="keywordflow">       end do</span></div>
@@ -1162,7 +1162,7 @@ $(document).ready(function(){initNavTree('d3/d71/dofmap_8f90_source.html','../..
 <div class="line"><a name="l01100"></a><span class="lineno"> 1100</span>&#160;    <span class="keywordflow">do</span> ii = 1, n, n-1</div>
 <div class="line"><a name="l01101"></a><span class="lineno"> 1101</span>&#160;       <span class="keywordflow">do</span> j = 1, n</div>
 <div class="line"><a name="l01102"></a><span class="lineno"> 1102</span>&#160;          <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a name="l01103"></a><span class="lineno"> 1103</span>&#160;             hi     = 0.5*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)</div>
+<div class="line"><a name="l01103"></a><span class="lineno"> 1103</span>&#160;             hi     = 0.5_xp*((n-ii)*(1-zg(i))+(ii-1)*(1+zg(i)))/(n-1)</div>
 <div class="line"><a name="l01104"></a><span class="lineno"> 1104</span>&#160;             e(i,j) = e(i,j) + hi*(x(ii,j)-v(ii,j))</div>
 <div class="line"><a name="l01105"></a><span class="lineno"> 1105</span>&#160;<span class="keywordflow">          end do</span></div>
 <div class="line"><a name="l01106"></a><span class="lineno"> 1106</span>&#160;<span class="keywordflow">       end do</span></div>
@@ -1223,7 +1223,7 @@ $(document).ready(function(){initNavTree('d3/d71/dofmap_8f90_source.html','../..
 <div class="line"><a name="l01161"></a><span class="lineno"> 1161</span>&#160;    <span class="keywordflow">if</span> (abs(2.0 * radius) &lt;= xys * 1.00001) &amp;</div>
 <div class="line"><a name="l01162"></a><span class="lineno"> 1162</span>&#160;    &amp; <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Radius to small for arced element surface&#39;</span>)</div>
 <div class="line"><a name="l01163"></a><span class="lineno"> 1163</span>&#160;    <span class="comment">! find center</span></div>
-<div class="line"><a name="l01164"></a><span class="lineno"> 1164</span>&#160;    dtheta = abs(asin(0.5*xys/radius))</div>
+<div class="line"><a name="l01164"></a><span class="lineno"> 1164</span>&#160;    dtheta = abs(asin(0.5_xp*xys/radius))</div>
 <div class="line"><a name="l01165"></a><span class="lineno"> 1165</span>&#160;    pt12x  = (pt1x + pt2x)/2.0</div>
 <div class="line"><a name="l01166"></a><span class="lineno"> 1166</span>&#160;    pt12y  = (pt1y + pt2y)/2.0</div>
 <div class="line"><a name="l01167"></a><span class="lineno"> 1167</span>&#160;    xcenn  = pt12x - xs/xys * radius*cos(dtheta)</div>
@@ -1318,7 +1318,7 @@ $(document).ready(function(){initNavTree('d3/d71/dofmap_8f90_source.html','../..
 <div class="ttc" id="anamespacehex_html"><div class="ttname"><a href="../../d3/da1/namespacehex.html">hex</a></div><div class="ttdoc">Defines a hexahedron element.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/d81/hex_8f90_source.html#l00034">hex.f90:34</a></div></div>
 <div class="ttc" id="anamespacemath_html"><div class="ttname"><a href="../../dd/d47/namespacemath.html">math</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d6/ddb/math_8f90_source.html#l00060">math.f90:60</a></div></div>
 <div class="ttc" id="anamespacemath_html_a6a2786eeaf4fa795dab048bb6c8d56c4"><div class="ttname"><a href="../../dd/d47/namespacemath.html#a6a2786eeaf4fa795dab048bb6c8d56c4">math::rone</a></div><div class="ttdeci">subroutine, public rone(a, n)</div><div class="ttdoc">Set all elements to one.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/ddb/math_8f90_source.html#l00216">math.f90:217</a></div></div>
-<div class="ttc" id="anamespacemath_html_a79189c047ee36fa194f43257bda3c8d8"><div class="ttname"><a href="../../dd/d47/namespacemath.html#a79189c047ee36fa194f43257bda3c8d8">math::add3</a></div><div class="ttdeci">subroutine, public add3(a, b, c, n)</div><div class="ttdoc">Vector addition .</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/ddb/math_8f90_source.html#l00582">math.f90:583</a></div></div>
+<div class="ttc" id="anamespacemath_html_a79189c047ee36fa194f43257bda3c8d8"><div class="ttname"><a href="../../dd/d47/namespacemath.html#a79189c047ee36fa194f43257bda3c8d8">math::add3</a></div><div class="ttdeci">subroutine, public add3(a, b, c, n)</div><div class="ttdoc">Vector addition .</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/ddb/math_8f90_source.html#l00584">math.f90:585</a></div></div>
 <div class="ttc" id="anamespacemath_html_aaa9e139d5611c1df894a7e88d240f602"><div class="ttname"><a href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602">math::copy</a></div><div class="ttdeci">subroutine, public copy(a, b, n)</div><div class="ttdoc">Copy a vector .</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/ddb/math_8f90_source.html#l00227">math.f90:228</a></div></div>
 <div class="ttc" id="anamespacemath_html_accd3b06fc22b453552cc46d0fbf80677"><div class="ttname"><a href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">math::rzero</a></div><div class="ttdeci">subroutine, public rzero(a, n)</div><div class="ttdoc">Zero a real vector.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/ddb/math_8f90_source.html#l00183">math.f90:184</a></div></div>
 <div class="ttc" id="anamespacemesh_html"><div class="ttname"><a href="../../db/dfc/namespacemesh.html">mesh</a></div><div class="ttdoc">Defines a mesh.</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d0a/mesh_8f90_source.html#l00034">mesh.f90:34</a></div></div>
@@ -1327,6 +1327,7 @@ $(document).ready(function(){initNavTree('d3/d71/dofmap_8f90_source.html','../..
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_a2dcabd7f1f2ece3f847d06202dd2ee2c"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#a2dcabd7f1f2ece3f847d06202dd2ee2c">num_types::i8</a></div><div class="ttdeci">integer, parameter, public i8</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00007">num_types.f90:7</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_a6139309b3b8f44ccf7f0f295f78e1a22"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#a6139309b3b8f44ccf7f0f295f78e1a22">num_types::i4</a></div><div class="ttdeci">integer, parameter, public i4</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00006">num_types.f90:6</a></div></div>
+<div class="ttc" id="anamespacenum__types_html_aa354c6c166d079844cabd25276780021"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">num_types::xp</a></div><div class="ttdeci">integer, parameter, public xp</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00014">num_types.f90:14</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
 <div class="ttc" id="anamespacequad_html"><div class="ttname"><a href="../../d1/da7/namespacequad.html">quad</a></div><div class="ttdoc">Defines a quadrilateral element.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d1b/quad_8f90_source.html#l00034">quad.f90:34</a></div></div>
 <div class="ttc" id="anamespacespace_html"><div class="ttname"><a href="../../d5/d0d/namespacespace.html">space</a></div><div class="ttdoc">Defines a function space.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/da4/space_8f90_source.html#l00034">space.f90:34</a></div></div>
@@ -1338,7 +1339,7 @@ $(document).ready(function(){initNavTree('d3/d71/dofmap_8f90_source.html','../..
 <div class="ttc" id="anamespacetensor_html_aa50503d37312ded5c29134df83216e65"><div class="ttname"><a href="../../dd/d8c/namespacetensor.html#aa50503d37312ded5c29134df83216e65">tensor::tnsr2d_el</a></div><div class="ttdeci">subroutine, public tnsr2d_el(v, nv, u, nu, A, Bt)</div><div class="ttdoc">Computes .</div><div class="ttdef"><b>Definition:</b> <a href="../../d1/d85/tensor_8f90_source.html#l00153">tensor.f90:154</a></div></div>
 <div class="ttc" id="anamespacetuple_html"><div class="ttname"><a href="../../df/dec/namespacetuple.html">tuple</a></div><div class="ttdoc">Implements a n-tuple.</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d54/tuple_8f90_source.html#l00034">tuple.f90:34</a></div></div>
 <div class="ttc" id="anamespaceutils_html"><div class="ttname"><a href="../../d6/d84/namespaceutils.html">utils</a></div><div class="ttdoc">Utilities.</div><div class="ttdef"><b>Definition:</b> <a href="../../df/d80/utils_8f90_source.html#l00035">utils.f90:35</a></div></div>
-<div class="ttc" id="anamespaceutils_html_a8de91e60607d8bf98d265d9e9a90f88f"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f">utils::neko_warning</a></div><div class="ttdeci">subroutine, public neko_warning(warning_msg)</div><div class="ttdoc">Reports a warning to standard output.</div><div class="ttdef"><b>Definition:</b> <a href="../../df/d80/utils_8f90_source.html#l00199">utils.f90:200</a></div></div>
+<div class="ttc" id="anamespaceutils_html_a8de91e60607d8bf98d265d9e9a90f88f"><div class="ttname"><a href="../../d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f">utils::neko_warning</a></div><div class="ttdeci">subroutine, public neko_warning(warning_msg)</div><div class="ttdoc">Reports a warning to standard output.</div><div class="ttdef"><b>Definition:</b> <a href="../../df/d80/utils_8f90_source.html#l00244">utils.f90:245</a></div></div>
 <div class="ttc" id="astructdofmap_1_1dofmap__t_html"><div class="ttname"><a href="../../d0/df0/structdofmap_1_1dofmap__t.html">dofmap::dofmap_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d3/d71/dofmap_8f90_source.html#l00053">dofmap.f90:53</a></div></div>
 <div class="ttc" id="astructelement_1_1element__t_html"><div class="ttname"><a href="../../d7/dd6/structelement_1_1element__t.html">element::element_t</a></div><div class="ttdoc">Base type for an element.</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d31/element_8f90_source.html#l00044">element.f90:44</a></div></div>
 <div class="ttc" id="astructhex_1_1hex__t_html"><div class="ttname"><a href="../../d6/d66/structhex_1_1hex__t.html">hex::hex_t</a></div><div class="ttdoc">Hexahedron element.</div><div class="ttdef"><b>Definition:</b> <a href="../../d0/d81/hex_8f90_source.html#l00063">hex.f90:63</a></div></div>
@@ -1353,7 +1354,7 @@ $(document).ready(function(){initNavTree('d3/d71/dofmap_8f90_source.html','../..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_03fb5b14824697692326bbb959ec235e.html">sem</a></li><li class="navelem"><a class="el" href="../../d3/d71/dofmap_8f90.html">dofmap.f90</a></li>
-    <li class="footer">Generated on Fri Oct 4 2024 03:38:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Oct 5 2024 03:37:02 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -277,7 +277,24 @@ Initial conditions</h2>
 <li><code>uniform</code>, the value is a constant vector, looked up under the <code>value</code> keyword.</li>
 <li><code>blasius</code>, a Blasius profile is prescribed. Its properties are looked up in the <code>case.fluid.blasius</code> object, see below.</li>
 <li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the values are set to a constant base value, supplied under the <code>base_value</code> keyword, and then assigned a zone value inside a point zone. The point zone is specified by the <code>name</code> keyword, and should be defined in the <code>case.point_zones</code> object. See more about point zones <a class="el" href="../../d2/dfb/point-zones_8md.html">point-zones.md</a>.</li>
+<li><code>field</code>, where the initial condition is retrieved from a field file. The following keywords can be used:</li>
 </ol>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>file_name</code>   </td><td class="markdownTableBodyNone">Name of the field file to use (e.g. <code>myfield0.f00034</code>).   </td><td class="markdownTableBodyNone">Strings ending with <code>f*****</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>interpolate</code>   </td><td class="markdownTableBodyNone">Whether to interpolate the velocity and pressure fields from the field file onto the current mesh.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>tolerance</code>   </td><td class="markdownTableBodyNone">Tolerance for the point search.   </td><td class="markdownTableBodyNone">Positive real.   </td><td class="markdownTableBodyNone"><code>1e-6</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>mesh_file_name</code>   </td><td class="markdownTableBodyNone">If interpolation is enabled, the name of the field file that contains the mesh coordinates.   </td><td class="markdownTableBodyNone">Strings ending with <code>f*****</code>   </td><td class="markdownTableBodyNone"><code>file_name</code>   </td></tr>
+</table>
+<dl class="section attention"><dt>Attention</dt><dd>Interpolating a field from the same mesh but different polynomial order is performed implicitly and does not require to enable interpolation.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>It is recommended to interpolate from <code>fld</code> files that were written in double precision. To check if your <code>fld</code> file was written in double precision, run the command: <div class="fragment"><div class="line">head -1 field0.f00000</div>
+</div><!-- fragment --> The output <code>#std 4 ...</code> indicates single precision, whereas <code>#std 8 ...</code> indicates double precision. Neko write single precision <code>fld</code> files by default. To write your files in double precision, set <code>case.output_precision</code> to <code>"double"</code>.</dd></dl>
+<dl class="section attention"><dt>Attention</dt><dd>Neko does not detect wether interpolation is needed or not. Interpolation will always be performed if <code>"interpolate"</code> is set to <code>true</code> even if the field file matches with the current simulation.</dd></dl>
 <h2><a class="anchor" id="autotoc_md36"></a>
 Blasius profile</h2>
 <p>The <code>blasius</code> object is used to specify the Blasius profile that can be used for the initial and inflow condition. The boundary cannot be tilted with respect to the coordinate axes. It requires the following parameters:</p>
@@ -465,9 +482,17 @@ Full parameter table</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>inflow_condition.value</code>   </td><td class="markdownTableBodyNone">Value of the inflow velocity.   </td><td class="markdownTableBodyNone">Vector of 3 reals   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><code>initial_condition.type</code>   </td><td class="markdownTableBodyNone">Initial condition type.   </td><td class="markdownTableBodyNone"><code>user</code>, <code>uniform</code>, <code>blasius</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
+<td class="markdownTableBodyNone"><code>initial_condition.type</code>   </td><td class="markdownTableBodyNone">Initial condition type.   </td><td class="markdownTableBodyNone"><code>user</code>, <code>uniform</code>, <code>blasius</code>, <code>field</code>   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>initial_condition.value</code>   </td><td class="markdownTableBodyNone">Value of the velocity initial condition.   </td><td class="markdownTableBodyNone">Vector of 3 reals   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>initial_condition.file_name</code>   </td><td class="markdownTableBodyNone">If <code>"type" = "field"</code>, the path to the field file to read from.   </td><td class="markdownTableBodyNone">String ending with <code>.fld</code>, <code>.chkp</code>, <code>.nek5000</code> or <code>f*****</code>.   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>initial_condition.sample_index</code>   </td><td class="markdownTableBodyNone">If <code>"type" = "field"</code>, and file type is <code>fld</code> or <code>nek5000</code>, the index of the file to sampled.   </td><td class="markdownTableBodyNone">Positive integer.   </td><td class="markdownTableBodyNone">-1    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>initial_condition.previous_mesh</code>   </td><td class="markdownTableBodyNone">If <code>"type" = "field"</code>, and file type is <code>chkp</code>, the previous mesh from which to interpolate.   </td><td class="markdownTableBodyNone">String ending with <code>.nmsh</code>.   </td><td class="markdownTableBodyNone">-    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>initial_condition.tolerance</code>   </td><td class="markdownTableBodyNone">If <code>"type" = "field"</code>, and file type is <code>chkp</code>, tolerance to use for mesh interpolation.   </td><td class="markdownTableBodyNone">Positive real.   </td><td class="markdownTableBodyNone">1e-6    </td></tr>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>blasius.delta</code>   </td><td class="markdownTableBodyNone">Boundary layer thickness in the Blasius profile.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone">-    </td></tr>
 <tr class="markdownTableRowEven">
@@ -544,6 +569,7 @@ Initial conditions</h2>
 <li><code>user</code>, the values are set inside the compiled user file as explained in the <a class="el" href="../../d6/def/user-file.html#user-file_user-ic">user defined initial condition</a> section of the user file documentation.</li>
 <li><code>uniform</code>, the value is a constant scalar, looked up under the <code>value</code> keyword.</li>
 <li><code><a class="el" href="../../dc/d5f/namespacepoint__zone.html">point_zone</a></code>, the values are set to a constant base value, supplied under the <code>base_value</code> keyword, and then assigned a zone value inside a point zone. The point zone is specified by the <code>name</code> keyword, and should be defined in the <code>case.point_zones</code> object. See more about point zones <a class="el" href="../../d2/dfb/point-zones_8md.html">point-zones.md</a>.</li>
+<li><code>field</code>, where the initial condition is retrieved from a field file. Works in the same way as for the fluid. See the <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-ic">fluid section</a> for detailed explanations.</li>
 </ol>
 <h2><a class="anchor" id="autotoc_md45"></a>
 Source terms</h2>
@@ -616,7 +642,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Fri Oct 4 2024 03:38:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Oct 5 2024 03:37:02 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

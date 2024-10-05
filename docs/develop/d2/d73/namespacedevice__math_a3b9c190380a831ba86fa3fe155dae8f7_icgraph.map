@@ -6,5 +6,5 @@
 <area shape="rect" id="node7" href="$d8/d09/namespacefluid__scheme.html#a17447dcd8f1416c9e71540d16be95a6b" title="Update the values of mu_field if necessary." alt="" coords="248,203,443,259"/>
 <area shape="rect" id="node8" href="$da/de3/namespacescalar__scheme.html#a6efc05586b621fca40333f4f6b2d76a2" title="Update the values of lambda_field if necessary." alt="" coords="248,283,443,339"/>
 <area shape="rect" id="node3" href="$d0/d10/namespaceboussinesq__source__term.html#a7fd0bdde632f857b2104d4cfe0a63cc1" title="Computes the source term and adds the result to fields." alt="" coords="5,5,196,61"/>
-<area shape="rect" id="node6" href="$d1/d26/namespacemean__field.html#a93a16c515f8dae835a404ebdd95f75d3" title="Update a mean field." alt="" coords="13,145,188,186"/>
+<area shape="rect" id="node6" href="$d1/d26/namespacemean__field.html#a93a16c515f8dae835a404ebdd95f75d3" title="Update the mean field with a new sample." alt="" coords="13,145,188,186"/>
 </map>

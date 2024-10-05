@@ -398,6 +398,9 @@ var annotated_dup =
     [ "fluid_stats_output", "d8/d92/namespacefluid__stats__output.html", [
       [ "fluid_stats_output_t", "d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html", "d4/da7/structfluid__stats__output_1_1fluid__stats__output__t" ]
     ] ],
+    [ "fluid_stats_simcomp", "dd/dc6/namespacefluid__stats__simcomp.html", [
+      [ "fluid_stats_simcomp_t", "d1/d3b/structfluid__stats__simcomp_1_1fluid__stats__simcomp__t.html", "d1/d3b/structfluid__stats__simcomp_1_1fluid__stats__simcomp__t" ]
+    ] ],
     [ "fluid_user_source_term", "d9/d33/namespacefluid__user__source__term.html", [
       [ "fluid_user_source_term_t", "d6/def/structfluid__user__source__term_1_1fluid__user__source__term__t.html", "d6/def/structfluid__user__source__term_1_1fluid__user__source__term__t" ],
       [ "fluid_source_compute_vector", "d3/dba/interfacefluid__user__source__term_1_1fluid__source__compute__vector.html", "d3/dba/interfacefluid__user__source__term_1_1fluid__source__compute__vector" ],

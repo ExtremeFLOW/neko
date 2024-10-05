@@ -1,6 +1,6 @@
 <map id="neko::neko_finalize" name="neko::neko_finalize">
 <area shape="rect" id="node1" title=" " alt="" coords="5,89,152,116"/>
-<area shape="rect" id="node2" href="$dd/da8/namespacecase.html#a2ffd56859f97526319db83e98a604036" title="Deallocate a case." alt="" coords="224,13,347,40"/>
+<area shape="rect" id="node2" href="$dd/da8/namespacecase.html#a85d76a69903831e88857a4c8515ef945" title="Deallocate a case." alt="" coords="224,13,347,40"/>
 <area shape="rect" id="node3" href="$d3/d8f/namespacecomm.html#a748336a3db271dbe41fb900caafe6bca" title=" " alt="" coords="213,64,358,91"/>
 <area shape="rect" id="node4" href="$d0/dbe/namespacedevice.html#a1e3084493809835d96d99e4ddeeba980" title=" " alt="" coords="200,115,371,141"/>
 <area shape="rect" id="node9" href="$d7/dd4/namespaceneko__mpi__types.html#ae5705f5c8322b515988b0208ee4098c1" title="Deallocate all derived MPI types." alt="" coords="202,466,369,507"/>

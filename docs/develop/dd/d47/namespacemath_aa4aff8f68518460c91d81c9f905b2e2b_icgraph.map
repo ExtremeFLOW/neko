@@ -2,7 +2,7 @@
 <area shape="rect" id="node1" title="Vector multiplication ." alt="" coords="1291,449,1381,475"/>
 <area shape="rect" id="node2" href="$d6/def/namespacegradient__jump__penalty.html#a50a5857c26b3634d6e9bf80c7ac5182f" title="Initialize the facet factor array." alt="" coords="1066,5,1238,47"/>
 <area shape="rect" id="node4" href="$d5/de6/namespacefield__math.html#a35c4acba25db9dc1e0193df356dc9dad" title="Vector multiplication ." alt="" coords="1071,71,1233,98"/>
-<area shape="rect" id="node5" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields." alt="" coords="1089,123,1215,164"/>
+<area shape="rect" id="node5" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields with a new sample." alt="" coords="1089,123,1215,164"/>
 <area shape="rect" id="node6" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="1080,189,1224,215"/>
 <area shape="rect" id="node7" href="$dd/d49/namespacejacobi.html#a2b15f287f6c23fdb2b2c5b113e9d04dd" title="Update Jacobi preconditioner if the geometry G has changed." alt="" coords="1072,239,1232,266"/>
 <area shape="rect" id="node9" href="$dd/dfc/namespaceles__model.html#ad3a4476d84e498dafd7a2fdeca51c242" title="Compute the LES lengthscale. For each GLL point, we take the distance between its neighbours in all 3..." alt="" coords="1070,291,1234,332"/>

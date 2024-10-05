@@ -1,5 +1,5 @@
 <map id="utils::neko_warning" name="utils::neko_warning">
-<area shape="rect" id="node1" title="Reports a warning to standard output." alt="" coords="725,377,873,404"/>
+<area shape="rect" id="node1" title="Reports a warning to standard output." alt="" coords="725,436,873,463"/>
 <area shape="rect" id="node2" href="$d2/d10/namespacecacg.html#a88218a31c14bb0fffc1053d15c3562ef" title="Initialise a s&#45;step CA PCG solver." alt="" coords="522,5,641,32"/>
 <area shape="rect" id="node3" href="$da/d5b/namespacedata__streamer.html#af48fb46251b09f987f2fddf675d164e8" title="Destructor wraps the adios2 finalize routine. Closes insitu writer." alt="" coords="504,57,659,98"/>
 <area shape="rect" id="node4" href="$da/d5b/namespacedata__streamer.html#abb4826f60d303253383ba8f20137f652" title="Constructor Wraps the adios2 set&#45;up." alt="" coords="504,122,659,163"/>
@@ -12,8 +12,12 @@
 <area shape="rect" id="node14" href="$d8/d8b/namespacemap__1d.html#a0de5072eebc7b008f2127668b3460649" title=" " alt="" coords="500,537,663,564"/>
 <area shape="rect" id="node15" href="$db/dfc/namespacemesh.html#a18c5812c7d48ae7807feb209f54c567c" title="Initialise a mesh this based on a distribution dist." alt="" coords="501,588,662,615"/>
 <area shape="rect" id="node16" href="$db/dfc/namespacemesh.html#a9af024aab70a8f87cca5f68e9625a361" title="Initialise a mesh this with nelv elements." alt="" coords="499,639,664,665"/>
-<area shape="rect" id="node17" href="$d9/d30/namespacestack.html#a8703c4c59b20a3e1d79a7c5b32c7dcd3" title="Initialize a stack of arbitrary type." alt="" coords="517,689,645,716"/>
+<area shape="rect" id="node17" href="$d2/d13/namespaceflow__ic.html#a425835656c9daae13895696a4943dd5f" title="Set the initial condition of the flow based on a field. @detail The fields are read from an fld file...." alt="" coords="496,689,667,716"/>
+<area shape="rect" id="node19" href="$d8/ddf/namespacescalar__ic.html#a96013931003c6c7fe4993a91f14b1738" title="Set the initial condition of the scalar based on a field. @detail The field is read from an fld file...." alt="" coords="505,741,658,782"/>
+<area shape="rect" id="node21" href="$d9/d30/namespacestack.html#a8703c4c59b20a3e1d79a7c5b32c7dcd3" title="Initialize a stack of arbitrary type." alt="" coords="517,807,645,833"/>
 <area shape="rect" id="node8" href="$dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8" title="Generate x,y,z&#45;coordinates for all dofs." alt="" coords="212,319,437,345"/>
 <area shape="rect" id="node9" href="$dd/dd2/namespacedofmap.html#aa41679fd135ea23696a6083d07b8ba08" title="Constructor." alt="" coords="5,319,164,345"/>
 <area shape="rect" id="node11" href="$d9/dbc/namespaceuser__intf.html#a3aea51eae7110590baa40d9133620914" title="User interface initialization." alt="" coords="239,377,410,404"/>
+<area shape="rect" id="node18" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)" alt="" coords="251,678,398,719"/>
+<area shape="rect" id="node20" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#acec97723c5e2c32e459b067fd352bf65" title="Set scalar initial condition (builtin)" alt="" coords="247,743,403,785"/>
 </map>

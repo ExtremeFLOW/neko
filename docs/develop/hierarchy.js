@@ -613,6 +613,7 @@ var hierarchy =
     [ "simulation_component::simulation_component_t", "dc/d0d/structsimulation__component_1_1simulation__component__t.html", [
       [ "derivative::derivative_t", "db/d12/structderivative_1_1derivative__t.html", null ],
       [ "field_writer::field_writer_t", "de/d1a/structfield__writer_1_1field__writer__t.html", null ],
+      [ "fluid_stats_simcomp::fluid_stats_simcomp_t", "d1/d3b/structfluid__stats__simcomp_1_1fluid__stats__simcomp__t.html", null ],
       [ "force_torque::force_torque_t", "da/d47/structforce__torque_1_1force__torque__t.html", null ],
       [ "lambda2::lambda2_t", "d6/db3/structlambda2_1_1lambda2__t.html", null ],
       [ "les_simcomp::les_simcomp_t", "d1/d3b/structles__simcomp_1_1les__simcomp__t.html", null ],

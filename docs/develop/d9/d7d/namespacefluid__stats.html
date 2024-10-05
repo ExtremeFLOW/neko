@@ -109,21 +109,22 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a18fbdc07fbfc7b8a9eec622bc5ec182e"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d7d/namespacefluid__stats.html#a18fbdc07fbfc7b8a9eec622bc5ec182e">fluid_stats_init</a> (this, coef, u_mf, v_mf, w_mf, p_mf)</td></tr>
-<tr class="memdesc:a18fbdc07fbfc7b8a9eec622bc5ec182e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the fields associated with <a class="el" href="../../d9/d7d/namespacefluid__stats.html" title="Computes various statistics for the fluid fields. We use the Reynolds decomposition for a field u =  ...">fluid_stats</a>.  <a href="../../d9/d7d/namespacefluid__stats.html#a18fbdc07fbfc7b8a9eec622bc5ec182e">More...</a><br /></td></tr>
-<tr class="separator:a18fbdc07fbfc7b8a9eec622bc5ec182e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9bcfeb263302e7a74d442e1c1ccbf211"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d7d/namespacefluid__stats.html#a9bcfeb263302e7a74d442e1c1ccbf211">fluid_stats_init</a> (this, coef, u, v, w, p, set)</td></tr>
+<tr class="memdesc:a9bcfeb263302e7a74d442e1c1ccbf211"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor. Initialize the fields associated with <a class="el" href="../../d9/d7d/namespacefluid__stats.html" title="Computes various statistics for the fluid fields. We use the Reynolds decomposition for a field u =  ...">fluid_stats</a>.  <a href="../../d9/d7d/namespacefluid__stats.html#a9bcfeb263302e7a74d442e1c1ccbf211">More...</a><br /></td></tr>
+<tr class="separator:a9bcfeb263302e7a74d442e1c1ccbf211"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f4f6b67d4aaee16ce1a646a3d23e844"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844">fluid_stats_update</a> (this, k)</td></tr>
-<tr class="memdesc:a4f4f6b67d4aaee16ce1a646a3d23e844"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates all fields.  <a href="../../d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844">More...</a><br /></td></tr>
+<tr class="memdesc:a4f4f6b67d4aaee16ce1a646a3d23e844"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates all fields with a new sample.  <a href="../../d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844">More...</a><br /></td></tr>
 <tr class="separator:a4f4f6b67d4aaee16ce1a646a3d23e844"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6543045ed1c527f9f273d57feaff9ff0"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d7d/namespacefluid__stats.html#a6543045ed1c527f9f273d57feaff9ff0">fluid_stats_free</a> (this)</td></tr>
-<tr class="memdesc:a6543045ed1c527f9f273d57feaff9ff0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocates a mean flow field.  <a href="../../d9/d7d/namespacefluid__stats.html#a6543045ed1c527f9f273d57feaff9ff0">More...</a><br /></td></tr>
+<tr class="memdesc:a6543045ed1c527f9f273d57feaff9ff0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="../../d9/d7d/namespacefluid__stats.html#a6543045ed1c527f9f273d57feaff9ff0">More...</a><br /></td></tr>
 <tr class="separator:a6543045ed1c527f9f273d57feaff9ff0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a23573d4b338c0e03f32d3f9eb6992a90"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d7d/namespacefluid__stats.html#a23573d4b338c0e03f32d3f9eb6992a90">fluid_stats_reset</a> (this)</td></tr>
-<tr class="memdesc:a23573d4b338c0e03f32d3f9eb6992a90"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a mean flow field.  <a href="../../d9/d7d/namespacefluid__stats.html#a23573d4b338c0e03f32d3f9eb6992a90">More...</a><br /></td></tr>
+<tr class="memdesc:a23573d4b338c0e03f32d3f9eb6992a90"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all the computed means values and sampling times to zero.  <a href="../../d9/d7d/namespacefluid__stats.html#a23573d4b338c0e03f32d3f9eb6992a90">More...</a><br /></td></tr>
 <tr class="separator:a23573d4b338c0e03f32d3f9eb6992a90"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a47e0b4a1488deeafbb5984bb92c43be6"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d7d/namespacefluid__stats.html#a47e0b4a1488deeafbb5984bb92c43be6">fluid_stats_make_strong_grad</a> (this)</td></tr>
 <tr class="separator:a47e0b4a1488deeafbb5984bb92c43be6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6585cba645b70a78f8ad2f630aeb35e1"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/d7d/namespacefluid__stats.html#a6585cba645b70a78f8ad2f630aeb35e1">fluid_stats_post_process</a> (this, mean, reynolds, pressure_flatness, pressure_skewness, skewness_tensor, mean_vel_grad, dissipation_tensor)</td></tr>
+<tr class="memdesc:a6585cba645b70a78f8ad2f630aeb35e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute certain physical statistical quantities based on existing mean fields.  <a href="../../d9/d7d/namespacefluid__stats.html#a6585cba645b70a78f8ad2f630aeb35e1">More...</a><br /></td></tr>
 <tr class="separator:a6585cba645b70a78f8ad2f630aeb35e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
@@ -151,12 +152,12 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00519">519</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00572">572</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
 
 </div>
 </div>
-<a id="a18fbdc07fbfc7b8a9eec622bc5ec182e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a18fbdc07fbfc7b8a9eec622bc5ec182e">&#9670;&nbsp;</a></span>fluid_stats_init()</h2>
+<a id="a9bcfeb263302e7a74d442e1c1ccbf211"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9bcfeb263302e7a74d442e1c1ccbf211">&#9670;&nbsp;</a></span>fluid_stats_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -176,26 +177,32 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../dc/d4a/structmean__field_1_1mean__field__t.html">mean_field_t</a>), intent(inout), target&#160;</td>
-          <td class="paramname"><em>u_mf</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout), target&#160;</td>
+          <td class="paramname"><em>u</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../dc/d4a/structmean__field_1_1mean__field__t.html">mean_field_t</a>), intent(inout), target&#160;</td>
-          <td class="paramname"><em>v_mf</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout), target&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../dc/d4a/structmean__field_1_1mean__field__t.html">mean_field_t</a>), intent(inout), target&#160;</td>
-          <td class="paramname"><em>w_mf</em>, </td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout), target&#160;</td>
+          <td class="paramname"><em>w</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../dc/d4a/structmean__field_1_1mean__field__t.html">mean_field_t</a>), intent(inout), target&#160;</td>
-          <td class="paramname"><em>p_mf</em>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout), target&#160;</td>
+          <td class="paramname"><em>p</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">character(*), intent(in), optional&#160;</td>
+          <td class="paramname"><em>set</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -206,37 +213,19 @@ Functions/Subroutines</h2></td></tr>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;uuu&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;vvv&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;www&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;uuv&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;uuw&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;uvv&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;uvv&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;vvw&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;uww&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;vww&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;uuuu&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;vvvv&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;wwww&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;uuu&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;vvv&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;www&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;uuv&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;uuw&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;uvv&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;uvv&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;vvw&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;uww&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;vww&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;uuuu&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;vvvv&gt; </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">p_mf</td><td>&lt;wwww&gt; </td></tr>
+    <tr><td class="paramname">coef</td><td>SEM coefficients. Optional. </td></tr>
+    <tr><td class="paramname">u</td><td>The x component of velocity. </td></tr>
+    <tr><td class="paramname">v</td><td>The y component of velocity. </td></tr>
+    <tr><td class="paramname">w</td><td>The z component of velocity. </td></tr>
+    <tr><td class="paramname">p</td><td>The pressure. </td></tr>
+    <tr><td class="paramname">set</td><td>Specifies the subset of the statistics to be collected. Optional. Either <code>basic</code> or <code>full</code>, defaults to <code>full</code>. </td></tr>
   </table>
   </dd>
 </dl>
+<p>Pressure</p>
+<p>Pressure * velocity</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00152">152</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00167">167</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
 
 </div>
 </div>
@@ -264,7 +253,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00598">598</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00662">662</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
 
 </div>
 </div>
@@ -338,7 +327,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00648">648</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00718">718</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
 
 </div>
 </div>
@@ -365,10 +354,8 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Pressure</p>
-<p>Pressure * velocity</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00548">548</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00606">606</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
 
 </div>
 </div>
@@ -405,16 +392,22 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">k</td><td>Time elapsed since the last update. </td></tr>
+  </table>
+  </dd>
+</dl>
 <p>Uf is u and Umf is <u></u></p>
 <p><u></u></p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00276">276</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html#l00313">313</a> of file <a class="el" href="../../d6/d05/fluid__stats_8f90_source.html">fluid_stats.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d9/d7d/namespacefluid__stats_a4f4f6b67d4aaee16ce1a646a3d23e844_cgraph.png" border="0" usemap="#ad9/d7d/namespacefluid__stats_a4f4f6b67d4aaee16ce1a646a3d23e844_cgraph" alt=""/></div>
 <map name="ad9/d7d/namespacefluid__stats_a4f4f6b67d4aaee16ce1a646a3d23e844_cgraph" id="ad9/d7d/namespacefluid__stats_a4f4f6b67d4aaee16ce1a646a3d23e844_cgraph">
-<area shape="rect" title="Updates all fields." alt="" coords="5,158,131,199"/>
+<area shape="rect" title="Updates all fields with a new sample." alt="" coords="5,158,131,199"/>
 <area shape="rect" href="../../dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="217,5,331,32"/>
 <area shape="rect" href="../../dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="229,56,319,83"/>
 <area shape="rect" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="229,107,319,133"/>
@@ -441,7 +434,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d9/d7d/namespacefluid__stats.html">fluid_stats</a></li>
-    <li class="footer">Generated on Fri Oct 4 2024 03:38:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Oct 5 2024 03:37:03 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

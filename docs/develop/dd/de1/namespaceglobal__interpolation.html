@@ -110,9 +110,12 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:aed5605e24dd0355f7b4f4c4a1b1b6e6b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#aed5605e24dd0355f7b4f4c4a1b1b6e6b">global_interpolation_init</a> (this, dof, tol)</td></tr>
-<tr class="memdesc:aed5605e24dd0355f7b4f4c4a1b1b6e6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluate only local points.  <a href="../../dd/de1/namespaceglobal__interpolation.html#aed5605e24dd0355f7b4f4c4a1b1b6e6b">More...</a><br /></td></tr>
-<tr class="separator:aed5605e24dd0355f7b4f4c4a1b1b6e6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa45090e00c765fb9d098b30ae7278ec3"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#aa45090e00c765fb9d098b30ae7278ec3">global_interpolation_init_dof</a> (this, dof, tol)</td></tr>
+<tr class="memdesc:aa45090e00c765fb9d098b30ae7278ec3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the global interpolation object on a dofmap.  <a href="../../dd/de1/namespaceglobal__interpolation.html#aa45090e00c765fb9d098b30ae7278ec3">More...</a><br /></td></tr>
+<tr class="separator:aa45090e00c765fb9d098b30ae7278ec3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae461aea851e8ee28ef07aebe4ef73992"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#ae461aea851e8ee28ef07aebe4ef73992">global_interpolation_init_xyz</a> (this, x, y, z, gdim, nelv, Xh, tol)</td></tr>
+<tr class="memdesc:ae461aea851e8ee28ef07aebe4ef73992"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the global interpolation object on a set of coordinates.  <a href="../../dd/de1/namespaceglobal__interpolation.html#ae461aea851e8ee28ef07aebe4ef73992">More...</a><br /></td></tr>
+<tr class="separator:ae461aea851e8ee28ef07aebe4ef73992"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1da3dca9e49ce1adae0a90ab85e9deef"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html#a1da3dca9e49ce1adae0a90ab85e9deef">global_interpolation_free</a> (this)</td></tr>
 <tr class="memdesc:a1da3dca9e49ce1adae0a90ab85e9deef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="../../dd/de1/namespaceglobal__interpolation.html#a1da3dca9e49ce1adae0a90ab85e9deef">More...</a><br /></td></tr>
 <tr class="separator:a1da3dca9e49ce1adae0a90ab85e9deef"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -166,7 +169,7 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(this%dof%size()), intent(inout)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(this%nelv*this%xh%lxyz), intent(inout)&#160;</td>
           <td class="paramname"><em>field</em>&#160;</td>
         </tr>
         <tr>
@@ -189,7 +192,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00516">516</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00564">564</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 
 </div>
 </div>
@@ -233,7 +236,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <ul>
-<li><code>error_code</code>: returns <code>0</code> if point found, <code>1</code> if closest point on a border (check dist2), <code>2</code> if not found</li>
+<li><code>error_code</code>: returns <code>0</code> if point found, <code>1</code> if closest point on a border (check dist2), <code>2</code> if not found.</li>
 <li><code>dist2</code>: distance squared (used to compare the points found by each processor) <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">xyz</td><td>The coordinates of the points. </td></tr>
@@ -246,7 +249,7 @@ Functions/Subroutines</h2></td></tr>
 <p>make deep copy incase xyz goes out of scope or deallocated</p>
 <p>Sets new points and redistributes them</p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00397">397</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00443">443</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -286,7 +289,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00191">191</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00236">236</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -366,7 +369,7 @@ Here is the caller graph for this function:</div>
 </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00315">315</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00360">360</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -398,7 +401,7 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(3,n_points), intent(inout)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(3, n_points), intent(inout)&#160;</td>
           <td class="paramname"><em>xyz</em>, </td>
         </tr>
         <tr>
@@ -432,7 +435,7 @@ Here is the call graph for this function:</div>
 </ul>
 <p>make deep copy incase xyz goes out of scope or deallocated</p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00367">367</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00412">412</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -471,7 +474,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00152">152</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00193">193</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 
 </div>
 </div>
@@ -499,18 +502,18 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00171">171</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00216">216</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 
 </div>
 </div>
-<a id="aed5605e24dd0355f7b4f4c4a1b1b6e6b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aed5605e24dd0355f7b4f4c4a1b1b6e6b">&#9670;&nbsp;</a></span>global_interpolation_init()</h2>
+<a id="aa45090e00c765fb9d098b30ae7278ec3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa45090e00c765fb9d098b30ae7278ec3">&#9670;&nbsp;</a></span>global_interpolation_init_dof()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">subroutine global_interpolation::global_interpolation_init </td>
+          <td class="memname">subroutine global_interpolation::global_interpolation_init_dof </td>
           <td>(</td>
           <td class="paramtype">class(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), intent(inout)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
@@ -534,7 +537,7 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Initialize user defined variables. </p><dl class="params"><dt>Parameters</dt><dd>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dof</td><td>Dofmap on which the interpolation is to be carried out. </td></tr>
     <tr><td class="paramname">tol</td><td>Tolerance for Newton iterations. </td></tr>
@@ -542,7 +545,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00114">114</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00126">126</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 
 </div>
 </div>
@@ -570,7 +573,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00342">342</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00387">387</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -583,6 +586,92 @@ Here is the caller graph for this function:</div>
 <area shape="rect" href="../../dd/de1/namespaceglobal__interpolation.html#ae67a17085d264b5f5d490d1047042ee2" title=" " alt="" coords="213,193,373,249"/>
 </map>
 </div>
+
+</div>
+</div>
+<a id="ae461aea851e8ee28ef07aebe4ef73992"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae461aea851e8ee28ef07aebe4ef73992">&#9670;&nbsp;</a></span>global_interpolation_init_xyz()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine global_interpolation::global_interpolation_init_xyz </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../dc/df3/structglobal__interpolation_1_1global__interpolation__t.html">global_interpolation_t</a>), intent(inout)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(:), intent(in), target&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(:), intent(in), target&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(:), intent(in), target&#160;</td>
+          <td class="paramname"><em>z</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer, intent(in)&#160;</td>
+          <td class="paramname"><em>gdim</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer, intent(in)&#160;</td>
+          <td class="paramname"><em>nelv</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../da/d99/structspace_1_1space__t.html">space_t</a>), intent(in), target&#160;</td>
+          <td class="paramname"><em>Xh</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(in), optional&#160;</td>
+          <td class="paramname"><em>tol</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>x-coordinates. </td></tr>
+    <tr><td class="paramname">y</td><td>y-coordinates. </td></tr>
+    <tr><td class="paramname">z</td><td>z-coordinates. </td></tr>
+    <tr><td class="paramname">gdim</td><td>Geometric dimension. </td></tr>
+    <tr><td class="paramname">nelv</td><td>Number of elements of the mesh in which to search for the points. </td></tr>
+    <tr><td class="paramname">Xh</td><td>Space on which to interpolate. </td></tr>
+    <tr><td class="paramname">tol</td><td>Tolerance for Newton iterations. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00148">148</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 
 </div>
 </div>
@@ -613,7 +702,7 @@ Here is the caller graph for this function:</div>
 <p>Sum number of points on all pes to compute n_new_points Store how many points to receive from each pe</p>
 <p>This could be avoided by adding all indices to a list</p>
 
-<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00439">439</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../db/d27/global__interpolation_8F90_source.html#l00485">485</a> of file <a class="el" href="../../db/d27/global__interpolation_8F90_source.html">global_interpolation.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -642,7 +731,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/de1/namespaceglobal__interpolation.html">global_interpolation</a></li>
-    <li class="footer">Generated on Fri Oct 4 2024 03:38:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sat Oct 5 2024 03:37:03 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

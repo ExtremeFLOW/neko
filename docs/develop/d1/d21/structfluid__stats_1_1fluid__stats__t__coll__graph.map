@@ -1,7 +1,7 @@
 <map id="fluid_stats::fluid_stats_t" name="fluid_stats::fluid_stats_t">
 <area shape="rect" id="node1" title=" " alt="" coords="2789,843,2915,885"/>
 <area shape="rect" id="node2" href="$d5/d8f/structstats__quant_1_1stats__quant__t.html" title="Abstract type defining a statistical quantity." alt="" coords="2255,706,2393,747"/>
-<area shape="rect" id="node33" href="$dc/d4a/structmean__field_1_1mean__field__t.html" title=" " alt="" coords="2483,797,2669,824"/>
+<area shape="rect" id="node33" href="$dc/d4a/structmean__field_1_1mean__field__t.html" title="Computes the temporal mean of a field." alt="" coords="2483,797,2669,824"/>
 <area shape="rect" id="node3" href="$d3/d5f/structfield_1_1field__t.html" title=" " alt="" coords="2047,853,2146,880"/>
 <area shape="rect" id="node35" href="$dc/dd8/structfield_1_1field__ptr__t.html" title="field_ptr_t, To easily obtain a pointer to a field" alt="" coords="2263,859,2385,885"/>
 <area shape="rect" id="node4" href="$d0/df0/structdofmap_1_1dofmap__t.html" title=" " alt="" coords="1776,679,1919,705"/>

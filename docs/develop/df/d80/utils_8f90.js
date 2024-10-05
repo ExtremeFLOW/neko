@@ -2,6 +2,7 @@ var utils_8f90 =
 [
     [ "neko_error", "d7/d83/interfaceutils_1_1neko__error.html", "d7/d83/interfaceutils_1_1neko__error" ],
     [ "concat_string_array", "df/d80/utils_8f90.html#a1118aac17fca960a9444986355db28ad", null ],
+    [ "extract_fld_file_index", "df/d80/utils_8f90.html#a0962746ef1c8f4a3a6e83aae5ef2d7a0", null ],
     [ "filename_chsuffix", "df/d80/utils_8f90.html#a94a1b10b4fd0d52a2bbd0bdfbac01692", null ],
     [ "filename_suffix", "df/d80/utils_8f90.html#ab63ac98c412c96a48161b7ad74e5fa85", null ],
     [ "filename_suffix_pos", "df/d80/utils_8f90.html#ae2d9d80ae0bcff7643db09d1c1860542", null ],

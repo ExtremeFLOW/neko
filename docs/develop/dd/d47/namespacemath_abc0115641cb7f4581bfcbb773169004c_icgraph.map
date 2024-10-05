@@ -4,7 +4,7 @@
 <area shape="rect" id="node4" href="$da/def/namespacedynamic__smagorinsky__cpu.html#af19ec537058567406004669f74bc8a78" title="Compute Germano Identity on the CPU." alt="" coords="516,71,684,112"/>
 <area shape="rect" id="node7" href="$da/def/namespacedynamic__smagorinsky__cpu.html#adbc178a64f50cacd8d279bb6748d9376" title="Compute M_ij on the CPU." alt="" coords="513,136,687,177"/>
 <area shape="rect" id="node8" href="$d5/de6/namespacefield__math.html#a9ccc5f5cad26fed38137ab6e122de6c1" title="Vector multiplication with 3 vectors ." alt="" coords="519,202,681,229"/>
-<area shape="rect" id="node9" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields." alt="" coords="537,253,663,295"/>
+<area shape="rect" id="node9" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields with a new sample." alt="" coords="537,253,663,295"/>
 <area shape="rect" id="node10" href="$dd/d49/namespacejacobi.html#a2b0806955e3e341cf531d44499994d7f" title="The jacobi preconditioner &#160;&#160;where ." alt="" coords="525,319,675,346"/>
 <area shape="rect" id="node11" href="$d9/d5a/namespaceopr__xsmm.html#a57bf41f6f4190d4e8f728bd37db80ec9" title=" " alt="" coords="499,370,701,397"/>
 <area shape="rect" id="node19" href="$d5/d6a/namespacegmres__sx.html#a9c2ada127fe243736199ecbeb712c3ea" title="Standard PCG solve." alt="" coords="522,421,678,463"/>

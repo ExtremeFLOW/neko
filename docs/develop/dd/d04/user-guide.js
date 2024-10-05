@@ -34,9 +34,9 @@ var user_guide =
       [ "Runtime statistics", "dd/d33/case-file.html#autotoc_md50", null ]
     ] ],
     [ "User File", "d6/def/user-file.html", [
-      [ "Compiling and running", "d6/def/user-file.html#autotoc_md86", null ],
-      [ "High-level structure", "d6/def/user-file.html#autotoc_md87", null ],
-      [ "Default user functions", "d6/def/user-file.html#autotoc_md88", [
+      [ "Compiling and running", "d6/def/user-file.html#autotoc_md85", null ],
+      [ "High-level structure", "d6/def/user-file.html#autotoc_md86", null ],
+      [ "Default user functions", "d6/def/user-file.html#autotoc_md87", [
         [ "Initializing and finalizing", "d6/def/user-file.html#user-file_init-and-final", null ],
         [ "Computing at every time step", "d6/def/user-file.html#user-file_user-check", null ],
         [ "Setting material properties", "d6/def/user-file.html#user-file_mat-prop", null ],
@@ -44,13 +44,13 @@ var user_guide =
         [ "Scalar boundary conditions", "d6/def/user-file.html#user-file_scalar-bc", null ],
         [ "User defined simulation components", "d6/def/user-file.html#user-file_simcomps", null ]
       ] ],
-      [ "Case-specific user functions", "d6/def/user-file.html#autotoc_md89", [
+      [ "Case-specific user functions", "d6/def/user-file.html#autotoc_md88", [
         [ "Fluid and Scalar initial conditions", "d6/def/user-file.html#user-file_user-ic", null ],
         [ "Fluid inflow condition", "d6/def/user-file.html#user-file_fluid-user-if", null ],
         [ "Fluid and scalar source terms", "d6/def/user-file.html#user-file_user-f", null ],
         [ "Complex fluid and/or scalar boundary conditions", "d6/def/user-file.html#user-file_field-dirichlet-update", null ]
       ] ],
-      [ "Additional remarks and tips", "d6/def/user-file.html#autotoc_md90", [
+      [ "Additional remarks and tips", "d6/def/user-file.html#autotoc_md89", [
         [ "Running on GPUs", "d6/def/user-file.html#user-file_tips_running-on-gpus", null ],
         [ "Registries", "d6/def/user-file.html#user-file_tips_registries", null ]
       ] ]
@@ -89,9 +89,7 @@ var user_guide =
     [ "Statistics guide", "df/d8f/statistics-guide.html", [
       [ "Using statistics", "df/d8f/statistics-guide.html#autotoc_md82", null ],
       [ "List of fields in output files", "df/d8f/statistics-guide.html#autotoc_md83", null ],
-      [ "Postprocessing", "df/d8f/statistics-guide.html#autotoc_md84", [
-        [ "Notes on the statistics calculation in Neko", "df/d8f/statistics-guide.html#autotoc_md85", null ]
-      ] ]
+      [ "Postprocessing", "df/d8f/statistics-guide.html#autotoc_md84", null ]
     ] ],
     [ "Input-output", "d7/d7f/io.html", [
       [ "Mesh", "d7/d7f/io.html#autotoc_md64", null ],
