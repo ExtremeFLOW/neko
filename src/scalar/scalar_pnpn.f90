@@ -44,7 +44,6 @@ module scalar_pnpn
                  bc_list_add
   use mesh, only : mesh_t
   use checkpoint, only : chkp_t
-  use coefs, only : coef_t
   use device, only : HOST_TO_DEVICE, device_memcpy
   use gather_scatter, only : gs_t, GS_OP_ADD
   use scalar_residual, only : scalar_residual_t, scalar_residual_factory
@@ -66,6 +65,7 @@ module scalar_pnpn
   use neko_config, only : NEKO_BCKND_DEVICE
   use time_step_controller, only : time_step_controller_t
   use scratch_registry, only: neko_scratch_registry
+  use sem, only : sem_t
   implicit none
   private
 
@@ -131,13 +131,13 @@ module scalar_pnpn
 contains
 
   !> Constructor.
-  !! @param coef The coefficients.
+  !! @param sem The SEM backbone.
   !! @param params The case parameter file in json.
   !! @param user Type with user-defined procedures.
-  subroutine scalar_pnpn_init(this, coef, params, user, &
+  subroutine scalar_pnpn_init(this, sem, params, user, &
        ulag, vlag, wlag, time_scheme, rho)
     class(scalar_pnpn_t), target, intent(inout) :: this
-    type(coef_t), target, intent(in) :: coef
+    type(sem_t), target, intent(in) :: sem
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
@@ -149,7 +149,7 @@ contains
     call this%free()
 
     ! Initiliaze base type.
-    call this%scheme_init(coef, params, scheme, user, rho)
+    call this%scheme_init(sem, params, scheme, user, rho)
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%ax, full_formulation = .false.)
@@ -167,8 +167,9 @@ contains
     call rhs_maker_oifs_fctry(this%makeoifs)
 
     ! Initialize variables specific to this plan
-    associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
-         dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
+    associate(Xh_lx => this%sem%Xh%lx, Xh_ly => this%sem%Xh%ly, &
+         Xh_lz => this%sem%Xh%lz, &
+         dm_Xh => this%sem%dofmap, nelv => this%msh%nelv)
 
       call this%s_res%init(dm_Xh, "s_res")
 
@@ -184,7 +185,7 @@ contains
 
     ! Initialize dirichlet bcs for scalar residual
     ! todo: look that this works
-    call this%bc_res%init_base(this%c_Xh)
+    call this%bc_res%init_base(this%sem%coef)
     do i = 1, this%n_dir_bcs
        call this%bc_res%mark_facets(this%dir_bcs(i)%marked_facet)
     end do
@@ -204,7 +205,7 @@ contains
 
 
     ! Intialize projection space
-    call this%proj_s%init(this%dm_Xh%size(), this%projection_dim,  &
+    call this%proj_s%init(this%sem%dofmap%size(), this%projection_dim,  &
                             this%projection_activ_step)
 
     ! Add lagged term to checkpoint
@@ -215,7 +216,7 @@ contains
     call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
 
     ! Initialize advection factory
-    call advection_factory(this%adv, params, this%c_Xh, &
+    call advection_factory(this%adv, params, this%sem%coef, &
                            ulag, vlag, wlag, this%chkp%dtlag, &
                            this%chkp%tlag, time_scheme, this%slag)
   end subroutine scalar_pnpn_init
@@ -229,9 +230,9 @@ contains
 
     n = this%s%dof%size()
 
-    call col2(this%s%x, this%c_Xh%mult, n)
-    call col2(this%slag%lf(1)%x, this%c_Xh%mult, n)
-    call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
+    call col2(this%s%x, this%sem%coef%mult, n)
+    call col2(this%slag%lf(1)%x, this%sem%coef%mult, n)
+    call col2(this%slag%lf(2)%x, this%sem%coef%mult, n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s%x, this%s%x_d, &
                           n, HOST_TO_DEVICE, sync = .false.)
@@ -247,9 +248,9 @@ contains
                           n, HOST_TO_DEVICE, sync = .false.)
     end if
 
-    call this%gs_Xh%op(this%s, GS_OP_ADD)
-    call this%gs_Xh%op(this%slag%lf(1), GS_OP_ADD)
-    call this%gs_Xh%op(this%slag%lf(2), GS_OP_ADD)
+    call this%sem%gs%op(this%s, GS_OP_ADD)
+    call this%sem%gs%op(this%slag%lf(1), GS_OP_ADD)
+    call this%sem%gs%op(this%slag%lf(2), GS_OP_ADD)
 
   end subroutine scalar_pnpn_restart
 
@@ -306,15 +307,15 @@ contains
     type(ksp_monitor_t) :: ksp_results(1)
     character(len=LOG_SIZE) :: log_buf
 
-    n = this%dm_Xh%size()
+    n = this%sem%dofmap%size()
 
     call profiler_start_region('Scalar', 2)
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
          cp => this%cp, rho => this%rho, &
          ds => this%ds, &
          s_res => this%s_res, &
-         Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
-         c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
+         Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%sem%Xh, &
+         c_Xh => this%sem%coef, dm_Xh => this%sem%dofmap, gs_Xh => this%sem%gs,&
          slag => this%slag, oifs => this%oifs, &
          lambda_field => this%lambda_field, &
          projection_dim => this%projection_dim, &
@@ -357,7 +358,7 @@ contains
       if (oifs) then
          ! Add the advection operators to the right-hans-side.
          call this%adv%compute_scalar(u, v, w, s, this%advs, &
-                                   Xh, this%c_Xh, dm_Xh%size())
+                                   Xh, c_Xh, dm_Xh%size())
 
          call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
                                      ext_bdf%advection_coeffs, n)
@@ -366,7 +367,7 @@ contains
       else
          ! Add the advection operators to the right-hans-side.
          call this%adv%compute_scalar(u, v, w, s, f_Xh, &
-                                      Xh, this%c_Xh, dm_Xh%size())
+                                      Xh, c_Xh, dm_Xh%size())
 
          ! At this point the RHS contains the sum of the advection operator,
          ! Neumann boundary sources and additional source terms, evaluated using
@@ -386,9 +387,9 @@ contains
       !! We assume that no change of boundary conditions
       !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
       call this%field_dir_bc%update(this%field_dir_bc%field_list, &
-           this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
+           this%field_dirichlet_bcs, this%sem%coef, t, tstep, "scalar")
       call bc_list_apply_scalar(this%bclst_dirichlet, &
-           this%s%x, this%dm_Xh%size())
+           this%s%x, dm_Xh%size())
 
 
       ! Update material properties if necessary

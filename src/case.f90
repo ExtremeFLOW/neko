@@ -241,7 +241,7 @@ contains
        allocate(C%scalar)
        C%scalar%chkp%tlag => C%tlag
        C%scalar%chkp%dtlag => C%dtlag
-       call C%scalar%init(C%fluid%c_Xh, C%params, C%usr,&
+       call C%scalar%init(C%sem, C%params, C%usr,&
             C%fluid%ulag, C%fluid%vlag, C%fluid%wlag, C%ext_bdf, C%fluid%rho)
        call C%fluid%chkp%add_scalar(C%scalar%s)
        C%fluid%chkp%abs1 => C%scalar%abx1
@@ -282,10 +282,10 @@ contains
        call json_get(C%params, 'case.scalar.initial_condition.type', string_val)
        if (trim(string_val) .ne. 'user') then
           call set_scalar_ic(C%scalar%s, &
-            C%scalar%c_Xh, C%scalar%gs_Xh, string_val, C%params)
+            C%sem%coef, C%sem%gs, string_val, C%params)
        else
           call set_scalar_ic(C%scalar%s, &
-            C%scalar%c_Xh, C%scalar%gs_Xh, C%usr%scalar_user_ic, C%params)
+            C%sem%coef, C%sem%gs, C%usr%scalar_user_ic, C%params)
        end if
     end if
 

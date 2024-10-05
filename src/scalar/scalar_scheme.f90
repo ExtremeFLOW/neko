@@ -73,6 +73,7 @@ module scalar_scheme
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
   use gradient_jump_penalty, only : gradient_jump_penalty_t
+  use sem, only : sem_t
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -87,14 +88,8 @@ module scalar_scheme
      type(field_t), pointer :: s
      !> Lag arrays, i.e. solutions at previous timesteps.
      type(field_series_t) :: slag
-     !> Function space \f$ X_h \f$.
-     type(space_t), pointer :: Xh
-     !> Dofmap associated with \f$ X_h \f$.
-     type(dofmap_t), pointer :: dm_Xh
-     !> Gather-scatter associated with \f$ X_h \f$.
-     type(gs_t), pointer :: gs_Xh
-     !> Coefficients associated with \f$ X_h \f$.
-     type(coef_t), pointer :: c_Xh
+     !> SEM backbone.
+     type(sem_t), pointer :: sem
      !> Right-hand side.
      type(field_t), pointer :: f_Xh => null()
      !> The source term for equation.
@@ -179,19 +174,17 @@ module scalar_scheme
 
   !> Abstract interface to initialize a scalar formulation
   abstract interface
-     subroutine scalar_scheme_init_intrf(this, coef, params, user, &
+     subroutine scalar_scheme_init_intrf(this, sem, params, user, &
           ulag, vlag, wlag, time_scheme, rho)
        import scalar_scheme_t
        import json_file
-       import coef_t
-       import gs_t
-       import mesh_t
+       import sem_t
        import user_t
        import field_series_t
        import time_scheme_controller_t
        import rp
        class(scalar_scheme_t), target, intent(inout) :: this
-       type(coef_t), target, intent(in) :: coef
+       type(sem_t), target, intent(in) :: sem
        type(json_file), target, intent(inout) :: params
        type(user_t), target, intent(in) :: user
        type(field_series_t), target, intent(in) :: ulag, vlag, wlag
@@ -270,7 +263,7 @@ contains
 !             call this%dir_bcs(j)%mark_zone(zones(i))
 !          else
           this%n_dir_bcs = this%n_dir_bcs + 1
-          call this%dir_bcs(this%n_dir_bcs)%init_base(this%c_Xh)
+          call this%dir_bcs(this%n_dir_bcs)%init_base(this%sem%coef)
           call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
           read(bc_label(3:), *) dir_value
           call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
@@ -279,7 +272,7 @@ contains
 
        if (bc_label(1:2) .eq. 'n=') then
           this%n_neumann_bcs = this%n_neumann_bcs + 1
-          call this%neumann_bcs(this%n_neumann_bcs)%init_base(this%c_Xh)
+          call this%neumann_bcs(this%n_neumann_bcs)%init_base(this%sem%coef)
           call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
           read(bc_label(3:), *) flux
           call this%neumann_bcs(this%n_neumann_bcs)%finalize_neumann(flux)
@@ -305,14 +298,14 @@ contains
   end subroutine scalar_scheme_add_bcs
 
   !> Initialize all related components of the current scheme
-  !! @param c_Xh The coefficients.
+  !! @param sem The SEM backbone.
   !! @param params The case parameter file in json.
   !! @param scheme The name of the scalar scheme.
   !! @param user Type with user-defined procedures.
   !! @param rho The density of the fluid
-  subroutine scalar_scheme_init(this, c_Xh, params, scheme, user, rho)
+  subroutine scalar_scheme_init(this, sem, params, scheme, user, rho)
     class(scalar_scheme_t), target, intent(inout) :: this
-    type(coef_t), target, intent(in) :: c_Xh
+    type(sem_t), target, intent(in) :: sem
     type(json_file), target, intent(inout) :: params
     character(len=*), intent(in) :: scheme
     type(user_t), target, intent(in) :: user
@@ -358,14 +351,10 @@ contains
     ! SEM
     !
 
-    this%c_Xh => c_Xh 
-    this%msh => c_Xh%msh
-    this%Xh => c_Xh%Xh
-    this%dm_Xh => c_Xh%dof
-    this%gs_Xh => c_Xh%gs_h
+    this%sem => sem
 
     if (.not. neko_field_registry%field_exists('s')) then
-       call neko_field_registry%add_field(this%dm_Xh, 's')
+       call neko_field_registry%add_field(this%sem%dofmap, 's')
     end if
     this%s => neko_field_registry%get_field('s')
 
@@ -397,7 +386,7 @@ contains
     end if
 
     ! Fill lambda field with the physical value
-    call this%lambda_field%init(this%dm_Xh, "lambda")
+    call this%lambda_field%init(this%sem%dofmap, "lambda")
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_cfill(this%lambda_field%x_d, this%lambda, &
             this%lambda_field%size())
@@ -409,7 +398,7 @@ contains
     ! Setup scalar boundary conditions
     !
     call bc_list_init(this%bclst_dirichlet)
-    call this%user_bc%init_base(this%c_Xh)
+    call this%user_bc%init_base(this%sem%coef)
 
     ! Read boundary types from the case file
     allocate(this%bc_labels(NEKO_MSH_MAX_ZLBLS))
@@ -426,10 +415,10 @@ contains
     ! Setup right-hand side field.
     !
     allocate(this%f_Xh)
-    call this%f_Xh%init(this%dm_Xh, fld_name = "scalar_rhs")
+    call this%f_Xh%init(this%sem%dofmap, fld_name = "scalar_rhs")
 
     ! Initialize the source term
-    call this%source_term%init(this%f_Xh, this%c_Xh, user)
+    call this%source_term%init(this%f_Xh, this%sem%coef, user)
     call this%source_term%add(params, 'case.scalar.source_terms')
 
     call scalar_scheme_add_bcs(this, this%msh%labeled_zones, this%bc_labels)
@@ -445,7 +434,7 @@ contains
          this%user_bc)
 
     ! Add field dirichlet BCs
-    call this%field_dir_bc%init_base(this%c_Xh)
+    call this%field_dir_bc%init_base(this%sem%coef)
     call this%field_dir_bc%mark_zones_from_list(this%msh%labeled_zones, &
          'd_s', this%bc_labels)
     call this%field_dir_bc%finalize()
@@ -471,10 +460,9 @@ contains
     call json_get_or_default(params, &
          'case.fluid.velocity_solver.monitor', &
          logical_val, .false.)
-    call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
+    call scalar_scheme_solver_factory(this%ksp, this%sem%dofmap%size(), &
          solver_type, integer_val, solver_abstol, logical_val)
-    call scalar_scheme_precon_factory(this%pc, this%ksp, &
-                                      this%c_Xh, this%dm_Xh, this%gs_Xh, &
+    call scalar_scheme_precon_factory(this%pc, this%ksp, this%sem, &
                                       this%bclst_dirichlet, solver_precon)
    
     ! Initiate gradient jump penalty
@@ -483,7 +471,7 @@ contains
                             this%if_gradient_jump_penalty, .false.)
 
     if (this%if_gradient_jump_penalty .eqv. .true.) then
-       if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
+       if ((this%sem%Xh%lx - 1) .eq. 1) then
           call json_get_or_default(params, &
                             'case.scalar.gradient_jump_penalty.tau',&
                             GJP_param_a, 0.02_rp)
@@ -496,8 +484,8 @@ contains
                         'case.scalar.gradient_jump_penalty.scaling_exponent',&
                             GJP_param_b, 4.0_rp)
        end if
-       call this%gradient_jump_penalty%init(params, this%dm_Xh, this%c_Xh, &
-                                            GJP_param_a, GJP_param_b)
+       call this%gradient_jump_penalty%init(params, this%sem%dofmap, &
+            this%sem%coef, GJP_param_a, GJP_param_b)
     end if
 
     call neko_log%end_section()
@@ -509,10 +497,7 @@ contains
   subroutine scalar_scheme_free(this)
     class(scalar_scheme_t), intent(inout) :: this
 
-    nullify(this%Xh)
-    nullify(this%dm_Xh)
-    nullify(this%gs_Xh)
-    nullify(this%c_Xh)
+    nullify(this%sem)
     nullify(this%params)
 
     if (allocated(this%ksp)) then
@@ -564,16 +549,8 @@ contains
        call neko_error('No Krylov solver for velocity defined')
     end if
 
-    if (.not. associated(this%Xh)) then
-       call neko_error('No function space defined')
-    end if
-
-    if (.not. associated(this%dm_Xh)) then
-       call neko_error('No dofmap defined')
-    end if
-
-    if (.not. associated(this%c_Xh)) then
-       call neko_error('No coefficients defined')
+    if (.not. associated(this%sem)) then
+       call neko_error('No SEM defined')
     end if
 
     if (.not. associated(this%f_Xh)) then
@@ -609,13 +586,11 @@ contains
   end subroutine scalar_scheme_solver_factory
 
   !> Initialize a Krylov preconditioner
-  subroutine scalar_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, &
+  subroutine scalar_scheme_precon_factory(pc, ksp, sem, bclst, &
        pctype)
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
-    type(coef_t), target, intent(inout) :: coef
-    type(dofmap_t), target, intent(inout) :: dof
-    type(gs_t), target, intent(inout) :: gs
+    type(sem_t), target, intent(inout) :: sem
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
 
@@ -623,21 +598,21 @@ contains
 
     select type (pcp => pc)
       type is (jacobi_t)
-       call pcp%init(coef, dof, gs)
+       call pcp%init(sem%coef, sem%dofmap, sem%gs)
       type is (sx_jacobi_t)
-       call pcp%init(coef, dof, gs)
+       call pcp%init(sem%coef, sem%dofmap, sem%gs)
       type is (device_jacobi_t)
-       call pcp%init(coef, dof, gs)
+       call pcp%init(sem%coef, sem%dofmap, sem%gs)
       type is (hsmg_t)
        if (len_trim(pctype) .gt. 4) then
           if (index(pctype, '+') .eq. 5) then
-             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &
-                  trim(pctype(6:)))
+             call pcp%init(sem%msh, sem%Xh, sem%coef, sem%dofmap, sem%gs, & 
+                  bclst, trim(pctype(6:)))
           else
              call neko_error('Unknown coarse grid solver')
           end if
        else
-          call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
+          call pcp%init(sem%msh, sem%Xh, sem%coef, sem%dofmap, sem%gs, bclst)
        end if
     end select
 
