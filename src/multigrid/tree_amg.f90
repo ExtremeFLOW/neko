@@ -1,3 +1,36 @@
+! Copyright (c) 2020-2023, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+!> Implements the base type for TreeAMG hierarchy structure.
 module tree_amg
   use num_types
   use utils
@@ -11,31 +44,36 @@ module tree_amg
   implicit none
   private
 
+  !> Type for storing TreeAMG tree node information
   type, private :: tamg_node_t
-    logical :: isleaf = .true.
-    integer :: gid = -1
-    integer :: lvl = -1
-    integer :: ndofs = 0
-    integer, allocatable :: dofs(:)
-    real(kind=rp) :: xyz(3)
-    real(kind=rp), allocatable :: interp_r(:)
-    real(kind=rp), allocatable :: interp_p(:)
+    logical :: isleaf = .true. !< Is the node a leaf node
+    integer :: gid = -1 !< The gid of the node TODO: relative to what? MPI or true global
+    integer :: lvl = -1 !< The hierarchy level on which the node lives
+    integer :: ndofs = 0 !< The number of dofs on the node
+    integer, allocatable :: dofs(:) !< The dofs on the node
+    real(kind=rp) :: xyz(3) !< Coordinates of the node
+    real(kind=rp), allocatable :: interp_r(:) !< Resriciton factors from dofs to node gid
+    real(kind=rp), allocatable :: interp_p(:) !< Prolongation factors from node gid to dofs
   end type tamg_node_t
 
+  !> Type for storing TreeAMG level information
   type, private :: tamg_lvl_t
-    integer :: lvl = -1
-    integer :: nnodes = 0
-    type(tamg_node_t), allocatable :: nodes(:)
-    integer :: fine_lvl_dofs = 0
-    real(kind=rp), allocatable :: wrk_in(:)
-    real(kind=rp), allocatable :: wrk_out(:)
+    integer :: lvl = -1 !< The level id
+    integer :: nnodes = 0 !< number of nodes on the level
+    type(tamg_node_t), allocatable :: nodes(:) !< TreeAMG tree nodes on the level
+    integer :: fine_lvl_dofs = 0 !< Number of dofs on the level(TODO:sum of dofs on each node?)
+    real(kind=rp), allocatable :: wrk_in(:) !< Work vector for data coming into the level
+    real(kind=rp), allocatable :: wrk_out(:) !< Work vector for data leaving the level
   end type tamg_lvl_t
 
+  !> Type for a TreeAMG hierarchy
   type, public :: tamg_hierarchy_t
+    !> Number of AMG levels in the hierarchy
     integer :: nlvls
+    !> Levels of the hierarchy
     type(tamg_lvl_t), allocatable :: lvl(:)
 
-    !Things needed to do finest level matvec
+    !> Things needed to do finest level matvec
     class(ax_t), pointer :: ax
     type(mesh_t), pointer :: msh
     type(space_t), pointer :: Xh
@@ -55,6 +93,14 @@ module tree_amg
 
 contains
 
+  !> Initialization of TreeAMG hierarchy
+  !! @param ax Finest level matvec operator
+  !! @param Xh Finest level field
+  !! @param coef Finest level coeff thing
+  !! @param msh Finest level mesh information
+  !! @param gs_h Finest level gather scatter operator
+  !! @param nlvls Number of levels for the TreeAMG hierarchy
+  !! @param blst Finest level BC list
   subroutine tamg_init(this, ax, Xh, coef, msh, gs_h, nlvls, blst)
     class(tamg_hierarchy_t), target, intent(inout) :: this
     class(ax_t), target, intent(in) :: ax
@@ -79,9 +125,12 @@ contains
     this%nlvls = nlvls
     allocate( this%lvl(this%nlvls) )
 
-
   end subroutine tamg_init
 
+  !> Initialization of a TreeAMG level
+  !! @param tamg_lvl The TreeAMG level
+  !! @param lvl The level id
+  !! @param nnodes Number of nodes on the level
   subroutine tamg_lvl_init(tamg_lvl, lvl, nnodes)
     type(tamg_lvl_t), intent(inout) :: tamg_lvl
     integer, intent(in) :: lvl
@@ -92,6 +141,10 @@ contains
     allocate( tamg_lvl%nodes(tamg_lvl%nnodes) )
   end subroutine tamg_lvl_init
 
+  !> Initialization of a TreeAMG tree node
+  !! @param node The TreeAMG tree node
+  !! @param gid The gid for the node
+  !! @param ndofs Number of dofs in the node
   subroutine tamg_node_init(node, gid, ndofs)
     type(tamg_node_t), intent(inout) :: node
     integer, intent(in) :: gid
@@ -107,16 +160,29 @@ contains
     node%interp_p = 1.0
   end subroutine tamg_node_init
 
+  !> Wrapper for matrix vector product using the TreeAMG hierarchy structure
+  !> b=Ax done as vec_out = A * vec_in
+  !! @param vec_out Result of Ax
+  !! @param vec_in Vector to be multiplied by linear system. A * vec_in
+  !! @param lvl_out Level of the TreeAMG hierarchy on which the matvec is done. This
+  !!                also specifies the hieararchy level of the incoming vector
   recursive subroutine tamg_matvec(this, vec_out, vec_in, lvl_out)
     class(tamg_hierarchy_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: vec_out(:)
     real(kind=rp), intent(inout) :: vec_in(:)
     integer, intent(in) :: lvl_out
     integer :: i, n, e
-    call this%matvec_impl(vec_out, vec_in, this%nlvls, lvl_out)
-    !call tamg_matvec_flat_impl(this, vec_out, vec_in, this%nlvls, lvl_out)
+    !call this%matvec_impl(vec_out, vec_in, this%nlvls, lvl_out)
+    call tamg_matvec_flat_impl(this, vec_out, vec_in, this%nlvls, lvl_out)
   end subroutine tamg_matvec
 
+  !> Matrix vector product using the TreeAMG hierarchy structure
+  !> b=Ax done as vec_out = A * vec_in
+  !> This is done on a level by level basis
+  !! @param vec_out The vector to be returned by level lvl
+  !! @param vec_in The vector pased to level lvl
+  !! @param lvl The current level of the matvec (wrt tree traversal)
+  !! @param lvl_out Level of the TreeAMG hierarchy on which the matvec is output.
   recursive subroutine tamg_matvec_impl(this, vec_out, vec_in, lvl, lvl_out)
     class(tamg_hierarchy_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: vec_out(:)
@@ -128,6 +194,7 @@ contains
     vec_out = 0d0
 
     if (lvl .eq. 0) then !> isleaf true
+      !> If on finest level, pass to neko ax_t matvec operator
       n = size(vec_in)
       !> Call local finite element assembly
       call this%gs_h%op(vec_in, n, GS_OP_ADD)
@@ -176,6 +243,7 @@ contains
   end subroutine tamg_matvec_impl
 
 
+  !> Ignore this. Looking at a nonrecursive version of the above impl
   recursive subroutine tamg_matvec_flat_impl(this, vec_out, vec_in, lvl_blah, lvl_out)
     class(tamg_hierarchy_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: vec_out(:)
@@ -202,7 +270,7 @@ contains
     end do!n
 
     if(lvl_out .gt. 0) then
-      do n = 1, this%lvl(lvl_out)%nnodes!> this loop is independent
+      !--do n = 1, this%lvl(lvl_out)%nnodes!> this loop is independent
         !TODO THIS LOOP INDEX n IS NOT USED..... (probably same problem below)
         do lvl = lvl_out, 1, -1
 
@@ -217,7 +285,7 @@ contains
           end associate
 
         end do!lvl
-      end do!n
+      !--end do!n
     end if
 
     associate( wrk_in => this%lvl(1)%wrk_in, wrk_out => this%lvl(1)%wrk_out)
@@ -238,7 +306,7 @@ contains
 
 
     if(lvl_out .gt. 0) then
-      do n = 1, this%lvl(lvl_out)%nnodes!> this loop is independent
+      !--do n = 1, this%lvl(lvl_out)%nnodes!> this loop is independent
         do lvl = 2, lvl_out+1
 
           associate( wrk_in => this%lvl(lvl)%wrk_in, wrk_out => this%lvl(lvl)%wrk_out)
@@ -252,7 +320,7 @@ contains
           end associate
 
         end do!lvl
-      end do!n
+      !--end do!n
     end if
 
     !> copy here to make things easier to think about
@@ -266,6 +334,10 @@ contains
   end subroutine tamg_matvec_flat_impl
 
 
+  !> Restriction operator for TreeAMG. vec_out = R * vec_in
+  !! @param vec_out The vector to be returned. On level lvl
+  !! @param vec_in The vector pased into operator. On level lvl-1
+  !! @param lvl The target level of the returned vector after restrction (wrt tree traversal)
   subroutine tamg_restriction_operator(this, vec_out, vec_in, lvl)
     class(tamg_hierarchy_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: vec_out(:)
@@ -283,6 +355,10 @@ contains
     end do
   end subroutine tamg_restriction_operator
 
+  !> Prolongation operator for TreeAMG. vec_out = P * vec_in
+  !! @param vec_out The vector to be returned. On level lvl
+  !! @param vec_in The vector pased into operator. On level lvl-1
+  !! @param lvl The target level of the returned vector after prolongation (wrt tree traversal)
   subroutine tamg_prolongation_operator(this, vec_out, vec_in, lvl)
     class(tamg_hierarchy_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: vec_out(:)
