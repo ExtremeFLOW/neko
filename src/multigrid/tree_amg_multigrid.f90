@@ -1,4 +1,36 @@
-!>
+! Copyright (c) 2020-2023, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+!> Implements multigrid using the TreeAMG hierarchy structure.
 !> USE:
 !>
 !>  type(tamg_hierarchy_t) :: amg
@@ -26,6 +58,7 @@ module tree_amg_multigrid
   implicit none
   private
 
+  !> Type for the TreeAMG solver
   type, public :: tamg_solver_t
     type(tamg_hierarchy_t), allocatable :: amg
     type(amg_cheby_t), allocatable :: smoo(:)
@@ -38,6 +71,15 @@ module tree_amg_multigrid
 
 contains
 
+  !> Initialization of the TreeAMG multigrid solver
+  !! @param ax Finest level matvec operator
+  !! @param Xh Finest level field
+  !! @param coef Finest level coeff thing
+  !! @param msh Finest level mesh information
+  !! @param gs_h Finest level gather scatter operator
+  !! @param nlvls_in Number of levels for the TreeAMG hierarchy
+  !! @param blst Finest level BC list
+  !! @param max_iter Number of AMG iterations
   subroutine tamg_mg_init(this, ax, Xh, coef, msh, gs_h, nlvls_in, blst, max_iter)
     class(tamg_solver_t), intent(inout), target :: this
     class(ax_t), target, intent(in) :: ax
@@ -108,7 +150,12 @@ contains
     end do
 
   end subroutine tamg_mg_init
+ 
 
+  !> Solver function for the TreeAMG solver object
+  !! @param z The solution to be returned
+  !! @param r The right-hand side
+  !! @param n Number of dofs
   subroutine tamg_mg_solve(this, z, r, n)
     integer, intent(in) :: n
     class(tamg_solver_t), intent(inout) :: this
@@ -118,14 +165,22 @@ contains
 
     max_iter = this%max_iter
 
+    ! Zero out the initial guess becuase we do not handle null spaces very well...
     z = 0d0
 
+    ! Call the amg cycle
     do iter = 1, max_iter
-      !print *, "MG iter:", iter
       call tamg_mg_cycle(z, r, n, 0, this%amg, this)
     end do
   end subroutine tamg_mg_solve
 
+  !> Recrsive multigrid cycle for the TreeAMG solver object
+  !! @param x The solution to be returned
+  !! @param b The right-hand side
+  !! @param n Number of dofs
+  !! @param lvl Current level of the cycle
+  !! @param amg The TreeAMG object
+  !! @param mgstuff The Solver object. TODO: rename this
   recursive subroutine tamg_mg_cycle(x, b, n, lvl, amg, mgstuff)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: x(n)
@@ -200,19 +255,14 @@ contains
     !print *, "LVL:",lvl, "POST RESID:", sqrt(glsc2(r, r, n))
   end subroutine tamg_mg_cycle
 
-  subroutine my_matvec(vec_out, vec_in, n, lvl, amg)
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: vec_out(n)
-    real(kind=rp), intent(inout) :: vec_in(n)
-    integer, intent(in) :: lvl
-    type(tamg_hierarchy_t), intent(inout) :: amg
-    integer :: lvl_start
 
-    lvl_start = amg%nlvls
-
-    call amg%matvec(vec_out, vec_in, lvl)
-  end subroutine my_matvec
-
+  !> Wrapper function to calculate residyal
+  !! @param r The residual to be returned
+  !! @param x The current solution
+  !! @param b The right-hand side
+  !! @param amg The TreeAMG object
+  !! @param lvl Current level of the cycle
+  !! @param n Number of dofs
   subroutine calc_resid(r, x, b, amg, lvl, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: r(n)
@@ -222,12 +272,18 @@ contains
     integer, intent(in) :: lvl
     integer :: i
     r = 0d0
-    call my_matvec(r, x, n, lvl, amg)
+    !call my_matvec(r, x, n, lvl, amg)
+    call amg%matvec(r, x, lvl)
     do  i = 1, n
       r(i) = b(i) - r(i)
     end do
   end subroutine calc_resid
 
+  !> Wrapper function to gather scatter and average the duplicates
+  !! @param U The target array
+  !! @param amg The TreeAMG object
+  !! @param lvl Current level of the cycle
+  !! @param n Number of dofs
   subroutine average_duplicates(U, amg, lvl, n)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: U(n)
