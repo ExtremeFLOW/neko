@@ -1,3 +1,36 @@
+! Copyright (c) 2020-2023, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+!> Implements smoothers for use with TreeAMG matrix vector product
 module tree_amg_smoother
   use tree_amg
   use num_types
@@ -9,6 +42,7 @@ module tree_amg_smoother
   implicit none
   private
 
+  !> Type for Chebyshev iteration using TreeAMG matvec
   type, public :: amg_cheby_t
      real(kind=rp), allocatable :: d(:)
      real(kind=rp), allocatable :: w(:)
@@ -27,7 +61,10 @@ module tree_amg_smoother
 
 contains
 
-  !> Initialise a standard solver
+  !> Initialization of chebyshev
+  !! @param n Number of dofs
+  !! @param lvl The tamg hierarchy level on which the iterations are to be applied
+  !! @param max_iter The number of iterations (chebyshev degree)
   subroutine amg_cheby_init(this, n, lvl, max_iter)
     class(amg_cheby_t), intent(inout), target :: this
     integer, intent(in) :: n
@@ -45,12 +82,15 @@ contains
 
   end subroutine amg_cheby_init
 
+
+  !> Power method to approximate largest eigenvalue
+  !! @param amg TreeAMG object
+  !! @param n Number of dofs
   subroutine amg_cheby_power(this, amg, n)
     class(amg_cheby_t), intent(inout) :: this
     type(tamg_hierarchy_t), intent(inout) :: amg
     integer, intent(in) :: n
     real(kind=rp) :: lam, b, a, rn
-    !real(kind=rp) :: boost = 1.2_rp
     real(kind=rp) :: boost = 1.1_rp
     real(kind=rp) :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
@@ -102,7 +142,7 @@ contains
         dtd = glsc2(d, d, n)
       end if
       lam = dtw / dtd
-      !print *, "LAM:", lam
+      print *, "LAM:", lam
       b = lam * boost
       a = lam / lam_factor
       this%tha = (b+a)/2.0_rp
@@ -112,8 +152,12 @@ contains
     end associate
   end subroutine amg_cheby_power
 
-  !> A chebyshev preconditioner
+  !> Chebyshev smoother
   !> From Saad's iterative methods textbook
+  !! @param x The solution to be returned
+  !! @param f The right-hand side
+  !! @param n Number of dofs
+  !! @param amg The TreeAMG object
   subroutine amg_cheby_solve(this, x, f, n, amg, niter)
     class(amg_cheby_t), intent(inout) :: this
     integer, intent(in) :: n
