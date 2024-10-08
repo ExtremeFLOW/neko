@@ -1,3 +1,36 @@
+! Copyright (c) 2020-2023, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+!> Implements an aggregation for TreeAMG hierarchy structure.
 module tree_amg_aggregate
   use tree_amg
   use utils
@@ -7,7 +40,13 @@ module tree_amg_aggregate
 
 contains
 
-  ! Fill finest level
+  !> Aggregaiton on finest level
+  !> Aggregates all dofs in an element into a single aggregate
+  !! @param tamg TreeAMG hierarchy data structure being aggregated
+  !! @param lx Number of dofs in x direction per element
+  !! @param ly Number of dofs in y direction per element
+  !! @param lz Number of dofs in z direction per element
+  !! @param ne Number of elements
   subroutine aggregate_finest_level(tamg, lx, ly, lz, ne)
     type(tamg_hierarchy_t), intent(inout) :: tamg
     integer, intent(in) :: lx, ly, lz, ne
@@ -36,8 +75,13 @@ contains
     tamg%lvl(lvl_id)%fine_lvl_dofs = nt
     allocate(tamg%lvl(lvl_id)%wrk_in( nt ))
     allocate(tamg%lvl(lvl_id)%wrk_out( nt ))
+    print *, "work allocated on lvl", lvl_id, "dofs", nt
   end subroutine aggregate_finest_level
 
+  !> Aggregates elements based on face-adjacent elements
+  !! @param tamg TreeAMG hierarchy data structure being aggregated
+  !! @param max_aggs Target number of aggregates to create on level
+  !! @param agg_nhbr Output that tracks adjacency of aggregates for use on next level
   subroutine aggregate_elm(tamg, max_aggs, agg_nhbr)
     type(tamg_hierarchy_t), intent(inout) :: tamg
     integer, intent(in) :: max_aggs
@@ -64,7 +108,8 @@ contains
     is_aggregated = -1!> fill with false
     allocate( aggregate_size( max_aggs*2 ) )
     aggregate_size = 999999!> Fill with large number
-    allocate( agg_nhbr(10, max_aggs*2) )
+    !allocate( agg_nhbr(10, max_aggs*2) )
+    allocate( agg_nhbr(20, max_aggs*2) )
     agg_nhbr = -1
 
     print *, "n_elements", msh%nelv, msh%offset_el
@@ -150,7 +195,7 @@ contains
           end if
           if (tst_agg .ne. tnt_agg) then
             agg_added = .false.
-            do j = 1, 10
+            do j = 1, 20
               if ((agg_nhbr(j,tnt_agg) .eq. tst_agg)) then
                 agg_added = .true.
               else if ((agg_nhbr(j,tnt_agg).eq.-1).and.(.not.agg_added)) then
@@ -184,10 +229,16 @@ contains
     tamg%lvl(lvl_id)%fine_lvl_dofs = ntot
     allocate( tamg%lvl(lvl_id)%wrk_in( ntot ) )
     allocate( tamg%lvl(lvl_id)%wrk_out( ntot ) )
+    print *, "work allocated on lvl", lvl_id, "dofs", ntot
 
     end associate
   end subroutine aggregate_elm
 
+  !> Aggregates dofs based on adjacent dofs
+  !! @param tamg TreeAMG hierarchy data structure being aggregated
+  !! @param max_aggs Target number of aggregates to create on level
+  !! @param lvl_id The level id for which aggregates are being created
+  !! @param agg_nhbr Input array that contains adjacency of aggregates
   subroutine aggregate_general(tamg, max_aggs, lvl_id, agg_nhbr)
     type(tamg_hierarchy_t), intent(inout) :: tamg
     integer, intent(in) :: max_aggs
@@ -222,7 +273,7 @@ contains
         is_aggregated(i) = naggs
         aggregate_size(naggs) = 1
         !> Add neighbors to aggregate if unaggregated
-        do side = 1, 10!> loop through neighbors
+        do side = 1, 20!> loop through neighbors
           nhbr = agg_nhbr(side, i)
           if (nhbr .gt. 0) then!> if nhbr exists
             if (is_aggregated(nhbr) .eq. -1) then!> if nhbr unaggregated
@@ -243,7 +294,7 @@ contains
         tnt_size = 999!TODO: replace with large number
         tst_agg = -1
         tst_size = 999!TODO: replace with large number
-        do side = 1, 10
+        do side = 1, 20
           nhbr = agg_nhbr(side, i)
           if (nhbr .gt. 0) then
             if (is_aggregated(nhbr) .ne. -1) then
@@ -271,7 +322,7 @@ contains
           is_aggregated(i) = naggs
           aggregate_size(naggs) = 1
           !> Add neighbors to aggregate if unaggregated
-          do side = 1, 10
+          do side = 1, 20
             nhbr = agg_nhbr(side, i)
             if (nhbr .gt. 0) then
               if (is_aggregated(nhbr) .eq. -1) then
@@ -324,9 +375,13 @@ contains
     tamg%lvl(lvl_id)%fine_lvl_dofs = ntot
     allocate( tamg%lvl(lvl_id)%wrk_in( ntot ) )
     allocate( tamg%lvl(lvl_id)%wrk_out( ntot ) )
+    print *, "work allocated on lvl", lvl_id, "dofs", ntot
 
   end subroutine aggregate_general
 
+  !> Aggregate all dofs to a single point to form a tree-like structure.
+  !! @param tamg TreeAMG hierarchy data structure being aggregated
+  !! @param lvl_id The level id for which aggregates are being created
   subroutine aggregate_end( tamg, lvl_id)
     type(tamg_hierarchy_t), intent(inout) :: tamg
     integer, intent(in) :: lvl_id
@@ -338,6 +393,7 @@ contains
     tamg%lvl(lvl_id)%fine_lvl_dofs = nt
     allocate( tamg%lvl(lvl_id)%wrk_in( nt ) )
     allocate( tamg%lvl(lvl_id)%wrk_out( nt ) )
+    print *, "work allocated on lvl", lvl_id, "dofs", nt
 
     !> Allocate node
     call tamg_node_init( tamg%lvl(lvl_id)%nodes(1), 1, nt)
