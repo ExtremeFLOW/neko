@@ -88,9 +88,9 @@ contains
        call neko_simcomps%restart(t)
     end if
 
-    !> Call stats, samplers and user-init before time loop
+    !> Execute outputs and user-init before time loop
     call neko_log%section('Postprocessing')
-    call C%s%sample(t, tstep)
+    call C%output_controller%execute(t, tstep)
 
     call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
                                  C%fluid%p, C%fluid%c_Xh, C%params)
@@ -155,7 +155,7 @@ contains
        ! Execute all simulation components
        call neko_simcomps%compute(t, tstep)
 
-       call C%s%sample(t, tstep)
+       call C%output_controller%execute(t, tstep)
 
        ! Update material properties
        call C%usr%material_properties(t, tstep, C%fluid%rho,&
@@ -184,7 +184,7 @@ contains
 
     call json_get_or_default(C%params, 'case.output_at_end',&
                              output_at_end, .true.)
-    call C%s%sample(t, tstep, output_at_end)
+    call C%output_controller%execute(t, tstep, output_at_end)
 
     if (.not. (output_at_end) .and. t .lt. C%end_time) then
        call simulation_joblimit_chkp(C, t)
@@ -275,7 +275,7 @@ contains
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    call C%s%set_counter(t)
+    call C%output_controller%set_counter(t)
   end subroutine simulation_restart
 
   !> Write a checkpoint at joblimit

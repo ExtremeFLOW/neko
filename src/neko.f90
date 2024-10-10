@@ -68,7 +68,7 @@ module neko
   use parmetis, only : parmetis_partgeom, parmetis_partmeshkway
   use neko_config
   use case, only : case_t, case_init, case_free
-  use sampler, only : sampler_t
+  use output_controller, only : output_controller_t
   use output, only : output_t
   use simulation, only : neko_solve
   use operators, only : dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl,&

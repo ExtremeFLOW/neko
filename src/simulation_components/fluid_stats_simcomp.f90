@@ -153,7 +153,7 @@ contains
     call this%stats_output%init(this%stats, this%start_time, & 
          hom_dir = hom_dir, path = this%case%output_directory)
 
-    call this%case%s%add(this%stats_output, &
+    call this%case%output_controller%add(this%stats_output, &
          this%output_controller%control_value, &
          this%output_controller%control_mode)
  
