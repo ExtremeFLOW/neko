@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines a sampler
-module sampler
+!> Implements `output_controller_t`
+module output_controller
   use output, only: output_t, output_ptr_t
   use fld_file, only: fld_file_t
   use comm
@@ -44,11 +44,11 @@ module sampler
   private
 
 
-  !> Sampler. Centralized output handler.
+  !> Centralized controller for a list of outputs.
   !! @details Holds a list of `output_t` and corresponding 
   !! `time_based_controller_t`s. Uses the latter to determine, which outputs
   !! need to be sampled and written to disk at a given time step.
-  type, public :: sampler_t
+  type, public :: output_controller_t
      !> List of outputs.
      type(output_ptr_t), allocatable :: output_list(:)
      !> List of controllers for determining wether we should write.
@@ -61,22 +61,25 @@ module sampler
      real(kind=rp) :: time_end
    contains
      !> Constructor.
-     procedure, pass(this) :: init => sampler_init
+     procedure, pass(this) :: init => output_controller_init
      !> Destructor.
-     procedure, pass(this) :: free => sampler_free
-     !> Add an output to the sampler.
-     procedure, pass(this) :: add => sampler_add
+     procedure, pass(this) :: free => output_controller_free
+     !> Add an output to the controller.
+     procedure, pass(this) :: add => output_controller_add
      !> Sample the fields and output.
-     procedure, pass(this) :: sample => sampler_sample
-     !> Set sampling counter based on time (after restart)
-     procedure, pass(this) :: set_counter => sampler_set_counter
-  end type sampler_t
+     procedure, pass(this) :: execute => output_controller_execute
+     !> Set output counter based on time (after restart)
+     procedure, pass(this) :: set_counter => output_controller_set_counter
+  end type output_controller_t
 
 contains
 
-  !> Initialize a sampler
-  subroutine sampler_init(this, time_end, size)
-    class(sampler_t), intent(inout) :: this
+  !> Constructor.
+  !! @param time_end The end time of thesimulation.
+  !! @param size The number of controllers to allocate for. Optional, defaults
+  !! to 1.
+  subroutine output_controller_init(this, time_end, size)
+    class(output_controller_t), intent(inout) :: this
     integer, intent(in), optional :: size
     real(kind=rp), intent(in) :: time_end
     character(len=LOG_SIZE) :: log_buf
@@ -101,11 +104,11 @@ contains
     this%n = 0
     this%time_end = time_end
 
-  end subroutine sampler_init
+  end subroutine output_controller_init
 
-  !> Deallocate a sampler
-  subroutine sampler_free(this)
-    class(sampler_t), intent(inout) :: this
+  !> Destructor.
+  subroutine output_controller_free(this)
+    class(output_controller_t), intent(inout) :: this
 
     if (allocated(this%output_list)) then
        deallocate(this%output_list)
@@ -117,11 +120,16 @@ contains
     this%n = 0
     this%size = 0
 
-  end subroutine sampler_free
+  end subroutine output_controller_free
 
-  !> Add an output @a out to the sampler
-  subroutine sampler_add(this, out, write_par, write_control)
-    class(sampler_t), intent(inout) :: this
+  !> Add an output @a out to the controller
+  !! @param out The output to add.
+  !! @param write_par The output frequency value, in accordance with 
+  !! `write_control`.
+  !! @param write_control Determines the meaning of `write_par`. Accepts the
+  !! usual list of control options.
+  subroutine output_controller_add(this, out, write_par, write_control)
+    class(output_controller_t), intent(inout) :: this
     class(output_t), intent(inout), target :: out
     real(kind=rp), intent(in) :: write_par
     character(len=*), intent(in) :: write_control
@@ -195,11 +203,15 @@ contains
     end if
 
     call neko_log%end_section()
-  end subroutine sampler_add
+  end subroutine output_controller_add
 
-  !> Sample all outputs in the sampler
-  subroutine sampler_sample(this, t, tstep, ifforce)
-    class(sampler_t), intent(inout) :: this
+  !> Query each of the `controllers` whether it is time to write, and if so,
+  !! do so for the corresponding output.
+  !! @param t The time value.
+  !! @param tstep The current time-stepper iteration.
+  !! @param ifforce Whether to force a write. Optional, defaults to 0.
+  subroutine output_controller_execute(this, t, tstep, ifforce)
+    class(output_controller_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     logical, intent(in), optional :: ifforce
@@ -215,7 +227,7 @@ contains
        force = .false.
     end if
 
-    call profiler_start_region('Sampler', 22)
+    call profiler_start_region('Output controller', 22)
     !Do we need this Barrier?
     call MPI_Barrier(NEKO_COMM, ierr)
     sample_start_time = MPI_WTIME()
@@ -226,7 +238,7 @@ contains
     ! without it for GNU, Intel and NEC, but breaks horribly on Cray
     ! (>11.0.x) when using high opt. levels.
     select type (samp => this)
-    type is (sampler_t)
+    type is (output_controller_t)
        do i = 1, samp%n
           if (this%controllers(i)%check(t, tstep, force)) then
              write_output = .true.
@@ -244,7 +256,7 @@ contains
     ! without it for GNU, Intel and NEC, but breaks horribly on Cray
     ! (>11.0.x) when using high opt. levels.
     select type (samp => this)
-    type is (sampler_t)
+    type is (output_controller_t)
        do i = 1, this%n
           if (this%controllers(i)%check(t, tstep, force)) then
              call neko_log%message('File name     : '// &
@@ -260,7 +272,7 @@ contains
           end if
        end do
     class default
-       call neko_error('Invalid sampler output list')
+       call neko_error('Invalid output_controller output list')
     end select
 
     call MPI_Barrier(NEKO_COMM, ierr)
@@ -273,13 +285,13 @@ contains
        call neko_log%message(log_buf)
        call neko_log%end_section()
     end if
-    call profiler_end_region('Sampler', 22)
-  end subroutine sampler_sample
+    call profiler_end_region('Output controller', 22)
+  end subroutine output_controller_execute
 
-  !> Set sampling counter based on time (after restart)
+  !> Set write counter based on time (after restart)
   !> @param t Time value.
-  subroutine sampler_set_counter(this, t)
-    class(sampler_t), intent(inout) :: this
+  subroutine output_controller_set_counter(this, t)
+    class(output_controller_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer :: i, nexecutions
 
@@ -294,22 +306,22 @@ contains
        end if
     end do
 
-  end subroutine sampler_set_counter
+  end subroutine output_controller_set_counter
 
-  !> Set sampling counter (after restart) explicitly
-  !> @param sample_number The sample number to be set.
-  subroutine sampler_set_sample_count(this, sample_number)
-    class(sampler_t), intent(inout) :: this
-    integer, intent(in) :: sample_number
+  !> Set write counter (after restart) explicitly
+  !> @param counter The value of the write coutner to be set.
+  subroutine output_controller_set_write_count(this, counter)
+    class(output_controller_t), intent(inout) :: this
+    integer, intent(in) :: counter
     integer :: i
 
     do i = 1, this%n
-       this%controllers(i)%nexecutions = sample_number
-       call this%output_list(i)%ptr%set_counter(sample_number)
-       call this%output_list(i)%ptr%set_start_counter(sample_number)
+       this%controllers(i)%nexecutions = counter
+       call this%output_list(i)%ptr%set_counter(counter)
+       call this%output_list(i)%ptr%set_start_counter(counter)
     end do
 
-  end subroutine sampler_set_sample_count
+  end subroutine output_controller_set_write_count
 
 
-end module sampler
+end module output_controller

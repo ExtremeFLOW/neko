@@ -40,7 +40,7 @@ module case
   use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
   use parmetis, only : parmetis_partmeshkway
   use redist, only : redist_mesh
-  use sampler, only : sampler_t
+  use output_controller, only : output_controller_t
   use flow_ic, only : set_flow_ic
   use scalar_ic, only : set_scalar_ic
   use stats, only : stats_t
@@ -69,7 +69,7 @@ module case
      real(kind=rp) :: dt
      real(kind=rp) :: end_time
      character(len=:), allocatable :: output_directory
-     type(sampler_t) :: sampler
+     type(output_controller_t) :: output_controller
      type(fluid_output_t) :: f_out
      type(chkp_output_t) :: f_chkp
      type(user_t) :: usr
@@ -381,9 +381,9 @@ contains
     end if
 
     !
-    ! Setup sampler
+    ! Setup output_controller
     !
-    call this%sampler%init(this%end_time)
+    call this%output_controller%init(this%end_time)
     if (scalar) then
        this%f_out = fluid_output_t(precision, this%fluid, this%scalar, &
             path = trim(this%output_directory))
@@ -398,15 +398,15 @@ contains
     if (trim(string_val) .eq. 'org') then
        ! yes, it should be real_val below for type compatibility
        call json_get(this%params, 'case.nsamples', real_val)
-       call this%sampler%add(this%f_out, real_val, 'nsamples')
+       call this%output_controller%add(this%f_out, real_val, 'nsamples')
     else if (trim(string_val) .eq. 'never') then
        ! Fix a dummy 0.0 output_value
        call json_get_or_default(this%params, 'case.fluid.output_value', &
             real_val, 0.0_rp)
-       call this%sampler%add(this%f_out, 0.0_rp, string_val)
+       call this%output_controller%add(this%f_out, 0.0_rp, string_val)
     else
        call json_get(this%params, 'case.fluid.output_value', real_val)
-       call this%sampler%add(this%f_out, real_val, string_val)
+       call this%output_controller%add(this%f_out, real_val, string_val)
     end if
 
     !
@@ -423,7 +423,7 @@ contains
             string_val, "simulationtime")
        call json_get_or_default(this%params, 'case.checkpoint_value', real_val,&
             1e10_rp)
-       call this%sampler%add(this%f_chkp, real_val, string_val)
+       call this%output_controller%add(this%f_chkp, real_val, string_val)
     end if
 
     !
@@ -454,7 +454,7 @@ contains
 
     call this%msh%free()
 
-    call this%sampler%free()
+    call this%output_controller%free()
 
   end subroutine case_free
 

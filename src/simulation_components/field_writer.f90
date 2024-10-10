@@ -128,7 +128,7 @@ contains
           call this%output%fields%assign(i, neko_field_registry%get_field(fieldi))
        end do
 
-       call this%case%sampler%add(this%output, &
+       call this%case%output_controller%add(this%output, &
             this%output_controller%control_value, &
             this%output_controller%control_mode)
     else
