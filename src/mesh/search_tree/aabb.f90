@@ -187,6 +187,8 @@ contains
 
     select type(object)
 
+      type is (aabb_t)
+       box%init(object%get_min(), object%get_max())
       type is (tri_t)
        box = get_aabb_element(object)
       type is (hex_t)
