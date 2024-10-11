@@ -99,7 +99,7 @@ contains
   end subroutine tnsr3d_el_xsmm
 
   subroutine tnsr3d_xsmm(v, nv, u, nu, A, Bt, Ct, nelv)
-    integer, intent(inout) :: nv, nu, nelv
+    integer, intent(in) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
     real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
     real(kind=rp) :: work(0:nu**2*nv), work2(0:nu*nv**2)
