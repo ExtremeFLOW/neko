@@ -33,11 +33,12 @@
 !> Routines to obtain interpolated values on a set of points with known
 !! rst coordinates in elements local to this process.
 module local_interpolation
-  use tensor, only: triple_tensor_product, tnsr3d_el_list
+  use tensor, only: triple_tensor_product, tnsr3d_el_list, tnsr3d
   use space, only: space_t, GL, GLL
-  use num_types, only: rp
+  use num_types, only: rp, xp
   use point, only: point_t
-  use math, only: abscmp
+  use math, only: abscmp, NEKO_EPS
+  use speclib
   use fast3d, only: fd_weights_full, setup_intp
   use utils, only: neko_error
   use field, only: field_t
@@ -75,6 +76,8 @@ module local_interpolation
      procedure, pass(this) :: compute_weights => local_interpolator_compute_weights
 
   end type local_interpolator_t
+   
+  public :: find_rst_legendre
 
 contains
 
@@ -185,5 +188,277 @@ contains
 
   end subroutine local_interpolator_evaluate
 
+  !> Constructs the Jacobian, returns a 3-by-3 times number of points where
+  !! \f$ [J(\mathbf{r}]_{ij} = \frac{d\mathbf{x}_i}{d\mathbf{r}_j}\f$.
+  !! @param rst r,s,t coordinates.
+  !! @param X Values of the field \f$ X \f$ at points.
+  !! @param Y Values of the field \f$ Y \f$ at points.
+  !! @param Z Values of the field \f$ Z \f$ at points.
+  subroutine jacobian(jac, rst, x, y, z, n_pts, Xh)
+    integer :: n_pts
+    real(kind=rp), intent(inout) :: rst(3, n_pts)
+    type(space_t), intent(inout) :: Xh
+    real(kind=rp), intent(inout) :: x(Xh%lx, Xh%ly, Xh%lz, n_pts)
+    real(kind=rp), intent(inout) :: y(Xh%lx, Xh%ly, Xh%lz, n_pts)
+    real(kind=rp), intent(inout) :: z(Xh%lx, Xh%ly, Xh%lz, n_pts)
+    real(kind=rp), intent(out) :: jac(3,3, n_pts)
+
+    real(kind=rp) :: tmp(3)
+
+    real(kind=rp) :: hr(Xh%lx, 2), hs(Xh%ly, 2), ht(Xh%lz, 2)
+    integer :: lx, ly, lz, i
+    lx = Xh%lx
+    ly = Xh%ly
+    lz = Xh%lz
+    
+    do i = 1, n_pts 
+       ! Weights
+       call fd_weights_full(rst(1,i), Xh%zg(:,1), lx-1, 1, hr)
+       call fd_weights_full(rst(2,i), Xh%zg(:,2), ly-1, 1, hs)
+       call fd_weights_full(rst(3,i), Xh%zg(:,3), lz-1, 1, ht)
+
+       ! d(x,y,z)/dr
+       call triple_tensor_product(tmp(1), X(:,:,:,i), lx, hr(:,2), hs(:,1), ht(:,1))
+       jac(1,1,i) = tmp(1)
+       call triple_tensor_product(tmp(1), Y(:,:,:,i), lx, hr(:,2), hs(:,1), ht(:,1))
+       jac(1,2,i) = tmp(1)
+       call triple_tensor_product(tmp(1), Z(:,:,:,i), lx, hr(:,2), hs(:,1), ht(:,1))
+       jac(1,3,i) = tmp(1)
+
+       ! d(x,y,z)/ds
+       call triple_tensor_product(tmp, X(:,:,:,i), Y(:,:,:,i), Z(:,:,:,i), lx, hr(:,1), hs(:,2), ht(:,1))
+       jac(2,:,i) = tmp
+
+       ! d(x,y,z)/dt
+       call triple_tensor_product(tmp, X(:,:,:,i), Y(:,:,:,i), Z(:,:,:,i), lx, hr(:,1), hs(:,1), ht(:,2))
+       jac(3,:,i) = tmp
+    end do
+
+  end subroutine jacobian
+
+  subroutine jacobian_inverse(jacinv, rst, x, y, z, n_pts, Xh)
+    integer :: n_pts
+    real(kind=rp), intent(inout) :: rst(3, n_pts)
+    type(space_t), intent(inout) :: Xh
+    real(kind=rp), intent(inout) :: x(Xh%lx, Xh%ly, Xh%lz, n_pts)
+    real(kind=rp), intent(inout) :: y(Xh%lx, Xh%ly, Xh%lz, n_pts)
+    real(kind=rp), intent(inout) :: z(Xh%lx, Xh%ly, Xh%lz, n_pts)
+    real(kind=rp), intent(out) :: jacinv(3,3, n_pts)
+    real(kind=rp) :: tmp(3,3)
+    integer :: i
+
+    call jacobian(jacinv, rst, x, y, z, n_pts, Xh)
+
+    do i = 1, n_pts
+       tmp = matinv3(jacinv(:,:,3))
+       jacinv(:,:,i) = tmp
+    end do
+
+  end subroutine jacobian_inverse
+ !M33INV and M44INV by David G. Simpson pure function version from https://fortranwiki.org/fortran/show/Matrix+inversion
+ ! Invert 3x3 matrix
+  pure function matinv39(a11,a12,a13,a21,a22,a23,a31,a32,a33) result(B)
+    real(rp), intent(in) :: a11, a12, a13,a21, a22, a23,a31, a32, a33
+    real(rp) :: A(3,3)   !! Matrix
+    real(rp) :: B(3,3)   !! Inverse matrix
+    A(1,1) = a11
+    A(1,2) = a12
+    A(1,3) = a13
+    A(2,1) = a21
+    A(2,2) = a22
+    A(2,3) = a23
+    A(3,1) = a31
+    A(3,2) = a32
+    A(3,3) = a33
+    B = matinv3(A)
+  end function matinv39
+    !! Performs a direct calculation of the inverse of a 3×3 matrix.
+ !M33INV and M44INV by David G. Simpson pure function version from https://fortranwiki.org/fortran/show/Matrix+inversion
+ ! Invert 3x3 matrix
+  pure function matinv3(A) result(B)
+    !! Performs a direct calculation of the inverse of a 3×3 matrix.
+    real(rp), intent(in) :: A(3,3)   !! Matrix
+    real(rp) :: B(3,3)   !! Inverse matrix
+    real(xp) :: detinv
+
+    ! Calculate the inverse determinant of the matrix
+    detinv = 1.0_xp/real(A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2)&
+              - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1)&
+              + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1),xp)
+
+    ! Calculate the inverse of the matrix
+    B(1,1) = +detinv * (A(2,2)*A(3,3) - A(2,3)*A(3,2))
+    B(2,1) = -detinv * (A(2,1)*A(3,3) - A(2,3)*A(3,1))
+    B(3,1) = +detinv * (A(2,1)*A(3,2) - A(2,2)*A(3,1))
+    B(1,2) = -detinv * (A(1,2)*A(3,3) - A(1,3)*A(3,2))
+    B(2,2) = +detinv * (A(1,1)*A(3,3) - A(1,3)*A(3,1))
+    B(3,2) = -detinv * (A(1,1)*A(3,2) - A(1,2)*A(3,1))
+    B(1,3) = +detinv * (A(1,2)*A(2,3) - A(1,3)*A(2,2))
+    B(2,3) = -detinv * (A(1,1)*A(2,3) - A(1,3)*A(2,1))
+    B(3,3) = +detinv * (A(1,1)*A(2,2) - A(1,2)*A(2,1))
+  end function matinv3
+
+  !> Using the Legendre-Perez method to find the rst coordinates.
+  subroutine find_rst_legendre(rst, pt_x, pt_y, pt_z, Xh, x, y, z, el_list, n_pts, nelv, resx, resy, resz)
+    integer, intent(in) :: n_pts, nelv
+    real(kind=rp), intent(inout) :: rst(3, n_pts)
+    type(space_t), intent(inout) :: Xh
+    real(kind=rp), intent(inout) :: x(Xh%lx, Xh%ly, Xh%lz, nelv)
+    real(kind=rp), intent(inout) :: y(Xh%lx, Xh%ly, Xh%lz, nelv)
+    real(kind=rp), intent(inout) :: z(Xh%lx, Xh%ly, Xh%lz, nelv)
+    real(kind=rp), intent(inout) :: resx(n_pts)
+    real(kind=rp), intent(inout) :: resy(n_pts)
+    real(kind=rp), intent(inout) :: resz(n_pts)
+    integer, intent(in) :: el_list(n_pts)
+    real(kind=rp), allocatable :: x_hat(:, :, :, :)
+    real(kind=rp), allocatable :: y_hat(:, :, :, :)
+    real(kind=rp), allocatable :: z_hat(:, :, :, :)
+    real(kind=rp), allocatable :: pt_x(:)
+    real(kind=rp), allocatable :: pt_y(:)
+    real(kind=rp), allocatable :: pt_z(:)
+    real(kind=rp), allocatable :: xt(:)
+    real(kind=rp), allocatable :: yt(:)
+    real(kind=rp), allocatable :: zt(:)
+    real(kind=rp), allocatable :: r_legendre(:,:) 
+    real(kind=rp), allocatable :: s_legendre(:,:) 
+    real(kind=rp), allocatable :: t_legendre(:,:) 
+    real(kind=rp), allocatable :: dr_legendre(:,:) 
+    real(kind=rp), allocatable :: ds_legendre(:,:) 
+    real(kind=rp), allocatable :: dt_legendre(:,:) 
+    real(kind=rp), allocatable :: jac11(:), jac12(:), jac13(:)
+    real(kind=rp), allocatable :: jac21(:), jac22(:), jac23(:)
+    real(kind=rp), allocatable :: jac31(:), jac32(:), jac33(:)
+    real(kind=rp) :: jacinv(3,3), tmp(Xh%lx), tmp2(Xh%lx)
+    logical :: converged
+    integer :: i, j, iter, lx
+
+    allocate(x_hat(xh%lx, xh%ly, xh%lz, nelv))
+    allocate(y_hat(xh%lx, xh%ly, xh%lz, nelv))
+    allocate(z_hat(xh%lx, xh%ly, xh%lz, nelv))
+    allocate(r_legendre(xh%lx, n_pts))
+    allocate(s_legendre(xh%lx, n_pts))
+    allocate(t_legendre(xh%lx, n_pts))
+    allocate(dr_legendre(xh%lx, n_pts))
+    allocate(ds_legendre(xh%lx, n_pts))
+    allocate(dt_legendre(xh%lx, n_pts))
+    allocate(xt(n_pts))
+    allocate(yt(n_pts))
+    allocate(zt(n_pts))
+    allocate(jac11(n_pts), jac12(n_pts), jac13(n_pts))
+    allocate(jac21(n_pts), jac22(n_pts), jac23(n_pts))
+    allocate(jac31(n_pts), jac32(n_pts), jac33(n_pts))
+    
+    lx = Xh%lx
+    
+    !> Transform into legendre space
+    !> hats are in Legendre space
+    call tnsr3d(x_hat, Xh%lx, x, &
+                Xh%lx, Xh%vinv, &
+                Xh%vinvt, Xh%vinvt, nelv)
+
+    call tnsr3d(y_hat, Xh%lx, x_hat, &
+                Xh%lx, Xh%v, &
+                Xh%vt, Xh%vt, nelv)
+    call tnsr3d(y_hat, Xh%lx, y, &
+                Xh%lx, Xh%vinv, &
+                Xh%vinvt, Xh%vinvt, nelv)
+    call tnsr3d(z_hat, Xh%lx, z, &
+                Xh%lx, Xh%vinv, &
+                Xh%vinvt, Xh%vinvt, nelv)
+
+    rst = 0.0
+    do i = 1, n_pts
+       call legendre_poly(r_legendre(1,i),rst(1,i),lx-1)     
+       call legendre_poly(s_legendre(1,i),rst(2,i),lx-1)     
+       call legendre_poly(t_legendre(1,i),rst(3,i),lx-1)     
+       do j = 0, lx-1
+          dr_legendre(j+1,i) = PNDLEG(rst(1,i),j)
+          ds_legendre(j+1,i) = PNDLEG(rst(2,i),j)
+          dt_legendre(j+1,i) = PNDLEG(rst(3,i),j)
+       end do
+    end do
+    iter = 0 
+    do while (.not. converged)
+       iter  = iter + 1
+       !xyz = local_interpolator_evaluate(rst)
+       !Compute xyz based on coord
+       call tnsr3d_el_list(xt, 1, x_hat, Xh%lx, &
+            r_legendre, s_legendre, t_legendre, el_list, n_pts)
+       call tnsr3d_el_list(yt, 1, y_hat, Xh%lx, &
+            r_legendre, s_legendre, t_legendre, el_list, n_pts)
+       call tnsr3d_el_list(zt, 1, z_hat, Xh%lx, &
+            r_legendre, s_legendre, t_legendre, el_list, n_pts)
+       !check where to go
+       xt = pt_x - xt
+       yt = pt_y - yt
+       zt = pt_z - zt
+      
+       ! compute jacobian
+       call tnsr3d_el_list(jac11, 1, x_hat, Xh%lx, &
+            dr_legendre, s_legendre, t_legendre, el_list, n_pts)
+       call tnsr3d_el_list(jac12, 1, y_hat, Xh%lx, &
+            dr_legendre, s_legendre, t_legendre, el_list, n_pts)
+       call tnsr3d_el_list(jac13, 1, z_hat, Xh%lx, &
+            dr_legendre, s_legendre, t_legendre, el_list, n_pts)
+       call tnsr3d_el_list(jac21, 1, x_hat, Xh%lx, &
+            r_legendre, ds_legendre, t_legendre, el_list, n_pts)
+       call tnsr3d_el_list(jac22, 1, y_hat, Xh%lx, &
+            r_legendre, ds_legendre, t_legendre, el_list, n_pts)
+       call tnsr3d_el_list(jac23, 1, z_hat, Xh%lx, &
+            r_legendre, ds_legendre, t_legendre, el_list, n_pts)
+       call tnsr3d_el_list(jac31, 1, x_hat, Xh%lx, &
+            r_legendre, s_legendre, dt_legendre, el_list, n_pts)
+       call tnsr3d_el_list(jac32, 1, y_hat, Xh%lx, &
+            r_legendre, s_legendre, dt_legendre, el_list, n_pts)
+       call tnsr3d_el_list(jac33, 1, z_hat, Xh%lx, &
+            r_legendre, s_legendre, dt_legendre, el_list, n_pts)
+       !do jac inverse
+       do i = 1, n_pts
+          jacinv = matinv39(jac11(i),jac12(i),jac13(i),&
+                            jac21(i),jac22(i),jac23(i),&
+                            jac31(i),jac32(i),jac33(i))
+          rst(1,i) = rst(1,i) + (xt(i)*jacinv(1,1)+jacinv(2,1)*yt(i)+jacinv(3,1)*zt(i))
+          rst(2,i) = rst(2,i) + (xt(i)*jacinv(1,2)+jacinv(2,2)*yt(i)+jacinv(3,2)*zt(i))
+          rst(3,i) = rst(3,i) + (xt(i)*jacinv(1,3)+jacinv(2,3)*yt(i)+jacinv(3,3)*zt(i))
+       end do
+           
+       !call jacobian_inverse(jacinv,xyz)
+       !rst = rst -(jacinv*dir)
+       converged = (maxval(abs(xt)) < NEKO_EPS*10) .and. &
+                   (maxval(abs(yt)) < NEKO_EPS*10) .and. &
+                   (maxval(abs(zt)) < NEKO_EPS*10) 
+       resx = xt
+       resy = yt
+       resz = zt
+       !print *,'maxabsnorm', maxval(abs(xt)), maxval(abs(yt)), maxval(abs(zt)), 'iter', iter
+       ! Need some kind of reasonable convergence criterion  
+
+       if (iter .gt. 50) exit
+       do i = 1, n_pts
+          call legendre_poly(r_legendre(1,i),rst(1,i),lx-1)     
+          call legendre_poly(s_legendre(1,i),rst(2,i),lx-1)     
+          call legendre_poly(t_legendre(1,i),rst(3,i),lx-1)     
+          do j = 0, lx-1
+             dr_legendre(j+1,i) = PNDLEG(rst(1,i),j)
+             ds_legendre(j+1,i) = PNDLEG(rst(2,i),j)
+             dt_legendre(j+1,i) = PNDLEG(rst(3,i),j)
+          end do
+       end do
+    end do
+
+  end subroutine find_rst_legendre
+  
+  function rst_cmp(rst1, rst2,res1, res2, tol) result(rst2_better)
+    real(kind=rp) :: rst1(3), res1(3)
+    real(kind=rp) :: rst2(3), res2(3)
+    real(kind=rp) :: tol
+    logical :: rst2_better
+    rst2_better = (norm2(res2) .lt. norm2(res1) .and. &
+                  abs(rst2(1)) .lt. 1.0+tol .and. &
+                  abs(rst2(2)) .lt. 1.0+tol .and. &
+                  abs(rst2(3)) .lt. 1.0+tol)
+
+  end function rst_cmp
+ 
 
 end module local_interpolation
