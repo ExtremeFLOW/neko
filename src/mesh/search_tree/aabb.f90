@@ -187,6 +187,8 @@ contains
 
     select type(object)
 
+      type is (aabb_t)
+       call box%init(object%get_min(), object%get_max())
       type is (point_t)
        box = get_aabb_point(object)
       type is (tri_t)
@@ -251,7 +253,6 @@ contains
     box_min = huge(0.0_dp); box_max = -huge(0.0_dp)
     box_min = min(box_min, object%x)
     box_max = max(box_max, object%x)
-
     call box%init(box_min, box_max)
   end function get_aabb_point
   
