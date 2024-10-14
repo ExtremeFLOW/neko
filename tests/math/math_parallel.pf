@@ -17,14 +17,14 @@ contains
     c = 42.0_rp + (NEKO_EPS/2.0_rp)
     if (epsilon(1.0_rp) .lt. real(1d-12, rp)) then
        d = 42.0_rp + real(1d-12, rp)
-    else if (epsilon(1.0_rp) .lt.  real(1d-5, rp)) then
+    else if (epsilon(1.0_rp) .lt. real(1d-5, rp)) then
        d = 42.0_rp + real(1d-5, rp)
     end if
-    
+
     @assertFalse(abscmp(a, b))
     @assertTrue(abscmp(b, c))
     @assertFalse(abscmp(b, d))
-    
+
   end subroutine test_math_abscmp
 
   @test
@@ -33,7 +33,7 @@ contains
     real(kind=rp) :: a(n)
     integer :: i
 
-    a = 1.0_rp  
+    a = 1.0_rp
     call rzero(a, n)
     do i = 1, n
        @assertEqual(0.0_rp, a(i))
@@ -46,7 +46,7 @@ contains
     do i = 1, n
        @assertEqual(0.0_rp, a(i))
     end do
-    
+
   end subroutine test_math_rzero
 
   @test
@@ -60,7 +60,7 @@ contains
     do i = 1, n
        @assertEqual(0, a(i))
     end do
-    
+
   end subroutine test_math_izero
 
   @test
@@ -77,7 +77,7 @@ contains
     do i = 1, n
        @assertEqual(1.0_rp, a(i))
     end do
-    
+
   end subroutine test_math_rone
 
   @test
@@ -96,7 +96,7 @@ contains
     do i = 1, n
        @assertEqual(a(i), b(i))
     end do
-    
+
   end subroutine test_math_copy
 
   @test
@@ -317,7 +317,7 @@ contains
     end do
 
   end subroutine test_math_invcol2
-  
+
   @test
   subroutine test_math_col2
     integer, parameter :: n = 17
@@ -377,7 +377,7 @@ contains
 
   end subroutine test_math_sub3
 
-    @test
+  @test
   subroutine test_math_addcol3
     integer, parameter :: n = 17
     real(kind=rp), dimension(n) :: a, b, c
@@ -406,14 +406,14 @@ contains
     integer :: i, ierr
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-    
+
     do i = 1, n
        a(i) = 1.0_rp
        b(i) = 1.0_rp
        c(i) = 1.0_rp
     end do
 
-    expected = real(this%getNumProcesses(), rp)  * 17.0_rp
+    expected = real(this%getNumProcesses(), rp) * 17.0_rp
     res = glsc3(a, b, c, n)
     @assertEqual(expected, res)
     @MPIassertEqual(expected, res)
