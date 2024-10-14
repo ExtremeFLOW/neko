@@ -689,4 +689,127 @@ extern "C" {
 
   }
 
-}
+  // ======================================================================== //
+  // Point-wise operations.
+
+  /** Fortran wrapper for pwmax_vec2
+   *
+   * Compute the maximum of two vectors \f$ a = \max(a, b) \f$
+   */
+  void cuda_pwmax_vec2(void *a, void *b, int *n) {
+
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+      pwmax_vec2_kernel<real><<<nblcks, nthrds, 0, stream>>>(
+          (real *)a, (real *)b, *n);
+      CUDA_CHECK(cudaGetLastError());
+  }
+  
+  /** Fortran wrapper for pwmax_vec3
+   *
+   * Compute the maximum of two vectors \f$ a = \max(b, c) \f$
+   */
+  void cuda_pwmax_vec3(void *a, void *b, void *c, int *n) {
+    
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+      pwmax_vec3_kernel<real><<<nblcks, nthrds, 0, stream>>>(
+          (real *)a, (real *)b, (real *)c, *n);
+      CUDA_CHECK(cudaGetLastError());
+  }
+  
+  /** Fortran wrapper for pwmax_sca2
+   *
+   * Compute the maximum of vector and scalar \f$ a = \max(a, c) \f$
+   */
+  void cuda_pwmax_sca2(void *a, real *c, int *n) {
+    
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+      pwmax_sca2_kernel<real><<<nblcks, nthrds, 0, stream>>>(
+          (real *)a, *c, *n);
+      CUDA_CHECK(cudaGetLastError());
+  }
+  
+  /** Fortran wrapper for pwmax_sca3
+   *
+   * Compute the maximum of vector and scalar \f$ a = \max(b, c) \f$
+   */
+  void cuda_pwmax_sca3(void *a, void *b, real *c, int *n) {
+    
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+      pwmax_sca3_kernel<real><<<nblcks, nthrds, 0, stream>>>(
+          (real *)a, (real *)b, *c, *n);
+      CUDA_CHECK(cudaGetLastError());
+  }
+
+  /** Fortran wrapper for pwmin_vec2
+   *
+   * Compute the minimum of two vectors \f$ a = \min(a, b) \f$
+   */
+  void cuda_pwmin_vec2(void *a, void *b, int *n) {
+
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+      pwmin_vec2_kernel<real><<<nblcks, nthrds, 0, stream>>>(
+          (real *)a, (real *)b, *n);
+      CUDA_CHECK(cudaGetLastError());
+  }
+  
+  /** Fortran wrapper for pwmin_vec3
+   *
+   * Compute the minimum of two vectors \f$ a = \min(b, c) \f$
+   */
+  void cuda_pwmin_vec3(void *a, void *b, void *c, int *n) {
+    
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+      pwmin_vec3_kernel<real><<<nblcks, nthrds, 0, stream>>>(
+          (real *)a, (real *)b, (real *)c, *n);
+      CUDA_CHECK(cudaGetLastError());
+  }
+  
+  /** Fortran wrapper for pwmin_sca2
+   *
+   * Compute the minimum of vector and scalar \f$ a = \min(a, c) \f$
+   */
+  void cuda_pwmin_sca2(void *a, real *c, int *n) {
+    
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+      pwmin_sca2_kernel<real><<<nblcks, nthrds, 0, stream>>>(
+          (real *)a, *c, *n);
+      CUDA_CHECK(cudaGetLastError());
+  }
+  
+  /** Fortran wrapper for pwmin_sca3
+   *
+   * Compute the minimum of vector and scalar \f$ a = \min(b, c) \f$
+   */
+  void cuda_pwmin_sca3(void *a, void *b, real *c, int *n) {
+    
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+      pwmin_sca3_kernel<real><<<nblcks, nthrds, 0, stream>>>(
+          (real *)a, (real *)b, *c, *n);
+      CUDA_CHECK(cudaGetLastError());
+  }
+
+} /* extern "C" */
