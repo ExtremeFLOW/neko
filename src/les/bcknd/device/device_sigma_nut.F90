@@ -66,10 +66,7 @@ contains
                               g31_d, g32_d, g33_d, &
                               delta_d, nut_d, c, eps, n)
 #elif HAVE_CUDA
-    call cuda_sigma_nut_compute(g11_d, g12_d, g13_d, &
-                              g21_d, g22_d, g23_d, &
-                              g31_d, g32_d, g33_d, &
-                              delta_d, nut_d, c, eps, n)
+     call neko_error('cuda backend is not supported for device_sigma_nut')
 #elif HAVE_OPENCL
     call neko_error('opencl backend is not supported for device_sigma_nut')
 #else
