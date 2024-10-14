@@ -37,6 +37,7 @@ module filters
   use field, only: field_t
   use neko_config, only: NEKO_BCKND_DEVICE
   use num_types, only: rp
+  use utils, only: neko_error
   implicit none
 
   private
