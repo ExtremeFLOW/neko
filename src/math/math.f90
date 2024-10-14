@@ -59,7 +59,10 @@
 !
 module math
   use num_types, only : rp, dp, sp, qp, i4, xp
-  use comm
+  use utils, only: neko_error
+  use comm, only: NEKO_COMM, MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
+  use mpi_f08, only: MPI_MIN, MPI_MAX, MPI_SUM, MPI_IN_PLACE, MPI_INTEGER, &
+       MPI_Allreduce
   implicit none
   private
 
@@ -96,13 +99,21 @@ module math
      module procedure srelcmp, drelcmp, qrelcmp
   end interface relcmp
 
+  interface pwmax
+     module procedure pwmax_vec2, pwmax_vec3, pwmax_scal2, pwmax_scal3
+  end interface pwmax
+
+  interface pwmin
+     module procedure pwmin_vec2, pwmin_vec3, pwmin_scal2, pwmin_scal3
+  end interface pwmin
+
   public :: abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
        glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, invers2, &
        vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, &
        add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
        glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
-       swap, reord, flipv, cadd2, masked_red_copy, absval
+       swap, reord, flipv, cadd2, masked_red_copy, absval, pwmax, pwmin
 
 contains
 
@@ -1168,5 +1179,122 @@ contains
        a(i) = abs(a(i))
     end do
   end subroutine absval
+
+  ! ========================================================================== !
+  ! Point-wise operations
+
+  !> Point-wise maximum of two vectors \f$ a = \max(a, b) \f$
+  subroutine pwmax_vec2(a, b)
+    real(kind=rp), dimension(:), intent(inout) :: a
+    real(kind=rp), dimension(:), intent(in) :: b
+    integer :: i
+
+    if (size(a) /= size(b)) then
+       call neko_error('pwmax_vec2: size mismatch')
+    end if
+
+    do i = 1, size(a)
+       a(i) = max(a(i), b(i))
+    end do
+  end subroutine pwmax_vec2
+
+  !> Point-wise maximum of two vectors \f$ a = \max(b, c) \f$
+  subroutine pwmax_vec3(a, b, c)
+    real(kind=rp), dimension(:), intent(inout) :: a
+    real(kind=rp), dimension(:), intent(in) :: b, c
+    integer :: i
+
+    if (size(a) /= size(b) .or. size(a) /= size(c)) then
+       call neko_error('pwmax_vec3: size mismatch')
+    end if
+
+    do i = 1, size(a)
+       a(i) = max(b(i), c(i))
+    end do
+  end subroutine pwmax_vec3
+
+  !> Point-wise maximum of scalar and vector \f$ a = \max(a, b) \f$
+  subroutine pwmax_scal2(a, b)
+    real(kind=rp), dimension(:), intent(inout) :: a
+    real(kind=rp), intent(in) :: b
+    integer :: i
+
+    do i = 1, size(a)
+       a(i) = max(a(i), b)
+    end do
+  end subroutine pwmax_scal2
+
+  !> Point-wise maximum of scalar and vector \f$ a = \max(b, c) \f$
+  subroutine pwmax_scal3(a, b, c)
+    real(kind=rp), dimension(:), intent(inout) :: a
+    real(kind=rp), dimension(:), intent(in) :: b
+    real(kind=rp), intent(in) :: c
+    integer :: i
+
+    if (size(a) /= size(b)) then
+       call neko_error('pwmax_scal3: size mismatch')
+    end if
+
+    do i = 1, size(a)
+       a(i) = max(b(i), c)
+    end do
+  end subroutine pwmax_scal3
+
+  !> Point-wise minimum of two vectors \f$ a = \min(a, b) \f$
+  subroutine pwmin_vec2(a, b)
+    real(kind=rp), dimension(:), intent(inout) :: a
+    real(kind=rp), dimension(:), intent(in) :: b
+    integer :: i
+
+    if (size(a) /= size(b)) then
+       call neko_error('pwmin_vec2: size mismatch')
+    end if
+
+    do i = 1, size(a)
+       a(i) = min(a(i), b(i))
+    end do
+  end subroutine pwmin_vec2
+
+  !> Point-wise minimum of two vectors \f$ a = \min(b, c) \f$
+  subroutine pwmin_vec3(a, b, c)
+    real(kind=rp), dimension(:), intent(inout) :: a
+    real(kind=rp), dimension(:), intent(in) :: b, c
+    integer :: i
+
+    if (size(a) /= size(b) .or. size(a) /= size(c)) then
+       call neko_error('pwmin_vec3: size mismatch')
+    end if
+
+    do i = 1, size(a)
+       a(i) = min(b(i), c(i))
+    end do
+  end subroutine pwmin_vec3
+
+  !> Point-wise minimum of scalar and vector \f$ a = \min(a, b) \f$
+  subroutine pwmin_scal2(a, b)
+    real(kind=rp), dimension(:), intent(inout) :: a
+    real(kind=rp), intent(in) :: b
+    integer :: i
+
+    do i = 1, size(a)
+       a(i) = min(a(i), b)
+    end do
+  end subroutine pwmin_scal2
+
+  !> Point-wise minimum of scalar and vector \f$ a = \min(b, c) \f$
+  subroutine pwmin_scal3(a, b, c)
+    real(kind=rp), dimension(:), intent(inout) :: a
+    real(kind=rp), dimension(:), intent(in) :: b
+    real(kind=rp), intent(in) :: c
+    integer :: i
+
+    if (size(a) /= size(b)) then
+       call neko_error('pwmin_scal3: size mismatch')
+    end if
+
+    do i = 1, size(a)
+       a(i) = min(b(i), c)
+    end do
+  end subroutine pwmin_scal3
 
 end module math

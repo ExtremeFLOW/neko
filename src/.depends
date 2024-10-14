@@ -18,7 +18,7 @@ math/mxm_wrapper.o : math/mxm_wrapper.F90 common/utils.o config/num_types.o
 sem/speclib.o : sem/speclib.f90 common/utils.o config/num_types.o 
 qoi/drag_torque.o : qoi/drag_torque.f90 math/bcknd/device/device_math.o device/device.o common/utils.o config/num_types.o sem/space.o math/math.o comm/comm.o mesh/facet_zone.o mesh/mesh.o sem/coef.o field/field.o 
 sem/local_interpolation.o : sem/local_interpolation.f90 config/neko_config.o math/bcknd/device/device_math.o device/device.o field/field_list.o field/field.o common/utils.o math/fast3d.o math/math.o mesh/point.o config/num_types.o sem/space.o math/tensor.o 
-math/math.o : math/math.f90 comm/comm.o config/num_types.o 
+math/math.o : math/math.f90 comm/comm.o common/utils.o config/num_types.o 
 math/mathops.o : math/mathops.f90 config/num_types.o 
 math/fast3d.o : math/fast3d.f90 math/math.o sem/speclib.o config/num_types.o 
 sem/space.o : sem/space.f90 math/mxm_wrapper.o math/tensor.o math/math.o math/fast3d.o common/utils.o device/device.o sem/speclib.o config/num_types.o config/neko_config.o 

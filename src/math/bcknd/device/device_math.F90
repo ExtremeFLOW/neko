@@ -47,6 +47,17 @@ module device_math
   implicit none
   private
 
+  interface device_pwmax
+     module procedure device_pwmax_vec2, device_pwmax_vec3, &
+          device_pwmax_scal2, device_pwmax_scal3
+  end interface device_pwmax
+
+  interface device_pwmin
+     module procedure device_pwmin_vec2, device_pwmin_vec3, &
+          device_pwmin_scal2, device_pwmin_scal3
+  end interface device_pwmin
+
+
   public :: device_copy, device_rzero, device_rone, device_cmult, &
        device_cmult2, device_cadd, device_cadd2, device_cfill, device_add2, &
        device_add3, device_add4, device_add2s1, device_add2s2, &
@@ -650,5 +661,156 @@ contains
 
   end subroutine device_absval
 
+  ! ========================================================================== !
+  ! Device point-wise max
+
+  !> Compute the point-wise maximum of two vectors
+  !! \f$ a_i = \max(a_i, b_i) \f$
+  subroutine device_pwmax_vec2(a_d, b_d, n)
+    type(c_ptr) :: a_d, b_d
+    integer :: n
+
+#if HAVE_HIP
+    call neko_error('No HIP backend for device_pwmax_vec2')
+#elif HAVE_CUDA
+    call neko_error('No CUDA backend for device_pwmax_vec2')
+#elif HAVE_OPENCL
+    call neko_error('No OpenCL backend for device_pwmax_vec2')
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_pwmax_vec2
+
+  !> Compute the point-wise maximum of two vectors
+  !! \f$ a_i = \max(b_i, c_i) \f$
+  subroutine device_pwmax_vec3(a_d, b_d, c_d, n)
+    type(c_ptr) :: a_d, b_d, c_d
+    integer :: n
+
+#if HAVE_HIP
+    call neko_error('No HIP backend for device_pwmax_vec3')
+#elif HAVE_CUDA
+    call neko_error('No CUDA backend for device_pwmax_vec3')
+#elif HAVE_OPENCL
+    call neko_error('No OpenCL backend for device_pwmax_vec3')
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine device_pwmax_vec3
+
+  !> Compute the point-wise maximum of a vector and a scalar
+  !! \f$ a_i = \max(a_i, b) \f$
+  subroutine device_pwmax_scal2(a_d, b, n)
+    type(c_ptr) :: a_d
+    real(kind=rp), intent(in) :: b
+    integer :: n
+
+#if HAVE_HIP
+    call neko_error('No HIP backend for device_pwmax_scal2')
+#elif HAVE_CUDA
+    call neko_error('No CUDA backend for device_pwmax_scal2')
+#elif HAVE_OPENCL
+    call neko_error('No OpenCL backend for device_pwmax_scal2')
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine device_pwmax_scal2
+
+  !> Compute the point-wise maximum of a vector and a scalar
+  !! \f$ a_i = \max(b_i, c) \f$
+  subroutine device_pwmax_scal3(a_d, b_d, c, n)
+    type(c_ptr) :: a_d, b_d
+    real(kind=rp), intent(in) :: c
+    integer :: n
+
+#if HAVE_HIP
+    call neko_error('No HIP backend for device_pwmax_scal3')
+#elif HAVE_CUDA
+    call neko_error('No CUDA backend for device_pwmax_scal3')
+#elif HAVE_OPENCL
+    call neko_error('No OpenCL backend for device_pwmax_scal3')
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine device_pwmax_scal3
+
+  ! ========================================================================== !
+  ! Device point-wise min
+
+  !> Compute the point-wise minimum of two vectors
+  !! \f$ a_i = \min(a_i, b_i) \f$
+  subroutine device_pwmin_vec2(a_d, b_d, n)
+    type(c_ptr) :: a_d, b_d
+    integer :: n
+
+#if HAVE_HIP
+    call neko_error('No HIP backend for device_pwmin_vec2')
+#elif HAVE_CUDA
+    call neko_error('No CUDA backend for device_pwmin_vec2')
+#elif HAVE_OPENCL
+    call neko_error('No OpenCL backend for device_pwmin_vec2')
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine device_pwmin_vec2
+
+  !> Compute the point-wise minimum of two vectors
+  !! \f$ a_i = \min(b_i, c_i) \f$
+  subroutine device_pwmin_vec3(a_d, b_d, c_d, n)
+    type(c_ptr) :: a_d, b_d, c_d
+    integer :: n
+
+#if HAVE_HIP
+    call neko_error('No HIP backend for device_pwmin_vec3')
+#elif HAVE_CUDA
+    call neko_error('No CUDA backend for device_pwmin_vec3')
+#elif HAVE_OPENCL
+    call neko_error('No OpenCL backend for device_pwmin_vec3')
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine device_pwmin_vec3
+
+  !> Compute the point-wise minimum of a vector and a scalar
+  !! \f$ a_i = \min(a_i, b) \f$
+  subroutine device_pwmin_scal2(a_d, b, n)
+    type(c_ptr) :: a_d
+    real(kind=rp), intent(in) :: b
+    integer :: n
+
+#if HAVE_HIP
+    call neko_error('No HIP backend for device_pwmin_scal2')
+#elif HAVE_CUDA
+    call neko_error('No CUDA backend for device_pwmin_scal2')
+#elif HAVE_OPENCL
+    call neko_error('No OpenCL backend for device_pwmin_scal2')
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine device_pwmin_scal2
+
+  !> Compute the point-wise minimum of a vector and a scalar
+  !! \f$ a_i = \min(b_i, c) \f$
+  subroutine device_pwmin_scal3(a_d, b_d, c, n)
+    type(c_ptr) :: a_d, b_d
+    real(kind=rp), intent(in) :: c
+    integer :: n
+
+#if HAVE_HIP
+    call neko_error('No HIP backend for device_pwmin_scal3')
+#elif HAVE_CUDA
+    call neko_error('No CUDA backend for device_pwmin_scal3')
+#elif HAVE_OPENCL
+    call neko_error('No OpenCL backend for device_pwmin_scal3')
+#else
+    call neko_error('No device backend configured')
+#endif
+
+  end subroutine device_pwmin_scal3
 
 end module device_math
