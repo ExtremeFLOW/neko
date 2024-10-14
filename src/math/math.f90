@@ -1184,115 +1184,99 @@ contains
   ! Point-wise operations
 
   !> Point-wise maximum of two vectors \f$ a = \max(a, b) \f$
-  subroutine pwmax_vec2(a, b)
-    real(kind=rp), dimension(:), intent(inout) :: a
-    real(kind=rp), dimension(:), intent(in) :: b
+  subroutine pwmax_vec2(a, b, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
-    if (size(a) /= size(b)) then
-       call neko_error('pwmax_vec2: size mismatch')
-    end if
-
-    do i = 1, size(a)
+    do i = 1, n
        a(i) = max(a(i), b(i))
     end do
   end subroutine pwmax_vec2
 
   !> Point-wise maximum of two vectors \f$ a = \max(b, c) \f$
-  subroutine pwmax_vec3(a, b, c)
-    real(kind=rp), dimension(:), intent(inout) :: a
-    real(kind=rp), dimension(:), intent(in) :: b, c
+  subroutine pwmax_vec3(a, b, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b, c
     integer :: i
 
-    if (size(a) /= size(b) .or. size(a) /= size(c)) then
-       call neko_error('pwmax_vec3: size mismatch')
-    end if
-
-    do i = 1, size(a)
+    do i = 1, n
        a(i) = max(b(i), c(i))
     end do
   end subroutine pwmax_vec3
 
   !> Point-wise maximum of scalar and vector \f$ a = \max(a, b) \f$
-  subroutine pwmax_scal2(a, b)
-    real(kind=rp), dimension(:), intent(inout) :: a
+  subroutine pwmax_scal2(a, b, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), intent(in) :: b
     integer :: i
 
-    do i = 1, size(a)
+    do i = 1, n
        a(i) = max(a(i), b)
     end do
   end subroutine pwmax_scal2
 
   !> Point-wise maximum of scalar and vector \f$ a = \max(b, c) \f$
-  subroutine pwmax_scal3(a, b, c)
-    real(kind=rp), dimension(:), intent(inout) :: a
-    real(kind=rp), dimension(:), intent(in) :: b
+  subroutine pwmax_scal3(a, b, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), intent(in) :: c
     integer :: i
 
-    if (size(a) /= size(b)) then
-       call neko_error('pwmax_scal3: size mismatch')
-    end if
-
-    do i = 1, size(a)
+    do i = 1, n
        a(i) = max(b(i), c)
     end do
   end subroutine pwmax_scal3
 
   !> Point-wise minimum of two vectors \f$ a = \min(a, b) \f$
-  subroutine pwmin_vec2(a, b)
-    real(kind=rp), dimension(:), intent(inout) :: a
-    real(kind=rp), dimension(:), intent(in) :: b
+  subroutine pwmin_vec2(a, b, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
     integer :: i
 
-    if (size(a) /= size(b)) then
-       call neko_error('pwmin_vec2: size mismatch')
-    end if
-
-    do i = 1, size(a)
+    do i = 1, n
        a(i) = min(a(i), b(i))
     end do
   end subroutine pwmin_vec2
 
   !> Point-wise minimum of two vectors \f$ a = \min(b, c) \f$
-  subroutine pwmin_vec3(a, b, c)
-    real(kind=rp), dimension(:), intent(inout) :: a
-    real(kind=rp), dimension(:), intent(in) :: b, c
+  subroutine pwmin_vec3(a, b, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b, c
     integer :: i
 
-    if (size(a) /= size(b) .or. size(a) /= size(c)) then
-       call neko_error('pwmin_vec3: size mismatch')
-    end if
-
-    do i = 1, size(a)
+    do i = 1, n
        a(i) = min(b(i), c(i))
     end do
   end subroutine pwmin_vec3
 
   !> Point-wise minimum of scalar and vector \f$ a = \min(a, b) \f$
-  subroutine pwmin_sca2(a, b)
-    real(kind=rp), dimension(:), intent(inout) :: a
+  subroutine pwmin_sca2(a, b, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), intent(in) :: b
     integer :: i
 
-    do i = 1, size(a)
+    do i = 1, n
        a(i) = min(a(i), b)
     end do
   end subroutine pwmin_sca2
 
   !> Point-wise minimum of scalar and vector \f$ a = \min(b, c) \f$
-  subroutine pwmin_sca3(a, b, c)
-    real(kind=rp), dimension(:), intent(inout) :: a
-    real(kind=rp), dimension(:), intent(in) :: b
+  subroutine pwmin_sca3(a, b, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), intent(in) :: c
     integer :: i
 
-    if (size(a) /= size(b)) then
-       call neko_error('pwmin_sca3: size mismatch')
-    end if
-
-    do i = 1, size(a)
+    do i = 1, n
        a(i) = min(b(i), c)
     end do
   end subroutine pwmin_sca3
