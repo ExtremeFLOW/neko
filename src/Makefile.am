@@ -299,6 +299,8 @@ neko_fortran_SOURCES = \
 	source_terms/brinkman_source_term.f90\
 	source_terms/brinkman/filters.f90\
 	source_terms/bcknd/cpu/filters_cpu.f90\
+	source_terms/bcknd/device/filters_device.F90\
+	source_terms/bcknd/device/cuda/cuda_filters.f90\
 	les/les_model.f90\
 	les/les_model_fctry.f90\
 	les/vreman.f90\
@@ -401,7 +403,8 @@ libneko_a_SOURCES += \
 	fluid/bcknd/device/cuda/pnpn_res.cu\
 	fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
-	sem/bcknd/device/cuda/coef.cu
+	sem/bcknd/device/cuda/coef.cu\
+	source_terms/bcknd/device/cuda/filters.cu
 endif
 
 if ENABLE_OPENCL
@@ -604,6 +607,7 @@ EXTRA_DIST = \
 	sem/bcknd/device/opencl/coef_kernel.cl\
 	math/bcknd/device/device_mpi_reduce.h\
 	math/bcknd/device/device_mpi_op.h\
+	source_terms/bcknd/device/cuda/filters_kernel.h\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h\
 	device/opencl/check.h\
