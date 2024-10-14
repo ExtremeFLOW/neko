@@ -45,6 +45,8 @@ module source_term_handler
   use user_intf, only: user_t
   use utils, only: neko_warning
   use field_math, only: field_rzero
+  use math, only : col2
+  use device_math, only : device_col2
   implicit none
   private
 
@@ -152,8 +154,31 @@ contains
 
     ! Add contribution from all source terms. If time permits.
     if (allocated(this%source_terms)) then
+
+       ! Sum app the mass matrix weighted terms
        do i = 1, size(this%source_terms)
-          call this%source_terms(i)%source_term%compute(t, tstep)
+          if (this%source_terms(i)%source_term%mass_matrix_weighted .eqv. &
+              .true.) then
+               call this%source_terms(i)%source_term%compute(t, tstep)
+          end if
+       end do
+
+       ! Multiply by mass matrix
+       do i = 1, this%rhs_fields%size()
+          f => this%rhs_fields%get(i)
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call device_col2(f%x_d, this%coef%B_d, f%size())
+          else
+             call col2(f%x, this%coef%B, f%size())
+          end if
+       end do
+
+       ! Add non-weighted terms
+       do i = 1, size(this%source_terms)
+          if (this%source_terms(i)%source_term%mass_matrix_weighted .eqv. &
+              .false.) then
+               call this%source_terms(i)%source_term%compute(t, tstep)
+          end if
        end do
     end if
 

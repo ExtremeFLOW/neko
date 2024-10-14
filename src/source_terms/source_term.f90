@@ -49,6 +49,8 @@ module source_term
      real(kind=rp) :: start_time = 0.0_rp
      !> End time for adding the source term.
      real(kind=rp) :: end_time = huge(0.0_rp)
+     !> Wether the source term should be weighted by the mass matrix.
+     logical :: mass_matrix_weighted = .true.
    contains
      !> Constructor for the source_term_t (base) type.
      procedure, pass(this) :: init_base => source_term_init_base
