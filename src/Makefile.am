@@ -30,7 +30,6 @@ neko_fortran_SOURCES = \
 	sem/dofmap.f90\
 	sem/coef.f90\
 	sem/cpr.f90\
-	sem/spectral_error_indicator.f90\
 	common/time_interpolator.f90\
 	sem/interpolation.f90\
 	sem/point_interpolator.f90\
@@ -280,6 +279,7 @@ neko_fortran_SOURCES = \
 	simulation_components/simulation_component.f90\
 	simulation_components/simcomp_executor.f90\
 	simulation_components/vorticity.f90\
+	simulation_components/spectral_error.f90\
 	simulation_components/lambda2.f90\
 	simulation_components/weak_grad.f90\
 	simulation_components/derivative.f90\

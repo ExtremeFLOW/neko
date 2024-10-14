@@ -102,7 +102,7 @@ module neko
   use simulation_component, only : simulation_component_t, &
        simulation_component_wrapper_t
   use probes, only : probes_t
-  use spectral_error_indicator
+  use spectral_error
   use system, only : system_cpu_name, system_cpuid
   use drag_torque, only : drag_torque_zone, drag_torque_facet, drag_torque_pt
   use field_registry, only : neko_field_registry
