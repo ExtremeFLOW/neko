@@ -155,7 +155,7 @@ contains
     ! Add contribution from all source terms. If time permits.
     if (allocated(this%source_terms)) then
 
-       ! Sum app the mass matrix weighted terms
+       ! Sum up the mass matrix weighted terms
        do i = 1, size(this%source_terms)
           if (this%source_terms(i)%source_term%mass_matrix_weighted .eqv. &
               .true.) then
