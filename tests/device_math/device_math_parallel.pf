@@ -709,7 +709,7 @@ contains
   ! ========================================================================== !
   ! Tests for the pointwise operations
 
-  !> Tst the point-wise maximum operation
+  !> Test the point-wise maximum operation
   @test(npes=[1])
   subroutine test_device_math_pwmax(this)
     class(test_device_math), intent(inout) :: this
@@ -748,7 +748,7 @@ contains
 
   end subroutine test_device_math_pwmax
 
-  !> Tst the point-wise minimum operation
+  !> Test the point-wise minimum operation
   @test(npes=[1])
   subroutine test_device_math_pwmin(this)
     class(test_device_math), intent(inout) :: this
