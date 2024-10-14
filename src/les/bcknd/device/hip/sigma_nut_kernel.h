@@ -1,5 +1,5 @@
-#ifndef __COMMON_GRADIENT_JUMP_PENALTY_KERNEL_H__
-#define __COMMON_GRADIENT_JUMP_PENALTY_KERNEL_H__
+#ifndef __COMMON_SIGMA_NUT_KERNEL_H__
+#define __COMMON_SIGMA_NUT_KERNEL_H__
 /*
  Copyright (c) 2024, The Neko Authors
  All rights reserved.
