@@ -311,6 +311,8 @@ neko_fortran_SOURCES = \
 	les/bcknd/cpu/elementwise_filter_cpu.f90\
 	les/sigma.f90\
 	les/bcknd/cpu/sigma_cpu.f90\
+	les/bcknd/device/sigma_device.f90\
+	les/bcknd/device/device_sigma_nut.F90\
 	wall_models/wall_model.f90\
 	wall_models/rough_log_law.f90\
 	wall_models/spalding.f90\
@@ -365,6 +367,7 @@ libneko_a_SOURCES += \
 	fluid/bcknd/device/hip/pnpn_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
 	sem/bcknd/device/hip/coef.hip
+	les/bcknd/device/hip/sigma_nut.hip\
 endif
 
 if ENABLE_CUDA
@@ -577,6 +580,7 @@ EXTRA_DIST = \
 	krylov/bcknd/device/cuda/gmres_kernel.h\
 	krylov/bcknd/device/hip/gmres_kernel.h\
 	sem/bcknd/device/hip/coef_kernel.h\
+	les/bcknd/device/hip/sigma_nut_kernel.h\
 	bc/bcknd/device/opencl/dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/inflow_kernel.cl\
 	bc/bcknd/device/opencl/no_slip_wall_kernel.cl\
