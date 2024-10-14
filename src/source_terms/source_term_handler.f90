@@ -199,7 +199,7 @@ contains
 
     if (json%valid_path(name)) then
        ! Get the number of source terms.
-       call json%info(name, n_children=n_sources)
+       call json%info(name, n_children = n_sources)
 
        if (allocated(this%source_terms)) then
           i0 = size(this%source_terms)
@@ -250,18 +250,19 @@ contains
 
     integer :: n_sources, i
 
-    if(allocated(this%source_terms)) then
+    if (allocated(this%source_terms)) then
        n_sources = size(this%source_terms)
     else
        n_sources = 0
-    endif
+    end if
 
     call move_alloc(this%source_terms, temp)
     allocate(this%source_terms(n_sources + 1))
 
     if (allocated(temp)) then
        do i = 1, n_sources
-          call move_alloc(temp(i)%source_term, this%source_terms(i)%source_term)
+          call move_alloc(temp(i)%source_term, &
+               this%source_terms(i)%source_term)
        end do
     end if
 
