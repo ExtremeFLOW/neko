@@ -49,12 +49,12 @@ module device_math
 
   interface device_pwmax
      module procedure device_pwmax_vec2, device_pwmax_vec3, &
-          device_pwmax_scal2, device_pwmax_scal3
+          device_pwmax_sca2, device_pwmax_sca3
   end interface device_pwmax
 
   interface device_pwmin
      module procedure device_pwmin_vec2, device_pwmin_vec3, &
-          device_pwmin_scal2, device_pwmin_scal3
+          device_pwmin_sca2, device_pwmin_sca3
   end interface device_pwmin
 
 
@@ -66,7 +66,8 @@ module device_math
        device_addcol3, device_addcol4, device_vdot3, device_vlsc3, &
        device_glsc3, device_glsc3_many, device_add2s2_many, device_glsc2, &
        device_glsum, device_masked_copy, device_cfill_mask, &
-       device_masked_red_copy, device_vcross, device_absval
+       device_masked_red_copy, device_vcross, device_absval, &
+       device_pwmax, device_pwmin
 
 contains
 
@@ -701,41 +702,41 @@ contains
 
   !> Compute the point-wise maximum of a vector and a scalar
   !! \f$ a_i = \max(a_i, c) \f$
-  subroutine device_pwmax_scal2(a_d, c, n)
+  subroutine device_pwmax_sca2(a_d, c, n)
     type(c_ptr) :: a_d
     real(kind=rp), intent(in) :: c
     integer :: n
 
 #if HAVE_HIP
-    call neko_error('No HIP backend for device_pwmax_scal2')
+    call neko_error('No HIP backend for device_pwmax_sca2')
 #elif HAVE_CUDA
-    call cuda_pwmax_scal2(a_d, c, n)
+    call cuda_pwmax_sca2(a_d, c, n)
 #elif HAVE_OPENCL
-    call neko_error('No OpenCL backend for device_pwmax_scal2')
+    call neko_error('No OpenCL backend for device_pwmax_sca2')
 #else
     call neko_error('No device backend configured')
 #endif
 
-  end subroutine device_pwmax_scal2
+  end subroutine device_pwmax_sca2
 
   !> Compute the point-wise maximum of a vector and a scalar
   !! \f$ a_i = \max(b_i, c) \f$
-  subroutine device_pwmax_scal3(a_d, b_d, c, n)
+  subroutine device_pwmax_sca3(a_d, b_d, c, n)
     type(c_ptr) :: a_d, b_d
     real(kind=rp), intent(in) :: c
     integer :: n
 
 #if HAVE_HIP
-    call neko_error('No HIP backend for device_pwmax_scal3')
+    call neko_error('No HIP backend for device_pwmax_sca3')
 #elif HAVE_CUDA
-    call cuda_pwmax_scal3(a_d, b_d, c, n)
+    call cuda_pwmax_sca3(a_d, b_d, c, n)
 #elif HAVE_OPENCL
-    call neko_error('No OpenCL backend for device_pwmax_scal3')
+    call neko_error('No OpenCL backend for device_pwmax_sca3')
 #else
     call neko_error('No device backend configured')
 #endif
 
-  end subroutine device_pwmax_scal3
+  end subroutine device_pwmax_sca3
 
   ! ========================================================================== !
   ! Device point-wise min
@@ -777,40 +778,40 @@ contains
 
   !> Compute the point-wise minimum of a vector and a scalar
   !! \f$ a_i = \min(a_i, c) \f$
-  subroutine device_pwmin_scal2(a_d, c, n)
+  subroutine device_pwmin_sca2(a_d, c, n)
     type(c_ptr) :: a_d
     real(kind=rp), intent(in) :: c
     integer :: n
 
 #if HAVE_HIP
-    call neko_error('No HIP backend for device_pwmin_scal2')
+    call neko_error('No HIP backend for device_pwmin_sca2')
 #elif HAVE_CUDA
-    call cuda_pwmin_scal2(a_d, c, n)
+    call cuda_pwmin_sca2(a_d, c, n)
 #elif HAVE_OPENCL
-    call neko_error('No OpenCL backend for device_pwmin_scal2')
+    call neko_error('No OpenCL backend for device_pwmin_sca2')
 #else
     call neko_error('No device backend configured')
 #endif
 
-  end subroutine device_pwmin_scal2
+  end subroutine device_pwmin_sca2
 
   !> Compute the point-wise minimum of a vector and a scalar
   !! \f$ a_i = \min(b_i, c) \f$
-  subroutine device_pwmin_scal3(a_d, b_d, c, n)
+  subroutine device_pwmin_sca3(a_d, b_d, c, n)
     type(c_ptr) :: a_d, b_d
     real(kind=rp), intent(in) :: c
     integer :: n
 
 #if HAVE_HIP
-    call neko_error('No HIP backend for device_pwmin_scal3')
+    call neko_error('No HIP backend for device_pwmin_sca3')
 #elif HAVE_CUDA
-    call cuda_pwmin_scal3(a_d, b_d, c, n)
+    call cuda_pwmin_sca3(a_d, b_d, c, n)
 #elif HAVE_OPENCL
-    call neko_error('No OpenCL backend for device_pwmin_scal3')
+    call neko_error('No OpenCL backend for device_pwmin_sca3')
 #else
     call neko_error('No device backend configured')
 #endif
 
-  end subroutine device_pwmin_scal3
+  end subroutine device_pwmin_sca3
 
 end module device_math

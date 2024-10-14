@@ -104,7 +104,7 @@ module math
   end interface pwmax
 
   interface pwmin
-     module procedure pwmin_vec2, pwmin_vec3, pwmin_scal2, pwmin_scal3
+     module procedure pwmin_vec2, pwmin_vec3, pwmin_sca2, pwmin_sca3
   end interface pwmin
 
   public :: abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
@@ -1271,7 +1271,7 @@ contains
   end subroutine pwmin_vec3
 
   !> Point-wise minimum of scalar and vector \f$ a = \min(a, b) \f$
-  subroutine pwmin_scal2(a, b)
+  subroutine pwmin_sca2(a, b)
     real(kind=rp), dimension(:), intent(inout) :: a
     real(kind=rp), intent(in) :: b
     integer :: i
@@ -1279,22 +1279,22 @@ contains
     do i = 1, size(a)
        a(i) = min(a(i), b)
     end do
-  end subroutine pwmin_scal2
+  end subroutine pwmin_sca2
 
   !> Point-wise minimum of scalar and vector \f$ a = \min(b, c) \f$
-  subroutine pwmin_scal3(a, b, c)
+  subroutine pwmin_sca3(a, b, c)
     real(kind=rp), dimension(:), intent(inout) :: a
     real(kind=rp), dimension(:), intent(in) :: b
     real(kind=rp), intent(in) :: c
     integer :: i
 
     if (size(a) /= size(b)) then
-       call neko_error('pwmin_scal3: size mismatch')
+       call neko_error('pwmin_sca3: size mismatch')
     end if
 
     do i = 1, size(a)
        a(i) = min(b(i), c)
     end do
-  end subroutine pwmin_scal3
+  end subroutine pwmin_sca3
 
 end module math
