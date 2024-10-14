@@ -420,4 +420,59 @@ contains
 
   end subroutine test_math_glsc3
 
+  ! ========================================================================== !
+  ! Tests for the pointwise operations
+
+  !> Test the point-wise maximum operation
+  @test
+  subroutine test_math_pwmax
+
+    integer, parameter :: n = 4711
+    real(kind=rp), dimension(n) :: a, b, c
+
+    integer :: i
+
+    do i = 1, n
+       a(i) = real(i, rp)
+       b(i) = real(n - i, rp)
+    end do
+
+    call pwmax(a, b, n)
+
+    do i = 1, n
+       c(i) = max(a(i), b(i))
+    end do
+
+    do i = 1, n
+       @assertEqual(c(i), a(i))
+    end do
+
+  end subroutine test_math_pwmax
+
+  !> Test the point-wise minimum operation
+  @test
+  subroutine test_math_pwmin
+
+    integer, parameter :: n = 4711
+    real(kind=rp), dimension(n) :: a, b, c
+
+    integer :: i
+
+    do i = 1, n
+       a(i) = real(i, rp)
+       b(i) = real(n - i, rp)
+    end do
+
+    call pwmin(a, b, n)
+
+    do i = 1, n
+       c(i) = min(a(i), b(i))
+    end do
+
+    do i = 1, n
+       @assertEqual(c(i), a(i))
+    end do
+
+  end subroutine test_math_pwmin
+
 end module math_parallel
