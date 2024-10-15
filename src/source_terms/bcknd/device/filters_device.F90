@@ -51,10 +51,15 @@ contains
     real(kind=rp), intent(in) :: edge0, edge1
     integer, intent(in) :: n
 
-#if HAVE_CUDA == 1
+#if HAVE_HIP == 1
+    call hip_smooth_step(x, edge0, edge1, n)
+#elif HAVE_CUDA == 1
     call cuda_smooth_step(x, edge0, edge1, n)
+#elif HAVE_OPENCL == 1
+    call opencl_smooth_step(x, edge0, edge1, n)
 #else
-    call neko_error("Smooth step function not implemented for the current device.")
+    call neko_error(&
+         "Smooth step function not implemented for the current device.")
 #endif
 
   end subroutine smooth_step_device
@@ -65,10 +70,15 @@ contains
     real(kind=rp), intent(in) :: x_step, value0, value1
     integer, intent(in) :: n
 
-#if HAVE_CUDA == 1
+#if HAVE_HIP == 1
+    call hip_step_function(x, x_step, value0, value1, n)
+#elif HAVE_CUDA == 1
     call cuda_step_function(x, x_step, value0, value1, n)
+#elif HAVE_OPENCL == 1
+    call opencl_step_function(x, x_step, value0, value1, n)
 #else
-    call neko_error("Step function not implemented for the current device.")
+    call neko_error(&
+         "Step function not implemented for the current device.")
 #endif
 
   end subroutine step_function_device
@@ -79,10 +89,15 @@ contains
     real(kind=rp), intent(in) :: k_0, k_1, q
     integer, intent(in) :: n
 
-#if HAVE_CUDA == 1
+#if HAVE_HIP == 1
+    call hip_permeability(x, k_0, k_1, q, n)
+#elif HAVE_CUDA == 1
     call cuda_permeability(x, k_0, k_1, q, n)
+#elif HAVE_OPENCL == 1
+    call opencl_permeability(x, k_0, k_1, q, n)
 #else
-    call neko_error("Permeability function not implemented for the current device.")
+    call neko_error(&
+         "Permeability function not implemented for the current device.")
 #endif
 
   end subroutine permeability_device
