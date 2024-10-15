@@ -51,4 +51,5 @@ module hip_sigma_nut
        integer(c_int) :: n
        real(c_rp) :: c, eps
      end subroutine hip_sigma_nut_compute
+  end interface
 end module hip_sigma_nut

@@ -64,20 +64,21 @@ __global__ void hip_sigma_nut_compute(T * __restrict__ g11,
     T Invariant1, Invariant2, Invariant3
     T alpha1, alpha2, alpha3
     T Dsigma
-    T pi_3 = 4.0_rp/3.0_rp*atan(1.0_rp)
+    T pi_3
     T tmp1
-
+    
+    pi_3 = 4.0/3.0*atan(1.0);
     sigG11 = g11[i]**2 + g21[i]**2 + g31[i]**2;
     sigG22 = g12[i]**2 + g22[i]**2 + g32[i]**2;
     sigG33 = g13[i]**2 + g23[i]**2 + g33[i]**2;
-    sigG12 = g11[i]*g12[i] + 
-             g21[i]*g22[i] + 
+    sigG12 = g11[i]*g12[i] + \
+             g21[i]*g22[i] + \
              g31[i]*g32[i];
-    sigG13 = g11[i]*g13[i] + 
-             g21[i]*g23[i] + 
+    sigG13 = g11[i]*g13[i] + \
+             g21[i]*g23[i] + \
              g31[i]*g33[i];
-    sigG23 = g12[i]*g13[i] + 
-             g22[i]*g23[i] + 
+    sigG23 = g12[i]*g13[i] + \
+             g22[i]*g23[i] + \
              g32[i]*g33[i];
 
     if (abs(sigG11) < eps) {
@@ -99,7 +100,7 @@ __global__ void hip_sigma_nut_compute(T * __restrict__ g11,
         sigG33 = 0.0;
     }
 
-    if (abs(sigG12*sigG12 + 
+    if (abs(sigG12*sigG12 + \
             sigG13*sigG13 + sigG23*sigG23) < eps) {
         sigma1 = sqrt(max(max(max(sigG11, sigG22), sigG33), 0.0));
         sigma3 = sqrt(max(min(min(sigG11, sigG22), sigG33), 0.0));
@@ -107,11 +108,11 @@ __global__ void hip_sigma_nut_compute(T * __restrict__ g11,
         sigma2 = sqrt(abs(Invariant1 - sigma1*sigma1 - sigma3*sigma3));
     } else { 
         Invariant1 = sigG11 + sigG22 + sigG33;
-        Invariant2 = sigG11*sigG22 + sigG11*sigG33 + sigG22*sigG33 -
+        Invariant2 = sigG11*sigG22 + sigG11*sigG33 + sigG22*sigG33 - \
                 (sigG12*sigG12 + sigG13*sigG13 + sigG23*sigG23);
-        Invariant3 = sigG11*sigG22*sigG33 +
-                    2.0*sigG12*sigG13*sigG23 -
-                (sigG11*sigG23*sigG23 + sigG22*sigG13*sigG13 +
+        Invariant3 = sigG11*sigG22*sigG33 + \
+                    2.0*sigG12*sigG13*sigG23 - \
+                (sigG11*sigG23*sigG23 + sigG22*sigG13*sigG13 + \
                 sigG33*sigG12*sigG12);
 
         Invariant1 = max(Invariant1, 0.0);
@@ -122,7 +123,7 @@ __global__ void hip_sigma_nut_compute(T * __restrict__ g11,
 
         alpha1 = max(alpha1, 0.0);
 
-        alpha2 = Invariant1*Invariant1*Invariant1/27.0 -
+        alpha2 = Invariant1*Invariant1*Invariant1/27.0 - \
             Invariant1*Invariant2/6.0 + Invariant3/2.0;
 
         tmp1 = alpha2/(alpha1**(3.0/2.0));
@@ -141,16 +142,16 @@ __global__ void hip_sigma_nut_compute(T * __restrict__ g11,
             alpha3 = acos(tmp1)/3.0;
 
             if (abs(Invariant3) < eps) {
-                sigma1 = sqrt(max(Invariant1/3.0 +
+                sigma1 = sqrt(max(Invariant1/3.0 + \
                             2.0*sqrt(alpha1)*cos(alpha3), 0.0));
                 sigma2 = sqrt(abs(Invariant1 - sigma1*sigma1));
                 sigma3 = 0.0;
             } else {
-                sigma1 = sqrt(max(Invariant1/3.0 +
+                sigma1 = sqrt(max(Invariant1/3.0 + \
                             2.0*sqrt(alpha1)*cos(alpha3), 0.0));
-                sigma2 = sqrt(Invariant1/3.0 -
+                sigma2 = sqrt(Invariant1/3.0 - \
                             2.0*sqrt(alpha1)*cos(pi_3 + alpha3));
-                sigma3 = sqrt(abs(Invariant1 -
+                sigma3 = sqrt(abs(Invariant1 - \
                                 sigma1*sigma1-sigma2*sigma2));
             }
         }
@@ -167,3 +168,4 @@ __global__ void hip_sigma_nut_compute(T * __restrict__ g11,
     nut[i] = (c*delta[i])**2 * Dsigma;
   }
 }
+#endif // __COMMON_SIGMA_NUT_KERNEL_H__
