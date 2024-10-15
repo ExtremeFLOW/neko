@@ -93,6 +93,24 @@ module opencl_math
        integer(c_int) :: n
      end subroutine opencl_cmult2
 
+     subroutine opencl_cdiv(a_d, c, n) &
+          bind(c, name = 'opencl_cdiv')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine opencl_cdiv
+
+     subroutine opencl_cdiv2(a_d, b_d, c, n) &
+          bind(c, name = 'opencl_cdiv2')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a_d, b_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine opencl_cdiv2
+
      subroutine opencl_cadd(a_d, c, n) &
           bind(c, name = 'opencl_cadd')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
