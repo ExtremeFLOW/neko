@@ -314,6 +314,7 @@ neko_fortran_SOURCES = \
 	les/bcknd/cpu/sigma_cpu.f90\
 	les/bcknd/device/sigma_device.f90\
 	les/bcknd/device/device_sigma_nut.F90\
+	les/bcknd/device/hip/hip_sigma_nut.f90\
 	wall_models/wall_model.f90\
 	wall_models/rough_log_law.f90\
 	wall_models/spalding.f90\
@@ -367,8 +368,8 @@ libneko_a_SOURCES += \
 	common/bcknd/device/hip/gradient_jump_penalty.hip\
 	fluid/bcknd/device/hip/pnpn_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
-	sem/bcknd/device/hip/coef.hip
-	les/bcknd/device/hip/sigma_nut.hip\
+	sem/bcknd/device/hip/coef.hip\
+	les/bcknd/device/hip/sigma_nut.hip
 endif
 
 if ENABLE_CUDA
