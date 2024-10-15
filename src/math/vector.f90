@@ -39,7 +39,7 @@ module vector
   use device, only: device_map, device_free
   use device_math, only: device_copy, device_cfill, device_cmult, &
        device_sub3, device_cmult2, device_add3, device_cadd2, device_col3, &
-       device_col2, device_invcol3
+       device_col2, device_invcol3, device_cdiv2
   use utils, only: neko_error
   use, intrinsic :: iso_c_binding
   implicit none
@@ -403,9 +403,9 @@ contains
     call v%alloc(a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cdiv2(v%x_d, a%x_d, 1.0_rp/c, v%n)
+       call device_cdiv2(v%x_d, a%x_d, c, v%n)
     else
-       call cdiv2(v%x, a%x, 1.0_rp/c, v%n)
+       call cdiv2(v%x, a%x, c, v%n)
     end if
 
   end function vector_cdiv_left
@@ -419,9 +419,9 @@ contains
     call v%alloc(a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cmult2(v%x_d, a%x_d, 1.0_rp/c, v%n)
+       call device_cmult2(v%x_d, a%x_d, 1.0_rp / c, v%n)
     else
-       call cmult2(v%x, a%x, 1.0_rp/c, v%n)
+       call cmult2(v%x, a%x, 1.0_rp / c, v%n)
     end if
 
   end function vector_cdiv_right
