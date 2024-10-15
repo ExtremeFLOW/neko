@@ -89,7 +89,7 @@ __global__ void step_kernel(
  */
 template <typename T>
 __global__ void permeability_kernel(
-    T* x, const T k_0, const T k_1, const T q, const int n) {
+    T* __restrict__ x, const T k_0, const T k_1, const T q, const int n) {
 
     const int idx = blockIdx.x * blockDim.x + threadIdx.x;
     const int str = blockDim.x * gridDim.x;
