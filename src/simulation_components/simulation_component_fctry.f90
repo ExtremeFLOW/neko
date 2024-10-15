@@ -36,6 +36,7 @@ submodule (simulation_component) simulation_component_fctry
   use vorticity, only : vorticity_t
   use force_torque, only : force_torque_t
   use fluid_stats_simcomp, only : fluid_stats_simcomp_t
+  use user_stats, only : user_stats_t
   use lambda2, only : lambda2_t
   use probes, only : probes_t
   use les_simcomp, only : les_simcomp_t
@@ -45,13 +46,14 @@ submodule (simulation_component) simulation_component_fctry
   use derivative, only : derivative_t
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SIMCOMPS_KNOWN_TYPES(7) = [character(len=20) :: &
+  character(len=20) :: SIMCOMPS_KNOWN_TYPES(8) = [character(len=20) :: &
      "vorticity", &
      "lambda2", &
      "probes", &
      "les_model", &
      "field_writer", &
      "fluid_stats", &
+     "user_stats", &
      "force_torque"]
 
 contains
@@ -92,6 +94,8 @@ contains
        allocate(force_torque_t::object)
     else if (trim(type_name) .eq. "fluid_stats") then
        allocate(fluid_stats_simcomp_t::object)
+    else if (trim(type_name) .eq. "user_stats") then
+       allocate(user_stats_t::object)
     else
        type_string =  concat_string_array(SIMCOMPS_KNOWN_TYPES, &
             NEW_LINE('A') // "-  ",  .true.)
