@@ -79,7 +79,7 @@ module fluid_scheme
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
   use field_math, only : field_cfill
-  use gradient_jump_penalty, only : gradient_jump_penalty_t
+!  use gradient_jump_penalty, only : gradient_jump_penalty_t
   implicit none
   private
 
@@ -113,10 +113,10 @@ module fluid_scheme
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
      !> Gradient jump panelty
-     logical :: if_gradient_jump_penalty
-     type(gradient_jump_penalty_t) :: gradient_jump_penalty_u
-     type(gradient_jump_penalty_t) :: gradient_jump_penalty_v
-     type(gradient_jump_penalty_t) :: gradient_jump_penalty_w
+     !logical :: if_gradient_jump_penalty
+     !type(gradient_jump_penalty_t) :: gradient_jump_penalty_u
+     !type(gradient_jump_penalty_t) :: gradient_jump_penalty_v
+     !type(gradient_jump_penalty_t) :: gradient_jump_penalty_w
 
      ! Attributes for field dirichlet BCs
      type(field_dirichlet_vector_t) :: user_field_bc_vel   !< User-computed Dirichlet velocity condition
@@ -723,31 +723,31 @@ contains
     end if
 
     ! Initiate gradient jump penalty
-    call json_get_or_default(params, &
-                            'case.fluid.gradient_jump_penalty.enabled',&
-                            this%if_gradient_jump_penalty, .false.)
+!    call json_get_or_default(params, &
+!                            'case.fluid.gradient_jump_penalty.enabled',&
+!                            this%if_gradient_jump_penalty, .false.)
 
-    if (this%if_gradient_jump_penalty .eqv. .true.) then
-       if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
-          call json_get_or_default(params, &
-                            'case.fluid.gradient_jump_penalty.tau',&
-                            GJP_param_a, 0.02_rp)
-          GJP_param_b = 0.0_rp
-       else
-          call json_get_or_default(params, &
-                        'case.fluid.gradient_jump_penalty.scaling_factor',&
-                            GJP_param_a, 0.8_rp)
-          call json_get_or_default(params, &
-                        'case.fluid.gradient_jump_penalty.scaling_exponent',&
-                            GJP_param_b, 4.0_rp)
-       end if
-       call this%gradient_jump_penalty_u%init(params, this%dm_Xh, this%c_Xh, &
-                                              GJP_param_a, GJP_param_b)
-       call this%gradient_jump_penalty_v%init(params, this%dm_Xh, this%c_Xh, &
-                                              GJP_param_a, GJP_param_b)
-       call this%gradient_jump_penalty_w%init(params, this%dm_Xh, this%c_Xh, &
-                                              GJP_param_a, GJP_param_b)
-    end if
+!    if (this%if_gradient_jump_penalty .eqv. .true.) then
+!       if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
+!          call json_get_or_default(params, &
+!                            'case.fluid.gradient_jump_penalty.tau',&
+!                            GJP_param_a, 0.02_rp)
+!          GJP_param_b = 0.0_rp
+!       else
+!          call json_get_or_default(params, &
+!                        'case.fluid.gradient_jump_penalty.scaling_factor',&
+!                            GJP_param_a, 0.8_rp)
+!          call json_get_or_default(params, &
+!                        'case.fluid.gradient_jump_penalty.scaling_exponent',&
+!                            GJP_param_b, 4.0_rp)
+!       end if
+!       call this%gradient_jump_penalty_u%init(params, this%dm_Xh, this%c_Xh, &
+!                                              GJP_param_a, GJP_param_b)
+!       call this%gradient_jump_penalty_v%init(params, this%dm_Xh, this%c_Xh, &
+!                                              GJP_param_a, GJP_param_b)
+!       call this%gradient_jump_penalty_w%init(params, this%dm_Xh, this%c_Xh, &
+!                                              GJP_param_a, GJP_param_b)
+!    end if
 
     call neko_log%end_section()
 
@@ -843,11 +843,11 @@ contains
     call this%mu_field%free()
 
     ! Free gradient jump penalty
-    if (this%if_gradient_jump_penalty .eqv. .true.) then
-       call this%gradient_jump_penalty_u%free()
-       call this%gradient_jump_penalty_v%free()
-       call this%gradient_jump_penalty_w%free()
-    end if
+!    if (this%if_gradient_jump_penalty .eqv. .true.) then
+!       call this%gradient_jump_penalty_u%free()
+!       call this%gradient_jump_penalty_v%free()
+!       call this%gradient_jump_penalty_w%free()
+!    end if
 
 
   end subroutine fluid_scheme_free

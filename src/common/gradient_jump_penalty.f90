@@ -53,13 +53,25 @@ module gradient_jump_penalty
   use device
   use device_math
   use device_gradient_jump_penalty
+  use source_term, only : source_term_t
+  use field_list, only : field_list_t
+  use field_registry, only : neko_field_registry
 
   implicit none
   private
 
   !> Implements the gradient jump penalty.
   !! @note Reference DOI: 10.1016/j.cma.2021.114200
-  type, public :: gradient_jump_penalty_t
+  type, public, extends(source_term_t):: gradient_jump_penalty_t
+     !> The solution fields for which to apply the penalty.
+     type(field_list_t) :: s_fields
+     !> The x component of velocity
+     type(field_t), pointer :: u
+     !> The y component of velocity
+     type(field_t), pointer :: v
+     !> The z component of velocity
+     type(field_t), pointer :: w
+     
      !> Coefficient of the penalty.
      real(kind=rp) :: tau
      !> Polynomial order
@@ -72,8 +84,6 @@ module gradient_jump_penalty
      !> work array storing integrant of the penalty
      real(kind=rp), allocatable, dimension(:, :, :, :) :: penalty_facet
      type(c_ptr) :: penalty_facet_d = C_NULL_PTR
-     !> SEM coefficients.
-     type(coef_t), pointer :: coef => null()
      !> Gradient of the quatity of interest
      real(kind=rp), allocatable, dimension(:, :, :, :) :: grad1, &
                                                           grad2, grad3
@@ -123,29 +133,63 @@ module gradient_jump_penalty
      integer :: n_large
 
   contains
-     !> Constructor.
+     !> Constructor from JSON.
      procedure, pass(this) :: init => gradient_jump_penalty_init
-     !> Destructor
+     !> Constructor from components.
+     procedure, pass(this) :: init_from_components => &
+          gradient_jump_penalty_init_from_components
+     !> Destructor.
      procedure, pass(this) :: free => gradient_jump_penalty_free
      !> Compute gradient jump penalty term.
-     procedure, pass(this) :: compute => gradient_jump_penalty_compute
+     procedure, pass(this) :: compute_single => &
+          gradient_jump_penalty_compute_single
      !> Perform gradient jump penalty term.
-     procedure, pass(this) :: perform => gradient_jump_penalty_perform
+     procedure, pass(this) :: compute_ => gradient_jump_penalty_compute
 
   end type gradient_jump_penalty_t
 
 contains
   !> Constructor.
-  !! @param params The case parameter file in json.
-  !! @param dofmap SEM map of degrees of freedom.
-  !! @param coef SEM coefficients.
+  !! @param json The JSON object for the source.
+  !! @param fields A list of fields for adding the source values.
+  !! @param coef The SEM coeffs.
   !! @param a, b Coefficients to determine tau
-  subroutine gradient_jump_penalty_init(this, params, dofmap, coef, a, b)
+  subroutine gradient_jump_penalty_init(this, json, fields, coef)
     implicit none
     class(gradient_jump_penalty_t), intent(inout) :: this
-    type(json_file), target, intent(inout) :: params
-    type(dofmap_t), intent(in) :: dofmap
-    type(coef_t), target, intent(in) :: coef
+    type(json_file), intent(inout) :: json
+    type(coef_t), target, intent(inout) :: coef
+    type(field_list_t), intent(inout), target :: fields
+
+    real(kind=rp) :: start_time, end_time
+    real(kind=rp) :: a, b
+
+    call json_get_or_default(json, "start_time", start_time, 0.0_rp)
+    call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
+
+    if ((coef%Xh%lx - 1) .eq. 1) then
+       call json_get_or_default(json, 'tau', a, 0.02_rp)
+       b = 0.0_rp
+    else
+       call json_get_or_default(json, 'scaling_factor', a, 0.8_rp)
+       call json_get_or_default(json, 'scaling_exponent', b, 4.0_rp)
+    end if
+
+    call this%init_from_components(coef, fields, start_time, end_time, a, b)
+
+  end subroutine gradient_jump_penalty_init
+
+  !> Constructor from components.
+  !! @param fields A list of fields for adding the source values.
+  !! @param coef The SEM coeffs.
+  !! @param a, b Coefficients to determine tau
+  subroutine gradient_jump_penalty_init_from_components(this, coef, fields, &
+       start_time, end_time, a, b)
+    class(gradient_jump_penalty_t), intent(inout) :: this
+    type(coef_t), target, intent(inout) :: coef
+    type(field_list_t), intent(inout), target :: fields
+    real(kind=rp), intent(in) :: start_time
+    real(kind=rp), intent(in) :: end_time
     real(kind=rp), intent(in) :: a, b
 
     integer :: i, j
@@ -153,8 +197,29 @@ contains
 
     call this%free()
 
-    this%p = dofmap%xh%lx - 1
-    this%lx = dofmap%xh%lx
+    call this%init_base(fields, coef, start_time, end_time)
+
+    this%u = neko_field_registry%get_field("u")
+    this%v = neko_field_registry%get_field("v")
+    this%w = neko_field_registry%get_field("w")
+
+    if (fields%size() .eq. 1) then
+       call this%s_fields%init(1)
+       call this%s_fields%assign(1, neko_field_registry%get_field("s"))
+    else if (fields%size() .eq. 3) then
+       call this%s_fields%init(3)
+       call this%s_fields%assign(1, this%u)
+       call this%s_fields%assign(2, this%v)
+       call this%s_fields%assign(3, this%w)
+    else 
+       call neko_error("The GJP source assumes either 3 or 1 RHS fields.")
+    end if
+
+       
+
+
+    this%p = coef%dof%Xh%lx - 1
+    this%lx = coef%dof%Xh%lx
 
     if (this%p .gt. 1) then
        this%tau = -a * (this%p + 1) ** (-b)
@@ -162,7 +227,6 @@ contains
        this%tau = -a
     end if
 
-    this%coef => coef
     this%n = this%lx ** 3 * this%coef%msh%nelv
     this%n_large = (this%lx + 2) ** 3 * this%coef%msh%nelv
 
@@ -194,9 +258,9 @@ contains
     allocate(zg(this%lx))
     allocate(this%dphidxi(this%lx, this%lx))
 
-    zg = dofmap%xh%zg(:,1)
-    do i = 1, dofmap%xh%lx
-       do j = 1, dofmap%xh%lx
+    zg = coef%Xh%zg(:,1)
+    do i = 1, coef%Xh%lx
+       do j = 1, coef%Xh%lx
           this%dphidxi(j,i) = this%coef%Xh%dx(j,i)
        end do
     end do
@@ -312,7 +376,7 @@ contains
 
     end if
 
-  end subroutine gradient_jump_penalty_init
+  end subroutine gradient_jump_penalty_init_from_components
 
   !> Evaluate h^2 for each element for hexahedral mesh
   !! @param h2_el The sqaure of the length scale of an element
@@ -606,25 +670,28 @@ contains
 
     nullify(this%coef)
 
+    nullify(this%u)
+    nullify(this%v)
+    nullify(this%w)
+
+    call this%s_fields%free()
+
     call this%Xh_GJP%free()
     call this%gs_GJP%free()
 
   end subroutine gradient_jump_penalty_free
 
-  !> Compute the gradient jump penalty term.
-  !! @param u x-velocity
-  !! @param v y-velocity
-  !! @param w z-velocity
-  !! @param s quantity of interest
-  subroutine gradient_jump_penalty_compute(this, u, v, w, s)
+  !> Compute the gradient jump penalty term for a single field.
+  !! @param s Quantity of interest.
+  subroutine gradient_jump_penalty_compute_single(this, s)
     class(gradient_jump_penalty_t), intent(inout) :: this
-    type(field_t), intent(in) :: u, v, w, s
+    type(field_t), intent(in) :: s
 
     class(element_t), pointer :: ep
     integer :: i
 
     call G_compute(this, s)
-    call absvolflux_compute(this, u, v, w)
+    call absvolflux_compute(this, this%u, this%v, this%w)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col3(this%penalty_facet_d, this%absvolflux_d, this%G_d, &
@@ -642,21 +709,35 @@ contains
                                            this%lx, this%coef%msh%nelv)
     end if
 
-  end subroutine gradient_jump_penalty_compute
+  end subroutine gradient_jump_penalty_compute_single
 
   !> Assign the gradient jump penalty term.
-  !! @param f A field object to store RHS terms in the weak form equation.
-  subroutine gradient_jump_penalty_perform(this, f)
+  !! @param t The time value.
+  !! @param tstep The current time-step.
+  subroutine gradient_jump_penalty_compute(this, t, tstep)
     class(gradient_jump_penalty_t), intent(inout) :: this
-    type(field_t), intent(inout) :: f
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_add2(f%x_d, this%penalty_d, this%coef%dof%size())
-    else
-       call add2(f%x, this%penalty, this%coef%dof%size())
-    end if
+    integer :: i, n_fields, n
 
-  end subroutine gradient_jump_penalty_perform
+    n_fields = this%fields%size()
+    n = this%coef%dof%size()
+
+
+
+    do i=1, n_fields
+
+       call this%compute_single(this%s_fields%items(i)%ptr)
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_add2(this%fields%x_d(i), this%penalty_d, n)
+       else
+          call add2(this%fields%items(i)%ptr%x, this%penalty, n)
+       end if
+    end do
+
+  end subroutine gradient_jump_penalty_compute
 
   !> Interface of finalizing the gradient jump penalty term.
   !> <tau * h^2 * absvolflux * G * phij * phik * dphi_idxi * dxidn>
