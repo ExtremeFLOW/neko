@@ -43,6 +43,9 @@ module brinkman_source_term
   use neko_config, only: NEKO_BCKND_DEVICE
   use utils, only: neko_error
   use field_math, only: field_subcol3
+
+  use math, only: pwmax
+  use device_math, only: device_pwmax
   implicit none
   private
 
@@ -174,14 +177,9 @@ contains
     ! ------------------------------------------------------------------------ !
     ! Compute the permeability field
 
-    call permeability_field(this%brinkman, this%indicator, &
-         & brinkman_limits(1), brinkman_limits(2), brinkman_penalty)
-
-    ! Copy the permeability field to the device
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%brinkman%x, this%brinkman%x_d, &
-            this%brinkman%dof%size(), HOST_TO_DEVICE, .true.)
-    end if
+    this%brinkman = this%indicator
+    call permeability_field(this%brinkman, &
+         brinkman_limits(1), brinkman_limits(2), brinkman_penalty)
 
   end subroutine brinkman_source_term_init_from_json
 
@@ -359,7 +357,12 @@ contains
     end select
 
     ! Update the global indicator field by max operator
-    this%indicator%x = max(this%indicator%x, temp_field%x)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_pwmax(this%indicator%x_d, temp_field%x_d, &
+            this%indicator%size())
+    else
+       this%indicator%x = max(this%indicator%x, temp_field%x)
+    end if
 
   end subroutine init_boundary_mesh
 
