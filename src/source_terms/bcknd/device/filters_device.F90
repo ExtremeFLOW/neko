@@ -35,6 +35,7 @@ module filters_device
   use num_types, only: rp, c_rp
   use device_math, only: device_pwmax, device_pwmin
   use, intrinsic :: iso_c_binding, only: c_ptr
+  use utils, only: neko_error
 
   use cuda_filters, only: cuda_smooth_step, cuda_step_function, cuda_permeability
   implicit none

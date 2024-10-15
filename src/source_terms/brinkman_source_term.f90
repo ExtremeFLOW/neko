@@ -323,7 +323,7 @@ contains
     ! compute the signed distance function. This should be replaced with a
     ! more efficient method, such as a tree search.
 
-    call temp_field%init(this%indicator%dof)
+    temp_field = this%indicator
 
     ! Select how to transform the distance field to a design field
     select case (distance_transform)
@@ -337,6 +337,7 @@ contains
       case ('step')
 
        call json_get(json, 'distance_transform.value', scalar_d)
+       scalar_r = real(scalar_d, kind=rp)
 
        call signed_distance_field(temp_field, boundary_mesh, scalar_d)
        call step_function_field(temp_field, scalar_r, 1.0_rp, 0.0_rp)
