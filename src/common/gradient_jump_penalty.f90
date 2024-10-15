@@ -175,7 +175,11 @@ contains
        call json_get_or_default(json, 'scaling_exponent', b, 4.0_rp)
     end if
 
+    write(*,*) "Init call"
+
     call this%init_from_components(coef, fields, start_time, end_time, a, b)
+
+    write(*,*) "Done init"
 
   end subroutine gradient_jump_penalty_init
 
@@ -197,11 +201,15 @@ contains
 
     call this%free()
 
-    call this%init_base(fields, coef, start_time, end_time)
 
-    this%u = neko_field_registry%get_field("u")
-    this%v = neko_field_registry%get_field("v")
-    this%w = neko_field_registry%get_field("w")
+    call this%init_base(fields, coef, start_time, end_time)
+    write(*,*) "Init got base"
+
+    this%u => neko_field_registry%get_field("u")
+    this%v => neko_field_registry%get_field("v")
+    this%w => neko_field_registry%get_field("w")
+
+    write(*,*) "Init got uvw"
 
     if (fields%size() .eq. 1) then
        call this%s_fields%init(1)

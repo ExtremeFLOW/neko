@@ -295,6 +295,19 @@ contains
     this%params => params
 
 
+    ! Assign velocity fields
+    call neko_field_registry%add_field(this%dm_Xh, 'u')
+    call neko_field_registry%add_field(this%dm_Xh, 'v')
+    call neko_field_registry%add_field(this%dm_Xh, 'w')
+    this%u => neko_field_registry%get_field('u')
+    this%v => neko_field_registry%get_field('v')
+    this%w => neko_field_registry%get_field('w')
+
+    ! Initialize time-lag fields
+    call this%ulag%init(this%u, 2)
+    call this%vlag%init(this%v, 2)
+    call this%wlag%init(this%w, 2)
+
     !
     ! First section of fluid log
     !
@@ -608,18 +621,6 @@ contains
        call neko_log%end_section()
     end if
 
-    ! Assign velocity fields
-    call neko_field_registry%add_field(this%dm_Xh, 'u')
-    call neko_field_registry%add_field(this%dm_Xh, 'v')
-    call neko_field_registry%add_field(this%dm_Xh, 'w')
-    this%u => neko_field_registry%get_field('u')
-    this%v => neko_field_registry%get_field('v')
-    this%w => neko_field_registry%get_field('w')
-
-    !! Initialize time-lag fields
-    call this%ulag%init(this%u, 2)
-    call this%vlag%init(this%v, 2)
-    call this%wlag%init(this%w, 2)
 
 
   end subroutine fluid_scheme_init_common
