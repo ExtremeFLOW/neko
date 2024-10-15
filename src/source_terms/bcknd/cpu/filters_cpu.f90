@@ -41,9 +41,9 @@ contains
 
   !> @brief Apply a smooth step function to a scalar.
   subroutine smooth_step_cpu(x, edge0, edge1, n)
+    integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: x
     real(kind=rp), intent(in) :: edge0, edge1
-    integer, intent(in) :: n
 
     x = smooth_step_kernel(x, edge0, edge1)
 
@@ -51,9 +51,9 @@ contains
 
   !> @brief Apply a step function to a scalar.
   subroutine step_function_cpu(x, x_step, value0, value1, n)
+    integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: x
     real(kind=rp), intent(in) :: x_step, value0, value1
-    integer, intent(in) :: n
 
     x = step_function_kernel(x, x_step, value0, value1)
 
@@ -61,9 +61,9 @@ contains
 
   !> @brief Apply a permeability function to a scalar.
   subroutine permeability_cpu(x, k_0, k_1, q, n)
+    integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: x
     real(kind=rp), intent(in) :: k_0, k_1, q
-    integer, intent(in) :: n
 
     x = permeability_kernel(x, k_0, k_1, q)
 
