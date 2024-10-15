@@ -123,10 +123,10 @@ contains
     integer, intent(in) :: tstep
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call sigma_compute_device(t, tstep, this%coef, this%nut, this%delta,&
+        call sigma_compute_device(t, tstep, this%coef, this%nut, this%delta, &
                                 this%c)
     else
-        call sigma_compute_cpu(t, tstep, this%coef, this%nut, this%delta,&
+        call sigma_compute_cpu(t, tstep, this%coef, this%nut, this%delta, &
                                 this%c)
     end if
 

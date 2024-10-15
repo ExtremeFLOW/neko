@@ -75,12 +75,12 @@ contains
     integer :: e, i
 
     ! some constant
-    eps = 1.d-14
+    eps = 1.0_rp-14
 
     ! get fields from registry
     u => neko_field_registry%get_field_by_name("u")
     v => neko_field_registry%get_field_by_name("v")
-    w => neko_field_registry%get_field_by_name("u")
+    w => neko_field_registry%get_field_by_name("w")
 
     call neko_scratch_registry%request_field(g11, temp_indices(1))
     call neko_scratch_registry%request_field(g12, temp_indices(2))
@@ -93,17 +93,17 @@ contains
     call neko_scratch_registry%request_field(g33, temp_indices(9))
 
     ! Compute the derivatives of the velocity (the components of the g tensor)
-    call dudxyz (g11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (g12%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (g13%x, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz(g11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz(g12%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz(g13%x, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
-    call dudxyz (g21%x, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (g22%x, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (g23%x, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz(g21%x, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz(g22%x, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz(g23%x, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
-    call dudxyz (g31%x, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
-    call dudxyz (g32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
-    call dudxyz (g33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
+    call dudxyz(g31%x, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
+    call dudxyz(g32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
+    call dudxyz(g33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
     call coef%gs_h%op(g11%x, g11%dof%size(), GS_OP_ADD)
     call coef%gs_h%op(g12%x, g11%dof%size(), GS_OP_ADD)

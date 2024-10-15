@@ -45,7 +45,7 @@ module vreman_device
   use operators, only : dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
-   implicit none
+  implicit none
   private
 
   public :: vreman_compute_device

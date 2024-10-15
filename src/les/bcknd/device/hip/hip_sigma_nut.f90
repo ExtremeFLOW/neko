@@ -36,7 +36,6 @@ module hip_sigma_nut
   public
 
   interface
-
      subroutine hip_sigma_nut_compute(g11_d, g12_d, g13_d, &
                                       g21_d, g22_d, g23_d, &
                                       g31_d, g32_d, g33_d, &

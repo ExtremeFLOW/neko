@@ -44,7 +44,7 @@ extern "C" {
                              void *delta, void *nut, real *c, real *eps, int * n){
     
     const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks((*nel), 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     hipLaunchKernelGGL(HIP_KERNEL_NAME(hip_sigma_nut_compute<real>),
                                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                                        (real *) g11, (real *) g12, (real *) g13,

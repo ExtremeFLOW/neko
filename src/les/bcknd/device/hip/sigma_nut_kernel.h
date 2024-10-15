@@ -59,13 +59,13 @@ __global__ void hip_sigma_nut_compute(T * __restrict__ g11,
   const int str = blockDim.x * gridDim.x;
 
   for (int i = idx; i < n; i += str) {
-    T sigG11, sigG12, sigG13, sigG22, sigG23, sigG33
-    T sigma1, sigma2, sigma3
-    T Invariant1, Invariant2, Invariant3
-    T alpha1, alpha2, alpha3
-    T Dsigma
-    T pi_3
-    T tmp1
+    T sigG11, sigG12, sigG13, sigG22, sigG23, sigG33;
+    T sigma1, sigma2, sigma3;
+    T Invariant1, Invariant2, Invariant3;
+    T alpha1, alpha2, alpha3;
+    T Dsigma;
+    T pi_3;
+    T tmp1;
     
     pi_3 = 4.0/3.0*atan(1.0);
     sigG11 = g11[i]**2 + g21[i]**2 + g31[i]**2;
