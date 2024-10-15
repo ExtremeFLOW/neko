@@ -155,12 +155,8 @@ contains
     ! Add contribution from all source terms. If time permits.
     if (allocated(this%source_terms)) then
 
-       ! Sum up the mass matrix weighted terms
        do i = 1, size(this%source_terms)
-          if (this%source_terms(i)%source_term%mass_matrix_weighted .eqv. &
-              .true.) then
-               call this%source_terms(i)%source_term%compute(t, tstep)
-          end if
+          call this%source_terms(i)%source_term%compute(t, tstep)
        end do
 
        ! Multiply by mass matrix
@@ -173,13 +169,6 @@ contains
           end if
        end do
 
-       ! Add non-weighted terms
-       do i = 1, size(this%source_terms)
-          if (this%source_terms(i)%source_term%mass_matrix_weighted .eqv. &
-              .false.) then
-               call this%source_terms(i)%source_term%compute(t, tstep)
-          end if
-       end do
     end if
 
   end subroutine source_term_handler_compute
