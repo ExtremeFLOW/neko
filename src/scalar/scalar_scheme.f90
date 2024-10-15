@@ -703,17 +703,18 @@ contains
                                         this%cp, this%lambda, params)
     else
        if (params%valid_path('case.scalar.Pe') .and. &
-           (params%valid_path('case.fluid.lambda') .or. &
-            params%valid_path('case.fluid.cp'))) then
+           (params%valid_path('case.scalar.lambda') .or. &
+            params%valid_path('case.scalar.cp'))) then
           call neko_error("To set the material properties for the scalar,&
-          & either provide Pe OR lambda and pc in the case file.")
+          & either provide Pe OR lambda and cp in the case file.")
           ! Non-dimensional case
        else if (params%valid_path('case.scalar.Pe')) then
           write(log_buf, '(A)') 'Non-dimensional scalar material properties &
           & input.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
-          write(log_buf, '(A)') 'Specific heat capacity will be set to 1, &
-          & conductivity to 1/Pe. Assumes density is 1.'
+          write(log_buf, '(A)') 'Specific heat capacity will be set to 1,'
+          call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+          write(log_buf, '(A)') 'conductivity to 1/Pe. Assumes density is 1.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
           ! Read Pe into lambda for further manipulation.
