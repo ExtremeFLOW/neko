@@ -31,13 +31,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Implements the device kernel for the `sigma_t` type.
-module vreman_device
+module sigma_device
   use num_types, only : rp
   use field_list, only : field_list_t
-  use device_math, only : device_cadd, device_col2, device_col3, &
-                          device_addcol3, device_subcol3, device_add4, &
-                          device_invcol2, device_vecsqrt1, device_cmult, &
-                          device_rmneg
+  use device_math, only : device_col2
   use math, only : NEKO_EPS
   use scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
@@ -45,7 +42,7 @@ module vreman_device
   use operators, only : dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
-  use device_sigma_nut, only : device_sigma_nut
+  use device_sigma_nut, only : device_sigma_nut_compute
   implicit none
   private
 
@@ -135,3 +132,4 @@ contains
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine sigma_compute_device
+end module sigma_device

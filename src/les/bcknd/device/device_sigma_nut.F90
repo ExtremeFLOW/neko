@@ -41,11 +41,11 @@ module device_sigma_nut
   ! Device interfaces for nut calculation in the Sigma model
 
   use hip_sigma_nut
-  use cuda_sigma_nut
+  ! use cuda_sigma_nut
   implicit none
   private
 
-  public :: device_sigma_nut
+  public :: device_sigma_nut_compute
 
 contains
 
@@ -72,7 +72,7 @@ contains
 #else
     call neko_error('no device backend configured')
 #endif
-  end subroutine device_sigma_nut
+  end subroutine device_sigma_nut_compute
 
   
 end module device_sigma_nut
