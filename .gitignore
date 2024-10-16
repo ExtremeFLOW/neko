@@ -14,6 +14,7 @@
 *.dirstamp
 *.Po
 Makefile
+!tests/bench/**/Makefile
 aclocal.m4
 compile
 config.guess

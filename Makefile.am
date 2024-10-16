@@ -24,16 +24,16 @@ EXTRA_DIST = \
 	makeneko.in\
 	regen.sh\
 	flinter_rc.yml\
-	bench/ax/setup.f90\
-	bench/ax/Makefile\
-	bench/ax/axkernel.f90\
-	bench/ax/driver.f90\
-	bench/gs/Makefile\
-	bench/gs/driver.f90\
-	bench/tgv32/tgv.case\
-	bench/tgv32/README\
-	bench/tgv32/extract.sh\
-	bench/tgv32/tgv.f90\
+	tests/bench/ax/setup.f90\
+	tests/bench/ax/Makefile\
+	tests/bench/ax/axkernel.f90\
+	tests/bench/ax/driver.f90\
+	tests/bench/gs/Makefile\
+	tests/bench/gs/driver.f90\
+	tests/bench/tgv32/tgv.case\
+	tests/bench/tgv32/README\
+	tests/bench/tgv32/extract.sh\
+	tests/bench/tgv32/tgv.f90\
 	examples/turb_channel/turb_channel.case\
 	examples/turb_channel/README.md\
 	examples/turb_channel/turb_channel.f90\
