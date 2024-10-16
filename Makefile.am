@@ -31,7 +31,7 @@ EXTRA_DIST = \
 	tests/bench/gs/Makefile\
 	tests/bench/gs/driver.f90\
 	tests/bench/tgv32/tgv.case\
-	tests/bench/tgv32/README\
+	tests/bench/tgv32/README.md\
 	tests/bench/tgv32/extract.sh\
 	tests/bench/tgv32/tgv.f90\
 	examples/turb_channel/turb_channel.case\
@@ -101,7 +101,7 @@ EXTRA_DIST = \
 	tests/reframe/src/minihemi.case.template\
 	tests/reframe/src/rayleigh.case.template\
 	tests/reframe/src/rayleigh.f90\
-	tests/reframe/src/rocm_select_gpu_device\
+	tests/reframe/src/rocm_select_gpu_device.sh\
 	tests/reframe/src/tgv.case.template\
 	tests/reframe/src/tgv.f90\
 	patches/nvhpc_bge.patch\
