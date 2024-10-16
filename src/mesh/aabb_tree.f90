@@ -144,6 +144,9 @@ module aabb_tree
      procedure, pass(this), public :: insert_object => &
           aabb_tree_insert_object
 
+     ! Destructor
+     procedure, pass(this), public :: free => aabb_tree_free
+
      ! Getters
      procedure, pass(this), public :: get_size => aabb_tree_get_size
 
@@ -326,13 +329,14 @@ contains
 
     integer :: i
 
+    call this%free()
+
     this%root_node_index = AABB_NULL_NODE
     this%allocated_node_count = 0
     this%next_free_node_index = 1
     this%node_capacity = initial_capacity
     this%growth_size = initial_capacity
 
-    if (allocated(this%nodes)) deallocate(this%nodes)
     allocate(this%nodes(initial_capacity))
 
     do i = 1, initial_capacity
@@ -340,6 +344,18 @@ contains
     end do
     this%nodes(initial_capacity)%next_node_index = AABB_NULL_NODE
   end subroutine aabb_tree_init
+
+  subroutine aabb_tree_free(this)
+    class(aabb_tree_t), intent(inout) :: this
+
+    this%root_node_index = AABB_NULL_NODE
+    this%allocated_node_count = 0
+    this%next_free_node_index = -1
+    this%node_capacity = 0
+    this%growth_size = 0
+
+    if (allocated(this%nodes)) deallocate(this%nodes)
+  end subroutine aabb_tree_free
 
   !> @brief Builds the tree.
   subroutine aabb_tree_build_tree(this, objects, padding)
