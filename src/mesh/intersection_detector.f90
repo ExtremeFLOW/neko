@@ -58,7 +58,10 @@ module intersection_detector
    contains
      procedure, pass(this) :: init => intersect_detector_init
      procedure, pass(this) :: free => intersect_detector_free
-     procedure, pass(this) :: overlap => intersect_detector_overlap
+
+     generic :: overlap => overlap_stack, overlap_array
+     procedure, pass(this) :: overlap_stack => intersect_detector_overlap_stack
+     procedure, pass(this) :: overlap_array => intersect_detector_overlap_array
   end type intersect_detector_t
 
 contains
@@ -95,13 +98,23 @@ contains
   end subroutine intersect_detector_free
 
   !> Computes the overlap between elements and a given point @a p
-  subroutine intersect_detector_overlap(this, p, overlaps)
+  subroutine intersect_detector_overlap_stack(this, p, overlaps)
     class(intersect_detector_t), intent(inout) :: this
     type(point_t), intent(in) :: p
     type(stack_i4_t), intent(inout) :: overlaps
 
     call this%search_tree%query_overlaps(p, overlaps)
 
-  end subroutine intersect_detector_overlap
+  end subroutine intersect_detector_overlap_stack
+
+  !> Computes the overlap between elements and a given point @a p
+  subroutine intersect_detector_overlap_array(this, p, overlaps)
+    class(intersect_detector_t), intent(inout) :: this
+    type(point_t), intent(in) :: p
+    integer, dimension(:), allocatable, intent(inout) :: overlaps
+
+    call this%search_tree%query_overlaps(p, overlaps)
+
+  end subroutine intersect_detector_overlap_array
 
 end module intersection_detector
