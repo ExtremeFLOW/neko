@@ -71,6 +71,7 @@ module aabb_tree
   use aabb
   use tri, only: tri_t
   use num_types, only: rp, dp
+  use stack, only: stack_i4_t
 
   implicit none
   private
@@ -167,8 +168,9 @@ module aabb_tree
 
      procedure, pass(this), public :: get_aabb => aabb_tree_get_aabb
 
-     procedure, pass(this), public :: query_overlaps => &
-          aabb_tree_query_overlaps
+     generic, public :: query_overlaps => query_overlaps_stack
+     procedure, pass(this) :: query_overlaps_stack => &
+          aabb_tree_query_overlaps_stack
 
      procedure, pass(this), public :: print => aabb_tree_print
 
@@ -610,14 +612,18 @@ contains
   end subroutine aabb_tree_insert_object
 
   !> @brief Queries the tree for overlapping objects.
-  subroutine aabb_tree_query_overlaps(this, object, object_index, overlaps)
-    use stack, only: stack_i4_t
-    implicit none
-
+  !> @brief Queries the tree for overlapping objects.
+  !!
+  !! @param[in] this The tree to query.
+  !! @param[in] object The object to query for overlaps.
+  !! @param[out] overlaps The stack to store the overlapping object indices.
+  !! @param[in,optional] index The index of the object to guard self overlaps.
+  subroutine aabb_tree_query_overlaps_stack(this, object, overlaps, index)
     class(aabb_tree_t), intent(in) :: this
     class(*), intent(in) :: object
-    integer, intent(in) :: object_index
     type(stack_i4_t), intent(inout) :: overlaps
+    integer, intent(in), optional :: index
+    integer :: object_index
 
     type(stack_i4_t) :: simple_stack
     type(aabb_t) :: object_box
@@ -625,6 +631,13 @@ contains
     integer :: root_index, left_index, right_index
 
     integer :: node_index, tmp_index
+
+    ! Set the object index to -1 if not present
+    object_index = -1
+    if (present(index)) object_index = index
+
+    ! Ensure the overlaps stack is empty
+    call overlaps%init()
 
     object_box = get_aabb(object)
     root_index = this%get_root_index()
@@ -651,7 +664,7 @@ contains
           end if
        end if
     end do
-  end subroutine aabb_tree_query_overlaps
+  end subroutine aabb_tree_query_overlaps_stack
 
   ! -------------------------------------------------------------------------- !
   ! Internal methods

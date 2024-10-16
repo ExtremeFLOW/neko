@@ -110,7 +110,7 @@ contains
     type(point_t), intent(in) :: p
     type(stack_i4_t), intent(inout) :: overlaps
 
-    call this%search_tree%query_overlaps(p, -1, overlaps)      
+    call this%search_tree%query_overlaps(p, overlaps)      
     
   end subroutine intersect_detector_overlap
   
