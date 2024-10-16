@@ -36,14 +36,18 @@
 !! be found at https://github.com/Nek5000/gslib/blob/master/src/findpts.c
 !!
 module global_interpolation
-  use num_types, only: rp
+  use num_types, only: rp, dp
   use space, only: space_t
+  use stack
   use dofmap, only: dofmap_t
   use mesh, only: mesh_t
   use logger, only: neko_log, LOG_SIZE
   use utils, only: neko_error, neko_warning
   use local_interpolation
+  use point
   use comm
+  use aabb
+  use aabb_tree
   use math, only: copy
   use neko_mpi_types
   use structs, only: array_ptr_t
@@ -66,10 +70,10 @@ module global_interpolation
      type(space_t), pointer :: Xh
      !> Interpolator for local points.
      type(local_interpolator_t) :: local_interp
+     type(local_interpolator_t) :: local_interp_me
      !> If all points are local on this PE.
      logical :: all_points_local = .false.
      !! Gslib handle.
-     !! @note: Remove when we remove gslib.
      integer :: gs_handle
      logical :: gs_init = .false.
      !> Components related to the points we want to evalute
@@ -83,6 +87,15 @@ module global_interpolation
      !> List of owning elements.
      integer, allocatable :: el_owner(:)
      type(c_ptr) :: el_owner_d = c_null_ptr
+     integer, allocatable :: my_el(:)
+     real(kind=rp), allocatable :: rst_me(:,:)
+     real(kind=rp), allocatable :: new_xyz(:,:)
+     integer, allocatable :: pt_ids(:)
+     integer :: n_points_at_this_pe
+     integer, allocatable :: n_points_at_pe(:)
+     integer, allocatable :: n_points_from_pe(:)
+     integer, allocatable :: n_point_offset_from_pe(:)
+     integer, allocatable :: n_point_offset_at_pe(:)
      !> r,s,t coordinates findpts format.
      !! @note: When replacing gs we can change format
      real(kind=rp), allocatable :: rst(:,:)
@@ -93,6 +106,13 @@ module global_interpolation
      integer, allocatable :: error_code(:)
      !> Tolerance for distance squared between original and interpolated point.
      real(kind=rp) :: tol = 5d-13
+     !> Finding elements
+     type(aabb_t), allocatable :: global_aabb(:)
+     type(aabb_tree_t) :: global_aabb_tree
+     type(aabb_t), allocatable :: local_aabb(:)
+     type(aabb_tree_t) :: local_aabb_tree
+
+
    contains
      !> Initialize the global interpolation object on a dofmap.
      procedure, pass(this) :: init_xyz => global_interpolation_init_xyz
@@ -154,8 +174,10 @@ contains
     integer, intent(in) :: nelv
     type(space_t), intent(in), target :: Xh
     real(kind=rp), intent(in), optional :: tol
-    integer :: lx, ly, lz, max_pts_per_iter
-
+    integer :: lx, ly, lz, max_pts_per_iter, ierr, i, id1, id2, n
+    real(kind=dp), allocatable :: rank_xyz_max(:,:), rank_xyz_min(:,:)
+    type(stack_i4_t) :: pe_candidates
+    real(kind=dp) :: max_xyz(3), min_xyz(3), padding
 #ifdef HAVE_GSLIB
 
     this%x%ptr => x
@@ -182,8 +204,43 @@ contains
          lx*ly*lz*nelv, lx*ly*lz*nelv, & ! local/global hash mesh sizes
          max_pts_per_iter, this%tol)
     this%gs_init = .true.
+    n = nelv * lx*ly*lz
+    allocate(rank_xyz_max(3,pe_size))
+    allocate(rank_xyz_min(3,pe_size))
+    max_xyz = (/maxval(x(1:n)), maxval(y(1:n)), maxval(z(1:n))/)
+    min_xyz = (/minval(x(1:n)), minval(y(1:n)), minval(z(1:n))/)
+    call MPI_Allgather(max_xyz, 3, MPI_DOUBLE_PRECISION, rank_xyz_max, 3, MPI_DOUBLE_PRECISION, NEKO_COMM, ierr) 
+    call MPI_Allgather(min_xyz, 3, MPI_DOUBLE_PRECISION, rank_xyz_min, 3, MPI_DOUBLE_PRECISION, NEKO_COMM, ierr) 
+    
+    allocate(this%global_aabb(pe_size))
+    allocate(this%local_aabb(nelv))
+    
+    do i = 1, pe_size
+       call this%global_aabb(i)%init(rank_xyz_min(:,i), rank_xyz_max(:,i))
+
+    end do
+    padding = 0.1
+    call this%global_aabb_tree%init(pe_size+1)
+    call this%global_aabb_tree%build(this%global_aabb, padding)
+    do i = 1, pe_size
+       call pe_candidates%init() 
+       call this%global_aabb_tree%query_overlaps(this%global_aabb(i),-1, pe_candidates)
+       call pe_candidates%free() 
+
+    end do
+    do i = 1, nelv
+       id1 = lx*ly*lz*(i-1)
+       id2 = lx*ly*lz*(i)
+       max_xyz = (/maxval(this%x%ptr(id1:id2)), maxval(this%y%ptr(id1:id2)), maxval(this%z%ptr(id1:id2))/)
+       min_xyz = (/minval(this%x%ptr(id1:id2)), minval(this%y%ptr(id1:id2)), minval(this%z%ptr(id1:id2))/)
+       call this%local_aabb(i)%init(min_xyz, max_xyz)
+    end do
+
+    call this%local_aabb_tree%init(nelv)
+    call this%local_aabb_tree%build(this%local_aabb, padding)
 #else
     call neko_error('Neko needs to be built with GSLIB support')
+    
 #endif
 
   end subroutine global_interpolation_init_xyz
@@ -241,12 +298,47 @@ contains
     real(kind=rp), allocatable :: x_check(:)
     real(kind=rp), allocatable :: y_check(:)
     real(kind=rp), allocatable :: z_check(:)
+    real(kind=rp), allocatable :: x_check2(:)
+    real(kind=rp), allocatable :: y_check2(:)
+    real(kind=rp), allocatable :: z_check2(:)
+    real(kind=rp), allocatable :: x_t(:)
+    real(kind=rp), allocatable :: y_t(:)
+    real(kind=rp), allocatable :: z_t(:),  rst_me_cand(:,:)
+    real(kind=rp), allocatable :: resx(:)
+    real(kind=rp), allocatable :: resy(:)
+    real(kind=rp), allocatable :: resz(:)
+    real(kind=rp), allocatable :: rsts(:,:)
+    real(kind=rp), allocatable :: res(:,:)
+    integer, allocatable :: el_owner(:)
+    integer, allocatable :: pe_owner(:)
+    type(local_interpolator_t) :: local_interp_gs, local_interp_me
     logical :: isdiff
-    integer :: i
+    real(kind=dp) :: pt_xyz(3), res1
+    integer :: i, j, stupid_intent
+    type(point_t), allocatable :: my_point(:)
+    type(point_t), allocatable :: my_points(:)
+    type(stack_i4_t) :: all_el_candidates
+    type(stack_i4_t), allocatable :: points_at_pe(:)
+    type(stack_i4_t), allocatable :: pe_candidates(:)
+    type(stack_i4_t), allocatable :: el_candidates(:)
+    integer, allocatable :: n_el_cands(:)
+    integer, pointer :: pe_cands(:)
+    integer, pointer :: el_cands(:)
+    integer, pointer :: point_ids(:)
+    real(kind=rp), allocatable :: xyz_send_to_pe(:,:)
+    real(kind=rp), allocatable :: rst_send_to_pe(:,:)
+    real(kind=rp), allocatable :: rst_recv_from_pe(:,:)
+    real(kind=rp), allocatable :: res_recv_from_pe(:,:)
+    integer, allocatable :: el_owners(:), el_send_to_pe(:)
+    integer :: ierr, max_n_points_to_send, ii, n_point_cand, point_id
+    real(kind=rp) :: time1, time2, time_start
 
 
 #ifdef HAVE_GSLIB
+    call MPI_Barrier(NEKO_COMM)
+    time_start = MPI_Wtime()
 
+    call neko_log%message('Setting up global interpolation')  
     ! gslib find points, which element they belong, to process etc.
     call fgslib_findpts(this%gs_handle, &
          this%error_code, 1, &
@@ -257,9 +349,243 @@ contains
          this%xyz(1,1), this%gdim, &
          this%xyz(2,1), this%gdim, &
          this%xyz(3,1), this%gdim, this%n_points)
+    ! Find pe candidates that the points i want may be at
+    ! Add number to n_points_from_pe
+    allocate(this%n_points_at_pe(0:(pe_size-1)))
+    allocate(points_at_pe(0:(pe_size-1)))
+    allocate(pe_candidates(this%n_points))
+    allocate(my_point(this%n_points))
+    allocate(this%n_points_from_pe(0:(pe_size-1)))
+    this%n_points_at_pe = 0
+    do i = 0, pe_size-1
+       call points_at_pe(i)%init() 
+    end do
+    do i = 1, this%n_points
+       pt_xyz = (/ this%xyz(1,i),this%xyz(2,i),this%xyz(3,i) /)
+       call pe_candidates(i)%init() 
+       call my_point(i)%init(pt_xyz) 
+    end do
+    do i = 1, this%n_points
+       call this%global_aabb_tree%query_overlaps(my_point(i),-1, pe_candidates(i))
+       pe_cands => pe_candidates(i)%array()
+       do j = 1, pe_candidates(i)%size()
+          this%n_points_at_pe(pe_cands(j)-1) = this%n_points_at_pe(pe_cands(j)-1) + 1
+          stupid_intent = i
+          call points_at_pe(pe_cands(j)-1)%push(stupid_intent)
+       end do
+    end do
+    !Send number of points I want to candidates
+    ! n_points_at_this_pe -> how many points might be at this rank
+    ! n_points_from_pe -> how many points I have that pe i might want
+    this%n_points_from_pe = 0
+    do i = 0, (pe_size - 1)
+       call MPI_Reduce(this%n_points_at_pe(i), this%n_points_at_this_pe, 1, MPI_INTEGER, &
+            MPI_SUM, i, NEKO_COMM, ierr)
+       !n_points_from_pe gives the number of points I will receive from every rank
+       call MPI_Gather(this%n_points_at_pe(i), 1, MPI_INTEGER,&
+                      this%n_points_from_pe, 1, MPI_INTEGER, i, NEKO_COMM, ierr)
+    end do
+
+    allocate(this%n_point_offset_from_pe(0:(pe_size-1)))
+    allocate(this%n_point_offset_at_pe(0:(pe_size-1)))
+    this%n_point_offset_from_pe(0) = 0
+    this%n_point_offset_at_pe(0) = 0
+    do i = 1, (pe_size - 1)
+       this%n_point_offset_from_pe(i) = this%n_points_from_pe(i-1)&
+                                 + this%n_point_offset_from_pe(i-1)
+       this%n_point_offset_at_pe(i) = this%n_points_at_pe(i-1)&
+                                 + this%n_point_offset_at_pe(i-1)
+    end do
+    
+    allocate(this%new_xyz(3, this%n_points_at_this_pe))
+    max_n_points_to_send = max(maxval(this%n_points_at_pe),1)
+    allocate(xyz_send_to_pe(3, max_n_points_to_send))
+    do i = 0, (pe_size - 1)
+       point_ids => points_at_pe(i)%array()
+       do j = 1, this%n_points_at_pe(i)
+          xyz_send_to_pe(:,j) = this%xyz(:,point_ids(j))
+       end do
+       call MPI_Gatherv(xyz_send_to_pe,3*this%n_points_at_pe(i), &
+                        MPI_DOUBLE_PRECISION, this%new_xyz,3*this%n_points_from_pe, &
+                        3*this%n_point_offset_from_pe, &
+                        MPI_DOUBLE_PRECISION, i, NEKO_COMM, ierr)
+    end do
+
+
+
+    !Okay, now we need to find the rst...
+    call all_el_candidates%init()
+    allocate(el_candidates(this%n_points_at_this_pe))
+    allocate(my_points(this%n_points_at_this_pe))
+    do i = 1, this%n_points_at_this_pe
+       call el_candidates(i)%init()
+       pt_xyz = (/ this%new_xyz(1,i),this%new_xyz(2,i),this%new_xyz(3,i) /)
+       call my_points(i)%init(pt_xyz) 
+    end do
+    allocate(n_el_cands(this%n_points_at_this_pe))
+    do i = 1, this%n_points_at_this_pe
+       call this%local_aabb_tree%query_overlaps(my_points(i),-1, el_candidates(i))
+       el_cands => el_candidates(i)%array()
+       do j = 1, el_candidates(i)%size()
+          stupid_intent = el_cands(j) -1
+          call all_el_candidates%push(stupid_intent) !< OBS c indexing
+       end do
+       n_el_cands(i) = el_candidates(i)%size()
+    end do
+
+      
+    n_point_cand = all_el_candidates%size()
+    allocate(x_t(n_point_cand))
+    allocate(y_t(n_point_cand))
+    allocate(z_t(n_point_cand))
+    ii = 0
+    do i = 1 , this%n_points_at_this_pe
+       do j = 1, n_el_cands(i) 
+          ii = ii + 1
+          x_t(ii) = this%new_xyz(1,i)
+          y_t(ii) = this%new_xyz(2,i)
+          z_t(ii) = this%new_xyz(3,i)
+       end do
+    end do
+
+    allocate(rst_me_cand(3,n_point_cand))
+    allocate(resx(n_point_cand))
+    allocate(resy(n_point_cand))
+    allocate(resz(n_point_cand))
+    allocate(this%rst_me(3,this%n_points_at_this_pe))
+    allocate(this%my_el(this%n_points_at_this_pe))
+    
+
+    el_cands => all_el_candidates%array() 
+    call neko_log%message('In global interpolation, finding rst')  
+    call MPI_Barrier(NEKO_COMM)
+    time1 = MPI_Wtime()
+    call find_rst_legendre(rst_me_cand, x_t, y_t, z_t, this%Xh, this%x%ptr, this%y%ptr, this%z%ptr, el_cands, n_point_cand, this%nelv, resx,resy,resz)
+ 
+    call MPI_Barrier(NEKO_COMM)
+    time2 = MPI_Wtime()
+    write(log_buf,*) 'rst found, took', time2-time1,'seconds'
+    call neko_log%message(log_buf)  
+     ii = 0
+     do i = 1 , this%n_points_at_this_pe
+        this%new_xyz(1,i) = 1.0
+        this%new_xyz(2,i) = 1.0
+        this%new_xyz(3,i) = 1.0
+        this%rst_me(1,i) = 10.0
+        this%rst_me(2,i) = 10.0
+        this%rst_me(3,i) = 10.0
+        do j = 1, n_el_cands(i) 
+           ii = ii + 1
+           if (rst_cmp(this%rst_me(:,i), rst_me_cand(:,ii), this%new_xyz(:,i), (/resx(ii),resy(ii),resz(ii)/), this%tol)) then
+              this%rst_me(1,i) = rst_me_cand(1,ii)
+              this%rst_me(2,i) = rst_me_cand(2,ii)
+              this%rst_me(3,i) = rst_me_cand(3,ii)
+              this%new_xyz(1,i) = resx(ii)
+              this%new_xyz(2,i) = resy(ii)
+              this%new_xyz(3,i) = resz(ii)
+              this%my_el(i) = el_cands(ii)
+           end if
+        end do
+    end do
+    allocate(rsts(3,this%n_points))
+    allocate(res(3,this%n_points))
+    allocate(pe_owner(this%n_points))
+    allocate(el_owner(this%n_points))
+    allocate(rst_recv_from_pe(3, max_n_points_to_send))
+    allocate(res_recv_from_pe(3, max_n_points_to_send))
+    allocate(el_owners(max_n_points_to_send))
+    res = 1.0
+    !> Send rst and res to rank who want this point  
+    do i = 0, (pe_size - 1)
+       call MPI_Scatterv(this%rst_me,3*this%n_points_from_pe, 3*this%n_point_offset_from_pe,&
+                        MPI_DOUBLE_PRECISION, rst_recv_from_pe,3*this%n_points_at_pe(i), &
+                        MPI_DOUBLE_PRECISION, i, NEKO_COMM, ierr)
+       call MPI_Scatterv(this%new_xyz,3*this%n_points_from_pe, 3*this%n_point_offset_from_pe,&
+                        MPI_DOUBLE_PRECISION, res_recv_from_pe,3*this%n_points_at_pe(i), &
+                        MPI_DOUBLE_PRECISION, i, NEKO_COMM, ierr)
+       call MPI_Scatterv(this%my_el,this%n_points_from_pe, this%n_point_offset_from_pe,&
+                        MPI_INTEGER, el_owners,this%n_points_at_pe(i), &
+                        MPI_INTEGER, i, NEKO_COMM, ierr)
+       point_ids => points_at_pe(i)%array()
+       do j = 1, this%n_points_at_pe(i)
+          point_id = point_ids(j)
+          if (rst_cmp(rsts(:,point_id), rst_recv_from_pe(:,j), res(:,point_id), res_recv_from_pe(:,j), this%tol)) then
+             rsts(:,point_ids(j)) = rst_recv_from_pe(:,j)
+             res(:,point_ids(j)) = res_recv_from_pe(:,j)
+             pe_owner(point_ids(j)) = i
+             el_owner(point_ids(j)) = el_owners(j)
+          end if
+       end do
+    end do
+     
+    !OK, now I know the correct rst values 
+    !of the points I want
+    !Time to send them to the correct ranks 
+    
+    do i = 0, pe_size-1
+       call points_at_pe(i)%free() 
+       call points_at_pe(i)%init() 
+       this%n_points_at_pe(i) = 0
+    end do
+    
+    do i = 1, this%n_points
+       stupid_intent = i
+       call points_at_pe(pe_owner(i))%push(stupid_intent)
+       this%n_points_at_pe(pe_owner(i)) =  this%n_points_at_pe(pe_owner(i)) + 1
+    end do
+    do i = 0, (pe_size - 1)
+       call MPI_Reduce(this%n_points_at_pe(i), this%n_points_at_this_pe, 1, MPI_INTEGER, &
+            MPI_SUM, i, NEKO_COMM, ierr)
+       !n_points_from_pe gives the number of points I will receive from every rank
+       call MPI_Gather(this%n_points_at_pe(i), 1, MPI_INTEGER,&
+                      this%n_points_from_pe, 1, MPI_INTEGER, i, NEKO_COMM, ierr)
+    end do
+    this%n_point_offset_from_pe(0) = 0
+    this%n_point_offset_at_pe(0) = 0
+    do i = 1, (pe_size - 1)
+       this%n_point_offset_from_pe(i) = this%n_points_from_pe(i-1)&
+                                 + this%n_point_offset_from_pe(i-1)
+       this%n_point_offset_at_pe(i) = this%n_points_at_pe(i-1)&
+                                 + this%n_point_offset_at_pe(i-1)
+    end do
+    allocate(rst_send_to_pe(3, max_n_points_to_send))
+    allocate(el_send_to_pe(max_n_points_to_send))
+    allocate(this%pt_ids(this%n_points))
+    ii = 0
+    do i = 0, (pe_size - 1)
+       point_ids => points_at_pe(i)%array()
+       do j = 1, this%n_points_at_pe(i)
+          ii = ii + 1
+          xyz_send_to_pe(:,j) = this%xyz(:,point_ids(j))
+          rst_send_to_pe(:,j) = rsts(:,point_ids(j))
+          el_send_to_pe(j) = el_owner(point_ids(j))
+          this%pt_ids(ii) = point_ids(j)
+       end do
+       call MPI_Gatherv(xyz_send_to_pe,3*this%n_points_at_pe(i), &
+                        MPI_DOUBLE_PRECISION, this%new_xyz,3*this%n_points_from_pe, &
+                        3*this%n_point_offset_from_pe, &
+                        MPI_DOUBLE_PRECISION, i, NEKO_COMM, ierr)
+    call MPI_Gatherv(rst_send_to_pe,3*this%n_points_at_pe(i), &
+                        MPI_DOUBLE_PRECISION, this%rst_me,3*this%n_points_from_pe, &
+                        3*this%n_point_offset_from_pe, &
+                        MPI_DOUBLE_PRECISION, i, NEKO_COMM, ierr)
+    call MPI_Gatherv(el_send_to_pe,this%n_points_at_pe(i), &
+                        MPI_INTEGER, this%my_el,this%n_points_from_pe, &
+                        this%n_point_offset_from_pe, &
+                        MPI_INTEGER, i, NEKO_COMM, ierr)
+
+    end do
+
+
+     
+
 
     do i = 1 , this%n_points
-
+       !if (this%el_owner(i) .ne. el_owner(i)) then 
+       !   print *,'gslib:' ,i, this%proc_owner(i), this%el_owner(i), this%rst(1,i), this%rst(2,i), this%rst(3,i)
+       !   print *,'Karp: ', i, pe_owner(i), el_owner(i), rsts(1,i), rsts(2,i), rsts(3,i)
+       !   print *,'diff: ' ,i, this%el_owner(i),  this%rst(1,i) -rsts(1,i), this%rst(2,i)-rsts(2,i), this%rst(3,i) - rsts(3,i)
+       !end if
        !
        ! Check validity of points
        !
@@ -289,6 +615,9 @@ contains
     allocate(x_check(this%n_points))
     allocate(y_check(this%n_points))
     allocate(z_check(this%n_points))
+    allocate(x_check2(this%n_points))
+    allocate(y_check2(this%n_points))
+    allocate(z_check2(this%n_points))
 
     call fgslib_findpts_eval(this%gs_handle, x_check, &
                              1, this%error_code, 1, &
@@ -331,15 +660,90 @@ contains
        end if
 
     end do
+    call this%local_interp_me%init(this%Xh, this%rst_me(1,:),&
+                                this%rst_me(2,:), this%rst_me(3,:), this%n_points_at_this_pe)
+    call this%evaluate(x_check2, this%x%ptr)
+    call this%evaluate(y_check2, this%y%ptr)
+    call this%evaluate(z_check2, this%z%ptr)
+    do i = 1 , this%n_points
+
+   !
+       ! Check validity of points
+       !
+       isdiff = .false.
+       xdiff = (x_check(i)-this%xyz(1,i))**2
+       if ( xdiff .gt. this%tol) isdiff = .true.
+       ydiff = (y_check(i)-this%xyz(2,i))**2
+       if ( ydiff .gt. this%tol) isdiff = .true.
+       zdiff = (z_check(i)-this%xyz(3,i))**2
+       if ( zdiff .gt. this%tol) isdiff = .true.
+       if (isdiff) then
+          write(*,*) 'gslibpt with coord: ', &
+                this%xyz(1, i), this%xyz(2, i), this%xyz(3, i), &
+                'Differ from interpolated coords: ', &
+                x_check(i), y_check(i), z_check(i), &
+                'Distance squared: ', &
+                xdiff, ydiff, zdiff
+       end if
+
+   !
+       ! Check validity of points
+       !
+       isdiff = .false.
+       xdiff = (x_check2(i)-this%xyz(1,i))**2
+       if ( xdiff .gt. this%tol) isdiff = .true.
+       ydiff = (y_check2(i)-this%xyz(2,i))**2
+       if ( ydiff .gt. this%tol) isdiff = .true.
+       zdiff = (z_check2(i)-this%xyz(3,i))**2
+       if ( zdiff .gt. this%tol) isdiff = .true.
+
+       if (isdiff) then
+          write(*,*) 'Karp-Perez Points with coords: ', &
+                this%xyz(1, i), this%xyz(2, i), this%xyz(3, i), &
+                'Differ from interpolated coords: ', &
+                x_check2(i), y_check2(i), z_check2(i), &
+                'Distance squared: ', &
+                xdiff, ydiff, zdiff
+       end if
+
+
+   !
+       ! Check validity of points
+       !
+       isdiff = .false.
+       xdiff = (x_check(i)-x_check2(i))**2
+       if ( xdiff .gt. this%tol) isdiff = .true.
+       ydiff = (y_check(i)-y_check2(i))**2
+       if ( ydiff .gt. this%tol) isdiff = .true.
+       zdiff = (z_check(i)-z_check2(i))**2
+       if ( zdiff .gt. this%tol) isdiff = .true.
+
+       if (isdiff) then
+          write(*,*) 'Points with coords: ', &
+                this%xyz(1, i), this%xyz(2, i), this%xyz(3, i), &
+                'Differ from interpolated coords: ', &
+                x_check2(i), y_check2(i), z_check2(i), &
+                'Distance squared: ', &
+                xdiff, ydiff, zdiff
+       end if
+
+
+
+    end do
+
 
     deallocate(x_check)
     deallocate(y_check)
     deallocate(z_check)
 
+    call MPI_Barrier(NEKO_COMM)
+    time2 = MPI_Wtime()
+    write(log_buf,*) 'Global interpolation setup done, took', time2-time_start,'seconds'
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%el_owner, this%el_owner_d, &
             this%n_points, HOST_TO_DEVICE, sync = .true.)
     end if
+    call neko_log%message(log_buf)  
 #else
     call neko_error('Neko needs to be built with GSLIB support')
 #endif
@@ -458,25 +862,29 @@ contains
 
     call global_interpolation_find_common(this)
     !> Sets new points and redistributes them
-    call global_interpolation_redist(this)
-    call global_interpolation_find_common(this)
-
-    do i = 1, this%n_points
-       if (this%proc_owner(i) .ne. pe_rank) then
-          write(*,*) 'Redistribution failed on rank: ', pe_rank, &
-                     'for point with coord: ', &
-                     this%xyz(1, i), this%xyz(2, i), this%xyz(3, i)
-          exit
-       end if
-    end do
+    !call global_interpolation_redist(this)
+    deallocate(this%xyz)
+    deallocate(this%rst)
+    deallocate(this%proc_owner)
+    deallocate(this%el_owner)
+    this%n_points = this%n_points_at_this_pe
+    
+   
+    !call global_interpolation_find_common(this)
+    !do i = 1, this%n_points
+    !   if (this%proc_owner(i) .ne. pe_rank) then
+    !      write(*,*) 'Redistribution failed on rank: ', pe_rank, &
+    !                 'for point with coord: ', &
+    !                 this%xyz(1, i), this%xyz(2, i), this%xyz(3, i)
+    !      exit
+    !   end if
+    !end do
 
     n_points = this%n_points
     deallocate(xyz)
     allocate(xyz(3, n_points))
-    call copy(xyz, this%xyz, 3*n_points)
+    call copy(xyz, this%new_xyz, 3*n_points)
 
-    call this%local_interp%init(this%Xh, this%rst(1,:),&
-                                this%rst(2,:), this%rst(3,:), n_points)
     this%all_points_local = .true.
 
 
@@ -550,6 +958,7 @@ contains
     call copy(this%xyz, new_xyz, 3 * n_new_points)
 
     deallocate(n_point_offset_from_pe)
+
     deallocate(n_points_from_pe)
     deallocate(n_points_per_pe)
     deallocate(xyz_send_to_pe)
@@ -558,30 +967,37 @@ contains
 
 
 
-  !> Evalute the interpolated value in the points given a field on the dofmap
+  !> Evalute the interpolated value in the points given a field
   !! @param interp_values Array of values in the given points.
   !! @param field Array of values used for interpolation.
   subroutine global_interpolation_evaluate(this, interp_values, field)
     class(global_interpolation_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: interp_values(this%n_points)
     real(kind=rp), intent(inout) :: field(this%nelv*this%Xh%lxyz)
-
-
-#ifdef HAVE_GSLIB
+    integer :: ierr, i
+    real(kind=rp), allocatable :: tmp_vals(:), tmp_vals2(:)
+    real(kind=rp) :: time1, time2
+    allocate(tmp_vals(this%n_points_at_this_pe))
+    allocate(tmp_vals2(this%n_points))
     if (.not. this%all_points_local) then
-       call fgslib_findpts_eval(this%gs_handle, interp_values, &
-                                1, this%error_code, 1, &
-                                this%proc_owner, 1, this%el_owner, 1, &
-                                this%rst, this%gdim, &
-                                this%n_points, field)
+       call this%local_interp_me%evaluate(tmp_vals, this%my_el, &
+                                          field, this%nelv)
+
+       call MPI_Alltoallv(tmp_vals, this%n_points_from_pe,&
+                          this%n_point_offset_from_pe,&
+                          MPI_REAL_PRECISION, tmp_vals2,&
+                          this%n_points_at_pe, &
+                          this%n_point_offset_at_pe, &
+                          MPI_REAL_PRECISION,&
+                          NEKO_COMM, ierr)
+        do i = 1, this%n_points
+           interp_values(this%pt_ids(i)) = tmp_vals2(i)
+        end do
     else
        if (this%n_points .gt. 0) &
-          call this%local_interp%evaluate(interp_values, this%el_owner, &
+          call this%local_interp_me%evaluate(interp_values, this%my_el, &
                                           field, this%nelv)
     end if
-#else
-    call neko_error('Neko needs to be built with GSLIB support')
-#endif
 
   end subroutine global_interpolation_evaluate
 

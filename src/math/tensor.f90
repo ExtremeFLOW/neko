@@ -220,7 +220,7 @@ contains
   !> Tensor product \f$ v =(C \otimes B \otimes A) u \f$ performed on
   !!`nelv` elements.
   subroutine tnsr3d(v, nv, u, nu, A, Bt, Ct, nelv)
-    integer, intent(inout) :: nv, nu, nelv
+    integer, intent(in) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
     real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
     type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d
