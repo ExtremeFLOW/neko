@@ -60,7 +60,7 @@ The instructions will differ somewhat depending on whether you test uses MPI or 
    fi
    ```
    You need to change `./field/field_suite` to the name of the directory for your test and the name of the `check` target in the `Makefile.in`.
-6. Now you have to edit `tests/Makefile.am`. This file contains three lists.
+6. Now you have to edit `tests/unit/Makefile.am`. This file contains three lists.
    1. The first one is `SUBDIRS`, to which you should add the directory with your tests.
    2. The second one is `TESTS`, here you should add the file, which ends with `_test`.
       If you followed the conventions above it will be the output from pFUnit for a simple test, or the runner you created in the case of an MPI test.
@@ -71,5 +71,5 @@ The instructions will differ somewhat depending on whether you test uses MPI or 
 7. Finally, open the `configure.ac` file in the root folder of `neko`.
    Find `# Config tests` line and the `AC_CONFIG_FILES` list below it.
    Add the path to a `Makefile` (note, no `.in`!!) in your test folder.
-8. Please also add the compilation products of your test to the  `tests/.gitignore` file.
+8. Please also add the compilation products of your test to the  `tests/unit/.gitignore` file.
    This helps keeps the version controlled file list unpolluted.
