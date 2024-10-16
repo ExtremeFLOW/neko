@@ -43,6 +43,15 @@ module intersection_detector
   implicit none
   private
 
+  !> Intersector detector type
+  !!
+  !! This type is used to detect intersections between a mesh and a given point
+  !! in space. This allow to rapid reduction in the number of elements to be
+  !! tested for intersection. The detector is based on a private AABB tree and
+  !! is linked to a mesh.
+  !!
+  !! @note Please note that the current implementation is limited to hexahedral
+  !! elements, and we assume that the mesh is static.
   type, public :: intersect_detector_t
      type(mesh_t), private, pointer :: msh => null()
      type(aabb_tree_t), private :: search_tree
@@ -59,33 +68,13 @@ contains
     class(intersect_detector_t), intent(inout) :: this
     type(mesh_t), target, intent(in) :: msh
     real(kind=dp), intent(in), optional :: padding
-    type(hex_t), allocatable :: elements(:)
-    integer :: i
 
     call this%free()
     this%msh => msh
 
     call this%search_tree%init(msh%nelv)
-    
-    !> @todo Rework this part once the new mesh structure is in place
-    allocate(elements(msh%nelv))
-    do i = 1, msh%nelv
-       select type(el => msh%elements(i)%e)
-       type is (hex_t)
-          elements(i) = el
-       class default
-          call neko_error('Unsupported element type')
-       end select
-    end do
+    call this%search_tree%build(msh%elements, padding)
 
-    if (present(padding)) then
-       call this%search_tree%build(elements, padding)
-    else
-       call this%search_tree%build(elements)
-    end if
-
-    deallocate(elements)
-    
     if (this%search_tree%get_size() .ne. (msh%nelv)) then
        call neko_error("Error building the search tree.")
     end if
@@ -101,7 +90,8 @@ contains
     end if
 
     !> @todo cleanup the aabb tree
-    
+    call this%search_tree%free()
+
   end subroutine intersect_detector_free
 
   !> Computes the overlap between elements and a given point @a p
@@ -110,8 +100,8 @@ contains
     type(point_t), intent(in) :: p
     type(stack_i4_t), intent(inout) :: overlaps
 
-    call this%search_tree%query_overlaps(p, overlaps)      
-    
+    call this%search_tree%query_overlaps(p, overlaps)
+
   end subroutine intersect_detector_overlap
-  
-end module intersection_detector  
+
+end module intersection_detector
