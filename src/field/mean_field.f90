@@ -111,7 +111,7 @@ contains
   !! @param k Time since last sample.
   subroutine mean_field_update(this, k)
     class(mean_field_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: k 
+    real(kind=rp), intent(in) :: k
 
     call field_cmult(this%mf, this%time, size(this%mf%x))
     call field_add2s2(this%mf, this%f, k, size(this%mf%x))

@@ -158,10 +158,10 @@ contains
        call C%s%sample(t, tstep)
 
        ! Update material properties
-       call C%usr%material_properties(t, tstep, C%material_properties%rho,&
-                                      C%material_properties%mu, &
-                                      C%material_properties%cp, &
-                                      C%material_properties%lambda, &
+       call C%usr%material_properties(t, tstep, C%fluid%rho,&
+                                      C%fluid%mu, &
+                                      C%scalar%cp, &
+                                      C%scalar%lambda, &
                                       C%params)
 
        call C%usr%user_check(t, tstep, C%fluid%u, C%fluid%v, C%fluid%w, &
@@ -235,7 +235,7 @@ contains
     character(len=:), allocatable :: restart_file
     character(len=:), allocatable :: restart_mesh_file
     real(kind=rp) :: tol
-    logical :: found
+    logical :: found, check_cont
 
     call C%params%get('case.restart_file', restart_file, found)
     call C%params%get('case.restart_mesh_file', restart_mesh_file,&
@@ -257,13 +257,14 @@ contains
     C%tlag = C%fluid%chkp%tlag
 
     !Free the previous mesh, dont need it anymore
-    call C%fluid%chkp%previous_mesh%free()
     do i = 1, size(C%dtlag)
        call C%ext_bdf%set_coeffs(C%dtlag)
     end do
 
     call C%fluid%restart(C%dtlag, C%tlag)
-    if (allocated(C%scalar)) call C%scalar%restart( C%dtlag, C%tlag)
+    call C%fluid%chkp%previous_mesh%free()
+    if (allocated(C%scalar)) &
+       call C%scalar%restart( C%dtlag, C%tlag)
 
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')

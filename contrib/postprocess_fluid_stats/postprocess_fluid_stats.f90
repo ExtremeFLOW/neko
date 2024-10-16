@@ -97,7 +97,7 @@ program postprocess_fluid_stats
 
   call Xh%init(GLL, stats_data%lx, stats_data%ly, stats_data%lz)
 
-  dof = dofmap_t(msh, Xh)
+  call dof%init(msh, Xh)
   call gs_h%init(dof)
   call coef%init(gs_h)
 

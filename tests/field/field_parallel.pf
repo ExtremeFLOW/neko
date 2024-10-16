@@ -102,7 +102,7 @@ contains
     @assertEqual(size(f_msh_Xh%x), 2 * lx**3)
     @assertEqual(maxval(f_msh_Xh%x), 0d0)
 
-    dm = dofmap_t(msh, Xh)
+    call dm%init(msh, Xh)
     call f_dm%init(msh, Xh, 'test')
     @assertTrue(allocated(f_dm%x))
     @assertTrue(associated(f_dm%Xh))

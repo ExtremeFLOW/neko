@@ -150,19 +150,9 @@ contains
                w = output_2d%p%x(i)
                p = output_2d%u%x(i)
                output_2d%p%x(i) = p
-               if (this%map_2d%dir .eq. 1) then
-                  output_2d%u%x(i) = w
-                  output_2d%v%x(i) = v
-                  output_2d%w%x(i) = u
-               else if (this%map_2d%dir .eq. 2) then
-                  output_2d%u%x(i) = u
-                  output_2d%v%x(i) = w
-                  output_2d%w%x(i) = v
-               else if (this%map_2d%dir .eq. 3) then
-                  output_2d%u%x(i) = u
-                  output_2d%v%x(i) = v
-                  output_2d%w%x(i) = w
-               end if
+               output_2d%u%x(i) = u
+               output_2d%v%x(i) = v
+               output_2d%w%x(i) = w
             end do
             
             call this%file_%write(output_2d, t)

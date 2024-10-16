@@ -157,7 +157,7 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
 
   }
-  
+
   /** Fortran wrapper for cfill
    * Set all elements to a constant c \f$ a = c \f$
    */
@@ -188,7 +188,7 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
     
   }
-
+  
   /**
    * Fortran wrapper for add3
    * Vector addition \f$ a = b + c \f$
@@ -671,6 +671,22 @@ extern "C" {
 #endif
     
     return bufred[0];
+  }
+
+  /** 
+   * Fortran wrapper absval
+   * Sum a vector of length n
+   */
+  void cuda_absval(void *a, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue; 
+
+    absval_kernel<real>
+    <<<nblcks, nthrds,0, stream>>>((real *) a, * n);  
+    CUDA_CHECK(cudaGetLastError());
+    
   }
 
 }
