@@ -162,17 +162,16 @@ jobs:
       - name: Regression test FP32
         if: matrix.backend == 'cpu' && matrix.precision == 'sp'
         run: |
-           cd reg_test/cylinder
+           cd tests/regression/cylinder
            ./test_easy.sh 1 sp
            cd ../..
 
       - name: Regression test FP64
         if: matrix.backend == 'cpu' && matrix.precision == 'dp'
         run: |
-           cd reg_test/cylinder
+           cd tests/regression/cylinder
            ./test.sh 1 dp
            cd ../..
-
 
       - name: Check
         if: matrix.backend == 'cpu'
