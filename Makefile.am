@@ -104,6 +104,16 @@ EXTRA_DIST = \
 	tests/reframe/src/rocm_select_gpu_device.sh\
 	tests/reframe/src/tgv.case.template\
 	tests/reframe/src/tgv.f90\
+	tests/regression/README.md\
+	tests/regression/cylinder/cylinder_part1.case\
+	tests/regression/cylinder/cylinder_part2.case\
+	tests/regression/cylinder/ref1_dp.log\
+	tests/regression/cylinder/ref1_sp.log\
+	tests/regression/cylinder/ref2_dp.log\
+	tests/regression/cylinder/ref2_sp.log\
+	tests/regression/cylinder/small_test_cyl.nmsh\
+	tests/regression/cylinder/test_easy.sh\
+	tests/regression/cylinder/test.sh\
 	patches/nvhpc_bge.patch\
 	patches/json-fortran71.patch
 
