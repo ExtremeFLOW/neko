@@ -94,16 +94,16 @@ EXTRA_DIST = \
 	examples/rayleigh-benard-cylinder/cylinder.nmsh\
 	examples/rayleigh-benard-cylinder/rayleigh.case\
 	examples/rayleigh-benard-cylinder/postprocess_probes.py\
-	reframe/checks.py\
-	reframe/settings.py\
-	reframe/README.md\
-	reframe/src/get-tgv-dns.sh\
-	reframe/src/minihemi.case.template\
-	reframe/src/rayleigh.case.template\
-	reframe/src/rayleigh.f90\
-	reframe/src/rocm_select_gpu_device\
-	reframe/src/tgv.case.template\
-	reframe/src/tgv.f90\
+	tests/reframe/checks.py\
+	tests/reframe/settings.py\
+	tests/reframe/README.md\
+	tests/reframe/src/get-tgv-dns.sh\
+	tests/reframe/src/minihemi.case.template\
+	tests/reframe/src/rayleigh.case.template\
+	tests/reframe/src/rayleigh.f90\
+	tests/reframe/src/rocm_select_gpu_device\
+	tests/reframe/src/tgv.case.template\
+	tests/reframe/src/tgv.f90\
 	patches/nvhpc_bge.patch\
 	patches/json-fortran71.patch
 
