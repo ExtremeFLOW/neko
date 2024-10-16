@@ -2,7 +2,6 @@
 test-suite.log
 
 # Makefiles
-!Makefile.in
 */Makefile
 !*/Makefile.in
 
