@@ -168,9 +168,12 @@ module aabb_tree
 
      procedure, pass(this), public :: get_aabb => aabb_tree_get_aabb
 
-     generic, public :: query_overlaps => query_overlaps_stack
+     generic, public :: query_overlaps => query_overlaps_stack, &
+          query_overlaps_array
      procedure, pass(this) :: query_overlaps_stack => &
           aabb_tree_query_overlaps_stack
+     procedure, pass(this) :: query_overlaps_array => &
+          aabb_tree_query_overlaps_array
 
      procedure, pass(this), public :: print => aabb_tree_print
 
@@ -255,7 +258,7 @@ contains
     real(kind=dp) :: distance
 
     distance = 0.5_rp * this%aabb%get_diameter() &
-      - norm2(this%aabb%get_center() - p)
+         - norm2(this%aabb%get_center() - p)
   end function aabb_node_min_distance
 
   ! -------------------------------------------------------------------------- !
@@ -267,7 +270,7 @@ contains
     logical :: res
 
     res = this%left_node_index == AABB_NULL_NODE .and. &
-      this%right_node_index == AABB_NULL_NODE
+         this%right_node_index == AABB_NULL_NODE
   end function aabb_node_is_leaf
 
   !> @brief Returns true if the node is a valid node.
@@ -277,14 +280,14 @@ contains
 
     if (this%is_leaf()) then
        valid = &
-         & this%left_node_index .eq. AABB_NULL_NODE .and. &
-         & this%right_node_index .eq. AABB_NULL_NODE .and. &
-         & this%object_index .gt. 0
+            & this%left_node_index .eq. AABB_NULL_NODE .and. &
+            & this%right_node_index .eq. AABB_NULL_NODE .and. &
+            & this%object_index .gt. 0
     else
        valid = &
-         & this%left_node_index .ne. AABB_NULL_NODE .and. &
-         & this%right_node_index .ne. AABB_NULL_NODE .and. &
-         & this%object_index .eq. -1
+            & this%left_node_index .ne. AABB_NULL_NODE .and. &
+            & this%right_node_index .ne. AABB_NULL_NODE .and. &
+            & this%object_index .eq. -1
     end if
 
   end function aabb_node_is_valid
@@ -370,7 +373,7 @@ contains
     else
        aabb_padding = 0.0_dp
     end if
-       
+
     do i_obj = 1, size(objects)
        box_list(i_obj) = get_aabb(objects(i_obj), aabb_padding)
     end do
@@ -612,6 +615,70 @@ contains
   end subroutine aabb_tree_insert_object
 
   !> @brief Queries the tree for overlapping objects.
+  !!
+  !! @param[in] this The tree to query.
+  !! @param[in] object The object to query for overlaps.
+  !! @param[out] overlaps The array to store the overlapping object indices.
+  !! @param[in,optional] index The index of the object to guard self overlaps.
+  subroutine aabb_tree_query_overlaps_array(this, object, overlaps, index)
+    class(aabb_tree_t), intent(in) :: this
+    class(*), intent(in) :: object
+    integer, dimension(:), allocatable, intent(out) :: overlaps
+    integer, intent(in), optional :: index
+    integer :: object_index
+
+    type(stack_i4_t) :: simple_stack
+    type(aabb_t) :: object_box
+
+    integer :: root_index, left_index, right_index
+
+    integer :: node_index, current_index
+    integer, dimension(:), allocatable :: tmp_array
+
+    ! Set the object index to -1 if not provided
+    object_index = -1
+    if (present(index)) object_index = index
+
+    ! Ensure the overlaps array is empty
+    if (allocated(overlaps)) deallocate(overlaps)
+
+    object_box = get_aabb(object)
+    root_index = this%get_root_index()
+
+    call simple_stack%init()
+    call simple_stack%push(root_index)
+
+    do while (.not. simple_stack%is_empty())
+       node_index = simple_stack%pop()
+
+       if (node_index == AABB_NULL_NODE) cycle
+
+       if (this%nodes(node_index)%aabb%overlaps(object_box)) then
+          if (this%nodes(node_index)%is_leaf()) then
+             current_index = this%nodes(node_index)%object_index
+
+             if (current_index .ne. object_index) then
+                if (.not. allocated(overlaps)) then
+                   allocate(overlaps(1))
+                   overlaps(1) = current_index
+                else
+                   call move_alloc(overlaps, tmp_array)
+                   allocate(overlaps(size(tmp_array) + 1))
+                   overlaps(1:size(tmp_array)) = tmp_array
+                   overlaps(size(tmp_array) + 1) = current_index
+                end if
+             end if
+
+          else
+             left_index = this%get_left_index(node_index)
+             call simple_stack%push(left_index)
+             right_index = this%get_right_index(node_index)
+             call simple_stack%push(right_index)
+          end if
+       end if
+    end do
+  end subroutine aabb_tree_query_overlaps_array
+
   !> @brief Queries the tree for overlapping objects.
   !!
   !! @param[in] this The tree to query.
@@ -760,9 +827,9 @@ contains
 
        new_parent_node_cost = 2.0_rp * combined_aabb%get_surface_area()
        minimum_push_down_cost = 2.0_rp * ( &
-         & combined_aabb%get_surface_area() &
-         & - tree_node%aabb%get_surface_area()&
-         & )
+            & combined_aabb%get_surface_area() &
+            & - tree_node%aabb%get_surface_area()&
+            & )
 
        ! use the costs to figure out whether to create a new parent here or
        ! descend
@@ -772,9 +839,9 @@ contains
        else
           new_left_aabb = merge(leaf_node%aabb, left_node%get_aabb())
           cost_left = ( &
-            & new_left_aabb%get_surface_area() &
-            & - left_node%aabb%get_surface_area()&
-            & ) + minimum_push_down_cost
+               & new_left_aabb%get_surface_area() &
+               & - left_node%aabb%get_surface_area()&
+               & ) + minimum_push_down_cost
        end if
 
        if (right_node%is_leaf()) then
@@ -784,9 +851,9 @@ contains
        else
           new_right_aabb = merge(leaf_node%aabb, right_node%aabb)
           cost_right = ( &
-            & new_right_aabb%get_surface_area() &
-            & - right_node%aabb%get_surface_area() &
-            & ) + minimum_push_down_cost
+               & new_right_aabb%get_surface_area() &
+               & - right_node%aabb%get_surface_area() &
+               & ) + minimum_push_down_cost
        end if
 
        ! if the cost of creating a new parent node here is less than descending
