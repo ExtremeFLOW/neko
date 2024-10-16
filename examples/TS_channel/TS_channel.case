@@ -49,8 +49,7 @@
  "simulation_components": 
   [ 
     { 
-      "type": "lambda2",
-      "_lambda2_comment":"stored in the temperature field, check docs for more details on sim_comps"
+      "type": "lambda2", // stored in the temperature field, check docs for more details on sim_comps
     },
     {
       "type": "force_torque",

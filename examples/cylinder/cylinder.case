@@ -44,12 +44,10 @@
  "simulation_components": 
   [ 
     { 
-      "type": "lambda2",
-      "_lambda2_comment":"stored in the temperature field, check docs for more details on sim_comps"
+      "type": "lambda2",// stored in the temperature field, check docs for more details on sim_comps
     },
     { 
-      "type": "vorticity",
-      "_vorticity_comment":"Stored in scalar 1,2,3. Changes order if simcomp is added before lambda2."
+      "type": "vorticity", // Stored in scalar 1,2,3. Changes order if simcomp is added before lambda2
     },
     {
       "type": "force_torque",
