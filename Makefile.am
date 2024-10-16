@@ -8,7 +8,7 @@ SUBDIRS += contrib
 endif
 
 if ENABLE_PFUNIT
-SUBDIRS += tests
+SUBDIRS += tests/unit
 endif
 
 if ENABLE_DOXYGEN
