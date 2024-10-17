@@ -30,7 +30,7 @@ class OutOfSourceAutotools(rfm.core.buildsystems.ConfigureBasedBuildSystem):
     3. Issue ``make`` to compile the code.
     '''
 
-    configuredir = variable(str, value='../../')
+    configuredir = variable(str, value='.')
 
     def emit_build_commands(self, environ):
         prepare_cmd = []
