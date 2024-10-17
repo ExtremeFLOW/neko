@@ -1,9 +1,9 @@
 <map id="force_torque::force_torque_t" name="force_torque::force_torque_t">
-<area shape="rect" id="node1" title="A simulation component that computes the force_torque field. Added to the field registry as omega_x,..." alt="" coords="1667,2665,1812,2707"/>
-<area shape="rect" id="node2" href="$dc/d0d/structsimulation__component_1_1simulation__component__t.html" title="Base abstract class for simulation components." alt="" coords="1644,2575,1835,2616"/>
-<area shape="rect" id="node3" href="$db/d7a/structcase_1_1case__t.html" title=" " alt="" coords="837,2485,940,2512"/>
-<area shape="rect" id="node4" href="$d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html" title=" " alt="" coords="815,2352,962,2393"/>
-<area shape="rect" id="node5" href="$dd/ded/structscalar__scheme_1_1scalar__scheme__t.html" title="Base type for a scalar advection&#45;diffusion solver." alt="" coords="1400,2248,1567,2289"/>
+<area shape="rect" id="node1" title="A simulation component that computes the force_torque field. Added to the field registry as omega_x,..." alt="" coords="1667,2563,1812,2604"/>
+<area shape="rect" id="node2" href="$dc/d0d/structsimulation__component_1_1simulation__component__t.html" title="Base abstract class for simulation components." alt="" coords="1644,2472,1835,2513"/>
+<area shape="rect" id="node3" href="$db/d7a/structcase_1_1case__t.html" title=" " alt="" coords="837,2383,940,2409"/>
+<area shape="rect" id="node4" href="$d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html" title=" " alt="" coords="815,2249,962,2291"/>
+<area shape="rect" id="node5" href="$dd/ded/structscalar__scheme_1_1scalar__scheme__t.html" title="Base type for a scalar advection&#45;diffusion solver." alt="" coords="1400,2145,1567,2187"/>
 <area shape="rect" id="node6" href="$db/d55/structscalar__source__term_1_1scalar__source__term__t.html" title="Wrapper contaning and executing the scalar source terms." alt="" coords="1704,1937,1873,1979"/>
 <area shape="rect" id="node7" href="$dc/d80/structsource__term__handler_1_1source__term__handler__t.html" title="Abstract class for handling source terms." alt="" coords="1703,1745,1882,1787"/>
 <area shape="rect" id="node8" href="$d7/da0/structuser__intf_1_1user__t.html" title=" " alt="" coords="1816,1559,1943,1586"/>
@@ -64,7 +64,7 @@
 <area shape="rect" id="node62" href="$de/da4/structtime__scheme_1_1time__scheme__t.html" title="Base abstract class for time integration schemes." alt="" coords="166,273,385,300"/>
 <area shape="rect" id="node63" href="$d2/d90/structext__time__scheme_1_1ext__time__scheme__t.html" title="Explicit extrapolation scheme for time integration." alt="" coords="5,417,172,458"/>
 <area shape="rect" id="node64" href="$d2/d88/structab__time__scheme_1_1ab__time__scheme__t.html" title="Explicit Adam&#45;Bashforth scheme for time integration." alt="" coords="197,417,354,458"/>
-<area shape="rect" id="node65" href="$de/de8/structsampler_1_1sampler__t.html" title="Sampler." alt="" coords="1769,2359,1917,2386"/>
-<area shape="rect" id="node66" href="$db/de7/structtime__based__controller_1_1time__based__controller__t.html" title="A utility type for determening whether an action should be executed based on the current time value...." alt="" coords="1947,2248,2134,2289"/>
-<area shape="rect" id="node67" href="$d7/d8b/structsampler_1_1outp__t.html" title="Pointer to an arbitrary output." alt="" coords="1799,2255,1923,2282"/>
+<area shape="rect" id="node65" href="$de/de8/structsampler_1_1sampler__t.html" title="Sampler." alt="" coords="1769,2257,1917,2283"/>
+<area shape="rect" id="node66" href="$db/de7/structtime__based__controller_1_1time__based__controller__t.html" title="A utility type for determening whether an action should be executed based on the current time value...." alt="" coords="1947,2145,2134,2187"/>
+<area shape="rect" id="node67" href="$d7/d8b/structsampler_1_1outp__t.html" title="Pointer to an arbitrary output." alt="" coords="1799,2153,1923,2179"/>
 </map>

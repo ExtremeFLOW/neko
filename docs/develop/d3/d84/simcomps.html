@@ -146,7 +146,7 @@ Controling execution and file output</h1>
 <div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_vorticity"></a>
 vorticity</h2>
-<p>Computes the vorticity field an stores in the field registry as <code>omega_x</code>, <code>omega_y</code> and <code>omega_z</code>. Currently produces no output.</p>
+<p>Computes the vorticity field an stores in the field registry as <code>omega_x</code>, <code>omega_y</code> and <code>omega_z</code>.</p>
 <h2><a class="anchor" id="simcomp_lambda2"></a>
 lambda2</h2>
 <p>Computes \( \lambda_2 \) for the velocity field and stores it in the normal output files as the first unused field. This means that \( \lambda_2 \) can be found in the temperature field in then fld files if running without a scalar and s1 if neko is run with one scalar.</p>
@@ -246,13 +246,14 @@ derivative</h2>
 <div class="line">}</div>
 </div><!-- fragment --><h2><a class="anchor" id="simcomp_force_torque"></a>
 force_torque</h2>
-<p>Computes the force on a specified zone and the corresponding torque around a center point. The compute control specifies how often they are computed and printed into the log. Scale specifies a scale for the computed force/torque. Conventient if one wants to scale with the area or similar. Subroutines used in the simcomp can be found in <a class="el" href="../../d9/df1/drag__torque_8f90.html">src/qoi/drag_torque.f90</a></p>
+<p>Computes the force on a specified zone and the corresponding torque around a center point. The compute control specifies how often they are computed and printed into the log. Scale specifies a scale for the computed force/torque. Conventient if one wants to scale with the area or similar. long_print is default false and can be set to true to print all digits in the calculation. Subroutines used in the simcomp can be found in <a class="el" href="../../d9/df1/drag__torque_8f90.html">src/qoi/drag_torque.f90</a></p>
 <div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;force_torque&quot;,</div>
 <div class="line">  &quot;zone_id&quot;: 1,</div>
 <div class="line">  &quot;center&quot;: [0.0, 0.0, 0.0],</div>
 <div class="line">  &quot;zone_name&quot;: &quot;some chosen name, optional&quot;,</div>
 <div class="line">  &quot;scale&quot;: 1.0</div>
+<div class="line">  &quot;long_print&quot; : false</div>
 <div class="line">  &quot;compute_control&quot; : &quot;tsteps&quot;,</div>
 <div class="line">  &quot;compute_value&quot; : 10</div>
 <div class="line">}</div>
@@ -271,7 +272,7 @@ weak_grad</h2>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Oct 16 2024 03:39:03 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Thu Oct 17 2024 03:38:00 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

@@ -128,7 +128,7 @@ $(document).ready(function(){initNavTree('d6/d4c/opr__cpu_8f90_source.html','../
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="comment">! POSSIBILITY OF SUCH DAMAGE.</span></div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">!</span></div>
 <div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="../../d0/d94/namespaceopr__cpu.html">   34</a></span>&#160;<span class="keyword">module</span> <a class="code" href="../../d0/d94/namespaceopr__cpu.html">opr_cpu</a></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../df/d48/namespacenum__types.html">num_types</a>, <span class="keywordtype">only</span> : <a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>, <a class="code" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a>, <a class="code" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a></div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d5/d0d/namespacespace.html">space</a>, <span class="keywordtype">only</span> : <a class="code" href="../../da/d99/structspace_1_1space__t.html">space_t</a></div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d6/dbe/namespacecoefs.html">coefs</a>, <span class="keywordtype">only</span> : <a class="code" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a></div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../dd/d47/namespacemath.html">math</a>, <span class="keywordtype">only</span> : <a class="code" href="../../dd/d47/namespacemath.html#a797f1134edbf7948a9f9c040fd5061d0">sub3</a>, <a class="code" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602">copy</a>, <a class="code" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>, <a class="code" href="../../dd/d47/namespacemath.html#a1c75995bac3527a6a86559b0555e7ddb">pi</a></div>
@@ -333,10 +333,10 @@ $(document).ready(function(){initNavTree('d6/d4c/opr__cpu_8f90_source.html','../
 <div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(in)</span> :: u, v, w</div>
 <div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: grad(coef%Xh%lxyz,3,3)</div>
 <div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;    <span class="keywordtype">integer</span> :: e, i</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: eigen(3), b, c, d, q, r, theta, l2</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: s11, s22, s33, s12, s13, s23, o12, o13, o23</div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: a11, a22, a33, a12, a13, a23</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: msk1, msk2, msk3</div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: eigen(3), b, c, d, q, r, theta, l2</div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: s11, s22, s33, s12, s13, s23, o12, o13, o23</div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: a11, a22, a33, a12, a13, a23</div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>) :: msk1, msk2, msk3</div>
 <div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160; </div>
 <div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    <span class="keywordflow">do</span> e = 1, coef%msh%nelv</div>
 <div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;       <span class="keyword">call </span>opr_cpu_opgrad(grad(1,1,1), grad(1,1,2), grad(1,1,3), &amp;</div>
@@ -352,13 +352,13 @@ $(document).ready(function(){initNavTree('d6/d4c/opr__cpu_8f90_source.html','../
 <div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;          s33 = grad(i,3,3)</div>
 <div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160; </div>
 <div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160; </div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;          s12 = 0.5*(grad(i,1,2) + grad(i,2,1))</div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;          s13 = 0.5*(grad(i,1,3) + grad(i,3,1))</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;          s23 = 0.5*(grad(i,2,3) + grad(i,3,2))</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;          s12 = 0.5_xp*(grad(i,1,2) + grad(i,2,1))</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;          s13 = 0.5_xp*(grad(i,1,3) + grad(i,3,1))</div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;          s23 = 0.5_xp*(grad(i,2,3) + grad(i,3,2))</div>
 <div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160; </div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;          o12 = 0.5*(grad(i,1,2) - grad(i,2,1))</div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;          o13 = 0.5*(grad(i,1,3) - grad(i,3,1))</div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;          o23 = 0.5*(grad(i,2,3) - grad(i,3,2))</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;          o12 = 0.5_xp*(grad(i,1,2) - grad(i,2,1))</div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;          o13 = 0.5_xp*(grad(i,1,3) - grad(i,3,1))</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;          o23 = 0.5_xp*(grad(i,2,3) - grad(i,3,2))</div>
 <div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160; </div>
 <div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;          a11 = s11*s11 + s12*s12 + s13*s13 - o12*o12 - o13*o13</div>
 <div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;          a12 = s11 * s12 + s12 * s22 + s13 * s23 - o13 * o23</div>
@@ -372,37 +372,36 @@ $(document).ready(function(){initNavTree('d6/d4c/opr__cpu_8f90_source.html','../
 <div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;          b = -(a11 + a22 + a33)</div>
 <div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;          c = -(a12*a12 + a13*a13 + a23*a23 &amp;</div>
 <div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;               - a11 * a22 - a11 * a33 - a22 * a33)</div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;          d = -(2.0 * a12 * a13 * a23 - a11 * a23*a23 &amp;</div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;          d = -(2.0_xp * a12 * a13 * a23 - a11 * a23*a23 &amp;</div>
 <div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;               - a22 * a13*a13 - a33 * a12*a12 + a11 * a22 * a33)</div>
 <div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160; </div>
 <div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160; </div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;          q = (3.0 * c - b*b) / 9.0</div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;          r = (9.0 * c * b - 27.0 * d - 2.0 * b*b*b) / 54.0</div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;          q = (3.0_xp * c - b*b) / 9.0_xp</div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;          r = (9.0_xp * c * b - 27.0_xp * d - 2.0_xp * b*b*b) / 54.0_xp</div>
 <div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;          theta = acos( r / sqrt(-q*q*q) )</div>
 <div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160; </div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;          eigen(1) = 2.0 * sqrt(-q) * cos(theta / 3.0) - b / 3.0</div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;          eigen(2) = 2.0 * sqrt(-q) * cos((theta + 2.0 * <a class="code" href="../../dd/d47/namespacemath.html#a1c75995bac3527a6a86559b0555e7ddb">pi</a>) / 3.0) - b / 3.0</div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;          eigen(3) = 2.0 * sqrt(-q) * cos((theta + 4.0 * <a class="code" href="../../dd/d47/namespacemath.html#a1c75995bac3527a6a86559b0555e7ddb">pi</a>) / 3.0) - b / 3.0</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160; </div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;          msk1 = merge(1.0_rp, 0.0_rp, eigen(2) .le. eigen(1) &amp;</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;               .and. eigen(1) .le. eigen(3) .or. eigen(3) &amp;</div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;               .le. eigen(1) .and. eigen(1) .le. eigen(2) )</div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;          msk2 = merge(1.0_rp, 0.0_rp, eigen(1) .le. eigen(2) &amp;</div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;               .and. eigen(2) .le. eigen(3) .or. eigen(3) &amp;</div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;               .le. eigen(2) .and. eigen(2) .le. eigen(1))</div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;          msk3 = merge(1.0_rp, 0.0_rp, eigen(1) .le. eigen(3) &amp;</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;               .and. eigen(3) .le. eigen(2) .or. eigen(2) &amp;</div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;               .le. eigen(3) .and. eigen(3) .le. eigen(1))</div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160; </div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;          l2 = msk1 * eigen(1) + msk2 * eigen(2) + msk3 * eigen(3)</div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160; </div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;          <a class="code" href="../../d0/d66/namespacelambda2.html">lambda2</a>%x(i,1,1,e) = l2/(coef%B(i,1,1,e)**2)</div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;<span class="keywordflow">       end do</span></div>
-<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;          eigen(1) = 2.0_xp * sqrt(-q) * cos(theta / 3.0_xp) - b / 3.0_xp</div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;          eigen(2) = 2.0_xp * sqrt(-q) * cos((theta + 2.0_xp * <a class="code" href="../../dd/d47/namespacemath.html#a1c75995bac3527a6a86559b0555e7ddb">pi</a>) / 3.0_xp) - b / 3.0_xp</div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;          eigen(3) = 2.0_xp * sqrt(-q) * cos((theta + 4.0_xp * <a class="code" href="../../dd/d47/namespacemath.html#a1c75995bac3527a6a86559b0555e7ddb">pi</a>) / 3.0_xp) - b / 3.0_xp</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;          msk1 = merge(1.0_rp, 0.0_rp, eigen(2) .le. eigen(1) &amp;</div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;               .and. eigen(1) .le. eigen(3) .or. eigen(3) &amp;</div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;               .le. eigen(1) .and. eigen(1) .le. eigen(2) )</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;          msk2 = merge(1.0_rp, 0.0_rp, eigen(1) .le. eigen(2) &amp;</div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;               .and. eigen(2) .le. eigen(3) .or. eigen(3) &amp;</div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;               .le. eigen(2) .and. eigen(2) .le. eigen(1))</div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;          msk3 = merge(1.0_rp, 0.0_rp, eigen(1) .le. eigen(3) &amp;</div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;               .and. eigen(3) .le. eigen(2) .or. eigen(2) &amp;</div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;               .le. eigen(3) .and. eigen(3) .le. eigen(1))</div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160; </div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;          l2 = msk1 * eigen(1) + msk2 * eigen(2) + msk3 * eigen(3)</div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;          <a class="code" href="../../d0/d66/namespacelambda2.html">lambda2</a>%x(i,1,1,e) = l2/(<a class="code" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(coef%B(i,1,1,e)**2,<a class="code" href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">xp</a>))</div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;<span class="keywordflow">       end do</span></div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160; </div>
+<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;  <span class="keyword">end subroutine </span>opr_cpu_lambda2</div>
 <div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160; </div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;  <span class="keyword">end subroutine </span>opr_cpu_lambda2</div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160; </div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d0/d94/namespaceopr__cpu.html">opr_cpu</a></div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d0/d94/namespaceopr__cpu.html">opr_cpu</a></div>
+<div class="ttc" id="adevice__config_8h_html_a11d147c64891830c9e79b3315b1b2e21"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a></div><div class="ttdeci">double real</div><div class="ttdef"><b>Definition:</b> <a href="../../d8/dc8/device__config_8h_source.html#l00012">device_config.h:12</a></div></div>
 <div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition:</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
 <div class="ttc" id="anamespacefield_html"><div class="ttname"><a href="../../dc/da9/namespacefield.html">field</a></div><div class="ttdoc">Defines a field.</div><div class="ttdef"><b>Definition:</b> <a href="../../d3/dc1/field_8f90_source.html#l00034">field.f90:34</a></div></div>
 <div class="ttc" id="anamespacegather__scatter_html"><div class="ttname"><a href="../../d0/d78/namespacegather__scatter.html">gather_scatter</a></div><div class="ttdoc">Gather-scatter.</div><div class="ttdef"><b>Definition:</b> <a href="../../d5/d7e/gather__scatter_8f90_source.html#l00034">gather_scatter.f90:34</a></div></div>
@@ -416,6 +415,8 @@ $(document).ready(function(){initNavTree('d6/d4c/opr__cpu_8f90_source.html','../
 <div class="ttc" id="anamespacemathops_html"><div class="ttname"><a href="../../d2/dd4/namespacemathops.html">mathops</a></div><div class="ttdoc">Collection of vector field operations operating on  and . Note that in general the indices  and ....</div><div class="ttdef"><b>Definition:</b> <a href="../../da/d52/mathops_8f90_source.html#l00065">mathops.f90:65</a></div></div>
 <div class="ttc" id="anamespacemathops_html_a2f4fd77e04e2fdec101dae9afe9caa58"><div class="ttname"><a href="../../d2/dd4/namespacemathops.html#a2f4fd77e04e2fdec101dae9afe9caa58">mathops::opcolv</a></div><div class="ttdeci">subroutine, public opcolv(a1, a2, a3, c, gdim, n)</div><div class="ttdef"><b>Definition:</b> <a href="../../da/d52/mathops_8f90_source.html#l00096">mathops.f90:97</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
+<div class="ttc" id="anamespacenum__types_html_aa354c6c166d079844cabd25276780021"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#aa354c6c166d079844cabd25276780021">num_types::xp</a></div><div class="ttdeci">integer, parameter, public xp</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00014">num_types.f90:14</a></div></div>
+<div class="ttc" id="anamespacenum__types_html_aab47a6c4827cb5c6bbd741a44c87e956"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">num_types::dp</a></div><div class="ttdeci">integer, parameter, public dp</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00009">num_types.f90:9</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
 <div class="ttc" id="anamespaceopr__cpu_html"><div class="ttname"><a href="../../d0/d94/namespaceopr__cpu.html">opr_cpu</a></div><div class="ttdoc">Operators CPU backend.</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d4c/opr__cpu_8f90_source.html#l00034">opr_cpu.f90:34</a></div></div>
 <div class="ttc" id="anamespaceopr__cpu_html_a12d6237f85e66a10649781a905bb60d2"><div class="ttname"><a href="../../d0/d94/namespaceopr__cpu.html#a12d6237f85e66a10649781a905bb60d2">opr_cpu::opr_cpu_curl</a></div><div class="ttdeci">subroutine, public opr_cpu_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)</div><div class="ttdef"><b>Definition:</b> <a href="../../d6/d4c/opr__cpu_8f90_source.html#l00123">opr_cpu.f90:124</a></div></div>
@@ -433,7 +434,7 @@ $(document).ready(function(){initNavTree('d6/d4c/opr__cpu_8f90_source.html','../
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_a1c99f91a79f7bf548f96fca73db34ee.html">cpu</a></li><li class="navelem"><a class="el" href="../../d6/d4c/opr__cpu_8f90.html">opr_cpu.f90</a></li>
-    <li class="footer">Generated on Wed Oct 16 2024 03:39:02 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Thu Oct 17 2024 03:37:59 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

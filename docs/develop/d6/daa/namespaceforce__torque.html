@@ -113,9 +113,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:af95812899d029c8c2c15b3742965583b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daa/namespaceforce__torque.html#af95812899d029c8c2c15b3742965583b">force_torque_init_from_json</a> (this, json, case)</td></tr>
 <tr class="memdesc:af95812899d029c8c2c15b3742965583b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor from json.  <a href="../../d6/daa/namespaceforce__torque.html#af95812899d029c8c2c15b3742965583b">More...</a><br /></td></tr>
 <tr class="separator:af95812899d029c8c2c15b3742965583b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad802fb370042c0f02c157c5fc0f49773"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daa/namespaceforce__torque.html#ad802fb370042c0f02c157c5fc0f49773">force_torque_init_from_attributes</a> (this, zone_id, zone_name, center, scale, coef)</td></tr>
-<tr class="memdesc:ad802fb370042c0f02c157c5fc0f49773"><td class="mdescLeft">&#160;</td><td class="mdescRight">Actual constructor.  <a href="../../d6/daa/namespaceforce__torque.html#ad802fb370042c0f02c157c5fc0f49773">More...</a><br /></td></tr>
-<tr class="separator:ad802fb370042c0f02c157c5fc0f49773"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f667e648d5b3ccd99421fa1be4aaf89"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daa/namespaceforce__torque.html#a0f667e648d5b3ccd99421fa1be4aaf89">force_torque_init_from_attributes</a> (this, zone_id, zone_name, center, scale, coef, long_print)</td></tr>
+<tr class="memdesc:a0f667e648d5b3ccd99421fa1be4aaf89"><td class="mdescLeft">&#160;</td><td class="mdescRight">Actual constructor.  <a href="../../d6/daa/namespaceforce__torque.html#a0f667e648d5b3ccd99421fa1be4aaf89">More...</a><br /></td></tr>
+<tr class="separator:a0f667e648d5b3ccd99421fa1be4aaf89"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f551a49417997a3bf36fbcb67b6f23f"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daa/namespaceforce__torque.html#a2f551a49417997a3bf36fbcb67b6f23f">force_torque_free</a> (this)</td></tr>
 <tr class="memdesc:a2f551a49417997a3bf36fbcb67b6f23f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="../../d6/daa/namespaceforce__torque.html#a2f551a49417997a3bf36fbcb67b6f23f">More...</a><br /></td></tr>
 <tr class="separator:a2f551a49417997a3bf36fbcb67b6f23f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -171,7 +171,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d3e/force__torque_8f90_source.html#l00220">220</a> of file <a class="el" href="../../d2/d3e/force__torque_8f90_source.html">force_torque.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d3e/force__torque_8f90_source.html#l00246">246</a> of file <a class="el" href="../../d2/d3e/force__torque_8f90_source.html">force_torque.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -233,12 +233,12 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d3e/force__torque_8f90_source.html#l00206">206</a> of file <a class="el" href="../../d2/d3e/force__torque_8f90_source.html">force_torque.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d3e/force__torque_8f90_source.html#l00232">232</a> of file <a class="el" href="../../d2/d3e/force__torque_8f90_source.html">force_torque.f90</a>.</p>
 
 </div>
 </div>
-<a id="ad802fb370042c0f02c157c5fc0f49773"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad802fb370042c0f02c157c5fc0f49773">&#9670;&nbsp;</a></span>force_torque_init_from_attributes()</h2>
+<a id="a0f667e648d5b3ccd99421fa1be4aaf89"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0f667e648d5b3ccd99421fa1be4aaf89">&#9670;&nbsp;</a></span>force_torque_init_from_attributes()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -255,32 +255,38 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer&#160;</td>
+          <td class="paramtype">integer, intent(in)&#160;</td>
           <td class="paramname"><em>zone_id</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">character(len=*)&#160;</td>
+          <td class="paramtype">character(len=*), intent(in)&#160;</td>
           <td class="paramname"><em>zone_name</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(3)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(3), intent(in)&#160;</td>
           <td class="paramname"><em>center</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(in)&#160;</td>
           <td class="paramname"><em>scale</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), target&#160;</td>
-          <td class="paramname"><em>coef</em>&#160;</td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), intent(in), target&#160;</td>
+          <td class="paramname"><em>coef</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">logical, intent(in)&#160;</td>
+          <td class="paramname"><em>long_print</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -295,24 +301,25 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d3e/force__torque_8f90_source.html#l00126">126</a> of file <a class="el" href="../../d2/d3e/force__torque_8f90_source.html">force_torque.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d3e/force__torque_8f90_source.html#l00131">131</a> of file <a class="el" href="../../d2/d3e/force__torque_8f90_source.html">force_torque.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d6/daa/namespaceforce__torque_ad802fb370042c0f02c157c5fc0f49773_cgraph.png" border="0" usemap="#ad6/daa/namespaceforce__torque_ad802fb370042c0f02c157c5fc0f49773_cgraph" alt=""/></div>
-<map name="ad6/daa/namespaceforce__torque_ad802fb370042c0f02c157c5fc0f49773_cgraph" id="ad6/daa/namespaceforce__torque_ad802fb370042c0f02c157c5fc0f49773_cgraph">
-<area shape="rect" title="Actual constructor." alt="" coords="5,49,212,90"/>
+<div class="center"><img src="../../d6/daa/namespaceforce__torque_a0f667e648d5b3ccd99421fa1be4aaf89_cgraph.png" border="0" usemap="#ad6/daa/namespaceforce__torque_a0f667e648d5b3ccd99421fa1be4aaf89_cgraph" alt=""/></div>
+<map name="ad6/daa/namespaceforce__torque_a0f667e648d5b3ccd99421fa1be4aaf89_cgraph" id="ad6/daa/namespaceforce__torque_a0f667e648d5b3ccd99421fa1be4aaf89_cgraph">
+<area shape="rect" title="Actual constructor." alt="" coords="5,74,212,115"/>
 <area shape="rect" href="../../dd/d47/namespacemath.html#a439630d12cb3027eb78f58e0519b8bc6" title="Add a scalar to vector ." alt="" coords="303,5,398,32"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a537a4b4b100265f746243f3c5347187f" title="Copy a masked vector to reduced contigous vector ." alt="" coords="260,56,441,83"/>
-<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a0c3183c7695dac7a0f04a13c5ca244f6" title=" " alt="" coords="279,107,423,149"/>
-<area shape="rect" href="../../d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148" title=" " alt="" coords="489,115,616,141"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="299,56,403,83"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a537a4b4b100265f746243f3c5347187f" title="Copy a masked vector to reduced contigous vector ." alt="" coords="260,107,441,133"/>
+<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a0c3183c7695dac7a0f04a13c5ca244f6" title=" " alt="" coords="279,158,423,199"/>
+<area shape="rect" href="../../d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148" title=" " alt="" coords="489,165,616,192"/>
 </map>
 </div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d6/daa/namespaceforce__torque_ad802fb370042c0f02c157c5fc0f49773_icgraph.png" border="0" usemap="#ad6/daa/namespaceforce__torque_ad802fb370042c0f02c157c5fc0f49773_icgraph" alt=""/></div>
-<map name="ad6/daa/namespaceforce__torque_ad802fb370042c0f02c157c5fc0f49773_icgraph" id="ad6/daa/namespaceforce__torque_ad802fb370042c0f02c157c5fc0f49773_icgraph">
+<div class="center"><img src="../../d6/daa/namespaceforce__torque_a0f667e648d5b3ccd99421fa1be4aaf89_icgraph.png" border="0" usemap="#ad6/daa/namespaceforce__torque_a0f667e648d5b3ccd99421fa1be4aaf89_icgraph" alt=""/></div>
+<map name="ad6/daa/namespaceforce__torque_a0f667e648d5b3ccd99421fa1be4aaf89_icgraph" id="ad6/daa/namespaceforce__torque_a0f667e648d5b3ccd99421fa1be4aaf89_icgraph">
 <area shape="rect" title="Actual constructor." alt="" coords="224,5,431,47"/>
 <area shape="rect" href="../../d6/daa/namespaceforce__torque.html#af95812899d029c8c2c15b3742965583b" title="Constructor from json." alt="" coords="5,5,176,47"/>
 </map>
@@ -352,18 +359,19 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d3e/force__torque_8f90_source.html#l00103">103</a> of file <a class="el" href="../../d2/d3e/force__torque_8f90_source.html">force_torque.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d3e/force__torque_8f90_source.html#l00105">105</a> of file <a class="el" href="../../d2/d3e/force__torque_8f90_source.html">force_torque.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d6/daa/namespaceforce__torque_af95812899d029c8c2c15b3742965583b_cgraph.png" border="0" usemap="#ad6/daa/namespaceforce__torque_af95812899d029c8c2c15b3742965583b_cgraph" alt=""/></div>
 <map name="ad6/daa/namespaceforce__torque_af95812899d029c8c2c15b3742965583b_cgraph" id="ad6/daa/namespaceforce__torque_af95812899d029c8c2c15b3742965583b_cgraph">
-<area shape="rect" title="Constructor from json." alt="" coords="5,49,176,90"/>
-<area shape="rect" href="../../d6/daa/namespaceforce__torque.html#ad802fb370042c0f02c157c5fc0f49773" title="Actual constructor." alt="" coords="224,49,431,90"/>
+<area shape="rect" title="Constructor from json." alt="" coords="5,74,176,115"/>
+<area shape="rect" href="../../d6/daa/namespaceforce__torque.html#a0f667e648d5b3ccd99421fa1be4aaf89" title="Actual constructor." alt="" coords="224,74,431,115"/>
 <area shape="rect" href="../../dd/d47/namespacemath.html#a439630d12cb3027eb78f58e0519b8bc6" title="Add a scalar to vector ." alt="" coords="522,5,617,32"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a537a4b4b100265f746243f3c5347187f" title="Copy a masked vector to reduced contigous vector ." alt="" coords="479,56,660,83"/>
-<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a0c3183c7695dac7a0f04a13c5ca244f6" title=" " alt="" coords="497,107,641,149"/>
-<area shape="rect" href="../../d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148" title=" " alt="" coords="708,115,835,141"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="517,56,621,83"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a537a4b4b100265f746243f3c5347187f" title="Copy a masked vector to reduced contigous vector ." alt="" coords="479,107,660,133"/>
+<area shape="rect" href="../../d0/d6f/namespacedrag__torque.html#a0c3183c7695dac7a0f04a13c5ca244f6" title=" " alt="" coords="497,158,641,199"/>
+<area shape="rect" href="../../d2/d57/cuda_2facet__normal__kernel_8h.html#a255d8d741e1fc6cd080ba11e14dc7148" title=" " alt="" coords="708,165,835,192"/>
 </map>
 </div>
 
@@ -375,7 +383,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/daa/namespaceforce__torque.html">force_torque</a></li>
-    <li class="footer">Generated on Wed Oct 16 2024 03:39:04 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Thu Oct 17 2024 03:38:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

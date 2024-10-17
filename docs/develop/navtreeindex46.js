@@ -1,10 +1,5 @@
 var NAVTREEINDEX46 =
 {
-"df/da4/interfacegs__device__mpi_1_1device__mpi__waitall.html#ac40fca2a2f017a5544b3912e3e2ce969":[4,0,112,9,0],
-"df/da5/namespaceuset.html":[3,0,275],
-"df/da5/namespaceuset.html#a004f59458e15c9b4f062529490b25e08":[3,0,275,32],
-"df/da5/namespaceuset.html#a07d434642ad3fbd1fafd667dca0fa8d4":[3,0,275,16],
-"df/da5/namespaceuset.html#a0e0c65f9f2d43f2f3afdb2fd868f4f10":[3,0,275,11],
 "df/da5/namespaceuset.html#a1c920d7e4bad341d8b4a45551618ccc7":[3,0,275,22],
 "df/da5/namespaceuset.html#a24bb4f73a647cdf80bc5eafb90add20d":[3,0,275,39],
 "df/da5/namespaceuset.html#a26ca1caf3bac92b1f41b388e1fe0fbdc":[3,0,275,31],
@@ -167,8 +162,8 @@ var NAVTREEINDEX46 =
 "df/dec/namespacetuple.html#ae35fe89bb5c59ad751ffc141e132531b":[3,0,273,11],
 "df/dec/namespacetuple.html#aefdf3623e60c6b7952ffac6ccdd0bbac":[3,0,273,16],
 "df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html":[4,0,181,3],
-"df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html#af9789fa2c1aa3f33e021615c87fec108":[4,0,181,3,0],
 "df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html#af9789fa2c1aa3f33e021615c87fec108":[4,0,181,3,1],
+"df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html#af9789fa2c1aa3f33e021615c87fec108":[4,0,181,3,0],
 "df/df1/structspalding_1_1spalding__t.html":[4,0,207,0],
 "df/df1/structspalding_1_1spalding__t.html#a14604e7370a62c6fe8a8eebc22295ad2":[4,0,207,0,25],
 "df/df1/structspalding_1_1spalding__t.html#a17145889bf2e9c8ac3daf68797f9a27a":[4,0,207,0,15],
@@ -249,5 +244,10 @@ var NAVTREEINDEX46 =
 "dir_45ceaae7855647d8e15cc2abf65b95d9.html":[5,0,1],
 "dir_4723786a25aeab7c362c514e51a8f74a.html":[5,0,2,9,0],
 "dir_47dedd53c2256c7309068824dd475815.html":[5,0,2,5,1],
-"dir_48eb729a40134e424c89304faa5c21a9.html":[5,0,2,7]
+"dir_48eb729a40134e424c89304faa5c21a9.html":[5,0,2,7],
+"dir_49ec912c0ebcd73652f5e3a19f5d0531.html":[5,0,2,8,0,1,0],
+"dir_4c3596ec6e7f8d381657f6ce7bbe76a2.html":[5,0,2,12,0,1,0],
+"dir_4f3a3c30c5637a23336b1376b853ac84.html":[5,0,2,7,0,3],
+"dir_50770e26e3ba115102e9374c0e502830.html":[5,0,2,12,0],
+"dir_50e88b1e88c285dbd74227451053c4ad.html":[5,0,2,13,0]
 };

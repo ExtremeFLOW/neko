@@ -1,10 +1,5 @@
 var NAVTREEINDEX36 =
 {
-"dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a4f46d69a5986c64c09492b28630ac003":[4,0,89,0,32],
-"dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a54bc23b757e602fdb5306128a6798d78":[4,0,89,0,72],
-"dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a5795f802b434ed8a631b293c72593f0b":[4,0,89,0,46],
-"dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a6111bbe254d5c15bcfd17fa83f27cef6":[4,0,89,0,21],
-"dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a6ba84dea93484455240c2d368619bb5e":[4,0,89,0,15],
 "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a6ccb021c49f197482e0d8897c6ae6881":[4,0,89,0,44],
 "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a719d3c6b29f1d4155575c7cd92c7ec00":[4,0,89,0,23],
 "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html#a7d4b4b754b3f21e2ed5571c2c6e56b6e":[4,0,89,0,36],
@@ -249,5 +244,10 @@ var NAVTREEINDEX36 =
 "dc/dd2/cuda_2tensor__kernel_8h.html#a9e950172cd4bc675c830b16fef1eca16":[5,0,2,12,0,1,0,24,2],
 "dc/dd2/cuda_2tensor__kernel_8h_source.html":[5,0,2,12,0,1,0,24],
 "dc/dd5/structbicgstab_1_1bicgstab__t.html":[4,0,17,0],
-"dc/dd5/structbicgstab_1_1bicgstab__t.html#a0604caa64f407001658d0678f200e426":[4,0,17,0,13]
+"dc/dd5/structbicgstab_1_1bicgstab__t.html#a0604caa64f407001658d0678f200e426":[4,0,17,0,13],
+"dc/dd5/structbicgstab_1_1bicgstab__t.html#a0d257f0590f4eb764eb192e6a1a58642":[4,0,17,0,6],
+"dc/dd5/structbicgstab_1_1bicgstab__t.html#a0defdfdb3bdd0faae17685e8860c95c6":[4,0,17,0,8],
+"dc/dd5/structbicgstab_1_1bicgstab__t.html#a0eef0f3fc8c0b437d1c66b99e498944a":[4,0,17,0,15],
+"dc/dd5/structbicgstab_1_1bicgstab__t.html#a1d0f060c4bee2b360c24d4a38e8044bd":[4,0,17,0,21],
+"dc/dd5/structbicgstab_1_1bicgstab__t.html#a28a4c9b86fb1d7419f87185bcdff744d":[4,0,17,0,14]
 };
