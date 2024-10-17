@@ -312,7 +312,7 @@ class TgvBase(NekoTestBase):
 
 @rfm.simple_test
 class Tgv8(TgvBase):
-    mesh_file = 'examples/tgv/512.nmsh'
+    mesh_file = '../../examples/tgv/512.nmsh'
     dt = 1e-2
     T_end = 20.0
 
@@ -334,7 +334,7 @@ class Tgv8(TgvBase):
 
 @rfm.simple_test
 class Tgv32(TgvBase):
-    mesh_file = 'examples/tgv/32768.nmsh'
+    mesh_file = '../../examples/tgv/32768.nmsh'
     dt = 1e-3
     T_end = 20.0
     dofs = 8**3 * 32**3
@@ -359,7 +359,7 @@ class MiniHemi(NekoTestBase):
     descr = 'Two iterations of hemi as a smoke test'
     build_system = DummyBuildSystem()
     case = 'minihemi.case'
-    mesh_file = 'examples/hemi/hemi.nmsh'
+    mesh_file = '../../examples/hemi/hemi.nmsh'
 
     @run_before('compile')
     def setup_case(self):
@@ -368,7 +368,7 @@ class MiniHemi(NekoTestBase):
 @rfm.simple_test
 class MiniTgv8(NekoTestBase):
     descr = 'Two iterations of TGV as a smoke test'
-    mesh_file = 'examples/tgv/512.nmsh'
+    mesh_file = '../../examples/tgv/512.nmsh'
     dt = 1e-2
     T_end = 0.02
     executable = './neko'
@@ -382,7 +382,7 @@ class MiniTgv8(NekoTestBase):
 @rfm.simple_test
 class MiniRB(NekoTestBase):
     descr = 'Two iterations of 3D RB as a smoke test'
-    mesh_file = 'examples/rayleigh-benard/box.nmsh'
+    mesh_file = '../../examples/rayleigh-benard/box.nmsh'
     dt = 1e-2
     T_end = 0.02
     executable = './neko'
