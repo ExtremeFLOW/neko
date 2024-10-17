@@ -1,0 +1,81 @@
+@test
+subroutine test_octree_init
+  use pfunit
+  use octree
+  implicit none
+
+  type(octree_t) :: t
+
+  @assertFalse(associated(t%root))
+  call t%init(10d0)
+  @assertTrue(associated(t%root))  
+  
+end subroutine test_octree_init
+
+@test
+subroutine test_octree_free
+  use pfunit
+  use octree
+  implicit none
+
+  type(octree_t) :: t
+
+  call t%init(1d0)
+  @assertTrue(associated(t%root))
+
+  call t%free
+  @assertFalse(associated(t%root))
+ 
+end subroutine test_octree_free
+
+@test
+subroutine test_octree_insert
+  use pfunit
+  use octree
+  use point
+  implicit none
+
+  type(octree_t) :: t
+  type(point_t) :: data
+  integer :: i
+
+  call t%init(100d0)
+
+  do i = 1, 10
+     data = (/ dble(i), dble(-i), dble(i)/)
+     call t%insert(data)
+  end do
+    
+    
+end subroutine test_octree_insert
+
+@test
+subroutine test_octree_find
+  use pfunit
+  use octree
+  use point
+  use math
+  implicit none
+
+  type(octree_t) :: t
+  type(point_t) :: data
+  integer :: i
+
+  call t%init(100d0)
+
+  do i = 1, 10
+     data = (/ dble(i), dble(-i), dble(i)/)
+     call t%insert(data)
+  end do
+
+  do i = 10, 1, -1
+     data = (/ dble(i), dble(-i), dble(i)/)
+     @assertTrue(t%find(data))
+  end do
+
+  do i = 10, 1, -1
+     data = (/ dble(-i), dble(-i), dble(i)/)
+     @assertFalse(t%find(data))
+  end do
+  
+end subroutine test_octree_find
