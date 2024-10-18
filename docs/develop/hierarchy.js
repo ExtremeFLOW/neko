@@ -470,7 +470,8 @@ var hierarchy =
     [ "opencl_math::opencl_vdot3", "dc/dd1/interfaceopencl__math_1_1opencl__vdot3.html", null ],
     [ "space::operator(.eq.)", "d2/d73/interfacespace_1_1operator_07_8eq_8_08.html", null ],
     [ "space::operator(.ne.)", "de/d17/interfacespace_1_1operator_07_8ne_8_08.html", null ],
-    [ "sampler::outp_t", "d7/d8b/structsampler_1_1outp__t.html", null ],
+    [ "output_controller::output_controller_t", "d4/d3d/structoutput__controller_1_1output__controller__t.html", null ],
+    [ "output::output_ptr_t", "dc/d4d/structoutput_1_1output__ptr__t.html", null ],
     [ "output::output_sample", "dd/df1/interfaceoutput_1_1output__sample.html", null ],
     [ "output::output_t", "dd/d5f/structoutput_1_1output__t.html", [
       [ "chkp_output::chkp_output_t", "da/d51/structchkp__output_1_1chkp__output__t.html", null ],
@@ -576,7 +577,6 @@ var hierarchy =
       [ "rhs_maker_sx::rhs_maker_sumab_sx_t", "d9/d26/structrhs__maker__sx_1_1rhs__maker__sumab__sx__t.html", null ]
     ] ],
     [ "runtime_stats::runtime_stats_t", "d5/db8/structruntime__stats_1_1runtime__stats__t.html", null ],
-    [ "sampler::sampler_t", "de/de8/structsampler_1_1sampler__t.html", null ],
     [ "scalar_residual::scalar_residual_interface", "d0/d90/interfacescalar__residual_1_1scalar__residual__interface.html", null ],
     [ "scalar_residual::scalar_residual_t", "de/de3/structscalar__residual_1_1scalar__residual__t.html", [
       [ "scalar_residual_cpu::scalar_residual_cpu_t", "db/d3c/structscalar__residual__cpu_1_1scalar__residual__cpu__t.html", null ],

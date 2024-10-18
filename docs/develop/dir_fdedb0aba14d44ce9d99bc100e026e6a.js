@@ -29,7 +29,6 @@ var dir_fdedb0aba14d44ce9d99bc100e026e6a =
     ] ],
     [ "rhs_maker_fctry.f90", "d8/d57/rhs__maker__fctry_8f90.html", null ],
     [ "runtime_statistics.f90", "d0/d6c/runtime__statistics_8f90.html", "d0/d6c/runtime__statistics_8f90" ],
-    [ "sampler.f90", "d8/df5/sampler_8f90.html", "d8/df5/sampler_8f90" ],
     [ "sighdl.c", "da/d1e/sighdl_8c.html", "da/d1e/sighdl_8c" ],
     [ "signal.f90", "d7/d5a/signal_8f90.html", "d7/d5a/signal_8f90" ],
     [ "statistics.f90", "df/d2d/statistics_8f90.html", "df/d2d/statistics_8f90" ],

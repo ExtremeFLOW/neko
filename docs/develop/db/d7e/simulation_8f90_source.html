@@ -184,7 +184,7 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90_source.html','.
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="keywordflow">    end if</span></div>
 <div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160; </div>
 <div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%section(<span class="stringliteral">&#39;Postprocessing&#39;</span>)</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keyword">call </span>c%s%sample(t, tstep)</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keyword">call </span>c%output_controller%execute(t, tstep)</div>
 <div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160; </div>
 <div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    <span class="keyword">call </span>c%usr%user_init_modules(t, c%fluid%u, c%fluid%v, c%fluid%w,&amp;</div>
 <div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;                                 c%fluid%p, c%fluid%c_Xh, c%params)</div>
@@ -249,7 +249,7 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90_source.html','.
 <div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;       <span class="comment">! Execute all simulation components</span></div>
 <div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d2/d78/namespacesimcomp__executor.html#a4e23cb01202a3d0847549aafe6b9738f">neko_simcomps</a>%compute(t, tstep)</div>
 <div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160; </div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;       <span class="keyword">call </span>c%s%sample(t, tstep)</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;       <span class="keyword">call </span>c%output_controller%execute(t, tstep)</div>
 <div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160; </div>
 <div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;       <span class="comment">! Update material properties</span></div>
 <div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;       <span class="keyword">call </span>c%usr%material_properties(t, tstep, c%fluid%rho,&amp;</div>
@@ -278,7 +278,7 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90_source.html','.
 <div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160; </div>
 <div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d0/d70/interfacejson__utils_1_1json__get__or__default.html">json_get_or_default</a>(c%params, <span class="stringliteral">&#39;case.output_at_end&#39;</span>,&amp;</div>
 <div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;                             output_at_end, .true.)</div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    <span class="keyword">call </span>c%s%sample(t, tstep, output_at_end)</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    <span class="keyword">call </span>c%output_controller%execute(t, tstep, output_at_end)</div>
 <div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160; </div>
 <div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    <span class="keywordflow">if</span> (.not. (output_at_end) .and. t .lt. c%end_time) <span class="keywordflow">then</span></div>
 <div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d1/d2d/namespacesimulation.html#a933da001f4561bdb159de8e62593bec3">simulation_joblimit_chkp</a>(c, t)</div>
@@ -368,7 +368,7 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90_source.html','.
 <div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%message(log_buf)</div>
 <div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section()</div>
 <div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160; </div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    <span class="keyword">call </span>c%s%set_counter(t)</div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    <span class="keyword">call </span>c%output_controller%set_counter(t)</div>
 <div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d1/d2d/namespacesimulation.html#af82971b79cd67a50aaed87190a60dd9d">simulation_restart</a></div>
 <div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160; </div>
 <div class="line"><a name="l00282"></a><span class="lineno"><a class="line" href="../../d1/d2d/namespacesimulation.html#a933da001f4561bdb159de8e62593bec3">  282</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d1/d2d/namespacesimulation.html#a933da001f4561bdb159de8e62593bec3">simulation_joblimit_chkp</a>(C, t)</div>
@@ -436,7 +436,7 @@ $(document).ready(function(){initNavTree('db/d7e/simulation_8f90_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../db/d7e/simulation_8f90.html">simulation.f90</a></li>
-    <li class="footer">Generated on Thu Oct 17 2024 03:38:00 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Oct 18 2024 03:38:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

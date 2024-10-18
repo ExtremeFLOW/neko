@@ -772,7 +772,11 @@ var annotated_dup =
     ] ],
     [ "output", "dd/d93/namespaceoutput.html", [
       [ "output_t", "dd/d5f/structoutput_1_1output__t.html", "dd/d5f/structoutput_1_1output__t" ],
+      [ "output_ptr_t", "dc/d4d/structoutput_1_1output__ptr__t.html", "dc/d4d/structoutput_1_1output__ptr__t" ],
       [ "output_sample", "dd/df1/interfaceoutput_1_1output__sample.html", "dd/df1/interfaceoutput_1_1output__sample" ]
+    ] ],
+    [ "output_controller", "d8/d57/namespaceoutput__controller.html", [
+      [ "output_controller_t", "d4/d3d/structoutput__controller_1_1output__controller__t.html", "d4/d3d/structoutput__controller_1_1output__controller__t" ]
     ] ],
     [ "parmetis", "d1/dd7/namespaceparmetis.html", [
       [ "parmetis_v3_partmeshkway", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway.html", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway" ],
@@ -916,10 +920,6 @@ var annotated_dup =
     ] ],
     [ "runtime_stats", "d6/d78/namespaceruntime__stats.html", [
       [ "runtime_stats_t", "d5/db8/structruntime__stats_1_1runtime__stats__t.html", "d5/db8/structruntime__stats_1_1runtime__stats__t" ]
-    ] ],
-    [ "sampler", "dc/d85/namespacesampler.html", [
-      [ "outp_t", "d7/d8b/structsampler_1_1outp__t.html", "d7/d8b/structsampler_1_1outp__t" ],
-      [ "sampler_t", "de/de8/structsampler_1_1sampler__t.html", "de/de8/structsampler_1_1sampler__t" ]
     ] ],
     [ "scalar_ic", "d8/ddf/namespacescalar__ic.html", [
       [ "set_scalar_ic", "df/d8e/interfacescalar__ic_1_1set__scalar__ic.html", "df/d8e/interfacescalar__ic_1_1set__scalar__ic" ]

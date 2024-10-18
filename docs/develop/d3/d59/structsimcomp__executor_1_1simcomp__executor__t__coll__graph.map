@@ -62,7 +62,7 @@
 <area shape="rect" id="node61" href="$de/da4/structtime__scheme_1_1time__scheme__t.html" title="Base abstract class for time integration schemes." alt="" coords="2784,273,3003,300"/>
 <area shape="rect" id="node62" href="$d2/d90/structext__time__scheme_1_1ext__time__scheme__t.html" title="Explicit extrapolation scheme for time integration." alt="" coords="2623,417,2790,458"/>
 <area shape="rect" id="node63" href="$d2/d88/structab__time__scheme_1_1ab__time__scheme__t.html" title="Explicit Adam&#45;Bashforth scheme for time integration." alt="" coords="2815,417,2972,458"/>
-<area shape="rect" id="node64" href="$de/de8/structsampler_1_1sampler__t.html" title="Sampler." alt="" coords="2803,2122,2951,2149"/>
+<area shape="rect" id="node64" href="$d4/d3d/structoutput__controller_1_1output__controller__t.html" title="Centralized controller for a list of outputs." alt="" coords="2805,2115,2950,2156"/>
 <area shape="rect" id="node65" href="$db/de7/structtime__based__controller_1_1time__based__controller__t.html" title="A utility type for determening whether an action should be executed based on the current time value...." alt="" coords="2784,2011,2971,2052"/>
-<area shape="rect" id="node66" href="$d7/d8b/structsampler_1_1outp__t.html" title="Pointer to an arbitrary output." alt="" coords="2995,2018,3119,2045"/>
+<area shape="rect" id="node66" href="$dc/d4d/structoutput_1_1output__ptr__t.html" title="Wrapper around an output_t pointer." alt="" coords="2995,2018,3146,2045"/>
 </map>

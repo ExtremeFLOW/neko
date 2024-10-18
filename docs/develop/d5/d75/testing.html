@@ -139,14 +139,14 @@ Adding a new test</h1>
 <div class="line">    mpiexec -np 1 ./field/field_suite</div>
 <div class="line">fi</div>
 </div><!-- fragment --> You need to change <code>./field/field_suite</code> to the name of the directory for your test and the name of the <code>check</code> target in the <code>Makefile.in</code>.</li>
-<li>Now you have to edit <code>tests/Makefile.am</code>. This file contains three lists.<ol type="a">
+<li>Now you have to edit <code>tests/unit/Makefile.am</code>. This file contains three lists.<ol type="a">
 <li>The first one is <code>SUBDIRS</code>, to which you should add the directory with your tests.</li>
 <li>The second one is <code>TESTS</code>, here you should add the file, which ends with <code>_test</code>. If you followed the conventions above it will be the output from pFUnit for a simple test, or the runner you created in the case of an MPI test.</li>
 <li>The last list is <code>EXTRA_DIST</code>. Here, you should add all your <code>.pf</code> files. That is it for a simple test, but if you use MPI you should also copy the entry you made in <code>TESTS</code> to this list. Again, you can use <code>field_test</code> as an example.</li>
 </ol>
 </li>
 <li>Finally, open the <code>configure.ac</code> file in the root folder of <code>neko</code>. Find <code># Config tests</code> line and the <code>AC_CONFIG_FILES</code> list below it. Add the path to a <code>Makefile</code> (note, no <code>.in</code>!!) in your test folder.</li>
-<li>Please also add the compilation products of your test to the <code>tests/.gitignore</code> file. This helps keeps the version controlled file list unpolluted. </li>
+<li>Please also add the compilation products of your test to the <code>tests/unit/.gitignore</code> file. This helps keeps the version controlled file list unpolluted. </li>
 </ol>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
@@ -155,7 +155,7 @@ Adding a new test</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li><li class="navelem"><a class="el" href="../../d5/dfc/installation.html">Installing Neko</a></li>
-    <li class="footer">Generated on Thu Oct 17 2024 03:38:00 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Oct 18 2024 03:38:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

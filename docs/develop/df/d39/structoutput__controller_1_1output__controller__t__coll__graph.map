@@ -1,0 +1,5 @@
+<map id="output_controller::output_controller_t" name="output_controller::output_controller_t">
+<area shape="rect" id="node1" title="Centralized controller for a list of outputs." alt="" coords="122,109,267,151"/>
+<area shape="rect" id="node2" href="$db/de7/structtime__based__controller_1_1time__based__controller__t.html" title="A utility type for determening whether an action should be executed based on the current time value...." alt="" coords="5,5,192,47"/>
+<area shape="rect" id="node3" href="$dc/d4d/structoutput_1_1output__ptr__t.html" title="Wrapper around an output_t pointer." alt="" coords="217,13,367,39"/>
+</map>

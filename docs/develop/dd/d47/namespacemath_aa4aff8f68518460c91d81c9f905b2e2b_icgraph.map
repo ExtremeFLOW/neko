@@ -1,5 +1,5 @@
 <map id="math::col2" name="math::col2">
-<area shape="rect" id="node1" title="Vector multiplication ." alt="" coords="1291,449,1381,475"/>
+<area shape="rect" id="node1" title="Vector multiplication ." alt="" coords="1291,481,1381,507"/>
 <area shape="rect" id="node2" href="$d6/def/namespacegradient__jump__penalty.html#a50a5857c26b3634d6e9bf80c7ac5182f" title="Initialize the facet factor array." alt="" coords="1066,5,1238,47"/>
 <area shape="rect" id="node4" href="$d5/de6/namespacefield__math.html#a35c4acba25db9dc1e0193df356dc9dad" title="Vector multiplication ." alt="" coords="1071,71,1233,98"/>
 <area shape="rect" id="node5" href="$d9/d7d/namespacefluid__stats.html#a4f4f6b67d4aaee16ce1a646a3d23e844" title="Updates all fields with a new sample." alt="" coords="1089,123,1215,164"/>
@@ -12,10 +12,11 @@
 <area shape="rect" id="node17" href="$de/d0d/namespacepnpn__res__stress__cpu.html#a65abda9efa01dca34d23bec127576d73" title=" " alt="" coords="280,521,443,577"/>
 <area shape="rect" id="node30" href="$d1/d99/namespacemap__2d.html#a40d8a5fef72ef327a069093b75dab4ad" title=" " alt="" coords="1061,656,1243,697"/>
 <area shape="rect" id="node34" href="$d1/d99/namespacemap__2d.html#a27867ff2e8551191a1d1788f7744850d" title=" " alt="" coords="1066,591,1238,632"/>
-<area shape="rect" id="node35" href="$d2/d13/namespaceflow__ic.html#a9d1d885167a393ccb448d1a90f1530d5" title=" " alt="" coords="1079,759,1225,800"/>
-<area shape="rect" id="node38" href="$d8/ddf/namespacescalar__ic.html#a284c2151baaf62794c62dfa896b63a6b" title="Set scalar initial condition (common)" alt="" coords="1075,839,1229,880"/>
-<area shape="rect" id="node41" href="$d5/d6a/namespacegmres__sx.html#a9c2ada127fe243736199ecbeb712c3ea" title="Standard PCG solve." alt="" coords="1074,904,1230,945"/>
-<area shape="rect" id="node42" href="$dd/d6e/namespacesx__jacobi.html#add1b1766274e20b0a12d2f36627adecb" title=" " alt="" coords="1076,999,1228,1040"/>
+<area shape="rect" id="node35" href="$d2/d13/namespaceflow__ic.html#a9d1d885167a393ccb448d1a90f1530d5" title=" " alt="" coords="1079,725,1225,767"/>
+<area shape="rect" id="node38" href="$d8/ddf/namespacescalar__ic.html#a284c2151baaf62794c62dfa896b63a6b" title="Set scalar initial condition (common)" alt="" coords="1075,791,1229,832"/>
+<area shape="rect" id="node41" href="$db/d94/namespacesource__term__handler.html#a7fdcd706e8a6e842b68dacc0d377c580" title="Add all the source term to the passed right&#45;hand side fields." alt="" coords="1069,857,1235,913"/>
+<area shape="rect" id="node42" href="$d5/d6a/namespacegmres__sx.html#a9c2ada127fe243736199ecbeb712c3ea" title="Standard PCG solve." alt="" coords="1074,937,1230,979"/>
+<area shape="rect" id="node43" href="$dd/d6e/namespacesx__jacobi.html#add1b1766274e20b0a12d2f36627adecb" title=" " alt="" coords="1076,1009,1228,1051"/>
 <area shape="rect" id="node3" href="$d6/def/namespacegradient__jump__penalty.html#ab7234be3b26833675975cce3bdd66935" title="Constructor." alt="" coords="805,5,1013,47"/>
 <area shape="rect" id="node8" href="$dd/d49/namespacejacobi.html#a5c43a3d9d05e1ba76322ba2a8f1faea6" title=" " alt="" coords="841,239,977,266"/>
 <area shape="rect" id="node13" href="$dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute derivative of a scalar field along a single direction." alt="" coords="840,363,979,390"/>
@@ -41,5 +42,5 @@
 <area shape="rect" id="node37" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#adae7fa3c28ad065d2dd29d0ac26d2afa" title="Set intial flow condition (user defined)" alt="" coords="836,759,983,800"/>
 <area shape="rect" id="node39" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#acec97723c5e2c32e459b067fd352bf65" title="Set scalar initial condition (builtin)" alt="" coords="831,955,987,996"/>
 <area shape="rect" id="node40" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aa53b59c1c405887a1b3408e21bbb4801" title="Set scalar intial condition (user defined)" alt="" coords="830,889,989,931"/>
-<area shape="rect" id="node43" href="$dd/d6e/namespacesx__jacobi.html#a8e0d95bbb8f2b6dc135d59f47b066669" title=" " alt="" coords="819,1021,999,1047"/>
+<area shape="rect" id="node44" href="$dd/d6e/namespacesx__jacobi.html#a8e0d95bbb8f2b6dc135d59f47b066669" title=" " alt="" coords="819,1021,999,1047"/>
 </map>

@@ -8,9 +8,9 @@ var structcase_1_1case__t =
     [ "f_out", "db/d7a/structcase_1_1case__t.html#a165cdddf3f6276422b3e77902fc50957", null ],
     [ "fluid", "db/d7a/structcase_1_1case__t.html#a888466771ac023403b048a1f69262a5a", null ],
     [ "msh", "db/d7a/structcase_1_1case__t.html#a248a24b1212aa88b2a1345ccb6e72cf6", null ],
+    [ "output_controller", "db/d7a/structcase_1_1case__t.html#aa19239a00f927d54b3bbc305728751bb", null ],
     [ "output_directory", "db/d7a/structcase_1_1case__t.html#a596c6eccf1f63b048d6f7c8f747da1be", null ],
     [ "params", "db/d7a/structcase_1_1case__t.html#a0cec46707c2d83ee1f9e1cedfc8ea63e", null ],
-    [ "s", "db/d7a/structcase_1_1case__t.html#a9043a02b856057cf9b9e20c85485b520", null ],
     [ "scalar", "db/d7a/structcase_1_1case__t.html#a82f9cabebab34fc9c60d63c90444705a", null ],
     [ "tlag", "db/d7a/structcase_1_1case__t.html#ac90bc93619efdca5871557e43cfe4a9e", null ],
     [ "usr", "db/d7a/structcase_1_1case__t.html#a43f72731b78ac5b8a724df44f4c53cf4", null ]

@@ -165,9 +165,9 @@ Collaboration diagram for case::case_t:</div>
 <area shape="rect" href="../../de/da4/structtime__scheme_1_1time__scheme__t.html" title="Base abstract class for time integration schemes." alt="" coords="2784,273,3003,300"/>
 <area shape="rect" href="../../d2/d90/structext__time__scheme_1_1ext__time__scheme__t.html" title="Explicit extrapolation scheme for time integration." alt="" coords="2623,417,2790,458"/>
 <area shape="rect" href="../../d2/d88/structab__time__scheme_1_1ab__time__scheme__t.html" title="Explicit Adam&#45;Bashforth scheme for time integration." alt="" coords="2815,417,2972,458"/>
-<area shape="rect" href="../../de/de8/structsampler_1_1sampler__t.html" title="Sampler." alt="" coords="2803,2122,2951,2149"/>
+<area shape="rect" href="../../d4/d3d/structoutput__controller_1_1output__controller__t.html" title="Centralized controller for a list of outputs." alt="" coords="2805,2115,2950,2156"/>
 <area shape="rect" href="../../db/de7/structtime__based__controller_1_1time__based__controller__t.html" title="A utility type for determening whether an action should be executed based on the current time value...." alt="" coords="2784,2011,2971,2052"/>
-<area shape="rect" href="../../d7/d8b/structsampler_1_1outp__t.html" title="Pointer to an arbitrary output." alt="" coords="2995,2018,3119,2045"/>
+<area shape="rect" href="../../dc/d4d/structoutput_1_1output__ptr__t.html" title="Wrapper around an output_t pointer." alt="" coords="2995,2018,3146,2045"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -189,8 +189,8 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a6d1095c49ec258f7d2bcd4d5af00a7fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a596c6eccf1f63b048d6f7c8f747da1be"><td class="memItemLeft" align="right" valign="top">character(len=:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d7a/structcase_1_1case__t.html#a596c6eccf1f63b048d6f7c8f747da1be">output_directory</a></td></tr>
 <tr class="separator:a596c6eccf1f63b048d6f7c8f747da1be"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9043a02b856057cf9b9e20c85485b520"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../de/de8/structsampler_1_1sampler__t.html">sampler_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d7a/structcase_1_1case__t.html#a9043a02b856057cf9b9e20c85485b520">s</a></td></tr>
-<tr class="separator:a9043a02b856057cf9b9e20c85485b520"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa19239a00f927d54b3bbc305728751bb"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d4/d3d/structoutput__controller_1_1output__controller__t.html">output_controller_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d7a/structcase_1_1case__t.html#aa19239a00f927d54b3bbc305728751bb">output_controller</a></td></tr>
+<tr class="separator:aa19239a00f927d54b3bbc305728751bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a165cdddf3f6276422b3e77902fc50957"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../de/d0d/structfluid__output_1_1fluid__output__t.html">fluid_output_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d7a/structcase_1_1case__t.html#a165cdddf3f6276422b3e77902fc50957">f_out</a></td></tr>
 <tr class="separator:a165cdddf3f6276422b3e77902fc50957"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a386aa257e43f1993fba95fcf7ec37c9c"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../da/d51/structchkp__output_1_1chkp__output__t.html">chkp_output_t</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d7a/structcase_1_1case__t.html#a386aa257e43f1993fba95fcf7ec37c9c">f_chkp</a></td></tr>
@@ -334,6 +334,22 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="aa19239a00f927d54b3bbc305728751bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa19239a00f927d54b3bbc305728751bb">&#9670;&nbsp;</a></span>output_controller</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(<a class="el" href="../../d4/d3d/structoutput__controller_1_1output__controller__t.html">output_controller_t</a>) case::case_t::output_controller</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d0f/case_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d2/d0f/case_8f90_source.html">case.f90</a>.</p>
+
+</div>
+</div>
 <a id="a596c6eccf1f63b048d6f7c8f747da1be"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a596c6eccf1f63b048d6f7c8f747da1be">&#9670;&nbsp;</a></span>output_directory</h2>
 
@@ -363,22 +379,6 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="../../d2/d0f/case_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d2/d0f/case_8f90_source.html">case.f90</a>.</p>
-
-</div>
-</div>
-<a id="a9043a02b856057cf9b9e20c85485b520"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9043a02b856057cf9b9e20c85485b520">&#9670;&nbsp;</a></span>s</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">type(<a class="el" href="../../de/de8/structsampler_1_1sampler__t.html">sampler_t</a>) case::case_t::s</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../d2/d0f/case_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d2/d0f/case_8f90_source.html">case.f90</a>.</p>
 
 </div>
 </div>
@@ -439,7 +439,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/da8/namespacecase.html">case</a></li><li class="navelem"><a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a></li>
-    <li class="footer">Generated on Thu Oct 17 2024 03:38:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Oct 18 2024 03:38:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

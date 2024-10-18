@@ -112,9 +112,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ac5de5fa2ffbc5a4dbadc12bc8b6d7e54"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d66/namespacelambda2.html#ac5de5fa2ffbc5a4dbadc12bc8b6d7e54">lambda2_init_from_json</a> (this, json, case)</td></tr>
 <tr class="memdesc:ac5de5fa2ffbc5a4dbadc12bc8b6d7e54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor from json.  <a href="../../d0/d66/namespacelambda2.html#ac5de5fa2ffbc5a4dbadc12bc8b6d7e54">More...</a><br /></td></tr>
 <tr class="separator:ac5de5fa2ffbc5a4dbadc12bc8b6d7e54"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b3462b9724f0f95f1224493b95f951d"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d66/namespacelambda2.html#a2b3462b9724f0f95f1224493b95f951d">lambda2_init_from_attributes</a> (this)</td></tr>
-<tr class="memdesc:a2b3462b9724f0f95f1224493b95f951d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Actual constructor.  <a href="../../d0/d66/namespacelambda2.html#a2b3462b9724f0f95f1224493b95f951d">More...</a><br /></td></tr>
-<tr class="separator:a2b3462b9724f0f95f1224493b95f951d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4197a06abafffd865ce46b41a150892f"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d66/namespacelambda2.html#a4197a06abafffd865ce46b41a150892f">lambda2_init_from_attributes</a> (this, u, v, w, lambda2)</td></tr>
+<tr class="memdesc:a4197a06abafffd865ce46b41a150892f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Actual constructor.  <a href="../../d0/d66/namespacelambda2.html#a4197a06abafffd865ce46b41a150892f">More...</a><br /></td></tr>
+<tr class="separator:a4197a06abafffd865ce46b41a150892f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afbb585e9a675c1862068c4d2f054492f"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d66/namespacelambda2.html#afbb585e9a675c1862068c4d2f054492f">lambda2_free</a> (this)</td></tr>
 <tr class="memdesc:afbb585e9a675c1862068c4d2f054492f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="../../d0/d66/namespacelambda2.html#afbb585e9a675c1862068c4d2f054492f">More...</a><br /></td></tr>
 <tr class="separator:afbb585e9a675c1862068c4d2f054492f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -170,7 +170,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d87/lambda2_8f90_source.html#l00119">119</a> of file <a class="el" href="../../de/d87/lambda2_8f90_source.html">lambda2.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d87/lambda2_8f90_source.html#l00126">126</a> of file <a class="el" href="../../de/d87/lambda2_8f90_source.html">lambda2.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -207,12 +207,12 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d87/lambda2_8f90_source.html#l00111">111</a> of file <a class="el" href="../../de/d87/lambda2_8f90_source.html">lambda2.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d87/lambda2_8f90_source.html#l00118">118</a> of file <a class="el" href="../../de/d87/lambda2_8f90_source.html">lambda2.f90</a>.</p>
 
 </div>
 </div>
-<a id="a2b3462b9724f0f95f1224493b95f951d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2b3462b9724f0f95f1224493b95f951d">&#9670;&nbsp;</a></span>lambda2_init_from_attributes()</h2>
+<a id="a4197a06abafffd865ce46b41a150892f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4197a06abafffd865ce46b41a150892f">&#9670;&nbsp;</a></span>lambda2_init_from_attributes()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -224,8 +224,36 @@ Here is the call graph for this function:</div>
           <td class="memname">subroutine lambda2::lambda2_init_from_attributes </td>
           <td>(</td>
           <td class="paramtype">class(<a class="el" href="../../d6/db3/structlambda2_1_1lambda2__t.html">lambda2_t</a>), intent(inout)&#160;</td>
-          <td class="paramname"><em>this</em></td><td>)</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout), pointer&#160;</td>
+          <td class="paramname"><em>u</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout), pointer&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout), pointer&#160;</td>
+          <td class="paramname"><em>w</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout), pointer&#160;</td>
+          <td class="paramname"><em>lambda2</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -235,12 +263,12 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d87/lambda2_8f90_source.html#l00101">101</a> of file <a class="el" href="../../de/d87/lambda2_8f90_source.html">lambda2.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d87/lambda2_8f90_source.html#l00106">106</a> of file <a class="el" href="../../de/d87/lambda2_8f90_source.html">lambda2.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d0/d66/namespacelambda2_a2b3462b9724f0f95f1224493b95f951d_icgraph.png" border="0" usemap="#ad0/d66/namespacelambda2_a2b3462b9724f0f95f1224493b95f951d_icgraph" alt=""/></div>
-<map name="ad0/d66/namespacelambda2_a2b3462b9724f0f95f1224493b95f951d_icgraph" id="ad0/d66/namespacelambda2_a2b3462b9724f0f95f1224493b95f951d_icgraph">
+<div class="center"><img src="../../d0/d66/namespacelambda2_a4197a06abafffd865ce46b41a150892f_icgraph.png" border="0" usemap="#ad0/d66/namespacelambda2_a4197a06abafffd865ce46b41a150892f_icgraph" alt=""/></div>
+<map name="ad0/d66/namespacelambda2_a4197a06abafffd865ce46b41a150892f_icgraph" id="ad0/d66/namespacelambda2_a4197a06abafffd865ce46b41a150892f_icgraph">
 <area shape="rect" title="Actual constructor." alt="" coords="225,5,397,47"/>
 <area shape="rect" href="../../d0/d66/namespacelambda2.html#ac5de5fa2ffbc5a4dbadc12bc8b6d7e54" title="Constructor from json." alt="" coords="5,5,177,47"/>
 </map>
@@ -287,7 +315,7 @@ Here is the call graph for this function:</div>
 <div class="center"><img src="../../d0/d66/namespacelambda2_ac5de5fa2ffbc5a4dbadc12bc8b6d7e54_cgraph.png" border="0" usemap="#ad0/d66/namespacelambda2_ac5de5fa2ffbc5a4dbadc12bc8b6d7e54_cgraph" alt=""/></div>
 <map name="ad0/d66/namespacelambda2_ac5de5fa2ffbc5a4dbadc12bc8b6d7e54_cgraph" id="ad0/d66/namespacelambda2_ac5de5fa2ffbc5a4dbadc12bc8b6d7e54_cgraph">
 <area shape="rect" title="Constructor from json." alt="" coords="5,5,177,47"/>
-<area shape="rect" href="../../d0/d66/namespacelambda2.html#a2b3462b9724f0f95f1224493b95f951d" title="Actual constructor." alt="" coords="225,5,397,47"/>
+<area shape="rect" href="../../d0/d66/namespacelambda2.html#a4197a06abafffd865ce46b41a150892f" title="Actual constructor." alt="" coords="225,5,397,47"/>
 </map>
 </div>
 
@@ -299,7 +327,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/d66/namespacelambda2.html">lambda2</a></li>
-    <li class="footer">Generated on Thu Oct 17 2024 03:38:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Oct 18 2024 03:38:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

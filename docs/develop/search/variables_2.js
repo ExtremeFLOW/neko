@@ -36,7 +36,7 @@ var searchData=
   ['compute_5fvector_5f_9513',['compute_vector_',['../d6/def/structfluid__user__source__term_1_1fluid__user__source__term__t.html#a1b2e6d1f7878b8b3fdf01dd3d0314b78',1,'fluid_user_source_term::fluid_user_source_term_t::compute_vector_()'],['../dd/d0f/structscalar__user__source__term_1_1scalar__user__source__term__t.html#a7eac25a01ad92ef24751fa82cabd38d9',1,'scalar_user_source_term::scalar_user_source_term_t::compute_vector_()']]],
   ['control_5fmode_9514',['control_mode',['../db/de7/structtime__based__controller_1_1time__based__controller__t.html#a70ed418a684f6d827ecb314bfc52520b',1,'time_based_controller::time_based_controller_t']]],
   ['control_5fvalue_9515',['control_value',['../db/de7/structtime__based__controller_1_1time__based__controller__t.html#a316815e5c7630d095000f8f41a66f720',1,'time_based_controller::time_based_controller_t']]],
-  ['controllers_9516',['controllers',['../de/de8/structsampler_1_1sampler__t.html#a77df229c6dd24573f1d92b2314e08d8d',1,'sampler::sampler_t']]],
+  ['controllers_9516',['controllers',['../d4/d3d/structoutput__controller_1_1output__controller__t.html#aea8cb202e8bc15f7f032e8a51dee9df9',1,'output_controller::output_controller_t']]],
   ['conv1_5fprogram_9517',['conv1_program',['../d1/df7/prgm__lib_8h.html#a2824ac194f94fdb0ad8f4d7986f31be1',1,'conv1_program():&#160;prgm_lib.h'],['../d0/dc0/namespaceopencl__prgm__lib.html#a3d0166ba7eebf0640ec11305c334a26c',1,'opencl_prgm_lib::conv1_program()']]],
   ['counter_9518',['counter',['../d5/d37/structgeneric__file_1_1generic__file__t.html#a590608acce62212a28ba15a094caa5b4',1,'generic_file::generic_file_t']]],
   ['cp_9519',['cp',['../dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a43128f174ed89238b4d0486c55673bb3',1,'scalar_scheme::scalar_scheme_t']]],

@@ -452,6 +452,7 @@ var namespaces_dup =
       [ "opr_xsmm_set_convect_rst", "d9/d5a/namespaceopr__xsmm.html#a8e5902ecd251f5a9bef03ea64babc588", null ]
     ] ],
     [ "output", "dd/d93/namespaceoutput.html", "dd/d93/namespaceoutput" ],
+    [ "output_controller", "d8/d57/namespaceoutput__controller.html", "d8/d57/namespaceoutput__controller" ],
     [ "parmetis", "d1/dd7/namespaceparmetis.html", "d1/dd7/namespaceparmetis" ],
     [ "pipecg", "de/d49/namespacepipecg.html", "de/d49/namespacepipecg" ],
     [ "pipecg_device", "da/d46/namespacepipecg__device.html", "da/d46/namespacepipecg__device" ],
@@ -494,7 +495,6 @@ var namespaces_dup =
     ] ],
     [ "rough_log_law", "d7/d0f/namespacerough__log__law.html", "d7/d0f/namespacerough__log__law" ],
     [ "runtime_stats", "d6/d78/namespaceruntime__stats.html", "d6/d78/namespaceruntime__stats" ],
-    [ "sampler", "dc/d85/namespacesampler.html", "dc/d85/namespacesampler" ],
     [ "scalar_aux", "dc/d60/namespacescalar__aux.html", [
       [ "scalar_step_info", "dc/d60/namespacescalar__aux.html#a498a7bb330e6f6499e40144dfdaa19a2", null ]
     ] ],
