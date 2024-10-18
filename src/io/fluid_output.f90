@@ -79,13 +79,14 @@ contains
     if (present(scalar)) then
        call this%fluid%init(5)
     else
-       call this%fluid%init(4)
+       call this%fluid%init(5)
     end if
 
     call this%fluid%assign(1, fluid%p)
     call this%fluid%assign(2, fluid%u)
     call this%fluid%assign(3, fluid%v)
     call this%fluid%assign(4, fluid%w)
+    call this%fluid%assign(5, fluid%gradient_jump_penalty_v%check)
 
     if (present(scalar)) then
        call this%fluid%assign(5, scalar%s)

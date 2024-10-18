@@ -60,6 +60,8 @@ module gradient_jump_penalty
   !> Implements the gradient jump penalty.
   !! @note Reference DOI: 10.1016/j.cma.2021.114200
   type, public :: gradient_jump_penalty_t
+     !> Checkfield
+     type(field_t) :: check
      !> Coefficient of the penalty.
      real(kind=rp) :: tau
      !> Polynomial order
@@ -148,13 +150,15 @@ contains
     type(coef_t), target, intent(in) :: coef
     real(kind=rp), intent(in) :: a, b
 
-    integer :: i, j
+    integer :: i, j, k, l
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
+    real(kind=rp) :: normal(3)
 
     call this%free()
 
     this%p = dofmap%xh%lx - 1
     this%lx = dofmap%xh%lx
+    call this%check%init(dofmap, "GJP_check")
 
     if (this%p .gt. 1) then
        this%tau = -a * (this%p + 1) ** (-b)
@@ -232,38 +236,48 @@ contains
                         this%lx + 2, this%coef%msh%nelv))
 
     ! Extract facets' normals
-    this%n1(1, 2: this%lx + 1, 2: this%lx + 1, :) = this%coef%nx(:, :, 1, :)
-    this%n2(1, 2: this%lx + 1, 2: this%lx + 1, :) = this%coef%ny(:, :, 1, :)
-    this%n3(1, 2: this%lx + 1, 2: this%lx + 1, :) = this%coef%nz(:, :, 1, :)
-
-    this%n1(this%lx + 2, 2: this%lx + 1, 2: this%lx + 1, :) = &
-                                                    this%coef%nx(:, :, 2, :)
-    this%n2(this%lx + 2, 2: this%lx + 1, 2: this%lx + 1, :) = &
-                                                    this%coef%ny(:, :, 2, :)
-    this%n3(this%lx + 2, 2: this%lx + 1, 2: this%lx + 1, :) = &
-                                                    this%coef%nz(:, :, 2, :)
-
-    this%n1(2: this%lx + 1, 1, 2: this%lx + 1, :) = this%coef%nx(:, :, 3, :)
-    this%n2(2: this%lx + 1, 1, 2: this%lx + 1, :) = this%coef%ny(:, :, 3, :)
-    this%n3(2: this%lx + 1, 1, 2: this%lx + 1, :) = this%coef%nz(:, :, 3, :)
-
-    this%n1(2: this%lx + 1, this%lx + 2, 2: this%lx + 1, :) = &
-                                                    this%coef%nx(:, :, 4, :)
-    this%n2(2: this%lx + 1, this%lx + 2, 2: this%lx + 1, :) = &
-                                                    this%coef%ny(:, :, 4, :)
-    this%n3(2: this%lx + 1, this%lx + 2, 2: this%lx + 1, :) = &
-                                                    this%coef%nz(:, :, 4, :)
-
-    this%n1(2: this%lx + 1, 2: this%lx + 1, 1, :) = this%coef%nx(:, :, 5, :)
-    this%n2(2: this%lx + 1, 2: this%lx + 1, 1, :) = this%coef%ny(:, :, 5, :)
-    this%n3(2: this%lx + 1, 2: this%lx + 1, 1, :) = this%coef%nz(:, :, 5, :)
-
-    this%n1(2: this%lx + 1, 2: this%lx + 1, this%lx + 2, :) = &
-                                                    this%coef%nx(:, :, 6, :)
-    this%n2(2: this%lx + 1, 2: this%lx + 1, this%lx + 2, :) = &
-                                                    this%coef%ny(:, :, 6, :)
-    this%n3(2: this%lx + 1, 2: this%lx + 1, this%lx + 2, :) = &
-                                                    this%coef%nz(:, :, 6, :)
+   do i = 1, this%coef%msh%nelv
+      do j = 1, 6 ! for hexahedral elements
+         do k = 1, this%lx
+            do l = 1, this%lx
+               select case(j)
+               case(1)
+                  normal = this%coef%get_normal(1, l, k, i, j)
+                  this%n1(1, l + 1, k + 1, i) = normal(1)
+                  this%n2(1, l + 1, k + 1, i) = normal(2)
+                  this%n3(1, l + 1, k + 1, i) = normal(3)
+               case(2)
+                  normal = this%coef%get_normal(1, l, k, i, j)
+                  this%n1(this%lx + 2, l + 1, k + 1, i) = normal(1)
+                  this%n2(this%lx + 2, l + 1, k + 1, i) = normal(2)
+                  this%n3(this%lx + 2, l + 1, k + 1, i) = normal(3)
+               case(3)
+                  normal = this%coef%get_normal(l, 1, k, i, j)
+                  this%n1(l + 1, 1, k + 1, i) = normal(1)
+                  this%n2(l + 1, 1, k + 1, i) = normal(2)
+                  this%n3(l + 1, 1, k + 1, i) = normal(3)
+               case(4)
+                  normal = this%coef%get_normal(l, 1, k, i, j)
+                  this%n1(l + 1, this%lx + 2, k + 1, i) = normal(1)
+                  this%n2(l + 1, this%lx + 2, k + 1, i) = normal(2)
+                  this%n3(l + 1, this%lx + 2, k + 1, i) = normal(3)
+               case(5)
+                  normal = this%coef%get_normal(l, k, 1, i, j)
+                  this%n1(l + 1, k + 1, 1, i) = normal(1)
+                  this%n2(l + 1, k + 1, 1, i) = normal(2)
+                  this%n3(l + 1, k + 1, 1, i) = normal(3)
+               case(6)
+                  normal = this%coef%get_normal(l, k, 1, i, j)
+                  this%n1(l + 1, k + 1, this%lx + 2, i) = normal(1)
+                  this%n2(l + 1, k + 1, this%lx + 2, i) = normal(2)
+                  this%n3(l + 1, k + 1, this%lx + 2, i) = normal(3)
+               case default
+                  call neko_error("The face index is not correct")
+               end select
+            end do
+         end do
+      end do
+   end do
 
     ! Assemble facet factor
     call facet_factor_init(this)
@@ -433,6 +447,8 @@ contains
     class(gradient_jump_penalty_t), intent(inout) :: this
     !> work array
     real(kind=rp) :: wa(this%lx, this%lx, this%lx, this%coef%msh%nelv)
+    integer :: i, j, k, l
+    real(kind=rp) :: area_tmp
 
     allocate(this%facet_factor(this%lx + 2, this%lx + 2, &
                                this%lx + 2, this%coef%msh%nelv))
@@ -466,19 +482,43 @@ contains
     call col2(facet_factor, h2, n_large)
     call cmult(facet_factor, tau, this%n_large)
 
-    ! Multiplied by the quadrant weight
-    call col2(facet_factor(1, 2: lx + 1, 2: lx + 1, :), &
-              area(:, :, 1, :), lx * lx * nelv)
-    call col2(facet_factor(lx + 2, 2: lx + 1, 2: lx + 1, :), &
-              area(:, :, 2, :), lx * lx * nelv)
-    call col2(facet_factor(2: lx + 1, 1, 2: lx + 1, :), &
-              area(:, :, 3, :), lx * lx * nelv)
-    call col2(facet_factor(2: lx + 1, lx + 2, 2: lx + 1, :), &
-              area(:, :, 4, :), lx * lx * nelv)
-    call col2(facet_factor(2: lx + 1, 2: lx + 1, 1, :), &
-              area(:, :, 5, :), lx * lx * nelv)
-    call col2(facet_factor(2: lx + 1, 2: lx + 1, lx + 2, :), &
-              area(:, :, 6, :), lx * lx * nelv)
+   !  ! Multiplied by the quadrant weight
+    do i = 1, this%coef%msh%nelv
+       do j = 1, 6 ! for hexahedral elements
+          do k = 1, this%lx
+             do l = 1, this%lx
+                select case(j)
+                case(1)
+                   area_tmp = this%coef%get_area(1, l, k, i, j)
+                   facet_factor(1, l + 1, k + 1, i) = area_tmp * &
+                                 facet_factor(1, l + 1, k + 1, i)
+                case(2)
+                   area_tmp = this%coef%get_area(1, l, k, i, j)
+                   facet_factor(this%lx + 2, l + 1, k + 1, i) = area_tmp * &
+                                 facet_factor(this%lx + 2, l + 1, k + 1, i)
+                case(3)
+                   area_tmp = this%coef%get_area(l, 1, k, i, j)
+                   facet_factor(l + 1, 1, k + 1, i) = area_tmp * &
+                                 facet_factor(l + 1, 1, k + 1, i)
+                case(4)
+                   area_tmp = this%coef%get_area(l, 1, k, i, j)
+                   facet_factor(l + 1, this%lx + 2, k + 1, i) = area_tmp * &
+                                 facet_factor(l + 1, this%lx + 2, k + 1, i)
+                case(5)
+                   area_tmp = this%coef%get_area(l, k, 1, i, j)
+                   facet_factor(l + 1, k + 1, 1, i) = area_tmp * &
+                                 facet_factor(l + 1, k + 1, 1, i)
+                case(6)
+                   area_tmp = this%coef%get_area(l, k, 1, i, j)
+                   facet_factor(l + 1, k + 1, this%lx + 2, i) = area_tmp * &
+                                 facet_factor(l + 1, k + 1, this%lx + 2, i)
+                case default
+                   call neko_error("The face index is not correct")
+                end select
+             end do
+          end do
+       end do
+    end do
 
     end associate
   end subroutine facet_factor_init
@@ -605,6 +645,7 @@ contains
     end if
 
     nullify(this%coef)
+    call this%check%free()
 
     call this%Xh_GJP%free()
     call this%gs_GJP%free()
@@ -650,11 +691,38 @@ contains
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(field_t), intent(inout) :: f
 
+    integer :: i, j, k, l
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add2(f%x_d, this%penalty_d, this%coef%dof%size())
     else
        call add2(f%x, this%penalty, this%coef%dof%size())
     end if
+   !  call copy(this%check%x, this%coef%drdx, this%coef%dof%size())
+    do i = 1, this%coef%msh%nelv
+       do j = 1, 6 ! for hexahedral elements
+          do k = 1, this%lx
+             do l = 1, this%lx
+                select case(j)
+                case(1)
+                   this%check%x(1, l, k, i) = this%h2(1, l + 1, k + 1, i)
+                case(2)
+                   this%check%x(this%lx, l, k, i) = this%h2(this%lx + 2, l + 1, k + 1, i)
+                case(3)
+                   this%check%x(l, 1, k, i) = this%h2(l + 1, 1, k + 1, i)
+                case(4)
+                   this%check%x(l, this%lx, k, i) = this%h2(l + 1, this%lx + 2, k + 1, i)
+                case(5)
+                   this%check%x(1, l, k, i) = this%h2(1, l + 1, k + 1, i)
+                case(6)
+                   this%check%x(l, k, this%lx, i) = this%h2(l + 1, k + 1, this%lx + 2, i)
+                case default
+                   call neko_error("The face index is not correct")
+                end select
+             end do
+          end do
+       end do
+    end do
 
   end subroutine gradient_jump_penalty_perform
 
