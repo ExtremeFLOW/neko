@@ -598,8 +598,7 @@ contains
 
     do i = 1, this%n_local_probes
        write (log_buf, *) pe_rank, "/", this%global_interp%proc_owner(i), &
-            "/" , this%global_interp%el_owner(i), &
-            "/", this%global_interp%error_code(i)
+            "/" , this%global_interp%el_owner(i)
        call neko_log%message(log_buf)
        write(log_buf, '(A5,"(",F10.6,",",F10.6,",",F10.6,")")') &
             "rst: ", this%global_interp%rst(:,i)
@@ -637,11 +636,12 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     integer :: i, ierr
+    logical :: do_interp_on_host = .false.
 
     !> Check controller to determine if we must write
     do i = 1, this%n_fields
        call this%global_interp%evaluate(this%out_values(:,i), &
-                                        this%sampled_fields%items(i)%ptr%x)
+                                        this%sampled_fields%items(i)%ptr%x,do_interp_on_host)
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
