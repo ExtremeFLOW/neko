@@ -37,15 +37,17 @@ submodule (source_term) source_term_fctry
   use boussinesq_source_term, only : boussinesq_source_term_t
   use brinkman_source_term, only: brinkman_source_term_t
   use coriolis_source_term, only : coriolis_source_term_t
+  use gradient_jump_penalty, only : gradient_jump_penalty_t
   use json_utils, only : json_get
   use utils, only : concat_string_array, neko_error
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SOURCE_KNOWN_TYPES(4) = [character(len=20) :: &
+  character(len=20) :: SOURCE_KNOWN_TYPES(5) = [character(len=20) :: &
      "constant", &
      "boussinesq", &
      "coriolis", &
+     "gradient_jump_penalty", &
      "brinkman"]
 
 contains
@@ -72,6 +74,8 @@ contains
        allocate(coriolis_source_term_t::object)
     else if (trim(type_name) .eq. "brinkman") then
        allocate(brinkman_source_term_t::object)
+    else if (trim(type_name) .eq. "gradient_jump_penalty") then
+       allocate(gradient_jump_penalty_t::object)
     else
        type_string =  concat_string_array(SOURCE_KNOWN_TYPES, &
             NEW_LINE('A') // "-  ", .true.)
