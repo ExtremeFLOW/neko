@@ -160,6 +160,8 @@ module fluid_scheme
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      !> Apply velocity boundary conditions
      procedure, pass(this) :: bc_apply_prs => fluid_scheme_bc_apply_prs
+     !> Setup boundary conditions
+     procedure, pass(this) :: setup_bcs_ => fluid_scheme_setup_bcs
      !> Set the user inflow procedure
      procedure, pass(this) :: set_usr_inflow => fluid_scheme_set_usr_inflow
      !> Compute the CFL number
@@ -177,6 +179,10 @@ module fluid_scheme
      !> Update variable material properties
      procedure, pass(this) :: update_material_properties => &
        fluid_scheme_update_material_properties
+     !> Linear solver factory, wraps a KSP constructor
+     procedure, pass(this) :: solver_factory => fluid_scheme_solver_factory
+     !> Preconditioner factory
+     procedure, pass(this) :: precon_factory => fluid_scheme_precon_factory
   end type fluid_scheme_t
 
   !> Abstract interface to initialize a fluid formulation
@@ -417,37 +423,42 @@ contains
     end if
 
     call this%bclst_vel%init()
+    write(*,*) "BCLST", this%bclst_vel%size_, this%bclst_vel%capacity
 
-!    call this%bc_sym%init(this%c_Xh, params)
-!    call this%bc_sym%mark_zones_from_list('sym', this%bc_labels)
-!    call this%bc_sym%finalize()
-!    call this%bclst_vel%append(this%bc_sym)
+    call this%bc_sym%init(this%c_Xh, params)
+    call this%bc_sym%mark_zones_from_list('sym', this%bc_labels)
+    call this%bc_sym%finalize()
+    call this%bclst_vel%append(this%bc_sym)
+
+    write(*,*) "BCLST", this%bclst_vel%size_, this%bclst_vel%capacity
 
     !
     ! Inflow
     !
-    if (params%valid_path('case.fluid.inflow_condition')) then
-       call json_get(params, 'case.fluid.inflow_condition.type', string_val1)
-       if (trim(string_val1) .eq. "uniform") then
-          allocate(inflow_t::this%bc_inflow)
-       else if (trim(string_val1) .eq. "blasius") then
-          allocate(blasius_t::this%bc_inflow)
-       else if (trim(string_val1) .eq. "user") then
-          allocate(usr_inflow_t::this%bc_inflow)
-       else
-          call neko_error('Invalid inflow condition '//string_val1)
-       end if
+!    if (params%valid_path('case.fluid.inflow_condition')) then
+!       call json_get(params, 'case.fluid.inflow_condition.type', string_val1)
+!       if (trim(string_val1) .eq. "uniform") then
+!          allocate(inflow_t::this%bc_inflow)
+!       else if (trim(string_val1) .eq. "blasius") then
+!          allocate(blasius_t::this%bc_inflow)
+!       else if (trim(string_val1) .eq. "user") then
+!          allocate(usr_inflow_t::this%bc_inflow)
+!       else
+!          call neko_error('Invalid inflow condition '//string_val1)
+!       end if
 
-       call this%bc_inflow%init(this%c_Xh, params)
-       call this%bc_inflow%mark_zones_from_list('v', this%bc_labels)
-       call this%bc_inflow%finalize()
-       call this%bclst_vel%append(this%bc_inflow)
-    end if
+!       call this%bc_inflow%init(this%c_Xh, params)
+!       call this%bc_inflow%mark_zones_from_list('v', this%bc_labels)
+!       call this%bc_inflow%finalize()
+!       call this%bclst_vel%append(this%bc_inflow)
+!       write(*,*) "BCLST", this%bclst_vel%size_, this%bclst_vel%capacity
+!    end if
 
 !    call this%bc_wall%init(this%c_Xh, params)
 !    call this%bc_wall%mark_zones_from_list('w', this%bc_labels)
 !    call this%bc_wall%finalize()
 !    call this%bclst_vel%append(this%bc_wall)
+    write(*,*) "BCLST", this%bclst_vel%size_, this%bclst_vel%capacity
 
     ! Setup field dirichlet bc for u-velocity
     call this%user_field_bc_vel%bc_u%init_base(this%c_Xh)
@@ -522,8 +533,7 @@ contains
     call this%user_field_bc_vel%bc_list%append(this%user_field_bc_vel%bc_w)
 
 
-    write(*,*) "SETTING UP BCS"
-    call this%setup_bcs(user)
+    call this%setup_bcs_(user)
 
     !
     ! Check if we need to output boundary types to a separate field
@@ -564,9 +574,9 @@ contains
 
        write(log_buf, '(A,ES13.6)') 'Abs tol    :',  real_val
        call neko_log%message(log_buf)
-       call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
+       call this%solver_factory(this%ksp_vel, this%dm_Xh%size(), &
             string_val1, integer_val, real_val)
-       call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
+       call this%precon_factory(this%pc_vel, this%ksp_vel, &
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, string_val2)
        call neko_log%end_section()
     end if
@@ -608,61 +618,36 @@ contains
     call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
                                   material_properties, kspv_init)
 
-    call neko_field_registry%add_field(this%dm_Xh, 'p')
-    this%p => neko_field_registry%get_field('p')
+!    call neko_field_registry%add_field(this%dm_Xh, 'p')
+!    this%p => neko_field_registry%get_field('p')
 
-    !
-    ! Setup pressure boundary conditions
-    !
-    call this%bclst_prs%init()
-    call this%bc_prs%init(this%c_Xh, params)
-    call this%bc_prs%mark_zones_from_list('o', this%bc_labels)
-    call this%bc_prs%mark_zones_from_list('on', this%bc_labels)
-
-    ! Field dirichlet pressure bc
-    call this%user_field_bc_prs%init_base(this%c_Xh)
-    call this%user_field_bc_prs%mark_zones_from_list('d_pres', this%bc_labels)
-    call this%user_field_bc_prs%finalize()
-    call MPI_Allreduce(this%user_field_bc_prs%msk(0), integer_val, 1, &
-         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-
-    if (integer_val .gt. 0)  call this%user_field_bc_prs%init_field('d_pres')
-    call this%bclst_prs%append(this%user_field_bc_prs)
-    call this%user_field_bc_vel%bc_list%append(this%user_field_bc_prs)
-
-    call this%bc_prs%finalize()
-    call this%bclst_prs%append(this%bc_prs)
-    call this%bc_dong%init(this%c_Xh, params)
-    call this%bc_dong%mark_zones_from_list('o+dong', this%bc_labels)
-    call this%bc_dong%mark_zones_from_list('on+dong', this%bc_labels)
-    call this%bc_dong%finalize()
 
 
     ! Pressure solver
-    if (kspp_init) then
-       call neko_log%section("Pressure solver")
+    !if (kspp_init) then
+    !   call neko_log%section("Pressure solver")
 
-       call json_get_or_default(params, &
-                               'case.fluid.pressure_solver.max_iterations', &
-                               integer_val, 800)
-       call json_get(params, 'case.fluid.pressure_solver.type', solver_type)
-       call json_get(params, 'case.fluid.pressure_solver.preconditioner', &
-                     precon_type)
-       call json_get(params, 'case.fluid.pressure_solver.absolute_tolerance', &
-                     abs_tol)
-       call neko_log%message('Type       : ('// trim(solver_type) // &
-             ', ' // trim(precon_type) // ')')
-       write(log_buf, '(A,ES13.6)') 'Abs tol    :',  abs_tol
-       call neko_log%message(log_buf)
-
-       call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), &
-            solver_type, integer_val, abs_tol)
-       call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
-            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, precon_type)
-
-       call neko_log%end_section()
-
-    end if
+    !   call json_get_or_default(params, &
+!                               'case.fluid.pressure_solver.max_iterations', &
+!                               integer_val, 800)
+!       call json_get(params, 'case.fluid.pressure_solver.type', solver_type)
+!       call json_get(params, 'case.fluid.pressure_solver.preconditioner', &
+!                     precon_type)
+!       call json_get(params, 'case.fluid.pressure_solver.absolute_tolerance', &
+!                     abs_tol)
+!       call neko_log%message('Type       : ('// trim(solver_type) // &
+!             ', ' // trim(precon_type) // ')')
+!       write(log_buf, '(A,ES13.6)') 'Abs tol    :',  abs_tol
+!       call neko_log%message(log_buf)
+!
+!       call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), &
+!            solver_type, integer_val, abs_tol)
+!       call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
+!            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, precon_type)
+!
+!       call neko_log%end_section()
+!
+!    end if
 
 
     call neko_log%end_section()
@@ -852,7 +837,8 @@ contains
 
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
-  subroutine fluid_scheme_solver_factory(ksp, n, solver, max_iter, abstol)
+  subroutine fluid_scheme_solver_factory(this, ksp, n, solver, max_iter, abstol)
+    class(fluid_scheme_t), intent(inout) :: this
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
     character(len=*), intent(in) :: solver
@@ -864,8 +850,9 @@ contains
   end subroutine fluid_scheme_solver_factory
 
   !> Initialize a Krylov preconditioner
-  subroutine fluid_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, &
+  subroutine fluid_scheme_precon_factory(this, pc, ksp, coef, dof, gs, bclst, &
                                          pctype)
+    class(fluid_scheme_t), intent(inout) :: this
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
     type(coef_t), target, intent(inout) :: coef
@@ -1102,4 +1089,5 @@ contains
     call object%finalize()
 
   end subroutine
+
 end module fluid_scheme

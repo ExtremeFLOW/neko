@@ -32,6 +32,7 @@
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn
+  use comm
   use num_types, only : rp
   use krylov, only : ksp_monitor_t
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t, &
@@ -70,33 +71,64 @@ module fluid_pnpn
   use bc, only : bc_t
   use coefs, only: coef_t
   use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use symmetry, only : symmetry_t
+  use logger, only : neko_log, LOG_SIZE
   implicit none
   private
 
 
   type, public, extends(fluid_scheme_t) :: fluid_pnpn_t
+
+     ! The right-hand sides in the linear solves
      type(field_t) :: p_res, u_res, v_res, w_res
 
+     !> The unknowns in the linear solves
      type(field_t) :: dp, du, dv, dw
+
+     !
+     ! Implicit operators, i.e. the left-hand-side of the Helmholz problem.
+     !
 
      ! Coupled Helmholz operator for velocity
      class(ax_t), allocatable :: Ax_vel
      ! Helmholz operator for pressure
      class(ax_t), allocatable :: Ax_prs
 
+     !
+     ! Projections for solver speed-up
+     !
+
+     !> Pressure projection
      type(projection_t) :: proj_prs
+     !> X velocity projection
      type(projection_t) :: proj_u
+     !> Y velocity projection
      type(projection_t) :: proj_v
+     !> Z velocity projection
      type(projection_t) :: proj_w
 
-     type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
-     type(facet_normal_t) :: bc_sym_surface !< Surface term in pressure rhs
+     !
+     ! Special Karniadakis scheme boundary conditions in the pressure equation
+     !
+
+     !> Surface term in pressure rhs. Masks all strong velocity bcs.
+     type(facet_normal_t) :: bc_prs_surface
+
+     !> Surface term in pressure rhs. Masks symmetry bcs.
+     type(facet_normal_t) :: bc_sym_surface
+
+
      type(zero_dirichlet_t) :: bc_vel_res   !< Dirichlet condition vel. res.
      type(zero_dirichlet_t) :: bc_field_dirichlet_p   !< Dirichlet condition vel. res.
      type(zero_dirichlet_t) :: bc_field_dirichlet_u   !< Dirichlet condition vel. res.
      type(zero_dirichlet_t) :: bc_field_dirichlet_v   !< Dirichlet condition vel. res.
      type(zero_dirichlet_t) :: bc_field_dirichlet_w   !< Dirichlet condition vel. res.
      type(non_normal_t) :: bc_vel_res_non_normal   !< Dirichlet condition vel. res.
+
+
+     !
+     ! Boundary condition lists
+     !
      type(bc_list_t) :: bclst_vel_res
      type(bc_list_t) :: bclst_du
      type(bc_list_t) :: bclst_dv
@@ -131,10 +163,15 @@ module fluid_pnpn
      type(fluid_volflow_t) :: vol_flow
 
    contains
+     !> Constructor.
      procedure, pass(this) :: init => fluid_pnpn_init
+     !> Destructor.
      procedure, pass(this) :: free => fluid_pnpn_free
+     !> Perform a single time-step of the scheme.
      procedure, pass(this) :: step => fluid_pnpn_step
+     !> Restart from a previous solution.
      procedure, pass(this) :: restart => fluid_pnpn_restart
+     !> Set up boundary conditions.
      procedure, pass(this) :: pnpn_setup_bcs => fluid_pnpn_setup_bcs
   end type fluid_pnpn_t
 
@@ -148,12 +185,22 @@ contains
     type(user_t), intent(in) :: user
     type(material_properties_t), target, intent(inout) :: material_properties
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
+    integer :: i
+    real(kind=rp) :: abs_tol
+    character(len=LOG_SIZE) :: log_buf
+    integer :: ierr, integer_val, solver_maxiter
+    character(len=:), allocatable :: solver_type, precon_type
 
     call this%free()
 
     ! Initialize base class
     call this%scheme_init(msh, lx, params, .true., .true., scheme, user, &
                           material_properties)
+
+    ! Add pressure field to the registery. For this scheme it is in the same
+    ! Xh as the velocity
+    call neko_field_registry%add_field(this%dm_Xh, 'p')
+    this%p => neko_field_registry%get_field('p')
 
     if (this%variable_material_properties .eqv. .true.) then
        ! Setup backend dependent Ax routines
@@ -216,20 +263,76 @@ contains
 
     end associate
 
-    ! Initialize velocity surface terms in pressure rhs
+    !
+    ! Boundary conditions
+    !
+
+    ! Initialize velocity surface terms in pressure rhs. Masks all strong
+    ! velocity bcs.
     call this%bc_prs_surface%init(this%c_Xh, params)
-    call this%bc_prs_surface%mark_zones_from_list('v', this%bc_labels)
+    do i = 1, this%bcs%size()
+       if (this%bcs%strong(i) .eqv. .true.) then
+          call this%bc_prs_surface%mark_facets( &
+               this%bcs%items(i)%obj%marked_facet)
+       end if
+    end do
+    call this%bc_prs_surface%finalize()
+
+    ! Initialize symmetry surface terms in pressure rhs. Masks symmetry bcs.
+    call this%bc_sym_surface%init(this%c_Xh, params)
+    do i = 1, this%bcs%size()
+       select type (vel_bc => this%bcs%items(i)%obj)
+       type is (symmetry_t)
+          write(*,*) "MARKING PRESSURE SYMMETRY"
+          call this%bc_sym_surface%mark_facets( &
+               this%bcs%items(i)%obj%marked_facet)
+       end select
+    end do
+    call this%bc_sym_surface%finalize()
+
+    !call this%bc_prs_surface%mark_zones_from_list('v', this%bc_labels)
+
     ! This impacts the rhs of the pressure, need to check what is correct to add
     ! here
-    call this%bc_prs_surface%mark_zones_from_list('d_vel_u', this%bc_labels)
-    call this%bc_prs_surface%mark_zones_from_list('d_vel_v', this%bc_labels)
-    call this%bc_prs_surface%mark_zones_from_list('d_vel_w', this%bc_labels)
-    call this%bc_prs_surface%finalize()
-    ! Initialize symmetry surface terms in pressure rhs
-    call this%bc_sym_surface%init(this%c_Xh, params)
-    call this%bc_sym_surface%mark_zones_from_list('sym', this%bc_labels)
+
+    !call this%bc_prs_surface%mark_zones_from_list('d_vel_u', this%bc_labels)
+    !call this%bc_prs_surface%mark_zones_from_list('d_vel_v', this%bc_labels)
+    !call this%bc_prs_surface%mark_zones_from_list('d_vel_w', this%bc_labels)
+    !call this%bc_prs_surface%finalize()
+
+    ! Generate pressure boundary condition list
+    call this%pnpn_setup_bcs(user)
+
+    call this%bclst_prs%init()
+    call this%bc_prs%init(this%c_Xh, params)
+    call this%bc_prs%mark_zones_from_list('o', this%bc_labels)
+    call this%bc_prs%mark_zones_from_list('on', this%bc_labels)
+
+    ! Field dirichlet pressure bc
+    call this%user_field_bc_prs%init_base(this%c_Xh)
+    call this%user_field_bc_prs%mark_zones_from_list('d_pres', this%bc_labels)
+    call this%user_field_bc_prs%finalize()
+    call MPI_Allreduce(this%user_field_bc_prs%msk(0), integer_val, 1, &
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
+    if (integer_val .gt. 0)  call this%user_field_bc_prs%init_field('d_pres')
+    call this%bclst_prs%append(this%user_field_bc_prs)
+    call this%user_field_bc_vel%bc_list%append(this%user_field_bc_prs)
+
+    call this%bc_prs%finalize()
+    call this%bclst_prs%append(this%bc_prs)
+    call this%bc_dong%init(this%c_Xh, params)
+    call this%bc_dong%mark_zones_from_list('o+dong', this%bc_labels)
+    call this%bc_dong%mark_zones_from_list('on+dong', this%bc_labels)
+    call this%bc_dong%finalize()
+
+
+
+    !call this%bc_sym_surface%mark_zones_from_list('sym', this%bc_labels)
     ! Same here, should du, dv, dw be marked here?
-    call this%bc_sym_surface%finalize()
+    !call this%bc_sym_surface%finalize()
+
+
     ! Initialize dirichlet bcs for velocity residual
     call this%bc_vel_res_non_normal%init(this%c_Xh, params)
     call this%bc_vel_res_non_normal%mark_zones_from_list('on', this%bc_labels)
@@ -245,6 +348,8 @@ contains
     call this%bc_field_dirichlet_p%mark_zones_from_list('d_pres', &
                                          this%bc_labels)
     call this%bc_field_dirichlet_p%finalize()
+
+
     call this%bclst_dp%init()
     call this%bclst_dp%append(this%bc_field_dirichlet_p)
     !Add 0 prs bcs
@@ -293,8 +398,6 @@ contains
     call this%bclst_dw%append(this%bc_vel_res)
     call this%bclst_dw%append(this%bc_field_dirichlet_w)
 
-    call this%pnpn_setup_bcs(user)
-
 
     !Intialize projection space thingy
 
@@ -324,6 +427,29 @@ contains
     if (params%valid_path('case.fluid.flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)
     end if
+
+    ! Setup pressure solver
+    call neko_log%section("Pressure solver")
+
+    call json_get_or_default(params, &
+                            'case.fluid.pressure_solver.max_iterations', &
+                            solver_maxiter, 800)
+    call json_get(params, 'case.fluid.pressure_solver.type', solver_type)
+    call json_get(params, 'case.fluid.pressure_solver.preconditioner', &
+                  precon_type)
+    call json_get(params, 'case.fluid.pressure_solver.absolute_tolerance', &
+                  abs_tol)
+    call neko_log%message('Type       : ('// trim(solver_type) // &
+          ', ' // trim(precon_type) // ')')
+    write(log_buf, '(A,ES13.6)') 'Abs tol    :',  abs_tol
+    call neko_log%message(log_buf)
+
+    call this%solver_factory(this%ksp_prs, this%dm_Xh%size(), &
+         solver_type, solver_maxiter, abs_tol)
+    call this%precon_factory(this%pc_prs, this%ksp_prs, &
+         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, precon_type)
+
+    call neko_log%end_section()
 
   end subroutine fluid_pnpn_init
 
@@ -735,6 +861,7 @@ contains
     type(json_file) :: bc_subdict
     logical :: found
 
+       write(*,*) "PRESSURE BCS"
 
     if (this%params%valid_path('case.fluid.boundary_conditions')) then
        call this%params%info('case.fluid.boundary_conditions', n_children=n_bcs)
