@@ -644,16 +644,17 @@ contains
     integer :: nel_stride, frac_space
     type(MPI_Status) :: status
     integer :: ierr, i, n
+    logical :: interp_on_host = .true.
 
     n = this%chkp_xh%lxyz*nel
     allocate(read_array(n))
-
+   
     call rzero(read_array,n)
     call MPI_File_read_at_all(fh, byte_offset, read_array, &
                n, MPI_REAL_PRECISION, status, ierr)
     if (this%mesh2mesh) then
        x = 0.0_rp
-       call this%global_interp%evaluate(x,read_array)
+       call this%global_interp%evaluate(x,read_array,interp_on_host)
 
     else if (this%sim_Xh%lx .ne. this%chkp_Xh%lx) then
        call this%space_interp%map_host(x, read_array, nel, this%sim_Xh)
