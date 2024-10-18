@@ -36,6 +36,7 @@ module space
   use num_types, only : rp
   use speclib
   use device
+  use matrix
   use utils, only : neko_error
   use fast3d, only : setup_intp
   use math
@@ -523,7 +524,9 @@ contains
 
     real(kind=rp) :: L(0:Xh%lx-1)
     real(kind=rp) :: delta(Xh%lx)
-    integer :: i, kj, j, j2, kk
+    integer :: i, kj, j, j2, kk 
+    type(matrix_t) :: m 
+    logical :: scaled = .false.
 
     associate(v=> Xh%v, vt => Xh%vt, &
       vinv => Xh%vinv, vinvt => Xh%vinvt, w => Xh%w)
@@ -531,12 +534,7 @@ contains
       ! Then proceed to compose the transform matrix
       kj = 0
       do j = 1, Xh%lx
-         L(0) = 1.
-         L(1) = Xh%zg(j,1)
-         do j2 = 2, Xh%lx-1
-            L(j2) = ( (2*j2-1) * Xh%zg(j,1) * L(j2-1) &
-                  - (j2-1) * L(j2-2) ) / j2
-         end do
+         call legendre_poly(L,Xh%zg(j,1),Xh%lx-1)
          do kk = 1, Xh%lx
             kj = kj+1
             v(kj,1) = L(KK-1)
@@ -546,47 +544,60 @@ contains
       ! transpose the matrix
       call trsp1(v, Xh%lx) !< non orthogonal wrt weights
 
-      ! Calculate the nominal scaling factors
-      do i = 1, Xh%lx
-         delta(i) = 2.0_rp / (2*(i-1)+1)
-      end do
-      ! modify last entry
-      delta(Xh%lx) = 2.0_rp / (Xh%lx-1)
+      if (scaled) then
 
-      ! calculate the inverse to multiply the matrix
-      do i = 1, Xh%lx
-         delta(i) = sqrt(1.0_rp / delta(i))
-      end do
-      ! scale the matrix
-      do i = 1, Xh%lx
-         do j = 1, Xh%lx
-            v(i,j) = v(i,j) * delta(j) ! orthogonal wrt weights
+         ! Calculate the nominal scaling factors
+         do i = 1, Xh%lx
+            delta(i) = 2.0_rp / (2*(i-1)+1)
          end do
-      end do
+         ! modify last entry
+         delta(Xh%lx) = 2.0_rp / (Xh%lx-1)
 
-      ! get the trasposed
-      call copy(vt, v, Xh%lx * Xh%lx)
-      call trsp1(vt, Xh%lx)
-
-      !populate the mass matrix
-      kk = 1
-      do i = 1, Xh%lx
-         do j = 1, Xh%lx
-            if (i .eq. j) then
-               w(i,j) = Xh%wx(kk)
-               kk = kk+1
-            else
-               w(i,j) = 0
-            end if
+         ! calculate the inverse to multiply the matrix
+         do i = 1, Xh%lx
+            delta(i) = sqrt(1.0_rp / delta(i))
          end do
-      end do
+         ! scale the matrix
+         do i = 1, Xh%lx
+            do j = 1, Xh%lx
+               v(i,j) = v(i,j) * delta(j) ! orthogonal wrt weights
+            end do
+         end do
 
-      !Get the inverse of the transform matrix
-      call mxm(vt, Xh%lx, w, Xh%lx, vinv, Xh%lx)
+         ! get the trasposed
+         call copy(vt, v, Xh%lx * Xh%lx)
+         call trsp1(vt, Xh%lx)
 
-      !get the transposed of the inverse
-      call copy(vinvt, vinv, Xh%lx * Xh%lx)
-      call trsp1(vinvt, Xh%lx)
+         !populate the mass matrix
+         kk = 1
+         do i = 1, Xh%lx
+            do j = 1, Xh%lx
+               if (i .eq. j) then
+                  w(i,j) = Xh%wx(kk)
+                  kk = kk+1
+               else
+                  w(i,j) = 0
+               end if
+            end do
+         end do
+
+         !Get the inverse of the transform matrix
+         call mxm(vt, Xh%lx, w, Xh%lx, vinv, Xh%lx)
+
+         !get the transposed of the inverse
+         call copy(vinvt, vinv, Xh%lx * Xh%lx)
+         call trsp1(vinvt, Xh%lx)
+      else
+         call copy(vt,v,Xh%lxy)
+         call trsp1(vt, Xh%lx)
+         call m%init(Xh%lx,Xh%lx)
+         call copy(m%x,v,Xh%lxy)
+         call m%inverse()
+         call copy(vinv,m%x,Xh%lxy)
+         call copy(vinvt, vinv, Xh%lx * Xh%lx)
+         call trsp1(vinvt, Xh%lx)
+         call m%free()
+      end if
     end associate
 
     ! Copy the data to the GPU
