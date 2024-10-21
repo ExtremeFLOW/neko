@@ -592,7 +592,7 @@ contains
          call trsp1(vt, Xh%lx)
          call m%init(Xh%lx,Xh%lx)
          call copy(m%x,v,Xh%lxy)
-         call m%inverse()
+         call m%inverse_on_host()
          call copy(vinv,m%x,Xh%lxy)
          call copy(vinvt, vinv, Xh%lx * Xh%lx)
          call trsp1(vinvt, Xh%lx)

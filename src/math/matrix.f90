@@ -78,6 +78,7 @@ module matrix
      procedure, pass(m) :: matrix_cmult_right
      !> Inverse a matrix.
      procedure, pass(m) :: inverse => matrix_bcknd_inverse
+     procedure, pass(m) :: inverse_on_host => cpu_matrix_inverse
 
      generic :: assignment(=) => matrix_assign_matrix, &
           matrix_assign_scalar
