@@ -377,7 +377,7 @@ contains
     do i = 1, size(sorted_indices)
        i_obj = sorted_indices(i)
        i_node = this%allocate_node()
-       this%nodes(i_node)%aabb = get_aabb(objects(i_obj))
+       this%nodes(i_node)%aabb = box_list(i_obj)
        this%nodes(i_node)%object_index = i_obj
     end do
 
