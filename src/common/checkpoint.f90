@@ -40,6 +40,7 @@ module checkpoint
   use field, only : field_t
   use utils, only : neko_error
   use mesh, only: mesh_t
+  use math, only : NEKO_EPS
   implicit none
   private
 
@@ -77,7 +78,7 @@ module checkpoint
      real(kind=dp) :: t         !< Restart time (valid after load)
      type(mesh_t) :: previous_mesh
      type(space_t) :: previous_Xh
-     real(kind=rp) :: mesh2mesh_tol = 1d-6
+     real(kind=rp) :: mesh2mesh_tol = NEKO_EPS*1e3_rp
 
    contains
      procedure, pass(this) :: init => chkp_init
