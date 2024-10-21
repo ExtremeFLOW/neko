@@ -540,13 +540,13 @@ contains
                 Xh%lx, Xh%vinv, &
                 Xh%vinvt, Xh%vinvt, nelv)
 
-    call tnsr3d(y_hat, Xh%lx, x_hat, &
+    call tnsr3d_cpu(y_hat, Xh%lx, x_hat, &
                 Xh%lx, Xh%v, &
                 Xh%vt, Xh%vt, nelv)
-    call tnsr3d(y_hat, Xh%lx, y, &
+    call tnsr3d_cpu(y_hat, Xh%lx, y, &
                 Xh%lx, Xh%vinv, &
                 Xh%vinvt, Xh%vinvt, nelv)
-    call tnsr3d(z_hat, Xh%lx, z, &
+    call tnsr3d_cpu(z_hat, Xh%lx, z, &
                 Xh%lx, Xh%vinv, &
                 Xh%vinvt, Xh%vinvt, nelv)
     rst = 0.0 
