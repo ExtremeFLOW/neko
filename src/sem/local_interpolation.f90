@@ -176,16 +176,16 @@ contains
   !! number of points to interpolate.
   !! @note The weights can be generated with the subroutine `compute_weights`.
   !! Assumes weights have been computed for these points.
-  subroutine local_interpolator_evaluate(this, interp_values, el_list, field,nel)
+  subroutine local_interpolator_evaluate(this, interp_values, el_list, field,nel, on_host)
     class(local_interpolator_t), intent(inout) :: this
     integer, intent(in) :: el_list(this%n_points)
     integer, intent(in) :: nel
     real(kind=rp), intent(inout) :: interp_values(this%n_points)
     real(kind=rp), intent(inout) :: field(this%Xh%lxyz, nel)
-
+    logical, intent(in) :: on_host
 
     call tnsr3d_el_list(interp_values, 1, field, this%Xh%lx, &
-         this%weights_r, this%weights_s, this%weights_t, el_list, this%n_points)
+         this%weights_r, this%weights_s, this%weights_t, el_list, this%n_points, on_host)
 
   end subroutine local_interpolator_evaluate
 
@@ -501,6 +501,9 @@ contains
     integer, intent(in) :: n_pts, nelv
     real(kind=rp), intent(inout) :: rst(3, n_pts)
     type(space_t), intent(inout) :: Xh
+    real(kind=rp), allocatable :: pt_x(:)
+    real(kind=rp), allocatable :: pt_y(:)
+    real(kind=rp), allocatable :: pt_z(:)
     real(kind=rp), intent(inout) :: x(Xh%lx, Xh%ly, Xh%lz, nelv)
     real(kind=rp), intent(inout) :: y(Xh%lx, Xh%ly, Xh%lz, nelv)
     real(kind=rp), intent(inout) :: z(Xh%lx, Xh%ly, Xh%lz, nelv)
@@ -512,42 +515,21 @@ contains
     real(kind=rp), allocatable :: x_hat(:, :, :, :)
     real(kind=rp), allocatable :: y_hat(:, :, :, :)
     real(kind=rp), allocatable :: z_hat(:, :, :, :)
-    real(kind=rp), allocatable :: pt_x(:)
-    real(kind=rp), allocatable :: pt_y(:)
-    real(kind=rp), allocatable :: pt_z(:)
-    real(kind=rp), allocatable :: xt(:)
-    real(kind=rp), allocatable :: yt(:)
-    real(kind=rp), allocatable :: zt(:)
-    real(kind=rp), allocatable :: r_legendre(:,:) 
-    real(kind=rp), allocatable :: s_legendre(:,:) 
-    real(kind=rp), allocatable :: t_legendre(:,:) 
-    real(kind=rp), allocatable :: dr_legendre(:,:) 
-    real(kind=rp), allocatable :: ds_legendre(:,:) 
-    real(kind=rp), allocatable :: dt_legendre(:,:) 
-    real(kind=rp), allocatable :: jac11(:), jac12(:), jac13(:)
-    real(kind=rp), allocatable :: jac21(:), jac22(:), jac23(:)
-    real(kind=rp), allocatable :: jac31(:), jac32(:), jac33(:)
-    real(kind=rp) :: jacinv(3,3), tmp(Xh%lx), tmp2(Xh%lx), rst_d(3), avgx, avgy, avgz
-    integer, allocatable :: conv_pts(:)
+    real(kind=rp) :: r_legendre(Xh%lx) 
+    real(kind=rp) :: s_legendre(Xh%lx) 
+    real(kind=rp) :: t_legendre(Xh%lx) 
+    real(kind=rp) :: dr_legendre(Xh%lx) 
+    real(kind=rp) :: ds_legendre(Xh%lx) 
+    real(kind=rp) :: dt_legendre(Xh%lx) 
+    real(kind=rp) :: jac(3,3), jacinv(3,3)
+    real(kind=rp) :: tmp(Xh%lx), tmp2(Xh%lx), rst_d(3), avgx, avgy, avgz
+    integer :: conv_pts
     logical :: converged
     integer :: i, j, e, iter, lx, lx2
 
     allocate(x_hat(xh%lx, xh%ly, xh%lz, nelv))
     allocate(y_hat(xh%lx, xh%ly, xh%lz, nelv))
     allocate(z_hat(xh%lx, xh%ly, xh%lz, nelv))
-    allocate(r_legendre(xh%lx, n_pts))
-    allocate(s_legendre(xh%lx, n_pts))
-    allocate(t_legendre(xh%lx, n_pts))
-    allocate(dr_legendre(xh%lx, n_pts))
-    allocate(ds_legendre(xh%lx, n_pts))
-    allocate(dt_legendre(xh%lx, n_pts))
-    allocate(xt(n_pts))
-    allocate(yt(n_pts))
-    allocate(zt(n_pts))
-    allocate(conv_pts(n_pts))
-    allocate(jac11(n_pts), jac12(n_pts), jac13(n_pts))
-    allocate(jac21(n_pts), jac22(n_pts), jac23(n_pts))
-    allocate(jac31(n_pts), jac32(n_pts), jac33(n_pts))
     
     lx = Xh%lx
     if (n_pts .lt. 1) return
@@ -573,68 +555,66 @@ contains
        converged = .false.
        do while (.not. converged)
           iter  = iter + 1
-          call legendre_poly(r_legendre(1,i),rst(1,i),lx-1)     
-          call legendre_poly(s_legendre(1,i),rst(2,i),lx-1)     
-          call legendre_poly(t_legendre(1,i),rst(3,i),lx-1)     
+          call legendre_poly(r_legendre,rst(1,i),lx-1)     
+          call legendre_poly(s_legendre,rst(2,i),lx-1)     
+          call legendre_poly(t_legendre,rst(3,i),lx-1)     
           do j = 0, lx-1
-             dr_legendre(j+1,i) = PNDLEG(rst(1,i),j)
-             ds_legendre(j+1,i) = PNDLEG(rst(2,i),j)
-             dt_legendre(j+1,i) = PNDLEG(rst(3,i),j)
+             dr_legendre(j+1) = PNDLEG(rst(1,i),j)
+             ds_legendre(j+1) = PNDLEG(rst(2,i),j)
+             dt_legendre(j+1) = PNDLEG(rst(3,i),j)
           end do
           e = el_list(i)+1
-          call tnsr3d_el_cpu(xt(i), 1, x_hat(1,1,1,e), Xh%lx, &
-               r_legendre(1,i), s_legendre(1,i), t_legendre(1,i))
-          call tnsr3d_el_cpu(yt(i), 1, y_hat(1,1,1,e), Xh%lx, &
-               r_legendre(1,i), s_legendre(1,i), t_legendre(1,i))
-          call tnsr3d_el_cpu(zt(i), 1, z_hat(1,1,1,e), Xh%lx, &
-               r_legendre(1,i), s_legendre(1,i), t_legendre(1,i))
-          call tnsr3d_el_cpu(jac11(i), 1, x_hat(1,1,1,e), Xh%lx, &
-               dr_legendre(1,i), s_legendre(1,i), t_legendre(1,i))
-          call tnsr3d_el_cpu(jac12(i), 1, y_hat(1,1,1,e), Xh%lx, &
-               dr_legendre(1,i), s_legendre(1,i), t_legendre(1,i))
-          call tnsr3d_el_cpu(jac13(i), 1, z_hat(1,1,1,e), Xh%lx, &
-               dr_legendre(1,i), s_legendre(1,i), t_legendre(1,i))
-          call tnsr3d_el_cpu(jac21(i), 1, x_hat(1,1,1,e), Xh%lx, &
-               r_legendre(1,i), ds_legendre(1,i), t_legendre(1,i))
-          call tnsr3d_el_cpu(jac22(i), 1, y_hat(1,1,1,e), Xh%lx, &
-               r_legendre(1,i), ds_legendre(1,i), t_legendre(1,i))
-          call tnsr3d_el_cpu(jac23(i), 1, z_hat(1,1,1,e), Xh%lx, &
-               r_legendre(1,i), ds_legendre(1,i), t_legendre(1,i))
-          call tnsr3d_el_cpu(jac31(i), 1, x_hat(1,1,1,e), Xh%lx, &
-               r_legendre(1,i), s_legendre(1,i), dt_legendre(1,i))
-          call tnsr3d_el_cpu(jac32(i), 1, y_hat(1,1,1,e), Xh%lx, &
-               r_legendre(1,i), s_legendre(1,i), dt_legendre(1,i))
-          call tnsr3d_el_cpu(jac33(i), 1, z_hat(1,1,1,e), Xh%lx, &
-               r_legendre(1,i), s_legendre(1,i), dt_legendre(1,i))
+          call tnsr3d_el_cpu(resx(i), 1, x_hat(1,1,1,e), Xh%lx, &
+               r_legendre, s_legendre, t_legendre)
+          call tnsr3d_el_cpu(resy(i), 1, y_hat(1,1,1,e), Xh%lx, &
+               r_legendre, s_legendre, t_legendre)
+          call tnsr3d_el_cpu(resz(i), 1, z_hat(1,1,1,e), Xh%lx, &
+               r_legendre, s_legendre, t_legendre)
+          call tnsr3d_el_cpu(jac(1,1), 1, x_hat(1,1,1,e), Xh%lx, &
+               dr_legendre, s_legendre(1), t_legendre)
+          call tnsr3d_el_cpu(jac(1,2), 1, y_hat(1,1,1,e), Xh%lx, &
+               dr_legendre, s_legendre(1), t_legendre)
+          call tnsr3d_el_cpu(jac(1,3), 1, z_hat(1,1,1,e), Xh%lx, &
+               dr_legendre, s_legendre, t_legendre)
+          call tnsr3d_el_cpu(jac(2,1), 1, x_hat(1,1,1,e), Xh%lx, &
+               r_legendre, ds_legendre, t_legendre)
+          call tnsr3d_el_cpu(jac(2,2), 1, y_hat(1,1,1,e), Xh%lx, &
+               r_legendre, ds_legendre, t_legendre)
+          call tnsr3d_el_cpu(jac(2,3), 1, z_hat(1,1,1,e), Xh%lx, &
+               r_legendre, ds_legendre, t_legendre)
+          call tnsr3d_el_cpu(jac(3,1), 1, x_hat(1,1,1,e), Xh%lx, &
+               r_legendre, s_legendre, dt_legendre)
+          call tnsr3d_el_cpu(jac(3,2), 1, y_hat(1,1,1,e), Xh%lx, &
+               r_legendre, s_legendre, dt_legendre)
+          call tnsr3d_el_cpu(jac(3,3), 1, z_hat(1,1,1,e), Xh%lx, &
+               r_legendre, s_legendre, dt_legendre)
           !do jac inverse
-          xt(i) = pt_x(i) - xt(i)
-          yt(i) = pt_y(i) - yt(i)
-          zt(i) = pt_z(i) - zt(i)
-          jacinv = matinv39(jac11(i),jac12(i),jac13(i),&
-                            jac21(i),jac22(i),jac23(i),&
-                            jac31(i),jac32(i),jac33(i))
-          rst_d(1) = (xt(i)*jacinv(1,1)+jacinv(2,1)*yt(i)+jacinv(3,1)*zt(i))
-          rst_d(2) = (xt(i)*jacinv(1,2)+jacinv(2,2)*yt(i)+jacinv(3,2)*zt(i))
-          rst_d(3) = (xt(i)*jacinv(1,3)+jacinv(2,3)*yt(i)+jacinv(3,3)*zt(i))
+          resx(i) = pt_x(i) - resx(i)
+          resy(i) = pt_y(i) - resy(i)
+          resz(i) = pt_z(i) - resz(i)
+          jacinv = matinv39(jac(1,1),jac(1,2),jac(1,3),&
+                            jac(2,1),jac(2,2),jac(2,3),&
+                            jac(3,1),jac(3,2),jac(3,3))
+          rst_d(1) = (resx(i)*jacinv(1,1)+jacinv(2,1)*resy(i)+jacinv(3,1)*resz(i))
+          rst_d(2) = (resx(i)*jacinv(1,2)+jacinv(2,2)*resy(i)+jacinv(3,2)*resz(i))
+          rst_d(3) = (resx(i)*jacinv(1,3)+jacinv(2,3)*resy(i)+jacinv(3,3)*resz(i))
 
           rst(1,i) = rst(1,i) + rst_d(1)
           rst(2,i) = rst(2,i) + rst_d(2)
           rst(3,i) = rst(3,i) + rst_d(3)
-          conv_pts(i) = 0
-          if (norm2(rst_d) < tol) conv_pts(i) = 1
+          conv_pts = 0
+          if (norm2(rst_d) < tol) conv_pts = 1
           
           if (norm2(rst_d) > 4) then
-             conv_pts(i) = 1 
+             conv_pts = 1 
           end if
-          converged = conv_pts(i) .eq. 1
+          converged = conv_pts .eq. 1
           if (iter .ge. 50) converged = .true.
        end do
     end do
-    resx = xt
-    resy = yt
-    resz = zt
   end subroutine find_rst_legendre
-   
+  !> Compares two sets of rst coordinates and checks whether rst2 is better than rst1  
+  !> res1 and res2 are the distances to the interpolated xyz coordinate and true xyz coord
   function rst_cmp(rst1, rst2,res1, res2, tol) result(rst2_better)
     real(kind=rp) :: rst1(3), res1(3)
     real(kind=rp) :: rst2(3), res2(3)
