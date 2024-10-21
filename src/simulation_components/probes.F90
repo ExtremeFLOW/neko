@@ -598,7 +598,7 @@ contains
 
     do i = 1, this%n_local_probes
        write (log_buf, *) pe_rank, "/", this%global_interp%proc_owner(i), &
-            "/" , this%global_interp%el_owner(i)
+            "/" , this%global_interp%el_owner0(i)
        call neko_log%message(log_buf)
        write(log_buf, '(A5,"(",F10.6,",",F10.6,",",F10.6,")")') &
             "rst: ", this%global_interp%rst(:,i)
