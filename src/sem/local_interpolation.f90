@@ -536,7 +536,7 @@ contains
     
     !> Transform into legendre space
     !> hats are in Legendre space
-    call tnsr3d(x_hat, Xh%lx, x, &
+    call tnsr3d_cpu(x_hat, Xh%lx, x, &
                 Xh%lx, Xh%vinv, &
                 Xh%vinvt, Xh%vinvt, nelv)
 

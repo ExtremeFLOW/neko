@@ -85,7 +85,7 @@ module global_interpolation
      !> Local points (points in this ranks domain)
      integer :: n_points_local
      integer, allocatable :: el_owner0_local(:)
-     type(c_ptr) :: el_owner0_local_d
+     type(c_ptr) :: el_owner0_local_d = c_null_ptr
      real(kind=rp), allocatable :: rst_local(:,:)
      real(kind=rp), allocatable :: xyz_local(:,:)
      !> Interpolator for local points.
@@ -653,9 +653,9 @@ contains
     call this%local_interp%init(this%Xh, this%rst_local(1,:),&
                                 this%rst_local(2,:), &
                                 this%rst_local(3,:), this%n_points_local)
-    call this%evaluate(x_check%x, this%x%ptr,.true.)
-    call this%evaluate(y_check%x, this%y%ptr,.true.)
-    call this%evaluate(z_check%x, this%z%ptr,.true.)
+    call this%evaluate(x_check%x, this%x%ptr, .true.)
+    call this%evaluate(y_check%x, this%y%ptr, .true.)
+    call this%evaluate(z_check%x, this%z%ptr, .true.)
     do i = 1 , this%n_points
 
        ! Check validity of points
