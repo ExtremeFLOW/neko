@@ -480,36 +480,8 @@ contains
     end if
     if (this%mesh2mesh) then
        call dof%init(msh, this%chkp_Xh)
-       allocate(x_coord(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
-       allocate(y_coord(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
-       allocate(z_coord(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
-       !> To ensure that each point is within an element
-       !! Remedies issue with points on the boundary
-       !! Technically gives each point a slightly different value
-       !! but still within the specified tolerance
-       do e = 1, u%dof%msh%nelv
-          center_x = 0d0
-          center_y = 0d0
-          center_z = 0d0
-          do i = 1,u%dof%Xh%lxyz
-             center_x = center_x + u%dof%x(i,1,1,e)
-             center_y = center_y + u%dof%y(i,1,1,e)
-             center_z = center_z + u%dof%z(i,1,1,e)
-          end do
-          center_x = center_x/u%Xh%lxyz
-          center_y = center_y/u%Xh%lxyz
-          center_z = center_z/u%Xh%lxyz
-          do i = 1,u%dof%Xh%lxyz
-             x_coord(i,1,1,e) = u%dof%x(i,1,1,e) - tol*(u%dof%x(i,1,1,e)-center_x)
-             y_coord(i,1,1,e) = u%dof%y(i,1,1,e) - tol*(u%dof%y(i,1,1,e)-center_y)
-             z_coord(i,1,1,e) = u%dof%z(i,1,1,e) - tol*(u%dof%z(i,1,1,e)-center_z)
-          end do
-       end do
        call this%global_interp%init(dof,tol=tol)
-       call this%global_interp%find_points(x_coord,y_coord,z_coord,u%dof%size())
-       deallocate(x_coord)
-       deallocate(y_coord)
-       deallocate(z_coord)
+       call this%global_interp%find_points(u%dof%x,u%dof%y,u%dof%z,u%dof%size())
     else
        call this%space_interp%init(this%sim_Xh, this%chkp_Xh)
     end if
