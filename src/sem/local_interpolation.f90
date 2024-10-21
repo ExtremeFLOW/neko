@@ -251,7 +251,7 @@ contains
     call jacobian(jacinv, rst, x, y, z, n_pts, Xh)
 
     do i = 1, n_pts
-       tmp = matinv3(jacinv(:,:,3))
+       tmp = matinv3(real(jacinv(:,:,3),xp))
        jacinv(:,:,i) = tmp
     end do
 
@@ -260,7 +260,7 @@ contains
  ! Invert 3x3 matrix
   pure function matinv39(a11,a12,a13,a21,a22,a23,a31,a32,a33) result(B)
     real(rp), intent(in) :: a11, a12, a13,a21, a22, a23,a31, a32, a33
-    real(rp) :: A(3,3)   !! Matrix
+    real(xp) :: A(3,3)   !! Matrix
     real(rp) :: B(3,3)   !! Inverse matrix
     A(1,1) = a11
     A(1,2) = a12
@@ -278,8 +278,8 @@ contains
  ! Invert 3x3 matrix
   pure function matinv3(A) result(B)
     !! Performs a direct calculation of the inverse of a 3×3 matrix.
-    real(rp), intent(in) :: A(3,3)   !! Matrix
-    real(rp) :: B(3,3)   !! Inverse matrix
+    real(xp), intent(in) :: A(3,3)   !! Matrix
+    real(xp) :: B(3,3)   !! Inverse matrix
     real(xp) :: detinv
 
     ! Calculate the inverse determinant of the matrix
@@ -521,8 +521,8 @@ contains
     real(kind=rp) :: dr_legendre(Xh%lx) 
     real(kind=rp) :: ds_legendre(Xh%lx) 
     real(kind=rp) :: dt_legendre(Xh%lx) 
-    real(kind=rp) :: jac(3,3), jacinv(3,3)
-    real(kind=rp) :: tmp(Xh%lx), tmp2(Xh%lx), rst_d(3), avgx, avgy, avgz
+    real(kind=rp) :: jac(3,3)
+    real(kind=xp) :: tmp(Xh%lx), tmp2(Xh%lx), rst_d(3), jacinv(3,3)
     integer :: conv_pts
     logical :: converged
     integer :: i, j, e, iter, lx, lx2
@@ -559,9 +559,9 @@ contains
           call legendre_poly(s_legendre,rst(2,i),lx-1)     
           call legendre_poly(t_legendre,rst(3,i),lx-1)     
           do j = 0, lx-1
-             dr_legendre(j+1) = PNDLEG(rst(1,i),j)
-             ds_legendre(j+1) = PNDLEG(rst(2,i),j)
-             dt_legendre(j+1) = PNDLEG(rst(3,i),j)
+             dr_legendre(j+1) = PNDLEG(real(rst(1,i),xp),j)
+             ds_legendre(j+1) = PNDLEG(real(rst(2,i),xp),j)
+             dt_legendre(j+1) = PNDLEG(real(rst(3,i),xp),j)
           end do
           e = el_list(i)+1
           call tnsr3d_el_cpu(resx(i), 1, x_hat(1,1,1,e), Xh%lx, &
@@ -599,16 +599,29 @@ contains
           rst_d(2) = (resx(i)*jacinv(1,2)+jacinv(2,2)*resy(i)+jacinv(3,2)*resz(i))
           rst_d(3) = (resx(i)*jacinv(1,3)+jacinv(2,3)*resy(i)+jacinv(3,3)*resz(i))
 
+          conv_pts = 0
+          if (norm2(real(rst_d,xp)) .le. tol)then
+              conv_pts = 1
+          end if
+          if (norm2(real(rst_d,xp)) > 4.0) conv_pts = 1
+
+         ! if (abs(rst_d(1)) .lt. tol .and. &
+         !     abs(rst_d(2)) .lt. tol .and. &
+         !     abs(rst_d(3)) .lt. tol .and. &
+         !     abs(rst(1,i)) .le. 1.0+tol .and.&
+         !     abs(rst(2,i)) .le. 1.0+tol .and.&
+         !     abs(rst(3,i)) .le. 1.0+tol) then
+         !     conv_pts = 1
+         ! end if
+          !if (abs(real(rst(1,i),xp)) > 1.0+1e1*tol) conv_pts = 1 
+          !if (abs(real(rst(2,i),xp)) > 1.0+1e1*tol) conv_pts = 1 
+          !if (abs(real(rst(3,i),xp)) > 1.0+1e1*tol) conv_pts = 1 
           rst(1,i) = rst(1,i) + rst_d(1)
           rst(2,i) = rst(2,i) + rst_d(2)
           rst(3,i) = rst(3,i) + rst_d(3)
-          conv_pts = 0
-          if (norm2(rst_d) < tol) conv_pts = 1
           
-          if (norm2(rst_d) > 4) then
-             conv_pts = 1 
-          end if
           converged = conv_pts .eq. 1
+      !    if(pt_z(i) .gt. 0.999) print *, rst_d, resx(i), resy(i), resz(i), (norm2(real(rst_d,xp))), iter, rst(:,i)
           if (iter .ge. 50) converged = .true.
        end do
     end do
@@ -620,11 +633,25 @@ contains
     real(kind=rp) :: rst2(3), res2(3)
     real(kind=rp) :: tol
     logical :: rst2_better
-    rst2_better = (norm2(res2) .lt. norm2(res1) .and. &
-                  abs(rst2(1)) .lt. 1.0+tol .and. &
-                  abs(rst2(2)) .lt. 1.0+tol .and. &
-                  abs(rst2(3)) .lt. 1.0+tol)
-
+    !If rst1 is invalid and rst2 is valid, take rst2
+    ! If both invalidl, take smallest residual
+    if (abs(rst1(1)) .gt. 1.0_xp+tol .or. &
+        abs(rst1(2)) .gt. 1.0_xp+tol .or. &
+        abs(rst1(3)) .gt. 1.0_xp+tol) then
+       if (abs(rst2(1)) .le. 1.0_xp+tol .and. &
+           abs(rst2(2)) .le. 1.0_xp+tol .and. &
+           abs(rst2(3)) .le. 1.0_xp+tol) then
+           rst2_better = .true. 
+       else 
+           rst2_better = (norm2(real(res2,xp)) .lt. norm2(real(res1,xp))) 
+       end if
+    else
+        !> Else we check rst2 is inside and has a smaller distance
+        rst2_better = (norm2(real(res2,xp)) .lt. norm2(real(res1,xp)) .and.&
+                       abs(rst2(1)) .le. 1.0_xp+tol .and. &
+                       abs(rst2(2)) .le. 1.0_xp+tol .and. &
+                       abs(rst2(3)) .le. 1.0_xp+tol)
+    end if
   end function rst_cmp
  
 

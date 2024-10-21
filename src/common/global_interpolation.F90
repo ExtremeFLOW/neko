@@ -74,7 +74,7 @@ module global_interpolation
      !> r,s,t coordinates
      real(kind=rp), allocatable :: rst(:,:)
      !> List of owning processes.
-     integer, allocatable :: proc_owner(:)
+     integer, allocatable :: pe_owner(:)
      !> List of owning elements.
      !! Note this is 0 indexed
      integer, allocatable :: el_owner0(:)
@@ -94,7 +94,7 @@ module global_interpolation
      !> Turns true if points are redistributed to their respective owners
      logical :: all_points_local = .false.
      !> Tolerance for Newton solve to find the correct rst coordinates.
-     real(kind=rp) :: tol = NEKO_EPS*1e2_rp
+     real(kind=rp) :: tol = NEKO_EPS*1e3_rp
      
      !> Mapping of points to ranks.
      !> n_points_pe(pe_rank) = n_points I have at this rank
@@ -222,15 +222,10 @@ contains
        call this%global_aabb(i)%init(rank_xyz_min(:,i), rank_xyz_max(:,i))
 
     end do
-    padding = 1e-6
+    padding = 1e-2
     call this%global_aabb_tree%init(pe_size+1)
     call this%global_aabb_tree%build(this%global_aabb, padding)
-    do i = 1, pe_size
-       call pe_candidates%init() 
-       call this%global_aabb_tree%query_overlaps(this%global_aabb(i),-1, pe_candidates)
-       call pe_candidates%free() 
 
-    end do
     do i = 1, nelv
        id1 = lx*ly*lz*(i-1)
        id2 = lx*ly*lz*(i)
@@ -291,7 +286,7 @@ contains
 
     if (allocated(this%xyz)) deallocate(this%xyz)
     if (allocated(this%rst)) deallocate(this%rst)
-    if (allocated(this%proc_owner)) deallocate(this%proc_owner)
+    if (allocated(this%pe_owner)) deallocate(this%pe_owner)
     if (allocated(this%el_owner0)) deallocate(this%el_owner0)
 
     if (c_associated(this%el_owner0_d)) then
@@ -322,7 +317,7 @@ contains
   subroutine global_interpolation_find_common(this)
     class(global_interpolation_t), intent(inout) :: this
     !!Perhaps this should be kind dp
-    real(kind=rp) :: xdiff, ydiff, zdiff
+    real(kind=xp) :: xdiff, ydiff, zdiff
     character(len=8000) :: log_buf
     type(vector_t) :: x_check, x_vec
     type(vector_t) :: y_check, y_vec
@@ -335,8 +330,6 @@ contains
     real(kind=rp), allocatable :: resz(:)
     real(kind=rp), allocatable :: rsts(:,:)
     real(kind=rp), allocatable :: res(:,:)
-    integer, allocatable :: el_owner0(:)
-    integer, allocatable :: pe_owner(:)
     logical :: isdiff
     real(kind=dp) :: pt_xyz(3), res1
     integer :: i, j, stupid_intent
@@ -390,6 +383,9 @@ contains
           stupid_intent = i
           call points_at_pe(pe_cands(j)-1)%push(stupid_intent)
        end do
+       if (pe_candidates(i)%size() .lt. 1) then
+          write (*,*) 'Warning, point', this%xyz(:,i), 'found to be outside domain'
+       end if
     end do
     !Send number of points I want to candidates
     ! n_points_local -> how many points might be at this rank
@@ -421,9 +417,9 @@ contains
           xyz_send_to_pe(:,j) = this%xyz(:,point_ids(j))
        end do
        call MPI_Gatherv(xyz_send_to_pe,3*this%n_points_pe(i), &
-                        MPI_DOUBLE_PRECISION, this%xyz_local,3*this%n_points_pe_local, &
+                        MPI_REAL_PRECISION, this%xyz_local,3*this%n_points_pe_local, &
                         3*this%n_points_offset_pe_local, &
-                        MPI_DOUBLE_PRECISION, i, NEKO_COMM, ierr)
+                        MPI_REAL_PRECISION, i, NEKO_COMM, ierr)
     end do
 
 
@@ -487,15 +483,18 @@ contains
     'Found rst with Newton iteration, time (s):', time2-time1
     call neko_log%message(log_buf)  
  
+    write(log_buf,'(A,E15.7)') &
+    'Tolerance: ', this%tol
+    call neko_log%message(log_buf)  
     write(log_buf,'(A)') &
     'Checking validity of points and choosing best candidates.'
     call neko_log%message(log_buf)  
 
     ii = 0
     do i = 1 , this%n_points_local
-       this%xyz_local(1,i) = 1.0
-       this%xyz_local(2,i) = 1.0
-       this%xyz_local(3,i) = 1.0
+       this%xyz_local(1,i) = 10.0
+       this%xyz_local(2,i) = 10.0
+       this%xyz_local(3,i) = 10.0
        this%rst_local(1,i) = 10.0
        this%rst_local(2,i) = 10.0
        this%rst_local(3,i) = 10.0
@@ -515,22 +514,22 @@ contains
     end do
     allocate(rsts(3,this%n_points))
     allocate(res(3,this%n_points))
-    allocate(pe_owner(this%n_points))
-    allocate(el_owner0(this%n_points))
     allocate(rst_recv_from_pe(3, max_n_points_to_send))
     allocate(res_recv_from_pe(3, max_n_points_to_send))
     allocate(el_owner0s(max_n_points_to_send))
-    res = 1.0
-    !> Send rst and res to rank who want this point  
+    res = 1e2
+    this%rst = 1e2
+    this%pe_owner = -1
+    !> Send rst and res to rank who want this point  S
     do i = 0, (pe_size - 1)
        call MPI_Scatterv(this%rst_local,3*this%n_points_pe_local, &
                          3*this%n_points_offset_pe_local,&
-                         MPI_DOUBLE_PRECISION, rst_recv_from_pe,3*this%n_points_pe(i), &
-                         MPI_DOUBLE_PRECISION, i, NEKO_COMM, ierr)
+                         MPI_REAL_PRECISION, rst_recv_from_pe,3*this%n_points_pe(i), &
+                         MPI_REAL_PRECISION, i, NEKO_COMM, ierr)
        call MPI_Scatterv(this%xyz_local,3*this%n_points_pe_local, &
                          3*this%n_points_offset_pe_local,&
-                         MPI_DOUBLE_PRECISION, res_recv_from_pe,3*this%n_points_pe(i), &
-                         MPI_DOUBLE_PRECISION, i, NEKO_COMM, ierr)
+                         MPI_REAL_PRECISION, res_recv_from_pe,3*this%n_points_pe(i), &
+                         MPI_REAL_PRECISION, i, NEKO_COMM, ierr)
        call MPI_Scatterv(this%el_owner0_local,this%n_points_pe_local, &
                          this%n_points_offset_pe_local,&
                          MPI_INTEGER, el_owner0s,this%n_points_pe(i), &
@@ -538,12 +537,12 @@ contains
        point_ids => points_at_pe(i)%array()
        do j = 1, this%n_points_pe(i)
           point_id = point_ids(j)
-          if (rst_cmp(rsts(:,point_id), rst_recv_from_pe(:,j), &
+          if (rst_cmp(this%rst(:,point_id), rst_recv_from_pe(:,j), &
                       res(:,point_id), res_recv_from_pe(:,j), this%tol)) then
-             rsts(:,point_ids(j)) = rst_recv_from_pe(:,j)
+             this%rst(:,point_ids(j)) = rst_recv_from_pe(:,j)
              res(:,point_ids(j)) = res_recv_from_pe(:,j)
-             pe_owner(point_ids(j)) = i
-             el_owner0(point_ids(j)) = el_owner0s(j)
+             this%pe_owner(point_ids(j)) = i
+             this%el_owner0(point_ids(j)) = el_owner0s(j)
           end if
        end do
     end do
@@ -560,9 +559,12 @@ contains
     
     do i = 1, this%n_points
        stupid_intent = i
-       call points_at_pe(pe_owner(i))%push(stupid_intent)
-       this%n_points_pe(pe_owner(i)) =  this%n_points_pe(pe_owner(i)) + 1
+       if (this%pe_owner(i) .eq. -1) print *, 'wth', stupid_intent, this%xyz(:,i)
+       call points_at_pe(this%pe_owner(i))%push(stupid_intent)
+       
+       this%n_points_pe(this%pe_owner(i)) =  this%n_points_pe(this%pe_owner(i)) + 1
     end do
+
     do i = 0, (pe_size - 1)
        call MPI_Reduce(this%n_points_pe(i), this%n_points_local, 1, MPI_INTEGER, &
             MPI_SUM, i, NEKO_COMM, ierr)
@@ -587,20 +589,20 @@ contains
        do j = 1, this%n_points_pe(i)
           ii = ii + 1
           xyz_send_to_pe(:,j) = this%xyz(:,point_ids(j))
-          rst_send_to_pe(:,j) = rsts(:,point_ids(j))
-          el_send_to_pe(j) = el_owner0(point_ids(j))
+          rst_send_to_pe(:,j) = this%rst(:,point_ids(j))
+          el_send_to_pe(j) = this%el_owner0(point_ids(j))
           this%pt_ids(ii) = point_ids(j)
        end do
        call MPI_Gatherv(xyz_send_to_pe,3*this%n_points_pe(i), &
-                        MPI_DOUBLE_PRECISION, this%xyz_local, &
+                        MPI_REAL_PRECISION, this%xyz_local, &
                         3*this%n_points_pe_local, &
                         3*this%n_points_offset_pe_local, &
-                        MPI_DOUBLE_PRECISION, i, NEKO_COMM, ierr)
+                        MPI_REAL_PRECISION, i, NEKO_COMM, ierr)
        call MPI_Gatherv(rst_send_to_pe,3*this%n_points_pe(i), &
-                        MPI_DOUBLE_PRECISION, this%rst_local, &
+                        MPI_REAL_PRECISION, this%rst_local, &
                         3*this%n_points_pe_local, &
                         3*this%n_points_offset_pe_local, &
-                        MPI_DOUBLE_PRECISION, i, NEKO_COMM, ierr)
+                        MPI_REAL_PRECISION, i, NEKO_COMM, ierr)
        call MPI_Gatherv(el_send_to_pe,this%n_points_pe(i), &
                         MPI_INTEGER, this%el_owner0_local,this%n_points_pe_local, &
                         this%n_points_offset_pe_local, &
@@ -656,21 +658,32 @@ contains
     call this%evaluate(x_check%x, this%x%ptr, .true.)
     call this%evaluate(y_check%x, this%y%ptr, .true.)
     call this%evaluate(z_check%x, this%z%ptr, .true.)
+    
     do i = 1 , this%n_points
 
        ! Check validity of points
        isdiff = .false.
-       xdiff = y_check%x(i)-this%xyz(2,i)
+       xdiff = x_check%x(i)-this%xyz(1,i)
        ydiff = y_check%x(i)-this%xyz(2,i)
        zdiff = z_check%x(i)-this%xyz(3,i)
-       isdiff = norm2((/xdiff,ydiff,zdiff/)) > this%tol
-       if (isdiff) then
+       isdiff = norm2(real((/xdiff,ydiff,zdiff/),xp)) > this%tol
+       isdiff = isdiff .or. abs(this%rst(1,i)) > 1.0_xp + this%tol 
+       isdiff = isdiff .or. abs(this%rst(2,i)) > 1.0_xp + this%tol 
+       isdiff = isdiff .or. abs(this%rst(3,i)) > 1.0_xp + this%tol 
+       if (isdiff ) then
           write(*,*) 'Point with coordinates: ', &
                 this%xyz(1, i), this%xyz(2, i), this%xyz(3, i), &
                 'Differ from interpolated coords: ', &
                 x_check%x(i), y_check%x(i), z_check%x(i), &
-                'Difference: ', &
-                xdiff, ydiff, zdiff
+                'Actual difference: ', &
+                xdiff, ydiff, zdiff, norm2(real((/xdiff,ydiff,zdiff/),xp)),&
+                'Expected difference: ', &
+                res(:,i), norm2(real(res(:,i),xp)),&
+                'Process, element: ', &
+                this%pe_owner(i), this%el_owner0(i)+1, &
+                'rst coords: ', &
+                this%rst(:,i), &
+                ' radius', sqrt(this%xyz(1,i)**2.0_xp+this%xyz(2,i)**2.0_xp)
        end if
     end do
 
@@ -731,7 +744,7 @@ contains
 
     allocate(this%xyz(3, this%n_points))
     allocate(this%rst(3, this%n_points))
-    allocate(this%proc_owner(this%n_points))
+    allocate(this%pe_owner(this%n_points))
     allocate(this%el_owner0(this%n_points))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -799,7 +812,7 @@ contains
     call copy(xyz, this%xyz_local, 3*n_points)
     call copy(this%rst, this%rst_local, 3*n_points)
     call copy(this%xyz, this%xyz_local, 3*n_points)
-    this%proc_owner = pe_rank
+    this%pe_owner = pe_rank
     this%el_owner0 = this%el_owner0_local
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%el_owner0, this%el_owner0_d, &
