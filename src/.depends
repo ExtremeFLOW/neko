@@ -63,7 +63,7 @@ mesh/point_zone_fctry.o : mesh/point_zone_fctry.f90 common/utils.o common/json_u
 mesh/point_zone_registry.o : mesh/point_zone_registry.f90 common/json_utils.o common/utils.o sem/space.o mesh/mesh.o sem/dofmap.o mesh/point_zones/combine_point_zone.o mesh/point_zone.o 
 mesh/mesh.o : mesh/mesh.f90 common/log.o mesh/curve.o adt/uset.o math/math.o mesh/facet_zone.o comm/comm.o common/distdata.o common/datadist.o adt/htable.o adt/tuple.o adt/stack.o common/utils.o mesh/quad.o mesh/hex.o mesh/element.o mesh/point.o config/num_types.o 
 mesh/octree.o : mesh/octree.f90 common/utils.o mesh/point.o config/num_types.o 
-mesh/search_tree/aabb.o : mesh/search_tree/aabb.f90 common/utils.o mesh/tet_mesh.o mesh/tri_mesh.o mesh/mesh.o mesh/hex.o mesh/tet.o mesh/quad.o mesh/tri.o mesh/point.o mesh/element.o config/num_types.o 
+mesh/search_tree/aabb.o : mesh/search_tree/aabb.f90 math/math.o common/utils.o mesh/tet_mesh.o mesh/tri_mesh.o mesh/mesh.o mesh/hex.o mesh/tet.o mesh/quad.o mesh/tri.o mesh/point.o mesh/element.o config/num_types.o 
 mesh/aabb_tree.o : mesh/aabb_tree.f90 adt/stack.o common/utils.o config/num_types.o mesh/tri.o mesh/search_tree/aabb.o 
 mesh/tet_mesh.o : mesh/tet_mesh.f90 common/utils.o mesh/point.o mesh/tet.o mesh/mesh.o 
 mesh/tri_mesh.o : mesh/tri_mesh.f90 mesh/point.o mesh/tri.o 
@@ -108,7 +108,7 @@ math/schwarz.o : math/schwarz.f90 config/neko_config.o device/device.o math/fdm.
 math/vector.o : math/vector.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o math/math.o config/neko_config.o 
 math/matrix.o : math/matrix.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o math/math.o config/neko_config.o 
 math/signed_distance.o : math/signed_distance.f90 adt/stack.o mesh/search_tree/aabb.o mesh/point.o common/utils.o mesh/aabb_tree.o mesh/tri_mesh.o mesh/tri.o field/field.o config/num_types.o 
-common/checkpoint.o : common/checkpoint.f90 mesh/mesh.o common/utils.o field/field.o device/device.o sem/space.o field/field_series.o config/num_types.o config/neko_config.o 
+common/checkpoint.o : common/checkpoint.f90 math/math.o mesh/mesh.o common/utils.o field/field.o device/device.o sem/space.o field/field_series.o config/num_types.o config/neko_config.o 
 io/generic_file.o : io/generic_file.f90 comm/comm.o common/utils.o config/num_types.o 
 io/map_file.o : io/map_file.f90 io/format/map.o comm/comm.o common/utils.o io/generic_file.o 
 io/re2_file.o : io/re2_file.f90 common/log.o adt/htable.o io/map_file.o io/format/map.o io/format/re2.o common/datadist.o comm/mpi_types.o comm/comm.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o 
