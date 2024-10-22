@@ -42,9 +42,10 @@ module spectral_error
   use device_math, only: device_copy
   use gather_scatter
   use neko_config
+  use logger, only: neko_log
   use device, only: DEVICE_TO_HOST, device_memcpy
   use comm, only: pe_rank
-  use utils, only: NEKO_FNAME_LEN
+  use utils, only: NEKO_FNAME_LEN, neko_error
   use field_writer, only: field_writer_t
   use simulation_component, only: simulation_component_t
   use json_module, only: json_file
@@ -116,15 +117,18 @@ contains
 
     character(len=20) :: fields(3)
 
-    call this%init_base(json, case)
-
     !> Add keyword "fields" to the json so that the field writer
     ! picks it up. Will also add those fields to the registry.
     fields(1) = "u_hat"
     fields(2) = "v_hat"
     fields(3) = "w_hat"
     call json%add("fields", fields)
+
+    call this%init_base(json, case)
     call this%writer%init(json, case)
+
+    write (*,*) this%output_controller%control_mode, this%output_controller%control_value
+    write (*,*) this%writer%output_controller%control_mode, this%writer%output_controller%control_value
 
     call spectral_error_init_from_attributes(this, case%fluid%c_Xh)
 
@@ -137,9 +141,6 @@ contains
     type(coef_t), intent(in) :: coef
     integer :: il, jl, aa
     character(len=NEKO_FNAME_LEN) :: fname_speri
-
-    !> call destructior
-    call this%free()
 
     this%u => neko_field_registry%get_field("u")
     this%v => neko_field_registry%get_field("v")
@@ -233,6 +234,12 @@ contains
     integer, intent(in) :: tstep
 
     integer :: e, i, lx, ly, lz, nelv
+
+    write (*,*) "=====", t, tstep, this%writer%output_controller%check(t, tstep)
+
+    if (.not. this%writer%output_controller%check(t, tstep)) return
+
+    call neko_log%message("== COMPUTING SEI ==")
 
     call this%get_indicators(this%case%fluid%c_Xh)
 
