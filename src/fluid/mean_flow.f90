@@ -53,10 +53,10 @@ contains
   !> Initialize a mean flow field
   subroutine mean_flow_init(this, u, v, w, p)
     class(mean_flow_t), intent(inout) :: this
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
+    type(field_t), target, intent(inout) :: u
+    type(field_t), target, intent(inout) :: v
+    type(field_t), target, intent(inout) :: w
+    type(field_t), target, intent(inout) :: p
 
     call this%free()
 
@@ -64,7 +64,7 @@ contains
     call this%v%init(v)
     call this%w%init(w)
     call this%p%init(p)
-    
+
   end subroutine mean_flow_init
 
 
@@ -78,7 +78,7 @@ contains
     call this%p%free()
 
   end subroutine mean_flow_free
- 
+
   !> Resets a mean flow field
   subroutine mean_flow_reset(this)
     class(mean_flow_t), intent(inout) :: this
@@ -89,5 +89,5 @@ contains
     call this%p%reset()
 
   end subroutine mean_flow_reset
-   
+
 end module mean_flow

@@ -36,13 +36,9 @@ module interpolation
   use num_types, only : rp
   use device
   use fast3d
-  use field, only : field_t
   use tensor, only : tnsr3d
   use tensor_cpu, only : tnsr3d_cpu
   use space, only : space_t, operator(.eq.), GL, GLL
-  use mxm_wrapper, only : mxm
-  use coefs, only : coef_t
-  use point, only : point_t
   implicit none
   private
 
@@ -119,10 +115,14 @@ contains
        call device_map(this%Xh_to_YhT, this%Xh_YhT_d, Yh%lx*Xh%lx)
        call device_map(this%Yh_to_Xh, this%Yh_Xh_d, Yh%lx*Xh%lx)
        call device_map(this%Yh_to_XhT, this%Yh_XhT_d, Yh%lx*Xh%lx)
-       call device_memcpy(this%Xh_to_Yh, this%Xh_Yh_d, Yh%lx*Xh%lx, HOST_TO_DEVICE)
-       call device_memcpy(this%Xh_to_YhT, this%Xh_YhT_d, Yh%lx*Xh%lx, HOST_TO_DEVICE)
-       call device_memcpy(this%Yh_to_Xh, this%Yh_Xh_d, Yh%lx*Xh%lx, HOST_TO_DEVICE)
-       call device_memcpy(this%Yh_to_XhT, this%Yh_XhT_d, Yh%lx*Xh%lx, HOST_TO_DEVICE)
+       call device_memcpy(this%Xh_to_Yh, this%Xh_Yh_d, Yh%lx*Xh%lx, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%Xh_to_YhT, this%Xh_YhT_d, Yh%lx*Xh%lx, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%Yh_to_Xh, this%Yh_Xh_d, Yh%lx*Xh%lx, &
+                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(this%Yh_to_XhT, this%Yh_XhT_d, Yh%lx*Xh%lx, &
+                          HOST_TO_DEVICE, sync=.false.)
     end if
 
   end subroutine interpolator_init
@@ -166,8 +166,8 @@ contains
     class(interpolator_t), intent(inout) :: this
     integer :: nel
     type(space_t) :: to_space
-    real(kind=rp), intent(inout) :: x(1,nel)
-    real(kind=rp), intent(inout) :: y(1,nel)
+    real(kind=rp), intent(inout) :: x(this%Xh%lx, this%Xh%lx, this%Xh%lx, nel)
+    real(kind=rp), intent(inout) :: y(this%Yh%lx, this%Yh%lx, this%Yh%lx, nel)
     if (to_space .eq. this%Yh) then
        call tnsr3d(y, this%Yh%lx, x, &
                    this%Xh%lx,this%Yh_to_XhT, &
@@ -192,8 +192,8 @@ contains
     class(interpolator_t), intent(inout) :: this
     integer :: nel
     type(space_t) :: to_space
-    real(kind=rp), intent(inout) :: x(1,nel)
-    real(kind=rp), intent(inout) :: y(1,nel)
+    real(kind=rp), intent(inout) :: x(this%Xh%lx, this%Xh%lx, this%Xh%lx, nel)
+    real(kind=rp), intent(inout) :: y(this%Yh%lx, this%Yh%lx, this%Yh%lx, nel)
     if (to_space .eq. this%Yh) then
        call tnsr3d_cpu(y, this%Yh%lx, x, &
                    this%Xh%lx,this%Yh_to_XhT, &

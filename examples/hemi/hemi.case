@@ -14,8 +14,6 @@
     },
     "fluid": {
         "scheme": "pnpn",
-        "rho": 1,
-        "mu": 1,
         "Re": 1400,
         "initial_condition": {
             "type": "blasius"
@@ -39,9 +37,10 @@
             "type": "gmres",
             "preconditioner": "hsmg",
             "projection_space_size": 4,
-            "absolute_tolerance": 1e-7,
+            "absolute_tolerance": 1e-4,
             "max_iterations": 800
         },
+        "boundary_types": ["sym", "w", "o", "v"],
         "output_control": "nsamples",
         "output_value": 100
     }

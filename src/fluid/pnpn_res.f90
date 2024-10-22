@@ -32,7 +32,7 @@
 !
 !> Defines Pressure and velocity residuals in the Pn-Pn formulation
 module pnpn_residual
-  use gather_scatter, only : gs_t  
+  use gather_scatter, only : gs_t
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
@@ -40,14 +40,13 @@ module pnpn_residual
   use space, only : space_t
   use mesh, only : mesh_t
   use num_types, only : rp
-  use scratch_registry, only : scratch_registry_t
   implicit none
   private
-  
+
   !> Abstract type to compute pressure residual
   type, public, abstract :: pnpn_prs_res_t
    contains
-     procedure(prs_res), nopass, deferred :: compute     
+     procedure(prs_res), nopass, deferred :: compute
   end type pnpn_prs_res_t
 
   !> Abstract type to compute velocity residual
@@ -55,10 +54,10 @@ module pnpn_residual
    contains
      procedure(vel_res), nopass, deferred :: compute
   end type pnpn_vel_res_t
-    
+
   abstract interface
      subroutine prs_res(p, p_res, u, v, w, u_e, v_e, w_e, f_x, f_y, f_z, c_xh,&
-          gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, Re, rho)
+          gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, mu, rho)
        import field_t
        import Ax_t
        import gs_t
@@ -77,36 +76,75 @@ module pnpn_residual
        class(Ax_t), intent(inout) :: Ax
        real(kind=rp), intent(inout) :: bd
        real(kind=rp), intent(in) :: dt
-       real(kind=rp), intent(in) :: Re
-       real(kind=rp), intent(in) :: rho
+       type(field_t), intent(in) :: mu
+       type(field_t), intent(in) :: rho
      end subroutine prs_res
   end interface
 
   abstract interface
      subroutine vel_res(Ax, u, v, w, u_res, v_res, w_res, &
-          p, f_x, f_y, f_z, c_Xh, msh, Xh, Re, rho, bd, dt, n)
+          p, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
        import field_t
        import Ax_t
        import gs_t
        import facet_normal_t
-       import space_t              
+       import space_t
        import coef_t
        import mesh_t
        import rp
        class(ax_t), intent(in) :: Ax
        type(mesh_t), intent(inout) :: msh
-       type(space_t), intent(inout) :: Xh    
+       type(space_t), intent(inout) :: Xh
        type(field_t), intent(inout) :: p, u, v, w
        type(field_t), intent(inout) :: u_res, v_res, w_res
        type(field_t), intent(inout) :: f_x, f_y, f_z
        type(coef_t), intent(inout) :: c_Xh
-       real(kind=rp), intent(in) :: Re
-       real(kind=rp), intent(in) :: rho
+       type(field_t), intent(in) :: mu
+       type(field_t), intent(in) :: rho
        real(kind=rp), intent(in) :: bd
        real(kind=rp), intent(in) :: dt
        integer, intent(in) :: n
      end subroutine vel_res
 
   end interface
- 
+
+  interface
+
+     !> Factory for the pressure residual computation routine for the PnPn fluid
+     !! scheme with the constant-viscosity stress formulation.
+     !! @details Only selects the compute backend.
+     !! @param object The object to be allocated by the factory.
+     module subroutine pnpn_prs_res_factory(object)
+       class(pnpn_prs_res_t), allocatable, intent(inout) :: object
+     end subroutine pnpn_prs_res_factory
+
+     !> Factory for the velocity residual computation routine for the PnPn fluid
+     !! scheme with the constant-viscosity stress formulation.
+     !! @details Only selects the compute backend.
+     !! @param object The object to be allocated by the factory.
+     module subroutine pnpn_vel_res_factory(object)
+       class(pnpn_vel_res_t), allocatable, intent(inout) :: object
+     end subroutine pnpn_vel_res_factory
+
+     !> Factory for the pressure residual computation routine for the PnPn fluid
+     !! scheme with full viscous stress forumlation.
+     !! @details Only selects the compute backend.
+     !! @param object The object to be allocated by the factory.
+     module subroutine pnpn_prs_res_stress_factory(object)
+       class(pnpn_prs_res_t), allocatable, intent(inout) :: object
+     end subroutine pnpn_prs_res_stress_factory
+
+     !> Factory for the velocity residual computation routine for the PnPn fluid
+     !! scheme with full viscous stress forumlation.
+     !! @details Only selects the compute backend.
+     !! @param object The object to be allocated by the factory.
+     module subroutine pnpn_vel_res_stress_factory(object)
+       class(pnpn_vel_res_t), allocatable, intent(inout) :: object
+     end subroutine pnpn_vel_res_stress_factory
+     
+  end interface
+
+  public :: pnpn_prs_res_factory, pnpn_vel_res_factory, &
+       pnpn_prs_res_stress_factory, pnpn_vel_res_stress_factory
+  
 end module pnpn_residual

@@ -6,34 +6,34 @@
     "output_boundary": true,
     "output_checkpoints": true,
     "checkpoint_control": "simulationtime",
-    "checkpoint_value": 100,
+    "checkpoint_value": 50,
     "end_time": 200.0,
-    "timestep": 0.003,
+    "variable_timestep": true,
+    "target_cfl": 0.5,
+    "max_timestep": 1e-1,
     "numerics": {
         "time_order": 3,
-        "polynomial_order": 7,
+        "polynomial_order": 5,
         "dealias": true
     },
     "fluid": {
         "scheme": "pnpn",
-        "rho": 1,
-        "mu": 1,
-        "Re": 2860,
+        "Re": 2800,
         "initial_condition": {
             "type": "user"
         },
         "velocity_solver": {
             "type": "cg",
             "preconditioner": "jacobi",
-            "projection_space_size": 5,
-            "absolute_tolerance": 1e-7,
+            "projection_space_size": 0,
+            "absolute_tolerance": 1e-4,
             "max_iterations": 800
         },
         "pressure_solver": {
             "type": "gmres",
             "preconditioner": "hsmg",
-            "projection_space_size": 20,
-            "absolute_tolerance": 1e-5,
+            "projection_space_size": 5,
+            "absolute_tolerance": 1e-3,
             "max_iterations": 800
         },
         "flow_rate_force": {
@@ -42,16 +42,42 @@
             "use_averaged_flow": true
         },
         "boundary_types": ["", "", "w", "w"],
-        "output_control": "tsteps",
-        "output_value": 400
-    },
-    "statistics": {
-        "enabled": true,
         "output_control": "simulationtime",
-        "output_value": 20,
-        "start_time": 70.0,
-        "sampling_interval": 10
-  }
-
+        "output_value": 2.0
+    },
+ "simulation_components": 
+  [ 
+    { 
+      "type": "lambda2", // stored in the temperature field, check docs for more details on sim_comps
+    },
+    {
+      "type": "force_torque",
+      "compute_control": "tsteps",
+      "compute_value": 10,
+      "zone_id": 3,
+      "zone_name": "Bottom wall",
+      "center": [0,0,0],
+      "scale": 0.01899, // 1 over area of wall (scale=1/(4pi*4/3pi))
+    },    
+    {
+      "type": "force_torque",
+      "compute_control": "tsteps",
+      "compute_value": 10,
+      "zone_id": 4,
+      "zone_name": "Top wall",
+      "center": [0,0,0],
+      "scale": 0.01899, // 1 over area of wall (scale=1/(4pi*4/3pi))
+    },    
+    { 
+      "type": "fluid_stats",
+      "output_control": "simulationtime",
+      "output_value": 5, // For example purposes we output relatively often, usually we do larger batches.
+      "start_time": 60, // Compute statistics after an initial transient of ~60 convective time units.
+      "compute_control": "tsteps",
+      "compute_value": 50,
+      "avg_direction": "xz", // Computes average in homogenous directions xz.
+      "set_of_stats": "full"
+    }
+  ]   
 }
 }

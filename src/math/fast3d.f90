@@ -1,4 +1,4 @@
-! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC. 
+! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC.
 !
 ! The UChicago Argonne, LLC as Operator of Argonne National
 ! Laboratory holds copyright in the Software. The copyright holder
@@ -21,40 +21,40 @@
 ! may be used to endorse or promote products derived from this software
 ! without specific prior written permission.
 !
-! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
-! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
-! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
-! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
-! UCHICAGO ARGONNE, LLC, THE U.S. DEPARTMENT OF 
-! ENERGY OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
-! TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-! DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
-! THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-! (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+! UCHICAGO ARGONNE, LLC, THE U.S. DEPARTMENT OF
+! ENERGY OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+! TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+! DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+! THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+! (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ! OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 !
 ! Additional BSD Notice
 ! ---------------------
 ! 1. This notice is required to be provided under our contract with
 ! the U.S. Department of Energy (DOE). This work was produced at
-! Argonne National Laboratory under Contract 
+! Argonne National Laboratory under Contract
 ! No. DE-AC02-06CH11357 with the DOE.
 !
-! 2. Neither the United States Government nor UCHICAGO ARGONNE, 
-! LLC nor any of their employees, makes any warranty, 
+! 2. Neither the United States Government nor UCHICAGO ARGONNE,
+! LLC nor any of their employees, makes any warranty,
 ! express or implied, or assumes any liability or responsibility for the
 ! accuracy, completeness, or usefulness of any information, apparatus,
 ! product, or process disclosed, or represents that its use would not
 ! infringe privately-owned rights.
 !
-! 3. Also, reference herein to any specific commercial products, process, 
-! or services by trade name, trademark, manufacturer or otherwise does 
-! not necessarily constitute or imply its endorsement, recommendation, 
-! or favoring by the United States Government or UCHICAGO ARGONNE LLC. 
-! The views and opinions of authors expressed 
-! herein do not necessarily state or reflect those of the United States 
-! Government or UCHICAGO ARGONNE, LLC, and shall 
+! 3. Also, reference herein to any specific commercial products, process,
+! or services by trade name, trademark, manufacturer or otherwise does
+! not necessarily constitute or imply its endorsement, recommendation,
+! or favoring by the United States Government or UCHICAGO ARGONNE LLC.
+! The views and opinions of authors expressed
+! herein do not necessarily state or reflect those of the United States
+! Government or UCHICAGO ARGONNE, LLC, and shall
 ! not be used for advertising or product endorsement purposes.
 !
 !> Fast diagonalization methods from NEKTON
@@ -78,7 +78,7 @@ contains
   !!
   !! Given gridpoints \f$ x_0, x_1, \dots x_n \f$ and some point \f$\xi\f$
   !! (not necessarily a grid point!) find weights \f$ c_{j, k} \f$, such that
-  !! the expansions 
+  !! the expansions
   !! \f$ \frac{d^k f}{d x^k}|_{x=\xi} \approx \sum_{j=0}^n c_{j,k} f(x_j)\f$,
   !! \f$k=0, \dots m\f$ are optimal.
   !! Note that finite-difference stencils are exactly such type of expansions.
@@ -93,7 +93,7 @@ contains
   !!
   !! @warning The calculation of the wieghts is numerically stable.
   !! But applying the weights to a function can be ill-conditioned in the case
-  !! of high-order derivatives. 
+  !! of high-order derivatives.
   !!
   !! @param xi Point at which the approximations are to be accurate
   !! @param x The coordinates for the grid points
@@ -107,7 +107,7 @@ contains
     real(kind=rp), intent(in) :: x(0:n)
     real(kind=rp), intent(out) :: c(0:n,0:m)
     real(kind=rp), intent(in) :: xi
-    real(kind=rp) :: c1, c2, c3, c4, c5
+    real(kind=xp) :: c1, c2, c3, c4, c5
     integer :: i, j, k, mn
 
     c1 = 1d0
@@ -121,29 +121,29 @@ contains
 
     c(0,0) = 1d0
 
-    do i = 1, n                                                              
+    do i = 1, n
        mn = min(i,m)
-       c2 = 1d0  
-       c5 = c4                                                       
+       c2 = 1d0
+       c5 = c4
        c4 = x(i) - xi
-       do j = 0, i - 1                                                  
+       do j = 0, i - 1
           c3 = x(i) - x(j)
-          c2 = c2 * c3                                                    
-          do k = mn, 1, -1                    
+          c2 = c2 * c3
+          do k = mn, 1, -1
              c(i,k) = c1 * (k * c(i-1,k-1) - c5 * c(i-1,k)) / c2
           end do
           c(i,0) = -c1 * c5 * c(i-1,0) / c2
-          do k = mn, 1, -1                           
+          do k = mn, 1, -1
              c(j,k) = (c4 * c(j,k) - k * c(j,k-1)) / c3
           end do
           c(j,0) = c4 * c(j,0) / c3
        end do
        c1 = c2
     end do
-    
+
   end subroutine fd_weights_full
-     
-  
+
+
 !>  Generate matrices for single element, 1D operators:
 !!        a    = Laplacian
 !!        b    = diagonal mass matrix
@@ -200,12 +200,12 @@ contains
     end do
     call rzero(a, np*np)
     do j = 0,n
-    do i = 0,n
-       do k = 0,n
-          a(i,j) = a(i,j) + d(k,i)*b(k)*d(k,j)
+       do i = 0,n
+          do k = 0,n
+             a(i,j) = a(i,j) + d(k,i)*b(k)*d(k,j)
+          end do
+          c(i,j) = b(i)*d(i,j)
        end do
-       c(i,j) = b(i)*d(i,j)
-    end do
     end do
     call zwgl(zgl, bgl, nm)
     do i = 1,n-1
@@ -219,7 +219,7 @@ contains
 
   !> Compute interpolation weights for points `z_to` using values at points
   !! `z_from`.
-  !! @details 
+  !! @details
   !! This is essentially a wrapper for calling fd_weights_full() for several
   !! points. For each point in `z_to`, we get a set of interpolation weights of
   !! size `n_from`.
@@ -227,7 +227,7 @@ contains
   !! in `z_to` and each column the weight of a point in `z_from`.
   !!
   !! This routine is used for interpolating between elements of different
-  !! polynomial order. In other words, belonging to different 
+  !! polynomial order. In other words, belonging to different
   !! \ref space::space_t . The points are then GL, GLL, etc., depending on the
   !! space.
   !!

@@ -35,7 +35,7 @@ module device_inflow
   use utils
   use, intrinsic :: iso_c_binding, only : c_ptr
   private
-  
+
 #ifdef HAVE_HIP
 
   interface
@@ -78,7 +78,7 @@ module device_inflow
 
 contains
 
-    subroutine device_inflow_apply_vector(msk, x, y, z, g, m)
+  subroutine device_inflow_apply_vector(msk, x, y, z, g, m)
     integer, intent(in) :: m
     type(c_ptr) :: msk, x, y, z, g
 
@@ -91,8 +91,8 @@ contains
 #else
     call neko_error('No device backend configured')
 #endif
-    
+
   end subroutine device_inflow_apply_vector
-  
+
 end module device_inflow
 

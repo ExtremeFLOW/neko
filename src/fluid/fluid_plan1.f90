@@ -22,37 +22,37 @@ contains
     class(fluid_plan1_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
-    type(param_t), target, intent(inout) :: param        
+    type(param_t), target, intent(inout) :: param
     character(len=15), parameter :: scheme = 'plan1 (Pn/Pn-2)'
     integer :: lx2
 
     call this%free()
-    
+
     !> Setup velocity fields on the space \f$ Xh \f$
     call this%scheme_init(msh, lx, param, kspv_init=.true., scheme=scheme)
 
     !> Setup pressure field and related space \f$ Yh \f$
-    lx2 = lx - 2        
+    lx2 = lx - 2
     if (msh%gdim .eq. 2) then
        call this%Yh%init(GLL, lx2, lx2)
     else
        call this%Yh%init(GLL, lx2, lx2, lx2)
     end if
 
-    this%dm_Yh = dofmap_t(msh, this%Yh)
-        
+    call this%dm_Yh%init(msh, this%Yh)
+
     call this%p%init(this%dm_Yh)
 
     call gs_init(this%gs_Yh, this%dm_Yh)
 
     call this%c_Yh%init(this%gs_Yh)
-    
+
     call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Yh%size(), &
          param%ksp_prs, param%abstol_prs)
     call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
          this%c_Yh, this%dm_Yh, this%gs_Yh, this%bclst_prs, param%pc_prs)
-    
-    
+
+
   end subroutine fluid_plan1_init
 
   subroutine fluid_plan1_free(this)
@@ -67,17 +67,18 @@ contains
     call gs_free(this%gs_Yh)
 
     call this%c_Yh%free()
-    
+
   end subroutine fluid_plan1_free
 
-  subroutine fluid_plan1_step(this, t, tstep, ext_bdf)
-    class(fluid_plan1_t), intent(inout) :: this
+  subroutine fluid_plan1_step(this, t, tstep, ext_bdf, dt_controller)
+    class(fluid_plan1_t), target, intent(inout) :: this
     real(kind=rp), intent(inout) :: t
     integer, intent(inout) :: tstep
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    type(time_step_controller_t), intent(in) :: dt_controller
 
     if (this%freeze) return
 
   end subroutine fluid_plan1_step
-  
+
 end module fluid_plan1

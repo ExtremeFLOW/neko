@@ -31,22 +31,21 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Operators accelerator backends
-module opr_device  
-  use gather_scatter
+module opr_device
+  use gather_scatter, only : GS_OP_ADD
   use num_types, only : rp, c_rp
-  use device_math
-  use device_mathops
-  use device, only : device_get_ptr 
+  use device, only : device_get_ptr
   use space, only : space_t
   use coefs, only : coef_t
-  use mesh, only : mesh_t
   use field, only : field_t
   use utils, only : neko_error
+  use device_math, only : device_sub3, device_rzero, device_copy
+  use device_mathops, only : device_opcolv
   use comm
   use, intrinsic :: iso_c_binding
   implicit none
   private
-  
+
   public :: opr_device_dudxyz, opr_device_opgrad, opr_device_cdtp, &
        opr_device_conv1, opr_device_curl, opr_device_cfl, opr_device_lambda2
 
@@ -54,7 +53,7 @@ module opr_device
   interface
      subroutine hip_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
           dx_d, dy_d, dz_d, jacinv_d, nel, lx) &
-          bind(c, name='hip_dudxyz')
+          bind(c, name = 'hip_dudxyz')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: du_d, u_d, dr_d, ds_d, dt_d
        type(c_ptr), value :: dx_d, dy_d, dz_d, jacinv_d
@@ -64,11 +63,11 @@ module opr_device
 
   interface
      subroutine hip_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
-          dxt_d, dyt_d, dzt_d, B_d, jac_d, nel, lx) &
-          bind(c, name='hip_cdtp')
+          dxt_d, dyt_d, dzt_d, w3_d, nel, lx) &
+          bind(c, name = 'hip_cdtp')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: dtx_d, x_d, dr_d, ds_d, dt_d
-       type(c_ptr), value :: dxt_d, dyt_d, dzt_d, B_d, jac_d
+       type(c_ptr), value :: dxt_d, dyt_d, dzt_d, w3_d
        integer(c_int) :: nel, lx
      end subroutine hip_cdtp
   end interface
@@ -78,7 +77,7 @@ module opr_device
           dx_d, dy_d, dz_d, drdx_d, dsdx_d, dtdx_d, &
           drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d, &
           jacinv_d, nel, gdim, lx) &
-          bind(c, name='hip_conv1')
+          bind(c, name = 'hip_conv1')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: du_d, u_d, vx_d, vy_d, vz_d
        type(c_ptr), value :: dx_d, dy_d, dz_d, drdx_d, dsdx_d, dtdx_d
@@ -94,7 +93,7 @@ module opr_device
           drdx_d, dsdx_d, dtdx_d, &
           drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, w3_d, nel, lx) &
-          bind(c, name='hip_opgrad')
+          bind(c, name = 'hip_opgrad')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: ux_d, uy_d, uz_d, u_d
        type(c_ptr), value :: dx_d, dy_d, dz_d
@@ -105,14 +104,14 @@ module opr_device
        integer(c_int) :: nel, lx
      end subroutine hip_opgrad
   end interface
- 
+
   interface
      subroutine hip_lambda2(lambda2_d, u_d, v_d, w_d, &
           dx_d, dy_d, dz_d, &
           drdx_d, dsdx_d, dtdx_d, &
           drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, jacinv_d, nel, lx) &
-          bind(c, name='hip_lambda2')
+          bind(c, name = 'hip_lambda2')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: lambda2_d, u_d, v_d, w_d
        type(c_ptr), value :: dx_d, dy_d, dz_d
@@ -129,9 +128,9 @@ module opr_device
           drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, dr_inv_d, ds_inv_d, dt_inv_d, &
           jacinv_d, nel, lx) &
-          bind(c, name='hip_cfl')
+          bind(c, name = 'hip_cfl')
        use, intrinsic :: iso_c_binding
-       import c_rp       
+       import c_rp
        type(c_ptr), value :: u_d, v_d, w_d, drdx_d, dsdx_d, dtdx_d
        type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d
        type(c_ptr), value :: dr_inv_d, ds_inv_d, dt_inv_d, jacinv_d
@@ -143,7 +142,7 @@ module opr_device
   interface
      subroutine cuda_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
           dx_d, dy_d, dz_d, jacinv_d, nel, lx) &
-          bind(c, name='cuda_dudxyz')
+          bind(c, name = 'cuda_dudxyz')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: du_d, u_d, dr_d, ds_d, dt_d
        type(c_ptr), value :: dx_d, dy_d, dz_d, jacinv_d
@@ -153,11 +152,11 @@ module opr_device
 
   interface
      subroutine cuda_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
-          dxt_d, dyt_d, dzt_d, B_d, jac_d, nel, lx) &
-          bind(c, name='cuda_cdtp')
+          dxt_d, dyt_d, dzt_d, w3_d, nel, lx) &
+          bind(c, name = 'cuda_cdtp')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: dtx_d, x_d, dr_d, ds_d, dt_d
-       type(c_ptr), value :: dxt_d, dyt_d, dzt_d, B_d, jac_d
+       type(c_ptr), value :: dxt_d, dyt_d, dzt_d, w3_d
        integer(c_int) :: nel, lx
      end subroutine cuda_cdtp
   end interface
@@ -167,7 +166,7 @@ module opr_device
           dx_d, dy_d, dz_d, drdx_d, dsdx_d, dtdx_d, &
           drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d, &
           jacinv_d, nel, gdim, lx) &
-          bind(c, name='cuda_conv1')
+          bind(c, name = 'cuda_conv1')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: du_d, u_d, vx_d, vy_d, vz_d
        type(c_ptr), value :: dx_d, dy_d, dz_d, drdx_d, dsdx_d, dtdx_d
@@ -176,14 +175,14 @@ module opr_device
        integer(c_int) :: nel, gdim, lx
      end subroutine cuda_conv1
   end interface
-  
+
   interface
      subroutine cuda_opgrad(ux_d, uy_d, uz_d, u_d, &
           dx_d, dy_d, dz_d, &
           drdx_d, dsdx_d, dtdx_d, &
           drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, w3_d, nel, lx) &
-          bind(c, name='cuda_opgrad')
+          bind(c, name = 'cuda_opgrad')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: ux_d, uy_d, uz_d, u_d
        type(c_ptr), value :: dx_d, dy_d, dz_d
@@ -194,14 +193,14 @@ module opr_device
        integer(c_int) :: nel, lx
      end subroutine cuda_opgrad
   end interface
- 
+
   interface
      subroutine cuda_lambda2(lambda2_d, u_d, v_d, w_d, &
           dx_d, dy_d, dz_d, &
           drdx_d, dsdx_d, dtdx_d, &
           drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, jacinv_d, nel, lx) &
-          bind(c, name='cuda_lambda2')
+          bind(c, name = 'cuda_lambda2')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: lambda2_d, u_d, v_d, w_d
        type(c_ptr), value :: dx_d, dy_d, dz_d
@@ -219,9 +218,9 @@ module opr_device
           drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, dr_inv_d, ds_inv_d, dt_inv_d, &
           jacinv_d, nel, lx) &
-          bind(c, name='cuda_cfl')
+          bind(c, name = 'cuda_cfl')
        use, intrinsic :: iso_c_binding
-       import c_rp       
+       import c_rp
        type(c_ptr), value :: u_d, v_d, w_d, drdx_d, dsdx_d, dtdx_d
        type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d
        type(c_ptr), value :: dr_inv_d, ds_inv_d, dt_inv_d, jacinv_d
@@ -233,7 +232,7 @@ module opr_device
   interface
      subroutine opencl_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
           dx_d, dy_d, dz_d, jacinv_d, nel, lx) &
-          bind(c, name='opencl_dudxyz')
+          bind(c, name = 'opencl_dudxyz')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: du_d, u_d, dr_d, ds_d, dt_d
        type(c_ptr), value :: dx_d, dy_d, dz_d, jacinv_d
@@ -243,11 +242,11 @@ module opr_device
 
   interface
      subroutine opencl_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
-          dxt_d, dyt_d, dzt_d, B_d, jac_d, nel, lx) &
-          bind(c, name='opencl_cdtp')
+          dxt_d, dyt_d, dzt_d, w3_d, nel, lx) &
+          bind(c, name = 'opencl_cdtp')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: dtx_d, x_d, dr_d, ds_d, dt_d
-       type(c_ptr), value :: dxt_d, dyt_d, dzt_d, B_d, jac_d
+       type(c_ptr), value :: dxt_d, dyt_d, dzt_d, w3_d
        integer(c_int) :: nel, lx
      end subroutine opencl_cdtp
   end interface
@@ -257,7 +256,7 @@ module opr_device
           dx_d, dy_d, dz_d, drdx_d, dsdx_d, dtdx_d, &
           drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d, &
           jacinv_d, nel, gdim, lx) &
-          bind(c, name='opencl_conv1')
+          bind(c, name = 'opencl_conv1')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: du_d, u_d, vx_d, vy_d, vz_d
        type(c_ptr), value :: dx_d, dy_d, dz_d, drdx_d, dsdx_d, dtdx_d
@@ -273,7 +272,7 @@ module opr_device
           drdx_d, dsdx_d, dtdx_d, &
           drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, w3_d, nel, lx) &
-          bind(c, name='opencl_opgrad')
+          bind(c, name = 'opencl_opgrad')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: ux_d, uy_d, uz_d, u_d
        type(c_ptr), value :: dx_d, dy_d, dz_d
@@ -290,9 +289,9 @@ module opr_device
           drdx_d, dsdx_d, dtdx_d, drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, dr_inv_d, ds_inv_d, dt_inv_d, &
           jacinv_d, nel, lx) &
-          bind(c, name='opencl_cfl')
+          bind(c, name = 'opencl_cfl')
        use, intrinsic :: iso_c_binding
-       import c_rp       
+       import c_rp
        type(c_ptr), value :: u_d, v_d, w_d, drdx_d, dsdx_d, dtdx_d
        type(c_ptr), value :: drdy_d, dsdy_d, dtdy_d, drdz_d, dsdz_d, dtdz_d
        type(c_ptr), value :: dr_inv_d, ds_inv_d, dt_inv_d, jacinv_d
@@ -301,13 +300,13 @@ module opr_device
      end function opencl_cfl
   end interface
 
-    interface
+  interface
      subroutine opencl_lambda2(lambda2_d, u_d, v_d, w_d, &
           dx_d, dy_d, dz_d, &
           drdx_d, dsdx_d, dtdx_d, &
           drdy_d, dsdy_d, dtdy_d, &
           drdz_d, dsdz_d, dtdz_d, jacinv_d, nel, lx) &
-          bind(c, name='opencl_lambda2')
+          bind(c, name = 'opencl_lambda2')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: lambda2_d, u_d, v_d, w_d
        type(c_ptr), value :: dx_d, dy_d, dz_d
@@ -318,16 +317,16 @@ module opr_device
        integer(c_int) :: nel, lx
      end subroutine opencl_lambda2
   end interface
-#endif  
-  
+#endif
+
 contains
 
   subroutine opr_device_dudxyz(du, u, dr, ds, dt, coef)
     type(coef_t), intent(in), target :: coef
-    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly, &
-         coef%Xh%lz,coef%msh%nelv), intent(inout) ::  du
-    real(kind=rp), dimension(coef%Xh%lx,coef%Xh%ly, &
-         coef%Xh%lz,coef%msh%nelv), intent(in) ::  u, dr, ds, dt
+    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, &
+         coef%Xh%lz, coef%msh%nelv), intent(inout) :: du
+    real(kind=rp), dimension(coef%Xh%lx, coef%Xh%ly, &
+         coef%Xh%lz, coef%msh%nelv), intent(in) :: u, dr, ds, dt
     type(c_ptr) :: du_d, u_d, dr_d, ds_d, dt_d
 
     du_d = device_get_ptr(du)
@@ -337,7 +336,7 @@ contains
     ds_d = device_get_ptr(ds)
     dt_d = device_get_ptr(dt)
 
-    associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)    
+    associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
 #ifdef HAVE_HIP
       call hip_dudxyz(du_d, u_d, dr_d, ds_d, dt_d, &
            Xh%dx_d, Xh%dy_d, Xh%dz_d, coef%jacinv_d, &
@@ -354,15 +353,15 @@ contains
       call neko_error('No device backend configured')
 #endif
     end associate
-  
+
   end subroutine opr_device_dudxyz
 
-  subroutine opr_device_opgrad(ux, uy, uz, u, coef) 
-    type(coef_t), intent(in) :: coef  
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: ux
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uy
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: uz
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: u
+  subroutine opr_device_opgrad(ux, uy, uz, u, coef)
+    type(coef_t), intent(in) :: coef
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: ux
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uy
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: uz
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: u
     type(c_ptr) :: ux_d, uy_d, uz_d, u_d
 
     ux_d = device_get_ptr(ux)
@@ -370,7 +369,7 @@ contains
     uz_d = device_get_ptr(uz)
 
     u_d = device_get_ptr(u)
-    
+
     associate(Xh => coef%Xh, msh => coef%msh)
 #ifdef HAVE_HIP
       call hip_opgrad(ux_d, uy_d, uz_d, u_d, &
@@ -397,45 +396,45 @@ contains
       call neko_error('No device backend configured')
 #endif
     end associate
-    
+
   end subroutine opr_device_opgrad
   subroutine opr_device_lambda2(lambda2, u, v, w, coef)
-    type(coef_t), intent(in) :: coef  
-    type(field_t), intent(inout) :: lambda2 
+    type(coef_t), intent(in) :: coef
+    type(field_t), intent(inout) :: lambda2
     type(field_t), intent(in) :: u, v, w
 #ifdef HAVE_HIP
-      call hip_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
-           coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
-           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-           coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
+    call hip_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
+         coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
+         coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+         coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+         coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+         coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
 #elif HAVE_CUDA
-      call cuda_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
-           coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
-           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-           coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
+    call cuda_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
+         coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
+         coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+         coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+         coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+         coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
 #elif HAVE_OPENCL
-      call opencl_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
-           coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
-           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-           coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
+    call opencl_lambda2(lambda2%x_d,u%x_d,v%x_d,w%x_d, &
+         coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d, &
+         coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+         coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+         coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+         coef%jacinv_d, coef%msh%nelv, coef%Xh%lx)
 #else
-      call neko_error('No device backend configured')
+    call neko_error('No device backend configured')
 #endif
   end subroutine opr_device_lambda2
 
-  subroutine opr_device_cdtp(dtx, x, dr,ds, dt, coef)
+  subroutine opr_device_cdtp(dtx, x, dr, ds, dt, coef)
     type(coef_t), intent(in) :: coef
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: dtx
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(inout) :: x
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dr
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: ds
-    real(kind=rp), dimension(coef%Xh%lxyz,coef%msh%nelv), intent(in) :: dt
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: dtx
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(inout) :: x
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dr
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: ds
+    real(kind=rp), dimension(coef%Xh%lxyz, coef%msh%nelv), intent(in) :: dt
     type(c_ptr) :: dtx_d, x_d, dr_d, ds_d, dt_d
 
     dtx_d = device_get_ptr(dtx)
@@ -444,36 +443,36 @@ contains
     dr_d = device_get_ptr(dr)
     ds_d = device_get_ptr(ds)
     dt_d = device_get_ptr(dt)
-    
-    associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)    
+
+    associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
 #ifdef HAVE_HIP
       call hip_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
-           Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%B_d, &
-           coef%jac_d, msh%nelv, Xh%lx)
+           Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, Xh%w3_d, &
+           msh%nelv, Xh%lx)
 #elif HAVE_CUDA
       call cuda_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
-           Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%B_d, &
-           coef%jac_d, msh%nelv, Xh%lx)
+           Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, Xh%w3_d, &
+           msh%nelv, Xh%lx)
 #elif HAVE_OPENCL
       call opencl_cdtp(dtx_d, x_d, dr_d, ds_d, dt_d, &
-           Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%B_d, &
-           coef%jac_d, msh%nelv, Xh%lx)
+           Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, Xh%w3_d, &
+           msh%nelv, Xh%lx)
 #else
       call neko_error('No device backend configured')
 #endif
-  end associate
+    end associate
 
   end subroutine opr_device_cdtp
 
-  subroutine opr_device_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)  
+  subroutine opr_device_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim
-    real(kind=rp), intent(inout) ::  du(Xh%lxyz,nelv)
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vx
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vy
-    real(kind=rp), intent(inout), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  vz
+    real(kind=rp), intent(inout) :: du(Xh%lxyz, nelv)
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vx
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vy
+    real(kind=rp), intent(inout), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: vz
     type(c_ptr) :: du_d, u_d, vx_d, vy_d, vz_d
 
     du_d = device_get_ptr(du)
@@ -482,34 +481,34 @@ contains
     vx_d = device_get_ptr(vx)
     vy_d = device_get_ptr(vy)
     vz_d = device_get_ptr(vz)
-    
-    associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)    
+
+    associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
 #ifdef HAVE_HIP
       call hip_conv1(du_d, u_d, vx_d, vy_d, vz_d, &
-                     Xh%dx_d, Xh%dy_d, Xh%dz_d, &
-                     coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-                     coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-                     coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-                     coef%jacinv_d, msh%nelv, msh%gdim, Xh%lx)
+           Xh%dx_d, Xh%dy_d, Xh%dz_d, &
+           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+           coef%jacinv_d, msh%nelv, msh%gdim, Xh%lx)
 #elif HAVE_CUDA
       call cuda_conv1(du_d, u_d, vx_d, vy_d, vz_d, &
-                      Xh%dx_d, Xh%dy_d, Xh%dz_d, &
-                      coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-                      coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-                      coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-                      coef%jacinv_d, msh%nelv, msh%gdim, Xh%lx)
+           Xh%dx_d, Xh%dy_d, Xh%dz_d, &
+           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+           coef%jacinv_d, msh%nelv, msh%gdim, Xh%lx)
 #elif HAVE_OPENCL
       call opencl_conv1(du_d, u_d, vx_d, vy_d, vz_d, &
-                        Xh%dx_d, Xh%dy_d, Xh%dz_d, &
-                        coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-                        coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-                        coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-                        coef%jacinv_d, msh%nelv, msh%gdim, Xh%lx)
+           Xh%dx_d, Xh%dy_d, Xh%dz_d, &
+           coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+           coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+           coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+           coef%jacinv_d, msh%nelv, msh%gdim, Xh%lx)
 #else
       call neko_error('No device backend configured')
 #endif
     end associate
-    
+
   end subroutine opr_device_conv1
 
   subroutine opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, c_Xh)
@@ -521,7 +520,7 @@ contains
     type(field_t), intent(inout) :: u3
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
-    type(coef_t), intent(in)  :: c_Xh
+    type(coef_t), intent(in) :: c_Xh
     integer :: gdim, n, nelv
 
     n = w1%dof%size()
@@ -532,19 +531,19 @@ contains
 #if defined(HAVE_HIP) || defined(HAVE_CUDA) || defined(HAVE_OPENCL)
 #ifdef HAVE_HIP
     call hip_dudxyz(work1%x_d, u3%x_d, &
-           c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
-           c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
-           c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
+         c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
+         c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+         c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
 #elif HAVE_CUDA
     call cuda_dudxyz(work1%x_d, u3%x_d, &
-           c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
-           c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
-           c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
+         c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
+         c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+         c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
 #elif HAVE_OPENCL
     call opencl_dudxyz(work1%x_d, u3%x_d, &
-           c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
-           c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
-           c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
+         c_Xh%drdy_d, c_Xh%dsdy_d, c_Xh%dtdy_d,&
+         c_Xh%Xh%dx_d, c_Xh%Xh%dy_d, c_Xh%Xh%dz_d, &
+         c_Xh%jacinv_d, nelv, c_Xh%Xh%lx)
 #endif
     if (gdim .eq. 3) then
 #ifdef HAVE_HIP
@@ -650,16 +649,16 @@ contains
     call device_sub3(w3%x_d, work1%x_d, work2%x_d, n)
     !!    BC dependent, Needs to change if cyclic
 
-    call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%B_d, gdim, n)    
-    call c_Xh%gs_h%op(w1, GS_OP_ADD) 
-    call c_Xh%gs_h%op(w2, GS_OP_ADD) 
+    call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%B_d, gdim, n)
+    call c_Xh%gs_h%op(w1, GS_OP_ADD)
+    call c_Xh%gs_h%op(w2, GS_OP_ADD)
     call c_Xh%gs_h%op(w3, GS_OP_ADD)
-    call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%Binv_d, gdim, n)    
+    call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%Binv_d, gdim, n)
 
 #else
     call neko_error('No device backend configured')
 #endif
-        
+
   end subroutine opr_device_curl
 
   function opr_device_cfl(dt, u, v, w, Xh, coef, nelv, gdim) result(cfl)
@@ -667,7 +666,7 @@ contains
     type(coef_t) :: coef
     integer :: nelv, gdim
     real(kind=rp) :: dt
-    real(kind=rp), dimension(Xh%lx,Xh%ly,Xh%lz,nelv) ::  u, v, w  
+    real(kind=rp), dimension(Xh%lx, Xh%ly, Xh%lz, nelv) :: u, v, w
     real(kind=rp) :: cfl
     type(c_ptr) :: u_d, v_d, w_d
 
@@ -676,26 +675,26 @@ contains
     w_d = device_get_ptr(w)
 
 #ifdef HAVE_HIP
-    cfl  = hip_cfl(dt, u_d, v_d, w_d, &
-                   coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-                   coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-                   coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-                   Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
-                   coef%jacinv_d, nelv, Xh%lx)
+    cfl = hip_cfl(dt, u_d, v_d, w_d, &
+         coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+         coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+         coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+         Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
+         coef%jacinv_d, nelv, Xh%lx)
 #elif HAVE_CUDA
-    cfl  = cuda_cfl(dt, u_d, v_d, w_d, &
-                    coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-                    coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-                    coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-                    Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
-                    coef%jacinv_d, nelv, Xh%lx)
+    cfl = cuda_cfl(dt, u_d, v_d, w_d, &
+         coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+         coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+         coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+         Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
+         coef%jacinv_d, nelv, Xh%lx)
 #elif HAVE_OPENCL
-    cfl  = opencl_cfl(dt, u_d, v_d, w_d, &
-                      coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
-                      coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
-                      coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
-                      Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
-                      coef%jacinv_d, nelv, Xh%lx)
+    cfl = opencl_cfl(dt, u_d, v_d, w_d, &
+         coef%drdx_d, coef%dsdx_d, coef%dtdx_d, &
+         coef%drdy_d, coef%dsdy_d, coef%dtdy_d, &
+         coef%drdz_d, coef%dsdz_d, coef%dtdz_d, &
+         Xh%dr_inv_d, Xh%ds_inv_d, Xh%dt_inv_d, &
+         coef%jacinv_d, nelv, Xh%lx)
 #else
     cfl = 0.0_rp
     call neko_error('No device backend configured')

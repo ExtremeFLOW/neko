@@ -1,5 +1,7 @@
+#ifndef __MATH_MATH_KERNEL_CL__
+#define __MATH_MATH_KERNEL_CL__
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2024, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -31,6 +33,38 @@
  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
 */
+
+/**
+ * Device kernel for masked copy
+ */
+__kernel void masked_copy_kernel(__global real * __restrict__ a,
+                                 __global real * __restrict__ b,
+                                 __global int * __restrict__ mask,
+                                 const int n,
+                                 const int m) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    a[mask[i+1]-1] = b[mask[i+1]-1];
+  }  
+}
+
+/**
+ * Device kernel for cfill_mask
+ */
+__kernel void cfill_mask_kernel(__global real * __restrict__ a, 
+                                const real c, 
+                                const int size, 
+                                __global int * __restrict__ mask,
+                                const int mask_size) {
+  
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+    for (int i = idx; i < mask_size; i += str) { a[mask[i]-1] = c; }
+}
 
 /**
  * Device kernel for cmult
@@ -79,6 +113,22 @@ __kernel void cadd_kernel(__global real * __restrict__ a,
 }
 
 /**
+ * Device kernel for cadd2
+ */
+__kernel void cadd2_kernel(__global real * __restrict__ a,
+                          __global const real * __restrict__ b,
+                          const real c,
+                          const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = b[i] + c;
+  }
+}
+
+/**
  * Device kernel for cfill
  */
 __kernel void cfill_kernel(__global real * __restrict__ a,
@@ -90,6 +140,23 @@ __kernel void cfill_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = c;
+  } 
+}
+
+/**
+ * Device kernel for add4
+ */
+__kernel void add4_kernel(__global real * __restrict__ a,
+                          __global const real * __restrict__ b,
+                          __global const real * __restrict__ c,
+                          __global const real * __restrict__ d,
+                          const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = d[i] + c[i] + d[i];
   } 
 }
 
@@ -106,6 +173,22 @@ __kernel void add2_kernel(__global real * __restrict__ a,
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] + b[i];
   } 
+}
+
+/**
+ * Device kernel for add3
+ */
+__kernel void add3_kernel(__global real * __restrict__ a,
+                          __global const real * __restrict__ b,
+                          __global const real * __restrict__ c,
+                          const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = b[i] + c[i];
+  }
 }
 
 /**
@@ -503,3 +586,5 @@ __kernel void glsum_kernel(__global const real * __restrict__ a,
   }
 
 }
+
+#endif // __MATH_MATH_KERNEL_CL__

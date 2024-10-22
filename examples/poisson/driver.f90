@@ -43,7 +43,7 @@ program poisson
 
   call Xh%init(GLL, lx, lx, lx)
 
-  dm = dofmap_t(msh, Xh)
+  call dm%init(msh, Xh)
   call gs_h%init(dm)
 
   call coef%init(gs_h)
@@ -52,7 +52,7 @@ program poisson
 
   n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
 
-  call dir_bc%init(dm)
+  call dir_bc%init(coef)
   call dir_bc%set_g(real(0.0d0,rp))
  
   !user specified
@@ -61,7 +61,7 @@ program poisson
   call dir_bc%finalize()
   call bc_list_init(bclst)
   call bc_list_add(bclst,dir_bc)
-  call solver%init(n, abs_tol = tol)
+  call solver%init(n, niter, abs_tol = tol)
 
   allocate(f(n))
 

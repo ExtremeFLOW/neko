@@ -31,37 +31,87 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Derivative kernels for SX-Aurora
-module sx_dudxyz
-  use num_types, only : rp
-  use math
+submodule (opr_sx) sx_dudxyz
+  use math, only : addcol3, col2
   implicit none
-  private
-
-  public :: sx_dudxyz_lx, sx_dudxyz_lx14, sx_dudxyz_lx13, sx_dudxyz_lx12, &
-       sx_dudxyz_lx11, sx_dudxyz_lx10, sx_dudxyz_lx9, sx_dudxyz_lx8, &
-       sx_dudxyz_lx7, sx_dudxyz_lx6, sx_dudxyz_lx5, sx_dudxyz_lx4, &
-       sx_dudxyz_lx3, sx_dudxyz_lx2
 
 contains
 
+  module subroutine opr_sx_dudxyz(du, u, dr, ds, dt, coef)
+    type(coef_t), intent(in), target :: coef
+    real(kind=rp), intent(inout), &
+         dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: du
+    real(kind=rp), intent(in), &
+         dimension(coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, coef%msh%nelv) :: &
+         u, dr, ds, dt
+
+    associate(Xh => coef%Xh, msh => coef%msh, dof => coef%dof)
+      select case (coef%Xh%lx)
+        case (14)
+         call sx_dudxyz_lx14(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%size())
+        case (13)
+         call sx_dudxyz_lx13(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%size())
+        case (12)
+         call sx_dudxyz_lx12(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%size())
+        case (11)
+         call sx_dudxyz_lx11(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%size())
+        case (10)
+         call sx_dudxyz_lx10(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%size())
+        case (9)
+         call sx_dudxyz_lx9(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%size())
+        case (8)
+         call sx_dudxyz_lx8(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%size())
+        case (7)
+         call sx_dudxyz_lx7(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%size())
+        case (6)
+         call sx_dudxyz_lx6(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%size())
+        case (5)
+         call sx_dudxyz_lx5(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%size())
+        case (4)
+         call sx_dudxyz_lx4(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%size())
+        case (3)
+         call sx_dudxyz_lx3(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%size())
+        case (2)
+         call sx_dudxyz_lx2(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%size())
+        case default
+         call sx_dudxyz_lx(du, u, dr, ds, dt, Xh%dx, Xh%dy, Xh%dz, &
+              coef%jacinv, msh%nelv, dof%size(), Xh%lx)
+      end select
+    end associate
+
+  end subroutine opr_sx_dudxyz
+
   subroutine sx_dudxyz_lx(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd, lx)
     integer, intent(in) :: nel, nd, lx
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: u, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          du(i,jj,1,1) = wr
+          du(i, jj,1,1) = wr
        end do
     end do
 
@@ -70,11 +120,11 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
              end do
@@ -91,7 +141,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i,j, kk,e)
                 end do
                 drst(i,j,k,e) = wt
              end do
@@ -102,26 +152,26 @@ contains
     call addcol3(du, drst, dt, nd)
     call col2 (du, jacinv, nd)
   end subroutine sx_dudxyz_lx
-  
+
   subroutine sx_dudxyz_lx14(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 14
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: u, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          du(i,jj,1,1) = wr
+          du(i, jj,1,1) = wr
        end do
     end do
 
@@ -130,11 +180,11 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
              end do
@@ -151,7 +201,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i,j, kk,e)
                 end do
                 drst(i,j,k,e) = wt
              end do
@@ -162,26 +212,26 @@ contains
     call addcol3(du, drst, dt, nd)
     call col2 (du, jacinv, nd)
   end subroutine sx_dudxyz_lx14
-  
+
   subroutine sx_dudxyz_lx13(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 13
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: u, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          du(i,jj,1,1) = wr
+          du(i, jj,1,1) = wr
        end do
     end do
 
@@ -190,11 +240,11 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
              end do
@@ -211,7 +261,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i,j, kk,e)
                 end do
                 drst(i,j,k,e) = wt
              end do
@@ -226,22 +276,22 @@ contains
   subroutine sx_dudxyz_lx12(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 12
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: u, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          du(i,jj,1,1) = wr
+          du(i, jj,1,1) = wr
        end do
     end do
 
@@ -250,11 +300,11 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
              end do
@@ -271,7 +321,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i,j, kk,e)
                 end do
                 drst(i,j,k,e) = wt
              end do
@@ -286,22 +336,22 @@ contains
   subroutine sx_dudxyz_lx11(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 11
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: u, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          du(i,jj,1,1) = wr
+          du(i, jj,1,1) = wr
        end do
     end do
 
@@ -310,11 +360,11 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
              end do
@@ -331,7 +381,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i,j, kk,e)
                 end do
                 drst(i,j,k,e) = wt
              end do
@@ -346,22 +396,22 @@ contains
   subroutine sx_dudxyz_lx10(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 10
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: u, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          du(i,jj,1,1) = wr
+          du(i, jj,1,1) = wr
        end do
     end do
 
@@ -370,11 +420,11 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
              end do
@@ -391,7 +441,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i,j, kk,e)
                 end do
                 drst(i,j,k,e) = wt
              end do
@@ -406,22 +456,22 @@ contains
   subroutine sx_dudxyz_lx9(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 9
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: u, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          du(i,jj,1,1) = wr
+          du(i, jj,1,1) = wr
        end do
     end do
 
@@ -430,11 +480,11 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
              end do
@@ -451,7 +501,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i,j, kk,e)
                 end do
                 drst(i,j,k,e) = wt
              end do
@@ -466,22 +516,22 @@ contains
   subroutine sx_dudxyz_lx8(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 8
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: u, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          du(i,jj,1,1) = wr
+          du(i, jj,1,1) = wr
        end do
     end do
 
@@ -490,11 +540,11 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
              end do
@@ -511,7 +561,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i,j, kk,e)
                 end do
                 drst(i,j,k,e) = wt
              end do
@@ -526,22 +576,22 @@ contains
   subroutine sx_dudxyz_lx7(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 7
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: u, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          du(i,jj,1,1) = wr
+          du(i, jj,1,1) = wr
        end do
     end do
 
@@ -550,11 +600,11 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
              end do
@@ -571,7 +621,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i,j, kk,e)
                 end do
                 drst(i,j,k,e) = wt
              end do
@@ -586,22 +636,22 @@ contains
   subroutine sx_dudxyz_lx6(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 6
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: u, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          du(i,jj,1,1) = wr
+          du(i, jj,1,1) = wr
        end do
     end do
 
@@ -610,11 +660,11 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
              end do
@@ -631,7 +681,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i,j, kk,e)
                 end do
                 drst(i,j,k,e) = wt
              end do
@@ -646,22 +696,22 @@ contains
   subroutine sx_dudxyz_lx5(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 5
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: u, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          du(i,jj,1,1) = wr
+          du(i, jj,1,1) = wr
        end do
     end do
 
@@ -670,11 +720,11 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
              end do
@@ -691,7 +741,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i,j, kk,e)
                 end do
                 drst(i,j,k,e) = wt
              end do
@@ -706,22 +756,22 @@ contains
   subroutine sx_dudxyz_lx4(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 4
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: u, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          du(i,jj,1,1) = wr
+          du(i, jj,1,1) = wr
        end do
     end do
 
@@ -730,11 +780,11 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
              end do
@@ -751,7 +801,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i,j, kk,e)
                 end do
                 drst(i,j,k,e) = wt
              end do
@@ -766,22 +816,22 @@ contains
   subroutine sx_dudxyz_lx3(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 3
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: u, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          du(i,jj,1,1) = wr
+          du(i, jj,1,1) = wr
        end do
     end do
 
@@ -790,11 +840,11 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
              end do
@@ -811,7 +861,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i,j, kk,e)
                 end do
                 drst(i,j,k,e) = wt
              end do
@@ -826,22 +876,22 @@ contains
   subroutine sx_dudxyz_lx2(du, u, dr, ds, dt, dx, dy, dz, jacinv, nel, nd)
     integer, parameter :: lx = 2
     integer, intent(in) :: nel, nd
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(inout) ::  du
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) ::  u, dr, ds, dt
-    real(kind=rp), dimension(lx,lx,lx,nel), intent(in) :: jacinv
-    real(kind=rp), dimension(lx,lx), intent(in) :: dx, dy, dz
-    real(kind=rp), dimension(lx,lx,lx,nel) :: drst
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(inout) :: du
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: u, dr, ds, dt
+    real(kind=rp), dimension(lx, lx, lx, nel), intent(in) :: jacinv
+    real(kind=rp), dimension(lx, lx), intent(in) :: dx, dy, dz
+    real(kind=rp), dimension(lx, lx, lx, nel) :: drst
     integer :: e, k
-    integer :: i, j, jj, kk 
+    integer :: i, j, jj, kk
     real(kind=rp) :: wr, ws, wt
 
     do i = 1, lx
        do jj = 1, lx*lx*nel
           wr = 0d0
           do kk = 1, lx
-             wr = wr + dx(i,kk)*u(kk,jj,1,1)
+             wr = wr + dx(i, kk) * u(kk, jj,1,1)
           end do
-          du(i,jj,1,1) = wr
+          du(i, jj,1,1) = wr
        end do
     end do
 
@@ -850,11 +900,11 @@ contains
     do k = 1, lx
        do i = 1, lx
           do j = 1, lx
-             do e = 1, nel     
+             do e = 1, nel
                 ws = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   ws = ws + dy(j,kk)*u(i,kk,k,e)
+                   ws = ws + dy(j, kk) * u(i, kk,k,e)
                 end do
                 drst(i,j,k,e) = ws
              end do
@@ -871,7 +921,7 @@ contains
                 wt = 0d0
                 !NEC$ unroll_completely
                 do kk = 1, lx
-                   wt = wt + dz(k,kk)*u(i,j,kk,e)
+                   wt = wt + dz(k, kk) * u(i,j, kk,e)
                 end do
                 drst(i,j,k,e) = wt
              end do
@@ -883,4 +933,4 @@ contains
     call col2 (du, jacinv, nd)
   end subroutine sx_dudxyz_lx2
 
-end module sx_dudxyz
+end submodule sx_dudxyz

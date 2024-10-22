@@ -32,28 +32,28 @@
 !
 !> Defines dirichlet conditions for scalars
 module usr_scalar
-  use num_types
-  use coefs
-  use dirichlet
+  use num_types, only : rp
+  use coefs, only : coef_t
+  use bc, only : bc_t
   use device
   use device_inhom_dirichlet
-  use utils
+  use utils, only : neko_error, nonlinear_index, neko_warning
   implicit none
   private
-  
+
   !> User defined dirichlet condition for scalars
-  type, public, extends(dirichlet_t) :: usr_scalar_t
-     type(coef_t), pointer :: c => null()
+  type, public, extends(bc_t) :: usr_scalar_t
      procedure(usr_scalar_bc_eval), nopass, pointer :: eval => null()
      type(c_ptr), private :: usr_x_d = C_NULL_PTR
    contains
      procedure, pass(this) :: apply_scalar => usr_scalar_apply_scalar
      procedure, pass(this) :: apply_vector => usr_scalar_apply_vector
      procedure, pass(this) :: validate => usr_scalar_validate
-     procedure, pass(this) :: set_coef => usr_scalar_set_coef
      procedure, pass(this) :: set_eval => usr_scalar_set_eval
      procedure, pass(this) :: apply_vector_dev => usr_scalar_apply_vector_dev
      procedure, pass(this) :: apply_scalar_dev => usr_scalar_apply_scalar_dev
+     !> Destructor.
+     procedure, pass(this) :: free => usr_scalar_free
   end type usr_scalar_t
 
   abstract interface
@@ -97,16 +97,18 @@ module usr_scalar
   public :: usr_scalar_bc_eval
 
 contains
-     
-  subroutine usr_inflow_free(this)
-    type(usr_scalar_t), intent(inout) :: this
+
+  subroutine usr_scalar_free(this)
+    class(usr_scalar_t), target, intent(inout) :: this
+
+    call this%free_base
 
     if (c_associated(this%usr_x_d)) then
        call device_free(this%usr_x_d)
     end if
-        
-  end subroutine usr_inflow_free
-  
+
+  end subroutine usr_scalar_free
+
   !> Scalar apply
   !! Just imitating inflow for now, but we should look this over
   !! Applies boundary conditions in eval on x
@@ -133,16 +135,16 @@ contains
        tstep_ = 1
     end if
 
-    associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
-         nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
-         lx => this%c%Xh%lx)
+    associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
+              zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
+              nz => this%coef%nz, lx => this%coef%Xh%lx)
       m = this%msk(0)
       do i = 1, m
          k = this%msk(i)
          facet = this%facet(i)
          idx = nonlinear_index(k, lx, lx, lx)
          select case(facet)
-         case(1,2)          
+         case(1,2)
             call this%eval(x(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
                  yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -156,7 +158,7 @@ contains
             call this%eval(x(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
                  yc(idx(1), idx(2), idx(3), idx(4)), &
-                 zc(idx(1), idx(2), idx(3), idx(4)), &       
+                 zc(idx(1), idx(2), idx(3), idx(4)), &
                  nx(idx(1), idx(3), facet, idx(4)), &
                  ny(idx(1), idx(3), facet, idx(4)), &
                  nz(idx(1), idx(3), facet, idx(4)), &
@@ -166,7 +168,7 @@ contains
             call this%eval(x(k), &
                  xc(idx(1), idx(2), idx(3), idx(4)), &
                  yc(idx(1), idx(2), idx(3), idx(4)), &
-                 zc(idx(1), idx(2), idx(3), idx(4)), &                     
+                 zc(idx(1), idx(2), idx(3), idx(4)), &
                  nx(idx(1), idx(2), facet, idx(4)), &
                  ny(idx(1), idx(2), facet, idx(4)), &
                  nz(idx(1), idx(2), facet, idx(4)), &
@@ -205,9 +207,9 @@ contains
        tstep_ = 1
     end if
 
-    associate(xc => this%c%dof%x, yc => this%c%dof%y, zc => this%c%dof%z, &
-         nx => this%c%nx, ny => this%c%ny, nz => this%c%nz, &
-         lx => this%c%Xh%lx, usr_x_d => this%usr_x_d)
+    associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
+              zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
+              nz => this%coef%nz, lx => this%coef%Xh%lx, usr_x_d => this%usr_x_d)
 
 
       ! Pretabulate values during first call to apply
@@ -222,7 +224,7 @@ contains
             facet = this%facet(i)
             idx = nonlinear_index(k, lx, lx, lx)
             select case(facet)
-            case(1,2)          
+            case(1,2)
                call this%eval(x(i), &
                     xc(idx(1), idx(2), idx(3), idx(4)), &
                     yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -236,7 +238,7 @@ contains
                call this%eval(x(i), &
                     xc(idx(1), idx(2), idx(3), idx(4)), &
                     yc(idx(1), idx(2), idx(3), idx(4)), &
-                    zc(idx(1), idx(2), idx(3), idx(4)), &       
+                    zc(idx(1), idx(2), idx(3), idx(4)), &
                     nx(idx(1), idx(3), facet, idx(4)), &
                     ny(idx(1), idx(3), facet, idx(4)), &
                     nz(idx(1), idx(3), facet, idx(4)), &
@@ -246,7 +248,7 @@ contains
                call this%eval(x(i), &
                     xc(idx(1), idx(2), idx(3), idx(4)), &
                     yc(idx(1), idx(2), idx(3), idx(4)), &
-                    zc(idx(1), idx(2), idx(3), idx(4)), &                     
+                    zc(idx(1), idx(2), idx(3), idx(4)), &
                     nx(idx(1), idx(2), facet, idx(4)), &
                     ny(idx(1), idx(2), facet, idx(4)), &
                     nz(idx(1), idx(2), facet, idx(4)), &
@@ -254,9 +256,8 @@ contains
                     t_, tstep_)
             end select
          end do
- 
-        
-         call device_memcpy(x, this%usr_x_d, m, HOST_TO_DEVICE)
+
+         call device_memcpy(x, this%usr_x_d, m, HOST_TO_DEVICE, sync=.true.)
 
          deallocate(x)
       end if
@@ -267,7 +268,7 @@ contains
 
 
   end subroutine usr_scalar_apply_scalar_dev
-  
+
   !> No-op vector apply
   subroutine usr_scalar_apply_vector(this, x, y, z, n, t, tstep)
     class(usr_scalar_t), intent(inout) :: this
@@ -277,7 +278,7 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
-    integer :: i, m, k, idx(4), facet    
+
   end subroutine usr_scalar_apply_vector
 
   !> No-op vector apply (device version)
@@ -288,19 +289,8 @@ contains
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
-    integer :: i, m, k, idx(4), facet
-    integer(c_size_t) :: s
-    real(kind=rp), allocatable :: x(:)
-    real(kind=rp), allocatable :: y(:)
-    real(kind=rp), allocatable :: z(:)
-  end subroutine usr_scalar_apply_vector_dev
 
-  !> Assign coefficients (facet normals etc)
-  subroutine usr_scalar_set_coef(this, c)
-    class(usr_scalar_t), intent(inout) :: this
-    type(coef_t), target, intent(inout) :: c
-    this%c => c
-  end subroutine usr_scalar_set_coef
+  end subroutine usr_scalar_apply_vector_dev
 
   !> Assign user provided eval function
   !! @param user_scalar_bc User specified scalar boundary condition
@@ -315,10 +305,10 @@ contains
     class(usr_scalar_t), intent(inout) :: this
     logical :: valid
 
-    valid = .true. ! Assert it's going to be ok...    
-    if (.not. associated(this%c)) then
+    valid = .true. ! Assert it's going to be ok...
+    if (.not. associated(this%coef)) then
        call neko_warning('Missing coefficients')
-       valid = .false.       
+       valid = .false.
     end if
 
     if (.not. associated(this%eval)) then
@@ -329,7 +319,7 @@ contains
     if (.not. valid) then
        call neko_error('Invalid user defined scalar condition')
     end if
-    
+
   end subroutine usr_scalar_validate
-  
+
 end module usr_scalar

@@ -1,3 +1,5 @@
+#ifndef __MATH_CDTP_KERNEL_H__
+#define __MATH_CDTP_KERNEL_H__
 /*
  Copyright (c) 2021-2023, The Neko Authors
  All rights reserved.
@@ -45,8 +47,7 @@ __global__ void cdtp_kernel_1d(T * __restrict__ dtx,
                                const T * __restrict__ dxt,
                                const T * __restrict__ dyt,
                                const T * __restrict__ dzt,
-                               const T * __restrict__ B,
-                               const T * __restrict__ jac) { 
+                               const T * __restrict__ w3) { 
   
   __shared__ T shdxt[LX * LX];
   __shared__ T shdyt[LX * LX];
@@ -68,9 +69,7 @@ __global__ void cdtp_kernel_1d(T * __restrict__ dtx,
 
   int l = iii;
   while(l < (LX * LX * LX)) {
-     // We can probably avoid this division by use of jacinv instead.
-    T wx = (x[l + e * LX * LX * LX] * B[l + e * LX * LX * LX]) /
-      jac[l + e * LX * LX * LX];
+    T wx = x[l + e * LX * LX * LX] * w3[l]; 
 
     shtar[l] = wx*dr[l + e * LX * LX * LX];
     shtas[l] = wx*ds[l + e * LX * LX * LX];
@@ -111,8 +110,7 @@ __global__ void __launch_bounds__(LX*LX,3)
                     const T * __restrict__ dxt,
                     const T * __restrict__ dyt,
                     const T * __restrict__ dzt,
-                    const T * __restrict__ B,
-                    const T * __restrict__ jac) { 
+                    const T * __restrict__ w3) { 
   
   __shared__ T shdxt[LX * LX];
   __shared__ T shdyt[LX * LX];
@@ -124,7 +122,6 @@ __global__ void __launch_bounds__(LX*LX,3)
   T rtar[LX];
   T rtas[LX];
   T rtat[LX];
-  T rjac[LX];
 
   const int e = blockIdx.x;
   const int j = threadIdx.y;
@@ -139,8 +136,7 @@ __global__ void __launch_bounds__(LX*LX,3)
 
 #pragma unroll LX
   for (int k = 0; k < LX; ++k) {
-    T wx = (x[ij + k*LX*LX + ele] * B[ij + k*LX*LX + ele]) /
-      jac[ij + k*LX*LX + ele];
+    T wx = x[ij + k*LX*LX + ele] * w3[ij + k*LX*LX];
 
     rtar[k] = wx *dr[ij + k*LX*LX + ele];
     rtas[k] = wx *ds[ij + k*LX*LX + ele];            
@@ -174,3 +170,5 @@ __global__ void __launch_bounds__(LX*LX,3)
   }
 }
 
+
+#endif // __MATH_CDTP_KERNEL_H__

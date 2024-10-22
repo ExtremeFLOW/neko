@@ -1,4 +1,4 @@
-! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC. 
+! Copyright (c) 2008-2020, UCHICAGO ARGONNE, LLC.
 !
 ! The UChicago Argonne, LLC as Operator of Argonne National
 ! Laboratory holds copyright in the Software. The copyright holder
@@ -21,40 +21,40 @@
 ! may be used to endorse or promote products derived from this software
 ! without specific prior written permission.
 !
-! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
-! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
-! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
-! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
-! UCHICAGO ARGONNE, LLC, THE U.S. DEPARTMENT OF 
-! ENERGY OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
-! TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-! DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
-! THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-! (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+! UCHICAGO ARGONNE, LLC, THE U.S. DEPARTMENT OF
+! ENERGY OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+! SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+! TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+! DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+! THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+! (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ! OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 !
 ! Additional BSD Notice
 ! ---------------------
 ! 1. This notice is required to be provided under our contract with
 ! the U.S. Department of Energy (DOE). This work was produced at
-! Argonne National Laboratory under Contract 
+! Argonne National Laboratory under Contract
 ! No. DE-AC02-06CH11357 with the DOE.
 !
-! 2. Neither the United States Government nor UCHICAGO ARGONNE, 
-! LLC nor any of their employees, makes any warranty, 
+! 2. Neither the United States Government nor UCHICAGO ARGONNE,
+! LLC nor any of their employees, makes any warranty,
 ! express or implied, or assumes any liability or responsibility for the
 ! accuracy, completeness, or usefulness of any information, apparatus,
 ! product, or process disclosed, or represents that its use would not
 ! infringe privately-owned rights.
 !
-! 3. Also, reference herein to any specific commercial products, process, 
-! or services by trade name, trademark, manufacturer or otherwise does 
-! not necessarily constitute or imply its endorsement, recommendation, 
-! or favoring by the United States Government or UCHICAGO ARGONNE LLC. 
-! The views and opinions of authors expressed 
-! herein do not necessarily state or reflect those of the United States 
-! Government or UCHICAGO ARGONNE, LLC, and shall 
+! 3. Also, reference herein to any specific commercial products, process,
+! or services by trade name, trademark, manufacturer or otherwise does
+! not necessarily constitute or imply its endorsement, recommendation,
+! or favoring by the United States Government or UCHICAGO ARGONNE LLC.
+! The views and opinions of authors expressed
+! herein do not necessarily state or reflect those of the United States
+! Government or UCHICAGO ARGONNE, LLC, and shall
 ! not be used for advertising or product endorsement purposes.
 !
 !> Type for the Fast Diagonalization connected with the schwarz overlapping solves.
@@ -69,7 +69,7 @@ module fdm
   use gather_scatter
   use fast3d
   use tensor
-  use fdm_sx    
+  use fdm_sx
   use fdm_xsmm
   use fdm_cpu
   use fdm_device
@@ -94,7 +94,7 @@ module fdm
      type(dofmap_t), pointer :: dof
      type(gs_t), pointer :: gs_h
      type(mesh_t), pointer :: msh
-   contains 
+   contains
      procedure, pass(this) :: init => fdm_init
      procedure, pass(this) :: free => fdm_free
      procedure, pass(this) :: compute => fdm_compute
@@ -105,7 +105,7 @@ module fdm
   end interface sygv
 
 contains
-  
+
   subroutine fdm_init(this, Xh, dm, gs_h)
     class(fdm_t), intent(inout) :: this
     type(space_t), target, intent(inout) :: Xh
@@ -119,7 +119,7 @@ contains
     n = Xh%lx -1 !Polynomnial degree
     nl = Xh%lx + 2 !Schwarz!
     nelv = dm%msh%nelv
-    call fdm_free(this) 
+    call fdm_free(this)
     allocate(this%s(nl*nl,2,dm%msh%gdim, dm%msh%nelv))
     allocate(this%d(nl**3,dm%msh%nelv))
     allocate(this%swplen(Xh%lx, Xh%lx, Xh%lx,dm%msh%nelv))
@@ -130,11 +130,11 @@ contains
     ! Zeroing here enables easier debugging since then
     ! MPI messages in GS are deterministic
     call rzero(this%swplen, Xh%lxyz * dm%msh%nelv)
- 
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%s, this%s_d,nl*nl*2*dm%msh%gdim*dm%msh%nelv) 
-       call device_map(this%d, this%d_d,nl**dm%msh%gdim*dm%msh%nelv) 
-       call device_map(this%swplen,this%swplen_d, Xh%lxyz*dm%msh%nelv) 
+       call device_map(this%s, this%s_d,nl*nl*2*dm%msh%gdim*dm%msh%nelv)
+       call device_map(this%d, this%d_d,nl**dm%msh%gdim*dm%msh%nelv)
+       call device_map(this%swplen,this%swplen_d, Xh%lxyz*dm%msh%nelv)
     end if
 
     call semhat(ah, bh, ch, dh, zh, dph, jph, bgl, zglhat, dgl, jgl, n, wh)
@@ -149,11 +149,11 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s, this%s_d, &
-            nl*nl*2*dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE) 
+            nl*nl*2*dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%d, this%d_d, &
-            nl**dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE) 
+            nl**dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%swplen, this%swplen_d, &
-            Xh%lxyz*dm%msh%nelv, HOST_TO_DEVICE) 
+            Xh%lxyz*dm%msh%nelv, HOST_TO_DEVICE, sync=.false.)
     end if
   end subroutine fdm_init
 
@@ -193,9 +193,11 @@ contains
             end do
          end do
          if (NEKO_BCKND_DEVICE .eq. 1) then
-            call device_memcpy(l, this%swplen_d, this%dof%size(), HOST_TO_DEVICE)
+            call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                               HOST_TO_DEVICE, sync=.false.)
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
-            call device_memcpy(l, this%swplen_d, this%dof%size(), DEVICE_TO_HOST)
+            call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                               DEVICE_TO_HOST, sync=.false.)
          else
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
          end if
@@ -219,9 +221,11 @@ contains
          end do
 
          if (NEKO_BCKND_DEVICE .eq. 1) then
-            call device_memcpy(l, this%swplen_d, this%dof%size(),HOST_TO_DEVICE)
+            call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                               HOST_TO_DEVICE, sync=.false.)
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
-            call device_memcpy(l, this%swplen_d, this%dof%size(),DEVICE_TO_HOST)
+            call device_memcpy(l, this%swplen_d, this%dof%size(), &
+                               DEVICE_TO_HOST, sync=.true.)
          else
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
          end if
@@ -338,7 +342,7 @@ contains
     integer :: ie, il, nr, ns, nt
     integer :: lbr, rbr, lbs, rbs, lbt, rbt
     real(kind=rp) :: eps, diag
-    
+
     associate(s => this%s, d => this%d, &
               llr => this%len_lr, lls => this%len_ls, llt => this%len_lt, &
               lmr => this%len_mr, lms => this%len_ms, lmt => this%len_mt, &
@@ -350,7 +354,7 @@ contains
          rbs = this%dof%msh%facet_type(4, ie)
          lbt = this%dof%msh%facet_type(5, ie)
          rbt = this%dof%msh%facet_type(6, ie)
-         
+
          nr = nl
          ns = nl
          nt = nl
@@ -398,7 +402,7 @@ contains
     end associate
 
   end subroutine fdm_setup_fast
-  
+
   subroutine fdm_setup_fast1d(s, lam, nl, lbc, rbc, ll, lm, lr, ah, bh, n)
     integer, intent(in)  :: nl, lbc, rbc, n
     real(kind=rp), intent(inout) :: s(nl, nl, 2), lam(nl), ll, lm, lr
@@ -408,7 +412,7 @@ contains
 
     lx1 = n + 1
     lxm = lx1 + 2
-     
+
     call fdm_setup_fast1d_a(s, lbc, rbc, ll, lm, lr, ah, n)
     call fdm_setup_fast1d_b(b, lbc, rbc, ll, lm, lr, bh, n)
     call generalev(s, b, lam, nl, lx1)
@@ -416,9 +420,9 @@ contains
     if(lbc .eq. 1) call row_zero(s, nl, nl, 2)
     if(rbc .gt. 0) call row_zero(s, nl, nl, nl)
     if(rbc .eq. 1) call row_zero(s, nl, nl, nl-1)
-    
+
     call trsp(s(1,1,2), nl, s, nl)
-    
+
   end subroutine fdm_setup_fast1d
 
   !> Solve the generalized eigenvalue problem /$ A x = lam B x/$
@@ -433,7 +437,7 @@ contains
     lbw = 4*(lx+2)**3
     lw = n*n
     call sygv(a, b, lam, n, lx, bw, lbw)
-    
+
   end subroutine generalev
 
   subroutine sp_sygv(a, b, lam, n, lx, bw, lbw)
@@ -484,7 +488,7 @@ contains
     if(lbc .eq. 1) i0 = 1
     i1 = n
     if(rbc .eq. 1) i1 = n - 1
-    
+
     call rzero(a, (n+3) * (n+3))
 
     fac = 2.0_rp / lm
@@ -496,7 +500,7 @@ contains
           a(i+1,j+1) = fac * ah(i,j)
        enddo
     enddo
-    
+
     if(lbc .eq. 0) then
        fac = 2.0_rp / ll
        a(0,0) = fac * ah(n-1,n-1)
@@ -506,7 +510,7 @@ contains
     else
        a(0,0) = 1.0_rp
     endif
-    
+
     if(rbc .eq. 0) then
        fac = 2.0_rp / lr
        a(n+1,n+1) = a(n+1,n+1) + fac*ah(0,0)
@@ -516,21 +520,21 @@ contains
     else
        a(n+2,n+2) = 1.0_rp
     endif
-    
+
   end subroutine fdm_setup_fast1d_a
 
   subroutine fdm_setup_fast1d_b(b, lbc, rbc, ll, lm, lr, bh, n)
     integer, intent(in) :: lbc, rbc, n
     real(kind=rp), intent(inout) :: b(0:n+2, 0:n+2), ll, lm, lr
-    real(kind=rp), intent(inout) :: bh(0:n)    
+    real(kind=rp), intent(inout) :: bh(0:n)
     real(kind=rp) :: fac
     integer :: i, i0, i1
-    
+
     i0 = 0
     if(lbc .eq. 1) i0 = 1
     i1 = n
     if(rbc .eq. 1) i1 = n - 1
-    
+
     call rzero(b, (n + 3) * (n + 3))
 
     fac = 0.5_rp * lm
@@ -556,60 +560,60 @@ contains
     else
        b(n+2,n+2) = 1.0_rp
     end if
-    
+
   end subroutine fdm_setup_fast1d_b
 
   subroutine fdm_free(this)
     class(fdm_t), intent(inout) :: this
-    
+
     if(allocated(this%s)) then
        deallocate(this%s)
     end if
-   
+
     if(allocated(this%d)) then
        deallocate(this%d)
     end if
-    
+
     if(allocated(this%len_lr)) then
        deallocate(this%len_lr)
     end if
-    
+
     if(allocated(this%len_ls)) then
        deallocate(this%len_ls)
     end if
-    
+
     if(allocated(this%len_lt)) then
        deallocate(this%len_lt)
     end if
-    
+
     if(allocated(this%len_mr)) then
        deallocate(this%len_mr)
     end if
-    
+
     if(allocated(this%len_ms)) then
        deallocate(this%len_ms)
     end if
-    
+
     if(allocated(this%len_mt)) then
        deallocate(this%len_mt)
     end if
-    
+
     if(allocated(this%len_rr)) then
        deallocate(this%len_rr)
     end if
-    
+
     if(allocated(this%len_rs)) then
        deallocate(this%len_rs)
     end if
-    
+
     if(allocated(this%len_rt)) then
        deallocate(this%len_rt)
     end if
-    
+
     if(allocated(this%swplen)) then
        deallocate(this%swplen)
     end if
-    
+
     nullify(this%Xh)
     nullify(this%dof)
     nullify(this%gs_h)
@@ -644,6 +648,6 @@ contains
     end if
 
   end subroutine fdm_compute
- 
+
 
 end module fdm

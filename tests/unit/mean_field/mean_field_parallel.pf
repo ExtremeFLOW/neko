@@ -1,0 +1,157 @@
+module mean_field_parallel
+  use mpi
+  use pfunit
+  use mean_field
+  use field
+  use mesh
+  use space
+  use num_types
+  use point
+  use mesh
+  use field
+  use space
+  use device
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use neko_config
+  implicit none
+
+  @TestCase
+  type, extends(MPITestCase) :: test_mean_field
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_mean_field
+
+contains
+
+  subroutine setUp(this)
+    class(test_mean_field), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+  
+  subroutine tearDown(this)
+    class(test_mean_field), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+ 
+  subroutine test_mean_field_gen_msh(msh)
+    type(mesh_t), intent(inout) :: msh
+    type(point_t) :: p(12)
+
+    p(1) = point_t(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    p(2) = point_t(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    p(3) = point_t(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    p(4) = point_t(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    p(5) = point_t(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    p(6) = point_t(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+    p(7) = point_t(0d0, 0d0, 1d0)
+    call p(7)%set_id(7)
+    p(8) = point_t(1d0, 0d0, 1d0)
+    call p(8)%set_id(8)
+    p(9) = point_t(1d0, 1d0, 1d0)
+    call p(9)%set_id(9)
+    p(10) = point_t(0d0, 1d0, 1d0)
+    call p(10)%set_id(10)
+    p(11) = point_t(2d0, 0d0, 1d0)
+    call p(11)%set_id(11)
+    p(12) = point_t(2d0, 1d0, 1d0)
+    call p(12)%set_id(12)
+  
+    call msh%init(3, 2)
+    call msh%add_element(1, p(1), p(2), p(4), p(3), &
+         p(7), p(8), p(9), p(10))
+    
+    call msh%add_element(2, p(2), p(5), p(6), p(4), &
+         p(8), p(11), p(12), p(9))
+    call msh%generate_conn()
+    
+  end subroutine test_mean_field_gen_msh
+  
+  @test(npes=[1])
+  subroutine test_mean_field_init(this)
+    class (test_mean_field), intent(inout) :: this
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    integer, parameter :: LX = 4
+    type(field_t) :: f
+    type(mean_field_t) :: mf
+    integer :: ierr
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    call test_mean_field_gen_msh(msh)
+    call Xh%init(GLL, lx, lx, lx)
+    
+    call f%init(msh, Xh, 'test')
+    
+    call mf%init(f)
+    @assertTrue(associated(mf%f))
+    @assertTrue(allocated(mf%mf%x))
+    @assertEqual(size(f%x), size(mf%mf%x))
+
+  end subroutine test_mean_field_init
+
+
+  @test(npes=[1])
+  subroutine test_mean_field_update(this)
+    class (test_mean_field), intent(inout) :: this
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    integer, parameter :: LX = 4
+    type(field_t) :: f
+    type(mean_field_t) :: mf, mf2
+    integer :: ierr, i
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    call test_mean_field_gen_msh(msh)
+    call Xh%init(GLL, lx, lx, lx)    
+    call f%init(msh, Xh, 'test')
+
+    f = 42.0_rp
+    call mf%init(f)
+
+    do i = 1, 10
+       call mf%update(1.0_rp)
+    end do
+    
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(mf%mf%x, mf%mf%x_d, size(mf%mf%x), &
+                          DEVICE_TO_HOST, sync=.true.)
+    end if
+    
+    @assertEqual(maxval(mf%mf%x), 42.0_rp)
+    @assertEqual(mf%time, 10.0_rp)
+
+    call mf2%init(f)
+
+    do i = 1, 10
+       f = real(i, rp)
+       call mf2%update(1.0_rp)
+    end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(mf2%mf%x, mf2%mf%x_d, size(mf2%mf%x), &
+                          DEVICE_TO_HOST, sync=.true.)
+    end if
+
+
+    @assertEqual(maxval(mf2%mf%x), 5.5_rp)
+    @assertEqual(mf2%time, 10.0_rp)
+
+  end subroutine test_mean_field_update
+
+
+end module mean_field_parallel

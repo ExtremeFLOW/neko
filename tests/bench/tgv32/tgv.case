@@ -1,0 +1,47 @@
+{
+  "version": 1.0,
+  "case":
+  {
+  "mesh_file": "32768.nmsh",
+  "output_boundary": false,
+  "output_checkpoints": false,
+  "output_at_end": false,
+  "end_time": 10.0,
+  "timestep": 1e-3,
+  "numerics": {
+    "time_order": 3,
+    "polynomial_order": 7,
+    "dealias": true
+  },
+  "fluid": {
+    "scheme": "pnpn",
+    "Re": 1600,
+    "initial_condition": {
+      "type": "user"
+    },
+    "velocity_solver": {
+      "type": "cg",
+      "preconditioner": "jacobi",
+      "projection_space_size": 0,
+      "absolute_tolerance": 1e-9,
+      "max_iterations": 800
+    },
+    "pressure_solver": {
+      "type": "gmres",
+      "preconditioner": "hsmg",
+      "projection_space_size": 20,
+      "absolute_tolerance": 1e-9,
+      "max_iterations": 800
+    },
+    "output_control": "simulationtime",
+    "output_value": 10 
+  },
+ "simulation_components": 
+  [
+    {
+      "type": "vorticity",
+      "compute_control": "tsteps",
+      "compute_value": 50}
+  ]
+  }
+}

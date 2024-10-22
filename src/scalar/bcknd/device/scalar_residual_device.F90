@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,15 +31,18 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module scalar_residual_device
-  use scalar_residual
-  use gather_scatter
-  use operators
-  use device_math
-  use device_mathops
+  use scalar_residual, only : scalar_residual_t
+  use device_math, only : device_copy, device_cfill
+  use ax_product, only : ax_t
+  use field, only : field_t
+  use coefs, only : coef_t
+  use space, only : space_t
+  use mesh, only : mesh_t
+  use num_types, only : rp    
   use, intrinsic :: iso_c_binding
   implicit none
   private
- 
+
   type, public, extends(scalar_residual_t) :: scalar_residual_device_t
    contains
      procedure, nopass :: compute => scalar_residual_device_compute
@@ -47,8 +50,8 @@ module scalar_residual_device
 
 #ifdef HAVE_HIP
   interface
-     subroutine scalar_residual_update_hip(s_res_d,f_s_d, n) &
-          bind(c, name='scalar_residual_update_hip')
+     subroutine scalar_residual_update_hip(s_res_d, f_s_d, n) &
+          bind(c, name = 'scalar_residual_update_hip')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: s_res_d
@@ -57,10 +60,10 @@ module scalar_residual_device
      end subroutine scalar_residual_update_hip
   end interface
 #elif HAVE_CUDA
-  
+
   interface
-     subroutine scalar_residual_update_cuda(s_res_d,f_s_d, n) &
-          bind(c, name='scalar_residual_update_cuda')
+     subroutine scalar_residual_update_cuda(s_res_d, f_s_d, n) &
+          bind(c, name = 'scalar_residual_update_cuda')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: s_res_d
@@ -69,10 +72,10 @@ module scalar_residual_device
      end subroutine scalar_residual_update_cuda
   end interface
 #elif HAVE_OPENCL
-  
+
   interface
-     subroutine scalar_residual_update_opencl(s_res_d,f_s_d, n) &
-          bind(c, name='scalar_residual_update_opencl')
+     subroutine scalar_residual_update_opencl(s_res_d, f_s_d, n) &
+          bind(c, name = 'scalar_residual_update_opencl')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: s_res_d
@@ -82,40 +85,39 @@ module scalar_residual_device
   end interface
 #endif
 
-  
+
 contains
 
 
   subroutine scalar_residual_device_compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, &
-             Pr, Re, rho, bd, dt, n)
+             lambda, rhocp, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
-    type(space_t), intent(inout) :: Xh    
+    type(space_t), intent(inout) :: Xh
     type(field_t), intent(inout) :: s
     type(field_t), intent(inout) :: s_res
-    type(source_scalar_t), intent(inout) :: f_Xh
+    type(field_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
-    real(kind=rp), intent(in) :: Pr
-    real(kind=rp), intent(in) :: Re
-    real(kind=rp), intent(in) :: rho
+    type(field_t), intent(in) :: lambda
+    real(kind=rp), intent(in) :: rhocp
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     integer, intent(in) :: n
-    
-    call device_cfill(c_Xh%h1_d, (1.0_rp / (Pr * Re)), n)
-    call device_cfill(c_Xh%h2_d, rho * (bd / dt), n)
+
+    call device_copy(c_Xh%h1_d, lambda%x_d, n)
+    call device_cfill(c_Xh%h2_d, rhocp * (bd / dt), n)
     c_Xh%ifh2 = .true.
-    
+
     call Ax%compute(s_res%x, s%x, c_Xh, msh, Xh)
 
 #ifdef HAVE_HIP
-    call scalar_residual_update_hip(s_res%x_d, f_Xh%s_d, n)
+    call scalar_residual_update_hip(s_res%x_d, f_Xh%x_d, n)
 #elif HAVE_CUDA
-    call scalar_residual_update_cuda(s_res%x_d, f_Xh%s_d, n)
+    call scalar_residual_update_cuda(s_res%x_d, f_Xh%x_d, n)
 #elif HAVE_OPENCL
-    call scalar_residual_update_opencl(s_res%x_d, f_Xh%s_d, n)
+    call scalar_residual_update_opencl(s_res%x_d, f_Xh%x_d, n)
 #endif
-    
+
   end subroutine scalar_residual_device_compute
-  
+
 end module scalar_residual_device

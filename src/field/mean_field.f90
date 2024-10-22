@@ -30,54 +30,64 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines a mean field
+!> Implements mean_field_t.
 !
 module mean_field
-  use neko_config
-  use stats_quant
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use stats_quant, only : stats_quant_t
   use num_types, only : rp
   use field, only : field_t
-  use math, only : add2s2
-  use device_math, only : device_cmult, device_add2s2
+  use field_math, only : field_cmult, field_add2s2
   implicit none
   private
-  
-  type, public, extends(stats_quant_t) ::  mean_field_t
+
+  !> Computes the temporal mean of a field.
+  type, public, extends(stats_quant_t) :: mean_field_t
+     !> Pointer to the averaged field.
      type(field_t), pointer :: f => null()
+     !> Stores the mean field.
      type(field_t) :: mf
+     !> Total time across which the mean has been computed.
      real(kind=rp) :: time
    contains
+     !> Constructor.
      procedure, pass(this) :: init => mean_field_init
+     !> Destructor.
      procedure, pass(this) :: free => mean_field_free
+     !> Updates the mean value with a new sample.
      procedure, pass(this) :: update => mean_field_update
+     !> Resets the mean field.
      procedure, pass(this) :: reset => mean_field_reset
   end type mean_field_t
 
 contains
 
-  !> Initialize a mean field for a field @a f
+  !> Constructor.
+  !! @param f The field that will be averaged.
+  !! @param field_name. Optional name for the mean field. By default the name of
+  !! `f` prepended with `mean_` is used.
   subroutine mean_field_init(this, f, field_name)
     class(mean_field_t), intent(inout) :: this
     type(field_t), intent(inout), target :: f
     character(len=*), optional, intent(in) :: field_name
     character(len=80) :: name
-    
-    
+
     call this%free()
 
     this%f => f
     this%time = 0.0_rp
+
     if (present(field_name)) then
        name = field_name
-    else 
-       write(name, '(A,A)') 'mean_',trim(f%name)
+    else
+       write(name, '(A,A)') 'mean_', trim(f%name)
     end if
 
     call this%mf%init(f%dof, name)
 
   end subroutine mean_field_init
 
-  !> Deallocates a mean field
+  !> Destructor.
   subroutine mean_field_free(this)
     class(mean_field_t), intent(inout) :: this
 
@@ -88,33 +98,27 @@ contains
 
   end subroutine mean_field_free
 
-  !> Resets a mean field
+  !> Resets a the mean field and the averaging time value to zero.
   subroutine mean_field_reset(this)
     class(mean_field_t), intent(inout) :: this
-    
+
     this%time = 0.0
-    this%mf = 0.0_rp  
+    this%mf = 0.0_rp
   end subroutine mean_field_reset
 
 
-  !> Update a mean field
+  !> Update the mean field with a new sample.
+  !! @param k Time since last sample.
   subroutine mean_field_update(this, k)
     class(mean_field_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: k !< Time since last sample
+    real(kind=rp), intent(in) :: k
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cmult(this%mf%x_d, this%time, size(this%mf%x))
-       call device_add2s2(this%mf%x_d, this%f%x_d, k, size(this%mf%x))
-       this%time = this%time + k
-       call device_cmult(this%mf%x_d, 1.0_rp / this%time, size(this%mf%x))
-    else
-       this%mf%x = this%mf%x * this%time
-       call add2s2(this%mf%x, this%f%x, k, this%mf%dof%size())
-       this%time = this%time + k
-       this%mf%x = this%mf%x / this%time
-    end if
-       
+    call field_cmult(this%mf, this%time, size(this%mf%x))
+    call field_add2s2(this%mf, this%f, k, size(this%mf%x))
+    this%time = this%time + k
+    call field_cmult(this%mf, 1.0_rp / this%time, size(this%mf%x))
+
   end subroutine mean_field_update
-  
+
 end module mean_field
 

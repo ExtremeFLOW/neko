@@ -1,4 +1,3 @@
-
 ! Copyright (c) 2023, The Neko Authors
 ! All rights reserved.
 !
@@ -36,7 +35,7 @@ module const_source_term
   use num_types, only : rp
   use field_list, only : field_list_t
   use json_module, only : json_file
-  use json_utils, only: json_get
+  use json_utils, only: json_get, json_get_or_default
   use source_term, only : source_term_t
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -56,12 +55,12 @@ module const_source_term
      !> The common constructor using a JSON object.
      procedure, pass(this) :: init => const_source_term_init_from_json
      !> The constructor from type components.
-     procedure, pass(this) :: init_from_compenents => & 
+     procedure, pass(this) :: init_from_compenents => &
        const_source_term_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => const_source_term_free
      !> Computes the source term and adds the result to `fields`.
-     procedure, pass(this) :: compute => const_source_term_compute
+     procedure, pass(this) :: compute_ => const_source_term_compute
   end type const_source_term_t
 
 contains
@@ -69,15 +68,21 @@ contains
   !! @param json The JSON object for the source.
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
-  subroutine const_source_term_init_from_json(this, json, fields, coef) 
+  subroutine const_source_term_init_from_json(this, json, fields, coef)
     class(const_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(inout), target :: coef
     real(kind=rp), allocatable :: values(:)
+    real(kind=rp) :: start_time, end_time
 
     call json_get(json, "values", values)
-    call const_source_term_init_from_components(this, fields, values, coef)
+    call json_get_or_default(json, "start_time", start_time, 0.0_rp)
+    call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
+
+
+    call const_source_term_init_from_components(this, fields, values, coef, &
+                                                start_time, end_time)
 
   end subroutine const_source_term_init_from_json
 
@@ -85,17 +90,21 @@ contains
   !! @param fields A list of fields for adding the source values.
   !! @param values The array of values, one for each field.
   !! @param coef The SEM coeffs.
+  !! @param start_time When to start adding the source term.
+  !! @param end_time When to stop adding the source term.
   subroutine const_source_term_init_from_components(this, fields, values, &
-                                                    coef) 
+                                                    coef, start_time, end_time)
     class(const_source_term_t), intent(inout) :: this
     class(field_list_t), intent(inout), target :: fields
     real(kind=rp), intent(in) :: values(:)
     type(coef_t) :: coef
+    real(kind=rp), intent(in) :: start_time
+    real(kind=rp), intent(in) :: end_time
 
     call this%free()
-    call this%init_base(fields, coef)
+    call this%init_base(fields, coef, start_time, end_time)
 
-    if (size(values) .ne. size(fields%fields)) then
+    if (size(values) .ne. fields%size()) then
        call neko_error("Number of fields and values inconsistent.")
     end if
 
@@ -103,7 +112,7 @@ contains
   end subroutine const_source_term_init_from_components
 
   !> Destructor.
-  subroutine const_source_term_free(this) 
+  subroutine const_source_term_free(this)
     class(const_source_term_t), intent(inout) :: this
 
     call this%free_base()
@@ -112,14 +121,15 @@ contains
   !> Computes the source term and adds the result to `fields`.
   !! @param t The time value.
   !! @param tstep The current time-step.
-  subroutine const_source_term_compute(this, t, tstep) 
+  subroutine const_source_term_compute(this, t, tstep)
     class(const_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     integer :: n_fields, i, n
 
-    n_fields = size(this%fields%fields)
-    n = this%fields%fields(1)%f%dof%size()
+    n_fields = this%fields%size()
+
+    n = this%fields%item_size(1)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call const_source_term_compute_device(this%fields, this%values)
@@ -127,5 +137,5 @@ contains
        call const_source_term_compute_cpu(this%fields, this%values)
     end if
   end subroutine const_source_term_compute
-  
+
 end module const_source_term

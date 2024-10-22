@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 !
 !> Defines the residual for the scalar transport equation
 module scalar_residual
-  use gather_scatter, only : gs_t  
+  use gather_scatter, only : gs_t
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
@@ -42,39 +42,63 @@ module scalar_residual
   use mesh, only : mesh_t
   use num_types, only : rp
   implicit none
-  
+  private
+
   !> Abstract type to compute scalar residual
-  type, abstract :: scalar_residual_t
+  type, public, abstract :: scalar_residual_t
    contains
      procedure(scalar_residual_interface), nopass, deferred :: compute
   end type scalar_residual_t
-    
+
   abstract interface
-     subroutine scalar_residual_interface(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, Pr, Re, rho, bd,&
-                dt, n)
+     !> Interface for computing the residual of a scalar transport equation.
+     !! @param Ax The Helmholtz operator.
+     !! @param s The values of the scalar.
+     !! @param s_res The values of the scalar residual.
+     !! @param f_xH The right hand side.
+     !! @param c_xH The SEM coefficients.
+     !! @param msh The mesh.
+     !! @param Xh The SEM function space.
+     !! @param lambda The thermal conductivity.
+     !! @param rhocp The density multiplied by the specific heat capacity.
+     !! @param bd The coefficeints from the BDF differencing scheme.
+     !! @param dt The timestep.
+     !! @param n The total number of degrees of freedom.
+     subroutine scalar_residual_interface(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, &
+                                          lambda, rhocp, bd, dt, n)
        import field_t
        import Ax_t
        import gs_t
        import facet_normal_t
        import source_scalar_t
-       import space_t              
+       import space_t
        import coef_t
        import mesh_t
        import rp
        class(ax_t), intent(in) :: Ax
        type(mesh_t), intent(inout) :: msh
-       type(space_t), intent(inout) :: Xh    
+       type(space_t), intent(inout) :: Xh
        type(field_t), intent(inout) :: s
        type(field_t), intent(inout) :: s_res
-       type(source_scalar_t), intent(inout) :: f_Xh
+       type(field_t), intent(inout) :: f_Xh
        type(coef_t), intent(inout) :: c_Xh
-       real(kind=rp), intent(in) :: Pr
-       real(kind=rp), intent(in) :: Re
-       real(kind=rp), intent(in) :: rho
+       type(field_t), intent(in) :: lambda
+       real(kind=rp), intent(in) :: rhocp
        real(kind=rp), intent(in) :: bd
        real(kind=rp), intent(in) :: dt
        integer, intent(in) :: n
      end subroutine scalar_residual_interface
   end interface
- 
+
+  interface
+     !> Factory for the scalar advection-diffusion residual.
+     !! @details Only selects the compute backend.
+     !! @param object The object to be allocated by the factory.
+     module subroutine scalar_residual_factory(object)
+       class(scalar_residual_t), allocatable, intent(inout) :: object
+     end subroutine scalar_residual_factory
+  end interface
+
+  public :: scalar_residual_factory
+  
 end module scalar_residual

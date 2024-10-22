@@ -13,6 +13,7 @@ math/bcknd/device/hip/tensor.o : math/bcknd/device/hip/tensor.hip math/bcknd/dev
 math/bcknd/device/hip/fdm.o : math/bcknd/device/hip/fdm.hip math/bcknd/device/hip/fdm_kernel.h
 krylov/bcknd/device/hip/pc_jacobi.o : krylov/bcknd/device/hip/pc_jacobi.hip
 krylov/bcknd/device/hip/pipecg_aux.o : krylov/bcknd/device/hip/pipecg_aux.hip krylov/bcknd/device/hip/pipecg_kernel.h
+krylov/bcknd/device/hip/fusedcg_aux.o : krylov/bcknd/device/hip/fusedcg_aux.hip krylov/bcknd/device/hip/fusedcg_kernel.h
 krylov/bcknd/device/hip/gmres_aux.o : krylov/bcknd/device/hip/gmres_aux.hip krylov/bcknd/device/hip/gmres_kernel.h
 gs/bcknd/device/hip/gs.o : gs/bcknd/device/hip/gs.hip gs/bcknd/device/hip/gs_kernels.h
 bc/bcknd/device/hip/dirichlet.o : bc/bcknd/device/hip/dirichlet.hip bc/bcknd/device/hip/dirichlet_kernel.h
@@ -24,6 +25,7 @@ bc/bcknd/device/hip/inhom_dirichlet.o : bc/bcknd/device/hip/inhom_dirichlet.hip 
 bc/bcknd/device/hip/dong_outflow.o : bc/bcknd/device/hip/dong_outflow.hip bc/bcknd/device/hip/dong_outflow_kernel.h
 common/bcknd/device/hip/rhs_maker.o : common/bcknd/device/hip/rhs_maker.hip common/bcknd/device/hip/sumab_kernel.h common/bcknd/device/hip/makeext_kernel.h common/bcknd/device/hip/makebdf_kernel.h
 common/bcknd/device/hip/projection.o : common/bcknd/device/hip/projection.hip common/bcknd/device/hip/projection_kernel.h
+common/bcknd/device/hip/gradient_jump_penalty.o : common/bcknd/device/hip/gradient_jump_penalty.hip common/bcknd/device/hip/gradient_jump_penalty_kernel.h
 fluid/bcknd/device/hip/pnpn_res.o : fluid/bcknd/device/hip/pnpn_res.hip fluid/bcknd/device/hip/vel_res_update_kernel.h fluid/bcknd/device/hip/prs_res_kernel.h 
 scalar/bcknd/device/hip/scalar_residual.o : scalar/bcknd/device/hip/scalar_residual.hip scalar/bcknd/device/hip/scalar_residual_update_kernel.h
 sem/bcknd/device/hip/coef.o : sem/bcknd/device/hip/coef.hip sem/bcknd/device/hip/coef_kernel.h
@@ -42,6 +44,8 @@ math/bcknd/device/cuda/tensor.o : math/bcknd/device/cuda/tensor.cu math/bcknd/de
 math/bcknd/device/cuda/fdm.o : math/bcknd/device/cuda/fdm.cu math/bcknd/device/cuda/fdm_kernel.h
 krylov/bcknd/device/cuda/pc_jacobi.o : krylov/bcknd/device/cuda/pc_jacobi.cu
 krylov/bcknd/device/cuda/pipecg_aux.o : krylov/bcknd/device/cuda/pipecg_aux.cu krylov/bcknd/device/cuda/pipecg_kernel.h
+krylov/bcknd/device/cuda/fusedcg_aux.o : krylov/bcknd/device/cuda/fusedcg_aux.cu krylov/bcknd/device/cuda/fusedcg_kernel.h
+krylov/bcknd/device/cuda/fusedcg_cpld_aux.o : krylov/bcknd/device/cuda/fusedcg_cpld_aux.cu krylov/bcknd/device/cuda/fusedcg_cpld_kernel.h
 krylov/bcknd/device/cuda/gmres_aux.o : krylov/bcknd/device/cuda/gmres_aux.cu krylov/bcknd/device/cuda/gmres_kernel.h
 gs/bcknd/device/cuda/gs.o : gs/bcknd/device/cuda/gs.cu gs/bcknd/device/cuda/gs_kernels.h 
 bc/bcknd/device/cuda/dirichlet.o : bc/bcknd/device/cuda/dirichlet.cu bc/bcknd/device/cuda/dirichlet_kernel.h
@@ -53,7 +57,9 @@ bc/bcknd/device/cuda/inhom_dirichlet.o : bc/bcknd/device/cuda/inhom_dirichlet.cu
 bc/bcknd/device/cuda/dong_outflow.o : bc/bcknd/device/cuda/dong_outflow.cu bc/bcknd/device/cuda/dong_outflow_kernel.h
 common/bcknd/device/cuda/rhs_maker.o : common/bcknd/device/cuda/rhs_maker.cu common/bcknd/device/cuda/sumab_kernel.h common/bcknd/device/cuda/makeext_kernel.h common/bcknd/device/cuda/makebdf_kernel.h
 common/bcknd/device/cuda/projection.o : common/bcknd/device/cuda/projection.cu common/bcknd/device/cuda/projection_kernel.h
-fluid/bcknd/device/cuda/pnpn_res.o : fluid/bcknd/device/cuda/pnpn_res.cu fluid/bcknd/device/cuda/vel_res_update_kernel.h fluid/bcknd/device/cuda/prs_res_kernel.h 
+fluid/bcknd/device/cuda/pnpn_res.o : fluid/bcknd/device/cuda/pnpn_res.cu fluid/bcknd/device/cuda/vel_res_update_kernel.h fluid/bcknd/device/cuda/prs_res_kernel.h
+fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.o : fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu fluid/stress_formulation/bcknd/device/cuda/prs_stress_res_kernel.h 
+common/bcknd/device/cuda/gradient_jump_penalty.o : common/bcknd/device/cuda/gradient_jump_penalty.cu common/bcknd/device/cuda/gradient_jump_penalty_kernel.h
 scalar/bcknd/device/cuda/scalar_residual.o : scalar/bcknd/device/cuda/scalar_residual.cu scalar/bcknd/device/cuda/scalar_residual_update_kernel.h
 sem/bcknd/device/cuda/coef.o : sem/bcknd/device/cuda/coef.cu sem/bcknd/device/cuda/coef_kernel.h
 device/opencl/check.o : device/opencl/check.c device/opencl/check.h

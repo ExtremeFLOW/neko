@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,19 +32,25 @@
 !
 !> Profiling interface
 module profiler
-  use neko_config
+  use neko_config, only : NEKO_BCKND_CUDA
   use device, only : device_profiler_start, device_profiler_stop
   use nvtx
   use roctx
   use craypat
+  use runtime_stats, only : neko_rt_stats
+  use, intrinsic :: iso_c_binding
   implicit none
+  private
+
+  public :: profiler_start, profiler_start_region, profiler_end_region, &
+            profiler_stop
 
 contains
 
   !> Start profiling
   subroutine profiler_start
     if ((NEKO_BCKND_CUDA .eq. 1)) then
-#if defined(HAVE_NVTX) 
+#if defined(HAVE_NVTX)
        call device_profiler_start
 #endif
     else
@@ -66,32 +72,63 @@ contains
 #endif
     end if
   end subroutine profiler_stop
-  
+
   !> Started a named (@a name) profiler region
-  subroutine profiler_start_region(name)
+  subroutine profiler_start_region(name, region_id)
     character(kind=c_char,len=*) :: name
+    integer, optional :: region_id
 
 #ifdef HAVE_NVTX
-    call nvtxStartRange(name)
+    if (present(region_id)) then
+       call nvtxStartRange(name, region_id)
+    else
+       call nvtxStartRange(name)
+    end if
 #elif HAVE_ROCTX
     call roctxStartRange(name)
 #elif CRAYPAT
- !   call craypat_region_begin(name)
+    if (present(region_id)) then
+       call craypat_region_begin(name, region_id)
+    end if
 #endif
+
+#if defined(__FUJITSU) && defined(NEKO_FJPROF)
+    if (present(region_id)) then
+       call fapp_start(trim(name), region_id, 0)
+    end if
+#endif
+    
+    if (present(region_id)) then
+       call neko_rt_stats%start_region(name, region_id)
+    end if
     
   end subroutine profiler_start_region
 
   !> End the most recently started profiler region
-  subroutine profiler_end_region
-
+  subroutine profiler_end_region(name, region_id)
+    character(kind=c_char, len=*), optional :: name
+    integer, optional :: region_id
+    
 #ifdef HAVE_NVTX
     call nvtxRangePop
 #elif HAVE_ROCTX
     call roctxRangePop
 #elif CRAYPAT
- !   call craypat_region_end
+    if (present(region_id)) then
+       call craypat_region_end(region_id)
+    end if
 #endif
     
+#if defined(__FUJITSU) && defined(NEKO_FJPROF)
+    if (present(name) .and. present(region_id)) then
+       call fapp_stop(trim(name), region_id, 0)
+    end if
+#endif
+
+    if (present(name) .and. present(region_id)) then
+       call neko_rt_stats%end_region(name, region_id)
+    end if
+
   end subroutine profiler_end_region
-  
+
 end module profiler

@@ -1,18 +1,82 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
 cff-version: 1.2.0
-message: "If you use Neko, please cite it as below."
+title: Neko
+message: 'If you use Neko, please cite it as below.'
+type: software
+authors:
+  - family-names: Alekseenko
+    given-names: Andrey
+  - family-names: Andersson
+    given-names: Måns
+  - family-names: Baconnet
+    given-names: Victor
+  - family-names: Chien
+    given-names: Steven
+  - family-names: Du
+    given-names: Shiyu
+  - family-names: Jansson
+    given-names: Niclas
+  - family-names: Karp
+    given-names: Martin
+  - family-names: Moaveni
+    given-names: Kamyar
+  - family-names: Mukha
+    given-names: Timofey
+  - family-names: Münsch
+    given-names: Manuel
+  - family-names: Nobis
+    given-names: Harrison
+  - family-names: Ohm
+    given-names: Peter
+  - family-names: Olsen
+    given-names: Time Felle
+  - family-names: Páll
+    given-names: Szilárd
+  - family-names: Peplinski
+    given-names: Adam
+  - family-names: Perez
+    given-names: Adalberto
+  - family-names: Schlatter
+    given-names: Philipp
+  - family-names: Vincent
+    given-names: Jonathan
+  - family-names: Wahlgren
+    given-names: Jacob
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.6631055
+url: 'https://www.neko.cfd'
+license: BSD-3-Clause
 preferred-citation:
-  type: generic
   authors:
-  - family-names: "Jansson"
-    given-names: "Niclas"
-  - family-names: "Karp"
-    given-names: "Martin"
-  - family-names: "Podobas"
-    given-names: "Artur"
-  - family-names: "Markidis"
-    given-names: "Stefano"
-  - family-names: "Schlatter"
-    given-names: "Philipp"
-  title: "Neko: A Modern, Portable, and Scalable Framework for High-Fidelity Computational Fluid Dynamics"
-  year: 2021
-  url: "https://arxiv.org/abs/2107.01243"
+    - family-names: Jansson
+      given-names: Niclas
+    - family-names: Karp
+      given-names: Martin
+    - family-names: Podobas
+      given-names: Artur
+    - family-names: Markidis
+      given-names: Stefano
+    - family-names: Schlatter
+      given-names: Philipp
+  title: >-
+    Neko: A Modern, Portable, and Scalable Framework for High-Fidelity
+    Computational Fluid Dynamics
+  type: article
+  journal: Computer & Fluids
+  volume: 275
+  year: 2024
+  doi: '10.1016/j.compfluid.2024.106243'
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    

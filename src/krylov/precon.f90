@@ -34,7 +34,8 @@
 module precon
   use num_types, only : rp
   implicit none
-  
+  private
+
   !> Defines a canonical Krylov preconditioner
   type, public, abstract :: pc_t
    contains
@@ -63,4 +64,20 @@ module precon
        class(pc_t), intent(inout) :: this
      end subroutine pc_update
   end interface
+
+  interface
+     !> Create a preconditioner
+     module subroutine precon_factory(pc, type_name)
+       class(pc_t), target, allocatable, intent(inout) :: pc
+       character(len=*), intent(in) :: type_name
+     end subroutine precon_factory
+
+     !> Destroy a preconditioner
+     module subroutine precon_destroy(pc)
+       class(pc_t), allocatable, intent(inout) :: pc
+     end subroutine precon_destroy
+  end interface
+
+  public :: precon_factory, precon_destroy
+  
 end module precon

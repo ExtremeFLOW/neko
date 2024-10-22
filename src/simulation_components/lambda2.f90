@@ -39,10 +39,10 @@ module lambda2
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
-  use field, only : field_t, field_ptr_t
-  use field_list, only : field_list_t
+  use field, only : field_t
   use operators, only : lambda2op
   use case, only : case_t
+  use field_writer, only : field_writer_t
   use device
   implicit none
   private
@@ -62,6 +62,9 @@ module lambda2
      type(field_t) :: temp1
      type(field_t) :: temp2
 
+     !> Output writer.
+     type(field_writer_t) :: writer
+
    contains
      !> Constructor from json.
      procedure, pass(this) :: init => lambda2_init_from_json
@@ -80,28 +83,35 @@ contains
   subroutine lambda2_init_from_json(this, json, case)
     class(lambda2_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    class(case_t), intent(inout), target ::case 
+    class(case_t), intent(inout), target ::case
+    character(len=20) :: fields(1)
+    type(field_t), pointer :: u, v, w, lambda2
+
+    ! Add fields keyword to the json so that the field_writer picks it up.
+    ! Will also add fields to the registry.
+    fields(1) = "lambda2"
+    call json%add("fields", fields)
 
     call this%init_base(json, case)
+    call this%writer%init(json, case)
+    u => neko_field_registry%get_field("u")
+    v => neko_field_registry%get_field("v")
+    w => neko_field_registry%get_field("w")
+    lambda2 => neko_field_registry%get_field("lambda2")
 
-    call lambda2_init_from_attributes(this)
+    call lambda2_init_from_attributes(this, u, v, w, lambda2)
   end subroutine lambda2_init_from_json
 
   !> Actual constructor.
-  subroutine lambda2_init_from_attributes(this)
+  subroutine lambda2_init_from_attributes(this, u, v, w, lambda2)
     class(lambda2_t), intent(inout) :: this
+    type(field_t), pointer, intent(inout) :: u, v, w, lambda2
 
-    this%u => neko_field_registry%get_field_by_name("u")
-    this%v => neko_field_registry%get_field_by_name("v")
-    this%w => neko_field_registry%get_field_by_name("w")
+    this%u => u
+    this%v => v
+    this%w => w
+    this%lambda2 => lambda2
 
-    if (.not. neko_field_registry%field_exists("lambda2")) then
-       call neko_field_registry%add_field(this%u%dof, "lambda2")
-    end if
-    this%lambda2 => neko_field_registry%get_field_by_name("lambda2")
-    !Store lambda2 in the next free field in the fluid output.
-    !If running without scalar this means the temperature field.
-    call this%case%f_out%fluid%append(this%lambda2)
   end subroutine lambda2_init_from_attributes
 
   !> Destructor.

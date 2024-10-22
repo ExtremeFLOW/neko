@@ -42,20 +42,20 @@ module const_source_term_device
 
 contains
 
-  !> Computs the constant source term on the device.
+  !> Computes the constant source term on the device.
   !! @param fields The right-hand side.
   !! @param values The values of the source components.
-  subroutine const_source_term_compute_device(fields, values) 
+  subroutine const_source_term_compute_device(fields, values)
     type(field_list_t), intent(inout) :: fields
     real(kind=rp), intent(in) :: values(:)
     integer :: n_fields, i, n
 
-    n_fields = size(fields%fields)
-    n = fields%fields(1)%f%dof%size()
+    n_fields = fields%size()
+    n = fields%item_size(1)
 
     do i=1, n_fields
-       call device_cadd(fields%fields(i)%f%x_d, values(i), n)
+       call device_cadd(fields%x_d(i), values(i), n)
     end do
   end subroutine const_source_term_compute_device
-  
+
 end module const_source_term_device

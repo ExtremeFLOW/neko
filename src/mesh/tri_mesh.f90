@@ -31,9 +31,9 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a triangular surface mesh
-!! @details Mesh derived from a surface geometry 
+!! @details Mesh derived from a surface geometry
 module tri_mesh
-  use tri
+  use tri, only : tri_t, NEKO_TRI_NPTS
   use point, only : point_t
   implicit none
   private
@@ -43,7 +43,6 @@ module tri_mesh
      type(point_t), allocatable :: points(:) !< List of points
      integer :: nelv
      integer :: mpts
-     integer, private :: melv
    contains
      procedure, pass(this) :: init => tri_mesh_init
      procedure, pass(this) :: free => tri_mesh_free
@@ -64,8 +63,8 @@ contains
     allocate(this%points(nelv * NEKO_TRI_NPTS))
 
     this%mpts = 0
-    this%melv = 0
-    
+    this%nelv = 0
+
   end subroutine tri_mesh_init
 
   !> Deallocate a triangular surface mesh
@@ -79,25 +78,25 @@ contains
     if (allocated(this%points)) then
        deallocate(this%points)
     end if
-    
+
   end subroutine tri_mesh_free
 
   !> Add an element to a mesh
   subroutine tri_mesh_add_element(this, p1, p2, p3)
     class(tri_mesh_t), intent(inout) :: this
-    type(point_t), intent(inout) :: p1, p2, p3
+    type(point_t), target, intent(inout) :: p1, p2, p3
 
     this%points(this%mpts + 1) = p1
     this%points(this%mpts + 2) = p2
     this%points(this%mpts + 3) = p3
 
-    this%melv = this%melv + 1
-    call this%el(this%melv)%init(this%melv, &
+    this%nelv = this%nelv + 1
+    call this%el(this%nelv)%init(this%nelv, &
          this%points(this%mpts + 1), &
          this%points(this%mpts + 2), &
          this%points(this%mpts + 3))
     this%mpts = this%mpts + 3
 
   end subroutine tri_mesh_add_element
-  
+
 end module tri_mesh
