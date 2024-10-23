@@ -69,11 +69,13 @@ contains
   subroutine smooth_step_field(F, edge0, edge1)
     type(field_t), intent(inout) :: F
     real(kind=rp), intent(in) :: edge0, edge1
+    integer :: n
 
+    n = F%size()
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call smooth_step_device(F%x_d, edge0, edge1, F%size())
+       call smooth_step_device(F%x_d, edge0, edge1, n)
     else
-       call smooth_step_cpu(F%x, edge0, edge1, F%size())
+       call smooth_step_cpu(F%x, edge0, edge1, n)
     end if
   end subroutine smooth_step_field
 
@@ -88,11 +90,13 @@ contains
     type(field_t), intent(inout) :: F
     real(kind=rp), intent(in) :: k_0, k_1
     real(kind=rp), intent(in) :: q
+    integer :: n
 
+    n = F%size()
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call permeability_device(F%x_d, k_0, k_1, q, F%size())
+       call permeability_device(F%x_d, k_0, k_1, q, n)
     else
-       call permeability_cpu(F%x, k_0, k_1, q, F%size())
+       call permeability_cpu(F%x, k_0, k_1, q, n)
     end if
   end subroutine permeability_field
 
@@ -104,11 +108,13 @@ contains
   subroutine step_function_field(F, x0, value0, value1)
     type(field_t), intent(inout) :: F
     real(kind=rp), intent(in) :: x0, value0, value1
+    integer :: n
 
+    n = F%size()
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call step_function_device(F%x_d, x0, value0, value1, F%size())
+       call step_function_device(F%x_d, x0, value0, value1, n)
     else
-       call step_function_cpu(F%x, x0, value0, value1, F%size())
+       call step_function_cpu(F%x, x0, value0, value1, n)
     end if
   end subroutine step_function_field
 
