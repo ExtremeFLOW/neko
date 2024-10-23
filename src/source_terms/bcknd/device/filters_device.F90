@@ -37,7 +37,13 @@ module filters_device
   use, intrinsic :: iso_c_binding, only: c_ptr
   use utils, only: neko_error
 
-  use cuda_filters, only: cuda_smooth_step, cuda_step_function, cuda_permeability
+  use cuda_filters, only: &
+       cuda_smooth_step, cuda_step_function, cuda_permeability
+  use hip_filters, only: &
+       hip_smooth_step, hip_step_function, hip_permeability
+  use opencl_filters, only: &
+       opencl_smooth_step, opencl_step_function, opencl_permeability
+
   implicit none
 
 contains
