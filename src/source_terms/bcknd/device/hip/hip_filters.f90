@@ -29,12 +29,16 @@
 ! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
-!
+
+!> Hip interface binding for filters
 module hip_filters
   use num_types, only: rp, c_rp
   implicit none
-  public
+  private
 
+  public :: hip_smooth_step, hip_step_function, hip_permeability
+
+  ! Interfaces for the backend functions
   interface
      subroutine hip_smooth_step(x, edge0, edge1, n) &
           bind(c, name = "hip_smooth_step")
