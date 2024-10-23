@@ -45,8 +45,8 @@ module cuda_filters
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: x
-       real(c_rp), value :: edge0, edge1
-       integer(c_int), value :: n
+       real(c_rp) :: edge0, edge1
+       integer(c_int) :: n
      end subroutine cuda_smooth_step
 
      subroutine cuda_step_function(x, edge, left, right, n) &
@@ -54,8 +54,8 @@ module cuda_filters
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: x
-       real(c_rp), value :: edge, left, right
-       integer(c_int), value :: n
+       real(c_rp) :: edge, left, right
+       integer(c_int) :: n
      end subroutine cuda_step_function
 
      subroutine cuda_permeability(x, k_0, k_1, q, n) &
@@ -63,8 +63,8 @@ module cuda_filters
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: x
-       real(c_rp), value :: k_0, k_1, q
-       integer(c_int), value :: n
+       real(c_rp) :: k_0, k_1, q
+       integer(c_int) :: n
      end subroutine cuda_permeability
   end interface
 
