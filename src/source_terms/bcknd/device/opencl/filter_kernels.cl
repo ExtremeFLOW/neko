@@ -1,5 +1,5 @@
-#ifndef __MATH_MATH_KERNEL_CL__
-    #define __MATH_MATH_KERNEL_CL__
+#ifndef __SOURCE_TERMS_FILTER_KERNELS__
+#define __SOURCE_TERMS_FILTER_KERNELS__
 /*
  Copyright (c) 2021-2024, The Neko Authors
  All rights reserved.
@@ -99,3 +99,5 @@ __kernel void permeability_kernel(
         x[i]           = k_0 + (k_1 - k_0) * x_i * (q + 1.0) / (q + x_i);
     }
 }
+
+#endif /* __SOURCE_TERMS_FILTER_KERNELS__ */

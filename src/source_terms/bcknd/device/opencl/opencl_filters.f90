@@ -29,12 +29,16 @@
 ! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
-!
+
+!> OpenCL interface binding for filters
 module opencl_filters
   use num_types, only: rp, c_rp
   implicit none
-  public
+  private
 
+  public :: opencl_smooth_step, opencl_step_function, opencl_permeability
+
+  ! Interfaces for the backend functions
   interface
      subroutine opencl_smooth_step(x, edge0, edge1, n) &
           bind(c, name = "opencl_smooth_step")
