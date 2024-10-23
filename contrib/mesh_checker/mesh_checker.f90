@@ -37,11 +37,7 @@ program mesh_checker
 
   character(len=NEKO_FNAME_LEN) :: inputchar, mesh_fname
   type(file_t) :: mesh_file
-  type(coef_t) :: coef
-  type(dofmap_t), target :: dof
-  type(space_t) :: Xh
   type(mesh_t) :: msh
-  type(gs_t) :: gs_h
   integer :: argc, i, n_labeled
   character(len=LOG_SIZE) :: log_buf
 
