@@ -198,7 +198,7 @@ contains
     class is (tri_t)
        if ((this%gdim() .eq. other%gdim()) .and. &
             (this%npts() .eq. other%npts())) then
-          do i = 1, this%npts()
+          do i = 1, NEKO_TRI_NPTS
              if (this%pts(i)%p .ne. other%pts(i)%p) then
                 return
              end if
