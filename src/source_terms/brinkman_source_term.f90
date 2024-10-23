@@ -323,7 +323,7 @@ contains
     ! compute the signed distance function. This should be replaced with a
     ! more efficient method, such as a tree search.
 
-    temp_field = this%indicator
+    call temp_field%init(this%coef%dof)
 
     ! Select how to transform the distance field to a design field
     select case (distance_transform)
@@ -396,8 +396,7 @@ contains
     call json_get_or_default(json, 'filter.type', filter_type, 'none')
 
     ! Compute the indicator field
-
-    call temp_field%init(this%indicator%dof)
+    call temp_field%init(this%coef%dof)
 
     my_point_zone => neko_point_zone_registry%get_point_zone(zone_name)
 
