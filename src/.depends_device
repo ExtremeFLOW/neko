@@ -89,4 +89,6 @@ common/bcknd/device/opencl/rhs_maker.o: common/bcknd/device/opencl/rhs_maker.c c
 fluid/bcknd/device/opencl/pnpn_res.o: fluid/bcknd/device/opencl/pnpn_res.c fluid/bcknd/device/opencl/pnpn_res_kernel.cl.h
 scalar/bcknd/device/opencl/scalar_residual.o: scalar/bcknd/device/opencl/scalar_residual.c scalar/bcknd/device/opencl/scalar_residual_kernel.cl.h
 sem/bcknd/device/opencl/coef.o: sem/bcknd/device/opencl/coef.c sem/bcknd/device/opencl/coef_kernel.cl.h
-source_terms/bcknd/device/cuda/cuda_filters.o: source_terms/bcknd/device/cuda/filters.cu source_terms/bcknd/device/cuda/filter_kernels.h
+source_terms/bcknd/device/cuda/filters.o: source_terms/bcknd/device/cuda/filters.cu source_terms/bcknd/device/cuda/filter_kernels.h
+source_terms/bcknd/device/hip/filters.o: source_terms/bcknd/device/hip/filters.hip source_terms/bcknd/device/hip/filter_kernels.h
+source_terms/bcknd/device/opencl/filters.o: source_terms/bcknd/device/opencl/filters.c source_terms/bcknd/device/opencl/filter_kernels.cl.h
