@@ -1,0 +1,27 @@
+ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
+include @PFUNIT_DIR@/include/PFUNIT.mk
+endif
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) -I@top_builddir@/src
+FC = @FC@
+
+%.o : %.F90
+	$(FC) -c $(FFLAGS) $<
+
+
+check: tet_test
+
+
+tet_test_TESTS := tet.pf
+tet_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
+$(eval $(call make_pfunit_test,tet_test))
+
+
+clean:
+	$(RM) *.o *.mod *.a  *.inc *.F90 tet_test
+
+
+
+all:
+html:
+install:
+distdir:

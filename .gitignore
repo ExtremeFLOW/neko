@@ -14,6 +14,7 @@
 *.dirstamp
 *.Po
 Makefile
+!tests/bench/**/Makefile
 aclocal.m4
 compile
 config.guess
@@ -22,7 +23,6 @@ config.status
 config.sub
 depcomp
 Makefile.in
-!tests/*/*Makefile.in
 libneko.a
 .vscode
 neko.pc
@@ -36,10 +36,6 @@ num_types.f90
 comm.F90
 missing
 test-driver
-tests/*/*.log
-tests/*/*.F90
-tests/*/*.inc
-tests/*/*.trs
 Doxyfile
 doxygen.stamp
 doc/html

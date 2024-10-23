@@ -631,13 +631,6 @@ contains
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
 
-      ! Pre-multiply the source terms with the mass matrix.
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_opcolv(f_x%x_d, f_y%x_d, f_z%x_d, c_Xh%B_d, msh%gdim, n)
-      else
-         call opcolv(f_x%x, f_y%x, f_z%x, c_Xh%B, msh%gdim, n)
-      end if
-
       ! Compute the grandient jump penalty term
       if (this%if_gradient_jump_penalty .eqv. .true.) then
          call this%gradient_jump_penalty_u%compute(u, v, w, u)
