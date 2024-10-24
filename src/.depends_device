@@ -90,3 +90,4 @@ fluid/bcknd/device/opencl/pnpn_res.o : fluid/bcknd/device/opencl/pnpn_res.c flui
 scalar/bcknd/device/opencl/scalar_residual.o : scalar/bcknd/device/opencl/scalar_residual.c scalar/bcknd/device/opencl/scalar_residual_kernel.cl.h
 sem/bcknd/device/opencl/coef.o : sem/bcknd/device/opencl/coef.c sem/bcknd/device/opencl/coef_kernel.cl.h
 les/bcknd/device/hip/sigma_nut.o : les/bcknd/device/hip/sigma_nut.hip les/bcknd/device/hip/sigma_nut_kernel.h
+les/bcknd/device/hip/vreman_nut.o : les/bcknd/device/hip/vreman_nut.hip les/bcknd/device/hip/vreman_nut_kernel.h

@@ -33,11 +33,6 @@
 !> Implements the device kernel for the `vreman_t` type.
 module vreman_device
   use num_types, only : rp
-  use field_list, only : field_list_t
-  use device_math, only : device_cadd, device_col2, device_col3, &
-                          device_addcol3, device_subcol3, device_add4, &
-                          device_invcol2, device_vecsqrt1, device_cmult, &
-                          device_rmneg
   use math, only : NEKO_EPS
   use scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
@@ -45,6 +40,7 @@ module vreman_device
   use operators, only : dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
+  use device_vreman_nut, only : device_vreman_nut_compute
   implicit none
   private
 
@@ -127,62 +123,11 @@ contains
     call coef%gs_h%op(a32%x, a11%dof%size(), GS_OP_ADD)
     call coef%gs_h%op(a33%x, a11%dof%size(), GS_OP_ADD)
     
-    call device_col2(a11%x_d, coef%mult_d, a11%dof%size())
-    call device_col2(a12%x_d, coef%mult_d, a11%dof%size())
-    call device_col2(a13%x_d, coef%mult_d, a11%dof%size())
-    call device_col2(a21%x_d, coef%mult_d, a11%dof%size())
-    call device_col2(a22%x_d, coef%mult_d, a11%dof%size())
-    call device_col2(a23%x_d, coef%mult_d, a11%dof%size())
-    call device_col2(a31%x_d, coef%mult_d, a11%dof%size())
-    call device_col2(a32%x_d, coef%mult_d, a11%dof%size())
-    call device_col2(a33%x_d, coef%mult_d, a11%dof%size())
-
-    ! beta_ij = alpha_mi alpha_mj
-    call device_col3(beta11%x_d, a11%x_d, a11%x_d, a11%dof%size())
-    call device_addcol3(beta11%x_d, a21%x_d, a21%x_d, a11%dof%size())
-    call device_addcol3(beta11%x_d, a31%x_d, a31%x_d, a11%dof%size())
-
-    call device_col3(beta22%x_d, a12%x_d, a12%x_d, a11%dof%size())
-    call device_addcol3(beta22%x_d, a22%x_d, a22%x_d, a11%dof%size())
-    call device_addcol3(beta22%x_d, a32%x_d, a32%x_d, a11%dof%size())
-
-    call device_col3(beta33%x_d, a13%x_d, a13%x_d, a11%dof%size())
-    call device_addcol3(beta33%x_d, a23%x_d, a23%x_d, a11%dof%size())
-    call device_addcol3(beta33%x_d, a33%x_d, a33%x_d, a11%dof%size())
-
-    call device_col3(beta12%x_d, a11%x_d, a12%x_d, a11%dof%size())
-    call device_addcol3(beta12%x_d, a21%x_d, a22%x_d, a11%dof%size())
-    call device_addcol3(beta12%x_d, a31%x_d, a32%x_d, a11%dof%size())
-
-    call device_col3(beta13%x_d, a11%x_d, a13%x_d, a11%dof%size())
-    call device_addcol3(beta13%x_d, a21%x_d, a23%x_d, a11%dof%size())
-    call device_addcol3(beta13%x_d, a31%x_d, a33%x_d, a11%dof%size())
-
-    call device_col3(beta23%x_d, a12%x_d, a13%x_d, a11%dof%size())
-    call device_addcol3(beta23%x_d, a22%x_d, a23%x_d, a11%dof%size())
-    call device_addcol3(beta23%x_d, a32%x_d, a33%x_d, a11%dof%size())
-
-    call device_col3(b_beta%x_d, beta11%x_d, beta22%x_d, a11%dof%size())
-    call device_subcol3(b_beta%x_d, beta12%x_d, beta12%x_d, a11%dof%size())
-    call device_addcol3(b_beta%x_d, beta11%x_d, beta33%x_d, a11%dof%size())
-    call device_subcol3(b_beta%x_d, beta13%x_d, beta13%x_d, a11%dof%size())
-    call device_addcol3(b_beta%x_d, beta22%x_d, beta33%x_d, a11%dof%size())
-    call device_subcol3(b_beta%x_d, beta23%x_d, beta23%x_d, a11%dof%size())
-
-    ! Zero the negative element of b_beta
-    call device_rmneg(b_beta%x_d, a11%dof%size())
-    
-    ! alpha_ij alpha_ij
-    call device_add4(aijaij%x_d, beta11%x_d, beta22%x_d, &
-                     beta33%x_d, a11%dof%size())
-    
-    ! Get the eddy viscosity
-    call device_cadd(aijaij%x_d, NEKO_EPS, a11%dof%size())
-    call device_invcol2(b_beta%x_d, aijaij%x_d, a11%dof%size())
-    call device_vecsqrt1(b_beta%x_d, a11%dof%size())
-    call device_col3(nut%x_d, delta%x_d, b_beta%x_d, a11%dof%size())
-    call device_col2(nut%x_d, delta%x_d, a11%dof%size())
-    call device_cmult(nut%x_d, c, a11%dof%size())
+    call device_vreman_nut_compute(a11%x_d, a12%x_d, a13%x_d, &
+                                  a21%x_d, a22%x_d, a23%x_d, &
+                                  a31%x_d, a32%x_d, a33%x_d, &
+                                  delta%x_d, nut%x_d, coef%mult_d, &
+                                  c, NEKO_EPS, a11%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine vreman_compute_device

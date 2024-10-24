@@ -300,7 +300,9 @@ les/les_model.o : les/les_model.f90 math/bcknd/device/device_math.o math/math.o 
 les/les_model_fctry.o : les/les_model_fctry.f90 common/utils.o les/sigma.o les/dynamic_smagorinsky.o les/smagorinsky.o les/vreman.o les/les_model.o 
 les/vreman.o : les/vreman.f90 sem/coef.o les/bcknd/device/vreman_device.o les/bcknd/cpu/vreman_cpu.o config/neko_config.o common/utils.o common/json_utils.o sem/dofmap.o les/les_model.o field/field.o config/num_types.o 
 les/bcknd/cpu/vreman_cpu.o : les/bcknd/cpu/vreman_cpu.f90 gs/gs_ops.o sem/coef.o math/operators.o field/field.o field/field_registry.o field/scratch_registry.o math/math.o field/field_list.o config/num_types.o 
-les/bcknd/device/vreman_device.o : les/bcknd/device/vreman_device.f90 gs/gs_ops.o sem/coef.o math/operators.o field/field.o field/field_registry.o field/scratch_registry.o math/math.o math/bcknd/device/device_math.o field/field_list.o config/num_types.o 
+les/bcknd/device/vreman_device.o : les/bcknd/device/vreman_device.f90 les/bcknd/device/device_vreman_nut.o gs/gs_ops.o sem/coef.o math/operators.o field/field.o field/field_registry.o field/scratch_registry.o math/math.o config/num_types.o 
+les/bcknd/device/device_vreman_nut.o : les/bcknd/device/device_vreman_nut.F90 les/bcknd/device/hip/hip_vreman_nut.o comm/comm.o common/utils.o config/num_types.o 
+les/bcknd/device/hip/hip_vreman_nut.o : les/bcknd/device/hip/hip_vreman_nut.f90 config/num_types.o 
 les/smagorinsky.o : les/smagorinsky.f90 sem/coef.o les/bcknd/cpu/smagorinsky_cpu.o config/neko_config.o common/utils.o common/json_utils.o sem/dofmap.o les/les_model.o field/field.o config/num_types.o 
 les/bcknd/cpu/smagorinsky_cpu.o : les/bcknd/cpu/smagorinsky_cpu.f90 gs/gs_ops.o sem/coef.o math/operators.o field/field.o field/field_registry.o field/scratch_registry.o field/field_list.o config/num_types.o 
 les/dynamic_smagorinsky.o : les/dynamic_smagorinsky.f90 les/bcknd/cpu/dynamic_smagorinsky_cpu.o les/elementwise_filter.o sem/coef.o config/neko_config.o common/utils.o common/json_utils.o sem/dofmap.o les/les_model.o field/field.o field/field_list.o math/math.o config/num_types.o 

@@ -115,20 +115,11 @@ contains
     call coef%gs_h%op(g32%x, g11%dof%size(), GS_OP_ADD)
     call coef%gs_h%op(g33%x, g11%dof%size(), GS_OP_ADD)
 
-    ! call device_col2(g11%x_d, coef%mult_d, g11%dof%size())
-    ! call device_col2(g12%x_d, coef%mult_d, g11%dof%size())
-    ! call device_col2(g13%x_d, coef%mult_d, g11%dof%size())
-    ! call device_col2(g21%x_d, coef%mult_d, g11%dof%size())
-    ! call device_col2(g22%x_d, coef%mult_d, g11%dof%size())
-    ! call device_col2(g23%x_d, coef%mult_d, g11%dof%size())
-    ! call device_col2(g31%x_d, coef%mult_d, g11%dof%size())
-    ! call device_col2(g32%x_d, coef%mult_d, g11%dof%size())
-    ! call device_col2(g33%x_d, coef%mult_d, g11%dof%size())
-
     call device_sigma_nut_compute(g11%x_d, g12%x_d, g13%x_d, &
                                   g21%x_d, g22%x_d, g23%x_d, &
                                   g31%x_d, g32%x_d, g33%x_d, &
-                                  delta%x_d, nut%x_d, coef%mult_d, c, eps, g11%dof%size())
+                                  delta%x_d, nut%x_d, coef%mult_d, &
+                                  c, eps, g11%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine sigma_compute_device

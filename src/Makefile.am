@@ -304,6 +304,8 @@ neko_fortran_SOURCES = \
 	les/vreman.f90\
 	les/bcknd/cpu/vreman_cpu.f90\
 	les/bcknd/device/vreman_device.f90\
+	les/bcknd/device/device_vreman_nut.F90\
+	les/bcknd/device/hip/hip_vreman_nut.f90\
 	les/smagorinsky.f90\
 	les/bcknd/cpu/smagorinsky_cpu.f90\
 	les/dynamic_smagorinsky.f90\
@@ -369,7 +371,8 @@ libneko_a_SOURCES += \
 	fluid/bcknd/device/hip/pnpn_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
 	sem/bcknd/device/hip/coef.hip\
-	les/bcknd/device/hip/sigma_nut.hip
+	les/bcknd/device/hip/sigma_nut.hip\
+	les/bcknd/device/hip/vreman_nut.hip
 endif
 
 if ENABLE_CUDA
@@ -583,6 +586,7 @@ EXTRA_DIST = \
 	krylov/bcknd/device/hip/gmres_kernel.h\
 	sem/bcknd/device/hip/coef_kernel.h\
 	les/bcknd/device/hip/sigma_nut_kernel.h\
+	les/bcknd/device/hip/vreman_nut_kernel.h\
 	bc/bcknd/device/opencl/dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/inflow_kernel.cl\
 	bc/bcknd/device/opencl/no_slip_wall_kernel.cl\
