@@ -5,7 +5,7 @@
     "output_at_end": true,
     "output_boundary": true,
     "output_checkpoints": false,
-    "end_time": 2,
+    "end_time": 0.002,
     "timestep": 0.001,
     "numerics": {
         "time_order": 3,
@@ -26,10 +26,12 @@
             "delta": 0.6,
             "freestream_velocity": [1.0, 0.0, 0.0]
         },
+        //"nut_field": "nut",
         "velocity_solver": {
+            //"type": "cpldcg",
             "type": "cg",
             "preconditioner": "jacobi",
-            "projection_space_size": 4,
+            "projection_space_size": 0,
             "absolute_tolerance": 1e-7,
             "max_iterations": 800
         },
@@ -40,9 +42,40 @@
             "absolute_tolerance": 1e-7,
             "max_iterations": 800
         },
+        "boundary_conditions": [
+        {
+            "type": "symmetry",
+            "zone_index": 1
+        },
+        {
+            "type": "no_slip",
+            "zone_index": 2
+        },
+        {
+            "type": "outflow",
+            "zone_index": 3
+        },
+        {
+            "type": "blasius_profile",
+            "zone_index": 4,
+            "approximation": "sin",
+            "delta": 0.6,
+            "freestream_velocity": [1.0, 0.0, 0.0]
+        }
+        ],
         "boundary_types": ["sym", "w", "o", "v"],
         "output_control": "nsamples",
-        "output_value": 100
-    }
+        "output_value": 2 
+    },
+      "simulation_components":
+ [
+{
+           "type" : "les_model",
+           "model" : "sigma",
+           "output_filename" : "les",
+           "output_control" : "global",
+           "nut_field" : "nut"
+       }
+]
 }
 }
