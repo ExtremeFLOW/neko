@@ -62,6 +62,13 @@ module rhs_maker
      procedure(scalar_rhs_maker_bdf), nopass, deferred :: compute_scalar
   end type rhs_maker_bdf_t
 
+  !> Abstract type to add contributions of kth order OIFS scheme
+  type, public, abstract :: rhs_maker_oifs_t
+   contains
+     procedure(rhs_maker_oifs), nopass, deferred :: compute_fluid
+     procedure(scalar_rhs_maker_oifs), nopass, deferred :: compute_scalar
+  end type rhs_maker_oifs_t
+
   abstract interface
      subroutine rhs_maker_sumab(u, v, w, uu, vv, ww, &
           uulag, vvlag, wwlag, ab, nab)
@@ -119,7 +126,7 @@ module rhs_maker
   end interface
 
   abstract interface
-     subroutine scalar_rhs_maker_bdf(s_lag, fs, s, B, rho, dt,&
+     subroutine scalar_rhs_maker_bdf(s_lag, fs, s, B, rho, dt, &
           bd, nbd, n)
        import field_series_t
        import field_t
@@ -131,6 +138,27 @@ module rhs_maker
        real(kind=rp), intent(in) :: B(n)
        real(kind=rp), intent(in) :: dt, rho, bd(4)
      end subroutine scalar_rhs_maker_bdf
+  end interface
+
+  abstract interface
+     subroutine rhs_maker_oifs(phi_x, phi_y, phi_z, bf_x, bf_y, bf_z, &
+                               rho, dt, n)
+       import rp
+       real(kind=rp), intent(in) :: rho, dt
+       integer, intent(in) :: n
+       real(kind=rp), intent(inout) :: bf_x(n), bf_y(n), bf_z(n)
+       real(kind=rp), intent(inout) :: phi_x(n), phi_y(n), phi_z(n)
+     end subroutine rhs_maker_oifs
+  end interface
+
+  abstract interface
+     subroutine scalar_rhs_maker_oifs(phi_s, bf_s, rho, dt, n)
+       import rp
+       real(kind=rp), intent(in) :: rho, dt
+       integer, intent(in) :: n
+       real(kind=rp), intent(inout) :: bf_s(n)
+       real(kind=rp), intent(inout) :: phi_s(n)
+     end subroutine scalar_rhs_maker_oifs
   end interface
 
   interface
@@ -155,9 +183,19 @@ module rhs_maker
      !! @param object The object to be allocated by the factory.
      module subroutine rhs_maker_bdf_fctry(object)
        class(rhs_maker_bdf_t), allocatable, intent(inout) :: object
-     end subroutine rhs_maker_bdf_fctry     
+     end subroutine rhs_maker_bdf_fctry
+
+     !> Factory routine for computing the RHS contributions from the
+     !! OIFS scheme.
+     !! @details Only selects the compute backend.
+     !! @param object The object to be allocated by the factory.
+     module subroutine rhs_maker_oifs_fctry(object)
+       class(rhs_maker_oifs_t), allocatable, intent(inout) :: object
+     end subroutine rhs_maker_oifs_fctry
+
   end interface
 
-  public :: rhs_maker_sumab_fctry, rhs_maker_ext_fctry, rhs_maker_bdf_fctry
+  public :: rhs_maker_sumab_fctry, rhs_maker_ext_fctry, rhs_maker_bdf_fctry, &
+            rhs_maker_oifs_fctry
 
 end module rhs_maker

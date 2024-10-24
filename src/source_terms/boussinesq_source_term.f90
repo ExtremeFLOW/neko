@@ -97,7 +97,7 @@ contains
        call neko_error("Boussinesq term expects 3 fields to work on.")
     end if
 
-    call json_get_or_default(json, "scalar_field", start_time, 0.0_rp)
+    call json_get_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
 
     call json_get_or_default(json, "scalar_field", scalar_name, "s")

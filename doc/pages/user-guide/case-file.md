@@ -204,8 +204,9 @@ It is mandatory.
 Note that this currently pertains to both the fluid, but also scalars.
 The means of prescribing the values are controlled via the `type` keyword:
 
-1. `user`, the values are set inside the compiled user file. The only way to
-   initialize scalars.
+1. `user`, the values are set inside the compiled user file.  as explained in the 
+[user defined initial condition](@ref user-file_user-ic) section of the user
+file documentation.
 2. `uniform`, the value is a constant vector, looked up under the `value`
    keyword.
 3. `blasius`, a Blasius profile is prescribed. Its properties are looked up
@@ -214,6 +215,36 @@ The means of prescribing the values are controlled via the `type` keyword:
    `base_value` keyword, and then assigned a zone value inside a point zone. The
    point zone is specified by the `name` keyword, and should be defined in the
    `case.point_zones` object. See more about point zones @ref point-zones.md.
+5. `field`, where the initial condition is retrieved from a field file.
+   The following keywords can be used:
+   
+| Name             | Description                                                                                        | Admissible values            | Default value |
+| ---------------- | -------------------------------------------------------------------------------------------------- | ---------------------------- | ------------- |
+| `file_name`      | Name of the field file to use (e.g. `myfield0.f00034`).                                            | Strings ending with `f*****` | -             |
+| `interpolate`    | Whether to interpolate the velocity and pressure fields from the field file onto the current mesh. | `true` or `false`            | `false`       |
+| `tolerance`      | Tolerance for the point search.                                                                    | Positive real.               | `1e-6`        |
+| `mesh_file_name` | If interpolation is enabled, the name of the field file that contains the mesh coordinates.        | Strings ending with `f*****` | `file_name`   |
+
+   @attention Interpolating a field from the same mesh but different 
+   polynomial order is performed implicitly and does not require to enable
+   interpolation.
+   
+   @note It is recommended to interpolate from `fld` files that were 
+   written in double precision. 
+   To check if your `fld` file was written in double precision, run
+   the command:
+   ~~~~~~~~~~~~~~~{.sh}
+   head -1 field0.f00000
+   ~~~~~~~~~~~~~~~
+   The output `#std 4 ...` indicates single precision, 
+   whereas `#std 8 ...` indicates double precision.
+   Neko write single precision `fld` files by default. To write your 
+   files in double precision, set `case.output_precision` to
+   `"double"`. 
+  
+   @attention Neko does not detect wether interpolation is needed or not. 
+   Interpolation will always be performed if `"interpolate"` is set 
+   to `true` even if the field file matches with the current simulation. 
 
 ### Blasius profile
 The `blasius` object is used to specify the Blasius profile that can be used for the
@@ -250,9 +281,9 @@ The following types are currently implemented.
 1. `constant`, constant forcing. Strength defined by the `values` array with 3
    reals corresponding to the 3 components of the forcing.
 2. `boussinesq`, a source term introducing boyancy based on the Boussinesq
-   approximation, \f$ \rho \beta (T - T_{ref} \cdot g) \f$. Here, \f$ rho \f$ is
-   density, \f$ \beta \f$ the thermal expansion coefficient, \f$ g \f$ the
-   gravity vector, and $T_{ref}$ a reference value of the scalar, typically
+   approximation, \f$ \rho \beta (T - T_{ref}) \cdot \mathbf{g} \f$. Here, \f$ \rho \f$ is
+   density, \f$ \beta \f$ the thermal expansion coefficient, \f$ \mathbf{g} \f$ the
+   gravity vector, and \f$ T_{ref} \f$ a reference value of the scalar, typically
    temperature.
 
    Reads the following entries:
@@ -262,7 +293,7 @@ The following types are currently implemented.
    - `g`: The gravity vector.
    - `beta`: The thermal expansion coefficient, defaults to the inverse of
       `ref_value`.
-3. `coriolis`, a source term introducing a Coriolis force, define as \f$ -2
+3. `coriolis`, a source term introducing a Coriolis force, defined as \f$ -2
    \Omega \times (u - U_g) \f$. Here, \f$ \Omega \f$ is the rotation vector and
    \f$ u \f$ is the velocity vector, and \f$ U_g \f$ is the geostrophic wind.
    Several ways of setting \f$ \Omega \f$ are provided via the following
@@ -273,10 +304,11 @@ The following types are currently implemented.
    - `omega` and `phi`: Both scalars. The latitude `phi` should be provided in
      degrees. Sets \f$ \Omega = [0, \omega \cos \phi, \omega \sin \phi ] \f$.
      Common notation when modelling the atmosphere. This assumes that the \f$ z
-     \f$ axis is normal to the ground. 
+     \f$ axis is normal to the ground.
    - `f`: Scalar, referred to as the Coriolis parameter, \f$ f = 2 \omega \sin
-     \phi \f$. Sets \f$ \Omega = [0, 0, 0.5f ] \f$. This further assumes that the
-     ground-normal component of the Coriolis force is negligible.
+     \phi \f$. Sets \f$ \Omega = [0, 0, 0.5f ] \f$. This assumes both that \f$ z
+     \f$ axis is normal to the ground and that the ground-normal component of
+     the Coriolis force is negligible.
 
    The geostrophic wind is set to 0 for all components by default. Other values
    are set via the `geostrophic_wind` keyword.
@@ -386,6 +418,28 @@ the boundary mesh is computed using a step function with a cut-off distance of
 ]
 ~~~~~~~~~~~~~~~
 
+### Gradient Jump Penalty
+The optional `gradient_jump_penalty` object can be used to perform gradient jump penalty 
+as an continuous interior penalty option. 
+The penalty term is performed on the weak form equation of quantity \f$ T \f$ 
+(could either be velocity or scalar) as a right hand side term
+
+\f$ - < \tau |u \cdot n| h^2_{\Omega ^e} G(T) \phi_{t1} \phi_{t2} \frac{\partial \phi_{n}}{\partial n}>\f$,
+
+where \f$ <> \f$ refers to the integral over all facets of the element, \f$ \tau \f$ is the penalty parameter, 
+\f$ |u \cdot n| \f$ is the absolute velocity flux over the facet, \f$ h^2_{\Omega ^e} \f$ is the mesh size, \f$ G(T) \f$ is the gradient jump over the facet, \f$ \phi_{t1} \phi_{t2} \f$ are the polynomial on the tangential direction of the facet, and finally \f$ \frac{\partial \phi_{n}}{\partial n} \f$ is the gradient of the normal polynomial on the facet.
+
+Here in our Neko context where hexahedral mesh is adopted, \f$ h^2_{\Omega ^e} \f$ is measured by the average distance from the vertices of the facet to the facet on the opposite side. And the distance of a vertex to another facet is defined by the average distance from the vertex to the plane constituted by 3 vertices from the other facet.
+
+The penalty parameter  \f$ \tau \f$ could be expressed as the form \f$ \tau = a * (P + 1) ^ {-b}\f$, 
+for \f$ P > 1 \f$ where \f$ P \f$ is the polynomial order while \f$ a \f$ and \f$ b \f$ are user-defined parameters.
+The configuration uses the following parameters:
+
+* `enable`, the boolean to turn on and off the gradient jump penalty option, default to be `false`.
+* `tau`, the penalty parameter that can be only used for \f$ P = 1 \f$, default to be `0.02`.
+* `scaling_factor`, the scaling parameter \f$ a \f$ for \f$ P > 1 \f$, default to be `0.8`.
+* `scaling_exponent`, the scaling parameter \f$ b \f$ for \f$ P > 1 \f$, default to be `4.0`.
+
 
 ## Linear solver configuration
 The mandatory `velocity_solver` and `pressure_solver` objects are used to
@@ -413,6 +467,7 @@ The following keywords are used, with the corresponding options.
 * `projection_hold_steps`, steps for which the simulation does not use projection after starting
    or time step changes. E.g. if 5, then the projection space will start to update at the 6th
    time step and the space will be utilized at the 7th time step.
+* `monitor`, monitoring of residuals. If set to true, the residuals will be printed for each iteration.
 
 ### Flow rate forcing
 The optional `flow_rate_force` object can be used to force a particular flow
@@ -442,12 +497,17 @@ that can be described concisely directly in the table.
 | `output_value`                          | The frequency of sampling in terms of `output_control`.                                           | Positive real or integer                         | -             |
 | `inflow_condition.type`                 | Velocity inflow condition type.                                                                   | `user`, `uniform`, `blasius`                     | -             |
 | `inflow_condition.value`                | Value of the inflow velocity.                                                                     | Vector of 3 reals                                | -             |
-| `initial_condition.type`                | Initial condition type.                                                                           | `user`, `uniform`, `blasius`                     | -             |
+| `initial_condition.type`                | Initial condition type.                                                                           | `user`, `uniform`, `blasius`, `field`            | -             |
 | `initial_condition.value`               | Value of the velocity initial condition.                                                          | Vector of 3 reals                                | -             |
+| `initial_condition.file_name`           | If `"type" = "field"`, the path to the field file to read from.                                   | String ending with `.fld`, `.chkp`, `.nek5000` or `f*****`.  | -             |
+| `initial_condition.sample_index`        | If `"type" = "field"`, and file type is `fld` or `nek5000`, the index of the file to sampled.     | Positive integer.                                | -1            |
+| `initial_condition.previous_mesh`       | If `"type" = "field"`, and file type is `chkp`, the previous mesh from which to interpolate.      | String ending with `.nmsh`.                      | -             |
+| `initial_condition.tolerance`           | If `"type" = "field"`, and file type is `chkp`, tolerance to use for mesh interpolation.          | Positive real.                                   | 1e-6          |
 | `blasius.delta`                         | Boundary layer thickness in the Blasius profile.                                                  | Positive real                                    | -             |
 | `blasius.freestream_velocity`           | Free-stream velocity in the Blasius profile.                                                      | Vector of 3 reals                                | -             |
 | `blasius.approximation`                 | Numerical approximation of the Blasius profile.                                                   | `linear`, `quadratic`, `cubic`, `quartic`, `sin` | -             |
 | `source_terms`                          | Array of JSON objects, defining additional source terms.                                          | See list of source terms above                   | -             |
+|`gradient_jump_penalty`                  | Array of JSON objects, defining additional gradient jump penalty.                                 | See list of gradient jump penalty above                 | -  |
 | `boundary_types`                        | Boundary types/conditions labels.                                                                 | Array of strings                                 | -             |
 | `velocity_solver.type`                  | Linear solver for the momentum equation.                                                          | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`      | -             |
 | `velocity_solver.preconditioner`        | Linear solver preconditioner for the momentum equation.                                           | `ident`, `hsmg`, `jacobi`                        | -             |
@@ -455,12 +515,14 @@ that can be described concisely directly in the table.
 | `velocity_solver.maxiter`               | Linear solver max iteration count for the momentum equation.                                      | Positive real                                    | 800           |
 | `velocity_solver.projection_space_size` | Projection space size for the momentum equation.                                                  | Positive integer                                 | 20            |
 | `velocity_solver.projection_hold_steps` | Holding steps of the projection for the momentum equation.                                        | Positive integer                                 | 5             |
-| `pressure_solver.type`                  | Linear solver for the momentum equation.                                                          | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`      | -             |
-| `pressure_solver.preconditioner`        | Linear solver preconditioner for the momentum equation.                                           | `ident`, `hsmg`, `jacobi`                        | -             |
-| `pressure_solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.                                    | Positive real                                    | -             |
-| `pressure_solver.maxiter`               | Linear solver max iteration count for the momentum equation.                                      | Positive real                                    | 800           |
-| `pressure_solver.projection_space_size` | Projection space size for the momentum equation.                                                  | Positive integer                                 | 20            |
-| `pressure_solver.projection_hold_steps` | Holding steps of the projection for the momentum equation.                                        | Positive integer                                 | 5             |
+| `velocity_solver.monitor`               | Monitor residuals in the linear solver for the momentum equation.                                 | `true` or `false`                                | `false`       |
+| `pressure_solver.type`                  | Linear solver for the pressure equation.                                                          | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`      | -             |
+| `pressure_solver.preconditioner`        | Linear solver preconditioner for the pressure equation.                                           | `ident`, `hsmg`, `jacobi`                        | -             |
+| `pressure_solver.absolute_tolerance`    | Linear solver convergence criterion for the pressure equation.                                    | Positive real                                    | -             |
+| `pressure_solver.maxiter`               | Linear solver max iteration count for the pressure equation.                                      | Positive real                                    | 800           |
+| `pressure_solver.projection_space_size` | Projection space size for the pressure equation.                                                  | Positive integer                                 | 20            |
+| `pressure_solver.projection_hold_steps` | Holding steps of the projection for the pressure equation.                                        | Positive integer                                 | 5             |
+| `pressure_solver.monitor`               | Monitor residuals in the linear solver for the pressure equation.                                 | `true` or `false`                                | `false`       |
 | `flow_rate_force.direction`             | Direction of the forced flow.                                                                     | 0, 1, 2                                          | -             |
 | `flow_rate_force.value`                 | Bulk velocity or volumetric flow rate.                                                            | Positive real                                    | -             |
 | `flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                | -             |
@@ -474,6 +536,8 @@ Some properties of the object are inherited from `fluid`: the properties of the
 linear solver, the value of the density, and the output
 control.
 
+### Material properties
+
 The scalar equation requires defining additional material properties: the
 specific heat capacity and thermal conductivity. These are provided as `cp` and
 `lambda`. Similarly to the fluid, one can provide the Peclet number, `Pe`, as an
@@ -484,14 +548,46 @@ the name matching that set for the simulation component with the LES model.
 Additionally, the turbulent Prandtl number, `Pr_t` should be set. The eddy
 viscosity values will be divided by it to produce eddy diffusivity.
 
+### Boundary types
+
 The boundary conditions for the scalar are specified through the
 `boundary_types` keyword.
-It is possible to directly specify a uniform value for a Dirichlet boundary.
-The syntax is, e.g. `d=1`, to set the value to 1, see the Ryleigh-Benard
-example case.
+
+The value of the keyword is an array of strings, with the following possible values:
+* Standard boundary conditions
+  * `d=x`, sets a uniform Dirichlet boundary of value `x` (e.g. `d=1` to set 
+  `s` to `1` on the boundary, see the Rayleigh-Benard example case).
+  
+* Advanced boundary conditions
+    * `d_s`, a Dirichlet boundary condition for more complex, non-uniform 
+    and/or time-dependent profiles. This boundary condition uses a 
+    [more advanced user interface](#user-file_field-dirichlet-update).
+
+### Initial conditions
+
+The object `initial_condition` is used to provide initial conditions.
+It is mandatory.
+The means of prescribing the values are controlled via the `type` keyword:
+
+1. `user`, the values are set inside the compiled user file as explained in the 
+[user defined initial condition](@ref user-file_user-ic) section of the user
+file documentation.
+2. `uniform`, the value is a constant scalar, looked up under the `value`
+   keyword.
+3. `point_zone`, the values are set to a constant base value, supplied under the
+   `base_value` keyword, and then assigned a zone value inside a point zone. The
+   point zone is specified by the `name` keyword, and should be defined in the
+   `case.point_zones` object. See more about point zones @ref point-zones.md.
+4. `field`, where the initial condition is retrieved from a field file. Works
+   in the same way as for the fluid. See the 
+   [fluid section](@ref case-file_fluid-ic) for detailed explanations.
+  
+### Source terms
 
 The configuration of source terms is the same as for the fluid. A demonstration
 of using source terms for the scalar can be found in the `scalar_mms` example.
+
+### Full parameter table
 
 | Name                      | Description                                              | Admissible values               | Default value |
 | ------------------------- | -------------------------------------------------------- | ------------------------------- | ------------- |
@@ -505,6 +601,7 @@ of using source terms for the scalar can be found in the `scalar_mms` example.
 | `initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`, `point_zone` | -             |
 | `initial_condition.value` | Value of the velocity initial condition.                 | Real                            | -             |
 | `source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above  | -             |
+|`gradient_jump_penalty`    | Array of JSON objects, defining additional gradient jump penalty. | See list of gradient jump penalty above | -  |
 
 ## Statistics
 
@@ -539,3 +636,16 @@ file.
 
 A more detailed description as well as a  full list of available components and
  their setup is provided in a [separate page of the manual](point-zones.md).
+
+## Runtime statistics
+
+This object adds the collection of runtime statistics (timings) for identified
+profiling regions. A region is defined as all functions between a call to
+`profiler_start_region(name, id)` and `profiler_end_region(name, id)`. Neko
+currently supports 50 regions, with id 1..25 being reserved for internal use.
+
+
+| Name                | Description                                                          | Admissible values | Default value |
+| ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
+| `enabled`           | Whether to enable gathering of runtime statistics                    | `true` or `false` | `false`       |
+| `output_profile`    | Wheter to output all gathered profiling data as a CSV file           | `true` or `false` | `false`       |
