@@ -32,10 +32,11 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "filter_kernels.h"
 #include <device/device_config.h>
 #include <device/hip/check.h>
 #include <hip/hip_runtime.h>
+
+#include "filter_kernels.h"
 
 extern "C" {
 
