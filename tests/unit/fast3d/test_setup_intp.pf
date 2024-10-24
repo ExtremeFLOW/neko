@@ -1,0 +1,95 @@
+!> Normal interpolation from space with 2 points to 4
+@test
+subroutine test_setup_intp()
+  use pfunit
+  use fast3d, only : setup_intp
+  use num_types, only : rp
+  implicit none
+  
+  integer, parameter :: lx = 4
+  real(kind=rp) Xh_to_Yh(lx, lx-2)
+  real(kind=rp) Xh_to_YhT(lx-2, lx)
+  real(kind=rp) p_from(lx-2), p_to(lx)
+  integer n_to, n_from
+  
+  p_to = [0.0_rp, 1.0_rp, 2.0_rp, 3.0_rp] 
+  p_from = [0.0_rp, 3.0_rp]
+  
+  n_from = size(p_from)
+  n_to = size(p_to)
+  
+  call setup_intp(Xh_to_Yh, Xh_to_YhT, p_to, p_from, n_to, n_from, 0)
+  
+  ! Xh_to_Yh has 2 weights (cols) for each point in p_to (rows)
+
+  ! The frist and last points in p_to exist also in p_from, so we expect
+  ! weights [1, 0] and [0, 1]
+  @assertEqual(Xh_to_Yh(1, 1), 1.0_rp)
+  @assertEqual(Xh_to_Yh(1, 2), 0.0_rp)
+  @assertEqual(Xh_to_Yh(4, 1), 0.0_rp)
+  @assertEqual(Xh_to_Yh(4, 2), 1.0_rp)
+  
+  ! For the other two points in p_to, we expect linear interpolation weights,
+  ! since the p_from space has only 2 points
+  @assertEqual(Xh_to_Yh(2, 1), 2.0_rp/3)
+  @assertEqual(Xh_to_Yh(2, 2), 1.0_rp/3)
+  @assertEqual(Xh_to_Yh(3, 1), 1.0_rp/3)
+  @assertEqual(Xh_to_Yh(3, 2), 2.0_rp/3)
+  
+  ! Check that the two matrices are each others transpose
+  @assertEqual(Xh_to_Yh(1, 1), Xh_to_YhT(1, 1))
+  @assertEqual(Xh_to_Yh(1, 2), Xh_to_YhT(2, 1))
+  @assertEqual(Xh_to_Yh(2, 1), Xh_to_YhT(1, 2))
+  @assertEqual(Xh_to_Yh(2, 2), Xh_to_YhT(2, 2))
+  @assertEqual(Xh_to_Yh(3, 1), Xh_to_YhT(1, 3))
+  @assertEqual(Xh_to_Yh(3, 2), Xh_to_YhT(2, 3))
+  @assertEqual(Xh_to_Yh(4, 1), Xh_to_YhT(1, 4))
+  @assertEqual(Xh_to_Yh(4, 2), Xh_to_YhT(2, 4))
+end subroutine test_setup_intp
+
+!> Use a single point in the "from" space, expecting weight 1
+@test
+subroutine test_setup_intp_single_n_from()
+  use pfunit
+  use fast3d, only : setup_intp
+  use num_types, only : rp
+  implicit none
+  
+  integer, parameter :: lx = 4
+  real(kind=rp) Xh_to_Yh(lx, 1)
+  real(kind=rp) Xh_to_YhT(1, lx)
+  real(kind=rp) p_from(1), p_to(lx)
+  integer n_to, n_from
+  
+  p_to = [0.0_rp, 1.0_rp, 2.0_rp, 3.0_rp] 
+  p_from = [2.0_rp]
+  
+  n_from = size(p_from)
+  n_to = size(p_to)
+  
+  call setup_intp(Xh_to_Yh, Xh_to_YhT, p_to, p_from, n_to, n_from, 0)
+  
+  ! Xh_to_Yh has 1 weight (cols) for each point in p_to (rows)
+  ! Since there is only 1 point in n_from, we expect the weight to be 1,
+  ! whatver point we have in p_to
+  @assertEqual(Xh_to_Yh(1, 1), 1.0_rp)
+  @assertEqual(Xh_to_Yh(2, 1), 1.0_rp)
+  @assertEqual(Xh_to_Yh(3, 1), 1.0_rp)
+  @assertEqual(Xh_to_Yh(4, 1), 1.0_rp)
+  
+  ! Check that the two matrices are each others transpose
+  @assertEqual(Xh_to_Yh(1, 1), Xh_to_YhT(1, 1))
+  @assertEqual(Xh_to_Yh(2, 1), Xh_to_YhT(1, 2))
+  @assertEqual(Xh_to_Yh(3, 1), Xh_to_YhT(1, 3))
+  @assertEqual(Xh_to_Yh(4, 1), Xh_to_YhT(1, 4))
+
+  ! Now, let's get the weight for the first derivative
+  call setup_intp(Xh_to_Yh, Xh_to_YhT, p_to, p_from, n_to, n_from, 1)
+  
+  ! Since there is only 1 point in n_from, the solution is basically a const,
+  ! so we expect the derivative weight to be 0 everywhere.
+  @assertEqual(Xh_to_Yh(1, 1), 0.0_rp)
+  @assertEqual(Xh_to_Yh(2, 1), 0.0_rp)
+  @assertEqual(Xh_to_Yh(3, 1), 0.0_rp)
+  @assertEqual(Xh_to_Yh(4, 1), 0.0_rp)
+end subroutine test_setup_intp_single_n_from

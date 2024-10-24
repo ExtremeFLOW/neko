@@ -1,0 +1,423 @@
+module math_parallel
+  use mpi
+  use pfunit
+  use math
+  use num_types
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  implicit none
+
+contains
+
+  @test
+  subroutine test_math_abscmp
+    real(kind=rp) :: a, b, c, d
+
+    a = 17.0_rp
+    b = 42.0_rp
+    c = 42.0_rp + (NEKO_EPS/2.0_rp)
+    if (epsilon(1.0_rp) .lt. real(1d-12, rp)) then
+       d = 42.0_rp + real(1d-12, rp)
+    else if (epsilon(1.0_rp) .lt.  real(1d-5, rp)) then
+       d = 42.0_rp + real(1d-5, rp)
+    end if
+    
+    @assertFalse(abscmp(a, b))
+    @assertTrue(abscmp(b, c))
+    @assertFalse(abscmp(b, d))
+    
+  end subroutine test_math_abscmp
+
+  @test
+  subroutine test_math_rzero
+    integer, parameter :: n = 17
+    real(kind=rp) :: a(n)
+    integer :: i
+
+    a = 1.0_rp  
+    call rzero(a, n)
+    do i = 1, n
+       @assertEqual(0.0_rp, a(i))
+    end do
+
+    do i = 1, n
+       a(i) = real(i, rp)
+    end do
+    call rzero(a, n)
+    do i = 1, n
+       @assertEqual(0.0_rp, a(i))
+    end do
+    
+  end subroutine test_math_rzero
+
+  @test
+  subroutine test_math_izero
+    integer, parameter :: n = 17
+    integer :: a(n)
+    integer :: i
+
+    a = 17
+    call izero(a, n)
+    do i = 1, n
+       @assertEqual(0, a(i))
+    end do
+    
+  end subroutine test_math_izero
+
+  @test
+  subroutine test_math_rone
+    integer, parameter :: n = 17
+    real(kind=rp) :: a(n)
+    integer :: i
+
+    call rzero(a, n)
+    do i = 1, n
+       @assertEqual(0.0_rp, a(i))
+    end do
+    call rone(a, n)
+    do i = 1, n
+       @assertEqual(1.0_rp, a(i))
+    end do
+    
+  end subroutine test_math_rone
+
+  @test
+  subroutine test_math_copy
+    integer, parameter :: n = 17
+    real(kind=rp) :: a(n), b(n)
+    integer :: i
+
+    call rone(a, n)
+    call rzero(b, n)
+    do i = 1, n
+       @assertNotEqual(a(i), b(i))
+    end do
+
+    call copy(b, a, n)
+    do i = 1, n
+       @assertEqual(a(i), b(i))
+    end do
+    
+  end subroutine test_math_copy
+
+  @test
+  subroutine test_math_cadd
+    integer, parameter :: n = 17
+    real(kind=rp) :: a(n)
+    real(kind=rp), parameter :: s = 42
+    integer :: i
+
+    call rone(a, n)
+    call cadd(a, s, n)
+
+    do i = 1, n
+       @assertEqual(43.0_rp, a(i))
+    end do
+
+  end subroutine test_math_cadd
+
+  @test
+  subroutine test_math_vcross
+    integer, parameter :: n = 17
+    real(kind=rp), dimension(n) :: u1, u2, u3, v1, v2, v3, w1, w2, w3
+    real(kind=rp), parameter :: s = 42
+    integer :: i
+
+    call rzero(u1, n)
+    call rzero(u2, n)
+    call rzero(u3, n)
+
+    do i = 1, n
+       v1(i) = 1.0_rp
+       v2(i) = 4.0_rp
+       v3(i) = -1.0_rp
+
+       w1(i) = 2.0_rp
+       w2(i) = -4.0_rp
+       w3(i) = 6.0_rp
+    end do
+
+    call vcross(u1, u2, u3, v1, v2, v3, w1, w2, w3, n)
+
+    do i = 1, n
+       @assertEqual(20.0_rp, u1(i))
+       @assertEqual(-8.0_rp, u2(i))
+       @assertEqual(-12.0_rp, u3(i))
+    end do
+
+  end subroutine test_math_vcross
+
+  @test
+  subroutine test_math_vdot2
+    integer, parameter :: n = 17
+    real(kind=rp), dimension(n) :: dot, v1, v2, w1, w2
+    integer :: i
+
+    call rzero(dot, n)
+
+    do i = 1, n
+       v1(i) = 1.0_rp
+       v2(i) = 4.0_rp
+
+       w1(i) = 4.0_rp
+       w2(i) = 1.0_rp
+    end do
+
+    call vdot2(dot, v1, v2, w1, w2, n)
+
+    do i = 1, n
+       @assertEqual(8.0_rp, dot(i))
+    end do
+
+  end subroutine test_math_vdot2
+
+
+  @test
+  subroutine test_math_vdot3
+    implicit none
+    integer, parameter :: n = 17
+    real(kind=rp), dimension(n) :: dot, v1, v2, v3, w1, w2, w3
+    integer :: i
+
+    call rzero(dot, n)
+
+    do i = 1, n
+       v1(i) = 1.0_rp
+       v2(i) = 4.0_rp
+       v3(i) = 1.0_rp
+
+       w1(i) = 4.0_rp
+       w2(i) = 1.0_rp
+       w3(i) = -1.0_rp
+    end do
+
+    call vdot3(dot, v1, v2, v3, w1, w2, w3, n)
+
+    do i = 1, n
+       @assertEqual(7.0_rp, dot(i))
+    end do
+
+  end subroutine test_math_vdot3
+
+  @test
+  subroutine test_math_add2
+    integer, parameter :: n = 17
+    real(kind=rp), dimension(n) :: dot, a, b
+    integer :: i
+
+    do i = 1, n
+       a(i) = 14.0_rp
+       b(i) = 3.0_rp
+    end do
+
+    call add2(a, b, n)
+
+    do i = 1, n
+       @assertEqual(17.0_rp, a(i))
+    end do
+
+  end subroutine test_math_add2
+
+  @test
+  subroutine test_math_add3
+    integer, parameter :: n = 17
+    real(kind=rp), dimension(n) :: dot, a, b, c
+    integer :: i
+
+    do i = 1, n
+       a(i) = 14.0_rp
+       b(i) = 3.0_rp
+       c(i) = 0.0_rp
+    end do
+
+    call add3(c, a, b, n)
+
+    do i = 1, n
+       @assertEqual(17.0_rp, c(i))
+    end do
+
+  end subroutine test_math_add3
+
+  @test
+  subroutine test_math_add4
+    integer, parameter :: n = 17
+    real(kind=rp), dimension(n) :: dot, a, b, c, d
+    integer :: i
+
+
+    do i = 1, n
+       a(i) = 14.0_rp
+       b(i) = 3.0_rp
+       c(i) = 25.0_rp
+       d(i) = 0.0_rp
+    end do
+
+    call add4(d, a, b, c, n)
+
+    do i = 1, n
+       @assertEqual(42.0_rp, d(i))
+    end do
+
+  end subroutine test_math_add4
+
+  @test
+  subroutine test_math_add2s1
+    integer, parameter :: n = 17
+    real(kind=rp), dimension(n) :: a, b
+    real(kind=rp), parameter :: c1 = 2.0_rp
+    integer :: i
+
+    do i = 1, n
+       a(i) = 20.0_rp
+       b(i) = 2.0_rp
+    end do
+
+    call add2s1(a, b, c1, n)
+
+    do i = 1, n
+       @assertEqual(42.0_rp, a(i))
+    end do
+
+  end subroutine test_math_add2s1
+
+  @test
+  subroutine test_math_add2s2
+    integer, parameter :: n = 17
+    real(kind=rp), dimension(n) :: a, b
+    real(kind=rp), parameter :: c1 = 2_rp
+    integer :: i
+
+    do i = 1, n
+       a(i) = 20.0_rp
+       b(i) = 2.0_rp
+    end do
+
+    call add2s2(a, b, c1, n)
+
+    do i = 1, n
+       @assertEqual(24.0_rp, a(i))
+    end do
+
+  end subroutine test_math_add2s2
+
+  @test
+  subroutine test_math_invcol2
+    integer, parameter :: n = 17
+    real(kind=rp), dimension(n) :: a, b
+    integer :: i
+
+    do i = 1, n
+       a(i) = 21.0_rp
+       b(i) = 2.0_rp
+    end do
+
+    call invcol2(a, b, n)
+
+    do i = 1, n
+       @assertEqual(10.5_rp, a(i))
+    end do
+
+  end subroutine test_math_invcol2
+  
+  @test
+  subroutine test_math_col2
+    integer, parameter :: n = 17
+    real(kind=rp), dimension(n) :: a, b
+    integer :: i
+
+    do i = 1, n
+       a(i) = 21.0_rp
+       b(i) = 2.0_rp
+    end do
+
+    call col2(a, b, n)
+
+    do i = 1, n
+       @assertEqual(42.0_rp, a(i))
+    end do
+
+  end subroutine test_math_col2
+
+  @test
+  subroutine test_math_col3
+    integer, parameter :: n = 17
+    real(kind=rp), dimension(n) :: a, b, c
+    integer :: i
+
+    do i = 1, n
+       a(i) = 17.0_rp
+       b(i) = 2.0_rp
+       c(i) = 21.0_rp
+    end do
+
+    call col3(a, b, c, n)
+
+    do i = 1, n
+       @assertEqual(42.0_rp, a(i))
+    end do
+
+  end subroutine test_math_col3
+
+  @test
+  subroutine test_math_sub3
+    integer, parameter :: n = 17
+    real(kind=rp), dimension(n) :: a, b, c
+    integer :: i
+
+    do i = 1, n
+       a(i) = 17.0_rp
+       b(i) = 2.0_rp
+       c(i) = 21.0_rp
+    end do
+
+    call sub3(a, b, c, n)
+
+    do i = 1, n
+       @assertEqual(-19.0_rp, a(i))
+    end do
+
+  end subroutine test_math_sub3
+
+    @test
+  subroutine test_math_addcol3
+    integer, parameter :: n = 17
+    real(kind=rp), dimension(n) :: a, b, c
+    integer :: i
+
+    do i = 1, n
+       a(i) = 4669.0_rp
+       b(i) = 2.0_rp
+       c(i) = 21.0_rp
+    end do
+
+    call addcol3(a, b, c, n)
+
+    do i = 1, n
+       @assertEqual(4711.0_rp, a(i))
+    end do
+
+  end subroutine test_math_addcol3
+
+  @test(npes=[1,2])
+  subroutine test_math_glsc3(this)
+    class (MpiTestMethod), intent(inout) :: this
+    integer, parameter :: n = 17
+    real(kind=rp), dimension(n) :: a, b, c
+    real(kind=rp) :: res, expected
+    integer :: i, ierr
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    
+    do i = 1, n
+       a(i) = 1.0_rp
+       b(i) = 1.0_rp
+       c(i) = 1.0_rp
+    end do
+
+    expected = real(this%getNumProcesses(), rp)  * 17.0_rp
+    res = glsc3(a, b, c, n)
+    @assertEqual(expected, res)
+    @MPIassertEqual(expected, res)
+
+  end subroutine test_math_glsc3
+
+end module math_parallel

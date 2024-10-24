@@ -6,7 +6,7 @@ module user
 
   integer, parameter :: num_rows = 161 ! resolution of TS wave in Cheb points
   integer, parameter :: num_columns = 7 ! y, real and imag part of TS wave in Cheb points
-  integer, parameter :: num_ygll = 8 * 8 ! number of GLL points in the y direction
+  integer :: num_ygll ! number of GLL points in the y direction, get from map_1d
   real (kind=rp) :: Re = 5000.0_rp
   real (kind=rp), parameter :: pi_rp = 4.0_rp * atan (1.0_rp)
 contains
@@ -46,19 +46,32 @@ contains
     integer :: i, j, i_y
     real(kind=rp) :: uvw(3)
 
-    real(kind=rp), dimension(num_rows, num_columns) :: data_mode_cheb_2D
-    real(kind=rp), dimension(num_rows, num_columns) :: data_mode_cheb_3D
+    real(kind=dp), dimension(num_rows, num_columns) :: data_mode_cheb_2D
+    real(kind=dp), dimension(num_rows, num_columns) :: data_mode_cheb_3D
     real(kind=rp) :: y_GLC(num_rows)
     real(kind=rp) :: TS2D_GLC(num_rows, num_columns-1)
     real(kind=rp) :: TS3D_GLC(num_rows, num_columns-1)
 
-    real(kind=rp), dimension(num_ygll) :: y_GLL
-    real(kind=rp) :: TS2D_GLL(num_ygll, num_columns-1)
-    real(kind=rp) :: TS3D_GLL(num_ygll, num_columns-1)
+    real(kind=rp), allocatable :: y_GLL(:)
+    real(kind=rp), allocatable :: TS2D_GLL(:, :)
+    real(kind=rp), allocatable :: TS3D_GLL(:, :)
 
     real(kind=rp) :: ur_2D, ui_2D, vr_2D, vi_2D
     real(kind=rp) :: ur_3D, ui_3D, vr_3D, vi_3D, wr_3D, wi_3D
-
+    type(map_1d_t) :: map_1d 
+    type(gs_t) :: gs_h
+    type(coef_t) :: coef
+   
+    !Init these only for the initial condition...
+    call gs_h%init(u%dof)
+    call coef%init(gs_h)
+    call map_1d%init(coef,2,1e-5_rp)
+   
+    num_ygll = map_1d%n_gll_lvls  
+ 
+    allocate(y_GLL(num_ygll))
+    allocate(TS2D_GLL(num_ygll, num_columns-1))
+    allocate(TS3D_GLL(num_ygll, num_columns-1))
     ! data reading
     open(unit = 10, file = 'TSwave_cheb_2D.bin', form = 'unformatted', &
                   access = 'stream')

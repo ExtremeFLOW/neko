@@ -8,7 +8,7 @@ SUBDIRS += contrib
 endif
 
 if ENABLE_PFUNIT
-SUBDIRS += tests
+SUBDIRS += tests/unit
 endif
 
 if ENABLE_DOXYGEN
@@ -24,16 +24,16 @@ EXTRA_DIST = \
 	makeneko.in\
 	regen.sh\
 	flinter_rc.yml\
-	bench/ax/setup.f90\
-	bench/ax/Makefile\
-	bench/ax/axkernel.f90\
-	bench/ax/driver.f90\
-	bench/gs/Makefile\
-	bench/gs/driver.f90\
-	bench/tgv32/tgv.case\
-	bench/tgv32/README\
-	bench/tgv32/extract.sh\
-	bench/tgv32/tgv.f90\
+	tests/bench/ax/setup.f90\
+	tests/bench/ax/Makefile\
+	tests/bench/ax/axkernel.f90\
+	tests/bench/ax/driver.f90\
+	tests/bench/gs/Makefile\
+	tests/bench/gs/driver.f90\
+	tests/bench/tgv32/tgv.case\
+	tests/bench/tgv32/README.md\
+	tests/bench/tgv32/extract.sh\
+	tests/bench/tgv32/tgv.f90\
 	examples/turb_channel/turb_channel.case\
 	examples/turb_channel/README.md\
 	examples/turb_channel/turb_channel.f90\
@@ -94,16 +94,26 @@ EXTRA_DIST = \
 	examples/rayleigh-benard-cylinder/cylinder.nmsh\
 	examples/rayleigh-benard-cylinder/rayleigh.case\
 	examples/rayleigh-benard-cylinder/postprocess_probes.py\
-	reframe/checks.py\
-	reframe/settings.py\
-	reframe/README.md\
-	reframe/src/get-tgv-dns.sh\
-	reframe/src/minihemi.case.template\
-	reframe/src/rayleigh.case.template\
-	reframe/src/rayleigh.f90\
-	reframe/src/rocm_select_gpu_device\
-	reframe/src/tgv.case.template\
-	reframe/src/tgv.f90\
+	tests/reframe/checks.py\
+	tests/reframe/settings.py\
+	tests/reframe/README.md\
+	tests/reframe/src/get-tgv-dns.sh\
+	tests/reframe/src/minihemi.case.template\
+	tests/reframe/src/rayleigh.case.template\
+	tests/reframe/src/rayleigh.f90\
+	tests/reframe/src/rocm_select_gpu_device.sh\
+	tests/reframe/src/tgv.case.template\
+	tests/reframe/src/tgv.f90\
+	tests/regression/README.md\
+	tests/regression/cylinder/cylinder_part1.case\
+	tests/regression/cylinder/cylinder_part2.case\
+	tests/regression/cylinder/ref1_dp.log\
+	tests/regression/cylinder/ref1_sp.log\
+	tests/regression/cylinder/ref2_dp.log\
+	tests/regression/cylinder/ref2_sp.log\
+	tests/regression/cylinder/small_test_cyl.nmsh\
+	tests/regression/cylinder/test_easy.sh\
+	tests/regression/cylinder/test.sh\
 	patches/nvhpc_bge.patch\
 	patches/json-fortran71.patch
 

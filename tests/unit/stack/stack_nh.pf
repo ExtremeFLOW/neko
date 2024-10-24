@@ -1,0 +1,161 @@
+@test
+subroutine test_stack_nh_init
+  use pfunit
+  use stack
+  use math, only : NEKO_M_LN2
+  use num_types, only : rp
+  implicit none
+  type(stack_nh_t) :: s1, s2, s3
+  integer, parameter :: size_t = ishft(1, ceiling(log(real(32, rp)) / NEKO_M_LN2))
+
+  call s1%init()
+  @assertTrue(allocated(s1%data))
+  @assertEqual(s1%size_, size_t)
+  @assertEqual(size(s1%array()), size_t)
+  @assertEqual(s1%size_, size(s1%array()))
+  @assertEqual(s1%top_, s1%size())
+  @assertLessThan(s1%size(), size(s1%array()))
+
+  call s2%init(10)
+  @assertTrue(allocated(s2%data))
+  @assertEqual(s2%size_, 16)
+  @assertEqual(size(s2%array()), 16)
+  @assertEqual(s2%size_, size(s2%array()))
+  @assertEqual(s2%top_, s2%size())
+  @assertLessThan(s2%size(), size(s2%array()))
+
+  call s3%init(0)
+  @assertTrue(allocated(s3%data))
+  @assertEqual(s3%size_, size_t)
+  @assertEqual(size(s3%array()), size_t)
+  @assertEqual(s3%size_, size(s3%array()))
+  @assertEqual(s3%top_, s3%size())
+  @assertLessThan(s3%size(), size(s3%array()))
+
+end subroutine test_stack_nh_init
+
+@test
+subroutine test_stack_nh_free
+  use pfunit
+  use stack
+  implicit none
+  type(stack_nh_t) :: s
+
+  call s%init()
+  call s%free()
+  @assertFalse(allocated(s%data))
+  @assertEqual(s%size_, 0)
+  @assertEqual(s%top_, 0)
+  @assertEqual(s%size(), 0)
+  
+end subroutine test_stack_nh_free
+
+@test
+subroutine test_stack_nh_push
+  use pfunit
+  use stack
+  use nmsh
+  implicit none
+  type(stack_nh_t) :: s
+  integer :: i, j, k
+  type(nmsh_hex_t) :: data
+  type(nmsh_hex_t), pointer :: hex_ptr(:)
+
+  call s%init()  
+  do i = 1, 64
+     do j = 1, 8
+        data%v(j)%v_idx = i**j
+        data%v(j)%v_xyz = (/ dble(i**j), dble(2*i**j), dble(3*i**j) /)
+     end do
+     call s%push(data)
+  end do
+  @assertEqual(s%size_, 64, message='Unnecessary reallocation')
+  @assertEqual(s%top_, s%size_, message='Corrupt size')
+
+  do i = 1, 2
+     do j = 1, 8
+        data%v(j)%v_idx = (i + 64)**j
+        data%v(j)%v_xyz = (/ dble((i + 64)**j), &
+             dble(2*(i + 64) **j), dble(3*(i + 64)**j) /)
+     end do
+     call s%push(data)
+  end do
+  @assertEqual(s%size_, 128, message='Unnecessary reallocation')
+  @assertEqual(s%top_, (64 + 2), message='Corrupt size')
+
+  hex_ptr => s%array()
+  do i = 1, 66
+     do j = 1, 8
+        data%v(j)%v_idx = i**j
+        data%v(j)%v_xyz = (/ dble(i**j), dble(2*i**j), dble(3*i**j) /)
+     end do
+     do j = 1, 8
+        @assertTrue(hex_ptr(i)%v(j)%v_idx .eq. data%v(j)%v_idx)
+        do k = 1, 3
+           @assertTrue(hex_ptr(i)%v(j)%v_xyz(k) .eq. data%v(j)%v_xyz(k))
+        end do
+     end do
+  end do
+ 
+end subroutine test_stack_nh_push
+
+@test
+subroutine test_stack_nh_pop
+  use pfunit
+  use stack
+  use nmsh
+  implicit none
+  type(stack_nh_t) :: s
+  integer :: i, j, k
+  type(nmsh_hex_t) :: data, data2
+
+  call s%init()
+  do i = 1, 66
+     do j = 1, 8
+        data%v(j)%v_idx = i**j
+        data%v(j)%v_xyz = (/ dble(i**j), dble(2*i**j), dble(3*i**j) /)
+     end do
+     call s%push(data)
+  end do
+
+  do i = 66, 1, -1
+     do j = 8, 1, -1
+        data%v(j)%v_idx = i**j
+        data%v(j)%v_xyz = (/ dble(i**j), dble(2*i**j), dble(3*i**j) /)
+     end do
+     data2 = s%pop()
+     do j = 1, 8
+        @assertTrue(data2%v(j)%v_idx .eq. data%v(j)%v_idx)
+        do k = 1, 3
+           @assertTrue(data2%v(j)%v_xyz(k) .eq. data%v(j)%v_xyz(k))
+        end do
+     end do
+  end do
+
+  @assertEqual(s%top_, 0, message='Leftover data')
+  @assertEqual(s%size_, 128, message='Corrupt size')
+  
+end subroutine test_stack_nh_pop
+
+@test 
+subroutine test_stack_nh_clear
+  use pfunit
+  use stack
+  use nmsh
+  implicit none
+  type(stack_nh_t) :: s
+  integer :: i, j
+  type(nmsh_hex_t) :: data
+
+  call s%init()
+  do i = 1, 66
+     do j = 1, 8
+        data%v(j)%v_idx = i**j
+     end do
+     call s%push(data)
+  end do
+  call s%clear()
+  @assertEqual(s%size(), s%top_)
+  @assertEqual(s%top_, 0, message='Corrupt top marker')
+
+end subroutine test_stack_nh_clear
