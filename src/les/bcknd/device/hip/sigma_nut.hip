@@ -39,8 +39,8 @@
 
 extern "C" {
   void hip_sigma_nut_compute(void *g11, void *g12, void *g13,
-                             void *g11, void *g12, void *g13,
-                             void *g11, void *g12, void *g13, 
+                             void *g21, void *g22, void *g23,
+                             void *g31, void *g32, void *g33, 
                              void *delta, void *nut, void *mult, 
                              real *c, real *eps, int * n){
     
