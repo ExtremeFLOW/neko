@@ -39,14 +39,14 @@ module hip_sigma_nut
      subroutine hip_sigma_nut_compute(g11_d, g12_d, g13_d, &
                                       g21_d, g22_d, g23_d, &
                                       g31_d, g32_d, g33_d, &
-                                      delta_d, nut_d, c, eps, n) &
+                                      delta_d, nut_d, mult_d, c, eps, n) &
           bind(c, name = 'hip_sigma_nut_compute')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: g11_d, g12_d, g13_d, &
                              g21_d, g22_d, g23_d, &
                              g31_d, g32_d, g33_d, &
-                             delta_d, nut_d
+                             delta_d, nut_d, mult_d
        integer(c_int) :: n
        real(c_rp) :: c, eps
      end subroutine hip_sigma_nut_compute

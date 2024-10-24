@@ -41,7 +41,8 @@ extern "C" {
   void hip_sigma_nut_compute(void *g11, void *g12, void *g13,
                              void *g11, void *g12, void *g13,
                              void *g11, void *g12, void *g13, 
-                             void *delta, void *nut, real *c, real *eps, int * n){
+                             void *delta, void *nut, void *mult, 
+                             real *c, real *eps, int * n){
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
@@ -50,7 +51,8 @@ extern "C" {
                                        (real *) g11, (real *) g12, (real *) g13,
                                        (real *) g21, (real *) g22, (real *) g23,
                                        (real *) g31, (real *) g32, (real *) g33,
-                                       (real *) delta, (real *) nut, *c, * eps, * n);
+                                       (real *) delta, (real *) nut, (real *) mult, 
+                                       *c, * eps, * n);
     HIP_CHECK(hipGetLastError());
   }
 }

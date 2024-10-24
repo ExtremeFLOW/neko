@@ -53,18 +53,18 @@ contains
   subroutine device_sigma_nut_compute(g11_d, g12_d, g13_d, &
                               g21_d, g22_d, g23_d, &
                               g31_d, g32_d, g33_d, &
-                              delta_d, nut_d, c, eps, n)
+                              delta_d, nut_d, mult_d, c, eps, n)
     type(c_ptr) :: g11_d, g12_d, g13_d, &
                    g21_d, g22_d, g23_d, &
                    g31_d, g32_d, g33_d, &
-                   delta_d, nut_d
+                   delta_d, nut_d, mult_d
     integer :: n
     real(kind=rp) :: c, eps
 #if HAVE_HIP
     call hip_sigma_nut_compute(g11_d, g12_d, g13_d, &
                               g21_d, g22_d, g23_d, &
                               g31_d, g32_d, g33_d, &
-                              delta_d, nut_d, c, eps, n)
+                              delta_d, nut_d, mult_d, c, eps, n)
 #elif HAVE_CUDA
      call neko_error('cuda backend is not supported for device_sigma_nut')
 #elif HAVE_OPENCL

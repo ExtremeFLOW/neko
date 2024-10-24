@@ -51,6 +51,7 @@ __global__ void hip_sigma_nut_compute(T * __restrict__ g11,
                                       T * __restrict__ g33,
                                       T * __restrict__ delta,
                                       T * __restrict__ nut,
+                                      T * __restrict__ mult,
                                       const T c,
                                       const T eps,
                                       const int n){
@@ -68,6 +69,17 @@ __global__ void hip_sigma_nut_compute(T * __restrict__ g11,
     T tmp1;
     
     pi_3 = 4.0/3.0*atan(1.0);
+
+    g11[i] = g11[i] * mult[i];
+    g12[i] = g12[i] * mult[i];
+    g13[i] = g13[i] * mult[i];
+    g21[i] = g21[i] * mult[i];
+    g22[i] = g22[i] * mult[i];
+    g23[i] = g23[i] * mult[i];
+    g31[i] = g31[i] * mult[i];
+    g32[i] = g32[i] * mult[i];
+    g33[i] = g33[i] * mult[i];
+
     sigG11 = g11[i]**2 + g21[i]**2 + g31[i]**2;
     sigG22 = g12[i]**2 + g22[i]**2 + g32[i]**2;
     sigG33 = g13[i]**2 + g23[i]**2 + g33[i]**2;
