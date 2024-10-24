@@ -74,6 +74,8 @@ module gradient_jump_penalty
      type(c_ptr) :: penalty_facet_d = C_NULL_PTR
      !> SEM coefficients.
      type(coef_t), pointer :: coef => null()
+     !> Dof map
+     type(dofmap_t), pointer :: dm => null()
      !> Gradient of the quatity of interest
      real(kind=rp), allocatable, dimension(:, :, :, :) :: grad1, &
                                                           grad2, grad3
@@ -144,15 +146,17 @@ contains
     implicit none
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(json_file), target, intent(inout) :: params
-    type(dofmap_t), intent(in) :: dofmap
+    type(dofmap_t), target, intent(in) :: dofmap
     type(coef_t), target, intent(in) :: coef
     real(kind=rp), intent(in) :: a, b
 
-    integer :: i, j
+    integer :: i, j, k, l
     real(kind=rp), allocatable :: zg(:) ! Quadrature points
+    real(kind=rp) :: normal(3)
 
     call this%free()
-
+    
+    this%dm => dofmap
     this%p = dofmap%xh%lx - 1
     this%lx = dofmap%xh%lx
 
@@ -184,7 +188,7 @@ contains
     do i = 1, this%coef%msh%nelv
        select type (ep => this%coef%msh%elements(i)%e)
        type is (hex_t)
-          call eval_h2_hex(this%h2(:, :, :, i), this%lx, ep)
+          call eval_h2_hex(this%h2(:, :, :, i), this%lx, i, this%dm, this%coef)
        type is (quad_t)
           call neko_error("Gradient jump penalty error: mesh size &
                             &evaluation is not supported for quad_t")
@@ -232,38 +236,48 @@ contains
                         this%lx + 2, this%coef%msh%nelv))
 
     ! Extract facets' normals
-    this%n1(1, 2: this%lx + 1, 2: this%lx + 1, :) = this%coef%nx(:, :, 1, :)
-    this%n2(1, 2: this%lx + 1, 2: this%lx + 1, :) = this%coef%ny(:, :, 1, :)
-    this%n3(1, 2: this%lx + 1, 2: this%lx + 1, :) = this%coef%nz(:, :, 1, :)
-
-    this%n1(this%lx + 2, 2: this%lx + 1, 2: this%lx + 1, :) = &
-                                                    this%coef%nx(:, :, 2, :)
-    this%n2(this%lx + 2, 2: this%lx + 1, 2: this%lx + 1, :) = &
-                                                    this%coef%ny(:, :, 2, :)
-    this%n3(this%lx + 2, 2: this%lx + 1, 2: this%lx + 1, :) = &
-                                                    this%coef%nz(:, :, 2, :)
-
-    this%n1(2: this%lx + 1, 1, 2: this%lx + 1, :) = this%coef%nx(:, :, 3, :)
-    this%n2(2: this%lx + 1, 1, 2: this%lx + 1, :) = this%coef%ny(:, :, 3, :)
-    this%n3(2: this%lx + 1, 1, 2: this%lx + 1, :) = this%coef%nz(:, :, 3, :)
-
-    this%n1(2: this%lx + 1, this%lx + 2, 2: this%lx + 1, :) = &
-                                                    this%coef%nx(:, :, 4, :)
-    this%n2(2: this%lx + 1, this%lx + 2, 2: this%lx + 1, :) = &
-                                                    this%coef%ny(:, :, 4, :)
-    this%n3(2: this%lx + 1, this%lx + 2, 2: this%lx + 1, :) = &
-                                                    this%coef%nz(:, :, 4, :)
-
-    this%n1(2: this%lx + 1, 2: this%lx + 1, 1, :) = this%coef%nx(:, :, 5, :)
-    this%n2(2: this%lx + 1, 2: this%lx + 1, 1, :) = this%coef%ny(:, :, 5, :)
-    this%n3(2: this%lx + 1, 2: this%lx + 1, 1, :) = this%coef%nz(:, :, 5, :)
-
-    this%n1(2: this%lx + 1, 2: this%lx + 1, this%lx + 2, :) = &
-                                                    this%coef%nx(:, :, 6, :)
-    this%n2(2: this%lx + 1, 2: this%lx + 1, this%lx + 2, :) = &
-                                                    this%coef%ny(:, :, 6, :)
-    this%n3(2: this%lx + 1, 2: this%lx + 1, this%lx + 2, :) = &
-                                                    this%coef%nz(:, :, 6, :)
+    do i = 1, this%coef%msh%nelv
+       do j = 1, 6 ! for hexahedral elements
+          do k = 1, this%lx
+             do l = 1, this%lx
+                select case(j)
+                case(1)
+                   normal = this%coef%get_normal(1, l, k, i, j)
+                   this%n1(1, l + 1, k + 1, i) = normal(1)
+                   this%n2(1, l + 1, k + 1, i) = normal(2)
+                   this%n3(1, l + 1, k + 1, i) = normal(3)
+                case(2)
+                   normal = this%coef%get_normal(1, l, k, i, j)
+                   this%n1(this%lx + 2, l + 1, k + 1, i) = normal(1)
+                   this%n2(this%lx + 2, l + 1, k + 1, i) = normal(2)
+                   this%n3(this%lx + 2, l + 1, k + 1, i) = normal(3)
+                case(3)
+                   normal = this%coef%get_normal(l, 1, k, i, j)
+                   this%n1(l + 1, 1, k + 1, i) = normal(1)
+                   this%n2(l + 1, 1, k + 1, i) = normal(2)
+                   this%n3(l + 1, 1, k + 1, i) = normal(3)
+                case(4)
+                   normal = this%coef%get_normal(l, 1, k, i, j)
+                   this%n1(l + 1, this%lx + 2, k + 1, i) = normal(1)
+                   this%n2(l + 1, this%lx + 2, k + 1, i) = normal(2)
+                   this%n3(l + 1, this%lx + 2, k + 1, i) = normal(3)
+                case(5)
+                   normal = this%coef%get_normal(l, k, 1, i, j)
+                   this%n1(l + 1, k + 1, 1, i) = normal(1)
+                   this%n2(l + 1, k + 1, 1, i) = normal(2)
+                   this%n3(l + 1, k + 1, 1, i) = normal(3)
+                case(6)
+                   normal = this%coef%get_normal(l, k, 1, i, j)
+                   this%n1(l + 1, k + 1, this%lx + 2, i) = normal(1)
+                   this%n2(l + 1, k + 1, this%lx + 2, i) = normal(2)
+                   this%n3(l + 1, k + 1, this%lx + 2, i) = normal(3)
+                case default
+                   call neko_error("The face index is not correct")
+                end select
+             end do
+          end do
+       end do
+    end do
 
     ! Assemble facet factor
     call facet_factor_init(this)
@@ -317,168 +331,251 @@ contains
   !> Evaluate h^2 for each element for hexahedral mesh
   !! @param h2_el The sqaure of the length scale of an element
   !! @param ep The pointer to the element
-  subroutine eval_h2_hex(h2_el, n, ep)
-    integer, intent(in) :: n
+  subroutine eval_h2_hex(h2_el, n, i, dm, coef)
+    integer, intent(in) :: n, i
+    type(dofmap_t), pointer, intent(in) :: dm
+    type(coef_t), pointer, intent(in) :: coef
     real(kind=rp), intent(inout) :: h2_el(n + 2, n + 2, n + 2)
-    type(hex_t), target, intent(in) :: ep
 
-    integer :: i
-    type(point_t), pointer :: p1, p2, p3, p4, p5, p6, p7, p8
+    integer :: j, k, l
 
-    p1 => ep%p(1)
-    p2 => ep%p(2)
-    p3 => ep%p(3)
-    p4 => ep%p(4)
-    p5 => ep%p(5)
-    p6 => ep%p(6)
-    p7 => ep%p(7)
-    p8 => ep%p(8)
     h2_el = 0.0_rp
 
-    h2_el(1, 2 : n + 1, 2 : n + 1) = dist2_facets_hex(p1, p5, p7, p3, &
-                                                     p2, p6, p8, p4)
-    h2_el(n + 2, 2 : n + 1, 2 : n + 1) = h2_el(1, 2, 2)
-
-    h2_el(2 : n + 1, 1, 2 : n + 1) = dist2_facets_hex(p1, p2, p6, p5, &
-                                                     p3, p4, p8, p7)
-    h2_el(2 : n + 1, n + 2, 2 : n + 1) = h2_el(2, 1, 2)
-
-    h2_el(2 : n + 1, 2 : n + 1, 1) = dist2_facets_hex(p1, p2, p4, p3, &
-                                                     p5, p6, p8, p7)
-    h2_el(2 : n + 1, 2 : n + 1, n + 2) = h2_el(2, 2, 1)
+    do j = 1, 6
+       do k = 1, n
+          do l = 1, n
+             select case(j)
+             case(1)
+                h2_el(1, l + 1, k + 1) = &
+                  dist2_quadrature_hex(l, k, j, i, n, dm, coef)
+             case(2)
+                h2_el(n + 2, l + 1, k + 1) = &
+                  dist2_quadrature_hex(l, k, j, i, n, dm, coef)
+             case(3)
+                h2_el(l + 1, 1, k + 1) = &
+                  dist2_quadrature_hex(l, k, j, i, n, dm, coef)
+             case(4)
+                h2_el(l + 1, n + 2, k + 1) = &
+                  dist2_quadrature_hex(l, k, j, i, n, dm, coef)
+             case(5)
+                h2_el(l + 1, k + 1, 1) = &
+                  dist2_quadrature_hex(l, k, j, i, n, dm, coef)
+             case(6)
+                h2_el(l + 1, k + 1, n + 2) = &
+                  dist2_quadrature_hex(l, k, j, i, n, dm, coef)
+             case default
+                call neko_error("The face index is not correct")
+             end select
+          end do
+       end do
+    end do
 
   end subroutine eval_h2_hex
 
-  !> "Distrance" of two facets of a hexahedral element
-  !! @param p11, p12, p13, p14 Vertices defining facet 1
-  !! @param p21, p22, p23, p24 Vertices defining facet 2
-  function dist2_facets_hex(p11, p12, p13, p14, &
-                           p21, p22, p23, p24) result(dist2)
-  type(point_t), intent(in) :: p11, p12, p13, p14
-  type(point_t), intent(in) :: p21, p22, p23, p24
-  real(kind=rp) :: dist2
+  function dist2_quadrature_hex(l, k, j, i, n, dm, coef) result(dist2)
+    integer, intent(in) :: l, k, j, i, n
+    type(dofmap_t), pointer, intent(in) :: dm
+    type(coef_t), pointer, intent(in) :: coef
+    real(kind=rp) :: dist2, dist_1, dist_2
 
-  dist2 = 0.0_rp
+    real(kind=rp) :: x1, y1, z1, x2, y2, z2
+    real(kind=rp) :: normal1(3), normal2(3)
+    real(kind=rp) :: n11, n12, n13, n21, n22, n23
+    real(kind=rp) :: v1, v2, v3
 
-  dist2 = dist2 + dist_vertex_to_plane_3d(p11, p21, p22, p23)
-  dist2 = dist2 + dist_vertex_to_plane_3d(p11, p21, p22, p24)
-  dist2 = dist2 + dist_vertex_to_plane_3d(p11, p21, p23, p24)
-  dist2 = dist2 + dist_vertex_to_plane_3d(p11, p22, p23, p24)
+    dist2 = 0.0_rp
+    select case(j)
+    case(1)
+       normal1 = coef%get_normal(1, l, k, i, 1)
+       n11 = normal1(1)
+       n12 = normal1(2)
+       n13 = normal1(3)
+       x1 = dm%x(1, l, k, i)
+       y1 = dm%y(1, l, k, i)
+       z1 = dm%z(1, l, k, i)
+       normal2 = coef%get_normal(1, l, k, i, 2)
+       n21 = normal2(1)
+       n22 = normal2(2)
+       n23 = normal2(3)
+       x2 = dm%x(n, l, k, i)
+       y2 = dm%y(n, l, k, i)
+       z2 = dm%z(n, l, k, i)
+    case(2)
+       ! now the facet pair share the same value for h
+       ! but just let it be here for furture possible changes
+       normal1 = coef%get_normal(1, l, k, i, 2)
+       n11 = normal1(1)
+       n12 = normal1(2)
+       n13 = normal1(3)
+       x1 = dm%x(n, l, k, i)
+       y1 = dm%y(n, l, k, i)
+       z1 = dm%z(n, l, k, i)
+       normal2 = coef%get_normal(1, l, k, i, 1)
+       n21 = normal2(1)
+       n22 = normal2(2)
+       n23 = normal2(3)
+       x2 = dm%x(1, l, k, i)
+       y2 = dm%y(1, l, k, i)
+       z2 = dm%z(1, l, k, i)
+    case(3)
+       normal1 = coef%get_normal(1, l, k, i, 3)
+       n11 = normal1(1)
+       n12 = normal1(2)
+       n13 = normal1(3)
+       x1 = dm%x(l, 1, k, i)
+       y1 = dm%y(l, 1, k, i)
+       z1 = dm%z(l, 1, k, i)
+       normal2 = coef%get_normal(1, l, k, i, 4)
+       n21 = normal2(1)
+       n22 = normal2(2)
+       n23 = normal2(3)
+       x2 = dm%x(l, n, k, i)
+       y2 = dm%y(l, n, k, i)
+       z2 = dm%z(l, n, k, i)
+    case(4)
+       normal1 = coef%get_normal(1, l, k, i, 4)
+       n11 = normal1(1)
+       n12 = normal1(2)
+       n13 = normal1(3)
+       x1 = dm%x(l, n, k, i)
+       y1 = dm%y(l, n, k, i)
+       z1 = dm%z(l, n, k, i)
+       normal2 = coef%get_normal(1, l, k, i, 3)
+       n21 = normal2(1)
+       n22 = normal2(2)
+       n23 = normal2(3)
+       x2 = dm%x(l, 1, k, i)
+       y2 = dm%y(l, 1, k, i)
+       z2 = dm%z(l, 1, k, i)
+    case(5)
+       normal1 = coef%get_normal(1, l, k, i, 5)
+       n11 = normal1(1)
+       n12 = normal1(2)
+       n13 = normal1(3)
+       x1 = dm%x(l, k, 1, i)
+       y1 = dm%y(l, k, 1, i)
+       z1 = dm%z(l, k, 1, i)
+       normal2 = coef%get_normal(1, l, k, i, 6)
+       n21 = normal2(1)
+       n22 = normal2(2)
+       n23 = normal2(3)
+       x2 = dm%x(l, k, n, i)
+       y2 = dm%y(l, k, n, i)
+       z2 = dm%z(l, k, n, i)
+    case(6)
+       normal1 = coef%get_normal(1, l, k, i, 6)
+       n11 = normal1(1)
+       n12 = normal1(2)
+       n13 = normal1(3)
+       x1 = dm%x(l, k, n, i)
+       y1 = dm%y(l, k, n, i)
+       z1 = dm%z(l, k, n, i)
+       normal2 = coef%get_normal(1, l, k, i, 5)
+       n21 = normal2(1)
+       n22 = normal2(2)
+       n23 = normal2(3)
+       x2 = dm%x(l, k, 1, i)
+       y2 = dm%y(l, k, 1, i)
+       z2 = dm%z(l, k, 1, i)
+    case default
+       call neko_error("The face index is not correct")
+    end select
 
-  dist2 = dist2 + dist_vertex_to_plane_3d(p12, p21, p22, p23)
-  dist2 = dist2 + dist_vertex_to_plane_3d(p12, p21, p22, p24)
-  dist2 = dist2 + dist_vertex_to_plane_3d(p12, p21, p23, p24)
-  dist2 = dist2 + dist_vertex_to_plane_3d(p12, p22, p23, p24)
+    ! get the vector from the quadrature point to the one on the other side
+    v1 = x2 - x1
+    v2 = y2 - y1
+    v3 = z2 - z1
+    ! Project onto tabsvolflhe facet-normal direction of the point
+    dist_1 = v1*n11 + v2*n12 + v3*n13
+    dist_2 = - (v1*n21 + v2*n22 + v3*n23)
 
-  dist2 = dist2 + dist_vertex_to_plane_3d(p13, p21, p22, p23)
-  dist2 = dist2 + dist_vertex_to_plane_3d(p13, p21, p22, p24)
-  dist2 = dist2 + dist_vertex_to_plane_3d(p13, p21, p23, p24)
-  dist2 = dist2 + dist_vertex_to_plane_3d(p13, p22, p23, p24)
+    dist2 = ((dist_1 + dist_2)/2.0_rp)*((dist_1 + dist_2)/2.0_rp)
 
-  dist2 = dist2 + dist_vertex_to_plane_3d(p14, p21, p22, p23)
-  dist2 = dist2 + dist_vertex_to_plane_3d(p14, p21, p22, p24)
-  dist2 = dist2 + dist_vertex_to_plane_3d(p14, p21, p23, p24)
-  dist2 = dist2 + dist_vertex_to_plane_3d(p14, p22, p23, p24)
-
-  dist2 = dist2 / 16.0_rp
-  dist2 = dist2 * dist2
-
-  end function dist2_facets_hex
-
-  !> Distance from a vertex to a plane in a 3d space
-  !! @param pv The vertex
-  !! @param p1, p2, p3 Points defining a plane
-  function dist_vertex_to_plane_3d(pv, p1, p2, p3) result(dist)
-  type(point_t), intent(in) :: pv, p1, p2, p3
-  !> Vectors connecting p1&p2, p1&p3 and pv&p1
-  real(kind=rp), dimension(3) :: u12, u13, uv1
-  real(kind=rp) :: norm_u12, norm_u13
-  !> The vector normal to the plane
-  real(kind=rp) :: un(3)
-  !> The result of this function
-  real(kind=rp) :: dist
-  integer :: i
-
-  ! Set up u12 and u13
-  norm_u12 = 0.0_rp
-  norm_u13 = 0.0_rp
-  do i = 1, 3
-     u12(i) = p2%x(i) - p1%x(i)
-     norm_u12 = norm_u12 + u12(i) * u12(i)
-     u13(i) = p3%x(i) - p1%x(i)
-     norm_u13 = norm_u13 + u13(i) * u13(i)
-     uv1(i) = pv%x(i) - p1%x(i)
-  end do
-  norm_u12 = sqrt(norm_u12)
-  norm_u13 = sqrt(norm_u13)
-
-  ! Normalized cross product of u12 and u13 to get un
-  un(1) = u12(2) * u13(3) - u12(3) * u13(2)
-  un(2) = - u12(1) * u13(3) + u12(3) * u13(1)
-  un(3) = u12(1) * u13(2) - u12(2) * u13(1)
-  do i = 1, 3
-     un(i) = un(i) / norm_u12 / norm_u13
-  end do
-
-  ! Project of uv1 onto un, noting un is a unit vector
-  dist = 0.0_rp
-  do i = 1, 3
-     dist = dist + uv1(i) * un(i)
-  end do
-
-  end function dist_vertex_to_plane_3d
+  end function
 
   !> Initialize the facet factor array
   subroutine facet_factor_init(this)
     class(gradient_jump_penalty_t), intent(inout) :: this
-    !> work array
-    real(kind=rp) :: wa(this%lx, this%lx, this%lx, this%coef%msh%nelv)
+    integer :: i, j, k, l
+    real(kind=rp) :: area_tmp
 
     allocate(this%facet_factor(this%lx + 2, this%lx + 2, &
                                this%lx + 2, this%coef%msh%nelv))
 
     associate(facet_factor => this%facet_factor, &
-              lx => this%lx, area => this%coef%area, &
+              coef => this%coef, &
+              lx => this%lx, &
               nelv => this%coef%msh%nelv, &
-              jacinv => this%coef%jacinv, n => this%n, &
-              n_large => this%n_large, h2 => this%h2, &
-              tau => this%tau)
+              jacinv => this%coef%jacinv, h2 => this%h2, &
+              tau => this%tau, n1 => this%n1, &
+              n2 => this%n2, n3 => this%n3)
 
-    ! Assemble facet_factor for facet 1 and 2
-    call add4(wa, this%coef%drdx, this%coef%drdy, this%coef%drdz, n)
-    call col2(wa, jacinv, n)
-    facet_factor(1, 2: lx + 1, 2: lx + 1, :) = -1.0_rp * wa(1, :, :, :)
-    facet_factor(lx + 2, 2: lx + 1, 2: lx + 1, :) = wa(lx, :, :, :)
-
-    ! Assemble facet_factor for facet 3 and 4
-    call add4(wa, this%coef%dsdx, this%coef%dsdy, this%coef%dsdz, n)
-    call col2(wa, jacinv, n)
-    facet_factor(2: lx + 1, 1, 2: lx + 1, :) = -1.0_rp * wa(:, 1, :, :)
-    facet_factor(2: lx + 1, lx + 2, 2: lx + 1, :) = wa(:, lx, :, :)
-
-    ! Assemble facet_factor for facet 5 and 6
-    call add4(wa, this%coef%dsdx, this%coef%dsdy, this%coef%dsdz, n)
-    call col2(wa, jacinv, n)
-    facet_factor(2: lx + 1, 2: lx + 1, 1, :) = -1.0_rp * wa(:, :, 1, :)
-    facet_factor(2: lx + 1, 2: lx + 1, lx + 2, :) = wa(:, :, lx, :)
-
-    ! Multiplied by h^2 * tau
-    call col2(facet_factor, h2, n_large)
-    call cmult(facet_factor, tau, this%n_large)
-
-    ! Multiplied by the quadrant weight
-    call col2(facet_factor(1, 2: lx + 1, 2: lx + 1, :), &
-              area(:, :, 1, :), lx * lx * nelv)
-    call col2(facet_factor(lx + 2, 2: lx + 1, 2: lx + 1, :), &
-              area(:, :, 2, :), lx * lx * nelv)
-    call col2(facet_factor(2: lx + 1, 1, 2: lx + 1, :), &
-              area(:, :, 3, :), lx * lx * nelv)
-    call col2(facet_factor(2: lx + 1, lx + 2, 2: lx + 1, :), &
-              area(:, :, 4, :), lx * lx * nelv)
-    call col2(facet_factor(2: lx + 1, 2: lx + 1, 1, :), &
-              area(:, :, 5, :), lx * lx * nelv)
-    call col2(facet_factor(2: lx + 1, 2: lx + 1, lx + 2, :), &
-              area(:, :, 6, :), lx * lx * nelv)
+    do i = 1, nelv
+       do j = 1, 6 ! for hexahedral elementsh2
+          do k = 1, lx
+             do l = 1, lx
+                select case(j)
+                case(1)
+                   area_tmp = coef%get_area(1, l, k, i, j)
+                   facet_factor(1, l + 1, k + 1, i) = area_tmp * tau * &
+                           h2(1, l + 1, k + 1, i) * &
+                           (n1(1, l + 1, k + 1, i) * coef%drdx(1, l, k, i) + &
+                            n2(1, l + 1, k + 1, i) * coef%drdy(1, l, k, i) + &
+                            n3(1, l + 1, k + 1, i) * coef%drdz(1, l, k, i) ) &
+                           * jacinv(1, l, k, i)
+                case(2)
+                   area_tmp = coef%get_area(1, l, k, i, j)
+                   facet_factor(lx + 2, l + 1, k + 1, i) = area_tmp * tau * &
+                           h2(lx + 2, l + 1, k + 1, i) * &
+                           (n1(lx + 2, l + 1, k + 1, i) * &
+                            coef%drdx(lx, l, k, i) + &
+                            n2(lx + 2, l + 1, k + 1, i) * &
+                            coef%drdy(lx, l, k, i) + &
+                            n3(lx + 2, l + 1, k + 1, i) * &
+                            coef%drdz(lx, l, k, i) ) &
+                           * jacinv(lx, l, k, i)
+                case(3)
+                   area_tmp = coef%get_area(l, 1, k, i, j)
+                   facet_factor(l + 1, 1, k + 1, i) = area_tmp * tau * &
+                           h2(l + 1, 1, k + 1, i) * &
+                           (n1(l + 1, 1, k + 1, i) * coef%dsdx(l, 1, k, i) + &
+                            n2(l + 1, 1, k + 1, i) * coef%dsdy(l, 1, k, i) + &
+                            n3(l + 1, 1, k + 1, i) * coef%dsdz(l, 1, k, i) ) &
+                           * jacinv(l, 1, k, i)
+                case(4)
+                   area_tmp = coef%get_area(l, 1, k, i, j)
+                   facet_factor(l + 1, lx + 2, k + 1, i) = area_tmp * tau * &
+                           h2(l + 1, lx + 2, k + 1, i) * &
+                           (n1(l + 1, lx + 2, k + 1, i) * &
+                            coef%dsdx(l, lx, k, i) + &
+                            n2(l + 1, lx + 2, k + 1, i) * &
+                            coef%dsdy(l, lx, k, i) + &
+                            n3(l + 1, lx + 2, k + 1, i) * &
+                            coef%dsdz(l, lx, k, i) ) &
+                           * jacinv(l, lx, k, i)
+                case(5)
+                   area_tmp = coef%get_area(l, k, 1, i, j)
+                   facet_factor(l + 1, k + 1, 1, i) = area_tmp * tau * &
+                           h2(l + 1, k + 1, 1, i) * &
+                           (n1(l + 1, k + 1, 1, i) * coef%dtdx(l, k, 1, i) + &
+                            n2(l + 1, k + 1, 1, i) * coef%dtdy(l, k, 1, i) + &
+                            n3(l + 1, k + 1, 1, i) * coef%dtdz(l, k, 1, i) ) &
+                           * jacinv(l, k, 1, i)
+                case(6)
+                   area_tmp = coef%get_area(l, k, 1, i, j)
+                   facet_factor(l + 1, k + 1, lx + 2, i) = area_tmp * tau * &
+                           h2(l + 1, k + 1, lx + 2, i) * &
+                           (n1(l + 1, k + 1, lx + 2, i) * coef%dtdx(l, k, lx, i) + &
+                            n2(l + 1, k + 1, lx + 2, i) * coef%dtdy(l, k, lx, i) + &
+                            n3(l + 1, k + 1, lx + 2, i) * coef%dtdz(l, k, lx, i) ) &
+                           * jacinv(l, k, lx, i)
+                case default
+                   call neko_error("The face index is not correct")
+                end select
+             end do
+          end do
+       end do
+    end do
 
     end associate
   end subroutine facet_factor_init
@@ -605,6 +702,7 @@ contains
     end if
 
     nullify(this%coef)
+    nullify(this%dm)
 
     call this%Xh_GJP%free()
     call this%gs_GJP%free()
@@ -649,6 +747,8 @@ contains
   subroutine gradient_jump_penalty_perform(this, f)
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(field_t), intent(inout) :: f
+
+    integer :: i, j, k, l
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_add2(f%x_d, this%penalty_d, this%coef%dof%size())
