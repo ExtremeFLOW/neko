@@ -984,9 +984,24 @@ contains
     L(2) = x
 
     do j=3, N+1
-       L(j) = ( (2*j-1) * x * L(j-1) - (j-1) * L(j-2) ) / j 
+       L(j) = ( (2.0_xp*j-1.0_xp) * x * L(j-1) - (j-1) * L(j-2) ) / real(j,xp) 
     end do
   end subroutine legendre_poly
+
+ ! subroutine legendre_derivative_poly(L, x, N)
+ !   ! Evaluate Legendre polynomials of degrees 0-N at point x
+ !   real(kind=rp), intent(inout):: L(1:N+1)
+ !   real(kind=rp) :: x
+ !   integer :: N, j
+
+ !   L(1) = 1.0_rp
+ !   L(2) = x
+
+ !   do j=3, N+1
+ !      L(j) = ( (2*j-1) * x * L(j-1) - (j-1) * L(j-2) ) / j 
+ !   end do
+ ! end subroutine legendre_derivative_poly
+
 
   REAL(KIND=XP) FUNCTION PNDLEG (Z,N)
 !----------------------------------------------------------------------

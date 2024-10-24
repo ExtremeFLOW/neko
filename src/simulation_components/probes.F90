@@ -509,10 +509,10 @@ contains
           call mat_coords%init(this%n_global_probes,3)
        end if
        call MPI_Gatherv(this%xyz, 3*this%n_local_probes, &
-                        MPI_DOUBLE_PRECISION, global_output_coords, &
+                        MPI_REAL_PRECISION, global_output_coords, &
                         3*this%n_local_probes_tot, &
                         3*this%n_local_probes_tot_offset, &
-                        MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr)
+                        MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
        if (pe_rank .eq. 0) then
           call trsp(mat_coords%x, this%n_global_probes, &
                     global_output_coords, 3)
@@ -597,9 +597,8 @@ contains
     integer :: i
 
     do i = 1, this%n_local_probes
-       write (log_buf, *) pe_rank, "/", this%global_interp%proc_owner(i), &
-            "/" , this%global_interp%el_owner(i), &
-            "/", this%global_interp%error_code(i)
+       write (log_buf, *) pe_rank, "/", this%global_interp%pe_owner(i), &
+            "/" , this%global_interp%el_owner0(i)
        call neko_log%message(log_buf)
        write(log_buf, '(A5,"(",F10.6,",",F10.6,",",F10.6,")")') &
             "rst: ", this%global_interp%rst(:,i)
@@ -637,11 +636,12 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     integer :: i, ierr
+    logical :: do_interp_on_host = .false.
 
     !> Check controller to determine if we must write
     do i = 1, this%n_fields
        call this%global_interp%evaluate(this%out_values(:,i), &
-                                        this%sampled_fields%items(i)%ptr%x)
+                                        this%sampled_fields%items(i)%ptr%x,do_interp_on_host)
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -659,10 +659,10 @@ contains
                     this%out_values, this%n_local_probes)
           call MPI_Gatherv(this%out_vals_trsp, &
                            this%n_fields*this%n_local_probes, &
-                           MPI_DOUBLE_PRECISION, this%global_output_values, &
+                           MPI_REAL_PRECISION, this%global_output_values, &
                            this%n_fields*this%n_local_probes_tot, &
                            this%n_fields*this%n_local_probes_tot_offset, &
-                           MPI_DOUBLE_PRECISION, 0, NEKO_COMM, ierr)
+                           MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
           if (pe_rank .eq. 0) then
              call trsp(this%mat_out%x, this%n_global_probes, &
                        this%global_output_values, this%n_fields)

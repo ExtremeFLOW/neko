@@ -34,7 +34,7 @@
 module matrix
   use neko_config, only: NEKO_BCKND_DEVICE
   use math, only: sub3, chsign, add3, cmult2, cadd2, copy
-  use num_types, only: rp
+  use num_types, only: rp, xp
   use device, only: device_map, device_free, c_ptr, C_NULL_PTR
   use device_math, only: device_copy, device_cfill, device_cmult, &
        device_sub3, device_cmult2, device_add3, device_cadd2
@@ -78,6 +78,7 @@ module matrix
      procedure, pass(m) :: matrix_cmult_right
      !> Inverse a matrix.
      procedure, pass(m) :: inverse => matrix_bcknd_inverse
+     procedure, pass(m) :: inverse_on_host => cpu_matrix_inverse
 
      generic :: assignment(=) => matrix_assign_matrix, &
           matrix_assign_scalar
@@ -356,7 +357,7 @@ contains
     ! rmult is m  work array of length nrows = ncols
     class(matrix_t), intent(inout) :: m
     integer :: indr(m%nrows), indc(m%ncols), ipiv(m%ncols)
-    real(kind=rp) ::  rmult(m%nrows), amx, tmp, piv, eps
+    real(kind=xp) ::  rmult(m%nrows), amx, tmp, piv, eps
     integer :: i, j, k, ir, jc
 
     if (.not. (m%ncols .eq. m%nrows)) then
@@ -400,8 +401,8 @@ contains
        if (abs(m%x(jc, jc)) .lt. eps) then
           call neko_error("matrix_inverse error: small Gauss Jordan Piv")
        end if
-       piv = 1.0_rp/m%x(jc, jc)
-       m%x(jc, jc) = 1.0_rp
+       piv = 1.0_xp/m%x(jc, jc)
+       m%x(jc, jc) = 1.0_xp
        do j = 1, m%ncols
           m%x(jc, j) = m%x(jc, j)*piv
        end do

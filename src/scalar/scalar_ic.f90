@@ -369,7 +369,7 @@ contains
        global_interp = fld_data%generate_interpolator(s%dof, s%msh, tolerance)
 
        ! Evaluate scalar
-       call global_interp%evaluate(s%x, fld_data%t%x)
+       call global_interp%evaluate(s%x, fld_data%t%x, .true.)
        call global_interp%free
 
     else ! No interpolation, just potentially from different spaces

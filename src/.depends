@@ -17,11 +17,11 @@ common/runtime_statistics.o : common/runtime_statistics.f90 comm/comm.o math/mat
 math/mxm_wrapper.o : math/mxm_wrapper.F90 common/utils.o config/num_types.o 
 sem/speclib.o : sem/speclib.f90 common/utils.o config/num_types.o 
 qoi/drag_torque.o : qoi/drag_torque.f90 math/bcknd/device/device_math.o device/device.o common/utils.o config/num_types.o sem/space.o math/math.o comm/comm.o mesh/facet_zone.o mesh/mesh.o sem/coef.o field/field.o 
-sem/local_interpolation.o : sem/local_interpolation.f90 config/neko_config.o math/bcknd/device/device_math.o device/device.o field/field_list.o field/field.o common/utils.o math/fast3d.o math/math.o mesh/point.o config/num_types.o sem/space.o math/tensor.o 
+sem/local_interpolation.o : sem/local_interpolation.f90 config/neko_config.o math/bcknd/device/device_math.o math/bcknd/cpu/tensor_cpu.o device/device.o field/field_list.o field/field.o common/utils.o math/fast3d.o sem/speclib.o math/math.o mesh/point.o config/num_types.o sem/space.o math/tensor.o 
 math/math.o : math/math.f90 comm/comm.o config/num_types.o 
 math/mathops.o : math/mathops.f90 config/num_types.o 
 math/fast3d.o : math/fast3d.f90 math/math.o sem/speclib.o config/num_types.o 
-sem/space.o : sem/space.f90 math/mxm_wrapper.o math/tensor.o math/math.o math/fast3d.o common/utils.o device/device.o sem/speclib.o config/num_types.o config/neko_config.o 
+sem/space.o : sem/space.f90 math/mxm_wrapper.o math/tensor.o math/math.o math/fast3d.o common/utils.o math/matrix.o device/device.o sem/speclib.o config/num_types.o config/neko_config.o 
 sem/map_1d.o : sem/map_1d.f90 comm/mpi_types.o math/math.o common/utils.o common/log.o math/vector.o math/matrix.o field/field_list.o sem/coef.o comm/comm.o device/device.o mesh/mesh.o gs/gather_scatter.o sem/dofmap.o sem/space.o config/num_types.o 
 sem/map_2d.o : sem/map_2d.f90 field/field.o io/fld_file_data.o comm/mpi_types.o math/math.o common/log.o math/vector.o math/matrix.o sem/coef.o field/field_list.o comm/comm.o common/utils.o device/device.o mesh/mesh.o gs/gather_scatter.o sem/map_1d.o sem/dofmap.o sem/space.o config/num_types.o 
 sem/dofmap.o : sem/dofmap.f90 mesh/hex.o mesh/quad.o mesh/element.o math/math.o device/device.o math/tensor.o math/fast3d.o common/utils.o config/num_types.o adt/tuple.o sem/space.o mesh/mesh.o config/neko_config.o 
@@ -63,10 +63,11 @@ mesh/point_zone_fctry.o : mesh/point_zone_fctry.f90 common/utils.o common/json_u
 mesh/point_zone_registry.o : mesh/point_zone_registry.f90 common/json_utils.o common/utils.o sem/space.o mesh/mesh.o sem/dofmap.o mesh/point_zones/combine_point_zone.o mesh/point_zone.o 
 mesh/mesh.o : mesh/mesh.f90 common/log.o mesh/curve.o adt/uset.o math/math.o mesh/facet_zone.o comm/comm.o common/distdata.o common/datadist.o adt/htable.o adt/tuple.o adt/stack.o common/utils.o mesh/quad.o mesh/hex.o mesh/element.o mesh/point.o config/num_types.o 
 mesh/octree.o : mesh/octree.f90 common/utils.o mesh/point.o config/num_types.o 
-mesh/search_tree/aabb.o : mesh/search_tree/aabb.f90 common/utils.o mesh/tet_mesh.o mesh/tri_mesh.o mesh/mesh.o mesh/hex.o mesh/tet.o mesh/quad.o mesh/tri.o mesh/point.o mesh/element.o config/num_types.o 
+mesh/search_tree/aabb.o : mesh/search_tree/aabb.f90 math/math.o common/utils.o mesh/tet_mesh.o mesh/tri_mesh.o mesh/mesh.o mesh/hex.o mesh/tet.o mesh/quad.o mesh/tri.o mesh/point.o mesh/element.o config/num_types.o 
 mesh/aabb_tree.o : mesh/aabb_tree.f90 adt/stack.o common/utils.o config/num_types.o mesh/tri.o mesh/search_tree/aabb.o 
 mesh/tet_mesh.o : mesh/tet_mesh.f90 common/utils.o mesh/point.o mesh/tet.o mesh/mesh.o 
 mesh/tri_mesh.o : mesh/tri_mesh.f90 mesh/point.o mesh/tri.o 
+mesh/intersection_detector.o : mesh/intersection_detector.f90 mesh/search_tree/aabb.o adt/stack.o common/utils.o mesh/point.o mesh/hex.o mesh/mesh.o mesh/aabb_tree.o config/num_types.o 
 field/field_registry.o : field/field_registry.f90 adt/htable.o common/utils.o sem/dofmap.o field/field.o 
 field/scratch_registry.o : field/scratch_registry.f90 sem/dofmap.o field/field.o 
 field/field.o : field/field.f90 sem/dofmap.o sem/space.o mesh/mesh.o math/math.o device/device.o config/num_types.o math/bcknd/device/device_math.o config/neko_config.o 
@@ -107,7 +108,7 @@ math/schwarz.o : math/schwarz.f90 config/neko_config.o device/device.o math/fdm.
 math/vector.o : math/vector.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o math/math.o config/neko_config.o 
 math/matrix.o : math/matrix.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o math/math.o config/neko_config.o 
 math/signed_distance.o : math/signed_distance.f90 adt/stack.o mesh/search_tree/aabb.o mesh/point.o common/utils.o mesh/aabb_tree.o mesh/tri_mesh.o mesh/tri.o field/field.o config/num_types.o 
-common/checkpoint.o : common/checkpoint.f90 mesh/mesh.o common/utils.o field/field.o device/device.o sem/space.o field/field_series.o config/num_types.o config/neko_config.o 
+common/checkpoint.o : common/checkpoint.f90 math/math.o mesh/mesh.o common/utils.o field/field.o device/device.o sem/space.o field/field_series.o config/num_types.o config/neko_config.o 
 io/generic_file.o : io/generic_file.f90 comm/comm.o common/utils.o config/num_types.o 
 io/map_file.o : io/map_file.f90 io/format/map.o comm/comm.o common/utils.o io/generic_file.o 
 io/re2_file.o : io/re2_file.f90 common/log.o adt/htable.o io/map_file.o io/format/map.o io/format/re2.o common/datadist.o comm/mpi_types.o comm/comm.o mesh/point.o mesh/mesh.o common/utils.o config/num_types.o io/generic_file.o 
@@ -130,7 +131,7 @@ io/fluid_stats_output.o : io/fluid_stats_output.f90 math/matrix.o io/output.o de
 io/mean_sqr_flow_output.o : io/mean_sqr_flow_output.f90 io/output.o config/num_types.o fluid/mean_sqr_flow.o 
 io/data_streamer.o : io/data_streamer.F90 config/neko_config.o comm/mpi_types.o comm/comm.o device/device.o common/utils.o sem/coef.o field/field.o config/num_types.o 
 io/output_controller.o : io/output_controller.f90 common/time_based_controller.o config/num_types.o common/profiler.o common/utils.o common/log.o comm/comm.o io/fld_file.o io/output.o 
-common/global_interpolation.o : common/global_interpolation.F90 common/structs.o comm/mpi_types.o math/math.o comm/comm.o sem/local_interpolation.o common/utils.o common/log.o mesh/mesh.o sem/dofmap.o sem/space.o config/num_types.o 
+common/global_interpolation.o : common/global_interpolation.F90 common/structs.o comm/mpi_types.o math/math.o math/vector.o mesh/aabb_tree.o mesh/search_tree/aabb.o comm/comm.o mesh/point.o sem/local_interpolation.o common/utils.o common/log.o mesh/mesh.o sem/dofmap.o adt/stack.o sem/space.o config/num_types.o 
 common/profiler.o : common/profiler.F90 common/runtime_statistics.o common/craypat.o device/hip/roctx.o device/cuda/nvtx.o device/device.o config/neko_config.o 
 common/craypat.o : common/craypat.F90 
 bc/bc.o : bc/bc.f90 common/utils.o adt/tuple.o adt/stack.o mesh/facet_zone.o mesh/mesh.o sem/space.o sem/coef.o sem/dofmap.o device/device.o config/num_types.o config/neko_config.o 
