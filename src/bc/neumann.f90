@@ -37,7 +37,7 @@ module neumann
   use, intrinsic :: iso_c_binding, only : c_ptr
   use utils, only : neko_error, nonlinear_index
   use coefs, only : coef_t
-  use math, only : cfill
+  use math, only : cfill, copy
   implicit none
   private
 
@@ -54,6 +54,7 @@ module neumann
      procedure, pass(this) :: apply_vector_dev => neumann_apply_vector_dev
      procedure, pass(this) :: finalize_neumann => neumann_finalize_neumann
      procedure, pass(this) :: flux => neumann_flux
+     procedure, pass(this) :: set_flux => neumann_set_flux
      !> Destructor.
      procedure, pass(this) :: free => neumann_free
   end type neumann_t
@@ -80,11 +81,14 @@ contains
                              this%coef%Xh%lx)
        select case(facet)
        case(1,2)
-          x(k) = x(k) + this%flux_(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
+          x(k) = x(k) + this%flux_(i)*this%coef%area(idx(2), idx(3), facet, &
+               idx(4))
        case(3,4)
-          x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
+          x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(3), facet, &
+               idx(4))
        case(5,6)
-          x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
+          x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(2), facet, &
+               idx(4))
        end select
     end do
   end subroutine neumann_apply_scalar
@@ -145,6 +149,14 @@ contains
 
     flux = this%flux_
   end function neumann_flux
+
+  !> Set the flux.
+  subroutine neumann_set_flux(this, flux)
+    class(neumann_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: flux(this%msk(0))
+
+    call copy(this%flux_, flux, this%msk(0))
+  end subroutine neumann_set_flux
 
   !> Finalize by setting the flux
   !> @param flux The desired flux.

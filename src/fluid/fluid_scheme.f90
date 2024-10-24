@@ -80,6 +80,7 @@ module fluid_scheme
   use time_step_controller, only : time_step_controller_t
   use field_math, only : field_cfill
   use wall_model_bc, only : wall_model_bc_t
+  use shear_stress, only : shear_stress_t
   use spalding, only : spalding_t
   use rough_log_law, only : rough_log_law_t
   use gradient_jump_penalty, only : gradient_jump_penalty_t
@@ -128,6 +129,7 @@ module fluid_scheme
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
      type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
+     type(shear_stress_t) :: bc_sh             !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
      type(field_t) :: bdry                     !< Boundary markings
@@ -434,6 +436,24 @@ contains
     call this%bc_sym%init(this%c_Xh)
     call bc_list_add(this%bclst_vel, this%bc_sym)
 
+    ! Shear stress conditions
+    call this%bc_sh%init_base(this%c_Xh)
+    call this%bc_sh%mark_zones_from_list(msh%labeled_zones, &
+                        'sh', this%bc_labels)
+    call this%bc_sh%finalize()
+    write(*,*) "BCLABELS ", this%bc_labels
+    write(*,*) "SH BC SIZE ", this%bc_sh%msk(0)
+      ! This marks the dirichlet and neumann conditions inside, and finalizes
+      ! them.
+    call this%bc_sh%init_shear_stress(this%c_Xh)
+    write(*,*) "SH SYMMETRY X", this%bc_sh%symmetry%bc_x%marked_facet%size()
+    write(*,*) "SH SYMMETRY Y", this%bc_sh%symmetry%bc_y%marked_facet%size()
+    write(*,*) "SH SYMMETRY Z", this%bc_sh%symmetry%bc_z%marked_facet%size()
+
+    write(*,*) "BCLIST size ", this%bclst_vel%n
+    call bc_list_add(this%bclst_vel, this%bc_sh%symmetry)
+    write(*,*) "BCLIST size ", this%bclst_vel%n
+
     !
     ! Inflow
     !
@@ -481,7 +501,8 @@ contains
     !
     ! Wall models
     !
-    if (params%valid_path('case.fluid.wall_modelling')) then
+    !if (params%valid_path('case.fluid.wall_modelling')) then
+    if (.false.) then
 
        call this%bc_wallmodel%init_wall_model_bc(this%c_Xh)
        call this%bc_wallmodel%mark_zones_from_list(msh%labeled_zones,&
@@ -811,6 +832,7 @@ contains
 
     call this%bc_wall%free()
     call this%bc_sym%free()
+    call this%bc_sh%free()
 
     !
     ! Free everything related to field_dirichlet BCs

@@ -304,22 +304,26 @@ contains
     call bc_list_add(this%bclst_vel_res, this%bc_vel_res)
     call bc_list_add(this%bclst_vel_res, this%bc_vel_res_non_normal)
     call bc_list_add(this%bclst_vel_res, this%bc_sym)
+    call bc_list_add(this%bclst_vel_res, this%bc_sh)
 
     !Initialize bcs for u, v, w velocity components
     call bc_list_init(this%bclst_du)
     call bc_list_add(this%bclst_du, this%bc_sym%bc_x)
+    call bc_list_add(this%bclst_du, this%bc_sh%symmetry%bc_x)
     call bc_list_add(this%bclst_du, this%bc_vel_res_non_normal%bc_x)
     call bc_list_add(this%bclst_du, this%bc_vel_res)
     call bc_list_add(this%bclst_du, this%bc_field_dirichlet_u)
 
     call bc_list_init(this%bclst_dv)
     call bc_list_add(this%bclst_dv, this%bc_sym%bc_y)
+    call bc_list_add(this%bclst_dv, this%bc_sh%symmetry%bc_y)
     call bc_list_add(this%bclst_dv, this%bc_vel_res_non_normal%bc_y)
     call bc_list_add(this%bclst_dv, this%bc_vel_res)
     call bc_list_add(this%bclst_dv, this%bc_field_dirichlet_v)
 
     call bc_list_init(this%bclst_dw)
     call bc_list_add(this%bclst_dw, this%bc_sym%bc_z)
+    call bc_list_add(this%bclst_dw, this%bc_sh%symmetry%bc_z)
     call bc_list_add(this%bclst_dw, this%bc_vel_res_non_normal%bc_z)
     call bc_list_add(this%bclst_dw, this%bc_vel_res)
     call bc_list_add(this%bclst_dw, this%bc_field_dirichlet_w)
@@ -430,7 +434,7 @@ contains
     ! Make sure that continuity is maintained (important for interpolation)
     ! Do not do this for lagged rhs
     ! (derivatives are not necessairly coninous across elements)
-       
+
     if (allocated(this%chkp%previous_mesh%elements) &
          .or. this%chkp%previous_Xh%lx .ne. this%Xh%lx) then
        call this%gs_Xh%op(this%u, GS_OP_ADD)
@@ -640,7 +644,7 @@ contains
          call this%gradient_jump_penalty_v%perform(f_y)
          call this%gradient_jump_penalty_w%perform(f_z)
       end if
-      
+
       if (oifs) then
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
