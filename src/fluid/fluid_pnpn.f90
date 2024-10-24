@@ -73,16 +73,17 @@ module fluid_pnpn
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use symmetry, only : symmetry_t
   use logger, only : neko_log, LOG_SIZE
+  use field_registry, only : neko_field_registry
   implicit none
   private
 
 
   type, public, extends(fluid_scheme_t) :: fluid_pnpn_t
 
-     ! The right-hand sides in the linear solves
+     ! The right-hand sides in the linear solves.
      type(field_t) :: p_res, u_res, v_res, w_res
 
-     !> The unknowns in the linear solves
+     !> The unknowns in the linear solves.
      type(field_t) :: dp, du, dv, dw
 
      !
@@ -116,6 +117,8 @@ module fluid_pnpn
 
      !> Surface term in pressure rhs. Masks symmetry bcs.
      type(facet_normal_t) :: bc_sym_surface
+
+     type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
 
 
      type(zero_dirichlet_t) :: bc_vel_res   !< Dirichlet condition vel. res.
@@ -202,6 +205,10 @@ contains
     call neko_field_registry%add_field(this%dm_Xh, 'p')
     this%p => neko_field_registry%get_field('p')
 
+    !
+    ! Select governing equations via associated residual and Ax types
+    !
+
     if (this%variable_material_properties .eqv. .true.) then
        ! Setup backend dependent Ax routines
        call ax_helm_factory(this%Ax_vel, full_formulation = .true.)
@@ -235,33 +242,24 @@ contains
     ! Setup backend depenent contributions to F from lagged BD terms
     call rhs_maker_bdf_fctry(this%makebdf)
 
-    ! Initialize variables specific to this plan
-    associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
-         dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
+    ! Initialize other fields specific to this scheme
 
-      call this%p_res%init(dm_Xh, "p_res")
-      call this%u_res%init(dm_Xh, "u_res")
-      call this%v_res%init(dm_Xh, "v_res")
-      call this%w_res%init(dm_Xh, "w_res")
-      call this%abx1%init(dm_Xh, "abx1")
-      call this%aby1%init(dm_Xh, "aby1")
-      call this%abz1%init(dm_Xh, "abz1")
-      call this%abx2%init(dm_Xh, "abx2")
-      call this%aby2%init(dm_Xh, "aby2")
-      call this%abz2%init(dm_Xh, "abz2")
-      this%abx1 = 0.0_rp
-      this%aby1 = 0.0_rp
-      this%abz1 = 0.0_rp
-      this%abx2 = 0.0_rp
-      this%aby2 = 0.0_rp
-      this%abz2 = 0.0_rp
+    call this%p_res%init(this%dm_Xh, "p_res")
+    call this%u_res%init(this%dm_Xh, "u_res")
+    call this%v_res%init(this%dm_Xh, "v_res")
+    call this%w_res%init(this%dm_Xh, "w_res")
+    call this%abx1%init(this%dm_Xh, "abx1")
+    call this%aby1%init(this%dm_Xh, "aby1")
+    call this%abz1%init(this%dm_Xh, "abz1")
+    call this%abx2%init(this%dm_Xh, "abx2")
+    call this%aby2%init(this%dm_Xh, "aby2")
+    call this%abz2%init(this%dm_Xh, "abz2")
 
-      call this%du%init(dm_Xh, 'du')
-      call this%dv%init(dm_Xh, 'dv')
-      call this%dw%init(dm_Xh, 'dw')
-      call this%dp%init(dm_Xh, 'dp')
+    call this%du%init(this%dm_Xh, 'du')
+    call this%dv%init(this%dm_Xh, 'dv')
+    call this%dw%init(this%dm_Xh, 'dw')
+    call this%dp%init(this%dm_Xh, 'dp')
 
-    end associate
 
     !
     ! Boundary conditions
@@ -303,10 +301,8 @@ contains
     ! Generate pressure boundary condition list
     call this%pnpn_setup_bcs(user)
 
-    call this%bclst_prs%init()
-    call this%bc_prs%init(this%c_Xh, params)
-    call this%bc_prs%mark_zones_from_list('o', this%bc_labels)
-    call this%bc_prs%mark_zones_from_list('on', this%bc_labels)
+!    call this%bc_prs%mark_zones_from_list('o', this%bc_labels)
+!    call this%bc_prs%mark_zones_from_list('on', this%bc_labels)
 
     ! Field dirichlet pressure bc
     call this%user_field_bc_prs%init_base(this%c_Xh)
@@ -315,16 +311,26 @@ contains
     call MPI_Allreduce(this%user_field_bc_prs%msk(0), integer_val, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
+    call this%bc_field_dirichlet_p%init(this%c_Xh, params)
+!    call this%bc_field_dirichlet_p%mark_zones_from_list('on+dong', &
+!                                         this%bc_labels)
+!    call this%bc_field_dirichlet_p%mark_zones_from_list('o+dong', &
+!                                         this%bc_labels)
+    call this%bc_field_dirichlet_p%mark_zones_from_list('d_pres', &
+                                         this%bc_labels)
+    call this%bc_field_dirichlet_p%finalize()
+
     if (integer_val .gt. 0)  call this%user_field_bc_prs%init_field('d_pres')
     call this%bclst_prs%append(this%user_field_bc_prs)
     call this%user_field_bc_vel%bc_list%append(this%user_field_bc_prs)
 
-    call this%bc_prs%finalize()
-    call this%bclst_prs%append(this%bc_prs)
-    call this%bc_dong%init(this%c_Xh, params)
-    call this%bc_dong%mark_zones_from_list('o+dong', this%bc_labels)
-    call this%bc_dong%mark_zones_from_list('on+dong', this%bc_labels)
-    call this%bc_dong%finalize()
+!    call this%bclst_prs%append(this%bc_prs)
+
+
+!    call this%bc_dong%init(this%c_Xh, params)
+!    call this%bc_dong%mark_zones_from_list('o+dong', this%bc_labels)
+!    call this%bc_dong%mark_zones_from_list('on+dong', this%bc_labels)
+!    call this%bc_dong%finalize()
 
 
 
@@ -340,20 +346,12 @@ contains
                                                          this%bc_labels)
     call this%bc_vel_res_non_normal%finalize()
 
-    call this%bc_field_dirichlet_p%init(this%c_Xh, params)
-    call this%bc_field_dirichlet_p%mark_zones_from_list('on+dong', &
-                                         this%bc_labels)
-    call this%bc_field_dirichlet_p%mark_zones_from_list('o+dong', &
-                                         this%bc_labels)
-    call this%bc_field_dirichlet_p%mark_zones_from_list('d_pres', &
-                                         this%bc_labels)
-    call this%bc_field_dirichlet_p%finalize()
 
 
     call this%bclst_dp%init()
     call this%bclst_dp%append(this%bc_field_dirichlet_p)
     !Add 0 prs bcs
-    call this%bclst_dp%append(this%bc_prs)
+!    call this%bclst_dp%append(this%bc_prs)
 
     call this%bc_field_dirichlet_u%init(this%c_Xh, params)
     call this%bc_field_dirichlet_u%mark_zones_from_list('d_vel_u', &
@@ -374,6 +372,7 @@ contains
     call this%bc_vel_res%mark_zones_from_list('v', this%bc_labels)
     call this%bc_vel_res%mark_zones_from_list('w', this%bc_labels)
     call this%bc_vel_res%finalize()
+
     call this%bclst_vel_res%init()
     call this%bclst_vel_res%append(this%bc_vel_res)
     call this%bclst_vel_res%append(this%bc_vel_res_non_normal)
@@ -399,7 +398,7 @@ contains
     call this%bclst_dw%append(this%bc_field_dirichlet_w)
 
 
-    !Intialize projection space thingy
+    ! Intialize projection space
 
     if (this%variable_material_properties .and. &
           this%vel_projection_dim .gt. 0) then

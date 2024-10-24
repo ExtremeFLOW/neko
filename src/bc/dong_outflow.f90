@@ -94,9 +94,9 @@ contains
     call this%free()
     call this%init_base(coef)
 
-    call json_get_or_default(json, 'case.fluid.outflow_condition.delta', &
+    call json_get_or_default(json, 'delta', &
                              this%delta, 0.01_rp)
-    call json_get_or_default(json, 'case.fluid.outflow_condition.velocity_scale', &
+    call json_get_or_default(json, 'velocity_scale', &
                              this%uinf, 1.0_rp)
 
     this%u => neko_field_registry%get_field("u")

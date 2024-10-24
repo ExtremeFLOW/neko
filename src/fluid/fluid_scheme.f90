@@ -109,18 +109,17 @@ module fluid_scheme
      integer :: pr_projection_dim          !< Size of the projection space for ksp_pr
      integer :: vel_projection_activ_step  !< Steps to activate projection for ksp_vel
      integer :: pr_projection_activ_step   !< Steps to activate projection for ksp_pr
-     type(zero_dirichlet_t) :: bc_wall           !< No-slip wall for velocity
-     class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
+!     type(zero_dirichlet_t) :: bc_wall           !< No-slip wall for velocity
+!     class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
 
      ! Attributes for field dirichlet BCs
      type(field_dirichlet_vector_t) :: user_field_bc_vel   !< User-computed Dirichlet velocity condition
      type(field_dirichlet_t) :: user_field_bc_prs   !< User-computed Dirichlet pressure condition
-     type(zero_dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
-     type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
-     type(bc_list_t) :: bcs                    !< List of pressure conditions
+     ! NEW VARIABLE
+     type(bc_list_t) :: bcs
      integer :: n_strong = 0
      type(field_t) :: bdry                     !< Boundary markings
      type(json_file), pointer :: params        !< Parameters
@@ -155,7 +154,6 @@ module fluid_scheme
      procedure, pass(this) :: scheme_free => fluid_scheme_free
      !> Validate that all components are properly allocated
      procedure, pass(this) :: validate => fluid_scheme_validate
-     procedure, pass(this) :: setup_bcs => fluid_scheme_setup_bcs
      !> Apply pressure boundary conditions
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      !> Apply velocity boundary conditions
@@ -425,12 +423,11 @@ contains
     call this%bclst_vel%init()
     write(*,*) "BCLST", this%bclst_vel%size_, this%bclst_vel%capacity
 
-    call this%bc_sym%init(this%c_Xh, params)
-    call this%bc_sym%mark_zones_from_list('sym', this%bc_labels)
-    call this%bc_sym%finalize()
-    call this%bclst_vel%append(this%bc_sym)
+!    call this%bc_sym%init(this%c_Xh, params)
+!    call this%bc_sym%mark_zones_from_list('sym', this%bc_labels)
+!    call this%bc_sym%finalize()
+!    call this%bclst_vel%append(this%bc_sym)
 
-    write(*,*) "BCLST", this%bclst_vel%size_, this%bclst_vel%capacity
 
     !
     ! Inflow
@@ -458,7 +455,6 @@ contains
 !    call this%bc_wall%mark_zones_from_list('w', this%bc_labels)
 !    call this%bc_wall%finalize()
 !    call this%bclst_vel%append(this%bc_wall)
-    write(*,*) "BCLST", this%bclst_vel%size_, this%bclst_vel%capacity
 
     ! Setup field dirichlet bc for u-velocity
     call this%user_field_bc_vel%bc_u%init_base(this%c_Xh)
@@ -660,12 +656,12 @@ contains
 
     call this%bdry%free()
 
-    if (allocated(this%bc_inflow)) then
-       call this%bc_inflow%free()
-    end if
+!    if (allocated(this%bc_inflow)) then
+!       call this%bc_inflow%free()
+!    end if
 
-    call this%bc_wall%free()
-    call this%bc_sym%free()
+!    call this%bc_wall%free()
+!    call this%bc_sym%free()
 
     !
     ! Free everything related to field_dirichlet BCs
@@ -779,12 +775,14 @@ contains
        call neko_error('No parameters defined')
     end if
 
-    if (allocated(this%bc_inflow)) then
-       select type (ip => this%bc_inflow)
-       type is (usr_inflow_t)
-          call ip%validate
-       end select
-    end if
+! TODO ??
+
+!    if (allocated(this%bc_inflow)) then
+!       select type (ip => this%bc_inflow)
+!       type is (usr_inflow_t)
+!          call ip%validate
+!       end select
+!    end if
 
     !
     ! Setup checkpoint structure (if everything is fine)
@@ -892,12 +890,13 @@ contains
     class(fluid_scheme_t), intent(inout) :: this
     procedure(usr_inflow_eval) :: usr_eval
 
-    select type (bc_if => this%bc_inflow)
-    type is (usr_inflow_t)
-       call bc_if%set_eval(usr_eval)
-    class default
-       call neko_error("Not a user defined inflow condition")
-    end select
+    ! TODO
+!    select type (bc_if => this%bc_inflow)
+!    type is (usr_inflow_t)
+!       call bc_if%set_eval(usr_eval)
+!    class default
+!       call neko_error("Not a user defined inflow condition")
+!    end select
   end subroutine fluid_scheme_set_usr_inflow
 
   !> Compute CFL

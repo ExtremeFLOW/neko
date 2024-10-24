@@ -124,6 +124,9 @@ contains
     call this%bc_z%finalize()
   end subroutine symmetry_finalize
 
+  !> Compute the average normal for a facet of an element.
+  !! @details The normal direction is the one for which s is , so e.g
+  !! for a y normal, sx and sz will be unity, and sy will be 0.
   subroutine symmetry_get_normal_axis(this, sx, sy, sz, facet, el)
     class(symmetry_t), target, intent(inout) :: this
     real(kind=rp), intent(out) :: sx, sy, sz
