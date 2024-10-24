@@ -66,9 +66,12 @@ module shear_stress
      procedure, pass(this) :: apply_scalar_dev => shear_stress_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => shear_stress_apply_vector_dev
      procedure, pass(this) :: init_shear_stress => &
-       shear_stress_init_shear_stress
-     procedure, pass(this) :: set_stress => shear_stress_set_stress
-     procedure, pass(this) :: shear_stress_finalize
+          shear_stress_init_shear_stress
+     procedure, pass(this) :: set_stress_scalar => &
+          shear_stress_set_stress_scalar
+     procedure, pass(this) :: set_stress_array => &
+          shear_stress_set_stress_array
+     generic :: set_stress => set_stress_scalar, set_stress_array
      procedure, pass(this) :: free => shear_stress_free
   end type shear_stress_t
 
@@ -165,7 +168,7 @@ contains
 
   !> Finalize by allocating the stress arrays and marking the facets for
   !! the bc components.
-  subroutine shear_stress_finalize(this, tau_x, tau_y, tau_z)
+  subroutine shear_stress_set_stress_scalar(this, tau_x, tau_y, tau_z)
     class(shear_stress_t), intent(inout) :: this
     real(kind=rp), intent(in) :: tau_x
     real(kind=rp), intent(in) :: tau_y
@@ -177,10 +180,10 @@ contains
     call this%neumann_z%finalize_neumann(tau_z)
 
 
-  end subroutine shear_stress_finalize
+  end subroutine shear_stress_set_stress_scalar
 
   !> Set the shear stress components.
-  subroutine shear_stress_set_stress(this, tau_x, tau_y, tau_z)
+  subroutine shear_stress_set_stress_array(this, tau_x, tau_y, tau_z)
     class(shear_stress_t), intent(inout) :: this
     real(kind=rp), intent(in) :: tau_x(this%msk(0))
     real(kind=rp), intent(in) :: tau_y(this%msk(0))
@@ -190,7 +193,7 @@ contains
     call this%neumann_y%set_flux(tau_x)
     call this%neumann_z%set_flux(tau_x)
 
-  end subroutine shear_stress_set_stress
+  end subroutine shear_stress_set_stress_array
 
   !> Destructor.
   subroutine shear_stress_free(this)
