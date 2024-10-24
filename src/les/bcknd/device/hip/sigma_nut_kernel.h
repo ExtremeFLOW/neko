@@ -80,9 +80,9 @@ __global__ void hip_sigma_nut_compute(T * __restrict__ g11,
     g32[i] = g32[i] * mult[i];
     g33[i] = g33[i] * mult[i];
 
-    sigG11 = g11[i]**2 + g21[i]**2 + g31[i]**2;
-    sigG22 = g12[i]**2 + g22[i]**2 + g32[i]**2;
-    sigG33 = g13[i]**2 + g23[i]**2 + g33[i]**2;
+    sigG11 = g11[i]*g11[i] + g21[i]*g21[i] + g31[i]*g31[i];
+    sigG22 = g12[i]*g12[i] + g22[i]*g22[i] + g32[i]*g32[i];
+    sigG33 = g13[i]*g13[i] + g23[i]*g23[i] + g33[i]*g33[i];
     sigG12 = g11[i]*g12[i] + \
              g21[i]*g22[i] + \
              g31[i]*g32[i];
@@ -138,7 +138,7 @@ __global__ void hip_sigma_nut_compute(T * __restrict__ g11,
         alpha2 = Invariant1*Invariant1*Invariant1/27.0 - \
             Invariant1*Invariant2/6.0 + Invariant3/2.0;
 
-        tmp1 = alpha2/(alpha1**(3.0/2.0));
+        tmp1 = alpha2/pow(alpha1,(3.0/2.0));
 
         if (tmp1 <= -1.0) {
             sigma1 = sqrt(max(Invariant1/3.0 + sqrt(alpha1), 0.0));
@@ -177,7 +177,7 @@ __global__ void hip_sigma_nut_compute(T * __restrict__ g11,
 
     Dsigma = max(Dsigma, 0.0);
 
-    nut[i] = (c*delta[i])**2 * Dsigma;
+    nut[i] = (c*delta[i])*(c*delta[i]) * Dsigma;
   }
 }
 #endif // __COMMON_SIGMA_NUT_KERNEL_H__
