@@ -117,6 +117,10 @@ contains
 
     character(len=20) :: fields(3)
 
+    real(kind=rp) :: fluid_output_value
+    character(len=:), allocatable :: fluid_output_control, str
+    logical :: found
+
     !> Add keyword "fields" to the json so that the field writer
     ! picks it up. Will also add those fields to the registry.
     fields(1) = "u_hat"
@@ -124,11 +128,27 @@ contains
     fields(3) = "w_hat"
     call json%add("fields", fields)
 
+    call case%params%get("case.fluid.output_control", fluid_output_control, &
+         found)
+    call case%params%get("case.fluid.output_value", fluid_output_value, &
+         found)
+
+    ! See if the user has set a compute control, otherwise
+    ! set it to the fluid output control.
+    ! NOTE: We do not use get_or_default here, as we need to manually add
+    ! entries to the json to bypass the get_or_default in the init_base later.
+    ! fluid_output_control will follow compute_control unless manually set by the
+    ! user.
+    call json%get("compute_control", str, found)
+    if (.not. found) then
+       call json%add("compute_control", fluid_output_control)
+       ! Use "update" and not "add" just in case compute_value is present
+       ! in the json file.
+       call json%update("compute_value", fluid_output_value, found)
+    end if
+
     call this%init_base(json, case)
     call this%writer%init(json, case)
-
-    write (*,*) this%output_controller%control_mode, this%output_controller%control_value
-    write (*,*) this%writer%output_controller%control_mode, this%writer%output_controller%control_value
 
     call spectral_error_init_from_attributes(this, case%fluid%c_Xh)
 
@@ -235,11 +255,7 @@ contains
 
     integer :: e, i, lx, ly, lz, nelv
 
-    write (*,*) "=====", t, tstep, this%writer%output_controller%check(t, tstep)
-
-    if (.not. this%writer%output_controller%check(t, tstep)) return
-
-    call neko_log%message("== COMPUTING SEI ==")
+    call neko_log%message("COMPUTE SPEI")
 
     call this%get_indicators(this%case%fluid%c_Xh)
 
@@ -342,7 +358,6 @@ contains
 
     integer i, e
     integer lx, ly, lz, nelv
-
 
     !> Write the file
     !! Remember that the list is already ponting to the fields

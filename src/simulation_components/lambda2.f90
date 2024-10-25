@@ -86,10 +86,33 @@ contains
     class(case_t), intent(inout), target ::case
     character(len=20) :: fields(1)
 
+    real(kind=rp) :: fluid_output_value
+    character(len=:), allocatable :: fluid_output_control, str
+    logical :: found
+
     ! Add fields keyword to the json so that the field_writer picks it up.
     ! Will also add fields to the registry.
     fields(1) = "lambda2"
     call json%add("fields", fields)
+
+    call case%params%get("case.fluid.output_control", fluid_output_control, &
+         found)
+    call case%params%get("case.fluid.output_value", fluid_output_value, &
+         found)
+
+    ! See if the user has set a compute control, otherwise
+    ! set it to the fluid output control.
+    ! NOTE: We do not use get_or_default here, as we need to manually add
+    ! entries to the json to bypass the get_or_default in the init_base later.
+    ! fluid_output_control will follow compute_control unless manually set by the
+    ! user.
+    call json%get("compute_control", str, found)
+    if (.not. found) then
+       call json%add("compute_control", fluid_output_control)
+       ! Use "update" and not "add" just in case compute_value is present
+       ! in the json file.
+       call json%update("compute_value", fluid_output_value, found)
+    end if
 
     call this%init_base(json, case)
     call this%writer%init(json, case)
@@ -120,6 +143,8 @@ contains
     class(lambda2_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+
+    write (*,*) "COMPUTE L2"
 
     call lambda2op(this%lambda2, this%u, this%v, this%w, this%case%fluid%c_Xh)
 
