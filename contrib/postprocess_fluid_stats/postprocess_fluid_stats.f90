@@ -21,7 +21,7 @@ program postprocess_fluid_stats
 
   argc = command_argument_count()
 
-  if ((argc .lt. 3) .or. (argc .gt. 3)) then
+  if ((argc .lt. 2) .or. (argc .gt. 2)) then
      if (pe_rank .eq. 0) then
         write(*,*) 'Usage: ./postprocess_fluid_stats mesh.nmsh stats.fld'
         write(*,*) 'Example command: ./postprocess_fluid_stats mesh.nmsh statsblabla.fld'
@@ -111,7 +111,7 @@ program postprocess_fluid_stats
   w => neko_field_registry%get_field('w')
   p => neko_field_registry%get_field('p')
 
-  call fld_stats%init(coef,u,v,w,p)
+  call fld_stats%init(coef,u,v,w,p, 'basic')
   n = stats_data%u%n
 
   call copy(fld_stats%stat_fields%items(1)%ptr%x, stats_data%p%x,n)
