@@ -32,10 +32,13 @@ in Neko. The list will be updated as new simcomps are added.
 - Computation of the weak gradient of a field \ref simcomp_weak_grad
 - User defined components \ref user-file_simcomps
 - Fluid statistics simcomp, "fluid_stats", for more details see the [statistics guide](@ref statistics-guide)
+- Computation of the spectral error indicator \ref simcomp_speri
 
 ## Controling execution and file output
-Each simulation component is, by default, executed once per time step to perform
-associated computations and output. However, this can be modified by using the
+Most simulation components are, by default, executed once per time step to perform
+associated computations and output (except \ref simcomp_lambda2 and 
+\ref simcomp_speri which are executed with the field output frequency). 
+However, this can be modified by using the
 `compute_control` and `compute_value` parameters for the computation and the
 `output_control and` and `output_value` for the output to disk. The parameters
 for the `_control` values are the same as for the fluid and checkpointing.
@@ -245,5 +248,20 @@ writing the computed fields to disk via the usual common keywords.
    "type": "weak_gradient"
    "field": "u",
    "output_control" : "never"
+ }
+ ~~~~~~~~~~~~~~~
+
+### Spectral error indicator {#simcomp_speri}
+
+Computes the spectral error indicator as developed by Mavriplis (1989).
+This is an a posteriori error measure, based on the local properties of
+the spectral solution. This method formally only gives an indication of the error.
+
+The spectral error indicator is computed for the 3 velocity fields, resulting
+in 3 additional fields appended to the field files, similarly to 
+\ref simcomp_lambda2. 
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "spectral_error"
  }
  ~~~~~~~~~~~~~~~
