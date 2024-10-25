@@ -273,7 +273,7 @@ writing the computed fields to disk via the usual common keywords.
 
 ### Spectral error indicator {#simcomp_speri}
 
-Computes the spectral error indicator as developed by Mavriplis (1989).
+Computes the spectral error indicator as developed by Mavriplis (1989) (https://doi.org/10.1007/978-3-663-13975-1_34).
 This is an a posteriori error measure, based on the local properties of
 the spectral solution. This method formally only gives an indication of the error.
 
