@@ -229,7 +229,7 @@ use the `"output_filename"` parameter.
  {
    "type": "derivative",
    "field": "u",
-   "direction": "y",
+   "direction": "y"
  }
  ~~~~~~~~~~~~~~~
  
