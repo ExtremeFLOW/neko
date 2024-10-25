@@ -304,7 +304,7 @@ contains
     call bc_list_add(this%bclst_vel_res, this%bc_vel_res)
     call bc_list_add(this%bclst_vel_res, this%bc_vel_res_non_normal)
     call bc_list_add(this%bclst_vel_res, this%bc_sym)
-    call bc_list_add(this%bclst_vel_res, this%bc_sh)
+    call bc_list_add(this%bclst_vel_res, this%bc_sh%symmetry)
 
     !Initialize bcs for u, v, w velocity components
     call bc_list_init(this%bclst_du)
@@ -634,6 +634,10 @@ contains
 
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
+
+      ! Add Neumann bc contributions to the RHS
+      call bc_list_apply_vector(this%bclst_vel_neumann, f_x%x, f_y%x, f_z%x, &
+           this%dm_Xh%size(), t, tstep)
 
       ! Compute the grandient jump penalty term
       if (this%if_gradient_jump_penalty .eqv. .true.) then

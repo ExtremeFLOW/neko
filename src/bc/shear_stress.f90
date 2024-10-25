@@ -190,8 +190,8 @@ contains
     real(kind=rp), intent(in) :: tau_z(this%msk(0))
 
     call this%neumann_x%set_flux(tau_x)
-    call this%neumann_y%set_flux(tau_x)
-    call this%neumann_z%set_flux(tau_x)
+    call this%neumann_y%set_flux(tau_y)
+    call this%neumann_z%set_flux(tau_z)
 
   end subroutine shear_stress_set_stress_array
 

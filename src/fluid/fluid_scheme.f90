@@ -75,7 +75,7 @@ module fluid_scheme
   use scratch_registry, only : scratch_registry_t
   use user_intf, only : user_t, dummy_user_material_properties, &
                         user_material_properties
-  use utils, only : neko_error
+  use utils, only : neko_error, neko_warning
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
   use field_math, only : field_cfill
@@ -131,6 +131,7 @@ module fluid_scheme
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
      type(shear_stress_t) :: bc_sh             !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
+     type(bc_list_t) :: bclst_vel_neumann      !< List of neumann velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
      type(field_t) :: bdry                     !< Boundary markings
      type(json_file), pointer :: params        !< Parameters
@@ -409,6 +410,10 @@ contains
        call neko_log%message(log_buf)
        write(log_buf, '(A)') '''d_vel_(u,v,w)'' and ''d_pres'' = 8'
        call neko_log%message(log_buf)
+       write(log_buf, '(A)') 'Shear stress            ''sh'' = 9'
+       call neko_log%message(log_buf)
+       write(log_buf, '(A)') 'Wall modelling          ''wm'' = 10'
+       call neko_log%message(log_buf)
        write(log_buf, '(A)') 'No boundary condition set    = 0'
        call neko_log%message(log_buf)
     end if
@@ -441,18 +446,37 @@ contains
     call this%bc_sh%mark_zones_from_list(msh%labeled_zones, &
                         'sh', this%bc_labels)
     call this%bc_sh%finalize()
-    write(*,*) "BCLABELS ", this%bc_labels
-    write(*,*) "SH BC SIZE ", this%bc_sh%msk(0)
       ! This marks the dirichlet and neumann conditions inside, and finalizes
       ! them.
     call this%bc_sh%init_shear_stress(this%c_Xh)
+
+    call bc_list_add(this%bclst_vel, this%bc_sh%symmetry)
+
     write(*,*) "SH SYMMETRY X", this%bc_sh%symmetry%bc_x%marked_facet%size()
     write(*,*) "SH SYMMETRY Y", this%bc_sh%symmetry%bc_y%marked_facet%size()
     write(*,*) "SH SYMMETRY Z", this%bc_sh%symmetry%bc_z%marked_facet%size()
 
-    write(*,*) "BCLIST size ", this%bclst_vel%n
-    call bc_list_add(this%bclst_vel, this%bc_sh%symmetry)
-    write(*,*) "BCLIST size ", this%bclst_vel%n
+    write(*,*) "SH NEUMANN X", this%bc_sh%neumann_x%marked_facet%size()
+    write(*,*) "SH NEUMANN Y", this%bc_sh%neumann_y%marked_facet%size()
+    write(*,*) "SH NEUMANN Z", this%bc_sh%neumann_z%marked_facet%size()
+
+    ! Read stress value, default to [0 0 0]
+    if (this%bc_sh%msk(0) .gt. 0) then
+       call params%get('case.fluid.shear_stress.value', real_vec, logical_val)
+       if (.not. logical_val .and. this%bc_sh%msk(0) .gt. 0) then
+          call neko_warning("No stress values provided for sh boundaries, &
+               & defaulting to 0. Use fluid.shear_stress.value to set.")
+          allocate(real_vec(3))
+          real_vec = 0.0_rp
+       else if (size(real_vec) .ne. 3) then
+          call neko_error ("The shear stress vector provided in &
+               fluid.shear_stress.value should have 3 components.")
+       end if
+       call this%bc_sh%set_stress(real_vec(1), real_vec(2), real_vec(3))
+    end if
+
+    call bc_list_init(this%bclst_vel_neumann)
+    call bc_list_add(this%bclst_vel_neumann, this%bc_sh)
 
     !
     ! Inflow
@@ -538,7 +562,7 @@ contains
           call neko_error('Invalid wall model type '//string_val1)
        end if
 
-       call bc_list_add(this%bclst_vel, this%bc_wallmodel)
+       call bc_list_add(this%bclst_vel_neumann, this%bc_wallmodel)
     end if
 
     call this%bc_wall%init_base(this%c_Xh)
@@ -1160,6 +1184,22 @@ contains
                      'd_pres', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(8.0_rp)
+      call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+      call bdry_mask%free()
+
+      call bdry_mask%init_base(this%c_Xh)
+      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
+                     'sh', this%bc_labels)
+      call bdry_mask%finalize()
+      call bdry_mask%set_g(9.0_rp)
+      call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+      call bdry_mask%free()
+
+      call bdry_mask%init_base(this%c_Xh)
+      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
+                     'wm', this%bc_labels)
+      call bdry_mask%finalize()
+      call bdry_mask%set_g(10.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
       call bdry_mask%free()
 
