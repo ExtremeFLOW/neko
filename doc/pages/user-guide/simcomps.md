@@ -36,12 +36,19 @@ in Neko. The list will be updated as new simcomps are added.
 
 ## Controling execution and file output
 Most simulation components are, by default, executed once per time step to perform
-associated computations and output (except \ref simcomp_lambda2 and 
-\ref simcomp_speri which are executed with the field output frequency). 
-However, this can be modified by using the
+associated computations and output. The exceptions are:
+- \ref simcomp_lambda2, 
+- \ref simcomp_speri,
+- \ref simcomp_derivative,
+- \ref simcomp_vorticity,
+
+which are executed with the field output frequency.
+
+This can be modified by using the
 `compute_control` and `compute_value` parameters for the computation and the
 `output_control and` and `output_value` for the output to disk. The parameters
 for the `_control` values are the same as for the fluid and checkpointing.
+
 Additionally, one can set `output_control` to `global` and `never`. The former
 will sync the `output_` parameter to that of the fluid. Choosing `never` will
 suppress output all together. If no parameters for the `output_` parameters are
@@ -66,12 +73,25 @@ vorticity fields will be added to the main `.fld` file.
 
 ### vorticity {#simcomp_vorticity}
 Computes the vorticity field an stores in the field registry as `omega_x`,
-`omega_y` and `omega_z`.
+`omega_y` and `omega_z`. By default, appends the 3 vorticity fields to the field files as 
+scalars. To output in a different `fld` series, use the `"output_filename"` parameter.
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "vorticity"
+ }
+ ~~~~~~~~~~~~~~~
 
 ### lambda2 {#simcomp_lambda2}
 Computes \f$ \lambda_2 \f$ for the velocity field and stores it in the normal output files as the first unused field.
 This means that \f$ \lambda_2 \f$ can be found in the temperature field in then fld files if running without a scalar
-and s1 if neko is run with one scalar.
+and s1 if neko is run with one scalar. To output in a different `fld` series, use the `"output_filename"` parameter.
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "lambda2"
+ }
+ ~~~~~~~~~~~~~~~
 
 ### probes {#simcomp_probes}
 Probes selected solution fields at a list of points. This list of points can be
@@ -201,15 +221,15 @@ field to derivate is controlled by the `field` keyword and the direction by the
 `direction` keyword. The simcomp will register the computed derivatives in the
 registry as `d[field]_d[direction]`, where the values in the brackets
 correspond to the choice of the user keywords. Supports writing the computed
-fields to disk via the usual common keywords.
+fields to disk via the usual common keywords. The resulting field will be
+appended as a scalar to the field files. To output in a different `fld` series, 
+use the `"output_filename"` parameter.
 
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "derivative",
    "field": "u",
-   "direction", "y",
-   "output_control" : "simulation_time",
-   "output_value" : 1.0
+   "direction": "y",
  }
  ~~~~~~~~~~~~~~~
  
@@ -258,9 +278,9 @@ This is an a posteriori error measure, based on the local properties of
 the spectral solution. This method formally only gives an indication of the error.
 
 The spectral error indicator is computed for the 3 velocity fields, resulting
-in 3 additional fields appended to the field files, similarly to 
-\ref simcomp_lambda2. 
- ~~~~~~~~~~~~~~~{.json}
+in 3 additional fields appended to the field files.
+
+~~~~~~~~~~~~~~~{.json}
  {
    "type": "spectral_error"
  }
