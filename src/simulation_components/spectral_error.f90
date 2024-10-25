@@ -43,7 +43,7 @@ module spectral_error
   use gather_scatter
   use neko_config
   use logger, only: neko_log
-  use device, only: DEVICE_TO_HOST, device_memcpy
+  use device, only: DEVICE_TO_HOST, HOST_TO_DEVICE, device_memcpy
   use comm, only: pe_rank
   use utils, only: NEKO_FNAME_LEN, neko_error
   use field_writer, only: field_writer_t
@@ -180,7 +180,7 @@ contains
     allocate(this%sig_v(coef%msh%nelv))
     allocate(this%sig_w(coef%msh%nelv))
 
-    !> The following code has been lifted from Adams implementation
+    !> The following code has been lifted from Adam's implementation
     associate(LX1 => coef%Xh%lx, LY1 => coef%Xh%ly, &
       LZ1 => coef%Xh%lz, &
       SERI_SMALL  => this%SERI_SMALL,  &
@@ -193,13 +193,13 @@ contains
       )
       ! correctness check
       if (SERI_NP.gt.SERI_NP_MAX) then
-         if (pe_rank.eq.0) write(*,*) 'SETI_NP greater than SERI_NP_MAX'
+         call neko_log%message('SETI_NP greater than SERI_NP_MAX')
       endif
       il = SERI_NP+SERI_ELR
       jl = min(LX1,LY1)
       jl = min(jl,LZ1)
       if (il.gt.jl) then
-         if (pe_rank.eq.0) write(*,*) 'SERI_NP+SERI_ELR greater than L?1'
+         call neko_log%message('SERI_NP+SERI_ELR greater than L?1')
       endif
     end associate
 
@@ -253,7 +253,7 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    integer :: e, i, lx, ly, lz, nelv
+    integer :: e, i, lx, ly, lz, nelv, n
 
     call neko_log%message("COMPUTE SPEI")
 
@@ -272,6 +272,18 @@ contains
           this%w_hat%x(i,1,1,e) = this%eind_w(e)
        end do
     end do
+
+    ! We need this copy to GPU since the field writer does an internal copy
+    ! GPU -> CPU before writing the field files. This overwrites the *_hat
+    ! host arrays that contain the values.
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%u_hat%x, this%u_hat%x_d, lx*ly*lz*nelv, &
+                         HOST_TO_DEVICE, sync = .true.)
+       call device_memcpy(this%v_hat%x, this%v_hat%x_d, lx*ly*lz*nelv, &
+                         HOST_TO_DEVICE, sync = .true.)
+       call device_memcpy(this%w_hat%x, this%w_hat%x_d, lx*ly*lz*nelv, &
+                         HOST_TO_DEVICE, sync = .true.)
+    end if
 
   end subroutine spectral_error_compute
 
@@ -336,17 +348,16 @@ contains
     call transform_to_spec_or_phys(this%v_hat, this%v, this%wk, coef, 'spec')
     call transform_to_spec_or_phys(this%w_hat, this%w, this%wk, coef, 'spec')
 
-
     ! Get the spectral error indicator
-    call calculate_indicators(this, coef, this%eind_u, this%sig_u, coef%msh%nelv, &
-                              coef%Xh%lx,  coef%Xh%ly,  coef%Xh%lz, &
-                              this%u_hat%x)
-    call calculate_indicators(this, coef, this%eind_v, this%sig_v, coef%msh%nelv, &
-                              coef%Xh%lx,  coef%Xh%ly,  coef%Xh%lz, &
-                              this%v_hat%x)
-    call calculate_indicators(this, coef, this%eind_w, this%sig_w, coef%msh%nelv, &
-                              coef%Xh%lx,  coef%Xh%ly,  coef%Xh%lz, &
-                              this%w_hat%x)
+    call calculate_indicators(this, coef, this%eind_u, this%sig_u, &
+         coef%msh%nelv, coef%Xh%lx,  coef%Xh%ly,  coef%Xh%lz, &
+         this%u_hat%x)
+    call calculate_indicators(this, coef, this%eind_v, this%sig_v, &
+         coef%msh%nelv, coef%Xh%lx,  coef%Xh%ly,  coef%Xh%lz, &
+         this%v_hat%x)
+    call calculate_indicators(this, coef, this%eind_w, this%sig_w, &
+         coef%msh%nelv, coef%Xh%lx,  coef%Xh%ly,  coef%Xh%lz, &
+         this%w_hat%x)
 
   end subroutine spectral_error_get_indicators
 
