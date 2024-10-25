@@ -144,8 +144,6 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    write (*,*) "COMPUTE L2"
-
     call lambda2op(this%lambda2, this%u, this%v, this%w, this%case%fluid%c_Xh)
 
   end subroutine lambda2_compute

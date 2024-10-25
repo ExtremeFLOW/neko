@@ -255,8 +255,6 @@ contains
 
     integer :: e, i, lx, ly, lz, nelv, n
 
-    call neko_log%message("COMPUTE SPEI")
-
     call this%get_indicators(this%case%fluid%c_Xh)
 
     lx = this%u_hat%Xh%lx
