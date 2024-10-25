@@ -87,9 +87,8 @@ contains
     character(len=20) :: fields(1)
     type(field_t), pointer :: u, v, w, lambda2
 
-    real(kind=rp) :: fluid_output_value
+    real(kind=rp) :: fluid_output_value, val
     character(len=:), allocatable :: fluid_output_control, str
-    logical :: found
 
     ! Add fields keyword to the json so that the field_writer picks it up.
     ! Will also add fields to the registry.
@@ -103,17 +102,8 @@ contains
 
     ! See if the user has set a compute control, otherwise
     ! set it to the fluid output control.
-    ! NOTE: We do not use get_or_default here, as we need to manually add
-    ! entries to the json to bypass the get_or_default in the init_base later.
-    ! fluid_output_control will follow compute_control unless manually set by the
-    ! user.
-    call json%get("compute_control", str, found)
-    if (.not. found) then
-       call json%add("compute_control", fluid_output_control)
-       ! Use "update" and not "add" just in case compute_value is present
-       ! in the json file.
-       call json%update("compute_value", fluid_output_value, found)
-    end if
+    call json_get_or_default(json, "compute_control", val, fluid_output_control)
+    call json_get_or_default(json, "compute_value", str, fluid_output_value)
 
     call this%init_base(json, case)
     call this%writer%init(json, case)
