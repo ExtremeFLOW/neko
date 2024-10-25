@@ -49,7 +49,7 @@ module spectral_error
   use field_writer, only: field_writer_t
   use simulation_component, only: simulation_component_t
   use json_module, only: json_file
-  use json_utils, only: json_get_or_default
+  use json_utils, only: json_get, json_get_or_default
   use case, only: case_t
   use field_registry, only: neko_field_registry
 
@@ -120,7 +120,6 @@ contains
 
     real(kind=rp) :: fluid_output_value, val
     character(len=:), allocatable :: fluid_output_control, str
-    logical :: found
 
     !> Add keyword "fields" to the json so that the field writer
     ! picks it up. Will also add those fields to the registry.
@@ -129,15 +128,15 @@ contains
     fields(3) = "w_hat"
     call json%add("fields", fields)
 
-    call case%params%get("case.fluid.output_control", fluid_output_control, &
-         found)
-    call case%params%get("case.fluid.output_value", fluid_output_value, &
-         found)
+    call json_get(case%params, "case.fluid.output_control", &
+         fluid_output_control)
+    call json_get(case%params, "case.fluid.output_value", &
+         fluid_output_value)
 
     ! See if the user has set a compute control, otherwise
     ! set it to the fluid output control.
-    call json_get_or_default(json, "compute_control", val, fluid_output_control)
-    call json_get_or_default(json, "compute_value", str, fluid_output_value)
+    call json_get_or_default(json, "compute_control", str, fluid_output_control)
+    call json_get_or_default(json, "compute_value", val, fluid_output_value)
 
     call this%init_base(json, case)
     call this%writer%init(json, case)
@@ -246,6 +245,8 @@ contains
     integer, intent(in) :: tstep
 
     integer :: e, i, lx, ly, lz, nelv, n
+
+    print *, "COMPUTEEEEEE"
 
     call this%get_indicators(this%case%fluid%c_Xh)
 

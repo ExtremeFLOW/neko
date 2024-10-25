@@ -37,6 +37,7 @@
 module lambda2
   use num_types, only : rp
   use json_module, only : json_file
+  use json_utils, only: json_get, json_get_or_default
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use field, only : field_t
@@ -95,15 +96,15 @@ contains
     fields(1) = "lambda2"
     call json%add("fields", fields)
 
-    call case%params%get("case.fluid.output_control", fluid_output_control, &
-         found)
-    call case%params%get("case.fluid.output_value", fluid_output_value, &
-         found)
+    call json_get(case%params, 'case.fluid.output_control', &
+         fluid_output_control)
+    call json_get(case%params, "case.fluid.output_value", &
+         fluid_output_value)
 
     ! See if the user has set a compute control, otherwise
     ! set it to the fluid output control.
-    call json_get_or_default(json, "compute_control", val, fluid_output_control)
-    call json_get_or_default(json, "compute_value", str, fluid_output_value)
+    call json_get_or_default(json, "compute_control", str, fluid_output_control)
+    call json_get_or_default(json, "compute_value", val, fluid_output_value)
 
     call this%init_base(json, case)
     call this%writer%init(json, case)
