@@ -208,12 +208,18 @@ contains
     type(field_t), intent(in) :: F_in
     type(field_t), intent(inout) :: F_out
     integer :: n, i
-    type(field_t), pointer :: RHS
+    ! type(field_t), pointer :: RHS
+    type(field_t) :: RHS
     character(len=LOG_SIZE) :: log_buf
-    integer :: temp_indices(1)
+    ! integer :: temp_indices(1)
 
     n = this%coef%dof%size()
-    call neko_scratch_registry%request_field(RHS, temp_indices(1))
+    ! TODO
+    ! This is a bit awkward, because the init for the source terms occurs
+    ! before the init of the scratch registry.
+    ! So we can't use the scratch registry here.
+    ! call neko_scratch_registry%request_field(RHS, temp_indices(1))
+    call RHS%init(this%coef%dof)
 
     ! set up Helmholtz operators and RHS
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -265,7 +271,8 @@ contains
          this%ksp_results%res_start, this%ksp_results%res_final
     call neko_log%message(log_buf)
 
-    call neko_scratch_registry%relinquish_field(temp_indices)
+    !call neko_scratch_registry%relinquish_field(temp_indices)
+    call RHS%free()
 
   end subroutine PDE_filter_apply
 
