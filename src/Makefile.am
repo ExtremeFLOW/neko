@@ -298,6 +298,8 @@ neko_fortran_SOURCES = \
 	source_terms/source_term_fctry.f90\
 	source_terms/brinkman_source_term.f90\
 	source_terms/brinkman/filters.f90\
+	source_terms/brinkman/filter.f90\
+	source_terms/brinkman/PDE_filter.f90\
 	source_terms/bcknd/cpu/filters_cpu.f90\
 	les/les_model.f90\
 	les/les_model_fctry.f90\

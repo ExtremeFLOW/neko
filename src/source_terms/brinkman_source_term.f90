@@ -32,7 +32,7 @@
 !
 !> Implements the `brinkman_source_term_t` type.
 module brinkman_source_term
-  use num_types, only: rp, dp
+  use num_types, only: rp, dp, sp
   use field, only: field_t
   use field_list, only: field_list_t
   use json_module, only: json_file
@@ -42,7 +42,9 @@ module brinkman_source_term
   use coefs, only: coef_t
   use neko_config, only: NEKO_BCKND_DEVICE
   use utils, only: neko_error
-  use field_math, only: field_subcol3
+  use filter, only: filter_t
+  use PDE_filter, only: PDE_filter_t
+  use field_math, only: field_subcol3, field_copy
   implicit none
   private
 
@@ -52,10 +54,14 @@ module brinkman_source_term
   type, public, extends(source_term_t) :: brinkman_source_term_t
      private
 
+     !> The unfiltered indicator field
+     type(field_t) :: indicator_unfiltered 
      !> The value of the source term.
      type(field_t) :: indicator
      !> Brinkman permeability field.
      type(field_t) :: brinkman
+     !> Filter 
+     class(filter_t), allocatable :: filter
    contains
      !> The common constructor using a JSON object.
      procedure, public, pass(this) :: init => &
@@ -69,6 +75,7 @@ module brinkman_source_term
      ! Private methods
      procedure, pass(this) :: init_boundary_mesh
      procedure, pass(this) :: init_point_zone
+
   end type brinkman_source_term_t
 
 contains
@@ -89,6 +96,10 @@ contains
     use signed_distance, only: signed_distance_field
     use profiler, only: profiler_start_region, profiler_end_region
     use json_module, only: json_core, json_value
+    use math, only : copy
+
+    ! delete later
+    use fld_file_output
     implicit none
 
     class(brinkman_source_term_t), intent(inout) :: this
@@ -98,6 +109,7 @@ contains
     real(kind=rp) :: start_time, end_time
 
     character(len=:), allocatable :: filter_type
+    real(kind=rp) :: filter_radius
     real(kind=rp), dimension(:), allocatable :: brinkman_limits
     real(kind=rp) :: brinkman_penalty
 
@@ -108,6 +120,12 @@ contains
     type(json_file) :: object_settings
     integer :: n_regions
     integer :: i
+
+
+    ! delete later,
+    ! I just want to look at them
+    type(field_t), pointer :: fu,fv
+    type(fld_file_output_t) :: fout
 
     ! Mandatory fields for the general source term
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
@@ -161,14 +179,32 @@ contains
 
     end do
 
-    ! Run filter on the full indicator field to smooth it out.
-    call json_get_or_default(json, 'filter.type', filter_type, 'none')
+    ! ------------------------------------------------------------------------ !
+    ! Filter the indicator field
 
+    call json_get_or_default(json, 'filter.type', filter_type, 'none')
     select case (filter_type)
-      case ('none')
-       ! Do nothing
-      case default
-       call neko_error('Brinkman source term unknown filter type')
+       case ('PDE')
+          ! Initialize the unfiltered design field
+          call this%indicator_unfiltered%init(coef%dof)
+
+          ! Allocate a PDE filter
+          allocate(PDE_filter_t::this%filter)
+
+          ! Initialize the filter
+          call this%filter%init(json, coef)
+
+          ! Copy the current indicator to unfiltered (essentially a rename) 
+          call field_copy(this%indicator_unfiltered, this%indicator)
+
+          ! Apply the filter
+          call this%filter%apply(this%indicator, this%indicator_unfiltered)
+
+       case ('none')
+          ! do nothing
+
+       case default
+          call neko_error('Brinkman source term unknown filter type')
     end select
 
     ! ------------------------------------------------------------------------ !
@@ -347,17 +383,6 @@ contains
        call neko_error('Unknown distance transform')
     end select
 
-    ! ------------------------------------------------------------------------ !
-    ! Run filter on the temporary indicator field to smooth it out.
-    call json_get_or_default(json, 'filter.type', filter_type, 'none')
-
-    select case (filter_type)
-      case ('none')
-       ! Do nothing
-      case default
-       call neko_error('Unknown filter type')
-    end select
-
     ! Update the global indicator field by max operator
     this%indicator%x = max(this%indicator%x, temp_field%x)
 
@@ -379,7 +404,6 @@ contains
 
     ! Options
     character(len=:), allocatable :: zone_name
-    character(len=:), allocatable :: filter_type
 
     type(field_t) :: temp_field
     class(point_zone_t), pointer :: my_point_zone
@@ -389,7 +413,6 @@ contains
     ! Read the options for the point zone
 
     call json_get(json, 'name', zone_name)
-    call json_get_or_default(json, 'filter.type', filter_type, 'none')
 
     ! Compute the indicator field
 
@@ -400,15 +423,6 @@ contains
     do i = 1, my_point_zone%size
        temp_field%x(my_point_zone%mask(i), 1, 1, 1) = 1.0_rp
     end do
-
-    ! Run filter on the temporary indicator field to smooth it out.
-
-    select case (filter_type)
-      case ('none')
-       ! Do nothing
-      case default
-       call neko_error('Unknown filter type')
-    end select
 
     ! Update the global indicator field by max operator
     this%indicator%x = max(this%indicator%x, temp_field%x)
