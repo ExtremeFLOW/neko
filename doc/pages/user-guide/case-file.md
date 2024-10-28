@@ -214,6 +214,25 @@ vector with three components, corresponding to the three coordinate axes. It is
 the responsibility of the user to set the vector in the direction parallel to
 the boundary.
 
+### Wall model  boundary conditions {#case-file_fluid-wm}
+The object `wall_modelling` is used to specify the wall model configuration for
+`wm` boundaries. The following wall models are currently available, selectable
+via the `type` keyword:
+
+1. `rough_log_law`. Implements the logarithmic law for rough walls. Additional
+parameters are `kappa`, `B`, and `z0`. The latter is the roughness length-scale
+normalizing the wall-normal coordinate, and the former two are the standard
+log-law constants. The value of `kappa` defaults to 0.41.
+
+2. `spalding`. Implements the Spalding profile. Additional
+parameters are `kappa` and `B`, which are the standard log-law constants. The
+default values are 0.41 and 5.2, respectively.
+
+For all wall models, the distance to the sampling point has to be specified
+based on the off-wall index in the wall-normal direction. Thus, the sampling
+is currently from a GLL node and arbitrary distances are not yet supported.
+The index is set by the `h_index` keyword, with 1 being the minimal value, and
+the polynomial order + 1 being the maximum.
 
 ### Initial conditions {#case-file_fluid-ic}
 The object `initial_condition` is used to provide initial conditions.
@@ -500,9 +519,9 @@ The configuration uses the following parameters:
 
 
 ### Full parameter table
-All the parameters are summarized in the table below.
-This includes all the subobjects discussed above, as well as keyword parameters
-that can be described concisely directly in the table.
+All the parameters are summarized in the table below. This includes all the
+subobjects discussed above, as well as keyword parameters that can be described
+concisely directly in the table.
 
 | Name                                    | Description                                                                                       | Admissible values                                | Default value |
 | --------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ------------- |
@@ -523,8 +542,10 @@ that can be described concisely directly in the table.
 | `blasius.delta`                         | Boundary layer thickness in the Blasius profile.                                                  | Positive real                                    | -             |
 | `blasius.freestream_velocity`           | Free-stream velocity in the Blasius profile.                                                      | Vector of 3 reals                                | -             |
 | `blasius.approximation`                 | Numerical approximation of the Blasius profile.                                                   | `linear`, `quadratic`, `cubic`, `quartic`, `sin` | -             |
+| `shear_stress.value`                    | The shear stress vector value for `sh` boundaries                                                 | Vector of 3 reals                                | `[0, 0, 0]`   |
+| `wall_modelling.type`                   | The wall model type for `wm` boundaries. See documentation for additional config parameters.      | `rough_log_law`, `spalding`                      | -             |
 | `source_terms`                          | Array of JSON objects, defining additional source terms.                                          | See list of source terms above                   | -             |
-|`gradient_jump_penalty`                  | Array of JSON objects, defining additional gradient jump penalty.                                 | See list of gradient jump penalty above                 | -  |
+| `gradient_jump_penalty`                 | Array of JSON objects, defining additional gradient jump penalty.                                 | See list of gradient jump penalty above          | -             |
 | `boundary_types`                        | Boundary types/conditions labels.                                                                 | Array of strings                                 | -             |
 | `velocity_solver.type`                  | Linear solver for the momentum equation.                                                          | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`      | -             |
 | `velocity_solver.preconditioner`        | Linear solver preconditioner for the momentum equation.                                           | `ident`, `hsmg`, `jacobi`                        | -             |
