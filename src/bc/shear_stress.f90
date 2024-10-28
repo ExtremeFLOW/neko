@@ -173,9 +173,9 @@ contains
     real(kind=rp), intent(in) :: tau_z
 
     ! Calls finalize and allocates the flux arrays
-    call this%neumann_x%finalize_neumann(tau_x)
-    call this%neumann_y%finalize_neumann(tau_y)
-    call this%neumann_z%finalize_neumann(tau_z)
+    call this%neumann_x%set_flux(tau_x)
+    call this%neumann_y%set_flux(tau_y)
+    call this%neumann_z%set_flux(tau_z)
 
 
   end subroutine shear_stress_set_stress_scalar
