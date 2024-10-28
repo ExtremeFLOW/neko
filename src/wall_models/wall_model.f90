@@ -170,9 +170,11 @@ module wall_model
 
 contains
   !> Constructor for the wall_model_t (base) class.
-  !! @param dof SEM map of degrees of freedom.
   !! @param coef SEM coefficients.
-  !! @param nu_name The name of the turbulent viscosity field.
+  !! @param msk The underlying mask of the boundary condition.
+  !! @param facet, The underlying facet index list of the boundary condition.
+  !! @param nu The kinematic viscosity.
+  !! @param index The off-wall index of the sampling point.
   subroutine wall_model_init_base(this, coef, msk, facet, nu, index)
     class(wall_model_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
@@ -189,8 +191,6 @@ contains
     this%facet(0:msk(0)) => facet
     this%nu = nu
     this%h_index = index
-
-    write(*,*) "INIT WM BASE", msk(0), size(this%msk), nu, index
 
     call neko_field_registry%add_field(this%dof, "tau", &
                                        ignore_existing = .true.)
@@ -243,6 +243,7 @@ contains
     call this%n_z%free()
   end subroutine wall_model_free_base
 
+  !> Find sampling points based on the requested index.
   subroutine wall_model_find_points(this)
     class(wall_model_t), intent(inout) :: this
     integer :: n_nodes, fid, idx(4), i, linear
@@ -265,8 +266,6 @@ contains
        ! inward normal
        normal = -normal
 
-!       write(*,*) "FID", i, fid, normal, linear, n_nodes
-!       write(*,*) "facet", this%facet(i), this%facet(i+1)
        select case (fid)
        case (1)
          this%ind_r(i) = idx(1) + this%h_index
@@ -303,7 +302,6 @@ contains
        zw = this%dof%z(idx(1), idx(2), idx(3), idx(4))
 
        ! Location of the sampling point
-       write(*,*) "IND", this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i), fid
        x = this%dof%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
                       this%ind_e(i))
        y = this%dof%y(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
@@ -336,7 +334,7 @@ contains
     hmax = glmax(this%h%x, n_nodes)
 
     if (pe_rank .eq. 0) then
-       write(*,*) "h min / max", hmin, hmax, this%msk(0)
+       write(*, "(A, F10.4, F10.4)") "   h min / max:", hmin, hmax
     end if
 
 
