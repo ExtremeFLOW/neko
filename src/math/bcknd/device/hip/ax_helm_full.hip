@@ -127,6 +127,25 @@ extern "C" {
         }
       }
   }
+
+  /**
+   * Fortran wrapper for device HIP Ax vector version part2
+   */
+  void hip_ax_helm_full_vector_part2(void *au, void *av, void *aw,
+                                 void *u, void *v, void *w,
+                                 void *h2, void *B, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
+    hipLaunchKernelGGL( HIP_KERNEL_NAME( ax_helm_full_kernel_vector_part2<real> ),
+                        nblcks, nthrds, 0, stream,
+                        (real *) au, (real *) av, (real *) aw,
+                        (real *) u, (real *) v, (real *) w,
+                        (real *) h2, (real *) B, *n);
+  }
+
 }
 
 template < const int LX >
