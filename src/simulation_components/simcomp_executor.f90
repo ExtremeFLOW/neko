@@ -50,25 +50,28 @@ module simcomp_executor
   !! The execution order is based on the order property of each simcomp.
   !! By default, the order is by the order of apparence in the case file.
   type, public :: simcomp_executor_t
+     private
      !> The simcomps.
      class(simulation_component_wrapper_t), allocatable :: simcomps(:)
      !> Number of simcomps
      integer :: n_simcomps
      !> The case
      type(case_t), pointer :: case
+     !> Flag to indicate if the simcomp executor has been finalized.
+     logical :: finalized = .false.
    contains
      !> Constructor.
-     procedure, pass(this) :: init => simcomp_executor_init
+     procedure, public, pass(this) :: init => simcomp_executor_init
      !> Destructor.
-     procedure, pass(this) :: free => simcomp_executor_free
+     procedure, public, pass(this) :: free => simcomp_executor_free
      !> Appending a new simcomp to the executor.
-     procedure, pass(this) :: add_user_simcomp => simcomp_executor_add
+     procedure, public, pass(this) :: add_user_simcomp => simcomp_executor_add
      !> Execute preprocess_ for all simcomps.
-     procedure, pass(this) :: preprocess => simcomp_executor_preprocess
+     procedure, public, pass(this) :: preprocess => simcomp_executor_preprocess
      !> Execute compute_ for all simcomps.
-     procedure, pass(this) :: compute => simcomp_executor_compute
+     procedure, public, pass(this) :: compute => simcomp_executor_compute
      !> Execute restart for all simcomps.
-     procedure, pass(this) :: restart=> simcomp_executor_restart
+     procedure, public, pass(this) :: restart=> simcomp_executor_restart
      !> Finalize the initialization.
      procedure, pass(this) :: finalize => simcomp_executor_finalize
   end type simcomp_executor_t
@@ -180,7 +183,6 @@ contains
     end if
 
     ! Cleanup
-    call neko_simcomps%finalize()
     deallocate(order)
     deallocate(read_order)
     deallocate(mask)
@@ -207,7 +209,7 @@ contains
   subroutine simcomp_executor_add(this, object, settings)
     class(simcomp_executor_t), intent(inout) :: this
     class(simulation_component_t), intent(in) :: object
-    type(json_file), intent(inout) :: settings
+    type(json_file), intent(inout), optional :: settings
 
     class(simulation_component_wrapper_t), allocatable :: tmp_simcomps(:)
     integer :: i, position
@@ -222,27 +224,28 @@ contains
     end do
 
     ! If no empty position was found, append to the end
-    if (position == 0) then
-       call move_alloc(this%simcomps, tmp_simcomps)
+    if (position .eq. 0) then
+       if (this%n_simcomps .gt. 0) call move_alloc(this%simcomps, tmp_simcomps)
        allocate(this%simcomps(this%n_simcomps + 1))
 
        if (allocated(tmp_simcomps)) then
           do i = 1, this%n_simcomps
              call move_alloc(tmp_simcomps(i)%simcomp, this%simcomps(i)%simcomp)
           end do
-          deallocate(tmp_simcomps)
        end if
 
        this%n_simcomps = this%n_simcomps + 1
        position = this%n_simcomps
+
+       if (allocated(tmp_simcomps)) deallocate(tmp_simcomps)
     end if
 
     this%simcomps(position)%simcomp = object
-    call this%simcomps(position)%simcomp%init(settings, this%case)
-
-    if (allocated(tmp_simcomps)) then
-       deallocate(tmp_simcomps)
+    if (present(settings)) then
+       call this%simcomps(position)%simcomp%init(settings, this%case)
     end if
+
+    this%finalized = .false.
 
   end subroutine simcomp_executor_add
 
@@ -323,7 +326,9 @@ contains
        deallocate(order_list)
     end if
 
+    this%finalized = .true.
   end subroutine simcomp_executor_finalize
+
   !> Execute preprocess_ for all simcomps.
   !! @param t The time value.
   !! @param tstep The timestep number.
@@ -332,6 +337,8 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     integer :: i
+
+    if (.not. this%finalized) call this%finalize()
 
     if (allocated(this%simcomps)) then
        do i = 1, size(this%simcomps)
@@ -349,6 +356,8 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     integer :: i
+
+    if (.not. this%finalized) call this%finalize()
 
     if (allocated(this%simcomps)) then
        do i = 1, this%n_simcomps
