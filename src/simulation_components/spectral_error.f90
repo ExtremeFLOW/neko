@@ -246,7 +246,6 @@ contains
 
     integer :: e, i, lx, ly, lz, nelv, n
 
-    print *, "COMPUTEEEEEE"
 
     call this%get_indicators(this%case%fluid%c_Xh)
 
