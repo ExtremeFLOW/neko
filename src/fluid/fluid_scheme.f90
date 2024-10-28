@@ -70,7 +70,7 @@ module fluid_scheme
   use operators, only : cfl
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, json_extract_object
   use json_module, only : json_file
   use scratch_registry, only : scratch_registry_t
   use user_intf, only : user_t, dummy_user_material_properties, &
@@ -275,6 +275,7 @@ contains
     real(kind=rp) :: real_val, kappa, B, z0
     logical :: logical_val
     integer :: integer_val, ierr
+    type(json_file) :: wm_json
     character(len=:), allocatable :: string_val1, string_val2
 
     !
@@ -522,43 +523,14 @@ contains
     call this%bc_wallmodel%mark_zones_from_list(msh%labeled_zones,&
          'wm', this%bc_labels)
     call this%bc_wallmodel%finalize()
-    call this%bc_wallmodel%init_wall_model_bc(this%c_Xh)
+
+    if (this%bc_wallmodel%msk(0) .gt. 0) then
+       call json_extract_object(params, 'case.fluid.wall_modelling', wm_json)
+       call this%bc_wallmodel%init_wall_model_bc(wm_json, this%mu / this%rho)
+    end if
 
     call bc_list_add(this%bclst_vel, this%bc_wallmodel%symmetry)
     call bc_list_add(this%bclst_vel_neumann, this%bc_wallmodel)
-
-    if (params%valid_path('case.fluid.wall_modelling')) then
-
-       call json_get(params, 'case.fluid.wall_modelling.h_index', integer_val)
-       call json_get(params, 'case.fluid.wall_modelling.type', string_val1)
-
-       if (trim(string_val1) .eq. "spalding") then
-          allocate(spalding_t::this%bc_wallmodel%wall_model)
-          call json_get(params, 'case.fluid.wall_modelling.kappa', kappa)
-          call json_get(params, 'case.fluid.wall_modelling.B', B)
-          select type (wm => this%bc_wallmodel%wall_model)
-          type is (spalding_t)
-             call wm%init_from_components(&
-                   this%c_Xh, this%bc_wallmodel%msk, this%bc_wallmodel%facet, &
-                   this%mu / this%rho, integer_val, kappa, B)
-          end select
-       else if (trim(string_val1) .eq. "rough_log_law") then
-          allocate(rough_log_law_t::this%bc_wallmodel%wall_model)
-          call json_get(params, 'case.fluid.wall_modelling.kappa', kappa)
-          call json_get(params, 'case.fluid.wall_modelling.B', B)
-          call json_get(params, 'case.fluid.wall_modelling.z0', z0)
-          select type (wm => this%bc_wallmodel%wall_model)
-          type is (rough_log_law_t)
-             call wm%init_from_components(&
-                   this%c_Xh, this%bc_wallmodel%msk, this%bc_wallmodel%facet, &
-                   this%mu / this%rho, integer_val, kappa, B, z0)
-          end select
-       else
-          call neko_error('Invalid wall model type '//string_val1)
-       end if
-
-       call bc_list_add(this%bclst_vel_neumann, this%bc_wallmodel)
-    end if
 
     call this%bc_wall%init_base(this%c_Xh)
     call this%bc_wall%mark_zone(msh%wall)

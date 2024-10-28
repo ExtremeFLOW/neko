@@ -155,13 +155,12 @@ module wall_model
      !! @param h_index The off-wall index of the sampling cell.
      !! @param json A dictionary with parameters.
      module subroutine wall_model_factory(object, coef, msk, facet, nu, &
-          h_index, json)
+          json)
        class(wall_model_t), allocatable, target, intent(inout) :: object
        type(coef_t), intent(in) :: coef
        integer, intent(in) :: msk(:)
        integer, intent(in) :: facet(:)
        real(kind=rp), intent(in) :: nu
-       integer, intent(in) :: h_index
        type(json_file), intent(inout) :: json
      end subroutine wall_model_factory
   end interface

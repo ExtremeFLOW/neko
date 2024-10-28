@@ -38,10 +38,11 @@ module wall_model_bc
     use, intrinsic :: iso_c_binding, only : c_ptr
     use utils, only : neko_error, nonlinear_index
     use coefs, only : coef_t
-    use wall_model, only : wall_model_t
+    use wall_model, only : wall_model_t, wall_model_factory
     use rough_log_law, only : rough_log_law_t
     use spalding, only : spalding_t
     use shear_stress, only : shear_stress_t
+    use json_module, only : json_file
     implicit none
     private
 
@@ -146,11 +147,15 @@ module wall_model_bc
 
     !> Constructor.
     !> @param coef The SEM coefficients.
-    subroutine wall_model_bc_init_wall_model_bc(this, coef)
+    subroutine wall_model_bc_init_wall_model_bc(this, json, nu)
       class(wall_model_bc_t), intent(inout) :: this
-      type(coef_t), target, intent(in) :: coef
+      type(json_file), intent(inout) :: json
+      real(kind=rp), intent(in) :: nu
 
       call this%shear_stress_t%init_shear_stress(this%coef)
+
+      call wall_model_factory(this%wall_model, this%coef, this%msk, &
+           this%facet, nu, json)
 
     end subroutine wall_model_bc_init_wall_model_bc
 
