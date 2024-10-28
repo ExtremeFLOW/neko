@@ -37,7 +37,6 @@ module shear_stress
   use, intrinsic :: iso_c_binding, only : c_ptr
   use utils, only : neko_error, nonlinear_index
   use coefs, only : coef_t
-  use dirichlet, only : dirichlet_t
   use symmetry, only : symmetry_t
   use neumann, only : neumann_t
   use math, only : copy

@@ -99,8 +99,8 @@ module wall_model_bc
         this%wall_model%tau_field%x(this%msk(i),1,1,1) = magtau
       end do
 
-!      call this%shear_stress_t%set_stress(this%wall_model%tau_x, &
-!                                          this%wall_model%tau_z)
+      call this%shear_stress_t%set_stress(this%wall_model%tau_x,
+           this%wall_model%tau_y, this%wall_model%tau_z)
 !      call this%shear_stress_t%apply_vector(x, y, z, n, t, tstep)
 
     end subroutine wall_model_bc_apply_vector
