@@ -985,7 +985,8 @@ contains
     L(1) = x
 
     do j=1, N-1
-       L(j+1) = ( (2.0_xp*j+1.0_xp) * x * L(j) - real(j,xp) * L(j-1) ) / (j+1.0_xp) 
+       L(j+1) = ( (2.0_xp * real(j, xp) + 1.0_xp) * x * L(j) &
+            - real(j, xp) * L(j-1) ) / (real(j, xp) + 1.0_xp) 
     end do
   end subroutine legendre_poly
 
