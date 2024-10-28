@@ -973,9 +973,10 @@ contains
     if (n.eq.0) pnleg = 1.
     RETURN
   end function PNLEG
-  
+   
+  !> Evaluate Legendre polynomials of degrees 0-N at point x
+  !! and store in array L
   subroutine legendre_poly(L, x, N)
-    ! Evaluate Legendre polynomials of degrees 0-N at point x
     real(kind=rp), intent(inout):: L(0:N)
     real(kind=rp) :: x
     integer :: N, j
