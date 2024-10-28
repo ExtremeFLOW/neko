@@ -10,7 +10,8 @@
     "checkpoint_value": 100,
     "end_time": 200,
     "timestep": 0.02,
-    "constant_cfl": 0.4,
+    "variable_timestep": true,
+    "target_cfl": 0.4,
     "numerics": {
         "time_order": 3,
         "polynomial_order": 7,
@@ -45,12 +46,35 @@
         "output_control": "simulationtime",
         "output_value": 1
     },
+<<<<<<< HEAD:examples/TS_channel/nonlinear/TS_channel.case
       "simulation_components":
   [
     {
       "type": "lambda2",
       "compute_control": "simulationtime",
       "compute_value": 1
+=======
+ "simulation_components": 
+  [ 
+    { 
+      "type": "lambda2", // stored in the temperature field, check docs for more details on sim_comps
+    },
+    {
+      "type": "force_torque",
+      "compute_control": "tsteps",
+      "compute_value": 10,
+      "zone_id": 3,
+      "zone_name": "Bottom wall",
+      "center": [0,0,0]
+    },    
+    {
+      "type": "force_torque",
+      "compute_control": "tsteps",
+      "compute_value": 10,
+      "zone_id": 4,
+      "zone_name": "Top wall",
+      "center": [0,0,0]
+>>>>>>> origin/develop:examples/TS_channel/TS_channel.case
     }
   ]
 }

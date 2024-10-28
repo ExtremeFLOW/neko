@@ -1,4 +1,7 @@
-# Simulation components {#simcomps}
+# Simulaticn components {#simcomps}
+
+\tableofcontents
+
 ## What are simulation components?
 Simulation components, or simcomps fo short,  incapsulate additional
 functionality that may be useful for certain cases but not necessary to run the
@@ -14,6 +17,21 @@ As the code grows, we expect to add more and more simcomps to the code.
 Each simcomp is defined as a single JSON object at are added to an array
 of objects called `simulation_components`, which resides directly under the
 `case` object.
+
+## List of simulation components
+
+The following is a list of simulation components that are currently available
+in Neko. The list will be updated as new simcomps are added.
+
+- Computation of vorticity field \ref simcomp_vorticity
+- Computation of \f$ \lambda_2 \f$ \ref simcomp_lambda2
+- Probing of fields at selected points \ref simcomp_probes
+- Output of registered fields to an `.fld` file \ref simcomp_field_writer
+- Computation of the derivative of a field \ref simcomp_derivative
+- Computation of forces and torque on a surface \ref simcomp_force_torque
+- Computation of the weak gradient of a field \ref simcomp_weak_grad
+- User defined components \ref user-file_simcomps
+- Fluid statistics simcomp, "fluid_stats", for more details see the [statistics guide](@ref statistics-guide)
 
 ## Controling execution and file output
 Each simulation component is, by default, executed once per time step to perform
@@ -43,25 +61,23 @@ vorticity fields will be added to the main `.fld` file.
 }
 ~~~~~~~~~~~~~~~
 
- ## List of simulation components
+### vorticity {#simcomp_vorticity}
+Computes the vorticity field an stores in the field registry as `omega_x`,
+`omega_y` and `omega_z`.
 
- ### vorticity
- Computes the vorticity field an stores in the field registry as `omega_x`,
- `omega_y` and `omega_z`.
- Currently produces no output.
+### lambda2 {#simcomp_lambda2}
+Computes \f$ \lambda_2 \f$ for the velocity field and stores it in the normal output files as the first unused field.
+This means that \f$ \lambda_2 \f$ can be found in the temperature field in then fld files if running without a scalar
+and s1 if neko is run with one scalar.
 
- ### lambda2
- Computes \f$ \lambda_2 \f$ for the velocity field and stores it in the normal output files as the first unused field.
- This means that \f$ \lambda_2 \f$ can be found in the temperature field in then fld files if running without a scalar
- and s1 if neko is run with one scalar.
-
- ### probes
- Probes selected solution fields at a list of points. This list of points can be
- generated in a variety of ways, but the most common is to use the `csv` type.
+### probes {#simcomp_probes}
+Probes selected solution fields at a list of points. This list of points can be
+generated in a variety of ways, but the most common is to use the `csv` type.
 
 #### Supported types:
 
- - `csv`: Reads a list of points from a CSV file. The file should have the
+ - `file`: Reads a list of points from a CSV file. The name of the file is
+   provided with the `file_name` keyword. The CSV file should have the
    following format:
    ~~~~~~~~~~~~~~~{.csv}
    x_0, y_0, z_0
@@ -127,12 +143,12 @@ vorticity fields will be added to the main `.fld` file.
    "type": "probes",
    "compute_control": "simulationtime",
    "compute_value"    : 1,
-   "fields": ["w","s"]
+   "fields": ["w","s"],
    "output_file":  "output.csv",
    "points": [
       {
-        "type": "csv",
-        "filename": "points.csv"
+        "type": "file",
+        "file_name": "points.csv"
       }
     ],
  }
@@ -158,13 +174,13 @@ time_1, p_1_field_0, p_1_field_1, ..., p_1_field_N_f-1
 time_N_p, p_N_p_field_0, p_N_p_field_1, ..., p_N_p_field_N_f-1
 ~~~~~~~~~~~~~~~
 
- ### field_writer
- Outputs registered 3D fields to an `.fld` file. Requires a list of field names
- in the `fields` keyword. Primarily to be used for outputting new fields defined
- in the user file. The fields are added to then `neko_field_registry` object and
- are expected to be updated in the user file, or, perhaps, by other simcomps.
- Since this simcomp does not compute anything `compute_` configuration is
- irrelevant.
+### field_writer {#simcomp_field_writer}
+Outputs registered 3D fields to an `.fld` file. Requires a list of field names
+in the `fields` keyword. Primarily to be used for outputting new fields defined
+in the user file. The fields are added to then `neko_field_registry` object and
+are expected to be updated in the user file, or, perhaps, by other simcomps.
+Since this simcomp does not compute anything `compute_` configuration is
+irrelevant.
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "field_writer",
@@ -176,13 +192,13 @@ time_N_p, p_N_p_field_0, p_N_p_field_1, ..., p_N_p_field_N_f-1
  }
  ~~~~~~~~~~~~~~~
 
- ### derivative
- Computes the derivative of field along a chosen direction (x, y, or z). The
- field to derivate is controlled by the `field` keyword and the direction by the
- `direction` keyword. The simcomp will register the computed derivatives in the
- registry as `d[field]_d[direction]`, where the values in the brackets
- correspond to the choice of the user keywords. Supports writing the computed
- fields to disk via the usual common keywords.
+### derivative {#simcomp_derivative}
+Computes the derivative of field along a chosen direction (x, y, or z). The
+field to derivate is controlled by the `field` keyword and the direction by the
+`direction` keyword. The simcomp will register the computed derivatives in the
+registry as `d[field]_d[direction]`, where the values in the brackets
+correspond to the choice of the user keywords. Supports writing the computed
+fields to disk via the usual common keywords.
 
  ~~~~~~~~~~~~~~~{.json}
  {
@@ -193,16 +209,36 @@ time_N_p, p_N_p_field_0, p_N_p_field_1, ..., p_N_p_field_N_f-1
    "output_value" : 1.0
  }
  ~~~~~~~~~~~~~~~
+ 
+### force_torque {#simcomp_force_torque}
+Computes the force on a specified zone and the corresponding torque
+around a center point. The compute control specifies how often they are
+computed and printed into the log. Scale specifies a scale for the computed
+force/torque. Conventient if one wants to scale with the area or similar. long_print is default false and can be set to true to print all digits in the calculation.
+Subroutines used in the simcomp can be found in src/qoi/drag_torque.f90
 
- ### weak_grad
- Computes the weak gradient of a field. The weak gradient is value of the
- gradeint multiplied by the local value of the mass matrix. This is how a
- gradient term appears in the weak formulation of the governing equations The
- field to derivate is controlled by the `field` keyword. The simcomp will
- register the computed components of the gradients in the registry as
- `weak_grad_[field]_x`, `weak_grad_[field]_y`, `weak_grad_[field]_z` where the
- value in the brackets corresponds to the choice of the user keyword. Supports
- writing the computed fields to disk via the usual common keywords.
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "force_torque",
+   "zone_id": 1,
+   "center": [0.0, 0.0, 0.0],
+   "zone_name": "some chosen name, optional",
+   "scale": 1.0
+   "long_print" : false
+   "compute_control" : "tsteps",
+   "compute_value" : 10
+ }
+ ~~~~~~~~~~~~~~~
+ 
+### weak_grad {#simcomp_weak_grad}
+Computes the weak gradient of a field. The weak gradient is value of the
+gradient multiplied by the local value of the mass matrix. This is how a
+gradient term appears in the weak formulation of the governing equations. The
+field to derivate is controlled by the `field` keyword. The simcomp will
+register the computed components of the gradients in the registry as
+`weak_grad_[field]_x`, `weak_grad_[field]_y`, `weak_grad_[field]_z` where the
+value in the brackets corresponds to the choice of the user keyword. Supports
+writing the computed fields to disk via the usual common keywords.
 
  ~~~~~~~~~~~~~~~{.json}
  {

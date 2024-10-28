@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -42,9 +42,10 @@ module scalar_residual
   use mesh, only : mesh_t
   use num_types, only : rp
   implicit none
+  private
 
   !> Abstract type to compute scalar residual
-  type, abstract :: scalar_residual_t
+  type, public, abstract :: scalar_residual_t
    contains
      procedure(scalar_residual_interface), nopass, deferred :: compute
   end type scalar_residual_t
@@ -81,7 +82,7 @@ module scalar_residual
        type(field_t), intent(inout) :: s_res
        type(field_t), intent(inout) :: f_Xh
        type(coef_t), intent(inout) :: c_Xh
-       real(kind=rp), intent(in) :: lambda
+       type(field_t), intent(in) :: lambda
        real(kind=rp), intent(in) :: rhocp
        real(kind=rp), intent(in) :: bd
        real(kind=rp), intent(in) :: dt
@@ -89,4 +90,15 @@ module scalar_residual
      end subroutine scalar_residual_interface
   end interface
 
+  interface
+     !> Factory for the scalar advection-diffusion residual.
+     !! @details Only selects the compute backend.
+     !! @param object The object to be allocated by the factory.
+     module subroutine scalar_residual_factory(object)
+       class(scalar_residual_t), allocatable, intent(inout) :: object
+     end subroutine scalar_residual_factory
+  end interface
+
+  public :: scalar_residual_factory
+  
 end module scalar_residual

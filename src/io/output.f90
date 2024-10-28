@@ -47,6 +47,11 @@ module output
      procedure(output_sample), pass(this), deferred :: sample
   end type output_t
 
+  !> Wrapper around an `output_t` pointer.
+  type, public :: output_ptr_t
+     class(output_t), pointer :: ptr
+  end type output_ptr_t
+
   !> Abstract interface for sampling an output type at time @a t
   abstract interface
      subroutine output_sample(this, t)

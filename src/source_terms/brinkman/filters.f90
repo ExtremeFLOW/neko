@@ -35,7 +35,13 @@
 !! simulations.
 module filters
   use field, only: field_t
+<<<<<<< HEAD
   use num_types, only: rp, sp
+=======
+  use neko_config, only: NEKO_BCKND_DEVICE
+  use num_types, only: rp
+  use utils, only: neko_error
+>>>>>>> origin/develop
   implicit none
 
   private
@@ -64,7 +70,11 @@ contains
     type(field_t), intent(inout) :: F
     real(kind=rp), intent(in) :: edge0, edge1
 
-    F%x = smooth_step_cpu(F%x, edge0, edge1)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error('smooth_step_field: not implemented for device')
+    else
+       F%x = smooth_step_cpu(F%x, edge0, edge1)
+    end if
   end subroutine smooth_step_field
 
   !> @brief Apply a permeability function to a field.
@@ -82,7 +92,11 @@ contains
     real(kind=rp), intent(in) :: k_0, k_1
     real(kind=rp), intent(in) :: q
 
-    F_out%x = permeability_cpu(x%x, k_0, k_1, q)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error('permeability_field: not implemented for device')
+    else
+       F_out%x = permeability_cpu(x%x, k_0, k_1, q)
+    end if
   end subroutine permeability_field
 
   !> @brief Apply a step function to a field.
@@ -96,7 +110,11 @@ contains
     type(field_t), intent(inout) :: F
     real(kind=rp), intent(in) :: x0, value0, value1
 
-    F%x = step_function_cpu(F%x, x0, value0, value1)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_error('step_function_field: not implemented for device')
+    else
+       F%x = step_function_cpu(F%x, x0, value0, value1)
+    end if
   end subroutine step_function_field
 
   !> @brief Apply a PDE based filter, see B.S. Lazarov & O. Sigmund 2010,

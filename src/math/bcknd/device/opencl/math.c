@@ -64,7 +64,7 @@ void opencl_masked_copy(void *a, void *b, void *mask, int *n, int *m) {
 
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
-  
+
   cl_kernel kernel = clCreateKernel(math_program, "masked_copy_kernel", &err);
   CL_CHECK(err);
 
@@ -73,16 +73,43 @@ void opencl_masked_copy(void *a, void *b, void *mask, int *n, int *m) {
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &mask));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), m));
-  
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
-                                  0, NULL, NULL));  
+                                  0, NULL, NULL));
 
 }
+
+/** Fortran wrapper for cfill_mask
+ * Fill a scalar to vector \f$ a_i = s, for i \in mask \f$
+ */
+void opencl_cfill_mask(void* a, void* c, int* size, void* mask, int* mask_size) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "cfill_mask_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(real), c));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), size));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &mask));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), mask_size));
+
+  const int nb = ((*mask_size) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+  }
 
 /** Fortran wrapper for rzero
  * Zero a real vector
@@ -103,7 +130,7 @@ void opencl_rzero(void *a, int *n) {
 void opencl_rone(void *a, int *n) {
   cl_event wait_kern;
   real one = 1.0;
-  
+
   CL_CHECK(clEnqueueFillBuffer((cl_command_queue) glb_cmd_queue,
                                a, &one, sizeof(real), 0,
                                (*n) * sizeof(real), 0, NULL, &wait_kern));
@@ -118,7 +145,7 @@ void opencl_cmult2(void *a, void *b, real *c, int *n) {
 
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
-  
+
   cl_kernel kernel = clCreateKernel(math_program, "cmult2_kernel", &err);
   CL_CHECK(err);
 
@@ -126,14 +153,14 @@ void opencl_cmult2(void *a, void *b, real *c, int *n) {
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(real), c));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
-  
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
-                                  0, NULL, NULL));  
+                                  0, NULL, NULL));
 }
 
 
@@ -145,14 +172,14 @@ void opencl_cmult(void *a, real *c, int *n) {
 
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
-  
+
   cl_kernel kernel = clCreateKernel(math_program, "cmult_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(real), c));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), n));
-  
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
@@ -170,14 +197,40 @@ void opencl_cadd(void *a, real *c, int *n) {
 
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
-  
+
   cl_kernel kernel = clCreateKernel(math_program, "cadd_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(real), c));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), n));
-  
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+}
+
+/** Fortran wrapper for cadd
+ * Add a scalar to vector \f$ a = b + s \f$
+ */
+void opencl_cadd2(void *a, void *b, real *c, int *n) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "cadd2_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(real), c));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
@@ -195,14 +248,14 @@ void opencl_cfill(void *a, real *c, int *n) {
 
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
-  
+
   cl_kernel kernel = clCreateKernel(math_program, "cfill_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(real), c));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), n));
-  
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
@@ -221,14 +274,69 @@ void opencl_add2(void *a, void *b, int *n) {
 
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
-  
+
   cl_kernel kernel = clCreateKernel(math_program, "add2_kernel", &err);
   CL_CHECK(err);
-    
+
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), n));
-  
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+}
+
+/**
+ * Fortran wrapper for add3
+ * Vector addition \f$ a = b + c \f$
+ */
+void opencl_add3(void *a, void *b, void *c, int *n) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "add3_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
+
+  const int nb = ((*n) + 256 - 1) / 256;
+  const size_t global_item_size = 256 * nb;
+  const size_t local_item_size = 256;
+
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+                                  NULL, &global_item_size, &local_item_size,
+                                  0, NULL, NULL));
+}
+
+/**
+ * Fortran wrapper for add4
+ * Vector addition \f$ a = b + c + d \f$
+ */
+void opencl_add4(void *a, void *b, void *c, void *d, int *n) {
+  cl_int err;
+
+  if (math_program == NULL)
+    opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
+
+  cl_kernel kernel = clCreateKernel(math_program, "add4_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &d));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), n));
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
@@ -269,22 +377,22 @@ void opencl_add2(void *a, void *b, void *c, void *d, int *n) {
 /**
  * Fortran wrapper for add2s1
  * Vector addition with scalar multiplication \f$ a = c_1 a + b \f$
- * (multiplication on first argument) 
+ * (multiplication on first argument)
  */
 void opencl_add2s1(void *a, void *b, real *c1, int *n) {
   cl_int err;
 
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
-  
+
   cl_kernel kernel = clCreateKernel(math_program, "add2s1_kernel", &err);
   CL_CHECK(err);
-  
+
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(real), c1));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
-  
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
@@ -297,7 +405,7 @@ void opencl_add2s1(void *a, void *b, real *c1, int *n) {
 /**
  * Fortran wrapper for add2s2
  * Vector addition with scalar multiplication \f$ a = a + c_1 b \f$
- * (multiplication on second argument) 
+ * (multiplication on second argument)
  */
 void opencl_add2s2(void *a, void *b, real *c1, int *n) {
   cl_int err;
@@ -312,51 +420,51 @@ void opencl_add2s2(void *a, void *b, real *c1, int *n) {
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(real), c1));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
-  
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
-                                  0, NULL, NULL));  
+                                  0, NULL, NULL));
 }
 
 /**
  * Fortran wrapper for add2s2
- * Vector addition with scalar multiplication 
+ * Vector addition with scalar multiplication
  * \f$ x = x + c_1 p1 + c_2p2 + ... + c_jpj \f$
- * (multiplication on second argument) 
+ * (multiplication on second argument)
  */
 void opencl_add2s2_many(void *x, void *p, void *alpha, int *j, int *n) {
   cl_int err;
-  
+
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
   cl_kernel kernel = clCreateKernel(math_program, "add2s2_many_kernel", &err);
   CL_CHECK(err);
-  
+
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &x));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &p));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &alpha));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), j));
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), n));
-  
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
-  
+
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
-  
+
 }
 
 /**
  * Fortran wrapper for addsqr2s2
  * Vector addition with scalar multiplication \f$ a = a + c_1 (b * b) \f$
- * (multiplication on second argument) 
+ * (multiplication on second argument)
  */
 void opencl_addsqr2s2(void *a, void *b, real *c1, int *n) {
   cl_int err;
@@ -366,19 +474,19 @@ void opencl_addsqr2s2(void *a, void *b, real *c1, int *n) {
 
   cl_kernel kernel = clCreateKernel(math_program, "addsqr2s2_kernel", &err);
   CL_CHECK(err);
-  
+
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(real), c1));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
-  
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                NULL, &global_item_size, &local_item_size,
-                                  0, NULL, NULL));  
+                                  0, NULL, NULL));
 }
 
 /**
@@ -393,21 +501,21 @@ void opencl_add3s2(void *a, void *b, void * c, real *c1, real *c2, int *n) {
 
   cl_kernel kernel = clCreateKernel(math_program, "add3s2_kernel", &err);
   CL_CHECK(err);
-  
+
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(real), c1));
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(real), c2));
   CL_CHECK(clSetKernelArg(kernel, 5, sizeof(int), n));
-  
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
-                                  0, NULL, NULL));  
+                                  0, NULL, NULL));
 }
 
 /**
@@ -446,18 +554,18 @@ void opencl_invcol2(void *a, void *b, int *n) {
 
   cl_kernel kernel = clCreateKernel(math_program, "invcol2_kernel", &err);
   CL_CHECK(err);
-  
+
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), n));
-  
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
-                                  0, NULL, NULL));  
+                                  0, NULL, NULL));
 }
 
 /**
@@ -472,18 +580,18 @@ void opencl_col2(void *a, void *b, int *n) {
 
   cl_kernel kernel = clCreateKernel(math_program, "col2_kernel", &err);
   CL_CHECK(err);
-  
+
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), n));
-  
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
-                                  0, NULL, NULL));  
+                                  0, NULL, NULL));
 }
 
 /**
@@ -498,21 +606,21 @@ void opencl_col3(void *a, void *b, void *c, int *n) {
 
   cl_kernel kernel = clCreateKernel(math_program, "col3_kernel", &err);
   CL_CHECK(err);
-  
+
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
-  
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
-                                  0, NULL, NULL));  
+                                  0, NULL, NULL));
 }
-  
+
 /**
  * Fortran wrapper for subcol3
  * Vector multiplication with 3 vectors \f$ a = a - b \cdot c \f$
@@ -525,19 +633,19 @@ void opencl_subcol3(void *a, void *b, void *c, int *n) {
 
   cl_kernel kernel = clCreateKernel(math_program, "subcol3_kernel", &err);
   CL_CHECK(err);
-  
+
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
-  
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
-                                  0, NULL, NULL));  
+                                  0, NULL, NULL));
 }
 
 /**
@@ -552,18 +660,18 @@ void opencl_sub2(void *a, void *b, int *n) {
 
   cl_kernel kernel = clCreateKernel(math_program, "sub2_kernel", &err);
   CL_CHECK(err);
-  
+
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), n));
-  
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
-  
+
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
-                                  0, NULL, NULL));  
+                                  0, NULL, NULL));
 }
 
 /**
@@ -578,19 +686,19 @@ void opencl_sub3(void *a, void *b, void *c, int *n) {
 
   cl_kernel kernel = clCreateKernel(math_program, "sub3_kernel", &err);
   CL_CHECK(err);
-  
+
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
-  
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
-  
+
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
-                                  0, NULL, NULL));  
+                                  0, NULL, NULL));
 }
 
 /**
@@ -605,19 +713,19 @@ void opencl_addcol3(void *a, void *b, void *c, int *n) {
 
   cl_kernel kernel = clCreateKernel(math_program, "addcol3_kernel", &err);
   CL_CHECK(err);
-  
+
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
-  
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
-                                  0, NULL, NULL));  
+                                  0, NULL, NULL));
 }
 
 /**
@@ -632,20 +740,20 @@ void opencl_addcol4(void *a, void *b, void *c, void *d, int *n) {
 
   cl_kernel kernel = clCreateKernel(math_program, "addcol4_kernel", &err);
   CL_CHECK(err);
-  
+
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &d));
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), n));
-  
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
-                                  0, NULL, NULL));  
+                                  0, NULL, NULL));
 }
 
 /**
@@ -662,7 +770,7 @@ void opencl_vdot3(void *dot, void *u1, void *u2, void *u3,
 
   cl_kernel kernel = clCreateKernel(math_program, "vdot3_kernel", &err);
   CL_CHECK(err);
-  
+
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &dot));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &u1));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &u2));
@@ -671,14 +779,14 @@ void opencl_vdot3(void *dot, void *u1, void *u2, void *u3,
   CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &v2));
   CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &v3));
   CL_CHECK(clSetKernelArg(kernel, 7, sizeof(int), n));
-  
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
 
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
-                                  0, NULL, NULL));  
+                                  0, NULL, NULL));
 }
 
 /** @todo cleanup this mess */
@@ -697,11 +805,11 @@ real opencl_glsc3(void *a, void *b, void *c, int *n) {
 
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
-    
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
-    
+
   if ( nb > red_s){
     red_s = nb;
     if (bufred != NULL) {
@@ -714,29 +822,29 @@ real opencl_glsc3(void *a, void *b, void *c, int *n) {
                               nb * sizeof(real), NULL, &err);
     CL_CHECK(err);
   }
-  
+
   cl_kernel kernel = clCreateKernel(math_program, "glsc3_kernel", &err);
   CL_CHECK(err);
-      
+
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &c));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &bufred_d));
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), n));
-  
+
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, &kern_wait));
-  
+
   CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue, bufred_d,
                                CL_TRUE, 0, nb * sizeof(real), bufred, 1,
                                &kern_wait, NULL));
-           
+
   real res = 0.0;
   for (i = 0; i < nb; i++) {
     res += bufred[i];
   }
-  
+
   return res;
 }
 
@@ -744,14 +852,14 @@ real opencl_glsc3(void *a, void *b, void *c, int *n) {
  * Fortran wrapper for doing a reduction to an array
  * Weighted inner product \f$ w^T v(n,1:j) c \f$
  */
-void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n){ 
+void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n){
   int i, k;
   cl_int err;
   cl_event kern_wait;
-  
+
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
-  
+
   int pow2 = 1;
   while(pow2 < (*j)){
     pow2 = 2*pow2;
@@ -774,7 +882,7 @@ void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n){
                               (*j) * nb * sizeof(real), NULL, &err);
     CL_CHECK(err);
   }
-  
+
   cl_kernel kernel = clCreateKernel(math_program, "glsc3_many_kernel", &err);
   CL_CHECK(err);
 
@@ -784,11 +892,11 @@ void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n){
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &bufred_d));
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), j));
   CL_CHECK(clSetKernelArg(kernel, 5, sizeof(int), n));
-  
+
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 2,
                                   NULL, global_item_size, local_item_size,
                                   0, NULL, &kern_wait));
-    
+
   CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue,
                                bufred_d, CL_TRUE, 0, (*j) * nb * sizeof(real),
                                bufred, 1, &kern_wait, NULL));
@@ -796,7 +904,7 @@ void opencl_glsc3_many(real *h, void * w, void *v, void *mult, int *j, int *n){
   for (k = 0; k < (*j); k++) {
     h[k] = 0.0;
   }
-    
+
   for (i = 0; i < nb; i++) {
     for (k = 0; k < (*j); k++) {
         h[k] += bufred[i*(*j)+k];
@@ -815,33 +923,33 @@ real opencl_glsc2(void *a, void *b, int *n) {
 
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
-    
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
-    
+
   real * buf = (real *) malloc(nb * sizeof(real));
 
   cl_kernel kernel = clCreateKernel(math_program, "glsc2_kernel", &err);
   CL_CHECK(err);
-    
+
   cl_mem buf_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
                                 nb * sizeof(real), NULL, &err);
   CL_CHECK(err);
-  
+
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &buf_d));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), n));
-  
+
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, &kern_wait));
 
-  
+
   CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue, buf_d, CL_TRUE,
                                0, nb * sizeof(real), buf, 1, &kern_wait, NULL));
-    
+
   real res = 0.0;
   for (i = 0; i < nb; i++) {
     res += buf[i];
@@ -849,8 +957,8 @@ real opencl_glsc2(void *a, void *b, int *n) {
 
   free(buf);
   CL_CHECK(clReleaseMemObject(buf_d));
-  
-  return res;  
+
+  return res;
 }
 
 /**
@@ -864,32 +972,32 @@ real opencl_glsum(void *a, int *n) {
 
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
-    
+
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
   const size_t local_item_size = 256;
-    
+
   real * buf = (real *) malloc(nb * sizeof(real));
 
   cl_kernel kernel = clCreateKernel(math_program, "glsum_kernel", &err);
   CL_CHECK(err);
-    
+
   cl_mem buf_d = clCreateBuffer(glb_ctx, CL_MEM_READ_WRITE,
                                 nb * sizeof(real), NULL, &err);
   CL_CHECK(err);
-  
+
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &buf_d));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), n));
-  
+
   CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, &kern_wait));
 
-  
+
   CL_CHECK(clEnqueueReadBuffer((cl_command_queue) glb_cmd_queue, buf_d, CL_TRUE,
                                0, nb * sizeof(real), buf, 1, &kern_wait, NULL));
-    
+
   real res = 0.0;
   for (i = 0; i < nb; i++) {
     res += buf[i];
@@ -897,6 +1005,6 @@ real opencl_glsum(void *a, int *n) {
 
   free(buf);
   CL_CHECK(clReleaseMemObject(buf_d));
-  
-  return res;  
+
+  return res;
 }

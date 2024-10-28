@@ -11,6 +11,8 @@ module num_types
   !> Global precision used in computations
   integer, public, parameter :: rp = @NEKO_REAL_TYPE@
   integer, public, parameter :: c_rp = @NEKO_C_REAL_TYPE@
+  integer, public, parameter :: xp = @NEKO_XREAL_TYPE@
+  integer, public, parameter :: c_xp = @NEKO_C_XREAL_TYPE@
 end module num_types
 
 

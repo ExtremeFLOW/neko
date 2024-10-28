@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -60,18 +60,20 @@ module pipecg_sx
      procedure, pass(this) :: init => sx_pipecg_init
      procedure, pass(this) :: free => sx_pipecg_free
      procedure, pass(this) :: solve => sx_pipecg_solve
+     procedure, pass(this) :: solve_coupled => sx_pipecg_solve_coupled
   end type sx_pipecg_t
 
 contains
 
   !> Initialise a pipelined PCG solver
-  subroutine sx_pipecg_init(this, n, max_iter, M, rel_tol, abs_tol)
+  subroutine sx_pipecg_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
     class(sx_pipecg_t), intent(inout) :: this
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
+    logical, optional, intent(in) :: monitor
 
     call this%free()
 
@@ -88,12 +90,20 @@ contains
        this%M => M
     end if
 
-    if (present(rel_tol) .and. present(abs_tol)) then
+    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
+    else if (present(monitor) .and. present(abs_tol)) then
+       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
     else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol = abs_tol)
+    else if (present(monitor)) then
+       call this%ksp_init(max_iter, monitor = monitor)
     else
        call this%ksp_init(max_iter)
     end if
@@ -188,6 +198,7 @@ contains
 
     gamma1 = 0.0_rp
 
+    call this%monitor_start('PipeCG')
     do iter = 1, max_iter
 
        tmp1 = 0.0_rp
@@ -217,6 +228,7 @@ contains
        rtr = reduction(3)
 
        rnorm = sqrt(rtr)*norm_fac
+       call this%monitor_iter(iter, rnorm)
        if (rnorm .lt. this%abs_tol) then
           exit
        end if
@@ -244,11 +256,37 @@ contains
        end do
 
     end do
-
+    call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
 
   end function sx_pipecg_solve
+
+  !> Pipelined PCG coupled solve
+  function sx_pipecg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
+       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+    class(sx_pipecg_t), intent(inout) :: this
+    class(ax_t), intent(inout) :: Ax
+    type(field_t), intent(inout) :: x
+    type(field_t), intent(inout) :: y
+    type(field_t), intent(inout) :: z
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: fx
+    real(kind=rp), dimension(n), intent(inout) :: fy
+    real(kind=rp), dimension(n), intent(inout) :: fz
+    type(coef_t), intent(inout) :: coef
+    type(bc_list_t), intent(inout) :: blstx
+    type(bc_list_t), intent(inout) :: blsty
+    type(bc_list_t), intent(inout) :: blstz
+    type(gs_t), intent(inout) :: gs_h
+    type(ksp_monitor_t), dimension(3) :: ksp_results
+    integer, optional, intent(in) :: niter
+
+    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+
+  end function sx_pipecg_solve_coupled
 
 end module pipecg_sx
 

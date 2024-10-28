@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2023, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,41 +30,53 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module ax_helm_fctry
-  use neko_config
-  use ax_product, only : ax_t
+submodule (ax_product) ax_helm_fctry
+  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
+       NEKO_BCKND_DEVICE
   use ax_helm_device, only : ax_helm_device_t
   use ax_helm_xsmm, only : ax_helm_xsmm_t
   use ax_helm_sx, only : ax_helm_sx_t
   use ax_helm, only : ax_helm_t
+  use ax_helm_cpu, only : ax_helm_cpu_t
+  use ax_helm_full_cpu, only : ax_helm_full_cpu_t
+  use utils, only : neko_error
   implicit none
-  private
-
-  public :: ax_helm_factory, ax_t
 
 contains
 
   !> Factory routine for the a Helmholtz problem matrix-vector product.
   !! The selection is based on the compute backend.
-  !! @param Ax The matrix-vector product type to be allocated.
-  subroutine ax_helm_factory(Ax)
-    class(ax_t), allocatable, intent(inout) :: Ax
+  !! @param object The matrix-vector product type to be allocated.
+  !! @param full_formulation Whether to use the formulation with the full
+  !! viscous stress tensor, not assuming constant material properties.
+  module subroutine ax_helm_factory(object, full_formulation)
+    class(ax_t), allocatable, intent(inout) :: object
+    logical, intent(in) :: full_formulation
 
-    if (allocated(Ax)) then
-       deallocate(Ax)
+    if (allocated(object)) then
+       deallocate(object)
     end if
 
-    if (NEKO_BCKND_SX .eq. 1) then
-       allocate(ax_helm_sx_t::Ax)
-    else if (NEKO_BCKND_XSMM .eq. 1) then
-       allocate(ax_helm_xsmm_t::Ax)
-    else if (NEKO_BCKND_DEVICE .eq. 1)then
-       allocate(ax_helm_device_t::Ax)
+    if (full_formulation) then
+      if (NEKO_BCKND_DEVICE .eq. 1 .or. NEKO_BCKND_SX .eq. 1 .or. &
+          NEKO_BCKND_XSMM .eq. 1) then
+         call neko_error("Full stress formulation is only available on the CPU")
+      else
+         allocate(ax_helm_full_cpu_t::object)
+      end if
     else
-       allocate(ax_helm_t::Ax)
+       if (NEKO_BCKND_SX .eq. 1) then
+          allocate(ax_helm_sx_t::object)
+       else if (NEKO_BCKND_XSMM .eq. 1) then
+          allocate(ax_helm_xsmm_t::object)
+       else if (NEKO_BCKND_DEVICE .eq. 1) then
+          allocate(ax_helm_device_t::object)
+       else
+          allocate(ax_helm_cpu_t::object)
+       end if
     end if
 
   end subroutine ax_helm_factory
 
 
-end module ax_helm_fctry
+end submodule ax_helm_fctry

@@ -1,5 +1,7 @@
 # Programming patterns and conventions {#dev_patterns}
 
+\tableofcontents
+
 This section aims to summarize the programming conventions in Neko to guide all
 developers into writing code with good style and facilitate the reuse of the
 same programming patterns throughout the code base. It is a good idea to check
@@ -87,9 +89,10 @@ base as of now, but we should at least make all new code as clean as possible.
 
 ## B. Scope
 
-1. Always use `only` when `using` something from another module.  The `neko`
-   module is an exception and imports everything. 
-   
+1. Always use `only` when `using` something from another module. The `neko`
+   module is an exception and imports everything. Additionally, current compiler
+   limitations make it impossible to use `only` with `comm` and `device`.
+
    This latter is done so that the user `.f90` files need only `use` the `neko`
    module to get access to everything.
 

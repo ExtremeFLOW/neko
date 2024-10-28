@@ -55,7 +55,8 @@ module vreman
      !> Constructor from JSON.
      procedure, pass(this) :: init => vreman_init
      !> Constructor from components.
-     procedure, pass(this) :: init_from_components => vreman_init_from_components
+     procedure, pass(this) :: init_from_components => &
+          vreman_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => vreman_free
      !> Compute eddy viscosity.
@@ -74,12 +75,15 @@ contains
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: nut_name
     real(kind=rp) :: c
+    character(len=:), allocatable :: delta_type
 
-    call json_get(json, "nut_field", nut_name)
+    call json_get_or_default(json, "nut_field", nut_name, "nut")
+    call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     ! Based on the Smagorinsky Cs = 0.17.
     call json_get_or_default(json, "c", c, 0.07_rp)
 
-    call vreman_init_from_components(this, dofmap, coef, c, nut_name)
+    call vreman_init_from_components(this, dofmap, coef, c, nut_name, &
+          delta_type)
   end subroutine vreman_init
 
   !> Constructor from components.
@@ -87,16 +91,18 @@ contains
   !! @param coef SEM coefficients.
   !! @param c The model constant.
   !! @param nut_name The name of the SGS viscosity field.
-  subroutine vreman_init_from_components(this, dofmap, coef, c, nut_name)
+  subroutine vreman_init_from_components(this, dofmap, coef, c, nut_name, &
+       delta_type)
     class(vreman_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), intent(in) :: coef
     real(kind=rp) :: c
     character(len=*), intent(in) :: nut_name
+    character(len=*), intent(in) :: delta_type
 
     call this%free()
 
-    call this%init_base(dofmap, coef, nut_name)
+    call this%init_base(dofmap, coef, nut_name, delta_type)
     this%c = c
 
   end subroutine vreman_init_from_components

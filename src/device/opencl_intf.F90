@@ -112,8 +112,9 @@ module opencl_intf
   integer(c_int64_t), parameter :: CL_DEVICE_TYPE_ALL = int(Z'FFFFFFFF', i8)
 
   interface
-     integer (c_int) function clGetPlatformIDs(num_entries, &
-          platforms, num_platforms) bind(c, name='clGetPlatformIDs')
+     integer(c_int) function clGetPlatformIDs(num_entries, platforms, &
+                                              num_platforms) &
+          bind(c, name = 'clGetPlatformIDs')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: num_entries
@@ -123,8 +124,9 @@ module opencl_intf
   end interface
 
   interface
-     integer (c_int) function clGetDeviceIDs(platform, device_type, &
-          num_entries, devices, num_devices) bind(c, name='clGetDeviceIDs')
+     integer(c_int) function clGetDeviceIDs(platform, device_type, &
+                                            num_entries, devices, num_devices) &
+          bind(c, name = 'clGetDeviceIDs')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: platform
@@ -136,8 +138,9 @@ module opencl_intf
   end interface
 
   interface
-     type (c_ptr) function clCreateContext(properties, num_devices, &
-          devices, pfn_notify, user_data, ierr) bind(c, name='clCreateContext')
+     type (c_ptr) function clCreateContext(properties, num_devices, devices, &
+                                           pfn_notify, user_data, ierr) &
+          bind(c, name = 'clCreateContext')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: properties
@@ -151,7 +154,8 @@ module opencl_intf
 
   interface
      type(c_ptr) function clCreateCommandQueue(context, device, &
-          properties, ierr)  bind(c, name='clCreateCommandQueue')
+                                               properties, ierr) &
+          bind(c, name = 'clCreateCommandQueue')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: context
@@ -162,8 +166,8 @@ module opencl_intf
   end interface
 
   interface
-     type(c_ptr) function clCreateBuffer(context, flags, size,  host_ptr, ierr) &
-          bind(c, name='clCreateBuffer')
+     type(c_ptr) function clCreateBuffer(context, flags, size, host_ptr, ierr) &
+          bind(c, name = 'clCreateBuffer')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: context
@@ -176,7 +180,7 @@ module opencl_intf
 
   interface
      type(c_ptr) function clCreateUserEvent(context, ierr) &
-          bind(c, name='clCreateUserEvent')
+          bind(c, name = 'clCreateUserEvent')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: context
@@ -185,9 +189,11 @@ module opencl_intf
   end interface
 
   interface
-     integer (c_int) function clEnqueueReadBuffer(queue, buffer, &
-          blocking_read, offset, size, ptr, num_events_in_wait_list, &
-          event_wait_list, event) bind(c, name='clEnqueueReadBuffer')
+     integer(c_int) function clEnqueueReadBuffer(queue, buffer, blocking_read, &
+                                                 offset, size, ptr, &
+                                                 num_events_in_wait_list, &
+                                                 event_wait_list, event) &
+          bind(c, name = 'clEnqueueReadBuffer')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: queue
@@ -203,9 +209,12 @@ module opencl_intf
   end interface
 
   interface
-     integer (c_int) function clEnqueueWriteBuffer(queue, buffer, &
-          blocking_write, offset, size, ptr, num_events_in_wait_list, &
-          event_wait_list, event) bind(c, name='clEnqueueWriteBuffer')
+     integer(c_int) function clEnqueueWriteBuffer(queue, buffer, &
+                                                  blocking_write, offset, &
+                                                  size, ptr, &
+                                                  num_events_in_wait_list, &
+                                                  event_wait_list, event) &
+          bind(c, name = 'clEnqueueWriteBuffer')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: queue
@@ -221,10 +230,13 @@ module opencl_intf
   end interface
 
   interface
-     integer (c_int) function clEnqueueCopyBuffer(queue, src_buffer, &
-          dst_buffer, src_offset, dst_offset, size, num_events_in_wait_list, &
-          event_wait_list, event) bind(c, name='clEnqueueCopyBuffer')
-       use,intrinsic :: iso_c_binding
+     integer(c_int) function clEnqueueCopyBuffer(queue, src_buffer, &
+                                                 dst_buffer, src_offset, &
+                                                 dst_offset, size, &
+                                                 num_events_in_wait_list, &
+                                                 event_wait_list, event) &
+          bind(c, name = 'clEnqueueCopyBuffer')
+       use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: queue
        type(c_ptr), value :: src_buffer
@@ -239,9 +251,9 @@ module opencl_intf
   end interface
 
   interface
-     integer (c_int) function clEnqueueMarkerWithWaitList(queue,&
-          num_events_in_wait_list, event_wait_list, event) &
-          bind(c, name='clEnqueueMarkerWithWaitList')
+     integer(c_int) function clEnqueueMarkerWithWaitList &
+          (queue, num_events_in_wait_list, event_wait_list, event) &
+          bind(c, name = 'clEnqueueMarkerWithWaitList')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: queue
@@ -252,8 +264,8 @@ module opencl_intf
   end interface
 
   interface
-     integer (c_int) function clEnqueueMarker(cmd_queue, event) &
-          bind(c, name='clEnqueueMarker')
+     integer(c_int) function clEnqueueMarker(cmd_queue, event) &
+          bind(c, name = 'clEnqueueMarker')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: cmd_queue
@@ -261,9 +273,19 @@ module opencl_intf
      end function clEnqueueMarker
   end interface
 
+    interface
+     integer(c_int) function clEnqueueBarrier(cmd_queue) &
+          bind(c, name = 'clEnqueueBarrier')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: cmd_queue
+     end function clEnqueueBarrier
+  end interface
+
   interface
-     integer (c_int) function clEnqueueWaitForEvents(queue, &
-          num_events, event_list) bind(c, name='clEnqueueWaitForEvents')
+     integer(c_int) function clEnqueueWaitForEvents(queue, &
+                                                    num_events, event_list) &
+          bind(c, name = 'clEnqueueWaitForEvents')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: queue
@@ -273,8 +295,8 @@ module opencl_intf
   end interface
 
   interface
-     integer (c_int) function clWaitForEvents(num_events, event_list) &
-          bind(c, name='clWaitForEvents')
+     integer(c_int) function clWaitForEvents(num_events, event_list) &
+          bind(c, name = 'clWaitForEvents')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: num_events
@@ -283,8 +305,8 @@ module opencl_intf
   end interface
 
   interface
-     integer (c_int) function clSetUserEventStatus(event, status) &
-          bind(c, name='clSetUserEventStatus')
+     integer(c_int) function clSetUserEventStatus(event, status) &
+          bind(c, name = 'clSetUserEventStatus')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: event
@@ -293,9 +315,10 @@ module opencl_intf
   end interface
 
   interface
-     integer (c_int) function clGetDeviceInfo(device, param_name, &
-          param_value_size, param_value, param_value_size_ret) &
-          bind(c, name='clGetDeviceInfo')
+     integer(c_int) function clGetDeviceInfo(device, param_name, &
+                                             param_value_size, param_value, &
+                                             param_value_size_ret) &
+          bind(c, name = 'clGetDeviceInfo')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: device
@@ -307,8 +330,8 @@ module opencl_intf
   end interface
 
   interface
-     integer (c_int) function clReleaseContext(context) &
-          bind(c, name='clReleaseContext')
+     integer(c_int) function clReleaseContext(context) &
+          bind(c, name = 'clReleaseContext')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: context
@@ -316,8 +339,8 @@ module opencl_intf
   end interface
 
   interface
-     integer (c_int) function clReleaseCommandQueue(queue) &
-          bind(c, name='clReleaseCommandQueue')
+     integer(c_int) function clReleaseCommandQueue(queue) &
+          bind(c, name = 'clReleaseCommandQueue')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: queue
@@ -325,8 +348,8 @@ module opencl_intf
   end interface
 
   interface
-     integer (c_int) function clReleaseDevice(device) &
-          bind(c, name='clReleaseDevice')
+     integer(c_int) function clReleaseDevice(device) &
+          bind(c, name = 'clReleaseDevice')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: device
@@ -334,8 +357,8 @@ module opencl_intf
   end interface
 
   interface
-     integer (c_int) function clReleaseProgram(prgm) &
-          bind(c, name='clReleaseProgram')
+     integer(c_int) function clReleaseProgram(prgm) &
+          bind(c, name = 'clReleaseProgram')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: prgm
@@ -343,8 +366,8 @@ module opencl_intf
   end interface
 
   interface
-     integer (c_int) function clReleaseMemObject(ptr_d) &
-          bind(c, name='clReleaseMemObject')
+     integer(c_int) function clReleaseMemObject(ptr_d) &
+          bind(c, name = 'clReleaseMemObject')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: ptr_d
@@ -352,8 +375,8 @@ module opencl_intf
   end interface
 
   interface
-     integer (c_int) function clReleaseEvent(event) &
-          bind(c, name='clReleaseEvent')
+     integer(c_int) function clReleaseEvent(event) &
+          bind(c, name = 'clReleaseEvent')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: event
@@ -361,8 +384,8 @@ module opencl_intf
   end interface
 
   interface
-     integer (c_int) function clFlush(cmd_queue) &
-          bind(c, name='clFlush')
+     integer(c_int) function clFlush(cmd_queue) &
+          bind(c, name = 'clFlush')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: cmd_queue
@@ -370,8 +393,8 @@ module opencl_intf
   end interface
 
   interface
-     integer (c_int) function clFinish(cmd_queue) &
-          bind(c, name='clFinish')
+     integer(c_int) function clFinish(cmd_queue) &
+          bind(c, name = 'clFinish')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: cmd_queue
@@ -388,12 +411,12 @@ contains
     integer :: i
 
     if (clGetPlatformIDs(1, c_loc(platform_id), &
-         num_platforms) .ne. CL_SUCCESS) then
+                         num_platforms) .ne. CL_SUCCESS) then
        call neko_error('Failed to get a platform id')
     end if
 
     if (clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 1, &
-         c_loc(glb_device_id), num_devices) .ne. CL_SUCCESS) then
+                       c_loc(glb_device_id), num_devices) .ne. CL_SUCCESS) then
        call neko_error('Failed to get a device id')
     end if
 
@@ -404,7 +427,7 @@ contains
     end if
 
     glb_ctx = clCreateContext(C_NULL_PTR, num_devices, c_loc(glb_device_id), &
-         C_NULL_FUNPTR, C_NULL_PTR, ierr)
+                              C_NULL_FUNPTR, C_NULL_PTR, ierr)
 
     if (ierr .ne. CL_SUCCESS) then
        call neko_error('Failed to create an OpenCL context')
@@ -416,8 +439,14 @@ contains
        end if
     end if
 
-    glb_cmd_queue = clCreateCommandQueue(glb_ctx, glb_device_id, queue_props, ierr)
+    glb_cmd_queue = clCreateCommandQueue(glb_ctx, glb_device_id, queue_props, &
+                                         ierr)
+    if (ierr .ne. CL_SUCCESS) then
+       call neko_error('Failed to create a command queue')
+    end if
 
+    aux_cmd_queue = clCreateCommandQueue(glb_ctx, glb_device_id, queue_props, &
+                                         ierr)
     if (ierr .ne. CL_SUCCESS) then
        call neko_error('Failed to create a command queue')
     end if
@@ -454,7 +483,7 @@ contains
     integer(c_size_t), target :: name_len
 
     if (clGetDeviceInfo(glb_device_id, CL_DEVICE_NAME, int(1024, i8), &
-         c_loc(c_name), c_loc(name_len)) .ne. CL_SUCCESS) then
+                        c_loc(c_name), c_loc(name_len)) .ne. CL_SUCCESS) then
        call neko_error('Failed to query device')
     end if
 
@@ -462,6 +491,24 @@ contains
 
   end subroutine opencl_device_name
 
+  !> Return the number of OpenCL devices
+  integer function opencl_device_count()
+    type(c_ptr), target :: platform_id
+    integer(c_int) :: num_platforms, num_devices
+
+    if (clGetPlatformIDs(1, c_loc(platform_id), &
+                         num_platforms) .ne. CL_SUCCESS) then
+       call neko_error('Failed to get a platform id')
+    end if
+
+    if (clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 0, &
+                       C_NULL_PTR, num_devices) .ne. CL_SUCCESS) then
+       call neko_error('Failed to get a device id')
+    end if
+
+    opencl_device_count = num_devices
+
+  end function opencl_device_count
 #endif
 
 end module opencl_intf

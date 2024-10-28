@@ -66,6 +66,39 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
   }
+  
+ 
+  /** Fortran wrapper for masked reduced copy
+   * Copy a vector \f$ a = b(mask) \f$
+   */
+  void hip_masked_red_copy(void *a, void *b, void *mask, int *n, int *m) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_red_copy_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) a, (real *) b, (int *) mask, *n, *m);
+
+    HIP_CHECK(hipGetLastError());
+
+  } 
+
+  /** Fortran wrapper for cfill_mask
+   * Fill a scalar to vector \f$ a_i = s, for i \in mask \f$
+   */
+  void hip_cfill_mask(void* a, real* c, int* size, void* mask, int* mask_size) {
+
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*mask_size) + 1024 - 1) / 1024, 1, 1);
+      
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(cfill_mask_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real*)a, *c, *size, (int*)mask, *mask_size);
+
+    HIP_CHECK(hipGetLastError());
+  }
+
   /** Fortran wrapper for rzero
    * Zero a real vector
    */
@@ -103,7 +136,7 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
     
   }
-  /** Fortran wrapper for cmult
+  /** Fortran wrapper for cadd
    * Add a scalar to vector \f$ a = \sum a_i + s \f$
    */
   void hip_cadd(void *a, real *c, int *n) {
@@ -116,7 +149,22 @@ extern "C" {
                        (real *) a, *c, *n);
     HIP_CHECK(hipGetLastError()); 
   }
-  
+
+  /**
+   * Fortran wrapper for cadd2
+   * Add a scalar to a vector \f$ a = b + s \f$
+   */
+  void hip_cadd2(void *a, void *b, real *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(cadd2_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) a, (real *) b, *c, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
   /** Fortran wrapper for cfill
    * Multiplication by constant c \f$ a = c \cdot a \f$
    */
@@ -124,11 +172,12 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(cfill_kernel<real>),
-                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                       (real *) a, *c, *n);
-    HIP_CHECK(hipGetLastError());
+    if (*n > 0) { 
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(cfill_kernel<real>),
+                         nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                         (real *) a, *c, *n);
+      HIP_CHECK(hipGetLastError());
+    }
   }
 
   /**
@@ -150,12 +199,12 @@ extern "C" {
    * Fortran wrapper for add4
    * Vector addition \f$ a = b + c + d\f$
    */
-  void hip_add2(void *a, void *b, void *c, void *d, int *n) {
+  void hip_add4(void *a, void *b, void *c, void *d, int *n) {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(add2_kernel<real>),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(add4_kernel<real>),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a, (real *) b, (real *) c, (real *) d, *n);
     HIP_CHECK(hipGetLastError());
@@ -318,7 +367,7 @@ extern "C" {
                        (real *) a, (real *) b, *n);
     HIP_CHECK(hipGetLastError());
   }
- 
+
   /**
    * Fortran wrapper for sub3
    * Vector subtraction \f$ a = b - c \f$
@@ -381,6 +430,26 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
 
+  /**
+   * Fortran wrapper for vdot3
+   * \f$ u = v \times w \f$
+   */
+  void hip_vcross(void *u1, void *u2, void *u3,
+                 void *v1, void *v2, void *v3,
+                 void *w1, void *w2, void *w3, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(vcross_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) u1, (real *) u2, (real *) u3,
+                       (real *) v1, (real *) v2, (real *) v3, 
+                       (real *) w1, (real *) w2, (real *) w3, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+
   /*
    * Reduction buffer
    */
@@ -420,7 +489,7 @@ extern "C" {
 
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
                              hipMemcpyDeviceToHost, stream));
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
 
     return bufred[0];
   }
@@ -457,12 +526,12 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
 #ifdef HAVE_DEVICE_MPI
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
                              hipMemcpyDeviceToHost, stream));
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
 #endif
     return bufred[0];
   }
@@ -505,12 +574,12 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
 #ifdef HAVE_DEVICE_MPI
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
     device_mpi_allreduce(bufred_d, h, (*j), sizeof(real), DEVICE_MPI_SUM);
 #else
     HIP_CHECK(hipMemcpyAsync(h, bufred_d, (*j)* sizeof(real),
                              hipMemcpyDeviceToHost, stream));
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
 #endif    
   }
 
@@ -530,6 +599,21 @@ extern "C" {
                        (real *) x, (const real **) p, (real *) alpha, *j, *n);
     HIP_CHECK(hipGetLastError());
 
+  }
+
+  /**
+   * Fortran wrapper for add3
+   * Vector addition \f$ a = b + c \f$
+   */
+  void hip_add3(void *a, void *b, void *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(add3_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) a, (real *) b, (real *) c, *n);
+    HIP_CHECK(hipGetLastError());
   }
 
   /**
@@ -562,12 +646,12 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
 #ifdef HAVE_DEVICE_MPI
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
                              hipMemcpyDeviceToHost, stream));
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
 #endif
     return bufred[0];
   }
@@ -591,23 +675,38 @@ extern "C" {
       HIP_CHECK(hipHostMalloc(&bufred,nb*sizeof(real),hipHostMallocDefault));
       HIP_CHECK(hipMalloc(&bufred_d, nb*sizeof(real)));
     }
-     
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(glsum_kernel<real>),
+    if( *n > 0) { 
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glsum_kernel<real>),
                        nblcks, nthrds, 0, stream,
                        (real *) a, bufred_d, *n);
-    HIP_CHECK(hipGetLastError());
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
+      HIP_CHECK(hipGetLastError());
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
                        1, 1024, 0, stream, bufred_d, nb);
-    HIP_CHECK(hipGetLastError());
-
+      HIP_CHECK(hipGetLastError());
+    }
 #ifdef HAVE_DEVICE_MPI
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
     HIP_CHECK(hipMemcpyAsync(bufred, bufred_d,sizeof(real),
                              hipMemcpyDeviceToHost, stream));
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
 #endif    
     return bufred[0];
+  }
+
+  /** Fortran wrapper for absval
+   * \f$ a = abs(a) \f$
+   */
+  void hip_absval(void *a, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(absval_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) a, *n);
+    HIP_CHECK(hipGetLastError());
+    
   }
 }

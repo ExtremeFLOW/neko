@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,18 +32,19 @@
 !
 !> Coefficients
 module coefs
-  use gather_scatter
-  use gs_ops
-  use neko_config
-  use num_types
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp
   use dofmap, only : dofmap_t
   use space, only: space_t
-  use math
+  use math, only : rone, invcol1, addcol3, subcol3, copy, &
+       chsign, rzero, invers2, glsum, NEKO_EPS
   use mesh, only : mesh_t
-  use device_math
-  use device_coef
-  use device_math
-  use mxm_wrapper
+  use device_math, only : device_rone, device_invcol1, device_glsum
+  use device_coef, only : device_coef_generate_geo, &
+       device_coef_generate_dxydrst
+  use mxm_wrapper, only : mxm
   use device
   use, intrinsic :: iso_c_binding
   implicit none
@@ -182,8 +183,7 @@ contains
     !
 
     n = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%nelv
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-        (NEKO_BCKND_OPENCL .eq. 1)) then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
 
        call device_map(this%drdx, this%drdx_d, n)
        call device_map(this%drdy, this%drdy_d, n)
@@ -867,8 +867,8 @@ contains
              c%G23(i, 1, 1, 1) = 0.0_rp
           end do
 
-          do e = 1, c%msh%nelv
-             do i = 1, lxyz
+          do concurrent (e = 1:c%msh%nelv)
+             do concurrent (i = 1:lxyz)
                 c%G11(i,1,1,e) = c%G11(i,1,1,e) * c%Xh%w3(i,1,1)
                 c%G22(i,1,1,e) = c%G22(i,1,1,e) * c%Xh%w3(i,1,1)
                 c%G12(i,1,1,e) = c%G12(i,1,1,e) * c%Xh%w3(i,1,1)
@@ -917,8 +917,8 @@ contains
              c%G23(i, 1, 1, 1) = c%G23(i, 1, 1, 1) * c%jacinv(i, 1, 1, 1)
           end do
 
-          do e = 1, c%msh%nelv
-             do i = 1, lxyz
+          do concurrent (e = 1:c%msh%nelv)
+             do concurrent (i = 1:lxyz)
                 c%G11(i,1,1,e) = c%G11(i,1,1,e) * c%Xh%w3(i,1,1)
                 c%G22(i,1,1,e) = c%G22(i,1,1,e) * c%Xh%w3(i,1,1)
                 c%G12(i,1,1,e) = c%G12(i,1,1,e) * c%Xh%w3(i,1,1)
@@ -944,9 +944,9 @@ contains
     ntot = c%dof%size()
 
     !> @todo rewrite this nest into a device kernel
-    do e = 1, c%msh%nelv
+    do concurrent (e = 1:c%msh%nelv)
        ! Here we need to handle things differently for axis symmetric elements
-       do i = 1, lxyz
+       do concurrent (i = 1:lxyz)
           c%B(i,1,1,e) = c%jac(i,1,1,e) * c%Xh%w3(i,1,1)
           c%Binv(i,1,1,e) = c%B(i,1,1,e)
        end do
@@ -1047,9 +1047,9 @@ contains
                        + c(i, 1, 1, 1) * c(i, 1, 1, 1)
     end do
 
-    do e = 1, coef%msh%nelv
-       do k = 1, coef%Xh%lx
-          do j = 1, coef%Xh%lx
+    do concurrent (e = 1:coef%msh%nelv)
+       do concurrent (k = 1:coef%Xh%lx)
+          do concurrent (j = 1:coef%Xh%lx)
              weight = coef%Xh%wy(j) * coef%Xh%wz(k)
              coef%area(j, k, 2, e) = sqrt(dot(lx, j, k, e)) * weight
              coef%area(j, k, 1, e) = sqrt(dot(1, j, k, e)) * weight
@@ -1081,9 +1081,9 @@ contains
                        + c(i, 1, 1, 1) * c(i, 1, 1, 1)
     end do
 
-    do e = 1, coef%msh%nelv
-       do k = 1, coef%Xh%lx
-          do j = 1, coef%Xh%lx
+    do concurrent (e = 1:coef%msh%nelv)
+       do concurrent (k = 1:coef%Xh%lx)
+          do concurrent (j = 1:coef%Xh%lx)
              weight = coef%Xh%wx(j) * coef%Xh%wz(k)
              coef%area(j, k, 3, e) = sqrt(dot(j, 1, k, e)) * weight
              coef%area(j, k, 4, e) = sqrt(dot(j, lx, k, e)) * weight
@@ -1115,9 +1115,9 @@ contains
                        + c(i, 1, 1, 1) * c(i, 1, 1, 1)
     end do
 
-    do e = 1, coef%msh%nelv
-       do k = 1, coef%Xh%lx
-          do j = 1, coef%Xh%lx
+    do concurrent (e = 1:coef%msh%nelv)
+       do concurrent (k = 1:coef%Xh%lx)
+          do concurrent (j = 1:coef%Xh%lx)
              weight = coef%Xh%wx(j) * coef%Xh%wy(k)
              coef%area(j, k, 5, e) = sqrt(dot(j, k, 1, e)) * weight
              coef%area(j, k, 6, e) = sqrt(dot(j, k, lx, e)) * weight

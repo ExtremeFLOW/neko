@@ -32,7 +32,6 @@
 !
 !> Implements the `source_term_t` type and a wrapper `source_term_wrapper_t`.
 module source_term
-  use neko_config
   use num_types, only : rp
   use coefs, only : coef_t
   use field_list, only : field_list_t
@@ -41,7 +40,7 @@ module source_term
   private
 
   !> Base abstract type for source terms.
-  type, abstract, public:: source_term_t
+  type, abstract, public :: source_term_t
      !> The fields to be updated with the source term values
      type(field_list_t) :: fields
      !> Coefficients for the SEM.
@@ -85,7 +84,7 @@ module source_term
        class(source_term_t), intent(inout) :: this
        type(json_file), intent(inout) :: json
        type(field_list_t), intent(inout), target :: fields
-       type(coef_t), intent(inout) :: coef
+       type(coef_t), intent(inout), target :: coef
      end subroutine source_term_init
   end interface
 
@@ -109,6 +108,21 @@ module source_term
      end subroutine source_term_compute
   end interface
 
+  interface
+     !> Source term factory. Both constructs and initializes the object.
+     !! @param json JSON object initializing the source term.
+     !! @param fields The list of fields updated by the source term.
+     !! @param coef The SEM coefficients.
+     module subroutine source_term_factory(object, json, fields, coef)
+       class(source_term_t), allocatable, intent(inout) :: object
+       type(json_file), intent(inout) :: json
+       type(field_list_t), intent(inout) :: fields
+       type(coef_t), intent(inout) :: coef
+     end subroutine source_term_factory
+  end interface
+
+  public :: source_term_factory
+  
 contains
 
   !> Constructor for the `source_term_t` (base) type.
@@ -134,7 +148,7 @@ contains
 
     ! A lot of attribute nesting here due to Fortran needing wrapper types
     ! but this is just pointer assignement for the fields.
-    do i=1, n_fields
+    do i = 1, n_fields
        call this%fields%assign(i, fields%get(i))
     end do
   end subroutine source_term_init_base

@@ -69,6 +69,40 @@ __global__ void masked_copy_kernel(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for masked reduced copy
+ */
+template< typename T >
+__global__ void masked_red_copy_kernel(T * __restrict__ a,
+                                   T * __restrict__ b,
+                                   int * __restrict__ mask,                    
+                                   const int n,
+                                   const int m) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < m; i += str) {
+    a[i] = b[mask[i+1]-1];
+  }
+}
+
+/**
+ * Device kernel for cfill_mask
+ */
+template< typename T >
+__global__ void cfill_mask_kernel(T* __restrict__ a,
+                                  const T c,
+                                  const int size,
+                                  int* __restrict__ mask,
+                                  const int mask_size) {
+
+    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    const int str = blockDim.x * gridDim.x;
+
+    for (int i = idx; i < mask_size; i += str) { a[mask[i]-1] = c; }
+}
+
+/**
  * Device kernel for cmult2
  */
 template< typename T >
@@ -102,6 +136,23 @@ __global__ void cadd_kernel(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for cadd2
+ */
+template< typename T >
+__global__ void cadd2_kernel(T * __restrict__ a,
+                             T * __restrict__ b,
+                             const T c,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = b[i] + c;
+  }
+}
+
+/**
  * Device kernel for cmult
  */
 template< typename T >
@@ -130,6 +181,23 @@ __global__ void add2_kernel(T * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] + b[i];
+  }
+}
+
+/**
+ * Device kernel for add3
+ */
+template< typename T >
+__global__ void add3_kernel(T * __restrict__ a,
+                            const T * __restrict__ b,
+                            const T * __restrict__ c,
+                            const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = b[i] + c[i];
   }
 }
 
@@ -419,6 +487,31 @@ __global__ void vdot3_kernel(T * __restrict__ dot,
 }
 
 /**
+ * Device kernel for vcross
+ */
+template< typename T >
+__global__ void vcross_kernel(T * __restrict__ u1,
+                             T * __restrict__ u2,
+                             T * __restrict__ u3,
+                             const T * __restrict__ v1,
+                             const T * __restrict__ v2,
+                             const T * __restrict__ v3,
+                             const T * __restrict__ w1,
+                             const T * __restrict__ w2,
+                             const T * __restrict__ w3,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    u1[i] = v2[i]*w3[i] - v3[i]*w2[i];
+    u2[i] = v3[i]*w1[i] - v1[i]*w3[i];
+    u3[i] = v1[i]*w2[i] - v2[i]*w1[i];
+  }  
+}
+
+/**
  * Warp shuffle reduction
  */
 template< typename T>
@@ -642,6 +735,21 @@ __global__ void glsum_kernel(const T * a,
   if (threadIdx.x == 0)
     buf_h[blockIdx.x] = sum;
 
+}
+
+/**
+ * Device kernel for abs_value
+ */
+template< typename T >
+__global__ void absval_kernel(T * __restrict__ a,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = fabs(a[i]);
+  }
 }
 
 #endif // __MATH_MATH_KERNEL_H__

@@ -42,10 +42,14 @@ module brinkman_source_term
   use coefs, only: coef_t
   use neko_config, only: NEKO_BCKND_DEVICE
   use utils, only: neko_error
+<<<<<<< HEAD
   use brinkman_source_term_cpu, only: brinkman_source_term_compute_cpu
   use brinkman_source_term_device, only: brinkman_source_term_compute_device
   use filter, only: filter_t
   use filter_fctry, only: filter_factory
+=======
+  use field_math, only: field_subcol3
+>>>>>>> origin/develop
   implicit none
   private
 
@@ -55,6 +59,7 @@ module brinkman_source_term
   type, public, extends(source_term_t) :: brinkman_source_term_t
      private
 
+<<<<<<< HEAD
      !> The unfiltered indicator field
      type(field_t), pointer :: indicator_unfiltered => null()
      !> The filtered indicator field
@@ -64,9 +69,16 @@ module brinkman_source_term
      !> Filter 
      class(filter_t), allocatable :: filter
      
+=======
+     !> The value of the source term.
+     type(field_t) :: indicator
+     !> Brinkman permeability field.
+     type(field_t) :: brinkman
+>>>>>>> origin/develop
    contains
      !> The common constructor using a JSON object.
-     procedure, public, pass(this) :: init => brinkman_source_term_init_from_json
+     procedure, public, pass(this) :: init => &
+          brinkman_source_term_init_from_json
      !> Destructor.
      procedure, public, pass(this) :: free => brinkman_source_term_free
      !> Computes the source term and adds the result to `fields`.
@@ -92,7 +104,12 @@ contains
     use file, only: file_t
     use tri_mesh, only: tri_mesh_t
     use device, only: device_memcpy, HOST_TO_DEVICE
+<<<<<<< HEAD
     use filters, only: smooth_step_field, step_function_field, permeability_field, PDE_filter
+=======
+    use filters, only: smooth_step_field, step_function_field, &
+         permeability_field
+>>>>>>> origin/develop
     use signed_distance, only: signed_distance_field
     use profiler, only: profiler_start_region, profiler_end_region
     use json_module, only: json_core, json_value
@@ -105,7 +122,7 @@ contains
     class(brinkman_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(inout), target :: coef
     real(kind=rp) :: start_time, end_time
 
     character(len=:), allocatable :: filter_type
@@ -146,24 +163,21 @@ contains
     ! Allocate the permeability and indicator field
 
     if (neko_field_registry%field_exists('brinkman_indicator') &
-        .or. neko_field_registry%field_exists('brinkman')) then
+         .or. neko_field_registry%field_exists('brinkman')) then
        call neko_error('Brinkman field already exists.')
     end if
 
-    call neko_field_registry%add_field(coef%dof, 'brinkman_indicator')
-    this%indicator => neko_field_registry%get_field_by_name('brinkman_indicator')
-
-    call neko_field_registry%add_field(coef%dof, 'brinkman')
-    this%brinkman => neko_field_registry%get_field_by_name('brinkman')
+    call this%indicator%init(coef%dof)
+    call this%brinkman%init(coef%dof)
 
     ! ------------------------------------------------------------------------ !
     ! Select which constructor should be called
 
     call json%get('objects', json_object_list)
-    call json%info('objects', n_children=n_regions)
+    call json%info('objects', n_children = n_regions)
     call json%get_core(core)
 
-    do i=1, n_regions
+    do i = 1, n_regions
        call json_extract_item(core, json_object_list, i, object_settings)
        call json_get_or_default(object_settings, 'type', object_type, 'none')
 
@@ -232,12 +246,12 @@ contains
     ! Compute the permeability field
 
     call permeability_field(this%brinkman, this%indicator, &
-      & brinkman_limits(1), brinkman_limits(2), brinkman_penalty)
+         & brinkman_limits(1), brinkman_limits(2), brinkman_penalty)
 
     ! Copy the permeability field to the device
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%brinkman%x, this%brinkman%x_d, &
-                          this%brinkman%dof%size(), HOST_TO_DEVICE, .true.)
+            this%brinkman%dof%size(), HOST_TO_DEVICE, .true.)
     end if
 
   end subroutine brinkman_source_term_init_from_json
@@ -246,7 +260,8 @@ contains
   subroutine brinkman_source_term_free(this)
     class(brinkman_source_term_t), intent(inout) :: this
 
-    this%brinkman => null()
+    call this%indicator%free()
+    call this%brinkman%free()
     call this%free_base()
   end subroutine brinkman_source_term_free
 
@@ -254,18 +269,26 @@ contains
   !! @param t The time value.
   !! @param tstep The current time-step.
   subroutine brinkman_source_term_compute(this, t, tstep)
-    use device, only: device_memcpy, HOST_TO_DEVICE
-    implicit none
-
     class(brinkman_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    type(field_t), pointer :: u, v, w, fu, fv, fw
+    integer :: n
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call brinkman_source_term_compute_device(this%fields, this%brinkman)
-    else
-       call brinkman_source_term_compute_cpu(this%fields, this%brinkman)
-    end if
+    n = this%fields%item_size(1)
+
+    u => neko_field_registry%get_field('u')
+    v => neko_field_registry%get_field('v')
+    w => neko_field_registry%get_field('w')
+
+    fu => this%fields%get(1)
+    fv => this%fields%get(2)
+    fw => this%fields%get(3)
+
+    call field_subcol3(fu, u, this%brinkman, n)
+    call field_subcol3(fv, v, this%brinkman, n)
+    call field_subcol3(fw, w, this%brinkman, n)
+
   end subroutine brinkman_source_term_compute
 
   ! ========================================================================== !
@@ -276,10 +299,11 @@ contains
     use file, only: file_t
     use tri_mesh, only: tri_mesh_t
     use device, only: device_memcpy, HOST_TO_DEVICE
-    use filters, only: smooth_step_field, step_function_field, permeability_field
+    use filters, only: smooth_step_field, step_function_field, &
+         permeability_field
     use signed_distance, only: signed_distance_field
     use profiler, only: profiler_start_region, profiler_end_region
-    use aabb
+    use aabb, only : aabb_t, get_aabb
     implicit none
 
     class(brinkman_source_term_t), intent(inout) :: this
@@ -327,7 +351,8 @@ contains
     ! ------------------------------------------------------------------------ !
     ! Transform the mesh if specified.
 
-    call json_get_or_default(json, 'mesh_transform.type', mesh_transform, 'none')
+    call json_get_or_default(json, 'mesh_transform.type', &
+         mesh_transform, 'none')
 
     select case (mesh_transform)
       case ('none')
@@ -336,11 +361,11 @@ contains
        call json_get(json, 'mesh_transform.box_min', box_min)
        call json_get(json, 'mesh_transform.box_max', box_max)
        call json_get_or_default(json, 'mesh_transform.keep_aspect_ratio', &
-                                keep_aspect_ratio, .true.)
+            keep_aspect_ratio, .true.)
 
        if (size(box_min) .ne. 3 .or. size(box_max) .ne. 3) then
           call neko_error('Case file: mesh_transform. &
-            &box_min and box_max must be 3 element arrays of reals')
+               &box_min and box_max must be 3 element arrays of reals')
        end if
 
        call target_box%init(box_min, box_max)
@@ -356,7 +381,7 @@ contains
 
        do idx_p = 1, boundary_mesh%mpts
           boundary_mesh%points(idx_p)%x = &
-            scaling * boundary_mesh%points(idx_p)%x + translation
+               scaling * boundary_mesh%points(idx_p)%x + translation
        end do
 
       case default
@@ -410,7 +435,8 @@ contains
 
   !> Initializes the source term from a point zone.
   subroutine init_point_zone(this, json)
-    use filters, only: smooth_step_field, step_function_field, permeability_field
+    use filters, only: smooth_step_field, step_function_field, &
+         permeability_field
     use signed_distance, only: signed_distance_field
     use profiler, only: profiler_start_region, profiler_end_region
     use point_zone, only: point_zone_t
@@ -432,7 +458,7 @@ contains
     ! ------------------------------------------------------------------------ !
     ! Read the options for the point zone
 
-    call json_get(json,'name', zone_name)
+    call json_get(json, 'name', zone_name)
     call json_get_or_default(json, 'filter.type', filter_type, 'none')
 
     ! Compute the indicator field
