@@ -41,8 +41,8 @@ module neumann
   implicit none
   private
 
-  !> Generic Neumann boundary condition.
-  !! This sets the flux of the field to the chosen value.
+  !> A Neumann boundary condition for scalar fields.
+  !! Sets the flux of the field to the chosen value.
   !! @note The condition is imposed weekly by adding an appropriate source term
   !! to the right-hand-side.
   type, public, extends(bc_t) :: neumann_t
@@ -53,8 +53,14 @@ module neumann
      procedure, pass(this) :: apply_scalar_dev => neumann_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => neumann_apply_vector_dev
      procedure, pass(this) :: finalize_neumann => neumann_finalize_neumann
+     !> Getter for the flux.
      procedure, pass(this) :: flux => neumann_flux
-     procedure, pass(this) :: set_flux => neumann_set_flux
+     !> Set the flux using a scalar.
+     procedure, pass(this) :: set_flux_scalar => neumann_set_flux_scalar
+     !> Set the flux using an array.
+     procedure, pass(this) :: set_flux_array => neumann_set_flux_array
+     !> Generic interface for setting the flux.
+     generic :: set_flux => set_flux_scalar, set_flux_array
      !> Destructor.
      procedure, pass(this) :: free => neumann_free
   end type neumann_t
@@ -150,13 +156,22 @@ contains
     flux = this%flux_
   end function neumann_flux
 
-  !> Set the flux.
-  subroutine neumann_set_flux(this, flux)
+  !> Set the flux using a scalar.
+  subroutine neumann_set_flux_scalar(this, flux)
+    class(neumann_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: flux
+
+    this%flux_ = flux
+  end subroutine neumann_set_flux_scalar
+
+  !> Set the flux using an array of values.
+  !> @param flux The desired flux.
+  subroutine neumann_set_flux_array(this, flux)
     class(neumann_t), intent(inout) :: this
     real(kind=rp), intent(in) :: flux(this%msk(0))
 
     call copy(this%flux_, flux, this%msk(0))
-  end subroutine neumann_set_flux
+  end subroutine neumann_set_flux_array
 
   !> Finalize by setting the flux
   !> @param flux The desired flux.

@@ -31,6 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines the `wall_model_bc_t` type.
+!! Maintainer: Timofey Mukha.
 module wall_model_bc
     use num_types
     use bc, only : bc_t
@@ -46,6 +47,7 @@ module wall_model_bc
 
     !> A shear stress boundary condition, computing the stress values using a
     !! wall model.
+    !! @warning Only works with axis-aligned boundaries.
     type, public, extends(shear_stress_t) :: wall_model_bc_t
        !> The wall model to compute the stress.
        class(wall_model_t), allocatable :: wall_model
@@ -72,8 +74,13 @@ module wall_model_bc
 
     end subroutine wall_model_bc_apply_scalar
 
-    !> Boundary condition apply for a generic wall_model_bc condition
-    !! to vectors @a x, @a y and @a z
+    !> Apply the boundary condition to the right-hand side.
+    !! @param x The x component of the right-hand side
+    !! @param y The y component of the right-hand side
+    !! @param z The z component of the right-hand side
+    !! @param n The size of the right-hand side arrays.
+    !! @param t The time value.
+    !! @param tstep The time step.
     subroutine wall_model_bc_apply_vector(this, x, y, z, n, t, tstep)
       class(wall_model_bc_t), intent(inout) :: this
       integer, intent(in) :: n
@@ -85,8 +92,10 @@ module wall_model_bc
       integer :: i, m, k, fid
       real(kind=rp) :: magtau
 
+      ! Compute the wall stress using the wall model.
       call this%wall_model%compute(t, tstep)
 
+      ! Populate the 3D wall stress field for post-processing.
       do i=1, this%msk(0)
         magtau = sqrt(this%wall_model%tau_x(i)**2 + this%wall_model%tau_y(i)**2&
                       + this%wall_model%tau_z(i)**2)
@@ -99,9 +108,13 @@ module wall_model_bc
         this%wall_model%tau_field%x(this%msk(i),1,1,1) = magtau
       end do
 
-      call this%shear_stress_t%set_stress(this%wall_model%tau_x,
-           this%wall_model%tau_y, this%wall_model%tau_z)
-!      call this%shear_stress_t%apply_vector(x, y, z, n, t, tstep)
+      ! Set the computed stress for application by the underlying Neumann
+      ! boundary conditions.
+      call this%set_stress(this%wall_model%tau_x, this%wall_model%tau_y, &
+           this%wall_model%tau_z)
+
+      ! Add the stress as a forcing to the right hand side arrays
+      call this%shear_stress_t%apply_vector(x, y, z, n, t, tstep)
 
     end subroutine wall_model_bc_apply_vector
 
@@ -137,7 +150,7 @@ module wall_model_bc
       class(wall_model_bc_t), intent(inout) :: this
       type(coef_t), target, intent(in) :: coef
 
-      !call this%shear_stress_t%init_shear_stress(coef)
+      call this%shear_stress_t%init_shear_stress(this%coef)
 
     end subroutine wall_model_bc_init_wall_model_bc
 

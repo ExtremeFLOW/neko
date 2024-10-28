@@ -31,6 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a shear stress boundary condition for a vector field.
+!! Maintainer: Timofey Mukha.
 module shear_stress
   use num_types
   use bc, only : bc_t
@@ -134,17 +135,12 @@ contains
 
   end subroutine shear_stress_apply_vector_dev
 
-  !> Constructor.
+  !> Additional constructor that should be run after the finalization of the
+  !! bc. Similar to the symmetry condition.
   !> @param coef The SEM coefficients.
   subroutine shear_stress_init_shear_stress(this, coef)
     class(shear_stress_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
-    integer :: i, j, l
-    type(tuple_i4_t), pointer :: bfp(:)
-    real(kind=rp) :: sx, sy, sz
-    real(kind=rp), parameter :: TOL = 1d-3
-    type(tuple_i4_t) :: bc_facet
-    integer :: facet, el
 
     this%coef => coef
 
@@ -162,11 +158,14 @@ contains
     call this%neumann_y%mark_facets(this%marked_facet)
     call this%neumann_z%mark_facets(this%marked_facet)
 
+    call this%neumann_x%finalize_neumann(0.0_rp)
+    call this%neumann_y%finalize_neumann(0.0_rp)
+    call this%neumann_z%finalize_neumann(0.0_rp)
+
 
   end subroutine shear_stress_init_shear_stress
 
-  !> Finalize by allocating the stress arrays and marking the facets for
-  !! the bc components.
+  !> Set the value of the shear stress vector using 3 scalars.
   subroutine shear_stress_set_stress_scalar(this, tau_x, tau_y, tau_z)
     class(shear_stress_t), intent(inout) :: this
     real(kind=rp), intent(in) :: tau_x

@@ -452,14 +452,6 @@ contains
 
     call bc_list_add(this%bclst_vel, this%bc_sh%symmetry)
 
-    write(*,*) "SH SYMMETRY X", this%bc_sh%symmetry%bc_x%marked_facet%size()
-    write(*,*) "SH SYMMETRY Y", this%bc_sh%symmetry%bc_y%marked_facet%size()
-    write(*,*) "SH SYMMETRY Z", this%bc_sh%symmetry%bc_z%marked_facet%size()
-
-    write(*,*) "SH NEUMANN X", this%bc_sh%neumann_x%marked_facet%size()
-    write(*,*) "SH NEUMANN Y", this%bc_sh%neumann_y%marked_facet%size()
-    write(*,*) "SH NEUMANN Z", this%bc_sh%neumann_z%marked_facet%size()
-
     ! Read stress value, default to [0 0 0]
     if (this%bc_sh%msk(0) .gt. 0) then
        call params%get('case.fluid.shear_stress.value', real_vec, logical_val)
@@ -525,18 +517,21 @@ contains
     !
     ! Wall models
     !
-    !if (params%valid_path('case.fluid.wall_modelling')) then
-    if (.false.) then
 
-       call this%bc_wallmodel%init_wall_model_bc(this%c_Xh)
-       call this%bc_wallmodel%mark_zones_from_list(msh%labeled_zones,&
-                        'wm', this%bc_labels)
-       call this%bc_wallmodel%finalize()
-       write(*,*) this%bc_wallmodel%msk(0), this%bc_wallmodel%facet(1), size(this%bc_wallmodel%facet)
+    call this%bc_wallmodel%init_base(this%c_Xh)
+    call this%bc_wallmodel%mark_zones_from_list(msh%labeled_zones,&
+         'wm', this%bc_labels)
+    call this%bc_wallmodel%finalize()
+    call this%bc_wallmodel%init_wall_model_bc(this%c_Xh)
+
+    call bc_list_add(this%bclst_vel, this%bc_wallmodel%symmetry)
+    call bc_list_add(this%bclst_vel_neumann, this%bc_wallmodel)
+
+    if (params%valid_path('case.fluid.wall_modelling')) then
 
        call json_get(params, 'case.fluid.wall_modelling.h_index', integer_val)
-
        call json_get(params, 'case.fluid.wall_modelling.type', string_val1)
+
        if (trim(string_val1) .eq. "spalding") then
           allocate(spalding_t::this%bc_wallmodel%wall_model)
           call json_get(params, 'case.fluid.wall_modelling.kappa', kappa)
