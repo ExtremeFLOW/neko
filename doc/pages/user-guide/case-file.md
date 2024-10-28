@@ -234,6 +234,11 @@ is currently from a GLL node and arbitrary distances are not yet supported.
 The index is set by the `h_index` keyword, with 1 being the minimal value, and
 the polynomial order + 1 being the maximum.
 
+A 3D field with the name `tau` will be registered in the field registry. At `wm`
+boundaries it will store the magnitude of the predicted stress. This can be used
+to post-process the predictions. Additionally, the sampling points are marked
+with values -1 in this field, for verification purposes.
+
 ### Initial conditions {#case-file_fluid-ic}
 The object `initial_condition` is used to provide initial conditions.
 It is mandatory.
