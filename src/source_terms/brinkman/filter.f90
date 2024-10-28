@@ -111,31 +111,6 @@ contains
 
 
     this%coef => coef
-!    call json_get_or_default(json, "compute_control", compute_control, &
-!                             "tsteps")
-!    call json_get_or_default(json, "compute_value", compute_value, 1.0_rp)
-!
-!    ! We default to output whenever we execute
-!    call json_get_or_default(json, "output_control", output_control, &
-!                             compute_control)
-!    call json_get_or_default(json, "output_value", output_value, &
-!                             compute_value)
-!
-!
-!    if (output_control == "global") then
-!       call json_get(this%case%params, 'case.fluid.output_control', &
-!                     output_control)
-!       call json_get(this%case%params, 'case.fluid.output_value', &
-!                     output_value)
-!    end if
-!
-!    call json_get(json, "order", order)
-!    this%order = order
-!
-!    call this%compute_controller%init(case%end_time, compute_control, &
-!                                        compute_value)
-!    call this%output_controller%init(case%end_time, output_control, &
-!                                     output_value)
 
   end subroutine filter_init_base
 

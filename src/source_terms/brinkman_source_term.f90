@@ -42,14 +42,9 @@ module brinkman_source_term
   use coefs, only: coef_t
   use neko_config, only: NEKO_BCKND_DEVICE
   use utils, only: neko_error
-<<<<<<< HEAD
-  use brinkman_source_term_cpu, only: brinkman_source_term_compute_cpu
-  use brinkman_source_term_device, only: brinkman_source_term_compute_device
   use filter, only: filter_t
-  use filter_fctry, only: filter_factory
-=======
-  use field_math, only: field_subcol3
->>>>>>> origin/develop
+  use PDE_filter, only: PDE_filter_t
+  use field_math, only: field_subcol3, field_copy
   implicit none
   private
 
@@ -59,22 +54,14 @@ module brinkman_source_term
   type, public, extends(source_term_t) :: brinkman_source_term_t
      private
 
-<<<<<<< HEAD
      !> The unfiltered indicator field
-     type(field_t), pointer :: indicator_unfiltered => null()
-     !> The filtered indicator field
-     type(field_t), pointer :: indicator => null()
-     !> Brinkman permeability field.
-     type(field_t), pointer :: brinkman => null()
-     !> Filter 
-     class(filter_t), allocatable :: filter
-     
-=======
+     type(field_t) :: indicator_unfiltered 
      !> The value of the source term.
      type(field_t) :: indicator
      !> Brinkman permeability field.
      type(field_t) :: brinkman
->>>>>>> origin/develop
+     !> Filter 
+     class(filter_t), allocatable :: filter
    contains
      !> The common constructor using a JSON object.
      procedure, public, pass(this) :: init => &
@@ -104,12 +91,8 @@ contains
     use file, only: file_t
     use tri_mesh, only: tri_mesh_t
     use device, only: device_memcpy, HOST_TO_DEVICE
-<<<<<<< HEAD
-    use filters, only: smooth_step_field, step_function_field, permeability_field, PDE_filter
-=======
     use filters, only: smooth_step_field, step_function_field, &
          permeability_field
->>>>>>> origin/develop
     use signed_distance, only: signed_distance_field
     use profiler, only: profiler_start_region, profiler_end_region
     use json_module, only: json_core, json_value
@@ -197,50 +180,32 @@ contains
     end do
 
     ! ------------------------------------------------------------------------ !
-    ! Initialize the filter
-    call filter_factory(this%filter, json, coef)
+    ! Filter the indicator field
 
-    ! allocate the unfiltered design field
-    ! note, if you use no filter this is not needed...
-    ! not sure what to do here
-    ! 
-    ! also... I wanted to go with "unfiltered_brinkman_indicator" but it was too many
-    ! characters to be picked up by the probes
-    call neko_field_registry%add_field(coef%dof, 'UF_indicator')
-    this%indicator_unfiltered => neko_field_registry%get_field_by_name('UF_indicator')
-    ! copy 
-    call copy(this%indicator_unfiltered%x,this%indicator%x,this%indicator%dof%size())
+    call json_get_or_default(json, 'filter.type', filter_type, 'none')
+    select case (filter_type)
+       case ('PDE')
+          ! Initialize the unfiltered design field
+          call this%indicator_unfiltered%init(coef%dof)
 
-    ! now we try and compute the filter
-    ! filter
-    call this%filter%apply(this%indicator, this%indicator_unfiltered)
-    !call PDE_filter(this%indicator, this%indicator_unfiltered, filter_radius,coef) 
+          ! Allocate a PDE filter
+          allocate(PDE_filter_t::this%filter)
 
+          ! Initialize the filter
+          call this%filter%init(json, coef)
 
-    ! and spy on them
-    call fout%init(sp, "yofam", 2)
-    fu => neko_field_registry%get_field('UF_indicator')
-    fv => neko_field_registry%get_field('brinkman_indicator')
-    fout%fields%items(1)%ptr => fu
-    fout%fields%items(2)%ptr => fv
-    call fout%sample(1.0_rp)
+          ! Copy the current indicator to unfiltered (essentially a rename) 
+          call field_copy(this%indicator_unfiltered, this%indicator)
 
+          ! Apply the filter
+          call this%filter%apply(this%indicator, this%indicator_unfiltered)
 
+       case ('none')
+          ! do nothing
 
-!    select case (filter_type)
-!      case ('PDE')
-!       ! allocate the unfiltered design field
-!    	 call neko_field_registry%add_field(coef%dof, 'unfiltered_brinkman_indicator')
-!    	 this%indicator_unfiltered => neko_field_registry%get_field_by_name('unfiltered_brinkman_indicator')
-!     	 ! copy 
-!       call copy(this%indicator_unfiltered%x,this%indicator%x,this%indicator%dof%size())
-!       ! filter
-!       call PDE_filter(this%indicator, this%indicator_unfiltered, filter_radius,coef) 
-!      case ('none')
-!       ! do nothing
-!      case default
-!       call neko_error('Brinkman source term unknown filter type')
-!    end select
+       case default
+          call neko_error('Brinkman source term unknown filter type')
+    end select
 
     ! ------------------------------------------------------------------------ !
     ! Compute the permeability field
@@ -418,16 +383,6 @@ contains
        call neko_error('Unknown distance transform')
     end select
 
-    ! ------------------------------------------------------------------------ !
-    ! Run filter on the temporary indicator field to smooth it out.
-
-    select case (filter_type)
-      case ('none')
-       ! Do nothing
-      case default
-       call neko_error('Unknown filter type')
-    end select
-
     ! Update the global indicator field by max operator
     this%indicator%x = max(this%indicator%x, temp_field%x)
 
@@ -449,7 +404,6 @@ contains
 
     ! Options
     character(len=:), allocatable :: zone_name
-    character(len=:), allocatable :: filter_type
 
     type(field_t) :: temp_field
     class(point_zone_t), pointer :: my_point_zone
@@ -459,7 +413,6 @@ contains
     ! Read the options for the point zone
 
     call json_get(json, 'name', zone_name)
-    call json_get_or_default(json, 'filter.type', filter_type, 'none')
 
     ! Compute the indicator field
 
@@ -470,17 +423,6 @@ contains
     do i = 1, my_point_zone%size
        temp_field%x(my_point_zone%mask(i), 1, 1, 1) = 1.0_rp
     end do
-
-    ! Run filter on the temporary indicator field to smooth it out.
-
-    select case (filter_type)
-      case ('PDE')
-       ! Do nothing
-      case ('none')
-       ! Do nothing
-      case default
-       call neko_error('Unknown filter type')
-    end select
 
     ! Update the global indicator field by max operator
     this%indicator%x = max(this%indicator%x, temp_field%x)
