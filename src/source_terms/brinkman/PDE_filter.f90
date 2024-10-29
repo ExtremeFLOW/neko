@@ -64,6 +64,7 @@ module PDE_filter
   use sx_jacobi, only: sx_jacobi_t
   use hsmg, only: hsmg_t
   use utils, only: neko_error
+  use device_math, only: device_cfill, device_col3
     implicit none
   private
 
