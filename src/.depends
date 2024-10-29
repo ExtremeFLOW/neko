@@ -18,7 +18,7 @@ math/mxm_wrapper.o : math/mxm_wrapper.F90 common/utils.o config/num_types.o
 sem/speclib.o : sem/speclib.f90 common/utils.o config/num_types.o 
 qoi/drag_torque.o : qoi/drag_torque.f90 math/bcknd/device/device_math.o device/device.o common/utils.o config/num_types.o sem/space.o math/math.o comm/comm.o mesh/facet_zone.o mesh/mesh.o sem/coef.o field/field.o 
 sem/local_interpolation.o : sem/local_interpolation.f90 config/neko_config.o math/bcknd/device/device_math.o device/device.o field/field_list.o field/field.o common/utils.o math/fast3d.o math/math.o mesh/point.o config/num_types.o sem/space.o math/tensor.o 
-math/math.o : math/math.f90 comm/comm.o config/num_types.o 
+math/math.o : math/math.f90 comm/comm.o common/utils.o config/num_types.o 
 math/mathops.o : math/mathops.f90 config/num_types.o 
 math/fast3d.o : math/fast3d.f90 math/math.o sem/speclib.o config/num_types.o 
 sem/space.o : sem/space.f90 math/mxm_wrapper.o math/tensor.o math/math.o math/fast3d.o common/utils.o device/device.o sem/speclib.o config/num_types.o config/neko_config.o 
@@ -106,7 +106,7 @@ math/bcknd/xsmm/fdm_xsmm.o : math/bcknd/xsmm/fdm_xsmm.f90 math/bcknd/xsmm/tensor
 math/schwarz.o : math/schwarz.f90 config/neko_config.o device/device.o math/fdm.o math/bcknd/device/device_math.o math/bcknd/device/device_schwarz.o gs/gather_scatter.o bc/bc.o sem/dofmap.o sem/space.o mesh/mesh.o math/math.o config/num_types.o 
 math/vector.o : math/vector.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o math/math.o config/neko_config.o 
 math/matrix.o : math/matrix.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o math/math.o config/neko_config.o 
-math/signed_distance.o : math/signed_distance.f90 adt/stack.o mesh/search_tree/aabb.o mesh/point.o common/utils.o mesh/aabb_tree.o mesh/tri_mesh.o mesh/tri.o field/field.o config/num_types.o 
+math/signed_distance.o : math/signed_distance.f90 adt/stack.o mesh/search_tree/aabb.o mesh/point.o common/utils.o config/neko_config.o device/device.o mesh/aabb_tree.o mesh/tri_mesh.o mesh/tri.o field/field.o config/num_types.o 
 common/checkpoint.o : common/checkpoint.f90 mesh/mesh.o common/utils.o field/field.o device/device.o sem/space.o field/field_series.o config/num_types.o config/neko_config.o 
 io/generic_file.o : io/generic_file.f90 comm/comm.o common/utils.o config/num_types.o 
 io/map_file.o : io/map_file.f90 io/format/map.o comm/comm.o common/utils.o io/generic_file.o 
@@ -293,11 +293,15 @@ source_terms/boussinesq_source_term.o : source_terms/boussinesq_source_term.f90 
 source_terms/bcknd/cpu/boussinesq_source_term_cpu.o : source_terms/bcknd/cpu/boussinesq_source_term_cpu.f90 math/math.o field/field.o field/field_list.o config/num_types.o 
 source_terms/bcknd/device/boussinesq_source_term_device.o : source_terms/bcknd/device/boussinesq_source_term_device.f90 math/bcknd/device/device_math.o field/field.o field/field_list.o config/num_types.o 
 source_terms/source_term_fctry.o : source_terms/source_term_fctry.f90 common/utils.o common/json_utils.o source_terms/coriolis_source_term.o source_terms/brinkman_source_term.o source_terms/boussinesq_source_term.o source_terms/const_source_term.o source_terms/source_term.o 
-source_terms/brinkman_source_term.o : source_terms/brinkman_source_term.f90 mesh/point_zone_registry.o mesh/point_zone.o mesh/search_tree/aabb.o math/math.o common/profiler.o math/signed_distance.o source_terms/brinkman/filters.o device/device.o mesh/tri_mesh.o io/file.o io/fld_file_output.o math/field_math.o source_terms/brinkman/PDE_filter.o source_terms/brinkman/filter.o common/utils.o config/neko_config.o sem/coef.o source_terms/source_term.o field/field_registry.o common/json_utils.o field/field_list.o field/field.o config/num_types.o 
-source_terms/brinkman/filters.o : source_terms/brinkman/filters.f90 source_terms/bcknd/cpu/filters_cpu.o common/utils.o config/num_types.o config/neko_config.o field/field.o 
+source_terms/brinkman_source_term.o : source_terms/brinkman_source_term.f90 mesh/point_zone_registry.o mesh/point_zone.o mesh/search_tree/aabb.o common/profiler.o math/signed_distance.o source_terms/brinkman/filters.o device/device.o mesh/tri_mesh.o io/file.o math/bcknd/device/device_math.o math/math.o io/fld_file_output.o math/field_math.o source_terms/brinkman/PDE_filter.o source_terms/brinkman/filter.o common/utils.o config/neko_config.o sem/coef.o source_terms/source_term.o field/field_registry.o common/json_utils.o field/field_list.o field/field.o config/num_types.o 
+source_terms/brinkman/filters.o : source_terms/brinkman/filters.f90 source_terms/bcknd/device/filters_device.o source_terms/bcknd/cpu/filters_cpu.o common/utils.o config/num_types.o config/neko_config.o field/field.o 
 source_terms/brinkman/filter.o : source_terms/brinkman/filter.f90 field/field.o common/json_utils.o sem/coef.o config/num_types.o 
 source_terms/brinkman/PDE_filter.o : source_terms/brinkman/PDE_filter.f90 math/bcknd/device/device_math.o common/utils.o krylov/pc_hsmg.o krylov/bcknd/sx/pc_jacobi_sx.o krylov/bcknd/device/pc_jacobi_device.o krylov/bcknd/cpu/pc_jacobi.o sem/dofmap.o config/neko_config.o common/log.o math/field_math.o field/scratch_registry.o source_terms/brinkman/filter.o mesh/mesh.o fluid/pnpn_res.o gs/gather_scatter.o common/profiler.o bc/neumann.o bc/bc.o krylov/precon.o krylov/krylov.o math/ax.o sem/coef.o field/field.o field/field_registry.o common/json_utils.o config/num_types.o 
 source_terms/bcknd/cpu/filters_cpu.o : source_terms/bcknd/cpu/filters_cpu.f90 config/num_types.o 
+source_terms/bcknd/device/filters_device.o : source_terms/bcknd/device/filters_device.F90 source_terms/bcknd/device/opencl/opencl_filters.o source_terms/bcknd/device/hip/hip_filters.o source_terms/bcknd/device/cuda/cuda_filters.o common/utils.o math/bcknd/device/device_math.o config/num_types.o 
+source_terms/bcknd/device/cuda/cuda_filters.o : source_terms/bcknd/device/cuda/cuda_filters.f90 config/num_types.o 
+source_terms/bcknd/device/hip/hip_filters.o : source_terms/bcknd/device/hip/hip_filters.f90 config/num_types.o 
+source_terms/bcknd/device/opencl/opencl_filters.o : source_terms/bcknd/device/opencl/opencl_filters.f90 config/num_types.o 
 les/les_model.o : les/les_model.f90 math/bcknd/device/device_math.o math/math.o device/device.o config/neko_config.o gs/gs_ops.o sem/coef.o sem/dofmap.o field/field_registry.o field/field.o config/num_types.o 
 les/les_model_fctry.o : les/les_model_fctry.f90 common/utils.o les/sigma.o les/dynamic_smagorinsky.o les/smagorinsky.o les/vreman.o les/les_model.o 
 les/vreman.o : les/vreman.f90 sem/coef.o les/bcknd/cpu/vreman_cpu.o config/neko_config.o common/utils.o common/json_utils.o sem/dofmap.o les/les_model.o field/field.o config/num_types.o 
