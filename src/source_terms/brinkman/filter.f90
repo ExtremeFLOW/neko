@@ -60,8 +60,6 @@ module filter
      procedure(filter_free), pass(this), deferred :: free
      !> The main function to be executed during the run.
      procedure(filter_apply), pass(this), deferred :: apply
-     !> MAYBE in the future we need an adjoint!
-     ! procedure(filter_apply_adjoint), pass(this), deferred :: apply_adjoint
   end type filter_t
 
 

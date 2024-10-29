@@ -98,8 +98,6 @@ contains
     use json_module, only: json_core, json_value
     use math, only : copy
 
-    ! delete later
-    use fld_file_output
     implicit none
 
     class(brinkman_source_term_t), intent(inout) :: this
@@ -121,11 +119,6 @@ contains
     integer :: n_regions
     integer :: i
 
-
-    ! delete later,
-    ! I just want to look at them
-    type(field_t), pointer :: fu,fv
-    type(fld_file_output_t) :: fout
 
     ! Mandatory fields for the general source term
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
