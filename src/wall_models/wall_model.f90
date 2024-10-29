@@ -251,6 +251,7 @@ contains
 
     n_nodes = this%msk(0)
     this%n_nodes = n_nodes
+
     do i = 1, n_nodes
        linear = this%msk(i)
        fid = this%facet(i)
@@ -329,12 +330,12 @@ contains
        end if
     end do
 
-    hmin = glmin(this%h%x, n_nodes)
-    hmax = glmax(this%h%x, n_nodes)
-
-    if (pe_rank .eq. 0) then
-       write(*, "(A, F10.4, F10.4)") "   h min / max:", hmin, hmax
-    end if
+!    hmin = glmin(this%h%x, n_nodes)
+!    hmax = glmax(this%h%x, n_nodes)
+!
+!    if (pe_rank .eq. 0) then
+!       write(*, "(A, F10.4, F10.4)") "   h min / max:", hmin, hmax
+!    end if
 
 
 
