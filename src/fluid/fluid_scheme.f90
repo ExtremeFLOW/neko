@@ -81,8 +81,6 @@ module fluid_scheme
   use field_math, only : field_cfill
   use wall_model_bc, only : wall_model_bc_t
   use shear_stress, only : shear_stress_t
-  use spalding, only : spalding_t
-  use rough_log_law, only : rough_log_law_t
   use gradient_jump_penalty, only : gradient_jump_penalty_t
   implicit none
   private
