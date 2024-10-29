@@ -296,7 +296,7 @@ contains
           format_str = '.h5'
        end if
     end if
-    chkpf = file_t('joblimit'//trim(format_str))
+    chkpf = file_t(C%output_directory // 'joblimit'//trim(format_str))
     call chkpf%write(C%fluid%chkp, t)
     write(log_buf, '(A)') '! saving checkpoint >>>'
     call neko_log%message(log_buf)
