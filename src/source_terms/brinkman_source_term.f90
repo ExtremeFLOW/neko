@@ -45,6 +45,7 @@ module brinkman_source_term
   use filter, only: filter_t
   use PDE_filter, only: PDE_filter_t
   use field_math, only: field_subcol3, field_copy
+  use fld_file_output, only : fld_file_output_t
   implicit none
   private
 
@@ -118,6 +119,7 @@ contains
     type(json_file) :: object_settings
     integer :: n_regions
     integer :: i
+    type(fld_file_output_t) :: output
 
 
     ! Mandatory fields for the general source term
@@ -193,8 +195,17 @@ contains
           ! Apply the filter
           call this%filter%apply(this%indicator, this%indicator_unfiltered)
 
+          ! Set up sampler to include the unfiltered and filtered fields
+          call output%init(sp, 'brinkman', 3)
+          call output%fields%assign_to_field(1, this%indicator_unfiltered)
+          call output%fields%assign_to_field(2, this%indicator)
+          call output%fields%assign_to_field(3, this%brinkman)
+
        case ('none')
-          ! do nothing
+          ! Set up sampler to include the unfiltered field
+          call output%init(sp, 'brinkman', 2)
+          call output%fields%assign_to_field(1, this%indicator)
+          call output%fields%assign_to_field(2, this%brinkman)
 
        case default
           call neko_error('Brinkman source term unknown filter type')
@@ -211,6 +222,9 @@ contains
        call device_memcpy(this%brinkman%x, this%brinkman%x_d, &
             this%brinkman%dof%size(), HOST_TO_DEVICE, .true.)
     end if
+
+    ! Sample the Brinkman field
+    call output%sample(0.0_rp)
 
   end subroutine brinkman_source_term_init_from_json
 
