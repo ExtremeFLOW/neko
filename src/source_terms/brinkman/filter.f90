@@ -93,7 +93,7 @@ module filter
        import filter_t, field_t
        class(filter_t), intent(inout) :: this
        type(field_t), intent(in) ::  F_in
-    	 type(field_t), intent(inout) ::  F_out
+       type(field_t), intent(inout) ::  F_out
      end subroutine filter_apply
   end interface
 
