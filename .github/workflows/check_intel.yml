@@ -21,7 +21,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04]
-        compiler: [ifort, ifx]
+        compiler: [ifx]
         precision: [sp, dp]
         backend: [cpu]
         include:

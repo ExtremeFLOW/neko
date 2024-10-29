@@ -21,7 +21,7 @@ program postprocess_fluid_stats
 
   argc = command_argument_count()
 
-  if ((argc .lt. 3) .or. (argc .gt. 3)) then
+  if ((argc .lt. 2) .or. (argc .gt. 2)) then
      if (pe_rank .eq. 0) then
         write(*,*) 'Usage: ./postprocess_fluid_stats mesh.nmsh stats.fld'
         write(*,*) 'Example command: ./postprocess_fluid_stats mesh.nmsh statsblabla.fld'
