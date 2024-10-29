@@ -74,6 +74,8 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `checkpoint_value`         | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                        | -             |
 | `checkpoint_format`        | The file format of checkpoints                                                                        | `chkp` or `hdf5`                                | `chkp`        |
 | `restart_file`             | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
+| `restart_mesh_file`        | If the restart file is on a different mesh, specifiy the .nmsh file used to generate it here          | Strings enging with `.nmsh`                     | -             |
+| `mesh2mesh_tolerance`      | Tolerance for the restart when restarting from another mesh                                           | Postive reals                                   | 1e-6          |
 | `timestep`                 | Time-step size                                                                                        | Positive reals                                  | -             |
 | `variable_timestep`        | Whether to use variable dt                                                                            | `true` or `false`                               | `false`       |
 | `max_timestep`             | Maximum time-step size when variable time step is activated                                           | Positive reals                                  | -             |
