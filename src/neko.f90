@@ -297,12 +297,13 @@ contains
     call neko_rt_stats%report()
     call neko_rt_stats%free()
 
+    call neko_scratch_registry%free()
+
     if (present(C)) then
        call case_free(C)
     end if
 
     call neko_field_registry%free()
-    call neko_scratch_registry%free()
     call device_finalize
     call neko_mpi_types_free
     call comm_free

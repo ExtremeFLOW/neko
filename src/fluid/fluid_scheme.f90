@@ -198,7 +198,7 @@ module fluid_scheme
        type(mesh_t), target, intent(inout) :: msh
        integer, intent(inout) :: lx
        type(json_file), target, intent(inout) :: params
-       type(user_t), intent(in) :: user
+       type(user_t), target, intent(in) :: user
        type(time_scheme_controller_t), target, intent(in) :: time_scheme
      end subroutine fluid_scheme_init_intrf
   end interface
