@@ -46,7 +46,7 @@ module filter
 
   !> Base abstract class for filter.
   type, abstract, public :: filter_t
-  	  !> Coefficients for the SEM.
+     !> Coefficients for the SEM.
      type(coef_t), pointer :: coef => null() 
  
    contains
