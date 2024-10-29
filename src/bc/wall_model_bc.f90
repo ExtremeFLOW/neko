@@ -55,8 +55,10 @@ module wall_model_bc
      contains
        procedure, pass(this) :: apply_scalar => wall_model_bc_apply_scalar
        procedure, pass(this) :: apply_vector => wall_model_bc_apply_vector
-       procedure, pass(this) :: apply_scalar_dev => wall_model_bc_apply_scalar_dev
-       procedure, pass(this) :: apply_vector_dev => wall_model_bc_apply_vector_dev
+       procedure, pass(this) :: apply_scalar_dev => &
+            wall_model_bc_apply_scalar_dev
+       procedure, pass(this) :: apply_vector_dev => &
+            wall_model_bc_apply_vector_dev
        procedure, pass(this) :: init_wall_model_bc => &
          wall_model_bc_init_wall_model_bc
     end type wall_model_bc_t
