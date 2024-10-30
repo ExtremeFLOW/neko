@@ -37,12 +37,14 @@ in Neko. The list will be updated as new simcomps are added.
 Each simulation component is, by default, executed once per time step to perform
 associated computations and output. However, this can be modified by using the
 `compute_control` and `compute_value` parameters for the computation and the
-`output_control and` and `output_value` for the output to disk. The parameters
+`output_control` and `output_value` for the output to disk. The parameters
 for the `_control` values are the same as for the fluid and checkpointing.
 Additionally, one can set `output_control` to `global` and `never`. The former
 will sync the `output_` parameter to that of the fluid. Choosing `never` will
 suppress output all together. If no parameters for the `output_` parameters are
- provided, they are set to be the same as for `compute_`.
+provided, they are set to be the same as for `compute_`. In order to simplify
+the configuration, the `compute_control` can be set to `fluid_output` to sync
+the computation to the fluid output. 
 
 For simcomps that compute 3D fields, the output can be either added to the main
 `.fld` file, containing velocity and pressure, or saved to a separate file. For
