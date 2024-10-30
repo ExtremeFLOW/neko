@@ -153,7 +153,7 @@ contains
     v => neko_field_registry%get_field("v")
     w => neko_field_registry%get_field("w")
 
-    do i=1, this%n_nodes
+    do i = 1, this%n_nodes
       ! Sample the velocity
       ui = u%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
       vi = v%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))

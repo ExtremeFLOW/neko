@@ -33,16 +33,13 @@
 !> Defines a shear stress boundary condition for a vector field.
 !! Maintainer: Timofey Mukha.
 module shear_stress
-  use num_types
+  use num_types, only : rp
   use bc, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use utils, only : neko_error, nonlinear_index
+  use utils, only : neko_error
   use coefs, only : coef_t
   use symmetry, only : symmetry_t
   use neumann, only : neumann_t
-  use math, only : copy
-  use device_math, only : device_copy
-  use tuple, only : tuple_i4_t
   implicit none
   private
 

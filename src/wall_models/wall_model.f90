@@ -34,7 +34,7 @@
 !> Implements `wall_model_t`.
 module wall_model
   use num_types, only : rp
-  use field, only : field_t, field_ptr_t
+  use field, only : field_t
   use json_module, only : json_file
   use field_registry, only : neko_field_registry
   use dofmap, only : dofmap_t
@@ -330,7 +330,7 @@ contains
        end if
     end do
 
-!    hmin = glmin(this%h%x, n_nodes)
+    hmin = glmin(this%h%x, n_nodes)
 !    hmax = glmax(this%h%x, n_nodes)
 !
 !    if (pe_rank .eq. 0) then

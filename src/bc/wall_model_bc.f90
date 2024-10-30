@@ -33,7 +33,7 @@
 !> Defines the `wall_model_bc_t` type.
 !! Maintainer: Timofey Mukha.
 module wall_model_bc
-    use num_types
+    use num_types, only : rp
     use bc, only : bc_t
     use, intrinsic :: iso_c_binding, only : c_ptr
     use utils, only : neko_error, nonlinear_index
@@ -99,7 +99,7 @@ module wall_model_bc
       call this%wall_model%compute(t, tstep)
 
       ! Populate the 3D wall stress field for post-processing.
-      do i=1, this%msk(0)
+      do i = 1, this%msk(0)
         magtau = sqrt(this%wall_model%tau_x(i)**2 + this%wall_model%tau_y(i)**2&
                       + this%wall_model%tau_z(i)**2)
 
