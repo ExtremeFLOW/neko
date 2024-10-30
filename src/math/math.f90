@@ -434,7 +434,7 @@ contains
     integer :: tmp, glimin
     integer :: i, ierr
     if (n < 1) then
-       tmp = -huge(0)
+       tmp = huge(0)
     else
        tmp = a(1)
     end if
