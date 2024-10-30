@@ -102,7 +102,7 @@ module math
        add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
        glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
-       swap, reord, flipv, cadd2, masked_red_copy, absval, vecsqrt1, rmneg
+       swap, reord, flipv, cadd2, masked_red_copy, absval
 
 contains
 
@@ -1168,31 +1168,4 @@ contains
        a(i) = abs(a(i))
     end do
   end subroutine absval
-
-  !> Take the square root of an array
-  !! @param[inout]   a     vector to be manipulated
-  !! @param[in]      n     array size
-  subroutine vecsqrt1(a, n)
-    integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: a
-    integer :: i
-    do i = 1, n 
-       a(i) = sqrt(a(i))
-    end do
-  end subroutine vecsqrt1
-
-  !> Zero the negative elements of an array
-  !! @param[inout]   a     vector to be manipulated
-  !! @param[in]      n     array size
-  subroutine rmneg(a, n)
-    integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: a
-    integer :: i
-    do i = 1, n 
-       if (a(i) .lt. 0.0_rp) then
-          a(i) = 0.0_rp
-       end if
-    end do
-  end subroutine rmneg
-
 end module math

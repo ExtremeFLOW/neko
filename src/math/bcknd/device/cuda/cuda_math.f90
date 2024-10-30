@@ -316,21 +316,5 @@ module cuda_math
        type(c_ptr), value :: a_d
        integer(c_int) :: n
      end subroutine cuda_absval
-     
-     subroutine cuda_vecsqrt1(a_d, n) &
-          bind(c, name = 'cuda_vecsqrt1')
-       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
-       import c_rp
-       type(c_ptr), value :: a_d
-       integer(c_int) :: n
-     end subroutine cuda_vecsqrt1
-     
-     subroutine cuda_rmneg(a_d, n) &
-          bind(c, name = 'cuda_rmneg')
-       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
-       import c_rp
-       type(c_ptr), value :: a_d
-       integer(c_int) :: n
-     end subroutine cuda_rmneg
   end interface
 end module cuda_math

@@ -709,35 +709,4 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
     
   }
-
-  /** Fortran wrapper for vecsqrt1
-   * \f$ a = sqrt(a) \f$
-   */
-  void hip_vecsqrt1(void *a, int *n) {
-
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(vecsqrt1_kernel<real>),
-                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                       (real *) a, *n);
-    HIP_CHECK(hipGetLastError());
-    
-  }
-  
-  /** Fortran wrapper for rmneg
-   * \f$ a = a if a >= 0 \f$
-   * \f$ a = 0 if a < 0\f$
-   */
-  void hip_rmneg(void *a, int *n) {
-
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(rmneg_kernel<real>),
-                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                       (real *) a, *n);
-    HIP_CHECK(hipGetLastError());
-    
-  }
 }

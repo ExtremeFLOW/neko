@@ -42,7 +42,7 @@ module neko
        sub3, add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
        glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
-       swap, reord, flipv, cadd2, pi, absval, vecsqrt1, rmneg
+       swap, reord, flipv, cadd2, pi, absval
   use speclib
   use dofmap, only : dofmap_t
   use space, only : space_t, GL, GLL, GJ

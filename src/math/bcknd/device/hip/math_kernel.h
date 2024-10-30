@@ -752,36 +752,4 @@ __global__ void absval_kernel(T * __restrict__ a,
   }
 }
 
-/**
- * Device kernel for vecsqrt1
- */
-template< typename T >
-__global__ void vecsqrt1_kernel(T * __restrict__ a,
-                             const int n) {
-
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-
-  for (int i = idx; i < n; i += str) {
-    a[i] = sqrt(a[i]);
-  }
-}
-
-/**
- * Device kernel for rmneg
- */
-template< typename T >
-__global__ void rmneg_kernel(T * __restrict__ a,
-                             const int n) {
-
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-
-  for (int i = idx; i < n; i += str) {
-    if (a[i] < 0.0) {
-      a[i] = 0.0;
-    }
-  }
-}
-
 #endif // __MATH_MATH_KERNEL_H__
