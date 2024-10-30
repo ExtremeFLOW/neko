@@ -806,7 +806,9 @@ contains
     this%n_points = this%n_points_local
     n_points = this%n_points_local
     call global_interpolation_init_point_arrays(this)
-    deallocate(xyz)
+    if (allocated(xyz)) then
+       deallocate(xyz)
+    end if
     allocate(xyz(3,n_points))
     
     call copy(xyz, this%xyz_local, 3*n_points)
@@ -818,7 +820,6 @@ contains
        call device_memcpy(this%el_owner0, this%el_owner0_d, &
             this%n_points, HOST_TO_DEVICE, sync = .true.)
     end if
-
     this%all_points_local = .true.
 
   end subroutine global_interpolation_find_and_redist

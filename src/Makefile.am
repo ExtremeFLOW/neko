@@ -300,6 +300,10 @@ neko_fortran_SOURCES = \
 	source_terms/brinkman_source_term.f90\
 	source_terms/brinkman/filters.f90\
 	source_terms/bcknd/cpu/filters_cpu.f90\
+	source_terms/bcknd/device/filters_device.F90\
+	source_terms/bcknd/device/cuda/cuda_filters.f90\
+	source_terms/bcknd/device/hip/hip_filters.f90\
+	source_terms/bcknd/device/opencl/opencl_filters.f90\
 	les/les_model.f90\
 	les/les_model_fctry.f90\
 	les/vreman.f90\
@@ -365,7 +369,8 @@ libneko_a_SOURCES += \
 	common/bcknd/device/hip/gradient_jump_penalty.hip\
 	fluid/bcknd/device/hip/pnpn_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
-	sem/bcknd/device/hip/coef.hip
+	sem/bcknd/device/hip/coef.hip\
+	source_terms/bcknd/device/hip/filters.hip
 endif
 
 if ENABLE_CUDA
@@ -402,7 +407,8 @@ libneko_a_SOURCES += \
 	fluid/bcknd/device/cuda/pnpn_res.cu\
 	fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
-	sem/bcknd/device/cuda/coef.cu
+	sem/bcknd/device/cuda/coef.cu\
+	source_terms/bcknd/device/cuda/filters.cu
 endif
 
 if ENABLE_OPENCL
@@ -433,7 +439,8 @@ libneko_a_SOURCES += \
 	common/bcknd/device/opencl/rhs_maker.c\
 	fluid/bcknd/device/opencl/pnpn_res.c\
 	scalar/bcknd/device/opencl/scalar_residual.c\
-	sem/bcknd/device/opencl/coef.c
+	sem/bcknd/device/opencl/coef.c\
+	source_terms/bcknd/device/opencl/filters.c
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
@@ -502,7 +509,8 @@ CLEANFILES += \
 	krylov/bcknd/device/opencl/*.cl.h\
 	fluid/bcknd/device/opencl/*.cl.h\
 	scalar/bcknd/device/opencl/*.cl.h\
-	sem/bcknd/device/opencl/*.cl.h
+	sem/bcknd/device/opencl/*.cl.h\
+	source_terms/bcknd/device/opencl/*.cl.h
 endif
 
 if ENABLE_MAKEDEPF90
@@ -605,6 +613,9 @@ EXTRA_DIST = \
 	sem/bcknd/device/opencl/coef_kernel.cl\
 	math/bcknd/device/device_mpi_reduce.h\
 	math/bcknd/device/device_mpi_op.h\
+	source_terms/bcknd/device/cuda/filter_kernels.h\
+	source_terms/bcknd/device/hip/filter_kernels.h\
+	source_terms/bcknd/device/opencl/filter_kernels.cl\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h\
 	device/opencl/check.h\

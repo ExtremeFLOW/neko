@@ -1,4 +1,4 @@
-# Simulaticn components {#simcomps}
+# Simulation components {#simcomps}
 
 \tableofcontents
 
@@ -209,7 +209,7 @@ fields to disk via the usual common keywords.
    "output_value" : 1.0
  }
  ~~~~~~~~~~~~~~~
- 
+
 ### force_torque {#simcomp_force_torque}
 Computes the force on a specified zone and the corresponding torque
 around a center point. The compute control specifies how often they are
@@ -229,7 +229,7 @@ Subroutines used in the simcomp can be found in src/qoi/drag_torque.f90
    "compute_value" : 10
  }
  ~~~~~~~~~~~~~~~
- 
+
 ### weak_grad {#simcomp_weak_grad}
 Computes the weak gradient of a field. The weak gradient is value of the
 gradient multiplied by the local value of the mass matrix. This is how a
