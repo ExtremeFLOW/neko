@@ -461,7 +461,7 @@ contains
           real_vec = 0.0_rp
        else if (size(real_vec) .ne. 3) then
           call neko_error ("The shear stress vector provided in &
-               fluid.shear_stress.value should have 3 components.")
+               &fluid.shear_stress.value should have 3 components.")
        end if
        call this%bc_sh%set_stress(real_vec(1), real_vec(2), real_vec(3))
     end if
