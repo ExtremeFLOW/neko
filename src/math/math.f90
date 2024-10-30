@@ -379,7 +379,7 @@ contains
     real(kind=rp) :: tmp, glmax
     integer :: i, ierr
 
-    if (n < 1) then
+    if (n .lt. 1) then
        tmp = -huge(0.0_rp)
     else
        tmp = a(1)
@@ -397,7 +397,7 @@ contains
     integer, dimension(n) :: a
     integer :: tmp, glimax
     integer :: i, ierr
-    if (n < 1) then
+    if (n .lt. 1) then
        tmp = -huge(0)
     else
        tmp = a(1)
@@ -415,7 +415,7 @@ contains
     real(kind=rp), dimension(n) :: a
     real(kind=rp) :: tmp, glmin
     integer :: i, ierr
-    if (n < 1) then
+    if (n .lt. 1) then
        tmp = huge(0.0_rp)
     else
        tmp = a(1)
@@ -433,7 +433,7 @@ contains
     integer, dimension(n) :: a
     integer :: tmp, glimin
     integer :: i, ierr
-    if (n < 1) then
+    if (n .lt. 1) then
        tmp = huge(0)
     else
        tmp = a(1)
