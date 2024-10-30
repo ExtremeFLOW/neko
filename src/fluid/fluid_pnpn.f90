@@ -146,7 +146,7 @@ contains
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
-    type(user_t), intent(in) :: user
+    type(user_t), target, intent(in) :: user
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
 
