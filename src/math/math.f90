@@ -378,7 +378,12 @@ contains
     real(kind=rp), dimension(n) :: a
     real(kind=rp) :: tmp, glmax
     integer :: i, ierr
-    tmp = a(1)
+
+    if (n < 1) then
+       tmp = -huge(0.0_rp)
+    else
+       tmp = a(1)
+    end if
     do i = 2, n
        tmp = max(tmp,a(i))
     end do
@@ -392,7 +397,11 @@ contains
     integer, dimension(n) :: a
     integer :: tmp, glimax
     integer :: i, ierr
-    tmp = a(1)
+    if (n < 1) then
+       tmp = -huge(0)
+    else
+       tmp = a(1)
+    end if
     do i = 2, n
        tmp = max(tmp,a(i))
     end do
@@ -406,7 +415,11 @@ contains
     real(kind=rp), dimension(n) :: a
     real(kind=rp) :: tmp, glmin
     integer :: i, ierr
-    tmp = a(1)
+    if (n < 1) then
+       tmp = huge(0.0_rp)
+    else
+       tmp = a(1)
+    end if
     do i = 2, n
        tmp = min(tmp,a(i))
     end do
@@ -420,7 +433,11 @@ contains
     integer, dimension(n) :: a
     integer :: tmp, glimin
     integer :: i, ierr
-    tmp = a(1)
+    if (n < 1) then
+       tmp = -huge(0)
+    else
+       tmp = a(1)
+    end if
     do i = 2, n
        tmp = min(tmp,a(i))
     end do
