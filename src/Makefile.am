@@ -621,5 +621,5 @@ include .depends_device
 	$(NVCC) @CUDA_ARCH@ @CUDA_CFLAGS@ -I@top_builddir@/src -I@top_srcdir@/src -o $@ -c $<
 
 # HIP Build rules
-.hip.o:
-	$(HIPCC) @HIP_HIPCC_FLAGS@ -I@top_builddir@/src -I@top_srcdir@/src -o $@ -c $<
+.hip.lo:
+	$(LIBTOOL) --tag=CC --mode=compile $(HIPCC) @HIP_HIPCC_FLAGS@ -I@top_builddir@/src -I@top_srcdir@/src -o $@ -c $<
