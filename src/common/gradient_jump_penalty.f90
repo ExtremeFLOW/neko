@@ -256,7 +256,7 @@ contains
     do i = 1, this%coef%msh%nelv
        select type (ep => this%coef%msh%elements(i)%e)
        type is (hex_t)
-          call eval_h2_hex(this%h2(:, :, :, i), this%lx, i, this%dm, this%coef)
+          call eval_h2_hex(this%h2(:, :, :, i), this%lx, i, this%coef)
        type is (quad_t)
           call neko_error("Gradient jump penalty error: mesh size &
                             &evaluation is not supported for quad_t")
@@ -397,15 +397,17 @@ contains
   end subroutine gradient_jump_penalty_init_from_components
 
   !> Evaluate h^2 for each element for hexahedral mesh
-  !! @param h2_el The sqaure of the length scale of an element
+  !! @param h2_el The square of the length scale of an element
   !! @param ep The pointer to the element
-  subroutine eval_h2_hex(h2_el, n, i, dm, coef)
+  subroutine eval_h2_hex(h2_el, n, i, coef)
     integer, intent(in) :: n, i
-    type(dofmap_t), pointer, intent(in) :: dm
     type(coef_t), pointer, intent(in) :: coef
     real(kind=rp), intent(inout) :: h2_el(n + 2, n + 2, n + 2)
 
+    type(dofmap_t), pointer :: dm
     integer :: j, k, l
+
+    dm => coef%dof
 
     h2_el = 0.0_rp
 
@@ -653,6 +655,8 @@ contains
     implicit none
     class(gradient_jump_penalty_t), intent(inout) :: this
 
+    call this%free_base
+
     if (c_associated(this%dphidxi_d)) then
        call device_free(this%dphidxi_d)
     end if
@@ -768,9 +772,6 @@ contains
     if (allocated(this%facet_factor)) then
        deallocate(this%facet_factor)
     end if
-
-    nullify(this%coef)
-    nullify(this%dm)
 
     nullify(this%u)
     nullify(this%v)
