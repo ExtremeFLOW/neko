@@ -506,7 +506,7 @@ endif
 
 if ENABLE_MAKEDEPF90
 depend:
-	$(MAKEDEPF90) -m "%f.lo" $(neko_fortran_SOURCES) driver.f90  > .depends
+	$(MAKEDEPF90) $(neko_fortran_SOURCES) > .depends
 endif
 
 # Note we need to list any headers etc here for the dist. script
