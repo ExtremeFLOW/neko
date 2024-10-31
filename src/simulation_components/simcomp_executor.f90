@@ -61,21 +61,21 @@ module simcomp_executor
      logical, private :: finalized = .false.
    contains
      !> Constructor.
-     procedure, public, pass(this) :: init => simcomp_executor_init
+     procedure, pass(this) :: init => simcomp_executor_init
      !> Destructor.
-     procedure, public, pass(this) :: free => simcomp_executor_free
+     procedure, pass(this) :: free => simcomp_executor_free
      !> Appending a new simcomp to the executor.
-     procedure, public, pass(this) :: add_user_simcomp => simcomp_executor_add
+     procedure, pass(this) :: add_user_simcomp => simcomp_executor_add
      !> Execute preprocess_ for all simcomps.
-     procedure, public, pass(this) :: preprocess => simcomp_executor_preprocess
+     procedure, pass(this) :: preprocess => simcomp_executor_preprocess
      !> Execute compute_ for all simcomps.
-     procedure, public, pass(this) :: compute => simcomp_executor_compute
+     procedure, pass(this) :: compute => simcomp_executor_compute
      !> Execute restart for all simcomps.
-     procedure, public, pass(this) :: restart=> simcomp_executor_restart
+     procedure, pass(this) :: restart=> simcomp_executor_restart
      !> Finalize the initialization.
-     procedure, pass(this) :: finalize => simcomp_executor_finalize
+     procedure, private, pass(this) :: finalize => simcomp_executor_finalize
      !> Get the number of simcomps.
-     procedure, public, pass(this) :: get_n => simcomp_executor_get_n
+     procedure, pass(this) :: get_n => simcomp_executor_get_n
   end type simcomp_executor_t
 
   !> Global variable for the simulation component driver.
