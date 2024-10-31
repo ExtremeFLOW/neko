@@ -146,7 +146,7 @@ contains
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
-    type(user_t), intent(in) :: user
+    type(user_t), target, intent(in) :: user
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
 
@@ -304,22 +304,30 @@ contains
     call bc_list_add(this%bclst_vel_res, this%bc_vel_res)
     call bc_list_add(this%bclst_vel_res, this%bc_vel_res_non_normal)
     call bc_list_add(this%bclst_vel_res, this%bc_sym)
+    call bc_list_add(this%bclst_vel_res, this%bc_sh%symmetry)
+    call bc_list_add(this%bclst_vel_res, this%bc_wallmodel%symmetry)
 
     !Initialize bcs for u, v, w velocity components
     call bc_list_init(this%bclst_du)
     call bc_list_add(this%bclst_du, this%bc_sym%bc_x)
+    call bc_list_add(this%bclst_du, this%bc_sh%symmetry%bc_x)
+    call bc_list_add(this%bclst_du, this%bc_wallmodel%symmetry%bc_x)
     call bc_list_add(this%bclst_du, this%bc_vel_res_non_normal%bc_x)
     call bc_list_add(this%bclst_du, this%bc_vel_res)
     call bc_list_add(this%bclst_du, this%bc_field_dirichlet_u)
 
     call bc_list_init(this%bclst_dv)
     call bc_list_add(this%bclst_dv, this%bc_sym%bc_y)
+    call bc_list_add(this%bclst_dv, this%bc_sh%symmetry%bc_y)
+    call bc_list_add(this%bclst_dv, this%bc_wallmodel%symmetry%bc_y)
     call bc_list_add(this%bclst_dv, this%bc_vel_res_non_normal%bc_y)
     call bc_list_add(this%bclst_dv, this%bc_vel_res)
     call bc_list_add(this%bclst_dv, this%bc_field_dirichlet_v)
 
     call bc_list_init(this%bclst_dw)
     call bc_list_add(this%bclst_dw, this%bc_sym%bc_z)
+    call bc_list_add(this%bclst_dw, this%bc_sh%symmetry%bc_z)
+    call bc_list_add(this%bclst_dw, this%bc_wallmodel%symmetry%bc_z)
     call bc_list_add(this%bclst_dw, this%bc_vel_res_non_normal%bc_z)
     call bc_list_add(this%bclst_dw, this%bc_vel_res)
     call bc_list_add(this%bclst_dw, this%bc_field_dirichlet_w)
@@ -430,7 +438,7 @@ contains
     ! Make sure that continuity is maintained (important for interpolation)
     ! Do not do this for lagged rhs
     ! (derivatives are not necessairly coninous across elements)
-       
+
     if (allocated(this%chkp%previous_mesh%elements) &
          .or. this%chkp%previous_Xh%lx .ne. this%Xh%lx) then
        call this%gs_Xh%op(this%u, GS_OP_ADD)
@@ -631,12 +639,9 @@ contains
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
 
-      ! Pre-multiply the source terms with the mass matrix.
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_opcolv(f_x%x_d, f_y%x_d, f_z%x_d, c_Xh%B_d, msh%gdim, n)
-      else
-         call opcolv(f_x%x, f_y%x, f_z%x, c_Xh%B, msh%gdim, n)
-      end if
+      ! Add Neumann bc contributions to the RHS
+      call bc_list_apply_vector(this%bclst_vel_neumann, f_x%x, f_y%x, f_z%x, &
+           this%dm_Xh%size(), t, tstep)
 
       ! Compute the grandient jump penalty term
 !      if (this%if_gradient_jump_penalty .eqv. .true.) then
@@ -794,9 +799,9 @@ contains
 
       if (this%forced_flow_rate) then
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
-              c_Xh, gs_Xh, ext_bdf, rho, mu,&
-              dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
-              this%bclst_dw, this%bclst_vel_res, Ax_vel, this%ksp_prs, &
+              c_Xh, gs_Xh, ext_bdf, rho, mu, dt, &
+              this%bclst_dp, this%bclst_du, this%bclst_dv, &
+              this%bclst_dw, this%bclst_vel_res, Ax_vel, Ax_prs, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
               this%ksp_vel%max_iter)
       end if

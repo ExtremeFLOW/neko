@@ -1,4 +1,4 @@
-# Simulaticn components {#simcomps}
+# Simulation components {#simcomps}
 
 \tableofcontents
 
@@ -64,7 +64,6 @@ vorticity fields will be added to the main `.fld` file.
 ### vorticity {#simcomp_vorticity}
 Computes the vorticity field an stores in the field registry as `omega_x`,
 `omega_y` and `omega_z`.
-Currently produces no output.
 
 ### lambda2 {#simcomp_lambda2}
 Computes \f$ \lambda_2 \f$ for the velocity field and stores it in the normal output files as the first unused field.
@@ -210,12 +209,12 @@ fields to disk via the usual common keywords.
    "output_value" : 1.0
  }
  ~~~~~~~~~~~~~~~
- 
+
 ### force_torque {#simcomp_force_torque}
 Computes the force on a specified zone and the corresponding torque
 around a center point. The compute control specifies how often they are
 computed and printed into the log. Scale specifies a scale for the computed
-force/torque. Conventient if one wants to scale with the area or similar.
+force/torque. Conventient if one wants to scale with the area or similar. long_print is default false and can be set to true to print all digits in the calculation.
 Subroutines used in the simcomp can be found in src/qoi/drag_torque.f90
 
  ~~~~~~~~~~~~~~~{.json}
@@ -225,11 +224,12 @@ Subroutines used in the simcomp can be found in src/qoi/drag_torque.f90
    "center": [0.0, 0.0, 0.0],
    "zone_name": "some chosen name, optional",
    "scale": 1.0
+   "long_print" : false
    "compute_control" : "tsteps",
    "compute_value" : 10
  }
  ~~~~~~~~~~~~~~~
- 
+
 ### weak_grad {#simcomp_weak_grad}
 Computes the weak gradient of a field. The weak gradient is value of the
 gradient multiplied by the local value of the mass matrix. This is how a

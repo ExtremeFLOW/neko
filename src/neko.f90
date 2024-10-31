@@ -68,7 +68,7 @@ module neko
   use parmetis, only : parmetis_partgeom, parmetis_partmeshkway
   use neko_config
   use case, only : case_t, case_init, case_free
-  use sampler, only : sampler_t
+  use output_controller, only : output_controller_t
   use output, only : output_t
   use simulation, only : neko_solve
   use operators, only : dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl,&
@@ -297,12 +297,13 @@ contains
     call neko_rt_stats%report()
     call neko_rt_stats%free()
 
+    call neko_scratch_registry%free()
+
     if (present(C)) then
        call case_free(C)
     end if
 
     call neko_field_registry%free()
-    call neko_scratch_registry%free()
     call device_finalize
     call neko_mpi_types_free
     call comm_free
