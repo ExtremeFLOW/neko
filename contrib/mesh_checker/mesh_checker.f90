@@ -74,6 +74,9 @@ program mesh_checker
   call MPI_Allreduce(msh%periodic%size, periodic_size, 1, &
        MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
+  total_size = inlet_size + wall_size + outlet_size + outlet_normal_size + &
+       + symmetry_size
+
   if (pe_rank .eq. 0) then
       write(*,*) ''
       write(*,*) '--------------Size-------------'
@@ -89,6 +92,12 @@ program mesh_checker
       write(*,*) 'Number of built-in outlet-normal faces: ', outlet_normal_size 
       write(*,*) 'Number of built-in symmetry faces:      ', symmetry_size 
       write(*,*) 'Number of periodic faces:               ', periodic_size
+      write(*,*) ''
+      if (total_size .gt. 0) then
+         write(*,*) 'WARNING: Your mesh contains non-periodic "built-in" zones,&
+              & which are deprecated. Your mesh must have been created natively& 
+              & by Nek5000, e.g. with genbox.'
+      end if
       write(*,*) 'Labeled zones: '
   end if
 
