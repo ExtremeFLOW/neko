@@ -1,4 +1,4 @@
-# Simulaticn components {#simcomps}
+# Simulation components {#simcomps}
 
 \tableofcontents
 
@@ -39,8 +39,6 @@ Most simulation components are, by default, executed once per time step to perfo
 associated computations and output. The exceptions are:
 - \ref simcomp_lambda2, 
 - \ref simcomp_speri,
-- \ref simcomp_derivative,
-- \ref simcomp_vorticity,
 
 which are executed with the field output frequency.
 
