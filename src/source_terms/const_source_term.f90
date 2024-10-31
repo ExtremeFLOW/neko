@@ -121,9 +121,10 @@ contains
   !> Computes the source term and adds the result to `fields`.
   !! @param t The time value.
   !! @param tstep The current time-step.
-  subroutine const_source_term_compute(this, t, tstep)
+  subroutine const_source_term_compute(this, t, tstep, dt)
     class(const_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
+    real(kind=rp), intent(in) :: dt
     integer, intent(in) :: tstep
     integer :: n_fields, i, n
 

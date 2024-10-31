@@ -183,9 +183,10 @@ contains
   !> Add all the source term to the passed right-hand side fields.
   !! @param t The time value.
   !! @param tstep The current time step.
-  subroutine scalar_source_term_compute(this, t, tstep)
+  subroutine scalar_source_term_compute(this, t, tstep, dt)
     class(scalar_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
+    real(kind=rp), intent(in) :: dt
     integer, intent(in) :: tstep
     integer :: i, n
 
@@ -194,7 +195,7 @@ contains
     ! Add contribution from all source terms.
     if (allocated(this%source_terms)) then
        do i=1, size(this%source_terms)
-          call this%source_terms(i)%source_term%compute(t, tstep)
+          call this%source_terms(i)%source_term%compute(t, tstep, dt)
        end do
     end if
 

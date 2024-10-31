@@ -315,7 +315,7 @@ contains
       end if
 
       ! Compute the source terms
-      call this%source_term%compute(t, tstep)
+      call this%source_term%compute(t, tstep, dt)
 
       ! Pre-multiply the source terms with the mass matrix.
       if (NEKO_BCKND_DEVICE .eq. 1) then

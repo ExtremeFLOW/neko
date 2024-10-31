@@ -228,7 +228,7 @@ contains
     write(log_buf, '(A,ES13.6)') 'Maximum ds :',  this%ds_max    
     call neko_log%message(log_buf)
 
-    aabb_padding = 4 * ds_max 
+    aabb_padding = 16 * ds_max 
     
     call this%intersect%init(coef%msh, aabb_padding)
     call lagrangian_points%init()
@@ -323,7 +323,7 @@ contains
        end do
     end select
     
-    call this%global_interp%init(coef%dof)
+    call this%global_interp%init(coef%dof, 1d-10)
 
     n_lags = lagrangian_points%size()
     call this%global_interp%find_points_and_redist(this%xyz, n_lags)
@@ -446,13 +446,14 @@ contains
 
   end subroutine idw_source_term_free
 
-  subroutine idw_source_term_compute(this, t, tstep)
+  subroutine idw_source_term_compute(this, t, tstep, dt)
     class(idw_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
+    real(kind=rp), intent(in) :: dt
     integer, intent(in) :: tstep
     type(field_t), pointer :: u, v, w, fu, fv, fw
     integer :: i, j, k, l, e, ee, n
-    real(kind=rp) :: r, idw, dt
+    real(kind=rp) :: r, idw
     
     n = this%fields%item_size(1)
 
@@ -465,7 +466,7 @@ contains
     fw => this%fields%get(3)
 
     !> @todo Change this once we have variable time-stepping
-    dt = t / tstep
+!    dt = t / tstep
     
     associate(global_interp => this%global_interp, &
          fu_ib => this%fu_ib, fv_ib => this%fv_ib, fw_ib => this%fw_ib, &
@@ -514,7 +515,7 @@ contains
             tmp%x(i,1,1,1) = w%x(i,1,1,1) * this%mmsk%x(i,1,1,1)
          end do
          call global_interp%evaluate(fwm_ib, tmp%x)
-         
+
          do i = 1, size(this%lag_pts)
             select type (el => this%lag_el(i)%data)
             type is (integer)
@@ -530,7 +531,7 @@ contains
                            idw = inv_dist_weight(r, this%rmax, this%pwr_param)
                            
                            if (this%pmsk%x(j,k,l,e) .gt. 0) then
-                              if (abs(this%w%x(j,k,l,e)) .gt. 1e-12_rp) then
+                              if (abs(this%w%x(j,k,l,e)) .gt. 1e-8_rp) then
                                  fu%x(j,k,l,e) = fu%x(j,k,l,e) &
                                       + (-fu_ib(i) * idw) / (this%w%x(j,k,l,e) * dt)
                                  
@@ -541,7 +542,7 @@ contains
                                    + (-fw_ib(i) * idw) / (this%w%x(j,k,l,e) * dt)
                               end if
                            else
-                              if (abs(this%wm%x(j,k,l,e)) .gt. 1e-12_rp) then 
+                              if (abs(this%wm%x(j,k,l,e)) .gt. 1e-8_rp) then 
                                  fu%x(j,k,l,e) = fu%x(j,k,l,e) &
                                       + (-fum_ib(i) * idw) / (this%wm%x(j,k,l,e) * dt)
                                  
@@ -557,7 +558,7 @@ contains
                   end do
                end do
             end select
-         end do
+         end do         
       else
 
          call global_interp%evaluate(fu_ib, u%x)
@@ -670,20 +671,17 @@ contains
           call lag_pts%push(tri_cntr)
           call lag_nrm%push(tri_nrm)
           
-          do while (.not. overlaps%is_empty())
-             el_idx = overlaps%pop()
-          end do
+!          do while (.not. overlaps%is_empty())
+!             el_idx = overlaps%pop()
+!          end do
        end if
        call overlaps%clear()
 
     end do
     
-
-
-       
-
+      
     
-    call boundary_mesh%free()
+!    call boundary_mesh%free()
     
   end subroutine idw_init_boundary_mesh
 
