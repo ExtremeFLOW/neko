@@ -50,15 +50,15 @@ module simcomp_executor
   !! The execution order is based on the order property of each simcomp.
   !! By default, the order is by the order of apparence in the case file.
   type, public :: simcomp_executor_t
-     private
+
      !> The simcomps.
      class(simulation_component_wrapper_t), allocatable :: simcomps(:)
      !> Number of simcomps
-     integer :: n_simcomps
+     integer, private :: n_simcomps
      !> The case
-     type(case_t), pointer :: case
+     type(case_t), pointer, private :: case
      !> Flag to indicate if the simcomp executor has been finalized.
-     logical :: finalized = .false.
+     logical, private :: finalized = .false.
    contains
      !> Constructor.
      procedure, public, pass(this) :: init => simcomp_executor_init
@@ -74,6 +74,8 @@ module simcomp_executor
      procedure, public, pass(this) :: restart=> simcomp_executor_restart
      !> Finalize the initialization.
      procedure, pass(this) :: finalize => simcomp_executor_finalize
+     !> Get the number of simcomps.
+     procedure, public, pass(this) :: get_n => simcomp_executor_get_n
   end type simcomp_executor_t
 
   !> Global variable for the simulation component driver.
@@ -381,5 +383,13 @@ contains
     end if
 
   end subroutine simcomp_executor_restart
+
+  !> Get the number of simcomps.
+  pure function simcomp_executor_get_n(this) result(n)
+    class(simcomp_executor_t), intent(in) :: this
+    integer :: n
+
+    n = this%n_simcomps
+  end function simcomp_executor_get_n
 
 end module simcomp_executor
