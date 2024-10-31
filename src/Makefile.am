@@ -371,6 +371,7 @@ libneko_a_SOURCES += \
 	common/bcknd/device/hip/projection.hip\
 	common/bcknd/device/hip/gradient_jump_penalty.hip\
 	fluid/bcknd/device/hip/pnpn_res.hip\
+	fluid/stress_formulation/bcknd/device/hip/pnpn_stress_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
 	sem/bcknd/device/hip/coef.hip\
 	les/bcknd/device/hip/sigma_nut.hip\
