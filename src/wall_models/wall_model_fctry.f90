@@ -54,21 +54,21 @@ contains
   !! @param h_index The off-wall index of the sampling cell.
   !! @param json A dictionary with parameters.
   module subroutine wall_model_factory(object, coef, msk, facet, nu, &
-       h_index, json)
+       json)
     class(wall_model_t), allocatable, target, intent(inout) :: object
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
     real(kind=rp), intent(in) :: nu
-    integer, intent(in) :: h_index
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: type_name
     character(len=:), allocatable :: type_string
+    integer :: h_index
 
     type_string =  concat_string_array(WALLM_KNOWN_TYPES, &
-         NEW_LINE('A') // "-  ", prepend=.true.)
+         NEW_LINE('A') // "-  ", prepend = .true.)
 
-    call json_get(json, "model", type_name)
+    call json_get(json, "type", type_name)
 
     if (trim(type_name) .eq. "spalding") then
        allocate(spalding_t::object)
@@ -79,6 +79,8 @@ contains
           trim(type_name) // ".  Known types are: "  // type_string)
        stop
     end if
+
+    call json_get(json, "h_index", h_index)
 
     ! Initialize
     call object%init(coef, msk, facet, nu, h_index, json)
