@@ -1,0 +1,209 @@
+@test
+subroutine test_tri_init
+  use pfunit
+  use point
+  use tri
+  use num_types
+  implicit none
+  type(point_t) :: p1, p2, p3
+  integer :: point_id
+  real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
+  type(tri_t) :: t
+  integer :: i, id
+
+  id = 1
+  p1 = point_t(c1, id)
+
+  id = 2
+  p2 = point_t(c2, id)
+
+  id = 3
+  p3 = point_t(c3, id)
+  
+
+  id = 42
+  call t%init(id, p1, p2, p3)
+  @assertEqual(t%id(), id)
+  @assertEqual(t%gdim(), NEKO_TRI_GDIM)
+  @assertEqual(t%npts(), NEKO_TRI_NPTS)
+
+  @assertTrue(t%p(1) .eq. p1)
+  @assertTrue(t%p(2) .eq. p2)
+  @assertTrue(t%p(3) .eq. p3)
+
+
+end subroutine test_tri_init
+
+@test
+subroutine test_tri_free
+  use pfunit
+  use point
+  use tri
+  use num_types
+  implicit none
+  type(point_t) :: p1, p2, p3
+  integer :: point_id
+  real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
+  type(tri_t) :: t
+  integer :: i, id
+
+  id = 1
+  p1 = point_t(c1, id)
+
+  id = 2
+  p2 = point_t(c2, id)
+
+  id = 3
+  p3 = point_t(c3, id)
+  
+  id = 42
+  call t%init(id, p1, p2, p3)
+  call t%free()
+
+end subroutine test_tri_free
+
+@test
+subroutine test_tri_centroid
+  use pfunit
+  use point
+  use tri
+  use num_types
+  implicit none
+  type(point_t) :: p1, p2, p3
+  integer :: point_id
+  real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: center(3) = (/1d0/3d0, 1d0/3d0, 0.0d0/)
+  type(tri_t) :: t
+  type(point_t) :: centroid
+  integer :: i, id
+
+  p1 = point_t(c1)
+  p2 = point_t(c2)
+  p3 = point_t(c3)
+  id = 42
+  call t%init(id, p1, p2, p3)
+
+  centroid = t%centroid()
+  do i = 1, 3
+     @assertEqual(centroid%x(i), center(i))
+  end do
+
+end subroutine test_tri_centroid
+
+@test
+subroutine test_tri_diameter
+  use pfunit
+  use point
+  use tri
+  use num_types
+  implicit none
+  type(point_t) :: p1, p2, p3
+  integer :: point_id
+  real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
+  type(tri_t) :: t
+  integer :: i, id
+
+  p1 = point_t(c1)
+  p2 = point_t(c2)
+  p3 = point_t(c3)
+  id = 42
+  call t%init(id, p1, p2, p3)
+
+  @assertEqual(t%diameter(), 1.414213562373095d0, tolerance=1d-14)
+  
+end subroutine test_tri_diameter
+
+@test
+subroutine test_tri_equal
+  use pfunit
+  use point
+  use tri
+  use num_types
+  implicit none
+  type(point_t) :: p1, p2, p3, p5, p6, p7
+  integer :: point_id
+  real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
+  real(kind=dp), parameter :: d1(3) = (/-1d0, -1d0, -1d0/)
+  real(kind=dp), parameter :: d2(3) = (/1d0, -1d0, -1d0/)
+  real(kind=dp), parameter :: d3(3) = (/-1d0, 1d0, -1d0/)
+  type(tri_t) :: t1, t2, t3
+  integer :: i, id
+
+  p1 = point_t(c1)
+  p2 = point_t(c2)
+  p3 = point_t(c3)
+  id = 42
+  call t1%init(id, p1, p2, p3)
+
+  id = 4711
+  call t2%init(id, p1, p2, p3)
+
+  @assertTrue(t1 .eq. t2)
+  @assertFalse(t1%id() .eq. t2%id())
+
+  p5 = point_t(d1)
+  p6 = point_t(d2)
+  p7 = point_t(d3)
+  id = 44
+  call t3%init(id, p5, p6, p7)
+  @assertFalse(t1 .eq. t3)
+
+  p5 = point_t(c1)
+  p6 = point_t(c2)
+  p7 = point_t(c3)
+  @assertTrue(t1 .eq. t3)
+  
+end subroutine test_tri_equal
+
+@test
+subroutine test_tri_facet_id
+  use pfunit
+  use point
+  use tri
+  use tuple
+  use num_types
+  implicit none
+  type(point_t) :: p1, p2, p3
+  integer :: point_id
+  real(kind=dp), parameter :: c1(3) = (/0d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c2(3) = (/1d0, 0d0, 0d0/)
+  real(kind=dp), parameter :: c3(3) = (/0d0, 1d0, 0d0/)
+  type(tri_t) :: tr
+  integer :: i, id
+  type(tuple_i4_t) :: t
+
+  id = 1
+  p1 = point_t(c1, id)
+
+  id = 2
+  p2 = point_t(c2, id)
+
+  id = 3
+  p3 = point_t(c3, id)
+  
+  id = 42
+  call tr%init(id, p1, p2, p3)
+
+  call tr%facet_id(t, 1)
+  @assertEqual(t%x(1), p1%id())
+  @assertEqual(t%x(2), p3%id())
+
+  call tr%facet_id(t, 2)
+  @assertEqual(t%x(1), p3%id())
+  @assertEqual(t%x(2), p2%id())
+
+  call tr%facet_id(t, 3)
+  @assertEqual(t%x(1), p1%id())
+  @assertEqual(t%x(2), p2%id())
+    
+end subroutine test_tri_facet_id

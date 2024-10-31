@@ -1,0 +1,6 @@
+#!/bin/sh
+if which mpirun >/dev/null; then
+    mpirun -np 1 ./point_interpolation/point_interpolation_suite
+else
+    mpiexp -np 1 ./point_interpolation/point_interpolation_suite
+fi

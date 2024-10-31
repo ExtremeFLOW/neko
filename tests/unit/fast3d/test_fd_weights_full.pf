@@ -1,0 +1,47 @@
+ @test
+ subroutine test_linear_midpoint()
+   use pfunit
+   use fast3d
+   use num_types
+   implicit none
+   
+   integer, parameter :: n=1, m=0
+   real(kind=rp) :: xi, x(0:n), c(0:n,0:m)
+
+   ! middle of [0, 1], expect weights [0.5 0.5]
+   xi = 0.5_rp
+   x(0) = 0_rp
+   x(1) = 1_rp
+   
+   call fd_weights_full(xi, x, n, m, c)
+   @assertEqual(c(0, 0), 0.5_rp)
+   @assertEqual(c(1, 0), 0.5_rp)
+end subroutine test_linear_midpoint
+
+ @test
+ subroutine test_central_difference()
+   use pfunit
+   use fast3d
+   use num_types
+   implicit none
+   
+   integer, parameter :: n=2, m=1
+   real(kind=rp) :: xi, x(0:n), c(0:n,0:m)
+
+   ! middle of [0, 1] with 3 grid points
+   xi = 0.5_rp
+   x(0) = 0_rp
+   x(1) = 0.5_rp
+   x(2) = 1.0_rp
+   
+   call fd_weights_full(xi, x, n, m, c)
+   ! xi is a grid point, so for interpolation we should have [0, 1, 0]
+   @assertEqual(c(0, 0), 0.0_rp)
+   @assertEqual(c(1, 0), 1.0_rp)
+   @assertEqual(c(2, 0), 0.0_rp)
+
+   ! for the derivative we expect a standard central difference [-1, 0, 1] 
+   @assertEqual(c(0, 1), -1.0_rp)
+   @assertEqual(c(1, 1), 0.0_rp)
+   @assertEqual(c(2, 1), 1.0_rp)
+end subroutine test_central_difference

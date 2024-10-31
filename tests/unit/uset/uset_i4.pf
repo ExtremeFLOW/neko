@@ -1,0 +1,171 @@
+@test
+subroutine test_uset_init_i4
+  use pfunit
+  use uset
+  implicit none
+  type(uset_i4_t) :: s
+
+  call s%init()
+  @assertEqual(s%size(), 0)
+    
+end subroutine test_uset_init_i4
+
+@test
+subroutine test_uset_free_i4
+  use pfunit
+  use uset
+  implicit none
+  type(uset_i4_t) :: s
+
+  call s%init()
+  call s%free()
+  @assertEqual(s%size(), 0)
+    
+end subroutine test_uset_free_i4
+
+@test
+subroutine test_uset_size_i4
+  use pfunit
+  use uset
+  implicit none
+  type(uset_i4_t) :: s
+  integer :: i, data
+
+  call s%init()
+  do i = 1, 64
+     data = i
+     call s%add(data)
+  end do
+  @assertEqual(s%size(), 64)
+
+  do i = 1, 2
+     data = i + 64
+     call s%add(data)
+  end do
+  @assertEqual(s%size(), 66)
+    
+end subroutine test_uset_size_i4
+
+@test
+subroutine test_uset_clear_i4
+  use pfunit
+  use uset
+  implicit none
+  type(uset_i4_t) :: s
+  integer :: i, data
+
+  call s%init()
+  do i = 1, 64
+     data = i
+     call s%add(data)
+  end do
+  call s%clear()
+  @assertEqual(s%size(), 0)
+
+  do i = 1, 42
+     data = i
+     call s%add(data)
+  end do
+  @assertEqual(s%size(), 42)
+    
+end subroutine test_uset_clear_i4
+
+@test
+subroutine test_uset_element_i4
+  use pfunit
+  use uset
+  implicit none
+  type(uset_i4_t) :: s
+  integer :: i, data
+
+  call s%init()
+  do i = 1, 64
+     data = i
+     call s%add(data)
+  end do
+  
+  do i = 1, 64
+     data = i
+     @assertTrue(s%element(data))
+  end do
+
+  do i = 1, 2
+     data = i + 64
+     call s%add(data)
+  end do
+  
+  do i = 1, 66
+     data = i
+     @assertTrue(s%element(data))
+  end do
+
+    
+end subroutine test_uset_element_i4
+
+@test
+subroutine test_uset_remove_i4
+  use pfunit
+  use uset
+  implicit none
+  type(uset_i4_t) :: s
+  integer :: i, data
+
+  call s%init()
+  do i = 1, 64
+     data = i
+     call s%add(data)
+  end do
+  
+  do i = 1, 64
+     data = i
+     @assertTrue(s%element(data))
+  end do
+
+  do i = 64, 1
+     data = i
+     @assertTrue(s%element(data))
+  end do
+
+  do i = 1, 64, 2
+     data = i
+     call s%remove(data)
+  end do
+  @assertEqual(s%size(), 32)
+  
+  do i = 1, 64, 2
+     data = i
+     @assertFalse(s%element(data))
+  end do
+  
+  do i = 2, 64, 2
+     data = i
+     @assertTrue(s%element(data))
+  end do
+
+  
+end subroutine test_uset_remove_i4
+
+@test
+subroutine test_uset_iter_i4
+  use pfunit
+  use uset
+  implicit none
+  type(uset_i4_t) :: s
+  integer :: i, data, n_entries
+
+  call s%init()
+  do i = 1, 64
+     data = i
+     call s%add(data)
+  end do
+
+  call s%iter_init()
+  n_entries = 0
+  do while(s%iter_next())
+     n_entries = n_entries + 1
+     data = s%iter_value()
+     @assertTrue(s%element(data))
+  end do
+  @assertEqual(n_entries, 64)
+  
+end subroutine test_uset_iter_i4

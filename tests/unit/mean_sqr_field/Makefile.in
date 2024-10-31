@@ -1,0 +1,28 @@
+USEMPI=YES
+ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
+include @PFUNIT_DIR@/include/PFUNIT.mk
+endif
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) -I@top_builddir@/src
+FC = @FC@
+
+%.o : %.F90
+	$(FC) -c $(FFLAGS) $<
+
+
+check: mean_sqr_field_suite
+
+
+mean_sqr_field_suite_TESTS := mean_sqr_field_parallel.pf
+mean_sqr_field_suite_OTHER_LIBRARIES = -L@top_builddir@/src -lneko @LDFLAGS@ @LIBS@
+$(eval $(call make_pfunit_test,mean_sqr_field_suite))
+
+
+clean:
+	$(RM) *.o *.mod *.a  *.inc *.F90 mean_sqr_field_suite
+
+
+
+all:
+html:
+install:
+distdir:

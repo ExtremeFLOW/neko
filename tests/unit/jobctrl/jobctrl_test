@@ -1,0 +1,6 @@
+#!/bin/sh
+if which mpirun >/dev/null; then
+    mpirun -np 2 ./jobctrl/jobctrl_suite
+else
+    mpiexec -np 2 ./jobctrl/jobctrl_suite
+fi

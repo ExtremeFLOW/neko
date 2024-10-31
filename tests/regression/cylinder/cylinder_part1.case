@@ -1,0 +1,54 @@
+{
+"version": 1.0,
+"case": {
+    "mesh_file": "small_test_cyl.nmsh",
+    "output_at_end": true,
+    "output_boundary": false,
+    "output_checkpoints": true,
+    "checkpoint_control": "simulationtime",
+    "checkpoint_value": 0.05,
+    "end_time": 0.1,
+    "joblimit": "00:02:00",
+    "timestep":0.01,
+    "numerics": {
+        "time_order": 3,
+        "polynomial_order": 5,
+        "dealias": true
+    },
+    "fluid": {
+        "scheme": "pnpn",
+        "Re": 200,
+        "initial_condition": {
+            "type": "uniform",
+            "value": [1.0, 0.0, 0.0]
+        },
+        "velocity_solver": {
+            "type": "cg",
+            "preconditioner": "jacobi",
+            "projection_space_size": 0,
+            "absolute_tolerance": 1e-7,
+            "max_iterations": 800
+        },
+        "pressure_solver": {
+            "type": "gmres",
+            "preconditioner": "hsmg",
+            "projection_space_size": 0,
+            "absolute_tolerance": 1e-3,
+            "max_iterations": 800
+        },
+        "boundary_types": ["v", "o+dong", "", "", "on", "on", "w"],
+        "output_control": "simulationtime",
+        "output_value": 0.05
+    },
+ "simulation_components": 
+  [ 
+    {
+      "type": "force_torque",
+      "compute_control": "tsteps",
+      "compute_value": 1,
+      "zone_id": 7,
+      "zone_name": "Cylinder",
+      "center": [0,0,0],
+    }  ] 
+}
+}
