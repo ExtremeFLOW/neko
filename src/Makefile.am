@@ -399,6 +399,9 @@ libneko_la_SOURCES += \
 	fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
 	sem/bcknd/device/cuda/coef.cu
+
+BUILT_SOURCES = libtool_cuda
+
 endif
 
 if ENABLE_OPENCL
@@ -492,6 +495,10 @@ endif
 
 CLEANFILES = *.mod\
 	     *.smod
+
+if ENABLE_CUDA
+CLEANFILES += @top_srcdir@/libtool_cuda
+endif
 
 if ENABLE_OPENCL
 CLEANFILES += \
@@ -617,8 +624,11 @@ include	.depends
 include .depends_device
 
 # CUDA Build rules
-.cu.o:
-	$(NVCC) @CUDA_ARCH@ @CUDA_CFLAGS@ -I@top_builddir@/src -I@top_srcdir@/src -o $@ -c $<
+.cu.lo: @top_srcdir@/libtool_cuda
+	$(SHELL) @top_srcdir@/libtool_cuda --tag=CC --mode=compile $(NVCC) @CUDA_ARCH@ @CUDA_CFLAGS@ -I@top_builddir@/src -I@top_srcdir@/src -o $@ -c $<
+
+libtool_cuda:
+	$(SED) 's/pic_flag=.*/pic_flag="-Xcompiler -fPIC"/g' @top_srcdir@/libtool > @top_srcdir@/libtool_cuda
 
 # HIP Build rules
 .hip.lo:
