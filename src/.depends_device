@@ -15,6 +15,7 @@ math/bcknd/device/hip/fdm.o : math/bcknd/device/hip/fdm.hip math/bcknd/device/hi
 krylov/bcknd/device/hip/pc_jacobi.o : krylov/bcknd/device/hip/pc_jacobi.hip
 krylov/bcknd/device/hip/pipecg_aux.o : krylov/bcknd/device/hip/pipecg_aux.hip krylov/bcknd/device/hip/pipecg_kernel.h
 krylov/bcknd/device/hip/fusedcg_aux.o : krylov/bcknd/device/hip/fusedcg_aux.hip krylov/bcknd/device/hip/fusedcg_kernel.h
+krylov/bcknd/device/hip/fusedcg_cpld_aux.o : krylov/bcknd/device/hip/fusedcg_cpld_aux.hip krylov/bcknd/device/hip/fusedcg_cpld_kernel.h
 krylov/bcknd/device/hip/gmres_aux.o : krylov/bcknd/device/hip/gmres_aux.hip krylov/bcknd/device/hip/gmres_kernel.h
 gs/bcknd/device/hip/gs.o : gs/bcknd/device/hip/gs.hip gs/bcknd/device/hip/gs_kernels.h
 bc/bcknd/device/hip/dirichlet.o : bc/bcknd/device/hip/dirichlet.hip bc/bcknd/device/hip/dirichlet_kernel.h

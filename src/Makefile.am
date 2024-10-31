@@ -358,6 +358,7 @@ libneko_a_SOURCES += \
 	krylov/bcknd/device/hip/pc_jacobi.hip\
 	krylov/bcknd/device/hip/pipecg_aux.hip\
 	krylov/bcknd/device/hip/fusedcg_aux.hip\
+	krylov/bcknd/device/hip/fusedcg_cpld_aux.hip\
 	krylov/bcknd/device/hip/gmres_aux.hip\
 	gs/bcknd/device/hip/gs.hip\
 	bc/bcknd/device/hip/dirichlet.hip\
@@ -580,12 +581,14 @@ EXTRA_DIST = \
 	common/bcknd/device/hip/gradient_jump_penalty_kernel.h\
 	fluid/bcknd/device/hip/prs_res_kernel.h\
 	fluid/bcknd/device/hip/vel_res_update_kernel.h\
+	fluid/stress_formulation/bcknd/device/hip/prs_stress_res_kernel.h\
 	scalar/bcknd/device/hip/scalar_residual_update_kernel.h\
 	krylov/bcknd/device/cuda/pipecg_kernel.h\
 	krylov/bcknd/device/hip/pipecg_kernel.h\
 	krylov/bcknd/device/cuda/fusedcg_kernel.h\
 	krylov/bcknd/device/hip/fusedcg_kernel.h\
 	krylov/bcknd/device/cuda/fusedcg_cpld_kernel.h\
+	krylov/bcknd/device/hip/fusedcg_cpld_kernel.h\
 	krylov/bcknd/device/cuda/gmres_kernel.h\
 	krylov/bcknd/device/hip/gmres_kernel.h\
 	sem/bcknd/device/hip/coef_kernel.h\
