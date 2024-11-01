@@ -454,6 +454,8 @@ contains
 
     call this%msh%free()
 
+    call this%f_out%free()
+
     call this%output_controller%free()
 
   end subroutine case_free
