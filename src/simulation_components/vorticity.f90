@@ -92,8 +92,6 @@ contains
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=20) :: fields(3)
-    real(kind=rp) :: fluid_output_value, val
-    character(len=:), allocatable :: fluid_output_control, str
 
     ! Add fields keyword to the json so that the field_writer picks it up.
     ! Will also add fields to the registry.
@@ -102,16 +100,6 @@ contains
     fields(3) = "omega_z"
 
     call json%add("fields", fields)
-
-    call json_get(case%params, "case.fluid.output_control", &
-         fluid_output_control)
-    call json_get(case%params, "case.fluid.output_value", &
-         fluid_output_value)
-
-    ! See if the user has set a compute control, otherwise
-    ! set it to the fluid output control.
-    call json_get_or_default(json, "compute_control", str, fluid_output_control)
-    call json_get_or_default(json, "compute_value", val, fluid_output_value)
 
     call this%init_base(json, case)
     call this%writer%init(json, case)

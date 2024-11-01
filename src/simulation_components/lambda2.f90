@@ -37,7 +37,6 @@
 module lambda2
   use num_types, only : rp
   use json_module, only : json_file
-  use json_utils, only: json_get, json_get_or_default
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use field, only : field_t
@@ -88,23 +87,10 @@ contains
     character(len=20) :: fields(1)
     type(field_t), pointer :: u, v, w, lambda2
 
-    real(kind=rp) :: fluid_output_value, val
-    character(len=:), allocatable :: fluid_output_control, str
-
     ! Add fields keyword to the json so that the field_writer picks it up.
     ! Will also add fields to the registry.
     fields(1) = "lambda2"
     call json%add("fields", fields)
-
-    call json_get(case%params, 'case.fluid.output_control', &
-         fluid_output_control)
-    call json_get(case%params, "case.fluid.output_value", &
-         fluid_output_value)
-
-    ! See if the user has set a compute control, otherwise
-    ! set it to the fluid output control.
-    call json_get_or_default(json, "compute_control", str, fluid_output_control)
-    call json_get_or_default(json, "compute_value", val, fluid_output_value)
 
     call this%init_base(json, case)
     call this%writer%init(json, case)
