@@ -81,7 +81,7 @@ module fluid_scheme
   use field_math, only : field_cfill
   use wall_model_bc, only : wall_model_bc_t
   use shear_stress, only : shear_stress_t
-  use gradient_jump_penalty, only : gradient_jump_penalty_t
+!  use gradient_jump_penalty, only : gradient_jump_penalty_t
   implicit none
   private
 
@@ -116,10 +116,10 @@ module fluid_scheme
      class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
      type(wall_model_bc_t) :: bc_wallmodel !< Wall model boundary condition
      !> Gradient jump panelty
-     logical :: if_gradient_jump_penalty
-     type(gradient_jump_penalty_t) :: gradient_jump_penalty_u
-     type(gradient_jump_penalty_t) :: gradient_jump_penalty_v
-     type(gradient_jump_penalty_t) :: gradient_jump_penalty_w
+     !logical :: if_gradient_jump_penalty
+     !type(gradient_jump_penalty_t) :: gradient_jump_penalty_u
+     !type(gradient_jump_penalty_t) :: gradient_jump_penalty_v
+     !type(gradient_jump_penalty_t) :: gradient_jump_penalty_w
 
      ! Attributes for field dirichlet BCs
      type(field_dirichlet_vector_t) :: user_field_bc_vel   !< User-computed Dirichlet velocity condition
@@ -300,6 +300,19 @@ contains
     ! Case parameters
     this%params => params
 
+
+    ! Assign velocity fields
+    call neko_field_registry%add_field(this%dm_Xh, 'u')
+    call neko_field_registry%add_field(this%dm_Xh, 'v')
+    call neko_field_registry%add_field(this%dm_Xh, 'w')
+    this%u => neko_field_registry%get_field('u')
+    this%v => neko_field_registry%get_field('v')
+    this%w => neko_field_registry%get_field('w')
+
+    ! Initialize time-lag fields
+    call this%ulag%init(this%u, 2)
+    call this%vlag%init(this%v, 2)
+    call this%wlag%init(this%w, 2)
 
     !
     ! First section of fluid log
@@ -664,18 +677,6 @@ contains
        call neko_log%end_section()
     end if
 
-    ! Assign velocity fields
-    call neko_field_registry%add_field(this%dm_Xh, 'u')
-    call neko_field_registry%add_field(this%dm_Xh, 'v')
-    call neko_field_registry%add_field(this%dm_Xh, 'w')
-    this%u => neko_field_registry%get_field('u')
-    this%v => neko_field_registry%get_field('v')
-    this%w => neko_field_registry%get_field('w')
-
-    !! Initialize time-lag fields
-    call this%ulag%init(this%u, 2)
-    call this%vlag%init(this%v, 2)
-    call this%wlag%init(this%w, 2)
 
 
   end subroutine fluid_scheme_init_common
@@ -779,31 +780,31 @@ contains
     end if
 
     ! Initiate gradient jump penalty
-    call json_get_or_default(params, &
-                            'case.fluid.gradient_jump_penalty.enabled',&
-                            this%if_gradient_jump_penalty, .false.)
+!    call json_get_or_default(params, &
+!                            'case.fluid.gradient_jump_penalty.enabled',&
+!                            this%if_gradient_jump_penalty, .false.)
 
-    if (this%if_gradient_jump_penalty .eqv. .true.) then
-       if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
-          call json_get_or_default(params, &
-                            'case.fluid.gradient_jump_penalty.tau',&
-                            GJP_param_a, 0.02_rp)
-          GJP_param_b = 0.0_rp
-       else
-          call json_get_or_default(params, &
-                        'case.fluid.gradient_jump_penalty.scaling_factor',&
-                            GJP_param_a, 0.8_rp)
-          call json_get_or_default(params, &
-                        'case.fluid.gradient_jump_penalty.scaling_exponent',&
-                            GJP_param_b, 4.0_rp)
-       end if
-       call this%gradient_jump_penalty_u%init(params, this%dm_Xh, this%c_Xh, &
-                                              GJP_param_a, GJP_param_b)
-       call this%gradient_jump_penalty_v%init(params, this%dm_Xh, this%c_Xh, &
-                                              GJP_param_a, GJP_param_b)
-       call this%gradient_jump_penalty_w%init(params, this%dm_Xh, this%c_Xh, &
-                                              GJP_param_a, GJP_param_b)
-    end if
+!    if (this%if_gradient_jump_penalty .eqv. .true.) then
+!       if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
+!          call json_get_or_default(params, &
+!                            'case.fluid.gradient_jump_penalty.tau',&
+!                            GJP_param_a, 0.02_rp)
+!          GJP_param_b = 0.0_rp
+!       else
+!          call json_get_or_default(params, &
+!                        'case.fluid.gradient_jump_penalty.scaling_factor',&
+!                            GJP_param_a, 0.8_rp)
+!          call json_get_or_default(params, &
+!                        'case.fluid.gradient_jump_penalty.scaling_exponent',&
+!                            GJP_param_b, 4.0_rp)
+!       end if
+!       call this%gradient_jump_penalty_u%init(params, this%dm_Xh, this%c_Xh, &
+!                                              GJP_param_a, GJP_param_b)
+!       call this%gradient_jump_penalty_v%init(params, this%dm_Xh, this%c_Xh, &
+!                                              GJP_param_a, GJP_param_b)
+!       call this%gradient_jump_penalty_w%init(params, this%dm_Xh, this%c_Xh, &
+!                                              GJP_param_a, GJP_param_b)
+!    end if
 
     call neko_log%end_section()
 
@@ -900,11 +901,11 @@ contains
     call this%mu_field%free()
 
     ! Free gradient jump penalty
-    if (this%if_gradient_jump_penalty .eqv. .true.) then
-       call this%gradient_jump_penalty_u%free()
-       call this%gradient_jump_penalty_v%free()
-       call this%gradient_jump_penalty_w%free()
-    end if
+!    if (this%if_gradient_jump_penalty .eqv. .true.) then
+!       call this%gradient_jump_penalty_u%free()
+!       call this%gradient_jump_penalty_v%free()
+!       call this%gradient_jump_penalty_w%free()
+!    end if
 
 
   end subroutine fluid_scheme_free
