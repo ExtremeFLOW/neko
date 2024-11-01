@@ -127,7 +127,7 @@ __global__ void __launch_bounds__(LX*LX,3)
     const T J_inv32 = dtdy[ijk+ele];
     const T J_inv33 = dtdz[ijk+ele];
     const T dj  = h1[ijk+ele] *
-                  weight3[ijk+ele] *
+                  weight3[ijk] *
                   jacinv[ijk+ele];
 
     T uttmp = 0.0;
@@ -183,25 +183,25 @@ __global__ void __launch_bounds__(LX*LX,3)
          ustmp * J_inv23 + 
          uttmp * J_inv33;
 
-    v1 = urtmp * J_inv11 + 
-         ustmp * J_inv21 + 
-         uttmp * J_inv31;
-    v2 = urtmp * J_inv12 + 
-         ustmp * J_inv22 + 
-         uttmp * J_inv32;
-    v3 = urtmp * J_inv13 + 
-         ustmp * J_inv23 + 
-         uttmp * J_inv33;
+    v1 = vrtmp * J_inv11 + 
+         vstmp * J_inv21 + 
+         vttmp * J_inv31;
+    v2 = vrtmp * J_inv12 + 
+         vstmp * J_inv22 + 
+         vttmp * J_inv32;
+    v3 = vrtmp * J_inv13 + 
+         vstmp * J_inv23 + 
+         vttmp * J_inv33;
 
-    w1 = urtmp * J_inv11 + 
-         ustmp * J_inv21 + 
-         uttmp * J_inv31;
-    w2 = urtmp * J_inv12 + 
-         ustmp * J_inv22 + 
-         uttmp * J_inv32;
-    w3 = urtmp * J_inv13 + 
-         ustmp * J_inv23 + 
-         uttmp * J_inv33;
+    w1 = wrtmp * J_inv11 + 
+         wstmp * J_inv21 + 
+         wttmp * J_inv31;
+    w2 = wrtmp * J_inv12 + 
+         wstmp * J_inv22 + 
+         wttmp * J_inv32;
+    w3 = wrtmp * J_inv13 + 
+         wstmp * J_inv23 + 
+         wttmp * J_inv33;
     
     T s11 = 0.0;
     T s12 = 0.0;
