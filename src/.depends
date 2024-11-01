@@ -223,7 +223,7 @@ common/time_step_controller.o : common/time_step_controller.f90 common/json_util
 common/gradient_jump_penalty.o : common/gradient_jump_penalty.f90 common/bcknd/device/device_gradient_jump_penalty.o math/bcknd/device/device_math.o device/device.o gs/gather_scatter.o sem/space.o gs/gs_ops.o math/operators.o mesh/quad.o mesh/hex.o mesh/element.o sem/coef.o config/neko_config.o sem/dofmap.o field/field.o mesh/point.o math/math.o common/json_utils.o common/utils.o config/num_types.o 
 common/bcknd/device/device_gradient_jump_penalty.o : common/bcknd/device/device_gradient_jump_penalty.F90 device/device.o common/utils.o config/num_types.o 
 simulation.o : simulation.f90 common/time_step_controller.o common/json_utils.o simulation_components/simcomp_executor.o common/profiler.o field/field.o common/jobctrl.o common/log.o io/file.o time_schemes/time_scheme_controller.o config/num_types.o case.o 
-math/ax_helm_fctry.o : math/ax_helm_fctry.f90 common/utils.o math/bcknd/cpu/ax_helm_full_cpu.o math/bcknd/cpu/ax_helm_cpu.o math/ax_helm.o math/bcknd/sx/ax_helm_sx.o math/bcknd/xsmm/ax_helm_xsmm.o math/bcknd/device/ax_helm_device.o config/neko_config.o math/ax.o 
+math/ax_helm_fctry.o : math/ax_helm_fctry.f90 common/utils.o math/bcknd/device/ax_helm_full_device.o math/bcknd/cpu/ax_helm_full_cpu.o math/bcknd/cpu/ax_helm_cpu.o math/ax_helm.o math/bcknd/sx/ax_helm_sx.o math/bcknd/xsmm/ax_helm_xsmm.o math/bcknd/device/ax_helm_device.o config/neko_config.o math/ax.o 
 math/ax_helm.o : math/ax_helm.f90 math/math.o mesh/mesh.o sem/space.o sem/coef.o config/num_types.o math/ax.o 
 math/ax_helm_full.o : math/ax_helm_full.f90 common/utils.o math/math.o mesh/mesh.o sem/space.o sem/coef.o config/num_types.o math/ax.o 
 math/bcknd/cpu/ax_helm_cpu.o : math/bcknd/cpu/ax_helm_cpu.f90 math/math.o mesh/mesh.o sem/space.o sem/coef.o config/num_types.o math/ax_helm.o 
@@ -231,7 +231,7 @@ math/bcknd/cpu/ax_helm_full_cpu.o : math/bcknd/cpu/ax_helm_full_cpu.f90 common/u
 math/bcknd/sx/ax_helm_sx.o : math/bcknd/sx/ax_helm_sx.f90 math/math.o mesh/mesh.o sem/space.o sem/coef.o config/num_types.o math/ax_helm.o 
 math/bcknd/xsmm/ax_helm_xsmm.o : math/bcknd/xsmm/ax_helm_xsmm.F90 math/mxm_wrapper.o mesh/mesh.o sem/space.o sem/coef.o config/num_types.o math/ax_helm.o 
 math/bcknd/device/ax_helm_device.o : math/bcknd/device/ax_helm_device.F90 device/device.o math/bcknd/device/device_math.o mesh/mesh.o sem/space.o sem/coef.o config/num_types.o math/ax_helm.o 
-math/bcknd/device/ax_helm_full_device.o : math/bcknd/device/ax_helm_full_device.F90 device/device.o math/bcknd/device/device_math.o mesh/mesh.o sem/space.o sem/coef.o config/num_types.o math/ax_helm_full.o 
+math/bcknd/device/ax_helm_full_device.o : math/bcknd/device/ax_helm_full_device.F90 common/utils.o device/device.o math/bcknd/device/device_math.o mesh/mesh.o sem/space.o sem/coef.o config/num_types.o math/ax_helm_full.o 
 common/projection.o : common/projection.f90 common/time_step_controller.o common/utils.o common/log.o common/profiler.o common/bcknd/device/device_projection.o math/bcknd/device/device_math.o device/device.o config/neko_config.o gs/gather_scatter.o comm/comm.o bc/bc.o math/ax.o sem/coef.o math/math.o config/num_types.o 
 common/bcknd/device/device_projection.o : common/bcknd/device/device_projection.F90 common/utils.o config/num_types.o 
 comm/parmetis.o : comm/parmetis.F90 mesh/mesh.o field/mesh_field.o config/num_types.o common/utils.o mesh/point.o comm/comm.o 
