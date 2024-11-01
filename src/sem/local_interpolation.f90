@@ -44,6 +44,7 @@ module local_interpolation
   use field, only: field_t
   use field_list, only: field_list_t
   use device
+  use math
   use tensor_cpu
   use device_math, only: device_rzero
   use neko_config, only: NEKO_BCKND_DEVICE
@@ -258,7 +259,7 @@ contains
   end subroutine jacobian_inverse
  !M33INV and M44INV by David G. Simpson pure function version from https://fortranwiki.org/fortran/show/Matrix+inversion
  ! Invert 3x3 matrix
-  pure function matinv39(a11,a12,a13,a21,a22,a23,a31,a32,a33) result(B)
+  function matinv39(a11,a12,a13,a21,a22,a23,a31,a32,a33) result(B)
     real(rp), intent(in) :: a11, a12, a13,a21, a22, a23,a31, a32, a33
     real(xp) :: A(3,3)   !! Matrix
     real(rp) :: B(3,3)   !! Inverse matrix
@@ -276,18 +277,20 @@ contains
     !! Performs a direct calculation of the inverse of a 3×3 matrix.
  !M33INV and M44INV by David G. Simpson pure function version from https://fortranwiki.org/fortran/show/Matrix+inversion
  ! Invert 3x3 matrix
-  pure function matinv3(A) result(B)
+  function matinv3(A) result(B)
     !! Performs a direct calculation of the inverse of a 3×3 matrix.
     real(xp), intent(in) :: A(3,3)   !! Matrix
     real(xp) :: B(3,3)   !! Inverse matrix
     real(xp) :: detinv
 
-    ! Calculate the inverse determinant of the matrix
+    ! Calculate the inverse determinant of the matrix 
+    !first index x,y,z, second r, s, t
     detinv = 1.0_xp/real(A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2)&
               - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1)&
               + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1),xp)
-
+    !print *, "detinv",detinv
     ! Calculate the inverse of the matrix
+    ! first index r, s, t, second x, y, z
     B(1,1) = +detinv * (A(2,2)*A(3,3) - A(2,3)*A(3,2))
     B(2,1) = -detinv * (A(2,1)*A(3,3) - A(2,3)*A(3,1))
     B(3,1) = +detinv * (A(2,1)*A(3,2) - A(2,2)*A(3,1))
@@ -539,37 +542,38 @@ contains
     call tnsr3d_cpu(x_hat, Xh%lx, x, &
                 Xh%lx, Xh%vinv, &
                 Xh%vinvt, Xh%vinvt, nelv)
-
-    call tnsr3d_cpu(y_hat, Xh%lx, x_hat, &
-                Xh%lx, Xh%v, &
-                Xh%vt, Xh%vt, nelv)
     call tnsr3d_cpu(y_hat, Xh%lx, y, &
                 Xh%lx, Xh%vinv, &
                 Xh%vinvt, Xh%vinvt, nelv)
     call tnsr3d_cpu(z_hat, Xh%lx, z, &
                 Xh%lx, Xh%vinv, &
                 Xh%vinvt, Xh%vinvt, nelv)
-    rst = 0.0 
+    rst = 0.0_rp
     do i = 1, n_pts
        iter = 0 
        converged = .false.
        do while (.not. converged)
           iter  = iter + 1
-          call legendre_poly(r_legendre,rst(1,i),lx-1)     
-          call legendre_poly(s_legendre,rst(2,i),lx-1)     
-          call legendre_poly(t_legendre,rst(3,i),lx-1)     
+          !call legendre_poly(r_legendre,rst(1,i),lx-1)     
+          !call legendre_poly(s_legendre,rst(2,i),lx-1)     
+          !call legendre_poly(t_legendre,rst(3,i),lx-1)     
           do j = 0, lx-1
+             r_legendre(j+1) = PNLEG(real(rst(1,i),xp),j)
+             s_legendre(j+1) = PNLEG(real(rst(2,i),xp),j)
+             t_legendre(j+1) = PNLEG(real(rst(3,i),xp),j)
              dr_legendre(j+1) = PNDLEG(real(rst(1,i),xp),j)
              ds_legendre(j+1) = PNDLEG(real(rst(2,i),xp),j)
              dt_legendre(j+1) = PNDLEG(real(rst(3,i),xp),j)
           end do
           e = el_list(i)+1
+          !print *,'leg and xhat', r_legendre(6), dr_legendre(6), x_hat(1,1,1,e), i, rst(1,i)
           call tnsr3d_el_cpu(resx(i), 1, x_hat(1,1,1,e), Xh%lx, &
                r_legendre, s_legendre, t_legendre)
           call tnsr3d_el_cpu(resy(i), 1, y_hat(1,1,1,e), Xh%lx, &
                r_legendre, s_legendre, t_legendre)
           call tnsr3d_el_cpu(resz(i), 1, z_hat(1,1,1,e), Xh%lx, &
                r_legendre, s_legendre, t_legendre)
+
           call tnsr3d_el_cpu(jac(1,1), 1, x_hat(1,1,1,e), Xh%lx, &
                dr_legendre, s_legendre(1), t_legendre)
           call tnsr3d_el_cpu(jac(1,2), 1, y_hat(1,1,1,e), Xh%lx, &
@@ -589,6 +593,8 @@ contains
           call tnsr3d_el_cpu(jac(3,3), 1, z_hat(1,1,1,e), Xh%lx, &
                r_legendre, s_legendre, dt_legendre)
           !do jac inverse
+          !print *, 'dxyzdr',jac(:,1)
+          !print *, "new x", resx(i)
           resx(i) = pt_x(i) - resx(i)
           resy(i) = pt_y(i) - resy(i)
           resz(i) = pt_z(i) - resz(i)
@@ -603,7 +609,13 @@ contains
           if (norm2(real(rst_d,xp)) .le. tol)then
               conv_pts = 1
           end if
-          if (norm2(real(rst_d,xp)) > 4.0) conv_pts = 1
+          if (norm2(real(rst_d,xp)) .gt. 4.0)then
+              conv_pts = 1
+          end if
+          !leg_outside = real((Xh%lx-1)*Xh%lx/2,xp)**2.0_xp
+          !if (abs(r_legendre(Xh%lx)) > leg_outside) conv_pts = 1
+          !if (abs(s_legendre(Xh%lx)) > leg_outside) conv_pts = 1
+          !if (abs(t_legendre(Xh%lx)) > leg_outside) conv_pts = 1
 
          ! if (abs(rst_d(1)) .lt. tol .and. &
          !     abs(rst_d(2)) .lt. tol .and. &
@@ -624,6 +636,7 @@ contains
       !    if(pt_z(i) .gt. 0.999) print *, rst_d, resx(i), resy(i), resz(i), (norm2(real(rst_d,xp))), iter, rst(:,i)
           if (iter .ge. 50) converged = .true.
        end do
+       !print *,'cpu iter', iter
     end do
   end subroutine find_rst_legendre
   !> Compares two sets of rst coordinates and checks whether rst2 is better than rst1  
