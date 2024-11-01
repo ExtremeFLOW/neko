@@ -277,6 +277,12 @@ contains
        call case_init(C, case_file)
 
        !
+       ! User-init
+       !
+       call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
+                                    C%fluid%p, C%fluid%c_Xh, C%params)
+
+       !
        ! Setup runtime statistics
        !
        call neko_rt_stats%init(C%params)
