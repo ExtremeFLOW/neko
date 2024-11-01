@@ -74,7 +74,7 @@ program mesh_checker
   call MPI_Allreduce(msh%periodic%size, periodic_size, 1, &
        MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
-  total_size = inlet_size + wall_size + outlet_size + outlet_normal_size + &
+  total_size = inlet_size + wall_size + outlet_size + outlet_normal_size &
        + symmetry_size
 
   if (pe_rank .eq. 0) then
