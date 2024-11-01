@@ -35,6 +35,7 @@ neko_fortran_SOURCES = \
 	sem/interpolation.f90\
 	sem/point_interpolator.f90\
 	sem/bcknd/device/device_coef.F90\
+	sem/bcknd/device/device_local_interpolation.F90\
 	gs/gs_bcknd.f90\
 	gs/bcknd/cpu/gs_cpu.f90\
 	gs/bcknd/sx/gs_sx.f90\
@@ -402,7 +403,8 @@ libneko_a_SOURCES += \
 	fluid/bcknd/device/cuda/pnpn_res.cu\
 	fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
-	sem/bcknd/device/cuda/coef.cu
+	sem/bcknd/device/cuda/coef.cu\
+	sem/bcknd/device/cuda/local_interpolation.cu
 endif
 
 if ENABLE_OPENCL

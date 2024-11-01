@@ -41,12 +41,16 @@ module global_interpolation
   use logger, only: neko_log, LOG_SIZE
   use utils, only: neko_error, neko_warning
   use local_interpolation
+  use device_local_interpolation
+  use device
   use point
   use comm
   use aabb, only: aabb_t
   use aabb_tree, only: aabb_tree_t
   use vector, only: vector_t
-  use math, only: copy
+  use matrix, only: matrix_t
+  use math, only: copy, glsum
+  use device_math
   use neko_mpi_types
   use structs, only: array_ptr_t
   use, intrinsic :: iso_c_binding
@@ -322,17 +326,23 @@ contains
     type(vector_t) :: x_check, x_vec
     type(vector_t) :: y_check, y_vec
     type(vector_t) :: z_check, z_vec
-    real(kind=rp), allocatable :: x_t(:)
-    real(kind=rp), allocatable :: y_t(:)
-    real(kind=rp), allocatable :: z_t(:),  rst_local_cand(:,:)
-    real(kind=rp), allocatable :: resx(:)
-    real(kind=rp), allocatable :: resy(:)
-    real(kind=rp), allocatable :: resz(:)
+    type(vector_t) :: x_t
+    type(vector_t) :: y_t
+    type(vector_t) :: z_t
+    type(matrix_t) :: rst_local_cand
+    type(vector_t) :: resx
+    type(vector_t) :: resy
+    type(vector_t) :: resz
+    type(vector_t) :: x_hat, y_hat, z_hat
+    logical(kind=c_bool), allocatable, target :: conv_pts(:)
+    type(c_ptr) :: conv_pts_d = c_null_ptr
+    type(c_ptr) :: el_cands_d = c_null_ptr
     real(kind=rp), allocatable :: rsts(:,:)
     real(kind=rp), allocatable :: res(:,:)
     logical :: isdiff
     real(kind=dp) :: pt_xyz(3), res1
-    integer :: i, j, stupid_intent
+    integer :: i, j, stupid_intent, iter
+    integer(kind=8) :: bytes
     type(point_t), allocatable :: my_point(:)
     type(point_t), allocatable :: my_points(:)
     type(stack_i4_t) :: all_el_candidates
@@ -350,6 +360,7 @@ contains
     integer, allocatable :: el_owner0s(:), el_send_to_pe(:)
     integer :: ierr, max_n_points_to_send, ii, n_point_cand, point_id, i_send, i_recv
     real(kind=rp) :: time1, time2, time_start
+    logical :: converged
 
 
     call MPI_Barrier(NEKO_COMM)
@@ -446,41 +457,101 @@ contains
 
       
     n_point_cand = all_el_candidates%size()
-    allocate(x_t(n_point_cand))
-    allocate(y_t(n_point_cand))
-    allocate(z_t(n_point_cand))
+    call x_t%init(n_point_cand)
+    call y_t%init(n_point_cand)
+    call z_t%init(n_point_cand)
     ii = 0
     do i = 1 , this%n_points_local
        do j = 1, n_el_cands(i) 
           ii = ii + 1
-          x_t(ii) = this%xyz_local(1,i)
-          y_t(ii) = this%xyz_local(2,i)
-          z_t(ii) = this%xyz_local(3,i)
+          x_t%x(ii) = this%xyz_local(1,i)
+          y_t%x(ii) = this%xyz_local(2,i)
+          z_t%x(ii) = this%xyz_local(3,i)
        end do
     end do
 
-    allocate(rst_local_cand(3,n_point_cand))
-    allocate(resx(n_point_cand))
-    allocate(resy(n_point_cand))
-    allocate(resz(n_point_cand))
+    call rst_local_cand%init(3,n_point_cand)
+    call resx%init(n_point_cand)
+    call resy%init(n_point_cand)
+    call resz%init(n_point_cand)
     allocate(this%rst_local(3,this%n_points_local))
     allocate(this%el_owner0_local(this%n_points_local))
     
 
     el_cands => all_el_candidates%array() 
-    
-    call MPI_Barrier(NEKO_COMM)
-    time1 = MPI_Wtime()
-    call find_rst_legendre(rst_local_cand, x_t, y_t, z_t, this%Xh, &
-                           this%x%ptr, this%y%ptr, this%z%ptr, &
-                           el_cands, n_point_cand, this%nelv, &
-                           resx, resy, resz, this%tol)
+    if ( NEKO_BCKND_DEVICE .ne. 1) then 
+       call MPI_Barrier(NEKO_COMM)
+       time1 = MPI_Wtime()
+       call find_rst_legendre(rst_local_cand%x, x_t%x, y_t%x, z_t%x, this%Xh, &
+                              this%x%ptr, this%y%ptr, this%z%ptr, &
+                              el_cands, n_point_cand, this%nelv, &
+                              resx%x, resy%x, resz%x, this%tol)
+ 
+       call MPI_Barrier(NEKO_COMM)
+       time2 = MPI_Wtime()
+
+       write(log_buf, '(A,E15.7)') &
+       'Found rst with Newton iteration, time (s):', time2-time1
+       call neko_log%message(log_buf)  
+    end if
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call x_hat%init(this%nelv*this%Xh%lxyz)
+       call y_hat%init(this%nelv*this%Xh%lxyz)
+       call z_hat%init(this%nelv*this%Xh%lxyz)
+       call x_t%copyto(HOST_TO_DEVICE,.false.)
+       call y_t%copyto(HOST_TO_DEVICE,.false.)
+       call z_t%copyto(HOST_TO_DEVICE,.false.)
+       
+       call tnsr3d(x_hat%x, this%Xh%lx, this%x%ptr, &
+                   this%Xh%lx, this%Xh%vinv, &
+                   this%Xh%vinvt, this%Xh%vinvt, this%nelv)
+       call tnsr3d(y_hat%x, this%Xh%lx, this%y%ptr, &
+                   this%Xh%lx, this%Xh%vinv, &
+                   this%Xh%vinvt, this%Xh%vinvt, this%nelv)
+       call tnsr3d(z_hat%x, this%Xh%lx,this%z%ptr, &
+                   this%Xh%lx, this%Xh%vinv, &
+                   this%Xh%vinvt, this%Xh%vinvt, this%nelv)
+       allocate(conv_pts(n_point_cand))
+       conv_pts = .false.
+       bytes = n_point_cand*sizeof(conv_pts(1))
+       call device_alloc(conv_pts_d,bytes)
+       call device_memcpy_common(c_loc(conv_pts), conv_pts_d, bytes, HOST_TO_DEVICE, .false., glb_cmd_queue)
+       call device_map(el_cands, el_cands_d,n_point_cand)
+       call device_memcpy(el_cands, el_cands_d,n_point_cand,HOST_TO_DEVICE, .true.)
+       iter = 0
+       converged = .false.
+       rst_local_cand = 0.0_rp
+       call MPI_Barrier(NEKO_COMM)
+       time1 = MPI_Wtime()
+       do while (.not. converged)
+          call device_find_rst_legendre(rst_local_cand%x_d, x_t%x_d, y_t%x_d, z_t%x_d, &
+                                 x_hat%x_d, y_hat%x_d, z_hat%x_d, &
+                                 resx%x_d, resy%x_d, resz%x_d, &
+                                 this%Xh%lx,el_cands_d, n_point_cand, this%tol, &
+                                 conv_pts_d)
+          call device_memcpy_common(c_loc(conv_pts), conv_pts_d, bytes, DEVICE_TO_HOST, .true., glb_cmd_queue)
+          converged = .true.
+          iter = iter + 1
+          do i = 1, n_point_cand
+             converged = converged .and. conv_pts(i)
+          end do 
+          if( iter .ge. 50) converged = .true.
+       end do
+       print *,'GPU number of iter', iter
+       call rst_local_cand%copyto(DEVICE_TO_HOST,.false.)
+       call resx%copyto(DEVICE_TO_HOST,.false.)
+       call resy%copyto(DEVICE_TO_HOST,.false.)
+       call resz%copyto(DEVICE_TO_HOST,.true.)
+       call device_deassociate(el_cands)
+       call device_free(el_cands_d)
+       call device_free(conv_pts_d)
+    end if
  
     call MPI_Barrier(NEKO_COMM)
     time2 = MPI_Wtime()
 
     write(log_buf, '(A,E15.7)') &
-    'Found rst with Newton iteration, time (s):', time2-time1
+    'GPU Found rst with Newton iteration, time (s):', time2-time1
     call neko_log%message(log_buf)  
  
     write(log_buf,'(A,E15.7)') &
@@ -500,14 +571,14 @@ contains
        this%rst_local(3,i) = 10.0
        do j = 1, n_el_cands(i) 
           ii = ii + 1
-          if (rst_cmp(this%rst_local(:,i), rst_local_cand(:,ii),&
-             this%xyz_local(:,i), (/resx(ii),resy(ii),resz(ii)/), this%tol)) then
-             this%rst_local(1,i) = rst_local_cand(1,ii)
-             this%rst_local(2,i) = rst_local_cand(2,ii)
-             this%rst_local(3,i) = rst_local_cand(3,ii)
-             this%xyz_local(1,i) = resx(ii)
-             this%xyz_local(2,i) = resy(ii)
-             this%xyz_local(3,i) = resz(ii)
+          if (rst_cmp(this%rst_local(:,i), rst_local_cand%x(:,ii),&
+             this%xyz_local(:,i), (/resx%x(ii),resy%x(ii),resz%x(ii)/), this%tol)) then
+             this%rst_local(1,i) = rst_local_cand%x(1,ii)
+             this%rst_local(2,i) = rst_local_cand%x(2,ii)
+             this%rst_local(3,i) = rst_local_cand%x(3,ii)
+             this%xyz_local(1,i) = resx%x(ii)
+             this%xyz_local(2,i) = resy%x(ii)
+             this%xyz_local(3,i) = resz%x(ii)
              this%el_owner0_local(i) = el_cands(ii)
           end if
        end do

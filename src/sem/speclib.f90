@@ -953,7 +953,7 @@ contains
 !
     IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
     REAL(KIND=XP) Z, P1, P2, P3
-    IF(ABS(Z) .LT. 1.0E-25) Z = 0.0
+    !IF(ABS(Z) .LT. 1.0E-25) Z = 0.0
 
 
     P1   = 1.
@@ -965,7 +965,7 @@ contains
     P3   = P2
     DO 10 K = 1, N-1
        FK  = (K)
-       P3  = ((2.*FK+1.)*Z*P2 - FK*P1)/(FK+1.)
+       P3  = ((2._rp*FK+1.0_rp)*Z*P2 - FK*P1)/(FK+1.0_rp)
        P1  = P2
        P2  = P3
 10  CONTINUE
@@ -976,15 +976,15 @@ contains
   
   subroutine legendre_poly(L, x, N)
     ! Evaluate Legendre polynomials of degrees 0-N at point x
-    real(kind=rp), intent(inout):: L(1:N+1)
+    real(kind=rp), intent(inout):: L(0:N)
     real(kind=rp) :: x
     integer :: N, j
 
-    L(1) = 1.0_rp
-    L(2) = x
+    L(0) = 1.0_rp
+    L(1) = x
 
-    do j=3, N+1
-       L(j) = ( (2.0_xp*j-1.0_xp) * x * L(j-1) - (j-1) * L(j-2) ) / real(j,xp) 
+    do j=1, N-1
+       L(j+1) = ( (2.0_xp*j+1.0_xp) * x * L(j) - real(j,xp) * L(j-1) ) / real(j+1,xp) 
     end do
   end subroutine legendre_poly
 
