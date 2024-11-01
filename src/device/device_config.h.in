@@ -10,6 +10,7 @@
  * @note Set to the same C/C++ equivalent type as @a rp
  */
 typedef @NEKO_DEV_REAL_TYPE@ real;
+typedef @NEKO_DEV_XREAL_TYPE@ xreal;
 
 extern void *glb_ctx;
 extern void *glb_cmd_queue;
