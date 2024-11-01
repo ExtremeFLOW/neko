@@ -12,7 +12,7 @@ check: point_test
 
 
 point_test_TESTS := point.pf
-point_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
+point_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs/ -lneko
 $(eval $(call make_pfunit_test,point_test))
 
 
