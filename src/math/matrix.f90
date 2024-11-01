@@ -35,7 +35,7 @@ module matrix
   use neko_config, only: NEKO_BCKND_DEVICE
   use math, only: sub3, chsign, add3, cmult2, cadd2, copy
   use num_types, only: rp, xp
-  use device, only: device_map, device_free, c_ptr, C_NULL_PTR
+  use device, only: device_map, device_free, c_ptr, C_NULL_PTR, device_memcpy
   use device_math, only: device_copy, device_cfill, device_cmult, &
        device_sub3, device_cmult2, device_add3, device_cadd2
   use utils, only: neko_error
@@ -56,6 +56,8 @@ module matrix
      procedure, pass(m) :: free => matrix_free
      !> Returns the number of entries in the matrix.
      procedure, pass(m) :: size => matrix_size
+     !> Copy between host and device 
+     procedure, pass(m) :: copyto => matrix_copyto
      !> Assignment \f$ m = w \f$
      procedure, pass(m) :: matrix_assign_matrix
      !> Assignment \f$ m = s \f$.
@@ -138,6 +140,23 @@ contains
     integer :: s
     s = m%n
   end function matrix_size
+
+
+  !> Easy way to copy between host and device.
+  subroutine matrix_copyto(m, memdir, sync)
+    class(matrix_t), intent(inout) :: m
+    integer, intent(in) :: memdir
+    logical, intent(in) :: sync
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(m%x, m%x_d, m%n, &
+                          memdir, sync)
+    else
+       call neko_error('vector_t, copy between host and device w/o device backend')
+    end if
+
+  end subroutine matrix_copyto
+
 
   !> Assignment \f$ m = w \f$
   subroutine matrix_assign_matrix(m, w)
