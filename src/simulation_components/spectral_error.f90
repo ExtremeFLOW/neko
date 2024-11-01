@@ -118,25 +118,12 @@ contains
 
     character(len=20) :: fields(3)
 
-    real(kind=rp) :: fluid_output_value, val
-    character(len=:), allocatable :: fluid_output_control, str
-
     !> Add keyword "fields" to the json so that the field writer
     ! picks it up. Will also add those fields to the registry.
     fields(1) = "u_hat"
     fields(2) = "v_hat"
     fields(3) = "w_hat"
     call json%add("fields", fields)
-
-    call json_get(case%params, "case.fluid.output_control", &
-         fluid_output_control)
-    call json_get(case%params, "case.fluid.output_value", &
-         fluid_output_value)
-
-    ! See if the user has set a compute control, otherwise
-    ! set it to the fluid output control.
-    call json_get_or_default(json, "compute_control", str, fluid_output_control)
-    call json_get_or_default(json, "compute_value", val, fluid_output_value)
 
     call this%init_base(json, case)
     call this%writer%init(json, case)
