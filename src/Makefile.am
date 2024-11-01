@@ -133,7 +133,7 @@ neko_fortran_SOURCES = \
 	io/fluid_stats_output.f90\
 	io/mean_sqr_flow_output.f90\
 	io/data_streamer.F90\
-	common/sampler.f90\
+	io/output_controller.f90\
 	common/global_interpolation.F90\
 	common/profiler.F90\
 	common/craypat.F90\
@@ -190,11 +190,11 @@ neko_fortran_SOURCES = \
 	common/rhs_maker_fctry.f90\
 	simulation_components/probes.F90\
 	simulation_components/force_torque.f90\
+	simulation_components/fluid_stats_simcomp.f90\
 	simulation_components/field_writer.f90\
 	common/bcknd/cpu/rhs_maker_cpu.f90\
 	common/bcknd/sx/rhs_maker_sx.f90\
 	common/bcknd/device/rhs_maker_device.F90\
-	common/material_properties.f90\
 	config/neko_config.f90\
 	case.f90\
 	common/user_intf.f90\
@@ -224,6 +224,8 @@ neko_fortran_SOURCES = \
 	fluid/fluid_user_source_term.f90\
 	fluid/fluid_source_term.f90\
 	common/time_step_controller.f90\
+	common/gradient_jump_penalty.f90\
+	common/bcknd/device/device_gradient_jump_penalty.F90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
 	math/ax_helm.f90\
@@ -298,6 +300,10 @@ neko_fortran_SOURCES = \
 	source_terms/brinkman_source_term.f90\
 	source_terms/brinkman/filters.f90\
 	source_terms/bcknd/cpu/filters_cpu.f90\
+	source_terms/bcknd/device/filters_device.F90\
+	source_terms/bcknd/device/cuda/cuda_filters.f90\
+	source_terms/bcknd/device/hip/hip_filters.f90\
+	source_terms/bcknd/device/opencl/opencl_filters.f90\
 	les/les_model.f90\
 	les/les_model_fctry.f90\
 	les/vreman.f90\
@@ -360,9 +366,11 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/hip/dong_outflow.hip\
 	common/bcknd/device/hip/rhs_maker.hip\
 	common/bcknd/device/hip/projection.hip\
+	common/bcknd/device/hip/gradient_jump_penalty.hip\
 	fluid/bcknd/device/hip/pnpn_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
-	sem/bcknd/device/hip/coef.hip
+	sem/bcknd/device/hip/coef.hip\
+	source_terms/bcknd/device/hip/filters.hip
 endif
 
 if ENABLE_CUDA
@@ -395,10 +403,12 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/cuda/dong_outflow.cu\
 	common/bcknd/device/cuda/rhs_maker.cu\
 	common/bcknd/device/cuda/projection.cu\
+	common/bcknd/device/cuda/gradient_jump_penalty.cu\
 	fluid/bcknd/device/cuda/pnpn_res.cu\
 	fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
-	sem/bcknd/device/cuda/coef.cu
+	sem/bcknd/device/cuda/coef.cu\
+	source_terms/bcknd/device/cuda/filters.cu
 
 BUILT_SOURCES = libtool_cuda
 
@@ -432,7 +442,8 @@ libneko_la_SOURCES += \
 	common/bcknd/device/opencl/rhs_maker.c\
 	fluid/bcknd/device/opencl/pnpn_res.c\
 	scalar/bcknd/device/opencl/scalar_residual.c\
-	sem/bcknd/device/opencl/coef.c
+	sem/bcknd/device/opencl/coef.c\
+	source_terms/bcknd/device/opencl/filters.c
 
 %.cl.h: %.cl
 	bash ./scripts/cltostring.sh $<
@@ -470,7 +481,6 @@ endif
 
 
 bin_PROGRAMS = neko
-#neko_SOURCES = $(libneko_la_SOURCES) driver.f90
 neko_SOURCES = driver.f90
 neko_LDADD= libneko.la
 
@@ -508,12 +518,13 @@ CLEANFILES += \
 	krylov/bcknd/device/opencl/*.cl.h\
 	fluid/bcknd/device/opencl/*.cl.h\
 	scalar/bcknd/device/opencl/*.cl.h\
-	sem/bcknd/device/opencl/*.cl.h
+	sem/bcknd/device/opencl/*.cl.h\
+	source_terms/bcknd/device/opencl/*.cl.h
 endif
 
 if ENABLE_MAKEDEPF90
 depend:
-	$(MAKEDEPF90) $(neko_fortran_SOURCES) | $(SED) 's/\.o/\.lo/'  > .depends
+	$(MAKEDEPF90) $(neko_fortran_SOURCES) | $(SED) 's/\.o/\.lo/g'  > .depends
 endif
 
 # Note we need to list any headers etc here for the dist. script
@@ -542,6 +553,7 @@ EXTRA_DIST = \
 	common/bcknd/device/cuda/makeext_kernel.h\
 	common/bcknd/device/cuda/makebdf_kernel.h\
 	common/bcknd/device/cuda/projection_kernel.h\
+	common/bcknd/device/cuda/gradient_jump_penalty_kernel.h\
 	fluid/bcknd/device/cuda/prs_res_kernel.h\
 	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
 	fluid/stress_formulation/bcknd/device/cuda/prs_stress_res_kernel.h\
@@ -571,6 +583,7 @@ EXTRA_DIST = \
 	common/bcknd/device/hip/makeext_kernel.h\
 	common/bcknd/device/hip/makebdf_kernel.h\
 	common/bcknd/device/hip/projection_kernel.h\
+	common/bcknd/device/hip/gradient_jump_penalty_kernel.h\
 	fluid/bcknd/device/hip/prs_res_kernel.h\
 	fluid/bcknd/device/hip/vel_res_update_kernel.h\
 	scalar/bcknd/device/hip/scalar_residual_update_kernel.h\
@@ -609,6 +622,9 @@ EXTRA_DIST = \
 	sem/bcknd/device/opencl/coef_kernel.cl\
 	math/bcknd/device/device_mpi_reduce.h\
 	math/bcknd/device/device_mpi_op.h\
+	source_terms/bcknd/device/cuda/filter_kernels.h\
+	source_terms/bcknd/device/hip/filter_kernels.h\
+	source_terms/bcknd/device/opencl/filter_kernels.cl\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h\
 	device/opencl/check.h\

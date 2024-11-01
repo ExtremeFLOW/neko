@@ -179,7 +179,7 @@ contains
 
          case ('file')
           call this%read_file(json_point)
-         case ('point')
+         case ('points')
           call this%read_point(json_point)
          case ('line')
           call this%read_line(json_point)
@@ -187,10 +187,8 @@ contains
           call neko_error('Plane probes not implemented yet.')
          case ('circle')
           call this%read_circle(json_point)
-
          case ('point_zone')
           call this%read_point_zone(json_point, case%fluid%dm_Xh)
-
          case ('none')
           call json_point%print()
           call neko_error('No point type specified.')
@@ -241,16 +239,10 @@ contains
 
     real(kind=rp), dimension(:,:), allocatable :: point_list
     real(kind=rp), dimension(:), allocatable :: rp_list_reader
-    logical :: found
 
     ! Ensure only rank 0 reads the coordinates.
     if (pe_rank .ne. 0) return
     call json_get(json, 'coordinates', rp_list_reader)
-
-    ! Check if the coordinates were found and were valid
-    if (.not. found) then
-       call neko_error('No coordinates found.')
-    end if
 
     if (mod(size(rp_list_reader), 3) /= 0) then
        call neko_error('Invalid number of coordinates.')

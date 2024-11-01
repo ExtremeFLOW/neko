@@ -82,6 +82,9 @@ module opencl_prgm_lib
   !> Device lambda2 kernels
   type(c_ptr), bind(c) :: lambda2_program = C_NULL_PTR
 
+  !> Device filter kernels
+  type(c_ptr), bind(c) :: filter_program = C_NULL_PTR
+
 contains
 
   subroutine opencl_prgm_lib_release
@@ -260,6 +263,13 @@ contains
        end if
        lambda2_program = C_NULL_PTR
     end if
+
+    if (c_associated(filter_program)) then
+      if(clReleaseProgram(filter_program) .ne. CL_SUCCESS) then
+         call neko_error('Failed to release program')
+      end if
+      filter_program = C_NULL_PTR
+   end if
 
   end subroutine opencl_prgm_lib_release
 

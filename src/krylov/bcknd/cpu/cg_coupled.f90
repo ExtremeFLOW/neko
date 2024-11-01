@@ -195,7 +195,7 @@ contains
     integer, optional, intent(in) :: niter
 
     ! Throw and error
-    call neko_error('Only defined for coupled solves')
+    call neko_error('The cpldcg solver is only defined for coupled solves')
 
     ksp_results%res_final = 0.0
     ksp_results%iter = 0
