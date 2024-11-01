@@ -35,24 +35,17 @@ in Neko. The list will be updated as new simcomps are added.
 - Computation of the spectral error indicator \ref simcomp_speri
 
 ## Controling execution and file output
-Most simulation components are, by default, executed once per time step to perform
-associated computations and output. The exceptions are:
-- \ref simcomp_lambda2, 
-- \ref simcomp_speri,
-
-which are executed with the field output frequency.
-
-This can be modified by using the
+Each simulation component is, by default, executed once per time step to perform
+associated computations and output. However, this can be modified by using the
 `compute_control` and `compute_value` parameters for the computation and the
 `output_control and` and `output_value` for the output to disk. The parameters
 for the `_control` values are the same as for the fluid and checkpointing.
-
 Additionally, one can set `output_control` to `global` and `never`. The former
 will sync the `output_` parameter to that of the fluid. Choosing `never` will
 suppress output all together. If no parameters for the `output_` parameters are
  provided, they are set to be the same as for `compute_`.
-
-For simcomps that compute 3D fields, the output can be either added to the main
+ 
+ For simcomps that compute 3D fields, the output can be either added to the main
 `.fld` file, containing velocity and pressure, or saved to a separate file. For
 the latter, the `output_filename` keyword should be provided. One can
 additionally provide the `precision` keyword, which can be set to either
