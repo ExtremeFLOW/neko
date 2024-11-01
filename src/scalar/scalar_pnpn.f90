@@ -41,7 +41,7 @@ module scalar_pnpn
   use neumann, only : neumann_t
   use field, only : field_t
   use bc, only : bc_list_t, bc_list_init, bc_list_free, bc_list_apply_scalar, &
-                 bc_list_add
+       bc_list_add
   use mesh, only : mesh_t
   use checkpoint, only : chkp_t
   use coefs, only : coef_t
@@ -199,7 +199,7 @@ contains
     end if
 
     call this%bc_res%mark_zones_from_list(msh%labeled_zones, 'd_s', &
-                                         this%bc_labels)
+         this%bc_labels)
     call this%bc_res%finalize()
     call this%bc_res%set_g(0.0_rp)
 
@@ -208,8 +208,8 @@ contains
 
 
     ! Intialize projection space
-    call this%proj_s%init(this%dm_Xh%size(), this%projection_dim,  &
-                            this%projection_activ_step)
+    call this%proj_s%init(this%dm_Xh%size(), this%projection_dim, &
+         this%projection_activ_step)
 
     ! Add lagged term to checkpoint
     ! @todo Init chkp object, note, adding 3 slags
@@ -220,8 +220,8 @@ contains
 
     ! Initialize advection factory
     call advection_factory(this%adv, params, this%c_Xh, &
-                           ulag, vlag, wlag, this%chkp%dtlag, &
-                           this%chkp%tlag, time_scheme, this%slag)
+         ulag, vlag, wlag, this%chkp%dtlag, &
+         this%chkp%tlag, time_scheme, this%slag)
   end subroutine scalar_pnpn_init
 
   !> I envision the arguments to this func might need to be expanded
@@ -238,17 +238,17 @@ contains
     call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s%x, this%s%x_d, &
-                          n, HOST_TO_DEVICE, sync = .false.)
+            n, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%slag%lf(1)%x, this%slag%lf(1)%x_d, &
-                          n, HOST_TO_DEVICE, sync = .false.)
+            n, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%slag%lf(2)%x, this%slag%lf(2)%x_d, &
-                          n, HOST_TO_DEVICE, sync = .false.)
+            n, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%abx1%x, this%abx1%x_d, &
-                          n, HOST_TO_DEVICE, sync = .false.)
+            n, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%abx2%x, this%abx2%x_d, &
-                          n, HOST_TO_DEVICE, sync = .false.)
+            n, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%advs%x, this%advs%x_d, &
-                          n, HOST_TO_DEVICE, sync = .false.)
+            n, HOST_TO_DEVICE, sync = .false.)
     end if
 
     call this%gs_Xh%op(this%s, GS_OP_ADD)
@@ -340,7 +340,7 @@ contains
       end if
 
       ! Compute the source terms
-      call this%source_term%compute(t, tstep, dt)
+      call this%source_term%compute(t, tstep)
 
       ! Compute the grandient jump penalty term
       if (this%if_gradient_jump_penalty .eqv. .true.) then
@@ -354,23 +354,23 @@ contains
       if (oifs) then
          ! Add the advection operators to the right-hans-side.
          call this%adv%compute_scalar(u, v, w, s, this%advs, &
-                                   Xh, this%c_Xh, dm_Xh%size())
+              Xh, this%c_Xh, dm_Xh%size())
 
          call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
-                                     ext_bdf%advection_coeffs, n)
+              ext_bdf%advection_coeffs, n)
 
          call makeoifs%compute_scalar(this%advs%x, f_Xh%x, rho, dt, n)
       else
          ! Add the advection operators to the right-hans-side.
          call this%adv%compute_scalar(u, v, w, s, f_Xh, &
-                                      Xh, this%c_Xh, dm_Xh%size())
+              Xh, this%c_Xh, dm_Xh%size())
 
          ! At this point the RHS contains the sum of the advection operator,
          ! Neumann boundary sources and additional source terms, evaluated using
          ! the scalar field from the previous time-step. Now, this value is used in
          ! the explicit time scheme to advance these terms in time.
          call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
-                                     ext_bdf%advection_coeffs, n)
+              ext_bdf%advection_coeffs, n)
 
          ! Add the RHS contributions coming from the BDF scheme.
          call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho, dt, &
@@ -393,7 +393,7 @@ contains
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar_residual', 20)
-      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, lambda_field, &
+      call res%compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda_field, &
            rho*cp, ext_bdf%diffusion_coeffs(1), dt, dm_Xh%size())
 
       call gs_Xh%op(s_res, GS_OP_ADD)
@@ -411,8 +411,8 @@ contains
            c_Xh, this%bclst_ds, gs_Xh)
       call profiler_end_region('Scalar_solve', 21)
 
-     call this%proj_s%post_solving(ds%x, Ax, c_Xh, &
-                                 this%bclst_ds, gs_Xh, n, tstep, dt_controller)
+      call this%proj_s%post_solving(ds%x, Ax, c_Xh, &
+           this%bclst_ds, gs_Xh, n, tstep, dt_controller)
 
       ! Update the solution
       if (NEKO_BCKND_DEVICE .eq. 1) then

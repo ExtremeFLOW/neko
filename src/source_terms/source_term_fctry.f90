@@ -38,18 +38,18 @@ submodule (source_term) source_term_fctry
   use coriolis_source_term, only : coriolis_source_term_t
   use brinkman_source_term, only : brinkman_source_term_t
   use idw_source_term, only : idw_source_term_t
-  use json_module, only : json_file
   use json_utils, only : json_get
   use utils, only : concat_string_array, neko_error
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SOURCE_KNOWN_TYPES(4) = [character(len=20) :: &
-     "constant", &
-     "boussinesq", &
-     "coriolis", &
-     "brinkman", &
-     "idw"]
+  character(len=20), parameter :: SOURCE_KNOWN_TYPES(5) = &
+       [character(len=20) :: &
+       "constant", &
+       "boussinesq", &
+       "coriolis", &
+       "brinkman", &
+       "idw"]
 
 contains
 
@@ -78,11 +78,11 @@ contains
     else if (trim(type_name) .eq. "idw") then
        allocate(idw_source_term_t::object)
     else
-       type_string =  concat_string_array(SOURCE_KNOWN_TYPES, &
+       type_string = concat_string_array(SOURCE_KNOWN_TYPES, &
             NEW_LINE('A') // "-  ", .true.)
        call neko_error("Unknown source term type: " &
-                       // trim(type_name) // ".  Known types are: " &
-                       // type_string)
+            // trim(type_name) // ".  Known types are: " &
+            // type_string)
     end if
 
     ! Initialize

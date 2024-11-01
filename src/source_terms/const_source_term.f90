@@ -56,7 +56,7 @@ module const_source_term
      procedure, pass(this) :: init => const_source_term_init_from_json
      !> The constructor from type components.
      procedure, pass(this) :: init_from_compenents => &
-       const_source_term_init_from_components
+          const_source_term_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => const_source_term_free
      !> Computes the source term and adds the result to `fields`.
@@ -82,7 +82,7 @@ contains
 
 
     call const_source_term_init_from_components(this, fields, values, coef, &
-                                                start_time, end_time)
+         start_time, end_time)
 
   end subroutine const_source_term_init_from_json
 
@@ -93,7 +93,7 @@ contains
   !! @param start_time When to start adding the source term.
   !! @param end_time When to stop adding the source term.
   subroutine const_source_term_init_from_components(this, fields, values, &
-                                                    coef, start_time, end_time)
+       coef, start_time, end_time)
     class(const_source_term_t), intent(inout) :: this
     class(field_list_t), intent(inout), target :: fields
     real(kind=rp), intent(in) :: values(:)
@@ -121,10 +121,9 @@ contains
   !> Computes the source term and adds the result to `fields`.
   !! @param t The time value.
   !! @param tstep The current time-step.
-  subroutine const_source_term_compute(this, t, tstep, dt)
+  subroutine const_source_term_compute(this, t, tstep)
     class(const_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
-    real(kind=rp), intent(in) :: dt
     integer, intent(in) :: tstep
     integer :: n_fields, i, n
 

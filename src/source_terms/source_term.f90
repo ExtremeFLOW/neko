@@ -100,11 +100,10 @@ module source_term
      !> Computes the source term and adds the result to `fields`.
      !! @param t The time value.
      !! @param tstep The current time-step.
-     subroutine source_term_compute(this, t, tstep, dt)
+     subroutine source_term_compute(this, t, tstep)
        import source_term_t, rp
        class(source_term_t), intent(inout) :: this
        real(kind=rp), intent(in) :: t
-       real(kind=rp), intent(in) :: dt
        integer, intent(in) :: tstep
      end subroutine source_term_compute
   end interface
@@ -123,7 +122,7 @@ module source_term
   end interface
 
   public :: source_term_factory
-  
+
 contains
 
   !> Constructor for the `source_term_t` (base) type.
@@ -176,14 +175,13 @@ contains
   !> Executes `compute_` based on time conditions.
   !> @param t Time value.
   !> @param tstep Current time step.
-  subroutine source_term_compute_wrapper(this, t, tstep, dt)
+  subroutine source_term_compute_wrapper(this, t, tstep)
     class(source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
-    real(kind=rp), intent(in) :: dt
     integer, intent(in) :: tstep
 
     if (t .ge. this%start_time .and. t .le. this%end_time) then
-       call this%compute_(t, tstep, dt)
+       call this%compute_(t, tstep)
     end if
 
   end subroutine source_term_compute_wrapper

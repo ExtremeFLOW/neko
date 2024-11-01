@@ -64,7 +64,7 @@ module fluid_pnpn
   use math, only : col2, glsum
   use mathops, only : opadd2cm, opcolv
   use bc, only: bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
-                bc_list_apply_scalar, bc_list_apply_vector
+       bc_list_apply_scalar, bc_list_apply_vector
   use utils, only : neko_error
   use field_math, only : field_add2
   implicit none
@@ -88,11 +88,11 @@ module fluid_pnpn
 
      type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
      type(facet_normal_t) :: bc_sym_surface !< Surface term in pressure rhs
-     type(dirichlet_t) :: bc_vel_res   !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_p  !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_u  !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_v  !< Dirichlet condition vel. res.
-     type(dirichlet_t) :: bc_field_dirichlet_w  !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_vel_res !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_p !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_u !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_v !< Dirichlet condition vel. res.
+     type(dirichlet_t) :: bc_field_dirichlet_w !< Dirichlet condition vel. res.
      type(non_normal_t) :: bc_vel_res_non_normal !< Dirichlet condition vel. res
      type(bc_list_t) :: bclst_vel_res
      type(bc_list_t) :: bclst_du
@@ -229,41 +229,41 @@ contains
     call this%bc_prs_surface%init_base(this%c_Xh)
     call this%bc_prs_surface%mark_zone(msh%inlet)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'v', this%bc_labels)
+         'v', this%bc_labels)
     ! This impacts the rhs of the pressure,
     ! need to check what is correct to add here
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'd_vel_u', this%bc_labels)
+         'd_vel_u', this%bc_labels)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'd_vel_v', this%bc_labels)
+         'd_vel_v', this%bc_labels)
     call this%bc_prs_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'd_vel_w', this%bc_labels)
+         'd_vel_w', this%bc_labels)
     call this%bc_prs_surface%finalize()
     ! Initialize symmetry surface terms in pressure rhs
     call this%bc_sym_surface%init_base(this%c_Xh)
     call this%bc_sym_surface%mark_zone(msh%sympln)
     call this%bc_sym_surface%mark_zones_from_list(msh%labeled_zones,&
-                                                 'sym', this%bc_labels)
+         'sym', this%bc_labels)
     ! Same here, should du, dv, dw be marked here?
     call this%bc_sym_surface%finalize()
     ! Initialize dirichlet bcs for velocity residual
     call this%bc_vel_res_non_normal%init_base(this%c_Xh)
     call this%bc_vel_res_non_normal%mark_zone(msh%outlet_normal)
     call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
-                                                         'on', this%bc_labels)
+         'on', this%bc_labels)
     call this%bc_vel_res_non_normal%mark_zones_from_list(msh%labeled_zones,&
-                                                         'on+dong', &
-                                                         this%bc_labels)
+         'on+dong', &
+         this%bc_labels)
     call this%bc_vel_res_non_normal%finalize()
     call this%bc_vel_res_non_normal%init(this%c_Xh)
 
     call this%bc_field_dirichlet_p%init_base(this%c_Xh)
     call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, &
-      'on+dong', this%bc_labels)
+         'on+dong', this%bc_labels)
     call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, &
-      'o+dong', this%bc_labels)
+         'o+dong', this%bc_labels)
     call this%bc_field_dirichlet_p%mark_zones_from_list(msh%labeled_zones, &
-      'd_pres', this%bc_labels)
+         'd_pres', this%bc_labels)
     call this%bc_field_dirichlet_p%finalize()
     call this%bc_field_dirichlet_p%set_g(0.0_rp)
     call bc_list_init(this%bclst_dp)
@@ -273,21 +273,21 @@ contains
 
     call this%bc_field_dirichlet_u%init_base(this%c_Xh)
     call this%bc_field_dirichlet_u%mark_zones_from_list( &
-      msh%labeled_zones, 'd_vel_u', this%bc_labels)
+         msh%labeled_zones, 'd_vel_u', this%bc_labels)
     call this%bc_field_dirichlet_u%finalize()
     call this%bc_field_dirichlet_u%set_g(0.0_rp)
 
     call this%bc_field_dirichlet_v%init_base(this%c_Xh)
     call this%bc_field_dirichlet_v%mark_zones_from_list(msh%labeled_zones, &
-                                                        'd_vel_v', &
-                                                        this%bc_labels)
+         'd_vel_v', &
+         this%bc_labels)
     call this%bc_field_dirichlet_v%finalize()
     call this%bc_field_dirichlet_v%set_g(0.0_rp)
 
     call this%bc_field_dirichlet_w%init_base(this%c_Xh)
     call this%bc_field_dirichlet_w%mark_zones_from_list(msh%labeled_zones, &
-                                                       'd_vel_w', &
-                                                        this%bc_labels)
+         'd_vel_w', &
+         this%bc_labels)
     call this%bc_field_dirichlet_w%finalize()
     call this%bc_field_dirichlet_w%set_g(0.0_rp)
 
@@ -295,9 +295,9 @@ contains
     call this%bc_vel_res%mark_zone(msh%inlet)
     call this%bc_vel_res%mark_zone(msh%wall)
     call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
-                                              'v', this%bc_labels)
+         'v', this%bc_labels)
     call this%bc_vel_res%mark_zones_from_list(msh%labeled_zones, &
-                                              'w', this%bc_labels)
+         'w', this%bc_labels)
     call this%bc_vel_res%finalize()
     call this%bc_vel_res%set_g(0.0_rp)
     call bc_list_init(this%bclst_vel_res)
@@ -335,21 +335,21 @@ contains
     !Intialize projection space thingy
 
     if (this%variable_material_properties .and. &
-          this%vel_projection_dim .gt. 0) then
+         this%vel_projection_dim .gt. 0) then
        call neko_error("Velocity projection not available for full stress &
-             &formulation")
+            &formulation")
     end if
 
 
     call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
-                              this%pr_projection_activ_step)
+         this%pr_projection_activ_step)
 
     call this%proj_u%init(this%dm_Xh%size(), this%vel_projection_dim, &
-                              this%vel_projection_activ_step)
+         this%vel_projection_activ_step)
     call this%proj_v%init(this%dm_Xh%size(), this%vel_projection_dim, &
-                              this%vel_projection_activ_step)
+         this%vel_projection_activ_step)
     call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim, &
-                              this%vel_projection_activ_step)
+         this%vel_projection_activ_step)
 
 
     ! Add lagged term to checkpoint
@@ -360,8 +360,8 @@ contains
 
     ! Initialize the advection factory
     call advection_factory(this%adv, params, this%c_Xh, &
-                           this%ulag, this%vlag, this%wlag, &
-                           this%chkp%dtlag, this%chkp%tlag, time_scheme)
+         this%ulag, this%vlag, this%wlag, &
+         this%chkp%dtlag, this%chkp%tlag, time_scheme)
 
     if (params%valid_path('case.fluid.flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)
@@ -377,7 +377,7 @@ contains
 
     n = this%u%dof%size()
     if (allocated(this%chkp%previous_mesh%elements) .or. &
-        this%chkp%previous_Xh%lx .ne. this%Xh%lx) then
+         this%chkp%previous_Xh%lx .ne. this%Xh%lx) then
        call col2(this%u%x, this%c_Xh%mult, this%u%dof%size())
        call col2(this%v%x, this%c_Xh%mult, this%u%dof%size())
        call col2(this%w%x, this%c_Xh%mult, this%u%dof%size())
@@ -394,45 +394,45 @@ contains
             ulag => this%ulag, vlag => this%vlag, wlag => this%wlag,&
             p => this%p)
          call device_memcpy(u%x, u%x_d, u%dof%size(), &
-                            HOST_TO_DEVICE, sync = .false.)
+              HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(v%x, v%x_d, v%dof%size(), &
-                            HOST_TO_DEVICE, sync = .false.)
+              HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(w%x, w%x_d, w%dof%size(), &
-                            HOST_TO_DEVICE, sync = .false.)
+              HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(p%x, p%x_d, p%dof%size(), &
-                            HOST_TO_DEVICE, sync = .false.)
+              HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(ulag%lf(1)%x, ulag%lf(1)%x_d, &
-                            u%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              u%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(ulag%lf(2)%x, ulag%lf(2)%x_d, &
-                            u%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              u%dof%size(), HOST_TO_DEVICE, sync = .false.)
 
          call device_memcpy(vlag%lf(1)%x, vlag%lf(1)%x_d, &
-                            v%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              v%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(vlag%lf(2)%x, vlag%lf(2)%x_d, &
-                            v%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              v%dof%size(), HOST_TO_DEVICE, sync = .false.)
 
          call device_memcpy(wlag%lf(1)%x, wlag%lf(1)%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(wlag%lf(2)%x, wlag%lf(2)%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(this%abx1%x, this%abx1%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(this%abx2%x, this%abx2%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(this%aby1%x, this%aby1%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(this%aby2%x, this%aby2%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(this%abz1%x, this%abz1%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(this%abz2%x, this%abz2%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(this%advx%x, this%advx%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(this%advy%x, this%advy%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
          call device_memcpy(this%advz%x, this%advz%x_d, &
-                            w%dof%size(), HOST_TO_DEVICE, sync = .false.)
+              w%dof%size(), HOST_TO_DEVICE, sync = .false.)
        end associate
     end if
     ! Make sure that continuity is maintained (important for interpolation)
@@ -637,7 +637,7 @@ contains
            ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
 
       ! Compute the source terms
-      call this%source_term%compute(t, tstep, dt)
+      call this%source_term%compute(t, tstep)
 
       ! Add Neumann bc contributions to the RHS
       call bc_list_apply_vector(this%bclst_vel_neumann, f_x%x, f_y%x, f_z%x, &
@@ -656,41 +656,41 @@ contains
       if (oifs) then
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
-                               this%advx, this%advy, this%advz, &
-                               Xh, this%c_Xh, dm_Xh%size(), dt)
+              this%advx, this%advy, this%advz, &
+              Xh, this%c_Xh, dm_Xh%size(), dt)
 
          ! At this point the RHS contains the sum of the advection operator and
          ! additional source terms, evaluated using the velocity field from the
          ! previous time-step. Now, this value is used in the explicit time
          ! scheme to advance both terms in time.
          call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
-                                    this%abx2, this%aby2, this%abz2, &
-                                    f_x%x, f_y%x, f_z%x, &
-                                    rho, ext_bdf%advection_coeffs, n)
+              this%abx2, this%aby2, this%abz2, &
+              f_x%x, f_y%x, f_z%x, &
+              rho, ext_bdf%advection_coeffs, n)
 
          ! Now, the source terms from the previous time step are added to the RHS.
          call makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &
-                                     f_x%x, f_y%x, f_z%x, &
-                                     rho, dt, n)
+              f_x%x, f_y%x, f_z%x, &
+              rho, dt, n)
       else
-        ! Add the advection operators to the right-hand-side.
+         ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
-                               f_x, f_y, f_z, &
-                               Xh, this%c_Xh, dm_Xh%size())
+              f_x, f_y, f_z, &
+              Xh, this%c_Xh, dm_Xh%size())
 
          ! At this point the RHS contains the sum of the advection operator and
          ! additional source terms, evaluated using the velocity field from the
          ! previous time-step. Now, this value is used in the explicit time
          ! scheme to advance both terms in time.
          call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
-                              this%abx2, this%aby2, this%abz2, &
-                              f_x%x, f_y%x, f_z%x, &
-                              rho, ext_bdf%advection_coeffs, n)
+              this%abx2, this%aby2, this%abz2, &
+              f_x%x, f_y%x, f_z%x, &
+              rho, ext_bdf%advection_coeffs, n)
 
          ! Add the RHS contributions coming from the BDF scheme.
          call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
-                              u, v, w, c_Xh%B, rho, dt, &
-                              ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+              u, v, w, c_Xh%B, rho, dt, &
+              ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
       end if
 
       call ulag%update()
@@ -701,7 +701,7 @@ contains
       !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
       !> Apply the user dirichlet boundary condition
       call this%user_field_bc_vel%update(this%user_field_bc_vel%field_list, &
-              this%user_field_bc_vel%bc_list, this%c_Xh, t, tstep, "fluid")
+           this%user_field_bc_vel%bc_list, this%c_Xh, t, tstep, "fluid")
 
       call this%bc_apply_vel(t, tstep)
       call this%bc_apply_prs(t, tstep)
@@ -712,50 +712,50 @@ contains
       ! Compute pressure.
       call profiler_start_region('Pressure_residual', 18)
       call prs_res%compute(p, p_res,&
-                           u, v, w, &
-                           u_e, v_e, w_e, &
-                           f_x, f_y, f_z, &
-                           c_Xh, gs_Xh, &
-                           this%bc_prs_surface, this%bc_sym_surface,&
-                           Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
-                           mu_field, rho_field)
+           u, v, w, &
+           u_e, v_e, w_e, &
+           f_x, f_y, f_z, &
+           c_Xh, gs_Xh, &
+           this%bc_prs_surface, this%bc_sym_surface,&
+           Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
+           mu_field, rho_field)
 
       call gs_Xh%op(p_res, GS_OP_ADD)
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
       call profiler_end_region('Pressure_residual', 18)
 
       call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
-                                     'Pressure')
+           'Pressure')
 
       call this%pc_prs%update()
       call profiler_start_region('Pressure_solve', 3)
       ksp_results(1) = &
-         this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, this%bclst_dp, gs_Xh)
+           this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, this%bclst_dp, gs_Xh)
 
       call profiler_end_region('Pressure_solve', 3)
 
       call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
-                                 this%bclst_dp, gs_Xh, n, tstep, dt_controller)
+           this%bclst_dp, gs_Xh, n, tstep, dt_controller)
 
       call field_add2(p, dp, n)
 
       ! Compute velocity.
       call profiler_start_region('Velocity_residual', 19)
       call vel_res%compute(Ax_vel, u, v, w, &
-                           u_res, v_res, w_res, &
-                           p, &
-                           f_x, f_y, f_z, &
-                           c_Xh, msh, Xh, &
-                           mu_field, rho_field, ext_bdf%diffusion_coeffs(1), &
-                           dt, dm_Xh%size())
+           u_res, v_res, w_res, &
+           p, &
+           f_x, f_y, f_z, &
+           c_Xh, msh, Xh, &
+           mu_field, rho_field, ext_bdf%diffusion_coeffs(1), &
+           dt, dm_Xh%size())
 
       call gs_Xh%op(u_res, GS_OP_ADD)
       call gs_Xh%op(v_res, GS_OP_ADD)
       call gs_Xh%op(w_res, GS_OP_ADD)
 
       call bc_list_apply_vector(this%bclst_vel_res,&
-                                u_res%x, v_res%x, w_res%x, dm_Xh%size(),&
-                                t, tstep)
+           u_res%x, v_res%x, w_res%x, dm_Xh%size(),&
+           t, tstep)
 
       ! We should implement a bc that takes three field_bcs and implements
       ! vector_apply
@@ -784,11 +784,11 @@ contains
       call profiler_end_region("Velocity_solve", 4)
 
       call this%proj_u%post_solving(du%x, Ax_vel, c_Xh, &
-                                 this%bclst_du, gs_Xh, n, tstep, dt_controller)
+           this%bclst_du, gs_Xh, n, tstep, dt_controller)
       call this%proj_v%post_solving(dv%x, Ax_vel, c_Xh, &
-                                 this%bclst_dv, gs_Xh, n, tstep, dt_controller)
+           this%bclst_dv, gs_Xh, n, tstep, dt_controller)
       call this%proj_w%post_solving(dw%x, Ax_vel, c_Xh, &
-                                 this%bclst_dw, gs_Xh, n, tstep, dt_controller)
+           this%bclst_dw, gs_Xh, n, tstep, dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opadd2cm(u%x_d, v%x_d, w%x_d, &
