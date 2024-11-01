@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2021, The Neko Authors
+! Copyright (c) 2019-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,24 +38,28 @@ module json_utils
   implicit none
   private
 
-  public :: json_get, json_get_or_default, json_extract_item
+  public :: json_get, json_get_or_default, json_extract_item, &
+       json_extract_object
 
   !> Retrieves a parameter by name or throws an error
   interface json_get
      module procedure json_get_real, json_get_double, json_get_integer, &
-       json_get_logical, json_get_string, json_get_real_array, &
-       json_get_double_array, json_get_integer_array, json_get_logical_array, &
-       json_get_string_array
+          json_get_logical, json_get_string, json_get_real_array, &
+          json_get_double_array, json_get_integer_array, &
+          json_get_logical_array, json_get_string_array, json_get_subdict
   end interface json_get
 
   !> Retrieves a parameter by name or assigns a provided default value.
   !! In the latter case also adds the missing paramter to the json
   interface json_get_or_default
-     module procedure json_get_or_default_real,json_get_or_default_double, &
-       json_get_or_default_integer, &
-       json_get_or_default_string, json_get_or_default_logical
+     module procedure json_get_or_default_real, json_get_or_default_double, &
+          json_get_or_default_integer, json_get_or_default_string, &
+          json_get_or_default_logical
   end interface json_get_or_default
 
+  interface json_extract_item
+     module procedure json_extract_item_from_array, json_extract_item_from_name
+  end interface json_extract_item
 contains
 
   !> Retrieves a real parameter by name or throws an error
@@ -66,155 +70,146 @@ contains
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     real(kind=sp), intent(out) :: value
-    logical :: found
 
-    call json%get(name, value, found)
-
-    if (.not. found) then
-       call neko_error("Parameter "//name//" missing from the case file")
+    if (.not. json%valid_path(name)) then
+       call neko_error("Parameter " // name // " missing from the case file")
     end if
+
+    call json%get(name, value)
   end subroutine json_get_real
 
   !> Retrieves a double precision real parameter by name or throws an error
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
-  !! @param[out] value The variable to be populated with the retrieved parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   subroutine json_get_double(json, name, value)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     real(kind=dp), intent(out) :: value
-    logical :: found
 
-    call json%get(name, value, found)
-
-    if (.not. found) then
-       call neko_error("Parameter "//name//" missing from the case file")
+    if (.not. json%valid_path(name)) then
+       call neko_error("Parameter " // name // " missing from the case file")
     end if
+
+    call json%get(name, value)
   end subroutine json_get_double
 
   !> Retrieves an integer parameter by name or throws an error
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
-  !! @param[out] value The variable to be populated with the retrieved parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   subroutine json_get_integer(json, name, value)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     integer, intent(out) :: value
-    logical :: found
 
-    call json%get(name, value, found)
-
-    if (.not. found) then
-       call neko_error("Parameter "//name//" missing from the case file")
+    if (.not. json%valid_path(name)) then
+       call neko_error("Parameter " // name // " missing from the case file")
     end if
+
+    call json%get(name, value)
   end subroutine json_get_integer
 
   !> Retrieves a logical parameter by name or throws an error
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
-  !! @param[out] value The variable to be populated with the retrieved parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   subroutine json_get_logical(json, name, value)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     logical, intent(out) :: value
-    logical :: found
 
-    call json%get(name, value, found)
-
-    if (.not. found) then
-       call neko_error("Parameter "//name//" missing from the case file")
+    if (.not. json%valid_path(name)) then
+       call neko_error("Parameter " // name // " missing from the case file")
     end if
+
+    call json%get(name, value)
   end subroutine json_get_logical
 
   !> Retrieves a string parameter by name or throws an error
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
-  !! @param[out] value The variable to be populated with the retrieved parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   subroutine json_get_string(json, name, value)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     character(len=:), allocatable, intent(out) :: value
-    logical :: found
 
-    call json%get(name, value, found)
-
-    if (.not. found) then
-       call neko_error("Parameter "//name//" missing from the case file")
+    if (.not. json%valid_path(name)) then
+       call neko_error("Parameter " // name // " missing from the case file")
     end if
+
+    call json%get(name, value)
   end subroutine json_get_string
 
   !> Retrieves a real array parameter by name or throws an error
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
-  !! @param[out] value The variable to be populated with the retrieved parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   subroutine json_get_real_array(json, name, value)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     real(kind=sp), allocatable, intent(out) :: value(:)
-    logical :: found
 
-    call json%get(name, value, found)
-
-    if (.not. found) then
-       call neko_error("Parameter "//name//" missing from the case file")
+    if (.not. json%valid_path(name)) then
+       call neko_error("Parameter " // name // " missing from the case file")
     end if
+
+    call json%get(name, value)
   end subroutine json_get_real_array
 
   !> Retrieves a real array parameter by name or throws an error
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
-  !! @param[out] value The variable to be populated with the retrieved parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   subroutine json_get_double_array(json, name, value)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     real(kind=dp), allocatable, intent(out) :: value(:)
-    logical :: found
 
-    call json%get(name, value, found)
-
-    if (.not. found) then
-       call neko_error("Parameter "//name//" missing from the case file")
+    if (.not. json%valid_path(name)) then
+       call neko_error("Parameter " // name // " missing from the case file")
     end if
+
+    call json%get(name, value)
   end subroutine json_get_double_array
 
   !> Retrieves a integer array parameter by name or throws an error
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
-  !! @param[out] value The variable to be populated with the retrieved parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   subroutine json_get_integer_array(json, name, value)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     integer, allocatable, intent(out) :: value(:)
-    logical :: found
 
-    call json%get(name, value, found)
-
-    if (.not. found) then
-       call neko_error("Parameter "//name//" missing from the case file")
+    if (.not. json%valid_path(name)) then
+       call neko_error("Parameter " // name // " missing from the case file")
     end if
+
+    call json%get(name, value)
   end subroutine json_get_integer_array
 
   !> Retrieves a logical array parameter by name or throws an error
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
-  !! @param[out] value The variable to be populated with the retrieved parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   subroutine json_get_logical_array(json, name, value)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
     logical, allocatable, intent(out) :: value(:)
-    logical :: found
 
-    call json%get(name, value, found)
-
-    if (.not. found) then
-       call neko_error("Parameter "//name//" missing from the case file")
+    if (.not. json%valid_path(name)) then
+       call neko_error("Parameter " // name // " missing from the case file")
     end if
+
+    call json%get(name, value)
   end subroutine json_get_logical_array
 
   !> Retrieves a string array parameter by name or throws an error
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
-  !! @param[out] value The variable to be populated with the retrieved parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   !! @param[in] filler The default string to fill empty array items with.
   subroutine json_get_string_array(json, name, value, filler)
     type(json_file), intent(inout) :: json
@@ -228,9 +223,9 @@ contains
     integer :: i, n_children
 
     if (.not. json%valid_path(name)) then
-       call neko_error("Parameter "//name//" missing from the case file")
+       call neko_error("Parameter " // name // " missing from the case file")
     end if
-    call json%info(name, n_children=n_children)
+    call json%info(name, n_children = n_children)
 
     if (.not. allocated(value)) then
        allocate(value(n_children))
@@ -248,18 +243,40 @@ contains
 
        if (len(string_value) .gt. 0) then
           value(i) = string_value
-       else if(present(filler)) then
+       else if (present(filler)) then
           value(i) = filler
        end if
     end do
 
   end subroutine json_get_string_array
 
+  !> Extract a sub-object from a json object.
+  subroutine json_get_subdict(json, key, output)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: key
+    type(json_file), intent(out) :: output
+
+    type(json_value), pointer :: child
+    logical :: valid
+
+    valid = .false.
+    call json%get(key, child, valid)
+    if (.not. valid) then
+       call neko_error('Parameter "' // &
+            trim(key) // '" missing from the case file')
+    end if
+
+    call output%initialize()
+    call output%add(child)
+    nullify(child)
+
+  end subroutine json_get_subdict
+
   !> Retrieves a real parameter by name or assigns a provided default value.
   !! In the latter case also adds the missing paramter to the json.
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
-  !! @param[out] value The variable to be populated with the retrieved parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   subroutine json_get_or_default_real(json, name, value, default)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -279,7 +296,7 @@ contains
   !! In the latter case also adds the missing paramter to the json.
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
-  !! @param[out] value The variable to be populated with the retrieved parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   subroutine json_get_or_default_double(json, name, value, default)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -299,7 +316,7 @@ contains
   !! In the latter case also adds the missing paramter to the json.
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
-  !! @param[out] value The variable to be populated with the retrieved parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   subroutine json_get_or_default_integer(json, name, value, default)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -319,7 +336,7 @@ contains
   !! In the latter case also adds the missing paramter to the json.
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
-  !! @param[out] value The variable to be populated with the retrieved parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   subroutine json_get_or_default_logical(json, name, value, default)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -339,7 +356,7 @@ contains
   !! In the latter case also adds the missing paramter to the json.
   !! @param[inout] json The json to retrieve the parameter from.
   !! @param[in] name The full path to the parameter.
-  !! @param[out] value The variable to be populated with the retrieved parameter.
+  !! @param[out] value The variable to be populated with the retrieved parameter
   subroutine json_get_or_default_string(json, name, value, default)
     type(json_file), intent(inout) :: json
     character(len=*), intent(in) :: name
@@ -360,7 +377,7 @@ contains
   !! @param[in] array The JSON object with the array.
   !! @param[in] i The index of the item to extract.
   !! @param[inout] item JSON object object to be filled with the subdict.
-  subroutine json_extract_item(core, array, i, item)
+  subroutine json_extract_item_from_array(core, array, i, item)
     type(json_core), intent(inout) :: core
     type(json_value), pointer, intent(in) :: array
     integer, intent(in) :: i
@@ -373,6 +390,62 @@ contains
     call core%print_to_string(ptr, buffer)
     call item%load_from_string(buffer)
 
-  end subroutine json_extract_item
+  end subroutine json_extract_item_from_array
+
+  !> Extract `i`th item from a JSON array as a separate JSON object.
+  !! @param[inout] json The JSON object with the array.
+  !! @param[in] name The name of the array.
+  !! @param[in] i The index of the item to extract.
+  !! @param[inout] item JSON object object to be filled with the subdict.
+  subroutine json_extract_item_from_name(json, name, i, item)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+    integer, intent(in) :: i
+    type(json_file), intent(out) :: item
+
+    type(json_core) :: core
+    type(json_value), pointer :: array
+    type(json_value), pointer :: ptr
+    logical :: found
+    character(len=:), allocatable :: buffer
+
+    call json%get_core(core)
+    call json%get(name, array, found)
+
+    if (.not. found) then
+       call neko_error("Parameter " // name // " missing from the case file")
+    end if
+
+    call core%get_child(array, i, ptr, found)
+    call core%print_to_string(ptr, buffer)
+    call item%load_from_string(buffer)
+
+  end subroutine json_extract_item_from_name
+
+  !> Extract object as a separate  JSON dictionary.
+  !! @param[inout] json The JSON with the object to be extracted.
+  !! @param[in] name The name of the object to extract.
+  !! @param[inout] object The extracted JSON object.
+  subroutine json_extract_object(json, name, object)
+    type(json_file), intent(inout) :: json
+    character(len=*), intent(in) :: name
+    type(json_file), intent(inout) :: object
+
+    type(json_value), pointer :: ptr
+    type(json_core)  :: core
+    logical :: found
+    character(len=:), allocatable :: buffer
+
+    call json%get_core(core)
+    call json%get(name, ptr, found)
+
+    if (.not. found) then
+       call neko_error("Object " // name // " missing from the case file")
+    end if
+
+    call core%print_to_string(ptr, buffer)
+    call object%load_from_string(buffer)
+
+  end subroutine json_extract_object
 
 end module json_utils

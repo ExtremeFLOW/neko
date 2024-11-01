@@ -65,7 +65,10 @@
 module mathops
   use num_types, only : rp
   implicit none
+  private
 
+  public :: opchsign, opcolv, opcolv3c, opadd2cm, opadd2col
+  
 contains
 
   !> \f$ a_i(j) = -a_i(j) \f$ for \f$j=1 \ldots n\f$ and \f$i=1 \ldots gdim\f$.
@@ -130,7 +133,7 @@ contains
           a1(i) =  b1(i)*c(i)*d
           a2(i) =  b2(i)*c(i)*d
        end do
-    endif
+    end if
 
   end subroutine opcolv3c
 
@@ -153,7 +156,7 @@ contains
           a1(i) = a1(i) + b1(i)*c
           a2(i) = a2(i) + b2(i)*c
        end do
-    endif
+    end if
 
   end subroutine opadd2cm
 
@@ -176,7 +179,7 @@ contains
           a1(i) = a1(i) + b1(i)*c(i)
           a2(i) = a2(i) + b2(i)*c(i)
        end do
-    endif
+    end if
 
   end subroutine opadd2col
 

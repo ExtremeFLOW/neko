@@ -295,7 +295,7 @@ contains
     class(facet_zone_t), intent(inout) :: bc_zones(:)
     character(len=*) :: bc_key
     character(len=100), allocatable :: split_key(:)
-    character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
+    character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_labels(:)
     integer :: i, j, k, l, msh_bc_type
 
     msh_bc_type = 0
@@ -316,9 +316,13 @@ contains
        msh_bc_type = 2
     else if(trim(bc_key) .eq. 'sym') then
        msh_bc_type = 2
+    else if(trim(bc_key) .eq. 'sh') then
+       msh_bc_type = 2
+    else if(trim(bc_key) .eq. 'wm') then
+       msh_bc_type = 2
     end if
 
-    do i = 1, NEKO_MSH_MAX_ZLBLS
+    do i = 1, size(bc_labels)
        !Check if several bcs are defined for this zone
        !bcs are seperated by /, but we could use something else
        if (index(trim(bc_labels(i)), '/') .eq. 0) then

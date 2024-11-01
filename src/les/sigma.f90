@@ -47,7 +47,7 @@ module sigma
   private
 
   !> Implements the Sigma LES model.
-  !! @note Reference DOI: 10.1063/1.3623274 
+  !! @note Reference DOI: 10.1063/1.3623274
   type, public, extends(les_model_t) :: sigma_t
      !> Model constant, default to 1.35.
      real(kind=rp) :: c
@@ -76,7 +76,7 @@ contains
     real(kind=rp) :: c
     character(len=:), allocatable :: delta_type
 
-    call json_get(json, "nut_field", nut_name)
+    call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     ! Based on  C = 1.35 as default values
     call json_get_or_default(json, "c", c, 1.35_rp)
@@ -89,7 +89,8 @@ contains
   !! @param coef SEM coefficients.
   !! @param c The model constant.
   !! @param nut_name The name of the SGS viscosity field.
-  subroutine sigma_init_from_components(this, dofmap, coef, c, nut_name, delta_type)
+  subroutine sigma_init_from_components(this, dofmap, coef, c, nut_name, &
+       delta_type)
     class(sigma_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), intent(in) :: coef

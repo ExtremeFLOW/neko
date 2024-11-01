@@ -40,7 +40,7 @@ module cg_cpld
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc, only : bc_list_t, bc_list_apply
-  use math, only : glsc3, glsc2, add2s1
+  use math, only : glsc3, glsc2
   use utils, only : neko_error
   implicit none
   private
@@ -70,13 +70,14 @@ module cg_cpld
 contains
 
   !> Initialise a coupled PCG solver
-  subroutine cg_cpld_init(this, n, max_iter, M, rel_tol, abs_tol)
+  subroutine cg_cpld_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
     class(cg_cpld_t), intent(inout) :: this
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
+    logical, optional, intent(in) :: monitor
 
     call this%free()
 
@@ -98,12 +99,20 @@ contains
        this%M => M
     end if
 
-    if (present(rel_tol) .and. present(abs_tol)) then
+    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
+    else if (present(monitor) .and. present(abs_tol)) then
+       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
     else if (present(rel_tol)) then
        call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
        call this%ksp_init(max_iter, abs_tol = abs_tol)
+    else if (present(monitor)) then
+       call this%ksp_init(max_iter, monitor = monitor)
     else
        call this%ksp_init(max_iter)
     end if
@@ -186,7 +195,7 @@ contains
     integer, optional, intent(in) :: niter
 
     ! Throw and error
-    call neko_error('Only defined for coupled solves')
+    call neko_error('The cpldcg solver is only defined for coupled solves')
 
     ksp_results%res_final = 0.0
     ksp_results%iter = 0
@@ -220,7 +229,7 @@ contains
     if (present(niter)) then
        max_iter = niter
     else
-       max_iter = KSP_MAX_ITER
+       max_iter = this%max_iter
     end if
     norm_fac = one / coef%volume
 
@@ -230,7 +239,7 @@ contains
          w3 => this%w3)
 
       rtz1 = one
-      do i = 1, n
+      do concurrent (i = 1:n)
          x%x(i,1,1,1) = 0.0_rp
          y%x(i,1,1,1) = 0.0_rp
          z%x(i,1,1,1) = 0.0_rp
@@ -253,13 +262,14 @@ contains
       ksp_results%iter = 0
       if (rnorm .eq. zero) return
 
+      call this%monitor_start('cpldCG')
       do iter = 1, max_iter
          call this%M%solve(z1, this%r1, n)
          call this%M%solve(z2, this%r2, n)
          call this%M%solve(z3, this%r3, n)
          rtz2 = rtz1
 
-         do i = 1, n
+         do concurrent (i = 1:n)
             this%tmp(i) = z1(i) * r1(i) &
                         + z2(i) * r2(i) &
                         + z3(i) * r3(i)
@@ -269,9 +279,11 @@ contains
 
          beta = rtz1 / rtz2
          if (iter .eq. 1) beta = zero
-         call add2s1(p1, z1, beta, n)
-         call add2s1(p2, z2, beta, n)
-         call add2s1(p3, z3, beta, n)
+         do concurrent (i = 1:n)
+            p1(i) = p1(i) * beta + z1(i)
+            p2(i) = p2(i) * beta + z2(i)
+            p3(i) = p3(i) * beta + z3(i)
+         end do
 
          call Ax%compute_vector(w1, w2, w3, p1, p2, p3, coef, x%msh, x%Xh)
          call gs_h%op(w1, n, GS_OP_ADD)
@@ -281,7 +293,7 @@ contains
          call bc_list_apply(blsty, w2, n)
          call bc_list_apply(blstz, w3, n)
 
-         do i = 1, n
+         do concurrent (i = 1:n)
             tmp(i) = w1(i) * p1(i) &
                    + w2(i) * p2(i) &
                    + w3(i) * p3(i)
@@ -291,7 +303,7 @@ contains
 
          alpha = rtz1 / pap
          alphm = -alpha
-         do i = 1, n
+         do concurrent (i = 1:n)
             x%x(i,1,1,1) = x%x(i,1,1,1) + alpha * p1(i)
             y%x(i,1,1,1) = y%x(i,1,1,1) + alpha * p2(i)
             z%x(i,1,1,1) = z%x(i,1,1,1) + alpha * p3(i)
@@ -304,11 +316,13 @@ contains
          rtr = glsc3(tmp, coef%mult, coef%binv, n)
          if (iter .eq. 1) rtr0 = rtr
          rnorm = sqrt(rtr * norm_fac)
+         call this%monitor_iter(iter, rnorm)
          if (rnorm .lt. this%abs_tol) then
             exit
          end if
       end do
     end associate
+    call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
   end function cg_cpld_solve

@@ -34,7 +34,7 @@
 module cylinder_point_zone
   use point_zone, only: point_zone_t
   use num_types, only: rp
-  use json_utils, only: json_get
+  use json_utils, only: json_get, json_get_or_default
   use json_module, only: json_file
   use utils, only: neko_error
   implicit none
@@ -54,7 +54,8 @@ module cylinder_point_zone
      procedure, pass(this) :: init => cylinder_point_zone_init_from_json
      !> Destructor.
      procedure, pass(this) :: free => cylinder_point_zone_free
-     !> Defines the criterion of selection of a GLL point in the sphere point zone.
+     !> Defines the criterion of selection of a GLL point in the sphere point
+     !! zone.
      procedure, pass(this) :: criterion => cylinder_point_zone_criterion
   end type cylinder_point_zone_t
 
@@ -71,6 +72,7 @@ contains
     character(len=:), allocatable :: name
     real(kind=rp), dimension(:), allocatable :: p0, p1
     real(kind=rp) :: radius
+    logical :: invert
 
     call json_get(json, "name", name)
     call json_get(json, "start", p0)
@@ -90,8 +92,10 @@ contains
        call neko_error("Cylinder point zone: invalid radius")
     end if
 
-    call cylinder_point_zone_init_common(this, size, trim(name), p0, p1, &
-                                         radius)
+    call json_get_or_default(json, "invert", invert, .false.)
+
+    call cylinder_point_zone_init_common(this, size, trim(name), invert, &
+         p0, p1, radius)
 
   end subroutine cylinder_point_zone_init_from_json
 
@@ -101,15 +105,17 @@ contains
   !! @param p0 Coordinates of the first endpoint.
   !! @param p1 Coordinates of the second endpoint.
   !! @param radius Sphere radius.
-  subroutine cylinder_point_zone_init_common(this, size, name, p0, p1, radius)
+  subroutine cylinder_point_zone_init_common(this, size, name, invert, &
+       p0, p1, radius)
     class(cylinder_point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
     character(len=*), intent(in) :: name
+    logical, intent(in) :: invert
     real(kind=rp), intent(in), dimension(3) :: p0
     real(kind=rp), intent(in), dimension(3) :: p1
     real(kind=rp), intent(in) :: radius
 
-    call this%init_base(size, name)
+    call this%init_base(size, name, invert)
 
     this%p0 = p0
     this%p1 = p1
@@ -152,7 +158,8 @@ contains
   !! @param k 2nd nonlinear index of the GLL point.
   !! @param l 3rd nonlinear index of the GLL point.
   !! @param e element index of the GLL point.
-  pure function cylinder_point_zone_criterion(this, x, y, z, j, k, l, e) result(is_inside)
+  pure function cylinder_point_zone_criterion(this, x, y, z, j, k, l, e) &
+       result(is_inside)
     class(cylinder_point_zone_t), intent(in) :: this
     real(kind=rp), intent(in) :: x
     real(kind=rp), intent(in) :: y

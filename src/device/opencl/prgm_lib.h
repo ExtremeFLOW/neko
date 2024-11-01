@@ -80,6 +80,8 @@ extern void *scalar_residual_program;
 /** Device lambda2 kernel */
 extern void *lambda2_program;
 
+/** Device filter kernel */
+extern void *filter_program;
 
 
 #endif

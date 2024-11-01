@@ -79,6 +79,8 @@ module simulation_component
      procedure, pass(this) :: preprocess_
      !> The main function to be executed during the run.
      procedure, pass(this) :: compute_
+     !> The restart function to be called upon restarting simulation
+     procedure, pass(this) :: restart_
   end type simulation_component_t
 
   !> A helper type that is needed to have an array of polymorphic objects
@@ -106,6 +108,21 @@ module simulation_component
        class(simulation_component_t), intent(inout) :: this
      end subroutine simulation_component_free
   end interface
+
+  interface
+     !> Simulation component factory.
+     !! Both constructs and initializes the object.
+     !! @param object The object to be created and initialized.
+     !! @param json JSON object initializing the simulation component.
+     !! @param case The simulation case.
+     module subroutine simulation_component_factory(object, json, case)
+       class(simulation_component_t), allocatable, intent(inout) :: object
+       type(json_file), intent(inout) :: json
+       class(case_t), intent(inout), target :: case
+     end subroutine simulation_component_factory
+  end interface
+
+  public :: simulation_component_factory
 
 contains
   !> Constructor for the `simulation_component_t` (base) class.
@@ -201,8 +218,18 @@ contains
 
     call this%compute_controller%set_counter(t)
     call this%output_controller%set_counter(t)
+    call this%restart_(t) 
 
   end subroutine simulation_component_restart_wrapper
+
+  !> Dummy restart function.
+  !! @param t The time value.
+  subroutine restart_(this, t)
+    class(simulation_component_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+
+    ! Do nothing
+  end subroutine restart_
 
   !> Dummy preprocessing function.
   !! @param t The time value.

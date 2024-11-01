@@ -37,8 +37,13 @@ module signed_distance
   use tri, only: tri_t
   use tri_mesh, only: tri_mesh_t
   use aabb_tree, only: aabb_tree_t
+  use device, only: device_memcpy, HOST_TO_DEVICE
+  use neko_config, only: NEKO_BCKND_DEVICE
+  use utils, only: neko_error, neko_warning
 
   implicit none
+  private
+  public :: signed_distance_field
 
 contains
 
@@ -53,9 +58,6 @@ contains
   !! @param[in] object Object
   !! @param[in,optional] max_distance Maximum distance outside the mesh
   subroutine signed_distance_field(field_data, object, max_distance)
-    use utils, only: neko_error
-    implicit none
-
     type(field_t), intent(inout) :: field_data
     class(*), intent(in) :: object
     real(kind=dp), intent(in), optional :: max_distance
@@ -89,9 +91,6 @@ contains
   !! @param[in] mesh Triangular mesh
   !! @param[in] max_distance Maximum distance outside the mesh
   subroutine signed_distance_field_tri_mesh(field_data, mesh, max_distance)
-    use utils, only: neko_error
-    implicit none
-
     type(field_t), intent(inout) :: field_data
     type(tri_mesh_t), intent(in) :: mesh
     real(kind=dp), intent(in) :: max_distance
@@ -111,7 +110,7 @@ contains
 
     if (search_tree%get_size() .ne. mesh%nelv) then
        call neko_error("signed_distance_field_tri_mesh: &
-         & Error building the search tree.")
+            & Error building the search tree.")
     end if
 
     do id = 1, total_size
@@ -123,6 +122,13 @@ contains
 
        field_data%x(id, 1, 1, 1) = real(distance, kind=rp)
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call neko_warning("signed_distance_field_tri_mesh:&
+            & Device version not implemented.")
+       call device_memcpy(field_data%x, field_data%x_d, field_data%size(), &
+            HOST_TO_DEVICE, sync = .false.)
+    end if
 
   end subroutine signed_distance_field_tri_mesh
 

@@ -140,11 +140,10 @@ contains
   !> Add all the source term to the passed right-hand side fields.
   !! @param t The time value.
   !! @param tstep The current time step.
-  subroutine source_term_handler_compute(this, t, tstep, dt)
+  subroutine source_term_handler_compute(this, t, tstep)
     class(source_term_handler_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    real(kind=rp) :: dt
     integer :: i
     type(field_t), pointer :: f
 
@@ -157,7 +156,7 @@ contains
     if (allocated(this%source_terms)) then
 
        do i = 1, size(this%source_terms)
-          call this%source_terms(i)%source_term%compute(t, tstep, dt)
+          call this%source_terms(i)%source_term%compute(t, tstep)
        end do
 
        ! Multiply by mass matrix

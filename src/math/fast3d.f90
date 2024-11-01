@@ -107,7 +107,7 @@ contains
     real(kind=rp), intent(in) :: x(0:n)
     real(kind=rp), intent(out) :: c(0:n,0:m)
     real(kind=rp), intent(in) :: xi
-    real(kind=rp) :: c1, c2, c3, c4, c5
+    real(kind=xp) :: c1, c2, c3, c4, c5
     integer :: i, j, k, mn
 
     c1 = 1d0

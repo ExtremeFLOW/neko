@@ -39,7 +39,7 @@ contains
        call this%Yh%init(GLL, lx2, lx2, lx2)
     end if
 
-    this%dm_Yh = dofmap_t(msh, this%Yh)
+    call this%dm_Yh%init(msh, this%Yh)
 
     call this%p%init(this%dm_Yh)
 

@@ -33,8 +33,8 @@
 !> Contains the `simcomp_executor_t` type.
 module simcomp_executor
   use num_types, only : rp
-  use simulation_component, only : simulation_component_t, simulation_component_wrapper_t
-  use simulation_component_fctry, only : simulation_component_factory
+  use simulation_component, only : simulation_component_t, &
+       simulation_component_wrapper_t, simulation_component_factory
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use case, only : case_t
@@ -74,7 +74,7 @@ module simcomp_executor
   end type simcomp_executor_t
 
   !> Global variable for the simulation component driver.
-  type(simcomp_executor_t), public :: neko_simcomps
+  type(simcomp_executor_t), target, public :: neko_simcomps
 
 contains
 
@@ -117,7 +117,7 @@ contains
     call neko_log%section('Initialize simcomp')
 
     ! Set the number of simcomps and allocate the arrays
-    call case%params%info(root_name, n_children=n_simcomps)
+    call case%params%info(root_name, n_children = n_simcomps)
     this%n_simcomps = n_simcomps
     allocate(this%simcomps(n_simcomps))
     allocate(order(n_simcomps))
@@ -154,7 +154,7 @@ contains
     ! Searches for the location of the min value, each time masking out the
     ! found location prior to the next search.
     do i = 1, n_simcomps
-       loc = minloc(read_order, mask=mask)
+       loc = minloc(read_order, mask = mask)
        order(i) = loc(1)
        mask(loc) = .false.
     end do
@@ -169,7 +169,7 @@ contains
        if (.not. is_user) call neko_log%message('- ' // trim(comp_type))
 
        call simulation_component_factory(this%simcomps(i)%simcomp, &
-                                         comp_subdict, case)
+            comp_subdict, case)
     end do
 
     if (has_user) then
@@ -224,7 +224,7 @@ contains
     ! If no empty position was found, append to the end
     if (position == 0) then
        call move_alloc(this%simcomps, tmp_simcomps)
-       allocate(this%simcomps(position))
+       allocate(this%simcomps(this%n_simcomps + 1))
 
        if (allocated(tmp_simcomps)) then
           do i = 1, this%n_simcomps
@@ -278,7 +278,7 @@ contains
        end do
        if (order_found .and. .not. previous_found) then
           call neko_error("Simulation component order must be contiguous &
-            &starting at 1.")
+               &starting at 1.")
        end if
        previous_found = order_found
     end do
@@ -334,7 +334,7 @@ contains
     integer :: i
 
     if (allocated(this%simcomps)) then
-       do i=1, size(this%simcomps)
+       do i = 1, size(this%simcomps)
           call this%simcomps(i)%simcomp%preprocess(t, tstep)
        end do
     end if

@@ -32,16 +32,16 @@
 !
 !>  Stereolithography (STL) file
 module stl_file
-  use num_types
-  use generic_file
-  use tri_mesh
-  use logger
-  use point
-  use neko_mpi_types
+  use num_types, only : rp
+  use generic_file, only : generic_file_t
+  use tri_mesh, only : tri_mesh_t
+  use logger, only : neko_log
+  use point, only : point_t
+  use neko_mpi_types, only : MPI_STL_HEADER, MPI_STL_TRIANGLE
   use mpi_f08
   use utils, only: neko_error
   use comm
-  use stl
+  use stl, only : stl_hdr_t, stl_triangle_t
   implicit none
   private
 
@@ -67,15 +67,15 @@ contains
     type(tri_mesh_t), pointer :: tri_msh => null()
     type(MPI_Status) :: status
     type(MPI_File) :: fh
-    type(point_t) :: p(3)
+    type(point_t), target :: p1, p2, p3
     type(stl_hdr_t) :: stl_hdr
     type(stl_triangle_t), allocatable :: stl_tri(:)
     integer :: i, p_idx, ierr
 
     call this%check_exists()
 
-    select type(data)
-    type is(tri_mesh_t)
+    select type (data)
+    type is (tri_mesh_t)
        tri_msh => data
     class default
        call neko_log%error('Invalid data')
@@ -98,12 +98,12 @@ contains
     p_idx = 0
     do i = 1, stl_hdr%ntri
        p_idx = p_idx + 1
-       p(1) = point_t(dble(stl_tri(i)%v1), p_idx)
+       p1 = point_t(dble(stl_tri(i)%v1), p_idx)
        p_idx = p_idx + 1
-       p(2) = point_t(dble(stl_tri(i)%v2), p_idx)
+       p2 = point_t(dble(stl_tri(i)%v2), p_idx)
        p_idx = p_idx + 1
-       p(3) = point_t(dble(stl_tri(i)%v3), p_idx)
-       call tri_msh%add_element(p(1), p(2), p(3))
+       p3 = point_t(dble(stl_tri(i)%v3), p_idx)
+       call tri_msh%add_element(p1, p2, p3)
     end do
 
     deallocate(stl_tri)
