@@ -513,7 +513,7 @@ endif
 
 if ENABLE_MAKEDEPF90
 depend:
-	$(MAKEDEPF90) $(neko_fortran_SOURCES) > .depends
+	$(MAKEDEPF90) $(neko_fortran_SOURCES) | $(SED) 's/\.o/\.lo/'  > .depends
 endif
 
 # Note we need to list any headers etc here for the dist. script
@@ -622,6 +622,9 @@ include	.depends
 
 # Device deps. (manually updated)
 include .depends_device
+
+# TurboNeko deps. (manually updated)
+include .depends_turboneko
 
 # CUDA Build rules
 .cu.lo: @top_srcdir@/libtool_cuda
