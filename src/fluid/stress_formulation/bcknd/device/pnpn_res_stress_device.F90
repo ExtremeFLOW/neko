@@ -49,22 +49,6 @@ module pnpn_res_stress_device
        integer(c_int) :: n
      end subroutine pnpn_prs_stress_res_part1_hip
   end interface
-  interface
-     subroutine pnpn_prs_res_part1_hip(ta1_d, ta2_d, ta3_d, &
-          wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
-          B_d, h1_d, mu, rho, n) &
-          bind(c, name = 'pnpn_prs_res_part1_hip')
-       use, intrinsic :: iso_c_binding
-       import c_rp
-       implicit none
-       type(c_ptr), value :: ta1_d, ta2_d, ta3_d
-       type(c_ptr), value :: wa1_d, wa2_d, wa3_d
-       type(c_ptr), value :: f_u_d, f_v_d, f_w_d
-       type(c_ptr), value :: B_d, h1_d
-       real(c_rp) :: mu, rho
-       integer(c_int) :: n
-     end subroutine pnpn_prs_res_part1_hip
-  end interface
 
   interface
      subroutine pnpn_prs_res_part2_hip(p_res_d, wa1_d, wa2_d, wa3_d, n) &
@@ -88,18 +72,6 @@ module pnpn_res_stress_device
        real(c_rp) :: dtbd
        integer(c_int) :: n
      end subroutine pnpn_prs_stress_res_part3_hip
-  end interface
-
-  interface
-     subroutine pnpn_prs_res_part3_hip(p_res_d, ta1_d, ta2_d, ta3_d, dtbd, n) &
-          bind(c, name = 'pnpn_prs_res_part3_hip')
-       use, intrinsic :: iso_c_binding
-       import c_rp
-       implicit none
-       type(c_ptr), value :: p_res_d, ta1_d, ta2_d, ta3_d
-       real(c_rp) :: dtbd
-       integer(c_int) :: n
-     end subroutine pnpn_prs_res_part3_hip
   end interface
 
   interface
