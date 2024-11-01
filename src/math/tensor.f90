@@ -190,9 +190,8 @@ contains
     real(kind=rp), intent(inout) :: A(nv,nu,n_pt),Bt(nu, nv,n_pt),Ct(nu,nv,n_pt)
     logical, intent(in) :: on_host
     type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d, el_list_d
-    
-   
     integer :: i
+    if (n_pt .lt. 1) return
     if (NEKO_BCKND_SX .eq. 1) then
        do i = 1, n_pt
           call tnsr3d_el_sx(v(1,i), nv, u(1,el_list(i)), nu, A(1,1,i), Bt(1,1,i), Ct(1,1,i))
