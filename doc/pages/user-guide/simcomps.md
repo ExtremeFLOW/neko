@@ -44,8 +44,8 @@ Additionally, one can set `output_control` to `global` and `never`. The former
 will sync the `output_` parameter to that of the fluid. Choosing `never` will
 suppress output all together. If no parameters for the `output_` parameters are
  provided, they are set to be the same as for `compute_`.
- 
- For simcomps that compute 3D fields, the output can be either added to the main
+
+For simcomps that compute 3D fields, the output can be either added to the main
 `.fld` file, containing velocity and pressure, or saved to a separate file. For
 the latter, the `output_filename` keyword should be provided. One can
 additionally provide the `precision` keyword, which can be set to either
