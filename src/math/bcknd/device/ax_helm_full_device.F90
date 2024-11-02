@@ -154,18 +154,18 @@ contains
 #endif
 
     if (coef%ifh2) then
-#ifdef HAVE_HIP
-       call hip_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
-                                     coef%h2_d, coef%B_d, coef%dof%size())
-#elif HAVE_CUDA
-       call neko_error('CUDA is not implemented for full stress formulation')
-      !  call cuda_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
-      !                                 coef%h2_d, coef%B_d, coef%dof%size())
-#else
+! #ifdef HAVE_HIP
+      !  call hip_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
+                                    !  coef%h2_d, coef%B_d, coef%dof%size())
+! #elif HAVE_CUDA
+      !  call neko_error('CUDA is not implemented for full stress formulation')
+      ! !  call cuda_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
+      ! !                                 coef%h2_d, coef%B_d, coef%dof%size())
+! #else
        call device_addcol4(au_d ,coef%h2_d, coef%B_d, u_d, coef%dof%size())
        call device_addcol4(av_d ,coef%h2_d, coef%B_d, v_d, coef%dof%size())
        call device_addcol4(aw_d ,coef%h2_d, coef%B_d, w_d, coef%dof%size())
-#endif
+! #endif
     end if
 
   end subroutine ax_helm_full_device_compute_vector

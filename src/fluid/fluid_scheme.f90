@@ -147,6 +147,7 @@ module fluid_scheme
      real(kind=rp) :: rho
      !> The variable density field
      type(field_t) :: rho_field
+     type(field_t) :: p_res, u_res, v_res, w_res
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)

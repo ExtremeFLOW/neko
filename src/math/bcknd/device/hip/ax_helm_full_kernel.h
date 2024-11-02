@@ -117,15 +117,15 @@ __global__ void __launch_bounds__(LX*LX,3)
 #pragma unroll
   for (int k = 0; k < LX; ++k){
     const int ijk = ij + k*LX*LX;
-    const T J_inv11 = drdx[ijk+ele];
-    const T J_inv12 = drdy[ijk+ele];
-    const T J_inv13 = drdz[ijk+ele];
-    const T J_inv21 = dsdx[ijk+ele];
-    const T J_inv22 = dsdy[ijk+ele];
-    const T J_inv23 = dsdz[ijk+ele];
-    const T J_inv31 = dtdx[ijk+ele];
-    const T J_inv32 = dtdy[ijk+ele];
-    const T J_inv33 = dtdz[ijk+ele];
+    const T drdx_local = drdx[ijk+ele];
+    const T drdy_local = drdy[ijk+ele];
+    const T drdz_local = drdz[ijk+ele];
+    const T dsdx_local = dsdx[ijk+ele];
+    const T dsdy_local = dsdy[ijk+ele];
+    const T dsdz_local = dsdz[ijk+ele];
+    const T dtdx_local = dtdx[ijk+ele];
+    const T dtdy_local = dtdy[ijk+ele];
+    const T dtdz_local = dtdz[ijk+ele];
     const T dj  = h1[ijk+ele] *
                   weight3[ijk] *
                   jacinv[ijk+ele];
@@ -173,35 +173,35 @@ __global__ void __launch_bounds__(LX*LX,3)
     T w2 = 0.0;
     T w3 = 0.0;
 
-    u1 = urtmp * J_inv11 + 
-         ustmp * J_inv21 + 
-         uttmp * J_inv31;
-    u2 = urtmp * J_inv12 + 
-         ustmp * J_inv22 + 
-         uttmp * J_inv32;
-    u3 = urtmp * J_inv13 + 
-         ustmp * J_inv23 + 
-         uttmp * J_inv33;
+    u1 = urtmp * drdx_local + 
+         ustmp * dsdx_local + 
+         uttmp * dtdx_local;
+    u2 = urtmp * drdy_local + 
+         ustmp * dsdy_local + 
+         uttmp * dtdy_local;
+    u3 = urtmp * drdz_local + 
+         ustmp * dsdz_local + 
+         uttmp * dtdz_local;
 
-    v1 = vrtmp * J_inv11 + 
-         vstmp * J_inv21 + 
-         vttmp * J_inv31;
-    v2 = vrtmp * J_inv12 + 
-         vstmp * J_inv22 + 
-         vttmp * J_inv32;
-    v3 = vrtmp * J_inv13 + 
-         vstmp * J_inv23 + 
-         vttmp * J_inv33;
+    v1 = vrtmp * drdx_local + 
+         vstmp * dsdx_local + 
+         vttmp * dtdx_local;
+    v2 = vrtmp * drdy_local + 
+         vstmp * dsdy_local + 
+         vttmp * dtdy_local;
+    v3 = vrtmp * drdz_local + 
+         vstmp * dsdz_local + 
+         vttmp * dtdz_local;
 
-    w1 = wrtmp * J_inv11 + 
-         wstmp * J_inv21 + 
-         wttmp * J_inv31;
-    w2 = wrtmp * J_inv12 + 
-         wstmp * J_inv22 + 
-         wttmp * J_inv32;
-    w3 = wrtmp * J_inv13 + 
-         wstmp * J_inv23 + 
-         wttmp * J_inv33;
+    w1 = wrtmp * drdx_local + 
+         wstmp * dsdx_local + 
+         wttmp * dtdx_local;
+    w2 = wrtmp * drdy_local + 
+         wstmp * dsdy_local + 
+         wttmp * dtdy_local;
+    w3 = wrtmp * drdz_local + 
+         wstmp * dsdz_local + 
+         wttmp * dtdz_local;
     
     T s11 = 0.0;
     T s12 = 0.0;
@@ -223,35 +223,35 @@ __global__ void __launch_bounds__(LX*LX,3)
     s32 = dj*(w2 + v3);
     s33 = dj*(w3 + w3);
 
-    shur[ij] = J_inv11 * s11 +
-               J_inv12 * s12 +
-               J_inv13 * s13;
-    shus[ij] = J_inv21 * s11 +
-               J_inv22 * s12 +
-               J_inv23 * s13;
-    rut =      J_inv31 * s11 +
-               J_inv32 * s12 +
-               J_inv33 * s13;
+    shur[ij] = drdx_local * s11 +
+               drdy_local * s12 +
+               drdz_local * s13;
+    shus[ij] = dsdx_local * s11 +
+               dsdy_local * s12 +
+               dsdz_local * s13;
+    rut =      dtdx_local * s11 +
+               dtdy_local * s12 +
+               dtdz_local * s13;
     
-    shvr[ij] = J_inv11 * s21 +
-               J_inv12 * s22 +
-               J_inv13 * s23;
-    shvs[ij] = J_inv21 * s21 +
-               J_inv22 * s22 +
-               J_inv23 * s23;
-    rvt =      J_inv31 * s21 +
-               J_inv32 * s22 +
-               J_inv33 * s23;
+    shvr[ij] = drdx_local * s21 +
+               drdy_local * s22 +
+               drdz_local * s23;
+    shvs[ij] = dsdx_local * s21 +
+               dsdy_local * s22 +
+               dsdz_local * s23;
+    rvt =      dtdx_local * s21 +
+               dtdy_local * s22 +
+               dtdz_local * s23;
 
-    shwr[ij] = J_inv11 * s31 +
-               J_inv12 * s32 +
-               J_inv13 * s33;
-    shws[ij] = J_inv21 * s31 +
-               J_inv22 * s32 +
-               J_inv23 * s33;
-    rwt =      J_inv31 * s31 +
-               J_inv32 * s32 +
-               J_inv33 * s33;
+    shwr[ij] = drdx_local * s31 +
+               drdy_local * s32 +
+               drdz_local * s33;
+    shws[ij] = dsdx_local * s31 +
+               dsdy_local * s32 +
+               dsdz_local * s33;
+    rwt =      dtdx_local * s31 +
+               dtdy_local * s32 +
+               dtdz_local * s33;
 
     __syncthreads();
 

@@ -72,7 +72,7 @@ module fluid_pnpn
 
 
   type, public, extends(fluid_scheme_t) :: fluid_pnpn_t
-     type(field_t) :: p_res, u_res, v_res, w_res
+     
 
      type(field_t) :: dp, du, dv, dw
 
