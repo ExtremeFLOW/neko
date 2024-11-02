@@ -86,7 +86,7 @@ contains
     call this%fluid%assign(2, fluid%u)
     call this%fluid%assign(3, fluid%v)
     call this%fluid%assign(4, fluid%w)
-    call this%fluid%assign(5, fluid%v_res)
+    call this%fluid%assign(5, fluid%check_field)
 
     if (present(scalar)) then
        call this%fluid%assign(5, scalar%s)

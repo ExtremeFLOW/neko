@@ -117,6 +117,7 @@ module fluid_scheme
      type(gradient_jump_penalty_t) :: gradient_jump_penalty_u
      type(gradient_jump_penalty_t) :: gradient_jump_penalty_v
      type(gradient_jump_penalty_t) :: gradient_jump_penalty_w
+     type(field_t) :: check_field
 
      ! Attributes for field dirichlet BCs
      type(field_dirichlet_vector_t) :: user_field_bc_vel   !< User-computed Dirichlet velocity condition
@@ -147,7 +148,6 @@ module fluid_scheme
      real(kind=rp) :: rho
      !> The variable density field
      type(field_t) :: rho_field
-     type(field_t) :: p_res, u_res, v_res, w_res
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
