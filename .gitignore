@@ -11,6 +11,8 @@
 *.mod
 *.smod
 *.o
+*.lo
+*.Plo
 *.dirstamp
 *.Po
 Makefile
@@ -43,6 +45,15 @@ examples/*/*.nek5000
 examples/*/*0.f0*
 *.chkp
 *.lst
+m4/libtool.m4
+m4/ltoptions.m4
+m4/ltsugar.m4
+m4/ltversion.m4
+m4/lt~obsolete.m4
+src/libneko.la
+src/.libs/libneko.la
+src/.libs/libneko.lai
+ltmain.sh
 
 # Ignore temporary files
 *~
