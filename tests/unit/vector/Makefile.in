@@ -13,7 +13,7 @@ check: vector_suite
 
 
 vector_suite_TESTS := vector_parallel.pf
-vector_suite_OTHER_LIBRARIES = -L@top_builddir@/src -lneko @LDFLAGS@ @LIBS@
+vector_suite_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,vector_suite))
 
 
