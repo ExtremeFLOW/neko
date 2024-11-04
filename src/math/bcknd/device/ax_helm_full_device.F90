@@ -82,32 +82,38 @@ module ax_helm_full_device
      end subroutine hip_ax_helm_stress_vector_part2
   end interface
 
-! #elif HAVE_CUDA
-!   interface
-!      subroutine cuda_ax_helm_stress_vector(au_d, av_d, aw_d, u_d, v_d, w_d, &
-!           dx_d, dy_d, dz_d, dxt_d, dyt_d, dzt_d,&
-!           h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d, nelv, lx) &
-!           bind(c, name='cuda_ax_helm_stress_vector')
-!        use, intrinsic :: iso_c_binding
-!        type(c_ptr), value :: au_d, av_d, aw_d
-!        type(c_ptr), value :: u_d, v_d, w_d
-!        type(c_ptr), value :: dx_d, dy_d, dz_d
-!        type(c_ptr), value :: dxt_d, dyt_d, dzt_d
-!        type(c_ptr), value :: h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d
-!        integer(c_int) :: nel, lx
-!      end subroutine cuda_ax_helm_stress_vector
-!   end interface
+#elif HAVE_CUDA
+  interface
+     subroutine cuda_ax_helm_stress_vector(au_d, av_d, aw_d, u_d, v_d, w_d, &
+          dx_d, dy_d, dz_d, dxt_d, dyt_d, dzt_d,&
+          h1_d, drdx_d, drdy_d, drdz_d, &
+          dsdx_d, dsdy_d, dsdz_d, &
+          dtdx_d, dtdy_d, dtdz_d, jacinv_d, weight3_d, nelv, lx) &
+          bind(c, name='cuda_ax_helm_stress_vector')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: au_d, av_d, aw_d
+       type(c_ptr), value :: u_d, v_d, w_d
+       type(c_ptr), value :: dx_d, dy_d, dz_d
+       type(c_ptr), value :: dxt_d, dyt_d, dzt_d
+       type(c_ptr), value :: h1_d
+       type(c_ptr), value :: drdx_d, drdy_d, drdz_d
+       type(c_ptr), value :: dsdx_d, dsdy_d, dsdz_d
+       type(c_ptr), value :: dtdx_d, dtdy_d, dtdz_d
+       type(c_ptr), value :: jacinv_d, weight3_d
+       integer(c_int) :: nel, lx
+     end subroutine cuda_ax_helm_stress_vector
+  end interface
 
-!   interface
-!      subroutine cuda_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
-!           h2_d, B_d, n) bind(c, name='cuda_ax_helm_stress_vector_part2')
-!        use, intrinsic :: iso_c_binding
-!        type(c_ptr), value :: au_d, av_d, aw_d
-!        type(c_ptr), value :: u_d, v_d, w_d
-!        type(c_ptr), value :: h2_d, B_d
-!        integer(c_int) :: n
-!      end subroutine cuda_ax_helm_stress_vector_part2
-!   end interface
+  interface
+     subroutine cuda_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
+          h2_d, B_d, n) bind(c, name='cuda_ax_helm_stress_vector_part2')
+       use, intrinsic :: iso_c_binding
+       type(c_ptr), value :: au_d, av_d, aw_d
+       type(c_ptr), value :: u_d, v_d, w_d
+       type(c_ptr), value :: h2_d, B_d
+       integer(c_int) :: n
+     end subroutine cuda_ax_helm_stress_vector_part2
+  end interface
 #endif
 
 contains
@@ -143,29 +149,28 @@ contains
          coef%dtdx_d, coef%dtdy_d, coef%dtdz_d, &
          coef%jacinv_d, Xh%w3_d, msh%nelv, Xh%lx)
 #elif HAVE_CUDA
-   call neko_error('CUDA is not implemented for full stress formulation')
-   !  call cuda_ax_helm_stress_vector(au_d, av_d, aw_d, u_d, v_d, w_d, &
-   !       Xh%dx_d, Xh%dy_d, Xh%dz_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%h1_d, &
-   !       coef%G11_d, coef%G22_d, coef%G33_d, &
-   !       coef%G12_d, coef%G13_d, coef%G23_d, &
-   !       msh%nelv, Xh%lx)
+    call cuda_ax_helm_stress_vector(au_d, av_d, aw_d, u_d, v_d, w_d, &
+         Xh%dx_d, Xh%dy_d, Xh%dz_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%h1_d, &
+         coef%drdx_d, coef%drdy_d, coef%drdz_d, &
+         coef%dsdx_d, coef%dsdy_d, coef%dsdz_d, &
+         coef%dtdx_d, coef%dtdy_d, coef%dtdz_d, &
+         coef%jacinv_d, Xh%w3_d, msh%nelv, Xh%lx)
 #elif HAVE_OPENCL
     call neko_error('OPENCL is not implemented for full stress formulation')
 #endif
 
     if (coef%ifh2) then
-! #ifdef HAVE_HIP
-      !  call hip_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
-                                    !  coef%h2_d, coef%B_d, coef%dof%size())
-! #elif HAVE_CUDA
-      !  call neko_error('CUDA is not implemented for full stress formulation')
-      ! !  call cuda_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
-      ! !                                 coef%h2_d, coef%B_d, coef%dof%size())
-! #else
+#ifdef HAVE_HIP
+       call hip_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
+                                     coef%h2_d, coef%B_d, coef%dof%size())
+#elif HAVE_CUDA
+       call cuda_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
+                                     coef%h2_d, coef%B_d, coef%dof%size())
+#else
        call device_addcol4(au_d ,coef%h2_d, coef%B_d, u_d, coef%dof%size())
        call device_addcol4(av_d ,coef%h2_d, coef%B_d, v_d, coef%dof%size())
        call device_addcol4(aw_d ,coef%h2_d, coef%B_d, w_d, coef%dof%size())
-! #endif
+#endif
     end if
 
   end subroutine ax_helm_full_device_compute_vector
