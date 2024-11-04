@@ -129,11 +129,6 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-    ax_helm_kernel_vector_part2<real>
-      <<<nblcks, nthrds, 0, stream>>> ((real *) au, (real *) av, (real *) aw,
-                                       (real *) u, (real *) v, (real *) w,
-                                       (real *) h2, (real *) B, *n);
-
     ax_helm_stress_kernel_vector_part2<real>
       <<<nblcks, nthrds, 0, stream>>> ((real *) au, (real *) av, (real *) aw,
                                        (real *) u, (real *) v, (real *) w,
