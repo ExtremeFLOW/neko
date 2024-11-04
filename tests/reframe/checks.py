@@ -109,7 +109,7 @@ class BuildNeko(rfm.CompileOnlyRegressionTest):
 
     @run_before('compile')
     def prepare_build(self):
-        self.build_system.configuredir = os.path.join(self.prefix, '..')
+        self.build_system.configuredir = os.path.join(self.prefix, '../../')
 
         self.build_system.max_concurrency = 32
         self.build_system.make_opts = ['install']
@@ -190,7 +190,7 @@ class NekoTestBase(rfm.RegressionTest):
         case_template = case_file + '.template'
 
         self.executable_opts.append(self.case)
-        
+
         if os.path.exists(case_file):
             pass
         elif os.path.exists(case_template):
@@ -312,10 +312,10 @@ class TgvBase(NekoTestBase):
 
 @rfm.simple_test
 class Tgv8(TgvBase):
-    mesh_file = 'examples/tgv/512.nmsh'
+    mesh_file = '../examples/tgv/512.nmsh'
     dt = 1e-2
     T_end = 20.0
-    
+
     @run_before('performance')
     def set_reference(self):
         if self.neko_build.real == 'dp':
@@ -334,9 +334,9 @@ class Tgv8(TgvBase):
 
 @rfm.simple_test
 class Tgv32(TgvBase):
-    mesh_file = 'examples/tgv/32768.nmsh'
+    mesh_file = '../examples/tgv/32768.nmsh'
     dt = 1e-3
-    T_end = 20.0    
+    T_end = 20.0
     dofs = 8**3 * 32**3
     # Where flow has become turbulent
     first_workrate_timestep = 12000
@@ -359,7 +359,7 @@ class MiniHemi(NekoTestBase):
     descr = 'Two iterations of hemi as a smoke test'
     build_system = DummyBuildSystem()
     case = 'minihemi.case'
-    mesh_file = 'examples/hemi/hemi.nmsh'
+    mesh_file = '../examples/hemi/hemi.nmsh'
 
     @run_before('compile')
     def setup_case(self):
@@ -368,7 +368,7 @@ class MiniHemi(NekoTestBase):
 @rfm.simple_test
 class MiniTgv8(NekoTestBase):
     descr = 'Two iterations of TGV as a smoke test'
-    mesh_file = 'examples/tgv/512.nmsh'
+    mesh_file = '../examples/tgv/512.nmsh'
     dt = 1e-2
     T_end = 0.02
     executable = './neko'
@@ -382,7 +382,7 @@ class MiniTgv8(NekoTestBase):
 @rfm.simple_test
 class MiniRB(NekoTestBase):
     descr = 'Two iterations of 3D RB as a smoke test'
-    mesh_file = 'examples/rayleigh-benard/box.nmsh'
+    mesh_file = '../examples/rayleigh-benard/box.nmsh'
     dt = 1e-2
     T_end = 0.02
     executable = './neko'

@@ -45,6 +45,8 @@ module source_term_handler
   use user_intf, only: user_t
   use utils, only: neko_warning
   use field_math, only: field_rzero
+  use math, only : col2
+  use device_math, only : device_col2
   implicit none
   private
 
@@ -152,9 +154,21 @@ contains
 
     ! Add contribution from all source terms. If time permits.
     if (allocated(this%source_terms)) then
+
        do i = 1, size(this%source_terms)
           call this%source_terms(i)%source_term%compute(t, tstep)
        end do
+
+       ! Multiply by mass matrix
+       do i = 1, this%rhs_fields%size()
+          f => this%rhs_fields%get(i)
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call device_col2(f%x_d, this%coef%B_d, f%size())
+          else
+             call col2(f%x, this%coef%B, f%size())
+          end if
+       end do
+
     end if
 
   end subroutine source_term_handler_compute
@@ -174,7 +188,7 @@ contains
 
     if (json%valid_path(name)) then
        ! Get the number of source terms.
-       call json%info(name, n_children=n_sources)
+       call json%info(name, n_children = n_sources)
 
        if (allocated(this%source_terms)) then
           i0 = size(this%source_terms)
@@ -225,13 +239,19 @@ contains
 
     integer :: n_sources, i
 
-    n_sources = size(this%source_terms)
+    if (allocated(this%source_terms)) then
+       n_sources = size(this%source_terms)
+    else
+       n_sources = 0
+    end if
+
     call move_alloc(this%source_terms, temp)
     allocate(this%source_terms(n_sources + 1))
 
     if (allocated(temp)) then
        do i = 1, n_sources
-          call move_alloc(temp(i)%source_term, this%source_terms(i)%source_term)
+          call move_alloc(temp(i)%source_term, &
+               this%source_terms(i)%source_term)
        end do
     end if
 

@@ -36,7 +36,7 @@ site_configuration = {
                         }
                     ],
                     'extras': {
-                        'select_device': './rocm_select_gpu_device'
+                        'select_device': './rocm_select_gpu_device.sh'
                     },
                     'variables': [
                         ['MPICH_GPU_SUPPORT_ENABLED', '1']

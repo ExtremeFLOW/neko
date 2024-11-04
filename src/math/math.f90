@@ -58,7 +58,7 @@
 ! not be used for advertising or product endorsement purposes.
 !
 module math
-  use num_types, only : rp, dp, sp, qp, i4
+  use num_types, only : rp, dp, sp, qp, i4, xp
   use comm
   implicit none
   private
@@ -348,14 +348,16 @@ contains
   function glsum(a, n)
     integer, intent(in) :: n
     real(kind=rp), dimension(n) :: a
-    real(kind=rp) :: tmp, glsum
+    real(kind=rp) :: glsum
+    real(kind=xp) :: tmp
     integer :: i, ierr
     tmp = 0.0_rp
     do i = 1, n
        tmp = tmp + a(i)
     end do
-    call MPI_Allreduce(tmp, glsum, 1, &
-         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
+         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    glsum = tmp
 
   end function glsum
 
@@ -460,7 +462,7 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) = 1.0_rp / a(i)
+       a(i) = 1.0_xp / real(a(i),xp)
     end do
 
   end subroutine invcol1
@@ -473,7 +475,7 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) = b(i) / c(i)
+       a(i) = real(b(i),xp) / c(i)
     end do
 
   end subroutine invcol3
@@ -486,7 +488,7 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) = 1.0_rp / b(i)
+       a(i) = 1.0_xp / real(b(i),xp)
     end do
 
   end subroutine invers2
@@ -701,7 +703,7 @@ contains
     integer :: i
 
     do i = 1, n
-       a(i) = a(i) /b(i)
+       a(i) = real(a(i),xp) /b(i)
     end do
 
   end subroutine invcol2
@@ -859,17 +861,18 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: a
     real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp) :: glsc2, tmp
+    real(kind=rp) :: glsc2
+    real(kind=xp) :: tmp
     integer :: i, ierr
 
-    tmp = 0.0_rp
+    tmp = 0.0_xp
     do i = 1, n
        tmp = tmp + a(i) * b(i)
     end do
 
-    call MPI_Allreduce(tmp, glsc2, 1, &
-         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
-
+    call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
+         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    glsc2 = tmp
   end function glsc2
 
   !> Weighted inner product \f$ a^T b c \f$
@@ -878,16 +881,18 @@ contains
     real(kind=rp), dimension(n), intent(in) :: a
     real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), dimension(n), intent(in) :: c
-    real(kind=rp) :: glsc3, tmp
+    real(kind=rp) :: glsc3
+    real(kind=xp) :: tmp
     integer :: i, ierr
 
-    tmp = 0.0_rp
+    tmp = 0.0_xp
     do i = 1, n
        tmp = tmp + a(i) * b(i) * c(i)
     end do
 
-    call MPI_Allreduce(tmp, glsc3, 1, &
-         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
+         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    glsc3 = tmp
 
   end function glsc3
   function glsc4(a, b, c, d, n)
@@ -896,16 +901,18 @@ contains
     real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), dimension(n), intent(in) :: c
     real(kind=rp), dimension(n), intent(in) :: d
-    real(kind=rp) :: glsc4, tmp
+    real(kind=rp) :: glsc4
+    real(kind=xp) :: tmp
     integer :: i, ierr
 
-    tmp = 0.0_rp
+    tmp = 0.0_xp
     do i = 1, n
        tmp = tmp + a(i) * b(i) * c(i) * d(i)
     end do
 
-    call MPI_Allreduce(tmp, glsc4, 1, &
-         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, tmp, 1, &
+         MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+    glsc4 = tmp
 
   end function glsc4
 
@@ -1161,5 +1168,4 @@ contains
        a(i) = abs(a(i))
     end do
   end subroutine absval
-
 end module math

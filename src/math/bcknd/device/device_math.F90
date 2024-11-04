@@ -650,5 +650,4 @@ contains
 
   end subroutine device_absval
 
-
 end module device_math
