@@ -12,7 +12,7 @@ check: time_scheme_controller_test
 
 time_scheme_controller_test_TESTS := test_time_scheme_controller.pf
 
-time_scheme_controller_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko @LDFLAGS@ @LIBS@
+time_scheme_controller_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,time_scheme_controller_test))
 
 

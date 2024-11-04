@@ -30,8 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements type spectral_error_indicator_t.
-module spectral_error_indicator
+!> Implements type spectral_error_t.
+module spectral_error
   use num_types, only: rp
   use field, only: field_t
   use coefs, only: coef_t
@@ -42,9 +42,17 @@ module spectral_error_indicator
   use device_math, only: device_copy
   use gather_scatter
   use neko_config
-  use device, only: DEVICE_TO_HOST, device_memcpy
+  use logger, only: neko_log
+  use device, only: DEVICE_TO_HOST, HOST_TO_DEVICE, device_memcpy
   use comm, only: pe_rank
-  use utils, only: NEKO_FNAME_LEN
+  use utils, only: NEKO_FNAME_LEN, neko_error
+  use field_writer, only: field_writer_t
+  use simulation_component, only: simulation_component_t
+  use json_module, only: json_file
+  use json_utils, only: json_get, json_get_or_default
+  use case, only: case_t
+  use field_registry, only: neko_field_registry
+
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -54,15 +62,15 @@ module spectral_error_indicator
   !! This is a posteriori error measure, based on the local properties of
   !! the spectral solution, which was developed by Mavriplis. This method
   !! formally only gives an indication of the error.
-  type, public :: spectral_error_indicator_t
+  type, public, extends(simulation_component_t) :: spectral_error_t
      !> Pointers to main fields
      type(field_t), pointer :: u  => null()
      type(field_t), pointer :: v  => null()
      type(field_t), pointer :: w  => null()
      !> Transformed fields
-     type(field_t) :: u_hat
-     type(field_t) :: v_hat
-     type(field_t) :: w_hat
+     type(field_t), pointer :: u_hat => null()
+     type(field_t), pointer :: v_hat => null()
+     type(field_t), pointer :: w_hat => null()
      !> Working field - Consider making this a simple array
      type(field_t) :: wk
      !> Configuration of spectral error calculation
@@ -86,46 +94,62 @@ module spectral_error_indicator
      type(field_list_t) :: speri_l
      !> File to write
      type(file_t) :: mf_speri
+     !> Field writer controller for the output
+     type(field_writer_t) :: writer
    contains
-     !> Initialize object.
-     procedure, pass(this) :: init => spec_err_ind_init
-     !> Destructor
-     procedure, pass(this) :: free => spec_err_ind_free
-     !> Calculate the indicator
-     procedure, pass(this) :: get_indicators => spec_err_ind_get
-     !> Calculate the indicator
-     procedure, pass(this) :: write_as_field => spec_err_ind_write
+     !> Constructor.
+     procedure, pass(this) :: init => spectral_error_init
+     !> Destructor.
+     procedure, pass(this) :: free => spectral_error_free
+     !> Compute the indicator (called according to the simcomp controller).
+     procedure, pass(this) :: compute_ => spectral_error_compute
+     !> Calculate the indicator.
+     procedure, pass(this) :: get_indicators => spectral_error_get_indicators
 
-  end type spectral_error_indicator_t
+  end type spectral_error_t
 
 contains
 
-  !> Constructor
-  !! @param u u velocity field
-  !! @param v v velocity field
-  !! @param w w velocity field
-  !! @param coef type with all geometrical variables
-  subroutine spec_err_ind_init(this, u,v,w,coef)
-    class(spectral_error_indicator_t), intent(inout) :: this
-    type(field_t), intent(in), target :: u
-    type(field_t), intent(in), target :: v
-    type(field_t), intent(in), target :: w
+  !> Constructor.
+  subroutine spectral_error_init(this, json, case)
+    class(spectral_error_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    class(case_t), intent(inout), target :: case
+
+    character(len=20) :: fields(3)
+
+    !> Add keyword "fields" to the json so that the field writer
+    ! picks it up. Will also add those fields to the registry.
+    fields(1) = "u_hat"
+    fields(2) = "v_hat"
+    fields(3) = "w_hat"
+    call json%add("fields", fields)
+
+    call this%init_base(json, case)
+    call this%writer%init(json, case)
+
+    call spectral_error_init_from_attributes(this, case%fluid%c_Xh)
+
+  end subroutine spectral_error_init
+
+  !> Actual constructor.
+  !! @param coef type with all geometrical variables.
+  subroutine spectral_error_init_from_attributes(this, coef)
+    class(spectral_error_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     integer :: il, jl, aa
     character(len=NEKO_FNAME_LEN) :: fname_speri
 
-    !> call destructior
-    call this%free()
+    this%u => neko_field_registry%get_field("u")
+    this%v => neko_field_registry%get_field("v")
+    this%w => neko_field_registry%get_field("w")
+    this%u_hat => neko_field_registry%get_field("u_hat")
+    this%v_hat => neko_field_registry%get_field("v_hat")
+    this%w_hat => neko_field_registry%get_field("w_hat")
 
-    !> Assign the pointers
-    this%u => u
-    this%v => v
-    this%w => w
     !> Initialize fields and copy data from proper one
-    this%u_hat = u
-    this%v_hat = v
-    this%w_hat = w
-    this%wk = u
+    this%wk = this%u
+
     !> Allocate arrays (Consider moving some to coef)
     allocate(this%eind_u(coef%msh%nelv))
     allocate(this%eind_v(coef%msh%nelv))
@@ -134,7 +158,7 @@ contains
     allocate(this%sig_v(coef%msh%nelv))
     allocate(this%sig_w(coef%msh%nelv))
 
-    !> The following code has been lifted from Adams implementation
+    !> The following code has been lifted from Adam's implementation
     associate(LX1 => coef%Xh%lx, LY1 => coef%Xh%ly, &
       LZ1 => coef%Xh%lz, &
       SERI_SMALL  => this%SERI_SMALL,  &
@@ -147,29 +171,21 @@ contains
       )
       ! correctness check
       if (SERI_NP.gt.SERI_NP_MAX) then
-         if (pe_rank.eq.0) write(*,*) 'SETI_NP greater than SERI_NP_MAX'
+         call neko_log%message('SETI_NP greater than SERI_NP_MAX')
       endif
       il = SERI_NP+SERI_ELR
       jl = min(LX1,LY1)
       jl = min(jl,LZ1)
       if (il.gt.jl) then
-         if (pe_rank.eq.0) write(*,*) 'SERI_NP+SERI_ELR greater than L?1'
+         call neko_log%message('SERI_NP+SERI_ELR greater than L?1')
       endif
     end associate
 
-    !> Initialize the list that holds the fields to write
-    call list_init3(this%speri_l,this%u_hat,this%v_hat, &
-                    this%w_hat)
-    ! Initialize the file
-    fname_speri = 'speri.fld'
-    this%mf_speri =  file_t(fname_speri)
-
-  end subroutine spec_err_ind_init
-
+  end subroutine spectral_error_init_from_attributes
 
   !> Destructor
-  subroutine spec_err_ind_free(this)
-    class(spectral_error_indicator_t), intent(inout) :: this
+  subroutine spectral_error_free(this)
+    class(spectral_error_t), intent(inout) :: this
 
     if(allocated(this%eind_u)) then
        deallocate(this%eind_u)
@@ -195,27 +211,65 @@ contains
        deallocate(this%sig_w)
     end if
 
-    call this%u_hat%free()
-    call this%v_hat%free()
-    call this%w_hat%free()
     call this%wk%free()
 
     nullify(this%u)
     nullify(this%v)
     nullify(this%w)
+    nullify(this%u_hat)
+    nullify(this%v_hat)
+    nullify(this%w_hat)
 
-    !> finalize data related to writing
-    call list_final3(this%speri_l)
-    call file_free(this%mf_speri)
+    call this%writer%free()
+    call this%free_base()
 
-  end subroutine spec_err_ind_free
+  end subroutine spectral_error_free
 
-  !> Transform a field u > u_hat into physical or spectral space
-  !! the result of the transformation is in u_hat
-  !! @param u_hat transformed field
-  !! @param u field to transform
-  !! @param wk working field
-  !! @param coef type coef for mesh parameters
+  !> Compute the spectral error indicator.
+  subroutine spectral_error_compute(this, t, tstep)
+    class(spectral_error_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+
+    integer :: e, i, lx, ly, lz, nelv, n
+
+
+    call this%get_indicators(this%case%fluid%c_Xh)
+
+    lx = this%u_hat%Xh%lx
+    ly = this%u_hat%Xh%ly
+    lz = this%u_hat%Xh%lz
+    nelv = this%u_hat%msh%nelv
+
+    !> Copy the element indicator into all points of the field
+    do e = 1,nelv
+       do i = 1,lx*ly*lx
+          this%u_hat%x(i,1,1,e) = this%eind_u(e)
+          this%v_hat%x(i,1,1,e) = this%eind_v(e)
+          this%w_hat%x(i,1,1,e) = this%eind_w(e)
+       end do
+    end do
+
+    ! We need this copy to GPU since the field writer does an internal copy
+    ! GPU -> CPU before writing the field files. This overwrites the *_hat
+    ! host arrays that contain the values.
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%u_hat%x, this%u_hat%x_d, lx*ly*lz*nelv, &
+                         HOST_TO_DEVICE, sync = .true.)
+       call device_memcpy(this%v_hat%x, this%v_hat%x_d, lx*ly*lz*nelv, &
+                         HOST_TO_DEVICE, sync = .true.)
+       call device_memcpy(this%w_hat%x, this%w_hat%x_d, lx*ly*lz*nelv, &
+                         HOST_TO_DEVICE, sync = .true.)
+    end if
+
+  end subroutine spectral_error_compute
+
+  !> Transform a field u to u_hat into physical or spectral space
+  !! the result of the transformation is in u_hat.
+  !! @param u_hat Transformed field (output).
+  !! @param u Field to transform (input).
+  !! @param wk Working field.
+  !! @param coef Type coef for mesh parameters.
   !! @param space String that indicates which space to transform, "spec" or "phys".
   subroutine transform_to_spec_or_phys(u_hat, u, wk, coef, space)
     type(field_t), intent(inout) :: u_hat
@@ -261,8 +315,8 @@ contains
 
   !> Transform and get the spectral error indicators
   !! @param coef type coef for mesh parameters and space
-  subroutine spec_err_ind_get(this,coef)
-    class(spectral_error_indicator_t), intent(inout) :: this
+  subroutine spectral_error_get_indicators(this,coef)
+    class(spectral_error_t), intent(inout) :: this
     type(coef_t), intent(inout) :: coef
     integer :: i
 
@@ -271,49 +325,34 @@ contains
     call transform_to_spec_or_phys(this%v_hat, this%v, this%wk, coef, 'spec')
     call transform_to_spec_or_phys(this%w_hat, this%w, this%wk, coef, 'spec')
 
-
     ! Get the spectral error indicator
-    call calculate_indicators(this, coef, this%eind_u, this%sig_u, coef%msh%nelv, &
-                              coef%Xh%lx,  coef%Xh%ly,  coef%Xh%lz, &
-                              this%u_hat%x)
-    call calculate_indicators(this, coef, this%eind_v, this%sig_v, coef%msh%nelv, &
-                              coef%Xh%lx,  coef%Xh%ly,  coef%Xh%lz, &
-                              this%v_hat%x)
-    call calculate_indicators(this, coef, this%eind_w, this%sig_w, coef%msh%nelv, &
-                              coef%Xh%lx,  coef%Xh%ly,  coef%Xh%lz, &
-                              this%w_hat%x)
+    call calculate_indicators(this, coef, this%eind_u, this%sig_u, &
+         coef%msh%nelv, coef%Xh%lx,  coef%Xh%ly,  coef%Xh%lz, &
+         this%u_hat%x)
+    call calculate_indicators(this, coef, this%eind_v, this%sig_v, &
+         coef%msh%nelv, coef%Xh%lx,  coef%Xh%ly,  coef%Xh%lz, &
+         this%v_hat%x)
+    call calculate_indicators(this, coef, this%eind_w, this%sig_w, &
+         coef%msh%nelv, coef%Xh%lx,  coef%Xh%ly,  coef%Xh%lz, &
+         this%w_hat%x)
 
-  end subroutine spec_err_ind_get
+  end subroutine spectral_error_get_indicators
 
   !> Write error indicators in a field file.
   !! @param t Current simulation time.
-  subroutine spec_err_ind_write(this, t)
-    class(spectral_error_indicator_t), intent(inout) :: this
+  subroutine spectral_error_write(this, t)
+    class(spectral_error_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
 
     integer i, e
     integer lx, ly, lz, nelv
-
-    lx = this%u_hat%Xh%lx
-    ly = this%u_hat%Xh%ly
-    lz = this%u_hat%Xh%lz
-    nelv = this%u_hat%msh%nelv
-
-    !> Copy the element indicator into all points of the field
-    do e = 1,nelv
-       do i = 1,lx*ly*lx
-          this%u_hat%x(i,1,1,e) = this%eind_u(e)
-          this%v_hat%x(i,1,1,e) = this%eind_v(e)
-          this%w_hat%x(i,1,1,e) = this%eind_w(e)
-       end do
-    end do
 
     !> Write the file
     !! Remember that the list is already ponting to the fields
     !! that were just modified.
     call this%mf_speri%write(this%speri_l,t)
 
-  end subroutine spec_err_ind_write
+  end subroutine spectral_error_write
 
   !> Wrapper for old fortran 77 subroutines
   !! @param coef coef type
@@ -325,7 +364,7 @@ contains
   !! @param LZ1 gll points in z
   !! @paran var variable to calculate indicator
   subroutine calculate_indicators(this, coef, eind, sig, lnelt, LX1, LY1, LZ1, var)
-    type(spectral_error_indicator_t), intent(inout) :: this
+    type(spectral_error_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     integer :: lnelt
     integer :: LX1
@@ -360,7 +399,7 @@ contains
   !! @param LY1 gll points in y
   !! @param LZ1 gll points in z
   subroutine speri_var(this, est,sig,var,nell,xa,xb,LX1,LY1,LZ1)
-    type(spectral_error_indicator_t), intent(inout) :: this
+    type(spectral_error_t), intent(inout) :: this
     integer :: nell
     integer :: LX1
     integer :: LY1
@@ -472,7 +511,6 @@ contains
 
   end subroutine speri_var
 
-
   !> Extrapolate the Legendre spectrum from the last points
   !! @param estx spectral indicator
   !! @param sigx coefficient of the exponential fit
@@ -485,7 +523,7 @@ contains
   subroutine speri_extrap(this,estx,sigx,coef11,coef, &
                 ix_st,ix_en,nyl,nzl)
     implicit none
-    type(spectral_error_indicator_t), intent(inout) :: this
+    type(spectral_error_t), intent(inout) :: this
     !> argument list
     integer :: ix_st,ix_en,nyl,nzl
     !> Legendre coefficients; last SERI_NP columns
@@ -664,33 +702,4 @@ contains
 
   end subroutine speri_extrap
 
-  !> Helper function to initialize field list to write
-  !! @param list list to allocate
-  !! @param uu field to add to the list
-  !! @param vv field to add to the list
-  !! @param ww field to add to the list
-  subroutine list_init3(list, uu, vv, ww)
-    type(field_list_t), intent(inout) :: list
-    type(field_t), target:: uu
-    type(field_t), target:: vv
-    type(field_t), target:: ww
-    !> Initialize field lists
-    call list%init(3)
-    call list%assign_to_field(1, uu)
-    call list%assign_to_field(2, vv)
-    call list%assign_to_field(3, ww)
-  end subroutine list_init3
-
-
-  !> Helper function to finalize field list to write
-  !! @param list list to deallocate
-  subroutine list_final3(list)
-    type(field_list_t), intent(inout) :: list
-    call list%free
-  end subroutine list_final3
-
-
-end module spectral_error_indicator
-
-
-
+end module spectral_error

@@ -53,7 +53,7 @@ module scratch_registry
      !> the size the fields array is increased by upon reallocation
      integer, private :: expansion_size
      !> Dofmap
-     type(dofmap_t), pointer :: dof
+     type(dofmap_t), pointer :: dof => null()
    contains
      procedure, private, pass(this) :: expand
      !> destructor
@@ -94,6 +94,8 @@ contains
     integer, optional, intent(in) :: expansion_size
     integer :: i
 
+    call this%free()
+
     this%dof => dof
 
     if (present(size)) then
@@ -133,7 +135,9 @@ contains
        deallocate(this%inuse)
     end if
 
-    nullify(this%dof)
+    if (associated(this%dof)) then
+       nullify(this%dof)
+    end if
 
   end subroutine scratch_registry_free
 
