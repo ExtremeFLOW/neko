@@ -31,29 +31,34 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines the `wall_model_bc_t` type.
+!! Maintainer: Timofey Mukha.
 module wall_model_bc
-    use num_types
+    use num_types, only : rp
     use bc, only : bc_t
     use, intrinsic :: iso_c_binding, only : c_ptr
     use utils, only : neko_error, nonlinear_index
     use coefs, only : coef_t
-    use wall_model, only : wall_model_t
+    use wall_model, only : wall_model_t, wall_model_factory
     use rough_log_law, only : rough_log_law_t
     use spalding, only : spalding_t
     use shear_stress, only : shear_stress_t
+    use json_module, only : json_file
     implicit none
     private
 
     !> A shear stress boundary condition, computing the stress values using a
     !! wall model.
+    !! @warning Only works with axis-aligned boundaries.
     type, public, extends(shear_stress_t) :: wall_model_bc_t
        !> The wall model to compute the stress.
        class(wall_model_t), allocatable :: wall_model
      contains
        procedure, pass(this) :: apply_scalar => wall_model_bc_apply_scalar
        procedure, pass(this) :: apply_vector => wall_model_bc_apply_vector
-       procedure, pass(this) :: apply_scalar_dev => wall_model_bc_apply_scalar_dev
-       procedure, pass(this) :: apply_vector_dev => wall_model_bc_apply_vector_dev
+       procedure, pass(this) :: apply_scalar_dev => &
+            wall_model_bc_apply_scalar_dev
+       procedure, pass(this) :: apply_vector_dev => &
+            wall_model_bc_apply_vector_dev
        procedure, pass(this) :: init_wall_model_bc => &
          wall_model_bc_init_wall_model_bc
     end type wall_model_bc_t
@@ -72,8 +77,13 @@ module wall_model_bc
 
     end subroutine wall_model_bc_apply_scalar
 
-    !> Boundary condition apply for a generic wall_model_bc condition
-    !! to vectors @a x, @a y and @a z
+    !> Apply the boundary condition to the right-hand side.
+    !! @param x The x component of the right-hand side
+    !! @param y The y component of the right-hand side
+    !! @param z The z component of the right-hand side
+    !! @param n The size of the right-hand side arrays.
+    !! @param t The time value.
+    !! @param tstep The time step.
     subroutine wall_model_bc_apply_vector(this, x, y, z, n, t, tstep)
       class(wall_model_bc_t), intent(inout) :: this
       integer, intent(in) :: n
@@ -85,9 +95,11 @@ module wall_model_bc
       integer :: i, m, k, fid
       real(kind=rp) :: magtau
 
+      ! Compute the wall stress using the wall model.
       call this%wall_model%compute(t, tstep)
 
-      do i=1, this%msk(0)
+      ! Populate the 3D wall stress field for post-processing.
+      do i = 1, this%msk(0)
         magtau = sqrt(this%wall_model%tau_x(i)**2 + this%wall_model%tau_y(i)**2&
                       + this%wall_model%tau_z(i)**2)
 
@@ -99,8 +111,12 @@ module wall_model_bc
         this%wall_model%tau_field%x(this%msk(i),1,1,1) = magtau
       end do
 
-      call this%shear_stress_t%set_stress(this%wall_model%tau_x, &
-                                          this%wall_model%tau_z)
+      ! Set the computed stress for application by the underlying Neumann
+      ! boundary conditions.
+      call this%set_stress(this%wall_model%tau_x, this%wall_model%tau_y, &
+           this%wall_model%tau_z)
+
+      ! Add the stress as a forcing to the right hand side arrays
       call this%shear_stress_t%apply_vector(x, y, z, n, t, tstep)
 
     end subroutine wall_model_bc_apply_vector
@@ -133,11 +149,15 @@ module wall_model_bc
 
     !> Constructor.
     !> @param coef The SEM coefficients.
-    subroutine wall_model_bc_init_wall_model_bc(this, coef)
+    subroutine wall_model_bc_init_wall_model_bc(this, json, nu)
       class(wall_model_bc_t), intent(inout) :: this
-      type(coef_t), target, intent(in) :: coef
+      type(json_file), intent(inout) :: json
+      real(kind=rp), intent(in) :: nu
 
-      call this%shear_stress_t%init_shear_stress(coef)
+      call this%shear_stress_t%init_shear_stress(this%coef)
+
+      call wall_model_factory(this%wall_model, this%coef, this%msk, &
+           this%facet, nu, json)
 
     end subroutine wall_model_bc_init_wall_model_bc
 

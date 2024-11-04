@@ -13,7 +13,7 @@ check: matrix_suite
 
 
 matrix_suite_TESTS := matrix_parallel.pf
-matrix_suite_OTHER_LIBRARIES = -L@top_builddir@/src -lneko @LDFLAGS@ @LIBS@
+matrix_suite_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,matrix_suite))
 
 

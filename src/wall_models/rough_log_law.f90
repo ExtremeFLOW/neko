@@ -137,6 +137,8 @@ contains
   end subroutine rough_log_law_free
 
   !> Compute the wall shear stress.
+  !> @param t The time value.
+  !> @param tstep The time iteration.
   subroutine rough_log_law_compute(this, t, tstep)
     class(rough_log_law_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
@@ -151,7 +153,7 @@ contains
     v => neko_field_registry%get_field("v")
     w => neko_field_registry%get_field("w")
 
-    do i=1, this%n_nodes
+    do i = 1, this%n_nodes
       ! Sample the velocity
       ui = u%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
       vi = v%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
@@ -169,15 +171,12 @@ contains
       ! Compute the stress
       utau = (magu - this%B) * this%kappa / log(this%h%x(i) / this%z0)
 
-      write(*,*) ui, vi, wi, utau
-
       ! Distribute according to the velocity vector
       this%tau_x(i) = -utau**2 * ui / magu
       this%tau_y(i) = -utau**2 * vi / magu
       this%tau_z(i) = -utau**2 * wi / magu
     end do
 
-    write(*,*) this%tau_x(1:3)
   end subroutine rough_log_law_compute
 
 

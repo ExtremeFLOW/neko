@@ -67,7 +67,7 @@ module fusedcg_cpld_device
      real(kind=rp), allocatable :: alpha(:)
      type(c_ptr) :: w1_d = C_NULL_PTR
      type(c_ptr) :: w2_d = C_NULL_PTR
-     type(c_ptr) :: w3_d = C_NULL_PTR     
+     type(c_ptr) :: w3_d = C_NULL_PTR
      type(c_ptr) :: r1_d = C_NULL_PTR
      type(c_ptr) :: r2_d = C_NULL_PTR
      type(c_ptr) :: r3_d = C_NULL_PTR
@@ -317,10 +317,10 @@ contains
     do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE+1
        this%p1_d(i) = C_NULL_PTR
        call device_map(this%p1(:,i), this%p1_d(i), n)
-       
+
        this%p2_d(i) = C_NULL_PTR
        call device_map(this%p2(:,i), this%p2_d(i), n)
-       
+
        this%p3_d(i) = C_NULL_PTR
        call device_map(this%p3(:,i), this%p3_d(i), n)
     end do
@@ -337,7 +337,7 @@ contains
                       HOST_TO_DEVICE, sync=.false.)
     ptr = c_loc(this%p3_d)
     call device_memcpy(ptr, this%p3_d_d, p_size, &
-                       HOST_TO_DEVICE, sync=.false.)   
+                       HOST_TO_DEVICE, sync=.false.)
     if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
     else if (present(rel_tol) .and. present(abs_tol)) then
@@ -372,11 +372,11 @@ contains
     if (allocated(this%w1)) then
        deallocate(this%w1)
     end if
-    
+
     if (allocated(this%w2)) then
        deallocate(this%w2)
     end if
-    
+
     if (allocated(this%w3)) then
        deallocate(this%w3)
     end if
@@ -502,7 +502,7 @@ contains
     if (c_associated(this%gs_event2)) then
        call device_event_destroy(this%gs_event2)
     end if
-    
+
     if (c_associated(this%gs_event3)) then
        call device_event_destroy(this%gs_event3)
     end if
@@ -559,8 +559,8 @@ contains
       rtz1 = 1.0_rp
       p_prev = DEVICE_FUSEDCG_CPLD_P_SPACE
       p_cur = 1
-          
- 
+
+
       call device_rzero(x%x_d, n)
       call device_rzero(y%x_d, n)
       call device_rzero(z%x_d, n)
@@ -575,7 +575,7 @@ contains
                                      r2_d, r3_d, tmp_d, n)
 
       rtr = device_glsc3(tmp_d, coef%mult_d, coef%binv_d, n)
-      
+
       rnorm = sqrt(rtr)*norm_fac
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
@@ -594,7 +594,7 @@ contains
 
          beta = rtz1 / rtz2
          if (iter .eq. 1) beta = 0.0_rp
-         
+
          call device_fusedcg_cpld_update_p(p1_d(p_cur), p2_d(p_cur), p3_d(p_cur), &
               z1_d, z2_d, z3_d, p1_d(p_prev), p2_d(p_prev), p3_d(p_prev), beta, n)
 
@@ -614,7 +614,7 @@ contains
                                         p2_d(p_cur), p3_d(p_cur), tmp_d, n)
 
          pap = device_glsc2(tmp_d, coef%mult_d, n)
-                  
+
          alpha(p_cur) = rtz1 / pap
          rtr = device_fusedcg_cpld_part2(r1_d, r2_d, r3_d, coef%mult_d, &
               w1_d, w2_d, w3_d, alpha_d, alpha(p_cur), p_cur, n)
@@ -655,13 +655,13 @@ contains
     integer, optional, intent(in) :: niter
 
     ! Throw and error
-    call neko_error('Only defined for coupled solves')
+    call neko_error('The cpldcg solver is only defined for coupled solves')
 
     ksp_results%res_final = 0.0
     ksp_results%iter = 0
-    
+
   end function fusedcg_cpld_device_solve
-  
+
 end module fusedcg_cpld_device
 
 

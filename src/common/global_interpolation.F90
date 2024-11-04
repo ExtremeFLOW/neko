@@ -471,7 +471,9 @@ contains
     end do
 
     n_points = this%n_points
-    deallocate(xyz)
+    if (allocated(xyz)) then
+       deallocate(xyz)
+    end if
     allocate(xyz(3, n_points))
     call copy(xyz, this%xyz, 3*n_points)
 
