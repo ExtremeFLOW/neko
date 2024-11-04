@@ -284,190 +284,252 @@ __global__ void __launch_bounds__(LX*LX,3)
   }
 }
 
-// template< typename T, const int LX >
-// __global__ void __launch_bounds__(LX*LX,3)
-//   ax_helm_stress_kernel_vector_kstep_padded(T * __restrict__ au,
-//                                      T * __restrict__ av,
-//                                      T * __restrict__ aw,
-//                                      const T * __restrict__ u,
-//                                      const T * __restrict__ v,
-//                                      const T * __restrict__ w,
-//                                      const T * __restrict__ dx,
-//                                      const T * __restrict__ dy,
-//                                      const T * __restrict__ dz,
-//                                      const T * __restrict__ h1,
-//                                      const T * __restrict__ g11,
-//                                      const T * __restrict__ g22,
-//                                      const T * __restrict__ g33,
-//                                      const T * __restrict__ g12,
-//                                      const T * __restrict__ g13,
-//                                      const T * __restrict__ g23) {
+template< typename T, const int LX >
+__global__ void __launch_bounds__(LX*LX,3)
+  ax_helm_stress_kernel_vector_kstep_padded(T * __restrict__ au,
+                              T * __restrict__ av,
+                              T * __restrict__ aw,
+                              const T * __restrict__ u,
+                              const T * __restrict__ v,
+                              const T * __restrict__ w,
+                              const T * __restrict__ dx,
+                              const T * __restrict__ dy,
+                              const T * __restrict__ dz,
+                              const T * __restrict__ h1,
+                              const T * __restrict__ drdx,
+                              const T * __restrict__ drdy,
+                              const T * __restrict__ drdz,
+                              const T * __restrict__ dsdx,
+                              const T * __restrict__ dsdy,
+                              const T * __restrict__ dsdz,
+                              const T * __restrict__ dtdx,
+                              const T * __restrict__ dtdy,
+                              const T * __restrict__ dtdz,
+                              const T * __restrict__ jacinv,
+                              const T * __restrict__ weight3) {
 
-//   __shared__ T shdx[LX * (LX+1)];
-//   __shared__ T shdy[LX * (LX+1)];
-//   __shared__ T shdz[LX * (LX+1)];
+  __shared__ T shdx[LX * (LX+1)];
+  __shared__ T shdy[LX * (LX+1)];
+  __shared__ T shdz[LX * (LX+1)];
 
-//   __shared__ T shu[LX * (LX+1)];
-//   __shared__ T shur[LX * LX];
-//   __shared__ T shus[LX * (LX+1)];
+  __shared__ T shu[LX * (LX+1)];
+  __shared__ T shur[LX * LX];
+  __shared__ T shus[LX * (LX+1)];
 
-//   __shared__ T shv[LX * (LX+1)];
-//   __shared__ T shvr[LX * LX];
-//   __shared__ T shvs[LX * (LX+1)];
+  __shared__ T shv[LX * (LX+1)];
+  __shared__ T shvr[LX * LX];
+  __shared__ T shvs[LX * (LX+1)];
 
-//   __shared__ T shw[LX * (LX+1)];
-//   __shared__ T shwr[LX * LX];
-//   __shared__ T shws[LX * (LX+1)];
+  __shared__ T shw[LX * (LX+1)];
+  __shared__ T shwr[LX * LX];
+  __shared__ T shws[LX * (LX+1)];
 
-//   T ru[LX];
-//   T rv[LX];
-//   T rw[LX];
+  T ru[LX];
+  T rv[LX];
+  T rw[LX];
 
-//   T ruw[LX];
-//   T rvw[LX];
-//   T rww[LX];
+  T ruw[LX];
+  T rvw[LX];
+  T rww[LX];
 
-//   T rut;
-//   T rvt;
-//   T rwt;
+  T rut;
+  T rvt;
+  T rwt;
 
-//   const int e = blockIdx.x;
-//   const int j = threadIdx.y;
-//   const int i = threadIdx.x;
-//   const int ij = i + j*LX;
-//   const int ij_p = i + j*(LX+1);
-//   const int ele = e*LX*LX*LX;
+  const int e = blockIdx.x;
+  const int j = threadIdx.y;
+  const int i = threadIdx.x;
+  const int ij = i + j*LX;
+  const int ij_p = i + j*(LX+1);
+  const int ele = e*LX*LX*LX;
 
-//   shdx[ij_p] = dx[ij];
-//   shdy[ij_p] = dy[ij];
-//   shdz[ij_p] = dz[ij];
+  shdx[ij_p] = dx[ij];
+  shdy[ij_p] = dy[ij];
+  shdz[ij_p] = dz[ij];
 
-// #pragma unroll
-//   for(int k = 0; k < LX; ++k){
-//     ru[k] = u[ij + k*LX*LX + ele];
-//     ruw[k] = 0.0;
+#pragma unroll
+  for(int k = 0; k < LX; ++k){
+    ru[k] = u[ij + k*LX*LX + ele];
+    ruw[k] = 0.0;
 
-//     rv[k] = v[ij + k*LX*LX + ele];
-//     rvw[k] = 0.0;
+    rv[k] = v[ij + k*LX*LX + ele];
+    rvw[k] = 0.0;
 
-//     rw[k] = w[ij + k*LX*LX + ele];
-//     rww[k] = 0.0;
-//   }
+    rw[k] = w[ij + k*LX*LX + ele];
+    rww[k] = 0.0;
+  }
 
 
-//   __syncthreads();
-// #pragma unroll
-//   for (int k = 0; k < LX; ++k){
-//     const int ijk = ij + k*LX*LX;
-//     const T G00 = g11[ijk+ele];
-//     const T G11 = g22[ijk+ele];
-//     const T G22 = g33[ijk+ele];
-//     const T G01 = g12[ijk+ele];
-//     const T G02 = g13[ijk+ele];
-//     const T G12 = g23[ijk+ele];
-//     const T H1  = h1[ijk+ele];
-//     T uttmp = 0.0;
-//     T vttmp = 0.0;
-//     T wttmp = 0.0;
-//     shu[ij_p] = ru[k];
-//     shv[ij_p] = rv[k];
-//     shw[ij_p] = rw[k];
-//     for (int l = 0; l < LX; l++){
-//       uttmp += shdz[k+l*(LX+1)] * ru[l];
-//       vttmp += shdz[k+l*(LX+1)] * rv[l];
-//       wttmp += shdz[k+l*(LX+1)] * rw[l];
-//     }
-//     __syncthreads();
+  __syncthreads();
+#pragma unroll
+  for (int k = 0; k < LX; ++k){
+    const int ijk = ij + k*LX*LX;
+    const T drdx_local = drdx[ijk+ele];
+    const T drdy_local = drdy[ijk+ele];
+    const T drdz_local = drdz[ijk+ele];
+    const T dsdx_local = dsdx[ijk+ele];
+    const T dsdy_local = dsdy[ijk+ele];
+    const T dsdz_local = dsdz[ijk+ele];
+    const T dtdx_local = dtdx[ijk+ele];
+    const T dtdy_local = dtdy[ijk+ele];
+    const T dtdz_local = dtdz[ijk+ele];
+    const T dj  = h1[ijk+ele] *
+                  weight3[ijk] *
+                  jacinv[ijk+ele];
 
-//     T urtmp = 0.0;
-//     T ustmp = 0.0;
+    T uttmp = 0.0;
+    T vttmp = 0.0;
+    T wttmp = 0.0;
+    shu[ij_p] = ru[k];
+    shv[ij_p] = rv[k];
+    shw[ij_p] = rw[k];
+    for (int l = 0; l < LX; l++){
+      uttmp += shdz[k+l*(LX+1)] * ru[l];
+      vttmp += shdz[k+l*(LX+1)] * rv[l];
+      wttmp += shdz[k+l*(LX+1)] * rw[l];
+    }
+    __syncthreads();
 
-//     T vrtmp = 0.0;
-//     T vstmp = 0.0;
+    T urtmp = 0.0;
+    T ustmp = 0.0;
 
-//     T wrtmp = 0.0;
-//     T wstmp = 0.0;
-// #pragma unroll
-//     for (int l = 0; l < LX; l++){
-//       urtmp += shdx[i+l*(LX+1)] * shu[l+j*(LX+1)];
-//       ustmp += shdy[j+l*(LX+1)] * shu[i+l*(LX+1)];
+    T vrtmp = 0.0;
+    T vstmp = 0.0;
 
-//       vrtmp += shdx[i+l*(LX+1)] * shv[l+j*(LX+1)];
-//       vstmp += shdy[j+l*(LX+1)] * shv[i+l*(LX+1)];
+    T wrtmp = 0.0;
+    T wstmp = 0.0;
+#pragma unroll
+    for (int l = 0; l < LX; l++){
+      urtmp += shdx[i+l*(LX+1)] * shu[l+j*(LX+1)];
+      ustmp += shdy[j+l*(LX+1)] * shu[i+l*(LX+1)];
 
-//       wrtmp += shdx[i+l*(LX+1)] * shw[l+j*(LX+1)];
-//       wstmp += shdy[j+l*(LX+1)] * shw[i+l*(LX+1)];
-//     }
+      vrtmp += shdx[i+l*(LX+1)] * shv[l+j*(LX+1)];
+      vstmp += shdy[j+l*(LX+1)] * shv[i+l*(LX+1)];
 
-//     shur[ij] = H1
-//              * (G00 * urtmp
-//                 + G01 * ustmp
-//                 + G02 * uttmp);
-//     shus[ij_p] = H1
-//                * (G01 * urtmp
-//                   + G11 * ustmp
-//                   + G12 * uttmp);
-//     rut      = H1
-//              * (G02 * urtmp
-//                 + G12 * ustmp
-//                 + G22 * uttmp);
+      wrtmp += shdx[i+l*(LX+1)] * shw[l+j*(LX+1)];
+      wstmp += shdy[j+l*(LX+1)] * shw[i+l*(LX+1)];
+    }
 
-//     shvr[ij] = H1
-//              * (G00 * vrtmp
-//                 + G01 * vstmp
-//                 + G02 * vttmp);
-//     shvs[ij_p] = H1
-//                * (G01 * vrtmp
-//                   + G11 * vstmp
-//                   + G12 * vttmp);
-//     rvt      = H1
-//              * (G02 * vrtmp
-//                 + G12 * vstmp
-//                 + G22 * vttmp);
+    T u1 = 0.0;
+    T u2 = 0.0;
+    T u3 = 0.0;
+    T v1 = 0.0;
+    T v2 = 0.0;
+    T v3 = 0.0;
+    T w1 = 0.0;
+    T w2 = 0.0;
+    T w3 = 0.0;
 
-//     shwr[ij] = H1
-//              * (G00 * wrtmp
-//                 + G01 * wstmp
-//                 + G02 * wttmp);
-//     shws[ij_p] = H1
-//                * (G01 * wrtmp
-//                   + G11 * wstmp
-//                   + G12 * wttmp);
-//     rwt      = H1
-//              * (G02 * wrtmp
-//                 + G12 * wstmp
-//                 + G22 * wttmp);
+    u1 = urtmp * drdx_local + 
+         ustmp * dsdx_local + 
+         uttmp * dtdx_local;
+    u2 = urtmp * drdy_local + 
+         ustmp * dsdy_local + 
+         uttmp * dtdy_local;
+    u3 = urtmp * drdz_local + 
+         ustmp * dsdz_local + 
+         uttmp * dtdz_local;
 
-//     __syncthreads();
+    v1 = vrtmp * drdx_local + 
+         vstmp * dsdx_local + 
+         vttmp * dtdx_local;
+    v2 = vrtmp * drdy_local + 
+         vstmp * dsdy_local + 
+         vttmp * dtdy_local;
+    v3 = vrtmp * drdz_local + 
+         vstmp * dsdz_local + 
+         vttmp * dtdz_local;
 
-//     T uwijke = 0.0;
-//     T vwijke = 0.0;
-//     T wwijke = 0.0;
-// #pragma unroll
-//     for (int l = 0; l < LX; l++){
-//       uwijke += shur[l+j*LX] * shdx[l+i*(LX+1)];
-//       ruw[l] += rut * shdz[k+l*(LX+1)];
-//       uwijke += shus[i+l*(LX+1)] * shdy[l + j*(LX+1)];
+    w1 = wrtmp * drdx_local + 
+         wstmp * dsdx_local + 
+         wttmp * dtdx_local;
+    w2 = wrtmp * drdy_local + 
+         wstmp * dsdy_local + 
+         wttmp * dtdy_local;
+    w3 = wrtmp * drdz_local + 
+         wstmp * dsdz_local + 
+         wttmp * dtdz_local;
+    
+    T s11 = 0.0;
+    T s12 = 0.0;
+    T s13 = 0.0;
+    T s21 = 0.0;
+    T s22 = 0.0;
+    T s23 = 0.0;
+    T s31 = 0.0;
+    T s32 = 0.0;
+    T s33 = 0.0;
 
-//       vwijke += shvr[l+j*LX] * shdx[l+i*(LX+1)];
-//       rvw[l] += rvt * shdz[k+l*(LX+1)];
-//       vwijke += shvs[i+l*(LX+1)] * shdy[l + j*(LX+1)];
+    s11 = dj*(u1 + u1);
+    s12 = dj*(u2 + v1);
+    s13 = dj*(u3 + w1);
+    s21 = dj*(v1 + u2);
+    s22 = dj*(v2 + v2);
+    s23 = dj*(v3 + w2);
+    s31 = dj*(w1 + u3);
+    s32 = dj*(w2 + v3);
+    s33 = dj*(w3 + w3);
 
-//       wwijke += shwr[l+j*LX] * shdx[l+i*(LX+1)];
-//       rww[l] += rwt * shdz[k+l*(LX+1)];
-//       wwijke += shws[i+l*(LX+1)] * shdy[l + j*(LX+1)];
-//     }
-//     ruw[k] += uwijke;
-//     rvw[k] += vwijke;
-//     rww[k] += wwijke;
-//   }
-// #pragma unroll
-//   for (int k = 0; k < LX; ++k){
-//    au[ij + k*LX*LX + ele] = ruw[k];
-//    av[ij + k*LX*LX + ele] = rvw[k];
-//    aw[ij + k*LX*LX + ele] = rww[k];
-//   }
-// }
+    shur[ij] = drdx_local * s11 +
+               drdy_local * s12 +
+               drdz_local * s13;
+    shus[ij_p] = dsdx_local * s11 +
+               dsdy_local * s12 +
+               dsdz_local * s13;
+    rut =      dtdx_local * s11 +
+               dtdy_local * s12 +
+               dtdz_local * s13;
+    
+    shvr[ij] = drdx_local * s21 +
+               drdy_local * s22 +
+               drdz_local * s23;
+    shvs[ij_p] = dsdx_local * s21 +
+               dsdy_local * s22 +
+               dsdz_local * s23;
+    rvt =      dtdx_local * s21 +
+               dtdy_local * s22 +
+               dtdz_local * s23;
+
+    shwr[ij] = drdx_local * s31 +
+               drdy_local * s32 +
+               drdz_local * s33;
+    shws[ij_p] = dsdx_local * s31 +
+               dsdy_local * s32 +
+               dsdz_local * s33;
+    rwt =      dtdx_local * s31 +
+               dtdy_local * s32 +
+               dtdz_local * s33;
+
+    __syncthreads();
+
+    T uwijke = 0.0;
+    T vwijke = 0.0;
+    T wwijke = 0.0;
+#pragma unroll
+    for (int l = 0; l < LX; l++){
+      uwijke += shur[l+j*LX] * shdx[l+i*(LX+1)];
+      ruw[l] += rut * shdz[k+l*(LX+1)];
+      uwijke += shus[i+l*(LX+1)] * shdy[l + j*(LX+1)];
+
+      vwijke += shvr[l+j*LX] * shdx[l+i*(LX+1)];
+      rvw[l] += rvt * shdz[k+l*(LX+1)];
+      vwijke += shvs[i+l*(LX+1)] * shdy[l + j*(LX+1)];
+
+      wwijke += shwr[l+j*LX] * shdx[l+i*(LX+1)];
+      rww[l] += rwt * shdz[k+l*(LX+1)];
+      wwijke += shws[i+l*(LX+1)] * shdy[l + j*(LX+1)];
+    }
+    ruw[k] += uwijke;
+    rvw[k] += vwijke;
+    rww[k] += wwijke;
+  }
+#pragma unroll
+  for (int k = 0; k < LX; ++k){
+   au[ij + k*LX*LX + ele] = ruw[k];
+   av[ij + k*LX*LX + ele] = rvw[k];
+   aw[ij + k*LX*LX + ele] = rww[k];
+  }
+}
 
 template< typename T >
 __global__ void ax_helm_stress_kernel_vector_part2(T * __restrict__ au,

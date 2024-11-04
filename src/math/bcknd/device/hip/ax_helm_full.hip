@@ -75,46 +75,47 @@ extern "C" {
                         (real *) jacinv, (real *) w3);              \
     HIP_CHECK(hipGetLastError());
 
-// #define CASE_VECTOR_KSTEP_PADDED(LX)                                            \
-//     hipLaunchKernelGGL( HIP_KERNEL_NAME( ax_helm_stress_kernel_vector_kstep_padded<real, LX> ), \
-//                         nblcks, nthrds, 0,                                      \
-//                         (hipStream_t) glb_cmd_queue,                            \
-//                         (real *) au, (real *) av, (real *) aw,                  \
-//                         (real *) u, (real *) v, (real *) w,                     \
-//                         (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
-//                         (real *) drdx, (real *) drdy, (real *) drdz,               \
-//                         (real *) dsdx, (real *) dsdy, (real *) dsdz,               \
-//                         (real *) dtdx, (real *) dtdy, (real *) dtdz);              \
-//     HIP_CHECK(hipGetLastError());
+#define CASE_VECTOR_KSTEP_PADDED(LX)                                            \
+    hipLaunchKernelGGL( HIP_KERNEL_NAME( ax_helm_stress_kernel_vector_kstep_padded<real, LX> ), \
+                        nblcks, nthrds, 0,                                      \
+                        (hipStream_t) glb_cmd_queue,                            \
+                        (real *) au, (real *) av, (real *) aw,                  \
+                        (real *) u, (real *) v, (real *) w,                     \
+                        (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
+                        (real *) drdx, (real *) drdy, (real *) drdz,            \
+                        (real *) dsdx, (real *) dsdy, (real *) dsdz,            \
+                        (real *) dtdx, (real *) dtdy, (real *) dtdz,            \
+                        (real *) jacinv, (real *) w3);              \
+    HIP_CHECK(hipGetLastError());
 
 #define CASE_VECTOR(LX)                                                         \
     case LX:                                                                    \
       CASE_VECTOR_KSTEP(LX);                                                    \
        break
 
-// #define CASE_VECTOR_PADDED(LX)                                                  \
-//     case LX:                                                                    \
-//       CASE_VECTOR_KSTEP_PADDED(LX);                                             \
-//        break
+#define CASE_VECTOR_PADDED(LX)                                                  \
+    case LX:                                                                    \
+      CASE_VECTOR_KSTEP_PADDED(LX);                                             \
+       break
 
     switch(*lx) {
-      CASE_VECTOR(2);
-      CASE_VECTOR(3);
-      CASE_VECTOR(4);
+      CASE_VECTOR_PADDED(2);
+      CASE_VECTOR_PADDED(3);
+      CASE_VECTOR_PADDED(4);
       // CASE_VECTOR_PADDED(4);
-      CASE_VECTOR(5);
-      CASE_VECTOR(6);
-      CASE_VECTOR(7);
-      CASE_VECTOR(8);
+      CASE_VECTOR_PADDED(5);
+      CASE_VECTOR_PADDED(6);
+      CASE_VECTOR_PADDED(7);
+      CASE_VECTOR_PADDED(8);
       // CASE_VECTOR_PADDED(8);
-      CASE_VECTOR(9);
-      CASE_VECTOR(10);
-      CASE_VECTOR(11);
-      CASE_VECTOR(12);
-      CASE_VECTOR(13);
-      CASE_VECTOR(14);
-      CASE_VECTOR(15);
-      CASE_VECTOR(16);
+      CASE_VECTOR_PADDED(9);
+      CASE_VECTOR_PADDED(10);
+      CASE_VECTOR_PADDED(11);
+      CASE_VECTOR_PADDED(12);
+      CASE_VECTOR_PADDED(13);
+      CASE_VECTOR_PADDED(14);
+      CASE_VECTOR_PADDED(15);
+      CASE_VECTOR_PADDED(16);
       // CASE_VECTOR_PADDED(16);
       default:
         {
