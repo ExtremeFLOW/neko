@@ -117,7 +117,6 @@ module fluid_scheme
      type(gradient_jump_penalty_t) :: gradient_jump_penalty_u
      type(gradient_jump_penalty_t) :: gradient_jump_penalty_v
      type(gradient_jump_penalty_t) :: gradient_jump_penalty_w
-     type(field_t) :: check_field
 
      ! Attributes for field dirichlet BCs
      type(field_dirichlet_vector_t) :: user_field_bc_vel   !< User-computed Dirichlet velocity condition

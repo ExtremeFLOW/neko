@@ -279,10 +279,10 @@ contains
                        s11%x_d, s12%x_d, s13%x_d, n)
 
     call device_vdot3 (work2%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
-                       s12%x_d, s22%x_d, s23%x_d, lxyz)
+                       s12%x_d, s22%x_d, s23%x_d, n)
 
     call device_vdot3 (work3%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
-                       s13%x_d, s23%x_d, s33%x_d, lxyz)
+                       s13%x_d, s23%x_d, s33%x_d, n)
 
     ! Subtract the two terms of the viscous stress to get
     ! \nabla x \nabla u - S^T \nabla \mu

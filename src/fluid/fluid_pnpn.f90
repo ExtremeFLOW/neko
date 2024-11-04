@@ -199,7 +199,6 @@ contains
       call this%u_res%init(dm_Xh, "u_res")
       call this%v_res%init(dm_Xh, "v_res")
       call this%w_res%init(dm_Xh, "w_res")
-      call this%check_field%init(dm_Xh, "check_field")
       call this%abx1%init(dm_Xh, "abx1")
       call this%aby1%init(dm_Xh, "aby1")
       call this%abz1%init(dm_Xh, "abz1")
@@ -539,7 +538,7 @@ contains
     call this%advx%free()
     call this%advy%free()
     call this%advz%free()
-    call this%check_field%free()
+    
     if (allocated(this%Ax_vel)) then
        deallocate(this%Ax_vel)
     end if
@@ -737,7 +736,7 @@ contains
                            c_Xh, msh, Xh, &
                            mu_field, rho_field, ext_bdf%diffusion_coeffs(1), &
                            dt, dm_Xh%size())
-      call field_copy(this%check_field, v_res)
+
       call gs_Xh%op(u_res, GS_OP_ADD)
       call gs_Xh%op(v_res, GS_OP_ADD)
       call gs_Xh%op(w_res, GS_OP_ADD)
