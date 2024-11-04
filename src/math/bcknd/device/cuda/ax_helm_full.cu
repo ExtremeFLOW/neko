@@ -37,7 +37,7 @@
 #include <stdio.h>
 #include <device/device_config.h>
 #include <device/cuda/check.h>
-#include "ax_helm_kernel.h"
+#include "ax_helm_full_kernel.h"
 
 extern "C" {
   #include <common/neko_log.h>
