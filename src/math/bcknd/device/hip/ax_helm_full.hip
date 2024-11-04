@@ -101,13 +101,11 @@ extern "C" {
     switch(*lx) {
       CASE_VECTOR(2);
       CASE_VECTOR(3);
-      CASE_VECTOR(4);
-      // CASE_VECTOR_PADDED(4);
+      CASE_VECTOR_PADDED(4);
       CASE_VECTOR(5);
       CASE_VECTOR(6);
       CASE_VECTOR(7);
-      CASE_VECTOR(8);
-      // CASE_VECTOR_PADDED(8);
+      CASE_VECTOR_PADDED(8);
       CASE_VECTOR(9);
       CASE_VECTOR(10);
       CASE_VECTOR(11);
@@ -115,8 +113,7 @@ extern "C" {
       CASE_VECTOR(13);
       CASE_VECTOR(14);
       CASE_VECTOR(15);
-      CASE_VECTOR(16);
-      // CASE_VECTOR_PADDED(16);
+      CASE_VECTOR_PADDED(16);
       default:
         {
           fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
