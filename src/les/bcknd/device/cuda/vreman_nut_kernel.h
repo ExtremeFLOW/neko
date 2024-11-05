@@ -40,7 +40,7 @@
 #include <cmath>
 #include <algorithm>
 template< typename T>
-__global__ void hip_vreman_nut_compute(T * __restrict__ a11,
+__global__ void vreman_nut_compute(T * __restrict__ a11,
                                       T * __restrict__ a12,
                                       T * __restrict__ a13,
                                       T * __restrict__ a21,

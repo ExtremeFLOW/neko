@@ -54,7 +54,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-    cuda_sigma_nut_compute<real>
+    sigma_nut_compute<real>
     <<<nblcks, nthrds, 0, stream>>>((real *) g11, (real *) g12, (real *) g13,
                                     (real *) g21, (real *) g22, (real *) g23,
                                     (real *) g31, (real *) g32, (real *) g33,

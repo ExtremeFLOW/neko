@@ -40,7 +40,7 @@
 #include <cmath>
 #include <algorithm>
 template< typename T>
-__global__ void hip_sigma_nut_compute(T * __restrict__ g11,
+__global__ void sigma_nut_compute(T * __restrict__ g11,
                                       T * __restrict__ g12,
                                       T * __restrict__ g13,
                                       T * __restrict__ g21,

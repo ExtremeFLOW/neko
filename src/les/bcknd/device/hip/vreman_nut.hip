@@ -46,7 +46,7 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(hip_vreman_nut_compute<real>),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(vreman_nut_compute<real>),
                                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                                        (real *) a11, (real *) a12, (real *) a13,
                                        (real *) a21, (real *) a22, (real *) a23,
