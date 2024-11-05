@@ -306,8 +306,7 @@ les/les_model_fctry.lo : les/les_model_fctry.f90 common/utils.lo les/sigma.lo le
 les/vreman.lo : les/vreman.f90 sem/coef.lo les/bcknd/device/vreman_device.lo les/bcknd/cpu/vreman_cpu.lo config/neko_config.lo common/utils.lo common/json_utils.lo sem/dofmap.lo les/les_model.lo field/field.lo config/num_types.lo 
 les/bcknd/cpu/vreman_cpu.lo : les/bcknd/cpu/vreman_cpu.f90 gs/gs_ops.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo math/math.lo field/field_list.lo config/num_types.lo 
 les/bcknd/device/vreman_device.lo : les/bcknd/device/vreman_device.f90 les/bcknd/device/device_vreman_nut.lo gs/gs_ops.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo math/math.lo config/num_types.lo 
-les/bcknd/device/device_vreman_nut.lo : les/bcknd/device/device_vreman_nut.F90 les/bcknd/device/hip/hip_vreman_nut.lo comm/comm.lo common/utils.lo config/num_types.lo 
-les/bcknd/device/hip/hip_vreman_nut.lo : les/bcknd/device/hip/hip_vreman_nut.f90 config/num_types.lo 
+les/bcknd/device/device_vreman_nut.lo : les/bcknd/device/device_vreman_nut.F90 comm/comm.lo common/utils.lo config/num_types.lo 
 les/smagorinsky.lo : les/smagorinsky.f90 sem/coef.lo les/bcknd/cpu/smagorinsky_cpu.lo config/neko_config.lo common/utils.lo common/json_utils.lo sem/dofmap.lo les/les_model.lo field/field.lo config/num_types.lo 
 les/bcknd/cpu/smagorinsky_cpu.lo : les/bcknd/cpu/smagorinsky_cpu.f90 gs/gs_ops.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo field/field_list.lo config/num_types.lo 
 les/dynamic_smagorinsky.lo : les/dynamic_smagorinsky.f90 les/bcknd/cpu/dynamic_smagorinsky_cpu.lo les/elementwise_filter.lo sem/coef.lo config/neko_config.lo common/utils.lo common/json_utils.lo sem/dofmap.lo les/les_model.lo field/field.lo field/field_list.lo math/math.lo config/num_types.lo 
@@ -317,8 +316,7 @@ les/bcknd/cpu/elementwise_filter_cpu.lo : les/bcknd/cpu/elementwise_filter_cpu.f
 les/sigma.lo : les/sigma.f90 sem/coef.lo les/bcknd/device/sigma_device.lo les/bcknd/cpu/sigma_cpu.lo config/neko_config.lo common/utils.lo common/json_utils.lo sem/dofmap.lo les/les_model.lo field/field.lo config/num_types.lo 
 les/bcknd/cpu/sigma_cpu.lo : les/bcknd/cpu/sigma_cpu.f90 gs/gs_ops.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo field/field_list.lo config/num_types.lo 
 les/bcknd/device/sigma_device.lo : les/bcknd/device/sigma_device.f90 les/bcknd/device/device_sigma_nut.lo gs/gs_ops.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo math/math.lo math/bcknd/device/device_math.lo field/field_list.lo config/num_types.lo 
-les/bcknd/device/device_sigma_nut.lo : les/bcknd/device/device_sigma_nut.F90 les/bcknd/device/hip/hip_sigma_nut.lo comm/comm.lo common/utils.lo config/num_types.lo 
-les/bcknd/device/hip/hip_sigma_nut.lo : les/bcknd/device/hip/hip_sigma_nut.f90 config/num_types.lo 
+les/bcknd/device/device_sigma_nut.lo : les/bcknd/device/device_sigma_nut.F90 comm/comm.lo common/utils.lo config/num_types.lo 
 wall_models/wall_model.lo : wall_models/wall_model.f90 common/log.lo comm/comm.lo math/math.lo common/utils.lo math/vector.lo device/device.lo config/neko_config.lo sem/coef.lo sem/dofmap.lo field/field_registry.lo field/field.lo config/num_types.lo 
 wall_models/rough_log_law.lo : wall_models/rough_log_law.f90 common/utils.lo common/json_utils.lo field/field_registry.lo wall_models/wall_model.lo config/neko_config.lo sem/coef.lo sem/dofmap.lo config/num_types.lo field/field.lo 
 wall_models/spalding.lo : wall_models/spalding.f90 common/utils.lo common/log.lo common/json_utils.lo field/field_registry.lo wall_models/wall_model.lo config/neko_config.lo sem/coef.lo sem/dofmap.lo config/num_types.lo field/field.lo 
