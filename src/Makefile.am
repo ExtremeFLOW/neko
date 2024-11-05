@@ -311,7 +311,6 @@ neko_fortran_SOURCES = \
 	les/bcknd/cpu/vreman_cpu.f90\
 	les/bcknd/device/vreman_device.f90\
 	les/bcknd/device/device_vreman_nut.F90\
-	les/bcknd/device/hip/hip_vreman_nut.f90\
 	les/smagorinsky.f90\
 	les/bcknd/cpu/smagorinsky_cpu.f90\
 	les/dynamic_smagorinsky.f90\
@@ -322,7 +321,6 @@ neko_fortran_SOURCES = \
 	les/bcknd/cpu/sigma_cpu.f90\
 	les/bcknd/device/sigma_device.f90\
 	les/bcknd/device/device_sigma_nut.F90\
-	les/bcknd/device/hip/hip_sigma_nut.f90\
 	wall_models/wall_model.f90\
 	wall_models/rough_log_law.f90\
 	wall_models/spalding.f90\
@@ -421,7 +419,9 @@ libneko_la_SOURCES += \
 	fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
 	sem/bcknd/device/cuda/coef.cu\
-	source_terms/bcknd/device/cuda/filters.cu
+	source_terms/bcknd/device/cuda/filters.cu\
+	les/bcknd/device/cuda/sigma_nut.cu\
+	les/bcknd/device/cuda/vreman_nut.cu
 
 BUILT_SOURCES = libtool_cuda
 
@@ -573,6 +573,8 @@ EXTRA_DIST = \
 	fluid/stress_formulation/bcknd/device/cuda/prs_stress_res_kernel.h\
 	scalar/bcknd/device/cuda/scalar_residual_update_kernel.h\
 	sem/bcknd/device/cuda/coef_kernel.h\
+	les/bcknd/device/cuda/sigma_nut_kernel.h\
+	les/bcknd/device/cuda/vreman_nut_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
 	bc/bcknd/device/hip/no_slip_wall_kernel.h\
