@@ -59,6 +59,22 @@ module device_sigma_nut
      end subroutine hip_sigma_nut_compute
   end interface
 #elif HAVE_CUDA
+  interface
+     subroutine cuda_sigma_nut_compute(g11_d, g12_d, g13_d, &
+                                      g21_d, g22_d, g23_d, &
+                                      g31_d, g32_d, g33_d, &
+                                      delta_d, nut_d, mult_d, c, eps, n) &
+          bind(c, name = 'cuda_sigma_nut_compute')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: g11_d, g12_d, g13_d, &
+                             g21_d, g22_d, g23_d, &
+                             g31_d, g32_d, g33_d, &
+                             delta_d, nut_d, mult_d
+       integer(c_int) :: n
+       real(c_rp) :: c, eps
+     end subroutine cuda_sigma_nut_compute
+  end interface
 #elif HAVE_OPENCL
 #endif
 
@@ -83,7 +99,10 @@ contains
                               g31_d, g32_d, g33_d, &
                               delta_d, nut_d, mult_d, c, eps, n)
 #elif HAVE_CUDA
-     call neko_error('cuda backend is not supported for device_sigma_nut')
+    call cuda_sigma_nut_compute(g11_d, g12_d, g13_d, &
+                              g21_d, g22_d, g23_d, &
+                              g31_d, g32_d, g33_d, &
+                              delta_d, nut_d, mult_d, c, eps, n)
 #elif HAVE_OPENCL
     call neko_error('opencl backend is not supported for device_sigma_nut')
 #else
