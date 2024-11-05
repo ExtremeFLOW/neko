@@ -37,13 +37,30 @@ module device_vreman_nut
   use comm, only: NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only: MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
 
-  ! ========================================================================== !
-  ! Device interfaces for nut calculation in the Sigma model
-
-  use hip_vreman_nut
   ! use cuda_vreman_nut
   implicit none
   private
+
+#ifdef HAVE_HIP
+  interface
+     subroutine hip_vreman_nut_compute(a11_d, a12_d, a13_d, &
+                                      a21_d, a22_d, a23_d, &
+                                      a31_d, a32_d, a33_d, &
+                                      delta_d, nut_d, mult_d, c, eps, n) &
+          bind(c, name = 'hip_vreman_nut_compute')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a11_d, a12_d, a13_d, &
+                             a21_d, a22_d, a23_d, &
+                             a31_d, a32_d, a33_d, &
+                             delta_d, nut_d, mult_d
+       integer(c_int) :: n
+       real(c_rp) :: c, eps
+     end subroutine hip_vreman_nut_compute
+  end interface
+#elif HAVE_CUDA
+#elif HAVE_OPENCL
+#endif
 
   public :: device_vreman_nut_compute
 

@@ -311,7 +311,6 @@ neko_fortran_SOURCES = \
 	les/bcknd/cpu/vreman_cpu.f90\
 	les/bcknd/device/vreman_device.f90\
 	les/bcknd/device/device_vreman_nut.F90\
-	les/bcknd/device/hip/hip_vreman_nut.f90\
 	les/smagorinsky.f90\
 	les/bcknd/cpu/smagorinsky_cpu.f90\
 	les/dynamic_smagorinsky.f90\
@@ -322,7 +321,6 @@ neko_fortran_SOURCES = \
 	les/bcknd/cpu/sigma_cpu.f90\
 	les/bcknd/device/sigma_device.f90\
 	les/bcknd/device/device_sigma_nut.F90\
-	les/bcknd/device/hip/hip_sigma_nut.f90\
 	wall_models/wall_model.f90\
 	wall_models/rough_log_law.f90\
 	wall_models/spalding.f90\
