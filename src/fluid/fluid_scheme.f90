@@ -70,15 +70,18 @@ module fluid_scheme
   use operators, only : cfl
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, json_extract_object
   use json_module, only : json_file
   use scratch_registry, only : scratch_registry_t
   use user_intf, only : user_t, dummy_user_material_properties, &
                         user_material_properties
-  use utils, only : neko_error
+  use utils, only : neko_error, neko_warning
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
   use field_math, only : field_cfill
+  use wall_model_bc, only : wall_model_bc_t
+  use shear_stress, only : shear_stress_t
+  use gradient_jump_penalty, only : gradient_jump_penalty_t
   implicit none
   private
 
@@ -111,6 +114,12 @@ module fluid_scheme
      integer :: pr_projection_activ_step   !< Steps to activate projection for ksp_pr
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
+     type(wall_model_bc_t) :: bc_wallmodel !< Wall model boundary condition
+     !> Gradient jump panelty
+     logical :: if_gradient_jump_penalty
+     type(gradient_jump_penalty_t) :: gradient_jump_penalty_u
+     type(gradient_jump_penalty_t) :: gradient_jump_penalty_v
+     type(gradient_jump_penalty_t) :: gradient_jump_penalty_w
 
      ! Attributes for field dirichlet BCs
      type(field_dirichlet_vector_t) :: user_field_bc_vel   !< User-computed Dirichlet velocity condition
@@ -118,7 +127,9 @@ module fluid_scheme
      type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
      type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
+     type(shear_stress_t) :: bc_sh             !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
+     type(bc_list_t) :: bclst_vel_neumann      !< List of neumann velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
      type(field_t) :: bdry                     !< Boundary markings
      type(json_file), pointer :: params        !< Parameters
@@ -192,7 +203,7 @@ module fluid_scheme
        type(mesh_t), target, intent(inout) :: msh
        integer, intent(inout) :: lx
        type(json_file), target, intent(inout) :: params
-       type(user_t), intent(in) :: user
+       type(user_t), target, intent(in) :: user
        type(time_scheme_controller_t), target, intent(in) :: time_scheme
      end subroutine fluid_scheme_init_intrf
   end interface
@@ -259,9 +270,10 @@ contains
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp), allocatable :: real_vec(:)
-    real(kind=rp) :: real_val
+    real(kind=rp) :: real_val, kappa, B, z0
     logical :: logical_val
     integer :: integer_val, ierr
+    type(json_file) :: wm_json
     character(len=:), allocatable :: string_val1, string_val2
 
     !
@@ -397,6 +409,10 @@ contains
        call neko_log%message(log_buf)
        write(log_buf, '(A)') '''d_vel_(u,v,w)'' and ''d_pres'' = 8'
        call neko_log%message(log_buf)
+       write(log_buf, '(A)') 'Shear stress            ''sh'' = 9'
+       call neko_log%message(log_buf)
+       write(log_buf, '(A)') 'Wall modelling          ''wm'' = 10'
+       call neko_log%message(log_buf)
        write(log_buf, '(A)') 'No boundary condition set    = 0'
        call neko_log%message(log_buf)
     end if
@@ -423,6 +439,35 @@ contains
     call this%bc_sym%finalize()
     call this%bc_sym%init(this%c_Xh)
     call bc_list_add(this%bclst_vel, this%bc_sym)
+
+    ! Shear stress conditions
+    call this%bc_sh%init_base(this%c_Xh)
+    call this%bc_sh%mark_zones_from_list(msh%labeled_zones, &
+                        'sh', this%bc_labels)
+    call this%bc_sh%finalize()
+      ! This marks the dirichlet and neumann conditions inside, and finalizes
+      ! them.
+    call this%bc_sh%init_shear_stress(this%c_Xh)
+
+    call bc_list_add(this%bclst_vel, this%bc_sh%symmetry)
+
+    ! Read stress value, default to [0 0 0]
+    if (this%bc_sh%msk(0) .gt. 0) then
+       call params%get('case.fluid.shear_stress.value', real_vec, logical_val)
+       if (.not. logical_val .and. this%bc_sh%msk(0) .gt. 0) then
+          call neko_warning("No stress values provided for sh boundaries, &
+               & defaulting to 0. Use fluid.shear_stress.value to set.")
+          allocate(real_vec(3))
+          real_vec = 0.0_rp
+       else if (size(real_vec) .ne. 3) then
+          call neko_error ("The shear stress vector provided in &
+               &fluid.shear_stress.value should have 3 components.")
+       end if
+       call this%bc_sh%set_stress(real_vec(1), real_vec(2), real_vec(3))
+    end if
+
+    call bc_list_init(this%bclst_vel_neumann)
+    call bc_list_add(this%bclst_vel_neumann, this%bc_sh)
 
     !
     ! Inflow
@@ -467,6 +512,23 @@ contains
        else if (trim(string_val1) .eq. "user") then
        end if
     end if
+
+    !
+    ! Wall models
+    !
+
+    call this%bc_wallmodel%init_base(this%c_Xh)
+    call this%bc_wallmodel%mark_zones_from_list(msh%labeled_zones,&
+         'wm', this%bc_labels)
+    call this%bc_wallmodel%finalize()
+
+    if (this%bc_wallmodel%msk(0) .gt. 0) then
+       call json_extract_object(params, 'case.fluid.wall_modelling', wm_json)
+       call this%bc_wallmodel%init_wall_model_bc(wm_json, this%mu / this%rho)
+    end if
+
+    call bc_list_add(this%bclst_vel, this%bc_wallmodel%symmetry)
+    call bc_list_add(this%bclst_vel_neumann, this%bc_wallmodel)
 
     call this%bc_wall%init_base(this%c_Xh)
     call this%bc_wall%mark_zone(msh%wall)
@@ -569,8 +631,8 @@ contains
 
     ! Initialize the source term
     call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user)
-    call this%source_term%add(params, 'case.fluid.source_term')
-    
+    call this%source_term%add(params, 'case.fluid.source_terms')
+
     ! If case.output_boundary is true, set the values for the bc types in the
     ! output of the field.
     call this%set_bc_type_output(params)
@@ -589,7 +651,7 @@ contains
        call json_get_or_default(params, &
                                 'case.fluid.velocity_solver.monitor', &
                                 logical_val, .false.)
-       
+
        call neko_log%message('Type       : ('// trim(string_val1) // &
            ', ' // trim(string_val2) // ')')
 
@@ -628,13 +690,14 @@ contains
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
     logical :: kspv_init
-    logical :: kspp_init    
+    logical :: kspp_init
     character(len=*), intent(in) :: scheme
     real(kind=rp) :: abs_tol
     integer :: integer_val, ierr
     logical :: logical_val
     character(len=:), allocatable :: solver_type, precon_type
     character(len=LOG_SIZE) :: log_buf
+    real(kind=rp) :: GJP_param_a, GJP_param_b
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
          kspv_init)
@@ -715,6 +778,32 @@ contains
 
     end if
 
+    ! Initiate gradient jump penalty
+    call json_get_or_default(params, &
+                            'case.fluid.gradient_jump_penalty.enabled',&
+                            this%if_gradient_jump_penalty, .false.)
+
+    if (this%if_gradient_jump_penalty .eqv. .true.) then
+       if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
+          call json_get_or_default(params, &
+                            'case.fluid.gradient_jump_penalty.tau',&
+                            GJP_param_a, 0.02_rp)
+          GJP_param_b = 0.0_rp
+       else
+          call json_get_or_default(params, &
+                        'case.fluid.gradient_jump_penalty.scaling_factor',&
+                            GJP_param_a, 0.8_rp)
+          call json_get_or_default(params, &
+                        'case.fluid.gradient_jump_penalty.scaling_exponent',&
+                            GJP_param_b, 4.0_rp)
+       end if
+       call this%gradient_jump_penalty_u%init(params, this%dm_Xh, this%c_Xh, &
+                                              GJP_param_a, GJP_param_b)
+       call this%gradient_jump_penalty_v%init(params, this%dm_Xh, this%c_Xh, &
+                                              GJP_param_a, GJP_param_b)
+       call this%gradient_jump_penalty_w%init(params, this%dm_Xh, this%c_Xh, &
+                                              GJP_param_a, GJP_param_b)
+    end if
 
     call neko_log%end_section()
 
@@ -732,6 +821,7 @@ contains
 
     call this%bc_wall%free()
     call this%bc_sym%free()
+    call this%bc_sh%free()
 
     !
     ! Free everything related to field_dirichlet BCs
@@ -809,6 +899,13 @@ contains
 
     call this%mu_field%free()
 
+    ! Free gradient jump penalty
+    if (this%if_gradient_jump_penalty .eqv. .true.) then
+       call this%gradient_jump_penalty_u%free()
+       call this%gradient_jump_penalty_v%free()
+       call this%gradient_jump_penalty_w%free()
+    end if
+
 
   end subroutine fluid_scheme_free
 
@@ -856,19 +953,6 @@ contains
     ! Setup checkpoint structure (if everything is fine)
     !
     call this%chkp%init(this%u, this%v, this%w, this%p)
-
-    !
-    ! Setup mean flow fields if requested
-    !
-    if (this%params%valid_path('case.statistics')) then
-       call json_get_or_default(this%params, 'case.statistics.enabled', &
-                                logical_val, .true.)
-       if (logical_val) then
-          call this%mean%init(this%u, this%v, this%w, this%p)
-          call this%stats%init(this%c_Xh, this%mean%u, &
-               this%mean%v, this%mean%w, this%mean%p)
-       end if
-    end if
 
   end subroutine fluid_scheme_validate
 
@@ -1065,6 +1149,22 @@ contains
                      'd_pres', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(8.0_rp)
+      call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+      call bdry_mask%free()
+
+      call bdry_mask%init_base(this%c_Xh)
+      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
+                     'sh', this%bc_labels)
+      call bdry_mask%finalize()
+      call bdry_mask%set_g(9.0_rp)
+      call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+      call bdry_mask%free()
+
+      call bdry_mask%init_base(this%c_Xh)
+      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
+                     'wm', this%bc_labels)
+      call bdry_mask%finalize()
+      call bdry_mask%set_g(10.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
       call bdry_mask%free()
 

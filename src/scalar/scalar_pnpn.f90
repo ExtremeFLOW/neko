@@ -342,11 +342,10 @@ contains
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
 
-      ! Pre-multiply the source terms with the mass matrix.
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_col2(f_Xh%x_d, c_Xh%B_d, n)
-      else
-         call col2(f_Xh%x, c_Xh%B, n)
+      ! Compute the grandient jump penalty term
+      if (this%if_gradient_jump_penalty .eqv. .true.) then
+         call this%gradient_jump_penalty%compute(u, v, w, s)
+         call this%gradient_jump_penalty%perform(f_Xh)
       end if
 
       ! Apply Neumann boundary conditions

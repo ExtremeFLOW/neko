@@ -1,0 +1,82 @@
+ERROR STOP *** Encountered 1 or more failures/errors during testing. ***
+
+Error termination. Backtrace:
+#0  0x7fbf16644960 in ???
+#1  0x7fbf166454d9 in ???
+#2  0x7fbf16646b47 in ???
+#3  0x55a35788744a in __funit_MOD_finalize
+	at /home/tife/Projects/neko-top/external/pFUnit/src/funit/FUnit.F90:171
+#4  0x55a357895c28 in funit_main_
+	at /home/tife/Projects/neko-top/external/pFUnit/src/funit/funit_main.F90:17
+#5  0x55a35782c11d in ???
+#6  0x55a35782c164 in ???
+#7  0x7fbf163ffd8f in __libc_start_call_main
+	at ../sysdeps/nptl/libc_start_call_main.h:58
+#8  0x7fbf163ffe3f in __libc_start_main_impl
+	at ../csu/libc-start.c:392
+#9  0x55a35782b574 in ???
+#10  0xffffffffffffffff in ???
+...F. trilinear:   0.50000000000000000       0.50000000000000000       0.50000000000000000
+ p_est:       0.50000000000000000       0.50000000000000000       0.50000000000000000
+ residual:    0.50000000000000000       0.50000000000000000       0.50000000000000000
+ Jacobian:
+  0.00  0.00  0.00
+  0.00  1.00  0.00
+  0.00  0.00  1.00
+ trilinear:   0.50000000000000000       0.50000000000000000       0.50000000000000000
+ p_est:       0.50000000000000000       0.50000000000000000       0.50000000000000000
+ residual:     0.0000000000000000       0.50000000000000000       0.50000000000000000
+ Jacobian:
+  0.00  0.00  0.00
+  0.00  1.00  0.00
+  0.00  0.00  1.00
+ trilinear:   0.50000000000000000       0.50000000000000000       0.50000000000000000
+ p_est:       0.50000000000000000       0.50000000000000000       0.50000000000000000
+ residual:     0.0000000000000000        0.0000000000000000       0.50000000000000000
+ Jacobian:
+  0.00  0.00  0.00
+  0.00  1.00  0.00
+  0.00  0.00  1.00
+ trilinear:   0.50000000000000000       0.50000000000000000       0.50000000000000000
+ p_est:       0.50000000000000000       0.50000000000000000       0.50000000000000000
+ residual:     1.5000000000000000        1.5000000000000000        1.5000000000000000
+ Jacobian:
+  0.00  0.00  0.00
+  0.00  1.00  0.00
+  0.00  0.00  1.00
+ trilinear:   -1.0000000000000000       -1.0000000000000000       -1.0000000000000000
+ p_est:       -4.0000000000000000       -1.0000000000000000       -1.0000000000000000
+ residual:    -3.0000000000000000        0.0000000000000000        0.0000000000000000
+ Jacobian:
+  3.00  3.00  0.00
+  0.00  1.00  0.00
+  0.00  0.00  1.00
+F
+Time:         0.001 seconds
+
+Failure
+ in:
+linear_coordinates_suite.test_linear_coordinate_quadrilateral
+  Location:
+[linear_coordinates.pf:287]
+Unit quadrilateral test, point at center
+AssertEqual failure:
+      Expected: <0.50000000000000000>
+        Actual: <0.0000000000000000>
+    Difference: <-0.50000000000000000> (greater than tolerance of 0.99999999999999998E-12)
+
+Failure
+ in:
+linear_coordinates_suite.test_linear_coordinate_hexahedron
+  Location:
+[linear_coordinates.pf:433]
+Unit hexahedron test, point outside
+AssertEqual failure:
+      Expected: <-1.0000000000000000>
+        Actual: <0.0000000000000000>
+    Difference: <1.0000000000000000> (greater than tolerance of 0.99999999999999998E-12)
+
+ FAILURES!!!
+Tests run: 4, Failures: 2, Errors: 0
+, Disabled: 0
+FAIL geometric_operators/linear_coordinates_test (exit status: 1)

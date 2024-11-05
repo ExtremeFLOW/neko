@@ -43,6 +43,9 @@ module brinkman_source_term
   use neko_config, only: NEKO_BCKND_DEVICE
   use utils, only: neko_error
   use field_math, only: field_subcol3
+
+  use math, only: pwmax
+  use device_math, only: device_pwmax
   implicit none
   private
 
@@ -174,14 +177,9 @@ contains
     ! ------------------------------------------------------------------------ !
     ! Compute the permeability field
 
-    call permeability_field(this%brinkman, this%indicator, &
-         & brinkman_limits(1), brinkman_limits(2), brinkman_penalty)
-
-    ! Copy the permeability field to the device
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%brinkman%x, this%brinkman%x_d, &
-            this%brinkman%dof%size(), HOST_TO_DEVICE, .true.)
-    end if
+    this%brinkman = this%indicator
+    call permeability_field(this%brinkman, &
+         brinkman_limits(1), brinkman_limits(2), brinkman_penalty)
 
   end subroutine brinkman_source_term_init_from_json
 
@@ -325,7 +323,7 @@ contains
     ! compute the signed distance function. This should be replaced with a
     ! more efficient method, such as a tree search.
 
-    call temp_field%init(this%indicator%dof)
+    call temp_field%init(this%coef%dof)
 
     ! Select how to transform the distance field to a design field
     select case (distance_transform)
@@ -339,6 +337,7 @@ contains
       case ('step')
 
        call json_get(json, 'distance_transform.value', scalar_d)
+       scalar_r = real(scalar_d, kind=rp)
 
        call signed_distance_field(temp_field, boundary_mesh, scalar_d)
        call step_function_field(temp_field, scalar_r, 1.0_rp, 0.0_rp)
@@ -359,7 +358,12 @@ contains
     end select
 
     ! Update the global indicator field by max operator
-    this%indicator%x = max(this%indicator%x, temp_field%x)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_pwmax(this%indicator%x_d, temp_field%x_d, &
+            this%indicator%size())
+    else
+       this%indicator%x = max(this%indicator%x, temp_field%x)
+    end if
 
   end subroutine init_boundary_mesh
 
@@ -392,8 +396,7 @@ contains
     call json_get_or_default(json, 'filter.type', filter_type, 'none')
 
     ! Compute the indicator field
-
-    call temp_field%init(this%indicator%dof)
+    call temp_field%init(this%coef%dof)
 
     my_point_zone => neko_point_zone_registry%get_point_zone(zone_name)
 

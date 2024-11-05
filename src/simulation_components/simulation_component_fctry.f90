@@ -35,6 +35,7 @@
 submodule (simulation_component) simulation_component_fctry
   use vorticity, only : vorticity_t
   use force_torque, only : force_torque_t
+  use fluid_stats_simcomp, only : fluid_stats_simcomp_t
   use lambda2, only : lambda2_t
   use probes, only : probes_t
   use les_simcomp, only : les_simcomp_t
@@ -42,15 +43,18 @@ submodule (simulation_component) simulation_component_fctry
   use field_writer, only : field_writer_t
   use weak_grad, only : weak_grad_t
   use derivative, only : derivative_t
+  use spectral_error, only: spectral_error_t
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SIMCOMPS_KNOWN_TYPES(6) = [character(len=20) :: &
+  character(len=20) :: SIMCOMPS_KNOWN_TYPES(8) = [character(len=20) :: &
      "vorticity", &
      "lambda2", &
      "probes", &
      "les_model", &
      "field_writer", &
-     "force_torque"]
+     "fluid_stats", &
+     "force_torque", &
+     "spectral_error"]
 
 contains
 
@@ -88,6 +92,10 @@ contains
        allocate(derivative_t::object)
     else if (trim(type_name) .eq. "force_torque") then
        allocate(force_torque_t::object)
+    else if (trim(type_name) .eq. "fluid_stats") then
+       allocate(fluid_stats_simcomp_t::object)
+    else if (trim(type_name) .eq. "spectral_error") then
+       allocate(spectral_error_t::object)
     else
        type_string =  concat_string_array(SIMCOMPS_KNOWN_TYPES, &
             NEW_LINE('A') // "-  ",  .true.)

@@ -88,10 +88,9 @@ contains
        call neko_simcomps%restart(t)
     end if
 
-    !> Call stats, samplers and user-init before time loop
+    !> Execute outputs and user-init before time loop
     call neko_log%section('Postprocessing')
-    call C%q%eval(t, C%dt, tstep)
-    call C%s%sample(t, tstep)
+    call C%output_controller%execute(t, tstep)
 
     call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
                                  C%fluid%p, C%fluid%c_Xh, C%params)
@@ -156,8 +155,7 @@ contains
        ! Execute all simulation components
        call neko_simcomps%compute(t, tstep)
 
-       call C%q%eval(t, C%dt, tstep)
-       call C%s%sample(t, tstep)
+       call C%output_controller%execute(t, tstep)
 
        ! Update material properties
        call C%usr%material_properties(t, tstep, C%fluid%rho,&
@@ -186,7 +184,7 @@ contains
 
     call json_get_or_default(C%params, 'case.output_at_end',&
                              output_at_end, .true.)
-    call C%s%sample(t, tstep, output_at_end)
+    call C%output_controller%execute(t, tstep, output_at_end)
 
     if (.not. (output_at_end) .and. t .lt. C%end_time) then
        call simulation_joblimit_chkp(C, t)
@@ -237,7 +235,7 @@ contains
     character(len=:), allocatable :: restart_file
     character(len=:), allocatable :: restart_mesh_file
     real(kind=rp) :: tol
-    logical :: found
+    logical :: found, check_cont
 
     call C%params%get('case.restart_file', restart_file, found)
     call C%params%get('case.restart_mesh_file', restart_mesh_file,&
@@ -259,13 +257,14 @@ contains
     C%tlag = C%fluid%chkp%tlag
 
     !Free the previous mesh, dont need it anymore
-    call C%fluid%chkp%previous_mesh%free()
     do i = 1, size(C%dtlag)
        call C%ext_bdf%set_coeffs(C%dtlag)
     end do
 
     call C%fluid%restart(C%dtlag, C%tlag)
-    if (allocated(C%scalar)) call C%scalar%restart( C%dtlag, C%tlag)
+    call C%fluid%chkp%previous_mesh%free()
+    if (allocated(C%scalar)) &
+       call C%scalar%restart( C%dtlag, C%tlag)
 
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')
@@ -276,7 +275,7 @@ contains
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    call C%s%set_counter(t)
+    call C%output_controller%set_counter(t)
   end subroutine simulation_restart
 
   !> Write a checkpoint at joblimit
@@ -297,7 +296,7 @@ contains
           format_str = '.h5'
        end if
     end if
-    chkpf = file_t('joblimit'//trim(format_str))
+    chkpf = file_t(C%output_directory // 'joblimit'//trim(format_str))
     call chkpf%write(C%fluid%chkp, t)
     write(log_buf, '(A)') '! saving checkpoint >>>'
     call neko_log%message(log_buf)
