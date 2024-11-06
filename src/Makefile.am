@@ -111,6 +111,7 @@ neko_fortran_SOURCES = \
 	math/matrix.f90\
 	math/signed_distance.f90\
 	multigrid/tree_amg.f90\
+	multigrid/tree_amg_utils.f90\
 	multigrid/tree_amg_aggregate.f90\
 	multigrid/tree_amg_multigrid.f90\
 	multigrid/tree_amg_smoother.f90\

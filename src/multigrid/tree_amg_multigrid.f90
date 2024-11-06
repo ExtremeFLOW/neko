@@ -62,6 +62,7 @@ module tree_amg_multigrid
   type, public :: tamg_solver_t
     type(tamg_hierarchy_t), allocatable :: amg
     type(amg_cheby_t), allocatable :: smoo(:)
+    !type(amg_jacobi_t), allocatable :: jsmoo(:)
     integer :: nlvls
     integer :: max_iter
   contains
@@ -153,6 +154,12 @@ contains
       call this%smoo(lvl)%init(n ,lvl, cheby_degree)
     end do
 
+    !allocate(this%jsmoo(0:(nlvls)))
+    !do lvl = 0, nlvls-1
+    !  n = this%amg%lvl(lvl+1)%fine_lvl_dofs
+    !  call this%jsmoo(lvl)%init(n ,lvl, cheby_degree)
+    !end do
+
   end subroutine tamg_mg_init
  
 
@@ -211,6 +218,7 @@ contains
     !> SMOOTH   <!
     !>----------<!
     call mgstuff%smoo(lvl)%solve(x,b, n, amg)
+    !call mgstuff%jsmoo(lvl)%solve(x,b, n, amg)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
       return
     end if
@@ -251,6 +259,7 @@ contains
     !> SMOOTH   <!
     !>----------<!
     call mgstuff%smoo(lvl)%solve(x,b, n, amg)
+    !call mgstuff%jsmoo(lvl)%solve(x,b, n, amg)
 
     !>----------<!
     !> Residual <!

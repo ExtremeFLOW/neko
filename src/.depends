@@ -107,9 +107,10 @@ math/vector.lo : math/vector.f90 common/utils.lo math/bcknd/device/device_math.l
 math/matrix.lo : math/matrix.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/num_types.lo math/math.lo config/neko_config.lo 
 math/signed_distance.lo : math/signed_distance.f90 adt/stack.lo mesh/search_tree/aabb.lo mesh/point.lo common/utils.lo config/neko_config.lo device/device.lo mesh/aabb_tree.lo mesh/tri_mesh.lo mesh/tri.lo field/field.lo config/num_types.lo 
 multigrid/tree_amg.lo : multigrid/tree_amg.f90 gs/gather_scatter.lo bc/bc.lo math/ax.lo sem/space.lo mesh/mesh.lo sem/coef.lo math/math.lo common/utils.lo config/num_types.lo 
+multigrid/tree_amg_utils.lo : multigrid/tree_amg_utils.f90 multigrid/tree_amg.lo math/math.lo common/utils.lo config/num_types.lo 
 multigrid/tree_amg_aggregate.lo : multigrid/tree_amg_aggregate.f90 mesh/mesh.lo config/num_types.lo common/utils.lo multigrid/tree_amg.lo 
 multigrid/tree_amg_multigrid.lo : multigrid/tree_amg_multigrid.f90 multigrid/tree_amg_smoother.lo multigrid/tree_amg_aggregate.lo multigrid/tree_amg.lo gs/gather_scatter.lo bc/bc.lo math/ax.lo sem/space.lo mesh/mesh.lo sem/coef.lo comm/comm.lo math/math.lo common/utils.lo config/num_types.lo 
-multigrid/tree_amg_smoother.lo : multigrid/tree_amg_smoother.f90 gs/gather_scatter.lo bc/bc.lo krylov/krylov.lo math/math.lo common/utils.lo config/num_types.lo multigrid/tree_amg.lo 
+multigrid/tree_amg_smoother.lo : multigrid/tree_amg_smoother.f90 gs/gather_scatter.lo bc/bc.lo krylov/krylov.lo math/math.lo common/utils.lo config/num_types.lo multigrid/tree_amg_utils.lo multigrid/tree_amg.lo 
 common/checkpoint.lo : common/checkpoint.f90 mesh/mesh.lo common/utils.lo field/field.lo device/device.lo sem/space.lo field/field_series.lo config/num_types.lo config/neko_config.lo 
 io/generic_file.lo : io/generic_file.f90 comm/comm.lo common/utils.lo config/num_types.lo 
 io/map_file.lo : io/map_file.f90 io/format/map.lo comm/comm.lo common/utils.lo io/generic_file.lo 

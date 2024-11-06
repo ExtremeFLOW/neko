@@ -33,6 +33,7 @@
 !> Implements smoothers for use with TreeAMG matrix vector product
 module tree_amg_smoother
   use tree_amg
+  use tree_amg_utils
   use num_types
   use utils
   use math
@@ -41,6 +42,22 @@ module tree_amg_smoother
   use gather_scatter, only : gs_t, GS_OP_ADD
   implicit none
   private
+
+  !> Type for Chebyshev iteration using TreeAMG matvec
+  type, public :: amg_jacobi_t
+     real(kind=rp), allocatable :: d(:)
+     real(kind=rp), allocatable :: w(:)
+     real(kind=rp), allocatable :: r(:)
+     real(kind=rp) :: omega
+     integer :: lvl
+     integer :: n
+     integer :: max_iter = 10
+     logical :: recompute_diag = .true.
+   contains
+     procedure, pass(this) :: init => amg_jacobi_init
+     procedure, pass(this) :: solve => amg_jacobi_solve
+     procedure, pass(this) :: comp_diag => amg_jacobi_diag
+   end type amg_jacobi_t
 
   !> Type for Chebyshev iteration using TreeAMG matvec
   type, public :: amg_cheby_t
@@ -212,5 +229,90 @@ contains
 
     end associate
   end subroutine amg_cheby_solve
+
+  !> Initialization of Jacobi (this is expensive...)
+  !! @param n Number of dofs
+  !! @param lvl The tamg hierarchy level on which the iterations are to be applied
+  !! @param max_iter The number of iterations
+  subroutine amg_jacobi_init(this, n, lvl, max_iter)
+    class(amg_jacobi_t), intent(inout), target :: this
+    integer, intent(in) :: n
+    integer, intent(in) :: lvl
+    integer, intent(in) :: max_iter
+
+    allocate(this%d(n))
+    allocate(this%w(n))
+    allocate(this%r(n))
+    this%n = n
+    this%lvl = lvl
+    this%max_iter = max_iter
+    this%omega = 0.7_rp
+    print *, "INIT SMOO ON LVL", lvl
+
+  end subroutine amg_jacobi_init
+
+  !> SAMPLE MATRIX DIAGONAL VALUES (DO NOT USE, EXPENSIVE)
+  !! @param amg TreeAMG object
+  !! @param n Number of dofs
+  subroutine amg_jacobi_diag(this, amg, n)
+    class(amg_jacobi_t), intent(inout) :: this
+    type(tamg_hierarchy_t), intent(inout) :: amg
+    integer, intent(in) :: n
+    real(kind=rp) :: val
+    integer :: i
+    print *, amg%lvl(this%lvl+1)%fine_lvl_dofs, n
+    do i = 1, n
+      call tamg_sample_matrix_val(val, amg, this%lvl, i, i)
+      this%d(i) = 1.0_rp / val
+    end do
+    print *, "---------"
+    this%recompute_diag = .false.
+  end subroutine amg_jacobi_diag
+
+  !> Jacobi smoother
+  !! @param x The solution to be returned
+  !! @param f The right-hand side
+  !! @param n Number of dofs
+  !! @param amg The TreeAMG object
+  subroutine amg_jacobi_solve(this, x, f, n, amg, niter)
+    class(amg_jacobi_t), intent(inout) :: this
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: x
+    real(kind=rp), dimension(n), intent(inout) :: f
+    class(tamg_hierarchy_t), intent(inout) :: amg
+    type(ksp_monitor_t) :: ksp_results
+    integer, optional, intent(in) :: niter
+    integer :: iter, max_iter
+    real(kind=rp) :: rtr, rnorm
+    integer :: i
+
+    if (this%recompute_diag) then
+      call this%comp_diag(amg, n)
+    end if
+
+    if (present(niter)) then
+       max_iter = niter
+    else
+       max_iter = this%max_iter
+    end if
+
+    ! x = x + omega * Dinv( f - Ax )
+    print *, this%omega, n, this%lvl
+    associate( w => this%w, r => this%r, d => this%d)
+      do iter = 1, max_iter
+        w = 0.0_rp
+        !> w = A x
+        call amg%matvec(w, x, this%lvl)
+        !> r = f - Ax
+        call copy(r, f, n)
+        call sub2(r, w, n)
+        !print *, iter, "RES", sqrt(glsc2(r,r,n))!>DEBUG
+        !> r = Dinv * (f - Ax)
+        call col2(r, d, n)
+        !> x = x + omega * Dinv * (f - Ax)
+        call add2s2(x, r, this%omega, n)
+      end do
+    end associate
+  end subroutine amg_jacobi_solve
 
 end module tree_amg_smoother
