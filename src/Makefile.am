@@ -520,7 +520,7 @@ CLEANFILES = *.mod\
 	     *.smod
 
 if ENABLE_CUDA
-CLEANFILES += @top_srcdir@/libtool_cuda
+CLEANFILES += @top_builddir@/libtool_cuda
 endif
 
 if ENABLE_OPENCL
@@ -664,11 +664,11 @@ include .depends_device
 include .depends_turboneko
 
 # CUDA Build rules
-.cu.lo: @top_srcdir@/libtool_cuda
-	$(SHELL) @top_srcdir@/libtool_cuda --tag=CC --mode=compile $(NVCC) @CUDA_ARCH@ @CUDA_CFLAGS@ -I@top_builddir@/src -I@top_srcdir@/src -o $@ -c $<
+.cu.lo: @top_builddir@/libtool_cuda
+	$(SHELL) @top_builddir@/libtool_cuda --tag=CC --mode=compile $(NVCC) @CUDA_ARCH@ @CUDA_CFLAGS@ -I@top_builddir@/src -I@top_srcdir@/src -o $@ -c $<
 
 libtool_cuda:
-	$(SED) 's/pic_flag=.*/pic_flag="-Xcompiler -fPIC"/g' @top_srcdir@/libtool > @top_srcdir@/libtool_cuda
+	$(SED) 's/pic_flag=.*/pic_flag="-Xcompiler -fPIC"/g' @top_builddir@/libtool > @top_builddir@/libtool_cuda
 
 # HIP Build rules
 .hip.lo:
