@@ -39,9 +39,15 @@ template< typename T >
 __global__ void prs_stress_res_part1_kernel(T * __restrict__ ta1,
                                             T * __restrict__ ta2,
                                             T * __restrict__ ta3,
-                                            const T * __restrict__ wa1,
-                                            const T * __restrict__ wa2,
-                                            const T * __restrict__ wa3,
+                                            T * __restrict__ wa1,
+                                            T * __restrict__ wa2,
+                                            T * __restrict__ wa3,
+                                            const T * __restrict__ s11,
+                                            const T * __restrict__ s22,
+                                            const T * __restrict__ s33,
+                                            const T * __restrict__ s12,
+                                            const T * __restrict__ s13,
+                                            const T * __restrict__ s23,
                                             const T * __restrict__ f_u,
                                             const T * __restrict__ f_v,
                                             const T * __restrict__ f_w,
@@ -53,6 +59,16 @@ __global__ void prs_stress_res_part1_kernel(T * __restrict__ ta1,
   const int str = blockDim.x * gridDim.x;
 
   for (int i = idx; i < n; i += str) {
+    wa1[i] -= 2.0 * (ta1[i] * s11[i] 
+                   + ta2[i] * s12[i]
+                   + ta3[i] * s13[i]);
+    wa2[i] -= 2.0 * (ta1[i] * s12[i]
+                   + ta2[i] * s22[i]
+                   + ta3[i] * s23[i]);
+    wa3[i] -= 2.0 * (ta1[i] * s13[i] 
+                   + ta2[i] * s23[i] 
+                   + ta3[i] * s33[i]);
+
     ta1[i] = (f_u[i] / rho[i]) - ((wa1[i] / rho[i]) * B[i]);
     ta2[i] = (f_v[i] / rho[i]) - ((wa2[i] / rho[i]) * B[i]);
     ta3[i] = (f_w[i] / rho[i]) - ((wa3[i] / rho[i]) * B[i]);
