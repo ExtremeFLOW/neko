@@ -138,7 +138,7 @@ __global__ void sigma_nut_compute(T * __restrict__ g11,
         alpha2 = Invariant1*Invariant1*Invariant1/27.0 - \
             Invariant1*Invariant2/6.0 + Invariant3/2.0;
 
-        tmp1 = alpha2/pow(alpha1,(3.0/2.0));
+        tmp1 = alpha2/sqrt(alpha1 * alpha1 * alpha1);
 
         if (tmp1 <= -1.0) {
             sigma1 = sqrt(max(Invariant1/3.0 + sqrt(alpha1), 0.0));

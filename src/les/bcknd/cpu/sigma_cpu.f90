@@ -216,7 +216,7 @@ contains
                  ! since acos(alpha2/(alpha1^(3/2)))/3.0_rp only valid for
                  ! alpha2^2 < alpha1^3.0_rp and arccos(x) only valid for -1<=x<=1
                  !  alpha3 is between 0 and pi/3
-                 tmp1 = alpha2/(alpha1**(3.0_rp/2.0_rp))
+                 tmp1 = alpha2/sqrt(alpha1 * alpha1 * alpha1)
 
                  if (tmp1 .le. -1.0_rp) then
                     ! alpha3=pi/3 -> cos(alpha3)=0.5
