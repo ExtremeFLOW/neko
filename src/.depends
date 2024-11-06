@@ -63,7 +63,7 @@ mesh/point_zone_fctry.lo : mesh/point_zone_fctry.f90 common/utils.lo common/json
 mesh/point_zone_registry.lo : mesh/point_zone_registry.f90 common/json_utils.lo common/utils.lo sem/space.lo mesh/mesh.lo sem/dofmap.lo mesh/point_zones/combine_point_zone.lo mesh/point_zone.lo 
 mesh/mesh.lo : mesh/mesh.f90 common/log.lo mesh/curve.lo adt/uset.lo math/math.lo mesh/facet_zone.lo comm/comm.lo common/distdata.lo common/datadist.lo adt/htable.lo adt/tuple.lo adt/stack.lo common/utils.lo mesh/quad.lo mesh/hex.lo mesh/element.lo mesh/point.lo config/num_types.lo 
 mesh/octree.lo : mesh/octree.f90 common/utils.lo mesh/point.lo config/num_types.lo 
-mesh/search_tree/aabb.lo : mesh/search_tree/aabb.f90 math/math.lo common/utils.lo mesh/tet_mesh.lo mesh/tri_mesh.lo mesh/mesh.lo mesh/hex.lo mesh/tet.lo mesh/quad.lo mesh/tri.lo mesh/point.lo mesh/element.lo config/num_types.lo 
+mesh/search_tree/aabb.lo : mesh/search_tree/aabb.f90 common/utils.lo mesh/tet_mesh.lo mesh/tri_mesh.lo mesh/mesh.lo mesh/hex.lo mesh/tet.lo mesh/quad.lo mesh/tri.lo mesh/point.lo mesh/element.lo config/num_types.lo 
 mesh/aabb_tree.lo : mesh/aabb_tree.f90 adt/stack.lo common/utils.lo config/num_types.lo mesh/tri.lo mesh/search_tree/aabb.lo 
 mesh/tet_mesh.lo : mesh/tet_mesh.f90 common/utils.lo mesh/point.lo mesh/tet.lo mesh/mesh.lo 
 mesh/tri_mesh.lo : mesh/tri_mesh.f90 mesh/point.lo mesh/tri.lo 
