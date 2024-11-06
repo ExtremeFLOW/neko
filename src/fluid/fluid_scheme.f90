@@ -525,6 +525,8 @@ contains
     if (this%bc_wallmodel%msk(0) .gt. 0) then
        call json_extract_object(params, 'case.fluid.wall_modelling', wm_json)
        call this%bc_wallmodel%init_wall_model_bc(wm_json, this%mu / this%rho)
+    else
+       call this%bc_wallmodel%shear_stress_t%init_shear_stress(this%c_Xh) 
     end if
 
     call bc_list_add(this%bclst_vel, this%bc_wallmodel%symmetry)
