@@ -427,5 +427,4 @@ contains
     call profiler_end_region('Scalar', 2)
   end subroutine scalar_pnpn_step
 
-
 end module scalar_pnpn

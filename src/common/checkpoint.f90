@@ -56,10 +56,10 @@ module checkpoint
      type(field_series_t), pointer :: ulag => null()
      type(field_series_t), pointer :: vlag => null()
      type(field_series_t), pointer :: wlag => null()
-
+     
      real(kind=rp), pointer :: tlag(:) => null()
      real(kind=rp), pointer :: dtlag(:) => null()
-
+     
      !> for pnpn
      type(field_t), pointer :: abx1 => null()
      type(field_t), pointer :: abx2 => null()
@@ -67,6 +67,7 @@ module checkpoint
      type(field_t), pointer :: aby2 => null()
      type(field_t), pointer :: abz1 => null()
      type(field_t), pointer :: abz2 => null()
+
 
      type(field_t), pointer :: s => null()
      type(field_series_t), pointer :: slag => null()

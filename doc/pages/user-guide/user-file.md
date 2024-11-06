@@ -346,6 +346,7 @@ user functions are:
 | Scalar source term                   | [scalar_user_f_vector or scalar_user_f](@ref user-file_user-f)  | `case.scalar.source_terms`                                      |
 | Fluid and Scalar boundary conditions | [field_dirichlet_update](@ref user-file_field-dirichlet-update) | `case.fluid.boundary_types` and/or `case.scalar.boundary_types` |
 
+
 Note that `scalar_user_bc` is included for completeness but is technically not case-specific.
 
 ### Fluid and Scalar initial conditions {#user-file_user-ic}

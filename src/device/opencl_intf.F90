@@ -451,6 +451,9 @@ contains
        call neko_error('Failed to create a command queue')
     end if
 
+    ! Currently we only have one "queue" for the OpenCL backend
+    aux_cmd_queue = glb_cmd_queue
+
   end subroutine opencl_init
 
   subroutine opencl_finalize
