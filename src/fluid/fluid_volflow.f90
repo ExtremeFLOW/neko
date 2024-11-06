@@ -289,7 +289,7 @@ contains
       call pc_vel%update()
 
       ksp_results(2:4) = ksp_vel%solve_coupled(Ax_vel, &
-           u_vol, v_vol, u_vol,  &
+           u_vol, v_vol, w_vol,  &
            u_res%x, v_res%x, w_res%x, &
            n, c_Xh, &
            bclst_du, bclst_dv, bclst_dw, &
