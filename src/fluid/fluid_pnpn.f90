@@ -66,7 +66,7 @@ module fluid_pnpn
   use bc, only: bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
                 bc_list_apply_scalar, bc_list_apply_vector
   use utils, only : neko_error
-  use field_math, only : field_add2
+  use field_math, only : field_add2, field_copy
   implicit none
   private
 
@@ -146,7 +146,7 @@ contains
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
-    type(user_t), intent(in) :: user
+    type(user_t), target, intent(in) :: user
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
 
@@ -304,22 +304,30 @@ contains
     call bc_list_add(this%bclst_vel_res, this%bc_vel_res)
     call bc_list_add(this%bclst_vel_res, this%bc_vel_res_non_normal)
     call bc_list_add(this%bclst_vel_res, this%bc_sym)
+    call bc_list_add(this%bclst_vel_res, this%bc_sh%symmetry)
+    call bc_list_add(this%bclst_vel_res, this%bc_wallmodel%symmetry)
 
     !Initialize bcs for u, v, w velocity components
     call bc_list_init(this%bclst_du)
     call bc_list_add(this%bclst_du, this%bc_sym%bc_x)
+    call bc_list_add(this%bclst_du, this%bc_sh%symmetry%bc_x)
+    call bc_list_add(this%bclst_du, this%bc_wallmodel%symmetry%bc_x)
     call bc_list_add(this%bclst_du, this%bc_vel_res_non_normal%bc_x)
     call bc_list_add(this%bclst_du, this%bc_vel_res)
     call bc_list_add(this%bclst_du, this%bc_field_dirichlet_u)
 
     call bc_list_init(this%bclst_dv)
     call bc_list_add(this%bclst_dv, this%bc_sym%bc_y)
+    call bc_list_add(this%bclst_dv, this%bc_sh%symmetry%bc_y)
+    call bc_list_add(this%bclst_dv, this%bc_wallmodel%symmetry%bc_y)
     call bc_list_add(this%bclst_dv, this%bc_vel_res_non_normal%bc_y)
     call bc_list_add(this%bclst_dv, this%bc_vel_res)
     call bc_list_add(this%bclst_dv, this%bc_field_dirichlet_v)
 
     call bc_list_init(this%bclst_dw)
     call bc_list_add(this%bclst_dw, this%bc_sym%bc_z)
+    call bc_list_add(this%bclst_dw, this%bc_sh%symmetry%bc_z)
+    call bc_list_add(this%bclst_dw, this%bc_wallmodel%symmetry%bc_z)
     call bc_list_add(this%bclst_dw, this%bc_vel_res_non_normal%bc_z)
     call bc_list_add(this%bclst_dw, this%bc_vel_res)
     call bc_list_add(this%bclst_dw, this%bc_field_dirichlet_w)
@@ -430,7 +438,7 @@ contains
     ! Make sure that continuity is maintained (important for interpolation)
     ! Do not do this for lagged rhs
     ! (derivatives are not necessairly coninous across elements)
-       
+
     if (allocated(this%chkp%previous_mesh%elements) &
          .or. this%chkp%previous_Xh%lx .ne. this%Xh%lx) then
        call this%gs_Xh%op(this%u, GS_OP_ADD)
@@ -538,7 +546,7 @@ contains
     call this%advx%free()
     call this%advy%free()
     call this%advz%free()
-
+    
     if (allocated(this%Ax_vel)) then
        deallocate(this%Ax_vel)
     end if
@@ -631,6 +639,10 @@ contains
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
 
+      ! Add Neumann bc contributions to the RHS
+      call bc_list_apply_vector(this%bclst_vel_neumann, f_x%x, f_y%x, f_z%x, &
+           this%dm_Xh%size(), t, tstep)
+
       ! Compute the grandient jump penalty term
       if (this%if_gradient_jump_penalty .eqv. .true.) then
          call this%gradient_jump_penalty_u%compute(u, v, w, u)
@@ -640,7 +652,7 @@ contains
          call this%gradient_jump_penalty_v%perform(f_y)
          call this%gradient_jump_penalty_w%perform(f_z)
       end if
-      
+
       if (oifs) then
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
@@ -768,7 +780,8 @@ contains
       call profiler_start_region("Velocity_solve", 4)
       ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax_vel, du, dv, dw, &
            u_res%x, v_res%x, w_res%x, n, c_Xh, &
-           this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh)
+           this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, &
+           this%ksp_vel%max_iter)
       call profiler_end_region("Velocity_solve", 4)
 
       call this%proj_u%post_solving(du%x, Ax_vel, c_Xh, &
@@ -787,9 +800,9 @@ contains
 
       if (this%forced_flow_rate) then
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
-              c_Xh, gs_Xh, ext_bdf, rho, mu,&
-              dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
-              this%bclst_dw, this%bclst_vel_res, Ax_vel, this%ksp_prs, &
+              c_Xh, gs_Xh, ext_bdf, rho, mu, dt, &
+              this%bclst_dp, this%bclst_du, this%bclst_dv, &
+              this%bclst_dw, this%bclst_vel_res, Ax_vel, Ax_prs, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
               this%ksp_vel%max_iter)
       end if

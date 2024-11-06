@@ -755,4 +755,119 @@ __global__ void absval_kernel(T * __restrict__ a,
   }
 }
 
+// ========================================================================== //
+// Kernels for the point-wise operations
+
+/**
+ * Device kernel for point-wise max of two vectors
+ * a = max(a, b)
+ */
+template <typename T>
+__global__ void
+    pwmax_vec2_kernel(T* __restrict__ a, const T* __restrict__ b, const int n) {
+
+    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    const int str = blockDim.x * gridDim.x;
+
+    for (int i = idx; i < n; i += str) a[i] = max(a[i], b[i]);
+}
+
+/**
+ * Device kernel for point-wise max of two vectors
+ * a = max(b, c)
+ */
+template <typename T>
+__global__ void pwmax_vec3_kernel(
+    T* __restrict__ a, const T* __restrict__ b, const T* __restrict__ c,
+    const int n) {
+
+    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    const int str = blockDim.x * gridDim.x;
+
+    for (int i = idx; i < n; i += str) a[i] = max(b[i], c[i]);
+}
+
+/**
+ * Device kernel for point-wise max of vector and scalar
+ * a = max(a, c)
+ */
+template <typename T>
+__global__ void pwmax_sca2_kernel(T* __restrict__ a, const T c, const int n) {
+
+    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    const int str = blockDim.x * gridDim.x;
+
+    for (int i = idx; i < n; i += str) a[i] = max(a[i], c);
+}
+
+/**
+ * Device kernel for point-wise max of vector and scalar
+ * a = max(b, c)
+ */
+template <typename T>
+__global__ void pwmax_sca3_kernel(
+    T* __restrict__ a, const T* __restrict b, const T c, const int n) {
+
+    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    const int str = blockDim.x * gridDim.x;
+
+    for (int i = idx; i < n; i += str) a[i] = max(b[i], c);
+}
+
+/**
+ * Device kernel for point-wise min of two vectors
+ * a = min(a, b)
+ */
+template <typename T>
+__global__ void
+    pwmin_vec2_kernel(T* __restrict__ a, const T* __restrict__ b, const int n) {
+
+    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    const int str = blockDim.x * gridDim.x;
+
+    for (int i = idx; i < n; i += str) a[i] = min(a[i], b[i]);
+}
+
+/**
+ * Device kernel for point-wise min of two vectors
+ * a = min(b, c)
+ */
+template <typename T>
+__global__ void pwmin_vec3_kernel(
+    T* __restrict__ a, const T* __restrict__ b, const T* __restrict__ c,
+    const int n) {
+
+    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    const int str = blockDim.x * gridDim.x;
+
+    for (int i = idx; i < n; i += str) a[i] = min(b[i], c[i]);
+}
+
+/**
+ * Device kernel for point-wise min of vector and scalar
+ * a = min(a, c)
+ */
+template <typename T>
+__global__ void pwmin_sca2_kernel(T* __restrict__ a, const T c, const int n) {
+
+    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    const int str = blockDim.x * gridDim.x;
+
+    for (int i = idx; i < n; i += str) a[i] = min(a[i], c);
+}
+
+/**
+ * Device kernel for point-wise min of vector and scalar
+ * a = min(b, c)
+ */
+template <typename T>
+__global__ void pwmin_sca3_kernel(
+    T* __restrict__ a, const T* __restrict b, const T c, const int n) {
+
+    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    const int str = blockDim.x * gridDim.x;
+
+    for (int i = idx; i < n; i += str) a[i] = min(b[i], c);
+}
+
 #endif // __MATH_MATH_KERNEL_H__

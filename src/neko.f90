@@ -102,7 +102,7 @@ module neko
   use simulation_component, only : simulation_component_t, &
        simulation_component_wrapper_t
   use probes, only : probes_t
-  use spectral_error_indicator
+  use spectral_error
   use system, only : system_cpu_name, system_cpuid
   use drag_torque, only : drag_torque_zone, drag_torque_facet, drag_torque_pt
   use field_registry, only : neko_field_registry
@@ -297,12 +297,13 @@ contains
     call neko_rt_stats%report()
     call neko_rt_stats%free()
 
+    call neko_scratch_registry%free()
+
     if (present(C)) then
        call case_free(C)
     end if
 
     call neko_field_registry%free()
-    call neko_scratch_registry%free()
     call device_finalize
     call neko_mpi_types_free
     call comm_free
