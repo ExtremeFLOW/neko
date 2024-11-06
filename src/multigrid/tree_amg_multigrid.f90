@@ -91,7 +91,7 @@ contains
     integer, intent(in) :: nlvls_in
     integer, intent(in) :: max_iter
     integer :: nlvls, lvl, n, cheby_degree, env_len, mlvl
-    integer, allocatable :: agg_nhbr(:,:)
+    integer, allocatable :: agg_nhbr(:,:), asdf(:,:)
     character(len=255) :: env_cheby_degree, env_mlvl
 
     call get_environment_variable("NEKO_TAMG_MAX_LVL", &
@@ -111,18 +111,22 @@ contains
     allocate( this%amg )
     call this%amg%init(ax, Xh, coef, msh, gs_h, nlvls, blst)
 
+    !> Create level 1 (neko elements are level 0)
     call aggregate_finest_level(this%amg, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+
     if (nlvls .gt. 2) then
       print *, "Calling lazy aggregation"
       print *, "-- target aggregates:", (msh%nelv/8)
-      call aggregate_elm(this%amg, (msh%nelv/8), agg_nhbr)
+      call aggregate_greedy(this%amg, 2, (msh%nelv/8), msh%facet_neigh, agg_nhbr)
+      !call aggregate_elm(this%amg, (msh%nelv/8), agg_nhbr)
       print *, "-- Aggregation done. Aggregates:", this%amg%lvl(2)%nnodes
     end if
 
     if (nlvls .gt. 3) then
       print *, "Calling lazy aggregation"
       print *, "-- target aggregates:", (this%amg%lvl(2)%nnodes/8)
-      call aggregate_general(this%amg, (this%amg%lvl(2)%nnodes/8), 3, agg_nhbr)
+      call aggregate_greedy(this%amg, 3, (this%amg%lvl(2)%nnodes/8), agg_nhbr, asdf)
+      !call aggregate_general(this%amg, (this%amg%lvl(2)%nnodes/8), 3, agg_nhbr)
       print *, "-- Aggregation done. Aggregates:", this%amg%lvl(3)%nnodes
     end if
 
