@@ -105,15 +105,15 @@ contains
     call dudxyz(g32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz(g33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
-    call coef%gs_h%op(g11%x, g11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(g12%x, g11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(g13%x, g11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(g21%x, g11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(g22%x, g11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(g23%x, g11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(g31%x, g11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(g32%x, g11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(g33%x, g11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(g11, GS_OP_ADD)
+    call coef%gs_h%op(g12, GS_OP_ADD)
+    call coef%gs_h%op(g13, GS_OP_ADD)
+    call coef%gs_h%op(g21, GS_OP_ADD)
+    call coef%gs_h%op(g22, GS_OP_ADD)
+    call coef%gs_h%op(g23, GS_OP_ADD)
+    call coef%gs_h%op(g31, GS_OP_ADD)
+    call coef%gs_h%op(g32, GS_OP_ADD)
+    call coef%gs_h%op(g33, GS_OP_ADD)
 
     call device_sigma_nut_compute(g11%x_d, g12%x_d, g13%x_d, &
                                   g21%x_d, g22%x_d, g23%x_d, &

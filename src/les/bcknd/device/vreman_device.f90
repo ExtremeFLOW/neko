@@ -113,15 +113,15 @@ contains
     call dudxyz (a32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (a33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
-    call coef%gs_h%op(a11%x, a11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(a12%x, a11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(a13%x, a11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(a21%x, a11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(a22%x, a11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(a23%x, a11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(a31%x, a11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(a32%x, a11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(a33%x, a11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(a11, GS_OP_ADD)
+    call coef%gs_h%op(a12, GS_OP_ADD)
+    call coef%gs_h%op(a13, GS_OP_ADD)
+    call coef%gs_h%op(a21, GS_OP_ADD)
+    call coef%gs_h%op(a22, GS_OP_ADD)
+    call coef%gs_h%op(a23, GS_OP_ADD)
+    call coef%gs_h%op(a31, GS_OP_ADD)
+    call coef%gs_h%op(a32, GS_OP_ADD)
+    call coef%gs_h%op(a33, GS_OP_ADD)
     
     call device_vreman_nut_compute(a11%x_d, a12%x_d, a13%x_d, &
                                   a21%x_d, a22%x_d, a23%x_d, &
