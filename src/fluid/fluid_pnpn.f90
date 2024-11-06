@@ -66,7 +66,7 @@ module fluid_pnpn
   use bc, only: bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
                 bc_list_apply_scalar, bc_list_apply_vector
   use utils, only : neko_error
-  use field_math, only : field_add2
+  use field_math, only : field_add2, field_copy
   implicit none
   private
 
@@ -546,7 +546,7 @@ contains
     call this%advx%free()
     call this%advy%free()
     call this%advz%free()
-
+    
     if (allocated(this%Ax_vel)) then
        deallocate(this%Ax_vel)
     end if
@@ -780,7 +780,8 @@ contains
       call profiler_start_region("Velocity_solve", 4)
       ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax_vel, du, dv, dw, &
            u_res%x, v_res%x, w_res%x, n, c_Xh, &
-           this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh)
+           this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, &
+           this%ksp_vel%max_iter)
       call profiler_end_region("Velocity_solve", 4)
 
       call this%proj_u%post_solving(du%x, Ax_vel, c_Xh, &

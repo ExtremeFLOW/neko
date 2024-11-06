@@ -8,12 +8,14 @@ math/bcknd/device/hip/opr_opgrad.lo : math/bcknd/device/hip/opr_opgrad.hip math/
 math/bcknd/device/hip/opr_lambda2.lo : math/bcknd/device/hip/opr_lambda2.hip math/bcknd/device/hip/lambda2_kernel.h
 math/bcknd/device/hip/opr_cfl.lo : math/bcknd/device/hip/opr_cfl.hip math/bcknd/device/hip/cfl_kernel.h
 math/bcknd/device/hip/ax_helm.lo : math/bcknd/device/hip/ax_helm.hip math/bcknd/device/hip/ax_helm_kernel.h
+math/bcknd/device/hip/ax_helm_full.lo : math/bcknd/device/hip/ax_helm_full.hip math/bcknd/device/hip/ax_helm_full_kernel.h
 math/bcknd/device/hip/schwarz.lo : math/bcknd/device/hip/schwarz.hip math/bcknd/device/hip/schwarz_kernel.h
 math/bcknd/device/hip/tensor.lo : math/bcknd/device/hip/tensor.hip math/bcknd/device/hip/tensor_kernel.h
 math/bcknd/device/hip/fdm.lo : math/bcknd/device/hip/fdm.hip math/bcknd/device/hip/fdm_kernel.h
 krylov/bcknd/device/hip/pc_jacobi.lo : krylov/bcknd/device/hip/pc_jacobi.hip
 krylov/bcknd/device/hip/pipecg_aux.lo : krylov/bcknd/device/hip/pipecg_aux.hip krylov/bcknd/device/hip/pipecg_kernel.h
 krylov/bcknd/device/hip/fusedcg_aux.lo : krylov/bcknd/device/hip/fusedcg_aux.hip krylov/bcknd/device/hip/fusedcg_kernel.h
+krylov/bcknd/device/hip/fusedcg_cpld_aux.lo : krylov/bcknd/device/hip/fusedcg_cpld_aux.hip krylov/bcknd/device/hip/fusedcg_cpld_kernel.h
 krylov/bcknd/device/hip/gmres_aux.lo : krylov/bcknd/device/hip/gmres_aux.hip krylov/bcknd/device/hip/gmres_kernel.h
 gs/bcknd/device/hip/gs.lo : gs/bcknd/device/hip/gs.hip gs/bcknd/device/hip/gs_kernels.h
 bc/bcknd/device/hip/dirichlet.lo : bc/bcknd/device/hip/dirichlet.hip bc/bcknd/device/hip/dirichlet_kernel.h
@@ -29,6 +31,8 @@ common/bcknd/device/hip/gradient_jump_penalty.lo : common/bcknd/device/hip/gradi
 fluid/bcknd/device/hip/pnpn_res.lo : fluid/bcknd/device/hip/pnpn_res.hip fluid/bcknd/device/hip/vel_res_update_kernel.h fluid/bcknd/device/hip/prs_res_kernel.h
 scalar/bcknd/device/hip/scalar_residual.lo : scalar/bcknd/device/hip/scalar_residual.hip scalar/bcknd/device/hip/scalar_residual_update_kernel.h
 sem/bcknd/device/hip/coef.lo : sem/bcknd/device/hip/coef.hip sem/bcknd/device/hip/coef_kernel.h
+les/bcknd/device/hip/vreman_nut.lo : les/bcknd/device/hip/vreman_nut.hip les/bcknd/device/hip/vreman_nut_kernel.h
+les/bcknd/device/hip/sigma_nut.lo : les/bcknd/device/hip/sigma_nut.hip les/bcknd/device/hip/sigma_nut_kernel.h
 device/cuda/check.lo : device/cuda/check.cu device/cuda/check.h
 math/bcknd/device/cuda/math.lo : math/bcknd/device/cuda/math.cu math/bcknd/device/cuda/math_kernel.h
 math/bcknd/device/cuda/mathops.lo : math/bcknd/device/cuda/mathops.cu math/bcknd/device/cuda/mathops_kernel.h
@@ -39,6 +43,7 @@ math/bcknd/device/cuda/opr_opgrad.lo : math/bcknd/device/cuda/opr_opgrad.cu math
 math/bcknd/device/cuda/opr_lambda2.lo : math/bcknd/device/cuda/opr_lambda2.cu math/bcknd/device/cuda/lambda2_kernel.h
 math/bcknd/device/cuda/opr_cfl.lo : math/bcknd/device/cuda/opr_cfl.cu math/bcknd/device/cuda/cfl_kernel.h
 math/bcknd/device/cuda/ax_helm.lo : math/bcknd/device/cuda/ax_helm.cu math/bcknd/device/cuda/ax_helm_kernel.h
+math/bcknd/device/cuda/ax_helm_full.lo : math/bcknd/device/cuda/ax_helm_full.cu math/bcknd/device/cuda/ax_helm_full_kernel.h
 math/bcknd/device/cuda/schwarz.lo : math/bcknd/device/cuda/schwarz.cu math/bcknd/device/cuda/schwarz_kernel.h
 math/bcknd/device/cuda/tensor.lo : math/bcknd/device/cuda/tensor.cu math/bcknd/device/cuda/tensor_kernel.h
 math/bcknd/device/cuda/fdm.lo : math/bcknd/device/cuda/fdm.cu math/bcknd/device/cuda/fdm_kernel.h
@@ -62,6 +67,8 @@ fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.lo : fluid/stress_for
 common/bcknd/device/cuda/gradient_jump_penalty.lo : common/bcknd/device/cuda/gradient_jump_penalty.cu common/bcknd/device/cuda/gradient_jump_penalty_kernel.h
 scalar/bcknd/device/cuda/scalar_residual.lo : scalar/bcknd/device/cuda/scalar_residual.cu scalar/bcknd/device/cuda/scalar_residual_update_kernel.h
 sem/bcknd/device/cuda/coef.lo : sem/bcknd/device/cuda/coef.cu sem/bcknd/device/cuda/coef_kernel.h
+les/bcknd/device/cuda/vreman_nut.lo : les/bcknd/device/cuda/vreman_nut.cu les/bcknd/device/cuda/vreman_nut_kernel.h
+les/bcknd/device/cuda/sigma_nut.lo : les/bcknd/device/cuda/sigma_nut.cu les/bcknd/device/cuda/sigma_nut_kernel.h
 device/opencl/check.lo : device/opencl/check.c device/opencl/check.h
 device/opencl/jit.lo : device/opencl/jit.c device/opencl/jit.h
 math/bcknd/device/opencl/math.lo : math/bcknd/device/opencl/math.c math/bcknd/device/opencl/math_kernel.cl.h

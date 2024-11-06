@@ -33,14 +33,14 @@
 */
 
 #include <device/device_config.h>
-#include <device/cuda/check.h>
+#include <device/hip/check.h>
 
 #include "prs_stress_res_kernel.h"
 
 
 extern "C" {
 
-  void pnpn_prs_stress_res_part1_cuda(void *ta1, void *ta2, void *ta3,
+  void pnpn_prs_stress_res_part1_hip(void *ta1, void *ta2, void *ta3,
                                       void *wa1, void *wa2, void *wa3,
                                       void *s11, void *s22, void *s33,
                                       void *s12, void *s13, void *s23,
@@ -49,35 +49,31 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-    prs_stress_res_part1_kernel<real>
-      <<<nblcks, nthrds, 0, stream>>>((real *) ta1, (real *) ta2,
-                                      (real *) ta3, (real *) wa1,
-                                      (real *) wa2, (real *) wa3,
-                                      (real *) s11, (real *) s22,
-                                      (real *) s33, (real *) s12,
-                                      (real *) s13, (real *) s23,
-                                      (real *) f_u, (real *) f_v,
-                                      (real *) f_w, (real *) B,
-                                      (real *) rho, *n);
-    CUDA_CHECK(cudaGetLastError());
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(prs_stress_res_part1_kernel<real> ),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) ta1, (real *) ta2, (real *) ta3,
+                       (real *) wa1, (real *) wa2, (real *) wa3,
+                       (real *) s11, (real *) s22, (real *) s33,
+                       (real *) s12, (real *) s13, (real *) s23,
+                       (real *) f_u, (real *) f_v, (real *) f_w,
+                       (real *) B, (real *) rho, *n);
+    HIP_CHECK(hipGetLastError());
   }
 
-  void pnpn_prs_stress_res_part3_cuda(void *p_res, void *ta1, void *ta2,
+  void pnpn_prs_stress_res_part3_hip(void *p_res, void *ta1, void *ta2,
                                       void *ta3, void *wa1, void *wa2,
                                       void *wa3, real *dtbd, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-    prs_stress_res_part3_kernel<real>
-      <<<nblcks, nthrds, 0, stream>>>((real *) p_res, (real *) ta1,
-                                      (real *) ta2, (real *) ta3,
-                                      (real *) wa1, (real *) wa2,
-                                      (real *) wa3, *dtbd, *n);
-     CUDA_CHECK(cudaGetLastError());
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(prs_stress_res_part3_kernel<real> ),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) p_res,
+                       (real *) ta1, (real *) ta2, (real *) ta3,
+                       (real *) wa1, (real *) wa2, (real *) wa3, *dtbd, *n);
+    HIP_CHECK(hipGetLastError());
 
   }
 

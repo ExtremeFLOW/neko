@@ -30,32 +30,32 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements the CPU kernel for the `vreman_t` type.
-module vreman_cpu
+!> Implements the device kernel for the `vreman_t` type.
+module vreman_device
   use num_types, only : rp
-  use field_list, only : field_list_t
-  use math, only : cadd, NEKO_EPS
+  use math, only : NEKO_EPS
   use scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use operators, only : dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
-   implicit none
+  use device_vreman_nut, only : device_vreman_nut_compute
+  implicit none
   private
 
-  public :: vreman_compute_cpu
+  public :: vreman_compute_device
 
 contains
 
-  !> Compute eddy viscosity on the CPU.
+  !> Compute eddy viscosity on the device.
   !! @param t The time value.
   !! @param tstep The current time-step.
   !! @param coef SEM coefficients.
   !! @param nut The SGS viscosity array.
   !! @param delta The LES lengthscale.
   !! @param c The Vreman model constant
-  subroutine vreman_compute_cpu(t, tstep, coef, nut, delta, c)
+  subroutine vreman_compute_device(t, tstep, coef, nut, delta, c)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
@@ -66,15 +66,15 @@ contains
     type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33
     type(field_t), pointer :: u, v, w
 
-    real(kind=rp) :: beta11
-    real(kind=rp) :: beta12
-    real(kind=rp) :: beta13
-    real(kind=rp) :: beta22
-    real(kind=rp) :: beta23
-    real(kind=rp) :: beta33
-    real(kind=rp) :: b_beta
-    real(kind=rp) :: aijaij
-    integer :: temp_indices(9)
+    type(field_t), pointer :: beta11
+    type(field_t), pointer :: beta12
+    type(field_t), pointer :: beta13
+    type(field_t), pointer :: beta22
+    type(field_t), pointer :: beta23
+    type(field_t), pointer :: beta33
+    type(field_t), pointer :: b_beta
+    type(field_t), pointer :: aijaij
+    integer :: temp_indices(17)
     integer :: e, i
 
     u => neko_field_registry%get_field_by_name("u")
@@ -90,6 +90,14 @@ contains
     call neko_scratch_registry%request_field(a31, temp_indices(7))
     call neko_scratch_registry%request_field(a32, temp_indices(8))
     call neko_scratch_registry%request_field(a33, temp_indices(9))
+    call neko_scratch_registry%request_field(beta11, temp_indices(10))
+    call neko_scratch_registry%request_field(beta12, temp_indices(11))
+    call neko_scratch_registry%request_field(beta13, temp_indices(12))
+    call neko_scratch_registry%request_field(beta22, temp_indices(13))
+    call neko_scratch_registry%request_field(beta23, temp_indices(14))
+    call neko_scratch_registry%request_field(beta33, temp_indices(15))
+    call neko_scratch_registry%request_field(b_beta, temp_indices(16))
+    call neko_scratch_registry%request_field(aijaij, temp_indices(17))
 
 
     ! Compute the derivatives of the velocity (the alpha tensor)
@@ -114,50 +122,15 @@ contains
     call coef%gs_h%op(a31, GS_OP_ADD)
     call coef%gs_h%op(a32, GS_OP_ADD)
     call coef%gs_h%op(a33, GS_OP_ADD)
-
-    do concurrent (i = 1:a11%dof%size())
-       a11%x(i,1,1,1) = a11%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a12%x(i,1,1,1) = a12%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a13%x(i,1,1,1) = a13%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a21%x(i,1,1,1) = a21%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a22%x(i,1,1,1) = a22%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a23%x(i,1,1,1) = a23%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a31%x(i,1,1,1) = a31%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a32%x(i,1,1,1) = a32%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a33%x(i,1,1,1) = a33%x(i,1,1,1) * coef%mult(i,1,1,1)
-    end do
-
-    do concurrent (e = 1:coef%msh%nelv)
-       do concurrent (i = 1:coef%Xh%lxyz)
-          ! beta_ij = alpha_mi alpha_mj
-          beta11 = a11%x(i,1,1,e)**2 + a21%x(i,1,1,e)**2 + a31%x(i,1,1,e)**2
-          beta22 = a12%x(i,1,1,e)**2 + a22%x(i,1,1,e)**2 + a32%x(i,1,1,e)**2
-          beta33 = a13%x(i,1,1,e)**2 + a23%x(i,1,1,e)**2 + a33%x(i,1,1,e)**2
-          beta12 = a11%x(i,1,1,e)*a12%x(i,1,1,e) + &
-                   a21%x(i,1,1,e)*a22%x(i,1,1,e) + &
-                   a31%x(i,1,1,e)*a32%x(i,1,1,e)
-          beta13 = a11%x(i,1,1,e)*a13%x(i,1,1,e) + &
-                   a21%x(i,1,1,e)*a23%x(i,1,1,e) + &
-                   a31%x(i,1,1,e)*a33%x(i,1,1,e)
-          beta23 = a12%x(i,1,1,e)*a13%x(i,1,1,e) + &
-                   a22%x(i,1,1,e)*a23%x(i,1,1,e) + &
-                   a32%x(i,1,1,e)*a33%x(i,1,1,e)
-
-          b_beta = beta11*beta22 - beta12*beta12 + beta11*beta33 - beta13*beta13 &
-                  + beta22*beta33 - beta23*beta23
-
-          b_beta = max(0.0_rp, b_beta)
-
-          ! alpha_ij alpha_ij
-          aijaij = beta11 + beta22 + beta33
-
-          nut%x(i,1,1,e) = c*delta%x(i,1,1,e)*delta%x(i,1,1,e) &
-                            * sqrt(b_beta/(aijaij + NEKO_EPS))
-       end do
-    end do
+    
+    call device_vreman_nut_compute(a11%x_d, a12%x_d, a13%x_d, &
+                                  a21%x_d, a22%x_d, a23%x_d, &
+                                  a31%x_d, a32%x_d, a33%x_d, &
+                                  delta%x_d, nut%x_d, coef%mult_d, &
+                                  c, NEKO_EPS, a11%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
-  end subroutine vreman_compute_cpu
+  end subroutine vreman_compute_device
 
-end module vreman_cpu
+end module vreman_device
 
