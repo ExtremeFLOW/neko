@@ -36,7 +36,8 @@ module pnpn_res_stress_device
 #ifdef HAVE_HIP
   interface
      subroutine pnpn_prs_stress_res_part1_hip(ta1_d, ta2_d, ta3_d, &
-          wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
+          wa1_d, wa2_d, wa3_d, s11_d, s22_d, s33_d, &
+          s12_d, s13_d, s23_d, f_u_d, f_v_d, f_w_d, &
           B_d, h1_d, rho_d, n) &
           bind(c, name = 'pnpn_prs_stress_res_part1_hip')
        use, intrinsic :: iso_c_binding
@@ -44,6 +45,7 @@ module pnpn_res_stress_device
        implicit none
        type(c_ptr), value :: ta1_d, ta2_d, ta3_d
        type(c_ptr), value :: wa1_d, wa2_d, wa3_d
+       type(c_ptr), value :: s11_d, s22_d, s33_d, s12_d, s13_d, s23_d
        type(c_ptr), value :: f_u_d, f_v_d, f_w_d
        type(c_ptr), value :: B_d, h1_d, rho_d
        integer(c_int) :: n
@@ -89,7 +91,8 @@ module pnpn_res_stress_device
 #elif HAVE_CUDA
   interface
      subroutine pnpn_prs_stress_res_part1_cuda(ta1_d, ta2_d, ta3_d, &
-          wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
+          wa1_d, wa2_d, wa3_d, s11_d, s22_d, s33_d, &
+          s12_d, s13_d, s23_d, f_u_d, f_v_d, f_w_d, &
           B_d, h1_d, rho_d, n) &
           bind(c, name = 'pnpn_prs_stress_res_part1_cuda')
        use, intrinsic :: iso_c_binding
@@ -97,6 +100,7 @@ module pnpn_res_stress_device
        implicit none
        type(c_ptr), value :: ta1_d, ta2_d, ta3_d
        type(c_ptr), value :: wa1_d, wa2_d, wa3_d
+       type(c_ptr), value :: s11_d, s22_d, s33_d, s12_d, s13_d, s23_d
        type(c_ptr), value :: f_u_d, f_v_d, f_w_d
        type(c_ptr), value :: B_d, h1_d, rho_d
        integer(c_int) :: n
@@ -270,35 +274,17 @@ contains
     call dudxyz(ta2%x, mu%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
     call dudxyz(ta3%x, mu%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
 
-    call device_cmult(ta1%x_d, 2.0_rp, n)
-    call device_cmult(ta2%x_d, 2.0_rp, n)
-    call device_cmult(ta3%x_d, 2.0_rp, n)
-
-    ! S^T grad \mu
-    call device_vdot3 (work1%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
-                       s11%x_d, s12%x_d, s13%x_d, n)
-
-    call device_vdot3 (work2%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
-                       s12%x_d, s22%x_d, s23%x_d, n)
-
-    call device_vdot3 (work3%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
-                       s13%x_d, s23%x_d, s33%x_d, n)
-
-    ! Subtract the two terms of the viscous stress to get
-    ! \nabla x \nabla u - S^T \nabla \mu
-    ! The sign is consitent with the fact that we subtract the term
-    ! below.
-    call device_sub2(wa1%x_d, work1%x_d, n)
-    call device_sub2(wa2%x_d, work2%x_d, n)
-    call device_sub2(wa3%x_d, work3%x_d, n)
-
 #ifdef HAVE_HIP
     call pnpn_prs_stress_res_part1_hip(ta1%x_d, ta2%x_d, ta3%x_d, &
-         wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
+         wa1%x_d, wa2%x_d, wa3%x_d, &
+         s11%x_d, s22%x_d, s33%x_d, s12%x_d, s13%x_d, s23%x_d, &
+         f_x%x_d, f_y%x_d, f_z%x_d, &
          c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
 #elif HAVE_CUDA
     call pnpn_prs_stress_res_part1_cuda(ta1%x_d, ta2%x_d, ta3%x_d, &
-         wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
+         wa1%x_d, wa2%x_d, wa3%x_d, &
+         s11%x_d, s22%x_d, s33%x_d, s12%x_d, s13%x_d, s23%x_d, &
+         f_x%x_d, f_y%x_d, f_z%x_d, &
          c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
 #else
     call neko_error('No device backend configured')
