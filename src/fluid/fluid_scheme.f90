@@ -370,7 +370,7 @@ contains
        write(log_buf, '(A, I3)') 'Poly order : ', lx-1
     end if
     call neko_log%message(log_buf)
-    write(log_buf, '(A, I0)')    'GLLs pts.  : ', int(this%msh%glb_nelv,i8)*int(this%Xh%lxyz,i8)
+    write(log_buf, '(A, I0)')    'GLL points : ', int(this%msh%glb_nelv,i8)*int(this%Xh%lxyz,i8)
     call neko_log%message(log_buf)
     write(log_buf, '(A, I0)')    'Unique pts.: ', int(glsum(this%c_Xh%mult,this%dm_Xh%size()),i8)
     call neko_log%message(log_buf)
