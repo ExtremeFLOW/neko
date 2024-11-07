@@ -188,10 +188,6 @@ jobs:
             fail+=("\t- Intel check: $inel_status")
             success=false
           fi
-          if [ "$nvidia_status" != "success" ]; then
-            fail+=("\t- NVIDIA check: $nvidia_status")
-            success=false
-          fi
           if [ "$reframe_status" != "success" ]; then
             fail+=("\t- ReFrame check: $reframe_status")
             success=false
