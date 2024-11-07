@@ -111,7 +111,7 @@ jobs:
       - Intel
       - Nvidia
       - ReFrame
-    uses: ./.github/workflows/documentation.yaml
+    uses: ./.github/workflows/documentation.yml
 
   # # ========================================================================== #
   # # Upload the badges
