@@ -76,7 +76,7 @@ contains
   !! @param monitor Enable/disable residual history, optional.
   module subroutine krylov_solver_factory(object, n, type_name, &
        max_iter, abstol, M, monitor)
-    class(ksp_t), allocatable, target, intent(inout) :: object
+    class(ksp_t), allocatable, intent(inout) :: object
     integer, intent(in), value :: n
     character(len=*), intent(in) :: type_name
     integer, intent(in) :: max_iter
