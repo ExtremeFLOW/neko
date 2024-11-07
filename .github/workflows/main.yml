@@ -88,7 +88,7 @@ jobs:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
   # ========================================================================== #
-  # ReFrame and bencharks
+  # ReFrame and benchmarks
 
   ReFrame:
     name: ReFrame
@@ -99,6 +99,19 @@ jobs:
     uses: ./.github/workflows/check_reframe.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+
+  # ========================================================================== #
+  # Documentation 
+  Documentation:
+    name: documentation
+    needs:
+      - prepare
+      - depend
+      - GNU
+      - Intel
+      - Nvidia
+      - ReFrame
+    uses: ./.github/workflows/documentation.yaml
 
   # # ========================================================================== #
   # # Upload the badges
@@ -142,7 +155,7 @@ jobs:
       - Intel
       - Nvidia
       - ReFrame
-      #- documentation
+      - documentation
 
     runs-on: ubuntu-latest
     env:
@@ -152,7 +165,7 @@ jobs:
       inel_status: ${{ needs.Intel.result }}
       nvidia_status: ${{ needs.Nvidia.result }}
       reframe_status: ${{ needs.ReFrame.result }}
-      #doc_status: ${{ needs.documentation.result }}
+      doc_status: ${{ needs.documentation.result }}
 
     steps:
       - name: All checks passed
