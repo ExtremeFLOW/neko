@@ -38,12 +38,13 @@
 module sigma_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
-   use scratch_registry, only : neko_scratch_registry
+  use scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use operators, only : dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
+  use math, only : NEKO_EPS
   implicit none
   private
 
@@ -82,7 +83,7 @@ contains
     integer :: e, i
 
     ! some constant
-    eps = 1.d-14
+    eps = NEKO_EPS
 
 
     ! get fields from registry
