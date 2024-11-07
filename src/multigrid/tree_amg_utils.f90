@@ -95,18 +95,88 @@ contains
         u(i) = 1.0_rp
         !> Get the ghosts to agree on the value of 1.0
         if (lvl.eq.0) call amg%gs_h%op(u, n, GS_OP_ADD)
-    
+
         call amg%matvec(v, u, lvl)
-    
+
         val = v(j)
 
-        print *, i, j, val
+        print *, j, i, val
       end do
     end do
 
     deallocate( u )
     deallocate( v )
   end subroutine tamg_print_matrix
+
+  !> never call this function
+  !> also this does not account for duplicates/ghosts in dofs
+  subroutine tamg_print_restriction_matrix(amg, lvl)
+    type(tamg_hierarchy_t), intent(inout) :: amg
+    integer, intent(in) :: lvl
+    integer :: n, m, i, j
+    real(kind=rp) :: val
+    real(kind=rp), allocatable :: u(:), v(:)
+
+    n = amg%lvl(lvl+1)%fine_lvl_dofs
+    m = amg%lvl(lvl+2)%fine_lvl_dofs
+    allocate( u(n) )
+    allocate( v(m) )
+
+    do i = 1, n
+      do j = 1, m
+        u = 0.0_rp
+        v = 0.0_rp
+
+        u(i) = 1.0_rp
+        !> Get the ghosts to agree on the value of 1.0
+        if (lvl.eq.0) call amg%gs_h%op(u, n, GS_OP_ADD)
+
+        call amg%interp_f2c(v, u, lvl+1)
+
+        val = v(j)
+
+        print *, j, i, val
+      end do
+    end do
+
+    deallocate( u )
+    deallocate( v )
+  end subroutine tamg_print_restriction_matrix
+
+  !> never call this function
+  !> also this does not account for duplicates/ghosts in dofs
+  subroutine tamg_print_prolongation_matrix(amg, lvl)
+    type(tamg_hierarchy_t), intent(inout) :: amg
+    integer, intent(in) :: lvl
+    integer :: n, m, i, j
+    real(kind=rp) :: val
+    real(kind=rp), allocatable :: u(:), v(:)
+
+    n = amg%lvl(lvl+1)%fine_lvl_dofs
+    m = amg%lvl(lvl+2)%fine_lvl_dofs
+    allocate( u(m) )
+    allocate( v(n) )
+
+    do i = 1, m
+      do j = 1, n
+        u = 0.0_rp
+        v = 0.0_rp
+
+        u(i) = 1.0_rp
+        !---!> Get the ghosts to agree on the value of 1.0
+        !---if (lvl.eq.0) call amg%gs_h%op(u, n, GS_OP_ADD)
+
+        call amg%interp_c2f(v, u, lvl+1)
+
+        val = v(j)
+
+        print *, j, i, val
+      end do
+    end do
+
+    deallocate( u )
+    deallocate( v )
+  end subroutine tamg_print_prolongation_matrix
 
 
 end module tree_amg_utils
