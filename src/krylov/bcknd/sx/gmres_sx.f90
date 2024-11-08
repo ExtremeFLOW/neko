@@ -75,10 +75,10 @@ contains
     class(sx_gmres_t), intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
-    class(pc_t), optional, intent(inout), target :: M
-    integer, optional, intent(inout) :: lgmres
-    real(kind=rp), optional, intent(inout) :: rel_tol
-    real(kind=rp), optional, intent(inout) :: abs_tol
+    class(pc_t), optional, intent(in), target :: M
+    integer, optional, intent(in) :: lgmres
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
 
     if (present(lgmres)) then

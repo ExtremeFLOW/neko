@@ -135,10 +135,10 @@ contains
     class(gmres_device_t), target, intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
-    class(pc_t), optional, intent(inout), target :: M
-    integer, optional, intent(inout) :: m_restart
-    real(kind=rp), optional, intent(inout) :: rel_tol
-    real(kind=rp), optional, intent(inout) :: abs_tol
+    class(pc_t), optional, intent(in), target :: M
+    integer, optional, intent(in) :: m_restart
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
     type(device_ident_t), target :: M_ident
     type(c_ptr) :: ptr
