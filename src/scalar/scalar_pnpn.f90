@@ -149,6 +149,7 @@ contains
     real(kind=rp), intent(in) :: rho
     integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
+    logical :: advection
 
     call this%free()
 
@@ -219,9 +220,10 @@ contains
     call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
 
     ! Initialize advection factory
+    call json_get_or_default(params, 'case.scalar.advection', advection, .true.)
     call advection_factory(this%adv, params, this%c_Xh, &
                            ulag, vlag, wlag, this%chkp%dtlag, &
-                           this%chkp%tlag, time_scheme, this%slag)
+                           this%chkp%tlag, time_scheme, advection, this%slag)
   end subroutine scalar_pnpn_init
 
   !> I envision the arguments to this func might need to be expanded

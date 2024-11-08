@@ -149,6 +149,7 @@ contains
     type(user_t), target, intent(in) :: user
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
+    logical :: advection
 
     call this%free()
 
@@ -359,9 +360,11 @@ contains
     call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
 
     ! Initialize the advection factory
+    call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
     call advection_factory(this%adv, params, this%c_Xh, &
                            this%ulag, this%vlag, this%wlag, &
-                           this%chkp%dtlag, this%chkp%tlag, time_scheme)
+                           this%chkp%dtlag, this%chkp%tlag, time_scheme, &
+                           advection)
 
     if (params%valid_path('case.fluid.flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)
@@ -546,7 +549,7 @@ contains
     call this%advx%free()
     call this%advy%free()
     call this%advz%free()
-    
+
     if (allocated(this%Ax_vel)) then
        deallocate(this%Ax_vel)
     end if
