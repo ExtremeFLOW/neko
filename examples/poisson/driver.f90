@@ -43,7 +43,7 @@ program poisson
 
   call Xh%init(GLL, lx, lx, lx)
 
-  dm = dofmap_t(msh, Xh)
+  call dm%init(msh, Xh)
   call gs_h%init(dm)
 
   call coef%init(gs_h)

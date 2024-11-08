@@ -66,13 +66,14 @@ module cheby
 contains
 
   !> Initialise a standard solver
-  subroutine cheby_init(this, n, max_iter, M, rel_tol, abs_tol)
+  subroutine cheby_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
     class(cheby_t), intent(inout), target :: this
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
+    logical, optional, intent(in) :: monitor
 
     call this%free()
     allocate(this%d(n))
@@ -83,12 +84,20 @@ contains
        this%M => M
     end if
 
-    if (present(rel_tol) .and. present(abs_tol)) then
+    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
+    else if (present(monitor) .and. present(abs_tol)) then
+       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
     else if (present(rel_tol)) then
        call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
        call this%ksp_init(max_iter, abs_tol = abs_tol)
+    else if (present(monitor)) then
+       call this%ksp_init(max_iter, monitor = monitor)
     else
        call this%ksp_init(max_iter)
     end if
@@ -210,8 +219,12 @@ contains
 
         call this%M%solve(w, r, n)
 
-        b = (this%dlt * a / 2.0_rp)**2
-        a = 1.0_rp / (this%tha - b)
+        if (iter .eq. 2) then
+          b = 0.5_rp * (this%dlt * a)**2
+        else
+          b = (this%dlt * a / 2.0_rp)**2
+        end if
+        a = 1.0_rp/(this%tha - b/a)
         call add2s1(d, w, b, n)! d = w + b*d
 
         call add2s2(x%x, d, a, n)! x = x + a*d

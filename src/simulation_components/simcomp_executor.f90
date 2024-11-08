@@ -50,12 +50,15 @@ module simcomp_executor
   !! The execution order is based on the order property of each simcomp.
   !! By default, the order is by the order of apparence in the case file.
   type, public :: simcomp_executor_t
+
      !> The simcomps.
      class(simulation_component_wrapper_t), allocatable :: simcomps(:)
      !> Number of simcomps
-     integer :: n_simcomps
+     integer, private :: n_simcomps
      !> The case
-     type(case_t), pointer :: case
+     type(case_t), pointer, private :: case
+     !> Flag to indicate if the simcomp executor has been finalized.
+     logical, private :: finalized = .false.
    contains
      !> Constructor.
      procedure, pass(this) :: init => simcomp_executor_init
@@ -70,7 +73,9 @@ module simcomp_executor
      !> Execute restart for all simcomps.
      procedure, pass(this) :: restart=> simcomp_executor_restart
      !> Finalize the initialization.
-     procedure, pass(this) :: finalize => simcomp_executor_finalize
+     procedure, private, pass(this) :: finalize => simcomp_executor_finalize
+     !> Get the number of simcomps.
+     procedure, pass(this) :: get_n => simcomp_executor_get_n
   end type simcomp_executor_t
 
   !> Global variable for the simulation component driver.
@@ -169,7 +174,7 @@ contains
        if (.not. is_user) call neko_log%message('- ' // trim(comp_type))
 
        call simulation_component_factory(this%simcomps(i)%simcomp, &
-                                         comp_subdict, case)
+            comp_subdict, case)
     end do
 
     if (has_user) then
@@ -180,7 +185,6 @@ contains
     end if
 
     ! Cleanup
-    call neko_simcomps%finalize()
     deallocate(order)
     deallocate(read_order)
     deallocate(mask)
@@ -207,7 +211,7 @@ contains
   subroutine simcomp_executor_add(this, object, settings)
     class(simcomp_executor_t), intent(inout) :: this
     class(simulation_component_t), intent(in) :: object
-    type(json_file), intent(inout) :: settings
+    type(json_file), intent(inout), optional :: settings
 
     class(simulation_component_wrapper_t), allocatable :: tmp_simcomps(:)
     integer :: i, position
@@ -222,27 +226,28 @@ contains
     end do
 
     ! If no empty position was found, append to the end
-    if (position == 0) then
-       call move_alloc(this%simcomps, tmp_simcomps)
-       allocate(this%simcomps(position))
+    if (position .eq. 0) then
+       if (this%n_simcomps .gt. 0) call move_alloc(this%simcomps, tmp_simcomps)
+       allocate(this%simcomps(this%n_simcomps + 1))
 
        if (allocated(tmp_simcomps)) then
           do i = 1, this%n_simcomps
              call move_alloc(tmp_simcomps(i)%simcomp, this%simcomps(i)%simcomp)
           end do
-          deallocate(tmp_simcomps)
        end if
 
        this%n_simcomps = this%n_simcomps + 1
        position = this%n_simcomps
+
+       if (allocated(tmp_simcomps)) deallocate(tmp_simcomps)
     end if
 
     this%simcomps(position)%simcomp = object
-    call this%simcomps(position)%simcomp%init(settings, this%case)
-
-    if (allocated(tmp_simcomps)) then
-       deallocate(tmp_simcomps)
+    if (present(settings)) then
+       call this%simcomps(position)%simcomp%init(settings, this%case)
     end if
+
+    this%finalized = .false.
 
   end subroutine simcomp_executor_add
 
@@ -278,7 +283,7 @@ contains
        end do
        if (order_found .and. .not. previous_found) then
           call neko_error("Simulation component order must be contiguous &
-            &starting at 1.")
+               &starting at 1.")
        end if
        previous_found = order_found
     end do
@@ -323,7 +328,9 @@ contains
        deallocate(order_list)
     end if
 
+    this%finalized = .true.
   end subroutine simcomp_executor_finalize
+
   !> Execute preprocess_ for all simcomps.
   !! @param t The time value.
   !! @param tstep The timestep number.
@@ -332,6 +339,8 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     integer :: i
+
+    if (.not. this%finalized) call this%finalize()
 
     if (allocated(this%simcomps)) then
        do i = 1, size(this%simcomps)
@@ -349,6 +358,8 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     integer :: i
+
+    if (.not. this%finalized) call this%finalize()
 
     if (allocated(this%simcomps)) then
        do i = 1, this%n_simcomps
@@ -372,5 +383,13 @@ contains
     end if
 
   end subroutine simcomp_executor_restart
+
+  !> Get the number of simcomps.
+  pure function simcomp_executor_get_n(this) result(n)
+    class(simcomp_executor_t), intent(in) :: this
+    integer :: n
+
+    n = this%n_simcomps
+  end function simcomp_executor_get_n
 
 end module simcomp_executor

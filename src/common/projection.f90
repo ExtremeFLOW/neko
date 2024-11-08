@@ -282,7 +282,7 @@ contains
     else
        call cpu_project_on(this, b, coef, n)
     end if
-    call profiler_end_region
+    call profiler_end_region('Project on', 16)
   end subroutine bcknd_project_on
 
   subroutine bcknd_project_back(this,x,Ax,coef, bclst, gs_h, n)
@@ -328,7 +328,7 @@ contains
     else
        call cpu_proj_ortho  (this,this%xx,this%bb,coef%mult,n)
     end if
-    call profiler_end_region
+    call profiler_end_region('Project back', 17)
   end subroutine bcknd_project_back
 
 

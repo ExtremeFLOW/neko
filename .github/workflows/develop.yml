@@ -61,6 +61,9 @@ jobs:
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
+  # ========================================================================== #
+  # Compilation checks
+
   GNU:
     name: GNU
     needs:
@@ -80,14 +83,17 @@ jobs:
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
-  NVIDIA:
-    name: NVIDIA
+  Nvidia:
+    name: Nvidia
     needs:
       - prepare
       - depend
     uses: ./.github/workflows/check_nvidia.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+
+  # ========================================================================== #
+  # ReFrame and bencharks
 
   ReFrame:
     name: ReFrame
@@ -99,6 +105,37 @@ jobs:
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
+  # # ========================================================================== #
+  # # Upload the badges
+
+  # upload-badges:
+  #   name: "Upload badges"
+  #   runs-on: ubuntu-20.04
+  #   needs:
+  #     - linting
+
+  #   if: ${{ !cancelled() }} &&
+  #       ${{ needs.linting.result == 'success' }} &&
+
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+
+  #     - name: Download artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         pattern: "*-badge"
+  #         path: doc/media/
+  #         merge-multiple: true
+
+  #     - name: Push badges
+  #       uses: EndBug/add-and-commit@v9
+  #       with:
+  #         add: "doc/media/*-badge.svg"
+  #         message: "Add badges"
+  #         author_name: "GitHub Actions"
+  #         default_author: github_actor
+
   check_complete:
     name: Develop PR Ready
     if: ${{ always() }}
@@ -108,7 +145,7 @@ jobs:
       - depend
       - GNU
       - Intel
-      - NVIDIA
+      - Nvidia
       - ReFrame
     runs-on: ubuntu-latest
     env:
@@ -116,7 +153,7 @@ jobs:
       flint_status: ${{ needs.linting.result }}
       gnu_status: ${{ needs.GNU.result }}
       inel_status: ${{ needs.Intel.result }}
-      nvidia_status: ${{ needs.NVIDIA.result }}
+      nvidia_status: ${{ needs.Nvidia.result }}
       reframe_status: ${{ needs.ReFrame.result }}
 
     steps:

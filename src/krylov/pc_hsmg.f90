@@ -174,13 +174,13 @@ contains
     call this%wf%init(dof, 'work 2')
 
     call this%Xh_crs%init(GLL, lx_crs, lx_crs, lx_crs)
-    this%dm_crs = dofmap_t(msh, this%Xh_crs)
+    call this%dm_crs%init(msh, this%Xh_crs)
     call this%gs_crs%init(this%dm_crs)
     call this%e_crs%init(this%dm_crs, 'work crs')
     call this%c_crs%init(this%gs_crs)
 
     call this%Xh_mg%init(GLL, lx_mid, lx_mid, lx_mid)
-    this%dm_mg = dofmap_t(msh, this%Xh_mg)
+    call this%dm_mg%init(msh, this%Xh_mg)
     call this%gs_mg%init(this%dm_mg)
     call this%e_mg%init(this%dm_mg, 'work midl')
     call this%c_mg%init(this%gs_mg)
@@ -346,7 +346,7 @@ contains
     type(ksp_monitor_t) :: crs_info
     integer :: thrdid, nthrds
 
-    call profiler_start_region('HSMG solve', 8)
+    call profiler_start_region('HSMG_solve', 8)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        z_d = device_get_ptr(z)
        r_d = device_get_ptr(r)
@@ -386,29 +386,29 @@ contains
        !$ nthrds = omp_get_num_threads()
 
        if (thrdid .eq. 0) then
-          call profiler_start_region('HSMG schwarz', 9)
+          call profiler_start_region('HSMG_schwarz', 9)
           call this%grids(3)%schwarz%compute(z, this%r)
           call this%grids(2)%schwarz%compute(this%grids(2)%e%x, this%w)
-          call profiler_end_region
+          call profiler_end_region('HSMG_schwarz', 9)
        end if
        if (nthrds .eq. 1 .or. thrdid .eq. 1) then
-          call profiler_start_region('HSMG coarse grid', 10)
+          call profiler_start_region('HSMG_coarse_grid', 10)
           call this%grids(1)%gs_h%op(this%wf%x, &
                this%grids(1)%dof%size(), GS_OP_ADD, this%gs_event)
           call device_event_sync(this%gs_event)
           call this%grids(1)%bclst%apply_scalar(this%wf%x, &
                                     this%grids(1)%dof%size())
-          call profiler_start_region('HSMG coarse-solve', 11)
+          call profiler_start_region('HSMG_coarse_solve', 11)
           crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, &
                                        this%wf%x, &
                                        this%grids(1)%dof%size(), &
                                        this%grids(1)%coef, &
                                        this%grids(1)%bclst, &
                                        this%grids(1)%gs_h, this%niter)
-          call profiler_end_region
+          call profiler_end_region('HSMG_coarse_solve', 11)
           call this%grids(1)%bclst%apply_scalar(this%grids(1)%e%x, &
                                     this%grids(1)%dof%size())
-          call profiler_end_region
+          call profiler_end_region('HSMG_coarse_grid', 10)
        end if
        !$omp end parallel
 
@@ -453,7 +453,7 @@ contains
                                     this%grids(1)%coef, &
                                     this%grids(1)%bclst, &
                                     this%grids(1)%gs_h, this%niter)
-       call profiler_end_region
+       call profiler_end_region('HSMG_coarse-solve', 11)
        call this%grids(1)%bclst%apply_scalar(this%grids(1)%e%x,&
                                  this%grids(1)%dof%size())
 
@@ -469,6 +469,6 @@ contains
        call col2(z, this%grids(3)%coef%mult, this%grids(3)%dof%size())
 
     end if
-    call profiler_end_region
+    call profiler_end_region('HSMG_solve', 8)
   end subroutine hsmg_solve
 end module hsmg

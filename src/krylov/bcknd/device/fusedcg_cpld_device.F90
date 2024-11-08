@@ -141,6 +141,53 @@ module fusedcg_cpld_device
      end function cuda_fusedcg_cpld_part2
   end interface
 #elif HAVE_HIP
+  interface
+     subroutine hip_fusedcg_cpld_part1(a1_d, a2_d, a3_d, &
+          b1_d, b2_d, b3_d, tmp_d, n) bind(c, name='hip_fusedcg_cpld_part1')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, tmp_d
+       integer(c_int) :: n
+     end subroutine hip_fusedcg_cpld_part1
+  end interface
+
+  interface
+     subroutine hip_fusedcg_cpld_update_p(p1_d, p2_d, p3_d, z1_d, z2_d, z3_d, &
+          po1_d, po2_d, po3_d, beta, n) bind(c, name='hip_fusedcg_cpld_update_p')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: p1_d, p2_d, p3_d, z1_d, z2_d, z3_d
+       type(c_ptr), value :: po1_d, po2_d, po3_d
+       real(c_rp) :: beta
+       integer(c_int) :: n
+     end subroutine hip_fusedcg_cpld_update_p
+  end interface
+
+  interface
+     subroutine hip_fusedcg_cpld_update_x(x1_d, x2_d, x3_d, p1_d, p2_d, p3_d, &
+          alpha, p_cur, n) bind(c, name='hip_fusedcg_cpld_update_x')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: x1_d, x2_d, x3_d, p1_d, p2_d, p3_d, alpha
+       integer(c_int) :: p_cur, n
+     end subroutine hip_fusedcg_cpld_update_x
+  end interface
+
+  interface
+     real(c_rp) function hip_fusedcg_cpld_part2(a1_d, a2_d, a3_d, b_d, &
+          c1_d, c2_d, c3_d, alpha_d, alpha,  p_cur, n) &
+          bind(c, name='hip_fusedcg_cpld_part2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a1_d, a2_d, a3_d, b_d
+       type(c_ptr), value :: c1_d, c2_d, c3_d, alpha_d
+       real(c_rp) :: alpha
+       integer(c_int) :: n, p_cur
+     end function hip_fusedcg_cpld_part2
+  end interface
 #endif
 
 contains
@@ -151,6 +198,7 @@ contains
     type(c_ptr), value :: tmp_d
     integer(c_int) :: n
 #ifdef HAVE_HIP
+    call hip_fusedcg_cpld_part1(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, tmp_d, n)
 #elif HAVE_CUDA
     call cuda_fusedcg_cpld_part1(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, tmp_d, n)
 #else
@@ -165,6 +213,8 @@ contains
     real(c_rp) :: beta
     integer(c_int) :: n
 #ifdef HAVE_HIP
+    call hip_fusedcg_cpld_update_p(p1_d, p2_d, p3_d, z1_d, z2_d, z3_d, &
+                                    po1_d, po2_d, po3_d, beta, n)
 #elif HAVE_CUDA
     call cuda_fusedcg_cpld_update_p(p1_d, p2_d, p3_d, z1_d, z2_d, z3_d, &
                                     po1_d, po2_d, po3_d, beta, n)
@@ -178,6 +228,8 @@ contains
     type(c_ptr), value :: x1_d, x2_d, x3_d, p1_d, p2_d, p3_d, alpha
     integer(c_int) :: p_cur, n
 #ifdef HAVE_HIP
+    call hip_fusedcg_cpld_update_x(x1_d, x2_d, x3_d, &
+                                    p1_d, p2_d, p3_d, alpha, p_cur, n)
 #elif HAVE_CUDA
     call cuda_fusedcg_cpld_update_x(x1_d, x2_d, x3_d, &
                                     p1_d, p2_d, p3_d, alpha, p_cur, n)
@@ -195,6 +247,8 @@ contains
     real(kind=rp) :: res
     integer :: ierr
 #ifdef HAVE_HIP
+    res = hip_fusedcg_cpld_part2(a1_d, a2_d, a3_d, b_d, &
+         c1_d, c2_d, c3_d, alpha_d, alpha, p_cur, n)
 #elif HAVE_CUDA
     res = cuda_fusedcg_cpld_part2(a1_d, a2_d, a3_d, b_d, &
          c1_d, c2_d, c3_d, alpha_d, alpha, p_cur, n)
@@ -212,13 +266,15 @@ contains
   end function device_fusedcg_cpld_part2
 
   !> Initialise a fused PCG solver
-  subroutine fusedcg_cpld_device_init(this, n, max_iter, M, rel_tol, abs_tol)
+  subroutine fusedcg_cpld_device_init(this, n, max_iter, M, &
+                                      rel_tol, abs_tol, monitor)
     class(fusedcg_cpld_device_t), target, intent(inout) :: this
     class(pc_t), optional, intent(inout), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
     real(kind=rp), optional, intent(inout) :: rel_tol
     real(kind=rp), optional, intent(inout) :: abs_tol
+    logical, optional, intent(in) :: monitor
     type(c_ptr) :: ptr
     integer(c_size_t) :: p_size
     integer :: i
@@ -282,12 +338,20 @@ contains
     ptr = c_loc(this%p3_d)
     call device_memcpy(ptr, this%p3_d_d, p_size, &
                        HOST_TO_DEVICE, sync=.false.)
-    if (present(rel_tol) .and. present(abs_tol)) then
+    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
+    else if (present(monitor) .and. present(abs_tol)) then
+       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
     else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol = abs_tol)
+    else if (present(monitor)) then
+       call this%ksp_init(max_iter, monitor = monitor)
     else
        call this%ksp_init(max_iter)
     end if
@@ -518,13 +582,12 @@ contains
       ksp_results(1)%iter = 0
       ksp_results(2:3)%iter = -1
       if(abscmp(rnorm, 0.0_rp)) return
-
+      call this%monitor_start('fcpldCG')
       do iter = 1, max_iter
          call this%M%solve(z1, r1, n)
          call this%M%solve(z2, r2, n)
          call this%M%solve(z3, r3, n)
          rtz2 = rtz1
-
          call device_fusedcg_cpld_part1(z1_d, z2_d, z3_d, &
                                         r1_d, r2_d, r3_d, tmp_d, n)
          rtz1 = device_glsc2(tmp_d, coef%mult_d, n)
@@ -556,7 +619,7 @@ contains
          rtr = device_fusedcg_cpld_part2(r1_d, r2_d, r3_d, coef%mult_d, &
               w1_d, w2_d, w3_d, alpha_d, alpha(p_cur), p_cur, n)
          rnorm = sqrt(rtr)*norm_fac
-
+         call this%monitor_iter(iter, rnorm)
          if ((p_cur .eq. DEVICE_FUSEDCG_CPLD_P_SPACE) .or. &
               (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
             call device_fusedcg_cpld_update_x(x%x_d, y%x_d, z%x_d, &
@@ -569,7 +632,7 @@ contains
             p_cur = p_cur + 1
          end if
       end do
-
+      call this%monitor_stop()
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
 
@@ -578,7 +641,8 @@ contains
   end function fusedcg_cpld_device_solve_coupled
 
   !> Pipelined PCG solve
-  function fusedcg_cpld_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
+  function fusedcg_cpld_device_solve(this, Ax, x, f, n, coef, blst, &
+       gs_h, niter)  result(ksp_results)
     class(fusedcg_cpld_device_t), intent(inout) :: this
     class(ax_t), intent(inout) :: Ax
     type(field_t), intent(inout) :: x
@@ -591,7 +655,7 @@ contains
     integer, optional, intent(in) :: niter
 
     ! Throw and error
-    call neko_error('Only defined for coupled solves')
+    call neko_error('The cpldcg solver is only defined for coupled solves')
 
     ksp_results%res_final = 0.0
     ksp_results%iter = 0

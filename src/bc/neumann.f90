@@ -32,7 +32,7 @@
 !
 !> Defines a Neumann boundary condition.
 module neumann
-  use num_types
+  use num_types, only : rp
   use bc, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr
   use utils, only : neko_error, nonlinear_index
@@ -40,11 +40,12 @@ module neumann
   use json_module, only : json_file
   use json_utils, only : json_get
   use math, only : cfill
+  use math, only : cfill, copy
   implicit none
   private
 
-  !> Generic Neumann boundary condition.
-  !! This sets the flux of the field to the chosen value.
+  !> A Neumann boundary condition for scalar fields.
+  !! Sets the flux of the field to the chosen value.
   !! @note The condition is imposed weekly by adding an appropriate source term
   !! to the right-hand-side.
   type, public, extends(bc_t) :: neumann_t
@@ -55,12 +56,18 @@ module neumann
      procedure, pass(this) :: apply_vector => neumann_apply_vector
      procedure, pass(this) :: apply_scalar_dev => neumann_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => neumann_apply_vector_dev
-     procedure, pass(this) :: flux => neumann_flux
      !> Constructor
      procedure, pass(this) :: init => neumann_init
      !> Constructor from components
      procedure, pass(this) :: init_from_components => &
         neumann_init_from_components
+     procedure, pass(this) :: flux => neumann_flux
+     !> Set the flux using a scalar.
+     procedure, pass(this) :: set_flux_scalar => neumann_set_flux_scalar
+     !> Set the flux using an array.
+     procedure, pass(this) :: set_flux_array => neumann_set_flux_array
+     !> Generic interface for setting the flux.
+     generic :: set_flux => set_flux_scalar, set_flux_array
      !> Destructor.
      procedure, pass(this) :: free => neumann_free
      !> Finalize.
@@ -115,13 +122,16 @@ contains
        facet = this%facet(i)
        idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx,&
                              this%coef%Xh%lx)
-       select case(facet)
-       case(1,2)
-          x(k) = x(k) + this%flux_(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
-       case(3,4)
-          x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
-       case(5,6)
-          x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
+       select case (facet)
+       case (1,2)
+          x(k) = x(k) + this%flux_(i)*this%coef%area(idx(2), idx(3), facet, &
+               idx(4))
+       case (3,4)
+          x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(3), facet, &
+               idx(4))
+       case (5,6)
+          x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(2), facet, &
+               idx(4))
        end select
     end do
   end subroutine neumann_apply_scalar
@@ -192,5 +202,22 @@ contains
 
     flux = this%flux_
   end function neumann_flux
+
+  !> Set the flux using a scalar.
+  subroutine neumann_set_flux_scalar(this, flux)
+    class(neumann_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: flux
+
+    this%flux_ = flux
+  end subroutine neumann_set_flux_scalar
+
+  !> Set the flux using an array of values.
+  !> @param flux The desired flux.
+  subroutine neumann_set_flux_array(this, flux)
+    class(neumann_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: flux(this%msk(0))
+
+    call copy(this%flux_, flux, this%msk(0))
+  end subroutine neumann_set_flux_array
 
 end module neumann

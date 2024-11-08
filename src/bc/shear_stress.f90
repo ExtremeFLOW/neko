@@ -31,48 +31,44 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Defines a shear stress boundary condition for a vector field.
+!! Maintainer: Timofey Mukha.
 module shear_stress
-  use num_types
+  use num_types, only : rp
   use bc, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use utils, only : neko_error, nonlinear_index
+  use utils, only : neko_error
   use coefs, only : coef_t
-  use dirichlet, only : dirichlet_t
+  use symmetry, only : symmetry_t
   use neumann, only : neumann_t
-  use math, only : copy
-  use device_math, only : device_copy
-  use json_module, only : json_file
-  use json_utils, only : json_get
   implicit none
   private
 
   !> A shear stress boundary condition.
-  !! @warning Currently hard coded to prescribe a given stress in x, 0 stress
-  !! in z, and 0 velocity in y.
+  !! @warning Currently strictly for axis-aligned boundaries.
   type, public, extends(bc_t) :: shear_stress_t
-     !> The stress in the 1st wall-parallel direction.
-     real(kind=rp), allocatable, private :: tau1_(:)
-     !> The stress in the 2nd wall-parallel direction.
-     real(kind=rp), allocatable, private :: tau2_(:)
-     !> Dirchlet bc for the wall-normal component.
-     type(dirichlet_t) :: dirichlet
-     !> Neumann condition for the 1st wall-parallel direction.
-     type(neumann_t) :: neumann1
-     !> Neumann condition for the 2nd wall-parallel direction.
-     type(neumann_t) :: neumann2
+     ! This bc takes care of setting the wall-normal component to zero.
+     ! It can be passed to associated bc lists, which take care of masking
+     ! changes in residuals and solution increments.
+     type(symmetry_t) :: symmetry
+
+     !> Neumann condition for the x direction.
+     type(neumann_t) :: neumann_x
+     !> Neumann condition for the y direction.
+     type(neumann_t) :: neumann_y
+     !> Neumann condition for the z direction.
+     type(neumann_t) :: neumann_z
    contains
      procedure, pass(this) :: apply_scalar => shear_stress_apply_scalar
      procedure, pass(this) :: apply_vector => shear_stress_apply_vector
      procedure, pass(this) :: apply_scalar_dev => shear_stress_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => shear_stress_apply_vector_dev
-     procedure, pass(this) :: tau1 => shear_stress_tau1
-     procedure, pass(this) :: tau2 => shear_stress_tau2
-     procedure, pass(this) :: set_stress => shear_stress_set_stress
-     procedure, pass(this) :: free => shear_stress_free
-     !> Constructor
      procedure, pass(this) :: init => shear_stress_init
-     !> Finalize.
-     procedure, pass(this) :: finalize => shear_stress_finalize
+     procedure, pass(this) :: set_stress_scalar => &
+          shear_stress_set_stress_scalar
+     procedure, pass(this) :: set_stress_array => &
+          shear_stress_set_stress_array
+     generic :: set_stress => set_stress_scalar, set_stress_array
+     procedure, pass(this) :: free => shear_stress_free
   end type shear_stress_t
 
 contains
@@ -103,9 +99,9 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
 
-    call this%neumann1%apply_scalar(x, n, t, tstep)
-    call this%neumann2%apply_scalar(z, n, t, tstep)
-    call this%dirichlet%apply_scalar(y, n, t, tstep)
+    call this%neumann_x%apply_scalar(x, n, t, tstep)
+    call this%neumann_y%apply_scalar(y, n, t, tstep)
+    call this%neumann_z%apply_scalar(z, n, t, tstep)
 
   end subroutine shear_stress_apply_vector
 
@@ -135,74 +131,73 @@ contains
 
   end subroutine shear_stress_apply_vector_dev
 
-  !> Constructor.
-  !! @param[in] coef The SEM coefficients.
-  !! @param[inout] json The JSON object configuring the boundary condition.
-  subroutine shear_stress_init(this, coef, json)
-    class(shear_stress_t), target, intent(inout) :: this
-    type(coef_t), intent(in) :: coef
-    type(json_file), intent(inout) :: json
-    real(kind=rp), allocatable :: tau(:)
+  !> Additional constructor that should be run after the finalization of the
+  !! bc. Similar to the symmetry condition.
+  !> @param coef The SEM coefficients.
+  subroutine shear_stress_init(this, coef)
+    class(shear_stress_t), intent(inout) :: this
+    type(coef_t), target, intent(in) :: coef
 
-    call this%init_base(coef)
+    this%coef => coef
 
-    call json_get(json, "value", tau)
+    call this%symmetry%free()
+    call this%symmetry%init_base(coef)
+    call this%symmetry%mark_facets(this%marked_facet)
+    call this%symmetry%finalize()
+    call this%symmetry%init(coef)
 
-    call this%dirichlet%init_from_components(coef, 0.0_rp)
-    call this%neumann1%init_from_components(coef, tau(1))
-    call this%neumann2%init_from_components(coef, tau(2))
+    call this%neumann_x%init_base(coef)
+    call this%neumann_y%init_base(coef)
+    call this%neumann_z%init_base(coef)
+
+    call this%neumann_x%mark_facets(this%marked_facet)
+    call this%neumann_y%mark_facets(this%marked_facet)
+    call this%neumann_z%mark_facets(this%marked_facet)
+
+    call this%neumann_x%finalize_neumann(0.0_rp)
+    call this%neumann_y%finalize_neumann(0.0_rp)
+    call this%neumann_z%finalize_neumann(0.0_rp)
+
+
   end subroutine shear_stress_init
 
-  !> Finalize by allocating the stress arrays and marking the facets for
-  !! the bc components.
-  subroutine shear_stress_finalize(this)
-    class(shear_stress_t), target, intent(inout) :: this
+  !> Set the value of the shear stress vector using 3 scalars.
+  subroutine shear_stress_set_stress_scalar(this, tau_x, tau_y, tau_z)
+    class(shear_stress_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: tau_x
+    real(kind=rp), intent(in) :: tau_y
+    real(kind=rp), intent(in) :: tau_z
 
-    call this%neumann1%mark_facets(this%marked_facet)
-    call this%neumann2%mark_facets(this%marked_facet)
-    call this%dirichlet%mark_facets(this%marked_facet)
+    ! Calls finalize and allocates the flux arrays
+    call this%neumann_x%set_flux(tau_x)
+    call this%neumann_y%set_flux(tau_y)
+    call this%neumann_z%set_flux(tau_z)
 
-    call this%dirichlet%finalize()
-    call this%neumann1%finalize()
-    call this%neumann2%finalize()
 
-  end subroutine shear_stress_finalize
-
-  !> Get the stress in the 1st wall-parallel direction.
-  pure function shear_stress_tau1(this) result(tau1)
-    class(shear_stress_t), intent(in) :: this
-    real(kind=rp) :: tau1(this%msk(0))
-
-    tau1 = this%tau1_
-  end function shear_stress_tau1
-
-  !> Get the stress in the 2nd wall-parallel direction.
-  pure function shear_stress_tau2(this) result(tau2)
-    class(shear_stress_t), intent(in) :: this
-    real(kind=rp) :: tau2(this%msk(0))
-
-    tau2 = this%tau2_
-  end function shear_stress_tau2
+  end subroutine shear_stress_set_stress_scalar
 
   !> Set the shear stress components.
-  subroutine shear_stress_set_stress(this, tau1, tau2)
+  subroutine shear_stress_set_stress_array(this, tau_x, tau_y, tau_z)
     class(shear_stress_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: tau1(this%msk(0))
-    real(kind=rp), intent(in) :: tau2(this%msk(0))
+    real(kind=rp), intent(in) :: tau_x(this%msk(0))
+    real(kind=rp), intent(in) :: tau_y(this%msk(0))
+    real(kind=rp), intent(in) :: tau_z(this%msk(0))
 
-    call copy(this%tau1_, tau1, this%msk(0))
-    call copy(this%tau2_, tau2, this%msk(0))
+    call this%neumann_x%set_flux(tau_x)
+    call this%neumann_y%set_flux(tau_y)
+    call this%neumann_z%set_flux(tau_z)
 
-  end subroutine shear_stress_set_stress
+  end subroutine shear_stress_set_stress_array
 
   !> Destructor.
   subroutine shear_stress_free(this)
     class(shear_stress_t), target, intent(inout) :: this
     call this%free_base
-    call this%dirichlet%free
-    call this%neumann1%free
-    call this%neumann2%free
+    call this%symmetry%free
+
+    call this%neumann_x%free
+    call this%neumann_y%free
+    call this%neumann_z%free
 
   end subroutine shear_stress_free
-
 end module shear_stress

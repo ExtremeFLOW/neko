@@ -6,7 +6,7 @@ Neko can be installed in various ways, either building directly from source, man
 
 ## Building from source
 
-To build Neko, you will need a Fortran compiler supporting the Fortran-08 standard, autotools, pkg-config, a working MPI installation supporting the Fortran 2008 bindings (`mpi_f08`), BLAS/LAPACK and JSON-Fortran. Optional dependencies are PFunit, gslib and ParMETIS. 
+To build Neko, you will need a Fortran compiler supporting the Fortran-08 standard, autotools, libtool, pkg-config, a working MPI installation supporting the Fortran 2008 bindings (`mpi_f08`), BLAS/LAPACK and JSON-Fortran. Optional dependencies are PFunit, gslib and ParMETIS. 
 
 Follow the steps below to install the less common dependencies (e.g. JSON-Fortran).
 
@@ -104,10 +104,12 @@ Features are enabled and disabled by passing either `--enable-FEATURE[=arg]` or 
 
 | Name                  | Description                                                                                                                           |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `--enable-real=Xp`    | Specify working precision of REAL types:<br>`sp` -- `REAL(kind=4)`<br>`dp` -- `REAL(kind=8)` (default)<br>`qp` -- `REAL(kind=16)`<br> |
+| `--enable-real=Xp`    | Specify working precision of REAL types:<br>`sp` -- `REAL(kind=REAL32)`<br>`dp` -- `REAL(kind=REAL64)` (default)<br>`qp` -- `REAL(kind=REAL128)`<br> |
 | `--enable-contrib`    | Compile various tools                                                                                                                 |
 | `--enable-device-mpi` | Enable device aware MPI                                                                                                               |
 | `--enable-openmp`     | Enable OpenMP                                                                                                                         |
+| `--enable-shared`     | Build shared libraries (default: no)                                                                                                  |
+| `--enable-static`     | Build static libraries (default: yes)                                                                                                 |
 
 Optional packages are controlled by passing either `--with-PACKAGE[=ARG]` or `--without-PACKAGE` to `configure`. A list of all supported optional packages are given in the table below.
 

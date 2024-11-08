@@ -112,7 +112,7 @@ contains
     call this%free()
 
     call this%Xh_schwarz%init(GLL, Xh%lx+2, Xh%lx+2, Xh%lx+2)
-    this%dm_schwarz = dofmap_t(msh, this%Xh_schwarz)
+    call this%dm_schwarz%init(msh, this%Xh_schwarz)
     call this%gs_schwarz%init(this%dm_schwarz)
 
     allocate(this%work1(this%dm_schwarz%size()))

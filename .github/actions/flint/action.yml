@@ -1,0 +1,52 @@
+name: Execution of Flint
+description: |
+  This action executes the Flint linter on the specified directory.
+
+inputs:
+  directory:
+    description: "The directory to lint."
+    required: true
+    default: "."
+
+  depth:
+    description: "The depth to lint."
+    required: false
+    default: "10"
+
+  rc-file:
+    description: "The configuration file to use."
+    required: false
+    default: "flinter_rc.yml"
+
+outputs:
+  score:
+    description: "The score of the linting."
+    value: ${{ steps.lint.outputs.score }}
+
+runs:
+  using: composite
+  steps:
+    - name: Setup the python environment
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.x"
+        cache: "pip"
+        cache-dependency-path: "**/requirements-flint.txt"
+
+    - name: Install the linter
+      shell: bash
+      run: pip install -r ${{ github.action_path }}/requirements-flint.txt
+
+    - name: Lint the repository
+      shell: bash
+      id: lint
+      run: |
+        flint score ${{ inputs.directory }} -d ${{ inputs.depth }} -r ${{ inputs.rc-file }} | tee flint.txt
+        score=$(awk '$1==0{print $3}' flint.txt)
+
+        if [ -z "$score" ]; then
+          echo "No score found, check flint.txt"
+          exit 1
+        fi
+        echo "Score=$score"
+        echo "score=$score" >> $GITHUB_OUTPUT

@@ -44,7 +44,8 @@ module fluid_scheme
   use space, only : space_t, GLL
   use dofmap, only : dofmap_t
   use zero_dirichlet, only : zero_dirichlet_t
-  use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy
+  use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy, &
+                     KSP_MAX_ITER
   use coefs, only: coef_t
   use inflow, only : inflow_t
   use usr_inflow, only : usr_inflow_t, usr_inflow_eval
@@ -67,18 +68,21 @@ module fluid_scheme
   use device_math, only : device_cfill, device_add2s2
   use time_scheme_controller, only : time_scheme_controller_t
   use operators, only : cfl
-  use logger, only : neko_log, LOG_SIZE
+  use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
-  use json_module, only : json_file, json_core, json_value
-  use scratch_registry, only : scratch_registry_t
-  use user_intf, only : user_t
-  use utils, only : neko_error
-  use material_properties, only : material_properties_t
   use bc_list, only : bc_list_t
+  use json_utils, only : json_get, json_get_or_default, json_extract_object
+  use json_module, only : json_file
+  use scratch_registry, only : scratch_registry_t
+  use user_intf, only : user_t, dummy_user_material_properties, &
+                        user_material_properties
+  use utils, only : neko_error, neko_warning
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
   use field_math, only : field_cfill
+  use wall_model_bc, only : wall_model_bc_t
+  use shear_stress, only : shear_stress_t
+  use gradient_jump_penalty, only : gradient_jump_penalty_t
   implicit none
   private
 
@@ -111,12 +115,20 @@ module fluid_scheme
      integer :: pr_projection_activ_step   !< Steps to activate projection for ksp_pr
 !     type(zero_dirichlet_t) :: bc_wall           !< No-slip wall for velocity
 !     class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
+     type(wall_model_bc_t) :: bc_wallmodel !< Wall model boundary condition
+     !> Gradient jump panelty
+     logical :: if_gradient_jump_penalty
+     type(gradient_jump_penalty_t) :: gradient_jump_penalty_u
+     type(gradient_jump_penalty_t) :: gradient_jump_penalty_v
+     type(gradient_jump_penalty_t) :: gradient_jump_penalty_w
 
      ! Attributes for field dirichlet BCs
      type(field_dirichlet_vector_t) :: user_field_bc_vel   !< User-computed Dirichlet velocity condition
      type(field_dirichlet_t) :: user_field_bc_prs   !< User-computed Dirichlet pressure condition
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
+     type(shear_stress_t) :: bc_sh             !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
+     type(bc_list_t) :: bclst_vel_neumann      !< List of neumann velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
      ! NEW VARIABLE
      type(bc_list_t) :: bcs
@@ -131,7 +143,7 @@ module fluid_scheme
      logical :: forced_flow_rate = .false.     !< Is the flow rate forced?
      logical :: freeze = .false.               !< Freeze velocity at initial condition?
      !> Dynamic viscosity
-     real(kind=rp), pointer :: mu => null()
+     real(kind=rp) :: mu
      !> The variable mu field
      type(field_t) :: mu_field
      !> The turbulent kinematic viscosity field name
@@ -139,7 +151,7 @@ module fluid_scheme
      !> Is mu varying in time? Currently only due to LES models.
      logical :: variable_material_properties = .false.
      !> Density
-     real(kind=rp), pointer :: rho => null()
+     real(kind=rp) :: rho
      !> The variable density field
      type(field_t) :: rho_field
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
@@ -164,6 +176,9 @@ module fluid_scheme
      procedure, pass(this) :: set_usr_inflow => fluid_scheme_set_usr_inflow
      !> Compute the CFL number
      procedure, pass(this) :: compute_cfl => fluid_compute_cfl
+     !> Set rho and mu
+     procedure, pass(this) :: set_material_properties => &
+          fluid_scheme_set_material_properties
      !> Constructor
      procedure(fluid_scheme_init_intrf), pass(this), deferred :: init
      !> Destructor
@@ -186,18 +201,18 @@ module fluid_scheme
   !> Abstract interface to initialize a fluid formulation
   abstract interface
      subroutine fluid_scheme_init_intrf(this, msh, lx, params, user, &
-                                        material_properties)
+          time_scheme)
        import fluid_scheme_t
        import json_file
        import mesh_t
        import user_t
-       import material_properties_t
+       import time_scheme_controller_t
        class(fluid_scheme_t), target, intent(inout) :: this
        type(mesh_t), target, intent(inout) :: msh
        integer, intent(inout) :: lx
        type(json_file), target, intent(inout) :: params
-       type(user_t), intent(in) :: user
-       type(material_properties_t), target, intent(inout) :: material_properties
+       type(user_t), target, intent(in) :: user
+       type(time_scheme_controller_t), target, intent(in) :: time_scheme
      end subroutine fluid_scheme_init_intrf
   end interface
 
@@ -251,7 +266,7 @@ contains
 
   !> Initialize common data for the current scheme
   subroutine fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
-      material_properties, kspv_init)
+      kspv_init)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
@@ -259,16 +274,15 @@ contains
     character(len=*), intent(in) :: scheme
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
-    type(material_properties_t), target, intent(inout) :: material_properties
     logical, intent(in) :: kspv_init
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp), allocatable :: real_vec(:)
-    real(kind=rp) :: real_val
+    real(kind=rp) :: real_val, kappa, B, z0
     logical :: logical_val
     integer :: integer_val, ierr
+    type(json_file) :: wm_json
     character(len=:), allocatable :: string_val1, string_val2
-
 
     !
     ! SEM simulation fundamentals
@@ -282,7 +296,7 @@ contains
        call this%Xh%init(GLL, lx, lx, lx)
     end if
 
-    this%dm_Xh = dofmap_t(msh, this%Xh)
+    call this%dm_Xh%init(msh, this%Xh)
 
     call this%gs_Xh%init(this%dm_Xh)
 
@@ -294,12 +308,19 @@ contains
     ! Case parameters
     this%params => params
 
+
+    !
+    ! First section of fluid log
+    !
+
+    call neko_log%section('Fluid')
+    write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
+    call neko_log%message(log_buf)
+
     !
     ! Material properties
     !
-
-    this%rho => material_properties%rho
-    this%mu => material_properties%mu
+    call this%set_material_properties(params, user)
 
     !
     ! Turbulence modelling and variable material properties
@@ -329,17 +350,17 @@ contains
 
     ! Projection spaces
     call json_get_or_default(params, &
-                            'case.fluid.velocity_solver.projection_space_size',&
-                            this%vel_projection_dim, 20)
+                        'case.fluid.velocity_solver.projection_space_size', &
+                        this%vel_projection_dim, 20)
     call json_get_or_default(params, &
-                            'case.fluid.pressure_solver.projection_space_size',&
-                            this%pr_projection_dim, 20)
+                        'case.fluid.pressure_solver.projection_space_size', &
+                        this%pr_projection_dim, 20)
     call json_get_or_default(params, &
-                            'case.fluid.velocity_solver.projection_hold_steps',&
-                            this%vel_projection_activ_step, 5)
+                        'case.fluid.velocity_solver.projection_hold_steps', &
+                        this%vel_projection_activ_step, 5)
     call json_get_or_default(params, &
-                            'case.fluid.pressure_solver.projection_hold_steps',&
-                            this%pr_projection_activ_step, 5)
+                        'case.fluid.pressure_solver.projection_hold_steps', &
+                        this%pr_projection_activ_step, 5)
 
 
     call json_get_or_default(params, 'case.fluid.freeze', this%freeze, .false.)
@@ -349,13 +370,6 @@ contains
     end if
 
 
-    !
-    ! First section of fluid log
-    !
-
-    call neko_log%section('Fluid')
-    write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
-    call neko_log%message(log_buf)
     if (lx .lt. 10) then
        write(log_buf, '(A, I1)') 'Poly order : ', lx-1
     else if (lx .ge. 10) then
@@ -403,6 +417,10 @@ contains
        call neko_log%message(log_buf)
        write(log_buf, '(A)') '''d_vel_(u,v,w)'' and ''d_pres'' = 8'
        call neko_log%message(log_buf)
+       write(log_buf, '(A)') 'Shear stress            ''sh'' = 9'
+       call neko_log%message(log_buf)
+       write(log_buf, '(A)') 'Wall modelling          ''wm'' = 10'
+       call neko_log%message(log_buf)
        write(log_buf, '(A)') 'No boundary condition set    = 0'
        call neko_log%message(log_buf)
     end if
@@ -428,6 +446,34 @@ contains
 !    call this%bc_sym%finalize()
 !    call this%bclst_vel%append(this%bc_sym)
 
+    ! Shear stress conditions
+    call this%bc_sh%init_base(this%c_Xh)
+    call this%bc_sh%mark_zones_from_list(msh%labeled_zones, &
+                        'sh', this%bc_labels)
+    call this%bc_sh%finalize()
+      ! This marks the dirichlet and neumann conditions inside, and finalizes
+      ! them.
+    call this%bc_sh%init_shear_stress(this%c_Xh)
+
+    call bc_list_add(this%bclst_vel, this%bc_sh%symmetry)
+
+    ! Read stress value, default to [0 0 0]
+    if (this%bc_sh%msk(0) .gt. 0) then
+       call params%get('case.fluid.shear_stress.value', real_vec, logical_val)
+       if (.not. logical_val .and. this%bc_sh%msk(0) .gt. 0) then
+          call neko_warning("No stress values provided for sh boundaries, &
+               & defaulting to 0. Use fluid.shear_stress.value to set.")
+          allocate(real_vec(3))
+          real_vec = 0.0_rp
+       else if (size(real_vec) .ne. 3) then
+          call neko_error ("The shear stress vector provided in &
+               &fluid.shear_stress.value should have 3 components.")
+       end if
+       call this%bc_sh%set_stress(real_vec(1), real_vec(2), real_vec(3))
+    end if
+
+    call bc_list_init(this%bclst_vel_neumann)
+    call bc_list_add(this%bclst_vel_neumann, this%bc_sh)
 
     !
     ! Inflow
@@ -459,6 +505,37 @@ contains
     ! Setup field dirichlet bc for u-velocity
     call this%user_field_bc_vel%bc_u%init_base(this%c_Xh)
     call this%user_field_bc_vel%bc_u%mark_zones_from_list(&
+
+    !
+    ! Wall models
+    !
+
+    call this%bc_wallmodel%init_base(this%c_Xh)
+    call this%bc_wallmodel%mark_zones_from_list(msh%labeled_zones,&
+         'wm', this%bc_labels)
+    call this%bc_wallmodel%finalize()
+
+    if (this%bc_wallmodel%msk(0) .gt. 0) then
+       call json_extract_object(params, 'case.fluid.wall_modelling', wm_json)
+       call this%bc_wallmodel%init_wall_model_bc(wm_json, this%mu / this%rho)
+    else
+       call this%bc_wallmodel%shear_stress_t%init_shear_stress(this%c_Xh)
+    end if
+
+    call bc_list_add(this%bclst_vel, this%bc_wallmodel%symmetry)
+    call bc_list_add(this%bclst_vel_neumann, this%bc_wallmodel)
+
+    call this%bc_wall%init_base(this%c_Xh)
+    call this%bc_wall%mark_zone(msh%wall)
+    call this%bc_wall%mark_zones_from_list(msh%labeled_zones, &
+                        'w', this%bc_labels)
+    call this%bc_wall%finalize()
+    call bc_list_add(this%bclst_vel, this%bc_wall)
+
+    ! Setup field dirichlet bc for u-velocity
+    call this%user_field_bc_vel%bc_u%init_base(this%c_Xh)
+    call this%user_field_bc_vel%bc_u%mark_zones_from_list(msh%labeled_zones, &
+>>>>>>> develop
                         'd_vel_u', this%bc_labels)
     call this%user_field_bc_vel%bc_u%finalize()
 
@@ -546,8 +623,8 @@ contains
     call this%f_z%init(this%dm_Xh, fld_name = "fluid_rhs_z")
 
     ! Initialize the source term
-    call this%source_term%init(params, this%f_x, this%f_y, this%f_z, this%c_Xh,&
-                               user)
+    call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user)
+    call this%source_term%add(params, 'case.fluid.source_terms')
 
     ! If case.output_boundary is true, set the values for the bc types in the
     ! output of the field.
@@ -558,12 +635,15 @@ contains
        call neko_log%section("Velocity solver")
        call json_get_or_default(params, &
                                 'case.fluid.velocity_solver.max_iterations', &
-                                integer_val, 800)
+                                integer_val, KSP_MAX_ITER)
        call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
        call json_get(params, 'case.fluid.velocity_solver.preconditioner', &
                      string_val2)
        call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance', &
                      real_val)
+       call json_get_or_default(params, &
+                                'case.fluid.velocity_solver.monitor', &
+                                logical_val, .false.)
 
        call neko_log%message('Type       : ('// trim(string_val1) // &
            ', ' // trim(string_val2) // ')')
@@ -594,25 +674,26 @@ contains
   end subroutine fluid_scheme_init_common
 
   !> Initialize all components of the current scheme
-  subroutine fluid_scheme_init_all(this, msh, lx, params, kspv_init, kspp_init,&
-                                   scheme, user, material_properties)
+  subroutine fluid_scheme_init_all(this, msh, lx, params, kspv_init, &
+       kspp_init, scheme, user)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
-    type(material_properties_t), target, intent(inout) :: material_properties
     logical :: kspv_init
     logical :: kspp_init
     character(len=*), intent(in) :: scheme
     real(kind=rp) :: abs_tol
     integer :: integer_val, ierr
+    logical :: logical_val
     character(len=:), allocatable :: solver_type, precon_type
     character(len=LOG_SIZE) :: log_buf
+    real(kind=rp) :: GJP_param_a, GJP_param_b
 
     call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
-                                  material_properties, kspv_init)
+         kspv_init)
 
 !    call neko_field_registry%add_field(this%dm_Xh, 'p')
 !    this%p => neko_field_registry%get_field('p')
@@ -645,6 +726,32 @@ contains
 !
 !    end if
 
+    ! Initiate gradient jump penalty
+    call json_get_or_default(params, &
+                            'case.fluid.gradient_jump_penalty.enabled',&
+                            this%if_gradient_jump_penalty, .false.)
+
+    if (this%if_gradient_jump_penalty .eqv. .true.) then
+       if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
+          call json_get_or_default(params, &
+                            'case.fluid.gradient_jump_penalty.tau',&
+                            GJP_param_a, 0.02_rp)
+          GJP_param_b = 0.0_rp
+       else
+          call json_get_or_default(params, &
+                        'case.fluid.gradient_jump_penalty.scaling_factor',&
+                            GJP_param_a, 0.8_rp)
+          call json_get_or_default(params, &
+                        'case.fluid.gradient_jump_penalty.scaling_exponent',&
+                            GJP_param_b, 4.0_rp)
+       end if
+       call this%gradient_jump_penalty_u%init(params, this%dm_Xh, this%c_Xh, &
+                                              GJP_param_a, GJP_param_b)
+       call this%gradient_jump_penalty_v%init(params, this%dm_Xh, this%c_Xh, &
+                                              GJP_param_a, GJP_param_b)
+       call this%gradient_jump_penalty_w%init(params, this%dm_Xh, this%c_Xh, &
+                                              GJP_param_a, GJP_param_b)
+    end if
 
     call neko_log%end_section()
 
@@ -662,6 +769,7 @@ contains
 
 !    call this%bc_wall%free()
 !    call this%bc_sym%free()
+    call this%bc_sh%free()
 
     !
     ! Free everything related to field_dirichlet BCs
@@ -739,6 +847,13 @@ contains
 
     call this%mu_field%free()
 
+    ! Free gradient jump penalty
+    if (this%if_gradient_jump_penalty .eqv. .true.) then
+       call this%gradient_jump_penalty_u%free()
+       call this%gradient_jump_penalty_v%free()
+       call this%gradient_jump_penalty_w%free()
+    end if
+
 
   end subroutine fluid_scheme_free
 
@@ -789,19 +904,6 @@ contains
     !
     call this%chkp%init(this%u, this%v, this%w, this%p)
 
-    !
-    ! Setup mean flow fields if requested
-    !
-    if (this%params%valid_path('case.statistics')) then
-       call json_get_or_default(this%params, 'case.statistics.enabled',&
-                                logical_val, .true.)
-       if (logical_val) then
-          call this%mean%init(this%u, this%v, this%w, this%p)
-          call this%stats%init(this%c_Xh, this%mean%u, &
-               this%mean%v, this%mean%w, this%mean%p)
-       end if
-    end if
-
   end subroutine fluid_scheme_validate
 
   !> Apply all boundary conditions defined for velocity
@@ -835,15 +937,17 @@ contains
 
   !> Initialize a linear solver
   !! @note Currently only supporting Krylov solvers
-  subroutine fluid_scheme_solver_factory(this, ksp, n, solver, max_iter, abstol)
-    class(fluid_scheme_t), intent(inout) :: this
+  subroutine fluid_scheme_solver_factory(ksp, n, solver, &
+                                         max_iter, abstol, monitor)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
     character(len=*), intent(in) :: solver
     integer, intent(in) :: max_iter
     real(kind=rp), intent(in) :: abstol
+    logical, intent(in) :: monitor
 
-    call krylov_solver_factory(ksp, n, solver, max_iter, abstol)
+    call krylov_solver_factory(ksp, n, solver, max_iter, abstol, &
+                               monitor = monitor)
 
   end subroutine fluid_scheme_solver_factory
 
@@ -986,6 +1090,22 @@ contains
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
       call bdry_mask%free()
 
+      call bdry_mask%init_base(this%c_Xh)
+      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
+                     'sh', this%bc_labels)
+      call bdry_mask%finalize()
+      call bdry_mask%set_g(9.0_rp)
+      call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+      call bdry_mask%free()
+
+      call bdry_mask%init_base(this%c_Xh)
+      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
+                     'wm', this%bc_labels)
+      call bdry_mask%finalize()
+      call bdry_mask%set_g(10.0_rp)
+      call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
+      call bdry_mask%free()
+
     end if
 
   end subroutine fluid_scheme_set_bc_type_output
@@ -1053,9 +1173,7 @@ contains
        end do
        write(*,*) "N_BCS", j-1, this%bcs%size()
     end if
-
-
-  end subroutine
+  end subroutine fluid_scheme_setup_bcs
 
   subroutine fluid_bc_factory(object, json, coef, user)
     class(bc_t), allocatable, intent(inout) :: object
@@ -1087,6 +1205,66 @@ contains
     call object%mark_zone(coef%msh%labeled_zones(zone_index))
     call object%finalize()
 
-  end subroutine
+  end subroutine fluid_bc_factory
+
+  !> Sets rho and mu
+  !! @param params The case paramter file.
+  !! @param user The user interface.
+  subroutine fluid_scheme_set_material_properties(this, params, user)
+    class(fluid_scheme_t), intent(inout) :: this
+    type(json_file), intent(inout) :: params
+    type(user_t), target, intent(in) :: user
+    character(len=LOG_SIZE) :: log_buf
+    ! A local pointer that is needed to make Intel happy
+    procedure(user_material_properties),  pointer :: dummy_mp_ptr
+    logical :: nondimensional
+    real(kind=rp) :: dummy_lambda, dummy_cp
+
+    dummy_mp_ptr => dummy_user_material_properties
+
+    if (.not. associated(user%material_properties, dummy_mp_ptr)) then
+
+       write(log_buf, '(A)') "Material properties must be set in the user&
+       & file!"
+       call neko_log%message(log_buf)
+       call user%material_properties(0.0_rp, 0, this%rho, this%mu, &
+            dummy_cp, dummy_lambda, params)
+    else
+       ! Incorrect user input
+       if (params%valid_path('case.fluid.Re') .and. &
+           (params%valid_path('case.fluid.mu') .or. &
+            params%valid_path('case.fluid.rho'))) then
+          call neko_error("To set the material properties for the fluid,&
+          & either provide Re OR mu and rho in the case file.")
+
+          ! Non-dimensional case
+       else if (params%valid_path('case.fluid.Re')) then
+
+          write(log_buf, '(A)') 'Non-dimensional fluid material properties &
+          & input.'
+          call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+          write(log_buf, '(A)') 'Density will be set to 1, dynamic viscosity to&
+          & 1/Re.'
+          call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+
+          ! Read Re into mu for further manipulation.
+          call json_get(params, 'case.fluid.Re', this%mu)
+          write(log_buf, '(A)') 'Read non-dimensional material properties'
+          call neko_log%message(log_buf)
+          write(log_buf, '(A,ES13.6)') 'Re         :',  this%mu
+          call neko_log%message(log_buf)
+
+          ! Set rho to 1 since the setup is non-dimensional.
+          this%rho = 1.0_rp
+          ! Invert the Re to get viscosity.
+          this%mu = 1.0_rp/this%mu
+          ! Dimensional case
+       else
+          call json_get(params, 'case.fluid.mu', this%mu)
+          call json_get(params, 'case.fluid.rho', this%rho)
+       end if
+
+    end if
+  end subroutine fluid_scheme_set_material_properties
 
 end module fluid_scheme

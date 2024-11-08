@@ -151,7 +151,7 @@ contains
   subroutine fluid_vol_flow_compute(this, u_res, v_res, w_res, p_res, &
        ext_bdf, gs_Xh, c_Xh, rho, mu, bd, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-       Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
+       Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
     class(fluid_volflow_t), intent(inout) :: this
     type(field_t), intent(inout) :: u_res, v_res, w_res, p_res
     type(coef_t), intent(inout) :: c_Xh
@@ -159,7 +159,8 @@ contains
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
     type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
     type(bc_list_t), intent(inout) :: bclst_vel_res
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(inout) :: Ax_vel
+    class(ax_t), intent(inout) :: Ax_prs
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
     class(pc_t), intent(inout) :: pc_prs, pc_vel
     real(kind=rp), intent(inout) :: bd
@@ -169,7 +170,7 @@ contains
     real(kind=rp) :: xlmin, xlmax
     real(kind=rp) :: ylmin, ylmax
     real(kind=rp) :: zlmin, zlmax
-    type(ksp_monitor_t) :: ksp_result
+    type(ksp_monitor_t) :: ksp_results(4)
     type(field_t), pointer :: ta1, ta2, ta3
     integer :: temp_indices(3)
 
@@ -226,7 +227,7 @@ contains
       call gs_Xh%op(p_res, GS_OP_ADD)
       call bclst_dp%apply_scalar(p_res%x, n)
       call pc_prs%update()
-      ksp_result = ksp_prs%solve(Ax, p_vol, p_res%x, n, &
+      ksp_results(1) = ksp_prs%solve(Ax_prs, p_vol, p_res%x, n, &
            c_Xh, bclst_dp, gs_Xh, prs_max_iter)
 
       !   Compute velocity
@@ -286,12 +287,12 @@ contains
       call bclst_vel_res%apply_vector(u_res%x, v_res%x, w_res%x, n)
       call pc_vel%update()
 
-      ksp_result = ksp_vel%solve(Ax, u_vol, u_res%x, n, &
-            c_Xh, bclst_du, gs_Xh, vel_max_iter)
-      ksp_result = ksp_vel%solve(Ax, v_vol, v_res%x, n, &
-            c_Xh, bclst_dv, gs_Xh, vel_max_iter)
-      ksp_result = ksp_vel%solve(Ax, w_vol, w_res%x, n, &
-            c_Xh, bclst_dw, gs_Xh, vel_max_iter)
+      ksp_results(2:4) = ksp_vel%solve_coupled(Ax_vel, &
+           u_vol, v_vol, w_vol,  &
+           u_res%x, v_res%x, w_res%x, &
+           n, c_Xh, &
+           bclst_du, bclst_dv, bclst_dw, &
+           gs_Xh, vel_max_iter)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          if (this%flow_dir .eq. 1) then
@@ -338,7 +339,7 @@ contains
   subroutine fluid_vol_flow(this, u, v, w, p, u_res, v_res, w_res, p_res, &
        c_Xh, gs_Xh, ext_bdf, rho, mu, dt, &
        bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-       Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
+       Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
 
     class(fluid_volflow_t), intent(inout) :: this
     type(field_t), intent(inout) :: u, v, w, p
@@ -349,7 +350,8 @@ contains
     real(kind=rp), intent(in) :: rho, mu, dt
     type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
     type(bc_list_t), intent(inout) :: bclst_vel_res
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(inout) :: Ax_vel
+    class(ax_t), intent(inout) :: Ax_prs
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
     class(pc_t), intent(inout) :: pc_prs, pc_vel
     integer, intent(in) :: prs_max_iter, vel_max_iter
@@ -383,7 +385,8 @@ contains
          call this%compute(u_res, v_res, w_res, p_res, &
               ext_bdf, gs_Xh, c_Xh, rho, mu, ext_bdf%diffusion_coeffs(1), dt, &
               bclst_dp, bclst_du, bclst_dv, bclst_dw, bclst_vel_res, &
-              Ax, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, vel_max_iter)
+              Ax_vel, Ax_prs, ksp_prs, ksp_vel, pc_prs, pc_vel, prs_max_iter, &
+              vel_max_iter)
       end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
