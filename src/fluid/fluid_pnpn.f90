@@ -364,7 +364,7 @@ contains
     call advection_factory(this%adv, params, this%c_Xh, &
                            this%ulag, this%vlag, this%wlag, &
                            this%chkp%dtlag, this%chkp%tlag, time_scheme, &
-                           advection)
+                           .not. advection)
 
     if (params%valid_path('case.fluid.flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)

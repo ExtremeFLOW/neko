@@ -223,7 +223,8 @@ contains
     call json_get_or_default(params, 'case.scalar.advection', advection, .true.)
     call advection_factory(this%adv, params, this%c_Xh, &
                            ulag, vlag, wlag, this%chkp%dtlag, &
-                           this%chkp%tlag, time_scheme, advection, this%slag)
+                           this%chkp%tlag, time_scheme, .not. advection, &
+                           this%slag)
   end subroutine scalar_pnpn_init
 
   !> I envision the arguments to this func might need to be expanded
