@@ -50,9 +50,9 @@ module scalar_scheme
   use device_jacobi, only : device_jacobi_t
   use sx_jacobi, only : sx_jacobi_t
   use hsmg, only : hsmg_t
+  use bc, only : bc_t
+  use bc_list, only : bc_list_t
   use precon, only : pc_t, precon_factory, precon_destroy
-  use bc, only : bc_t, bc_list_t, bc_list_free, bc_list_init, &
-       bc_list_apply_scalar, bc_list_add
   use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use facet_zone, only : facet_zone_t
@@ -60,13 +60,15 @@ module scalar_scheme
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry
   use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
-  use json_utils, only : json_get, json_get_or_default
-  use json_module, only : json_file
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_module, only : json_file, json_core, json_value
   use user_intf, only : user_t, dummy_user_material_properties, &
                         user_material_properties
   use utils, only : neko_error
   use comm, only: NEKO_COMM, MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
+  use field_series, only : field_series_t
+  use bc_fctry, only : bc_factory
   use math, only : cfill, add2s2
   use device_math, only : device_cfill, device_add2s2
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -109,24 +111,16 @@ module scalar_scheme
      integer :: projection_activ_step
      !> Preconditioner.
      class(pc_t), allocatable :: pc
-     !> Dirichlet conditions.
-     type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)
      !> Field Dirichlet conditions.
      type(field_dirichlet_t) :: field_dir_bc
      !> List of BC objects to pass to user_dirichlet_update
      type(bc_list_t) :: field_dirichlet_bcs
-     !> Neumann conditions.
-     type(neumann_t) :: neumann_bcs(NEKO_MSH_MAX_ZLBLS)
+     !> Number of strong  bcs.
+     integer :: n_strong = 0
+     !> List of boundary conditions, including the user one.
+     type(bc_list_t) :: bcs
      !> User Dirichlet conditions.
      type(usr_scalar_t) :: user_bc
-     !> Number of Dirichlet bcs.
-     integer :: n_dir_bcs = 0
-     !> Number of Neumann bcs.
-     integer :: n_neumann_bcs = 0
-     !> List of Dirichlet boundary conditions, including the user one.
-     type(bc_list_t) :: bclst_dirichlet
-     !> List of Neumann conditions list
-     type(bc_list_t) :: bclst_neumann
      !> Case paramters.
      type(json_file), pointer :: params
      !> Mesh.
@@ -147,8 +141,6 @@ module scalar_scheme
      real(kind=rp) :: pr_turb
      !> Is lambda varying in time? Currently only due to LES models.
      logical :: variable_material_properties = .false.
-     !> Boundary condition labels (if any)
-     character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
      !> Gradient jump panelty
      logical :: if_gradient_jump_penalty
      type(gradient_jump_penalty_t) :: gradient_jump_penalty
@@ -160,7 +152,7 @@ module scalar_scheme
      !> Validate successful initialization.
      procedure, pass(this) :: validate => scalar_scheme_validate
      !> Assigns the evaluation function for  `user_bc`.
-     procedure, pass(this) :: set_user_bc => scalar_scheme_set_user_bc
+     !procedure, pass(this) :: set_user_bc => scalar_scheme_set_user_bc
      !> Set lambda and cp
      procedure, pass(this) :: set_material_properties => &
           scalar_scheme_set_material_properties
@@ -241,70 +233,38 @@ module scalar_scheme
 contains
 
   !> Initialize boundary conditions
-  !! @param zones List of zones
-  !! @param bc_labels List of user specified bcs from the parameter file
-  !! currently dirichlet 'd=X' and 'user' supported
-  subroutine scalar_scheme_add_bcs(this, zones, bc_labels)
+  !! @param user The user object binding the user-defined routines.
+  subroutine scalar_scheme_setup_bcs(this, user)
     class(scalar_scheme_t), intent(inout) :: this
-    type(facet_zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
-    character(len=NEKO_MSH_MAX_ZLBL_LEN), intent(in) :: bc_labels(:)
-    character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_label
-    integer :: i
-    real(kind=rp) :: dir_value, flux
-    logical :: bc_exists
+    type(user_t), target, intent(in) :: user
+    integer :: i, j, n_bcs, ierr
+    type(json_core) :: core
+    type(json_value), pointer :: bc_object
+    type(json_file) :: bc_subdict
+    logical :: found
 
-    do i = 1, size(bc_labels)
-       bc_label = trim(bc_labels(i))
-       if (bc_label(1:2) .eq. 'd=') then
-! The idea of this commented piece of code is to merge bcs with the same
-! Dirichlet value into 1 so that one has less kernel launches. Currently
-! segfaults, needs investigation.
-!          bc_exists = .false.
-!          bc_idx = 0
-!          do j = 1, i-1
-!             if (bc_label .eq. bc_labels(j)) then
-!                bc_exists = .true.
-!                bc_idx = j
-!             end if
-!          end do
 
-!          if (bc_exists) then
-!             call this%dir_bcs(j)%mark_zone(zones(i))
-!          else
-          this%n_dir_bcs = this%n_dir_bcs + 1
-          call this%dir_bcs(this%n_dir_bcs)%init_base(this%c_Xh)
-          call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
-          read(bc_label(3:), *) dir_value
-          call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
-          call this%dir_bcs(this%n_dir_bcs)%finalize()
-       end if
+    if (this%params%valid_path('case.scalar.boundary_conditions')) then
+       call this%params%info('case.scalar.boundary_conditions', n_children=n_bcs)
+       call this%params%get_core(core)
+       call this%params%get('case.scalar.boundary_conditions', bc_object, found)
 
-       if (bc_label(1:2) .eq. 'n=') then
-          this%n_neumann_bcs = this%n_neumann_bcs + 1
-          call this%neumann_bcs(this%n_neumann_bcs)%init_base(this%c_Xh)
-          call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
-          read(bc_label(3:), *) flux
-          call this%neumann_bcs(this%n_neumann_bcs)%finalize_neumann(flux)
-       end if
+       call this%bcs%init(n_bcs)
 
-       !> Check if user bc on this zone
-       if (bc_label(1:4) .eq. 'user') then
-          call this%user_bc%mark_zone(zones(i))
-       end if
+       do i=1, n_bcs
+          ! Create a new json containing just the subdict for this bc
+          call json_extract_item(core, bc_object, i, bc_subdict)
 
-    end do
+          call bc_factory(this%bcs%items(i)%obj, bc_subdict, &
+                          this%c_Xh, user)
 
-    do i = 1, this%n_dir_bcs
-       call bc_list_add(this%bclst_dirichlet, this%dir_bcs(i))
-    end do
+          if (this%bcs%strong(i)) then
+             this%n_strong = this%n_strong + 1
+          end if
+       end do
+    end if
+  end subroutine scalar_scheme_setup_bcs
 
-    ! Create list with just Neumann bcs
-    call bc_list_init(this%bclst_neumann, this%n_neumann_bcs)
-    do i = 1, this%n_neumann_bcs
-       call bc_list_add(this%bclst_neumann, this%neumann_bcs(i))
-    end do
-
-  end subroutine scalar_scheme_add_bcs
 
   !> Initialize all related components of the current scheme
   !! @param msh The mesh.
@@ -409,19 +369,8 @@ contains
     !
     ! Setup scalar boundary conditions
     !
-    call bc_list_init(this%bclst_dirichlet)
-    call this%user_bc%init_base(this%c_Xh)
-
-    ! Read boundary types from the case file
-    allocate(this%bc_labels(NEKO_MSH_MAX_ZLBLS))
-
-    ! A filler value
-    this%bc_labels = "not"
-
-    if (params%valid_path('case.scalar.boundary_types')) then
-       call json_get(params, 'case.scalar.boundary_types', this%bc_labels, &
-            'not')
-    end if
+    !call bc_list_init(this%bclst_dirichlet)
+    !call this%user_bc%init_base(this%c_Xh)
 
     !
     ! Setup right-hand side field.
@@ -433,37 +382,43 @@ contains
     call this%source_term%init(this%f_Xh, this%c_Xh, user)
     call this%source_term%add(params, 'case.scalar.source_terms')
 
-    call scalar_scheme_add_bcs(this, msh%labeled_zones, this%bc_labels)
+    ! Set up boundary conditions
+    call scalar_scheme_setup_bcs(this, user)
 
+
+!! COMMENTING USER STUFF
     ! Mark BC zones
-    call this%user_bc%mark_zone(msh%wall)
-    call this%user_bc%mark_zone(msh%inlet)
-    call this%user_bc%mark_zone(msh%outlet)
-    call this%user_bc%mark_zone(msh%outlet_normal)
-    call this%user_bc%mark_zone(msh%sympln)
-    call this%user_bc%finalize()
-    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet, &
-         this%user_bc)
+!    call this%user_bc%finalize()
+!    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet,&
+!                                                     this%user_bc)
+    ! ?? NEWLY FROM DEVELOP
+!    call this%user_bc%mark_zone(msh%wall)
+!    call this%user_bc%mark_zone(msh%inlet)
+!    call this%user_bc%mark_zone(msh%outlet)
+!    call this%user_bc%mark_zone(msh%outlet_normal)
+!    call this%user_bc%mark_zone(msh%sympln)
+!    call this%user_bc%finalize()
+!    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet, &
+!         this%user_bc)
 
     ! Add field dirichlet BCs
-    call this%field_dir_bc%init_base(this%c_Xh)
-    call this%field_dir_bc%mark_zones_from_list(msh%labeled_zones, &
-         'd_s', this%bc_labels)
-    call this%field_dir_bc%finalize()
-    call MPI_Allreduce(this%field_dir_bc%msk(0), integer_val, 1, &
-         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    if (integer_val .gt. 0) call this%field_dir_bc%init_field('d_s')
+!    call this%field_dir_bc%init_base(this%c_Xh)
+!    call this%field_dir_bc%mark_zones_from_list(msh%labeled_zones, &
+!         'd_s', this%bc_labels)
+!    call this%field_dir_bc%finalize()
+!    call MPI_Allreduce(this%field_dir_bc%msk(0), integer_val, 1, &
+!         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+!    if (integer_val .gt. 0) call this%field_dir_bc%init_field('d_s')
 
-    call bc_list_add(this%bclst_dirichlet, this%field_dir_bc)
+!    call bc_list_add(this%bclst_dirichlet, this%field_dir_bc)
 
     !
     ! Associate our field dirichlet update to the user one.
     !
-    this%field_dir_bc%update => user%user_dirichlet_update
 
-    call bc_list_init(this%field_dirichlet_bcs, size = 1)
-    call bc_list_add(this%field_dirichlet_bcs, this%field_dir_bc)
-
+!    this%field_dir_bc%update => user%user_dirichlet_update
+!    call bc_list_init(this%field_dirichlet_bcs, size=1)
+!    call bc_list_add(this%field_dirichlet_bcs, this%field_dir_bc)
 
     ! todo parameter file ksp tol should be added
     call json_get_or_default(params, &
@@ -475,9 +430,8 @@ contains
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, integer_val, solver_abstol, logical_val)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
-                                      this%c_Xh, this%dm_Xh, this%gs_Xh, &
-                                      this%bclst_dirichlet, solver_precon)
-   
+         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs, solver_precon)
+
     ! Initiate gradient jump penalty
     call json_get_or_default(params, &
                             'case.scalar.gradient_jump_penalty.enabled',&
@@ -526,20 +480,15 @@ contains
        deallocate(this%pc)
     end if
 
-    if (allocated(this%bc_labels)) then
-       deallocate(this%bc_labels)
-    end if
-
     call this%source_term%free()
 
-    call bc_list_free(this%bclst_dirichlet)
-    call bc_list_free(this%bclst_neumann)
+    call this%bcs%free()
 
     call this%lambda_field%free()
     call this%slag%free()
 
     ! Free everything related to field dirichlet BCs
-    call bc_list_free(this%field_dirichlet_bcs)
+    call this%field_dirichlet_bcs%free()
     call this%field_dir_bc%free()
 
     ! Free gradient jump penalty
@@ -735,7 +684,5 @@ contains
 
     end if
   end subroutine scalar_scheme_set_material_properties
-
-
 
 end module scalar_scheme

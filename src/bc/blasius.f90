@@ -41,10 +41,14 @@ module blasius
   use, intrinsic :: iso_fortran_env
   use, intrinsic :: iso_c_binding
   use bc, only : bc_t
+  use json_module, only : json_file
+  use json_utils, only : json_get
   implicit none
   private
 
-  !> Blasius profile for inlet (vector valued)
+  !> Blasius profile for inlet (vector valued).
+  !! @warning Works only with axis-aligned sugar-cube elements and assumes
+  !! the boundary is alinged with zOy.
   type, public, extends(bc_t) :: blasius_t
      real(kind=rp), dimension(3) :: uinf = (/0d0, 0d0, 0d0 /)
      real(kind=rp) :: delta
@@ -58,11 +62,56 @@ module blasius
      procedure, pass(this) :: apply_scalar_dev => blasius_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => blasius_apply_vector_dev
      procedure, pass(this) :: set_params => blasius_set_params
+     !> Constructor
+     procedure, pass(this) :: init => blasius_init
      !> Destructor.
      procedure, pass(this) :: free => blasius_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => blasius_finalize
   end type blasius_t
 
 contains
+
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine blasius_init(this, coef, json)
+    class(blasius_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) :: json
+    real(kind=rp) :: delta
+    real(kind=rp), allocatable :: uinf(:)
+    character(len=:), allocatable :: approximation
+
+    call this%init_base(coef)
+
+    !call json_get(json, 'case.fluid.blasius.delta', delta)
+    !call json_get(json, 'case.fluid.blasius.approximation', approximation)
+    !call json_get(json, 'case.fluid.blasius.freestream_velocity', uinf)
+    call json_get(json, 'delta', delta)
+    call json_get(json, 'approximation', approximation)
+    call json_get(json, 'freestream_velocity', uinf)
+
+    this%delta = delta
+    this%uinf = uinf
+
+    select case(trim(approximation))
+    case('linear')
+       this%bla => blasius_linear
+    case('quadratic')
+       this%bla => blasius_quadratic
+    case('cubic')
+       this%bla => blasius_cubic
+    case('quartic')
+       this%bla => blasius_quartic
+    case('sin')
+       this%bla => blasius_sin
+    case default
+       call neko_error('Invalid Blasius approximation')
+    end select
+
+
+  end subroutine blasius_init
 
   subroutine blasius_free(this)
     class(blasius_t), target, intent(inout) :: this
@@ -237,4 +286,10 @@ contains
     end select
   end subroutine blasius_set_params
 
+  !> Finalize
+  subroutine blasius_finalize(this)
+    class(blasius_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine blasius_finalize
 end module blasius

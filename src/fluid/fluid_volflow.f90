@@ -77,7 +77,7 @@ module fluid_volflow
   use json_module, only : json_file
   use json_utils, only: json_get
   use scratch_registry, only : scratch_registry_t
-  use bc, only : bc_list_t, bc_list_apply_vector, bc_list_apply_scalar
+  use bc_list, only : bc_list_t
   use ax_product, only : ax_t
   implicit none
   private
@@ -225,7 +225,7 @@ contains
       end if
 
       call gs_Xh%op(p_res, GS_OP_ADD)
-      call bc_list_apply_scalar(bclst_dp, p_res%x, n)
+      call bclst_dp%apply_scalar(p_res%x, n)
       call pc_prs%update()
       ksp_results(1) = ksp_prs%solve(Ax_prs, p_vol, p_res%x, n, &
            c_Xh, bclst_dp, gs_Xh, prs_max_iter)
@@ -246,7 +246,7 @@ contains
          call copy(ta2%x, c_Xh%B, n)
          call copy(ta3%x, c_Xh%B, n)
       end if
-      call bc_list_apply_vector(bclst_vel_res,&
+      call bclst_vel_res%apply_vector(&
            ta1%x, ta2%x, ta3%x, n)
 
       ! add forcing
@@ -284,8 +284,7 @@ contains
       call gs_Xh%op(v_res, GS_OP_ADD)
       call gs_Xh%op(w_res, GS_OP_ADD)
 
-      call bc_list_apply_vector(bclst_vel_res,&
-            u_res%x, v_res%x, w_res%x, n)
+      call bclst_vel_res%apply_vector(u_res%x, v_res%x, w_res%x, n)
       call pc_vel%update()
 
       ksp_results(2:4) = ksp_vel%solve_coupled(Ax_vel, &

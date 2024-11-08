@@ -59,7 +59,12 @@
             "Pr": 1.0,
             "initial_condition": {
                 "type": "user"
-            }
+            },
+            "boundary_conditions": [
+                {
+                    "type": "user_pointwise"
+                }
+            ],
         },
         "simulation_components": [
             {

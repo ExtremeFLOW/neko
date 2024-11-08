@@ -37,6 +37,9 @@ module neumann
   use, intrinsic :: iso_c_binding, only : c_ptr
   use utils, only : neko_error, nonlinear_index
   use coefs, only : coef_t
+  use json_module, only : json_file
+  use json_utils, only : json_get
+  use math, only : cfill
   use math, only : cfill, copy
   implicit none
   private
@@ -47,13 +50,17 @@ module neumann
   !! to the right-hand-side.
   type, public, extends(bc_t) :: neumann_t
      real(kind=rp), allocatable, private :: flux_(:)
+     real(kind=rp), private ::  init_flux_
    contains
      procedure, pass(this) :: apply_scalar => neumann_apply_scalar
      procedure, pass(this) :: apply_vector => neumann_apply_vector
      procedure, pass(this) :: apply_scalar_dev => neumann_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => neumann_apply_vector_dev
-     procedure, pass(this) :: finalize_neumann => neumann_finalize_neumann
-     !> Getter for the flux.
+     !> Constructor
+     procedure, pass(this) :: init => neumann_init
+     !> Constructor from components
+     procedure, pass(this) :: init_from_components => &
+        neumann_init_from_components
      procedure, pass(this) :: flux => neumann_flux
      !> Set the flux using a scalar.
      procedure, pass(this) :: set_flux_scalar => neumann_set_flux_scalar
@@ -63,9 +70,39 @@ module neumann
      generic :: set_flux => set_flux_scalar, set_flux_array
      !> Destructor.
      procedure, pass(this) :: free => neumann_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => neumann_finalize
   end type neumann_t
 
 contains
+
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine neumann_init(this, coef, json)
+    class(neumann_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) :: json
+    real(kind=rp) :: flux
+
+    call this%init_base(coef)
+    this%strong = .false.
+
+    call json_get(json, "value", flux)
+    this%init_flux_ = flux
+  end subroutine neumann_init
+
+  !> Constructor from components.
+  !! @param[in] coef The SEM coefficients.
+  !! @param[in] g The value to apply at the boundary.
+  subroutine neumann_init_from_components(this, coef, flux)
+    class(neumann_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    real(kind=rp), intent(in) :: flux
+
+    call this%init_base(coef)
+    this%init_flux_ = flux
+  end subroutine neumann_init_from_components
 
   !> Boundary condition apply for a generic Neumann condition
   !! to a vector @a x
@@ -148,6 +185,16 @@ contains
 
   end subroutine neumann_free
 
+  !> Finalize by setting the flux.
+  subroutine neumann_finalize(this)
+    class(neumann_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+    allocate(this%flux_(this%msk(0)))
+
+    call cfill(this%flux_, this%init_flux_, this%msk(0))
+  end subroutine neumann_finalize
+
   !> Get the flux.
   pure function neumann_flux(this) result(flux)
     class(neumann_t), intent(in) :: this
@@ -172,17 +219,5 @@ contains
 
     call copy(this%flux_, flux, this%msk(0))
   end subroutine neumann_set_flux_array
-
-  !> Finalize by setting the flux
-  !> @param flux The desired flux.
-  subroutine neumann_finalize_neumann(this, flux)
-    class(neumann_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: flux
-
-    call this%finalize()
-    allocate(this%flux_(this%msk(0)))
-
-    call cfill(this%flux_, flux, this%msk(0))
-  end subroutine neumann_finalize_neumann
 
 end module neumann

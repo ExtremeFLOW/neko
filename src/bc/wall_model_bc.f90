@@ -59,23 +59,22 @@ module wall_model_bc
             wall_model_bc_apply_scalar_dev
        procedure, pass(this) :: apply_vector_dev => &
             wall_model_bc_apply_vector_dev
-       procedure, pass(this) :: init_wall_model_bc => &
-         wall_model_bc_init_wall_model_bc
+       procedure, pass(this) :: init => wall_model_bc_init
     end type wall_model_bc_t
 
-  contains
+contains
 
-    !> Apply shear stress for a scalar field @a x.
-    subroutine wall_model_bc_apply_scalar(this, x, n, t, tstep)
-      class(wall_model_bc_t), intent(inout) :: this
-      integer, intent(in) :: n
-      real(kind=rp), intent(inout),  dimension(n) :: x
-      real(kind=rp), intent(in), optional :: t
-      integer, intent(in), optional :: tstep
+  !> Apply shear stress for a scalar field @a x.
+  subroutine wall_model_bc_apply_scalar(this, x, n, t, tstep)
+    class(wall_model_bc_t), intent(inout) :: this
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
 
-      call neko_error("The wall model bc is not applicable to scalar fields.")
+    call neko_error("The wall model bc is not applicable to scalar fields.")
 
-    end subroutine wall_model_bc_apply_scalar
+  end subroutine wall_model_bc_apply_scalar
 
     !> Apply the boundary condition to the right-hand side.
     !! @param x The x component of the right-hand side
@@ -103,13 +102,13 @@ module wall_model_bc
         magtau = sqrt(this%wall_model%tau_x(i)**2 + this%wall_model%tau_y(i)**2&
                       + this%wall_model%tau_z(i)**2)
 
-        ! Mark sampling nodes with a -1 for debugging
-        this%wall_model%tau_field%x(this%wall_model%ind_r(i), &
-                                    this%wall_model%ind_s(i), &
-                                    this%wall_model%ind_t(i), &
-                                    this%wall_model%ind_e(i)) = -1.0_rp
-        this%wall_model%tau_field%x(this%msk(i),1,1,1) = magtau
-      end do
+      ! Mark sampling nodes with a -1 for debugging
+      this%wall_model%tau_field%x(this%wall_model%ind_r(i), &
+                                  this%wall_model%ind_s(i), &
+                                  this%wall_model%ind_t(i), &
+                                  this%wall_model%ind_e(i)) = -1.0_rp
+      this%wall_model%tau_field%x(this%msk(i),1,1,1) = magtau
+    end do
 
       ! Set the computed stress for application by the underlying Neumann
       ! boundary conditions.
@@ -119,46 +118,49 @@ module wall_model_bc
       ! Add the stress as a forcing to the right hand side arrays
       call this%shear_stress_t%apply_vector(x, y, z, n, t, tstep)
 
-    end subroutine wall_model_bc_apply_vector
+  end subroutine wall_model_bc_apply_vector
 
-    !> Boundary condition apply for a generic wall_model_bc condition
-    !! to a vector @a x (device version)
-    subroutine wall_model_bc_apply_scalar_dev(this, x_d, t, tstep)
-      class(wall_model_bc_t), intent(inout), target :: this
-      type(c_ptr) :: x_d
-      real(kind=rp), intent(in), optional :: t
-      integer, intent(in), optional :: tstep
+  !> Boundary condition apply for a generic wall_model_bc condition
+  !! to a vector @a x (device version)
+  subroutine wall_model_bc_apply_scalar_dev(this, x_d, t, tstep)
+    class(wall_model_bc_t), intent(inout), target :: this
+    type(c_ptr) :: x_d
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
 
-      call neko_error("wall_model_bc bc not implemented on the device")
+    call neko_error("wall_model_bc bc not implemented on the device")
 
-    end subroutine wall_model_bc_apply_scalar_dev
+  end subroutine wall_model_bc_apply_scalar_dev
 
-    !> Boundary condition apply for a generic wall_model_bc condition
-    !! to vectors @a x, @a y and @a z (device version)
-    subroutine wall_model_bc_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
-      class(wall_model_bc_t), intent(inout), target :: this
-      type(c_ptr) :: x_d
-      type(c_ptr) :: y_d
-      type(c_ptr) :: z_d
-      real(kind=rp), intent(in), optional :: t
-      integer, intent(in), optional :: tstep
+  !> Boundary condition apply for a generic wall_model_bc condition
+  !! to vectors @a x, @a y and @a z (device version)
+  subroutine wall_model_bc_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+    class(wall_model_bc_t), intent(inout), target :: this
+    type(c_ptr) :: x_d
+    type(c_ptr) :: y_d
+    type(c_ptr) :: z_d
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
 
-      call neko_error("wall_model_bc bc not implemented on the device")
+    call neko_error("wall_model_bc bc not implemented on the device")
 
-    end subroutine wall_model_bc_apply_vector_dev
+  end subroutine wall_model_bc_apply_vector_dev
 
-    !> Constructor.
-    !> @param coef The SEM coefficients.
-    subroutine wall_model_bc_init_wall_model_bc(this, json, nu)
-      class(wall_model_bc_t), intent(inout) :: this
-      type(json_file), intent(inout) :: json
-      real(kind=rp), intent(in) :: nu
+  !> Constructor.
+  !> @param coef The SEM coefficients.
+  subroutine wall_model_bc_init(this, coef, json)
+    class(wall_model_bc_t), target, intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) :: json
+    !real(kind=rp), intent(in) :: nu
+    real(kind=rp) :: nu = 1
 
-      call this%shear_stress_t%init_shear_stress(this%coef)
 
-      call wall_model_factory(this%wall_model, this%coef, this%msk, &
-           this%facet, nu, json)
+    call this%shear_stress_t%init(coef, json)
 
-    end subroutine wall_model_bc_init_wall_model_bc
+    call wall_model_factory(this%wall_model, this%coef, this%msk, &
+         this%facet, nu, json)
 
-  end module wall_model_bc
+  end subroutine wall_model_bc_init
+
+end module wall_model_bc

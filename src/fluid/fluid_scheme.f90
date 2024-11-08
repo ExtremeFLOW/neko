@@ -43,16 +43,17 @@ module fluid_scheme
   use field, only : field_t
   use space, only : space_t, GLL
   use dofmap, only : dofmap_t
+  use zero_dirichlet, only : zero_dirichlet_t
   use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy, &
                      KSP_MAX_ITER
   use coefs, only: coef_t
-  use wall, only : no_slip_wall_t
   use inflow, only : inflow_t
   use usr_inflow, only : usr_inflow_t, usr_inflow_eval
   use blasius, only : blasius_t
   use dirichlet, only : dirichlet_t
   use dong_outflow, only : dong_outflow_t
   use symmetry, only : symmetry_t
+  use non_normal, only : non_normal_t
   use field_dirichlet, only : field_dirichlet_t
   use field_dirichlet_vector, only: field_dirichlet_vector_t
   use jacobi, only : jacobi_t
@@ -61,8 +62,7 @@ module fluid_scheme
   use hsmg, only : hsmg_t
   use precon, only : pc_t, precon_factory, precon_destroy
   use fluid_stats, only : fluid_stats_t
-  use bc, only : bc_t, bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
-       bc_list_apply_scalar, bc_list_apply_vector
+  use bc, only : bc_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use math, only : cfill, add2s2
   use device_math, only : device_cfill, device_add2s2
@@ -70,8 +70,10 @@ module fluid_scheme
   use operators, only : cfl
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry
-  use json_utils, only : json_get, json_get_or_default, json_extract_object
-  use json_module, only : json_file
+  use bc_list, only : bc_list_t
+  use json_utils, only : json_get, json_get_or_default, json_extract_object, &
+       json_extract_item
+  use json_module, only : json_file, json_core, json_value
   use scratch_registry, only : scratch_registry_t
   use user_intf, only : user_t, dummy_user_material_properties, &
                         user_material_properties
@@ -112,8 +114,8 @@ module fluid_scheme
      integer :: pr_projection_dim          !< Size of the projection space for ksp_pr
      integer :: vel_projection_activ_step  !< Steps to activate projection for ksp_vel
      integer :: pr_projection_activ_step   !< Steps to activate projection for ksp_pr
-     type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
-     class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
+!     type(zero_dirichlet_t) :: bc_wall           !< No-slip wall for velocity
+!     class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
      type(wall_model_bc_t) :: bc_wallmodel !< Wall model boundary condition
      !> Gradient jump panelty
      logical :: if_gradient_jump_penalty
@@ -124,13 +126,14 @@ module fluid_scheme
      ! Attributes for field dirichlet BCs
      type(field_dirichlet_vector_t) :: user_field_bc_vel   !< User-computed Dirichlet velocity condition
      type(field_dirichlet_t) :: user_field_bc_prs   !< User-computed Dirichlet pressure condition
-     type(dirichlet_t) :: bc_prs               !< Dirichlet pressure condition
-     type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
      type(shear_stress_t) :: bc_sh             !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(bc_list_t) :: bclst_vel_neumann      !< List of neumann velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
+     ! NEW VARIABLE
+     type(bc_list_t) :: bcs
+     integer :: n_strong = 0
      type(field_t) :: bdry                     !< Boundary markings
      type(json_file), pointer :: params        !< Parameters
      type(mesh_t), pointer :: msh => null()    !< Mesh
@@ -168,6 +171,8 @@ module fluid_scheme
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      !> Apply velocity boundary conditions
      procedure, pass(this) :: bc_apply_prs => fluid_scheme_bc_apply_prs
+     !> Setup boundary conditions
+     procedure, pass(this) :: setup_bcs_ => fluid_scheme_setup_bcs
      !> Set the user inflow procedure
      procedure, pass(this) :: set_usr_inflow => fluid_scheme_set_usr_inflow
      !> Compute the CFL number
@@ -188,6 +193,10 @@ module fluid_scheme
      !> Update variable material properties
      procedure, pass(this) :: update_material_properties => &
        fluid_scheme_update_material_properties
+     !> Linear solver factory, wraps a KSP constructor
+     procedure, nopass :: solver_factory => fluid_scheme_solver_factory
+     !> Preconditioner factory
+     procedure, pass(this) :: precon_factory => fluid_scheme_precon_factory
   end type fluid_scheme_t
 
   !> Abstract interface to initialize a fluid formulation
@@ -430,26 +439,20 @@ contains
                      this%bc_labels)
     end if
 
-    call bc_list_init(this%bclst_vel)
+    call this%bclst_vel%init()
+    write(*,*) "BCLST", this%bclst_vel%size_, this%bclst_vel%capacity
 
-    call this%bc_sym%init_base(this%c_Xh)
-    call this%bc_sym%mark_zone(msh%sympln)
-    call this%bc_sym%mark_zones_from_list(msh%labeled_zones, &
-                        'sym', this%bc_labels)
-    call this%bc_sym%finalize()
-    call this%bc_sym%init(this%c_Xh)
-    call bc_list_add(this%bclst_vel, this%bc_sym)
+!    call this%bc_sym%init(this%c_Xh, params)
+!    call this%bc_sym%mark_zones_from_list('sym', this%bc_labels)
+!    call this%bc_sym%finalize()
+!    call this%bclst_vel%append(this%bc_sym)
 
     ! Shear stress conditions
-    call this%bc_sh%init_base(this%c_Xh)
-    call this%bc_sh%mark_zones_from_list(msh%labeled_zones, &
-                        'sh', this%bc_labels)
+    call this%bc_sh%init(this%c_Xh, this%params)
+    call this%bc_sh%mark_zones_from_list('sh', this%bc_labels)
     call this%bc_sh%finalize()
-      ! This marks the dirichlet and neumann conditions inside, and finalizes
-      ! them.
-    call this%bc_sh%init_shear_stress(this%c_Xh)
 
-    call bc_list_add(this%bclst_vel, this%bc_sh%symmetry)
+    call this%bclst_vel%append(this%bc_sh%symmetry)
 
     ! Read stress value, default to [0 0 0]
     if (this%bc_sh%msk(0) .gt. 0) then
@@ -466,83 +469,57 @@ contains
        call this%bc_sh%set_stress(real_vec(1), real_vec(2), real_vec(3))
     end if
 
-    call bc_list_init(this%bclst_vel_neumann)
-    call bc_list_add(this%bclst_vel_neumann, this%bc_sh)
+    call this%bclst_vel_neumann%init()
+    call this%bclst_vel_neumann%append(this%bc_sh)
 
     !
     ! Inflow
     !
-    if (params%valid_path('case.fluid.inflow_condition')) then
-       call json_get(params, 'case.fluid.inflow_condition.type', string_val1)
-       if (trim(string_val1) .eq. "uniform") then
-          allocate(inflow_t::this%bc_inflow)
-       else if (trim(string_val1) .eq. "blasius") then
-          allocate(blasius_t::this%bc_inflow)
-       else if (trim(string_val1) .eq. "user") then
-          allocate(usr_inflow_t::this%bc_inflow)
-       else
-          call neko_error('Invalid inflow condition '//string_val1)
-       end if
+!    if (params%valid_path('case.fluid.inflow_condition')) then
+!       call json_get(params, 'case.fluid.inflow_condition.type', string_val1)
+!       if (trim(string_val1) .eq. "uniform") then
+!          allocate(inflow_t::this%bc_inflow)
+!       else if (trim(string_val1) .eq. "blasius") then
+!          allocate(blasius_t::this%bc_inflow)
+!       else if (trim(string_val1) .eq. "user") then
+!          allocate(usr_inflow_t::this%bc_inflow)
+!       else
+!          call neko_error('Invalid inflow condition '//string_val1)
+!       end if
 
-       call this%bc_inflow%init_base(this%c_Xh)
-       call this%bc_inflow%mark_zone(msh%inlet)
-       call this%bc_inflow%mark_zones_from_list(msh%labeled_zones, &
-                        'v', this%bc_labels)
-       call this%bc_inflow%finalize()
-       call bc_list_add(this%bclst_vel, this%bc_inflow)
+!       call this%bc_inflow%init(this%c_Xh, params)
+!       call this%bc_inflow%mark_zones_from_list('v', this%bc_labels)
+!       call this%bc_inflow%finalize()
+!       call this%bclst_vel%append(this%bc_inflow)
+!       write(*,*) "BCLST", this%bclst_vel%size_, this%bclst_vel%capacity
+!    end if
 
-       if (trim(string_val1) .eq. "uniform") then
-          call json_get(params, 'case.fluid.inflow_condition.value', real_vec)
-          select type (bc_if => this%bc_inflow)
-          type is (inflow_t)
-             call bc_if%set_inflow(real_vec)
-          end select
-       else if (trim(string_val1) .eq. "blasius") then
-          select type (bc_if => this%bc_inflow)
-          type is (blasius_t)
-             call json_get(params, 'case.fluid.blasius.delta', real_val)
-             call json_get(params, 'case.fluid.blasius.approximation', &
-                           string_val2)
-             call json_get(params, 'case.fluid.blasius.freestream_velocity', &
-                           real_vec)
+!    call this%bc_wall%init(this%c_Xh, params)
+!    call this%bc_wall%mark_zones_from_list('w', this%bc_labels)
+!    call this%bc_wall%finalize()
+!    call this%bclst_vel%append(this%bc_wall)
 
-             call bc_if%set_params(real_vec, real_val, string_val2)
-
-          end select
-       else if (trim(string_val1) .eq. "user") then
-       end if
-    end if
-
-    !
     ! Wall models
     !
 
-    call this%bc_wallmodel%init_base(this%c_Xh)
-    call this%bc_wallmodel%mark_zones_from_list(msh%labeled_zones,&
-         'wm', this%bc_labels)
-    call this%bc_wallmodel%finalize()
+!    call this%bc_wallmodel%init(this%c_Xh, this%params)
+!    call this%bc_wallmodel%mark_zones_from_list(msh%labeled_zones,&
+!         'wm', this%bc_labels)
+!    call this%bc_wallmodel%finalize()
 
-    if (this%bc_wallmodel%msk(0) .gt. 0) then
-       call json_extract_object(params, 'case.fluid.wall_modelling', wm_json)
-       call this%bc_wallmodel%init_wall_model_bc(wm_json, this%mu / this%rho)
-    else
-       call this%bc_wallmodel%shear_stress_t%init_shear_stress(this%c_Xh) 
-    end if
+!    if (this%bc_wallmodel%msk(0) .gt. 0) then
+!       call json_extract_object(params, 'case.fluid.wall_modelling', wm_json)
+!       call this%bc_wallmodel%init_wall_model_bc(wm_json, this%mu / this%rho)
+!    else
+!       call this%bc_wallmodel%shear_stress_t%init_shear_stress(this%c_Xh)
+!    end if
 
-    call bc_list_add(this%bclst_vel, this%bc_wallmodel%symmetry)
-    call bc_list_add(this%bclst_vel_neumann, this%bc_wallmodel)
-
-    call this%bc_wall%init_base(this%c_Xh)
-    call this%bc_wall%mark_zone(msh%wall)
-    call this%bc_wall%mark_zones_from_list(msh%labeled_zones, &
-                        'w', this%bc_labels)
-    call this%bc_wall%finalize()
-    call bc_list_add(this%bclst_vel, this%bc_wall)
+!    call bc_list_add(this%bclst_vel, this%bc_wallmodel%symmetry)
+!    call bc_list_add(this%bclst_vel_neumann, this%bc_wallmodel)
 
     ! Setup field dirichlet bc for u-velocity
     call this%user_field_bc_vel%bc_u%init_base(this%c_Xh)
-    call this%user_field_bc_vel%bc_u%mark_zones_from_list(msh%labeled_zones, &
-                        'd_vel_u', this%bc_labels)
+    call this%user_field_bc_vel%bc_u%mark_zones_from_list('d_vel_u', this%bc_labels)
     call this%user_field_bc_vel%bc_u%finalize()
 
     call MPI_Allreduce(this%user_field_bc_vel%bc_u%msk(0), integer_val, 1, &
@@ -553,7 +530,7 @@ contains
 
     ! Setup field dirichlet bc for v-velocity
     call this%user_field_bc_vel%bc_v%init_base(this%c_Xh)
-    call this%user_field_bc_vel%bc_v%mark_zones_from_list(msh%labeled_zones, &
+    call this%user_field_bc_vel%bc_v%mark_zones_from_list(&
                         'd_vel_v', this%bc_labels)
     call this%user_field_bc_vel%bc_v%finalize()
 
@@ -565,8 +542,8 @@ contains
 
     ! Setup field dirichlet bc for w-velocity
     call this%user_field_bc_vel%bc_w%init_base(this%c_Xh)
-    call this%user_field_bc_vel%bc_w%mark_zones_from_list(msh%labeled_zones, &
-                        'd_vel_w', this%bc_labels)
+    call this%user_field_bc_vel%bc_w%mark_zones_from_list('d_vel_w',&
+                                                          this%bc_labels)
     call this%user_field_bc_vel%bc_w%finalize()
 
     call MPI_Allreduce(this%user_field_bc_vel%bc_w%msk(0), integer_val, 1, &
@@ -577,16 +554,13 @@ contains
 
     ! Setup our global field dirichlet bc
     call this%user_field_bc_vel%init_base(this%c_Xh)
-    call this%user_field_bc_vel%mark_zones_from_list(msh%labeled_zones, &
-                        'd_vel_u', this%bc_labels)
-    call this%user_field_bc_vel%mark_zones_from_list(msh%labeled_zones, &
-                        'd_vel_v', this%bc_labels)
-    call this%user_field_bc_vel%mark_zones_from_list(msh%labeled_zones, &
-                        'd_vel_w', this%bc_labels)
+    call this%user_field_bc_vel%mark_zones_from_list('d_vel_u', this%bc_labels)
+    call this%user_field_bc_vel%mark_zones_from_list('d_vel_v', this%bc_labels)
+    call this%user_field_bc_vel%mark_zones_from_list('d_vel_w', this%bc_labels)
     call this%user_field_bc_vel%finalize()
 
     ! Add the field bc to velocity bcs
-    call bc_list_add(this%bclst_vel, this%user_field_bc_vel)
+    call this%bclst_vel%append(this%user_field_bc_vel)
 
     !
     ! Associate our field dirichlet update to the user one.
@@ -608,14 +582,14 @@ contains
     call this%user_field_bc_vel%field_list%assign_to_field(4, &
             this%user_field_bc_prs%field_bc)
 
-    call bc_list_init(this%user_field_bc_vel%bc_list, size = 4)
+    call this%user_field_bc_vel%bc_list%init(size=4)
     ! Note, bc_list_add only adds if the bc is not empty
-    call bc_list_add(this%user_field_bc_vel%bc_list, &
-                     this%user_field_bc_vel%bc_u)
-    call bc_list_add(this%user_field_bc_vel%bc_list, &
-                     this%user_field_bc_vel%bc_v)
-    call bc_list_add(this%user_field_bc_vel%bc_list, &
-                     this%user_field_bc_vel%bc_w)
+    call this%user_field_bc_vel%bc_list%append(this%user_field_bc_vel%bc_u)
+    call this%user_field_bc_vel%bc_list%append(this%user_field_bc_vel%bc_v)
+    call this%user_field_bc_vel%bc_list%append(this%user_field_bc_vel%bc_w)
+
+
+    call this%setup_bcs_(user)
 
     !
     ! Check if we need to output boundary types to a separate field
@@ -659,9 +633,9 @@ contains
 
        write(log_buf, '(A,ES13.6)') 'Abs tol    :',  real_val
        call neko_log%message(log_buf)
-       call fluid_scheme_solver_factory(this%ksp_vel, this%dm_Xh%size(), &
+       call this%solver_factory(this%ksp_vel, this%dm_Xh%size(), &
             string_val1, integer_val, real_val, logical_val)
-       call fluid_scheme_precon_factory(this%pc_vel, this%ksp_vel, &
+       call this%precon_factory(this%pc_vel, this%ksp_vel, &
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, string_val2)
        call neko_log%end_section()
     end if
@@ -704,81 +678,36 @@ contains
     call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
          kspv_init)
 
-    call neko_field_registry%add_field(this%dm_Xh, 'p')
-    this%p => neko_field_registry%get_field('p')
-
-    !
-    ! Setup pressure boundary conditions
-    !
-    call bc_list_init(this%bclst_prs)
-    call this%bc_prs%init_base(this%c_Xh)
-    call this%bc_prs%mark_zones_from_list(msh%labeled_zones, &
-                        'o', this%bc_labels)
-    call this%bc_prs%mark_zones_from_list(msh%labeled_zones, &
-                        'on', this%bc_labels)
-
-    ! Field dirichlet pressure bc
-    call this%user_field_bc_prs%init_base(this%c_Xh)
-    call this%user_field_bc_prs%mark_zones_from_list(msh%labeled_zones, &
-                        'd_pres', this%bc_labels)
-    call this%user_field_bc_prs%finalize()
-    call MPI_Allreduce(this%user_field_bc_prs%msk(0), integer_val, 1, &
-         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-
-    if (integer_val .gt. 0) call this%user_field_bc_prs%init_field('d_pres')
-    call bc_list_add(this%bclst_prs, this%user_field_bc_prs)
-    call bc_list_add(this%user_field_bc_vel%bc_list, this%user_field_bc_prs)
-
-    if (msh%outlet%size .gt. 0) then
-       call this%bc_prs%mark_zone(msh%outlet)
-    end if
-    if (msh%outlet_normal%size .gt. 0) then
-       call this%bc_prs%mark_zone(msh%outlet_normal)
-    end if
-
-    call this%bc_prs%finalize()
-    call this%bc_prs%set_g(0.0_rp)
-    call bc_list_add(this%bclst_prs, this%bc_prs)
-    call this%bc_dong%init_base(this%c_Xh)
-    call this%bc_dong%mark_zones_from_list(msh%labeled_zones, &
-                        'o+dong', this%bc_labels)
-    call this%bc_dong%mark_zones_from_list(msh%labeled_zones, &
-                        'on+dong', this%bc_labels)
-    call this%bc_dong%finalize()
+!    call neko_field_registry%add_field(this%dm_Xh, 'p')
+!    this%p => neko_field_registry%get_field('p')
 
 
-    call this%bc_dong%init(this%c_Xh, params)
-
-    call bc_list_add(this%bclst_prs, this%bc_dong)
 
     ! Pressure solver
-    if (kspp_init) then
-       call neko_log%section("Pressure solver")
+    !if (kspp_init) then
+    !   call neko_log%section("Pressure solver")
 
-       call json_get_or_default(params, &
-                               'case.fluid.pressure_solver.max_iterations', &
-                               integer_val, KSP_MAX_ITER)
-       call json_get(params, 'case.fluid.pressure_solver.type', solver_type)
-       call json_get(params, 'case.fluid.pressure_solver.preconditioner', &
-                     precon_type)
-       call json_get(params, 'case.fluid.pressure_solver.absolute_tolerance', &
-                     abs_tol)
-       call json_get_or_default(params, &
-                                'case.fluid.pressure_solver.monitor', &
-                                logical_val, .false.)
-       call neko_log%message('Type       : ('// trim(solver_type) // &
-             ', ' // trim(precon_type) // ')')
-       write(log_buf, '(A,ES13.6)') 'Abs tol    :',  abs_tol
-       call neko_log%message(log_buf)
-
-       call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), &
-            solver_type, integer_val, abs_tol, logical_val)
-       call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
-            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, precon_type)
-
-       call neko_log%end_section()
-
-    end if
+    !   call json_get_or_default(params, &
+!                               'case.fluid.pressure_solver.max_iterations', &
+!                               integer_val, 800)
+!       call json_get(params, 'case.fluid.pressure_solver.type', solver_type)
+!       call json_get(params, 'case.fluid.pressure_solver.preconditioner', &
+!                     precon_type)
+!       call json_get(params, 'case.fluid.pressure_solver.absolute_tolerance', &
+!                     abs_tol)
+!       call neko_log%message('Type       : ('// trim(solver_type) // &
+!             ', ' // trim(precon_type) // ')')
+!       write(log_buf, '(A,ES13.6)') 'Abs tol    :',  abs_tol
+!       call neko_log%message(log_buf)
+!
+!       call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), &
+!            solver_type, integer_val, abs_tol)
+!       call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
+!            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, precon_type)
+!
+!       call neko_log%end_section()
+!
+!    end if
 
     ! Initiate gradient jump penalty
     call json_get_or_default(params, &
@@ -817,12 +746,12 @@ contains
 
     call this%bdry%free()
 
-    if (allocated(this%bc_inflow)) then
-       call this%bc_inflow%free()
-    end if
+!    if (allocated(this%bc_inflow)) then
+!       call this%bc_inflow%free()
+!    end if
 
-    call this%bc_wall%free()
-    call this%bc_sym%free()
+!    call this%bc_wall%free()
+!    call this%bc_sym%free()
     call this%bc_sh%free()
 
     !
@@ -867,7 +796,7 @@ contains
 
     call this%c_Xh%free()
 
-    call bc_list_free(this%bclst_vel)
+    call this%bclst_vel%free()
 
     call this%scratch%free()
 
@@ -944,12 +873,14 @@ contains
        call neko_error('No parameters defined')
     end if
 
-    if (allocated(this%bc_inflow)) then
-       select type (ip => this%bc_inflow)
-       type is (usr_inflow_t)
-          call ip%validate
-       end select
-    end if
+! TODO ??
+
+!    if (allocated(this%bc_inflow)) then
+!       select type (ip => this%bc_inflow)
+!       type is (usr_inflow_t)
+!          call ip%validate
+!       end select
+!    end if
 
     !
     ! Setup checkpoint structure (if everything is fine)
@@ -967,7 +898,11 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    call bc_list_apply_vector(this%bclst_vel, &
+    call this%bclst_vel%apply_vector(&
+         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
+
+    write(*,*) "APPLYING BCS", this%bcs%size()
+    call this%bcs%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
 
   end subroutine fluid_scheme_bc_apply_vel
@@ -979,8 +914,7 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    call bc_list_apply_scalar(this%bclst_prs, this%p%x, &
-                              this%p%dof%size(), t, tstep)
+    call this%bclst_prs%apply_scalar(this%p%x, this%p%dof%size(), t, tstep)
 
   end subroutine fluid_scheme_bc_apply_prs
 
@@ -1001,8 +935,9 @@ contains
   end subroutine fluid_scheme_solver_factory
 
   !> Initialize a Krylov preconditioner
-  subroutine fluid_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, &
+  subroutine fluid_scheme_precon_factory(this, pc, ksp, coef, dof, gs, bclst, &
                                          pctype)
+    class(fluid_scheme_t), intent(inout) :: this
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
     type(coef_t), target, intent(inout) :: coef
@@ -1042,12 +977,13 @@ contains
     class(fluid_scheme_t), intent(inout) :: this
     procedure(usr_inflow_eval) :: usr_eval
 
-    select type (bc_if => this%bc_inflow)
-    type is (usr_inflow_t)
-       call bc_if%set_eval(usr_eval)
-    class default
-       call neko_error("Not a user defined inflow condition")
-    end select
+    ! TODO
+!    select type (bc_if => this%bc_inflow)
+!    type is (usr_inflow_t)
+!       call bc_if%set_eval(usr_eval)
+!    class default
+!       call neko_error("Not a user defined inflow condition")
+!    end select
   end subroutine fluid_scheme_set_usr_inflow
 
   !> Compute CFL
@@ -1079,92 +1015,73 @@ contains
       this%bdry = 0.0_rp
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zone(this%msh%wall)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
-                     'w', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('w', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(1.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
       call bdry_mask%free()
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zone(this%msh%inlet)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
-                     'v', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('v', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(2.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
       call bdry_mask%free()
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zone(this%msh%outlet)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
-                     'o', this%bc_labels)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
-                     'o+dong', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('o', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('o+dong', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(3.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
       call bdry_mask%free()
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zone(this%msh%sympln)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
-                     'sym', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('sym', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(4.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
       call bdry_mask%free()
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zone(this%msh%outlet_normal)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
-                     'on', this%bc_labels)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
-                     'on+dong', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('on', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('on+dong', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(5.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
       call bdry_mask%free()
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zone(this%msh%periodic)
       call bdry_mask%finalize()
       call bdry_mask%set_g(6.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
       call bdry_mask%free()
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
-                     'd_vel_u', this%bc_labels)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
-                     'd_vel_v', this%bc_labels)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
-                     'd_vel_w', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('d_vel_u', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('d_vel_v', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('d_vel_w', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(7.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
       call bdry_mask%free()
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
-                     'd_pres', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('d_pres', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(8.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
       call bdry_mask%free()
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
-                     'sh', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('sh', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(9.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
       call bdry_mask%free()
 
       call bdry_mask%init_base(this%c_Xh)
-      call bdry_mask%mark_zones_from_list(this%msh%labeled_zones, &
-                     'wm', this%bc_labels)
+      call bdry_mask%mark_zones_from_list('wm', this%bc_labels)
       call bdry_mask%finalize()
       call bdry_mask%set_g(10.0_rp)
       call bdry_mask%apply_scalar(this%bdry%x, this%dm_Xh%size())
@@ -1194,6 +1111,82 @@ contains
     end if
 
   end subroutine fluid_scheme_update_material_properties
+
+
+  subroutine fluid_scheme_setup_bcs(this, user)
+    class(fluid_scheme_t), intent(inout) :: this
+    type(user_t), target, intent(in) :: user
+    integer :: i, j, n_bcs
+    type(json_core) :: core
+    type(json_value), pointer :: bc_object
+    type(json_file) :: bc_subdict
+    logical :: found
+
+
+    if (this%params%valid_path('case.fluid.boundary_conditions')) then
+       call this%params%info('case.fluid.boundary_conditions', n_children=n_bcs)
+       call this%params%get_core(core)
+       call this%params%get('case.fluid.boundary_conditions', bc_object, found)
+
+       call this%bcs%init(n_bcs)
+
+       j = 1
+       do i=1, n_bcs
+          ! Create a new json containing just the subdict for this bc
+          call json_extract_item(core, bc_object, i, bc_subdict)
+
+          write(*,*) "i", i
+          call fluid_bc_factory(this%bcs%items(j)%obj, bc_subdict, &
+               this%c_Xh, user)
+          ! Not all bcs require an allocation for velocity in particular,
+          ! so we check.
+          if (allocated(this%bcs%items(j)%obj)) then
+             write(*,*) "Allocating", j
+             if (this%bcs%strong(j)) then
+                this%n_strong = this%n_strong + 1
+             end if
+             j = j + 1
+             this%bcs%size_ = this%bcs%size_ + 1
+
+          end if
+
+          write(*,*) "Done", i
+       end do
+       write(*,*) "N_BCS", j-1, this%bcs%size()
+    end if
+  end subroutine fluid_scheme_setup_bcs
+
+  subroutine fluid_bc_factory(object, json, coef, user)
+    class(bc_t), allocatable, intent(inout) :: object
+    type(json_file), intent(inout) :: json
+    type(coef_t), intent(in) :: coef
+    type(user_t), intent(in) :: user
+    character(len=:), allocatable :: type
+    integer :: zone_index
+
+    call json_get(json, "type", type)
+
+    if (trim(type) .eq. "symmetry") then
+       allocate(symmetry_t::object)
+    else if (trim(type) .eq. "inflow") then
+       allocate(inflow_t::object)
+    else if (trim(type) .eq. "no_slip") then
+       allocate(zero_dirichlet_t::object)
+    else if (trim(type) .eq. "normal_outlet") then
+       allocate(non_normal_t::object)
+    else if (trim(type) .eq. "blasius_profile") then
+       allocate(blasius_t::object)
+    else
+       return
+       !call neko_error("Unknown boundary condition for the fluid.")
+    end if
+
+    call json_get(json, "zone_index", zone_index)
+    call object%init(coef, json)
+    call object%mark_zone(coef%msh%labeled_zones(zone_index))
+    call object%finalize()
+
+  end subroutine fluid_bc_factory
 
   !> Sets rho and mu
   !! @param params The case paramter file.

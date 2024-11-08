@@ -62,7 +62,7 @@ module neko
   use gather_scatter
   use coefs, only : coef_t
   use bc
-  use wall, only : no_slip_wall_t
+  use zero_dirichlet, only : zero_dirichlet_t
   use dirichlet, only : dirichlet_t
   use ax_product, only : ax_t, ax_helm_factory
   use parmetis, only : parmetis_partgeom, parmetis_partmeshkway
