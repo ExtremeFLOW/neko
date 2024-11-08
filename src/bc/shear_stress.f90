@@ -40,6 +40,7 @@ module shear_stress
   use coefs, only : coef_t
   use symmetry, only : symmetry_t
   use neumann, only : neumann_t
+  use json_module, only : json_file
   implicit none
   private
 
@@ -69,6 +70,7 @@ module shear_stress
           shear_stress_set_stress_array
      generic :: set_stress => set_stress_scalar, set_stress_array
      procedure, pass(this) :: free => shear_stress_free
+     procedure, pass(this) :: finalize => shear_stress_finalize
   end type shear_stress_t
 
 contains
@@ -134,32 +136,38 @@ contains
   !> Additional constructor that should be run after the finalization of the
   !! bc. Similar to the symmetry condition.
   !> @param coef The SEM coefficients.
-  subroutine shear_stress_init(this, coef)
-    class(shear_stress_t), intent(inout) :: this
-    type(coef_t), target, intent(in) :: coef
+  subroutine shear_stress_init(this, coef, json)
+    class(shear_stress_t), target, intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
 
-    this%coef => coef
+    call this%init_base(coef)
+
+  end subroutine shear_stress_init
+
+  subroutine shear_stress_finalize(this)
+    class(shear_stress_t), target, intent(inout) :: this
+
+    call this%finalize_base()
 
     call this%symmetry%free()
-    call this%symmetry%init_base(coef)
+    call this%symmetry%init_from_components(this%coef)
     call this%symmetry%mark_facets(this%marked_facet)
     call this%symmetry%finalize()
-    call this%symmetry%init(coef)
 
-    call this%neumann_x%init_base(coef)
-    call this%neumann_y%init_base(coef)
-    call this%neumann_z%init_base(coef)
+    call this%neumann_x%init_from_components(this%coef, 0.0_rp)
+    call this%neumann_y%init_from_components(this%coef, 0.0_rp)
+    call this%neumann_z%init_from_components(this%coef, 0.0_rp)
 
     call this%neumann_x%mark_facets(this%marked_facet)
     call this%neumann_y%mark_facets(this%marked_facet)
     call this%neumann_z%mark_facets(this%marked_facet)
 
-    call this%neumann_x%finalize_neumann(0.0_rp)
-    call this%neumann_y%finalize_neumann(0.0_rp)
-    call this%neumann_z%finalize_neumann(0.0_rp)
+    call this%neumann_x%finalize()
+    call this%neumann_y%finalize()
+    call this%neumann_z%finalize()
 
-
-  end subroutine shear_stress_init
+  end subroutine shear_stress_finalize
 
   !> Set the value of the shear stress vector using 3 scalars.
   subroutine shear_stress_set_stress_scalar(this, tau_x, tau_y, tau_z)

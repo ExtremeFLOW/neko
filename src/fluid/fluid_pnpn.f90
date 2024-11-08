@@ -33,6 +33,10 @@
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn
   use comm
+  use coefs, only : coef_t
+  use symmetry, only : symmetry_t
+  use field_registry, only : neko_field_registry
+  use logger, only: neko_log, LOG_SIZE
   use num_types, only : rp
   use krylov, only : ksp_monitor_t
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t, &
@@ -51,7 +55,7 @@ module fluid_pnpn
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_module, only : json_file, json_core, json_value
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
   use json_module, only : json_file
   use ax_product, only : ax_t, ax_helm_factory
   use field, only : field_t
@@ -70,6 +74,7 @@ module fluid_pnpn
   use dong_outflow, only : dong_outflow_t
   use utils, only : neko_error
   use field_math, only : field_add2, field_copy
+  use bc, only : bc_t
   implicit none
   private
 
@@ -197,6 +202,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
     integer :: ierr, integer_val, solver_maxiter
     character(len=:), allocatable :: solver_type, precon_type
+    logical :: monitor
 
     call this%free()
 
@@ -274,6 +280,7 @@ contains
       this%advx = 0.0_rp
       this%advy = 0.0_rp
       this%advz = 0.0_rp
+    end associate
 
     call this%du%init(this%dm_Xh, 'du')
     call this%dv%init(this%dm_Xh, 'dv')
@@ -397,8 +404,8 @@ contains
     call this%bclst_vel_res%append(this%bc_vel_res)
     call this%bclst_vel_res%append(this%bc_vel_res_non_normal)
     call this%bclst_vel_res%append(this%bc_sym)
-    call this%bclst_vel_res%append(this%bc_sh%symmmetry)
-    call this%bclst_vel_res%append(this%bc_wallmodel%symmmetry)
+    call this%bclst_vel_res%append(this%bc_sh%symmetry)
+    call this%bclst_vel_res%append(this%bc_wallmodel%symmetry)
 
     !Initialize bcs for u, v, w velocity components
     call this%bclst_du%init()
@@ -469,16 +476,18 @@ contains
                             solver_maxiter, 800)
     call json_get(params, 'case.fluid.pressure_solver.type', solver_type)
     call json_get(params, 'case.fluid.pressure_solver.preconditioner', &
-                  precon_type)
+         precon_type)
     call json_get(params, 'case.fluid.pressure_solver.absolute_tolerance', &
-                  abs_tol)
+         abs_tol)
+     call json_get_or_default(params, 'case.fluid.velocity_solver.monitor', &
+          monitor, .false.)
     call neko_log%message('Type       : ('// trim(solver_type) // &
           ', ' // trim(precon_type) // ')')
     write(log_buf, '(A,ES13.6)') 'Abs tol    :',  abs_tol
     call neko_log%message(log_buf)
 
     call this%solver_factory(this%ksp_prs, this%dm_Xh%size(), &
-         solver_type, solver_maxiter, abs_tol)
+         solver_type, solver_maxiter, abs_tol, monitor)
     call this%precon_factory(this%pc_prs, this%ksp_prs, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, precon_type)
 
@@ -758,7 +767,7 @@ contains
       call this%source_term%compute(t, tstep)
 
       ! Add Neumann bc contributions to the RHS
-      call bc_list_apply_vector(this%bclst_vel_neumann, f_x%x, f_y%x, f_z%x, &
+      call this%bclst_vel_neumann%apply_vector(f_x%x, f_y%x, f_z%x, &
            this%dm_Xh%size(), t, tstep)
 
       ! Compute the grandient jump penalty term

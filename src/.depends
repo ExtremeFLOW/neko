@@ -1,324 +1,326 @@
-config/num_types.lo : config/num_types.f90
-common/structs.lo : common/structs.f90 config/num_types.lo
-io/format/nmsh.lo : io/format/nmsh.f90 config/num_types.lo
-io/format/re2.lo : io/format/re2.f90 config/num_types.lo
-io/format/map.lo : io/format/map.f90 mesh/mesh.lo
-io/format/stl.lo : io/format/stl.f90 config/num_types.lo
-common/log.lo : common/log.f90 config/num_types.lo comm/comm.lo
-comm/comm.lo : comm/comm.F90 config/neko_config.lo common/utils.lo
-mesh/curve.lo : mesh/curve.f90 common/utils.lo adt/stack.lo common/structs.lo config/num_types.lo
-comm/mpi_types.lo : comm/mpi_types.f90 io/format/stl.lo io/format/nmsh.lo io/format/re2.lo comm/comm.lo
-common/datadist.lo : common/datadist.f90
-common/distdata.lo : common/distdata.f90 adt/uset.lo adt/tuple.lo adt/stack.lo
-common/utils.lo : common/utils.f90
-common/json_utils.lo : common/json_utils.f90 common/utils.lo config/num_types.lo
-common/system.lo : common/system.f90
-common/runtime_statistics.lo : common/runtime_statistics.f90 comm/comm.lo math/matrix.lo io/file.lo common/json_utils.lo config/num_types.lo adt/tuple.lo adt/stack.lo common/log.lo
-math/mxm_wrapper.lo : math/mxm_wrapper.F90 common/utils.lo config/num_types.lo
-sem/speclib.lo : sem/speclib.f90 common/utils.lo config/num_types.lo
-qoi/drag_torque.lo : qoi/drag_torque.f90 math/bcknd/device/device_math.lo device/device.lo common/utils.lo config/num_types.lo sem/space.lo math/math.lo comm/comm.lo mesh/facet_zone.lo mesh/mesh.lo sem/coef.lo field/field.lo
-sem/local_interpolation.lo : sem/local_interpolation.f90 config/neko_config.lo math/bcknd/device/device_math.lo device/device.lo field/field_list.lo field/field.lo common/utils.lo math/fast3d.lo math/math.lo mesh/point.lo config/num_types.lo sem/space.lo math/tensor.lo
-math/math.lo : math/math.f90 comm/comm.lo common/utils.lo config/num_types.lo
-math/mathops.lo : math/mathops.f90 config/num_types.lo
-math/fast3d.lo : math/fast3d.f90 math/math.lo sem/speclib.lo config/num_types.lo
-sem/space.lo : sem/space.f90 math/mxm_wrapper.lo math/tensor.lo math/math.lo math/fast3d.lo common/utils.lo device/device.lo sem/speclib.lo config/num_types.lo config/neko_config.lo
-sem/map_1d.lo : sem/map_1d.f90 comm/mpi_types.lo math/math.lo common/utils.lo common/log.lo math/vector.lo math/matrix.lo field/field_list.lo sem/coef.lo comm/comm.lo device/device.lo mesh/mesh.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo config/num_types.lo
-sem/map_2d.lo : sem/map_2d.f90 field/field.lo io/fld_file_data.lo comm/mpi_types.lo math/math.lo common/log.lo math/vector.lo math/matrix.lo sem/coef.lo field/field_list.lo comm/comm.lo common/utils.lo device/device.lo mesh/mesh.lo gs/gather_scatter.lo sem/map_1d.lo sem/dofmap.lo sem/space.lo config/num_types.lo
-sem/dofmap.lo : sem/dofmap.f90 mesh/hex.lo mesh/quad.lo mesh/element.lo math/math.lo device/device.lo math/tensor.lo math/fast3d.lo common/utils.lo config/num_types.lo adt/tuple.lo sem/space.lo mesh/mesh.lo config/neko_config.lo
-sem/coef.lo : sem/coef.f90 device/device.lo math/mxm_wrapper.lo sem/bcknd/device/device_coef.lo math/bcknd/device/device_math.lo mesh/mesh.lo math/math.lo sem/space.lo sem/dofmap.lo config/num_types.lo config/neko_config.lo gs/gs_ops.lo gs/gather_scatter.lo
-sem/cpr.lo : sem/cpr.f90 sem/dofmap.lo common/log.lo math/mxm_wrapper.lo math/tensor.lo sem/coef.lo mesh/mesh.lo math/math.lo sem/space.lo field/field.lo config/num_types.lo config/neko_config.lo gs/gather_scatter.lo
-common/time_interpolator.lo : common/time_interpolator.f90 math/fast3d.lo common/utils.lo math/math.lo math/bcknd/device/device_math.lo config/neko_config.lo field/field.lo config/num_types.lo
-sem/interpolation.lo : sem/interpolation.f90 sem/space.lo math/bcknd/cpu/tensor_cpu.lo math/tensor.lo math/fast3d.lo device/device.lo config/num_types.lo config/neko_config.lo
-sem/point_interpolator.lo : sem/point_interpolator.f90 config/neko_config.lo math/bcknd/device/device_math.lo device/device.lo common/utils.lo math/fast3d.lo math/math.lo mesh/point.lo config/num_types.lo sem/space.lo math/tensor.lo
-sem/bcknd/device/device_coef.lo : sem/bcknd/device/device_coef.F90 common/utils.lo config/num_types.lo
-gs/gs_bcknd.lo : gs/gs_bcknd.f90 config/num_types.lo
-gs/bcknd/cpu/gs_cpu.lo : gs/bcknd/cpu/gs_cpu.f90 gs/gs_ops.lo gs/gs_bcknd.lo config/num_types.lo
-gs/bcknd/sx/gs_sx.lo : gs/bcknd/sx/gs_sx.f90 gs/gs_ops.lo gs/gs_bcknd.lo config/num_types.lo
-gs/bcknd/device/gs_device.lo : gs/bcknd/device/gs_device.F90 common/utils.lo gs/gs_ops.lo device/device.lo gs/gs_bcknd.lo config/num_types.lo config/neko_config.lo
-gs/gs_ops.lo : gs/gs_ops.f90
-gs/gs_comm.lo : gs/gs_comm.f90 adt/stack.lo comm/comm.lo config/num_types.lo
-gs/gs_mpi.lo : gs/gs_mpi.f90 comm/comm.lo adt/stack.lo gs/gs_ops.lo gs/gs_comm.lo config/num_types.lo
-gs/bcknd/device/gs_device_mpi.lo : gs/bcknd/device/gs_device_mpi.F90 common/utils.lo device/device.lo adt/htable.lo comm/comm.lo adt/stack.lo gs/gs_ops.lo gs/gs_comm.lo config/num_types.lo
-gs/gather_scatter.lo : gs/gather_scatter.f90 device/device.lo common/profiler.lo common/log.lo common/utils.lo adt/stack.lo adt/htable.lo config/num_types.lo field/field.lo sem/dofmap.lo comm/comm.lo mesh/mesh.lo gs/bcknd/device/gs_device_mpi.lo gs/gs_mpi.lo gs/gs_comm.lo gs/gs_ops.lo gs/bcknd/cpu/gs_cpu.lo gs/bcknd/sx/gs_sx.lo gs/bcknd/device/gs_device.lo gs/gs_bcknd.lo config/neko_config.lo
-mesh/entity.lo : mesh/entity.f90
-mesh/point.lo : mesh/point.f90 mesh/entity.lo math/math.lo config/num_types.lo
-mesh/element.lo : mesh/element.f90 mesh/point.lo adt/tuple.lo mesh/entity.lo config/num_types.lo
-math/ax.lo : math/ax.f90 mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo
-mesh/quad.lo : mesh/quad.f90 mesh/point.lo adt/tuple.lo mesh/element.lo config/num_types.lo
-mesh/hex.lo : mesh/hex.f90 mesh/point.lo adt/tuple.lo mesh/element.lo config/num_types.lo
-mesh/tet.lo : mesh/tet.f90 mesh/point.lo adt/tuple.lo mesh/element.lo config/num_types.lo
-mesh/tri.lo : mesh/tri.f90 mesh/point.lo adt/tuple.lo mesh/element.lo config/num_types.lo
-adt/htable.lo : adt/htable.f90 math/math.lo adt/tuple.lo mesh/point.lo common/utils.lo config/num_types.lo
-adt/uset.lo : adt/uset.f90 adt/htable.lo config/num_types.lo common/utils.lo
-adt/stack.lo : adt/stack.f90 adt/tuple.lo math/math.lo common/structs.lo mesh/point.lo common/utils.lo io/format/nmsh.lo config/num_types.lo
-adt/tuple.lo : adt/tuple.f90 config/num_types.lo math/math.lo
-mesh/facet_zone.lo : mesh/facet_zone.f90 common/utils.lo adt/stack.lo adt/tuple.lo
-mesh/point_zone.lo : mesh/point_zone.f90 device/device.lo config/neko_config.lo sem/dofmap.lo common/utils.lo config/num_types.lo adt/stack.lo
-mesh/point_zones/sphere_point_zone.lo : mesh/point_zones/sphere_point_zone.f90 math/math.lo common/json_utils.lo config/num_types.lo mesh/point_zone.lo
-mesh/point_zones/box_point_zone.lo : mesh/point_zones/box_point_zone.f90 math/math.lo common/json_utils.lo config/num_types.lo mesh/point_zone.lo
-mesh/point_zones/cylinder_point_zone.lo : mesh/point_zones/cylinder_point_zone.f90 common/utils.lo common/json_utils.lo config/num_types.lo mesh/point_zone.lo
-mesh/point_zones/combine_point_zone.lo : mesh/point_zones/combine_point_zone.f90 common/log.lo common/utils.lo common/json_utils.lo config/num_types.lo mesh/point_zones/cylinder_point_zone.lo mesh/point_zones/sphere_point_zone.lo mesh/point_zones/box_point_zone.lo mesh/point_zone.lo
-mesh/point_zone_fctry.lo : mesh/point_zone_fctry.f90 common/utils.lo common/json_utils.lo mesh/point_zones/cylinder_point_zone.lo mesh/point_zones/sphere_point_zone.lo mesh/point_zones/box_point_zone.lo mesh/point_zone.lo
-mesh/point_zone_registry.lo : mesh/point_zone_registry.f90 common/json_utils.lo common/utils.lo sem/space.lo mesh/mesh.lo sem/dofmap.lo mesh/point_zones/combine_point_zone.lo mesh/point_zone.lo
-mesh/mesh.lo : mesh/mesh.f90 common/log.lo mesh/curve.lo adt/uset.lo math/math.lo mesh/facet_zone.lo comm/comm.lo common/distdata.lo common/datadist.lo adt/htable.lo adt/tuple.lo adt/stack.lo common/utils.lo mesh/quad.lo mesh/hex.lo mesh/element.lo mesh/point.lo config/num_types.lo
-mesh/octree.lo : mesh/octree.f90 common/utils.lo mesh/point.lo config/num_types.lo
-mesh/search_tree/aabb.lo : mesh/search_tree/aabb.f90 common/utils.lo mesh/tet_mesh.lo mesh/tri_mesh.lo mesh/mesh.lo mesh/hex.lo mesh/tet.lo mesh/quad.lo mesh/tri.lo mesh/point.lo mesh/element.lo config/num_types.lo
-mesh/aabb_tree.lo : mesh/aabb_tree.f90 adt/stack.lo common/utils.lo config/num_types.lo mesh/tri.lo mesh/search_tree/aabb.lo
-mesh/tet_mesh.lo : mesh/tet_mesh.f90 common/utils.lo mesh/point.lo mesh/tet.lo mesh/mesh.lo
-mesh/tri_mesh.lo : mesh/tri_mesh.f90 mesh/point.lo mesh/tri.lo
-field/field_registry.lo : field/field_registry.f90 adt/htable.lo common/utils.lo sem/dofmap.lo field/field.lo
-field/scratch_registry.lo : field/scratch_registry.f90 sem/dofmap.lo field/field.lo
-field/field.lo : field/field.f90 sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo device/device.lo config/num_types.lo math/bcknd/device/device_math.lo config/neko_config.lo
-field/field_list.lo : field/field_list.f90 common/utils.lo mesh/mesh.lo sem/dofmap.lo sem/space.lo config/num_types.lo field/field.lo
-field/field_series.lo : field/field_series.f90 field/field.lo config/num_types.lo
-field/mesh_field.lo : field/mesh_field.f90 mesh/mesh.lo
-field/mean_field.lo : field/mean_field.f90 math/field_math.lo field/field.lo config/num_types.lo common/stats_quant.lo config/neko_config.lo
-field/mean_sqr_field.lo : field/mean_sqr_field.f90 math/math.lo math/bcknd/device/device_math.lo field/mean_field.lo config/neko_config.lo config/num_types.lo
-io/format/rea.lo : io/format/rea.f90 mesh/mesh.lo config/num_types.lo
-math/bcknd/cpu/cpu_cdtp.lo : math/bcknd/cpu/cpu_cdtp.f90 math/bcknd/cpu/opr_cpu.lo
-math/bcknd/cpu/cpu_conv1.lo : math/bcknd/cpu/cpu_conv1.f90 math/bcknd/cpu/opr_cpu.lo
-math/bcknd/cpu/cpu_dudxyz.lo : math/bcknd/cpu/cpu_dudxyz.f90 math/bcknd/cpu/opr_cpu.lo
-math/bcknd/cpu/cpu_opgrad.lo : math/bcknd/cpu/cpu_opgrad.f90 math/bcknd/cpu/opr_cpu.lo
-math/bcknd/cpu/convect_scalar.lo : math/bcknd/cpu/convect_scalar.f90 math/math.lo config/num_types.lo math/bcknd/cpu/opr_cpu.lo
-math/bcknd/cpu/set_convect_rst.lo : math/bcknd/cpu/set_convect_rst.f90 config/num_types.lo math/bcknd/cpu/opr_cpu.lo
-math/bcknd/sx/sx_cdtp.lo : math/bcknd/sx/sx_cdtp.f90 math/math.lo math/bcknd/sx/opr_sx.lo
-math/bcknd/sx/sx_conv1.lo : math/bcknd/sx/sx_conv1.f90 math/bcknd/sx/opr_sx.lo
-math/bcknd/sx/sx_dudxyz.lo : math/bcknd/sx/sx_dudxyz.f90 math/math.lo math/bcknd/sx/opr_sx.lo
-math/bcknd/sx/sx_opgrad.lo : math/bcknd/sx/sx_opgrad.f90 math/bcknd/sx/opr_sx.lo
-math/bcknd/sx/sx_cfl.lo : math/bcknd/sx/sx_cfl.f90 math/bcknd/sx/opr_sx.lo
-math/bcknd/sx/sx_lambda2.lo : math/bcknd/sx/sx_lambda2.f90 math/math.lo math/bcknd/sx/opr_sx.lo
-math/bcknd/sx/sx_convect_scalar.lo : math/bcknd/sx/sx_convect_scalar.f90 math/math.lo config/num_types.lo math/bcknd/sx/opr_sx.lo
-math/bcknd/sx/sx_set_convect_rst.lo : math/bcknd/sx/sx_set_convect_rst.f90 config/num_types.lo math/bcknd/sx/opr_sx.lo
-math/operators.lo : math/operators.f90 comm/comm.lo field/scratch_registry.lo math/bcknd/device/device_math.lo device/device.lo math/math.lo sem/interpolation.lo field/field.lo sem/coef.lo sem/space.lo math/bcknd/device/opr_device.lo math/bcknd/xsmm/opr_xsmm.lo math/bcknd/sx/opr_sx.lo math/bcknd/cpu/opr_cpu.lo config/num_types.lo config/neko_config.lo
-math/bcknd/cpu/opr_cpu.lo : math/bcknd/cpu/opr_cpu.f90 math/mathops.lo sem/interpolation.lo gs/gather_scatter.lo field/field.lo math/math.lo sem/coef.lo sem/space.lo config/num_types.lo
-math/bcknd/sx/opr_sx.lo : math/bcknd/sx/opr_sx.f90 math/mathops.lo field/field.lo math/math.lo sem/coef.lo sem/space.lo config/num_types.lo sem/interpolation.lo gs/gather_scatter.lo
-math/bcknd/xsmm/opr_xsmm.lo : math/bcknd/xsmm/opr_xsmm.F90 math/mathops.lo gs/gather_scatter.lo sem/interpolation.lo field/field.lo mesh/mesh.lo math/math.lo sem/coef.lo sem/space.lo math/mxm_wrapper.lo config/num_types.lo
-math/bcknd/device/opr_device.lo : math/bcknd/device/opr_device.F90 comm/comm.lo math/bcknd/device/device_mathops.lo math/bcknd/device/device_math.lo common/utils.lo field/field.lo sem/coef.lo sem/space.lo device/device.lo config/num_types.lo gs/gather_scatter.lo
-math/tensor.lo : math/tensor.f90 device/device.lo config/neko_config.lo math/mxm_wrapper.lo config/num_types.lo math/bcknd/device/tensor_device.lo math/bcknd/sx/tensor_sx.lo math/bcknd/cpu/tensor_cpu.lo math/bcknd/xsmm/tensor_xsmm.lo
-math/bcknd/cpu/tensor_cpu.lo : math/bcknd/cpu/tensor_cpu.f90 math/mxm_wrapper.lo config/num_types.lo
-math/bcknd/sx/tensor_sx.lo : math/bcknd/sx/tensor_sx.f90 math/mxm_wrapper.lo config/num_types.lo
-math/bcknd/xsmm/tensor_xsmm.lo : math/bcknd/xsmm/tensor_xsmm.F90 math/mxm_wrapper.lo config/num_types.lo
-math/fdm.lo : math/fdm.f90 comm/comm.lo common/utils.lo device/device.lo math/bcknd/device/fdm_device.lo math/bcknd/cpu/fdm_cpu.lo math/bcknd/xsmm/fdm_xsmm.lo math/bcknd/sx/fdm_sx.lo math/tensor.lo math/fast3d.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo sem/speclib.lo config/num_types.lo config/neko_config.lo
-math/bcknd/cpu/fdm_cpu.lo : math/bcknd/cpu/fdm_cpu.f90 math/bcknd/cpu/tensor_cpu.lo config/num_types.lo
-math/bcknd/sx/fdm_sx.lo : math/bcknd/sx/fdm_sx.f90 math/bcknd/sx/tensor_sx.lo config/num_types.lo
-math/bcknd/xsmm/fdm_xsmm.lo : math/bcknd/xsmm/fdm_xsmm.f90 math/bcknd/xsmm/tensor_xsmm.lo config/num_types.lo
-math/schwarz.lo : math/schwarz.f90 config/neko_config.lo device/device.lo math/fdm.lo math/bcknd/device/device_math.lo math/bcknd/device/device_schwarz.lo gs/gather_scatter.lo bc/bc.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo config/num_types.lo
-math/vector.lo : math/vector.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/num_types.lo math/math.lo config/neko_config.lo
-math/matrix.lo : math/matrix.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/num_types.lo math/math.lo config/neko_config.lo
-math/signed_distance.lo : math/signed_distance.f90 adt/stack.lo mesh/search_tree/aabb.lo mesh/point.lo common/utils.lo config/neko_config.lo device/device.lo mesh/aabb_tree.lo mesh/tri_mesh.lo mesh/tri.lo field/field.lo config/num_types.lo
-common/checkpoint.lo : common/checkpoint.f90 mesh/mesh.lo common/utils.lo field/field.lo device/device.lo sem/space.lo field/field_series.lo config/num_types.lo config/neko_config.lo
-io/generic_file.lo : io/generic_file.f90 comm/comm.lo common/utils.lo config/num_types.lo
-io/map_file.lo : io/map_file.f90 io/format/map.lo comm/comm.lo common/utils.lo io/generic_file.lo
-io/re2_file.lo : io/re2_file.f90 common/log.lo adt/htable.lo io/map_file.lo io/format/map.lo io/format/re2.lo common/datadist.lo comm/mpi_types.lo comm/comm.lo mesh/point.lo mesh/mesh.lo common/utils.lo config/num_types.lo io/generic_file.lo
-io/rea_file.lo : io/rea_file.f90 common/log.lo adt/htable.lo common/datadist.lo comm/comm.lo io/map_file.lo io/re2_file.lo io/format/rea.lo io/format/map.lo mesh/point.lo mesh/mesh.lo common/utils.lo config/num_types.lo io/generic_file.lo
-io/fld_file.lo : io/fld_file.f90 comm/mpi_types.lo math/math.lo common/datadist.lo comm/comm.lo common/utils.lo mesh/mesh.lo fluid/mean_sqr_flow.lo fluid/mean_flow.lo io/fld_file_data.lo math/vector.lo common/structs.lo sem/space.lo sem/dofmap.lo field/field_list.lo field/field.lo io/generic_file.lo config/num_types.lo
-io/fld_file_data.lo : io/fld_file_data.f90 mesh/mesh.lo common/utils.lo common/global_interpolation.lo sem/space.lo sem/dofmap.lo field/field.lo math/vector.lo math/math.lo config/num_types.lo
-io/vtk_file.lo : io/vtk_file.f90 comm/comm.lo common/log.lo mesh/tri_mesh.lo mesh/tet_mesh.lo field/mesh_field.lo sem/dofmap.lo field/field.lo mesh/mesh.lo common/utils.lo io/generic_file.lo config/num_types.lo
-io/stl_file.lo : io/stl_file.f90 io/format/stl.lo comm/comm.lo common/utils.lo comm/mpi_types.lo mesh/point.lo common/log.lo mesh/tri_mesh.lo io/generic_file.lo config/num_types.lo
-io/nmsh_file.lo : io/nmsh_file.f90 common/log.lo comm/mpi_types.lo common/datadist.lo mesh/element.lo io/format/nmsh.lo adt/tuple.lo mesh/point.lo common/utils.lo mesh/mesh.lo config/num_types.lo comm/comm.lo io/generic_file.lo
-io/chkp_file.lo : io/chkp_file.f90 common/global_interpolation.lo comm/comm.lo comm/mpi_types.lo sem/interpolation.lo math/math.lo mesh/mesh.lo sem/space.lo common/utils.lo math/bcknd/device/device_math.lo sem/dofmap.lo field/field.lo config/num_types.lo common/checkpoint.lo field/field_series.lo io/generic_file.lo
-io/csv_file.lo : io/csv_file.f90 comm/comm.lo common/log.lo config/num_types.lo common/utils.lo io/generic_file.lo math/matrix.lo math/vector.lo
-io/hdf5_file.lo : io/hdf5_file.F90 comm/comm.lo common/log.lo sem/dofmap.lo field/field_series.lo field/field_list.lo field/field.lo mesh/mesh.lo common/utils.lo common/checkpoint.lo io/generic_file.lo config/num_types.lo
-io/file.lo : io/file.f90 io/hdf5_file.lo io/csv_file.lo io/stl_file.lo io/vtk_file.lo io/fld_file_data.lo io/fld_file.lo io/re2_file.lo io/rea_file.lo io/map_file.lo io/chkp_file.lo io/nmsh_file.lo io/generic_file.lo config/num_types.lo common/utils.lo
-io/output.lo : io/output.f90 io/file.lo config/num_types.lo
-io/fluid_output.lo : io/fluid_output.f90 io/output.lo device/device.lo config/neko_config.lo field/field_list.lo scalar/scalar_scheme.lo fluid/fluid_scheme.lo config/num_types.lo
-io/fld_file_output.lo : io/fld_file_output.f90 io/output.lo device/device.lo config/neko_config.lo field/field_list.lo config/num_types.lo
-io/chkp_output.lo : io/chkp_output.f90 config/num_types.lo io/output.lo common/checkpoint.lo
-io/mean_flow_output.lo : io/mean_flow_output.f90 io/output.lo device/device.lo config/num_types.lo fluid/mean_flow.lo
-io/fluid_stats_output.lo : io/fluid_stats_output.f90 math/matrix.lo io/output.lo device/device.lo io/fld_file_data.lo sem/map_2d.lo sem/map_1d.lo config/num_types.lo config/neko_config.lo fluid/fluid_stats.lo
-io/mean_sqr_flow_output.lo : io/mean_sqr_flow_output.f90 io/output.lo config/num_types.lo fluid/mean_sqr_flow.lo
-io/data_streamer.lo : io/data_streamer.F90 config/neko_config.lo comm/mpi_types.lo comm/comm.lo device/device.lo common/utils.lo sem/coef.lo field/field.lo config/num_types.lo
-io/output_controller.lo : io/output_controller.f90 common/time_based_controller.lo config/num_types.lo common/profiler.lo common/utils.lo common/log.lo comm/comm.lo io/fld_file.lo io/output.lo
-common/global_interpolation.lo : common/global_interpolation.F90 common/structs.lo comm/mpi_types.lo math/math.lo comm/comm.lo sem/local_interpolation.lo common/utils.lo common/log.lo mesh/mesh.lo sem/dofmap.lo sem/space.lo config/num_types.lo
-common/profiler.lo : common/profiler.F90 common/runtime_statistics.lo common/craypat.lo device/hip/roctx.lo device/cuda/nvtx.lo device/device.lo config/neko_config.lo
-common/craypat.lo : common/craypat.F90
-bc/bc.lo : bc/bc.f90 common/utils.lo adt/tuple.lo adt/stack.lo mesh/facet_zone.lo mesh/mesh.lo sem/space.lo sem/coef.lo sem/dofmap.lo device/device.lo config/num_types.lo config/neko_config.lo
-bc/dirichlet.lo : bc/dirichlet.f90 bc/bc.lo config/num_types.lo bc/bcknd/device/device_dirichlet.lo
-bc/neumann.lo : bc/neumann.f90 math/math.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo
-bc/shear_stress.lo : bc/shear_stress.f90 bc/neumann.lo bc/symmetry.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo
-bc/dong_outflow.lo : bc/dong_outflow.f90 common/json_utils.lo field/field_registry.lo bc/bcknd/device/device_dong_outflow.lo common/utils.lo sem/coef.lo sem/dofmap.lo field/field.lo bc/bc.lo config/num_types.lo device/device.lo bc/dirichlet.lo config/neko_config.lo
-bc/wall.lo : bc/wall.f90 bc/bc.lo config/num_types.lo bc/bcknd/device/device_wall.lo
-bc/inflow.lo : bc/inflow.f90 bc/bc.lo config/num_types.lo bc/bcknd/device/device_inflow.lo
-bc/field_dirichlet.lo : bc/field_dirichlet.f90 sem/dofmap.lo math/bcknd/device/device_math.lo math/math.lo field/field_list.lo field/field.lo common/utils.lo device/device.lo bc/bc.lo bc/dirichlet.lo sem/coef.lo config/num_types.lo
-bc/field_dirichlet_vector.lo : bc/field_dirichlet_vector.f90 bc/field_dirichlet.lo sem/dofmap.lo math/bcknd/device/device_math.lo math/math.lo field/field_list.lo field/field.lo common/utils.lo device/device.lo bc/bc.lo bc/dirichlet.lo sem/coef.lo config/num_types.lo
-bc/usr_inflow.lo : bc/usr_inflow.f90 bc/bc.lo common/utils.lo bc/bcknd/device/device_inhom_dirichlet.lo device/device.lo bc/inflow.lo sem/coef.lo config/num_types.lo
-bc/usr_scalar.lo : bc/usr_scalar.f90 common/utils.lo bc/bcknd/device/device_inhom_dirichlet.lo device/device.lo bc/bc.lo sem/coef.lo config/num_types.lo
-bc/facet_normal.lo : bc/facet_normal.f90 common/utils.lo bc/bc.lo sem/coef.lo math/math.lo config/num_types.lo bc/bcknd/device/device_facet_normal.lo
-bc/symmetry.lo : bc/symmetry.f90 sem/coef.lo adt/tuple.lo bc/bc.lo config/num_types.lo bc/dirichlet.lo bc/bcknd/device/device_symmetry.lo
-bc/non_normal.lo : bc/non_normal.f90 sem/coef.lo adt/tuple.lo config/num_types.lo bc/symmetry.lo
-bc/blasius.lo : bc/blasius.f90 bc/bc.lo fluid/flow_profile.lo bc/bcknd/device/device_inhom_dirichlet.lo device/device.lo common/utils.lo sem/coef.lo config/num_types.lo
-bc/wall_model_bc.lo : bc/wall_model_bc.f90 bc/shear_stress.lo wall_models/spalding.lo wall_models/rough_log_law.lo wall_models/wall_model.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo
-krylov/precon.lo : krylov/precon.f90 config/num_types.lo
-krylov/krylov.lo : krylov/krylov.f90 common/log.lo config/neko_config.lo krylov/bcknd/device/pc_identity_device.lo krylov/pc_identity.lo bc/bc.lo common/utils.lo field/field.lo mesh/mesh.lo sem/coef.lo krylov/precon.lo config/num_types.lo math/ax.lo gs/gather_scatter.lo
-krylov/pc_identity.lo : krylov/pc_identity.f90 config/num_types.lo krylov/precon.lo math/math.lo
-krylov/precon_fctry.lo : krylov/precon_fctry.f90 config/neko_config.lo common/utils.lo krylov/pc_hsmg.lo krylov/bcknd/device/pc_jacobi_device.lo krylov/bcknd/sx/pc_jacobi_sx.lo krylov/bcknd/cpu/pc_jacobi.lo krylov/bcknd/device/pc_identity_device.lo krylov/pc_identity.lo krylov/precon.lo
-krylov/krylov_fctry.lo : krylov/krylov_fctry.f90 config/neko_config.lo common/utils.lo krylov/precon.lo config/num_types.lo krylov/bcknd/device/gmres_device.lo krylov/bcknd/sx/gmres_sx.lo krylov/bcknd/device/cheby_device.lo krylov/bcknd/cpu/cheby.lo krylov/bcknd/cpu/gmres.lo krylov/bcknd/cpu/bicgstab.lo krylov/bcknd/device/fusedcg_cpld_device.lo krylov/bcknd/device/fusedcg_device.lo krylov/bcknd/device/pipecg_device.lo krylov/bcknd/sx/pipecg_sx.lo krylov/bcknd/cpu/pipecg.lo krylov/bcknd/cpu/cacg.lo krylov/bcknd/device/cg_device.lo krylov/bcknd/cpu/cg_coupled.lo krylov/bcknd/sx/cg_sx.lo krylov/bcknd/cpu/cg.lo krylov/krylov.lo
-krylov/bcknd/cpu/cg.lo : krylov/bcknd/cpu/cg.f90 comm/comm.lo math/math.lo bc/bc.lo gs/gather_scatter.lo sem/coef.lo field/field.lo math/ax.lo krylov/precon.lo krylov/krylov.lo config/num_types.lo
-krylov/bcknd/cpu/cacg.lo : krylov/bcknd/cpu/cacg.f90 math/mxm_wrapper.lo comm/comm.lo common/utils.lo math/math.lo bc/bc.lo gs/gather_scatter.lo sem/coef.lo field/field.lo math/ax.lo krylov/precon.lo krylov/krylov.lo config/num_types.lo
-krylov/bcknd/cpu/cheby.lo : krylov/bcknd/cpu/cheby.f90 comm/comm.lo math/math.lo bc/bc.lo gs/gather_scatter.lo sem/space.lo mesh/mesh.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo
-krylov/bcknd/cpu/pipecg.lo : krylov/bcknd/cpu/pipecg.f90 comm/comm.lo math/math.lo bc/bc.lo gs/gather_scatter.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo
-krylov/bcknd/cpu/bicgstab.lo : krylov/bcknd/cpu/bicgstab.f90 common/utils.lo math/math.lo bc/bc.lo gs/gather_scatter.lo sem/coef.lo field/field.lo math/ax.lo krylov/precon.lo krylov/krylov.lo config/num_types.lo
-krylov/bcknd/cpu/gmres.lo : krylov/bcknd/cpu/gmres.f90 comm/comm.lo math/math.lo bc/bc.lo gs/gather_scatter.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo
-krylov/bcknd/cpu/pc_jacobi.lo : krylov/bcknd/cpu/pc_jacobi.f90 gs/gather_scatter.lo sem/dofmap.lo config/num_types.lo sem/coef.lo krylov/precon.lo math/math.lo
-krylov/bcknd/cpu/cg_coupled.lo : krylov/bcknd/cpu/cg_coupled.f90 common/utils.lo math/math.lo bc/bc.lo gs/gather_scatter.lo sem/coef.lo field/field.lo math/ax.lo krylov/precon.lo krylov/krylov.lo config/num_types.lo
-krylov/bcknd/sx/cg_sx.lo : krylov/bcknd/sx/cg_sx.f90 math/math.lo bc/bc.lo gs/gather_scatter.lo sem/coef.lo field/field.lo math/ax.lo krylov/precon.lo krylov/krylov.lo config/num_types.lo
-krylov/bcknd/sx/pipecg_sx.lo : krylov/bcknd/sx/pipecg_sx.f90 comm/comm.lo math/math.lo bc/bc.lo gs/gather_scatter.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo
-krylov/bcknd/sx/gmres_sx.lo : krylov/bcknd/sx/gmres_sx.f90 comm/comm.lo math/math.lo bc/bc.lo gs/gather_scatter.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo
-krylov/bcknd/sx/pc_jacobi_sx.lo : krylov/bcknd/sx/pc_jacobi_sx.f90 gs/gather_scatter.lo config/num_types.lo sem/dofmap.lo sem/coef.lo krylov/precon.lo math/math.lo
-krylov/bcknd/device/cg_device.lo : krylov/bcknd/device/cg_device.f90 math/bcknd/device/device_math.lo device/device.lo math/math.lo bc/bc.lo gs/gather_scatter.lo sem/coef.lo field/field.lo math/ax.lo krylov/precon.lo krylov/krylov.lo config/num_types.lo
-krylov/bcknd/device/cheby_device.lo : krylov/bcknd/device/cheby_device.F90 device/device.lo math/bcknd/device/device_math.lo bc/bc.lo gs/gather_scatter.lo sem/space.lo mesh/mesh.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo
-krylov/bcknd/device/pipecg_device.lo : krylov/bcknd/device/pipecg_device.F90 comm/comm.lo device/device.lo math/bcknd/device/device_math.lo math/math.lo bc/bc.lo gs/gather_scatter.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo
-krylov/bcknd/device/fusedcg_device.lo : krylov/bcknd/device/fusedcg_device.F90 comm/comm.lo device/device.lo math/bcknd/device/device_math.lo math/math.lo bc/bc.lo gs/gather_scatter.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo
-krylov/bcknd/device/fusedcg_cpld_device.lo : krylov/bcknd/device/fusedcg_cpld_device.F90 comm/comm.lo device/device.lo math/bcknd/device/device_math.lo math/math.lo bc/bc.lo gs/gather_scatter.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo
-krylov/bcknd/device/gmres_device.lo : krylov/bcknd/device/gmres_device.F90 comm/comm.lo device/device.lo math/bcknd/device/device_math.lo math/math.lo krylov/bcknd/device/pc_identity_device.lo bc/bc.lo gs/gather_scatter.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo
-krylov/bcknd/device/pc_jacobi_device.lo : krylov/bcknd/device/pc_jacobi_device.F90 gs/gather_scatter.lo device/device.lo math/bcknd/device/device_math.lo config/num_types.lo sem/dofmap.lo sem/coef.lo krylov/precon.lo
-krylov/bcknd/device/pc_identity_device.lo : krylov/bcknd/device/pc_identity_device.f90 config/num_types.lo krylov/precon.lo math/bcknd/device/device_math.lo device/device.lo
-time_schemes/time_scheme.lo : time_schemes/time_scheme.f90 config/num_types.lo config/neko_config.lo
-time_schemes/bdf_time_scheme.lo : time_schemes/bdf_time_scheme.f90 common/utils.lo math/math.lo time_schemes/time_scheme.lo config/num_types.lo config/neko_config.lo
-time_schemes/ext_time_scheme.lo : time_schemes/ext_time_scheme.f90 common/utils.lo math/math.lo time_schemes/time_scheme.lo config/num_types.lo config/neko_config.lo
-time_schemes/ab_time_scheme.lo : time_schemes/ab_time_scheme.f90 common/utils.lo math/math.lo time_schemes/time_scheme.lo config/num_types.lo config/neko_config.lo
-time_schemes/time_scheme_controller.lo : time_schemes/time_scheme_controller.f90 device/device.lo time_schemes/ab_time_scheme.lo time_schemes/ext_time_scheme.lo time_schemes/bdf_time_scheme.lo config/num_types.lo config/neko_config.lo
-common/time_based_controller.lo : common/time_based_controller.f90 common/utils.lo config/num_types.lo
-common/stats_quant.lo : common/stats_quant.f90 config/num_types.lo
-common/statistics.lo : common/statistics.f90 comm/comm.lo common/log.lo common/stats_quant.lo config/num_types.lo
-common/rhs_maker.lo : common/rhs_maker.f90 field/field.lo field/field_series.lo config/num_types.lo
-common/rhs_maker_fctry.lo : common/rhs_maker_fctry.f90 config/neko_config.lo common/bcknd/device/rhs_maker_device.lo common/bcknd/sx/rhs_maker_sx.lo common/bcknd/cpu/rhs_maker_cpu.lo common/rhs_maker.lo
-simulation_components/probes.lo : simulation_components/probes.F90 case.lo io/csv_file.lo io/file.lo device/device.lo comm/comm.lo mesh/point_zone_registry.lo mesh/point_zone.lo math/tensor.lo common/global_interpolation.lo common/json_utils.lo sem/dofmap.lo field/field_registry.lo simulation_components/simulation_component.lo field/field_list.lo common/utils.lo common/log.lo math/matrix.lo config/num_types.lo
-simulation_components/force_torque.lo : simulation_components/force_torque.f90 device/device.lo math/bcknd/device/device_math.lo math/math.lo comm/comm.lo common/log.lo qoi/drag_torque.lo bc/dirichlet.lo math/vector.lo sem/coef.lo simulation_components/field_writer.lo common/json_utils.lo io/fld_file_output.lo case.lo math/operators.lo field/field.lo field/scratch_registry.lo field/field_registry.lo simulation_components/simulation_component.lo config/num_types.lo
-simulation_components/fluid_stats_simcomp.lo : simulation_components/fluid_stats_simcomp.f90 common/json_utils.lo common/log.lo comm/comm.lo sem/coef.lo case.lo io/fluid_stats_output.lo fluid/fluid_stats.lo field/field.lo field/field_registry.lo simulation_components/simulation_component.lo config/num_types.lo
-simulation_components/field_writer.lo : simulation_components/field_writer.f90 common/json_utils.lo io/fld_file_output.lo case.lo math/operators.lo field/field.lo field/field_registry.lo simulation_components/simulation_component.lo config/num_types.lo
-common/bcknd/cpu/rhs_maker_cpu.lo : common/bcknd/cpu/rhs_maker_cpu.f90 field/scratch_registry.lo config/num_types.lo field/field.lo field/field_series.lo common/rhs_maker.lo
-common/bcknd/sx/rhs_maker_sx.lo : common/bcknd/sx/rhs_maker_sx.f90 field/scratch_registry.lo config/num_types.lo field/field.lo field/field_series.lo common/rhs_maker.lo
-common/bcknd/device/rhs_maker_device.lo : common/bcknd/device/rhs_maker_device.F90 config/num_types.lo field/field.lo field/field_series.lo common/utils.lo device/device.lo common/rhs_maker.lo
-config/neko_config.lo : config/neko_config.f90
-case.lo : case.f90 mesh/point_zone_registry.lo field/scratch_registry.lo common/json_utils.lo scalar/scalar_pnpn.lo common/user_intf.lo common/jobctrl.lo common/log.lo time_schemes/time_scheme_controller.lo comm/comm.lo mesh/mesh.lo common/utils.lo io/file.lo common/statistics.lo scalar/scalar_ic.lo fluid/flow_ic.lo io/output_controller.lo comm/redist.lo comm/parmetis.lo field/mesh_field.lo io/chkp_output.lo io/fluid_output.lo fluid/fluid_scheme.lo fluid/fluid_pnpn.lo config/num_types.lo
-common/user_intf.lo : common/user_intf.f90 common/log.lo common/utils.lo common/json_utils.lo config/num_types.lo bc/field_dirichlet.lo bc/usr_scalar.lo bc/usr_inflow.lo mesh/mesh.lo bc/bc.lo sem/coef.lo scalar/scalar_user_source_term.lo fluid/fluid_user_source_term.lo field/field_list.lo field/field.lo
-fluid/stress_formulation/pnpn_res_stress_fctry.lo : fluid/stress_formulation/pnpn_res_stress_fctry.f90 fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.lo fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.lo config/neko_config.lo fluid/pnpn_res.lo
-fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.lo : fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.f90 math/math.lo sem/space.lo config/num_types.lo mesh/mesh.lo field/scratch_registry.lo fluid/pnpn_res.lo bc/facet_normal.lo sem/coef.lo math/ax.lo field/field.lo math/operators.lo gs/gather_scatter.lo
-fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.lo : fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.F90 math/bcknd/device/device_math.lo math/bcknd/device/device_mathops.lo sem/space.lo config/num_types.lo mesh/mesh.lo field/scratch_registry.lo fluid/pnpn_res.lo bc/facet_normal.lo sem/coef.lo math/ax.lo field/field.lo math/operators.lo common/utils.lo gs/gather_scatter.lo
-fluid/fluid_scheme.lo : fluid/fluid_scheme.f90 common/gradient_jump_penalty.lo bc/shear_stress.lo bc/wall_model_bc.lo math/field_math.lo common/time_step_controller.lo field/field_series.lo common/utils.lo common/user_intf.lo field/scratch_registry.lo common/json_utils.lo field/field_registry.lo common/log.lo math/operators.lo time_schemes/time_scheme_controller.lo math/bcknd/device/device_math.lo math/math.lo mesh/mesh.lo bc/bc.lo fluid/fluid_stats.lo krylov/precon.lo krylov/pc_hsmg.lo krylov/bcknd/device/pc_jacobi_device.lo krylov/bcknd/sx/pc_jacobi_sx.lo krylov/bcknd/cpu/pc_jacobi.lo bc/field_dirichlet_vector.lo bc/field_dirichlet.lo bc/symmetry.lo bc/dong_outflow.lo bc/dirichlet.lo bc/blasius.lo bc/usr_inflow.lo bc/inflow.lo bc/wall.lo sem/coef.lo krylov/krylov.lo sem/dofmap.lo sem/space.lo field/field.lo fluid/fluid_source_term.lo comm/comm.lo config/num_types.lo fluid/mean_flow.lo common/checkpoint.lo config/neko_config.lo fluid/mean_sqr_flow.lo gs/gather_scatter.lo
-fluid/fluid_aux.lo : fluid/fluid_aux.f90 krylov/krylov.lo config/num_types.lo common/log.lo
-fluid/fluid_pnpn.lo : fluid/fluid_pnpn.f90 math/field_math.lo common/utils.lo bc/bc.lo math/mathops.lo math/math.lo config/neko_config.lo gs/gs_ops.lo common/time_step_controller.lo common/user_intf.lo mesh/mesh.lo bc/non_normal.lo bc/facet_normal.lo bc/dirichlet.lo field/field.lo math/ax.lo common/json_utils.lo common/profiler.lo fluid/advection.lo device/device.lo common/projection.lo time_schemes/time_scheme_controller.lo fluid/fluid_aux.lo math/bcknd/device/device_mathops.lo fluid/fluid_scheme.lo fluid/fluid_volflow.lo common/rhs_maker.lo fluid/pnpn_res.lo krylov/krylov.lo config/num_types.lo
-fluid/fluid_fctry.lo : fluid/fluid_fctry.f90 common/utils.lo fluid/fluid_pnpn.lo fluid/fluid_scheme.lo
-fluid/fluid_volflow.lo : fluid/fluid_volflow.f90 math/ax.lo bc/bc.lo field/scratch_registry.lo common/json_utils.lo gs/gather_scatter.lo math/bcknd/device/device_mathops.lo math/bcknd/device/device_math.lo config/neko_config.lo comm/comm.lo math/math.lo time_schemes/time_scheme_controller.lo sem/coef.lo field/field.lo sem/dofmap.lo krylov/precon.lo krylov/krylov.lo math/mathops.lo config/num_types.lo math/operators.lo
-fluid/pnpn_res.lo : fluid/pnpn_res.f90 config/num_types.lo mesh/mesh.lo sem/space.lo bc/facet_normal.lo sem/coef.lo field/field.lo math/ax.lo gs/gather_scatter.lo
-fluid/pnpn_res_fctry.lo : fluid/pnpn_res_fctry.f90 fluid/bcknd/sx/pnpn_res_sx.lo fluid/bcknd/cpu/pnpn_res_cpu.lo fluid/bcknd/device/pnpn_res_device.lo config/neko_config.lo fluid/pnpn_res.lo
-fluid/mean_flow.lo : fluid/mean_flow.f90 field/field.lo field/mean_field.lo
-fluid/fluid_stats.lo : fluid/fluid_stats.f90 common/utils.lo config/neko_config.lo device/device.lo common/stats_quant.lo field/field_list.lo field/field.lo sem/coef.lo math/operators.lo math/math.lo config/num_types.lo math/bcknd/device/device_math.lo field/mean_field.lo
-fluid/mean_sqr_flow.lo : fluid/mean_sqr_flow.f90 field/field.lo field/mean_sqr_field.lo
-fluid/flow_profile.lo : fluid/flow_profile.f90 config/num_types.lo
-fluid/flow_ic.lo : fluid/flow_ic.f90 sem/space.lo sem/interpolation.lo common/global_interpolation.lo io/file.lo io/fld_file.lo io/fld_file_data.lo mesh/point_zone_registry.lo mesh/point_zone.lo common/json_utils.lo common/user_intf.lo math/bcknd/device/device_math.lo math/math.lo sem/coef.lo common/utils.lo field/field.lo device/device.lo fluid/flow_profile.lo config/neko_config.lo gs/gather_scatter.lo common/log.lo config/num_types.lo
-fluid/advection.lo : fluid/advection.f90 time_schemes/time_scheme_controller.lo field/field_series.lo sem/coef.lo field/field.lo sem/space.lo config/num_types.lo
-fluid/advection_fctry.lo : fluid/advection_fctry.f90 fluid/bcknd/advection/adv_oifs.lo fluid/bcknd/advection/adv_no_dealias.lo fluid/bcknd/advection/adv_dealias.lo common/json_utils.lo fluid/advection.lo
-fluid/bcknd/advection/adv_dealias.lo : fluid/bcknd/advection/adv_dealias.f90 device/device.lo sem/interpolation.lo math/operators.lo config/neko_config.lo math/bcknd/device/device_math.lo sem/coef.lo field/field.lo sem/space.lo math/math.lo config/num_types.lo fluid/advection.lo
-fluid/bcknd/advection/adv_no_dealias.lo : fluid/bcknd/advection/adv_no_dealias.f90 device/device.lo math/operators.lo config/neko_config.lo math/bcknd/device/device_math.lo sem/coef.lo field/field.lo sem/space.lo math/math.lo config/num_types.lo fluid/advection.lo
-fluid/bcknd/advection/adv_oifs.lo : fluid/bcknd/advection/adv_oifs.f90 device/device.lo time_schemes/time_scheme_controller.lo field/field_series.lo common/time_interpolator.lo sem/interpolation.lo config/neko_config.lo math/operators.lo math/math.lo sem/coef.lo field/field.lo sem/space.lo config/num_types.lo fluid/advection.lo
-fluid/bcknd/cpu/pnpn_res_cpu.lo : fluid/bcknd/cpu/pnpn_res_cpu.f90 math/math.lo sem/space.lo config/num_types.lo mesh/mesh.lo field/scratch_registry.lo fluid/pnpn_res.lo bc/facet_normal.lo sem/coef.lo math/ax.lo field/field.lo math/operators.lo gs/gather_scatter.lo
-fluid/bcknd/sx/pnpn_res_sx.lo : fluid/bcknd/sx/pnpn_res_sx.f90 math/math.lo sem/space.lo config/num_types.lo mesh/mesh.lo field/scratch_registry.lo fluid/pnpn_res.lo bc/facet_normal.lo sem/coef.lo math/ax.lo field/field.lo math/operators.lo gs/gather_scatter.lo
-fluid/bcknd/device/pnpn_res_device.lo : fluid/bcknd/device/pnpn_res_device.F90 field/scratch_registry.lo fluid/pnpn_res.lo math/bcknd/device/device_mathops.lo math/bcknd/device/device_math.lo sem/space.lo config/num_types.lo mesh/mesh.lo bc/facet_normal.lo sem/coef.lo math/ax.lo field/field.lo math/operators.lo gs/gather_scatter.lo
-fluid/fluid_user_source_term.lo : fluid/fluid_user_source_term.f90 sem/dofmap.lo math/math.lo math/bcknd/device/device_math.lo device/device.lo sem/coef.lo field/field_list.lo source_terms/source_term.lo common/utils.lo config/num_types.lo config/neko_config.lo
-fluid/fluid_source_term.lo : fluid/fluid_source_term.f90 common/user_intf.lo sem/coef.lo field/field_list.lo field/field.lo source_terms/source_term_handler.lo source_terms/source_term.lo fluid/fluid_user_source_term.lo
-common/time_step_controller.lo : common/time_step_controller.f90 common/json_utils.lo common/log.lo config/num_types.lo
-common/gradient_jump_penalty.lo : common/gradient_jump_penalty.f90 common/bcknd/device/device_gradient_jump_penalty.lo math/bcknd/device/device_math.lo device/device.lo gs/gather_scatter.lo sem/space.lo gs/gs_ops.lo math/operators.lo mesh/quad.lo mesh/hex.lo mesh/element.lo sem/coef.lo config/neko_config.lo sem/dofmap.lo field/field.lo mesh/point.lo math/math.lo common/json_utils.lo common/utils.lo config/num_types.lo
-common/bcknd/device/device_gradient_jump_penalty.lo : common/bcknd/device/device_gradient_jump_penalty.F90 device/device.lo common/utils.lo config/num_types.lo
-simulation.lo : simulation.f90 common/time_step_controller.lo common/json_utils.lo simulation_components/simcomp_executor.lo common/profiler.lo field/field.lo common/jobctrl.lo common/log.lo io/file.lo time_schemes/time_scheme_controller.lo config/num_types.lo case.lo
-math/ax_helm_fctry.lo : math/ax_helm_fctry.f90 common/utils.lo math/bcknd/device/ax_helm_full_device.lo math/bcknd/cpu/ax_helm_full_cpu.lo math/bcknd/cpu/ax_helm_cpu.lo math/ax_helm.lo math/bcknd/sx/ax_helm_sx.lo math/bcknd/xsmm/ax_helm_xsmm.lo math/bcknd/device/ax_helm_device.lo config/neko_config.lo math/ax.lo
-math/ax_helm.lo : math/ax_helm.f90 math/math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax.lo
-math/ax_helm_full.lo : math/ax_helm_full.f90 common/utils.lo math/math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax.lo
-math/bcknd/cpu/ax_helm_cpu.lo : math/bcknd/cpu/ax_helm_cpu.f90 math/math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm.lo
-math/bcknd/cpu/ax_helm_full_cpu.lo : math/bcknd/cpu/ax_helm_full_cpu.f90 common/utils.lo math/math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm_full.lo
-math/bcknd/sx/ax_helm_sx.lo : math/bcknd/sx/ax_helm_sx.f90 math/math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm.lo
-math/bcknd/xsmm/ax_helm_xsmm.lo : math/bcknd/xsmm/ax_helm_xsmm.F90 math/mxm_wrapper.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm.lo
-math/bcknd/device/ax_helm_device.lo : math/bcknd/device/ax_helm_device.F90 device/device.lo math/bcknd/device/device_math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm.lo
-math/bcknd/device/ax_helm_full_device.lo : math/bcknd/device/ax_helm_full_device.F90 common/utils.lo device/device.lo math/bcknd/device/device_math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm_full.lo
-common/projection.lo : common/projection.f90 common/time_step_controller.lo common/utils.lo common/log.lo common/profiler.lo common/bcknd/device/device_projection.lo math/bcknd/device/device_math.lo device/device.lo config/neko_config.lo gs/gather_scatter.lo comm/comm.lo bc/bc.lo math/ax.lo sem/coef.lo math/math.lo config/num_types.lo
-common/bcknd/device/device_projection.lo : common/bcknd/device/device_projection.F90 common/utils.lo config/num_types.lo
-comm/parmetis.lo : comm/parmetis.F90 mesh/mesh.lo field/mesh_field.lo config/num_types.lo common/utils.lo mesh/point.lo comm/comm.lo
-comm/redist.lo : comm/redist.f90 mesh/element.lo mesh/facet_zone.lo io/format/nmsh.lo mesh/mesh.lo comm/comm.lo mesh/curve.lo adt/stack.lo mesh/point.lo adt/htable.lo comm/mpi_types.lo field/mesh_field.lo
-krylov/pc_hsmg.lo : krylov/pc_hsmg.f90 krylov/krylov.lo mesh/mesh.lo sem/coef.lo field/field.lo sem/dofmap.lo sem/space.lo common/profiler.lo math/bcknd/device/device_math.lo device/device.lo krylov/bcknd/device/pc_jacobi_device.lo krylov/bcknd/sx/pc_jacobi_sx.lo krylov/bcknd/cpu/pc_jacobi.lo math/schwarz.lo bc/dirichlet.lo bc/bc.lo sem/interpolation.lo gs/gather_scatter.lo math/ax.lo krylov/precon.lo common/utils.lo math/math.lo config/num_types.lo config/neko_config.lo
-common/signal.lo : common/signal.f90 common/utils.lo
-common/jobctrl.lo : common/jobctrl.f90 common/log.lo comm/comm.lo common/utils.lo common/signal.lo config/num_types.lo
-device/cuda_intf.lo : device/cuda_intf.F90 common/utils.lo
-device/hip_intf.lo : device/hip_intf.F90 common/utils.lo
-device/cuda/nvtx.lo : device/cuda/nvtx.F90
-device/hip/roctx.lo : device/hip/roctx.F90
-device/opencl_intf.lo : device/opencl_intf.F90 common/utils.lo config/num_types.lo
-device/opencl/prgm_lib.lo : device/opencl/prgm_lib.F90 common/utils.lo device/opencl_intf.lo
-device/dummy_device.lo : device/dummy_device.F90
-device/device.lo : device/device.F90 device/opencl/prgm_lib.lo device/dummy_device.lo common/utils.lo adt/htable.lo device/hip_intf.lo device/cuda_intf.lo device/opencl_intf.lo config/num_types.lo
-math/field_math.lo : math/field_math.f90 math/bcknd/device/device_math.lo math/math.lo field/field.lo config/num_types.lo config/neko_config.lo
-math/bcknd/device/device_math.lo : math/bcknd/device/device_math.F90 math/bcknd/device/opencl/opencl_math.lo math/bcknd/device/cuda/cuda_math.lo math/bcknd/device/hip/hip_math.lo comm/comm.lo common/utils.lo config/num_types.lo
-math/bcknd/device/hip/hip_math.lo : math/bcknd/device/hip/hip_math.f90 config/num_types.lo
-math/bcknd/device/cuda/cuda_math.lo : math/bcknd/device/cuda/cuda_math.f90 config/num_types.lo
-math/bcknd/device/opencl/opencl_math.lo : math/bcknd/device/opencl/opencl_math.f90 config/num_types.lo
-math/bcknd/device/device_schwarz.lo : math/bcknd/device/device_schwarz.F90 device/device.lo common/utils.lo config/num_types.lo
-math/bcknd/device/tensor_device.lo : math/bcknd/device/tensor_device.F90 common/utils.lo
-math/bcknd/device/fdm_device.lo : math/bcknd/device/fdm_device.F90 device/device.lo common/utils.lo config/num_types.lo
-math/bcknd/device/device_mathops.lo : math/bcknd/device/device_mathops.F90 common/utils.lo config/num_types.lo
-bc/bcknd/device/device_dirichlet.lo : bc/bcknd/device/device_dirichlet.F90 common/utils.lo config/num_types.lo
-bc/bcknd/device/device_inflow.lo : bc/bcknd/device/device_inflow.F90 common/utils.lo config/num_types.lo
-bc/bcknd/device/device_wall.lo : bc/bcknd/device/device_wall.F90 common/utils.lo
-bc/bcknd/device/device_symmetry.lo : bc/bcknd/device/device_symmetry.F90 common/utils.lo config/num_types.lo
-bc/bcknd/device/device_facet_normal.lo : bc/bcknd/device/device_facet_normal.F90 common/utils.lo
-bc/bcknd/device/device_inhom_dirichlet.lo : bc/bcknd/device/device_inhom_dirichlet.F90 common/utils.lo config/num_types.lo
-bc/bcknd/device/device_dong_outflow.lo : bc/bcknd/device/device_dong_outflow.F90 common/utils.lo config/num_types.lo
-scalar/bcknd/device/scalar_residual_device.lo : scalar/bcknd/device/scalar_residual_device.F90 config/num_types.lo mesh/mesh.lo sem/space.lo sem/coef.lo field/field.lo math/ax.lo math/bcknd/device/device_math.lo scalar/scalar_residual.lo
-scalar/scalar_scheme.lo : scalar/scalar_scheme.f90 common/gradient_jump_penalty.lo common/time_step_controller.lo field/field_series.lo config/neko_config.lo math/bcknd/device/device_math.lo math/math.lo scalar/scalar_source_term.lo comm/comm.lo common/utils.lo common/user_intf.lo common/json_utils.lo bc/usr_scalar.lo field/field_registry.lo common/log.lo time_schemes/time_scheme_controller.lo mesh/facet_zone.lo mesh/mesh.lo bc/field_dirichlet.lo bc/bc.lo krylov/precon.lo krylov/pc_hsmg.lo krylov/bcknd/sx/pc_jacobi_sx.lo krylov/bcknd/device/pc_jacobi_device.lo krylov/bcknd/cpu/pc_jacobi.lo bc/neumann.lo bc/dirichlet.lo sem/coef.lo krylov/krylov.lo sem/dofmap.lo sem/space.lo field/field_list.lo field/field.lo config/num_types.lo common/checkpoint.lo gs/gather_scatter.lo
-scalar/scalar_pnpn.lo : scalar/scalar_pnpn.f90 field/scratch_registry.lo common/time_step_controller.lo config/neko_config.lo common/user_intf.lo common/json_utils.lo common/profiler.lo fluid/advection.lo common/log.lo math/math.lo common/projection.lo time_schemes/time_scheme_controller.lo scalar/scalar_aux.lo math/bcknd/device/device_math.lo krylov/krylov.lo bc/facet_normal.lo field/field_series.lo math/ax.lo scalar/scalar_residual.lo gs/gather_scatter.lo device/device.lo sem/coef.lo common/checkpoint.lo mesh/mesh.lo bc/bc.lo field/field.lo bc/neumann.lo bc/dirichlet.lo scalar/scalar_scheme.lo common/rhs_maker.lo config/num_types.lo
-scalar/scalar_aux.lo : scalar/scalar_aux.f90 krylov/krylov.lo config/num_types.lo common/log.lo
-scalar/scalar_residual.lo : scalar/scalar_residual.f90 config/num_types.lo mesh/mesh.lo sem/space.lo bc/facet_normal.lo scalar/source_scalar.lo sem/coef.lo field/field.lo math/ax.lo gs/gather_scatter.lo
-scalar/scalar_residual_fctry.lo : scalar/scalar_residual_fctry.f90 scalar/bcknd/sx/scalar_residual_sx.lo scalar/bcknd/cpu/scalar_residual_cpu.lo scalar/bcknd/device/scalar_residual_device.lo config/neko_config.lo scalar/scalar_residual.lo
-scalar/scalar_ic.lo : scalar/scalar_ic.f90 sem/space.lo sem/interpolation.lo common/global_interpolation.lo io/file.lo common/checkpoint.lo io/fld_file.lo io/fld_file_data.lo common/log.lo field/field_registry.lo mesh/point_zone_registry.lo mesh/point_zone.lo common/json_utils.lo common/user_intf.lo math/math.lo sem/coef.lo common/utils.lo field/field.lo device/device.lo math/bcknd/device/device_math.lo config/num_types.lo config/neko_config.lo gs/gather_scatter.lo
-scalar/scalar_source_term.lo : scalar/scalar_source_term.f90 common/user_intf.lo sem/coef.lo field/field_list.lo field/field.lo source_terms/source_term_handler.lo source_terms/source_term.lo scalar/scalar_user_source_term.lo
-scalar/scalar_user_source_term.lo : scalar/scalar_user_source_term.f90 sem/dofmap.lo math/math.lo math/bcknd/device/device_math.lo device/device.lo sem/coef.lo field/field_list.lo source_terms/source_term.lo common/utils.lo config/num_types.lo config/neko_config.lo
-scalar/bcknd/cpu/scalar_residual_cpu.lo : scalar/bcknd/cpu/scalar_residual_cpu.f90 math/math.lo config/num_types.lo mesh/mesh.lo sem/space.lo sem/coef.lo field/field.lo math/ax.lo scalar/scalar_residual.lo
-scalar/bcknd/sx/scalar_residual_sx.lo : scalar/bcknd/sx/scalar_residual_sx.f90 math/math.lo config/num_types.lo mesh/mesh.lo sem/space.lo sem/coef.lo field/field.lo math/ax.lo scalar/scalar_residual.lo
-scalar/source_scalar.lo : scalar/source_scalar.f90 math/bcknd/device/device_math.lo device/device.lo common/utils.lo sem/dofmap.lo config/num_types.lo config/neko_config.lo
-simulation_components/simulation_component.lo : simulation_components/simulation_component.f90 common/json_utils.lo common/time_based_controller.lo case.lo config/num_types.lo
-simulation_components/simcomp_executor.lo : simulation_components/simcomp_executor.f90 common/log.lo common/utils.lo case.lo common/json_utils.lo simulation_components/simulation_component.lo config/num_types.lo
-simulation_components/vorticity.lo : simulation_components/vorticity.f90 simulation_components/field_writer.lo common/json_utils.lo io/fld_file_output.lo case.lo math/operators.lo field/field.lo field/field_registry.lo simulation_components/simulation_component.lo config/num_types.lo
-simulation_components/spectral_error.lo : simulation_components/spectral_error.f90 field/field_registry.lo case.lo common/json_utils.lo simulation_components/simulation_component.lo simulation_components/field_writer.lo common/utils.lo comm/comm.lo device/device.lo common/log.lo config/neko_config.lo gs/gather_scatter.lo math/bcknd/device/device_math.lo math/tensor.lo io/file.lo math/math.lo field/field_list.lo sem/coef.lo field/field.lo config/num_types.lo
-simulation_components/lambda2.lo : simulation_components/lambda2.f90 device/device.lo simulation_components/field_writer.lo case.lo math/operators.lo field/field.lo field/field_registry.lo simulation_components/simulation_component.lo config/num_types.lo
-simulation_components/weak_grad.lo : simulation_components/weak_grad.f90 simulation_components/field_writer.lo common/json_utils.lo io/fld_file_output.lo case.lo math/operators.lo field/field.lo field/field_registry.lo simulation_components/simulation_component.lo config/num_types.lo
-simulation_components/derivative.lo : simulation_components/derivative.f90 common/utils.lo simulation_components/field_writer.lo common/json_utils.lo io/fld_file_output.lo case.lo math/operators.lo field/field.lo field/field_registry.lo simulation_components/simulation_component.lo config/num_types.lo
-simulation_components/les_simcomp.lo : simulation_components/les_simcomp.f90 simulation_components/field_writer.lo common/json_utils.lo les/les_model.lo case.lo simulation_components/simulation_component.lo config/num_types.lo
-simulation_components/simulation_component_fctry.lo : simulation_components/simulation_component_fctry.f90 simulation_components/spectral_error.lo simulation_components/derivative.lo simulation_components/weak_grad.lo simulation_components/field_writer.lo common/utils.lo simulation_components/les_simcomp.lo simulation_components/probes.lo simulation_components/lambda2.lo simulation_components/fluid_stats_simcomp.lo simulation_components/force_torque.lo simulation_components/vorticity.lo simulation_components/simulation_component.lo
-source_terms/source_term.lo : source_terms/source_term.f90 field/field_list.lo sem/coef.lo config/num_types.lo
-source_terms/coriolis_source_term.lo : source_terms/coriolis_source_term.f90 source_terms/bcknd/cpu/coriolis_source_term_cpu.lo common/utils.lo config/neko_config.lo sem/coef.lo source_terms/source_term.lo common/json_utils.lo field/field_list.lo config/num_types.lo
-source_terms/bcknd/cpu/coriolis_source_term_cpu.lo : source_terms/bcknd/cpu/coriolis_source_term_cpu.f90 field/field.lo math/math.lo field/field_list.lo config/num_types.lo
-source_terms/source_term_handler.lo : source_terms/source_term_handler.f90 math/bcknd/device/device_math.lo math/math.lo math/field_math.lo common/utils.lo common/user_intf.lo sem/coef.lo common/json_utils.lo field/field_list.lo field/field.lo source_terms/source_term.lo config/num_types.lo config/neko_config.lo
-source_terms/const_source_term.lo : source_terms/const_source_term.f90 source_terms/bcknd/device/const_source_term_device.lo source_terms/bcknd/cpu/const_source_term_cpu.lo common/utils.lo config/neko_config.lo sem/coef.lo source_terms/source_term.lo common/json_utils.lo field/field_list.lo config/num_types.lo
-source_terms/bcknd/cpu/const_source_term_cpu.lo : source_terms/bcknd/cpu/const_source_term_cpu.f90 math/math.lo field/field_list.lo config/num_types.lo
-source_terms/bcknd/device/const_source_term_device.lo : source_terms/bcknd/device/const_source_term_device.f90 math/bcknd/device/device_math.lo field/field_list.lo config/num_types.lo
-source_terms/boussinesq_source_term.lo : source_terms/boussinesq_source_term.f90 field/field_registry.lo source_terms/bcknd/device/boussinesq_source_term_device.lo source_terms/bcknd/cpu/boussinesq_source_term_cpu.lo common/utils.lo config/neko_config.lo sem/coef.lo source_terms/source_term.lo common/json_utils.lo field/field.lo field/field_list.lo config/num_types.lo
-source_terms/bcknd/cpu/boussinesq_source_term_cpu.lo : source_terms/bcknd/cpu/boussinesq_source_term_cpu.f90 math/math.lo field/field.lo field/field_list.lo config/num_types.lo
-source_terms/bcknd/device/boussinesq_source_term_device.lo : source_terms/bcknd/device/boussinesq_source_term_device.f90 math/bcknd/device/device_math.lo field/field.lo field/field_list.lo config/num_types.lo
-source_terms/source_term_fctry.lo : source_terms/source_term_fctry.f90 common/utils.lo common/json_utils.lo source_terms/coriolis_source_term.lo source_terms/brinkman_source_term.lo source_terms/boussinesq_source_term.lo source_terms/const_source_term.lo source_terms/source_term.lo
-source_terms/brinkman_source_term.lo : source_terms/brinkman_source_term.f90 mesh/point_zone_registry.lo mesh/point_zone.lo mesh/search_tree/aabb.lo common/profiler.lo math/signed_distance.lo source_terms/brinkman/filters.lo device/device.lo mesh/tri_mesh.lo io/file.lo math/bcknd/device/device_math.lo math/math.lo math/field_math.lo common/utils.lo config/neko_config.lo sem/coef.lo source_terms/source_term.lo field/field_registry.lo common/json_utils.lo field/field_list.lo field/field.lo config/num_types.lo
-source_terms/brinkman/filters.lo : source_terms/brinkman/filters.f90 source_terms/bcknd/device/filters_device.lo source_terms/bcknd/cpu/filters_cpu.lo common/utils.lo config/num_types.lo config/neko_config.lo field/field.lo
-source_terms/bcknd/cpu/filters_cpu.lo : source_terms/bcknd/cpu/filters_cpu.f90 config/num_types.lo
-source_terms/bcknd/device/filters_device.lo : source_terms/bcknd/device/filters_device.F90 source_terms/bcknd/device/opencl/opencl_filters.lo source_terms/bcknd/device/hip/hip_filters.lo source_terms/bcknd/device/cuda/cuda_filters.lo common/utils.lo math/bcknd/device/device_math.lo config/num_types.lo
-source_terms/bcknd/device/cuda/cuda_filters.lo : source_terms/bcknd/device/cuda/cuda_filters.f90 config/num_types.lo
-source_terms/bcknd/device/hip/hip_filters.lo : source_terms/bcknd/device/hip/hip_filters.f90 config/num_types.lo
-source_terms/bcknd/device/opencl/opencl_filters.lo : source_terms/bcknd/device/opencl/opencl_filters.f90 config/num_types.lo
-les/les_model.lo : les/les_model.f90 math/bcknd/device/device_math.lo math/math.lo device/device.lo config/neko_config.lo gs/gs_ops.lo sem/coef.lo sem/dofmap.lo field/field_registry.lo field/field.lo config/num_types.lo
-les/les_model_fctry.lo : les/les_model_fctry.f90 common/utils.lo les/sigma.lo les/dynamic_smagorinsky.lo les/smagorinsky.lo les/vreman.lo les/les_model.lo
-les/vreman.lo : les/vreman.f90 sem/coef.lo les/bcknd/device/vreman_device.lo les/bcknd/cpu/vreman_cpu.lo config/neko_config.lo common/utils.lo common/json_utils.lo sem/dofmap.lo les/les_model.lo field/field.lo config/num_types.lo
-les/bcknd/cpu/vreman_cpu.lo : les/bcknd/cpu/vreman_cpu.f90 gs/gs_ops.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo math/math.lo field/field_list.lo config/num_types.lo
-les/bcknd/device/vreman_device.lo : les/bcknd/device/vreman_device.f90 les/bcknd/device/device_vreman_nut.lo gs/gs_ops.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo math/math.lo config/num_types.lo
-les/bcknd/device/device_vreman_nut.lo : les/bcknd/device/device_vreman_nut.F90 comm/comm.lo common/utils.lo config/num_types.lo
-les/smagorinsky.lo : les/smagorinsky.f90 sem/coef.lo les/bcknd/cpu/smagorinsky_cpu.lo config/neko_config.lo common/utils.lo common/json_utils.lo sem/dofmap.lo les/les_model.lo field/field.lo config/num_types.lo
-les/bcknd/cpu/smagorinsky_cpu.lo : les/bcknd/cpu/smagorinsky_cpu.f90 gs/gs_ops.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo field/field_list.lo config/num_types.lo
-les/dynamic_smagorinsky.lo : les/dynamic_smagorinsky.f90 les/bcknd/cpu/dynamic_smagorinsky_cpu.lo les/elementwise_filter.lo sem/coef.lo config/neko_config.lo common/utils.lo common/json_utils.lo sem/dofmap.lo les/les_model.lo field/field.lo field/field_list.lo math/math.lo config/num_types.lo
-les/bcknd/cpu/dynamic_smagorinsky_cpu.lo : les/bcknd/cpu/dynamic_smagorinsky_cpu.f90 gs/gs_ops.lo les/elementwise_filter.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo math/math.lo field/field_list.lo config/num_types.lo
-les/elementwise_filter.lo : les/elementwise_filter.f90 math/tensor.lo les/bcknd/cpu/elementwise_filter_cpu.lo config/neko_config.lo common/utils.lo field/field.lo math/math.lo config/num_types.lo
-les/bcknd/cpu/elementwise_filter_cpu.lo : les/bcknd/cpu/elementwise_filter_cpu.f90 math/mxm_wrapper.lo math/tensor.lo math/matrix.lo sem/speclib.lo math/math.lo config/num_types.lo
-les/sigma.lo : les/sigma.f90 sem/coef.lo les/bcknd/device/sigma_device.lo les/bcknd/cpu/sigma_cpu.lo config/neko_config.lo common/utils.lo common/json_utils.lo sem/dofmap.lo les/les_model.lo field/field.lo config/num_types.lo
-les/bcknd/cpu/sigma_cpu.lo : les/bcknd/cpu/sigma_cpu.f90 gs/gs_ops.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo field/field_list.lo config/num_types.lo
-les/bcknd/device/sigma_device.lo : les/bcknd/device/sigma_device.f90 les/bcknd/device/device_sigma_nut.lo gs/gs_ops.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo math/math.lo math/bcknd/device/device_math.lo field/field_list.lo config/num_types.lo
-les/bcknd/device/device_sigma_nut.lo : les/bcknd/device/device_sigma_nut.F90 comm/comm.lo common/utils.lo config/num_types.lo
-wall_models/wall_model.lo : wall_models/wall_model.f90 common/log.lo comm/comm.lo math/math.lo common/utils.lo math/vector.lo device/device.lo config/neko_config.lo sem/coef.lo sem/dofmap.lo field/field_registry.lo field/field.lo config/num_types.lo
-wall_models/rough_log_law.lo : wall_models/rough_log_law.f90 common/utils.lo common/json_utils.lo field/field_registry.lo wall_models/wall_model.lo config/neko_config.lo sem/coef.lo sem/dofmap.lo config/num_types.lo field/field.lo
-wall_models/spalding.lo : wall_models/spalding.f90 common/utils.lo common/log.lo common/json_utils.lo field/field_registry.lo wall_models/wall_model.lo config/neko_config.lo sem/coef.lo sem/dofmap.lo config/num_types.lo field/field.lo
-wall_models/wall_model_fctry.lo : wall_models/wall_model_fctry.f90 common/json_utils.lo common/utils.lo wall_models/rough_log_law.lo wall_models/spalding.lo les/vreman.lo wall_models/wall_model.lo
-neko.lo : neko.f90 common/json_utils.lo common/runtime_statistics.lo bc/field_dirichlet_vector.lo bc/field_dirichlet.lo mesh/point_zone_registry.lo mesh/point_zones/sphere_point_zone.lo mesh/point_zones/box_point_zone.lo mesh/point_zone.lo sem/point_interpolator.lo common/time_interpolator.lo io/data_streamer.lo simulation_components/simcomp_executor.lo field/scratch_registry.lo field/field_registry.lo qoi/drag_torque.lo common/system.lo simulation_components/spectral_error.lo simulation_components/probes.lo simulation_components/simulation_component.lo math/tensor.lo math/matrix.lo math/vector.lo scalar/scalar_user_source_term.lo fluid/fluid_user_source_term.lo field/field_list.lo fluid/fluid_stats.lo sem/cpr.lo sem/map_2d.lo sem/map_1d.lo math/bcknd/device/device_math.lo device/device.lo common/jobctrl.lo common/signal.lo common/user_intf.lo common/projection.lo math/mathops.lo math/operators.lo simulation.lo io/output.lo io/output_controller.lo case.lo config/neko_config.lo comm/parmetis.lo math/ax.lo bc/dirichlet.lo bc/wall.lo bc/bc.lo sem/coef.lo gs/gather_scatter.lo comm/mpi_types.lo field/field.lo io/file.lo common/global_interpolation.lo math/mxm_wrapper.lo io/format/map.lo field/mesh_field.lo mesh/point.lo mesh/mesh.lo adt/tuple.lo adt/stack.lo adt/uset.lo adt/htable.lo sem/space.lo sem/dofmap.lo sem/speclib.lo math/math.lo common/log.lo common/utils.lo comm/comm.lo config/num_types.lo
+config/num_types.lo : config/num_types.f90 
+common/structs.lo : common/structs.f90 config/num_types.lo 
+io/format/nmsh.lo : io/format/nmsh.f90 config/num_types.lo 
+io/format/re2.lo : io/format/re2.f90 config/num_types.lo 
+io/format/map.lo : io/format/map.f90 mesh/mesh.lo 
+io/format/stl.lo : io/format/stl.f90 config/num_types.lo 
+common/log.lo : common/log.f90 config/num_types.lo comm/comm.lo 
+comm/comm.lo : comm/comm.F90 config/neko_config.lo common/utils.lo 
+mesh/curve.lo : mesh/curve.f90 common/utils.lo adt/stack.lo common/structs.lo config/num_types.lo 
+comm/mpi_types.lo : comm/mpi_types.f90 io/format/stl.lo io/format/nmsh.lo io/format/re2.lo comm/comm.lo 
+common/datadist.lo : common/datadist.f90 
+common/distdata.lo : common/distdata.f90 adt/uset.lo adt/tuple.lo adt/stack.lo 
+common/utils.lo : common/utils.f90 
+common/json_utils.lo : common/json_utils.f90 common/utils.lo config/num_types.lo 
+common/system.lo : common/system.f90 
+common/runtime_statistics.lo : common/runtime_statistics.f90 comm/comm.lo math/matrix.lo io/file.lo common/json_utils.lo config/num_types.lo adt/tuple.lo adt/stack.lo common/log.lo 
+math/mxm_wrapper.lo : math/mxm_wrapper.F90 common/utils.lo config/num_types.lo 
+sem/speclib.lo : sem/speclib.f90 common/utils.lo config/num_types.lo 
+qoi/drag_torque.lo : qoi/drag_torque.f90 math/bcknd/device/device_math.lo device/device.lo common/utils.lo config/num_types.lo sem/space.lo math/math.lo comm/comm.lo mesh/facet_zone.lo mesh/mesh.lo sem/coef.lo field/field.lo 
+sem/local_interpolation.lo : sem/local_interpolation.f90 config/neko_config.lo math/bcknd/device/device_math.lo device/device.lo field/field_list.lo field/field.lo common/utils.lo math/fast3d.lo math/math.lo mesh/point.lo config/num_types.lo sem/space.lo math/tensor.lo 
+math/math.lo : math/math.f90 comm/comm.lo common/utils.lo config/num_types.lo 
+math/mathops.lo : math/mathops.f90 config/num_types.lo 
+math/fast3d.lo : math/fast3d.f90 math/math.lo sem/speclib.lo config/num_types.lo 
+sem/space.lo : sem/space.f90 math/mxm_wrapper.lo math/tensor.lo math/math.lo math/fast3d.lo common/utils.lo device/device.lo sem/speclib.lo config/num_types.lo config/neko_config.lo 
+sem/map_1d.lo : sem/map_1d.f90 comm/mpi_types.lo math/math.lo common/utils.lo common/log.lo math/vector.lo math/matrix.lo field/field_list.lo sem/coef.lo comm/comm.lo device/device.lo mesh/mesh.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo config/num_types.lo 
+sem/map_2d.lo : sem/map_2d.f90 field/field.lo io/fld_file_data.lo comm/mpi_types.lo math/math.lo common/log.lo math/vector.lo math/matrix.lo sem/coef.lo field/field_list.lo comm/comm.lo common/utils.lo device/device.lo mesh/mesh.lo gs/gather_scatter.lo sem/map_1d.lo sem/dofmap.lo sem/space.lo config/num_types.lo 
+sem/dofmap.lo : sem/dofmap.f90 mesh/hex.lo mesh/quad.lo mesh/element.lo math/math.lo device/device.lo math/tensor.lo math/fast3d.lo common/utils.lo config/num_types.lo adt/tuple.lo sem/space.lo mesh/mesh.lo config/neko_config.lo 
+sem/coef.lo : sem/coef.f90 device/device.lo math/mxm_wrapper.lo sem/bcknd/device/device_coef.lo math/bcknd/device/device_math.lo mesh/mesh.lo math/math.lo sem/space.lo sem/dofmap.lo config/num_types.lo config/neko_config.lo gs/gs_ops.lo gs/gather_scatter.lo 
+sem/cpr.lo : sem/cpr.f90 sem/dofmap.lo common/log.lo math/mxm_wrapper.lo math/tensor.lo sem/coef.lo mesh/mesh.lo math/math.lo sem/space.lo field/field.lo config/num_types.lo config/neko_config.lo gs/gather_scatter.lo 
+common/time_interpolator.lo : common/time_interpolator.f90 math/fast3d.lo common/utils.lo math/math.lo math/bcknd/device/device_math.lo config/neko_config.lo field/field.lo config/num_types.lo 
+sem/interpolation.lo : sem/interpolation.f90 sem/space.lo math/bcknd/cpu/tensor_cpu.lo math/tensor.lo math/fast3d.lo device/device.lo config/num_types.lo config/neko_config.lo 
+sem/point_interpolator.lo : sem/point_interpolator.f90 config/neko_config.lo math/bcknd/device/device_math.lo device/device.lo common/utils.lo math/fast3d.lo math/math.lo mesh/point.lo config/num_types.lo sem/space.lo math/tensor.lo 
+sem/bcknd/device/device_coef.lo : sem/bcknd/device/device_coef.F90 common/utils.lo config/num_types.lo 
+gs/gs_bcknd.lo : gs/gs_bcknd.f90 config/num_types.lo 
+gs/bcknd/cpu/gs_cpu.lo : gs/bcknd/cpu/gs_cpu.f90 gs/gs_ops.lo gs/gs_bcknd.lo config/num_types.lo 
+gs/bcknd/sx/gs_sx.lo : gs/bcknd/sx/gs_sx.f90 gs/gs_ops.lo gs/gs_bcknd.lo config/num_types.lo 
+gs/bcknd/device/gs_device.lo : gs/bcknd/device/gs_device.F90 common/utils.lo gs/gs_ops.lo device/device.lo gs/gs_bcknd.lo config/num_types.lo config/neko_config.lo 
+gs/gs_ops.lo : gs/gs_ops.f90 
+gs/gs_comm.lo : gs/gs_comm.f90 adt/stack.lo comm/comm.lo config/num_types.lo 
+gs/gs_mpi.lo : gs/gs_mpi.f90 comm/comm.lo adt/stack.lo gs/gs_ops.lo gs/gs_comm.lo config/num_types.lo 
+gs/bcknd/device/gs_device_mpi.lo : gs/bcknd/device/gs_device_mpi.F90 common/utils.lo device/device.lo adt/htable.lo comm/comm.lo adt/stack.lo gs/gs_ops.lo gs/gs_comm.lo config/num_types.lo 
+gs/gather_scatter.lo : gs/gather_scatter.f90 device/device.lo common/profiler.lo common/log.lo common/utils.lo adt/stack.lo adt/htable.lo config/num_types.lo field/field.lo sem/dofmap.lo comm/comm.lo mesh/mesh.lo gs/bcknd/device/gs_device_mpi.lo gs/gs_mpi.lo gs/gs_comm.lo gs/gs_ops.lo gs/bcknd/cpu/gs_cpu.lo gs/bcknd/sx/gs_sx.lo gs/bcknd/device/gs_device.lo gs/gs_bcknd.lo config/neko_config.lo 
+mesh/entity.lo : mesh/entity.f90 
+mesh/point.lo : mesh/point.f90 mesh/entity.lo math/math.lo config/num_types.lo 
+mesh/element.lo : mesh/element.f90 mesh/point.lo adt/tuple.lo mesh/entity.lo config/num_types.lo 
+math/ax.lo : math/ax.f90 mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo 
+mesh/quad.lo : mesh/quad.f90 mesh/point.lo adt/tuple.lo mesh/element.lo config/num_types.lo 
+mesh/hex.lo : mesh/hex.f90 mesh/point.lo adt/tuple.lo mesh/element.lo config/num_types.lo 
+mesh/tet.lo : mesh/tet.f90 mesh/point.lo adt/tuple.lo mesh/element.lo config/num_types.lo 
+mesh/tri.lo : mesh/tri.f90 mesh/point.lo adt/tuple.lo mesh/element.lo config/num_types.lo 
+adt/htable.lo : adt/htable.f90 math/math.lo adt/tuple.lo mesh/point.lo common/utils.lo config/num_types.lo 
+adt/uset.lo : adt/uset.f90 adt/htable.lo config/num_types.lo common/utils.lo 
+adt/stack.lo : adt/stack.f90 adt/tuple.lo math/math.lo common/structs.lo mesh/point.lo common/utils.lo io/format/nmsh.lo config/num_types.lo 
+adt/tuple.lo : adt/tuple.f90 config/num_types.lo math/math.lo 
+mesh/facet_zone.lo : mesh/facet_zone.f90 common/utils.lo adt/stack.lo adt/tuple.lo 
+mesh/point_zone.lo : mesh/point_zone.f90 device/device.lo config/neko_config.lo sem/dofmap.lo common/utils.lo config/num_types.lo adt/stack.lo 
+mesh/point_zones/sphere_point_zone.lo : mesh/point_zones/sphere_point_zone.f90 math/math.lo common/json_utils.lo config/num_types.lo mesh/point_zone.lo 
+mesh/point_zones/box_point_zone.lo : mesh/point_zones/box_point_zone.f90 math/math.lo common/json_utils.lo config/num_types.lo mesh/point_zone.lo 
+mesh/point_zones/cylinder_point_zone.lo : mesh/point_zones/cylinder_point_zone.f90 common/utils.lo common/json_utils.lo config/num_types.lo mesh/point_zone.lo 
+mesh/point_zones/combine_point_zone.lo : mesh/point_zones/combine_point_zone.f90 common/log.lo common/utils.lo common/json_utils.lo config/num_types.lo mesh/point_zones/cylinder_point_zone.lo mesh/point_zones/sphere_point_zone.lo mesh/point_zones/box_point_zone.lo mesh/point_zone.lo 
+mesh/point_zone_fctry.lo : mesh/point_zone_fctry.f90 common/utils.lo common/json_utils.lo mesh/point_zones/cylinder_point_zone.lo mesh/point_zones/sphere_point_zone.lo mesh/point_zones/box_point_zone.lo mesh/point_zone.lo 
+mesh/point_zone_registry.lo : mesh/point_zone_registry.f90 common/json_utils.lo common/utils.lo sem/space.lo mesh/mesh.lo sem/dofmap.lo mesh/point_zones/combine_point_zone.lo mesh/point_zone.lo 
+mesh/mesh.lo : mesh/mesh.f90 common/log.lo mesh/curve.lo adt/uset.lo math/math.lo mesh/facet_zone.lo comm/comm.lo common/distdata.lo common/datadist.lo adt/htable.lo adt/tuple.lo adt/stack.lo common/utils.lo mesh/quad.lo mesh/hex.lo mesh/element.lo mesh/point.lo config/num_types.lo 
+mesh/octree.lo : mesh/octree.f90 common/utils.lo mesh/point.lo config/num_types.lo 
+mesh/search_tree/aabb.lo : mesh/search_tree/aabb.f90 common/utils.lo mesh/tet_mesh.lo mesh/tri_mesh.lo mesh/mesh.lo mesh/hex.lo mesh/tet.lo mesh/quad.lo mesh/tri.lo mesh/point.lo mesh/element.lo config/num_types.lo 
+mesh/aabb_tree.lo : mesh/aabb_tree.f90 adt/stack.lo common/utils.lo config/num_types.lo mesh/tri.lo mesh/search_tree/aabb.lo 
+mesh/tet_mesh.lo : mesh/tet_mesh.f90 common/utils.lo mesh/point.lo mesh/tet.lo mesh/mesh.lo 
+mesh/tri_mesh.lo : mesh/tri_mesh.f90 mesh/point.lo mesh/tri.lo 
+field/field_registry.lo : field/field_registry.f90 adt/htable.lo common/utils.lo sem/dofmap.lo field/field.lo 
+field/scratch_registry.lo : field/scratch_registry.f90 sem/dofmap.lo field/field.lo 
+field/field.lo : field/field.f90 sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo device/device.lo config/num_types.lo math/bcknd/device/device_math.lo config/neko_config.lo 
+field/field_list.lo : field/field_list.f90 common/utils.lo mesh/mesh.lo sem/dofmap.lo sem/space.lo config/num_types.lo field/field.lo 
+field/field_series.lo : field/field_series.f90 field/field.lo config/num_types.lo 
+field/mesh_field.lo : field/mesh_field.f90 mesh/mesh.lo 
+field/mean_field.lo : field/mean_field.f90 math/field_math.lo field/field.lo config/num_types.lo common/stats_quant.lo config/neko_config.lo 
+field/mean_sqr_field.lo : field/mean_sqr_field.f90 math/math.lo math/bcknd/device/device_math.lo field/mean_field.lo config/neko_config.lo config/num_types.lo 
+io/format/rea.lo : io/format/rea.f90 mesh/mesh.lo config/num_types.lo 
+math/bcknd/cpu/cpu_cdtp.lo : math/bcknd/cpu/cpu_cdtp.f90 math/bcknd/cpu/opr_cpu.lo 
+math/bcknd/cpu/cpu_conv1.lo : math/bcknd/cpu/cpu_conv1.f90 math/bcknd/cpu/opr_cpu.lo 
+math/bcknd/cpu/cpu_dudxyz.lo : math/bcknd/cpu/cpu_dudxyz.f90 math/bcknd/cpu/opr_cpu.lo 
+math/bcknd/cpu/cpu_opgrad.lo : math/bcknd/cpu/cpu_opgrad.f90 math/bcknd/cpu/opr_cpu.lo 
+math/bcknd/cpu/convect_scalar.lo : math/bcknd/cpu/convect_scalar.f90 math/math.lo config/num_types.lo math/bcknd/cpu/opr_cpu.lo 
+math/bcknd/cpu/set_convect_rst.lo : math/bcknd/cpu/set_convect_rst.f90 config/num_types.lo math/bcknd/cpu/opr_cpu.lo 
+math/bcknd/sx/sx_cdtp.lo : math/bcknd/sx/sx_cdtp.f90 math/math.lo math/bcknd/sx/opr_sx.lo 
+math/bcknd/sx/sx_conv1.lo : math/bcknd/sx/sx_conv1.f90 math/bcknd/sx/opr_sx.lo 
+math/bcknd/sx/sx_dudxyz.lo : math/bcknd/sx/sx_dudxyz.f90 math/math.lo math/bcknd/sx/opr_sx.lo 
+math/bcknd/sx/sx_opgrad.lo : math/bcknd/sx/sx_opgrad.f90 math/bcknd/sx/opr_sx.lo 
+math/bcknd/sx/sx_cfl.lo : math/bcknd/sx/sx_cfl.f90 math/bcknd/sx/opr_sx.lo 
+math/bcknd/sx/sx_lambda2.lo : math/bcknd/sx/sx_lambda2.f90 math/math.lo math/bcknd/sx/opr_sx.lo 
+math/bcknd/sx/sx_convect_scalar.lo : math/bcknd/sx/sx_convect_scalar.f90 math/math.lo config/num_types.lo math/bcknd/sx/opr_sx.lo 
+math/bcknd/sx/sx_set_convect_rst.lo : math/bcknd/sx/sx_set_convect_rst.f90 config/num_types.lo math/bcknd/sx/opr_sx.lo 
+math/operators.lo : math/operators.f90 comm/comm.lo field/scratch_registry.lo math/bcknd/device/device_math.lo device/device.lo math/math.lo sem/interpolation.lo field/field.lo sem/coef.lo sem/space.lo math/bcknd/device/opr_device.lo math/bcknd/xsmm/opr_xsmm.lo math/bcknd/sx/opr_sx.lo math/bcknd/cpu/opr_cpu.lo config/num_types.lo config/neko_config.lo 
+math/bcknd/cpu/opr_cpu.lo : math/bcknd/cpu/opr_cpu.f90 math/mathops.lo sem/interpolation.lo gs/gather_scatter.lo field/field.lo math/math.lo sem/coef.lo sem/space.lo config/num_types.lo 
+math/bcknd/sx/opr_sx.lo : math/bcknd/sx/opr_sx.f90 math/mathops.lo field/field.lo math/math.lo sem/coef.lo sem/space.lo config/num_types.lo sem/interpolation.lo gs/gather_scatter.lo 
+math/bcknd/xsmm/opr_xsmm.lo : math/bcknd/xsmm/opr_xsmm.F90 math/mathops.lo gs/gather_scatter.lo sem/interpolation.lo field/field.lo mesh/mesh.lo math/math.lo sem/coef.lo sem/space.lo math/mxm_wrapper.lo config/num_types.lo 
+math/bcknd/device/opr_device.lo : math/bcknd/device/opr_device.F90 comm/comm.lo math/bcknd/device/device_mathops.lo math/bcknd/device/device_math.lo common/utils.lo field/field.lo sem/coef.lo sem/space.lo device/device.lo config/num_types.lo gs/gather_scatter.lo 
+math/tensor.lo : math/tensor.f90 device/device.lo config/neko_config.lo math/mxm_wrapper.lo config/num_types.lo math/bcknd/device/tensor_device.lo math/bcknd/sx/tensor_sx.lo math/bcknd/cpu/tensor_cpu.lo math/bcknd/xsmm/tensor_xsmm.lo 
+math/bcknd/cpu/tensor_cpu.lo : math/bcknd/cpu/tensor_cpu.f90 math/mxm_wrapper.lo config/num_types.lo 
+math/bcknd/sx/tensor_sx.lo : math/bcknd/sx/tensor_sx.f90 math/mxm_wrapper.lo config/num_types.lo 
+math/bcknd/xsmm/tensor_xsmm.lo : math/bcknd/xsmm/tensor_xsmm.F90 math/mxm_wrapper.lo config/num_types.lo 
+math/fdm.lo : math/fdm.f90 comm/comm.lo common/utils.lo device/device.lo math/bcknd/device/fdm_device.lo math/bcknd/cpu/fdm_cpu.lo math/bcknd/xsmm/fdm_xsmm.lo math/bcknd/sx/fdm_sx.lo math/tensor.lo math/fast3d.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo sem/speclib.lo config/num_types.lo config/neko_config.lo 
+math/bcknd/cpu/fdm_cpu.lo : math/bcknd/cpu/fdm_cpu.f90 math/bcknd/cpu/tensor_cpu.lo config/num_types.lo 
+math/bcknd/sx/fdm_sx.lo : math/bcknd/sx/fdm_sx.f90 math/bcknd/sx/tensor_sx.lo config/num_types.lo 
+math/bcknd/xsmm/fdm_xsmm.lo : math/bcknd/xsmm/fdm_xsmm.f90 math/bcknd/xsmm/tensor_xsmm.lo config/num_types.lo 
+math/schwarz.lo : math/schwarz.f90 bc/bc_list.lo config/neko_config.lo device/device.lo math/fdm.lo math/bcknd/device/device_math.lo math/bcknd/device/device_schwarz.lo gs/gather_scatter.lo bc/bc.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo config/num_types.lo 
+math/vector.lo : math/vector.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/num_types.lo math/math.lo config/neko_config.lo 
+math/matrix.lo : math/matrix.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/num_types.lo math/math.lo config/neko_config.lo 
+math/signed_distance.lo : math/signed_distance.f90 adt/stack.lo mesh/search_tree/aabb.lo mesh/point.lo common/utils.lo config/neko_config.lo device/device.lo mesh/aabb_tree.lo mesh/tri_mesh.lo mesh/tri.lo field/field.lo config/num_types.lo 
+common/checkpoint.lo : common/checkpoint.f90 mesh/mesh.lo common/utils.lo field/field.lo device/device.lo sem/space.lo field/field_series.lo config/num_types.lo config/neko_config.lo 
+io/generic_file.lo : io/generic_file.f90 comm/comm.lo common/utils.lo config/num_types.lo 
+io/map_file.lo : io/map_file.f90 io/format/map.lo comm/comm.lo common/utils.lo io/generic_file.lo 
+io/re2_file.lo : io/re2_file.f90 common/log.lo adt/htable.lo io/map_file.lo io/format/map.lo io/format/re2.lo common/datadist.lo comm/mpi_types.lo comm/comm.lo mesh/point.lo mesh/mesh.lo common/utils.lo config/num_types.lo io/generic_file.lo 
+io/rea_file.lo : io/rea_file.f90 common/log.lo adt/htable.lo common/datadist.lo comm/comm.lo io/map_file.lo io/re2_file.lo io/format/rea.lo io/format/map.lo mesh/point.lo mesh/mesh.lo common/utils.lo config/num_types.lo io/generic_file.lo 
+io/fld_file.lo : io/fld_file.f90 comm/mpi_types.lo math/math.lo common/datadist.lo comm/comm.lo common/utils.lo mesh/mesh.lo fluid/mean_sqr_flow.lo fluid/mean_flow.lo io/fld_file_data.lo math/vector.lo common/structs.lo sem/space.lo sem/dofmap.lo field/field_list.lo field/field.lo io/generic_file.lo config/num_types.lo 
+io/fld_file_data.lo : io/fld_file_data.f90 mesh/mesh.lo common/utils.lo common/global_interpolation.lo sem/space.lo sem/dofmap.lo field/field.lo math/vector.lo math/math.lo config/num_types.lo 
+io/vtk_file.lo : io/vtk_file.f90 comm/comm.lo common/log.lo mesh/tri_mesh.lo mesh/tet_mesh.lo field/mesh_field.lo sem/dofmap.lo field/field.lo mesh/mesh.lo common/utils.lo io/generic_file.lo config/num_types.lo 
+io/stl_file.lo : io/stl_file.f90 io/format/stl.lo comm/comm.lo common/utils.lo comm/mpi_types.lo mesh/point.lo common/log.lo mesh/tri_mesh.lo io/generic_file.lo config/num_types.lo 
+io/nmsh_file.lo : io/nmsh_file.f90 common/log.lo comm/mpi_types.lo common/datadist.lo mesh/element.lo io/format/nmsh.lo adt/tuple.lo mesh/point.lo common/utils.lo mesh/mesh.lo config/num_types.lo comm/comm.lo io/generic_file.lo 
+io/chkp_file.lo : io/chkp_file.f90 common/global_interpolation.lo comm/comm.lo comm/mpi_types.lo sem/interpolation.lo math/math.lo mesh/mesh.lo sem/space.lo common/utils.lo math/bcknd/device/device_math.lo sem/dofmap.lo field/field.lo config/num_types.lo common/checkpoint.lo field/field_series.lo io/generic_file.lo 
+io/csv_file.lo : io/csv_file.f90 comm/comm.lo common/log.lo config/num_types.lo common/utils.lo io/generic_file.lo math/matrix.lo math/vector.lo 
+io/hdf5_file.lo : io/hdf5_file.F90 comm/comm.lo common/log.lo sem/dofmap.lo field/field_series.lo field/field_list.lo field/field.lo mesh/mesh.lo common/utils.lo common/checkpoint.lo io/generic_file.lo config/num_types.lo 
+io/file.lo : io/file.f90 io/hdf5_file.lo io/csv_file.lo io/stl_file.lo io/vtk_file.lo io/fld_file_data.lo io/fld_file.lo io/re2_file.lo io/rea_file.lo io/map_file.lo io/chkp_file.lo io/nmsh_file.lo io/generic_file.lo config/num_types.lo common/utils.lo 
+io/output.lo : io/output.f90 io/file.lo config/num_types.lo 
+io/fluid_output.lo : io/fluid_output.f90 io/output.lo device/device.lo config/neko_config.lo field/field_list.lo scalar/scalar_scheme.lo fluid/fluid_scheme.lo config/num_types.lo 
+io/fld_file_output.lo : io/fld_file_output.f90 io/output.lo device/device.lo config/neko_config.lo field/field_list.lo config/num_types.lo 
+io/chkp_output.lo : io/chkp_output.f90 config/num_types.lo io/output.lo common/checkpoint.lo 
+io/mean_flow_output.lo : io/mean_flow_output.f90 io/output.lo device/device.lo config/num_types.lo fluid/mean_flow.lo 
+io/fluid_stats_output.lo : io/fluid_stats_output.f90 math/matrix.lo io/output.lo device/device.lo io/fld_file_data.lo sem/map_2d.lo sem/map_1d.lo config/num_types.lo config/neko_config.lo fluid/fluid_stats.lo 
+io/mean_sqr_flow_output.lo : io/mean_sqr_flow_output.f90 io/output.lo config/num_types.lo fluid/mean_sqr_flow.lo 
+io/data_streamer.lo : io/data_streamer.F90 config/neko_config.lo comm/mpi_types.lo comm/comm.lo device/device.lo common/utils.lo sem/coef.lo field/field.lo config/num_types.lo 
+io/output_controller.lo : io/output_controller.f90 common/time_based_controller.lo config/num_types.lo common/profiler.lo common/utils.lo common/log.lo comm/comm.lo io/fld_file.lo io/output.lo 
+common/global_interpolation.lo : common/global_interpolation.F90 common/structs.lo comm/mpi_types.lo math/math.lo comm/comm.lo sem/local_interpolation.lo common/utils.lo common/log.lo mesh/mesh.lo sem/dofmap.lo sem/space.lo config/num_types.lo 
+common/profiler.lo : common/profiler.F90 common/runtime_statistics.lo common/craypat.lo device/hip/roctx.lo device/cuda/nvtx.lo device/device.lo config/neko_config.lo 
+common/craypat.lo : common/craypat.F90 
+bc/bc.lo : bc/bc.f90 common/utils.lo adt/tuple.lo adt/stack.lo mesh/facet_zone.lo mesh/mesh.lo sem/space.lo sem/coef.lo sem/dofmap.lo device/device.lo config/num_types.lo config/neko_config.lo 
+bc/bc_list.lo : bc/bc_list.f90 bc/bc.lo device/device.lo config/num_types.lo config/neko_config.lo 
+bc/bc_fctry.lo : bc/bc_fctry.f90 common/user_intf.lo bc/usr_scalar.lo mesh/mesh.lo mesh/facet_zone.lo sem/coef.lo bc/neumann.lo bc/dirichlet.lo common/log.lo common/json_utils.lo bc/bc.lo 
+bc/dirichlet.lo : bc/dirichlet.f90 common/json_utils.lo sem/coef.lo bc/bc.lo config/num_types.lo bc/bcknd/device/device_dirichlet.lo 
+bc/neumann.lo : bc/neumann.f90 math/math.lo common/json_utils.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
+bc/shear_stress.lo : bc/shear_stress.f90 bc/neumann.lo bc/symmetry.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
+bc/dong_outflow.lo : bc/dong_outflow.f90 common/json_utils.lo field/field_registry.lo bc/bcknd/device/device_dong_outflow.lo common/utils.lo sem/coef.lo sem/dofmap.lo field/field.lo bc/bc.lo config/num_types.lo device/device.lo bc/dirichlet.lo config/neko_config.lo 
+bc/zero_dirichlet.lo : bc/zero_dirichlet.f90 sem/coef.lo bc/bc.lo config/num_types.lo bc/bcknd/device/device_zero_dirichlet.lo 
+bc/inflow.lo : bc/inflow.f90 common/json_utils.lo sem/coef.lo bc/bc.lo config/num_types.lo bc/bcknd/device/device_inflow.lo 
+bc/field_dirichlet.lo : bc/field_dirichlet.f90 sem/dofmap.lo math/bcknd/device/device_math.lo math/math.lo field/field_list.lo field/field.lo common/utils.lo device/device.lo bc/bc_list.lo bc/bc.lo bc/dirichlet.lo sem/coef.lo config/num_types.lo 
+bc/field_dirichlet_vector.lo : bc/field_dirichlet_vector.f90 bc/field_dirichlet.lo sem/dofmap.lo math/bcknd/device/device_math.lo math/math.lo field/field_list.lo field/field.lo common/utils.lo device/device.lo bc/bc_list.lo bc/bc.lo bc/dirichlet.lo sem/coef.lo config/num_types.lo 
+bc/usr_inflow.lo : bc/usr_inflow.f90 bc/bc.lo common/utils.lo bc/bcknd/device/device_inhom_dirichlet.lo device/device.lo bc/inflow.lo sem/coef.lo config/num_types.lo 
+bc/usr_scalar.lo : bc/usr_scalar.f90 common/utils.lo bc/bcknd/device/device_inhom_dirichlet.lo device/device.lo bc/bc.lo sem/coef.lo config/num_types.lo 
+bc/facet_normal.lo : bc/facet_normal.f90 common/utils.lo bc/bc.lo sem/coef.lo math/math.lo config/num_types.lo bc/bcknd/device/device_facet_normal.lo 
+bc/symmetry.lo : bc/symmetry.f90 bc/zero_dirichlet.lo sem/coef.lo adt/tuple.lo bc/bc.lo config/num_types.lo bc/dirichlet.lo bc/bcknd/device/device_symmetry.lo 
+bc/non_normal.lo : bc/non_normal.f90 sem/coef.lo adt/tuple.lo config/num_types.lo bc/symmetry.lo 
+bc/blasius.lo : bc/blasius.f90 common/json_utils.lo bc/bc.lo fluid/flow_profile.lo bc/bcknd/device/device_inhom_dirichlet.lo device/device.lo common/utils.lo sem/coef.lo config/num_types.lo 
+bc/wall_model_bc.lo : bc/wall_model_bc.f90 bc/shear_stress.lo wall_models/spalding.lo wall_models/rough_log_law.lo wall_models/wall_model.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
+krylov/precon.lo : krylov/precon.f90 config/num_types.lo 
+krylov/krylov.lo : krylov/krylov.f90 common/log.lo config/neko_config.lo krylov/bcknd/device/pc_identity_device.lo krylov/pc_identity.lo bc/bc_list.lo common/utils.lo field/field.lo mesh/mesh.lo sem/coef.lo krylov/precon.lo config/num_types.lo math/ax.lo gs/gather_scatter.lo 
+krylov/pc_identity.lo : krylov/pc_identity.f90 config/num_types.lo krylov/precon.lo math/math.lo 
+krylov/precon_fctry.lo : krylov/precon_fctry.f90 config/neko_config.lo common/utils.lo krylov/pc_hsmg.lo krylov/bcknd/device/pc_jacobi_device.lo krylov/bcknd/sx/pc_jacobi_sx.lo krylov/bcknd/cpu/pc_jacobi.lo krylov/bcknd/device/pc_identity_device.lo krylov/pc_identity.lo krylov/precon.lo 
+krylov/krylov_fctry.lo : krylov/krylov_fctry.f90 config/neko_config.lo common/utils.lo krylov/precon.lo config/num_types.lo krylov/bcknd/device/gmres_device.lo krylov/bcknd/sx/gmres_sx.lo krylov/bcknd/device/cheby_device.lo krylov/bcknd/cpu/cheby.lo krylov/bcknd/cpu/gmres.lo krylov/bcknd/cpu/bicgstab.lo krylov/bcknd/device/fusedcg_cpld_device.lo krylov/bcknd/device/fusedcg_device.lo krylov/bcknd/device/pipecg_device.lo krylov/bcknd/sx/pipecg_sx.lo krylov/bcknd/cpu/pipecg.lo krylov/bcknd/cpu/cacg.lo krylov/bcknd/device/cg_device.lo krylov/bcknd/cpu/cg_coupled.lo krylov/bcknd/sx/cg_sx.lo krylov/bcknd/cpu/cg.lo krylov/krylov.lo 
+krylov/bcknd/cpu/cg.lo : krylov/bcknd/cpu/cg.f90 comm/comm.lo math/math.lo bc/bc_list.lo gs/gather_scatter.lo sem/coef.lo field/field.lo math/ax.lo krylov/precon.lo krylov/krylov.lo config/num_types.lo 
+krylov/bcknd/cpu/cacg.lo : krylov/bcknd/cpu/cacg.f90 math/mxm_wrapper.lo comm/comm.lo common/utils.lo math/math.lo bc/bc_list.lo gs/gather_scatter.lo sem/coef.lo field/field.lo math/ax.lo krylov/precon.lo krylov/krylov.lo config/num_types.lo 
+krylov/bcknd/cpu/cheby.lo : krylov/bcknd/cpu/cheby.f90 comm/comm.lo math/math.lo bc/bc_list.lo gs/gather_scatter.lo sem/space.lo mesh/mesh.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo 
+krylov/bcknd/cpu/pipecg.lo : krylov/bcknd/cpu/pipecg.f90 comm/comm.lo math/math.lo bc/bc_list.lo gs/gather_scatter.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo 
+krylov/bcknd/cpu/bicgstab.lo : krylov/bcknd/cpu/bicgstab.f90 common/utils.lo math/math.lo bc/bc_list.lo gs/gather_scatter.lo sem/coef.lo field/field.lo math/ax.lo krylov/precon.lo krylov/krylov.lo config/num_types.lo 
+krylov/bcknd/cpu/gmres.lo : krylov/bcknd/cpu/gmres.f90 comm/comm.lo math/math.lo bc/bc_list.lo gs/gather_scatter.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo 
+krylov/bcknd/cpu/pc_jacobi.lo : krylov/bcknd/cpu/pc_jacobi.f90 gs/gather_scatter.lo sem/dofmap.lo config/num_types.lo sem/coef.lo krylov/precon.lo math/math.lo 
+krylov/bcknd/cpu/cg_coupled.lo : krylov/bcknd/cpu/cg_coupled.f90 common/utils.lo math/math.lo bc/bc_list.lo gs/gather_scatter.lo sem/coef.lo field/field.lo math/ax.lo krylov/precon.lo krylov/krylov.lo config/num_types.lo 
+krylov/bcknd/sx/cg_sx.lo : krylov/bcknd/sx/cg_sx.f90 math/math.lo bc/bc_list.lo gs/gather_scatter.lo sem/coef.lo field/field.lo math/ax.lo krylov/precon.lo krylov/krylov.lo config/num_types.lo 
+krylov/bcknd/sx/pipecg_sx.lo : krylov/bcknd/sx/pipecg_sx.f90 comm/comm.lo math/math.lo bc/bc_list.lo gs/gather_scatter.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo 
+krylov/bcknd/sx/gmres_sx.lo : krylov/bcknd/sx/gmres_sx.f90 comm/comm.lo math/math.lo bc/bc_list.lo gs/gather_scatter.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo 
+krylov/bcknd/sx/pc_jacobi_sx.lo : krylov/bcknd/sx/pc_jacobi_sx.f90 gs/gather_scatter.lo config/num_types.lo sem/dofmap.lo sem/coef.lo krylov/precon.lo math/math.lo 
+krylov/bcknd/device/cg_device.lo : krylov/bcknd/device/cg_device.f90 math/bcknd/device/device_math.lo device/device.lo math/math.lo bc/bc_list.lo gs/gather_scatter.lo sem/coef.lo field/field.lo math/ax.lo krylov/precon.lo krylov/krylov.lo config/num_types.lo 
+krylov/bcknd/device/cheby_device.lo : krylov/bcknd/device/cheby_device.F90 device/device.lo math/bcknd/device/device_math.lo bc/bc_list.lo gs/gather_scatter.lo sem/space.lo mesh/mesh.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo 
+krylov/bcknd/device/pipecg_device.lo : krylov/bcknd/device/pipecg_device.F90 comm/comm.lo device/device.lo math/bcknd/device/device_math.lo math/math.lo bc/bc_list.lo gs/gather_scatter.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo 
+krylov/bcknd/device/fusedcg_device.lo : krylov/bcknd/device/fusedcg_device.F90 comm/comm.lo device/device.lo math/bcknd/device/device_math.lo math/math.lo bc/bc_list.lo gs/gather_scatter.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo 
+krylov/bcknd/device/fusedcg_cpld_device.lo : krylov/bcknd/device/fusedcg_cpld_device.F90 comm/comm.lo device/device.lo math/bcknd/device/device_math.lo math/math.lo bc/bc_list.lo gs/gather_scatter.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo 
+krylov/bcknd/device/gmres_device.lo : krylov/bcknd/device/gmres_device.F90 comm/comm.lo device/device.lo math/bcknd/device/device_math.lo math/math.lo krylov/bcknd/device/pc_identity_device.lo bc/bc_list.lo gs/gather_scatter.lo sem/coef.lo field/field.lo config/num_types.lo math/ax.lo krylov/precon.lo krylov/krylov.lo 
+krylov/bcknd/device/pc_jacobi_device.lo : krylov/bcknd/device/pc_jacobi_device.F90 gs/gather_scatter.lo device/device.lo math/bcknd/device/device_math.lo config/num_types.lo sem/dofmap.lo sem/coef.lo krylov/precon.lo 
+krylov/bcknd/device/pc_identity_device.lo : krylov/bcknd/device/pc_identity_device.f90 config/num_types.lo krylov/precon.lo math/bcknd/device/device_math.lo device/device.lo 
+time_schemes/time_scheme.lo : time_schemes/time_scheme.f90 config/num_types.lo config/neko_config.lo 
+time_schemes/bdf_time_scheme.lo : time_schemes/bdf_time_scheme.f90 common/utils.lo math/math.lo time_schemes/time_scheme.lo config/num_types.lo config/neko_config.lo 
+time_schemes/ext_time_scheme.lo : time_schemes/ext_time_scheme.f90 common/utils.lo math/math.lo time_schemes/time_scheme.lo config/num_types.lo config/neko_config.lo 
+time_schemes/ab_time_scheme.lo : time_schemes/ab_time_scheme.f90 common/utils.lo math/math.lo time_schemes/time_scheme.lo config/num_types.lo config/neko_config.lo 
+time_schemes/time_scheme_controller.lo : time_schemes/time_scheme_controller.f90 device/device.lo time_schemes/ab_time_scheme.lo time_schemes/ext_time_scheme.lo time_schemes/bdf_time_scheme.lo config/num_types.lo config/neko_config.lo 
+common/time_based_controller.lo : common/time_based_controller.f90 common/utils.lo config/num_types.lo 
+common/stats_quant.lo : common/stats_quant.f90 config/num_types.lo 
+common/statistics.lo : common/statistics.f90 comm/comm.lo common/log.lo common/stats_quant.lo config/num_types.lo 
+common/rhs_maker.lo : common/rhs_maker.f90 field/field.lo field/field_series.lo config/num_types.lo 
+common/rhs_maker_fctry.lo : common/rhs_maker_fctry.f90 config/neko_config.lo common/bcknd/device/rhs_maker_device.lo common/bcknd/sx/rhs_maker_sx.lo common/bcknd/cpu/rhs_maker_cpu.lo common/rhs_maker.lo 
+simulation_components/probes.lo : simulation_components/probes.F90 case.lo io/csv_file.lo io/file.lo device/device.lo comm/comm.lo mesh/point_zone_registry.lo mesh/point_zone.lo math/tensor.lo common/global_interpolation.lo common/json_utils.lo sem/dofmap.lo field/field_registry.lo simulation_components/simulation_component.lo field/field_list.lo common/utils.lo common/log.lo math/matrix.lo config/num_types.lo 
+simulation_components/force_torque.lo : simulation_components/force_torque.f90 device/device.lo math/bcknd/device/device_math.lo math/math.lo comm/comm.lo common/log.lo qoi/drag_torque.lo bc/dirichlet.lo math/vector.lo sem/coef.lo simulation_components/field_writer.lo common/json_utils.lo io/fld_file_output.lo case.lo math/operators.lo field/field.lo field/scratch_registry.lo field/field_registry.lo simulation_components/simulation_component.lo config/num_types.lo 
+simulation_components/fluid_stats_simcomp.lo : simulation_components/fluid_stats_simcomp.f90 common/json_utils.lo common/log.lo comm/comm.lo sem/coef.lo case.lo io/fluid_stats_output.lo fluid/fluid_stats.lo field/field.lo field/field_registry.lo simulation_components/simulation_component.lo config/num_types.lo 
+simulation_components/field_writer.lo : simulation_components/field_writer.f90 common/json_utils.lo io/fld_file_output.lo case.lo math/operators.lo field/field.lo field/field_registry.lo simulation_components/simulation_component.lo config/num_types.lo 
+common/bcknd/cpu/rhs_maker_cpu.lo : common/bcknd/cpu/rhs_maker_cpu.f90 field/scratch_registry.lo config/num_types.lo field/field.lo field/field_series.lo common/rhs_maker.lo 
+common/bcknd/sx/rhs_maker_sx.lo : common/bcknd/sx/rhs_maker_sx.f90 field/scratch_registry.lo config/num_types.lo field/field.lo field/field_series.lo common/rhs_maker.lo 
+common/bcknd/device/rhs_maker_device.lo : common/bcknd/device/rhs_maker_device.F90 config/num_types.lo field/field.lo field/field_series.lo common/utils.lo device/device.lo common/rhs_maker.lo 
+config/neko_config.lo : config/neko_config.f90 
+case.lo : case.f90 mesh/point_zone_registry.lo field/scratch_registry.lo common/json_utils.lo scalar/scalar_pnpn.lo common/user_intf.lo common/jobctrl.lo common/log.lo time_schemes/time_scheme_controller.lo comm/comm.lo mesh/mesh.lo common/utils.lo io/file.lo common/statistics.lo scalar/scalar_ic.lo fluid/flow_ic.lo io/output_controller.lo comm/redist.lo comm/parmetis.lo field/mesh_field.lo io/chkp_output.lo io/fluid_output.lo fluid/fluid_scheme.lo fluid/fluid_pnpn.lo config/num_types.lo 
+common/user_intf.lo : common/user_intf.f90 common/log.lo common/utils.lo common/json_utils.lo config/num_types.lo bc/field_dirichlet.lo bc/usr_scalar.lo bc/usr_inflow.lo mesh/mesh.lo bc/bc_list.lo sem/coef.lo scalar/scalar_user_source_term.lo fluid/fluid_user_source_term.lo field/field_list.lo field/field.lo 
+fluid/stress_formulation/pnpn_res_stress_fctry.lo : fluid/stress_formulation/pnpn_res_stress_fctry.f90 fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.lo fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.lo config/neko_config.lo fluid/pnpn_res.lo 
+fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.lo : fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.f90 math/math.lo sem/space.lo config/num_types.lo mesh/mesh.lo field/scratch_registry.lo fluid/pnpn_res.lo bc/facet_normal.lo sem/coef.lo math/ax.lo field/field.lo math/operators.lo gs/gather_scatter.lo 
+fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.lo : fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.F90 math/bcknd/device/device_math.lo math/bcknd/device/device_mathops.lo sem/space.lo config/num_types.lo mesh/mesh.lo field/scratch_registry.lo fluid/pnpn_res.lo bc/facet_normal.lo sem/coef.lo math/ax.lo field/field.lo math/operators.lo common/utils.lo gs/gather_scatter.lo 
+fluid/fluid_scheme.lo : fluid/fluid_scheme.f90 common/gradient_jump_penalty.lo bc/shear_stress.lo bc/wall_model_bc.lo math/field_math.lo common/time_step_controller.lo field/field_series.lo common/utils.lo common/user_intf.lo field/scratch_registry.lo common/json_utils.lo bc/bc_list.lo field/field_registry.lo common/log.lo math/operators.lo time_schemes/time_scheme_controller.lo math/bcknd/device/device_math.lo math/math.lo mesh/mesh.lo bc/bc.lo fluid/fluid_stats.lo krylov/precon.lo krylov/pc_hsmg.lo krylov/bcknd/device/pc_jacobi_device.lo krylov/bcknd/sx/pc_jacobi_sx.lo krylov/bcknd/cpu/pc_jacobi.lo bc/field_dirichlet_vector.lo bc/field_dirichlet.lo bc/non_normal.lo bc/symmetry.lo bc/dong_outflow.lo bc/dirichlet.lo bc/blasius.lo bc/usr_inflow.lo bc/inflow.lo sem/coef.lo krylov/krylov.lo bc/zero_dirichlet.lo sem/dofmap.lo sem/space.lo field/field.lo fluid/fluid_source_term.lo comm/comm.lo config/num_types.lo fluid/mean_flow.lo common/checkpoint.lo config/neko_config.lo fluid/mean_sqr_flow.lo gs/gather_scatter.lo 
+fluid/fluid_aux.lo : fluid/fluid_aux.f90 krylov/krylov.lo config/num_types.lo common/log.lo 
+fluid/fluid_pnpn.lo : fluid/fluid_pnpn.f90 math/field_math.lo common/utils.lo bc/dong_outflow.lo bc/zero_dirichlet.lo bc/bc_list.lo math/mathops.lo math/math.lo config/neko_config.lo gs/gs_ops.lo common/time_step_controller.lo common/user_intf.lo mesh/mesh.lo bc/non_normal.lo bc/facet_normal.lo bc/dirichlet.lo field/field.lo math/ax.lo common/json_utils.lo common/profiler.lo fluid/advection.lo device/device.lo common/projection.lo time_schemes/time_scheme_controller.lo fluid/fluid_aux.lo math/bcknd/device/device_mathops.lo fluid/fluid_scheme.lo fluid/fluid_volflow.lo common/rhs_maker.lo fluid/pnpn_res.lo krylov/krylov.lo config/num_types.lo comm/comm.lo 
+fluid/fluid_fctry.lo : fluid/fluid_fctry.f90 common/utils.lo fluid/fluid_pnpn.lo fluid/fluid_scheme.lo 
+fluid/fluid_volflow.lo : fluid/fluid_volflow.f90 math/ax.lo bc/bc_list.lo field/scratch_registry.lo common/json_utils.lo gs/gather_scatter.lo math/bcknd/device/device_mathops.lo math/bcknd/device/device_math.lo config/neko_config.lo comm/comm.lo math/math.lo time_schemes/time_scheme_controller.lo sem/coef.lo field/field.lo sem/dofmap.lo krylov/precon.lo krylov/krylov.lo math/mathops.lo config/num_types.lo math/operators.lo 
+fluid/pnpn_res.lo : fluid/pnpn_res.f90 config/num_types.lo mesh/mesh.lo sem/space.lo bc/facet_normal.lo sem/coef.lo field/field.lo math/ax.lo gs/gather_scatter.lo 
+fluid/pnpn_res_fctry.lo : fluid/pnpn_res_fctry.f90 fluid/bcknd/sx/pnpn_res_sx.lo fluid/bcknd/cpu/pnpn_res_cpu.lo fluid/bcknd/device/pnpn_res_device.lo config/neko_config.lo fluid/pnpn_res.lo 
+fluid/mean_flow.lo : fluid/mean_flow.f90 field/field.lo field/mean_field.lo 
+fluid/fluid_stats.lo : fluid/fluid_stats.f90 common/utils.lo config/neko_config.lo device/device.lo common/stats_quant.lo field/field_list.lo field/field.lo sem/coef.lo math/operators.lo math/math.lo config/num_types.lo math/bcknd/device/device_math.lo field/mean_field.lo 
+fluid/mean_sqr_flow.lo : fluid/mean_sqr_flow.f90 field/field.lo field/mean_sqr_field.lo 
+fluid/flow_profile.lo : fluid/flow_profile.f90 config/num_types.lo 
+fluid/flow_ic.lo : fluid/flow_ic.f90 sem/space.lo sem/interpolation.lo common/global_interpolation.lo io/file.lo io/fld_file.lo io/fld_file_data.lo mesh/point_zone_registry.lo mesh/point_zone.lo common/json_utils.lo common/user_intf.lo math/bcknd/device/device_math.lo math/math.lo sem/coef.lo common/utils.lo field/field.lo device/device.lo fluid/flow_profile.lo config/neko_config.lo gs/gather_scatter.lo common/log.lo config/num_types.lo 
+fluid/advection.lo : fluid/advection.f90 time_schemes/time_scheme_controller.lo field/field_series.lo sem/coef.lo field/field.lo sem/space.lo config/num_types.lo 
+fluid/advection_fctry.lo : fluid/advection_fctry.f90 fluid/bcknd/advection/adv_oifs.lo fluid/bcknd/advection/adv_no_dealias.lo fluid/bcknd/advection/adv_dealias.lo common/json_utils.lo fluid/advection.lo 
+fluid/bcknd/advection/adv_dealias.lo : fluid/bcknd/advection/adv_dealias.f90 device/device.lo sem/interpolation.lo math/operators.lo config/neko_config.lo math/bcknd/device/device_math.lo sem/coef.lo field/field.lo sem/space.lo math/math.lo config/num_types.lo fluid/advection.lo 
+fluid/bcknd/advection/adv_no_dealias.lo : fluid/bcknd/advection/adv_no_dealias.f90 device/device.lo math/operators.lo config/neko_config.lo math/bcknd/device/device_math.lo sem/coef.lo field/field.lo sem/space.lo math/math.lo config/num_types.lo fluid/advection.lo 
+fluid/bcknd/advection/adv_oifs.lo : fluid/bcknd/advection/adv_oifs.f90 device/device.lo time_schemes/time_scheme_controller.lo field/field_series.lo common/time_interpolator.lo sem/interpolation.lo config/neko_config.lo math/operators.lo math/math.lo sem/coef.lo field/field.lo sem/space.lo config/num_types.lo fluid/advection.lo 
+fluid/bcknd/cpu/pnpn_res_cpu.lo : fluid/bcknd/cpu/pnpn_res_cpu.f90 math/math.lo sem/space.lo config/num_types.lo mesh/mesh.lo field/scratch_registry.lo fluid/pnpn_res.lo bc/facet_normal.lo sem/coef.lo math/ax.lo field/field.lo math/operators.lo gs/gather_scatter.lo 
+fluid/bcknd/sx/pnpn_res_sx.lo : fluid/bcknd/sx/pnpn_res_sx.f90 math/math.lo sem/space.lo config/num_types.lo mesh/mesh.lo field/scratch_registry.lo fluid/pnpn_res.lo bc/facet_normal.lo sem/coef.lo math/ax.lo field/field.lo math/operators.lo gs/gather_scatter.lo 
+fluid/bcknd/device/pnpn_res_device.lo : fluid/bcknd/device/pnpn_res_device.F90 field/scratch_registry.lo fluid/pnpn_res.lo math/bcknd/device/device_mathops.lo math/bcknd/device/device_math.lo sem/space.lo config/num_types.lo mesh/mesh.lo bc/facet_normal.lo sem/coef.lo math/ax.lo field/field.lo math/operators.lo gs/gather_scatter.lo 
+fluid/fluid_user_source_term.lo : fluid/fluid_user_source_term.f90 sem/dofmap.lo math/math.lo math/bcknd/device/device_math.lo device/device.lo sem/coef.lo field/field_list.lo source_terms/source_term.lo common/utils.lo config/num_types.lo config/neko_config.lo 
+fluid/fluid_source_term.lo : fluid/fluid_source_term.f90 common/user_intf.lo sem/coef.lo field/field_list.lo field/field.lo source_terms/source_term_handler.lo source_terms/source_term.lo fluid/fluid_user_source_term.lo 
+common/time_step_controller.lo : common/time_step_controller.f90 common/json_utils.lo common/log.lo config/num_types.lo 
+common/gradient_jump_penalty.lo : common/gradient_jump_penalty.f90 common/bcknd/device/device_gradient_jump_penalty.lo math/bcknd/device/device_math.lo device/device.lo gs/gather_scatter.lo sem/space.lo gs/gs_ops.lo math/operators.lo mesh/quad.lo mesh/hex.lo mesh/element.lo sem/coef.lo config/neko_config.lo sem/dofmap.lo field/field.lo mesh/point.lo math/math.lo common/json_utils.lo common/utils.lo config/num_types.lo 
+common/bcknd/device/device_gradient_jump_penalty.lo : common/bcknd/device/device_gradient_jump_penalty.F90 device/device.lo common/utils.lo config/num_types.lo 
+simulation.lo : simulation.f90 common/time_step_controller.lo common/json_utils.lo simulation_components/simcomp_executor.lo common/profiler.lo field/field.lo common/jobctrl.lo common/log.lo io/file.lo time_schemes/time_scheme_controller.lo config/num_types.lo case.lo 
+math/ax_helm_fctry.lo : math/ax_helm_fctry.f90 common/utils.lo math/bcknd/device/ax_helm_full_device.lo math/bcknd/cpu/ax_helm_full_cpu.lo math/bcknd/cpu/ax_helm_cpu.lo math/ax_helm.lo math/bcknd/sx/ax_helm_sx.lo math/bcknd/xsmm/ax_helm_xsmm.lo math/bcknd/device/ax_helm_device.lo config/neko_config.lo math/ax.lo 
+math/ax_helm.lo : math/ax_helm.f90 math/math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax.lo 
+math/ax_helm_full.lo : math/ax_helm_full.f90 common/utils.lo math/math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax.lo 
+math/bcknd/cpu/ax_helm_cpu.lo : math/bcknd/cpu/ax_helm_cpu.f90 math/math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm.lo 
+math/bcknd/cpu/ax_helm_full_cpu.lo : math/bcknd/cpu/ax_helm_full_cpu.f90 common/utils.lo math/math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm_full.lo 
+math/bcknd/sx/ax_helm_sx.lo : math/bcknd/sx/ax_helm_sx.f90 math/math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm.lo 
+math/bcknd/xsmm/ax_helm_xsmm.lo : math/bcknd/xsmm/ax_helm_xsmm.F90 math/mxm_wrapper.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm.lo 
+math/bcknd/device/ax_helm_device.lo : math/bcknd/device/ax_helm_device.F90 device/device.lo math/bcknd/device/device_math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm.lo 
+math/bcknd/device/ax_helm_full_device.lo : math/bcknd/device/ax_helm_full_device.F90 common/utils.lo device/device.lo math/bcknd/device/device_math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm_full.lo 
+common/projection.lo : common/projection.f90 common/time_step_controller.lo common/utils.lo common/log.lo common/profiler.lo common/bcknd/device/device_projection.lo math/bcknd/device/device_math.lo device/device.lo config/neko_config.lo gs/gather_scatter.lo comm/comm.lo bc/bc_list.lo math/ax.lo sem/coef.lo math/math.lo config/num_types.lo 
+common/bcknd/device/device_projection.lo : common/bcknd/device/device_projection.F90 common/utils.lo config/num_types.lo 
+comm/parmetis.lo : comm/parmetis.F90 mesh/mesh.lo field/mesh_field.lo config/num_types.lo common/utils.lo mesh/point.lo comm/comm.lo 
+comm/redist.lo : comm/redist.f90 mesh/element.lo mesh/facet_zone.lo io/format/nmsh.lo mesh/mesh.lo comm/comm.lo mesh/curve.lo adt/stack.lo mesh/point.lo adt/htable.lo comm/mpi_types.lo field/mesh_field.lo 
+krylov/pc_hsmg.lo : krylov/pc_hsmg.f90 krylov/krylov.lo bc/bc_list.lo bc/zero_dirichlet.lo mesh/mesh.lo sem/coef.lo field/field.lo sem/dofmap.lo sem/space.lo common/profiler.lo math/bcknd/device/device_math.lo device/device.lo krylov/bcknd/device/pc_jacobi_device.lo krylov/bcknd/sx/pc_jacobi_sx.lo krylov/bcknd/cpu/pc_jacobi.lo math/schwarz.lo bc/dirichlet.lo bc/bc.lo sem/interpolation.lo gs/gather_scatter.lo math/ax.lo krylov/precon.lo common/utils.lo math/math.lo config/num_types.lo config/neko_config.lo 
+common/signal.lo : common/signal.f90 common/utils.lo 
+common/jobctrl.lo : common/jobctrl.f90 common/log.lo comm/comm.lo common/utils.lo common/signal.lo config/num_types.lo 
+device/cuda_intf.lo : device/cuda_intf.F90 common/utils.lo 
+device/hip_intf.lo : device/hip_intf.F90 common/utils.lo 
+device/cuda/nvtx.lo : device/cuda/nvtx.F90 
+device/hip/roctx.lo : device/hip/roctx.F90 
+device/opencl_intf.lo : device/opencl_intf.F90 common/utils.lo config/num_types.lo 
+device/opencl/prgm_lib.lo : device/opencl/prgm_lib.F90 common/utils.lo device/opencl_intf.lo 
+device/dummy_device.lo : device/dummy_device.F90 
+device/device.lo : device/device.F90 device/opencl/prgm_lib.lo device/dummy_device.lo common/utils.lo adt/htable.lo device/hip_intf.lo device/cuda_intf.lo device/opencl_intf.lo config/num_types.lo 
+math/field_math.lo : math/field_math.f90 math/bcknd/device/device_math.lo math/math.lo field/field.lo config/num_types.lo config/neko_config.lo 
+math/bcknd/device/device_math.lo : math/bcknd/device/device_math.F90 math/bcknd/device/opencl/opencl_math.lo math/bcknd/device/cuda/cuda_math.lo math/bcknd/device/hip/hip_math.lo comm/comm.lo common/utils.lo config/num_types.lo 
+math/bcknd/device/hip/hip_math.lo : math/bcknd/device/hip/hip_math.f90 config/num_types.lo 
+math/bcknd/device/cuda/cuda_math.lo : math/bcknd/device/cuda/cuda_math.f90 config/num_types.lo 
+math/bcknd/device/opencl/opencl_math.lo : math/bcknd/device/opencl/opencl_math.f90 config/num_types.lo 
+math/bcknd/device/device_schwarz.lo : math/bcknd/device/device_schwarz.F90 device/device.lo common/utils.lo config/num_types.lo 
+math/bcknd/device/tensor_device.lo : math/bcknd/device/tensor_device.F90 common/utils.lo 
+math/bcknd/device/fdm_device.lo : math/bcknd/device/fdm_device.F90 device/device.lo common/utils.lo config/num_types.lo 
+math/bcknd/device/device_mathops.lo : math/bcknd/device/device_mathops.F90 common/utils.lo config/num_types.lo 
+bc/bcknd/device/device_dirichlet.lo : bc/bcknd/device/device_dirichlet.F90 common/utils.lo config/num_types.lo 
+bc/bcknd/device/device_inflow.lo : bc/bcknd/device/device_inflow.F90 common/utils.lo config/num_types.lo 
+bc/bcknd/device/device_zero_dirichlet.lo : bc/bcknd/device/device_zero_dirichlet.F90 common/utils.lo 
+bc/bcknd/device/device_symmetry.lo : bc/bcknd/device/device_symmetry.F90 common/utils.lo config/num_types.lo 
+bc/bcknd/device/device_facet_normal.lo : bc/bcknd/device/device_facet_normal.F90 common/utils.lo 
+bc/bcknd/device/device_inhom_dirichlet.lo : bc/bcknd/device/device_inhom_dirichlet.F90 common/utils.lo config/num_types.lo 
+bc/bcknd/device/device_dong_outflow.lo : bc/bcknd/device/device_dong_outflow.F90 common/utils.lo config/num_types.lo 
+scalar/bcknd/device/scalar_residual_device.lo : scalar/bcknd/device/scalar_residual_device.F90 config/num_types.lo mesh/mesh.lo sem/space.lo sem/coef.lo field/field.lo math/ax.lo math/bcknd/device/device_math.lo scalar/scalar_residual.lo 
+scalar/scalar_scheme.lo : scalar/scalar_scheme.f90 common/gradient_jump_penalty.lo common/time_step_controller.lo config/neko_config.lo math/bcknd/device/device_math.lo math/math.lo bc/bc_fctry.lo field/field_series.lo scalar/scalar_source_term.lo comm/comm.lo common/utils.lo common/user_intf.lo common/json_utils.lo bc/usr_scalar.lo field/field_registry.lo common/log.lo time_schemes/time_scheme_controller.lo mesh/facet_zone.lo mesh/mesh.lo bc/field_dirichlet.lo krylov/precon.lo bc/bc_list.lo bc/bc.lo krylov/pc_hsmg.lo krylov/bcknd/sx/pc_jacobi_sx.lo krylov/bcknd/device/pc_jacobi_device.lo krylov/bcknd/cpu/pc_jacobi.lo bc/neumann.lo bc/dirichlet.lo sem/coef.lo krylov/krylov.lo sem/dofmap.lo sem/space.lo field/field_list.lo field/field.lo config/num_types.lo common/checkpoint.lo gs/gather_scatter.lo 
+scalar/scalar_pnpn.lo : scalar/scalar_pnpn.f90 field/scratch_registry.lo common/time_step_controller.lo bc/zero_dirichlet.lo config/neko_config.lo common/user_intf.lo common/json_utils.lo common/profiler.lo fluid/advection.lo common/log.lo math/math.lo common/projection.lo time_schemes/time_scheme_controller.lo scalar/scalar_aux.lo math/bcknd/device/device_math.lo krylov/krylov.lo bc/facet_normal.lo field/field_series.lo math/ax.lo scalar/scalar_residual.lo gs/gather_scatter.lo device/device.lo sem/coef.lo common/checkpoint.lo mesh/mesh.lo bc/bc_list.lo field/field.lo bc/neumann.lo bc/dirichlet.lo scalar/scalar_scheme.lo common/rhs_maker.lo config/num_types.lo 
+scalar/scalar_aux.lo : scalar/scalar_aux.f90 krylov/krylov.lo config/num_types.lo common/log.lo 
+scalar/scalar_residual.lo : scalar/scalar_residual.f90 config/num_types.lo mesh/mesh.lo sem/space.lo bc/facet_normal.lo scalar/source_scalar.lo sem/coef.lo field/field.lo math/ax.lo gs/gather_scatter.lo 
+scalar/scalar_residual_fctry.lo : scalar/scalar_residual_fctry.f90 scalar/bcknd/sx/scalar_residual_sx.lo scalar/bcknd/cpu/scalar_residual_cpu.lo scalar/bcknd/device/scalar_residual_device.lo config/neko_config.lo scalar/scalar_residual.lo 
+scalar/scalar_ic.lo : scalar/scalar_ic.f90 sem/space.lo sem/interpolation.lo common/global_interpolation.lo io/file.lo common/checkpoint.lo io/fld_file.lo io/fld_file_data.lo common/log.lo field/field_registry.lo mesh/point_zone_registry.lo mesh/point_zone.lo common/json_utils.lo common/user_intf.lo math/math.lo sem/coef.lo common/utils.lo field/field.lo device/device.lo math/bcknd/device/device_math.lo config/num_types.lo config/neko_config.lo gs/gather_scatter.lo 
+scalar/scalar_source_term.lo : scalar/scalar_source_term.f90 common/user_intf.lo sem/coef.lo field/field_list.lo field/field.lo source_terms/source_term_handler.lo source_terms/source_term.lo scalar/scalar_user_source_term.lo 
+scalar/scalar_user_source_term.lo : scalar/scalar_user_source_term.f90 sem/dofmap.lo math/math.lo math/bcknd/device/device_math.lo device/device.lo sem/coef.lo field/field_list.lo source_terms/source_term.lo common/utils.lo config/num_types.lo config/neko_config.lo 
+scalar/bcknd/cpu/scalar_residual_cpu.lo : scalar/bcknd/cpu/scalar_residual_cpu.f90 math/math.lo config/num_types.lo mesh/mesh.lo sem/space.lo sem/coef.lo field/field.lo math/ax.lo scalar/scalar_residual.lo 
+scalar/bcknd/sx/scalar_residual_sx.lo : scalar/bcknd/sx/scalar_residual_sx.f90 math/math.lo config/num_types.lo mesh/mesh.lo sem/space.lo sem/coef.lo field/field.lo math/ax.lo scalar/scalar_residual.lo 
+scalar/source_scalar.lo : scalar/source_scalar.f90 math/bcknd/device/device_math.lo device/device.lo common/utils.lo sem/dofmap.lo config/num_types.lo config/neko_config.lo 
+simulation_components/simulation_component.lo : simulation_components/simulation_component.f90 common/json_utils.lo common/time_based_controller.lo case.lo config/num_types.lo 
+simulation_components/simcomp_executor.lo : simulation_components/simcomp_executor.f90 common/log.lo common/utils.lo case.lo common/json_utils.lo simulation_components/simulation_component.lo config/num_types.lo 
+simulation_components/vorticity.lo : simulation_components/vorticity.f90 simulation_components/field_writer.lo common/json_utils.lo io/fld_file_output.lo case.lo math/operators.lo field/field.lo field/field_registry.lo simulation_components/simulation_component.lo config/num_types.lo 
+simulation_components/spectral_error.lo : simulation_components/spectral_error.f90 field/field_registry.lo case.lo common/json_utils.lo simulation_components/simulation_component.lo simulation_components/field_writer.lo common/utils.lo comm/comm.lo device/device.lo common/log.lo config/neko_config.lo gs/gather_scatter.lo math/bcknd/device/device_math.lo math/tensor.lo io/file.lo math/math.lo field/field_list.lo sem/coef.lo field/field.lo config/num_types.lo 
+simulation_components/lambda2.lo : simulation_components/lambda2.f90 device/device.lo simulation_components/field_writer.lo case.lo math/operators.lo field/field.lo field/field_registry.lo simulation_components/simulation_component.lo config/num_types.lo 
+simulation_components/weak_grad.lo : simulation_components/weak_grad.f90 simulation_components/field_writer.lo common/json_utils.lo io/fld_file_output.lo case.lo math/operators.lo field/field.lo field/field_registry.lo simulation_components/simulation_component.lo config/num_types.lo 
+simulation_components/derivative.lo : simulation_components/derivative.f90 common/utils.lo simulation_components/field_writer.lo common/json_utils.lo io/fld_file_output.lo case.lo math/operators.lo field/field.lo field/field_registry.lo simulation_components/simulation_component.lo config/num_types.lo 
+simulation_components/les_simcomp.lo : simulation_components/les_simcomp.f90 simulation_components/field_writer.lo common/json_utils.lo les/les_model.lo case.lo simulation_components/simulation_component.lo config/num_types.lo 
+simulation_components/simulation_component_fctry.lo : simulation_components/simulation_component_fctry.f90 simulation_components/spectral_error.lo simulation_components/derivative.lo simulation_components/weak_grad.lo simulation_components/field_writer.lo common/utils.lo simulation_components/les_simcomp.lo simulation_components/probes.lo simulation_components/lambda2.lo simulation_components/fluid_stats_simcomp.lo simulation_components/force_torque.lo simulation_components/vorticity.lo simulation_components/simulation_component.lo 
+source_terms/source_term.lo : source_terms/source_term.f90 field/field_list.lo sem/coef.lo config/num_types.lo 
+source_terms/coriolis_source_term.lo : source_terms/coriolis_source_term.f90 source_terms/bcknd/cpu/coriolis_source_term_cpu.lo common/utils.lo config/neko_config.lo sem/coef.lo source_terms/source_term.lo common/json_utils.lo field/field_list.lo config/num_types.lo 
+source_terms/bcknd/cpu/coriolis_source_term_cpu.lo : source_terms/bcknd/cpu/coriolis_source_term_cpu.f90 field/field.lo math/math.lo field/field_list.lo config/num_types.lo 
+source_terms/source_term_handler.lo : source_terms/source_term_handler.f90 math/bcknd/device/device_math.lo math/math.lo math/field_math.lo common/utils.lo common/user_intf.lo sem/coef.lo common/json_utils.lo field/field_list.lo field/field.lo source_terms/source_term.lo config/num_types.lo config/neko_config.lo 
+source_terms/const_source_term.lo : source_terms/const_source_term.f90 source_terms/bcknd/device/const_source_term_device.lo source_terms/bcknd/cpu/const_source_term_cpu.lo common/utils.lo config/neko_config.lo sem/coef.lo source_terms/source_term.lo common/json_utils.lo field/field_list.lo config/num_types.lo 
+source_terms/bcknd/cpu/const_source_term_cpu.lo : source_terms/bcknd/cpu/const_source_term_cpu.f90 math/math.lo field/field_list.lo config/num_types.lo 
+source_terms/bcknd/device/const_source_term_device.lo : source_terms/bcknd/device/const_source_term_device.f90 math/bcknd/device/device_math.lo field/field_list.lo config/num_types.lo 
+source_terms/boussinesq_source_term.lo : source_terms/boussinesq_source_term.f90 field/field_registry.lo source_terms/bcknd/device/boussinesq_source_term_device.lo source_terms/bcknd/cpu/boussinesq_source_term_cpu.lo common/utils.lo config/neko_config.lo sem/coef.lo source_terms/source_term.lo common/json_utils.lo field/field.lo field/field_list.lo config/num_types.lo 
+source_terms/bcknd/cpu/boussinesq_source_term_cpu.lo : source_terms/bcknd/cpu/boussinesq_source_term_cpu.f90 math/math.lo field/field.lo field/field_list.lo config/num_types.lo 
+source_terms/bcknd/device/boussinesq_source_term_device.lo : source_terms/bcknd/device/boussinesq_source_term_device.f90 math/bcknd/device/device_math.lo field/field.lo field/field_list.lo config/num_types.lo 
+source_terms/source_term_fctry.lo : source_terms/source_term_fctry.f90 common/utils.lo common/json_utils.lo source_terms/coriolis_source_term.lo source_terms/brinkman_source_term.lo source_terms/boussinesq_source_term.lo source_terms/const_source_term.lo source_terms/source_term.lo 
+source_terms/brinkman_source_term.lo : source_terms/brinkman_source_term.f90 mesh/point_zone_registry.lo mesh/point_zone.lo mesh/search_tree/aabb.lo common/profiler.lo math/signed_distance.lo source_terms/brinkman/filters.lo device/device.lo mesh/tri_mesh.lo io/file.lo math/bcknd/device/device_math.lo math/math.lo math/field_math.lo common/utils.lo config/neko_config.lo sem/coef.lo source_terms/source_term.lo field/field_registry.lo common/json_utils.lo field/field_list.lo field/field.lo config/num_types.lo 
+source_terms/brinkman/filters.lo : source_terms/brinkman/filters.f90 source_terms/bcknd/device/filters_device.lo source_terms/bcknd/cpu/filters_cpu.lo common/utils.lo config/num_types.lo config/neko_config.lo field/field.lo 
+source_terms/bcknd/cpu/filters_cpu.lo : source_terms/bcknd/cpu/filters_cpu.f90 config/num_types.lo 
+source_terms/bcknd/device/filters_device.lo : source_terms/bcknd/device/filters_device.F90 source_terms/bcknd/device/opencl/opencl_filters.lo source_terms/bcknd/device/hip/hip_filters.lo source_terms/bcknd/device/cuda/cuda_filters.lo common/utils.lo math/bcknd/device/device_math.lo config/num_types.lo 
+source_terms/bcknd/device/cuda/cuda_filters.lo : source_terms/bcknd/device/cuda/cuda_filters.f90 config/num_types.lo 
+source_terms/bcknd/device/hip/hip_filters.lo : source_terms/bcknd/device/hip/hip_filters.f90 config/num_types.lo 
+source_terms/bcknd/device/opencl/opencl_filters.lo : source_terms/bcknd/device/opencl/opencl_filters.f90 config/num_types.lo 
+les/les_model.lo : les/les_model.f90 math/bcknd/device/device_math.lo math/math.lo device/device.lo config/neko_config.lo gs/gs_ops.lo sem/coef.lo sem/dofmap.lo field/field_registry.lo field/field.lo config/num_types.lo 
+les/les_model_fctry.lo : les/les_model_fctry.f90 common/utils.lo les/sigma.lo les/dynamic_smagorinsky.lo les/smagorinsky.lo les/vreman.lo les/les_model.lo 
+les/vreman.lo : les/vreman.f90 sem/coef.lo les/bcknd/device/vreman_device.lo les/bcknd/cpu/vreman_cpu.lo config/neko_config.lo common/utils.lo common/json_utils.lo sem/dofmap.lo les/les_model.lo field/field.lo config/num_types.lo 
+les/bcknd/cpu/vreman_cpu.lo : les/bcknd/cpu/vreman_cpu.f90 gs/gs_ops.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo math/math.lo field/field_list.lo config/num_types.lo 
+les/bcknd/device/vreman_device.lo : les/bcknd/device/vreman_device.f90 les/bcknd/device/device_vreman_nut.lo gs/gs_ops.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo math/math.lo config/num_types.lo 
+les/bcknd/device/device_vreman_nut.lo : les/bcknd/device/device_vreman_nut.F90 comm/comm.lo common/utils.lo config/num_types.lo 
+les/smagorinsky.lo : les/smagorinsky.f90 sem/coef.lo les/bcknd/cpu/smagorinsky_cpu.lo config/neko_config.lo common/utils.lo common/json_utils.lo sem/dofmap.lo les/les_model.lo field/field.lo config/num_types.lo 
+les/bcknd/cpu/smagorinsky_cpu.lo : les/bcknd/cpu/smagorinsky_cpu.f90 gs/gs_ops.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo field/field_list.lo config/num_types.lo 
+les/dynamic_smagorinsky.lo : les/dynamic_smagorinsky.f90 les/bcknd/cpu/dynamic_smagorinsky_cpu.lo les/elementwise_filter.lo sem/coef.lo config/neko_config.lo common/utils.lo common/json_utils.lo sem/dofmap.lo les/les_model.lo field/field.lo field/field_list.lo math/math.lo config/num_types.lo 
+les/bcknd/cpu/dynamic_smagorinsky_cpu.lo : les/bcknd/cpu/dynamic_smagorinsky_cpu.f90 gs/gs_ops.lo les/elementwise_filter.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo math/math.lo field/field_list.lo config/num_types.lo 
+les/elementwise_filter.lo : les/elementwise_filter.f90 math/tensor.lo les/bcknd/cpu/elementwise_filter_cpu.lo config/neko_config.lo common/utils.lo field/field.lo math/math.lo config/num_types.lo 
+les/bcknd/cpu/elementwise_filter_cpu.lo : les/bcknd/cpu/elementwise_filter_cpu.f90 math/mxm_wrapper.lo math/tensor.lo math/matrix.lo sem/speclib.lo math/math.lo config/num_types.lo 
+les/sigma.lo : les/sigma.f90 sem/coef.lo les/bcknd/device/sigma_device.lo les/bcknd/cpu/sigma_cpu.lo config/neko_config.lo common/utils.lo common/json_utils.lo sem/dofmap.lo les/les_model.lo field/field.lo config/num_types.lo 
+les/bcknd/cpu/sigma_cpu.lo : les/bcknd/cpu/sigma_cpu.f90 gs/gs_ops.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo field/field_list.lo config/num_types.lo 
+les/bcknd/device/sigma_device.lo : les/bcknd/device/sigma_device.f90 les/bcknd/device/device_sigma_nut.lo gs/gs_ops.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo math/math.lo math/bcknd/device/device_math.lo field/field_list.lo config/num_types.lo 
+les/bcknd/device/device_sigma_nut.lo : les/bcknd/device/device_sigma_nut.F90 comm/comm.lo common/utils.lo config/num_types.lo 
+wall_models/wall_model.lo : wall_models/wall_model.f90 common/log.lo comm/comm.lo math/math.lo common/utils.lo math/vector.lo device/device.lo config/neko_config.lo sem/coef.lo sem/dofmap.lo field/field_registry.lo field/field.lo config/num_types.lo 
+wall_models/rough_log_law.lo : wall_models/rough_log_law.f90 common/utils.lo common/json_utils.lo field/field_registry.lo wall_models/wall_model.lo config/neko_config.lo sem/coef.lo sem/dofmap.lo config/num_types.lo field/field.lo 
+wall_models/spalding.lo : wall_models/spalding.f90 common/utils.lo common/log.lo common/json_utils.lo field/field_registry.lo wall_models/wall_model.lo config/neko_config.lo sem/coef.lo sem/dofmap.lo config/num_types.lo field/field.lo 
+wall_models/wall_model_fctry.lo : wall_models/wall_model_fctry.f90 common/json_utils.lo common/utils.lo wall_models/rough_log_law.lo wall_models/spalding.lo les/vreman.lo wall_models/wall_model.lo 
+neko.lo : neko.f90 common/json_utils.lo common/runtime_statistics.lo bc/field_dirichlet_vector.lo bc/field_dirichlet.lo mesh/point_zone_registry.lo mesh/point_zones/sphere_point_zone.lo mesh/point_zones/box_point_zone.lo mesh/point_zone.lo sem/point_interpolator.lo common/time_interpolator.lo io/data_streamer.lo simulation_components/simcomp_executor.lo field/scratch_registry.lo field/field_registry.lo qoi/drag_torque.lo common/system.lo simulation_components/spectral_error.lo simulation_components/probes.lo simulation_components/simulation_component.lo math/tensor.lo math/matrix.lo math/vector.lo scalar/scalar_user_source_term.lo fluid/fluid_user_source_term.lo field/field_list.lo fluid/fluid_stats.lo sem/cpr.lo sem/map_2d.lo sem/map_1d.lo math/bcknd/device/device_math.lo device/device.lo common/jobctrl.lo common/signal.lo common/user_intf.lo common/projection.lo math/mathops.lo math/operators.lo simulation.lo io/output.lo io/output_controller.lo case.lo config/neko_config.lo comm/parmetis.lo math/ax.lo bc/dirichlet.lo bc/zero_dirichlet.lo bc/bc.lo sem/coef.lo gs/gather_scatter.lo comm/mpi_types.lo field/field.lo io/file.lo common/global_interpolation.lo math/mxm_wrapper.lo io/format/map.lo field/mesh_field.lo mesh/point.lo mesh/mesh.lo adt/tuple.lo adt/stack.lo adt/uset.lo adt/htable.lo sem/space.lo sem/dofmap.lo sem/speclib.lo math/math.lo common/log.lo common/utils.lo comm/comm.lo config/num_types.lo 

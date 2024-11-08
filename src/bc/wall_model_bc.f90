@@ -148,12 +148,15 @@ contains
 
   !> Constructor.
   !> @param coef The SEM coefficients.
-  subroutine wall_model_bc_init(this, json, nu)
-    class(wall_model_bc_t), intent(inout) :: this
+  subroutine wall_model_bc_init(this, coef, json)
+    class(wall_model_bc_t), target, intent(inout) :: this
+    type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
-    real(kind=rp), intent(in) :: nu
+    !real(kind=rp), intent(in) :: nu
+    real(kind=rp) :: nu = 1
 
-    call this%shear_stress_t%init(this%coef)
+
+    call this%shear_stress_t%init(coef, json)
 
     call wall_model_factory(this%wall_model, this%coef, this%msk, &
          this%facet, nu, json)

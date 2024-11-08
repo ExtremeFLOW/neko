@@ -57,6 +57,9 @@ module symmetry
      procedure, pass(this) :: apply_vector_dev => symmetry_apply_vector_dev
      !> Constructor
      procedure, pass(this) :: init => symmetry_init
+     !> Constructor from compoenents
+     procedure, pass(this) :: init_from_components => &
+          symmetry_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => symmetry_free
      !> Get the axis coressponding to the direction of the normal.
@@ -74,14 +77,24 @@ contains
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) ::json
 
+    call this%init_from_components(coef)
+
+  end subroutine symmetry_init
+
+  !> Constructor from components
+  !! @param[in] coef The SEM coefficients.
+  subroutine symmetry_init_from_components(this, coef)
+    class(symmetry_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+
     call this%free()
 
     call this%init_base(coef)
-    call this%bc_x%init(this%coef, json)
-    call this%bc_y%init(this%coef, json)
-    call this%bc_z%init(this%coef, json)
+    call this%bc_x%init_from_components(this%coef)
+    call this%bc_y%init_from_components(this%coef)
+    call this%bc_z%init_from_components(this%coef)
 
-  end subroutine symmetry_init
+  end subroutine symmetry_init_from_components
 
   !> Finalize.
   !! Marks the appropriate faces for application of a homogeneous Dirchlet

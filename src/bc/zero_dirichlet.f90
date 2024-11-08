@@ -52,6 +52,9 @@ module zero_dirichlet
      procedure, pass(this) :: apply_vector_dev => zero_dirichlet_apply_vector_dev
      !> Constructor.
      procedure, pass(this) :: init => zero_dirichlet_init
+     !> Constructor from components.
+     procedure, pass(this) :: init_from_components => &
+          zero_dirichlet_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => zero_dirichlet_free
      !> Finalize.
@@ -68,8 +71,17 @@ contains
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) ::json
 
-    call this%init_base(coef)
+    call this%init_from_components(coef)
   end subroutine zero_dirichlet_init
+
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  subroutine zero_dirichlet_init_from_components(this, coef)
+    class(zero_dirichlet_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+
+    call this%init_base(coef)
+  end subroutine zero_dirichlet_init_from_components
 
   !> Apply boundary condition to a scalar field.
   !! to a vector @a x

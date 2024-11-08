@@ -441,7 +441,7 @@ contains
        !bcs are seperated by /, but we could use something else
        if (index(trim(bc_labels(i)), '/') .eq. 0) then
           if (trim(bc_key) .eq. trim(bc_labels(i))) then
-             call bc_mark_zone(this, bc_zones(i))
+             call bc_mark_zone(this, this%msh%labeled_zones(i))
              ! Loop across all faces in the mesh
              do j = 1,this%msh%nelv
                 do k = 1, 2 * this%msh%gdim
@@ -455,7 +455,7 @@ contains
           split_key = split_string(trim(bc_labels(i)),'/')
           do l = 1, size(split_key)
              if (trim(split_key(l)) .eq. trim(bc_key)) then
-                call bc_mark_zone(this, bc_zones(i))
+                call bc_mark_zone(this, this%msh%labeled_zones(i))
                 ! Loop across all faces in the mesh
                 do j = 1,this%msh%nelv
                    do k = 1, 2 * this%msh%gdim
