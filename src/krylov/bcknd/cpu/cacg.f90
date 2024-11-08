@@ -65,13 +65,13 @@ contains
   !> Initialise a s-step CA  PCG solver
   subroutine cacg_init(this, n, max_iter, M, s, rel_tol, abs_tol, monitor)
     class(cacg_t), intent(inout) :: this
-    class(pc_t), optional, intent(inout), target :: M
+    class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
-    real(kind=rp), optional, intent(inout) :: rel_tol
-    real(kind=rp), optional, intent(inout) :: abs_tol
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
-    integer, optional, intent(inout) :: s
+    integer, optional, intent(in) :: s
     call this%free()
 
     if (present(s)) then
