@@ -462,26 +462,39 @@ the boundary mesh is computed using a step function with a cut-off distance of
 ~~~~~~~~~~~~~~~
 
 ### Gradient Jump Penalty
-The optional `gradient_jump_penalty` object can be used to perform gradient jump penalty
-as an continuous interior penalty option.
-The penalty term is performed on the weak form equation of quantity \f$ T \f$
-(could either be velocity or scalar) as a right hand side term
+The optional `gradient_jump_penalty` object can be used to perform gradient jump
+penalty as an continuous interior penalty option. The penalty term is performed
+on the weak form equation of quantity \f$ T \f$ (could either be velocity or
+scalar) as a right hand side term
 
 \f$ - < \tau |u \cdot n| h^2_{\Omega ^e} G(T) \phi_{t1} \phi_{t2} \frac{\partial \phi_{n}}{\partial n}>\f$,
 
-where \f$ <> \f$ refers to the integral over all facets of the element, \f$ \tau \f$ is the penalty parameter,
-\f$ |u \cdot n| \f$ is the absolute velocity flux over the facet, \f$ h^2_{\Omega ^e} \f$ is the mesh size, \f$ G(T) \f$ is the gradient jump over the facet, \f$ \phi_{t1} \phi_{t2} \f$ are the polynomial on the tangential direction of the facet, and finally \f$ \frac{\partial \phi_{n}}{\partial n} \f$ is the gradient of the normal polynomial on the facet.
+where \f$ <> \f$ refers to the integral over all facets of the element, \f$ \tau
+\f$ is the penalty parameter, \f$ |u \cdot n| \f$ is the absolute velocity flux
+over the facet, \f$ h^2_{\Omega ^e} \f$ is the mesh size, \f$ G(T) \f$ is the
+gradient jump over the facet, \f$ \phi_{t1} \phi_{t2} \f$ are the polynomial on
+the tangential direction of the facet, and finally \f$ \frac{\partial
+\phi_{n}}{\partial n} \f$ is the gradient of the normal polynomial on the facet.
 
-Here in our Neko context where hexahedral mesh is adopted, \f$ h^2_{\Omega ^e} \f$ is measured by the average distance from the vertices of the facet to the facet on the opposite side. And the distance of a vertex to another facet is defined by the average distance from the vertex to the plane constituted by 3 vertices from the other facet.
+Here in our Neko context where hexahedral mesh is adopted, \f$ h^2_{\Omega ^e}
+\f$ is measured by the average distance from the vertices of the facet to the
+facet on the opposite side. And the distance of a vertex to another facet is
+defined by the average distance from the vertex to the plane constituted by 3
+vertices from the other facet.
 
-The penalty parameter  \f$ \tau \f$ could be expressed as the form \f$ \tau = a * (P + 1) ^ {-b}\f$,
-for \f$ P > 1 \f$ where \f$ P \f$ is the polynomial order while \f$ a \f$ and \f$ b \f$ are user-defined parameters.
-The configuration uses the following parameters:
+The penalty parameter  \f$ \tau \f$ could be expressed as the form \f$ \tau = a
+* (P + 1) ^ {-b}\f$, for \f$ P > 1 \f$ where \f$ P \f$ is the polynomial order
+while \f$ a \f$ and \f$ b \f$ are user-defined parameters. The configuration
+uses the following parameters:
 
-* `enable`, the boolean to turn on and off the gradient jump penalty option, default to be `false`.
-* `tau`, the penalty parameter that can be only used for \f$ P = 1 \f$, default to be `0.02`.
-* `scaling_factor`, the scaling parameter \f$ a \f$ for \f$ P > 1 \f$, default to be `0.8`.
-* `scaling_exponent`, the scaling parameter \f$ b \f$ for \f$ P > 1 \f$, default to be `4.0`.
+* `enable`, the boolean to turn on and off the gradient jump penalty option,
+  default to be `false`.
+* `tau`, the penalty parameter that can be only used for \f$ P = 1 \f$, default
+  to be `0.02`.
+* `scaling_factor`, the scaling parameter \f$ a \f$ for \f$ P > 1 \f$, default
+  to be `0.8`.
+* `scaling_exponent`, the scaling parameter \f$ b \f$ for \f$ P > 1 \f$, default
+  to be `4.0`.
 
 
 ## Linear solver configuration
@@ -496,21 +509,26 @@ The following keywords are used, with the corresponding options.
   - `cacg`, a communication-avoiding conjugate gradient solver.
   - `cpldcg`, a coupled conjugate gradient solver.
   - `gmres`, a GMRES solver. Typically used for pressure.
-  - `fusedcg`, a conjugate gradient solver optimised for accelerators using kernel fusion.
-  - `fcpldcg`, a coupled conjugate gradient solver optimised for accelerators using kernel fusion.
+  - `fusedcg`, a conjugate gradient solver optimised for accelerators using
+    kernel fusion.
+  - `fcpldcg`, a coupled conjugate gradient solver optimised for accelerators
+    using kernel fusion.
 * `preconditioner`, preconditioner type.
   - `jacobi`, a Jacobi preconditioner. Typically used for velocity.
-  - `hsmg`, a hybrid-Schwarz multigrid preconditioner. Typically used for pressure.
+  - `hsmg`, a hybrid-Schwarz multigrid preconditioner. Typically used for
+    pressure.
   - `ident`, an identity matrix (no preconditioner).
 * `absolute_tolerance`, tolerance criterion for convergence.
 * `max_iterations`, maximum number of iterations before giving up.
 * `projection_space_size`, size of the vector space used for accelerating the
    solution procedure. If 0, then the projection space is not used.
    More important for the pressure equation.
-* `projection_hold_steps`, steps for which the simulation does not use projection after starting
-   or time step changes. E.g. if 5, then the projection space will start to update at the 6th
-   time step and the space will be utilized at the 7th time step.
-* `monitor`, monitoring of residuals. If set to true, the residuals will be printed for each iteration.
+* `projection_hold_steps`, steps for which the simulation does not use
+   projection after starting or time step changes. E.g. if 5, then the
+   projection space will start to update at the 6th time step and the space will
+   be utilized at the 7th time step.
+* `monitor`, monitoring of residuals. If set to true, the residuals will be
+  printed for each iteration.
 
 ### Flow rate forcing
 The optional `flow_rate_force` object can be used to force a particular flow
@@ -572,6 +590,7 @@ concisely directly in the table.
 | `flow_rate_force.value`                 | Bulk velocity or volumetric flow rate.                                                            | Positive real                                    | -             |
 | `flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                | -             |
 | `freeze`                                | Whether to fix the velocity field at initial conditions.                                          | `true` or `false`                                | `false`       |
+| `advection`                             | Whether to compute the advetion term.                                                             | `true` or `false`                                | `true`        |
 
 ## Scalar {#case-file_scalar}
 The scalar object allows to add a scalar transport equation to the solution.
@@ -646,7 +665,8 @@ of using source terms for the scalar can be found in the `scalar_mms` example.
 | `initial_condition.type`  | Initial condition type.                                  | `user`, `uniform`, `point_zone` | -             |
 | `initial_condition.value` | Value of the velocity initial condition.                 | Real                            | -             |
 | `source_terms`            | Array of JSON objects, defining additional source terms. | See list of source terms above  | -             |
-|`gradient_jump_penalty`    | Array of JSON objects, defining additional gradient jump penalty. | See list of gradient jump penalty above | -  |
+| `gradient_jump_penalty`   | Array of JSON objects, defining additional gradient jump penalty. | See list of gradient jump penalty above | -  |
+| `advection`               | Whether to compute the advetion term.                    | `true` or `false`               | `true`        |
 
 ## Statistics
 
