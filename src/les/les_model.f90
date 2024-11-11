@@ -218,7 +218,7 @@ contains
 
           dj = (this%coef%dof%x(1, 1, 1, e) &
               - this%coef%dof%x(1, this%coef%Xh%ly, 1, e))**2 &
-             + (this%coef%dof%y(1, 1, e) &
+             + (this%coef%dof%y(1, 1, 1, e) &
               - this%coef%dof%y(1, this%coef%Xh%ly, 1, e))**2 &
              + (this%coef%dof%z(1, 1, 1, e) &
               - this%coef%dof%z(1, this%coef%Xh%ly, 1, e))**2
