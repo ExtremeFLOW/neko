@@ -176,7 +176,7 @@ contains
     ly_half = this%coef%Xh%ly / 2
     lz_half = this%coef%Xh%lz / 2
 
-    if (this%delta_type .eq. "elementwise") then
+    if (this%delta_type .eq. "elementwise_max") then
        ! use a same length scale throughout an entire element
        ! the length scale is based on maximum GLL spacing
        do e = 1, this%coef%msh%nelv
@@ -205,7 +205,35 @@ contains
           dk = sqrt(dk)
           this%delta%x(:,:,:,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
        end do
+    else if (this%delta_type .eq. "elementwise_avg") then
+       ! use a same length scale throughout an entire element
+       ! the length scale is based on the average GLL spacing
+       do e = 1, this%coef%msh%nelv
+          di = (this%coef%dof%x(1, 1, 1, e) &
+              - this%coef%dof%x(this%coef%Xh%lx, 1, 1, e))**2 &
+             + (this%coef%dof%y(1, 1, 1, e) &
+              - this%coef%dof%y(this%coef%Xh%lx, 1, 1, e))**2 &
+             + (this%coef%dof%z(1, 1, 1, e) &
+              - this%coef%dof%z(this%coef%Xh%lx, 1, 1, e))**2
 
+          dj = (this%coef%dof%x(1, 1, 1, e) &
+              - this%coef%dof%x(1, this%coef%Xh%ly, 1, e))**2 &
+             + (this%coef%dof%y(1, 1, e) &
+              - this%coef%dof%y(1, this%coef%Xh%ly, 1, e))**2 &
+             + (this%coef%dof%z(1, 1, 1, e) &
+              - this%coef%dof%z(1, this%coef%Xh%ly, 1, e))**2
+
+          dk = (this%coef%dof%x(1, 1, 1, e) &
+              - this%coef%dof%x(1, 1, this%coef%Xh%lz, e))**2 &
+             + (this%coef%dof%y(1, 1, 1, e) &
+              - this%coef%dof%y(1, 1, this%coef%Xh%lz, e))**2 &
+             + (this%coef%dof%z(1, 1, 1, e) &
+              - this%coef%dof%z(1, 1, this%coef%Xh%ly, e))**2
+          di = sqrt(di) / (this%coef%Xh%lx - 1)
+          dj = sqrt(dj) / (this%coef%Xh%ly - 1)
+          dk = sqrt(dk) / (this%coef%Xh%lz - 1)
+          this%delta%x(:,:,:,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
+       end do
     else if (this%delta_type .eq. "pointwise") then
        do e = 1, this%coef%msh%nelv
           do k = 1, this%coef%Xh%lz
