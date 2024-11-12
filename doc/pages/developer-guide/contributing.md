@@ -38,7 +38,7 @@ contains
     if (x .lt. y) then
        ...
     end if
-    
+
   end subroutine foo
 end module example
 ```
@@ -52,7 +52,7 @@ Floating-point numbers should be declared using `real` with the kind `rp`, which
 ## Build system
 This section contains information on how to add new source files to the build system. _Note that this section currently only covers Fortran code. It will be updated with information on how to add accelerator code and unit tests in a near future._
 
-Neko uses Autotools for building all sources. You will need to have at least `autoconf` and `automake` installed for development work. It is also highly recommended to have `makedepf90` installed to avoid error-prone manual dependency tracking.
+Neko uses Autotools for building all sources. You will need to have at least `autoconf` and `automake` installed for development work. It is also highly recommended to have `makedepf90` installed to avoid error-prone manual dependency tracking. Since Neko uses `submodules`, a recent version of `makedepf90` from  https://salsa.debian.org/science-team/makedepf90 is needed.
 
 The following steps describe how to add a new Fortran file to Neko's build system
 1. Place the file in an appropriate subdirectory under `src/`. Either create a new subdirectory or place the file in `common` if none of the existing directories is a good match. Avoid placing the file directly under `src`
@@ -70,6 +70,6 @@ The following steps describe how to add a new Fortran file to Neko's build syste
       - Regenerate build system by running `./regen.sh` at the top level.
 4. Finally reconfigure using `configure` and rebuild Neko with your new contribution!
 
-For more information, please refer to the documentation https://extremeflow.github.io/neko
+For more information, please refer to the documentation at https://neko.cfd
 
 **Happy hacking!** 🍻

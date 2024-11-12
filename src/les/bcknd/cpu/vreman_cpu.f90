@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2023-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,8 @@ module vreman_cpu
   use field, only : field_t
   use operators, only : dudxyz
   use coefs, only : coef_t
-  implicit none
+  use gs_ops, only : GS_OP_ADD
+   implicit none
   private
 
   public :: vreman_compute_cpu
@@ -78,7 +79,7 @@ contains
 
     u => neko_field_registry%get_field_by_name("u")
     v => neko_field_registry%get_field_by_name("v")
-    w => neko_field_registry%get_field_by_name("u")
+    w => neko_field_registry%get_field_by_name("w")
 
     call neko_scratch_registry%request_field(a11, temp_indices(1))
     call neko_scratch_registry%request_field(a12, temp_indices(2))
@@ -104,8 +105,30 @@ contains
     call dudxyz (a32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (a33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
-    do e=1, coef%msh%nelv
-       do i=1, coef%Xh%lxyz
+    call coef%gs_h%op(a11, GS_OP_ADD)
+    call coef%gs_h%op(a12, GS_OP_ADD)
+    call coef%gs_h%op(a13, GS_OP_ADD)
+    call coef%gs_h%op(a21, GS_OP_ADD)
+    call coef%gs_h%op(a22, GS_OP_ADD)
+    call coef%gs_h%op(a23, GS_OP_ADD)
+    call coef%gs_h%op(a31, GS_OP_ADD)
+    call coef%gs_h%op(a32, GS_OP_ADD)
+    call coef%gs_h%op(a33, GS_OP_ADD)
+
+    do concurrent (i = 1:a11%dof%size())
+       a11%x(i,1,1,1) = a11%x(i,1,1,1) * coef%mult(i,1,1,1)
+       a12%x(i,1,1,1) = a12%x(i,1,1,1) * coef%mult(i,1,1,1)
+       a13%x(i,1,1,1) = a13%x(i,1,1,1) * coef%mult(i,1,1,1)
+       a21%x(i,1,1,1) = a21%x(i,1,1,1) * coef%mult(i,1,1,1)
+       a22%x(i,1,1,1) = a22%x(i,1,1,1) * coef%mult(i,1,1,1)
+       a23%x(i,1,1,1) = a23%x(i,1,1,1) * coef%mult(i,1,1,1)
+       a31%x(i,1,1,1) = a31%x(i,1,1,1) * coef%mult(i,1,1,1)
+       a32%x(i,1,1,1) = a32%x(i,1,1,1) * coef%mult(i,1,1,1)
+       a33%x(i,1,1,1) = a33%x(i,1,1,1) * coef%mult(i,1,1,1)
+    end do
+
+    do concurrent (e = 1:coef%msh%nelv)
+       do concurrent (i = 1:coef%Xh%lxyz)
           ! beta_ij = alpha_mi alpha_mj
           beta11 = a11%x(i,1,1,e)**2 + a21%x(i,1,1,e)**2 + a31%x(i,1,1,e)**2
           beta22 = a12%x(i,1,1,e)**2 + a22%x(i,1,1,e)**2 + a32%x(i,1,1,e)**2
@@ -128,7 +151,8 @@ contains
           ! alpha_ij alpha_ij
           aijaij = beta11 + beta22 + beta33
 
-          nut%x(i,1,1,e) = c*delta%x(i,1,1,e) * sqrt(b_beta/(aijaij + NEKO_EPS))
+          nut%x(i,1,1,e) = c*delta%x(i,1,1,e)*delta%x(i,1,1,e) &
+                            * sqrt(b_beta/(aijaij + NEKO_EPS))
        end do
     end do
 

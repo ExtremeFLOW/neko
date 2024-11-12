@@ -32,8 +32,8 @@
 !
 !> Stores a series fields
 module field_series
-  use num_types
-  use field
+  use num_types, only : rp
+  use field, only : field_t
   implicit none
   private
 
@@ -48,6 +48,11 @@ module field_series
      procedure, pass(this) :: set => field_series_set
      procedure, pass(this) :: size => field_series_size
   end type field_series_t
+
+  !> field_series_ptr_t, To easily obtain a pointer to a field series
+  type, public :: field_series_ptr_t
+     type(field_series_t), pointer :: ptr => null()
+  end type field_series_ptr_t
 
 contains
 

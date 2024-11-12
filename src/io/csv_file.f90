@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,6 @@ contains
     class(*), target, intent(in) :: data
     real(kind=rp), intent(in), optional :: t
 
-    real(kind=rp) :: time
     type(vector_t), pointer :: vec
     type(matrix_t), pointer :: mat
 
@@ -122,8 +121,7 @@ contains
     class(csv_file_t), intent(inout) :: f
     type(vector_t), intent(in) :: data
     real(kind=rp), intent(in), optional :: t
-    character(len=1024) :: fname
-    integer :: suffix_pos, file_unit, i, ierr
+    integer :: file_unit, ierr
 
     open(file = trim(f%fname), position = "append", iostat = ierr, &
          newunit = file_unit)
@@ -154,7 +152,7 @@ contains
     class(csv_file_t), intent(inout) :: f
     type(matrix_t), intent(in) :: data
     real(kind=rp), intent(in), optional :: t
-    integer :: file_unit, i,j, ierr
+    integer :: file_unit, i, ierr
 
     open(file = trim(f%fname), position = "append", iostat = ierr, &
          newunit = file_unit)
@@ -278,7 +276,7 @@ contains
 
     ! If the number of lines is larger than the number of rows in the
     ! matrix, assume that means there is a header
-    if (n_lines .lt. mat%nrows) then
+    if (n_lines .gt. mat%nrows) then
        read (file_unit, '(A)') tmp
        f%header = trim(tmp)
     end if
@@ -310,7 +308,11 @@ contains
     integer :: n
     integer :: ierr, file_unit
 
-    open(file = trim(this%fname), status = 'old', newunit = file_unit)
+    call this%check_exists()
+
+    open(file = trim(this%fname), status = 'old', newunit = file_unit, &
+         iostat = ierr)
+    if (ierr .ne. 0) call neko_error("Error while opening " // trim(this%fname))
     rewind(file_unit)
 
     n = 0

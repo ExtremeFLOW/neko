@@ -37,7 +37,7 @@ module mesh
   use element, only : element_t
   use hex
   use quad
-  use utils, only : neko_error
+  use utils, only : neko_error, neko_warning
   use stack, only : stack_i4_t, stack_i8_t, stack_i4t4_t, stack_i4t2_t
   use tuple, only : tuple_i4_t, tuple4_i4_t
   use htable
@@ -48,6 +48,7 @@ module mesh
   use math
   use uset, only : uset_i8_t
   use curve, only : curve_t
+  use logger, only : LOG_SIZE
   implicit none
   private
 
@@ -185,11 +186,17 @@ contains
     integer, intent(in) :: gdim          !< Geometric dimension
     integer, intent(in) :: nelv          !< Local number of elements
     integer :: ierr
+    character(len=LOG_SIZE) :: log_buf
 
     call this%free()
 
     this%nelv = nelv
     this%gdim = gdim
+
+    if (this%nelv < 1) then
+       write(log_buf, '(A,I0,A)') 'MPI rank ', pe_rank, ' has zero elements'
+       call neko_warning(log_buf)
+    end if
 
     call MPI_Allreduce(this%nelv, this%glb_nelv, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
@@ -207,10 +214,15 @@ contains
     class(mesh_t), intent(inout) :: this    !< Mesh
     integer, intent(in) :: gdim             !< Geometric dimension
     type(linear_dist_t), intent(in) :: dist !< Data distribution
+    character(len=LOG_SIZE) :: log_buf
 
     call this%free()
 
     this%nelv = dist%num_local()
+    if (this%nelv < 1) then
+       write(log_buf, '(A,I0,A)') 'MPI rank ', pe_rank, ' has zero elements'
+       call neko_warning(log_buf)
+    end if
     this%glb_nelv = dist%num_global()
     this%offset_el = dist%start_idx()
     this%gdim = gdim
@@ -390,7 +402,7 @@ contains
   subroutine mesh_finalize(this)
     class(mesh_t), target, intent(inout) :: this
     integer :: i
-    
+
     call mesh_generate_flags(this)
     call mesh_generate_conn(this)
 
@@ -455,14 +467,14 @@ contains
     class(element_t), pointer :: ep
     type(tuple_i4_t) :: e
     type(tuple4_i4_t) :: f
-    integer :: p_local_idx, res
+    integer :: p_local_idx
     integer :: el, id
     integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes, src, dst
 
     if (this%lconn) return
 
     if (.not. this%lgenc) return
- 
+
     !If we generate connectivity, we do that here.
     do el = 1, this%nelv
        ep => this%elements(el)%e
@@ -1388,7 +1400,7 @@ contains
     integer, value :: el
     type(point_t), target, intent(inout) :: p1, p2, p3, p4
     class(element_t), pointer :: ep
-    integer :: p(4), el_glb_idx, i, p_local_idx
+    integer :: p(4), el_glb_idx
     type(tuple_i4_t) :: e
 
     ! Connectivity invalidated if a new element is added
@@ -1424,7 +1436,7 @@ contains
     integer, value :: el
     type(point_t), target, intent(inout) :: p1, p2, p3, p4, p5, p6, p7, p8
     class(element_t), pointer :: ep
-    integer :: p(8), el_glb_idx, i, p_local_idx
+    integer :: p(8), el_glb_idx
     type(tuple4_i4_t) :: f
     type(tuple_i4_t) :: e
 
@@ -1666,7 +1678,6 @@ contains
     type(point_t), pointer :: pi
     type(tuple4_i4_t) :: t
     type(tuple_i4_t) :: t2
-    integer :: i
 
     select type(ele => this%elements(e)%e)
     type is(hex_t)

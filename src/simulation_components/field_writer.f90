@@ -125,13 +125,12 @@ contains
        end if
        do i=1, size(fields)
           fieldi = trim(fields(i))
-          this%output%fields%fields(i)%f => &
-            neko_field_registry%get_field(fieldi)
+          call this%output%fields%assign(i, neko_field_registry%get_field(fieldi))
        end do
 
-       call this%case%s%add(this%output, &
-                            this%output_controller%control_value, &
-                            this%output_controller%control_mode)
+       call this%case%output_controller%add(this%output, &
+            this%output_controller%control_value, &
+            this%output_controller%control_mode)
     else
       do i=1, size(fields)
          fieldi = trim(fields(i))

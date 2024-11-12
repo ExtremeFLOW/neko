@@ -44,6 +44,8 @@ module dong_outflow
   use device_dong_outflow
   use field_registry, only : neko_field_registry
   use, intrinsic :: iso_c_binding, only : c_ptr, c_sizeof
+  use json_module, only : json_file
+  use json_utils, only : json_get, json_get_or_default
   implicit none
   private
 
@@ -52,7 +54,7 @@ module dong_outflow
   !! "A Convective-like Energy-Stable Open Boundary Condition for
   !! Simulations of Incompressible Flows"
   !! by S. Dong
-  type, public, extends(dirichlet_t) :: dong_outflow_t
+  type, public, extends(bc_t) :: dong_outflow_t
      type(field_t), pointer :: u
      type(field_t), pointer :: v
      type(field_t), pointer :: w
@@ -66,14 +68,16 @@ module dong_outflow
      procedure, pass(this) :: apply_vector => dong_outflow_apply_vector
      procedure, pass(this) :: apply_scalar_dev => dong_outflow_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => dong_outflow_apply_vector_dev
-     procedure, pass(this) :: set_vars => dong_outflow_set_vars
+     procedure, pass(this) :: init => dong_outflow_init
+     !> Destructor.
+     procedure, pass(this) :: free => dong_outflow_free
   end type dong_outflow_t
 
 contains
-  subroutine dong_outflow_set_vars(this, uinf, delta)
+  subroutine dong_outflow_init(this, coef, json)
     class(dong_outflow_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: uinf
-    real(kind=rp), optional, intent(in) :: delta
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) :: json
     real(kind=rp), allocatable :: temp_x(:)
     real(kind=rp), allocatable :: temp_y(:)
     real(kind=rp), allocatable :: temp_z(:)
@@ -81,20 +85,21 @@ contains
     integer :: i, m, k, facet, idx(4)
     real(kind=rp) :: normal_xyz(3)
 
+!    call this%dirichlet_t%init
 
-    if (present(delta)) then
-       this%delta = delta
-    else
-       this%delta = 0.01_rp
-    end if
-    this%uinf = uinf
+    call json_get_or_default(json, 'case.fluid.outflow_condition.delta', &
+                             this%delta, 0.01_rp)
+    call json_get_or_default(json, 'case.fluid.outflow_condition.velocity_scale', &
+                             this%uinf, 1.0_rp)
+
     this%u => neko_field_registry%get_field("u")
     this%v => neko_field_registry%get_field("v")
     this%w => neko_field_registry%get_field("w")
+
     if ((NEKO_BCKND_DEVICE .eq. 1) .and. (this%msk(0) .gt. 0)) then
-       call device_alloc(this%normal_x_d,c_sizeof(dummy)*this%msk(0))
-       call device_alloc(this%normal_y_d,c_sizeof(dummy)*this%msk(0))
-       call device_alloc(this%normal_z_d,c_sizeof(dummy)*this%msk(0))
+       call device_alloc(this%normal_x_d, c_sizeof(dummy)*this%msk(0))
+       call device_alloc(this%normal_y_d, c_sizeof(dummy)*this%msk(0))
+       call device_alloc(this%normal_z_d, c_sizeof(dummy)*this%msk(0))
        m = this%msk(0)
        allocate(temp_x(m))
        allocate(temp_y(m))
@@ -117,7 +122,7 @@ contains
                             HOST_TO_DEVICE, sync=.true.)
          deallocate( temp_x, temp_y, temp_z)
       end if
-  end subroutine dong_outflow_set_vars
+  end subroutine dong_outflow_init
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to a vector @a x
@@ -189,5 +194,13 @@ contains
     !                                   this%g, size(this%msk))
 
   end subroutine dong_outflow_apply_vector_dev
+
+  !> Destructor
+  subroutine dong_outflow_free(this)
+    class(dong_outflow_t), target, intent(inout) :: this
+
+    call this%free_base
+
+  end subroutine dong_outflow_free
 
 end module dong_outflow

@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2021, The Neko Authors
+! Copyright (c) 2019-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -58,6 +58,8 @@ module point_zone
      logical, private :: finalized = .false.
      !> Name of the point zone (used for retrieval in the point_zone_registry).
      character(len=80) :: name
+     !> If we select the inverse of the criterion or not
+     logical :: invert = .false.
    contains
      !> Constructor for the point_zone_t base type.
      procedure, pass(this) :: init_base => point_zone_init_base
@@ -83,6 +85,11 @@ module point_zone
      class(point_zone_t), allocatable :: pz
   end type point_zone_wrapper_t
 
+  !> A helper type to build a list of pointers to point_zones
+  type, public :: point_zone_pointer_t
+     class(point_zone_t), pointer :: pz => null()
+  end type point_zone_pointer_t
+
   abstract interface
      !> Defines the criterion of selection of a GLL point to the point_zone.
      !! @param x x-coordinate of the GLL point.
@@ -92,7 +99,8 @@ module point_zone
      !! @param k 2nd nonlinear index of the GLL point.
      !! @param l 3rd nonlinear index of the GLL point.
      !! @param e element index of the GLL point.
-     pure function point_zone_criterion(this, x, y, z, j, k, l, e) result(is_inside)
+     pure function point_zone_criterion(this, x, y, z, j, k, l, e) &
+          result(is_inside)
        import :: point_zone_t
        import :: rp
        class(point_zone_t), intent(in) :: this
@@ -129,15 +137,33 @@ module point_zone
      end subroutine point_zone_free
   end interface
 
+  interface
+     !> Point zone factory. Constructs, initializes, and maps the
+     !! point zone object.
+     !! @param object The object allocated by the factory.
+     !! @param json JSON object initializing the point zone.
+     !! @param dof Dofmap from which to map the point zone.
+     module subroutine point_zone_factory(object, json, dof)
+       class(point_zone_t), allocatable, intent(inout) :: object
+       type(json_file), intent(inout) :: json
+       type(dofmap_t), intent(inout), optional :: dof
+     end subroutine point_zone_factory
+  end interface
+
+  public :: point_zone_factory
+
 contains
 
   !> Constructor for the point_zone_t base type.
   !! @param size Size of the scratch stack.
   !! @param name Name of the point zone.
-  subroutine point_zone_init_base(this, size, name)
+  !! @param invert Flag to indicate wether or not to invert the selection
+  !! of points.
+  subroutine point_zone_init_base(this, size, name, invert)
     class(point_zone_t), intent(inout) :: this
     integer, intent(in), optional :: size
     character(len=*), intent(in) :: name
+    logical, intent(in) :: invert
 
     call point_zone_free_base(this)
 
@@ -148,6 +174,7 @@ contains
     end if
 
     this%name = trim(name)
+    this%invert = invert
 
   end subroutine point_zone_init_base
 
@@ -177,21 +204,30 @@ contains
 
     if (.not. this%finalized) then
 
-       allocate(this%mask(this%scratch%size()))
+       if (this%scratch%size() .ne. 0) then
 
-       tp => this%scratch%array()
-       do i = 1, this%scratch%size()
-          this%mask(i) = tp(i)
-       end do
+          allocate(this%mask(this%scratch%size()))
 
-       this%size = this%scratch%size()
+          tp => this%scratch%array()
+          do i = 1, this%scratch%size()
+             this%mask(i) = tp(i)
+          end do
 
-       call this%scratch%clear()
+          this%size = this%scratch%size()
 
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_map(this%mask, this%mask_d, this%size)
-          call device_memcpy(this%mask, this%mask_d, this%size, &
-                             HOST_TO_DEVICE, sync=.false.)
+          call this%scratch%clear()
+
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call device_map(this%mask, this%mask_d, this%size)
+             call device_memcpy(this%mask, this%mask_d, this%size, &
+                  HOST_TO_DEVICE, sync = .false.)
+          end if
+
+       else
+
+          this%size = 0
+          call this%scratch%clear()
+
        end if
 
        this%finalized = .true.
@@ -238,7 +274,7 @@ contains
        iz = nlindex(3)
        ie = nlindex(4)
 
-       if (this%criterion(x, y, z, ix, iy, iz, ie)) then
+       if (this%invert .neqv. this%criterion(x, y, z, ix, iy, iz, ie)) then
           idx = i
           call this%add(idx)
        end if

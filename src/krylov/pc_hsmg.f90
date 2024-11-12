@@ -59,31 +59,31 @@
 !
 !> Krylov preconditioner
 module hsmg
-  use neko_config
-  use num_types
-  use math
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp
+  use math, only : copy, col2, add2
   use utils, only : neko_error
-  use precon, only : pc_t
-  use ax_product, only : ax_t
-  use ax_helm_fctry, only : ax_helm_factory
-  use gather_scatter
-  use interpolation
-  use bc
+  use precon, only : pc_t, precon_factory, precon_destroy
+  use ax_product, only : ax_t, ax_helm_factory
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use interpolation, only : interpolator_t
+  use bc, only : bc_t, bc_list_apply_scalar, bc_list_t, bc_list_add, &
+       bc_list_init
   use dirichlet, only : dirichlet_t
   use schwarz, only : schwarz_t
   use jacobi, only : jacobi_t
   use sx_jacobi, only : sx_jacobi_t
   use device_jacobi, only : device_jacobi_t
   use device
-  use device_math
-  use profiler
-  use space
+  use device_math, only : device_copy, device_col2, device_add2
+  use profiler, only : profiler_start_region, profiler_end_region
+  use space, only : space_t, GLL
   use dofmap, only : dofmap_t
   use field, only : field_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
-  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use krylov_fctry, only : krylov_solver_factory, krylov_solver_destroy
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
+       krylov_solver_factory, krylov_solver_destroy
   !$ use omp_lib
   implicit none
   private
@@ -152,7 +152,9 @@ contains
     if (Xh%lx .lt. 5) then
        lx_mid = max(Xh%lx-1,3)
 
-       if(Xh%lx .le. 2) call neko_error('Polynomial order < 2 not supported for hsmg precon')
+       if(Xh%lx .le. 2) then
+          call neko_error('Polynomial order < 2 not supported for hsmg precon')
+       end if
 
     else
        lx_mid = 4
@@ -171,32 +173,22 @@ contains
     call this%wf%init(dof, 'work 2')
 
     call this%Xh_crs%init(GLL, lx_crs, lx_crs, lx_crs)
-    this%dm_crs = dofmap_t(msh, this%Xh_crs)
+    call this%dm_crs%init(msh, this%Xh_crs)
     call this%gs_crs%init(this%dm_crs)
     call this%e_crs%init(this%dm_crs, 'work crs')
     call this%c_crs%init(this%gs_crs)
 
     call this%Xh_mg%init(GLL, lx_mid, lx_mid, lx_mid)
-    this%dm_mg = dofmap_t(msh, this%Xh_mg)
+    call this%dm_mg%init(msh, this%Xh_mg)
     call this%gs_mg%init(this%dm_mg)
     call this%e_mg%init(this%dm_mg, 'work midl')
     call this%c_mg%init(this%gs_mg)
 
     ! Create backend specific Ax operator
-    call ax_helm_factory(this%ax)
-
+    call ax_helm_factory(this%ax, full_formulation = .false.)
 
     ! Create a backend specific preconditioner
-    ! Note we can't call the pc factory since hsmg is a pc...
-    if (NEKO_BCKND_SX .eq. 1) then
-       allocate(sx_jacobi_t::this%pc_crs)
-    else if (NEKO_BCKND_XSMM .eq. 1) then
-       allocate(jacobi_t::this%pc_crs)
-    else if (NEKO_BCKND_DEVICE .eq. 1) then
-       allocate(device_jacobi_t::this%pc_crs)
-    else
-       allocate(jacobi_t::this%pc_crs)
-    end if
+    call precon_factory(this%pc_crs, 'jacobi')
 
     ! Create a backend specific krylov solver
     if (present(crs_pctype)) then
@@ -207,9 +199,9 @@ contains
             this%dm_crs%size(), 'cg', KSP_MAX_ITER, M = this%pc_crs)
     end if
 
-    call this%bc_crs%init(this%c_crs)
-    call this%bc_mg%init(this%c_mg)
-    call this%bc_reg%init(coef)
+    call this%bc_crs%init_base(this%c_crs)
+    call this%bc_mg%init_base(this%c_mg)
+    call this%bc_reg%init_base(coef)
     if (bclst%n .gt. 0) then
        do i = 1, bclst%n
           call this%bc_reg%mark_facets(bclst%bc(i)%bcp%marked_facet)
@@ -218,12 +210,12 @@ contains
        end do
     end if
     call this%bc_reg%finalize()
-    call this%bc_reg%set_g(real(0d0,rp))
+    call this%bc_reg%set_g(real(0d0, rp))
     call bc_list_init(this%bclst_reg)
     call bc_list_add(this%bclst_reg, this%bc_reg)
 
     call this%bc_crs%finalize()
-    call this%bc_crs%set_g(real(0d0,rp))
+    call this%bc_crs%set_g(real(0d0, rp))
     call bc_list_init(this%bclst_crs)
     call bc_list_add(this%bclst_crs, this%bc_crs)
 
@@ -237,8 +229,8 @@ contains
     call this%schwarz_mg%init(this%Xh_mg, this%dm_mg, this%gs_mg,&
                               this%bclst_mg, msh)
 
-    call this%interp_fine_mid%init(Xh,this%Xh_mg)
-    call this%interp_mid_crs%init(this%Xh_mg,this%Xh_crs)
+    call this%interp_fine_mid%init(Xh, this%Xh_mg)
+    call this%interp_mid_crs%init(this%Xh_mg, this%Xh_crs)
 
     call hsmg_fill_grid(dof, gs_h, Xh, coef, this%bclst_reg, this%schwarz, &
                         this%e, this%grids, 3)
@@ -254,6 +246,7 @@ contains
        call device_map(this%w, this%w_d, n)
        call device_map(this%r, this%r_d, n)
     end if
+
     select type(pc => this%pc_crs)
     type is (jacobi_t)
        call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
@@ -262,6 +255,7 @@ contains
     type is (device_jacobi_t)
        call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
     end select
+    
     call device_event_create(this%hsmg_event, 2)
     call device_event_create(this%gs_event, 2)
   end subroutine hsmg_init
@@ -281,7 +275,7 @@ contains
 
 
   subroutine hsmg_fill_grid(dof, gs_h, Xh, coef, bclst, schwarz, e, grids, l)
-    type(dofmap_t), target, intent(in):: dof
+    type(dofmap_t), target, intent(in) :: dof
     type(gs_t), target, intent(in) :: gs_h
     type(space_t), target, intent(in) :: Xh
     type(coef_t), target, intent(in) :: coef
@@ -341,13 +335,7 @@ contains
     end if
 
     if (allocated(this%pc_crs)) then
-       select type(pc => this%pc_crs)
-       type is (jacobi_t)
-          call pc%free()
-       type is (sx_jacobi_t)
-          call pc%free()
-       end select
-       deallocate(this%pc_crs)
+       call precon_destroy(this%pc_crs)
     end if
 
   end subroutine hsmg_free
@@ -360,9 +348,9 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: r
     type(c_ptr) :: z_d, r_d
     type(ksp_monitor_t) :: crs_info
-    integer :: i, thrdid, nthrds
+    integer :: thrdid, nthrds
 
-    call profiler_start_region('HSMG solve', 8)
+    call profiler_start_region('HSMG_solve', 8)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        z_d = device_get_ptr(z)
        r_d = device_get_ptr(r)
@@ -389,7 +377,7 @@ contains
        call device_col2(this%w_d, this%grids(2)%coef%mult_d, &
                         this%grids(2)%dof%size())
        !restrict residual to crs
-       call this%interp_mid_crs%map(this%wf%x, this%w,this%msh%nelv, &
+       call this%interp_mid_crs%map(this%wf%x, this%w, this%msh%nelv, &
                                     this%grids(1)%Xh)
        !Crs solve
        call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
@@ -404,28 +392,29 @@ contains
        !$ nthrds = omp_get_num_threads()
 
        if (thrdid .eq. 0) then
-          call profiler_start_region('HSMG schwarz', 9)
+          call profiler_start_region('HSMG_schwarz', 9)
           call this%grids(3)%schwarz%compute(z, this%r)
-          call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)
-          call profiler_end_region
+          call this%grids(2)%schwarz%compute(this%grids(2)%e%x, this%w)
+          call profiler_end_region('HSMG_schwarz', 9)
        end if
        if (nthrds .eq. 1 .or. thrdid .eq. 1) then
-          call profiler_start_region('HSMG coarse grid', 10)
+          call profiler_start_region('HSMG_coarse_grid', 10)
           call this%grids(1)%gs_h%op(this%wf%x, &
                this%grids(1)%dof%size(), GS_OP_ADD, this%gs_event)
           call device_event_sync(this%gs_event)
           call bc_list_apply_scalar(this%grids(1)%bclst, this%wf%x, &
                                     this%grids(1)%dof%size())
-          call profiler_start_region('HSMG coarse-solve', 11)
-          crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%wf%x, &
+          call profiler_start_region('HSMG_coarse_solve', 11)
+          crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, &
+                                       this%wf%x, &
                                        this%grids(1)%dof%size(), &
                                        this%grids(1)%coef, &
                                        this%grids(1)%bclst, &
                                        this%grids(1)%gs_h, this%niter)
-          call profiler_end_region
+          call profiler_end_region('HSMG_coarse_solve', 11)
           call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
                                     this%grids(1)%dof%size())
-          call profiler_end_region
+          call profiler_end_region('HSMG_coarse_grid', 10)
        end if
        !$omp end parallel
 
@@ -439,7 +428,8 @@ contains
        call this%grids(3)%gs_h%op(z, this%grids(3)%dof%size(), &
                                      GS_OP_ADD, this%gs_event)
        call device_event_sync(this%gs_event)
-       call device_col2(z_d, this%grids(3)%coef%mult_d, this%grids(3)%dof%size())
+       call device_col2(z_d, this%grids(3)%coef%mult_d, &
+                        this%grids(3)%dof%size())
     else
        !We should not work with the input
        call copy(this%r, r, n)
@@ -454,22 +444,23 @@ contains
                                      this%msh%nelv, this%grids(2)%Xh)
        call this%grids(2)%gs_h%op(this%w, this%grids(2)%dof%size(), GS_OP_ADD)
        !OVERLAPPING Schwarz exchange and solve
-       call this%grids(2)%schwarz%compute(this%grids(2)%e%x,this%w)
+       call this%grids(2)%schwarz%compute(this%grids(2)%e%x, this%w)
        call col2(this%w, this%grids(2)%coef%mult, this%grids(2)%dof%size())
        !restrict residual to crs
-       call this%interp_mid_crs%map(this%r,this%w,this%msh%nelv,this%grids(1)%Xh)
+       call this%interp_mid_crs%map(this%r, this%w, &
+            this%msh%nelv, this%grids(1)%Xh)
        !Crs solve
 
        call this%grids(1)%gs_h%op(this%r, this%grids(1)%dof%size(), GS_OP_ADD)
        call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
                                  this%grids(1)%dof%size())
-       call profiler_start_region('HSMG coarse-solve', 11)
+       call profiler_start_region('HSMG_coarse-solve', 11)
        crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
                                     this%grids(1)%dof%size(), &
                                     this%grids(1)%coef, &
                                     this%grids(1)%bclst, &
                                     this%grids(1)%gs_h, this%niter)
-       call profiler_end_region
+       call profiler_end_region('HSMG_coarse-solve', 11)
        call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
                                  this%grids(1)%dof%size())
 
@@ -485,6 +476,6 @@ contains
        call col2(z, this%grids(3)%coef%mult, this%grids(3)%dof%size())
 
     end if
-    call profiler_end_region
+    call profiler_end_region('HSMG_solve', 8)
   end subroutine hsmg_solve
 end module hsmg

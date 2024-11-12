@@ -181,10 +181,10 @@ contains
     ! Check that we are being called by `fluid`
     if (trim(which_solver) .eq. "fluid") then
 
-       associate(u => field_bc_list%fields(1)%f, &
-            v => field_bc_list%fields(2)%f, &
-            w => field_bc_list%fields(3)%f, &
-            p => field_bc_list%fields(4)%f)
+       associate(u => field_bc_list%items(1)%ptr, &
+            v => field_bc_list%items(2)%ptr, &
+            w => field_bc_list%items(3)%ptr, &
+            p => field_bc_list%items(4)%ptr)
 
          !
          ! Perform operations on u%x, v%x, w%x and p%x here
@@ -205,7 +205,7 @@ contains
     ! Check that we are being called by `scalar`
     else if (trim(which_solver) .eq. "scalar") then
 
-       associate( s => field_bc_list%fields(1)%f, &
+       associate( s => field_bc_list%items(1)%ptr, &
             s_bc => bc_bc_list%bc(1)%bcp)
 
          !

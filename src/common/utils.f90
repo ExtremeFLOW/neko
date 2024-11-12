@@ -33,7 +33,9 @@
 !> Utilities
 !! @details Various utility functions
 module utils
+  use, intrinsic :: iso_fortran_env, only: error_unit, output_unit
   implicit none
+  private
 
   integer, parameter :: NEKO_FNAME_LEN = 1024
 
@@ -41,20 +43,26 @@ module utils
      module procedure neko_error_plain, neko_error_msg
   end interface neko_error
 
+  public :: neko_error, neko_warning, nonlinear_index, filename_chsuffix, &
+       filename_suffix, filename_suffix_pos, filename_tslash_pos, &
+       linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
+       concat_string_array, extract_fld_file_index
+
+
 contains
 
   !> Find position (in the string) of a filename's suffix
   pure function filename_suffix_pos(fname) result(suffix_pos)
     character(len=*), intent(in) :: fname
     integer :: suffix_pos
-    suffix_pos = scan(trim(fname), '.', back=.true.)
+    suffix_pos = scan(trim(fname), '.', back = .true.)
   end function filename_suffix_pos
 
   !> Find position (in the string) of a filename's trailing slash
   pure function filename_tslash_pos(fname) result(tslash_pos)
     character(len=*), intent(in) :: fname
     integer :: tslash_pos
-    tslash_pos = scan(trim(fname), '/', back=.true.)
+    tslash_pos = scan(trim(fname), '/', back = .true.)
   end function filename_tslash_pos
 
   !> Extract a filename's suffix
@@ -76,23 +84,69 @@ contains
 
   end subroutine filename_chsuffix
 
+  !> Extracts the index of a field file. For example, "myfield.f00045"
+  !! will return `45`. If the suffix of the file name is invalid, returns
+  !! a default index value.
+  !! @param fld_filename Name of the fld file, e.g. `myfield0.f00035`.
+  !! @param default_index The index to return in case the suffix of
+  !! `fld_filename` is invalid.
+  function extract_fld_file_index(fld_filename, default_index) result(index)
+    character(len=*), intent(in) :: fld_filename
+    integer, intent(in) :: default_index
+
+    character(len=80) :: suffix
+    integer :: index, fpos, i
+    logical :: valid
+
+    call filename_suffix(fld_filename, suffix)
+
+    valid = .true.
+
+    ! This value will be modified when reading the file name extension
+    ! e.g. "field0.f00035" will set sample_idx = 35
+    index = default_index
+
+    !
+    ! Try to extract the index of the field file from the suffix "fxxxxx"
+    !
+    fpos = scan(trim(suffix), 'f')
+    if (fpos .eq. 1) then
+       ! Make sure that the suffix only contains integers from 0 to 9
+       do i = 2, len(trim(suffix))
+          if (.not. (iachar(suffix(i:i)) >= iachar('0') &
+               .and. iachar(suffix(i:i)) <= iachar('9'))) then
+             valid = .false.
+          end if
+       end do
+    else
+       valid = .false.
+    end if
+
+    ! Must be exactly 6 characters long, i.e. an 'f' with 5 integers after
+    if (len(trim(suffix)) .ne. 6) valid = .false.
+
+    if (valid) read (suffix(2:), "(I5.5)") index
+
+  end function extract_fld_file_index
+
   !> Split a string based on delimiter (tokenizer)
-  !! OBS: very hacky, this should really be improved, it is rather embarrasing code.
+  !! OBS: very hacky, this should really be improved, it is rather embarrasing
+  !! code.
   function split_string(string, delimiter) result(split_str)
     character(len=*) :: string
     character(len=*) :: delimiter
     character(len=100), allocatable :: split_str(:)
-    integer :: length, i, i2,offset, j
+    integer :: length, i, i2, offset, j
     i = 0
     offset = 1
     length = 1
-    if (len(trim(string)) .eq. 0) then 
+    if (len(trim(string)) .eq. 0) then
        allocate(split_str(1))
        split_str(1) = trim(string)
        return
     end if
-    do while( .true.)
-       i = scan(string(offset:), delimiter, back=.false.) 
+    do while (.true.)
+       i = scan(string(offset:), delimiter, back = .false.)
        if (i .eq. 0) exit
        length = length + 1
        offset = offset + i
@@ -101,11 +155,11 @@ contains
     allocate(split_str(length))
     i = 0
     j = 1
-    offset=1
-    do while( .true.)
-       i2 = scan(trim(string(offset:)), delimiter, back=.false.) 
+    offset = 1
+    do while (.true.)
+       i2 = scan(trim(string(offset:)), delimiter, back = .false.)
        if (i2 .eq. 0) then
-          split_str(j) = trim(string(offset:)) 
+          split_str(j) = trim(string(offset:))
           exit
        end if
        split_str(j) = trim(string(offset:offset+i2-2))
@@ -114,45 +168,18 @@ contains
     end do
   end function split_string
 
-
-
-
   !> Compute the address of a (i,j,k,l) array
   !! with sizes (1:lx, 1:ly, 1:lz, :)
-  pure function linear_index(i,j,k,l,lx,ly,lz) result(index)
+  pure function linear_index(i, j, k, l, lx, ly, lz) result(index)
     integer, intent(in) :: i, j, k, l, lx, ly, lz
     integer :: index
 
     index = (i + lx * ((j - 1) + ly * ((k - 1) + lz * ((l - 1)))))
   end function linear_index
 
-  pure function index_is_on_facet(i, j, k, lx, ly, lz, facet) result(is_on)
-    integer, intent(in) :: i, j, k, lx, ly, lz, facet
-    logical :: is_on
-
-    is_on = .false.
-    select case(facet)
-    case(1)
-       if (i .eq. 1) is_on = .true.
-    case(2)
-       if (i .eq. lx) is_on = .true.
-    case(3)
-       if (j .eq. 1) is_on = .true.
-    case(4)
-       if (j .eq. ly) is_on = .true.
-    case(5)
-       if (k .eq. 1) is_on = .true.
-    case(6)
-       if (k .eq. lz) is_on = .true.
-    end select
-
-
-  end function index_is_on_facet
-
-
   !> Compute (i,j,k,l) array given linear index
   !! with sizes (1:lx, 1:ly, 1:lz, :)
-  pure function nonlinear_index(linear_index,lx,ly,lz) result(index)
+  pure function nonlinear_index(linear_index, lx, ly, lz) result(index)
     integer, intent(in) :: linear_index, lx, ly, lz
     integer :: index(4)
     integer :: lin_idx
@@ -168,28 +195,78 @@ contains
 
   end function nonlinear_index
 
+  pure function index_is_on_facet(i, j, k, lx, ly, lz, facet) result(is_on)
+    integer, intent(in) :: i, j, k, lx, ly, lz, facet
+    logical :: is_on
+
+    is_on = .false.
+    select case (facet)
+      case (1)
+       if (i .eq. 1) is_on = .true.
+      case (2)
+       if (i .eq. lx) is_on = .true.
+      case (3)
+       if (j .eq. 1) is_on = .true.
+      case (4)
+       if (j .eq. ly) is_on = .true.
+      case (5)
+       if (k .eq. 1) is_on = .true.
+      case (6)
+       if (k .eq. lz) is_on = .true.
+    end select
+
+  end function index_is_on_facet
+
+  !> Reports an error and stops execution
+  !! @param[optional] error_code The error code to report.
   subroutine neko_error_plain(error_code)
     integer, optional :: error_code
 
     if (present(error_code)) then
-       write(*,*) '*** ERROR ***', error_code
+       write(error_unit, *) '*** ERROR ***', error_code
        error stop
     else
-       write(*,*) '*** ERROR ***'
+       write(error_unit, *) '*** ERROR ***'
        error stop
     end if
 
   end subroutine neko_error_plain
 
+  !> Reports an error and stops execution
+  !! @param error_msg The error message to report.
   subroutine neko_error_msg(error_msg)
     character(len=*) :: error_msg
-    write(*,*) '*** ERROR: ', error_msg,' ***'
+    write(error_unit, *) '*** ERROR: ', error_msg, ' ***'
     error stop
   end subroutine neko_error_msg
 
+  !> Reports a warning to standard output
   subroutine neko_warning(warning_msg)
     character(len=*) :: warning_msg
-    write(*,*) '*** WARNING: ', warning_msg,' ***'
+    write(output_unit, *) '*** WARNING: ', warning_msg, ' ***'
   end subroutine neko_warning
+
+  !> Concatenate an array of strings into one string with array items
+  !! separated by spaces.
+  !! @param array The array of strings.
+  !! @param sep The separator put between the strings in the array.
+  !! @param prepend Whether to also prepend the string with the separator.
+  function concat_string_array(array, sep, prepend) result(result)
+    character(len=*), intent(in) :: array(:)
+    character(len=*), intent(in) :: sep
+    logical, intent(in) :: prepend
+    character(:), allocatable :: result
+    integer :: i
+
+    result = trim(array(1))
+    do i = 2, size(array)
+       result = result // sep // trim(array(i))
+    end do
+
+    if (prepend .eqv. .true.) then
+       result = sep // result
+    end if
+
+  end function concat_string_array
 
 end module utils

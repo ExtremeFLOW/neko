@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2023-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,47 +32,57 @@
 !
 !
 !> Defines a factory subroutine for source terms.
-module source_term_fctry
-  use source_term, only : source_term_t
+submodule (source_term) source_term_fctry
   use const_source_term, only : const_source_term_t
   use boussinesq_source_term, only : boussinesq_source_term_t
   use brinkman_source_term, only: brinkman_source_term_t
-  use json_module, only : json_file
+  use coriolis_source_term, only : coriolis_source_term_t
   use json_utils, only : json_get
-  use field_list, only : field_list_t
-  use utils, only : neko_error
-  use coefs, only : coef_t
+  use utils, only : concat_string_array, neko_error
   implicit none
-  private
 
-  public :: source_term_factory
+  ! List of all possible types created by the factory routine
+  character(len=20) :: SOURCE_KNOWN_TYPES(4) = [character(len=20) :: &
+     "constant", &
+     "boussinesq", &
+     "coriolis", &
+     "brinkman"]
 
 contains
 
   !> Source term factory. Both constructs and initializes the object.
   !! @param json JSON object initializing the source term.
-  subroutine source_term_factory(source_term, json, fields, coef)
-    class(source_term_t), allocatable, intent(inout) :: source_term
+  !! @param fields The list of fields updated by the source term.
+  !! @param coef The SEM coefficients.
+  module subroutine source_term_factory(object, json, fields, coef)
+    class(source_term_t), allocatable, intent(inout) :: object
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(inout) :: fields
     type(coef_t), intent(inout) :: coef
-    character(len=:), allocatable :: source_type
+    character(len=:), allocatable :: type_name
+    character(len=:), allocatable :: type_string
 
-    call json_get(json, "type", source_type)
+    call json_get(json, "type", type_name)
 
-    if (trim(source_type) .eq. "constant") then
-       allocate(const_source_term_t::source_term)
-    else if (trim(source_type) .eq. "boussinesq") then
-       allocate(boussinesq_source_term_t::source_term)
-    else if (trim(source_type) .eq. "brinkman") then
-       allocate(brinkman_source_term_t::source_term)
+    if (trim(type_name) .eq. "constant") then
+       allocate(const_source_term_t::object)
+    else if (trim(type_name) .eq. "boussinesq") then
+       allocate(boussinesq_source_term_t::object)
+    else if (trim(type_name) .eq. "coriolis") then
+       allocate(coriolis_source_term_t::object)
+    else if (trim(type_name) .eq. "brinkman") then
+       allocate(brinkman_source_term_t::object)
     else
-       call neko_error('Unknown source term '//trim(source_type))
+       type_string =  concat_string_array(SOURCE_KNOWN_TYPES, &
+            NEW_LINE('A') // "-  ", .true.)
+       call neko_error("Unknown source term type: " &
+                       // trim(type_name) // ".  Known types are: " &
+                       // type_string)
     end if
 
     ! Initialize
-    call source_term%init(json, fields, coef)
+    call object%init(json, fields, coef)
 
   end subroutine source_term_factory
 
-end module source_term_fctry
+end submodule source_term_fctry

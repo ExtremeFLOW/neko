@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2022-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,14 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module scalar_residual_device
-  use scalar_residual
-  use gather_scatter
-  use operators
-  use device_math
-  use device_mathops
+  use scalar_residual, only : scalar_residual_t
+  use device_math, only : device_copy, device_cfill
+  use ax_product, only : ax_t
+  use field, only : field_t
+  use coefs, only : coef_t
+  use space, only : space_t
+  use mesh, only : mesh_t
+  use num_types, only : rp    
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -47,8 +50,8 @@ module scalar_residual_device
 
 #ifdef HAVE_HIP
   interface
-     subroutine scalar_residual_update_hip(s_res_d,f_s_d, n) &
-          bind(c, name='scalar_residual_update_hip')
+     subroutine scalar_residual_update_hip(s_res_d, f_s_d, n) &
+          bind(c, name = 'scalar_residual_update_hip')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: s_res_d
@@ -59,8 +62,8 @@ module scalar_residual_device
 #elif HAVE_CUDA
 
   interface
-     subroutine scalar_residual_update_cuda(s_res_d,f_s_d, n) &
-          bind(c, name='scalar_residual_update_cuda')
+     subroutine scalar_residual_update_cuda(s_res_d, f_s_d, n) &
+          bind(c, name = 'scalar_residual_update_cuda')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: s_res_d
@@ -71,8 +74,8 @@ module scalar_residual_device
 #elif HAVE_OPENCL
 
   interface
-     subroutine scalar_residual_update_opencl(s_res_d,f_s_d, n) &
-          bind(c, name='scalar_residual_update_opencl')
+     subroutine scalar_residual_update_opencl(s_res_d, f_s_d, n) &
+          bind(c, name = 'scalar_residual_update_opencl')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: s_res_d
@@ -95,13 +98,13 @@ contains
     type(field_t), intent(inout) :: s_res
     type(field_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
-    real(kind=rp), intent(in) :: lambda
+    type(field_t), intent(in) :: lambda
     real(kind=rp), intent(in) :: rhocp
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     integer, intent(in) :: n
 
-    call device_cfill(c_Xh%h1_d, lambda, n)
+    call device_copy(c_Xh%h1_d, lambda%x_d, n)
     call device_cfill(c_Xh%h2_d, rhocp * (bd / dt), n)
     c_Xh%ifh2 = .true.
 

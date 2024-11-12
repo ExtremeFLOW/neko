@@ -32,15 +32,11 @@
 !
 !> Mixed Dirichlet-Neumann axis aligned symmetry plane
 module symmetry
-  use device_symmetry
-  use neko_config
-  use num_types
-  use dirichlet
-  use bc
-  use math
-  use utils
-  use stack
-  use tuple
+  use device_symmetry, only : device_symmetry_apply_vector
+  use dirichlet, only : dirichlet_t
+  use num_types, only : rp
+  use bc, only : bc_t
+  use tuple, only : tuple_i4_t
   use coefs, only : coef_t
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
@@ -52,21 +48,24 @@ module symmetry
      type(dirichlet_t) :: bc_y
      type(dirichlet_t) :: bc_z
    contains
-     procedure, pass(this) :: init_msk => symmetry_init_msk
+     procedure, pass(this) :: init => symmetry_init
      procedure, pass(this) :: apply_scalar => symmetry_apply_scalar
      procedure, pass(this) :: apply_vector => symmetry_apply_vector
      procedure, pass(this) :: apply_scalar_dev => symmetry_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => symmetry_apply_vector_dev
+     !> Destructor.
+     procedure, pass(this) :: free => symmetry_free
   end type symmetry_t
 
 contains
 
   !> Initialize symmetry mask for each axis
-  subroutine symmetry_init_msk(this)
+  subroutine symmetry_init(this, coef)
     class(symmetry_t), intent(inout) :: this
-    integer :: i, m, j, l
+    type(coef_t), target, intent(in) :: coef
+    integer :: i, j, l
     type(tuple_i4_t), pointer :: bfp(:)
-    real(kind=rp) :: sx,sy,sz
+    real(kind=rp) :: sx, sy, sz
     real(kind=rp), parameter :: TOL = 1d-3
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
@@ -74,11 +73,11 @@ contains
     call this%bc_x%free()
     call this%bc_y%free()
     call this%bc_z%free()
-    call this%bc_x%init(this%coef)
-    call this%bc_y%init(this%coef)
-    call this%bc_z%init(this%coef)
+    call this%bc_x%init_base(this%coef)
+    call this%bc_y%init_base(this%coef)
+    call this%bc_z%init_base(this%coef)
 
-    associate(c=>this%coef, nx => this%coef%nx, ny => this%coef%ny, &
+    associate(c => this%coef, nx => this%coef%nx, ny => this%coef%ny, &
               nz => this%coef%nz)
       bfp => this%marked_facet%array()
       do i = 1, this%marked_facet%size()
@@ -89,7 +88,7 @@ contains
          sy = 0d0
          sz = 0d0
          select case (facet)
-         case(1,2)
+         case (1, 2)
             do l = 2, c%Xh%lx - 1
                do j = 2, c%Xh%lx -1
                   sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
@@ -97,7 +96,7 @@ contains
                   sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
                end do
             end do
-         case(3,4)
+         case (3, 4)
             do l = 2, c%Xh%lx - 1
                do j = 2, c%Xh%lx - 1
                   sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
@@ -105,7 +104,7 @@ contains
                   sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
                end do
             end do
-         case(5,6)
+         case (5, 6)
             do l = 2, c%Xh%lx - 1
                do j = 2, c%Xh%lx - 1
                   sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
@@ -138,16 +137,7 @@ contains
     call this%bc_z%finalize()
     call this%bc_z%set_g(0.0_rp)
 
-  end subroutine symmetry_init_msk
-
-  subroutine symmetry_free(this)
-    type(symmetry_t), intent(inout) :: this
-
-    call this%bc_x%free()
-    call this%bc_y%free()
-    call this%bc_z%free()
-
-  end subroutine symmetry_free
+  end subroutine symmetry_init
 
   !> No-op scalar apply
   subroutine symmetry_apply_scalar(this, x, n, t, tstep)
@@ -167,11 +157,10 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
-    integer :: i, m, k
 
-    call this%bc_x%apply_scalar(x,n)
-    call this%bc_y%apply_scalar(y,n)
-    call this%bc_z%apply_scalar(z,n)
+    call this%bc_x%apply_scalar(x, n)
+    call this%bc_y%apply_scalar(y, n)
+    call this%bc_z%apply_scalar(z, n)
 
   end subroutine symmetry_apply_vector
 
@@ -200,4 +189,14 @@ contains
 
   end subroutine symmetry_apply_vector_dev
 
+  !> Destructor
+  subroutine symmetry_free(this)
+    class(symmetry_t), target, intent(inout) :: this
+
+    call this%free_base()
+    call this%bc_x%free()
+    call this%bc_y%free()
+    call this%bc_z%free()
+
+  end subroutine symmetry_free
 end module symmetry

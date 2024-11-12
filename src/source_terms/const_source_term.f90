@@ -72,7 +72,7 @@ contains
     class(const_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(inout), target :: coef
     real(kind=rp), allocatable :: values(:)
     real(kind=rp) :: start_time, end_time
 
@@ -104,7 +104,7 @@ contains
     call this%free()
     call this%init_base(fields, coef, start_time, end_time)
 
-    if (size(values) .ne. size(fields%fields)) then
+    if (size(values) .ne. fields%size()) then
        call neko_error("Number of fields and values inconsistent.")
     end if
 
@@ -127,8 +127,9 @@ contains
     integer, intent(in) :: tstep
     integer :: n_fields, i, n
 
-    n_fields = size(this%fields%fields)
-    n = this%fields%fields(1)%f%dof%size()
+    n_fields = this%fields%size()
+
+    n = this%fields%item_size(1)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call const_source_term_compute_device(this%fields, this%values)

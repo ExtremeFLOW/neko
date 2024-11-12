@@ -66,17 +66,17 @@ module scalar_user_source_term
      !> Device pointer for `s`.
      type(c_ptr) :: s_d = C_NULL_PTR
      !> Compute the source term for a single point
-     procedure(scalar_source_compute_pointwise), nopass, pointer :: compute_pw_ &
-       => null()
+     procedure(scalar_source_compute_pointwise), nopass, pointer :: &
+          compute_pw_ => null()
      !> Compute the source term for the entire boundary
-     procedure(scalar_source_compute_vector), nopass, pointer :: compute_vector_&
-       => null()
+     procedure(scalar_source_compute_vector), nopass, pointer :: &
+          compute_vector_ => null()
    contains
      !> Constructor from JSON (will throw!).
      procedure, pass(this) :: init => scalar_user_source_term_init
      !> Constructor from components.
      procedure, pass(this) :: init_from_components => &
-       scalar_user_source_term_init_from_components
+          scalar_user_source_term_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => scalar_user_source_term_free
      !> Computes the source term and adds the result to `fields`.
@@ -123,9 +123,10 @@ contains
     class(scalar_user_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(inout), target :: coef
 
-    call neko_error("The user scalar source term should be init from components")
+    call neko_error("The user scalar source term &
+         &should be init from components")
 
   end subroutine scalar_user_source_term_init
 
@@ -137,7 +138,7 @@ contains
   !! @param eval_vector The procedure to vector-compute the source term.
   !! @param eval_pointwise The procedure to pointwise-compute the source term.
   subroutine scalar_user_source_term_init_from_components(this, fields, coef, &
-    source_term_type, eval_vector, eval_pointwise)
+       source_term_type, eval_vector, eval_pointwise)
     class(scalar_user_source_term_t), intent(inout) :: this
     type(field_list_t), intent(inout), target :: fields
     type(coef_t), intent(inout) :: coef
@@ -148,10 +149,10 @@ contains
     call this%free()
     call this%init_base(fields, coef, 0.0_rp, huge(0.0_rp))
 
-    this%dm => fields%fields(1)%f%dof
+    this%dm => fields%dof(1)
 
     allocate(this%s(this%dm%Xh%lx, this%dm%Xh%ly, this%dm%Xh%lz, &
-             this%dm%msh%nelv))
+         this%dm%msh%nelv))
 
     this%s = 0d0
 
@@ -161,14 +162,15 @@ contains
 
 
     if (trim(source_term_type) .eq. 'user_pointwise' .and. &
-              present(eval_pointwise)) then
+         present(eval_pointwise)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call neko_error('Pointwise source terms not supported on accelerators')
+          call neko_error('Pointwise source terms not &
+               &supported on accelerators')
        end if
        this%compute_vector_ => pointwise_eval_driver
        this%compute_pw_ => eval_pointwise
     else if (trim(source_term_type) .eq. 'user_vector' .and. &
-             present(eval_vector)) then
+         present(eval_vector)) then
        this%compute_vector_ => eval_vector
     else
        call neko_error('Invalid fluid source term '//source_term_type)
@@ -199,15 +201,16 @@ contains
     integer, intent(in) :: tstep
     integer :: n
 
-    call this%compute_vector_(this, t)
-    n = this%fields%fields(1)%f%dof%size()
+    if (t .ge. this%start_time .and. t .le. this%end_time) then
+       call this%compute_vector_(this, t)
+       n = this%fields%item_size(1)
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_add2(this%fields%fields(1)%f%x_d, this%s_d, n)
-    else
-       call add2(this%fields%fields(1)%f%x, this%s, n)
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_add2(this%fields%x_d(1), this%s_d, n)
+       else
+          call add2(this%fields%items(1)%ptr%x, this%s, n)
+       end if
     end if
-
   end subroutine scalar_user_source_term_compute
 
   !> Driver for all pointwise source term evaluatons.
@@ -219,7 +222,7 @@ contains
     integer :: jj, kk, ll, ee
 
     select type (this)
-    type is (scalar_user_source_term_t)
+      type is (scalar_user_source_term_t)
        do e = 1, size(this%s, 4)
           ee = e
           do l = 1, size(this%s, 3)
@@ -227,13 +230,13 @@ contains
              do k = 1, size(this%s, 2)
                 kk = k
                 do j = 1, size(this%s, 1)
-                   jj =j
+                   jj = j
                    call this%compute_pw_(this%s(j,k,l,e), jj, kk, ll, ee, t)
                 end do
              end do
           end do
        end do
-    class default
+      class default
        call neko_error('Incorrect source type in pointwise eval driver!')
     end select
 

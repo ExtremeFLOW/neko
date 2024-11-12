@@ -32,10 +32,9 @@
 !
 !> Defines MPI gather-scatter communication
 module gs_mpi
-  use neko_config
-  use num_types
-  use gs_comm
-  use gs_ops
+  use num_types, only : rp
+  use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU
+  use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
   use stack, only : stack_i4_t
   use comm
   use, intrinsic :: iso_c_binding
@@ -130,12 +129,12 @@ contains
     integer , pointer :: sp(:)
 
     thrdid = 0
-!$  thrdid = omp_get_thread_num()
+    !$ thrdid = omp_get_thread_num()
 
     do i = 1, size(this%send_pe)
        dst = this%send_pe(i)
        sp => this%send_dof(dst)%array()
-       do j = 1, this%send_dof(dst)%size()
+       do concurrent (j = 1:this%send_dof(dst)%size())
           this%send_buf(i)%data(j) = u(sp(j))
        end do
        ! We should not need this extra associate block, ant it works
@@ -198,22 +197,22 @@ contains
                 select case(op)
                 case (GS_OP_ADD)
                    !NEC$ IVDEP
-                   do j = 1, this%send_dof(src)%size()
+                   do concurrent (j = 1:this%send_dof(src)%size())
                       u(sp(j)) = u(sp(j)) + this%recv_buf(i)%data(j)
                    end do
                 case (GS_OP_MUL)
                    !NEC$ IVDEP
-                   do j = 1, this%send_dof(src)%size()
+                   do concurrent (j = 1:this%send_dof(src)%size())
                       u(sp(j)) = u(sp(j)) * this%recv_buf(i)%data(j)
                    end do
                 case (GS_OP_MIN)
                    !NEC$ IVDEP
-                   do j = 1, this%send_dof(src)%size()
+                   do concurrent (j = 1:this%send_dof(src)%size())
                       u(sp(j)) = min(u(sp(j)), this%recv_buf(i)%data(j))
                    end do
                 case (GS_OP_MAX)
                    !NEC$ IVDEP
-                   do j = 1, this%send_dof(src)%size()
+                   do concurrent (j = 1:this%send_dof(src)%size())
                       u(sp(j)) = max(u(sp(j)), this%recv_buf(i)%data(j))
                    end do
                 end select

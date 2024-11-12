@@ -32,16 +32,10 @@
 !
 !> Dirichlet condition on axis aligned plane in the non normal direction
 module non_normal
-  use symmetry
-  use neko_config
-  use num_types
-  use dirichlet
-  use tuple
-  use device
-  use coefs
-  use math
-  use utils
-  use stack
+  use symmetry, only : symmetry_t
+  use num_types, only : rp
+  use tuple, only : tuple_i4_t
+  use coefs, only : coef_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -49,17 +43,21 @@ module non_normal
   !> Dirichlet condition in non normal direction of a plane
   type, public, extends(symmetry_t) :: non_normal_t
    contains
-     procedure, pass(this) :: init_msk => non_normal_init_msk
+     !> Constructor.
+     procedure, pass(this) :: init => non_normal_init
+     !> Destructor.
+     procedure, pass(this) :: free => non_normal_free
   end type non_normal_t
 
 contains
 
-  !> Initialize symmetry mask for each axis
-  subroutine non_normal_init_msk(this)
+  !> Constructor.
+  subroutine non_normal_init(this, coef)
     class(non_normal_t), intent(inout) :: this
-    integer :: i, j, k, l
+    type(coef_t), target, intent(in) :: coef
+    integer :: i, j, l
     type(tuple_i4_t), pointer :: bfp(:)
-    real(kind=rp) :: sx,sy,sz
+    real(kind=rp) :: sx, sy, sz
     real(kind=rp), parameter :: TOL = 1d-3
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
@@ -67,11 +65,11 @@ contains
     call this%bc_x%free()
     call this%bc_y%free()
     call this%bc_z%free()
-    call this%bc_x%init(this%coef)
-    call this%bc_y%init(this%coef)
-    call this%bc_z%init(this%coef)
+    call this%bc_x%init_base(this%coef)
+    call this%bc_y%init_base(this%coef)
+    call this%bc_z%init_base(this%coef)
 
-    associate(c=>this%coef, nx => this%coef%nx, ny => this%coef%ny, &
+    associate(c => this%coef, nx => this%coef%nx, ny => this%coef%ny, &
               nz => this%coef%nz)
       bfp => this%marked_facet%array()
       do i = 1, this%marked_facet%size()
@@ -82,7 +80,7 @@ contains
          sy = 0d0
          sz = 0d0
          select case (facet)
-         case(1,2)
+         case (1, 2)
             do l = 2, c%Xh%lx - 1
                do j = 2, c%Xh%lx -1
                   sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
@@ -90,7 +88,7 @@ contains
                   sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
                end do
             end do
-         case(3,4)
+         case (3, 4)
             do l = 2, c%Xh%lx - 1
                do j = 2, c%Xh%lx - 1
                   sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
@@ -98,7 +96,7 @@ contains
                   sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
                end do
             end do
-         case(5,6)
+         case (5, 6)
             do l = 2, c%Xh%lx - 1
                do j = 2, c%Xh%lx - 1
                   sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
@@ -133,15 +131,12 @@ contains
     call this%bc_y%set_g(0.0_rp)
     call this%bc_z%finalize()
     call this%bc_z%set_g(0.0_rp)
-  end subroutine non_normal_init_msk
+  end subroutine non_normal_init
 
-
+  !> Destructor
   subroutine non_normal_free(this)
-    type(non_normal_t), intent(inout) :: this
+    class(non_normal_t), target, intent(inout) :: this
 
-    call this%bc_x%free()
-    call this%bc_y%free()
-    call this%bc_z%free()
-
+    call this%symmetry_t%free()
   end subroutine non_normal_free
 end module non_normal
