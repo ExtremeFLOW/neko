@@ -169,7 +169,7 @@ __global__ void sigma_nut_compute(T * __restrict__ g11,
         }
     }
 
-    if (sigma1 > 0.0) {
+    if (sigma1 > eps) {
         Dsigma = sigma3*(sigma1 - sigma2)*(sigma2 - sigma3)/(sigma1*sigma1);
     } else {
         Dsigma = 0.0;

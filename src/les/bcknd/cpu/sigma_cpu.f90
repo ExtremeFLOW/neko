@@ -254,7 +254,7 @@ contains
               end if ! G diagonal ?
 
               ! Estimate Dsigma
-              if (sigma1 .gt. 0.0_rp) then
+              if (sigma1 .gt. eps) then
                  Dsigma = &
                    sigma3*(sigma1 - sigma2)*(sigma2 - sigma3)/(sigma1*sigma1)
               else
