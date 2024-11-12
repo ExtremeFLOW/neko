@@ -81,7 +81,7 @@ contains
     character(len=*), intent(in) :: type_name
     integer, intent(in) :: max_iter
     real(kind=rp), optional :: abstol
-    class(pc_t), optional, intent(inout), target :: M
+    class(pc_t), optional, intent(in), target :: M
     logical, optional, intent(in) :: monitor
     character(len=:), allocatable :: type_string
 
