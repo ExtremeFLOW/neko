@@ -44,13 +44,10 @@ module gs_device_mpi
   implicit none
   private
 
-  logical :: use_nvshmem = .false.
-  
   !> Buffers for non-blocking communication and packing/unpacking
   type, private :: gs_device_mpi_buf_t
      integer, allocatable :: ndofs(:)           !< Number of dofs
      integer, allocatable :: offset(:)          !< Offset into buf
-     integer, allocatable :: remote_offset(:)   !< Offset into buf for remote rank
      integer :: total                           !< Total number of dofs
      type(c_ptr) :: reqs = C_NULL_PTR           !< MPI request array in C
      type(c_ptr) :: buf_d = C_NULL_PTR          !< Device buffer
@@ -69,9 +66,6 @@ module gs_device_mpi
      type(c_ptr), allocatable :: event(:)
      integer :: nb_strtgy
      type(c_ptr) :: send_event = C_NULL_PTR
-     integer :: nvshmem_counter = 1
-     type(c_ptr), allocatable :: notifyDone(:)
-     type(c_ptr), allocatable :: notifyReady(:)
    contains
      procedure, pass(this) :: init => gs_device_mpi_init
      procedure, pass(this) :: free => gs_device_mpi_free
@@ -109,47 +103,6 @@ module gs_device_mpi
        integer(c_int), value :: n, offset
        type(c_ptr), value :: u_d, buf_d, dof_d, stream
      end subroutine cuda_gs_pack
-  end interface
-  
-  interface
-     subroutine cudamalloc_nvshmem(ptr, size) &
-          bind(c, name='cudamalloc_nvshmem')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       type(c_ptr) :: ptr
-       integer(c_size_t),value :: size
-     end subroutine cudamalloc_nvshmem
-  end interface
-
-  interface
-     subroutine cudafree_nvshmem(ptr) &
-          bind(c, name='cudafree_nvshmem')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       type(c_ptr) :: ptr
-     end subroutine cudafree_nvshmem
-  end interface
-
-  interface
-     subroutine cuda_gs_pack_and_push(u_d, buf_d, dof_d, offset, n, stream, &
-                                      srank, rbuf_d, roffset, remote_offset, &
-                                      rrank, nvshmem_counter, notifyDone, notifyReady, iter) &
-          bind(c, name='cuda_gs_pack_and_push')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       integer(c_int), value :: n, offset, srank, roffset, rrank, nvshmem_counter, iter
-       type(c_ptr), value :: u_d, buf_d, dof_d, stream, rbuf_d, notifyDone, notifyReady
-       integer(c_int),dimension(*) ::  remote_offset
-     end subroutine cuda_gs_pack_and_push
-  end interface
-  interface
-     subroutine cuda_gs_pack_and_push_wait(stream, nvshmem_counter, notifyDone) &
-          bind(c, name='cuda_gs_pack_and_push_wait')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       integer(c_int), value :: nvshmem_counter
-       type(c_ptr), value :: stream, notifyDone
-     end subroutine cuda_gs_pack_and_push_wait
   end interface
 
   interface
@@ -247,25 +200,12 @@ contains
     integer :: dupe, marked, k
     real(c_rp) :: rp_dummy
     integer(c_int32_t) :: i4_dummy
-    character (len=20) :: nvshmem_env_val
-    integer nvshmem_env_len, nvshmem_env_status
 
-    call get_environment_variable ("NEKO_USE_NVSHMEM", nvshmem_env_val, &
-         nvshmem_env_len, nvshmem_env_status, .true.)
-    if (nvshmem_env_status .eq. 0) then
-       use_nvshmem = .true. 
-    end if
-    
     call device_mpi_init_reqs(size(pe_order), this%reqs)
 
     allocate(this%ndofs(size(pe_order)))
     allocate(this%offset(size(pe_order)))
-    allocate(this%remote_offset(size(pe_order)))
 
-    do i = 1, size(pe_order)
-       this%remote_offset(i)=-1
-    end do
-    
     total = 0
     do i = 1, size(pe_order)
        this%ndofs(i) = dof_stack(pe_order(i))%size()
@@ -276,12 +216,8 @@ contains
     this%total = total
 
     sz = c_sizeof(rp_dummy) * total
-    if (use_nvshmem .eqv. .true.) then
-       call cudamalloc_nvshmem(this%buf_d, sz)
-    else
-       call device_alloc(this%buf_d, sz)
-    end if
-    
+    call device_alloc(this%buf_d, sz)
+
     sz = c_sizeof(i4_dummy) * total
     call device_alloc(this%dof_d, sz)
 
@@ -294,24 +230,24 @@ contains
        ! %array() breaks on cray
        select type (arr => dof_stack(pe_order(i))%data)
        type is (integer)
-         do j = 1, this%ndofs(i)
-            k = this%offset(i) + j
-            if (mark_dupes) then
-               if (doftable%get(arr(j), dupe) .eq. 0) then
-                  if (dofs(dupe) .gt. 0) then
-                     dofs(dupe) = -dofs(dupe)
-                     marked = marked + 1
-                  end if
-                  dofs(k) = -arr(j)
-                  marked = marked + 1
-               else
-                  call doftable%set(arr(j), k)
-                  dofs(k) = arr(j)
-               end if
-            else
-               dofs(k) = arr(j)
-            end if
-         end do
+          do j = 1, this%ndofs(i)
+             k = this%offset(i) + j
+             if (mark_dupes) then
+                if (doftable%get(arr(j), dupe) .eq. 0) then
+                   if (dofs(dupe) .gt. 0) then
+                      dofs(dupe) = -dofs(dupe)
+                      marked = marked + 1
+                   end if
+                   dofs(k) = -arr(j)
+                   marked = marked + 1
+                else
+                   call doftable%set(arr(j), k)
+                   dofs(k) = arr(j)
+                end if
+             else
+                dofs(k) = arr(j)
+             end if
+          end do
        end select
     end do
 
@@ -330,12 +266,7 @@ contains
     if (allocated(this%ndofs)) deallocate(this%ndofs)
     if (allocated(this%offset)) deallocate(this%offset)
 
-    if (use_nvshmem .eqv. .true.) then
-       if (c_associated(this%buf_d)) call cudafree_nvshmem(this%buf_d)
-    else
-       if (c_associated(this%buf_d)) call device_free(this%buf_d)
-    end if
-
+    if (c_associated(this%buf_d)) call device_free(this%buf_d)
     if (c_associated(this%dof_d)) call device_free(this%dof_d)
   end subroutine gs_device_mpi_buf_free
 
@@ -362,16 +293,6 @@ contains
     do i = 1, size(this%recv_pe)
        call device_event_create(this%event(i), 2)
     end do
-    
-    if (use_nvshmem .eqv. .true.) then
-       allocate(this%notifyDone(size(this%recv_pe)))
-       allocate(this%notifyReady(size(this%recv_pe)))
-       do i = 1, size(this%recv_pe)
-          ! Allocate for uint64_t
-          call cudamalloc_nvshmem(this%notifyDone(i), 8_8)
-          call cudamalloc_nvshmem(this%notifyReady(i), 8_8)     
-       end do
-    end if
 #endif
 
 
@@ -413,7 +334,6 @@ contains
 
     u_d = device_get_ptr(u)
 
-if(use_nvshmem .eqv. .false.) then !else we do all comms in the "wait" routine below
     if (iand(this%nb_strtgy, 1) .eq. 0) then
 
 #ifdef HAVE_HIP
@@ -473,27 +393,20 @@ if(use_nvshmem .eqv. .false.) then !else we do all comms in the "wait" routine b
                                 this%send_buf%reqs, i)
        end do
     end if
- else
-    do i = 1, size(this%send_pe)
-       call device_stream_wait_event(this%stream(i), deps, 0)
-       ! Not clear why this sync is required, but there seems to be a race condition
-       ! without it for certain run configs
-       call device_sync(this%stream(i))
-    end do
- end if
+
   end subroutine gs_device_mpi_nbsend
 
   !> Post non-blocking receive operations
   subroutine gs_device_mpi_nbrecv(this)
     class(gs_device_mpi_t), intent(inout) :: this
     integer :: i
-  if (use_nvshmem .eqv. .false.) then !else we do everything in the "wait" routine below
+
     do i = 1, size(this%recv_pe)
        call device_mpi_irecv(this%recv_buf%buf_d, rp*this%recv_buf%offset(i), &
                              rp*this%recv_buf%ndofs(i), this%recv_pe(i), &
                              this%recv_buf%reqs, i)
     end do
-  end if
+
   end subroutine gs_device_mpi_nbrecv
 
   !> Wait for non-blocking operations
@@ -507,7 +420,6 @@ if(use_nvshmem .eqv. .false.) then !else we do all comms in the "wait" routine b
 
     u_d = device_get_ptr(u)
 
-    if (use_nvshmem .eqv. .false.) then
     if (iand(this%nb_strtgy, 2) .eq. 0) then
        call device_mpi_waitall(size(this%recv_pe), this%recv_buf%reqs)
 
@@ -564,52 +476,6 @@ if(use_nvshmem .eqv. .false.) then !else we do all comms in the "wait" routine b
           call device_stream_wait_event(strm, &
                this%event(done_req), 0)
        end do
-       
-    end if
-
- else ! NVSHMEM path
-    ! Using single stream for NVSHMEM for now.
-    ! Multi-stream works but is slower in some cases, more investigation required
-
-    do i = 1, size(this%send_pe)
-       call cuda_gs_pack_and_push(u_d, &
-            this%send_buf%buf_d, &
-            this%send_buf%dof_d, &
-            this%send_buf%offset(i), &
-            this%send_buf%ndofs(i), &
-            this%stream(i), &
-            this%send_pe(i), &
-            this%recv_buf%buf_d, &
-            this%recv_buf%offset(i), &
-            this%recv_buf%remote_offset, &
-            this%recv_pe(i), &
-            this%nvshmem_counter, &
-            this%notifyDone(i), &
-            this%notifyReady(i), &
-            i)
-       this%nvshmem_counter=this%nvshmem_counter+1
-    end do
-    do i = 1, size(this%send_pe)
-       call cuda_gs_pack_and_push_wait(this%stream(i), &
-            this%nvshmem_counter - size(this%send_pe) + i - 1, &
-                 this%notifyDone(i))
-    end do
-
-    do done_req=1, size(this%recv_pe)
-       call cuda_gs_unpack(u_d, op, &
-            this%recv_buf%buf_d, &
-            this%recv_buf%dof_d, &
-            this%recv_buf%offset(done_req), &
-            this%recv_buf%ndofs(done_req), &
-            this%stream(done_req))
-       call device_event_record(this%event(done_req), this%stream(done_req))
-    end do
-
-    ! Sync non-blocking streams
-    do done_req = 1, size(this%recv_pe)
-       call device_stream_wait_event(strm, &
-            this%event(done_req), 0)
-    end do
 
     end if
 

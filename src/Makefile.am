@@ -43,6 +43,7 @@ neko_fortran_SOURCES = \
 	gs/gs_comm.f90\
 	gs/gs_mpi.f90\
 	gs/bcknd/device/gs_device_mpi.F90\
+	gs/bcknd/device/gs_device_shmem.F90\
 	gs/gather_scatter.f90\
 	mesh/entity.f90\
 	mesh/point.f90\
@@ -406,6 +407,7 @@ libneko_la_SOURCES += \
 	krylov/bcknd/device/cuda/fusedcg_cpld_aux.cu\
 	krylov/bcknd/device/cuda/gmres_aux.cu\
 	gs/bcknd/device/cuda/gs.cu\
+	gs/bcknd/device/cuda/nvshmem.cu\
 	bc/bcknd/device/cuda/dirichlet.cu\
 	bc/bcknd/device/cuda/inflow.cu\
 	bc/bcknd/device/cuda/no_slip_wall.cu\
@@ -494,9 +496,9 @@ libneko_la_LIBADD = \
 endif
 
 
-bin_PROGRAMS = neko
-neko_SOURCES = driver.f90
-neko_LDADD= libneko.la
+#bin_PROGRAMS = neko
+#neko_SOURCES = driver.f90
+#neko_LDADD= libneko.la
 
 
 pkginclude_HEADERS = \

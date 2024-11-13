@@ -37,9 +37,6 @@
 #include <device/device_config.h>
 #include <device/cuda/check.h>
 #include "gs_kernels.h"
-#include "mpi.h"
-#include "nvshmem.h"
-#include "nvshmemx.h"
 
 #define GS_OP_ADD  1
 #define GS_OP_MUL  2
@@ -164,99 +161,4 @@ extern "C" {
 
     CUDA_CHECK(cudaGetLastError());
   }
-    
-  void cudamalloc_nvshmem(void** ptr, size_t size)
-  {
-      MPI_Comm mpi_comm = MPI_COMM_WORLD;
-      nvshmemx_init_attr_t attr;
-      attr.mpi_comm = &mpi_comm;
-      if (nvshmemx_init_status()==NVSHMEM_STATUS_NOT_INITIALIZED)
-      {
-          nvshmemx_init_attr(NVSHMEMX_INIT_WITH_MPI_COMM, &attr);
-      }
-      int mype_node = nvshmem_team_my_pe(NVSHMEMX_TEAM_NODE);
-      *ptr = nvshmem_malloc(size);
-      CUDA_CHECK(cudaGetLastError());
-      cudaMemset(*ptr,0,size);
-      CUDA_CHECK(cudaGetLastError());
-  }    
-
-  void cudafree_nvshmem(void** ptr, size_t size)
-  {
-      nvshmem_free(*ptr);
-      CUDA_CHECK(cudaGetLastError());
-  }
-
-  __global__ void pushShmemKernel(real* dest, real* src, int* dof,
-                                  int destRank, int srcRank, int n,
-                                  uint64_t counter, uint64_t* notifyDone,
-                                  uint64_t* notifyReady)
-  {
-      //TO DO: 1 block transfers seem best from initial investigations, check this more thoroughly
-      size_t numBlocksForTransfer = 1; 
-      if(blockIdx.x < numBlocksForTransfer)
-      {
-          size_t n_per_block = n/numBlocksForTransfer;
-          size_t block_offset = n_per_block*blockIdx.x;
-          size_t dataSize = blockIdx.x != (numBlocksForTransfer - 1) ? n_per_block : max(n - block_offset, n_per_block);
-          // Notify ready to sending rank, and wait until recieving rank is ready
-          if (threadIdx.x == 0) {
-              nvshmemx_signal_op(notifyReady, counter, NVSHMEM_SIGNAL_SET, srcRank);
-              nvshmem_signal_wait_until(notifyReady, NVSHMEM_CMP_EQ, counter);
-          }
-          __syncthreads();
-          
-          // Push data
-	  nvshmemx_double_put_signal_nbi_block(dest + block_offset, src +
-	  				      block_offset, dataSize,
-	  				      notifyDone, counter, NVSHMEM_SIGNAL_SET, destRank);
-      }
-  }
-
-  __global__ void pushShmemKernelWait(uint64_t counter, uint64_t* notifyDone)
-  {
-          // Notify done to receiving rank, and wait for data from sending rank
-          if (blockIdx.x==0 && threadIdx.x == 0) {
-              nvshmem_signal_wait_until(notifyDone, NVSHMEM_CMP_EQ, counter);
-          }
-  }
-    
-  void cuda_gs_pack_and_push(void *u_d, void *sbuf_d, void *sdof_d,
-                             int soffset, int n, cudaStream_t stream,
-                             int srank,  void *rbuf_d, int roffset, int* remote_offset,
-			     int rrank, int counter, void* notifyDone, void* notifyReady,
-			     int iter)
-  {
-    
-      if(remote_offset[iter-1] == -1)
-      {
-          MPI_Sendrecv(&roffset, 1, MPI_INT,
-		       rrank, 0,
-		       &(remote_offset[iter-1]), 1, MPI_INT,
-		       srank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      }
-
-      const int nthrds = 1024;
-      const int nblcks = (n+nthrds-1)/nthrds;
-      
-      // TO DO investigate merging following 2 kernels (and also unpack).  
-      gs_pack_kernel<real>
-          <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) sbuf_d + soffset,
-                                          (int *) sdof_d + soffset, n);
-      
-      pushShmemKernel<<<nblcks,nthrds,0,stream>>>((real *) rbuf_d + remote_offset[iter-1],
-                                                  (real *) sbuf_d + soffset,
-                                                  (int *) sdof_d + soffset,
-                                                  srank, rrank, n, counter,
-                                                  (uint64_t*) notifyDone,
-                                                  (uint64_t*) notifyReady);
-      CUDA_CHECK(cudaGetLastError());
-  }
-
-  void cuda_gs_pack_and_push_wait(cudaStream_t stream, int counter, void* notifyDone)
-  {
-      pushShmemKernelWait<<<1,1,0,stream>>>(counter,(uint64_t*) notifyDone);
-      CUDA_CHECK(cudaGetLastError());
-  }   
 }
-
