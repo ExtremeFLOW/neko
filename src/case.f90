@@ -91,6 +91,13 @@ contains
     character(len=*), intent(in) :: case_file
     integer :: ierr, integer_val
     character(len=:), allocatable :: json_buffer
+logical :: exist
+
+    ! Check if the file exists
+    inquire(file = trim(case_file), exist = exist)
+    if (.not. exist) then
+       call neko_error('The case file '//trim(case_file)//' does not exist.')
+    end if
 
     call neko_log%section('Case')
     call neko_log%message('Reading case file ' // trim(case_file), &
