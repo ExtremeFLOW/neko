@@ -44,25 +44,23 @@ extern "C" {
 
   void cudamalloc_nvshmem(void** ptr, size_t size)
   {
-    nvshmemx_init_attr_t attr;
-    attr.mpi_comm = &NEKO_COMM;
     if (nvshmemx_init_status()==NVSHMEM_STATUS_NOT_INITIALIZED)
     {
-        nvshmemx_init_attr(NVSHMEMX_INIT_WITH_MPI_COMM, &attr);
-        //        int provided;
-        //        nvshmem_init_thread(NVSHMEM_THREAD_MULTIPLE, &provided);
+      nvshmemx_init_attr_t attr;
+      attr.mpi_comm = &NEKO_COMM;    
+      nvshmemx_init_attr(NVSHMEMX_INIT_WITH_MPI_COMM, &attr);
     }
-    int mype_node = nvshmem_team_my_pe(NVSHMEMX_TEAM_NODE);
+    //int mype_node = nvshmem_team_my_pe(NVSHMEMX_TEAM_NODE);
     *ptr = nvshmem_malloc(size);
     CUDA_CHECK(cudaGetLastError());
-    cudaMemset(*ptr,0,size);
+    cudaMemset(*ptr, 0, size);
     CUDA_CHECK(cudaGetLastError());
   }    
   
   void cudafree_nvshmem(void** ptr, size_t size)
   {
     nvshmem_free(*ptr);
-      CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaGetLastError());
   }
   
   __global__ void pushShmemKernel(real* dest, real* src, int* dof,
@@ -85,10 +83,10 @@ extern "C" {
       __syncthreads();
           
       // Push data
-	  nvshmemx_double_put_signal_nbi_block(dest + block_offset, src +
-                                               block_offset, dataSize,
-                                               notifyDone, counter,
-                                               NVSHMEM_SIGNAL_SET, destRank);
+      nvshmemx_double_put_signal_nbi_block(dest + block_offset, src +
+                                           block_offset, dataSize,
+                                           notifyDone, counter,
+                                           NVSHMEM_SIGNAL_SET, destRank);
     }
   }
 
@@ -103,7 +101,7 @@ extern "C" {
   void cuda_gs_pack_and_push(void *u_d, void *sbuf_d, void *sdof_d,
                              int soffset, int n, cudaStream_t stream,
                              int srank,  void *rbuf_d, int roffset, int* remote_offset,
-			     int rrank, int counter, void* notifyDone, void* notifyReady,
+			     int rrank, uint64_t counter, void* notifyDone, void* notifyReady,
 			     int iter)
   {
     

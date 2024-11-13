@@ -94,7 +94,7 @@ module gs_device_shmem
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr) :: ptr
-       integer(c_size_t),value :: size
+       integer(c_size_t), value :: size
      end subroutine cudamalloc_nvshmem
   end interface
 
@@ -238,13 +238,9 @@ contains
     if (allocated(this%ndofs)) deallocate(this%ndofs)
     if (allocated(this%offset)) deallocate(this%offset)
 
-    if (use_nvshmem .eqv. .true.) then
-       if (c_associated(this%buf_d)) call cudafree_nvshmem(this%buf_d)
-    else
-!       if (c_associated(this%buf_d)) call device_free(this%buf_d)
-    end if
-
+    if (c_associated(this%buf_d)) call cudafree_nvshmem(this%buf_d)
     if (c_associated(this%dof_d)) call device_free(this%dof_d)
+    
   end subroutine gs_device_shmem_buf_free
   
   !> Initialise MPI based communication method
@@ -253,6 +249,7 @@ contains
     type(stack_i4_t), intent(inout) :: send_pe
     type(stack_i4_t), intent(inout) :: recv_pe
     integer :: i
+    integer(c_int64_t) :: i64_dummy
 
     call this%init_order(send_pe, recv_pe)
 
@@ -270,14 +267,13 @@ contains
     do i = 1, size(this%recv_pe)
        call device_event_create(this%event(i), 2)
     end do
-    
+
     if (use_nvshmem .eqv. .true.) then
        allocate(this%notifyDone(size(this%recv_pe)))
        allocate(this%notifyReady(size(this%recv_pe)))
        do i = 1, size(this%recv_pe)
-          ! Allocate for uint64_t
-          call cudamalloc_nvshmem(this%notifyDone(i), 8_8)
-          call cudamalloc_nvshmem(this%notifyReady(i), 8_8)     
+          call cudamalloc_nvshmem(this%notifyDone(i), c_sizeof(i64_dummy))
+          call cudamalloc_nvshmem(this%notifyReady(i), c_sizeof(i64_dummy))
        end do
     end if
 #endif
@@ -324,7 +320,26 @@ contains
           call device_stream_wait_event(this%stream(i), deps, 0)
           ! Not clear why this sync is required, but there seems to be a race condition
           ! without it for certain run configs
-!          call device_sync(this%stream(i))       
+          !          call device_sync(this%stream(i))
+          ! NVSHMEM path
+          ! Using single stream for NVSHMEM for now.
+          ! Multi-stream works but is slower in some cases, more investigation required          
+          call cuda_gs_pack_and_push(u_d, &
+               this%send_buf%buf_d, &
+               this%send_buf%dof_d, &
+               this%send_buf%offset(i), &
+               this%send_buf%ndofs(i), &
+               this%stream(i), &
+               this%send_pe(i), &
+               this%recv_buf%buf_d, &
+               this%recv_buf%offset(i), &
+               this%recv_buf%remote_offset, &
+               this%recv_pe(i), &
+               this%nvshmem_counter, &
+               this%notifyDone(i), &
+               this%notifyReady(i), &
+               i)
+          this%nvshmem_counter = this%nvshmem_counter + 1
        end do
     end if
   end subroutine gs_device_shmem_nbsend
@@ -333,8 +348,9 @@ contains
   subroutine gs_device_shmem_nbrecv(this)
     class(gs_device_shmem_t), intent(inout) :: this
     integer :: i
-    if (use_nvshmem .eqv. .false.) then !else we do everything in the "wait" routine below
-    end if
+
+    ! We do everything in the "wait" routine below
+
   end subroutine gs_device_shmem_nbrecv
   
   !> Wait for non-blocking operations
@@ -349,35 +365,14 @@ contains
     u_d = device_get_ptr(u)
 
     if (use_nvshmem .eqv. .false.) then
-    else ! NVSHMEM path
-    ! Using single stream for NVSHMEM for now.
-    ! Multi-stream works but is slower in some cases, more investigation required
-
-    do i = 1, size(this%send_pe)
-        call cuda_gs_pack_and_push(u_d, &
-             this%send_buf%buf_d, &
-             this%send_buf%dof_d, &
-             this%send_buf%offset(i), &
-             this%send_buf%ndofs(i), &
-             this%stream(i), &
-             this%send_pe(i), &
-             this%recv_buf%buf_d, &
-             this%recv_buf%offset(i), &
-             this%recv_buf%remote_offset, &
-             this%recv_pe(i), &
-             this%nvshmem_counter, &
-             this%notifyDone(i), &
-             this%notifyReady(i), &
-             i)
-        this%nvshmem_counter=this%nvshmem_counter+1
-     end do
+    else
      do i = 1, size(this%send_pe)
         call cuda_gs_pack_and_push_wait(this%stream(i), &
              this%nvshmem_counter - size(this%send_pe) + i - 1, &
              this%notifyDone(i))
      end do
      
-     do done_req=1, size(this%recv_pe)
+     do done_req = 1, size(this%recv_pe)
         call cuda_gs_unpack(u_d, op, &
              this%recv_buf%buf_d, &
              this%recv_buf%dof_d, &
