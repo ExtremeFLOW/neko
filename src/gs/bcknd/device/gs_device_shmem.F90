@@ -36,7 +36,6 @@ module gs_device_shmem
   use gs_comm, only : gs_comm_t
   use gs_ops
   use stack, only : stack_i4_t
-  use comm, only : pe_size, pe_rank
   use htable, only : htable_i4_t
   use device
   use utils, only : neko_error
@@ -66,8 +65,6 @@ module gs_device_shmem
      type(gs_device_shmem_buf_t) :: recv_buf
      type(c_ptr), allocatable :: stream(:)
      type(c_ptr), allocatable :: event(:)
-     integer :: nb_strtgy
-     type(c_ptr) :: send_event = C_NULL_PTR
      integer(c_int64_t) :: nvshmem_counter = 1
      type(c_ptr), allocatable :: notifyDone(:)
      type(c_ptr), allocatable :: notifyReady(:)
