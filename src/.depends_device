@@ -53,7 +53,7 @@ krylov/bcknd/device/cuda/fusedcg_aux.lo : krylov/bcknd/device/cuda/fusedcg_aux.c
 krylov/bcknd/device/cuda/fusedcg_cpld_aux.lo : krylov/bcknd/device/cuda/fusedcg_cpld_aux.cu krylov/bcknd/device/cuda/fusedcg_cpld_kernel.h
 krylov/bcknd/device/cuda/gmres_aux.lo : krylov/bcknd/device/cuda/gmres_aux.cu krylov/bcknd/device/cuda/gmres_kernel.h
 gs/bcknd/device/cuda/gs.lo : gs/bcknd/device/cuda/gs.cu gs/bcknd/device/cuda/gs_kernels.h
-gs/bcknd/device/cuda/nvshmem.lo : gs/bcknd/device/cuda/nvshmem.cu gs/bcknd/device/cuda/gs_kernels.h
+gs/bcknd/device/cuda/gs_nvshmem.lo : gs/bcknd/device/cuda/gs_nvshmem.cu gs/bcknd/device/cuda/gs_kernels.h
 bc/bcknd/device/cuda/dirichlet.lo : bc/bcknd/device/cuda/dirichlet.cu bc/bcknd/device/cuda/dirichlet_kernel.h
 bc/bcknd/device/cuda/inflow.lo : bc/bcknd/device/cuda/inflow.cu bc/bcknd/device/cuda/inflow_kernel.h
 bc/bcknd/device/cuda/no_slip_wall.lo : bc/bcknd/device/cuda/no_slip_wall.cu bc/bcknd/device/cuda/no_slip_wall_kernel.h
