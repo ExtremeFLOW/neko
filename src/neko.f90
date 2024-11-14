@@ -121,7 +121,7 @@ module neko
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use, intrinsic :: iso_fortran_env
-  !$ use omp_lib
+!$ use omp_lib
   implicit none
 
 contains
