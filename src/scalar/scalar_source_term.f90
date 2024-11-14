@@ -85,7 +85,7 @@ contains
   subroutine scalar_init_user_source(source_term, rhs_fields, coef, type, user)
     class(source_term_t), allocatable, intent(inout) :: source_term
     type(field_list_t) :: rhs_fields
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(in) :: coef
     character(len=*) :: type
     type(user_t), intent(in) :: user
 

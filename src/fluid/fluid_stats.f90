@@ -167,7 +167,7 @@ contains
   subroutine fluid_stats_init(this, coef, u, v, w, p, set)
     class(fluid_stats_t), intent(inout), target:: this
     type(coef_t), target, optional :: coef
-    type(field_t), target, intent(inout) :: u, v, w, p
+    type(field_t), target, intent(in) :: u, v, w, p
     character(*), intent(in), optional :: set
 
     call this%free()
@@ -718,13 +718,13 @@ contains
   subroutine fluid_stats_post_process(this, mean, reynolds, pressure_flatness,&
        pressure_skewness, skewness_tensor, mean_vel_grad, dissipation_tensor)
     class(fluid_stats_t) :: this
-    type(field_list_t), intent(inout), optional :: mean
-    type(field_list_t), intent(inout), optional :: reynolds
-    type(field_list_t), intent(inout), optional :: pressure_skewness
-    type(field_list_t), intent(inout), optional :: pressure_flatness
-    type(field_list_t), intent(inout), optional :: skewness_tensor
-    type(field_list_t), intent(inout), optional :: mean_vel_grad
-    type(field_list_t), intent(inout), optional :: dissipation_tensor
+    type(field_list_t), intent(in), optional :: mean
+    type(field_list_t), intent(in), optional :: reynolds
+    type(field_list_t), intent(in), optional :: pressure_skewness
+    type(field_list_t), intent(in), optional :: pressure_flatness
+    type(field_list_t), intent(in), optional :: skewness_tensor
+    type(field_list_t), intent(in), optional :: mean_vel_grad
+    type(field_list_t), intent(in), optional :: dissipation_tensor
     integer :: n
 
     if (present(mean)) then
