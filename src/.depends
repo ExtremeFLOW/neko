@@ -39,7 +39,8 @@ gs/gs_ops.lo : gs/gs_ops.f90
 gs/gs_comm.lo : gs/gs_comm.f90 adt/stack.lo comm/comm.lo config/num_types.lo 
 gs/gs_mpi.lo : gs/gs_mpi.f90 comm/comm.lo adt/stack.lo gs/gs_ops.lo gs/gs_comm.lo config/num_types.lo 
 gs/bcknd/device/gs_device_mpi.lo : gs/bcknd/device/gs_device_mpi.F90 common/utils.lo device/device.lo adt/htable.lo comm/comm.lo adt/stack.lo gs/gs_ops.lo gs/gs_comm.lo config/num_types.lo 
-gs/gather_scatter.lo : gs/gather_scatter.f90 device/device.lo common/profiler.lo common/log.lo common/utils.lo adt/stack.lo adt/htable.lo config/num_types.lo field/field.lo sem/dofmap.lo comm/comm.lo mesh/mesh.lo gs/bcknd/device/gs_device_mpi.lo gs/gs_mpi.lo gs/gs_comm.lo gs/gs_ops.lo gs/bcknd/cpu/gs_cpu.lo gs/bcknd/sx/gs_sx.lo gs/bcknd/device/gs_device.lo gs/gs_bcknd.lo config/neko_config.lo 
+gs/bcknd/device/gs_device_shmem.lo : gs/bcknd/device/gs_device_shmem.F90 common/utils.lo device/device.lo adt/htable.lo adt/stack.lo gs/gs_ops.lo gs/gs_comm.lo config/num_types.lo 
+gs/gather_scatter.lo : gs/gather_scatter.f90 device/device.lo common/profiler.lo common/log.lo common/utils.lo adt/stack.lo adt/htable.lo config/num_types.lo field/field.lo sem/dofmap.lo comm/comm.lo mesh/mesh.lo gs/bcknd/device/gs_device_shmem.lo gs/bcknd/device/gs_device_mpi.lo gs/gs_mpi.lo gs/gs_comm.lo gs/gs_ops.lo gs/bcknd/cpu/gs_cpu.lo gs/bcknd/sx/gs_sx.lo gs/bcknd/device/gs_device.lo gs/gs_bcknd.lo config/neko_config.lo 
 mesh/entity.lo : mesh/entity.f90 
 mesh/point.lo : mesh/point.f90 mesh/entity.lo math/math.lo config/num_types.lo 
 mesh/element.lo : mesh/element.f90 mesh/point.lo adt/tuple.lo mesh/entity.lo config/num_types.lo 
