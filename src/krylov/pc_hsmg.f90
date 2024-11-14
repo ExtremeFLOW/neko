@@ -139,9 +139,9 @@ contains
     type(mesh_t), intent(inout), target :: msh
     type(space_t), intent(inout), target :: Xh
     type(coef_t), intent(inout), target :: coef
-    type(dofmap_t), intent(inout), target :: dof
+    type(dofmap_t), intent(in), target :: dof
     type(gs_t), intent(inout), target :: gs_h
-    type(bc_list_t), intent(inout), target :: bclst
+    type(bc_list_t), intent(in), target :: bclst
     character(len=*), optional :: crs_pctype
     integer :: n, i
     integer :: lx_crs, lx_mid

@@ -59,7 +59,7 @@ contains
   subroutine sx_jacobi_init(this, coef, dof, gs_h)
     class(sx_jacobi_t), intent(inout) :: this
     type(coef_t), intent(inout), target :: coef
-    type(dofmap_t), intent(inout), target :: dof
+    type(dofmap_t), intent(in), target :: dof
     type(gs_t), intent(inout), target :: gs_h
 
     call this%free()

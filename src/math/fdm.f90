@@ -109,7 +109,7 @@ contains
   subroutine fdm_init(this, Xh, dm, gs_h)
     class(fdm_t), intent(inout) :: this
     type(space_t), target, intent(inout) :: Xh
-    type(dofmap_t), target, intent(inout) :: dm
+    type(dofmap_t), target, intent(in) :: dm
     type(gs_t), target, intent(inout) :: gs_h
     !We only really use ah, bh
     real(kind=rp), dimension((Xh%lx)**2) :: ah, bh, ch, dh, zh
