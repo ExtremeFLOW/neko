@@ -32,13 +32,13 @@ jobs:
               curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
               echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
               sudo apt-get update -y
-              sudo apt-get install -y nvhpc-24-9
+              sudo apt-get install -y nvhpc-24-11
               NVARCH=`uname -s`_`uname -m`
               export NVARCH
               NVCOMPILERS=/opt/nvidia/hpc_sdk
               export NVCOMPILERS
-              PATH=$NVCOMPILERS/$NVARCH/24.9/compilers/bin:$PATH; export PATH
-              export PATH=$NVCOMPILERS/$NVARCH/24.9/comm_libs/mpi/bin:$PATH
+              PATH=$NVCOMPILERS/$NVARCH/24.11/compilers/bin:$PATH; export PATH
+              export PATH=$NVCOMPILERS/$NVARCH/24.11/comm_libs/mpi/bin:$PATH
               printenv >> $GITHUB_ENV
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
@@ -98,7 +98,7 @@ jobs:
         run: |
           git apply patches/nvhpc_bge.patch
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.9/cuda/
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.11/cuda/
           make
 
       - name: Dist (CPU backend)
@@ -122,5 +122,5 @@ jobs:
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
           patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
-          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.9/cuda/
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.11/cuda/
           make -j $(nproc)
