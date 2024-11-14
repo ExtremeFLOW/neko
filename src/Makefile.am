@@ -424,7 +424,8 @@ libneko_la_SOURCES += \
 	sem/bcknd/device/cuda/coef.cu\
 	source_terms/bcknd/device/cuda/filters.cu\
 	les/bcknd/device/cuda/sigma_nut.cu\
-	les/bcknd/device/cuda/vreman_nut.cu
+	les/bcknd/device/cuda/vreman_nut.cu\
+	comm/bcknd/device/cuda/nvshmem.cu
 
 BUILT_SOURCES = libtool_cuda
 
@@ -553,6 +554,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/inhom_dirichlet_kernel.h\
 	bc/bcknd/device/cuda/dong_outflow_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
+	gs/bcknd/device/cuda/gs_nvshmem_kernels.h\
 	math/bcknd/device/cuda/math_kernel.h\
 	math/bcknd/device/cuda/tensor_kernel.h\
 	math/bcknd/device/cuda/fdm_kernel.h\

@@ -33,6 +33,7 @@ scalar/bcknd/device/hip/scalar_residual.lo : scalar/bcknd/device/hip/scalar_resi
 sem/bcknd/device/hip/coef.lo : sem/bcknd/device/hip/coef.hip sem/bcknd/device/hip/coef_kernel.h
 les/bcknd/device/hip/vreman_nut.lo : les/bcknd/device/hip/vreman_nut.hip les/bcknd/device/hip/vreman_nut_kernel.h
 les/bcknd/device/hip/sigma_nut.lo : les/bcknd/device/hip/sigma_nut.hip les/bcknd/device/hip/sigma_nut_kernel.h
+comm/bcknd/device/cuda/nvshmem.lo : comm/bcknd/device/cuda/nvshmem.cu comm/comm.h
 device/cuda/check.lo : device/cuda/check.cu device/cuda/check.h
 math/bcknd/device/cuda/math.lo : math/bcknd/device/cuda/math.cu math/bcknd/device/cuda/math_kernel.h
 math/bcknd/device/cuda/mathops.lo : math/bcknd/device/cuda/mathops.cu math/bcknd/device/cuda/mathops_kernel.h
@@ -53,7 +54,7 @@ krylov/bcknd/device/cuda/fusedcg_aux.lo : krylov/bcknd/device/cuda/fusedcg_aux.c
 krylov/bcknd/device/cuda/fusedcg_cpld_aux.lo : krylov/bcknd/device/cuda/fusedcg_cpld_aux.cu krylov/bcknd/device/cuda/fusedcg_cpld_kernel.h
 krylov/bcknd/device/cuda/gmres_aux.lo : krylov/bcknd/device/cuda/gmres_aux.cu krylov/bcknd/device/cuda/gmres_kernel.h
 gs/bcknd/device/cuda/gs.lo : gs/bcknd/device/cuda/gs.cu gs/bcknd/device/cuda/gs_kernels.h
-gs/bcknd/device/cuda/gs_nvshmem.lo : gs/bcknd/device/cuda/gs_nvshmem.cu gs/bcknd/device/cuda/gs_kernels.h
+gs/bcknd/device/cuda/gs_nvshmem.lo : gs/bcknd/device/cuda/gs_nvshmem.cu gs/bcknd/device/cuda/gs_kernels.h gs/bcknd/device/cuda/gs_nvshmem_kernels.h
 bc/bcknd/device/cuda/dirichlet.lo : bc/bcknd/device/cuda/dirichlet.cu bc/bcknd/device/cuda/dirichlet_kernel.h
 bc/bcknd/device/cuda/inflow.lo : bc/bcknd/device/cuda/inflow.cu bc/bcknd/device/cuda/inflow_kernel.h
 bc/bcknd/device/cuda/no_slip_wall.lo : bc/bcknd/device/cuda/no_slip_wall.cu bc/bcknd/device/cuda/no_slip_wall_kernel.h

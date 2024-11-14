@@ -105,23 +105,39 @@ contains
     integer, optional :: bcknd, comm_bcknd
     integer :: i, j, ierr, bcknd_, comm_bcknd_
     integer(i8) :: glb_nshared, glb_nlocal
-    logical :: use_device_mpi
+    logical :: use_device_mpi, use_device_shmem
     real(kind=rp), allocatable :: tmp(:)
     type(c_ptr) :: tmp_d = C_NULL_PTR
     integer :: strtgy(4) = (/ int(B'00'), int(B'01'), int(B'10'), int(B'11') /)
     integer :: avg_strtgy, env_len
     character(len=255) :: env_strtgy
     real(kind=dp) :: strtgy_time(4)
-
+    character (len=20) :: nvshmem_env_val
+    integer nvshmem_env_len, nvshmem_env_status
+    
     call gs%free()
 
     call neko_log%section('Gather-Scatter')
 
     gs%dofmap => dofmap
 
+    use_device_shmem = .false.
+    call get_environment_variable("NEKO_USE_NVSHMEM", &
+         nvshmem_env_val, nvshmem_env_len, nvshmem_env_status, .true.)
+    if (nvshmem_env_status .eq. 0) then
+       block
+         integer :: env_val
+         read(nvshmem_env_val(1:nvshmem_env_len), *) env_val
+         if (env_val .eq. 1) then
+            use_device_shmem = .true.
+         end if
+       end block
+    end if
 
     if (present(comm_bcknd)) then
        comm_bcknd_ = comm_bcknd
+    else if (use_device_shmem) then
+       comm_bcknd_ = GS_COMM_NVSHMEM
     else
        if (NEKO_DEVICE_MPI) then
           comm_bcknd_ = GS_COMM_MPIGPU
@@ -140,6 +156,8 @@ contains
     case (GS_COMM_NVSHMEM)
        call neko_log%message('Comm         :      NVSHMEM')
        allocate(gs_device_shmem_t::gs%comm)
+    case default
+       call neko_error('Unknown Gather-scatter comm. backend')
     end select
 
     call gs%comm%init_dofs()

@@ -38,14 +38,13 @@ module gs_device_shmem
   use stack, only : stack_i4_t
   use htable, only : htable_i4_t
   use device
+  use comm
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, c_int64_t
   implicit none
   private
 
-  logical :: use_nvshmem = .false.
-
-  !> Buffers for non-blocking communication and packing/unpacking
+   !> Buffers for non-blocking communication and packing/unpacking
   type, private :: gs_device_shmem_buf_t
      integer, allocatable :: ndofs(:)           !< Number of dofs
      integer, allocatable :: offset(:)          !< Offset into buf
@@ -158,15 +157,7 @@ contains
     integer :: dupe, marked, k
     real(c_rp) :: rp_dummy
     integer(c_int32_t) :: i4_dummy
-    character (len=20) :: nvshmem_env_val
-    integer nvshmem_env_len, nvshmem_env_status
-
-    call get_environment_variable ("NEKO_USE_NVSHMEM", nvshmem_env_val, &
-         nvshmem_env_len, nvshmem_env_status, .true.)
-    if (nvshmem_env_status .eq. 0) then
-       use_nvshmem = .true. 
-    end if
-    
+     
     allocate(this%ndofs(size(pe_order)))
     allocate(this%offset(size(pe_order)))
     allocate(this%remote_offset(size(pe_order)))
@@ -182,15 +173,13 @@ contains
        total = total + this%ndofs(i)
     end do
 
+    call MPI_Allreduce(total, MPI_IN_PLACE, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)    
+
     this%total = total
 
     sz = c_sizeof(rp_dummy) * total
-    if (use_nvshmem .eqv. .true.) then
-       call cudamalloc_nvshmem(this%buf_d, sz)
-    else
-       error stop 42
-    end if
-    
+    call cudamalloc_nvshmem(this%buf_d, sz)
+
     sz = c_sizeof(i4_dummy) * total
     call device_alloc(this%dof_d, sz)
 
@@ -268,14 +257,12 @@ contains
        call device_event_create(this%event(i), 2)
     end do
 
-    if (use_nvshmem .eqv. .true.) then
-       allocate(this%notifyDone(size(this%recv_pe)))
-       allocate(this%notifyReady(size(this%recv_pe)))
-       do i = 1, size(this%recv_pe)
-          call cudamalloc_nvshmem(this%notifyDone(i), c_sizeof(i64_dummy))
-          call cudamalloc_nvshmem(this%notifyReady(i), c_sizeof(i64_dummy))
-       end do
-    end if
+    allocate(this%notifyDone(size(this%recv_pe)))
+    allocate(this%notifyReady(size(this%recv_pe)))
+    do i = 1, size(this%recv_pe)
+       call cudamalloc_nvshmem(this%notifyDone(i), 8 * c_sizeof(i64_dummy))
+       call cudamalloc_nvshmem(this%notifyReady(i), 8 * c_sizeof(i64_dummy))
+    end do
 #endif
 
   end subroutine gs_device_shmem_init
@@ -314,34 +301,32 @@ contains
 
     u_d = device_get_ptr(u)
 
-    if(use_nvshmem .eqv. .false.) then !else we do all comms in the "wait" routine below
-    else    
-       do i = 1, size(this%send_pe)
-          call device_stream_wait_event(this%stream(i), deps, 0)
-          ! Not clear why this sync is required, but there seems to be a race condition
-          ! without it for certain run configs
-          !          call device_sync(this%stream(i))
-          ! NVSHMEM path
-          ! Using single stream for NVSHMEM for now.
-          ! Multi-stream works but is slower in some cases, more investigation required          
-          call cuda_gs_pack_and_push(u_d, &
-               this%send_buf%buf_d, &
-               this%send_buf%dof_d, &
-               this%send_buf%offset(i), &
-               this%send_buf%ndofs(i), &
-               this%stream(i), &
-               this%send_pe(i), &
-               this%recv_buf%buf_d, &
-               this%recv_buf%offset(i), &
-               this%recv_buf%remote_offset, &
-               this%recv_pe(i), &
-               this%nvshmem_counter, &
-               this%notifyDone(i), &
-               this%notifyReady(i), &
-               i)
-          this%nvshmem_counter = this%nvshmem_counter + 1
-       end do
-    end if
+    do i = 1, size(this%send_pe)
+       call device_stream_wait_event(this%stream(i), deps, 0)
+       ! Not clear why this sync is required, but there seems to be a race condition
+       ! without it for certain run configs
+       !          call device_sync(this%stream(i))
+       ! NVSHMEM path
+       ! Using single stream for NVSHMEM for now.
+       ! Multi-stream works but is slower in some cases, more investigation required          
+       call cuda_gs_pack_and_push(u_d, &
+            this%send_buf%buf_d, &
+            this%send_buf%dof_d, &
+            this%send_buf%offset(i), &
+            this%send_buf%ndofs(i), &
+            this%stream(i), &
+            this%send_pe(i), &
+            this%recv_buf%buf_d, &
+            this%recv_buf%offset(i), &
+            this%recv_buf%remote_offset, &
+            this%recv_pe(i), &
+            this%nvshmem_counter, &
+            this%notifyDone(i), &
+            this%notifyReady(i), &
+            i)
+       this%nvshmem_counter = this%nvshmem_counter + 1
+    end do
+
   end subroutine gs_device_shmem_nbsend
 
   !> Post non-blocking receive operations
@@ -364,32 +349,28 @@ contains
 
     u_d = device_get_ptr(u)
 
-    if (use_nvshmem .eqv. .false.) then
-    else
-     do i = 1, size(this%send_pe)
-        call cuda_gs_pack_and_push_wait(this%stream(i), &
-             this%nvshmem_counter - size(this%send_pe) + i - 1, &
-             this%notifyDone(i))
-     end do
-     
-     do done_req = 1, size(this%recv_pe)
-        call cuda_gs_unpack(u_d, op, &
-             this%recv_buf%buf_d, &
-             this%recv_buf%dof_d, &
-             this%recv_buf%offset(done_req), &
-             this%recv_buf%ndofs(done_req), &
-             this%stream(done_req))
-        call device_event_record(this%event(done_req), this%stream(done_req))
-     end do
-     
-     ! Sync non-blocking streams
-     do done_req = 1, size(this%recv_pe)
-        call device_stream_wait_event(strm, &
-             this%event(done_req), 0)
-     end do
-     
-  end if
-
+    do i = 1, size(this%send_pe)
+       call cuda_gs_pack_and_push_wait(this%stream(i), &
+            this%nvshmem_counter - size(this%send_pe) + i - 1, &
+            this%notifyDone(i))
+    end do
+    
+    do done_req = 1, size(this%recv_pe)
+       call cuda_gs_unpack(u_d, op, &
+            this%recv_buf%buf_d, &
+            this%recv_buf%dof_d, &
+            this%recv_buf%offset(done_req), &
+            this%recv_buf%ndofs(done_req), &
+            this%stream(done_req))
+       call device_event_record(this%event(done_req), this%stream(done_req))
+    end do
+    
+    ! Sync non-blocking streams
+    do done_req = 1, size(this%recv_pe)
+       call device_stream_wait_event(strm, &
+            this%event(done_req), 0)
+    end do
+    
 end subroutine gs_device_shmem_nbwait
   
 end module gs_device_shmem
