@@ -144,7 +144,7 @@ contains
   subroutine fluid_pnpn_init(this, msh, lx, params, user, time_scheme)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
-    integer, intent(inout) :: lx
+    integer, intent(in) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
@@ -594,10 +594,10 @@ contains
   !! @param dt_controller timestep controller
   subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
     class(fluid_pnpn_t), target, intent(inout) :: this
-    real(kind=rp), intent(inout) :: t
-    integer, intent(inout) :: tstep
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     real(kind=rp), intent(in) :: dt
-    type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    type(time_scheme_controller_t), intent(in) :: ext_bdf
     type(time_step_controller_t), intent(in) :: dt_controller
     ! number of degrees of freedom
     integer :: n

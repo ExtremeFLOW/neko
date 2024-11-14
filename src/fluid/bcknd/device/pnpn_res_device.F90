@@ -231,7 +231,7 @@ contains
     type(facet_normal_t), intent(inout) :: bc_prs_surface
     type(facet_normal_t), intent(inout) :: bc_sym_surface
     class(Ax_t), intent(inout) :: Ax
-    real(kind=rp), intent(inout) :: bd
+    real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     type(field_t), intent(in) :: mu
     type(field_t), intent(in) :: rho
