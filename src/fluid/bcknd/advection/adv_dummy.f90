@@ -88,7 +88,7 @@ contains
   subroutine compute_adv_dummy(this, vx, vy, vz, fx, fy, fz, Xh, &
                                           coef, n, dt)
     class(adv_dummy_t), intent(inout) :: this
-    type(space_t), intent(inout) :: Xh
+    type(space_t), intent(in) :: Xh
     type(coef_t), intent(inout) :: coef
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: fx, fy, fz
@@ -116,7 +116,7 @@ contains
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: s
     type(field_t), intent(inout) :: fs
-    type(space_t), intent(inout) :: Xh
+    type(space_t), intent(in) :: Xh
     type(coef_t), intent(inout) :: coef
     integer, intent(in) :: n
     real(kind=rp), intent(in), optional :: dt

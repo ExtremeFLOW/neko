@@ -287,7 +287,7 @@ contains
     class(adv_oifs_t), intent(inout) :: this
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: fx, fy, fz
-    type(space_t), intent(inout) :: Xh
+    type(space_t), intent(in) :: Xh
     type(coef_t), intent(inout) :: coef
     integer, intent(in) :: n
     real(kind=rp), intent(in), optional :: dt
@@ -392,7 +392,7 @@ contains
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: fs
     type(field_t), intent(inout) :: s
-    type(space_t), intent(inout) :: Xh
+    type(space_t), intent(in) :: Xh
     type(coef_t), intent(inout) :: coef
     integer, intent(in) :: n
     real(kind=rp), intent(in), optional :: dt

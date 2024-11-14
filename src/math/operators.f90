@@ -271,7 +271,7 @@ contains
   !! @param es Starting element index, defaults to 1.
   !! @param ee Last element index, defaults to mesh size.
   subroutine conv1(du, u, vx, vy, vz, Xh, coef, es, ee)
-    type(space_t), intent(inout) :: Xh
+    type(space_t), intent(in) :: Xh
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(inout) :: du(Xh%lxyz, coef%msh%nelv)
     real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
@@ -559,7 +559,7 @@ contains
   !! @param n_GL the size in the GL space
   subroutine runge_kutta(phi, c_r1, c_r23, c_r4, Xh_GLL, Xh_GL, coef, &
                          coef_GL, GLL_to_GL, tau, dtau, n, nel, n_GL)
-    type(space_t), intent(inout) :: Xh_GLL
+    type(space_t), intent(in) :: Xh_GLL
     type(space_t), intent(inout) :: Xh_GL
     type(coef_t), intent(inout) :: coef
     type(coef_t), intent(inout) :: coef_GL

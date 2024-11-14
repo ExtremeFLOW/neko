@@ -81,7 +81,7 @@ module advection
   public :: advection_factory
 
   abstract interface
-     !> Add advection operator to the right-hand-side for a fluld.
+     !> Add advection operator to the right-hand-side for a fluid.
      !! @param this The object.
      !! @param vx The x component of velocity.
      !! @param vy The y component of velocity.
@@ -100,7 +100,7 @@ module advection
        import :: field_t
        import :: rp
        class(advection_t), intent(inout) :: this
-       type(space_t), intent(inout) :: Xh
+       type(space_t), intent(in) :: Xh
        type(coef_t), intent(inout) :: coef
        type(field_t), intent(inout) :: vx, vy, vz
        type(field_t), intent(inout) :: fx, fy, fz
@@ -131,7 +131,7 @@ module advection
        type(field_t), intent(inout) :: vx, vy, vz
        type(field_t), intent(inout) :: s
        type(field_t), intent(inout) :: fs
-       type(space_t), intent(inout) :: Xh
+       type(space_t), intent(in) :: Xh
        type(coef_t), intent(inout) :: coef
        integer, intent(in) :: n
        real(kind=rp), intent(in), optional :: dt

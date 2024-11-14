@@ -293,7 +293,7 @@ contains
 #endif
   end subroutine opr_xsmm_cdtp
 
-  subroutine opr_xsmm_conv1(du,u, vx, vy, vz, Xh, coef, nelv, gdim)
+  subroutine opr_xsmm_conv1(du, u, vx, vy, vz, Xh, coef, nelv, gdim)
     type(space_t), intent(in) :: Xh
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv, gdim

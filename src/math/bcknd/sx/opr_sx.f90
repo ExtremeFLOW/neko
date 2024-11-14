@@ -44,7 +44,7 @@ module opr_sx
      end subroutine opr_sx_cdtp
 
      module subroutine opr_sx_conv1(du, u, vx, vy, vz, Xh, coef, nelv)
-       type(space_t), intent(inout) :: Xh
+       type(space_t), intent(in) :: Xh
        type(coef_t), intent(inout) :: coef
        integer, intent(in) :: nelv
        real(kind=rp), intent(inout) ::  du(Xh%lxyz, nelv)
