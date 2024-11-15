@@ -64,6 +64,20 @@
         }
         ],
         "boundary_types": ["sym", "w", "o", "v"],
+        "boundary_conditions": [
+            {
+                "type": "symmetery"
+            },
+            {
+                "type": "no_slip"
+            },
+            {
+                "type": "outflow"
+            },
+            {
+                "type": "blasius"
+            }
+        ],
         "output_control": "nsamples",
         "output_value": 2 
     },
