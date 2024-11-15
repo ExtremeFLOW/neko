@@ -131,7 +131,7 @@ module fluid_scheme
      type(bc_list_t) :: bclst_vel_neumann      !< List of neumann velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
      ! NEW VARIABLE
-     type(bc_list_t) :: bcs
+     type(bc_list_t) :: bcs_vel
      integer :: n_strong = 0
      type(field_t) :: bdry                     !< Boundary markings
      type(json_file), pointer :: params        !< Parameters
@@ -617,7 +617,7 @@ contains
        call this%solver_factory(this%ksp_vel, this%dm_Xh%size(), &
             string_val1, integer_val, real_val, logical_val)
        call this%precon_factory(this%pc_vel, this%ksp_vel, &
-            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs, string_val2)
+            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_vel, string_val2)
        call neko_log%end_section()
     end if
 
@@ -873,10 +873,10 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    write(*,*) "APPLYING VELOCITY BCS", this%bcs%size()
-    call this%bcs%apply_vector(&
+    write(*,*) "APPLYING VELOCITY BCS", this%bcs_vel%size()
+    call this%bcs_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
-    write(*,*) "DONE APPLYING VELOCITY BCS", this%bcs%size()
+    write(*,*) "DONE APPLYING VELOCITY BCS", this%bcs_vel%size()
 
   end subroutine fluid_scheme_bc_apply_vel
 
@@ -887,9 +887,9 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    write(*,*) "APPLYING PRESSURE BCS", this%bcs%size()
+    write(*,*) "APPLYING PRESSURE BCS", this%bcs_vel%size()
     call this%bclst_prs%apply_scalar(this%p%x, this%p%dof%size(), t, tstep)
-    write(*,*) "DONE APPLYING PRESSURE BCS", this%bcs%size()
+    write(*,*) "DONE APPLYING PRESSURE BCS", this%bcs_vel%size()
 
   end subroutine fluid_scheme_bc_apply_prs
 
@@ -989,6 +989,7 @@ contains
       call this%bdry%init(this%dm_Xh, 'bdry')
       this%bdry = 0.0_rp
 
+      ! TODO: FILL THIS BACK IN NOT BASED ON BC_LABELS
 
     end if
 
@@ -1031,31 +1032,30 @@ contains
        call this%params%get_core(core)
        call this%params%get('case.fluid.boundary_conditions', bc_object, found)
 
-       call this%bcs%init(n_bcs)
+       call this%bcs_vel%init(n_bcs)
 
        j = 1
        do i=1, n_bcs
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
 
-          write(*,*) "i", i
-          call fluid_bc_factory(this%bcs%items(j)%obj, bc_subdict, &
+          call fluid_bc_factory(this%bcs_vel%items(j)%obj, bc_subdict, &
                this%c_Xh, user)
           ! Not all bcs require an allocation for velocity in particular,
           ! so we check.
-          if (allocated(this%bcs%items(j)%obj)) then
+          if (allocated(this%bcs_vel%items(j)%obj)) then
              write(*,*) "Allocating", j
-             if (this%bcs%strong(j)) then
+             if (this%bcs_vel%strong(j)) then
                 this%n_strong = this%n_strong + 1
              end if
              j = j + 1
-             this%bcs%size_ = this%bcs%size_ + 1
+             this%bcs_vel%size_ = this%bcs_vel%size_ + 1
 
           end if
 
           write(*,*) "Done", i
        end do
-       write(*,*) "N_BCS", j-1, this%bcs%size()
+       write(*,*) "N Velocity BCS", j-1, this%bcs_vel%size()
     end if
   end subroutine fluid_scheme_setup_bcs
 
@@ -1075,13 +1075,13 @@ contains
        allocate(inflow_t::object)
     else if (trim(type) .eq. "no_slip") then
        allocate(zero_dirichlet_t::object)
-    else if (trim(type) .eq. "normal_outlet") then
+    else if (trim(type) .eq. "normal_outflow") then
        allocate(non_normal_t::object)
     else if (trim(type) .eq. "blasius_profile") then
        allocate(blasius_t::object)
     else
        return
-       !call neko_error("Unknown boundary condition for the fluid.")
+!       call neko_error("Unknown boundary condition for the fluid.")
     end if
 
     call json_get(json, "zone_index", zone_index)

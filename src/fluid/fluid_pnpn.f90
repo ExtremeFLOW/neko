@@ -295,22 +295,22 @@ contains
     ! Initialize velocity surface terms in pressure rhs. Masks all strong
     ! velocity bcs.
     call this%bc_prs_surface%init(this%c_Xh, params)
-    do i = 1, this%bcs%size()
-       if (this%bcs%strong(i) .eqv. .true.) then
+    do i = 1, this%bcs_vel%size()
+       if (this%bcs_vel%strong(i) .eqv. .true.) then
           call this%bc_prs_surface%mark_facets( &
-               this%bcs%items(i)%obj%marked_facet)
+               this%bcs_vel%items(i)%obj%marked_facet)
        end if
     end do
     call this%bc_prs_surface%finalize()
 
     ! Initialize symmetry surface terms in pressure rhs. Masks symmetry bcs.
     call this%bc_sym_surface%init(this%c_Xh, params)
-    do i = 1, this%bcs%size()
-       select type (vel_bc => this%bcs%items(i)%obj)
+    do i = 1, this%bcs_vel%size()
+       select type (vel_bc => this%bcs_vel%items(i)%obj)
        type is (symmetry_t)
           write(*,*) "MARKING PRESSURE SYMMETRY"
           call this%bc_sym_surface%mark_facets( &
-               this%bcs%items(i)%obj%marked_facet)
+               this%bcs_vel%items(i)%obj%marked_facet)
        end select
     end do
     call this%bc_sym_surface%finalize()
@@ -418,11 +418,11 @@ contains
     call this%bclst_dw%init()
 
     ! Add all strong velocity bcs.
-    do i = 1, this%bcs%size()
-       if (this%bcs%strong(i) .eqv. .true.) then
+    do i = 1, this%bcs_vel%size()
+       if (this%bcs_vel%strong(i) .eqv. .true.) then
 
          ! We need to treat bcs with nested bcs in a delicate way
-         select type (vel_bc => this%bcs%items(i)%obj)
+         select type (vel_bc => this%bcs_vel%items(i)%obj)
          type is (symmetry_t)
             write(*,*) "MARKING SYMMETRY IN VELOCITY BLISTS"
             call this%bclst_vel_res%append(vel_bc)
@@ -430,13 +430,18 @@ contains
             call this%bclst_dv%append(vel_bc%bc_y)
             call this%bclst_dw%append(vel_bc%bc_z)
          class default
-            call this%bclst_vel_res%append(this%bcs%items(i)%obj)
-            call this%bclst_du%append(this%bcs%items(i)%obj)
-            call this%bclst_dv%append(this%bcs%items(i)%obj)
-            call this%bclst_dw%append(this%bcs%items(i)%obj)
+            call this%bclst_vel_res%append(vel_bc)
+            call this%bclst_du%append(vel_bc)
+            call this%bclst_dv%append(vel_bc)
+            call this%bclst_dw%append(vel_bc)
          end select
        end if
     end do
+    write(*,*) "BCLST_DU size", this%bclst_du%size_
+    write(*,*) "BCLST_DV size", this%bclst_dv%size_
+    write(*,*) "BCLST_DW size", this%bclst_dw%size_
+    write(*,*) "BCLST_DP size", this%bclst_dp%size_
+    write(*,*) "BCLST_VEL_RES size", this%bclst_vel_res%size_
 
     !call this%bclst_vel_res%append(this%bc_vel_res)
     !call this%bclst_vel_res%append(this%bc_vel_res_non_normal)
