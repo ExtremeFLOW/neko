@@ -128,7 +128,6 @@ module fluid_scheme
      type(field_dirichlet_t) :: user_field_bc_prs   !< User-computed Dirichlet pressure condition
 !     type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
 !     type(shear_stress_t) :: bc_sh             !< Symmetry plane for velocity
-     type(bc_list_t) :: bclst_vel              !< List of velocity conditions
      type(bc_list_t) :: bclst_vel_neumann      !< List of neumann velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
      ! NEW VARIABLE
@@ -428,8 +427,6 @@ contains
     !
     ! Setup velocity boundary conditions
     !
-    call this%bclst_vel%init()
-    write(*,*) "BCLST", this%bclst_vel%size_, this%bclst_vel%capacity
 
     ! Shear stress conditions
 !    call this%bc_sh%init(this%c_Xh, this%params)
@@ -620,7 +617,7 @@ contains
        call this%solver_factory(this%ksp_vel, this%dm_Xh%size(), &
             string_val1, integer_val, real_val, logical_val)
        call this%precon_factory(this%pc_vel, this%ksp_vel, &
-            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, string_val2)
+            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs, string_val2)
        call neko_log%end_section()
     end if
 
@@ -776,8 +773,6 @@ contains
 
     call this%c_Xh%free()
 
-    call this%bclst_vel%free()
-
     call this%scratch%free()
 
     nullify(this%params)
@@ -877,9 +872,6 @@ contains
     class(fluid_scheme_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-
-    call this%bclst_vel%apply_vector(&
-         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
 
     write(*,*) "APPLYING VELOCITY BCS", this%bcs%size()
     call this%bcs%apply_vector(&

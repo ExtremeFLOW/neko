@@ -411,19 +411,33 @@ contains
 !    call this%bc_vel_res%mark_zones_from_list('w', this%bc_labels)
 !    call this%bc_vel_res%finalize()
 
+    ! Populate lists for the velocity residual and solution increments
     call this%bclst_vel_res%init()
     call this%bclst_du%init()
     call this%bclst_dv%init()
     call this%bclst_dw%init()
 
+    ! Add all strong velocity bcs.
     do i = 1, this%bcs%size()
        if (this%bcs%strong(i) .eqv. .true.) then
-          call this%bclst_vel_res%append(this%bcs%items(i)%obj)
-          call this%bclst_du%append(this%bcs%items(i)%obj)
-          call this%bclst_dv%append(this%bcs%items(i)%obj)
-          call this%bclst_dw%append(this%bcs%items(i)%obj)
+
+         ! We need to treat bcs with nested bcs in a delicate way
+         select type (vel_bc => this%bcs%items(i)%obj)
+         type is (symmetry_t)
+            write(*,*) "MARKING SYMMETRY IN VELOCITY BLISTS"
+            call this%bclst_vel_res%append(vel_bc)
+            call this%bclst_du%append(vel_bc%bc_x)
+            call this%bclst_dv%append(vel_bc%bc_y)
+            call this%bclst_dw%append(vel_bc%bc_z)
+         class default
+            call this%bclst_vel_res%append(this%bcs%items(i)%obj)
+            call this%bclst_du%append(this%bcs%items(i)%obj)
+            call this%bclst_dv%append(this%bcs%items(i)%obj)
+            call this%bclst_dw%append(this%bcs%items(i)%obj)
+         end select
        end if
     end do
+
     !call this%bclst_vel_res%append(this%bc_vel_res)
     !call this%bclst_vel_res%append(this%bc_vel_res_non_normal)
 
