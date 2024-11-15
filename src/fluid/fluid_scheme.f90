@@ -1089,6 +1089,8 @@ contains
     call object%mark_zone(coef%msh%labeled_zones(zone_index))
     call object%finalize()
 
+    write(*,*) "BC size", zone_index, object%marked_facet%size_, object%msk(0)
+
   end subroutine fluid_bc_factory
 
   !> Sets rho and mu

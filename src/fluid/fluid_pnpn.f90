@@ -75,6 +75,7 @@ module fluid_pnpn
   use utils, only : neko_error
   use field_math, only : field_add2, field_copy
   use bc, only : bc_t
+  use file, only : file_t
   implicit none
   private
 
@@ -121,6 +122,9 @@ module fluid_pnpn
 
      type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
 
+     !
+     ! Boundary conditions and  lists for residuals and
+     !
 
      type(zero_dirichlet_t) :: bc_vel_res   !< Dirichlet condition vel. res.
      type(zero_dirichlet_t) :: bc_field_dirichlet_p   !< Dirichlet condition vel. res.
@@ -130,16 +134,13 @@ module fluid_pnpn
      type(non_normal_t) :: bc_vel_res_non_normal   !< Dirichlet condition vel. res.
 
 
-     !
-     ! Boundary condition lists
-     !
      type(bc_list_t) :: bclst_vel_res
      type(bc_list_t) :: bclst_du
      type(bc_list_t) :: bclst_dv
      type(bc_list_t) :: bclst_dw
      type(bc_list_t) :: bclst_dp
 
-     ! TEMP
+     ! List of boundary conditions for pressure
      type(bc_list_t) :: bcs_prs
 
      class(advection_t), allocatable :: adv
@@ -296,10 +297,15 @@ contains
     ! velocity bcs.
     call this%bc_prs_surface%init(this%c_Xh, params)
     do i = 1, this%bcs_vel%size()
-       if (this%bcs_vel%strong(i) .eqv. .true.) then
-          call this%bc_prs_surface%mark_facets( &
-               this%bcs_vel%items(i)%obj%marked_facet)
-       end if
+       select type (vel_bc => this%bcs_vel%items(i)%obj)
+       type is (symmetry_t)
+         ! Do nothing
+       class default
+         if (this%bcs_vel%strong(i) .eqv. .true.) then
+            call this%bc_prs_surface%mark_facets( &
+                  this%bcs_vel%items(i)%obj%marked_facet)
+         end if
+       end select
     end do
     call this%bc_prs_surface%finalize()
 
@@ -416,32 +422,49 @@ contains
     call this%bclst_du%init()
     call this%bclst_dv%init()
     call this%bclst_dw%init()
+    call this%bc_vel_res%init_from_components(this%c_Xh)
 
     ! Add all strong velocity bcs.
     do i = 1, this%bcs_vel%size()
        if (this%bcs_vel%strong(i) .eqv. .true.) then
 
-         ! We need to treat bcs with nested bcs in a delicate way
+         ! We need to treat bcs with nested bcs in a special way
          select type (vel_bc => this%bcs_vel%items(i)%obj)
          type is (symmetry_t)
+            ! Symmetry has 3 internal bcs, but only one acutally contains
+            ! markings. All 3 are zero_dirichlet, so the value is
+            ! appropriate to use for the the du,dv,dw,vel_res.
+            ! The apply_scalar doesn't do anything, so we need to add
+            ! individual nested bcs to the du,dv,dw, whereas the vel_res can
+            ! just get symmetry as a whole, because on this list we call
+            ! apply_vector.
             write(*,*) "MARKING SYMMETRY IN VELOCITY BLISTS"
             call this%bclst_vel_res%append(vel_bc)
             call this%bclst_du%append(vel_bc%bc_x)
             call this%bclst_dv%append(vel_bc%bc_y)
             call this%bclst_dw%append(vel_bc%bc_z)
          class default
-            call this%bclst_vel_res%append(vel_bc)
-            call this%bclst_du%append(vel_bc)
-            call this%bclst_dv%append(vel_bc)
-            call this%bclst_dw%append(vel_bc)
+            write(*,*) "MARKING OTHER STRONG BCS IN VELOCITY BLISTS"
+            ! For the default case we use a dummy zero_dirichlet bc to mark
+            ! the same faces as in ordinary velocity dirichlet conditions.
+            ! This bc is then added to the lists below.
+            call this%bc_vel_res%mark_facets(vel_bc%marked_facet)
          end select
        end if
     end do
+    call this%bc_vel_res%finalize()
+    call this%bclst_vel_res%append(this%bc_vel_res)
+    call this%bclst_du%append(this%bc_vel_res)
+    call this%bclst_dv%append(this%bc_vel_res)
+    call this%bclst_dw%append(this%bc_vel_res)
+
     write(*,*) "BCLST_DU size", this%bclst_du%size_
     write(*,*) "BCLST_DV size", this%bclst_dv%size_
     write(*,*) "BCLST_DW size", this%bclst_dw%size_
     write(*,*) "BCLST_DP size", this%bclst_dp%size_
     write(*,*) "BCLST_VEL_RES size", this%bclst_vel_res%size_
+
+    write(*,*) "BCLST_VEL_RES 1 item size", this%bclst_vel_res%items(1)%obj%msk(0)
 
     !call this%bclst_vel_res%append(this%bc_vel_res)
     !call this%bclst_vel_res%append(this%bc_vel_res_non_normal)
@@ -772,6 +795,8 @@ contains
     ! Indices for tracking temporary fields
     integer :: temp_indices(3)
 
+    type(file_t) :: dump_file
+
     if (this%freeze) return
 
     n = this%dm_Xh%size()
@@ -923,6 +948,9 @@ contains
       call this%bclst_vel_res%apply_vector(u_res%x, v_res%x, w_res%x, &
            dm_Xh%size(), t, tstep)
 
+      dump_file = file_t('u_res.fld')
+      call dump_file%write(u_res)
+
       ! We should implement a bc that takes three field_bcs and implements
       ! vector_apply
 !      if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -949,6 +977,13 @@ contains
            this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, &
            this%ksp_vel%max_iter)
       call profiler_end_region("Velocity_solve", 4)
+
+      dump_file = file_t('du.fld')
+      call dump_file%write(du)
+      dump_file = file_t('dv.fld')
+      call dump_file%write(dv)
+      dump_file = file_t('dw.fld')
+      call dump_file%write(dw)
 
       call this%proj_u%post_solving(du%x, Ax_vel, c_Xh, &
                                  this%bclst_du, gs_Xh, n, tstep, dt_controller)
