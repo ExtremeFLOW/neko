@@ -17,7 +17,7 @@ program rea2nbin
   
   call neko_init 
 
-  if (pe_size.gt.1) then
+  if (pe_size .gt. 1) then
      call neko_error("rea2nbin can only run on 1 rank")
   end if
   
