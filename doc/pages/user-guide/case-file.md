@@ -84,6 +84,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `cfl_running_avg_coeff`    | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old`           | Positive real between `0` and `1`               | `0.5`         |
 | `max_dt_increase_factor`   | The maximum scaling factor to increase time step                                                      | Positive real greater than `1`                  | `1.2`         |
 | `min_dt_decrease_factor`   | The minimum scaling factor to decrease time step                                                      | Positive real less than `1`                     | `0.5`         |
+| `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                             | Positive real less than `1`                     | `0.2`         |
 | `end_time`                 | Final time at which the simulation is stopped.                                                        | Positive reals                                  | -             |
 | `job_timelimit`            | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
 
