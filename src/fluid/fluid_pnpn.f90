@@ -328,28 +328,30 @@ contains
     ! Generate pressure boundary condition list
     call this%pnpn_setup_bcs(user)
 
+    ! Add all strong bcs to the list
+
 !    call this%bc_prs%mark_zones_from_list('o', this%bc_labels)
 !    call this%bc_prs%mark_zones_from_list('on', this%bc_labels)
 
     ! Field dirichlet pressure bc
     call this%user_field_bc_prs%init_base(this%c_Xh)
-    call this%user_field_bc_prs%mark_zones_from_list('d_pres', this%bc_labels)
-    call this%user_field_bc_prs%finalize()
-    call MPI_Allreduce(this%user_field_bc_prs%msk(0), integer_val, 1, &
-         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+!    call this%user_field_bc_prs%mark_zones_from_list('d_pres', this%bc_labels)
+!    call this%user_field_bc_prs%finalize()
+!    call MPI_Allreduce(this%user_field_bc_prs%msk(0), integer_val, 1, &
+!         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
-    call this%bc_field_dirichlet_p%init(this%c_Xh, params)
+!    call this%bc_field_dirichlet_p%init(this%c_Xh, params)
 !    call this%bc_field_dirichlet_p%mark_zones_from_list('on+dong', &
 !                                         this%bc_labels)
 !    call this%bc_field_dirichlet_p%mark_zones_from_list('o+dong', &
 !                                         this%bc_labels)
-    call this%bc_field_dirichlet_p%mark_zones_from_list('d_pres', &
-                                         this%bc_labels)
-    call this%bc_field_dirichlet_p%finalize()
+!    call this%bc_field_dirichlet_p%mark_zones_from_list('d_pres', &
+!                                         this%bc_labels)
+!    call this%bc_field_dirichlet_p%finalize()
 
-    if (integer_val .gt. 0)  call this%user_field_bc_prs%init_field('d_pres')
-    call this%bclst_prs%append(this%user_field_bc_prs)
-    call this%user_field_bc_vel%bc_list%append(this%user_field_bc_prs)
+!    if (integer_val .gt. 0)  call this%user_field_bc_prs%init_field('d_pres')
+!    call this%bclst_prs%append(this%user_field_bc_prs)
+!    call this%user_field_bc_vel%bc_list%append(this%user_field_bc_prs)
 
 !    call this%bclst_prs%append(this%bc_prs)
 
@@ -368,69 +370,88 @@ contains
 
     ! Initialize dirichlet bcs for velocity residual
     call this%bc_vel_res_non_normal%init(this%c_Xh, params)
-    call this%bc_vel_res_non_normal%mark_zones_from_list('on', this%bc_labels)
-    call this%bc_vel_res_non_normal%mark_zones_from_list('on+dong', &
-                                                         this%bc_labels)
+!    call this%bc_vel_res_non_normal%mark_zones_from_list('on', this%bc_labels)
+!    call this%bc_vel_res_non_normal%mark_zones_from_list('on+dong', &
+!                                                         this%bc_labels)
     call this%bc_vel_res_non_normal%finalize()
 
 
 
+    ! Mark Dirichlet bcs for pressure
     call this%bclst_dp%init()
-    call this%bclst_dp%append(this%bc_field_dirichlet_p)
+
+    call this%bclst_prs%init()
+    do i = 1, this%bcs_prs%size()
+       if (this%bcs_prs%strong(i) .eqv. .true.) then
+          call this%bclst_dp%append(this%bcs_prs%items(i)%obj)
+       end if
+    end do
+
+!    call this%bclst_dp%append(this%bc_field_dirichlet_p)
     !Add 0 prs bcs
 !    call this%bclst_dp%append(this%bc_prs)
 
-    call this%bc_field_dirichlet_u%init(this%c_Xh, params)
-    call this%bc_field_dirichlet_u%mark_zones_from_list('d_vel_u', &
-                                         this%bc_labels)
-    call this%bc_field_dirichlet_u%finalize()
+!    call this%bc_field_dirichlet_u%init(this%c_Xh, params)
+!    call this%bc_field_dirichlet_u%mark_zones_from_list('d_vel_u', &
+!                                         this%bc_labels)
+!    call this%bc_field_dirichlet_u%finalize()
 
-    call this%bc_field_dirichlet_v%init(this%c_Xh, params)
-    call this%bc_field_dirichlet_v%mark_zones_from_list('d_vel_v', &
-                                         this%bc_labels)
-    call this%bc_field_dirichlet_v%finalize()
+!    call this%bc_field_dirichlet_v%init(this%c_Xh, params)
+!    call this%bc_field_dirichlet_v%mark_zones_from_list('d_vel_v', &
+!                                         this%bc_labels)
+!    call this%bc_field_dirichlet_v%finalize()
 
-    call this%bc_field_dirichlet_w%init(this%c_Xh, params)
-    call this%bc_field_dirichlet_w%mark_zones_from_list('d_vel_w', &
-                                         this%bc_labels)
-    call this%bc_field_dirichlet_w%finalize()
+!    call this%bc_field_dirichlet_w%init(this%c_Xh, params)
+!    call this%bc_field_dirichlet_w%mark_zones_from_list('d_vel_w', &
+!                                         this%bc_labels)
+!    call this%bc_field_dirichlet_w%finalize()
 
-    call this%bc_vel_res%init(this%c_Xh, params)
-    call this%bc_vel_res%mark_zones_from_list('v', this%bc_labels)
-    call this%bc_vel_res%mark_zones_from_list('w', this%bc_labels)
-    call this%bc_vel_res%finalize()
+!    call this%bc_vel_res%init(this%c_Xh, params)
+!    call this%bc_vel_res%mark_zones_from_list('v', this%bc_labels)
+!    call this%bc_vel_res%mark_zones_from_list('w', this%bc_labels)
+!    call this%bc_vel_res%finalize()
 
     call this%bclst_vel_res%init()
-    call this%bclst_vel_res%append(this%bc_vel_res)
-    call this%bclst_vel_res%append(this%bc_vel_res_non_normal)
-    call this%bclst_vel_res%append(this%bc_sym)
-    call this%bclst_vel_res%append(this%bc_sh%symmetry)
-    call this%bclst_vel_res%append(this%bc_wallmodel%symmetry)
+    call this%bclst_du%init()
+    call this%bclst_dv%init()
+    call this%bclst_dw%init()
+
+    do i = 1, this%bcs%size()
+       if (this%bcs%strong(i) .eqv. .true.) then
+          call this%bclst_vel_res%append(this%bcs%items(i)%obj)
+          call this%bclst_du%append(this%bcs%items(i)%obj)
+          call this%bclst_dv%append(this%bcs%items(i)%obj)
+          call this%bclst_dw%append(this%bcs%items(i)%obj)
+       end if
+    end do
+    !call this%bclst_vel_res%append(this%bc_vel_res)
+    !call this%bclst_vel_res%append(this%bc_vel_res_non_normal)
+
+!    call this%bclst_vel_res%append(this%bc_sym)
+!    call this%bclst_vel_res%append(this%bc_sh%symmetry)
+!    call this%bclst_vel_res%append(this%bc_wallmodel%symmetry)
 
     !Initialize bcs for u, v, w velocity components
-    call this%bclst_du%init()
-    call this%bclst_du%append(this%bc_sym%bc_x)
-    call this%bclst_du%append(this%bc_sh%symmetry%bc_x)
-    call this%bclst_du%append(this%bc_wallmodel%symmetry%bc_x)
-    call this%bclst_du%append(this%bc_vel_res_non_normal%bc_x)
-    call this%bclst_du%append(this%bc_vel_res)
-    call this%bclst_du%append(this%bc_field_dirichlet_u)
+!    call this%bclst_du%append(this%bc_sym%bc_x)
+!    call this%bclst_du%append(this%bc_sh%symmetry%bc_x)
+!    call this%bclst_du%append(this%bc_wallmodel%symmetry%bc_x)
+!    call this%bclst_du%append(this%bc_vel_res_non_normal%bc_x)
+!    call this%bclst_du%append(this%bc_vel_res)
+!    call this%bclst_du%append(this%bc_field_dirichlet_u)
 
-    call this%bclst_dv%init()
-    call this%bclst_dv%append(this%bc_sym%bc_y)
-    call this%bclst_dv%append(this%bc_sh%symmetry%bc_y)
-    call this%bclst_dv%append(this%bc_wallmodel%symmetry%bc_y)
-    call this%bclst_dv%append(this%bc_vel_res_non_normal%bc_y)
-    call this%bclst_dv%append(this%bc_vel_res)
-    call this%bclst_dv%append(this%bc_field_dirichlet_v)
+!    call this%bclst_dv%append(this%bc_sym%bc_y)
+!    call this%bclst_dv%append(this%bc_sh%symmetry%bc_y)
+!    call this%bclst_dv%append(this%bc_wallmodel%symmetry%bc_y)
+!    call this%bclst_dv%append(this%bc_vel_res_non_normal%bc_y)
+!    call this%bclst_dv%append(this%bc_vel_res)
+!    call this%bclst_dv%append(this%bc_field_dirichlet_v)
 
-    call this%bclst_dw%init()
-    call this%bclst_dw%append(this%bc_sym%bc_z)
-    call this%bclst_dw%append(this%bc_sh%symmetry%bc_z)
-    call this%bclst_dw%append(this%bc_wallmodel%symmetry%bc_z)
-    call this%bclst_dw%append(this%bc_vel_res_non_normal%bc_z)
-    call this%bclst_dw%append(this%bc_vel_res)
-    call this%bclst_dw%append(this%bc_field_dirichlet_w)
+!    call this%bclst_dw%append(this%bc_sym%bc_z)
+!    call this%bclst_dw%append(this%bc_sh%symmetry%bc_z)
+!    call this%bclst_dw%append(this%bc_wallmodel%symmetry%bc_z)
+!    call this%bclst_dw%append(this%bc_vel_res_non_normal%bc_z)
+!    call this%bclst_dw%append(this%bc_vel_res)
+!    call this%bclst_dw%append(this%bc_field_dirichlet_w)
 
 
     ! Intialize projection space
@@ -767,8 +788,8 @@ contains
       call this%source_term%compute(t, tstep)
 
       ! Add Neumann bc contributions to the RHS
-      call this%bclst_vel_neumann%apply_vector(f_x%x, f_y%x, f_z%x, &
-           this%dm_Xh%size(), t, tstep)
+      !call this%bclst_vel_neumann%apply_vector(f_x%x, f_y%x, f_z%x, &
+      !     this%dm_Xh%size(), t, tstep)
 
       ! Compute the grandient jump penalty term
       if (this%if_gradient_jump_penalty .eqv. .true.) then
@@ -827,8 +848,8 @@ contains
       !> We assume that no change of boundary conditions
       !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
       !> Apply the user dirichlet boundary condition
-      call this%user_field_bc_vel%update(this%user_field_bc_vel%field_list, &
-              this%user_field_bc_vel%bc_list, this%c_Xh, t, tstep, "fluid")
+      !call this%user_field_bc_vel%update(this%user_field_bc_vel%field_list, &
+      !        this%user_field_bc_vel%bc_list, this%c_Xh, t, tstep, "fluid")
 
       call this%bc_apply_vel(t, tstep)
       call this%bc_apply_prs(t, tstep)
@@ -880,21 +901,20 @@ contains
       call gs_Xh%op(v_res, GS_OP_ADD)
       call gs_Xh%op(w_res, GS_OP_ADD)
 
-      call this%bclst_vel_res%apply_vector(&
-                                u_res%x, v_res%x, w_res%x, dm_Xh%size(),&
-                                t, tstep)
+      call this%bclst_vel_res%apply_vector(u_res%x, v_res%x, w_res%x, &
+           dm_Xh%size(), t, tstep)
 
       ! We should implement a bc that takes three field_bcs and implements
       ! vector_apply
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call this%bc_field_dirichlet_u%apply_scalar_dev(u_res%x_d, t, tstep)
-         call this%bc_field_dirichlet_v%apply_scalar_dev(v_res%x_d, t, tstep)
-         call this%bc_field_dirichlet_w%apply_scalar_dev(w_res%x_d, t, tstep)
-      else
-         call this%bc_field_dirichlet_u%apply_scalar(u_res%x, n, t, tstep)
-         call this%bc_field_dirichlet_v%apply_scalar(v_res%x, n, t, tstep)
-         call this%bc_field_dirichlet_w%apply_scalar(w_res%x, n, t, tstep)
-      end if
+!      if (NEKO_BCKND_DEVICE .eq. 1) then
+!         call this%bc_field_dirichlet_u%apply_scalar_dev(u_res%x_d, t, tstep)
+!         call this%bc_field_dirichlet_v%apply_scalar_dev(v_res%x_d, t, tstep)
+!         call this%bc_field_dirichlet_w%apply_scalar_dev(w_res%x_d, t, tstep)
+!      else
+!         call this%bc_field_dirichlet_u%apply_scalar(u_res%x, n, t, tstep)
+!         call this%bc_field_dirichlet_v%apply_scalar(v_res%x, n, t, tstep)
+!         call this%bc_field_dirichlet_w%apply_scalar(w_res%x, n, t, tstep)
+!      end if
 
       call profiler_end_region('Velocity_residual', 19)
 
@@ -951,8 +971,6 @@ contains
     type(json_file) :: bc_subdict
     logical :: found
 
-       write(*,*) "PRESSURE BCS"
-
     if (this%params%valid_path('case.fluid.boundary_conditions')) then
        call this%params%info('case.fluid.boundary_conditions', n_children=n_bcs)
        call this%params%get_core(core)
@@ -984,7 +1002,7 @@ contains
 
           write(*,*) "Done", i
        end do
-       write(*,*) "N_BCS", j-1, this%bcs_prs%size()
+       write(*,*) "N PRESSURE BCS", j-1, this%bcs_prs%size()
     end if
   end subroutine
 
