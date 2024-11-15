@@ -26,7 +26,7 @@
         "velocity_solver": {
             "type": "cg",
             "preconditioner": "jacobi",
-            "projection_space_size": 0,
+            "projection_space_size": 4,
             "absolute_tolerance": 1e-7,
             "max_iterations": 800
         },
