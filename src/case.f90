@@ -91,10 +91,17 @@ contains
     character(len=*), intent(in) :: case_file
     integer :: ierr, integer_val
     character(len=:), allocatable :: json_buffer
+    logical :: exist
+
+    ! Check if the file exists
+    inquire(file = trim(case_file), exist = exist)
+    if (.not. exist) then
+       call neko_error('The case file '//trim(case_file)//' does not exist.')
+    end if
 
     call neko_log%section('Case')
     call neko_log%message('Reading case file ' // trim(case_file), &
-                          NEKO_LOG_QUIET)
+         NEKO_LOG_QUIET)
 
     if (pe_rank .eq. 0) then
        call this%params%load_file(filename = trim(case_file))
@@ -138,8 +145,6 @@ contains
     integer :: integer_val
     real(kind=rp) :: real_val
     character(len = :), allocatable :: string_val
-    real(kind=rp) :: stats_start_time, stats_output_val
-    integer :: stats_sampling_interval
     integer :: output_dir_len
     integer :: precision
 
@@ -150,7 +155,7 @@ contains
          'no mesh')
     if (trim(string_val) .eq. 'no mesh') then
        call neko_error('The mesh_file keyword could not be found in the .' // &
-                       'case file. Often caused by incorrectly formatted json.')
+            'case file. Often caused by incorrectly formatted json.')
     end if
     msh_file = file_t(string_val)
 
@@ -160,7 +165,7 @@ contains
     ! Load Balancing
     !
     call json_get_or_default(this%params, 'case.load_balancing', logical_val,&
-                             .false.)
+         .false.)
 
     if (pe_size .gt. 1 .and. logical_val) then
        call neko_log%section('Load Balancing')
@@ -214,7 +219,7 @@ contains
     this%fluid%chkp%dtlag => this%dtlag
     call this%fluid%init(this%msh, lx, this%params, this%usr, this%ext_bdf)
     select type (f => this%fluid)
-    type is (fluid_pnpn_t)
+      type is (fluid_pnpn_t)
        f%chkp%abx1 => f%abx1
        f%chkp%abx2 => f%abx2
        f%chkp%aby1 => f%aby1
@@ -235,7 +240,7 @@ contains
     ! @todo no scalar factory for now, probably not needed
     if (this%params%valid_path('case.scalar')) then
        call json_get_or_default(this%params, 'case.scalar.enabled', scalar,&
-                                .true.)
+            .true.)
     end if
 
     if (scalar) then
@@ -258,7 +263,7 @@ contains
     !
     if (this%params%valid_path('case.fluid.inflow_condition')) then
        call json_get(this%params, 'case.fluid.inflow_condition.type',&
-                     string_val)
+            string_val)
        if (trim(string_val) .eq. 'user') then
           call this%fluid%set_usr_inflow(this%usr%fluid_user_if)
        end if
@@ -273,8 +278,7 @@ contains
     ! Setup initial conditions
     !
     call json_get(this%params, 'case.fluid.initial_condition.type',&
-                  string_val)
-
+         string_val)
 
     call neko_log%section("Fluid initial condition ")
 
@@ -300,11 +304,11 @@ contains
 
        if (trim(string_val) .ne. 'user') then
           call set_scalar_ic(this%scalar%s, &
-            this%scalar%c_Xh, this%scalar%gs_Xh, string_val, this%params)
+               this%scalar%c_Xh, this%scalar%gs_Xh, string_val, this%params)
        else
           call set_scalar_ic(this%scalar%s, &
-            this%scalar%c_Xh, this%scalar%gs_Xh, this%usr%scalar_user_ic, &
-            this%params)
+               this%scalar%c_Xh, this%scalar%gs_Xh, this%usr%scalar_user_ic, &
+               this%params)
        end if
 
        call neko_log%end_section()
@@ -313,7 +317,7 @@ contains
 
     ! Add initial conditions to BDF scheme (if present)
     select type (f => this%fluid)
-    type is (fluid_pnpn_t)
+      type is (fluid_pnpn_t)
        call f%ulag%set(f%u)
        call f%vlag%set(f%v)
        call f%wlag%set(f%w)
@@ -333,7 +337,7 @@ contains
     ! Get and process output directory
     !
     call json_get_or_default(this%params, 'case.output_directory',&
-                             this%output_directory, '')
+         this%output_directory, '')
 
     output_dir_len = len(trim(this%output_directory))
     if (output_dir_len .gt. 0) then
@@ -349,7 +353,7 @@ contains
     ! Save boundary markings for fluid (if requested)
     !
     call json_get_or_default(this%params, 'case.output_boundary',&
-                             logical_val, .false.)
+         logical_val, .false.)
     if (logical_val) then
        bdry_file = file_t(trim(this%output_directory)//'bdry.fld')
        call bdry_file%write(this%fluid%bdry)
@@ -359,7 +363,7 @@ contains
     ! Save mesh partitions (if requested)
     !
     call json_get_or_default(this%params, 'case.output_partitions',&
-                             logical_val, .false.)
+         logical_val, .false.)
     if (logical_val) then
        call mesh_field_init(msh_part, this%msh, 'MPI_Rank')
        msh_part%data = pe_rank
@@ -413,7 +417,7 @@ contains
     ! Save checkpoints (if nothing specified, default to saving at end of sim)
     !
     call json_get_or_default(this%params, 'case.output_checkpoints',&
-                             logical_val, .true.)
+         logical_val, .true.)
     if (logical_val) then
        call json_get_or_default(this%params, 'case.checkpoint_format', &
             string_val, "chkp")
