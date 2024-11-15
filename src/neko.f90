@@ -160,7 +160,7 @@ contains
 
        call filename_suffix(case_file, suffix)
 
-       if (trim(suffix) .ne. 'case') then
+       if (trim(suffix) .ne. 'case' .and. trim(suffix) .ne. 'json') then
           call neko_error('Invalid case file')
        end if
 
