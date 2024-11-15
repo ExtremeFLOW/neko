@@ -129,8 +129,9 @@ module fluid_scheme
 !     type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
 !     type(shear_stress_t) :: bc_sh             !< Symmetry plane for velocity
      type(bc_list_t) :: bclst_vel_neumann      !< List of neumann velocity conditions
-     type(bc_list_t) :: bclst_prs              !< List of pressure conditions
-     ! NEW VARIABLE
+     ! List of boundary conditions for pressure
+     type(bc_list_t) :: bcs_prs
+     ! List of boundary conditions for velocity
      type(bc_list_t) :: bcs_vel
      integer :: n_strong = 0
      type(field_t) :: bdry                     !< Boundary markings
@@ -887,9 +888,9 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    write(*,*) "APPLYING PRESSURE BCS", this%bcs_vel%size()
-    call this%bclst_prs%apply_scalar(this%p%x, this%p%dof%size(), t, tstep)
-    write(*,*) "DONE APPLYING PRESSURE BCS", this%bcs_vel%size()
+    write(*,*) "APPLYING PRESSURE BCS", this%bcs_prs%size()
+    call this%bcs_prs%apply_scalar(this%p%x, this%p%dof%size(), t, tstep)
+    write(*,*) "DONE APPLYING PRESSURE BCS", this%bcs_prs%size()
 
   end subroutine fluid_scheme_bc_apply_prs
 
@@ -1071,7 +1072,7 @@ contains
 
     if (trim(type) .eq. "symmetry") then
        allocate(symmetry_t::object)
-    else if (trim(type) .eq. "inflow") then
+    else if (trim(type) .eq. "velocity_dirichlet") then
        allocate(inflow_t::object)
     else if (trim(type) .eq. "no_slip") then
        allocate(zero_dirichlet_t::object)

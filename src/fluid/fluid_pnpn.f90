@@ -126,7 +126,8 @@ module fluid_pnpn
      ! Boundary conditions and  lists for residuals and
      !
 
-     type(zero_dirichlet_t) :: bc_vel_res   !< Dirichlet condition vel. res.
+     !> A dummy bc for marking strong velocity bcs. Used for du,dv,dw & vel_res.
+     type(zero_dirichlet_t) :: bc_vel_res
      type(zero_dirichlet_t) :: bc_field_dirichlet_p   !< Dirichlet condition vel. res.
      type(zero_dirichlet_t) :: bc_field_dirichlet_u   !< Dirichlet condition vel. res.
      type(zero_dirichlet_t) :: bc_field_dirichlet_v   !< Dirichlet condition vel. res.
@@ -140,8 +141,6 @@ module fluid_pnpn
      type(bc_list_t) :: bclst_dw
      type(bc_list_t) :: bclst_dp
 
-     ! List of boundary conditions for pressure
-     type(bc_list_t) :: bcs_prs
 
      class(advection_t), allocatable :: adv
 
@@ -295,15 +294,16 @@ contains
 
     ! Initialize velocity surface terms in pressure rhs. Masks all strong
     ! velocity bcs.
+
+    !! TODO: Need init from components
     call this%bc_prs_surface%init(this%c_Xh, params)
     do i = 1, this%bcs_vel%size()
        select type (vel_bc => this%bcs_vel%items(i)%obj)
        type is (symmetry_t)
          ! Do nothing
        class default
-         if (this%bcs_vel%strong(i) .eqv. .true.) then
-            call this%bc_prs_surface%mark_facets( &
-                  this%bcs_vel%items(i)%obj%marked_facet)
+         if (vel_bc%strong .eqv. .true.) then
+            call this%bc_prs_surface%mark_facets(vel_bc%marked_facet)
          end if
        end select
     end do
@@ -315,13 +315,10 @@ contains
        select type (vel_bc => this%bcs_vel%items(i)%obj)
        type is (symmetry_t)
           write(*,*) "MARKING PRESSURE SYMMETRY"
-          call this%bc_sym_surface%mark_facets( &
-               this%bcs_vel%items(i)%obj%marked_facet)
+          call this%bc_sym_surface%mark_facets(vel_bc%marked_facet)
        end select
     end do
     call this%bc_sym_surface%finalize()
-
-    !call this%bc_prs_surface%mark_zones_from_list('v', this%bc_labels)
 
     ! This impacts the rhs of the pressure, need to check what is correct to add
     ! here
@@ -386,9 +383,9 @@ contains
     ! Mark Dirichlet bcs for pressure
     call this%bclst_dp%init()
 
-    call this%bclst_prs%init()
     do i = 1, this%bcs_prs%size()
        if (this%bcs_prs%strong(i) .eqv. .true.) then
+          ! Should probably use a dummy bc like vel_res here
           call this%bclst_dp%append(this%bcs_prs%items(i)%obj)
        end if
     end do
@@ -463,8 +460,6 @@ contains
     write(*,*) "BCLST_DW size", this%bclst_dw%size_
     write(*,*) "BCLST_DP size", this%bclst_dp%size_
     write(*,*) "BCLST_VEL_RES size", this%bclst_vel_res%size_
-
-    write(*,*) "BCLST_VEL_RES 1 item size", this%bclst_vel_res%items(1)%obj%msk(0)
 
     !call this%bclst_vel_res%append(this%bc_vel_res)
     !call this%bclst_vel_res%append(this%bc_vel_res_non_normal)
@@ -552,7 +547,7 @@ contains
     call this%solver_factory(this%ksp_prs, this%dm_Xh%size(), &
          solver_type, solver_maxiter, abs_tol, monitor)
     call this%precon_factory(this%pc_prs, this%ksp_prs, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, precon_type)
+         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_prs, precon_type)
 
     call neko_log%end_section()
 
@@ -1016,6 +1011,7 @@ contains
     call profiler_end_region('Fluid', 1)
   end subroutine fluid_pnpn_step
 
+  !> Fills up the this%bcs_prs bc list based on the case file.
   subroutine fluid_pnpn_setup_bcs(this, user)
     class(fluid_pnpn_t), intent(inout) :: this
     type(user_t), target, intent(in) :: user
@@ -1046,9 +1042,6 @@ contains
           ! so we check.
           if (allocated(this%bcs_prs%items(j)%obj)) then
              write(*,*) "Allocated", j
-             if (this%bcs_prs%strong(j)) then
-!                this%n_strong = this%n_strong + 1
-             end if
              j = j + 1
              this%bcs_prs%size_ = this%bcs_prs%size_ + 1
 
@@ -1060,6 +1053,7 @@ contains
     end if
   end subroutine
 
+  !> Factory routine for pressure boundary conditions.
   subroutine pressure_bc_factory(object, json, coef, user)
     class(bc_t), allocatable, intent(inout) :: object
     type(json_file), intent(inout) :: json
@@ -1080,8 +1074,6 @@ contains
 !       allocate(non_normal_t::object)
 !    else if (trim(type) .eq. "blasius_profile") then
 !       allocate(blasius_t::object)
-!    else
-!       call neko_error("Unknown boundary condition for the fluid.")
     else
       return
     end if
