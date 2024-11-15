@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2022-2024, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,6 @@
 
 /**
  * C wrapper for MPI calls, until we integrate with NCCL/RCCL
- * @note We use @c MPI_COMM_WORLD which @e should be equal to @c NEKO_COMM.
  */
 
 #include <stdlib.h>

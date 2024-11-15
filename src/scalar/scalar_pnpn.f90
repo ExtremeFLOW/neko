@@ -34,10 +34,8 @@
 
 module scalar_pnpn
   use num_types, only: rp
-  use scalar_residual_fctry, only : scalar_residual_factory
-  use ax_helm_fctry, only: ax_helm_factory
-  use rhs_maker_fctry, only : rhs_maker_ext_fctry, rhs_maker_bdf_fctry
-  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t
+  use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_oifs_t, &
+       rhs_maker_ext_fctry, rhs_maker_bdf_fctry, rhs_maker_oifs_fctry
   use scalar_scheme, only : scalar_scheme_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
@@ -49,8 +47,8 @@ module scalar_pnpn
   use coefs, only : coef_t
   use device, only : HOST_TO_DEVICE, device_memcpy
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use scalar_residual, only :scalar_residual_t
-  use ax_product, only : ax_t
+  use scalar_residual, only : scalar_residual_t, scalar_residual_factory
+  use ax_product, only : ax_t, ax_helm_factory
   use field_series, only: field_series_t
   use facet_normal, only : facet_normal_t
   use krylov, only : ksp_monitor_t
@@ -60,15 +58,14 @@ module scalar_pnpn
   use projection, only : projection_t
   use math, only : glsc2, col2, add2s2
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
-  use advection, only : advection_t
-  use advection_fctry, only : advection_factory
+  use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
-  use json_utils, only: json_get
+  use json_utils, only : json_get, json_get_or_default
   use json_module, only : json_file
   use user_intf, only : user_t
-  use material_properties, only : material_properties_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use time_step_controller
+  use time_step_controller, only : time_step_controller_t
+  use scratch_registry, only: neko_scratch_registry
   implicit none
   private
 
@@ -99,8 +96,14 @@ module scalar_pnpn
      !> Advection operator.
      class(advection_t), allocatable :: adv
 
+     ! Time interpolation scheme
+     logical :: oifs
+
      ! Lag arrays for the RHS.
      type(field_t) :: abx1, abx2
+
+     ! Advection terms for the oifs method
+     type(field_t) :: advs
 
      !> Computes the residual.
      class(scalar_residual_t), allocatable :: res
@@ -110,6 +113,9 @@ module scalar_pnpn
 
      !> Contributions to the RHS from lagged BDF terms.
      class(rhs_maker_bdf_t), allocatable :: makebdf
+
+     !> Contributions to the RHS from the OIFS method
+     class(rhs_maker_oifs_t), allocatable :: makeoifs
 
    contains
      !> Constructor.
@@ -131,28 +137,27 @@ contains
   !! @param params The case parameter file in json.
   !! @param user Type with user-defined procedures.
   subroutine scalar_pnpn_init(this, msh, coef, gs, params, user, &
-                              material_properties)
+       ulag, vlag, wlag, time_scheme, rho)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     type(coef_t), target, intent(inout) :: coef
     type(gs_t), target, intent(inout) :: gs
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
-    type(material_properties_t), intent(inout) :: material_properties
+    type(field_series_t), target, intent(in) :: ulag, vlag, wlag
+    type(time_scheme_controller_t), target, intent(in) :: time_scheme
+    real(kind=rp), intent(in) :: rho
     integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
-    ! Variables for retrieving json parameters
-    logical :: found, logical_val
-    integer :: integer_val
+    logical :: advection
 
     call this%free()
 
     ! Initiliaze base type.
-    call this%scheme_init(msh, coef, gs, params, scheme, user, &
-                          material_properties)
+    call this%scheme_init(msh, coef, gs, params, scheme, user, rho)
 
     ! Setup backend dependent Ax routines
-    call ax_helm_factory(this%ax)
+    call ax_helm_factory(this%ax, full_formulation = .false.)
 
     ! Setup backend dependent scalar residual routines
     call scalar_residual_factory(this%res)
@@ -163,6 +168,9 @@ contains
     ! Setup backend depenent contributions to F from lagged BD terms
     call rhs_maker_bdf_fctry(this%makebdf)
 
+    ! Setup backend dependent contributions of the OIFS scheme
+    call rhs_maker_oifs_fctry(this%makeoifs)
+
     ! Initialize variables specific to this plan
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
          dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
@@ -172,6 +180,8 @@ contains
       call this%abx1%init(dm_Xh, "abx1")
 
       call this%abx2%init(dm_Xh, "abx2")
+
+      call this%advs%init(dm_Xh, "advs")
 
       call this%ds%init(dm_Xh, 'ds')
 
@@ -206,7 +216,15 @@ contains
     ! @todo Init chkp object, note, adding 3 slags
     ! call this%chkp%add_lag(this%slag, this%slag, this%slag)
 
-    call advection_factory(this%adv, params, this%c_Xh)
+    ! Determine the time-interpolation scheme
+    call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
+
+    ! Initialize advection factory
+    call json_get_or_default(params, 'case.scalar.advection', advection, .true.)
+    call advection_factory(this%adv, params, this%c_Xh, &
+                           ulag, vlag, wlag, this%chkp%dtlag, &
+                           this%chkp%tlag, time_scheme, .not. advection, &
+                           this%slag)
   end subroutine scalar_pnpn_init
 
   !> I envision the arguments to this func might need to be expanded
@@ -223,20 +241,22 @@ contains
     call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s%x, this%s%x_d, &
-                          n, HOST_TO_DEVICE, sync=.false.)
+                          n, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%slag%lf(1)%x, this%slag%lf(1)%x_d, &
-                          n, HOST_TO_DEVICE, sync=.false.)
+                          n, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%slag%lf(2)%x, this%slag%lf(2)%x_d, &
-                          n, HOST_TO_DEVICE, sync=.false.)
+                          n, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%abx1%x, this%abx1%x_d, &
-                          n, HOST_TO_DEVICE, sync=.false.)
+                          n, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%abx2%x, this%abx2%x_d, &
-                          n, HOST_TO_DEVICE, sync=.false.)
+                          n, HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%advs%x, this%advs%x_d, &
+                          n, HOST_TO_DEVICE, sync = .false.)
     end if
 
-    call this%gs_Xh%op(this%s,GS_OP_ADD)
-    call this%gs_Xh%op(this%slag%lf(1),GS_OP_ADD)
-    call this%gs_Xh%op(this%slag%lf(2),GS_OP_ADD)
+    call this%gs_Xh%op(this%s, GS_OP_ADD)
+    call this%gs_Xh%op(this%slag%lf(1), GS_OP_ADD)
+    call this%gs_Xh%op(this%slag%lf(2), GS_OP_ADD)
 
   end subroutine scalar_pnpn_restart
 
@@ -256,6 +276,8 @@ contains
     call this%abx1%free()
     call this%abx2%free()
 
+    call this%advs%free()
+
     if (allocated(this%Ax)) then
        deallocate(this%Ax)
     end if
@@ -270,6 +292,10 @@ contains
 
     if (allocated(this%makebdf)) then
        deallocate(this%makebdf)
+    end if
+
+    if (allocated(this%makeoifs)) then
+       deallocate(this%makeoifs)
     end if
 
   end subroutine scalar_pnpn_free
@@ -291,87 +317,102 @@ contains
 
     call profiler_start_region('Scalar', 2)
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
-         cp => this%cp, lambda => this%lambda, rho => this%rho, &
+         cp => this%cp, rho => this%rho, &
          ds => this%ds, &
-         s_res =>this%s_res, &
+         s_res => this%s_res, &
          Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
-         slag => this%slag, &
+         slag => this%slag, oifs => this%oifs, &
+         lambda_field => this%lambda_field, &
          projection_dim => this%projection_dim, &
-         msh => this%msh, res => this%res, &
+         msh => this%msh, res => this%res, makeoifs => this%makeoifs, &
          makeext => this%makeext, makebdf => this%makebdf, &
          if_variable_dt => dt_controller%if_variable_dt, &
          dt_last_change => dt_controller%dt_last_change)
 
       if (neko_log%level_ .ge. NEKO_LOG_DEBUG) then
-         write(log_buf,'(A,A,E15.7,A,E15.7,A,E15.7)') 'Scalar debug',&
-              ' l2norm s', glsc2(this%s%x,this%s%x,n),&
-              ' slag1', glsc2(this%slag%lf(1)%x,this%slag%lf(1)%x,n),&
-              ' slag2', glsc2(this%slag%lf(2)%x,this%slag%lf(2)%x,n)
+         write(log_buf, '(A,A,E15.7,A,E15.7,A,E15.7)') 'Scalar debug', &
+              ' l2norm s', glsc2(this%s%x, this%s%x, n), &
+              ' slag1', glsc2(this%slag%lf(1)%x, this%slag%lf(1)%x, n), &
+              ' slag2', glsc2(this%slag%lf(2)%x, this%slag%lf(2)%x, n)
          call neko_log%message(log_buf)
-         write(log_buf,'(A,A,E15.7,A,E15.7)') 'Scalar debug2',&
-              ' l2norm abx1', glsc2(this%abx1%x,this%abx1%x,n),&
-              ' abx2', glsc2(this%abx2%x,this%abx2%x,n)
+         write(log_buf, '(A,A,E15.7,A,E15.7)') 'Scalar debug2', &
+              ' l2norm abx1', glsc2(this%abx1%x, this%abx1%x, n), &
+              ' abx2', glsc2(this%abx2%x, this%abx2%x, n)
          call neko_log%message(log_buf)
       end if
 
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
 
-      ! Pre-multiply the source terms with the mass matrix.
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_col2(f_Xh%x_d, c_Xh%B_d, n)
-      else
-         call col2(f_Xh%x, c_Xh%B, n)
+      ! Compute the grandient jump penalty term
+      if (this%if_gradient_jump_penalty .eqv. .true.) then
+         call this%gradient_jump_penalty%compute(u, v, w, s)
+         call this%gradient_jump_penalty%perform(f_Xh)
       end if
 
       ! Apply Neumann boundary conditions
       call bc_list_apply_scalar(this%bclst_neumann, this%f_Xh%x, dm_Xh%size())
 
-      ! Add the advection operators to the right-hans-side.
-      call this%adv%compute_scalar(u, v, w, s, f_Xh%x, &
+      if (oifs) then
+         ! Add the advection operators to the right-hans-side.
+         call this%adv%compute_scalar(u, v, w, s, this%advs, &
                                    Xh, this%c_Xh, dm_Xh%size())
 
-      ! At this point the RHS contains the sum of the advection operator,
-      ! Neumann boundary sources and additional source terms, evaluated using
-      ! the scalar field from the previous time-step. Now, this value is used in
-      ! the explicit time scheme to advance these terms in time.
-      call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
-           ext_bdf%advection_coeffs, n)
+         call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
+                                     ext_bdf%advection_coeffs, n)
 
-      ! Add the RHS contributions coming from the BDF scheme.
-      call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho, dt, &
-           ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+         call makeoifs%compute_scalar(this%advs%x, f_Xh%x, rho, dt, n)
+      else
+         ! Add the advection operators to the right-hans-side.
+         call this%adv%compute_scalar(u, v, w, s, f_Xh, &
+                                      Xh, this%c_Xh, dm_Xh%size())
+
+         ! At this point the RHS contains the sum of the advection operator,
+         ! Neumann boundary sources and additional source terms, evaluated using
+         ! the scalar field from the previous time-step. Now, this value is used in
+         ! the explicit time scheme to advance these terms in time.
+         call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
+                                     ext_bdf%advection_coeffs, n)
+
+         ! Add the RHS contributions coming from the BDF scheme.
+         call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho, dt, &
+              ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+      end if
 
       call slag%update()
 
       !> Apply Dirichlet boundary conditions
       !! We assume that no change of boundary conditions
       !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
-      call this%dirichlet_update_(this%field_dirichlet_fields, &
+      call this%field_dir_bc%update(this%field_dir_bc%field_list, &
            this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
-      call bc_list_apply_scalar(this%bclst_dirichlet, this%s%x, this%dm_Xh%size())
+      call bc_list_apply_scalar(this%bclst_dirichlet, &
+           this%s%x, this%dm_Xh%size())
+
+
+      ! Update material properties if necessary
+      call this%update_material_properties()
 
       ! Compute scalar residual.
-      call profiler_start_region('Scalar residual', 20)
-      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, lambda, rho * cp, &
-          ext_bdf%diffusion_coeffs(1), dt, &
-          dm_Xh%size())
+      call profiler_start_region('Scalar_residual', 20)
+      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, lambda_field, &
+           rho*cp, ext_bdf%diffusion_coeffs(1), dt, dm_Xh%size())
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 
       ! Apply a 0-valued Dirichlet boundary conditions on the ds.
       call bc_list_apply_scalar(this%bclst_ds, s_res%x, dm_Xh%size())
 
-      call profiler_end_region
+      call profiler_end_region('Scalar_residual', 20)
 
       call this%proj_s%pre_solving(s_res%x, tstep, c_Xh, n, dt_controller)
 
       call this%pc%update()
-      call profiler_start_region('Scalar solve', 21)
+      call profiler_start_region('Scalar_solve', 21)
       ksp_results(1) = this%ksp%solve(Ax, ds, s_res%x, n, &
            c_Xh, this%bclst_ds, gs_Xh)
-      call profiler_end_region
+      call profiler_end_region('Scalar_solve', 21)
 
      call this%proj_s%post_solving(ds%x, Ax, c_Xh, &
                                  this%bclst_ds, gs_Xh, n, tstep, dt_controller)
@@ -386,7 +427,7 @@ contains
       call scalar_step_info(tstep, t, dt, ksp_results)
 
     end associate
-    call profiler_end_region
+    call profiler_end_region('Scalar', 2)
   end subroutine scalar_pnpn_step
 
 

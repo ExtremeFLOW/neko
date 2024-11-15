@@ -9,3 +9,5 @@ style, testing and usage of accelerators.
 - \subpage code-style
 - \subpage testing
 - \subpage accelerators
+- \subpage rts_types
+- \subpage important_types

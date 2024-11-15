@@ -1,5 +1,4 @@
-
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,41 +30,56 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module les_model_fctry
-  use les_model, only : les_model_t
+submodule (les_model) les_model_fctry
   use vreman, only : vreman_t
-  use dofmap, only : dofmap_t
-  use coefs, only : coef_t
-  use json_module, only : json_file
+  use smagorinsky, only : smagorinsky_t
+  use dynamic_smagorinsky, only : dynamic_smagorinsky_t
+  use sigma, only : sigma_t
+  use utils, only : concat_string_array, neko_error
   implicit none
-  private
 
-  public :: les_model_factory
+  ! List of all possible types created by the factory routine
+  character(len=20) :: LES_KNOWN_TYPES(4) = [character(len=20) :: &
+     "vreman", &
+     "smagorinsky", &
+     "dymamic_smagorinsky", &
+     "sigma"]
 
 contains
   !> LES model factory. Both constructs and initializes the object.
-  !! @param les_model The object to be allocated.
-  !! @param name The name of the LES model.
+  !! @param object The object to be allocated.
+  !! @param type_name The name of the LES model.
   !! @param dofmap SEM map of degrees of freedom.
   !! @param coef SEM coefficients.
   !! @param json A dictionary with parameters.
-  subroutine les_model_factory(les_model, name, dofmap, coef, json)
-    class(les_model_t), allocatable, target, intent(inout) :: les_model
-    character(len=*), intent(in) :: name
+  module subroutine les_model_factory(object, type_name, dofmap, coef, json)
+    class(les_model_t), allocatable, intent(inout) :: object
+    character(len=*), intent(in) :: type_name
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
+    character(len=:), allocatable :: type_string
 
-    if (allocated(les_model)) then
-       deallocate(les_model)
+    if (allocated(object)) then
+       deallocate(object)
+    else if (trim(type_name) .eq. 'vreman') then
+       allocate(vreman_t::object)
+    else if (trim(type_name) .eq. 'smagorinsky') then
+       allocate(smagorinsky_t::object)
+    else if (trim(type_name) .eq. 'dynamic_smagorinsky') then
+       allocate(dynamic_smagorinsky_t::object)
+    else if (trim(type_name) .eq. 'sigma') then
+       allocate(sigma_t::object)
+    else
+       type_string =  concat_string_array(LES_KNOWN_TYPES, &
+            NEW_LINE('A') // "-  ", .true.)
+       call neko_error("Unknown LES model type: " &
+                       // trim(type_name) // ".  Known types are: " &
+                       // type_string)
+       stop
+
     end if
-
-    if (trim(name) .eq. 'vreman') then
-       allocate(vreman_t::les_model)
-    end if
-
-    call les_model%init(dofmap, coef, json)
-
+    call object%init(dofmap, coef, json)
   end subroutine les_model_factory
 
-end module les_model_fctry
+end submodule les_model_fctry

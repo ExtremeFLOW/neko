@@ -67,6 +67,7 @@ module fusedcg_device
      procedure, pass(this) :: init => fusedcg_device_init
      procedure, pass(this) :: free => fusedcg_device_free
      procedure, pass(this) :: solve => fusedcg_device_solve
+     procedure, pass(this) :: solve_coupled => fusedcg_device_solve_coupled
   end type fusedcg_device_t
 
 #ifdef HAVE_CUDA
@@ -191,13 +192,15 @@ contains
   end function device_fusedcg_part2
 
   !> Initialise a fused PCG solver
-  subroutine fusedcg_device_init(this, n, max_iter, M, rel_tol, abs_tol)
+  subroutine fusedcg_device_init(this, n, max_iter, M, rel_tol, abs_tol, &
+                                 monitor)
     class(fusedcg_device_t), target, intent(inout) :: this
-    class(pc_t), optional, intent(inout), target :: M
+    class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
-    real(kind=rp), optional, intent(inout) :: rel_tol
-    real(kind=rp), optional, intent(inout) :: abs_tol
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
+    logical, optional, intent(in) :: monitor
     type(c_ptr) :: ptr
     integer(c_size_t) :: p_size
     integer :: i
@@ -229,12 +232,20 @@ contains
     ptr = c_loc(this%p_d)
     call device_memcpy(ptr, this%p_d_d, p_size, &
                        HOST_TO_DEVICE, sync=.false.)
-    if (present(rel_tol) .and. present(abs_tol)) then
+    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
+    else if (present(monitor) .and. present(abs_tol)) then
+       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
     else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol = abs_tol)
+    else if (present(monitor)) then
+       call this%ksp_init(max_iter, monitor = monitor)
     else
        call this%ksp_init(max_iter)
     end if
@@ -307,12 +318,12 @@ contains
   !> Pipelined PCG solve
   function fusedcg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(fusedcg_device_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: f
+    real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    type(bc_list_t), intent(in) :: blst
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -348,6 +359,7 @@ contains
       ksp_results%iter = 0
       if(abscmp(rnorm, 0.0_rp)) return
 
+      call this%monitor_start('FusedCG')
       do iter = 1, max_iter
          call this%M%solve(z, r, n)
          rtz2 = rtz1
@@ -367,7 +379,7 @@ contains
          rtr = device_fusedcg_part2(r_d, coef%mult_d, w_d, &
                                     alpha_d, alpha(p_cur), p_cur, n)
          rnorm = sqrt(rtr)*norm_fac
-
+         call this%monitor_iter(iter, rnorm)
          if ((p_cur .eq. DEVICE_FUSEDCG_P_SPACE) .or. &
               (rnorm .lt. this%abs_tol) .or. iter .eq. max_iter) then
             call device_fusedcg_update_x(x%x_d, p_d_d, alpha_d, p_cur, n)
@@ -379,7 +391,7 @@ contains
             p_cur = p_cur + 1
          end if
       end do
-
+      call this%monitor_stop()
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
 
@@ -387,6 +399,32 @@ contains
 
   end function fusedcg_device_solve
 
+  !> Pipelined PCG solve coupled solve
+  function fusedcg_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
+       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+    class(fusedcg_device_t), intent(inout) :: this
+    class(ax_t), intent(in) :: Ax
+    type(field_t), intent(inout) :: x
+    type(field_t), intent(inout) :: y
+    type(field_t), intent(inout) :: z
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(in) :: fx
+    real(kind=rp), dimension(n), intent(in) :: fy
+    real(kind=rp), dimension(n), intent(in) :: fz
+    type(coef_t), intent(inout) :: coef
+    type(bc_list_t), intent(in) :: blstx
+    type(bc_list_t), intent(in) :: blsty
+    type(bc_list_t), intent(in) :: blstz
+    type(gs_t), intent(inout) :: gs_h
+    type(ksp_monitor_t), dimension(3) :: ksp_results
+    integer, optional, intent(in) :: niter
+
+    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+
+  end function fusedcg_device_solve_coupled
+  
 end module fusedcg_device
 
 

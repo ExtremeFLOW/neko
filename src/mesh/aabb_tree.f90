@@ -100,10 +100,14 @@ module aabb_tree
 
      ! Getters
      procedure, pass(this), public :: get_aabb => aabb_node_get_aabb
-     procedure, pass(this), public :: get_object_index => aabb_node_get_object_index
-     procedure, pass(this), public :: get_parent_index => aabb_node_get_parent_index
-     procedure, pass(this), public :: get_left_index => aabb_node_get_left_index
-     procedure, pass(this), public :: get_right_index => aabb_node_get_right_index
+     procedure, pass(this), public :: get_object_index => &
+          aabb_node_get_object_index
+     procedure, pass(this), public :: get_parent_index => &
+          aabb_node_get_parent_index
+     procedure, pass(this), public :: get_left_index => &
+          aabb_node_get_left_index
+     procedure, pass(this), public :: get_right_index => &
+          aabb_node_get_right_index
 
      ! Unary operations
      procedure, pass(this), public :: min_distance => aabb_node_min_distance
@@ -136,25 +140,35 @@ module aabb_tree
      ! Initializers
      procedure, pass(this), public :: init => aabb_tree_init
      procedure, pass(this), public :: build => aabb_tree_build_tree
-     procedure, pass(this), public :: insert_object => aabb_tree_insert_object
+     procedure, pass(this), public :: insert_object => &
+          aabb_tree_insert_object
 
      ! Getters
      procedure, pass(this), public :: get_size => aabb_tree_get_size
 
-     procedure, pass(this), public :: get_root_index => aabb_tree_get_root_index
-     procedure, pass(this), public :: get_parent_index => aabb_tree_get_parent_index
-     procedure, pass(this), public :: get_left_index => aabb_tree_get_left_index
-     procedure, pass(this), public :: get_right_index => aabb_tree_get_right_index
+     procedure, pass(this), public :: get_root_index => &
+          aabb_tree_get_root_index
+     procedure, pass(this), public :: get_parent_index => &
+          aabb_tree_get_parent_index
+     procedure, pass(this), public :: get_left_index => &
+          aabb_tree_get_left_index
+     procedure, pass(this), public :: get_right_index => &
+          aabb_tree_get_right_index
 
      procedure, pass(this), public :: get_node => aabb_tree_get_node
-     procedure, pass(this), public :: get_root_node => aabb_tree_get_root_node
-     procedure, pass(this), public :: get_parent_node => aabb_tree_get_parent_node
-     procedure, pass(this), public :: get_left_node => aabb_tree_get_left_node
-     procedure, pass(this), public :: get_right_node => aabb_tree_get_right_node
+     procedure, pass(this), public :: get_root_node => &
+          aabb_tree_get_root_node
+     procedure, pass(this), public :: get_parent_node => &
+          aabb_tree_get_parent_node
+     procedure, pass(this), public :: get_left_node => &
+          aabb_tree_get_left_node
+     procedure, pass(this), public :: get_right_node => &
+          aabb_tree_get_right_node
 
      procedure, pass(this), public :: get_aabb => aabb_tree_get_aabb
 
-     procedure, pass(this), public :: query_overlaps => aabb_tree_query_overlaps
+     procedure, pass(this), public :: query_overlaps => &
+          aabb_tree_query_overlaps
 
      procedure, pass(this), public :: print => aabb_tree_print
 
@@ -368,7 +382,8 @@ contains
        do i = start_layer, end_layer - 1, 2
           i_node = this%allocate_node()
 
-          this%nodes(i_node)%aabb = merge(this%nodes(i)%aabb, this%nodes(i + 1)%aabb)
+          this%nodes(i_node)%aabb = merge(this%nodes(i)%aabb, &
+               this%nodes(i + 1)%aabb)
 
           this%nodes(i_node)%left_node_index = i
           this%nodes(i_node)%right_node_index = i + 1
@@ -424,8 +439,9 @@ contains
        minidx = -1
        do imin = 1, size(array)
           if (.not. visited(imin) .and. minidx .eq. -1) minidx = imin
-
-          if (visited(imin) .and. array(imin) .lt. array(minidx)) minidx = imin
+          if (minidx .gt. -1) then
+             if (visited(imin) .and. array(imin) .lt. array(minidx)) minidx = imin
+          end if
        end do
 
        indices(i) = minidx
@@ -482,7 +498,8 @@ contains
   end function aabb_tree_get_root_index
 
   !> @brief Returns the index of the parent node of the node at the given index.
-  pure function aabb_tree_get_parent_index(this, node_index) result(parent_index)
+  pure function aabb_tree_get_parent_index(this, node_index) &
+       result(parent_index)
     class(aabb_tree_t), intent(in) :: this
     integer, intent(in) :: node_index
     integer :: parent_index
@@ -491,7 +508,8 @@ contains
   end function aabb_tree_get_parent_index
 
   !> @brief Returns the index of the left node of the node at the given index.
-  pure function aabb_tree_get_left_index(this, node_index) result(left_index)
+  pure function aabb_tree_get_left_index(this, node_index) &
+       result(left_index)
     class(aabb_tree_t), intent(in) :: this
     integer, intent(in) :: node_index
     integer :: left_index
@@ -500,7 +518,8 @@ contains
   end function aabb_tree_get_left_index
 
   !> @brief Returns the index of the right node of the node at the given index.
-  pure function aabb_tree_get_right_index(this, node_index) result(right_index)
+  pure function aabb_tree_get_right_index(this, node_index) &
+       result(right_index)
     class(aabb_tree_t), intent(in) :: this
     integer, intent(in) :: node_index
     integer :: right_index
@@ -529,7 +548,8 @@ contains
   end function aabb_tree_get_root_node
 
   !> @brief Returns the parent node of the node at the given index.
-  pure function aabb_tree_get_parent_node(this, node_index) result(parent_node)
+  pure function aabb_tree_get_parent_node(this, node_index) &
+       result(parent_node)
     class(aabb_tree_t), intent(in) :: this
     integer, intent(in) :: node_index
     type(aabb_node_t) :: parent_node
@@ -547,7 +567,8 @@ contains
   end function aabb_tree_get_left_node
 
   !> @brief Returns the right node of the node at the given index.
-  pure function aabb_tree_get_right_node(this, node_index) result(right_node)
+  pure function aabb_tree_get_right_node(this, node_index) &
+       result(right_node)
     class(aabb_tree_t), intent(in) :: this
     integer, intent(in) :: node_index
     type(aabb_node_t) :: right_node
@@ -600,6 +621,7 @@ contains
     object_box = get_aabb(object)
     root_index = this%get_root_index()
 
+    call simple_stack%init()
     call simple_stack%push(root_index)
 
     do while (.not. simple_stack%is_empty())
@@ -609,7 +631,7 @@ contains
 
        if (this%nodes(node_index)%aabb%overlaps(object_box)) then
           if (this%nodes(node_index)%is_leaf()) then
-             if (.not. this%nodes(node_index)%object_index == object_index) then
+             if (this%nodes(node_index)%object_index .ne. object_index) then
                 overlaps = [this%nodes(node_index)%object_index, overlaps]
              end if
           else
@@ -620,6 +642,7 @@ contains
           end if
        end if
     end do
+    call simple_stack%free()
   end subroutine aabb_tree_query_overlaps
 
   ! -------------------------------------------------------------------------- !
@@ -735,7 +758,8 @@ contains
 
        if (right_node%is_leaf()) then
           new_right_aabb = merge(leaf_node%aabb, right_node%aabb)
-          cost_right = new_right_aabb%get_surface_area() + minimum_push_down_cost
+          cost_right = new_right_aabb%get_surface_area() + &
+               minimum_push_down_cost
        else
           new_right_aabb = merge(leaf_node%aabb, right_node%aabb)
           cost_right = ( &
@@ -747,7 +771,8 @@ contains
        ! if the cost of creating a new parent node here is less than descending
        ! in either direction then we know we need to create a new parent node,
        ! errrr, here and attach the leaf to that
-       if (new_parent_node_cost < cost_left .and. new_parent_node_cost < cost_right) then
+       if (new_parent_node_cost < cost_left .and. &
+            new_parent_node_cost < cost_right) then
           exit
        end if
 
@@ -895,7 +920,8 @@ contains
 
        write(*, *) "i = ", current_index
        write(*, *) "  Parent  : ", this%get_parent_index(current_index)
-       write(*, *) "  Children: ", this%get_left_index(current_index), this%get_right_index(current_index)
+       write(*, *) "  Children: ", this%get_left_index(current_index), &
+            this%get_right_index(current_index)
 
        write(*, *) "  object_index = ", this%nodes(current_index)%object_index
     end do

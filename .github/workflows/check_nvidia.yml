@@ -1,0 +1,126 @@
+name: NVIDIA Fortran
+
+# Controls when the action will run.
+on:
+  push:
+    branches:
+      - develop
+
+  workflow_call:
+    inputs:
+      json-fortran-version:
+        description: "The version of the JSON-Fortran library to use."
+        type: string
+        required: false
+        default: "8.3.0"
+
+jobs:
+  NVIDIA:
+    runs-on: ${{matrix.os}}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-20.04]
+        compiler: [nvfortran]
+        backend: [cpu, cuda]
+        precision: [dp]
+        include:
+          - os: ubuntu-20.04
+            setup-env: |
+              sudo apt-get update
+              sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev
+              curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
+              echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
+              sudo apt-get update -y
+              sudo apt-get install -y nvhpc-24-11
+              NVARCH=`uname -s`_`uname -m`
+              export NVARCH
+              NVCOMPILERS=/opt/nvidia/hpc_sdk
+              export NVCOMPILERS
+              PATH=$NVCOMPILERS/$NVARCH/24.11/compilers/bin:$PATH; export PATH
+              export PATH=$NVCOMPILERS/$NVARCH/24.11/comm_libs/mpi/bin:$PATH
+              printenv >> $GITHUB_ENV
+              echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
+
+    env:
+      CC: gcc
+      FC: ${{ matrix.compiler }}
+      OMPI_FC: ${{ matrix.compiler }}
+      OMPI_CC: gcc
+      OMPI_ALLOW_RUN_AS_ROOT: 1
+      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
+      OMPI_MCA_btl_vader_single_copy_mechanism: none
+      RP: ${{ matrix.precision }}
+    name: ${{ matrix.os }} - ${{ matrix.compiler }} - ${{ matrix.backend }} - ${{ matrix.precision }}
+    steps:
+      - name: Setup env.
+        id: setup-env
+        run: ${{ matrix.setup-env }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup dependencies
+        id: setup-deps
+        env:
+          JSON_FORTRAN_VERSION: ${{ inputs.json-fortran-version }}
+        run: |
+          if [ -z "$JSON_FORTRAN_VERSION" ]; then JSON_FORTRAN_VERSION="8.3.0"; fi
+          echo "json-fortran-version=$JSON_FORTRAN_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get JSON-Fortran
+        id: get-json-fortran
+        uses: ./.github/actions/setup_json-fortran
+        with:
+          version: ${{ steps.setup-deps.outputs.json-fortran-version }}
+          os: ${{ steps.setup-env.outputs.os-version }}
+          compiler: ${{ matrix.compiler }}
+
+      - name: Add JSON-Fortran to environment
+        env:
+          JSON_FORTRAN_DIR: ${{ steps.get-json-fortran.outputs.install-dir }}
+        run: |
+          echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}:$JSON_FORTRAN_DIR/lib/pkgconfig/" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$JSON_FORTRAN_DIR/lib/" >> $GITHUB_ENV
+
+      - name: Build (CPU backend)
+        if: matrix.backend == 'cpu'
+        run: |
+          git apply patches/nvhpc_bge.patch
+          ./regen.sh
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
+          make
+
+      - name: Build (CUDA backend)
+        if: matrix.backend == 'cuda'
+        run: |
+          git apply patches/nvhpc_bge.patch
+          ./regen.sh
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.11/cuda/
+          make
+
+      - name: Dist (CPU backend)
+        if: matrix.backend == 'cpu'
+        run: |
+          git stash
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
+          patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
+          make -j $(nproc)
+
+      - name: Dist (CUDA backend)
+        if: matrix.backend == 'cuda'
+        run: |
+          git stash
+          make dist
+          mkdir releng
+          tar xf neko-*.tar.gz -C releng
+          cd releng/neko-*
+          patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/24.11/cuda/
+          make -j $(nproc)

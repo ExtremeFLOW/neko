@@ -1,0 +1,171 @@
+name: Setup the JSON-Fortran library
+description: |
+  This action sets up the JSON-Fortran library for use in the main workflow.
+
+inputs:
+  install-dir:
+    description: "The directory to install the JSON-Fortran library."
+    required: false
+    default: "${{ runner.workspace }}/pkg"
+  working-dir:
+    description: "The directory to work in."
+    required: false
+    default: "${{ runner.workspace }}/tmp"
+  os:
+    description: "The operating system to use."
+    required: false
+    default: "${{ runner.os }}"
+  compiler:
+    description: "The compiler to use."
+    required: false
+    default: "gfortran"
+  compiler-flags:
+    description: "The compiler flag to use."
+    required: false
+    default: "-O3"
+  configure-options:
+    description: "The configure option to use."
+    required: false
+    default: ""
+  build-options:
+    description: "The build option to use."
+    required: false
+    default: "--parallel $(nproc)"
+  version:
+    description: "The version of the JSON-Fortran library to use."
+    required: false
+    default: "8.3.0"
+  arch:
+    description: "The architecture to use."
+    required: false
+    default: "${{ runner.arch }}"
+
+outputs:
+  install-dir:
+    description: "The directory where the JSON-Fortran library was installed."
+    value: ${{ steps.set-output.outputs.install-dir }}
+
+runs:
+  using: composite
+  steps:
+    - name: Check the environment
+      env:
+        INSTALL_DIR: ${{ inputs.install-dir }}
+        WORKING_DIR: ${{ inputs.working-dir }}
+        OS: ${{ inputs.os }}
+        COMPILER: ${{ inputs.compiler }}
+        VERSION: ${{ inputs.version }}
+        ARCH: ${{ inputs.arch }}
+      shell: bash
+      run: |
+        if [ -z "$INSTALL_DIR" ]; then
+          echo "install-dir is not set" >&2
+          exit 1
+        fi
+        if [ -z "$WORKING_DIR" ]; then
+          echo "working-dir is not set" >&2
+          exit 1
+        fi
+        if [ -z "$OS" ]; then
+          echo "os is not set" >&2
+          exit 1
+        fi
+        if [ -z "$COMPILER" ]; then
+          echo "compiler is not set" >&2
+          exit 1
+        fi
+        if [ -z "$VERSION" ]; then
+          echo "version is not set" >&2
+          exit 1
+        fi
+        if [ -z "$ARCH" ]; then
+          echo "arch is not set" >&2
+          exit 1
+        fi
+
+    - name: Set up environment
+      id: setup-env
+      shell: bash
+      env:
+        WORKING_DIR: ${{ inputs.working-dir }}
+        INSTALL_DIR: ${{ inputs.install-dir }}
+      run: |
+        TAG=${{ inputs.version }}-${{ inputs.os }}-${{ inputs.arch }}-${{ inputs.compiler }}
+        WORKING_DIR=$WORKING_DIR/json-fortran-$TAG
+        INSTALL_DIR=$INSTALL_DIR/json-fortran-$TAG
+
+        mkdir -p $WORKING_DIR $INSTALL_DIR
+
+        echo "working-dir=$(echo $(realpath $WORKING_DIR))" >> $GITHUB_OUTPUT
+        echo "install-dir=$(echo $(realpath $INSTALL_DIR))" >> $GITHUB_OUTPUT
+        echo "tag=$(echo $TAG)" >> $GITHUB_OUTPUT
+
+    - name: Cache
+      id: cache-json-fortran
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.setup-env.outputs.install-dir }}
+        key: json-fortran-${{ steps.setup-env.outputs.tag }}
+
+    - name: Clone
+      if: ${{ steps.cache-json-fortran.outputs.cache-hit != 'true' }}
+      shell: bash
+      env:
+        WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
+        REPO: https://github.com/jacobwilliams/json-fortran.git
+        VERSION: ${{ inputs.version }}
+      run: |
+        git clone --depth 1 --branch $VERSION $REPO $WORKING_DIR
+
+    - name: Configure
+      if: ${{ steps.cache-json-fortran.outputs.cache-hit != 'true' }}
+      shell: bash
+      env:
+        WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
+        INSTALL_DIR: ${{ steps.setup-env.outputs.install-dir }}
+        FC: ${{ inputs.compiler }}
+        FCFLAGS: ${{ inputs.compiler-flags }}
+      run: |
+        cmake -B $WORKING_DIR/build -S $WORKING_DIR \
+          --install-prefix=$INSTALL_DIR \
+          -DUSE_GNU_INSTALL_CONVENTION=ON \
+          -DSKIP_DOC_GEN=ON ${{ inputs.configure-options }}
+
+    - name: Build
+      if: ${{ steps.cache-json-fortran.outputs.cache-hit != 'true' }}
+      shell: bash
+      env:
+        WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
+      run: |
+        cmake --build $WORKING_DIR/build ${{ inputs.build-options }}
+
+    - name: Install
+      if: ${{ steps.cache-json-fortran.outputs.cache-hit != 'true' }}
+      shell: bash
+      env:
+        WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
+        FC: ${{ inputs.compiler }}
+        FCFLAGS: ${{ inputs.compiler-flags }}
+      run: |
+        cmake --install $WORKING_DIR/build
+
+    - name: Cleanup
+      if: ${{ steps.cache-json-fortran.outputs.cache-hit != 'true' }}
+      shell: bash
+      env:
+        WORKING_DIR: ${{ steps.setup-env.outputs.working-dir }}
+      run: |
+        rm -fr $WORKING_DIR/build
+
+    - name: Set output
+      id: set-output
+      shell: bash
+      env:
+        INSTALL_DIR: ${{ steps.setup-env.outputs.install-dir }}
+      run: |
+        if [ ! -d $INSTALL_DIR ]; then
+          echo "Failed to install JSON-Fortran library."
+          exit 1
+        fi
+        echo "install-dir=$INSTALL_DIR" >> $GITHUB_OUTPUT
+        rm -f $INSTALL_DIR/lib/*.dylib

@@ -1,8 +1,18 @@
 !> Residuals in the scalar equation (CPU version).
 module scalar_residual_cpu
-  use gather_scatter
-  use scalar_residual
-  use operators
+  use scalar_residual, only : scalar_residual_t
+  use ax_product, only : ax_t
+  use field, only : field_t
+  use coefs, only : coef_t
+  use space, only : space_t
+  use mesh, only : mesh_t
+  use num_types, only : rp    
+  use math, only : copy, cfill
+  use field, only : field_t
+  use mesh, only : mesh_t
+  use ax_product, only : ax_t
+  use space, only : space_t
+  use coefs, only : coef_t
   implicit none
   private
 
@@ -37,19 +47,16 @@ contains
     type(field_t), intent(inout) :: s_res
     type(field_t), intent(inout) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
-    real(kind=rp), intent(in) :: lambda
+    type(field_t), intent(in) :: lambda
     real(kind=rp), intent(in) :: rhocp
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     integer, intent(in) :: n
     integer :: i
 
-    do i = 1, n
-       c_Xh%h1(i,1,1,1) = lambda
-       ! todo :should not be just rho here.
-       ! Tim M. 2023-12-19: What is this todo?
-       c_Xh%h2(i,1,1,1) = rhocp * (bd / dt)
-    end do
+    call copy(c_Xh%h1, lambda%x, n)
+    call cfill(c_Xh%h2, rhocp * bd / dt, n)
+
     c_Xh%ifh2 = .true.
 
     call Ax%compute(s_res%x, s%x, c_Xh, msh, Xh)
