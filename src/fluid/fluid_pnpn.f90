@@ -907,6 +907,9 @@ contains
                            Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
                            mu_field, rho_field)
 
+      dump_file = file_t('p_res.fld')
+      call dump_file%write(p_res)
+
       call gs_Xh%op(p_res, GS_OP_ADD)
       call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), t, tstep)
       call profiler_end_region('Pressure_residual', 18)
