@@ -119,7 +119,8 @@ contains
        call neko_log%message(log_buf)
        call neko_log%begin()
 
-       write(log_buf, '(A,E15.7,1x,A,E15.7)') 'CFL:', cfl, 'dt:', C%dt
+!!       write(log_buf, '(A,F8.4,2x,A,"1P, E14.7")') 'CFL:', cfl, 'dt:', C%dt
+       write(log_buf, "(A,F8.4,2x,A, 1P,E14.7)") 'CFL:', cfl, 'dt:', C%dt
        call neko_log%message(log_buf)
        call simulation_settime(t, C%dt, C%ext_bdf, C%tlag, C%dtlag, tstep)
 

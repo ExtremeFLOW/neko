@@ -674,6 +674,7 @@ contains
        call neko_log%message(log_buf)
        write(log_buf, '(I11,3x, E15.7,5x)')  this%proj_m, this%proj_res
        call neko_log%message(log_buf)
+       call neko_log%newline()
     end if
 
   end subroutine print_proj_info
