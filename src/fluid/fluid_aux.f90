@@ -20,37 +20,33 @@ contains
     character(len=LOG_SIZE) :: log_buf
     integer :: i
 
+    character(len=40) :: out_format
 
-    call neko_log%message('Pressure')
+    out_format='(F12.6, A, A,2x, I6,3x, E11.4,3x, E11.4)' 
 
-    write(log_buf, '(A,A,A)') 'Iterations:   ',&
-         'Start residual:     ', 'Final residual:'
+    write(log_buf, '(A,A,A,A,A,A)') &
+         '       Time:', ' | ', &
+         'Field:  ', 'Iters:   ',&
+         'Start res.:   ', 'Final res.: '
     call neko_log%message(log_buf)
-    write(log_buf, '(I11,3x, E15.7,5x, E15.7)') ksp_results(1)%iter, &
+
+    write(log_buf, out_format) &
+         t, ' | ' , 'Press.'   , ksp_results(1)%iter, &
          ksp_results(1)%res_start, ksp_results(1)%res_final
     call neko_log%message(log_buf)
 
-    call neko_log%message('X-Velocity')
-    write(log_buf, '(A,A,A)') 'Iterations:   ',&
-         'Start residual:     ', 'Final residual:'
-    call neko_log%message(log_buf)
-    write(log_buf, '(I11,3x, E15.7,5x, E15.7)') ksp_results(2)%iter, &
+    write(log_buf, out_format) &
+         t, ' | ' , 'X-Vel.'   , ksp_results(2)%iter, &
          ksp_results(2)%res_start, ksp_results(2)%res_final
     call neko_log%message(log_buf)
 
-    call neko_log%message('Y-Velocity')
-    write(log_buf, '(A,A,A)') 'Iterations:   ',&
-         'Start residual:     ', 'Final residual:'
-    call neko_log%message(log_buf)
-    write(log_buf, '(I11,3x, E15.7,5x, E15.7)') ksp_results(3)%iter, &
+    write(log_buf, out_format) &
+         t, ' | ' , 'Y-Vel.'   , ksp_results(3)%iter, &
          ksp_results(3)%res_start, ksp_results(3)%res_final
     call neko_log%message(log_buf)
 
-    call neko_log%message('Z-Velocity')
-    write(log_buf, '(A,A,A)') 'Iterations:   ', &
-         'Start residual:     ', 'Final residual:'
-    call neko_log%message(log_buf)
-    write(log_buf, '(I11,3x, E15.7,5x, E15.7)') ksp_results(4)%iter, &
+    write(log_buf, out_format) &
+         t, ' | ' , 'Z-Vel.'   , ksp_results(4)%iter, &
          ksp_results(4)%res_start, ksp_results(4)%res_final
     call neko_log%message(log_buf)
 
