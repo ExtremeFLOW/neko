@@ -108,7 +108,7 @@ contains
                                           coef, n, dt)
     class(adv_no_dealias_t), intent(inout) :: this
     type(space_t), intent(in) :: Xh
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(in) :: coef
     type(field_t), intent(inout) :: vx, vy, vz
     type(field_t), intent(inout) :: fx, fy, fz
     integer, intent(in) :: n
@@ -160,7 +160,7 @@ contains
     type(field_t), intent(inout) :: s
     type(field_t), intent(inout) :: fs
     type(space_t), intent(in) :: Xh
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
     real(kind=rp), intent(in), optional :: dt
 

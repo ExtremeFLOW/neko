@@ -140,7 +140,7 @@ contains
   subroutine scalar_user_source_term_init_from_components(this, fields, coef, &
        source_term_type, eval_vector, eval_pointwise)
     class(scalar_user_source_term_t), intent(inout) :: this
-    type(field_list_t), intent(inout), target :: fields
+    type(field_list_t), intent(in), target :: fields
     type(coef_t), intent(in) :: coef
     character(len=*) :: source_term_type
     procedure(scalar_source_compute_vector), optional :: eval_vector

@@ -272,7 +272,7 @@ contains
   !! @param ee Last element index, defaults to mesh size.
   subroutine conv1(du, u, vx, vy, vz, Xh, coef, es, ee)
     type(space_t), intent(in) :: Xh
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(in) :: coef
     real(kind=rp), intent(inout) :: du(Xh%lxyz, coef%msh%nelv)
     real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
     real(kind=rp), intent(inout) :: vx(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
@@ -561,7 +561,7 @@ contains
                          coef_GL, GLL_to_GL, tau, dtau, n, nel, n_GL)
     type(space_t), intent(in) :: Xh_GLL
     type(space_t), intent(inout) :: Xh_GL
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(in) :: coef
     type(coef_t), intent(inout) :: coef_GL
     type(interpolator_t) :: GLL_to_GL
     real(kind=rp), intent(inout) :: tau, dtau

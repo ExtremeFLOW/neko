@@ -73,7 +73,8 @@ contains
 
   subroutine tnsr3d_sx(v, nv, u, nu, A, Bt, Ct, nelv)
     integer, intent(in) :: nv, nu, nelv
-    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
+    real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
     real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
 
     if (nu .eq. 2 .and. nv .eq. 4) then
@@ -88,7 +89,8 @@ contains
 
   subroutine tnsr3d_nvnu_sx(v, nv, u, nu, A, Bt, Ct, nelv)
     integer, intent(in) :: nv, nu, nelv
-    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
+    real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
     real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2), tmp
     integer :: ie, i, j, k, l, ii, jj
@@ -146,7 +148,8 @@ contains
     integer, parameter :: nvnu = 8
     integer, parameter :: nvnv = 16
     integer, intent(in) :: nelv
-    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
+    real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
     real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
     real(kind=rp) :: work(nu**2*nv,nelv), work2(nu*nv**2,nelv), tmp
     integer :: ie, i, j, k, l, ii, jj
@@ -195,7 +198,8 @@ contains
     integer, parameter :: nu = 4
     integer, parameter :: nunu = 16
     integer, intent(in) :: nv, nelv
-    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv), u(nu*nu*nu,nelv)
+    real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
+    real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
     real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
     real(kind=rp) :: work(nu**2*nv, nelv), work2(nu*nv**2, nelv), tmp
     integer :: ie, i, j, k, l, ii, jj
