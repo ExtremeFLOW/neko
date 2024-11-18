@@ -78,6 +78,15 @@ contains
     print *, "work allocated on lvl", lvl_id, "dofs", nt
   end subroutine aggregate_finest_level
 
+  !> First pass of a greedy aggregation
+  !> Loop through all dofs and aggregate on dof that has all unaggregated neighbors
+  !! @param naggs The number of aggregates that have been created
+  !! @param max_aggs The maximum number of aggregates to allow to be created
+  !! @param facet_neigh Dof adjacency information
+  !! @param offset_el Offset for facet_neigh
+  !! @param n_facet Max number of adjecnt dofs (ex. 6 if element is a cube)
+  !! @param is_aggregated Array containing aggregate info. Maps from dof id to agg id
+  !! @param aggregate_size Array containing the size of each aggregate
   subroutine agg_greedy_first_pass(naggs, max_aggs, n_elements, &
       facet_neigh, offset_el, n_facet, is_aggregated, aggregate_size)
     integer, intent(inout):: naggs
@@ -126,6 +135,16 @@ contains
     print *, "done with first pass of aggregation"
   end subroutine agg_greedy_first_pass
 
+  !> Second pass of a greedy aggregation
+  !> Loop through all unaggregated dofs and add them to a neighboring aggregate.
+  !> If no neighboring aggregates, create a new aggregate.
+  !! @param naggs The number of aggregates that have ben created
+  !! @param max_aggs The maximum number of aggregates to allow to be created
+  !! @param facet_neigh Dof adjacency information
+  !! @param offset_el Offset for facet_neigh
+  !! @param n_facet Max number of adjecnt dofs (ex. 6 if element is a cube)
+  !! @param is_aggregated Array containing aggregate info. Maps from dof id to agg id
+  !! @param aggregate_size Array containing the size of each aggregate
   subroutine agg_greedy_second_pass(naggs, max_aggs, n_elements, &
       facet_neigh, offset_el, n_facet, is_aggregated, aggregate_size)
     integer, intent(inout):: naggs
@@ -189,6 +208,15 @@ contains
     print *, "done with second pass of aggregation: number of aggregates", naggs
   end subroutine agg_greedy_second_pass
 
+  !> Create information on which aggregates are "adjacent" to eachother
+  !! @param agg_nhbr Aggregate adjacency information (same structure as facet_neigh)
+  !! @param n_agg_nhbr The max number of aggregate neighbors over all aggregates
+  !! @param n_elements The number of elements (dofs)
+  !! @param facet_neigh Dof adjacency information
+  !! @param offset_el Offset for facet_neigh
+  !! @param n_facet Max number of adjecnt dofs (ex. 6 if element is a cube)
+  !! @param is_aggregated Array containing aggregate info. Maps from dof id to agg id
+  !! @param aggregate_size Array containing the size of each aggregate
   subroutine agg_fill_nhbr_info(agg_nhbr, n_agg_nhbr, n_elements, &
       facet_neigh, offset_el, n_facet, is_aggregated, aggregate_size)
     integer, intent(inout) :: agg_nhbr(:,:)
