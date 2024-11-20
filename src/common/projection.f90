@@ -82,6 +82,7 @@ module projection
 
   implicit none
   private
+  public :: cpu_proj_ortho, device_proj_ortho
 
   type, public ::  projection_t
      real(kind=rp), allocatable :: xx(:,:)

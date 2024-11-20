@@ -335,11 +335,11 @@ contains
 
     !Intialize projection space thingy
 
-    if (this%variable_material_properties .and. &
-          this%vel_projection_dim .gt. 0) then
-       call neko_error("Velocity projection not available for full stress &
-             &formulation")
-    end if
+   !  if (this%variable_material_properties .and. &
+   !        this%vel_projection_dim .gt. 0) then
+   !     call neko_error("Velocity projection not available for full stress &
+   !           &formulation")
+   !  end if
 
 
     call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
