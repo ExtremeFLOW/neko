@@ -46,6 +46,7 @@ module fluid_pnpn
   use fluid_aux, only : fluid_step_info
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
+  use projection_vel, only : projection_vel_t
   use device, only : device_memcpy, HOST_TO_DEVICE
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
@@ -82,9 +83,7 @@ module fluid_pnpn
      class(ax_t), allocatable :: Ax_prs
 
      type(projection_t) :: proj_prs
-     type(projection_t) :: proj_u
-     type(projection_t) :: proj_v
-     type(projection_t) :: proj_w
+     type(projection_vel_t) :: proj_vel
 
      type(facet_normal_t) :: bc_prs_surface !< Surface term in pressure rhs
      type(facet_normal_t) :: bc_sym_surface !< Surface term in pressure rhs
@@ -345,11 +344,7 @@ contains
     call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
                               this%pr_projection_activ_step)
 
-    call this%proj_u%init(this%dm_Xh%size(), this%vel_projection_dim, &
-                              this%vel_projection_activ_step)
-    call this%proj_v%init(this%dm_Xh%size(), this%vel_projection_dim, &
-                              this%vel_projection_activ_step)
-    call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim, &
+    call this%proj_vel%init(this%dm_Xh%size(), this%vel_projection_dim, &
                               this%vel_projection_activ_step)
 
 
@@ -524,9 +519,7 @@ contains
     call bc_list_free(this%bclst_vel_res)
     call bc_list_free(this%bclst_dp)
     call this%proj_prs%free()
-    call this%proj_u%free()
-    call this%proj_v%free()
-    call this%proj_w%free()
+    call this%proj_vel%free()
 
     call this%p_res%free()
     call this%u_res%free()
@@ -774,9 +767,8 @@ contains
 
       call profiler_end_region('Velocity_residual', 19)
 
-      call this%proj_u%pre_solving(u_res%x, tstep, c_Xh, n, dt_controller)
-      call this%proj_v%pre_solving(v_res%x, tstep, c_Xh, n, dt_controller)
-      call this%proj_w%pre_solving(w_res%x, tstep, c_Xh, n, dt_controller)
+      call this%proj_vel%pre_solving(u_res%x, v_res%x, w_res%x, &
+                                     tstep, c_Xh, n, dt_controller)
 
       call this%pc_vel%update()
 
@@ -787,12 +779,8 @@ contains
            this%ksp_vel%max_iter)
       call profiler_end_region("Velocity_solve", 4)
 
-      call this%proj_u%post_solving(du%x, Ax_vel, c_Xh, &
-                                 this%bclst_du, gs_Xh, n, tstep, dt_controller)
-      call this%proj_v%post_solving(dv%x, Ax_vel, c_Xh, &
-                                 this%bclst_dv, gs_Xh, n, tstep, dt_controller)
-      call this%proj_w%post_solving(dw%x, Ax_vel, c_Xh, &
-                                 this%bclst_dw, gs_Xh, n, tstep, dt_controller)
+      call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
+                                 this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, n, tstep, dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opadd2cm(u%x_d, v%x_d, w%x_d, &

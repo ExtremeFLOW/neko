@@ -101,29 +101,30 @@ contains
 
   end subroutine projection_free_vel
 
-  subroutine projection_pre_solving_vel(this, b, tstep, coef, n, &
+  subroutine projection_pre_solving_vel(this, b_u, b_v, b_w, tstep, coef, n, &
                                         dt_controller, string)
     class(projection_vel_t), intent(inout) :: this
     integer, intent(inout) :: n
-    real(kind=rp), intent(inout), dimension(n) :: b
+    real(kind=rp), intent(inout), dimension(n) :: b_u, b_v, b_w
     integer, intent(in) :: tstep
     class(coef_t), intent(inout) :: coef
     type(time_step_controller_t), intent(in) :: dt_controller
     character(len=*), optional :: string
 
-    call this%proj_u%pre_solving(b, tstep, coef, n, dt_controller, string)
-    call this%proj_v%pre_solving(b, tstep, coef, n, dt_controller, string)
-    call this%proj_w%pre_solving(b, tstep, coef, n, dt_controller, string)
+    call this%proj_u%pre_solving(b_u, tstep, coef, n, dt_controller, string)
+    call this%proj_v%pre_solving(b_v, tstep, coef, n, dt_controller, string)
+    call this%proj_w%pre_solving(b_w, tstep, coef, n, dt_controller, string)
 
   end subroutine projection_pre_solving_vel
 
   subroutine projection_post_solving_vel(this, x_u, x_v, x_w, Ax, coef, &
-                                         bclst, gs_h, n, tstep, dt_controller)
+                                         bclst_u, bclst_v, bclst_w, &
+                                         gs_h, n, tstep, dt_controller)
     class(projection_vel_t), intent(inout) :: this
     integer, intent(inout) :: n
     class(Ax_t), intent(inout) :: Ax
     class(coef_t), intent(inout) :: coef
-    class(bc_list_t), intent(inout) :: bclst
+    class(bc_list_t), intent(inout) :: bclst_u, bclst_v, bclst_w
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp), intent(inout), dimension(n) :: x_u, x_v, x_w
     integer, intent(in) :: tstep
@@ -134,19 +135,19 @@ contains
     if (tstep .gt. this%activ_step .and. this%L .gt. 0) then
        if (.not.(dt_controller%if_variable_dt) .or. &
        (dt_controller%dt_last_change .gt. this%activ_step - 1)) then
-          call this%project_back(x_u, x_v, x_w, Ax, coef, bclst, gs_h, n)
+          call this%project_back(x_u, x_v, x_w, Ax, coef, bclst_u, bclst_v, bclst_w, gs_h, n)
        end if
     end if
 
   end subroutine projection_post_solving_vel
 
   subroutine bcknd_project_back_vel(this, x_u, x_v, x_w, &
-                                    Ax, coef, bclst, gs_h, n)
+                                    Ax, coef, bclst_u, bclst_v, bclst_w, gs_h, n)
     class(projection_vel_t) :: this
     integer, intent(inout) :: n
     class(Ax_t), intent(inout) :: Ax
     class(coef_t), intent(inout) :: coef
-    class(bc_list_t), intent(inout) :: bclst
+    class(bc_list_t), intent(inout) :: bclst_u, bclst_v, bclst_w
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp), intent(inout), dimension(n) :: x_u, x_v, x_w
     type(c_ptr) :: x_u_d, x_v_d, x_w_d
@@ -231,9 +232,9 @@ contains
     call gs_h%gs_op_vector(this%proj_v%bb(1,this%proj_v%m), n, GS_OP_ADD)
     call gs_h%gs_op_vector(this%proj_w%bb(1,this%proj_w%m), n, GS_OP_ADD)
 
-    call bc_list_apply_scalar(bclst, this%proj_u%bb(1,this%proj_u%m), n)
-    call bc_list_apply_scalar(bclst, this%proj_v%bb(1,this%proj_v%m), n)
-    call bc_list_apply_scalar(bclst, this%proj_w%bb(1,this%proj_w%m), n)
+    call bc_list_apply_scalar(bclst_u, this%proj_u%bb(1,this%proj_u%m), n)
+    call bc_list_apply_scalar(bclst_v, this%proj_v%bb(1,this%proj_v%m), n)
+    call bc_list_apply_scalar(bclst_w, this%proj_w%bb(1,this%proj_w%m), n)
 
     if (NEKO_BCKND_DEVICE .eq. 1)  then
        call device_proj_ortho(this%proj_u, this%proj_u%xx_d, &
