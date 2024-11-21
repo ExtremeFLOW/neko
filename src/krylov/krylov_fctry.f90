@@ -88,12 +88,12 @@ contains
     logical :: monitor_val
 
     if (present(abstol)) then
-        abstol_val = abstol
+       abstol_val = abstol
     else
-        abstol_val = KSP_ABS_TOL
+       abstol_val = KSP_ABS_TOL
     end if
     if (present(monitor)) then
-        monitor_val = monitor
+       monitor_val = monitor
     else
        monitor_val = .false.
     end if
