@@ -38,7 +38,7 @@ module simcomp_executor
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use case, only : case_t
-  use utils, only : neko_error
+  use utils, only : neko_error, neko_warning
   use logger, only : neko_log
   implicit none
   private
@@ -175,6 +175,13 @@ contains
 
        call simulation_component_factory(this%simcomps(i)%simcomp, &
             comp_subdict, case)
+       ! Check for whether eddy viscosity is enabled in fluid_scheme
+       if (trim(comp_type) .eq. "les_model") then
+          if (case%fluid%variable_material_properties .eqv. .false.) then
+             call neko_warning("Eddy viscosity is not acting &
+                               &on the equations!")
+          end if
+       end if
     end do
 
     if (has_user) then
