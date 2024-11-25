@@ -62,7 +62,8 @@ submodule (krylov) krylov_fctry
      "gmres", &
      "cheby", &
      "bicgstab", &
-     "cpldcg"]
+     "fusedcoupledcg", &
+     "coupledcg"]
 
 contains
 
@@ -98,7 +99,7 @@ contains
        else
           allocate(cg_t::object)
        end if
-    else if (trim(type_name) .eq. 'cpldcg') then
+    else if (trim(type_name) .eq. 'coupledcg') then
        allocate(cg_cpld_t::object)
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call neko_error('Coupled CG only supported for CPU')
@@ -123,7 +124,7 @@ contains
        else
           call neko_error('FusedCG only supported for CUDA/HIP')
        end if
-    else if (trim(type_name) .eq. 'fcpldcg') then
+    else if (trim(type_name) .eq. 'fusedcoupledcg') then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           if (NEKO_BCKND_OPENCL .eq. 1) then
              call neko_error('Coupled FusedCG not supported for OpenCL')
