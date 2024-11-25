@@ -54,7 +54,7 @@ submodule (krylov) krylov_fctry
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KSP_KNOWN_TYPES(8) = [character(len=20) :: &
+  character(len=20) :: KSP_KNOWN_TYPES(9) = [character(len=20) :: &
      "cg", &
      "pipecg", &
      "fusedcg", &
