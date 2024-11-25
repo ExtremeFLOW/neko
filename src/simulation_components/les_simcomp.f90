@@ -77,7 +77,7 @@ contains
     ! Check for whether eddy viscosity is enabled in fluid_scheme
     if (case%fluid%variable_material_properties .eqv. .false.) then
         call neko_warning("Eddy viscosity is not acting &
-                          &on the equations!")
+                          &on the equations")
     end if
 
     ! Add fields keyword to the json so that the field_writer picks it up.
