@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,15 +33,18 @@
 !> Interface for device projection
 !! @note Requires device MPI
 module device_projection
-  use num_types
-  use utils
+  use num_types, only : rp, c_rp
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding
   implicit none
+  private
 
+  public :: device_proj_on, device_project_ortho
+  
 #ifdef HAVE_HIP
   interface
      subroutine hip_project_on(a_d, b_d, x_d_d, b_d_d, mult_d, x_d, j, n) &
-          bind(c, name='hip_project_on')
+          bind(c, name = 'hip_project_on')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -53,7 +56,7 @@ module device_projection
   interface
      subroutine hip_project_ortho(a_d, b_d, x_d_d, b_d_d, &
                                    w_d, xm_d, j, n, nrm) &
-          bind(c, name='hip_project_ortho')
+          bind(c, name = 'hip_project_ortho')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -66,7 +69,7 @@ module device_projection
 #elif HAVE_CUDA
   interface
      subroutine cuda_project_on(a_d, b_d, x_d_d, b_d_d, mult_d, x_d, j, n) &
-          bind(c, name='cuda_project_on')
+          bind(c, name = 'cuda_project_on')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -78,7 +81,7 @@ module device_projection
   interface
      subroutine cuda_project_ortho(a_d, b_d, x_d_d, b_d_d, &
                                    w_d, xm_d, j, n, nrm) &
-          bind(c, name='cuda_project_ortho')
+          bind(c, name = 'cuda_project_ortho')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none

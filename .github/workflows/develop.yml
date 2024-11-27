@@ -12,8 +12,6 @@ on:
   workflow_dispatch:
 
 env:
-  FLINT_GLOBAL_MINIMUM: 8.47
-  FLINT_CHANGED_FILES_MINIMUM: 10.0
   PFUNIT_VERSION: v4.4.2
   JSON_FORTRAN_VERSION: 8.3.0
 
@@ -29,8 +27,6 @@ jobs:
     name: Prepare the environment
     runs-on: ubuntu-latest
     outputs:
-      flint-global-minimum: ${{ steps.store.outputs.flint-global-minimum }}
-      flint-changed-minimum: ${{ steps.store.outputs.flint-changed-minimum }}
       pfunit-version: ${{ steps.store.outputs.pfunit-version }}
       json-fortran-version: ${{ steps.store.outputs.json-fortran-version }}
 
@@ -56,9 +52,6 @@ jobs:
     needs:
       - prepare
     uses: ./.github/workflows/check_lint.yml
-    with:
-      global-minimum-score: ${{ needs.prepare.outputs.flint-global-minimum }}
-      changed-files-minimum-score: ${{ needs.prepare.outputs.flint-changed-minimum }}
 
   depend:
     name: Make depend
@@ -67,6 +60,9 @@ jobs:
     uses: ./.github/workflows/check_depend.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+
+  # ========================================================================== #
+  # Compilation checks
 
   GNU:
     name: GNU
@@ -87,14 +83,17 @@ jobs:
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
-  NVIDIA:
-    name: NVIDIA
+  Nvidia:
+    name: Nvidia
     needs:
       - prepare
       - depend
     uses: ./.github/workflows/check_nvidia.yml
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
+
+  # ========================================================================== #
+  # ReFrame and bencharks
 
   ReFrame:
     name: ReFrame
@@ -106,6 +105,37 @@ jobs:
     with:
       json-fortran-version: ${{ needs.prepare.outputs.json-fortran-version }}
 
+  # # ========================================================================== #
+  # # Upload the badges
+
+  # upload-badges:
+  #   name: "Upload badges"
+  #   runs-on: ubuntu-20.04
+  #   needs:
+  #     - linting
+
+  #   if: ${{ !cancelled() }} &&
+  #       ${{ needs.linting.result == 'success' }} &&
+
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+
+  #     - name: Download artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         pattern: "*-badge"
+  #         path: doc/media/
+  #         merge-multiple: true
+
+  #     - name: Push badges
+  #       uses: EndBug/add-and-commit@v9
+  #       with:
+  #         add: "doc/media/*-badge.svg"
+  #         message: "Add badges"
+  #         author_name: "GitHub Actions"
+  #         default_author: github_actor
+
   check_complete:
     name: Develop PR Ready
     if: ${{ always() }}
@@ -115,7 +145,7 @@ jobs:
       - depend
       - GNU
       - Intel
-      - NVIDIA
+      - Nvidia
       - ReFrame
     runs-on: ubuntu-latest
     env:
@@ -123,7 +153,7 @@ jobs:
       flint_status: ${{ needs.linting.result }}
       gnu_status: ${{ needs.GNU.result }}
       inel_status: ${{ needs.Intel.result }}
-      nvidia_status: ${{ needs.NVIDIA.result }}
+      nvidia_status: ${{ needs.Nvidia.result }}
       reframe_status: ${{ needs.ReFrame.result }}
 
     steps:

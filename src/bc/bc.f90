@@ -298,7 +298,7 @@ contains
     class(facet_zone_t), intent(inout) :: bc_zones(:)
     character(len=*) :: bc_key
     character(len=100), allocatable :: split_key(:)
-    character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_labels(NEKO_MSH_MAX_ZLBLS)
+    character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_labels(:)
     integer :: i, j, k, l, msh_bc_type
 
     msh_bc_type = 0
@@ -319,9 +319,13 @@ contains
        msh_bc_type = 2
     else if(trim(bc_key) .eq. 'sym') then
        msh_bc_type = 2
+    else if(trim(bc_key) .eq. 'sh') then
+       msh_bc_type = 2
+    else if(trim(bc_key) .eq. 'wm') then
+       msh_bc_type = 2
     end if
 
-    do i = 1, NEKO_MSH_MAX_ZLBLS
+    do i = 1, size(bc_labels)
        !Check if several bcs are defined for this zone
        !bcs are seperated by /, but we could use something else
        if (index(trim(bc_labels(i)), '/') .eq. 0) then
@@ -572,7 +576,7 @@ contains
   !! @param t Current time.
   !! @param tstep Current time-step.
   subroutine bc_list_apply_scalar(bclst, x, n, t, tstep)
-    type(bc_list_t), intent(inout) :: bclst
+    type(bc_list_t), intent(in) :: bclst
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
@@ -629,7 +633,7 @@ contains
   !! @param t Current time.
   !! @param tstep Current time-step.
   subroutine bc_list_apply_vector(bclst, x, y, z, n, t, tstep)
-    type(bc_list_t), intent(inout) :: bclst
+    type(bc_list_t), intent(in) :: bclst
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(inout),  dimension(n) :: y

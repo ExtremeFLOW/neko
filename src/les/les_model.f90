@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2023-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -106,6 +106,24 @@ module les_model
      end subroutine les_model_free
   end interface
 
+  interface
+     !> LES model factory. Both constructs and initializes the object.
+     !! @param object The object to be allocated.
+     !! @param type_name The name of the LES model.
+     !! @param dofmap SEM map of degrees of freedom.
+     !! @param coef SEM coefficients.
+     !! @param json A dictionary with parameters.
+     module subroutine les_model_factory(object, type_name, dofmap, coef, json)
+       class(les_model_t), allocatable, intent(inout) :: object
+       character(len=*), intent(in) :: type_name
+       type(dofmap_t), intent(in) :: dofmap
+       type(coef_t), intent(in) :: coef
+       type(json_file), intent(inout) :: json
+     end subroutine les_model_factory
+  end interface
+
+  public :: les_model_factory
+  
 contains
   !> Constructor for the les_model_t (base) class.
   !! @param dofmap SEM map of degrees of freedom.

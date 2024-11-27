@@ -18,9 +18,9 @@
 /**
  * Return the systems' CPU id
  */ 
-void system_cpuid(char *name, int len) {  
+void system_cpuid(char *name, size_t len) {  
 #if defined(__APPLE__)
-  sysctlbyname("machdep.cpu.brand_string", name,(size_t *) &len, NULL, 0);
+  sysctlbyname("machdep.cpu.brand_string", name, &len, NULL, 0);
 #elif defined(__x86_64__) && defined(HAVE_CPUID_H)
   uint32_t brand[12];
   __get_cpuid(0x80000002, brand+0x0, brand+0x1, brand+0x2, brand+0x3);

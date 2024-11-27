@@ -1,0 +1,638 @@
+module gather_scatter_parallel
+  use mpi
+  use pfunit
+  use dofmap
+  use space
+  use mesh
+  use num_types
+  use field
+  use math
+  use hex
+  use point
+  use datadist
+  use gather_scatter
+  use device
+  use neko_config  
+  use comm, only : NEKO_COMM, pe_rank, pe_size 
+  implicit none
+  
+contains
+  @test(npes=[1])
+  subroutine test_dofmap_face12(this)
+    class (MpiTestMethod), intent(inout) :: this
+    type(dofmap_t) :: d
+    type(mesh_t) :: m
+    type(field_t) :: x
+    type(gs_t) :: gs_h
+    type(linear_dist_t) :: dist
+    type(space_t) :: Xh
+    type(point_t) :: p(12)
+    integer :: ierr, i,j, lx, n
+    integer, parameter :: gdim = 3
+    lx = 5
+    
+    call device_init
+    
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    dist = linear_dist_t(2, this%getProcessRank(), &
+         this%getNumProcesses(), NEKO_COMM)
+
+    p(1) = point_t(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    p(2) = point_t(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    p(3) = point_t(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    p(4) = point_t(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    p(5) = point_t(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    p(6) = point_t(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+    p(7) = point_t(0d0, 0d0, 1d0)
+    call p(7)%set_id(7)
+    p(8) = point_t(1d0, 0d0, 1d0)
+    call p(8)%set_id(8)
+    p(9) = point_t(1d0, 1d0, 1d0)
+    call p(9)%set_id(9)
+    p(10) = point_t(0d0, 1d0, 1d0)
+    call p(10)%set_id(10)
+    p(11) = point_t(2d0, 0d0, 1d0)
+    call p(11)%set_id(11)
+    p(12) = point_t(2d0, 1d0, 1d0)
+    call p(12)%set_id(12)
+
+    call m%init(gdim, dist)
+    Call Xh%init(GLL, lx,lx,lx)
+
+    call m%add_element(1, p(1), p(2), p(4), p(3), &
+         p(5), p(6), p(8), p(7))
+
+    call m%add_element(2, p(2), p(9), p(3), p(10), &
+         p(6), p(11), p(7), p(12))
+
+    call m%generate_conn()
+
+    call d%init(m, Xh)
+    call gs_h%init(d)
+    call x%init(m, Xh, "x")   
+    n = Xh%lx * Xh%ly * Xh%lz * m%nelv
+    call rone(x%x, n)
+    call add2(x%x,real(d%dof,rp), n/2)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
+    end if
+
+    call gs_h%op(x%x, n, GS_OP_ADD)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
+    end if
+            
+    do i = 1,lx
+      do j = 1,lx
+      @assertEqual(x%x(lx,j,i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
+      enddo
+    enddo 
+
+    call device_finalize
+    
+  end subroutine test_dofmap_face12
+
+
+  @test(npes=[1])
+  subroutine test_dofmap_face15(this)
+    class (MpiTestMethod), intent(inout) :: this
+    type(dofmap_t) :: d
+    type(mesh_t) :: m
+    type(field_t) :: x
+    type(gs_t) :: gs_h
+    type(linear_dist_t) :: dist
+    type(space_t) :: Xh
+    type(point_t) :: p(12)
+    integer :: ierr, i,j, lx, n
+    integer, parameter :: gdim = 3
+    lx = 5
+    
+    call device_init
+    
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    dist = linear_dist_t(2, this%getProcessRank(), &
+         this%getNumProcesses(), NEKO_COMM)
+
+    p(1) = point_t(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    p(2) = point_t(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    p(3) = point_t(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    p(4) = point_t(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    p(5) = point_t(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    p(6) = point_t(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+    p(7) = point_t(0d0, 0d0, 1d0)
+    call p(7)%set_id(7)
+    p(8) = point_t(1d0, 0d0, 1d0)
+    call p(8)%set_id(8)
+    p(9) = point_t(1d0, 1d0, 1d0)
+    call p(9)%set_id(9)
+    p(10) = point_t(0d0, 1d0, 1d0)
+    call p(10)%set_id(10)
+    p(11) = point_t(2d0, 0d0, 1d0)
+    call p(11)%set_id(11)
+    p(12) = point_t(2d0, 1d0, 1d0)
+    call p(12)%set_id(12)
+
+    call m%init(gdim, dist)
+    Call Xh%init(GLL, lx,lx,lx)
+
+
+    call m%add_element(1, p(5), p(1), p(8), p(4), &
+         p(6), p(2), p(7), p(3))
+    call m%add_element(2, p(2), p(9), p(3), p(10), &
+         p(6), p(11), p(7), p(12))
+    call m%generate_conn()
+
+    call d%init(m, Xh)
+    call gs_h%init(d)
+    call x%init(m, Xh, "x")   
+    n = Xh%lx * Xh%ly * Xh%lz * m%nelv
+    call rone(x%x, n)
+    call add2(x%x,real(d%dof,rp), n/2)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
+    end if
+    
+    call gs_h%op(x%x, n, GS_OP_ADD)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
+    end if
+    
+    do i = 1,lx
+      do j = 1,lx
+      @assertEqual(x%x(lx+1-i,j,lx,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
+      enddo
+    enddo 
+
+    call device_finalize
+    
+  end subroutine test_dofmap_face15
+
+  @test(npes=[1])
+  subroutine test_dofmap_face11(this)
+    class (MpiTestMethod), intent(inout) :: this
+    type(dofmap_t) :: d
+    type(mesh_t) :: m
+    type(field_t) :: x
+    type(gs_t) :: gs_h
+    type(linear_dist_t) :: dist
+    type(space_t) :: Xh
+    type(point_t) :: p(12)
+    integer :: ierr, i,j, lx, n
+    integer, parameter :: gdim = 3
+    lx = 5
+    
+    call device_init
+    
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    dist = linear_dist_t(2, this%getProcessRank(), &
+         this%getNumProcesses(), NEKO_COMM)
+
+    p(1) = point_t(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    p(2) = point_t(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    p(3) = point_t(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    p(4) = point_t(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    p(5) = point_t(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    p(6) = point_t(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+    p(7) = point_t(0d0, 0d0, 1d0)
+    call p(7)%set_id(7)
+    p(8) = point_t(1d0, 0d0, 1d0)
+    call p(8)%set_id(8)
+    p(9) = point_t(1d0, 1d0, 1d0)
+    call p(9)%set_id(9)
+    p(10) = point_t(0d0, 1d0, 1d0)
+    call p(10)%set_id(10)
+    p(11) = point_t(2d0, 0d0, 1d0)
+    call p(11)%set_id(11)
+    p(12) = point_t(2d0, 1d0, 1d0)
+    call p(12)%set_id(12)
+
+    call m%init(gdim, dist)
+    Call Xh%init(GLL, lx,lx,lx)
+
+
+    call m%add_element(1, p(7), p(8), p(6), p(5), &
+         p(3), p(4), p(2), p(1))
+    call m%add_element(2, p(2), p(9), p(3), p(10), &
+         p(6), p(11), p(7), p(12))
+
+    call m%generate_conn()
+    call d%init(m, Xh)
+    call gs_h%init(d)
+    call x%init(m, Xh, "x")   
+    n = Xh%lx * Xh%ly * Xh%lz * m%nelv
+    call rone(x%x, n)
+    call add2(x%x,real(d%dof,rp), n/2)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
+    end if
+    
+    call gs_h%op(x%x, n, GS_OP_ADD)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
+    end if
+    
+    do i = 1,lx
+      do j = 1,lx
+      @assertEqual(x%x(1,lx+1-j,lx+1-i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
+      enddo
+    enddo 
+
+    call device_finalize
+    
+  end subroutine test_dofmap_face11
+
+  @test(npes=[1])
+  subroutine test_dofmap_face11rot(this)
+    class (MpiTestMethod), intent(inout) :: this
+    type(dofmap_t) :: d
+    type(mesh_t) :: m
+    type(field_t) :: x
+    type(gs_t) :: gs_h
+    type(linear_dist_t) :: dist
+    type(space_t) :: Xh
+    type(point_t) :: p(12)
+    integer :: ierr, i,j, lx, n
+    integer, parameter :: gdim = 3
+    lx = 5
+    
+    call device_init
+    
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    dist = linear_dist_t(2, this%getProcessRank(), &
+         this%getNumProcesses(), NEKO_COMM)
+
+    p(1) = point_t(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    p(2) = point_t(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    p(3) = point_t(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    p(4) = point_t(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    p(5) = point_t(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    p(6) = point_t(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+    p(7) = point_t(0d0, 0d0, 1d0)
+    call p(7)%set_id(7)
+    p(8) = point_t(1d0, 0d0, 1d0)
+    call p(8)%set_id(8)
+    p(9) = point_t(1d0, 1d0, 1d0)
+    call p(9)%set_id(9)
+    p(10) = point_t(0d0, 1d0, 1d0)
+    call p(10)%set_id(10)
+    p(11) = point_t(2d0, 0d0, 1d0)
+    call p(11)%set_id(11)
+    p(12) = point_t(2d0, 1d0, 1d0)
+    call p(12)%set_id(12)
+
+    call m%init(gdim, dist)
+    Call Xh%init(GLL, lx,lx,lx)
+
+
+    call m%add_element(1, p(6), p(5), p(7), p(8), &
+         p(2), p(1), p(3), p(4))
+    call m%add_element(2, p(2), p(9), p(3), p(10), &
+         p(6), p(11), p(7), p(12))
+
+    call m%generate_conn()
+    call d%init(m, Xh)
+    call gs_h%init(d)
+    call x%init(m, Xh, "x")   
+    n = Xh%lx * Xh%ly * Xh%lz * m%nelv
+    call rone(x%x, n)
+    call add2(x%x,real(d%dof,rp), n/2)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
+    end if
+    
+    call gs_h%op(x%x, n, GS_OP_ADD)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
+    end if
+    
+    do i = 1,lx
+      do j = 1,lx
+      @assertEqual(x%x(1,j,lx+1-i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
+      enddo
+   enddo
+
+   call device_finalize
+
+  end subroutine test_dofmap_face11rot
+
+  @test(npes=[1])
+  subroutine test_dofmap_face16(this)
+    class (MpiTestMethod), intent(inout) :: this
+    type(dofmap_t) :: d
+    type(mesh_t) :: m
+    type(field_t) :: x
+    type(gs_t) :: gs_h
+    type(linear_dist_t) :: dist
+    type(space_t) :: Xh
+    type(point_t) :: p(12)
+    integer :: ierr, i,j, lx, n
+    integer, parameter :: gdim = 3
+    lx = 5
+    
+    call device_init
+    
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    dist = linear_dist_t(2, this%getProcessRank(), &
+         this%getNumProcesses(), NEKO_COMM)
+
+    p(1) = point_t(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    p(2) = point_t(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    p(3) = point_t(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    p(4) = point_t(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    p(5) = point_t(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    p(6) = point_t(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+    p(7) = point_t(0d0, 0d0, 1d0)
+    call p(7)%set_id(7)
+    p(8) = point_t(1d0, 0d0, 1d0)
+    call p(8)%set_id(8)
+    p(9) = point_t(1d0, 1d0, 1d0)
+    call p(9)%set_id(9)
+    p(10) = point_t(0d0, 1d0, 1d0)
+    call p(10)%set_id(10)
+    p(11) = point_t(2d0, 0d0, 1d0)
+    call p(11)%set_id(11)
+    p(12) = point_t(2d0, 1d0, 1d0)
+    call p(12)%set_id(12)
+
+    call m%init(gdim, dist)
+    Call Xh%init(GLL, lx,lx,lx)
+
+
+    call m%add_element(1, p(2), p(6), p(3), p(7), &
+         p(1), p(5), p(4), p(8))
+    call m%add_element(2, p(2), p(9), p(3), p(10), &
+         p(6), p(11), p(7), p(12))
+
+    call m%generate_conn()
+    call d%init(m, Xh)
+    call gs_h%init(d)
+    call x%init(m, Xh, "x")   
+    n = Xh%lx * Xh%ly * Xh%lz * m%nelv
+    call rone(x%x, n)    
+    call add2(x%x,real(d%dof,rp), n/2)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
+    end if
+    
+    call gs_h%op(x%x, n, GS_OP_ADD)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
+    end if
+    
+    do i = 1,lx
+      do j = 1,lx
+      @assertEqual(x%x(i,j,1,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
+      enddo
+   enddo
+
+   call device_finalize
+
+  end subroutine test_dofmap_face16
+
+  @test(npes=[1])
+  subroutine test_dofmap_face13(this)
+    class (MpiTestMethod), intent(inout) :: this
+    type(dofmap_t) :: d
+    type(mesh_t) :: m
+    type(field_t) :: x
+    type(gs_t) :: gs_h
+    type(linear_dist_t) :: dist
+    type(space_t) :: Xh
+    type(point_t) :: p(12)
+    integer :: ierr, i,j, lx, n
+    integer, parameter :: gdim = 3
+    lx = 5
+    
+    call device_init
+    
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    dist = linear_dist_t(2, this%getProcessRank(), &
+         this%getNumProcesses(), NEKO_COMM)
+
+    p(1) = point_t(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    p(2) = point_t(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    p(3) = point_t(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    p(4) = point_t(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    p(5) = point_t(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    p(6) = point_t(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+    p(7) = point_t(0d0, 0d0, 1d0)
+    call p(7)%set_id(7)
+    p(8) = point_t(1d0, 0d0, 1d0)
+    call p(8)%set_id(8)
+    p(9) = point_t(1d0, 1d0, 1d0)
+    call p(9)%set_id(9)
+    p(10) = point_t(0d0, 1d0, 1d0)
+    call p(10)%set_id(10)
+    p(11) = point_t(2d0, 0d0, 1d0)
+    call p(11)%set_id(11)
+    p(12) = point_t(2d0, 1d0, 1d0)
+    call p(12)%set_id(12)
+
+    call m%init(gdim, dist)
+    Call Xh%init(GLL, lx,lx,lx)
+
+
+    call m%add_element(1, p(4), p(1), p(3), p(2), &
+         p(8), p(5), p(7), p(6))
+    call m%add_element(2, p(2), p(9), p(3), p(10), &
+         p(6), p(11), p(7), p(12))
+
+    call m%generate_conn()
+    call d%init(m, Xh)
+    call gs_h%init(d)
+    call x%init(m, Xh, "x")   
+    n = Xh%lx * Xh%ly * Xh%lz * m%nelv
+    call rone(x%x, n)
+    call add2(x%x,real(d%dof,rp), n/2)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
+    end if
+    
+    call gs_h%op(x%x, n, GS_OP_ADD)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
+    end if
+    
+    do i = 1,lx
+      do j = 1,lx
+      @assertEqual(x%x(lx+1-j,lx,i,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
+      enddo
+    enddo 
+
+    call device_finalize
+    
+  end subroutine test_dofmap_face13
+
+  @test(npes=[1])
+  subroutine test_dofmap_face14(this)
+    class (MpiTestMethod), intent(inout) :: this
+    type(dofmap_t) :: d
+    type(mesh_t) :: m
+    type(field_t) :: x
+    type(gs_t) :: gs_h
+    type(linear_dist_t) :: dist
+    type(space_t) :: Xh
+    type(point_t) :: p(12)
+    integer :: ierr, i,j, lx, n
+    integer, parameter :: gdim = 3
+    lx = 5
+    
+    call device_init
+    
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+
+    dist = linear_dist_t(2, this%getProcessRank(), &
+         this%getNumProcesses(), NEKO_COMM)
+
+    p(1) = point_t(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    p(2) = point_t(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    p(3) = point_t(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    p(4) = point_t(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    p(5) = point_t(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    p(6) = point_t(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+    p(7) = point_t(0d0, 0d0, 1d0)
+    call p(7)%set_id(7)
+    p(8) = point_t(1d0, 0d0, 1d0)
+    call p(8)%set_id(8)
+    p(9) = point_t(1d0, 1d0, 1d0)
+    call p(9)%set_id(9)
+    p(10) = point_t(0d0, 1d0, 1d0)
+    call p(10)%set_id(10)
+    p(11) = point_t(2d0, 0d0, 1d0)
+    call p(11)%set_id(11)
+    p(12) = point_t(2d0, 1d0, 1d0)
+    call p(12)%set_id(12)
+
+    call m%init(gdim, dist)
+    Call Xh%init(GLL, lx,lx,lx)
+
+
+    call m%add_element(1, p(2), p(3), p(1), p(4), &
+         p(6), p(7), p(5), p(8))
+    call m%add_element(2, p(2), p(9), p(3), p(10), &
+         p(6), p(11), p(7), p(12))
+
+    call m%generate_conn()
+    call d%init(m, Xh)
+    call gs_h%init(d)
+    call x%init(m, Xh, "x")   
+    n = Xh%lx * Xh%ly * Xh%lz * m%nelv
+    call rone(x%x, n)
+    call add2(x%x,real(d%dof,rp), n/2)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
+    end if
+    
+    call gs_h%op(x%x, n, GS_OP_ADD)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
+    end if
+    
+    do i = 1,lx
+      do j = 1,lx
+      @assertEqual(x%x(j,1,i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
+      enddo
+    enddo 
+
+    call device_finalize
+    
+  end subroutine test_dofmap_face14
+  
+end module gather_scatter_parallel

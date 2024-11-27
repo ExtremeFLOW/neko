@@ -70,13 +70,14 @@ module cheby_device
 contains
 
   !> Initialise a standard solver
-  subroutine cheby_device_init(this, n, max_iter, M, rel_tol, abs_tol)
+  subroutine cheby_device_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
     class(cheby_device_t), intent(inout), target :: this
     integer, intent(in) :: max_iter
-    class(pc_t), optional, intent(inout), target :: M
+    class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
-    real(kind=rp), optional, intent(inout) :: rel_tol
-    real(kind=rp), optional, intent(inout) :: abs_tol
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
+    logical, optional, intent(in) :: monitor
 
     call this%free()
     allocate(this%d(n))
@@ -91,12 +92,20 @@ contains
        this%M => M
     end if
 
-    if (present(rel_tol) .and. present(abs_tol)) then
+    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
+    else if (present(monitor) .and. present(abs_tol)) then
+       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
     else if (present(rel_tol)) then
        call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
        call this%ksp_init(max_iter, abs_tol = abs_tol)
+    else if (present(monitor)) then
+       call this%ksp_init(max_iter, monitor = monitor)
     else
        call this%ksp_init(max_iter)
     end if
@@ -144,11 +153,11 @@ contains
 
   subroutine cheby_device_power(this, Ax, x, n, coef, blst, gs_h)
     class(cheby_device_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    type(bc_list_t), intent(in) :: blst
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp) :: lam, b, a, rn
     real(kind=rp) :: boost = 1.2_rp
@@ -199,12 +208,12 @@ contains
   function cheby_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
        result(ksp_results)
     class(cheby_device_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: f
+    real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    type(bc_list_t), intent(in) :: blst
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -257,8 +266,12 @@ contains
 
         call this%M%solve(w, r, n)
 
-        b = (this%dlt * a / 2.0_rp)**2
-        a = 1.0_rp / (this%tha - b)
+        if (iter .eq. 2) then
+          b = 0.5_rp * (this%dlt * a)**2
+        else
+          b = (this%dlt * a / 2.0_rp)**2
+        end if
+        a = 1.0_rp/(this%tha - b/a)
         call device_add2s1(d_d, w_d, b, n)! d = w + b*d
 
         call device_add2s2(x%x_d, d_d, a, n)! x = x + a*d
@@ -281,18 +294,18 @@ contains
   function cheby_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
     class(cheby_device_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: fx
-    real(kind=rp), dimension(n), intent(inout) :: fy
-    real(kind=rp), dimension(n), intent(inout) :: fz
+    real(kind=rp), dimension(n), intent(in) :: fx
+    real(kind=rp), dimension(n), intent(in) :: fy
+    real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    type(bc_list_t), intent(in) :: blstx
+    type(bc_list_t), intent(in) :: blsty
+    type(bc_list_t), intent(in) :: blstz
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter

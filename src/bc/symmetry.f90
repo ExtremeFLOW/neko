@@ -70,6 +70,9 @@ contains
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
 
+    call this%bc_x%free()
+    call this%bc_y%free()
+    call this%bc_z%free()
     call this%bc_x%init_base(this%coef)
     call this%bc_y%init_base(this%coef)
     call this%bc_z%init_base(this%coef)

@@ -28,19 +28,24 @@ in Neko. The list will be updated as new simcomps are added.
 - Probing of fields at selected points \ref simcomp_probes
 - Output of registered fields to an `.fld` file \ref simcomp_field_writer
 - Computation of the derivative of a field \ref simcomp_derivative
+- Computation of forces and torque on a surface \ref simcomp_force_torque
 - Computation of the weak gradient of a field \ref simcomp_weak_grad
 - User defined components \ref user-file_simcomps
+- Fluid statistics simcomp, "fluid_stats", for more details see the [statistics guide](@ref statistics-guide)
+- Computation of the spectral error indicator \ref simcomp_speri
 
 ## Controling execution and file output
 Each simulation component is, by default, executed once per time step to perform
 associated computations and output. However, this can be modified by using the
 `compute_control` and `compute_value` parameters for the computation and the
-`output_control and` and `output_value` for the output to disk. The parameters
+`output_control` and `output_value` for the output to disk. The parameters
 for the `_control` values are the same as for the fluid and checkpointing.
 Additionally, one can set `output_control` to `global` and `never`. The former
 will sync the `output_` parameter to that of the fluid. Choosing `never` will
 suppress output all together. If no parameters for the `output_` parameters are
- provided, they are set to be the same as for `compute_`.
+provided, they are set to be the same as for `compute_`. In order to simplify
+the configuration, the `compute_control` can be set to `fluid_output` to sync
+the computation to the fluid output. 
 
 For simcomps that compute 3D fields, the output can be either added to the main
 `.fld` file, containing velocity and pressure, or saved to a separate file. For
@@ -61,13 +66,25 @@ vorticity fields will be added to the main `.fld` file.
 
 ### vorticity {#simcomp_vorticity}
 Computes the vorticity field an stores in the field registry as `omega_x`,
-`omega_y` and `omega_z`.
-Currently produces no output.
+`omega_y` and `omega_z`. By default, appends the 3 vorticity fields to the field files as 
+scalars. To output in a different `fld` series, use the `"output_filename"` parameter.
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "vorticity"
+ }
+ ~~~~~~~~~~~~~~~
 
 ### lambda2 {#simcomp_lambda2}
 Computes \f$ \lambda_2 \f$ for the velocity field and stores it in the normal output files as the first unused field.
 This means that \f$ \lambda_2 \f$ can be found in the temperature field in then fld files if running without a scalar
-and s1 if neko is run with one scalar.
+and s1 if neko is run with one scalar. To output in a different `fld` series, use the `"output_filename"` parameter.
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "lambda2"
+ }
+ ~~~~~~~~~~~~~~~
 
 ### probes {#simcomp_probes}
 Probes selected solution fields at a list of points. This list of points can be
@@ -197,22 +214,42 @@ field to derivate is controlled by the `field` keyword and the direction by the
 `direction` keyword. The simcomp will register the computed derivatives in the
 registry as `d[field]_d[direction]`, where the values in the brackets
 correspond to the choice of the user keywords. Supports writing the computed
-fields to disk via the usual common keywords.
+fields to disk via the usual common keywords. The resulting field will be
+appended as a scalar to the field files. To output in a different `fld` series, 
+use the `"output_filename"` parameter.
 
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "derivative",
    "field": "u",
-   "direction", "y",
-   "output_control" : "simulation_time",
-   "output_value" : 1.0
+   "direction": "y"
  }
  ~~~~~~~~~~~~~~~
- 
+
+### force_torque {#simcomp_force_torque}
+Computes the force on a specified zone and the corresponding torque
+around a center point. The compute control specifies how often they are
+computed and printed into the log. Scale specifies a scale for the computed
+force/torque. Conventient if one wants to scale with the area or similar. long_print is default false and can be set to true to print all digits in the calculation.
+Subroutines used in the simcomp can be found in src/qoi/drag_torque.f90
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "force_torque",
+   "zone_id": 1,
+   "center": [0.0, 0.0, 0.0],
+   "zone_name": "some chosen name, optional",
+   "scale": 1.0
+   "long_print" : false
+   "compute_control" : "tsteps",
+   "compute_value" : 10
+ }
+ ~~~~~~~~~~~~~~~
+
 ### weak_grad {#simcomp_weak_grad}
 Computes the weak gradient of a field. The weak gradient is value of the
-gradeint multiplied by the local value of the mass matrix. This is how a
-gradient term appears in the weak formulation of the governing equations The
+gradient multiplied by the local value of the mass matrix. This is how a
+gradient term appears in the weak formulation of the governing equations. The
 field to derivate is controlled by the `field` keyword. The simcomp will
 register the computed components of the gradients in the registry as
 `weak_grad_[field]_x`, `weak_grad_[field]_y`, `weak_grad_[field]_z` where the
@@ -224,5 +261,20 @@ writing the computed fields to disk via the usual common keywords.
    "type": "weak_gradient"
    "field": "u",
    "output_control" : "never"
+ }
+ ~~~~~~~~~~~~~~~
+
+### Spectral error indicator {#simcomp_speri}
+
+Computes the spectral error indicator as developed by Mavriplis (1989) (https://doi.org/10.1007/978-3-663-13975-1_34).
+This is an a posteriori error measure, based on the local properties of
+the spectral solution. This method formally only gives an indication of the error.
+
+The spectral error indicator is computed for the 3 velocity fields, resulting
+in 3 additional fields appended to the field files.
+
+~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "spectral_error"
  }
  ~~~~~~~~~~~~~~~
