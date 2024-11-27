@@ -527,7 +527,7 @@ contains
   !! @param t Current time.
   !! @param tstep Current time-step.
   subroutine bc_list_apply_scalar(bclst, x, n, t, tstep)
-    type(bc_list_t), intent(inout) :: bclst
+    type(bc_list_t), intent(in) :: bclst
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
@@ -584,7 +584,7 @@ contains
   !! @param t Current time.
   !! @param tstep Current time-step.
   subroutine bc_list_apply_vector(bclst, x, y, z, n, t, tstep)
-    type(bc_list_t), intent(inout) :: bclst
+    type(bc_list_t), intent(in) :: bclst
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(inout),  dimension(n) :: y
