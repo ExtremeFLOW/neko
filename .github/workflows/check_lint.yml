@@ -140,6 +140,8 @@ jobs:
               continue
             fi
 
+            flint score -r flinter_rc.yml $(realpath $file)
+
             printf "\t- $file"
             score=$(flint score -r flinter_rc.yml $(realpath $file) 2> /dev/null |
                   awk -F'[|]' '{print $2}')
