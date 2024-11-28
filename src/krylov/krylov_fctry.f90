@@ -54,7 +54,7 @@ submodule (krylov) krylov_fctry
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KSP_KNOWN_TYPES(8) = [character(len=20) :: &
+  character(len=20) :: KSP_KNOWN_TYPES(9) = [character(len=20) :: &
      "cg", &
      "pipecg", &
      "fusedcg", &
@@ -62,7 +62,8 @@ submodule (krylov) krylov_fctry
      "gmres", &
      "cheby", &
      "bicgstab", &
-     "cpldcg"]
+     "fusedcoupledcg", &
+     "coupledcg"]
 
 contains
 
@@ -76,7 +77,7 @@ contains
   !! @param monitor Enable/disable residual history, optional.
   module subroutine krylov_solver_factory(object, n, type_name, &
        max_iter, abstol, M, monitor)
-    class(ksp_t), allocatable, target, intent(inout) :: object
+    class(ksp_t), allocatable, intent(inout) :: object
     integer, intent(in), value :: n
     character(len=*), intent(in) :: type_name
     integer, intent(in) :: max_iter
@@ -98,7 +99,7 @@ contains
        else
           allocate(cg_t::object)
        end if
-    else if (trim(type_name) .eq. 'cpldcg') then
+    else if (trim(type_name) .eq. 'coupledcg') then
        allocate(cg_cpld_t::object)
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call neko_error('Coupled CG only supported for CPU')
@@ -123,7 +124,7 @@ contains
        else
           call neko_error('FusedCG only supported for CUDA/HIP')
        end if
-    else if (trim(type_name) .eq. 'fcpldcg') then
+    else if (trim(type_name) .eq. 'fusedcoupledcg') then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           if (NEKO_BCKND_OPENCL .eq. 1) then
              call neko_error('Coupled FusedCG not supported for OpenCL')
