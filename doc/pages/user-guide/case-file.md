@@ -25,7 +25,6 @@ The current high-level structure of the case file is shown below.
         "numerics": {}
         "fluid": {}
         "scalar": {}
-        "statistics": {}
         "simulation_components" : []
         "point_zones" : []
     }
@@ -669,17 +668,6 @@ of using source terms for the scalar can be found in the `scalar_mms` example.
 | `gradient_jump_penalty`   | Array of JSON objects, defining additional gradient jump penalty. | See list of gradient jump penalty above | -  |
 | `advection`               | Whether to compute the advetion term.                    | `true` or `false`               | `true`        |
 
-## Statistics
-
-This object adds the collection of statistics for the fluid fields. For
-additional details on the workflow, see the
-[corresponding page](@ref statistics-guide) in the user manual.
-
-| Name                | Description                                                          | Admissible values | Default value |
-| ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
-| `enabled`           | Whether to enable the statistics computation.                        | `true` or `false` | `true`        |
-| `start_time`        | Time at which to start gathering statistics.                         | Positive real     | 0             |
-| `sampling_interval` | Interval, in timesteps, for sampling the flow fields for statistics. | Positive integer  | 10            |
 
 ## Simulation components
 Simulation components enable the user to perform various additional operations,
