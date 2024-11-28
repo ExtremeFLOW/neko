@@ -142,7 +142,7 @@ jobs:
 
             printf "\t- $file"
             score=$(flint score -r flinter_rc.yml $(realpath $file) 2> /dev/null |
-                  awk -F'[|]' '{print $2}'
+                  awk -F'[|]' '{print $2}')
             printf ": $score\n"
 
             if (($(echo "$score < 10" | bc -l))); then
