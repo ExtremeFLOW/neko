@@ -47,7 +47,7 @@ submodule (simulation_component) simulation_component_fctry
   use spectral_error, only: spectral_error_t
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SIMCOMPS_KNOWN_TYPES(8) = [character(len=20) :: &
+  character(len=20) :: SIMCOMPS_KNOWN_TYPES(9) = [character(len=20) :: &
      "vorticity", &
      "lambda2", &
      "veldiv", &

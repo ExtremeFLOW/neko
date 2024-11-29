@@ -58,9 +58,9 @@ module veldiv
      !> X veldiv component.
      type(field_t), pointer :: veldiv
 
-     !> Work arrays.
-     type(field_t) :: temp1
-     type(field_t) :: temp2
+!!     !> Work arrays.
+!!     type(field_t) :: temp1
+!!     type(field_t) :: temp2
 
      !> Output writer.
      type(field_writer_t) :: writer
@@ -94,10 +94,14 @@ contains
 
     call this%init_base(json, case)
     call this%writer%init(json, case)
-    u => neko_field_registry%get_field("u")
-    v => neko_field_registry%get_field("v")
-    w => neko_field_registry%get_field("w")
-    veldiv => neko_field_registry%get_field("veldiv")
+    u => neko_field_registry%get_field_by_name("u")
+    v => neko_field_registry%get_field_by_name("v")
+    w => neko_field_registry%get_field_by_name("w")
+    veldiv => neko_field_registry%get_field_by_name("veldiv")
+!!     u => neko_field_registry%get_field("u")
+!!     v => neko_field_registry%get_field("v")
+!!     w => neko_field_registry%get_field("w")
+!!     veldiv => neko_field_registry%get_field("veldiv")
 
     call veldiv_init_from_attributes(this, u, v, w, veldiv)
   end subroutine veldiv_init_from_json
@@ -107,10 +111,15 @@ contains
     class(veldiv_t), intent(inout) :: this
     type(field_t), pointer, intent(inout) :: u, v, w, veldiv
 
-    this%u => u
-    this%v => v
-    this%w => w
-    this%veldiv => veldiv
+    this%u => neko_field_registry%get_field_by_name("u")
+    this%v => neko_field_registry%get_field_by_name("v")
+    this%w => neko_field_registry%get_field_by_name("w")
+    this%veldiv => neko_field_registry%get_field_by_name("veldiv")
+
+!!    this%u => u
+!!    this%v => v
+!!    this%w => w
+!!    this%veldiv => veldiv
 
   end subroutine veldiv_init_from_attributes
 
@@ -128,7 +137,8 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    call div(this%veldiv, this%u, this%v, this%w, this%case%fluid%c_Xh)
+!!    call div(this%veldiv, this%u, this%v, this%w, this%case%fluid%c_Xh)
+    call div(this%veldiv%x, this%u%x, this%v%x, this%w%x, this%case%fluid%c_Xh)
 
   end subroutine veldiv_compute
 
