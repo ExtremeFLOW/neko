@@ -37,6 +37,7 @@ submodule (simulation_component) simulation_component_fctry
   use force_torque, only : force_torque_t
   use fluid_stats_simcomp, only : fluid_stats_simcomp_t
   use lambda2, only : lambda2_t
+  use veldiv, only : veldiv_t
   use probes, only : probes_t
   use les_simcomp, only : les_simcomp_t
   use utils, only : concat_string_array, neko_error
@@ -49,6 +50,7 @@ submodule (simulation_component) simulation_component_fctry
   character(len=20) :: SIMCOMPS_KNOWN_TYPES(8) = [character(len=20) :: &
      "vorticity", &
      "lambda2", &
+     "veldiv", &
      "probes", &
      "les_model", &
      "field_writer", &
@@ -80,6 +82,8 @@ contains
        allocate(vorticity_t::object)
     else if (trim(type_name) .eq. "lambda2") then
        allocate(lambda2_t::object)
+    else if (trim(type_name) .eq. "veldiv") then
+       allocate(veldiv_t::object)
     else if (trim(type_name) .eq. "probes") then
        allocate(probes_t::object)
     else if (trim(type_name) .eq. "les_model") then
