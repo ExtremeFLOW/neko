@@ -205,7 +205,7 @@ contains
           dk = sqrt(dk)
           this%delta%x(:,:,:,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
        end do
-    else if (this%delta_type .eq. "elementwise_avg") then
+    else if (this%delta_type .eq. "elementwise_average") then
        ! use a same length scale throughout an entire element
        ! the length scale is based on the average GLL spacing
        do e = 1, this%coef%msh%nelv
