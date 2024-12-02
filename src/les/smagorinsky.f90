@@ -43,6 +43,7 @@ module smagorinsky
   use neko_config, only : NEKO_BCKND_DEVICE
   use smagorinsky_cpu, only : smagorinsky_compute_cpu
   use coefs, only : coef_t
+  use logger, only : LOG_SIZE, neko_log
   implicit none
   private
 
@@ -76,10 +77,20 @@ contains
     character(len=:), allocatable :: nut_name
     real(kind=rp) :: c_s
     character(len=:), allocatable :: delta_type
+    character(len=LOG_SIZE) :: log_buf
 
     call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     call json_get_or_default(json, "c_s", c_s, 0.17_rp)
+
+    call neko_log%section('LES model')
+    write(log_buf, '(A)') 'Model : Smagorinsky'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Delta evaluation : ', delta_type
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'c_s : ', c_s
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
 
     call smagorinsky_init_from_components(this, dofmap, coef, c_s, nut_name, &
           delta_type)
