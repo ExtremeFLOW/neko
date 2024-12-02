@@ -115,6 +115,7 @@ neko_fortran_SOURCES = \
 	multigrid/tree_amg_aggregate.f90\
 	multigrid/tree_amg_multigrid.f90\
 	multigrid/tree_amg_smoother.f90\
+	multigrid/phmg.f90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\

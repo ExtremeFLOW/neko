@@ -59,6 +59,7 @@ module fluid_scheme
   use sx_jacobi, only : sx_jacobi_t
   use device_jacobi, only : device_jacobi_t
   use hsmg, only : hsmg_t
+  use phmg, only : phmg_t
   use precon, only : pc_t, precon_factory, precon_destroy
   use fluid_stats, only : fluid_stats_t
   use bc, only : bc_t, bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
@@ -1031,6 +1032,8 @@ contains
        else
           call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
        end if
+    type is (phmg_t)
+       call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
     end select
 
     call ksp%set_pc(pc)
