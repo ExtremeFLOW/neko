@@ -64,6 +64,7 @@ module tree_amg
     integer :: fine_lvl_dofs = 0 !< Number of dofs on the level(TODO:sum of dofs on each node?)
     real(kind=rp), allocatable :: wrk_in(:) !< Work vector for data coming into the level
     real(kind=rp), allocatable :: wrk_out(:) !< Work vector for data leaving the level
+    integer, allocatable :: map_f2c_dof(:)
   end type tamg_lvl_t
 
   !> Type for a TreeAMG hierarchy
@@ -243,94 +244,44 @@ contains
   end subroutine tamg_matvec_impl
 
 
-  !> Ignore this. Looking at a nonrecursive version of the above impl
-  recursive subroutine tamg_matvec_flat_impl(this, vec_out, vec_in, lvl_blah, lvl_out)
+  !> Ignore this. For piecewise constant, can create index map directly to finest level
+  recursive subroutine tamg_matvec_flat_impl(this, vec_out, vec_in, lvl, lvl_out)
     class(tamg_hierarchy_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: vec_out(:)
     real(kind=rp), intent(inout) :: vec_in(:)
-    integer, intent(in) :: lvl_blah
+    integer, intent(in) :: lvl
     integer, intent(in) :: lvl_out
-    integer :: i, n, e, nn, lvl
-
-    vec_out = 0d0
-    do lvl = 1, lvl_out+1
-      associate( wrk_in => this%lvl(lvl)%wrk_in, wrk_out => this%lvl(lvl)%wrk_out)
-        wrk_in = 0d0
-        wrk_out = 0d0
-      end associate
-    end do
-
-    !> copy to make things easier to think about
-    do n = 1, this%lvl(lvl_out+1)%nnodes
-      do i = 1, this%lvl(lvl_out+1)%nodes(n)%ndofs
-        associate( wrk_in => this%lvl(lvl_out+1)%wrk_in, node => this%lvl(lvl_out+1)%nodes(n))
-          wrk_in( node%dofs(i) ) = vec_in( node%dofs(i) )
-        end associate
-      end do!i
-    end do!n
-
-    if(lvl_out .gt. 0) then
-      !--do n = 1, this%lvl(lvl_out)%nnodes!> this loop is independent
-        !TODO THIS LOOP INDEX n IS NOT USED..... (probably same problem below)
-        do lvl = lvl_out, 1, -1
-
-          associate( wrk_in => this%lvl(lvl)%wrk_in, wrk_out => this%lvl(lvl)%wrk_out)
-          do nn = 1, this%lvl(lvl)%nnodes
-            associate (node => this%lvl(lvl)%nodes(nn))
-            do i = 1, node%ndofs
-              wrk_in( node%dofs(i) ) = wrk_in( node%dofs(i) ) + this%lvl(lvl+1)%wrk_in( node%gid ) * node%interp_p( i )
-            end do!i
-            end associate
-          end do!nn
-          end associate
-
-        end do!lvl
-      !--end do!n
-    end if
+    integer :: i, n, cdof
 
     associate( wrk_in => this%lvl(1)%wrk_in, wrk_out => this%lvl(1)%wrk_out)
-    !> Do finest level matvec
     n = size(wrk_in)
-    !> Call local finite element assembly
+    wrk_out = 0d0
+    vec_out = 0d0
+
+    !> Map input level to finest level
+    do i = 1, n
+      cdof = this%lvl(lvl)%map_f2c_dof(i)
+      wrk_in(i) = vec_in( cdof )
+    end do
+
+    !> Average on overlapping dofs
     call this%gs_h%op(wrk_in, n, GS_OP_ADD)
     do i = 1, n
       wrk_in(i) = wrk_in(i) * this%coef%mult(i,1,1,1)
     end do
-    !>
+    !> Finest level matvec (Call local finite element assembly)
     call this%ax%compute(wrk_out, wrk_in, this%coef, this%msh, this%Xh)
     !>
     call this%gs_h%op(wrk_out, n, GS_OP_ADD)
     call bc_list_apply(this%blst, wrk_out, n)
     !>
+
+    !> Map finest level matvec back to output level
+    do i = 1, n
+      cdof = this%lvl(lvl)%map_f2c_dof(i)
+      vec_out(cdof) = vec_out(cdof) + wrk_out( i )
+    end do
     end associate
-
-
-    if(lvl_out .gt. 0) then
-      !--do n = 1, this%lvl(lvl_out)%nnodes!> this loop is independent
-        do lvl = 2, lvl_out+1
-
-          associate( wrk_in => this%lvl(lvl)%wrk_in, wrk_out => this%lvl(lvl)%wrk_out)
-          do nn = 1, this%lvl(lvl)%nnodes
-            associate (node => this%lvl(lvl)%nodes(nn))
-            do i = 1, node%ndofs
-              wrk_out( node%gid ) = wrk_out( node%gid ) + this%lvl(lvl-1)%wrk_out( node%dofs(i) ) * node%interp_r( i )
-            end do!i
-            end associate
-          end do!nn
-          end associate
-
-        end do!lvl
-      !--end do!n
-    end if
-
-    !> copy here to make things easier to think about
-    do n = 1, this%lvl(lvl_out+1)%nnodes
-      do i = 1, this%lvl(lvl_out+1)%nodes(n)%ndofs
-        associate( wrk_out => this%lvl(lvl_out+1)%wrk_out, node => this%lvl(lvl_out+1)%nodes(n))
-          vec_out( node%dofs(i) ) = wrk_out( node%dofs(i) )
-        end associate
-      end do!i
-    end do!n
   end subroutine tamg_matvec_flat_impl
 
 

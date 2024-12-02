@@ -94,7 +94,8 @@ contains
     integer, intent(in) :: facet_neigh(:,:)
     integer, intent(in) :: offset_el, n_facet
     integer, intent(inout) :: is_aggregated(:)
-    integer, intent(inout) :: aggregate_size(:)
+    integer, allocatable, intent(inout) :: aggregate_size(:)
+    integer, allocatable :: as_tmp(:)
     real(kind=dp) :: random_value
     integer :: i, side, nhbr
     logical :: no_nhbr_agg
@@ -119,6 +120,11 @@ contains
         if (no_nhbr_agg) then
           naggs = naggs + 1
           is_aggregated(i) = naggs
+          if(size(aggregate_size).lt.naggs) then
+            allocate(as_tmp(naggs + 20))
+            as_tmp(1:size(aggregate_size)) = aggregate_size
+            call move_alloc(as_tmp, aggregate_size)
+          end if
           aggregate_size(naggs) = 1
           do side = 1, n_facet
             nhbr = facet_neigh(side, i) - offset_el
@@ -240,7 +246,7 @@ contains
           if (tst_agg .le. 0) call neko_error("Unaggregated element detected. We do not want to handle that here...")
           if (tst_agg .ne. tnt_agg) then
             agg_added = .false.
-            do j = 1, 20!TODO: this hard-coded value
+            do j = 1, 50!TODO: this hard-coded value
               if ((agg_nhbr(j,tnt_agg) .eq. tst_agg)) then
                 agg_added = .true.
               else if ((agg_nhbr(j,tnt_agg).eq.-1).and.(.not.agg_added)) then
@@ -279,14 +285,14 @@ contains
       n_facet = 6 !> NEKO elements are hexes, thus have 6 face neighbors
       offset_el = tamg%msh%offset_el
     else
-      n_facet = 20!TODO: this hard-coded value. how many neighbors can there be?
+      n_facet = 50!TODO: this hard-coded value. how many neighbors can there be?
       offset_el = 0
     end if
 
     naggs = 0
     n_elements = tamg%lvl(lvl_id-1)%nnodes
     allocate( is_aggregated( n_elements ) )
-    allocate( aggregate_size( max_aggs*2 ) )
+    allocate( aggregate_size( max_aggs ) )
 
     !> fill with false
     is_aggregated = -1
@@ -305,7 +311,7 @@ contains
       is_aggregated, aggregate_size)
 
     if (.true.) then!> if needed on next level...
-      allocate( agg_nhbr(20, max_aggs*2) )!TODO: this hard-coded n_facet value (20)...
+      allocate( agg_nhbr(50, max_aggs*2) )!TODO: this hard-coded n_facet value (20)...
       agg_nhbr = -1
       call agg_fill_nhbr_info(agg_nhbr, n_agg_facet, n_elements, &
         facet_neigh, offset_el, n_facet, &
