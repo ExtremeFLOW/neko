@@ -4,6 +4,7 @@ module fluid_aux
   use num_types, only : rp
   use krylov, only : ksp_monitor_t
   use, intrinsic :: ieee_arithmetic, only: ieee_is_nan
+  use utils, only : neko_error
   implicit none
   private
 
@@ -19,7 +20,6 @@ contains
     real(kind=rp), intent(in) :: t, dt
     character(len=LOG_SIZE) :: log_buf
     integer :: i
-
 
     call neko_log%message('Pressure')
 
@@ -54,11 +54,10 @@ contains
          ksp_results(4)%res_start, ksp_results(4)%res_final
     call neko_log%message(log_buf)
 
-    ! Check for divergence
+    ! Check for convergence
     do i = 1, 4
-       if (ieee_is_nan(ksp_results(i)%res_final)) then
-          call neko_log%error("Fluid solver diverged")
-          stop
+       if (.not. ksp_results(i)%converged) then
+          call neko_error("Fluid solver did not converge")
        end if
     end do
 
