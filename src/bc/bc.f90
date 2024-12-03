@@ -483,7 +483,7 @@ contains
     end do
 
     bclst%n = 0
-    bclst%size = 1
+    bclst%size = n
 
   end subroutine bc_list_init
 
