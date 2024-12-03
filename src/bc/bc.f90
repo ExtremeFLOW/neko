@@ -107,6 +107,9 @@ module bc
      integer :: n
      !> Capacity.
      integer :: size
+   contains
+     procedure, public, pass(this) :: get_size => bc_list_size
+     procedure, public, pass(this) :: is_empty => bc_list_is_empty
   end type bc_list_t
 
   abstract interface
@@ -480,7 +483,7 @@ contains
     end do
 
     bclst%n = 0
-    bclst%size = n
+    bclst%size = 1
 
   end subroutine bc_list_init
 
@@ -498,6 +501,36 @@ contains
     bclst%size = 0
 
   end subroutine bc_list_free
+
+  !> Return number of bcs in the list
+  function bc_list_size(this) result(n)
+    class(bc_list_t), intent(inout) :: this
+    integer :: n
+
+    n = this%n
+
+  end function bc_list_size
+  
+  !> Check if bclist is empty (even if someone has tampered with it)
+  function bc_list_is_empty(this) result(is_empty)
+    class(bc_list_t), intent(inout) :: this
+    logical :: is_empty
+    integer :: i
+    
+    is_empty = .true. 
+    do i = 1, this%get_size()
+
+       if (.not. allocated(this%bc(i)%bcp%msk)) then
+          call neko_error("bc not finalized, error in bc_list_is_empty")
+       end if
+
+       if (this%bc(i)%bcp%msk(0) > 0) is_empty = .false.
+    
+    end do
+
+  end function bc_list_is_empty
+
+
 
   !> Add a condition to a list of boundary conditions
   !! @param bc The boundary condition to add.
