@@ -169,7 +169,7 @@ contains
     class(les_model_t), intent(inout) :: this
     integer :: e, i, j, k
     integer :: im, ip, jm, jp, km, kp
-    real(kind=rp) :: di, dj, dk, ndim_inv
+    real(kind=rp) :: di, dj, dk, ndim_inv, volume_element
     integer :: lx_half, ly_half, lz_half
 
     lx_half = this%coef%Xh%lx / 2
@@ -207,32 +207,16 @@ contains
        end do
     else if (this%delta_type .eq. "elementwise_average") then
        ! use a same length scale throughout an entire element
-       ! the length scale is based on the average GLL spacing
+       ! the length scale is based on (volume)^(1/3)/(N+1)
        do e = 1, this%coef%msh%nelv
-          di = (this%coef%dof%x(1, 1, 1, e) &
-              - this%coef%dof%x(this%coef%Xh%lx, 1, 1, e))**2 &
-             + (this%coef%dof%y(1, 1, 1, e) &
-              - this%coef%dof%y(this%coef%Xh%lx, 1, 1, e))**2 &
-             + (this%coef%dof%z(1, 1, 1, e) &
-              - this%coef%dof%z(this%coef%Xh%lx, 1, 1, e))**2
-
-          dj = (this%coef%dof%x(1, 1, 1, e) &
-              - this%coef%dof%x(1, this%coef%Xh%ly, 1, e))**2 &
-             + (this%coef%dof%y(1, 1, 1, e) &
-              - this%coef%dof%y(1, this%coef%Xh%ly, 1, e))**2 &
-             + (this%coef%dof%z(1, 1, 1, e) &
-              - this%coef%dof%z(1, this%coef%Xh%ly, 1, e))**2
-
-          dk = (this%coef%dof%x(1, 1, 1, e) &
-              - this%coef%dof%x(1, 1, this%coef%Xh%lz, e))**2 &
-             + (this%coef%dof%y(1, 1, 1, e) &
-              - this%coef%dof%y(1, 1, this%coef%Xh%lz, e))**2 &
-             + (this%coef%dof%z(1, 1, 1, e) &
-              - this%coef%dof%z(1, 1, this%coef%Xh%ly, e))**2
-          di = sqrt(di) / (this%coef%Xh%lx - 1)
-          dj = sqrt(dj) / (this%coef%Xh%ly - 1)
-          dk = sqrt(dk) / (this%coef%Xh%lz - 1)
-          this%delta%x(:,:,:,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
+          volume_element = 0.0_rp
+          do k = 1, this%coef%Xh%lx * this%coef%Xh%ly * this%coef%Xh%lz
+             volume_element = volume_element + this%coef%B(k, 1, 1, e)
+          end do
+          this%delta%x(:,:,:,e) = (volume_element / this%coef%Xh%lx &
+                                                  / this%coef%Xh%ly &
+                                                  / this%coef%Xh%lz) &
+                                                  **(1.0_rp / 3.0_rp)                
        end do
     else if (this%delta_type .eq. "pointwise") then
        do e = 1, this%coef%msh%nelv
