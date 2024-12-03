@@ -32,6 +32,7 @@
 !
 !> Fluid formulations
 module fluid_scheme
+  use fluid_base, only : fluid_base_t
   use gather_scatter, only : gs_t
   use mean_sqr_flow, only : mean_sqr_flow_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -86,16 +87,7 @@ module fluid_scheme
   private
 
   !> Base type of all fluid formulations
-  type, abstract :: fluid_scheme_t
-     type(field_t), pointer :: u => null() !< x-component of Velocity
-     type(field_t), pointer :: v => null() !< y-component of Velocity
-     type(field_t), pointer :: w => null() !< z-component of Velocity
-     type(field_t), pointer :: p => null() !< Pressure
-     type(field_series_t) :: ulag, vlag, wlag !< fluid field (lag)
-     type(space_t) :: Xh        !< Function space \f$ X_h \f$
-     type(dofmap_t) :: dm_Xh    !< Dofmap associated with \f$ X_h \f$
-     type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
-     type(coef_t) :: c_Xh       !< Coefficients associated with \f$ X_h \f$
+  type, abstract, extends(fluid_base_t) :: fluid_scheme_t
      !> The source term for the momentum equation.
      type(fluid_source_term_t) :: source_term
      !> X-component of the right-hand side.
@@ -112,9 +104,8 @@ module fluid_scheme
      integer :: pr_projection_dim          !< Size of the projection space for ksp_pr
      integer :: vel_projection_activ_step  !< Steps to activate projection for ksp_vel
      integer :: pr_projection_activ_step   !< Steps to activate projection for ksp_pr
-     type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
-     class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
      type(wall_model_bc_t) :: bc_wallmodel !< Wall model boundary condition
+
      !> Gradient jump panelty
      logical :: if_gradient_jump_penalty
      type(gradient_jump_penalty_t) :: gradient_jump_penalty_u
@@ -128,33 +119,22 @@ module fluid_scheme
      type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
      type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
      type(shear_stress_t) :: bc_sh             !< Symmetry plane for velocity
-     type(bc_list_t) :: bclst_vel              !< List of velocity conditions
-     type(bc_list_t) :: bclst_vel_neumann      !< List of neumann velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
-     type(field_t) :: bdry                     !< Boundary markings
-     type(json_file), pointer :: params        !< Parameters
-     type(mesh_t), pointer :: msh => null()    !< Mesh
-     type(chkp_t) :: chkp                      !< Checkpoint
+     
      type(mean_flow_t) :: mean                 !< Mean flow field
      type(fluid_stats_t) :: stats              !< Fluid statistics
      type(mean_sqr_flow_t) :: mean_sqr         !< Mean squared flow field
      logical :: forced_flow_rate = .false.     !< Is the flow rate forced?
      logical :: freeze = .false.               !< Freeze velocity at initial condition?
-     !> Dynamic viscosity
-     real(kind=rp) :: mu
-     !> The variable mu field
-     type(field_t) :: mu_field
+     
      !> The turbulent kinematic viscosity field name
      character(len=:), allocatable :: nut_field_name
      !> Is mu varying in time? Currently only due to LES models.
      logical :: variable_material_properties = .false.
      !> Density
      real(kind=rp) :: rho
-     !> The variable density field
-     type(field_t) :: rho_field
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
-     !> Boundary condition labels (if any)
-     character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
+     
    contains
      !> Constructor for the base type
      procedure, pass(this) :: fluid_scheme_init_all
