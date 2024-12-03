@@ -152,6 +152,10 @@ module fluid_scheme
      real(kind=rp) :: rho
      !> The variable density field
      type(field_t) :: rho_field
+     !> Global number of GLL points for the fluid (not unique)
+     integer(kind=i8) ::  glb_n_points
+     !> Global number of GLL points for the fluid (unique)
+     integer(kind=i8) ::  glb_unique_points
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
@@ -370,9 +374,12 @@ contains
        write(log_buf, '(A, I3)') 'Poly order : ', lx-1
     end if
     call neko_log%message(log_buf)
-    write(log_buf, '(A, I0)')    'GLL points : ', int(this%msh%glb_nelv, i8)*int(this%Xh%lxyz, i8)
+    this%glb_n_points = int(this%msh%glb_nelv, i8)*int(this%Xh%lxyz, i8)
+    this%glb_unique_points = int(glsum(this%c_Xh%mult, this%dm_Xh%size()), i8)
+
+    write(log_buf, '(A, I0)')    'GLL points : ',  this%glb_n_points
     call neko_log%message(log_buf)
-    write(log_buf, '(A, I0)')    'Unique pts.: ', int(glsum(this%c_Xh%mult, this%dm_Xh%size()), i8)
+    write(log_buf, '(A, I0)')    'Unique pts.: ', this%glb_unique_points
     call neko_log%message(log_buf)
 
     write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
