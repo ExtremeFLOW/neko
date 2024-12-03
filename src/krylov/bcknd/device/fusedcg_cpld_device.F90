@@ -635,6 +635,7 @@ contains
       call this%monitor_stop()
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
+      ksp_results%converged = rnorm .lt. this%abs_tol .and. iter .lt. max_iter
 
     end associate
 
@@ -659,6 +660,7 @@ contains
 
     ksp_results%res_final = 0.0
     ksp_results%iter = 0
+    ksp_results%converged = .false.
 
   end function fusedcg_cpld_device_solve
 

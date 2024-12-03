@@ -285,8 +285,11 @@ contains
       call device_sub2(r_d, w_d, n)
       rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
       rnorm = sqrt(rtr) * norm_fac
+
+
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
+      ksp_results%converged = .true.
     end associate
   end function cheby_device_solve
 
