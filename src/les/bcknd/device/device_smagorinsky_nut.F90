@@ -36,8 +36,7 @@ module device_smagorinsky_nut
   use utils, only: neko_error
   use comm, only: NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only: MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
-
-  ! use cuda_smagorinsky_nut
+  
   implicit none
   private
 
