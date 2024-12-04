@@ -238,7 +238,7 @@ contains
         !> lvl is coarser then desired output. Continue down tree
         call this%matvec_impl(vec_out, vec_in, lvl-1, lvl_out)
       else
-        print *, "ERROR"
+        call neko_error("TAMG: matvec level numbering problem.")
       end if
     end if
   end subroutine tamg_matvec_impl

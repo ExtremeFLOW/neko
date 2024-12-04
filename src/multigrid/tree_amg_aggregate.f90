@@ -35,8 +35,22 @@ module tree_amg_aggregate
   use tree_amg
   use utils
   use num_types
+  use comm
   use mesh, only : mesh_t
+  use logger, only : neko_log, LOG_SIZE
   implicit none
+
+  type, public :: tamg_agg_monitor_t
+    !> Summary info
+    integer :: level
+    integer :: num_dofs
+    integer :: num_aggs
+    !> aggregation progress info
+    integer :: phase1_naggs
+    integer :: phase1_ndof_aggregated
+    integer :: phase2_naggs
+    integer :: phase2_ndof_aggregated
+  end type tamg_agg_monitor_t
 
 contains
 
@@ -75,7 +89,8 @@ contains
     tamg%lvl(lvl_id)%fine_lvl_dofs = nt
     allocate(tamg%lvl(lvl_id)%wrk_in( nt ))
     allocate(tamg%lvl(lvl_id)%wrk_out( nt ))
-    print *, "work allocated on lvl", lvl_id, "dofs", nt
+    !---!print *, "work allocated on lvl", lvl_id, "dofs", nt
+    call aggregation_monitor_finest(lvl_id,nt,ne)
   end subroutine aggregate_finest_level
 
   !> First pass of a greedy aggregation
@@ -138,7 +153,6 @@ contains
         end if! no_nhbr_agg
       end if! is_aggregated(i)
     end do
-    print *, "done with first pass of aggregation"
   end subroutine agg_greedy_first_pass
 
   !> Second pass of a greedy aggregation
@@ -191,8 +205,7 @@ contains
         else
           !> if none of the neignbors are aggregated. might as well make a new aggregate
           naggs = naggs + 1
-          if (naggs .gt. max_aggs*2) then
-            print *, "AGGS:", naggs
+          if (naggs .gt. size(aggregate_size)) then!TODO: another movealoc here? Error? the max_aggs needs to change though...
             call neko_error("Creating too many aggregates... something might be wrong... try increasing max_aggs")
           end if
           is_aggregated(i) = naggs
@@ -211,7 +224,6 @@ contains
 
       end if
     end do
-    print *, "done with second pass of aggregation: number of aggregates", naggs
   end subroutine agg_greedy_second_pass
 
   !> Create information on which aggregates are "adjacent" to eachother
@@ -305,10 +317,14 @@ contains
       facet_neigh, offset_el, n_facet, &
       is_aggregated, aggregate_size)
 
+    call aggregation_monitor_phase1(lvl_id, n_elements, naggs, is_aggregated)
+
     !> Second pass of greedy aggregation, adding unaggregated dofs to neighboring aggregates.
     call agg_greedy_second_pass(naggs, max_aggs, n_elements, &
       facet_neigh, offset_el, n_facet, &
       is_aggregated, aggregate_size)
+
+    call aggregation_monitor_phase2(lvl_id, n_elements, naggs, is_aggregated)
 
     if (.true.) then!> if needed on next level...
       allocate( agg_nhbr(50, max_aggs*2) )!TODO: this hard-coded n_facet value (20)...
@@ -331,7 +347,6 @@ contains
         end if
       end do
       if (j .ne. tamg%lvl(lvl_id)%nodes(l)%ndofs) then
-        print *, j, tamg%lvl(lvl_id)%nodes(l)%ndofs
         call neko_error("Aggregation problem. Not enough dofs in node.")
       end if
       ntot = ntot + aggregate_size(l)
@@ -339,7 +354,8 @@ contains
     tamg%lvl(lvl_id)%fine_lvl_dofs = ntot
     allocate( tamg%lvl(lvl_id)%wrk_in( ntot ) )
     allocate( tamg%lvl(lvl_id)%wrk_out( ntot ) )
-    print *, "work allocated on lvl", lvl_id, "dofs", ntot
+
+    call aggregation_monitor_final(lvl_id,ntot,naggs)
 
     deallocate( is_aggregated )
     deallocate( aggregate_size )
@@ -660,7 +676,7 @@ contains
     tamg%lvl(lvl_id)%fine_lvl_dofs = nt
     allocate( tamg%lvl(lvl_id)%wrk_in( nt ) )
     allocate( tamg%lvl(lvl_id)%wrk_out( nt ) )
-    print *, "work allocated on lvl", lvl_id, "dofs", nt
+    !--!print *, "work allocated on lvl", lvl_id, "dofs", nt
 
     !> Allocate node
     call tamg_node_init( tamg%lvl(lvl_id)%nodes(1), 1, nt)
@@ -669,4 +685,105 @@ contains
       tamg%lvl(lvl_id)%nodes(1)%dofs(i) = tamg%lvl(lvl_id-1)%nodes(i)%gid
     end do
   end subroutine aggregate_end
+
+  subroutine aggregation_monitor_finest(lvl,ndof,nagg)
+    integer, intent(in) :: lvl,ndof,nagg
+    integer :: na_max, na_min, na_avg, na_sum
+    character(len=LOG_SIZE) :: log_buf
+
+    write(log_buf, '(A8,I2,A37)') '-- level',lvl,'-- Aggregation: Element-as-Aggregate'
+    call neko_log%message(log_buf)
+
+    call MPI_ALLREDUCE(nagg, na_max, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)
+    call MPI_ALLREDUCE(nagg, na_min, 1, MPI_INTEGER, MPI_MIN, NEKO_COMM)
+    call MPI_ALLREDUCE(nagg, na_sum, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM)
+    na_avg = na_sum / pe_size
+    write(log_buf, '(A35,I6,A1,I6,A1,I6,A1)') 'Number of Aggregates: (',na_min,',',na_avg,',',na_max,')'
+    call neko_log%message(log_buf)
+
+  end subroutine aggregation_monitor_finest
+
+  subroutine aggregation_monitor_phase1(lvl,ndof,nagg,is_aggregated)
+    integer, intent(in) :: lvl,ndof,nagg
+    integer, intent(in) :: is_aggregated(:)
+    integer :: num_aggregated, i, na_max, na_min, na_avg, na_sum
+    real(kind=rp) :: agg_frac
+    integer(kind=i8) :: glb_dof, glb_aggd, loc_dof, loc_aggd
+    character(len=LOG_SIZE) :: log_buf
+    num_aggregated = 0
+    do i = 1, ndof
+      if (is_aggregated(i) .gt. -1) then
+        num_aggregated = num_aggregated + 1
+      end if
+    end do
+
+    write(log_buf, '(A8,I2,A24)') '-- level',lvl,'-- Aggregation: phase1'
+    call neko_log%message(log_buf)
+
+    loc_aggd = int(num_aggregated, i8)
+    loc_dof = int(ndof, i8)
+    call MPI_ALLREDUCE(loc_dof, glb_dof, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM)
+    call MPI_ALLREDUCE(loc_aggd, glb_aggd, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM)
+    agg_frac = real(glb_aggd,rp) / real(glb_dof,rp)
+
+    call MPI_ALLREDUCE(nagg, na_max, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)
+    call MPI_ALLREDUCE(nagg, na_min, 1, MPI_INTEGER, MPI_MIN, NEKO_COMM)
+    call MPI_ALLREDUCE(nagg, na_sum, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM)
+    na_avg = na_sum / pe_size
+    write(log_buf, '(A35,I6,A1,I6,A1,I6,A1)') 'Number of Aggregates: (',na_min,',',na_avg,',',na_max,')'
+    call neko_log%message(log_buf)
+
+    call MPI_ALLREDUCE(num_aggregated, na_max, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)
+    call MPI_ALLREDUCE(num_aggregated, na_min, 1, MPI_INTEGER, MPI_MIN, NEKO_COMM)
+    call MPI_ALLREDUCE(num_aggregated, na_sum, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM)
+    na_avg = na_sum / pe_size
+    write(log_buf, '(A35,I6,A1,I6,A1,I6,A1,F6.2)') 'Aggregated: (',na_min,',',na_avg,',',na_max,')',(agg_frac*100)
+    call neko_log%message(log_buf)
+  end subroutine aggregation_monitor_phase1
+
+  subroutine aggregation_monitor_phase2(lvl,ndof,nagg,is_aggregated)
+    integer, intent(in) :: lvl,ndof,nagg
+    integer, intent(in) :: is_aggregated(:)
+    integer :: num_aggregated, i, na_max, na_min, na_avg, na_sum
+    real(kind=rp) :: agg_frac
+    integer(kind=i8) :: glb_dof, glb_aggd, loc_dof, loc_aggd
+    character(len=LOG_SIZE) :: log_buf
+    num_aggregated = 0
+    do i = 1, ndof
+      if (is_aggregated(i) .gt. -1) then
+        num_aggregated = num_aggregated + 1
+      end if
+    end do
+    write(log_buf, '(A8,I2,A24)') '-- level',lvl,'-- Aggregation: phase2'
+    call neko_log%message(log_buf)
+
+    loc_aggd = int(num_aggregated, i8)
+    loc_dof = int(ndof, i8)
+    call MPI_ALLREDUCE(loc_dof, glb_dof, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM)
+    call MPI_ALLREDUCE(loc_aggd, glb_aggd, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM)
+    agg_frac = real(glb_aggd,rp) / real(glb_dof,rp)
+
+    call MPI_ALLREDUCE(nagg, na_max, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)
+    call MPI_ALLREDUCE(nagg, na_min, 1, MPI_INTEGER, MPI_MIN, NEKO_COMM)
+    call MPI_ALLREDUCE(nagg, na_sum, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM)
+    na_avg = na_sum / pe_size
+    write(log_buf, '(A35,I6,A1,I6,A1,I6,A1)') 'Number of Aggregates: (',na_min,',',na_avg,',',na_max,')'
+    call neko_log%message(log_buf)
+
+    call MPI_ALLREDUCE(num_aggregated, na_max, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)
+    call MPI_ALLREDUCE(num_aggregated, na_min, 1, MPI_INTEGER, MPI_MIN, NEKO_COMM)
+    call MPI_ALLREDUCE(num_aggregated, na_sum, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM)
+    na_avg = na_sum / pe_size
+    write(log_buf, '(A35,I6,A1,I6,A1,I6,A1,F6.2)') 'Aggregated: (',na_min,',',na_avg,',',na_max,')',(agg_frac*100)
+    call neko_log%message(log_buf)
+  end subroutine aggregation_monitor_phase2
+
+  subroutine aggregation_monitor_final(lvl,ndof,nagg)
+    integer, intent(in) :: lvl,ndof,nagg
+    character(len=LOG_SIZE) :: log_buf
+    !TODO: calculate min and max agg size
+    write(log_buf, '(A8,I2,A23,I6)') '-- level',lvl,'-- Aggregation: Done.', nagg
+    call neko_log%message(log_buf)
+  end subroutine aggregation_monitor_final
+
 end module tree_amg_aggregate
