@@ -203,6 +203,7 @@ contains
   !> Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T.
   !! @param x The vector to orthogonolize.
   !! @param glb_n_points The global number of non-unique gll points in the grid.
+  !! @note This is equivalent to subtracting the mean of `x` from each of its elements.
   subroutine ortho(x, glb_n_points, n)
     integer, intent(in) :: n
     integer(kind=i8), intent(in) :: glb_n_points
