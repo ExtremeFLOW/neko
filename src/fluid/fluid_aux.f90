@@ -56,7 +56,11 @@ contains
 
     ! Check for convergence
     do i = 1, 4
-       if (.not. ksp_results(i)%converged) then
+       if (ieee_is_nan(ksp_results(i)%res_final)) then
+          call neko_error("Fluid solver diverged")
+       end if
+
+       if (.not. ksp_results(i)%converged ) then
           call neko_error("Fluid solver did not converge")
        end if
     end do
