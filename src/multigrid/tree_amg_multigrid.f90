@@ -160,6 +160,7 @@ contains
     !  call this%jsmoo(lvl)%init(n ,lvl, cheby_degree)
     !end do
 
+    call fill_lvl_map(this%amg)
   end subroutine tamg_mg_init
  
 
@@ -318,4 +319,28 @@ contains
     write(log_buf, '(A8,I2,A23,I6)') '-- level',lvl,'-- Target Aggregates:',nagg
     call neko_log%message(log_buf)
   end subroutine print_preagg_info
+
+  subroutine fill_lvl_map(amg)
+    type(tamg_hierarchy_t), intent(inout) :: amg
+    integer :: i, j, k, l, nid, n
+    do j = 1, amg%lvl(1)%nnodes
+      do k = 1, amg%lvl(1)%nodes(j)%ndofs
+        nid = amg%lvl(1)%nodes(j)%dofs(k)
+        amg%lvl(1)%map_f2c_dof(nid) = amg%lvl(1)%nodes(j)%gid
+      end do
+    end do
+    n = size(amg%lvl(1)%map_f2c_dof)
+    do l = 2, amg%nlvls
+      do i = 1, n
+        nid = amg%lvl(l-1)%map_f2c_dof(i)
+        do j = 1, amg%lvl(l)%nnodes
+          do k = 1, amg%lvl(l)%nodes(j)%ndofs
+            if (nid .eq. amg%lvl(l)%nodes(j)%dofs(k)) then
+              amg%lvl(l)%map_f2c_dof(i) = amg%lvl(l)%nodes(j)%gid
+            end if
+          end do
+        end do
+      end do
+    end do
+  end subroutine
 end module tree_amg_multigrid
