@@ -155,74 +155,13 @@ module fluid_scheme
      !> Set rho and mu
      procedure, pass(this) :: set_material_properties => &
           fluid_scheme_set_material_properties
-     !> Constructor
-     procedure(fluid_scheme_init_intrf), pass(this), deferred :: init
-     !> Destructor
-     procedure(fluid_scheme_free_intrf), pass(this), deferred :: free
-     !> Advance one step in time
-     procedure(fluid_scheme_step_intrf), pass(this), deferred :: step
-     !> Restart from a checkpoint
-     procedure(fluid_scheme_restart_intrf), pass(this), deferred :: restart
+     
      procedure, private, pass(this) :: set_bc_type_output => &
        fluid_scheme_set_bc_type_output
      !> Update variable material properties
      procedure, pass(this) :: update_material_properties => &
        fluid_scheme_update_material_properties
   end type fluid_scheme_t
-
-  !> Abstract interface to initialize a fluid formulation
-  abstract interface
-     subroutine fluid_scheme_init_intrf(this, msh, lx, params, user, &
-          time_scheme)
-       import fluid_scheme_t
-       import json_file
-       import mesh_t
-       import user_t
-       import time_scheme_controller_t
-       class(fluid_scheme_t), target, intent(inout) :: this
-       type(mesh_t), target, intent(inout) :: msh
-       integer, intent(inout) :: lx
-       type(json_file), target, intent(inout) :: params
-       type(user_t), target, intent(in) :: user
-       type(time_scheme_controller_t), target, intent(in) :: time_scheme
-     end subroutine fluid_scheme_init_intrf
-  end interface
-
-  !> Abstract interface to dealocate a fluid formulation
-  abstract interface
-     subroutine fluid_scheme_free_intrf(this)
-       import fluid_scheme_t
-       class(fluid_scheme_t), intent(inout) :: this
-     end subroutine fluid_scheme_free_intrf
-  end interface
-
-  !> Abstract interface to compute a time-step
-  abstract interface
-     subroutine fluid_scheme_step_intrf(this, t, tstep, dt, ext_bdf, &
-                                        dt_controller)
-       import fluid_scheme_t
-       import time_scheme_controller_t
-       import time_step_controller_t
-       import rp
-       class(fluid_scheme_t), target, intent(inout) :: this
-       real(kind=rp), intent(inout) :: t
-       integer, intent(inout) :: tstep
-       real(kind=rp), intent(in) :: dt
-       type(time_scheme_controller_t), intent(inout) :: ext_bdf
-       type(time_step_controller_t), intent(in) :: dt_controller
-     end subroutine fluid_scheme_step_intrf
-  end interface
-
-  !> Abstract interface to restart a fluid scheme
-  abstract interface
-     subroutine fluid_scheme_restart_intrf(this, dtlag, tlag)
-       import fluid_scheme_t
-       import rp
-       class(fluid_scheme_t), target, intent(inout) :: this
-       real(kind=rp) :: dtlag(10), tlag(10)
-
-     end subroutine fluid_scheme_restart_intrf
-  end interface
 
   interface
      !> Initialise a fluid scheme
@@ -307,7 +246,7 @@ contains
     ! Fill mu and rho field with the physical value
 
     call this%mu_field%init(this%dm_Xh, "mu")
-    call this%rho_field%init(this%dm_Xh, "mu")
+    call this%rho_field%init(this%dm_Xh, "rho")
     call field_cfill(this%mu_field, this%mu, this%mu_field%size())
     call field_cfill(this%rho_field, this%rho, this%mu_field%size())
 
@@ -881,6 +820,7 @@ contains
     nullify(this%f_y)
     nullify(this%f_z)
 
+    call this%rho_field%free()
     call this%mu_field%free()
 
     ! Free gradient jump penalty
