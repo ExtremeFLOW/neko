@@ -211,7 +211,7 @@ contains
   !> Compute M_ij on the CPU.
   !!                              _____ ____   __________
   !! M_ij = ((delta_test/delta)^2 s_abs*s_ij - s_abs*s_ij)*(delta^2)
-  !! @param lij The Germano identity.
+  !! @param Mij
   !! @param u x-velocity resolved (only filtered once)
   !! @param v y-velocity resolved (only filtered once)
   !! @param w z-velocity resolved (only filtered once)

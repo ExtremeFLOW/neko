@@ -66,7 +66,6 @@ contains
    type(field_t), pointer :: u, v, w
     ! double of the strain rate tensor
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23
-    real(kind=rp) :: s_abs
     integer :: temp_indices(6)
     integer :: e, i
 
