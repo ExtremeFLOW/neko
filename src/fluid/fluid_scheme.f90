@@ -161,7 +161,15 @@ module fluid_scheme
        fluid_scheme_update_material_properties
   end type fluid_scheme_t
 
-  public :: fluid_scheme_t
+  interface
+     !> Initialise a fluid scheme
+     module subroutine fluid_scheme_factory(object, type_name)
+       class(fluid_scheme_base_t), intent(inout), allocatable :: object
+       character(len=*) :: type_name
+     end subroutine fluid_scheme_factory
+  end interface
+
+  public :: fluid_scheme_t, fluid_scheme_factory
 
 contains
 

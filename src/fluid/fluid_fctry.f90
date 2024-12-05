@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Factory for all fluid schemes
-submodule (fluid_scheme_base) fluid_fctry
+submodule (fluid_scheme) fluid_fctry
   use fluid_pnpn, only : fluid_pnpn_t
   use utils, only : concat_string_array
 
