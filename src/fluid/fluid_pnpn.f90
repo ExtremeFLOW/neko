@@ -67,6 +67,7 @@ module fluid_pnpn
                 bc_list_apply_scalar, bc_list_apply_vector
   use utils, only : neko_error
   use field_math, only : field_add2, field_copy
+  use operators, only : ortho
   implicit none
   private
 
@@ -99,6 +100,8 @@ module fluid_pnpn
      type(bc_list_t) :: bclst_dv
      type(bc_list_t) :: bclst_dw
      type(bc_list_t) :: bclst_dp
+     
+     logical :: no_prs_dirichlet = .false.
 
      class(advection_t), allocatable :: adv
 
@@ -271,6 +274,13 @@ contains
     call bc_list_add(this%bclst_dp, this%bc_field_dirichlet_p)
     !Add 0 prs bcs
     call bc_list_add(this%bclst_dp, this%bc_prs)
+    
+    if (this%bclst_dp%is_empty()) then
+       this%no_prs_dirichlet = .true.
+    else 
+       this%no_prs_dirichlet = .false.
+    end if
+     
 
     call this%bc_field_dirichlet_u%init_base(this%c_Xh)
     call this%bc_field_dirichlet_u%mark_zones_from_list( &
@@ -723,6 +733,7 @@ contains
                            Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
                            mu_field, rho_field)
 
+      if (this%no_prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n) 
       call gs_Xh%op(p_res, GS_OP_ADD)
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
       call profiler_end_region('Pressure_residual', 18)
@@ -741,6 +752,7 @@ contains
                                  this%bclst_dp, gs_Xh, n, tstep, dt_controller)
 
       call field_add2(p, dp, n)
+      if (this%no_prs_dirichlet) call ortho(p%x, this%glb_n_points, n) 
 
       ! Compute velocity.
       call profiler_start_region('Velocity_residual', 19)
