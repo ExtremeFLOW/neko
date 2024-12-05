@@ -530,6 +530,12 @@ The following keywords are used, with the corresponding options.
 * `monitor`, monitoring of residuals. If set to true, the residuals will be
   printed for each iteration.
 
+In addition to the above settings, the solvers can be configured with strict
+convergence criteria. This is done by setting the
+`case.fluid.strict_convergence` keyword to `true`. This will force the solver to
+converge to the specified tolerance within the specified number of iterations.
+If the solver does not converge, the simulation will be terminated.
+
 ### Flow rate forcing
 The optional `flow_rate_force` object can be used to force a particular flow
 rate through the domain.
