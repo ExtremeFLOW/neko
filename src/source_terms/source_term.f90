@@ -83,8 +83,8 @@ module source_term
        import source_term_t, json_file, field_list_t, coef_t
        class(source_term_t), intent(inout) :: this
        type(json_file), intent(inout) :: json
-       type(field_list_t), intent(inout), target :: fields
-       type(coef_t), intent(inout), target :: coef
+       type(field_list_t), intent(in), target :: fields
+       type(coef_t), intent(in), target :: coef
      end subroutine source_term_init
   end interface
 
@@ -134,7 +134,7 @@ contains
   subroutine source_term_init_base(this, fields, coef, start_time, end_time)
     class(source_term_t), intent(inout) :: this
     type(field_list_t) :: fields
-    type(coef_t), intent(inout), target :: coef
+    type(coef_t), intent(in), target :: coef
     real(kind=rp), intent(in) :: start_time
     real(kind=rp), intent(in) :: end_time
     integer :: n_fields, i
