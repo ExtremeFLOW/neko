@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Factory for all fluid schemes
-submodule (fluid_scheme_base) fluid_fctry
+submodule (fluid_scheme_base) fluid_base_fctry
   use fluid_pnpn, only : fluid_pnpn_t
   use utils, only : concat_string_array
 
@@ -42,13 +42,13 @@ submodule (fluid_scheme_base) fluid_fctry
 contains
 
   !> Initialise a fluid scheme
-  module subroutine fluid_scheme_factory(object, type_name)
+  module subroutine fluid_scheme_base_factory(object, type_name)
     class(fluid_scheme_base_t), intent(inout), allocatable :: object
     character(len=*) :: type_name
     character(len=:), allocatable :: type_string
 
     if (trim(type_name) .eq. 'pnpn') then
-       allocate(fluid_pnpn_t::object)
+       !allocate(fluid_pnpn_t::object)
     else
        type_string = concat_string_array(FLUID_KNOWN_TYPES, &
             NEW_LINE('A') // "-  ", .true.)
@@ -56,7 +56,6 @@ contains
                        // trim(type_name) // ". Known types are: " &
                        // type_string)
     end if
+  end subroutine fluid_scheme_base_factory
 
-  end subroutine fluid_scheme_factory
-
-end submodule fluid_fctry
+end submodule fluid_base_fctry

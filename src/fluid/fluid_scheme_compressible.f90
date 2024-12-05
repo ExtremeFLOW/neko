@@ -1,17 +1,17 @@
-module fluid_scheme_cns
+module fluid_scheme_compressible
   use dirichlet, only : dirichlet_t
   use field, only : field_t
   use field_registry, only : neko_field_registry
-  use fluid_base, only : fluid_base_t
+  use fluid_scheme_base, only : fluid_scheme_base_t
   use json_module, only : json_file
   use logger, only : LOG_SIZE
   use num_types, only : rp
   use mesh, only : mesh_t
   use user_intf, only : user_t
-
+  use usr_inflow, only : usr_inflow_eval
 
   !> Base type of compressible fluid formulations.
-  type, abstract, extends(fluid_base_t) :: fluid_scheme_cns_t
+  type, abstract, extends(fluid_scheme_base_t) :: fluid_scheme_compressible_t
      !> The momentum field
      type(field_t), pointer :: m_x => null()    !< x-component of Momentum
      type(field_t), pointer :: m_y => null()    !< y-component of Momentum
@@ -20,38 +20,32 @@ module fluid_scheme_cns
 
    contains
      !> Constructors
-     procedure, pass(this) :: fluid_scheme_cns_init_all
-     procedure, pass(this) :: fluid_scheme_cns_init_common
-     generic :: scheme_init => fluid_scheme_cns_init_all, fluid_scheme_cns_init_common
-
+     procedure, pass(this) :: scheme_init => fluid_scheme_compressible_init
      !> Destructor for the base type
-     procedure, pass(this) :: scheme_free => fluid_scheme_cns_free
+     procedure, pass(this) :: scheme_free => fluid_scheme_compressible_free
 
+     !> Validate that all components are properly allocated
+     procedure, pass(this) :: validate => fluid_scheme_compressible_validate
+     !> Set the user inflow procedure
+     procedure, pass(this) :: set_usr_inflow => fluid_scheme_compressible_set_usr_inflow
      !> Compute the CFL number
-     procedure, pass(this) :: compute_cfl => fluid_scheme_cns_compute_cfl
+     procedure, pass(this) :: compute_cfl => fluid_scheme_compressible_compute_cfl
+     !> Set rho and mu
+     procedure, pass(this) :: update_material_properties => &
+          fluid_scheme_compressible_update_material_properties
 
-  end type fluid_scheme_cns_t
+  end type fluid_scheme_compressible_t
 
 contains
   !> Initialize common data for the current scheme
-  subroutine fluid_scheme_cns_init_common(this, msh, lx, params, scheme, user, &
-                                      kspv_init)
+  subroutine fluid_scheme_compressible_init(this, msh, lx, params, scheme, user)
     implicit none
-    class(fluid_scheme_cns_t), target, intent(inout) :: this
+    class(fluid_scheme_compressible_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     character(len=*), intent(in) :: scheme
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
-    logical, intent(in) :: kspv_init
-    type(dirichlet_t) :: bdry_mask
-    character(len=LOG_SIZE) :: log_buf
-    real(kind=rp), allocatable :: real_vec(:)
-    real(kind=rp) :: real_val, kappa, B, z0
-    logical :: logical_val
-    integer :: integer_val, ierr
-    type(json_file) :: wm_json
-    character(len=:), allocatable :: string_val1, string_val2
 
     ! Fill mu and rho field with the physical value
     call this%mu_field%init(this%dm_Xh, "mu")
@@ -90,32 +84,10 @@ contains
     call this%ulag%init(this%u, 1)
     call this%vlag%init(this%v, 1)
     call this%wlag%init(this%w, 1)
-  end subroutine fluid_scheme_cns_init_common
+  end subroutine fluid_scheme_compressible_init
 
-  subroutine fluid_scheme_cns_init_all(this, msh, lx, params, kspv_init, &
-                                        kspp_init, scheme, user)
-    implicit none
-    class(fluid_scheme_cns_t), target, intent(inout) :: this
-    type(mesh_t), target, intent(inout) :: msh
-    integer, intent(inout) :: lx
-    type(json_file), target, intent(inout) :: params
-    type(user_t), target, intent(in) :: user
-    logical :: kspv_init
-    logical :: kspp_init
-    character(len=*), intent(in) :: scheme
-    real(kind=rp) :: abs_tol
-    integer :: integer_val, ierr
-    logical :: logical_val
-    character(len=:), allocatable :: solver_type, precon_type
-    character(len=LOG_SIZE) :: log_buf
-    real(kind=rp) :: GJP_param_a, GJP_param_b
-
-    call fluid_scheme_cns_init_common(this, msh, lx, params, scheme, user, &
-                                  kspv_init)
-  end subroutine fluid_scheme_cns_init_all
-
-  subroutine fluid_scheme_cns_free(this)
-    class(fluid_scheme_cns_t), intent(inout) :: this
+  subroutine fluid_scheme_compressible_free(this)
+    class(fluid_scheme_compressible_t), intent(inout) :: this
     call this%mu_field%free()
     call this%rho_field%free()
     call this%m_x%free()
@@ -137,15 +109,35 @@ contains
     call this%ulag%free()
     call this%vlag%free()
     call this%wlag%free()
-  end subroutine fluid_scheme_cns_free
+  end subroutine fluid_scheme_compressible_free
+
+  !> Validate that all components are properly allocated
+  subroutine fluid_scheme_compressible_validate(this)
+    class(fluid_scheme_compressible_t), target, intent(inout) :: this
+    !> TODO: fill here
+  end subroutine fluid_scheme_compressible_validate
+
+  !> Initialize a user defined inflow condition
+  subroutine fluid_scheme_compressible_set_usr_inflow(this, usr_eval)
+    class(fluid_scheme_compressible_t), intent(inout) :: this
+    procedure(usr_inflow_eval) :: usr_eval
+    !> TODO: fill here
+  end subroutine fluid_scheme_compressible_set_usr_inflow
 
   !> Compute CFL
-  function fluid_scheme_cns_compute_cfl(this, dt) result(c)
-    class(fluid_scheme_cns_t), intent(in) :: this
+  function fluid_scheme_compressible_compute_cfl(this, dt) result(c)
+    class(fluid_scheme_compressible_t), intent(in) :: this
     real(kind=rp), intent(in) :: dt
     real(kind=rp) :: c
 
     c = 1.0_rp
+    !> TODO: fill here
 
-  end function fluid_scheme_cns_compute_cfl
-end module fluid_scheme_cns
+  end function fluid_scheme_compressible_compute_cfl
+
+  !> Set rho and mu
+  subroutine fluid_scheme_compressible_update_material_properties(this)
+    class(fluid_scheme_compressible_t), intent(inout) :: this
+    !> TODO: fill here, may not be used?
+  end subroutine fluid_scheme_compressible_update_material_properties
+end module fluid_scheme_compressible

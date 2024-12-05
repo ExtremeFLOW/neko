@@ -34,6 +34,7 @@
 module fluid_output
   use num_types, only : rp
   use fluid_scheme, only : fluid_scheme_t
+  use fluid_scheme_base, only : fluid_scheme_base_t
   use scalar_scheme, only : scalar_scheme_t
   use field_list, only : field_list_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -58,7 +59,7 @@ contains
 
   function fluid_output_init(precision, fluid, scalar, name, path) result(this)
     integer, intent(inout) :: precision
-    class(fluid_scheme_t), intent(in), target :: fluid
+    class(fluid_scheme_base_t), intent(in), target :: fluid
     class(scalar_scheme_t), intent(in), optional, target :: scalar
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path

@@ -34,7 +34,8 @@
 module case
   use num_types, only : rp, sp, dp
   use fluid_pnpn, only : fluid_pnpn_t
-  use fluid_scheme, only : fluid_scheme_t, fluid_scheme_factory
+  use fluid_scheme, only : fluid_scheme_t
+  use fluid_scheme_base, only: fluid_scheme_base_t, fluid_scheme_factory
   use fluid_output, only : fluid_output_t
   use chkp_output, only : chkp_output_t
   use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
@@ -73,7 +74,7 @@ module case
      type(fluid_output_t) :: f_out
      type(chkp_output_t) :: f_chkp
      type(user_t) :: usr
-     class(fluid_scheme_t), allocatable :: fluid
+     class(fluid_scheme_base_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar
   end type case_t
 

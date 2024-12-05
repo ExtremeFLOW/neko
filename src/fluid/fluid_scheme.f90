@@ -32,7 +32,7 @@
 !
 !> Fluid formulations
 module fluid_scheme
-  use fluid_base, only : fluid_base_t
+  use fluid_scheme_base, only : fluid_scheme_base_t
   use gather_scatter, only : gs_t
   use mean_sqr_flow, only : mean_sqr_flow_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -87,7 +87,7 @@ module fluid_scheme
   private
 
   !> Base type of all fluid formulations
-  type, abstract, extends(fluid_base_t) :: fluid_scheme_t
+  type, abstract, extends(fluid_scheme_base_t) :: fluid_scheme_t
      !> The source term for the momentum equation.
      type(fluid_source_term_t) :: source_term
      !> X-component of the right-hand side.
@@ -131,8 +131,6 @@ module fluid_scheme
      character(len=:), allocatable :: nut_field_name
      !> Is mu varying in time? Currently only due to LES models.
      logical :: variable_material_properties = .false.
-     !> Density
-     real(kind=rp) :: rho
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
      
    contains
@@ -163,15 +161,7 @@ module fluid_scheme
        fluid_scheme_update_material_properties
   end type fluid_scheme_t
 
-  interface
-     !> Initialise a fluid scheme
-     module subroutine fluid_scheme_factory(object, type_name)
-       class(fluid_scheme_t), intent(inout), allocatable :: object
-       character(len=*) :: type_name
-     end subroutine fluid_scheme_factory
-  end interface
-
-  public :: fluid_scheme_t, fluid_scheme_factory
+  public :: fluid_scheme_t
 
 contains
 
