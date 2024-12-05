@@ -85,8 +85,8 @@ contains
   subroutine boussinesq_source_term_init_from_json(this, json, fields, coef)
     class(boussinesq_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout), target :: coef
+    type(field_list_t), intent(in), target :: fields
+    type(coef_t), intent(in), target :: coef
     real(kind=rp), allocatable :: values(:)
     real(kind=rp) :: start_time, end_time, ref_value
     character(len=:), allocatable :: scalar_name
@@ -127,7 +127,7 @@ contains
   subroutine boussinesq_source_term_init_from_components(this, fields, &
     scalar_name, ref_value, g, beta, coef, start_time, end_time)
     class(boussinesq_source_term_t), intent(inout) :: this
-    class(field_list_t), intent(inout), target :: fields
+    class(field_list_t), intent(in), target :: fields
     character(len=*), intent(in) :: scalar_name
     real(kind=rp), intent(in) :: ref_value
     real(kind=rp), intent(in) :: g(3)

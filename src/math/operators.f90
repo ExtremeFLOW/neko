@@ -277,8 +277,8 @@ contains
   !! @param es Starting element index, defaults to 1.
   !! @param ee Last element index, defaults to mesh size.
   subroutine conv1(du, u, vx, vy, vz, Xh, coef, es, ee)
-    type(space_t), intent(inout) :: Xh
-    type(coef_t), intent(inout) :: coef
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
     real(kind=rp), intent(inout) :: du(Xh%lxyz, coef%msh%nelv)
     real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
     real(kind=rp), intent(inout) :: vx(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
@@ -368,9 +368,9 @@ contains
     type(field_t), intent(inout) :: w1
     type(field_t), intent(inout) :: w2
     type(field_t), intent(inout) :: w3
-    type(field_t), intent(inout) :: u1
-    type(field_t), intent(inout) :: u2
-    type(field_t), intent(inout) :: u3
+    type(field_t), intent(in) :: u1
+    type(field_t), intent(in) :: u2
+    type(field_t), intent(in) :: u3
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
     type(coef_t), intent(in) :: coef
@@ -565,9 +565,9 @@ contains
   !! @param n_GL the size in the GL space
   subroutine runge_kutta(phi, c_r1, c_r23, c_r4, Xh_GLL, Xh_GL, coef, &
                          coef_GL, GLL_to_GL, tau, dtau, n, nel, n_GL)
-    type(space_t), intent(inout) :: Xh_GLL
+    type(space_t), intent(in) :: Xh_GLL
     type(space_t), intent(inout) :: Xh_GL
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(in) :: coef
     type(coef_t), intent(inout) :: coef_GL
     type(interpolator_t) :: GLL_to_GL
     real(kind=rp), intent(inout) :: tau, dtau
