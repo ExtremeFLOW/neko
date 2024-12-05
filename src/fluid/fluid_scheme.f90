@@ -104,14 +104,18 @@ module fluid_scheme
      type(field_t), pointer :: f_y => null()
      !> Z-component of the right-hand side.
      type(field_t), pointer :: f_z => null()
-     class(ksp_t), allocatable :: ksp_vel     !< Krylov solver for velocity
-     class(ksp_t), allocatable :: ksp_prs     !< Krylov solver for pressure
-     class(pc_t), allocatable :: pc_vel        !< Velocity Preconditioner
-     class(pc_t), allocatable :: pc_prs        !< Pressure Preconditioner
+
+     ! Krylov solvers and settings
+     class(ksp_t), allocatable :: ksp_vel  !< Krylov solver for velocity
+     class(ksp_t), allocatable :: ksp_prs  !< Krylov solver for pressure
+     class(pc_t), allocatable :: pc_vel    !< Velocity Preconditioner
+     class(pc_t), allocatable :: pc_prs    !< Velocity Preconditioner
      integer :: vel_projection_dim         !< Size of the projection space for ksp_vel
      integer :: pr_projection_dim          !< Size of the projection space for ksp_pr
      integer :: vel_projection_activ_step  !< Steps to activate projection for ksp_vel
      integer :: pr_projection_activ_step   !< Steps to activate projection for ksp_pr
+     logical :: strict_convergence         !< Strict convergence for the velocity solver
+
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
      type(wall_model_bc_t) :: bc_wallmodel !< Wall model boundary condition
@@ -674,6 +678,10 @@ contains
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_vel, string_val2)
        call neko_log%end_section()
     end if
+
+    ! Strict convergence for the velocity solver
+    call json_get_or_default(params, 'case.fluid.strict_convergence', &
+         this%strict_convergence, .false.)
 
     ! Assign velocity fields
     call neko_field_registry%add_field(this%dm_Xh, 'u')

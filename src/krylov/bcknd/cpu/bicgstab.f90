@@ -244,6 +244,8 @@ contains
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
+    ksp_results%converged = iter .lt. max_iter .and. &
+         (rnorm .lt. this%abs_tol .or. rnorm .lt. gamma)
   end function bicgstab_solve
 
   !> Standard BiCGSTAB coupled solve

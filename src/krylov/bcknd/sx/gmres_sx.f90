@@ -33,7 +33,7 @@
 !> Defines various GMRES methods
 module gmres_sx
   use krylov, only : ksp_t, ksp_monitor_t
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only: rp
   use field, only : field_t
@@ -71,7 +71,7 @@ contains
 
   !> Initialise a standard GMRES solver
   subroutine sx_gmres_init(this, n, max_iter, M, lgmres, &
-                           rel_tol, abs_tol, monitor)
+       rel_tol, abs_tol, monitor)
     class(sx_gmres_t), intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
@@ -200,7 +200,7 @@ contains
     integer :: i, j, k, ierr
     real(kind=rp), parameter :: one = 1.0
     real(kind=rp) :: rnorm
-    real(kind=rp) ::  alpha, temp, l
+    real(kind=rp) :: alpha, temp, l
     real(kind=rp) :: ratio, div0, norm_fac
     logical :: conv
     integer outer
@@ -232,7 +232,7 @@ contains
           call col3(this%r,this%ml,f,n)
        else
           !update residual
-          call copy  (this%r,f,n)
+          call copy (this%r,f,n)
           call Ax%compute(this%w, x%x, coef, x%msh, x%Xh)
           call gs_h%op(this%w, n, GS_OP_ADD)
           call bc_list_apply(blst, this%w, n)
@@ -284,7 +284,7 @@ contains
           !apply Givens rotations to new column
           do i=1,j-1
              temp = this%h(i,j)
-             this%h(i  ,j) =  this%c(i)*temp + this%s(i)*this%h(i+1,j)
+             this%h(i ,j) = this%c(i)*temp + this%s(i)*this%h(i+1,j)
              this%h(i+1,j) = -this%s(i)*temp + this%c(i)*this%h(i+1,j)
           end do
 
@@ -297,10 +297,10 @@ contains
           l = sqrt(this%h(j,j) * this%h(j,j) + alpha**2)
           temp = one / l
           this%c(j) = this%h(j,j) * temp
-          this%s(j) = alpha  * temp
+          this%s(j) = alpha * temp
           this%h(j,j) = l
           this%gam(j+1) = -this%s(j) * this%gam(j)
-          this%gam(j)   =  this%c(j) * this%gam(j)
+          this%gam(j) = this%c(j) * this%gam(j)
 
           rnorm = abs(this%gam(j+1)) * norm_fac
           call this%monitor_iter(iter, rnorm)
@@ -336,6 +336,7 @@ contains
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
+    ksp_results%converged = conv .and. iter .lt. max_iter
   end function sx_gmres_solve
 
   !> Standard GMRES coupled solve
@@ -358,9 +359,9 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function sx_gmres_solve_coupled
 
