@@ -822,7 +822,7 @@ contains
               this%ksp_vel%max_iter)
       end if
 
-      call fluid_step_info(tstep, t, dt, ksp_results)
+      call fluid_step_info(tstep, t, dt, ksp_results, this%strict_convergence)
 
       call this%scratch%relinquish_field(temp_indices)
 

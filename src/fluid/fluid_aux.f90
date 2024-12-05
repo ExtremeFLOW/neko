@@ -4,7 +4,7 @@ module fluid_aux
   use num_types, only : rp
   use krylov, only : ksp_monitor_t
   use, intrinsic :: ieee_arithmetic, only: ieee_is_nan
-  use utils, only : neko_error
+  use utils, only : neko_error, neko_warning
   implicit none
   private
 
@@ -14,10 +14,11 @@ contains
 
   !> Prints for prs, velx, vely, velz the following:
   !! Number of iterations, start residual, end residual
-  subroutine fluid_step_info(step, t, dt, ksp_results)
+  subroutine fluid_step_info(step, t, dt, ksp_results, strict_convergence)
     type(ksp_monitor_t), intent(in) :: ksp_results(4)
     integer, intent(in) :: step
     real(kind=rp), intent(in) :: t, dt
+    logical, intent(in) :: strict_convergence
     character(len=LOG_SIZE) :: log_buf
     integer :: i
 
@@ -60,8 +61,24 @@ contains
           call neko_error("Fluid solver diverged")
        end if
 
-       if (.not. ksp_results(i)%converged ) then
-          call neko_error("Fluid solver did not converge")
+       if (.not. ksp_results(i)%converged) then
+          log_buf = 'Fluid solver did not converge for '
+          select case(i)
+            case(1)
+             log_buf = trim(log_buf) // 'pressure'
+            case(2)
+             log_buf = trim(log_buf) // 'x-velocity'
+            case(3)
+             log_buf = trim(log_buf) // 'y-velocity'
+            case(4)
+             log_buf = trim(log_buf) // 'z-velocity'
+          end select
+
+          if (strict_convergence) then
+             call neko_error(log_buf)
+          else
+             call neko_warning(log_buf)
+          end if
        end if
     end do
 
