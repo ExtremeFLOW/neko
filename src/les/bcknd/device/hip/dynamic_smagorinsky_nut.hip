@@ -35,7 +35,7 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
-#include "dynaminc_smagorinsky_nut_kernel.h"
+#include "dynamic_smagorinsky_nut_kernel.h"
 
 extern "C" {
   void hip_s_abs_compute(void *s_abs, void *s11, void *s22, void *s33,
