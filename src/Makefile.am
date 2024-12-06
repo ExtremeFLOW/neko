@@ -318,6 +318,8 @@ neko_fortran_SOURCES = \
 	les/bcknd/device/device_smagorinsky_nut.F90\
 	les/dynamic_smagorinsky.f90\
 	les/bcknd/cpu/dynamic_smagorinsky_cpu.f90\
+	les/bcknd/device/dynamic_smagorinsky_device.f90\
+	les/bcknd/device/device_dynamic_smagorinsky_nut.F90\
 	les/elementwise_filter.f90\
 	les/bcknd/cpu/elementwise_filter_cpu.f90\
 	les/sigma.f90\
@@ -384,7 +386,8 @@ libneko_la_SOURCES += \
 	source_terms/bcknd/device/hip/filters.hip\
 	les/bcknd/device/hip/sigma_nut.hip\
 	les/bcknd/device/hip/vreman_nut.hip\
-	les/bcknd/device/hip/smagorinsky_nut.hip
+	les/bcknd/device/hip/smagorinsky_nut.hip\
+	les/bcknd/device/hip/dynamic_smagorinsky_nut.hip
 endif
 
 if ENABLE_CUDA
@@ -426,7 +429,8 @@ libneko_la_SOURCES += \
 	source_terms/bcknd/device/cuda/filters.cu\
 	les/bcknd/device/cuda/sigma_nut.cu\
 	les/bcknd/device/cuda/vreman_nut.cu\
-	les/bcknd/device/cuda/smagorinsky_nut.cu
+	les/bcknd/device/cuda/smagorinsky_nut.cu\
+	les/bcknd/device/cuda/dynamic_smagorinsky_nut.cu
 
 BUILT_SOURCES = libtool_cuda
 
@@ -581,6 +585,7 @@ EXTRA_DIST = \
 	les/bcknd/device/cuda/sigma_nut_kernel.h\
 	les/bcknd/device/cuda/vreman_nut_kernel.h\
 	les/bcknd/device/cuda/smagorinsky_nut_kernel.h\
+	les/bcknd/device/cuda/dynamic_smagorinsky_nut_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
 	bc/bcknd/device/hip/no_slip_wall_kernel.h\
@@ -623,6 +628,7 @@ EXTRA_DIST = \
 	les/bcknd/device/hip/sigma_nut_kernel.h\
 	les/bcknd/device/hip/vreman_nut_kernel.h\
 	les/bcknd/device/hip/smagorinsky_nut_kernel.h\
+	les/bcknd/device/hip/dynamic_smagorinsky_nut_kernel.h\
 	bc/bcknd/device/opencl/dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/inflow_kernel.cl\
 	bc/bcknd/device/opencl/no_slip_wall_kernel.cl\

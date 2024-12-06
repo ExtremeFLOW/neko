@@ -116,12 +116,8 @@ contains
   subroutine build_1d(this)
     class(elementwise_filter_t), intent(inout) :: this
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-        call neko_error("build_1d not implemented on accelarators.")
-    else
-        call build_1d_cpu(this%fh, this%fht, this%trnsfr, &
+    call build_1d_cpu(this%fh, this%fht, this%trnsfr, &
                                this%nx, this%filter_type)
-    end if
 
   end subroutine build_1d
 

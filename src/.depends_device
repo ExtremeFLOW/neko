@@ -31,6 +31,7 @@ common/bcknd/device/hip/gradient_jump_penalty.lo : common/bcknd/device/hip/gradi
 fluid/bcknd/device/hip/pnpn_res.lo : fluid/bcknd/device/hip/pnpn_res.hip fluid/bcknd/device/hip/vel_res_update_kernel.h fluid/bcknd/device/hip/prs_res_kernel.h
 scalar/bcknd/device/hip/scalar_residual.lo : scalar/bcknd/device/hip/scalar_residual.hip scalar/bcknd/device/hip/scalar_residual_update_kernel.h
 sem/bcknd/device/hip/coef.lo : sem/bcknd/device/hip/coef.hip sem/bcknd/device/hip/coef_kernel.h
+les/bcknd/device/hip/dynamic_smagorinsky_nut.lo : les/bcknd/device/hip/dynamic_smagorinsky_nut.hip les/bcknd/device/hip/dynamic_smagorinsky_nut_kernel.h
 les/bcknd/device/hip/smagorinsky_nut.lo : les/bcknd/device/hip/smagorinsky_nut.hip les/bcknd/device/hip/smagorinsky_nut_kernel.h
 les/bcknd/device/hip/vreman_nut.lo : les/bcknd/device/hip/vreman_nut.hip les/bcknd/device/hip/vreman_nut_kernel.h
 les/bcknd/device/hip/sigma_nut.lo : les/bcknd/device/hip/sigma_nut.hip les/bcknd/device/hip/sigma_nut_kernel.h
@@ -68,6 +69,7 @@ fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.lo : fluid/stress_for
 common/bcknd/device/cuda/gradient_jump_penalty.lo : common/bcknd/device/cuda/gradient_jump_penalty.cu common/bcknd/device/cuda/gradient_jump_penalty_kernel.h
 scalar/bcknd/device/cuda/scalar_residual.lo : scalar/bcknd/device/cuda/scalar_residual.cu scalar/bcknd/device/cuda/scalar_residual_update_kernel.h
 sem/bcknd/device/cuda/coef.lo : sem/bcknd/device/cuda/coef.cu sem/bcknd/device/cuda/coef_kernel.h
+les/bcknd/device/cuda/dynamic_smagorinsky_nut.lo : les/bcknd/device/cuda/dynamic_smagorinsky_nut.cu les/bcknd/device/cuda/dynamic_smagorinsky_nut_kernel.h
 les/bcknd/device/cuda/smagorinsky_nut.lo : les/bcknd/device/cuda/smagorinsky_nut.cu les/bcknd/device/cuda/smagorinsky_nut_kernel.h
 les/bcknd/device/cuda/vreman_nut.lo : les/bcknd/device/cuda/vreman_nut.cu les/bcknd/device/cuda/vreman_nut_kernel.h
 les/bcknd/device/cuda/sigma_nut.lo : les/bcknd/device/cuda/sigma_nut.cu les/bcknd/device/cuda/sigma_nut_kernel.h
