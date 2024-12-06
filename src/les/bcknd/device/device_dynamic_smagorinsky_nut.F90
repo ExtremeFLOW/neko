@@ -295,12 +295,12 @@ contains
                    fuu_d, fvv_d, fww_d, fuv_d, fuw_d, fvw_d
     integer :: n
 #if HAVE_HIP
-    call hip_lij_compute_part1(l11_d, l22_d, l33_d, &
+    call hip_lij_compute_part2(l11_d, l22_d, l33_d, &
                                l12_d, l13_d, l23_d, &
                                fuu_d, fvv_d, fww_d, &
                                fuv_d, fuw_d, fvw_d, n)
 #elif HAVE_CUDA
-    call cuda_lij_compute_part1(l11_d, l22_d, l33_d, &
+    call cuda_lij_compute_part2(l11_d, l22_d, l33_d, &
                                 l12_d, l13_d, l23_d, &
                                 fuu_d, fvv_d, fww_d, &
                                 fuv_d, fuw_d, fvw_d, n)
