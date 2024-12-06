@@ -218,7 +218,7 @@ contains
     type(field_t), intent(in) :: lij(6)
     type(field_t), intent(inout) :: mij(6)
     type(field_t), intent(inout) :: s11, s22, s33, s12, s13, s23, s_abs
-    type(elementwise_filter_t), intent(in) :: test_filter
+    type(elementwise_filter_t), intent(inout) :: test_filter
     type(field_t), intent(in) :: delta
     real(kind=rp), intent(in) :: alpha
     integer, intent(in) :: n
@@ -226,7 +226,7 @@ contains
 
     real(kind=rp) :: delta_ratio2
     integer :: temp_indices(13)
-    type(field_t), pointer :: fs11, fs22, fs33, fs12, fs13, fs23, fs_abs &
+    type(field_t), pointer :: fs11, fs22, fs33, fs12, fs13, fs23, fs_abs, &
                               fsabss11, fsabss22, fsabss33, &
                               fsabss12, fsabss13, fsabss23
 
@@ -249,13 +249,13 @@ contains
     !! Compute M_ij
     !!         _____     ____
     !! Compute s_abs and s_ij
-    call test_filter%filter_3d(fs_abs, s_abs%x, nelv)
-    call test_filter%filter_3d(fs11, s11%x, nelv)
-    call test_filter%filter_3d(fs22, s22%x, nelv)
-    call test_filter%filter_3d(fs33, s33%x, nelv)
-    call test_filter%filter_3d(fs12, s12%x, nelv)
-    call test_filter%filter_3d(fs13, s13%x, nelv)
-    call test_filter%filter_3d(fs23, s23%x, nelv)
+    call test_filter%filter_3d(fs_abs%x, s_abs%x, nelv)
+    call test_filter%filter_3d(fs11%x, s11%x, nelv)
+    call test_filter%filter_3d(fs22%x, s22%x, nelv)
+    call test_filter%filter_3d(fs33%x, s33%x, nelv)
+    call test_filter%filter_3d(fs12%x, s12%x, nelv)
+    call test_filter%filter_3d(fs13%x, s13%x, nelv)
+    call test_filter%filter_3d(fs23%x, s23%x, nelv)
     
     !!                              _____ ____
     !! Compute (delta_test/delta)^2 s_abs*s_ij and s_abs*s_ij

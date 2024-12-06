@@ -372,6 +372,8 @@ contains
                                       s_abs_d, nut_d, alpha, n)
     type(c_ptr) :: m11_d, m22_d, m33_d, &
                    m12_d, m13_d, m23_d, &
+                   l11_d, l22_d, l33_d, &
+                   l12_d, l13_d, l23_d, &
                    fsabss11_d, fsabss22_d, fsabss33_d, &
                    fsabss12_d, fsabss13_d, fsabss23_d, &
                    num_d, den_d, c_dyn_d, delta_d, s_abs_d, nut_d 
