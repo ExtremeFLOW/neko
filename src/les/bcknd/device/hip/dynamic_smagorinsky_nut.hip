@@ -93,19 +93,55 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
   }
   
-  void hip_dynamic_smagorinsky_nut_compute(void *s11, void *s22, void *s33,
+  void hip_mij_compute_part1(void *m11, void *m22, void *m33,
+                             void *m12, void *m13, void *m23,
+                             void *s_abs, void *s11, void *s22, void *s33,
                              void *s12, void *s13, void *s23,
-                             void *delta, void *nut, void *mult, 
-                             real *c_s, int * n){
+                             void *fs_abs, void *fs11, void *fs22, void *fs33,
+                             void *fs12, void *fs13, void *fs23,
+                             void *fsabss11, void *fsabss22, void *fsabss33,
+                             void *fsabss12, void *fsabss13, void *fsabss23,
+                             real * delta_ratio2, int * n){
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(dynamic_smagorinsky_nut_compute<real>),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(mij_compute_part1<real>),
                                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                                       (real *) s11, (real *) s22, (real *) s33,
-                                       (real *) s12, (real *) s13, (real *) s23,
-                                       (real *) delta, (real *) nut, (real *) mult, 
-                                       *c_s, * n);
+                                       (real *) m11, (real *) m22, (real *) m33,
+                                       (real *) m12, (real *) m13, (real *) m23,
+                                       (real *) s_abs, (real *) s11, (real *) s22, 
+                                       (real *) s33, (real *) s12, (real *) s13, (real *) s23,
+                                       (real *) fs_abs, (real *) fs11, (real *) fs22, 
+                                       (real *) fs33, (real *) fs12, (real *) fs13, (real *) fs23,
+                                       (real *) fsabss11, (real *) fsabss22, (real *) fsabss33,
+                                       (real *) fsabss12, (real *) fsabss13, (real *) fsabss23,
+                                       * delta_ratio2, * n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  void hip_mij_nut_compute_part2(void *m11, void *m22, void *m33,
+                             void *m12, void *m13, void *m23,
+                             void *l11, void *l22, void *l33,
+                             void *l12, void *l13, void *l23,
+                             void *fsabss11, void *fsabss22, void *fsabss33,
+                             void *fsabss12, void *fsabss13, void *fsabss23,
+                             void *num, void *den, void *c_dyn, void *delta,
+                             void *s_abs, void *nut,
+                             real * alpha, int * n){
+    
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(mij_nut_compute_part2<real>),
+                                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                                       (real *) m11, (real *) m22, (real *) m33,
+                                       (real *) m12, (real *) m13, (real *) m23,
+                                       (real *) l11, (real *) l22, (real *) l33,
+                                       (real *) l12, (real *) l13, (real *) l23,
+                                       (real *) fsabss11, (real *) fsabss22, (real *) fsabss33,
+                                       (real *) fsabss12, (real *) fsabss13, (real *) fsabss23,
+                                       (real *) num, (real *) den, (real *) c_dyn,
+                                       (real *) delta, (real *) s_abs, (real *) nut,
+                                       * alpha, * n);
     HIP_CHECK(hipGetLastError());
   }
 }

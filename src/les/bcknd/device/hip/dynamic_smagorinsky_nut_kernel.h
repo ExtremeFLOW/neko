@@ -139,4 +139,125 @@ __global__ void lij_compute_part2(T * __restrict__ l11,
     l23[i] -= fvw[i];
   }
 }
+
+template< typename T>
+__global__ void mij_compute_part1(T * __restrict__ m11,
+                                  T * __restrict__ m22,
+                                  T * __restrict__ m33,
+                                  T * __restrict__ m12,
+                                  T * __restrict__ m13,
+                                  T * __restrict__ m23,
+                                  T * __restrict__ s_abs,
+                                  T * __restrict__ s11,
+                                  T * __restrict__ s22,
+                                  T * __restrict__ s33,
+                                  T * __restrict__ s12,
+                                  T * __restrict__ s13,
+                                  T * __restrict__ s23,
+                                  T * __restrict__ fs_abs,
+                                  T * __restrict__ fs11,
+                                  T * __restrict__ fs22,
+                                  T * __restrict__ fs33,
+                                  T * __restrict__ fs12,
+                                  T * __restrict__ fs13,
+                                  T * __restrict__ fs23,
+                                  T * __restrict__ fsabss11,
+                                  T * __restrict__ fsabss22,
+                                  T * __restrict__ fsabss33,
+                                  T * __restrict__ fsabss12,
+                                  T * __restrict__ fsabss13,
+                                  T * __restrict__ fsabss23,
+                                  const T delta_ratio2,
+                                  const int n){
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    m11[i] = delta_ratio2 * (fs_abs[i] * fs11[i]);
+    m22[i] = delta_ratio2 * (fs_abs[i] * fs22[i]);
+    m33[i] = delta_ratio2 * (fs_abs[i] * fs33[i]);
+    m12[i] = delta_ratio2 * (fs_abs[i] * fs12[i]);
+    m13[i] = delta_ratio2 * (fs_abs[i] * fs13[i]);
+    m23[i] = delta_ratio2 * (fs_abs[i] * fs23[i]);
+
+    fsabss11[i] = s_abs[i] * s11[i];
+    fsabss22[i] = s_abs[i] * s22[i];
+    fsabss33[i] = s_abs[i] * s33[i];
+    fsabss12[i] = s_abs[i] * s12[i];
+    fsabss13[i] = s_abs[i] * s13[i];
+    fsabss23[i] = s_abs[i] * s23[i];
+  }
+}
+
+template< typename T>
+__global__ void mij_nut_compute_part2(T * __restrict__ m11,
+                                      T * __restrict__ m22,
+                                      T * __restrict__ m33,
+                                      T * __restrict__ m12,
+                                      T * __restrict__ m13,
+                                      T * __restrict__ m23,
+                                      T * __restrict__ l11,
+                                      T * __restrict__ l22,
+                                      T * __restrict__ l33,
+                                      T * __restrict__ l12,
+                                      T * __restrict__ l13,
+                                      T * __restrict__ l23,
+                                      T * __restrict__ fsabss11,
+                                      T * __restrict__ fsabss22,
+                                      T * __restrict__ fsabss33,
+                                      T * __restrict__ fsabss12,
+                                      T * __restrict__ fsabss13,
+                                      T * __restrict__ fsabss23,
+                                      T * __restrict__ num,
+                                      T * __restrict__ den,
+                                      T * __restrict__ c_dyn,
+                                      T * __restrict__ delta,
+                                      T * __restrict__ s_abs,
+                                      T * __restrict__ nut,
+                                      const T alpha,
+                                      const int n){
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    T num_curr, den_curr;
+    T delta2 = delta[i] * delta[i];
+
+    m11[i] = delta2 * (m11[i] - fsabss11[i]);
+    m22[i] = delta2 * (m22[i] - fsabss22[i]);
+    m33[i] = delta2 * (m33[i] - fsabss33[i]);
+    m12[i] = delta2 * (m12[i] - fsabss12[i]);
+    m13[i] = delta2 * (m13[i] - fsabss13[i]);
+    m23[i] = delta2 * (m23[i] - fsabss23[i]);
+
+    num_curr = m11[i] * l11[i]
+             + m22[i] * l22[i]
+             + m33[i] * l33[i]
+      + 2.0 * (m12[i] * l12[i] 
+             + m13[i] * l13[i]
+             + m23[i] * l23[i]);
+    
+    den_curr = m11[i] * m11[i]
+             + m22[i] * m22[i]
+             + m33[i] * m33[i]
+      + 2.0 * (m12[i] * m12[i] 
+             + m13[i] * m13[i]
+             + m23[i] * m23[i]);
+
+    num[i] = alpha * num[i] + (1.0 - alpha) * num_curr;
+    den[i] = alpha * den[i] + (1.0 - alpha) * den_curr;
+
+    if (den[i] > 0.0) {
+        c_dyn[i] = 0.5 * num[i] / den[i];
+    } else {
+        c_dyn[i] = 0.0;
+    }
+
+    c_dyn[i] = max(c_dyn[i], 0.0);
+    nut[i] = c_dyn[i] * delta2 * s_abs[i];
+
+  }
+}
 #endif // __COMMON_DYNAMIC_SMAGORINSKY_NUT_KERNEL_H__

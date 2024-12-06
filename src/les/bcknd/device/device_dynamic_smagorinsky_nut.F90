@@ -84,18 +84,52 @@ module device_dynamic_smagorinsky_nut
      end subroutine hip_lij_compute_part2
   end interface
   interface
-     subroutine hip_dynamic_smagorinsky_nut_compute(s11_d, s22_d, s33_d, &
-                              s12_d, s13_d, s23_d, &
-                              delta_d, nut_d, mult_d, c_s, n) &
-          bind(c, name = 'hip_dynamic_smagorinsky_nut_compute')
+     subroutine hip_mij_compute_part1(m11_d, m22_d, m33_d, &
+                                      m12_d, m13_d, m23_d, &
+                                      s_abs_d, s11_d, s22_d, s33_d, &
+                                      s12_d, s13_d, s23_d, &
+                                      fs_abs_d, fs11_d, fs22_d, fs33_d, &
+                                      fs12_d, fs13_d, fs23_d, &
+                                      fsabss11_d, fsabss22_d, fsabss33_d, &
+                                      fsabss12_d, fsabss13_d, fsabss23_d, &
+                                      delta_ratio2, n) &
+          bind(c, name = 'hip_mij_compute_part1')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-       type(c_ptr), value :: s11_d, s22_d, s33_d, &
-                             s12_d, s13_d, s23_d, &
-                             delta_d, nut_d, mult_d
+       type(c_ptr) :: m11_d, m22_d, m33_d, &
+                   m12_d, m13_d, m23_d, &
+                   s_abs_d, s11_d, s22_d, s33_d, &
+                   s12_d, s13_d, s23_d, &
+                   fs_abs_d, fs11_d, fs22_d, fs33_d, &
+                   fs12_d, fs13_d, fs23_d, &
+                   fsabss11_d, fsabss22_d, fsabss33_d, &
+                   fsabss12_d, fsabss13_d, fsabss23_d
+       real(c_rp) :: delta_ratio2
        integer(c_int) :: n
-       real(c_rp) :: c_s
-     end subroutine hip_dynamic_smagorinsky_nut_compute
+     end subroutine hip_mij_compute_part1
+  end interface
+  interface
+     subroutine hip_mij_nut_compute_part2(m11_d, m22_d, m33_d, &
+                                    m12_d, m13_d, m23_d, &
+                                    l11_d, l22_d, l33_d, &
+                                    l12_d, l13_d, l23_d, &
+                                    fsabss11_d, fsabss22_d, fsabss33_d, &
+                                    fsabss12_d, fsabss13_d, fsabss23_d, &
+                                    num_d, den_d, c_dyn_d, delta_d, &
+                                    s_abs_d, nut_d, alpha, n) &
+          bind(c, name = 'hip_mij_nut_compute_part2')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr) :: m11_d, m22_d, m33_d, &
+                   m12_d, m13_d, m23_d, &
+                   l11_d, l22_d, l33_d, &
+                   l12_d, l13_d, l23_d, &
+                   fsabss11_d, fsabss22_d, fsabss33_d, &
+                   fsabss12_d, fsabss13_d, fsabss23_d, &
+                   num_d, den_d, c_dyn_d, delta_d, s_abs_d, nut_d
+       real(c_rp) :: alpha
+       integer(c_int) :: n
+     end subroutine hip_mij_nut_compute_part2
   end interface
 #elif HAVE_CUDA
   interface
@@ -141,24 +175,59 @@ module device_dynamic_smagorinsky_nut
      end subroutine cuda_lij_compute_part2
   end interface
   interface
-     subroutine cuda_dynamic_smagorinsky_nut_compute(s11_d, s22_d, s33_d, &
-                              s12_d, s13_d, s23_d, &
-                              delta_d, nut_d, mult_d, c_s, n) &
-          bind(c, name = 'cuda_dynamic_smagorinsky_nut_compute')
+     subroutine cuda_mij_compute_part1(m11_d, m22_d, m33_d, &
+                                      m12_d, m13_d, m23_d, &
+                                      s_abs_d, s11_d, s22_d, s33_d, &
+                                      s12_d, s13_d, s23_d, &
+                                      fs_abs_d, fs11_d, fs22_d, fs33_d, &
+                                      fs12_d, fs13_d, fs23_d, &
+                                      fsabss11_d, fsabss22_d, fsabss33_d, &
+                                      fsabss12_d, fsabss13_d, fsabss23_d, &
+                                      delta_ratio2, n) &
+          bind(c, name = 'cuda_mij_compute_part1')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-       type(c_ptr), value :: s11_d, s22_d, s33_d, &
-                             s12_d, s13_d, s23_d, &
-                             delta_d, nut_d, mult_d
+       type(c_ptr) :: m11_d, m22_d, m33_d, &
+                   m12_d, m13_d, m23_d, &
+                   s_abs_d, s11_d, s22_d, s33_d, &
+                   s12_d, s13_d, s23_d, &
+                   fs_abs_d, fs11_d, fs22_d, fs33_d, &
+                   fs12_d, fs13_d, fs23_d, &
+                   fsabss11_d, fsabss22_d, fsabss33_d, &
+                   fsabss12_d, fsabss13_d, fsabss23_d
+       real(c_rp) :: delta_ratio2
        integer(c_int) :: n
-       real(c_rp) :: c_s
-     end subroutine cuda_dynamic_smagorinsky_nut_compute
+     end subroutine cuda_mij_compute_part1
+  end interface
+  interface
+     subroutine cuda_mij_nut_compute_part2(m11_d, m22_d, m33_d, &
+                                    m12_d, m13_d, m23_d, &
+                                    l11_d, l22_d, l33_d, &
+                                    l12_d, l13_d, l23_d, &
+                                    fsabss11_d, fsabss22_d, fsabss33_d, &
+                                    fsabss12_d, fsabss13_d, fsabss23_d, &
+                                    num_d, den_d, c_dyn_d, delta_d, &
+                                    s_abs_d, nut_d, alpha, n) &
+          bind(c, name = 'cuda_mij_nut_compute_part2')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr) :: m11_d, m22_d, m33_d, &
+                   m12_d, m13_d, m23_d, &
+                   l11_d, l22_d, l33_d, &
+                   l12_d, l13_d, l23_d, &
+                   fsabss11_d, fsabss22_d, fsabss33_d, &
+                   fsabss12_d, fsabss13_d, fsabss23_d, &
+                   num_d, den_d, c_dyn_d, delta_d, s_abs_d, nut_d
+       real(c_rp) :: alpha
+       integer(c_int) :: n
+     end subroutine cuda_mij_nut_compute_part2
   end interface
 #elif HAVE_OPENCL
 #endif
 
   public :: device_s_abs_compute, device_lij_compute_part1, &
-            device_lij_compute_part2
+            device_lij_compute_part2, device_mij_compute_part1, &
+            device_mij_nut_compute_part2
 contains
 
   !> Compute the s_abs field for the Sigma model indevice
@@ -184,7 +253,7 @@ contains
 #endif
   end subroutine device_s_abs_compute
 
-  !> part 1 of the computing of the lij field for the Sigma model indevice
+  !> part 1 of the computing of the lij field
   subroutine device_lij_compute_part1(l11_d, l22_d, l33_d, &
                                       l12_d, l13_d, l23_d, &
                                       u_d, v_d, w_d, &
@@ -217,7 +286,7 @@ contains
 #endif
   end subroutine device_lij_compute_part1
 
-!> part 2 of the computing of the lij field for the Sigma model indevice
+!> part 2 of the computing of the lij field
   subroutine device_lij_compute_part2(l11_d, l22_d, l33_d, &
                                       l12_d, l13_d, l23_d, &
                                       fuu_d, fvv_d, fww_d, &
@@ -243,29 +312,97 @@ contains
 #endif
   end subroutine device_lij_compute_part2
 
-  !> Compute the eddy viscosity field for the Sigma model indevice
-  subroutine device_dynamic_smagorinsky_nut_compute(s11_d, s22_d, s33_d, &
-                              s12_d, s13_d, s23_d, &
-                              delta_d, nut_d, mult_d, c_s, n)
-    type(c_ptr) :: s11_d, s22_d, s33_d, &
+  !> part 1 of the computing of the mij field
+  subroutine device_mij_compute_part1(m11_d, m22_d, m33_d, &
+                                      m12_d, m13_d, m23_d, &
+                                      s_abs_d, s11_d, s22_d, s33_d, &
+                                      s12_d, s13_d, s23_d, &
+                                      fs_abs_d, fs11_d, fs22_d, fs33_d, &
+                                      fs12_d, fs13_d, fs23_d, &
+                                      fsabss11_d, fsabss22_d, fsabss33_d, &
+                                      fsabss12_d, fsabss13_d, fsabss23_d, &
+                                      delta_ratio2, n)
+    type(c_ptr) :: m11_d, m22_d, m33_d, &
+                   m12_d, m13_d, m23_d, &
+                   s_abs_d, s11_d, s22_d, s33_d, &
                    s12_d, s13_d, s23_d, &
-                   delta_d, nut_d, mult_d
+                   fs_abs_d, fs11_d, fs22_d, fs33_d, &
+                   fs12_d, fs13_d, fs23_d, &
+                   fsabss11_d, fsabss22_d, fsabss33_d, &
+                   fsabss12_d, fsabss13_d, fsabss23_d
+    real(kind=rp) :: delta_ratio2
     integer :: n
-    real(kind=rp) :: c_s
+
 #if HAVE_HIP
-    call hip_dynamic_smagorinsky_nut_compute(s11_d, s22_d, s33_d, &
-                              s12_d, s13_d, s23_d, &
-                              delta_d, nut_d, mult_d, c_s, n)
+    call hip_mij_compute_part1(m11_d, m22_d, m33_d, &
+                               m12_d, m13_d, m23_d, &
+                               s_abs_d, s11_d, s22_d, s33_d, &
+                               s12_d, s13_d, s23_d, &
+                               fs_abs_d, fs11_d, fs22_d, fs33_d, &
+                               fs12_d, fs13_d, fs23_d, &
+                               fsabss11_d, fsabss22_d, fsabss33_d, &
+                               fsabss12_d, fsabss13_d, fsabss23_d, &
+                               delta_ratio2, n)
 #elif HAVE_CUDA
-    call cuda_dynamic_smagorinsky_nut_compute(s11_d, s22_d, s33_d, &
-                              s12_d, s13_d, s23_d, &
-                              delta_d, nut_d, mult_d, c_s, n)
+    call cuda_mij_compute_part1(m11_d, m22_d, m33_d, &
+                               m12_d, m13_d, m23_d, &
+                               s_abs_d, s11_d, s22_d, s33_d, &
+                               s12_d, s13_d, s23_d, &
+                               fs_abs_d, fs11_d, fs22_d, fs33_d, &
+                               fs12_d, fs13_d, fs23_d, &
+                               fsabss11_d, fsabss22_d, fsabss33_d, &
+                               fsabss12_d, fsabss13_d, fsabss23_d, &
+                               delta_ratio2, n)
 #elif HAVE_OPENCL
-    call neko_error('opencl backend is not supported for device_dynamic_smagorinsky_nut')
+    call neko_error('opencl backend is not supported for &
+                    &device_mij_compute_part1')
 #else
     call neko_error('no device backend configured')
 #endif
-  end subroutine device_dynamic_smagorinsky_nut_compute
+  end subroutine device_mij_compute_part1
+
+  !> part 1 of the computing of the mij field
+  subroutine device_mij_nut_compute_part2(m11_d, m22_d, m33_d, &
+                                      m12_d, m13_d, m23_d, &
+                                      l11_d, l22_d, l33_d, &
+                                      l12_d, l13_d, l23_d, &
+                                      fsabss11_d, fsabss22_d, fsabss33_d, &
+                                      fsabss12_d, fsabss13_d, fsabss23_d, &
+                                      num_d, den_d, c_dyn_d, delta_d, &
+                                      s_abs_d, nut_d, alpha, n)
+    type(c_ptr) :: m11_d, m22_d, m33_d, &
+                   m12_d, m13_d, m23_d, &
+                   fsabss11_d, fsabss22_d, fsabss33_d, &
+                   fsabss12_d, fsabss13_d, fsabss23_d, &
+                   num_d, den_d, c_dyn_d, delta_d, s_abs_d, nut_d 
+    real(kind=rp) :: alpha
+    integer :: n
+
+#if HAVE_HIP
+    call hip_mij_nut_compute_part2(m11_d, m22_d, m33_d, &
+                                   m12_d, m13_d, m23_d, &
+                                   l11_d, l22_d, l33_d, &
+                                   l12_d, l13_d, l23_d, &
+                                   fsabss11_d, fsabss22_d, fsabss33_d, &
+                                   fsabss12_d, fsabss13_d, fsabss23_d, &
+                                   num_d, den_d, c_dyn_d, delta_d, &
+                                   s_abs_d, nut_d, alpha, n)
+#elif HAVE_CUDA
+    call cuda_mij_nut_compute_part2(m11_d, m22_d, m33_d, &
+                                    m12_d, m13_d, m23_d, &
+                                    l11_d, l22_d, l33_d, &
+                                    l12_d, l13_d, l23_d, &
+                                    fsabss11_d, fsabss22_d, fsabss33_d, &
+                                    fsabss12_d, fsabss13_d, fsabss23_d, &
+                                    num_d, den_d, c_dyn_d, delta_d, &
+                                    s_abs_d, nut_d, alpha, n)
+#elif HAVE_OPENCL
+    call neko_error('opencl backend is not supported for &
+                    &device_mij_nut_compute_part2')
+#else
+    call neko_error('no device backend configured')
+#endif
+  end subroutine device_mij_nut_compute_part2
 
   
 end module device_dynamic_smagorinsky_nut

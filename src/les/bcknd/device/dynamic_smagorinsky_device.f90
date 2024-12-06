@@ -34,7 +34,6 @@
 module dynamic_smagorinsky_device
   use num_types, only : rp
   use field_list, only : field_list_t
-  use math, only : cadd, col2, sub2, col3, cmult
   use scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
   use field, only : field_t
@@ -42,6 +41,9 @@ module dynamic_smagorinsky_device
   use coefs, only : coef_t
   use elementwise_filter, only : elementwise_filter_t
   use gs_ops, only : GS_OP_ADD
+  use device_dynamic_smagorinsky_nut, only : device_s_abs_compute, &
+            device_lij_compute_part1, device_lij_compute_part2, &
+            device_mij_compute_part1, device_mij_nut_compute_part2
   implicit none
   private
 
@@ -247,7 +249,6 @@ contains
     !!         _____     ____
     !! Compute s_abs and s_ij
     call test_filter%filter_3d(fs_abs, s_abs%x, nelv)
-
     call test_filter%filter_3d(fs11, s11%x, nelv)
     call test_filter%filter_3d(fs22, s22%x, nelv)
     call test_filter%filter_3d(fs33, s33%x, nelv)
@@ -255,31 +256,18 @@ contains
     call test_filter%filter_3d(fs13, s13%x, nelv)
     call test_filter%filter_3d(fs23, s23%x, nelv)
     
-    !!! PART I START
     !!                              _____ ____
     !! Compute (delta_test/delta)^2 s_abs*s_ij and s_abs*s_ij
-    call col3(mij(1)%x, fs_abs, fs11, n)
-    call cmult(mij(1)%x, delta_ratio2, n)
-    call col3(mij(2)%x, fs_abs, fs22, n)
-    call cmult(mij(2)%x, delta_ratio2, n)
-    call col3(mij(3)%x, fs_abs, fs33, n)
-    call cmult(mij(3)%x, delta_ratio2, n)
-    call col3(mij(4)%x, fs_abs, fs12, n)
-    call cmult(mij(4)%x, delta_ratio2, n)
-    call col3(mij(5)%x, fs_abs, fs13, n)
-    call cmult(mij(5)%x, delta_ratio2, n)
-    call col3(mij(6)%x, fs_abs, fs23, n)
-    call cmult(mij(6)%x, delta_ratio2, n)
+    call device_mij_compute_part1(mij(1)%x_d, mij(2)%x_d, mij(3)%x_d, &
+                                  mij(4)%x_d, mij(5)%x_d, mij(6)%x_d, &
+                                  s_abs%x_d, s11%x_d, s22%x_d, s33%x_d, &
+                                  s12%x_d, s13%x_d, s23%x_d, &
+                                  fs_abs%x_d, fs11%x_d, fs22%x_d, fs33%x_d, &
+                                  fs12%x_d, fs13%x_d, fs23%x_d, &
+                                  fsabss11%x_d, fsabss22%x_d, fsabss33%x_d, &
+                                  fsabss12%x_d, fsabss13%x_d, fsabss23%x_d, &
+                                  delta_ratio2, n)
 
-    call col3(fsabss11, s_abs%x, s11%x, n)
-    call col3(fsabss22, s_abs%x, s22%x, n)
-    call col3(fsabss33, s_abs%x, s33%x, n)
-    call col3(fsabss12, s_abs%x, s12%x, n)
-    call col3(fsabss13, s_abs%x, s13%x, n)
-    call col3(fsabss23, s_abs%x, s23%x, n)
-    !!! PART I FINISH
-
-    !!         
     !! Filter s_abs*s_ij by the test filter
     call test_filter%filter_3d(fsabss11%x, fsabss11%x, nelv)
     call test_filter%filter_3d(fsabss22%x, fsabss22%x, nelv)
@@ -288,51 +276,15 @@ contains
     call test_filter%filter_3d(fsabss13%x, fsabss13%x, nelv)
     call test_filter%filter_3d(fsabss23%x, fsabss23%x, nelv)
 
-    !!! PART II START
-    call sub2(mij(1)%x, fsabss11, n)
-    call sub2(mij(2)%x, fsabss22, n)
-    call sub2(mij(3)%x, fsabss33, n)
-    call sub2(mij(4)%x, fsabss12, n)
-    call sub2(mij(5)%x, fsabss13, n)
-    call sub2(mij(6)%x, fsabss23, n)
-
-    !! Lastly multiplied by delta^2
-    do concurrent (i = 1:n)
-       delta2 = delta%x(i,1,1,1)**2
-       mij(1)%x(i,1,1,1) = mij(1)%x(i,1,1,1) * delta2
-       mij(2)%x(i,1,1,1) = mij(2)%x(i,1,1,1) * delta2
-       mij(3)%x(i,1,1,1) = mij(3)%x(i,1,1,1) * delta2
-       mij(4)%x(i,1,1,1) = mij(4)%x(i,1,1,1) * delta2
-       mij(5)%x(i,1,1,1) = mij(5)%x(i,1,1,1) * delta2
-       mij(6)%x(i,1,1,1) = mij(6)%x(i,1,1,1) * delta2
-
-       num_curr(i) = mij(1)%x(i,1,1,1)*lij(1)%x(i,1,1,1) + &
-                     mij(2)%x(i,1,1,1)*lij(2)%x(i,1,1,1) + &
-                     mij(3)%x(i,1,1,1)*lij(3)%x(i,1,1,1) + &
-                     2.0_rp*(mij(4)%x(i,1,1,1)*lij(4)%x(i,1,1,1) + &
-                     mij(5)%x(i,1,1,1)*lij(5)%x(i,1,1,1) + &
-                     mij(6)%x(i,1,1,1)*lij(6)%x(i,1,1,1))
-       den_curr(i) = mij(1)%x(i,1,1,1)*mij(1)%x(i,1,1,1) + &
-                     mij(2)%x(i,1,1,1)*mij(2)%x(i,1,1,1) + &
-                     mij(3)%x(i,1,1,1)*mij(3)%x(i,1,1,1) + &
-                     2.0_rp*(mij(4)%x(i,1,1,1)*mij(4)%x(i,1,1,1) + &
-                     mij(5)%x(i,1,1,1)*mij(5)%x(i,1,1,1) + &
-                     mij(6)%x(i,1,1,1)*mij(6)%x(i,1,1,1))
-
-       num%x(i,1,1,1) = alpha * num%x(i,1,1,1) + (1.0_rp - alpha) * num_curr(i)
-       den%x(i,1,1,1) = alpha * den%x(i,1,1,1) + (1.0_rp - alpha) * den_curr(i)
-
-       if (den%x(i,1,1,1) .gt. 0.0_rp) then
-          c_dyn%x(i,1,1,1) = 0.5_rp * (num%x(i,1,1,1)/den%x(i,1,1,1))
-       else
-          c_dyn%x(i,1,1,1) = 0.0_rp
-       end if
-
-       c_dyn%x(i,1,1,1) = max(c_dyn%x(i,1,1,1),0.0_rp)
-       nut%x(i,1,1,1) = c_dyn%x(i,1,1,1) * delta%x(i,1,1,1)**2 * s_abs%x(i,1,1,1)
-
-    end do
-    !!! PART II FINISH
+    !! Finalise the compute of Mij and nut
+    call device_mij_nut_compute_part2(mij(1)%x_d, mij(2)%x_d, mij(3)%x_d, &
+                                  mij(4)%x_d, mij(5)%x_d, mij(6)%x_d, &
+                                  lij(1)%x_d, lij(2)%x_d, lij(3)%x_d, &
+                                  lij(4)%x_d, lij(5)%x_d, lij(6)%x_d, &
+                                  fsabss11%x_d, fsabss22%x_d, fsabss33%x_d, &
+                                  fsabss12%x_d, fsabss13%x_d, fsabss23%x_d, &
+                                  num%x_d, den%x_d, c_dyn%x_d, delta%x_d, &
+                                  s_abs%x_d, nut%x_d, alpha, n)
   end subroutine
 
 end module dynamic_smagorinsky_device
