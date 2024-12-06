@@ -529,7 +529,9 @@ contains
     integer :: conv_pts
     logical :: converged
     integer :: i, j, e, iter, lx, lx2
-
+    if(allocated(x_hat)) deallocate(x_hat)
+    if(allocated(y_hat)) deallocate(y_hat)
+    if(allocated(z_hat)) deallocate(z_hat)
     allocate(x_hat(xh%lx, xh%ly, xh%lz, nelv))
     allocate(y_hat(xh%lx, xh%ly, xh%lz, nelv))
     allocate(z_hat(xh%lx, xh%ly, xh%lz, nelv))
