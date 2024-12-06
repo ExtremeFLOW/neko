@@ -52,7 +52,6 @@ module phmg
   use math, only : copy, col2, add2
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory, krylov_solver_destroy
-  use file, only : file_t
   implicit none
   private
 
