@@ -157,6 +157,8 @@ contains
     class(stack_t), intent(inout) :: this
     integer, optional :: size !< Initial size of the stack
     integer :: size_t
+    
+    call this%free()
 
     if (present(size)) then
        if (size .gt. 0) then
