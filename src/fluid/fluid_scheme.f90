@@ -1017,7 +1017,7 @@ contains
     type(coef_t), target, intent(in) :: coef
     type(dofmap_t), target, intent(in) :: dof
     type(gs_t), target, intent(inout) :: gs
-    type(bc_list_t), target, intent(in) :: bclst
+    type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
 
     call precon_factory(pc, pctype)
