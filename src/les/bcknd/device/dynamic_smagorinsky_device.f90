@@ -64,7 +64,8 @@ contains
   !! @param num The numerator in the expression of c_dyn, i.e. <mij*lij>
   !! @param den The denominator in the expression of c_dyn, i.e. <mij*mij>
   subroutine dynamic_smagorinsky_compute_device(t, tstep, coef, nut, delta, &
-                                             c_dyn, test_filter, mij, lij, num, den)
+                                             c_dyn, test_filter, mij, lij, &
+                                             num, den)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
@@ -285,7 +286,7 @@ contains
                                   fsabss12%x_d, fsabss13%x_d, fsabss23%x_d, &
                                   num%x_d, den%x_d, c_dyn%x_d, delta%x_d, &
                                   s_abs%x_d, nut%x_d, alpha, n)
-  end subroutine
+  end subroutine compute_nut_device
 
 end module dynamic_smagorinsky_device
 
