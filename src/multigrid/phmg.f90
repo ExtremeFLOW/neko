@@ -222,7 +222,6 @@ contains
     class(ax_t), intent(inout) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(field_t) :: z, r, w
-    type(file_t) :: fname, cname
     integer :: i
 
 
