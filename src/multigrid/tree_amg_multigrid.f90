@@ -55,6 +55,7 @@ module tree_amg_multigrid
   use tree_amg, only : tamg_hierarchy_t, tamg_lvl_init, tamg_node_init
   use tree_amg_aggregate
   use tree_amg_smoother
+  use logger, only : neko_log, LOG_SIZE
   implicit none
   private
 
@@ -94,6 +95,7 @@ contains
     integer :: nlvls, lvl, n, cheby_degree, env_len, mlvl
     integer, allocatable :: agg_nhbr(:,:), asdf(:,:)
     character(len=255) :: env_cheby_degree, env_mlvl
+    character(len=LOG_SIZE) :: log_buf
 
     call get_environment_variable("NEKO_TAMG_MAX_LVL", &
          env_mlvl, env_len)
@@ -116,19 +118,17 @@ contains
     call aggregate_finest_level(this%amg, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
     if (nlvls .gt. 2) then
-      print *, "Calling lazy aggregation"
-      print *, "-- target aggregates:", (msh%nelv/8)
+      call print_preagg_info(2,(msh%nelv/8))
       call aggregate_greedy(this%amg, 2, (msh%nelv/8), msh%facet_neigh, agg_nhbr)
       !call aggregate_elm(this%amg, (msh%nelv/8), agg_nhbr)
-      print *, "-- Aggregation done. Aggregates:", this%amg%lvl(2)%nnodes
+      !---!print *, "-- Aggregation done. Aggregates:", this%amg%lvl(2)%nnodes
     end if
 
     if (nlvls .gt. 3) then
-      print *, "Calling lazy aggregation"
-      print *, "-- target aggregates:", (this%amg%lvl(2)%nnodes/8)
+      call print_preagg_info(3,(this%amg%lvl(2)%nnodes/8))
       call aggregate_greedy(this%amg, 3, (this%amg%lvl(2)%nnodes/8), agg_nhbr, asdf)
       !call aggregate_general(this%amg, (this%amg%lvl(2)%nnodes/8), 3, agg_nhbr)
-      print *, "-- Aggregation done. Aggregates:", this%amg%lvl(3)%nnodes
+      !---!print *, "-- Aggregation done. Aggregates:", this%amg%lvl(3)%nnodes
     end if
 
     call aggregate_end(this%amg, nlvls)
@@ -160,6 +160,7 @@ contains
     !  call this%jsmoo(lvl)%init(n ,lvl, cheby_degree)
     !end do
 
+    call fill_lvl_map(this%amg)
   end subroutine tamg_mg_init
  
 
@@ -308,4 +309,38 @@ contains
       U(i) = U(i) * amg%coef%mult(i,1,1,1)
     end do
   end subroutine average_duplicates
+
+  subroutine print_preagg_info(lvl,nagg)
+    integer, intent(in) :: lvl,nagg
+    character(len=LOG_SIZE) :: log_buf
+    !TODO: calculate min and max agg size
+    write(log_buf, '(A8,I2,A31)') '-- level',lvl,'-- Calling Greedy Aggregation'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A8,I2,A23,I6)') '-- level',lvl,'-- Target Aggregates:',nagg
+    call neko_log%message(log_buf)
+  end subroutine print_preagg_info
+
+  subroutine fill_lvl_map(amg)
+    type(tamg_hierarchy_t), intent(inout) :: amg
+    integer :: i, j, k, l, nid, n
+    do j = 1, amg%lvl(1)%nnodes
+      do k = 1, amg%lvl(1)%nodes(j)%ndofs
+        nid = amg%lvl(1)%nodes(j)%dofs(k)
+        amg%lvl(1)%map_f2c_dof(nid) = amg%lvl(1)%nodes(j)%gid
+      end do
+    end do
+    n = size(amg%lvl(1)%map_f2c_dof)
+    do l = 2, amg%nlvls
+      do i = 1, n
+        nid = amg%lvl(l-1)%map_f2c_dof(i)
+        do j = 1, amg%lvl(l)%nnodes
+          do k = 1, amg%lvl(l)%nodes(j)%ndofs
+            if (nid .eq. amg%lvl(l)%nodes(j)%dofs(k)) then
+              amg%lvl(l)%map_f2c_dof(i) = amg%lvl(l)%nodes(j)%gid
+            end if
+          end do
+        end do
+      end do
+    end do
+  end subroutine
 end module tree_amg_multigrid

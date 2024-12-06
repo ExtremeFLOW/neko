@@ -65,6 +65,7 @@ module tree_amg
     real(kind=rp), allocatable :: wrk_in(:) !< Work vector for data coming into the level
     real(kind=rp), allocatable :: wrk_out(:) !< Work vector for data leaving the level
     integer, allocatable :: map_f2c_dof(:)
+    integer, allocatable :: map_c2f_dof(:)
   end type tamg_lvl_t
 
   !> Type for a TreeAMG hierarchy
@@ -111,6 +112,7 @@ contains
     type(gs_t), target, intent(in) :: gs_h
     integer, intent(in) :: nlvls
     type(bc_list_t), target, intent(in) :: blst
+    integer :: i, n
 
     this%ax => ax
     this%msh => msh
@@ -125,6 +127,11 @@ contains
 
     this%nlvls = nlvls
     allocate( this%lvl(this%nlvls) )
+
+    do i = 1, nlvls
+      allocate( this%lvl(i)%map_f2c_dof( coef%dof%size() ))
+      allocate( this%lvl(i)%map_c2f_dof( coef%dof%size() ))
+    end do
 
   end subroutine tamg_init
 
@@ -238,20 +245,37 @@ contains
         !> lvl is coarser then desired output. Continue down tree
         call this%matvec_impl(vec_out, vec_in, lvl-1, lvl_out)
       else
-        print *, "ERROR"
+        call neko_error("TAMG: matvec level numbering problem.")
       end if
     end if
   end subroutine tamg_matvec_impl
 
 
   !> Ignore this. For piecewise constant, can create index map directly to finest level
-  recursive subroutine tamg_matvec_flat_impl(this, vec_out, vec_in, lvl, lvl_out)
+  recursive subroutine tamg_matvec_flat_impl(this, vec_out, vec_in, lvl_blah, lvl_out)
     class(tamg_hierarchy_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: vec_out(:)
     real(kind=rp), intent(inout) :: vec_in(:)
-    integer, intent(in) :: lvl
+    integer, intent(in) :: lvl_blah
     integer, intent(in) :: lvl_out
-    integer :: i, n, cdof
+    integer :: i, n, cdof, lvl
+
+    lvl = lvl_out
+    if (lvl .eq. 0) then !> isleaf true
+      !> If on finest level, pass to neko ax_t matvec operator
+      n = size(vec_in)
+      !> Call local finite element assembly
+      call this%gs_h%op(vec_in, n, GS_OP_ADD)
+      do i = 1, n
+        vec_in(i) = vec_in(i) * this%coef%mult(i,1,1,1)
+      end do
+      !>
+      call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
+      !>
+      call this%gs_h%op(vec_out, n, GS_OP_ADD)
+      call bc_list_apply(this%blst, vec_out, n)
+      !>
+    else !> pass down through hierarchy
 
     associate( wrk_in => this%lvl(1)%wrk_in, wrk_out => this%lvl(1)%wrk_out)
     n = size(wrk_in)
@@ -282,6 +306,7 @@ contains
       vec_out(cdof) = vec_out(cdof) + wrk_out( i )
     end do
     end associate
+    end if
   end subroutine tamg_matvec_flat_impl
 
 
