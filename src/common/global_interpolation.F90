@@ -548,7 +548,7 @@ contains
                    this%Xh%vinvt, this%Xh%vinvt, this%nelv)
        allocate(conv_pts(n_point_cand))
        conv_pts = .false.
-       bytes = n_point_cand*sizeof(conv_pts(1))
+       bytes = n_point_cand*c_sizeof(conv_pts(1))
        call device_alloc(conv_pts_d,bytes)
        call device_memcpy_common(c_loc(conv_pts), conv_pts_d, bytes, HOST_TO_DEVICE, .false., glb_cmd_queue)
        call device_map(el_cands, el_cands_d,n_point_cand)
