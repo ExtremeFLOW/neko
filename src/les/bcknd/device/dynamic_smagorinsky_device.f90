@@ -41,6 +41,7 @@ module dynamic_smagorinsky_device
   use coefs, only : coef_t
   use elementwise_filter, only : elementwise_filter_t
   use gs_ops, only : GS_OP_ADD
+  use device_math, only : device_col2
   use device_dynamic_smagorinsky_nut, only : device_s_abs_compute, &
             device_lij_compute_part1, device_lij_compute_part2, &
             device_mij_compute_part1, device_mij_nut_compute_part2
