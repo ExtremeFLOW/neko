@@ -448,8 +448,8 @@ contains
        minidx = -1
        do imin = 1, size(array)
           if (.not. visited(imin) .and. minidx .eq. -1) minidx = imin
-          if( minidx .gt. -1) then
-          if (visited(imin) .and. array(imin) .lt. array(minidx)) minidx = imin
+          if (minidx .gt. -1) then
+             if (visited(imin) .and. array(imin) .lt. array(minidx)) minidx = imin
           end if
        end do
 
