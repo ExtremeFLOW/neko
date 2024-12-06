@@ -52,21 +52,22 @@ module phmg
   use math, only : copy, col2, add2
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory, krylov_solver_destroy
+  use file, only : file_t
   implicit none
   private
 
 
   type, private :: phmg_lvl_t
      integer :: lvl = -1
-     type(space_t) :: Xh
-     type(dofmap_t) :: dm_Xh
-     type(gs_t) :: gs_h
+     type(space_t), pointer :: Xh
+     type(dofmap_t), pointer :: dm_Xh
+     type(gs_t), pointer :: gs_h
      type(cheby_t) :: cheby
-     type(jacobi_t), allocatable :: jacobi
-     type(coef_t) :: coef
+     type(jacobi_t) :: jacobi
+     type(coef_t), pointer :: coef
      type(bc_list_t) :: bclst
      type(dirichlet_t) :: bc
-     type(field_t) :: e, r, w, z
+     type(field_t) :: r, w, z
   end type phmg_lvl_t
 
   type, public :: phmg_hrchy_t
@@ -77,20 +78,10 @@ module phmg
   type, public, extends(pc_t) :: phmg_t
      type(tamg_solver_t) :: amg_solver
      integer :: nlvls 
-     real(kind=rp), allocatable :: r(:)
-     real(kind=rp), allocatable :: w(:)
      type(phmg_hrchy_t) :: phmg_hrchy
-     type(mesh_t), pointer :: msh
-     type(space_t), pointer :: Xh
-     type(coef_t), pointer :: coef
-     type(dofmap_t), pointer :: dof
-     type(gs_t), pointer :: gs_h
-     type(bc_list_t) :: bclst
-     type(dirichlet_t) :: bc
      class(ax_t), allocatable :: ax
-     type(cheby_t) :: cheby
      type(interpolator_t), allocatable :: intrp(:)
-     type(field_t) :: z
+     type(mesh_t), pointer :: msh
    contains
      procedure, pass(this) :: init => phmg_init
      procedure, pass(this) :: free => phmg_free
@@ -108,57 +99,57 @@ contains
     type(dofmap_t), intent(inout), target :: dof
     type(gs_t), intent(inout), target :: gs_h
     type(bc_list_t), intent(inout), target :: bclst
-    integer :: lx_crs, lx_mid, lx_lvls(2)
+    integer :: lx_crs, lx_mid
+    integer, allocatable :: lx_lvls(:)
     integer :: n, i, j
-
-    this%msh => msh
-    this%Xh => Xh
-    this%coef => coef
-    this%dof => dof
-    this%gs_h => gs_h
-
     
-    this%nlvls = 2
-    lx_crs = 2
-    lx_lvls(1) = lx_crs
-    if (Xh%lx .lt. 5) then
-       lx_mid = max(Xh%lx-1,3)
-
-       if(Xh%lx .le. 2) then
-          call neko_error('Polynomial order < 2 not supported for phmg precon')
-       end if
-
-    else
-       lx_mid = 4
-    end if
-    lx_lvls(2) = lx_mid
     this%msh => msh
 
-    allocate(this%r(dof%size()))
-    allocate(this%w(dof%size()))
-    allocate(this%phmg_hrchy%lvl(this%nlvls))
-    do i = 1, this%nlvls
+    this%nlvls = Xh%lx - 1
+
+    allocate(lx_lvls(0:this%nlvls - 1))
+    lx_lvls(0) = Xh%lx
+    do i = 1, this%nlvls -1
+       lx_lvls(i) = Xh%lx - i
+    end do
+
+    allocate(this%phmg_hrchy%lvl(0:this%nlvls - 1))
+
+    this%phmg_hrchy%lvl(0)%lvl = 0
+    this%phmg_hrchy%lvl(0)%Xh => Xh
+    this%phmg_hrchy%lvl(0)%coef => coef
+    this%phmg_hrchy%lvl(0)%dm_Xh => dof
+    this%phmg_hrchy%lvl(0)%gs_h => gs_h
+    
+    do i = 1, this%nlvls - 1
+       allocate(this%phmg_hrchy%lvl(i)%Xh)
+       allocate(this%phmg_hrchy%lvl(i)%dm_Xh)
+       allocate(this%phmg_hrchy%lvl(i)%gs_h)
+       allocate(this%phmg_hrchy%lvl(i)%coef)
+
        this%phmg_hrchy%lvl(i)%lvl = i
        call this%phmg_hrchy%lvl(i)%Xh%init(GLL, lx_lvls(i), lx_lvls(i), lx_lvls(i))
        call this%phmg_hrchy%lvl(i)%dm_Xh%init(msh, this%phmg_hrchy%lvl(i)%Xh)
        call this%phmg_hrchy%lvl(i)%gs_h%init(this%phmg_hrchy%lvl(i)%dm_Xh)
        call this%phmg_hrchy%lvl(i)%coef%init(this%phmg_hrchy%lvl(i)%gs_h)
-       call this%phmg_hrchy%lvl(i)%e%init(this%phmg_hrchy%lvl(i)%dm_Xh)
+    end do
+
+    do i = 0, this%nlvls - 1
        call this%phmg_hrchy%lvl(i)%r%init(this%phmg_hrchy%lvl(i)%dm_Xh)
        call this%phmg_hrchy%lvl(i)%w%init(this%phmg_hrchy%lvl(i)%dm_Xh)
        call this%phmg_hrchy%lvl(i)%z%init(this%phmg_hrchy%lvl(i)%dm_Xh)
-
-
+       
        call this%phmg_hrchy%lvl(i)%cheby%init(this%phmg_hrchy%lvl(i)%dm_Xh%size(), KSP_MAX_ITER)
-              
-!       call krylov_solver_factory(phmg_hrchy%lvl(i)%, &
-!            this%dm_crs%size(), trim(crs_pctype), KSP_MAX_ITER
 
+       call this%phmg_hrchy%lvl(i)%jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
+                                               this%phmg_hrchy%lvl(i)%dm_Xh, &
+                                               this%phmg_hrchy%lvl(i)%gs_h)
+              
        this%phmg_hrchy%lvl(i)%coef%ifh2 = coef%ifh2
        call copy(this%phmg_hrchy%lvl(i)%coef%h1, coef%h1, &
             this%phmg_hrchy%lvl(i)%dm_Xh%size())
 
-       call this%phmg_hrchy%lvl(i)%bc%init_base(this%phmg_hrchy%lvl(i)%coef)       
+       call this%phmg_hrchy%lvl(i)%bc%init_base(this%phmg_hrchy%lvl(i)%coef)
        if (bclst%n .gt. 0 ) then
           do j = 1, bclst%n
              call this%phmg_hrchy%lvl(i)%bc%mark_facets(&
@@ -168,49 +159,28 @@ contains
        call this%phmg_hrchy%lvl(i)%bc%finalize()
        call this%phmg_hrchy%lvl(i)%bc%set_g(0.0_rp)
        call bc_list_init(this%phmg_hrchy%lvl(i)%bclst)
-       call bc_list_add(this%phmg_hrchy%lvl(i)%bclst, this%phmg_hrchy%lvl(i)%bc)              
+       call bc_list_add(this%phmg_hrchy%lvl(i)%bclst, this%phmg_hrchy%lvl(i)%bc)
     end do
 
     ! Create backend specific Ax operator
     call ax_helm_factory(this%ax, full_formulation = .false.)
 
-    call this%cheby%init(dof%size(), KSP_MAX_ITER)
-
-    call this%z%init(dof)
-
-
-    call this%bc%init_base(this%coef)
-    if (bclst%n .gt. 0 ) then
-       do j = 1, bclst%n
-          call this%bc%mark_facets(bclst%bc(j)%bcp%marked_facet)
-       end do
-    end if
-    call this%bc%finalize()
-    call this%bc%set_g(0.0_rp)
-    call bc_list_init(this%bclst)
-    call bc_list_add(this%bclst, this%bc)              
-    
     ! Interpolator Fine + mg levels
-    allocate(this%intrp(this%nlvls))
-    call this%intrp(2)%init(this%Xh, this%phmg_hrchy%lvl(2)%Xh)
-    call this%intrp(1)%init(this%phmg_hrchy%lvl(2)%Xh, this%phmg_hrchy%lvl(1)%Xh)
-
-    call this%amg_solver%init(this%ax, this%phmg_hrchy%lvl(1)%Xh, &
-         this%phmg_hrchy%lvl(1)%coef, this%msh, this%phmg_hrchy%lvl(1)%gs_h, 4, &
-         this%phmg_hrchy%lvl(1)%bclst, 1)
+    allocate(this%intrp(this%nlvls - 1))
+    do i = 1, this%nlvls -1     
+       call this%intrp(i)%init(this%phmg_hrchy%lvl(i-1)%Xh, this%phmg_hrchy%lvl(i)%Xh)
+    end do
+    
+    call this%amg_solver%init(this%ax, this%phmg_hrchy%lvl(this%nlvls -1)%Xh, &
+                              this%phmg_hrchy%lvl(this%nlvls -1)%coef, this%msh, &
+                              this%phmg_hrchy%lvl(this%nlvls-1)%gs_h, 4, &
+                              this%phmg_hrchy%lvl(this%nlvls -1)%bclst, 1)
         
   end subroutine phmg_init
 
   subroutine phmg_free(this)
     class(phmg_t), intent(inout) :: this
 
-    if (allocated(this%r)) then
-       deallocate(this%r)
-    end if
-
-    if (allocated(this%w)) then
-       deallocate(this%w)
-    end if
     
   end subroutine phmg_free
 
@@ -220,105 +190,95 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: z
     real(kind=rp), dimension(n), intent(inout) :: r
     type(ksp_monitor_t) :: ksp_results
-         
-    !We should not work with the input
-    call copy(this%r, r, n)
-
-    call copy(this%z%x, z, n)
-
-    ksp_results =  this%cheby%solve(this%Ax, this%z, &
-         this%r, this%dof%size(), &
-         this%coef, this%bclst, &
-         this%gs_h, niter = 10)
-
-    call copy(z, this%z%x, n)
-
-    call this%ax%compute(this%w, this%z%x, this%coef, this%msh, this%Xh)
-
-    this%w = this%r - this%w 
-    
-    ! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
-    !Restrict to middle level
-    call this%intrp(2)%map(this%phmg_hrchy%lvl(2)%r%x, this%w, this%msh%nelv, &
-         this%phmg_hrchy%lvl(2)%Xh)
-    call this%phmg_hrchy%lvl(2)%gs_h%op(this%phmg_hrchy%lvl(2)%r%x, &
-                                        this%phmg_hrchy%lvl(2)%dm_Xh%size(), &
-                                        GS_OP_ADD)
-    call col2(this%phmg_hrchy%lvl(2)%r%x, this%phmg_hrchy%lvl(2)%coef%mult, &
-              this%phmg_hrchy%lvl(2)%dm_Xh%size())
-
-    call bc_list_apply_scalar(this%phmg_hrchy%lvl(2)%bclst, &
-                              this%phmg_hrchy%lvl(2)%r%x, &
-                              this%phmg_hrchy%lvl(2)%dm_Xh%size())
-
-    this%phmg_hrchy%lvl(2)%z = 0.0_rp
-    ksp_results =  this%phmg_hrchy%lvl(2)%cheby%solve(this%Ax, this%phmg_hrchy%lvl(2)%z, &
-         this%phmg_hrchy%lvl(2)%r%x, this%phmg_hrchy%lvl(2)%dm_Xh%size(), &
-         this%phmg_hrchy%lvl(2)%coef, this%phmg_hrchy%lvl(2)%bclst, &
-         this%phmg_hrchy%lvl(2)%gs_h, niter = 10)
-
-    call this%ax%compute(this%phmg_hrchy%lvl(2)%w%x, this%phmg_hrchy%lvl(2)%z%x, &
-         this%phmg_hrchy%lvl(2)%coef, this%msh, this%phmg_hrchy%lvl(2)%Xh)
-    
-    this%phmg_hrchy%lvl(2)%w%x = this%phmg_hrchy%lvl(2)%r%x - this%phmg_hrchy%lvl(2)%w%x
-    
-    !restrict residual to crs    
-    call this%intrp(1)%map(this%phmg_hrchy%lvl(1)%r%x, this%phmg_hrchy%lvl(2)%w%x, &
-                           this%msh%nelv, this%phmg_hrchy%lvl(1)%Xh)
-    
-    
-    ! Crs solve
-    call this%phmg_hrchy%lvl(1)%gs_h%op(this%phmg_hrchy%lvl(1)%r%x, &
-         this%phmg_hrchy%lvl(1)%dm_Xh%size(), GS_OP_ADD)
-
-    call col2(this%phmg_hrchy%lvl(1)%r%x, this%phmg_hrchy%lvl(1)%coef%mult, &
-         this%phmg_hrchy%lvl(1)%dm_Xh%size())
-    
-    call bc_list_apply_scalar(this%phmg_hrchy%lvl(1)%bclst, &
-                              this%phmg_hrchy%lvl(1)%r%x, &
-                              this%phmg_hrchy%lvl(1)%dm_Xh%size())
-
-    call this%amg_solver%solve(this%phmg_hrchy%lvl(1)%e%x, &
-                               this%phmg_hrchy%lvl(1)%r%x, &
-                               this%phmg_hrchy%lvl(1)%dm_Xh%size())
-    
-    call bc_list_apply_scalar(this%phmg_hrchy%lvl(1)%bclst, &
-                              this%phmg_hrchy%lvl(1)%e%x,&
-                              this%phmg_hrchy%lvl(1)%dm_Xh%size())
 
 
-    call this%intrp(1)%map(this%phmg_hrchy%lvl(2)%w%x, &
-                           this%phmg_hrchy%lvl(1)%e%x, &
-                           this%msh%nelv, this%phmg_hrchy%lvl(2)%Xh)
+    associate( mglvl => this%phmg_hrchy%lvl)
+      !We should not work with the input
+      call copy(mglvl(0)%r%x, r, n)
+      
+      mglvl(0)%z%x = 0.0_rp
+      mglvl(0)%w%x = 0.0_rp
 
-    call add2(this%phmg_hrchy%lvl(2)%e%x, this%phmg_hrchy%lvl(2)%w%x, &
-         this%phmg_hrchy%lvl(2)%dm_Xh%size())
+      call phmg_mg_cycle(mglvl(0)%z, mglvl(0)%r, mglvl(0)%w, 0, this%nlvls -1, &
+           mglvl, this%intrp, this%msh, this%Ax, this%amg_solver)
 
-    ksp_results =  this%phmg_hrchy%lvl(2)%cheby%solve(this%Ax, this%phmg_hrchy%lvl(2)%e, &
-         this%phmg_hrchy%lvl(2)%r%x, this%phmg_hrchy%lvl(2)%dm_Xh%size(), &
-         this%phmg_hrchy%lvl(2)%coef, this%phmg_hrchy%lvl(2)%bclst, &
-         this%phmg_hrchy%lvl(2)%gs_h, niter = 10)
-                 
-    call this%intrp(2)%map(this%w, this%phmg_hrchy%lvl(2)%e%x, &
-                           this%msh%nelv, this%Xh)
-    call add2(z, this%w, this%dof%size())
-    call this%gs_h%op(z, this%dof%size(), GS_OP_ADD)
-    call col2(z, this%coef%mult, this%dof%size())
-
-    call copy(this%z%x, z, n)
-
-    ksp_results =  this%cheby%solve(this%Ax, this%z, &
-         this%r, this%dof%size(), &
-         this%coef, this%bclst, &
-         this%gs_h, niter = 10)
-
-    call copy(z, this%z%x, n)
-
+      call copy(z, mglvl(0)%z%x, n)
+      
+    end associate
 
   end subroutine phmg_solve
 
   subroutine phmg_update(this)
     class(phmg_t), intent(inout) :: this
   end subroutine phmg_update
+
+
+  recursive subroutine phmg_mg_cycle(z, r, w, lvl, clvl, &
+                                     mg, intrp, msh, Ax, amg_solver)
+    type(ksp_monitor_t) :: ksp_results
+    integer :: lvl, clvl
+    type(phmg_lvl_t) :: mg(0:clvl)
+    type(interpolator_t) :: intrp(1:clvl)
+    type(tamg_solver_t), intent(inout) :: amg_solver
+    class(ax_t), intent(inout) :: Ax
+    type(mesh_t), intent(inout) :: msh
+    type(field_t) :: z, r, w
+    type(file_t) :: fname, cname
+    integer :: i
+
+
+    ksp_results =  mg(lvl)%cheby%solve(Ax, z, &
+                                       r%x, mg(lvl)%dm_Xh%size(), &
+                                       mg(lvl)%coef, mg(lvl)%bclst, &
+                                       mg(lvl)%gs_h, niter = 15)
+
+    call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
+      
+    w%x = r%x - w%x
+
+    call intrp(lvl+1)%map(mg(lvl+1)%r%x, w%x, msh%nelv, mg(lvl+1)%Xh)
+
+    call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD)
+    
+    call col2(mg(lvl+1)%r%x, mg(lvl+1)%coef%mult, mg(lvl+1)%dm_Xh%size())
+
+
+    call bc_list_apply_scalar(mg(lvl+1)%bclst, &
+                              mg(lvl+1)%r%x, &
+                              mg(lvl+1)%dm_Xh%size())
+      
+    mg(lvl+1)%z%x = 0.0_rp      
+    if (lvl+1 .eq. clvl) then
+       
+       call amg_solver%solve(mg(lvl+1)%z%x, &
+                             mg(lvl+1)%r%x, &
+                             mg(lvl+1)%dm_Xh%size())
+      
+       call bc_list_apply_scalar(mg(lvl+1)%bclst, &
+                                 mg(lvl+1)%z%x,&
+                                 mg(lvl+1)%dm_Xh%size())
+    else
+       call phmg_mg_cycle(mg(lvl+1)%z, mg(lvl+1)%r, mg(lvl+1)%w, lvl+1, &
+            clvl, mg, intrp, msh, Ax, amg_solver)
+    end if
+
+    call intrp(lvl+1)%map(w%x, mg(lvl+1)%z%x, msh%nelv, mg(lvl)%Xh)
+
+    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
+    
+    call col2(w%x, mg(lvl)%coef%mult, mg(lvl)%dm_Xh%size())
+    
+    call bc_list_apply_scalar(mg(lvl)%bclst, w%x, mg(lvl)%dm_Xh%size())
+       
+    z%x = z%x + w%x
+    
+    ksp_results =  mg(lvl)%cheby%solve(Ax, z, &
+                                       r%x, mg(lvl)%dm_Xh%size(), &
+                                       mg(lvl)%coef, mg(lvl)%bclst, &
+                                       mg(lvl)%gs_h, niter = 15)      
+
+    
+
+  end subroutine phmg_mg_cycle
   
 end module phmg
