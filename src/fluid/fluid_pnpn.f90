@@ -56,6 +56,7 @@ module fluid_pnpn
   use dirichlet, only : dirichlet_t
   use facet_normal, only : facet_normal_t
   use non_normal, only : non_normal_t
+  use comm
   use mesh, only : mesh_t
   use user_intf, only : user_t
   use time_step_controller, only : time_step_controller_t
@@ -101,7 +102,7 @@ module fluid_pnpn
      type(bc_list_t) :: bclst_dw
      type(bc_list_t) :: bclst_dp
      
-     logical :: no_prs_dirichlet = .false.
+     logical :: prs_dirichlet = .false.
 
      class(advection_t), allocatable :: adv
 
@@ -275,11 +276,10 @@ contains
     !Add 0 prs bcs
     call bc_list_add(this%bclst_dp, this%bc_prs)
     
-    if (this%bclst_dp%is_empty()) then
-       this%no_prs_dirichlet = .true.
-    else 
-       this%no_prs_dirichlet = .false.
-    end if
+    this%prs_dirichlet =  .not. this%bclst_dp%is_empty()
+
+    call MPI_Allreduce(MPI_IN_PLACE, this%prs_dirichlet, 1, &
+                       MPI_LOGICAL, MPI_LOR, NEKO_COMM)
      
 
     call this%bc_field_dirichlet_u%init_base(this%c_Xh)
@@ -733,7 +733,7 @@ contains
                            Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
                            mu_field, rho_field)
 
-      if (this%no_prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n) 
+      if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n) 
       call gs_Xh%op(p_res, GS_OP_ADD)
       call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
       call profiler_end_region('Pressure_residual', 18)
@@ -752,7 +752,7 @@ contains
                                  this%bclst_dp, gs_Xh, n, tstep, dt_controller)
 
       call field_add2(p, dp, n)
-      if (this%no_prs_dirichlet) call ortho(p%x, this%glb_n_points, n) 
+      if (.not. this%prs_dirichlet) call ortho(p%x, this%glb_n_points, n) 
 
       ! Compute velocity.
       call profiler_start_region('Velocity_residual', 19)
