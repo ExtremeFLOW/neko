@@ -59,6 +59,49 @@ extern "C" {
                                     (real *) mult, * n);
     CUDA_CHECK(cudaGetLastError());
   }
+  
+  void cuda_lij_compute_part1(void *l11, void *l22, void *l33,
+                             void *l12, void *l13, void *l23,
+                             void *u, void *v, void *w,
+                             void *fu, void *fv, void *fw,
+                             void *fuu, void *fvv, void *fww,
+                             void *fuv, void *fuw, void *fvw,
+                             int * n){
+    
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+    lij_compute_part1<real>
+    <<<nblcks, nthrds, 0, stream>>>((real *) l11, (real *) l22, (real *) l33,
+                                    (real *) l12, (real *) l13, (real *) l23,
+                                    (real *) u, (real *) v, (real *) w,
+                                    (real *) fu, (real *) fv, (real *) fw,
+                                    (real *) fuu, (real *) fvv, (real *) fww,
+                                    (real *) fuv, (real *) fuw, (real *) fvw,
+                                    * n);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
+  void cuda_lij_compute_part2(void *l11, void *l22, void *l33,
+                             void *l12, void *l13, void *l23,
+                             void *fuu, void *fvv, void *fww,
+                             void *fuv, void *fuw, void *fvw,
+                             int * n){
+    
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+    
+    lij_compute_part2<real>
+    <<<nblcks, nthrds, 0, stream>>>((real *) l11, (real *) l22, (real *) l33,
+                                    (real *) l12, (real *) l13, (real *) l23,
+                                    (real *) fuu, (real *) fvv, (real *) fww,
+                                    (real *) fuv, (real *) fuw, (real *) fvw,
+                                    * n);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
   void cuda_dynamic_smagorinsky_nut_compute(void *s11, void *s22, void *s33,
                              void *s12, void *s13, void *s23,
                              void *delta, void *nut, void *mult, 

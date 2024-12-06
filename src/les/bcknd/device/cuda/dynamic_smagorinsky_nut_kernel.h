@@ -70,4 +70,73 @@ __global__ void s_abs_compute(T * __restrict__ s_abs,
 
   }
 }
+
+template< typename T>
+__global__ void lij_compute_part1(T * __restrict__ l11,
+                                  T * __restrict__ l22,
+                                  T * __restrict__ l33,
+                                  T * __restrict__ l12,
+                                  T * __restrict__ l13,
+                                  T * __restrict__ l23,
+                                  T * __restrict__ u,
+                                  T * __restrict__ v,
+                                  T * __restrict__ w,
+                                  T * __restrict__ fu,
+                                  T * __restrict__ fv,
+                                  T * __restrict__ fw,
+                                  T * __restrict__ fuu,
+                                  T * __restrict__ fvv,
+                                  T * __restrict__ fww,
+                                  T * __restrict__ fuv,
+                                  T * __restrict__ fuw,
+                                  T * __restrict__ fvw,
+                                  const int n){
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    l11[i] = fu[i] * fu[i];
+    l22[i] = fv[i] * fv[i];
+    l33[i] = fw[i] * fw[i];
+    l12[i] = fu[i] * fv[i];
+    l13[i] = fu[i] * fw[i];
+    l23[i] = fv[i] * fw[i];
+
+    fuu[i] = u[i] * u[i];
+    fvv[i] = v[i] * v[i];
+    fww[i] = w[i] * w[i];
+    fuv[i] = u[i] * v[i];
+    fuw[i] = u[i] * w[i];
+    fvw[i] = v[i] * w[i];
+  }
+}
+
+template< typename T>
+__global__ void lij_compute_part2(T * __restrict__ l11,
+                                  T * __restrict__ l22,
+                                  T * __restrict__ l33,
+                                  T * __restrict__ l12,
+                                  T * __restrict__ l13,
+                                  T * __restrict__ l23,
+                                  T * __restrict__ fuu,
+                                  T * __restrict__ fvv,
+                                  T * __restrict__ fww,
+                                  T * __restrict__ fuv,
+                                  T * __restrict__ fuw,
+                                  T * __restrict__ fvw,
+                                  const int n){
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    l11[i] -= fuu[i];
+    l22[i] -= fvv[i];
+    l33[i] -= fww[i];
+    l12[i] -= fuv[i];
+    l13[i] -= fuw[i];
+    l23[i] -= fvw[i];
+  }
+}
 #endif // __COMMON_DYNAMIC_SMAGORINSKY_NUT_KERNEL_H__

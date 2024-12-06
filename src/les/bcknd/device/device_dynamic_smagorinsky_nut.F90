@@ -52,8 +52,36 @@ module device_dynamic_smagorinsky_nut
                              s12_d, s13_d, s23_d, &
                              mult_d
        integer(c_int) :: n
-       real(c_rp) :: c_s
      end subroutine hip_s_abs_compute
+  end interface
+  interface
+     subroutine hip_lij_compute_part1(l11_d, l22_d, l33_d, &
+                                      l12_d, l13_d, l23_d, &
+                                      u_d, v_d, w_d, &
+                                      fu_d, fv_d, fw_d, &
+                                      fuu_d, fvv_d, fww_d, &
+                                      fuv_d, fuw_d, fvw_d, n) &
+          bind(c, name = 'hip_lij_compute_part1')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: l11_d, l22_d, l33_d, l12_d, l13_d, l23_d, &
+                             u_d, v_d, w_d, fu_d, fv_d, fw_d, &
+                             fuu_d, fvv_d, fww_d, fuv_d, fuw_d, fvw_d
+       integer(c_int) :: n
+     end subroutine hip_lij_compute_part1
+  end interface
+  interface
+     subroutine hip_lij_compute_part2(l11_d, l22_d, l33_d, &
+                                      l12_d, l13_d, l23_d, &
+                                      fuu_d, fvv_d, fww_d, &
+                                      fuv_d, fuw_d, fvw_d, n) &
+          bind(c, name = 'hip_lij_compute_part2')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: l11_d, l22_d, l33_d, l12_d, l13_d, l23_d, &
+                             fuu_d, fvv_d, fww_d, fuv_d, fuw_d, fvw_d
+       integer(c_int) :: n
+     end subroutine hip_lij_compute_part2
   end interface
   interface
      subroutine hip_dynamic_smagorinsky_nut_compute(s11_d, s22_d, s33_d, &
@@ -81,8 +109,36 @@ module device_dynamic_smagorinsky_nut
                              s12_d, s13_d, s23_d, &
                              mult_d
        integer(c_int) :: n
-       real(c_rp) :: c_s
      end subroutine cuda_s_abs_compute
+  end interface
+  interface
+     subroutine cuda_lij_compute_part1(l11_d, l22_d, l33_d, &
+                                      l12_d, l13_d, l23_d, &
+                                      u_d, v_d, w_d, &
+                                      fu_d, fv_d, fw_d, &
+                                      fuu_d, fvv_d, fww_d, &
+                                      fuv_d, fuw_d, fvw_d, n) &
+          bind(c, name = 'cuda_lij_compute_part1')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: l11_d, l22_d, l33_d, l12_d, l13_d, l23_d, &
+                             u_d, v_d, w_d, fu_d, fv_d, fw_d, &
+                             fuu_d, fvv_d, fww_d, fuv_d, fuw_d, fvw_d
+       integer(c_int) :: n
+     end subroutine cuda_lij_compute_part1
+  end interface
+  interface
+     subroutine cuda_lij_compute_part2(l11_d, l22_d, l33_d, &
+                                      l12_d, l13_d, l23_d, &
+                                      fuu_d, fvv_d, fww_d, &
+                                      fuv_d, fuw_d, fvw_d, n) &
+          bind(c, name = 'cuda_lij_compute_part2')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: l11_d, l22_d, l33_d, l12_d, l13_d, l23_d, &
+                             fuu_d, fvv_d, fww_d, fuv_d, fuw_d, fvw_d
+       integer(c_int) :: n
+     end subroutine cuda_lij_compute_part2
   end interface
   interface
      subroutine cuda_dynamic_smagorinsky_nut_compute(s11_d, s22_d, s33_d, &
@@ -101,11 +157,11 @@ module device_dynamic_smagorinsky_nut
 #elif HAVE_OPENCL
 #endif
 
-  public :: device_dynamic_smagorinsky_nut_compute
-
+  public :: device_s_abs_compute, device_lij_compute_part1, &
+            device_lij_compute_part2
 contains
 
-  !> Compute the eddy viscosity field for the Sigma model indevice
+  !> Compute the s_abs field for the Sigma model indevice
   subroutine device_s_abs_compute(s_abs_d, s11_d, s22_d, s33_d, &
                                            s12_d, s13_d, s23_d, &
                                   mult_d, n)
@@ -127,6 +183,65 @@ contains
     call neko_error('no device backend configured')
 #endif
   end subroutine device_s_abs_compute
+
+  !> part 1 of the computing of the lij field for the Sigma model indevice
+  subroutine device_lij_compute_part1(l11_d, l22_d, l33_d, &
+                                      l12_d, l13_d, l23_d, &
+                                      u_d, v_d, w_d, &
+                                      fu_d, fv_d, fw_d, &
+                                      fuu_d, fvv_d, fww_d, &
+                                      fuv_d, fuw_d, fvw_d, n)
+    type(c_ptr) :: l11_d, l22_d, l33_d, l12_d, l13_d, l23_d, &
+                   u_d, v_d, w_d, fu_d, fv_d, fw_d, &
+                   fuu_d, fvv_d, fww_d, fuv_d, fuw_d, fvw_d
+    integer :: n
+#if HAVE_HIP
+    call hip_lij_compute_part1(l11_d, l22_d, l33_d, &
+                               l12_d, l13_d, l23_d, &
+                               u_d, v_d, w_d, &
+                               fu_d, fv_d, fw_d, &
+                               fuu_d, fvv_d, fww_d, &
+                               fuv_d, fuw_d, fvw_d, n)
+#elif HAVE_CUDA
+    call cuda_lij_compute_part1(l11_d, l22_d, l33_d, &
+                                l12_d, l13_d, l23_d, &
+                                u_d, v_d, w_d, &
+                                fu_d, fv_d, fw_d, &
+                                fuu_d, fvv_d, fww_d, &
+                                fuv_d, fuw_d, fvw_d, n)
+#elif HAVE_OPENCL
+    call neko_error('opencl backend is not supported &
+                    &for device_lij_compute_part1')
+#else
+    call neko_error('no device backend configured')
+#endif
+  end subroutine device_lij_compute_part1
+
+!> part 2 of the computing of the lij field for the Sigma model indevice
+  subroutine device_lij_compute_part2(l11_d, l22_d, l33_d, &
+                                      l12_d, l13_d, l23_d, &
+                                      fuu_d, fvv_d, fww_d, &
+                                      fuv_d, fuw_d, fvw_d, n)
+    type(c_ptr) :: l11_d, l22_d, l33_d, l12_d, l13_d, l23_d, &
+                   fuu_d, fvv_d, fww_d, fuv_d, fuw_d, fvw_d
+    integer :: n
+#if HAVE_HIP
+    call hip_lij_compute_part1(l11_d, l22_d, l33_d, &
+                               l12_d, l13_d, l23_d, &
+                               fuu_d, fvv_d, fww_d, &
+                               fuv_d, fuw_d, fvw_d, n)
+#elif HAVE_CUDA
+    call cuda_lij_compute_part1(l11_d, l22_d, l33_d, &
+                                l12_d, l13_d, l23_d, &
+                                fuu_d, fvv_d, fww_d, &
+                                fuv_d, fuw_d, fvw_d, n)
+#elif HAVE_OPENCL
+    call neko_error('opencl backend is not supported &
+                    &for device_lij_compute_part2')
+#else
+    call neko_error('no device backend configured')
+#endif
+  end subroutine device_lij_compute_part2
 
   !> Compute the eddy viscosity field for the Sigma model indevice
   subroutine device_dynamic_smagorinsky_nut_compute(s11_d, s22_d, s33_d, &
