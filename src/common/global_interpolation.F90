@@ -68,8 +68,11 @@ module global_interpolation
      integer :: gdim
      !> Number of elements.
      integer :: nelv
+     !> Which communicator to do interpolation on
      type(MPI_COMM) :: comm
+     !> pe_rank in comm
      integer :: pe_rank
+     !> pe_size of comm
      integer :: pe_size
      !> Space.
      type(space_t), pointer :: Xh
@@ -133,6 +136,11 @@ module global_interpolation
      !> Working vectors for global interpolation
      type(vector_t) :: temp_local, temp
 
+#ifdef HAVE_GSLIB
+     integer :: gs_handle
+     logical :: gs_init = .false.
+
+#endif
    contains
      !> Initialize the global interpolation object on a dofmap.
      procedure, pass(this) :: init_xyz => global_interpolation_init_xyz
@@ -801,6 +809,57 @@ contains
        call device_memcpy(this%el_owner0_local, this%el_owner0_local_d, &
             this%n_points, HOST_TO_DEVICE, sync = .true.)
     end if
+
+    !Free stuff
+    call x_check%free()
+    call x_vec%free()
+    call y_check%free()
+    call y_vec%free()
+    call z_check%free()
+    call z_vec%free()
+    call x_t%free()
+    call y_t%free()
+    call z_t%free()
+    call rst_local_cand%free()
+    call resx%free()
+    call resy%free()
+    call resz%free()
+    call x_hat%free()
+    call y_hat%free()
+    call z_hat%free()
+    if (allocated(conv_pts)) deallocate(conv_pts)
+    if (allocated(rsts)) deallocate(rsts)
+    if (allocated(res)) deallocate(res)
+    if (allocated(my_point)) deallocate(my_point)
+    if (allocated(my_points)) deallocate(my_points)
+    call all_el_candidates%free()
+    if (allocated(points_at_pe)) then
+       do i = 0, this%pe_size-1
+          call points_at_pe(i)%free()
+       end do
+       deallocate(points_at_pe)
+    end if
+    if (allocated(pe_candidates)) then
+       do i = 1, this%n_points
+          call pe_candidates(i)%free()
+       end do
+       deallocate(pe_candidates)
+    end if
+    if (allocated(el_candidates)) then
+       do i = 1, size(el_candidates)
+          call el_candidates(i)%free()
+       end do
+       deallocate(el_candidates)
+    end if
+    if (associated(pe_cands)) pe_cands => Null()
+    if (associated(el_cands)) pe_cands => Null()
+    if (associated(point_ids)) point_ids => Null()
+    if (allocated(xyz_send_to_pe)) deallocate(xyz_send_to_pe)
+    if (allocated(rst_send_to_pe)) deallocate(rst_send_to_pe)
+    if (allocated(rst_recv_from_pe)) deallocate(rst_recv_from_pe)
+    if (allocated(res_recv_from_pe)) deallocate(res_recv_from_pe)
+    if (allocated(el_owner0s)) deallocate(el_owner0s)
+    if (allocated(el_send_to_pe)) deallocate(el_send_to_pe)
 
     call MPI_Barrier(this%comm)
     time2 = MPI_Wtime()

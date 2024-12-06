@@ -380,6 +380,7 @@ libneko_la_SOURCES += \
 	fluid/stress_formulation/bcknd/device/hip/pnpn_stress_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
 	sem/bcknd/device/hip/coef.hip\
+	sem/bcknd/device/cuda/local_interpolation.hip\
 	source_terms/bcknd/device/hip/filters.hip\
 	les/bcknd/device/hip/sigma_nut.hip\
 	les/bcknd/device/hip/vreman_nut.hip
