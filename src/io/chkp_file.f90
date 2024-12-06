@@ -480,7 +480,7 @@ contains
     end if
     if (this%mesh2mesh) then
        call dof%init(msh, this%chkp_Xh)
-       call this%global_interp%init(dof,tol=tol)
+       call this%global_interp%init(dof,NEKO_COMM, tol=tol)
        call this%global_interp%find_points(u%dof%x,u%dof%y,u%dof%z,u%dof%size())
     else
        call this%space_interp%init(this%sim_Xh, this%chkp_Xh)
