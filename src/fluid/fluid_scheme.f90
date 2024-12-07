@@ -37,7 +37,7 @@ module fluid_scheme
   use neko_config, only : NEKO_BCKND_DEVICE
   use checkpoint, only : chkp_t
   use mean_flow, only : mean_flow_t
-  use num_types, only : rp
+  use num_types, only : rp, i8
   use comm
   use fluid_source_term, only: fluid_source_term_t
   use field, only : field_t
@@ -65,7 +65,7 @@ module fluid_scheme
   use bc, only : bc_t, bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
        bc_list_apply_scalar, bc_list_apply_vector
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
-  use math, only : cfill, add2s2
+  use math, only : cfill, add2s2, glsum
   use device_math, only : device_cfill, device_add2s2
   use time_scheme_controller, only : time_scheme_controller_t
   use operators, only : cfl
@@ -371,7 +371,9 @@ contains
        write(log_buf, '(A, I3)') 'Poly order : ', lx-1
     end if
     call neko_log%message(log_buf)
-    write(log_buf, '(A, I0)') 'DoFs       : ', this%dm_Xh%size()
+    write(log_buf, '(A, I0)')    'GLL points : ', int(this%msh%glb_nelv, i8)*int(this%Xh%lxyz, i8)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, I0)')    'Unique pts.: ', int(glsum(this%c_Xh%mult, this%dm_Xh%size()), i8)
     call neko_log%message(log_buf)
 
     write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
