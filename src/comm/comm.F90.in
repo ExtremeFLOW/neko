@@ -10,6 +10,10 @@ module comm
           bind(c, name='neko_comm_wrapper_init')
        integer, value :: fcomm
      end subroutine neko_comm_wrapper_init
+
+     subroutine neko_comm_nvshmem_init() &
+          bind(c, name='neko_comm_nvshmem_init')
+     end subroutine neko_comm_nvshmem_init
   end interface
   
   !> MPI communicator
@@ -91,6 +95,9 @@ contains
 
     ! Setup C/C++ wrapper
     call neko_comm_wrapper_init(NEKO_COMM%mpi_val)
+
+    ! Setup NVSHMEM
+    call neko_comm_nvshmem_init()
 
   end subroutine comm_init
 
