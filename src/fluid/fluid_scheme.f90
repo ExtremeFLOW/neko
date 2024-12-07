@@ -108,7 +108,7 @@ module fluid_scheme
      class(ksp_t), allocatable :: ksp_vel     !< Krylov solver for velocity
      class(ksp_t), allocatable :: ksp_prs     !< Krylov solver for pressure
      class(pc_t), allocatable :: pc_vel        !< Velocity Preconditioner
-     class(pc_t), allocatable :: pc_prs        !< Velocity Preconditioner
+     class(pc_t), allocatable :: pc_prs        !< Pressure Preconditioner
      integer :: vel_projection_dim         !< Size of the projection space for ksp_vel
      integer :: pr_projection_dim          !< Size of the projection space for ksp_pr
      integer :: vel_projection_activ_step  !< Steps to activate projection for ksp_vel
@@ -116,7 +116,7 @@ module fluid_scheme
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
      type(wall_model_bc_t) :: bc_wallmodel !< Wall model boundary condition
-     !> Gradient jump panelty
+     !> Gradient jump penalty
      logical :: if_gradient_jump_penalty
      type(gradient_jump_penalty_t) :: gradient_jump_penalty_u
      type(gradient_jump_penalty_t) :: gradient_jump_penalty_v
@@ -153,6 +153,10 @@ module fluid_scheme
      real(kind=rp) :: rho
      !> The variable density field
      type(field_t) :: rho_field
+     !> Global number of GLL points for the fluid (not unique)
+     integer(kind=i8) ::  glb_n_points
+     !> Global number of GLL points for the fluid (unique)
+     integer(kind=i8) ::  glb_unique_points
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
@@ -202,7 +206,7 @@ module fluid_scheme
        import time_scheme_controller_t
        class(fluid_scheme_t), target, intent(inout) :: this
        type(mesh_t), target, intent(inout) :: msh
-       integer, intent(inout) :: lx
+       integer, intent(in) :: lx
        type(json_file), target, intent(inout) :: params
        type(user_t), target, intent(in) :: user
        type(time_scheme_controller_t), target, intent(in) :: time_scheme
@@ -226,10 +230,10 @@ module fluid_scheme
        import time_step_controller_t
        import rp
        class(fluid_scheme_t), target, intent(inout) :: this
-       real(kind=rp), intent(inout) :: t
-       integer, intent(inout) :: tstep
+       real(kind=rp), intent(in) :: t
+       integer, intent(in) :: tstep
        real(kind=rp), intent(in) :: dt
-       type(time_scheme_controller_t), intent(inout) :: ext_bdf
+       type(time_scheme_controller_t), intent(in) :: ext_bdf
        type(time_step_controller_t), intent(in) :: dt_controller
      end subroutine fluid_scheme_step_intrf
   end interface
@@ -263,7 +267,7 @@ contains
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
-    integer, intent(inout) :: lx
+    integer, intent(in) :: lx
     character(len=*), intent(in) :: scheme
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
@@ -371,9 +375,12 @@ contains
        write(log_buf, '(A, I3)') 'Poly order : ', lx-1
     end if
     call neko_log%message(log_buf)
-    write(log_buf, '(A, I0)')    'GLL points : ', int(this%msh%glb_nelv, i8)*int(this%Xh%lxyz, i8)
+    this%glb_n_points = int(this%msh%glb_nelv, i8)*int(this%Xh%lxyz, i8)
+    this%glb_unique_points = int(glsum(this%c_Xh%mult, this%dm_Xh%size()), i8)
+
+    write(log_buf, '(A, I0)')    'GLL points : ',  this%glb_n_points
     call neko_log%message(log_buf)
-    write(log_buf, '(A, I0)')    'Unique pts.: ', int(glsum(this%c_Xh%mult, this%dm_Xh%size()), i8)
+    write(log_buf, '(A, I0)')    'Unique pts.: ', this%glb_unique_points
     call neko_log%message(log_buf)
 
     write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
@@ -691,7 +698,7 @@ contains
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
-    integer, intent(inout) :: lx
+    integer, intent(in) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
     logical :: kspv_init
@@ -1008,8 +1015,8 @@ contains
                                          pctype)
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
-    type(coef_t), target, intent(inout) :: coef
-    type(dofmap_t), target, intent(inout) :: dof
+    type(coef_t), target, intent(in) :: coef
+    type(dofmap_t), target, intent(in) :: dof
     type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
