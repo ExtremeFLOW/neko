@@ -4,6 +4,6 @@ plugins:
 - jekyll-remote-theme
 show_downloads: true
 github:
-  tar_url: https://github.com/ExtremeFLOW/neko/releases/download/v0.8.1/neko-0.8.1.tar.gz
+  tar_url: https://github.com/ExtremeFLOW/neko/releases/download/v0.9.0/neko-0.9.0.tar.gz
 
 
