@@ -1,0 +1,4 @@
+<map id="gs_device::gs_device_t" name="gs_device::gs_device_t">
+<area shape="rect" id="node1" title="Gather&#45;scatter backend for offloading devices." alt="" coords="5,80,177,107"/>
+<area shape="rect" id="node2" href="$d9/d7d/structgs__bcknd_1_1gs__bcknd__t.html" title="Gather&#45;scatter backend." alt="" coords="9,5,173,32"/>
+</map>

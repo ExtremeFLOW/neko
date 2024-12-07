@@ -1,0 +1,4 @@
+<map id="gs_device_mpi::gs_device_mpi_free" name="gs_device_mpi::gs_device_mpi_free">
+<area shape="rect" id="node1" title="Deallocate MPI based communication method." alt="" coords="5,5,197,47"/>
+<area shape="rect" id="node2" href="$d0/dbe/namespacedevice.html#af74b29ebaa45f9d17c541fb736c7dd30" title="Destroy a device stream/command queue." alt="" coords="245,5,415,47"/>
+</map>

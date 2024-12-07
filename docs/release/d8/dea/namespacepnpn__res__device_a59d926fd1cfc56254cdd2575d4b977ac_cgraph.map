@@ -1,0 +1,24 @@
+<map id="pnpn_res_device::pnpn_prs_res_device_compute" name="pnpn_res_device::pnpn_prs_res_device_compute">
+<area shape="rect" id="node1" title=" " alt="" coords="5,335,196,377"/>
+<area shape="rect" id="node2" href="$dd/d30/namespaceoperators.html#ae0083f86c7db2d6aaee644b4cdcc02f6" title="Apply D^T to a scalar field, where D is the derivative matrix." alt="" coords="277,44,397,71"/>
+<area shape="rect" id="node11" href="$dd/d30/namespaceoperators.html#a9343ee2d446da0065a98c1767b36c709" title=" " alt="" coords="279,95,395,121"/>
+<area shape="rect" id="node12" href="$d2/d73/namespacedevice__math.html#aead3fc7e68e8d685332f0305dcc1d612" title="Set all elements to a constant c ." alt="" coords="259,146,416,187"/>
+<area shape="rect" id="node13" href="$d7/de8/namespacedevice__mathops.html#ad6cc81913f3bc439a1da4649557b8912" title=" " alt="" coords="247,211,427,253"/>
+<area shape="rect" id="node16" href="$d2/d73/namespacedevice__math.html#a2b8132d3d15d4b553af3a1b55d6f8d87" title="Zero a real vector." alt="" coords="259,277,416,318"/>
+<area shape="rect" id="node17" href="$d4/d66/pnpn__res_8cu.html#af64a7f09510056e94871bf99c327701d" title=" " alt="" coords="244,343,431,369"/>
+<area shape="rect" id="node18" href="$df/d4b/pnpn__res_8c.html#a374afb77ede232d6f96c3df58c704b66" title=" " alt="" coords="507,386,657,427"/>
+<area shape="rect" id="node19" href="$d4/d66/pnpn__res_8cu.html#a2fd7c133bdd5bb66430c9153240f70cb" title=" " alt="" coords="244,444,431,471"/>
+<area shape="rect" id="node20" href="$df/d4b/pnpn__res_8c.html#a6ef5029e9556cc27d3076a0350dcf6c6" title=" " alt="" coords="507,474,657,515"/>
+<area shape="rect" id="node21" href="$d4/d66/pnpn__res_8cu.html#a866701e52b8188e86c1d70eb9d022484" title=" " alt="" coords="244,545,431,572"/>
+<area shape="rect" id="node22" href="$df/d4b/pnpn__res_8c.html#a1592c5e447d4d3562124b4bb453c23f2" title=" " alt="" coords="733,565,883,606"/>
+<area shape="rect" id="node3" href="$d3/d4d/namespaceopr__device.html#a5976c035ccc91cc8b346fc866e476775" title=" " alt="" coords="479,44,685,71"/>
+<area shape="rect" id="node7" href="$d9/d5a/namespaceopr__xsmm.html#a57bf41f6f4190d4e8f728bd37db80ec9" title=" " alt="" coords="481,120,683,147"/>
+<area shape="rect" id="node4" href="$df/d14/opr__cdtp_8cu.html#a78cd94c87103aee0b72822173bc9aeb0" title=" " alt="" coords="764,5,852,32"/>
+<area shape="rect" id="node5" href="$d6/d10/opr__cdtp_8c.html#a22e607c77c807be3825904a78e958962" title=" " alt="" coords="758,56,858,83"/>
+<area shape="rect" id="node6" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="931,393,1063,420"/>
+<area shape="rect" id="node8" href="$dd/d47/namespacemath.html#a7bd6ecfc03be3f80d20e06e85af6b791" title="Vector addition ." alt="" coords="760,107,856,133"/>
+<area shape="rect" id="node9" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="763,157,853,184"/>
+<area shape="rect" id="node10" href="$dd/d47/namespacemath.html#a1164b01f82dfbc02272aecd16afec842" title="Vector division ." alt="" coords="753,208,863,235"/>
+<area shape="rect" id="node14" href="$dd/db5/mathops_8cu.html#a62c8b601530d663d2e9037689bd033af" title=" " alt="" coords="531,219,633,245"/>
+<area shape="rect" id="node15" href="$d5/d69/mathops_8c.html#ace47fde9bffcb8869b959bce8aadf033" title=" " alt="" coords="525,301,639,328"/>
+</map>

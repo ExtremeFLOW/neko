@@ -1,0 +1,5 @@
+<map id="device::device_stream_wait_event" name="device::device_stream_wait_event">
+<area shape="rect" id="node1" title="Synchronize a device stream with an event." alt="" coords="245,39,415,80"/>
+<area shape="rect" id="node2" href="$d9/dfa/namespacegs__device__mpi.html#a832a9f3cba26a0e8c899d4897e697c69" title="Post non&#45;blocking send operations." alt="" coords="5,5,197,47"/>
+<area shape="rect" id="node3" href="$d9/dfa/namespacegs__device__mpi.html#a3c4cdecb2527137b5665bfbb823e0518" title="Wait for non&#45;blocking operations." alt="" coords="5,71,197,112"/>
+</map>

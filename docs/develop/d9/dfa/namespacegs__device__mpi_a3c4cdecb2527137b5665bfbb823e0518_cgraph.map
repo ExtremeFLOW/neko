@@ -1,0 +1,6 @@
+<map id="gs_device_mpi::gs_device_mpi_nbwait" name="gs_device_mpi::gs_device_mpi_nbwait">
+<area shape="rect" id="node1" title="Wait for non&#45;blocking operations." alt="" coords="5,57,197,98"/>
+<area shape="rect" id="node2" href="$de/df6/gs_8cu.html#a18fd2b312917f32020b2915f9eacafa3" title=" " alt="" coords="265,5,395,32"/>
+<area shape="rect" id="node3" href="$d0/dbe/namespacedevice.html#a00bc2d2b16f268496f2a31bb8cb8017f" title="Record a device event." alt="" coords="250,57,410,98"/>
+<area shape="rect" id="node4" href="$d0/dbe/namespacedevice.html#a9babfe5a64741741d01b3f08b6e5a405" title="Synchronize a device stream with an event." alt="" coords="245,122,415,163"/>
+</map>

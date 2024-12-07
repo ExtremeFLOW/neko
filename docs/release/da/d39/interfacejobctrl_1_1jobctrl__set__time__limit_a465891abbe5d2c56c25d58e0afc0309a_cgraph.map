@@ -1,0 +1,4 @@
+<map id="jobctrl::jobctrl_set_time_limit::jobctrl_set_time_limit_str" name="jobctrl::jobctrl_set_time_limit::jobctrl_set_time_limit_str">
+<area shape="rect" id="node1" title="Set a job&#39;s time limit (in walltime &#39;HH:MM:SS&#39;)" alt="" coords="5,5,152,61"/>
+<area shape="rect" id="node2" href="$d7/d06/namespacejobctrl.html#aaa38605ae63b754fcccffe3d10a3a4bb" title="Set a job&#39;s time limit (in seconds)" alt="" coords="200,13,339,54"/>
+</map>

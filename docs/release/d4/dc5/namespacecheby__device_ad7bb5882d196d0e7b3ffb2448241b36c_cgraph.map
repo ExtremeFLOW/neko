@@ -1,0 +1,6 @@
+<map id="cheby_device::cheby_device_solve" name="cheby_device::cheby_device_solve">
+<area shape="rect" id="node1" title="A chebyshev preconditioner." alt="" coords="5,39,164,80"/>
+<area shape="rect" id="node2" href="$d4/dc5/namespacecheby__device.html#a1fe96a382f49e92446c4971ff6e6702f" title=" " alt="" coords="212,39,371,80"/>
+<area shape="rect" id="node3" href="$d2/d73/namespacedevice__math.html#a664f07df9ff67cf0e8e216047a81bca7" title="Multiplication by constant c ." alt="" coords="419,5,576,47"/>
+<area shape="rect" id="node4" href="$d2/d73/namespacedevice__math.html#ac80b69645b556fc4dc3022739f00bbd1" title="Weighted inner product ." alt="" coords="419,71,576,112"/>
+</map>

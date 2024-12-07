@@ -1,0 +1,8 @@
+<map id="signed_distance::signed_distance_field_tri_mesh" name="signed_distance::signed_distance_field_tri_mesh">
+<area shape="rect" id="node1" title="Signed distance field for a triangular mesh." alt="" coords="5,27,188,69"/>
+<area shape="rect" id="node2" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="237,5,385,32"/>
+<area shape="rect" id="node3" href="$d4/def/namespacesigned__distance.html#a7d05cfbb969c2c9d5fd4c6248032efe5" title="Signed distance function using an AABB tree." alt="" coords="236,57,385,98"/>
+<area shape="rect" id="node4" href="$d4/def/namespacesigned__distance.html#ad5e6764cd33f9ac265f9a0c0545a197e" title="Main interface for the signed distance function for an element." alt="" coords="433,57,623,98"/>
+<area shape="rect" id="node5" href="$d4/def/namespacesigned__distance.html#a3fa90e6ec506576aacc9f7086e8f2a54" title="Signed distance function for a triangle." alt="" coords="671,57,860,98"/>
+<area shape="rect" id="node6" href="$d4/def/namespacesigned__distance.html#a17f21d3dcb101646672edad1ed6c3b01" title="Compute cross product of two vectors." alt="" coords="908,64,1077,91"/>
+</map>

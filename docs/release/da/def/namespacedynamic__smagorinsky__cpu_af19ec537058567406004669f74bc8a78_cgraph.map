@@ -1,0 +1,5 @@
+<map id="dynamic_smagorinsky_cpu::compute_lij_cpu" name="dynamic_smagorinsky_cpu::compute_lij_cpu">
+<area shape="rect" id="node1" title="Compute Germano Identity on the CPU." alt="" coords="5,23,173,65"/>
+<area shape="rect" id="node2" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="223,5,314,32"/>
+<area shape="rect" id="node3" href="$dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe" title="Vector substraction ." alt="" coords="221,56,316,83"/>
+</map>

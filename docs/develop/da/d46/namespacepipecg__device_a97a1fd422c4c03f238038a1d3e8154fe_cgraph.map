@@ -1,0 +1,12 @@
+<map id="pipecg_device::pipecg_device_solve" name="pipecg_device::pipecg_device_solve">
+<area shape="rect" id="node1" title="Pipelined PCG solve." alt="" coords="5,173,172,215"/>
+<area shape="rect" id="node2" href="$da/d46/namespacepipecg__device.html#aa3ab1356e5bada6530054c707c710072" title=" " alt="" coords="235,5,402,47"/>
+<area shape="rect" id="node4" href="$d2/d73/namespacedevice__math.html#addb4596de81a7518fcafd9e40aa7ed57" title="Copy a vector ." alt="" coords="221,71,416,98"/>
+<area shape="rect" id="node5" href="$d0/dbe/namespacedevice.html#a08e073f459027c6c1b067ff777f0bbf9" title="Synchronize an event." alt="" coords="220,122,417,149"/>
+<area shape="rect" id="node6" href="$d2/d73/namespacedevice__math.html#ac80b69645b556fc4dc3022739f00bbd1" title="Weighted inner product ." alt="" coords="240,173,397,215"/>
+<area shape="rect" id="node7" href="$da/d46/namespacepipecg__device.html#a20e5112bf3c11f03f58a2bd09e8f27a0" title=" " alt="" coords="235,239,402,280"/>
+<area shape="rect" id="node9" href="$d2/d73/namespacedevice__math.html#a2b8132d3d15d4b553af3a1b55d6f8d87" title="Zero a real vector." alt="" coords="240,304,397,345"/>
+<area shape="rect" id="node10" href="$d2/d73/namespacedevice__math.html#a384b19e4831cef680a3f660edcccb98b" title="Compute multiplication sum ." alt="" coords="240,369,397,411"/>
+<area shape="rect" id="node3" href="$da/d9a/pipecg__aux_8hip.html#a4ac59ecc540cb19e2ceca9beeaae179b" title=" " alt="" coords="469,13,607,39"/>
+<area shape="rect" id="node8" href="$da/d9a/pipecg__aux_8hip.html#a5a0e60ff01db773d2d0f0737b5982a6a" title=" " alt="" coords="465,246,611,273"/>
+</map>

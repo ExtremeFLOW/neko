@@ -1,0 +1,8 @@
+<map id="ax_helm::ax_helm_t" name="ax_helm::ax_helm_t">
+<area shape="rect" id="node1" title="Matrix&#45;vector product for a Helmholtz problem." alt="" coords="184,107,339,134"/>
+<area shape="rect" id="node3" href="$d7/d70/structax__helm__cpu_1_1ax__helm__cpu__t.html" title="CPU matrix&#45;vector product for a Helmholtz problem." alt="" coords="400,5,572,47"/>
+<area shape="rect" id="node4" href="$d7/d68/structax__helm__device_1_1ax__helm__device__t.html" title=" " alt="" coords="410,71,562,112"/>
+<area shape="rect" id="node5" href="$de/d9f/structax__helm__sx_1_1ax__helm__sx__t.html" title=" " alt="" coords="387,137,585,163"/>
+<area shape="rect" id="node6" href="$d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html" title=" " alt="" coords="391,188,581,229"/>
+<area shape="rect" id="node2" href="$d3/d2c/structax__product_1_1ax__t.html" title="Base type for a matrix&#45;vector product providing ." alt="" coords="5,107,136,134"/>
+</map>

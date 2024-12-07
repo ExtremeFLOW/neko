@@ -1,0 +1,6 @@
+<map id="opr_device::opr_device_conv1" name="opr_device::opr_device_conv1">
+<area shape="rect" id="node1" title=" " alt="" coords="448,39,620,80"/>
+<area shape="rect" id="node2" href="$dd/d30/namespaceoperators.html#af4d7e0e187615ed2bb3cd3b90d77bd45" title="Compute the advection term." alt="" coords="269,46,400,73"/>
+<area shape="rect" id="node3" href="$d9/de3/namespaceadv__no__dealias.html#a15ec3562225515cf69db81a0d29bc956" title="Add the advection term for the fluid, i.e. &#160;to the RHS." alt="" coords="19,5,207,47"/>
+<area shape="rect" id="node4" href="$d9/de3/namespaceadv__no__dealias.html#a444dbbe3da36640a6ac5ef1de5983bc5" title="Add the advection term for a scalar, i.e. , to the RHS." alt="" coords="5,71,221,112"/>
+</map>

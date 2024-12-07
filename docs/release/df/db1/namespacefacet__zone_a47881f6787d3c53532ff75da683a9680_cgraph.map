@@ -1,0 +1,5 @@
+<map id="facet_zone::facet_zone_periodic_init" name="facet_zone::facet_zone_periodic_init">
+<area shape="rect" id="node1" title="Initialize a periodic zone." alt="" coords="5,5,177,47"/>
+<area shape="rect" id="node2" href="$df/db1/namespacefacet__zone.html#a0f8e08b9decf46be1bd48b1baec0a26a" title="Initialize a facet zone." alt="" coords="225,13,425,39"/>
+<area shape="rect" id="node3" href="$df/db1/namespacefacet__zone.html#ac66a60fec95115d780702caebcad3bb0" title="Deallocate a facet zone." alt="" coords="473,13,679,39"/>
+</map>

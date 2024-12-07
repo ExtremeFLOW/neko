@@ -1,0 +1,13 @@
+<map id="neko_mpi_types::neko_mpi_types_init" name="neko_mpi_types::neko_mpi_types_init">
+<area shape="rect" id="node1" title="Define all MPI derived types." alt="" coords="5,300,172,341"/>
+<area shape="rect" id="node2" href="$d7/dd4/namespaceneko__mpi__types.html#a19e534d22e0873bb1fc4e4255ee5dd14" title="Define a MPI derived type for a nmsh curved element." alt="" coords="220,5,392,47"/>
+<area shape="rect" id="node3" href="$d7/dd4/namespaceneko__mpi__types.html#a493d894ba2476b7133f84584baf6ee39" title="Define a MPI derived type for a 3d nmsh hex." alt="" coords="225,71,387,112"/>
+<area shape="rect" id="node4" href="$d7/dd4/namespaceneko__mpi__types.html#a08d4bce14d80ce9956cf3b8555324bd6" title="Define a MPI derived type for a 2d nmsh quad." alt="" coords="222,136,390,177"/>
+<area shape="rect" id="node5" href="$d7/dd4/namespaceneko__mpi__types.html#a3aa0dcbfe591954955a65ac8cabfd832" title="Define a MPI derived type for a nmsh zone." alt="" coords="223,201,389,243"/>
+<area shape="rect" id="node6" href="$d7/dd4/namespaceneko__mpi__types.html#a9b0a9d3c3e4cf3a2c654d16638c129dc" title="Define a MPI derived type for re2 bc data." alt="" coords="225,267,387,308"/>
+<area shape="rect" id="node7" href="$d7/dd4/namespaceneko__mpi__types.html#a6db42947561a610ff314927baf3518d8" title="Define a MPI derived type for re2 cv data." alt="" coords="225,332,387,373"/>
+<area shape="rect" id="node8" href="$d7/dd4/namespaceneko__mpi__types.html#abdd7089722ec1da503ebc0bf3fd5b666" title="Define a MPI derived type for a 2d re2 data." alt="" coords="225,397,387,439"/>
+<area shape="rect" id="node9" href="$d7/dd4/namespaceneko__mpi__types.html#ac4a4ed902f6de403063346d52120f97c" title="Define a MPI derived type for a 3d re2 data." alt="" coords="225,463,387,504"/>
+<area shape="rect" id="node10" href="$d7/dd4/namespaceneko__mpi__types.html#a145a40499bcab0b08fb996f110328d30" title="Define a MPI dervied type for a STL header." alt="" coords="225,528,387,569"/>
+<area shape="rect" id="node11" href="$d7/dd4/namespaceneko__mpi__types.html#a42574c77310686e48827dfff24bd55c0" title="Define a MPI derived type for a STL triangle." alt="" coords="223,593,389,635"/>
+</map>

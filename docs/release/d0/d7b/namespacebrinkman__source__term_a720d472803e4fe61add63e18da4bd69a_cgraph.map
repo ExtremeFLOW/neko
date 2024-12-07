@@ -1,0 +1,6 @@
+<map id="brinkman_source_term::brinkman_source_term_compute" name="brinkman_source_term::brinkman_source_term_compute">
+<area shape="rect" id="node1" title="Computes the source term and adds the result to fields." alt="" coords="5,27,185,83"/>
+<area shape="rect" id="node2" href="$d5/de6/namespacefield__math.html#aa8a83165a055588be30d198cc8701605" title="Returns ." alt="" coords="233,42,417,69"/>
+<area shape="rect" id="node3" href="$d2/d73/namespacedevice__math.html#ae0f24e98e78f0aafc483b8aa8865c0cc" title="Returns ." alt="" coords="465,5,623,47"/>
+<area shape="rect" id="node4" href="$dd/d47/namespacemath.html#a690b20ca46eb975541f8e6787f04043f" title="Returns ." alt="" coords="487,71,601,98"/>
+</map>

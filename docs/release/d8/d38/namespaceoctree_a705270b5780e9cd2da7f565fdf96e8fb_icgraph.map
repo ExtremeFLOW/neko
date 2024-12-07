@@ -1,0 +1,5 @@
+<map id="octree::octree_free_oct" name="octree::octree_free_oct">
+<area shape="rect" id="node1" title="Deallocate an oct in an octree." alt="" coords="387,5,559,32"/>
+<area shape="rect" id="node2" href="$d8/d38/namespaceoctree.html#a36f53ea0ecfacb6b1ee426e8bfa6bf66" title="Destroy an octree." alt="" coords="193,5,339,32"/>
+<area shape="rect" id="node3" href="$d8/d38/namespaceoctree.html#aeb33aa57b1f495e48bd5afb9657dd784" title="Initialize an octree." alt="" coords="5,5,145,32"/>
+</map>

@@ -1,0 +1,14 @@
+<map id="sigma_device::sigma_compute_device" name="sigma_device::sigma_compute_device">
+<area shape="rect" id="node1" title="Compute eddy viscosity on device." alt="" coords="5,35,165,76"/>
+<area shape="rect" id="node2" href="$d8/d87/namespacedevice__sigma__nut.html#a3093446b8bc4cd55ce6c59ade2fbf8a7" title="Compute the eddy viscosity field for the Sigma model indevice." alt="" coords="213,5,404,47"/>
+<area shape="rect" id="node4" href="$dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute derivative of a scalar field along a single direction." alt="" coords="239,71,378,98"/>
+<area shape="rect" id="node3" href="$d9/d43/sigma__nut_8cu.html#a2c790968b8045a4db5f04a04ceecada0" title=" " alt="" coords="452,13,644,39"/>
+<area shape="rect" id="node5" href="$d3/d4d/namespaceopr__device.html#abc0d21999d04728a18514d4c422219ec" title=" " alt="" coords="462,64,634,105"/>
+<area shape="rect" id="node9" href="$d9/d5a/namespaceopr__xsmm.html#abd01047726757dd7140713007f5a5ff6" title=" " alt="" coords="464,147,632,188"/>
+<area shape="rect" id="node6" href="$d3/d13/opr__dudxyz_8cu.html#a12bdb6bf9c94199b29d19641386a2ea0" title=" " alt="" coords="718,21,825,47"/>
+<area shape="rect" id="node7" href="$d1/d28/opr__dudxyz_8c.html#aa154bc09bc993f78a4d5ba22abe64ab2" title=" " alt="" coords="712,71,831,98"/>
+<area shape="rect" id="node8" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="899,71,1031,98"/>
+<area shape="rect" id="node10" href="$dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="714,122,829,149"/>
+<area shape="rect" id="node11" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="726,173,817,199"/>
+<area shape="rect" id="node12" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="692,223,851,250"/>
+</map>

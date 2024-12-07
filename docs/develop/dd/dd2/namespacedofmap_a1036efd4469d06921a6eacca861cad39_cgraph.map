@@ -1,0 +1,6 @@
+<map id="dofmap::gh_face_extend_2d" name="dofmap::gh_face_extend_2d">
+<area shape="rect" id="node1" title="Extend 2D faces into interior via gordon hall gh_type: 1 &#45; vertex only 2 &#45; vertex and faces." alt="" coords="5,56,212,83"/>
+<area shape="rect" id="node2" href="$dd/d47/namespacemath.html#a79189c047ee36fa194f43257bda3c8d8" title="Vector addition ." alt="" coords="261,5,357,32"/>
+<area shape="rect" id="node3" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="261,56,356,83"/>
+<area shape="rect" id="node4" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="260,107,357,133"/>
+</map>

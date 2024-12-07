@@ -1,0 +1,5 @@
+<map id="htable::htable_i4t2_init" name="htable::htable_i4t2_init">
+<area shape="rect" id="node1" title="Initialize an integer 2&#45;tuple hash table." alt="" coords="5,5,177,32"/>
+<area shape="rect" id="node2" href="$dc/df5/namespacehtable.html#abe2d67a08e6453a0d2c4a12dd2215448" title="Initialize a hash table of type data." alt="" coords="225,5,365,32"/>
+<area shape="rect" id="node3" href="$dc/df5/namespacehtable.html#a672b108e3f932f7c838cf39214a320d4" title="Destroy a hash table." alt="" coords="413,5,559,32"/>
+</map>

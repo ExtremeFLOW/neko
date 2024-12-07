@@ -1,0 +1,5 @@
+<map id="signal::signal_timeout" name="signal::signal_timeout">
+<area shape="rect" id="node1" title="Check if any timeout has occurred (either SIGXCPU or SIGALRM)" alt="" coords="423,13,589,39"/>
+<area shape="rect" id="node2" href="$d7/d06/namespacejobctrl.html#a668d576b7980c2488dece4c06fcbb41b" title="Check if the job&#39;s time limit has been reached." alt="" coords="225,5,375,47"/>
+<area shape="rect" id="node3" href="$d1/d2d/namespacesimulation.html#a922046c7d91b325e798d76659a20eef5" title="Main driver to solve a case C." alt="" coords="5,13,177,39"/>
+</map>

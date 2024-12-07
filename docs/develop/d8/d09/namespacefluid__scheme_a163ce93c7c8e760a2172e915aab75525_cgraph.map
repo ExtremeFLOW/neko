@@ -1,0 +1,4 @@
+<map id="fluid_scheme::fluid_scheme_free" name="fluid_scheme::fluid_scheme_free">
+<area shape="rect" id="node1" title="Deallocate a fluid formulation." alt="" coords="5,5,149,47"/>
+<area shape="rect" id="node2" href="$d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="197,13,317,39"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="scalar_user_source_term::scalar_user_source_term_compute" name="scalar_user_source_term::scalar_user_source_term_compute">
+<area shape="rect" id="node1" title="Computes the source term and adds the result to fields." alt="" coords="5,16,197,72"/>
+<area shape="rect" id="node2" href="$dd/d47/namespacemath.html#a7bd6ecfc03be3f80d20e06e85af6b791" title="Vector addition ." alt="" coords="295,5,391,32"/>
+<area shape="rect" id="node3" href="$d2/d73/namespacedevice__math.html#a01473fcab0cde33512431de42b050384" title="Vector addition ." alt="" coords="245,56,441,83"/>
+</map>

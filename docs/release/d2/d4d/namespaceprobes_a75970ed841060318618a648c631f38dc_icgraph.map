@@ -1,0 +1,4 @@
+<map id="probes::probes_show" name="probes::probes_show">
+<area shape="rect" id="node1" title="Print current probe status, with number of probes and coordinates." alt="" coords="200,13,359,39"/>
+<area shape="rect" id="node2" href="$d2/d4d/namespaceprobes.html#afb0ca751eadf5869b849ac2eef557885" title="Constructor from json." alt="" coords="5,5,152,47"/>
+</map>

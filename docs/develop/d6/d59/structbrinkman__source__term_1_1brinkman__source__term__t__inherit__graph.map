@@ -1,0 +1,4 @@
+<map id="brinkman_source_term::brinkman_source_term_t" name="brinkman_source_term::brinkman_source_term_t">
+<area shape="rect" id="node1" title="A Brinkman source term. The region and strength are controlled by assigning regions types and brinkma..." alt="" coords="5,95,197,136"/>
+<area shape="rect" id="node2" href="$d8/d03/structsource__term_1_1source__term__t.html" title="Base abstract type for source terms." alt="" coords="24,5,179,47"/>
+</map>

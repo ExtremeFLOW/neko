@@ -1,0 +1,4 @@
+<map id="coriolis_source_term_cpu::coriolis_source_term_compute_cpu" name="coriolis_source_term_cpu::coriolis_source_term_compute_cpu">
+<area shape="rect" id="node1" title="Computes the generic Coriolis source term on the cpu." alt="" coords="219,5,376,61"/>
+<area shape="rect" id="node2" href="$d3/df3/namespacecoriolis__source__term.html#ad79345db7e7a06356d3dde33700dc0ae" title="Computes the source term and adds the result to fields." alt="" coords="5,5,171,61"/>
+</map>

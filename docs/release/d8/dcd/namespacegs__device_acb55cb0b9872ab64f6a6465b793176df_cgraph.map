@@ -1,0 +1,5 @@
+<map id="gs_device::gs_device_free" name="gs_device::gs_device_free">
+<area shape="rect" id="node1" title="Dummy backend deallocation." alt="" coords="5,42,199,69"/>
+<area shape="rect" id="node2" href="$d0/dbe/namespacedevice.html#a85c44be65491e03c6d7de2856fd5d141" title="Destroy a device event." alt="" coords="247,5,407,47"/>
+<area shape="rect" id="node3" href="$d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="252,71,401,98"/>
+</map>

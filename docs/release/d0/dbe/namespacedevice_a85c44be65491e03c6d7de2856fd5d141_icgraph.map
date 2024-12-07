@@ -1,0 +1,8 @@
+<map id="device::device_event_destroy" name="device::device_event_destroy">
+<area shape="rect" id="node1" title="Destroy a device event." alt="" coords="252,122,412,163"/>
+<area shape="rect" id="node2" href="$d6/d60/namespacecg__device.html#aabcb47b12d07f0931e0b9e6d7bb66023" title="Deallocate a device based PCG solver." alt="" coords="8,5,201,32"/>
+<area shape="rect" id="node3" href="$d4/dc5/namespacecheby__device.html#aa0ac1e13e350c208f5b20a9c674b8c4a" title=" " alt="" coords="25,57,184,98"/>
+<area shape="rect" id="node4" href="$d3/dbc/namespacefusedcg__cpld__device.html#a57396f2309510cfbef357ad61c695ae2" title="Deallocate a pipelined PCG solver." alt="" coords="5,122,204,163"/>
+<area shape="rect" id="node5" href="$d8/dcd/namespacegs__device.html#acb55cb0b9872ab64f6a6465b793176df" title="Dummy backend deallocation." alt="" coords="8,188,201,215"/>
+<area shape="rect" id="node6" href="$da/d46/namespacepipecg__device.html#aeac2e2e47dadc8df22ea517657edae34" title="Deallocate a pipelined PCG solver." alt="" coords="21,239,188,281"/>
+</map>

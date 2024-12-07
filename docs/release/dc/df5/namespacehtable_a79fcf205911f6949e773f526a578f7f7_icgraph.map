@@ -1,0 +1,10 @@
+<map id="htable::htable_get" name="htable::htable_get">
+<area shape="rect" id="node1" title="Retrieve data associated with key into the hash table." alt="" coords="225,157,365,184"/>
+<area shape="rect" id="node2" href="$dc/df5/namespacehtable.html#a8e7e0afa9f496a156d182aa76aff733c" title="Retrive a C pointer with key key from the hash table." alt="" coords="5,5,177,32"/>
+<area shape="rect" id="node3" href="$dc/df5/namespacehtable.html#a899aaf124096441534421e48830ffdba" title="Retrive an integer with key key from the hash table." alt="" coords="12,56,171,83"/>
+<area shape="rect" id="node4" href="$dc/df5/namespacehtable.html#ac6f80df4fe33475f21ffd91063aa6650" title="Retrive an integer 2&#45;tuple with key key from the hash table." alt="" coords="5,107,177,133"/>
+<area shape="rect" id="node5" href="$dc/df5/namespacehtable.html#a9f4a2f7af4351820354b6b0c818e0a04" title="Retrive an integer 4&#45;tuple with key key from the hash table." alt="" coords="5,157,177,184"/>
+<area shape="rect" id="node6" href="$dc/df5/namespacehtable.html#a7baa6e0dbf7825215c223c5d2353b274" title="Retrive an integer*8 with key key from the hash table." alt="" coords="12,208,171,235"/>
+<area shape="rect" id="node7" href="$dc/df5/namespacehtable.html#a7da281369367d899017e715f05e06752" title="Retrive a point with key key from the hash table." alt="" coords="11,259,171,285"/>
+<area shape="rect" id="node8" href="$dc/df5/namespacehtable.html#a76679717a87ee8a5e3253056d55921c3" title="Retrive a double precision float with key key from the hash table." alt="" coords="11,309,171,336"/>
+</map>

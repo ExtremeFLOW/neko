@@ -1,0 +1,6 @@
+<map id="opencl_dirichlet_apply_scalar" name="opencl_dirichlet_apply_scalar">
+<area shape="rect" id="node1" title=" " alt="" coords="479,43,647,84"/>
+<area shape="rect" id="node2" href="$d0/d0d/namespacedevice__dirichlet.html#a5d9e95775e4917531d11aa03b24c47ee" title=" " alt="" coords="255,43,431,84"/>
+<area shape="rect" id="node3" href="$da/ddb/namespacedirichlet.html#ace88f3658841ce10d3865f4648ef8391" title="Boundary condition apply for a generic Dirichlet condition to a vector x (device version)" alt="" coords="35,5,177,47"/>
+<area shape="rect" id="node4" href="$d6/df8/interfacedevice__dirichlet_1_1hip__dirichlet__apply__vector.html#ac60488d63e632de61c9354e50bc084b4" title=" " alt="" coords="5,71,207,127"/>
+</map>

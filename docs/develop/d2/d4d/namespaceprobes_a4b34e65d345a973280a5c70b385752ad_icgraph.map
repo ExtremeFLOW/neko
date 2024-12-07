@@ -1,0 +1,5 @@
+<map id="probes::read_probe_locations" name="probes::read_probe_locations">
+<area shape="rect" id="node1" title="Initialize the physical coordinates from a csv input file." alt="" coords="200,35,347,76"/>
+<area shape="rect" id="node2" href="$d2/d4d/namespaceprobes.html#afb0ca751eadf5869b849ac2eef557885" title="Constructor from json." alt="" coords="5,5,152,47"/>
+<area shape="rect" id="node3" href="$d2/d4d/namespaceprobes.html#aeef5d580976fae5fc3e83e23562a1996" title="Read a list of points from a csv file." alt="" coords="13,71,144,98"/>
+</map>

@@ -1,0 +1,16 @@
+<map id="adv_dealias::compute_advection_dealias" name="adv_dealias::compute_advection_dealias">
+<area shape="rect" id="node1" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="5,115,171,157"/>
+<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#ae733f8b62f2410dae4188a682fe74fb8" title="Vector substraction ." alt="" coords="219,5,413,32"/>
+<area shape="rect" id="node3" href="$d2/d73/namespacedevice__math.html#a62afd65bc6fb07e354fde87dad4d7c8c" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="237,57,395,98"/>
+<area shape="rect" id="node4" href="$dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix." alt="" coords="247,123,385,149"/>
+<area shape="rect" id="node13" href="$dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe" title="Vector substraction ." alt="" coords="269,173,363,200"/>
+<area shape="rect" id="node14" href="$dd/d47/namespacemath.html#ac6b1aa1e5e708afa691fde3c54956283" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="265,224,367,251"/>
+<area shape="rect" id="node5" href="$d3/d4d/namespaceopr__device.html#ad5bf8b83c33e9c73125c466a6fab72df" title=" " alt="" coords="461,83,633,125"/>
+<area shape="rect" id="node9" href="$d9/d5a/namespaceopr__xsmm.html#ac368e7ac69182681cdbea4a3f378bc50" title=" " alt="" coords="463,149,631,190"/>
+<area shape="rect" id="node6" href="$d6/d68/opr__opgrad_8cu.html#a47a2678dd1f3bc0187df518f5fce764d" title=" " alt="" coords="740,44,845,71"/>
+<area shape="rect" id="node7" href="$d0/d82/opr__opgrad_8c.html#a8844437d901cf613744a5f9b55d1a72c" title=" " alt="" coords="734,95,851,121"/>
+<area shape="rect" id="node8" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="965,95,1097,121"/>
+<area shape="rect" id="node10" href="$d9/d5a/namespaceopr__xsmm.html#ae87af796709692f90edc89ad48a47e93" title=" " alt="" coords="705,152,880,179"/>
+<area shape="rect" id="node12" href="$d9/d5a/namespaceopr__xsmm.html#a3d01aa528301a7ba984a8f558994c137" title=" " alt="" coords="681,203,904,229"/>
+<area shape="rect" id="node11" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="952,152,1111,179"/>
+</map>

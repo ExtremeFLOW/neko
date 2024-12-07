@@ -1,0 +1,4 @@
+<map id="tensor::triple_tensor_product::triple_tensor_product_vector" name="tensor::triple_tensor_product::triple_tensor_product_vector">
+<area shape="rect" id="node1" title="Computes the tensor product on a vector field . This operation is usually performed for spectral inte..." alt="" coords="5,5,173,61"/>
+<area shape="rect" id="node2" href="$dd/d8c/namespacetensor.html#a9944f67aa66a633ddab49c5d1db1d20f" title="Computes the tensor product . This operation is usually performed for spectral interpolation of a sca..." alt="" coords="221,13,375,54"/>
+</map>

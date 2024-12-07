@@ -1,0 +1,19 @@
+<map id="htable::htable_free" name="htable::htable_free">
+<area shape="rect" id="node1" title="Destroy a hash table." alt="" coords="632,183,777,209"/>
+<area shape="rect" id="node2" href="$dc/df5/namespacehtable.html#abe2d67a08e6453a0d2c4a12dd2215448" title="Initialize a hash table of type data." alt="" coords="444,183,584,209"/>
+<area shape="rect" id="node3" href="$dc/df5/namespacehtable.html#a3c056d3e12a216e1bc9949760d7abd3f" title="Initialize a C pointer based hash table." alt="" coords="224,5,396,32"/>
+<area shape="rect" id="node4" href="$dc/df5/namespacehtable.html#ad2428feafbdbcfdb2be0d35c2beca581" title="Initialize an integer based hash table." alt="" coords="231,56,389,83"/>
+<area shape="rect" id="node5" href="$dc/df5/namespacehtable.html#abe3744b592e8b3bbcc4c0352a872d523" title="Initialize an integer 2&#45;tuple hash table." alt="" coords="224,107,396,133"/>
+<area shape="rect" id="node6" href="$dc/df5/namespacehtable.html#a031de6b1432ada882ce3f53602fbfcf4" title="Initialize an integer 4&#45;tuple hash table." alt="" coords="224,157,396,184"/>
+<area shape="rect" id="node7" href="$dc/df5/namespacehtable.html#a5740b91782f165a73680c340ef2b7d6b" title="Initialize an integer*8 based hash table." alt="" coords="231,208,389,235"/>
+<area shape="rect" id="node8" href="$dc/df5/namespacehtable.html#a078bfd9271875d669c0ec10eb3b65035" title="Initialize a point based hash table." alt="" coords="230,259,390,285"/>
+<area shape="rect" id="node9" href="$dc/df5/namespacehtable.html#a21bf2d9f4d7fd3b9637ace58fc48c366" title="Initialize a double precision based hash table." alt="" coords="230,309,390,336"/>
+<area shape="rect" id="node10" href="$dc/df5/namespacehtable.html#aa9bb3681c8a6d3db680e95463b4d6be4" title="Insert tuple (key, value) into the hash table." alt="" coords="241,360,379,387"/>
+<area shape="rect" id="node11" href="$dc/df5/namespacehtable.html#abe71056bf80b100a6a6d052bb5c8f8c8" title="Insert a C pointer into the hash table." alt="" coords="5,208,176,235"/>
+<area shape="rect" id="node12" href="$dc/df5/namespacehtable.html#a10e555c59151c56817767da50a573c62" title="Insert an integer into the hash table." alt="" coords="11,259,170,285"/>
+<area shape="rect" id="node13" href="$dc/df5/namespacehtable.html#aa066b870eda30d8052db095b65f29b25" title="Insert an integer 2&#45;tuple into the hash table." alt="" coords="5,309,176,336"/>
+<area shape="rect" id="node14" href="$dc/df5/namespacehtable.html#a50115a0b339fea477351f0c0794b1abe" title="Insert an integer 4&#45;tuple into the hash table." alt="" coords="5,360,176,387"/>
+<area shape="rect" id="node15" href="$dc/df5/namespacehtable.html#a8ed2df3a07770b70e577c21a328d13eb" title="Insert an integer*8 into the hash table." alt="" coords="11,411,170,437"/>
+<area shape="rect" id="node16" href="$dc/df5/namespacehtable.html#ad41509eab71b42efe9931e4567ceee1d" title="Insert a point key (with data) into the hash table." alt="" coords="11,461,170,488"/>
+<area shape="rect" id="node17" href="$dc/df5/namespacehtable.html#a9a332631550559c829064a979c790b49" title="Insert a double precision key (with data) into the hash table." alt="" coords="11,512,170,539"/>
+</map>

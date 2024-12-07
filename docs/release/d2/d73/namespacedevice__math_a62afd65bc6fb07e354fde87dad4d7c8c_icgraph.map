@@ -1,0 +1,7 @@
+<map id="device_math::device_vdot3" name="device_math::device_vdot3">
+<area shape="rect" id="node1" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="417,71,575,112"/>
+<area shape="rect" id="node2" href="$d9/df7/namespaceadv__dealias.html#a0f913568bed6e07a9be491c39fa5752f" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="201,5,367,47"/>
+<area shape="rect" id="node3" href="$d0/d6f/namespacedrag__torque.html#a61b5e329f88dba02fd50bbabcbad0ec0" title="Calculate drag and torque from array of points." alt="" coords="209,71,359,112"/>
+<area shape="rect" id="node5" href="$d5/de6/namespacefield__math.html#aec3d5a9d2e66f8b6d1200f02d5169c35" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="199,137,369,163"/>
+<area shape="rect" id="node4" href="$d6/daa/namespaceforce__torque.html#ab407c7b9763b091d7165c5d7d19044de" title="Compute the force_torque field." alt="" coords="5,71,151,112"/>
+</map>

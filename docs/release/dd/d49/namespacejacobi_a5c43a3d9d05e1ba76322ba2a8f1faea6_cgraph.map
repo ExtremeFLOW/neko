@@ -1,0 +1,21 @@
+<map id="jacobi::jacobi_init" name="jacobi::jacobi_init">
+<area shape="rect" id="node1" title=" " alt="" coords="5,411,141,437"/>
+<area shape="rect" id="node2" href="$dd/d49/namespacejacobi.html#a2b15f287f6c23fdb2b2c5b113e9d04dd" title="Update Jacobi preconditioner if the geometry G has changed." alt="" coords="189,411,349,437"/>
+<area shape="rect" id="node3" href="$dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="437,5,552,32"/>
+<area shape="rect" id="node4" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="449,56,540,83"/>
+<area shape="rect" id="node5" href="$dd/d47/namespacemath.html#a9f8d1d3598c97b83bfc4fa14bed440e6" title="Invert a vector ." alt="" coords="439,107,550,133"/>
+<area shape="rect" id="node6" href="$dd/d49/namespacejacobi.html#a5b317cf5746e17f3af8732b06f7d88b4" title="Generic CPU kernel for updating the Jacobi preconditioner." alt="" coords="405,157,584,184"/>
+<area shape="rect" id="node7" href="$dd/d49/namespacejacobi.html#a72f418e6ffeeb4d17070ff92eb0257d7" title=" " alt="" coords="397,208,592,235"/>
+<area shape="rect" id="node8" href="$dd/d49/namespacejacobi.html#af10b8cc98854a2409158672fb31f020d" title=" " alt="" coords="397,259,592,285"/>
+<area shape="rect" id="node9" href="$dd/d49/namespacejacobi.html#a7b93e58b37b5b66ba5417c77095b2f31" title=" " alt="" coords="397,309,592,336"/>
+<area shape="rect" id="node10" href="$dd/d49/namespacejacobi.html#a4d6b39d9a0ba3ea986fab02d55e3f363" title=" " alt="" coords="397,360,592,387"/>
+<area shape="rect" id="node11" href="$dd/d49/namespacejacobi.html#a1b47e2168f4460a4eeb63c192a9f9d69" title=" " alt="" coords="397,411,592,437"/>
+<area shape="rect" id="node12" href="$dd/d49/namespacejacobi.html#a6fe1f08d3993277cd192f8a8076a670f" title=" " alt="" coords="401,461,588,488"/>
+<area shape="rect" id="node13" href="$dd/d49/namespacejacobi.html#aec15239d7b22ee25522954e3c38a0176" title=" " alt="" coords="401,512,588,539"/>
+<area shape="rect" id="node14" href="$dd/d49/namespacejacobi.html#a381fcff2c8165981637f6d1e6a4e0ba0" title=" " alt="" coords="401,563,588,589"/>
+<area shape="rect" id="node15" href="$dd/d49/namespacejacobi.html#ad17faec479d6892e3675d19fa0ea4c51" title=" " alt="" coords="401,613,588,640"/>
+<area shape="rect" id="node16" href="$dd/d49/namespacejacobi.html#a9284867dc3cf0154b858f52a379f5ece" title=" " alt="" coords="401,664,588,691"/>
+<area shape="rect" id="node17" href="$dd/d49/namespacejacobi.html#acd82de0f70a3cbdd7ae79f6681c148b6" title=" " alt="" coords="401,715,588,741"/>
+<area shape="rect" id="node18" href="$dd/d49/namespacejacobi.html#ab3a75495a4e7aa476d8ff43164ead660" title=" " alt="" coords="401,765,588,792"/>
+<area shape="rect" id="node19" href="$dd/d49/namespacejacobi.html#ac2d5595bcfe6d795de022e18fa62a39c" title=" " alt="" coords="401,816,588,843"/>
+</map>

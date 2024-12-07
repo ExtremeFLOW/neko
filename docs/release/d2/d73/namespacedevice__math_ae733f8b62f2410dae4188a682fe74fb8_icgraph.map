@@ -1,0 +1,5 @@
+<map id="device_math::device_sub2" name="device_math::device_sub2">
+<area shape="rect" id="node1" title="Vector substraction ." alt="" coords="219,42,413,69"/>
+<area shape="rect" id="node2" href="$d9/df7/namespaceadv__dealias.html#a0f913568bed6e07a9be491c39fa5752f" title="Add the advection term for the fluid, i.e. , to the RHS." alt="" coords="5,5,171,47"/>
+<area shape="rect" id="node3" href="$d5/de6/namespacefield__math.html#a3cbc556471d67156c30b2c918a4f8b20" title="Vector substraction ." alt="" coords="5,71,171,98"/>
+</map>

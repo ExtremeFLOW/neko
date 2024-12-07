@@ -1,0 +1,9 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$da/d8b/structentity_1_1entity__t.html" title="Base type for an entity." alt="" coords="5,107,123,133"/>
+<area shape="rect" id="node2" href="$d7/dd6/structelement_1_1element__t.html" title="Base type for an element." alt="" coords="171,81,321,108"/>
+<area shape="rect" id="node7" href="$db/d6f/structpoint_1_1point__t.html" title="A point in &#160;with coordinates ." alt="" coords="192,132,300,159"/>
+<area shape="rect" id="node3" href="$d6/d66/structhex_1_1hex__t.html" title="Hexahedron element." alt="" coords="377,5,468,32"/>
+<area shape="rect" id="node4" href="$d2/d32/structquad_1_1quad__t.html" title="Quadrilateral element." alt="" coords="369,56,476,83"/>
+<area shape="rect" id="node5" href="$db/dd5/structtet_1_1tet__t.html" title="Tetrahedral element." alt="" coords="383,107,462,133"/>
+<area shape="rect" id="node6" href="$d6/d51/structtri_1_1tri__t.html" title="Triangular element." alt="" coords="387,157,458,184"/>
+</map>

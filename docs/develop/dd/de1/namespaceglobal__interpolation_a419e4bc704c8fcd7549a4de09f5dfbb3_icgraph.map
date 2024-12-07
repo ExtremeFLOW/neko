@@ -1,0 +1,7 @@
+<map id="global_interpolation::global_interpolation_init_point_arrays" name="global_interpolation::global_interpolation_init_point_arrays">
+<area shape="rect" id="node1" title=" " alt="" coords="421,73,581,129"/>
+<area shape="rect" id="node2" href="$dd/de1/namespaceglobal__interpolation.html#ac1d7dd757c992a82f1a201d671ce637d" title="Finds the corresponding r,s,t coordinates and redistributes the points to the owning rank in the corr..." alt="" coords="5,81,165,137"/>
+<area shape="rect" id="node3" href="$dd/de1/namespaceglobal__interpolation.html#a5dfe3afc61fac845acfadaef21e3465c" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="213,33,373,89"/>
+<area shape="rect" id="node4" href="$dd/de1/namespaceglobal__interpolation.html#aad8a5b77756f4c2b1b6efb26f7b0163a" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="213,113,373,169"/>
+<area shape="rect" id="node5" href="$dd/de1/namespaceglobal__interpolation.html#ae67a17085d264b5f5d490d1047042ee2" title=" " alt="" coords="213,193,373,249"/>
+</map>

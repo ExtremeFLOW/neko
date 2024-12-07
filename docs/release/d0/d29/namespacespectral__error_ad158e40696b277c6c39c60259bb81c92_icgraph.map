@@ -1,0 +1,4 @@
+<map id="spectral_error::transform_to_spec_or_phys" name="spectral_error::transform_to_spec_or_phys">
+<area shape="rect" id="node1" title="Transform a field u to u_hat into physical or spectral space the result of the transformation is in u..." alt="" coords="225,5,409,47"/>
+<area shape="rect" id="node2" href="$d0/d29/namespacespectral__error.html#a137518f81fd0015c87d9b6fb25c27643" title="Transform and get the spectral error indicators." alt="" coords="5,5,177,47"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="derivative::derivative_compute" name="derivative::derivative_compute">
+<area shape="rect" id="node1" title="Compute the derivative field." alt="" coords="5,99,168,141"/>
+<area shape="rect" id="node2" href="$dd/d30/namespaceoperators.html#ae52fad680e572c55e87090cfa06c72eb" title="Compute derivative of a scalar field along a single direction." alt="" coords="216,107,355,133"/>
+<area shape="rect" id="node3" href="$d3/d4d/namespaceopr__device.html#abc0d21999d04728a18514d4c422219ec" title=" " alt="" coords="403,49,575,90"/>
+<area shape="rect" id="node7" href="$d9/d5a/namespaceopr__xsmm.html#abd01047726757dd7140713007f5a5ff6" title=" " alt="" coords="405,131,573,173"/>
+<area shape="rect" id="node4" href="$d3/d13/opr__dudxyz_8cu.html#a12bdb6bf9c94199b29d19641386a2ea0" title=" " alt="" coords="649,5,755,32"/>
+<area shape="rect" id="node5" href="$d1/d28/opr__dudxyz_8c.html#aa154bc09bc993f78a4d5ba22abe64ab2" title=" " alt="" coords="643,56,761,83"/>
+<area shape="rect" id="node6" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="829,56,961,83"/>
+<area shape="rect" id="node8" href="$dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="645,107,759,133"/>
+<area shape="rect" id="node9" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="657,157,747,184"/>
+<area shape="rect" id="node10" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="623,208,781,235"/>
+</map>

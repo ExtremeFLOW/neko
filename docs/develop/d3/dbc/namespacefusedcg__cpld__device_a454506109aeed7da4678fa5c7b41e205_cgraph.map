@@ -1,0 +1,5 @@
+<map id="fusedcg_cpld_device::fusedcg_cpld_device_init" name="fusedcg_cpld_device::fusedcg_cpld_device_init">
+<area shape="rect" id="node1" title="Initialise a fused PCG solver." alt="" coords="5,27,199,69"/>
+<area shape="rect" id="node2" href="$d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9" title="Allocate memory on the device." alt="" coords="249,5,404,32"/>
+<area shape="rect" id="node3" href="$d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479" title="Create a device event queue." alt="" coords="247,57,407,98"/>
+</map>

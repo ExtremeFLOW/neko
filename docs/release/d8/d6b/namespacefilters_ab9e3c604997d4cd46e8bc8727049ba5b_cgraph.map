@@ -1,0 +1,6 @@
+<map id="filters::step_function_field" name="filters::step_function_field">
+<area shape="rect" id="node1" title="Apply a step function to a field." alt="" coords="5,35,160,76"/>
+<area shape="rect" id="node2" href="$d9/d3d/namespacefilters__cpu.html#ab8c53b4bcc83ce1930097411d92eea0f" title="Apply a step function to a scalar." alt="" coords="208,13,423,39"/>
+<area shape="rect" id="node4" href="$df/d9b/namespacefilters__device.html#a9f54b5cbee44b4c8b76914113b8cdb6d" title="Apply a step function to a scalar." alt="" coords="243,64,388,105"/>
+<area shape="rect" id="node3" href="$d9/d3d/namespacefilters__cpu.html#aad2d540de047ed1d96c48c4218d01b47" title="Apply a step function to a scalar." alt="" coords="471,5,656,47"/>
+</map>

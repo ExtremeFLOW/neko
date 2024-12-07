@@ -1,0 +1,5 @@
+<map id="source_scalar::source_scalar_init" name="source_scalar::source_scalar_init">
+<area shape="rect" id="node1" title="Initialize a source_scalar term f." alt="" coords="5,5,168,47"/>
+<area shape="rect" id="node2" href="$de/dcb/namespacesource__scalar.html#a6b4bf569b1eae353428fae0a54bc89be" title="Deallocate a source_scalar term f." alt="" coords="216,5,379,47"/>
+<area shape="rect" id="node3" href="$d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="427,13,576,39"/>
+</map>

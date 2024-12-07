@@ -1,0 +1,11 @@
+<map id="operators::opgrad" name="operators::opgrad">
+<area shape="rect" id="node1" title="Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix." alt="" coords="5,83,143,109"/>
+<area shape="rect" id="node2" href="$d3/d4d/namespaceopr__device.html#ad5bf8b83c33e9c73125c466a6fab72df" title=" " alt="" coords="191,42,363,83"/>
+<area shape="rect" id="node6" href="$d9/d5a/namespaceopr__xsmm.html#ac368e7ac69182681cdbea4a3f378bc50" title=" " alt="" coords="193,107,361,149"/>
+<area shape="rect" id="node3" href="$d6/d68/opr__opgrad_8cu.html#a47a2678dd1f3bc0187df518f5fce764d" title=" " alt="" coords="469,5,575,32"/>
+<area shape="rect" id="node4" href="$d0/d82/opr__opgrad_8c.html#a8844437d901cf613744a5f9b55d1a72c" title=" " alt="" coords="463,56,581,83"/>
+<area shape="rect" id="node5" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="695,56,827,83"/>
+<area shape="rect" id="node7" href="$d9/d5a/namespaceopr__xsmm.html#ae87af796709692f90edc89ad48a47e93" title=" " alt="" coords="435,111,609,137"/>
+<area shape="rect" id="node9" href="$d9/d5a/namespaceopr__xsmm.html#a3d01aa528301a7ba984a8f558994c137" title=" " alt="" coords="411,161,633,188"/>
+<area shape="rect" id="node8" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="681,111,840,137"/>
+</map>

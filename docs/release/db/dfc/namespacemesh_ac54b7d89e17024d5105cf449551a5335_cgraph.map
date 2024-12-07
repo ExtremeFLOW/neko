@@ -1,0 +1,5 @@
+<map id="mesh::mesh_generate_external_facet_conn" name="mesh::mesh_generate_external_facet_conn">
+<area shape="rect" id="node1" title="Generate element&#45;element connectivity via facets between PEs." alt="" coords="5,39,172,80"/>
+<area shape="rect" id="node2" href="$dc/d48/namespacedistdata.html#a13af2d2fa32c3733dbf1688e579951ec" title="Mark an element&#39;s facet as shared." alt="" coords="220,5,379,47"/>
+<area shape="rect" id="node3" href="$dc/d48/namespacedistdata.html#a7aa5fbd5e4916c9f7eca2e0005716486" title="Mark a facet as shared." alt="" coords="229,71,369,112"/>
+</map>

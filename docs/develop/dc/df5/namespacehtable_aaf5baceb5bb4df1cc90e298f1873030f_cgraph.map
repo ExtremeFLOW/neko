@@ -1,0 +1,5 @@
+<map id="htable::htable_i4t2_remove" name="htable::htable_i4t2_remove">
+<area shape="rect" id="node1" title="Remove an integer 2&#45;tuple with key key from the hash table." alt="" coords="5,5,149,47"/>
+<area shape="rect" id="node2" href="$dc/df5/namespacehtable.html#a7fb79f0bfa89ea18c0e963dfd1898db4" title="Remove a key from the hash table." alt="" coords="197,13,367,39"/>
+<area shape="rect" id="node3" href="$dc/df5/namespacehtable.html#aaf0eaa6f045b8177f467c12a9fd33f23" title="Compare key at idx to key." alt="" coords="415,13,580,39"/>
+</map>

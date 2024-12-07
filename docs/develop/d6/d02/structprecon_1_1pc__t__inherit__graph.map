@@ -1,0 +1,9 @@
+<map id="precon::pc_t" name="precon::pc_t">
+<area shape="rect" id="node1" title="Defines a canonical Krylov preconditioner." alt="" coords="5,162,107,189"/>
+<area shape="rect" id="node2" href="$dd/ddc/structdevice__identity_1_1device__ident__t.html" title="Defines a canonical Krylov preconditioner for accelerators." alt="" coords="155,5,327,47"/>
+<area shape="rect" id="node3" href="$d8/dca/structdevice__jacobi_1_1device__jacobi__t.html" title="Defines a jacobi preconditioner." alt="" coords="159,71,322,112"/>
+<area shape="rect" id="node4" href="$dd/d81/structhsmg_1_1hsmg__t.html" title=" " alt="" coords="183,137,298,163"/>
+<area shape="rect" id="node5" href="$d7/d69/structidentity_1_1ident__t.html" title="Defines a canonical Krylov preconditioner." alt="" coords="179,187,303,214"/>
+<area shape="rect" id="node6" href="$da/d72/structjacobi_1_1jacobi__t.html" title="Defines a jacobi preconditioner." alt="" coords="181,238,301,265"/>
+<area shape="rect" id="node7" href="$d4/d41/structsx__jacobi_1_1sx__jacobi__t.html" title="Defines a jacobi preconditioner for SX&#45;Aurora." alt="" coords="159,289,323,315"/>
+</map>

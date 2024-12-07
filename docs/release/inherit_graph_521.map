@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$d8/d9e/structuset_1_1uset__t.html" title="Base type for an unordered set." alt="" coords="5,56,104,83"/>
+<area shape="rect" id="node2" href="$d6/db2/structuset_1_1uset__i4__t.html" title="Integer based unordered set." alt="" coords="153,5,270,32"/>
+<area shape="rect" id="node3" href="$d0/d60/structuset_1_1uset__i8__t.html" title="Integer*8 based unordered set." alt="" coords="153,56,270,83"/>
+<area shape="rect" id="node4" href="$d3/d19/structuset_1_1uset__r8__t.html" title="Double precision unordered set." alt="" coords="152,107,271,133"/>
+</map>

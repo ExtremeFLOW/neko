@@ -1,0 +1,9 @@
+<map id="schwarz::schwarz_setup_wt" name="schwarz::schwarz_setup_wt">
+<area shape="rect" id="node1" title="setup weights" alt="" coords="5,136,208,163"/>
+<area shape="rect" id="node2" href="$dd/d47/namespacemath.html#a6a2786eeaf4fa795dab048bb6c8d56c4" title="Set all elements to one." alt="" coords="306,5,399,32"/>
+<area shape="rect" id="node3" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="304,56,401,83"/>
+<area shape="rect" id="node4" href="$d2/d37/namespaceschwarz.html#a7a6b8a1e76d325b84a8abe931d3e7384" title="Sum values along rows l1, l2 with weights f1, f2 and store along row l1. Helps us avoid complicated c..." alt="" coords="256,107,449,133"/>
+<area shape="rect" id="node5" href="$d2/d37/namespaceschwarz.html#ade8d64f2437a4224082b3711ca027645" title="Setup schwarz weights, 2d, second step." alt="" coords="263,158,442,199"/>
+<area shape="rect" id="node6" href="$d2/d37/namespaceschwarz.html#aa6ed48c46882c077ddab2ea62c6db125" title="Setup schwarz weights, 3d, second step." alt="" coords="263,223,442,265"/>
+<area shape="rect" id="node7" href="$d2/d37/namespaceschwarz.html#a27c7d0c843a7c38b51e7550059b65970" title="convert array a from extended size to regular" alt="" coords="256,289,449,316"/>
+</map>

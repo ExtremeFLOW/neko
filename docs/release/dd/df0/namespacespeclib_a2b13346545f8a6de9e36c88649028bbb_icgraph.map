@@ -1,0 +1,11 @@
+<map id="speclib::endw2" name="speclib::endw2">
+<area shape="rect" id="node1" title=" " alt="" coords="873,71,992,98"/>
+<area shape="rect" id="node2" href="$dd/df0/namespacespeclib.html#ae2c64cf28960c6e471641deed404e86e" title=" " alt="" coords="707,71,825,98"/>
+<area shape="rect" id="node3" href="$dd/df0/namespacespeclib.html#a7c5a4fdeafc7586a367bc910e26ba2a9" title=" " alt="" coords="548,71,659,98"/>
+<area shape="rect" id="node4" href="$dd/df0/namespacespeclib.html#a179445887767b2f79644d8831c0aaa4a" title=" " alt="" coords="389,71,500,98"/>
+<area shape="rect" id="node5" href="$dd/d26/namespaceelementwise__filter__cpu.html#aafca1eafd7fe7847fb28b285189ca02f" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="196,5,341,47"/>
+<area shape="rect" id="node7" href="$dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4" title="Generate matrices for single element, 1D operators: a = Laplacian b = diagonal mass matrix c = convec..." alt="" coords="209,71,329,98"/>
+<area shape="rect" id="node9" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="201,122,336,149"/>
+<area shape="rect" id="node6" href="$dd/d52/namespaceelementwise__filter.html#ac2f5a8a0a33529944fc5302eee1e04f5" title="Build the 1d filter for an element." alt="" coords="5,5,148,47"/>
+<area shape="rect" id="node8" href="$d3/d4c/namespacefdm.html#af3a1a3b08ecd8ff4dd376ac7afaa555f" title=" " alt="" coords="21,71,132,98"/>
+</map>

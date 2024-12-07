@@ -1,0 +1,5 @@
+<map id="scalar_ic::set_scalar_ic_common" name="scalar_ic::set_scalar_ic_common">
+<area shape="rect" id="node1" title="Set scalar initial condition (common)" alt="" coords="212,39,365,80"/>
+<area shape="rect" id="node2" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#acec97723c5e2c32e459b067fd352bf65" title="Set scalar initial condition (builtin)" alt="" coords="7,5,163,47"/>
+<area shape="rect" id="node3" href="$df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aa53b59c1c405887a1b3408e21bbb4801" title="Set scalar intial condition (user defined)" alt="" coords="5,71,164,112"/>
+</map>

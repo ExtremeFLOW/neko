@@ -1,0 +1,12 @@
+<map id="neko_mpi_types::neko_mpi_types_free" name="neko_mpi_types::neko_mpi_types_free">
+<area shape="rect" id="node1" title="Deallocate all derived MPI types." alt="" coords="5,267,172,308"/>
+<area shape="rect" id="node2" href="$d7/dd4/namespaceneko__mpi__types.html#a97f58fffb5ecc2f44808afdd568ec9c2" title="Deallocate nmsh curve derived MPI type." alt="" coords="220,5,397,47"/>
+<area shape="rect" id="node3" href="$d7/dd4/namespaceneko__mpi__types.html#ab2e73620b4612c5efe0022b88389c55d" title="Deallocate nmsh hex derived MPI type." alt="" coords="226,71,391,112"/>
+<area shape="rect" id="node4" href="$d7/dd4/namespaceneko__mpi__types.html#a042d825794eb11c05bf9c528ac00df72" title="Deallocate nmsh quad derived MPI type." alt="" coords="222,136,395,177"/>
+<area shape="rect" id="node5" href="$d7/dd4/namespaceneko__mpi__types.html#a8e83f36efb69166274d3c94c5058ca27" title="Deallocate nmsh zone derived MPI type." alt="" coords="223,201,395,243"/>
+<area shape="rect" id="node6" href="$d7/dd4/namespaceneko__mpi__types.html#a067a111d5ace3bc5eb37b75e46dc8544" title="Deallocate re2 bc derived MPI type." alt="" coords="228,267,389,308"/>
+<area shape="rect" id="node7" href="$d7/dd4/namespaceneko__mpi__types.html#a7b3738b574c1175ace5f8269105ca4d7" title="Deallocate re2 xyz derived MPI type." alt="" coords="228,332,389,373"/>
+<area shape="rect" id="node8" href="$d7/dd4/namespaceneko__mpi__types.html#a5d5976236d11f9274625abe0cd9c5027" title="Deallocate re2 xyz derived MPI type." alt="" coords="228,397,389,439"/>
+<area shape="rect" id="node9" href="$d7/dd4/namespaceneko__mpi__types.html#aed312546db210468e5d57bc81946b622" title="Deallocate STL header dervied MPI type." alt="" coords="225,463,392,504"/>
+<area shape="rect" id="node10" href="$d7/dd4/namespaceneko__mpi__types.html#a6492ffb373546d8836d2aa2a03339eb6" title="Deallocate STL triangle derived MPI type." alt="" coords="223,528,394,569"/>
+</map>

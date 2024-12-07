@@ -1,0 +1,7 @@
+<map id="spectral_error::spectral_error_get_indicators" name="spectral_error::spectral_error_get_indicators">
+<area shape="rect" id="node1" title="Transform and get the spectral error indicators." alt="" coords="5,39,177,80"/>
+<area shape="rect" id="node2" href="$d0/d29/namespacespectral__error.html#af053242d087cad901b659d11f5693c58" title="Wrapper for old fortran 77 subroutines." alt="" coords="228,5,407,47"/>
+<area shape="rect" id="node5" href="$d0/d29/namespacespectral__error.html#ad158e40696b277c6c39c60259bb81c92" title="Transform a field u to u_hat into physical or spectral space the result of the transformation is in u..." alt="" coords="225,71,409,112"/>
+<area shape="rect" id="node3" href="$d0/d29/namespacespectral__error.html#afbc45d68b6be27ec4e451ad943ce9ab7" title="Calculate the indicator in a specified variable." alt="" coords="457,13,637,39"/>
+<area shape="rect" id="node4" href="$d0/d29/namespacespectral__error.html#a069be67d9c276b349152d1c8359780a7" title="Extrapolate the Legendre spectrum from the last points." alt="" coords="685,5,837,47"/>
+</map>

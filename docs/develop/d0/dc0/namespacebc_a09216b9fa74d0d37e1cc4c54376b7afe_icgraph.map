@@ -1,0 +1,4 @@
+<map id="bc::bc_mark_zone" name="bc::bc_mark_zone">
+<area shape="rect" id="node1" title="Mark all facets from a zone." alt="" coords="264,5,403,32"/>
+<area shape="rect" id="node2" href="$d0/dc0/namespacebc.html#abfacbd681994384ab260ac3844936e36" title="Mark all facets from a list of zones, also marks type of bc in the mesh. The facet_type in mesh is be..." alt="" coords="5,5,216,32"/>
+</map>

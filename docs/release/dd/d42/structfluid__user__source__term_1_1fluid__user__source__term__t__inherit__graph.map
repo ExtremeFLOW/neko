@@ -1,0 +1,4 @@
+<map id="fluid_user_source_term::fluid_user_source_term_t" name="fluid_user_source_term::fluid_user_source_term_t">
+<area shape="rect" id="node1" title="A source&#45;term for the fluid, with procedure pointers pointing to the actual implementation in the use..." alt="" coords="5,95,199,136"/>
+<area shape="rect" id="node2" href="$d8/d03/structsource__term_1_1source__term__t.html" title="Base abstract type for source terms." alt="" coords="25,5,179,47"/>
+</map>

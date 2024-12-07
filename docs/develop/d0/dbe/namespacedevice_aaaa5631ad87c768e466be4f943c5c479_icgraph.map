@@ -1,0 +1,11 @@
+<map id="device::device_event_create" name="device::device_event_create">
+<area shape="rect" id="node1" title="Create a device event queue." alt="" coords="247,210,407,251"/>
+<area shape="rect" id="node2" href="$d6/d60/namespacecg__device.html#a2a2d58e39dea08af9dea73e03a58a49d" title="Initialise a device based PCG solver." alt="" coords="8,5,196,32"/>
+<area shape="rect" id="node3" href="$d4/dc5/namespacecheby__device.html#a95d8c91cca28c3baac7e63521d511416" title="Initialise a standard solver." alt="" coords="23,57,181,98"/>
+<area shape="rect" id="node4" href="$d3/dbc/namespacefusedcg__cpld__device.html#a454506109aeed7da4678fa5c7b41e205" title="Initialise a fused PCG solver." alt="" coords="5,122,199,163"/>
+<area shape="rect" id="node5" href="$d8/dcd/namespacegs__device.html#a4bb66ded555ba4ec7d3004165a21273d" title="Accelerator backend initialisation." alt="" coords="8,188,196,215"/>
+<area shape="rect" id="node6" href="$d9/dfa/namespacegs__device__mpi.html#afe2c32b8ff7fe4f3941b8653b47ec885" title="Initialise MPI based communication method." alt="" coords="6,239,198,281"/>
+<area shape="rect" id="node7" href="$dd/dd1/namespacehsmg.html#a203f4c75923462a923b3d5d38e90c896" title=" " alt="" coords="37,305,167,332"/>
+<area shape="rect" id="node8" href="$da/d46/namespacepipecg__device.html#a86daf699cd1fdcbe384287b70635a1a2" title="Initialise a pipelined PCG solver." alt="" coords="19,357,185,398"/>
+<area shape="rect" id="node9" href="$d2/d37/namespaceschwarz.html#ae590bfb8aedcf5db47c25c8644561bd5" title=" " alt="" coords="20,423,184,449"/>
+</map>

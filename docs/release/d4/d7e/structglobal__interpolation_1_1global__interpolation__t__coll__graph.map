@@ -1,0 +1,7 @@
+<map id="global_interpolation::global_interpolation_t" name="global_interpolation::global_interpolation_t">
+<area shape="rect" id="node1" title="Implements global interpolation for arbitrary points in the domain." alt="" coords="70,481,242,523"/>
+<area shape="rect" id="node2" href="$da/d99/structspace_1_1space__t.html" title="The function space for the SEM solution fields." alt="" coords="39,250,158,277"/>
+<area shape="rect" id="node4" href="$d4/df5/structlocal__interpolation_1_1local__interpolator__t.html" title="Interpolation on a set of points with known rst coordinates in elements local to this process...." alt="" coords="140,348,296,389"/>
+<area shape="rect" id="node3" title=" " alt="" coords="71,5,126,32"/>
+<area shape="rect" id="node5" href="$dd/d8c/structstructs_1_1array__ptr__t.html" title="Pointer to array." alt="" coords="320,355,466,382"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="fluid_plan1::fluid_plan1_init" name="fluid_plan1::fluid_plan1_init">
+<area shape="rect" id="node1" title=" " alt="" coords="5,39,135,80"/>
+<area shape="rect" id="node2" href="$d8/d09/namespacefluid__scheme.html#ae118e3aebe30e81422421926063456d0" title="Initialize a Krylov preconditioner." alt="" coords="183,5,367,47"/>
+<area shape="rect" id="node3" href="$d8/d09/namespacefluid__scheme.html#ac0524c5d30f0f75b3ccba65c70aa1d97" title="Initialize a linear solver." alt="" coords="185,71,365,112"/>
+</map>

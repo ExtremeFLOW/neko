@@ -1,0 +1,5 @@
+<map id="mesh::mesh_init_common" name="mesh::mesh_init_common">
+<area shape="rect" id="node1" title=" " alt="" coords="5,5,200,32"/>
+<area shape="rect" id="node2" href="$dc/d48/namespacedistdata.html#a7393efc050ceff8d2b1577e814766df8" title="Initialise a distdata type." alt="" coords="248,5,412,32"/>
+<area shape="rect" id="node3" href="$dc/d48/namespacedistdata.html#a3a77ef0dd4cbeff5d6c510c493007288" title="Free a distdata type." alt="" coords="460,5,629,32"/>
+</map>

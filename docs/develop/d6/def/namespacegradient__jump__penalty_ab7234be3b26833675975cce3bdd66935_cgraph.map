@@ -1,0 +1,6 @@
+<map id="gradient_jump_penalty::gradient_jump_penalty_init" name="gradient_jump_penalty::gradient_jump_penalty_init">
+<area shape="rect" id="node1" title="Constructor." alt="" coords="5,39,213,80"/>
+<area shape="rect" id="node2" href="$d6/def/namespacegradient__jump__penalty.html#a9d04e1bfe0b003bf448a6c880c6078c2" title="Evaluate h^2 for each element for hexahedral mesh." alt="" coords="261,5,433,47"/>
+<area shape="rect" id="node4" href="$d6/def/namespacegradient__jump__penalty.html#a50a5857c26b3634d6e9bf80c7ac5182f" title="Initialize the facet factor array." alt="" coords="261,71,433,112"/>
+<area shape="rect" id="node3" href="$d6/def/namespacegradient__jump__penalty.html#aac2ae978ff3697d7d659b265b67e421a" title=" " alt="" coords="481,5,653,47"/>
+</map>

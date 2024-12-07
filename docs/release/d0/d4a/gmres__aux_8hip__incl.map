@@ -1,0 +1,11 @@
+<map id="/home/runner/work/neko/neko/src/krylov/bcknd/device/hip/gmres_aux.hip" name="/home/runner/work/neko/neko/src/krylov/bcknd/device/hip/gmres_aux.hip">
+<area shape="rect" id="node1" title=" " alt="" coords="282,5,475,61"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,117,72,143"/>
+<area shape="rect" id="node3" title=" " alt="" coords="379,206,515,233"/>
+<area shape="rect" id="node4" href="$d0/d70/hip_2gmres__kernel_8h.html" title=" " alt="" coords="96,117,219,143"/>
+<area shape="rect" id="node6" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="293,117,464,143"/>
+<area shape="rect" id="node7" href="$d4/d7a/hip_2check_8h.html" title=" " alt="" coords="489,117,631,143"/>
+<area shape="rect" id="node8" href="$d0/d4a/device__mpi__reduce_8h.html" title=" " alt="" coords="655,109,849,151"/>
+<area shape="rect" id="node9" href="$db/d37/device__mpi__op_8h.html" title=" " alt="" coords="873,109,1066,151"/>
+<area shape="rect" id="node5" href="$d8/d17/hip_2math__kernel_8h.html" title=" " alt="" coords="72,199,243,240"/>
+</map>

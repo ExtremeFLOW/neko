@@ -1,0 +1,11 @@
+<map id="operators::dudxyz" name="operators::dudxyz">
+<area shape="rect" id="node1" title="Compute derivative of a scalar field along a single direction." alt="" coords="5,107,144,133"/>
+<area shape="rect" id="node2" href="$d3/d4d/namespaceopr__device.html#abc0d21999d04728a18514d4c422219ec" title=" " alt="" coords="192,49,364,90"/>
+<area shape="rect" id="node6" href="$d9/d5a/namespaceopr__xsmm.html#abd01047726757dd7140713007f5a5ff6" title=" " alt="" coords="194,131,362,173"/>
+<area shape="rect" id="node3" href="$d3/d13/opr__dudxyz_8cu.html#a12bdb6bf9c94199b29d19641386a2ea0" title=" " alt="" coords="438,5,545,32"/>
+<area shape="rect" id="node4" href="$d1/d28/opr__dudxyz_8c.html#aa154bc09bc993f78a4d5ba22abe64ab2" title=" " alt="" coords="432,56,551,83"/>
+<area shape="rect" id="node5" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="619,56,751,83"/>
+<area shape="rect" id="node7" href="$dd/d47/namespacemath.html#a9ae93ef16c85e8de722f56c281f444e6" title="Returns ." alt="" coords="434,107,549,133"/>
+<area shape="rect" id="node8" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="446,157,537,184"/>
+<area shape="rect" id="node9" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="412,208,571,235"/>
+</map>

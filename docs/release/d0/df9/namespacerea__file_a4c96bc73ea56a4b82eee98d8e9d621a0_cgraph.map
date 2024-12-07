@@ -1,0 +1,8 @@
+<map id="rea_file::rea_file_read" name="rea_file::rea_file_read">
+<area shape="rect" id="node1" title="Load NEKTON session data from an ascii file." alt="" coords="5,97,168,124"/>
+<area shape="rect" id="node2" href="$d6/d84/namespaceutils.html#a94a1b10b4fd0d52a2bbd0bdfbac01692" title="Change a filename&#39;s suffix." alt="" coords="216,5,389,32"/>
+<area shape="rect" id="node4" href="$d0/df9/namespacerea__file.html#a8757f8bd3353e70448913579aa905ae5" title=" " alt="" coords="239,57,366,98"/>
+<area shape="rect" id="node5" href="$d0/df9/namespacerea__file.html#ad0cd761d57fe23c91fc477b2f7a4fe6a" title="Mark a labeled zone based on an offset." alt="" coords="233,122,373,163"/>
+<area shape="rect" id="node6" href="$d7/d1d/namespacerea.html#a018ed1e7f3e68aa933a552b30b16b2c0" title="Free a NEKTON session data." alt="" coords="250,188,355,215"/>
+<area shape="rect" id="node3" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="437,5,625,32"/>
+</map>

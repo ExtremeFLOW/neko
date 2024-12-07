@@ -1,0 +1,5 @@
+<map id="wall_model::wall_model_t" name="wall_model::wall_model_t">
+<area shape="rect" id="node1" title="Base abstract type for wall&#45;stress models for wall&#45;modelled LES." alt="" coords="79,5,271,32"/>
+<area shape="rect" id="node2" href="$df/d21/structrough__log__law_1_1rough__log__law__t.html" title="Wall model based on the log&#45;law for a rough wall. The formula defining the law is ...." alt="" coords="5,80,165,121"/>
+<area shape="rect" id="node3" href="$df/df1/structspalding_1_1spalding__t.html" title="Wall model based on Spalding&#39;s law of the wall. Reference: http://dx.doi.org/10.1115/1...." alt="" coords="189,87,341,114"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="inflow::inflow_apply_vector_dev" name="inflow::inflow_apply_vector_dev">
+<area shape="rect" id="node1" title="Apply inflow conditions (vector valued) (device version)" alt="" coords="5,27,156,69"/>
+<area shape="rect" id="node2" href="$d6/d78/namespacedevice__inflow.html#a3fe7eb0f4fcc1f9e1f348efbb04becf0" title=" " alt="" coords="204,27,365,69"/>
+<area shape="rect" id="node3" href="$df/de5/inflow_8cu.html#aeee09fe7bb164997c86a2815cb6bfe38" title=" " alt="" coords="413,5,604,32"/>
+<area shape="rect" id="node4" href="$d0/dff/inflow_8c.html#a52a873328124fec5b6fee3ae6b407984" title=" " alt="" coords="431,57,586,98"/>
+<area shape="rect" id="node5" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="652,64,784,91"/>
+</map>

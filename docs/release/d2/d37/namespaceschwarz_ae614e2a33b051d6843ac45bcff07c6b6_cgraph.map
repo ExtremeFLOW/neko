@@ -1,0 +1,13 @@
+<map id="schwarz::schwarz_init" name="schwarz::schwarz_init">
+<area shape="rect" id="node1" title=" " alt="" coords="5,123,169,149"/>
+<area shape="rect" id="node2" href="$d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9" title="Allocate memory on the device." alt="" coords="241,5,396,32"/>
+<area shape="rect" id="node3" href="$d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479" title="Create a device event queue." alt="" coords="239,57,399,98"/>
+<area shape="rect" id="node4" href="$dd/d47/namespacemath.html#a6a2786eeaf4fa795dab048bb6c8d56c4" title="Set all elements to one." alt="" coords="518,72,611,99"/>
+<area shape="rect" id="node5" href="$d2/d37/namespaceschwarz.html#a5226a484ae3c95e55535e3b33e4fc15c" title="setup weights" alt="" coords="217,173,420,200"/>
+<area shape="rect" id="node11" href="$d2/d37/namespaceschwarz.html#aac3358ce98e9c604fb514399d8e95cbe" title=" " alt="" coords="231,224,406,251"/>
+<area shape="rect" id="node6" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="516,123,613,149"/>
+<area shape="rect" id="node7" href="$d2/d37/namespaceschwarz.html#a7a6b8a1e76d325b84a8abe931d3e7384" title="Sum values along rows l1, l2 with weights f1, f2 and store along row l1. Helps us avoid complicated c..." alt="" coords="468,173,661,200"/>
+<area shape="rect" id="node8" href="$d2/d37/namespaceschwarz.html#ade8d64f2437a4224082b3711ca027645" title="Setup schwarz weights, 2d, second step." alt="" coords="475,225,654,266"/>
+<area shape="rect" id="node9" href="$d2/d37/namespaceschwarz.html#aa6ed48c46882c077ddab2ea62c6db125" title="Setup schwarz weights, 3d, second step." alt="" coords="475,290,654,331"/>
+<area shape="rect" id="node10" href="$d2/d37/namespaceschwarz.html#a27c7d0c843a7c38b51e7550059b65970" title="convert array a from extended size to regular" alt="" coords="468,356,661,383"/>
+</map>

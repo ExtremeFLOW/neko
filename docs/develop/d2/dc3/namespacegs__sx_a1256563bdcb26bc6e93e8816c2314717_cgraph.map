@@ -1,0 +1,7 @@
+<map id="gs_sx::gs_gather_sx" name="gs_sx::gs_gather_sx">
+<area shape="rect" id="node1" title="Gather kernel." alt="" coords="5,81,159,108"/>
+<area shape="rect" id="node2" href="$d2/dc3/namespacegs__sx.html#abfb7f815b44dbd81d06c1c0c2eae1040" title="Gather kernel for addition of data ." alt="" coords="209,5,419,32"/>
+<area shape="rect" id="node3" href="$d2/dc3/namespacegs__sx.html#a72adf2a457f0d0b6c83b4d0737c2b7ce" title="Gather kernel for maximum of data ." alt="" coords="207,56,421,83"/>
+<area shape="rect" id="node4" href="$d2/dc3/namespacegs__sx.html#ab03ce833fa343aaa8dd85a1101fbd4db" title="Gather kernel for minimum of data ." alt="" coords="209,107,419,133"/>
+<area shape="rect" id="node5" href="$d2/dc3/namespacegs__sx.html#a291fba6afd6da6eebddf318c1c06a5a1" title="Gather kernel for multiplication of data ." alt="" coords="209,157,419,184"/>
+</map>

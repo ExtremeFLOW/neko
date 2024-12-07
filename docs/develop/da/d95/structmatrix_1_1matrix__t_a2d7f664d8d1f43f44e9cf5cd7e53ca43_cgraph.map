@@ -1,0 +1,12 @@
+<map id="matrix::matrix_t::operator" name="matrix::matrix_t::operator">
+<area shape="rect" id="node1" title=" " alt="" coords="5,115,196,141"/>
+<area shape="rect" id="node2" href="$d0/de4/namespacematrix.html#a18b0ce5d09699538677c4a08b8d7ab82" title="Matrix&#45;matrix subtraction ." alt="" coords="244,49,391,90"/>
+<area shape="rect" id="node5" href="$d0/de4/namespacematrix.html#af73bdf08888c5e783a8fb27018f628bf" title="Matrix&#45;scalar subtraction ." alt="" coords="463,107,609,149"/>
+<area shape="rect" id="node8" href="$d0/de4/namespacematrix.html#a436de793d5619d19a03a21a71173639a" title="Scalar&#45;matrix subtraction ." alt="" coords="244,166,391,207"/>
+<area shape="rect" id="node3" href="$d2/d73/namespacedevice__math.html#ab9e58c9754184290830b9fe3cdefab5f" title="Vector subtraction ." alt="" coords="439,5,633,32"/>
+<area shape="rect" id="node4" href="$dd/d47/namespacemath.html#a797f1134edbf7948a9f9c040fd5061d0" title="Vector subtraction ." alt="" coords="489,56,583,83"/>
+<area shape="rect" id="node6" href="$dd/d47/namespacemath.html#a379adcc7bf693d6ceaec23f715dd93b8" title="Add a scalar to vector ." alt="" coords="709,85,811,112"/>
+<area shape="rect" id="node7" href="$d2/d73/namespacedevice__math.html#ad868323dda2925e1f5d954d61de4b8dd" title="Add a scalar to vector ." alt="" coords="681,137,839,178"/>
+<area shape="rect" id="node9" href="$dd/d47/namespacemath.html#aa1412314da40d2e416830c43f18dd504" title="Change sign of vector ." alt="" coords="483,173,589,200"/>
+<area shape="rect" id="node10" href="$d2/d73/namespacedevice__math.html#a6e9089e626320f54bad8af5f0a13fc99" title="Multiplication by constant c ." alt="" coords="457,225,615,266"/>
+</map>

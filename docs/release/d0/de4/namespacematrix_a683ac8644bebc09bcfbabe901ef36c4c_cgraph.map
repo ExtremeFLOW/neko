@@ -1,0 +1,6 @@
+<map id="matrix::matrix_cmult_right" name="matrix::matrix_cmult_right">
+<area shape="rect" id="node1" title="Scalar&#45;matrix multiplication ." alt="" coords="5,27,165,69"/>
+<area shape="rect" id="node2" href="$d0/de4/namespacematrix.html#aec1f42bb9193a96f5007d7a18866c2c7" title="Matrix&#45;scalar multiplication ." alt="" coords="213,35,401,61"/>
+<area shape="rect" id="node3" href="$dd/d47/namespacemath.html#a0aa2bdfb2fdb9eae6679d958a82fd200" title="Multiplication by constant c ." alt="" coords="473,5,583,32"/>
+<area shape="rect" id="node4" href="$d2/d73/namespacedevice__math.html#a664f07df9ff67cf0e8e216047a81bca7" title="Multiplication by constant c ." alt="" coords="449,57,607,98"/>
+</map>
