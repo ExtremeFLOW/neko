@@ -53,6 +53,8 @@ module point
      procedure :: point_scalar_mult
      procedure, pass(p1) :: dist => point_euclid_dist
      procedure, pass(x) :: point_mat_mult
+     procedure, pass(this) :: init => point_init2
+     procedure, pass(this) :: free => point_free
      generic :: operator(.eq.) => point_eq
      generic :: operator(.ne.) => point_ne
      generic :: operator(.lt.) => point_lt
@@ -73,6 +75,33 @@ module point
   end interface point_t
 
 contains
+
+  !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates.
+  subroutine point_init2(this, x, id) 
+    real(kind=dp), dimension(3), intent(in) :: x
+    integer, optional, intent(inout) :: id
+    class(point_t), intent(inout) :: this
+   
+    call this%free()
+
+    if (present(id)) then
+       call this%set_id(id)
+    else
+       call this%set_id(-1)
+    end if
+
+    this%x = x
+
+  end subroutine point_init2
+
+  !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates.
+  subroutine point_free(this) 
+    class(point_t), intent(inout) :: this
+    this%x = 0.0
+
+  end subroutine point_free
+
+
 
   !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates.
   function point_init(x, id) result(this)

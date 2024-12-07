@@ -35,7 +35,7 @@ module vector
   use neko_config, only: NEKO_BCKND_DEVICE
   use math, only: sub3, chsign, add3, cmult2, cadd2, cfill, copy
   use num_types, only: rp
-  use device, only: device_map, device_free, c_ptr, C_NULL_PTR
+  use device, only: device_map, device_free, c_ptr, C_NULL_PTR, device_memcpy
   use device_math, only: device_copy, device_cfill, device_cmult, &
        device_sub3, device_cmult2, device_add3, device_cadd2
   use utils, only: neko_error
@@ -55,6 +55,8 @@ module vector
      procedure, pass(v) :: init => vector_init
      !> Deallocate a vector.
      procedure, pass(v) :: free => vector_free
+     !> Copy data between host and device
+     procedure, pass(v) :: copyto => vector_copyto
      !> Returns the number of entries in the vector.
      procedure, pass(v) :: size => vector_size
      !> Assignment \f$ v = w \f$
@@ -134,6 +136,22 @@ contains
     integer :: s
     s = v%n
   end function vector_size
+
+  !> Easy way to copy between host and device.
+  subroutine vector_copyto(v, memdir, sync)
+    class(vector_t), intent(inout) :: v
+    integer, intent(in) :: memdir
+    logical, intent(in) :: sync
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(v%x, v%x_d, v%n, &
+                          memdir, sync)
+    else
+       call neko_error('vector_t, copy between host and device w/o device backend')
+    end if
+
+  end subroutine vector_copyto
+
 
   !> Assignment \f$ v = w \f$.
   subroutine vector_assign_vector(v, w)
