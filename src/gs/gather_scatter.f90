@@ -118,11 +118,13 @@ contains
 
     gs%dofmap => dofmap
 
+    use_device_mpi = .false.
     if (present(comm_bcknd)) then
        comm_bcknd_ = comm_bcknd
     else
        if (NEKO_DEVICE_MPI) then
           comm_bcknd_ = GS_COMM_MPIGPU
+          use_device_mpi = .true.
        else
           comm_bcknd_ = GS_COMM_MPI
        end if
