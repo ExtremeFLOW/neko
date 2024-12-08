@@ -38,7 +38,7 @@ module gather_scatter
   use gs_sx, only : gs_sx_t
   use gs_cpu, only : gs_cpu_t
   use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
-  use gs_comm, only : gs_comm_t
+  use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU
   use gs_mpi, only : gs_mpi_t
   use gs_device_mpi, only : gs_device_mpi_t
   use mesh, only : mesh_t
@@ -83,18 +83,26 @@ module gather_scatter
      generic :: op => gs_op_fld, gs_op_r4, gs_op_vector
   end type gs_t
 
+  ! Expose available gather-scatter operation
   public :: GS_OP_ADD, GS_OP_MUL, GS_OP_MIN, GS_OP_MAX
+
+  ! Expose available gather-scatter backends
+  public :: GS_BCKND_CPU, GS_BCKND_SX, GS_BCKND_DEV
+
+  ! Expose available gather-scatter comm. backends
+  public :: GS_COMM_MPI, GS_COMM_MPIGPU
+
 
 contains
 
   !> Initialize a gather-scatter kernel
-  subroutine gs_init(gs, dofmap, bcknd)
+  subroutine gs_init(gs, dofmap, bcknd, comm_bcknd)
     class(gs_t), intent(inout) :: gs
     type(dofmap_t), target, intent(inout) :: dofmap
     character(len=LOG_SIZE) :: log_buf
     character(len=20) :: bcknd_str
-    integer, optional :: bcknd
-    integer :: i, j, ierr, bcknd_
+    integer, optional :: bcknd, comm_bcknd
+    integer :: i, j, ierr, bcknd_, comm_bcknd_
     integer(i8) :: glb_nshared, glb_nlocal
     logical :: use_device_mpi
     real(kind=rp), allocatable :: tmp(:)
@@ -110,18 +118,26 @@ contains
 
     gs%dofmap => dofmap
 
-    ! Here one could use some heuristic or autotuning to select comm method,
-    ! such as only using device MPI when there is enough data.
-    !use_device_mpi = NEKO_DEVICE_MPI .and. gs%nshared .gt. 20000
-    use_device_mpi = NEKO_DEVICE_MPI
-
-    if (use_device_mpi) then
-       call neko_log%message('Comm         :   Device MPI')
-       allocate(gs_device_mpi_t::gs%comm)
+    if (present(comm_bcknd)) then
+       comm_bcknd_ = comm_bcknd
     else
+       if (NEKO_DEVICE_MPI) then
+          comm_bcknd_ = GS_COMM_MPIGPU
+       else
+          comm_bcknd_ = GS_COMM_MPI
+       end if
+    end if
+
+    select case (comm_bcknd_)
+    case (GS_COMM_MPI)
        call neko_log%message('Comm         :          MPI')
        allocate(gs_mpi_t::gs%comm)
-    end if
+    case (GS_COMM_MPIGPU)
+       call neko_log%message('Comm         :   Device MPI')
+       allocate(gs_device_mpi_t::gs%comm)
+    case default
+       call neko_error('Unknown Gather-scatter comm. backend')
+    end select
 
     call gs%comm%init_dofs()
     call gs_init_mapping(gs)
