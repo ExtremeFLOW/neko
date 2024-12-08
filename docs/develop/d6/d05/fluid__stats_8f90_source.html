@@ -773,12 +773,12 @@ $(document).ready(function(){initNavTree('d6/d05/fluid__stats_8f90_source.html',
 <div class="line"><a name="l00718"></a><span class="lineno"><a class="line" href="../../d9/d7d/namespacefluid__stats.html#a6585cba645b70a78f8ad2f630aeb35e1">  718</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d9/d7d/namespacefluid__stats.html#a6585cba645b70a78f8ad2f630aeb35e1">fluid_stats_post_process</a>(this, mean, reynolds, pressure_flatness,&amp;</div>
 <div class="line"><a name="l00719"></a><span class="lineno">  719</span>&#160;       pressure_skewness, skewness_tensor, mean_vel_grad, dissipation_tensor)</div>
 <div class="line"><a name="l00720"></a><span class="lineno">  720</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../da/d8a/structfluid__stats_1_1fluid__stats__t.html">fluid_stats_t</a>) :: this</div>
-<div class="line"><a name="l00721"></a><span class="lineno">  721</span>&#160;    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: mean</div>
-<div class="line"><a name="l00722"></a><span class="lineno">  722</span>&#160;    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: reynolds</div>
+<div class="line"><a name="l00721"></a><span class="lineno">  721</span>&#160;    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">optional</span> :: mean</div>
+<div class="line"><a name="l00722"></a><span class="lineno">  722</span>&#160;    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">optional</span> :: reynolds</div>
 <div class="line"><a name="l00723"></a><span class="lineno">  723</span>&#160;    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: pressure_skewness</div>
 <div class="line"><a name="l00724"></a><span class="lineno">  724</span>&#160;    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: pressure_flatness</div>
 <div class="line"><a name="l00725"></a><span class="lineno">  725</span>&#160;    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: skewness_tensor</div>
-<div class="line"><a name="l00726"></a><span class="lineno">  726</span>&#160;    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: mean_vel_grad</div>
+<div class="line"><a name="l00726"></a><span class="lineno">  726</span>&#160;    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">optional</span> :: mean_vel_grad</div>
 <div class="line"><a name="l00727"></a><span class="lineno">  727</span>&#160;    <span class="keywordtype">type</span>(field_list_t), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: dissipation_tensor</div>
 <div class="line"><a name="l00728"></a><span class="lineno">  728</span>&#160;    <span class="keywordtype">integer</span> :: n</div>
 <div class="line"><a name="l00729"></a><span class="lineno">  729</span>&#160; </div>
@@ -956,7 +956,7 @@ $(document).ready(function(){initNavTree('d6/d05/fluid__stats_8f90_source.html',
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d6/d05/fluid__stats_8f90.html">fluid_stats.f90</a></li>
-    <li class="footer">Generated on Sat Dec 7 2024 03:42:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sun Dec 8 2024 03:43:00 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
