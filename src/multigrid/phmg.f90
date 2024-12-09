@@ -94,8 +94,8 @@ contains
     class(phmg_t), intent(inout), target :: this
     type(mesh_t), intent(inout), target :: msh
     type(space_t), intent(inout), target :: Xh
-    type(coef_t), intent(inout), target :: coef
-    type(dofmap_t), intent(inout), target :: dof
+    type(coef_t), intent(in), target :: coef
+    type(dofmap_t), intent(in), target :: dof
     type(gs_t), intent(inout), target :: gs_h
     type(bc_list_t), intent(inout), target :: bclst
     integer :: lx_crs, lx_mid

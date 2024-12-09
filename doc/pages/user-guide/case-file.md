@@ -5,7 +5,7 @@
 The case file defines all the parameters of a simulation.
 The format of the file is JSON, making it easy to read and write case files
 using the majority of the popular programming languages.
-JSON is heirarchical and, and consists of parameter blocks enclosed in curly
+JSON is hierarchical and, and consists of parameter blocks enclosed in curly
 braces.
 These blocks are referred to as objects.
 The case file makes use objects to separate the configuration of different parts
@@ -25,14 +25,13 @@ The current high-level structure of the case file is shown below.
         "numerics": {}
         "fluid": {}
         "scalar": {}
-        "statistics": {}
         "simulation_components" : []
         "point_zones" : []
     }
 }
 ~~~~~~~~~~~~~~~
-The `version` keywords is reserved to track changes in the format of the file.
-The the subsections below we list all the configuration options for each of the high-level objects.
+The `version` keyword is reserved to track changes in the format of the file.
+The subsections below we list all the configuration options for each of the high-level objects.
 Some parameters will have default values, and are therefore optional.
 
 ## Output frequency control
@@ -41,7 +40,7 @@ outputs.
 It is described already now in order to clarify the meaning of several
 parameters found in the tables below.
 
-The frequency is controlled by two paramters, ending with `_control` and
+The frequency is controlled by two parameters, ending with `_control` and
 `_value`, respectively.
 The latter name is perhaps not ideal, but it is somewhat difficult to come up
 with a good one, suggestions are welcome.
@@ -74,8 +73,8 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `checkpoint_value`         | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                        | -             |
 | `checkpoint_format`        | The file format of checkpoints                                                                        | `chkp` or `hdf5`                                | `chkp`        |
 | `restart_file`             | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
-| `restart_mesh_file`        | If the restart file is on a different mesh, specifiy the .nmsh file used to generate it here          | Strings enging with `.nmsh`                     | -             |
-| `mesh2mesh_tolerance`      | Tolerance for the restart when restarting from another mesh                                           | Postive reals                                   | 1e-6          |
+| `restart_mesh_file`        | If the restart file is on a different mesh, specify the .nmsh file used to generate it here          | Strings ending with `.nmsh`                     | -             |
+| `mesh2mesh_tolerance`      | Tolerance for the restart when restarting from another mesh                                           | Positive reals                                   | 1e-6          |
 | `timestep`                 | Time-step size                                                                                        | Positive reals                                  | -             |
 | `variable_timestep`        | Whether to use variable dt                                                                            | `true` or `false`                               | `false`       |
 | `max_timestep`             | Maximum time-step size when variable time step is activated                                           | Positive reals                                  | -             |
@@ -113,8 +112,8 @@ Used to define the properties of the numerical discretization.
 
 | Name                         | Description                                                                                                   | Admissible values          | Default value                   |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------- | ------------------------------- |
-| `polynomial_order`           | The oder of the polynomial basis.                                                                             | Integers, typically 5 to 9 | -                               |
-| `time_order`                 | The order of the time integration scheme. Refer to the `time_scheme_controller` type documention for details. | 1,2, 3                     | -                               |
+| `polynomial_order`           | The order of the polynomial basis.                                                                             | Integers, typically 5 to 9 | -                               |
+| `time_order`                 | The order of the time integration scheme. Refer to the `time_scheme_controller` type documentation for details. | 1, 2, 3                     | -                               |
 | `dealias`                    | Whether to apply dealiasing to advection terms.                                                               | `true` or `false`          | `false`                         |
 | `dealiased_polynomial order` | The polynomial order in the higher-order space used in the dealising.                                         | Integer                    | `3/2(polynomial_order + 1) - 1` |
 
@@ -591,7 +590,7 @@ concisely directly in the table.
 | `flow_rate_force.value`                 | Bulk velocity or volumetric flow rate.                                                            | Positive real                                    | -             |
 | `flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                | -             |
 | `freeze`                                | Whether to fix the velocity field at initial conditions.                                          | `true` or `false`                                | `false`       |
-| `advection`                             | Whether to compute the advetion term.                                                             | `true` or `false`                                | `true`        |
+| `advection`                             | Whether to compute the advection term.                                                             | `true` or `false`                                | `true`        |
 
 ## Scalar {#case-file_scalar}
 The scalar object allows to add a scalar transport equation to the solution.
@@ -658,7 +657,7 @@ of using source terms for the scalar can be found in the `scalar_mms` example.
 | ------------------------- | -------------------------------------------------------- | ------------------------------- | ------------- |
 | `enabled`                 | Whether to enable the scalar computation.                | `true` or `false`               | `true`        |
 | `Pe`                      | The Peclet number.                                       | Positive real                   | -             |
-| `cp`                      | Specific heat cpacity.                                   | Positive real                   | -             |
+| `cp`                      | Specific heat capacity.                                  | Positive real                   | -             |
 | `lambda`                  | Thermal conductivity.                                    | Positive real                   | -             |
 | `nut_field`               | Name of the turbulent kinematic viscosity field.         | String                          | Empty string  |
 | `Pr_t`                    | Turbulent Prandtl number                                 | Positive real                   | -             |
@@ -669,17 +668,6 @@ of using source terms for the scalar can be found in the `scalar_mms` example.
 | `gradient_jump_penalty`   | Array of JSON objects, defining additional gradient jump penalty. | See list of gradient jump penalty above | -  |
 | `advection`               | Whether to compute the advetion term.                    | `true` or `false`               | `true`        |
 
-## Statistics
-
-This object adds the collection of statistics for the fluid fields. For
-additional details on the workflow, see the
-[corresponding page](@ref statistics-guide) in the user manual.
-
-| Name                | Description                                                          | Admissible values | Default value |
-| ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
-| `enabled`           | Whether to enable the statistics computation.                        | `true` or `false` | `true`        |
-| `start_time`        | Time at which to start gathering statistics.                         | Positive real     | 0             |
-| `sampling_interval` | Interval, in timesteps, for sampling the flow fields for statistics. | Positive integer  | 10            |
 
 ## Simulation components
 Simulation components enable the user to perform various additional operations,
@@ -714,4 +702,4 @@ currently supports 50 regions, with id 1..25 being reserved for internal use.
 | Name                | Description                                                          | Admissible values | Default value |
 | ------------------- | -------------------------------------------------------------------- | ----------------- | ------------- |
 | `enabled`           | Whether to enable gathering of runtime statistics                    | `true` or `false` | `false`       |
-| `output_profile`    | Wheter to output all gathered profiling data as a CSV file           | `true` or `false` | `false`       |
+| `output_profile`    | Whether to output all gathered profiling data as a CSV file          | `true` or `false` | `false`       |
