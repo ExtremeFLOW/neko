@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> A PDE based filter 
+!> A PDE based filter
 
 module PDE_filter
   use num_types, only: rp
@@ -65,7 +65,7 @@ module PDE_filter
   use hsmg, only: hsmg_t
   use utils, only: neko_error
   use device_math, only: device_cfill, device_col3
-    implicit none
+  implicit none
   private
 
   !> A PDE based filter mapping $\rho \mapsto \tilde{\rho}$,
@@ -120,16 +120,15 @@ contains
   subroutine PDE_filter_init_from_json(this, json, coef)
     class(PDE_filter_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(in) :: coef
 
     ! user parameters
     call json_get_or_default(json, "filter.radius", this%r, 1.0_rp)
 
     call json_get_or_default(json, "filter.tolerance", this%abstol_filt, &
-         0.0000000001_rp)
+         1.0e-10_rp)
 
-    call json_get_or_default(json, "filter.max_iter", this%ksp_max_iter, &
-         200)
+    call json_get_or_default(json, "filter.max_iter", this%ksp_max_iter, 200)
 
     call json_get_or_default(json, "filter.solver", this%ksp_solver, 'gmres')
 
@@ -144,7 +143,7 @@ contains
   !> Actual constructor.
   subroutine PDE_filter_init_from_attributes(this, coef)
     class(PDE_filter_t), intent(inout) :: this
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(in) :: coef
     integer :: n
     character(len=NEKO_MSH_MAX_ZLBL_LEN) :: &
          bc_labels_all_neuman(NEKO_MSH_MAX_ZLBLS)
@@ -236,7 +235,7 @@ contains
           ! ax_helm includes the mass matrix in h2
           this%coef%h2(i,1,1,1) = 1.0_rp
           ! mass matrix should be included here
-          RHS%x(i,1,1,1) = F_in%x(i,1,1,1)*this%coef%B(i,1,1,1)
+          RHS%x(i,1,1,1) = F_in%x(i,1,1,1) * this%coef%B(i,1,1,1)
        end do
     end if
     this%coef%ifh2 = .true.

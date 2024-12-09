@@ -73,7 +73,7 @@ module filter
        import filter_t, json_file, coef_t
        class(filter_t), intent(inout) :: this
        type(json_file), intent(inout) :: json
-       type(coef_t), intent(inout) :: coef
+       type(coef_t), intent(in) :: coef
      end subroutine filter_init
   end interface
 
@@ -102,7 +102,7 @@ contains
   subroutine filter_init_base(this, json, coef)
     class(filter_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(coef_t), intent(inout), target :: coef
+    type(coef_t), intent(in), target :: coef
     character(len=:), allocatable :: compute_control, output_control
     real(kind=rp) :: compute_value, output_value
     integer :: order
