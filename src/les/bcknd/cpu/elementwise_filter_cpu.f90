@@ -85,7 +85,7 @@ contains
 
     call trsp(phi%x, nx, pht%x, nx)
     pht = phi
-    call pht%inverse()
+    call pht%inverse(0) ! "0" for cpu implementation
 
     diag = 0.0_rp
 
