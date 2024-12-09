@@ -89,7 +89,7 @@ module krylov
      procedure, pass(this) :: monitor_stop => krylov_monitor_stop
      !> Monitor iteration
      procedure, pass(this) :: monitor_iter => krylov_monitor_iter
-!> Check for convergence
+     !> Check for convergence
      procedure, pass(this) :: is_converged => krylov_is_converged
      !> Destructor.
      procedure(ksp_t_free), pass(this), deferred :: free
