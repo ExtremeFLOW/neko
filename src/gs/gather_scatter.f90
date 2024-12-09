@@ -121,7 +121,8 @@ contains
 
     gs%dofmap => dofmap
 
-    use_device_shmem = .false.
+    use_device_mpi = .false.
+    use_device_shmem = .false.   
     call get_environment_variable("NEKO_USE_NVSHMEM", &
          nvshmem_env_val, nvshmem_env_len, nvshmem_env_status, .true.)
     if (nvshmem_env_status .eq. 0) then
@@ -141,6 +142,7 @@ contains
     else
        if (NEKO_DEVICE_MPI) then
           comm_bcknd_ = GS_COMM_MPIGPU
+          use_device_mpi = .true.
        else
           comm_bcknd_ = GS_COMM_MPI
        end if
@@ -227,12 +229,14 @@ contains
 
     call gs%bcknd%init(gs%nlocal, gs%nshared, gs%nlocal_blks, gs%nshared_blks)
 
-    if (use_device_mpi) then
+    if (use_device_mpi .or. use_device_shmem) then
        select type(b => gs%bcknd)
        type is (gs_device_t)
           b%shared_on_host = .false.
        end select
+    end if
 
+    if (use_device_mpi) then
        if(pe_size .gt. 1) then
           ! Select fastest device MPI strategy at runtime
           select type(c => gs%comm)

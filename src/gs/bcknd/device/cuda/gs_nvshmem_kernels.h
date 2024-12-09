@@ -36,15 +36,15 @@
 #define __GS_NVHSMEM_KERNELS__
 
 template< typename T >
-__global__ void pushShmemKernel(T * __restrict__ dest,
-                                T * __restrict__ src,
-                                const int * __restrict__ dof,
+__global__ void pushShmemKernel(T * dest,
+                                T * src,
+                                const int * dof,
                                 const int destRank,
                                 const int srcRank,
                                 const int n,
                                 uint64_t counter,
-                                uint64_t * __restrict__ notifyDone,
-                                uint64_t * __restrict__ notifyReady)
+                                uint64_t * notifyDone,
+                                uint64_t * notifyReady)
 {
   //TO DO: 1 block transfers seem best from initial investigations, check this more thoroughly
   size_t numBlocksForTransfer = 1; 
@@ -69,7 +69,7 @@ __global__ void pushShmemKernel(T * __restrict__ dest,
 }
 
 __global__ void pushShmemKernelWait(uint64_t counter,
-                                    uint64_t * __restrict__ notifyDone) 
+                                    uint64_t *notifyDone) 
 {
   // Notify done to receiving rank, and wait for data from sending rank
   if (blockIdx.x==0 && threadIdx.x == 0) {

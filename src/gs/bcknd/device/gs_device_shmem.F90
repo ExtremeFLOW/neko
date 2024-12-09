@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ module gs_device_shmem
      type(gs_device_shmem_buf_t) :: recv_buf
      type(c_ptr), allocatable :: stream(:)
      type(c_ptr), allocatable :: event(:)
-     integer(c_int64_t) :: nvshmem_counter = 1
+     integer :: nvshmem_counter = 1
      type(c_ptr), allocatable :: notifyDone(:)
      type(c_ptr), allocatable :: notifyReady(:)
    contains
@@ -115,7 +115,7 @@ module gs_device_shmem
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: n, offset, srank, roffset, rrank, iter
-       integer(c_int64_t), value :: nvshmem_counter
+       integer(c_int), value :: nvshmem_counter
        type(c_ptr), value :: u_d, buf_d, dof_d, stream, rbuf_d, notifyDone, notifyReady
        integer(c_int),dimension(*) ::  remote_offset
      end subroutine cuda_gs_pack_and_push
@@ -127,7 +127,7 @@ module gs_device_shmem
           bind(c, name='cuda_gs_pack_and_push_wait')
        use, intrinsic :: iso_c_binding
        implicit none
-       integer(c_int64_t), value :: nvshmem_counter
+       integer(c_int), value :: nvshmem_counter
        type(c_ptr), value :: stream, notifyDone
      end subroutine cuda_gs_pack_and_push_wait
   end interface
@@ -151,7 +151,7 @@ contains
     type(stack_i4_t), allocatable, intent(inout) :: dof_stack(:)
     logical, intent(in) :: mark_dupes
     integer, allocatable :: dofs(:)
-    integer :: i, j, total
+    integer :: i, j, total, max_total
     integer(c_size_t) :: sz
     type(htable_i4_t) :: doftable
     integer :: dupe, marked, k
@@ -173,11 +173,11 @@ contains
        total = total + this%ndofs(i)
     end do
 
-    call MPI_Allreduce(total, MPI_IN_PLACE, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)    
-
+    call MPI_Allreduce(total, max_total, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)
+    
     this%total = total
 
-    sz = c_sizeof(rp_dummy) * total
+    sz = c_sizeof(rp_dummy) * max_total
     call cudamalloc_nvshmem(this%buf_d, sz)
 
     sz = c_sizeof(i4_dummy) * total
@@ -260,8 +260,8 @@ contains
     allocate(this%notifyDone(size(this%recv_pe)))
     allocate(this%notifyReady(size(this%recv_pe)))
     do i = 1, size(this%recv_pe)
-       call cudamalloc_nvshmem(this%notifyDone(i), 8 * c_sizeof(i64_dummy))
-       call cudamalloc_nvshmem(this%notifyReady(i), 8 * c_sizeof(i64_dummy))
+       call cudamalloc_nvshmem(this%notifyDone(i), 8_8)
+       call cudamalloc_nvshmem(this%notifyReady(i), 8_8)
     end do
 #endif
 
@@ -303,9 +303,10 @@ contains
 
     do i = 1, size(this%send_pe)
        call device_stream_wait_event(this%stream(i), deps, 0)
-       ! Not clear why this sync is required, but there seems to be a race condition
+        ! Not clear why this sync is required, but there seems to be a race condition
        ! without it for certain run configs
-       !          call device_sync(this%stream(i))
+ 
+!       call device_sync(this%stream(i))
        ! NVSHMEM path
        ! Using single stream for NVSHMEM for now.
        ! Multi-stream works but is slower in some cases, more investigation required          
@@ -326,7 +327,7 @@ contains
             i)
        this%nvshmem_counter = this%nvshmem_counter + 1
     end do
-
+    
   end subroutine gs_device_shmem_nbsend
 
   !> Post non-blocking receive operations
@@ -354,7 +355,7 @@ contains
             this%nvshmem_counter - size(this%send_pe) + i - 1, &
             this%notifyDone(i))
     end do
-    
+
     do done_req = 1, size(this%recv_pe)
        call cuda_gs_unpack(u_d, op, &
             this%recv_buf%buf_d, &
@@ -370,7 +371,7 @@ contains
        call device_stream_wait_event(strm, &
             this%event(done_req), 0)
     end do
-    
+    this%nvshmem_counter = 1
 end subroutine gs_device_shmem_nbwait
   
 end module gs_device_shmem

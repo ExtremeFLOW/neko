@@ -60,7 +60,7 @@ extern "C" {
   void cuda_gs_pack_and_push(void *u_d, void *sbuf_d, void *sdof_d,
                              int soffset, int n, cudaStream_t stream,
                              int srank,  void *rbuf_d, int roffset, int* remote_offset,
-			     int rrank, uint64_t counter, void* notifyDone, void* notifyReady,
+			     int rrank, int counter, void* notifyDone, void* notifyReady,
 			     int iter)
   {
     
@@ -69,16 +69,16 @@ extern "C" {
       MPI_Sendrecv(&roffset, 1, MPI_INT,
                    rrank, 0,
                    &(remote_offset[iter-1]), 1, MPI_INT,
-                   srank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                   srank, 0, NEKO_COMM, MPI_STATUS_IGNORE);
     }
     
     const int nthrds = 1024;
     const int nblcks = (n+nthrds-1)/nthrds;
       
     // TO DO investigate merging following 2 kernels (and also unpack).  
-    gs_pack_kernel<real>
-      <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) sbuf_d + soffset,
-                                      (int *) sdof_d + soffset, n);
+    gs_pack_kernel
+          <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) sbuf_d + soffset,
+                                          (int *) sdof_d + soffset, n);
     
     pushShmemKernel<real>
       <<<nblcks,nthrds,0,stream>>>((real *) rbuf_d + remote_offset[iter-1],
@@ -92,7 +92,8 @@ extern "C" {
 
   void cuda_gs_pack_and_push_wait(cudaStream_t stream, int counter, void* notifyDone)
   {
-    pushShmemKernelWait<<<1,1,0,stream>>>(counter,(uint64_t*) notifyDone);
+    uint64_t counter_ = (uint64_t) counter;
+    pushShmemKernelWait<<<1,1,0,stream>>>(counter_,(uint64_t*) notifyDone);
     CUDA_CHECK(cudaGetLastError());
   }
 }
