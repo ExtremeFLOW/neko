@@ -646,7 +646,7 @@ contains
       call bc_list_apply_vector(this%bclst_vel_neumann, f_x%x, f_y%x, f_z%x, &
            this%dm_Xh%size(), t, tstep)
 
-      ! Compute the grandient jump penalty term
+      ! Compute the gradient jump penalty term
       if (this%if_gradient_jump_penalty .eqv. .true.) then
          call this%gradient_jump_penalty_u%compute(u, v, w, u)
          call this%gradient_jump_penalty_v%compute(u, v, w, v)

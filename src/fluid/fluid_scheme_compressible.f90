@@ -116,6 +116,16 @@ contains
     call this%ulag%init(this%u, 1)
     call this%vlag%init(this%v, 1)
     call this%wlag%init(this%w, 1)
+
+    !
+    ! Setup right-hand side fields.
+    !
+    allocate(this%f_x)
+    allocate(this%f_y)
+    allocate(this%f_z)
+    call this%f_x%init(this%dm_Xh, fld_name = "fluid_rhs_x")
+    call this%f_y%init(this%dm_Xh, fld_name = "fluid_rhs_y")
+    call this%f_z%init(this%dm_Xh, fld_name = "fluid_rhs_z")
   end subroutine fluid_scheme_compressible_init
 
   subroutine fluid_scheme_compressible_free(this)
@@ -162,7 +172,7 @@ contains
     real(kind=rp), intent(in) :: dt
     real(kind=rp) :: c
 
-    c = 1.0_rp
+    c = 0.1_rp
     !> TODO: fill here
 
   end function fluid_scheme_compressible_compute_cfl

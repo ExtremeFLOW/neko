@@ -39,6 +39,13 @@ module fluid_scheme_base
      real(kind=rp) :: rho
      type(field_t) :: rho_field
 
+     !> X-component of the right-hand side.
+     type(field_t), pointer :: f_x => null()
+     !> Y-component of the right-hand side.
+     type(field_t), pointer :: f_y => null()
+     !> Z-component of the right-hand side.
+     type(field_t), pointer :: f_z => null()
+
      !> Boundary conditions
      type(field_t) :: bdry                     !< Boundary markings
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity

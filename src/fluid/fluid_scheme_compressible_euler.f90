@@ -1,8 +1,13 @@
 module fluid_scheme_compressible_euler
+  use advection, only : advection_t, advection_factory
+  use field_math, only : field_add2, field_cfill, field_cmult, field_cadd, field_copy
+  use field, only : field_t
   use fluid_scheme_compressible, only: fluid_scheme_compressible_t
   use num_types, only : rp
   use mesh, only : mesh_t
   use json_module, only : json_file
+  use json_utils, only : json_get, json_get_or_default
+  use profiler, only : profiler_start_region, profiler_end_region
   use user_intf, only : user_t
   use time_scheme_controller, only : time_scheme_controller_t
   use time_step_controller, only : time_step_controller_t
@@ -10,6 +15,9 @@ module fluid_scheme_compressible_euler
   private
 
   type, public, extends(fluid_scheme_compressible_t) :: fluid_scheme_compressible_euler_t
+     type(field_t) :: rho_res, m_x_res, m_y_res, m_z_res, m_E_res
+     type(field_t) :: drho, dm_x, dm_y, dm_z, dE
+     class(advection_t), allocatable :: adv
    contains
      procedure, pass(this) :: init => fluid_scheme_compressible_euler_init
      procedure, pass(this) :: free => fluid_scheme_compressible_euler_free
@@ -26,11 +34,19 @@ contains
     type(user_t), target, intent(in) :: user
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     character(len=12), parameter :: scheme = 'compressible'
+    logical :: advection
 
     call this%free()
 
     ! Initialize base class
     call this%scheme_init(msh, lx, params, scheme, user)
+
+    ! Initialize the advection factory
+    call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
+    call advection_factory(this%adv, params, this%c_Xh, &
+                           this%ulag, this%vlag, this%wlag, &
+                           this%chkp%dtlag, this%chkp%tlag, time_scheme, &
+                           .not. advection)
 
   end subroutine fluid_scheme_compressible_euler_init
 
@@ -53,6 +69,31 @@ contains
     real(kind=rp), intent(in) :: dt
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
     type(time_step_controller_t), intent(in) :: dt_controller
+    ! number of degrees of freedom
+    integer :: n
+
+    n = this%dm_Xh%size()
+
+    call profiler_start_region('Fluid compressible', 1)
+    associate(u => this%u, v => this%v, w => this%w, p => this%p, &
+      Xh => this%Xh, msh => this%msh, &
+      c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
+      rho => this%rho, mu => this%mu, &
+      rho_field => this%rho_field, mu_field => this%mu_field, &
+      f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
+      ulag => this%ulag, vlag => this%vlag, wlag => this%wlag)
+      
+      ! Add the advection operators to the right-hand-side.
+      call this%adv%compute(u, v, w, &
+                            f_x, f_y, f_z, &
+                            Xh, this%c_Xh, dm_Xh%size())
+
+      ! WIP: debugging
+      call field_copy(p, f_x, n);
+
+    end associate
+    call profiler_end_region('Fluid compressible', 1)
+
   end subroutine fluid_scheme_compressible_euler_step
 
   subroutine fluid_scheme_compressible_euler_restart(this, dtlag, tlag)

@@ -90,12 +90,6 @@ module fluid_scheme
   type, abstract, extends(fluid_scheme_base_t) :: fluid_scheme_t
      !> The source term for the momentum equation.
      type(fluid_source_term_t) :: source_term
-     !> X-component of the right-hand side.
-     type(field_t), pointer :: f_x => null()
-     !> Y-component of the right-hand side.
-     type(field_t), pointer :: f_y => null()
-     !> Z-component of the right-hand side.
-     type(field_t), pointer :: f_z => null()
      class(ksp_t), allocatable :: ksp_vel     !< Krylov solver for velocity
      class(ksp_t), allocatable :: ksp_prs     !< Krylov solver for pressure
      class(pc_t), allocatable :: pc_vel        !< Velocity Preconditioner
