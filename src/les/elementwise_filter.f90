@@ -40,8 +40,10 @@ module elementwise_filter
   use neko_config, only : NEKO_BCKND_DEVICE
   use elementwise_filter_cpu
   use tensor, only : tnsr3d
-  use device, only: device_map, device_free, c_ptr, device_cfill &
-                    C_NULL_PTR, device_memcpy
+  use device, only : device_map, device_free, c_ptr, &
+                    C_NULL_PTR, device_memcpy, HOST_TO_DEVICE
+  use device_math, only : device_cfill
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
