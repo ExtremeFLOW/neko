@@ -34,12 +34,14 @@
 !> Implements `explicit_filter_t`.
 module elementwise_filter
   use num_types, only : rp
-  use math
+  use math, only : rzero, rone
   use field, only : field_t
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
   use elementwise_filter_cpu
   use tensor, only : tnsr3d
+  use device, only: device_map, device_free, c_ptr, device_cfill &
+                    C_NULL_PTR, device_memcpy
   implicit none
   private
 
@@ -54,6 +56,8 @@ module elementwise_filter
      integer :: nt
      !> matrix for 1d elementwise filtering
      real(kind=rp), allocatable :: fh(:,:), fht(:,:)
+     type(c_ptr) :: fh_d = C_NULL_PTR
+     type(c_ptr) :: fht_d = C_NULL_PTR
      !> transfer function
      real(kind=rp), allocatable :: trnsfr(:)
    contains
@@ -87,6 +91,13 @@ contains
     call rzero(this%fh, nx*nx)
     call rzero(this%fht, nx*nx)
     call rone(this%trnsfr, nx) ! initialize as if nothing is filtered yet
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%fh, this%fh_d, this%nx * this%nx)
+       call device_map(this%fht, this%fht_d, this%nx * this%nx)
+       call device_cfill(this%fh_d, 0.0_rp, this%nx * this%nx)
+       call device_cfill(this%fht_d, 0.0_rp, this%nx * this%nx)
+    end if
     
   end subroutine elementwise_filter_init
 
@@ -106,6 +117,14 @@ contains
        deallocate(this%trnsfr)
     end if
 
+    if (c_associated(this%fh_d)) then
+       call device_free(this%fh_d)
+    end if
+
+    if (c_associated(this%fht_d)) then
+       call device_free(this%fht_d)
+    end if
+
     this%filter_type = ""
     this%nx = 0
     this%nt = 0
@@ -118,6 +137,12 @@ contains
 
     call build_1d_cpu(this%fh, this%fht, this%trnsfr, &
                                this%nx, this%filter_type)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%fh, this%fh_d, &
+                          this%nx * this%nx, HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%fht, this%fht_d, &
+                          this%nx * this%nx, HOST_TO_DEVICE, sync = .false.)
+    end if
 
   end subroutine build_1d
 
