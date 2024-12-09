@@ -232,7 +232,7 @@ contains
                               fsabss11, fsabss22, fsabss33, &
                               fsabss12, fsabss13, fsabss23
 
-    delta_ratio2 = ((test_filter%nx-1)/(test_filter%nt-1))**2
+    delta_ratio2 = ((test_filter%nx-1.0)/(test_filter%nt-1.0))**2
 
     call neko_scratch_registry%request_field(fs11, temp_indices(1))
     call neko_scratch_registry%request_field(fs22, temp_indices(2))
