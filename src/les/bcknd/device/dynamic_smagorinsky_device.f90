@@ -187,6 +187,7 @@ contains
                                   lij(4)%x_d, lij(5)%x_d, lij(6)%x_d, &
                                   fuu%x_d, fvv%x_d, fww%x_d, &
                                   fuv%x_d, fuw%x_d, fvw%x_d, n)
+    call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine compute_lij_device
   
   !> Compute M_ij and nut on the device.
@@ -287,6 +288,7 @@ contains
                                   fsabss12%x_d, fsabss13%x_d, fsabss23%x_d, &
                                   num%x_d, den%x_d, c_dyn%x_d, delta%x_d, &
                                   s_abs%x_d, nut%x_d, alpha, n)
+    call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine compute_nut_device
 
 end module dynamic_smagorinsky_device
