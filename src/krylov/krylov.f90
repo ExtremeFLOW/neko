@@ -342,6 +342,7 @@ contains
   !! @param iter Iteration number
   pure function krylov_is_converged(this, iter, residual) result(converged)
     class(ksp_t), intent(in) :: this
+    integer, intent(in) :: iter
     real(kind=rp), intent(in) :: residual
     logical, intent(out) :: converged
 
