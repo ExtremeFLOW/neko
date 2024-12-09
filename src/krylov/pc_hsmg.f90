@@ -141,7 +141,7 @@ contains
     type(coef_t), intent(in), target :: coef
     type(dofmap_t), intent(in), target :: dof
     type(gs_t), intent(inout), target :: gs_h
-    type(bc_list_t), intent(in), target :: bclst
+    type(bc_list_t), intent(inout), target :: bclst
     character(len=*), optional :: crs_pctype
     integer :: n, i
     integer :: lx_crs, lx_mid
