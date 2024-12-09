@@ -2,12 +2,12 @@
 module pnpn_res_stress_device
   use gather_scatter, only : gs_t, GS_OP_ADD
   use utils, only : neko_error
-  use operators
+  use operators, only : dudxyz, cdtp, curl, opgrad, strain_rate
   use field, only : field_t
   use ax_product, only : ax_t
   use coefs, only : coef_t
   use facet_normal, only : facet_normal_t
-  use pnpn_residual_stress, only : pnpn_prs_res_stress_t, pnpn_vel_res_stress_t
+  use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
   use scratch_registry, only: neko_scratch_registry
   use mesh, only : mesh_t
   use num_types, only : rp, c_rp
@@ -21,39 +21,40 @@ module pnpn_res_stress_device
 
   !> Device implementation of the pressure residual for the PnPn fluid with
   !! full viscous stress formulation.
-  type, public, extends(pnpn_prs_res_stress_t) :: pnpn_prs_res_stress_device_t
+  type, public, extends(pnpn_prs_res_t) :: pnpn_prs_res_stress_device_t
    contains
      procedure, nopass :: compute => pnpn_prs_res_stress_device_compute
   end type pnpn_prs_res_stress_device_t
 
   !> Device implementation of the velocity residual for the PnPn fluid with
   !! full viscous stress formulation.
-  type, public, extends(pnpn_vel_res_stress_t) :: pnpn_vel_res_stress_device_t
+  type, public, extends(pnpn_vel_res_t) :: pnpn_vel_res_stress_device_t
    contains
      procedure, nopass :: compute => pnpn_vel_res_stress_device_compute
   end type pnpn_vel_res_stress_device_t
 
 #ifdef HAVE_HIP
   interface
-     subroutine pnpn_prs_res_part1_hip(ta1_d, ta2_d, ta3_d, &
-          wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
-          B_d, h1_d, mu, rho, n) &
-          bind(c, name='pnpn_prs_res_part1_hip')
+     subroutine pnpn_prs_stress_res_part1_hip(ta1_d, ta2_d, ta3_d, &
+          wa1_d, wa2_d, wa3_d, s11_d, s22_d, s33_d, &
+          s12_d, s13_d, s23_d, f_u_d, f_v_d, f_w_d, &
+          B_d, h1_d, rho_d, n) &
+          bind(c, name = 'pnpn_prs_stress_res_part1_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        type(c_ptr), value :: ta1_d, ta2_d, ta3_d
        type(c_ptr), value :: wa1_d, wa2_d, wa3_d
+       type(c_ptr), value :: s11_d, s22_d, s33_d, s12_d, s13_d, s23_d
        type(c_ptr), value :: f_u_d, f_v_d, f_w_d
-       type(c_ptr), value :: B_d, h1_d
-       real(c_rp) :: mu, rho
+       type(c_ptr), value :: B_d, h1_d, rho_d
        integer(c_int) :: n
-     end subroutine pnpn_prs_res_part1_hip
+     end subroutine pnpn_prs_stress_res_part1_hip
   end interface
 
   interface
      subroutine pnpn_prs_res_part2_hip(p_res_d, wa1_d, wa2_d, wa3_d, n) &
-          bind(c, name='pnpn_prs_res_part2_hip')
+          bind(c, name = 'pnpn_prs_res_part2_hip')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: p_res_d, wa1_d, wa2_d, wa3_d
@@ -62,21 +63,23 @@ module pnpn_res_stress_device
   end interface
 
   interface
-     subroutine pnpn_prs_res_part3_hip(p_res_d, ta1_d, ta2_d, ta3_d, dtbd, n) &
-          bind(c, name='pnpn_prs_res_part3_hip')
+     subroutine pnpn_prs_stress_res_part3_hip(p_res_d, ta1_d, ta2_d, ta3_d, &
+          wa1_d, wa2_d, wa3_d, dtbd, n) &
+          bind(c, name = 'pnpn_prs_stress_res_part3_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        type(c_ptr), value :: p_res_d, ta1_d, ta2_d, ta3_d
+       type(c_ptr), value :: wa1_d, wa2_d, wa3_d
        real(c_rp) :: dtbd
        integer(c_int) :: n
-     end subroutine pnpn_prs_res_part3_hip
+     end subroutine pnpn_prs_stress_res_part3_hip
   end interface
 
   interface
      subroutine pnpn_vel_res_update_hip(u_res_d, v_res_d, w_res_d, &
           ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
-          bind(c, name='pnpn_vel_res_update_hip')
+          bind(c, name = 'pnpn_vel_res_update_hip')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: u_res_d, v_res_d, w_res_d
@@ -88,14 +91,16 @@ module pnpn_res_stress_device
 #elif HAVE_CUDA
   interface
      subroutine pnpn_prs_stress_res_part1_cuda(ta1_d, ta2_d, ta3_d, &
-          wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
+          wa1_d, wa2_d, wa3_d, s11_d, s22_d, s33_d, &
+          s12_d, s13_d, s23_d, f_u_d, f_v_d, f_w_d, &
           B_d, h1_d, rho_d, n) &
-          bind(c, name='pnpn_prs_stress_res_part1_cuda')
+          bind(c, name = 'pnpn_prs_stress_res_part1_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
        type(c_ptr), value :: ta1_d, ta2_d, ta3_d
        type(c_ptr), value :: wa1_d, wa2_d, wa3_d
+       type(c_ptr), value :: s11_d, s22_d, s33_d, s12_d, s13_d, s23_d
        type(c_ptr), value :: f_u_d, f_v_d, f_w_d
        type(c_ptr), value :: B_d, h1_d, rho_d
        integer(c_int) :: n
@@ -104,7 +109,7 @@ module pnpn_res_stress_device
 
   interface
      subroutine pnpn_prs_res_part2_cuda(p_res_d, wa1_d, wa2_d, wa3_d, n) &
-          bind(c, name='pnpn_prs_res_part2_cuda')
+          bind(c, name = 'pnpn_prs_res_part2_cuda')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: p_res_d, wa1_d, wa2_d, wa3_d
@@ -115,7 +120,7 @@ module pnpn_res_stress_device
   interface
      subroutine pnpn_prs_stress_res_part3_cuda(p_res_d, ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, dtbd, n) &
-          bind(c, name='pnpn_prs_stress_res_part3_cuda')
+          bind(c, name = 'pnpn_prs_stress_res_part3_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -129,7 +134,7 @@ module pnpn_res_stress_device
   interface
      subroutine pnpn_vel_res_update_cuda(u_res_d, v_res_d, w_res_d, &
           ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
-          bind(c, name='pnpn_vel_res_update_cuda')
+          bind(c, name = 'pnpn_vel_res_update_cuda')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: u_res_d, v_res_d, w_res_d
@@ -143,7 +148,7 @@ module pnpn_res_stress_device
      subroutine pnpn_prs_res_part1_opencl(ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, f_u_d, f_v_d, f_w_d, &
           B_d, h1_d, mu, rho, n) &
-          bind(c, name='pnpn_prs_res_part1_opencl')
+          bind(c, name = 'pnpn_prs_res_part1_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -158,7 +163,7 @@ module pnpn_res_stress_device
 
   interface
      subroutine pnpn_prs_res_part2_opencl(p_res_d, wa1_d, wa2_d, wa3_d, n) &
-          bind(c, name='pnpn_prs_res_part2_opencl')
+          bind(c, name = 'pnpn_prs_res_part2_opencl')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: p_res_d, wa1_d, wa2_d, wa3_d
@@ -169,7 +174,7 @@ module pnpn_res_stress_device
   interface
      subroutine pnpn_prs_res_part3_opencl(p_res_d, ta1_d, ta2_d, ta3_d, &
           wa1_d, wa2_d, wa3_d, dtbd, n) &
-          bind(c, name='pnpn_prs_res_part3_opencl')
+          bind(c, name = 'pnpn_prs_res_part3_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        implicit none
@@ -183,7 +188,7 @@ module pnpn_res_stress_device
   interface
      subroutine pnpn_vel_res_update_opencl(u_res_d, v_res_d, w_res_d, &
           ta1_d, ta2_d, ta3_d, f_u_d, f_v_d, f_w_d, n) &
-          bind(c, name='pnpn_vel_res_update_opencl')
+          bind(c, name = 'pnpn_vel_res_update_opencl')
        use, intrinsic :: iso_c_binding
        implicit none
        type(c_ptr), value :: u_res_d, v_res_d, w_res_d
@@ -196,18 +201,19 @@ module pnpn_res_stress_device
 
 contains
 
-  subroutine pnpn_prs_res_stress_device_compute(p, p_res, u, v, w, u_e, v_e, w_e, f_x, &
-       f_y, f_z, c_Xh, gs_Xh, bc_prs_surface,bc_sym_surface, Ax, bd, dt, mu, rho)
+  subroutine pnpn_prs_res_stress_device_compute(p, p_res, u, v, w, u_e, v_e,&
+       w_e, f_x, f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd,&
+       dt, mu, rho)
     type(field_t), intent(inout) :: p, u, v, w
-    type(field_t), intent(inout) :: u_e, v_e, w_e
+    type(field_t), intent(in) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
-    type(field_t), intent(inout) :: f_x, f_y, f_z
+    type(field_t), intent(in) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
-    type(facet_normal_t), intent(inout) :: bc_prs_surface
-    type(facet_normal_t), intent(inout) :: bc_sym_surface
+    type(facet_normal_t), intent(in) :: bc_prs_surface
+    type(facet_normal_t), intent(in) :: bc_sym_surface
     class(Ax_t), intent(inout) :: Ax
-    real(kind=rp), intent(inout) :: bd
+    real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     type(field_t), intent(in) :: mu
     type(field_t), intent(in) :: rho
@@ -268,31 +274,17 @@ contains
     call dudxyz(ta2%x, mu%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
     call dudxyz(ta3%x, mu%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
 
-    call device_cmult(ta1%x_d, 2.0_rp, n)
-    call device_cmult(ta2%x_d, 2.0_rp, n)
-    call device_cmult(ta3%x_d, 2.0_rp, n)
-
-    ! S^T grad \mu
-    call device_vdot3 (work1%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
-                       s11%x_d, s12%x_d, s13%x_d, n)
-
-    call device_vdot3 (work2%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
-                       s12%x_d, s22%x_d, s23%x_d, lxyz)
-
-    call device_vdot3 (work3%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
-                       s13%x_d, s23%x_d, s33%x_d, lxyz)
-
-    ! Subtract the two terms of the viscous stress to get
-    ! \nabla x \nabla u - S^T \nabla \mu
-    ! The sign is consitent with the fact that we subtract the term
-    ! below.
-    call device_sub2(wa1%x_d, work1%x_d, n)
-    call device_sub2(wa2%x_d, work2%x_d, n)
-    call device_sub2(wa3%x_d, work3%x_d, n)
-
-#if HAVE_CUDA
+#ifdef HAVE_HIP
+    call pnpn_prs_stress_res_part1_hip(ta1%x_d, ta2%x_d, ta3%x_d, &
+         wa1%x_d, wa2%x_d, wa3%x_d, &
+         s11%x_d, s22%x_d, s33%x_d, s12%x_d, s13%x_d, s23%x_d, &
+         f_x%x_d, f_y%x_d, f_z%x_d, &
+         c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
+#elif HAVE_CUDA
     call pnpn_prs_stress_res_part1_cuda(ta1%x_d, ta2%x_d, ta3%x_d, &
-         wa1%x_d, wa2%x_d, wa3%x_d, f_x%x_d, f_y%x_d, f_z%x_d, &
+         wa1%x_d, wa2%x_d, wa3%x_d, &
+         s11%x_d, s22%x_d, s33%x_d, s12%x_d, s13%x_d, s23%x_d, &
+         f_x%x_d, f_y%x_d, f_z%x_d, &
          c_Xh%B_d, c_Xh%h1_d, rho%x_d, n)
 #else
     call neko_error('No device backend configured')
@@ -313,11 +305,11 @@ contains
     call Ax%compute(p_res%x, p%x, c_Xh, p%msh, p%Xh)
 
 #ifdef HAVE_HIP
-    call pnpn_prs_res_part2_hip(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n);
+    call pnpn_prs_res_part2_hip(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
 #elif HAVE_CUDA
-    call pnpn_prs_res_part2_cuda(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n);
+    call pnpn_prs_res_part2_cuda(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
 #elif HAVE_OPENCL
-    call pnpn_prs_res_part2_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n);
+    call pnpn_prs_res_part2_opencl(p_res%x_d, wa1%x_d, wa2%x_d, wa3%x_d, n)
 #endif
 
     !
@@ -338,7 +330,10 @@ contains
     call bc_prs_surface%apply_surfvec_dev(ta1%x_d, ta2%x_d, ta3%x_d, &
                                           u%x_D, v%x_d, w%x_d)
 
-#if HAVE_CUDA
+#ifdef HAVE_HIP
+    call pnpn_prs_stress_res_part3_hip(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
+                                        wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
+#elif HAVE_CUDA
     call pnpn_prs_stress_res_part3_cuda(p_res%x_d, ta1%x_d, ta2%x_d, ta3%x_d, &
                                         wa1%x_d, wa2%x_d, wa3%x_d, dtbd, n)
 #else
@@ -349,14 +344,14 @@ contains
 
   end subroutine pnpn_prs_res_stress_device_compute
 
-  subroutine pnpn_vel_res_stress_device_compute(Ax, u, v, w, u_res, v_res, w_res, &
-       p, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
+  subroutine pnpn_vel_res_stress_device_compute(Ax, u, v, w, u_res, v_res, &
+       w_res, p, f_x, f_y, f_z, c_Xh, msh, Xh, mu, rho, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_res, v_res, w_res
-    type(field_t), intent(inout) :: f_x, f_y, f_z
+    type(field_t), intent(in) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
     type(field_t), intent(in) :: mu
     type(field_t), intent(in) :: rho

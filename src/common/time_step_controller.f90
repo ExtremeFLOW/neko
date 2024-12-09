@@ -49,6 +49,7 @@ module time_step_controller
      integer :: dt_last_change
      real(kind=rp) :: alpha !coefficient of running average
      real(kind=rp) :: max_dt_increase_factor, min_dt_decrease_factor
+     real(kind=rp) :: dev_tol
    contains
      !> Initialize object.
      procedure, pass(this) :: init => time_step_controller_init
@@ -80,6 +81,8 @@ contains
                                     this%max_dt_increase_factor, 1.2_rp)
     call json_get_or_default(params, 'case.min_dt_decrease_factor',&
                                     this%min_dt_decrease_factor, 0.5_rp)
+    call json_get_or_default(params, 'case.cfl_deviation_tolerance',&
+                                    this%dev_tol, 0.2_rp)
 
   end subroutine time_step_controller_init
 
@@ -109,7 +112,8 @@ contains
           ! Calculate the average of cfl over the desired interval
           cfl_avrg = this%alpha * cfl + (1-this%alpha) * cfl_avrg
 
-          if (abs(cfl_avrg - this%set_cfl) .ge. 0.2*this%set_cfl .and. &
+          if (abs(cfl_avrg - this%set_cfl) .ge. &
+             this%dev_tol * this%set_cfl .and. &
              this%dt_last_change .ge. this%max_update_frequency) then
 
              if (this%set_cfl/cfl .ge. 1) then

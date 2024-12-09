@@ -105,13 +105,13 @@ extern "C" {
 
     real cfl = 0.0;
 #ifdef HAVE_DEVICE_MPI
-    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
+    HIP_CHECK(hipStreamSynchronize((hipStream_t) glb_cmd_queue));
     device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(real), DEVICE_MPI_MAX);
 #else
     HIP_CHECK(hipMemcpyAsync(&cfl, cfl_d, sizeof(real),
                              hipMemcpyDeviceToHost,
                              (hipStream_t) glb_cmd_queue));
-    hipStreamSynchronize((hipStream_t) glb_cmd_queue);
+    HIP_CHECK(hipStreamSynchronize((hipStream_t) glb_cmd_queue));
 #endif
 
 

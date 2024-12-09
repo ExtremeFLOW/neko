@@ -47,7 +47,7 @@ template < const int >
 int tune_cdtp(void *dtx, void *x,
               void *dr, void *ds, void *dt,
               void *dxt, void *dyt, void *dzt,
-              void *B, void *jac, int *nel, int *lx);
+              void *w3, int *nel, int *lx);
 
 extern "C" {
 
@@ -57,7 +57,7 @@ extern "C" {
   void cuda_cdtp(void *dtx, void *x,
                  void *dr, void *ds, void *dt,
                  void *dxt, void *dyt, void *dzt,
-                 void *B, void *jac, int *nel, int *lx) {
+                 void *w3, int *nel, int *lx) {
     
     static int autotune[17] = { 0 };
     
@@ -71,7 +71,7 @@ extern "C" {
       <<<nblcks, nthrds_1d, 0, stream>>>((real *) dtx, (real *) x,              \
                               (real *) dr, (real *) ds, (real *) dt,            \
                               (real *) dxt, (real *) dyt, (real *) dzt,         \
-                              (real *) B, (real *) jac);                        \
+                              (real *) w3);                                     \
     CUDA_CHECK(cudaGetLastError());
 
 #define CASE_KSTEP(LX)                                                          \
@@ -79,7 +79,7 @@ extern "C" {
       <<<nblcks, nthrds_kstep, 0, stream>>>((real *) dtx, (real *) x,           \
                                  (real *) dr, (real *) ds, (real *) dt,         \
                                  (real *) dxt, (real *) dyt, (real *) dzt,      \
-                                 (real *) B, (real *) jac);                     \
+                                 (real *) w3);                                  \
     CUDA_CHECK(cudaGetLastError());
 
 #define CASE(LX)                                                                \
@@ -88,7 +88,7 @@ extern "C" {
         autotune[LX]=tune_cdtp<LX>(dtx, x,                                      \
                                    dr, ds, dt,                                  \
                                    dxt, dyt, dzt,                               \
-                                   B, jac, nel, lx);                            \
+                                   w3, nel, lx);                                \
       } else if (autotune[LX] == 1 ) {                                          \
         CASE_1D(LX);                                                            \
       } else if (autotune[LX] == 2 ) {                                          \
@@ -142,7 +142,7 @@ template < const int LX >
 int tune_cdtp(void *dtx, void *x,
               void *dr, void *ds, void *dt,
               void *dxt, void *dyt, void *dzt,
-              void *B, void *jac, int *nel, int *lx) {
+              void *w3, int *nel, int *lx) {
   cudaEvent_t start,stop;
   float time1,time2;
   int retval;

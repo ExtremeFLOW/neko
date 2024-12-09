@@ -8,7 +8,6 @@ More documentation and more effort is spent to make sure these cases work. Illsu
 
 # Other examples
 Examples that illustrate certain features and usages of Neko. May be less documented and up to date.
-- compression, illustrates compression with ADIOS
 - 2d_cylinder, Running Neko with a 2D mesh (creates a 1 element thick mesh)
 - advecting_cone, Test case to check for dissipation and other nuermcial aspects
 - hemi, One of the original cases from Nek5000.

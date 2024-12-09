@@ -96,7 +96,7 @@ module source_term_handler
        import :: source_term_t, field_list_t, coef_t, user_t
        class(source_term_t), allocatable, intent(inout) :: source_term
        type(field_list_t) :: rhs_fields
-       type(coef_t), intent(inout) :: coef
+       type(coef_t), intent(in) :: coef
        character(len=*) :: type
        type(user_t), intent(in) :: user
      end subroutine source_term_handler_init_user_source
@@ -108,7 +108,7 @@ contains
   subroutine source_term_handler_init_base(this, rhs_fields, coef, user)
     class(source_term_handler_t), intent(inout) :: this
     type(field_list_t), intent(in) :: rhs_fields
-    type(coef_t), target, intent(inout) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(user_t), target, intent(in) :: user
 
     call this%free()
@@ -140,11 +140,10 @@ contains
   !> Add all the source term to the passed right-hand side fields.
   !! @param t The time value.
   !! @param tstep The current time step.
-  subroutine source_term_handler_compute(this, t, tstep, dt)
+  subroutine source_term_handler_compute(this, t, tstep)
     class(source_term_handler_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    real(kind=rp) :: dt
     integer :: i
     type(field_t), pointer :: f
 
@@ -157,7 +156,7 @@ contains
     if (allocated(this%source_terms)) then
 
        do i = 1, size(this%source_terms)
-          call this%source_terms(i)%source_term%compute(t, tstep, dt)
+          call this%source_terms(i)%source_term%compute(t, tstep)
        end do
 
        ! Multiply by mass matrix

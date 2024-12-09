@@ -150,7 +150,7 @@ contains
        e1 = 0.5 * device_glsc2(w1%x_d, coef%B_d, ntot) / coef%volume
        
        call device_col3(w1%x_d, omega_x%x_d, omega_x%x_d, ntot)
-       call device_addcol3(w1%x_d, omega_x%x_d, omega_y%x_d, ntot)
+       call device_addcol3(w1%x_d, omega_y%x_d, omega_y%x_d, ntot)
        call device_addcol3(w1%x_d, omega_z%x_d, omega_z%x_d, ntot)
        e2 = 0.5 * device_glsc2(w1%x_d, coef%B_d, ntot) / coef%volume
     else

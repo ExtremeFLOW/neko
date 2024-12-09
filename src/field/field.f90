@@ -96,7 +96,7 @@ contains
     this%msh => msh
 
     allocate(this%dof)
-    this%dof = dofmap_t(this%msh, this%Xh)
+    call this%dof%init(this%msh, this%Xh)
     this%internal_dofmap = .true.
 
     if (present(fld_name)) then

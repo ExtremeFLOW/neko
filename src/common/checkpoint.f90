@@ -76,6 +76,7 @@ module checkpoint
 
      real(kind=dp) :: t         !< Restart time (valid after load)
      type(mesh_t) :: previous_mesh
+     type(space_t) :: previous_Xh
      real(kind=rp) :: mesh2mesh_tol = 1d-6
 
    contains

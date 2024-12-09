@@ -13,7 +13,7 @@ check: device_math_suite
 
 
 device_math_suite_TESTS := device_math_parallel.pf
-device_math_suite_OTHER_LIBRARIES = -L@top_builddir@/src -lneko @LDFLAGS@ @LIBS@
+device_math_suite_OTHER_LIBRARIES = -L@top_builddir@/src/.libs/ -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,device_math_suite))
 
 

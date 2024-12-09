@@ -1,6 +1,0 @@
-#!/bin/sh
-if which mpirun >/dev/null; then
-    mpirun -np 1 ./mean_field/mean_field_suite
-else
-    mpiexec -np 1 ./mean_field/mean_field_suite
-fi

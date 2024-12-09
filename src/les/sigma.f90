@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -42,12 +42,13 @@ module sigma
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
   use sigma_cpu, only : sigma_compute_cpu
+  use sigma_device, only : sigma_compute_device
   use coefs, only : coef_t
   implicit none
   private
 
   !> Implements the Sigma LES model.
-  !! @note Reference DOI: 10.1063/1.3623274 
+  !! @note Reference DOI: 10.1063/1.3623274
   type, public, extends(les_model_t) :: sigma_t
      !> Model constant, default to 1.35.
      real(kind=rp) :: c
@@ -76,7 +77,7 @@ contains
     real(kind=rp) :: c
     character(len=:), allocatable :: delta_type
 
-    call json_get(json, "nut_field", nut_name)
+    call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     ! Based on  C = 1.35 as default values
     call json_get_or_default(json, "c", c, 1.35_rp)
@@ -89,7 +90,8 @@ contains
   !! @param coef SEM coefficients.
   !! @param c The model constant.
   !! @param nut_name The name of the SGS viscosity field.
-  subroutine sigma_init_from_components(this, dofmap, coef, c, nut_name, delta_type)
+  subroutine sigma_init_from_components(this, dofmap, coef, c, nut_name, &
+       delta_type)
     class(sigma_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), intent(in) :: coef
@@ -121,9 +123,10 @@ contains
     integer, intent(in) :: tstep
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call neko_error("Sigma model not implemented on accelarators.")
+        call sigma_compute_device(t, tstep, this%coef, this%nut, this%delta, &
+                                this%c)
     else
-        call sigma_compute_cpu(t, tstep, this%coef, this%nut, this%delta,&
+        call sigma_compute_cpu(t, tstep, this%coef, this%nut, this%delta, &
                                 this%c)
     end if
 

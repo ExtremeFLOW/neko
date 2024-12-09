@@ -42,7 +42,7 @@ extern "C" {
 
 #include <math/bcknd/device/device_mpi_reduce.h>
 #include <math/bcknd/device/device_mpi_op.h>
-  
+
   /** Fortran wrapper for copy
    * Copy a vector \f$ a = b \f$
    */
@@ -61,6 +61,20 @@ extern "C" {
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     masked_copy_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real*) b,(int*) mask, *n, *m);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
+  /** Fortran wrapper for masked copy
+   * Copy a vector \f$ a(mask) = b(mask) \f$
+   */
+  void cuda_masked_red_copy(void *a, void *b, void *mask, int *n, int *m) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    masked_red_copy_kernel<real><<<nblcks, nthrds, 0,
       (cudaStream_t) glb_cmd_queue>>>((real *) a, (real*) b,(int*) mask, *n, *m);
     CUDA_CHECK(cudaGetLastError());
 
@@ -114,9 +128,9 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
 
   }
-  
+
   /** Fortran wrapper for cadd
-   * Add a scalar to vector \f$ a = \sum a_i + s \f$
+   * Add a scalar to vector \f$ a_i = a_i + c \f$
    */
   void cuda_cadd(void *a, real *c, int *n) {
 
@@ -129,7 +143,21 @@ extern "C" {
 
   }
 
-  
+  /**
+   * Fortran wrapper for cadd2
+   * Add a scalar to vector \f$ a_i = b_i + c \f$
+   */
+  void cuda_cadd2(void *a, void *b, real *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    cadd2_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b, *c, *n);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
   /** Fortran wrapper for cfill
    * Set all elements to a constant c \f$ a = c \f$
    */
@@ -138,10 +166,12 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    cfill_kernel<real><<<nblcks, nthrds, 0,
-      (cudaStream_t) glb_cmd_queue>>>((real *) a, *c, *n);
-    CUDA_CHECK(cudaGetLastError());
-    
+    if (*n > 0){
+      cfill_kernel<real><<<nblcks, nthrds, 0,
+        (cudaStream_t) glb_cmd_queue>>>((real *) a, *c, *n);
+      CUDA_CHECK(cudaGetLastError());
+    }
+
   }
 
   /**
@@ -149,36 +179,65 @@ extern "C" {
    * Vector addition \f$ a = a + b \f$
    */
   void cuda_add2(void *a, void *b, int *n) {
-    
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
     add2_kernel<real><<<nblcks, nthrds, 0,
       (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b, *n);
     CUDA_CHECK(cudaGetLastError());
-    
+
   }
-  
+
+  /**
+   * Fortran wrapper for add3
+   * Vector addition \f$ a = b + c \f$
+   */
+  void cuda_add3(void *a, void *b, void *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    add3_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b,
+                                            (real *) c, *n);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
+  /**
+   * Fortran wrapper for add4
+   * Vector addition \f$ a = b + c + d \f$
+   */
+  void cuda_add4(void *a, void *b, void *c, void *d, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    add4_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b, (real *) c, (real *) d, *n);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
   /**
    * Fortran wrapper for add2s1
    * Vector addition with scalar multiplication \f$ a = c_1 a + b \f$
-   * (multiplication on first argument) 
+   * (multiplication on first argument)
    */
   void cuda_add2s1(void *a, void *b, real *c1, int *n) {
-    
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
     add2s1_kernel<real><<<nblcks, nthrds, 0,
       (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b, *c1, *n);
     CUDA_CHECK(cudaGetLastError());
-    
+
   }
 
   /**
    * Fortran wrapper for add2s2
    * Vector addition with scalar multiplication \f$ a = a + c_1 b \f$
-   * (multiplication on second argument) 
+   * (multiplication on second argument)
    */
   void cuda_add2s2(void *a, void *b, real *c1, int *n) {
 
@@ -193,26 +252,26 @@ extern "C" {
 
   /**
    * Fortran wrapper for add2s2
-   * Vector addition with scalar multiplication 
+   * Vector addition with scalar multiplication
    * \f$ x = x + c_1 p1 + c_2p2 + ... + c_jpj \f$
-   * (multiplication on second argument) 
+   * (multiplication on second argument)
    */
   void cuda_add2s2_many(void *x, void **p, void *alpha, int *j, int *n) {
-        
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
+
     add2s2_many_kernel<real><<<nblcks, nthrds, 0,
       (cudaStream_t) glb_cmd_queue>>>((real *) x, (const real **) p,
                                       (real *) alpha, *j, *n);
     CUDA_CHECK(cudaGetLastError());
 
   }
-  
+
   /**
    * Fortran wrapper for addsqr2s2
    * Vector addition with scalar multiplication \f$ a = a + c_1 (b * b) \f$
-   * (multiplication on second argument) 
+   * (multiplication on second argument)
    */
   void cuda_addsqr2s2(void *a, void *b, real *c1, int *n) {
 
@@ -229,7 +288,7 @@ extern "C" {
   /**
    * Fortran wrapper for add3s2
    * Vector addition with scalar multiplication \f$ a = c_1 b + c_2 c \f$
-   * (multiplication on second argument) 
+   * (multiplication on second argument)
    */
   void cuda_add3s2(void *a, void *b, void *c, real *c1, real *c2, int *n) {
 
@@ -256,7 +315,7 @@ extern "C" {
       (cudaStream_t) glb_cmd_queue>>>((real *) a, *n);
     CUDA_CHECK(cudaGetLastError());
   }
-  
+
   /**
    * Fortran wrapper for invcol2
    * Vector division \f$ a = a / b \f$
@@ -270,7 +329,7 @@ extern "C" {
                                              (real *) b, *n);
     CUDA_CHECK(cudaGetLastError());
   }
-  
+
   /**
    * Fortran wrapper for col2
    * Vector multiplication with 2 vectors \f$ a = a \cdot b \f$
@@ -284,7 +343,7 @@ extern "C" {
       (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b, *n);
     CUDA_CHECK(cudaGetLastError());
   }
-  
+
   /**
    * Fortran wrapper for col3
    * Vector multiplication with 3 vectors \f$ a = b \cdot c \f$
@@ -312,7 +371,7 @@ extern "C" {
       (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b, (real *) c, *n);
     CUDA_CHECK(cudaGetLastError());
   }
-  
+
 
   /**
    * Fortran wrapper for sub2
@@ -338,7 +397,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
     sub3_kernel<real><<<nblcks, nthrds, 0,
-      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b, 
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b,
                                             (real *) c, *n);
     CUDA_CHECK(cudaGetLastError());
   }
@@ -382,7 +441,7 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
+
     vdot3_kernel<real><<<nblcks, nthrds, 0,
       (cudaStream_t) glb_cmd_queue>>>((real *) dot, (real *) u1,
                                       (real *) u2, (real *) u3,
@@ -390,6 +449,28 @@ extern "C" {
                                       (real *) v3, *n);
     CUDA_CHECK(cudaGetLastError());
   }
+
+  /**
+   * Fortran wrapper for vcross
+   * \f$ u = v \times w \f$
+   */
+  void cuda_vcross(void *u1, void *u2, void *u3,
+                  void *v1, void *v2, void *v3,
+                  void *w1, void *w2, void *w3, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    vcross_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) u1,
+                                      (real *) u2, (real *) u3,
+                                      (real *) v1, (real *) v2,
+                                      (real *) v3,
+                                      (real *) w1, (real *) w2,
+                                      (real *) w3, *n);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
 
   /*
    * Reduction buffer
@@ -403,22 +484,22 @@ extern "C" {
    * Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$
    */
   real cuda_vlsc3(void *u, void *v, void *w, int *n) {
-        
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
-    
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
     if ( nb > red_s){
       red_s = nb;
       if (bufred != NULL) {
         CUDA_CHECK(cudaFreeHost(bufred));
-        CUDA_CHECK(cudaFree(bufred_d));        
+        CUDA_CHECK(cudaFree(bufred_d));
       }
       CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
       CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
     }
-     
+
     glsc3_kernel<real><<<nblcks, nthrds, 0, stream>>>
       ((real *) u, (real *) v, (real *) w, bufred_d, *n);
     CUDA_CHECK(cudaGetLastError());
@@ -437,22 +518,22 @@ extern "C" {
    * Weighted inner product \f$ a^T b c \f$
    */
   real cuda_glsc3(void *a, void *b, void *c, int *n) {
-        
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
-    
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
     if ( nb > red_s){
       red_s = nb;
       if (bufred != NULL) {
         CUDA_CHECK(cudaFreeHost(bufred));
-        CUDA_CHECK(cudaFree(bufred_d));        
+        CUDA_CHECK(cudaFree(bufred_d));
       }
       CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
       CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
     }
-     
+
     glsc3_kernel<real><<<nblcks, nthrds, 0, stream>>>
       ((real *) a, (real *) b, (real *) c, bufred_d, *n);
     CUDA_CHECK(cudaGetLastError());
@@ -470,22 +551,22 @@ extern "C" {
 
     return bufred[0];
   }
-  
+
   /**
    * Fortran wrapper for doing an reduction to an array
    * Weighted inner product \f$ w^T v(n,1:j) c \f$
    */
-  void cuda_glsc3_many(real *h, void * w, void *v,void *mult, int *j, int *n){ 
+  void cuda_glsc3_many(real *h, void * w, void *v,void *mult, int *j, int *n){
     int pow2 = 1;
     while(pow2 < (*j)){
       pow2 = 2*pow2;
     }
-    const int nt = 1024/pow2;   
+    const int nt = 1024/pow2;
     const dim3 nthrds(pow2, nt, 1);
     const dim3 nblcks(((*n)+nt - 1)/nt, 1, 1);
     const int nb = ((*n) + nt - 1)/nt;
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-    
+
     if((*j)*nb>red_s){
       red_s = (*j)*nb;
       if (bufred != NULL) {
@@ -495,7 +576,7 @@ extern "C" {
       CUDA_CHECK(cudaMallocHost(&bufred,(*j)*nb*sizeof(real)));
       CUDA_CHECK(cudaMalloc(&bufred_d, (*j)*nb*sizeof(real)));
     }
-    
+
     glsc3_many_kernel<real><<<nblcks, nthrds, 0, stream>>>
       ((const real *) w, (const real **) v,
        (const real *)mult, bufred_d, *j, *n);
@@ -506,7 +587,7 @@ extern "C" {
 #ifdef HAVE_DEVICE_MPI
     cudaStreamSynchronize(stream);
     device_mpi_allreduce(bufred_d, h, (*j), sizeof(real), DEVICE_MPI_SUM);
-#else    
+#else
     CUDA_CHECK(cudaMemcpyAsync(h, bufred_d, (*j) * sizeof(real),
                                cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);
@@ -518,22 +599,22 @@ extern "C" {
    * Weighted inner product \f$ a^T b c \f$
    */
   real cuda_glsc2(void *a, void *b, int *n) {
-        
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     if ( nb > red_s){
       red_s = nb;
       if (bufred != NULL) {
         CUDA_CHECK(cudaFreeHost(bufred));
-        CUDA_CHECK(cudaFree(bufred_d));        
+        CUDA_CHECK(cudaFree(bufred_d));
       }
       CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
       CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
     }
-         
+
     glsc2_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) a,
                                       (real *) b,
@@ -554,7 +635,7 @@ extern "C" {
     return bufred[0];
   }
 
-  /** 
+  /**
    * Fortran wrapper glsum
    * Sum a vector of length n
    */
@@ -562,24 +643,24 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
-    
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
     if ( nb > red_s){
       red_s = nb;
       if (bufred != NULL) {
         CUDA_CHECK(cudaFreeHost(bufred));
-        CUDA_CHECK(cudaFree(bufred_d));        
+        CUDA_CHECK(cudaFree(bufred_d));
       }
       CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
       CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
     }
-     
-    glsum_kernel<real>
-      <<<nblcks, nthrds, 0, stream>>>((real *) a, bufred_d, *n);
-    CUDA_CHECK(cudaGetLastError());
-    reduce_kernel<real><<<1, 1024, 0, stream>>> (bufred_d, nb);
-    CUDA_CHECK(cudaGetLastError());
-
+    if ( *n > 0) {
+      glsum_kernel<real>
+        <<<nblcks, nthrds, 0, stream>>>((real *) a, bufred_d, *n);
+      CUDA_CHECK(cudaGetLastError());
+      reduce_kernel<real><<<1, 1024, 0, stream>>> (bufred_d, nb);
+      CUDA_CHECK(cudaGetLastError());
+    }
 #ifdef HAVE_DEVICE_MPI
     cudaStreamSynchronize(stream);
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
@@ -588,8 +669,147 @@ extern "C" {
                                cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);
 #endif
-    
+
     return bufred[0];
   }
 
-}
+  /**
+   * Fortran wrapper absval
+   * Take the abs value of a vector of length n
+   */
+  void cuda_absval(void *a, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+    absval_kernel<real>
+    <<<nblcks, nthrds,0, stream>>>((real *) a, * n);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
+  // ======================================================================== //
+  // Point-wise operations.
+
+  /** Fortran wrapper for pwmax_vec2
+   *
+   * Compute the maximum of two vectors \f$ a = \max(a, b) \f$
+   */
+  void cuda_pwmax_vec2(void *a, void *b, int *n) {
+
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+      pwmax_vec2_kernel<real><<<nblcks, nthrds, 0, stream>>>(
+          (real *)a, (real *)b, *n);
+      CUDA_CHECK(cudaGetLastError());
+  }
+  
+  /** Fortran wrapper for pwmax_vec3
+   *
+   * Compute the maximum of two vectors \f$ a = \max(b, c) \f$
+   */
+  void cuda_pwmax_vec3(void *a, void *b, void *c, int *n) {
+    
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+      pwmax_vec3_kernel<real><<<nblcks, nthrds, 0, stream>>>(
+          (real *)a, (real *)b, (real *)c, *n);
+      CUDA_CHECK(cudaGetLastError());
+  }
+  
+  /** Fortran wrapper for pwmax_sca2
+   *
+   * Compute the maximum of vector and scalar \f$ a = \max(a, c) \f$
+   */
+  void cuda_pwmax_sca2(void *a, real *c, int *n) {
+    
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+      pwmax_sca2_kernel<real><<<nblcks, nthrds, 0, stream>>>(
+          (real *)a, *c, *n);
+      CUDA_CHECK(cudaGetLastError());
+  }
+  
+  /** Fortran wrapper for pwmax_sca3
+   *
+   * Compute the maximum of vector and scalar \f$ a = \max(b, c) \f$
+   */
+  void cuda_pwmax_sca3(void *a, void *b, real *c, int *n) {
+    
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+      pwmax_sca3_kernel<real><<<nblcks, nthrds, 0, stream>>>(
+          (real *)a, (real *)b, *c, *n);
+      CUDA_CHECK(cudaGetLastError());
+  }
+
+  /** Fortran wrapper for pwmin_vec2
+   *
+   * Compute the minimum of two vectors \f$ a = \min(a, b) \f$
+   */
+  void cuda_pwmin_vec2(void *a, void *b, int *n) {
+
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+      pwmin_vec2_kernel<real><<<nblcks, nthrds, 0, stream>>>(
+          (real *)a, (real *)b, *n);
+      CUDA_CHECK(cudaGetLastError());
+  }
+  
+  /** Fortran wrapper for pwmin_vec3
+   *
+   * Compute the minimum of two vectors \f$ a = \min(b, c) \f$
+   */
+  void cuda_pwmin_vec3(void *a, void *b, void *c, int *n) {
+    
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+      pwmin_vec3_kernel<real><<<nblcks, nthrds, 0, stream>>>(
+          (real *)a, (real *)b, (real *)c, *n);
+      CUDA_CHECK(cudaGetLastError());
+  }
+  
+  /** Fortran wrapper for pwmin_sca2
+   *
+   * Compute the minimum of vector and scalar \f$ a = \min(a, c) \f$
+   */
+  void cuda_pwmin_sca2(void *a, real *c, int *n) {
+    
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+      pwmin_sca2_kernel<real><<<nblcks, nthrds, 0, stream>>>(
+          (real *)a, *c, *n);
+      CUDA_CHECK(cudaGetLastError());
+  }
+  
+  /** Fortran wrapper for pwmin_sca3
+   *
+   * Compute the minimum of vector and scalar \f$ a = \min(b, c) \f$
+   */
+  void cuda_pwmin_sca3(void *a, void *b, real *c, int *n) {
+    
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+      pwmin_sca3_kernel<real><<<nblcks, nthrds, 0, stream>>>(
+          (real *)a, (real *)b, *c, *n);
+      CUDA_CHECK(cudaGetLastError());
+  }
+
+} /* extern "C" */

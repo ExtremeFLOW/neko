@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2021, The Neko Authors
+! Copyright (c) 2019-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,14 +32,15 @@
 !
 ! Implements a point zone registry for storing point zones.
 module point_zone_registry
-  use point_zone, only: point_zone_t, point_zone_wrapper_t
-  use point_zone_fctry, only: point_zone_factory
-  use dofmap, only: dofmap_t
-  use mesh, only: mesh_t
-  use space, only: space_t, GLL
-  use utils, only: neko_error
-  use json_utils, only: json_get
-  use json_module, only: json_file, json_core, json_value
+  use point_zone, only : point_zone_t, point_zone_wrapper_t, &
+       point_zone_factory
+  use combine_point_zone, only : combine_point_zone_t
+  use dofmap, only : dofmap_t
+  use mesh, only : mesh_t
+  use space, only : space_t, GLL
+  use utils, only : neko_error
+  use json_utils, only : json_get
+  use json_module, only : json_file, json_core, json_value
   implicit none
   private
 
@@ -74,7 +75,8 @@ module point_zone_registry
      procedure, pass(this) :: get_size
      !> Checks if a point zone exists in the registry.
      procedure, pass(this) :: point_zone_exists
-     generic :: get_point_zone => get_point_zone_by_index, get_point_zone_by_name
+     generic :: get_point_zone => get_point_zone_by_index, &
+          get_point_zone_by_name
      generic :: add_point_zone => add_point_zone_from_json
   end type point_zone_registry_t
 
@@ -92,7 +94,7 @@ contains
   !! point_zones that are not defined in that way will need to be added
   !! using the `add_point_zone` subroutine.
   subroutine point_zone_registry_init(this, json, msh, expansion_size)
-    class(point_zone_registry_t), intent(inout):: this
+    class(point_zone_registry_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(mesh_t), target, intent(inout) :: msh
     integer, optional, intent(in) :: expansion_size
@@ -106,7 +108,8 @@ contains
     ! A single source term as its own json_file.
     type(json_file) :: source_subdict
     logical :: found
-    integer :: n_zones, i
+    integer :: n_zones, i, izone
+    character(len=:), allocatable :: type_name
 
     ! Parameters used to setup the GLL space.
     integer :: order
@@ -122,7 +125,7 @@ contains
     else
        call Xh%init(GLL, order, order, order)
     end if
-    dof = dofmap_t(msh, Xh)
+    call dof%init(msh, Xh)
 
     call this%free()
 
@@ -137,7 +140,7 @@ contains
     !
     ! Count if there are any point zones defined in the json
     !
-    if(json%valid_path('case.point_zones')) then
+    if (json%valid_path('case.point_zones')) then
 
        call json%get_core(core)
        call json%get('case.point_zones', source_object, found)
@@ -147,27 +150,88 @@ contains
 
        allocate(this%point_zones(n_zones))
 
-       ! Initialize every point zone
+       ! Initialize all the primitive zones
+       izone = 1
        do i = 1, n_zones
+
           ! Create a new json containing just the subdict for this source.
           call core%get_child(source_object, i, source_pointer, found)
           call core%print_to_string(source_pointer, buffer)
           call source_subdict%load_from_string(buffer)
 
-          call point_zone_factory(this%point_zones(i)%pz, source_subdict, dof)
+          call json_get(source_subdict, "geometry", type_name)
+          if (trim(type_name) .ne. "combine") then
+             call point_zone_factory(this%point_zones(izone)%pz, &
+                  source_subdict, dof)
+             izone = izone + 1
+          end if
        end do
+
+       ! Now initialize the combine zones
+       do i = 1, n_zones
+
+          ! Create a new json containing just the subdict for this source.
+          call core%get_child(source_object, i, source_pointer, found)
+          call core%print_to_string(source_pointer, buffer)
+          call source_subdict%load_from_string(buffer)
+
+          call json_get(source_subdict, "geometry", type_name)
+          if (trim(type_name) .eq. "combine") then
+             call build_combine_point_zone(this%point_zones(izone)%pz, &
+                  source_subdict, dof)
+             izone = izone + 1
+          end if
+       end do
+
     end if
 
   end subroutine point_zone_registry_init
 
+  !> Constructs a combine_point_zone_t object.
+  !! @param object Object to allocate.
+  !! @param json Json object initializing the point zone.
+  !! @param dof Dofmap from which to map to point zone.
+  !! @param n_allocated_zones Number of previously found and allocated zones
+  !! in the registry.
+  subroutine build_combine_point_zone(object, json, dof)
+    class(point_zone_t), allocatable, target, intent(inout) :: object
+    type(json_file), intent(inout) :: json
+    type(dofmap_t), intent(inout) :: dof
+
+    type(combine_point_zone_t), pointer :: cpz
+    integer :: i, i_external
+
+    allocate(combine_point_zone_t::object)
+
+    ! Here we initialize all the names of the zones to combine
+    call object%init(json, dof%size())
+
+    select type (object)
+    type is (combine_point_zone_t)
+       cpz => object
+    class default
+    end select
+
+    i_external = 1
+    ! Load the external zones in the combine zone array
+    do i = cpz%n_internal_zones + 1, cpz%n_zones
+       cpz%zones(i)%pz => &
+            neko_point_zone_registry%get_point_zone(cpz%names(i_external))
+    end do
+
+    call object%map(dof)
+    call object%finalize()
+
+  end subroutine build_combine_point_zone
+
   !> Destructor.
   subroutine point_zone_registry_free(this)
-    class(point_zone_registry_t), intent(inout):: this
+    class(point_zone_registry_t), intent(inout) :: this
     integer :: i
 
     if (allocated(this%point_zones)) then
 
-       do i=1, this%n_point_zones()
+       do i = 1, this%n_point_zones()
           call this%point_zones(i)%pz%free()
        end do
 
@@ -278,7 +342,7 @@ contains
        call neko_error("Field index must be > 1")
     else if (i > this%n_point_zones()) then
        call neko_error("Field index exceeds number of stored point_zones")
-    endif
+    end if
 
     pz => this%point_zones(i)%pz
   end function get_point_zone_by_index
@@ -293,7 +357,7 @@ contains
     integer :: i
 
     found = .false.
-    do i=1, this%n_point_zones()
+    do i = 1, this%n_point_zones()
        if (trim(this%point_zones(i)%pz%name) .eq. trim(name)) then
           pz => this%point_zones(i)%pz
           found = .true.
@@ -316,7 +380,7 @@ contains
     integer :: i
 
     found = .false.
-    do i=1, this%n_point_zones()
+    do i = 1, this%n_point_zones()
        if (trim(this%point_zones(i)%pz%name) .eq. trim(name)) then
           found = .true.
           exit

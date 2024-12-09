@@ -65,7 +65,7 @@ contains
     real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
     call neko_error("The full Helmholtz operators cannot be applied to a &
-                   & field")
+                   &single field")
   end subroutine ax_helm_full_compute
 
 end module ax_helm_full

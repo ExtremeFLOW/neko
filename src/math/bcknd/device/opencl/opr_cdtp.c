@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2024, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@
 void opencl_cdtp(void *dtx, void *x,
                  void *dr, void *ds, void *dt,
                  void *dxt, void *dyt, void *dzt,
-                 void *B, void *jac, int *nel, int *lx) {
+                 void *w3, int *nel, int *lx) {
   cl_int err;
   
   if (cdtp_program == NULL)
@@ -77,8 +77,7 @@ void opencl_cdtp(void *dtx, void *x,
       CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &dxt));       \
       CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &dyt));       \
       CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &dzt));       \
-      CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &B));         \
-      CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &jac));       \
+      CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &w3));        \
                                                                                 \
       CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,         \
                                       kernel, 1, NULL, &global_item_size,       \

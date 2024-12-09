@@ -30,7 +30,6 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!
 !> Implements `dynamic_smagorinsky_t`.
 module dynamic_smagorinsky
   use num_types, only : rp
@@ -91,19 +90,21 @@ contains
     integer :: i
     character(len=:), allocatable :: delta_type
 
-    call json_get(json, "nut_field", nut_name)
+    call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
 
     call this%free()
     call this%init_base(dofmap, coef, nut_name, delta_type)
     this%test_filter_type = "nonBoyd"
-    call this%test_filter%init(dofmap%xh%lx, this%test_filter_type) ! suppose lx = ly = lz
+    ! Filter assumes lx = ly = lz
+    call this%test_filter%init(dofmap%xh%lx, this%test_filter_type)
+    call set_ds_filt(this%test_filter)
 
     call this%c_dyn%init(dofmap, "ds_c_dyn")
     call this%num%init(dofmap, "ds_num")
     call this%den%init(dofmap, "ds_den")
 
-    do i=1,6
+    do i = 1, 6
        call this%mij(i)%init(dofmap)
        call this%lij(i)%init(dofmap)
     end do
@@ -116,7 +117,7 @@ contains
     integer :: i
 
     call this%c_dyn%free()
-    do i=1,6
+    do i = 1, 6
        call this%mij(i)%free()
        call this%lij(i)%free()
     end do
@@ -135,10 +136,9 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    call set_ds_filt(this%test_filter)
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call neko_error("Dynamic Smagorinsky model not implemented on accelarators.")
+        call neko_error("Dynamic Smagorinsky model not implemented on &
+             &accelarators.")
     else
         call dynamic_smagorinsky_compute_cpu(t, tstep, this%coef, this%nut, &
                                 this%delta, this%c_dyn, this%test_filter, &
@@ -153,9 +153,9 @@ contains
     integer :: i
 
     if (filter_1d%nx .le. 2) then
-        call neko_error("Dynamic Smagorinsky model error: test filter is not defined for the current polynomial order")
+        call neko_error("Dynamic Smagorinsky model error: test filter is not &
+             &defined for the current polynomial order")
     end if
-
     if (mod(filter_1d%nx,2) .eq. 0) then ! number of grid spacing is odd
        ! cutoff at polynomial order int((filter_1d%nx)/2)
        filter_1d%trnsfr(int((filter_1d%nx)/2)) = 0.95_rp

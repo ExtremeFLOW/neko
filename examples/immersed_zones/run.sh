@@ -26,7 +26,7 @@ function help() {
     echo -e "  See Readme for additional details."
     exit 0
 }
-if [ $# -eq 0 ]; then help; fi
+if [ $# -eq 0 ]; then ALL=1; fi
 
 # Handle options
 Nx=32 && Ny=8 && Nz=8

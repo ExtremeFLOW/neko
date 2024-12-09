@@ -1,12 +1,15 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[0.8.99])
+AC_INIT([neko],[0.9.99])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_HOST
 AC_LANG(Fortran)
-AC_PROG_RANLIB
 AC_PROG_INSTALL
+AC_PROG_SED
+AC_PROG_MAKE_SET
+LT_INIT([disable-shared])
+LT_LANG([Fortran])
 
 AC_ARG_ENABLE(contrib,
               AS_HELP_STRING([--enable-contrib],[Compile various tools]), 
@@ -14,9 +17,10 @@ AC_ARG_ENABLE(contrib,
 
 AC_ARG_ENABLE(real,
 	      AS_HELP_STRING([--enable-real=Xp  Specify working precision of REAL types:
-                    sp -- REAL(kind=4)
-	            dp -- REAL(kind=8) (default)
-	            qp -- REAL(kind=16)]),
+                    ssp -- REAL(kind=4) xp -- sp 
+                    sp -- REAL(kind=4) xp -- dp
+                    dp -- REAL(kind=8) xp -- dp (default)
+                    qp -- REAL(kind=16) xp -- qp]),
 	        [enable_real=${enableval}], [enable_real=dp])
 
 AC_ARG_ENABLE(blk_size,
@@ -26,6 +30,9 @@ AC_ARG_ENABLE(blk_size,
 AC_ARG_ENABLE(device-mpi,
 	      AS_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
 	      [enable_device_mpi=${enableval}], [enable_device_mpi=no])
+
+AC_ARG_ENABLE(openmp, AC_HELP_STRING([--enable-openmp], [Enable OpenMP]),
+              [enable_openmp=${enableval}], [enable_openmp=no])
 
 # Test for a sane fortran environment (^-^)
 AC_LANG(Fortran)
@@ -57,6 +64,20 @@ else
 fi
 AX_MPIF08
 AX_MPI_DTYPE
+
+# Test for OpenMP (if requested)
+if test "x${enable_openmp}" != xno; then
+   AX_OPENMP([have_openmp=yes], [have_openmp=no])
+   if test "x${have_openmp}" != xno; then
+      FCFLAGS="$FCFLAGS $OPENMP_FCFLAGS"
+      AC_LANG(C)
+      AX_OPENMP([have_openmp=yes], [have_openmp=no])
+      if test "x${have_openmp}" != xno; then
+         CFLAGS="$CFLAGS $OPENMP_CFLAGS"
+      fi
+      AC_LANG(Fortran)
+   fi
+fi
 
 AC_FC_PP_SRCEXT([F90])
 AX_COMPILER_VENDOR
@@ -162,21 +183,42 @@ AX_ADIOS2
 AX_GSLIB
 
 # Select Working precision of REAL
-if test "x$enable_real" = xsp; then
+if test "x$enable_real" = xssp; then
    AC_SUBST(NEKO_REAL_TYPE, "sp")
    AC_SUBST(NEKO_C_REAL_TYPE, "c_float")
    AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_REAL")
-   AC_SUBST(NEKO_DEV_REAL_TYPE, "float")   				
+   AC_SUBST(NEKO_DEV_REAL_TYPE, "float")
+   AC_SUBST(NEKO_XREAL_TYPE, "sp")
+   AC_SUBST(NEKO_C_XREAL_TYPE, "c_float")
+   AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_REAL")
+   AC_SUBST(NEKO_DEV_XREAL_TYPE, "float")
+elif test "x$enable_real" = xsp; then
+   AC_SUBST(NEKO_REAL_TYPE, "sp")
+   AC_SUBST(NEKO_C_REAL_TYPE, "c_float")
+   AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_REAL")
+   AC_SUBST(NEKO_DEV_REAL_TYPE, "float")
+   AC_SUBST(NEKO_XREAL_TYPE, "dp")
+   AC_SUBST(NEKO_C_XREAL_TYPE, "c_double")
+   AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_DOUBLE_PRECISION")
+   AC_SUBST(NEKO_DEV_XREAL_TYPE, "double") 
 elif test "x$enable_real" = xdp; then
    AC_SUBST(NEKO_REAL_TYPE, "dp")
    AC_SUBST(NEKO_C_REAL_TYPE, "c_double")
    AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_DOUBLE_PRECISION")
-   AC_SUBST(NEKO_DEV_REAL_TYPE, "double")   				
+   AC_SUBST(NEKO_DEV_REAL_TYPE, "double")
+   AC_SUBST(NEKO_XREAL_TYPE, "dp")
+   AC_SUBST(NEKO_C_XREAL_TYPE, "c_double")
+   AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_DOUBLE_PRECISION")
+   AC_SUBST(NEKO_DEV_XREAL_TYPE, "double")   				
 elif test "x$enable_real" = xqp; then
    AC_SUBST(NEKO_REAL_TYPE, "qp")
    AC_SUBST(NEKO_C_REAL_TYPE, "c_long_double")
    AC_SUBST(NEKO_MPI_REAL_TYPE, "MPI_REAL16")
-   AC_SUBST(NEKO_DEV_REAL_TYPE, "long double")   				
+   AC_SUBST(NEKO_DEV_REAL_TYPE, "long double")
+   AC_SUBST(NEKO_XREAL_TYPE, "qp")
+   AC_SUBST(NEKO_C_XREAL_TYPE, "c_long_double")
+   AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_REAL16")
+   AC_SUBST(NEKO_DEV_XREAL_TYPE, "long double")
 else
    AC_MSG_ERROR([Invalid working precision])
 fi
@@ -291,7 +333,7 @@ fi
 
 AC_CONFIG_FILES([Makefile\
 		 src/Makefile\
-		 tests/Makefile\
+		 tests/unit/Makefile\
 		 src/comm/comm.F90\
 	 	 src/config/neko_config.f90\
 		 src/config/num_types.f90\
@@ -300,40 +342,41 @@ AC_CONFIG_FILES([Makefile\
 		 makeneko\
 		 neko.pc])
 
-# Config tests
-AC_CONFIG_FILES([tests/stack/Makefile\
-		 tests/tuple/Makefile\
- 		 tests/point/Makefile\
-		 tests/htable/Makefile\
-		 tests/uset/Makefile\
-		 tests/quad/Makefile\
-		 tests/hex/Makefile\
-		 tests/tet/Makefile\
-		 tests/tri/Makefile\
-		 tests/math/Makefile\
-		 tests/mesh/Makefile\
-		 tests/space/Makefile\
-		 tests/dofmap/Makefile\
-		 tests/field/Makefile\
-		 tests/mean_field/Makefile\
-		 tests/mean_sqr_field/Makefile\
-		 tests/gather_scatter/Makefile\
-		 tests/krylov/Makefile\
-		 tests/bc/Makefile\
-		 tests/signal/Makefile\
-		 tests/jobctrl/Makefile\
-		 tests/device/Makefile\
-		 tests/device_math/Makefile\
-		 tests/mathops/Makefile\
-		 tests/device_mathops/Makefile\
-		 tests/octree/Makefile\
-                 tests/vector/Makefile\
-                 tests/scratch_registry/Makefile\
-                 tests/fast3d/Makefile\
-                 tests/time_scheme/Makefile\
-                 tests/time_scheme_controller/Makefile\
-                 tests/time_based_controller/Makefile\
-                 tests/point_interpolation/Makefile])
+# Config tests/unit
+AC_CONFIG_FILES([tests/unit/stack/Makefile\
+		 tests/unit/tuple/Makefile\
+ 		 tests/unit/point/Makefile\
+		 tests/unit/htable/Makefile\
+		 tests/unit/uset/Makefile\
+		 tests/unit/quad/Makefile\
+		 tests/unit/hex/Makefile\
+		 tests/unit/tet/Makefile\
+		 tests/unit/tri/Makefile\
+		 tests/unit/math/Makefile\
+		 tests/unit/mesh/Makefile\
+		 tests/unit/space/Makefile\
+		 tests/unit/dofmap/Makefile\
+		 tests/unit/field/Makefile\
+		 tests/unit/mean_field/Makefile\
+		 tests/unit/mean_sqr_field/Makefile\
+		 tests/unit/gather_scatter/Makefile\
+		 tests/unit/krylov/Makefile\
+		 tests/unit/bc/Makefile\
+		 tests/unit/signal/Makefile\
+		 tests/unit/jobctrl/Makefile\
+		 tests/unit/device/Makefile\
+		 tests/unit/device_math/Makefile\
+		 tests/unit/mathops/Makefile\
+		 tests/unit/device_mathops/Makefile\
+		 tests/unit/octree/Makefile\
+                 tests/unit/vector/Makefile\
+                 tests/unit/matrix/Makefile\
+                 tests/unit/scratch_registry/Makefile\
+                 tests/unit/fast3d/Makefile\
+                 tests/unit/time_scheme/Makefile\
+                 tests/unit/time_scheme_controller/Makefile\
+                 tests/unit/time_based_controller/Makefile\
+                 tests/unit/point_interpolation/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\
@@ -344,6 +387,7 @@ if test "x${enable_contrib}" = xyes; then
 		    contrib/postprocess_fluid_stats/Makefile\
 		    contrib/average_field_in_space/Makefile\
 		    contrib/map_to_equidistant_1d/Makefile\
+		    contrib/mesh_checker/Makefile\
 		    contrib/prepart/Makefile])
 fi
 # Doxygen
