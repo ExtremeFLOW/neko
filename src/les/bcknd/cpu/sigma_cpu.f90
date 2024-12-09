@@ -38,12 +38,13 @@
 module sigma_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
-   use scratch_registry, only : neko_scratch_registry
+  use scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use operators, only : dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
+  use math, only : NEKO_EPS
   implicit none
   private
 
@@ -82,13 +83,13 @@ contains
     integer :: e, i
 
     ! some constant
-    eps = 1.d-14
+    eps = NEKO_EPS
 
 
     ! get fields from registry
     u => neko_field_registry%get_field_by_name("u")
     v => neko_field_registry%get_field_by_name("v")
-    w => neko_field_registry%get_field_by_name("u")
+    w => neko_field_registry%get_field_by_name("w")
 
     call neko_scratch_registry%request_field(g11, temp_indices(1))
     call neko_scratch_registry%request_field(g12, temp_indices(2))
@@ -114,15 +115,15 @@ contains
     call dudxyz (g32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (g33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
-    call coef%gs_h%op(g11%x, g11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(g12%x, g11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(g13%x, g11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(g21%x, g11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(g22%x, g11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(g23%x, g11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(g31%x, g11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(g32%x, g11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(g33%x, g11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(g11, GS_OP_ADD)
+    call coef%gs_h%op(g12, GS_OP_ADD)
+    call coef%gs_h%op(g13, GS_OP_ADD)
+    call coef%gs_h%op(g21, GS_OP_ADD)
+    call coef%gs_h%op(g22, GS_OP_ADD)
+    call coef%gs_h%op(g23, GS_OP_ADD)
+    call coef%gs_h%op(g31, GS_OP_ADD)
+    call coef%gs_h%op(g32, GS_OP_ADD)
+    call coef%gs_h%op(g33, GS_OP_ADD)
 
     do concurrent (i = 1:g11%dof%size())
        g11%x(i,1,1,1) = g11%x(i,1,1,1) * coef%mult(i,1,1,1)
@@ -216,7 +217,7 @@ contains
                  ! since acos(alpha2/(alpha1^(3/2)))/3.0_rp only valid for
                  ! alpha2^2 < alpha1^3.0_rp and arccos(x) only valid for -1<=x<=1
                  !  alpha3 is between 0 and pi/3
-                 tmp1 = alpha2/(alpha1**(3.0_rp/2.0_rp))
+                 tmp1 = alpha2/sqrt(alpha1 * alpha1 * alpha1)
 
                  if (tmp1 .le. -1.0_rp) then
                     ! alpha3=pi/3 -> cos(alpha3)=0.5

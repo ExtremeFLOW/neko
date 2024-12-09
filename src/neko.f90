@@ -102,7 +102,7 @@ module neko
   use simulation_component, only : simulation_component_t, &
        simulation_component_wrapper_t
   use probes, only : probes_t
-  use spectral_error_indicator
+  use spectral_error
   use system, only : system_cpu_name, system_cpuid
   use drag_torque, only : drag_torque_zone, drag_torque_facet, drag_torque_pt
   use field_registry, only : neko_field_registry
@@ -128,12 +128,12 @@ contains
 
   subroutine neko_init(C)
     type(case_t), target, intent(inout), optional :: C
-    character(len=NEKO_FNAME_LEN) :: case_file
+    character(len=NEKO_FNAME_LEN) :: case_file, args
     character(len=LOG_SIZE) :: log_buf
     character(len=10) :: suffix
     character(10) :: time
     character(8) :: date
-    integer :: argc, nthrds, rw, sw
+    integer :: argc, nthrds, rw, sw, i
 
     call date_and_time(time = time, date = date)
 
@@ -151,8 +151,8 @@ contains
 
        argc = command_argument_count()
 
-       if ((argc .lt. 1) .or. (argc .gt. 1)) then
-          if (pe_rank .eq. 0) write(*,*) 'Usage: ./neko < case file >'
+       if (argc .lt. 1) then
+          if (pe_rank .eq. 0) write(*,*) 'Usage: ./neko <case file>'
           stop
        end if
 
@@ -160,7 +160,7 @@ contains
 
        call filename_suffix(case_file, suffix)
 
-       if (trim(suffix) .ne. 'case') then
+       if (trim(suffix) .ne. 'case' .and. trim(suffix) .ne. 'json') then
           call neko_error('Invalid case file')
        end if
 
@@ -179,6 +179,14 @@ contains
             time(1:2), ':', time(3:4), &
             '/', date(1:4), '-', date(5:6), '-', date(7:8)
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
+       if (argc .gt. 1) then
+          write(log_buf, '(a)') 'Running with command line arguments: '
+          call neko_log%message(log_buf, NEKO_LOG_QUIET)
+          do i = 2,argc
+             call get_command_argument(i, args)
+             call neko_log%message(args, NEKO_LOG_QUIET)
+          end do
+       end if
        write(log_buf, '(a)') 'Running on: '
        sw = 10
        if (pe_size .lt. 1e1) then
@@ -297,12 +305,13 @@ contains
     call neko_rt_stats%report()
     call neko_rt_stats%free()
 
+    call neko_scratch_registry%free()
+
     if (present(C)) then
        call case_free(C)
     end if
 
     call neko_field_registry%free()
-    call neko_scratch_registry%free()
     call device_finalize
     call neko_mpi_types_free
     call comm_free

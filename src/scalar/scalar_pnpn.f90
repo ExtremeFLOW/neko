@@ -139,8 +139,8 @@ contains
   subroutine scalar_pnpn_init(this, msh, coef, gs, params, user, &
        ulag, vlag, wlag, time_scheme, rho)
     class(scalar_pnpn_t), target, intent(inout) :: this
-    type(mesh_t), target, intent(inout) :: msh
-    type(coef_t), target, intent(inout) :: coef
+    type(mesh_t), target, intent(in) :: msh
+    type(coef_t), target, intent(in) :: coef
     type(gs_t), target, intent(inout) :: gs
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
@@ -149,6 +149,7 @@ contains
     real(kind=rp), intent(in) :: rho
     integer :: i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
+    logical :: advection
 
     call this%free()
 
@@ -219,9 +220,11 @@ contains
     call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
 
     ! Initialize advection factory
+    call json_get_or_default(params, 'case.scalar.advection', advection, .true.)
     call advection_factory(this%adv, params, this%c_Xh, &
                            ulag, vlag, wlag, this%chkp%dtlag, &
-                           this%chkp%tlag, time_scheme, this%slag)
+                           this%chkp%tlag, time_scheme, .not. advection, &
+                           this%slag)
   end subroutine scalar_pnpn_init
 
   !> I envision the arguments to this func might need to be expanded
@@ -299,10 +302,10 @@ contains
 
   subroutine scalar_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
     class(scalar_pnpn_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: t
-    integer, intent(inout) :: tstep
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     real(kind=rp), intent(in) :: dt
-    type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    type(time_scheme_controller_t), intent(in) :: ext_bdf
     type(time_step_controller_t), intent(in) :: dt_controller
     ! Number of degrees of freedom
     integer :: n

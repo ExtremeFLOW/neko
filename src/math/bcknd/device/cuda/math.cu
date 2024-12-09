@@ -675,7 +675,7 @@ extern "C" {
 
   /**
    * Fortran wrapper absval
-   * Sum a vector of length n
+   * Take the abs value of a vector of length n
    */
   void cuda_absval(void *a, int *n) {
 

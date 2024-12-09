@@ -378,8 +378,9 @@ contains
     real(kind=rp), dimension(n) :: a
     real(kind=rp) :: tmp, glmax
     integer :: i, ierr
-    tmp = a(1)
-    do i = 2, n
+
+    tmp = -huge(0.0_rp)
+    do i = 1, n
        tmp = max(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glmax, 1, &
@@ -392,8 +393,9 @@ contains
     integer, dimension(n) :: a
     integer :: tmp, glimax
     integer :: i, ierr
-    tmp = a(1)
-    do i = 2, n
+
+    tmp = -huge(0)
+    do i = 1, n
        tmp = max(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glimax, 1, &
@@ -406,8 +408,9 @@ contains
     real(kind=rp), dimension(n) :: a
     real(kind=rp) :: tmp, glmin
     integer :: i, ierr
-    tmp = a(1)
-    do i = 2, n
+
+    tmp = huge(0.0_rp)
+    do i = 1, n
        tmp = min(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glmin, 1, &
@@ -420,8 +423,9 @@ contains
     integer, dimension(n) :: a
     integer :: tmp, glimin
     integer :: i, ierr
-    tmp = a(1)
-    do i = 2, n
+
+    tmp = huge(0)
+    do i = 1, n
        tmp = min(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glimin, 1, &

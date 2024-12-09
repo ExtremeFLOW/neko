@@ -42,6 +42,8 @@ extern "C" {
 
   void pnpn_prs_stress_res_part1_cuda(void *ta1, void *ta2, void *ta3,
                                       void *wa1, void *wa2, void *wa3,
+                                      void *s11, void *s22, void *s33,
+                                      void *s12, void *s13, void *s23,
                                       void *f_u, void *f_v, void *f_w,
                                       void *B, void *h1, void *rho, int *n) {
 
@@ -53,6 +55,9 @@ extern "C" {
       <<<nblcks, nthrds, 0, stream>>>((real *) ta1, (real *) ta2,
                                       (real *) ta3, (real *) wa1,
                                       (real *) wa2, (real *) wa3,
+                                      (real *) s11, (real *) s22,
+                                      (real *) s33, (real *) s12,
+                                      (real *) s13, (real *) s23,
                                       (real *) f_u, (real *) f_v,
                                       (real *) f_w, (real *) B,
                                       (real *) rho, *n);

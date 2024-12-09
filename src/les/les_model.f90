@@ -114,7 +114,7 @@ module les_model
      !! @param coef SEM coefficients.
      !! @param json A dictionary with parameters.
      module subroutine les_model_factory(object, type_name, dofmap, coef, json)
-       class(les_model_t), allocatable, target, intent(inout) :: object
+       class(les_model_t), allocatable, intent(inout) :: object
        character(len=*), intent(in) :: type_name
        type(dofmap_t), intent(in) :: dofmap
        type(coef_t), intent(in) :: coef

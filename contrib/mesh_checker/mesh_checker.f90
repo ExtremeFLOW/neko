@@ -38,8 +38,10 @@ program mesh_checker
   character(len=NEKO_FNAME_LEN) :: inputchar, mesh_fname
   type(file_t) :: mesh_file
   type(mesh_t) :: msh
-  integer :: argc, i, n_labeled
+  integer :: argc, i, n_labeled, ierr
   character(len=LOG_SIZE) :: log_buf
+  integer :: total_size, inlet_size, wall_size, periodic_size
+  integer :: outlet_size, symmetry_size, outlet_normal_size
 
   argc = command_argument_count()
 
@@ -59,6 +61,21 @@ program mesh_checker
 
   call mesh_file%read(msh)
 
+  call MPI_Allreduce(msh%inlet%size, inlet_size, 1, &
+       MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+  call MPI_Allreduce(msh%wall%size, wall_size, 1, &
+       MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+  call MPI_Allreduce(msh%outlet%size, outlet_size, 1, &
+       MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+  call MPI_Allreduce(msh%outlet_normal%size, outlet_normal_size, 1, &
+       MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+  call MPI_Allreduce(msh%sympln%size, symmetry_size, 1, &
+       MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+  call MPI_Allreduce(msh%periodic%size, periodic_size, 1, &
+       MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+
+  total_size = inlet_size + wall_size + outlet_size + outlet_normal_size &
+       + symmetry_size
 
   if (pe_rank .eq. 0) then
       write(*,*) ''
@@ -69,24 +86,31 @@ program mesh_checker
       write(*,*) 'Number of edges:    ', msh%glb_meds
       write(*,*) ''
       write(*,*) '--------------Zones------------'
-      write(*,*) 'Number of built-in inlet faces:         ', msh%inlet%size
-      write(*,*) 'Number of built-in wall faces:          ', msh%wall%size
-      write(*,*) 'Number of built-in outlet faces:        ', msh%outlet%size
-      write(*,*) 'Number of built-in outlet-normal faces: ', &
-           msh%outlet_normal%size
-      write(*,*) 'Number of built-in symmetry faces:      ', &
-            msh%sympln%size
-      write(*,*) 'Number of periodic faces:               ', msh%periodic%size
-
+      write(*,*) 'Number of built-in inlet faces:         ', inlet_size
+      write(*,*) 'Number of built-in wall faces:          ', wall_size
+      write(*,*) 'Number of built-in outlet faces:        ', outlet_size
+      write(*,*) 'Number of built-in outlet-normal faces: ', outlet_normal_size 
+      write(*,*) 'Number of built-in symmetry faces:      ', symmetry_size 
+      write(*,*) 'Number of periodic faces:               ', periodic_size
+      write(*,*) ''
+      if (total_size .gt. 0) then
+         write(*,*) 'WARNING: Your mesh contains non-periodic "built-in" zones,&
+              & which are deprecated. Your mesh must have been created natively& 
+              & by Nek5000, e.g. with genbox.'
+      end if
       write(*,*) 'Labeled zones: '
+  end if
+
       do i = 1, size(msh%labeled_zones) 
-         if (msh%labeled_zones(i)%size .gt. 0) then
-            write(*,'(A,I2,A,I0,A)') '    Zone ', i, ': ', &
-                 msh%labeled_zones(i)%size, ' faces'
+
+         call MPI_Allreduce(msh%labeled_zones(i)%size, total_size, 1, &
+              MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+         if (total_size .gt. 0 .and. pe_rank .eq. 0) then
+            write(*,'(A,I2,A,I0,A)') '    Zone ', i, ': ', total_size, &
+                 ' faces'
             
          end if
       end do
-  end if
 
   if (pe_rank .eq. 0) write(*,*) 'Done'
   call neko_finalize

@@ -12,7 +12,7 @@ check: device_test
 
 
 device_test_TESTS := device.pf
-device_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko @LDFLAGS@ @LIBS@
+device_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,device_test))
 
 

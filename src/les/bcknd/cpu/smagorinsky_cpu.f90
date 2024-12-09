@@ -82,12 +82,12 @@ contains
     ! Compute the strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
 
-    call coef%gs_h%op(s11%x, s11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(s22%x, s11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(s33%x, s11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(s12%x, s11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(s13%x, s11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(s23%x, s11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(s11, GS_OP_ADD)
+    call coef%gs_h%op(s22, GS_OP_ADD)
+    call coef%gs_h%op(s33, GS_OP_ADD)
+    call coef%gs_h%op(s12, GS_OP_ADD)
+    call coef%gs_h%op(s13, GS_OP_ADD)
+    call coef%gs_h%op(s23, GS_OP_ADD)
 
     do concurrent (i = 1:s11%dof%size())
        s11%x(i,1,1,1) = s11%x(i,1,1,1) * coef%mult(i,1,1,1)
