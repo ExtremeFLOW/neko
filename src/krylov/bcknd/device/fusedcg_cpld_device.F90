@@ -660,7 +660,7 @@ contains
 
     ksp_results%res_final = 0.0
     ksp_results%iter = 0
-    ksp_results%converged = this%is_converged(iter, rnorm)
+    ksp_results%converged = .false.
 
   end function fusedcg_cpld_device_solve
 

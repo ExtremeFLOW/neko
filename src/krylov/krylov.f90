@@ -344,7 +344,7 @@ contains
     class(ksp_t), intent(in) :: this
     integer, intent(in) :: iter
     real(kind=rp), intent(in) :: residual
-    logical, intent(out) :: converged
+    logical :: converged
 
     converged = .true.
     if (iter .ge. this%max_iter) converged = .false.
