@@ -96,7 +96,7 @@ module device_dynamic_smagorinsky_nut
           bind(c, name = 'hip_mij_compute_part1')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-       type(c_ptr) :: m11_d, m22_d, m33_d, &
+       type(c_ptr), value :: m11_d, m22_d, m33_d, &
                    m12_d, m13_d, m23_d, &
                    s_abs_d, s11_d, s22_d, s33_d, &
                    s12_d, s13_d, s23_d, &
@@ -120,7 +120,7 @@ module device_dynamic_smagorinsky_nut
           bind(c, name = 'hip_mij_nut_compute_part2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-       type(c_ptr) :: m11_d, m22_d, m33_d, &
+       type(c_ptr), value :: m11_d, m22_d, m33_d, &
                    m12_d, m13_d, m23_d, &
                    l11_d, l22_d, l33_d, &
                    l12_d, l13_d, l23_d, &
@@ -187,7 +187,7 @@ module device_dynamic_smagorinsky_nut
           bind(c, name = 'cuda_mij_compute_part1')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-       type(c_ptr) :: m11_d, m22_d, m33_d, &
+       type(c_ptr), value :: m11_d, m22_d, m33_d, &
                    m12_d, m13_d, m23_d, &
                    s_abs_d, s11_d, s22_d, s33_d, &
                    s12_d, s13_d, s23_d, &
@@ -211,7 +211,7 @@ module device_dynamic_smagorinsky_nut
           bind(c, name = 'cuda_mij_nut_compute_part2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-       type(c_ptr) :: m11_d, m22_d, m33_d, &
+       type(c_ptr), value :: m11_d, m22_d, m33_d, &
                    m12_d, m13_d, m23_d, &
                    l11_d, l22_d, l33_d, &
                    l12_d, l13_d, l23_d, &
