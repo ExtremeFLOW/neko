@@ -89,6 +89,8 @@ module krylov
      procedure, pass(this) :: monitor_stop => krylov_monitor_stop
      !> Monitor iteration
      procedure, pass(this) :: monitor_iter => krylov_monitor_iter
+!> Check for convergence
+     procedure, pass(this) :: is_converged => krylov_is_converged
      !> Destructor.
      procedure(ksp_t_free), pass(this), deferred :: free
   end type ksp_t
@@ -329,5 +331,24 @@ contains
     end if
     
   end subroutine krylov_monitor_iter
+
+  !> Check for convergence
+  !!
+  !! This function checks if the Krylov solver has converged.
+  !! The solver is considered converged if the residual is less than the
+  !! absolute tolerance.
+  !!
+  !! @param residual Residual
+  !! @param iter Iteration number
+  pure function krylov_is_converged(this, iter, residual) result(converged)
+    class(ksp_t), intent(in) :: this
+    real(kind=rp), intent(in) :: residual
+    logical, intent(out) :: converged
+
+    converged = .true.
+    if (iter .ge. this%max_iter) converged = .false.
+    if (residual .gt. this%abs_tol) converged = .false.
+
+  end function krylov_is_converged
 
 end module krylov
