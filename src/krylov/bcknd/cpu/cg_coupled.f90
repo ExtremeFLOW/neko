@@ -325,7 +325,7 @@ contains
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
-    ksp_results%converged = iter .lt. max_iter .and. rnorm .lt. this%abs_tol
+    ksp_results%converged = this%is_converged(iter, rnorm)
   end function cg_cpld_solve
 
 end module cg_cpld

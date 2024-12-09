@@ -289,7 +289,7 @@ contains
 
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
-      ksp_results%converged = .true.
+      ksp_results%converged = this%is_converged(iter, rnorm)
     end associate
   end function cheby_device_solve
 
