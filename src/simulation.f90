@@ -64,6 +64,7 @@ contains
     ! for variable_tsteping
     real(kind=rp) :: cfl_avrg = 0.0_rp
     type(time_step_controller_t) :: dt_controller
+    real(kind=rp) :: rho, mu, cp, lambda
 
     t = 0d0
     tstep = 0
@@ -149,6 +150,10 @@ contains
           write(log_buf, '(A,E15.7)') &
             'Total elapsed time (s):', end_time-start_time_org
           call neko_log%end_section(log_buf)
+
+          !> @todo Temporary fix until we have reworked the material properties
+          cp = C%scalar%cp
+          lambda = C%scalar%lambda
        end if
 
        call neko_log%section('Postprocessing')
@@ -157,12 +162,23 @@ contains
 
        call C%output_controller%execute(t, tstep)
 
+       !> @todo Temporary fix until we have reworked the material properties
+       rho = C%fluid%rho
+       mu = C%fluid%mu
+
        ! Update material properties
-       call C%usr%material_properties(t, tstep, C%fluid%rho,&
-                                      C%fluid%mu, &
-                                      C%scalar%cp, &
-                                      C%scalar%lambda, &
-                                      C%params)
+       call C%usr%material_properties(t, tstep, rho, mu, cp, lambda, C%params)
+
+       !> @todo Temporary fix until we have reworked the material properties
+       C%fluid%rho = rho
+       C%fluid%mu = mu
+       call C%fluid%update_material_properties()
+       
+       if (allocated(C%scalar)) then
+          C%scalar%cp = cp
+          C%scalar%lambda = lambda
+          call C%scalar%update_material_properties()
+       end if
 
        call C%usr%user_check(t, tstep, C%fluid%u, C%fluid%v, C%fluid%w, &
                              C%fluid%p, C%fluid%c_Xh, C%params)

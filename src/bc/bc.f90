@@ -107,6 +107,9 @@ module bc
      integer :: n
      !> Capacity.
      integer :: size
+   contains
+     procedure, public, pass(this) :: get_size => bc_list_size
+     procedure, public, pass(this) :: is_empty => bc_list_is_empty
   end type bc_list_t
 
   abstract interface
@@ -277,7 +280,7 @@ contains
   !! @param bc_zone Boundary zone to be marked.
   subroutine bc_mark_zone(this, bc_zone)
     class(bc_t), intent(inout) :: this
-    class(facet_zone_t), intent(inout) :: bc_zone
+    class(facet_zone_t), intent(in) :: bc_zone
     integer :: i
     do i = 1, bc_zone%size
        call this%marked_facet%push(bc_zone%facet_el(i))
@@ -292,7 +295,7 @@ contains
   !! @param bc_label List of boundary condition labels.
   subroutine bc_mark_zones_from_list(this, bc_zones, bc_key, bc_labels)
     class(bc_t), intent(inout) :: this
-    class(facet_zone_t), intent(inout) :: bc_zones(:)
+    class(facet_zone_t), intent(in) :: bc_zones(:)
     character(len=*) :: bc_key
     character(len=100), allocatable :: split_key(:)
     character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_labels(:)
@@ -499,6 +502,36 @@ contains
 
   end subroutine bc_list_free
 
+  !> Return number of bcs in the list
+  function bc_list_size(this) result(n)
+    class(bc_list_t), intent(inout) :: this
+    integer :: n
+
+    n = this%n
+
+  end function bc_list_size
+  
+  !> Check if bclist is empty (even if someone has tampered with it)
+  function bc_list_is_empty(this) result(is_empty)
+    class(bc_list_t), intent(inout) :: this
+    logical :: is_empty
+    integer :: i
+    
+    is_empty = .true. 
+    do i = 1, this%get_size()
+
+       if (.not. allocated(this%bc(i)%bcp%msk)) then
+          call neko_error("bc not finalized, error in bc_list_is_empty")
+       end if
+
+       if (this%bc(i)%bcp%msk(0) > 0) is_empty = .false.
+    
+    end do
+
+  end function bc_list_is_empty
+
+
+
   !> Add a condition to a list of boundary conditions
   !! @param bc The boundary condition to add.
   subroutine bc_list_add(bclst, bc)
@@ -527,7 +560,7 @@ contains
   !! @param t Current time.
   !! @param tstep Current time-step.
   subroutine bc_list_apply_scalar(bclst, x, n, t, tstep)
-    type(bc_list_t), intent(inout) :: bclst
+    type(bc_list_t), intent(in) :: bclst
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
@@ -584,7 +617,7 @@ contains
   !! @param t Current time.
   !! @param tstep Current time-step.
   subroutine bc_list_apply_vector(bclst, x, y, z, n, t, tstep)
-    type(bc_list_t), intent(inout) :: bclst
+    type(bc_list_t), intent(in) :: bclst
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(inout),  dimension(n) :: y

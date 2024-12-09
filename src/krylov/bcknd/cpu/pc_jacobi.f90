@@ -58,8 +58,8 @@ contains
 
   subroutine jacobi_init(this, coef, dof, gs_h)
     class(jacobi_t), intent(inout) :: this
-    type(coef_t), intent(inout), target :: coef
-    type(dofmap_t), intent(inout), target :: dof
+    type(coef_t), intent(in), target :: coef
+    type(dofmap_t), intent(in), target :: dof
     type(gs_t), intent(inout), target :: gs_h
 
     call this%free()

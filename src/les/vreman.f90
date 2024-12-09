@@ -42,6 +42,7 @@ module vreman
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
   use vreman_cpu, only : vreman_compute_cpu
+  use vreman_device, only : vreman_compute_device
   use coefs, only : coef_t
   implicit none
   private
@@ -123,7 +124,8 @@ contains
     integer, intent(in) :: tstep
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call neko_error("Vreman model not implemented on accelarators.")
+        call vreman_compute_device(t, tstep, this%coef, this%nut, this%delta,&
+                                this%c)
     else
         call vreman_compute_cpu(t, tstep, this%coef, this%nut, this%delta,&
                                 this%c)

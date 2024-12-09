@@ -12,7 +12,7 @@ check: bc_test
 
 
 bc_test_TESTS := bc.pf
-bc_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
+bc_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko
 $(eval $(call make_pfunit_test,bc_test))
 
 

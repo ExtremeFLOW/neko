@@ -66,7 +66,7 @@ rules. The linting rules are enforced by the
 
 Please note, newer versions of flint fails to execute for some of our large files (htable.f90 and stack.f90).
 
-One way to install flint is thorugh pip:
+One way to install flint is through pip:
 ```sh
 pip install nobvisual==0.2.0 flinter==0.4.0
 ```
@@ -116,8 +116,8 @@ However, there are some exceptions to these rules:
 - Spaces after the comma in a list of arguments or array indices may be omitted
   for single letter variable names and 2 digit numbers. For example, `foo(a,b)`
   and `foo(a,10)` are allowed, but `foo(a,bb)` and `foo(a,100)` are not.
-- Spaces after the comma is not required in format specifiers.
-- Spaces around the `=` operator is not required in type declarations.
+- Spaces after the comma are not required in format specifiers.
+- Spaces around the `=` operator are not required in type declarations.
 
 ## Tools
 
@@ -126,7 +126,7 @@ In order to simplify compliance to the indentation rules the
 rules by assigning the following options. The documentation of `findent` provide
 details for emacs, vim and gedit. For VSCode, the [Modern
 Fortran](https://marketplace.visualstudio.com/items?itemName=fortran-lang.linter-gfortran)
-extension provide an integration.
+extension provides an integration.
 
 ```sh
 findent -Rr -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k5 --ws_remred --openmp=0 < input.f90 > formatted.f90

@@ -88,7 +88,7 @@ module schwarz
      type(fdm_t) :: fdm
      type(space_t), pointer :: Xh
      type(bc_list_t), pointer :: bclst
-     type(dofmap_t), pointer :: dm
+     type(dofmap_t), pointer :: dof
      type(gs_t), pointer :: gs_h
      type(mesh_t), pointer :: msh
      type(c_ptr) :: event
@@ -100,10 +100,10 @@ module schwarz
 
 contains
 
-  subroutine schwarz_init(this, Xh, dm, gs_h, bclst, msh)
+  subroutine schwarz_init(this, Xh, dof, gs_h, bclst, msh)
     class(schwarz_t), target, intent(inout) :: this
     type(space_t), target, intent(inout) :: Xh
-    type(dofmap_t), target, intent(inout) :: dm
+    type(dofmap_t), target, intent(in) :: dof
     type(gs_t), target, intent(inout) :: gs_h
     type(mesh_t), target, intent(inout) :: msh
     type(bc_list_t), target, intent(inout):: bclst
@@ -118,13 +118,13 @@ contains
     allocate(this%work2(this%dm_schwarz%size()))
     allocate(this%wt(Xh%lx, Xh%lx, 4, msh%gdim, msh%nelv))
 
-    call this%fdm%init(Xh, dm, gs_h)
+    call this%fdm%init(Xh, dof, gs_h)
 
 
     this%msh => msh
     this%Xh => Xh
     this%bclst => bclst
-    this%dm => dm
+    this%dof => dof
     this%gs_h => gs_h
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(this%work1, this%work1_d,this%dm_schwarz%size())
@@ -134,10 +134,10 @@ contains
 
     call schwarz_setup_wt(this)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_alloc(this%wt_d,int(this%dm%size()*rp, i8))
-       call rone(this%work1, this%dm%size())
+       call device_alloc(this%wt_d,int(this%dof%size()*rp, i8))
+       call rone(this%work1, this%dof%size())
        call schwarz_wt3d(this%work1, this%wt, Xh%lx, msh%nelv)
-       call device_memcpy(this%work1, this%wt_d, this%dm%size(), &
+       call device_memcpy(this%work1, this%wt_d, this%dof%size(), &
                           HOST_TO_DEVICE, sync=.false.)
        call device_event_create(this%event, 2)
     end if
@@ -158,7 +158,7 @@ contains
 
     nullify(this%Xh)
     nullify(this%bclst)
-    nullify(this%dm)
+    nullify(this%dof)
     nullify(this%gs_h)
     nullify(this%msh)
   end subroutine schwarz_free
@@ -171,7 +171,7 @@ contains
     associate(work1 => this%work1, work2 => this%work2, msh => this%msh, &
          Xh => this%Xh, Xh_schwarz => this%Xh_schwarz)
 
-      n  = this%dm%size()
+      n  = this%dof%size()
 
       enx = Xh_schwarz%lx
       eny = Xh_schwarz%ly
@@ -377,7 +377,7 @@ contains
 
   subroutine schwarz_compute(this, e, r)
     class(schwarz_t), intent(inout) :: this
-    real(kind=rp), dimension(this%dm%size()), intent(inout) :: e, r
+    real(kind=rp), dimension(this%dof%size()), intent(inout) :: e, r
     integer :: n, enx, eny, enz, ns
     real(kind=rp), parameter :: zero = 0.0_rp
     real(kind=rp), parameter :: one = 1.0_rp
@@ -385,7 +385,7 @@ contains
     associate(work1 => this%work1, work1_d => this%work1_d,&
               work2 => this%work2, work2_d => this%work2_d)
 
-      n  = this%dm%size()
+      n  = this%dof%size()
       enx=this%Xh_schwarz%lx
       eny=this%Xh_schwarz%ly
       enz=this%Xh_schwarz%lz

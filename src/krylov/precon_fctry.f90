@@ -51,7 +51,7 @@ contains
 
   !> Create a preconditioner
   module subroutine precon_factory(pc, type_name)
-    class(pc_t), target, allocatable, intent(inout) :: pc
+    class(pc_t), allocatable, intent(inout) :: pc
     character(len=*), intent(in) :: type_name
     character(len=:), allocatable :: type_string
 

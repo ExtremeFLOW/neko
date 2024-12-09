@@ -55,7 +55,7 @@ contains
   !! @param json A dictionary with parameters.
   module subroutine wall_model_factory(object, coef, msk, facet, nu, &
        json)
-    class(wall_model_t), allocatable, target, intent(inout) :: object
+    class(wall_model_t), allocatable, intent(inout) :: object
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)

@@ -104,7 +104,7 @@ contains
 
   subroutine fluid_vol_flow_init(this, dm_Xh, params)
     class(fluid_volflow_t), intent(inout) :: this
-    type(dofmap_t), target, intent(inout) :: dm_Xh
+    type(dofmap_t), target, intent(in) :: dm_Xh
     type(json_file), intent(inout) :: params
     logical average
     integer :: direction
@@ -156,14 +156,14 @@ contains
     type(field_t), intent(inout) :: u_res, v_res, w_res, p_res
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
-    type(time_scheme_controller_t), intent(inout) :: ext_bdf
-    type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
-    type(bc_list_t), intent(inout) :: bclst_vel_res
-    class(ax_t), intent(inout) :: Ax_vel
-    class(ax_t), intent(inout) :: Ax_prs
+    type(time_scheme_controller_t), intent(in) :: ext_bdf
+    type(bc_list_t), intent(in) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
+    type(bc_list_t), intent(in) :: bclst_vel_res
+    class(ax_t), intent(in) :: Ax_vel
+    class(ax_t), intent(in) :: Ax_prs
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
     class(pc_t), intent(inout) :: pc_prs, pc_vel
-    real(kind=rp), intent(inout) :: bd
+    real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: rho, mu, dt
     integer, intent(in) :: vel_max_iter, prs_max_iter
     integer :: n, i
@@ -289,7 +289,7 @@ contains
       call pc_vel%update()
 
       ksp_results(2:4) = ksp_vel%solve_coupled(Ax_vel, &
-           u_vol, v_vol, u_vol,  &
+           u_vol, v_vol, w_vol,  &
            u_res%x, v_res%x, w_res%x, &
            n, c_Xh, &
            bclst_du, bclst_dv, bclst_dw, &
@@ -347,12 +347,12 @@ contains
     type(field_t), intent(inout) :: u_res, v_res, w_res, p_res
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
-    type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    type(time_scheme_controller_t), intent(in) :: ext_bdf
     real(kind=rp), intent(in) :: rho, mu, dt
-    type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
-    type(bc_list_t), intent(inout) :: bclst_vel_res
-    class(ax_t), intent(inout) :: Ax_vel
-    class(ax_t), intent(inout) :: Ax_prs
+    type(bc_list_t), intent(in) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
+    type(bc_list_t), intent(in) :: bclst_vel_res
+    class(ax_t), intent(in) :: Ax_vel
+    class(ax_t), intent(in) :: Ax_prs
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
     class(pc_t), intent(inout) :: pc_prs, pc_vel
     integer, intent(in) :: prs_max_iter, vel_max_iter

@@ -12,7 +12,7 @@ check: tuple_test
 
 
 tuple_test_TESTS := tuple.pf
-tuple_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
+tuple_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko
 $(eval $(call make_pfunit_test,tuple_test))
 
 
