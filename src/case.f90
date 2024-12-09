@@ -34,8 +34,8 @@
 module case
   use num_types, only : rp, sp, dp
   use fluid_pnpn, only : fluid_pnpn_t
-  use fluid_scheme, only : fluid_scheme_t, fluid_scheme_factory
-  use fluid_scheme_base, only: fluid_scheme_base_t
+  use fluid_scheme, only : fluid_scheme_t
+  use fluid_scheme_base, only: fluid_scheme_base_t, fluid_scheme_base_factory
   use fluid_output, only : fluid_output_t
   use chkp_output, only : chkp_output_t
   use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
@@ -212,7 +212,7 @@ contains
     ! Setup fluid scheme
     !
     call json_get(this%params, 'case.fluid.scheme', string_val)
-    call fluid_scheme_factory(this%fluid, trim(string_val))
+    call fluid_scheme_base_factory(this%fluid, trim(string_val))
 
     call json_get(this%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get number of gll points
@@ -334,6 +334,8 @@ contains
        call this%scalar%validate
     end if
 
+    call neko_log%message('AAAAAAAAAAAAAAAA')
+
     !
     ! Get and process output directory
     !
@@ -350,6 +352,8 @@ contains
        end if
     end if
 
+    call neko_log%message('BBBBBBBBBBBBBBBBBBBB')
+
     !
     ! Save boundary markings for fluid (if requested)
     !
@@ -359,6 +363,8 @@ contains
        bdry_file = file_t(trim(this%output_directory)//'bdry.fld')
        call bdry_file%write(this%fluid%bdry)
     end if
+
+    call neko_log%message('CCCCCCCCCCCCCCCCCCCC')
 
     !
     ! Save mesh partitions (if requested)
@@ -373,6 +379,8 @@ contains
        call mesh_field_free(msh_part)
     end if
 
+    call neko_log%message('DDDDDDDDDDDDDDDDDDDDD')
+
     !
     ! Setup output precision of the field files
     !
@@ -384,6 +392,8 @@ contains
     else
        precision = sp
     end if
+
+    call neko_log%message('EEEEEEEEEEEEEEEEEEEE')
 
     !
     ! Setup output_controller

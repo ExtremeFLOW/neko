@@ -237,5 +237,13 @@ module fluid_scheme_base
      end function fluid_scheme_base_compute_cfl_intrf
   end interface
 
-  public :: fluid_scheme_base_t
+  interface
+     !> Initialise a fluid scheme
+     module subroutine fluid_scheme_base_factory(object, type_name)
+       class(fluid_scheme_base_t), intent(inout), allocatable :: object
+       character(len=*) :: type_name
+     end subroutine fluid_scheme_base_factory
+  end interface
+
+  public :: fluid_scheme_base_t, fluid_scheme_base_factory
 end module fluid_scheme_base

@@ -37,7 +37,7 @@ contains
   subroutine fluid_scheme_compressible_euler_free(this)
     class(fluid_scheme_compressible_euler_t), intent(inout) :: this
 
-    call this%scheme_free()
+    ! call this%scheme_free()
   end subroutine fluid_scheme_compressible_euler_free
 
   !> Advance fluid simulation in time.

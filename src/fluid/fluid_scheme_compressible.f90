@@ -1,12 +1,15 @@
 module fluid_scheme_compressible
   use dirichlet, only : dirichlet_t
   use field, only : field_t
+  use field_math, only : field_cfill
   use field_registry, only : neko_field_registry
   use fluid_scheme_base, only : fluid_scheme_base_t
   use json_module, only : json_file
   use logger, only : LOG_SIZE
   use num_types, only : rp
   use mesh, only : mesh_t
+  use scratch_registry, only : scratch_registry_t
+  use space, only : space_t, GLL
   use user_intf, only : user_t
   use usr_inflow, only : usr_inflow_eval
 
@@ -17,6 +20,8 @@ module fluid_scheme_compressible
      type(field_t), pointer :: m_y => null()    !< y-component of Momentum
      type(field_t), pointer :: m_z => null()    !< z-component of Momentum
      type(field_t), pointer :: E => null()    !< Total energy
+
+     type(scratch_registry_t) :: scratch       !< Manager for temporary fields
 
    contains
      !> Constructors
@@ -47,6 +52,30 @@ contains
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
 
+    !
+    ! SEM simulation fundamentals
+    !
+
+    this%msh => msh
+
+    if (msh%gdim .eq. 2) then
+       call this%Xh%init(GLL, lx, lx)
+    else
+       call this%Xh%init(GLL, lx, lx, lx)
+    end if
+
+    call this%dm_Xh%init(msh, this%Xh)
+
+    call this%gs_Xh%init(this%dm_Xh)
+
+    call this%c_Xh%init(this%gs_Xh)
+
+    ! Local scratch registry
+    this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
+
+    ! Case parameters
+    this%params => params
+
     ! Fill mu and rho field with the physical value
     call this%mu_field%init(this%dm_Xh, "mu")
     call this%rho_field%init(this%dm_Xh, "rho")
@@ -69,7 +98,7 @@ contains
     this%E => neko_field_registry%get_field("E")
     call this%E%init(this%dm_Xh, "E")
 
-    ! Assign velocity fields
+    ! ! Assign velocity fields
     call neko_field_registry%add_field(this%dm_Xh, "u")
     call neko_field_registry%add_field(this%dm_Xh, "v")
     call neko_field_registry%add_field(this%dm_Xh, "w")
@@ -79,8 +108,11 @@ contains
     call this%u%init(this%dm_Xh, "u")
     call this%v%init(this%dm_Xh, "v")
     call this%w%init(this%dm_Xh, "w")
+    call neko_field_registry%add_field(this%dm_Xh, 'p')
+    this%p => neko_field_registry%get_field('p')
+    call this%p%init(this%dm_Xh, "p")
 
-    !! Initialize time-lag fields
+    ! !! Initialize time-lag fields
     call this%ulag%init(this%u, 1)
     call this%vlag%init(this%v, 1)
     call this%wlag%init(this%w, 1)

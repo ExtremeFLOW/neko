@@ -33,11 +33,12 @@
 !> Factory for all fluid schemes
 submodule (fluid_scheme_base) fluid_base_fctry
   use fluid_pnpn, only : fluid_pnpn_t
+  use fluid_scheme_compressible_euler, only : fluid_scheme_compressible_euler_t
   use utils, only : concat_string_array
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: FLUID_KNOWN_TYPES(1) = [character(len=20) :: &
-     "pnpn"]
+  character(len=20) :: FLUID_KNOWN_TYPES(2) = [character(len=20) :: &
+     "pnpn", "compressible"]
 
 contains
 
@@ -48,7 +49,9 @@ contains
     character(len=:), allocatable :: type_string
 
     if (trim(type_name) .eq. 'pnpn') then
-       !allocate(fluid_pnpn_t::object)
+       allocate(fluid_pnpn_t::object)
+    else if (trim(type_name) .eq. 'compressible') then
+       allocate(fluid_scheme_compressible_euler_t::object)
     else
        type_string = concat_string_array(FLUID_KNOWN_TYPES, &
             NEW_LINE('A') // "-  ", .true.)
