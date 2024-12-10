@@ -91,7 +91,7 @@ module rhs_maker
        import rp
        type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
        type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
-       real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
+       real(kind=rp), intent(in) :: rho, ext_coeffs(4)
        integer, intent(in) :: n
        real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
      end subroutine rhs_maker_ext
@@ -104,7 +104,7 @@ module rhs_maker
        import rp
        type(field_t), intent(inout) :: fs_lag
        type(field_t), intent(inout) :: fs_laglag
-       real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
+       real(kind=rp), intent(in) :: rho, ext_coeffs(4)
        integer, intent(in) :: n
        real(kind=rp), intent(inout) :: fs(n)
      end subroutine scalar_rhs_maker_ext

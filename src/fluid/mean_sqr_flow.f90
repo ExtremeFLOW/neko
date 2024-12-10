@@ -52,10 +52,10 @@ contains
   !> Initialize a mean squared flow field
   subroutine mean_sqr_flow_init(this, u, v, w, p)
     class(mean_sqr_flow_t), intent(inout) :: this
-    type(field_t), intent(inout) :: u
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(inout) :: w
-    type(field_t), intent(inout) :: p
+    type(field_t), intent(in) :: u
+    type(field_t), intent(in) :: v
+    type(field_t), intent(in) :: w
+    type(field_t), intent(in) :: p
 
     call this%free()
 

@@ -37,14 +37,16 @@ submodule (precon) precon_fctry
   use sx_jacobi, only : sx_jacobi_t
   use device_jacobi, only : device_jacobi_t
   use hsmg, only : hsmg_t
+  use phmg, only : phmg_t
   use utils, only : concat_string_array, neko_error
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: PC_KNOWN_TYPES(3) = [character(len=20) :: &
+  character(len=20) :: PC_KNOWN_TYPES(4) = [character(len=20) :: &
      "jacobi", &
      "hsmg", &
+     "phmg", &
      "ident"]
 
 contains
@@ -70,6 +72,8 @@ contains
        end if
     else if (type_name(1:4) .eq. 'hsmg') then
        allocate(hsmg_t::pc)
+    else if (type_name(1:4) .eq. 'phmg') then
+       allocate(phmg_t::pc)
     else if(trim(type_name) .eq. 'ident') then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           allocate(device_ident_t::pc)
@@ -99,6 +103,8 @@ contains
        type is (device_jacobi_t)
           call pcp%free()
        type is (hsmg_t)
+          call pcp%free()
+       type is (phmg_t)
           call pcp%free()
        end select
     end if

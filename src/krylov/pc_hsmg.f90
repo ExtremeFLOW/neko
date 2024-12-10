@@ -84,6 +84,7 @@ module hsmg
   use mesh, only : mesh_t
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory, krylov_solver_destroy
+  use tree_amg_multigrid, only : tamg_solver_t 
   !$ use omp_lib
   implicit none
   private
@@ -113,6 +114,7 @@ module hsmg
      type(field_t) :: e, e_mg, e_crs !< Solve fields
      type(field_t) :: wf !< Work fields
      class(ksp_t), allocatable :: crs_solver !< Solver for course problem
+     type(tamg_solver_t), allocatable :: amg_solver
      integer :: niter = 10 !< Number of iter of crs sovlve
      class(pc_t), allocatable :: pc_crs !< Some basic precon for crs
      class(ax_t), allocatable :: ax !< Matrix for crs solve
@@ -138,8 +140,8 @@ contains
     class(hsmg_t), intent(inout), target :: this
     type(mesh_t), intent(inout), target :: msh
     type(space_t), intent(inout), target :: Xh
-    type(coef_t), intent(inout), target :: coef
-    type(dofmap_t), intent(inout), target :: dof
+    type(coef_t), intent(in), target :: coef
+    type(dofmap_t), intent(in), target :: dof
     type(gs_t), intent(inout), target :: gs_h
     type(bc_list_t), intent(inout), target :: bclst
     character(len=*), optional :: crs_pctype
@@ -190,15 +192,6 @@ contains
     ! Create a backend specific preconditioner
     call precon_factory(this%pc_crs, 'jacobi')
 
-    ! Create a backend specific krylov solver
-    if (present(crs_pctype)) then
-       call krylov_solver_factory(this%crs_solver, &
-            this%dm_crs%size(), trim(crs_pctype), KSP_MAX_ITER, M = this%pc_crs)
-    else
-       call krylov_solver_factory(this%crs_solver, &
-            this%dm_crs%size(), 'cg', KSP_MAX_ITER, M = this%pc_crs)
-    end if
-
     call this%bc_crs%init_base(this%c_crs)
     call this%bc_mg%init_base(this%c_mg)
     call this%bc_reg%init_base(coef)
@@ -218,7 +211,6 @@ contains
     call this%bc_crs%set_g(real(0d0, rp))
     call bc_list_init(this%bclst_crs)
     call bc_list_add(this%bclst_crs, this%bc_crs)
-
 
     call this%bc_mg%finalize()
     call this%bc_mg%set_g(0.0_rp)
@@ -258,6 +250,25 @@ contains
     
     call device_event_create(this%hsmg_event, 2)
     call device_event_create(this%gs_event, 2)
+
+    ! Create a backend specific krylov solver
+    if (present(crs_pctype)) then
+       if (trim(crs_pctype) .eq. 'tamg') then
+          allocate(this%amg_solver)
+          call this%amg_solver%init(this%ax, this%grids(1)%e%Xh, this%grids(1)%coef, this%msh, this%grids(1)%gs_h, 4, &
+               this%grids(1)%bclst, 1)
+       else
+          call krylov_solver_factory(this%crs_solver, &            
+               this%dm_crs%size(), trim(crs_pctype), KSP_MAX_ITER, M = this%pc_crs)
+       end if
+    else
+       call krylov_solver_factory(this%crs_solver, &
+            this%dm_crs%size(), 'cg', KSP_MAX_ITER, M = this%pc_crs)
+    end if
+
+
+
+
   end subroutine hsmg_init
 
   subroutine hsmg_set_h(this)
@@ -454,13 +465,19 @@ contains
        call this%grids(1)%gs_h%op(this%r, this%grids(1)%dof%size(), GS_OP_ADD)
        call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
                                  this%grids(1)%dof%size())
+
        call profiler_start_region('HSMG_coarse-solve', 11)
-       crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
-                                    this%grids(1)%dof%size(), &
-                                    this%grids(1)%coef, &
-                                    this%grids(1)%bclst, &
-                                    this%grids(1)%gs_h, this%niter)
+       if (allocated(this%amg_solver)) then
+          call this%amg_solver%solve(this%grids(1)%e%x, this%r, this%grids(1)%dof%size())
+       else
+          crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
+                                           this%grids(1)%dof%size(), &
+                                           this%grids(1)%coef, &
+                                           this%grids(1)%bclst, &
+                                           this%grids(1)%gs_h, this%niter)
+       end if
        call profiler_end_region('HSMG_coarse-solve', 11)
+
        call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
                                  this%grids(1)%dof%size())
 
