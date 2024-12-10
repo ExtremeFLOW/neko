@@ -517,6 +517,7 @@ The following keywords are used, with the corresponding options.
   - `jacobi`, a Jacobi preconditioner. Typically used for velocity.
   - `hsmg`, a hybrid-Schwarz multigrid preconditioner. Typically used for
     pressure.
+  - `phmg`, a hybrid ph multigrid preconditioner. Typically used for pressure.
   - `ident`, an identity matrix (no preconditioner).
 * `absolute_tolerance`, tolerance criterion for convergence.
 * `max_iterations`, maximum number of iterations before giving up.
