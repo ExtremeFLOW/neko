@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module device_sigma_nut
+module device_smagorinsky_nut
   use, intrinsic :: iso_c_binding, only: c_ptr, c_int
   use num_types, only: rp, c_rp
   use utils, only: neko_error
@@ -42,72 +42,64 @@ module device_sigma_nut
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_sigma_nut_compute(g11_d, g12_d, g13_d, &
-                                      g21_d, g22_d, g23_d, &
-                                      g31_d, g32_d, g33_d, &
-                                      delta_d, nut_d, mult_d, c, eps, n) &
-          bind(c, name = 'hip_sigma_nut_compute')
+     subroutine hip_smagorinsky_nut_compute(s11_d, s22_d, s33_d, &
+                              s12_d, s13_d, s23_d, &
+                              delta_d, nut_d, mult_d, c_s, n) &
+          bind(c, name = 'hip_smagorinsky_nut_compute')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-       type(c_ptr), value :: g11_d, g12_d, g13_d, &
-                             g21_d, g22_d, g23_d, &
-                             g31_d, g32_d, g33_d, &
+       type(c_ptr), value :: s11_d, s22_d, s33_d, &
+                             s12_d, s13_d, s23_d, &
                              delta_d, nut_d, mult_d
        integer(c_int) :: n
-       real(c_rp) :: c, eps
-     end subroutine hip_sigma_nut_compute
+       real(c_rp) :: c_s
+     end subroutine hip_smagorinsky_nut_compute
   end interface
 #elif HAVE_CUDA
   interface
-     subroutine cuda_sigma_nut_compute(g11_d, g12_d, g13_d, &
-                                      g21_d, g22_d, g23_d, &
-                                      g31_d, g32_d, g33_d, &
-                                      delta_d, nut_d, mult_d, c, eps, n) &
-          bind(c, name = 'cuda_sigma_nut_compute')
+     subroutine cuda_smagorinsky_nut_compute(s11_d, s22_d, s33_d, &
+                              s12_d, s13_d, s23_d, &
+                              delta_d, nut_d, mult_d, c_s, n) &
+          bind(c, name = 'cuda_smagorinsky_nut_compute')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-       type(c_ptr), value :: g11_d, g12_d, g13_d, &
-                             g21_d, g22_d, g23_d, &
-                             g31_d, g32_d, g33_d, &
+       type(c_ptr), value :: s11_d, s22_d, s33_d, &
+                             s12_d, s13_d, s23_d, &
                              delta_d, nut_d, mult_d
        integer(c_int) :: n
-       real(c_rp) :: c, eps
-     end subroutine cuda_sigma_nut_compute
+       real(c_rp) :: c_s
+     end subroutine cuda_smagorinsky_nut_compute
   end interface
 #elif HAVE_OPENCL
 #endif
 
-  public :: device_sigma_nut_compute
+  public :: device_smagorinsky_nut_compute
 
 contains
 
   !> Compute the eddy viscosity field for the Sigma model indevice
-  subroutine device_sigma_nut_compute(g11_d, g12_d, g13_d, &
-                              g21_d, g22_d, g23_d, &
-                              g31_d, g32_d, g33_d, &
-                              delta_d, nut_d, mult_d, c, eps, n)
-    type(c_ptr) :: g11_d, g12_d, g13_d, &
-                   g21_d, g22_d, g23_d, &
-                   g31_d, g32_d, g33_d, &
+  subroutine device_smagorinsky_nut_compute(s11_d, s22_d, s33_d, &
+                              s12_d, s13_d, s23_d, &
+                              delta_d, nut_d, mult_d, c_s, n)
+    type(c_ptr) :: s11_d, s22_d, s33_d, &
+                   s12_d, s13_d, s23_d, &
                    delta_d, nut_d, mult_d
     integer :: n
-    real(kind=rp) :: c, eps
+    real(kind=rp) :: c_s
 #if HAVE_HIP
-    call hip_sigma_nut_compute(g11_d, g12_d, g13_d, &
-                              g21_d, g22_d, g23_d, &
-                              g31_d, g32_d, g33_d, &
-                              delta_d, nut_d, mult_d, c, eps, n)
+    call hip_smagorinsky_nut_compute(s11_d, s22_d, s33_d, &
+                              s12_d, s13_d, s23_d, &
+                              delta_d, nut_d, mult_d, c_s, n)
 #elif HAVE_CUDA
-    call cuda_sigma_nut_compute(g11_d, g12_d, g13_d, &
-                              g21_d, g22_d, g23_d, &
-                              g31_d, g32_d, g33_d, &
-                              delta_d, nut_d, mult_d, c, eps, n)
+    call cuda_smagorinsky_nut_compute(s11_d, s22_d, s33_d, &
+                              s12_d, s13_d, s23_d, &
+                              delta_d, nut_d, mult_d, c_s, n)
 #elif HAVE_OPENCL
-    call neko_error('opencl backend is not supported for device_sigma_nut')
+    call neko_error('opencl backend is not supported for device_smagorinsky_nut')
 #else
     call neko_error('no device backend configured')
 #endif
-  end subroutine device_sigma_nut_compute
+  end subroutine device_smagorinsky_nut_compute
 
   
-end module device_sigma_nut
+end module device_smagorinsky_nut
