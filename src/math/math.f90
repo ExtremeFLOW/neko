@@ -320,7 +320,7 @@ contains
        tmp = tmp + a(i)
     end do
     call MPI_Allreduce(tmp, glsum, 1, &
-                       MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsum
 
@@ -335,7 +335,7 @@ contains
        tmp = max(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glmax, 1, &
-                       MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
   end function glmax
 
   !>Max of an integer vector of length n
@@ -349,7 +349,7 @@ contains
        tmp = max(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glimax, 1, &
-                       MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
+         MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
   end function glimax
 
   !>Min of a vector of length n
@@ -363,7 +363,7 @@ contains
        tmp = min(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glmin, 1, &
-                       MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
   end function glmin
 
   !>Min of an integer vector of length n
@@ -377,7 +377,7 @@ contains
        tmp = min(tmp,a(i))
     end do
     call MPI_Allreduce(tmp, glimin, 1, &
-                       MPI_INTEGER, MPI_MIN, NEKO_COMM, ierr)
+         MPI_INTEGER, MPI_MIN, NEKO_COMM, ierr)
   end function glimin
 
 
@@ -456,9 +456,9 @@ contains
 
   end subroutine invers2
 
-  !> Compute a cross product \f$ v \times w\f$
+  !> Compute a cross product \f$ u = v \times w \f$
   !! assuming single set of vectors.
-  pure function cross(v, w)
+  pure function cross(v, w) result(cross)
     real(kind=rp), dimension(3), intent(in) :: v, w
     real(kind=rp), dimension(3) :: cross
 
@@ -845,7 +845,7 @@ contains
     end do
 
     call MPI_Allreduce(tmp, glsc2, 1, &
-                       MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsc2
 
@@ -864,7 +864,7 @@ contains
     end do
 
     call MPI_Allreduce(tmp, glsc3, 1, &
-                       MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsc3
   function glsc4(a, b, c, d, n)
@@ -882,7 +882,7 @@ contains
     end do
 
     call MPI_Allreduce(tmp, glsc4, 1, &
-                       MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+         MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
   end function glsc4
 
