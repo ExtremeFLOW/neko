@@ -396,6 +396,9 @@ contains
     write(log_buf, '(A, L1)') 'Dealias    : ',  logical_val
     call neko_log%message(log_buf)
 
+    write(log_buf, '(A, L1)') 'LES        : ', this%variable_material_properties
+    call neko_log%message(log_buf)
+
     call json_get_or_default(params, 'case.output_boundary', logical_val, &
                              .false.)
     write(log_buf, '(A, L1)') 'Save bdry  : ',  logical_val
@@ -540,7 +543,7 @@ contains
        call json_extract_object(params, 'case.fluid.wall_modelling', wm_json)
        call this%bc_wallmodel%init_wall_model_bc(wm_json, this%mu / this%rho)
     else
-       call this%bc_wallmodel%shear_stress_t%init_shear_stress(this%c_Xh) 
+       call this%bc_wallmodel%shear_stress_t%init_shear_stress(this%c_Xh)
     end if
 
     call bc_list_add(this%bclst_vel, this%bc_wallmodel%symmetry)
