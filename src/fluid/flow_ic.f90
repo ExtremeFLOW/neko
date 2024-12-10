@@ -468,10 +468,10 @@ contains
             tolerance)
 
        ! Evaluate velocities and pressure
-       call global_interp%evaluate(u%x, fld_data%u%x)
-       call global_interp%evaluate(v%x, fld_data%v%x)
-       call global_interp%evaluate(w%x, fld_data%w%x)
-       call global_interp%evaluate(p%x, fld_data%p%x)
+       call global_interp%evaluate(u%x, fld_data%u%x,.true.)
+       call global_interp%evaluate(v%x, fld_data%v%x,.true.)
+       call global_interp%evaluate(w%x, fld_data%w%x,.true.)
+       call global_interp%evaluate(p%x, fld_data%p%x,.true.)
 
        call global_interp%free
 

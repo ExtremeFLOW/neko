@@ -107,6 +107,7 @@ contains
     real(kind=rp), intent(in) :: x(0:n)
     real(kind=rp), intent(out) :: c(0:n,0:m)
     real(kind=rp), intent(in) :: xi
+    real(kind=xp) :: cx(0:n,0:m)
     real(kind=xp) :: c1, c2, c3, c4, c5
     integer :: i, j, k, mn
 
@@ -115,11 +116,11 @@ contains
 
     do k = 0, m
        do j = 0, n
-          c(j,k) = 0d0
+          cx(j,k) = 0d0
        end do
     end do
 
-    c(0,0) = 1d0
+    cx(0,0) = 1d0
 
     do i = 1, n
        mn = min(i,m)
@@ -130,17 +131,17 @@ contains
           c3 = x(i) - x(j)
           c2 = c2 * c3
           do k = mn, 1, -1
-             c(i,k) = c1 * (k * c(i-1,k-1) - c5 * c(i-1,k)) / c2
+             cx(i,k) = c1 * (k * cx(i-1,k-1) - c5 * cx(i-1,k)) / c2
           end do
-          c(i,0) = -c1 * c5 * c(i-1,0) / c2
+          cx(i,0) = -c1 * c5 * cx(i-1,0) / c2
           do k = mn, 1, -1
-             c(j,k) = (c4 * c(j,k) - k * c(j,k-1)) / c3
+             cx(j,k) = (c4 * cx(j,k) - k * cx(j,k-1)) / c3
           end do
-          c(j,0) = c4 * c(j,0) / c3
+          cx(j,0) = c4 * cx(j,0) / c3
        end do
        c1 = c2
-    end do
-
+    end do 
+    c = cx
   end subroutine fd_weights_full
 
 

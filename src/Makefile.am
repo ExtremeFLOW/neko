@@ -35,6 +35,7 @@ neko_fortran_SOURCES = \
 	sem/interpolation.f90\
 	sem/point_interpolator.f90\
 	sem/bcknd/device/device_coef.F90\
+	sem/bcknd/device/device_local_interpolation.F90\
 	gs/gs_bcknd.f90\
 	gs/bcknd/cpu/gs_cpu.f90\
 	gs/bcknd/sx/gs_sx.f90\
@@ -70,6 +71,7 @@ neko_fortran_SOURCES = \
 	mesh/aabb_tree.f90\
 	mesh/tet_mesh.f90\
 	mesh/tri_mesh.f90\
+	mesh/intersection_detector.f90\
 	field/field_registry.f90\
 	field/scratch_registry.f90\
 	field/field.f90\
@@ -379,6 +381,7 @@ libneko_la_SOURCES += \
 	fluid/stress_formulation/bcknd/device/hip/pnpn_stress_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
 	sem/bcknd/device/hip/coef.hip\
+	sem/bcknd/device/hip/local_interpolation.hip\
 	source_terms/bcknd/device/hip/filters.hip\
 	les/bcknd/device/hip/sigma_nut.hip\
 	les/bcknd/device/hip/vreman_nut.hip
@@ -420,6 +423,7 @@ libneko_la_SOURCES += \
 	fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
 	sem/bcknd/device/cuda/coef.cu\
+	sem/bcknd/device/cuda/local_interpolation.cu\
 	source_terms/bcknd/device/cuda/filters.cu\
 	les/bcknd/device/cuda/sigma_nut.cu\
 	les/bcknd/device/cuda/vreman_nut.cu

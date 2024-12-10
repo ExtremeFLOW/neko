@@ -97,9 +97,7 @@ module device
        device_profiler_start, device_profiler_stop, device_alloc, &
        device_init, device_name, device_event_create, device_event_destroy, &
        device_event_record, device_event_sync, device_finalize, &
-       device_stream_wait_event
-
-  private :: device_memcpy_common
+       device_stream_wait_event, device_memcpy_common
 
 contains
 
@@ -384,8 +382,8 @@ contains
   !! @note For device to device copies, @a ptr_h is assumed
   !! to be the dst device pointer
   subroutine device_memcpy_common(ptr_h, x_d, s, dir, sync_device, stream)
-    type(c_ptr), intent(inout) :: ptr_h
-    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr), intent(in) :: ptr_h
+    type(c_ptr), intent(in) :: x_d
     integer(c_size_t), intent(in) :: s
     integer, intent(in), value :: dir
     logical, intent(in) :: sync_device

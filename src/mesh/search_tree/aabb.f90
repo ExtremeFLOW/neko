@@ -189,6 +189,8 @@ contains
 
       type is (aabb_t)
        call box%init(object%get_min(), object%get_max())
+      type is (point_t)
+       box = get_aabb_point(object)
       type is (tri_t)
        box = get_aabb_element(object)
       type is (hex_t)
@@ -197,7 +199,10 @@ contains
        box = get_aabb_element(object)
       type is (quad_t)
        box = get_aabb_element(object)
-
+      class is (element_t)
+       box = get_aabb_element(object)
+         
+         
       type is (mesh_t)
        box = get_aabb_mesh(object)
       type is (tri_mesh_t)
@@ -231,6 +236,26 @@ contains
     call this%init(box_min, box_max)
   end subroutine add_padding
 
+
+  !> @brief Get the aabb of a point.
+  !!
+  !! @details This function calculates the aabb of a point.
+  !!
+  !! @param object The point to get the aabb of.
+  !! @return The aabb of the point.
+  function get_aabb_point(object) result(box)
+    type(point_t), intent(in) :: object
+    type(aabb_t) :: box
+
+    integer :: i
+    real(kind=dp) :: box_min(3), box_max(3)
+
+    box_min = huge(0.0_dp); box_max = -huge(0.0_dp)
+    box_min = min(box_min, object%x)
+    box_max = max(box_max, object%x)
+    call box%init(box_min, box_max)
+  end function get_aabb_point
+  
   !> @brief Get the aabb of an arbitrary element.
   !!
   !! @details This function calculates the aabb of an element. The aabb is
@@ -438,7 +463,6 @@ contains
        !  call neko_error("aabb_overlaps: One or both aabbs are not initialized")
        is_overlapping = .false.
     else
-
        is_overlapping = all(this%box_min .le. other%box_max) .and. &
          all(this%box_max .ge. other%box_min)
     end if
