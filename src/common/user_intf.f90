@@ -65,6 +65,20 @@ module user_intf
      end subroutine useric
   end interface
 
+  !> Abstract interface for user defined initial conditions
+  abstract interface
+     subroutine useric_compressible(rho, u, v, w, p, params)
+       import field_t
+       import json_file
+       type(field_t), intent(inout) :: rho
+       type(field_t), intent(inout) :: u
+       type(field_t), intent(inout) :: v
+       type(field_t), intent(inout) :: w
+       type(field_t), intent(inout) :: p
+       type(json_file), intent(inout) :: params
+     end subroutine useric_compressible
+  end interface
+
   !> Abstract interface for user defined scalar initial conditions
   abstract interface
      subroutine useric_scalar(s, params)
@@ -158,6 +172,7 @@ module user_intf
      !> Logical to indicate if the code have been extended by the user.
      procedure(useric), nopass, pointer :: fluid_user_ic => null()
      procedure(useric_scalar), nopass, pointer :: scalar_user_ic => null()
+     procedure(useric_compressible), nopass, pointer :: fluid_compressible_user_ic => null()
      procedure(user_initialize_modules), nopass, pointer :: user_init_modules => null()
      procedure(user_simcomp_init), nopass, pointer :: init_user_simcomp => null()
      procedure(usermsh), nopass, pointer :: user_mesh_setup => null()
@@ -176,8 +191,8 @@ module user_intf
      procedure, pass(u) :: init => user_intf_init
   end type user_t
 
-  public :: useric, useric_scalar, user_initialize_modules, usermsh, &
-    dummy_user_material_properties, user_material_properties, &
+  public :: useric, useric_scalar, useric_compressible, user_initialize_modules, &
+    usermsh, dummy_user_material_properties, user_material_properties, &
     user_simcomp_init, simulation_component_user_settings
 contains
 
@@ -204,6 +219,14 @@ contains
        n = n + 1
        write(extensions(n), '(A)') '- Scalar initial condition'
     end if
+
+   if (.not. associated(u%fluid_compressible_user_ic)) then
+      u%fluid_compressible_user_ic => dummy_user_ic_compressible
+   else
+      user_extended = .true.
+      n = n + 1
+      write(extensions(n), '(A)') '- Compressible fluid initial condition'
+   end if
 
     if (.not. associated(u%fluid_user_f)) then
        u%fluid_user_f => dummy_user_f
@@ -324,6 +347,17 @@ contains
     type(json_file), intent(inout) :: params
     call neko_error('Dummy user defined initial condition set')
   end subroutine dummy_user_ic
+
+  !> Dummy user initial condition
+  subroutine dummy_user_ic_compressible(rho, u, v, w, p, params)
+   type(field_t), intent(inout) :: rho
+   type(field_t), intent(inout) :: u
+   type(field_t), intent(inout) :: v
+   type(field_t), intent(inout) :: w
+   type(field_t), intent(inout) :: p
+   type(json_file), intent(inout) :: params
+   call neko_error('Dummy user defined initial condition set')
+  end subroutine dummy_user_ic_compressible
 
   !> Dummy user initial condition for scalar field
   !! @param s Scalar field.

@@ -287,11 +287,18 @@ contains
        call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, &
             this%fluid%p, this%fluid%c_Xh, this%fluid%gs_Xh, string_val, &
             this%params)
-
     else
-       call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p,&
-            this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_user_ic, &
-            this%params)
+       call json_get(this%params, 'case.fluid.scheme', string_val)
+       if (trim(string_val) .eq. 'compressible') then
+          call set_flow_ic(this%fluid%rho_field, &
+               this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p, &
+               this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_compressible_user_ic, &
+               this%params)
+       else
+          call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p,&
+               this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_user_ic, &
+               this%params)
+       end if
     end if
 
     call neko_log%end_section()
@@ -334,8 +341,6 @@ contains
        call this%scalar%validate
     end if
 
-    call neko_log%message('AAAAAAAAAAAAAAAA')
-
     !
     ! Get and process output directory
     !
@@ -352,8 +357,6 @@ contains
        end if
     end if
 
-    call neko_log%message('BBBBBBBBBBBBBBBBBBBB')
-
     !
     ! Save boundary markings for fluid (if requested)
     !
@@ -363,8 +366,6 @@ contains
        bdry_file = file_t(trim(this%output_directory)//'bdry.fld')
        call bdry_file%write(this%fluid%bdry)
     end if
-
-    call neko_log%message('CCCCCCCCCCCCCCCCCCCC')
 
     !
     ! Save mesh partitions (if requested)
@@ -379,8 +380,6 @@ contains
        call mesh_field_free(msh_part)
     end if
 
-    call neko_log%message('DDDDDDDDDDDDDDDDDDDDD')
-
     !
     ! Setup output precision of the field files
     !
@@ -392,8 +391,6 @@ contains
     else
        precision = sp
     end if
-
-    call neko_log%message('EEEEEEEEEEEEEEEEEEEE')
 
     !
     ! Setup output_controller

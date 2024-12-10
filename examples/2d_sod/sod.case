@@ -5,26 +5,22 @@
     "output_at_end": true,
     "output_boundary": false,
     "output_checkpoints": false,
-    "end_time": 2,
+    "end_time": 0.1,
     "timestep": 0.001,
     "numerics": {
         "time_order": 3,
         "polynomial_order": 5,
-        "dealias": true
+        "dealias": false
     },
     "fluid": {
         "scheme": "compressible",
         "Re": 1400,
         "initial_condition": {
-            "type": "blasius"
+            "type": "user"
         },
         "inflow_condition": {
-            "type": "blasius"
-        },
-        "blasius": {
-            "approximation": "sin",
-            "delta": 0.6,
-            "freestream_velocity": [1.0, 0.0, 0.0]
+            "type": "uniform",
+            "value": [1.0, 0.0, 0.0]
         },
         "velocity_solver": {
             "type": "cg",

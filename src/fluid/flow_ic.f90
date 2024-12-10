@@ -45,7 +45,7 @@ module flow_ic
   use coefs, only : coef_t
   use math, only : col2, cfill, cfill_mask
   use device_math, only : device_col2, device_cfill, device_cfill_mask
-  use user_intf, only : useric
+  use user_intf, only : useric, useric_compressible
   use json_module, only : json_file
   use json_utils, only: json_get, json_get_or_default
   use point_zone, only: point_zone_t
@@ -60,7 +60,7 @@ module flow_ic
   private
 
   interface set_flow_ic
-     module procedure set_flow_ic_int, set_flow_ic_usr
+     module procedure set_flow_ic_int, set_flow_ic_usr, set_compressible_flow_ic_usr
   end interface set_flow_ic
 
   public :: set_flow_ic
@@ -164,6 +164,25 @@ contains
     call set_flow_ic_common(u, v, w, p, coef, gs)
 
   end subroutine set_flow_ic_usr
+
+  subroutine set_compressible_flow_ic_usr(rho, u, v, w, p, coef, gs, usr_ic_compressible, params)
+   type(field_t), intent(inout) :: rho
+   type(field_t), intent(inout) :: u
+   type(field_t), intent(inout) :: v
+   type(field_t), intent(inout) :: w
+   type(field_t), intent(inout) :: p
+   type(coef_t), intent(in) :: coef
+   type(gs_t), intent(inout) :: gs
+   procedure(useric_compressible) :: usr_ic_compressible
+   type(json_file), intent(inout) :: params
+
+
+   call neko_log%message("Type: user (compressible flows)")
+   call usr_ic_compressible(rho, u, v, w, p, params)
+
+   call set_flow_ic_common(u, v, w, p, coef, gs)
+
+ end subroutine set_compressible_flow_ic_usr
 
   subroutine set_flow_ic_common(u, v, w, p, coef, gs)
     type(field_t), intent(inout) :: u

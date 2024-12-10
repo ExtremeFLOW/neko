@@ -1,7 +1,8 @@
 module fluid_scheme_compressible
   use dirichlet, only : dirichlet_t
   use field, only : field_t
-  use field_math, only : field_cfill
+  use math, only : col3, col2, cfill, cmult, cmult2, add2, addcol3
+  use field_math, only : field_cfill, field_col2, field_col3, field_cmult2, field_cmult, field_addcol3, field_add2
   use field_registry, only : neko_field_registry
   use fluid_scheme_base, only : fluid_scheme_base_t
   use json_module, only : json_file
@@ -80,7 +81,6 @@ contains
     call this%mu_field%init(this%dm_Xh, "mu")
     call this%rho_field%init(this%dm_Xh, "rho")
     call field_cfill(this%mu_field, 0.0_rp, this%mu_field%size())
-    call field_cfill(this%rho_field, 1.0_rp, this%rho_field%size())
 
     ! Assign momentum fields
     call neko_field_registry%add_field(this%dm_Xh, "m_x")
@@ -156,7 +156,33 @@ contains
   !> Validate that all components are properly allocated
   subroutine fluid_scheme_compressible_validate(this)
     class(fluid_scheme_compressible_t), target, intent(inout) :: this
-    !> TODO: fill here
+    real(kind=rp), parameter :: gamma = 1.4_rp
+    real(kind=rp), allocatable :: temp(:)
+    integer :: n
+
+    n = this%dm_Xh%size()
+    allocate(temp(n))
+
+    !> Initialize the momentum field
+    call field_col3(this%m_x, this%u, this%rho_field)
+    call field_col3(this%m_y, this%v, this%rho_field)
+    call field_col3(this%m_z, this%w, this%rho_field)
+
+    !> Initialize total energy
+    !> Specific internal energy e := p / (gamma - 1)
+    !> Total energy E := rho * e + 0.5 * rho * (u^2 + v^2 + w^2)
+    call cmult2(temp, this%p%x, 1.0_rp/(gamma - 1.0_rp), n)
+    call col3(this%E%x, temp, this%rho_field%x, n)
+    call cfill(temp, 0.0_rp, n)
+    call col3(temp, this%u%x, this%u%x, n)
+    call addcol3(temp, this%v%x, this%v%x, n)
+    call addcol3(temp, this%w%x, this%w%x, n)
+    call col2(temp, this%rho_field%x, n)
+    call cmult(temp, 0.5_rp, n)
+    call add2(this%E%x, temp, n)
+
+    deallocate(temp)
+    
   end subroutine fluid_scheme_compressible_validate
 
   !> Initialize a user defined inflow condition

@@ -4,7 +4,9 @@ module fluid_scheme_compressible_euler
   use field, only : field_t
   use fluid_scheme_compressible, only: fluid_scheme_compressible_t
   use num_types, only : rp
+  use math, only: subcol3, copy, sub2
   use mesh, only : mesh_t
+  use operators, only: conv1
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use profiler, only : profiler_start_region, profiler_end_region
@@ -76,20 +78,24 @@ contains
 
     call profiler_start_region('Fluid compressible', 1)
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
+      m_x=> this%m_x, m_y => this%m_y, m_z => this%m_z, &
       Xh => this%Xh, msh => this%msh, &
       c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
       rho => this%rho, mu => this%mu, &
       rho_field => this%rho_field, mu_field => this%mu_field, &
       f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
       ulag => this%ulag, vlag => this%vlag, wlag => this%wlag)
-      
-      ! Add the advection operators to the right-hand-side.
-      call this%adv%compute(u, v, w, &
-                            f_x, f_y, f_z, &
-                            Xh, this%c_Xh, dm_Xh%size())
 
-      ! WIP: debugging
-      call field_copy(p, f_x, n);
+      ! WIP: debugging setting m_x to 1.0
+      call field_cfill(m_x, 1.0_rp, n)
+      
+      ! rho = rho - dt * div(m)
+      call conv1(f_x%x, rho_field%x, m_x%x, m_y%x, m_z%x, Xh, this%c_Xh)
+      call field_cmult(f_x, dt, n)
+      call sub2(rho_field%x, f_x%x, n)
+
+      ! WIP: debugging visualizing rho
+      call field_copy(p, rho_field, n);
 
     end associate
     call profiler_end_region('Fluid compressible', 1)
