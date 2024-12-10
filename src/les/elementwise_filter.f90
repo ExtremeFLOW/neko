@@ -150,9 +150,10 @@ contains
 
   !> Filter a 3D field.
   subroutine elementwise_field_filter_3d(this, v, u, nelv)
-    class(elementwise_filter_t), intent(inout) :: this
+    class(elementwise_filter_t), intent(in) :: this
     integer, intent(inout) :: nelv
-    real(kind=rp), intent(inout), dimension(this%nx, this%nx, this%nx, nelv) :: u,v
+    real(kind=rp), intent(inout), dimension(this%nx, this%nx, this%nx, nelv) :: v
+    real(kind=rp), intent(in), dimension(this%nx, this%nx, this%nx, nelv) :: u
 
     ! v = fh x fh x fh x u
     call tnsr3d(v, this%nx, u, this%nx, this%fh, this%fht, this%fht, nelv)
