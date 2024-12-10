@@ -62,6 +62,7 @@ var structfluid__scheme_1_1fluid__scheme__t =
     [ "scratch", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a12cfc524116d1dcd5e9a6506f7fbc2d7", null ],
     [ "source_term", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#aac122a8841f951d2c5fe011b15371324", null ],
     [ "stats", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#ab4d83ffb539b98cd5f3dc0ba3490af30", null ],
+    [ "strict_convergence", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#acbbf32c842f3151b99407709b3efcb5e", null ],
     [ "u", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#af28e1c83551bdd725ff4a2b2fe7512a7", null ],
     [ "ulag", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a840ffbcc93f7e5cbb7e2457ad1a39136", null ],
     [ "user_field_bc_prs", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#ac53ca3246b4ee7650dc5cce07799e44e", null ],

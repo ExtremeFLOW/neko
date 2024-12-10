@@ -2,6 +2,7 @@ var structpipecg_1_1pipecg__t =
 [
     [ "free", "d4/db4/structpipecg_1_1pipecg__t.html#a723146e992c5ccd2d26c8c891f32305c", null ],
     [ "init", "d4/db4/structpipecg_1_1pipecg__t.html#a1e5db47cf1a7a322eb4e508efac070ec", null ],
+    [ "is_converged", "d4/db4/structpipecg_1_1pipecg__t.html#a20f075fc048548881b7903dee9f5be28", null ],
     [ "ksp_free", "d4/db4/structpipecg_1_1pipecg__t.html#aa2507024b78f504511edbf410b7b9388", null ],
     [ "ksp_init", "d4/db4/structpipecg_1_1pipecg__t.html#a4ead3e5f33d6b5b1dd1365e98ff14da8", null ],
     [ "monitor_iter", "d4/db4/structpipecg_1_1pipecg__t.html#a6f9742111a5a96fd0b11f061d57fc256", null ],

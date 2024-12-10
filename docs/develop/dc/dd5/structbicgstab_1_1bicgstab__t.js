@@ -2,6 +2,7 @@ var structbicgstab_1_1bicgstab__t =
 [
     [ "free", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a4ed9541bf8de29c8cd9b1b491539737b", null ],
     [ "init", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a7670f525dbf3badb6616c1c3ed9e0e1d", null ],
+    [ "is_converged", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a20f075fc048548881b7903dee9f5be28", null ],
     [ "ksp_free", "dc/dd5/structbicgstab_1_1bicgstab__t.html#aa2507024b78f504511edbf410b7b9388", null ],
     [ "ksp_init", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a4ead3e5f33d6b5b1dd1365e98ff14da8", null ],
     [ "monitor_iter", "dc/dd5/structbicgstab_1_1bicgstab__t.html#a6f9742111a5a96fd0b11f061d57fc256", null ],

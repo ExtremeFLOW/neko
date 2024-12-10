@@ -2,6 +2,7 @@ var structgmres_1_1gmres__t =
 [
     [ "free", "df/db9/structgmres_1_1gmres__t.html#aa05a429156066082c789fe4588b20034", null ],
     [ "init", "df/db9/structgmres_1_1gmres__t.html#a000f30c0d26bb2be85f59e613d33c94d", null ],
+    [ "is_converged", "df/db9/structgmres_1_1gmres__t.html#a20f075fc048548881b7903dee9f5be28", null ],
     [ "ksp_free", "df/db9/structgmres_1_1gmres__t.html#aa2507024b78f504511edbf410b7b9388", null ],
     [ "ksp_init", "df/db9/structgmres_1_1gmres__t.html#a4ead3e5f33d6b5b1dd1365e98ff14da8", null ],
     [ "monitor_iter", "df/db9/structgmres_1_1gmres__t.html#a6f9742111a5a96fd0b11f061d57fc256", null ],

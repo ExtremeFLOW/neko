@@ -2,6 +2,7 @@ var structfusedcg__cpld__device_1_1fusedcg__cpld__device__t =
 [
     [ "free", "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html#a10d32bad84210a0d589ee15cb3f39462", null ],
     [ "init", "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html#aac1766785cddbb6dfc34fd8facfaa97e", null ],
+    [ "is_converged", "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html#a20f075fc048548881b7903dee9f5be28", null ],
     [ "ksp_free", "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html#aa2507024b78f504511edbf410b7b9388", null ],
     [ "ksp_init", "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html#a4ead3e5f33d6b5b1dd1365e98ff14da8", null ],
     [ "monitor_iter", "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html#a6f9742111a5a96fd0b11f061d57fc256", null ],

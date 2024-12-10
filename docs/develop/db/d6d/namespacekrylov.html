@@ -141,6 +141,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a76855ee2b26ac41be4dda317baa6b88d"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d6d/namespacekrylov.html#a76855ee2b26ac41be4dda317baa6b88d">krylov_monitor_iter</a> (this, iter, rnorm)</td></tr>
 <tr class="memdesc:a76855ee2b26ac41be4dda317baa6b88d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Monitor iteration.  <a href="../../db/d6d/namespacekrylov.html#a76855ee2b26ac41be4dda317baa6b88d">More...</a><br /></td></tr>
 <tr class="separator:a76855ee2b26ac41be4dda317baa6b88d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa52e7eab11cd80356e58370c868b59ba"><td class="memItemLeft" align="right" valign="top">pure logical function&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d6d/namespacekrylov.html#aa52e7eab11cd80356e58370c868b59ba">krylov_is_converged</a> (this, iter, residual)</td></tr>
+<tr class="memdesc:aa52e7eab11cd80356e58370c868b59ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check for convergence.  <a href="../../db/d6d/namespacekrylov.html#aa52e7eab11cd80356e58370c868b59ba">More...</a><br /></td></tr>
+<tr class="separator:aa52e7eab11cd80356e58370c868b59ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
@@ -180,7 +183,7 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000031">Todo:</a></b></dt><dd>add calls to destroy precon. if necessary </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00261">261</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00265">265</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -258,7 +261,59 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00215">215</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00219">219</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+
+</div>
+</div>
+<a id="aa52e7eab11cd80356e58370c868b59ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa52e7eab11cd80356e58370c868b59ba">&#9670;&nbsp;</a></span>krylov_is_converged()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">pure logical function krylov::krylov_is_converged </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html">ksp_t</a>), intent(in)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer, intent(in)&#160;</td>
+          <td class="paramname"><em>iter</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), intent(in)&#160;</td>
+          <td class="paramname"><em>residual</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>This function checks if the Krylov solver has converged. The solver is considered converged if the residual is less than the absolute tolerance.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">residual</td><td>Residual </td></tr>
+    <tr><td class="paramname">iter</td><td>Iteration number </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00343">343</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -302,7 +357,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00318">318</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00322">322</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -340,7 +395,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00288">288</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00292">292</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -368,7 +423,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00306">306</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00310">310</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -412,7 +467,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00270">270</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00274">274</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -471,7 +526,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../db/d6d/namespacekrylov.html">krylov</a></li>
-    <li class="footer">Generated on Mon Dec 9 2024 03:43:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Dec 10 2024 03:42:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

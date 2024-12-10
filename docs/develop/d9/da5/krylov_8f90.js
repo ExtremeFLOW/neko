@@ -7,6 +7,7 @@ var krylov_8f90 =
     [ "ksp_t_free", "d6/dc8/interfacekrylov_1_1ksp__t__free.html", "d6/dc8/interfacekrylov_1_1ksp__t__free" ],
     [ "krylov_free", "d9/da5/krylov_8f90.html#a6b461bf26ab4402b452e62fd907103a7", null ],
     [ "krylov_init", "d9/da5/krylov_8f90.html#a8f857059957775620efe29885f68ce50", null ],
+    [ "krylov_is_converged", "d9/da5/krylov_8f90.html#aa52e7eab11cd80356e58370c868b59ba", null ],
     [ "krylov_monitor_iter", "d9/da5/krylov_8f90.html#a76855ee2b26ac41be4dda317baa6b88d", null ],
     [ "krylov_monitor_start", "d9/da5/krylov_8f90.html#a8a82dd279027bbcebbd171f5e12a7dde", null ],
     [ "krylov_monitor_stop", "d9/da5/krylov_8f90.html#ad95685a54cfd736ec0a6df621828473a", null ],

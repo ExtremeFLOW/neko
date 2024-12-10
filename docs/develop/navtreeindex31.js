@@ -1,5 +1,17 @@
 var NAVTREEINDEX31 =
 {
+"da/d79/structvorticity_1_1vorticity__t.html#ae51a7cdb03cda7e4460ee4bc645aef01":[4,0,245,0,18],
+"da/d79/structvorticity_1_1vorticity__t.html#af067317f5f38f59949729b5fc95b44fb":[4,0,245,0,21],
+"da/d79/structvorticity_1_1vorticity__t.html#af7245077b0935c63acd7b5723428fd8f":[4,0,245,0,4],
+"da/d7e/namespacedevice__gradient__jump__penalty.html":[3,0,61],
+"da/d7e/namespacedevice__gradient__jump__penalty.html#a9d3782909d799bd184674d787489bbdb":[3,0,61,2],
+"da/d7e/namespacedevice__gradient__jump__penalty.html#aa1178af4df23f17fb34dbbdfc4a37f5b":[3,0,61,3],
+"da/d80/namespacelocal__interpolation.html":[3,0,158],
+"da/d80/namespacelocal__interpolation.html#a0349147244f7d71fcb553ff667630974":[3,0,158,1],
+"da/d80/namespacelocal__interpolation.html#a4707f5b542b2a511476d0bdf808ab48d":[3,0,158,2],
+"da/d80/namespacelocal__interpolation.html#a5031df031d8e98513957186ec0e21870":[3,0,158,3],
+"da/d80/namespacelocal__interpolation.html#acb579c7186d7f02818fc53773c5a7f20":[3,0,158,4],
+"da/d83/interfaceopencl__intf_1_1clCreateBuffer.html":[4,0,161,4],
 "da/d83/interfaceopencl__intf_1_1clCreateBuffer.html#a672f168cddbccb6e8c8dc7386ecc5cf8":[4,0,161,4,0],
 "da/d87/interfaceopencl__intf_1_1clEnqueueMarker.html":[4,0,161,10],
 "da/d87/interfaceopencl__intf_1_1clEnqueueMarker.html#a3876ba11b2012e8ef2ea38b1975ca175":[4,0,161,10,0],
@@ -237,17 +249,5 @@ var NAVTREEINDEX31 =
 "da/dad/hip_2inflow__kernel_8h.html":[5,0,2,1,0,0,1,7],
 "da/dad/hip_2inflow__kernel_8h.html#a7867ff15e170718f169e421f37df417a":[5,0,2,1,0,0,1,7,0],
 "da/dad/hip_2inflow__kernel_8h_source.html":[5,0,2,1,0,0,1,7],
-"da/db0/interfacedevice_1_1device__map.html":[4,0,50,1],
-"da/db0/interfacedevice_1_1device__map.html#a4cf19244e0c4488482616c7463c7d541":[4,0,50,1,2],
-"da/db0/interfacedevice_1_1device__map.html#ab1886d1a491a6a865722981bb1672493":[4,0,50,1,0],
-"da/db0/interfacedevice_1_1device__map.html#aea9502d8994e14383cbaa31e5f69ba91":[4,0,50,1,1],
-"da/db0/interfacedevice_1_1device__map.html#aecdbf1e7dacdf791acb53309363660a6":[4,0,50,1,3],
-"da/db6/code-style.html":[0,2,2],
-"da/db6/code-style.html#autotoc_md10":[0,2,2,2],
-"da/db6/code-style.html#autotoc_md8":[0,2,2,0],
-"da/db6/code-style.html#autotoc_md9":[0,2,2,1],
-"da/db7/namespacefdm__cpu.html":[3,0,91],
-"da/db7/namespacefdm__cpu.html#a6cfa04a90992de2138efc0c36836b3ec":[3,0,91,0],
-"da/dbb/interpolation_8f90.html":[5,0,2,16,4],
-"da/dbb/interpolation_8f90.html#a1e6266e1f241a9e85cd33acffdb7319e":[5,0,2,16,4,4]
+"da/db0/interfacedevice_1_1device__map.html":[4,0,50,1]
 };

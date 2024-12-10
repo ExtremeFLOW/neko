@@ -1,5 +1,11 @@
 var NAVTREEINDEX18 =
 {
+"d6/d9d/pipecg__sx_8f90.html#abfc7a63551155da4bc1f25257eea7d5f":[5,0,2,10,0,2,3,3],
+"d6/d9d/pipecg__sx_8f90_source.html":[5,0,2,10,0,2,3],
+"d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html":[4,0,74,0],
+"d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html#a08b4bffd2aaf859c61d14b7e000a81a7":[4,0,74,0,7],
+"d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html#a1229513369202dae9e8b932327c4ffe4":[4,0,74,0,8],
+"d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html#a3393760f38948025caca1ec2c232f5f8":[4,0,74,0,3],
 "d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html#a409a8bd6b661a905c7f88a9132dabc4b":[4,0,74,0,1],
 "d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html#a644e50e912cbda2a6ed14545abc66154":[4,0,74,0,0],
 "d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html#a7be8ae9820bd25ac89b15d51bbcab55a":[4,0,74,0,5],
@@ -110,8 +116,8 @@ var NAVTREEINDEX18 =
 "d6/da9/coef_8c.html":[5,0,2,16,0,0,2,0],
 "d6/da9/coef_8c.html#a27c2b72bb169aa1b08ab3dda17a631aa":[5,0,2,16,0,0,2,0,1],
 "d6/da9/coef_8c.html#a7efd443816e810ea3561622c009a9ec0":[5,0,2,16,0,0,2,0,5],
-"d6/da9/coef_8c.html#aae57f17e11e61cf0519e2004414f5629":[5,0,2,16,0,0,2,0,3],
 "d6/da9/coef_8c.html#aae57f17e11e61cf0519e2004414f5629":[5,0,2,16,0,0,2,0,2],
+"d6/da9/coef_8c.html#aae57f17e11e61cf0519e2004414f5629":[5,0,2,16,0,0,2,0,3],
 "d6/da9/coef_8c.html#aafbd283d930483605855d2397a10ab8d":[5,0,2,16,0,0,2,0,4],
 "d6/da9/coef_8c.html#af59fd4f84c5c6eacc06be9c08ce34542":[5,0,2,16,0,0,2,0,0],
 "d6/da9/coef_8c_source.html":[5,0,2,16,0,0,2,0],
@@ -243,11 +249,5 @@ var NAVTREEINDEX18 =
 "d6/dc8/interfacekrylov_1_1ksp__t__free.html":[4,0,134,4],
 "d6/dc8/interfacekrylov_1_1ksp__t__free.html#a441036396e3f023513ed3f6644996915":[4,0,134,4,0],
 "d6/dc8/interfaceopencl__math_1_1opencl__cfill__mask.html":[4,0,162,2],
-"d6/dc8/interfaceopencl__math_1_1opencl__cfill__mask.html#a7d123f21f8dbe97f7622a9ef9ab10bdc":[4,0,162,2,0],
-"d6/dcd/namespacesigma.html":[3,0,241],
-"d6/dcd/namespacesigma.html#a4382f10d4f01fe94f14c5b63666c8a01":[3,0,241,1],
-"d6/dcd/namespacesigma.html#a6aef2fe5cd725eee259c2585439b8b0a":[3,0,241,4],
-"d6/dcd/namespacesigma.html#aa6ea5441fde5efeb002bbf4dd1dd00c8":[3,0,241,3],
-"d6/dcd/namespacesigma.html#affc242b1e0e8e06a2c38c478c9200e68":[3,0,241,2],
-"d6/dd0/map_8f90.html":[5,0,2,9,0,0]
+"d6/dc8/interfaceopencl__math_1_1opencl__cfill__mask.html#a7d123f21f8dbe97f7622a9ef9ab10bdc":[4,0,162,2,0]
 };

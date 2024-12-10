@@ -2,6 +2,7 @@ var structcg__sx_1_1sx__cg__t =
 [
     [ "free", "d5/d34/structcg__sx_1_1sx__cg__t.html#aac37868b104120ec914ea60c4990c2d8", null ],
     [ "init", "d5/d34/structcg__sx_1_1sx__cg__t.html#ad721637263451f445d8a081ad9332ee3", null ],
+    [ "is_converged", "d5/d34/structcg__sx_1_1sx__cg__t.html#a20f075fc048548881b7903dee9f5be28", null ],
     [ "ksp_free", "d5/d34/structcg__sx_1_1sx__cg__t.html#aa2507024b78f504511edbf410b7b9388", null ],
     [ "ksp_init", "d5/d34/structcg__sx_1_1sx__cg__t.html#a4ead3e5f33d6b5b1dd1365e98ff14da8", null ],
     [ "monitor_iter", "d5/d34/structcg__sx_1_1sx__cg__t.html#a6f9742111a5a96fd0b11f061d57fc256", null ],

@@ -2,6 +2,7 @@ var structcheby__device_1_1cheby__device__t =
 [
     [ "free", "d7/d81/structcheby__device_1_1cheby__device__t.html#ab6da7ec8bdeeafc88371d42542a20242", null ],
     [ "init", "d7/d81/structcheby__device_1_1cheby__device__t.html#a543901e6be7c94b7d7e7925de54c19f3", null ],
+    [ "is_converged", "d7/d81/structcheby__device_1_1cheby__device__t.html#a20f075fc048548881b7903dee9f5be28", null ],
     [ "ksp_free", "d7/d81/structcheby__device_1_1cheby__device__t.html#aa2507024b78f504511edbf410b7b9388", null ],
     [ "ksp_init", "d7/d81/structcheby__device_1_1cheby__device__t.html#a4ead3e5f33d6b5b1dd1365e98ff14da8", null ],
     [ "monitor_iter", "d7/d81/structcheby__device_1_1cheby__device__t.html#a6f9742111a5a96fd0b11f061d57fc256", null ],

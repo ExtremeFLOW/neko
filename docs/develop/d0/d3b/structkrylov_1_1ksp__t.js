@@ -1,6 +1,7 @@
 var structkrylov_1_1ksp__t =
 [
     [ "free", "d0/d3b/structkrylov_1_1ksp__t.html#a4aea2d10a8a8157d0fc3ebaac830e8a2", null ],
+    [ "is_converged", "d0/d3b/structkrylov_1_1ksp__t.html#a20f075fc048548881b7903dee9f5be28", null ],
     [ "ksp_free", "d0/d3b/structkrylov_1_1ksp__t.html#aa2507024b78f504511edbf410b7b9388", null ],
     [ "ksp_init", "d0/d3b/structkrylov_1_1ksp__t.html#a4ead3e5f33d6b5b1dd1365e98ff14da8", null ],
     [ "monitor_iter", "d0/d3b/structkrylov_1_1ksp__t.html#a6f9742111a5a96fd0b11f061d57fc256", null ],

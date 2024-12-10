@@ -472,6 +472,7 @@ Linear solver configuration</h1>
 <li><code>projection_hold_steps</code>, steps for which the simulation does not use projection after starting or time step changes. E.g. if 5, then the projection space will start to update at the 6th time step and the space will be utilized at the 7th time step.</li>
 <li><code>monitor</code>, monitoring of residuals. If set to true, the residuals will be printed for each iteration.</li>
 </ul>
+<p>In addition to the above settings, the solvers can be configured with strict convergence criteria. This is done by setting the <code>case.fluid.strict_convergence</code> keyword to <code>true</code>. This will force the solver to converge to the specified tolerance within the specified number of iterations. If the solver does not converge, the simulation will be terminated.</p>
 <h2><a class="anchor" id="autotoc_md40"></a>
 Flow rate forcing</h2>
 <p>The optional <code>flow_rate_force</code> object can be used to force a particular flow rate through the domain. Useful for channel and pipe flows. The configuration uses the following parameters:</p>
@@ -658,7 +659,7 @@ Runtime statistics</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Mon Dec 9 2024 03:43:29 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Dec 10 2024 03:42:41 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

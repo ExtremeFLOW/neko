@@ -103,13 +103,13 @@ $(document).ready(function(){initNavTree('da/d33/namespacefluid__aux.html','../.
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a08d4001f9f725728611a032da73e917e"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d33/namespacefluid__aux.html#a08d4001f9f725728611a032da73e917e">fluid_step_info</a> (step, t, dt, ksp_results)</td></tr>
-<tr class="memdesc:a08d4001f9f725728611a032da73e917e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints for prs, velx, vely, velz the following: Number of iterations, start residual, end residual.  <a href="../../da/d33/namespacefluid__aux.html#a08d4001f9f725728611a032da73e917e">More...</a><br /></td></tr>
-<tr class="separator:a08d4001f9f725728611a032da73e917e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad26a8590294c8e67dc50f94b39a339be"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d33/namespacefluid__aux.html#ad26a8590294c8e67dc50f94b39a339be">fluid_step_info</a> (step, t, dt, ksp_results, strict_convergence)</td></tr>
+<tr class="memdesc:ad26a8590294c8e67dc50f94b39a339be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints for prs, velx, vely, velz the following: Number of iterations, start residual, end residual.  <a href="../../da/d33/namespacefluid__aux.html#ad26a8590294c8e67dc50f94b39a339be">More...</a><br /></td></tr>
+<tr class="separator:ad26a8590294c8e67dc50f94b39a339be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
-<a id="a08d4001f9f725728611a032da73e917e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a08d4001f9f725728611a032da73e917e">&#9670;&nbsp;</a></span>fluid_step_info()</h2>
+<a id="ad26a8590294c8e67dc50f94b39a339be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad26a8590294c8e67dc50f94b39a339be">&#9670;&nbsp;</a></span>fluid_step_info()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -136,7 +136,13 @@ Functions/Subroutines</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>), dimension(4), intent(in)&#160;</td>
-          <td class="paramname"><em>ksp_results</em>&#160;</td>
+          <td class="paramname"><em>ksp_results</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">logical, intent(in)&#160;</td>
+          <td class="paramname"><em>strict_convergence</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -146,7 +152,16 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/d68/fluid__aux_8f90_source.html#l00016">16</a> of file <a class="el" href="../../d6/d68/fluid__aux_8f90_source.html">fluid_aux.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/d68/fluid__aux_8f90_source.html#l00017">17</a> of file <a class="el" href="../../d6/d68/fluid__aux_8f90_source.html">fluid_aux.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../da/d33/namespacefluid__aux_ad26a8590294c8e67dc50f94b39a339be_cgraph.png" border="0" usemap="#ada/d33/namespacefluid__aux_ad26a8590294c8e67dc50f94b39a339be_cgraph" alt=""/></div>
+<map name="ada/d33/namespacefluid__aux_ad26a8590294c8e67dc50f94b39a339be_cgraph" id="ada/d33/namespacefluid__aux_ad26a8590294c8e67dc50f94b39a339be_cgraph">
+<area shape="rect" title="Prints for prs, velx, vely, velz the following: Number of iterations, start residual,..." alt="" coords="5,5,189,32"/>
+<area shape="rect" href="../../d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="237,5,385,32"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -156,7 +171,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../da/d33/namespacefluid__aux.html">fluid_aux</a></li>
-    <li class="footer">Generated on Mon Dec 9 2024 03:43:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Tue Dec 10 2024 03:42:42 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
