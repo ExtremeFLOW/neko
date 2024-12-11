@@ -3,8 +3,9 @@ module fluid_scheme_compressible_euler
   use field_math, only : field_add2, field_cfill, field_cmult, field_cadd, field_copy, field_col2, field_col3, field_addcol3
   use field, only : field_t
   use fluid_scheme_compressible, only: fluid_scheme_compressible_t
+  use gs_ops, only : GS_OP_ADD
   use num_types, only : rp
-  use math, only: subcol3, copy, sub2, add2, add3, col3, addcol3, cmult, cfill, invcol3
+  use math, only: subcol3, copy, sub2, add2, add3, col2, col3, addcol3, cmult, cfill, invcol3
   use mesh, only : mesh_t
   use operators, only: div, grad
   use json_module, only : json_file
@@ -13,7 +14,7 @@ module fluid_scheme_compressible_euler
   use user_intf, only : user_t
   use time_scheme_controller, only : time_scheme_controller_t
   use time_step_controller, only : time_step_controller_t
-  use ax_helm_cpu, only : ax_helm_cpu_t
+  use ax_product, only : ax_t, ax_helm_factory
   implicit none
   private
 
@@ -21,6 +22,7 @@ module fluid_scheme_compressible_euler
      type(field_t) :: rho_res, m_x_res, m_y_res, m_z_res, m_E_res
      type(field_t) :: drho, dm_x, dm_y, dm_z, dE
      class(advection_t), allocatable :: adv
+     class(ax_t), allocatable :: Ax
    contains
      procedure, pass(this) :: init => fluid_scheme_compressible_euler_init
      procedure, pass(this) :: free => fluid_scheme_compressible_euler_free
@@ -51,10 +53,17 @@ contains
                            this%chkp%dtlag, this%chkp%tlag, time_scheme, &
                            .not. advection)
 
+    ! Initialize the diffusion operator
+    call ax_helm_factory(this%Ax, full_formulation = .false.)
+
   end subroutine fluid_scheme_compressible_euler_init
 
   subroutine fluid_scheme_compressible_euler_free(this)
     class(fluid_scheme_compressible_euler_t), intent(inout) :: this
+
+    if (allocated(this%Ax)) then
+      deallocate(this%Ax)
+    end if
 
     ! call this%scheme_free()
   end subroutine fluid_scheme_compressible_euler_free
@@ -75,6 +84,10 @@ contains
     real(kind=rp), allocatable :: temp(:)
     ! number of degrees of freedom
     integer :: n
+    real(kind=rp) :: h, c_avisc
+
+    h = 0.03_rp / 5.0_rp ! grid size / polynomial degree
+    c_avisc = 1.0_rp*h
 
     n = this%dm_Xh%size()
     allocate(temp(n))
@@ -82,7 +95,7 @@ contains
     call profiler_start_region('Fluid compressible', 1)
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
       m_x=> this%m_x, m_y => this%m_y, m_z => this%m_z, &
-      Xh => this%Xh, msh => this%msh, &
+      Xh => this%Xh, msh => this%msh, Ax => this%Ax, &
       c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
       rho => this%rho, mu => this%mu, E => this%E, &
       rho_field => this%rho_field, mu_field => this%mu_field, &
@@ -91,22 +104,24 @@ contains
 
       ! WIP: debugging setting m to (rho, 0, 0)
       call field_copy(m_x, rho_field, n)
+      call field_col2(m_x, m_x, n) ! burgers
       call field_cfill(m_y, 0.0_rp, n)
       call field_cfill(m_z, 0.0_rp, n)
       
-      ! rho = rho - dt * div(m)
-      call div(temp, m_x%x, m_y%x, m_z%x, this%c_Xh)
+      !> rho = rho - dt * div(m)
+      call div(temp, m_x%x, m_y%x, m_z%x, c_Xh)
+      call cmult(temp, dt, n)
+      call sub2(rho_field%x, temp, n)
+      ! artificial diffusion for rho
+      call Ax%compute(temp, rho_field%x, c_Xh, msh, Xh)
+      call gs_Xh%op(temp, n, GS_OP_ADD)
+      call col2(temp, c_Xh%Binv, n)
+      call cmult(temp, c_avisc, n) ! first-order viscosity
       call cmult(temp, dt, n)
       call sub2(rho_field%x, temp, n)
 
-      !> TODO: add symmetric dissipation using ax_t
-      ! call grad(f_x%x, f_y%x, f_z%x, rho_field%x, this%c_Xh)
-      ! call div(temp, f_x%x, f_y%x, f_z%x, this%c_Xh)
-      ! call cmult(temp, 0.5_rp*0.03_rp*dt, n)
-      ! call add2(rho_field%x, temp, n)
-
       ! m = m - dt * div(rho * u * u^T + p*I)
-      ! m_x
+      !> m_x
       call copy(f_x%x, p%x, n)
       call addcol3(f_x%x, m_x%x, u%x, n)
       call col3(f_y%x, m_x%x, v%x, n)
@@ -114,7 +129,7 @@ contains
       call div(temp, f_x%x, f_y%x, f_z%x, this%c_Xh)
       call cmult(temp, dt, n)
       call sub2(m_x%x, temp, n)
-      ! m_y
+      !> m_y
       call col3(f_x%x, m_y%x, u%x, n)
       call copy(f_y%x, p%x, n)
       call addcol3(f_y%x, m_y%x, v%x, n)

@@ -132,6 +132,11 @@ contains
 
   subroutine fluid_scheme_compressible_free(this)
     class(fluid_scheme_compressible_t), intent(inout) :: this
+    call this%dm_Xh%free()
+    call this%gs_Xh%free()
+    call this%c_Xh%free()
+    call this%Xh%free()
+
     call this%mu_field%free()
     call this%rho_field%free()
     call this%m_x%free()
