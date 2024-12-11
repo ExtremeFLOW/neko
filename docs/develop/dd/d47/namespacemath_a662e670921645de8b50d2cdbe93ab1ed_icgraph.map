@@ -1,6 +1,7 @@
 <map id="math::glsc2" name="math::glsc2">
-<area shape="rect" id="node1" title="Weighted inner product ." alt="" coords="224,56,323,83"/>
-<area shape="rect" id="node2" href="$da/d8d/namespacecg__cpld.html#a2cbc473539584098cbe97de250680149" title="Coupled PCG solve." alt="" coords="5,5,176,32"/>
-<area shape="rect" id="node3" href="$d5/de6/namespacefield__math.html#a5cbf579f473ff5d02cbbba9aba8b93b2" title=" " alt="" coords="7,56,175,83"/>
-<area shape="rect" id="node4" href="$d6/d21/namespacefluid__volflow.html#a1e638260a00a67d4f77f65bf26d277a5" title="Compute flow adjustment." alt="" coords="17,107,164,149"/>
+<area shape="rect" id="node1" title="Weighted inner product ." alt="" coords="224,97,323,123"/>
+<area shape="rect" id="node2" href="$dc/d09/namespacetree__amg__smoother.html#a50905e9240529935d6f5dfdc9905a73b" title="Power method to approximate largest eigenvalue." alt="" coords="10,5,171,47"/>
+<area shape="rect" id="node3" href="$da/d8d/namespacecg__cpld.html#a2cbc473539584098cbe97de250680149" title="Coupled PCG solve." alt="" coords="5,71,176,98"/>
+<area shape="rect" id="node4" href="$d5/de6/namespacefield__math.html#a5cbf579f473ff5d02cbbba9aba8b93b2" title=" " alt="" coords="7,122,175,149"/>
+<area shape="rect" id="node5" href="$d6/d21/namespacefluid__volflow.html#a1e638260a00a67d4f77f65bf26d277a5" title="Compute flow adjustment." alt="" coords="17,173,164,215"/>
 </map>

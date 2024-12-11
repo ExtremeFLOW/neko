@@ -1,0 +1,9 @@
+<map id="tree_amg_aggregate::aggregate_greedy" name="tree_amg_aggregate::aggregate_greedy">
+<area shape="rect" id="node1" title="Aggregates dofs based on adjacent dofs." alt="" coords="5,169,163,211"/>
+<area shape="rect" id="node2" href="$da/d77/namespacetree__amg__aggregate.html#ac737d491cd9ba6a102d87a9fe3cc54cb" title="Create information on which aggregates are &quot;adjacent&quot; to eachother." alt="" coords="233,5,390,47"/>
+<area shape="rect" id="node3" href="$da/d77/namespacetree__amg__aggregate.html#a0eee22807919ce075cb45760502a76b6" title="First pass of a greedy aggregation Loop through all dofs and aggregate on dof that has all unaggregat..." alt="" coords="224,71,399,112"/>
+<area shape="rect" id="node4" href="$da/d77/namespacetree__amg__aggregate.html#aa681abbb5ee7badea593dac1ef8cf7a5" title="Second pass of a greedy aggregation Loop through all unaggregated dofs and add them to a neighboring ..." alt="" coords="213,136,409,177"/>
+<area shape="rect" id="node5" href="$da/d77/namespacetree__amg__aggregate.html#a9c44b615de93c484749f905b71d21511" title=" " alt="" coords="211,201,412,243"/>
+<area shape="rect" id="node6" href="$da/d77/namespacetree__amg__aggregate.html#af6d21d1d1265727bc608a84be68788f8" title=" " alt="" coords="228,267,395,323"/>
+<area shape="rect" id="node7" href="$da/d77/namespacetree__amg__aggregate.html#a5328791ea70be104d40aab230b793ec6" title=" " alt="" coords="228,347,395,403"/>
+</map>

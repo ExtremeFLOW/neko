@@ -1,0 +1,4 @@
+<map id="tree_amg_aggregate::aggregate_finest_level" name="tree_amg_aggregate::aggregate_finest_level">
+<area shape="rect" id="node1" title="Aggregaiton on finest level Aggregates all dofs in an element into a single aggregate." alt="" coords="204,5,383,47"/>
+<area shape="rect" id="node2" href="$d5/d1b/namespacetree__amg__multigrid.html#a95cee01bd6f35a79781113bf7b81b663" title="Initialization of the TreeAMG multigrid solver." alt="" coords="5,5,156,47"/>
+</map>

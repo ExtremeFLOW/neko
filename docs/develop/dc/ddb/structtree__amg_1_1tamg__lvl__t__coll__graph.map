@@ -1,0 +1,4 @@
+<map id="tree_amg::tamg_lvl_t" name="tree_amg::tamg_lvl_t">
+<area shape="rect" id="node1" title="Type for storing TreeAMG level information." alt="" coords="13,95,175,121"/>
+<area shape="rect" id="node2" href="$d5/db1/structtree__amg_1_1tamg__node__t.html" title="Type for storing TreeAMG tree node information." alt="" coords="5,5,183,32"/>
+</map>

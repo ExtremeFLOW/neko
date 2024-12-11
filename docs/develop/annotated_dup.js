@@ -825,6 +825,11 @@ var annotated_dup =
       [ "parmetis_v3_partmeshkway", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway.html", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway" ],
       [ "parmetis_v3_partgeom", "d2/de5/interfaceparmetis_1_1parmetis__v3__partgeom.html", "d2/de5/interfaceparmetis_1_1parmetis__v3__partgeom" ]
     ] ],
+    [ "phmg", "d1/d38/namespacephmg.html", [
+      [ "phmg_lvl_t", "d5/dec/structphmg_1_1phmg__lvl__t.html", "d5/dec/structphmg_1_1phmg__lvl__t" ],
+      [ "phmg_hrchy_t", "da/dde/structphmg_1_1phmg__hrchy__t.html", "da/dde/structphmg_1_1phmg__hrchy__t" ],
+      [ "phmg_t", "d8/d4e/structphmg_1_1phmg__t.html", "d8/d4e/structphmg_1_1phmg__t" ]
+    ] ],
     [ "pipecg", "de/d49/namespacepipecg.html", [
       [ "pipecg_t", "d4/db4/structpipecg_1_1pipecg__t.html", "d4/db4/structpipecg_1_1pipecg__t" ]
     ] ],
@@ -1134,6 +1139,21 @@ var annotated_dup =
     ] ],
     [ "time_step_controller", "d3/dda/namespacetime__step__controller.html", [
       [ "time_step_controller_t", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html", "d5/dab/structtime__step__controller_1_1time__step__controller__t" ]
+    ] ],
+    [ "tree_amg", "dc/d1a/namespacetree__amg.html", [
+      [ "tamg_node_t", "d5/db1/structtree__amg_1_1tamg__node__t.html", "d5/db1/structtree__amg_1_1tamg__node__t" ],
+      [ "tamg_lvl_t", "d8/d61/structtree__amg_1_1tamg__lvl__t.html", "d8/d61/structtree__amg_1_1tamg__lvl__t" ],
+      [ "tamg_hierarchy_t", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t" ]
+    ] ],
+    [ "tree_amg_aggregate", "da/d77/namespacetree__amg__aggregate.html", [
+      [ "tamg_agg_monitor_t", "d2/dbd/structtree__amg__aggregate_1_1tamg__agg__monitor__t.html", "d2/dbd/structtree__amg__aggregate_1_1tamg__agg__monitor__t" ]
+    ] ],
+    [ "tree_amg_multigrid", "d5/d1b/namespacetree__amg__multigrid.html", [
+      [ "tamg_solver_t", "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html", "de/d30/structtree__amg__multigrid_1_1tamg__solver__t" ]
+    ] ],
+    [ "tree_amg_smoother", "dc/d09/namespacetree__amg__smoother.html", [
+      [ "amg_jacobi_t", "da/dc0/structtree__amg__smoother_1_1amg__jacobi__t.html", "da/dc0/structtree__amg__smoother_1_1amg__jacobi__t" ],
+      [ "amg_cheby_t", "d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html", "d1/dce/structtree__amg__smoother_1_1amg__cheby__t" ]
     ] ],
     [ "tri", "df/d69/namespacetri.html", [
       [ "tri_t", "d6/d51/structtri_1_1tri__t.html", "d6/d51/structtri_1_1tri__t" ]

@@ -4,6 +4,7 @@ var structhsmg_1_1hsmg__t =
     [ "init", "dd/d81/structhsmg_1_1hsmg__t.html#ab90bb1589d1e19619aeebc3217a2ee60", null ],
     [ "solve", "dd/d81/structhsmg_1_1hsmg__t.html#a13658231157cab7eb3bf0dad6e8a686b", null ],
     [ "update", "dd/d81/structhsmg_1_1hsmg__t.html#aa35bbeeddf51cd0007618c74c6246e7a", null ],
+    [ "amg_solver", "dd/d81/structhsmg_1_1hsmg__t.html#ada943bfd8a74b8dd70eefbb31d139be5", null ],
     [ "ax", "dd/d81/structhsmg_1_1hsmg__t.html#a27c634bc85f379dd5c48797312e6d9d2", null ],
     [ "bc_crs", "dd/d81/structhsmg_1_1hsmg__t.html#af5cab985ccf74eac1dad7c45bdd3fefa", null ],
     [ "bc_mg", "dd/d81/structhsmg_1_1hsmg__t.html#ad10c4b0b3ff243c64e0c6524e940cf57", null ],

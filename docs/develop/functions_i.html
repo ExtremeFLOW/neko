@@ -246,6 +246,7 @@ $(document).ready(function(){initNavTree('functions_i.html',''); initResizable()
 , <a class="el" href="da/d18/structnon__normal_1_1non__normal__t.html#a668f316349e77251981185b14fe62582">non_normal::non_normal_t</a>
 , <a class="el" href="d4/d27/structoctree_1_1octree__t.html#a5e3fff4fd13f1ec4ff9ced48cfd3fe17">octree::octree_t</a>
 , <a class="el" href="d4/d3d/structoutput__controller_1_1output__controller__t.html#ae5db8579fa89a0d3a48398590036b8bb">output_controller::output_controller_t</a>
+, <a class="el" href="d8/d4e/structphmg_1_1phmg__t.html#a71ad1a8d4ff4823a07f626e15e0de743">phmg::phmg_t</a>
 , <a class="el" href="d4/db4/structpipecg_1_1pipecg__t.html#a1e5db47cf1a7a322eb4e508efac070ec">pipecg::pipecg_t</a>
 , <a class="el" href="dc/d01/structpipecg__device_1_1pipecg__device__t.html#a6249fd2c241c8c208d067687d7a511ef">pipecg_device::pipecg_device_t</a>
 , <a class="el" href="d1/d8e/structpipecg__sx_1_1sx__pipecg__t.html#a7f90d7caad4173d3b28c641c10a9cb3d">pipecg_sx::sx_pipecg_t</a>
@@ -281,6 +282,10 @@ $(document).ready(function(){initNavTree('functions_i.html',''); initResizable()
 , <a class="el" href="d8/d85/structtime__interpolator_1_1time__interpolator__t.html#adaf117d88950fc5e890ed1e9516ae497">time_interpolator::time_interpolator_t</a>
 , <a class="el" href="d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html#a0b80a71396763b6609533389b7826870">time_scheme_controller::time_scheme_controller_t</a>
 , <a class="el" href="d5/dab/structtime__step__controller_1_1time__step__controller__t.html#ab45e686952401594f963eae50ca72da2">time_step_controller::time_step_controller_t</a>
+, <a class="el" href="d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#a62fd52d16699e485bf280014562a30c9">tree_amg::tamg_hierarchy_t</a>
+, <a class="el" href="de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#ae22197e45376a36a6ca3931e4258f1cd">tree_amg_multigrid::tamg_solver_t</a>
+, <a class="el" href="d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html#a90765dd08de8aaed8675f303a9349d52">tree_amg_smoother::amg_cheby_t</a>
+, <a class="el" href="da/dc0/structtree__amg__smoother_1_1amg__jacobi__t.html#ab68b1dcc5ce5ca1f5ee196b6a1451cb4">tree_amg_smoother::amg_jacobi_t</a>
 , <a class="el" href="d6/d51/structtri_1_1tri__t.html#ab2883b74976b132d4563c2c9d274d75f">tri::tri_t</a>
 , <a class="el" href="d2/dd7/structtri__mesh_1_1tri__mesh__t.html#a03be4d11721049168cdfa2c8a883d6a9">tri_mesh::tri_mesh_t</a>
 , <a class="el" href="d7/da0/structuser__intf_1_1user__t.html#a8f935babf9caeb74e8f4b0ae200bf2a9">user_intf::user_t</a>
@@ -421,11 +426,23 @@ $(document).ready(function(){initNavTree('functions_i.html',''); initResizable()
 <li>internal_zones
 : <a class="el" href="d9/d38/structcombine__point__zone_1_1combine__point__zone__t.html#ae0acb0e26c654669fb7d90a649b273fb">combine_point_zone::combine_point_zone_t</a>
 </li>
+<li>interp_c2f()
+: <a class="el" href="d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#aa6c446ee94f2d697422eadc376bd5780">tree_amg::tamg_hierarchy_t</a>
+</li>
+<li>interp_f2c()
+: <a class="el" href="d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#abef942526b5183b0bfa211bc61a6c617">tree_amg::tamg_hierarchy_t</a>
+</li>
 <li>interp_fine_mid
 : <a class="el" href="dd/d81/structhsmg_1_1hsmg__t.html#af8dc2c548aa234e713ece3d1dc18206b">hsmg::hsmg_t</a>
 </li>
 <li>interp_mid_crs
 : <a class="el" href="dd/d81/structhsmg_1_1hsmg__t.html#aed7fe379c86159532b71468aa72a333d">hsmg::hsmg_t</a>
+</li>
+<li>interp_p
+: <a class="el" href="d5/db1/structtree__amg_1_1tamg__node__t.html#af0b2e4d1c43ecf3be8dd8058ca4441f5">tree_amg::tamg_node_t</a>
+</li>
+<li>interp_r
+: <a class="el" href="d5/db1/structtree__amg_1_1tamg__node__t.html#a88b4be5017304815a9ad27372dd53a63">tree_amg::tamg_node_t</a>
 </li>
 <li>interpolate()
 : <a class="el" href="d6/d23/structpoint__interpolator_1_1point__interpolator__t.html#af586e49329da60a0510bdf0ada15f8e1">point_interpolator::point_interpolator_t</a>
@@ -436,6 +453,9 @@ $(document).ready(function(){initNavTree('functions_i.html',''); initResizable()
 </li>
 <li>intersection_aabb()
 : <a class="el" href="d4/d5b/interfaceaabb_1_1intersection.html#a34eec1283a7ce29bf3c69354c5848aac">aabb::intersection</a>
+</li>
+<li>intrp
+: <a class="el" href="d8/d4e/structphmg_1_1phmg__t.html#ac64cc6279ecda7569764d8ba9e4b3964">phmg::phmg_t</a>
 </li>
 <li>inuse
 : <a class="el" href="d8/d43/structscratch__registry_1_1scratch__registry__t.html#a4414417298ed453507feb58dc1d2564a">scratch_registry::scratch_registry_t</a>
@@ -474,6 +494,9 @@ $(document).ready(function(){initNavTree('functions_i.html',''); initResizable()
 <li>is_valid()
 : <a class="el" href="df/d6d/structaabb__tree_1_1aabb__node__t.html#a91e1c31cabace19bf305aebe02a12727">aabb_tree::aabb_node_t</a>
 </li>
+<li>isleaf
+: <a class="el" href="d5/db1/structtree__amg_1_1tamg__node__t.html#af12499439a833214d2800ea7fb46500b">tree_amg::tamg_node_t</a>
+</li>
 <li>it
 : <a class="el" href="d6/db2/structuset_1_1uset__i4__t.html#aed0fecb104897e18d831bba371dd8138">uset::uset_i4_t</a>
 , <a class="el" href="d0/d60/structuset_1_1uset__i8__t.html#a917fa64f9f6fda8d8a4189809493ef80">uset::uset_i8_t</a>
@@ -509,7 +532,7 @@ $(document).ready(function(){initNavTree('functions_i.html',''); initResizable()
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Dec 10 2024 03:42:43 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Dec 11 2024 03:42:13 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

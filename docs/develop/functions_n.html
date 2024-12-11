@@ -104,6 +104,8 @@ $(document).ready(function(){initNavTree('functions_n.html',''); initResizable()
 , <a class="el" href="dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t.html#a802cabfa1764cba4611a7e5a00b5bcfe">point_zone_registry::point_zone_registry_t</a>
 , <a class="el" href="d5/dff/structstats_1_1stats__t.html#aaaa93eca9f332957af44b7f1aa783fcf">stats::stats_t</a>
 , <a class="el" href="df/daa/structstl_1_1stl__triangle__t.html#a3558d859d34ddab01ce7a02ca970dde6">stl::stl_triangle_t</a>
+, <a class="el" href="d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html#a984f15d725defa906679dec66588fda6">tree_amg_smoother::amg_cheby_t</a>
+, <a class="el" href="da/dc0/structtree__amg__smoother_1_1amg__jacobi__t.html#ac3e5f8a4ec051aa6d6a5a423ddd8a016">tree_amg_smoother::amg_jacobi_t</a>
 , <a class="el" href="d3/d5b/structvector_1_1vector__t.html#af6e139c3b23a9779343fdab80087fb8c">vector::vector_t</a>
 </li>
 <li>n1
@@ -246,6 +248,7 @@ $(document).ready(function(){initNavTree('functions_n.html',''); initResizable()
 </li>
 <li>ndofs
 : <a class="el" href="db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html#adee4e151e24d80c3801e50c938595ada">gs_device_mpi::gs_device_mpi_buf_t</a>
+, <a class="el" href="d5/db1/structtree__amg_1_1tamg__node__t.html#a5c5f2e7acdd4021b3a4c8ded013fc903">tree_amg::tamg_node_t</a>
 </li>
 <li>neigh
 : <a class="el" href="d7/d28/structmesh_1_1mesh__t.html#a33d2bf4241df3abc8126dfad40a3ecf4">mesh::mesh_t</a>
@@ -335,12 +338,19 @@ $(document).ready(function(){initNavTree('functions_n.html',''); initResizable()
 </li>
 <li>nlvls
 : <a class="el" href="dd/d81/structhsmg_1_1hsmg__t.html#aa995726b9be8f9877e91779b952ed03e">hsmg::hsmg_t</a>
+, <a class="el" href="d8/d4e/structphmg_1_1phmg__t.html#a8f7997abb8472358f107b959854d29c1">phmg::phmg_t</a>
+, <a class="el" href="d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#ae89a5b5a92ec5bd2e5fc24e53b52dde8">tree_amg::tamg_hierarchy_t</a>
+, <a class="el" href="de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html#a4f463e723c8542e295c90057d94dd4a0">tree_amg_multigrid::tamg_solver_t</a>
+</li>
+<li>nnodes
+: <a class="el" href="d8/d61/structtree__amg_1_1tamg__lvl__t.html#a040ef5f3df52222f0250e425fb88a2f0">tree_amg::tamg_lvl_t</a>
 </li>
 <li>node_capacity
 : <a class="el" href="d9/d87/structaabb__tree_1_1aabb__tree__t.html#ac418408f5f0e65f0c4ba9973bcb5e136">aabb_tree::aabb_tree_t</a>
 </li>
 <li>nodes
 : <a class="el" href="d9/d87/structaabb__tree_1_1aabb__tree__t.html#a4d5a088a4f91e950be2a7ccf2241595e">aabb_tree::aabb_tree_t</a>
+, <a class="el" href="d8/d61/structtree__amg_1_1tamg__lvl__t.html#aca574ced490fa7b07ace4230f0e0cecf">tree_amg::tamg_lvl_t</a>
 </li>
 <li>normal_x_d
 : <a class="el" href="d0/d88/structdong__outflow_1_1dong__outflow__t.html#a6396df54aa2870b0923e723292d8eb24">dong_outflow::dong_outflow_t</a>
@@ -390,6 +400,12 @@ $(document).ready(function(){initNavTree('functions_n.html',''); initResizable()
 <li>num
 : <a class="el" href="d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html#ad31be0c718b4b2ba9563175a8fcc8549">dynamic_smagorinsky::dynamic_smagorinsky_t</a>
 </li>
+<li>num_aggs
+: <a class="el" href="d2/dbd/structtree__amg__aggregate_1_1tamg__agg__monitor__t.html#ac39b51e3f697976d202cd49c6346dd67">tree_amg_aggregate::tamg_agg_monitor_t</a>
+</li>
+<li>num_dofs
+: <a class="el" href="d2/dbd/structtree__amg__aggregate_1_1tamg__agg__monitor__t.html#a3aeb8e5b8cf7f0756aa61e2baddf39ff">tree_amg_aggregate::tamg_agg_monitor_t</a>
+</li>
 <li>num_entries()
 : <a class="el" href="d0/d2e/structhtable_1_1htable__t.html#a26e048b7410907382eeb097343f75063">htable::htable_t</a>
 </li>
@@ -431,7 +447,7 @@ $(document).ready(function(){initNavTree('functions_n.html',''); initResizable()
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Dec 10 2024 03:42:43 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Wed Dec 11 2024 03:42:13 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
