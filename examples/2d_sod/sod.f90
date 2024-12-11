@@ -31,7 +31,11 @@ module user
     integer :: i
     real(kind=rp) :: x, y, cone_radius, mux, muy, r, theta
 
-    ! Pressure
+    ! rho_L = 1, u_L = (0, 0), p_L = 1
+    ! rho_R = 0.125, u_R = (0, 0), p_R = 0.1
+    ! end time = 0.25
+
+    ! Density
     ! Center of the cone
     mux = 0.5
     muy = 0.5

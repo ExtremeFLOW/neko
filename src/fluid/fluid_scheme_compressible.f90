@@ -22,6 +22,8 @@ module fluid_scheme_compressible
      type(field_t), pointer :: m_z => null()    !< z-component of Momentum
      type(field_t), pointer :: E => null()    !< Total energy
 
+     real(kind=rp) :: gamma = 1.4_rp
+
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
 
    contains
@@ -156,7 +158,6 @@ contains
   !> Validate that all components are properly allocated
   subroutine fluid_scheme_compressible_validate(this)
     class(fluid_scheme_compressible_t), target, intent(inout) :: this
-    real(kind=rp), parameter :: gamma = 1.4_rp
     real(kind=rp), allocatable :: temp(:)
     integer :: n
 
@@ -171,7 +172,7 @@ contains
     !> Initialize total energy
     !> Specific internal energy e := p / (gamma - 1)
     !> Total energy E := rho * e + 0.5 * rho * (u^2 + v^2 + w^2)
-    call cmult2(temp, this%p%x, 1.0_rp/(gamma - 1.0_rp), n)
+    call cmult2(temp, this%p%x, 1.0_rp/(this%gamma - 1.0_rp), n)
     call col3(this%E%x, temp, this%rho_field%x, n)
     call cfill(temp, 0.0_rp, n)
     call col3(temp, this%u%x, this%u%x, n)
