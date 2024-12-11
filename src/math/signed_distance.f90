@@ -32,13 +32,16 @@
 !
 !> @brief Module containing Signed Distance Functions.
 module signed_distance
-  use math, only: cross
   use num_types, only: dp, rp
   use field, only: field_t
+  use point, only: point_t
   use tri, only: tri_t
   use tri_mesh, only: tri_mesh_t
-  use aabb_tree, only: aabb_tree_t
-
+  use aabb, only: aabb_t
+  use aabb_tree, only: aabb_tree_t, aabb_node_t, AABB_NULL_NODE
+  use math, only: cross
+  use stack, only: stack_i4_t
+  use utils, only: neko_error
   implicit none
 
 contains
@@ -54,9 +57,6 @@ contains
   !! @param[in] object Object
   !! @param[in,optional] max_distance Maximum distance outside the mesh
   subroutine signed_distance_field(field_data, object, max_distance)
-    use utils, only: neko_error
-    implicit none
-
     type(field_t), intent(inout) :: field_data
     class(*), intent(in) :: object
     real(kind=dp), intent(in), optional :: max_distance
@@ -138,12 +138,6 @@ contains
   !! @param mesh Boundary mesh
   !! @return Signed distance value
   function tri_mesh_brute_force(mesh, p, max_distance) result(distance)
-    use tri, only: tri_t
-    use point, only: point_t
-    use num_types, only: dp
-
-    implicit none
-
     type(tri_mesh_t), intent(in) :: mesh
     real(kind=dp), intent(in) :: p(3)
     real(kind=dp), intent(in) :: max_distance
@@ -187,11 +181,6 @@ contains
   !! @param max_distance Maximum distance outside the mesh
   !! @return Signed distance value
   function tri_mesh_aabb_tree(tree, object_list, p, max_distance) result(distance)
-    use aabb, only: aabb_t
-    use aabb_tree, only: aabb_node_t, AABB_NULL_NODE
-    use stack, only: stack_i4_t
-    implicit none
-
     class(aabb_tree_t), intent(in) :: tree
     class(tri_t), dimension(:), intent(in) :: object_list
     real(kind=dp), dimension(3), intent(in) :: p

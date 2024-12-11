@@ -105,7 +105,7 @@ math/bcknd/xsmm/fdm_xsmm.o : math/bcknd/xsmm/fdm_xsmm.f90 math/bcknd/xsmm/tensor
 math/schwarz.o : math/schwarz.f90 config/neko_config.o device/device.o math/fdm.o math/bcknd/device/device_math.o math/bcknd/device/device_schwarz.o gs/gather_scatter.o bc/bc.o sem/dofmap.o sem/space.o mesh/mesh.o math/math.o config/num_types.o 
 math/vector.o : math/vector.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o config/neko_config.o 
 math/matrix.o : math/matrix.f90 common/utils.o math/bcknd/device/device_math.o device/device.o config/num_types.o config/neko_config.o 
-math/signed_distance.o : math/signed_distance.f90 adt/stack.o mesh/search_tree/aabb.o mesh/point.o common/utils.o mesh/aabb_tree.o mesh/tri_mesh.o mesh/tri.o field/field.o config/num_types.o math/math.o 
+math/signed_distance.o : math/signed_distance.f90 common/utils.o adt/stack.o math/math.o mesh/aabb_tree.o mesh/search_tree/aabb.o mesh/tri_mesh.o mesh/tri.o mesh/point.o field/field.o config/num_types.o 
 common/checkpoint.o : common/checkpoint.f90 mesh/mesh.o common/utils.o field/field.o device/device.o sem/space.o field/field_series.o config/num_types.o config/neko_config.o 
 io/generic_file.o : io/generic_file.f90 comm/comm.o common/utils.o config/num_types.o 
 io/map_file.o : io/map_file.f90 io/format/map.o comm/comm.o common/utils.o io/generic_file.o 
