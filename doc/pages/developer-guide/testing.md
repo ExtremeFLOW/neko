@@ -10,7 +10,7 @@ git clone https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git -b v4.4.2
 
 cd pFUnit && mkdir b && cd b && cmake -DCMAKE_INSTALL_PREFIX=/pfunit_install_path .. && make -j$(nproc) && make install
 ```
-You will now have a dirctory called PFUNIT-4.4 in your intall path.
+You will now have a directory called PFUNIT-4.4 in your install path.
 
 ## Configuring Neko
 To use pFUnit with Neko, we need to specify its location during the `configure` phase of the build.
@@ -46,11 +46,11 @@ The instructions will differ somewhat depending on whether you test uses MPI or 
    If your test does not use MPI, you can copy from e.g. `hex`, otherwise take it from `field`. As usual, the `Makefile.in` will turn into a `Makefile` during the `configure` phase of the build.
 4. The `Makefile.in` looks very much like the `Makefile` examples in the documentation of pFUnit.
    1. The `check` target should be changed to the name of your test.
-      If yor test does not use MPI, name it the same as the name of the folder  + `_test`. If you need MPI, then don't use `test`, but rather something else, like `_suite`.
+      If your test does not use MPI, name it the same as the name of the folder  + `_test`. If you need MPI, then don't use `test`, but rather something else, like `_suite`.
    2. The lines defining `_TESTS`, `_OTHER_LIBRARIES`, and the other pFUnit stuff should be prefixed with the name selected above. Similarly with the `eval` statement.
    3. In the `clean` target, also put the same name as in `check`.
 5. If you use MPI, you now need to create a runner script.
-   Copy `field/field_test` tp start with, which looks like this
+   Copy `field/field_test` to start with, which looks like this
    ```bash
    #!/bin/sh
    if which mpirun >/dev/null; then

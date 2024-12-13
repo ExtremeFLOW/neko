@@ -37,7 +37,7 @@ module fluid_scheme
   use neko_config, only : NEKO_BCKND_DEVICE
   use checkpoint, only : chkp_t
   use mean_flow, only : mean_flow_t
-  use num_types, only : rp
+  use num_types, only : rp, i8
   use comm
   use fluid_source_term, only: fluid_source_term_t
   use field, only : field_t
@@ -59,12 +59,13 @@ module fluid_scheme
   use sx_jacobi, only : sx_jacobi_t
   use device_jacobi, only : device_jacobi_t
   use hsmg, only : hsmg_t
+  use phmg, only : phmg_t
   use precon, only : pc_t, precon_factory, precon_destroy
   use fluid_stats, only : fluid_stats_t
   use bc, only : bc_t, bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
        bc_list_apply_scalar, bc_list_apply_vector
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
-  use math, only : cfill, add2s2
+  use math, only : cfill, add2s2, glsum
   use device_math, only : device_cfill, device_add2s2
   use time_scheme_controller, only : time_scheme_controller_t
   use operators, only : cfl
@@ -104,18 +105,22 @@ module fluid_scheme
      type(field_t), pointer :: f_y => null()
      !> Z-component of the right-hand side.
      type(field_t), pointer :: f_z => null()
-     class(ksp_t), allocatable :: ksp_vel     !< Krylov solver for velocity
-     class(ksp_t), allocatable :: ksp_prs     !< Krylov solver for pressure
-     class(pc_t), allocatable :: pc_vel        !< Velocity Preconditioner
-     class(pc_t), allocatable :: pc_prs        !< Velocity Preconditioner
+
+     ! Krylov solvers and settings
+     class(ksp_t), allocatable :: ksp_vel  !< Krylov solver for velocity
+     class(ksp_t), allocatable :: ksp_prs  !< Krylov solver for pressure
+     class(pc_t), allocatable :: pc_vel    !< Velocity Preconditioner
+     class(pc_t), allocatable :: pc_prs    !< Velocity Preconditioner
      integer :: vel_projection_dim         !< Size of the projection space for ksp_vel
      integer :: pr_projection_dim          !< Size of the projection space for ksp_pr
      integer :: vel_projection_activ_step  !< Steps to activate projection for ksp_vel
      integer :: pr_projection_activ_step   !< Steps to activate projection for ksp_pr
+     logical :: strict_convergence         !< Strict convergence for the velocity solver
+
      type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
      class(bc_t), allocatable :: bc_inflow !< Dirichlet inflow for velocity
      type(wall_model_bc_t) :: bc_wallmodel !< Wall model boundary condition
-     !> Gradient jump panelty
+     !> Gradient jump penalty
      logical :: if_gradient_jump_penalty
      type(gradient_jump_penalty_t) :: gradient_jump_penalty_u
      type(gradient_jump_penalty_t) :: gradient_jump_penalty_v
@@ -152,6 +157,10 @@ module fluid_scheme
      real(kind=rp) :: rho
      !> The variable density field
      type(field_t) :: rho_field
+     !> Global number of GLL points for the fluid (not unique)
+     integer(kind=i8) ::  glb_n_points
+     !> Global number of GLL points for the fluid (unique)
+     integer(kind=i8) ::  glb_unique_points
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
@@ -201,7 +210,7 @@ module fluid_scheme
        import time_scheme_controller_t
        class(fluid_scheme_t), target, intent(inout) :: this
        type(mesh_t), target, intent(inout) :: msh
-       integer, intent(inout) :: lx
+       integer, intent(in) :: lx
        type(json_file), target, intent(inout) :: params
        type(user_t), target, intent(in) :: user
        type(time_scheme_controller_t), target, intent(in) :: time_scheme
@@ -225,10 +234,10 @@ module fluid_scheme
        import time_step_controller_t
        import rp
        class(fluid_scheme_t), target, intent(inout) :: this
-       real(kind=rp), intent(inout) :: t
-       integer, intent(inout) :: tstep
+       real(kind=rp), intent(in) :: t
+       integer, intent(in) :: tstep
        real(kind=rp), intent(in) :: dt
-       type(time_scheme_controller_t), intent(inout) :: ext_bdf
+       type(time_scheme_controller_t), intent(in) :: ext_bdf
        type(time_step_controller_t), intent(in) :: dt_controller
      end subroutine fluid_scheme_step_intrf
   end interface
@@ -262,7 +271,7 @@ contains
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
-    integer, intent(inout) :: lx
+    integer, intent(in) :: lx
     character(len=*), intent(in) :: scheme
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
@@ -370,7 +379,12 @@ contains
        write(log_buf, '(A, I3)') 'Poly order : ', lx-1
     end if
     call neko_log%message(log_buf)
-    write(log_buf, '(A, I0)') 'DoFs       : ', this%dm_Xh%size()
+    this%glb_n_points = int(this%msh%glb_nelv, i8)*int(this%Xh%lxyz, i8)
+    this%glb_unique_points = int(glsum(this%c_Xh%mult, this%dm_Xh%size()), i8)
+
+    write(log_buf, '(A, I0)')    'GLL points : ',  this%glb_n_points
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, I0)')    'Unique pts.: ', this%glb_unique_points
     call neko_log%message(log_buf)
 
     write(log_buf, '(A,ES13.6)') 'rho        :',  this%rho
@@ -669,6 +683,10 @@ contains
        call neko_log%end_section()
     end if
 
+    ! Strict convergence for the velocity solver
+    call json_get_or_default(params, 'case.fluid.strict_convergence', &
+         this%strict_convergence, .false.)
+
     ! Assign velocity fields
     call neko_field_registry%add_field(this%dm_Xh, 'u')
     call neko_field_registry%add_field(this%dm_Xh, 'v')
@@ -691,7 +709,7 @@ contains
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
-    integer, intent(inout) :: lx
+    integer, intent(in) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
     logical :: kspv_init
@@ -1008,8 +1026,8 @@ contains
                                          pctype)
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
-    type(coef_t), target, intent(inout) :: coef
-    type(dofmap_t), target, intent(inout) :: dof
+    type(coef_t), target, intent(in) :: coef
+    type(dofmap_t), target, intent(in) :: dof
     type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
@@ -1034,6 +1052,8 @@ contains
        else
           call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
        end if
+    type is (phmg_t)
+       call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
     end select
 
     call ksp%set_pc(pc)

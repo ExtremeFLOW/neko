@@ -46,6 +46,7 @@ module dynamic_smagorinsky
   use elementwise_filter, only : elementwise_filter_t
   use dynamic_smagorinsky_cpu, only : dynamic_smagorinsky_compute_cpu
   use logger, only : LOG_SIZE, neko_log
+  use dynamic_smagorinsky_device, only : dynamic_smagorinsky_compute_device
   implicit none
   private
 
@@ -148,8 +149,9 @@ contains
     integer, intent(in) :: tstep
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call neko_error("Dynamic Smagorinsky model not implemented on &
-             &accelarators.")
+        call dynamic_smagorinsky_compute_device(t, tstep, this%coef, this%nut, &
+                                this%delta, this%c_dyn, this%test_filter, &
+                                this%mij, this%lij, this%num, this%den)
     else
         call dynamic_smagorinsky_compute_cpu(t, tstep, this%coef, this%nut, &
                                 this%delta, this%c_dyn, this%test_filter, &

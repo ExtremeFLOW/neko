@@ -479,6 +479,7 @@ contains
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
+    ksp_results%converged = this%is_converged(iter, rnorm)
 
   end function gmres_device_solve
 

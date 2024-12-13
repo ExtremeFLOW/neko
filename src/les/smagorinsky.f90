@@ -42,6 +42,7 @@ module smagorinsky
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
   use smagorinsky_cpu, only : smagorinsky_compute_cpu
+  use smagorinsky_device, only : smagorinsky_compute_device
   use coefs, only : coef_t
   use logger, only : LOG_SIZE, neko_log
   implicit none
@@ -133,7 +134,8 @@ contains
     integer, intent(in) :: tstep
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call neko_error("Smagorinsky model not implemented on accelarators.")
+        call smagorinsky_compute_device(t, tstep, this%coef, this%nut, this%delta,&
+                                this%c_s)
     else
         call smagorinsky_compute_cpu(t, tstep, this%coef, this%nut, this%delta,&
                                 this%c_s)
