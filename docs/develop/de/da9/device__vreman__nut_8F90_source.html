@@ -133,89 +133,88 @@ $(document).ready(function(){initNavTree('de/da9/device__vreman__nut_8F90_source
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d6/d84/namespaceutils.html">utils</a>, <span class="keywordtype">only</span>: <a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a></div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  <span class="keywordtype">use </span><a class="code" href="../../d3/d8f/namespacecomm.html">comm</a>, <span class="keywordtype">only</span>: <a class="code" href="../../d3/d8f/namespacecomm.html#a74658af6604200fabba70f45980ca1c6">neko_comm</a>, <a class="code" href="../../d3/d8f/namespacecomm.html#a9f1fdc8cde3d5bdd6af8db18fc60fa44">pe_size</a>, <a class="code" href="../../d3/d8f/namespacecomm.html#a9d0c8371e47f3da961128e6c4ed5c4f8">mpi_real_precision</a></div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  <span class="keywordtype">use </span>mpi_f08, <span class="keywordtype">only</span>: mpi_sum, mpi_in_place, mpi_allreduce</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160; </div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  <span class="comment">! use cuda_vreman_nut</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keywordtype">implicit none</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <span class="keywordtype">private</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160; </div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor">#ifdef HAVE_HIP</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="preprocessor"></span>  <span class="keyword">interface</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno"><a class="line" href="../../d3/d27/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute.html#abd53c501171edbcf5ac0e227e30f8427">   46</a></span>&#160;     <span class="keyword">subroutine </span><a class="code" href="../../d3/d27/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute.html">hip_vreman_nut_compute</a>(a11_d, a12_d, a13_d, &amp;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;                                      a21_d, a22_d, a23_d, &amp;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;                                      a31_d, a32_d, a33_d, &amp;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;                                      delta_d, nut_d, mult_d, c, eps, n) &amp;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;          bind(c, name = <span class="stringliteral">&#39;hip_vreman_nut_compute&#39;</span>)</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;       <span class="keywordtype">import </span><a class="code" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a11_d, a12_d, a13_d, &amp;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;                             a21_d, a22_d, a23_d, &amp;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;                             a31_d, a32_d, a33_d, &amp;</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;                             delta_d, nut_d, mult_d</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;       <span class="keywordtype">integer(c_int)</span> :: n</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="keywordtype">       real</span>(c_rp) :: c, eps</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;     <span class="keyword">end subroutine </span><a class="code" href="../../d3/d27/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute.html">hip_vreman_nut_compute</a></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;  <span class="keyword">end interface</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="preprocessor">#elif HAVE_CUDA</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="preprocessor"></span>  <span class="keyword">interface</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;     <span class="keyword">subroutine </span><a class="code" href="../../d7/dff/vreman__nut_8cu.html#a122418b267f58b58a53de723ad8e1f48">cuda_vreman_nut_compute</a>(a11_d, a12_d, a13_d, &amp;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;                                      a21_d, a22_d, a23_d, &amp;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;                                      a31_d, a32_d, a33_d, &amp;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;                                      delta_d, nut_d, mult_d, c, eps, n) &amp;</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;          bind(c, name = <span class="stringliteral">&#39;cuda_vreman_nut_compute&#39;</span>)</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;       <span class="keywordtype">import </span><a class="code" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a11_d, a12_d, a13_d, &amp;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;                             a21_d, a22_d, a23_d, &amp;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;                             a31_d, a32_d, a33_d, &amp;</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;                             delta_d, nut_d, mult_d</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;       <span class="keywordtype">integer(c_int)</span> :: n</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="keywordtype">       real</span>(c_rp) :: c, eps</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;     <span class="keyword">end subroutine </span><a class="code" href="../../d7/dff/vreman__nut_8cu.html#a122418b267f58b58a53de723ad8e1f48">cuda_vreman_nut_compute</a></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  <span class="keyword">end interface</span></div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="preprocessor">#elif HAVE_OPENCL</span></div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="preprocessor"></span> </div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  <span class="keywordtype">public</span> :: <a class="code" href="../../db/d3c/namespacedevice__vreman__nut.html#ac53720ad8de120f63fdfe365beb039b1">device_vreman_nut_compute</a></div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160; </div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="keyword">contains</span></div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160; </div>
-<div class="line"><a name="l00086"></a><span class="lineno"><a class="line" href="../../db/d3c/namespacedevice__vreman__nut.html#ac53720ad8de120f63fdfe365beb039b1">   86</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../db/d3c/namespacedevice__vreman__nut.html#ac53720ad8de120f63fdfe365beb039b1">device_vreman_nut_compute</a>(a11_d, a12_d, a13_d, &amp;</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;                              a21_d, a22_d, a23_d, &amp;</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;                              a31_d, a32_d, a33_d, &amp;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;                              delta_d, nut_d, mult_d, c, eps, n)</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keywordtype">type</span>(c_ptr) :: a11_d, a12_d, a13_d, &amp;</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;                   a21_d, a22_d, a23_d, &amp;</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;                   a31_d, a32_d, a33_d, &amp;</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;                   delta_d, nut_d, mult_d</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="keywordtype">integer</span> :: n</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: c, eps</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="preprocessor">#if HAVE_HIP</span></div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="preprocessor"></span>    <span class="keyword">call </span><a class="code" href="../../d3/d27/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute.html">hip_vreman_nut_compute</a>(a11_d, a12_d, a13_d, &amp;</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;                              a21_d, a22_d, a23_d, &amp;</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;                              a31_d, a32_d, a33_d, &amp;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;                              delta_d, nut_d, mult_d, c, eps, n)</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="preprocessor">#elif HAVE_CUDA</span></div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="preprocessor"></span>    <span class="keyword">call </span><a class="code" href="../../d7/dff/vreman__nut_8cu.html#a122418b267f58b58a53de723ad8e1f48">cuda_vreman_nut_compute</a>(a11_d, a12_d, a13_d, &amp;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;                              a21_d, a22_d, a23_d, &amp;</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;                              a31_d, a32_d, a33_d, &amp;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;                              delta_d, nut_d, mult_d, c, eps, n)</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="preprocessor">#elif HAVE_OPENCL</span></div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="preprocessor"></span>    <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;opencl backend is not supported for device_vreman_nut&#39;</span>)</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="preprocessor">#else</span></div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="preprocessor"></span>    <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;no device backend configured&#39;</span>)</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code" href="../../db/d3c/namespacedevice__vreman__nut.html#ac53720ad8de120f63fdfe365beb039b1">device_vreman_nut_compute</a></div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160; </div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;  </div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;<span class="keyword">end module </span>device_vreman_nut</div>
-<div class="ttc" id="ainterfacedevice__vreman__nut_1_1hip__vreman__nut__compute_html"><div class="ttname"><a href="../../d3/d27/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute.html">device_vreman_nut::hip_vreman_nut_compute</a></div><div class="ttdef"><b>Definition:</b> <a href="../../de/da9/device__vreman__nut_8F90_source.html#l00046">device_vreman_nut.F90:46</a></div></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  </div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  <span class="keywordtype">implicit none</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;  <span class="keywordtype">private</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160; </div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="preprocessor">#ifdef HAVE_HIP</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="preprocessor"></span>  <span class="keyword">interface</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="../../d3/d27/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute.html#abd53c501171edbcf5ac0e227e30f8427">   45</a></span>&#160;     <span class="keyword">subroutine </span><a class="code" href="../../d3/d27/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute.html">hip_vreman_nut_compute</a>(a11_d, a12_d, a13_d, &amp;</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;                                      a21_d, a22_d, a23_d, &amp;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;                                      a31_d, a32_d, a33_d, &amp;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;                                      delta_d, nut_d, mult_d, c, eps, n) &amp;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;          bind(c, name = <span class="stringliteral">&#39;hip_vreman_nut_compute&#39;</span>)</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;       <span class="keywordtype">import </span><a class="code" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a11_d, a12_d, a13_d, &amp;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;                             a21_d, a22_d, a23_d, &amp;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;                             a31_d, a32_d, a33_d, &amp;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;                             delta_d, nut_d, mult_d</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="keywordtype">       real</span>(c_rp) :: c, eps</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;     <span class="keyword">end subroutine </span><a class="code" href="../../d3/d27/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute.html">hip_vreman_nut_compute</a></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  <span class="keyword">end interface</span></div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="preprocessor">#elif HAVE_CUDA</span></div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="preprocessor"></span>  <span class="keyword">interface</span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;     <span class="keyword">subroutine </span><a class="code" href="../../d7/dff/vreman__nut_8cu.html#a122418b267f58b58a53de723ad8e1f48">cuda_vreman_nut_compute</a>(a11_d, a12_d, a13_d, &amp;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;                                      a21_d, a22_d, a23_d, &amp;</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;                                      a31_d, a32_d, a33_d, &amp;</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;                                      delta_d, nut_d, mult_d, c, eps, n) &amp;</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;          bind(c, name = <span class="stringliteral">&#39;cuda_vreman_nut_compute&#39;</span>)</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;       use, <span class="keywordtype">intrinsic</span> :: iso_c_binding, only: c_ptr, c_int</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;       <span class="keywordtype">import </span><a class="code" href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">c_rp</a></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;       <span class="keywordtype">type</span>(c_ptr), <span class="keywordtype">value</span> :: a11_d, a12_d, a13_d, &amp;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;                             a21_d, a22_d, a23_d, &amp;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;                             a31_d, a32_d, a33_d, &amp;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;                             delta_d, nut_d, mult_d</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;       <span class="keywordtype">integer(c_int)</span> :: n</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="keywordtype">       real</span>(c_rp) :: c, eps</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;     <span class="keyword">end subroutine </span><a class="code" href="../../d7/dff/vreman__nut_8cu.html#a122418b267f58b58a53de723ad8e1f48">cuda_vreman_nut_compute</a></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  <span class="keyword">end interface</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="preprocessor">#elif HAVE_OPENCL</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="preprocessor"></span> </div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <span class="keywordtype">public</span> :: <a class="code" href="../../db/d3c/namespacedevice__vreman__nut.html#ac53720ad8de120f63fdfe365beb039b1">device_vreman_nut_compute</a></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160; </div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="keyword">contains</span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160; </div>
+<div class="line"><a name="l00085"></a><span class="lineno"><a class="line" href="../../db/d3c/namespacedevice__vreman__nut.html#ac53720ad8de120f63fdfe365beb039b1">   85</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../db/d3c/namespacedevice__vreman__nut.html#ac53720ad8de120f63fdfe365beb039b1">device_vreman_nut_compute</a>(a11_d, a12_d, a13_d, &amp;</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;                              a21_d, a22_d, a23_d, &amp;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;                              a31_d, a32_d, a33_d, &amp;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;                              delta_d, nut_d, mult_d, c, eps, n)</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keywordtype">type</span>(c_ptr) :: a11_d, a12_d, a13_d, &amp;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;                   a21_d, a22_d, a23_d, &amp;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;                   a31_d, a32_d, a33_d, &amp;</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;                   delta_d, nut_d, mult_d</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keywordtype">integer</span> :: n</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: c, eps</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="preprocessor">#if HAVE_HIP</span></div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="preprocessor"></span>    <span class="keyword">call </span><a class="code" href="../../d3/d27/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute.html">hip_vreman_nut_compute</a>(a11_d, a12_d, a13_d, &amp;</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;                              a21_d, a22_d, a23_d, &amp;</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;                              a31_d, a32_d, a33_d, &amp;</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;                              delta_d, nut_d, mult_d, c, eps, n)</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="preprocessor">#elif HAVE_CUDA</span></div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="preprocessor"></span>    <span class="keyword">call </span><a class="code" href="../../d7/dff/vreman__nut_8cu.html#a122418b267f58b58a53de723ad8e1f48">cuda_vreman_nut_compute</a>(a11_d, a12_d, a13_d, &amp;</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;                              a21_d, a22_d, a23_d, &amp;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;                              a31_d, a32_d, a33_d, &amp;</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;                              delta_d, nut_d, mult_d, c, eps, n)</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="preprocessor">#elif HAVE_OPENCL</span></div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="preprocessor"></span>    <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;opencl backend is not supported for device_vreman_nut&#39;</span>)</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="preprocessor">#else</span></div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="preprocessor"></span>    <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;no device backend configured&#39;</span>)</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="preprocessor"></span>  <span class="keyword">end subroutine </span><a class="code" href="../../db/d3c/namespacedevice__vreman__nut.html#ac53720ad8de120f63fdfe365beb039b1">device_vreman_nut_compute</a></div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160; </div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;  </div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="keyword">end module </span>device_vreman_nut</div>
+<div class="ttc" id="ainterfacedevice__vreman__nut_1_1hip__vreman__nut__compute_html"><div class="ttname"><a href="../../d3/d27/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute.html">device_vreman_nut::hip_vreman_nut_compute</a></div><div class="ttdef"><b>Definition:</b> <a href="../../de/da9/device__vreman__nut_8F90_source.html#l00045">device_vreman_nut.F90:45</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition:</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
 <div class="ttc" id="anamespacecomm_html"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html">comm</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d1/db1/comm_8F90_source.html#l00001">comm.F90:1</a></div></div>
 <div class="ttc" id="anamespacecomm_html_a74658af6604200fabba70f45980ca1c6"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a74658af6604200fabba70f45980ca1c6">comm::neko_comm</a></div><div class="ttdeci">type(mpi_comm) neko_comm</div><div class="ttdoc">MPI communicator.</div><div class="ttdef"><b>Definition:</b> <a href="../../d1/db1/comm_8F90_source.html#l00016">comm.F90:16</a></div></div>
 <div class="ttc" id="anamespacecomm_html_a9d0c8371e47f3da961128e6c4ed5c4f8"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a9d0c8371e47f3da961128e6c4ed5c4f8">comm::mpi_real_precision</a></div><div class="ttdeci">type(mpi_datatype) mpi_real_precision</div><div class="ttdoc">MPI type for working precision of REAL types.</div><div class="ttdef"><b>Definition:</b> <a href="../../d1/db1/comm_8F90_source.html#l00023">comm.F90:23</a></div></div>
 <div class="ttc" id="anamespacecomm_html_a9f1fdc8cde3d5bdd6af8db18fc60fa44"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a9f1fdc8cde3d5bdd6af8db18fc60fa44">comm::pe_size</a></div><div class="ttdeci">integer pe_size</div><div class="ttdoc">MPI size of communicator.</div><div class="ttdef"><b>Definition:</b> <a href="../../d1/db1/comm_8F90_source.html#l00031">comm.F90:31</a></div></div>
 <div class="ttc" id="anamespacedevice__vreman__nut_html"><div class="ttname"><a href="../../db/d3c/namespacedevice__vreman__nut.html">device_vreman_nut</a></div><div class="ttdef"><b>Definition:</b> <a href="../../de/da9/device__vreman__nut_8F90_source.html#l00033">device_vreman_nut.F90:33</a></div></div>
-<div class="ttc" id="anamespacedevice__vreman__nut_html_ac53720ad8de120f63fdfe365beb039b1"><div class="ttname"><a href="../../db/d3c/namespacedevice__vreman__nut.html#ac53720ad8de120f63fdfe365beb039b1">device_vreman_nut::device_vreman_nut_compute</a></div><div class="ttdeci">subroutine, public device_vreman_nut_compute(a11_d, a12_d, a13_d, a21_d, a22_d, a23_d, a31_d, a32_d, a33_d, delta_d, nut_d, mult_d, c, eps, n)</div><div class="ttdoc">Compute the eddy viscosity field for the Sigma model indevice.</div><div class="ttdef"><b>Definition:</b> <a href="../../de/da9/device__vreman__nut_8F90_source.html#l00086">device_vreman_nut.F90:90</a></div></div>
+<div class="ttc" id="anamespacedevice__vreman__nut_html_ac53720ad8de120f63fdfe365beb039b1"><div class="ttname"><a href="../../db/d3c/namespacedevice__vreman__nut.html#ac53720ad8de120f63fdfe365beb039b1">device_vreman_nut::device_vreman_nut_compute</a></div><div class="ttdeci">subroutine, public device_vreman_nut_compute(a11_d, a12_d, a13_d, a21_d, a22_d, a23_d, a31_d, a32_d, a33_d, delta_d, nut_d, mult_d, c, eps, n)</div><div class="ttdoc">Compute the eddy viscosity field for the Sigma model indevice.</div><div class="ttdef"><b>Definition:</b> <a href="../../de/da9/device__vreman__nut_8F90_source.html#l00085">device_vreman_nut.F90:89</a></div></div>
 <div class="ttc" id="anamespacenum__types_html"><div class="ttname"><a href="../../df/d48/namespacenum__types.html">num_types</a></div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00001">num_types.f90:1</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ad604d43a6e18e80802dcc80ed820d8b1"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ad604d43a6e18e80802dcc80ed820d8b1">num_types::c_rp</a></div><div class="ttdeci">integer, parameter, public c_rp</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00013">num_types.f90:13</a></div></div>
 <div class="ttc" id="anamespacenum__types_html_ae2be59b6de7b874ce5c12fd87f9e8b5e"><div class="ttname"><a href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">num_types::rp</a></div><div class="ttdeci">integer, parameter, public rp</div><div class="ttdoc">Global precision used in computations.</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/d99/num__types_8f90_source.html#l00012">num_types.f90:12</a></div></div>
@@ -227,7 +226,7 @@ $(document).ready(function(){initNavTree('de/da9/device__vreman__nut_8F90_source
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_6ac2283507a4fed10461ea6c78ce067a.html">les</a></li><li class="navelem"><a class="el" href="../../dir_599240cb2473dd34d041fb3ead8fcd0b.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_a54a76f3f931e6cceee52e3a5311a9de.html">device</a></li><li class="navelem"><a class="el" href="../../de/da9/device__vreman__nut_8F90.html">device_vreman_nut.F90</a></li>
-    <li class="footer">Generated on Thu Dec 12 2024 03:42:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Dec 13 2024 03:43:12 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

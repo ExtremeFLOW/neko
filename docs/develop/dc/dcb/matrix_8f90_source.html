@@ -159,7 +159,7 @@ $(document).ready(function(){initNavTree('dc/dcb/matrix_8f90_source.html','../..
 <div class="line"><a name="l00074"></a><span class="lineno"><a class="line" href="../../da/d95/structmatrix_1_1matrix__t.html#a87a21cd04104995af27c74162bd416b5">   74</a></span>&#160;     <span class="keywordtype">procedure</span>, pass(m) :: <a class="code" href="../../d0/de4/namespacematrix.html#a436de793d5619d19a03a21a71173639a">matrix_sub_scalar_right</a></div>
 <div class="line"><a name="l00076"></a><span class="lineno"><a class="line" href="../../da/d95/structmatrix_1_1matrix__t.html#a976bec50ebed1fc5df8d4864d748a3a7">   76</a></span>&#160;     <span class="keywordtype">procedure</span>, pass(m) :: <a class="code" href="../../d0/de4/namespacematrix.html#aec1f42bb9193a96f5007d7a18866c2c7">matrix_cmult_left</a></div>
 <div class="line"><a name="l00078"></a><span class="lineno"><a class="line" href="../../da/d95/structmatrix_1_1matrix__t.html#a5e978a25869466179a50ea096743a8b9">   78</a></span>&#160;     <span class="keywordtype">procedure</span>, pass(m) :: <a class="code" href="../../d0/de4/namespacematrix.html#a683ac8644bebc09bcfbabe901ef36c4c">matrix_cmult_right</a></div>
-<div class="line"><a name="l00080"></a><span class="lineno"><a class="line" href="../../da/d95/structmatrix_1_1matrix__t.html#ab61e3a2626d59f2f3d31c40f57286627">   80</a></span>&#160;     <span class="keywordtype">procedure</span>, pass(m) :: inverse =&gt; <a class="code" href="../../d0/de4/namespacematrix.html#a77bc7bf99336376f8669da2ad524608b">matrix_bcknd_inverse</a></div>
+<div class="line"><a name="l00080"></a><span class="lineno"><a class="line" href="../../da/d95/structmatrix_1_1matrix__t.html#ab61e3a2626d59f2f3d31c40f57286627">   80</a></span>&#160;     <span class="keywordtype">procedure</span>, pass(m) :: inverse =&gt; <a class="code" href="../../d0/de4/namespacematrix.html#a2cc2d8b1bb684b86688a093090ad3ee9">matrix_bcknd_inverse</a></div>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160; </div>
 <div class="line"><a name="l00082"></a><span class="lineno"><a class="line" href="../../da/d95/structmatrix_1_1matrix__t.html#a585a4f4b4de2b6f8fce869712c823780">   82</a></span>&#160;     generic :: <span class="keyword">assignment</span>(=) =&gt; <a class="code" href="../../d0/de4/namespacematrix.html#a36163990dadbd00ca417c0ef70c015be">matrix_assign_matrix</a>, &amp;</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;          <a class="code" href="../../d0/de4/namespacematrix.html#af9c0fe0434823ffbdc86e5fedb934867">matrix_assign_scalar</a></div>
@@ -407,110 +407,115 @@ $(document).ready(function(){initNavTree('dc/dcb/matrix_8f90_source.html','../..
 <div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160; </div>
 <div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;  <span class="keyword">end function </span><a class="code" href="../../d0/de4/namespacematrix.html#a683ac8644bebc09bcfbabe901ef36c4c">matrix_cmult_right</a></div>
 <div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160; </div>
-<div class="line"><a name="l00343"></a><span class="lineno"><a class="line" href="../../d0/de4/namespacematrix.html#a77bc7bf99336376f8669da2ad524608b">  343</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d0/de4/namespacematrix.html#a77bc7bf99336376f8669da2ad524608b">matrix_bcknd_inverse</a>(m)</div>
+<div class="line"><a name="l00343"></a><span class="lineno"><a class="line" href="../../d0/de4/namespacematrix.html#a2cc2d8b1bb684b86688a093090ad3ee9">  343</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d0/de4/namespacematrix.html#a2cc2d8b1bb684b86688a093090ad3ee9">matrix_bcknd_inverse</a>(m, bcknd)</div>
 <div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>), <span class="keywordtype">intent(inout)</span> :: m</div>
-<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;matrix_bcknd_inverse not implemented on accelarators.&quot;</span>)</div>
-<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;    <span class="keywordflow">else</span></div>
-<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d0/de4/namespacematrix.html#aa00f35c664dd475891a304d88579170d">cpu_matrix_inverse</a>(m)</div>
-<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;<span class="keywordflow">    end if</span></div>
-<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d0/de4/namespacematrix.html#a77bc7bf99336376f8669da2ad524608b">matrix_bcknd_inverse</a></div>
-<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160; </div>
-<div class="line"><a name="l00352"></a><span class="lineno"><a class="line" href="../../d0/de4/namespacematrix.html#aa00f35c664dd475891a304d88579170d">  352</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d0/de4/namespacematrix.html#aa00f35c664dd475891a304d88579170d">cpu_matrix_inverse</a>(m)</div>
-<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;    <span class="comment">! Gauss-Jordan matrix inversion with full pivoting</span></div>
-<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;    <span class="comment">! Num. Rec. p. 30, 2nd Ed., Fortran</span></div>
-<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;    <span class="comment">! m%x     is an sqaure matrix</span></div>
-<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;    <span class="comment">! rmult is m  work array of length nrows = ncols</span></div>
-<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>), <span class="keywordtype">intent(inout)</span> :: m</div>
-<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;    <span class="keywordtype">integer</span> :: indr(m%nrows), indc(m%ncols), ipiv(m%ncols)</div>
-<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) ::  rmult(m%nrows), amx, tmp, piv, eps</div>
-<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;    <span class="keywordtype">integer</span> :: i, j, k, ir, jc</div>
-<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160; </div>
-<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;    <span class="keywordflow">if</span> (.not. (m%ncols .eq. m%nrows)) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Fatal error: trying to invert m matrix that is not &amp;</span></div>
-<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;<span class="stringliteral"></span><span class="stringliteral">&amp;square&quot;</span>)</div>
-<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span> :: bcknd</div>
+<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160; </div>
+<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;    <span class="keywordflow">if</span> (<a class="code" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1 .and. &amp;</div>
+<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;         bcknd .eq. <a class="code" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a>) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;matrix_bcknd_inverse not &amp;</span></div>
+<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;<span class="stringliteral"></span><span class="stringliteral">                        &amp;implemented on accelarators.&quot;</span>)</div>
+<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;    <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d0/de4/namespacematrix.html#aa00f35c664dd475891a304d88579170d">cpu_matrix_inverse</a>(m)</div>
+<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160; </div>
+<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d0/de4/namespacematrix.html#a2cc2d8b1bb684b86688a093090ad3ee9">matrix_bcknd_inverse</a></div>
+<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160; </div>
+<div class="line"><a name="l00357"></a><span class="lineno"><a class="line" href="../../d0/de4/namespacematrix.html#aa00f35c664dd475891a304d88579170d">  357</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../d0/de4/namespacematrix.html#aa00f35c664dd475891a304d88579170d">cpu_matrix_inverse</a>(m)</div>
+<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;    <span class="comment">! Gauss-Jordan matrix inversion with full pivoting</span></div>
+<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;    <span class="comment">! Num. Rec. p. 30, 2nd Ed., Fortran</span></div>
+<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;    <span class="comment">! m%x     is an sqaure matrix</span></div>
+<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;    <span class="comment">! rmult is m  work array of length nrows = ncols</span></div>
+<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;    <span class="keywordtype">class</span>(<a class="code" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>), <span class="keywordtype">intent(inout)</span> :: m</div>
+<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;    <span class="keywordtype">integer</span> :: indr(m%nrows), indc(m%ncols), ipiv(m%ncols)</div>
+<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) ::  rmult(m%nrows), amx, tmp, piv, eps</div>
+<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;    <span class="keywordtype">integer</span> :: i, j, k, ir, jc</div>
 <div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160; </div>
-<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;    eps = 1e-9_rp</div>
-<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;    ipiv = 0</div>
-<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160; </div>
-<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;    <span class="keywordflow">do</span> k = 1, m%nrows</div>
-<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;       amx = 0.0_rp</div>
-<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;       <span class="keywordflow">do</span> i = 1, m%nrows                    <span class="comment">! Pivot search</span></div>
-<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;          <span class="keywordflow">if</span> (ipiv(i) .ne. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;             <span class="keywordflow">do</span> j = 1, m%nrows</div>
-<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;                <span class="keywordflow">if</span> (ipiv(j) .eq. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;                   <span class="keywordflow">if</span> (abs(m%x(i, j)) .ge. amx) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;                      amx = abs(m%x(i, j))</div>
-<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;                      ir  = i</div>
-<div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;                      jc  = j</div>
-<div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160;<span class="keywordflow">                   end if</span></div>
-<div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;                <span class="keywordflow">else</span> <span class="keywordflow">if</span> (ipiv(j) .gt. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;                   <span class="keywordflow">return</span></div>
-<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;<span class="keywordflow">                end if</span></div>
-<div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;<span class="keywordflow">             end do</span></div>
-<div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;<span class="keywordflow">          end if</span></div>
-<div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160;<span class="keywordflow">       end do</span></div>
-<div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;       ipiv(jc) = ipiv(jc) + 1</div>
-<div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160; </div>
-<div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;       <span class="comment">!  Swap rows</span></div>
-<div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160;       <span class="keywordflow">if</span> (ir .ne. jc) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;          <span class="keywordflow">do</span> j = 1, m%ncols</div>
-<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;             tmp       = m%x(ir, j)</div>
-<div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;             m%x(ir, j) = m%x(jc, j)</div>
-<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;             m%x(jc, j) = tmp</div>
-<div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;<span class="keywordflow">          end do</span></div>
-<div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;<span class="keywordflow">       end if</span></div>
-<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;       indr(k) = ir</div>
-<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;       indc(k) = jc</div>
-<div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160; </div>
-<div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160;       <span class="keywordflow">if</span> (abs(m%x(jc, jc)) .lt. eps) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;matrix_inverse error: small Gauss Jordan Piv&quot;</span>)</div>
-<div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160;<span class="keywordflow">       end if</span></div>
-<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;       piv = 1.0_rp/m%x(jc, jc)</div>
-<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;       m%x(jc, jc) = 1.0_rp</div>
-<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;       <span class="keywordflow">do</span> j = 1, m%ncols</div>
-<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;          m%x(jc, j) = m%x(jc, j)*piv</div>
-<div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160;<span class="keywordflow">       end do</span></div>
-<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160; </div>
-<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;       <span class="keywordflow">do</span> j = 1, m%ncols</div>
-<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;          tmp       = m%x(jc, j)</div>
-<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;          m%x(jc, j) = m%x(1 , j)</div>
-<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;          m%x(1 , j) = tmp</div>
-<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;<span class="keywordflow">       end do</span></div>
-<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;       <span class="keywordflow">do</span> i = 2, m%nrows</div>
-<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;          rmult(i)   = m%x(i, jc)</div>
-<div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;          m%x(i, jc)  = 0.0_rp</div>
-<div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;<span class="keywordflow">       end do</span></div>
-<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160; </div>
-<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;       <span class="keywordflow">do</span> j = 1, m%ncols</div>
-<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;          <span class="keywordflow">do</span> i = 2, m%nrows</div>
-<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;             m%x(i, j) = m%x(i, j) - rmult(i)*m%x(1, j)</div>
-<div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;<span class="keywordflow">          end do</span></div>
-<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;<span class="keywordflow">       end do</span></div>
-<div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160; </div>
-<div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;       <span class="keywordflow">do</span> j = 1, m%ncols</div>
-<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;          tmp       = m%x(jc, j)</div>
-<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;          m%x(jc, j) = m%x(1 , j)</div>
-<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;          m%x(1 , j) = tmp</div>
-<div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160;<span class="keywordflow">       end do</span></div>
-<div class="line"><a name="l00430"></a><span class="lineno">  430</span>&#160;<span class="keywordflow">    end do</span></div>
-<div class="line"><a name="l00431"></a><span class="lineno">  431</span>&#160; </div>
-<div class="line"><a name="l00432"></a><span class="lineno">  432</span>&#160;    <span class="comment">! Unscramble matrix</span></div>
-<div class="line"><a name="l00433"></a><span class="lineno">  433</span>&#160;    <span class="keywordflow">do</span> j= m%nrows, 1, -1</div>
-<div class="line"><a name="l00434"></a><span class="lineno">  434</span>&#160;       <span class="keywordflow">if</span> (indr(j) .ne. indc(j)) <span class="keywordflow">then</span></div>
-<div class="line"><a name="l00435"></a><span class="lineno">  435</span>&#160;          <span class="keywordflow">do</span> i = 1, m%nrows</div>
-<div class="line"><a name="l00436"></a><span class="lineno">  436</span>&#160;             tmp            = m%x(i, indr(j))</div>
-<div class="line"><a name="l00437"></a><span class="lineno">  437</span>&#160;             m%x(i, indr(j)) = m%x(i, indc(j))</div>
-<div class="line"><a name="l00438"></a><span class="lineno">  438</span>&#160;             m%x(i, indc(j)) = tmp</div>
-<div class="line"><a name="l00439"></a><span class="lineno">  439</span>&#160;<span class="keywordflow">          end do</span></div>
-<div class="line"><a name="l00440"></a><span class="lineno">  440</span>&#160;<span class="keywordflow">       end if</span></div>
-<div class="line"><a name="l00441"></a><span class="lineno">  441</span>&#160;<span class="keywordflow">    end do</span></div>
-<div class="line"><a name="l00442"></a><span class="lineno">  442</span>&#160; </div>
-<div class="line"><a name="l00443"></a><span class="lineno">  443</span>&#160;    <span class="keywordflow">return</span></div>
-<div class="line"><a name="l00444"></a><span class="lineno">  444</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d0/de4/namespacematrix.html#aa00f35c664dd475891a304d88579170d">cpu_matrix_inverse</a></div>
-<div class="line"><a name="l00445"></a><span class="lineno">  445</span>&#160; </div>
-<div class="line"><a name="l00446"></a><span class="lineno">  446</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d0/de4/namespacematrix.html">matrix</a></div>
+<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;    <span class="keywordflow">if</span> (.not. (m%ncols .eq. m%nrows)) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;       <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Fatal error: trying to invert m matrix that is not &amp;</span></div>
+<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;<span class="stringliteral"></span><span class="stringliteral">&amp;square&quot;</span>)</div>
+<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;<span class="keywordflow">    end if</span></div>
+<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160; </div>
+<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;    eps = 1e-9_rp</div>
+<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;    ipiv = 0</div>
+<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160; </div>
+<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;    <span class="keywordflow">do</span> k = 1, m%nrows</div>
+<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;       amx = 0.0_rp</div>
+<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;       <span class="keywordflow">do</span> i = 1, m%nrows                    <span class="comment">! Pivot search</span></div>
+<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;          <span class="keywordflow">if</span> (ipiv(i) .ne. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;             <span class="keywordflow">do</span> j = 1, m%nrows</div>
+<div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160;                <span class="keywordflow">if</span> (ipiv(j) .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;                   <span class="keywordflow">if</span> (abs(m%x(i, j)) .ge. amx) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;                      amx = abs(m%x(i, j))</div>
+<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;                      ir  = i</div>
+<div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;                      jc  = j</div>
+<div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;<span class="keywordflow">                   end if</span></div>
+<div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160;                <span class="keywordflow">else</span> <span class="keywordflow">if</span> (ipiv(j) .gt. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;                   <span class="keywordflow">return</span></div>
+<div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160;<span class="keywordflow">                end if</span></div>
+<div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;<span class="keywordflow">             end do</span></div>
+<div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160;<span class="keywordflow">          end if</span></div>
+<div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;<span class="keywordflow">       end do</span></div>
+<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;       ipiv(jc) = ipiv(jc) + 1</div>
+<div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160; </div>
+<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;       <span class="comment">!  Swap rows</span></div>
+<div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;       <span class="keywordflow">if</span> (ir .ne. jc) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;          <span class="keywordflow">do</span> j = 1, m%ncols</div>
+<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;             tmp       = m%x(ir, j)</div>
+<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;             m%x(ir, j) = m%x(jc, j)</div>
+<div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;             m%x(jc, j) = tmp</div>
+<div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160;<span class="keywordflow">          end do</span></div>
+<div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160;<span class="keywordflow">       end if</span></div>
+<div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160;       indr(k) = ir</div>
+<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;       indc(k) = jc</div>
+<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160; </div>
+<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;       <span class="keywordflow">if</span> (abs(m%x(jc, jc)) .lt. eps) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;          <span class="keyword">call </span><a class="code" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;matrix_inverse error: small Gauss Jordan Piv&quot;</span>)</div>
+<div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160;<span class="keywordflow">       end if</span></div>
+<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;       piv = 1.0_rp/m%x(jc, jc)</div>
+<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;       m%x(jc, jc) = 1.0_rp</div>
+<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;       <span class="keywordflow">do</span> j = 1, m%ncols</div>
+<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;          m%x(jc, j) = m%x(jc, j)*piv</div>
+<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;<span class="keywordflow">       end do</span></div>
+<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160; </div>
+<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;       <span class="keywordflow">do</span> j = 1, m%ncols</div>
+<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;          tmp       = m%x(jc, j)</div>
+<div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;          m%x(jc, j) = m%x(1 , j)</div>
+<div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;          m%x(1 , j) = tmp</div>
+<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;<span class="keywordflow">       end do</span></div>
+<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;       <span class="keywordflow">do</span> i = 2, m%nrows</div>
+<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;          rmult(i)   = m%x(i, jc)</div>
+<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;          m%x(i, jc)  = 0.0_rp</div>
+<div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;<span class="keywordflow">       end do</span></div>
+<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160; </div>
+<div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160;       <span class="keywordflow">do</span> j = 1, m%ncols</div>
+<div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;          <span class="keywordflow">do</span> i = 2, m%nrows</div>
+<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;             m%x(i, j) = m%x(i, j) - rmult(i)*m%x(1, j)</div>
+<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;<span class="keywordflow">          end do</span></div>
+<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;<span class="keywordflow">       end do</span></div>
+<div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160; </div>
+<div class="line"><a name="l00430"></a><span class="lineno">  430</span>&#160;       <span class="keywordflow">do</span> j = 1, m%ncols</div>
+<div class="line"><a name="l00431"></a><span class="lineno">  431</span>&#160;          tmp       = m%x(jc, j)</div>
+<div class="line"><a name="l00432"></a><span class="lineno">  432</span>&#160;          m%x(jc, j) = m%x(1 , j)</div>
+<div class="line"><a name="l00433"></a><span class="lineno">  433</span>&#160;          m%x(1 , j) = tmp</div>
+<div class="line"><a name="l00434"></a><span class="lineno">  434</span>&#160;<span class="keywordflow">       end do</span></div>
+<div class="line"><a name="l00435"></a><span class="lineno">  435</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00436"></a><span class="lineno">  436</span>&#160; </div>
+<div class="line"><a name="l00437"></a><span class="lineno">  437</span>&#160;    <span class="comment">! Unscramble matrix</span></div>
+<div class="line"><a name="l00438"></a><span class="lineno">  438</span>&#160;    <span class="keywordflow">do</span> j= m%nrows, 1, -1</div>
+<div class="line"><a name="l00439"></a><span class="lineno">  439</span>&#160;       <span class="keywordflow">if</span> (indr(j) .ne. indc(j)) <span class="keywordflow">then</span></div>
+<div class="line"><a name="l00440"></a><span class="lineno">  440</span>&#160;          <span class="keywordflow">do</span> i = 1, m%nrows</div>
+<div class="line"><a name="l00441"></a><span class="lineno">  441</span>&#160;             tmp            = m%x(i, indr(j))</div>
+<div class="line"><a name="l00442"></a><span class="lineno">  442</span>&#160;             m%x(i, indr(j)) = m%x(i, indc(j))</div>
+<div class="line"><a name="l00443"></a><span class="lineno">  443</span>&#160;             m%x(i, indc(j)) = tmp</div>
+<div class="line"><a name="l00444"></a><span class="lineno">  444</span>&#160;<span class="keywordflow">          end do</span></div>
+<div class="line"><a name="l00445"></a><span class="lineno">  445</span>&#160;<span class="keywordflow">       end if</span></div>
+<div class="line"><a name="l00446"></a><span class="lineno">  446</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00447"></a><span class="lineno">  447</span>&#160; </div>
+<div class="line"><a name="l00448"></a><span class="lineno">  448</span>&#160;    <span class="keywordflow">return</span></div>
+<div class="line"><a name="l00449"></a><span class="lineno">  449</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../d0/de4/namespacematrix.html#aa00f35c664dd475891a304d88579170d">cpu_matrix_inverse</a></div>
+<div class="line"><a name="l00450"></a><span class="lineno">  450</span>&#160; </div>
+<div class="line"><a name="l00451"></a><span class="lineno">  451</span>&#160;<span class="keyword">end module </span><a class="code" href="../../d0/de4/namespacematrix.html">matrix</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__map_html"><div class="ttname"><a href="../../da/db0/interfacedevice_1_1device__map.html">device::device_map</a></div><div class="ttdoc">Map a Fortran array to a device (allocate and associate)</div><div class="ttdef"><b>Definition:</b> <a href="../../d4/d2a/device_8F90_source.html#l00057">device.F90:57</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition:</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
 <div class="ttc" id="anamespacedevice__math_html"><div class="ttname"><a href="../../d2/d73/namespacedevice__math.html">device_math</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d8/d8f/device__math_8F90_source.html#l00033">device_math.F90:33</a></div></div>
@@ -533,15 +538,15 @@ $(document).ready(function(){initNavTree('dc/dcb/matrix_8f90_source.html','../..
 <div class="ttc" id="anamespacematrix_html"><div class="ttname"><a href="../../d0/de4/namespacematrix.html">matrix</a></div><div class="ttdoc">Defines a matrix.</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dcb/matrix_8f90_source.html#l00034">matrix.f90:34</a></div></div>
 <div class="ttc" id="anamespacematrix_html_a04dddb8ae0f27e3ad7f38aa3022109de"><div class="ttname"><a href="../../d0/de4/namespacematrix.html#a04dddb8ae0f27e3ad7f38aa3022109de">matrix::matrix_free</a></div><div class="ttdeci">subroutine matrix_free(m)</div><div class="ttdoc">Deallocate a matrix.</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dcb/matrix_8f90_source.html#l00117">matrix.f90:118</a></div></div>
 <div class="ttc" id="anamespacematrix_html_a18b0ce5d09699538677c4a08b8d7ab82"><div class="ttname"><a href="../../d0/de4/namespacematrix.html#a18b0ce5d09699538677c4a08b8d7ab82">matrix::matrix_sub_matrix</a></div><div class="ttdeci">type(matrix_t) function matrix_sub_matrix(m, b)</div><div class="ttdoc">Matrix-matrix subtraction .</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dcb/matrix_8f90_source.html#l00247">matrix.f90:248</a></div></div>
+<div class="ttc" id="anamespacematrix_html_a2cc2d8b1bb684b86688a093090ad3ee9"><div class="ttname"><a href="../../d0/de4/namespacematrix.html#a2cc2d8b1bb684b86688a093090ad3ee9">matrix::matrix_bcknd_inverse</a></div><div class="ttdeci">subroutine matrix_bcknd_inverse(m, bcknd)</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dcb/matrix_8f90_source.html#l00343">matrix.f90:344</a></div></div>
 <div class="ttc" id="anamespacematrix_html_a36163990dadbd00ca417c0ef70c015be"><div class="ttname"><a href="../../d0/de4/namespacematrix.html#a36163990dadbd00ca417c0ef70c015be">matrix::matrix_assign_matrix</a></div><div class="ttdeci">subroutine matrix_assign_matrix(m, w)</div><div class="ttdoc">Assignment .</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dcb/matrix_8f90_source.html#l00142">matrix.f90:143</a></div></div>
 <div class="ttc" id="anamespacematrix_html_a3931014d79ae8e40fbabbf609cbf8977"><div class="ttname"><a href="../../d0/de4/namespacematrix.html#a3931014d79ae8e40fbabbf609cbf8977">matrix::matrix_add_scalar_left</a></div><div class="ttdeci">type(matrix_t) function matrix_add_scalar_left(m, c)</div><div class="ttdoc">Matrix-scalar addition .</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dcb/matrix_8f90_source.html#l00214">matrix.f90:215</a></div></div>
 <div class="ttc" id="anamespacematrix_html_a436de793d5619d19a03a21a71173639a"><div class="ttname"><a href="../../d0/de4/namespacematrix.html#a436de793d5619d19a03a21a71173639a">matrix::matrix_sub_scalar_right</a></div><div class="ttdeci">type(matrix_t) function matrix_sub_scalar_right(c, m)</div><div class="ttdoc">Scalar-matrix subtraction .</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dcb/matrix_8f90_source.html#l00295">matrix.f90:296</a></div></div>
 <div class="ttc" id="anamespacematrix_html_a5d7f1ce6050eb662dfd8fb16040df71f"><div class="ttname"><a href="../../d0/de4/namespacematrix.html#a5d7f1ce6050eb662dfd8fb16040df71f">matrix::matrix_add_matrix</a></div><div class="ttdeci">type(matrix_t) function matrix_add_matrix(m, b)</div><div class="ttdoc">Matrix-matrix addition .</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dcb/matrix_8f90_source.html#l00189">matrix.f90:190</a></div></div>
 <div class="ttc" id="anamespacematrix_html_a5e6e4c97734ba6e625bfcab28235fc8a"><div class="ttname"><a href="../../d0/de4/namespacematrix.html#a5e6e4c97734ba6e625bfcab28235fc8a">matrix::matrix_add_scalar_right</a></div><div class="ttdeci">type(matrix_t) function matrix_add_scalar_right(c, m)</div><div class="ttdoc">Scalar-matrix addition .</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dcb/matrix_8f90_source.html#l00237">matrix.f90:238</a></div></div>
 <div class="ttc" id="anamespacematrix_html_a683ac8644bebc09bcfbabe901ef36c4c"><div class="ttname"><a href="../../d0/de4/namespacematrix.html#a683ac8644bebc09bcfbabe901ef36c4c">matrix::matrix_cmult_right</a></div><div class="ttdeci">type(matrix_t) function matrix_cmult_right(c, m)</div><div class="ttdoc">Scalar-matrix multiplication .</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dcb/matrix_8f90_source.html#l00334">matrix.f90:335</a></div></div>
-<div class="ttc" id="anamespacematrix_html_a77bc7bf99336376f8669da2ad524608b"><div class="ttname"><a href="../../d0/de4/namespacematrix.html#a77bc7bf99336376f8669da2ad524608b">matrix::matrix_bcknd_inverse</a></div><div class="ttdeci">subroutine matrix_bcknd_inverse(m)</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dcb/matrix_8f90_source.html#l00343">matrix.f90:344</a></div></div>
 <div class="ttc" id="anamespacematrix_html_a9e358506454343b5e8247f4a72928f2d"><div class="ttname"><a href="../../d0/de4/namespacematrix.html#a9e358506454343b5e8247f4a72928f2d">matrix::matrix_size</a></div><div class="ttdeci">integer function matrix_size(m)</div><div class="ttdoc">Returns the number of entries in the matrix.</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dcb/matrix_8f90_source.html#l00135">matrix.f90:136</a></div></div>
-<div class="ttc" id="anamespacematrix_html_aa00f35c664dd475891a304d88579170d"><div class="ttname"><a href="../../d0/de4/namespacematrix.html#aa00f35c664dd475891a304d88579170d">matrix::cpu_matrix_inverse</a></div><div class="ttdeci">subroutine cpu_matrix_inverse(m)</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dcb/matrix_8f90_source.html#l00352">matrix.f90:353</a></div></div>
+<div class="ttc" id="anamespacematrix_html_aa00f35c664dd475891a304d88579170d"><div class="ttname"><a href="../../d0/de4/namespacematrix.html#aa00f35c664dd475891a304d88579170d">matrix::cpu_matrix_inverse</a></div><div class="ttdeci">subroutine cpu_matrix_inverse(m)</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dcb/matrix_8f90_source.html#l00357">matrix.f90:358</a></div></div>
 <div class="ttc" id="anamespacematrix_html_aec1f42bb9193a96f5007d7a18866c2c7"><div class="ttname"><a href="../../d0/de4/namespacematrix.html#aec1f42bb9193a96f5007d7a18866c2c7">matrix::matrix_cmult_left</a></div><div class="ttdeci">type(matrix_t) function matrix_cmult_left(m, c)</div><div class="ttdoc">Matrix-scalar multiplication .</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dcb/matrix_8f90_source.html#l00311">matrix.f90:312</a></div></div>
 <div class="ttc" id="anamespacematrix_html_af73bdf08888c5e783a8fb27018f628bf"><div class="ttname"><a href="../../d0/de4/namespacematrix.html#af73bdf08888c5e783a8fb27018f628bf">matrix::matrix_sub_scalar_left</a></div><div class="ttdeci">type(matrix_t) function matrix_sub_scalar_left(m, c)</div><div class="ttdoc">Matrix-scalar subtraction .</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dcb/matrix_8f90_source.html#l00272">matrix.f90:273</a></div></div>
 <div class="ttc" id="anamespacematrix_html_af9c0fe0434823ffbdc86e5fedb934867"><div class="ttname"><a href="../../d0/de4/namespacematrix.html#af9c0fe0434823ffbdc86e5fedb934867">matrix::matrix_assign_scalar</a></div><div class="ttdeci">subroutine matrix_assign_scalar(m, s)</div><div class="ttdoc">Assignment .</div><div class="ttdef"><b>Definition:</b> <a href="../../dc/dcb/matrix_8f90_source.html#l00172">matrix.f90:173</a></div></div>
@@ -558,7 +563,7 @@ $(document).ready(function(){initNavTree('dc/dcb/matrix_8f90_source.html','../..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dc/dcb/matrix_8f90.html">matrix.f90</a></li>
-    <li class="footer">Generated on Thu Dec 12 2024 03:42:22 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Dec 13 2024 03:43:12 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

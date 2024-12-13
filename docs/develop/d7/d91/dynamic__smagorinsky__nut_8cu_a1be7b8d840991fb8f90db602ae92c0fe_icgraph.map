@@ -1,0 +1,8 @@
+<map id="cuda_mij_compute_part1" name="cuda_mij_compute_part1">
+<area shape="rect" id="node1" title=" " alt="" coords="1087,60,1273,87"/>
+<area shape="rect" id="node2" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a66e06c1331950e890bc37a4acacf8770" title="part 1 of the computing of the mij field" alt="" coords="804,53,1039,94"/>
+<area shape="rect" id="node3" href="$dd/daf/namespacedynamic__smagorinsky__device.html#a56facdb27492bdfa7fdd079dc0c28cd4" title="Compute M_ij and nut on the device." alt="" coords="546,5,714,61"/>
+<area shape="rect" id="node6" href="$d5/d58/interfacedevice__dynamic__smagorinsky__nut_1_1hip__mij__nut__compute__part2.html#adaaa41cd7e60e2552367285f1b7757f5" title=" " alt="" coords="504,85,756,141"/>
+<area shape="rect" id="node4" href="$dd/daf/namespacedynamic__smagorinsky__device.html#aac4c819a4f98d22b7a6a3379ca808154" title="Compute eddy viscosity on the device." alt="" coords="229,5,456,61"/>
+<area shape="rect" id="node5" href="$d4/d9c/namespacedynamic__smagorinsky.html#ad9e829fe19717511484cca0fe4524c52" title="Compute eddy viscosity." alt="" coords="5,5,181,61"/>
+</map>

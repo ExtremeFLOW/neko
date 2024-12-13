@@ -226,188 +226,187 @@ $(document).ready(function(){initNavTree('d2/d0e/dynamic__smagorinsky__cpu_8f90_
 <div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;       nut%x(i,1,1,1) = c_dyn%x(i,1,1,1) * delta%x(i,1,1,1)**2 * s_abs%x(i,1,1,1)</div>
 <div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;<span class="keywordflow">    end do</span></div>
 <div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160; </div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160; </div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%relinquish_field(temp_indices)</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#afc315d593e38cf654ffdc958baa9a5c6">dynamic_smagorinsky_compute_cpu</a></div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160; </div>
-<div class="line"><a name="l00157"></a><span class="lineno"><a class="line" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#af19ec537058567406004669f74bc8a78">  157</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#af19ec537058567406004669f74bc8a78">compute_lij_cpu</a>(lij, u, v, w, test_filter, n, nelv)</div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(inout)</span> :: lij(6)</div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span>, <span class="keywordtype">intent(in)</span> :: u, v, w</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html">elementwise_filter_t</a>), <span class="keywordtype">intent(inout)</span> :: test_filter</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: nelv</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(u%dof%size())</span> :: fu, fv, fw</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160; </div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    <span class="comment">! Use test filter for the velocity fields</span></div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fu, u%x, nelv)</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fv, v%x, nelv)</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fw, w%x, nelv)</div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160; </div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    <span class="comment">!! The first term</span></div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;       lij(1)%x(i,1,1,1) = fu(i) * fu(i)</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;       lij(2)%x(i,1,1,1) = fv(i) * fv(i)</div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;       lij(3)%x(i,1,1,1) = fw(i) * fw(i)</div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;       lij(4)%x(i,1,1,1) = fu(i) * fv(i)</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;       lij(5)%x(i,1,1,1) = fu(i) * fw(i)</div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;       lij(6)%x(i,1,1,1) = fv(i) * fw(i)</div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;<span class="keywordflow">    end do</span></div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160; </div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    <span class="comment">!! Subtract the second term:</span></div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    <span class="comment">!! use test filter for the cross terms</span></div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    <span class="comment">!! fu and fv are used as work array</span></div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fu, u%x, u%x, n)</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fv, fu, nelv)</div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(lij(1)%x, fv, n)</div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160; </div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fu, v%x, v%x, n)</div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fv, fu, nelv)</div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(lij(2)%x, fv, n)</div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160; </div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fu, w%x, w%x, n)</div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fv, fu, nelv)</div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(lij(3)%x, fv, n)</div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160; </div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fu, u%x, v%x, n)</div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fv, fu, nelv)</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(lij(4)%x, fv, n)</div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160; </div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fu, u%x, w%x, n)</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fv, fu, nelv)</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(lij(5)%x, fv, n)</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160; </div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fu, v%x, w%x, n)</div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fv, fu, nelv)</div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(lij(6)%x, fv, n)</div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160; </div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#af19ec537058567406004669f74bc8a78">compute_lij_cpu</a></div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160; </div>
-<div class="line"><a name="l00219"></a><span class="lineno"><a class="line" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#adbc178a64f50cacd8d279bb6748d9376">  219</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#adbc178a64f50cacd8d279bb6748d9376">compute_mij_cpu</a>(mij, s11, s22, s33, s12, s13, s23, &amp;</div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;                             s_abs, test_filter, delta, n, nelv)</div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(inout)</span> :: mij(6)</div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(inout)</span> :: s11, s22, s33, s12, s13, s23, s_abs</div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html">elementwise_filter_t</a>), <span class="keywordtype">intent(inout)</span> :: test_filter</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(in)</span> :: delta</div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: nelv</div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160; </div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(n)</span> :: fs11, fs22, fs33, fs12, fs13, fs23, fs_abs</div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: delta_ratio2 <span class="comment">!test- to grid- filter ratio, squared</span></div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: delta2</div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160; </div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    delta_ratio2 = ((test_filter%nx-1)/(test_filter%nt-1))**2</div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160; </div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;    <span class="comment">!! The first term:</span></div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;    <span class="comment">!!                      _____ ____</span></div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    <span class="comment">!! (delta_test/delta)^2 s_abs*s_ij</span></div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs_abs, s_abs%x, nelv)</div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160; </div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs11, s11%x, nelv)</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(mij(1)%x, fs_abs, fs11, n)</div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1">cmult</a>(mij(1)%x, delta_ratio2, n)</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160; </div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs22, s22%x, nelv)</div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(mij(2)%x, fs_abs, fs11, n)</div>
-<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1">cmult</a>(mij(2)%x, delta_ratio2, n)</div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160; </div>
-<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs33, s33%x, nelv)</div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(mij(3)%x, fs_abs, fs11, n)</div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1">cmult</a>(mij(3)%x, delta_ratio2, n)</div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160; </div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs12, s12%x, nelv)</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(mij(4)%x, fs_abs, fs11, n)</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1">cmult</a>(mij(4)%x, delta_ratio2, n)</div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160; </div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs13, s13%x, nelv)</div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(mij(5)%x, fs_abs, fs11, n)</div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1">cmult</a>(mij(5)%x, delta_ratio2, n)</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160; </div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs23, s23%x, nelv)</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(mij(6)%x, fs_abs, fs11, n)</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1">cmult</a>(mij(6)%x, delta_ratio2, n)</div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160; </div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    <span class="comment">!! Substract the second term:</span></div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;    <span class="comment">!!                      _____ ____   __________</span></div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    <span class="comment">!! (delta_test/delta)^2 s_abs*s_ij - s_abs*s_ij</span></div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    <span class="comment">!! fs11 and fs22 are used as work array</span></div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fs11, s_abs%x, s11%x, n)</div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs22, fs11, nelv)</div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(mij(1)%x, fs22, n)</div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160; </div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fs11, s_abs%x, s22%x, n)</div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs22, fs11, nelv)</div>
-<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(mij(2)%x, fs22, n)</div>
-<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160; </div>
-<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fs11, s_abs%x, s33%x, n)</div>
-<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs22, fs11, nelv)</div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(mij(3)%x, fs22, n)</div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160; </div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fs11, s_abs%x, s12%x, n)</div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs22, fs11, nelv)</div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(mij(4)%x, fs22, n)</div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160; </div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fs11, s_abs%x, s13%x, n)</div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs22, fs11, nelv)</div>
-<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(mij(5)%x, fs22, n)</div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160; </div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fs11, s_abs%x, s23%x, n)</div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs22, fs11, nelv)</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(mij(6)%x, fs22, n)</div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160; </div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    <span class="comment">!! Lastly multiplied by delta^2</span></div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;       delta2 = delta%x(i,1,1,1)**2</div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;       mij(1)%x(i,1,1,1) = mij(1)%x(i,1,1,1) * delta2</div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;       mij(2)%x(i,1,1,1) = mij(2)%x(i,1,1,1) * delta2</div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;       mij(3)%x(i,1,1,1) = mij(3)%x(i,1,1,1) * delta2</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;       mij(4)%x(i,1,1,1) = mij(4)%x(i,1,1,1) * delta2</div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;       mij(5)%x(i,1,1,1) = mij(5)%x(i,1,1,1) * delta2</div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;       mij(6)%x(i,1,1,1) = mij(6)%x(i,1,1,1) * delta2</div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;<span class="keywordflow">    end do</span></div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160; </div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#adbc178a64f50cacd8d279bb6748d9376">compute_mij_cpu</a></div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160; </div>
-<div class="line"><a name="l00311"></a><span class="lineno"><a class="line" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#a943f162fc6c5b0d7695ceec20c11a909">  311</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#a943f162fc6c5b0d7695ceec20c11a909">compute_num_den_cpu</a>(num, den, lij, mij, alpha, n)</div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(inout)</span> :: num, den</div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(in)</span> :: lij(6), mij(6)</div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: alpha</div>
-<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160; </div>
-<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(n)</span> :: num_curr, den_curr</div>
-<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160; </div>
-<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;    <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
-<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;       num_curr(i) = mij(1)%x(i,1,1,1)*lij(1)%x(i,1,1,1) + &amp;</div>
-<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;                     mij(2)%x(i,1,1,1)*lij(2)%x(i,1,1,1) + &amp;</div>
-<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;                     mij(3)%x(i,1,1,1)*lij(3)%x(i,1,1,1) + &amp;</div>
-<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;                     2.0_rp*(mij(4)%x(i,1,1,1)*lij(4)%x(i,1,1,1) + &amp;</div>
-<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;                     mij(5)%x(i,1,1,1)*lij(5)%x(i,1,1,1) + &amp;</div>
-<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;                     mij(6)%x(i,1,1,1)*lij(6)%x(i,1,1,1))</div>
-<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;       den_curr(i) = mij(1)%x(i,1,1,1)*mij(1)%x(i,1,1,1) + &amp;</div>
-<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;                     mij(2)%x(i,1,1,1)*mij(2)%x(i,1,1,1) + &amp;</div>
-<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;                     mij(3)%x(i,1,1,1)*mij(3)%x(i,1,1,1) + &amp;</div>
-<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;                     2.0_rp*(mij(4)%x(i,1,1,1)*mij(4)%x(i,1,1,1) + &amp;</div>
-<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;                     mij(5)%x(i,1,1,1)*mij(5)%x(i,1,1,1) + &amp;</div>
-<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;                     mij(6)%x(i,1,1,1)*mij(6)%x(i,1,1,1))</div>
-<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;<span class="keywordflow">    end do</span></div>
-<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160; </div>
-<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;    <span class="comment">! running average over time</span></div>
-<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;    <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
-<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;       num%x(i,1,1,1) = alpha * num%x(i,1,1,1) + (1.0_rp - alpha) * num_curr(i)</div>
-<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;       den%x(i,1,1,1) = alpha * den%x(i,1,1,1) + (1.0_rp - alpha) * den_curr(i)</div>
-<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;<span class="keywordflow">    end do</span></div>
-<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160; </div>
-<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#a943f162fc6c5b0d7695ceec20c11a909">compute_num_den_cpu</a></div>
-<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160; </div>
-<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;<span class="keyword">end module </span><a class="code" href="../../da/def/namespacedynamic__smagorinsky__cpu.html">dynamic_smagorinsky_cpu</a></div>
-<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160; </div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%relinquish_field(temp_indices)</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#afc315d593e38cf654ffdc958baa9a5c6">dynamic_smagorinsky_compute_cpu</a></div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160; </div>
+<div class="line"><a name="l00156"></a><span class="lineno"><a class="line" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#af19ec537058567406004669f74bc8a78">  156</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#af19ec537058567406004669f74bc8a78">compute_lij_cpu</a>(lij, u, v, w, test_filter, n, nelv)</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(inout)</span> :: lij(6)</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span>, <span class="keywordtype">intent(in)</span> :: u, v, w</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html">elementwise_filter_t</a>), <span class="keywordtype">intent(inout)</span> :: test_filter</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: nelv</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(u%dof%size())</span> :: fu, fv, fw</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160; </div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    <span class="comment">! Use test filter for the velocity fields</span></div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fu, u%x, nelv)</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fv, v%x, nelv)</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fw, w%x, nelv)</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160; </div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    <span class="comment">!! The first term</span></div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;       lij(1)%x(i,1,1,1) = fu(i) * fu(i)</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;       lij(2)%x(i,1,1,1) = fv(i) * fv(i)</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;       lij(3)%x(i,1,1,1) = fw(i) * fw(i)</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;       lij(4)%x(i,1,1,1) = fu(i) * fv(i)</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;       lij(5)%x(i,1,1,1) = fu(i) * fw(i)</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;       lij(6)%x(i,1,1,1) = fv(i) * fw(i)</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160; </div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    <span class="comment">!! Subtract the second term:</span></div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    <span class="comment">!! use test filter for the cross terms</span></div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    <span class="comment">!! fu and fv are used as work array</span></div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fu, u%x, u%x, n)</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fv, fu, nelv)</div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(lij(1)%x, fv, n)</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160; </div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fu, v%x, v%x, n)</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fv, fu, nelv)</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(lij(2)%x, fv, n)</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160; </div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fu, w%x, w%x, n)</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fv, fu, nelv)</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(lij(3)%x, fv, n)</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160; </div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fu, u%x, v%x, n)</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fv, fu, nelv)</div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(lij(4)%x, fv, n)</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160; </div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fu, u%x, w%x, n)</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fv, fu, nelv)</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(lij(5)%x, fv, n)</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160; </div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fu, v%x, w%x, n)</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fv, fu, nelv)</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(lij(6)%x, fv, n)</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160; </div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#af19ec537058567406004669f74bc8a78">compute_lij_cpu</a></div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160; </div>
+<div class="line"><a name="l00218"></a><span class="lineno"><a class="line" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#adbc178a64f50cacd8d279bb6748d9376">  218</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#adbc178a64f50cacd8d279bb6748d9376">compute_mij_cpu</a>(mij, s11, s22, s33, s12, s13, s23, &amp;</div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;                             s_abs, test_filter, delta, n, nelv)</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(inout)</span> :: mij(6)</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(inout)</span> :: s11, s22, s33, s12, s13, s23, s_abs</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html">elementwise_filter_t</a>), <span class="keywordtype">intent(inout)</span> :: test_filter</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(in)</span> :: delta</div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: nelv</div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160; </div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(n)</span> :: fs11, fs22, fs33, fs12, fs13, fs23, fs_abs</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: delta_ratio2 <span class="comment">!test- to grid- filter ratio, squared</span></div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: delta2</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160; </div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    delta_ratio2 = ((test_filter%nx-1.0_rp)/(test_filter%nt-1.0_rp))**2</div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160; </div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;    <span class="comment">!! The first term:</span></div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;    <span class="comment">!!                      _____ ____</span></div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;    <span class="comment">!! (delta_test/delta)^2 s_abs*s_ij</span></div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs_abs, s_abs%x, nelv)</div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160; </div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs11, s11%x, nelv)</div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(mij(1)%x, fs_abs, fs11, n)</div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1">cmult</a>(mij(1)%x, delta_ratio2, n)</div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160; </div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs22, s22%x, nelv)</div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(mij(2)%x, fs_abs, fs22, n)</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1">cmult</a>(mij(2)%x, delta_ratio2, n)</div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160; </div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs33, s33%x, nelv)</div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(mij(3)%x, fs_abs, fs33, n)</div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1">cmult</a>(mij(3)%x, delta_ratio2, n)</div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160; </div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs12, s12%x, nelv)</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(mij(4)%x, fs_abs, fs12, n)</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1">cmult</a>(mij(4)%x, delta_ratio2, n)</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160; </div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs13, s13%x, nelv)</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(mij(5)%x, fs_abs, fs13, n)</div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1">cmult</a>(mij(5)%x, delta_ratio2, n)</div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160; </div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs23, s23%x, nelv)</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(mij(6)%x, fs_abs, fs23, n)</div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1">cmult</a>(mij(6)%x, delta_ratio2, n)</div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160; </div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;    <span class="comment">!! Substract the second term:</span></div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    <span class="comment">!!                      _____ ____   __________</span></div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;    <span class="comment">!! (delta_test/delta)^2 s_abs*s_ij - s_abs*s_ij</span></div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    <span class="comment">!! fs11 and fs22 are used as work array</span></div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fs11, s_abs%x, s11%x, n)</div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs22, fs11, nelv)</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(mij(1)%x, fs22, n)</div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160; </div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fs11, s_abs%x, s22%x, n)</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs22, fs11, nelv)</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(mij(2)%x, fs22, n)</div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160; </div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fs11, s_abs%x, s33%x, n)</div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs22, fs11, nelv)</div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(mij(3)%x, fs22, n)</div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160; </div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fs11, s_abs%x, s12%x, n)</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs22, fs11, nelv)</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(mij(4)%x, fs22, n)</div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160; </div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fs11, s_abs%x, s13%x, n)</div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs22, fs11, nelv)</div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(mij(5)%x, fs22, n)</div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160; </div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c">col3</a>(fs11, s_abs%x, s23%x, n)</div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    <span class="keyword">call </span>test_filter%filter_3d(fs22, fs11, nelv)</div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe">sub2</a>(mij(6)%x, fs22, n)</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160; </div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    <span class="comment">!! Lastly multiplied by delta^2</span></div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;       delta2 = delta%x(i,1,1,1)**2</div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;       mij(1)%x(i,1,1,1) = mij(1)%x(i,1,1,1) * delta2</div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;       mij(2)%x(i,1,1,1) = mij(2)%x(i,1,1,1) * delta2</div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;       mij(3)%x(i,1,1,1) = mij(3)%x(i,1,1,1) * delta2</div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;       mij(4)%x(i,1,1,1) = mij(4)%x(i,1,1,1) * delta2</div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;       mij(5)%x(i,1,1,1) = mij(5)%x(i,1,1,1) * delta2</div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;       mij(6)%x(i,1,1,1) = mij(6)%x(i,1,1,1) * delta2</div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160; </div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#adbc178a64f50cacd8d279bb6748d9376">compute_mij_cpu</a></div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160; </div>
+<div class="line"><a name="l00310"></a><span class="lineno"><a class="line" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#a943f162fc6c5b0d7695ceec20c11a909">  310</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#a943f162fc6c5b0d7695ceec20c11a909">compute_num_den_cpu</a>(num, den, lij, mij, alpha, n)</div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(inout)</span> :: num, den</div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;    <span class="keywordtype">type</span>(<a class="code" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">intent(in)</span> :: lij(6), mij(6)</div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: alpha</div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160; </div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(n)</span> :: num_curr, den_curr</div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160; </div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;    <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;       num_curr(i) = mij(1)%x(i,1,1,1)*lij(1)%x(i,1,1,1) + &amp;</div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;                     mij(2)%x(i,1,1,1)*lij(2)%x(i,1,1,1) + &amp;</div>
+<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;                     mij(3)%x(i,1,1,1)*lij(3)%x(i,1,1,1) + &amp;</div>
+<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;                     2.0_rp*(mij(4)%x(i,1,1,1)*lij(4)%x(i,1,1,1) + &amp;</div>
+<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;                     mij(5)%x(i,1,1,1)*lij(5)%x(i,1,1,1) + &amp;</div>
+<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;                     mij(6)%x(i,1,1,1)*lij(6)%x(i,1,1,1))</div>
+<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;       den_curr(i) = mij(1)%x(i,1,1,1)*mij(1)%x(i,1,1,1) + &amp;</div>
+<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;                     mij(2)%x(i,1,1,1)*mij(2)%x(i,1,1,1) + &amp;</div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;                     mij(3)%x(i,1,1,1)*mij(3)%x(i,1,1,1) + &amp;</div>
+<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;                     2.0_rp*(mij(4)%x(i,1,1,1)*mij(4)%x(i,1,1,1) + &amp;</div>
+<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;                     mij(5)%x(i,1,1,1)*mij(5)%x(i,1,1,1) + &amp;</div>
+<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;                     mij(6)%x(i,1,1,1)*mij(6)%x(i,1,1,1))</div>
+<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160; </div>
+<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;    <span class="comment">! running average over time</span></div>
+<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;    <span class="keywordflow">do</span> concurrent(i = 1:n)</div>
+<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;       num%x(i,1,1,1) = alpha * num%x(i,1,1,1) + (1.0_rp - alpha) * num_curr(i)</div>
+<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;       den%x(i,1,1,1) = alpha * den%x(i,1,1,1) + (1.0_rp - alpha) * den_curr(i)</div>
+<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160; </div>
+<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#a943f162fc6c5b0d7695ceec20c11a909">compute_num_den_cpu</a></div>
+<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160; </div>
+<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;<span class="keyword">end module </span><a class="code" href="../../da/def/namespacedynamic__smagorinsky__cpu.html">dynamic_smagorinsky_cpu</a></div>
+<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160; </div>
 <div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition:</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
 <div class="ttc" id="anamespacedynamic__smagorinsky__cpu_html"><div class="ttname"><a href="../../da/def/namespacedynamic__smagorinsky__cpu.html">dynamic_smagorinsky_cpu</a></div><div class="ttdoc">Implements the CPU kernel for the smagorinsky_t type.</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90_source.html#l00034">dynamic_smagorinsky_cpu.f90:34</a></div></div>
-<div class="ttc" id="anamespacedynamic__smagorinsky__cpu_html_a943f162fc6c5b0d7695ceec20c11a909"><div class="ttname"><a href="../../da/def/namespacedynamic__smagorinsky__cpu.html#a943f162fc6c5b0d7695ceec20c11a909">dynamic_smagorinsky_cpu::compute_num_den_cpu</a></div><div class="ttdeci">subroutine compute_num_den_cpu(num, den, lij, mij, alpha, n)</div><div class="ttdoc">Compute numerator and denominator for c_dyn on the CPU.</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90_source.html#l00311">dynamic_smagorinsky_cpu.f90:312</a></div></div>
-<div class="ttc" id="anamespacedynamic__smagorinsky__cpu_html_adbc178a64f50cacd8d279bb6748d9376"><div class="ttname"><a href="../../da/def/namespacedynamic__smagorinsky__cpu.html#adbc178a64f50cacd8d279bb6748d9376">dynamic_smagorinsky_cpu::compute_mij_cpu</a></div><div class="ttdeci">subroutine compute_mij_cpu(mij, s11, s22, s33, s12, s13, s23, s_abs, test_filter, delta, n, nelv)</div><div class="ttdoc">Compute M_ij on the CPU.</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90_source.html#l00219">dynamic_smagorinsky_cpu.f90:221</a></div></div>
-<div class="ttc" id="anamespacedynamic__smagorinsky__cpu_html_af19ec537058567406004669f74bc8a78"><div class="ttname"><a href="../../da/def/namespacedynamic__smagorinsky__cpu.html#af19ec537058567406004669f74bc8a78">dynamic_smagorinsky_cpu::compute_lij_cpu</a></div><div class="ttdeci">subroutine compute_lij_cpu(lij, u, v, w, test_filter, n, nelv)</div><div class="ttdoc">Compute Germano Identity on the CPU.</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90_source.html#l00157">dynamic_smagorinsky_cpu.f90:158</a></div></div>
+<div class="ttc" id="anamespacedynamic__smagorinsky__cpu_html_a943f162fc6c5b0d7695ceec20c11a909"><div class="ttname"><a href="../../da/def/namespacedynamic__smagorinsky__cpu.html#a943f162fc6c5b0d7695ceec20c11a909">dynamic_smagorinsky_cpu::compute_num_den_cpu</a></div><div class="ttdeci">subroutine compute_num_den_cpu(num, den, lij, mij, alpha, n)</div><div class="ttdoc">Compute numerator and denominator for c_dyn on the CPU.</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90_source.html#l00310">dynamic_smagorinsky_cpu.f90:311</a></div></div>
+<div class="ttc" id="anamespacedynamic__smagorinsky__cpu_html_adbc178a64f50cacd8d279bb6748d9376"><div class="ttname"><a href="../../da/def/namespacedynamic__smagorinsky__cpu.html#adbc178a64f50cacd8d279bb6748d9376">dynamic_smagorinsky_cpu::compute_mij_cpu</a></div><div class="ttdeci">subroutine compute_mij_cpu(mij, s11, s22, s33, s12, s13, s23, s_abs, test_filter, delta, n, nelv)</div><div class="ttdoc">Compute M_ij on the CPU.</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90_source.html#l00218">dynamic_smagorinsky_cpu.f90:220</a></div></div>
+<div class="ttc" id="anamespacedynamic__smagorinsky__cpu_html_af19ec537058567406004669f74bc8a78"><div class="ttname"><a href="../../da/def/namespacedynamic__smagorinsky__cpu.html#af19ec537058567406004669f74bc8a78">dynamic_smagorinsky_cpu::compute_lij_cpu</a></div><div class="ttdeci">subroutine compute_lij_cpu(lij, u, v, w, test_filter, n, nelv)</div><div class="ttdoc">Compute Germano Identity on the CPU.</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90_source.html#l00156">dynamic_smagorinsky_cpu.f90:157</a></div></div>
 <div class="ttc" id="anamespacedynamic__smagorinsky__cpu_html_afc315d593e38cf654ffdc958baa9a5c6"><div class="ttname"><a href="../../da/def/namespacedynamic__smagorinsky__cpu.html#afc315d593e38cf654ffdc958baa9a5c6">dynamic_smagorinsky_cpu::dynamic_smagorinsky_compute_cpu</a></div><div class="ttdeci">subroutine, public dynamic_smagorinsky_compute_cpu(t, tstep, coef, nut, delta, c_dyn, test_filter, mij, lij, num, den)</div><div class="ttdoc">Compute eddy viscosity on the CPU.</div><div class="ttdef"><b>Definition:</b> <a href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90_source.html#l00064">dynamic_smagorinsky_cpu.f90:66</a></div></div>
 <div class="ttc" id="anamespaceelementwise__filter_html"><div class="ttname"><a href="../../dd/d52/namespaceelementwise__filter.html">elementwise_filter</a></div><div class="ttdoc">Implements explicit_filter_t.</div><div class="ttdef"><b>Definition:</b> <a href="../../df/d9a/elementwise__filter_8f90_source.html#l00035">elementwise_filter.f90:35</a></div></div>
 <div class="ttc" id="anamespacefield__list_html"><div class="ttname"><a href="../../df/d2b/namespacefield__list.html">field_list</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d1/d13/field__list_8f90_source.html#l00001">field_list.f90:1</a></div></div>
@@ -430,7 +429,7 @@ $(document).ready(function(){initNavTree('d2/d0e/dynamic__smagorinsky__cpu_8f90_
 <div class="ttc" id="anamespacescratch__registry_html"><div class="ttname"><a href="../../d7/dda/namespacescratch__registry.html">scratch_registry</a></div><div class="ttdoc">Defines a registry for storing and requesting temporary fields This can be used when you have a funct...</div><div class="ttdef"><b>Definition:</b> <a href="../../dd/da7/scratch__registry_8f90_source.html#l00037">scratch_registry.f90:37</a></div></div>
 <div class="ttc" id="anamespacescratch__registry_html_a7b6f3078b09ebf3bee55b4cdcc701f01"><div class="ttname"><a href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">scratch_registry::neko_scratch_registry</a></div><div class="ttdeci">type(scratch_registry_t), target, public neko_scratch_registry</div><div class="ttdoc">Global scratch registry.</div><div class="ttdef"><b>Definition:</b> <a href="../../dd/da7/scratch__registry_8f90_source.html#l00085">scratch_registry.f90:85</a></div></div>
 <div class="ttc" id="astructcoefs_1_1coef__t_html"><div class="ttname"><a href="../../d0/dea/structcoefs_1_1coef__t.html">coefs::coef_t</a></div><div class="ttdoc">Coefficients defined on a given (mesh, ) tuple. Arrays use indices (i,j,k,e): element e,...</div><div class="ttdef"><b>Definition:</b> <a href="../../db/d85/coef_8f90_source.html#l00055">coef.f90:55</a></div></div>
-<div class="ttc" id="astructelementwise__filter_1_1elementwise__filter__t_html"><div class="ttname"><a href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html">elementwise_filter::elementwise_filter_t</a></div><div class="ttdoc">Implements the explicit filter for SEM.</div><div class="ttdef"><b>Definition:</b> <a href="../../df/d9a/elementwise__filter_8f90_source.html#l00047">elementwise_filter.f90:47</a></div></div>
+<div class="ttc" id="astructelementwise__filter_1_1elementwise__filter__t_html"><div class="ttname"><a href="../../d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html">elementwise_filter::elementwise_filter_t</a></div><div class="ttdoc">Implements the explicit filter for SEM.</div><div class="ttdef"><b>Definition:</b> <a href="../../df/d9a/elementwise__filter_8f90_source.html#l00051">elementwise_filter.f90:51</a></div></div>
 <div class="ttc" id="astructfield_1_1field__t_html"><div class="ttname"><a href="../../d3/d5f/structfield_1_1field__t.html">field::field_t</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d3/dc1/field_8f90_source.html#l00046">field.f90:46</a></div></div>
 <div class="ttc" id="astructfield__list_1_1field__list__t_html"><div class="ttname"><a href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list::field_list_t</a></div><div class="ttdoc">field_list_t, To be able to group fields together</div><div class="ttdef"><b>Definition:</b> <a href="../../d1/d13/field__list_8f90_source.html#l00013">field_list.f90:13</a></div></div>
 <div class="ttc" id="atensor_8cu_html_affe776513b24d84b39af8ab0930fef7f"><div class="ttname"><a href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a></div><div class="ttdeci">#define max(a, b)</div><div class="ttdef"><b>Definition:</b> <a href="../../d9/d0b/tensor_8cu_source.html#l00040">tensor.cu:40</a></div></div>
@@ -440,7 +439,7 @@ $(document).ready(function(){initNavTree('d2/d0e/dynamic__smagorinsky__cpu_8f90_
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_6ac2283507a4fed10461ea6c78ce067a.html">les</a></li><li class="navelem"><a class="el" href="../../dir_599240cb2473dd34d041fb3ead8fcd0b.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_ee8f11d8cee760fc642c696cb0e96a7e.html">cpu</a></li><li class="navelem"><a class="el" href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90.html">dynamic_smagorinsky_cpu.f90</a></li>
-    <li class="footer">Generated on Thu Dec 12 2024 03:42:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Dec 13 2024 03:43:12 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

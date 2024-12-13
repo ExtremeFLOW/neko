@@ -1,0 +1,13 @@
+<map id="device_dynamic_smagorinsky_nut::hip_mij_nut_compute_part2::hip_mij_nut_compute_part2" name="device_dynamic_smagorinsky_nut::hip_mij_nut_compute_part2::hip_mij_nut_compute_part2">
+<area shape="rect" id="node1" title=" " alt="" coords="5,129,257,185"/>
+<area shape="rect" id="node2" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a22bc401b3e2a942519a5f5d7b9b4d978" title="part 1 of the computing of the lij field" alt="" coords="324,5,549,47"/>
+<area shape="rect" id="node4" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#ad2a7f3e8548b2a06ad85f699241afebc" title="part 2 of the computing of the lij field" alt="" coords="324,71,549,112"/>
+<area shape="rect" id="node6" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a66e06c1331950e890bc37a4acacf8770" title="part 1 of the computing of the mij field" alt="" coords="319,136,554,177"/>
+<area shape="rect" id="node8" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a3770ef9a40097a3c73eec0fde91564ba" title="part 1 of the computing of the mij field" alt="" coords="305,201,568,243"/>
+<area shape="rect" id="node10" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a8945e2c48283702f00c52a36d1a099ce" title="Compute the s_abs field for the Sigma model indevice." alt="" coords="327,267,546,308"/>
+<area shape="rect" id="node3" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#ab95ad8f0eaeaa97b02e66151ff78c056" title=" " alt="" coords="621,13,798,39"/>
+<area shape="rect" id="node5" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#afd1b9f81889807e524c8f98ae3a84a8b" title=" " alt="" coords="621,78,798,105"/>
+<area shape="rect" id="node7" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#a1be7b8d840991fb8f90db602ae92c0fe" title=" " alt="" coords="616,143,803,170"/>
+<area shape="rect" id="node9" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#ad0df6bec2e5ce933b33c390d005f33c4" title=" " alt="" coords="623,201,796,243"/>
+<area shape="rect" id="node11" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#a9a4c90f2c9ec488e02cd32c2fdb95851" title=" " alt="" coords="629,274,790,301"/>
+</map>

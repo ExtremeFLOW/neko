@@ -1,0 +1,7 @@
+<map id="dynamic_smagorinsky_device::compute_nut_device" name="dynamic_smagorinsky_device::compute_nut_device">
+<area shape="rect" id="node1" title="Compute M_ij and nut on the device." alt="" coords="5,31,173,87"/>
+<area shape="rect" id="node2" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a66e06c1331950e890bc37a4acacf8770" title="part 1 of the computing of the mij field" alt="" coords="235,5,470,47"/>
+<area shape="rect" id="node4" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a3770ef9a40097a3c73eec0fde91564ba" title="part 1 of the computing of the mij field" alt="" coords="221,71,484,112"/>
+<area shape="rect" id="node3" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#a1be7b8d840991fb8f90db602ae92c0fe" title=" " alt="" coords="532,13,719,39"/>
+<area shape="rect" id="node5" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#ad0df6bec2e5ce933b33c390d005f33c4" title=" " alt="" coords="539,71,712,112"/>
+</map>

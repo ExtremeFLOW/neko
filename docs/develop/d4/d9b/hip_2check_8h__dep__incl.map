@@ -1,5 +1,5 @@
 <map id="/home/runner/work/neko/neko/src/device/hip/check.h" name="/home/runner/work/neko/neko/src/device/hip/check.h">
-<area shape="rect" id="node1" title=" " alt="" coords="3869,5,4075,47"/>
+<area shape="rect" id="node1" title=" " alt="" coords="4089,5,4295,47"/>
 <area shape="rect" id="node2" href="$de/d49/dirichlet_8hip.html" title=" " alt="" coords="5,102,195,158"/>
 <area shape="rect" id="node3" href="$d3/d52/dong__outflow_8hip.html" title=" " alt="" coords="219,102,408,158"/>
 <area shape="rect" id="node4" href="$d5/d08/facet__normal_8hip.html" title=" " alt="" coords="432,102,621,158"/>
@@ -19,22 +19,24 @@
 <area shape="rect" id="node18" href="$da/d1d/gmres__aux_8hip.html" title=" " alt="" coords="3450,102,3643,158"/>
 <area shape="rect" id="node19" href="$d0/d8a/pc__jacobi_8hip.html" title=" " alt="" coords="3667,102,3850,158"/>
 <area shape="rect" id="node20" href="$da/d9a/pipecg__aux_8hip.html" title=" " alt="" coords="3875,102,4069,158"/>
-<area shape="rect" id="node21" href="$d5/d0f/sigma__nut_8hip.html" title=" " alt="" coords="4094,102,4287,158"/>
-<area shape="rect" id="node22" href="$de/dbe/vreman__nut_8hip.html" title=" " alt="" coords="4311,102,4505,158"/>
-<area shape="rect" id="node23" href="$de/d11/ax__helm_8hip.html" title=" " alt="" coords="4529,102,4737,158"/>
-<area shape="rect" id="node24" href="$d0/de7/ax__helm__full_8hip.html" title=" " alt="" coords="4761,102,4969,158"/>
-<area shape="rect" id="node25" href="$de/d7f/fdm_8hip.html" title=" " alt="" coords="4993,102,5201,158"/>
-<area shape="rect" id="node26" href="$de/d9b/math_8hip.html" title=" " alt="" coords="5225,102,5433,158"/>
-<area shape="rect" id="node27" href="$d5/d0f/mathops_8hip.html" title=" " alt="" coords="5457,102,5665,158"/>
-<area shape="rect" id="node28" href="$d9/d63/opr__cdtp_8hip.html" title=" " alt="" coords="5689,102,5897,158"/>
-<area shape="rect" id="node29" href="$d1/d38/opr__cfl_8hip.html" title=" " alt="" coords="5921,102,6129,158"/>
-<area shape="rect" id="node30" href="$d3/d39/opr__conv1_8hip.html" title=" " alt="" coords="6153,102,6361,158"/>
-<area shape="rect" id="node31" href="$d6/d27/opr__dudxyz_8hip.html" title=" " alt="" coords="6385,102,6593,158"/>
-<area shape="rect" id="node32" href="$d2/dfe/opr__lambda2_8hip.html" title=" " alt="" coords="6617,102,6825,158"/>
-<area shape="rect" id="node33" href="$d5/dc3/opr__opgrad_8hip.html" title=" " alt="" coords="6849,102,7057,158"/>
-<area shape="rect" id="node34" href="$d3/d58/schwarz_8hip.html" title=" " alt="" coords="7081,102,7289,158"/>
-<area shape="rect" id="node35" href="$d1/dea/tensor_8hip.html" title=" " alt="" coords="7313,102,7521,158"/>
-<area shape="rect" id="node36" href="$d9/d99/scalar__residual_8hip.html" title=" " alt="" coords="7545,102,7764,158"/>
-<area shape="rect" id="node37" href="$d9/dc3/coef_8hip.html" title=" " alt="" coords="7788,102,7991,158"/>
-<area shape="rect" id="node38" href="$da/d77/filters_8hip.html" title=" " alt="" coords="8015,102,8217,158"/>
+<area shape="rect" id="node21" href="$d3/d45/dynamic__smagorinsky__nut_8hip.html" title=" " alt="" coords="4094,95,4290,165"/>
+<area shape="rect" id="node22" href="$d5/d0f/sigma__nut_8hip.html" title=" " alt="" coords="4314,102,4507,158"/>
+<area shape="rect" id="node23" href="$d0/d6e/smagorinsky__nut_8hip.html" title=" " alt="" coords="4531,102,4725,158"/>
+<area shape="rect" id="node24" href="$de/dbe/vreman__nut_8hip.html" title=" " alt="" coords="4749,102,4942,158"/>
+<area shape="rect" id="node25" href="$de/d11/ax__helm_8hip.html" title=" " alt="" coords="4967,102,5175,158"/>
+<area shape="rect" id="node26" href="$d0/de7/ax__helm__full_8hip.html" title=" " alt="" coords="5199,102,5407,158"/>
+<area shape="rect" id="node27" href="$de/d7f/fdm_8hip.html" title=" " alt="" coords="5431,102,5639,158"/>
+<area shape="rect" id="node28" href="$de/d9b/math_8hip.html" title=" " alt="" coords="5663,102,5871,158"/>
+<area shape="rect" id="node29" href="$d5/d0f/mathops_8hip.html" title=" " alt="" coords="5895,102,6103,158"/>
+<area shape="rect" id="node30" href="$d9/d63/opr__cdtp_8hip.html" title=" " alt="" coords="6127,102,6335,158"/>
+<area shape="rect" id="node31" href="$d1/d38/opr__cfl_8hip.html" title=" " alt="" coords="6359,102,6567,158"/>
+<area shape="rect" id="node32" href="$d3/d39/opr__conv1_8hip.html" title=" " alt="" coords="6591,102,6799,158"/>
+<area shape="rect" id="node33" href="$d6/d27/opr__dudxyz_8hip.html" title=" " alt="" coords="6823,102,7031,158"/>
+<area shape="rect" id="node34" href="$d2/dfe/opr__lambda2_8hip.html" title=" " alt="" coords="7055,102,7263,158"/>
+<area shape="rect" id="node35" href="$d5/dc3/opr__opgrad_8hip.html" title=" " alt="" coords="7287,102,7495,158"/>
+<area shape="rect" id="node36" href="$d3/d58/schwarz_8hip.html" title=" " alt="" coords="7519,102,7727,158"/>
+<area shape="rect" id="node37" href="$d1/dea/tensor_8hip.html" title=" " alt="" coords="7751,102,7959,158"/>
+<area shape="rect" id="node38" href="$d9/d99/scalar__residual_8hip.html" title=" " alt="" coords="7983,102,8201,158"/>
+<area shape="rect" id="node39" href="$d9/dc3/coef_8hip.html" title=" " alt="" coords="8225,102,8428,158"/>
+<area shape="rect" id="node40" href="$da/d77/filters_8hip.html" title=" " alt="" coords="8453,102,8654,158"/>
 </map>

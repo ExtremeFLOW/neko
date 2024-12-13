@@ -173,25 +173,26 @@ $(document).ready(function(){initNavTree('de/d44/elementwise__filter__cpu_8f90_s
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="keywordflow">    end do</span></div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160; </div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d8c/namespacetensor.html#a8947209d2430fc2471fbf9d2984485da">trsp</a>(phi%x, nx, pht%x, nx)</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    pht = phi</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keyword">call </span>pht%inverse()</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160; </div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    diag = 0.0_rp</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160; </div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="keywordflow">do</span> i=1,nx</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;       diag(i,i) = trnsfr(i)</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="keywordflow">    end do</span></div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160; </div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>  (diag, nx, pht%x, nx, fh, nx)       <span class="comment">!          -1</span></div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>  (phi%x, nx, fh, nx, pht%x, nx)      <span class="comment">!     V D V</span></div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160; </div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602">copy</a>      (fh, pht%x, nx*nx)</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d8c/namespacetensor.html#a8947209d2430fc2471fbf9d2984485da">trsp</a> (fht, nx, fh, nx)</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160; </div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../dd/d26/namespaceelementwise__filter__cpu.html#aafca1eafd7fe7847fb28b285189ca02f">build_1d_cpu</a></div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160; </div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="keyword">end module </span><a class="code" href="../../dd/d26/namespaceelementwise__filter__cpu.html">elementwise_filter_cpu</a></div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160; </div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    pht%x = phi%x</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160; </div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keyword">call </span>pht%inverse(0) <span class="comment">! &quot;0&quot; for cpu implementation</span></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160; </div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    diag = 0.0_rp</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160; </div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keywordflow">do</span> i=1,nx</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;       diag(i,i) = trnsfr(i)</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="keywordflow">    end do</span></div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160; </div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>  (diag, nx, pht%x, nx, fh, nx)       <span class="comment">!          -1</span></div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keyword">call </span><a class="code" href="../../d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed">mxm</a>  (phi%x, nx, fh, nx, pht%x, nx)      <span class="comment">!     V D V</span></div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160; </div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602">copy</a>      (fh, pht%x, nx*nx)</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    <span class="keyword">call </span><a class="code" href="../../dd/d8c/namespacetensor.html#a8947209d2430fc2471fbf9d2984485da">trsp</a> (fht, nx, fh, nx)</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160; </div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  <span class="keyword">end subroutine </span><a class="code" href="../../dd/d26/namespaceelementwise__filter__cpu.html#aafca1eafd7fe7847fb28b285189ca02f">build_1d_cpu</a></div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160; </div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="keyword">end module </span><a class="code" href="../../dd/d26/namespaceelementwise__filter__cpu.html">elementwise_filter_cpu</a></div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160; </div>
 <div class="ttc" id="anamespaceelementwise__filter__cpu_html"><div class="ttname"><a href="../../dd/d26/namespaceelementwise__filter__cpu.html">elementwise_filter_cpu</a></div><div class="ttdoc">Implements the CPU kernel for the elementwise_filter_t type.</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d44/elementwise__filter__cpu_8f90_source.html#l00034">elementwise_filter_cpu.f90:34</a></div></div>
 <div class="ttc" id="anamespaceelementwise__filter__cpu_html_aafca1eafd7fe7847fb28b285189ca02f"><div class="ttname"><a href="../../dd/d26/namespaceelementwise__filter__cpu.html#aafca1eafd7fe7847fb28b285189ca02f">elementwise_filter_cpu::build_1d_cpu</a></div><div class="ttdeci">subroutine, public build_1d_cpu(fh, fht, trnsfr, nx, filter_type)</div><div class="ttdoc">Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x...</div><div class="ttdef"><b>Definition:</b> <a href="../../de/d44/elementwise__filter__cpu_8f90_source.html#l00055">elementwise_filter_cpu.f90:56</a></div></div>
 <div class="ttc" id="anamespacemath_html"><div class="ttname"><a href="../../dd/d47/namespacemath.html">math</a></div><div class="ttdef"><b>Definition:</b> <a href="../../d6/ddb/math_8f90_source.html#l00060">math.f90:60</a></div></div>
@@ -213,7 +214,7 @@ $(document).ready(function(){initNavTree('de/d44/elementwise__filter__cpu_8f90_s
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_6ac2283507a4fed10461ea6c78ce067a.html">les</a></li><li class="navelem"><a class="el" href="../../dir_599240cb2473dd34d041fb3ead8fcd0b.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_ee8f11d8cee760fc642c696cb0e96a7e.html">cpu</a></li><li class="navelem"><a class="el" href="../../de/d44/elementwise__filter__cpu_8f90.html">elementwise_filter_cpu.f90</a></li>
-    <li class="footer">Generated on Thu Dec 12 2024 03:42:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Dec 13 2024 03:43:12 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

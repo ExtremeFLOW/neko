@@ -1,0 +1,6 @@
+<map id="device_dynamic_smagorinsky_nut::device_s_abs_compute" name="device_dynamic_smagorinsky_nut::device_s_abs_compute">
+<area shape="rect" id="node1" title="Compute the s_abs field for the Sigma model indevice." alt="" coords="529,53,748,94"/>
+<area shape="rect" id="node2" href="$dd/daf/namespacedynamic__smagorinsky__device.html#aac4c819a4f98d22b7a6a3379ca808154" title="Compute eddy viscosity on the device." alt="" coords="242,5,469,61"/>
+<area shape="rect" id="node4" href="$d5/d58/interfacedevice__dynamic__smagorinsky__nut_1_1hip__mij__nut__compute__part2.html#adaaa41cd7e60e2552367285f1b7757f5" title=" " alt="" coords="229,85,481,141"/>
+<area shape="rect" id="node3" href="$d4/d9c/namespacedynamic__smagorinsky.html#ad9e829fe19717511484cca0fe4524c52" title="Compute eddy viscosity." alt="" coords="5,5,181,61"/>
+</map>

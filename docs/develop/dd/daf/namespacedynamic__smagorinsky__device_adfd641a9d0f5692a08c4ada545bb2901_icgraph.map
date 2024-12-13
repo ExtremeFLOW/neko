@@ -1,0 +1,5 @@
+<map id="dynamic_smagorinsky_device::compute_lij_device" name="dynamic_smagorinsky_device::compute_lij_device">
+<area shape="rect" id="node1" title="Compute Germano Identity on the device." alt="" coords="504,5,672,61"/>
+<area shape="rect" id="node2" href="$dd/daf/namespacedynamic__smagorinsky__device.html#aac4c819a4f98d22b7a6a3379ca808154" title="Compute eddy viscosity on the device." alt="" coords="229,5,456,61"/>
+<area shape="rect" id="node3" href="$d4/d9c/namespacedynamic__smagorinsky.html#ad9e829fe19717511484cca0fe4524c52" title="Compute eddy viscosity." alt="" coords="5,5,181,61"/>
+</map>

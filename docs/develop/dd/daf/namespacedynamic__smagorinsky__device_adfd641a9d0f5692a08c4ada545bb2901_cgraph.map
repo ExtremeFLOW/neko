@@ -1,0 +1,7 @@
+<map id="dynamic_smagorinsky_device::compute_lij_device" name="dynamic_smagorinsky_device::compute_lij_device">
+<area shape="rect" id="node1" title="Compute Germano Identity on the device." alt="" coords="5,31,173,87"/>
+<area shape="rect" id="node2" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a22bc401b3e2a942519a5f5d7b9b4d978" title="part 1 of the computing of the lij field" alt="" coords="221,5,447,47"/>
+<area shape="rect" id="node4" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#ad2a7f3e8548b2a06ad85f699241afebc" title="part 2 of the computing of the lij field" alt="" coords="221,71,447,112"/>
+<area shape="rect" id="node3" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#ab95ad8f0eaeaa97b02e66151ff78c056" title=" " alt="" coords="495,13,672,39"/>
+<area shape="rect" id="node5" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#afd1b9f81889807e524c8f98ae3a84a8b" title=" " alt="" coords="495,78,672,105"/>
+</map>

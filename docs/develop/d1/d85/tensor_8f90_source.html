@@ -305,10 +305,10 @@ $(document).ready(function(){initNavTree('d1/d85/tensor_8f90_source.html','../..
 <div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160; </div>
 <div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160; </div>
 <div class="line"><a name="l00222"></a><span class="lineno"><a class="line" href="../../dd/d8c/namespacetensor.html#a31e5a2faed314a1d5896d5061b803055">  222</a></span>&#160;  <span class="keyword">subroutine </span><a class="code" href="../../dd/d8c/namespacetensor.html#a31e5a2faed314a1d5896d5061b803055">tnsr3d</a>(v, nv, u, nu, A, Bt, Ct, nelv)</div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(inout)</span> :: nv, nu, nelv</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: nv, nu, nelv</div>
 <div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: v(nv*nv*nv,nelv)</div>
 <div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: u(nu*nu*nu,nelv)</div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span> :: a(nv,nu), bt(nu, nv), ct(nu,nv)</div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;<span class="keywordtype">    real</span>(kind=<a class="code" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: a(nv,nu), bt(nu, nv), ct(nu,nv)</div>
 <div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;    <span class="keywordtype">type</span>(c_ptr) :: v_d, u_d, a_d, bt_d, ct_d</div>
 <div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160; </div>
 <div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160; </div>
@@ -447,7 +447,7 @@ $(document).ready(function(){initNavTree('d1/d85/tensor_8f90_source.html','../..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../d1/d85/tensor_8f90.html">tensor.f90</a></li>
-    <li class="footer">Generated on Thu Dec 12 2024 03:42:22 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Fri Dec 13 2024 03:43:12 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>

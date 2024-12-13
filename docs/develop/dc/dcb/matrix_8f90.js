@@ -7,7 +7,7 @@ var matrix_8f90 =
     [ "matrix_add_scalar_right", "dc/dcb/matrix_8f90.html#a5e6e4c97734ba6e625bfcab28235fc8a", null ],
     [ "matrix_assign_matrix", "dc/dcb/matrix_8f90.html#a36163990dadbd00ca417c0ef70c015be", null ],
     [ "matrix_assign_scalar", "dc/dcb/matrix_8f90.html#af9c0fe0434823ffbdc86e5fedb934867", null ],
-    [ "matrix_bcknd_inverse", "dc/dcb/matrix_8f90.html#a77bc7bf99336376f8669da2ad524608b", null ],
+    [ "matrix_bcknd_inverse", "dc/dcb/matrix_8f90.html#a2cc2d8b1bb684b86688a093090ad3ee9", null ],
     [ "matrix_cmult_left", "dc/dcb/matrix_8f90.html#aec1f42bb9193a96f5007d7a18866c2c7", null ],
     [ "matrix_cmult_right", "dc/dcb/matrix_8f90.html#a683ac8644bebc09bcfbabe901ef36c4c", null ],
     [ "matrix_free", "dc/dcb/matrix_8f90.html#a04dddb8ae0f27e3ad7f38aa3022109de", null ],

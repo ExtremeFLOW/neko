@@ -70,6 +70,7 @@ var namespaces_dup =
     [ "device_coef", "df/d80/namespacedevice__coef.html", "df/d80/namespacedevice__coef" ],
     [ "device_dirichlet", "d0/d0d/namespacedevice__dirichlet.html", "d0/d0d/namespacedevice__dirichlet" ],
     [ "device_dong_outflow", "d6/d2d/namespacedevice__dong__outflow.html", "d6/d2d/namespacedevice__dong__outflow" ],
+    [ "device_dynamic_smagorinsky_nut", "df/d29/namespacedevice__dynamic__smagorinsky__nut.html", "df/d29/namespacedevice__dynamic__smagorinsky__nut" ],
     [ "device_facet_normal", "db/db7/namespacedevice__facet__normal.html", "db/db7/namespacedevice__facet__normal" ],
     [ "device_gradient_jump_penalty", "da/d7e/namespacedevice__gradient__jump__penalty.html", "da/d7e/namespacedevice__gradient__jump__penalty" ],
     [ "device_identity", "d0/d69/namespacedevice__identity.html", "d0/d69/namespacedevice__identity" ],
@@ -81,6 +82,7 @@ var namespaces_dup =
     [ "device_projection", "de/dc5/namespacedevice__projection.html", "de/dc5/namespacedevice__projection" ],
     [ "device_schwarz", "d2/d0c/namespacedevice__schwarz.html", "d2/d0c/namespacedevice__schwarz" ],
     [ "device_sigma_nut", "d8/d87/namespacedevice__sigma__nut.html", "d8/d87/namespacedevice__sigma__nut" ],
+    [ "device_smagorinsky_nut", "d6/d30/namespacedevice__smagorinsky__nut.html", "d6/d30/namespacedevice__smagorinsky__nut" ],
     [ "device_symmetry", "d0/dc5/namespacedevice__symmetry.html", "d0/dc5/namespacedevice__symmetry" ],
     [ "device_vreman_nut", "db/d3c/namespacedevice__vreman__nut.html", "db/d3c/namespacedevice__vreman__nut" ],
     [ "device_wall", "d0/d29/namespacedevice__wall.html", "d0/d29/namespacedevice__wall" ],
@@ -103,6 +105,11 @@ var namespaces_dup =
       [ "compute_mij_cpu", "da/def/namespacedynamic__smagorinsky__cpu.html#adbc178a64f50cacd8d279bb6748d9376", null ],
       [ "compute_num_den_cpu", "da/def/namespacedynamic__smagorinsky__cpu.html#a943f162fc6c5b0d7695ceec20c11a909", null ],
       [ "dynamic_smagorinsky_compute_cpu", "da/def/namespacedynamic__smagorinsky__cpu.html#afc315d593e38cf654ffdc958baa9a5c6", null ]
+    ] ],
+    [ "dynamic_smagorinsky_device", "dd/daf/namespacedynamic__smagorinsky__device.html", [
+      [ "compute_lij_device", "dd/daf/namespacedynamic__smagorinsky__device.html#adfd641a9d0f5692a08c4ada545bb2901", null ],
+      [ "compute_nut_device", "dd/daf/namespacedynamic__smagorinsky__device.html#a56facdb27492bdfa7fdd079dc0c28cd4", null ],
+      [ "dynamic_smagorinsky_compute_device", "dd/daf/namespacedynamic__smagorinsky__device.html#aac4c819a4f98d22b7a6a3379ca808154", null ]
     ] ],
     [ "element", "d6/d0d/namespaceelement.html", "d6/d0d/namespaceelement" ],
     [ "elementwise_filter", "dd/d52/namespaceelementwise__filter.html", "dd/d52/namespaceelementwise__filter" ],
@@ -518,6 +525,9 @@ var namespaces_dup =
     [ "smagorinsky", "d9/d9a/namespacesmagorinsky.html", "d9/d9a/namespacesmagorinsky" ],
     [ "smagorinsky_cpu", "dd/d73/namespacesmagorinsky__cpu.html", [
       [ "smagorinsky_compute_cpu", "dd/d73/namespacesmagorinsky__cpu.html#a4c7509e1ca11400eb45a26eaa7ce4de8", null ]
+    ] ],
+    [ "smagorinsky_device", "dd/d4e/namespacesmagorinsky__device.html", [
+      [ "smagorinsky_compute_device", "dd/d4e/namespacesmagorinsky__device.html#af07001e915a4f78ecd4a8a5f81b4b947", null ]
     ] ],
     [ "source_scalar", "de/dcb/namespacesource__scalar.html", "de/dcb/namespacesource__scalar" ],
     [ "source_term", "de/de7/namespacesource__term.html", "de/de7/namespacesource__term" ],

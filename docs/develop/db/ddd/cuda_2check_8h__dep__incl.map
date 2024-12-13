@@ -1,5 +1,5 @@
 <map id="/home/runner/work/neko/neko/src/device/cuda/check.h" name="/home/runner/work/neko/neko/src/device/cuda/check.h">
-<area shape="rect" id="node1" title=" " alt="" coords="3854,5,4034,61"/>
+<area shape="rect" id="node1" title=" " alt="" coords="4119,5,4299,61"/>
 <area shape="rect" id="node2" href="$d4/d09/dirichlet_8cu.html" title=" " alt="" coords="5,117,195,173"/>
 <area shape="rect" id="node3" href="$dc/d78/dong__outflow_8cu.html" title=" " alt="" coords="219,117,408,173"/>
 <area shape="rect" id="node4" href="$d2/ddc/facet__normal_8cu.html" title=" " alt="" coords="432,117,621,173"/>
@@ -18,22 +18,24 @@
 <area shape="rect" id="node17" href="$d6/d7a/fusedcg__cpld__aux_8cu.html" title=" " alt="" coords="3243,117,3485,173"/>
 <area shape="rect" id="node18" href="$d6/d29/gmres__aux_8cu.html" title=" " alt="" coords="3510,117,3709,173"/>
 <area shape="rect" id="node19" href="$d8/d3b/pipecg__aux_8cu.html" title=" " alt="" coords="3733,117,3934,173"/>
-<area shape="rect" id="node20" href="$d9/d43/sigma__nut_8cu.html" title=" " alt="" coords="3958,117,4151,173"/>
-<area shape="rect" id="node21" href="$d7/dff/vreman__nut_8cu.html" title=" " alt="" coords="4175,117,4369,173"/>
-<area shape="rect" id="node22" href="$db/d49/ax__helm_8cu.html" title=" " alt="" coords="4393,117,4601,173"/>
-<area shape="rect" id="node23" href="$d2/d2b/ax__helm__full_8cu.html" title=" " alt="" coords="4625,117,4833,173"/>
-<area shape="rect" id="node24" href="$d2/d4f/fdm_8cu.html" title=" " alt="" coords="4857,117,5065,173"/>
-<area shape="rect" id="node25" href="$de/d1e/math_8cu.html" title=" " alt="" coords="5089,117,5297,173"/>
-<area shape="rect" id="node26" href="$dd/db5/mathops_8cu.html" title=" " alt="" coords="5321,117,5529,173"/>
-<area shape="rect" id="node27" href="$df/d14/opr__cdtp_8cu.html" title=" " alt="" coords="5553,117,5761,173"/>
-<area shape="rect" id="node28" href="$da/d37/opr__cfl_8cu.html" title=" " alt="" coords="5785,117,5993,173"/>
-<area shape="rect" id="node29" href="$d2/d79/opr__conv1_8cu.html" title=" " alt="" coords="6017,117,6225,173"/>
-<area shape="rect" id="node30" href="$d3/d13/opr__dudxyz_8cu.html" title=" " alt="" coords="6249,117,6457,173"/>
-<area shape="rect" id="node31" href="$df/d96/opr__lambda2_8cu.html" title=" " alt="" coords="6481,117,6689,173"/>
-<area shape="rect" id="node32" href="$d6/d68/opr__opgrad_8cu.html" title=" " alt="" coords="6713,117,6921,173"/>
-<area shape="rect" id="node33" href="$d9/db6/schwarz_8cu.html" title=" " alt="" coords="6945,117,7153,173"/>
-<area shape="rect" id="node34" href="$d9/d0b/tensor_8cu.html" title=" " alt="" coords="7177,117,7385,173"/>
-<area shape="rect" id="node35" href="$d6/d2e/scalar__residual_8cu.html" title=" " alt="" coords="7410,117,7635,173"/>
-<area shape="rect" id="node36" href="$d4/d95/coef_8cu.html" title=" " alt="" coords="7660,117,7863,173"/>
-<area shape="rect" id="node37" href="$de/ddd/filters_8cu.html" title=" " alt="" coords="7887,117,8094,173"/>
+<area shape="rect" id="node20" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html" title=" " alt="" coords="3958,117,4213,173"/>
+<area shape="rect" id="node21" href="$d9/d43/sigma__nut_8cu.html" title=" " alt="" coords="4237,117,4430,173"/>
+<area shape="rect" id="node22" href="$d3/d28/smagorinsky__nut_8cu.html" title=" " alt="" coords="4454,117,4647,173"/>
+<area shape="rect" id="node23" href="$d7/dff/vreman__nut_8cu.html" title=" " alt="" coords="4671,117,4865,173"/>
+<area shape="rect" id="node24" href="$db/d49/ax__helm_8cu.html" title=" " alt="" coords="4889,117,5097,173"/>
+<area shape="rect" id="node25" href="$d2/d2b/ax__helm__full_8cu.html" title=" " alt="" coords="5121,117,5329,173"/>
+<area shape="rect" id="node26" href="$d2/d4f/fdm_8cu.html" title=" " alt="" coords="5353,117,5561,173"/>
+<area shape="rect" id="node27" href="$de/d1e/math_8cu.html" title=" " alt="" coords="5585,117,5793,173"/>
+<area shape="rect" id="node28" href="$dd/db5/mathops_8cu.html" title=" " alt="" coords="5817,117,6025,173"/>
+<area shape="rect" id="node29" href="$df/d14/opr__cdtp_8cu.html" title=" " alt="" coords="6049,117,6257,173"/>
+<area shape="rect" id="node30" href="$da/d37/opr__cfl_8cu.html" title=" " alt="" coords="6281,117,6489,173"/>
+<area shape="rect" id="node31" href="$d2/d79/opr__conv1_8cu.html" title=" " alt="" coords="6513,117,6721,173"/>
+<area shape="rect" id="node32" href="$d3/d13/opr__dudxyz_8cu.html" title=" " alt="" coords="6745,117,6953,173"/>
+<area shape="rect" id="node33" href="$df/d96/opr__lambda2_8cu.html" title=" " alt="" coords="6977,117,7185,173"/>
+<area shape="rect" id="node34" href="$d6/d68/opr__opgrad_8cu.html" title=" " alt="" coords="7209,117,7417,173"/>
+<area shape="rect" id="node35" href="$d9/db6/schwarz_8cu.html" title=" " alt="" coords="7441,117,7649,173"/>
+<area shape="rect" id="node36" href="$d9/d0b/tensor_8cu.html" title=" " alt="" coords="7673,117,7881,173"/>
+<area shape="rect" id="node37" href="$d6/d2e/scalar__residual_8cu.html" title=" " alt="" coords="7906,117,8131,173"/>
+<area shape="rect" id="node38" href="$d4/d95/coef_8cu.html" title=" " alt="" coords="8156,117,8359,173"/>
+<area shape="rect" id="node39" href="$de/ddd/filters_8cu.html" title=" " alt="" coords="8383,117,8590,173"/>
 </map>

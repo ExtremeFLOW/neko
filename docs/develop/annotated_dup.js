@@ -260,6 +260,13 @@ var annotated_dup =
     [ "device_dong_outflow", "d6/d2d/namespacedevice__dong__outflow.html", [
       [ "hip_dong_outflow_apply_scalar", "df/dc2/interfacedevice__dong__outflow_1_1hip__dong__outflow__apply__scalar.html", "df/dc2/interfacedevice__dong__outflow_1_1hip__dong__outflow__apply__scalar" ]
     ] ],
+    [ "device_dynamic_smagorinsky_nut", "df/d29/namespacedevice__dynamic__smagorinsky__nut.html", [
+      [ "hip_s_abs_compute", "db/d7e/interfacedevice__dynamic__smagorinsky__nut_1_1hip__s__abs__compute.html", "db/d7e/interfacedevice__dynamic__smagorinsky__nut_1_1hip__s__abs__compute" ],
+      [ "hip_lij_compute_part1", "df/d77/interfacedevice__dynamic__smagorinsky__nut_1_1hip__lij__compute__part1.html", "df/d77/interfacedevice__dynamic__smagorinsky__nut_1_1hip__lij__compute__part1" ],
+      [ "hip_lij_compute_part2", "d1/d0a/interfacedevice__dynamic__smagorinsky__nut_1_1hip__lij__compute__part2.html", "d1/d0a/interfacedevice__dynamic__smagorinsky__nut_1_1hip__lij__compute__part2" ],
+      [ "hip_mij_compute_part1", "df/dee/interfacedevice__dynamic__smagorinsky__nut_1_1hip__mij__compute__part1.html", "df/dee/interfacedevice__dynamic__smagorinsky__nut_1_1hip__mij__compute__part1" ],
+      [ "hip_mij_nut_compute_part2", "d5/d58/interfacedevice__dynamic__smagorinsky__nut_1_1hip__mij__nut__compute__part2.html", "d5/d58/interfacedevice__dynamic__smagorinsky__nut_1_1hip__mij__nut__compute__part2" ]
+    ] ],
     [ "device_facet_normal", "db/db7/namespacedevice__facet__normal.html", [
       [ "hip_facet_normal_apply_surfvec", "d3/da7/interfacedevice__facet__normal_1_1hip__facet__normal__apply__surfvec.html", "d3/da7/interfacedevice__facet__normal_1_1hip__facet__normal__apply__surfvec" ]
     ] ],
@@ -305,6 +312,9 @@ var annotated_dup =
     ] ],
     [ "device_sigma_nut", "d8/d87/namespacedevice__sigma__nut.html", [
       [ "hip_sigma_nut_compute", "d7/dc9/interfacedevice__sigma__nut_1_1hip__sigma__nut__compute.html", "d7/dc9/interfacedevice__sigma__nut_1_1hip__sigma__nut__compute" ]
+    ] ],
+    [ "device_smagorinsky_nut", "d6/d30/namespacedevice__smagorinsky__nut.html", [
+      [ "hip_smagorinsky_nut_compute", "d6/deb/interfacedevice__smagorinsky__nut_1_1hip__smagorinsky__nut__compute.html", "d6/deb/interfacedevice__smagorinsky__nut_1_1hip__smagorinsky__nut__compute" ]
     ] ],
     [ "device_symmetry", "d0/dc5/namespacedevice__symmetry.html", [
       [ "hip_symmetry_apply_vector", "df/d0e/interfacedevice__symmetry_1_1hip__symmetry__apply__vector.html", "df/d0e/interfacedevice__symmetry_1_1hip__symmetry__apply__vector" ]
