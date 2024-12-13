@@ -60,6 +60,8 @@ module krylov
      real(kind=rp) :: res_start
      !> FInal residual
      real(kind=rp) :: res_final
+     !> Status
+     logical :: converged = .false.
   end type ksp_monitor_t
 
   !> Base abstract type for a canonical Krylov method, solving \f$ Ax = f \f$.
@@ -87,6 +89,8 @@ module krylov
      procedure, pass(this) :: monitor_stop => krylov_monitor_stop
      !> Monitor iteration
      procedure, pass(this) :: monitor_iter => krylov_monitor_iter
+     !> Check for convergence
+     procedure, pass(this) :: is_converged => krylov_is_converged
      !> Destructor.
      procedure(ksp_t_free), pass(this), deferred :: free
   end type ksp_t
@@ -327,5 +331,25 @@ contains
     end if
     
   end subroutine krylov_monitor_iter
+
+  !> Check for convergence
+  !!
+  !! This function checks if the Krylov solver has converged.
+  !! The solver is considered converged if the residual is less than the
+  !! absolute tolerance.
+  !!
+  !! @param residual Residual
+  !! @param iter Iteration number
+  pure function krylov_is_converged(this, iter, residual) result(converged)
+    class(ksp_t), intent(in) :: this
+    integer, intent(in) :: iter
+    real(kind=rp), intent(in) :: residual
+    logical :: converged
+
+    converged = .true.
+    if (iter .ge. this%max_iter) converged = .false.
+    if (residual .gt. this%abs_tol) converged = .false.
+
+  end function krylov_is_converged
 
 end module krylov

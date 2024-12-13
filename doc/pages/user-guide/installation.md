@@ -77,12 +77,11 @@ checking for fgslib_gs_setup in -lgs... yes
 The following steps is an example on how to build and install ParMETIS
 
 ``` shell
-$ wget http://glaros.dtc.umn.edu/gkhome/fetch/sw/parmetis/parmetis-4.0.3.tar.gz
-$ tar xzf parmetis-4.0.3.tar.gz && cd parmetis-4.0.3 && make config prefix=/parmetis_install_path
-$ make -j$(nproc) && make install
+$ export PARMETIS_INSTALL=/usr/local/parmetis
+$ wget https://github.com/mfem/tpls/raw/refs/heads/gh-pages/parmetis-4.0.3.tar.gz
+$ tar xzf parmetis-4.0.3.tar.gz && cd parmetis-4.0.3 && make config prefix=${PARMETIS_INSTALL} && make install
+$ cd metis && make config prefix=${PARMETIS_INSTALL} && make install && cd ../..
 ```
-@note ParMETIS might not install `metis.h`, check if it is found in `/parmetis_install_path/include`.  If this is not the case, repeat the same `make config prefix=/parmetis_install_path` and `make install` commands from the `metis` subfolder.
-
 
 #### Bulding PFunit (optional)
 
