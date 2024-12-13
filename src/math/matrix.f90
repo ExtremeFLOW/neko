@@ -340,13 +340,18 @@ contains
 
   end function matrix_cmult_right
 
-  subroutine matrix_bcknd_inverse(m)
+  subroutine matrix_bcknd_inverse(m, bcknd)
     class(matrix_t), intent(inout) :: m
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error("matrix_bcknd_inverse not implemented on accelarators.")
+    integer, optional :: bcknd
+
+    if (NEKO_BCKND_DEVICE .eq. 1 .and. &
+         bcknd .eq. NEKO_BCKND_DEVICE) then
+       call neko_error("matrix_bcknd_inverse not &
+                        &implemented on accelarators.")
     else
        call cpu_matrix_inverse(m)
     end if
+
   end subroutine matrix_bcknd_inverse
 
   subroutine cpu_matrix_inverse(m)

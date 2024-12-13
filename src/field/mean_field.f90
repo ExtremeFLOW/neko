@@ -68,7 +68,7 @@ contains
   !! `f` prepended with `mean_` is used.
   subroutine mean_field_init(this, f, field_name)
     class(mean_field_t), intent(inout) :: this
-    type(field_t), intent(inout), target :: f
+    type(field_t), intent(in), target :: f
     character(len=*), optional, intent(in) :: field_name
     character(len=80) :: name
 
