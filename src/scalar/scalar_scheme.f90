@@ -397,6 +397,9 @@ contains
        this%nut_field_name = ""
     end if
 
+    write(log_buf, '(A,L1)') 'LES        : ', this%variable_material_properties
+    call neko_log%message(log_buf)
+
     ! Fill lambda field with the physical value
     call this%lambda_field%init(this%dm_Xh, "lambda")
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -477,7 +480,7 @@ contains
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
                                       this%c_Xh, this%dm_Xh, this%gs_Xh, &
                                       this%bclst_dirichlet, solver_precon)
-   
+
     ! Initiate gradient jump penalty
     call json_get_or_default(params, &
                             'case.scalar.gradient_jump_penalty.enabled',&
