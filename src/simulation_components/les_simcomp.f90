@@ -78,7 +78,7 @@ contains
     if (case%fluid%variable_material_properties .eqv. .false.) then
         call neko_error("Eddy viscosity is not acting &
                           &on the equations. &
-                          &Plese set up a nut_field option &
+                          &Please set up a nut_field option &
                           &in the fluid solver")
     end if
 
