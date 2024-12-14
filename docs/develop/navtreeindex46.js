@@ -1,6 +1,5 @@
 var NAVTREEINDEX46 =
 {
-"de/d8b/interfacegs__device_1_1hip__scatter__kernel.html#ae3fc67158c37d700638c8edf0ee8f3d0":[4,0,119,2,0],
 "de/d8f/interfacedevice__dirichlet_1_1hip__dirichlet__apply__scalar.html":[4,0,52,0],
 "de/d8f/interfacedevice__dirichlet_1_1hip__dirichlet__apply__scalar.html#a3414de0148e7f8bf6305052d2d823a3f":[4,0,52,0,0],
 "de/d90/interfacecuda__filters_1_1cuda__permeability.html":[4,0,42,2],
@@ -249,5 +248,6 @@ var NAVTREEINDEX46 =
 "de/ded/opencl__intf_8F90.html#a07ec4ed5818678cf793c11b2b44543ca":[5,0,2,5,8,25],
 "de/ded/opencl__intf_8F90.html#a111e92b111f9da087540c44310ac63aa":[5,0,2,5,8,37],
 "de/ded/opencl__intf_8F90.html#a1675829ffa0c362b6203168d97efe6b0":[5,0,2,5,8,36],
-"de/ded/opencl__intf_8F90.html#a1dace94eab22ed8b551d17af6b5ccf3d":[5,0,2,5,8,34]
+"de/ded/opencl__intf_8F90.html#a1dace94eab22ed8b551d17af6b5ccf3d":[5,0,2,5,8,34],
+"de/ded/opencl__intf_8F90.html#a361438a7869660ca63e8a44a9f2c5e2c":[5,0,2,5,8,28]
 };

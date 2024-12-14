@@ -1,6 +1,5 @@
 var NAVTREEINDEX36 =
 {
-"db/dce/interfaceopencl__intf_1_1clCreateCommandQueue.html#a9e62c9db6a330ebab8bd345c27ba5015":[4,0,163,3,0],
 "db/dce/pnpn__res__stress__fctry_8f90.html":[5,0,2,7,1,1],
 "db/dce/pnpn__res__stress__fctry_8f90_source.html":[5,0,2,7,1,1],
 "db/dd5/structtet_1_1tet__t.html":[4,0,232,0],
@@ -249,5 +248,6 @@ var NAVTREEINDEX36 =
 "dc/d01/structpipecg__device_1_1pipecg__device__t.html#a1cbdbec7c23255a1bda0b641b72067c6":[4,0,171,0,29],
 "dc/d01/structpipecg__device_1_1pipecg__device__t.html#a1e4887e4b94d691729f9457df07be276":[4,0,171,0,39],
 "dc/d01/structpipecg__device_1_1pipecg__device__t.html#a1fcc3ba9bd894e61636ce73c22362be5":[4,0,171,0,23],
-"dc/d01/structpipecg__device_1_1pipecg__device__t.html#a20f075fc048548881b7903dee9f5be28":[4,0,171,0,2]
+"dc/d01/structpipecg__device_1_1pipecg__device__t.html#a20f075fc048548881b7903dee9f5be28":[4,0,171,0,2],
+"dc/d01/structpipecg__device_1_1pipecg__device__t.html#a28a4c9b86fb1d7419f87185bcdff744d":[4,0,171,0,22]
 };

@@ -15,6 +15,5 @@ var structdynamic__smagorinsky_1_1dynamic__smagorinsky__t =
     [ "mij", "d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html#ab884cb37bd08d64f60f53e1ed93b92d9", null ],
     [ "num", "d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html#ad31be0c718b4b2ba9563175a8fcc8549", null ],
     [ "nut", "d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html#aa6fa550431995384eb358694987218ef", null ],
-    [ "test_filter", "d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html#a2e01d80164b40e4852a69a6bd33896d0", null ],
-    [ "test_filter_type", "d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html#ad8d6fa5befa4ef67bcceff64a0b25e0a", null ]
+    [ "test_filter", "d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html#a2e01d80164b40e4852a69a6bd33896d0", null ]
 ];

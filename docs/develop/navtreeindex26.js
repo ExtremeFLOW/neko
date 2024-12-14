@@ -1,6 +1,5 @@
 var NAVTREEINDEX26 =
 {
-"d8/dc5/point_8f90.html#adf379207ff78c76c44b9533313fb5926":[5,0,2,13,10,10],
 "d8/dc5/point_8f90.html#af48aa0db20caee6a9ce9b9fc1a3e1aba":[5,0,2,13,10,11],
 "d8/dc5/point_8f90_source.html":[5,0,2,13,10],
 "d8/dc8/device__config_8h.html":[5,0,2,5,5],
@@ -249,5 +248,6 @@ var NAVTREEINDEX26 =
 "d9/d30/namespacestack.html#a5a4b7c3014d679799f549d996d9cb6f3":[3,0,264,26],
 "d9/d30/namespacestack.html#a6d4c956c5558f537dba735e6123cbedf":[3,0,264,31],
 "d9/d30/namespacestack.html#a79cec106f53a59b8b61f9202fe3ed592":[3,0,264,42],
-"d9/d30/namespacestack.html#a7fe4eaa7214a38fec83b4e5a1ec2ead2":[3,0,264,20]
+"d9/d30/namespacestack.html#a7fe4eaa7214a38fec83b4e5a1ec2ead2":[3,0,264,20],
+"d9/d30/namespacestack.html#a8027227ba43f3945c28203098d4acc8e":[3,0,264,27]
 };

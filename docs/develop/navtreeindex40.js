@@ -1,6 +1,5 @@
 var NAVTREEINDEX40 =
 {
-"dc/df5/namespacehtable.html#ad2428feafbdbcfdb2be0d35c2beca581":[3,0,150,31],
 "dc/df5/namespacehtable.html#ad37abc898eb6b43351859f00fea32c52":[3,0,150,21],
 "dc/df5/namespacehtable.html#ad41509eab71b42efe9931e4567ceee1d":[3,0,150,86],
 "dc/df5/namespacehtable.html#ad56712913b21280c245869a491a89785":[3,0,150,80],
@@ -61,8 +60,8 @@ var NAVTREEINDEX40 =
 "dd/d04/namespacefusedcg__device.html#a9d0113d118f01fb955ed969ec9453db9":[3,0,128,8],
 "dd/d04/namespacefusedcg__device.html#abfd5b743062632ce60e2da2de40bb4a9":[3,0,128,10],
 "dd/d04/namespacefusedcg__device.html#ad32400ca22c2ca83585ebf9245ff0ae6":[3,0,128,5],
-"dd/d04/user-guide.html":[1],
 "dd/d04/user-guide.html":[0,1],
+"dd/d04/user-guide.html":[1],
 "dd/d0a/interfacesource__term__handler_1_1source__term__handler__init__user__source.html":[4,0,216,1],
 "dd/d0a/interfacesource__term__handler_1_1source__term__handler__init__user__source.html#af335f781d8e98fe87f6836158e2f5401":[4,0,216,1,0],
 "dd/d0d/interfacedevice__mathops_1_1hip__opchsign.html":[4,0,62,0],
@@ -249,5 +248,6 @@ var NAVTREEINDEX40 =
 "dd/d47/namespacemath.html#abe499474185cdce62ef6f3196dc332fb":[3,0,167,55],
 "dd/d47/namespacemath.html#ac04e5eeefff5dec60f35668f8c3836f0":[3,0,167,56],
 "dd/d47/namespacemath.html#ac109147387e4a72b9b0a7e4419c59832":[3,0,167,51],
-"dd/d47/namespacemath.html#ac2fcdee74563190bd832055d9efe4d51":[3,0,167,30]
+"dd/d47/namespacemath.html#ac2fcdee74563190bd832055d9efe4d51":[3,0,167,30],
+"dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0":[3,0,167,82]
 };
