@@ -380,7 +380,7 @@ contains
              end do
           end if
 
-          call ep%edge_id(edge, i8)
+          call ep%edge_id(edge, 8)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)
