@@ -240,7 +240,7 @@ contains
     num_dofs_edges(1) =  int(Xh%lx - 2, i8)
     num_dofs_edges(2) =  int(Xh%ly - 2, i8)
     num_dofs_edges(3) =  int(Xh%lz - 2, i8)
-    edge_offset = int(msh%glb_mpts, i8) + int(1, 4)
+    edge_offset = int(msh%glb_mpts, i8) + int(1, i8)
 
     do i = 1, msh%nelv
 
