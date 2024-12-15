@@ -37,7 +37,7 @@ module bc_list
   use device
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use bc, only : bc_t, bc_alloc_t
+  use bc, only : bc_t, bc_ptr_t
   implicit none
   private
 
@@ -45,10 +45,11 @@ module bc_list
   !! Follows the standard interface of lists.
   type, public :: bc_list_t
      ! The items of the list.
-     class(bc_alloc_t), allocatable :: items(:)
-     !> Number of items.
+     class(bc_ptr_t), allocatable :: items(:)
+     !> Number of items in the list that are themselves allocated.
      integer :: size
-     !> Capacity.
+     !> Capacity, i.e. the size of the items list. Some items may themselves be
+     !! unallocated.
      integer :: capacity
    contains
      !> Constructor.
@@ -115,26 +116,21 @@ contains
   subroutine bc_list_append(this, bc)
     class(bc_list_t), intent(inout) :: this
     class(bc_t), intent(inout), target :: bc
-    class(bc_alloc_t), allocatable :: tmp(:)
+    type(bc_ptr_t), allocatable :: tmp(:)
     integer :: i
 
     !> Do not add if bc is empty
     if(bc%marked_facet%size() .eq. 0) return
 
     if (this%size .ge. this%capacity) then
-       call move_alloc(this%items, tmp)
        this%capacity = this%capacity * 2
-       allocate(this%items(this%capacity))
-
-       if (allocated(tmp)) then
-          do i = 1, this%size
-             call move_alloc(tmp(i)%obj, this%items(i)%obj)
-          end do
-       end if
+       allocate(tmp(this%capacity))
+       tmp(1:this%size) = this%items
+       call move_alloc(tmp, this%items)
     end if
 
     this%size = this%size + 1
-    this%items(this%size)%obj = bc
+    this%items(this%size)%obj => bc
 
   end subroutine bc_list_append
 
