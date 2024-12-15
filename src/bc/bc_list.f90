@@ -101,7 +101,7 @@ contains
 
     if (allocated(this%items)) then
        do i =1, this%size
-!         call this%items(i)%obj%free()
+          this%items(i)%ptr => null()
        end do
 
        deallocate(this%items)
@@ -130,7 +130,7 @@ contains
     end if
 
     this%size = this%size + 1
-    this%items(this%size)%obj => bc
+    this%items(this%size)%ptr => bc
 
   end subroutine bc_list_append
 
@@ -152,37 +152,37 @@ contains
        x_d = device_get_ptr(x)
        if (present(t) .and. present(tstep)) then
           do i = 1, this%size
-             call this%items(i)%obj%apply_scalar_dev(x_d, t=t, tstep=tstep)
+             call this%items(i)%ptr%apply_scalar_dev(x_d, t=t, tstep=tstep)
           end do
        else if (present(t)) then
           do i = 1, this%size
-             call this%items(i)%obj%apply_scalar_dev(x_d, t=t)
+             call this%items(i)%ptr%apply_scalar_dev(x_d, t=t)
           end do
        else if (present(tstep)) then
           do i = 1, this%size
-             call this%items(i)%obj%apply_scalar_dev(x_d, tstep=tstep)
+             call this%items(i)%ptr%apply_scalar_dev(x_d, tstep=tstep)
           end do
        else
           do i = 1, this%size
-             call this%items(i)%obj%apply_scalar_dev(x_d)
+             call this%items(i)%ptr%apply_scalar_dev(x_d)
           end do
        end if
     else
        if (present(t) .and. present(tstep)) then
           do i = 1, this%size
-             call this%items(i)%obj%apply_scalar(x, n, t, tstep)
+             call this%items(i)%ptr%apply_scalar(x, n, t, tstep)
           end do
        else if (present(t)) then
           do i = 1, this%size
-             call this%items(i)%obj%apply_scalar(x, n, t=t)
+             call this%items(i)%ptr%apply_scalar(x, n, t=t)
           end do
        else if (present(tstep)) then
           do i = 1, this%size
-             call this%items(i)%obj%apply_scalar(x, n, tstep=tstep)
+             call this%items(i)%ptr%apply_scalar(x, n, tstep=tstep)
           end do
        else
           do i = 1, this%size
-             call this%items(i)%obj%apply_scalar(x, n)
+             call this%items(i)%ptr%apply_scalar(x, n)
           end do
        end if
     end if
@@ -214,37 +214,37 @@ contains
        z_d = device_get_ptr(z)
        if (present(t) .and. present(tstep)) then
           do i = 1, this%size
-             call this%items(i)%obj%apply_vector_dev(x_d, y_d, z_d, t, tstep)
+             call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t, tstep)
           end do
        else if (present(t)) then
           do i = 1, this%size
-             call this%items(i)%obj%apply_vector_dev(x_d, y_d, z_d, t=t)
+             call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t=t)
           end do
        else if (present(tstep)) then
           do i = 1, this%size
-             call this%items(i)%obj%apply_vector_dev(x_d, y_d, z_d, tstep=tstep)
+             call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, tstep=tstep)
           end do
        else
           do i = 1, this%size
-             call this%items(i)%obj%apply_vector_dev(x_d, y_d, z_d)
+             call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d)
           end do
        end if
     else
        if (present(t) .and. present(tstep)) then
           do i = 1, this%size
-             call this%items(i)%obj%apply_vector(x, y, z, n, t, tstep)
+             call this%items(i)%ptr%apply_vector(x, y, z, n, t, tstep)
           end do
        else if (present(t)) then
           do i = 1, this%size
-             call this%items(i)%obj%apply_vector(x, y, z, n, t=t)
+             call this%items(i)%ptr%apply_vector(x, y, z, n, t=t)
           end do
        else if (present(tstep)) then
           do i = 1, this%size
-             call this%items(i)%obj%apply_vector(x, y, z, n, tstep=tstep)
+             call this%items(i)%ptr%apply_vector(x, y, z, n, tstep=tstep)
           end do
        else
           do i = 1, this%size
-             call this%items(i)%obj%apply_vector(x, y, z, n)
+             call this%items(i)%ptr%apply_vector(x, y, z, n)
           end do
        end if
     end if
@@ -260,11 +260,11 @@ contains
     is_empty = .true. 
     do i = 1, this%size
 
-       if (.not. allocated(this%items(i)%obj%msk)) then
+       if (.not. allocated(this%items(i)%ptr%msk)) then
           call neko_error("bc not finalized, error in bc_list%is_empty")
        end if
 
-       if (this%items(i)%obj%msk(0) > 0) is_empty = .false.
+       if (this%items(i)%ptr%msk(0) > 0) is_empty = .false.
     
     end do
   end function bc_list_is_empty

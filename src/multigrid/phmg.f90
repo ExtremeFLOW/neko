@@ -152,7 +152,7 @@ contains
        if (bclst%size .gt. 0 ) then
           do j = 1, bclst%size
              call this%phmg_hrchy%lvl(i)%bc%mark_facets(&
-                  bclst%items(j)%obj%marked_facet)
+                  bclst%items(j)%ptr%marked_facet)
           end do
        end if
        call this%phmg_hrchy%lvl(i)%bc%finalize()

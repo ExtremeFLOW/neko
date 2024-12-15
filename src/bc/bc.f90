@@ -97,7 +97,7 @@ module bc
 
   !> Pointer to boundary condtiion
   type, public :: bc_ptr_t
-     class(bc_t), pointer :: obj
+     class(bc_t), pointer :: ptr
   end type bc_ptr_t
 
   !> Wrapper around an allocatable bc
