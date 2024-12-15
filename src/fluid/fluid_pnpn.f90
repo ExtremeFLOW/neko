@@ -308,6 +308,7 @@ contains
          ! Do nothing
        class default
          if (vel_bc%strong .eqv. .true.) then
+            write(*,*) "MARKING PRESSURE SURFACE BC" 
             call this%bc_prs_surface%mark_facets(vel_bc%marked_facet)
          end if
        end select
