@@ -67,7 +67,8 @@ module hsmg
   use ax_product, only : ax_t, ax_helm_factory
   use gather_scatter, only : gs_t, GS_OP_ADD
   use interpolation, only : interpolator_t
-  use bc, only : bc_t
+  use bc, only : bc_t, bc_list_apply_scalar, bc_list_t, bc_list_add, &
+       bc_list_init
   use dirichlet, only : dirichlet_t
   use schwarz, only : schwarz_t
   use jacobi, only : jacobi_t
@@ -81,10 +82,9 @@ module hsmg
   use field, only : field_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
-  use zero_dirichlet, only : zero_dirichlet_t
-  use bc_list, only : bc_list_t
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory, krylov_solver_destroy
+  use tree_amg_multigrid, only : tamg_solver_t 
   !$ use omp_lib
   implicit none
   private
@@ -108,12 +108,13 @@ module hsmg
      type(space_t) :: Xh_crs, Xh_mg !< spaces for lower levels
      type(dofmap_t) :: dm_crs, dm_mg
      type(coef_t) :: c_crs, c_mg
-     type(zero_dirichlet_t) :: bc_crs, bc_mg, bc_reg
+     type(dirichlet_t) :: bc_crs, bc_mg, bc_reg
      type(bc_list_t) :: bclst_crs, bclst_mg, bclst_reg
      type(schwarz_t) :: schwarz, schwarz_mg, schwarz_crs !< Schwarz decompostions
      type(field_t) :: e, e_mg, e_crs !< Solve fields
      type(field_t) :: wf !< Work fields
      class(ksp_t), allocatable :: crs_solver !< Solver for course problem
+     type(tamg_solver_t), allocatable :: amg_solver
      integer :: niter = 10 !< Number of iter of crs sovlve
      class(pc_t), allocatable :: pc_crs !< Some basic precon for crs
      class(ax_t), allocatable :: ax !< Matrix for crs solve
@@ -139,8 +140,8 @@ contains
     class(hsmg_t), intent(inout), target :: this
     type(mesh_t), intent(inout), target :: msh
     type(space_t), intent(inout), target :: Xh
-    type(coef_t), intent(inout), target :: coef
-    type(dofmap_t), intent(inout), target :: dof
+    type(coef_t), intent(in), target :: coef
+    type(dofmap_t), intent(in), target :: dof
     type(gs_t), intent(inout), target :: gs_h
     type(bc_list_t), intent(inout), target :: bclst
     character(len=*), optional :: crs_pctype
@@ -255,9 +256,34 @@ contains
     type is (device_jacobi_t)
        call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
     end select
-
+    
     call device_event_create(this%hsmg_event, 2)
     call device_event_create(this%gs_event, 2)
+
+    ! Create a backend specific krylov solver
+    if (present(crs_pctype)) then
+       if (trim(crs_pctype) .eq. 'tamg') then
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call neko_error('Tree-amg only supported for CPU')
+          end if
+
+          allocate(this%amg_solver)
+
+          call this%amg_solver%init(this%ax, this%grids(1)%e%Xh, &
+               this%grids(1)%coef, this%msh, this%grids(1)%gs_h, 4, &
+               this%grids(1)%bclst, 1)
+       else
+          call krylov_solver_factory(this%crs_solver, &            
+               this%dm_crs%size(), trim(crs_pctype), KSP_MAX_ITER, M = this%pc_crs)
+       end if
+    else
+       call krylov_solver_factory(this%crs_solver, &
+            this%dm_crs%size(), 'cg', KSP_MAX_ITER, M = this%pc_crs)
+    end if
+
+
+
+
   end subroutine hsmg_init
 
   subroutine hsmg_set_h(this)
@@ -453,15 +479,22 @@ contains
        !Crs solve
 
        call this%grids(1)%gs_h%op(this%r, this%grids(1)%dof%size(), GS_OP_ADD)
-       call this%grids(1)%bclst%apply_scalar(this%r, this%grids(1)%dof%size())
-       call profiler_start_region('HSMG coarse-solve', 11)
-       crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
-                                    this%grids(1)%dof%size(), &
-                                    this%grids(1)%coef, &
-                                    this%grids(1)%bclst, &
-                                    this%grids(1)%gs_h, this%niter)
+       call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
+                                 this%grids(1)%dof%size())
+
+       call profiler_start_region('HSMG_coarse-solve', 11)
+       if (allocated(this%amg_solver)) then
+          call this%amg_solver%solve(this%grids(1)%e%x, this%r, this%grids(1)%dof%size())
+       else
+          crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
+                                           this%grids(1)%dof%size(), &
+                                           this%grids(1)%coef, &
+                                           this%grids(1)%bclst, &
+                                           this%grids(1)%gs_h, this%niter)
+       end if
        call profiler_end_region('HSMG_coarse-solve', 11)
-       call this%grids(1)%bclst%apply_scalar(this%grids(1)%e%x,&
+
+       call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
                                  this%grids(1)%dof%size())
 
 

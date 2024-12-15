@@ -73,10 +73,10 @@ contains
   subroutine cheby_device_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
     class(cheby_device_t), intent(inout), target :: this
     integer, intent(in) :: max_iter
-    class(pc_t), optional, intent(inout), target :: M
+    class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
-    real(kind=rp), optional, intent(inout) :: rel_tol
-    real(kind=rp), optional, intent(inout) :: abs_tol
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
 
     call this%free()
@@ -111,14 +111,14 @@ contains
     end if
 
     call device_event_create(this%gs_event, 2)
-
+    
   end subroutine cheby_device_init
 
   subroutine cheby_device_free(this)
     class(cheby_device_t), intent(inout) :: this
 
     call this%ksp_free()
-
+    
     if (allocated(this%d)) then
        deallocate(this%d)
     end if
@@ -132,7 +132,7 @@ contains
     end if
 
     nullify(this%M)
-
+    
     if (c_associated(this%d_d)) then
        call device_free(this%d_d)
     end if
@@ -148,16 +148,16 @@ contains
     if (c_associated(this%gs_event)) then
        call device_event_destroy(this%gs_event)
     end if
-
+    
   end subroutine cheby_device_free
 
   subroutine cheby_device_power(this, Ax, x, n, coef, blst, gs_h)
     class(cheby_device_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    type(bc_list_t), intent(in) :: blst
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp) :: lam, b, a, rn
     real(kind=rp) :: boost = 1.2_rp
@@ -208,12 +208,12 @@ contains
   function cheby_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
        result(ksp_results)
     class(cheby_device_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: f
+    real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    type(bc_list_t), intent(in) :: blst
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -226,7 +226,7 @@ contains
     if (this%recompute_eigs) then
        call cheby_device_power(this, Ax, x, n, coef, blst, gs_h)
     end if
-
+    
     if (present(niter)) then
        max_iter = niter
     else
@@ -281,12 +281,15 @@ contains
       call device_copy(r_d, f_d, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-      call blst%apply(w, n)
+      call bc_list_apply(blst, w, n)
       call device_sub2(r_d, w_d, n)
       rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
       rnorm = sqrt(rtr) * norm_fac
+
+
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
+      ksp_results%converged = this%is_converged(iter, rnorm)
     end associate
   end function cheby_device_solve
 
@@ -294,18 +297,18 @@ contains
   function cheby_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
     class(cheby_device_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: fx
-    real(kind=rp), dimension(n), intent(inout) :: fy
-    real(kind=rp), dimension(n), intent(inout) :: fz
+    real(kind=rp), dimension(n), intent(in) :: fx
+    real(kind=rp), dimension(n), intent(in) :: fy
+    real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    type(bc_list_t), intent(in) :: blstx
+    type(bc_list_t), intent(in) :: blsty
+    type(bc_list_t), intent(in) :: blstz
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
