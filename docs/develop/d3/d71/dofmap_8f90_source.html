@@ -323,7 +323,7 @@ $(document).ready(function(){initNavTree('d3/d71/dofmap_8f90_source.html','../..
 <div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    num_dofs_edges(1) =  int(xh%lx - 2, <a class="code" href="../../df/d48/namespacenum__types.html#a2dcabd7f1f2ece3f847d06202dd2ee2c">i8</a>)</div>
 <div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;    num_dofs_edges(2) =  int(xh%ly - 2, <a class="code" href="../../df/d48/namespacenum__types.html#a2dcabd7f1f2ece3f847d06202dd2ee2c">i8</a>)</div>
 <div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;    num_dofs_edges(3) =  int(xh%lz - 2, <a class="code" href="../../df/d48/namespacenum__types.html#a2dcabd7f1f2ece3f847d06202dd2ee2c">i8</a>)</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    edge_offset = int(msh%glb_mpts, <a class="code" href="../../df/d48/namespacenum__types.html#a2dcabd7f1f2ece3f847d06202dd2ee2c">i8</a>) + int(1, 4)</div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    edge_offset = int(msh%glb_mpts, <a class="code" href="../../df/d48/namespacenum__types.html#a2dcabd7f1f2ece3f847d06202dd2ee2c">i8</a>) + int(1, <a class="code" href="../../df/d48/namespacenum__types.html#a2dcabd7f1f2ece3f847d06202dd2ee2c">i8</a>)</div>
 <div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160; </div>
 <div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    <span class="keywordflow">do</span> i = 1, msh%nelv</div>
 <div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160; </div>
@@ -463,7 +463,7 @@ $(document).ready(function(){initNavTree('d3/d71/dofmap_8f90_source.html','../..
 <div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160;<span class="keywordflow">             end do</span></div>
 <div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;<span class="keywordflow">          end if</span></div>
 <div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160; </div>
-<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;          <span class="keyword">call </span>ep%edge_id(edge, <a class="code" href="../../df/d48/namespacenum__types.html#a2dcabd7f1f2ece3f847d06202dd2ee2c">i8</a>)</div>
+<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;          <span class="keyword">call </span>ep%edge_id(edge, 8)</div>
 <div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;          shared_dof = msh%is_shared(edge)</div>
 <div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;          global_id = msh%get_global(edge)</div>
 <div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160;          edge_id = edge_offset + int((global_id - 1), <a class="code" href="../../df/d48/namespacenum__types.html#a2dcabd7f1f2ece3f847d06202dd2ee2c">i8</a>) * num_dofs_edges(2)</div>
@@ -1354,7 +1354,7 @@ $(document).ready(function(){initNavTree('d3/d71/dofmap_8f90_source.html','../..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_03fb5b14824697692326bbb959ec235e.html">sem</a></li><li class="navelem"><a class="el" href="../../d3/d71/dofmap_8f90.html">dofmap.f90</a></li>
-    <li class="footer">Generated on Sat Dec 14 2024 03:41:29 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
+    <li class="footer">Generated on Sun Dec 15 2024 03:43:11 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1 </li>
   </ul>
 </div>
 </body>
