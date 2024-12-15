@@ -1064,7 +1064,7 @@ contains
           ! Not all bcs require an allocation for velocity in particular,
           ! so we check.
           if (associated(this%bcs_vel%items(j)%ptr)) then
-             write(*,*) "Allocating", j
+             write(*,*) "Allocating vel bc index", j
              if (this%bcs_vel%strong(j)) then
                 this%n_strong = this%n_strong + 1
              end if

@@ -122,26 +122,37 @@ module fluid_pnpn
      !> Surface term in pressure rhs. Masks symmetry bcs.
      type(facet_normal_t) :: bc_sym_surface
 
-     type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
+!     type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
 
      !
-     ! Boundary conditions and  lists for residuals and
+     ! Boundary conditions and  lists for residuals and solution increments
      !
 
      !> A dummy bc for marking strong velocity bcs. Used for du,dv,dw & vel_res.
      type(zero_dirichlet_t) :: bc_vel_res
+     ! Not used!
      type(zero_dirichlet_t) :: bc_field_dirichlet_p   !< Dirichlet condition vel. res.
+     ! For user velocity Dirichlet bcs
      type(zero_dirichlet_t) :: bc_field_dirichlet_u   !< Dirichlet condition vel. res.
      type(zero_dirichlet_t) :: bc_field_dirichlet_v   !< Dirichlet condition vel. res.
      type(zero_dirichlet_t) :: bc_field_dirichlet_w   !< Dirichlet condition vel. res.
      type(non_normal_t) :: bc_vel_res_non_normal   !< Dirichlet condition vel. res.
 
+     !> A dummy bc for marking strong pressure bcs. Used for dp.
+     type(zero_dirichlet_t) :: bc_dp
+     !> A list for holding bc_p_res
+     type(bc_list_t) :: bclst_dp
 
+     !> These lists appear to mark the same facets. The difference is that the
+     !! vel_res is applied via apply_vector, and the rest via apply_scalar.
+     !! This leads to some differences, see e.g. the handling of symmetry.
+     !! The shared purpose is to collect boundaries where velocity is strongly
+     !! fixed. Most of these facets are added to bc_vel_res, which eventually
+     !! gets added to all of these lists.
      type(bc_list_t) :: bclst_vel_res
      type(bc_list_t) :: bclst_du
      type(bc_list_t) :: bclst_dv
      type(bc_list_t) :: bclst_dw
-     type(bc_list_t) :: bclst_dp
      
      logical :: prs_dirichlet = .false.
 
@@ -388,13 +399,15 @@ contains
 
     ! Mark Dirichlet bcs for pressure
     call this%bclst_dp%init()
+    call this%bc_dp%init_from_components(this%c_Xh)
 
     do i = 1, this%bcs_prs%size()
        if (this%bcs_prs%strong(i) .eqv. .true.) then
-          ! Should probably use a dummy bc like vel_res here
-          call this%bclst_dp%append(this%bcs_prs%items(i)%ptr)
+          call this%bc_dp%mark_facets(this%bcs_prs%items(i)%ptr%marked_facet)
        end if
     end do
+    call this%bc_dp%finalize()
+    call this%bclst_dp%append(this%bc_dp)
 
     ! If we have no strong pressure bcs, we will demean the pressure
     this%prs_dirichlet =  .not. this%bclst_dp%is_empty()
