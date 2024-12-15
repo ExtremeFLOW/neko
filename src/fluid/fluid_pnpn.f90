@@ -396,6 +396,11 @@ contains
        end if
     end do
 
+    ! If we have no strong pressure bcs, we will demean the pressure
+    this%prs_dirichlet =  .not. this%bclst_dp%is_empty()
+    call MPI_Allreduce(MPI_IN_PLACE, this%prs_dirichlet, 1, &
+         MPI_LOGICAL, MPI_LOR, NEKO_COMM)
+
 !    call this%bclst_dp%append(this%bc_field_dirichlet_p)
     !Add 0 prs bcs
 !    call this%bclst_dp%append(this%bc_prs)
@@ -915,10 +920,16 @@ contains
                            Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
                            mu_field, rho_field)
 
+      write(*,*) "PRS DIRICHLET", this%prs_dirichlet
       if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n) 
 
       call gs_Xh%op(p_res, GS_OP_ADD)
       call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), t, tstep)
+
+      dump_file = file_t('p_res.fld')
+      call dump_file%write(p_res)
+!      call exit()
+
       call profiler_end_region('Pressure_residual', 18)
 
 
@@ -933,9 +944,6 @@ contains
       ksp_results(1) = &
          this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, this%bclst_dp, gs_Xh)
 
-      dump_file = file_t('dp.fld')
-      call dump_file%write(dp)
-!      call exit()
 
       call profiler_end_region('Pressure_solve', 3)
 
