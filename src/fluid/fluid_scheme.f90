@@ -1059,11 +1059,11 @@ contains
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
 
-          call fluid_bc_factory(this%bcs_vel%items(j)%obj, bc_subdict, &
+          call fluid_bc_factory(this%bcs_vel%items(j)%ptr, bc_subdict, &
                this%c_Xh, user)
           ! Not all bcs require an allocation for velocity in particular,
           ! so we check.
-          if (allocated(this%bcs_vel%items(j)%obj)) then
+          if (associated(this%bcs_vel%items(j)%ptr)) then
              write(*,*) "Allocating", j
              if (this%bcs_vel%strong(j)) then
                 this%n_strong = this%n_strong + 1
@@ -1080,7 +1080,7 @@ contains
   end subroutine fluid_scheme_setup_bcs
 
   subroutine fluid_bc_factory(object, json, coef, user)
-    class(bc_t), allocatable, intent(inout) :: object
+    class(bc_t), pointer, intent(inout) :: object
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
     type(user_t), intent(in) :: user

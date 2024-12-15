@@ -32,7 +32,7 @@
         },
         "pressure_solver": {
             "type": "gmres",
-            "preconditioner": "jacobi",
+            "preconditioner": "hsmg",
             "projection_space_size": 4,
             "absolute_tolerance": 1e-4,
             "max_iterations": 800

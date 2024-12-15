@@ -56,7 +56,7 @@ contains
   !! @param[in] coef SEM coefficients.
   !! @param[inout] json JSON object for initializing the bc.
   subroutine bc_factory(object, json, coef, user)
-    class(bc_t), allocatable, intent(inout) :: object
+    class(bc_t), pointer, intent(inout) :: object
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
     type(user_t), intent(in) :: user

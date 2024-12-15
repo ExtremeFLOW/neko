@@ -37,7 +37,7 @@ module bc_list
   use device
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use bc, only : bc_t, bc_alloc_t
+  use bc, only : bc_t, bc_ptr_t
   implicit none
   private
 
@@ -45,7 +45,7 @@ module bc_list
   !! Follows the standard interface of lists.
   type, public :: bc_list_t
      ! The items of the list.
-     class(bc_alloc_t), allocatable :: items(:)
+     class(bc_ptr_t), allocatable :: items(:)
      !> Number of items.
      integer :: size_
      !> Capacity.
@@ -104,7 +104,7 @@ contains
 
     if (allocated(this%items)) then
        do i =1, this%size()
-!         call this%items(i)%obj%free()
+          this%items(i)%ptr => null()
        end do
 
        deallocate(this%items)
@@ -119,26 +119,22 @@ contains
   subroutine bc_list_append(this, bc)
     class(bc_list_t), intent(inout) :: this
     class(bc_t), intent(inout), target :: bc
-    class(bc_alloc_t), allocatable :: tmp(:)
+    type(bc_ptr_t), allocatable :: tmp(:)
     integer :: i
 
     !> Do not add if bc is empty
     if(bc%marked_facet%size() .eq. 0) return
 
     if (this%size_ .ge. this%capacity) then
-       call move_alloc(this%items, tmp)
        this%capacity = this%capacity * 2
-       allocate(this%items(this%capacity))
-
-       if (allocated(tmp)) then
-          do i = 1, this%size_
-             call move_alloc(tmp(i)%obj, this%items(i)%obj)
-          end do
-       end if
+       allocate(tmp(this%capacity))
+       tmp(1:this%size_) = this%items
+       call move_alloc(tmp, this%items)
     end if
 
-    this%size_ = this%size_ + 1
-    this%items(this%size_)%obj = bc
+   this%size_ = this%size_ + 1
+   this%items(this%size_)%ptr => bc
+
 
   end subroutine bc_list_append
 
@@ -174,25 +170,25 @@ contains
        if (present(t) .and. present(tstep)) then
           do i = 1, this%size()
              if (execute(i)) then
-                   call this%items(i)%obj%apply_scalar_dev(x_d, t=t, tstep=tstep)
+                   call this%items(i)%ptr%apply_scalar_dev(x_d, t=t, tstep=tstep)
              end if
           end do
        else if (present(t)) then
           do i = 1, this%size()
              if (execute(i)) then
-                call this%items(i)%obj%apply_scalar_dev(x_d, t=t)
+                call this%items(i)%ptr%apply_scalar_dev(x_d, t=t)
              end if
           end do
        else if (present(tstep)) then
           do i = 1, this%size()
              if (execute(i)) then
-                call this%items(i)%obj%apply_scalar_dev(x_d, tstep=tstep)
+                call this%items(i)%ptr%apply_scalar_dev(x_d, tstep=tstep)
              end if
           end do
        else
           do i = 1, this%size()
              if (execute(i)) then
-                call this%items(i)%obj%apply_scalar_dev(x_d)
+                call this%items(i)%ptr%apply_scalar_dev(x_d)
              end if
           end do
        end if
@@ -200,25 +196,25 @@ contains
        if (present(t) .and. present(tstep)) then
           do i = 1, this%size()
              if (execute(i)) then
-                call this%items(i)%obj%apply_scalar(x, n, t, tstep)
+                call this%items(i)%ptr%apply_scalar(x, n, t, tstep)
              end if
           end do
        else if (present(t)) then
           do i = 1, this%size()
              if (execute(i)) then
-                call this%items(i)%obj%apply_scalar(x, n, t=t)
+                call this%items(i)%ptr%apply_scalar(x, n, t=t)
              end if
           end do
        else if (present(tstep)) then
           do i = 1, this%size()
              if (execute(i)) then
-                call this%items(i)%obj%apply_scalar(x, n, tstep=tstep)
+                call this%items(i)%ptr%apply_scalar(x, n, tstep=tstep)
              end if
           end do
        else
           do i = 1, this%size()
              if (execute(i)) then
-                call this%items(i)%obj%apply_scalar(x, n)
+                call this%items(i)%ptr%apply_scalar(x, n)
              end if
           end do
        end if
@@ -251,37 +247,37 @@ contains
        z_d = device_get_ptr(z)
        if (present(t) .and. present(tstep)) then
           do i = 1, this%size()
-             call this%items(i)%obj%apply_vector_dev(x_d, y_d, z_d, t, tstep)
+             call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t, tstep)
           end do
        else if (present(t)) then
           do i = 1, this%size()
-             call this%items(i)%obj%apply_vector_dev(x_d, y_d, z_d, t=t)
+             call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t=t)
           end do
        else if (present(tstep)) then
           do i = 1, this%size()
-             call this%items(i)%obj%apply_vector_dev(x_d, y_d, z_d, tstep=tstep)
+             call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, tstep=tstep)
           end do
        else
           do i = 1, this%size()
-             call this%items(i)%obj%apply_vector_dev(x_d, y_d, z_d)
+             call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d)
           end do
        end if
     else
        if (present(t) .and. present(tstep)) then
           do i = 1, this%size()
-             call this%items(i)%obj%apply_vector(x, y, z, n, t, tstep)
+             call this%items(i)%ptr%apply_vector(x, y, z, n, t, tstep)
           end do
        else if (present(t)) then
           do i = 1, this%size()
-             call this%items(i)%obj%apply_vector(x, y, z, n, t=t)
+             call this%items(i)%ptr%apply_vector(x, y, z, n, t=t)
           end do
        else if (present(tstep)) then
           do i = 1, this%size()
-             call this%items(i)%obj%apply_vector(x, y, z, n, tstep=tstep)
+             call this%items(i)%ptr%apply_vector(x, y, z, n, tstep=tstep)
           end do
        else
           do i = 1, this%size()
-             call this%items(i)%obj%apply_vector(x, y, z, n)
+             call this%items(i)%ptr%apply_vector(x, y, z, n)
           end do
        end if
     end if
@@ -302,7 +298,7 @@ contains
     integer, intent(in) :: i
     logical :: strong
 
-    strong = this%items(i)%obj%strong
+    strong = this%items(i)%ptr%strong
   end function bc_list_strong
 
   !> Return whether the list is empty.
@@ -314,11 +310,11 @@ contains
     is_empty = .true. 
     do i = 1, this%size()
 
-       if (.not. allocated(this%items(i)%obj%msk)) then
+       if (.not. allocated(this%items(i)%ptr%msk)) then
           call neko_error("bc not finalized, error in bc_list%is_empty")
        end if
 
-       if (this%items(i)%obj%msk(0) > 0) is_empty = .false.
+       if (this%items(i)%ptr%msk(0) > 0) is_empty = .false.
     
     end do
   end function bc_list_is_empty

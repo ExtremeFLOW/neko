@@ -255,7 +255,7 @@ contains
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
 
-          call bc_factory(this%bcs%items(i)%obj, bc_subdict, &
+          call bc_factory(this%bcs%items(i)%ptr, bc_subdict, &
                           this%c_Xh, user)
 
           if (this%bcs%strong(i)) then

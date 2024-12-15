@@ -303,7 +303,7 @@ contains
     !! TODO: Need init from components
     call this%bc_prs_surface%init(this%c_Xh, params)
     do i = 1, this%bcs_vel%size()
-       select type (vel_bc => this%bcs_vel%items(i)%obj)
+       select type (vel_bc => this%bcs_vel%items(i)%ptr)
        type is (symmetry_t)
          ! Do nothing
        class default
@@ -317,7 +317,7 @@ contains
     ! Initialize symmetry surface terms in pressure rhs. Masks symmetry bcs.
     call this%bc_sym_surface%init(this%c_Xh, params)
     do i = 1, this%bcs_vel%size()
-       select type (vel_bc => this%bcs_vel%items(i)%obj)
+       select type (vel_bc => this%bcs_vel%items(i)%ptr)
        type is (symmetry_t)
           write(*,*) "MARKING PRESSURE SYMMETRY"
           call this%bc_sym_surface%mark_facets(vel_bc%marked_facet)
@@ -391,7 +391,7 @@ contains
     do i = 1, this%bcs_prs%size()
        if (this%bcs_prs%strong(i) .eqv. .true.) then
           ! Should probably use a dummy bc like vel_res here
-          call this%bclst_dp%append(this%bcs_prs%items(i)%obj)
+          call this%bclst_dp%append(this%bcs_prs%items(i)%ptr)
        end if
     end do
 
@@ -431,7 +431,7 @@ contains
        if (this%bcs_vel%strong(i) .eqv. .true.) then
 
          ! We need to treat bcs with nested bcs in a special way
-         select type (vel_bc => this%bcs_vel%items(i)%obj)
+         select type (vel_bc => this%bcs_vel%items(i)%ptr)
          type is (symmetry_t)
             ! Symmetry has 3 internal bcs, but only one acutally contains
             ! markings. All 3 are zero_dirichlet, so the value is
@@ -1054,12 +1054,12 @@ contains
           call json_extract_item(core, bc_object, i, bc_subdict)
 
           write(*,*) "i", i
-          call pressure_bc_factory(this%bcs_prs%items(j)%obj, bc_subdict, &
+          call pressure_bc_factory(this%bcs_prs%items(j)%ptr, bc_subdict, &
                this%c_Xh, user)
 
           ! Not all bcs require an allocation for pressure in particular,
           ! so we check.
-          if (allocated(this%bcs_prs%items(j)%obj)) then
+          if (associated(this%bcs_prs%items(j)%ptr)) then
              write(*,*) "Allocated", j
              j = j + 1
              this%bcs_prs%size_ = this%bcs_prs%size_ + 1
@@ -1074,7 +1074,7 @@ contains
 
   !> Factory routine for pressure boundary conditions.
   subroutine pressure_bc_factory(object, json, coef, user)
-    class(bc_t), allocatable, intent(inout) :: object
+    class(bc_t), pointer, intent(inout) :: object
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
     type(user_t), intent(in) :: user

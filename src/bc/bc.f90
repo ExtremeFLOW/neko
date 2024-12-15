@@ -113,7 +113,7 @@ module bc
 
   !> Pointer to a @ref `bc_t`.
   type, public :: bc_ptr_t
-     class(bc_t), pointer :: ptr
+     class(bc_t), pointer :: ptr => null()
   end type bc_ptr_t
 
   ! Helper type to have an array of polymorphic bc_t objects.
