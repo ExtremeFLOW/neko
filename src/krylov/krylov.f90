@@ -40,7 +40,7 @@ module krylov
   use mesh, only : mesh_t
   use field, only : field_t
   use utils, only : neko_error, neko_warning
-  use bc, only : bc_list_t
+  use bc_list, only : bc_list_t
   use identity, only : ident_t
   use device_identity, only : device_ident_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -123,7 +123,7 @@ module krylov
        integer, intent(in) :: n
        real(kind=rp), dimension(n), intent(in) :: f
        type(coef_t), intent(inout) :: coef
-       type(bc_list_t), intent(in) :: blst
+       type(bc_list_t), intent(inout) :: blst
        type(gs_t), intent(inout) :: gs_h
        integer, optional, intent(in) :: niter
        type(ksp_monitor_t) :: ksp_results
@@ -165,9 +165,9 @@ module krylov
        real(kind=rp), dimension(n), intent(in) :: fy
        real(kind=rp), dimension(n), intent(in) :: fz
        type(coef_t), intent(inout) :: coef
-       type(bc_list_t), intent(in) :: blstx
-       type(bc_list_t), intent(in) :: blsty
-       type(bc_list_t), intent(in) :: blstz
+       type(bc_list_t), intent(inout) :: blstx
+       type(bc_list_t), intent(inout) :: blsty
+       type(bc_list_t), intent(inout) :: blstz
        type(gs_t), intent(inout) :: gs_h
        integer, optional, intent(in) :: niter
        type(ksp_monitor_t), dimension(3) :: ksp_results

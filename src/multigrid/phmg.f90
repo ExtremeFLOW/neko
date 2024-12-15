@@ -40,8 +40,8 @@ module phmg
   use field, only : field_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
-  use bc, only : bc_t, bc_list_apply_scalar, bc_list_t, bc_list_add, &
-       bc_list_init
+  use bc, only : bc_t
+  use bc_list, only : bc_list_t
   use dirichlet , only : dirichlet_t
   use utils, only : neko_error
   use cheby, only : cheby_t
@@ -149,16 +149,16 @@ contains
             this%phmg_hrchy%lvl(i)%dm_Xh%size())
 
        call this%phmg_hrchy%lvl(i)%bc%init_base(this%phmg_hrchy%lvl(i)%coef)
-       if (bclst%n .gt. 0 ) then
-          do j = 1, bclst%n
+       if (bclst%size .gt. 0 ) then
+          do j = 1, bclst%size
              call this%phmg_hrchy%lvl(i)%bc%mark_facets(&
-                  bclst%bc(j)%bcp%marked_facet)
+                  bclst%items(j)%obj%marked_facet)
           end do
        end if
        call this%phmg_hrchy%lvl(i)%bc%finalize()
        call this%phmg_hrchy%lvl(i)%bc%set_g(0.0_rp)
-       call bc_list_init(this%phmg_hrchy%lvl(i)%bclst)
-       call bc_list_add(this%phmg_hrchy%lvl(i)%bclst, this%phmg_hrchy%lvl(i)%bc)
+       call this%phmg_hrchy%lvl(i)%bclst%init()
+       call this%phmg_hrchy%lvl(i)%bclst%append(this%phmg_hrchy%lvl(i)%bc)
     end do
 
     ! Create backend specific Ax operator
@@ -241,7 +241,7 @@ contains
     call col2(mg(lvl+1)%r%x, mg(lvl+1)%coef%mult, mg(lvl+1)%dm_Xh%size())
 
 
-    call bc_list_apply_scalar(mg(lvl+1)%bclst, &
+    call mg(lvl+1)%bclst%apply_scalar( &
                               mg(lvl+1)%r%x, &
                               mg(lvl+1)%dm_Xh%size())
       
@@ -252,7 +252,7 @@ contains
                              mg(lvl+1)%r%x, &
                              mg(lvl+1)%dm_Xh%size())
       
-       call bc_list_apply_scalar(mg(lvl+1)%bclst, &
+       call mg(lvl+1)%bclst%apply_scalar( &
                                  mg(lvl+1)%z%x,&
                                  mg(lvl+1)%dm_Xh%size())
     else
@@ -266,7 +266,7 @@ contains
     
     call col2(w%x, mg(lvl)%coef%mult, mg(lvl)%dm_Xh%size())
     
-    call bc_list_apply_scalar(mg(lvl)%bclst, w%x, mg(lvl)%dm_Xh%size())
+    call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
        
     z%x = z%x + w%x
     
