@@ -62,6 +62,7 @@ module fluid_pnpn
   use dirichlet, only : dirichlet_t
   use facet_normal, only : facet_normal_t
   use non_normal, only : non_normal_t
+  use comm
   use mesh, only : mesh_t
   use user_intf, only : user_t
   use time_step_controller, only : time_step_controller_t
@@ -76,6 +77,7 @@ module fluid_pnpn
   use field_math, only : field_add2, field_copy
   use bc, only : bc_t
   use file, only : file_t
+  use operators, only : ortho
   implicit none
   private
 
@@ -140,6 +142,8 @@ module fluid_pnpn
      type(bc_list_t) :: bclst_dv
      type(bc_list_t) :: bclst_dw
      type(bc_list_t) :: bclst_dp
+     
+     logical :: prs_dirichlet = .false.
 
 
      class(advection_t), allocatable :: adv
@@ -192,7 +196,7 @@ contains
   subroutine fluid_pnpn_init(this, msh, lx, params, user, time_scheme)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
-    integer, intent(inout) :: lx
+    integer, intent(in) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
@@ -203,6 +207,7 @@ contains
     integer :: ierr, integer_val, solver_maxiter
     character(len=:), allocatable :: solver_type, precon_type
     logical :: monitor
+    logical :: advection
 
     call this%free()
 
@@ -518,9 +523,11 @@ contains
     call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
 
     ! Initialize the advection factory
+    call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
     call advection_factory(this%adv, params, this%c_Xh, &
                            this%ulag, this%vlag, this%wlag, &
-                           this%chkp%dtlag, this%chkp%tlag, time_scheme)
+                           this%chkp%dtlag, this%chkp%tlag, time_scheme, &
+                           .not. advection)
 
     if (params%valid_path('case.fluid.flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)
@@ -776,10 +783,10 @@ contains
   !! @param dt_controller timestep controller
   subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
     class(fluid_pnpn_t), target, intent(inout) :: this
-    real(kind=rp), intent(inout) :: t
-    integer, intent(inout) :: tstep
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     real(kind=rp), intent(in) :: dt
-    type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    type(time_scheme_controller_t), intent(in) :: ext_bdf
     type(time_step_controller_t), intent(in) :: dt_controller
     ! number of degrees of freedom
     integer :: n
@@ -907,6 +914,7 @@ contains
                            Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
                            mu_field, rho_field)
 
+      if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n) 
 
       call gs_Xh%op(p_res, GS_OP_ADD)
       call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), t, tstep)
@@ -934,6 +942,7 @@ contains
                                  this%bclst_dp, gs_Xh, n, tstep, dt_controller)
 
       call field_add2(p, dp, n)
+      if (.not. this%prs_dirichlet) call ortho(p%x, this%glb_n_points, n) 
 
       ! Compute velocity.
       call profiler_start_region('Velocity_residual', 19)
@@ -1013,7 +1022,7 @@ contains
               this%ksp_vel%max_iter)
       end if
 
-      call fluid_step_info(tstep, t, dt, ksp_results)
+      call fluid_step_info(tstep, t, dt, ksp_results, this%strict_convergence)
 
       call this%scratch%relinquish_field(temp_indices)
 

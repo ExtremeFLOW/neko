@@ -115,7 +115,7 @@ contains
 
   !> Apply in facet normal direction (vector valued)
   subroutine facet_normal_apply_surfvec(this, x, y, z, u, v, w, n, t, tstep)
-    class(facet_normal_t), intent(inout) :: this
+    class(facet_normal_t), intent(in) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
@@ -164,7 +164,7 @@ contains
   !> Apply in facet normal direction (vector valued, device version)
   subroutine facet_normal_apply_surfvec_dev(this, x_d, y_d, z_d, &
                                             u_d, v_d, w_d, t, tstep)
-    class(facet_normal_t), intent(inout), target :: this
+    class(facet_normal_t), intent(in), target :: this
     type(c_ptr) :: x_d, y_d, z_d, u_d, v_d, w_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep

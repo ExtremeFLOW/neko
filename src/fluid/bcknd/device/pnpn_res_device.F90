@@ -223,15 +223,15 @@ contains
        f_x, f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt,&
        mu, rho)
     type(field_t), intent(inout) :: p, u, v, w
-    type(field_t), intent(inout) :: u_e, v_e, w_e
+    type(field_t), intent(in) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
-    type(field_t), intent(inout) :: f_x, f_y, f_z
+    type(field_t), intent(in) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
-    type(facet_normal_t), intent(inout) :: bc_prs_surface
-    type(facet_normal_t), intent(inout) :: bc_sym_surface
+    type(facet_normal_t), intent(in) :: bc_prs_surface
+    type(facet_normal_t), intent(in) :: bc_sym_surface
     class(Ax_t), intent(inout) :: Ax
-    real(kind=rp), intent(inout) :: bd
+    real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     type(field_t), intent(in) :: mu
     type(field_t), intent(in) :: rho
@@ -347,7 +347,7 @@ contains
     type(space_t), intent(inout) :: Xh
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_res, v_res, w_res
-    type(field_t), intent(inout) :: f_x, f_y, f_z
+    type(field_t), intent(in) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
     type(field_t), intent(in) :: mu
     type(field_t), intent(in) :: rho

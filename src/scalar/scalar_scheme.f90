@@ -183,8 +183,8 @@ module scalar_scheme
        import time_scheme_controller_t
        import rp
        class(scalar_scheme_t), target, intent(inout) :: this
-       type(mesh_t), target, intent(inout) :: msh
-       type(coef_t), target, intent(inout) :: coef
+       type(mesh_t), target, intent(in) :: msh
+       type(coef_t), target, intent(in) :: coef
        type(gs_t), target, intent(inout) :: gs
        type(json_file), target, intent(inout) :: params
        type(user_t), target, intent(in) :: user
@@ -222,10 +222,10 @@ module scalar_scheme
        import time_step_controller_t
        import rp
        class(scalar_scheme_t), intent(inout) :: this
-       real(kind=rp), intent(inout) :: t
-       integer, intent(inout) :: tstep
+       real(kind=rp), intent(in) :: t
+       integer, intent(in) :: tstep
        real(kind=rp), intent(in) :: dt
-       type(time_scheme_controller_t), intent(inout) :: ext_bdf
+       type(time_scheme_controller_t), intent(in) :: ext_bdf
        type(time_step_controller_t), intent(in) :: dt_controller
      end subroutine scalar_scheme_step_intrf
   end interface
@@ -277,8 +277,8 @@ contains
   subroutine scalar_scheme_init(this, msh, c_Xh, gs_Xh, params, scheme, user, &
        rho)
     class(scalar_scheme_t), target, intent(inout) :: this
-    type(mesh_t), target, intent(inout) :: msh
-    type(coef_t), target, intent(inout) :: c_Xh
+    type(mesh_t), target, intent(in) :: msh
+    type(coef_t), target, intent(in) :: c_Xh
     type(gs_t), target, intent(inout) :: gs_Xh
     type(json_file), target, intent(inout) :: params
     character(len=*), intent(in) :: scheme
@@ -563,8 +563,8 @@ contains
        pctype)
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
-    type(coef_t), target, intent(inout) :: coef
-    type(dofmap_t), target, intent(inout) :: dof
+    type(coef_t), target, intent(in) :: coef
+    type(dofmap_t), target, intent(in) :: dof
     type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype

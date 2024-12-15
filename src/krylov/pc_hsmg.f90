@@ -84,6 +84,7 @@ module hsmg
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory, krylov_solver_destroy
   use tree_amg_multigrid, only : tamg_solver_t 
+  use zero_dirichlet, only : zero_dirichlet_t
   !$ use omp_lib
   implicit none
   private
@@ -107,7 +108,7 @@ module hsmg
      type(space_t) :: Xh_crs, Xh_mg !< spaces for lower levels
      type(dofmap_t) :: dm_crs, dm_mg
      type(coef_t) :: c_crs, c_mg
-     type(dirichlet_t) :: bc_crs, bc_mg, bc_reg
+     type(zero_dirichlet_t) :: bc_crs, bc_mg, bc_reg
      type(bc_list_t) :: bclst_crs, bclst_mg, bclst_reg
      type(schwarz_t) :: schwarz, schwarz_mg, schwarz_crs !< Schwarz decompostions
      type(field_t) :: e, e_mg, e_crs !< Solve fields
@@ -190,15 +191,6 @@ contains
 
     ! Create a backend specific preconditioner
     call precon_factory(this%pc_crs, 'jacobi')
-
-    ! Create a backend specific krylov solver
-    if (present(crs_pctype)) then
-       call krylov_solver_factory(this%crs_solver, &
-            this%dm_crs%size(), trim(crs_pctype), KSP_MAX_ITER, M = this%pc_crs)
-    else
-       call krylov_solver_factory(this%crs_solver, &
-            this%dm_crs%size(), 'cg', KSP_MAX_ITER, M = this%pc_crs)
-    end if
 
     call this%bc_crs%init_base(this%c_crs)
     call this%bc_mg%init_base(this%c_mg)

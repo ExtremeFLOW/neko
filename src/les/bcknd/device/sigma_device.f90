@@ -75,7 +75,7 @@ contains
     integer :: e, i
 
     ! some constant
-    eps = 1.0_rp-14
+    eps = NEKO_EPS
 
     ! get fields from registry
     u => neko_field_registry%get_field_by_name("u")

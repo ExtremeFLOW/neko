@@ -392,7 +392,7 @@ contains
   !! @param bc_zone Boundary zone to be marked.
   subroutine bc_mark_zone(this, bc_zone)
     class(bc_t), intent(inout) :: this
-    class(facet_zone_t), intent(inout) :: bc_zone
+    class(facet_zone_t), intent(in) :: bc_zone
     integer :: i
     do i = 1, bc_zone%size
        call this%marked_facet%push(bc_zone%facet_el(i))
@@ -571,5 +571,4 @@ contains
     end if
 
   end subroutine bc_finalize_base
-
 end module bc

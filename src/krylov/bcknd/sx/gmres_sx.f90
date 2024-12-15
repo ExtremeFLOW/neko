@@ -33,7 +33,7 @@
 !> Defines various GMRES methods
 module gmres_sx
   use krylov, only : ksp_t, ksp_monitor_t
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only: rp
   use field, only : field_t
