@@ -214,6 +214,10 @@ contains
     call this%bc_crs%finalize()
     call this%bc_mg%finalize()
 
+    write(*,*) "BC_REG", this%bc_reg%msk(0)
+    write(*,*) "BC_CRS", this%bc_crs%msk(0)
+    write(*,*) "BC_MG", this%bc_mg%msk(0)
+
     call this%bclst_reg%init()
     call this%bclst_crs%init()
     call this%bclst_mg%init()
@@ -346,6 +350,7 @@ contains
     type(ksp_monitor_t) :: crs_info
     integer :: thrdid, nthrds
 
+
     call profiler_start_region('HSMG_solve', 8)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        z_d = device_get_ptr(z)
@@ -430,6 +435,8 @@ contains
 
        !OVERLAPPING Schwarz exchange and solve
        call this%grids(3)%schwarz%compute(z, this%r)
+    write(*,*) z
+    call exit()
        ! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
        call col2(this%r, this%grids(3)%coef%mult, &
                  this%grids(3)%dof%size())

@@ -907,20 +907,26 @@ contains
                            Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
                            mu_field, rho_field)
 
-      dump_file = file_t('p_res.fld')
-      call dump_file%write(p_res)
 
       call gs_Xh%op(p_res, GS_OP_ADD)
       call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), t, tstep)
       call profiler_end_region('Pressure_residual', 18)
 
+
       call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
                                      'Pressure')
 
       call this%pc_prs%update()
+
+
+
       call profiler_start_region('Pressure_solve', 3)
       ksp_results(1) = &
          this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, this%bclst_dp, gs_Xh)
+
+      dump_file = file_t('dp.fld')
+      call dump_file%write(dp)
+      call exit()
 
       call profiler_end_region('Pressure_solve', 3)
 
@@ -948,6 +954,7 @@ contains
 
       dump_file = file_t('u_res.fld')
       call dump_file%write(u_res)
+
 
       ! We should implement a bc that takes three field_bcs and implements
       ! vector_apply
