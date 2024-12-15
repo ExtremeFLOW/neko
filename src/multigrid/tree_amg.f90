@@ -39,7 +39,7 @@ module tree_amg
   use mesh, only : mesh_t
   use space, only : space_t
   use ax_product, only: ax_t
-  use bc, only: bc_list_t, bc_list_apply
+  use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   implicit none
   private
@@ -213,7 +213,7 @@ contains
       call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
       !>
       call this%gs_h%op(vec_out, n, GS_OP_ADD)
-      call bc_list_apply(this%blst, vec_out, n)
+      call this%blst%apply(vec_out, n)
       !>
     else !> pass down through hierarchy
       if (lvl_out .ge. lvl) then
@@ -273,7 +273,7 @@ contains
       call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
       !>
       call this%gs_h%op(vec_out, n, GS_OP_ADD)
-      call bc_list_apply(this%blst, vec_out, n)
+      call this%blst%apply(vec_out, n)
       !>
     else !> pass down through hierarchy
 
@@ -297,7 +297,7 @@ contains
     call this%ax%compute(wrk_out, wrk_in, this%coef, this%msh, this%Xh)
     !>
     call this%gs_h%op(wrk_out, n, GS_OP_ADD)
-    call bc_list_apply(this%blst, wrk_out, n)
+    call this%blst%apply(wrk_out, n)
     !>
 
     !> Map finest level matvec back to output level

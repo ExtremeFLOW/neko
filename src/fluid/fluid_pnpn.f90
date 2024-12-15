@@ -934,7 +934,7 @@ contains
 
       dump_file = file_t('dp.fld')
       call dump_file%write(dp)
-      call exit()
+!      call exit()
 
       call profiler_end_region('Pressure_solve', 3)
 

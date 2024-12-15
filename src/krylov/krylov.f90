@@ -123,7 +123,7 @@ module krylov
        integer, intent(in) :: n
        real(kind=rp), dimension(n), intent(in) :: f
        type(coef_t), intent(inout) :: coef
-       type(bc_list_t), intent(in) :: blst
+       type(bc_list_t), intent(inout) :: blst
        type(gs_t), intent(inout) :: gs_h
        integer, optional, intent(in) :: niter
        type(ksp_monitor_t) :: ksp_results
@@ -165,9 +165,9 @@ module krylov
        real(kind=rp), dimension(n), intent(in) :: fy
        real(kind=rp), dimension(n), intent(in) :: fz
        type(coef_t), intent(inout) :: coef
-       type(bc_list_t), intent(in) :: blstx
-       type(bc_list_t), intent(in) :: blsty
-       type(bc_list_t), intent(in) :: blstz
+       type(bc_list_t), intent(inout) :: blstx
+       type(bc_list_t), intent(inout) :: blsty
+       type(bc_list_t), intent(inout) :: blstz
        type(gs_t), intent(inout) :: gs_h
        integer, optional, intent(in) :: niter
        type(ksp_monitor_t), dimension(3) :: ksp_results

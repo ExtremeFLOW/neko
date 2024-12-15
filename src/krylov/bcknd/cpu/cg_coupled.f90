@@ -189,7 +189,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blst
+    type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -214,9 +214,9 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blstx
-    type(bc_list_t), intent(in) :: blsty
-    type(bc_list_t), intent(in) :: blstz
+    type(bc_list_t), intent(inout) :: blstx
+    type(bc_list_t), intent(inout) :: blsty
+    type(bc_list_t), intent(inout) :: blstz
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -289,9 +289,9 @@ contains
          call gs_h%op(w1, n, GS_OP_ADD)
          call gs_h%op(w2, n, GS_OP_ADD)
          call gs_h%op(w3, n, GS_OP_ADD)
-         call blstx%apply(w1, n)
-         call blsty%apply(w2, n)
-         call blstz%apply(w3, n)
+         call blstx%apply_scalar(w1, n)
+         call blsty%apply_scalar(w2, n)
+         call blstz%apply_scalar(w3, n)
 
          do concurrent (i = 1:n)
             tmp(i) = w1(i) * p1(i) &

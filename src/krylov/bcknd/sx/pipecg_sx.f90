@@ -157,7 +157,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blst
+    type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -187,7 +187,7 @@ contains
     call this%M%solve(this%u, this%r, n)
     call Ax%compute(this%w, this%u, coef, x%msh, x%Xh)
     call gs_h%op(this%w, n, GS_OP_ADD)
-    call blst%apply(this%w, n)
+    call blst%apply_scalar(this%w, n)
 
     rtr = glsc3(this%r, coef%mult, this%r, n)
     rnorm = sqrt(rtr)*norm_fac
@@ -275,9 +275,9 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blstx
-    type(bc_list_t), intent(in) :: blsty
-    type(bc_list_t), intent(in) :: blstz
+    type(bc_list_t), intent(inout) :: blstx
+    type(bc_list_t), intent(inout) :: blsty
+    type(bc_list_t), intent(inout) :: blstz
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter

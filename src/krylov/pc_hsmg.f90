@@ -470,7 +470,7 @@ contains
        !Crs solve
 
        call this%grids(1)%gs_h%op(this%r, this%grids(1)%dof%size(), GS_OP_ADD)
-       call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
+       call this%grids(1)%bclst%apply(this%r, &
                                  this%grids(1)%dof%size())
 
        call profiler_start_region('HSMG_coarse-solve', 11)
@@ -485,7 +485,7 @@ contains
        end if
        call profiler_end_region('HSMG_coarse-solve', 11)
 
-       call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
+       call this%grids(1)%bclst%apply_scalar(this%grids(1)%e%x,&
                                  this%grids(1)%dof%size())
 
 

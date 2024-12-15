@@ -157,8 +157,8 @@ contains
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
     type(time_scheme_controller_t), intent(in) :: ext_bdf
-    type(bc_list_t), intent(in) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
-    type(bc_list_t), intent(in) :: bclst_vel_res
+    type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
+    type(bc_list_t), intent(inout) :: bclst_vel_res
     class(ax_t), intent(in) :: Ax_vel
     class(ax_t), intent(in) :: Ax_prs
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
@@ -348,8 +348,8 @@ contains
     type(gs_t), intent(inout) :: gs_Xh
     type(time_scheme_controller_t), intent(in) :: ext_bdf
     real(kind=rp), intent(in) :: rho, mu, dt
-    type(bc_list_t), intent(in) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
-    type(bc_list_t), intent(in) :: bclst_vel_res
+    type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
+    type(bc_list_t), intent(inout) :: bclst_vel_res
     class(ax_t), intent(in) :: Ax_vel
     class(ax_t), intent(in) :: Ax_prs
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel

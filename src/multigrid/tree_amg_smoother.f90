@@ -38,7 +38,7 @@ module tree_amg_smoother
   use utils
   use math
   use krylov, only : ksp_monitor_t
-  use bc, only: bc_list_t, bc_list_apply
+  use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   implicit none
   private
@@ -123,7 +123,7 @@ contains
       end do
       if (this%lvl .eq. 0) then
         call gs_h%op(d, n, GS_OP_ADD)!TODO
-        call bc_list_apply(blst, d, n)
+        call blst%apply(d, n)
       end if
 
       !Power method to get lamba max

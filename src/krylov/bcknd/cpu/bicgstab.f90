@@ -159,7 +159,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blst
+    type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -206,7 +206,7 @@ contains
          call this%M%solve(p_hat, p, n)
          call Ax%compute(v, p_hat, coef, x%msh, x%Xh)
          call gs_h%op(v, n, GS_OP_ADD)
-         call bc_list_apply(blst, v, n)
+         call blst%apply(v, n)
          alpha = rho_1 / glsc3(f, coef%mult, v, n)
          call copy(s, r, n)
          call add2s2(s, v, -alpha, n)
@@ -220,7 +220,7 @@ contains
          call this%M%solve(s_hat, s, n)
          call Ax%compute(t, s_hat, coef, x%msh, x%Xh)
          call gs_h%op(t, n, GS_OP_ADD)
-         call bc_list_apply(blst, t, n)
+         call blst%apply(t, n)
          omega = glsc3(t, coef%mult, s, n) &
               / glsc3(t, coef%mult, t, n)
          call x_update(x%x, p_hat, s_hat, alpha, omega, n)
@@ -260,9 +260,9 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blstx
-    type(bc_list_t), intent(in) :: blsty
-    type(bc_list_t), intent(in) :: blstz
+    type(bc_list_t), intent(inout) :: blstx
+    type(bc_list_t), intent(inout) :: blsty
+    type(bc_list_t), intent(inout) :: blstz
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter

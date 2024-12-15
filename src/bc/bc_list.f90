@@ -33,8 +33,9 @@
 !> Defines a list of `bc_t`.
 module bc_list
   use neko_config
-  use num_types
+  use num_types, only : rp
   use device
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr
   use bc, only : bc_t, bc_alloc_t
   implicit none
@@ -66,6 +67,8 @@ module bc_list
      procedure, pass(this) :: size => bc_list_size
      !> Return wether a given item is a strong bc
      procedure, pass(this) :: strong => bc_list_strong
+     !> Check wether the list is empty
+     procedure, pass(this) :: is_empty => bc_list_is_empty
   end type bc_list_t
 
 contains
@@ -302,5 +305,22 @@ contains
     strong = this%items(i)%obj%strong
   end function bc_list_strong
 
+  !> Return whether the list is empty.
+  function bc_list_is_empty(this) result(is_empty)
+    class(bc_list_t), intent(in), target :: this
+    logical :: is_empty
+    integer :: i
+
+    is_empty = .true. 
+    do i = 1, this%size()
+
+       if (.not. allocated(this%items(i)%obj%msk)) then
+          call neko_error("bc not finalized, error in bc_list%is_empty")
+       end if
+
+       if (this%items(i)%obj%msk(0) > 0) is_empty = .false.
+    
+    end do
+  end function bc_list_is_empty
 
 end module bc_list

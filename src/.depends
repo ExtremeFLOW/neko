@@ -106,7 +106,7 @@ math/schwarz.lo : math/schwarz.f90 bc/bc_list.lo config/neko_config.lo device/de
 math/vector.lo : math/vector.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/num_types.lo math/math.lo config/neko_config.lo 
 math/matrix.lo : math/matrix.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/num_types.lo math/math.lo config/neko_config.lo 
 math/signed_distance.lo : math/signed_distance.f90 adt/stack.lo mesh/search_tree/aabb.lo mesh/point.lo common/utils.lo config/neko_config.lo device/device.lo mesh/aabb_tree.lo mesh/tri_mesh.lo mesh/tri.lo field/field.lo config/num_types.lo 
-multigrid/tree_amg.lo : multigrid/tree_amg.f90 gs/gather_scatter.lo bc/bc.lo math/ax.lo sem/space.lo mesh/mesh.lo sem/coef.lo math/math.lo common/utils.lo config/num_types.lo 
+multigrid/tree_amg.lo : multigrid/tree_amg.f90 gs/gather_scatter.lo bc/bc_list.lo math/ax.lo sem/space.lo mesh/mesh.lo sem/coef.lo math/math.lo common/utils.lo config/num_types.lo 
 multigrid/tree_amg_utils.lo : multigrid/tree_amg_utils.f90 gs/gather_scatter.lo multigrid/tree_amg.lo math/math.lo common/utils.lo config/num_types.lo 
 multigrid/tree_amg_aggregate.lo : multigrid/tree_amg_aggregate.f90 common/log.lo mesh/mesh.lo comm/comm.lo config/num_types.lo common/utils.lo multigrid/tree_amg.lo 
 multigrid/tree_amg_multigrid.lo : multigrid/tree_amg_multigrid.f90 common/log.lo multigrid/tree_amg_smoother.lo multigrid/tree_amg_aggregate.lo multigrid/tree_amg.lo gs/gather_scatter.lo bc/bc.lo math/ax.lo sem/space.lo mesh/mesh.lo sem/coef.lo comm/comm.lo math/math.lo common/utils.lo config/num_types.lo 
@@ -139,7 +139,7 @@ common/global_interpolation.lo : common/global_interpolation.F90 common/structs.
 common/profiler.lo : common/profiler.F90 common/runtime_statistics.lo common/craypat.lo device/hip/roctx.lo device/cuda/nvtx.lo device/device.lo config/neko_config.lo 
 common/craypat.lo : common/craypat.F90 
 bc/bc.lo : bc/bc.f90 common/utils.lo adt/tuple.lo adt/stack.lo mesh/facet_zone.lo mesh/mesh.lo sem/space.lo sem/coef.lo sem/dofmap.lo device/device.lo config/num_types.lo config/neko_config.lo 
-bc/bc_list.lo : bc/bc_list.f90 bc/bc.lo device/device.lo config/num_types.lo config/neko_config.lo 
+bc/bc_list.lo : bc/bc_list.f90 bc/bc.lo common/utils.lo device/device.lo config/num_types.lo config/neko_config.lo 
 bc/bc_fctry.lo : bc/bc_fctry.f90 common/user_intf.lo bc/usr_scalar.lo mesh/mesh.lo mesh/facet_zone.lo sem/coef.lo bc/neumann.lo bc/dirichlet.lo common/log.lo common/json_utils.lo bc/bc.lo 
 bc/dirichlet.lo : bc/dirichlet.f90 common/json_utils.lo sem/coef.lo bc/bc.lo config/num_types.lo bc/bcknd/device/device_dirichlet.lo 
 bc/neumann.lo : bc/neumann.f90 math/math.lo common/json_utils.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
