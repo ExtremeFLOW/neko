@@ -70,7 +70,6 @@ contains
     real(kind=rp), allocatable :: x(:)
 
     call this%init_base(coef)
-    !call json_get(json, 'case.fluid.inflow_condition.value', x)
     call json_get(json, 'value', x)
     this%x = x
   end subroutine inflow_init

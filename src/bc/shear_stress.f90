@@ -41,6 +41,7 @@ module shear_stress
   use symmetry, only : symmetry_t
   use neumann, only : neumann_t
   use json_module, only : json_file
+  use json_utils, only : json_get
   implicit none
   private
 
@@ -101,6 +102,7 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
 
+
     call this%neumann_x%apply_scalar(x, n, t, tstep)
     call this%neumann_y%apply_scalar(y, n, t, tstep)
     call this%neumann_z%apply_scalar(z, n, t, tstep)
@@ -133,15 +135,39 @@ contains
 
   end subroutine shear_stress_apply_vector_dev
 
-  !> Additional constructor that should be run after the finalization of the
-  !! bc. Similar to the symmetry condition.
-  !> @param coef The SEM coefficients.
+  !> Constructor.
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine shear_stress_init(this, coef, json)
     class(shear_stress_t), target, intent(inout) :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) ::json
+    real(kind=rp), allocatable :: x(:)
 
     call this%init_base(coef)
+
+    ! This bc is set to weak, because the vector_apply pertains to the Neumann
+    ! part of the bc. The strong part is currently done by the nested
+    ! symmetry bc, which is added separately  to the list of velocity bcs.
+    this%strong = .false.
+
+    call json_get(json, 'value', x)
+
+    if (size(x) .ne. 3) then
+       call neko_error ("The shear stress vector provided for the shear stress &
+            & boundary condition should have 3 components.")
+    end if
+
+    call this%symmetry%free()
+    call this%symmetry%init_from_components(this%coef)
+
+    call this%neumann_x%free()
+    call this%neumann_y%free()
+    call this%neumann_z%free()
+
+    call this%neumann_x%init_from_components(this%coef, x(1))
+    call this%neumann_y%init_from_components(this%coef, x(2))
+    call this%neumann_z%init_from_components(this%coef, x(3))
 
   end subroutine shear_stress_init
 
@@ -150,14 +176,9 @@ contains
 
     call this%finalize_base()
 
-    call this%symmetry%free()
-    call this%symmetry%init_from_components(this%coef)
     call this%symmetry%mark_facets(this%marked_facet)
     call this%symmetry%finalize()
 
-    call this%neumann_x%init_from_components(this%coef, 0.0_rp)
-    call this%neumann_y%init_from_components(this%coef, 0.0_rp)
-    call this%neumann_z%init_from_components(this%coef, 0.0_rp)
 
     call this%neumann_x%mark_facets(this%marked_facet)
     call this%neumann_y%mark_facets(this%marked_facet)

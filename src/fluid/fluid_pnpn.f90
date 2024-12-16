@@ -60,6 +60,8 @@ module fluid_pnpn
   use ax_product, only : ax_t, ax_helm_factory
   use field, only : field_t
   use dirichlet, only : dirichlet_t
+  use shear_stress, only : shear_stress_t
+  use wall_model_bc, only : wall_model_bc_t
   use facet_normal, only : facet_normal_t
   use non_normal, only : non_normal_t
   use comm
@@ -136,7 +138,6 @@ module fluid_pnpn
      type(zero_dirichlet_t) :: bc_field_dirichlet_u   !< Dirichlet condition vel. res.
      type(zero_dirichlet_t) :: bc_field_dirichlet_v   !< Dirichlet condition vel. res.
      type(zero_dirichlet_t) :: bc_field_dirichlet_w   !< Dirichlet condition vel. res.
-     type(non_normal_t) :: bc_vel_res_non_normal   !< Dirichlet condition vel. res.
 
      !> A dummy bc for marking strong pressure bcs. Used for dp.
      type(zero_dirichlet_t) :: bc_dp
@@ -311,8 +312,7 @@ contains
     ! Initialize velocity surface terms in pressure rhs. Masks all strong
     ! velocity bcs.
 
-    !! TODO: Need init from components
-    call this%bc_prs_surface%init(this%c_Xh, params)
+    call this%bc_prs_surface%init_from_components(this%c_Xh)
     do i = 1, this%bcs_vel%size()
        select type (vel_bc => this%bcs_vel%items(i)%ptr)
        type is (symmetry_t)
@@ -375,28 +375,6 @@ contains
 
 !    call this%bclst_prs%append(this%bc_prs)
 
-
-!    call this%bc_dong%init(this%c_Xh, params)
-!    call this%bc_dong%mark_zones_from_list('o+dong', this%bc_labels)
-!    call this%bc_dong%mark_zones_from_list('on+dong', this%bc_labels)
-!    call this%bc_dong%finalize()
-
-
-
-    !call this%bc_sym_surface%mark_zones_from_list('sym', this%bc_labels)
-    ! Same here, should du, dv, dw be marked here?
-    !call this%bc_sym_surface%finalize()
-
-
-    ! Initialize dirichlet bcs for velocity residual
-    call this%bc_vel_res_non_normal%init(this%c_Xh, params)
-!    call this%bc_vel_res_non_normal%mark_zones_from_list('on', this%bc_labels)
-!    call this%bc_vel_res_non_normal%mark_zones_from_list('on+dong', &
-!                                                         this%bc_labels)
-    call this%bc_vel_res_non_normal%finalize()
-
-
-
     ! Mark Dirichlet bcs for pressure
     call this%bclst_dp%init()
     call this%bc_dp%init_from_components(this%c_Xh)
@@ -414,10 +392,6 @@ contains
     call MPI_Allreduce(MPI_IN_PLACE, this%prs_dirichlet, 1, &
          MPI_LOGICAL, MPI_LOR, NEKO_COMM)
 
-!    call this%bclst_dp%append(this%bc_field_dirichlet_p)
-    !Add 0 prs bcs
-!    call this%bclst_dp%append(this%bc_prs)
-
 !    call this%bc_field_dirichlet_u%init(this%c_Xh, params)
 !    call this%bc_field_dirichlet_u%mark_zones_from_list('d_vel_u', &
 !                                         this%bc_labels)
@@ -432,11 +406,6 @@ contains
 !    call this%bc_field_dirichlet_w%mark_zones_from_list('d_vel_w', &
 !                                         this%bc_labels)
 !    call this%bc_field_dirichlet_w%finalize()
-
-!    call this%bc_vel_res%init(this%c_Xh, params)
-!    call this%bc_vel_res%mark_zones_from_list('v', this%bc_labels)
-!    call this%bc_vel_res%mark_zones_from_list('w', this%bc_labels)
-!    call this%bc_vel_res%finalize()
 
     ! Populate lists for the velocity residual and solution increments
     call this%bclst_vel_res%init()
@@ -471,6 +440,13 @@ contains
             call this%bclst_du%append(vel_bc%bc_x)
             call this%bclst_dv%append(vel_bc%bc_y)
             call this%bclst_dw%append(vel_bc%bc_z)
+         type is (shear_stress_t)
+            ! Same as symmetry
+            write(*,*) "MARKING SHEAR_STRESS IN VELOCITY BLISTS"
+            call this%bclst_vel_res%append(vel_bc%symmetry)
+            call this%bclst_du%append(vel_bc%symmetry%bc_x)
+            call this%bclst_dv%append(vel_bc%symmetry%bc_y)
+            call this%bclst_dw%append(vel_bc%symmetry%bc_z)
          class default
             write(*,*) "MARKING OTHER STRONG BCS IN VELOCITY BLISTS"
             ! For the default case we use a dummy zero_dirichlet bc to mark
@@ -860,8 +836,8 @@ contains
       call this%source_term%compute(t, tstep)
 
       ! Add Neumann bc contributions to the RHS
-      !call this%bclst_vel_neumann%apply_vector(f_x%x, f_y%x, f_z%x, &
-      !     this%dm_Xh%size(), t, tstep)
+      call this%bcs_vel%apply_vector(f_x%x, f_y%x, f_z%x, &
+           this%dm_Xh%size(), t, tstep, strong = .false.)
 
       ! Compute the grandient jump penalty term
       if (this%if_gradient_jump_penalty .eqv. .true.) then
@@ -923,7 +899,7 @@ contains
       !call this%user_field_bc_vel%update(this%user_field_bc_vel%field_list, &
       !        this%user_field_bc_vel%bc_list, this%c_Xh, t, tstep, "fluid")
 
-      call this%bc_apply_vel(t, tstep)
+      call this%bc_apply_vel(t, tstep, strong = .true. )
       call this%bc_apply_prs(t, tstep)
 
       ! Update material properties if necessary

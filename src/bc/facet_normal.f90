@@ -52,8 +52,11 @@ module facet_normal
      procedure, pass(this) :: apply_vector_dev => facet_normal_apply_vector_dev
      procedure, pass(this) :: apply_surfvec => facet_normal_apply_surfvec
      procedure, pass(this) :: apply_surfvec_dev => facet_normal_apply_surfvec_dev
-     !> Constructor
+     !> Constructor.
      procedure, pass(this) :: init => facet_normal_init
+     !> Constructor from components.
+     procedure, pass(this) :: init_from_components => &
+          facet_normal_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => facet_normal_free
      !> Finalize.
@@ -62,7 +65,7 @@ module facet_normal
 
 contains
 
-  !> Constructor
+  !> Constructor.
   !! @param[in] coef The SEM coefficients.
   !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine facet_normal_init(this, coef, json)
@@ -70,8 +73,17 @@ contains
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) ::json
 
-    call this%init_base(coef)
+    call this%init_from_components(coef)
   end subroutine facet_normal_init
+
+  !> Constructor from components.
+  !! @param[in] coef The SEM coefficients.
+  subroutine facet_normal_init_from_components(this, coef)
+    class(facet_normal_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+
+    call this%init_base(coef)
+  end subroutine facet_normal_init_from_components
 
   !> No-op scalar apply
   subroutine facet_normal_apply_scalar(this, x, n, t, tstep)

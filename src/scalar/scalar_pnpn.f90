@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Containts the scalar_pnpn_t type.
+!> Contains the `scalar_pnpn_t` type.
 
 module scalar_pnpn
   use num_types, only: rp

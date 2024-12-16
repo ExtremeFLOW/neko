@@ -467,33 +467,6 @@ contains
     call this%bclst_vel_neumann%init()
 !    call this%bclst_vel_neumann%append(this%bc_sh)
 
-    !
-    ! Inflow
-    !
-!    if (params%valid_path('case.fluid.inflow_condition')) then
-!       call json_get(params, 'case.fluid.inflow_condition.type', string_val1)
-!       if (trim(string_val1) .eq. "uniform") then
-!          allocate(inflow_t::this%bc_inflow)
-!       else if (trim(string_val1) .eq. "blasius") then
-!          allocate(blasius_t::this%bc_inflow)
-!       else if (trim(string_val1) .eq. "user") then
-!          allocate(usr_inflow_t::this%bc_inflow)
-!       else
-!          call neko_error('Invalid inflow condition '//string_val1)
-!       end if
-
-!       call this%bc_inflow%init(this%c_Xh, params)
-!       call this%bc_inflow%mark_zones_from_list('v', this%bc_labels)
-!       call this%bc_inflow%finalize()
-!       call this%bclst_vel%append(this%bc_inflow)
-!       write(*,*) "BCLST", this%bclst_vel%size_, this%bclst_vel%capacity
-!    end if
-
-!    call this%bc_wall%init(this%c_Xh, params)
-!    call this%bc_wall%mark_zones_from_list('w', this%bc_labels)
-!    call this%bc_wall%finalize()
-!    call this%bclst_vel%append(this%bc_wall)
-
     ! Wall models
     !
 
@@ -886,14 +859,15 @@ contains
   !! Here we perform additional gs operations to take care of
   !! shared points between elements that have different BCs, as done in Nek5000.
   !! @todo Why can't we call the interface here?
-  subroutine fluid_scheme_bc_apply_vel(this, t, tstep)
+  subroutine fluid_scheme_bc_apply_vel(this, t, tstep, strong)
     class(fluid_scheme_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    logical, intent(in) :: strong
 
     write(*,*) "APPLYING VELOCITY BCS", this%bcs_vel%size()
     call this%bcs_vel%apply_vector(&
-         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
+         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep, strong)
     write(*,*) "DONE APPLYING VELOCITY BCS", this%bcs_vel%size()
 
   end subroutine fluid_scheme_bc_apply_vel
@@ -1076,6 +1050,19 @@ contains
           write(*,*) "Done", i
        end do
        write(*,*) "N Velocity BCS", j-1, this%bcs_vel%size()
+
+       ! Special treatment of nested boundary conditions
+       ! This will probably change when we make then not axis-aligned so 
+       ! we live with this for now..
+!       do i=1, this%bcs_vel%size_
+!          select type (vel_bc => this%bcs_vel%items(i)%ptr)
+!          type is (shear_stress_t)
+             ! We add the underlying Neumann bcs to the velocity bc list
+!             call this%bcs_vel%append(vel_bc%neumann_x)
+!             call this%bcs_vel%append(vel_bc%neumann_y)
+!             call this%bcs_vel%append(vel_bc%neumann_z)
+!          end select
+!         end do
     end if
   end subroutine fluid_scheme_setup_bcs
 
@@ -1099,6 +1086,8 @@ contains
        allocate(non_normal_t::object)
     else if (trim(type) .eq. "blasius_profile") then
        allocate(blasius_t::object)
+    else if (trim(type) .eq. "shear_stress") then
+       allocate(shear_stress_t::object)
     else
        return
 !       call neko_error("Unknown boundary condition for the fluid.")

@@ -143,6 +143,8 @@ contains
   !! @param n The size of x.
   !! @param t Current time.
   !! @param tstep Current time-step.
+  !! @param strong Filter for strong or weak boundary conditions. Default is to 
+  !! apply the whole list.
   subroutine bc_list_apply_scalar(this, x, n, t, tstep, strong)
     class(bc_list_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -228,7 +230,9 @@ contains
   !! @param n The size of x, y, z.
   !! @param t Current time.
   !! @param tstep Current time-step.
-  subroutine bc_list_apply_vector(this, x, y, z, n, t, tstep)
+  !! @param strong Filter for strong or weak boundary conditions. Default is to 
+  !! apply the whole list.
+  subroutine bc_list_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(bc_list_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
@@ -236,10 +240,24 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
+
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     integer :: i
+    logical, allocatable :: execute(:)
+
+    allocate(execute(this%size()))
+
+    execute = .true.
+    if (present(strong)) then
+       do i=1, this%size()
+         if (.not. (this%strong(i) .eqv. strong)) then
+            execute(i) = .false.
+         end if
+       end do
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
@@ -247,37 +265,53 @@ contains
        z_d = device_get_ptr(z)
        if (present(t) .and. present(tstep)) then
           do i = 1, this%size()
-             call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t, tstep)
+             if (execute(i)) then
+                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t, tstep)
+             end if
           end do
        else if (present(t)) then
           do i = 1, this%size()
-             call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t=t)
+             if (execute(i)) then
+                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t=t)
+             end if
           end do
        else if (present(tstep)) then
           do i = 1, this%size()
-             call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, tstep=tstep)
+             if (execute(i)) then
+                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, tstep=tstep)
+             end if
           end do
        else
           do i = 1, this%size()
-             call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d)
+             if (execute(i)) then
+                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d)
+             end if
           end do
        end if
     else
        if (present(t) .and. present(tstep)) then
           do i = 1, this%size()
-             call this%items(i)%ptr%apply_vector(x, y, z, n, t, tstep)
+             if (execute(i)) then
+                call this%items(i)%ptr%apply_vector(x, y, z, n, t, tstep)
+             end if
           end do
        else if (present(t)) then
           do i = 1, this%size()
-             call this%items(i)%ptr%apply_vector(x, y, z, n, t=t)
+             if (execute(i)) then
+                call this%items(i)%ptr%apply_vector(x, y, z, n, t=t)
+             end if
           end do
        else if (present(tstep)) then
           do i = 1, this%size()
-             call this%items(i)%ptr%apply_vector(x, y, z, n, tstep=tstep)
+             if (execute(i)) then
+                call this%items(i)%ptr%apply_vector(x, y, z, n, tstep=tstep)
+             end if
           end do
        else
           do i = 1, this%size()
-             call this%items(i)%ptr%apply_vector(x, y, z, n)
+             if (execute(i)) then
+                call this%items(i)%ptr%apply_vector(x, y, z, n)
+             end if
           end do
        end if
     end if
