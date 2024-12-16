@@ -75,7 +75,7 @@ module fluid_pnpn
   use bc_list, only: bc_list_t
   use zero_dirichlet, only : zero_dirichlet_t
   use dong_outflow, only : dong_outflow_t
-  use utils, only : neko_error
+  use utils, only : neko_error, neko_type_error
   use field_math, only : field_add2, field_copy
   use bc, only : bc_t
   use file, only : file_t
@@ -90,6 +90,18 @@ module fluid_pnpn
   implicit none
   private
 
+
+  ! List of all possible types created by the boundary condition factories
+  character(len=25) :: FLUID_PNPN_KNOWN_BCS(9) = [character(len=25) :: &
+     "symmetry", &
+     "velocity_value", &
+     "no_slip", &
+     "outflow", &
+     "normal_outflow", &
+     "outflow+dong", &
+     "normal_outflow+dong", &
+     "shear_stress", &
+     "wall_model"]
 
   type, public, extends(fluid_scheme_t) :: fluid_pnpn_t
 
@@ -1137,7 +1149,7 @@ contains
     type(coef_t), intent(in) :: coef
     type(user_t), intent(in) :: user
     character(len=:), allocatable :: type
-    integer :: zone_index
+    integer :: zone_index, i
 
     call json_get(json, "type", type)
 
@@ -1148,7 +1160,11 @@ contains
             (trim(type) .eq. "normal_outflow+dong")) then
        allocate(dong_outflow_t::object)
     else
-      return
+      do i=1, size(FLUID_PNPN_KNOWN_BCS)
+         if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
+      end do
+      call neko_type_error("fluid_pnpn boundary conidtions", type, &
+           FLUID_PNPN_KNOWN_BCS)
     end if
 
     call json_get(json, "zone_index", zone_index)
@@ -1170,13 +1186,13 @@ contains
     type(coef_t), intent(in) :: coef
     type(user_t), intent(in) :: user
     character(len=:), allocatable :: type
-    integer :: zone_index
+    integer :: zone_index, i
 
     call json_get(json, "type", type)
 
     if (trim(type) .eq. "symmetry") then
        allocate(symmetry_t::object)
-    else if (trim(type) .eq. "velocity_dirichlet") then
+    else if (trim(type) .eq. "velocity_value") then
        allocate(inflow_t::object)
     else if (trim(type) .eq. "no_slip") then
        allocate(zero_dirichlet_t::object)
@@ -1193,7 +1209,11 @@ contains
        ! would be a nightmare.
        call json%add("nu", scheme%mu / scheme%rho)
     else
-       return
+      do i=1, size(FLUID_PNPN_KNOWN_BCS)
+         if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
+      end do
+      call neko_type_error("fluid_pnpn boundary conidtions", type, &
+           FLUID_PNPN_KNOWN_BCS)
     end if
 
     call json_get(json, "zone_index", zone_index)
