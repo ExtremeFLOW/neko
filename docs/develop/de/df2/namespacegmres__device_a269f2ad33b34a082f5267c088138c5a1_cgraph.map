@@ -1,0 +1,13 @@
+<map id="gmres_device::gmres_device_solve" name="gmres_device::gmres_device_solve">
+<area shape="rect" id="Node000001" title="Standard GMRES solve." alt="" coords="5,29,168,69"/>
+<area shape="rect" id="Node000002" href="$de/df2/namespacegmres__device.html#a0a158df824f0f1613e4f18806ea3a81e" title=" " alt="" coords="216,29,380,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,47,202,47,202,52,168,52"/>
+<area shape="rect" id="Node000003" href="$d6/d29/gmres__aux_8cu.html#a3952e21e8b02d7069a6d91b3708cffca" title=" " alt="" coords="428,37,571,62"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="380,47,414,47,414,52,380,52"/>
+<area shape="rect" id="Node000004" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="619,11,783,37"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="570,38,605,33,605,39,571,43"/>
+<area shape="rect" id="Node000005" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="831,29,995,69"/>
+<area shape="poly" id="edge6_Node000003_Node000005" title=" " alt="" coords="571,47,817,47,817,52,571,52"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="783,31,818,35,817,41,783,36"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="873,30,871,20,877,10,891,5,913,3,937,6,951,13,948,18,936,11,913,8,892,10,880,15,876,21,878,28"/>
+</map>

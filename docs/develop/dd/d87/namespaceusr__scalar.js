@@ -1,7 +1,7 @@
 var namespaceusr__scalar =
 [
-    [ "usr_scalar_t", "d5/d57/structusr__scalar_1_1usr__scalar__t.html", "d5/d57/structusr__scalar_1_1usr__scalar__t" ],
     [ "usr_scalar_bc_eval", "d8/dbe/interfaceusr__scalar_1_1usr__scalar__bc__eval.html", "d8/dbe/interfaceusr__scalar_1_1usr__scalar__bc__eval" ],
+    [ "usr_scalar_t", "d5/d57/structusr__scalar_1_1usr__scalar__t.html", "d5/d57/structusr__scalar_1_1usr__scalar__t" ],
     [ "usr_scalar_apply_scalar", "dd/d87/namespaceusr__scalar.html#a743d7c1e398c8bcdd00403dd7154c672", null ],
     [ "usr_scalar_apply_scalar_dev", "dd/d87/namespaceusr__scalar.html#a1a727a3a202bcaecf877053f1695b9d9", null ],
     [ "usr_scalar_apply_vector", "dd/d87/namespaceusr__scalar.html#a31e65d9d296ffc2c664144cce20eafa9", null ],

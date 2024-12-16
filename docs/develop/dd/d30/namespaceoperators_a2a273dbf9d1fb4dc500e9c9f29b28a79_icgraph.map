@@ -1,4 +1,0 @@
-<map id="operators::runge_kutta" name="operators::runge_kutta">
-<area shape="rect" id="node1" title="Compute one step of Runge Kutta time interpolation for OIFS scheme." alt="" coords="193,13,363,39"/>
-<area shape="rect" id="node2" href="$dd/d97/namespaceadv__oifs.html#a3e6f14d22d412d1165dbca5d5d087aca" title="Add the advection term for the fluid, i.e. , to the RHS using the OIFS method." alt="" coords="5,5,145,47"/>
-</map>

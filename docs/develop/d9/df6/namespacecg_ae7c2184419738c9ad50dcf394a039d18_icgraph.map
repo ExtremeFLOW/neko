@@ -1,4 +1,5 @@
 <map id="cg::second_cg_part" name="cg::second_cg_part">
-<area shape="rect" id="node1" title=" " alt="" coords="156,5,303,32"/>
-<area shape="rect" id="node2" href="$d9/df6/namespacecg.html#aa74f8eea3f12b0f69c7eae810e63bf96" title="Standard PCG solve." alt="" coords="5,5,108,32"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="156,5,303,31"/>
+<area shape="rect" id="Node000002" href="$d9/df6/namespacecg.html#afe68d7c999414cfcf6cac0282e91a18c" title="Standard PCG solve." alt="" coords="5,5,108,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="142,21,108,21,108,15,142,15"/>
 </map>

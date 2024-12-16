@@ -1,6 +1,0 @@
-<map id="adv_oifs::adv_oifs_compute" name="adv_oifs::adv_oifs_compute">
-<area shape="rect" id="node1" title="Add the advection term for the fluid, i.e. , to the RHS using the OIFS method." alt="" coords="5,31,145,72"/>
-<area shape="rect" id="node2" href="$dd/d30/namespaceoperators.html#a2a273dbf9d1fb4dc500e9c9f29b28a79" title="Compute one step of Runge Kutta time interpolation for OIFS scheme." alt="" coords="193,13,363,39"/>
-<area shape="rect" id="node4" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="229,63,327,90"/>
-<area shape="rect" id="node3" href="$dd/d30/namespaceoperators.html#a7c098c05316b78ad3ba3d7ccfddbba22" title="Apply the convecting velocity c to the to the scalar field u, used in the OIFS scheme." alt="" coords="411,5,553,47"/>
-</map>

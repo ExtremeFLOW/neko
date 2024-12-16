@@ -1,6 +1,6 @@
 var comm_8F90 =
 [
-    [ "neko_comm_wrapper_init", "d3/d3a/interfacecomm_1_1neko__comm__wrapper__init.html", "d3/d3a/interfacecomm_1_1neko__comm__wrapper__init" ],
+    [ "comm::neko_comm_wrapper_init", "d3/d3a/interfacecomm_1_1neko__comm__wrapper__init.html", "d3/d3a/interfacecomm_1_1neko__comm__wrapper__init" ],
     [ "comm_free", "d1/db1/comm_8F90.html#a748336a3db271dbe41fb900caafe6bca", null ],
     [ "comm_init", "d1/db1/comm_8F90.html#afae3434add6b83dcb318017c7c70664a", null ],
     [ "mpi_extra_precision", "d1/db1/comm_8F90.html#ad3cedd4e613b549c27b62f63fcc2dffc", null ],

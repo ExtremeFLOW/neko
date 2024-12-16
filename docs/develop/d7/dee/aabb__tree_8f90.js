@@ -1,7 +1,7 @@
 var aabb__tree_8f90 =
 [
-    [ "aabb_node_t", "df/d6d/structaabb__tree_1_1aabb__node__t.html", "df/d6d/structaabb__tree_1_1aabb__node__t" ],
-    [ "aabb_tree_t", "d9/d87/structaabb__tree_1_1aabb__tree__t.html", "d9/d87/structaabb__tree_1_1aabb__tree__t" ],
+    [ "aabb_tree::aabb_node_t", "df/d6d/structaabb__tree_1_1aabb__node__t.html", "df/d6d/structaabb__tree_1_1aabb__node__t" ],
+    [ "aabb_tree::aabb_tree_t", "d9/d87/structaabb__tree_1_1aabb__tree__t.html", "d9/d87/structaabb__tree_1_1aabb__tree__t" ],
     [ "aabb_node_get_aabb", "d7/dee/aabb__tree_8f90.html#a6cafe457411ff1cf13b8f2c1c3d4c560", null ],
     [ "aabb_node_get_left_index", "d7/dee/aabb__tree_8f90.html#a821608d211a84907405c9847ead92a8d", null ],
     [ "aabb_node_get_object_index", "d7/dee/aabb__tree_8f90.html#ae3c43b3bf8e77d95dc264f55b134d7f5", null ],

@@ -1,6 +1,6 @@
 var tri_8f90 =
 [
-    [ "tri_t", "d6/d51/structtri_1_1tri__t.html", "d6/d51/structtri_1_1tri__t" ],
+    [ "tri::tri_t", "d6/d51/structtri_1_1tri__t.html", "d6/d51/structtri_1_1tri__t" ],
     [ "tri_centroid", "d7/d6a/tri_8f90.html#a8f0ad861a08d2b0e45e9af6400847ebb", null ],
     [ "tri_diameter", "d7/d6a/tri_8f90.html#a70f41ce6e78709a269c085c237c39970", null ],
     [ "tri_equal", "d7/d6a/tri_8f90.html#afe71f204696bc73c8fdf98cec1173e24", null ],

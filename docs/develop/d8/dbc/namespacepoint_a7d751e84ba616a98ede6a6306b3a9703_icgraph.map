@@ -1,0 +1,5 @@
+<map id="point::point_mat_mult" name="point::point_mat_mult">
+<area shape="rect" id="Node000001" title="Computes matrix&#45;vector product in : ." alt="" coords="224,5,391,31"/>
+<area shape="rect" id="Node000002" href="$db/d6f/structpoint_1_1point__t.html#a1d6006e6ebf31f41eb81cbfc0c4eec4f" title="Returns the multiplication of a point by a scalar ." alt="" coords="5,5,176,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,21,176,21,176,15,211,15"/>
+</map>

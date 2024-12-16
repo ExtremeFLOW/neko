@@ -1,8 +1,8 @@
 var structtime__scheme__controller_1_1time__scheme__controller__t =
 [
-    [ "free", "d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html#ab62539e8ff85cb515fc51dda56ad1cb0", null ],
-    [ "init", "d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html#a0b80a71396763b6609533389b7826870", null ],
-    [ "set_coeffs", "d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html#a02bb3f29d2ea6c7fd54989eb4dca1f86", null ],
+    [ "free", "d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html#af8635178d24021f309eefd387a80c0d6", null ],
+    [ "init", "d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html#a6b1f4d45a7c23a1620df93d77897df31", null ],
+    [ "set_coeffs", "d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html#a5c0af1341800627156c712e69f7ab1a2", null ],
     [ "ab", "d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html#aaf2e05c92f3366f6e8f0521bf89c2206", null ],
     [ "advection_coeffs", "d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html#aeef945c88628e45d0b654cbe14d8060d", null ],
     [ "advection_coeffs_d", "d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html#a5e88af94ba60b70e3f9959b8229db7ca", null ],

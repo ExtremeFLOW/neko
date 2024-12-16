@@ -1,5 +1,8 @@
 <map id="phmg::phmg_solve" name="phmg::phmg_solve">
-<area shape="rect" id="node1" title=" " alt="" coords="5,31,152,57"/>
-<area shape="rect" id="node2" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="239,5,334,32"/>
-<area shape="rect" id="node3" href="$d1/d38/namespacephmg.html#a578ae8bb6c4d0937a3d999482d3c3c4d" title=" " alt="" coords="200,56,373,83"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,43,152,68"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="239,5,334,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,40,225,26,226,32,151,45"/>
+<area shape="rect" id="Node000003" href="$d1/d38/namespacephmg.html#ad2399ef98a12756b4a63abff6f55c23c" title=" " alt="" coords="200,79,373,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="153,65,200,74,199,79,152,71"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="253,80,245,70,249,60,263,54,287,52,316,56,327,65,324,69,314,61,287,57,265,59,253,64,250,70,257,77"/>
 </map>

@@ -1,4 +1,5 @@
 <map id="elementwise_filter::elementwise_filter_t" name="elementwise_filter::elementwise_filter_t">
-<area shape="rect" id="node1" title="Implements the explicit filter for SEM." alt="" coords="5,109,168,151"/>
-<area shape="rect" id="node2" title=" " alt="" coords="59,5,114,32"/>
+<area shape="rect" id="Node000001" title="Implements the explicit filter for SEM." alt="" coords="5,108,168,148"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="59,5,114,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,45,89,108,84,108,84,45"/>
 </map>

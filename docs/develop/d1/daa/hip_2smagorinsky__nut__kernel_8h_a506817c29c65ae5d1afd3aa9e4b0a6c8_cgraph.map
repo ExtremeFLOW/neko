@@ -1,0 +1,6 @@
+<map id="smagorinsky_nut_compute" name="smagorinsky_nut_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,203,62"/>
+<area shape="rect" id="Node000002" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="251,29,415,69"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,47,237,47,237,52,203,52"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="290,30,288,20,295,10,310,5,333,3,359,6,374,13,371,18,358,11,333,8,311,10,298,15,293,21,295,28"/>
+</map>

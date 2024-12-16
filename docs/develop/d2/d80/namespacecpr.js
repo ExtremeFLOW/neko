@@ -1,7 +1,7 @@
 var namespacecpr =
 [
-    [ "cpr_t", "db/d84/structcpr_1_1cpr__t.html", "db/d84/structcpr_1_1cpr__t" ],
     [ "cpr_init", "d0/d6c/interfacecpr_1_1cpr__init.html", "d0/d6c/interfacecpr_1_1cpr__init" ],
+    [ "cpr_t", "db/d84/structcpr_1_1cpr__t.html", "db/d84/structcpr_1_1cpr__t" ],
     [ "build_filter_tf", "d2/d80/namespacecpr.html#a3ddd196381c64b6eece0ffc931ccce8a", null ],
     [ "cpr_free", "d2/d80/namespacecpr.html#aeaf164e4733dc1cc6749bfaa7064aeea", null ],
     [ "cpr_generate_specmat", "d2/d80/namespacecpr.html#ae689f520261060721e9a32eee074c3d7", null ],

@@ -1,7 +1,7 @@
 var facet__zone_8f90 =
 [
-    [ "facet_zone_t", "d2/d94/structfacet__zone_1_1facet__zone__t.html", "d2/d94/structfacet__zone_1_1facet__zone__t" ],
-    [ "facet_zone_periodic_t", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t" ],
+    [ "facet_zone::facet_zone_t", "d2/d94/structfacet__zone_1_1facet__zone__t.html", "d2/d94/structfacet__zone_1_1facet__zone__t" ],
+    [ "facet_zone::facet_zone_periodic_t", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t" ],
     [ "facet_zone_add_facet", "d2/dd2/facet__zone_8f90.html#a6e596393a26de1194fe5e723ad05a345", null ],
     [ "facet_zone_finalize", "d2/dd2/facet__zone_8f90.html#af70b3b355dd5adf312cc19f65492d4f7", null ],
     [ "facet_zone_free", "d2/dd2/facet__zone_8f90.html#ac66a60fec95115d780702caebcad3bb0", null ],

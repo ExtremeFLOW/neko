@@ -1,6 +1,6 @@
 var runtime__statistics_8f90 =
 [
-    [ "runtime_stats_t", "d5/db8/structruntime__stats_1_1runtime__stats__t.html", "d5/db8/structruntime__stats_1_1runtime__stats__t" ],
+    [ "runtime_stats::runtime_stats_t", "d5/db8/structruntime__stats_1_1runtime__stats__t.html", "d5/db8/structruntime__stats_1_1runtime__stats__t" ],
     [ "runtime_stats_end_region", "d0/d6c/runtime__statistics_8f90.html#af8d11dbdec5ebf8fdcad33f4d749e3de", null ],
     [ "runtime_stats_free", "d0/d6c/runtime__statistics_8f90.html#ab457f22fd7432f5edfc48989e4d998c6", null ],
     [ "runtime_stats_init", "d0/d6c/runtime__statistics_8f90.html#a7c5df2b6768842e72978b50d76f94efe", null ],

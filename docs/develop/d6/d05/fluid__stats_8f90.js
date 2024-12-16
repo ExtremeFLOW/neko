@@ -1,6 +1,6 @@
 var fluid__stats_8f90 =
 [
-    [ "fluid_stats_t", "da/d8a/structfluid__stats_1_1fluid__stats__t.html", "da/d8a/structfluid__stats_1_1fluid__stats__t" ],
+    [ "fluid_stats::fluid_stats_t", "da/d8a/structfluid__stats_1_1fluid__stats__t.html", "da/d8a/structfluid__stats_1_1fluid__stats__t" ],
     [ "fluid_stats_free", "d6/d05/fluid__stats_8f90.html#a6543045ed1c527f9f273d57feaff9ff0", null ],
     [ "fluid_stats_init", "d6/d05/fluid__stats_8f90.html#a9bcfeb263302e7a74d442e1c1ccbf211", null ],
     [ "fluid_stats_make_strong_grad", "d6/d05/fluid__stats_8f90.html#a47e0b4a1488deeafbb5984bb92c43be6", null ],

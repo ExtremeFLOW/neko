@@ -1,11 +1,12 @@
 var structfluid__stats_1_1fluid__stats__t =
 [
-    [ "free", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#a0de88cec12a4f3a7a3c70ce5c2d8e03f", null ],
-    [ "init", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#a6e3ad546b78c9a8f6e7a2d82620666f0", null ],
-    [ "make_strong_grad", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#a2066fbe36e6280c45042c6d373db554a", null ],
-    [ "post_process", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#aa53d6f2d5ebdc7f4ecf6b1c1df971a65", null ],
-    [ "reset", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#a9c67e688f8139ec7815f37a3997ad287", null ],
-    [ "update", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#aff7676610e7c38afb9cef8657aeccd16", null ],
+    [ "free", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#a0052df44bec383e76dbbc1e31bbc8c49", null ],
+    [ "init", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#a268ff4e2f9b7b2cb768d3c521af2a02c", null ],
+    [ "make_strong_grad", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#a3a7b0bacec3d677745631e2c952c705b", null ],
+    [ "post_process", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#a999e0feef61b72cf65e2c30aebb0b27c", null ],
+    [ "reset", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#aba8910048ec997d4e0cefe9a8ba89cab", null ],
+    [ "update", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#a81e4215c85045782c3b9a91855b21a5e", null ],
+    [ "update", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#aa9277d7c6b58d51c1027ab5cb6f52350", null ],
     [ "coef", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#a18e2c11b404c54a68896711f4eb906d3", null ],
     [ "dudx", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#a38addf1fce4203353b9ecfcdd93f0f4e", null ],
     [ "dudy", "da/d8a/structfluid__stats_1_1fluid__stats__t.html#a6e25eb8493bf7f5619fbc04fba7f2462", null ],

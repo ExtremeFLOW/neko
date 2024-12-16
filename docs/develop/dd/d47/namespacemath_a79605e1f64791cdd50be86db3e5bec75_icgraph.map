@@ -1,10 +1,18 @@
 <map id="math::glsum" name="math::glsum">
-<area shape="rect" id="node1" title="Sum a vector of length n." alt="" coords="487,129,591,156"/>
-<area shape="rect" id="node2" href="$d5/de6/namespacefield__math.html#a695417ff1e9677f8de61d1d44c79d9c5" title=" " alt="" coords="248,5,423,32"/>
-<area shape="rect" id="node3" href="$d8/d09/namespacefluid__scheme.html#a954fd0e94a3e06097351d3ca34709ad4" title="Initialise a fluid scheme." alt="" coords="249,57,421,98"/>
-<area shape="rect" id="node5" href="$d6/daa/namespaceforce__torque.html#ab407c7b9763b091d7165c5d7d19044de" title="Compute the force_torque field." alt="" coords="263,122,408,163"/>
-<area shape="rect" id="node6" href="$d6/daa/namespaceforce__torque.html#a0f667e648d5b3ccd99421fa1be4aaf89" title="Actual constructor." alt="" coords="232,187,439,229"/>
-<area shape="rect" id="node8" href="$dd/d30/namespaceoperators.html#a1691d2dad396026d7c10196f76ebe574" title="Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T." alt="" coords="272,253,399,280"/>
-<area shape="rect" id="node4" href="$da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a7e2136dedddf80e7660284a3feec1bc2" title=" " alt="" coords="5,57,184,98"/>
-<area shape="rect" id="node7" href="$d6/daa/namespaceforce__torque.html#af95812899d029c8c2c15b3742965583b" title="Constructor from json." alt="" coords="9,187,180,229"/>
+<area shape="rect" id="Node000001" title="Sum a vector of length n." alt="" coords="487,127,591,152"/>
+<area shape="poly" id="edge7_Node000001_Node000001" title=" " alt="" coords="575,117,565,109,539,105,517,107,506,112,503,118,510,125,505,128,498,118,502,108,516,102,539,100,567,104,578,113"/>
+<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a695417ff1e9677f8de61d1d44c79d9c5" title=" " alt="" coords="248,5,423,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="517,117,483,80,437,46,408,33,410,28,440,41,486,76,521,114"/>
+<area shape="rect" id="Node000003" href="$d8/d09/namespacefluid__scheme.html#a954fd0e94a3e06097351d3ca34709ad4" title="Initialise a fluid scheme." alt="" coords="249,55,421,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="485,125,438,110,400,98,402,93,439,105,486,120"/>
+<area shape="rect" id="Node000005" href="$d6/daa/namespaceforce__torque.html#ab407c7b9763b091d7165c5d7d19044de" title="Compute the force_torque field." alt="" coords="263,119,408,159"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="472,142,408,142,408,137,472,137"/>
+<area shape="rect" id="Node000006" href="$d6/daa/namespaceforce__torque.html#a0f667e648d5b3ccd99421fa1be4aaf89" title="Actual constructor." alt="" coords="232,183,439,223"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="486,159,439,174,402,186,400,181,438,169,485,154"/>
+<area shape="rect" id="Node000008" href="$dd/d30/namespaceoperators.html#a1691d2dad396026d7c10196f76ebe574" title="Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T." alt="" coords="272,248,399,273"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="521,165,486,203,440,238,400,253,398,248,437,233,483,199,517,161"/>
+<area shape="rect" id="Node000004" href="$da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a367dbe8934b9990a7608ec43744312fd" title="Constructor for the base type." alt="" coords="5,55,184,95"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="236,78,184,78,184,73,236,73"/>
+<area shape="rect" id="Node000007" href="$d6/daa/namespaceforce__torque.html#af95812899d029c8c2c15b3742965583b" title="Constructor from json." alt="" coords="9,183,180,223"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="218,206,180,206,180,201,218,201"/>
 </map>

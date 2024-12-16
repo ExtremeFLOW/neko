@@ -1,7 +1,7 @@
 var namespaceusr__inflow =
 [
-    [ "usr_inflow_t", "d8/d63/structusr__inflow_1_1usr__inflow__t.html", "d8/d63/structusr__inflow_1_1usr__inflow__t" ],
     [ "usr_inflow_eval", "d6/d76/interfaceusr__inflow_1_1usr__inflow__eval.html", "d6/d76/interfaceusr__inflow_1_1usr__inflow__eval" ],
+    [ "usr_inflow_t", "d8/d63/structusr__inflow_1_1usr__inflow__t.html", "d8/d63/structusr__inflow_1_1usr__inflow__t" ],
     [ "usr_inflow_apply_scalar", "dc/d45/namespaceusr__inflow.html#a1099834ab64066d30d330057fc21113b", null ],
     [ "usr_inflow_apply_scalar_dev", "dc/d45/namespaceusr__inflow.html#a973aca86f69b006fc9e92b72b74bd203", null ],
     [ "usr_inflow_apply_vector", "dc/d45/namespaceusr__inflow.html#a8397c96e5ab6f44ad8166a2f6c7c4971", null ],

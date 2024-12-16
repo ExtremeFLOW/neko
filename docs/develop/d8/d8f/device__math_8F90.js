@@ -1,7 +1,7 @@
 var device__math_8F90 =
 [
-    [ "device_pwmax", "d3/d1e/interfacedevice__math_1_1device__pwmax.html", "d3/d1e/interfacedevice__math_1_1device__pwmax" ],
-    [ "device_pwmin", "d2/d62/interfacedevice__math_1_1device__pwmin.html", "d2/d62/interfacedevice__math_1_1device__pwmin" ],
+    [ "device_math::device_pwmax", "d3/d1e/interfacedevice__math_1_1device__pwmax.html", "d3/d1e/interfacedevice__math_1_1device__pwmax" ],
+    [ "device_math::device_pwmin", "d2/d62/interfacedevice__math_1_1device__pwmin.html", "d2/d62/interfacedevice__math_1_1device__pwmin" ],
     [ "device_absval", "d8/d8f/device__math_8F90.html#a8ea42a1ac625aeec4a60616c86a42161", null ],
     [ "device_add2", "d8/d8f/device__math_8F90.html#a01473fcab0cde33512431de42b050384", null ],
     [ "device_add2s1", "d8/d8f/device__math_8F90.html#a15efe533d8411a3ff44ea486c8ce276d", null ],

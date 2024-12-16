@@ -9,5 +9,5 @@ var namespacecoefs =
     [ "coef_get_area", "d6/dbe/namespacecoefs.html#a3f7f96b151a2f17e768db3d5ad5b12c0", null ],
     [ "coef_get_normal", "d6/dbe/namespacecoefs.html#a4d34532e89acebdb72fddd6f72f8090d", null ],
     [ "coef_init_all", "d6/dbe/namespacecoefs.html#ab2b9f8dad2fece2b466e7459e04111f8", null ],
-    [ "coef_init_empty", "d6/dbe/namespacecoefs.html#a05bd9f09a928d9687506f2fa4e93c889", null ]
+    [ "coef_init_empty", "d6/dbe/namespacecoefs.html#ab1645d4837b6a1c84037ca83009d57a2", null ]
 ];

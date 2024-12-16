@@ -1,6 +1,6 @@
 var flow__ic_8f90 =
 [
-    [ "set_flow_ic", "d5/d04/interfaceflow__ic_1_1set__flow__ic.html", "d5/d04/interfaceflow__ic_1_1set__flow__ic" ],
+    [ "flow_ic::set_flow_ic", "d5/d04/interfaceflow__ic_1_1set__flow__ic.html", "d5/d04/interfaceflow__ic_1_1set__flow__ic" ],
     [ "set_flow_ic_blasius", "d9/d91/flow__ic_8f90.html#aff7567086e0593009521c74afc760ff4", null ],
     [ "set_flow_ic_common", "d9/d91/flow__ic_8f90.html#a9d1d885167a393ccb448d1a90f1530d5", null ],
     [ "set_flow_ic_fld", "d9/d91/flow__ic_8f90.html#a425835656c9daae13895696a4943dd5f", null ],

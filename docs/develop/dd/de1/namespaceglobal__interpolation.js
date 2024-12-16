@@ -10,6 +10,6 @@ var namespaceglobal__interpolation =
     [ "global_interpolation_free_points", "dd/de1/namespaceglobal__interpolation.html#a39e3a81dcd84a313a772376f36e9c42e", null ],
     [ "global_interpolation_init_dof", "dd/de1/namespaceglobal__interpolation.html#aa45090e00c765fb9d098b30ae7278ec3", null ],
     [ "global_interpolation_init_point_arrays", "dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3", null ],
-    [ "global_interpolation_init_xyz", "dd/de1/namespaceglobal__interpolation.html#ae461aea851e8ee28ef07aebe4ef73992", null ],
+    [ "global_interpolation_init_xyz", "dd/de1/namespaceglobal__interpolation.html#a5356e0128ea8ceab956a76c266ab89ca", null ],
     [ "global_interpolation_redist", "dd/de1/namespaceglobal__interpolation.html#ae67a17085d264b5f5d490d1047042ee2", null ]
 ];

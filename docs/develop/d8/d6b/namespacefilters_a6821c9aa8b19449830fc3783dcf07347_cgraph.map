@@ -1,7 +1,0 @@
-<map id="filters::smooth_step_field" name="filters::smooth_step_field">
-<area shape="rect" id="node1" title="Apply a smooth step function to a field." alt="" coords="5,39,156,80"/>
-<area shape="rect" id="node2" href="$d9/d3d/namespacefilters__cpu.html#afe17bf8e817019dce834f9a435e668df" title="Apply a smooth step function to a scalar." alt="" coords="214,5,361,47"/>
-<area shape="rect" id="node5" href="$df/d9b/namespacefilters__device.html#a5d6e63c3918370635c1b40195c11ed66" title="Apply a smooth step function to a scalar." alt="" coords="204,71,371,112"/>
-<area shape="rect" id="node3" href="$d9/d3d/namespacefilters__cpu.html#aa652f386fe2adefd093aa8b3ac513a9b" title="Apply a smooth step function to a scalar." alt="" coords="419,5,565,47"/>
-<area shape="rect" id="node4" href="$d9/d3d/namespacefilters__cpu.html#abdfec7c5ceb30f82d028bb3626fbbf15" title="Clamp a value between two limits." alt="" coords="613,5,751,47"/>
-</map>

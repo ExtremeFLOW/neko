@@ -1,7 +1,7 @@
 var structspace_1_1space__t =
 [
-    [ "free", "da/d99/structspace_1_1space__t.html#aca53ff22e6dda60d5695b79591d0a4d1", null ],
-    [ "init", "da/d99/structspace_1_1space__t.html#a6198ff7d0bdb4908364e6fd9c0baba01", null ],
+    [ "free", "da/d99/structspace_1_1space__t.html#a8f9a0d28c3d909c86beecc8954f3245c", null ],
+    [ "init", "da/d99/structspace_1_1space__t.html#ad9c6cfb904833dbfb44fe5f82bcb18df", null ],
     [ "dr_inv", "da/d99/structspace_1_1space__t.html#a73cd9d79d5c8c15ae81ea6222c119be1", null ],
     [ "dr_inv_d", "da/d99/structspace_1_1space__t.html#aba9d4d75121d731ac8dea0711efbf337", null ],
     [ "ds_inv", "da/d99/structspace_1_1space__t.html#aa133d9bef3ab5aa3fad25fcb500248e1", null ],

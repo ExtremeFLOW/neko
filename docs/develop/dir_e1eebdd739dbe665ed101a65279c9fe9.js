@@ -5,10 +5,6 @@ var dir_e1eebdd739dbe665ed101a65279c9fe9 =
     [ "krylov_fctry.f90", "d0/dbe/krylov__fctry_8f90.html", null ],
     [ "pc_hsmg.f90", "d0/d84/pc__hsmg_8f90.html", "d0/d84/pc__hsmg_8f90" ],
     [ "pc_identity.f90", "d7/de0/pc__identity_8f90.html", "d7/de0/pc__identity_8f90" ],
-    [ "precon.f90", "d4/de5/precon_8f90.html", [
-      [ "pc_t", "d7/d3a/structprecon_1_1pc__t.html", "d7/d3a/structprecon_1_1pc__t" ],
-      [ "pc_solve", "df/db4/interfaceprecon_1_1pc__solve.html", "df/db4/interfaceprecon_1_1pc__solve" ],
-      [ "pc_update", "d0/d0b/interfaceprecon_1_1pc__update.html", "d0/d0b/interfaceprecon_1_1pc__update" ]
-    ] ],
+    [ "precon.f90", "d4/de5/precon_8f90.html", "d4/de5/precon_8f90" ],
     [ "precon_fctry.f90", "d8/d2b/precon__fctry_8f90.html", null ]
 ];

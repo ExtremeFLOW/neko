@@ -1,8 +1,8 @@
 var structdofmap_1_1dofmap__t =
 [
-    [ "free", "d0/df0/structdofmap_1_1dofmap__t.html#aaeac5e030256cf5ddc9231e3ebd7938b", null ],
-    [ "init", "d0/df0/structdofmap_1_1dofmap__t.html#a1dd0cffabbd6d0a4113f3da0f6dbb83a", null ],
-    [ "size", "d0/df0/structdofmap_1_1dofmap__t.html#ab2d3e1cd8cf04ce17467432e3c241849", null ],
+    [ "free", "d0/df0/structdofmap_1_1dofmap__t.html#a1a5983b81cc37e027ee3ad7a13018ea8", null ],
+    [ "init", "d0/df0/structdofmap_1_1dofmap__t.html#a10486e2061b0f8ff737fd2cfcfa1d565", null ],
+    [ "size", "d0/df0/structdofmap_1_1dofmap__t.html#a70dd87c61f74d058287318f9b294f891", null ],
     [ "dof", "d0/df0/structdofmap_1_1dofmap__t.html#aab9632c80bb5d01a7ed210589ba6812f", null ],
     [ "msh", "d0/df0/structdofmap_1_1dofmap__t.html#aa10155c4e677408a933a25b251a4c621", null ],
     [ "ntot", "d0/df0/structdofmap_1_1dofmap__t.html#a51ceee7bc9c41e5e0a0bbb11731c9847", null ],

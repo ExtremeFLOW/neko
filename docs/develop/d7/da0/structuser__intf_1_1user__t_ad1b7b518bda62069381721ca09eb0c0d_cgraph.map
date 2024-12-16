@@ -1,0 +1,7 @@
+<map id="user_intf::user_t::init" name="user_intf::user_t::init">
+<area shape="rect" id="Node000001" title="User interface initialization." alt="" coords="5,45,160,70"/>
+<area shape="rect" id="Node000002" href="$d9/dbc/namespaceuser__intf.html#aba0d51dec107387f593759651232a314" title=" " alt="" coords="221,5,391,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,44,206,37,207,42,161,49"/>
+<area shape="rect" id="Node000003" href="$d9/dbc/namespaceuser__intf.html#a2c5bf9291ff09efe1642fc8bd0991cfd" title="JSON extraction helper function for simulation components." alt="" coords="208,69,404,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="161,66,195,71,194,76,160,71"/>
+</map>

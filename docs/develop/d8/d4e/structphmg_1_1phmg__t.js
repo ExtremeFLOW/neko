@@ -1,9 +1,11 @@
 var structphmg_1_1phmg__t =
 [
-    [ "free", "d8/d4e/structphmg_1_1phmg__t.html#aaa74446e23bc66690a01d822fec92534", null ],
-    [ "init", "d8/d4e/structphmg_1_1phmg__t.html#a71ad1a8d4ff4823a07f626e15e0de743", null ],
-    [ "solve", "d8/d4e/structphmg_1_1phmg__t.html#a9be0fc00923ce98423decc127e9be3c0", null ],
-    [ "update", "d8/d4e/structphmg_1_1phmg__t.html#a5870c8c3c6e9cb06ce1a58779bb72d02", null ],
+    [ "free", "d8/d4e/structphmg_1_1phmg__t.html#aceddb4c5eab67a3279e0eb7c0f622df2", null ],
+    [ "init", "d8/d4e/structphmg_1_1phmg__t.html#aed05c366a4171c6fe33415cba5ffddf9", null ],
+    [ "solve", "d8/d4e/structphmg_1_1phmg__t.html#a265fdd4ee86cb585d2531ecf861fd32f", null ],
+    [ "solve", "d8/d4e/structphmg_1_1phmg__t.html#af0de6038d156eac7e606cd964547a3c0", null ],
+    [ "update", "d8/d4e/structphmg_1_1phmg__t.html#a70b83c20da370be4ac14af3ad1fcb83c", null ],
+    [ "update", "d8/d4e/structphmg_1_1phmg__t.html#a6abdf566274066be70d10295e2d9f26a", null ],
     [ "amg_solver", "d8/d4e/structphmg_1_1phmg__t.html#a09059623079fa7ca60ed98726e5d78a1", null ],
     [ "ax", "d8/d4e/structphmg_1_1phmg__t.html#a5cbdc9863ddced4f85419e906d174167", null ],
     [ "intrp", "d8/d4e/structphmg_1_1phmg__t.html#ac64cc6279ecda7569764d8ba9e4b3964", null ],

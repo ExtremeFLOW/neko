@@ -1,6 +1,6 @@
 var matrix_8f90 =
 [
-    [ "matrix_t", "da/d95/structmatrix_1_1matrix__t.html", "da/d95/structmatrix_1_1matrix__t" ],
+    [ "matrix::matrix_t", "da/d95/structmatrix_1_1matrix__t.html", "da/d95/structmatrix_1_1matrix__t" ],
     [ "cpu_matrix_inverse", "dc/dcb/matrix_8f90.html#aa00f35c664dd475891a304d88579170d", null ],
     [ "matrix_add_matrix", "dc/dcb/matrix_8f90.html#a5d7f1ce6050eb662dfd8fb16040df71f", null ],
     [ "matrix_add_scalar_left", "dc/dcb/matrix_8f90.html#a3931014d79ae8e40fbabbf609cbf8977", null ],

@@ -1,8 +1,8 @@
 var namespacejson__utils =
 [
+    [ "json_extract_item", "d9/d2b/interfacejson__utils_1_1json__extract__item.html", "d9/d2b/interfacejson__utils_1_1json__extract__item" ],
     [ "json_get", "d7/d48/interfacejson__utils_1_1json__get.html", "d7/d48/interfacejson__utils_1_1json__get" ],
     [ "json_get_or_default", "d0/d70/interfacejson__utils_1_1json__get__or__default.html", "d0/d70/interfacejson__utils_1_1json__get__or__default" ],
-    [ "json_extract_item", "d9/d2b/interfacejson__utils_1_1json__extract__item.html", "d9/d2b/interfacejson__utils_1_1json__extract__item" ],
     [ "json_extract_item_from_array", "d8/da8/namespacejson__utils.html#a676fe75290b2ea73d99971cb8dbdb729", null ],
     [ "json_extract_item_from_name", "d8/da8/namespacejson__utils.html#a1fc9296024e5aece2174f714c31c2f50", null ],
     [ "json_extract_object", "d8/da8/namespacejson__utils.html#a4c35d409d6b54da77e2a4970f4319ef3", null ],

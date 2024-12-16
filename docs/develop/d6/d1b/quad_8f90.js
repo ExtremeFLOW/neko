@@ -1,6 +1,6 @@
 var quad_8f90 =
 [
-    [ "quad_t", "d2/d32/structquad_1_1quad__t.html", "d2/d32/structquad_1_1quad__t" ],
+    [ "quad::quad_t", "d2/d32/structquad_1_1quad__t.html", "d2/d32/structquad_1_1quad__t" ],
     [ "quad_centroid", "d6/d1b/quad_8f90.html#aff0c11dc2055c5e3445eb99a2b727687", null ],
     [ "quad_diameter", "d6/d1b/quad_8f90.html#ac16ff4084be511efd869110328b8a595", null ],
     [ "quad_equal", "d6/d1b/quad_8f90.html#af40ed01b710bde728c803998b8a5f285", null ],

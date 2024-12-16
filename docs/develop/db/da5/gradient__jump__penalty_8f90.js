@@ -1,6 +1,6 @@
 var gradient__jump__penalty_8f90 =
 [
-    [ "gradient_jump_penalty_t", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t" ],
+    [ "gradient_jump_penalty::gradient_jump_penalty_t", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t" ],
     [ "absvolflux_compute", "db/da5/gradient__jump__penalty_8f90.html#a2b8c031f9224640b2c4108710bc00ffb", null ],
     [ "dist2_quadrature_hex", "db/da5/gradient__jump__penalty_8f90.html#aac2ae978ff3697d7d659b265b67e421a", null ],
     [ "eval_h2_hex", "db/da5/gradient__jump__penalty_8f90.html#a9d04e1bfe0b003bf448a6c880c6078c2", null ],

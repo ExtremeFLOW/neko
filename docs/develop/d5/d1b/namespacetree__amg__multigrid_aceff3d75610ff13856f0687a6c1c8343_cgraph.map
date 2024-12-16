@@ -1,7 +1,12 @@
 <map id="tree_amg_multigrid::tamg_mg_solve" name="tree_amg_multigrid::tamg_mg_solve">
-<area shape="rect" id="node1" title="Solver function for the TreeAMG solver object." alt="" coords="5,57,156,98"/>
-<area shape="rect" id="node2" href="$d5/d1b/namespacetree__amg__multigrid.html#a19f4185844de9442672aea49afac7d4d" title="Recrsive multigrid cycle for the TreeAMG solver object." alt="" coords="204,57,355,98"/>
-<area shape="rect" id="node3" href="$dd/d47/namespacemath.html#a7bd6ecfc03be3f80d20e06e85af6b791" title="Vector addition ." alt="" coords="433,5,529,32"/>
-<area shape="rect" id="node4" href="$d5/d1b/namespacetree__amg__multigrid.html#aa8e53c806c985cf3d6e9933e40af1b76" title="Wrapper function to gather scatter and average the duplicates." alt="" coords="403,57,560,98"/>
-<area shape="rect" id="node5" href="$d5/d1b/namespacetree__amg__multigrid.html#a085e46ea755e94f5227bdd58963dc9fc" title="Wrapper function to calculate residyal." alt="" coords="406,122,557,163"/>
+<area shape="rect" id="Node000001" title="Solver function for the TreeAMG solver object." alt="" coords="5,55,156,95"/>
+<area shape="rect" id="Node000002" href="$d5/d1b/namespacetree__amg__multigrid.html#a19f4185844de9442672aea49afac7d4d" title="Recrsive multigrid cycle for the TreeAMG solver object." alt="" coords="204,55,355,95"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="156,73,190,73,190,78,156,78"/>
+<area shape="poly" id="edge5_Node000002_Node000002" title=" " alt="" coords="242,56,240,46,246,37,259,31,279,29,303,32,315,39,313,44,301,37,279,34,260,36,249,41,245,47,247,54"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a7bd6ecfc03be3f80d20e06e85af6b791" title="Vector addition ." alt="" coords="433,5,529,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="350,53,422,32,423,37,351,58"/>
+<area shape="rect" id="Node000004" href="$d5/d1b/namespacetree__amg__multigrid.html#a9cc02c189929057ab663151347794708" title="Wrapper function to gather scatter and average the duplicates." alt="" coords="403,55,560,95"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="355,73,389,73,389,78,355,78"/>
+<area shape="rect" id="Node000005" href="$d5/d1b/namespacetree__amg__multigrid.html#a085e46ea755e94f5227bdd58963dc9fc" title="Wrapper function to calculate residyal." alt="" coords="406,119,557,159"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="344,93,405,113,404,118,342,98"/>
 </map>

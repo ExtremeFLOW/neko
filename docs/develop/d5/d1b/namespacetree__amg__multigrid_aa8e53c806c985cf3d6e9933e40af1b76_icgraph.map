@@ -1,5 +1,0 @@
-<map id="tree_amg_multigrid::average_duplicates" name="tree_amg_multigrid::average_duplicates">
-<area shape="rect" id="node1" title="Wrapper function to gather scatter and average the duplicates." alt="" coords="403,5,560,47"/>
-<area shape="rect" id="node2" href="$d5/d1b/namespacetree__amg__multigrid.html#a19f4185844de9442672aea49afac7d4d" title="Recrsive multigrid cycle for the TreeAMG solver object." alt="" coords="204,5,355,47"/>
-<area shape="rect" id="node3" href="$d5/d1b/namespacetree__amg__multigrid.html#aceff3d75610ff13856f0687a6c1c8343" title="Solver function for the TreeAMG solver object." alt="" coords="5,5,156,47"/>
-</map>

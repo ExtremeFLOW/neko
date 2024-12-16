@@ -1,6 +1,6 @@
 var vtk__file_8f90 =
 [
-    [ "vtk_file_t", "d8/d43/structvtk__file_1_1vtk__file__t.html", "d8/d43/structvtk__file_1_1vtk__file__t" ],
+    [ "vtk_file::vtk_file_t", "d8/d43/structvtk__file_1_1vtk__file__t.html", "d8/d43/structvtk__file_1_1vtk__file__t" ],
     [ "vtk_file_read", "d6/d15/vtk__file_8f90.html#a18d27723a6104ea735f3b06d2da7fd1c", null ],
     [ "vtk_file_write", "d6/d15/vtk__file_8f90.html#a0b5d8b39ebf4fecb77391d9e468fb0b2", null ],
     [ "vtk_file_write_cell_data", "d6/d15/vtk__file_8f90.html#a36be5c5648e8169a540e69d3094e6ba9", null ],

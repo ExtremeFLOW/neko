@@ -1,10 +1,13 @@
 var structfacet__zone_1_1facet__zone__periodic__t =
 [
-    [ "add_facet", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#a523ecb0f90ca2c069f716fc3f48bdd59", null ],
-    [ "add_periodic_facet", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#a0869b15bc7ee278adb5f6352e33ebb35", null ],
-    [ "finalize", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#aaa844ab7468a3d251f1540997505d5fc", null ],
-    [ "free", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#aa64952260e130f257106965b72ed7f58", null ],
-    [ "init", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#aad4a4160f119625f1872a3382cd1c92b", null ],
+    [ "add_facet", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#a79a6f19a484d3bb878949620531503cf", null ],
+    [ "add_periodic_facet", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#acfca2ac1050b7995bf241aa168667239", null ],
+    [ "finalize", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#a0da48cac4e11e18c0bf1dd78aec394b1", null ],
+    [ "finalize", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#a1b6b4b9fb541b495f81185d2d408f5fe", null ],
+    [ "free", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#a1afb45bdabf73d3b1097e18ac7df7e0b", null ],
+    [ "free", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#ae38fa42429dab5eeaff578ddfd2cebab", null ],
+    [ "init", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#ae7c07147136bac27f3c6b96e6a6e735b", null ],
+    [ "init", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#ae8028bdbc4da13b29c5bf077c5f6dc57", null ],
     [ "facet_el", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#a5a98223df3165524c18f559f85645bfb", null ],
     [ "finalized", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#a6f7211e67a314846e96b64d0fb3bcded", null ],
     [ "org_id_scratch", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html#a00585b9bbb89bc7f4fe60a1c1b08836e", null ],

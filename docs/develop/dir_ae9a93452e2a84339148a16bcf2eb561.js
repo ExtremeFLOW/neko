@@ -1,11 +1,7 @@
 var dir_ae9a93452e2a84339148a16bcf2eb561 =
 [
     [ "bcknd", "dir_50770e26e3ba115102e9374c0e502830.html", "dir_50770e26e3ba115102e9374c0e502830" ],
-    [ "ax.f90", "dc/dd6/ax_8f90.html", [
-      [ "ax_t", "d3/d2c/structax__product_1_1ax__t.html", "d3/d2c/structax__product_1_1ax__t" ],
-      [ "ax_compute", "dd/def/interfaceax__product_1_1ax__compute.html", "dd/def/interfaceax__product_1_1ax__compute" ],
-      [ "ax_compute_vector", "d1/d2e/interfaceax__product_1_1ax__compute__vector.html", "d1/d2e/interfaceax__product_1_1ax__compute__vector" ]
-    ] ],
+    [ "ax.f90", "dc/dd6/ax_8f90.html", "dc/dd6/ax_8f90" ],
     [ "ax_helm.f90", "dd/dd9/ax__helm_8f90.html", "dd/dd9/ax__helm_8f90" ],
     [ "ax_helm_fctry.f90", "d1/dd5/ax__helm__fctry_8f90.html", null ],
     [ "ax_helm_full.f90", "da/d0e/ax__helm__full_8f90.html", "da/d0e/ax__helm__full_8f90" ],

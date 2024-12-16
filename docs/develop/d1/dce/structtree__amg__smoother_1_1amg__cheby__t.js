@@ -1,8 +1,8 @@
 var structtree__amg__smoother_1_1amg__cheby__t =
 [
-    [ "comp_eig", "d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html#ae513ae26cdbc694f2f469ded58bd636d", null ],
-    [ "init", "d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html#a90765dd08de8aaed8675f303a9349d52", null ],
-    [ "solve", "d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html#ab24f3c3234c4a494bb9fa849f395316e", null ],
+    [ "comp_eig", "d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html#a380fef8ca6ccf054c15169ae0a6698e5", null ],
+    [ "init", "d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html#a0d9c496de84d0ee70c261614558e2687", null ],
+    [ "solve", "d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html#a04dcd8b4799e40933b321336fce17b22", null ],
     [ "d", "d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html#ab410bdb36c01a67891658ce1be5b4f76", null ],
     [ "dlt", "d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html#aeb088690b0b6ba0b46d1df856d4025a0", null ],
     [ "lvl", "d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html#a68d138de1623eb93f1e4d44d0de437a2", null ],

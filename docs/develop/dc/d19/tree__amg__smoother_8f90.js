@@ -1,7 +1,7 @@
 var tree__amg__smoother_8f90 =
 [
-    [ "amg_jacobi_t", "da/dc0/structtree__amg__smoother_1_1amg__jacobi__t.html", "da/dc0/structtree__amg__smoother_1_1amg__jacobi__t" ],
-    [ "amg_cheby_t", "d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html", "d1/dce/structtree__amg__smoother_1_1amg__cheby__t" ],
+    [ "tree_amg_smoother::amg_jacobi_t", "da/dc0/structtree__amg__smoother_1_1amg__jacobi__t.html", "da/dc0/structtree__amg__smoother_1_1amg__jacobi__t" ],
+    [ "tree_amg_smoother::amg_cheby_t", "d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html", "d1/dce/structtree__amg__smoother_1_1amg__cheby__t" ],
     [ "amg_cheby_init", "dc/d19/tree__amg__smoother_8f90.html#a73ff690416d06b4874565b299769906e", null ],
     [ "amg_cheby_power", "dc/d19/tree__amg__smoother_8f90.html#a50905e9240529935d6f5dfdc9905a73b", null ],
     [ "amg_cheby_solve", "dc/d19/tree__amg__smoother_8f90.html#adebe3f78b8ba13e41ebda9579246c3e2", null ],

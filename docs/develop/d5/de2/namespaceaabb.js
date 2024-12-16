@@ -1,8 +1,8 @@
 var namespaceaabb =
 [
-    [ "merge", "d9/dd5/interfaceaabb_1_1merge.html", "d9/dd5/interfaceaabb_1_1merge" ],
-    [ "intersection", "d4/d5b/interfaceaabb_1_1intersection.html", "d4/d5b/interfaceaabb_1_1intersection" ],
     [ "aabb_t", "d5/ddb/structaabb_1_1aabb__t.html", "d5/ddb/structaabb_1_1aabb__t" ],
+    [ "intersection", "d4/d5b/interfaceaabb_1_1intersection.html", "d4/d5b/interfaceaabb_1_1intersection" ],
+    [ "merge", "d9/dd5/interfaceaabb_1_1merge.html", "d9/dd5/interfaceaabb_1_1merge" ],
     [ "aabb_contains_other", "d5/de2/namespaceaabb.html#a9c37d90b1ed8ab0129a0ce2649dee7dd", null ],
     [ "aabb_contains_point", "d5/de2/namespaceaabb.html#a37da94f592cad06c1d97ef5ef81c5d83", null ],
     [ "aabb_get_center", "d5/de2/namespaceaabb.html#abdcd61f556591893e0a6bac6b5aaf07f", null ],

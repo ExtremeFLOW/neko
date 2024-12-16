@@ -1,6 +1,9 @@
 <map id="mathops::opcolv" name="mathops::opcolv">
-<area shape="rect" id="node1" title=" " alt="" coords="252,56,383,83"/>
-<area shape="rect" id="node2" href="$d0/d94/namespaceopr__cpu.html#a12d6237f85e66a10649781a905bb60d2" title=" " alt="" coords="23,5,186,32"/>
-<area shape="rect" id="node3" href="$df/db5/namespaceopr__sx.html#aa4b37924e1cf872be2526581325b9ec9" title=" " alt="" coords="31,56,178,83"/>
-<area shape="rect" id="node4" href="$d9/d5a/namespaceopr__xsmm.html#acd8813ad0719f1353d493f684bfcdca6" title=" " alt="" coords="5,107,204,133"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="252,55,383,80"/>
+<area shape="rect" id="Node000002" href="$d0/d94/namespaceopr__cpu.html#a102777fce325ee827cf3ddbbe20e1eea" title=" " alt="" coords="23,5,186,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="248,54,160,33,161,28,249,49"/>
+<area shape="rect" id="Node000003" href="$df/db5/namespaceopr__sx.html#a4fe2c37228ee80eea0e3cd08b067aaea" title=" " alt="" coords="31,55,178,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="238,70,178,70,178,65,238,65"/>
+<area shape="rect" id="Node000004" href="$d9/d5a/namespaceopr__xsmm.html#ab2c8d872dd95468772dcef5fafcd4cc1" title=" " alt="" coords="5,104,204,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="249,86,161,107,160,101,248,81"/>
 </map>

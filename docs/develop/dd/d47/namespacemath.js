@@ -1,13 +1,13 @@
 var namespacemath =
 [
     [ "abscmp", "de/d34/interfacemath_1_1abscmp.html", "de/d34/interfacemath_1_1abscmp" ],
-    [ "sort", "d1/dc3/interfacemath_1_1sort.html", "d1/dc3/interfacemath_1_1sort" ],
-    [ "swap", "d7/d0d/interfacemath_1_1swap.html", "d7/d0d/interfacemath_1_1swap" ],
-    [ "reord", "d6/d4c/interfacemath_1_1reord.html", "d6/d4c/interfacemath_1_1reord" ],
     [ "flipv", "d2/db7/interfacemath_1_1flipv.html", "d2/db7/interfacemath_1_1flipv" ],
-    [ "relcmp", "d9/d4d/interfacemath_1_1relcmp.html", "d9/d4d/interfacemath_1_1relcmp" ],
     [ "pwmax", "d0/d2b/interfacemath_1_1pwmax.html", "d0/d2b/interfacemath_1_1pwmax" ],
     [ "pwmin", "d6/de0/interfacemath_1_1pwmin.html", "d6/de0/interfacemath_1_1pwmin" ],
+    [ "relcmp", "d9/d4d/interfacemath_1_1relcmp.html", "d9/d4d/interfacemath_1_1relcmp" ],
+    [ "reord", "d6/d4c/interfacemath_1_1reord.html", "d6/d4c/interfacemath_1_1reord" ],
+    [ "sort", "d1/dc3/interfacemath_1_1sort.html", "d1/dc3/interfacemath_1_1sort" ],
+    [ "swap", "d7/d0d/interfacemath_1_1swap.html", "d7/d0d/interfacemath_1_1swap" ],
     [ "absval", "dd/d47/namespacemath.html#a7f0feef1d5e8da2763f4d1e03a02ca49", null ],
     [ "add2", "dd/d47/namespacemath.html#a7bd6ecfc03be3f80d20e06e85af6b791", null ],
     [ "add2s1", "dd/d47/namespacemath.html#a60f5dff321be727d37884a696c2ffc96", null ],

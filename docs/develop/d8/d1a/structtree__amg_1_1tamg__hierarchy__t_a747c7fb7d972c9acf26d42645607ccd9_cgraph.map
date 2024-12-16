@@ -1,0 +1,7 @@
+<map id="tree_amg::tamg_hierarchy_t::interp_c2f" name="tree_amg::tamg_hierarchy_t::interp_c2f">
+<area shape="rect" id="Node000001" title="Prolongation operator for TreeAMG. vec_out = P * vec_in." alt="" coords="5,23,200,63"/>
+<area shape="rect" id="Node000002" href="$dc/d1a/namespacetree__amg.html#aa6cfa4da7a26e665034631f61b65b3f6" title="Initialization of a TreeAMG level." alt="" coords="256,5,433,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,30,242,26,242,31,201,36"/>
+<area shape="rect" id="Node000003" href="$dc/d1a/namespacetree__amg.html#a5ec06e62779cefe9b883e4fbcaea5d7a" title="Initialization of a TreeAMG tree node." alt="" coords="248,55,441,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="201,50,235,54,234,59,200,56"/>
+</map>

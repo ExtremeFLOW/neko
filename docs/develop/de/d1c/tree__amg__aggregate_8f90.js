@@ -1,6 +1,6 @@
 var tree__amg__aggregate_8f90 =
 [
-    [ "tamg_agg_monitor_t", "d2/dbd/structtree__amg__aggregate_1_1tamg__agg__monitor__t.html", "d2/dbd/structtree__amg__aggregate_1_1tamg__agg__monitor__t" ],
+    [ "tree_amg_aggregate::tamg_agg_monitor_t", "d2/dbd/structtree__amg__aggregate_1_1tamg__agg__monitor__t.html", "d2/dbd/structtree__amg__aggregate_1_1tamg__agg__monitor__t" ],
     [ "agg_fill_nhbr_info", "de/d1c/tree__amg__aggregate_8f90.html#ac737d491cd9ba6a102d87a9fe3cc54cb", null ],
     [ "agg_greedy_first_pass", "de/d1c/tree__amg__aggregate_8f90.html#a0eee22807919ce075cb45760502a76b6", null ],
     [ "agg_greedy_second_pass", "de/d1c/tree__amg__aggregate_8f90.html#aa681abbb5ee7badea593dac1ef8cf7a5", null ],

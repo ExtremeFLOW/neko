@@ -1,6 +1,6 @@
 var structadvection_1_1advection__t =
 [
-    [ "compute", "d4/d2a/structadvection_1_1advection__t.html#ab6b635aa349fb2db7a02020b864413db", null ],
-    [ "compute_scalar", "d4/d2a/structadvection_1_1advection__t.html#ab8d2194b82da3f1a5914a1faefe38ebf", null ],
-    [ "free", "d4/d2a/structadvection_1_1advection__t.html#aa214138bf5126b1cef4cff1159eba5cd", null ]
+    [ "compute", "d4/d2a/structadvection_1_1advection__t.html#a253f01ef8bf8ec315e3cb16c6660a0ba", null ],
+    [ "compute_scalar", "d4/d2a/structadvection_1_1advection__t.html#a7f251eef0cc5388883e1b103429c352e", null ],
+    [ "free", "d4/d2a/structadvection_1_1advection__t.html#a8ee7af6799711537b374111f3232be6a", null ]
 ];

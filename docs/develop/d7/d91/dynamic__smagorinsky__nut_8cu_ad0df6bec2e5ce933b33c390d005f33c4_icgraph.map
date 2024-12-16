@@ -1,8 +1,13 @@
 <map id="cuda_mij_nut_compute_part2" name="cuda_mij_nut_compute_part2">
-<area shape="rect" id="node1" title=" " alt="" coords="1115,53,1288,94"/>
-<area shape="rect" id="node2" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a3770ef9a40097a3c73eec0fde91564ba" title="part 1 of the computing of the mij field" alt="" coords="804,53,1067,94"/>
-<area shape="rect" id="node3" href="$dd/daf/namespacedynamic__smagorinsky__device.html#a56facdb27492bdfa7fdd079dc0c28cd4" title="Compute M_ij and nut on the device." alt="" coords="546,5,714,61"/>
-<area shape="rect" id="node6" href="$d5/d58/interfacedevice__dynamic__smagorinsky__nut_1_1hip__mij__nut__compute__part2.html#adaaa41cd7e60e2552367285f1b7757f5" title=" " alt="" coords="504,85,756,141"/>
-<area shape="rect" id="node4" href="$dd/daf/namespacedynamic__smagorinsky__device.html#aac4c819a4f98d22b7a6a3379ca808154" title="Compute eddy viscosity on the device." alt="" coords="229,5,456,61"/>
-<area shape="rect" id="node5" href="$d4/d9c/namespacedynamic__smagorinsky.html#ad9e829fe19717511484cca0fe4524c52" title="Compute eddy viscosity." alt="" coords="5,5,181,61"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="1115,53,1288,93"/>
+<area shape="rect" id="Node000002" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a3770ef9a40097a3c73eec0fde91564ba" title="part 1 of the computing of the mij field" alt="" coords="804,53,1067,93"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1101,75,1067,75,1067,70,1101,70"/>
+<area shape="rect" id="Node000003" href="$dd/daf/namespacedynamic__smagorinsky__device.html#a56facdb27492bdfa7fdd079dc0c28cd4" title="Compute M_ij and nut on the device." alt="" coords="546,5,714,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="790,56,714,46,714,41,791,51"/>
+<area shape="rect" id="Node000006" href="$d5/d58/interfacedevice__dynamic__smagorinsky__nut_1_1hip__mij__nut__compute__part2.html#adaaa41cd7e60e2552367285f1b7757f5" title=" " alt="" coords="504,84,756,139"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="791,94,756,98,756,93,790,88"/>
+<area shape="rect" id="Node000004" href="$dd/daf/namespacedynamic__smagorinsky__device.html#aac4c819a4f98d22b7a6a3379ca808154" title="Compute eddy viscosity on the device." alt="" coords="229,5,456,60"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="533,35,456,35,456,30,533,30"/>
+<area shape="rect" id="Node000005" href="$d4/d9c/namespacedynamic__smagorinsky.html#ad9e829fe19717511484cca0fe4524c52" title="Compute eddy viscosity." alt="" coords="5,5,181,60"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="216,35,181,35,181,30,216,30"/>
 </map>

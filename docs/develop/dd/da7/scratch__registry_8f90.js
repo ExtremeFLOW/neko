@@ -1,6 +1,6 @@
 var scratch__registry_8f90 =
 [
-    [ "scratch_registry_t", "d8/d43/structscratch__registry_1_1scratch__registry__t.html", "d8/d43/structscratch__registry_1_1scratch__registry__t" ],
+    [ "scratch_registry::scratch_registry_t", "d8/d43/structscratch__registry_1_1scratch__registry__t.html", "d8/d43/structscratch__registry_1_1scratch__registry__t" ],
     [ "expand", "dd/da7/scratch__registry_8f90.html#a9d3257380ebb7584c3795672471c9565", null ],
     [ "get_expansion_size", "dd/da7/scratch__registry_8f90.html#afb1bc184f4f227a11e70c464592cf7ef", null ],
     [ "get_inuse", "dd/da7/scratch__registry_8f90.html#a00c9fda51af4a2bdadf34817bc3c8194", null ],

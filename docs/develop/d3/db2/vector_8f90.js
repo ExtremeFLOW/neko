@@ -1,7 +1,7 @@
 var vector_8f90 =
 [
-    [ "vector_t", "d3/d5b/structvector_1_1vector__t.html", "d3/d5b/structvector_1_1vector__t" ],
-    [ "vector_ptr_t", "d5/d0b/structvector_1_1vector__ptr__t.html", "d5/d0b/structvector_1_1vector__ptr__t" ],
+    [ "vector::vector_t", "d3/d5b/structvector_1_1vector__t.html", "d3/d5b/structvector_1_1vector__t" ],
+    [ "vector::vector_ptr_t", "d5/d0b/structvector_1_1vector__ptr__t.html", "d5/d0b/structvector_1_1vector__ptr__t" ],
     [ "vector_add_scalar_left", "d3/db2/vector_8f90.html#aa5730016c4836d2b002728e55bd94b3f", null ],
     [ "vector_add_scalar_right", "d3/db2/vector_8f90.html#a4643149540fd51147aea3bfb919d01fa", null ],
     [ "vector_add_vector", "d3/db2/vector_8f90.html#aa6c7428e4e35ec91dc87a1083c9717ad", null ],

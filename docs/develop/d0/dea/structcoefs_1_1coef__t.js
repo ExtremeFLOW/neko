@@ -1,11 +1,12 @@
 var structcoefs_1_1coef__t =
 [
-    [ "free", "d0/dea/structcoefs_1_1coef__t.html#ac0cc2c425cf73f4fe566738c94670a70", null ],
-    [ "get_area", "d0/dea/structcoefs_1_1coef__t.html#a68a0d57588b45c6a2ae08aea7b7dea8c", null ],
-    [ "get_normal", "d0/dea/structcoefs_1_1coef__t.html#a6f4dc4f9d2d1ad2fb56f66daed987c1b", null ],
-    [ "init", "d0/dea/structcoefs_1_1coef__t.html#ac257cfdd3d2994f2a01cbba808355058", null ],
-    [ "init_all", "d0/dea/structcoefs_1_1coef__t.html#a681993601ba5bed4ce15eefb13eef66a", null ],
-    [ "init_empty", "d0/dea/structcoefs_1_1coef__t.html#a2d6a8fb4b31e30cd0de88082959ac505", null ],
+    [ "free", "d0/dea/structcoefs_1_1coef__t.html#a714486d157f8ed0c92ef8bae1d5cbe9a", null ],
+    [ "get_area", "d0/dea/structcoefs_1_1coef__t.html#a43eb396266aece863a75a300261eaf0f", null ],
+    [ "get_normal", "d0/dea/structcoefs_1_1coef__t.html#a1316b268c1b39fdd516236666dac64d6", null ],
+    [ "init", "d0/dea/structcoefs_1_1coef__t.html#a3c012fd8aac98ce623ce90eb957b7e60", null ],
+    [ "init", "d0/dea/structcoefs_1_1coef__t.html#af6493c8272ef8904fd30c39af6ca83f2", null ],
+    [ "init_all", "d0/dea/structcoefs_1_1coef__t.html#a8f6cd88001e51fd06e9408da32fc446c", null ],
+    [ "init_empty", "d0/dea/structcoefs_1_1coef__t.html#aceaf78e1e3cd2003c8372289bd2357a8", null ],
     [ "area", "d0/dea/structcoefs_1_1coef__t.html#a57f20929bae065495c811f325c1b9ab1", null ],
     [ "area_d", "d0/dea/structcoefs_1_1coef__t.html#a63f2f5a410815e4d896d7d082535d428", null ],
     [ "b", "d0/dea/structcoefs_1_1coef__t.html#a379446619e085f1317f6526b990a8dab", null ],

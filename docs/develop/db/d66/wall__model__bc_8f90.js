@@ -1,6 +1,6 @@
 var wall__model__bc_8f90 =
 [
-    [ "wall_model_bc_t", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html", "d1/d49/structwall__model__bc_1_1wall__model__bc__t" ],
+    [ "wall_model_bc::wall_model_bc_t", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html", "d1/d49/structwall__model__bc_1_1wall__model__bc__t" ],
     [ "wall_model_bc_apply_scalar", "db/d66/wall__model__bc_8f90.html#aa001bea5b7652119aa00a754a248d092", null ],
     [ "wall_model_bc_apply_scalar_dev", "db/d66/wall__model__bc_8f90.html#aa95739420e7edb36af4db76cf1fd3879", null ],
     [ "wall_model_bc_apply_vector", "db/d66/wall__model__bc_8f90.html#ab0e35be8d4f09d7608f055b3752daae7", null ],
