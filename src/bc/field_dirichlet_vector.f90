@@ -77,9 +77,11 @@ module field_dirichlet_vector
      !> Finalize.
      procedure, pass(this) :: finalize => field_dirichlet_vector_finalize
      !> Apply scalar by performing a masked copy.
-     procedure, pass(this) :: apply_scalar => field_dirichlet_vector_apply_scalar
+     procedure, pass(this) :: apply_scalar => &
+          field_dirichlet_vector_apply_scalar
      !> (No-op) Apply vector.
-     procedure, pass(this) :: apply_vector => field_dirichlet_vector_apply_vector
+     procedure, pass(this) :: apply_vector => &
+          field_dirichlet_vector_apply_vector
      !> (No-op) Apply vector (device).
      procedure, pass(this) :: apply_vector_dev => &
           field_dirichlet_vector_apply_vector_dev
@@ -134,12 +136,13 @@ contains
   !! @param n Size of the array `x`.
   !! @param t Time.
   !! @param tstep Time step.
-  subroutine field_dirichlet_vector_apply_scalar(this, x, n, t, tstep)
+  subroutine field_dirichlet_vector_apply_scalar(this, x, n, t, tstep, strong)
     class(field_dirichlet_vector_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
     call neko_error("field_dirichlet_vector cannot apply scalar BCs.&
 &Use field_dirichlet instead!")
@@ -168,7 +171,8 @@ contains
   !! @param n Size of the `x`, `y` and `z` arrays.
   !! @param t Time.
   !! @param tstep Time step.
-  subroutine field_dirichlet_vector_apply_vector(this, x, y, z, n, t, tstep)
+  subroutine field_dirichlet_vector_apply_vector(this, x, y, z, n, t, tstep, &
+       strong)
     class(field_dirichlet_vector_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
@@ -176,19 +180,15 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
+    logical :: strong_ = .true.
 
-    if (present(t) .and. present(tstep)) then
+    if (present(strong)) strong_ = strong
+
+    if (strong_) then
        call this%bc_u%apply_scalar(x, n, t, tstep)
        call this%bc_v%apply_scalar(y, n, t, tstep)
        call this%bc_w%apply_scalar(z, n, t, tstep)
-    else if (present(t)) then
-       call this%bc_u%apply_scalar(x, n, t=t)
-       call this%bc_v%apply_scalar(y, n, t=t)
-       call this%bc_w%apply_scalar(z, n, t=t)
-    else if (present(tstep)) then
-       call this%bc_u%apply_scalar(x, n, tstep=tstep)
-       call this%bc_v%apply_scalar(y, n, tstep=tstep)
-       call this%bc_w%apply_scalar(z, n, tstep=tstep)
     end if
 
   end subroutine field_dirichlet_vector_apply_vector

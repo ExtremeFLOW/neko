@@ -158,14 +158,18 @@ contains
   !! @param n Size of the array `x`.
   !! @param t Time.
   !! @param tstep Time step.
-  subroutine field_dirichlet_apply_scalar(this, x, n, t, tstep)
+  subroutine field_dirichlet_apply_scalar(this, x, n, t, tstep, strong)
     class(field_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
+    logical :: strong_ = .true.
 
-    if (this%msk(0) .gt. 0) then
+    if (present(strong)) strong_ = strong
+
+    if (strong_ .and. this%msk(0) .gt. 0) then
        call masked_copy(x, this%field_bc%x, this%msk, n, this%msk(0))
     end if
 
@@ -195,7 +199,7 @@ contains
   !! @param n Size of the `x`, `y` and `z` arrays.
   !! @param t Time.
   !! @param tstep Time step.
-  subroutine field_dirichlet_apply_vector(this, x, y, z, n, t, tstep)
+  subroutine field_dirichlet_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(field_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
@@ -203,6 +207,7 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
     call neko_error("field_dirichlet cannot apply vector BCs.&
 &Use field_dirichlet_vector instead!")

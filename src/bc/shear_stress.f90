@@ -77,12 +77,13 @@ module shear_stress
 contains
 
   !> Apply shear stress for a scalar field @a x.
-  subroutine shear_stress_apply_scalar(this, x, n, t, tstep)
+  subroutine shear_stress_apply_scalar(this, x, n, t, tstep, strong)
     class(shear_stress_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
     integer :: i, m, k, facet
     ! Store non-linear index
     integer :: idx(4)
@@ -93,7 +94,7 @@ contains
 
   !> Boundary condition apply for a generic shear_stress condition
   !! to vectors @a x, @a y and @a z
-  subroutine shear_stress_apply_vector(this, x, y, z, n, t, tstep)
+  subroutine shear_stress_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(shear_stress_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
@@ -101,11 +102,18 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
+    logical :: strong_ = .true.
 
+    if (present(strong)) strong_ = strong
 
-    call this%neumann_x%apply_scalar(x, n, t, tstep)
-    call this%neumann_y%apply_scalar(y, n, t, tstep)
-    call this%neumann_z%apply_scalar(z, n, t, tstep)
+    if (strong_) then
+       call this%symmetry%apply_vector(x, y, z, n, t, tstep, .true.)
+    else
+       call this%neumann_x%apply_scalar(x, n, t, tstep, .false.)
+       call this%neumann_y%apply_scalar(y, n, t, tstep, .false.)
+       call this%neumann_z%apply_scalar(z, n, t, tstep, .false.)
+    end if
 
   end subroutine shear_stress_apply_vector
 
@@ -145,10 +153,6 @@ contains
     real(kind=rp), allocatable :: x(:)
 
     call this%init_base(coef)
-
-    ! This bc is set to weak, because the vector_apply pertains to the Neumann
-    ! part of the bc. The strong part is currently done by the nested
-    ! symmetry bc, which is added separately  to the list of velocity bcs.
     this%strong = .false.
 
     call json_get(json, 'value', x)

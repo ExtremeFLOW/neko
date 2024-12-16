@@ -75,12 +75,13 @@ contains
   end subroutine inflow_init
 
   !> No-op scalar apply
-  subroutine inflow_apply_scalar(this, x, n, t, tstep)
+  subroutine inflow_apply_scalar(this, x, n, t, tstep, strong)
     class(inflow_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
   end subroutine inflow_apply_scalar
 
   !> No-op scalar apply (device version)
@@ -92,27 +93,30 @@ contains
   end subroutine inflow_apply_scalar_dev
 
   !> Apply inflow conditions (vector valued)
-  subroutine inflow_apply_vector(this, x, y, z, n, t, tstep)
+  subroutine inflow_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(inflow_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(inout),  dimension(n) :: y
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
+    logical, intent(in), optional :: strong
     integer, intent(in), optional :: tstep
     integer :: i, m, k
+    logical :: strong_ = .true.
 
+    if (present(strong)) strong_ = strong
 
     m = this%msk(0)
 
-    write(*,*) "Applying inflow", m
-
-    do i = 1, m
-       k = this%msk(i)
-       x(k) = this%x(1)
-       y(k) = this%x(2)
-       z(k) = this%x(3)
-    end do
+    if (strong_) then
+      do i = 1, m
+        k = this%msk(i)
+        x(k) = this%x(1)
+        y(k) = this%x(2)
+        z(k) = this%x(3)
+      end do
+    end if
   end subroutine inflow_apply_vector
 
   !> Apply inflow conditions (vector valued) (device version)

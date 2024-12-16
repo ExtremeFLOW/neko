@@ -86,12 +86,13 @@ contains
   end subroutine facet_normal_init_from_components
 
   !> No-op scalar apply
-  subroutine facet_normal_apply_scalar(this, x, n, t, tstep)
+  subroutine facet_normal_apply_scalar(this, x, n, t, tstep, strong)
     class(facet_normal_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
   end subroutine facet_normal_apply_scalar
 
   !> No-op scalar apply on device
@@ -115,7 +116,7 @@ contains
   end subroutine facet_normal_apply_vector_dev
 
   !> No-op vector apply
-  subroutine facet_normal_apply_vector(this, x, y, z, n, t, tstep)
+  subroutine facet_normal_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(facet_normal_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
@@ -123,6 +124,7 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
   end subroutine facet_normal_apply_vector
 
   !> Apply in facet normal direction (vector valued)

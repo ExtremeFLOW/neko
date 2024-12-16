@@ -71,6 +71,7 @@ module bc
      !> Wether the bc is strongly enforced. Essentially valid for all Dirichlet
      !! types of bcs. These need to be masked out for solvers etc, so that
      !! values are not affected.
+     !! Mixed bcs are, by convention, weak.
      logical :: strong = .true.
    contains
      !> Constructor
@@ -127,7 +128,8 @@ module bc
      !! @param n The size of x.
      !! @param t Current time.
      !! @param tstep Current time-step.
-     subroutine bc_apply_scalar(this, x, n, t, tstep)
+     !! @param strong Whether we are setting a strong or a weak bc.
+     subroutine bc_apply_scalar(this, x, n, t, tstep, strong)
        import :: bc_t
        import :: rp
        class(bc_t), intent(inout) :: this
@@ -135,6 +137,7 @@ module bc
        real(kind=rp), intent(inout), dimension(n) :: x
        real(kind=rp), intent(in), optional :: t
        integer, intent(in), optional :: tstep
+       logical, intent(in), optional :: strong
      end subroutine bc_apply_scalar
   end interface
 
@@ -146,7 +149,8 @@ module bc
      !! @param n The size of x, y, and z.
      !! @param t Current time.
      !! @param tstep Current time-step.
-     subroutine bc_apply_vector(this, x, y, z, n, t, tstep)
+     !! @param strong Whether we are setting a strong or a weak bc.
+     subroutine bc_apply_vector(this, x, y, z, n, t, tstep, strong)
        import :: bc_t
        import :: rp
        class(bc_t), intent(inout) :: this
@@ -156,6 +160,7 @@ module bc
        real(kind=rp), intent(inout), dimension(n) :: z
        real(kind=rp), intent(in), optional :: t
        integer, intent(in), optional :: tstep
+       logical, intent(in), optional :: strong
      end subroutine bc_apply_vector
   end interface
 

@@ -131,12 +131,13 @@ contains
   end subroutine blasius_free
 
   !> No-op scalar apply
-  subroutine blasius_apply_scalar(this, x, n, t, tstep)
+  subroutine blasius_apply_scalar(this, x, n, t, tstep, strong)
     class(blasius_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
   end subroutine blasius_apply_scalar
 
   !> No-op scalar apply (device version)
@@ -148,7 +149,7 @@ contains
   end subroutine blasius_apply_scalar_dev
 
   !> Apply blasius conditions (vector valued)
-  subroutine blasius_apply_vector(this, x, y, z, n, t, tstep)
+  subroutine blasius_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(blasius_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
@@ -156,34 +157,40 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
     integer :: i, m, k, idx(4), facet
+    logical :: strong_ = .true.
+
+    if (present(strong)) strong_ = strong
 
     associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
               zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
               nz => this%coef%nz, lx => this%coef%Xh%lx)
       m = this%msk(0)
-      do i = 1, m
-         k = this%msk(i)
-         facet = this%facet(i)
-         idx = nonlinear_index(k, lx, lx, lx)
-         select case(facet)
-         case(1,2)
-            x(k) = this%bla(zc(idx(1), idx(2), idx(3), idx(4)), &
-                 this%delta, this%uinf(1))
-            y(k) = 0.0_rp
-            z(k) = 0.0_rp
-         case(3,4)
-            x(k) = 0.0_rp
-            y(k) = this%bla(xc(idx(1), idx(2), idx(3), idx(4)), &
-                 this%delta, this%uinf(2))
-            z(k) = 0.0_rp
-         case(5,6)
-            x(k) = 0.0_rp
-            y(k) = 0.0_rp
-            z(k) = this%bla(yc(idx(1), idx(2), idx(3), idx(4)), &
-                 this%delta, this%uinf(3))
-         end select
-      end do
+      if (strong_) then
+         do i = 1, m
+            k = this%msk(i)
+            facet = this%facet(i)
+            idx = nonlinear_index(k, lx, lx, lx)
+            select case(facet)
+            case(1,2)
+               x(k) = this%bla(zc(idx(1), idx(2), idx(3), idx(4)), &
+                  this%delta, this%uinf(1))
+               y(k) = 0.0_rp
+               z(k) = 0.0_rp
+            case(3,4)
+               x(k) = 0.0_rp
+               y(k) = this%bla(xc(idx(1), idx(2), idx(3), idx(4)), &
+                  this%delta, this%uinf(2))
+               z(k) = 0.0_rp
+            case(5,6)
+               x(k) = 0.0_rp
+               y(k) = 0.0_rp
+               z(k) = this%bla(yc(idx(1), idx(2), idx(3), idx(4)), &
+                  this%delta, this%uinf(3))
+            end select
+         end do
+      end if
     end associate
   end subroutine blasius_apply_vector
 

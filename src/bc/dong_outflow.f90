@@ -133,34 +133,40 @@ contains
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to a vector @a x
-  subroutine dong_outflow_apply_scalar(this, x, n, t, tstep)
+  subroutine dong_outflow_apply_scalar(this, x, n, t, tstep, strong)
     class(dong_outflow_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
     integer :: i, m, k, facet, idx(4)
     real(kind=rp) :: vn, S0, ux, uy, uz, normal_xyz(3)
+    logical :: strong_ = .true.
 
-    m = this%msk(0)
-    do i = 1, m
-       k = this%msk(i)
-       facet = this%facet(i)
-       ux = this%u%x(k,1,1,1)
-       uy = this%v%x(k,1,1,1)
-       uz = this%w%x(k,1,1,1)
-       idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx,this%Xh%lx)
-       normal_xyz = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4),facet)
-       vn = ux*normal_xyz(1) + uy*normal_xyz(2) + uz*normal_xyz(3)
-       S0 = 0.5_rp*(1.0_rp - tanh(vn / (this%uinf * this%delta)))
+    if (present(strong)) strong_ = strong
 
-       x(k) = -0.5*(ux*ux+uy*uy+uz*uz)*S0
-    end do
+    if (strong_) then
+       m = this%msk(0)
+       do i = 1, m
+         k = this%msk(i)
+         facet = this%facet(i)
+         ux = this%u%x(k,1,1,1)
+         uy = this%v%x(k,1,1,1)
+         uz = this%w%x(k,1,1,1)
+         idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx,this%Xh%lx)
+         normal_xyz = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4),facet)
+         vn = ux*normal_xyz(1) + uy*normal_xyz(2) + uz*normal_xyz(3)
+         S0 = 0.5_rp*(1.0_rp - tanh(vn / (this%uinf * this%delta)))
+
+         x(k) = -0.5*(ux*ux+uy*uy+uz*uz)*S0
+       end do
+    end if
   end subroutine dong_outflow_apply_scalar
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to vectors @a x, @a y and @a z
-  subroutine dong_outflow_apply_vector(this, x, y, z, n, t, tstep)
+  subroutine dong_outflow_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(dong_outflow_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
@@ -168,6 +174,7 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
   end subroutine dong_outflow_apply_vector
 

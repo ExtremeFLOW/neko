@@ -88,6 +88,7 @@ contains
     type(coef_t), intent(in) :: coef
 
     call this%free()
+    this%strong = .false.
 
     call this%init_base(coef)
     call this%bc_x%init_from_components(this%coef)
@@ -188,16 +189,17 @@ contains
   end subroutine symmetry_get_normal_axis
 
   !> No-op scalar apply
-  subroutine symmetry_apply_scalar(this, x, n, t, tstep)
+  subroutine symmetry_apply_scalar(this, x, n, t, tstep, strong)
     class(symmetry_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
   end subroutine symmetry_apply_scalar
 
   !> Apply symmetry conditions (axis aligned)
-  subroutine symmetry_apply_vector(this, x, y, z, n, t, tstep)
+  subroutine symmetry_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(symmetry_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
@@ -205,10 +207,16 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
+    logical :: strong_ = .true.
 
-    call this%bc_x%apply_scalar(x, n)
-    call this%bc_y%apply_scalar(y, n)
-    call this%bc_z%apply_scalar(z, n)
+    if (present(strong)) strong_ = strong
+
+    if (strong_) then
+       call this%bc_x%apply_scalar(x, n)
+       call this%bc_y%apply_scalar(y, n)
+       call this%bc_z%apply_scalar(z, n)
+    end if
 
   end subroutine symmetry_apply_vector
 

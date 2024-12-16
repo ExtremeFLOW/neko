@@ -137,7 +137,6 @@ module fluid_scheme
      type(bc_list_t) :: bcs_prs
      ! List of boundary conditions for velocity
      type(bc_list_t) :: bcs_vel
-     integer :: n_strong = 0
      type(field_t) :: bdry                     !< Boundary markings
      type(json_file), pointer :: params        !< Parameters
      type(mesh_t), pointer :: msh => null()    !< Mesh
@@ -1039,9 +1038,6 @@ contains
           ! so we check.
           if (associated(this%bcs_vel%items(j)%ptr)) then
              write(*,*) "Allocating vel bc index", j
-             if (this%bcs_vel%strong(j)) then
-                this%n_strong = this%n_strong + 1
-             end if
              j = j + 1
              this%bcs_vel%size_ = this%bcs_vel%size_ + 1
 
@@ -1057,12 +1053,11 @@ contains
 !       do i=1, this%bcs_vel%size_
 !          select type (vel_bc => this%bcs_vel%items(i)%ptr)
 !          type is (shear_stress_t)
-             ! We add the underlying Neumann bcs to the velocity bc list
-!             call this%bcs_vel%append(vel_bc%neumann_x)
-!             call this%bcs_vel%append(vel_bc%neumann_y)
-!             call this%bcs_vel%append(vel_bc%neumann_z)
+             ! We add the underlying symmetry bcs to the velocity bc list
+!             write(*,*) "ADDING SYMMETRY BC FROM SHEAR_STRESS"
+!             call this%bcs_vel%append(vel_bc%symmetry)
 !          end select
-!         end do
+!       end do
     end if
   end subroutine fluid_scheme_setup_bcs
 

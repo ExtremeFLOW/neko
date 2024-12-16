@@ -65,58 +65,66 @@ module wall_model_bc
 contains
 
   !> Apply shear stress for a scalar field @a x.
-  subroutine wall_model_bc_apply_scalar(this, x, n, t, tstep)
+  subroutine wall_model_bc_apply_scalar(this, x, n, t, tstep, strong)
     class(wall_model_bc_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
     call neko_error("The wall model bc is not applicable to scalar fields.")
 
   end subroutine wall_model_bc_apply_scalar
 
-    !> Apply the boundary condition to the right-hand side.
-    !! @param x The x component of the right-hand side
-    !! @param y The y component of the right-hand side
-    !! @param z The z component of the right-hand side
-    !! @param n The size of the right-hand side arrays.
-    !! @param t The time value.
-    !! @param tstep The time step.
-    subroutine wall_model_bc_apply_vector(this, x, y, z, n, t, tstep)
-      class(wall_model_bc_t), intent(inout) :: this
-      integer, intent(in) :: n
-      real(kind=rp), intent(inout),  dimension(n) :: x
-      real(kind=rp), intent(inout),  dimension(n) :: y
-      real(kind=rp), intent(inout),  dimension(n) :: z
-      real(kind=rp), intent(in), optional :: t
-      integer, intent(in), optional :: tstep
-      integer :: i, m, k, fid
-      real(kind=rp) :: magtau
+  !> Apply the boundary condition to the right-hand side.
+  !! @param x The x component of the right-hand side
+  !! @param y The y component of the right-hand side
+  !! @param z The z component of the right-hand side
+  !! @param n The size of the right-hand side arrays.
+  !! @param t The time value.
+  !! @param tstep The time step.
+  subroutine wall_model_bc_apply_vector(this, x, y, z, n, t, tstep, strong)
+    class(wall_model_bc_t), intent(inout) :: this
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout),  dimension(n) :: y
+    real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
+    integer :: i, m, k, fid
+    real(kind=rp) :: magtau
+    logical :: strong_ = .true.
 
-      ! Compute the wall stress using the wall model.
-      call this%wall_model%compute(t, tstep)
+    if (present(strong)) strong_ = strong
 
-      ! Populate the 3D wall stress field for post-processing.
-      do i = 1, this%msk(0)
-        magtau = sqrt(this%wall_model%tau_x(i)**2 + this%wall_model%tau_y(i)**2&
-                      + this%wall_model%tau_z(i)**2)
+    if (.not. strong_) then
+       ! Compute the wall stress using the wall model.
+       call this%wall_model%compute(t, tstep)
 
-      ! Mark sampling nodes with a -1 for debugging
-      this%wall_model%tau_field%x(this%wall_model%ind_r(i), &
-                                  this%wall_model%ind_s(i), &
-                                  this%wall_model%ind_t(i), &
-                                  this%wall_model%ind_e(i)) = -1.0_rp
-      this%wall_model%tau_field%x(this%msk(i),1,1,1) = magtau
-    end do
+       ! Populate the 3D wall stress field for post-processing.
+       do i = 1, this%msk(0)
+         magtau = sqrt(this%wall_model%tau_x(i)**2 + &
+                       this%wall_model%tau_y(i)**2 + &
+                       this%wall_model%tau_z(i)**2)
 
-      ! Set the computed stress for application by the underlying Neumann
-      ! boundary conditions.
-      call this%set_stress(this%wall_model%tau_x, this%wall_model%tau_y, &
+         ! Mark sampling nodes with a -1 for debugging
+         this%wall_model%tau_field%x(this%wall_model%ind_r(i), &
+                                     this%wall_model%ind_s(i), &
+                                     this%wall_model%ind_t(i), &
+                                     this%wall_model%ind_e(i)) = -1.0_rp
+         this%wall_model%tau_field%x(this%msk(i),1,1,1) = magtau
+       end do
+
+       ! Set the computed stress for application by the underlying Neumann
+       ! boundary conditions.
+       call this%set_stress(this%wall_model%tau_x, this%wall_model%tau_y, &
            this%wall_model%tau_z)
+    end if
 
-      ! Add the stress as a forcing to the right hand side arrays
-      call this%shear_stress_t%apply_vector(x, y, z, n, t, tstep)
+    ! Either add the stress to the RHS or apply the non-penetration condition
+    call this%shear_stress_t%apply_vector(x, y, z, n, t, tstep, strong_)
 
   end subroutine wall_model_bc_apply_vector
 

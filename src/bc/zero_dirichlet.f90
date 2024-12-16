@@ -85,24 +85,30 @@ contains
 
   !> Apply boundary condition to a scalar field.
   !! to a vector @a x
-  subroutine zero_dirichlet_apply_scalar(this, x, n, t, tstep)
+  subroutine zero_dirichlet_apply_scalar(this, x, n, t, tstep, strong)
     class(zero_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
     integer :: i, m, k
+    logical :: strong_ = .true.
 
+    if (present(strong)) strong_ = strong
     m = this%msk(0)
-    do i = 1, m
-       k = this%msk(i)
-       x(k) = 0d0
-    end do
+
+    if (strong_) then
+      do i = 1, m
+        k = this%msk(i)
+        x(k) = 0d0
+      end do
+    end if
 
   end subroutine zero_dirichlet_apply_scalar
 
   !> Apply boundary condition to a vector field.
-  subroutine zero_dirichlet_apply_vector(this, x, y, z, n, t, tstep)
+  subroutine zero_dirichlet_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(zero_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
@@ -110,15 +116,21 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
     integer :: i, m, k
+    logical :: strong_ = .true.
 
-    m = this%msk(0)
-    do i = 1, m
-       k = this%msk(i)
-       x(k) = 0d0
-       y(k) = 0d0
-       z(k) = 0d0
-    end do
+    if (present(strong)) strong_ = strong
+
+    if (strong_) then 
+      m = this%msk(0)
+      do i = 1, m
+        k = this%msk(i)
+        x(k) = 0d0
+        y(k) = 0d0
+        z(k) = 0d0
+      end do
+    end if
 
   end subroutine zero_dirichlet_apply_vector
 

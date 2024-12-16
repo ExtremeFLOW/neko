@@ -316,7 +316,7 @@ contains
     do i = 1, this%bcs_vel%size()
        select type (vel_bc => this%bcs_vel%items(i)%ptr)
        type is (symmetry_t)
-         ! Do nothing
+         ! Do nothing, symmetry bcs go into another special bc.
        class default
          if (vel_bc%strong .eqv. .true.) then
             write(*,*) "MARKING PRESSURE SURFACE BC" 
@@ -899,7 +899,7 @@ contains
       !call this%user_field_bc_vel%update(this%user_field_bc_vel%field_list, &
       !        this%user_field_bc_vel%bc_list, this%c_Xh, t, tstep, "fluid")
 
-      call this%bc_apply_vel(t, tstep, strong = .true. )
+      call this%bc_apply_vel(t, tstep, strong = .true.)
       call this%bc_apply_prs(t, tstep)
 
       ! Update material properties if necessary

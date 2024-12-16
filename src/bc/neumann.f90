@@ -49,7 +49,7 @@ module neumann
   !! @note The condition is imposed weekly by adding an appropriate source term
   !! to the right-hand-side.
   type, public, extends(bc_t) :: neumann_t
-     real(kind=rp), allocatable, private :: flux_(:)
+     real(kind=rp), allocatable :: flux_(:)
      real(kind=rp), private ::  init_flux_
    contains
      procedure, pass(this) :: apply_scalar => neumann_apply_scalar
@@ -106,39 +106,45 @@ contains
 
   !> Boundary condition apply for a generic Neumann condition
   !! to a vector @a x
-  subroutine neumann_apply_scalar(this, x, n, t, tstep)
+  subroutine neumann_apply_scalar(this, x, n, t, tstep, strong)
     class(neumann_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
     integer :: i, m, k, facet
     ! Store non-linear index
     integer :: idx(4)
+    logical :: strong_ = .true.
+
+    if (present(strong)) strong_ = strong
 
     m = this%msk(0)
-    do i = 1, m
-       k = this%msk(i)
-       facet = this%facet(i)
-       idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx,&
-                             this%coef%Xh%lx)
-       select case (facet)
-       case (1,2)
-          x(k) = x(k) + this%flux_(i)*this%coef%area(idx(2), idx(3), facet, &
-               idx(4))
-       case (3,4)
-          x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(3), facet, &
-               idx(4))
-       case (5,6)
-          x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(2), facet, &
-               idx(4))
-       end select
-    end do
+    if (.not. strong_) then
+       do i = 1, m
+          k = this%msk(i)
+          facet = this%facet(i)
+          idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx,&
+               this%coef%Xh%lx)
+          select case (facet)
+          case (1,2)
+              x(k) = x(k) + this%flux_(i)*this%coef%area(idx(2), idx(3), facet,&
+                  idx(4))
+          case (3,4)
+              x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(3), facet,&
+                  idx(4))
+          case (5,6)
+              x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(2), facet,&
+                  idx(4))
+          end select
+      end do
+    end if
   end subroutine neumann_apply_scalar
 
   !> Boundary condition apply for a generic Neumann condition
   !! to vectors @a x, @a y and @a z
-  subroutine neumann_apply_vector(this, x, y, z, n, t, tstep)
+  subroutine neumann_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(neumann_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
@@ -146,6 +152,7 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
     call neko_error("Neumann bc not implemented for vectors")
 

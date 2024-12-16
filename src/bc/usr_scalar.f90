@@ -130,14 +130,18 @@ contains
   !! Applies boundary conditions in eval on x
   !! @param x The field array to apply the boundary condition to.
   !! @param n The size of x.
-  subroutine usr_scalar_apply_scalar(this, x, n, t, tstep)
+  subroutine usr_scalar_apply_scalar(this, x, n, t, tstep, strong)
     class(usr_scalar_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
     integer :: i, m, k, idx(4), facet, tstep_
     real(kind=rp) :: t_
+    logical :: strong_ = .true.
+
+    if (present(strong)) strong_ = strong
 
     if (present(t)) then
        t_ = t
@@ -155,43 +159,45 @@ contains
               zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
               nz => this%coef%nz, lx => this%coef%Xh%lx)
       m = this%msk(0)
-      do i = 1, m
-         k = this%msk(i)
-         facet = this%facet(i)
-         idx = nonlinear_index(k, lx, lx, lx)
-         select case(facet)
-         case(1,2)
-            call this%eval(x(k), &
-                 xc(idx(1), idx(2), idx(3), idx(4)), &
-                 yc(idx(1), idx(2), idx(3), idx(4)), &
-                 zc(idx(1), idx(2), idx(3), idx(4)), &
-                 nx(idx(2), idx(3), facet, idx(4)), &
-                 ny(idx(2), idx(3), facet, idx(4)), &
-                 nz(idx(2), idx(3), facet, idx(4)), &
-                 idx(1), idx(2), idx(3), idx(4), &
-                 t_, tstep_)
-         case(3,4)
-            call this%eval(x(k), &
-                 xc(idx(1), idx(2), idx(3), idx(4)), &
-                 yc(idx(1), idx(2), idx(3), idx(4)), &
-                 zc(idx(1), idx(2), idx(3), idx(4)), &
-                 nx(idx(1), idx(3), facet, idx(4)), &
-                 ny(idx(1), idx(3), facet, idx(4)), &
-                 nz(idx(1), idx(3), facet, idx(4)), &
-                 idx(1), idx(2), idx(3), idx(4), &
-                 t_, tstep_)
-         case(5,6)
-            call this%eval(x(k), &
-                 xc(idx(1), idx(2), idx(3), idx(4)), &
-                 yc(idx(1), idx(2), idx(3), idx(4)), &
-                 zc(idx(1), idx(2), idx(3), idx(4)), &
-                 nx(idx(1), idx(2), facet, idx(4)), &
-                 ny(idx(1), idx(2), facet, idx(4)), &
-                 nz(idx(1), idx(2), facet, idx(4)), &
-                 idx(1), idx(2), idx(3), idx(4), &
-                 t_, tstep_)
-         end select
-      end do
+      if (strong_) then
+         do i = 1, m
+            k = this%msk(i)
+            facet = this%facet(i)
+            idx = nonlinear_index(k, lx, lx, lx)
+            select case(facet)
+            case(1,2)
+               call this%eval(x(k), &
+                  xc(idx(1), idx(2), idx(3), idx(4)), &
+                  yc(idx(1), idx(2), idx(3), idx(4)), &
+                  zc(idx(1), idx(2), idx(3), idx(4)), &
+                  nx(idx(2), idx(3), facet, idx(4)), &
+                  ny(idx(2), idx(3), facet, idx(4)), &
+                  nz(idx(2), idx(3), facet, idx(4)), &
+                  idx(1), idx(2), idx(3), idx(4), &
+                  t_, tstep_)
+            case(3,4)
+               call this%eval(x(k), &
+                  xc(idx(1), idx(2), idx(3), idx(4)), &
+                  yc(idx(1), idx(2), idx(3), idx(4)), &
+                  zc(idx(1), idx(2), idx(3), idx(4)), &
+                  nx(idx(1), idx(3), facet, idx(4)), &
+                  ny(idx(1), idx(3), facet, idx(4)), &
+                  nz(idx(1), idx(3), facet, idx(4)), &
+                  idx(1), idx(2), idx(3), idx(4), &
+                  t_, tstep_)
+            case(5,6)
+               call this%eval(x(k), &
+                  xc(idx(1), idx(2), idx(3), idx(4)), &
+                  yc(idx(1), idx(2), idx(3), idx(4)), &
+                  zc(idx(1), idx(2), idx(3), idx(4)), &
+                  nx(idx(1), idx(2), facet, idx(4)), &
+                  ny(idx(1), idx(2), facet, idx(4)), &
+                  nz(idx(1), idx(2), facet, idx(4)), &
+                  idx(1), idx(2), idx(3), idx(4), &
+                  t_, tstep_)
+            end select
+         end do
+      end if
     end associate
   end subroutine usr_scalar_apply_scalar
 
@@ -286,7 +292,7 @@ contains
   end subroutine usr_scalar_apply_scalar_dev
 
   !> No-op vector apply
-  subroutine usr_scalar_apply_vector(this, x, y, z, n, t, tstep)
+  subroutine usr_scalar_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(usr_scalar_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
@@ -294,6 +300,7 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
   end subroutine usr_scalar_apply_vector
 

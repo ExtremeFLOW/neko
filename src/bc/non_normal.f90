@@ -47,6 +47,9 @@ module non_normal
    contains
      !> Constructor.
      procedure, pass(this) :: init => non_normal_init
+     !> Constructor from components
+     procedure, pass(this) :: init_from_components => &
+          non_normal_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => non_normal_free
      !> Finalize.
@@ -63,14 +66,19 @@ contains
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) ::json
 
-    call this%free()
-
-    call this%init_base(coef)
-    call this%bc_x%init(this%coef, json)
-    call this%bc_y%init(this%coef, json)
-    call this%bc_z%init(this%coef, json)
-
+    call this%init_from_components(coef)
   end subroutine non_normal_init
+
+  !> Constructor from components.
+  !! @param[in] coef The SEM coefficients.
+  subroutine non_normal_init_from_components(this, coef)
+    class(non_normal_t), target, intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+
+    call this%free()
+    call this%symmetry_t%init_from_components(coef)
+
+  end subroutine non_normal_init_from_components
 
   !> Finalize
   subroutine non_normal_finalize(this)

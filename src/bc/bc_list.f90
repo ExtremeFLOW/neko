@@ -154,72 +154,16 @@ contains
     logical, intent(in), optional :: strong
     type(c_ptr) :: x_d
     integer :: i
-    logical, allocatable :: execute(:)
-
-    allocate(execute(this%size()))
-
-    execute = .true.
-    if (present(strong)) then
-       do i=1, this%size()
-         if (.not. (this%strong(i) .eqv. strong)) then
-            execute(i) = .false.
-         end if
-       end do
-    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
-       if (present(t) .and. present(tstep)) then
-          do i = 1, this%size()
-             if (execute(i)) then
-                   call this%items(i)%ptr%apply_scalar_dev(x_d, t=t, tstep=tstep)
-             end if
-          end do
-       else if (present(t)) then
-          do i = 1, this%size()
-             if (execute(i)) then
-                call this%items(i)%ptr%apply_scalar_dev(x_d, t=t)
-             end if
-          end do
-       else if (present(tstep)) then
-          do i = 1, this%size()
-             if (execute(i)) then
-                call this%items(i)%ptr%apply_scalar_dev(x_d, tstep=tstep)
-             end if
-          end do
-       else
-          do i = 1, this%size()
-             if (execute(i)) then
-                call this%items(i)%ptr%apply_scalar_dev(x_d)
-             end if
-          end do
-       end if
+       do i = 1, this%size()
+          call this%items(i)%ptr%apply_scalar_dev(x_d, t=t, tstep=tstep)
+       end do
     else
-       if (present(t) .and. present(tstep)) then
-          do i = 1, this%size()
-             if (execute(i)) then
-                call this%items(i)%ptr%apply_scalar(x, n, t, tstep)
-             end if
-          end do
-       else if (present(t)) then
-          do i = 1, this%size()
-             if (execute(i)) then
-                call this%items(i)%ptr%apply_scalar(x, n, t=t)
-             end if
-          end do
-       else if (present(tstep)) then
-          do i = 1, this%size()
-             if (execute(i)) then
-                call this%items(i)%ptr%apply_scalar(x, n, tstep=tstep)
-             end if
-          end do
-       else
-          do i = 1, this%size()
-             if (execute(i)) then
-                call this%items(i)%ptr%apply_scalar(x, n)
-             end if
-          end do
-       end if
+       do i = 1, this%size()
+          call this%items(i)%ptr%apply_scalar(x, n, t, tstep, strong)
+       end do
     end if
   end subroutine bc_list_apply_scalar
 
@@ -246,74 +190,18 @@ contains
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     integer :: i
-    logical, allocatable :: execute(:)
-
-    allocate(execute(this%size()))
-
-    execute = .true.
-    if (present(strong)) then
-       do i=1, this%size()
-         if (.not. (this%strong(i) .eqv. strong)) then
-            execute(i) = .false.
-         end if
-       end do
-    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
        y_d = device_get_ptr(y)
        z_d = device_get_ptr(z)
-       if (present(t) .and. present(tstep)) then
-          do i = 1, this%size()
-             if (execute(i)) then
-                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t, tstep)
-             end if
-          end do
-       else if (present(t)) then
-          do i = 1, this%size()
-             if (execute(i)) then
-                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t=t)
-             end if
-          end do
-       else if (present(tstep)) then
-          do i = 1, this%size()
-             if (execute(i)) then
-                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, tstep=tstep)
-             end if
-          end do
-       else
-          do i = 1, this%size()
-             if (execute(i)) then
-                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d)
-             end if
-          end do
-       end if
+       do i = 1, this%size()
+          call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t, tstep)
+       end do
     else
-       if (present(t) .and. present(tstep)) then
-          do i = 1, this%size()
-             if (execute(i)) then
-                call this%items(i)%ptr%apply_vector(x, y, z, n, t, tstep)
-             end if
-          end do
-       else if (present(t)) then
-          do i = 1, this%size()
-             if (execute(i)) then
-                call this%items(i)%ptr%apply_vector(x, y, z, n, t=t)
-             end if
-          end do
-       else if (present(tstep)) then
-          do i = 1, this%size()
-             if (execute(i)) then
-                call this%items(i)%ptr%apply_vector(x, y, z, n, tstep=tstep)
-             end if
-          end do
-       else
-          do i = 1, this%size()
-             if (execute(i)) then
-                call this%items(i)%ptr%apply_vector(x, y, z, n)
-             end if
-          end do
-       end if
+       do i = 1, this%size()
+          call this%items(i)%ptr%apply_vector(x, y, z, n, t, tstep, strong)
+       end do
     end if
 
   end subroutine bc_list_apply_vector
