@@ -97,6 +97,8 @@ contains
     character(len=255) :: env_cheby_degree, env_mlvl
     character(len=LOG_SIZE) :: log_buf
 
+    call neko_log%section('AMG')
+    
     call get_environment_variable("NEKO_TAMG_MAX_LVL", &
          env_mlvl, env_len)
     if (env_len .eq. 0) then
@@ -106,7 +108,8 @@ contains
        read(env_mlvl(1:env_len), *) mlvl
        nlvls = mlvl
     end if
-    print *, "Creating AMG hierarchy with", nlvls, "levels"
+    write(log_buf, '(A27,I2,A7)') "Creating AMG hierarchy with", nlvls, " levels"
+    call neko_log%message(log_buf)
     if (nlvls .gt. 4) then
       call neko_error("Can not do more than four levels right now. I recommend two or three.")
     end if
@@ -161,6 +164,9 @@ contains
     !end do
 
     call fill_lvl_map(this%amg)
+
+    call neko_log%end_section()
+    
   end subroutine tamg_mg_init
  
 
