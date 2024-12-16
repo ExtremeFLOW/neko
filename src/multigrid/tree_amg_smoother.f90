@@ -108,11 +108,12 @@ contains
     type(tamg_hierarchy_t), intent(inout) :: amg
     integer, intent(in) :: n
     real(kind=rp) :: lam, b, a, rn
-    real(kind=rp) :: boost = 1.1_rp
-    real(kind=rp) :: lam_factor = 30.0_rp
+    real(kind=rp), parameter :: boost = 1.1_rp
+    real(kind=rp), parameter :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
     integer :: i
-    associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, msh=>amg%msh, Xh=>amg%Xh, blst=>amg%blst)
+    associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
+         msh=>amg%msh, Xh=>amg%Xh, blst=>amg%blst)
 
       print *, "COMP EIGS on lvl", this%lvl, "n", n
       do i = 1, n
