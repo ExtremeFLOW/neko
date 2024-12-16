@@ -37,6 +37,7 @@ module wall_model_bc
     use bc, only : bc_t
     use, intrinsic :: iso_c_binding, only : c_ptr
     use utils, only : neko_error, nonlinear_index
+    use json_utils, only : json_get
     use coefs, only : coef_t
     use wall_model, only : wall_model_t, wall_model_factory
     use rough_log_law, only : rough_log_law_t
@@ -52,14 +53,23 @@ module wall_model_bc
     type, public, extends(shear_stress_t) :: wall_model_bc_t
        !> The wall model to compute the stress.
        class(wall_model_t), allocatable :: wall_model
+       !> The kinematic viscosity.
+       real(kind=rp) :: nu
+       !> Parameter dictionary for the wall model
+       type(json_file) params_
      contains
+       !> Constructor.
+       procedure, pass(this) :: init => wall_model_bc_init
+       !> Destructor.
+       procedure, pass(this) :: free => wall_model_bc_free
+       !> Finalize by building mask arrays and init'ing the wall model.
+       procedure, pass(this) :: finalize => wall_model_bc_finalize
        procedure, pass(this) :: apply_scalar => wall_model_bc_apply_scalar
        procedure, pass(this) :: apply_vector => wall_model_bc_apply_vector
        procedure, pass(this) :: apply_scalar_dev => &
             wall_model_bc_apply_scalar_dev
        procedure, pass(this) :: apply_vector_dev => &
             wall_model_bc_apply_vector_dev
-       procedure, pass(this) :: init => wall_model_bc_init
     end type wall_model_bc_t
 
 contains
@@ -155,20 +165,37 @@ contains
   end subroutine wall_model_bc_apply_vector_dev
 
   !> Constructor.
-  !> @param coef The SEM coefficients.
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
   subroutine wall_model_bc_init(this, coef, json)
     class(wall_model_bc_t), target, intent(inout) :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
-    !real(kind=rp), intent(in) :: nu
-    real(kind=rp) :: nu = 1
-
 
     call this%shear_stress_t%init(coef, json)
-
-    call wall_model_factory(this%wall_model, this%coef, this%msk, &
-         this%facet, nu, json)
+    call json_get(json, "nu", this%nu)
+    this%params_ = json
 
   end subroutine wall_model_bc_init
+
+  !> Destructor.
+  subroutine wall_model_bc_free(this)
+    class(wall_model_bc_t), target, intent(inout) :: this
+
+    call this%shear_stress_t%free()
+    call this%wall_model%free()
+
+  end subroutine wall_model_bc_free
+
+  !> Finalize by building mask arrays and init'ing the wall model.
+  subroutine wall_model_bc_finalize(this)
+    class(wall_model_bc_t), target, intent(inout) :: this
+
+    call this%shear_stress_t%finalize()
+    call wall_model_factory(this%wall_model, this%coef, this%msk, &
+         this%facet, this%nu, this%params_)
+
+
+  end subroutine wall_model_bc_finalize
 
 end module wall_model_bc

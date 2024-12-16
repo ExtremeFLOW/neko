@@ -1188,7 +1188,10 @@ contains
        allocate(shear_stress_t::object)
     else if (trim(type) .eq. "wall_model") then
        allocate(wall_model_bc_t::object)
-!       json%add("nu", scheme%mu / scheme%rho)
+       ! Kind of hack, but maybe OK? The thing is, we need the nu for
+       ! initing the wall model, and forcing the user duplicate that there
+       ! would be a nightmare.
+       call json%add("nu", scheme%mu / scheme%rho)
     else
        return
     end if
