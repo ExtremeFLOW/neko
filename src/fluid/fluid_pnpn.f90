@@ -464,6 +464,13 @@ contains
             call this%bclst_du%append(vel_bc%bc_x)
             call this%bclst_dv%append(vel_bc%bc_y)
             call this%bclst_dw%append(vel_bc%bc_z)
+         type is (non_normal_t)
+            ! Same as symmetry
+            write(*,*) "MARKING NON-NORMAL IN VELOCITY BLISTS"
+            call this%bclst_vel_res%append(vel_bc)
+            call this%bclst_du%append(vel_bc%bc_x)
+            call this%bclst_dv%append(vel_bc%bc_y)
+            call this%bclst_dw%append(vel_bc%bc_z)
          class default
             write(*,*) "MARKING OTHER STRONG BCS IN VELOCITY BLISTS"
             ! For the default case we use a dummy zero_dirichlet bc to mark
@@ -1095,6 +1102,10 @@ contains
   end subroutine
 
   !> Factory routine for pressure boundary conditions.
+  !! @param object The boundary condition to be allocated.
+  !! @param json The parameter dictionary for the boundary.
+  !! @param coef The SEM coeffcients.
+  !! @param user The user interface.
   subroutine pressure_bc_factory(object, json, coef, user)
     class(bc_t), pointer, intent(inout) :: object
     type(json_file), intent(inout) :: json
@@ -1105,16 +1116,12 @@ contains
 
     call json_get(json, "type", type)
 
-    if (trim(type) .eq. "outflow") then
+    if ( (trim(type) .eq. "outflow") .or. &
+         (trim(type) .eq. "normal_outflow"))  then
        allocate(zero_dirichlet_t::object)
-    else if (trim(type) .eq. "dong_outflow") then
+    else if ((trim(type) .eq. "outflow+dong") .or. &
+            (trim(type) .eq. "normal_outflow+dong")) then
        allocate(dong_outflow_t::object)
-!    else if (trim(type) .eq. "no_slip") then
-!       allocate(zero_dirichlet_t::object)
-!    else if (trim(type) .eq. "normal_outlet") then
-!       allocate(non_normal_t::object)
-!    else if (trim(type) .eq. "blasius_profile") then
-!       allocate(blasius_t::object)
     else
       return
     end if
