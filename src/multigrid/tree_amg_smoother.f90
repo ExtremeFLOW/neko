@@ -95,7 +95,7 @@ contains
     this%lvl = lvl
     this%max_iter = max_iter
     this%recompute_eigs = .true.
-    print *, "INIT SMOO ON LVL", lvl
+!    print *, "INIT SMOO ON LVL", lvl
 
   end subroutine amg_cheby_init
 
@@ -115,7 +115,7 @@ contains
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
          msh=>amg%msh, Xh=>amg%Xh, blst=>amg%blst)
 
-      print *, "COMP EIGS on lvl", this%lvl, "n", n
+!      print *, "COMP EIGS on lvl", this%lvl, "n", n
       do i = 1, n
         !TODO: replace with a better way to initialize power method
         !call random_number(rn)
@@ -160,7 +160,7 @@ contains
         dtd = glsc2(d, d, n)
       end if
       lam = dtw / dtd
-      print *, "LAM:", lam
+!      print *, "LAM:", lam
       b = lam * boost
       a = lam / lam_factor
       this%tha = (b+a)/2.0_rp
