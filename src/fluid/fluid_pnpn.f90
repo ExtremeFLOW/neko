@@ -86,10 +86,11 @@ module fluid_pnpn
 
   type, public, extends(fluid_scheme_t) :: fluid_pnpn_t
 
-     ! The right-hand sides in the linear solves.
+     !> The right-hand sides in the linear solves. 
      type(field_t) :: p_res, u_res, v_res, w_res
 
-     !> The unknowns in the linear solves.
+     !> The unknowns in the linear solves, i.e. the solution increments with 
+     !! respect to the previous time-step.
      type(field_t) :: dp, du, dv, dw
 
      !
@@ -124,8 +125,6 @@ module fluid_pnpn
      !> Surface term in pressure rhs. Masks symmetry bcs.
      type(facet_normal_t) :: bc_sym_surface
 
-!     type(dong_outflow_t) :: bc_dong           !< Dong outflow condition
-
      !
      ! Boundary conditions and  lists for residuals and solution increments
      !
@@ -141,7 +140,7 @@ module fluid_pnpn
 
      !> A dummy bc for marking strong pressure bcs. Used for dp.
      type(zero_dirichlet_t) :: bc_dp
-     !> A list for holding bc_p_res
+     !> A list for holding bc_dp.
      type(bc_list_t) :: bclst_dp
 
      !> These lists appear to mark the same facets. The difference is that the
@@ -169,10 +168,10 @@ module fluid_pnpn
      ! Advection terms for the oifs method
      type(field_t) :: advx, advy, advz
 
-     !> Pressure residual
+     !> Pressure residual equation for computing `p_res`.
      class(pnpn_prs_res_t), allocatable :: prs_res
 
-     !> Velocity residual
+     !> Velocity residual equation for computing `u_res`, `v_res`, `w_res`.
      class(pnpn_vel_res_t), allocatable :: vel_res
 
      !> Summation of AB/BDF contributions
@@ -348,11 +347,6 @@ contains
     ! Generate pressure boundary condition list
     call this%pnpn_setup_bcs(user)
 
-    ! Add all strong bcs to the list
-
-!    call this%bc_prs%mark_zones_from_list('o', this%bc_labels)
-!    call this%bc_prs%mark_zones_from_list('on', this%bc_labels)
-
     ! Field dirichlet pressure bc
     call this%user_field_bc_prs%init_base(this%c_Xh)
 !    call this%user_field_bc_prs%mark_zones_from_list('d_pres', this%bc_labels)
@@ -372,8 +366,6 @@ contains
 !    if (integer_val .gt. 0)  call this%user_field_bc_prs%init_field('d_pres')
 !    call this%bclst_prs%append(this%user_field_bc_prs)
 !    call this%user_field_bc_vel%bc_list%append(this%user_field_bc_prs)
-
-!    call this%bclst_prs%append(this%bc_prs)
 
     ! Mark Dirichlet bcs for pressure
     call this%bclst_dp%init()
@@ -416,45 +408,53 @@ contains
 
     ! Add all strong velocity bcs.
     do i = 1, this%bcs_vel%size()
-       if (this%bcs_vel%strong(i) .eqv. .true.) then
 
-         ! We need to treat bcs with nested bcs in a special way
-         select type (vel_bc => this%bcs_vel%items(i)%ptr)
-         type is (symmetry_t)
-            ! Symmetry has 3 internal bcs, but only one acutally contains
-            ! markings. All 3 are zero_dirichlet, so the value is
-            ! appropriate to use for the the du,dv,dw,vel_res.
-            ! The apply_scalar doesn't do anything, so we need to add
-            ! individual nested bcs to the du,dv,dw, whereas the vel_res can
-            ! just get symmetry as a whole, because on this list we call
-            ! apply_vector.
-            write(*,*) "MARKING SYMMETRY IN VELOCITY BLISTS"
-            call this%bclst_vel_res%append(vel_bc)
-            call this%bclst_du%append(vel_bc%bc_x)
-            call this%bclst_dv%append(vel_bc%bc_y)
-            call this%bclst_dw%append(vel_bc%bc_z)
-         type is (non_normal_t)
-            ! Same as symmetry
-            write(*,*) "MARKING NON-NORMAL IN VELOCITY BLISTS"
-            call this%bclst_vel_res%append(vel_bc)
-            call this%bclst_du%append(vel_bc%bc_x)
-            call this%bclst_dv%append(vel_bc%bc_y)
-            call this%bclst_dw%append(vel_bc%bc_z)
-         type is (shear_stress_t)
-            ! Same as symmetry
-            write(*,*) "MARKING SHEAR_STRESS IN VELOCITY BLISTS"
-            call this%bclst_vel_res%append(vel_bc%symmetry)
-            call this%bclst_du%append(vel_bc%symmetry%bc_x)
-            call this%bclst_dv%append(vel_bc%symmetry%bc_y)
-            call this%bclst_dw%append(vel_bc%symmetry%bc_z)
-         class default
-            write(*,*) "MARKING OTHER STRONG BCS IN VELOCITY BLISTS"
-            ! For the default case we use a dummy zero_dirichlet bc to mark
-            ! the same faces as in ordinary velocity dirichlet conditions.
-            ! This bc is then added to the lists below.
-            call this%bc_vel_res%mark_facets(vel_bc%marked_facet)
-         end select
-       end if
+       ! We need to treat mixed bcs separately because they are by convention 
+       ! marked weak and currently contain nested bcs, some of which are strong.
+       select type (vel_bc => this%bcs_vel%items(i)%ptr)
+       type is (symmetry_t)
+          ! Symmetry has 3 internal bcs, but only one acutally contains
+          ! markings. All 3 are zero_dirichlet, so the value is
+          ! appropriate to use for the the du,dv,dw,vel_res.
+          ! The apply_scalar doesn't do anything, so we need to add
+          ! individual nested bcs to the du,dv,dw, whereas the vel_res can
+          ! just get symmetry as a whole, because on this list we call
+          ! apply_vector.
+          write(*,*) "MARKING SYMMETRY IN VELOCITY BLISTS"
+          call this%bclst_vel_res%append(vel_bc)
+          call this%bclst_du%append(vel_bc%bc_x)
+          call this%bclst_dv%append(vel_bc%bc_y)
+          call this%bclst_dw%append(vel_bc%bc_z)
+       type is (non_normal_t)
+          ! Same as symmetry
+          write(*,*) "MARKING NON-NORMAL IN VELOCITY BLISTS"
+          call this%bclst_vel_res%append(vel_bc)
+          call this%bclst_du%append(vel_bc%bc_x)
+          call this%bclst_dv%append(vel_bc%bc_y)
+          call this%bclst_dw%append(vel_bc%bc_z)
+       type is (shear_stress_t)
+          ! Same as symmetry
+          write(*,*) "MARKING SHEAR_STRESS IN VELOCITY BLISTS"
+          call this%bclst_vel_res%append(vel_bc%symmetry)
+          call this%bclst_du%append(vel_bc%symmetry%bc_x)
+          call this%bclst_dv%append(vel_bc%symmetry%bc_y)
+          call this%bclst_dw%append(vel_bc%symmetry%bc_z)
+       type is (wall_model_bc_t)
+          ! Same as symmetry
+          write(*,*) "MARKING WALL MODELS IN VELOCITY BLISTS"
+          call this%bclst_vel_res%append(vel_bc%symmetry)
+          call this%bclst_du%append(vel_bc%symmetry%bc_x)
+          call this%bclst_dv%append(vel_bc%symmetry%bc_y)
+          call this%bclst_dw%append(vel_bc%symmetry%bc_z)
+       class default
+          write(*,*) "MARKING OTHER STRONG BCS IN VELOCITY BLISTS"
+          ! For the default case we use a dummy zero_dirichlet bc to mark
+          ! the same faces as in ordinary velocity dirichlet conditions.
+          ! This bc is then added to the lists below.
+          if (this%bcs_vel%strong(i) .eqv. .true.) then
+             call this%bc_vel_res%mark_facets(vel_bc%marked_facet)
+          end if
+       end select
     end do
     call this%bc_vel_res%finalize()
     call this%bclst_vel_res%append(this%bc_vel_res)
@@ -905,7 +905,7 @@ contains
       ! Update material properties if necessary
       call this%update_material_properties()
 
-      ! Compute pressure.
+      ! Compute pressure residual.
       call profiler_start_region('Pressure_residual', 18)
       call prs_res%compute(p, p_res,&
                            u, v, w, &
@@ -917,9 +917,13 @@ contains
                            mu_field, rho_field)
 
       write(*,*) "PRS DIRICHLET", this%prs_dirichlet
+
+      ! De-mean the pressure residual when no strong pressure boundaries present
       if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n) 
 
       call gs_Xh%op(p_res, GS_OP_ADD)
+
+      ! Set the residual to zero at strong pressure boundaries.
       call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), t, tstep)
 
       dump_file = file_t('p_res.fld')
@@ -934,9 +938,9 @@ contains
 
       call this%pc_prs%update()
 
-
-
       call profiler_start_region('Pressure_solve', 3)
+
+      ! Solve for the pressure increment.
       ksp_results(1) = &
          this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, this%bclst_dp, gs_Xh)
 
@@ -946,10 +950,11 @@ contains
       call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
                                  this%bclst_dp, gs_Xh, n, tstep, dt_controller)
 
+      ! Update the pressure with the increment. Demean if necessary.
       call field_add2(p, dp, n)
       if (.not. this%prs_dirichlet) call ortho(p%x, this%glb_n_points, n) 
 
-      ! Compute velocity.
+      ! Compute velocity residual.
       call profiler_start_region('Velocity_residual', 19)
       call vel_res%compute(Ax_vel, u, v, w, &
                            u_res, v_res, w_res, &
@@ -963,6 +968,7 @@ contains
       call gs_Xh%op(v_res, GS_OP_ADD)
       call gs_Xh%op(w_res, GS_OP_ADD)
 
+      ! Set residual to zero at strong velocity boundaries.
       call this%bclst_vel_res%apply_vector(u_res%x, v_res%x, w_res%x, &
            dm_Xh%size(), t, tstep)
 

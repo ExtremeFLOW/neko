@@ -130,9 +130,6 @@ module fluid_scheme
      ! Attributes for field dirichlet BCs
      type(field_dirichlet_vector_t) :: user_field_bc_vel   !< User-computed Dirichlet velocity condition
      type(field_dirichlet_t) :: user_field_bc_prs   !< User-computed Dirichlet pressure condition
-!     type(symmetry_t) :: bc_sym                !< Symmetry plane for velocity
-!     type(shear_stress_t) :: bc_sh             !< Symmetry plane for velocity
-     type(bc_list_t) :: bclst_vel_neumann      !< List of neumann velocity conditions
      ! List of boundary conditions for pressure
      type(bc_list_t) :: bcs_prs
      ! List of boundary conditions for velocity
@@ -440,31 +437,6 @@ contains
     !
     ! Setup velocity boundary conditions
     !
-
-    ! Shear stress conditions
-!    call this%bc_sh%init(this%c_Xh, this%params)
-!    call this%bc_sh%mark_zones_from_list('sh', this%bc_labels)
-!    call this%bc_sh%finalize()
-
-!    call this%bclst_vel%append(this%bc_sh%symmetry)
-
-    ! Read stress value, default to [0 0 0]
-!    if (this%bc_sh%msk(0) .gt. 0) then
-!       call params%get('case.fluid.shear_stress.value', real_vec, logical_val)
-!       if (.not. logical_val .and. this%bc_sh%msk(0) .gt. 0) then
-!          call neko_warning("No stress values provided for sh boundaries, &
-!               & defaulting to 0. Use fluid.shear_stress.value to set.")
-!          allocate(real_vec(3))
-!          real_vec = 0.0_rp
-!       else if (size(real_vec) .ne. 3) then
-!          call neko_error ("The shear stress vector provided in &
-!               &fluid.shear_stress.value should have 3 components.")
-!       end if
-!       call this%bc_sh%set_stress(real_vec(1), real_vec(2), real_vec(3))
-!    end if
-
-    call this%bclst_vel_neumann%init()
-!    call this%bclst_vel_neumann%append(this%bc_sh)
 
     ! Wall models
     !
@@ -1037,7 +1009,6 @@ contains
           ! Not all bcs require an allocation for velocity in particular,
           ! so we check.
           if (associated(this%bcs_vel%items(j)%ptr)) then
-             write(*,*) "Allocating vel bc index", j
              j = j + 1
              this%bcs_vel%size_ = this%bcs_vel%size_ + 1
 
@@ -1083,9 +1054,10 @@ contains
        allocate(blasius_t::object)
     else if (trim(type) .eq. "shear_stress") then
        allocate(shear_stress_t::object)
+    else if (trim(type) .eq. "wall_model") then
+       allocate(wall_model_bc_t::object)
     else
        return
-!       call neko_error("Unknown boundary condition for the fluid.")
     end if
 
     call json_get(json, "zone_index", zone_index)
