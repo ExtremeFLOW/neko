@@ -47,13 +47,8 @@ module fluid_scheme
   use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy, &
                      KSP_MAX_ITER
   use coefs, only: coef_t
-  use inflow, only : inflow_t
   use usr_inflow, only : usr_inflow_t, usr_inflow_eval
-  use blasius, only : blasius_t
   use dirichlet, only : dirichlet_t
-  use dong_outflow, only : dong_outflow_t
-  use symmetry, only : symmetry_t
-  use non_normal, only : non_normal_t
   use field_dirichlet, only : field_dirichlet_t
   use field_dirichlet_vector, only: field_dirichlet_vector_t
   use jacobi, only : jacobi_t
@@ -173,8 +168,6 @@ module fluid_scheme
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      !> Apply velocity boundary conditions
      procedure, pass(this) :: bc_apply_prs => fluid_scheme_bc_apply_prs
-     !> Setup boundary conditions
-     procedure, pass(this) :: setup_bcs_ => fluid_scheme_setup_bcs
      !> Set the user inflow procedure
      procedure, pass(this) :: set_usr_inflow => fluid_scheme_set_usr_inflow
      !> Compute the CFL number
@@ -438,24 +431,6 @@ contains
     ! Setup velocity boundary conditions
     !
 
-    ! Wall models
-    !
-
-!    call this%bc_wallmodel%init(this%c_Xh, this%params)
-!    call this%bc_wallmodel%mark_zones_from_list(msh%labeled_zones,&
-!         'wm', this%bc_labels)
-!    call this%bc_wallmodel%finalize()
-
-!    if (this%bc_wallmodel%msk(0) .gt. 0) then
-!       call json_extract_object(params, 'case.fluid.wall_modelling', wm_json)
-!       call this%bc_wallmodel%init_wall_model_bc(wm_json, this%mu / this%rho)
-!    else
-!       call this%bc_wallmodel%shear_stress_t%init_shear_stress(this%c_Xh)
-!    end if
-
-!    call bc_list_add(this%bclst_vel, this%bc_wallmodel%symmetry)
-!    call bc_list_add(this%bclst_vel_neumann, this%bc_wallmodel)
-
     ! Setup field dirichlet bc for u-velocity
 !    call this%user_field_bc_vel%bc_u%init_base(this%c_Xh)
 !    call this%user_field_bc_vel%bc_u%mark_zones_from_list('d_vel_u', this%bc_labels)
@@ -526,9 +501,6 @@ contains
     call this%user_field_bc_vel%bc_list%append(this%user_field_bc_vel%bc_u)
     call this%user_field_bc_vel%bc_list%append(this%user_field_bc_vel%bc_v)
     call this%user_field_bc_vel%bc_list%append(this%user_field_bc_vel%bc_w)
-
-
-    call this%setup_bcs_(user)
 
     !
     ! Check if we need to output boundary types to a separate field
@@ -980,94 +952,6 @@ contains
     end if
 
   end subroutine fluid_scheme_update_material_properties
-
-
-  subroutine fluid_scheme_setup_bcs(this, user)
-    class(fluid_scheme_t), intent(inout) :: this
-    type(user_t), target, intent(in) :: user
-    integer :: i, j, n_bcs
-    type(json_core) :: core
-    type(json_value), pointer :: bc_object
-    type(json_file) :: bc_subdict
-    logical :: found
-
-
-    if (this%params%valid_path('case.fluid.boundary_conditions')) then
-       call this%params%info('case.fluid.boundary_conditions', n_children=n_bcs)
-       call this%params%get_core(core)
-       call this%params%get('case.fluid.boundary_conditions', bc_object, found)
-
-       call this%bcs_vel%init(n_bcs)
-
-       j = 1
-       do i=1, n_bcs
-          ! Create a new json containing just the subdict for this bc
-          call json_extract_item(core, bc_object, i, bc_subdict)
-
-          call fluid_bc_factory(this%bcs_vel%items(j)%ptr, bc_subdict, &
-               this%c_Xh, user)
-          ! Not all bcs require an allocation for velocity in particular,
-          ! so we check.
-          if (associated(this%bcs_vel%items(j)%ptr)) then
-             j = j + 1
-             this%bcs_vel%size_ = this%bcs_vel%size_ + 1
-
-          end if
-
-          write(*,*) "Done", i
-       end do
-       write(*,*) "N Velocity BCS", j-1, this%bcs_vel%size()
-
-       ! Special treatment of nested boundary conditions
-       ! This will probably change when we make then not axis-aligned so 
-       ! we live with this for now..
-!       do i=1, this%bcs_vel%size_
-!          select type (vel_bc => this%bcs_vel%items(i)%ptr)
-!          type is (shear_stress_t)
-             ! We add the underlying symmetry bcs to the velocity bc list
-!             write(*,*) "ADDING SYMMETRY BC FROM SHEAR_STRESS"
-!             call this%bcs_vel%append(vel_bc%symmetry)
-!          end select
-!       end do
-    end if
-  end subroutine fluid_scheme_setup_bcs
-
-  subroutine fluid_bc_factory(object, json, coef, user)
-    class(bc_t), pointer, intent(inout) :: object
-    type(json_file), intent(inout) :: json
-    type(coef_t), intent(in) :: coef
-    type(user_t), intent(in) :: user
-    character(len=:), allocatable :: type
-    integer :: zone_index
-
-    call json_get(json, "type", type)
-
-    if (trim(type) .eq. "symmetry") then
-       allocate(symmetry_t::object)
-    else if (trim(type) .eq. "velocity_dirichlet") then
-       allocate(inflow_t::object)
-    else if (trim(type) .eq. "no_slip") then
-       allocate(zero_dirichlet_t::object)
-    else if (trim(type) .eq. "normal_outflow") then
-       allocate(non_normal_t::object)
-    else if (trim(type) .eq. "blasius_profile") then
-       allocate(blasius_t::object)
-    else if (trim(type) .eq. "shear_stress") then
-       allocate(shear_stress_t::object)
-    else if (trim(type) .eq. "wall_model") then
-       allocate(wall_model_bc_t::object)
-    else
-       return
-    end if
-
-    call json_get(json, "zone_index", zone_index)
-    call object%init(coef, json)
-    call object%mark_zone(coef%msh%labeled_zones(zone_index))
-    call object%finalize()
-
-    write(*,*) "BC size", zone_index, object%marked_facet%size_, object%msk(0)
-
-  end subroutine fluid_bc_factory
 
   !> Sets rho and mu
   !! @param params The case paramter file.
