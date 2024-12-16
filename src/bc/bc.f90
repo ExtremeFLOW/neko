@@ -82,11 +82,9 @@ module bc
      procedure, pass(this) :: mark_facet => bc_mark_facet
      !> Mark all facets from a (facet, element) tuple list
      procedure, pass(this) :: mark_facets => bc_mark_facets
-     !> Mark all facets from a list of zones, also marks type of bc in the mesh.
-     procedure, pass(this) :: mark_zones_from_list => bc_mark_zones_from_list
      !> Mark all facets from a zone
      procedure, pass(this) :: mark_zone => bc_mark_zone
-     !> Finalize the construction of the bc by populting the msk and facet
+     !> Finalize the construction of the bc by populating the msk and facet
      !! arrays
      procedure, pass(this) :: finalize_base => bc_finalize_base
 
@@ -403,78 +401,6 @@ contains
        call this%marked_facet%push(bc_zone%facet_el(i))
     end do
   end subroutine bc_mark_zone
-
-  !> Mark all facets from the list of zones in th mesh.
-  !! Also marks type of bc in the mesh.
-  !! The facet_type in mesh is because of the fdm from Nek5000...
-  !! That is a hack that should be removed at some point...
-  !! @param bc_key Boundary condition label, e.g. 'w' for wall.
-  !! @param bc_label List of boundary condition labels.
-  subroutine bc_mark_zones_from_list(this, bc_key, bc_labels)
-    class(bc_t), intent(inout) :: this
-    character(len=*) :: bc_key
-    character(len=100), allocatable :: split_key(:)
-    character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_labels(:)
-    integer :: i, j, k, l, msh_bc_type
-
-    msh_bc_type = 0
-    if(trim(bc_key) .eq. 'o' .or. trim(bc_key) .eq. 'on' &
-       .or. trim(bc_key) .eq. 'o+dong' .or. trim(bc_key) .eq. 'on+dong') then
-       msh_bc_type = 1
-    else if(trim(bc_key) .eq. 'd_pres') then
-       msh_bc_type = 1
-    else if(trim(bc_key) .eq. 'w') then
-       msh_bc_type = 2
-    else if(trim(bc_key) .eq. 'v') then
-       msh_bc_type = 2
-    else if(trim(bc_key) .eq. 'd_vel_u') then
-       msh_bc_type = 2
-    else if(trim(bc_key) .eq. 'd_vel_v') then
-       msh_bc_type = 2
-    else if(trim(bc_key) .eq. 'd_vel_w') then
-       msh_bc_type = 2
-    else if(trim(bc_key) .eq. 'sym') then
-       msh_bc_type = 2
-    else if(trim(bc_key) .eq. 'sh') then
-       msh_bc_type = 2
-    else if(trim(bc_key) .eq. 'wm') then
-       msh_bc_type = 2
-    end if
-
-    do i = 1, size(bc_labels)
-       !Check if several bcs are defined for this zone
-       !bcs are seperated by /, but we could use something else
-       if (index(trim(bc_labels(i)), '/') .eq. 0) then
-          if (trim(bc_key) .eq. trim(bc_labels(i))) then
-             call bc_mark_zone(this, this%msh%labeled_zones(i))
-             ! Loop across all faces in the mesh
-             do j = 1,this%msh%nelv
-                do k = 1, 2 * this%msh%gdim
-                   if (this%msh%facet_type(k,j) .eq. -i) then
-                      this%msh%facet_type(k,j) = msh_bc_type
-                   end if
-                end do
-             end do
-          end if
-       else
-          split_key = split_string(trim(bc_labels(i)),'/')
-          do l = 1, size(split_key)
-             if (trim(split_key(l)) .eq. trim(bc_key)) then
-                call bc_mark_zone(this, this%msh%labeled_zones(i))
-                ! Loop across all faces in the mesh
-                do j = 1,this%msh%nelv
-                   do k = 1, 2 * this%msh%gdim
-                      if (this%msh%facet_type(k,j) .eq. -i) then
-                         this%msh%facet_type(k,j) = msh_bc_type
-                      end if
-                   end do
-                end do
-             end if
-          end do
-       end if
-    end do
-  end subroutine bc_mark_zones_from_list
-
 
   !> Finalize the construction of the bc by populting the `msk` and `facet`
   !! arrays.
