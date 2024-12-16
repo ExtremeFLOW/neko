@@ -42,6 +42,16 @@
             "use_averaged_flow": true
         },
         "boundary_types": ["", "", "w", "w"],
+        "boundary_conditions": [
+        {
+            "type": "no_slip",
+            "zone_index": 3
+        },
+        {
+            "type": "no_slip",
+            "zone_index": 4
+        }
+        ],
         "output_control": "simulationtime",
         "output_value": 2.0
     },
