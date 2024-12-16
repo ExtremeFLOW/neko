@@ -51,8 +51,8 @@ module scalar_scheme
   use sx_jacobi, only : sx_jacobi_t
   use hsmg, only : hsmg_t
   use precon, only : pc_t, precon_factory, precon_destroy
-  use bc, only : bc_t, bc_list_t, bc_list_free, bc_list_init, &
-       bc_list_apply_scalar, bc_list_add
+  use bc, only : bc_t
+  use bc_list, only : bc_list_t
   use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use facet_zone, only : facet_zone_t
@@ -295,13 +295,13 @@ contains
     end do
 
     do i = 1, this%n_dir_bcs
-       call bc_list_add(this%bclst_dirichlet, this%dir_bcs(i))
+       call this%bclst_dirichlet%append(this%dir_bcs(i))
     end do
 
     ! Create list with just Neumann bcs
-    call bc_list_init(this%bclst_neumann, this%n_neumann_bcs)
+    call this%bclst_neumann%init(this%n_neumann_bcs)
     do i = 1, this%n_neumann_bcs
-       call bc_list_add(this%bclst_neumann, this%neumann_bcs(i))
+       call this%bclst_neumann%append(this%neumann_bcs(i))
     end do
 
   end subroutine scalar_scheme_add_bcs
@@ -412,7 +412,7 @@ contains
     !
     ! Setup scalar boundary conditions
     !
-    call bc_list_init(this%bclst_dirichlet)
+    call this%bclst_dirichlet%init()
     call this%user_bc%init_base(this%c_Xh)
 
     ! Read boundary types from the case file
@@ -445,7 +445,7 @@ contains
     call this%user_bc%mark_zone(msh%outlet_normal)
     call this%user_bc%mark_zone(msh%sympln)
     call this%user_bc%finalize()
-    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet, &
+    if (this%user_bc%msk(0) .gt. 0) call this%bclst_dirichlet%append( &
          this%user_bc)
 
     ! Add field dirichlet BCs
@@ -457,15 +457,15 @@ contains
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
     if (integer_val .gt. 0) call this%field_dir_bc%init_field('d_s')
 
-    call bc_list_add(this%bclst_dirichlet, this%field_dir_bc)
+    call this%bclst_dirichlet%append(this%field_dir_bc)
 
     !
     ! Associate our field dirichlet update to the user one.
     !
     this%field_dir_bc%update => user%user_dirichlet_update
 
-    call bc_list_init(this%field_dirichlet_bcs, size = 1)
-    call bc_list_add(this%field_dirichlet_bcs, this%field_dir_bc)
+    call this%field_dirichlet_bcs%init(size = 1)
+    call this%field_dirichlet_bcs%append(this%field_dir_bc)
 
 
     ! todo parameter file ksp tol should be added
@@ -535,14 +535,14 @@ contains
 
     call this%source_term%free()
 
-    call bc_list_free(this%bclst_dirichlet)
-    call bc_list_free(this%bclst_neumann)
+    call this%bclst_dirichlet%free()
+    call this%bclst_neumann%free()
 
     call this%lambda_field%free()
     call this%slag%free()
 
     ! Free everything related to field dirichlet BCs
-    call bc_list_free(this%field_dirichlet_bcs)
+    call this%field_dirichlet_bcs%free()
     call this%field_dir_bc%free()
 
     ! Free gradient jump penalty

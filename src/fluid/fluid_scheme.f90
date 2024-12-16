@@ -62,8 +62,8 @@ module fluid_scheme
   use phmg, only : phmg_t
   use precon, only : pc_t, precon_factory, precon_destroy
   use fluid_stats, only : fluid_stats_t
-  use bc, only : bc_t, bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
-       bc_list_apply_scalar, bc_list_apply_vector
+  use bc, only : bc_t 
+  use bc_list, only : bc_list_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use math, only : cfill, add2s2, glsum
   use device_math, only : device_cfill, device_add2s2
@@ -447,7 +447,7 @@ contains
                      this%bc_labels)
     end if
 
-    call bc_list_init(this%bclst_vel)
+    call this%bclst_vel%init()
 
     call this%bc_sym%init_base(this%c_Xh)
     call this%bc_sym%mark_zone(msh%sympln)
@@ -455,7 +455,7 @@ contains
                         'sym', this%bc_labels)
     call this%bc_sym%finalize()
     call this%bc_sym%init(this%c_Xh)
-    call bc_list_add(this%bclst_vel, this%bc_sym)
+    call this%bclst_vel%append(this%bc_sym)
 
     ! Shear stress conditions
     call this%bc_sh%init_base(this%c_Xh)
@@ -466,7 +466,7 @@ contains
       ! them.
     call this%bc_sh%init_shear_stress(this%c_Xh)
 
-    call bc_list_add(this%bclst_vel, this%bc_sh%symmetry)
+    call this%bclst_vel%append(this%bc_sh%symmetry)
 
     ! Read stress value, default to [0 0 0]
     if (this%bc_sh%msk(0) .gt. 0) then
@@ -483,8 +483,8 @@ contains
        call this%bc_sh%set_stress(real_vec(1), real_vec(2), real_vec(3))
     end if
 
-    call bc_list_init(this%bclst_vel_neumann)
-    call bc_list_add(this%bclst_vel_neumann, this%bc_sh)
+    call this%bclst_vel_neumann%init()
+    call this%bclst_vel_neumann%append(this%bc_sh)
 
     !
     ! Inflow
@@ -506,7 +506,7 @@ contains
        call this%bc_inflow%mark_zones_from_list(msh%labeled_zones, &
                         'v', this%bc_labels)
        call this%bc_inflow%finalize()
-       call bc_list_add(this%bclst_vel, this%bc_inflow)
+       call this%bclst_vel%append(this%bc_inflow)
 
        if (trim(string_val1) .eq. "uniform") then
           call json_get(params, 'case.fluid.inflow_condition.value', real_vec)
@@ -546,15 +546,15 @@ contains
        call this%bc_wallmodel%shear_stress_t%init_shear_stress(this%c_Xh)
     end if
 
-    call bc_list_add(this%bclst_vel, this%bc_wallmodel%symmetry)
-    call bc_list_add(this%bclst_vel_neumann, this%bc_wallmodel)
+    call this%bclst_vel%append(this%bc_wallmodel%symmetry)
+    call this%bclst_vel_neumann%append(this%bc_wallmodel)
 
     call this%bc_wall%init_base(this%c_Xh)
     call this%bc_wall%mark_zone(msh%wall)
     call this%bc_wall%mark_zones_from_list(msh%labeled_zones, &
                         'w', this%bc_labels)
     call this%bc_wall%finalize()
-    call bc_list_add(this%bclst_vel, this%bc_wall)
+    call this%bclst_vel%append(this%bc_wall)
 
     ! Setup field dirichlet bc for u-velocity
     call this%user_field_bc_vel%bc_u%init_base(this%c_Xh)
@@ -603,7 +603,7 @@ contains
     call this%user_field_bc_vel%finalize()
 
     ! Add the field bc to velocity bcs
-    call bc_list_add(this%bclst_vel, this%user_field_bc_vel)
+    call this%bclst_vel%append(this%user_field_bc_vel)
 
     !
     ! Associate our field dirichlet update to the user one.
@@ -625,14 +625,11 @@ contains
     call this%user_field_bc_vel%field_list%assign_to_field(4, &
             this%user_field_bc_prs%field_bc)
 
-    call bc_list_init(this%user_field_bc_vel%bc_list, size = 4)
+    call this%user_field_bc_vel%bc_list%init(size = 4)
     ! Note, bc_list_add only adds if the bc is not empty
-    call bc_list_add(this%user_field_bc_vel%bc_list, &
-                     this%user_field_bc_vel%bc_u)
-    call bc_list_add(this%user_field_bc_vel%bc_list, &
-                     this%user_field_bc_vel%bc_v)
-    call bc_list_add(this%user_field_bc_vel%bc_list, &
-                     this%user_field_bc_vel%bc_w)
+    call this%user_field_bc_vel%bc_list%append(this%user_field_bc_vel%bc_u)
+    call this%user_field_bc_vel%bc_list%append(this%user_field_bc_vel%bc_v)
+    call this%user_field_bc_vel%bc_list%append(this%user_field_bc_vel%bc_w)
 
     !
     ! Check if we need to output boundary types to a separate field
@@ -731,7 +728,7 @@ contains
     !
     ! Setup pressure boundary conditions
     !
-    call bc_list_init(this%bclst_prs)
+    call this%bclst_prs%init()
     call this%bc_prs%init_base(this%c_Xh)
     call this%bc_prs%mark_zones_from_list(msh%labeled_zones, &
                         'o', this%bc_labels)
@@ -747,8 +744,8 @@ contains
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
     if (integer_val .gt. 0) call this%user_field_bc_prs%init_field('d_pres')
-    call bc_list_add(this%bclst_prs, this%user_field_bc_prs)
-    call bc_list_add(this%user_field_bc_vel%bc_list, this%user_field_bc_prs)
+    call this%bclst_prs%append(this%user_field_bc_prs)
+    call this%user_field_bc_vel%bc_list%append(this%user_field_bc_prs)
 
     if (msh%outlet%size .gt. 0) then
        call this%bc_prs%mark_zone(msh%outlet)
@@ -759,7 +756,7 @@ contains
 
     call this%bc_prs%finalize()
     call this%bc_prs%set_g(0.0_rp)
-    call bc_list_add(this%bclst_prs, this%bc_prs)
+    call this%bclst_prs%append(this%bc_prs)
     call this%bc_dong%init_base(this%c_Xh)
     call this%bc_dong%mark_zones_from_list(msh%labeled_zones, &
                         'o+dong', this%bc_labels)
@@ -770,7 +767,7 @@ contains
 
     call this%bc_dong%init(this%c_Xh, params)
 
-    call bc_list_add(this%bclst_prs, this%bc_dong)
+    call this%bclst_prs%append(this%bc_dong)
 
     ! Pressure solver
     if (kspp_init) then
@@ -888,7 +885,7 @@ contains
 
     call this%c_Xh%free()
 
-    call bc_list_free(this%bclst_vel)
+    call this%bclst_vel%free()
 
     call this%scratch%free()
 
@@ -988,7 +985,7 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    call bc_list_apply_vector(this%bclst_vel, &
+    call this%bclst_vel%apply_vector( &
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
 
   end subroutine fluid_scheme_bc_apply_vel
@@ -1000,8 +997,7 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    call bc_list_apply_scalar(this%bclst_prs, this%p%x, &
-                              this%p%dof%size(), t, tstep)
+    call this%bclst_prs%apply_scalar(this%p%x, this%p%dof%size(), t, tstep)
 
   end subroutine fluid_scheme_bc_apply_prs
 
