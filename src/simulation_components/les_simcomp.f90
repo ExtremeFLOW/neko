@@ -41,6 +41,7 @@ module les_simcomp
   use les_model, only : les_model_t, les_model_factory
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
+  use utils, only : neko_error
   implicit none
   private
 
@@ -74,6 +75,14 @@ contains
     character(len=20) :: fields(2)
 
     call this%free()
+
+    ! Check for whether eddy viscosity is enabled in fluid_scheme
+    if (case%fluid%variable_material_properties .eqv. .false.) then
+        call neko_error("Eddy viscosity is not acting &
+                          &on the equations. &
+                          &Please set up a nut_field option &
+                          &in the fluid solver")
+    end if
 
     ! Add fields keyword to the json so that the field_writer picks it up.
     ! Will also add fields to the registry if missing.

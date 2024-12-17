@@ -39,7 +39,7 @@ module fusedcg_cpld_device
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3, device_glsc2
   use device
@@ -522,9 +522,9 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blstx
-    type(bc_list_t), intent(in) :: blsty
-    type(bc_list_t), intent(in) :: blstz
+    type(bc_list_t), intent(inout) :: blstx
+    type(bc_list_t), intent(inout) :: blsty
+    type(bc_list_t), intent(inout) :: blstz
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -606,9 +606,9 @@ contains
          call device_event_sync(this%gs_event1)
          call device_event_sync(this%gs_event2)
          call device_event_sync(this%gs_event3)
-         call bc_list_apply(blstx, w1, n)
-         call bc_list_apply(blsty, w2, n)
-         call bc_list_apply(blstz, w3, n)
+         call blstx%apply(w1, n)
+         call blsty%apply(w2, n)
+         call blstz%apply(w3, n)
 
          call device_fusedcg_cpld_part1(w1_d, w2_d, w3_d,  p1_d(p_cur), &
                                         p2_d(p_cur), p3_d(p_cur), tmp_d, n)
@@ -650,7 +650,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blst
+    type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter

@@ -67,8 +67,8 @@ module hsmg
   use ax_product, only : ax_t, ax_helm_factory
   use gather_scatter, only : gs_t, GS_OP_ADD
   use interpolation, only : interpolator_t
-  use bc, only : bc_t, bc_list_apply_scalar, bc_list_t, bc_list_add, &
-       bc_list_init
+  use bc, only : bc_t
+  use bc_list, only : bc_list_t
   use dirichlet, only : dirichlet_t
   use schwarz, only : schwarz_t
   use jacobi, only : jacobi_t
@@ -195,27 +195,27 @@ contains
     call this%bc_crs%init_base(this%c_crs)
     call this%bc_mg%init_base(this%c_mg)
     call this%bc_reg%init_base(coef)
-    if (bclst%n .gt. 0) then
-       do i = 1, bclst%n
-          call this%bc_reg%mark_facets(bclst%bc(i)%bcp%marked_facet)
-          call this%bc_crs%mark_facets(bclst%bc(i)%bcp%marked_facet)
-          call this%bc_mg%mark_facets(bclst%bc(i)%bcp%marked_facet)
+    if (bclst%size .gt. 0) then
+       do i = 1, bclst%size
+          call this%bc_reg%mark_facets(bclst%items(i)%ptr%marked_facet)
+          call this%bc_crs%mark_facets(bclst%items(i)%ptr%marked_facet)
+          call this%bc_mg%mark_facets(bclst%items(i)%ptr%marked_facet)
        end do
     end if
     call this%bc_reg%finalize()
     call this%bc_reg%set_g(real(0d0, rp))
-    call bc_list_init(this%bclst_reg)
-    call bc_list_add(this%bclst_reg, this%bc_reg)
+    call this%bclst_reg%init()
+    call this%bclst_reg%append(this%bc_reg)
 
     call this%bc_crs%finalize()
     call this%bc_crs%set_g(real(0d0, rp))
-    call bc_list_init(this%bclst_crs)
-    call bc_list_add(this%bclst_crs, this%bc_crs)
+    call this%bclst_crs%init()
+    call this%bclst_crs%append(this%bc_crs)
 
     call this%bc_mg%finalize()
     call this%bc_mg%set_g(0.0_rp)
-    call bc_list_init(this%bclst_mg)
-    call bc_list_add(this%bclst_mg, this%bc_mg)
+    call this%bclst_mg%init()
+    call this%bclst_mg%append(this%bc_mg)
 
     call this%schwarz%init(Xh, dof, gs_h, this%bclst_reg, msh)
     call this%schwarz_mg%init(this%Xh_mg, this%dm_mg, this%gs_mg,&
@@ -373,7 +373,7 @@ contains
        r_d = device_get_ptr(r)
        !We should not work with the input
        call device_copy(this%r_d, r_d, n)
-       call bc_list_apply_scalar(this%bclst_reg, r, n)
+       call this%bclst_reg%apply_scalar(r, n)
 
        !OVERLAPPING Schwarz exchange and solve
        !! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
@@ -386,10 +386,9 @@ contains
                   this%grids(2)%dof%size(), GS_OP_ADD, this%gs_event)
        call device_event_sync(this%gs_event)
        call device_copy(this%r_d, r_d, n)
-       call bc_list_apply_scalar(this%bclst_reg, r, n)
+       call this%bclst_reg%apply_scalar(r, n)
        call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
-       call bc_list_apply_scalar(this%bclst_mg, this%w, &
-                                 this%grids(2)%dof%size())
+       call this%bclst_mg%apply_scalar(this%w, this%grids(2)%dof%size())
        !OVERLAPPING Schwarz exchange and solve
        call device_col2(this%w_d, this%grids(2)%coef%mult_d, &
                         this%grids(2)%dof%size())
@@ -398,8 +397,7 @@ contains
                                     this%grids(1)%Xh)
        !Crs solve
        call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
-       call bc_list_apply_scalar(this%bclst_mg, this%w, &
-                                 this%grids(2)%dof%size())
+       call this%bclst_mg%apply_scalar(this%w, this%grids(2)%dof%size())
 
        !$omp parallel private(thrdid, nthrds)
 
@@ -419,8 +417,8 @@ contains
           call this%grids(1)%gs_h%op(this%wf%x, &
                this%grids(1)%dof%size(), GS_OP_ADD, this%gs_event)
           call device_event_sync(this%gs_event)
-          call bc_list_apply_scalar(this%grids(1)%bclst, this%wf%x, &
-                                    this%grids(1)%dof%size())
+          call this%grids(1)%bclst%apply_scalar(this%wf%x, &
+               this%grids(1)%dof%size())
           call profiler_start_region('HSMG_coarse_solve', 11)
           crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, &
                                        this%wf%x, &
@@ -429,8 +427,8 @@ contains
                                        this%grids(1)%bclst, &
                                        this%grids(1)%gs_h, this%niter)
           call profiler_end_region('HSMG_coarse_solve', 11)
-          call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
-                                    this%grids(1)%dof%size())
+          call this%grids(1)%bclst%apply_scalar(this%grids(1)%e%x,&
+               this%grids(1)%dof%size())
           call profiler_end_region('HSMG_coarse_grid', 10)
        end if
        !$omp end parallel
@@ -469,8 +467,7 @@ contains
        !Crs solve
 
        call this%grids(1)%gs_h%op(this%r, this%grids(1)%dof%size(), GS_OP_ADD)
-       call bc_list_apply_scalar(this%grids(1)%bclst, this%r, &
-                                 this%grids(1)%dof%size())
+       call this%grids(1)%bclst%apply(this%r, this%grids(1)%dof%size())
 
        call profiler_start_region('HSMG_coarse-solve', 11)
        if (allocated(this%amg_solver)) then
@@ -484,8 +481,8 @@ contains
        end if
        call profiler_end_region('HSMG_coarse-solve', 11)
 
-       call bc_list_apply_scalar(this%grids(1)%bclst, this%grids(1)%e%x,&
-                                 this%grids(1)%dof%size())
+       call this%grids(1)%bclst%apply_scalar(this%grids(1)%e%x, &
+            this%grids(1)%dof%size())
 
 
        call this%interp_mid_crs%map(this%w, this%grids(1)%e%x, &
