@@ -123,7 +123,9 @@ contains
     call this%field_list%assign_to_field(3, this%bc_w%field_bc)
 
     call this%bc_list%init(3)
-!    call this%bc_list%append(this%bc)
+    call this%bc_list%append(this%bc_u)
+    call this%bc_list%append(this%bc_v)
+    call this%bc_list%append(this%bc_w)
   end subroutine field_dirichlet_vector_init_from_components
 
   !> Destructor. Currently unused as is, all field_dirichlet attributes
@@ -143,7 +145,7 @@ contains
     end if
   end subroutine field_dirichlet_vector_free
 
-  !> Apply scalar by performing a masked copy.
+  !> No-op apply scalar.
   !! @param x Field onto which to copy the values (e.g. u,v,w,p or s).
   !! @param n Size of the array `x`.
   !! @param t Time.
@@ -161,7 +163,7 @@ contains
 
   end subroutine field_dirichlet_vector_apply_scalar
 
-  !> Apply scalar (device).
+  !> No-op apply scalar (device).
   !! @param x_d Device pointer to the field onto which to copy the values.
   !! @param t Time.
   !! @param tstep Time step.
@@ -176,7 +178,7 @@ contains
 
   end subroutine field_dirichlet_vector_apply_scalar_dev
 
-  !> (No-op) Apply vector.
+  !> Apply the boundary condition to a vector field.
   !! @param x x-component of the field onto which to apply the values.
   !! @param y y-component of the field onto which to apply the values.
   !! @param z z-component of the field onto which to apply the values.
@@ -201,14 +203,14 @@ contains
 
        call this%update(this%field_list, this%bc_list, this%coef, t, tstep)
 
-       call this%bc_u%apply_scalar(x, n, t, tstep)
-       call this%bc_v%apply_scalar(y, n, t, tstep)
-       call this%bc_w%apply_scalar(z, n, t, tstep)
+       call masked_copy(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
+       call masked_copy(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
+       call masked_copy(z, this%bc_w%field_bc%x, this%msk, n, this%msk(0))
     end if
 
   end subroutine field_dirichlet_vector_apply_vector
 
-  !> (No-op) Apply vector (device).
+  !> Apply the boundary condition to a vector field on the device.
   !! @param x x-component of the field onto which to apply the values.
   !! @param y y-component of the field onto which to apply the values.
   !! @param z z-component of the field onto which to apply the values.
@@ -244,6 +246,7 @@ contains
     call this%bc_u%finalize()
     call this%bc_v%finalize()
     call this%bc_w%finalize()
+
   end subroutine field_dirichlet_vector_finalize
 
 end module field_dirichlet_vector

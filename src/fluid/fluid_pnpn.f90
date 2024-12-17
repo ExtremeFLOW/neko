@@ -93,7 +93,7 @@ module fluid_pnpn
 
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: FLUID_PNPN_KNOWN_BCS(9) = [character(len=25) :: &
+  character(len=25) :: FLUID_PNPN_KNOWN_BCS(12) = [character(len=25) :: &
      "symmetry", &
      "velocity_value", &
      "no_slip", &
@@ -102,6 +102,9 @@ module fluid_pnpn
      "outflow+dong", &
      "normal_outflow+dong", &
      "shear_stress", &
+     "user_velocity", &
+     "user_pressure", &
+     "user_velocity_pointwise", &
      "wall_model"]
 
   type, public, extends(fluid_scheme_t) :: fluid_pnpn_t
@@ -1193,7 +1196,11 @@ contains
        call json%add("nu", scheme%mu / scheme%rho)
     else if (trim(type) .eq. "user_velocity") then
        allocate(field_dirichlet_vector_t::object)
-        
+       select type(obj => object)
+       type is(field_dirichlet_vector_t)
+          obj%update => user%user_dirichlet_update
+       end select
+
     else
       do i=1, size(FLUID_PNPN_KNOWN_BCS)
          if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
