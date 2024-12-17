@@ -35,7 +35,8 @@ module field_dirichlet_vector
   use num_types, only: rp
   use coefs, only: coef_t
   use dirichlet, only: dirichlet_t
-  use bc, only: bc_list_t, bc_t, bc_list_free
+  use bc, only: bc_t
+  use bc_list, only : bc_list_t
   use device, only: c_ptr, c_size_t
   use utils, only: split_string
   use field, only : field_t
@@ -103,7 +104,7 @@ contains
     call this%bc_w%free()
 
     call this%field_list%free()
-    call bc_list_free(this%bc_list)
+    call this%bc_list%free()
 
     if (associated(this%update)) then
        nullify(this%update)
