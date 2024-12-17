@@ -102,18 +102,19 @@ contains
   end subroutine projection_free_vel
 
   subroutine projection_pre_solving_vel(this, b_u, b_v, b_w, tstep, coef, n, &
-                                        dt_controller, string)
+                                        dt_controller, &
+                                        stringx, stringy, stringz)
     class(projection_vel_t), intent(inout) :: this
     integer, intent(inout) :: n
     real(kind=rp), intent(inout), dimension(n) :: b_u, b_v, b_w
     integer, intent(in) :: tstep
     class(coef_t), intent(inout) :: coef
     type(time_step_controller_t), intent(in) :: dt_controller
-    character(len=*), optional :: string
-
-    call this%proj_u%pre_solving(b_u, tstep, coef, n, dt_controller, string)
-    call this%proj_v%pre_solving(b_v, tstep, coef, n, dt_controller, string)
-    call this%proj_w%pre_solving(b_w, tstep, coef, n, dt_controller, string)
+    character(len=*), optional :: stringx, stringy, stringz
+    
+    call this%proj_u%pre_solving(b_u, tstep, coef, n, dt_controller, stringx)
+    call this%proj_v%pre_solving(b_v, tstep, coef, n, dt_controller, stringy)
+    call this%proj_w%pre_solving(b_w, tstep, coef, n, dt_controller, stringz)
 
   end subroutine projection_pre_solving_vel
 
