@@ -47,6 +47,7 @@ module field_dirichlet
   use utils, only: neko_error
   use json_module, only : json_file
   use field_list, only : field_list_t
+  use json_utils, only : json_get
   implicit none
   private
 
@@ -129,20 +130,23 @@ contains
     class(field_dirichlet_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) ::json
+    character(len=:), allocatable :: field_name
 
-    call this%init_from_components(coef)
+    call json_get(json, "field_name", field_name)
+    call this%init_from_components(coef, field_name)
 
   end subroutine field_dirichlet_init
 
   !> Constructor from components.
   !! @param[in] coef The SEM coefficients.
-  subroutine field_dirichlet_init_from_components(this, coef)
+  subroutine field_dirichlet_init_from_components(this, coef, field_name)
     class(field_dirichlet_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
+    character(len=*), intent(in) :: field_name
 
     call this%init_base(coef)
 
-    call this%field_bc%init(this%dof, "dummy")
+    call this%field_bc%init(this%dof, field_name)
     call this%field_list%init(1)
     call this%field_list%assign_to_field(1, this%field_bc)
     call this%bc_list%init(1)

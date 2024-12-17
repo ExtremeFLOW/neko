@@ -113,9 +113,9 @@ contains
 
     call this%init_base(coef)
 
-    call this%bc_u%init_from_components(coef)
-    call this%bc_v%init_from_components(coef)
-    call this%bc_w%init_from_components(coef)
+    call this%bc_u%init_from_components(coef, "u")
+    call this%bc_v%init_from_components(coef, "v")
+    call this%bc_w%init_from_components(coef, "w")
 
     call this%field_list%init(3)
     call this%field_list%assign_to_field(1, this%bc_u%field_bc)

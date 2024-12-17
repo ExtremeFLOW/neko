@@ -481,7 +481,7 @@ contains
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
 
-          call bc_factory(this%bcs%items(i)%ptr, bc_subdict, &
+          call bc_factory(this%bcs%items(i)%ptr, this, bc_subdict, &
                           this%c_Xh, user)
 
           this%bcs%size_ = this%bcs%size_ + 1
@@ -491,13 +491,15 @@ contains
 
   !> Boundary condition factory. Both constructs and initializes the object.
   !! Will mark a mesh zone for the bc and finalize.
-  !! @param[in] coef SEM coefficients.
+  !! @param[in] scheme The `scalar_pnpn? scheme
   !! @param[inout] json JSON object for initializing the bc.
-  subroutine bc_factory(object, json, coef, user)
+  !! @param[in] coef SEM coefficients.
+  subroutine bc_factory(object, scheme, json, coef, user)
     use usr_scalar, only : usr_scalar_t
     use field_dirichlet, only : field_dirichlet_t
 
     class(bc_t), pointer, intent(inout) :: object
+    type(scalar_pnpn_t), intent(inout) :: scheme
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
     type(user_t), intent(in) :: user
@@ -517,6 +519,9 @@ contains
        select type(obj => object)
        type is(field_dirichlet_t)
           obj%update => user%user_dirichlet_update
+          ! Add the name of the dummy field in the bc, matching the scalar
+          ! solved for.
+          call json%add("field_name", scheme%s%name)
        end select
     else if (trim(type) .eq. "dirichlet") then
        allocate(dirichlet_t::object)
