@@ -68,11 +68,12 @@ module field_dirichlet_vector
      !! of the boundary fields.
      procedure(field_dirichlet_update), nopass, pointer :: update => null()
    contains
-     !> Initializes this%field_bc.
-     procedure, pass(this) :: init_field => field_dirichlet_vector_init_field
-     !> Constructor
+     !> Constructor.
      procedure, pass(this) :: init => field_dirichlet_vector_init
-     !> Destructor
+     !> Constructor from components.
+     procedure, pass(this) :: init_from_components => &
+          field_dirichlet_vector_init_from_components
+     !> Destructor.
      procedure, pass(this) :: free => field_dirichlet_vector_free
      !> Finalize.
      procedure, pass(this) :: finalize => field_dirichlet_vector_finalize
@@ -100,17 +101,30 @@ contains
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) ::json
 
-    call this%init_base(coef)
+    call this%init_from_components(coef)
+
   end subroutine field_dirichlet_vector_init
 
-  !> Initializes this%field_bc.
-  subroutine field_dirichlet_vector_init_field(this, bc_name)
-    class(field_dirichlet_vector_t), intent(inout) :: this
-    character(len=*), intent(in) :: bc_name
+  !> Constructor from components
+  !! @param[in] coef The SEM coefficients.
+  subroutine field_dirichlet_vector_init_from_components(this, coef)
+    class(field_dirichlet_vector_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
 
-    call neko_error("Fields must be initialized individually!")
+    call this%init_base(coef)
 
-  end subroutine field_dirichlet_vector_init_field
+    call this%bc_u%init_from_components(coef)
+    call this%bc_v%init_from_components(coef)
+    call this%bc_w%init_from_components(coef)
+
+    call this%field_list%init(3)
+    call this%field_list%assign_to_field(1, this%bc_u%field_bc)
+    call this%field_list%assign_to_field(2, this%bc_v%field_bc)
+    call this%field_list%assign_to_field(3, this%bc_w%field_bc)
+
+    call this%bc_list%init(3)
+!    call this%bc_list%append(this%bc)
+  end subroutine field_dirichlet_vector_init_from_components
 
   !> Destructor. Currently unused as is, all field_dirichlet attributes
   !! are freed in `fluid_scheme::free`.
@@ -127,8 +141,6 @@ contains
     if (associated(this%update)) then
        nullify(this%update)
     end if
-
-
   end subroutine field_dirichlet_vector_free
 
   !> Apply scalar by performing a masked copy.
@@ -186,6 +198,9 @@ contains
     if (present(strong)) strong_ = strong
 
     if (strong_) then
+
+       call this%update(this%field_list, this%bc_list, this%coef, t, tstep)
+
        call this%bc_u%apply_scalar(x, n, t, tstep)
        call this%bc_v%apply_scalar(y, n, t, tstep)
        call this%bc_w%apply_scalar(z, n, t, tstep)
@@ -199,7 +214,8 @@ contains
   !! @param z z-component of the field onto which to apply the values.
   !! @param t Time.
   !! @param tstep Time step.
-  subroutine field_dirichlet_vector_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  subroutine field_dirichlet_vector_apply_vector_dev(this, x_d, y_d, z_d, t, &
+       tstep)
     class(field_dirichlet_vector_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -207,27 +223,27 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
 
-    if (present(t) .and. present(tstep)) then
+       call this%update(this%field_list, this%bc_list, this%coef, t, tstep)
+
        call this%bc_u%apply_scalar_dev(x_d, t, tstep)
        call this%bc_v%apply_scalar_dev(y_d, t, tstep)
        call this%bc_w%apply_scalar_dev(z_d, t, tstep)
-    else if (present(t)) then
-       call this%bc_u%apply_scalar_dev(x_d, t=t)
-       call this%bc_v%apply_scalar_dev(y_d, t=t)
-       call this%bc_w%apply_scalar_dev(z_d, t=t)
-    else if (present(tstep)) then
-       call this%bc_u%apply_scalar_dev(x_d, tstep=tstep)
-       call this%bc_v%apply_scalar_dev(y_d, tstep=tstep)
-       call this%bc_w%apply_scalar_dev(z_d, tstep=tstep)
-    end if
 
    end subroutine field_dirichlet_vector_apply_vector_dev
 
-  !> Finalize
+  !> Finalize by building the mask arrays and propagating to underlying bcs.
   subroutine field_dirichlet_vector_finalize(this)
     class(field_dirichlet_vector_t), target, intent(inout) :: this
 
     call this%finalize_base()
+
+    call this%bc_u%mark_facets(this%marked_facet)
+    call this%bc_v%mark_facets(this%marked_facet)
+    call this%bc_w%mark_facets(this%marked_facet)
+
+    call this%bc_u%finalize()
+    call this%bc_v%finalize()
+    call this%bc_w%finalize()
   end subroutine field_dirichlet_vector_finalize
 
 end module field_dirichlet_vector

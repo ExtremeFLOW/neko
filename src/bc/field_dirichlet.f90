@@ -66,26 +66,32 @@ module field_dirichlet
      type(field_t) :: field_bc
      !> A field list, which just stores `field_bc`, for convenience.
      type(field_list_t) :: field_list
+     !> A bc list that for storing one elf! Used to confirm to the update
+     !! interface
+     type(bc_list_t) :: bc_list
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
      procedure(field_dirichlet_update), nopass, pointer :: update => null()
    contains
-     !> Constructor for the field.
-     procedure, pass(this) :: init_field => field_dirichlet_init_field
+     !> Constructor.
+     procedure, pass(this) :: init => field_dirichlet_init
+     !> Constructor from components.
+     procedure, pass(this) :: init_from_components => &
+          field_dirichlet_init_from_components
+     !> Destructor.
+     procedure, pass(this) :: free => field_dirichlet_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => field_dirichlet_finalize
      !> Apply scalar by performing a masked copy.
      procedure, pass(this) :: apply_scalar => field_dirichlet_apply_scalar
      !> (No-op) Apply vector.
      procedure, pass(this) :: apply_vector => field_dirichlet_apply_vector
      !> (No-op) Apply vector (device).
-     procedure, pass(this) :: apply_vector_dev => field_dirichlet_apply_vector_dev
+     procedure, pass(this) :: apply_vector_dev => &
+          field_dirichlet_apply_vector_dev
      !> Apply scalar (device).
-     procedure, pass(this) :: apply_scalar_dev => field_dirichlet_apply_scalar_dev
-     !> Constructor.
-     procedure, pass(this) :: init => field_dirichlet_init
-     !> Destructor.
-     procedure, pass(this) :: free => field_dirichlet_free
-     !> Finalize.
-     procedure, pass(this) :: finalize => field_dirichlet_finalize
+     procedure, pass(this) :: apply_scalar_dev => &
+          field_dirichlet_apply_scalar_dev
 
   end type field_dirichlet_t
 
@@ -99,7 +105,8 @@ module field_dirichlet
   !! @param which_solver Indicates wether the fields provided come from "fluid"
   !! or "scalar".
   abstract interface
-     subroutine field_dirichlet_update(dirichlet_field_list, dirichlet_bc_list, coef, t, tstep, which_solver)
+     subroutine field_dirichlet_update(dirichlet_field_list, dirichlet_bc_list,&
+          coef, t, tstep)
        import rp
        import field_list_t
        import bc_list_t
@@ -109,7 +116,6 @@ module field_dirichlet
        type(coef_t), intent(inout) :: coef
        real(kind=rp), intent(in) :: t
        integer, intent(in) :: tstep
-       character(len=*), intent(in) :: which_solver
      end subroutine field_dirichlet_update
   end interface
 
@@ -124,20 +130,23 @@ contains
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) ::json
 
-    call this%init_base(coef)
+    call this%init_from_components(coef)
+
   end subroutine field_dirichlet_init
 
-  !> Initializes this%field_bc.
-  !! @param bc_name Name of this%field_bc
-  subroutine field_dirichlet_init_field(this, bc_name)
-    class(field_dirichlet_t), target, intent(inout) :: this
-    character(len=*), intent(in) :: bc_name
+  !> Constructor from components.
+  !! @param[in] coef The SEM coefficients.
+  subroutine field_dirichlet_init_from_components(this, coef)
+    class(field_dirichlet_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
 
-    call this%field_bc%init(this%dof, bc_name)
+    call this%init_base(coef)
+
+    call this%field_bc%init(this%dof, "dummy")
     call this%field_list%init(1)
     call this%field_list%assign_to_field(1, this%field_bc)
-
-  end subroutine field_dirichlet_init_field
+    call this%bc_list%init(1)
+  end subroutine field_dirichlet_init_from_components
 
   !> Destructor. Currently this%field_bc is being freed in `fluid_scheme::free`
   subroutine field_dirichlet_free(this)
@@ -170,6 +179,8 @@ contains
     if (present(strong)) strong_ = strong
 
     if (strong_ .and. this%msk(0) .gt. 0) then
+
+       call this%update(this%field_list, this%bc_list, this%coef, t, tstep)
        call masked_copy(x, this%field_bc%x, this%msk, n, this%msk(0))
     end if
 
@@ -186,6 +197,7 @@ contains
     integer, intent(in), optional :: tstep
 
     if (this%msk(0) .gt. 0) then
+       call this%update(this%field_list, this%bc_list, this%coef, t, tstep)
        call device_masked_copy(x_d, this%field_bc%x_d, this%msk_d, &
             this%field_bc%dof%size(), this%msk(0))
     end if
@@ -238,5 +250,7 @@ contains
     class(field_dirichlet_t), target, intent(inout) :: this
 
     call this%finalize_base()
+    ! Hopefully this does not open a black hole.
+    call this%bc_list%append(this)
   end subroutine field_dirichlet_finalize
 end module field_dirichlet

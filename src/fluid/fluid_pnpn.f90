@@ -64,6 +64,7 @@ module fluid_pnpn
   use wall_model_bc, only : wall_model_bc_t
   use facet_normal, only : facet_normal_t
   use non_normal, only : non_normal_t
+  use field_dirichlet_vector, only : field_dirichlet_vector_t
   use comm
   use mesh, only : mesh_t
   use user_intf, only : user_t
@@ -367,17 +368,13 @@ contains
     call this%pnpn_setup_bcs(user)
 
     ! Field dirichlet pressure bc
-    call this%user_field_bc_prs%init_base(this%c_Xh)
+!    call this%user_field_bc_prs%init_base(this%c_Xh)
 !    call this%user_field_bc_prs%mark_zones_from_list('d_pres', this%bc_labels)
 !    call this%user_field_bc_prs%finalize()
 !    call MPI_Allreduce(this%user_field_bc_prs%msk(0), integer_val, 1, &
 !         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
 !    call this%bc_field_dirichlet_p%init(this%c_Xh, params)
-!    call this%bc_field_dirichlet_p%mark_zones_from_list('on+dong', &
-!                                         this%bc_labels)
-!    call this%bc_field_dirichlet_p%mark_zones_from_list('o+dong', &
-!                                         this%bc_labels)
 !    call this%bc_field_dirichlet_p%mark_zones_from_list('d_pres', &
 !                                         this%bc_labels)
 !    call this%bc_field_dirichlet_p%finalize()
@@ -915,8 +912,8 @@ contains
       !> We assume that no change of boundary conditions
       !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
       !> Apply the user dirichlet boundary condition
-      !call this%user_field_bc_vel%update(this%user_field_bc_vel%field_list, &
-      !        this%user_field_bc_vel%bc_list, this%c_Xh, t, tstep, "fluid")
+!      call this%user_field_bc_vel%update(this%user_field_bc_vel%field_list, &
+!              this%user_field_bc_vel%bc_list, this%c_Xh, t, tstep, "fluid")
 
       call this%bc_apply_vel(t, tstep, strong = .true.)
       call this%bc_apply_prs(t, tstep)
@@ -1093,23 +1090,10 @@ contains
           if (associated(this%bcs_vel%items(j)%ptr)) then
              j = j + 1
              this%bcs_vel%size_ = this%bcs_vel%size_ + 1
-
           end if
 
        end do
        write(*,*) "N Velocity BCS", j-1, this%bcs_vel%size()
-
-       ! Special treatment of nested boundary conditions
-       ! This will probably change when we make then not axis-aligned so 
-       ! we live with this for now..
-!       do i=1, this%bcs_vel%size_
-!          select type (vel_bc => this%bcs_vel%items(i)%ptr)
-!          type is (shear_stress_t)
-             ! We add the underlying symmetry bcs to the velocity bc list
-!             write(*,*) "ADDING SYMMETRY BC FROM SHEAR_STRESS"
-!             call this%bcs_vel%append(vel_bc%symmetry)
-!          end select
-!       end do
 
        !
        ! Pressure bcs
@@ -1128,7 +1112,6 @@ contains
           if (associated(this%bcs_prs%items(j)%ptr)) then
              j = j + 1
              this%bcs_prs%size_ = this%bcs_prs%size_ + 1
-
           end if
 
        end do
@@ -1208,6 +1191,9 @@ contains
        ! initing the wall model, and forcing the user duplicate that there
        ! would be a nightmare.
        call json%add("nu", scheme%mu / scheme%rho)
+    else if (trim(type) .eq. "user_velocity") then
+       allocate(field_dirichlet_vector_t::object)
+        
     else
       do i=1, size(FLUID_PNPN_KNOWN_BCS)
          if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return

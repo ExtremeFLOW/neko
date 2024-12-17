@@ -427,13 +427,12 @@ contains
   end subroutine dummy_user_final_no_modules
 
   subroutine dirichlet_do_nothing(dirichlet_field_list, dirichlet_bc_list, &
-                                  coef, t, tstep, which_solver)
+                                  coef, t, tstep)
     type(field_list_t), intent(inout) :: dirichlet_field_list
     type(bc_list_t), intent(inout) :: dirichlet_bc_list
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    character(len=*), intent(in) :: which_solver
   end subroutine dirichlet_do_nothing
 
   subroutine dummy_user_material_properties(t, tstep, rho, mu, cp, lambda,&

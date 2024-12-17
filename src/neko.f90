@@ -120,6 +120,7 @@ module neko
   use runtime_stats, only : neko_rt_stats
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use bc_list, only : bc_list_t
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none

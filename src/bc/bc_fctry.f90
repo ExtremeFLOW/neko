@@ -32,7 +32,8 @@
 !
 !
 !> Defines a factory subroutine for boundary conditions.
-submodule(scalar_pnpn) scalar_pnpn_bc_fctry
+!submodule(scalar_pnpn) scalar_pnpn_bc_fctry
+module scalar_pnpn_bc_fctry
 !module bc_fctry
   use bc, only : bc_t
   use dirichlet, only : dirichlet_t
@@ -42,6 +43,8 @@ submodule(scalar_pnpn) scalar_pnpn_bc_fctry
   use user_intf, only : user_t
   use usr_scalar, only : usr_scalar_t
   use utils, only : neko_type_error 
+  use field_dirichlet, only : field_dirichlet_t
+  use json_module, only : json_file
   implicit none
 
   ! List of all possible types created by the boundary condition factories
@@ -57,7 +60,8 @@ contains
   !! Will mark a mesh zone for the bc and finalize.
   !! @param[in] coef SEM coefficients.
   !! @param[inout] json JSON object for initializing the bc.
-  module subroutine bc_factory(object, json, coef, user)
+  !module subroutine bc_factory(object, json, coef, user)
+  subroutine bc_factory(object, json, coef, user)
     class(bc_t), pointer, intent(inout) :: object
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
@@ -68,16 +72,17 @@ contains
     call json_get(json, "type", type)
 
     if (trim(type) .eq. "user_pointwise") then
-       ! Note, the bc is now in the list even if the mask is zero.
        allocate(usr_scalar_t::object)
-       call object%init(coef, json)
-       call object%finalize()
-
        select type(obj => object)
        type is(usr_scalar_t)
           call obj%set_eval(user%scalar_user_bc)
        end select
-       return
+!    else if (trim(type) .eq. "user") then
+!       allocate(field_dirichlet_t::object)
+!       select type(obj => object)
+!       type is(field_dirichlet_t)
+!          obj%update => user%user_dirichlet_update
+!       end select
     else if (trim(type) .eq. "dirichlet") then
        allocate(dirichlet_t::object)
     else if (trim(type) .eq. "neumann") then
@@ -97,4 +102,5 @@ contains
 
   end subroutine bc_factory
 
-end submodule scalar_pnpn_bc_fctry
+!end submodule scalar_pnpn_bc_fctry
+end module scalar_pnpn_bc_fctry

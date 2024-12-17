@@ -65,7 +65,7 @@ module scalar_pnpn
   use neko_config, only : NEKO_BCKND_DEVICE
   use zero_dirichlet, only : zero_dirichlet_t
   use time_step_controller, only : time_step_controller_t
-  use scratch_registry, only: neko_scratch_registry
+  use scratch_registry, only : neko_scratch_registry
   use bc, only : bc_t
   implicit none
   private
@@ -133,21 +133,19 @@ module scalar_pnpn
      procedure, pass(this) :: setup_bcs_ => scalar_pnpn_setup_bcs_
   end type scalar_pnpn_t
 
-  interface
+!  interface
      !> Boundary condition factory. Both constructs and initializes the object.
      !! @details Will mark a mesh zone for the bc and finalize.
      !! @param[inout] object The object to be allocated.
      !! @param[inout] json JSON object for initializing the bc.
      !! @param[in] coef SEM coefficients.
-     module subroutine bc_factory(object, json, coef, user)
-        class(bc_t), pointer, intent(inout) :: object
-        type(json_file), intent(inout) :: json
-        type(coef_t), intent(in) :: coef
-        type(user_t), intent(in) :: user
-     end subroutine bc_factory
-  end interface
-
-  public :: bc_factory
+!     module subroutine bc_factory(object, json, coef, user)
+!        class(bc_t), pointer, intent(inout) :: object
+!        type(json_file), intent(inout) :: json
+!        type(coef_t), intent(in) :: coef
+!        type(user_t), intent(in) :: user
+!     end subroutine bc_factory
+!  end interface
 
 contains
 
@@ -364,6 +362,7 @@ contains
          call this%gradient_jump_penalty%compute(u, v, w, s)
          call this%gradient_jump_penalty%perform(f_Xh)
       end if
+
       ! Apply weak boundary conditions, that contribute to the source terms.
       call this%bcs%apply_scalar(this%f_Xh%x, dm_Xh%size(), t, tstep, .false.)
 
@@ -396,11 +395,6 @@ contains
       call slag%update()
 
       !> Apply strong boundary conditions.
-      !! We assume that no change of boundary conditions
-      !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
-!      call this%field_dir_bc%update(this%field_dir_bc%field_list, &
-!           this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
-
       call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), t, tstep, .true.) 
 
       ! Update material properties if necessary
@@ -491,13 +485,58 @@ contains
                           this%c_Xh, user)
 
           this%bcs%size_ = this%bcs%size_ + 1
-
-          if (this%bcs%strong(i)) then
-             this%n_strong = this%n_strong + 1
-          end if
        end do
     end if
   end subroutine scalar_pnpn_setup_bcs_
+
+  !> Boundary condition factory. Both constructs and initializes the object.
+  !! Will mark a mesh zone for the bc and finalize.
+  !! @param[in] coef SEM coefficients.
+  !! @param[inout] json JSON object for initializing the bc.
+  subroutine bc_factory(object, json, coef, user)
+    use usr_scalar, only : usr_scalar_t
+    use field_dirichlet, only : field_dirichlet_t
+
+    class(bc_t), pointer, intent(inout) :: object
+    type(json_file), intent(inout) :: json
+    type(coef_t), intent(in) :: coef
+    type(user_t), intent(in) :: user
+    character(len=:), allocatable :: type
+    integer :: zone_index, i
+
+    call json_get(json, "type", type)
+
+    if (trim(type) .eq. "user_pointwise") then
+       allocate(usr_scalar_t::object)
+       select type(obj => object)
+       type is(usr_scalar_t)
+          call obj%set_eval(user%scalar_user_bc)
+       end select
+    else if (trim(type) .eq. "user") then
+       allocate(field_dirichlet_t::object)
+       select type(obj => object)
+       type is(field_dirichlet_t)
+          obj%update => user%user_dirichlet_update
+       end select
+    else if (trim(type) .eq. "dirichlet") then
+       allocate(dirichlet_t::object)
+    else if (trim(type) .eq. "neumann") then
+       allocate(neumann_t::object)
+    else
+       return
+!      do i=1, size(SCALAR_PNPN_KNOWN_BCS)
+!         if (trim(type) .eq. trim(SCALAR_PNPN_KNOWN_BCS(i))) return
+!      end do
+!      call neko_type_error("scalar_pnpn boundary conditions", type, &
+!           SCALAR_PNPN_KNOWN_BCS)
+    end if
+
+    call json_get(json, "zone_index", zone_index)
+    call object%init(coef, json)
+    call object%mark_zone(coef%msh%labeled_zones(zone_index))
+    call object%finalize()
+
+  end subroutine bc_factory
 
 
 end module scalar_pnpn

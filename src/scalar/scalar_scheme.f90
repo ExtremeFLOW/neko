@@ -67,7 +67,6 @@ module scalar_scheme
   use comm, only: NEKO_COMM, MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
   use field_series, only : field_series_t
-  use bc_fctry, only : bc_factory
   use math, only : cfill, add2s2
   use device_math, only : device_cfill, device_add2s2
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -110,12 +109,6 @@ module scalar_scheme
      integer :: projection_activ_step
      !> Preconditioner.
      class(pc_t), allocatable :: pc
-     !> Field Dirichlet conditions.
-     type(field_dirichlet_t) :: field_dir_bc
-     !> List of BC objects to pass to user_dirichlet_update
-     type(bc_list_t) :: field_dirichlet_bcs
-     !> Number of strong  bcs.
-     integer :: n_strong = 0
      !> List of boundary conditions, including the user one.
      type(bc_list_t) :: bcs
      !> Case paramters.
@@ -328,12 +321,6 @@ contains
     end if
 
     !
-    ! Setup scalar boundary conditions
-    !
-    !call bc_list_init(this%bclst_dirichlet)
-    !call this%user_bc%init_base(this%c_Xh)
-
-    !
     ! Setup right-hand side field.
     !
     allocate(this%f_Xh)
@@ -342,35 +329,6 @@ contains
     ! Initialize the source term
     call this%source_term%init(this%f_Xh, this%c_Xh, user)
     call this%source_term%add(params, 'case.scalar.source_terms')
-
-
-
-!! COMMENTING USER STUFF
-    ! Mark BC zones
-!    call this%user_bc%finalize()
-!    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet,&
-!                                                     this%user_bc)
-    ! ?? NEWLY FROM DEVELOP
-!    call this%user_bc%finalize()
-
-    ! Add field dirichlet BCs
-!    call this%field_dir_bc%init_base(this%c_Xh)
-!    call this%field_dir_bc%mark_zones_from_list(msh%labeled_zones, &
-!         'd_s', this%bc_labels)
-!    call this%field_dir_bc%finalize()
-!    call MPI_Allreduce(this%field_dir_bc%msk(0), integer_val, 1, &
-!         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-!    if (integer_val .gt. 0) call this%field_dir_bc%init_field('d_s')
-
-!    call bc_list_add(this%bclst_dirichlet, this%field_dir_bc)
-
-    !
-    ! Associate our field dirichlet update to the user one.
-    !
-
-!    this%field_dir_bc%update => user%user_dirichlet_update
-!    call bc_list_init(this%field_dirichlet_bcs, size=1)
-!    call bc_list_add(this%field_dirichlet_bcs, this%field_dir_bc)
 
     ! todo parameter file ksp tol should be added
     call json_get_or_default(params, &
@@ -438,10 +396,6 @@ contains
 
     call this%lambda_field%free()
     call this%slag%free()
-
-    ! Free everything related to field dirichlet BCs
-    call this%field_dirichlet_bcs%free()
-    call this%field_dir_bc%free()
 
     ! Free gradient jump penalty
     if (this%if_gradient_jump_penalty .eqv. .true.) then
