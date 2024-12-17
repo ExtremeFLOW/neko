@@ -37,7 +37,7 @@ module projection_vel
   use math, only : rzero, glsc3, add2, copy, cmult
   use coefs, only : coef_t
   use ax_product, only : ax_t
-  use bc, only : bc_list_t, bc_list_apply_scalar
+  use bc_list, only : bc_list_t
   use comm
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -232,9 +232,9 @@ contains
     call gs_h%gs_op_vector(this%proj_v%bb(1,this%proj_v%m), n, GS_OP_ADD)
     call gs_h%gs_op_vector(this%proj_w%bb(1,this%proj_w%m), n, GS_OP_ADD)
 
-    call bc_list_apply_scalar(bclst_u, this%proj_u%bb(1,this%proj_u%m), n)
-    call bc_list_apply_scalar(bclst_v, this%proj_v%bb(1,this%proj_v%m), n)
-    call bc_list_apply_scalar(bclst_w, this%proj_w%bb(1,this%proj_w%m), n)
+    call bclst_u%apply_scalar(this%proj_u%bb(1,this%proj_u%m), n)
+    call bclst_v%apply_scalar(this%proj_v%bb(1,this%proj_v%m), n)
+    call bclst_w%apply_scalar(this%proj_w%bb(1,this%proj_w%m), n)
 
     if (NEKO_BCKND_DEVICE .eq. 1)  then
        call device_proj_ortho(this%proj_u, this%proj_u%xx_d, &
