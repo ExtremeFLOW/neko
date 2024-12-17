@@ -1,9 +1,11 @@
 module fluid_scheme_compressible_euler
   use advection, only : advection_t, advection_factory
+  use dofmap, only : dofmap_t
   use field_math, only : field_add2, field_cfill, field_cmult, field_cadd, field_copy, field_col2, field_col3, field_addcol3
   use field, only : field_t
   use fluid_scheme_compressible, only: fluid_scheme_compressible_t
-  use gs_ops, only : GS_OP_ADD
+  use gs_ops, only : GS_OP_ADD, GS_OP_MIN_ABS
+  use gather_scatter, only : gs_t
   use num_types, only : rp
   use math, only: subcol3, copy, sub2, add2, add3, col2, col3, addcol3, cmult, cfill, invcol3
   use mesh, only : mesh_t
@@ -15,6 +17,10 @@ module fluid_scheme_compressible_euler
   use time_scheme_controller, only : time_scheme_controller_t
   use time_step_controller, only : time_step_controller_t
   use ax_product, only : ax_t, ax_helm_factory
+  use field_list, only : field_list_t
+  use coefs, only: coef_t
+  use space, only : space_t
+  use euler_residual, only: euler_rhs_t, euler_rhs_factory
   implicit none
   private
 
@@ -23,11 +29,13 @@ module fluid_scheme_compressible_euler
      type(field_t) :: drho, dm_x, dm_y, dm_z, dE
      class(advection_t), allocatable :: adv
      class(ax_t), allocatable :: Ax
+     class(euler_rhs_t), allocatable :: euler_rhs
    contains
      procedure, pass(this) :: init => fluid_scheme_compressible_euler_init
      procedure, pass(this) :: free => fluid_scheme_compressible_euler_free
      procedure, pass(this) :: step => fluid_scheme_compressible_euler_step
      procedure, pass(this) :: restart => fluid_scheme_compressible_euler_restart
+     procedure, pass(this) :: rk4
   end type fluid_scheme_compressible_euler_t
 
 contains
@@ -46,12 +54,25 @@ contains
     ! Initialize base class
     call this%scheme_init(msh, lx, params, scheme, user)
 
+    call euler_rhs_factory(this%euler_rhs)
+
     ! Initialize the advection factory
     call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
     call advection_factory(this%adv, params, this%c_Xh, &
                            this%ulag, this%vlag, this%wlag, &
                            this%chkp%dtlag, this%chkp%tlag, time_scheme, &
                            .not. advection)
+
+    associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
+          dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
+
+      call this%drho%init(dm_Xh, 'drho')
+      call this%dm_x%init(dm_Xh, 'dm_x')
+      call this%dm_y%init(dm_Xh, 'dm_y')
+      call this%dm_z%init(dm_Xh, 'dm_z')
+      call this%dE%init(dm_Xh, 'dE')
+
+    end associate
 
     ! Initialize the diffusion operator
     call ax_helm_factory(this%Ax, full_formulation = .false.)
@@ -64,6 +85,12 @@ contains
     if (allocated(this%Ax)) then
       deallocate(this%Ax)
     end if
+
+    call this%drho%free()
+    call this%dm_x%free()
+    call this%dm_y%free()
+    call this%dm_z%free()
+    call this%dE%free()
 
     ! call this%scheme_free()
   end subroutine fluid_scheme_compressible_euler_free
@@ -84,10 +111,7 @@ contains
     real(kind=rp), allocatable :: temp(:)
     ! number of degrees of freedom
     integer :: n
-    real(kind=rp) :: h, c_avisc
-
-    h = 0.03_rp / 5.0_rp ! grid size / polynomial degree
-    c_avisc = 1.0_rp*h
+    type(field_list_t) :: rhs_fields
 
     n = this%dm_Xh%size()
     allocate(temp(n))
@@ -99,61 +123,30 @@ contains
       c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
       rho => this%rho, mu => this%mu, E => this%E, &
       rho_field => this%rho_field, mu_field => this%mu_field, &
+      ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
       f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
-      ulag => this%ulag, vlag => this%vlag, wlag => this%wlag)
+      drho => this%drho, dm_x => this%dm_x, dm_y => this%dm_y, &
+      dm_z => this%dm_z, dE => this%dE, &
+      euler_rhs => this%euler_rhs)
 
       ! WIP: debugging setting m to (rho, 0, 0)
-      call field_copy(m_x, rho_field, n)
-      call field_col2(m_x, m_x, n) ! burgers
-      call field_cfill(m_y, 0.0_rp, n)
+      ! call field_copy(m_x, rho_field, n)
+      ! call field_col2(m_x, m_x, n) ! burgers
+      ! call field_cfill(m_y, 0.0_rp, n)
       call field_cfill(m_z, 0.0_rp, n)
-      
-      !> rho = rho - dt * div(m)
-      call div(temp, m_x%x, m_y%x, m_z%x, c_Xh)
-      call cmult(temp, dt, n)
-      call sub2(rho_field%x, temp, n)
-      ! artificial diffusion for rho
-      call Ax%compute(temp, rho_field%x, c_Xh, msh, Xh)
-      call gs_Xh%op(temp, n, GS_OP_ADD)
-      call col2(temp, c_Xh%Binv, n)
-      call cmult(temp, c_avisc, n) ! first-order viscosity
-      call cmult(temp, dt, n)
-      call sub2(rho_field%x, temp, n)
 
-      ! m = m - dt * div(rho * u * u^T + p*I)
-      !> m_x
-      call copy(f_x%x, p%x, n)
-      call addcol3(f_x%x, m_x%x, u%x, n)
-      call col3(f_y%x, m_x%x, v%x, n)
-      call col3(f_z%x, m_x%x, w%x, n)
-      call div(temp, f_x%x, f_y%x, f_z%x, this%c_Xh)
-      call cmult(temp, dt, n)
-      call sub2(m_x%x, temp, n)
-      !> m_y
-      call col3(f_x%x, m_y%x, u%x, n)
-      call copy(f_y%x, p%x, n)
-      call addcol3(f_y%x, m_y%x, v%x, n)
-      call col3(f_z%x, m_y%x, w%x, n)
-      call div(temp, f_x%x, f_y%x, f_z%x, this%c_Xh)
-      call cmult(temp, dt, n)
-      call sub2(m_y%x, temp, n)
-      ! m_z
-      call col3(f_x%x, m_z%x, u%x, n)
-      call col3(f_y%x, m_z%x, v%x, n)
-      call copy(f_z%x, p%x, n)
-      call addcol3(f_z%x, m_z%x, w%x, n)
-      call div(temp, f_x%x, f_y%x, f_z%x, this%c_Xh)
-      call cmult(temp, dt, n)
-      call sub2(m_z%x, temp, n)
+      call rhs_fields%init(5)
+      call rhs_fields%assign(1, rho_field)
+      call rhs_fields%assign(2, m_x)
+      call rhs_fields%assign(3, m_y)
+      call rhs_fields%assign(4, m_z)
+      call rhs_fields%assign(5, E)
 
-      ! E = E - dt * div(u * (E + p))
-      call add3(temp, E%x, p%x, n)
-      call col3(f_x%x, u%x, temp, n)
-      call col3(f_y%x, v%x, temp, n)
-      call col3(f_z%x, w%x, temp, n)
-      call div(temp, f_x%x, f_y%x, f_z%x, this%c_Xh)
-      call cmult(temp, dt, n)
-      call sub2(E%x, temp, n)
+      ! call euler_rhs%compute(drho, dm_x, dm_y, dm_z, dE, &
+      !     rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
+      !     c_Xh, gs_Xh)
+
+      call this%rk4(dt, rho_field, m_x, m_y, m_z, E, drho, dm_x, dm_y, dm_z, dE)
 
       !> TODO: apply boundary conditions
 
@@ -175,12 +168,51 @@ contains
       !> TODO: Update maximum wave speed
 
       ! WIP: debugging visualizing rho
-      call field_copy(p, rho_field, n);
+      ! call field_copy(p, rho_field, n);
+      call field_copy(w, rho_field, n);
 
     end associate
     call profiler_end_region('Fluid compressible', 1)
 
+    deallocate(temp)
+
   end subroutine fluid_scheme_compressible_euler_step
+
+  subroutine rk4(this, dt, rho_field, m_x, m_y, m_z, E, rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E)
+    class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
+    real(kind=rp), intent(in) :: dt
+    type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
+    type(field_t), intent(inout) :: rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E
+    integer :: n
+
+    call this%euler_rhs%compute(rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E, &
+          rho_field, m_x, m_y, m_z, E, this%p, this%u, this%v, this%w, this%Ax, &
+          this%c_Xh, this%gs_Xh)
+
+    n = this%dm_Xh%size()
+
+    !> WIP: starting with forward Euler first
+
+    !> rho = rho - dt * div(m)
+    call cmult(rhs_rho_field%x, dt, n)
+    call sub2(rho_field%x, rhs_rho_field%x, n)
+    call this%gs_Xh%op(rho_field%x, n, GS_OP_MIN_ABS)
+    !> m = m - dt * div(rho * u * u^T + p*I)
+    call cmult(rhs_m_x%x, dt, n)
+    call sub2(m_x%x, rhs_m_x%x, n)
+    call this%gs_Xh%op(m_x%x, n, GS_OP_MIN_ABS)
+    call cmult(rhs_m_y%x, dt, n)
+    call sub2(m_y%x, rhs_m_y%x, n)
+    call this%gs_Xh%op(m_y%x, n, GS_OP_MIN_ABS)
+    call cmult(rhs_m_z%x, dt, n)
+    call sub2(m_z%x, rhs_m_z%x, n)
+    call this%gs_Xh%op(m_z%x, n, GS_OP_MIN_ABS)
+    !> E = E - dt * div(u * (E + p))
+    call cmult(rhs_E%x, dt, n)
+    call sub2(E%x, rhs_E%x, n)
+    call this%gs_Xh%op(E%x, n, GS_OP_MIN_ABS)
+
+  end subroutine rk4
 
   subroutine fluid_scheme_compressible_euler_restart(this, dtlag, tlag)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this

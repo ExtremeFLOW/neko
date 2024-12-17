@@ -37,7 +37,7 @@ module gather_scatter
   use gs_device, only : gs_device_t
   use gs_sx, only : gs_sx_t
   use gs_cpu, only : gs_cpu_t
-  use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
+  use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL, GS_OP_MIN_ABS
   use gs_comm, only : gs_comm_t
   use gs_mpi, only : gs_mpi_t
   use gs_device_mpi, only : gs_device_mpi_t
@@ -83,7 +83,7 @@ module gather_scatter
      generic :: op => gs_op_fld, gs_op_r4, gs_op_vector
   end type gs_t
 
-  public :: GS_OP_ADD, GS_OP_MUL, GS_OP_MIN, GS_OP_MAX
+  public :: GS_OP_ADD, GS_OP_MUL, GS_OP_MIN, GS_OP_MAX, GS_OP_MIN_ABS
 
 contains
 

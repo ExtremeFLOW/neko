@@ -88,6 +88,8 @@ contains
        call gs_gather_kernel_min(v, m, o, dg, u, n, gd, nb, b)
     case (GS_OP_MAX)
        call gs_gather_kernel_max(v, m, o, dg, u, n, gd, nb, b)
+    case (GS_OP_MIN_ABS)
+       call gs_gather_kernel_min_abs(v, m, o, dg, u, n, gd, nb, b)
     end select
 
   end subroutine gs_gather_cpu
@@ -247,6 +249,50 @@ contains
     end if
 
   end subroutine gs_gather_kernel_max
+
+  !> Gather kernel for average of data
+  !! \f$ v(dg(i)) = \avg(v(dg(i)), u(gd(i))) \f$
+  subroutine gs_gather_kernel_min_abs(v, m, o, dg, u, n, gd, nb, b)
+   integer, intent(in) :: m
+   integer, intent(in) :: n
+   integer, intent(in) :: nb
+   real(kind=rp), dimension(m), intent(inout) :: v
+   integer, dimension(m), intent(inout) :: dg
+   real(kind=rp), dimension(n), intent(inout) :: u
+   integer, dimension(m), intent(inout) :: gd
+   integer, dimension(nb), intent(inout) :: b
+   integer, intent(in) :: o
+   integer :: i, j, k, blk_len, tmp_count
+   real(kind=rp) :: tmp
+
+   k = 0
+    do i = 1, nb
+       blk_len = b(i)
+       tmp = u(gd(k + 1))
+       do j = 2, blk_len
+          if (abs(u(gd(k + j))) < abs(tmp)) then
+            tmp = u(gd(k + j))
+          end if
+       end do
+       v(dg(k + 1)) = tmp
+       k = k + blk_len
+    end do
+
+    if (o .lt. 0) then
+       do i = abs(o), m
+          v(dg(i)) = u(gd(i))
+       end do
+    else
+       do i = o, m, 2
+          if (abs(u(gd(k + j))) < abs(u(gd(i)))) then
+            v(dg(i)) = u(gd(k + j))
+          else
+            v(dg(i)) = u(gd(i))
+          end if
+       end do
+   end if
+
+ end subroutine gs_gather_kernel_min_abs
 
   !> Scatter kernel  @todo Make the kernel abstract
   subroutine gs_scatter_cpu(this, v, m, dg, u, n, gd, nb, b, shrd, event)

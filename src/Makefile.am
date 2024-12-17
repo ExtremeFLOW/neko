@@ -210,6 +210,8 @@ neko_fortran_SOURCES = \
 	fluid/fluid_volflow.f90\
 	fluid/pnpn_res.f90\
 	fluid/pnpn_res_fctry.f90\
+	fluid/euler_res.f90\
+	fluid/euler_res_fctry.f90\
 	fluid/mean_flow.f90\
 	fluid/fluid_stats.f90\
 	fluid/mean_sqr_flow.f90\
@@ -224,6 +226,9 @@ neko_fortran_SOURCES = \
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/pnpn_res_device.F90\
+	fluid/bcknd/cpu/euler_res_cpu.f90\
+	fluid/bcknd/sx/euler_res_sx.f90\
+	fluid/bcknd/device/euler_res_device.F90\
 	fluid/fluid_user_source_term.f90\
 	fluid/fluid_source_term.f90\
 	common/time_step_controller.f90\
