@@ -18,6 +18,7 @@ var namespaces_dup =
     [ "ax_helm_xsmm", "d3/d57/namespaceax__helm__xsmm.html", "d3/d57/namespaceax__helm__xsmm" ],
     [ "ax_product", "d2/dd1/namespaceax__product.html", "d2/dd1/namespaceax__product" ],
     [ "bc", "d0/dc0/namespacebc.html", "d0/dc0/namespacebc" ],
+    [ "bc_list", "d1/dd7/namespacebc__list.html", "d1/dd7/namespacebc__list" ],
     [ "bdf_time_scheme", "d4/db4/namespacebdf__time__scheme.html", "d4/db4/namespacebdf__time__scheme" ],
     [ "bicgstab", "dd/d2f/namespacebicgstab.html", "dd/d2f/namespacebicgstab" ],
     [ "blasius", "de/da4/namespaceblasius.html", "de/da4/namespaceblasius" ],

@@ -113,11 +113,11 @@ Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html">bc::bc_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base type for a boundary condition.  <a href="../../d6/db3/structbc_1_1bc__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d46/structbc_1_1bcp__t.html">bc::bcp_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer to boundary condtiion.  <a href="../../dc/d46/structbc_1_1bcp__t.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/df6/structbc_1_1bc__ptr__t.html">bc::bc_ptr_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer to boundary condtiion.  <a href="../../d7/df6/structbc_1_1bc__ptr__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc::bc_list_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A list of boundary conditions.  <a href="../../d8/dd8/structbc_1_1bc__list__t.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/da2/structbc_1_1bc__alloc__t.html">bc::bc_alloc_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper around an allocatable bc.  <a href="../../d4/da2/structbc_1_1bc__alloc__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/df2/interfacebc_1_1bc__apply__scalar.html">bc::bc_apply_scalar</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply the boundary condition to a scalar field.  <a href="../../d9/df2/interfacebc_1_1bc__apply__scalar.html#details">More...</a><br /></td></tr>
@@ -133,8 +133,6 @@ Data Types</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/dde/interfacebc_1_1bc__apply__vector__dev.html">bc::bc_apply_vector_dev</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply the boundary condition to a vector field on the device.  <a href="../../de/dde/interfacebc_1_1bc__apply__vector__dev.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d54/interfacebc_1_1bc__list__apply.html">bc::bc_list_apply</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
@@ -166,27 +164,6 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a204e045362bcbf89e2f26eba6c91980d" id="r_a204e045362bcbf89e2f26eba6c91980d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespacebc.html#a204e045362bcbf89e2f26eba6c91980d">bc::bc_finalize</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:a204e045362bcbf89e2f26eba6c91980d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finalize the construction of the bc by populting the <code>msk</code> and <code>facet</code> arrays.  <br /></td></tr>
 <tr class="separator:a204e045362bcbf89e2f26eba6c91980d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a52ed37bbb9188c0673416ffa5de4dc5e" id="r_a52ed37bbb9188c0673416ffa5de4dc5e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e">bc::bc_list_init</a> (bclst, size)</td></tr>
-<tr class="memdesc:a52ed37bbb9188c0673416ffa5de4dc5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for a list of boundary conditions.  <br /></td></tr>
-<tr class="separator:a52ed37bbb9188c0673416ffa5de4dc5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a70aeff826889ae0f54bd98cfacb0decb" id="r_a70aeff826889ae0f54bd98cfacb0decb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb">bc::bc_list_free</a> (bclst)</td></tr>
-<tr class="memdesc:a70aeff826889ae0f54bd98cfacb0decb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor for a list of boundary conditions.  <br /></td></tr>
-<tr class="separator:a70aeff826889ae0f54bd98cfacb0decb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7b1e068ddcfdd463a60c2c0b18994483" id="r_a7b1e068ddcfdd463a60c2c0b18994483"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespacebc.html#a7b1e068ddcfdd463a60c2c0b18994483">bc::bc_list_size</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
-<tr class="memdesc:a7b1e068ddcfdd463a60c2c0b18994483"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return number of bcs in the list.  <br /></td></tr>
-<tr class="separator:a7b1e068ddcfdd463a60c2c0b18994483"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae1690bfab42ec97cca2b4d5b844a11b5" id="r_ae1690bfab42ec97cca2b4d5b844a11b5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespacebc.html#ae1690bfab42ec97cca2b4d5b844a11b5">bc::bc_list_is_empty</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
-<tr class="memdesc:ae1690bfab42ec97cca2b4d5b844a11b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if bclist is empty (even if someone has tampered with it)  <br /></td></tr>
-<tr class="separator:ae1690bfab42ec97cca2b4d5b844a11b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a132f9467b1f6ee956b4e31bf758b1199" id="r_a132f9467b1f6ee956b4e31bf758b1199"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespacebc.html#a132f9467b1f6ee956b4e31bf758b1199">bc::bc_list_add</a> (bclst, bc)</td></tr>
-<tr class="memdesc:a132f9467b1f6ee956b4e31bf758b1199"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a condition to a list of boundary conditions.  <br /></td></tr>
-<tr class="separator:a132f9467b1f6ee956b4e31bf758b1199"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad2f682d4c03f5b33164d1e2f10fc41ef" id="r_ad2f682d4c03f5b33164d1e2f10fc41ef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespacebc.html#ad2f682d4c03f5b33164d1e2f10fc41ef">bc::bc_list_apply_scalar</a> (bclst, x, n, t, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep</a>)</td></tr>
-<tr class="memdesc:ad2f682d4c03f5b33164d1e2f10fc41ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply a list of boundary conditions to a scalar field.  <br /></td></tr>
-<tr class="separator:ad2f682d4c03f5b33164d1e2f10fc41ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1f087abac946e8ecf412faf1e715dd42" id="r_a1f087abac946e8ecf412faf1e715dd42"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespacebc.html#a1f087abac946e8ecf412faf1e715dd42">bc::bc_list_apply_vector</a> (bclst, x, y, z, n, t, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep</a>)</td></tr>
-<tr class="memdesc:a1f087abac946e8ecf412faf1e715dd42"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply a list of boundary conditions to a vector field.  <br /></td></tr>
-<tr class="separator:a1f087abac946e8ecf412faf1e715dd42"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -194,7 +171,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../df/df6/bc_8f90.html">bc.f90</a></li>
-    <li class="footer">Generated on Mon Dec 16 2024 03:43:29 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Dec 17 2024 03:42:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

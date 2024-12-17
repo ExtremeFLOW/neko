@@ -29,13 +29,14 @@ var hierarchy =
         [ "ax_helm_full_device::ax_helm_full_device_t", "db/d3f/structax__helm__full__device_1_1ax__helm__full__device__t.html", null ]
       ] ]
     ] ],
+    [ "bc::bc_alloc_t", "d4/da2/structbc_1_1bc__alloc__t.html", null ],
     [ "bc::bc_apply_scalar", "d9/df2/interfacebc_1_1bc__apply__scalar.html", null ],
     [ "bc::bc_apply_scalar_dev", "dc/d9b/interfacebc_1_1bc__apply__scalar__dev.html", null ],
     [ "bc::bc_apply_vector", "de/d2f/interfacebc_1_1bc__apply__vector.html", null ],
     [ "bc::bc_apply_vector_dev", "de/dde/interfacebc_1_1bc__apply__vector__dev.html", null ],
     [ "bc::bc_destructor", "de/d3c/interfacebc_1_1bc__destructor.html", null ],
-    [ "bc::bc_list_apply", "df/d54/interfacebc_1_1bc__list__apply.html", null ],
-    [ "bc::bc_list_t", "d8/dd8/structbc_1_1bc__list__t.html", null ],
+    [ "bc_list::bc_list_t", "df/da4/structbc__list_1_1bc__list__t.html", null ],
+    [ "bc::bc_ptr_t", "d7/df6/structbc_1_1bc__ptr__t.html", null ],
     [ "bc::bc_t", "d6/db3/structbc_1_1bc__t.html", [
       [ "blasius::blasius_t", "d0/dca/structblasius_1_1blasius__t.html", null ],
       [ "dirichlet::dirichlet_t", "df/dd9/structdirichlet_1_1dirichlet__t.html", null ],
@@ -55,7 +56,6 @@ var hierarchy =
       [ "usr_scalar::usr_scalar_t", "d5/d57/structusr__scalar_1_1usr__scalar__t.html", null ],
       [ "wall::no_slip_wall_t", "dd/d9d/structwall_1_1no__slip__wall__t.html", null ]
     ] ],
-    [ "bc::bcp_t", "dc/d46/structbc_1_1bcp__t.html", null ],
     [ "flow_profile::blasius_profile", "dd/d19/interfaceflow__profile_1_1blasius__profile.html", null ],
     [ "case::case_init", "d8/d36/interfacecase_1_1case__init.html", null ],
     [ "case::case_t", "db/d7a/structcase_1_1case__t.html", null ],

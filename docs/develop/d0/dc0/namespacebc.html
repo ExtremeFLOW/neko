@@ -110,6 +110,9 @@ $(document).ready(function(){initNavTree('d0/dc0/namespacebc.html','../../'); in
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/da2/structbc_1_1bc__alloc__t.html">bc_alloc_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper around an allocatable bc.  <a href="../../d4/da2/structbc_1_1bc__alloc__t.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/df2/interfacebc_1_1bc__apply__scalar.html">bc_apply_scalar</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply the boundary condition to a scalar field.  <a href="../../d9/df2/interfacebc_1_1bc__apply__scalar.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -125,16 +128,11 @@ Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/d3c/interfacebc_1_1bc__destructor.html">bc_destructor</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="../../de/d3c/interfacebc_1_1bc__destructor.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d54/interfacebc_1_1bc__list__apply.html">bc_list_apply</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A list of boundary conditions.  <a href="../../d8/dd8/structbc_1_1bc__list__t.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/df6/structbc_1_1bc__ptr__t.html">bc_ptr_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer to boundary condtiion.  <a href="../../d7/df6/structbc_1_1bc__ptr__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base type for a boundary condition.  <a href="../../d6/db3/structbc_1_1bc__t.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d46/structbc_1_1bcp__t.html">bcp_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer to boundary condtiion.  <a href="../../dc/d46/structbc_1_1bcp__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
@@ -160,27 +158,6 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a204e045362bcbf89e2f26eba6c91980d" id="r_a204e045362bcbf89e2f26eba6c91980d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespacebc.html#a204e045362bcbf89e2f26eba6c91980d">bc_finalize</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
 <tr class="memdesc:a204e045362bcbf89e2f26eba6c91980d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finalize the construction of the bc by populting the <code>msk</code> and <code>facet</code> arrays.  <br /></td></tr>
 <tr class="separator:a204e045362bcbf89e2f26eba6c91980d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a52ed37bbb9188c0673416ffa5de4dc5e" id="r_a52ed37bbb9188c0673416ffa5de4dc5e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e">bc_list_init</a> (bclst, size)</td></tr>
-<tr class="memdesc:a52ed37bbb9188c0673416ffa5de4dc5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for a list of boundary conditions.  <br /></td></tr>
-<tr class="separator:a52ed37bbb9188c0673416ffa5de4dc5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a70aeff826889ae0f54bd98cfacb0decb" id="r_a70aeff826889ae0f54bd98cfacb0decb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb">bc_list_free</a> (bclst)</td></tr>
-<tr class="memdesc:a70aeff826889ae0f54bd98cfacb0decb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor for a list of boundary conditions.  <br /></td></tr>
-<tr class="separator:a70aeff826889ae0f54bd98cfacb0decb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7b1e068ddcfdd463a60c2c0b18994483" id="r_a7b1e068ddcfdd463a60c2c0b18994483"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespacebc.html#a7b1e068ddcfdd463a60c2c0b18994483">bc_list_size</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
-<tr class="memdesc:a7b1e068ddcfdd463a60c2c0b18994483"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return number of bcs in the list.  <br /></td></tr>
-<tr class="separator:a7b1e068ddcfdd463a60c2c0b18994483"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae1690bfab42ec97cca2b4d5b844a11b5" id="r_ae1690bfab42ec97cca2b4d5b844a11b5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespacebc.html#ae1690bfab42ec97cca2b4d5b844a11b5">bc_list_is_empty</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>)</td></tr>
-<tr class="memdesc:ae1690bfab42ec97cca2b4d5b844a11b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if bclist is empty (even if someone has tampered with it)  <br /></td></tr>
-<tr class="separator:ae1690bfab42ec97cca2b4d5b844a11b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a132f9467b1f6ee956b4e31bf758b1199" id="r_a132f9467b1f6ee956b4e31bf758b1199"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespacebc.html#a132f9467b1f6ee956b4e31bf758b1199">bc_list_add</a> (bclst, bc)</td></tr>
-<tr class="memdesc:a132f9467b1f6ee956b4e31bf758b1199"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a condition to a list of boundary conditions.  <br /></td></tr>
-<tr class="separator:a132f9467b1f6ee956b4e31bf758b1199"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad2f682d4c03f5b33164d1e2f10fc41ef" id="r_ad2f682d4c03f5b33164d1e2f10fc41ef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespacebc.html#ad2f682d4c03f5b33164d1e2f10fc41ef">bc_list_apply_scalar</a> (bclst, x, n, t, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep</a>)</td></tr>
-<tr class="memdesc:ad2f682d4c03f5b33164d1e2f10fc41ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply a list of boundary conditions to a scalar field.  <br /></td></tr>
-<tr class="separator:ad2f682d4c03f5b33164d1e2f10fc41ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1f087abac946e8ecf412faf1e715dd42" id="r_a1f087abac946e8ecf412faf1e715dd42"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dc0/namespacebc.html#a1f087abac946e8ecf412faf1e715dd42">bc_list_apply_vector</a> (bclst, x, y, z, n, t, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tstep</a>)</td></tr>
-<tr class="memdesc:a1f087abac946e8ecf412faf1e715dd42"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply a list of boundary conditions to a vector field.  <br /></td></tr>
-<tr class="separator:a1f087abac946e8ecf412faf1e715dd42"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a204e045362bcbf89e2f26eba6c91980d" name="a204e045362bcbf89e2f26eba6c91980d"></a>
@@ -209,7 +186,7 @@ Functions/Subroutines</h2></td></tr>
 <p>This will linearize the marked facet's indicies in the msk array. </p>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000002">Todo:</a></b></dt><dd>add 2D case </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00366">366</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00352">352</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -247,7 +224,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00220">220</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00206">206</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -301,417 +278,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00204">204</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
-
-</div>
-</div>
-<a id="a132f9467b1f6ee956b4e31bf758b1199" name="a132f9467b1f6ee956b4e31bf758b1199"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a132f9467b1f6ee956b4e31bf758b1199">&#9670;&#160;</a></span>bc_list_add()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> bc::bc_list_add </td>
-          <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>bclst</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
-          <td class="paramname"><em>bc</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">bc</td><td>The boundary condition to add. </td></tr>
-  </table>
-  </dd>
-</dl>
-<p>Do not add if bc is empty</p>
-
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00537">537</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../d0/dc0/namespacebc_a132f9467b1f6ee956b4e31bf758b1199_icgraph.png" border="0" usemap="#ad0/dc0/namespacebc_a132f9467b1f6ee956b4e31bf758b1199_icgraph" alt=""/></div>
-<map name="ad0/dc0/namespacebc_a132f9467b1f6ee956b4e31bf758b1199_icgraph" id="ad0/dc0/namespacebc_a132f9467b1f6ee956b4e31bf758b1199_icgraph">
-<area shape="rect" title="Add a condition to a list of boundary conditions." alt="" coords="472,209,591,235"/>
-<area shape="rect" href="../../dc/da3/namespacefluid__pnpn.html#a3f62aa249f709f34b5eec9c34a2614de" title=" " alt="" coords="232,5,424,31"/>
-<area shape="poly" title=" " alt="" coords="519,197,506,162,485,121,457,80,422,45,400,33,403,28,426,41,462,77,490,119,511,160,524,195"/>
-<area shape="rect" href="../../d8/d09/namespacefluid__scheme.html#a394523005f7e024eff53a66eed66fd5a" title="Initialize all components of the current scheme." alt="" coords="256,55,400,95"/>
-<area shape="poly" title=" " alt="" coords="511,200,474,154,449,130,423,110,399,97,402,93,425,105,453,126,478,150,516,196"/>
-<area shape="rect" href="../../d8/d09/namespacefluid__scheme.html#a954fd0e94a3e06097351d3ca34709ad4" title="Initialise a fluid scheme." alt="" coords="242,119,414,159"/>
-<area shape="poly" title=" " alt="" coords="492,205,423,174,391,162,393,157,425,169,494,201"/>
-<area shape="rect" href="../../dd/dd1/namespacehsmg.html#a419a2d9052dd2c5b986dded4a13e76c2" title=" " alt="" coords="263,184,393,209"/>
-<area shape="poly" title=" " alt="" coords="458,216,393,207,394,202,459,210"/>
-<area shape="rect" href="../../d1/d38/namespacephmg.html#a373f86ceb2917afb2deae0669f13fb73" title=" " alt="" coords="262,233,394,259"/>
-<area shape="poly" title=" " alt="" coords="459,233,395,241,394,236,458,228"/>
-<area shape="rect" href="../../db/d56/namespacescalar__pnpn.html#a7798b78c597dcaca586191d419a72512" title="Constructor." alt="" coords="255,283,401,323"/>
-<area shape="poly" title=" " alt="" coords="492,243,425,272,390,286,388,281,423,268,490,238"/>
-<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a52d0bdcd6d81c223bb1e543b0d504bfc" title="Initialize boundary conditions." alt="" coords="245,347,411,387"/>
-<area shape="poly" title=" " alt="" coords="516,247,478,293,453,317,425,338,403,350,400,345,423,333,449,313,474,289,511,244"/>
-<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a2babd40d9acd6b4f4ca8dabfbe2e37e9" title="Initialize all related components of the current scheme." alt="" coords="11,375,178,415"/>
-<area shape="poly" title=" " alt="" coords="526,249,513,285,493,328,464,369,446,387,425,402,394,416,360,426,291,433,224,429,165,418,166,413,225,423,291,428,359,421,392,411,423,397,443,383,460,366,488,326,508,283,521,247"/>
-<area shape="rect" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a367dbe8934b9990a7608ec43744312fd" title="Constructor for the base type." alt="" coords="5,87,184,127"/>
-<area shape="poly" title=" " alt="" coords="242,90,185,98,184,92,242,84"/>
-<area shape="poly" title=" " alt="" coords="228,128,184,122,185,117,229,123"/>
-<area shape="poly" title=" " alt="" coords="231,382,178,388,178,383,230,376"/>
-</map>
-</div>
-
-</div>
-</div>
-<a id="ad2f682d4c03f5b33164d1e2f10fc41ef" name="ad2f682d4c03f5b33164d1e2f10fc41ef"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad2f682d4c03f5b33164d1e2f10fc41ef">&#9670;&#160;</a></span>bc_list_apply_scalar()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> bc::bc_list_apply_scalar </td>
-          <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>bclst</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=<a class="el" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>x</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>n</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=<a class="el" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tstep</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>The field to apply the boundary conditions to. </td></tr>
-    <tr><td class="paramname">n</td><td>The size of x. </td></tr>
-    <tr><td class="paramname">t</td><td>Current time. </td></tr>
-    <tr><td class="paramname">tstep</td><td>Current time-step. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00562">562</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../d0/dc0/namespacebc_ad2f682d4c03f5b33164d1e2f10fc41ef_icgraph.png" border="0" usemap="#ad0/dc0/namespacebc_ad2f682d4c03f5b33164d1e2f10fc41ef_icgraph" alt=""/></div>
-<map name="ad0/dc0/namespacebc_ad2f682d4c03f5b33164d1e2f10fc41ef_icgraph" id="ad0/dc0/namespacebc_ad2f682d4c03f5b33164d1e2f10fc41ef_icgraph">
-<area shape="rect" title="Apply a list of boundary conditions to a scalar field." alt="" coords="277,112,453,137"/>
-<area shape="rect" href="../../d3/d06/namespaceprojection.html#a56d60824af6be625d76a70c8720e6c8b" title=" " alt="" coords="5,5,229,31"/>
-<area shape="poly" title=" " alt="" coords="335,106,286,74,228,44,193,33,195,28,230,40,289,69,338,101"/>
-<area shape="rect" href="../../d2/d10/namespacecacg.html#a2b9a6da5ee5dab7e10d72d97392d731c" title="S&#45;step CA PCG solve." alt="" coords="51,55,183,80"/>
-<area shape="poly" title=" " alt="" coords="297,111,229,95,174,83,175,77,230,90,298,106"/>
-<area shape="rect" href="../../d8/d09/namespacefluid__scheme.html#af53df9e2dca6bd4b6ae9cdccc2e35bb7" title="Apply all boundary conditions defined for pressure." alt="" coords="31,105,203,145"/>
-<area shape="poly" title=" " alt="" coords="264,127,204,127,204,122,264,122"/>
-<area shape="rect" href="../../d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="44,169,191,209"/>
-<area shape="poly" title=" " alt="" coords="303,143,192,172,190,167,301,138"/>
-<area shape="rect" href="../../dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="45,233,189,259"/>
-<area shape="poly" title=" " alt="" coords="342,148,292,187,230,223,191,237,189,232,228,218,289,182,338,144"/>
-</map>
-</div>
-
-</div>
-</div>
-<a id="a1f087abac946e8ecf412faf1e715dd42" name="a1f087abac946e8ecf412faf1e715dd42"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1f087abac946e8ecf412faf1e715dd42">&#9670;&#160;</a></span>bc_list_apply_vector()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> bc::bc_list_apply_vector </td>
-          <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>bclst</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=<a class="el" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>x</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=<a class="el" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>y</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=<a class="el" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(n), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>z</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>n</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=<a class="el" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>tstep</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">x</td><td>The x comp of the field for which to apply the bcs. </td></tr>
-    <tr><td class="paramname">y</td><td>The y comp of the field for which to apply the bcs. </td></tr>
-    <tr><td class="paramname">z</td><td>The z comp of the field for which to apply the bcs. </td></tr>
-    <tr><td class="paramname">n</td><td>The size of x, y, z. </td></tr>
-    <tr><td class="paramname">t</td><td>Current time. </td></tr>
-    <tr><td class="paramname">tstep</td><td>Current time-step. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00619">619</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../d0/dc0/namespacebc_a1f087abac946e8ecf412faf1e715dd42_icgraph.png" border="0" usemap="#ad0/dc0/namespacebc_a1f087abac946e8ecf412faf1e715dd42_icgraph" alt=""/></div>
-<map name="ad0/dc0/namespacebc_a1f087abac946e8ecf412faf1e715dd42_icgraph" id="ad0/dc0/namespacebc_a1f087abac946e8ecf412faf1e715dd42_icgraph">
-<area shape="rect" title="Apply a list of boundary conditions to a vector field." alt="" coords="225,45,404,70"/>
-<area shape="rect" href="../../d8/d09/namespacefluid__scheme.html#a9bdf3634a28f508c4892c1a02fe6c8b0" title="Apply all boundary conditions defined for velocity Here we perform additional gs operations to take c..." alt="" coords="5,5,177,45"/>
-<area shape="poly" title=" " alt="" coords="212,45,177,40,178,35,212,40"/>
-<area shape="rect" href="../../d6/d21/namespacefluid__volflow.html#aa98b3664b63c5f327790b496a51c20f5" title="Compute flow adjustment." alt="" coords="18,69,165,109"/>
-<area shape="poly" title=" " alt="" coords="213,75,165,81,165,76,212,69"/>
-</map>
-</div>
-
-</div>
-</div>
-<a id="a70aeff826889ae0f54bd98cfacb0decb" name="a70aeff826889ae0f54bd98cfacb0decb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a70aeff826889ae0f54bd98cfacb0decb">&#9670;&#160;</a></span>bc_list_free()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> bc::bc_list_free </td>
-          <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>bclst</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<dl class="section note"><dt>Note</dt><dd>This will only nullify all pointers, not deallocate any conditions pointed to by the list </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00493">493</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../d0/dc0/namespacebc_a70aeff826889ae0f54bd98cfacb0decb_icgraph.png" border="0" usemap="#ad0/dc0/namespacebc_a70aeff826889ae0f54bd98cfacb0decb_icgraph" alt=""/></div>
-<map name="ad0/dc0/namespacebc_a70aeff826889ae0f54bd98cfacb0decb_icgraph" id="ad0/dc0/namespacebc_a70aeff826889ae0f54bd98cfacb0decb_icgraph">
-<area shape="rect" title="Destructor for a list of boundary conditions." alt="" coords="719,299,839,324"/>
-<area shape="rect" href="../../d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="514,209,629,235"/>
-<area shape="poly" title=" " alt="" coords="747,293,711,271,670,250,628,236,630,231,672,245,714,266,750,289"/>
-<area shape="rect" href="../../d0/d1c/namespacefield__dirichlet__vector.html#aeaae7331013cccf541bae427fa6cb1dd" title="Destructor. Currently unused as is, all field_dirichlet attributes are freed in fluid_scheme::free." alt="" coords="472,259,671,299"/>
-<area shape="poly" title=" " alt="" coords="704,303,670,297,671,292,705,297"/>
-<area shape="rect" href="../../d8/d09/namespacefluid__scheme.html#a163ce93c7c8e760a2172e915aab75525" title="Deallocate a fluid formulation." alt="" coords="499,323,643,363"/>
-<area shape="poly" title=" " alt="" coords="705,325,644,335,643,330,704,320"/>
-<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a57f35ef15b838ab8da7ab18d002a352b" title="Deallocate a scalar formulation." alt="" coords="488,387,655,427"/>
-<area shape="poly" title=" " alt="" coords="749,334,672,378,642,390,640,385,670,373,746,329"/>
-<area shape="rect" href="../../dc/da3/namespacefluid__pnpn.html#a3f62aa249f709f34b5eec9c34a2614de" title=" " alt="" coords="232,5,424,31"/>
-<area shape="poly" title=" " alt="" coords="554,199,533,164,503,122,466,81,423,46,397,33,399,28,425,41,470,77,507,119,537,161,559,196"/>
-<area shape="rect" href="../../d8/d09/namespacefluid__scheme.html#a394523005f7e024eff53a66eed66fd5a" title="Initialize all components of the current scheme." alt="" coords="256,55,400,95"/>
-<area shape="poly" title=" " alt="" coords="546,202,492,156,423,110,397,98,399,93,425,105,495,152,549,198"/>
-<area shape="rect" href="../../d8/d09/namespacefluid__scheme.html#a954fd0e94a3e06097351d3ca34709ad4" title="Initialise a fluid scheme." alt="" coords="242,119,414,159"/>
-<area shape="poly" title=" " alt="" coords="520,207,423,174,388,162,390,157,425,169,522,202"/>
-<area shape="rect" href="../../dd/dd1/namespacehsmg.html#a419a2d9052dd2c5b986dded4a13e76c2" title=" " alt="" coords="263,184,393,209"/>
-<area shape="poly" title=" " alt="" coords="500,217,393,206,394,201,500,212"/>
-<area shape="rect" href="../../d1/d38/namespacephmg.html#a373f86ceb2917afb2deae0669f13fb73" title=" " alt="" coords="262,233,394,259"/>
-<area shape="poly" title=" " alt="" coords="500,232,395,242,394,237,500,226"/>
-<area shape="rect" href="../../db/d56/namespacescalar__pnpn.html#a7798b78c597dcaca586191d419a72512" title="Constructor." alt="" coords="255,283,401,323"/>
-<area shape="poly" title=" " alt="" coords="502,241,473,250,425,272,390,286,388,281,423,268,471,245,500,236"/>
-<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a52d0bdcd6d81c223bb1e543b0d504bfc" title="Initialize boundary conditions." alt="" coords="245,347,411,387"/>
-<area shape="poly" title=" " alt="" coords="502,235,474,249,457,270,450,292,443,315,426,337,407,349,405,345,422,333,439,312,445,290,452,267,470,245,499,230"/>
-<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a2babd40d9acd6b4f4ca8dabfbe2e37e9" title="Initialize all related components of the current scheme." alt="" coords="11,375,178,415"/>
-<area shape="poly" title=" " alt="" coords="502,233,474,249,460,267,453,286,453,326,451,365,443,384,426,401,394,420,359,432,323,438,286,439,215,432,154,418,155,413,216,427,286,434,323,432,358,426,392,415,422,397,438,381,446,364,447,326,448,285,455,265,470,245,499,228"/>
-<area shape="rect" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a367dbe8934b9990a7608ec43744312fd" title="Constructor for the base type." alt="" coords="5,87,184,127"/>
-<area shape="poly" title=" " alt="" coords="242,90,185,98,184,92,242,84"/>
-<area shape="poly" title=" " alt="" coords="228,128,184,122,185,117,229,123"/>
-<area shape="poly" title=" " alt="" coords="231,382,178,388,178,383,230,376"/>
-</map>
-</div>
-
-</div>
-</div>
-<a id="a52ed37bbb9188c0673416ffa5de4dc5e" name="a52ed37bbb9188c0673416ffa5de4dc5e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a52ed37bbb9188c0673416ffa5de4dc5e">&#9670;&#160;</a></span>bc_list_init()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> bc::bc_list_init </td>
-          <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">target</a>&#160;</td>
-          <td class="paramname"><em>bclst</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>size</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">size</td><td>The size of the list to allocate. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00466">466</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
-<div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../d0/dc0/namespacebc_a52ed37bbb9188c0673416ffa5de4dc5e_cgraph.png" border="0" usemap="#ad0/dc0/namespacebc_a52ed37bbb9188c0673416ffa5de4dc5e_cgraph" alt=""/></div>
-<map name="ad0/dc0/namespacebc_a52ed37bbb9188c0673416ffa5de4dc5e_cgraph" id="ad0/dc0/namespacebc_a52ed37bbb9188c0673416ffa5de4dc5e_cgraph">
-<area shape="rect" title="Constructor for a list of boundary conditions." alt="" coords="5,5,120,31"/>
-<area shape="rect" href="../../d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="168,5,288,31"/>
-<area shape="poly" title=" " alt="" coords="120,15,154,15,154,21,120,21"/>
-</map>
-</div>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../d0/dc0/namespacebc_a52ed37bbb9188c0673416ffa5de4dc5e_icgraph.png" border="0" usemap="#ad0/dc0/namespacebc_a52ed37bbb9188c0673416ffa5de4dc5e_icgraph" alt=""/></div>
-<map name="ad0/dc0/namespacebc_a52ed37bbb9188c0673416ffa5de4dc5e_icgraph" id="ad0/dc0/namespacebc_a52ed37bbb9188c0673416ffa5de4dc5e_icgraph">
-<area shape="rect" title="Constructor for a list of boundary conditions." alt="" coords="472,209,587,235"/>
-<area shape="rect" href="../../dc/da3/namespacefluid__pnpn.html#a3f62aa249f709f34b5eec9c34a2614de" title=" " alt="" coords="232,5,424,31"/>
-<area shape="poly" title=" " alt="" coords="518,197,504,162,484,121,457,80,422,45,400,33,403,28,426,41,461,77,489,119,509,160,523,195"/>
-<area shape="rect" href="../../d8/d09/namespacefluid__scheme.html#a394523005f7e024eff53a66eed66fd5a" title="Initialize all components of the current scheme." alt="" coords="256,55,400,95"/>
-<area shape="poly" title=" " alt="" coords="510,200,473,154,449,130,423,110,399,97,402,93,425,105,453,126,477,150,514,196"/>
-<area shape="rect" href="../../d8/d09/namespacefluid__scheme.html#a954fd0e94a3e06097351d3ca34709ad4" title="Initialise a fluid scheme." alt="" coords="242,119,414,159"/>
-<area shape="poly" title=" " alt="" coords="491,205,423,174,391,162,393,157,425,169,493,201"/>
-<area shape="rect" href="../../dd/dd1/namespacehsmg.html#a419a2d9052dd2c5b986dded4a13e76c2" title=" " alt="" coords="263,184,393,209"/>
-<area shape="poly" title=" " alt="" coords="458,216,393,208,394,202,458,210"/>
-<area shape="rect" href="../../d1/d38/namespacephmg.html#a373f86ceb2917afb2deae0669f13fb73" title=" " alt="" coords="262,233,394,259"/>
-<area shape="poly" title=" " alt="" coords="459,233,395,241,394,236,458,228"/>
-<area shape="rect" href="../../db/d56/namespacescalar__pnpn.html#a7798b78c597dcaca586191d419a72512" title="Constructor." alt="" coords="255,283,401,323"/>
-<area shape="poly" title=" " alt="" coords="491,243,425,272,390,286,388,281,423,268,489,238"/>
-<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a52d0bdcd6d81c223bb1e543b0d504bfc" title="Initialize boundary conditions." alt="" coords="245,347,411,387"/>
-<area shape="poly" title=" " alt="" coords="514,248,477,293,452,317,425,338,403,350,400,345,423,333,449,313,473,289,510,244"/>
-<area shape="rect" href="../../da/de3/namespacescalar__scheme.html#a2babd40d9acd6b4f4ca8dabfbe2e37e9" title="Initialize all related components of the current scheme." alt="" coords="11,375,178,415"/>
-<area shape="poly" title=" " alt="" coords="524,249,512,285,492,328,464,369,446,387,425,402,394,416,360,426,291,433,224,429,165,418,166,413,224,423,291,428,359,421,392,411,423,397,442,383,460,366,487,326,507,283,519,247"/>
-<area shape="rect" href="../../da/dd4/structfluid__scheme_1_1fluid__scheme__t.html#a367dbe8934b9990a7608ec43744312fd" title="Constructor for the base type." alt="" coords="5,87,184,127"/>
-<area shape="poly" title=" " alt="" coords="242,90,185,98,184,92,242,84"/>
-<area shape="poly" title=" " alt="" coords="228,128,184,122,185,117,229,123"/>
-<area shape="poly" title=" " alt="" coords="231,382,178,388,178,383,230,376"/>
-</map>
-</div>
-
-</div>
-</div>
-<a id="ae1690bfab42ec97cca2b4d5b844a11b5" name="ae1690bfab42ec97cca2b4d5b844a11b5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae1690bfab42ec97cca2b4d5b844a11b5">&#9670;&#160;</a></span>bc_list_is_empty()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">logical</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a> bc::bc_list_is_empty </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>this</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00515">515</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
-
-</div>
-</div>
-<a id="a7b1e068ddcfdd463a60c2c0b18994483" name="a7b1e068ddcfdd463a60c2c0b18994483"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7b1e068ddcfdd463a60c2c0b18994483">&#9670;&#160;</a></span>bc_list_size()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a> <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">function</a> bc::bc_list_size </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d8/dd8/structbc_1_1bc__list__t.html">bc_list_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>this</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00506">506</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00190">190</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -762,7 +329,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00253">253</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00239">239</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -806,7 +373,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00266">266</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00252">252</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 
 </div>
 </div>
@@ -850,7 +417,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00281">281</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00267">267</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -918,7 +485,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00296">296</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/df6/bc_8f90_source.html#l00282">282</a> of file <a class="el" href="../../df/df6/bc_8f90_source.html">bc.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -940,7 +507,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/dc0/namespacebc.html">bc</a></li>
-    <li class="footer">Generated on Mon Dec 16 2024 03:43:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Dec 17 2024 03:42:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

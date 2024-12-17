@@ -65,15 +65,17 @@ var annotated_dup =
       [ "ax_t", "d3/d2c/structax__product_1_1ax__t.html", "d3/d2c/structax__product_1_1ax__t" ]
     ] ],
     [ "bc", "d0/dc0/namespacebc.html", [
+      [ "bc_alloc_t", "d4/da2/structbc_1_1bc__alloc__t.html", "d4/da2/structbc_1_1bc__alloc__t" ],
       [ "bc_apply_scalar", "d9/df2/interfacebc_1_1bc__apply__scalar.html", "d9/df2/interfacebc_1_1bc__apply__scalar" ],
       [ "bc_apply_scalar_dev", "dc/d9b/interfacebc_1_1bc__apply__scalar__dev.html", "dc/d9b/interfacebc_1_1bc__apply__scalar__dev" ],
       [ "bc_apply_vector", "de/d2f/interfacebc_1_1bc__apply__vector.html", "de/d2f/interfacebc_1_1bc__apply__vector" ],
       [ "bc_apply_vector_dev", "de/dde/interfacebc_1_1bc__apply__vector__dev.html", "de/dde/interfacebc_1_1bc__apply__vector__dev" ],
       [ "bc_destructor", "de/d3c/interfacebc_1_1bc__destructor.html", "de/d3c/interfacebc_1_1bc__destructor" ],
-      [ "bc_list_apply", "df/d54/interfacebc_1_1bc__list__apply.html", "df/d54/interfacebc_1_1bc__list__apply" ],
-      [ "bc_list_t", "d8/dd8/structbc_1_1bc__list__t.html", "d8/dd8/structbc_1_1bc__list__t" ],
-      [ "bc_t", "d6/db3/structbc_1_1bc__t.html", "d6/db3/structbc_1_1bc__t" ],
-      [ "bcp_t", "dc/d46/structbc_1_1bcp__t.html", "dc/d46/structbc_1_1bcp__t" ]
+      [ "bc_ptr_t", "d7/df6/structbc_1_1bc__ptr__t.html", "d7/df6/structbc_1_1bc__ptr__t" ],
+      [ "bc_t", "d6/db3/structbc_1_1bc__t.html", "d6/db3/structbc_1_1bc__t" ]
+    ] ],
+    [ "bc_list", "d1/dd7/namespacebc__list.html", [
+      [ "bc_list_t", "df/da4/structbc__list_1_1bc__list__t.html", "df/da4/structbc__list_1_1bc__list__t" ]
     ] ],
     [ "bdf_time_scheme", "d4/db4/namespacebdf__time__scheme.html", [
       [ "bdf_time_scheme_t", "d7/dac/structbdf__time__scheme_1_1bdf__time__scheme__t.html", "d7/dac/structbdf__time__scheme_1_1bdf__time__scheme__t" ]
