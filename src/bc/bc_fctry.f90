@@ -32,24 +32,17 @@
 !
 !
 !> Defines a factory subroutine for boundary conditions.
-module bc_fctry
+submodule(scalar_pnpn) scalar_pnpn_bc_fctry
+!module bc_fctry
   use bc, only : bc_t
-  use json_module, only : json_file
-  use json_utils, only : json_get
-  use logger, only : neko_log
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
   use coefs, only : coef_t
-  use facet_zone, only : facet_zone_t
-  use mesh, only : NEKO_MSH_MAX_ZLBLS
   use usr_scalar, only : usr_scalar_t
   use user_intf, only : user_t
   use usr_scalar, only : usr_scalar_t
   use utils, only : neko_type_error 
   implicit none
-  private
-
-  public :: bc_factory
 
   ! List of all possible types created by the boundary condition factories
   character(len=25) :: SCALAR_PNPN_KNOWN_BCS(3) = [character(len=25) :: &
@@ -64,7 +57,7 @@ contains
   !! Will mark a mesh zone for the bc and finalize.
   !! @param[in] coef SEM coefficients.
   !! @param[inout] json JSON object for initializing the bc.
-  subroutine bc_factory(object, json, coef, user)
+  module subroutine bc_factory(object, json, coef, user)
     class(bc_t), pointer, intent(inout) :: object
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
@@ -104,4 +97,4 @@ contains
 
   end subroutine bc_factory
 
-end module bc_fctry
+end submodule scalar_pnpn_bc_fctry

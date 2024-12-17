@@ -60,7 +60,7 @@ module scalar_scheme
   use field_registry, only : neko_field_registry
   use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
   use json_utils, only : json_get, json_get_or_default, json_extract_item
-  use json_module, only : json_file, json_core, json_value
+  use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
                         user_material_properties
   use utils, only : neko_error
@@ -227,43 +227,6 @@ module scalar_scheme
 
 contains
 
-  !> Initialize boundary conditions
-  !! @param user The user object binding the user-defined routines.
-  subroutine scalar_scheme_setup_bcs(this, user)
-    class(scalar_scheme_t), intent(inout) :: this
-    type(user_t), target, intent(in) :: user
-    integer :: i, n_bcs
-    type(json_core) :: core
-    type(json_value), pointer :: bc_object
-    type(json_file) :: bc_subdict
-    logical :: found
-
-
-    if (this%params%valid_path('case.scalar.boundary_conditions')) then
-       call this%params%info('case.scalar.boundary_conditions', &
-            n_children=n_bcs)
-       call this%params%get_core(core)
-       call this%params%get('case.scalar.boundary_conditions', bc_object, found)
-
-       call this%bcs%init(n_bcs)
-
-       do i=1, n_bcs
-          ! Create a new json containing just the subdict for this bc
-          call json_extract_item(core, bc_object, i, bc_subdict)
-
-          call bc_factory(this%bcs%items(i)%ptr, bc_subdict, &
-                          this%c_Xh, user)
-
-          this%bcs%size_ = this%bcs%size_ + 1
-
-          if (this%bcs%strong(i)) then
-             this%n_strong = this%n_strong + 1
-          end if
-       end do
-    end if
-  end subroutine scalar_scheme_setup_bcs
-
-
   !> Initialize all related components of the current scheme
   !! @param msh The mesh.
   !! @param c_Xh The coefficients.
@@ -380,8 +343,6 @@ contains
     call this%source_term%init(this%f_Xh, this%c_Xh, user)
     call this%source_term%add(params, 'case.scalar.source_terms')
 
-    ! Set up boundary conditions
-    call scalar_scheme_setup_bcs(this, user)
 
 
 !! COMMENTING USER STUFF

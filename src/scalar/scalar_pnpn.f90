@@ -59,13 +59,14 @@ module scalar_pnpn
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
-  use json_utils, only : json_get, json_get_or_default
-  use json_module, only : json_file
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_module, only : json_file, json_core, json_value
   use user_intf, only : user_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use zero_dirichlet, only : zero_dirichlet_t
   use time_step_controller, only : time_step_controller_t
   use scratch_registry, only: neko_scratch_registry
+  use bc, only : bc_t
   implicit none
   private
 
@@ -128,7 +129,25 @@ module scalar_pnpn
      procedure, pass(this) :: free => scalar_pnpn_free
      !> Solve for the current timestep.
      procedure, pass(this) :: step => scalar_pnpn_step
+     !> Setup the boundary conditions
+     procedure, pass(this) :: setup_bcs_ => scalar_pnpn_setup_bcs_
   end type scalar_pnpn_t
+
+  interface
+     !> Boundary condition factory. Both constructs and initializes the object.
+     !! @details Will mark a mesh zone for the bc and finalize.
+     !! @param[inout] object The object to be allocated.
+     !! @param[inout] json JSON object for initializing the bc.
+     !! @param[in] coef SEM coefficients.
+     module subroutine bc_factory(object, json, coef, user)
+        class(bc_t), pointer, intent(inout) :: object
+        type(json_file), intent(inout) :: json
+        type(coef_t), intent(in) :: coef
+        type(user_t), intent(in) :: user
+     end subroutine bc_factory
+  end interface
+
+  public :: bc_factory
 
 contains
 
@@ -193,6 +212,9 @@ contains
       call this%ds%init(dm_Xh, 'ds')
 
     end associate
+
+    ! Set up boundary conditions
+    call this%setup_bcs_(user)
 
     ! Initialize dirichlet bcs for scalar residual
     ! todo: look that this works
@@ -440,6 +462,42 @@ contains
        call neko_log%message(log_buf)
     end if
   end subroutine print_debug
+
+  !> Initialize boundary conditions
+  !! @param user The user object binding the user-defined routines.
+  subroutine scalar_pnpn_setup_bcs_(this, user)
+    class(scalar_pnpn_t), intent(inout) :: this
+    type(user_t), target, intent(in) :: user
+    integer :: i, n_bcs
+    type(json_core) :: core
+    type(json_value), pointer :: bc_object
+    type(json_file) :: bc_subdict
+    logical :: found
+
+
+    if (this%params%valid_path('case.scalar.boundary_conditions')) then
+       call this%params%info('case.scalar.boundary_conditions', &
+            n_children=n_bcs)
+       call this%params%get_core(core)
+       call this%params%get('case.scalar.boundary_conditions', bc_object, found)
+
+       call this%bcs%init(n_bcs)
+
+       do i=1, n_bcs
+          ! Create a new json containing just the subdict for this bc
+          call json_extract_item(core, bc_object, i, bc_subdict)
+
+          call bc_factory(this%bcs%items(i)%ptr, bc_subdict, &
+                          this%c_Xh, user)
+
+          this%bcs%size_ = this%bcs%size_ + 1
+
+          if (this%bcs%strong(i)) then
+             this%n_strong = this%n_strong + 1
+          end if
+       end do
+    end if
+  end subroutine scalar_pnpn_setup_bcs_
 
 
 end module scalar_pnpn
