@@ -32,7 +32,6 @@
 !
 !> Contains the scalar_scheme_t type.
 
-! todo: module name
 module scalar_scheme
   use gather_scatter, only : gs_t
   use checkpoint, only : chkp_t
@@ -119,8 +118,6 @@ module scalar_scheme
      integer :: n_strong = 0
      !> List of boundary conditions, including the user one.
      type(bc_list_t) :: bcs
-     !> User Dirichlet conditions.
-     type(usr_scalar_t) :: user_bc
      !> Case paramters.
      type(json_file), pointer :: params
      !> Mesh.
@@ -151,8 +148,6 @@ module scalar_scheme
      procedure, pass(this) :: scheme_free => scalar_scheme_free
      !> Validate successful initialization.
      procedure, pass(this) :: validate => scalar_scheme_validate
-     !> Assigns the evaluation function for  `user_bc`.
-     !procedure, pass(this) :: set_user_bc => scalar_scheme_set_user_bc
      !> Set lambda and cp
      procedure, pass(this) :: set_material_properties => &
           scalar_scheme_set_material_properties
@@ -237,7 +232,7 @@ contains
   subroutine scalar_scheme_setup_bcs(this, user)
     class(scalar_scheme_t), intent(inout) :: this
     type(user_t), target, intent(in) :: user
-    integer :: i, j, n_bcs, ierr
+    integer :: i, n_bcs
     type(json_core) :: core
     type(json_value), pointer :: bc_object
     type(json_file) :: bc_subdict
@@ -245,7 +240,8 @@ contains
 
 
     if (this%params%valid_path('case.scalar.boundary_conditions')) then
-       call this%params%info('case.scalar.boundary_conditions', n_children=n_bcs)
+       call this%params%info('case.scalar.boundary_conditions', &
+            n_children=n_bcs)
        call this%params%get_core(core)
        call this%params%get('case.scalar.boundary_conditions', bc_object, found)
 
@@ -257,6 +253,8 @@ contains
 
           call bc_factory(this%bcs%items(i)%ptr, bc_subdict, &
                           this%c_Xh, user)
+
+          this%bcs%size_ = this%bcs%size_ + 1
 
           if (this%bcs%strong(i)) then
              this%n_strong = this%n_strong + 1
@@ -392,14 +390,7 @@ contains
 !    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet,&
 !                                                     this%user_bc)
     ! ?? NEWLY FROM DEVELOP
-!    call this%user_bc%mark_zone(msh%wall)
-!    call this%user_bc%mark_zone(msh%inlet)
-!    call this%user_bc%mark_zone(msh%outlet)
-!    call this%user_bc%mark_zone(msh%outlet_normal)
-!    call this%user_bc%mark_zone(msh%sympln)
 !    call this%user_bc%finalize()
-!    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet, &
-!         this%user_bc)
 
     ! Add field dirichlet BCs
 !    call this%field_dir_bc%init_base(this%c_Xh)
@@ -594,16 +585,6 @@ contains
     call ksp%set_pc(pc)
 
   end subroutine scalar_scheme_precon_factory
-
-  !> Initialize a user defined scalar bc
-  !! @param usr_eval User specified boundary condition for scalar field
-  subroutine scalar_scheme_set_user_bc(this, usr_eval)
-    class(scalar_scheme_t), intent(inout) :: this
-    procedure(usr_scalar_bc_eval) :: usr_eval
-
-    call this%user_bc%set_eval(usr_eval)
-
-  end subroutine scalar_scheme_set_user_bc
 
   !> Update the values of `lambda_field` if necessary.
   subroutine scalar_scheme_update_material_properties(this)

@@ -107,7 +107,7 @@ module scalar_pnpn
      ! Advection terms for the oifs method
      type(field_t) :: advs
 
-     !> Computes the residual.
+     !> Computes the residual of the equation, i.e. `s_res`.
      class(scalar_residual_t), allocatable :: res
 
      !> Contributions to kth order extrapolation scheme.
@@ -116,7 +116,7 @@ module scalar_pnpn
      !> Contributions to the RHS from lagged BDF terms.
      class(rhs_maker_bdf_t), allocatable :: makebdf
 
-     !> Contributions to the RHS from the OIFS method
+     !> Contributions to the RHS from the OIFS method.
      class(rhs_maker_oifs_t), allocatable :: makeoifs
 
    contains
@@ -138,6 +138,11 @@ contains
   !! @param gs The gather-scatter.
   !! @param params The case parameter file in json.
   !! @param user Type with user-defined procedures.
+  !! @param ulag Lag arrays for the x velocity component.
+  !! @param vlag Lag arrays for the y velocity component.
+  !! @param wlag Lag arrays for the z velocity component.
+  !! @param time_scheme The time-integration controller.
+  !! @param rho The fluid density.
   subroutine scalar_pnpn_init(this, msh, coef, gs, params, user, &
        ulag, vlag, wlag, time_scheme, rho)
     class(scalar_pnpn_t), target, intent(inout) :: this
@@ -167,7 +172,7 @@ contains
     ! Setup backend dependent summation of extrapolation scheme
     call rhs_maker_ext_fctry(this%makeext)
 
-    ! Setup backend depenent contributions to F from lagged BD terms
+    ! Setup backend dependent contributions to F from lagged BD terms
     call rhs_maker_bdf_fctry(this%makebdf)
 
     ! Setup backend dependent contributions of the OIFS scheme
@@ -192,8 +197,10 @@ contains
     ! Initialize dirichlet bcs for scalar residual
     ! todo: look that this works
     call this%bc_res%init(this%c_Xh, params)
-    do i = 1, this%n_strong
-       call this%bc_res%mark_facets(this%bcs%items(i)%ptr%marked_facet)
+    do i = 1, this%bcs%size_
+       if (this%bcs%strong(i)) then
+          call this%bc_res%mark_facets(this%bcs%items(i)%ptr%marked_facet)
+       end if
     end do
 
 !    call this%bc_res%mark_zones_from_list('d_s', this%bc_labels)
@@ -203,7 +210,7 @@ contains
     call this%bclst_ds%append(this%bc_res)
 
 
-    ! Intialize projection space
+    ! Initialize projection space
     call this%proj_s%init(this%dm_Xh%size(), this%projection_dim,  &
                             this%projection_activ_step)
 
@@ -336,8 +343,7 @@ contains
          call this%gradient_jump_penalty%perform(f_Xh)
       end if
       ! Apply weak boundary conditions, that contribute to the source terms.
-      call this%bcs%apply_scalar(this%f_Xh%x, dm_Xh%size(), t, &
-                                             tstep, strong=.false.)
+      call this%bcs%apply_scalar(this%f_Xh%x, dm_Xh%size(), t, tstep, .false.)
 
       if (oifs) then
          ! Add the advection operators to the right-hans-side.
@@ -370,12 +376,10 @@ contains
       !> Apply strong boundary conditions.
       !! We assume that no change of boundary conditions
       !! occurs between elements. i.e. we do not apply gsop here like in Nek5000
-      call this%field_dir_bc%update(this%field_dir_bc%field_list, &
-           this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
+!      call this%field_dir_bc%update(this%field_dir_bc%field_list, &
+!           this%field_dirichlet_bcs, this%c_Xh, t, tstep, "scalar")
 
-      call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), t, tstep, &
-                                 strong=.true.)
-
+      call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), t, tstep, .true.) 
 
       ! Update material properties if necessary
       call this%update_material_properties()

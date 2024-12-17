@@ -1163,7 +1163,7 @@ contains
       do i=1, size(FLUID_PNPN_KNOWN_BCS)
          if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
       end do
-      call neko_type_error("fluid_pnpn boundary conidtions", type, &
+      call neko_type_error("fluid_pnpn boundary conditions", type, &
            FLUID_PNPN_KNOWN_BCS)
     end if
 
@@ -1212,7 +1212,7 @@ contains
       do i=1, size(FLUID_PNPN_KNOWN_BCS)
          if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
       end do
-      call neko_type_error("fluid_pnpn boundary conidtions", type, &
+      call neko_type_error("fluid_pnpn boundary conditions", type, &
            FLUID_PNPN_KNOWN_BCS)
     end if
 

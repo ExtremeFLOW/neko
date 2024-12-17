@@ -44,12 +44,21 @@ module bc_fctry
   use mesh, only : NEKO_MSH_MAX_ZLBLS
   use usr_scalar, only : usr_scalar_t
   use user_intf, only : user_t
+  use usr_scalar, only : usr_scalar_t
+  use utils, only : neko_type_error 
   implicit none
   private
 
   public :: bc_factory
 
+  ! List of all possible types created by the boundary condition factories
+  character(len=25) :: SCALAR_PNPN_KNOWN_BCS(3) = [character(len=25) :: &
+     "dirichlet", &
+     "user_pointwise", &
+     "neumann"]
+
 contains
+
 
   !> Boundary condition factory. Both constructs and initializes the object.
   !! Will mark a mesh zone for the bc and finalize.
@@ -61,7 +70,7 @@ contains
     type(coef_t), intent(in) :: coef
     type(user_t), intent(in) :: user
     character(len=:), allocatable :: type
-    integer :: zone_index
+    integer :: zone_index, i
 
     call json_get(json, "type", type)
 
@@ -80,6 +89,12 @@ contains
        allocate(dirichlet_t::object)
     else if (trim(type) .eq. "neumann") then
        allocate(neumann_t::object)
+    else
+      do i=1, size(SCALAR_PNPN_KNOWN_BCS)
+         if (trim(type) .eq. trim(SCALAR_PNPN_KNOWN_BCS(i))) return
+      end do
+      call neko_type_error("scalar_pnpn boundary conditions", type, &
+           SCALAR_PNPN_KNOWN_BCS)
     end if
 
     call json_get(json, "zone_index", zone_index)
