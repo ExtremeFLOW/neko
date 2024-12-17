@@ -67,9 +67,6 @@ module field_dirichlet
      type(field_t) :: field_bc
      !> A field list, which just stores `field_bc`, for convenience.
      type(field_list_t) :: field_list
-     !> A bc list that for storing one elf! Used to confirm to the update
-     !! interface
-     type(bc_list_t) :: bc_list
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
      procedure(field_dirichlet_update), nopass, pointer :: update => null()
@@ -106,14 +103,15 @@ module field_dirichlet
   !! @param which_solver Indicates wether the fields provided come from "fluid"
   !! or "scalar".
   abstract interface
-     subroutine field_dirichlet_update(dirichlet_field_list, dirichlet_bc_list,&
+     subroutine field_dirichlet_update(dirichlet_field_list, dirichlet_bc, &
           coef, t, tstep)
        import rp
        import field_list_t
-       import bc_list_t
+       import bc_t
        import coef_t
+       import field_dirichlet_t
        type(field_list_t), intent(inout) :: dirichlet_field_list
-       type(bc_list_t), intent(inout) :: dirichlet_bc_list
+       type(field_dirichlet_t), intent(in) :: dirichlet_bc
        type(coef_t), intent(inout) :: coef
        real(kind=rp), intent(in) :: t
        integer, intent(in) :: tstep
@@ -149,7 +147,6 @@ contains
     call this%field_bc%init(this%dof, field_name)
     call this%field_list%init(1)
     call this%field_list%assign_to_field(1, this%field_bc)
-    call this%bc_list%init(1)
   end subroutine field_dirichlet_init_from_components
 
   !> Destructor. Currently this%field_bc is being freed in `fluid_scheme::free`
@@ -184,7 +181,7 @@ contains
 
     if (strong_ .and. this%msk(0) .gt. 0) then
 
-       call this%update(this%field_list, this%bc_list, this%coef, t, tstep)
+       call this%update(this%field_list, this, this%coef, t, tstep)
        call masked_copy(x, this%field_bc%x, this%msk, n, this%msk(0))
     end if
 
@@ -201,7 +198,7 @@ contains
     integer, intent(in), optional :: tstep
 
     if (this%msk(0) .gt. 0) then
-       call this%update(this%field_list, this%bc_list, this%coef, t, tstep)
+       call this%update(this%field_list, this, this%coef, t, tstep)
        call device_masked_copy(x_d, this%field_bc%x_d, this%msk_d, &
             this%field_bc%dof%size(), this%msk(0))
     end if
@@ -254,7 +251,5 @@ contains
     class(field_dirichlet_t), target, intent(inout) :: this
 
     call this%finalize_base()
-    ! Hopefully this does not open a black hole.
-    call this%bc_list%append(this)
   end subroutine field_dirichlet_finalize
 end module field_dirichlet

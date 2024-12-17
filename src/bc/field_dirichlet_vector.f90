@@ -62,8 +62,6 @@ module field_dirichlet_vector
      type(field_dirichlet_t) :: bc_w
      !> A field list to store the bcs for passing to various subroutines.
      type(field_list_t) :: field_list
-     !> A bc list to store the bcs for passing to various subroutines.
-     type(bc_list_t) :: bc_list
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
      procedure(field_dirichlet_update), nopass, pointer :: update => null()
@@ -122,10 +120,6 @@ contains
     call this%field_list%assign_to_field(2, this%bc_v%field_bc)
     call this%field_list%assign_to_field(3, this%bc_w%field_bc)
 
-    call this%bc_list%init(3)
-    call this%bc_list%append(this%bc_u)
-    call this%bc_list%append(this%bc_v)
-    call this%bc_list%append(this%bc_w)
   end subroutine field_dirichlet_vector_init_from_components
 
   !> Destructor. Currently unused as is, all field_dirichlet attributes
@@ -138,7 +132,6 @@ contains
     call this%bc_w%free()
 
     call this%field_list%free()
-    call this%bc_list%free()
 
     if (associated(this%update)) then
        nullify(this%update)
@@ -201,7 +194,9 @@ contains
 
     if (strong_) then
 
-       call this%update(this%field_list, this%bc_list, this%coef, t, tstep)
+       ! We can send any of the 3 bcs we have as argument, since they are all
+       ! the same boundary.
+       call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
 
        call masked_copy(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
        call masked_copy(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
@@ -225,11 +220,14 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
 
-       call this%update(this%field_list, this%bc_list, this%coef, t, tstep)
+       call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
 
-       call this%bc_u%apply_scalar_dev(x_d, t, tstep)
-       call this%bc_v%apply_scalar_dev(y_d, t, tstep)
-       call this%bc_w%apply_scalar_dev(z_d, t, tstep)
+       call device_masked_copy(x_d, this%bc_u%field_bc%x_d, this%bc_u%msk_d, &
+            this%bc_u%dof%size(), this%msk(0))
+       call device_masked_copy(y_d, this%bc_v%field_bc%x_d, this%bc_v%msk_d, &
+            this%bc_v%dof%size(), this%msk(0))
+       call device_masked_copy(z_d, this%bc_w%field_bc%x_d, this%bc_w%msk_d, &
+            this%bc_w%dof%size(), this%msk(0))
 
    end subroutine field_dirichlet_vector_apply_vector_dev
 

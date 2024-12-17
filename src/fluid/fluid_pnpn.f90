@@ -912,12 +912,6 @@ contains
       call vlag%update()
       call wlag%update()
 
-      !> We assume that no change of boundary conditions
-      !! occurs between elements. I.e. we do not apply gsop here like in Nek5000
-      !> Apply the user dirichlet boundary condition
-!      call this%user_field_bc_vel%update(this%user_field_bc_vel%field_list, &
-!              this%user_field_bc_vel%bc_list, this%c_Xh, t, tstep, "fluid")
-
       call this%bc_apply_vel(t, tstep, strong = .true.)
       call this%bc_apply_prs(t, tstep)
 
@@ -993,19 +987,6 @@ contains
 
       dump_file = file_t('u_res.fld')
       call dump_file%write(u_res)
-
-
-      ! We should implement a bc that takes three field_bcs and implements
-      ! vector_apply
-!      if (NEKO_BCKND_DEVICE .eq. 1) then
-!         call this%bc_field_dirichlet_u%apply_scalar_dev(u_res%x_d, t, tstep)
-!         call this%bc_field_dirichlet_v%apply_scalar_dev(v_res%x_d, t, tstep)
-!         call this%bc_field_dirichlet_w%apply_scalar_dev(w_res%x_d, t, tstep)
-!      else
-!         call this%bc_field_dirichlet_u%apply_scalar(u_res%x, n, t, tstep)
-!         call this%bc_field_dirichlet_v%apply_scalar(v_res%x, n, t, tstep)
-!         call this%bc_field_dirichlet_w%apply_scalar(w_res%x, n, t, tstep)
-!      end if
 
       call profiler_end_region('Velocity_residual', 19)
 
@@ -1129,6 +1110,7 @@ contains
   !! @param coef The SEM coeffcients.
   !! @param user The user interface.
   subroutine pressure_bc_factory(object, scheme, json, coef, user)
+    use field_dirichlet, only : field_dirichlet_t
     class(bc_t), pointer, intent(inout) :: object
     type(fluid_pnpn_t), intent(in) :: scheme
     type(json_file), intent(inout) :: json
@@ -1145,6 +1127,13 @@ contains
     else if ((trim(type) .eq. "outflow+dong") .or. &
             (trim(type) .eq. "normal_outflow+dong")) then
        allocate(dong_outflow_t::object)
+    else if (trim(type) .eq. "user_pressure") then
+       allocate(field_dirichlet_t::object)
+       select type(obj => object)
+       type is(field_dirichlet_t)
+          obj%update => user%user_dirichlet_update
+          call json%add("field_name", scheme%p%name)
+       end select
     else
       do i=1, size(FLUID_PNPN_KNOWN_BCS)
          if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
@@ -1200,7 +1189,12 @@ contains
        type is(field_dirichlet_vector_t)
           obj%update => user%user_dirichlet_update
        end select
-
+    else if (trim(type) .eq. "user_velocity_pointwise") then
+       allocate(usr_inflow_t::object)
+       select type(obj => object)
+       type is(usr_inflow_t)
+          call obj%set_eval(user%fluid_user_if)
+       end select
     else
       do i=1, size(FLUID_PNPN_KNOWN_BCS)
          if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return

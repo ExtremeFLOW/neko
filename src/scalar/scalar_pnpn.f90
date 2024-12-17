@@ -494,6 +494,7 @@ contains
   !! @param[in] scheme The `scalar_pnpn? scheme
   !! @param[inout] json JSON object for initializing the bc.
   !! @param[in] coef SEM coefficients.
+  !! @param[in] user The user interface.
   subroutine bc_factory(object, scheme, json, coef, user)
     use usr_scalar, only : usr_scalar_t
     use field_dirichlet, only : field_dirichlet_t
