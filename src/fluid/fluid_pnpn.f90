@@ -359,32 +359,8 @@ contains
     end do
     call this%bc_sym_surface%finalize()
 
-    ! This impacts the rhs of the pressure, need to check what is correct to add
-    ! here
-
-    !call this%bc_prs_surface%mark_zones_from_list('d_vel_u', this%bc_labels)
-    !call this%bc_prs_surface%mark_zones_from_list('d_vel_v', this%bc_labels)
-    !call this%bc_prs_surface%mark_zones_from_list('d_vel_w', this%bc_labels)
-    !call this%bc_prs_surface%finalize()
-
     ! Generate pressure boundary condition list
     call this%pnpn_setup_bcs(user)
-
-    ! Field dirichlet pressure bc
-!    call this%user_field_bc_prs%init_base(this%c_Xh)
-!    call this%user_field_bc_prs%mark_zones_from_list('d_pres', this%bc_labels)
-!    call this%user_field_bc_prs%finalize()
-!    call MPI_Allreduce(this%user_field_bc_prs%msk(0), integer_val, 1, &
-!         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-
-!    call this%bc_field_dirichlet_p%init(this%c_Xh, params)
-!    call this%bc_field_dirichlet_p%mark_zones_from_list('d_pres', &
-!                                         this%bc_labels)
-!    call this%bc_field_dirichlet_p%finalize()
-
-!    if (integer_val .gt. 0)  call this%user_field_bc_prs%init_field('d_pres')
-!    call this%bclst_prs%append(this%user_field_bc_prs)
-!    call this%user_field_bc_vel%bc_list%append(this%user_field_bc_prs)
 
     ! Mark Dirichlet bcs for pressure
     call this%bclst_dp%init()
@@ -402,21 +378,6 @@ contains
     this%prs_dirichlet =  .not. this%bclst_dp%is_empty()
     call MPI_Allreduce(MPI_IN_PLACE, this%prs_dirichlet, 1, &
          MPI_LOGICAL, MPI_LOR, NEKO_COMM)
-
-!    call this%bc_field_dirichlet_u%init(this%c_Xh, params)
-!    call this%bc_field_dirichlet_u%mark_zones_from_list('d_vel_u', &
-!                                         this%bc_labels)
-!    call this%bc_field_dirichlet_u%finalize()
-
-!    call this%bc_field_dirichlet_v%init(this%c_Xh, params)
-!    call this%bc_field_dirichlet_v%mark_zones_from_list('d_vel_v', &
-!                                         this%bc_labels)
-!    call this%bc_field_dirichlet_v%finalize()
-
-!    call this%bc_field_dirichlet_w%init(this%c_Xh, params)
-!    call this%bc_field_dirichlet_w%mark_zones_from_list('d_vel_w', &
-!                                         this%bc_labels)
-!    call this%bc_field_dirichlet_w%finalize()
 
     ! Populate lists for the velocity residual and solution increments
     call this%bclst_vel_res%init()
@@ -486,36 +447,6 @@ contains
     write(*,*) "BCLST_DW size", this%bclst_dw%size_
     write(*,*) "BCLST_DP size", this%bclst_dp%size_
     write(*,*) "BCLST_VEL_RES size", this%bclst_vel_res%size_
-
-    !call this%bclst_vel_res%append(this%bc_vel_res)
-    !call this%bclst_vel_res%append(this%bc_vel_res_non_normal)
-
-!    call this%bclst_vel_res%append(this%bc_sym)
-!    call this%bclst_vel_res%append(this%bc_sh%symmetry)
-!    call this%bclst_vel_res%append(this%bc_wallmodel%symmetry)
-
-    !Initialize bcs for u, v, w velocity components
-!    call this%bclst_du%append(this%bc_sym%bc_x)
-!    call this%bclst_du%append(this%bc_sh%symmetry%bc_x)
-!    call this%bclst_du%append(this%bc_wallmodel%symmetry%bc_x)
-!    call this%bclst_du%append(this%bc_vel_res_non_normal%bc_x)
-!    call this%bclst_du%append(this%bc_vel_res)
-!    call this%bclst_du%append(this%bc_field_dirichlet_u)
-
-!    call this%bclst_dv%append(this%bc_sym%bc_y)
-!    call this%bclst_dv%append(this%bc_sh%symmetry%bc_y)
-!    call this%bclst_dv%append(this%bc_wallmodel%symmetry%bc_y)
-!    call this%bclst_dv%append(this%bc_vel_res_non_normal%bc_y)
-!    call this%bclst_dv%append(this%bc_vel_res)
-!    call this%bclst_dv%append(this%bc_field_dirichlet_v)
-
-!    call this%bclst_dw%append(this%bc_sym%bc_z)
-!    call this%bclst_dw%append(this%bc_sh%symmetry%bc_z)
-!    call this%bclst_dw%append(this%bc_wallmodel%symmetry%bc_z)
-!    call this%bclst_dw%append(this%bc_vel_res_non_normal%bc_z)
-!    call this%bclst_dw%append(this%bc_vel_res)
-!    call this%bclst_dw%append(this%bc_field_dirichlet_w)
-
 
     ! Intialize projection space
 
