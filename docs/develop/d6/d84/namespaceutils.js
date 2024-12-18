@@ -11,6 +11,7 @@ var namespaceutils =
     [ "linear_index", "d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7", null ],
     [ "neko_error_msg", "d6/d84/namespaceutils.html#a3cf7bfb68277b54cd02ef0130346db4e", null ],
     [ "neko_error_plain", "d6/d84/namespaceutils.html#ae0e74d297e284fe9a7610afde2a08c5d", null ],
+    [ "neko_type_error", "d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b", null ],
     [ "neko_warning", "d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f", null ],
     [ "nonlinear_index", "d6/d84/namespaceutils.html#acd2a2375ca2ed5c299af5a955f53389b", null ],
     [ "split_string", "d6/d84/namespaceutils.html#a2de13cdec1ab133b6f0545f467a5abcc", null ],

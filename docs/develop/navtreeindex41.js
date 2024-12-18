@@ -1,5 +1,6 @@
 var NAVTREEINDEX41 =
 {
+"d9/d6e/interfacehip__filters_1_1hip__smooth__step.html":[3,0,147,1],
 "d9/d6e/interfacehip__filters_1_1hip__smooth__step.html":[4,0,126,1],
 "d9/d6e/interfacehip__filters_1_1hip__smooth__step.html#af1d4ae460c5f5f13b56bbeafd92b0375":[3,0,147,1,0],
 "d9/d6e/interfacehip__filters_1_1hip__smooth__step.html#af1d4ae460c5f5f13b56bbeafd92b0375":[4,0,126,1,0],
@@ -248,6 +249,5 @@ var NAVTREEINDEX41 =
 "d9/d9a/namespacesmagorinsky.html#a7ad692040326e846db35999b9002f9bf":[3,0,254,2],
 "d9/d9a/namespacesmagorinsky.html#a7e50d1b4992ed399dae8d96bed4a0d5b":[3,0,254,1],
 "d9/d9a/namespacesmagorinsky.html#ad583126b2494f54412c0b1cda2ba9976":[3,0,254,3],
-"d9/d9b/namespaceadv__dummy.html":[3,0,4],
-"d9/d9b/namespaceadv__dummy.html#a266a45b7efdb17afcfabc7b4225b3b50":[3,0,4,1]
+"d9/d9b/namespaceadv__dummy.html":[3,0,4]
 };

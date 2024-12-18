@@ -11,6 +11,7 @@ var utils_8f90 =
     [ "linear_index", "df/d80/utils_8f90.html#a4c8e13ce7a50b4ecdbc01c590018bea7", null ],
     [ "neko_error_msg", "df/d80/utils_8f90.html#a3cf7bfb68277b54cd02ef0130346db4e", null ],
     [ "neko_error_plain", "df/d80/utils_8f90.html#ae0e74d297e284fe9a7610afde2a08c5d", null ],
+    [ "neko_type_error", "df/d80/utils_8f90.html#ac2aece3826d2efe73113379fc55ae05b", null ],
     [ "neko_warning", "df/d80/utils_8f90.html#a8de91e60607d8bf98d265d9e9a90f88f", null ],
     [ "nonlinear_index", "df/d80/utils_8f90.html#acd2a2375ca2ed5c299af5a955f53389b", null ],
     [ "split_string", "df/d80/utils_8f90.html#a2de13cdec1ab133b6f0545f467a5abcc", null ],

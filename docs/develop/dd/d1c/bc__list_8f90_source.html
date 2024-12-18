@@ -171,7 +171,7 @@ $(document).ready(function(){initNavTree('dd/d1c/bc__list_8f90_source.html','../
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno"><a class="line" href="../../d1/dd7/namespacebc__list.html#a3d8a49e323979d9f9463f831b5fd4b36">   75</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d1/dd7/namespacebc__list.html#a3d8a49e323979d9f9463f831b5fd4b36">bc_list_init</a>(this, size)</div>
 <div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">target</span> :: this</div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span> :: size</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    <span class="keywordtype">integer</span> :: n, i</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    <span class="keywordtype">integer</span> :: n</div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <span class="keyword">call </span>this%free()</div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span> </div>
@@ -212,105 +212,104 @@ $(document).ready(function(){initNavTree('dd/d1c/bc__list_8f90_source.html','../
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">target</span> :: bc</div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d7/df6/structbc_1_1bc__ptr__t.html">bc_ptr_t</a>), <span class="keywordtype">allocatable</span> :: tmp(:)</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    <span class="keywordflow">if</span>(<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%marked_facet%size() .eq. 0) <span class="keywordflow">return</span></div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="keywordflow">if</span> (this%size .ge. this%capacity) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>       this%capacity = this%capacity * 2</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>       <span class="keyword">allocate</span>(tmp(this%capacity))</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>       tmp(1:this%size) = this%items</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>       <span class="keyword">call </span>move_alloc(tmp, this%items)</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span> </div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    this%size = this%size + 1</div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    this%items(this%size)%ptr =&gt; <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a></div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span> </div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span> </div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    <span class="keywordflow">if</span>(<a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%marked_facet%size() .eq. 0) <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span> </div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    <span class="keywordflow">if</span> (this%size .ge. this%capacity) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>       this%capacity = this%capacity * 2</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>       <span class="keyword">allocate</span>(tmp(this%capacity))</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>       tmp(1:this%size) = this%items</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>       <span class="keyword">call </span>move_alloc(tmp, this%items)</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span> </div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    this%size = this%size + 1</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    this%items(this%size)%ptr =&gt; <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a></div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
 </div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d1/dd7/namespacebc__list.html#a4243c5f0854fc1fa30679b4a26380995">bc_list_append</a></div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span> </div>
-<div class="foldopen" id="foldopen00142" data-start="" data-end="">
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno"><a class="line" href="../../d1/dd7/namespacebc__list.html#afd92ce581203eac738042feb616bbb3a">  142</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d1/dd7/namespacebc__list.html#afd92ce581203eac738042feb616bbb3a">bc_list_apply_scalar</a>(this, x, n, t, tstep)</div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">dimension(n)</span> :: x</div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: t</div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: tstep</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    <span class="keywordtype">type</span>(c_ptr) :: x_d</div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span> </div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>       x_d = <a class="code hl_interface" href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device_get_ptr</a>(x)</div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>       <span class="keywordflow">do</span> i = 1, this%size</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>          <span class="keyword">call </span>this%items(i)%ptr%apply_scalar_dev(x_d, t, tstep)</div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>       <span class="keywordflow">do</span> i = 1, this%size</div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>          <span class="keyword">call </span>this%items(i)%ptr%apply_scalar(x, n, t, tstep)</div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d1/dd7/namespacebc__list.html#a4243c5f0854fc1fa30679b4a26380995">bc_list_append</a></div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span> </div>
+<div class="foldopen" id="foldopen00141" data-start="" data-end="">
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno"><a class="line" href="../../d1/dd7/namespacebc__list.html#afd92ce581203eac738042feb616bbb3a">  141</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d1/dd7/namespacebc__list.html#afd92ce581203eac738042feb616bbb3a">bc_list_apply_scalar</a>(this, x, n, t, tstep)</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">dimension(n)</span> :: x</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: t</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: tstep</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    <span class="keywordtype">type</span>(c_ptr) :: x_d</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span> </div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>       x_d = <a class="code hl_interface" href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device_get_ptr</a>(x)</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>       <span class="keywordflow">do</span> i = 1, this%size</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>          <span class="keyword">call </span>this%items(i)%ptr%apply_scalar_dev(x_d, t, tstep)</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>       <span class="keywordflow">do</span> i = 1, this%size</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>          <span class="keyword">call </span>this%items(i)%ptr%apply_scalar(x, n, t, tstep)</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span><span class="keywordflow">    end if</span></div>
 </div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d1/dd7/namespacebc__list.html#afd92ce581203eac738042feb616bbb3a">bc_list_apply_scalar</a></div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span> </div>
-<div class="foldopen" id="foldopen00170" data-start="" data-end="">
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno"><a class="line" href="../../d1/dd7/namespacebc__list.html#a18da13be330c858568815c82dd79f2b7">  170</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d1/dd7/namespacebc__list.html#a18da13be330c858568815c82dd79f2b7">bc_list_apply_vector</a>(this, x, y, z, n, t, tstep)</div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">dimension(n)</span> :: x</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">dimension(n)</span> :: y</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">dimension(n)</span> :: z</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: t</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: tstep</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    <span class="keywordtype">type</span>(c_ptr) :: x_d</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>    <span class="keywordtype">type</span>(c_ptr) :: y_d</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>    <span class="keywordtype">type</span>(c_ptr) :: z_d</div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span> </div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>       x_d = <a class="code hl_interface" href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device_get_ptr</a>(x)</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>       y_d = <a class="code hl_interface" href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device_get_ptr</a>(y)</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>       z_d = <a class="code hl_interface" href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device_get_ptr</a>(z)</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>       <span class="keywordflow">do</span> i = 1, this%size</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>          <span class="keyword">call </span>this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t, tstep)</div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>       <span class="keywordflow">do</span> i = 1, this%size</div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>          <span class="keyword">call </span>this%items(i)%ptr%apply_vector(x, y, z, n, t, tstep)</div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d1/dd7/namespacebc__list.html#afd92ce581203eac738042feb616bbb3a">bc_list_apply_scalar</a></div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span> </div>
+<div class="foldopen" id="foldopen00169" data-start="" data-end="">
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno"><a class="line" href="../../d1/dd7/namespacebc__list.html#a18da13be330c858568815c82dd79f2b7">  169</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d1/dd7/namespacebc__list.html#a18da13be330c858568815c82dd79f2b7">bc_list_apply_vector</a>(this, x, y, z, n, t, tstep)</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">dimension(n)</span> :: x</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">dimension(n)</span> :: y</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(inout)</span>, <span class="keywordtype">dimension(n)</span> :: z</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: t</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: tstep</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="keywordtype">type</span>(c_ptr) :: x_d</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    <span class="keywordtype">type</span>(c_ptr) :: y_d</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>    <span class="keywordtype">type</span>(c_ptr) :: z_d</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span> </div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>       x_d = <a class="code hl_interface" href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device_get_ptr</a>(x)</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>       y_d = <a class="code hl_interface" href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device_get_ptr</a>(y)</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>       z_d = <a class="code hl_interface" href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device_get_ptr</a>(z)</div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>       <span class="keywordflow">do</span> i = 1, this%size</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>          <span class="keyword">call </span>this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t, tstep)</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>       <span class="keywordflow">do</span> i = 1, this%size</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>          <span class="keyword">call </span>this%items(i)%ptr%apply_vector(x, y, z, n, t, tstep)</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span> </div>
 </div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d1/dd7/namespacebc__list.html#a18da13be330c858568815c82dd79f2b7">bc_list_apply_vector</a></div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span> </div>
-<div class="foldopen" id="foldopen00199" data-start="" data-end="">
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno"><a class="line" href="../../d1/dd7/namespacebc__list.html#aeb2e0edacac335a2a117bb9133929016">  199</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d1/dd7/namespacebc__list.html#aeb2e0edacac335a2a117bb9133929016">bc_list_is_empty</a>(this) <span class="keyword">result</span>(is_empty)</div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list_t</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">target</span> :: this</div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="keywordtype">logical</span> :: is_empty</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span> </div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    is_empty = .true. </div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    <span class="keywordflow">do</span> i = 1, this%size</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span> </div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>       <span class="keywordflow">if</span> (.not. <span class="keyword">allocated</span>(this%items(i)%ptr%msk)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;bc not finalized, error in bc_list%is_empty&quot;</span>)</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span> </div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>       <span class="keywordflow">if</span> (this%items(i)%ptr%msk(0) &gt; 0) is_empty = .false.</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    </div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d1/dd7/namespacebc__list.html#a18da13be330c858568815c82dd79f2b7">bc_list_apply_vector</a></div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span> </div>
+<div class="foldopen" id="foldopen00198" data-start="" data-end="">
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno"><a class="line" href="../../d1/dd7/namespacebc__list.html#aeb2e0edacac335a2a117bb9133929016">  198</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../d1/dd7/namespacebc__list.html#aeb2e0edacac335a2a117bb9133929016">bc_list_is_empty</a>(this) <span class="keyword">result</span>(is_empty)</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../df/da4/structbc__list_1_1bc__list__t.html">bc_list_t</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">target</span> :: this</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="keywordtype">logical</span> :: is_empty</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span> </div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>    is_empty = .true. </div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    <span class="keywordflow">do</span> i = 1, this%size</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span> </div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>       <span class="keywordflow">if</span> (.not. <span class="keyword">allocated</span>(this%items(i)%ptr%msk)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;bc not finalized, error in bc_list%is_empty&quot;</span>)</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span> </div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>       <span class="keywordflow">if</span> (this%items(i)%ptr%msk(0) &gt; 0) is_empty = .false.</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    </div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span><span class="keywordflow">    end do</span></div>
 </div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d1/dd7/namespacebc__list.html#aeb2e0edacac335a2a117bb9133929016">bc_list_is_empty</a></div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span> </div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d1/dd7/namespacebc__list.html">bc_list</a></div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d1/dd7/namespacebc__list.html#aeb2e0edacac335a2a117bb9133929016">bc_list_is_empty</a></div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span> </div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d1/dd7/namespacebc__list.html">bc_list</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__get__ptr_html"><div class="ttname"><a href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device::device_get_ptr</a></div><div class="ttdoc">Return the device pointer for an associated Fortran array.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00081">device.F90:81</a></div></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00042">utils.f90:42</a></div></div>
 <div class="ttc" id="anamespacebc__list_html"><div class="ttname"><a href="../../d1/dd7/namespacebc__list.html">bc_list</a></div><div class="ttdoc">Defines a list of bc_t.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d1c/bc__list_8f90_source.html#l00034">bc_list.f90:34</a></div></div>
-<div class="ttc" id="anamespacebc__list_html_a18da13be330c858568815c82dd79f2b7"><div class="ttname"><a href="../../d1/dd7/namespacebc__list.html#a18da13be330c858568815c82dd79f2b7">bc_list::bc_list_apply_vector</a></div><div class="ttdeci">subroutine bc_list_apply_vector(this, x, y, z, n, t, tstep)</div><div class="ttdoc">Apply a list of boundary conditions to a vector field.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d1c/bc__list_8f90_source.html#l00170">bc_list.f90:171</a></div></div>
+<div class="ttc" id="anamespacebc__list_html_a18da13be330c858568815c82dd79f2b7"><div class="ttname"><a href="../../d1/dd7/namespacebc__list.html#a18da13be330c858568815c82dd79f2b7">bc_list::bc_list_apply_vector</a></div><div class="ttdeci">subroutine bc_list_apply_vector(this, x, y, z, n, t, tstep)</div><div class="ttdoc">Apply a list of boundary conditions to a vector field.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d1c/bc__list_8f90_source.html#l00169">bc_list.f90:170</a></div></div>
 <div class="ttc" id="anamespacebc__list_html_a3d8a49e323979d9f9463f831b5fd4b36"><div class="ttname"><a href="../../d1/dd7/namespacebc__list.html#a3d8a49e323979d9f9463f831b5fd4b36">bc_list::bc_list_init</a></div><div class="ttdeci">subroutine bc_list_init(this, size)</div><div class="ttdoc">Constructor.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d1c/bc__list_8f90_source.html#l00075">bc_list.f90:76</a></div></div>
 <div class="ttc" id="anamespacebc__list_html_a4243c5f0854fc1fa30679b4a26380995"><div class="ttname"><a href="../../d1/dd7/namespacebc__list.html#a4243c5f0854fc1fa30679b4a26380995">bc_list::bc_list_append</a></div><div class="ttdeci">subroutine bc_list_append(this, bc)</div><div class="ttdoc">Append a condition to the end of the list.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d1c/bc__list_8f90_source.html#l00116">bc_list.f90:117</a></div></div>
 <div class="ttc" id="anamespacebc__list_html_ad66c7e8c450f0317043e4b1ad555b1fd"><div class="ttname"><a href="../../d1/dd7/namespacebc__list.html#ad66c7e8c450f0317043e4b1ad555b1fd">bc_list::bc_list_free</a></div><div class="ttdeci">subroutine bc_list_free(this)</div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d1c/bc__list_8f90_source.html#l00098">bc_list.f90:99</a></div></div>
-<div class="ttc" id="anamespacebc__list_html_aeb2e0edacac335a2a117bb9133929016"><div class="ttname"><a href="../../d1/dd7/namespacebc__list.html#aeb2e0edacac335a2a117bb9133929016">bc_list::bc_list_is_empty</a></div><div class="ttdeci">logical function bc_list_is_empty(this)</div><div class="ttdoc">Return whether the list is empty.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d1c/bc__list_8f90_source.html#l00199">bc_list.f90:200</a></div></div>
-<div class="ttc" id="anamespacebc__list_html_afd92ce581203eac738042feb616bbb3a"><div class="ttname"><a href="../../d1/dd7/namespacebc__list.html#afd92ce581203eac738042feb616bbb3a">bc_list::bc_list_apply_scalar</a></div><div class="ttdeci">subroutine bc_list_apply_scalar(this, x, n, t, tstep)</div><div class="ttdoc">Apply a list of boundary conditions to a scalar field.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d1c/bc__list_8f90_source.html#l00142">bc_list.f90:143</a></div></div>
+<div class="ttc" id="anamespacebc__list_html_aeb2e0edacac335a2a117bb9133929016"><div class="ttname"><a href="../../d1/dd7/namespacebc__list.html#aeb2e0edacac335a2a117bb9133929016">bc_list::bc_list_is_empty</a></div><div class="ttdeci">logical function bc_list_is_empty(this)</div><div class="ttdoc">Return whether the list is empty.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d1c/bc__list_8f90_source.html#l00198">bc_list.f90:199</a></div></div>
+<div class="ttc" id="anamespacebc__list_html_afd92ce581203eac738042feb616bbb3a"><div class="ttname"><a href="../../d1/dd7/namespacebc__list.html#afd92ce581203eac738042feb616bbb3a">bc_list::bc_list_apply_scalar</a></div><div class="ttdeci">subroutine bc_list_apply_scalar(this, x, n, t, tstep)</div><div class="ttdoc">Apply a list of boundary conditions to a scalar field.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/d1c/bc__list_8f90_source.html#l00141">bc_list.f90:142</a></div></div>
 <div class="ttc" id="anamespacebc_html"><div class="ttname"><a href="../../d0/dc0/namespacebc.html">bc</a></div><div class="ttdoc">Defines a boundary condition.</div><div class="ttdef"><b>Definition</b> <a href="../../df/df6/bc_8f90_source.html#l00034">bc.f90:34</a></div></div>
 <div class="ttc" id="anamespacedevice_html"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html">device</a></div><div class="ttdoc">Device abstraction, common interface for various accelerators.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00034">device.F90:34</a></div></div>
 <div class="ttc" id="anamespaceneko__config_html"><div class="ttname"><a href="../../d9/d77/namespaceneko__config.html">neko_config</a></div><div class="ttdoc">Build configurations.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d2d/neko__config_8f90_source.html#l00034">neko_config.f90:34</a></div></div>
@@ -327,7 +326,7 @@ $(document).ready(function(){initNavTree('dd/d1c/bc__list_8f90_source.html','../
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_96f7c11e9d5d0b09f433cbf8fd37f2d0.html">bc</a></li><li class="navelem"><a class="el" href="../../dd/d1c/bc__list_8f90.html">bc_list.f90</a></li>
-    <li class="footer">Generated on Tue Dec 17 2024 03:42:24 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Dec 18 2024 03:41:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

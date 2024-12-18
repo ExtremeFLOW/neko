@@ -1,5 +1,6 @@
 var NAVTREEINDEX52 =
 {
+"db/d39/interfaceopr__device_1_1hip__cdtp.html":[3,0,196,0],
 "db/d39/interfaceopr__device_1_1hip__cdtp.html#aa63f7920c149132bf87eb2511331ce68":[3,0,196,0,0],
 "db/d39/interfaceopr__device_1_1hip__cdtp.html#aa63f7920c149132bf87eb2511331ce68":[4,0,166,0,0],
 "db/d3a/interfacehip__math_1_1hip__sub3.html":[4,0,128,30],
@@ -248,6 +249,5 @@ var NAVTREEINDEX52 =
 "db/d6f/structpoint_1_1point__t.html#a00fdb89db566531477dc984dec61a7d5":[3,0,212,1,8],
 "db/d6f/structpoint_1_1point__t.html#a00fdb89db566531477dc984dec61a7d5":[4,0,180,1,8],
 "db/d6f/structpoint_1_1point__t.html#a00fdb89db566531477dc984dec61a7d5":[4,0,180,1,9],
-"db/d6f/structpoint_1_1point__t.html#a091501cc7b621a2327762ccb74cae32a":[3,0,212,1,13],
-"db/d6f/structpoint_1_1point__t.html#a091501cc7b621a2327762ccb74cae32a":[4,0,180,1,13]
+"db/d6f/structpoint_1_1point__t.html#a091501cc7b621a2327762ccb74cae32a":[3,0,212,1,13]
 };

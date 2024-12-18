@@ -1,5 +1,6 @@
 var NAVTREEINDEX53 =
 {
+"db/d6f/structpoint_1_1point__t.html#a091501cc7b621a2327762ccb74cae32a":[4,0,180,1,13],
 "db/d6f/structpoint_1_1point__t.html#a10d793468db73412e2735a3aeab16226":[3,0,212,1,0],
 "db/d6f/structpoint_1_1point__t.html#a10d793468db73412e2735a3aeab16226":[4,0,180,1,0],
 "db/d6f/structpoint_1_1point__t.html#a196dbb683ae030302425421c3cee3401":[3,0,212,1,24],
@@ -248,6 +249,5 @@ var NAVTREEINDEX53 =
 "db/d99/interfaceopencl__intf_1_1clwaitforevents.html#aabd4ba98d541a6b00c58b7671c84a634":[4,0,164,23,0],
 "db/d9a/namespacecuda__intf.html":[3,0,50],
 "db/d9a/namespacecuda__intf.html#a05388b77b2bea0507b51694ea4bceb1f":[3,0,50,24],
-"db/d9a/namespacecuda__intf.html#a1c793e70125b57c96fb0118064cd273c":[3,0,50,27],
-"db/d9a/namespacecuda__intf.html#a1fda1a5e75d7de6040433bee82910bd3":[3,0,50,25]
+"db/d9a/namespacecuda__intf.html#a1c793e70125b57c96fb0118064cd273c":[3,0,50,27]
 };

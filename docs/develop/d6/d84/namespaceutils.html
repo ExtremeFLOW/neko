@@ -148,6 +148,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a3cf7bfb68277b54cd02ef0130346db4e" id="r_a3cf7bfb68277b54cd02ef0130346db4e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d84/namespaceutils.html#a3cf7bfb68277b54cd02ef0130346db4e">neko_error_msg</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">error_msg</a>)</td></tr>
 <tr class="memdesc:a3cf7bfb68277b54cd02ef0130346db4e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports an error and stops execution.  <br /></td></tr>
 <tr class="separator:a3cf7bfb68277b54cd02ef0130346db4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2aece3826d2efe73113379fc55ae05b" id="r_ac2aece3826d2efe73113379fc55ae05b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b">neko_type_error</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">base_type</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">wrong_type</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">known_types</a>)</td></tr>
+<tr class="memdesc:ac2aece3826d2efe73113379fc55ae05b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports an error allocating a type for a particular base pointer class.  <br /></td></tr>
+<tr class="separator:ac2aece3826d2efe73113379fc55ae05b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8de91e60607d8bf98d265d9e9a90f88f" id="r_a8de91e60607d8bf98d265d9e9a90f88f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f">neko_warning</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">warning_msg</a>)</td></tr>
 <tr class="memdesc:a8de91e60607d8bf98d265d9e9a90f88f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reports a warning to standard output.  <br /></td></tr>
 <tr class="separator:a8de91e60607d8bf98d265d9e9a90f88f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -203,7 +206,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00254">254</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00275">275</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 
 </div>
 </div>
@@ -737,6 +740,50 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a id="ac2aece3826d2efe73113379fc55ae05b" name="ac2aece3826d2efe73113379fc55ae05b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac2aece3826d2efe73113379fc55ae05b">&#9670;&#160;</a></span>neko_type_error()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">public</a> utils::neko_type_error </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*)&#160;</td>
+          <td class="paramname"><em>base_type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*)&#160;</td>
+          <td class="paramname"><em>wrong_type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">character</a>(len=*), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:)&#160;</td>
+          <td class="paramname"><em>known_types</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Should be used in factories. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">base_type</td><td>The base type of the object, which the factory tried to construct. </td></tr>
+    <tr><td class="paramname">wrong_type</td><td>The type that was attempted to construct. </td></tr>
+    <tr><td class="paramname">known_types</td><td>A list of the types that are known. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00249">249</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+
+</div>
+</div>
 <a id="a8de91e60607d8bf98d265d9e9a90f88f" name="a8de91e60607d8bf98d265d9e9a90f88f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8de91e60607d8bf98d265d9e9a90f88f">&#9670;&#160;</a></span>neko_warning()</h2>
 
@@ -753,7 +800,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00244">244</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d80/utils_8f90_source.html#l00265">265</a> of file <a class="el" href="../../df/d80/utils_8f90_source.html">utils.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -936,7 +983,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/d84/namespaceutils.html">utils</a></li>
-    <li class="footer">Generated on Tue Dec 17 2024 03:42:26 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Dec 18 2024 03:41:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

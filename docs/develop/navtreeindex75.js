@@ -1,5 +1,7 @@
 var NAVTREEINDEX75 =
 {
+"df/df6/bc_8f90.html#a316d14014f07ae85ac25bbcc01bd2b79":[5,0,2,1,1,9],
+"df/df6/bc_8f90.html#a9070c3a5c7f39f7c99eb882077054bc2":[5,0,2,1,1,10],
 "df/df6/bc_8f90.html#abfacbd681994384ab260ac3844936e36":[5,0,2,1,1,14],
 "df/df6/bc_8f90.html#acbbeaf2224629c4761155d34f86c8352":[5,0,2,1,1,11],
 "df/df6/bc_8f90.html#ad276b14294570cad93e3ca9348cb2a18":[5,0,2,1,1,12],
@@ -11,8 +13,8 @@ var NAVTREEINDEX75 =
 "df/dfb/sigma__cpu_8f90.html":[5,0,2,11,0,0,2],
 "df/dfb/sigma__cpu_8f90.html#ad5639c13d4ac097ec8fcf954271feb9c":[5,0,2,11,0,0,2,0],
 "df/dfb/sigma__cpu_8f90_source.html":[5,0,2,11,0,0,2],
-"df/dfd/interfaceopr__device_1_1hip__lambda2.html":[3,0,196,4],
 "df/dfd/interfaceopr__device_1_1hip__lambda2.html":[4,0,166,4],
+"df/dfd/interfaceopr__device_1_1hip__lambda2.html":[3,0,196,4],
 "df/dfd/interfaceopr__device_1_1hip__lambda2.html#a34053c6892af59d2a40eed207a0940e0":[3,0,196,4,0],
 "df/dfd/interfaceopr__device_1_1hip__lambda2.html#a34053c6892af59d2a40eed207a0940e0":[4,0,166,4,0],
 "dir_03fb5b14824697692326bbb959ec235e.html":[5,0,2,17],
@@ -135,8 +137,8 @@ var NAVTREEINDEX75 =
 "functions_d.html":[4,3,0,3],
 "functions_e.html":[4,3,0,4],
 "functions_f.html":[4,3,0,5],
-"functions_func.html":[4,3,1],
 "functions_func.html":[4,3,1,0],
+"functions_func.html":[4,3,1],
 "functions_func_b.html":[4,3,1,1],
 "functions_func_c.html":[4,3,1,2],
 "functions_func_d.html":[4,3,1,3],
@@ -207,8 +209,8 @@ var NAVTREEINDEX75 =
 "functions_x.html":[4,3,0,23],
 "functions_y.html":[4,3,0,24],
 "functions_z.html":[4,3,0,25],
-"globals.html":[5,1,0],
 "globals.html":[5,1,0,0],
+"globals.html":[5,1,0],
 "globals_a.html":[5,1,0,1],
 "globals_b.html":[5,1,0,2],
 "globals_c.html":[5,1,0,3],
@@ -216,8 +218,8 @@ var NAVTREEINDEX75 =
 "globals_defs.html":[5,1,4],
 "globals_e.html":[5,1,0,5],
 "globals_f.html":[5,1,0,6],
-"globals_func.html":[5,1,1],
 "globals_func.html":[5,1,1,0],
+"globals_func.html":[5,1,1],
 "globals_func_a.html":[5,1,1,1],
 "globals_func_c.html":[5,1,1,2],
 "globals_func_d.html":[5,1,1,3],
@@ -247,7 +249,5 @@ var NAVTREEINDEX75 =
 "globals_p.html":[5,1,0,15],
 "globals_r.html":[5,1,0,16],
 "globals_s.html":[5,1,0,17],
-"globals_t.html":[5,1,0,18],
-"globals_type.html":[5,1,3],
-"globals_u.html":[5,1,0,19]
+"globals_t.html":[5,1,0,18]
 };
