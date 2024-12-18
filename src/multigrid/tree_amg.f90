@@ -66,6 +66,16 @@ module tree_amg
     real(kind=rp), allocatable :: wrk_out(:) !< Work vector for data leaving the level
     integer, allocatable :: map_f2c_dof(:)
     integer, allocatable :: map_c2f_dof(:)
+    !--!
+    integer, allocatable :: nodes_ptr(:)
+    integer, allocatable :: nodes_gid(:)
+    integer, allocatable :: nodes_dofs(:)
+    ! could make another array of the same size of nodes_dofs
+    ! that stores the parent node gid information
+    ! (similar to nodes_gid that stores the gid of each node)
+    ! then some loops can be simplified to a single loop
+    ! of len(nodes_dofs) instead of going through each node
+    ! and looping through nodes_ptr(i) to nodes_ptr(i+1)-1
   end type tamg_lvl_t
 
   !> Type for a TreeAMG hierarchy
@@ -139,14 +149,19 @@ contains
   !! @param tamg_lvl The TreeAMG level
   !! @param lvl The level id
   !! @param nnodes Number of nodes on the level
-  subroutine tamg_lvl_init(tamg_lvl, lvl, nnodes)
+  subroutine tamg_lvl_init(tamg_lvl, lvl, nnodes, ndofs)
     type(tamg_lvl_t), intent(inout) :: tamg_lvl
     integer, intent(in) :: lvl
     integer, intent(in) :: nnodes
+    integer, intent(in) :: ndofs
 
     tamg_lvl%lvl = lvl
     tamg_lvl%nnodes = nnodes
+    tamg_lvl%fine_lvl_dofs = ndofs
     allocate( tamg_lvl%nodes(tamg_lvl%nnodes) )
+    allocate( tamg_lvl%nodes_ptr(tamg_lvl%nnodes+1) )
+    allocate( tamg_lvl%nodes_gid(tamg_lvl%nnodes) )
+    allocate( tamg_lvl%nodes_dofs(ndofs) )
   end subroutine tamg_lvl_init
 
   !> Initialization of a TreeAMG tree node
@@ -319,7 +334,7 @@ contains
     real(kind=rp), intent(inout) :: vec_out(:)
     real(kind=rp), intent(inout) :: vec_in(:)
     integer, intent(in) :: lvl
-    integer :: i, n
+    integer :: i, n, node_start, node_end, node_id
 
     vec_out = 0d0
     do n = 1, this%lvl(lvl)%nnodes
@@ -329,6 +344,15 @@ contains
       end do
       end associate
     end do
+    !do n = 1, this%lvl(lvl)%nnodes
+    !  node_start = this%lvl(lvl)%nodes_ptr(n)
+    !  node_end   = this%lvl(lvl)%nodes_ptr(n+1)-1
+    !  node_id    = this%lvl(lvl)%nodes_gid(n)
+    !  do i = node_start, node_end
+    !    vec_out( node_id ) = vec_out( node_id ) + &
+    !      vec_in( this%lvl(lvl)%nodes_dofs(i) )
+    !  end do
+    !end do
   end subroutine tamg_restriction_operator
 
   !> Prolongation operator for TreeAMG. vec_out = P * vec_in
@@ -340,7 +364,7 @@ contains
     real(kind=rp), intent(inout) :: vec_out(:)
     real(kind=rp), intent(inout) :: vec_in(:)
     integer, intent(in) :: lvl
-    integer :: i, n
+    integer :: i, n, node_start, node_end, node_id
 
     vec_out = 0d0
     do n = 1, this%lvl(lvl)%nnodes
@@ -350,6 +374,15 @@ contains
       end do
       end associate
     end do
+    !do n = 1, this%lvl(lvl)%nnodes
+    !  node_start = this%lvl(lvl)%nodes_ptr(n)
+    !  node_end   = this%lvl(lvl)%nodes_ptr(n+1)-1
+    !  node_id    = this%lvl(lvl)%nodes_gid(n)
+    !  do i = node_start, node_end
+    !    vec_out( this%lvl(lvl)%nodes_dofs(i) ) = vec_out( this%lvl(lvl)%nodes_dofs(i) ) + &
+    !      vec_in(node_id)
+    !  end do
+    !end do
   end subroutine tamg_prolongation_operator
 
 end module tree_amg

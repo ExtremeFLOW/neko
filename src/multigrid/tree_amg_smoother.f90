@@ -40,6 +40,7 @@ module tree_amg_smoother
   use krylov, only : ksp_monitor_t
   use bc, only: bc_list_t, bc_list_apply
   use gather_scatter, only : gs_t, GS_OP_ADD
+  use logger, only : neko_log, LOG_SIZE
   implicit none
   private
 
@@ -95,7 +96,8 @@ contains
     this%lvl = lvl
     this%max_iter = max_iter
     this%recompute_eigs = .true.
-    print *, "INIT SMOO ON LVL", lvl
+    !print *, "INIT SMOO ON LVL", lvl
+    call amg_smoo_monitor(lvl,this)
 
   end subroutine amg_cheby_init
 
@@ -314,5 +316,16 @@ contains
       end do
     end associate
   end subroutine amg_jacobi_solve
+
+  subroutine amg_smoo_monitor(lvl,smoo)
+    integer, intent(in) :: lvl
+    class(amg_cheby_t), intent(in) :: smoo
+    character(len=LOG_SIZE) :: log_buf
+
+    write(log_buf, '(A8,I2,A28)') '-- level',lvl,'-- init smoother: Chebyshev'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A22,I6)') 'Iterations:',smoo%max_iter
+    call neko_log%message(log_buf)
+  end subroutine amg_smoo_monitor
 
 end module tree_amg_smoother

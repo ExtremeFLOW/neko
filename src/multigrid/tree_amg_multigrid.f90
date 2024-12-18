@@ -97,6 +97,8 @@ contains
     character(len=255) :: env_cheby_degree, env_mlvl
     character(len=LOG_SIZE) :: log_buf
 
+    call neko_log%section("AMG")
+
     call get_environment_variable("NEKO_TAMG_MAX_LVL", &
          env_mlvl, env_len)
     if (env_len .eq. 0) then
@@ -106,7 +108,10 @@ contains
        read(env_mlvl(1:env_len), *) mlvl
        nlvls = mlvl
     end if
-    print *, "Creating AMG hierarchy with", nlvls, "levels"
+
+    write(log_buf, '(A28,I2,A8)') 'Creating AMG hierarchy with', nlvls, 'levels.'
+    call neko_log%message(log_buf)
+
     if (nlvls .gt. 4) then
       call neko_error("Can not do more than four levels right now. I recommend two or three.")
     end if
@@ -120,15 +125,11 @@ contains
     if (nlvls .gt. 2) then
       call print_preagg_info(2,(msh%nelv/8))
       call aggregate_greedy(this%amg, 2, (msh%nelv/8), msh%facet_neigh, agg_nhbr)
-      !call aggregate_elm(this%amg, (msh%nelv/8), agg_nhbr)
-      !---!print *, "-- Aggregation done. Aggregates:", this%amg%lvl(2)%nnodes
     end if
 
     if (nlvls .gt. 3) then
       call print_preagg_info(3,(this%amg%lvl(2)%nnodes/8))
       call aggregate_greedy(this%amg, 3, (this%amg%lvl(2)%nnodes/8), agg_nhbr, asdf)
-      !call aggregate_general(this%amg, (this%amg%lvl(2)%nnodes/8), 3, agg_nhbr)
-      !---!print *, "-- Aggregation done. Aggregates:", this%amg%lvl(3)%nnodes
     end if
 
     call aggregate_end(this%amg, nlvls)
@@ -161,6 +162,8 @@ contains
     !end do
 
     call fill_lvl_map(this%amg)
+
+    call neko_log%end_section()
   end subroutine tamg_mg_init
  
 
@@ -316,7 +319,7 @@ contains
     !TODO: calculate min and max agg size
     write(log_buf, '(A8,I2,A31)') '-- level',lvl,'-- Calling Greedy Aggregation'
     call neko_log%message(log_buf)
-    write(log_buf, '(A8,I2,A23,I6)') '-- level',lvl,'-- Target Aggregates:',nagg
+    write(log_buf, '(A33,I6)') 'Target Aggregates:',nagg
     call neko_log%message(log_buf)
   end subroutine print_preagg_info
 
