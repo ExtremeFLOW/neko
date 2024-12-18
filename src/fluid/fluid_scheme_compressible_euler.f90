@@ -1,7 +1,8 @@
 module fluid_scheme_compressible_euler
   use advection, only : advection_t, advection_factory
   use dofmap, only : dofmap_t
-  use field_math, only : field_add2, field_cfill, field_cmult, field_cadd, field_copy, field_col2, field_col3, field_addcol3
+  use field_math, only : field_add2, field_cfill, field_cmult, field_cadd, field_copy, field_col2, &
+                         field_col3, field_addcol3, field_sub2
   use field, only : field_t
   use fluid_scheme_compressible, only: fluid_scheme_compressible_t
   use gs_ops, only : GS_OP_ADD, GS_OP_MIN_ABS
@@ -194,23 +195,23 @@ contains
     !> WIP: starting with forward Euler first
 
     !> rho = rho - dt * div(m)
-    call cmult(rhs_rho_field%x, dt, n)
-    call sub2(rho_field%x, rhs_rho_field%x, n)
-    call this%gs_Xh%op(rho_field%x, n, GS_OP_MIN_ABS)
+    call field_cmult(rhs_rho_field, dt, n)
+    call field_sub2(rho_field, rhs_rho_field, n)
+    call this%gs_Xh%op(rho_field, GS_OP_MIN_ABS)
     !> m = m - dt * div(rho * u * u^T + p*I)
-    call cmult(rhs_m_x%x, dt, n)
-    call sub2(m_x%x, rhs_m_x%x, n)
-    call this%gs_Xh%op(m_x%x, n, GS_OP_MIN_ABS)
-    call cmult(rhs_m_y%x, dt, n)
-    call sub2(m_y%x, rhs_m_y%x, n)
-    call this%gs_Xh%op(m_y%x, n, GS_OP_MIN_ABS)
-    call cmult(rhs_m_z%x, dt, n)
-    call sub2(m_z%x, rhs_m_z%x, n)
-    call this%gs_Xh%op(m_z%x, n, GS_OP_MIN_ABS)
+    call field_cmult(rhs_m_x, dt, n)
+    call field_sub2(m_x, rhs_m_x, n)
+    call this%gs_Xh%op(m_x, GS_OP_MIN_ABS)
+    call field_cmult(rhs_m_y, dt, n)
+    call field_sub2(m_y, rhs_m_y, n)
+    call this%gs_Xh%op(m_y, GS_OP_MIN_ABS)
+    call field_cmult(rhs_m_z, dt, n)
+    call field_sub2(m_z, rhs_m_z, n)
+    call this%gs_Xh%op(m_z, GS_OP_MIN_ABS)
     !> E = E - dt * div(u * (E + p))
-    call cmult(rhs_E%x, dt, n)
-    call sub2(E%x, rhs_E%x, n)
-    call this%gs_Xh%op(E%x, n, GS_OP_MIN_ABS)
+    call field_cmult(rhs_E, dt, n)
+    call field_sub2(E, rhs_E, n)
+    call this%gs_Xh%op(E, GS_OP_MIN_ABS)
 
   end subroutine rk4
 
