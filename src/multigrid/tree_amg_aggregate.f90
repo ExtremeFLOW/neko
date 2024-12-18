@@ -93,11 +93,9 @@ contains
       end do
     end do
     tamg%lvl(lvl_id)%nodes_ptr(ne+1) = gid_ptr
-    tamg%lvl(lvl_id)%fine_lvl_dofs = nt
-    allocate(tamg%lvl(lvl_id)%wrk_in( nt ))
-    allocate(tamg%lvl(lvl_id)%wrk_out( nt ))
-    !---!print *, "work allocated on lvl", lvl_id, "dofs", nt
+
     call aggregation_monitor_finest(lvl_id,nt,ne)
+
   end subroutine aggregate_finest_level
 
   !> First pass of a greedy aggregation
@@ -370,9 +368,6 @@ contains
       ntot = ntot + aggregate_size(l)
     end do
     tamg%lvl(lvl_id)%nodes_ptr(naggs+1) = gid_ptr
-    tamg%lvl(lvl_id)%fine_lvl_dofs = ntot
-    allocate( tamg%lvl(lvl_id)%wrk_in( ntot ) )
-    allocate( tamg%lvl(lvl_id)%wrk_out( ntot ) )
 
     call aggregation_monitor_final(lvl_id,ntot,naggs)
 
@@ -391,10 +386,6 @@ contains
     nt = tamg%lvl(lvl_id-1)%nnodes
     !> Allocate lvl
     call tamg_lvl_init( tamg%lvl(lvl_id), lvl_id, 1, nt)
-    tamg%lvl(lvl_id)%fine_lvl_dofs = nt
-    allocate( tamg%lvl(lvl_id)%wrk_in( nt ) )
-    allocate( tamg%lvl(lvl_id)%wrk_out( nt ) )
-    !--!print *, "work allocated on lvl", lvl_id, "dofs", nt
 
     !> Allocate node
     call tamg_node_init( tamg%lvl(lvl_id)%nodes(1), 1, nt)

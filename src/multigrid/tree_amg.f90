@@ -157,11 +157,14 @@ contains
 
     tamg_lvl%lvl = lvl
     tamg_lvl%nnodes = nnodes
-    tamg_lvl%fine_lvl_dofs = ndofs
     allocate( tamg_lvl%nodes(tamg_lvl%nnodes) )
     allocate( tamg_lvl%nodes_ptr(tamg_lvl%nnodes+1) )
     allocate( tamg_lvl%nodes_gid(tamg_lvl%nnodes) )
     allocate( tamg_lvl%nodes_dofs(ndofs) )
+
+    tamg_lvl%fine_lvl_dofs = ndofs
+    allocate( tamg_lvl%wrk_in( ndofs ) )
+    allocate( tamg_lvl%wrk_out( ndofs ) )
   end subroutine tamg_lvl_init
 
   !> Initialization of a TreeAMG tree node
