@@ -34,12 +34,10 @@
 !> Implements `vreman_t`.
 module vreman
   use num_types, only : rp
-  use field, only : field_t
   use les_model, only : les_model_t
   use dofmap , only : dofmap_t
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get_or_default
   use json_module, only : json_file
-  use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
   use vreman_cpu, only : vreman_compute_cpu
   use vreman_device, only : vreman_compute_device

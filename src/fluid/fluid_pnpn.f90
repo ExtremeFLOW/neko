@@ -50,7 +50,7 @@ module fluid_pnpn
   use device, only : device_memcpy, HOST_TO_DEVICE
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get_or_default
   use json_module, only : json_file
   use ax_product, only : ax_t, ax_helm_factory
   use field, only : field_t
@@ -63,7 +63,6 @@ module fluid_pnpn
   use time_step_controller, only : time_step_controller_t
   use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
-  use math, only : col2, glsum
   use mathops, only : opadd2cm, opcolv
   use bc_list, only : bc_list_t
   use utils, only : neko_error
@@ -372,20 +371,31 @@ contains
     class(fluid_pnpn_t), target, intent(inout) :: this
     real(kind=rp) :: dtlag(10), tlag(10)
     type(field_t) :: u_temp, v_temp, w_temp
-    integer :: i, n
+    integer :: i, j,  n
 
     n = this%u%dof%size()
     if (allocated(this%chkp%previous_mesh%elements) .or. &
-        this%chkp%previous_Xh%lx .ne. this%Xh%lx) then
-       call col2(this%u%x, this%c_Xh%mult, this%u%dof%size())
-       call col2(this%v%x, this%c_Xh%mult, this%u%dof%size())
-       call col2(this%w%x, this%c_Xh%mult, this%u%dof%size())
-       call col2(this%p%x, this%c_Xh%mult, this%u%dof%size())
-       do i = 1, this%ulag%size()
-          call col2(this%ulag%lf(i)%x, this%c_Xh%mult, this%u%dof%size())
-          call col2(this%vlag%lf(i)%x, this%c_Xh%mult, this%u%dof%size())
-          call col2(this%wlag%lf(i)%x, this%c_Xh%mult, this%u%dof%size())
-       end do
+         this%chkp%previous_Xh%lx .ne. this%Xh%lx) then
+       associate(u => this%u, v => this%v, w => this%w, p => this%p, &
+            c_Xh => this%c_Xh, ulag => this%ulag, vlag => this%vlag, &
+            wlag => this%wlag)
+         do concurrent (j=1:n)
+            u%x(j,1,1,1) = u%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
+            v%x(j,1,1,1) = v%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
+            w%x(j,1,1,1) = w%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
+            p%x(j,1,1,1) = p%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
+         end do
+         do i = 1, this%ulag%size()
+            do concurrent (j=1:n)
+               ulag%lf(i)%x(j,1,1,1) = ulag%lf(i)%x(j,1,1,1) &
+                                     * c_Xh%mult(j,1,1,1)
+               vlag%lf(i)%x(j,1,1,1) = vlag%lf(i)%x(j,1,1,1) &
+                                     * c_Xh%mult(j,1,1,1)
+               wlag%lf(i)%x(j,1,1,1) = wlag%lf(i)%x(j,1,1,1) &
+                                     * c_Xh%mult(j,1,1,1)
+            end do
+         end do
+       end associate
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then

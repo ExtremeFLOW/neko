@@ -67,7 +67,7 @@ module fluid_volflow
   use field, only : field_t
   use coefs, only : coef_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use math, only : copy, glsc2, glmin, glmax, add2, add2s2
+  use math, only : copy, glsc2, glmin, glmax, add2
   use comm
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_rzero, device_copy, &
@@ -357,7 +357,6 @@ contains
     real(kind=rp) :: ifcomp, flow_rate, xsec
     real(kind=rp) :: current_flow, delta_flow, scale
     integer :: n, ierr, i
-    type(field_t), pointer :: ta1, ta2, ta3
 
     associate(u_vol => this%u_vol, v_vol => this%v_vol, &
          w_vol => this%w_vol, p_vol => this%p_vol)

@@ -39,7 +39,6 @@ module simulation
   use file, only : file_t
   use logger, only : LOG_SIZE, neko_log
   use jobctrl, only : jobctrl_time_limit
-  use field, only : field_t
   use profiler, only : profiler_start, profiler_stop, &
        profiler_start_region, profiler_end_region
   use simcomp_executor, only : neko_simcomps
