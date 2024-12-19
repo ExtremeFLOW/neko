@@ -216,7 +216,7 @@ contains
 
     ! Initialize dirichlet bcs for scalar residual
     call this%bc_res%init(this%c_Xh, params)
-    do i = 1, this%bcs%size
+    do i = 1, this%bcs%size()
        if (this%bcs%strong(i)) then
           call this%bc_res%mark_facets(this%bcs%items(i)%ptr%marked_facet)
        end if
@@ -483,7 +483,7 @@ contains
           call bc_factory(this%bcs%items(i)%ptr, this, bc_subdict, &
                           this%c_Xh, user)
 
-          this%bcs%size = this%bcs%size + 1
+          this%bcs%size_ = this%bcs%size_ + 1
        end do
     end if
   end subroutine scalar_pnpn_setup_bcs_

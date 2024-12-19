@@ -345,7 +345,7 @@ contains
     ! velocity bcs.
 
     call this%bc_prs_surface%init_from_components(this%c_Xh)
-    do i = 1, this%bcs_vel%size
+    do i = 1, this%bcs_vel%size()
        select type (vel_bc => this%bcs_vel%items(i)%ptr)
        type is (symmetry_t)
          ! Do nothing, symmetry bcs go into another special bc.
@@ -360,7 +360,7 @@ contains
 
     ! Initialize symmetry surface terms in pressure rhs. Masks symmetry bcs.
     call this%bc_sym_surface%init(this%c_Xh, params)
-    do i = 1, this%bcs_vel%size
+    do i = 1, this%bcs_vel%size()
        select type (vel_bc => this%bcs_vel%items(i)%ptr)
        type is (symmetry_t)
           write(*,*) "MARKING PRESSURE SYMMETRY"
@@ -376,7 +376,7 @@ contains
     call this%bclst_dp%init()
     call this%bc_dp%init_from_components(this%c_Xh)
 
-    do i = 1, this%bcs_prs%size
+    do i = 1, this%bcs_prs%size()
        if (this%bcs_prs%strong(i) .eqv. .true.) then
           call this%bc_dp%mark_facets(this%bcs_prs%items(i)%ptr%marked_facet)
        end if
@@ -397,7 +397,7 @@ contains
     call this%bc_vel_res%init_from_components(this%c_Xh)
 
     ! Add all strong velocity bcs.
-    do i = 1, this%bcs_vel%size
+    do i = 1, this%bcs_vel%size()
 
        ! We need to treat mixed bcs separately because they are by convention 
        ! marked weak and currently contain nested bcs, some of which are strong.
@@ -452,11 +452,11 @@ contains
     call this%bclst_dv%append(this%bc_vel_res)
     call this%bclst_dw%append(this%bc_vel_res)
 
-    write(*,*) "BCLST_DU size", this%bclst_du%size
-    write(*,*) "BCLST_DV size", this%bclst_dv%size
-    write(*,*) "BCLST_DW size", this%bclst_dw%size
-    write(*,*) "BCLST_DP size", this%bclst_dp%size
-    write(*,*) "BCLST_VEL_RES size", this%bclst_vel_res%size
+    write(*,*) "BCLST_DU size", this%bclst_du%size()
+    write(*,*) "BCLST_DV size", this%bclst_dv%size()
+    write(*,*) "BCLST_DW size", this%bclst_dw%size()
+    write(*,*) "BCLST_DP size", this%bclst_dp%size()
+    write(*,*) "BCLST_VEL_RES size", this%bclst_vel_res%size()
 
     ! Intialize projection space
 
@@ -1016,7 +1016,7 @@ contains
           ! so we check.
           if (associated(this%bcs_vel%items(j)%ptr)) then
              j = j + 1
-             this%bcs_vel%size = this%bcs_vel%size + 1
+             this%bcs_vel%size_ = this%bcs_vel%size_ + 1
           end if
 
        end do
@@ -1037,7 +1037,7 @@ contains
           ! so we check.
           if (associated(this%bcs_prs%items(j)%ptr)) then
              j = j + 1
-             this%bcs_prs%size = this%bcs_prs%size + 1
+             this%bcs_prs%size_ = this%bcs_prs%size_ + 1
           end if
 
        end do
