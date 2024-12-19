@@ -87,6 +87,7 @@ contains
             tamg%lvl(lvl_id)%nodes(l)%dofs(lid) = linear_index(i,j,k,l,lx,ly,lz)
 
             tamg%lvl(lvl_id)%nodes_dofs(gid_ptr) = linear_index(i,j,k,l,lx,ly,lz)
+            tamg%lvl(lvl_id)%nodes_gids(gid_ptr) = l
             gid_ptr = gid_ptr + 1
           end do
         end do
@@ -359,6 +360,7 @@ contains
           tamg%lvl(lvl_id)%nodes(l)%dofs(j) = i
 
           tamg%lvl(lvl_id)%nodes_dofs(gid_ptr) = i
+          tamg%lvl(lvl_id)%nodes_gids(gid_ptr) = l
           gid_ptr = gid_ptr + 1
         end if
       end do
@@ -394,6 +396,7 @@ contains
       tamg%lvl(lvl_id)%nodes(1)%dofs(i) = tamg%lvl(lvl_id-1)%nodes(i)%gid
 
       tamg%lvl(lvl_id)%nodes_dofs(i) = tamg%lvl(lvl_id-1)%nodes(i)%gid
+      tamg%lvl(lvl_id)%nodes_gids(i) = 1
     end do
 
     tamg%lvl(lvl_id)%nodes_ptr(1) = 1
