@@ -192,7 +192,7 @@ contains
 
       ! WIP: debugging visualizing rho
       ! call field_copy(p, rho_field, n);
-      call field_copy(w, rho_field, n);
+      call field_copy(w, rho_field, n)
 
     end associate
     call profiler_end_region('Fluid compressible', 1)

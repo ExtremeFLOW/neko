@@ -175,12 +175,26 @@ contains
    type(gs_t), intent(inout) :: gs
    procedure(useric_compressible) :: usr_ic_compressible
    type(json_file), intent(inout) :: params
+   integer :: n
 
 
    call neko_log%message("Type: user (compressible flows)")
    call usr_ic_compressible(rho, u, v, w, p, params)
 
    call set_flow_ic_common(u, v, w, p, coef, gs)
+
+   n = u%dof%size()
+
+   if (NEKO_BCKND_DEVICE .eq. 1) then
+      call device_memcpy(p%x, p%x_d, n, &
+                         HOST_TO_DEVICE, sync = .false.)
+      call device_memcpy(rho%x, rho%x_d, n, &
+                         HOST_TO_DEVICE, sync = .false.)
+   end if
+
+   ! Ensure continuity across elements for initial conditions
+   !call gs%op(p%x, p%dof%size(), GS_OP_ADD)
+   !call gs%op(rho%x, rho%dof%size(), GS_OP_ADD)
 
  end subroutine set_compressible_flow_ic_usr
 
