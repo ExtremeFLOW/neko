@@ -92,7 +92,7 @@ contains
     type(bc_list_t), target, intent(in) :: blst
     integer, intent(in) :: nlvls_in
     integer, intent(in) :: max_iter
-    integer :: nlvls, lvl, n, cheby_degree, env_len, mlvl
+    integer :: nlvls, lvl, n, cheby_degree, env_len, mlvl, target_num_aggs
     integer, allocatable :: agg_nhbr(:,:), asdf(:,:)
     character(len=255) :: env_cheby_degree, env_mlvl
     character(len=LOG_SIZE) :: log_buf
@@ -112,26 +112,27 @@ contains
     write(log_buf, '(A28,I2,A8)') 'Creating AMG hierarchy with', nlvls, 'levels.'
     call neko_log%message(log_buf)
 
-    if (nlvls .gt. 4) then
-      call neko_error("Can not do more than four levels right now. I recommend two or three.")
-    end if
-
     allocate( this%amg )
     call this%amg%init(ax, Xh, coef, msh, gs_h, nlvls, blst)
 
     !> Create level 1 (neko elements are level 0)
     call aggregate_finest_level(this%amg, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
-    if (nlvls .gt. 2) then
-      call print_preagg_info(2,(msh%nelv/8))
-      call aggregate_greedy(this%amg, 2, (msh%nelv/8), msh%facet_neigh, agg_nhbr)
-    end if
+    !> Create the remaining levels
+    allocate( agg_nhbr, SOURCE=msh%facet_neigh )
+    do mlvl = 2, nlvls-1
+      target_num_aggs = this%amg%lvl(mlvl-1)%nnodes / 8
+      call print_preagg_info( mlvl, target_num_aggs)
+      if ( target_num_aggs .lt. 4 ) then
+        call neko_error("TAMG: Too many levels. Not enough DOFs for coarsest grid.")
+      end if
+      call aggregate_greedy( this%amg, mlvl, target_num_aggs, agg_nhbr, asdf)
+      agg_nhbr = asdf
+      deallocate( asdf )
+    end do
+    deallocate( agg_nhbr )
 
-    if (nlvls .gt. 3) then
-      call print_preagg_info(3,(this%amg%lvl(2)%nnodes/8))
-      call aggregate_greedy(this%amg, 3, (this%amg%lvl(2)%nnodes/8), agg_nhbr, asdf)
-    end if
-
+    !> Create the end point
     call aggregate_end(this%amg, nlvls)
 
     this%max_iter = max_iter
