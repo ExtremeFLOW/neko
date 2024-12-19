@@ -50,7 +50,7 @@ module tree_amg_multigrid
   use mesh, only : mesh_t
   use space, only : space_t
   use ax_product, only: ax_t
-  use bc, only: bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use tree_amg, only : tamg_hierarchy_t, tamg_lvl_init, tamg_node_init
   use tree_amg_aggregate
@@ -97,8 +97,8 @@ contains
     character(len=255) :: env_cheby_degree, env_mlvl
     character(len=LOG_SIZE) :: log_buf
 
-    call neko_log%section("AMG")
-
+    call neko_log%section('AMG')
+    
     call get_environment_variable("NEKO_TAMG_MAX_LVL", &
          env_mlvl, env_len)
     if (env_len .eq. 0) then
@@ -164,6 +164,7 @@ contains
     call fill_lvl_map(this%amg)
 
     call neko_log%end_section()
+    
   end subroutine tamg_mg_init
  
 

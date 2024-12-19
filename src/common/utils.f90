@@ -46,7 +46,7 @@ module utils
   public :: neko_error, neko_warning, nonlinear_index, filename_chsuffix, &
        filename_suffix, filename_suffix_pos, filename_tslash_pos, &
        linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
-       concat_string_array, extract_fld_file_index
+       concat_string_array, extract_fld_file_index, neko_type_error
 
 
 contains
@@ -239,6 +239,27 @@ contains
     write(error_unit, *) '*** ERROR: ', error_msg, ' ***'
     error stop
   end subroutine neko_error_msg
+
+  !> Reports an error allocating a type for a particular base pointer class.
+  !! @details Should be used in factories.
+  !! @param base_type The base type of the object, which the factory tried to 
+  !! construct.
+  !! @param wrong_type The type that was attempted to construct.
+  !! @param known_types A list of the types that are known.
+  subroutine neko_type_error(base_type, wrong_type, known_types)
+    character(len=*) :: base_type 
+    character(len=*) :: wrong_type 
+    character(len=*) :: known_types(:)
+    integer :: i
+
+    write(error_unit, *) '*** ERROR WHEN SELECTING TYPE ***'
+    write(error_unit, *) 'Type ', wrong_type, ' does not exist for ', base_type
+    write(error_unit, *) 'Valid types are:'
+    do i = 1, size(known_types)
+       write(error_unit, *) "    ", known_types(i)
+    end do
+    error stop
+  end subroutine neko_type_error
 
   !> Reports a warning to standard output
   subroutine neko_warning(warning_msg)

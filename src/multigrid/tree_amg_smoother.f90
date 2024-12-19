@@ -38,7 +38,7 @@ module tree_amg_smoother
   use utils
   use math
   use krylov, only : ksp_monitor_t
-  use bc, only: bc_list_t, bc_list_apply
+  use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
   implicit none
@@ -110,11 +110,12 @@ contains
     type(tamg_hierarchy_t), intent(inout) :: amg
     integer, intent(in) :: n
     real(kind=rp) :: lam, b, a, rn
-    real(kind=rp) :: boost = 1.1_rp
-    real(kind=rp) :: lam_factor = 30.0_rp
+    real(kind=rp), parameter :: boost = 1.1_rp
+    real(kind=rp), parameter :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
     integer :: i
-    associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, msh=>amg%msh, Xh=>amg%Xh, blst=>amg%blst)
+    associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
+         msh=>amg%msh, Xh=>amg%Xh, blst=>amg%blst)
 
       do i = 1, n
         !TODO: replace with a better way to initialize power method
@@ -124,7 +125,7 @@ contains
       end do
       if (this%lvl .eq. 0) then
         call gs_h%op(d, n, GS_OP_ADD)!TODO
-        call bc_list_apply(blst, d, n)
+        call blst%apply(d, n)
       end if
 
       !Power method to get lamba max
@@ -133,7 +134,7 @@ contains
         call amg%matvec(w, d, this%lvl)
 
         if (this%lvl .eq. 0) then
-          !call bc_list_apply(blst, w, n)
+          !call blst%apply(w, n)
           wtw = glsc3(w, coef%mult, w, n)
         else
           wtw = glsc2(w, w, n)
@@ -142,14 +143,14 @@ contains
         call cmult2(d, w, 1.0_rp/sqrt(wtw), n)
 
         if (this%lvl .eq. 0) then
-          !call bc_list_apply(blst, d, n)
+          !call blst%apply(d, n)
         end if
       end do
 
       w = 0d0
       call amg%matvec(w, d, this%lvl)
       if (this%lvl .eq. 0) then
-        !call bc_list_apply(blst, w, n)
+        !call blst%apply(w, n)
       end if
 
       if (this%lvl .eq. 0) then
