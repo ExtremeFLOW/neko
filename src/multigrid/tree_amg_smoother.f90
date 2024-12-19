@@ -96,7 +96,7 @@ contains
     this%lvl = lvl
     this%max_iter = max_iter
     this%recompute_eigs = .true.
-    !print *, "INIT SMOO ON LVL", lvl
+
     call amg_smoo_monitor(lvl,this)
 
   end subroutine amg_cheby_init
@@ -116,7 +116,6 @@ contains
     integer :: i
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, msh=>amg%msh, Xh=>amg%Xh, blst=>amg%blst)
 
-      print *, "COMP EIGS on lvl", this%lvl, "n", n
       do i = 1, n
         !TODO: replace with a better way to initialize power method
         !call random_number(rn)
@@ -161,13 +160,14 @@ contains
         dtd = glsc2(d, d, n)
       end if
       lam = dtw / dtd
-      print *, "LAM:", lam
       b = lam * boost
       a = lam / lam_factor
       this%tha = (b+a)/2.0_rp
       this%dlt = (b-a)/2.0_rp
 
       this%recompute_eigs = .false.
+
+      call amg_cheby_monitor(this%lvl,lam)
     end associate
   end subroutine amg_cheby_power
 
@@ -249,7 +249,6 @@ contains
     this%lvl = lvl
     this%max_iter = max_iter
     this%omega = 0.7_rp
-    print *, "INIT SMOO ON LVL", lvl
 
   end subroutine amg_jacobi_init
 
@@ -262,12 +261,10 @@ contains
     integer, intent(in) :: n
     real(kind=rp) :: val
     integer :: i
-    print *, amg%lvl(this%lvl+1)%fine_lvl_dofs, n
     do i = 1, n
       call tamg_sample_matrix_val(val, amg, this%lvl, i, i)
       this%d(i) = 1.0_rp / val
     end do
-    print *, "---------"
     this%recompute_diag = .false.
   end subroutine amg_jacobi_diag
 
@@ -299,7 +296,6 @@ contains
     end if
 
     ! x = x + omega * Dinv( f - Ax )
-    print *, this%omega, n, this%lvl
     associate( w => this%w, r => this%r, d => this%d)
       do iter = 1, max_iter
         w = 0.0_rp
@@ -327,5 +323,14 @@ contains
     write(log_buf, '(A22,I6)') 'Iterations:',smoo%max_iter
     call neko_log%message(log_buf)
   end subroutine amg_smoo_monitor
+
+  subroutine amg_cheby_monitor(lvl,lam)
+    integer, intent(in) :: lvl
+    real(kind=rp), intent(in) :: lam
+    character(len=LOG_SIZE) :: log_buf
+
+    write(log_buf, '(A12,I2,A29,F12.3)') '-- AMG level',lvl,'-- Chebyshev approx. max eig', lam
+    call neko_log%message(log_buf)
+  end subroutine amg_cheby_monitor
 
 end module tree_amg_smoother
