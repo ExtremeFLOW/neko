@@ -227,7 +227,7 @@ contains
       n = size(vec_in)
       !> Call local finite element assembly
       call this%gs_h%op(vec_in, n, GS_OP_ADD)
-      call col2( vec_in, this%coef%mult(:,1,1,1), n)
+      call col2( vec_in, this%coef%mult(1,1,1,1), n)
       !>
       call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
       !>
@@ -285,7 +285,7 @@ contains
       n = size(vec_in)
       !> Call local finite element assembly
       call this%gs_h%op(vec_in, n, GS_OP_ADD)
-      call col2( vec_in, this%coef%mult(:,1,1,1), n)
+      call col2( vec_in, this%coef%mult(1,1,1,1), n)
       !>
       call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
       !>
@@ -307,7 +307,7 @@ contains
 
       !> Average on overlapping dofs
       call this%gs_h%op(wrk_in, n, GS_OP_ADD)
-      call col2( wrk_in, this%coef%mult(:,1,1,1), n)
+      call col2( wrk_in, this%coef%mult(1,1,1,1), n)
       !> Finest level matvec (Call local finite element assembly)
       call this%ax%compute(wrk_out, wrk_in, this%coef, this%msh, this%Xh)
       !>
