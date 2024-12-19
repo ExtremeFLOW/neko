@@ -81,31 +81,10 @@ module fluid_pnpn
   use bc, only : bc_t
   use file, only : file_t
   use operators, only : ortho
-  use inflow, only : inflow_t
-  use usr_inflow, only : usr_inflow_t, usr_inflow_eval
-  use blasius, only : blasius_t
-  use dirichlet, only : dirichlet_t
-  use dong_outflow, only : dong_outflow_t
-  use symmetry, only : symmetry_t
-  use non_normal, only : non_normal_t
   implicit none
   private
 
 
-  ! List of all possible types created by the boundary condition factories
-  character(len=25) :: FLUID_PNPN_KNOWN_BCS(12) = [character(len=25) :: &
-     "symmetry", &
-     "velocity_value", &
-     "no_slip", &
-     "outflow", &
-     "normal_outflow", &
-     "outflow+dong", &
-     "normal_outflow+dong", &
-     "shear_stress", &
-     "user_velocity", &
-     "user_pressure", &
-     "user_velocity_pointwise", &
-     "wall_model"]
 
   type, public, extends(fluid_scheme_t) :: fluid_pnpn_t
 
@@ -225,6 +204,38 @@ module fluid_pnpn
      procedure, pass(this) :: pnpn_setup_bcs => fluid_pnpn_setup_bcs
   end type fluid_pnpn_t
 
+  interface
+     !> Boundary condition factory for pressure.
+     !! @details Will mark a mesh zone for the bc and finalize.
+     !! @param[inout] object The object to be allocated.
+     !! @param[in] scheme The `scalar_pnpn` scheme.
+     !! @param[inout] json JSON object for initializing the bc.
+     !! @param[in] coef SEM coefficients.
+     module subroutine pressure_bc_factory(object, scheme, json, coef, user)
+        class(bc_t), pointer, intent(inout) :: object
+        type(fluid_pnpn_t), intent(in) :: scheme
+        type(json_file), intent(inout) :: json
+        type(coef_t), intent(in) :: coef
+        type(user_t), intent(in) :: user
+     end subroutine pressure_bc_factory 
+  end interface
+
+  interface
+     !> Boundary condition factory for velocity
+     !! @details Will mark a mesh zone for the bc and finalize.
+     !! @param[inout] object The object to be allocated.
+     !! @param[in] scheme The `scalar_pnpn` scheme.
+     !! @param[inout] json JSON object for initializing the bc.
+     !! @param[in] coef SEM coefficients.
+     module subroutine velocity_bc_factory(object, scheme, json, coef, user)
+        class(bc_t), pointer, intent(inout) :: object
+        type(fluid_pnpn_t), intent(in) :: scheme
+        type(json_file), intent(inout) :: json
+        type(coef_t), intent(in) :: coef
+        type(user_t), intent(in) :: user
+     end subroutine velocity_bc_factory
+  end interface
+
 contains
 
   subroutine fluid_pnpn_init(this, msh, lx, params, user, time_scheme)
@@ -335,7 +346,7 @@ contains
     ! velocity bcs.
 
     call this%bc_prs_surface%init_from_components(this%c_Xh)
-    do i = 1, this%bcs_vel%size()
+    do i = 1, this%bcs_vel%size
        select type (vel_bc => this%bcs_vel%items(i)%ptr)
        type is (symmetry_t)
          ! Do nothing, symmetry bcs go into another special bc.
@@ -350,7 +361,7 @@ contains
 
     ! Initialize symmetry surface terms in pressure rhs. Masks symmetry bcs.
     call this%bc_sym_surface%init(this%c_Xh, params)
-    do i = 1, this%bcs_vel%size()
+    do i = 1, this%bcs_vel%size
        select type (vel_bc => this%bcs_vel%items(i)%ptr)
        type is (symmetry_t)
           write(*,*) "MARKING PRESSURE SYMMETRY"
@@ -366,7 +377,7 @@ contains
     call this%bclst_dp%init()
     call this%bc_dp%init_from_components(this%c_Xh)
 
-    do i = 1, this%bcs_prs%size()
+    do i = 1, this%bcs_prs%size
        if (this%bcs_prs%strong(i) .eqv. .true.) then
           call this%bc_dp%mark_facets(this%bcs_prs%items(i)%ptr%marked_facet)
        end if
@@ -387,7 +398,7 @@ contains
     call this%bc_vel_res%init_from_components(this%c_Xh)
 
     ! Add all strong velocity bcs.
-    do i = 1, this%bcs_vel%size()
+    do i = 1, this%bcs_vel%size
 
        ! We need to treat mixed bcs separately because they are by convention 
        ! marked weak and currently contain nested bcs, some of which are strong.
@@ -442,11 +453,11 @@ contains
     call this%bclst_dv%append(this%bc_vel_res)
     call this%bclst_dw%append(this%bc_vel_res)
 
-    write(*,*) "BCLST_DU size", this%bclst_du%size_
-    write(*,*) "BCLST_DV size", this%bclst_dv%size_
-    write(*,*) "BCLST_DW size", this%bclst_dw%size_
-    write(*,*) "BCLST_DP size", this%bclst_dp%size_
-    write(*,*) "BCLST_VEL_RES size", this%bclst_vel_res%size_
+    write(*,*) "BCLST_DU size", this%bclst_du%size
+    write(*,*) "BCLST_DV size", this%bclst_dv%size
+    write(*,*) "BCLST_DW size", this%bclst_dw%size
+    write(*,*) "BCLST_DP size", this%bclst_dp%size
+    write(*,*) "BCLST_VEL_RES size", this%bclst_vel_res%size
 
     ! Intialize projection space
 
@@ -870,6 +881,7 @@ contains
       ! Set the residual to zero at strong pressure boundaries.
       call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), t, tstep)
 
+      ! TODO REMOVE
       dump_file = file_t('p_res.fld')
       call dump_file%write(p_res)
 !      call exit()
@@ -916,6 +928,7 @@ contains
       call this%bclst_vel_res%apply_vector(u_res%x, v_res%x, w_res%x, &
            dm_Xh%size(), t, tstep)
 
+      ! TODO REMOVE
       dump_file = file_t('u_res.fld')
       call dump_file%write(u_res)
 
@@ -1004,11 +1017,10 @@ contains
           ! so we check.
           if (associated(this%bcs_vel%items(j)%ptr)) then
              j = j + 1
-             this%bcs_vel%size_ = this%bcs_vel%size_ + 1
+             this%bcs_vel%size = this%bcs_vel%size + 1
           end if
 
        end do
-       write(*,*) "N Velocity BCS", j-1, this%bcs_vel%size()
 
        !
        ! Pressure bcs
@@ -1026,121 +1038,12 @@ contains
           ! so we check.
           if (associated(this%bcs_prs%items(j)%ptr)) then
              j = j + 1
-             this%bcs_prs%size_ = this%bcs_prs%size_ + 1
+             this%bcs_prs%size = this%bcs_prs%size + 1
           end if
 
        end do
-       write(*,*) "N PRESSURE BCS", j-1, this%bcs_prs%size()
     end if
   end subroutine
 
-  !> Factory routine for pressure boundary conditions.
-  !! @param object The boundary condition to be allocated.
-  !! @param scheme The `fluid_pnpn_t`  scheme.
-  !! @param json The parameter dictionary for the boundary.
-  !! @param coef The SEM coeffcients.
-  !! @param user The user interface.
-  subroutine pressure_bc_factory(object, scheme, json, coef, user)
-    use field_dirichlet, only : field_dirichlet_t
-    class(bc_t), pointer, intent(inout) :: object
-    type(fluid_pnpn_t), intent(in) :: scheme
-    type(json_file), intent(inout) :: json
-    type(coef_t), intent(in) :: coef
-    type(user_t), intent(in) :: user
-    character(len=:), allocatable :: type
-    integer :: zone_index, i
-
-    call json_get(json, "type", type)
-
-    if ( (trim(type) .eq. "outflow") .or. &
-         (trim(type) .eq. "normal_outflow"))  then
-       allocate(zero_dirichlet_t::object)
-    else if ((trim(type) .eq. "outflow+dong") .or. &
-            (trim(type) .eq. "normal_outflow+dong")) then
-       allocate(dong_outflow_t::object)
-    else if (trim(type) .eq. "user_pressure") then
-       allocate(field_dirichlet_t::object)
-       select type(obj => object)
-       type is(field_dirichlet_t)
-          obj%update => user%user_dirichlet_update
-          call json%add("field_name", scheme%p%name)
-       end select
-    else
-      do i=1, size(FLUID_PNPN_KNOWN_BCS)
-         if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
-      end do
-      call neko_type_error("fluid_pnpn boundary conditions", type, &
-           FLUID_PNPN_KNOWN_BCS)
-    end if
-
-    call json_get(json, "zone_index", zone_index)
-    call object%init(coef, json)
-    call object%mark_zone(coef%msh%labeled_zones(zone_index))
-    call object%finalize()
-  end subroutine
-
-  !> Factory routine for pressure boundary conditions.
-  !! @param object The boundary condition to be allocated.
-  !! @param scheme The `fluid_pnpn_t`  scheme.
-  !! @param json The parameter dictionary for the boundary.
-  !! @param coef The SEM coeffcients.
-  !! @param user The user interface.
-  subroutine velocity_bc_factory(object, scheme, json, coef, user)
-    class(bc_t), pointer, intent(inout) :: object
-    type(fluid_pnpn_t), intent(in) :: scheme
-    type(json_file), intent(inout) :: json
-    type(coef_t), intent(in) :: coef
-    type(user_t), intent(in) :: user
-    character(len=:), allocatable :: type
-    integer :: zone_index, i
-
-    call json_get(json, "type", type)
-
-    if (trim(type) .eq. "symmetry") then
-       allocate(symmetry_t::object)
-    else if (trim(type) .eq. "velocity_value") then
-       allocate(inflow_t::object)
-    else if (trim(type) .eq. "no_slip") then
-       allocate(zero_dirichlet_t::object)
-    else if (trim(type) .eq. "normal_outflow") then
-       allocate(non_normal_t::object)
-    else if (trim(type) .eq. "blasius_profile") then
-       allocate(blasius_t::object)
-    else if (trim(type) .eq. "shear_stress") then
-       allocate(shear_stress_t::object)
-    else if (trim(type) .eq. "wall_model") then
-       allocate(wall_model_bc_t::object)
-       ! Kind of hack, but maybe OK? The thing is, we need the nu for
-       ! initing the wall model, and forcing the user duplicate that there
-       ! would be a nightmare.
-       call json%add("nu", scheme%mu / scheme%rho)
-    else if (trim(type) .eq. "user_velocity") then
-       allocate(field_dirichlet_vector_t::object)
-       select type(obj => object)
-       type is(field_dirichlet_vector_t)
-          obj%update => user%user_dirichlet_update
-       end select
-    else if (trim(type) .eq. "user_velocity_pointwise") then
-       allocate(usr_inflow_t::object)
-       select type(obj => object)
-       type is(usr_inflow_t)
-          call obj%set_eval(user%fluid_user_if)
-       end select
-    else
-      do i=1, size(FLUID_PNPN_KNOWN_BCS)
-         if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
-      end do
-      call neko_type_error("fluid_pnpn boundary conditions", type, &
-           FLUID_PNPN_KNOWN_BCS)
-    end if
-
-    call json_get(json, "zone_index", zone_index)
-    call object%init(coef, json)
-    call object%mark_zone(coef%msh%labeled_zones(zone_index))
-    call object%finalize()
-
-    write(*,*) "BC size", zone_index, object%marked_facet%size_, object%msk(0)
-
-  end subroutine velocity_bc_factory
 
 end module fluid_pnpn

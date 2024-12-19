@@ -47,7 +47,7 @@ module bc_list
      ! The items of the list.
      class(bc_ptr_t), allocatable :: items(:)
      !> Number of items.
-     integer :: size_
+     integer :: size
      !> Capacity.
      integer :: capacity
    contains
@@ -63,8 +63,6 @@ module bc_list
      procedure, pass(this) :: apply_scalar => bc_list_apply_scalar
      !> Appply the boundary conditions to a vector field.
      procedure, pass(this) :: apply_vector => bc_list_apply_vector
-     !> Return the number of items in the list.
-     procedure, pass(this) :: size => bc_list_size
      !> Return wether a given item is a strong bc
      procedure, pass(this) :: strong => bc_list_strong
      !> Check wether the list is empty
@@ -90,7 +88,7 @@ contains
 
     allocate(this%items(n))
 
-    this%size_ = 0
+    this%size = 0
     this%capacity = n
 
   end subroutine bc_list_init
@@ -103,14 +101,14 @@ contains
     integer :: i
 
     if (allocated(this%items)) then
-       do i =1, this%size()
+       do i =1, this%size
           this%items(i)%ptr => null()
        end do
 
        deallocate(this%items)
     end if
 
-    this%size_ = 0
+    this%size = 0
     this%capacity = 0
   end subroutine bc_list_free
 
@@ -125,15 +123,15 @@ contains
     !> Do not add if bc is empty
     if(bc%marked_facet%size() .eq. 0) return
 
-    if (this%size_ .ge. this%capacity) then
+    if (this%size .ge. this%capacity) then
        this%capacity = this%capacity * 2
        allocate(tmp(this%capacity))
-       tmp(1:this%size_) = this%items
+       tmp(1:this%size) = this%items
        call move_alloc(tmp, this%items)
     end if
 
-   this%size_ = this%size_ + 1
-   this%items(this%size_)%ptr => bc
+   this%size = this%size + 1
+   this%items(this%size)%ptr => bc
 
 
   end subroutine bc_list_append
@@ -157,11 +155,11 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
-       do i = 1, this%size()
+       do i = 1, this%size
           call this%items(i)%ptr%apply_scalar_dev(x_d, t=t, tstep=tstep)
        end do
     else
-       do i = 1, this%size()
+       do i = 1, this%size
           call this%items(i)%ptr%apply_scalar(x, n, t, tstep, strong)
        end do
     end if
@@ -195,24 +193,16 @@ contains
        x_d = device_get_ptr(x)
        y_d = device_get_ptr(y)
        z_d = device_get_ptr(z)
-       do i = 1, this%size()
+       do i = 1, this%size
           call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t, tstep)
        end do
     else
-       do i = 1, this%size()
+       do i = 1, this%size
           call this%items(i)%ptr%apply_vector(x, y, z, n, t, tstep, strong)
        end do
     end if
 
   end subroutine bc_list_apply_vector
-
-  !> Return the number of items in the list.
-  pure function bc_list_size(this) result(size)
-    class(bc_list_t), intent(in), target :: this
-    integer :: size
-
-    size = this%size_
-  end function bc_list_size
 
   !> Return whether the bc is strong or not.
   pure function bc_list_strong(this, i) result(strong)
@@ -230,7 +220,7 @@ contains
     integer :: i
 
     is_empty = .true. 
-    do i = 1, this%size()
+    do i = 1, this%size
 
        if (.not. allocated(this%items(i)%ptr%msk)) then
           call neko_error("bc not finalized, error in bc_list%is_empty")

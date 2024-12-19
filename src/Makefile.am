@@ -144,7 +144,6 @@ neko_fortran_SOURCES = \
 	common/craypat.F90\
 	bc/bc.f90\
 	bc/bc_list.f90\
-	bc/bc_fctry.f90\
 	bc/dirichlet.f90\
 	bc/neumann.f90\
 	bc/shear_stress.f90\
@@ -211,6 +210,7 @@ neko_fortran_SOURCES = \
 	fluid/fluid_scheme.f90\
 	fluid/fluid_aux.f90\
 	fluid/fluid_pnpn.f90\
+	fluid/fluid_pnpn_bc_fctry.f90\
 	fluid/fluid_fctry.f90\
 	fluid/fluid_volflow.f90\
 	fluid/pnpn_res.f90\
@@ -278,6 +278,7 @@ neko_fortran_SOURCES = \
 	scalar/bcknd/device/scalar_residual_device.F90\
 	scalar/scalar_scheme.f90\
 	scalar/scalar_pnpn.f90\
+	scalar/scalar_pnpn_bc_fctry.f90\
 	scalar/scalar_aux.f90\
 	scalar/scalar_residual.f90\
 	scalar/scalar_residual_fctry.f90\

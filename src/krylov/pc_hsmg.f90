@@ -195,8 +195,8 @@ contains
     call this%bc_crs%init_base(this%c_crs)
     call this%bc_mg%init_base(this%c_mg)
     call this%bc_reg%init_base(coef)
-    if (bclst%size() .gt. 0) then
-       do i = 1, bclst%size()
+    if (bclst%size .gt. 0) then
+       do i = 1, bclst%size
           call this%bc_reg%mark_facets(bclst%items(i)%ptr%marked_facet)
           call this%bc_crs%mark_facets(bclst%items(i)%ptr%marked_facet)
           call this%bc_mg%mark_facets(bclst%items(i)%ptr%marked_facet)
@@ -205,10 +205,6 @@ contains
     call this%bc_reg%finalize()
     call this%bc_crs%finalize()
     call this%bc_mg%finalize()
-
-    write(*,*) "BC_REG", this%bc_reg%msk(0)
-    write(*,*) "BC_CRS", this%bc_crs%msk(0)
-    write(*,*) "BC_MG", this%bc_mg%msk(0)
 
     call this%bclst_reg%init()
     call this%bclst_crs%init()

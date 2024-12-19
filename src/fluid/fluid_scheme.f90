@@ -658,10 +658,8 @@ contains
     integer, intent(in) :: tstep
     logical, intent(in) :: strong
 
-    write(*,*) "APPLYING VELOCITY BCS", this%bcs_vel%size()
     call this%bcs_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep, strong)
-    write(*,*) "DONE APPLYING VELOCITY BCS", this%bcs_vel%size()
 
   end subroutine fluid_scheme_bc_apply_vel
 
@@ -672,9 +670,7 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    write(*,*) "APPLYING PRESSURE BCS", this%bcs_prs%size()
     call this%bcs_prs%apply_scalar(this%p%x, this%p%dof%size(), t, tstep)
-    write(*,*) "DONE APPLYING PRESSURE BCS", this%bcs_prs%size()
 
   end subroutine fluid_scheme_bc_apply_prs
 

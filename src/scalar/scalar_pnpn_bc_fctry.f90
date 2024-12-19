@@ -31,20 +31,15 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> Defines a factory subroutine for boundary conditions.
-!submodule(scalar_pnpn) scalar_pnpn_bc_fctry
-module scalar_pnpn_bc_fctry
-!module bc_fctry
-  use bc, only : bc_t
+!> Defines a factory subroutine for `scalar_pnpn_t`. 
+submodule(scalar_pnpn) scalar_pnpn_bc_fctry
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
-  use coefs, only : coef_t
   use usr_scalar, only : usr_scalar_t
   use user_intf, only : user_t
   use usr_scalar, only : usr_scalar_t
   use utils, only : neko_type_error 
   use field_dirichlet, only : field_dirichlet_t
-  use json_module, only : json_file
   implicit none
 
   ! List of all possible types created by the boundary condition factories
@@ -55,14 +50,16 @@ module scalar_pnpn_bc_fctry
 
 contains
 
-
   !> Boundary condition factory. Both constructs and initializes the object.
   !! Will mark a mesh zone for the bc and finalize.
-  !! @param[in] coef SEM coefficients.
+  !! @param[object] object The boundary condition to be allocated.
+  !! @param[in] scheme The `scalar_pnpn` scheme.
   !! @param[inout] json JSON object for initializing the bc.
-  !module subroutine bc_factory(object, json, coef, user)
-  subroutine bc_factory(object, json, coef, user)
+  !! @param[in] coef SEM coefficients.
+  !! @param[in] user The user interface.
+  module subroutine bc_factory(object, scheme, json, coef, user)
     class(bc_t), pointer, intent(inout) :: object
+    type(scalar_pnpn_t), intent(in) :: scheme
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
     type(user_t), intent(in) :: user
@@ -77,17 +74,21 @@ contains
        type is(usr_scalar_t)
           call obj%set_eval(user%scalar_user_bc)
        end select
-!    else if (trim(type) .eq. "user") then
-!       allocate(field_dirichlet_t::object)
-!       select type(obj => object)
-!       type is(field_dirichlet_t)
-!          obj%update => user%user_dirichlet_update
-!       end select
+    else if (trim(type) .eq. "user") then
+       allocate(field_dirichlet_t::object)
+       select type(obj => object)
+       type is(field_dirichlet_t)
+          obj%update => user%user_dirichlet_update
+          ! Add the name of the dummy field in the bc, matching the scalar
+          ! solved for.
+          call json%add("field_name", scheme%s%name)
+       end select
     else if (trim(type) .eq. "dirichlet") then
        allocate(dirichlet_t::object)
     else if (trim(type) .eq. "neumann") then
        allocate(neumann_t::object)
     else
+       return
       do i=1, size(SCALAR_PNPN_KNOWN_BCS)
          if (trim(type) .eq. trim(SCALAR_PNPN_KNOWN_BCS(i))) return
       end do
@@ -102,5 +103,5 @@ contains
 
   end subroutine bc_factory
 
-!end submodule scalar_pnpn_bc_fctry
-end module scalar_pnpn_bc_fctry
+
+end submodule scalar_pnpn_bc_fctry

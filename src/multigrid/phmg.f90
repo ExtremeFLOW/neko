@@ -149,8 +149,8 @@ contains
             this%phmg_hrchy%lvl(i)%dm_Xh%size())
 
        call this%phmg_hrchy%lvl(i)%bc%init_base(this%phmg_hrchy%lvl(i)%coef)
-       if (bclst%size() .gt. 0 ) then
-          do j = 1, bclst%size()
+       if (bclst%size .gt. 0 ) then
+          do j = 1, bclst%size
              call this%phmg_hrchy%lvl(i)%bc%mark_facets(&
                   bclst%items(j)%ptr%marked_facet)
           end do
