@@ -79,33 +79,33 @@ contains
     character(len=:), allocatable :: type
     integer :: zone_index, i
 
-!    call json_get(json, "type", type)
-!
-!    if ( (trim(type) .eq. "outflow") .or. &
-!         (trim(type) .eq. "normal_outflow"))  then
-!       allocate(zero_dirichlet_t::object)
-!    else if ((trim(type) .eq. "outflow+dong") .or. &
-!            (trim(type) .eq. "normal_outflow+dong")) then
-!       allocate(dong_outflow_t::object)
-!    else if (trim(type) .eq. "user_pressure") then
-!       allocate(field_dirichlet_t::object)
-!       select type(obj => object)
-!       type is(field_dirichlet_t)
-!          obj%update => user%user_dirichlet_update
-!          call json%add("field_name", scheme%p%name)
-!       end select
-!    else
-!      do i=1, size(FLUID_PNPN_KNOWN_BCS)
-!         if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
-!      end do
-!      call neko_type_error("fluid_pnpn boundary conditions", type, &
-!           FLUID_PNPN_KNOWN_BCS)
-!    end if
-!
-!    call json_get(json, "zone_index", zone_index)
-!    call object%init(coef, json)
-!    call object%mark_zone(coef%msh%labeled_zones(zone_index))
-!    call object%finalize()
+    call json_get(json, "type", type)
+
+    if ( (trim(type) .eq. "outflow") .or. &
+         (trim(type) .eq. "normal_outflow"))  then
+       allocate(zero_dirichlet_t::object)
+    else if ((trim(type) .eq. "outflow+dong") .or. &
+            (trim(type) .eq. "normal_outflow+dong")) then
+       allocate(dong_outflow_t::object)
+    else if (trim(type) .eq. "user_pressure") then
+       allocate(field_dirichlet_t::object)
+       select type(obj => object)
+       type is(field_dirichlet_t)
+          obj%update => user%user_dirichlet_update
+          call json%add("field_name", scheme%p%name)
+       end select
+    else
+      do i=1, size(FLUID_PNPN_KNOWN_BCS)
+         if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
+      end do
+      call neko_type_error("fluid_pnpn boundary conditions", type, &
+           FLUID_PNPN_KNOWN_BCS)
+    end if
+
+    call json_get(json, "zone_index", zone_index)
+    call object%init(coef, json)
+    call object%mark_zone(coef%msh%labeled_zones(zone_index))
+    call object%finalize()
   end subroutine pressure_bc_factory
 
   !> Factory routine for velocity boundary conditions.
@@ -123,50 +123,50 @@ contains
     character(len=:), allocatable :: type
     integer :: zone_index, i
 
-!    call json_get(json, "type", type)
-!
-!    if (trim(type) .eq. "symmetry") then
-!       allocate(symmetry_t::object)
-!    else if (trim(type) .eq. "velocity_value") then
-!       allocate(inflow_t::object)
-!    else if (trim(type) .eq. "no_slip") then
-!       allocate(zero_dirichlet_t::object)
-!    else if (trim(type) .eq. "normal_outflow") then
-!       allocate(non_normal_t::object)
-!    else if (trim(type) .eq. "blasius_profile") then
-!       allocate(blasius_t::object)
-!    else if (trim(type) .eq. "shear_stress") then
-!       allocate(shear_stress_t::object)
-!    else if (trim(type) .eq. "wall_model") then
-!       allocate(wall_model_bc_t::object)
-!       ! Kind of hack, but maybe OK? The thing is, we need the nu for
-!       ! initing the wall model, and forcing the user duplicate that there
-!       ! would be a nightmare.
-!       call json%add("nu", scheme%mu / scheme%rho)
-!    else if (trim(type) .eq. "user_velocity") then
-!       allocate(field_dirichlet_vector_t::object)
-!       select type(obj => object)
-!       type is(field_dirichlet_vector_t)
-!          obj%update => user%user_dirichlet_update
-!       end select
-!    else if (trim(type) .eq. "user_velocity_pointwise") then
-!       allocate(usr_inflow_t::object)
-!       select type(obj => object)
-!       type is(usr_inflow_t)
-!          call obj%set_eval(user%fluid_user_if)
-!       end select
-!    else
-!      do i=1, size(FLUID_PNPN_KNOWN_BCS)
-!         if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
-!      end do
-!      call neko_type_error("fluid_pnpn boundary conditions", type, &
-!           FLUID_PNPN_KNOWN_BCS)
-!    end if
-!
-!    call json_get(json, "zone_index", zone_index)
-!    call object%init(coef, json)
-!    call object%mark_zone(coef%msh%labeled_zones(zone_index))
-!    call object%finalize()
+    call json_get(json, "type", type)
+
+    if (trim(type) .eq. "symmetry") then
+       allocate(symmetry_t::object)
+    else if (trim(type) .eq. "velocity_value") then
+       allocate(inflow_t::object)
+    else if (trim(type) .eq. "no_slip") then
+       allocate(zero_dirichlet_t::object)
+    else if (trim(type) .eq. "normal_outflow") then
+       allocate(non_normal_t::object)
+    else if (trim(type) .eq. "blasius_profile") then
+       allocate(blasius_t::object)
+    else if (trim(type) .eq. "shear_stress") then
+       allocate(shear_stress_t::object)
+    else if (trim(type) .eq. "wall_model") then
+       allocate(wall_model_bc_t::object)
+       ! Kind of hack, but maybe OK? The thing is, we need the nu for
+       ! initing the wall model, and forcing the user duplicate that there
+       ! would be a nightmare.
+       call json%add("nu", scheme%mu / scheme%rho)
+    else if (trim(type) .eq. "user_velocity") then
+       allocate(field_dirichlet_vector_t::object)
+       select type(obj => object)
+       type is(field_dirichlet_vector_t)
+          obj%update => user%user_dirichlet_update
+       end select
+    else if (trim(type) .eq. "user_velocity_pointwise") then
+       allocate(usr_inflow_t::object)
+       select type(obj => object)
+       type is(usr_inflow_t)
+          call obj%set_eval(user%fluid_user_if)
+       end select
+    else
+      do i=1, size(FLUID_PNPN_KNOWN_BCS)
+         if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
+      end do
+      call neko_type_error("fluid_pnpn boundary conditions", type, &
+           FLUID_PNPN_KNOWN_BCS)
+    end if
+
+    call json_get(json, "zone_index", zone_index)
+    call object%init(coef, json)
+    call object%mark_zone(coef%msh%labeled_zones(zone_index))
+    call object%finalize()
   end subroutine velocity_bc_factory
 
 end submodule fluid_pnpn_bc_fctry
