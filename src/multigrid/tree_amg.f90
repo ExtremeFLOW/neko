@@ -149,7 +149,8 @@ contains
   !> Initialization of a TreeAMG level
   !! @param tamg_lvl The TreeAMG level
   !! @param lvl The level id
-  !! @param nnodes Number of nodes on the level
+  !! @param nnodes Number of nodes on the level (number of aggregates)
+  !! @param ndofs  Number of dofs on the level
   subroutine tamg_lvl_init(tamg_lvl, lvl, nnodes, ndofs)
     type(tamg_lvl_t), intent(inout) :: tamg_lvl
     integer, intent(in) :: lvl
@@ -200,8 +201,8 @@ contains
     real(kind=rp), intent(inout) :: vec_in(:)
     integer, intent(in) :: lvl_out
     integer :: i, n, e
-    !call this%matvec_impl(vec_out, vec_in, this%nlvls, lvl_out)
-    call tamg_matvec_flat_impl(this, vec_out, vec_in, this%nlvls, lvl_out)
+    call this%matvec_impl(vec_out, vec_in, this%nlvls, lvl_out)
+    !call tamg_matvec_flat_impl(this, vec_out, vec_in, this%nlvls, lvl_out)
   end subroutine tamg_matvec
 
   !> Matrix vector product using the TreeAMG hierarchy structure
@@ -226,9 +227,7 @@ contains
       n = size(vec_in)
       !> Call local finite element assembly
       call this%gs_h%op(vec_in, n, GS_OP_ADD)
-      do i = 1, n
-        vec_in(i) = vec_in(i) * this%coef%mult(i,1,1,1)
-      end do
+      call col2( vec_in, this%coef%mult(:,1,1,1), n)
       !>
       call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
       !>
@@ -286,9 +285,7 @@ contains
       n = size(vec_in)
       !> Call local finite element assembly
       call this%gs_h%op(vec_in, n, GS_OP_ADD)
-      do i = 1, n
-        vec_in(i) = vec_in(i) * this%coef%mult(i,1,1,1)
-      end do
+      call col2( vec_in, this%coef%mult(:,1,1,1), n)
       !>
       call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
       !>
@@ -297,35 +294,34 @@ contains
       !>
     else !> pass down through hierarchy
 
-    associate( wrk_in => this%lvl(1)%wrk_in, wrk_out => this%lvl(1)%wrk_out)
-    n = size(wrk_in)
-    wrk_out = 0d0
-    vec_out = 0d0
+      associate( wrk_in => this%lvl(1)%wrk_in, wrk_out => this%lvl(1)%wrk_out)
+      n = size(wrk_in)
+      wrk_out = 0d0
+      vec_out = 0d0
 
-    !> Map input level to finest level
-    do i = 1, n
-      cdof = this%lvl(lvl)%map_f2c_dof(i)
-      wrk_in(i) = vec_in( cdof )
-    end do
+      !> Map input level to finest level
+      do i = 1, n
+        cdof = this%lvl(lvl)%map_f2c_dof(i)
+        wrk_in(i) = vec_in( cdof )
+      end do
 
-    !> Average on overlapping dofs
-    call this%gs_h%op(wrk_in, n, GS_OP_ADD)
-    do i = 1, n
-      wrk_in(i) = wrk_in(i) * this%coef%mult(i,1,1,1)
-    end do
-    !> Finest level matvec (Call local finite element assembly)
-    call this%ax%compute(wrk_out, wrk_in, this%coef, this%msh, this%Xh)
-    !>
-    call this%gs_h%op(wrk_out, n, GS_OP_ADD)
-    call bc_list_apply(this%blst, wrk_out, n)
-    !>
+      !> Average on overlapping dofs
+      call this%gs_h%op(wrk_in, n, GS_OP_ADD)
+      call col2( wrk_in, this%coef%mult(:,1,1,1), n)
+      !> Finest level matvec (Call local finite element assembly)
+      call this%ax%compute(wrk_out, wrk_in, this%coef, this%msh, this%Xh)
+      !>
+      call this%gs_h%op(wrk_out, n, GS_OP_ADD)
+      call bc_list_apply(this%blst, wrk_out, n)
+      !>
 
-    !> Map finest level matvec back to output level
-    do i = 1, n
-      cdof = this%lvl(lvl)%map_f2c_dof(i)
-      vec_out(cdof) = vec_out(cdof) + wrk_out( i )
-    end do
-    end associate
+      !> Map finest level matvec back to output level
+      do i = 1, n
+        cdof = this%lvl(lvl)%map_f2c_dof(i)
+        vec_out(cdof) = vec_out(cdof) + wrk_out( i )
+      end do
+      end associate
+
     end if
   end subroutine tamg_matvec_flat_impl
 
