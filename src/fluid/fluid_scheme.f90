@@ -122,9 +122,6 @@ module fluid_scheme
      type(gradient_jump_penalty_t) :: gradient_jump_penalty_v
      type(gradient_jump_penalty_t) :: gradient_jump_penalty_w
 
-     ! Attributes for field dirichlet BCs
-     type(field_dirichlet_vector_t) :: user_field_bc_vel   !< User-computed Dirichlet velocity condition
-     type(field_dirichlet_t) :: user_field_bc_prs   !< User-computed Dirichlet pressure condition
      ! List of boundary conditions for pressure
      type(bc_list_t) :: bcs_prs
      ! List of boundary conditions for velocity
@@ -157,10 +154,7 @@ module fluid_scheme
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
    contains
      !> Constructor for the base type
-     procedure, pass(this) :: fluid_scheme_init_all
-     procedure, pass(this) :: fluid_scheme_init_common
-     generic :: scheme_init => fluid_scheme_init_all, fluid_scheme_init_common
-     !> Destructor for the base type
+     procedure, pass(this) :: init_base => fluid_scheme_init_base
      procedure, pass(this) :: scheme_free => fluid_scheme_free
      !> Validate that all components are properly allocated
      procedure, pass(this) :: validate => fluid_scheme_validate
@@ -261,7 +255,7 @@ module fluid_scheme
 contains
 
   !> Initialize common data for the current scheme
-  subroutine fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
+  subroutine fluid_scheme_init_base(this, msh, lx, params, scheme, user, &
       kspv_init)
     implicit none
     class(fluid_scheme_t), target, intent(inout) :: this
@@ -279,6 +273,7 @@ contains
     integer :: integer_val, ierr
     type(json_file) :: wm_json
     character(len=:), allocatable :: string_val1, string_val2
+    real(kind=rp) :: GJP_param_a, GJP_param_b
 
     !
     ! SEM simulation fundamentals
@@ -492,62 +487,6 @@ contains
     call this%vlag%init(this%v, 2)
     call this%wlag%init(this%w, 2)
 
-
-  end subroutine fluid_scheme_init_common
-
-  !> Initialize all components of the current scheme
-  subroutine fluid_scheme_init_all(this, msh, lx, params, kspv_init, &
-       kspp_init, scheme, user)
-    implicit none
-    class(fluid_scheme_t), target, intent(inout) :: this
-    type(mesh_t), target, intent(inout) :: msh
-    integer, intent(in) :: lx
-    type(json_file), target, intent(inout) :: params
-    type(user_t), target, intent(in) :: user
-    logical :: kspv_init
-    logical :: kspp_init
-    character(len=*), intent(in) :: scheme
-    real(kind=rp) :: abs_tol
-    integer :: integer_val, ierr
-    logical :: logical_val
-    character(len=:), allocatable :: solver_type, precon_type
-    character(len=LOG_SIZE) :: log_buf
-    real(kind=rp) :: GJP_param_a, GJP_param_b
-
-    call fluid_scheme_init_common(this, msh, lx, params, scheme, user, &
-         kspv_init)
-
-!    call neko_field_registry%add_field(this%dm_Xh, 'p')
-!    this%p => neko_field_registry%get_field('p')
-
-
-
-    ! Pressure solver
-    !if (kspp_init) then
-    !   call neko_log%section("Pressure solver")
-
-    !   call json_get_or_default(params, &
-!                               'case.fluid.pressure_solver.max_iterations', &
-!                               integer_val, 800)
-!       call json_get(params, 'case.fluid.pressure_solver.type', solver_type)
-!       call json_get(params, 'case.fluid.pressure_solver.preconditioner', &
-!                     precon_type)
-!       call json_get(params, 'case.fluid.pressure_solver.absolute_tolerance', &
-!                     abs_tol)
-!       call neko_log%message('Type       : ('// trim(solver_type) // &
-!             ', ' // trim(precon_type) // ')')
-!       write(log_buf, '(A,ES13.6)') 'Abs tol    :',  abs_tol
-!       call neko_log%message(log_buf)
-!
-!       call fluid_scheme_solver_factory(this%ksp_prs, this%dm_Xh%size(), &
-!            solver_type, integer_val, abs_tol)
-!       call fluid_scheme_precon_factory(this%pc_prs, this%ksp_prs, &
-!            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bclst_prs, precon_type)
-!
-!       call neko_log%end_section()
-!
-!    end if
-
     ! Initiate gradient jump penalty
     call json_get_or_default(params, &
                             'case.fluid.gradient_jump_penalty.enabled',&
@@ -577,31 +516,18 @@ contains
 
     call neko_log%end_section()
 
-  end subroutine fluid_scheme_init_all
 
-  !> Deallocate a fluid formulation
+
+  end subroutine fluid_scheme_init_base
+
   subroutine fluid_scheme_free(this)
     class(fluid_scheme_t), intent(inout) :: this
 
     call this%bdry%free()
 
-!    if (allocated(this%bc_inflow)) then
-!       call this%bc_inflow%free()
-!    end if
-
-!    call this%bc_wall%free()
-!    call this%bc_sym%free()
-!    call this%bc_sh%free()
-
     !
     ! Free everything related to field_dirichlet BCs
     !
-    call this%user_field_bc_prs%field_bc%free()
-    call this%user_field_bc_prs%free()
-    call this%user_field_bc_vel%bc_u%field_bc%free()
-    call this%user_field_bc_vel%bc_v%field_bc%free()
-    call this%user_field_bc_vel%bc_w%field_bc%free()
-    call this%user_field_bc_vel%free()
 
     call this%Xh%free()
 

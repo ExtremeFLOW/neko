@@ -246,7 +246,7 @@ contains
     call this%free()
 
     ! Initialize base class
-    call this%scheme_init(msh, lx, params, .true., .true., scheme, user)
+    call this%init_base(msh, lx, params, scheme, user, .true.)
 
     ! Add pressure field to the registery. For this scheme it is in the same
     ! Xh as the velocity
