@@ -88,12 +88,10 @@ contains
        call neko_simcomps%restart(t)
     end if
 
-    !> Execute outputs and user-init before time loop
+    !> Execute outputs before time loop
     call neko_log%section('Postprocessing')
     call C%output_controller%execute(t, tstep)
 
-    call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
-                                 C%fluid%p, C%fluid%c_Xh, C%params)
     call neko_log%end_section()
     call neko_log%newline()
 
