@@ -119,11 +119,12 @@ contains
 
   !> Boundary condition apply for a generic shear_stress condition
   !! to a vector @a x (device version)
-  subroutine shear_stress_apply_scalar_dev(this, x_d, t, tstep)
+  subroutine shear_stress_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(shear_stress_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
     call neko_error("shear_stress bc not implemented on the device")
 
@@ -131,13 +132,15 @@ contains
 
   !> Boundary condition apply for a generic shear_stress condition
   !! to vectors @a x, @a y and @a z (device version)
-  subroutine shear_stress_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  subroutine shear_stress_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
+       strong)
     class(shear_stress_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
     call neko_error("shear_stress bc not implemented on the device")
 

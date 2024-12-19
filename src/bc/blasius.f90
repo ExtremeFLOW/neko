@@ -141,11 +141,12 @@ contains
   end subroutine blasius_apply_scalar
 
   !> No-op scalar apply (device version)
-  subroutine blasius_apply_scalar_dev(this, x_d, t, tstep)
+  subroutine blasius_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(blasius_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
   end subroutine blasius_apply_scalar_dev
 
   !> Apply blasius conditions (vector valued)
@@ -195,16 +196,20 @@ contains
   end subroutine blasius_apply_vector
 
   !> Apply blasius conditions (vector valued) (device version)
-  subroutine blasius_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  subroutine blasius_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
     class(blasius_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
     integer :: i, m, k, idx(4), facet
     integer(c_size_t) :: s
     real(kind=rp), allocatable :: bla_x(:), bla_y(:), bla_z(:)
+    logical :: strong_ = .true.
+
+    if (present(strong)) strong_ = strong
 
     associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
               zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
@@ -215,7 +220,7 @@ contains
 
 
       ! Pretabulate values during first call to apply
-      if (.not. c_associated(blax_d)) then
+      if (.not. c_associated(blax_d) .and. strong_ ) then
          allocate(bla_x(m), bla_y(m), bla_z(m)) ! Temp arrays
 
          if (rp .eq. REAL32) then
@@ -258,8 +263,10 @@ contains
          deallocate(bla_x, bla_y, bla_z)
       end if
 
-      call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
-           blax_d, blay_d, blaz_d, m)
+      if (strong_) then
+         call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
+              blax_d, blay_d, blaz_d, m)
+      end if
 
     end associate
 

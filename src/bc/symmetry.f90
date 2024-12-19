@@ -221,28 +221,32 @@ contains
   end subroutine symmetry_apply_vector
 
   !> No-op scalar apply (device version)
-  subroutine symmetry_apply_scalar_dev(this, x_d, t, tstep)
+  subroutine symmetry_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(symmetry_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
   end subroutine symmetry_apply_scalar_dev
 
   !> Apply symmetry conditions (axis aligned) (device version)
-  subroutine symmetry_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  subroutine symmetry_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
     class(symmetry_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
+    logical :: strong_ = .true.
 
-    call device_symmetry_apply_vector(this%bc_x%msk_d, this%bc_y%msk_d, &
-                                      this%bc_z%msk_d, x_d, y_d, z_d, &
-                                      this%bc_x%msk(0), &
-                                      this%bc_y%msk(0), &
-                                      this%bc_z%msk(0))
+    if (present(strong)) strong_ = strong
 
+    if (strong_) then
+       call device_symmetry_apply_vector(this%bc_x%msk_d, this%bc_y%msk_d, &
+            this%bc_z%msk_d, x_d, y_d, z_d, &
+            this%bc_x%msk(0), this%bc_y%msk(0), this%bc_z%msk(0))
+    end if
   end subroutine symmetry_apply_vector_dev
 
   !> Destructor

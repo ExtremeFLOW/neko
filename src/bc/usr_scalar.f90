@@ -206,16 +206,21 @@ contains
   !! Applies boundary conditions in eval on x
   !! @param x The array of values to apply.
   !! @param n The size of x.
-  subroutine usr_scalar_apply_scalar_dev(this, x_d, t, tstep)
+  subroutine usr_scalar_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(usr_scalar_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
     integer :: i, m, k, idx(4), facet, tstep_
     real(kind=rp) :: t_
     integer(c_size_t) :: s
     real(kind=rp), allocatable :: x(:)
+    logical :: strong_ = .true.
+
     m = this%msk(0)
+
+    if (present(strong)) strong_ = strong
 
     if (present(t)) then
        t_ = t
@@ -235,7 +240,7 @@ contains
 
 
       ! Pretabulate values during first call to apply
-      if (.not. c_associated(usr_x_d)) then
+      if (.not. c_associated(usr_x_d) .and. strong_) then
          allocate(x(m)) ! Temp arrays
          s = m*rp
 
@@ -284,8 +289,10 @@ contains
          deallocate(x)
       end if
 
-      call device_inhom_dirichlet_apply_scalar(this%msk_d, x_d, &
-                                               this%usr_x_d, m)
+      if (strong_) then
+         call device_inhom_dirichlet_apply_scalar(this%msk_d, x_d, &
+              this%usr_x_d, m)
+      end if
     end associate
 
 
@@ -305,13 +312,14 @@ contains
   end subroutine usr_scalar_apply_vector
 
   !> No-op vector apply (device version)
-  subroutine usr_scalar_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  subroutine usr_scalar_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
     class(usr_scalar_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
   end subroutine usr_scalar_apply_vector_dev
 

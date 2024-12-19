@@ -145,29 +145,42 @@ contains
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to a vector @a x (device version)
-  subroutine dirichlet_apply_scalar_dev(this, x_d, t, tstep)
+  subroutine dirichlet_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
+    logical :: strong_ = .true.
 
-    call device_dirichlet_apply_scalar(this%msk_d, x_d, &
-                                       this%g, size(this%msk))
+    if (present(strong)) strong_ = strong
+
+
+    if (strong_) then
+       call device_dirichlet_apply_scalar(this%msk_d, x_d, &
+            this%g, size(this%msk))
+    end if
 
   end subroutine dirichlet_apply_scalar_dev
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to vectors @a x, @a y and @a z (device version)
-  subroutine dirichlet_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  subroutine dirichlet_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
     class(dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
+    logical :: strong_ = .true.
 
-    call device_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
-                                       this%g, size(this%msk))
+    if (present(strong)) strong_ = strong
+
+    if (strong_) then
+       call device_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, this%g, &
+            size(this%msk))
+    end if
 
   end subroutine dirichlet_apply_vector_dev
 

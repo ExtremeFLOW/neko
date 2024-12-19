@@ -51,7 +51,8 @@ module facet_normal
      procedure, pass(this) :: apply_vector => facet_normal_apply_vector
      procedure, pass(this) :: apply_vector_dev => facet_normal_apply_vector_dev
      procedure, pass(this) :: apply_surfvec => facet_normal_apply_surfvec
-     procedure, pass(this) :: apply_surfvec_dev => facet_normal_apply_surfvec_dev
+     procedure, pass(this) :: apply_surfvec_dev => &
+          facet_normal_apply_surfvec_dev
      !> Constructor.
      procedure, pass(this) :: init => facet_normal_init
      !> Constructor from components.
@@ -96,22 +97,24 @@ contains
   end subroutine facet_normal_apply_scalar
 
   !> No-op scalar apply on device
-  subroutine facet_normal_apply_scalar_dev(this, x_d, t, tstep)
+  subroutine facet_normal_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(facet_normal_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
   end subroutine facet_normal_apply_scalar_dev
 
   !> No-op vector apply on device
-  subroutine facet_normal_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  subroutine facet_normal_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
     class(facet_normal_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
   end subroutine facet_normal_apply_vector_dev
 

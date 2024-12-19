@@ -148,11 +148,12 @@ contains
   end subroutine usr_inflow_apply_scalar
 
   !> No-op scalar apply (device version)
-  subroutine usr_inflow_apply_scalar_dev(this, x_d, t, tstep)
+  subroutine usr_inflow_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(usr_inflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
   end subroutine usr_inflow_apply_scalar_dev
 
   !> Apply user defined inflow conditions (vector valued)
@@ -231,19 +232,23 @@ contains
 
   end subroutine usr_inflow_apply_vector
 
-  subroutine usr_inflow_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  subroutine usr_inflow_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
     class(usr_inflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
     integer :: i, m, k, idx(4), facet, tstep_
     integer(c_size_t) :: s
     real(kind=rp) :: t_
     real(kind=rp), allocatable :: x(:)
     real(kind=rp), allocatable :: y(:)
     real(kind=rp), allocatable :: z(:)
+    logical :: strong_ = .true.
+
+    if (present(strong)) strong_ = strong
 
     if (present(t)) then
        t_ = t
@@ -267,7 +272,7 @@ contains
 
 
       ! Pretabulate values during first call to apply
-      if (.not. c_associated(usr_x_d)) then
+      if (.not. c_associated(usr_x_d) .and. strong_) then
          allocate(x(m), y(m), z(m)) ! Temp arrays
 
          s = m*rp
@@ -326,8 +331,10 @@ contains
          deallocate(x, y, z)
       end if
 
-      call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
-           usr_x_d, usr_y_d, usr_z_d, m)
+      if (strong_) then
+         call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
+              usr_x_d, usr_y_d, usr_z_d, m)
+      end if
 
     end associate
 

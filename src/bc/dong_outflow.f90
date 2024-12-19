@@ -180,29 +180,37 @@ contains
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to a vector @a x (device version)
-  subroutine dong_outflow_apply_scalar_dev(this, x_d, t, tstep)
+  subroutine dong_outflow_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(dong_outflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
+    logical :: strong_ = .true.
 
-    call device_dong_outflow_apply_scalar(this%msk_d,x_d, this%normal_x_d, &
-                                          this%normal_y_d, this%normal_z_d,&
-                                          this%u%x_d, this%v%x_d, this%w%x_d,&
-                                          this%uinf, this%delta,&
-                                          this%msk(0))
+    if (present(strong)) strong_ = strong
+
+    if (strong_) then
+       call device_dong_outflow_apply_scalar(this%msk_d,x_d, &
+            this%normal_x_d, this%normal_y_d, this%normal_z_d,&
+            this%u%x_d, this%v%x_d, this%w%x_d,&
+            this%uinf, this%delta,&
+            this%msk(0))
+    end if
 
   end subroutine dong_outflow_apply_scalar_dev
 
   !> Boundary condition apply for a generic Dirichlet condition
   !! to vectors @a x, @a y and @a z (device version)
-  subroutine dong_outflow_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  subroutine dong_outflow_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
+       strong)
     class(dong_outflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
     !call device_dong_outflow_apply_vector(this%msk_d, x_d, y_d, z_d, &
     !                                   this%g, size(this%msk))

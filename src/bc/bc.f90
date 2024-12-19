@@ -120,6 +120,33 @@ module bc
      class(bc_t), allocatable :: obj
   end type
 
+
+  abstract interface
+     !> Constructor
+     subroutine bc_constructor(this, coef, json)
+       import :: bc_t, coef_t, json_file
+       class(bc_t), intent(inout), target :: this
+       type(coef_t), intent(in) :: coef
+       type(json_file), intent(inout) ::json
+     end subroutine bc_constructor
+  end interface
+
+  abstract interface
+     !> Destructor
+     subroutine bc_destructor(this)
+       import :: bc_t
+       class(bc_t), intent(inout), target :: this
+     end subroutine bc_destructor
+  end interface
+
+  abstract interface
+     !> Finalize by building the mask and facet arrays.
+     subroutine bc_finalize(this)
+       import :: bc_t
+       class(bc_t), intent(inout), target :: this
+     end subroutine bc_finalize
+  end interface
+
   abstract interface
      !> Apply the boundary condition to a scalar field
      !! @param x The field for which to apply the boundary condition.
@@ -163,35 +190,12 @@ module bc
   end interface
 
   abstract interface
-     !> Constructor
-     subroutine bc_constructor(this, coef, json)
-       import :: bc_t, coef_t, json_file
-       class(bc_t), intent(inout), target :: this
-       type(coef_t), intent(in) :: coef
-       type(json_file), intent(inout) ::json
-     end subroutine bc_constructor
-  end interface
-
-  abstract interface
-     !> Destructor
-     subroutine bc_destructor(this)
-       import :: bc_t
-       class(bc_t), intent(inout), target :: this
-     end subroutine bc_destructor
-  end interface
-
-  abstract interface
-     !> Finalize by building the mask and facet arrays.
-     subroutine bc_finalize(this)
-       import :: bc_t
-       class(bc_t), intent(inout), target :: this
-     end subroutine bc_finalize
-  end interface
-
-  abstract interface
      !> Apply the boundary condition to a scalar field on the device
      !! @param x_d Device pointer to the field.
-     subroutine bc_apply_scalar_dev(this, x_d, t, tstep)
+     !! @param t The time value.
+     !! @param tstep The time iteration.
+     !! @param strong Whether we are setting a strong or a weak bc.
+     subroutine bc_apply_scalar_dev(this, x_d, t, tstep, strong)
        import :: c_ptr
        import :: bc_t
        import :: rp
@@ -199,6 +203,7 @@ module bc
        type(c_ptr) :: x_d
        real(kind=rp), intent(in), optional :: t
        integer, intent(in), optional :: tstep
+       logical, intent(in), optional :: strong
      end subroutine bc_apply_scalar_dev
   end interface
 
@@ -207,7 +212,10 @@ module bc
      !! @param x_d Device pointer to the values to be applied for the x comp.
      !! @param y_d Device pointer to the values to be applied for the y comp.
      !! @param z_d Device pointer to the values to be applied for the z comp.
-     subroutine bc_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+     !! @param t The time value.
+     !! @param tstep Current time-step.
+     !! @param strong Whether we are setting a strong or a weak bc.
+     subroutine bc_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
        import :: c_ptr
        import :: bc_t
        import :: rp
@@ -217,6 +225,7 @@ module bc
        type(c_ptr) :: z_d
        real(kind=rp), intent(in), optional :: t
        integer, intent(in), optional :: tstep
+       logical, intent(in), optional :: strong
      end subroutine bc_apply_vector_dev
   end interface
 

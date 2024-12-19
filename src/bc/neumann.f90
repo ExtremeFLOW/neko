@@ -160,11 +160,12 @@ contains
 
   !> Boundary condition apply for a generic Neumann condition
   !! to a vector @a x (device version)
-  subroutine neumann_apply_scalar_dev(this, x_d, t, tstep)
+  subroutine neumann_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(neumann_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
     call neko_error("Neumann bc not implemented on the device")
 
@@ -172,13 +173,14 @@ contains
 
   !> Boundary condition apply for a generic Neumann condition
   !! to vectors @a x, @a y and @a z (device version)
-  subroutine neumann_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  subroutine neumann_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
     class(neumann_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
     call neko_error("Neumann bc not implemented on the device")
 

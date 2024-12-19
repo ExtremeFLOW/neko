@@ -48,8 +48,10 @@ module zero_dirichlet
    contains
      procedure, pass(this) :: apply_scalar => zero_dirichlet_apply_scalar
      procedure, pass(this) :: apply_vector => zero_dirichlet_apply_vector
-     procedure, pass(this) :: apply_scalar_dev => zero_dirichlet_apply_scalar_dev
-     procedure, pass(this) :: apply_vector_dev => zero_dirichlet_apply_vector_dev
+     procedure, pass(this) :: apply_scalar_dev => &
+          zero_dirichlet_apply_scalar_dev
+     procedure, pass(this) :: apply_vector_dev => &
+          zero_dirichlet_apply_vector_dev
      !> Constructor.
      procedure, pass(this) :: init => zero_dirichlet_init
      !> Constructor from components.
@@ -135,27 +137,40 @@ contains
   end subroutine zero_dirichlet_apply_vector
 
   !> Apply boundary condition to a scalar field, device version.
-  subroutine zero_dirichlet_apply_scalar_dev(this, x_d, t, tstep)
+  subroutine zero_dirichlet_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(zero_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
+    logical :: strong_ = .true.
 
-    call device_zero_dirichlet_apply_scalar(this%msk_d, x_d, size(this%msk))
+    if (present(strong)) strong_ = strong
+
+    if (strong_) then
+       call device_zero_dirichlet_apply_scalar(this%msk_d, x_d, size(this%msk))
+    end if
 
   end subroutine zero_dirichlet_apply_scalar_dev
 
   !> Apply boundary condition to a vector field, device version.
-  subroutine zero_dirichlet_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  subroutine zero_dirichlet_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
+       strong)
     class(zero_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
+    logical :: strong_ = .true.
 
-    call device_zero_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
-                                          size(this%msk))
+    if (present(strong)) strong_ = strong
+
+    if (strong_) then
+       call device_zero_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
+            size(this%msk))
+    end if
 
   end subroutine zero_dirichlet_apply_vector_dev
 

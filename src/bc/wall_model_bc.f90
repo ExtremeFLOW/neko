@@ -140,11 +140,12 @@ contains
 
   !> Boundary condition apply for a generic wall_model_bc condition
   !! to a vector @a x (device version)
-  subroutine wall_model_bc_apply_scalar_dev(this, x_d, t, tstep)
+  subroutine wall_model_bc_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(wall_model_bc_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
     call neko_error("wall_model_bc bc not implemented on the device")
 
@@ -152,13 +153,15 @@ contains
 
   !> Boundary condition apply for a generic wall_model_bc condition
   !! to vectors @a x, @a y and @a z (device version)
-  subroutine wall_model_bc_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  subroutine wall_model_bc_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
+       strong)
     class(wall_model_bc_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
     call neko_error("wall_model_bc bc not implemented on the device")
 
