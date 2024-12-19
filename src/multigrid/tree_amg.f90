@@ -313,7 +313,7 @@ contains
       !>
       call this%gs_h%op(wrk_out, n, GS_OP_ADD)
       call this%blst%apply(wrk_out, n)
-      call bc_list_apply(this%blst, wrk_out, n)
+      call this%blst%apply(wrk_out, n)
       !>
 
       !> Map finest level matvec back to output level
