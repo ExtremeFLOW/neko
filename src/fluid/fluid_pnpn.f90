@@ -662,8 +662,7 @@ contains
       call this%source_term%compute(t, tstep)
 
       ! Add Neumann bc contributions to the RHS
-      call this%bclst_vel_neumann%apply_vector(f_x%x, f_y%x, f_z%x, &
-           this%dm_Xh%size(), t, tstep)
+      call this%bclst_vel_neumann%apply(f_x, f_y, f_z, t, tstep)
 
       ! Compute the grandient jump penalty term
       if (this%if_gradient_jump_penalty .eqv. .true.) then
@@ -744,7 +743,7 @@ contains
 
       if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n) 
       call gs_Xh%op(p_res, GS_OP_ADD)
-      call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), t, tstep)
+      call this%bclst_dp%apply(p_res, t, tstep)
       call profiler_end_region('Pressure_residual', 18)
 
       call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
@@ -777,8 +776,7 @@ contains
       call gs_Xh%op(v_res, GS_OP_ADD)
       call gs_Xh%op(w_res, GS_OP_ADD)
 
-      call this%bclst_vel_res%apply_vector(u_res%x, v_res%x, w_res%x, &
-           dm_Xh%size(), t, tstep)
+      call this%bclst_vel_res%apply(u_res, v_res, w_res, t, tstep)
 
       ! We should implement a bc that takes three field_bcs and implements
       ! vector_apply

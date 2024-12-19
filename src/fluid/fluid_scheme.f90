@@ -985,8 +985,7 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    call this%bclst_vel%apply_vector( &
-         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep)
+    call this%bclst_vel%apply(this%u, this%v, this%w, t, tstep)
 
   end subroutine fluid_scheme_bc_apply_vel
 
@@ -997,7 +996,7 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    call this%bclst_prs%apply_scalar(this%p%x, this%p%dof%size(), t, tstep)
+    call this%bclst_prs%apply(this%p, t, tstep)
 
   end subroutine fluid_scheme_bc_apply_prs
 
