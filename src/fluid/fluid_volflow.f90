@@ -246,8 +246,7 @@ contains
          call copy(ta2%x, c_Xh%B, n)
          call copy(ta3%x, c_Xh%B, n)
       end if
-      call bclst_vel_res%apply_vector(&
-           ta1%x, ta2%x, ta3%x, n)
+      call bclst_vel_res%apply_vector(ta1%x, ta2%x, ta3%x, n)
 
       ! add forcing
 

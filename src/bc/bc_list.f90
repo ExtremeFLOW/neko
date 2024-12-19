@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2024, The Neko Authors
+! Copyright (c) 2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -46,9 +46,10 @@ module bc_list
   type, public :: bc_list_t
      ! The items of the list.
      class(bc_ptr_t), allocatable :: items(:)
-     !> Number of items.
+     !> Number of items in the list that are themselves allocated.
      integer :: size
-     !> Capacity.
+     !> Capacity, i.e. the size of the items list. Some items may themselves be
+     !! unallocated.
      integer :: capacity
    contains
      !> Constructor.
@@ -130,9 +131,8 @@ contains
        call move_alloc(tmp, this%items)
     end if
 
-   this%size = this%size + 1
-   this%items(this%size)%ptr => bc
-
+    this%size = this%size + 1
+    this%items(this%size)%ptr => bc
 
   end subroutine bc_list_append
 

@@ -67,7 +67,7 @@ program poisson
   !user specified
   call rzero(f,n)
   call set_f(f, coef%mult, dm, n, gs_h)
-  call bclst%apply(f,n)
+  call bclst%apply(f, n)
   ksp_mon = solver%solve(ax, x, f, n, coef, bclst, gs_h, niter)
   n_glb = Xh%lx * Xh%ly * Xh%lz * msh%glb_nelv
 

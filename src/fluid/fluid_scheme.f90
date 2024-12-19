@@ -58,7 +58,8 @@ module fluid_scheme
   use phmg, only : phmg_t
   use precon, only : pc_t, precon_factory, precon_destroy
   use fluid_stats, only : fluid_stats_t
-  use bc, only : bc_t
+  use bc, only : bc_t 
+  use bc_list, only : bc_list_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use math, only : cfill, add2s2, glsum
   use device_math, only : device_cfill, device_add2s2
@@ -384,6 +385,9 @@ contains
 
     call json_get(params, 'case.numerics.dealias', logical_val)
     write(log_buf, '(A, L1)') 'Dealias    : ',  logical_val
+    call neko_log%message(log_buf)
+
+    write(log_buf, '(A, L1)') 'LES        : ', this%variable_material_properties
     call neko_log%message(log_buf)
 
     call json_get_or_default(params, 'case.output_boundary', logical_val, &

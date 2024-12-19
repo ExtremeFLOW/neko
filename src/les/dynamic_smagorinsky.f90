@@ -45,6 +45,7 @@ module dynamic_smagorinsky
   use coefs, only : coef_t
   use elementwise_filter, only : elementwise_filter_t
   use dynamic_smagorinsky_cpu, only : dynamic_smagorinsky_compute_cpu
+  use logger, only : LOG_SIZE, neko_log
   use dynamic_smagorinsky_device, only : dynamic_smagorinsky_compute_device
   implicit none
   private
@@ -55,7 +56,6 @@ module dynamic_smagorinsky
      !> Coefficient of the model.
      type(field_t) :: c_dyn
      !> Test filter.
-     character(len=:), allocatable :: test_filter_type
      type(elementwise_filter_t) :: test_filter
      !> Mij
      !! index for tensor mij and lij:
@@ -90,16 +90,27 @@ contains
     character(len=:), allocatable :: nut_name !! The name of the SGS viscosity field.
     integer :: i
     character(len=:), allocatable :: delta_type
+    character(len=:), allocatable :: test_filter_type
+    character(len=LOG_SIZE) :: log_buf
 
     call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
+    call json_get_or_default(json, "test_filter_type", test_filter_type, "nonBoyd")
 
     call this%free()
     call this%init_base(dofmap, coef, nut_name, delta_type)
-    this%test_filter_type = "nonBoyd"
     ! Filter assumes lx = ly = lz
-    call this%test_filter%init(dofmap%xh%lx, this%test_filter_type)
+    call this%test_filter%init(dofmap%xh%lx, test_filter_type)
     call set_ds_filt(this%test_filter)
+
+    call neko_log%section('LES model')
+    write(log_buf, '(A)') 'Model : Dynamic Smagorinsky'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Delta evaluation : ', delta_type
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Test filter type : ', test_filter_type
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
 
     call this%c_dyn%init(dofmap, "ds_c_dyn")
     call this%num%init(dofmap, "ds_num")

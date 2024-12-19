@@ -321,7 +321,7 @@ contains
 
     call Ax%compute(this%bb(1,this%m), x, coef, coef%msh, coef%Xh)
     call gs_h%gs_op_vector(this%bb(1,this%m), n, GS_OP_ADD)
-    call bclst%apply_scalar(this%bb(1, this%m), n)
+    call bclst%apply_scalar(this%bb(1,this%m), n)
 
     if (NEKO_BCKND_DEVICE .eq. 1)  then
        call device_proj_ortho(this, this%xx_d, this%bb_d, coef%mult_d, n)

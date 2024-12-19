@@ -209,6 +209,7 @@ contains
     call this%bclst_reg%init()
     call this%bclst_crs%init()
     call this%bclst_mg%init()
+
     call this%bclst_reg%append(this%bc_reg)
     call this%bclst_crs%append(this%bc_crs)
     call this%bclst_mg%append(this%bc_mg)
@@ -415,7 +416,7 @@ contains
                this%grids(1)%dof%size(), GS_OP_ADD, this%gs_event)
           call device_event_sync(this%gs_event)
           call this%grids(1)%bclst%apply_scalar(this%wf%x, &
-                                    this%grids(1)%dof%size())
+               this%grids(1)%dof%size())
           call profiler_start_region('HSMG_coarse_solve', 11)
           crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, &
                                        this%wf%x, &
@@ -424,8 +425,8 @@ contains
                                        this%grids(1)%bclst, &
                                        this%grids(1)%gs_h, this%niter)
           call profiler_end_region('HSMG_coarse_solve', 11)
-          call this%grids(1)%bclst%apply_scalar(this%grids(1)%e%x, &
-                                    this%grids(1)%dof%size())
+          call this%grids(1)%bclst%apply_scalar(this%grids(1)%e%x,&
+               this%grids(1)%dof%size())
           call profiler_end_region('HSMG_coarse_grid', 10)
        end if
        !$omp end parallel
@@ -464,8 +465,7 @@ contains
        !Crs solve
 
        call this%grids(1)%gs_h%op(this%r, this%grids(1)%dof%size(), GS_OP_ADD)
-       call this%grids(1)%bclst%apply(this%r, &
-                                 this%grids(1)%dof%size())
+       call this%grids(1)%bclst%apply(this%r, this%grids(1)%dof%size())
 
        call profiler_start_region('HSMG_coarse-solve', 11)
        if (allocated(this%amg_solver)) then
@@ -479,8 +479,8 @@ contains
        end if
        call profiler_end_region('HSMG_coarse-solve', 11)
 
-       call this%grids(1)%bclst%apply_scalar(this%grids(1)%e%x,&
-                                 this%grids(1)%dof%size())
+       call this%grids(1)%bclst%apply_scalar(this%grids(1)%e%x, &
+            this%grids(1)%dof%size())
 
 
        call this%interp_mid_crs%map(this%w, this%grids(1)%e%x, &

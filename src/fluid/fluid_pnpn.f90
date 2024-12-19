@@ -75,7 +75,6 @@ module fluid_pnpn
   use mathops, only : opadd2cm, opcolv
   use bc_list, only: bc_list_t
   use zero_dirichlet, only : zero_dirichlet_t
-  use dong_outflow, only : dong_outflow_t
   use utils, only : neko_error, neko_type_error
   use field_math, only : field_add2, field_copy
   use bc, only : bc_t

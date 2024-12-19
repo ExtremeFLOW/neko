@@ -95,7 +95,7 @@ contains
     this%lvl = lvl
     this%max_iter = max_iter
     this%recompute_eigs = .true.
-    print *, "INIT SMOO ON LVL", lvl
+!    print *, "INIT SMOO ON LVL", lvl
 
   end subroutine amg_cheby_init
 
@@ -108,13 +108,14 @@ contains
     type(tamg_hierarchy_t), intent(inout) :: amg
     integer, intent(in) :: n
     real(kind=rp) :: lam, b, a, rn
-    real(kind=rp) :: boost = 1.1_rp
-    real(kind=rp) :: lam_factor = 30.0_rp
+    real(kind=rp), parameter :: boost = 1.1_rp
+    real(kind=rp), parameter :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
     integer :: i
-    associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, msh=>amg%msh, Xh=>amg%Xh, blst=>amg%blst)
+    associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
+         msh=>amg%msh, Xh=>amg%Xh, blst=>amg%blst)
 
-      print *, "COMP EIGS on lvl", this%lvl, "n", n
+!      print *, "COMP EIGS on lvl", this%lvl, "n", n
       do i = 1, n
         !TODO: replace with a better way to initialize power method
         !call random_number(rn)
@@ -132,7 +133,7 @@ contains
         call amg%matvec(w, d, this%lvl)
 
         if (this%lvl .eq. 0) then
-          !call bc_list_apply(blst, w, n)
+          !call blst%apply(w, n)
           wtw = glsc3(w, coef%mult, w, n)
         else
           wtw = glsc2(w, w, n)
@@ -141,14 +142,14 @@ contains
         call cmult2(d, w, 1.0_rp/sqrt(wtw), n)
 
         if (this%lvl .eq. 0) then
-          !call bc_list_apply(blst, d, n)
+          !call blst%apply(d, n)
         end if
       end do
 
       w = 0d0
       call amg%matvec(w, d, this%lvl)
       if (this%lvl .eq. 0) then
-        !call bc_list_apply(blst, w, n)
+        !call blst%apply(w, n)
       end if
 
       if (this%lvl .eq. 0) then
@@ -159,7 +160,7 @@ contains
         dtd = glsc2(d, d, n)
       end if
       lam = dtw / dtd
-      print *, "LAM:", lam
+!      print *, "LAM:", lam
       b = lam * boost
       a = lam / lam_factor
       this%tha = (b+a)/2.0_rp

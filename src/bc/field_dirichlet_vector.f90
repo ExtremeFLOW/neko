@@ -36,7 +36,7 @@ module field_dirichlet_vector
   use coefs, only: coef_t
   use dirichlet, only: dirichlet_t
   use bc, only: bc_t
-  use bc_list, only: bc_list_t
+  use bc_list, only : bc_list_t
   use device, only: c_ptr, c_size_t
   use utils, only: split_string
   use field, only : field_t
