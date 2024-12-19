@@ -165,6 +165,21 @@ extern "C" {
 
       }
       break;
+    case GS_OP_MIN:
+      if (stream == NULL) {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(gs_unpack_min_kernel<real>),
+                           nblcks, nthrds, 0, 0,
+                           u_d, buf_d + offset,
+                           dof_d + offset, n);
+      }
+      else {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(gs_unpack_min_kernel<real>),
+                           nblcks, nthrds, 0, stream,
+                           u_d, buf_d + offset,
+                           dof_d + offset, n);
+
+      }
+      break;
     default:
       printf("%s: unknown gs op %d\n", __FILE__, op);
       abort();

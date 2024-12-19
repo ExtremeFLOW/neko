@@ -285,4 +285,24 @@ __global__ void gs_unpack_add_kernel(T * __restrict__ u,
   }
 }
 
+template< typename T >
+__global__ void gs_unpack_min_kernel(T * __restrict__ u,
+                                     const T * __restrict__ buf,
+                                     const int32_t * __restrict__ dof,
+                                     const int n) {
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j >= n)
+    return;
+
+  const int32_t idx = dof[j];
+  const T val = buf[j];
+  if (idx < 0) {
+    atomicMin(&u[-idx-1], val);
+  } else {
+    u[idx - 1] = min(u[idx - 1], val);
+  }
+}
+
 #endif // __GS_GS_KERNELS__

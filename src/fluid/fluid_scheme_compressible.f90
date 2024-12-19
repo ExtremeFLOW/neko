@@ -1,7 +1,6 @@
 module fluid_scheme_compressible
   use dirichlet, only : dirichlet_t
   use field, only : field_t
-  use math, only : col3, col2, cfill, cmult, cmult2, add2, addcol3
   use field_math, only : field_cfill, field_col2, field_col3, field_cmult2, field_cmult, field_addcol3, field_add2
   use field_registry, only : neko_field_registry
   use fluid_scheme_base, only : fluid_scheme_base_t
@@ -163,11 +162,12 @@ contains
   !> Validate that all components are properly allocated
   subroutine fluid_scheme_compressible_validate(this)
     class(fluid_scheme_compressible_t), target, intent(inout) :: this
-    real(kind=rp), allocatable :: temp(:)
     integer :: n
+    type(field_t), pointer :: temp
+    integer :: temp_indices(1)
 
     n = this%dm_Xh%size()
-    allocate(temp(n))
+    call this%scratch%request_field(temp, temp_indices(1))
 
     !> Initialize the momentum field
     call field_col3(this%m_x, this%u, this%rho_field)
@@ -177,17 +177,17 @@ contains
     !> Initialize total energy
     !> Specific internal energy e := p / (gamma - 1)
     !> Total energy E := rho * e + 0.5 * rho * (u^2 + v^2 + w^2)
-    call cmult2(temp, this%p%x, 1.0_rp/(this%gamma - 1.0_rp), n)
-    call col3(this%E%x, temp, this%rho_field%x, n)
-    call cfill(temp, 0.0_rp, n)
-    call col3(temp, this%u%x, this%u%x, n)
-    call addcol3(temp, this%v%x, this%v%x, n)
-    call addcol3(temp, this%w%x, this%w%x, n)
-    call col2(temp, this%rho_field%x, n)
-    call cmult(temp, 0.5_rp, n)
-    call add2(this%E%x, temp, n)
+    call field_cmult2(temp, this%p, 1.0_rp/(this%gamma - 1.0_rp), n)
+    call field_col3(this%E, temp, this%rho_field, n)
+    call field_cfill(temp, 0.0_rp, n)
+    call field_col3(temp, this%u, this%u, n)
+    call field_addcol3(temp, this%v, this%v, n)
+    call field_addcol3(temp, this%w, this%w, n)
+    call field_col2(temp, this%rho_field, n)
+    call field_cmult(temp, 0.5_rp, n)
+    call field_add2(this%E, temp, n)
 
-    deallocate(temp)
+    call this%scratch%relinquish_field(temp_indices)
     
   end subroutine fluid_scheme_compressible_validate
 

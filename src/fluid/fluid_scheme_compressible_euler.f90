@@ -1,14 +1,14 @@
 module fluid_scheme_compressible_euler
   use advection, only : advection_t, advection_factory
+  use device, only : device_memcpy, HOST_TO_DEVICE
   use dofmap, only : dofmap_t
   use field_math, only : field_add2, field_cfill, field_cmult, field_cadd, field_copy, field_col2, &
-                         field_col3, field_addcol3, field_sub2
+                         field_col3, field_addcol3, field_sub2, field_invcol2
   use field, only : field_t
   use fluid_scheme_compressible, only: fluid_scheme_compressible_t
   use gs_ops, only : GS_OP_ADD, GS_OP_MIN
   use gather_scatter, only : gs_t
   use num_types, only : rp
-  use math, only: subcol3, copy, sub2, add2, add3, col2, col3, addcol3, cmult, cfill, invcol3
   use mesh, only : mesh_t
   use operators, only: div, grad
   use json_module, only : json_file
@@ -22,6 +22,7 @@ module fluid_scheme_compressible_euler
   use coefs, only: coef_t
   use space, only : space_t
   use euler_residual, only: euler_rhs_t, euler_rhs_factory
+  use neko_config, only : NEKO_BCKND_DEVICE
   implicit none
   private
 
@@ -57,13 +58,6 @@ contains
 
     call euler_rhs_factory(this%euler_rhs)
 
-    ! Initialize the advection factory
-    call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
-    call advection_factory(this%adv, params, this%c_Xh, &
-                           this%ulag, this%vlag, this%wlag, &
-                           this%chkp%dtlag, this%chkp%tlag, time_scheme, &
-                           .not. advection)
-
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
           dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
 
@@ -74,6 +68,29 @@ contains
       call this%dE%init(dm_Xh, 'dE')
 
     end associate
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      associate(p => this%p, rho_field => this%rho_field, &
+           u => this%u, v => this%v, w => this%w, &
+           m_x => this%m_x, m_y => this%m_y, m_z => this%m_z)
+        call device_memcpy(p%x, p%x_d, p%dof%size(), &
+                           HOST_TO_DEVICE, sync = .false.)
+        call device_memcpy(rho_field%x, rho_field%x_d, rho_field%dof%size(), &
+                           HOST_TO_DEVICE, sync = .false.)
+        call device_memcpy(u%x, u%x_d, u%dof%size(), &
+                           HOST_TO_DEVICE, sync = .false.)
+        call device_memcpy(v%x, v%x_d, v%dof%size(), &
+                           HOST_TO_DEVICE, sync = .false.)
+        call device_memcpy(w%x, w%x_d, w%dof%size(), &
+                           HOST_TO_DEVICE, sync = .false.)
+        call device_memcpy(m_x%x, m_x%x_d, m_x%dof%size(), &
+                            HOST_TO_DEVICE, sync = .false.)
+        call device_memcpy(m_y%x, m_y%x_d, m_y%dof%size(), &
+                            HOST_TO_DEVICE, sync = .false.)
+        call device_memcpy(m_z%x, m_z%x_d, m_z%dof%size(), &
+                            HOST_TO_DEVICE, sync = .false.)
+      end associate
+    end if
 
     ! Initialize the diffusion operator
     call ax_helm_factory(this%Ax, full_formulation = .false.)
@@ -109,13 +126,14 @@ contains
     real(kind=rp), intent(in) :: dt
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
     type(time_step_controller_t), intent(in) :: dt_controller
-    real(kind=rp), allocatable :: temp(:)
+    type(field_t), pointer :: temp
+    integer :: temp_indices(1)
     ! number of degrees of freedom
     integer :: n
     type(field_list_t) :: rhs_fields
 
     n = this%dm_Xh%size()
-    allocate(temp(n))
+    call this%scratch%request_field(temp, temp_indices(1))
 
     call profiler_start_region('Fluid compressible', 1)
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
@@ -153,18 +171,22 @@ contains
 
       ! Update variables
       ! Update u, v, w
-      call invcol3(u%x, m_x%x, rho_field%x, n)
-      call invcol3(v%x, m_y%x, rho_field%x, n)
-      call invcol3(w%x, m_z%x, rho_field%x, n)
+      call field_copy(u, m_x, n)
+      call field_invcol2(u, rho_field, n)
+      call field_copy(v, m_y, n)
+      call field_invcol2(v, rho_field, n)
+      call field_copy(w, m_z, n)
+      call field_invcol2(w, rho_field, n)
 
       ! Update p = (gamma - 1) * (E / rho - 0.5 * (u^2 + v^2 + w^2))
-      call col3(temp, u%x, u%x, n)
-      call addcol3(temp, v%x, v%x, n)
-      call addcol3(temp, w%x, w%x, n)
-      call cmult(temp, 0.5_rp, n)
-      call invcol3(p%x, E%x, rho_field%x, n)
-      call add2(p%x, temp, n)
-      call cmult(p%x, this%gamma - 1.0_rp, n)
+      call field_col3(temp, u, u, n)
+      call field_addcol3(temp, v, v, n)
+      call field_addcol3(temp, w, w, n)
+      call field_cmult(temp, 0.5_rp, n)
+      call field_copy(p, E, n)
+      call field_invcol2(p, rho_field, n)
+      call field_add2(p, temp, n)
+      call field_cmult(p, this%gamma - 1.0_rp, n)
 
       !> TODO: Update maximum wave speed
 
@@ -175,7 +197,7 @@ contains
     end associate
     call profiler_end_region('Fluid compressible', 1)
 
-    deallocate(temp)
+    call this%scratch%relinquish_field(temp_indices)
 
   end subroutine fluid_scheme_compressible_euler_step
 
