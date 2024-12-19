@@ -34,6 +34,7 @@
 module bc_list
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
+  use field, only : field_t
   use device, only : device_get_ptr
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr
@@ -61,12 +62,17 @@ module bc_list
      !> Get the item at the given index.
      procedure, pass(this) :: get => bc_list_get
      !> Apply all boundary conditions in the list.
-     generic :: apply => apply_scalar, apply_vector
-     !> Appply the boundary conditions to a scalar field.
-     procedure, pass(this) :: apply_scalar => bc_list_apply_scalar
-     !> Appply the boundary conditions to a vector field.
-     procedure, pass(this) :: apply_vector => bc_list_apply_vector
-     !> Check wether the list is empty
+     generic :: apply => apply_scalar, apply_vector, &
+          apply_scalar_field, apply_vector_field
+     !> Apply the boundary conditions to a scalar array.
+     procedure, pass(this) :: apply_scalar => bc_list_apply_scalar_array
+     !> Apply the boundary conditions to a vector array.
+     procedure, pass(this) :: apply_vector => bc_list_apply_vector_array
+     !> Apply the boundary conditions to a scalar field.
+     procedure, pass(this) :: apply_scalar_field => bc_list_apply_scalar_field
+     !> Apply the boundary conditions to a vector field.
+     procedure, pass(this) :: apply_vector_field => bc_list_apply_vector_field
+     !> Check whether the list is empty
      procedure, pass(this) :: is_empty => bc_list_is_empty
      !> Return the number of items in the list.
      procedure :: size => bc_list_size
@@ -155,7 +161,7 @@ contains
   !! @param n The size of x.
   !! @param t Current time.
   !! @param tstep Current time-step.
-  subroutine bc_list_apply_scalar(this, x, n, t, tstep)
+  subroutine bc_list_apply_scalar_array(this, x, n, t, tstep)
     class(bc_list_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
@@ -174,7 +180,7 @@ contains
           call this%items(i)%ptr%apply_scalar(x, n, t, tstep)
        end do
     end if
-  end subroutine bc_list_apply_scalar
+  end subroutine bc_list_apply_scalar_array
 
   !> Apply a list of boundary conditions to a vector field.
   !! @param x The x comp of the field for which to apply the bcs.
@@ -183,7 +189,7 @@ contains
   !! @param n The size of x, y, z.
   !! @param t Current time.
   !! @param tstep Current time-step.
-  subroutine bc_list_apply_vector(this, x, y, z, n, t, tstep)
+  subroutine bc_list_apply_vector_array(this, x, y, z, n, t, tstep)
     class(bc_list_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
@@ -209,7 +215,58 @@ contains
        end do
     end if
 
-  end subroutine bc_list_apply_vector
+  end subroutine bc_list_apply_vector_array
+
+  !> Apply a list of boundary conditions to a scalar field
+  !! @param x The field to apply the boundary conditions to.
+  !! @param t Current time.
+  !! @param tstep Current time-step.
+  subroutine bc_list_apply_scalar_field(this, x, t, tstep)
+    class(bc_list_t), intent(inout) :: this
+    type(field_t), intent(inout) :: x
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
+    integer :: i, n
+
+    n = x%size()
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_scalar_dev(x%x_d, t, tstep)
+       end do
+    else
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_scalar(x%x, n, t, tstep)
+       end do
+    end if
+  end subroutine bc_list_apply_scalar_field
+
+  !> Apply a list of boundary conditions to a vector field.
+  !! @param x The x comp of the field for which to apply the bcs.
+  !! @param y The y comp of the field for which to apply the bcs.
+  !! @param z The z comp of the field for which to apply the bcs.
+  !! @param t Current time.
+  !! @param tstep Current time-step.
+  subroutine bc_list_apply_vector_field(this, x, y, z, t, tstep)
+    class(bc_list_t), intent(inout) :: this
+    type(field_t), intent(inout) :: x
+    type(field_t), intent(inout) :: y
+    type(field_t), intent(inout) :: z
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
+    integer :: i, n
+
+    n = x%size()
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, t, tstep)
+       end do
+    else
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, t, tstep)
+       end do
+    end if
+
+  end subroutine bc_list_apply_vector_field
 
   !> Return whether the list is empty.
   function bc_list_is_empty(this) result(is_empty)

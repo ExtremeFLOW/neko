@@ -139,7 +139,7 @@ common/global_interpolation.lo : common/global_interpolation.F90 common/structs.
 common/profiler.lo : common/profiler.F90 common/runtime_statistics.lo common/craypat.lo device/hip/roctx.lo device/cuda/nvtx.lo device/device.lo config/neko_config.lo 
 common/craypat.lo : common/craypat.F90 
 bc/bc.lo : bc/bc.f90 common/utils.lo adt/tuple.lo adt/stack.lo mesh/facet_zone.lo mesh/mesh.lo sem/space.lo sem/coef.lo sem/dofmap.lo device/device.lo config/num_types.lo config/neko_config.lo 
-bc/bc_list.lo : bc/bc_list.f90 bc/bc.lo common/utils.lo device/device.lo config/num_types.lo config/neko_config.lo 
+bc/bc_list.lo : bc/bc_list.f90 bc/bc.lo common/utils.lo device/device.lo field/field.lo config/num_types.lo config/neko_config.lo 
 bc/dirichlet.lo : bc/dirichlet.f90 bc/bc.lo config/num_types.lo bc/bcknd/device/device_dirichlet.lo 
 bc/neumann.lo : bc/neumann.f90 math/math.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
 bc/shear_stress.lo : bc/shear_stress.f90 bc/neumann.lo bc/symmetry.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
