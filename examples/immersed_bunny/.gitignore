@@ -3,5 +3,5 @@
 !.gitignore
 !*.case
 !readme.md
-!run.sh
+!prepare.sh
 !bunny.stl
