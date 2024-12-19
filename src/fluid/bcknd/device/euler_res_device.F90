@@ -8,6 +8,7 @@ module euler_res_device
   use scratch_registry, only: neko_scratch_registry
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+  use operators, only : div
 
   type, public, extends(euler_rhs_t) :: euler_res_device_t
    contains
@@ -58,7 +59,7 @@ contains
     call gs_Xh%op(temp, GS_OP_ADD)
 
 #ifdef HAVE_HIP
-    call euler_res_part1_hip(rhs_rho_field%x_d, c_Xh%Binv_d, c_avisc, temp%x_d, n)
+    call euler_res_part1_hip(rhs_rho_field%x_d, c_Xh%Binv_d, temp%x_d, c_avisc, n)
 #elif HAVE_CUDA
     call neko_error("CUDA not supported")
 #elif HAVE_OPENCL

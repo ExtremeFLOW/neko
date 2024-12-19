@@ -5,7 +5,7 @@ module fluid_scheme_compressible_euler
                          field_col3, field_addcol3, field_sub2
   use field, only : field_t
   use fluid_scheme_compressible, only: fluid_scheme_compressible_t
-  use gs_ops, only : GS_OP_ADD, GS_OP_MIN_ABS
+  use gs_ops, only : GS_OP_ADD, GS_OP_MIN
   use gather_scatter, only : gs_t
   use num_types, only : rp
   use math, only: subcol3, copy, sub2, add2, add3, col2, col3, addcol3, cmult, cfill, invcol3
@@ -197,21 +197,21 @@ contains
     !> rho = rho - dt * div(m)
     call field_cmult(rhs_rho_field, dt, n)
     call field_sub2(rho_field, rhs_rho_field, n)
-    call this%gs_Xh%op(rho_field, GS_OP_MIN_ABS)
+    call this%gs_Xh%op(rho_field, GS_OP_MIN)
     !> m = m - dt * div(rho * u * u^T + p*I)
     call field_cmult(rhs_m_x, dt, n)
     call field_sub2(m_x, rhs_m_x, n)
-    call this%gs_Xh%op(m_x, GS_OP_MIN_ABS)
+    call this%gs_Xh%op(m_x, GS_OP_MIN)
     call field_cmult(rhs_m_y, dt, n)
     call field_sub2(m_y, rhs_m_y, n)
-    call this%gs_Xh%op(m_y, GS_OP_MIN_ABS)
+    call this%gs_Xh%op(m_y, GS_OP_MIN)
     call field_cmult(rhs_m_z, dt, n)
     call field_sub2(m_z, rhs_m_z, n)
-    call this%gs_Xh%op(m_z, GS_OP_MIN_ABS)
+    call this%gs_Xh%op(m_z, GS_OP_MIN)
     !> E = E - dt * div(u * (E + p))
     call field_cmult(rhs_E, dt, n)
     call field_sub2(E, rhs_E, n)
-    call this%gs_Xh%op(E, GS_OP_MIN_ABS)
+    call this%gs_Xh%op(E, GS_OP_MIN)
 
   end subroutine rk4
 
