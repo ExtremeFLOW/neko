@@ -34,7 +34,7 @@
 module vreman_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
-  use math, only : cadd, NEKO_EPS
+  use math, only : cadd, NEKO_EPS, col2
   use scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
   use field, only : field_t
@@ -155,6 +155,9 @@ contains
                             * sqrt(b_beta/(aijaij + NEKO_EPS))
        end do
     end do
+
+    call coef%gs_h%op(nut, GS_OP_ADD)
+    call col2(nut%x, coef%mult, nut%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine vreman_compute_cpu
