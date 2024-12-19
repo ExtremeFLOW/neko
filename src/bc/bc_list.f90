@@ -32,9 +32,9 @@
 !
 !> Defines a list of `bc_t`.
 module bc_list
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
-  use device
+  use device, only : device_get_ptr
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr
   use bc, only : bc_t, bc_ptr_t
@@ -45,12 +45,12 @@ module bc_list
   !! Follows the standard interface of lists.
   type, public :: bc_list_t
      ! The items of the list.
-     class(bc_ptr_t), allocatable :: items(:)
+     class(bc_ptr_t), allocatable, private :: items(:)
      !> Number of items in the list that are themselves allocated.
-     integer :: size
-     !> Capacity, i.e. the size of the items list. Some items may themselves be
+     integer, private :: size_
+     !> Capacity, i.e. the size_ of the items list. Some items may themselves be
      !! unallocated.
-     integer :: capacity
+     integer, private :: capacity
    contains
      !> Constructor.
      procedure, pass(this) :: init => bc_list_init
@@ -58,6 +58,8 @@ module bc_list
      procedure, pass(this) :: free => bc_list_free
      !> Append an item to the end of the list.
      procedure, pass(this) :: append => bc_list_append
+     !> Get the item at the given index.
+     procedure, pass(this) :: get => bc_list_get
      !> Apply all boundary conditions in the list.
      generic :: apply => apply_scalar, apply_vector
      !> Appply the boundary conditions to a scalar field.
@@ -66,6 +68,8 @@ module bc_list
      procedure, pass(this) :: apply_vector => bc_list_apply_vector
      !> Check wether the list is empty
      procedure, pass(this) :: is_empty => bc_list_is_empty
+     !> Return the number of items in the list.
+     procedure :: size => bc_list_size
   end type bc_list_t
 
 contains
@@ -79,15 +83,12 @@ contains
 
     call this%free()
 
-    if (present(size)) then
-       n = size
-    else
-       n = 1
-    end if
+    n = 1
+    if (present(size)) n = size
 
     allocate(this%items(n))
 
-    this%size = 0
+    this%size_ = 0
     this%capacity = n
 
   end subroutine bc_list_init
@@ -100,14 +101,14 @@ contains
     integer :: i
 
     if (allocated(this%items)) then
-       do i =1, this%size
+       do i = 1, this%size_
           this%items(i)%ptr => null()
        end do
 
        deallocate(this%items)
     end if
 
-    this%size = 0
+    this%size_ = 0
     this%capacity = 0
   end subroutine bc_list_free
 
@@ -121,17 +122,33 @@ contains
     !> Do not add if bc is empty
     if(bc%marked_facet%size() .eq. 0) return
 
-    if (this%size .ge. this%capacity) then
+    if (this%size_ .ge. this%capacity) then
        this%capacity = this%capacity * 2
        allocate(tmp(this%capacity))
-       tmp(1:this%size) = this%items
+       tmp(1:this%size_) = this%items
        call move_alloc(tmp, this%items)
     end if
 
-    this%size = this%size + 1
-    this%items(this%size)%ptr => bc
+    this%size_ = this%size_ + 1
+    this%items(this%size_)%ptr => bc
 
   end subroutine bc_list_append
+
+  !> Get the item at the given index.
+  !! @param i The index of the item to get.
+  !! @return The item at the given index.
+  function bc_list_get(this, i) result(bc)
+    class(bc_list_t), intent(in) :: this
+    class(bc_t), pointer :: bc
+    integer, intent(in) :: i
+
+    if (i .lt. 1 .or. i .gt. this%size_) then
+       call neko_error("Index out of bounds in bc_list_get")
+    end if
+
+    bc => this%items(i)%ptr
+
+  end function bc_list_get
 
   !> Apply a list of boundary conditions to a scalar field
   !! @param x The field to apply the boundary conditions to.
@@ -149,11 +166,11 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
-       do i = 1, this%size
+       do i = 1, this%size_
           call this%items(i)%ptr%apply_scalar_dev(x_d, t, tstep)
        end do
     else
-       do i = 1, this%size
+       do i = 1, this%size_
           call this%items(i)%ptr%apply_scalar(x, n, t, tstep)
        end do
     end if
@@ -183,11 +200,11 @@ contains
        x_d = device_get_ptr(x)
        y_d = device_get_ptr(y)
        z_d = device_get_ptr(z)
-       do i = 1, this%size
+       do i = 1, this%size_
           call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t, tstep)
        end do
     else
-       do i = 1, this%size
+       do i = 1, this%size_
           call this%items(i)%ptr%apply_vector(x, y, z, n, t, tstep)
        end do
     end if
@@ -200,16 +217,24 @@ contains
     logical :: is_empty
     integer :: i
 
-    is_empty = .true. 
-    do i = 1, this%size
+    is_empty = .true.
+    do i = 1, this%size_
 
        if (.not. allocated(this%items(i)%ptr%msk)) then
           call neko_error("bc not finalized, error in bc_list%is_empty")
        end if
 
        if (this%items(i)%ptr%msk(0) > 0) is_empty = .false.
-    
+
     end do
   end function bc_list_is_empty
+
+  !> Return the number of items in the list.
+  pure function bc_list_size(this) result(size)
+    class(bc_list_t), intent(in), target :: this
+    integer :: size
+
+    size = this%size_
+  end function bc_list_size
 
 end module bc_list
