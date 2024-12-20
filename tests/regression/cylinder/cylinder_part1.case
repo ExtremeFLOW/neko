@@ -36,7 +36,29 @@
             "absolute_tolerance": 1e-3,
             "max_iterations": 800
         },
-        "boundary_types": ["v", "o+dong", "", "", "on", "on", "w"],
+        "boundary_conditions": [
+        {
+            "type": "velocity_value",
+            "value": [1, 0, 0],
+            "zone_index": 1
+        },
+        {
+            "type": "outflow+dong",
+            "zone_index": 2
+        },
+        {
+            "type": "normal_outflow",
+            "zone_index": 5
+        },
+        {
+            "type": "normal_outflow",
+            "zone_index": 6
+        },
+        {
+            "type": "no_slip",
+            "zone_index": 7
+        }
+        ],
         "output_control": "simulationtime",
         "output_value": 0.05
     },
