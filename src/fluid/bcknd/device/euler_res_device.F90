@@ -17,15 +17,45 @@ module euler_res_device
 
 #ifdef HAVE_HIP
   interface
-    subroutine euler_res_part1_hip(rhs_rho_field_d, Binv_d, lap_rho_d, c_avisc, n) &
-        bind(c, name = 'euler_res_part1_hip')
+    subroutine euler_res_part_visc_hip(rhs_rho_field_d, Binv_d, lap_rho_d, c_avisc, n) &
+        bind(c, name = 'euler_res_part_visc_hip')
       use, intrinsic :: iso_c_binding
       import c_rp
       implicit none
       type(c_ptr), value :: rhs_rho_field_d, Binv_d, lap_rho_d
       real(c_rp) :: c_avisc
       integer(c_int) :: n
-    end subroutine euler_res_part1_hip
+    end subroutine euler_res_part_visc_hip
+  end interface
+
+  interface
+    subroutine euler_res_part_mx_flux_hip(f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, n) &
+        bind(c, name = 'euler_res_part_mx_flux_hip')
+      use, intrinsic :: iso_c_binding
+      implicit none
+      type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
+      integer(c_int) :: n
+    end subroutine euler_res_part_mx_flux_hip
+  end interface
+
+  interface
+    subroutine euler_res_part_my_flux_hip(f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, n) &
+        bind(c, name = 'euler_res_part_my_flux_hip')
+      use, intrinsic :: iso_c_binding
+      implicit none
+      type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
+      integer(c_int) :: n
+    end subroutine euler_res_part_my_flux_hip
+  end interface
+
+  interface
+    subroutine euler_res_part_E_flux_hip(f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, E, n) &
+        bind(c, name = 'euler_res_part_E_flux_hip')
+      use, intrinsic :: iso_c_binding
+      implicit none
+      type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, E
+      integer(c_int) :: n
+    end subroutine euler_res_part_E_flux_hip
   end interface
 #endif
 
@@ -59,7 +89,65 @@ contains
     call gs_Xh%op(temp, GS_OP_ADD)
 
 #ifdef HAVE_HIP
-    call euler_res_part1_hip(rhs_rho_field%x_d, c_Xh%Binv_d, temp%x_d, c_avisc, n)
+    call euler_res_part_visc_hip(rhs_rho_field%x_d, c_Xh%Binv_d, temp%x_d, c_avisc, n)
+    call euler_res_part_mx_flux_hip(f_x%x_d, f_y%x_d, f_z%x_d, m_x%x_d, m_y%x_d, m_z%x_d, rho_field%x_d, p%x_d, n)
+#elif HAVE_CUDA
+    call neko_error("CUDA not supported")
+#elif HAVE_OPENCL
+    call neko_error("OpenCL not supported")
+#endif
+
+    call div(rhs_m_x%x, f_x%x, f_y%x, f_z%x, c_Xh)
+    ! artificial diffusion for m_x
+    call Ax%compute(temp%x, m_x%x, c_Xh, p%msh, p%Xh)
+    call gs_Xh%op(temp, GS_OP_ADD)
+#ifdef HAVE_HIP
+    call euler_res_part_visc_hip(rhs_m_x%x_d, c_Xh%Binv_d, temp%x_d, c_avisc, n)
+    call euler_res_part_my_flux_hip(f_x%x_d, f_y%x_d, f_z%x_d, &
+                                    m_x%x_d, m_y%x_d, m_z%x_d, &
+                                    rho_field%x_d, p%x_d, n)
+#elif HAVE_CUDA
+    call neko_error("CUDA not supported")
+#elif HAVE_OPENCL
+    call neko_error("OpenCL not supported")
+#endif
+
+    call div(rhs_m_y%x, f_x%x, f_y%x, f_z%x, c_Xh)
+    ! artificial diffusion for m_y
+    call Ax%compute(temp%x, m_y%x, c_Xh, p%msh, p%Xh)
+    call gs_Xh%op(temp, GS_OP_ADD)
+#ifdef HAVE_HIP
+    call euler_res_part_visc_hip(rhs_m_y%x_d, c_Xh%Binv_d, temp%x_d, c_avisc, n)
+    call euler_res_part_mz_flux_hip(f_x%x_d, f_y%x_d, f_z%x_d, &
+                                   m_x%x_d, m_y%x_d, m_z%x_d, &
+                                   rho_field%x_d, p%x_d, n)
+#elif HAVE_CUDA
+    call neko_error("CUDA not supported")
+#elif HAVE_OPENCL
+    call neko_error("OpenCL not supported")
+#endif
+
+    call div(rhs_m_z%x, f_x%x, f_y%x, f_z%x, c_Xh)
+    ! artificial diffusion for m_z
+    call Ax%compute(temp%x, m_z%x, c_Xh, p%msh, p%Xh)
+    call gs_Xh%op(temp, GS_OP_ADD)
+#ifdef HAVE_HIP
+    call euler_res_part_visc_hip(rhs_m_z%x_d, c_Xh%Binv_d, temp%x_d, c_avisc, n)
+    call euler_res_part_E_flux_hip(f_x%x_d, f_y%x_d, f_z%x_d, &
+                                 m_x%x_d, m_y%x_d, m_z%x_d, &
+                                 rho_field%x_d, p%x_d, E%x_d, n)
+#elif HAVE_CUDA
+    call neko_error("CUDA not supported")
+#elif HAVE_OPENCL
+    call neko_error("OpenCL not supported")
+#endif
+
+    call div(rhs_E%x, f_x%x, f_y%x, f_z%x, c_Xh)
+    ! artificial diffusion for E
+    call Ax%compute(temp%x, E%x, c_Xh, p%msh, p%Xh)
+    call gs_Xh%op(temp, GS_OP_ADD)
+#ifdef HAVE_HIP
+    call euler_res_part_visc_hip(rhs_E%x_d, c_Xh%Binv_d, temp%x_d, c_avisc, n)
 #elif HAVE_CUDA
     call neko_error("CUDA not supported")
 #elif HAVE_OPENCL

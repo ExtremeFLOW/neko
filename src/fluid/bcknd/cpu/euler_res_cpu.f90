@@ -52,10 +52,10 @@ contains
     ! m = m - dt * div(rho * u * u^T + p*I)
     !> m_x
     do concurrent (i = 1:n)
-      f_x%x(i,1,1,1) = m_x%x(i,1,1,1) * u%x(i,1,1,1) &
+      f_x%x(i,1,1,1) = m_x%x(i,1,1,1) * m_x%x(i,1,1,1) / rho_field%x(i, 1, 1, 1) &
                         + p%x(i,1,1,1)
-      f_y%x(i,1,1,1) = m_x%x(i,1,1,1) * v%x(i,1,1,1)
-      f_z%x(i,1,1,1) = m_x%x(i,1,1,1) * w%x(i,1,1,1)
+      f_y%x(i,1,1,1) = m_x%x(i,1,1,1) * m_y%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
+      f_z%x(i,1,1,1) = m_x%x(i,1,1,1) * m_z%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
     end do
     call div(rhs_m_x%x, f_x%x, f_y%x, f_z%x, c_Xh)
     ! artificial diffusion for m_x
@@ -68,10 +68,10 @@ contains
 
     !> m_y
     do concurrent (i = 1:n)
-      f_x%x(i,1,1,1) = m_y%x(i,1,1,1) * u%x(i,1,1,1)
-      f_y%x(i,1,1,1) = m_y%x(i,1,1,1) * v%x(i,1,1,1) &
+      f_x%x(i,1,1,1) = m_y%x(i,1,1,1) * m_x%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
+      f_y%x(i,1,1,1) = m_y%x(i,1,1,1) * m_y%x(i,1,1,1) / rho_field%x(i, 1, 1, 1) &
                         + p%x(i,1,1,1)
-      f_z%x(i,1,1,1) = m_y%x(i,1,1,1) * w%x(i,1,1,1)
+      f_z%x(i,1,1,1) = m_y%x(i,1,1,1) * m_z%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
     end do
     call div(rhs_m_y%x, f_x%x, f_y%x, f_z%x, c_Xh)
     ! artificial diffusion for m_y
@@ -84,9 +84,9 @@ contains
 
     !> m_z
     do concurrent (i = 1:n)
-      f_x%x(i,1,1,1) = m_z%x(i,1,1,1) * u%x(i,1,1,1)
-      f_y%x(i,1,1,1) = m_z%x(i,1,1,1) * v%x(i,1,1,1)
-      f_z%x(i,1,1,1) = m_z%x(i,1,1,1) * w%x(i,1,1,1) &
+      f_x%x(i,1,1,1) = m_z%x(i,1,1,1) * m_x%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
+      f_y%x(i,1,1,1) = m_z%x(i,1,1,1) * m_y%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
+      f_z%x(i,1,1,1) = m_z%x(i,1,1,1) * m_z%x(i,1,1,1) / rho_field%x(i, 1, 1, 1) &
                         + p%x(i,1,1,1)
     end do
     call div(rhs_m_z%x, f_x%x, f_y%x, f_z%x, c_Xh)

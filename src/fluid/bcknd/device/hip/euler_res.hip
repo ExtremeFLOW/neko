@@ -40,16 +40,77 @@
 
 extern "C" {
 
-  void euler_res_part1_hip(void *rhs_rho, void *Binv,
+  void euler_res_part_visc_hip(void *rhs_rho, void *Binv,
                            void *lap_rho, real *c_avisc, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME( euler_res_part1_kernel<real> ),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME( euler_res_part_visc_kernel<real> ),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) rhs_rho, (real *) Binv, 
                        (real *) lap_rho, *c_avisc, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  void euler_res_part_mx_flux_hip(void *f_x, void *f_y, void *f_z,
+                           void *m_x, void *m_y, void *m_z,
+                           void *rho_field, void *p, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME( euler_res_part_mx_flux_kernel<real> ),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) f_x, (real *) f_y, (real *) f_z,
+                       (real *) m_x, (real *) m_y, (real *) m_z,
+                       (real *) rho_field, (real *) p, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  void euler_res_part_my_flux_hip(void *f_x, void *f_y, void *f_z,
+                           void *m_x, void *m_y, void *m_z,
+                           void *rho_field, void *p, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME( euler_res_part_my_flux_kernel<real> ),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) f_x, (real *) f_y, (real *) f_z,
+                       (real *) m_x, (real *) m_y, (real *) m_z,
+                       (real *) rho_field, (real *) p, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  void euler_res_part_mz_flux_hip(void *f_x, void *f_y, void *f_z,
+                           void *m_x, void *m_y, void *m_z,
+                           void *rho_field, void *p, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME( euler_res_part_mz_flux_kernel<real> ),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) f_x, (real *) f_y, (real *) f_z,
+                       (real *) m_x, (real *) m_y, (real *) m_z,
+                       (real *) rho_field, (real *) p, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  void euler_res_part_E_flux_hip(void *f_x, void *f_y, void *f_z,
+                           void *m_x, void *m_y, void *m_z,
+                           void *rho_field, void *p, void *E,
+                           int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME( euler_res_part_E_flux_kernel<real> ),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) f_x, (real *) f_y, (real *) f_z,
+                       (real *) m_x, (real *) m_y, (real *) m_z,
+                       (real *) rho_field, (real *) p, (real *) E, *n);
     HIP_CHECK(hipGetLastError());
   }
 }
