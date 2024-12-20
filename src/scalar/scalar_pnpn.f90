@@ -172,6 +172,7 @@ contains
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     real(kind=rp), intent(in) :: rho
     integer :: i
+    class(bc_t), pointer :: bc_i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     logical :: advection
 
@@ -218,7 +219,8 @@ contains
     call this%bc_res%init(this%c_Xh, params)
     do i = 1, this%bcs%size()
        if (this%bcs%strong(i)) then
-          call this%bc_res%mark_facets(this%bcs%items(i)%ptr%marked_facet)
+          bc_i => this%bcs%get(i)
+          call this%bc_res%mark_facets(bc_i%marked_facet)
        end if
     end do
 
@@ -465,6 +467,7 @@ contains
     type(json_core) :: core
     type(json_value), pointer :: bc_object
     type(json_file) :: bc_subdict
+    class(bc_t), pointer :: bc_i
     logical :: found
 
 
@@ -480,10 +483,8 @@ contains
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
 
-          call bc_factory(this%bcs%items(i)%ptr, this, bc_subdict, &
-                          this%c_Xh, user)
-
-          this%bcs%size_ = this%bcs%size_ + 1
+          call bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
+          call this%bcs%append(bc_i)
        end do
     end if
   end subroutine scalar_pnpn_setup_bcs_

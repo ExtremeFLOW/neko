@@ -245,6 +245,7 @@ contains
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     integer :: i
+    class(bc_t), pointer :: bc_i, vel_bc
     real(kind=rp) :: abs_tol
     character(len=LOG_SIZE) :: log_buf
     integer :: ierr, integer_val, solver_maxiter
@@ -345,12 +346,14 @@ contains
 
     call this%bc_prs_surface%init_from_components(this%c_Xh)
     do i = 1, this%bcs_vel%size()
-       select type (vel_bc => this%bcs_vel%items(i)%ptr)
+      vel_bc => this%bcs_vel%get(i)
+
+       select type (vel_bc)
        type is (symmetry_t)
          ! Do nothing, symmetry bcs go into another special bc.
        class default
          if (vel_bc%strong .eqv. .true.) then
-            write(*,*) "MARKING PRESSURE SURFACE BC" 
+            write(*,*) "MARKING PRESSURE SURFACE BC"
             call this%bc_prs_surface%mark_facets(vel_bc%marked_facet)
          end if
        end select
@@ -360,7 +363,9 @@ contains
     ! Initialize symmetry surface terms in pressure rhs. Masks symmetry bcs.
     call this%bc_sym_surface%init(this%c_Xh, params)
     do i = 1, this%bcs_vel%size()
-       select type (vel_bc => this%bcs_vel%items(i)%ptr)
+       vel_bc => this%bcs_vel%get(i)
+
+       select type (vel_bc)
        type is (symmetry_t)
           write(*,*) "MARKING PRESSURE SYMMETRY"
           call this%bc_sym_surface%mark_facets(vel_bc%marked_facet)
@@ -377,7 +382,8 @@ contains
 
     do i = 1, this%bcs_prs%size()
        if (this%bcs_prs%strong(i) .eqv. .true.) then
-          call this%bc_dp%mark_facets(this%bcs_prs%items(i)%ptr%marked_facet)
+          bc_i => this%bcs_prs%get(i)
+          call this%bc_dp%mark_facets(bc_i%marked_facet)
        end if
     end do
     call this%bc_dp%finalize()
@@ -397,10 +403,11 @@ contains
 
     ! Add all strong velocity bcs.
     do i = 1, this%bcs_vel%size()
+      vel_bc => this%bcs_vel%get(i)
 
        ! We need to treat mixed bcs separately because they are by convention 
        ! marked weak and currently contain nested bcs, some of which are strong.
-       select type (vel_bc => this%bcs_vel%items(i)%ptr)
+       select type (vel_bc)
        type is (symmetry_t)
           ! Symmetry has 3 internal bcs, but only one acutally contains
           ! markings. All 3 are zero_dirichlet, so the value is
@@ -999,6 +1006,7 @@ contains
     class(fluid_pnpn_t), intent(inout) :: this
     type(user_t), target, intent(in) :: user
     integer :: i, j, n_bcs
+    class(bc_t), pointer :: bc_j
     type(json_core) :: core
     type(json_value), pointer :: bc_object
     type(json_file) :: bc_subdict
@@ -1019,13 +1027,12 @@ contains
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
 
-          call velocity_bc_factory(this%bcs_vel%items(j)%ptr, this, bc_subdict,&
-               this%c_Xh, user)
+          call velocity_bc_factory(bc_j, this, bc_subdict, this%c_Xh, user)
+
           ! Not all bcs require an allocation for velocity in particular,
           ! so we check.
-          if (associated(this%bcs_vel%items(j)%ptr)) then
-             j = j + 1
-             this%bcs_vel%size_ = this%bcs_vel%size_ + 1
+          if (associated(bc_j)) then
+             call this%bcs_vel%append(bc_j)
           end if
 
        end do
@@ -1039,14 +1046,12 @@ contains
        do i=1, n_bcs
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
-          call pressure_bc_factory(this%bcs_prs%items(j)%ptr, this, bc_subdict,&
-               this%c_Xh, user)
+          call pressure_bc_factory(bc_j, this, bc_subdict, this%c_Xh, user)
 
           ! Not all bcs require an allocation for pressure in particular,
           ! so we check.
-          if (associated(this%bcs_prs%items(j)%ptr)) then
-             j = j + 1
-             this%bcs_prs%size_ = this%bcs_prs%size_ + 1
+          if (associated(bc_j)) then
+              call this%bcs_prs%append(bc_j)
           end if
 
        end do
