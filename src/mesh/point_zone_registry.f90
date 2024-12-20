@@ -247,7 +247,6 @@ contains
   subroutine expand(this)
     class(point_zone_registry_t), intent(inout) :: this
     type(point_zone_wrapper_t), allocatable :: temp(:)
-    integer :: i
 
     allocate(temp(this%n + this%expansion_size))
     temp(1:this%n) = this%point_zones(1:this%n)
@@ -264,7 +263,6 @@ contains
     type(dofmap_t), target, intent(inout) :: dof
 !    type(h_cptr_t) :: key
     character(len=:), allocatable :: str_read
-    integer :: i
 
     !
     ! Allocate the point zones array as it was not necessarily done

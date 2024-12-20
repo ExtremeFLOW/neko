@@ -79,7 +79,7 @@ contains
   subroutine bc_list_init(this, size)
     class(bc_list_t), intent(inout), target :: this
     integer, optional :: size
-    integer :: n, i
+    integer :: n
 
     call this%free()
 
@@ -118,7 +118,6 @@ contains
     class(bc_list_t), intent(inout) :: this
     class(bc_t), intent(inout), target :: bc
     type(bc_ptr_t), allocatable :: tmp(:)
-    integer :: i
 
     !> Do not add if bc is empty
     if(bc%marked_facet%size() .eq. 0) return
