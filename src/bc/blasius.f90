@@ -64,6 +64,9 @@ module blasius
      procedure, pass(this) :: set_params => blasius_set_params
      !> Constructor
      procedure, pass(this) :: init => blasius_init
+     !> Constructor from components
+     procedure, pass(this) :: init_from_components => &
+          blasius_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => blasius_free
      !> Finalize.
@@ -89,6 +92,30 @@ contains
     call json_get(json, 'approximation', approximation)
     call json_get(json, 'freestream_velocity', uinf)
 
+    if (size(uinf) .ne. 3) then
+       call neko_error("The uinf keyword for the blasius profile should be an &
+& array of 3 reals")
+    end if
+
+    call this%init_from_components(coef, delta, uinf, approximation)
+
+  end subroutine blasius_init
+
+  !> Constructor from components
+  !! @param[in] coef The SEM coefficients.
+  !! @param[in] delta The boundary layer thickness.
+  !! @param[in] uinf The freestream velocity.
+  !! @param[in] approximation The type of approximation for the profile.
+  subroutine blasius_init_from_components(this, coef, delta, uinf, &
+       approximation)
+    class(blasius_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    real(kind=rp) :: delta
+    real(kind=rp) :: uinf(3)
+    character(len=*) :: approximation
+
+    call this%init_base(coef)
+
     this%delta = delta
     this%uinf = uinf
 
@@ -106,9 +133,7 @@ contains
     case default
        call neko_error('Invalid Blasius approximation')
     end select
-
-
-  end subroutine blasius_init
+  end subroutine blasius_init_from_components
 
   subroutine blasius_free(this)
     class(blasius_t), target, intent(inout) :: this
