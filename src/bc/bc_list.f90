@@ -57,10 +57,18 @@ module bc_list
      procedure, pass(this) :: init => bc_list_init
      !> Destructor.
      procedure, pass(this) :: free => bc_list_free
+
      !> Append an item to the end of the list.
      procedure, pass(this) :: append => bc_list_append
      !> Get the item at the given index.
      procedure, pass(this) :: get => bc_list_get
+
+     !> Check whether the list is empty
+     procedure, pass(this) :: is_empty => bc_list_is_empty
+     !> Return wether a given item is a strong bc
+     procedure, pass(this) :: strong => bc_list_strong
+     !> Return the number of items in the list.
+     procedure :: size => bc_list_size
 
      !> Apply all boundary conditions in the list.
      generic :: apply => apply_scalar, apply_vector, &
@@ -73,13 +81,6 @@ module bc_list
      procedure, pass(this) :: apply_scalar_field => bc_list_apply_scalar_field
      !> Apply the boundary conditions to a vector field.
      procedure, pass(this) :: apply_vector_field => bc_list_apply_vector_field
-
-     !> Check whether the list is empty
-     procedure, pass(this) :: is_empty => bc_list_is_empty
-     !> Return wether a given item is a strong bc
-     procedure, pass(this) :: strong => bc_list_strong
-     !> Return the number of items in the list.
-     procedure :: size => bc_list_size
   end type bc_list_t
 
 contains
@@ -265,8 +266,17 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     integer :: i, n
+    character(len=256) :: msg
 
     n = x%size()
+
+    ! Ensure all fields are the same size
+    if (y%size() .ne. n .or. z%size() .ne. n) then
+       msg = "Fields x, y, z must have the same size in " // &
+            "bc_list_apply_vector_field"
+       call neko_error(trim(msg))
+    end if
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, this%size_
           call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, t, tstep)
