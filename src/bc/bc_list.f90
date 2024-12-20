@@ -49,7 +49,7 @@ module bc_list
      class(bc_ptr_t), allocatable, private :: items(:)
      !> Number of items in the list that are themselves allocated.
      integer, private :: size_
-     !> Capacity, i.e. the size_ of the items list. Some items may themselves be
+     !> Capacity, i.e. the size of the items list. Some items may themselves be
      !! unallocated.
      integer, private :: capacity
    contains
@@ -233,11 +233,14 @@ contains
   !! @param x The field to apply the boundary conditions to.
   !! @param t Current time.
   !! @param tstep Current time-step.
-  subroutine bc_list_apply_scalar_field(this, x, t, tstep)
+  !! @param strong Filter for strong or weak boundary conditions. Default is to
+  !! apply the whole list.
+  subroutine bc_list_apply_scalar_field(this, x, t, tstep, strong)
     class(bc_list_t), intent(inout) :: this
     type(field_t), intent(inout) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
     integer :: i, n
 
     n = x%size()
@@ -247,7 +250,7 @@ contains
        end do
     else
        do i = 1, this%size_
-          call this%items(i)%ptr%apply_scalar(x%x, n, t, tstep)
+          call this%items(i)%ptr%apply_scalar(x%x, n, t, tstep, strong)
        end do
     end if
   end subroutine bc_list_apply_scalar_field
@@ -258,13 +261,16 @@ contains
   !! @param z The z comp of the field for which to apply the bcs.
   !! @param t Current time.
   !! @param tstep Current time-step.
-  subroutine bc_list_apply_vector_field(this, x, y, z, t, tstep)
+  !! @param strong Filter for strong or weak boundary conditions. Default is to
+  !! apply the whole list.
+  subroutine bc_list_apply_vector_field(this, x, y, z, t, tstep, strong)
     class(bc_list_t), intent(inout) :: this
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
     integer :: i, n
     character(len=256) :: msg
 
@@ -283,7 +289,8 @@ contains
        end do
     else
        do i = 1, this%size_
-          call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, t, tstep)
+          call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, t, tstep, &
+               strong)
        end do
     end if
 
