@@ -138,7 +138,7 @@ io/output_controller.lo : io/output_controller.f90 common/time_based_controller.
 common/global_interpolation.lo : common/global_interpolation.F90 common/structs.lo comm/mpi_types.lo math/math.lo comm/comm.lo sem/local_interpolation.lo common/utils.lo common/log.lo mesh/mesh.lo sem/dofmap.lo sem/space.lo config/num_types.lo 
 common/profiler.lo : common/profiler.F90 common/runtime_statistics.lo common/craypat.lo device/hip/roctx.lo device/cuda/nvtx.lo device/device.lo config/neko_config.lo 
 common/craypat.lo : common/craypat.F90 
-bc/bc.lo : bc/bc.f90 common/utils.lo adt/tuple.lo adt/stack.lo mesh/facet_zone.lo mesh/mesh.lo sem/space.lo sem/coef.lo sem/dofmap.lo device/device.lo config/num_types.lo config/neko_config.lo 
+bc/bc.lo : bc/bc.f90 io/file.lo field/field.lo common/utils.lo adt/tuple.lo adt/stack.lo mesh/facet_zone.lo mesh/mesh.lo sem/space.lo sem/coef.lo sem/dofmap.lo device/device.lo config/num_types.lo config/neko_config.lo 
 bc/bc_list.lo : bc/bc_list.f90 bc/bc.lo common/utils.lo device/device.lo field/field.lo config/num_types.lo config/neko_config.lo 
 bc/dirichlet.lo : bc/dirichlet.f90 common/json_utils.lo sem/coef.lo bc/bc.lo config/num_types.lo bc/bcknd/device/device_dirichlet.lo 
 bc/neumann.lo : bc/neumann.f90 math/math.lo common/json_utils.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
