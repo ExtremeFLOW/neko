@@ -101,6 +101,7 @@ contains
     integer :: lx_crs, lx_mid
     integer, allocatable :: lx_lvls(:)
     integer :: n, i, j
+    class(bc_t), pointer :: bc_j
     
     this%msh => msh
 
@@ -151,8 +152,9 @@ contains
        call this%phmg_hrchy%lvl(i)%bc%init_base(this%phmg_hrchy%lvl(i)%coef)
        if (bclst%size() .gt. 0 ) then
           do j = 1, bclst%size()
+             bc_j => bclst%get(j)
              call this%phmg_hrchy%lvl(i)%bc%mark_facets(&
-                  bclst%items(j)%ptr%marked_facet)
+                  bc_j%marked_facet)
           end do
        end if
        call this%phmg_hrchy%lvl(i)%bc%finalize()
