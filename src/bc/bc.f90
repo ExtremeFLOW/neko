@@ -94,6 +94,8 @@ module bc
      !> Apply the boundary condition to a vector field. Dispatches to the CPU
      !! or the device version.
      procedure, pass(this) :: apply_vector_generic => bc_apply_vector_generic
+     !> Write a field showing the mask of the bcs
+     procedure, pass(this) :: debug_mask_ => bc_debug_mask
      !> Apply the boundary condition to a scalar field on the CPU.
      procedure(bc_apply_scalar), pass(this), deferred :: apply_scalar
      !> Apply the boundary condition to a vector field on the CPU.
@@ -511,4 +513,30 @@ contains
     end if
 
   end subroutine bc_finalize_base
+
+  !> Write a field showing the mask of the bc
+  !! @details The mask will be marked with 1.
+  !! @param file_name The name of the fld file.
+  subroutine bc_debug_mask(this, file_name)
+   use field, only : field_t
+   use file, only : file_t
+
+    class(bc_t), intent(inout) :: this
+    character(len=*), intent(in) :: file_name
+    type(field_t) :: bdry_field
+    integer:: i, m, k
+    type(file_t) :: dump_file
+
+    call bdry_field%init(this%coef%dof, 'bdry')
+    m = this%msk(0)
+    do i = 1, m
+       k = this%msk(i)
+       bdry_field%x(k,1,1,1) = 1.0_rp
+    end do
+
+    dump_file = file_t(file_name)
+    call dump_file%write(bdry_field)
+
+
+  end subroutine bc_debug_mask
 end module bc
