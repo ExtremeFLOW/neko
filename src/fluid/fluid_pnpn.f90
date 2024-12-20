@@ -995,7 +995,7 @@ contains
   subroutine fluid_pnpn_setup_bcs(this, user)
     class(fluid_pnpn_t), intent(inout) :: this
     type(user_t), target, intent(in) :: user
-    integer :: i, j, n_bcs
+    integer :: i, n_bcs, zone_index
     class(bc_t), pointer :: bc_j
     type(json_core) :: core
     type(json_value), pointer :: bc_object
@@ -1012,7 +1012,6 @@ contains
        !
        call this%bcs_vel%init(n_bcs)
 
-       j = 1
        do i=1, n_bcs
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
@@ -1033,7 +1032,6 @@ contains
        !
        call this%bcs_prs%init(n_bcs)
 
-       j = 1
        do i = 1, n_bcs
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
@@ -1044,6 +1042,7 @@ contains
           ! so we check.
           if (associated(bc_j)) then
               call this%bcs_prs%append(bc_j)
+
           end if
 
        end do
