@@ -44,7 +44,7 @@
 #include <device/opencl/prgm_lib.h>
 #include <device/opencl/check.h>
 
-#include "zero_dirichlet_kernel.cl.h"
+#include "zero_dirichlet_kernel.cl"
 
 /**
  * Fortran wrapper for device zero-dirichlet apply vector
