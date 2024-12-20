@@ -674,7 +674,7 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    call this%bcs_prs%apply_scalar(this%p%x, this%p%dof%size(), t, tstep)
+    call this%bclst_prs%apply(this%p, t, tstep)
 
   end subroutine fluid_scheme_bc_apply_prs
 

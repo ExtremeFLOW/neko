@@ -934,8 +934,7 @@ contains
       call gs_Xh%op(w_res, GS_OP_ADD)
 
       ! Set residual to zero at strong velocity boundaries.
-      call this%bclst_vel_res%apply_vector(u_res%x, v_res%x, w_res%x, &
-           dm_Xh%size(), t, tstep)
+      call this%bclst_vel_res%apply(u_res, v_res, w_res, t, tstep)
 
       ! TODO REMOVE
       dump_file = file_t('u_res.fld')
