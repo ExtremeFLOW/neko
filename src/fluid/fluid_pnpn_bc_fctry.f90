@@ -180,6 +180,7 @@ contains
     call object%mark_zone(coef%msh%labeled_zones(zone_index))
     call object%finalize()
 
+    ! Exclude these two because they are bcs for the residual, not velocity
     if (type .ne. "normal_outflow" .and. type .ne. "normal_outflow+dong") then
        do j = 1, scheme%msh%nelv
           do k = 1, 2 * scheme%msh%gdim
