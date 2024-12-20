@@ -38,6 +38,7 @@ module facet_normal
   use coefs, only : coef_t
   use bc, only : bc_t
   use utils
+  use json_module, only : json_file
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -50,44 +51,75 @@ module facet_normal
      procedure, pass(this) :: apply_vector => facet_normal_apply_vector
      procedure, pass(this) :: apply_vector_dev => facet_normal_apply_vector_dev
      procedure, pass(this) :: apply_surfvec => facet_normal_apply_surfvec
-     procedure, pass(this) :: apply_surfvec_dev => facet_normal_apply_surfvec_dev
+     procedure, pass(this) :: apply_surfvec_dev => &
+          facet_normal_apply_surfvec_dev
+     !> Constructor.
+     procedure, pass(this) :: init => facet_normal_init
+     !> Constructor from components.
+     procedure, pass(this) :: init_from_components => &
+          facet_normal_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => facet_normal_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => facet_normal_finalize
   end type facet_normal_t
 
 contains
 
+  !> Constructor.
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine facet_normal_init(this, coef, json)
+    class(facet_normal_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
+
+    call this%init_from_components(coef)
+  end subroutine facet_normal_init
+
+  !> Constructor from components.
+  !! @param[in] coef The SEM coefficients.
+  subroutine facet_normal_init_from_components(this, coef)
+    class(facet_normal_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+
+    call this%init_base(coef)
+  end subroutine facet_normal_init_from_components
+
   !> No-op scalar apply
-  subroutine facet_normal_apply_scalar(this, x, n, t, tstep)
+  subroutine facet_normal_apply_scalar(this, x, n, t, tstep, strong)
     class(facet_normal_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
   end subroutine facet_normal_apply_scalar
 
   !> No-op scalar apply on device
-  subroutine facet_normal_apply_scalar_dev(this, x_d, t, tstep)
+  subroutine facet_normal_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(facet_normal_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
   end subroutine facet_normal_apply_scalar_dev
 
   !> No-op vector apply on device
-  subroutine facet_normal_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  subroutine facet_normal_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
     class(facet_normal_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
   end subroutine facet_normal_apply_vector_dev
 
   !> No-op vector apply
-  subroutine facet_normal_apply_vector(this, x, y, z, n, t, tstep)
+  subroutine facet_normal_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(facet_normal_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
@@ -95,6 +127,7 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
   end subroutine facet_normal_apply_vector
 
   !> Apply in facet normal direction (vector valued)
@@ -169,5 +202,12 @@ contains
     call this%free_base()
 
   end subroutine facet_normal_free
+
+  !> Finalize
+  subroutine facet_normal_finalize(this)
+    class(facet_normal_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine facet_normal_finalize
 
 end module facet_normal

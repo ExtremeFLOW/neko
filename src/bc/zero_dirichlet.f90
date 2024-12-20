@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2021, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,72 +30,65 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines a dirichlet boundary condition
-module dirichlet
-  use device_dirichlet
+!> Defines a zero-valued Dirichlet boundary condition.
+module zero_dirichlet
+  use device_zero_dirichlet
   use num_types, only : rp
   use bc, only : bc_t
+  use, intrinsic :: iso_c_binding, only : c_ptr
   use coefs, only : coef_t
   use json_module, only : json_file
-  use json_utils, only : json_get
-  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
-  !> Generic Dirichlet boundary condition
-  !! \f$ x = g \f$ on \f$\partial \Omega\f$
-  type, public, extends(bc_t) :: dirichlet_t
-     real(kind=rp), private :: g
+  !> Zero-valued Dirichlet boundary condition.
+  !! Used for no-slip walls, but also for various auxillary conditions,
+  !! such as for residuals.
+  type, public, extends(bc_t) :: zero_dirichlet_t
    contains
-     procedure, pass(this) :: apply_scalar => dirichlet_apply_scalar
-     procedure, pass(this) :: apply_vector => dirichlet_apply_vector
-     procedure, pass(this) :: apply_scalar_dev => dirichlet_apply_scalar_dev
-     procedure, pass(this) :: apply_vector_dev => dirichlet_apply_vector_dev
-     procedure, pass(this) :: set_g => dirichlet_set_g
-     !> Constructor from JSON.
-     procedure, pass(this) :: init => dirichlet_init
+     procedure, pass(this) :: apply_scalar => zero_dirichlet_apply_scalar
+     procedure, pass(this) :: apply_vector => zero_dirichlet_apply_vector
+     procedure, pass(this) :: apply_scalar_dev => &
+          zero_dirichlet_apply_scalar_dev
+     procedure, pass(this) :: apply_vector_dev => &
+          zero_dirichlet_apply_vector_dev
+     !> Constructor.
+     procedure, pass(this) :: init => zero_dirichlet_init
      !> Constructor from components.
      procedure, pass(this) :: init_from_components => &
-        dirichlet_init_from_components
+          zero_dirichlet_init_from_components
      !> Destructor.
-     procedure, pass(this) :: free => dirichlet_free
+     procedure, pass(this) :: free => zero_dirichlet_free
      !> Finalize.
-     procedure, pass(this) :: finalize => dirichlet_finalize
-  end type dirichlet_t
+     procedure, pass(this) :: finalize => zero_dirichlet_finalize
+  end type zero_dirichlet_t
 
 contains
 
-  !> Constructor from JSON.
+  !> Constructor
   !! @param[in] coef The SEM coefficients.
   !! @param[inout] json The JSON object configuring the boundary condition.
-  subroutine dirichlet_init(this, coef, json)
-    class(dirichlet_t), intent(inout), target :: this
+  subroutine zero_dirichlet_init(this, coef, json)
+    class(zero_dirichlet_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) ::json
-    real(kind=rp) :: g
 
-    call this%init_base(coef)
-    call json_get(json , "value", g)
+    call this%init_from_components(coef)
+  end subroutine zero_dirichlet_init
 
-    this%g = g
-  end subroutine dirichlet_init
-
-  !> Constructor from components.
+  !> Constructor
   !! @param[in] coef The SEM coefficients.
-  !! @param[in] g The value to apply at the boundary.
-  subroutine dirichlet_init_from_components(this, coef, g)
-    class(dirichlet_t), intent(inout), target :: this
+  subroutine zero_dirichlet_init_from_components(this, coef)
+    class(zero_dirichlet_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
-    real(kind=rp), intent(in) :: g
 
     call this%init_base(coef)
-    this%g = g
-  end subroutine dirichlet_init_from_components
+  end subroutine zero_dirichlet_init_from_components
 
-  !> Boundary condition apply for a generic Dirichlet condition
+  !> Apply boundary condition to a scalar field.
   !! to a vector @a x
-  subroutine dirichlet_apply_scalar(this, x, n, t, tstep, strong)
-    class(dirichlet_t), intent(inout) :: this
+  subroutine zero_dirichlet_apply_scalar(this, x, n, t, tstep, strong)
+    class(zero_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
@@ -105,20 +98,20 @@ contains
     logical :: strong_ = .true.
 
     if (present(strong)) strong_ = strong
+    m = this%msk(0)
 
     if (strong_) then
-       m = this%msk(0)
-       do i = 1, m
-          k = this%msk(i)
-          x(k) = this%g
-       end do
+      do i = 1, m
+        k = this%msk(i)
+        x(k) = 0d0
+      end do
     end if
-  end subroutine dirichlet_apply_scalar
 
-  !> Boundary condition apply for a generic Dirichlet condition
-  !! to vectors @a x, @a y and @a z
-  subroutine dirichlet_apply_vector(this, x, y, z, n, t, tstep, strong)
-    class(dirichlet_t), intent(inout) :: this
+  end subroutine zero_dirichlet_apply_scalar
+
+  !> Apply boundary condition to a vector field.
+  subroutine zero_dirichlet_apply_vector(this, x, y, z, n, t, tstep, strong)
+    class(zero_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(inout),  dimension(n) :: y
@@ -131,22 +124,21 @@ contains
 
     if (present(strong)) strong_ = strong
 
-    if (strong_) then
-       m = this%msk(0)
-       do i = 1, m
-          k = this%msk(i)
-          x(k) = this%g
-          y(k) = this%g
-          z(k) = this%g
+    if (strong_) then 
+      m = this%msk(0)
+      do i = 1, m
+        k = this%msk(i)
+        x(k) = 0d0
+        y(k) = 0d0
+        z(k) = 0d0
       end do
     end if
 
-  end subroutine dirichlet_apply_vector
+  end subroutine zero_dirichlet_apply_vector
 
-  !> Boundary condition apply for a generic Dirichlet condition
-  !! to a vector @a x (device version)
-  subroutine dirichlet_apply_scalar_dev(this, x_d, t, tstep, strong)
-    class(dirichlet_t), intent(inout), target :: this
+  !> Apply boundary condition to a scalar field, device version.
+  subroutine zero_dirichlet_apply_scalar_dev(this, x_d, t, tstep, strong)
+    class(zero_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
@@ -155,18 +147,16 @@ contains
 
     if (present(strong)) strong_ = strong
 
-
     if (strong_) then
-       call device_dirichlet_apply_scalar(this%msk_d, x_d, &
-            this%g, size(this%msk))
+       call device_zero_dirichlet_apply_scalar(this%msk_d, x_d, size(this%msk))
     end if
 
-  end subroutine dirichlet_apply_scalar_dev
+  end subroutine zero_dirichlet_apply_scalar_dev
 
-  !> Boundary condition apply for a generic Dirichlet condition
-  !! to vectors @a x, @a y and @a z (device version)
-  subroutine dirichlet_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
-    class(dirichlet_t), intent(inout), target :: this
+  !> Apply boundary condition to a vector field, device version.
+  subroutine zero_dirichlet_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
+       strong)
+    class(zero_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
@@ -178,34 +168,25 @@ contains
     if (present(strong)) strong_ = strong
 
     if (strong_) then
-       call device_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, this%g, &
+       call device_zero_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
             size(this%msk))
     end if
 
-  end subroutine dirichlet_apply_vector_dev
-
-  !> Set value of \f$ g \f$
-  subroutine dirichlet_set_g(this, g)
-    class(dirichlet_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: g
-
-    this%g = g
-
-  end subroutine dirichlet_set_g
+  end subroutine zero_dirichlet_apply_vector_dev
 
   !> Destructor
-  subroutine dirichlet_free(this)
-    class(dirichlet_t), target, intent(inout) :: this
+  subroutine zero_dirichlet_free(this)
+    class(zero_dirichlet_t), target, intent(inout) :: this
 
-    call this%free_base
+    call this%free_base()
 
-  end subroutine dirichlet_free
+  end subroutine zero_dirichlet_free
 
   !> Finalize
-  subroutine dirichlet_finalize(this)
-    class(dirichlet_t), target, intent(inout) :: this
+  subroutine zero_dirichlet_finalize(this)
+    class(zero_dirichlet_t), target, intent(inout) :: this
 
     call this%finalize_base()
-  end subroutine dirichlet_finalize
+  end subroutine zero_dirichlet_finalize
 
-end module dirichlet
+end module zero_dirichlet

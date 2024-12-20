@@ -78,6 +78,7 @@ module projection
   use logger, only : LOG_SIZE, neko_log
   use utils, only : neko_warning
   use, intrinsic :: iso_c_binding
+  use bc_list, only : bc_list_t
   use time_step_controller, only : time_step_controller_t
 
   implicit none

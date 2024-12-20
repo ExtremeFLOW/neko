@@ -67,7 +67,7 @@ module hsmg
   use ax_product, only : ax_t, ax_helm_factory
   use gather_scatter, only : gs_t, GS_OP_ADD
   use interpolation, only : interpolator_t
-  use bc, only : bc_t
+  use bc, only: bc_t
   use bc_list, only : bc_list_t
   use dirichlet, only : dirichlet_t
   use schwarz, only : schwarz_t
@@ -85,6 +85,7 @@ module hsmg
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory, krylov_solver_destroy
   use tree_amg_multigrid, only : tamg_solver_t 
+  use zero_dirichlet, only : zero_dirichlet_t
   !$ use omp_lib
   implicit none
   private
@@ -108,7 +109,7 @@ module hsmg
      type(space_t) :: Xh_crs, Xh_mg !< spaces for lower levels
      type(dofmap_t) :: dm_crs, dm_mg
      type(coef_t) :: c_crs, c_mg
-     type(dirichlet_t) :: bc_crs, bc_mg, bc_reg
+     type(zero_dirichlet_t) :: bc_crs, bc_mg, bc_reg
      type(bc_list_t) :: bclst_crs, bclst_mg, bclst_reg
      type(schwarz_t) :: schwarz, schwarz_mg, schwarz_crs !< Schwarz decompostions
      type(field_t) :: e, e_mg, e_crs !< Solve fields
@@ -147,6 +148,7 @@ contains
     character(len=*), optional :: crs_pctype
     integer :: n, i
     integer :: lx_crs, lx_mid
+    class(bc_t), pointer :: bc_i
 
     call this%free()
     this%nlvls = 3
@@ -195,26 +197,26 @@ contains
     call this%bc_crs%init_base(this%c_crs)
     call this%bc_mg%init_base(this%c_mg)
     call this%bc_reg%init_base(coef)
-    if (bclst%size .gt. 0) then
-       do i = 1, bclst%size
-          call this%bc_reg%mark_facets(bclst%items(i)%ptr%marked_facet)
-          call this%bc_crs%mark_facets(bclst%items(i)%ptr%marked_facet)
-          call this%bc_mg%mark_facets(bclst%items(i)%ptr%marked_facet)
+    if (bclst%size() .gt. 0) then
+       do i = 1, bclst%size()
+          bc_i => bclst%get(i)
+          call this%bc_reg%mark_facets(bc_i%marked_facet)
+          bc_i => bclst%get(i)
+          call this%bc_crs%mark_facets(bc_i%marked_facet)
+          bc_i => bclst%get(i)
+          call this%bc_mg%mark_facets(bc_i%marked_facet)
        end do
     end if
     call this%bc_reg%finalize()
-    call this%bc_reg%set_g(real(0d0, rp))
-    call this%bclst_reg%init()
-    call this%bclst_reg%append(this%bc_reg)
-
     call this%bc_crs%finalize()
-    call this%bc_crs%set_g(real(0d0, rp))
-    call this%bclst_crs%init()
-    call this%bclst_crs%append(this%bc_crs)
-
     call this%bc_mg%finalize()
-    call this%bc_mg%set_g(0.0_rp)
+
+    call this%bclst_reg%init()
+    call this%bclst_crs%init()
     call this%bclst_mg%init()
+
+    call this%bclst_reg%append(this%bc_reg)
+    call this%bclst_crs%append(this%bc_crs)
     call this%bclst_mg%append(this%bc_mg)
 
     call this%schwarz%init(Xh, dof, gs_h, this%bclst_reg, msh)
@@ -366,6 +368,7 @@ contains
     type(c_ptr) :: z_d, r_d
     type(ksp_monitor_t) :: crs_info
     integer :: thrdid, nthrds
+
 
     call profiler_start_region('HSMG_solve', 8)
     if (NEKO_BCKND_DEVICE .eq. 1) then

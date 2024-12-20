@@ -32,21 +32,18 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __BC_NO_SLIP_WALL_KERNEL__
-#define __BC_NO_SLIP_WALL_KERNEL__
-
-#include <hip/hip_runtime.h>
+#ifndef __BC_ZERO_DIRICHLET_KERNEL__
+#define __BC_ZERO_DIRICHLET_KERNEL__
 
 /**
- * Device kernel for scalar apply for a no-slip wall conditon
+ * Device kernel for scalar apply for a zero-valued Dirichlet conditon
  */
-template< typename T >
-__global__ void no_slip_wall_apply_scalar_kernel(const int * __restrict__ msk,
-						 T * __restrict__ x,
-						 const int m) {
-  
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
+__kernel void zero_dirichlet_apply_scalar_kernel(__global const int *msk,
+                                                 __global real *x,
+                                                 const int m) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
 
   for (int i = (idx + 1); i < m; i += str) {
     const int k = (msk[i] - 1);
@@ -55,17 +52,16 @@ __global__ void no_slip_wall_apply_scalar_kernel(const int * __restrict__ msk,
 }
 
 /**
- * Device kernel for vector apply for a no-slip wall conditon
+ * Device kernel for vector apply for a zero-valued Dirichlet conditon
  */
-template< typename T >
-__global__ void no_slip_wall_apply_vector_kernel(const int * __restrict__ msk,
-						 T * __restrict__ x,
-						 T * __restrict__ y,
-						 T * __restrict__ z,
-						 const int m) {
-  
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
+__kernel void zero_dirichlet_apply_vector_kernel(__global const int *msk,
+                                                 __global real *x,
+                                                 __global real *y,
+                                                 __global real *z,
+                                                 const int m) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
 
   for (int i = (idx + 1); i < m; i += str) {
     const int k = (msk[i] - 1);
@@ -75,4 +71,4 @@ __global__ void no_slip_wall_apply_vector_kernel(const int * __restrict__ msk,
   }
 }
 
-#endif // __BC_NO_SLIP_WALL_KERNEL__
+#endif // __BC_ZERO_DIRICHLET_KERNEL__

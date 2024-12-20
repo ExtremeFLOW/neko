@@ -41,10 +41,14 @@ module blasius
   use, intrinsic :: iso_fortran_env
   use, intrinsic :: iso_c_binding
   use bc, only : bc_t
+  use json_module, only : json_file
+  use json_utils, only : json_get
   implicit none
   private
 
-  !> Blasius profile for inlet (vector valued)
+  !> Blasius profile for inlet (vector valued).
+  !! @warning Works only with axis-aligned sugar-cube elements and assumes
+  !! the boundary is alinged with zOy.
   type, public, extends(bc_t) :: blasius_t
      real(kind=rp), dimension(3) :: uinf = (/0d0, 0d0, 0d0 /)
      real(kind=rp) :: delta
@@ -58,11 +62,78 @@ module blasius
      procedure, pass(this) :: apply_scalar_dev => blasius_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => blasius_apply_vector_dev
      procedure, pass(this) :: set_params => blasius_set_params
+     !> Constructor
+     procedure, pass(this) :: init => blasius_init
+     !> Constructor from components
+     procedure, pass(this) :: init_from_components => &
+          blasius_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => blasius_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => blasius_finalize
   end type blasius_t
 
 contains
+
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine blasius_init(this, coef, json)
+    class(blasius_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) :: json
+    real(kind=rp) :: delta
+    real(kind=rp), allocatable :: uinf(:)
+    character(len=:), allocatable :: approximation
+
+    call this%init_base(coef)
+
+    call json_get(json, 'delta', delta)
+    call json_get(json, 'approximation', approximation)
+    call json_get(json, 'freestream_velocity', uinf)
+
+    if (size(uinf) .ne. 3) then
+       call neko_error("The uinf keyword for the blasius profile should be an &
+& array of 3 reals")
+    end if
+
+    call this%init_from_components(coef, delta, uinf, approximation)
+
+  end subroutine blasius_init
+
+  !> Constructor from components
+  !! @param[in] coef The SEM coefficients.
+  !! @param[in] delta The boundary layer thickness.
+  !! @param[in] uinf The freestream velocity.
+  !! @param[in] approximation The type of approximation for the profile.
+  subroutine blasius_init_from_components(this, coef, delta, uinf, &
+       approximation)
+    class(blasius_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    real(kind=rp) :: delta
+    real(kind=rp) :: uinf(3)
+    character(len=*) :: approximation
+
+    call this%init_base(coef)
+
+    this%delta = delta
+    this%uinf = uinf
+
+    select case(trim(approximation))
+    case('linear')
+       this%bla => blasius_linear
+    case('quadratic')
+       this%bla => blasius_quadratic
+    case('cubic')
+       this%bla => blasius_cubic
+    case('quartic')
+       this%bla => blasius_quartic
+    case('sin')
+       this%bla => blasius_sin
+    case default
+       call neko_error('Invalid Blasius approximation')
+    end select
+  end subroutine blasius_init_from_components
 
   subroutine blasius_free(this)
     class(blasius_t), target, intent(inout) :: this
@@ -85,24 +156,26 @@ contains
   end subroutine blasius_free
 
   !> No-op scalar apply
-  subroutine blasius_apply_scalar(this, x, n, t, tstep)
+  subroutine blasius_apply_scalar(this, x, n, t, tstep, strong)
     class(blasius_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
   end subroutine blasius_apply_scalar
 
   !> No-op scalar apply (device version)
-  subroutine blasius_apply_scalar_dev(this, x_d, t, tstep)
+  subroutine blasius_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(blasius_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
   end subroutine blasius_apply_scalar_dev
 
   !> Apply blasius conditions (vector valued)
-  subroutine blasius_apply_vector(this, x, y, z, n, t, tstep)
+  subroutine blasius_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(blasius_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
@@ -110,48 +183,58 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
     integer :: i, m, k, idx(4), facet
+    logical :: strong_ = .true.
+
+    if (present(strong)) strong_ = strong
 
     associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
               zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
               nz => this%coef%nz, lx => this%coef%Xh%lx)
       m = this%msk(0)
-      do i = 1, m
-         k = this%msk(i)
-         facet = this%facet(i)
-         idx = nonlinear_index(k, lx, lx, lx)
-         select case(facet)
-         case(1,2)
-            x(k) = this%bla(zc(idx(1), idx(2), idx(3), idx(4)), &
-                 this%delta, this%uinf(1))
-            y(k) = 0.0_rp
-            z(k) = 0.0_rp
-         case(3,4)
-            x(k) = 0.0_rp
-            y(k) = this%bla(xc(idx(1), idx(2), idx(3), idx(4)), &
-                 this%delta, this%uinf(2))
-            z(k) = 0.0_rp
-         case(5,6)
-            x(k) = 0.0_rp
-            y(k) = 0.0_rp
-            z(k) = this%bla(yc(idx(1), idx(2), idx(3), idx(4)), &
-                 this%delta, this%uinf(3))
-         end select
-      end do
+      if (strong_) then
+         do i = 1, m
+            k = this%msk(i)
+            facet = this%facet(i)
+            idx = nonlinear_index(k, lx, lx, lx)
+            select case(facet)
+            case(1,2)
+               x(k) = this%bla(zc(idx(1), idx(2), idx(3), idx(4)), &
+                  this%delta, this%uinf(1))
+               y(k) = 0.0_rp
+               z(k) = 0.0_rp
+            case(3,4)
+               x(k) = 0.0_rp
+               y(k) = this%bla(xc(idx(1), idx(2), idx(3), idx(4)), &
+                  this%delta, this%uinf(2))
+               z(k) = 0.0_rp
+            case(5,6)
+               x(k) = 0.0_rp
+               y(k) = 0.0_rp
+               z(k) = this%bla(yc(idx(1), idx(2), idx(3), idx(4)), &
+                  this%delta, this%uinf(3))
+            end select
+         end do
+      end if
     end associate
   end subroutine blasius_apply_vector
 
   !> Apply blasius conditions (vector valued) (device version)
-  subroutine blasius_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  subroutine blasius_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
     class(blasius_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
     integer :: i, m, k, idx(4), facet
     integer(c_size_t) :: s
     real(kind=rp), allocatable :: bla_x(:), bla_y(:), bla_z(:)
+    logical :: strong_ = .true.
+
+    if (present(strong)) strong_ = strong
 
     associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
               zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
@@ -162,7 +245,7 @@ contains
 
 
       ! Pretabulate values during first call to apply
-      if (.not. c_associated(blax_d)) then
+      if (.not. c_associated(blax_d) .and. strong_ ) then
          allocate(bla_x(m), bla_y(m), bla_z(m)) ! Temp arrays
 
          if (rp .eq. REAL32) then
@@ -205,8 +288,10 @@ contains
          deallocate(bla_x, bla_y, bla_z)
       end if
 
-      call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
-           blax_d, blay_d, blaz_d, m)
+      if (strong_) then
+         call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
+              blax_d, blay_d, blaz_d, m)
+      end if
 
     end associate
 
@@ -237,4 +322,10 @@ contains
     end select
   end subroutine blasius_set_params
 
+  !> Finalize
+  subroutine blasius_finalize(this)
+    class(blasius_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine blasius_finalize
 end module blasius
