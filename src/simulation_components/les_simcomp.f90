@@ -59,6 +59,8 @@ module les_simcomp
      procedure, pass(this) :: free => les_simcomp_free
      !> Compute the les_simcomp field.
      procedure, pass(this) :: compute_ => les_simcomp_compute
+     !> Compute the les_simcomp field when restart.
+     procedure, pass(this) :: restart_ => les_simcomp_restart
   end type les_simcomp_t
 
 contains
@@ -122,5 +124,15 @@ contains
 
     call this%les_model%compute(t, tstep)
   end subroutine les_simcomp_compute
+
+  !> Compute the les_simcomp field when restart.
+  !! @param t The time value.
+  !! @param tstep The current time-step.
+  subroutine les_simcomp_restart(this, t)
+    class(les_simcomp_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+
+    call this%les_model%compute(t, 0)
+  end subroutine les_simcomp_restart
 
 end module les_simcomp
