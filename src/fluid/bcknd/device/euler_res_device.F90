@@ -49,6 +49,16 @@ module euler_res_device
   end interface
 
   interface
+    subroutine euler_res_part_mz_flux_hip(f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, n) &
+        bind(c, name = 'euler_res_part_mz_flux_hip')
+      use, intrinsic :: iso_c_binding
+      implicit none
+      type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
+      integer(c_int) :: n
+    end subroutine euler_res_part_mz_flux_hip
+  end interface
+
+  interface
     subroutine euler_res_part_E_flux_hip(f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, E, n) &
         bind(c, name = 'euler_res_part_E_flux_hip')
       use, intrinsic :: iso_c_binding
