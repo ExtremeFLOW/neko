@@ -66,6 +66,17 @@ module tree_amg
     real(kind=rp), allocatable :: wrk_out(:) !< Work vector for data leaving the level
     integer, allocatable :: map_f2c_dof(:)
     integer, allocatable :: map_c2f_dof(:)
+    !--!
+    integer, allocatable :: nodes_ptr(:)
+    integer, allocatable :: nodes_gid(:)
+    integer, allocatable :: nodes_dofs(:)
+    integer, allocatable :: nodes_gids(:)
+    ! could make another array of the same size of nodes_dofs
+    ! that stores the parent node gid information
+    ! (similar to nodes_gid that stores the gid of each node)
+    ! then some loops can be simplified to a single loop
+    ! of len(nodes_dofs) instead of going through each node
+    ! and looping through nodes_ptr(i) to nodes_ptr(i+1)-1
   end type tamg_lvl_t
 
   !> Type for a TreeAMG hierarchy
@@ -138,15 +149,25 @@ contains
   !> Initialization of a TreeAMG level
   !! @param tamg_lvl The TreeAMG level
   !! @param lvl The level id
-  !! @param nnodes Number of nodes on the level
-  subroutine tamg_lvl_init(tamg_lvl, lvl, nnodes)
+  !! @param nnodes Number of nodes on the level (number of aggregates)
+  !! @param ndofs  Number of dofs on the level
+  subroutine tamg_lvl_init(tamg_lvl, lvl, nnodes, ndofs)
     type(tamg_lvl_t), intent(inout) :: tamg_lvl
     integer, intent(in) :: lvl
     integer, intent(in) :: nnodes
+    integer, intent(in) :: ndofs
 
     tamg_lvl%lvl = lvl
     tamg_lvl%nnodes = nnodes
     allocate( tamg_lvl%nodes(tamg_lvl%nnodes) )
+    allocate( tamg_lvl%nodes_ptr(tamg_lvl%nnodes+1) )
+    allocate( tamg_lvl%nodes_gid(tamg_lvl%nnodes) )
+    allocate( tamg_lvl%nodes_dofs(ndofs) )
+    allocate( tamg_lvl%nodes_gids(ndofs) )
+
+    tamg_lvl%fine_lvl_dofs = ndofs
+    allocate( tamg_lvl%wrk_in( ndofs ) )
+    allocate( tamg_lvl%wrk_out( ndofs ) )
   end subroutine tamg_lvl_init
 
   !> Initialization of a TreeAMG tree node
@@ -206,9 +227,7 @@ contains
       n = size(vec_in)
       !> Call local finite element assembly
       call this%gs_h%op(vec_in, n, GS_OP_ADD)
-      do i = 1, n
-        vec_in(i) = vec_in(i) * this%coef%mult(i,1,1,1)
-      end do
+      call col2( vec_in, this%coef%mult(1,1,1,1), n)
       !>
       call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
       !>
@@ -266,9 +285,7 @@ contains
       n = size(vec_in)
       !> Call local finite element assembly
       call this%gs_h%op(vec_in, n, GS_OP_ADD)
-      do i = 1, n
-        vec_in(i) = vec_in(i) * this%coef%mult(i,1,1,1)
-      end do
+      call col2( vec_in, this%coef%mult(1,1,1,1), n)
       !>
       call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
       !>
@@ -277,35 +294,34 @@ contains
       !>
     else !> pass down through hierarchy
 
-    associate( wrk_in => this%lvl(1)%wrk_in, wrk_out => this%lvl(1)%wrk_out)
-    n = size(wrk_in)
-    wrk_out = 0d0
-    vec_out = 0d0
+      associate( wrk_in => this%lvl(1)%wrk_in, wrk_out => this%lvl(1)%wrk_out)
+      n = size(wrk_in)
+      wrk_out = 0d0
+      vec_out = 0d0
 
-    !> Map input level to finest level
-    do i = 1, n
-      cdof = this%lvl(lvl)%map_f2c_dof(i)
-      wrk_in(i) = vec_in( cdof )
-    end do
+      !> Map input level to finest level
+      do i = 1, n
+        cdof = this%lvl(lvl)%map_f2c_dof(i)
+        wrk_in(i) = vec_in( cdof )
+      end do
 
-    !> Average on overlapping dofs
-    call this%gs_h%op(wrk_in, n, GS_OP_ADD)
-    do i = 1, n
-      wrk_in(i) = wrk_in(i) * this%coef%mult(i,1,1,1)
-    end do
-    !> Finest level matvec (Call local finite element assembly)
-    call this%ax%compute(wrk_out, wrk_in, this%coef, this%msh, this%Xh)
-    !>
-    call this%gs_h%op(wrk_out, n, GS_OP_ADD)
-    call this%blst%apply(wrk_out, n)
-    !>
+      !> Average on overlapping dofs
+      call this%gs_h%op(wrk_in, n, GS_OP_ADD)
+      call col2( wrk_in, this%coef%mult(1,1,1,1), n)
+      !> Finest level matvec (Call local finite element assembly)
+      call this%ax%compute(wrk_out, wrk_in, this%coef, this%msh, this%Xh)
+      !>
+      call this%gs_h%op(wrk_out, n, GS_OP_ADD)
+      call this%blst%apply(wrk_out, n)
+      !>
 
-    !> Map finest level matvec back to output level
-    do i = 1, n
-      cdof = this%lvl(lvl)%map_f2c_dof(i)
-      vec_out(cdof) = vec_out(cdof) + wrk_out( i )
-    end do
-    end associate
+      !> Map finest level matvec back to output level
+      do i = 1, n
+        cdof = this%lvl(lvl)%map_f2c_dof(i)
+        vec_out(cdof) = vec_out(cdof) + wrk_out( i )
+      end do
+      end associate
+
     end if
   end subroutine tamg_matvec_flat_impl
 
@@ -319,7 +335,7 @@ contains
     real(kind=rp), intent(inout) :: vec_out(:)
     real(kind=rp), intent(inout) :: vec_in(:)
     integer, intent(in) :: lvl
-    integer :: i, n
+    integer :: i, n, node_start, node_end, node_id
 
     vec_out = 0d0
     do n = 1, this%lvl(lvl)%nnodes
@@ -329,6 +345,15 @@ contains
       end do
       end associate
     end do
+    !do n = 1, this%lvl(lvl)%nnodes
+    !  node_start = this%lvl(lvl)%nodes_ptr(n)
+    !  node_end   = this%lvl(lvl)%nodes_ptr(n+1)-1
+    !  node_id    = this%lvl(lvl)%nodes_gid(n)
+    !  do i = node_start, node_end
+    !    vec_out( node_id ) = vec_out( node_id ) + &
+    !      vec_in( this%lvl(lvl)%nodes_dofs(i) )
+    !  end do
+    !end do
   end subroutine tamg_restriction_operator
 
   !> Prolongation operator for TreeAMG. vec_out = P * vec_in
@@ -340,7 +365,7 @@ contains
     real(kind=rp), intent(inout) :: vec_out(:)
     real(kind=rp), intent(inout) :: vec_in(:)
     integer, intent(in) :: lvl
-    integer :: i, n
+    integer :: i, n, node_start, node_end, node_id
 
     vec_out = 0d0
     do n = 1, this%lvl(lvl)%nnodes
@@ -350,6 +375,15 @@ contains
       end do
       end associate
     end do
+    !do n = 1, this%lvl(lvl)%nnodes
+    !  node_start = this%lvl(lvl)%nodes_ptr(n)
+    !  node_end   = this%lvl(lvl)%nodes_ptr(n+1)-1
+    !  node_id    = this%lvl(lvl)%nodes_gid(n)
+    !  do i = node_start, node_end
+    !    vec_out( this%lvl(lvl)%nodes_dofs(i) ) = vec_out( this%lvl(lvl)%nodes_dofs(i) ) + &
+    !      vec_in(node_id)
+    !  end do
+    !end do
   end subroutine tamg_prolongation_operator
 
 end module tree_amg
