@@ -33,7 +33,7 @@
 !> Defines a matrix
 module matrix
   use neko_config, only: NEKO_BCKND_DEVICE
-  use math, only: sub3, chsign, add3, cmult2, cadd2
+  use math, only: sub3, chsign, add3, cmult2, cadd2, copy
   use num_types, only: rp
   use device, only: device_map, device_free, c_ptr, C_NULL_PTR
   use device_math, only: device_copy, device_cfill, device_cmult, &

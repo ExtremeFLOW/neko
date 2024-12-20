@@ -61,6 +61,7 @@
 module drag_torque
   use field, only :  field_t
   use coefs, only : coef_t
+  use mesh, only : mesh_t
   use facet_zone, only : facet_zone_t
   use comm
   use math, only : rzero, masked_red_copy, col3, vdot3, cmult

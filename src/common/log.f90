@@ -125,6 +125,7 @@ contains
   !> Indent a log
   subroutine log_indent(this)
     class(log_t), intent(in) :: this
+    integer :: i
 
     if (pe_rank .eq. 0) then
        write(this%unit_, '(A)', advance = 'no') repeat(' ', this%indent_)
@@ -229,7 +230,7 @@ contains
     character(len=*), intent(in) :: msg
     integer, optional :: lvl
 
-    integer :: pre, pos
+    integer :: i, pre, pos
     integer :: lvl_
 
     if (present(lvl)) then

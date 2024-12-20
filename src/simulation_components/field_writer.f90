@@ -38,9 +38,11 @@ module field_writer
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
+  use field, only : field_t
+  use operators, only : curl
   use case, only : case_t
   use fld_file_output, only : fld_file_output_t
-  use json_utils, only : json_get
+  use json_utils, only : json_get, json_get_or_default
   implicit none
   private
 

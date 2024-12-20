@@ -450,10 +450,6 @@ contains
           end if
        end if
     end do
-
-    ! Clear local dofmap table
-    call dm%clear()
-
     if (lz .gt. 1) then
        !
        ! Setup mapping for dofs on edges
@@ -658,10 +654,6 @@ contains
           end if
        end do
     end if
-
-    ! Clear local dofmap table
-    call dm%clear()
-
     !
     ! Setup mapping for dofs on facets
     !

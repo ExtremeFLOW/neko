@@ -43,6 +43,7 @@ module source_term_handler
   use json_module, only: json_file
   use coefs, only: coef_t
   use user_intf, only: user_t
+  use utils, only: neko_warning
   use field_math, only: field_rzero
   use math, only : col2
   use device_math, only : device_col2
