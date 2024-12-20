@@ -341,9 +341,11 @@ contains
     ! Boundary conditions
     !
 
+    ! Populate velocity and pressure boundary condition lists based on the case.
+    call this%pnpn_setup_bcs(user)
+
     ! Initialize velocity surface terms in pressure rhs. Masks all strong
     ! velocity bcs.
-
     call this%bc_prs_surface%init_from_components(this%c_Xh)
     do i = 1, this%bcs_vel%size()
       vel_bc => this%bcs_vel%get(i)
@@ -373,8 +375,6 @@ contains
     end do
     call this%bc_sym_surface%finalize()
 
-    ! Generate pressure boundary condition list
-    call this%pnpn_setup_bcs(user)
 
     ! Mark Dirichlet bcs for pressure
     call this%bclst_dp%init()
@@ -521,7 +521,7 @@ contains
 
     call this%solver_factory(this%ksp_prs, this%dm_Xh%size(), &
          solver_type, solver_maxiter, abs_tol, monitor)
-    call this%precon_factory(this%pc_prs, this%ksp_prs, &
+    call this%precon_factory_(this%pc_prs, this%ksp_prs, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_prs, precon_type)
 
     call neko_log%end_section()
@@ -887,6 +887,11 @@ contains
                            Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
                            mu_field, rho_field)
 
+      ! TODO REMOVE
+      dump_file = file_t('p_res.fld')
+      call dump_file%write(p_res)
+      call exit()
+
       write(*,*) "PRS DIRICHLET", this%prs_dirichlet
 
       ! De-mean the pressure residual when no strong pressure boundaries present
@@ -897,10 +902,6 @@ contains
       ! Set the residual to zero at strong pressure boundaries.
       call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), t, tstep)
 
-      ! TODO REMOVE
-      dump_file = file_t('p_res.fld')
-      call dump_file%write(p_res)
-!      call exit()
 
       call profiler_end_region('Pressure_residual', 18)
 

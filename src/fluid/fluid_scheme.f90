@@ -186,7 +186,7 @@ module fluid_scheme
      !> Linear solver factory, wraps a KSP constructor
      procedure, nopass :: solver_factory => fluid_scheme_solver_factory
      !> Preconditioner factory
-     procedure, pass(this) :: precon_factory => fluid_scheme_precon_factory
+     procedure, pass(this) :: precon_factory_ => fluid_scheme_precon_factory
   end type fluid_scheme_t
 
   !> Abstract interface to initialize a fluid formulation
@@ -469,7 +469,7 @@ contains
        call neko_log%message(log_buf)
        call this%solver_factory(this%ksp_vel, this%dm_Xh%size(), &
             string_val1, integer_val, real_val, logical_val)
-       call this%precon_factory(this%pc_vel, this%ksp_vel, &
+       call this%precon_factory_(this%pc_vel, this%ksp_vel, &
             this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_vel, string_val2)
        call neko_log%end_section()
     end if
