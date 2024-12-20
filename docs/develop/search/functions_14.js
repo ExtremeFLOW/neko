@@ -1,7 +1,7 @@
 var searchData=
 [
   ['tamg_5finit_0',['tamg_init',['../dc/d1a/namespacetree__amg.html#aed109b2113cd566e75a376dd9cd17828',1,'tree_amg']]],
-  ['tamg_5flvl_5finit_1',['tamg_lvl_init',['../dc/d1a/namespacetree__amg.html#aa6cfa4da7a26e665034631f61b65b3f6',1,'tree_amg']]],
+  ['tamg_5flvl_5finit_1',['tamg_lvl_init',['../dc/d1a/namespacetree__amg.html#ad89ff7cb0a5789fa030a730c4f4260c0',1,'tree_amg']]],
   ['tamg_5fmatvec_2',['tamg_matvec',['../dc/d1a/namespacetree__amg.html#ade46664fb2b37237c10f395d1f5cda07',1,'tree_amg']]],
   ['tamg_5fmatvec_5fflat_5fimpl_3',['tamg_matvec_flat_impl',['../dc/d1a/namespacetree__amg.html#af51fcb1185c2730956e13617fc5e5f40',1,'tree_amg']]],
   ['tamg_5fmatvec_5fimpl_4',['tamg_matvec_impl',['../dc/d1a/namespacetree__amg.html#a3c9a91208564df3f43b555b0c1ed6b62',1,'tree_amg']]],

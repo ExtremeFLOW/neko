@@ -137,6 +137,10 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aad651a4ea54d512f11b98064c0480105" id="r_aad651a4ea54d512f11b98064c0480105"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d09/namespacetree__amg__smoother.html#aad651a4ea54d512f11b98064c0480105">amg_jacobi_solve</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">this</a>, x, f, n, amg, niter)</td></tr>
 <tr class="memdesc:aad651a4ea54d512f11b98064c0480105"><td class="mdescLeft">&#160;</td><td class="mdescRight">Jacobi smoother.  <br /></td></tr>
 <tr class="separator:aad651a4ea54d512f11b98064c0480105"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab58a4a0614f42d503d41f454323e9cbf" id="r_ab58a4a0614f42d503d41f454323e9cbf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d09/namespacetree__amg__smoother.html#ab58a4a0614f42d503d41f454323e9cbf">amg_smoo_monitor</a> (lvl, smoo)</td></tr>
+<tr class="separator:ab58a4a0614f42d503d41f454323e9cbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd89718fea6718237cdba763e55fa7e4" id="r_afd89718fea6718237cdba763e55fa7e4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d09/namespacetree__amg__smoother.html#afd89718fea6718237cdba763e55fa7e4">amg_cheby_monitor</a> (lvl, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">lam</a>)</td></tr>
+<tr class="separator:afd89718fea6718237cdba763e55fa7e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a73ff690416d06b4874565b299769906e" name="a73ff690416d06b4874565b299769906e"></a>
@@ -185,7 +189,65 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00085">85</a> of file <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html">tree_amg_smoother.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00086">86</a> of file <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html">tree_amg_smoother.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dc/d09/namespacetree__amg__smoother_a73ff690416d06b4874565b299769906e_cgraph.png" border="0" usemap="#adc/d09/namespacetree__amg__smoother_a73ff690416d06b4874565b299769906e_cgraph" alt=""/></div>
+<map name="adc/d09/namespacetree__amg__smoother_a73ff690416d06b4874565b299769906e_cgraph" id="adc/d09/namespacetree__amg__smoother_a73ff690416d06b4874565b299769906e_cgraph">
+<area shape="rect" title="Initialization of chebyshev." alt="" coords="5,5,167,45"/>
+<area shape="rect" href="../../dc/d09/namespacetree__amg__smoother.html#ab58a4a0614f42d503d41f454323e9cbf" title=" " alt="" coords="215,5,376,45"/>
+<area shape="poly" title=" " alt="" coords="167,23,201,23,201,28,167,28"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="afd89718fea6718237cdba763e55fa7e4" name="afd89718fea6718237cdba763e55fa7e4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd89718fea6718237cdba763e55fa7e4">&#9670;&#160;</a></span>amg_cheby_monitor()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> tree_amg_smoother::amg_cheby_monitor </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>lvl</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">kind</a>=rp), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>lam</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00328">328</a> of file <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html">tree_amg_smoother.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dc/d09/namespacetree__amg__smoother_afd89718fea6718237cdba763e55fa7e4_icgraph.png" border="0" usemap="#adc/d09/namespacetree__amg__smoother_afd89718fea6718237cdba763e55fa7e4_icgraph" alt=""/></div>
+<map name="adc/d09/namespacetree__amg__smoother_afd89718fea6718237cdba763e55fa7e4_icgraph" id="adc/d09/namespacetree__amg__smoother_afd89718fea6718237cdba763e55fa7e4_icgraph">
+<area shape="rect" title=" " alt="" coords="215,5,376,45"/>
+<area shape="rect" href="../../dc/d09/namespacetree__amg__smoother.html#a50905e9240529935d6f5dfdc9905a73b" title="Power method to approximate largest eigenvalue." alt="" coords="5,5,167,45"/>
+<area shape="poly" title=" " alt="" coords="200,28,167,28,167,23,200,23"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -236,21 +298,23 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00106">106</a> of file <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html">tree_amg_smoother.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00108">108</a> of file <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html">tree_amg_smoother.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dc/d09/namespacetree__amg__smoother_a50905e9240529935d6f5dfdc9905a73b_cgraph.png" border="0" usemap="#adc/d09/namespacetree__amg__smoother_a50905e9240529935d6f5dfdc9905a73b_cgraph" alt=""/></div>
 <map name="adc/d09/namespacetree__amg__smoother_a50905e9240529935d6f5dfdc9905a73b_cgraph" id="adc/d09/namespacetree__amg__smoother_a50905e9240529935d6f5dfdc9905a73b_cgraph">
-<area shape="rect" title="Power method to approximate largest eigenvalue." alt="" coords="5,71,167,111"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a0aa2bdfb2fdb9eae6679d958a82fd200" title="Multiplication by constant c ." alt="" coords="215,5,324,31"/>
-<area shape="poly" title=" " alt="" coords="136,69,223,34,225,38,138,74"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a662e670921645de8b50d2cdbe93ab1ed" title="Weighted inner product ." alt="" coords="220,79,319,104"/>
-<area shape="poly" title=" " alt="" coords="167,89,206,89,206,94,167,94"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="220,152,319,177"/>
-<area shape="poly" title=" " alt="" coords="138,109,225,144,223,149,136,114"/>
-<area shape="poly" title=" " alt="" coords="239,80,233,70,236,61,249,54,269,52,294,56,305,64,301,68,292,60,269,57,250,59,240,64,238,70,244,77"/>
-<area shape="poly" title=" " alt="" coords="239,153,233,144,236,134,249,128,269,125,294,129,305,138,301,142,292,134,269,131,250,133,240,137,238,143,244,150"/>
+<area shape="rect" title="Power method to approximate largest eigenvalue." alt="" coords="5,100,167,140"/>
+<area shape="rect" href="../../dc/d09/namespacetree__amg__smoother.html#afd89718fea6718237cdba763e55fa7e4" title=" " alt="" coords="215,5,376,45"/>
+<area shape="poly" title=" " alt="" coords="125,97,214,55,229,48,231,53,216,60,128,102"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a0aa2bdfb2fdb9eae6679d958a82fd200" title="Multiplication by constant c ." alt="" coords="241,70,350,95"/>
+<area shape="poly" title=" " alt="" coords="167,103,227,92,227,97,168,108"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a662e670921645de8b50d2cdbe93ab1ed" title="Weighted inner product ." alt="" coords="246,143,345,169"/>
+<area shape="poly" title=" " alt="" coords="168,131,233,143,232,148,167,137"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="246,217,345,242"/>
+<area shape="poly" title=" " alt="" coords="126,138,259,208,256,212,124,142"/>
+<area shape="poly" title=" " alt="" coords="261,145,254,135,258,125,272,119,295,117,324,120,336,129,332,134,322,125,295,122,273,124,261,129,259,134,265,142"/>
+<area shape="poly" title=" " alt="" coords="261,218,254,208,258,198,272,192,295,190,324,194,336,203,332,207,322,199,295,195,273,197,261,202,259,208,265,215"/>
 </map>
 </div>
 
@@ -323,7 +387,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00179">179</a> of file <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html">tree_amg_smoother.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00181">181</a> of file <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html">tree_amg_smoother.f90</a>.</p>
 
 </div>
 </div>
@@ -374,7 +438,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00258">258</a> of file <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html">tree_amg_smoother.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00259">259</a> of file <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html">tree_amg_smoother.f90</a>.</p>
 
 </div>
 </div>
@@ -432,7 +496,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00238">238</a> of file <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html">tree_amg_smoother.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00240">240</a> of file <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html">tree_amg_smoother.f90</a>.</p>
 
 </div>
 </div>
@@ -507,7 +571,55 @@ Here is the call graph for this function:</div>
 <p>r = Dinv * (f - Ax)</p>
 <p>x = x + omega * Dinv * (f - Ax)</p>
 
-<p class="definition">Definition at line <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00278">278</a> of file <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html">tree_amg_smoother.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00277">277</a> of file <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html">tree_amg_smoother.f90</a>.</p>
+
+</div>
+</div>
+<a id="ab58a4a0614f42d503d41f454323e9cbf" name="ab58a4a0614f42d503d41f454323e9cbf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab58a4a0614f42d503d41f454323e9cbf">&#9670;&#160;</a></span>amg_smoo_monitor()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> tree_amg_smoother::amg_smoo_monitor </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>lvl</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">class</a>(<a class="el" href="../../d1/dce/structtree__amg__smoother_1_1amg__cheby__t.html">amg_cheby_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
+          <td class="paramname"><em>smoo</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html#l00317">317</a> of file <a class="el" href="../../dc/d19/tree__amg__smoother_8f90_source.html">tree_amg_smoother.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../dc/d09/namespacetree__amg__smoother_ab58a4a0614f42d503d41f454323e9cbf_icgraph.png" border="0" usemap="#adc/d09/namespacetree__amg__smoother_ab58a4a0614f42d503d41f454323e9cbf_icgraph" alt=""/></div>
+<map name="adc/d09/namespacetree__amg__smoother_ab58a4a0614f42d503d41f454323e9cbf_icgraph" id="adc/d09/namespacetree__amg__smoother_ab58a4a0614f42d503d41f454323e9cbf_icgraph">
+<area shape="rect" title=" " alt="" coords="215,5,376,45"/>
+<area shape="rect" href="../../dc/d09/namespacetree__amg__smoother.html#a73ff690416d06b4874565b299769906e" title="Initialization of chebyshev." alt="" coords="5,5,167,45"/>
+<area shape="poly" title=" " alt="" coords="200,28,167,28,167,23,200,23"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -517,7 +629,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/d09/namespacetree__amg__smoother.html">tree_amg_smoother</a></li>
-    <li class="footer">Generated on Thu Dec 19 2024 03:41:28 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Dec 20 2024 03:37:54 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

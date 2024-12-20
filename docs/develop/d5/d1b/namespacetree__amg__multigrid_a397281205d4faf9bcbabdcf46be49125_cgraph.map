@@ -14,7 +14,7 @@
 <area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="362,149,381,137,396,121,404,104,413,87,429,69,435,65,438,69,432,73,417,90,409,107,401,124,384,141,365,154"/>
 <area shape="rect" id="Node000005" href="$d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="462,84,601,109"/>
 <area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="350,149,382,137,430,118,457,110,459,115,432,123,384,142,352,154"/>
-<area shape="rect" id="Node000006" href="$dc/d1a/namespacetree__amg.html#aa6cfa4da7a26e665034631f61b65b3f6" title="Initialization of a TreeAMG level." alt="" coords="443,133,620,159"/>
+<area shape="rect" id="Node000006" href="$dc/d1a/namespacetree__amg.html#ad89ff7cb0a5789fa030a730c4f4260c0" title="Initialization of a TreeAMG level." alt="" coords="443,133,620,159"/>
 <area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="383,159,429,154,429,160,383,164"/>
 <area shape="rect" id="Node000007" href="$dc/d1a/namespacetree__amg.html#a5ec06e62779cefe9b883e4fbcaea5d7a" title="Initialization of a TreeAMG tree node." alt="" coords="435,183,628,208"/>
 <area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="383,178,421,182,421,187,383,183"/>

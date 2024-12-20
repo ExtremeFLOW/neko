@@ -8,7 +8,7 @@ var searchData=
   ['tamg_5fagg_5fmonitor_5ft_5',['tamg_agg_monitor_t',['../d2/dbd/structtree__amg__aggregate_1_1tamg__agg__monitor__t.html',1,'tree_amg_aggregate']]],
   ['tamg_5fhierarchy_5ft_6',['tamg_hierarchy_t',['../d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html',1,'tree_amg']]],
   ['tamg_5finit_7',['tamg_init',['../dc/d1a/namespacetree__amg.html#aed109b2113cd566e75a376dd9cd17828',1,'tree_amg']]],
-  ['tamg_5flvl_5finit_8',['tamg_lvl_init',['../dc/d1a/namespacetree__amg.html#aa6cfa4da7a26e665034631f61b65b3f6',1,'tree_amg']]],
+  ['tamg_5flvl_5finit_8',['tamg_lvl_init',['../dc/d1a/namespacetree__amg.html#ad89ff7cb0a5789fa030a730c4f4260c0',1,'tree_amg']]],
   ['tamg_5flvl_5ft_9',['tamg_lvl_t',['../d8/d61/structtree__amg_1_1tamg__lvl__t.html',1,'tree_amg']]],
   ['tamg_5fmatvec_10',['tamg_matvec',['../dc/d1a/namespacetree__amg.html#ade46664fb2b37237c10f395d1f5cda07',1,'tree_amg']]],
   ['tamg_5fmatvec_5fflat_5fimpl_11',['tamg_matvec_flat_impl',['../dc/d1a/namespacetree__amg.html#af51fcb1185c2730956e13617fc5e5f40',1,'tree_amg']]],

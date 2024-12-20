@@ -115,9 +115,9 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a6abafa7eaef0e406c6d411d8554b8bee" id="r_a6abafa7eaef0e406c6d411d8554b8bee"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a6abafa7eaef0e406c6d411d8554b8bee">gs_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gs</a>, dofmap, bcknd)</td></tr>
-<tr class="memdesc:a6abafa7eaef0e406c6d411d8554b8bee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a gather-scatter kernel.  <br /></td></tr>
-<tr class="separator:a6abafa7eaef0e406c6d411d8554b8bee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab47747b3dc7d9b75b840e7c6aafdf347" id="r_ab47747b3dc7d9b75b840e7c6aafdf347"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347">gs_init</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gs</a>, dofmap, bcknd, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">comm_bcknd</a>)</td></tr>
+<tr class="memdesc:ab47747b3dc7d9b75b840e7c6aafdf347"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a gather-scatter kernel.  <br /></td></tr>
+<tr class="separator:ab47747b3dc7d9b75b840e7c6aafdf347"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b932fc67f24ee664f40c41bc61487c1" id="r_a7b932fc67f24ee664f40c41bc61487c1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d78/namespacegather__scatter.html#a7b932fc67f24ee664f40c41bc61487c1">gs_free</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">gs</a>)</td></tr>
 <tr class="memdesc:a7b932fc67f24ee664f40c41bc61487c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a gather-scatter kernel.  <br /></td></tr>
 <tr class="separator:a7b932fc67f24ee664f40c41bc61487c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -162,12 +162,12 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00262">262</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00280">280</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 
 </div>
 </div>
-<a id="a6abafa7eaef0e406c6d411d8554b8bee" name="a6abafa7eaef0e406c6d411d8554b8bee"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6abafa7eaef0e406c6d411d8554b8bee">&#9670;&#160;</a></span>gs_init()</h2>
+<a id="ab47747b3dc7d9b75b840e7c6aafdf347" name="ab47747b3dc7d9b75b840e7c6aafdf347"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab47747b3dc7d9b75b840e7c6aafdf347">&#9670;&#160;</a></span>gs_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -188,7 +188,13 @@ Functions/Subroutines</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
-          <td class="paramname"><em>bcknd</em>&#160;</td>
+          <td class="paramname"><em>bcknd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">optional</a>&#160;</td>
+          <td class="paramname"><em>comm_bcknd</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -198,12 +204,12 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00091">91</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00099">99</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d0/d78/namespacegather__scatter_a6abafa7eaef0e406c6d411d8554b8bee_cgraph.png" border="0" usemap="#ad0/d78/namespacegather__scatter_a6abafa7eaef0e406c6d411d8554b8bee_cgraph" alt=""/></div>
-<map name="ad0/d78/namespacegather__scatter_a6abafa7eaef0e406c6d411d8554b8bee_cgraph" id="ad0/d78/namespacegather__scatter_a6abafa7eaef0e406c6d411d8554b8bee_cgraph">
+<div class="center"><img src="../../d0/d78/namespacegather__scatter_ab47747b3dc7d9b75b840e7c6aafdf347_cgraph.png" border="0" usemap="#ad0/d78/namespacegather__scatter_ab47747b3dc7d9b75b840e7c6aafdf347_cgraph" alt=""/></div>
+<map name="ad0/d78/namespacegather__scatter_ab47747b3dc7d9b75b840e7c6aafdf347_cgraph" id="ad0/d78/namespacegather__scatter_ab47747b3dc7d9b75b840e7c6aafdf347_cgraph">
 <area shape="rect" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,192,172,217"/>
 <area shape="rect" href="../../d0/dbe/namespacedevice.html#a79e3ce634472f542b8d135571f7a36e0" title="Deallocate memory on the device." alt="" coords="220,81,369,107"/>
 <area shape="poly" title=" " alt="" coords="105,190,154,155,219,117,237,109,239,114,221,122,157,159,108,194"/>
@@ -256,7 +262,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>this might be a bit overkill, but having many collisions makes the init take too long.</dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00319">319</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l00337">337</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -280,7 +286,7 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="../../d0/d78/namespacegather__scatter_a116426a5fc51d480ab0f080002328566_icgraph.png" border="0" usemap="#ad0/d78/namespacegather__scatter_a116426a5fc51d480ab0f080002328566_icgraph" alt=""/></div>
 <map name="ad0/d78/namespacegather__scatter_a116426a5fc51d480ab0f080002328566_icgraph" id="ad0/d78/namespacegather__scatter_a116426a5fc51d480ab0f080002328566_icgraph">
 <area shape="rect" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="220,5,359,45"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a6abafa7eaef0e406c6d411d8554b8bee" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,13,172,38"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,13,172,38"/>
 <area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
 </map>
 </div>
@@ -333,7 +339,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01251">1251</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01269">1269</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -413,7 +419,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01267">1267</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01285">1285</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -493,7 +499,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01283">1283</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01301">1301</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -512,7 +518,7 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="../../d0/d78/namespacegather__scatter_ae256fdf907de8a5e60a425f9d3510806_icgraph.png" border="0" usemap="#ad0/d78/namespacegather__scatter_ae256fdf907de8a5e60a425f9d3510806_icgraph" alt=""/></div>
 <map name="ad0/d78/namespacegather__scatter_ae256fdf907de8a5e60a425f9d3510806_icgraph" id="ad0/d78/namespacegather__scatter_ae256fdf907de8a5e60a425f9d3510806_icgraph">
 <area shape="rect" title="Gather&#45;scatter operation on a vector u with op op." alt="" coords="407,85,545,125"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a6abafa7eaef0e406c6d411d8554b8bee" title="Initialize a gather&#45;scatter kernel." alt="" coords="192,5,359,31"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="192,5,359,31"/>
 <area shape="poly" title=" " alt="" coords="428,80,358,46,322,33,324,28,360,41,430,75"/>
 <area shape="rect" href="../../d0/d78/namespacegather__scatter.html#af6d7eed444d705e5a72312bf01e3c083" title="Gather&#45;scatter operation on a field u with op op." alt="" coords="206,55,345,95"/>
 <area shape="poly" title=" " alt="" coords="393,95,345,88,345,83,394,90"/>
@@ -554,14 +560,14 @@ Here is the caller graph for this function:</div>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000011">Todo:</a></b></dt><dd>don't touch others data... </dd></dl>
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000012">Todo:</a></b></dt><dd>don't touch others data... </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01134">1134</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html#l01152">1152</a> of file <a class="el" href="../../d5/d7e/gather__scatter_8f90_source.html">gather_scatter.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d78/namespacegather__scatter_a70b1e5adb11770ec89f7e135bb74c793_icgraph.png" border="0" usemap="#ad0/d78/namespacegather__scatter_a70b1e5adb11770ec89f7e135bb74c793_icgraph" alt=""/></div>
 <map name="ad0/d78/namespacegather__scatter_a70b1e5adb11770ec89f7e135bb74c793_icgraph" id="ad0/d78/namespacegather__scatter_a70b1e5adb11770ec89f7e135bb74c793_icgraph">
 <area shape="rect" title="Schedule shared gather&#45;scatter operations." alt="" coords="220,5,359,45"/>
-<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#a6abafa7eaef0e406c6d411d8554b8bee" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,13,172,38"/>
+<area shape="rect" href="../../d0/d78/namespacegather__scatter.html#ab47747b3dc7d9b75b840e7c6aafdf347" title="Initialize a gather&#45;scatter kernel." alt="" coords="5,13,172,38"/>
 <area shape="poly" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
 </map>
 </div>
@@ -574,7 +580,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/d78/namespacegather__scatter.html">gather_scatter</a></li>
-    <li class="footer">Generated on Thu Dec 19 2024 03:41:27 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Dec 20 2024 03:37:54 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

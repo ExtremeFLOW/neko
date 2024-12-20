@@ -4,7 +4,7 @@ var structgather__scatter_1_1gs__t =
     [ "gs_op_fld", "dd/db8/structgather__scatter_1_1gs__t.html#a348fb7cf5d294a1acbb6607cf235814b", null ],
     [ "gs_op_r4", "dd/db8/structgather__scatter_1_1gs__t.html#a9eb08a2b94b9030a8432efdedc12680c", null ],
     [ "gs_op_vector", "dd/db8/structgather__scatter_1_1gs__t.html#afcc494e82feaabc7677b29df1b3e5665", null ],
-    [ "init", "dd/db8/structgather__scatter_1_1gs__t.html#a35dba1eca80bf18723e3a67a69e1559f", null ],
+    [ "init", "dd/db8/structgather__scatter_1_1gs__t.html#a8f8b2d7e6f5846fa920a879d481527dd", null ],
     [ "op", "dd/db8/structgather__scatter_1_1gs__t.html#a4ef3bfcb6a51789be78dac527c8896e9", null ],
     [ "op", "dd/db8/structgather__scatter_1_1gs__t.html#a4ef3bfcb6a51789be78dac527c8896e9", null ],
     [ "op", "dd/db8/structgather__scatter_1_1gs__t.html#a4f76ff0582ea573bf30d49a8aa5cd66a", null ],

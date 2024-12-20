@@ -130,12 +130,6 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a6b8dcb1915a0e9af672e75db09450d37" id="r_a6b8dcb1915a0e9af672e75db09450d37"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d77/namespacetree__amg__aggregate.html#a6b8dcb1915a0e9af672e75db09450d37">aggregate_greedy</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tamg</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">lvl_id</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">max_aggs</a>, facet_neigh, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">agg_nhbr</a>)</td></tr>
 <tr class="memdesc:a6b8dcb1915a0e9af672e75db09450d37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aggregates dofs based on adjacent dofs.  <br /></td></tr>
 <tr class="separator:a6b8dcb1915a0e9af672e75db09450d37"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a972b49482c317c15d00445a1a3be2465" id="r_a972b49482c317c15d00445a1a3be2465"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d77/namespacetree__amg__aggregate.html#a972b49482c317c15d00445a1a3be2465">aggregate_elm</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tamg</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">max_aggs</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">agg_nhbr</a>)</td></tr>
-<tr class="memdesc:a972b49482c317c15d00445a1a3be2465"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aggregates elements based on face-adjacent elements.  <br /></td></tr>
-<tr class="separator:a972b49482c317c15d00445a1a3be2465"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8bbff33dece7fb61f16780e67341a300" id="r_a8bbff33dece7fb61f16780e67341a300"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d77/namespacetree__amg__aggregate.html#a8bbff33dece7fb61f16780e67341a300">aggregate_general</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tamg</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">max_aggs</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">lvl_id</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">agg_nhbr</a>)</td></tr>
-<tr class="memdesc:a8bbff33dece7fb61f16780e67341a300"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aggregates dofs based on adjacent dofs.  <br /></td></tr>
-<tr class="separator:a8bbff33dece7fb61f16780e67341a300"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2bbacf70f1edcab65c424b998f5506af" id="r_a2bbacf70f1edcab65c424b998f5506af"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d77/namespacetree__amg__aggregate.html#a2bbacf70f1edcab65c424b998f5506af">aggregate_end</a> (<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">tamg</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">lvl_id</a>)</td></tr>
 <tr class="memdesc:a2bbacf70f1edcab65c424b998f5506af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aggregate all dofs to a single point to form a tree-like structure.  <br /></td></tr>
 <tr class="separator:a2bbacf70f1edcab65c424b998f5506af"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -225,7 +219,7 @@ Functions/Subroutines</h2></td></tr>
 </dl>
 <p>if nhbr exists</p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00238">238</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00244">244</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -320,7 +314,7 @@ Here is the caller graph for this function:</div>
 <p>if no neighbors are aggregated, create new aggregate</p>
 <p>if nhbr exists</p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00105">105</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00111">111</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -417,7 +411,7 @@ Here is the caller graph for this function:</div>
 <p>Add neighbors to aggregate if unaggregated</p>
 <p>if nhbr exists</p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00168">168</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00174">174</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -430,63 +424,6 @@ Here is the caller graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="190,28,156,28,156,23,190,23"/>
 </map>
 </div>
-
-</div>
-</div>
-<a id="a972b49482c317c15d00445a1a3be2465" name="a972b49482c317c15d00445a1a3be2465"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a972b49482c317c15d00445a1a3be2465">&#9670;&#160;</a></span>aggregate_elm()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> tree_amg_aggregate::aggregate_elm </td>
-          <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html">tamg_hierarchy_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>tamg</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>max_aggs</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:,:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td>
-          <td class="paramname"><em>agg_nhbr</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">tamg</td><td>TreeAMG hierarchy data structure being aggregated </td></tr>
-    <tr><td class="paramname">max_aggs</td><td>Target number of aggregates to create on level </td></tr>
-    <tr><td class="paramname">agg_nhbr</td><td>Output that tracks adjacency of aggregates for use on next level </td></tr>
-  </table>
-  </dd>
-</dl>
-<p>fill with false</p>
-<p>Fill with large number</p>
-<p>if not aggregated, create new aggregate</p>
-<p>Add neighbors to aggregate if unaggregated</p>
-<p>loop through neighbors</p>
-<p>if nhbr exists</p>
-<p>if nhbr unaggregated</p>
-<p>Add remaining unaggregated nodes to aggregates</p>
-<p>dof i is unaggregated. Check neighbors, add to smallest neighbor</p>
-<p>if neighbor aggregate found add to that aggregate</p>
-<p>if none of the neignbors are aggregated. might as well make a new aggregate</p>
-<p>Add neighbors to aggregate if unaggregated</p>
-<p>Allocate and fill lvl and nodes</p>
-
-<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00368">368</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
 
 </div>
 </div>
@@ -527,7 +464,7 @@ Here is the caller graph for this function:</div>
 <p>Allocate node</p>
 <p>Fill node</p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00668">668</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00383">383</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -594,8 +531,8 @@ Here is the caller graph for this function:</div>
   </table>
   </dd>
 </dl>
-<p>Allocate. For finest level, each aggregate is a node.</p>
 <p>Count things</p>
+<p>Allocate. For finest level, each aggregate is a node.</p>
 <p>Fill the nodes</p>
 
 <p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00064">64</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
@@ -609,7 +546,7 @@ Here is the call graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="147,99,243,62,245,67,149,104"/>
 <area shape="rect" href="../../d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)" alt="" coords="259,84,398,109"/>
 <area shape="poly" title=" " alt="" coords="184,110,245,103,246,108,184,115"/>
-<area shape="rect" href="../../dc/d1a/namespacetree__amg.html#aa6cfa4da7a26e665034631f61b65b3f6" title="Initialization of a TreeAMG level." alt="" coords="240,133,417,159"/>
+<area shape="rect" href="../../dc/d1a/namespacetree__amg.html#ad89ff7cb0a5789fa030a730c4f4260c0" title="Initialization of a TreeAMG level." alt="" coords="240,133,417,159"/>
 <area shape="poly" title=" " alt="" coords="184,128,227,133,226,138,184,134"/>
 <area shape="rect" href="../../dc/d1a/namespacetree__amg.html#a5ec06e62779cefe9b883e4fbcaea5d7a" title="Initialization of a TreeAMG tree node." alt="" coords="232,183,425,208"/>
 <area shape="poly" title=" " alt="" coords="151,140,233,167,264,176,262,182,231,173,149,145"/>
@@ -625,70 +562,6 @@ Here is the caller graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="190,28,156,28,156,23,190,23"/>
 </map>
 </div>
-
-</div>
-</div>
-<a id="a8bbff33dece7fb61f16780e67341a300" name="a8bbff33dece7fb61f16780e67341a300"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8bbff33dece7fb61f16780e67341a300">&#9670;&#160;</a></span>aggregate_general()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">subroutine</a> tree_amg_aggregate::aggregate_general </td>
-          <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html">tamg_hierarchy_t</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>)&#160;</td>
-          <td class="paramname"><em>tamg</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>max_aggs</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">in</a>)&#160;</td>
-          <td class="paramname"><em>lvl_id</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">integer</a>, <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">dimension</a>(:,:), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">intent</a>(<a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">inout</a>), <a class="el" href="../../db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533">allocatable</a>&#160;</td>
-          <td class="paramname"><em>agg_nhbr</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">tamg</td><td>TreeAMG hierarchy data structure being aggregated </td></tr>
-    <tr><td class="paramname">max_aggs</td><td>Target number of aggregates to create on level </td></tr>
-    <tr><td class="paramname">lvl_id</td><td>The level id for which aggregates are being created </td></tr>
-    <tr><td class="paramname">agg_nhbr</td><td>Input array that contains adjacency of aggregates </td></tr>
-  </table>
-  </dd>
-</dl>
-<p>fill with false</p>
-<p>Fill with large number allocate( agg_nhbr(10, max_aggs*2) ) agg_nhbr = -1</p>
-<p>if not aggregated, create new aggregate</p>
-<p>Add neighbors to aggregate if unaggregated</p>
-<p>loop through neighbors</p>
-<p>if nhbr exists</p>
-<p>if nhbr unaggregated</p>
-<p>Add remaining unaggregated nodes to aggregates</p>
-<p>dof i is unaggregated. Check neighbors, add to smallest neighbor</p>
-<p>if neighbor aggregate found add to that aggregate</p>
-<p>if none of the neignbors are aggregated. might as well make a new aggregate</p>
-<p>Add neighbors to aggregate if unaggregated</p>
-<p>Allocate and fill lvl and nodes</p>
-
-<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00525">525</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
 
 </div>
 </div>
@@ -751,9 +624,10 @@ Here is the caller graph for this function:</div>
 <p>First pass of greedy aggregation.</p>
 <p>Second pass of greedy aggregation, adding unaggregated dofs to neighboring aggregates.</p>
 <p>if needed on next level...</p>
+<p>count things</p>
 <p>Allocate and fill lvl and nodes</p>
 
-<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00283">283</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00289">289</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -819,7 +693,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00781">781</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00502">502</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -867,7 +741,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00689">689</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00407">407</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -921,7 +795,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00706">706</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00425">425</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -975,7 +849,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00744">744</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html#l00464">464</a> of file <a class="el" href="../../de/d1c/tree__amg__aggregate_8f90_source.html">tree_amg_aggregate.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -997,7 +871,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../da/d77/namespacetree__amg__aggregate.html">tree_amg_aggregate</a></li>
-    <li class="footer">Generated on Thu Dec 19 2024 03:41:27 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Dec 20 2024 03:37:54 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
