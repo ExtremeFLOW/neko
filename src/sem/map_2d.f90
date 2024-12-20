@@ -2,7 +2,6 @@
 
 module map_2d
   use num_types, only: rp
-  use space, only: space_t
   use dofmap, only: dofmap_t
   use map_1d
   use gather_scatter
@@ -13,12 +12,9 @@ module map_2d
   use field_list
   use coefs, only: coef_t
   use field_list, only: field_list_t
-  use matrix, only: matrix_t
   use vector, only: vector_ptr_t
-  use logger, only: neko_log, LOG_SIZE
-  use utils, only: neko_error, neko_warning
-  use math, only: glmax, glmin, glimax, glimin, relcmp, cmult, &
-                  add2s1, col2, copy, rzero
+  use utils, only: neko_error
+  use math, only: cmult, col2, copy, rzero
   use neko_mpi_types
   use fld_file_data
   use field
@@ -181,7 +177,7 @@ contains
     
     type(vector_ptr_t), allocatable :: fields2d(:)
     integer :: n_2d, n
-    integer :: i, j, lx, lxy, e
+    integer :: i, j, lx, lxy
 
     call fld_data2D%init(this%nelv_2d,this%offset_el_2d)
     fld_data2D%gdim = 2
@@ -257,7 +253,7 @@ contains
     
     type(vector_ptr_t), allocatable :: fields3d(:), fields2d(:)
     integer :: n_2d, n
-    integer :: i, j, lx, lxy, e
+    integer :: i, j, lx, lxy
 
     call fld_data2D%init(this%nelv_2d,this%offset_el_2d)
     fld_data2D%gdim = 2
@@ -328,8 +324,7 @@ contains
     integer, intent(in) :: hom_dir_el(nelv)
     real(kind=rp), intent(in) :: mult(nelv*lx**3)
     real(kind=rp) :: temp_el(lx,lx,lx)
-    integer :: n, i, j, e, k
-    type(c_ptr) :: ptr
+    integer :: n, i, j, e
   
     n = u%dof%size()
   

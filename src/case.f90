@@ -43,17 +43,16 @@ module case
   use output_controller, only : output_controller_t
   use flow_ic, only : set_flow_ic
   use scalar_ic, only : set_scalar_ic
-  use stats, only : stats_t
   use file, only : file_t
   use utils, only : neko_error
   use mesh, only : mesh_t
   use comm
   use time_scheme_controller, only : time_scheme_controller_t
-  use logger, only : neko_log, NEKO_LOG_QUIET, LOG_SIZE
+  use logger, only : neko_log, NEKO_LOG_QUIET
   use jobctrl, only : jobctrl_set_time_limit
   use user_intf, only : user_t
   use scalar_pnpn, only : scalar_pnpn_t
-  use json_module, only : json_file, json_core, json_value
+  use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
