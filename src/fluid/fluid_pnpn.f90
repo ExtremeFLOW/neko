@@ -1017,6 +1017,7 @@ contains
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
 
+          bc_j => null()
           call velocity_bc_factory(bc_j, this, bc_subdict, this%c_Xh, user)
 
           ! Not all bcs require an allocation for velocity in particular,
@@ -1033,9 +1034,10 @@ contains
        call this%bcs_prs%init(n_bcs)
 
        j = 1
-       do i=1, n_bcs
+       do i = 1, n_bcs
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
+          bc_j => null()
           call pressure_bc_factory(bc_j, this, bc_subdict, this%c_Xh, user)
 
           ! Not all bcs require an allocation for pressure in particular,

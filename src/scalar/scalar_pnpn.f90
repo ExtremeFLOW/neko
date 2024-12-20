@@ -479,10 +479,10 @@ contains
 
        call this%bcs%init(n_bcs)
 
-       do i=1, n_bcs
+       do i = 1, n_bcs
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
-
+          bc_i => null()
           call bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
           call this%bcs%append(bc_i)
        end do
