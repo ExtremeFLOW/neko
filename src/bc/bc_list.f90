@@ -34,7 +34,8 @@
 module bc_list
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
-  use device
+  use field, only : field_t
+  use device, only : device_get_ptr
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr
   use bc, only : bc_t, bc_ptr_t
@@ -45,9 +46,9 @@ module bc_list
   !! Follows the standard interface of lists.
   type, public :: bc_list_t
      ! The items of the list.
-     class(bc_ptr_t), allocatable :: items(:)
+     class(bc_ptr_t), allocatable, private :: items(:)
      !> Number of items in the list that are themselves allocated.
-     integer :: size_
+     integer, private :: size_
      !> Capacity, i.e. the size of the items list. Some items may themselves be
      !! unallocated.
      integer, private :: capacity
@@ -56,20 +57,30 @@ module bc_list
      procedure, pass(this) :: init => bc_list_init
      !> Destructor.
      procedure, pass(this) :: free => bc_list_free
+
      !> Append an item to the end of the list.
      procedure, pass(this) :: append => bc_list_append
-     !> Apply all boundary conditions in the list.
-     generic :: apply => apply_scalar, apply_vector
-     !> Appply the boundary conditions to a scalar field.
-     procedure, pass(this) :: apply_scalar => bc_list_apply_scalar
-     !> Appply the boundary conditions to a vector field.
-     procedure, pass(this) :: apply_vector => bc_list_apply_vector
+     !> Get the item at the given index.
+     procedure, pass(this) :: get => bc_list_get
+
+     !> Check whether the list is empty
+     procedure, pass(this) :: is_empty => bc_list_is_empty
      !> Return wether a given item is a strong bc
      procedure, pass(this) :: strong => bc_list_strong
-     !> Check wether the list is empty
-     procedure, pass(this) :: is_empty => bc_list_is_empty
      !> Return the number of items in the list.
      procedure :: size => bc_list_size
+
+     !> Apply all boundary conditions in the list.
+     generic :: apply => apply_scalar, apply_vector, &
+          apply_scalar_field, apply_vector_field
+     !> Apply the boundary conditions to a scalar array.
+     procedure, pass(this) :: apply_scalar => bc_list_apply_scalar_array
+     !> Apply the boundary conditions to a vector array.
+     procedure, pass(this) :: apply_vector => bc_list_apply_vector_array
+     !> Apply the boundary conditions to a scalar field.
+     procedure, pass(this) :: apply_scalar_field => bc_list_apply_scalar_field
+     !> Apply the boundary conditions to a vector field.
+     procedure, pass(this) :: apply_vector_field => bc_list_apply_vector_field
   end type bc_list_t
 
 contains
@@ -79,7 +90,7 @@ contains
   subroutine bc_list_init(this, size)
     class(bc_list_t), intent(inout), target :: this
     integer, optional :: size
-    integer :: n, i
+    integer :: n
 
     call this%free()
 
@@ -101,7 +112,7 @@ contains
     integer :: i
 
     if (allocated(this%items)) then
-       do i =1, this%size_
+       do i = 1, this%size_
           this%items(i)%ptr => null()
        end do
 
@@ -118,7 +129,6 @@ contains
     class(bc_list_t), intent(inout) :: this
     class(bc_t), intent(inout), target :: bc
     type(bc_ptr_t), allocatable :: tmp(:)
-    integer :: i
 
     !> Do not add if bc is empty
     if(bc%marked_facet%size() .eq. 0) return
@@ -135,14 +145,30 @@ contains
 
   end subroutine bc_list_append
 
+  !> Get the item at the given index.
+  !! @param i The index of the item to get.
+  !! @return The item at the given index.
+  function bc_list_get(this, i) result(bc)
+    class(bc_list_t), intent(in) :: this
+    class(bc_t), pointer :: bc
+    integer, intent(in) :: i
+
+    if (i .lt. 1 .or. i .gt. this%size_) then
+       call neko_error("Index out of bounds in bc_list_get")
+    end if
+
+    bc => this%items(i)%ptr
+
+  end function bc_list_get
+
   !> Apply a list of boundary conditions to a scalar field
   !! @param x The field to apply the boundary conditions to.
   !! @param n The size of x.
   !! @param t Current time.
   !! @param tstep Current time-step.
-  !! @param strong Filter for strong or weak boundary conditions. Default is to 
+  !! @param strong Filter for strong or weak boundary conditions. Default is to
   !! apply the whole list.
-  subroutine bc_list_apply_scalar(this, x, n, t, tstep, strong)
+  subroutine bc_list_apply_scalar_array(this, x, n, t, tstep, strong)
     class(bc_list_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
@@ -162,7 +188,7 @@ contains
           call this%items(i)%ptr%apply_scalar(x, n, t, tstep, strong)
        end do
     end if
-  end subroutine bc_list_apply_scalar
+  end subroutine bc_list_apply_scalar_array
 
   !> Apply a list of boundary conditions to a vector field.
   !! @param x The x comp of the field for which to apply the bcs.
@@ -171,9 +197,9 @@ contains
   !! @param n The size of x, y, z.
   !! @param t Current time.
   !! @param tstep Current time-step.
-  !! @param strong Filter for strong or weak boundary conditions. Default is to 
+  !! @param strong Filter for strong or weak boundary conditions. Default is to
   !! apply the whole list.
-  subroutine bc_list_apply_vector(this, x, y, z, n, t, tstep, strong)
+  subroutine bc_list_apply_vector_array(this, x, y, z, n, t, tstep, strong)
     class(bc_list_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
@@ -201,7 +227,74 @@ contains
        end do
     end if
 
-  end subroutine bc_list_apply_vector
+  end subroutine bc_list_apply_vector_array
+
+  !> Apply a list of boundary conditions to a scalar field
+  !! @param x The field to apply the boundary conditions to.
+  !! @param t Current time.
+  !! @param tstep Current time-step.
+  !! @param strong Filter for strong or weak boundary conditions. Default is to
+  !! apply the whole list.
+  subroutine bc_list_apply_scalar_field(this, x, t, tstep, strong)
+    class(bc_list_t), intent(inout) :: this
+    type(field_t), intent(inout) :: x
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
+    integer :: i, n
+
+    n = x%size()
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_scalar_dev(x%x_d, t, tstep)
+       end do
+    else
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_scalar(x%x, n, t, tstep, strong)
+       end do
+    end if
+  end subroutine bc_list_apply_scalar_field
+
+  !> Apply a list of boundary conditions to a vector field.
+  !! @param x The x comp of the field for which to apply the bcs.
+  !! @param y The y comp of the field for which to apply the bcs.
+  !! @param z The z comp of the field for which to apply the bcs.
+  !! @param t Current time.
+  !! @param tstep Current time-step.
+  !! @param strong Filter for strong or weak boundary conditions. Default is to
+  !! apply the whole list.
+  subroutine bc_list_apply_vector_field(this, x, y, z, t, tstep, strong)
+    class(bc_list_t), intent(inout) :: this
+    type(field_t), intent(inout) :: x
+    type(field_t), intent(inout) :: y
+    type(field_t), intent(inout) :: z
+    real(kind=rp), intent(in), optional :: t
+    integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
+    integer :: i, n
+    character(len=256) :: msg
+
+    n = x%size()
+
+    ! Ensure all fields are the same size
+    if (y%size() .ne. n .or. z%size() .ne. n) then
+       msg = "Fields x, y, z must have the same size in " // &
+            "bc_list_apply_vector_field"
+       call neko_error(trim(msg))
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, t, tstep)
+       end do
+    else
+       do i = 1, this%size_
+          call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, t, tstep, &
+               strong)
+       end do
+    end if
+
+  end subroutine bc_list_apply_vector_field
 
   !> Return whether the bc is strong or not.
   pure function bc_list_strong(this, i) result(strong)
@@ -218,7 +311,7 @@ contains
     logical :: is_empty
     integer :: i
 
-    is_empty = .true. 
+    is_empty = .true.
     do i = 1, this%size_
 
        if (.not. allocated(this%items(i)%ptr%msk)) then
@@ -226,7 +319,7 @@ contains
        end if
 
        if (this%items(i)%ptr%msk(0) > 0) is_empty = .false.
-    
+
     end do
   end function bc_list_is_empty
 

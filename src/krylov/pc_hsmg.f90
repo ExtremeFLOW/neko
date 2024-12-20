@@ -67,6 +67,7 @@ module hsmg
   use ax_product, only : ax_t, ax_helm_factory
   use gather_scatter, only : gs_t, GS_OP_ADD
   use interpolation, only : interpolator_t
+  use bc, only: bc_t
   use bc_list, only : bc_list_t
   use dirichlet, only : dirichlet_t
   use schwarz, only : schwarz_t
@@ -147,6 +148,7 @@ contains
     character(len=*), optional :: crs_pctype
     integer :: n, i
     integer :: lx_crs, lx_mid
+    class(bc_t), pointer :: bc_i
 
     call this%free()
     this%nlvls = 3
@@ -197,9 +199,12 @@ contains
     call this%bc_reg%init_base(coef)
     if (bclst%size() .gt. 0) then
        do i = 1, bclst%size()
-          call this%bc_reg%mark_facets(bclst%items(i)%ptr%marked_facet)
-          call this%bc_crs%mark_facets(bclst%items(i)%ptr%marked_facet)
-          call this%bc_mg%mark_facets(bclst%items(i)%ptr%marked_facet)
+          bc_i => bclst%get(i)
+          call this%bc_reg%mark_facets(bc_i%marked_facet)
+          bc_i => bclst%get(i)
+          call this%bc_crs%mark_facets(bc_i%marked_facet)
+          bc_i => bclst%get(i)
+          call this%bc_mg%mark_facets(bc_i%marked_facet)
        end do
     end if
     call this%bc_reg%finalize()
