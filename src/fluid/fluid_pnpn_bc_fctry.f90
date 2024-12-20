@@ -48,7 +48,7 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: FLUID_PNPN_KNOWN_BCS(12) = [character(len=25) :: &
+  character(len=25) :: FLUID_PNPN_KNOWN_BCS(13) = [character(len=25) :: &
      "symmetry", &
      "velocity_value", &
      "no_slip", &
@@ -59,6 +59,7 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
      "shear_stress", &
      "user_velocity", &
      "user_pressure", &
+     "blasius_profile", &
      "user_velocity_pointwise", &
      "wall_model"]
 
