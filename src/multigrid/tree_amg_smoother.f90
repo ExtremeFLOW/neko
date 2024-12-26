@@ -41,6 +41,7 @@ module tree_amg_smoother
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -63,8 +64,11 @@ module tree_amg_smoother
   !> Type for Chebyshev iteration using TreeAMG matvec
   type, public :: amg_cheby_t
      real(kind=rp), allocatable :: d(:)
+     type(c_ptr) :: d_d = C_NULL_PTR
      real(kind=rp), allocatable :: w(:)
+     type(c_ptr) :: w_d = C_NULL_PTR
      real(kind=rp), allocatable :: r(:)
+     type(c_ptr) :: r_d = C_NULL_PTR
      real(kind=rp) :: tha, dlt
      integer :: lvl
      integer :: n
@@ -232,6 +236,57 @@ contains
 
     end associate
   end subroutine amg_cheby_solve
+
+!!!  !> Chebyshev smoother
+!!!  !> From Saad's iterative methods textbook
+!!!  !! @param x The solution to be returned
+!!!  !! @param f The right-hand side
+!!!  !! @param n Number of dofs
+!!!  !! @param amg The TreeAMG object
+!!!  subroutine amg_device_cheby_solve(this, x, f, n, amg, niter)
+!!!    class(amg_cheby_t), intent(inout) :: this
+!!!    integer, intent(in) :: n
+!!!    type(c_ptr) :: x
+!!!    type(c_ptr) :: f
+!!!    class(tamg_hierarchy_t), intent(inout) :: amg
+!!!    type(ksp_monitor_t) :: ksp_results
+!!!    integer, optional, intent(in) :: niter
+!!!    integer :: iter, max_iter
+!!!    real(kind=rp) :: rtr, rnorm
+!!!    real(kind=rp) :: rhok, rhokp1, s1, thet, delt, tmp1, tmp2
+!!!    if (this%recompute_eigs) then
+!!!       call this%comp_eig(amg, n)
+!!!    end if
+!!!    if (present(niter)) then
+!!!       max_iter = niter
+!!!    else
+!!!       max_iter = this%max_iter
+!!!    end if
+!!!    associate( w => this%w_d, r => this%r_d, d => this%d_d, blst=>amg%blst)
+!!!      call device_copy(r, f, n)
+!!!      call device_rzero(w, n)
+!!!      call amg%matvec(w, x, this%lvl)
+!!!      call device_sub2(r, w, n)
+!!!      thet = this%tha
+!!!      delt = this%dlt
+!!!      s1 = thet / delt
+!!!      rhok = 1.0_rp / s1
+!!!      call device_copy(d, r, n)
+!!!      call device_cmult(d, 1.0_rp/thet, n)
+!!!      do iter = 1, max_iter
+!!!        call device_add2(x,d,n)
+!!!        call device_rzero(w, n)
+!!!        call amg%matvec(w, d, this%lvl)
+!!!        call device_sub2(r, w, n)
+!!!        rhokp1 = 1.0_rp / (2.0_rp * s1 - rhok)
+!!!        tmp1 = rhokp1 * rhok
+!!!        tmp2 = 2.0_rp * rhokp1 / delt
+!!!        rhok = rhokp1
+!!!        call device_cmult(d, tmp1, n)
+!!!        call device_add2s2(d, r, tmp2, n)
+!!!      end do
+!!!    end associate
+!!!  end subroutine amg_device_cheby_solve
 
   !> Initialization of Jacobi (this is expensive...)
   !! @param n Number of dofs
