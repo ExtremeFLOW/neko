@@ -237,17 +237,70 @@ contains
     end associate
   end subroutine amg_cheby_solve
 
+!!!  !> Power method to approximate largest eigenvalue
+!!!  !! @param amg TreeAMG object
+!!!  !! @param n Number of dofs
+!!!  subroutine amg_device_cheby_power(this, amg, n)
+!!!    class(amg_cheby_t), intent(inout) :: this
+!!!    type(tamg_hierarchy_t), intent(inout) :: amg
+!!!    integer, intent(in) :: n
+!!!    real(kind=rp) :: lam, b, a, rn
+!!!    real(kind=rp), parameter :: boost = 1.1_rp
+!!!    real(kind=rp), parameter :: lam_factor = 30.0_rp
+!!!    real(kind=rp) :: wtw, dtw, dtd
+!!!    integer :: i
+!!!    associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
+!!!         msh=>amg%msh, Xh=>amg%Xh, blst=>amg%blst)
+!!!      do i = 1, n
+!!!        !TODO: replace with a better way to initialize power method
+!!!        d(i) = sin(real(i))
+!!!      end do
+!!!      if (this%lvl .eq. 0) then
+!!!        call gs_h%op(d, n, GS_OP_ADD)!TODO
+!!!        call blst%apply(d, n)
+!!!      end if
+!!!      do i = 1, this%power_its
+!!!        call device_rzero(this%w_d, n)
+!!!        call amg%matvec(w, d, this%w_d, this%d_d, this%lvl)
+!!!        if (this%lvl .eq. 0) then
+!!!          wtw = device_glsc3(this%w_d, coef%mult_d, this%w_d, n)
+!!!        else
+!!!          wtw = device_glsc2(this%w_d, this%w_d, n)
+!!!        end if
+!!!        call device_cmult2(this%d_d, this%w_d, 1.0_rp/sqrt(wtw), n)
+!!!      end do
+!!!      call device_rzero(this%w_d, n)
+!!!      call amg%matvec(w, d, this%w_d, this%d_d, this%lvl)
+!!!      if (this%lvl .eq. 0) then
+!!!        dtw = device_glsc3(this%d_d, coef%mult_d, this%w_d, n)
+!!!        dtd = device_glsc3(this%d_d, coef%mult_d, this%d_d, n)
+!!!      else
+!!!        dtw = device_glsc2(this%d_d, this%w_d, n)
+!!!        dtd = device_glsc2(this%d_d, this%d_d, n)
+!!!      end if
+!!!      lam = dtw / dtd
+!!!      b = lam * boost
+!!!      a = lam / lam_factor
+!!!      this%tha = (b+a)/2.0_rp
+!!!      this%dlt = (b-a)/2.0_rp
+!!!      this%recompute_eigs = .false.
+!!!      call amg_cheby_monitor(this%lvl,lam)
+!!!    end associate
+!!!  end subroutine amg_device_cheby_power
+
 !!!  !> Chebyshev smoother
 !!!  !> From Saad's iterative methods textbook
 !!!  !! @param x The solution to be returned
 !!!  !! @param f The right-hand side
 !!!  !! @param n Number of dofs
 !!!  !! @param amg The TreeAMG object
-!!!  subroutine amg_device_cheby_solve(this, x, f, n, amg, niter)
+!!!  subroutine amg_device_cheby_solve(this, x, f, x_d, f_d, n, amg, niter)
 !!!    class(amg_cheby_t), intent(inout) :: this
 !!!    integer, intent(in) :: n
-!!!    type(c_ptr) :: x
-!!!    type(c_ptr) :: f
+!!!    real(kind=rp), dimension(n), intent(inout) :: x
+!!!    real(kind=rp), dimension(n), intent(inout) :: f
+!!!    type(c_ptr) :: x_d
+!!!    type(c_ptr) :: f_d
 !!!    class(tamg_hierarchy_t), intent(inout) :: amg
 !!!    type(ksp_monitor_t) :: ksp_results
 !!!    integer, optional, intent(in) :: niter
@@ -262,28 +315,28 @@ contains
 !!!    else
 !!!       max_iter = this%max_iter
 !!!    end if
-!!!    associate( w => this%w_d, r => this%r_d, d => this%d_d, blst=>amg%blst)
-!!!      call device_copy(r, f, n)
-!!!      call device_rzero(w, n)
-!!!      call amg%matvec(w, x, this%lvl)
-!!!      call device_sub2(r, w, n)
+!!!    associate( w_d => this%w_d, r_d => this%r_d, d_d => this%d_d, blst=>amg%blst)
+!!!      call device_copy(r_d, f_d, n)
+!!!      call device_rzero(w_d, n)
+!!!      call amg%matvec(this%w, this%x, w_d, x_d, this%lvl)
+!!!      call device_sub2(r_d, w_d, n)
 !!!      thet = this%tha
 !!!      delt = this%dlt
 !!!      s1 = thet / delt
 !!!      rhok = 1.0_rp / s1
-!!!      call device_copy(d, r, n)
-!!!      call device_cmult(d, 1.0_rp/thet, n)
+!!!      call device_copy(d_d, r_d, n)
+!!!      call device_cmult(d_d, 1.0_rp/thet, n)
 !!!      do iter = 1, max_iter
-!!!        call device_add2(x,d,n)
-!!!        call device_rzero(w, n)
-!!!        call amg%matvec(w, d, this%lvl)
-!!!        call device_sub2(r, w, n)
+!!!        call device_add2(x_d,d_d,n)
+!!!        call device_rzero(w_d, n)
+!!!        call amg%matvec(this%w, this%d, w_d, d_d, this%lvl)
+!!!        call device_sub2(r_d, w_d, n)
 !!!        rhokp1 = 1.0_rp / (2.0_rp * s1 - rhok)
 !!!        tmp1 = rhokp1 * rhok
 !!!        tmp2 = 2.0_rp * rhokp1 / delt
 !!!        rhok = rhokp1
-!!!        call device_cmult(d, tmp1, n)
-!!!        call device_add2s2(d, r, tmp2, n)
+!!!        call device_cmult(d_d, tmp1, n)
+!!!        call device_add2s2(d_d, r_d, tmp2, n)
 !!!      end do
 !!!    end associate
 !!!  end subroutine amg_device_cheby_solve

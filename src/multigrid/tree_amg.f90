@@ -417,38 +417,45 @@ contains
     lvl = lvl_out
     n = this%lvl(1)%fine_lvl_dofs
     if (lvl .eq. 0) then !> isleaf true
-      !> If on finest level, pass to neko ax_t matvec operator
-      !> Call local finite element assembly
       call this%gs_h%op(vec_in, n, GS_OP_ADD)
       call device_col2( vec_in_d, this%coef%mult_d, n)
-      !>
       call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
-      !>
       call this%gs_h%op(vec_out, n, GS_OP_ADD)
       call this%blst%apply(vec_out, n)
-      !>
     else !> pass down through hierarchy
 
       associate( wrk_in_d => this%lvl(1)%wrk_in_d, wrk_out_d => this%lvl(1)%wrk_out_d)
       call device_rzero(wrk_out_d, n)
       call device_rzero(vec_out_d, n)
-
       !> Map input level to finest level
       call device_masked_red_copy(wrk_in_d, vec_in_d, this%lvl(lvl)%f2c_d, this%lvl(lvl)%nnodes, n)
-
       !> Average on overlapping dofs
       call this%gs_h%op(this%lvl(1)%wrk_in, n, GS_OP_ADD)
       call device_col2( wrk_in_d, this%coef%mult_d, n)
       !> Finest level matvec (Call local finite element assembly)
       call this%ax%compute(this%lvl(1)%wrk_out, this%lvl(1)%wrk_in, this%coef, this%msh, this%Xh)
-      !>
       call this%gs_h%op(this%lvl(1)%wrk_out, n, GS_OP_ADD)
       call this%blst%apply(this%lvl(1)%wrk_out, n)
-      !>
-
       !> Map finest level matvec back to output level
-      !TODO: THIS NEEDS A CUSTOM REDUCTION KERNEL...
-      !call my_masked_reduction(vec_out_d, wrk_out_d, this%lvl(lvl)%f2c_d, n, this%lvl(lvl)%nnodes)
+      !TODO: THIS NEEDS A REDUCTION KERNEL THING... something like (I don't know how to write this):
+!!!!!!/**
+!!!!!! * Device kernel for masked atomic update
+!!!!!! */
+!!!!!!template< typename T >
+!!!!!!__global__ void masked_atomic_reduction_kernel(T * __restrict__ a,
+!!!!!!                                   T * __restrict__ b,
+!!!!!!                                   int * __restrict__ mask,                    
+!!!!!!                                   const int n,
+!!!!!!                                   const int m) {
+!!!!!!
+!!!!!!  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+!!!!!!  const int str = blockDim.x * gridDim.x;
+!!!!!!
+!!!!!!  for (int i = idx; i < m; i += str) {
+!!!!!!    atomicAdd( &(a[mask[i]-1]), b[i]);//a[mask[i]-1] = a[mask[i]-1] + b[i];
+!!!!!!  }
+!!!!!!}
+      !call masked_atomic_reduction_kernel(vec_out_d, wrk_out_d, this%lvl(lvl)%f2c_d, n, this%lvl(lvl)%nnodes)
       !!!!!do i = 1, n
       !!!!!  cdof = this%lvl(lvl)%map_f2c_dof(i)
       !!!!!  vec_out(cdof) = vec_out(cdof) + wrk_out( i )
