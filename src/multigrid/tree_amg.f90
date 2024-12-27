@@ -35,12 +35,15 @@ module tree_amg
   use num_types
   use utils
   use math
+  use device_math
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use space, only : space_t
   use ax_product, only: ax_t
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
+  use device, only: device_map, device_free, c_ptr, C_NULL_PTR
+  use neko_config, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -69,7 +72,6 @@ module tree_amg
     type(c_ptr) :: wrk_out_d = C_NULL_PTR
     integer, allocatable :: map_f2c_dof(:)
     type(c_ptr) :: f2c_d = C_NULL_PTR
-    !!!!integer, allocatable :: map_c2f_dof(:)
     !--!
     integer, allocatable :: nodes_ptr(:)
     type(c_ptr) :: nodes_ptr_d = C_NULL_PTR
@@ -148,7 +150,9 @@ contains
 
     do i = 1, nlvls
       allocate( this%lvl(i)%map_f2c_dof( coef%dof%size() ))
-      !!!!allocate( this%lvl(i)%map_c2f_dof( coef%dof%size() ))
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+        call device_map(this%lvl(i)%map_f2c_dof, this%lvl(i)%f2c_d, coef%dof%size())
+      end if
     end do
 
   end subroutine tamg_init
@@ -175,6 +179,12 @@ contains
     tamg_lvl%fine_lvl_dofs = ndofs
     allocate( tamg_lvl%wrk_in( ndofs ) )
     allocate( tamg_lvl%wrk_out( ndofs ) )
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      call device_map(tamg_lvl%wrk_in, tamg_lvl%wrk_in_d, ndofs)
+      call device_cfill(tamg_lvl%wrk_in_d, 0.0_rp, ndofs)
+      call device_map(tamg_lvl%wrk_out, tamg_lvl%wrk_out_d, ndofs)
+      call device_cfill(tamg_lvl%wrk_out_d, 0.0_rp, ndofs)
+    end if
   end subroutine tamg_lvl_init
 
   !> Initialization of a TreeAMG tree node
@@ -192,8 +202,8 @@ contains
     node%dofs = -1
     allocate( node%interp_r( node%ndofs) )
     allocate( node%interp_p( node%ndofs) )
-    node%interp_r = 1.0
-    node%interp_p = 1.0
+    node%interp_r = 1.0_rp
+    node%interp_p = 1.0_rp
   end subroutine tamg_node_init
 
   !> Wrapper for matrix vector product using the TreeAMG hierarchy structure
@@ -395,8 +405,10 @@ contains
   end subroutine tamg_prolongation_operator
 
 
-  subroutine tamg_device_matvec_flat_impl(this, vec_out_d, vec_in_d, lvl_out)
+  subroutine tamg_device_matvec_flat_impl(this, vec_out, vec_in, vec_out_d, vec_in_d, lvl_out)
     class(tamg_hierarchy_t), intent(inout) :: this
+    real(kind=rp), intent(inout) :: vec_out(:)
+    real(kind=rp), intent(inout) :: vec_in(:)
     type(c_ptr) :: vec_out_d
     type(c_ptr) :: vec_in_d
     integer, intent(in) :: lvl_out
@@ -407,13 +419,13 @@ contains
     if (lvl .eq. 0) then !> isleaf true
       !> If on finest level, pass to neko ax_t matvec operator
       !> Call local finite element assembly
-      call this%gs_h%op(vec_in_d, n, GS_OP_ADD)
-      call device_col2( vec_in_d, this%coef%mult(1,1,1,1), n)
+      call this%gs_h%op(vec_in, n, GS_OP_ADD)
+      call device_col2( vec_in_d, this%coef%mult_d, n)
       !>
-      call this%ax%compute(vec_out_d, vec_in_d, this%coef, this%msh, this%Xh)
+      call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
       !>
-      call this%gs_h%op(vec_out_d, n, GS_OP_ADD)
-      call this%blst%apply(vec_out_d, n)
+      call this%gs_h%op(vec_out, n, GS_OP_ADD)
+      call this%blst%apply(vec_out, n)
       !>
     else !> pass down through hierarchy
 
@@ -425,13 +437,13 @@ contains
       call device_masked_red_copy(wrk_in_d, vec_in_d, this%lvl(lvl)%f2c_d, this%lvl(lvl)%nnodes, n)
 
       !> Average on overlapping dofs
-      call this%gs_h%op(wrk_in_d, n, GS_OP_ADD)
-      call device_col2( wrk_in_d, this%coef%mult(1,1,1,1), n)
+      call this%gs_h%op(this%lvl(1)%wrk_in, n, GS_OP_ADD)
+      call device_col2( wrk_in_d, this%coef%mult_d, n)
       !> Finest level matvec (Call local finite element assembly)
-      call this%ax%compute(wrk_out_d, wrk_in_d, this%coef, this%msh, this%Xh)
+      call this%ax%compute(this%lvl(1)%wrk_out, this%lvl(1)%wrk_in, this%coef, this%msh, this%Xh)
       !>
-      call this%gs_h%op(wrk_out_d, n, GS_OP_ADD)
-      call this%blst%apply(wrk_out_d, n)
+      call this%gs_h%op(this%lvl(1)%wrk_out, n, GS_OP_ADD)
+      call this%blst%apply(this%lvl(1)%wrk_out, n)
       !>
 
       !> Map finest level matvec back to output level
