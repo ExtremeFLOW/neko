@@ -1,6 +1,6 @@
 var tet_8f90 =
 [
-    [ "tet_t", "db/dd5/structtet_1_1tet__t.html", "db/dd5/structtet_1_1tet__t" ],
+    [ "tet::tet_t", "db/dd5/structtet_1_1tet__t.html", "db/dd5/structtet_1_1tet__t" ],
     [ "tet_centroid", "df/d96/tet_8f90.html#a8f0dee583308bf424074dd313b1e720d", null ],
     [ "tet_diameter", "df/d96/tet_8f90.html#a405a7f9daaa8c87e2a098288f7360212", null ],
     [ "tet_edge_id", "df/d96/tet_8f90.html#ae38e9af01ff2e23a9e78c6032227ac08", null ],

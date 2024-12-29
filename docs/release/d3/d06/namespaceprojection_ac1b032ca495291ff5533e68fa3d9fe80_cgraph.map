@@ -1,0 +1,9 @@
+<map id="projection::projection_init" name="projection::projection_init">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,63,193,88"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9" title="Allocate memory on the device." alt="" coords="243,5,397,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,60,257,32,258,37,150,65"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a2b8132d3d15d4b553af3a1b55d6f8d87" title="Zero a real vector." alt="" coords="241,55,399,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="194,73,228,73,228,78,194,78"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="271,120,369,145"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="150,85,259,114,257,119,148,91"/>
+</map>

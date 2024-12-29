@@ -1,9 +1,9 @@
 var annotated_dup =
 [
     [ "aabb", "d5/de2/namespaceaabb.html", [
-      [ "merge", "d9/dd5/interfaceaabb_1_1merge.html", "d9/dd5/interfaceaabb_1_1merge" ],
+      [ "aabb_t", "d5/ddb/structaabb_1_1aabb__t.html", "d5/ddb/structaabb_1_1aabb__t" ],
       [ "intersection", "d4/d5b/interfaceaabb_1_1intersection.html", "d4/d5b/interfaceaabb_1_1intersection" ],
-      [ "aabb_t", "d5/ddb/structaabb_1_1aabb__t.html", "d5/ddb/structaabb_1_1aabb__t" ]
+      [ "merge", "d9/dd5/interfaceaabb_1_1merge.html", "d9/dd5/interfaceaabb_1_1merge" ]
     ] ],
     [ "aabb_tree", "de/dbe/namespaceaabb__tree.html", [
       [ "aabb_node_t", "df/d6d/structaabb__tree_1_1aabb__node__t.html", "df/d6d/structaabb__tree_1_1aabb__node__t" ],
@@ -22,10 +22,10 @@ var annotated_dup =
       [ "adv_oifs_t", "d0/d27/structadv__oifs_1_1adv__oifs__t.html", "d0/d27/structadv__oifs_1_1adv__oifs__t" ]
     ] ],
     [ "advection", "d3/d69/namespaceadvection.html", [
+      [ "advection_free", "d1/d0e/interfaceadvection_1_1advection__free.html", "d1/d0e/interfaceadvection_1_1advection__free" ],
       [ "advection_t", "d4/d2a/structadvection_1_1advection__t.html", "d4/d2a/structadvection_1_1advection__t" ],
       [ "compute_adv", "d5/d12/interfaceadvection_1_1compute__adv.html", "d5/d12/interfaceadvection_1_1compute__adv" ],
-      [ "compute_scalar_adv", "dc/d64/interfaceadvection_1_1compute__scalar__adv.html", "dc/d64/interfaceadvection_1_1compute__scalar__adv" ],
-      [ "advection_free", "d1/d0e/interfaceadvection_1_1advection__free.html", "d1/d0e/interfaceadvection_1_1advection__free" ]
+      [ "compute_scalar_adv", "dc/d64/interfaceadvection_1_1compute__scalar__adv.html", "dc/d64/interfaceadvection_1_1compute__scalar__adv" ]
     ] ],
     [ "ax_helm", "d0/d35/namespaceax__helm.html", [
       [ "ax_helm_t", "d1/d58/structax__helm_1_1ax__helm__t.html", "d1/d58/structax__helm_1_1ax__helm__t" ]
@@ -57,20 +57,20 @@ var annotated_dup =
       [ "ax_helm_xsmm_t", "d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html", "d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t" ]
     ] ],
     [ "ax_product", "d2/dd1/namespaceax__product.html", [
-      [ "ax_t", "d3/d2c/structax__product_1_1ax__t.html", "d3/d2c/structax__product_1_1ax__t" ],
       [ "ax_compute", "dd/def/interfaceax__product_1_1ax__compute.html", "dd/def/interfaceax__product_1_1ax__compute" ],
-      [ "ax_compute_vector", "d1/d2e/interfaceax__product_1_1ax__compute__vector.html", "d1/d2e/interfaceax__product_1_1ax__compute__vector" ]
+      [ "ax_compute_vector", "d1/d2e/interfaceax__product_1_1ax__compute__vector.html", "d1/d2e/interfaceax__product_1_1ax__compute__vector" ],
+      [ "ax_t", "d3/d2c/structax__product_1_1ax__t.html", "d3/d2c/structax__product_1_1ax__t" ]
     ] ],
     [ "bc", "d0/dc0/namespacebc.html", [
-      [ "bc_t", "d6/db3/structbc_1_1bc__t.html", "d6/db3/structbc_1_1bc__t" ],
-      [ "bcp_t", "dc/d46/structbc_1_1bcp__t.html", "dc/d46/structbc_1_1bcp__t" ],
-      [ "bc_list_t", "d8/dd8/structbc_1_1bc__list__t.html", "d8/dd8/structbc_1_1bc__list__t" ],
       [ "bc_apply_scalar", "d9/df2/interfacebc_1_1bc__apply__scalar.html", "d9/df2/interfacebc_1_1bc__apply__scalar" ],
-      [ "bc_apply_vector", "de/d2f/interfacebc_1_1bc__apply__vector.html", "de/d2f/interfacebc_1_1bc__apply__vector" ],
-      [ "bc_destructor", "de/d3c/interfacebc_1_1bc__destructor.html", "de/d3c/interfacebc_1_1bc__destructor" ],
       [ "bc_apply_scalar_dev", "dc/d9b/interfacebc_1_1bc__apply__scalar__dev.html", "dc/d9b/interfacebc_1_1bc__apply__scalar__dev" ],
+      [ "bc_apply_vector", "de/d2f/interfacebc_1_1bc__apply__vector.html", "de/d2f/interfacebc_1_1bc__apply__vector" ],
       [ "bc_apply_vector_dev", "de/dde/interfacebc_1_1bc__apply__vector__dev.html", "de/dde/interfacebc_1_1bc__apply__vector__dev" ],
-      [ "bc_list_apply", "df/d54/interfacebc_1_1bc__list__apply.html", "df/d54/interfacebc_1_1bc__list__apply" ]
+      [ "bc_destructor", "de/d3c/interfacebc_1_1bc__destructor.html", "de/d3c/interfacebc_1_1bc__destructor" ],
+      [ "bc_list_apply", "df/d54/interfacebc_1_1bc__list__apply.html", "df/d54/interfacebc_1_1bc__list__apply" ],
+      [ "bc_list_t", "d8/dd8/structbc_1_1bc__list__t.html", "d8/dd8/structbc_1_1bc__list__t" ],
+      [ "bc_t", "d6/db3/structbc_1_1bc__t.html", "d6/db3/structbc_1_1bc__t" ],
+      [ "bcp_t", "dc/d46/structbc_1_1bcp__t.html", "dc/d46/structbc_1_1bcp__t" ]
     ] ],
     [ "bdf_time_scheme", "d4/db4/namespacebdf__time__scheme.html", [
       [ "bdf_time_scheme_t", "d7/dac/structbdf__time__scheme_1_1bdf__time__scheme__t.html", "d7/dac/structbdf__time__scheme_1_1bdf__time__scheme__t" ]
@@ -94,8 +94,8 @@ var annotated_dup =
       [ "cacg_t", "de/d56/structcacg_1_1cacg__t.html", "de/d56/structcacg_1_1cacg__t" ]
     ] ],
     [ "case", "dd/da8/namespacecase.html", [
-      [ "case_t", "db/d7a/structcase_1_1case__t.html", "db/d7a/structcase_1_1case__t" ],
-      [ "case_init", "d8/d36/interfacecase_1_1case__init.html", "d8/d36/interfacecase_1_1case__init" ]
+      [ "case_init", "d8/d36/interfacecase_1_1case__init.html", "d8/d36/interfacecase_1_1case__init" ],
+      [ "case_t", "db/d7a/structcase_1_1case__t.html", "db/d7a/structcase_1_1case__t" ]
     ] ],
     [ "cg", "d9/df6/namespacecg.html", [
       [ "cg_t", "db/d98/structcg_1_1cg__t.html", "db/d98/structcg_1_1cg__t" ]
@@ -140,86 +140,86 @@ var annotated_dup =
       [ "coriolis_source_term_t", "db/dbf/structcoriolis__source__term_1_1coriolis__source__term__t.html", "db/dbf/structcoriolis__source__term_1_1coriolis__source__term__t" ]
     ] ],
     [ "cpr", "d2/d80/namespacecpr.html", [
-      [ "cpr_t", "db/d84/structcpr_1_1cpr__t.html", "db/d84/structcpr_1_1cpr__t" ],
-      [ "cpr_init", "d0/d6c/interfacecpr_1_1cpr__init.html", "d0/d6c/interfacecpr_1_1cpr__init" ]
+      [ "cpr_init", "d0/d6c/interfacecpr_1_1cpr__init.html", "d0/d6c/interfacecpr_1_1cpr__init" ],
+      [ "cpr_t", "db/d84/structcpr_1_1cpr__t.html", "db/d84/structcpr_1_1cpr__t" ]
     ] ],
     [ "csv_file", "d3/d4f/namespacecsv__file.html", [
       [ "csv_file_t", "d3/d88/structcsv__file_1_1csv__file__t.html", "d3/d88/structcsv__file_1_1csv__file__t" ]
     ] ],
     [ "cuda_filters", "d6/d80/namespacecuda__filters.html", [
+      [ "cuda_permeability", "de/d90/interfacecuda__filters_1_1cuda__permeability.html", "de/d90/interfacecuda__filters_1_1cuda__permeability" ],
       [ "cuda_smooth_step", "d1/d06/interfacecuda__filters_1_1cuda__smooth__step.html", "d1/d06/interfacecuda__filters_1_1cuda__smooth__step" ],
-      [ "cuda_step_function", "d9/d6b/interfacecuda__filters_1_1cuda__step__function.html", "d9/d6b/interfacecuda__filters_1_1cuda__step__function" ],
-      [ "cuda_permeability", "de/d90/interfacecuda__filters_1_1cuda__permeability.html", "de/d90/interfacecuda__filters_1_1cuda__permeability" ]
+      [ "cuda_step_function", "d9/d6b/interfacecuda__filters_1_1cuda__step__function.html", "d9/d6b/interfacecuda__filters_1_1cuda__step__function" ]
     ] ],
     [ "cuda_intf", "db/d9a/namespacecuda__intf.html", [
-      [ "cudaMalloc", "da/da7/interfacecuda__intf_1_1cudaMalloc.html", "da/da7/interfacecuda__intf_1_1cudaMalloc" ],
-      [ "cudaFree", "d2/dde/interfacecuda__intf_1_1cudaFree.html", "d2/dde/interfacecuda__intf_1_1cudaFree" ],
-      [ "cudaMemcpy", "d8/d48/interfacecuda__intf_1_1cudaMemcpy.html", "d8/d48/interfacecuda__intf_1_1cudaMemcpy" ],
-      [ "cudaMemcpyAsync", "d2/d4f/interfacecuda__intf_1_1cudaMemcpyAsync.html", "d2/d4f/interfacecuda__intf_1_1cudaMemcpyAsync" ],
-      [ "cudaDeviceSynchronize", "d3/db1/interfacecuda__intf_1_1cudaDeviceSynchronize.html", "d3/db1/interfacecuda__intf_1_1cudaDeviceSynchronize" ],
-      [ "cudaGetDeviceProperties", "df/d36/interfacecuda__intf_1_1cudaGetDeviceProperties.html", "df/d36/interfacecuda__intf_1_1cudaGetDeviceProperties" ],
-      [ "cudaStreamCreate", "d5/de4/interfacecuda__intf_1_1cudaStreamCreate.html", "d5/de4/interfacecuda__intf_1_1cudaStreamCreate" ],
-      [ "cudaStreamCreateWithFlags", "d2/d11/interfacecuda__intf_1_1cudaStreamCreateWithFlags.html", "d2/d11/interfacecuda__intf_1_1cudaStreamCreateWithFlags" ],
-      [ "cudaStreamCreateWithPriority", "d3/df3/interfacecuda__intf_1_1cudaStreamCreateWithPriority.html", "d3/df3/interfacecuda__intf_1_1cudaStreamCreateWithPriority" ],
-      [ "cudaStreamDestroy", "da/d63/interfacecuda__intf_1_1cudaStreamDestroy.html", "da/d63/interfacecuda__intf_1_1cudaStreamDestroy" ],
-      [ "cudaStreamSynchronize", "d2/ddf/interfacecuda__intf_1_1cudaStreamSynchronize.html", "d2/ddf/interfacecuda__intf_1_1cudaStreamSynchronize" ],
-      [ "cudaStreamWaitEvent", "d4/d73/interfacecuda__intf_1_1cudaStreamWaitEvent.html", "d4/d73/interfacecuda__intf_1_1cudaStreamWaitEvent" ],
-      [ "cudaDeviceGetStreamPriorityRange", "dd/d9c/interfacecuda__intf_1_1cudaDeviceGetStreamPriorityRange.html", "dd/d9c/interfacecuda__intf_1_1cudaDeviceGetStreamPriorityRange" ],
-      [ "cudaProfilerStart", "dc/df0/interfacecuda__intf_1_1cudaProfilerStart.html", "dc/df0/interfacecuda__intf_1_1cudaProfilerStart" ],
-      [ "cudaProfilerStop", "d1/d21/interfacecuda__intf_1_1cudaProfilerStop.html", "d1/d21/interfacecuda__intf_1_1cudaProfilerStop" ],
-      [ "cudaEventCreate", "dc/d66/interfacecuda__intf_1_1cudaEventCreate.html", "dc/d66/interfacecuda__intf_1_1cudaEventCreate" ],
-      [ "cudaEventDestroy", "d8/dd7/interfacecuda__intf_1_1cudaEventDestroy.html", "d8/dd7/interfacecuda__intf_1_1cudaEventDestroy" ],
-      [ "cudaEventCreateWithFlags", "d2/d4b/interfacecuda__intf_1_1cudaEventCreateWithFlags.html", "d2/d4b/interfacecuda__intf_1_1cudaEventCreateWithFlags" ],
-      [ "cudaEventRecord", "d0/d6e/interfacecuda__intf_1_1cudaEventRecord.html", "d0/d6e/interfacecuda__intf_1_1cudaEventRecord" ],
-      [ "cudaEventSynchronize", "d2/d2d/interfacecuda__intf_1_1cudaEventSynchronize.html", "d2/d2d/interfacecuda__intf_1_1cudaEventSynchronize" ],
-      [ "cudaGetDeviceCount", "dd/d59/interfacecuda__intf_1_1cudaGetDeviceCount.html", "dd/d59/interfacecuda__intf_1_1cudaGetDeviceCount" ],
-      [ "cudaGetDevice", "d1/d5c/interfacecuda__intf_1_1cudaGetDevice.html", "d1/d5c/interfacecuda__intf_1_1cudaGetDevice" ],
-      [ "cudaSetDevice", "de/d62/interfacecuda__intf_1_1cudaSetDevice.html", "de/d62/interfacecuda__intf_1_1cudaSetDevice" ]
+      [ "cudadevicegetstreampriorityrange", "de/d94/interfacecuda__intf_1_1cudadevicegetstreampriorityrange.html", "de/d94/interfacecuda__intf_1_1cudadevicegetstreampriorityrange" ],
+      [ "cudadevicesynchronize", "dd/d5c/interfacecuda__intf_1_1cudadevicesynchronize.html", "dd/d5c/interfacecuda__intf_1_1cudadevicesynchronize" ],
+      [ "cudaeventcreate", "d9/de3/interfacecuda__intf_1_1cudaeventcreate.html", "d9/de3/interfacecuda__intf_1_1cudaeventcreate" ],
+      [ "cudaeventcreatewithflags", "d5/d17/interfacecuda__intf_1_1cudaeventcreatewithflags.html", "d5/d17/interfacecuda__intf_1_1cudaeventcreatewithflags" ],
+      [ "cudaeventdestroy", "de/d72/interfacecuda__intf_1_1cudaeventdestroy.html", "de/d72/interfacecuda__intf_1_1cudaeventdestroy" ],
+      [ "cudaeventrecord", "dd/d59/interfacecuda__intf_1_1cudaeventrecord.html", "dd/d59/interfacecuda__intf_1_1cudaeventrecord" ],
+      [ "cudaeventsynchronize", "d7/dff/interfacecuda__intf_1_1cudaeventsynchronize.html", "d7/dff/interfacecuda__intf_1_1cudaeventsynchronize" ],
+      [ "cudafree", "dc/d36/interfacecuda__intf_1_1cudafree.html", "dc/d36/interfacecuda__intf_1_1cudafree" ],
+      [ "cudagetdevice", "d6/d4c/interfacecuda__intf_1_1cudagetdevice.html", "d6/d4c/interfacecuda__intf_1_1cudagetdevice" ],
+      [ "cudagetdevicecount", "d4/d40/interfacecuda__intf_1_1cudagetdevicecount.html", "d4/d40/interfacecuda__intf_1_1cudagetdevicecount" ],
+      [ "cudagetdeviceproperties", "d1/d89/interfacecuda__intf_1_1cudagetdeviceproperties.html", "d1/d89/interfacecuda__intf_1_1cudagetdeviceproperties" ],
+      [ "cudamalloc", "d4/dfd/interfacecuda__intf_1_1cudamalloc.html", "d4/dfd/interfacecuda__intf_1_1cudamalloc" ],
+      [ "cudamemcpy", "d0/d77/interfacecuda__intf_1_1cudamemcpy.html", "d0/d77/interfacecuda__intf_1_1cudamemcpy" ],
+      [ "cudamemcpyasync", "dc/d7c/interfacecuda__intf_1_1cudamemcpyasync.html", "dc/d7c/interfacecuda__intf_1_1cudamemcpyasync" ],
+      [ "cudaprofilerstart", "d1/d9d/interfacecuda__intf_1_1cudaprofilerstart.html", "d1/d9d/interfacecuda__intf_1_1cudaprofilerstart" ],
+      [ "cudaprofilerstop", "de/da0/interfacecuda__intf_1_1cudaprofilerstop.html", "de/da0/interfacecuda__intf_1_1cudaprofilerstop" ],
+      [ "cudasetdevice", "d2/db0/interfacecuda__intf_1_1cudasetdevice.html", "d2/db0/interfacecuda__intf_1_1cudasetdevice" ],
+      [ "cudastreamcreate", "d2/d5d/interfacecuda__intf_1_1cudastreamcreate.html", "d2/d5d/interfacecuda__intf_1_1cudastreamcreate" ],
+      [ "cudastreamcreatewithflags", "d4/d94/interfacecuda__intf_1_1cudastreamcreatewithflags.html", "d4/d94/interfacecuda__intf_1_1cudastreamcreatewithflags" ],
+      [ "cudastreamcreatewithpriority", "d8/df1/interfacecuda__intf_1_1cudastreamcreatewithpriority.html", "d8/df1/interfacecuda__intf_1_1cudastreamcreatewithpriority" ],
+      [ "cudastreamdestroy", "d3/d7c/interfacecuda__intf_1_1cudastreamdestroy.html", "d3/d7c/interfacecuda__intf_1_1cudastreamdestroy" ],
+      [ "cudastreamsynchronize", "d2/d9f/interfacecuda__intf_1_1cudastreamsynchronize.html", "d2/d9f/interfacecuda__intf_1_1cudastreamsynchronize" ],
+      [ "cudastreamwaitevent", "d7/d0b/interfacecuda__intf_1_1cudastreamwaitevent.html", "d7/d0b/interfacecuda__intf_1_1cudastreamwaitevent" ]
     ] ],
     [ "cuda_math", "d5/d2a/namespacecuda__math.html", [
-      [ "cuda_copy", "d6/d40/interfacecuda__math_1_1cuda__copy.html", "d6/d40/interfacecuda__math_1_1cuda__copy" ],
-      [ "cuda_masked_copy", "d0/df3/interfacecuda__math_1_1cuda__masked__copy.html", "d0/df3/interfacecuda__math_1_1cuda__masked__copy" ],
-      [ "cuda_masked_red_copy", "dd/dfd/interfacecuda__math_1_1cuda__masked__red__copy.html", "dd/dfd/interfacecuda__math_1_1cuda__masked__red__copy" ],
-      [ "cuda_cfill_mask", "d1/d8a/interfacecuda__math_1_1cuda__cfill__mask.html", "d1/d8a/interfacecuda__math_1_1cuda__cfill__mask" ],
-      [ "cuda_cmult", "db/d0b/interfacecuda__math_1_1cuda__cmult.html", "db/d0b/interfacecuda__math_1_1cuda__cmult" ],
-      [ "cuda_cmult2", "d4/d81/interfacecuda__math_1_1cuda__cmult2.html", "d4/d81/interfacecuda__math_1_1cuda__cmult2" ],
+      [ "cuda_absval", "db/d5a/interfacecuda__math_1_1cuda__absval.html", "db/d5a/interfacecuda__math_1_1cuda__absval" ],
+      [ "cuda_add2", "d7/d19/interfacecuda__math_1_1cuda__add2.html", "d7/d19/interfacecuda__math_1_1cuda__add2" ],
+      [ "cuda_add2s1", "d5/d4b/interfacecuda__math_1_1cuda__add2s1.html", "d5/d4b/interfacecuda__math_1_1cuda__add2s1" ],
+      [ "cuda_add2s2", "d0/d31/interfacecuda__math_1_1cuda__add2s2.html", "d0/d31/interfacecuda__math_1_1cuda__add2s2" ],
+      [ "cuda_add2s2_many", "da/d1a/interfacecuda__math_1_1cuda__add2s2__many.html", "da/d1a/interfacecuda__math_1_1cuda__add2s2__many" ],
+      [ "cuda_add3", "d4/dbc/interfacecuda__math_1_1cuda__add3.html", "d4/dbc/interfacecuda__math_1_1cuda__add3" ],
+      [ "cuda_add3s2", "de/d9d/interfacecuda__math_1_1cuda__add3s2.html", "de/d9d/interfacecuda__math_1_1cuda__add3s2" ],
+      [ "cuda_add4", "d6/dea/interfacecuda__math_1_1cuda__add4.html", "d6/dea/interfacecuda__math_1_1cuda__add4" ],
+      [ "cuda_addcol3", "da/de3/interfacecuda__math_1_1cuda__addcol3.html", "da/de3/interfacecuda__math_1_1cuda__addcol3" ],
+      [ "cuda_addcol4", "d1/d08/interfacecuda__math_1_1cuda__addcol4.html", "d1/d08/interfacecuda__math_1_1cuda__addcol4" ],
+      [ "cuda_addsqr2s2", "d4/d82/interfacecuda__math_1_1cuda__addsqr2s2.html", "d4/d82/interfacecuda__math_1_1cuda__addsqr2s2" ],
       [ "cuda_cadd", "dc/d4d/interfacecuda__math_1_1cuda__cadd.html", "dc/d4d/interfacecuda__math_1_1cuda__cadd" ],
       [ "cuda_cadd2", "d5/d64/interfacecuda__math_1_1cuda__cadd2.html", "d5/d64/interfacecuda__math_1_1cuda__cadd2" ],
       [ "cuda_cfill", "d4/dc4/interfacecuda__math_1_1cuda__cfill.html", "d4/dc4/interfacecuda__math_1_1cuda__cfill" ],
-      [ "cuda_rzero", "d4/d40/interfacecuda__math_1_1cuda__rzero.html", "d4/d40/interfacecuda__math_1_1cuda__rzero" ],
-      [ "cuda_add2", "d7/d19/interfacecuda__math_1_1cuda__add2.html", "d7/d19/interfacecuda__math_1_1cuda__add2" ],
-      [ "cuda_add4", "d6/dea/interfacecuda__math_1_1cuda__add4.html", "d6/dea/interfacecuda__math_1_1cuda__add4" ],
-      [ "cuda_add2s1", "d5/d4b/interfacecuda__math_1_1cuda__add2s1.html", "d5/d4b/interfacecuda__math_1_1cuda__add2s1" ],
-      [ "cuda_add2s2", "d0/d31/interfacecuda__math_1_1cuda__add2s2.html", "d0/d31/interfacecuda__math_1_1cuda__add2s2" ],
-      [ "cuda_addsqr2s2", "d4/d82/interfacecuda__math_1_1cuda__addsqr2s2.html", "d4/d82/interfacecuda__math_1_1cuda__addsqr2s2" ],
-      [ "cuda_add3s2", "de/d9d/interfacecuda__math_1_1cuda__add3s2.html", "de/d9d/interfacecuda__math_1_1cuda__add3s2" ],
-      [ "cuda_invcol1", "de/da8/interfacecuda__math_1_1cuda__invcol1.html", "de/da8/interfacecuda__math_1_1cuda__invcol1" ],
-      [ "cuda_invcol2", "d5/d7d/interfacecuda__math_1_1cuda__invcol2.html", "d5/d7d/interfacecuda__math_1_1cuda__invcol2" ],
+      [ "cuda_cfill_mask", "d1/d8a/interfacecuda__math_1_1cuda__cfill__mask.html", "d1/d8a/interfacecuda__math_1_1cuda__cfill__mask" ],
+      [ "cuda_cmult", "db/d0b/interfacecuda__math_1_1cuda__cmult.html", "db/d0b/interfacecuda__math_1_1cuda__cmult" ],
+      [ "cuda_cmult2", "d4/d81/interfacecuda__math_1_1cuda__cmult2.html", "d4/d81/interfacecuda__math_1_1cuda__cmult2" ],
       [ "cuda_col2", "d6/d1d/interfacecuda__math_1_1cuda__col2.html", "d6/d1d/interfacecuda__math_1_1cuda__col2" ],
       [ "cuda_col3", "d5/d51/interfacecuda__math_1_1cuda__col3.html", "d5/d51/interfacecuda__math_1_1cuda__col3" ],
-      [ "cuda_subcol3", "d8/d08/interfacecuda__math_1_1cuda__subcol3.html", "d8/d08/interfacecuda__math_1_1cuda__subcol3" ],
-      [ "cuda_sub2", "d9/df2/interfacecuda__math_1_1cuda__sub2.html", "d9/df2/interfacecuda__math_1_1cuda__sub2" ],
-      [ "cuda_sub3", "d9/d6a/interfacecuda__math_1_1cuda__sub3.html", "d9/d6a/interfacecuda__math_1_1cuda__sub3" ],
-      [ "cuda_add3", "d4/dbc/interfacecuda__math_1_1cuda__add3.html", "d4/dbc/interfacecuda__math_1_1cuda__add3" ],
-      [ "cuda_addcol3", "da/de3/interfacecuda__math_1_1cuda__addcol3.html", "da/de3/interfacecuda__math_1_1cuda__addcol3" ],
-      [ "cuda_addcol4", "d1/d08/interfacecuda__math_1_1cuda__addcol4.html", "d1/d08/interfacecuda__math_1_1cuda__addcol4" ],
-      [ "cuda_vdot3", "d2/dc3/interfacecuda__math_1_1cuda__vdot3.html", "d2/dc3/interfacecuda__math_1_1cuda__vdot3" ],
-      [ "cuda_vcross", "d6/d50/interfacecuda__math_1_1cuda__vcross.html", "d6/d50/interfacecuda__math_1_1cuda__vcross" ],
-      [ "cuda_vlsc3", "dd/d3e/interfacecuda__math_1_1cuda__vlsc3.html", "dd/d3e/interfacecuda__math_1_1cuda__vlsc3" ],
-      [ "cuda_add2s2_many", "da/d1a/interfacecuda__math_1_1cuda__add2s2__many.html", "da/d1a/interfacecuda__math_1_1cuda__add2s2__many" ],
+      [ "cuda_copy", "d6/d40/interfacecuda__math_1_1cuda__copy.html", "d6/d40/interfacecuda__math_1_1cuda__copy" ],
+      [ "cuda_glsc2", "d7/de4/interfacecuda__math_1_1cuda__glsc2.html", "d7/de4/interfacecuda__math_1_1cuda__glsc2" ],
       [ "cuda_glsc3", "d8/d9d/interfacecuda__math_1_1cuda__glsc3.html", "d8/d9d/interfacecuda__math_1_1cuda__glsc3" ],
       [ "cuda_glsc3_many", "de/d67/interfacecuda__math_1_1cuda__glsc3__many.html", "de/d67/interfacecuda__math_1_1cuda__glsc3__many" ],
-      [ "cuda_glsc2", "d7/de4/interfacecuda__math_1_1cuda__glsc2.html", "d7/de4/interfacecuda__math_1_1cuda__glsc2" ],
       [ "cuda_glsum", "d1/d88/interfacecuda__math_1_1cuda__glsum.html", "d1/d88/interfacecuda__math_1_1cuda__glsum" ],
-      [ "cuda_absval", "db/d5a/interfacecuda__math_1_1cuda__absval.html", "db/d5a/interfacecuda__math_1_1cuda__absval" ],
-      [ "cuda_pwmax_vec2", "d3/d79/interfacecuda__math_1_1cuda__pwmax__vec2.html", "d3/d79/interfacecuda__math_1_1cuda__pwmax__vec2" ],
-      [ "cuda_pwmax_vec3", "d3/dcb/interfacecuda__math_1_1cuda__pwmax__vec3.html", "d3/dcb/interfacecuda__math_1_1cuda__pwmax__vec3" ],
+      [ "cuda_invcol1", "de/da8/interfacecuda__math_1_1cuda__invcol1.html", "de/da8/interfacecuda__math_1_1cuda__invcol1" ],
+      [ "cuda_invcol2", "d5/d7d/interfacecuda__math_1_1cuda__invcol2.html", "d5/d7d/interfacecuda__math_1_1cuda__invcol2" ],
+      [ "cuda_masked_copy", "d0/df3/interfacecuda__math_1_1cuda__masked__copy.html", "d0/df3/interfacecuda__math_1_1cuda__masked__copy" ],
+      [ "cuda_masked_red_copy", "dd/dfd/interfacecuda__math_1_1cuda__masked__red__copy.html", "dd/dfd/interfacecuda__math_1_1cuda__masked__red__copy" ],
       [ "cuda_pwmax_sca2", "df/d32/interfacecuda__math_1_1cuda__pwmax__sca2.html", "df/d32/interfacecuda__math_1_1cuda__pwmax__sca2" ],
       [ "cuda_pwmax_sca3", "d0/da1/interfacecuda__math_1_1cuda__pwmax__sca3.html", "d0/da1/interfacecuda__math_1_1cuda__pwmax__sca3" ],
+      [ "cuda_pwmax_vec2", "d3/d79/interfacecuda__math_1_1cuda__pwmax__vec2.html", "d3/d79/interfacecuda__math_1_1cuda__pwmax__vec2" ],
+      [ "cuda_pwmax_vec3", "d3/dcb/interfacecuda__math_1_1cuda__pwmax__vec3.html", "d3/dcb/interfacecuda__math_1_1cuda__pwmax__vec3" ],
+      [ "cuda_pwmin_sca2", "d2/d29/interfacecuda__math_1_1cuda__pwmin__sca2.html", "d2/d29/interfacecuda__math_1_1cuda__pwmin__sca2" ],
+      [ "cuda_pwmin_sca3", "d0/df7/interfacecuda__math_1_1cuda__pwmin__sca3.html", "d0/df7/interfacecuda__math_1_1cuda__pwmin__sca3" ],
       [ "cuda_pwmin_vec2", "dc/daa/interfacecuda__math_1_1cuda__pwmin__vec2.html", "dc/daa/interfacecuda__math_1_1cuda__pwmin__vec2" ],
       [ "cuda_pwmin_vec3", "d0/dae/interfacecuda__math_1_1cuda__pwmin__vec3.html", "d0/dae/interfacecuda__math_1_1cuda__pwmin__vec3" ],
-      [ "cuda_pwmin_sca2", "d2/d29/interfacecuda__math_1_1cuda__pwmin__sca2.html", "d2/d29/interfacecuda__math_1_1cuda__pwmin__sca2" ],
-      [ "cuda_pwmin_sca3", "d0/df7/interfacecuda__math_1_1cuda__pwmin__sca3.html", "d0/df7/interfacecuda__math_1_1cuda__pwmin__sca3" ]
+      [ "cuda_rzero", "d4/d40/interfacecuda__math_1_1cuda__rzero.html", "d4/d40/interfacecuda__math_1_1cuda__rzero" ],
+      [ "cuda_sub2", "d9/df2/interfacecuda__math_1_1cuda__sub2.html", "d9/df2/interfacecuda__math_1_1cuda__sub2" ],
+      [ "cuda_sub3", "d9/d6a/interfacecuda__math_1_1cuda__sub3.html", "d9/d6a/interfacecuda__math_1_1cuda__sub3" ],
+      [ "cuda_subcol3", "d8/d08/interfacecuda__math_1_1cuda__subcol3.html", "d8/d08/interfacecuda__math_1_1cuda__subcol3" ],
+      [ "cuda_vcross", "d6/d50/interfacecuda__math_1_1cuda__vcross.html", "d6/d50/interfacecuda__math_1_1cuda__vcross" ],
+      [ "cuda_vdot3", "d2/dc3/interfacecuda__math_1_1cuda__vdot3.html", "d2/dc3/interfacecuda__math_1_1cuda__vdot3" ],
+      [ "cuda_vlsc3", "dd/d3e/interfacecuda__math_1_1cuda__vlsc3.html", "dd/d3e/interfacecuda__math_1_1cuda__vlsc3" ]
     ] ],
     [ "curve", "d0/d69/namespacecurve.html", [
       [ "curve_t", "dd/d69/structcurve_1_1curve__t.html", "dd/d69/structcurve_1_1curve__t" ]
@@ -238,17 +238,17 @@ var annotated_dup =
       [ "derivative_t", "db/d12/structderivative_1_1derivative__t.html", "db/d12/structderivative_1_1derivative__t" ]
     ] ],
     [ "device", "d0/dbe/namespacedevice.html", [
-      [ "device_memcpy", "d6/dac/interfacedevice_1_1device__memcpy.html", "d6/dac/interfacedevice_1_1device__memcpy" ],
-      [ "device_map", "da/db0/interfacedevice_1_1device__map.html", "da/db0/interfacedevice_1_1device__map" ],
       [ "device_associate", "d6/d17/interfacedevice_1_1device__associate.html", "d6/d17/interfacedevice_1_1device__associate" ],
       [ "device_associated", "d0/d30/interfacedevice_1_1device__associated.html", "d0/d30/interfacedevice_1_1device__associated" ],
       [ "device_deassociate", "da/d73/interfacedevice_1_1device__deassociate.html", "da/d73/interfacedevice_1_1device__deassociate" ],
       [ "device_get_ptr", "dd/d49/interfacedevice_1_1device__get__ptr.html", "dd/d49/interfacedevice_1_1device__get__ptr" ],
+      [ "device_map", "da/db0/interfacedevice_1_1device__map.html", "da/db0/interfacedevice_1_1device__map" ],
+      [ "device_memcpy", "d6/dac/interfacedevice_1_1device__memcpy.html", "d6/dac/interfacedevice_1_1device__memcpy" ],
       [ "device_sync", "d0/dbb/interfacedevice_1_1device__sync.html", "d0/dbb/interfacedevice_1_1device__sync" ]
     ] ],
     [ "device_coef", "df/d80/namespacedevice__coef.html", [
-      [ "hip_coef_generate_geo", "d1/dea/interfacedevice__coef_1_1hip__coef__generate__geo.html", "d1/dea/interfacedevice__coef_1_1hip__coef__generate__geo" ],
-      [ "hip_coef_generate_dxyzdrst", "de/d97/interfacedevice__coef_1_1hip__coef__generate__dxyzdrst.html", "de/d97/interfacedevice__coef_1_1hip__coef__generate__dxyzdrst" ]
+      [ "hip_coef_generate_dxyzdrst", "de/d97/interfacedevice__coef_1_1hip__coef__generate__dxyzdrst.html", "de/d97/interfacedevice__coef_1_1hip__coef__generate__dxyzdrst" ],
+      [ "hip_coef_generate_geo", "d1/dea/interfacedevice__coef_1_1hip__coef__generate__geo.html", "d1/dea/interfacedevice__coef_1_1hip__coef__generate__geo" ]
     ] ],
     [ "device_dirichlet", "d0/d0d/namespacedevice__dirichlet.html", [
       [ "hip_dirichlet_apply_scalar", "de/d8f/interfacedevice__dirichlet_1_1hip__dirichlet__apply__scalar.html", "de/d8f/interfacedevice__dirichlet_1_1hip__dirichlet__apply__scalar" ],
@@ -261,8 +261,8 @@ var annotated_dup =
       [ "hip_facet_normal_apply_surfvec", "d3/da7/interfacedevice__facet__normal_1_1hip__facet__normal__apply__surfvec.html", "d3/da7/interfacedevice__facet__normal_1_1hip__facet__normal__apply__surfvec" ]
     ] ],
     [ "device_gradient_jump_penalty", "da/d7e/namespacedevice__gradient__jump__penalty.html", [
-      [ "hip_pick_facet_value_hex", "dd/d8b/interfacedevice__gradient__jump__penalty_1_1hip__pick__facet__value__hex.html", "dd/d8b/interfacedevice__gradient__jump__penalty_1_1hip__pick__facet__value__hex" ],
-      [ "hip_gradient_jump_penalty_finalize", "d1/dda/interfacedevice__gradient__jump__penalty_1_1hip__gradient__jump__penalty__finalize.html", "d1/dda/interfacedevice__gradient__jump__penalty_1_1hip__gradient__jump__penalty__finalize" ]
+      [ "hip_gradient_jump_penalty_finalize", "d1/dda/interfacedevice__gradient__jump__penalty_1_1hip__gradient__jump__penalty__finalize.html", "d1/dda/interfacedevice__gradient__jump__penalty_1_1hip__gradient__jump__penalty__finalize" ],
+      [ "hip_pick_facet_value_hex", "dd/d8b/interfacedevice__gradient__jump__penalty_1_1hip__pick__facet__value__hex.html", "dd/d8b/interfacedevice__gradient__jump__penalty_1_1hip__pick__facet__value__hex" ]
     ] ],
     [ "device_identity", "d0/d69/namespacedevice__identity.html", [
       [ "device_ident_t", "dd/ddc/structdevice__identity_1_1device__ident__t.html", "dd/ddc/structdevice__identity_1_1device__ident__t" ]
@@ -271,13 +271,13 @@ var annotated_dup =
       [ "hip_inflow_apply_vector", "d3/d75/interfacedevice__inflow_1_1hip__inflow__apply__vector.html", "d3/d75/interfacedevice__inflow_1_1hip__inflow__apply__vector" ]
     ] ],
     [ "device_inhom_dirichlet", "d1/dc8/namespacedevice__inhom__dirichlet.html", [
-      [ "hip_inhom_dirichlet_apply_vector", "de/d7d/interfacedevice__inhom__dirichlet_1_1hip__inhom__dirichlet__apply__vector.html", "de/d7d/interfacedevice__inhom__dirichlet_1_1hip__inhom__dirichlet__apply__vector" ],
-      [ "hip_inhom_dirichlet_apply_scalar", "dc/d96/interfacedevice__inhom__dirichlet_1_1hip__inhom__dirichlet__apply__scalar.html", "dc/d96/interfacedevice__inhom__dirichlet_1_1hip__inhom__dirichlet__apply__scalar" ]
+      [ "hip_inhom_dirichlet_apply_scalar", "dc/d96/interfacedevice__inhom__dirichlet_1_1hip__inhom__dirichlet__apply__scalar.html", "dc/d96/interfacedevice__inhom__dirichlet_1_1hip__inhom__dirichlet__apply__scalar" ],
+      [ "hip_inhom_dirichlet_apply_vector", "de/d7d/interfacedevice__inhom__dirichlet_1_1hip__inhom__dirichlet__apply__vector.html", "de/d7d/interfacedevice__inhom__dirichlet_1_1hip__inhom__dirichlet__apply__vector" ]
     ] ],
     [ "device_jacobi", "d2/da7/namespacedevice__jacobi.html", [
+      [ "cuda_jacobi_update", "df/d89/interfacedevice__jacobi_1_1cuda__jacobi__update.html", "df/d89/interfacedevice__jacobi_1_1cuda__jacobi__update" ],
       [ "device_jacobi_t", "d8/dca/structdevice__jacobi_1_1device__jacobi__t.html", "d8/dca/structdevice__jacobi_1_1device__jacobi__t" ],
       [ "hip_jacobi_update", "dd/d3d/interfacedevice__jacobi_1_1hip__jacobi__update.html", "dd/d3d/interfacedevice__jacobi_1_1hip__jacobi__update" ],
-      [ "cuda_jacobi_update", "df/d89/interfacedevice__jacobi_1_1cuda__jacobi__update.html", "df/d89/interfacedevice__jacobi_1_1cuda__jacobi__update" ],
       [ "opencl_jacobi_update", "de/daf/interfacedevice__jacobi_1_1opencl__jacobi__update.html", "de/daf/interfacedevice__jacobi_1_1opencl__jacobi__update" ]
     ] ],
     [ "device_math", "d2/d73/namespacedevice__math.html", [
@@ -285,11 +285,11 @@ var annotated_dup =
       [ "device_pwmin", "d2/d62/interfacedevice__math_1_1device__pwmin.html", "d2/d62/interfacedevice__math_1_1device__pwmin" ]
     ] ],
     [ "device_mathops", "d7/de8/namespacedevice__mathops.html", [
+      [ "hip_opadd2cm", "d4/dda/interfacedevice__mathops_1_1hip__opadd2cm.html", "d4/dda/interfacedevice__mathops_1_1hip__opadd2cm" ],
+      [ "hip_opadd2col", "d6/dfb/interfacedevice__mathops_1_1hip__opadd2col.html", "d6/dfb/interfacedevice__mathops_1_1hip__opadd2col" ],
       [ "hip_opchsign", "dd/d0d/interfacedevice__mathops_1_1hip__opchsign.html", "dd/d0d/interfacedevice__mathops_1_1hip__opchsign" ],
       [ "hip_opcolv", "db/d97/interfacedevice__mathops_1_1hip__opcolv.html", "db/d97/interfacedevice__mathops_1_1hip__opcolv" ],
-      [ "hip_opcolv3c", "df/d18/interfacedevice__mathops_1_1hip__opcolv3c.html", "df/d18/interfacedevice__mathops_1_1hip__opcolv3c" ],
-      [ "hip_opadd2cm", "d4/dda/interfacedevice__mathops_1_1hip__opadd2cm.html", "d4/dda/interfacedevice__mathops_1_1hip__opadd2cm" ],
-      [ "hip_opadd2col", "d6/dfb/interfacedevice__mathops_1_1hip__opadd2col.html", "d6/dfb/interfacedevice__mathops_1_1hip__opadd2col" ]
+      [ "hip_opcolv3c", "df/d18/interfacedevice__mathops_1_1hip__opcolv3c.html", "df/d18/interfacedevice__mathops_1_1hip__opcolv3c" ]
     ] ],
     [ "device_projection", "de/dc5/namespacedevice__projection.html", [
       [ "hip_project_on", "d4/dc6/interfacedevice__projection_1_1hip__project__on.html", "d4/dc6/interfacedevice__projection_1_1hip__project__on" ],
@@ -329,12 +329,12 @@ var annotated_dup =
       [ "dynamic_smagorinsky_t", "d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t.html", "d1/dcc/structdynamic__smagorinsky_1_1dynamic__smagorinsky__t" ]
     ] ],
     [ "element", "d6/d0d/namespaceelement.html", [
-      [ "element_t", "d7/dd6/structelement_1_1element__t.html", "d7/dd6/structelement_1_1element__t" ],
-      [ "element_diameter", "d7/d39/interfaceelement_1_1element__diameter.html", "d7/d39/interfaceelement_1_1element__diameter" ],
       [ "element_centroid", "d4/d46/interfaceelement_1_1element__centroid.html", "d4/d46/interfaceelement_1_1element__centroid" ],
+      [ "element_diameter", "d7/d39/interfaceelement_1_1element__diameter.html", "d7/d39/interfaceelement_1_1element__diameter" ],
       [ "element_equal", "d6/db2/interfaceelement_1_1element__equal.html", "d6/db2/interfaceelement_1_1element__equal" ],
       [ "element_facet_id", "d7/d82/interfaceelement_1_1element__facet__id.html", "d7/d82/interfaceelement_1_1element__facet__id" ],
-      [ "element_facet_order", "d4/ddf/interfaceelement_1_1element__facet__order.html", "d4/ddf/interfaceelement_1_1element__facet__order" ]
+      [ "element_facet_order", "d4/ddf/interfaceelement_1_1element__facet__order.html", "d4/ddf/interfaceelement_1_1element__facet__order" ],
+      [ "element_t", "d7/dd6/structelement_1_1element__t.html", "d7/dd6/structelement_1_1element__t" ]
     ] ],
     [ "elementwise_filter", "dd/d52/namespaceelementwise__filter.html", [
       [ "elementwise_filter_t", "d6/d9d/structelementwise__filter_1_1elementwise__filter__t.html", "d6/d9d/structelementwise__filter_1_1elementwise__filter__t" ]
@@ -349,8 +349,8 @@ var annotated_dup =
       [ "facet_normal_t", "d1/d1e/structfacet__normal_1_1facet__normal__t.html", "d1/d1e/structfacet__normal_1_1facet__normal__t" ]
     ] ],
     [ "facet_zone", "df/db1/namespacefacet__zone.html", [
-      [ "facet_zone_t", "d2/d94/structfacet__zone_1_1facet__zone__t.html", "d2/d94/structfacet__zone_1_1facet__zone__t" ],
-      [ "facet_zone_periodic_t", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t" ]
+      [ "facet_zone_periodic_t", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t.html", "d0/d39/structfacet__zone_1_1facet__zone__periodic__t" ],
+      [ "facet_zone_t", "d2/d94/structfacet__zone_1_1facet__zone__t.html", "d2/d94/structfacet__zone_1_1facet__zone__t" ]
     ] ],
     [ "fdm", "d3/d4c/namespacefdm.html", [
       [ "fdm_t", "de/d85/structfdm_1_1fdm__t.html", "de/d85/structfdm_1_1fdm__t" ],
@@ -360,8 +360,8 @@ var annotated_dup =
       [ "hip_fdm_do_fast", "dd/d18/interfacefdm__device_1_1hip__fdm__do__fast.html", "dd/d18/interfacefdm__device_1_1hip__fdm__do__fast" ]
     ] ],
     [ "field", "dc/da9/namespacefield.html", [
-      [ "field_t", "d3/d5f/structfield_1_1field__t.html", "d3/d5f/structfield_1_1field__t" ],
-      [ "field_ptr_t", "dc/dd8/structfield_1_1field__ptr__t.html", "dc/dd8/structfield_1_1field__ptr__t" ]
+      [ "field_ptr_t", "dc/dd8/structfield_1_1field__ptr__t.html", "dc/dd8/structfield_1_1field__ptr__t" ],
+      [ "field_t", "d3/d5f/structfield_1_1field__t.html", "d3/d5f/structfield_1_1field__t" ]
     ] ],
     [ "field_dirichlet", "db/d5b/namespacefield__dirichlet.html", [
       [ "field_dirichlet_t", "d9/da8/structfield__dirichlet_1_1field__dirichlet__t.html", "d9/da8/structfield__dirichlet_1_1field__dirichlet__t" ],
@@ -377,8 +377,8 @@ var annotated_dup =
       [ "field_registry_t", "dd/d96/structfield__registry_1_1field__registry__t.html", "dd/d96/structfield__registry_1_1field__registry__t" ]
     ] ],
     [ "field_series", "d6/d32/namespacefield__series.html", [
-      [ "field_series_t", "d1/d6e/structfield__series_1_1field__series__t.html", "d1/d6e/structfield__series_1_1field__series__t" ],
-      [ "field_series_ptr_t", "de/db3/structfield__series_1_1field__series__ptr__t.html", "de/db3/structfield__series_1_1field__series__ptr__t" ]
+      [ "field_series_ptr_t", "de/db3/structfield__series_1_1field__series__ptr__t.html", "de/db3/structfield__series_1_1field__series__ptr__t" ],
+      [ "field_series_t", "d1/d6e/structfield__series_1_1field__series__t.html", "d1/d6e/structfield__series_1_1field__series__t" ]
     ] ],
     [ "field_writer", "d9/dde/namespacefield__writer.html", [
       [ "field_writer_t", "de/d1a/structfield__writer_1_1field__writer__t.html", "de/d1a/structfield__writer_1_1field__writer__t" ]
@@ -411,11 +411,11 @@ var annotated_dup =
       [ "fluid_pnpn_t", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t" ]
     ] ],
     [ "fluid_scheme", "d8/d09/namespacefluid__scheme.html", [
-      [ "fluid_scheme_t", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html", "da/dd4/structfluid__scheme_1_1fluid__scheme__t" ],
-      [ "fluid_scheme_init_intrf", "d1/de2/interfacefluid__scheme_1_1fluid__scheme__init__intrf.html", "d1/de2/interfacefluid__scheme_1_1fluid__scheme__init__intrf" ],
       [ "fluid_scheme_free_intrf", "d7/dc7/interfacefluid__scheme_1_1fluid__scheme__free__intrf.html", "d7/dc7/interfacefluid__scheme_1_1fluid__scheme__free__intrf" ],
+      [ "fluid_scheme_init_intrf", "d1/de2/interfacefluid__scheme_1_1fluid__scheme__init__intrf.html", "d1/de2/interfacefluid__scheme_1_1fluid__scheme__init__intrf" ],
+      [ "fluid_scheme_restart_intrf", "de/de1/interfacefluid__scheme_1_1fluid__scheme__restart__intrf.html", "de/de1/interfacefluid__scheme_1_1fluid__scheme__restart__intrf" ],
       [ "fluid_scheme_step_intrf", "d5/d83/interfacefluid__scheme_1_1fluid__scheme__step__intrf.html", "d5/d83/interfacefluid__scheme_1_1fluid__scheme__step__intrf" ],
-      [ "fluid_scheme_restart_intrf", "de/de1/interfacefluid__scheme_1_1fluid__scheme__restart__intrf.html", "de/de1/interfacefluid__scheme_1_1fluid__scheme__restart__intrf" ]
+      [ "fluid_scheme_t", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html", "da/dd4/structfluid__scheme_1_1fluid__scheme__t" ]
     ] ],
     [ "fluid_source_term", "df/d09/namespacefluid__source__term.html", [
       [ "fluid_source_term_t", "d1/da8/structfluid__source__term_1_1fluid__source__term__t.html", "d1/da8/structfluid__source__term_1_1fluid__source__term__t" ]
@@ -430,9 +430,9 @@ var annotated_dup =
       [ "fluid_stats_simcomp_t", "d1/d3b/structfluid__stats__simcomp_1_1fluid__stats__simcomp__t.html", "d1/d3b/structfluid__stats__simcomp_1_1fluid__stats__simcomp__t" ]
     ] ],
     [ "fluid_user_source_term", "d9/d33/namespacefluid__user__source__term.html", [
-      [ "fluid_user_source_term_t", "d6/def/structfluid__user__source__term_1_1fluid__user__source__term__t.html", "d6/def/structfluid__user__source__term_1_1fluid__user__source__term__t" ],
+      [ "fluid_source_compute_pointwise", "d9/dd7/interfacefluid__user__source__term_1_1fluid__source__compute__pointwise.html", "d9/dd7/interfacefluid__user__source__term_1_1fluid__source__compute__pointwise" ],
       [ "fluid_source_compute_vector", "d3/dba/interfacefluid__user__source__term_1_1fluid__source__compute__vector.html", "d3/dba/interfacefluid__user__source__term_1_1fluid__source__compute__vector" ],
-      [ "fluid_source_compute_pointwise", "d9/dd7/interfacefluid__user__source__term_1_1fluid__source__compute__pointwise.html", "d9/dd7/interfacefluid__user__source__term_1_1fluid__source__compute__pointwise" ]
+      [ "fluid_user_source_term_t", "d6/def/structfluid__user__source__term_1_1fluid__user__source__term__t.html", "d6/def/structfluid__user__source__term_1_1fluid__user__source__term__t" ]
     ] ],
     [ "fluid_volflow", "d6/d21/namespacefluid__volflow.html", [
       [ "fluid_volflow_t", "d5/db8/structfluid__volflow_1_1fluid__volflow__t.html", "d5/db8/structfluid__volflow_1_1fluid__volflow__t" ]
@@ -441,25 +441,25 @@ var annotated_dup =
       [ "force_torque_t", "da/d47/structforce__torque_1_1force__torque__t.html", "da/d47/structforce__torque_1_1force__torque__t" ]
     ] ],
     [ "fusedcg_cpld_device", "d3/dbc/namespacefusedcg__cpld__device.html", [
-      [ "fusedcg_cpld_device_t", "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html", "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t" ],
       [ "cuda_fusedcg_cpld_part1", "d0/db6/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part1.html", "d0/db6/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part1" ],
+      [ "cuda_fusedcg_cpld_part2", "da/d17/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part2.html", "da/d17/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part2" ],
       [ "cuda_fusedcg_cpld_update_p", "d0/d09/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__update__p.html", "d0/d09/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__update__p" ],
       [ "cuda_fusedcg_cpld_update_x", "de/d2a/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__update__x.html", "de/d2a/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__update__x" ],
-      [ "cuda_fusedcg_cpld_part2", "da/d17/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part2.html", "da/d17/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part2" ]
+      [ "fusedcg_cpld_device_t", "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html", "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t" ]
     ] ],
     [ "fusedcg_device", "dd/d04/namespacefusedcg__device.html", [
-      [ "fusedcg_device_t", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html", "dc/d03/structfusedcg__device_1_1fusedcg__device__t" ],
+      [ "cuda_fusedcg_part2", "d5/d78/interfacefusedcg__device_1_1cuda__fusedcg__part2.html", "d5/d78/interfacefusedcg__device_1_1cuda__fusedcg__part2" ],
       [ "cuda_fusedcg_update_p", "d9/d8f/interfacefusedcg__device_1_1cuda__fusedcg__update__p.html", "d9/d8f/interfacefusedcg__device_1_1cuda__fusedcg__update__p" ],
       [ "cuda_fusedcg_update_x", "df/d15/interfacefusedcg__device_1_1cuda__fusedcg__update__x.html", "df/d15/interfacefusedcg__device_1_1cuda__fusedcg__update__x" ],
-      [ "cuda_fusedcg_part2", "d5/d78/interfacefusedcg__device_1_1cuda__fusedcg__part2.html", "d5/d78/interfacefusedcg__device_1_1cuda__fusedcg__part2" ]
+      [ "fusedcg_device_t", "dc/d03/structfusedcg__device_1_1fusedcg__device__t.html", "dc/d03/structfusedcg__device_1_1fusedcg__device__t" ]
     ] ],
     [ "gather_scatter", "d0/d78/namespacegather__scatter.html", [
       [ "gs_t", "dd/db8/structgather__scatter_1_1gs__t.html", "dd/db8/structgather__scatter_1_1gs__t" ]
     ] ],
     [ "generic_file", "dc/d92/namespacegeneric__file.html", [
+      [ "generic_file_read", "d5/d27/interfacegeneric__file_1_1generic__file__read.html", "d5/d27/interfacegeneric__file_1_1generic__file__read" ],
       [ "generic_file_t", "d5/d37/structgeneric__file_1_1generic__file__t.html", "d5/d37/structgeneric__file_1_1generic__file__t" ],
-      [ "generic_file_write", "dd/d86/interfacegeneric__file_1_1generic__file__write.html", "dd/d86/interfacegeneric__file_1_1generic__file__write" ],
-      [ "generic_file_read", "d5/d27/interfacegeneric__file_1_1generic__file__read.html", "d5/d27/interfacegeneric__file_1_1generic__file__read" ]
+      [ "generic_file_write", "dd/d86/interfacegeneric__file_1_1generic__file__write.html", "dd/d86/interfacegeneric__file_1_1generic__file__write" ]
     ] ],
     [ "global_interpolation", "dd/de1/namespaceglobal__interpolation.html", [
       [ "global_interpolation_t", "dc/df3/structglobal__interpolation_1_1global__interpolation__t.html", "dc/df3/structglobal__interpolation_1_1global__interpolation__t" ]
@@ -478,18 +478,18 @@ var annotated_dup =
       [ "gradient_jump_penalty_t", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t" ]
     ] ],
     [ "gs_bcknd", "de/d93/namespacegs__bcknd.html", [
-      [ "gs_bcknd_t", "d9/d7d/structgs__bcknd_1_1gs__bcknd__t.html", "d9/d7d/structgs__bcknd_1_1gs__bcknd__t" ],
-      [ "gs_backend_init", "dc/d59/interfacegs__bcknd_1_1gs__backend__init.html", "dc/d59/interfacegs__bcknd_1_1gs__backend__init" ],
       [ "gs_backend_free", "d6/d28/interfacegs__bcknd_1_1gs__backend__free.html", "d6/d28/interfacegs__bcknd_1_1gs__backend__free" ],
+      [ "gs_backend_init", "dc/d59/interfacegs__bcknd_1_1gs__backend__init.html", "dc/d59/interfacegs__bcknd_1_1gs__backend__init" ],
+      [ "gs_bcknd_t", "d9/d7d/structgs__bcknd_1_1gs__bcknd__t.html", "d9/d7d/structgs__bcknd_1_1gs__bcknd__t" ],
       [ "gs_gather", "d3/de4/interfacegs__bcknd_1_1gs__gather.html", "d3/de4/interfacegs__bcknd_1_1gs__gather" ],
       [ "gs_scatter", "d2/df0/interfacegs__bcknd_1_1gs__scatter.html", "d2/df0/interfacegs__bcknd_1_1gs__scatter" ]
     ] ],
     [ "gs_comm", "d6/d7c/namespacegs__comm.html", [
-      [ "gs_comm_t", "d5/d1c/structgs__comm_1_1gs__comm__t.html", "d5/d1c/structgs__comm_1_1gs__comm__t" ],
-      [ "gs_comm_init", "d8/db4/interfacegs__comm_1_1gs__comm__init.html", "d8/db4/interfacegs__comm_1_1gs__comm__init" ],
       [ "gs_comm_free", "dc/dc5/interfacegs__comm_1_1gs__comm__free.html", "dc/dc5/interfacegs__comm_1_1gs__comm__free" ],
-      [ "gs_nbsend", "d6/d38/interfacegs__comm_1_1gs__nbsend.html", "d6/d38/interfacegs__comm_1_1gs__nbsend" ],
+      [ "gs_comm_init", "d8/db4/interfacegs__comm_1_1gs__comm__init.html", "d8/db4/interfacegs__comm_1_1gs__comm__init" ],
+      [ "gs_comm_t", "d5/d1c/structgs__comm_1_1gs__comm__t.html", "d5/d1c/structgs__comm_1_1gs__comm__t" ],
       [ "gs_nbrecv", "df/dce/interfacegs__comm_1_1gs__nbrecv.html", "df/dce/interfacegs__comm_1_1gs__nbrecv" ],
+      [ "gs_nbsend", "d6/d38/interfacegs__comm_1_1gs__nbsend.html", "d6/d38/interfacegs__comm_1_1gs__nbsend" ],
       [ "gs_nbwait", "d3/d94/interfacegs__comm_1_1gs__nbwait.html", "d3/d94/interfacegs__comm_1_1gs__nbwait" ]
     ] ],
     [ "gs_cpu", "d5/d22/namespacegs__cpu.html", [
@@ -501,17 +501,17 @@ var annotated_dup =
       [ "hip_scatter_kernel", "de/d8b/interfacegs__device_1_1hip__scatter__kernel.html", "de/d8b/interfacegs__device_1_1hip__scatter__kernel" ]
     ] ],
     [ "gs_device_mpi", "d9/dfa/namespacegs__device__mpi.html", [
+      [ "device_mpi_free_reqs", "d1/d45/interfacegs__device__mpi_1_1device__mpi__free__reqs.html", "d1/d45/interfacegs__device__mpi_1_1device__mpi__free__reqs" ],
+      [ "device_mpi_init_reqs", "d2/dfc/interfacegs__device__mpi_1_1device__mpi__init__reqs.html", "d2/dfc/interfacegs__device__mpi_1_1device__mpi__init__reqs" ],
+      [ "device_mpi_irecv", "da/dbf/interfacegs__device__mpi_1_1device__mpi__irecv.html", "da/dbf/interfacegs__device__mpi_1_1device__mpi__irecv" ],
+      [ "device_mpi_isend", "d2/dd4/interfacegs__device__mpi_1_1device__mpi__isend.html", "d2/dd4/interfacegs__device__mpi_1_1device__mpi__isend" ],
+      [ "device_mpi_test", "dc/d8e/interfacegs__device__mpi_1_1device__mpi__test.html", "dc/d8e/interfacegs__device__mpi_1_1device__mpi__test" ],
+      [ "device_mpi_waitall", "df/da4/interfacegs__device__mpi_1_1device__mpi__waitall.html", "df/da4/interfacegs__device__mpi_1_1device__mpi__waitall" ],
+      [ "device_mpi_waitany", "db/d46/interfacegs__device__mpi_1_1device__mpi__waitany.html", "db/d46/interfacegs__device__mpi_1_1device__mpi__waitany" ],
       [ "gs_device_mpi_buf_t", "db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t.html", "db/de6/structgs__device__mpi_1_1gs__device__mpi__buf__t" ],
       [ "gs_device_mpi_t", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t.html", "dc/dff/structgs__device__mpi_1_1gs__device__mpi__t" ],
       [ "hip_gs_pack", "d3/d98/interfacegs__device__mpi_1_1hip__gs__pack.html", "d3/d98/interfacegs__device__mpi_1_1hip__gs__pack" ],
-      [ "hip_gs_unpack", "da/da9/interfacegs__device__mpi_1_1hip__gs__unpack.html", "da/da9/interfacegs__device__mpi_1_1hip__gs__unpack" ],
-      [ "device_mpi_init_reqs", "d2/dfc/interfacegs__device__mpi_1_1device__mpi__init__reqs.html", "d2/dfc/interfacegs__device__mpi_1_1device__mpi__init__reqs" ],
-      [ "device_mpi_free_reqs", "d1/d45/interfacegs__device__mpi_1_1device__mpi__free__reqs.html", "d1/d45/interfacegs__device__mpi_1_1device__mpi__free__reqs" ],
-      [ "device_mpi_isend", "d2/dd4/interfacegs__device__mpi_1_1device__mpi__isend.html", "d2/dd4/interfacegs__device__mpi_1_1device__mpi__isend" ],
-      [ "device_mpi_irecv", "da/dbf/interfacegs__device__mpi_1_1device__mpi__irecv.html", "da/dbf/interfacegs__device__mpi_1_1device__mpi__irecv" ],
-      [ "device_mpi_test", "dc/d8e/interfacegs__device__mpi_1_1device__mpi__test.html", "dc/d8e/interfacegs__device__mpi_1_1device__mpi__test" ],
-      [ "device_mpi_waitall", "df/da4/interfacegs__device__mpi_1_1device__mpi__waitall.html", "df/da4/interfacegs__device__mpi_1_1device__mpi__waitall" ],
-      [ "device_mpi_waitany", "db/d46/interfacegs__device__mpi_1_1device__mpi__waitany.html", "db/d46/interfacegs__device__mpi_1_1device__mpi__waitany" ]
+      [ "hip_gs_unpack", "da/da9/interfacegs__device__mpi_1_1hip__gs__unpack.html", "da/da9/interfacegs__device__mpi_1_1hip__gs__unpack" ]
     ] ],
     [ "gs_mpi", "d0/d25/namespacegs__mpi.html", [
       [ "gs_comm_mpi_t", "d7/d9f/structgs__mpi_1_1gs__comm__mpi__t.html", "d7/d9f/structgs__mpi_1_1gs__comm__mpi__t" ],
@@ -527,92 +527,92 @@ var annotated_dup =
       [ "hex_t", "d6/d66/structhex_1_1hex__t.html", "d6/d66/structhex_1_1hex__t" ]
     ] ],
     [ "hip_filters", "d6/d87/namespacehip__filters.html", [
+      [ "hip_permeability", "db/de5/interfacehip__filters_1_1hip__permeability.html", "db/de5/interfacehip__filters_1_1hip__permeability" ],
       [ "hip_smooth_step", "d9/d6e/interfacehip__filters_1_1hip__smooth__step.html", "d9/d6e/interfacehip__filters_1_1hip__smooth__step" ],
-      [ "hip_step_function", "d6/daa/interfacehip__filters_1_1hip__step__function.html", "d6/daa/interfacehip__filters_1_1hip__step__function" ],
-      [ "hip_permeability", "db/de5/interfacehip__filters_1_1hip__permeability.html", "db/de5/interfacehip__filters_1_1hip__permeability" ]
+      [ "hip_step_function", "d6/daa/interfacehip__filters_1_1hip__step__function.html", "d6/daa/interfacehip__filters_1_1hip__step__function" ]
     ] ],
     [ "hip_intf", "d0/d4e/namespacehip__intf.html", [
-      [ "hipMalloc", "d0/dee/interfacehip__intf_1_1hipMalloc.html", "d0/dee/interfacehip__intf_1_1hipMalloc" ],
-      [ "hipFree", "d8/d3c/interfacehip__intf_1_1hipFree.html", "d8/d3c/interfacehip__intf_1_1hipFree" ],
-      [ "hipMemcpy", "d8/d3d/interfacehip__intf_1_1hipMemcpy.html", "d8/d3d/interfacehip__intf_1_1hipMemcpy" ],
-      [ "hipMemcpyAsync", "d7/d9d/interfacehip__intf_1_1hipMemcpyAsync.html", "d7/d9d/interfacehip__intf_1_1hipMemcpyAsync" ],
-      [ "hipDeviceSynchronize", "d3/de8/interfacehip__intf_1_1hipDeviceSynchronize.html", "d3/de8/interfacehip__intf_1_1hipDeviceSynchronize" ],
-      [ "hipDeviceGetName", "d1/da4/interfacehip__intf_1_1hipDeviceGetName.html", "d1/da4/interfacehip__intf_1_1hipDeviceGetName" ],
-      [ "hipGetDeviceCount", "d7/d47/interfacehip__intf_1_1hipGetDeviceCount.html", "d7/d47/interfacehip__intf_1_1hipGetDeviceCount" ],
-      [ "hipStreamCreate", "de/d87/interfacehip__intf_1_1hipStreamCreate.html", "de/d87/interfacehip__intf_1_1hipStreamCreate" ],
-      [ "hipStreamCreateWithFlags", "d0/d1f/interfacehip__intf_1_1hipStreamCreateWithFlags.html", "d0/d1f/interfacehip__intf_1_1hipStreamCreateWithFlags" ],
-      [ "hipStreamCreateWithPriority", "d3/d66/interfacehip__intf_1_1hipStreamCreateWithPriority.html", "d3/d66/interfacehip__intf_1_1hipStreamCreateWithPriority" ],
-      [ "hipStreamDestroy", "dc/d44/interfacehip__intf_1_1hipStreamDestroy.html", "dc/d44/interfacehip__intf_1_1hipStreamDestroy" ],
-      [ "hipStreamSynchronize", "d1/d3c/interfacehip__intf_1_1hipStreamSynchronize.html", "d1/d3c/interfacehip__intf_1_1hipStreamSynchronize" ],
-      [ "hipStreamWaitEvent", "d8/d61/interfacehip__intf_1_1hipStreamWaitEvent.html", "d8/d61/interfacehip__intf_1_1hipStreamWaitEvent" ],
-      [ "hipDeviceGetStreamPriorityRange", "dc/da6/interfacehip__intf_1_1hipDeviceGetStreamPriorityRange.html", "dc/da6/interfacehip__intf_1_1hipDeviceGetStreamPriorityRange" ],
-      [ "hipEventCreate", "d2/d8d/interfacehip__intf_1_1hipEventCreate.html", "d2/d8d/interfacehip__intf_1_1hipEventCreate" ],
-      [ "hipEventDestroy", "d5/d99/interfacehip__intf_1_1hipEventDestroy.html", "d5/d99/interfacehip__intf_1_1hipEventDestroy" ],
-      [ "hipEventCreateWithFlags", "d1/d50/interfacehip__intf_1_1hipEventCreateWithFlags.html", "d1/d50/interfacehip__intf_1_1hipEventCreateWithFlags" ],
-      [ "hipEventRecord", "d2/d17/interfacehip__intf_1_1hipEventRecord.html", "d2/d17/interfacehip__intf_1_1hipEventRecord" ],
-      [ "hipEventSynchronize", "dd/dfb/interfacehip__intf_1_1hipEventSynchronize.html", "dd/dfb/interfacehip__intf_1_1hipEventSynchronize" ]
+      [ "hipdevicegetname", "d1/d41/interfacehip__intf_1_1hipdevicegetname.html", "d1/d41/interfacehip__intf_1_1hipdevicegetname" ],
+      [ "hipdevicegetstreampriorityrange", "d2/da1/interfacehip__intf_1_1hipdevicegetstreampriorityrange.html", "d2/da1/interfacehip__intf_1_1hipdevicegetstreampriorityrange" ],
+      [ "hipdevicesynchronize", "d1/da0/interfacehip__intf_1_1hipdevicesynchronize.html", "d1/da0/interfacehip__intf_1_1hipdevicesynchronize" ],
+      [ "hipeventcreate", "d7/d1a/interfacehip__intf_1_1hipeventcreate.html", "d7/d1a/interfacehip__intf_1_1hipeventcreate" ],
+      [ "hipeventcreatewithflags", "d9/dcb/interfacehip__intf_1_1hipeventcreatewithflags.html", "d9/dcb/interfacehip__intf_1_1hipeventcreatewithflags" ],
+      [ "hipeventdestroy", "d2/dd7/interfacehip__intf_1_1hipeventdestroy.html", "d2/dd7/interfacehip__intf_1_1hipeventdestroy" ],
+      [ "hipeventrecord", "db/d71/interfacehip__intf_1_1hipeventrecord.html", "db/d71/interfacehip__intf_1_1hipeventrecord" ],
+      [ "hipeventsynchronize", "d9/d67/interfacehip__intf_1_1hipeventsynchronize.html", "d9/d67/interfacehip__intf_1_1hipeventsynchronize" ],
+      [ "hipfree", "d0/d5c/interfacehip__intf_1_1hipfree.html", "d0/d5c/interfacehip__intf_1_1hipfree" ],
+      [ "hipgetdevicecount", "db/d7a/interfacehip__intf_1_1hipgetdevicecount.html", "db/d7a/interfacehip__intf_1_1hipgetdevicecount" ],
+      [ "hipmalloc", "dd/de4/interfacehip__intf_1_1hipmalloc.html", "dd/de4/interfacehip__intf_1_1hipmalloc" ],
+      [ "hipmemcpy", "d0/de9/interfacehip__intf_1_1hipmemcpy.html", "d0/de9/interfacehip__intf_1_1hipmemcpy" ],
+      [ "hipmemcpyasync", "d3/d39/interfacehip__intf_1_1hipmemcpyasync.html", "d3/d39/interfacehip__intf_1_1hipmemcpyasync" ],
+      [ "hipstreamcreate", "da/da9/interfacehip__intf_1_1hipstreamcreate.html", "da/da9/interfacehip__intf_1_1hipstreamcreate" ],
+      [ "hipstreamcreatewithflags", "da/dee/interfacehip__intf_1_1hipstreamcreatewithflags.html", "da/dee/interfacehip__intf_1_1hipstreamcreatewithflags" ],
+      [ "hipstreamcreatewithpriority", "d6/dc0/interfacehip__intf_1_1hipstreamcreatewithpriority.html", "d6/dc0/interfacehip__intf_1_1hipstreamcreatewithpriority" ],
+      [ "hipstreamdestroy", "d4/dbf/interfacehip__intf_1_1hipstreamdestroy.html", "d4/dbf/interfacehip__intf_1_1hipstreamdestroy" ],
+      [ "hipstreamsynchronize", "d3/df5/interfacehip__intf_1_1hipstreamsynchronize.html", "d3/df5/interfacehip__intf_1_1hipstreamsynchronize" ],
+      [ "hipstreamwaitevent", "d7/ddb/interfacehip__intf_1_1hipstreamwaitevent.html", "d7/ddb/interfacehip__intf_1_1hipstreamwaitevent" ]
     ] ],
     [ "hip_math", "d7/de1/namespacehip__math.html", [
-      [ "hip_copy", "dc/d2b/interfacehip__math_1_1hip__copy.html", "dc/d2b/interfacehip__math_1_1hip__copy" ],
-      [ "hip_masked_copy", "db/d04/interfacehip__math_1_1hip__masked__copy.html", "db/d04/interfacehip__math_1_1hip__masked__copy" ],
-      [ "hip_masked_red_copy", "d6/d18/interfacehip__math_1_1hip__masked__red__copy.html", "d6/d18/interfacehip__math_1_1hip__masked__red__copy" ],
-      [ "hip_cfill_mask", "dc/dbb/interfacehip__math_1_1hip__cfill__mask.html", "dc/dbb/interfacehip__math_1_1hip__cfill__mask" ],
-      [ "hip_cmult", "d9/dd0/interfacehip__math_1_1hip__cmult.html", "d9/dd0/interfacehip__math_1_1hip__cmult" ],
-      [ "hip_cmult2", "dc/dd9/interfacehip__math_1_1hip__cmult2.html", "dc/dd9/interfacehip__math_1_1hip__cmult2" ],
-      [ "hip_cadd", "d7/d5b/interfacehip__math_1_1hip__cadd.html", "d7/d5b/interfacehip__math_1_1hip__cadd" ],
-      [ "hip_cadd2", "d3/da8/interfacehip__math_1_1hip__cadd2.html", "d3/da8/interfacehip__math_1_1hip__cadd2" ],
-      [ "hip_cfill", "d5/dab/interfacehip__math_1_1hip__cfill.html", "d5/dab/interfacehip__math_1_1hip__cfill" ],
-      [ "hip_rzero", "d9/d73/interfacehip__math_1_1hip__rzero.html", "d9/d73/interfacehip__math_1_1hip__rzero" ],
+      [ "hip_absval", "d0/d22/interfacehip__math_1_1hip__absval.html", "d0/d22/interfacehip__math_1_1hip__absval" ],
       [ "hip_add2", "d9/dfc/interfacehip__math_1_1hip__add2.html", "d9/dfc/interfacehip__math_1_1hip__add2" ],
-      [ "hip_add4", "d1/d36/interfacehip__math_1_1hip__add4.html", "d1/d36/interfacehip__math_1_1hip__add4" ],
       [ "hip_add2s1", "de/dd0/interfacehip__math_1_1hip__add2s1.html", "de/dd0/interfacehip__math_1_1hip__add2s1" ],
       [ "hip_add2s2", "dd/de0/interfacehip__math_1_1hip__add2s2.html", "dd/de0/interfacehip__math_1_1hip__add2s2" ],
       [ "hip_add2s2_many", "de/d7d/interfacehip__math_1_1hip__add2s2__many.html", "de/d7d/interfacehip__math_1_1hip__add2s2__many" ],
-      [ "hip_addsqr2s2", "d9/dde/interfacehip__math_1_1hip__addsqr2s2.html", "d9/dde/interfacehip__math_1_1hip__addsqr2s2" ],
-      [ "hip_add3s2", "d9/ddc/interfacehip__math_1_1hip__add3s2.html", "d9/ddc/interfacehip__math_1_1hip__add3s2" ],
-      [ "hip_invcol1", "de/d2d/interfacehip__math_1_1hip__invcol1.html", "de/d2d/interfacehip__math_1_1hip__invcol1" ],
-      [ "hip_invcol2", "da/dc1/interfacehip__math_1_1hip__invcol2.html", "da/dc1/interfacehip__math_1_1hip__invcol2" ],
-      [ "hip_col2", "d1/d74/interfacehip__math_1_1hip__col2.html", "d1/d74/interfacehip__math_1_1hip__col2" ],
-      [ "hip_col3", "d5/de1/interfacehip__math_1_1hip__col3.html", "d5/de1/interfacehip__math_1_1hip__col3" ],
-      [ "hip_subcol3", "df/d2a/interfacehip__math_1_1hip__subcol3.html", "df/d2a/interfacehip__math_1_1hip__subcol3" ],
-      [ "hip_sub2", "d6/d08/interfacehip__math_1_1hip__sub2.html", "d6/d08/interfacehip__math_1_1hip__sub2" ],
-      [ "hip_sub3", "db/d3a/interfacehip__math_1_1hip__sub3.html", "db/d3a/interfacehip__math_1_1hip__sub3" ],
       [ "hip_add3", "d3/d13/interfacehip__math_1_1hip__add3.html", "d3/d13/interfacehip__math_1_1hip__add3" ],
+      [ "hip_add3s2", "d9/ddc/interfacehip__math_1_1hip__add3s2.html", "d9/ddc/interfacehip__math_1_1hip__add3s2" ],
+      [ "hip_add4", "d1/d36/interfacehip__math_1_1hip__add4.html", "d1/d36/interfacehip__math_1_1hip__add4" ],
       [ "hip_addcol3", "d6/dda/interfacehip__math_1_1hip__addcol3.html", "d6/dda/interfacehip__math_1_1hip__addcol3" ],
       [ "hip_addcol4", "df/d1a/interfacehip__math_1_1hip__addcol4.html", "df/d1a/interfacehip__math_1_1hip__addcol4" ],
-      [ "hip_vdot3", "d0/dd4/interfacehip__math_1_1hip__vdot3.html", "d0/dd4/interfacehip__math_1_1hip__vdot3" ],
-      [ "hip_vcross", "d9/dfe/interfacehip__math_1_1hip__vcross.html", "d9/dfe/interfacehip__math_1_1hip__vcross" ],
-      [ "hip_vlsc3", "dd/d4e/interfacehip__math_1_1hip__vlsc3.html", "dd/d4e/interfacehip__math_1_1hip__vlsc3" ],
+      [ "hip_addsqr2s2", "d9/dde/interfacehip__math_1_1hip__addsqr2s2.html", "d9/dde/interfacehip__math_1_1hip__addsqr2s2" ],
+      [ "hip_cadd", "d7/d5b/interfacehip__math_1_1hip__cadd.html", "d7/d5b/interfacehip__math_1_1hip__cadd" ],
+      [ "hip_cadd2", "d3/da8/interfacehip__math_1_1hip__cadd2.html", "d3/da8/interfacehip__math_1_1hip__cadd2" ],
+      [ "hip_cfill", "d5/dab/interfacehip__math_1_1hip__cfill.html", "d5/dab/interfacehip__math_1_1hip__cfill" ],
+      [ "hip_cfill_mask", "dc/dbb/interfacehip__math_1_1hip__cfill__mask.html", "dc/dbb/interfacehip__math_1_1hip__cfill__mask" ],
+      [ "hip_cmult", "d9/dd0/interfacehip__math_1_1hip__cmult.html", "d9/dd0/interfacehip__math_1_1hip__cmult" ],
+      [ "hip_cmult2", "dc/dd9/interfacehip__math_1_1hip__cmult2.html", "dc/dd9/interfacehip__math_1_1hip__cmult2" ],
+      [ "hip_col2", "d1/d74/interfacehip__math_1_1hip__col2.html", "d1/d74/interfacehip__math_1_1hip__col2" ],
+      [ "hip_col3", "d5/de1/interfacehip__math_1_1hip__col3.html", "d5/de1/interfacehip__math_1_1hip__col3" ],
+      [ "hip_copy", "dc/d2b/interfacehip__math_1_1hip__copy.html", "dc/d2b/interfacehip__math_1_1hip__copy" ],
+      [ "hip_glsc2", "d8/d3d/interfacehip__math_1_1hip__glsc2.html", "d8/d3d/interfacehip__math_1_1hip__glsc2" ],
       [ "hip_glsc3", "d6/d9d/interfacehip__math_1_1hip__glsc3.html", "d6/d9d/interfacehip__math_1_1hip__glsc3" ],
       [ "hip_glsc3_many", "d4/da3/interfacehip__math_1_1hip__glsc3__many.html", "d4/da3/interfacehip__math_1_1hip__glsc3__many" ],
-      [ "hip_glsc2", "d8/d3d/interfacehip__math_1_1hip__glsc2.html", "d8/d3d/interfacehip__math_1_1hip__glsc2" ],
       [ "hip_glsum", "db/d09/interfacehip__math_1_1hip__glsum.html", "db/d09/interfacehip__math_1_1hip__glsum" ],
-      [ "hip_absval", "d0/d22/interfacehip__math_1_1hip__absval.html", "d0/d22/interfacehip__math_1_1hip__absval" ]
+      [ "hip_invcol1", "de/d2d/interfacehip__math_1_1hip__invcol1.html", "de/d2d/interfacehip__math_1_1hip__invcol1" ],
+      [ "hip_invcol2", "da/dc1/interfacehip__math_1_1hip__invcol2.html", "da/dc1/interfacehip__math_1_1hip__invcol2" ],
+      [ "hip_masked_copy", "db/d04/interfacehip__math_1_1hip__masked__copy.html", "db/d04/interfacehip__math_1_1hip__masked__copy" ],
+      [ "hip_masked_red_copy", "d6/d18/interfacehip__math_1_1hip__masked__red__copy.html", "d6/d18/interfacehip__math_1_1hip__masked__red__copy" ],
+      [ "hip_rzero", "d9/d73/interfacehip__math_1_1hip__rzero.html", "d9/d73/interfacehip__math_1_1hip__rzero" ],
+      [ "hip_sub2", "d6/d08/interfacehip__math_1_1hip__sub2.html", "d6/d08/interfacehip__math_1_1hip__sub2" ],
+      [ "hip_sub3", "db/d3a/interfacehip__math_1_1hip__sub3.html", "db/d3a/interfacehip__math_1_1hip__sub3" ],
+      [ "hip_subcol3", "df/d2a/interfacehip__math_1_1hip__subcol3.html", "df/d2a/interfacehip__math_1_1hip__subcol3" ],
+      [ "hip_vcross", "d9/dfe/interfacehip__math_1_1hip__vcross.html", "d9/dfe/interfacehip__math_1_1hip__vcross" ],
+      [ "hip_vdot3", "d0/dd4/interfacehip__math_1_1hip__vdot3.html", "d0/dd4/interfacehip__math_1_1hip__vdot3" ],
+      [ "hip_vlsc3", "dd/d4e/interfacehip__math_1_1hip__vlsc3.html", "dd/d4e/interfacehip__math_1_1hip__vlsc3" ]
     ] ],
     [ "hsmg", "dd/dd1/namespacehsmg.html", [
-      [ "multigrid_t", "dd/d1b/structhsmg_1_1multigrid__t.html", "dd/d1b/structhsmg_1_1multigrid__t" ],
-      [ "hsmg_t", "dd/d81/structhsmg_1_1hsmg__t.html", "dd/d81/structhsmg_1_1hsmg__t" ]
+      [ "hsmg_t", "dd/d81/structhsmg_1_1hsmg__t.html", "dd/d81/structhsmg_1_1hsmg__t" ],
+      [ "multigrid_t", "dd/d1b/structhsmg_1_1multigrid__t.html", "dd/d1b/structhsmg_1_1multigrid__t" ]
     ] ],
     [ "htable", "dc/df5/namespacehtable.html", [
+      [ "h_cptr_t", "dc/d02/structhtable_1_1h__cptr__t.html", "dc/d02/structhtable_1_1h__cptr__t" ],
       [ "h_tuple_t", "d8/d5b/structhtable_1_1h__tuple__t.html", "d8/d5b/structhtable_1_1h__tuple__t" ],
-      [ "htable_t", "d0/d2e/structhtable_1_1htable__t.html", "d0/d2e/structhtable_1_1htable__t" ],
+      [ "htable_cptr_t", "da/dfa/structhtable_1_1htable__cptr__t.html", "da/dfa/structhtable_1_1htable__cptr__t" ],
       [ "htable_hash", "de/d44/interfacehtable_1_1htable__hash.html", "de/d44/interfacehtable_1_1htable__hash" ],
       [ "htable_i4_t", "db/d4d/structhtable_1_1htable__i4__t.html", "db/d4d/structhtable_1_1htable__i4__t" ],
-      [ "htable_i8_t", "df/da3/structhtable_1_1htable__i8__t.html", "df/da3/structhtable_1_1htable__i8__t" ],
-      [ "htable_r8_t", "da/dee/structhtable_1_1htable__r8__t.html", "da/dee/structhtable_1_1htable__r8__t" ],
-      [ "htable_pt_t", "d8/d19/structhtable_1_1htable__pt__t.html", "d8/d19/structhtable_1_1htable__pt__t" ],
       [ "htable_i4t2_t", "da/d93/structhtable_1_1htable__i4t2__t.html", "da/d93/structhtable_1_1htable__i4t2__t" ],
       [ "htable_i4t4_t", "d8/d53/structhtable_1_1htable__i4t4__t.html", "d8/d53/structhtable_1_1htable__i4t4__t" ],
-      [ "htable_cptr_t", "da/dfa/structhtable_1_1htable__cptr__t.html", "da/dfa/structhtable_1_1htable__cptr__t" ],
-      [ "htable_iter_t", "d1/dec/structhtable_1_1htable__iter__t.html", "d1/dec/structhtable_1_1htable__iter__t" ],
+      [ "htable_i8_t", "df/da3/structhtable_1_1htable__i8__t.html", "df/da3/structhtable_1_1htable__i8__t" ],
+      [ "htable_iter_cptr_t", "dd/d3e/structhtable_1_1htable__iter__cptr__t.html", "dd/d3e/structhtable_1_1htable__iter__cptr__t" ],
       [ "htable_iter_i4_t", "dc/d23/structhtable_1_1htable__iter__i4__t.html", "dc/d23/structhtable_1_1htable__iter__i4__t" ],
-      [ "htable_iter_i8_t", "d1/da0/structhtable_1_1htable__iter__i8__t.html", "d1/da0/structhtable_1_1htable__iter__i8__t" ],
-      [ "htable_iter_r8_t", "da/d47/structhtable_1_1htable__iter__r8__t.html", "da/d47/structhtable_1_1htable__iter__r8__t" ],
-      [ "htable_iter_pt_t", "d0/dfb/structhtable_1_1htable__iter__pt__t.html", "d0/dfb/structhtable_1_1htable__iter__pt__t" ],
       [ "htable_iter_i4t2_t", "d8/dfb/structhtable_1_1htable__iter__i4t2__t.html", "d8/dfb/structhtable_1_1htable__iter__i4t2__t" ],
       [ "htable_iter_i4t4_t", "de/d9b/structhtable_1_1htable__iter__i4t4__t.html", "de/d9b/structhtable_1_1htable__iter__i4t4__t" ],
-      [ "htable_iter_cptr_t", "dd/d3e/structhtable_1_1htable__iter__cptr__t.html", "dd/d3e/structhtable_1_1htable__iter__cptr__t" ],
-      [ "h_cptr_t", "dc/d02/structhtable_1_1h__cptr__t.html", "dc/d02/structhtable_1_1h__cptr__t" ]
+      [ "htable_iter_i8_t", "d1/da0/structhtable_1_1htable__iter__i8__t.html", "d1/da0/structhtable_1_1htable__iter__i8__t" ],
+      [ "htable_iter_pt_t", "d0/dfb/structhtable_1_1htable__iter__pt__t.html", "d0/dfb/structhtable_1_1htable__iter__pt__t" ],
+      [ "htable_iter_r8_t", "da/d47/structhtable_1_1htable__iter__r8__t.html", "da/d47/structhtable_1_1htable__iter__r8__t" ],
+      [ "htable_iter_t", "d1/dec/structhtable_1_1htable__iter__t.html", "d1/dec/structhtable_1_1htable__iter__t" ],
+      [ "htable_pt_t", "d8/d19/structhtable_1_1htable__pt__t.html", "d8/d19/structhtable_1_1htable__pt__t" ],
+      [ "htable_r8_t", "da/dee/structhtable_1_1htable__r8__t.html", "da/dee/structhtable_1_1htable__r8__t" ],
+      [ "htable_t", "d0/d2e/structhtable_1_1htable__t.html", "d0/d2e/structhtable_1_1htable__t" ]
     ] ],
     [ "identity", "d2/d1a/namespaceidentity.html", [
       [ "ident_t", "d7/d69/structidentity_1_1ident__t.html", "d7/d69/structidentity_1_1ident__t" ]
@@ -630,25 +630,25 @@ var annotated_dup =
       [ "jobctrl_set_time_limit", "da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html", "da/d39/interfacejobctrl_1_1jobctrl__set__time__limit" ]
     ] ],
     [ "json_utils", "d8/da8/namespacejson__utils.html", [
+      [ "json_extract_item", "d9/d2b/interfacejson__utils_1_1json__extract__item.html", "d9/d2b/interfacejson__utils_1_1json__extract__item" ],
       [ "json_get", "d7/d48/interfacejson__utils_1_1json__get.html", "d7/d48/interfacejson__utils_1_1json__get" ],
-      [ "json_get_or_default", "d0/d70/interfacejson__utils_1_1json__get__or__default.html", "d0/d70/interfacejson__utils_1_1json__get__or__default" ],
-      [ "json_extract_item", "d9/d2b/interfacejson__utils_1_1json__extract__item.html", "d9/d2b/interfacejson__utils_1_1json__extract__item" ]
+      [ "json_get_or_default", "d0/d70/interfacejson__utils_1_1json__get__or__default.html", "d0/d70/interfacejson__utils_1_1json__get__or__default" ]
     ] ],
     [ "krylov", "db/d6d/namespacekrylov.html", [
-      [ "ksp_monitor_t", "d4/d33/structkrylov_1_1ksp__monitor__t.html", "d4/d33/structkrylov_1_1ksp__monitor__t" ],
-      [ "ksp_t", "d0/d3b/structkrylov_1_1ksp__t.html", "d0/d3b/structkrylov_1_1ksp__t" ],
       [ "ksp_method", "d2/d6e/interfacekrylov_1_1ksp__method.html", "d2/d6e/interfacekrylov_1_1ksp__method" ],
       [ "ksp_method_coupled", "d1/d3d/interfacekrylov_1_1ksp__method__coupled.html", "d1/d3d/interfacekrylov_1_1ksp__method__coupled" ],
+      [ "ksp_monitor_t", "d4/d33/structkrylov_1_1ksp__monitor__t.html", "d4/d33/structkrylov_1_1ksp__monitor__t" ],
+      [ "ksp_t", "d0/d3b/structkrylov_1_1ksp__t.html", "d0/d3b/structkrylov_1_1ksp__t" ],
       [ "ksp_t_free", "d6/dc8/interfacekrylov_1_1ksp__t__free.html", "d6/dc8/interfacekrylov_1_1ksp__t__free" ]
     ] ],
     [ "lambda2", "d0/d66/namespacelambda2.html", [
       [ "lambda2_t", "d6/db3/structlambda2_1_1lambda2__t.html", "d6/db3/structlambda2_1_1lambda2__t" ]
     ] ],
     [ "les_model", "dd/dfc/namespaceles__model.html", [
-      [ "les_model_t", "df/d6c/structles__model_1_1les__model__t.html", "df/d6c/structles__model_1_1les__model__t" ],
       [ "les_model_compute", "d8/d42/interfaceles__model_1_1les__model__compute.html", "d8/d42/interfaceles__model_1_1les__model__compute" ],
+      [ "les_model_free", "d8/daa/interfaceles__model_1_1les__model__free.html", "d8/daa/interfaceles__model_1_1les__model__free" ],
       [ "les_model_init", "d3/d58/interfaceles__model_1_1les__model__init.html", "d3/d58/interfaceles__model_1_1les__model__init" ],
-      [ "les_model_free", "d8/daa/interfaceles__model_1_1les__model__free.html", "d8/daa/interfaceles__model_1_1les__model__free" ]
+      [ "les_model_t", "df/d6c/structles__model_1_1les__model__t.html", "df/d6c/structles__model_1_1les__model__t" ]
     ] ],
     [ "les_simcomp", "d0/d0d/namespaceles__simcomp.html", [
       [ "les_simcomp_t", "d1/d3b/structles__simcomp_1_1les__simcomp__t.html", "d1/d3b/structles__simcomp_1_1les__simcomp__t" ]
@@ -660,8 +660,8 @@ var annotated_dup =
       [ "log_t", "d0/d7b/structlogger_1_1log__t.html", "d0/d7b/structlogger_1_1log__t" ]
     ] ],
     [ "map", "d3/dca/namespacemap.html", [
-      [ "map_t", "da/d40/structmap_1_1map__t.html", "da/d40/structmap_1_1map__t" ],
-      [ "map_init", "d2/d3d/interfacemap_1_1map__init.html", "d2/d3d/interfacemap_1_1map__init" ]
+      [ "map_init", "d2/d3d/interfacemap_1_1map__init.html", "d2/d3d/interfacemap_1_1map__init" ],
+      [ "map_t", "da/d40/structmap_1_1map__t.html", "da/d40/structmap_1_1map__t" ]
     ] ],
     [ "map_1d", "d8/d8b/namespacemap__1d.html", [
       [ "map_1d_t", "d6/daf/structmap__1d_1_1map__1d__t.html", "d6/daf/structmap__1d_1_1map__1d__t" ]
@@ -674,13 +674,13 @@ var annotated_dup =
     ] ],
     [ "math", "dd/d47/namespacemath.html", [
       [ "abscmp", "de/d34/interfacemath_1_1abscmp.html", "de/d34/interfacemath_1_1abscmp" ],
-      [ "sort", "d1/dc3/interfacemath_1_1sort.html", "d1/dc3/interfacemath_1_1sort" ],
-      [ "swap", "d7/d0d/interfacemath_1_1swap.html", "d7/d0d/interfacemath_1_1swap" ],
-      [ "reord", "d6/d4c/interfacemath_1_1reord.html", "d6/d4c/interfacemath_1_1reord" ],
       [ "flipv", "d2/db7/interfacemath_1_1flipv.html", "d2/db7/interfacemath_1_1flipv" ],
-      [ "relcmp", "d9/d4d/interfacemath_1_1relcmp.html", "d9/d4d/interfacemath_1_1relcmp" ],
       [ "pwmax", "d0/d2b/interfacemath_1_1pwmax.html", "d0/d2b/interfacemath_1_1pwmax" ],
-      [ "pwmin", "d6/de0/interfacemath_1_1pwmin.html", "d6/de0/interfacemath_1_1pwmin" ]
+      [ "pwmin", "d6/de0/interfacemath_1_1pwmin.html", "d6/de0/interfacemath_1_1pwmin" ],
+      [ "relcmp", "d9/d4d/interfacemath_1_1relcmp.html", "d9/d4d/interfacemath_1_1relcmp" ],
+      [ "reord", "d6/d4c/interfacemath_1_1reord.html", "d6/d4c/interfacemath_1_1reord" ],
+      [ "sort", "d1/dc3/interfacemath_1_1sort.html", "d1/dc3/interfacemath_1_1sort" ],
+      [ "swap", "d7/d0d/interfacemath_1_1swap.html", "d7/d0d/interfacemath_1_1swap" ]
     ] ],
     [ "matrix", "d0/de4/namespacematrix.html", [
       [ "matrix_t", "da/d95/structmatrix_1_1matrix__t.html", "da/d95/structmatrix_1_1matrix__t" ]
@@ -704,9 +704,9 @@ var annotated_dup =
       [ "mean_sqr_flow_output_t", "d4/de3/structmean__sqr__flow__output_1_1mean__sqr__flow__output__t.html", "d4/de3/structmean__sqr__flow__output_1_1mean__sqr__flow__output__t" ]
     ] ],
     [ "mesh", "db/dfc/namespacemesh.html", [
+      [ "mesh_deform", "d9/db3/interfacemesh_1_1mesh__deform.html", "d9/db3/interfacemesh_1_1mesh__deform" ],
       [ "mesh_element_t", "d1/d4c/structmesh_1_1mesh__element__t.html", "d1/d4c/structmesh_1_1mesh__element__t" ],
-      [ "mesh_t", "d7/d28/structmesh_1_1mesh__t.html", "d7/d28/structmesh_1_1mesh__t" ],
-      [ "mesh_deform", "d9/db3/interfacemesh_1_1mesh__deform.html", "d9/db3/interfacemesh_1_1mesh__deform" ]
+      [ "mesh_t", "d7/d28/structmesh_1_1mesh__t.html", "d7/d28/structmesh_1_1mesh__t" ]
     ] ],
     [ "mesh_field", "da/dc3/namespacemesh__field.html", [
       [ "mesh_fld_t", "d6/db2/structmesh__field_1_1mesh__fld__t.html", "d6/db2/structmesh__field_1_1mesh__fld__t" ]
@@ -719,12 +719,12 @@ var annotated_dup =
       [ "neumann_t", "d5/d84/structneumann_1_1neumann__t.html", "d5/d84/structneumann_1_1neumann__t" ]
     ] ],
     [ "nmsh", "d7/d48/namespacenmsh.html", [
+      [ "nmsh_curve_el_t", "d1/d7a/structnmsh_1_1nmsh__curve__el__t.html", "d1/d7a/structnmsh_1_1nmsh__curve__el__t" ],
+      [ "nmsh_hex_t", "d4/d10/structnmsh_1_1nmsh__hex__t.html", "d4/d10/structnmsh_1_1nmsh__hex__t" ],
+      [ "nmsh_quad_t", "dc/d82/structnmsh_1_1nmsh__quad__t.html", "dc/d82/structnmsh_1_1nmsh__quad__t" ],
       [ "nmsh_t", "dc/d5a/structnmsh_1_1nmsh__t.html", "dc/d5a/structnmsh_1_1nmsh__t" ],
       [ "nmsh_vertex_t", "d2/d94/structnmsh_1_1nmsh__vertex__t.html", "d2/d94/structnmsh_1_1nmsh__vertex__t" ],
-      [ "nmsh_quad_t", "dc/d82/structnmsh_1_1nmsh__quad__t.html", "dc/d82/structnmsh_1_1nmsh__quad__t" ],
-      [ "nmsh_hex_t", "d4/d10/structnmsh_1_1nmsh__hex__t.html", "d4/d10/structnmsh_1_1nmsh__hex__t" ],
-      [ "nmsh_zone_t", "d5/d6a/structnmsh_1_1nmsh__zone__t.html", "d5/d6a/structnmsh_1_1nmsh__zone__t" ],
-      [ "nmsh_curve_el_t", "d1/d7a/structnmsh_1_1nmsh__curve__el__t.html", "d1/d7a/structnmsh_1_1nmsh__curve__el__t" ]
+      [ "nmsh_zone_t", "d5/d6a/structnmsh_1_1nmsh__zone__t.html", "d5/d6a/structnmsh_1_1nmsh__zone__t" ]
     ] ],
     [ "nmsh_file", "da/dd2/namespacenmsh__file.html", [
       [ "nmsh_file_t", "df/d4d/structnmsh__file_1_1nmsh__file__t.html", "df/d4d/structnmsh__file_1_1nmsh__file__t" ]
@@ -738,97 +738,97 @@ var annotated_dup =
       [ "octree_t", "d4/d27/structoctree_1_1octree__t.html", "d4/d27/structoctree_1_1octree__t" ]
     ] ],
     [ "opencl_filters", "dc/dac/namespaceopencl__filters.html", [
+      [ "opencl_permeability", "da/dbc/interfaceopencl__filters_1_1opencl__permeability.html", "da/dbc/interfaceopencl__filters_1_1opencl__permeability" ],
       [ "opencl_smooth_step", "d9/db8/interfaceopencl__filters_1_1opencl__smooth__step.html", "d9/db8/interfaceopencl__filters_1_1opencl__smooth__step" ],
-      [ "opencl_step_function", "d1/d90/interfaceopencl__filters_1_1opencl__step__function.html", "d1/d90/interfaceopencl__filters_1_1opencl__step__function" ],
-      [ "opencl_permeability", "da/dbc/interfaceopencl__filters_1_1opencl__permeability.html", "da/dbc/interfaceopencl__filters_1_1opencl__permeability" ]
+      [ "opencl_step_function", "d1/d90/interfaceopencl__filters_1_1opencl__step__function.html", "d1/d90/interfaceopencl__filters_1_1opencl__step__function" ]
     ] ],
     [ "opencl_intf", "d3/d3b/namespaceopencl__intf.html", [
-      [ "clGetPlatformIDs", "de/d80/interfaceopencl__intf_1_1clGetPlatformIDs.html", "de/d80/interfaceopencl__intf_1_1clGetPlatformIDs" ],
-      [ "clGetDeviceIDs", "d4/d1c/interfaceopencl__intf_1_1clGetDeviceIDs.html", "d4/d1c/interfaceopencl__intf_1_1clGetDeviceIDs" ],
-      [ "clCreateContext", "da/d58/interfaceopencl__intf_1_1clCreateContext.html", "da/d58/interfaceopencl__intf_1_1clCreateContext" ],
-      [ "clCreateCommandQueue", "db/dce/interfaceopencl__intf_1_1clCreateCommandQueue.html", "db/dce/interfaceopencl__intf_1_1clCreateCommandQueue" ],
-      [ "clCreateBuffer", "da/d83/interfaceopencl__intf_1_1clCreateBuffer.html", "da/d83/interfaceopencl__intf_1_1clCreateBuffer" ],
-      [ "clCreateUserEvent", "dc/d37/interfaceopencl__intf_1_1clCreateUserEvent.html", "dc/d37/interfaceopencl__intf_1_1clCreateUserEvent" ],
-      [ "clEnqueueReadBuffer", "da/df4/interfaceopencl__intf_1_1clEnqueueReadBuffer.html", "da/df4/interfaceopencl__intf_1_1clEnqueueReadBuffer" ],
-      [ "clEnqueueWriteBuffer", "d0/d10/interfaceopencl__intf_1_1clEnqueueWriteBuffer.html", "d0/d10/interfaceopencl__intf_1_1clEnqueueWriteBuffer" ],
-      [ "clEnqueueCopyBuffer", "d1/d89/interfaceopencl__intf_1_1clEnqueueCopyBuffer.html", "d1/d89/interfaceopencl__intf_1_1clEnqueueCopyBuffer" ],
-      [ "clEnqueueMarkerWithWaitList", "df/db6/interfaceopencl__intf_1_1clEnqueueMarkerWithWaitList.html", "df/db6/interfaceopencl__intf_1_1clEnqueueMarkerWithWaitList" ],
-      [ "clEnqueueMarker", "da/d87/interfaceopencl__intf_1_1clEnqueueMarker.html", "da/d87/interfaceopencl__intf_1_1clEnqueueMarker" ],
-      [ "clEnqueueBarrier", "d5/d2e/interfaceopencl__intf_1_1clEnqueueBarrier.html", "d5/d2e/interfaceopencl__intf_1_1clEnqueueBarrier" ],
-      [ "clEnqueueWaitForEvents", "d0/dbd/interfaceopencl__intf_1_1clEnqueueWaitForEvents.html", "d0/dbd/interfaceopencl__intf_1_1clEnqueueWaitForEvents" ],
-      [ "clWaitForEvents", "df/db9/interfaceopencl__intf_1_1clWaitForEvents.html", "df/db9/interfaceopencl__intf_1_1clWaitForEvents" ],
-      [ "clSetUserEventStatus", "df/d51/interfaceopencl__intf_1_1clSetUserEventStatus.html", "df/d51/interfaceopencl__intf_1_1clSetUserEventStatus" ],
-      [ "clGetDeviceInfo", "d8/de8/interfaceopencl__intf_1_1clGetDeviceInfo.html", "d8/de8/interfaceopencl__intf_1_1clGetDeviceInfo" ],
-      [ "clReleaseContext", "db/dca/interfaceopencl__intf_1_1clReleaseContext.html", "db/dca/interfaceopencl__intf_1_1clReleaseContext" ],
-      [ "clReleaseCommandQueue", "d3/ddf/interfaceopencl__intf_1_1clReleaseCommandQueue.html", "d3/ddf/interfaceopencl__intf_1_1clReleaseCommandQueue" ],
-      [ "clReleaseDevice", "da/d41/interfaceopencl__intf_1_1clReleaseDevice.html", "da/d41/interfaceopencl__intf_1_1clReleaseDevice" ],
-      [ "clReleaseProgram", "d5/d96/interfaceopencl__intf_1_1clReleaseProgram.html", "d5/d96/interfaceopencl__intf_1_1clReleaseProgram" ],
-      [ "clReleaseMemObject", "dd/d50/interfaceopencl__intf_1_1clReleaseMemObject.html", "dd/d50/interfaceopencl__intf_1_1clReleaseMemObject" ],
-      [ "clReleaseEvent", "d5/d07/interfaceopencl__intf_1_1clReleaseEvent.html", "d5/d07/interfaceopencl__intf_1_1clReleaseEvent" ],
-      [ "clFlush", "d1/d1b/interfaceopencl__intf_1_1clFlush.html", "d1/d1b/interfaceopencl__intf_1_1clFlush" ],
-      [ "clFinish", "de/dae/interfaceopencl__intf_1_1clFinish.html", "de/dae/interfaceopencl__intf_1_1clFinish" ]
+      [ "clcreatebuffer", "de/dd5/interfaceopencl__intf_1_1clcreatebuffer.html", "de/dd5/interfaceopencl__intf_1_1clcreatebuffer" ],
+      [ "clcreatecommandqueue", "da/df2/interfaceopencl__intf_1_1clcreatecommandqueue.html", "da/df2/interfaceopencl__intf_1_1clcreatecommandqueue" ],
+      [ "clcreatecontext", "d4/da9/interfaceopencl__intf_1_1clcreatecontext.html", "d4/da9/interfaceopencl__intf_1_1clcreatecontext" ],
+      [ "clcreateuserevent", "df/d00/interfaceopencl__intf_1_1clcreateuserevent.html", "df/d00/interfaceopencl__intf_1_1clcreateuserevent" ],
+      [ "clenqueuebarrier", "d2/d32/interfaceopencl__intf_1_1clenqueuebarrier.html", "d2/d32/interfaceopencl__intf_1_1clenqueuebarrier" ],
+      [ "clenqueuecopybuffer", "df/d15/interfaceopencl__intf_1_1clenqueuecopybuffer.html", "df/d15/interfaceopencl__intf_1_1clenqueuecopybuffer" ],
+      [ "clenqueuemarker", "d5/deb/interfaceopencl__intf_1_1clenqueuemarker.html", "d5/deb/interfaceopencl__intf_1_1clenqueuemarker" ],
+      [ "clenqueuemarkerwithwaitlist", "d2/d0d/interfaceopencl__intf_1_1clenqueuemarkerwithwaitlist.html", "d2/d0d/interfaceopencl__intf_1_1clenqueuemarkerwithwaitlist" ],
+      [ "clenqueuereadbuffer", "d3/de1/interfaceopencl__intf_1_1clenqueuereadbuffer.html", "d3/de1/interfaceopencl__intf_1_1clenqueuereadbuffer" ],
+      [ "clenqueuewaitforevents", "da/da9/interfaceopencl__intf_1_1clenqueuewaitforevents.html", "da/da9/interfaceopencl__intf_1_1clenqueuewaitforevents" ],
+      [ "clenqueuewritebuffer", "d8/d16/interfaceopencl__intf_1_1clenqueuewritebuffer.html", "d8/d16/interfaceopencl__intf_1_1clenqueuewritebuffer" ],
+      [ "clfinish", "d6/d52/interfaceopencl__intf_1_1clfinish.html", "d6/d52/interfaceopencl__intf_1_1clfinish" ],
+      [ "clflush", "d6/d7d/interfaceopencl__intf_1_1clflush.html", "d6/d7d/interfaceopencl__intf_1_1clflush" ],
+      [ "clgetdeviceids", "d2/ddb/interfaceopencl__intf_1_1clgetdeviceids.html", "d2/ddb/interfaceopencl__intf_1_1clgetdeviceids" ],
+      [ "clgetdeviceinfo", "d2/dd5/interfaceopencl__intf_1_1clgetdeviceinfo.html", "d2/dd5/interfaceopencl__intf_1_1clgetdeviceinfo" ],
+      [ "clgetplatformids", "df/da9/interfaceopencl__intf_1_1clgetplatformids.html", "df/da9/interfaceopencl__intf_1_1clgetplatformids" ],
+      [ "clreleasecommandqueue", "d6/d88/interfaceopencl__intf_1_1clreleasecommandqueue.html", "d6/d88/interfaceopencl__intf_1_1clreleasecommandqueue" ],
+      [ "clreleasecontext", "d6/dfc/interfaceopencl__intf_1_1clreleasecontext.html", "d6/dfc/interfaceopencl__intf_1_1clreleasecontext" ],
+      [ "clreleasedevice", "d0/d9e/interfaceopencl__intf_1_1clreleasedevice.html", "d0/d9e/interfaceopencl__intf_1_1clreleasedevice" ],
+      [ "clreleaseevent", "dd/df4/interfaceopencl__intf_1_1clreleaseevent.html", "dd/df4/interfaceopencl__intf_1_1clreleaseevent" ],
+      [ "clreleasememobject", "dd/d85/interfaceopencl__intf_1_1clreleasememobject.html", "dd/d85/interfaceopencl__intf_1_1clreleasememobject" ],
+      [ "clreleaseprogram", "d6/d07/interfaceopencl__intf_1_1clreleaseprogram.html", "d6/d07/interfaceopencl__intf_1_1clreleaseprogram" ],
+      [ "clsetusereventstatus", "d3/d9c/interfaceopencl__intf_1_1clsetusereventstatus.html", "d3/d9c/interfaceopencl__intf_1_1clsetusereventstatus" ],
+      [ "clwaitforevents", "db/d99/interfaceopencl__intf_1_1clwaitforevents.html", "db/d99/interfaceopencl__intf_1_1clwaitforevents" ]
     ] ],
     [ "opencl_math", "de/d3f/namespaceopencl__math.html", [
-      [ "opencl_copy", "d6/d58/interfaceopencl__math_1_1opencl__copy.html", "d6/d58/interfaceopencl__math_1_1opencl__copy" ],
-      [ "opencl_masked_copy", "d1/da7/interfaceopencl__math_1_1opencl__masked__copy.html", "d1/da7/interfaceopencl__math_1_1opencl__masked__copy" ],
-      [ "opencl_cfill_mask", "d6/dc8/interfaceopencl__math_1_1opencl__cfill__mask.html", "d6/dc8/interfaceopencl__math_1_1opencl__cfill__mask" ],
-      [ "opencl_cmult", "d1/d21/interfaceopencl__math_1_1opencl__cmult.html", "d1/d21/interfaceopencl__math_1_1opencl__cmult" ],
-      [ "opencl_cmult2", "d8/db0/interfaceopencl__math_1_1opencl__cmult2.html", "d8/db0/interfaceopencl__math_1_1opencl__cmult2" ],
-      [ "opencl_cadd", "d2/d15/interfaceopencl__math_1_1opencl__cadd.html", "d2/d15/interfaceopencl__math_1_1opencl__cadd" ],
-      [ "opencl_cadd2", "d5/dc0/interfaceopencl__math_1_1opencl__cadd2.html", "d5/dc0/interfaceopencl__math_1_1opencl__cadd2" ],
-      [ "opencl_cfill", "d3/d21/interfaceopencl__math_1_1opencl__cfill.html", "d3/d21/interfaceopencl__math_1_1opencl__cfill" ],
-      [ "opencl_rzero", "d0/d46/interfaceopencl__math_1_1opencl__rzero.html", "d0/d46/interfaceopencl__math_1_1opencl__rzero" ],
-      [ "opencl_rone", "de/d53/interfaceopencl__math_1_1opencl__rone.html", "de/d53/interfaceopencl__math_1_1opencl__rone" ],
       [ "opencl_add2", "d7/dae/interfaceopencl__math_1_1opencl__add2.html", "d7/dae/interfaceopencl__math_1_1opencl__add2" ],
-      [ "opencl_add4", "d1/d64/interfaceopencl__math_1_1opencl__add4.html", "d1/d64/interfaceopencl__math_1_1opencl__add4" ],
       [ "opencl_add2s1", "d2/d3e/interfaceopencl__math_1_1opencl__add2s1.html", "d2/d3e/interfaceopencl__math_1_1opencl__add2s1" ],
       [ "opencl_add2s2", "d7/dfa/interfaceopencl__math_1_1opencl__add2s2.html", "d7/dfa/interfaceopencl__math_1_1opencl__add2s2" ],
       [ "opencl_add2s2_many", "d0/dab/interfaceopencl__math_1_1opencl__add2s2__many.html", "d0/dab/interfaceopencl__math_1_1opencl__add2s2__many" ],
-      [ "opencl_addsqr2s2", "d7/d89/interfaceopencl__math_1_1opencl__addsqr2s2.html", "d7/d89/interfaceopencl__math_1_1opencl__addsqr2s2" ],
-      [ "opencl_add3s2", "d8/d95/interfaceopencl__math_1_1opencl__add3s2.html", "d8/d95/interfaceopencl__math_1_1opencl__add3s2" ],
-      [ "opencl_invcol1", "dc/da5/interfaceopencl__math_1_1opencl__invcol1.html", "dc/da5/interfaceopencl__math_1_1opencl__invcol1" ],
-      [ "opencl_invcol2", "d2/d86/interfaceopencl__math_1_1opencl__invcol2.html", "d2/d86/interfaceopencl__math_1_1opencl__invcol2" ],
-      [ "opencl_col2", "db/d7d/interfaceopencl__math_1_1opencl__col2.html", "db/d7d/interfaceopencl__math_1_1opencl__col2" ],
-      [ "opencl_col3", "de/d46/interfaceopencl__math_1_1opencl__col3.html", "de/d46/interfaceopencl__math_1_1opencl__col3" ],
-      [ "opencl_subcol3", "d0/d1e/interfaceopencl__math_1_1opencl__subcol3.html", "d0/d1e/interfaceopencl__math_1_1opencl__subcol3" ],
-      [ "opencl_sub2", "d1/dfa/interfaceopencl__math_1_1opencl__sub2.html", "d1/dfa/interfaceopencl__math_1_1opencl__sub2" ],
-      [ "opencl_sub3", "d2/dc8/interfaceopencl__math_1_1opencl__sub3.html", "d2/dc8/interfaceopencl__math_1_1opencl__sub3" ],
       [ "opencl_add3", "d2/d91/interfaceopencl__math_1_1opencl__add3.html", "d2/d91/interfaceopencl__math_1_1opencl__add3" ],
+      [ "opencl_add3s2", "d8/d95/interfaceopencl__math_1_1opencl__add3s2.html", "d8/d95/interfaceopencl__math_1_1opencl__add3s2" ],
+      [ "opencl_add4", "d1/d64/interfaceopencl__math_1_1opencl__add4.html", "d1/d64/interfaceopencl__math_1_1opencl__add4" ],
       [ "opencl_addcol3", "d0/dd8/interfaceopencl__math_1_1opencl__addcol3.html", "d0/dd8/interfaceopencl__math_1_1opencl__addcol3" ],
       [ "opencl_addcol4", "dd/ddf/interfaceopencl__math_1_1opencl__addcol4.html", "dd/ddf/interfaceopencl__math_1_1opencl__addcol4" ],
-      [ "opencl_vdot3", "dc/dd1/interfaceopencl__math_1_1opencl__vdot3.html", "dc/dd1/interfaceopencl__math_1_1opencl__vdot3" ],
+      [ "opencl_addsqr2s2", "d7/d89/interfaceopencl__math_1_1opencl__addsqr2s2.html", "d7/d89/interfaceopencl__math_1_1opencl__addsqr2s2" ],
+      [ "opencl_cadd", "d2/d15/interfaceopencl__math_1_1opencl__cadd.html", "d2/d15/interfaceopencl__math_1_1opencl__cadd" ],
+      [ "opencl_cadd2", "d5/dc0/interfaceopencl__math_1_1opencl__cadd2.html", "d5/dc0/interfaceopencl__math_1_1opencl__cadd2" ],
+      [ "opencl_cfill", "d3/d21/interfaceopencl__math_1_1opencl__cfill.html", "d3/d21/interfaceopencl__math_1_1opencl__cfill" ],
+      [ "opencl_cfill_mask", "d6/dc8/interfaceopencl__math_1_1opencl__cfill__mask.html", "d6/dc8/interfaceopencl__math_1_1opencl__cfill__mask" ],
+      [ "opencl_cmult", "d1/d21/interfaceopencl__math_1_1opencl__cmult.html", "d1/d21/interfaceopencl__math_1_1opencl__cmult" ],
+      [ "opencl_cmult2", "d8/db0/interfaceopencl__math_1_1opencl__cmult2.html", "d8/db0/interfaceopencl__math_1_1opencl__cmult2" ],
+      [ "opencl_col2", "db/d7d/interfaceopencl__math_1_1opencl__col2.html", "db/d7d/interfaceopencl__math_1_1opencl__col2" ],
+      [ "opencl_col3", "de/d46/interfaceopencl__math_1_1opencl__col3.html", "de/d46/interfaceopencl__math_1_1opencl__col3" ],
+      [ "opencl_copy", "d6/d58/interfaceopencl__math_1_1opencl__copy.html", "d6/d58/interfaceopencl__math_1_1opencl__copy" ],
+      [ "opencl_glsc2", "d5/d41/interfaceopencl__math_1_1opencl__glsc2.html", "d5/d41/interfaceopencl__math_1_1opencl__glsc2" ],
       [ "opencl_glsc3", "df/d06/interfaceopencl__math_1_1opencl__glsc3.html", "df/d06/interfaceopencl__math_1_1opencl__glsc3" ],
       [ "opencl_glsc3_many", "df/d22/interfaceopencl__math_1_1opencl__glsc3__many.html", "df/d22/interfaceopencl__math_1_1opencl__glsc3__many" ],
-      [ "opencl_glsc2", "d5/d41/interfaceopencl__math_1_1opencl__glsc2.html", "d5/d41/interfaceopencl__math_1_1opencl__glsc2" ],
-      [ "opencl_glsum", "de/d14/interfaceopencl__math_1_1opencl__glsum.html", "de/d14/interfaceopencl__math_1_1opencl__glsum" ]
+      [ "opencl_glsum", "de/d14/interfaceopencl__math_1_1opencl__glsum.html", "de/d14/interfaceopencl__math_1_1opencl__glsum" ],
+      [ "opencl_invcol1", "dc/da5/interfaceopencl__math_1_1opencl__invcol1.html", "dc/da5/interfaceopencl__math_1_1opencl__invcol1" ],
+      [ "opencl_invcol2", "d2/d86/interfaceopencl__math_1_1opencl__invcol2.html", "d2/d86/interfaceopencl__math_1_1opencl__invcol2" ],
+      [ "opencl_masked_copy", "d1/da7/interfaceopencl__math_1_1opencl__masked__copy.html", "d1/da7/interfaceopencl__math_1_1opencl__masked__copy" ],
+      [ "opencl_rone", "de/d53/interfaceopencl__math_1_1opencl__rone.html", "de/d53/interfaceopencl__math_1_1opencl__rone" ],
+      [ "opencl_rzero", "d0/d46/interfaceopencl__math_1_1opencl__rzero.html", "d0/d46/interfaceopencl__math_1_1opencl__rzero" ],
+      [ "opencl_sub2", "d1/dfa/interfaceopencl__math_1_1opencl__sub2.html", "d1/dfa/interfaceopencl__math_1_1opencl__sub2" ],
+      [ "opencl_sub3", "d2/dc8/interfaceopencl__math_1_1opencl__sub3.html", "d2/dc8/interfaceopencl__math_1_1opencl__sub3" ],
+      [ "opencl_subcol3", "d0/d1e/interfaceopencl__math_1_1opencl__subcol3.html", "d0/d1e/interfaceopencl__math_1_1opencl__subcol3" ],
+      [ "opencl_vdot3", "dc/dd1/interfaceopencl__math_1_1opencl__vdot3.html", "dc/dd1/interfaceopencl__math_1_1opencl__vdot3" ]
     ] ],
     [ "opr_device", "d3/d4d/namespaceopr__device.html", [
-      [ "hip_dudxyz", "db/df6/interfaceopr__device_1_1hip__dudxyz.html", "db/df6/interfaceopr__device_1_1hip__dudxyz" ],
       [ "hip_cdtp", "db/d39/interfaceopr__device_1_1hip__cdtp.html", "db/d39/interfaceopr__device_1_1hip__cdtp" ],
+      [ "hip_cfl", "d5/d51/interfaceopr__device_1_1hip__cfl.html", "d5/d51/interfaceopr__device_1_1hip__cfl" ],
       [ "hip_conv1", "df/d14/interfaceopr__device_1_1hip__conv1.html", "df/d14/interfaceopr__device_1_1hip__conv1" ],
-      [ "hip_opgrad", "d8/dd7/interfaceopr__device_1_1hip__opgrad.html", "d8/dd7/interfaceopr__device_1_1hip__opgrad" ],
+      [ "hip_dudxyz", "db/df6/interfaceopr__device_1_1hip__dudxyz.html", "db/df6/interfaceopr__device_1_1hip__dudxyz" ],
       [ "hip_lambda2", "df/dfd/interfaceopr__device_1_1hip__lambda2.html", "df/dfd/interfaceopr__device_1_1hip__lambda2" ],
-      [ "hip_cfl", "d5/d51/interfaceopr__device_1_1hip__cfl.html", "d5/d51/interfaceopr__device_1_1hip__cfl" ]
+      [ "hip_opgrad", "d8/dd7/interfaceopr__device_1_1hip__opgrad.html", "d8/dd7/interfaceopr__device_1_1hip__opgrad" ]
     ] ],
     [ "output", "dd/d93/namespaceoutput.html", [
-      [ "output_t", "dd/d5f/structoutput_1_1output__t.html", "dd/d5f/structoutput_1_1output__t" ],
       [ "output_ptr_t", "dc/d4d/structoutput_1_1output__ptr__t.html", "dc/d4d/structoutput_1_1output__ptr__t" ],
-      [ "output_sample", "dd/df1/interfaceoutput_1_1output__sample.html", "dd/df1/interfaceoutput_1_1output__sample" ]
+      [ "output_sample", "dd/df1/interfaceoutput_1_1output__sample.html", "dd/df1/interfaceoutput_1_1output__sample" ],
+      [ "output_t", "dd/d5f/structoutput_1_1output__t.html", "dd/d5f/structoutput_1_1output__t" ]
     ] ],
     [ "output_controller", "d8/d57/namespaceoutput__controller.html", [
       [ "output_controller_t", "d4/d3d/structoutput__controller_1_1output__controller__t.html", "d4/d3d/structoutput__controller_1_1output__controller__t" ]
     ] ],
     [ "parmetis", "d1/dd7/namespaceparmetis.html", [
-      [ "parmetis_v3_partmeshkway", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway.html", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway" ],
-      [ "parmetis_v3_partgeom", "d2/de5/interfaceparmetis_1_1parmetis__v3__partgeom.html", "d2/de5/interfaceparmetis_1_1parmetis__v3__partgeom" ]
+      [ "parmetis_v3_partgeom", "d2/de5/interfaceparmetis_1_1parmetis__v3__partgeom.html", "d2/de5/interfaceparmetis_1_1parmetis__v3__partgeom" ],
+      [ "parmetis_v3_partmeshkway", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway.html", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway" ]
     ] ],
     [ "pipecg", "de/d49/namespacepipecg.html", [
       [ "pipecg_t", "d4/db4/structpipecg_1_1pipecg__t.html", "d4/db4/structpipecg_1_1pipecg__t" ]
     ] ],
     [ "pipecg_device", "da/d46/namespacepipecg__device.html", [
-      [ "pipecg_device_t", "dc/d01/structpipecg__device_1_1pipecg__device__t.html", "dc/d01/structpipecg__device_1_1pipecg__device__t" ],
+      [ "cuda_cg_update_xp", "d5/dc6/interfacepipecg__device_1_1cuda__cg__update__xp.html", "d5/dc6/interfacepipecg__device_1_1cuda__cg__update__xp" ],
       [ "cuda_pipecg_vecops", "d3/d40/interfacepipecg__device_1_1cuda__pipecg__vecops.html", "d3/d40/interfacepipecg__device_1_1cuda__pipecg__vecops" ],
-      [ "cuda_cg_update_xp", "d5/dc6/interfacepipecg__device_1_1cuda__cg__update__xp.html", "d5/dc6/interfacepipecg__device_1_1cuda__cg__update__xp" ]
+      [ "pipecg_device_t", "dc/d01/structpipecg__device_1_1pipecg__device__t.html", "dc/d01/structpipecg__device_1_1pipecg__device__t" ]
     ] ],
     [ "pipecg_sx", "df/d53/namespacepipecg__sx.html", [
       [ "sx_pipecg_t", "d1/d8e/structpipecg__sx_1_1sx__pipecg__t.html", "d1/d8e/structpipecg__sx_1_1sx__pipecg__t" ]
@@ -839,10 +839,10 @@ var annotated_dup =
     ] ],
     [ "pnpn_res_device", "d8/dea/namespacepnpn__res__device.html", [
       [ "pnpn_prs_res_device_t", "dd/dd2/structpnpn__res__device_1_1pnpn__prs__res__device__t.html", "dd/dd2/structpnpn__res__device_1_1pnpn__prs__res__device__t" ],
-      [ "pnpn_vel_res_device_t", "d0/d22/structpnpn__res__device_1_1pnpn__vel__res__device__t.html", "d0/d22/structpnpn__res__device_1_1pnpn__vel__res__device__t" ],
       [ "pnpn_prs_res_part1_hip", "d9/d08/interfacepnpn__res__device_1_1pnpn__prs__res__part1__hip.html", "d9/d08/interfacepnpn__res__device_1_1pnpn__prs__res__part1__hip" ],
       [ "pnpn_prs_res_part2_hip", "d6/df7/interfacepnpn__res__device_1_1pnpn__prs__res__part2__hip.html", "d6/df7/interfacepnpn__res__device_1_1pnpn__prs__res__part2__hip" ],
       [ "pnpn_prs_res_part3_hip", "dd/d12/interfacepnpn__res__device_1_1pnpn__prs__res__part3__hip.html", "dd/d12/interfacepnpn__res__device_1_1pnpn__prs__res__part3__hip" ],
+      [ "pnpn_vel_res_device_t", "d0/d22/structpnpn__res__device_1_1pnpn__vel__res__device__t.html", "d0/d22/structpnpn__res__device_1_1pnpn__vel__res__device__t" ],
       [ "pnpn_vel_res_update_hip", "d1/d79/interfacepnpn__res__device_1_1pnpn__vel__res__update__hip.html", "d1/d79/interfacepnpn__res__device_1_1pnpn__vel__res__update__hip" ]
     ] ],
     [ "pnpn_res_stress_cpu", "de/d0d/namespacepnpn__res__stress__cpu.html", [
@@ -850,11 +850,11 @@ var annotated_dup =
       [ "pnpn_vel_res_stress_cpu_t", "dd/db5/structpnpn__res__stress__cpu_1_1pnpn__vel__res__stress__cpu__t.html", "dd/db5/structpnpn__res__stress__cpu_1_1pnpn__vel__res__stress__cpu__t" ]
     ] ],
     [ "pnpn_res_stress_device", "dd/d1f/namespacepnpn__res__stress__device.html", [
-      [ "pnpn_prs_res_stress_device_t", "de/d52/structpnpn__res__stress__device_1_1pnpn__prs__res__stress__device__t.html", "de/d52/structpnpn__res__stress__device_1_1pnpn__prs__res__stress__device__t" ],
-      [ "pnpn_vel_res_stress_device_t", "d1/d0c/structpnpn__res__stress__device_1_1pnpn__vel__res__stress__device__t.html", "d1/d0c/structpnpn__res__stress__device_1_1pnpn__vel__res__stress__device__t" ],
-      [ "pnpn_prs_stress_res_part1_hip", "df/d6c/interfacepnpn__res__stress__device_1_1pnpn__prs__stress__res__part1__hip.html", "df/d6c/interfacepnpn__res__stress__device_1_1pnpn__prs__stress__res__part1__hip" ],
       [ "pnpn_prs_res_part2_hip", "d5/d4c/interfacepnpn__res__stress__device_1_1pnpn__prs__res__part2__hip.html", "d5/d4c/interfacepnpn__res__stress__device_1_1pnpn__prs__res__part2__hip" ],
+      [ "pnpn_prs_res_stress_device_t", "de/d52/structpnpn__res__stress__device_1_1pnpn__prs__res__stress__device__t.html", "de/d52/structpnpn__res__stress__device_1_1pnpn__prs__res__stress__device__t" ],
+      [ "pnpn_prs_stress_res_part1_hip", "df/d6c/interfacepnpn__res__stress__device_1_1pnpn__prs__stress__res__part1__hip.html", "df/d6c/interfacepnpn__res__stress__device_1_1pnpn__prs__stress__res__part1__hip" ],
       [ "pnpn_prs_stress_res_part3_hip", "d8/dcc/interfacepnpn__res__stress__device_1_1pnpn__prs__stress__res__part3__hip.html", "d8/dcc/interfacepnpn__res__stress__device_1_1pnpn__prs__stress__res__part3__hip" ],
+      [ "pnpn_vel_res_stress_device_t", "d1/d0c/structpnpn__res__stress__device_1_1pnpn__vel__res__stress__device__t.html", "d1/d0c/structpnpn__res__stress__device_1_1pnpn__vel__res__stress__device__t" ],
       [ "pnpn_vel_res_update_hip", "d3/d91/interfacepnpn__res__stress__device_1_1pnpn__vel__res__update__hip.html", "d3/d91/interfacepnpn__res__stress__device_1_1pnpn__vel__res__update__hip" ]
     ] ],
     [ "pnpn_res_sx", "d4/da3/namespacepnpn__res__sx.html", [
@@ -868,26 +868,26 @@ var annotated_dup =
       [ "vel_res", "dd/d55/interfacepnpn__residual_1_1vel__res.html", "dd/d55/interfacepnpn__residual_1_1vel__res" ]
     ] ],
     [ "point", "d8/dbc/namespacepoint.html", [
-      [ "point_t", "db/d6f/structpoint_1_1point__t.html", "db/d6f/structpoint_1_1point__t" ],
-      [ "point_ptr", "d7/d33/structpoint_1_1point__ptr.html", "d7/d33/structpoint_1_1point__ptr" ]
+      [ "point_ptr", "d7/d33/structpoint_1_1point__ptr.html", "d7/d33/structpoint_1_1point__ptr" ],
+      [ "point_t", "db/d6f/structpoint_1_1point__t.html", "db/d6f/structpoint_1_1point__t" ]
     ] ],
     [ "point_interpolator", "df/d77/namespacepoint__interpolator.html", [
       [ "point_interpolator_t", "d6/d23/structpoint__interpolator_1_1point__interpolator__t.html", "d6/d23/structpoint__interpolator_1_1point__interpolator__t" ]
     ] ],
     [ "point_zone", "dc/d5f/namespacepoint__zone.html", [
-      [ "point_zone_t", "d6/d13/structpoint__zone_1_1point__zone__t.html", "d6/d13/structpoint__zone_1_1point__zone__t" ],
-      [ "point_zone_wrapper_t", "dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html", "dc/d31/structpoint__zone_1_1point__zone__wrapper__t" ],
-      [ "point_zone_pointer_t", "dd/dae/structpoint__zone_1_1point__zone__pointer__t.html", "dd/dae/structpoint__zone_1_1point__zone__pointer__t" ],
       [ "point_zone_criterion", "d7/dc6/interfacepoint__zone_1_1point__zone__criterion.html", "d7/dc6/interfacepoint__zone_1_1point__zone__criterion" ],
+      [ "point_zone_free", "dc/d4e/interfacepoint__zone_1_1point__zone__free.html", "dc/d4e/interfacepoint__zone_1_1point__zone__free" ],
       [ "point_zone_init", "d3/d1e/interfacepoint__zone_1_1point__zone__init.html", "d3/d1e/interfacepoint__zone_1_1point__zone__init" ],
-      [ "point_zone_free", "dc/d4e/interfacepoint__zone_1_1point__zone__free.html", "dc/d4e/interfacepoint__zone_1_1point__zone__free" ]
+      [ "point_zone_pointer_t", "dd/dae/structpoint__zone_1_1point__zone__pointer__t.html", "dd/dae/structpoint__zone_1_1point__zone__pointer__t" ],
+      [ "point_zone_t", "d6/d13/structpoint__zone_1_1point__zone__t.html", "d6/d13/structpoint__zone_1_1point__zone__t" ],
+      [ "point_zone_wrapper_t", "dc/d31/structpoint__zone_1_1point__zone__wrapper__t.html", "dc/d31/structpoint__zone_1_1point__zone__wrapper__t" ]
     ] ],
     [ "point_zone_registry", "d9/dac/namespacepoint__zone__registry.html", [
       [ "point_zone_registry_t", "dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t.html", "dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t" ]
     ] ],
     [ "precon", "d0/dbb/namespaceprecon.html", [
-      [ "pc_t", "d7/d3a/structprecon_1_1pc__t.html", "d7/d3a/structprecon_1_1pc__t" ],
       [ "pc_solve", "df/db4/interfaceprecon_1_1pc__solve.html", "df/db4/interfaceprecon_1_1pc__solve" ],
+      [ "pc_t", "d7/d3a/structprecon_1_1pc__t.html", "d7/d3a/structprecon_1_1pc__t" ],
       [ "pc_update", "d0/d0b/interfaceprecon_1_1pc__update.html", "d0/d0b/interfaceprecon_1_1pc__update" ]
     ] ],
     [ "probes", "d2/d4d/namespaceprobes.html", [
@@ -900,16 +900,16 @@ var annotated_dup =
       [ "quad_t", "d2/d32/structquad_1_1quad__t.html", "d2/d32/structquad_1_1quad__t" ]
     ] ],
     [ "re2", "dd/da1/namespacere2.html", [
-      [ "re2v1_t", "d4/db0/structre2_1_1re2v1__t.html", "d4/db0/structre2_1_1re2v1__t" ],
-      [ "re2v1_xyz_t", "de/d5b/structre2_1_1re2v1__xyz__t.html", "de/d5b/structre2_1_1re2v1__xyz__t" ],
-      [ "re2v1_xy_t", "d8/dfb/structre2_1_1re2v1__xy__t.html", "d8/dfb/structre2_1_1re2v1__xy__t" ],
-      [ "re2v1_curve_t", "de/db0/structre2_1_1re2v1__curve__t.html", "de/db0/structre2_1_1re2v1__curve__t" ],
       [ "re2v1_bc_t", "db/db1/structre2_1_1re2v1__bc__t.html", "db/db1/structre2_1_1re2v1__bc__t" ],
-      [ "re2v2_t", "d8/da8/structre2_1_1re2v2__t.html", "d8/da8/structre2_1_1re2v2__t" ],
-      [ "re2v2_xyz_t", "d9/df1/structre2_1_1re2v2__xyz__t.html", "d9/df1/structre2_1_1re2v2__xyz__t" ],
-      [ "re2v2_xy_t", "de/daa/structre2_1_1re2v2__xy__t.html", "de/daa/structre2_1_1re2v2__xy__t" ],
+      [ "re2v1_curve_t", "de/db0/structre2_1_1re2v1__curve__t.html", "de/db0/structre2_1_1re2v1__curve__t" ],
+      [ "re2v1_t", "d4/db0/structre2_1_1re2v1__t.html", "d4/db0/structre2_1_1re2v1__t" ],
+      [ "re2v1_xy_t", "d8/dfb/structre2_1_1re2v1__xy__t.html", "d8/dfb/structre2_1_1re2v1__xy__t" ],
+      [ "re2v1_xyz_t", "de/d5b/structre2_1_1re2v1__xyz__t.html", "de/d5b/structre2_1_1re2v1__xyz__t" ],
+      [ "re2v2_bc_t", "d9/dc9/structre2_1_1re2v2__bc__t.html", "d9/dc9/structre2_1_1re2v2__bc__t" ],
       [ "re2v2_curve_t", "d8/dc1/structre2_1_1re2v2__curve__t.html", "d8/dc1/structre2_1_1re2v2__curve__t" ],
-      [ "re2v2_bc_t", "d9/dc9/structre2_1_1re2v2__bc__t.html", "d9/dc9/structre2_1_1re2v2__bc__t" ]
+      [ "re2v2_t", "d8/da8/structre2_1_1re2v2__t.html", "d8/da8/structre2_1_1re2v2__t" ],
+      [ "re2v2_xy_t", "de/daa/structre2_1_1re2v2__xy__t.html", "de/daa/structre2_1_1re2v2__xy__t" ],
+      [ "re2v2_xyz_t", "d9/df1/structre2_1_1re2v2__xyz__t.html", "d9/df1/structre2_1_1re2v2__xyz__t" ]
     ] ],
     [ "re2_file", "df/d9e/namespacere2__file.html", [
       [ "re2_file_t", "d2/dfe/structre2__file_1_1re2__file__t.html", "d2/dfe/structre2__file_1_1re2__file__t" ]
@@ -921,39 +921,39 @@ var annotated_dup =
       [ "rea_file_t", "d9/dfe/structrea__file_1_1rea__file__t.html", "d9/dfe/structrea__file_1_1rea__file__t" ]
     ] ],
     [ "rhs_maker", "db/d98/namespacerhs__maker.html", [
-      [ "rhs_maker_sumab_t", "df/daa/structrhs__maker_1_1rhs__maker__sumab__t.html", "df/daa/structrhs__maker_1_1rhs__maker__sumab__t" ],
-      [ "rhs_maker_ext_t", "d8/d03/structrhs__maker_1_1rhs__maker__ext__t.html", "d8/d03/structrhs__maker_1_1rhs__maker__ext__t" ],
+      [ "rhs_maker_bdf", "d6/df3/interfacerhs__maker_1_1rhs__maker__bdf.html", "d6/df3/interfacerhs__maker_1_1rhs__maker__bdf" ],
       [ "rhs_maker_bdf_t", "d4/d7a/structrhs__maker_1_1rhs__maker__bdf__t.html", "d4/d7a/structrhs__maker_1_1rhs__maker__bdf__t" ],
+      [ "rhs_maker_ext", "d2/dc6/interfacerhs__maker_1_1rhs__maker__ext.html", "d2/dc6/interfacerhs__maker_1_1rhs__maker__ext" ],
+      [ "rhs_maker_ext_t", "d8/d03/structrhs__maker_1_1rhs__maker__ext__t.html", "d8/d03/structrhs__maker_1_1rhs__maker__ext__t" ],
+      [ "rhs_maker_oifs", "de/d98/interfacerhs__maker_1_1rhs__maker__oifs.html", "de/d98/interfacerhs__maker_1_1rhs__maker__oifs" ],
       [ "rhs_maker_oifs_t", "d5/d3c/structrhs__maker_1_1rhs__maker__oifs__t.html", "d5/d3c/structrhs__maker_1_1rhs__maker__oifs__t" ],
       [ "rhs_maker_sumab", "d2/def/interfacerhs__maker_1_1rhs__maker__sumab.html", "d2/def/interfacerhs__maker_1_1rhs__maker__sumab" ],
-      [ "rhs_maker_ext", "d2/dc6/interfacerhs__maker_1_1rhs__maker__ext.html", "d2/dc6/interfacerhs__maker_1_1rhs__maker__ext" ],
-      [ "scalar_rhs_maker_ext", "db/dfb/interfacerhs__maker_1_1scalar__rhs__maker__ext.html", "db/dfb/interfacerhs__maker_1_1scalar__rhs__maker__ext" ],
-      [ "rhs_maker_bdf", "d6/df3/interfacerhs__maker_1_1rhs__maker__bdf.html", "d6/df3/interfacerhs__maker_1_1rhs__maker__bdf" ],
+      [ "rhs_maker_sumab_t", "df/daa/structrhs__maker_1_1rhs__maker__sumab__t.html", "df/daa/structrhs__maker_1_1rhs__maker__sumab__t" ],
       [ "scalar_rhs_maker_bdf", "d0/db7/interfacerhs__maker_1_1scalar__rhs__maker__bdf.html", "d0/db7/interfacerhs__maker_1_1scalar__rhs__maker__bdf" ],
-      [ "rhs_maker_oifs", "de/d98/interfacerhs__maker_1_1rhs__maker__oifs.html", "de/d98/interfacerhs__maker_1_1rhs__maker__oifs" ],
+      [ "scalar_rhs_maker_ext", "db/dfb/interfacerhs__maker_1_1scalar__rhs__maker__ext.html", "db/dfb/interfacerhs__maker_1_1scalar__rhs__maker__ext" ],
       [ "scalar_rhs_maker_oifs", "d2/d9e/interfacerhs__maker_1_1scalar__rhs__maker__oifs.html", "d2/d9e/interfacerhs__maker_1_1scalar__rhs__maker__oifs" ]
     ] ],
     [ "rhs_maker_cpu", "db/dd7/namespacerhs__maker__cpu.html", [
-      [ "rhs_maker_sumab_cpu_t", "df/dbe/structrhs__maker__cpu_1_1rhs__maker__sumab__cpu__t.html", "df/dbe/structrhs__maker__cpu_1_1rhs__maker__sumab__cpu__t" ],
-      [ "rhs_maker_ext_cpu_t", "d2/d47/structrhs__maker__cpu_1_1rhs__maker__ext__cpu__t.html", "d2/d47/structrhs__maker__cpu_1_1rhs__maker__ext__cpu__t" ],
       [ "rhs_maker_bdf_cpu_t", "d8/d77/structrhs__maker__cpu_1_1rhs__maker__bdf__cpu__t.html", "d8/d77/structrhs__maker__cpu_1_1rhs__maker__bdf__cpu__t" ],
-      [ "rhs_maker_oifs_cpu_t", "d6/de6/structrhs__maker__cpu_1_1rhs__maker__oifs__cpu__t.html", "d6/de6/structrhs__maker__cpu_1_1rhs__maker__oifs__cpu__t" ]
+      [ "rhs_maker_ext_cpu_t", "d2/d47/structrhs__maker__cpu_1_1rhs__maker__ext__cpu__t.html", "d2/d47/structrhs__maker__cpu_1_1rhs__maker__ext__cpu__t" ],
+      [ "rhs_maker_oifs_cpu_t", "d6/de6/structrhs__maker__cpu_1_1rhs__maker__oifs__cpu__t.html", "d6/de6/structrhs__maker__cpu_1_1rhs__maker__oifs__cpu__t" ],
+      [ "rhs_maker_sumab_cpu_t", "df/dbe/structrhs__maker__cpu_1_1rhs__maker__sumab__cpu__t.html", "df/dbe/structrhs__maker__cpu_1_1rhs__maker__sumab__cpu__t" ]
     ] ],
     [ "rhs_maker_device", "d1/d29/namespacerhs__maker__device.html", [
-      [ "rhs_maker_sumab_device_t", "d0/df8/structrhs__maker__device_1_1rhs__maker__sumab__device__t.html", "d0/df8/structrhs__maker__device_1_1rhs__maker__sumab__device__t" ],
-      [ "rhs_maker_ext_device_t", "d6/d58/structrhs__maker__device_1_1rhs__maker__ext__device__t.html", "d6/d58/structrhs__maker__device_1_1rhs__maker__ext__device__t" ],
       [ "rhs_maker_bdf_device_t", "d2/d5e/structrhs__maker__device_1_1rhs__maker__bdf__device__t.html", "d2/d5e/structrhs__maker__device_1_1rhs__maker__bdf__device__t" ],
-      [ "rhs_maker_sumab_hip", "df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html", "df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip" ],
-      [ "rhs_maker_ext_hip", "d5/dff/interfacerhs__maker__device_1_1rhs__maker__ext__hip.html", "d5/dff/interfacerhs__maker__device_1_1rhs__maker__ext__hip" ],
-      [ "scalar_rhs_maker_ext_hip", "d3/dbe/interfacerhs__maker__device_1_1scalar__rhs__maker__ext__hip.html", "d3/dbe/interfacerhs__maker__device_1_1scalar__rhs__maker__ext__hip" ],
       [ "rhs_maker_bdf_hip", "db/d09/interfacerhs__maker__device_1_1rhs__maker__bdf__hip.html", "db/d09/interfacerhs__maker__device_1_1rhs__maker__bdf__hip" ],
-      [ "scalar_rhs_maker_bdf_hip", "dc/d3e/interfacerhs__maker__device_1_1scalar__rhs__maker__bdf__hip.html", "dc/d3e/interfacerhs__maker__device_1_1scalar__rhs__maker__bdf__hip" ]
+      [ "rhs_maker_ext_device_t", "d6/d58/structrhs__maker__device_1_1rhs__maker__ext__device__t.html", "d6/d58/structrhs__maker__device_1_1rhs__maker__ext__device__t" ],
+      [ "rhs_maker_ext_hip", "d5/dff/interfacerhs__maker__device_1_1rhs__maker__ext__hip.html", "d5/dff/interfacerhs__maker__device_1_1rhs__maker__ext__hip" ],
+      [ "rhs_maker_sumab_device_t", "d0/df8/structrhs__maker__device_1_1rhs__maker__sumab__device__t.html", "d0/df8/structrhs__maker__device_1_1rhs__maker__sumab__device__t" ],
+      [ "rhs_maker_sumab_hip", "df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip.html", "df/ded/interfacerhs__maker__device_1_1rhs__maker__sumab__hip" ],
+      [ "scalar_rhs_maker_bdf_hip", "dc/d3e/interfacerhs__maker__device_1_1scalar__rhs__maker__bdf__hip.html", "dc/d3e/interfacerhs__maker__device_1_1scalar__rhs__maker__bdf__hip" ],
+      [ "scalar_rhs_maker_ext_hip", "d3/dbe/interfacerhs__maker__device_1_1scalar__rhs__maker__ext__hip.html", "d3/dbe/interfacerhs__maker__device_1_1scalar__rhs__maker__ext__hip" ]
     ] ],
     [ "rhs_maker_sx", "db/d7a/namespacerhs__maker__sx.html", [
-      [ "rhs_maker_sumab_sx_t", "d9/d26/structrhs__maker__sx_1_1rhs__maker__sumab__sx__t.html", "d9/d26/structrhs__maker__sx_1_1rhs__maker__sumab__sx__t" ],
-      [ "rhs_maker_ext_sx_t", "d7/d0d/structrhs__maker__sx_1_1rhs__maker__ext__sx__t.html", "d7/d0d/structrhs__maker__sx_1_1rhs__maker__ext__sx__t" ],
       [ "rhs_maker_bdf_sx_t", "da/d10/structrhs__maker__sx_1_1rhs__maker__bdf__sx__t.html", "da/d10/structrhs__maker__sx_1_1rhs__maker__bdf__sx__t" ],
-      [ "rhs_maker_oifs_sx_t", "df/d1c/structrhs__maker__sx_1_1rhs__maker__oifs__sx__t.html", "df/d1c/structrhs__maker__sx_1_1rhs__maker__oifs__sx__t" ]
+      [ "rhs_maker_ext_sx_t", "d7/d0d/structrhs__maker__sx_1_1rhs__maker__ext__sx__t.html", "d7/d0d/structrhs__maker__sx_1_1rhs__maker__ext__sx__t" ],
+      [ "rhs_maker_oifs_sx_t", "df/d1c/structrhs__maker__sx_1_1rhs__maker__oifs__sx__t.html", "df/d1c/structrhs__maker__sx_1_1rhs__maker__oifs__sx__t" ],
+      [ "rhs_maker_sumab_sx_t", "d9/d26/structrhs__maker__sx_1_1rhs__maker__sumab__sx__t.html", "d9/d26/structrhs__maker__sx_1_1rhs__maker__sumab__sx__t" ]
     ] ],
     [ "rough_log_law", "d7/d0f/namespacerough__log__law.html", [
       [ "rough_log_law_t", "df/d21/structrough__log__law_1_1rough__log__law__t.html", "df/d21/structrough__log__law_1_1rough__log__law__t" ]
@@ -968,8 +968,8 @@ var annotated_dup =
       [ "scalar_pnpn_t", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t.html", "d9/dfd/structscalar__pnpn_1_1scalar__pnpn__t" ]
     ] ],
     [ "scalar_residual", "dc/de7/namespacescalar__residual.html", [
-      [ "scalar_residual_t", "de/de3/structscalar__residual_1_1scalar__residual__t.html", "de/de3/structscalar__residual_1_1scalar__residual__t" ],
-      [ "scalar_residual_interface", "d0/d90/interfacescalar__residual_1_1scalar__residual__interface.html", "d0/d90/interfacescalar__residual_1_1scalar__residual__interface" ]
+      [ "scalar_residual_interface", "d0/d90/interfacescalar__residual_1_1scalar__residual__interface.html", "d0/d90/interfacescalar__residual_1_1scalar__residual__interface" ],
+      [ "scalar_residual_t", "de/de3/structscalar__residual_1_1scalar__residual__t.html", "de/de3/structscalar__residual_1_1scalar__residual__t" ]
     ] ],
     [ "scalar_residual_cpu", "da/d78/namespacescalar__residual__cpu.html", [
       [ "scalar_residual_cpu_t", "db/d3c/structscalar__residual__cpu_1_1scalar__residual__cpu__t.html", "db/d3c/structscalar__residual__cpu_1_1scalar__residual__cpu__t" ]
@@ -982,19 +982,19 @@ var annotated_dup =
       [ "scalar_residual_sx_t", "dd/dd4/structscalar__residual__sx_1_1scalar__residual__sx__t.html", "dd/dd4/structscalar__residual__sx_1_1scalar__residual__sx__t" ]
     ] ],
     [ "scalar_scheme", "da/de3/namespacescalar__scheme.html", [
-      [ "scalar_scheme_t", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html", "dd/ded/structscalar__scheme_1_1scalar__scheme__t" ],
+      [ "scalar_scheme_free_intrf", "d0/dfe/interfacescalar__scheme_1_1scalar__scheme__free__intrf.html", "d0/dfe/interfacescalar__scheme_1_1scalar__scheme__free__intrf" ],
       [ "scalar_scheme_init_intrf", "db/d60/interfacescalar__scheme_1_1scalar__scheme__init__intrf.html", "db/d60/interfacescalar__scheme_1_1scalar__scheme__init__intrf" ],
       [ "scalar_scheme_restart_intrf", "d1/da1/interfacescalar__scheme_1_1scalar__scheme__restart__intrf.html", "d1/da1/interfacescalar__scheme_1_1scalar__scheme__restart__intrf" ],
-      [ "scalar_scheme_free_intrf", "d0/dfe/interfacescalar__scheme_1_1scalar__scheme__free__intrf.html", "d0/dfe/interfacescalar__scheme_1_1scalar__scheme__free__intrf" ],
-      [ "scalar_scheme_step_intrf", "dd/d55/interfacescalar__scheme_1_1scalar__scheme__step__intrf.html", "dd/d55/interfacescalar__scheme_1_1scalar__scheme__step__intrf" ]
+      [ "scalar_scheme_step_intrf", "dd/d55/interfacescalar__scheme_1_1scalar__scheme__step__intrf.html", "dd/d55/interfacescalar__scheme_1_1scalar__scheme__step__intrf" ],
+      [ "scalar_scheme_t", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html", "dd/ded/structscalar__scheme_1_1scalar__scheme__t" ]
     ] ],
     [ "scalar_source_term", "d9/d13/namespacescalar__source__term.html", [
       [ "scalar_source_term_t", "db/d55/structscalar__source__term_1_1scalar__source__term__t.html", "db/d55/structscalar__source__term_1_1scalar__source__term__t" ]
     ] ],
     [ "scalar_user_source_term", "d0/d19/namespacescalar__user__source__term.html", [
-      [ "scalar_user_source_term_t", "dd/d0f/structscalar__user__source__term_1_1scalar__user__source__term__t.html", "dd/d0f/structscalar__user__source__term_1_1scalar__user__source__term__t" ],
+      [ "scalar_source_compute_pointwise", "d2/dfe/interfacescalar__user__source__term_1_1scalar__source__compute__pointwise.html", "d2/dfe/interfacescalar__user__source__term_1_1scalar__source__compute__pointwise" ],
       [ "scalar_source_compute_vector", "d2/d72/interfacescalar__user__source__term_1_1scalar__source__compute__vector.html", "d2/d72/interfacescalar__user__source__term_1_1scalar__source__compute__vector" ],
-      [ "scalar_source_compute_pointwise", "d2/dfe/interfacescalar__user__source__term_1_1scalar__source__compute__pointwise.html", "d2/dfe/interfacescalar__user__source__term_1_1scalar__source__compute__pointwise" ]
+      [ "scalar_user_source_term_t", "dd/d0f/structscalar__user__source__term_1_1scalar__user__source__term__t.html", "dd/d0f/structscalar__user__source__term_1_1scalar__user__source__term__t" ]
     ] ],
     [ "schwarz", "d2/d37/namespaceschwarz.html", [
       [ "schwarz_t", "d0/d9f/structschwarz_1_1schwarz__t.html", "d0/d9f/structschwarz_1_1schwarz__t" ]
@@ -1009,20 +1009,20 @@ var annotated_dup =
       [ "sigma_t", "d2/dae/structsigma_1_1sigma__t.html", "d2/dae/structsigma_1_1sigma__t" ]
     ] ],
     [ "signal", "d1/daf/namespacesignal.html", [
-      [ "sighdl_timeout", "de/d81/interfacesignal_1_1sighdl__timeout.html", "de/d81/interfacesignal_1_1sighdl__timeout" ],
-      [ "sighdl_usr", "db/d92/interfacesignal_1_1sighdl__usr.html", "db/d92/interfacesignal_1_1sighdl__usr" ],
       [ "sighdl_set_timeout", "d3/d47/interfacesignal_1_1sighdl__set__timeout.html", "d3/d47/interfacesignal_1_1sighdl__set__timeout" ],
+      [ "sighdl_timeout", "de/d81/interfacesignal_1_1sighdl__timeout.html", "de/d81/interfacesignal_1_1sighdl__timeout" ],
       [ "sighdl_trap_cpulimit", "dc/d31/interfacesignal_1_1sighdl__trap__cpulimit.html", "dc/d31/interfacesignal_1_1sighdl__trap__cpulimit" ],
-      [ "sighdl_trap_usr", "de/d7c/interfacesignal_1_1sighdl__trap__usr.html", "de/d7c/interfacesignal_1_1sighdl__trap__usr" ]
+      [ "sighdl_trap_usr", "de/d7c/interfacesignal_1_1sighdl__trap__usr.html", "de/d7c/interfacesignal_1_1sighdl__trap__usr" ],
+      [ "sighdl_usr", "db/d92/interfacesignal_1_1sighdl__usr.html", "db/d92/interfacesignal_1_1sighdl__usr" ]
     ] ],
     [ "simcomp_executor", "d2/d78/namespacesimcomp__executor.html", [
       [ "simcomp_executor_t", "de/d74/structsimcomp__executor_1_1simcomp__executor__t.html", "de/d74/structsimcomp__executor_1_1simcomp__executor__t" ]
     ] ],
     [ "simulation_component", "d2/def/namespacesimulation__component.html", [
-      [ "simulation_component_t", "dc/d0d/structsimulation__component_1_1simulation__component__t.html", "dc/d0d/structsimulation__component_1_1simulation__component__t" ],
-      [ "simulation_component_wrapper_t", "d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html", "d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t" ],
+      [ "simulation_component_free", "d7/d7f/interfacesimulation__component_1_1simulation__component__free.html", "d7/d7f/interfacesimulation__component_1_1simulation__component__free" ],
       [ "simulation_component_init", "d6/deb/interfacesimulation__component_1_1simulation__component__init.html", "d6/deb/interfacesimulation__component_1_1simulation__component__init" ],
-      [ "simulation_component_free", "d7/d7f/interfacesimulation__component_1_1simulation__component__free.html", "d7/d7f/interfacesimulation__component_1_1simulation__component__free" ]
+      [ "simulation_component_t", "dc/d0d/structsimulation__component_1_1simulation__component__t.html", "dc/d0d/structsimulation__component_1_1simulation__component__t" ],
+      [ "simulation_component_wrapper_t", "d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html", "d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t" ]
     ] ],
     [ "smagorinsky", "d9/d9a/namespacesmagorinsky.html", [
       [ "smagorinsky_t", "d7/d8f/structsmagorinsky_1_1smagorinsky__t.html", "d7/d8f/structsmagorinsky_1_1smagorinsky__t" ]
@@ -1033,20 +1033,20 @@ var annotated_dup =
       [ "source_scalar_term_pw", "d1/d99/interfacesource__scalar_1_1source__scalar__term__pw.html", "d1/d99/interfacesource__scalar_1_1source__scalar__term__pw" ]
     ] ],
     [ "source_term", "de/de7/namespacesource__term.html", [
-      [ "source_term_t", "d8/d03/structsource__term_1_1source__term__t.html", "d8/d03/structsource__term_1_1source__term__t" ],
-      [ "source_term_wrapper_t", "d9/d5a/structsource__term_1_1source__term__wrapper__t.html", "d9/d5a/structsource__term_1_1source__term__wrapper__t" ],
-      [ "source_term_init", "d5/d9f/interfacesource__term_1_1source__term__init.html", "d5/d9f/interfacesource__term_1_1source__term__init" ],
+      [ "source_term_compute", "d0/d29/interfacesource__term_1_1source__term__compute.html", "d0/d29/interfacesource__term_1_1source__term__compute" ],
       [ "source_term_free", "d6/d77/interfacesource__term_1_1source__term__free.html", "d6/d77/interfacesource__term_1_1source__term__free" ],
-      [ "source_term_compute", "d0/d29/interfacesource__term_1_1source__term__compute.html", "d0/d29/interfacesource__term_1_1source__term__compute" ]
+      [ "source_term_init", "d5/d9f/interfacesource__term_1_1source__term__init.html", "d5/d9f/interfacesource__term_1_1source__term__init" ],
+      [ "source_term_t", "d8/d03/structsource__term_1_1source__term__t.html", "d8/d03/structsource__term_1_1source__term__t" ],
+      [ "source_term_wrapper_t", "d9/d5a/structsource__term_1_1source__term__wrapper__t.html", "d9/d5a/structsource__term_1_1source__term__wrapper__t" ]
     ] ],
     [ "source_term_handler", "db/d94/namespacesource__term__handler.html", [
-      [ "source_term_handler_t", "dc/d80/structsource__term__handler_1_1source__term__handler__t.html", "dc/d80/structsource__term__handler_1_1source__term__handler__t" ],
-      [ "source_term_handler_init_user_source", "dd/d0a/interfacesource__term__handler_1_1source__term__handler__init__user__source.html", "dd/d0a/interfacesource__term__handler_1_1source__term__handler__init__user__source" ]
+      [ "source_term_handler_init_user_source", "dd/d0a/interfacesource__term__handler_1_1source__term__handler__init__user__source.html", "dd/d0a/interfacesource__term__handler_1_1source__term__handler__init__user__source" ],
+      [ "source_term_handler_t", "dc/d80/structsource__term__handler_1_1source__term__handler__t.html", "dc/d80/structsource__term__handler_1_1source__term__handler__t" ]
     ] ],
     [ "space", "d5/d0d/namespacespace.html", [
-      [ "space_t", "da/d99/structspace_1_1space__t.html", "da/d99/structspace_1_1space__t" ],
       [ "operator(.eq.)", "d2/d73/interfacespace_1_1operator_07_8eq_8_08.html", "d2/d73/interfacespace_1_1operator_07_8eq_8_08" ],
-      [ "operator(.ne.)", "de/d17/interfacespace_1_1operator_07_8ne_8_08.html", "de/d17/interfacespace_1_1operator_07_8ne_8_08" ]
+      [ "operator(.ne.)", "de/d17/interfacespace_1_1operator_07_8ne_8_08.html", "de/d17/interfacespace_1_1operator_07_8ne_8_08" ],
+      [ "space_t", "da/d99/structspace_1_1space__t.html", "da/d99/structspace_1_1space__t" ]
     ] ],
     [ "spalding", "d5/d90/namespacespalding.html", [
       [ "spalding_t", "df/df1/structspalding_1_1spalding__t.html", "df/df1/structspalding_1_1spalding__t" ]
@@ -1058,20 +1058,20 @@ var annotated_dup =
       [ "sphere_point_zone_t", "d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html", "d1/d00/structsphere__point__zone_1_1sphere__point__zone__t" ]
     ] ],
     [ "stack", "d9/d30/namespacestack.html", [
-      [ "stack_t", "d2/dbd/structstack_1_1stack__t.html", "d2/dbd/structstack_1_1stack__t" ],
-      [ "stack_i4_t", "d2/d45/structstack_1_1stack__i4__t.html", "d2/d45/structstack_1_1stack__i4__t" ],
-      [ "stack_i8_t", "d8/d8f/structstack_1_1stack__i8__t.html", "d8/d8f/structstack_1_1stack__i8__t" ],
-      [ "stack_r8_t", "d9/d3d/structstack_1_1stack__r8__t.html", "d9/d3d/structstack_1_1stack__r8__t" ],
-      [ "stack_i4t2_t", "d1/d93/structstack_1_1stack__i4t2__t.html", "d1/d93/structstack_1_1stack__i4t2__t" ],
-      [ "stack_i4t4_t", "df/d1c/structstack_1_1stack__i4t4__t.html", "df/d1c/structstack_1_1stack__i4t4__t" ],
-      [ "stack_i4r8t2_t", "d9/d9d/structstack_1_1stack__i4r8t2__t.html", "d9/d9d/structstack_1_1stack__i4r8t2__t" ],
       [ "stack_2i4r8t3_t", "dc/d04/structstack_1_1stack__2i4r8t3__t.html", "dc/d04/structstack_1_1stack__2i4r8t3__t" ],
       [ "stack_curve_t", "d1/ddd/structstack_1_1stack__curve__t.html", "d1/ddd/structstack_1_1stack__curve__t" ],
-      [ "stack_nq_t", "de/d3d/structstack_1_1stack__nq__t.html", "de/d3d/structstack_1_1stack__nq__t" ],
-      [ "stack_nh_t", "de/d19/structstack_1_1stack__nh__t.html", "de/d19/structstack_1_1stack__nh__t" ],
-      [ "stack_nz_t", "d6/d71/structstack_1_1stack__nz__t.html", "d6/d71/structstack_1_1stack__nz__t" ],
+      [ "stack_i4_t", "d2/d45/structstack_1_1stack__i4__t.html", "d2/d45/structstack_1_1stack__i4__t" ],
+      [ "stack_i4r8t2_t", "d9/d9d/structstack_1_1stack__i4r8t2__t.html", "d9/d9d/structstack_1_1stack__i4r8t2__t" ],
+      [ "stack_i4t2_t", "d1/d93/structstack_1_1stack__i4t2__t.html", "d1/d93/structstack_1_1stack__i4t2__t" ],
+      [ "stack_i4t4_t", "df/d1c/structstack_1_1stack__i4t4__t.html", "df/d1c/structstack_1_1stack__i4t4__t" ],
+      [ "stack_i8_t", "d8/d8f/structstack_1_1stack__i8__t.html", "d8/d8f/structstack_1_1stack__i8__t" ],
       [ "stack_nc_t", "dd/da0/structstack_1_1stack__nc__t.html", "dd/da0/structstack_1_1stack__nc__t" ],
-      [ "stack_pt_t", "dc/d33/structstack_1_1stack__pt__t.html", "dc/d33/structstack_1_1stack__pt__t" ]
+      [ "stack_nh_t", "de/d19/structstack_1_1stack__nh__t.html", "de/d19/structstack_1_1stack__nh__t" ],
+      [ "stack_nq_t", "de/d3d/structstack_1_1stack__nq__t.html", "de/d3d/structstack_1_1stack__nq__t" ],
+      [ "stack_nz_t", "d6/d71/structstack_1_1stack__nz__t.html", "d6/d71/structstack_1_1stack__nz__t" ],
+      [ "stack_pt_t", "dc/d33/structstack_1_1stack__pt__t.html", "dc/d33/structstack_1_1stack__pt__t" ],
+      [ "stack_r8_t", "d9/d3d/structstack_1_1stack__r8__t.html", "d9/d3d/structstack_1_1stack__r8__t" ],
+      [ "stack_t", "d2/dbd/structstack_1_1stack__t.html", "d2/dbd/structstack_1_1stack__t" ]
     ] ],
     [ "stats", "d4/de4/namespacestats.html", [
       [ "quantp_t", "d3/de2/structstats_1_1quantp__t.html", "d3/de2/structstats_1_1quantp__t" ],
@@ -1089,8 +1089,8 @@ var annotated_dup =
       [ "stl_file_t", "d0/dab/structstl__file_1_1stl__file__t.html", "d0/dab/structstl__file_1_1stl__file__t" ]
     ] ],
     [ "structs", "d2/d74/namespacestructs.html", [
-      [ "struct_curve_t", "d0/d10/structstructs_1_1struct__curve__t.html", "d0/d10/structstructs_1_1struct__curve__t" ],
-      [ "array_ptr_t", "dd/d8c/structstructs_1_1array__ptr__t.html", "dd/d8c/structstructs_1_1array__ptr__t" ]
+      [ "array_ptr_t", "dd/d8c/structstructs_1_1array__ptr__t.html", "dd/d8c/structstructs_1_1array__ptr__t" ],
+      [ "struct_curve_t", "d0/d10/structstructs_1_1struct__curve__t.html", "d0/d10/structstructs_1_1struct__curve__t" ]
     ] ],
     [ "sx_jacobi", "dd/d6e/namespacesx__jacobi.html", [
       [ "sx_jacobi_t", "d4/d41/structsx__jacobi_1_1sx__jacobi__t.html", "d4/d41/structsx__jacobi_1_1sx__jacobi__t" ]
@@ -1106,8 +1106,8 @@ var annotated_dup =
       [ "triple_tensor_product", "dc/d32/interfacetensor_1_1triple__tensor__product.html", "dc/d32/interfacetensor_1_1triple__tensor__product" ]
     ] ],
     [ "tensor_device", "d1/d4a/namespacetensor__device.html", [
-      [ "hip_tnsr3d_el_list", "d4/d81/interfacetensor__device_1_1hip__tnsr3d__el__list.html", "d4/d81/interfacetensor__device_1_1hip__tnsr3d__el__list" ],
-      [ "hip_tnsr3d", "d1/df7/interfacetensor__device_1_1hip__tnsr3d.html", "d1/df7/interfacetensor__device_1_1hip__tnsr3d" ]
+      [ "hip_tnsr3d", "d1/df7/interfacetensor__device_1_1hip__tnsr3d.html", "d1/df7/interfacetensor__device_1_1hip__tnsr3d" ],
+      [ "hip_tnsr3d_el_list", "d4/d81/interfacetensor__device_1_1hip__tnsr3d__el__list.html", "d4/d81/interfacetensor__device_1_1hip__tnsr3d__el__list" ]
     ] ],
     [ "tet", "d6/df0/namespacetet.html", [
       [ "tet_t", "db/dd5/structtet_1_1tet__t.html", "db/dd5/structtet_1_1tet__t" ]
@@ -1116,15 +1116,15 @@ var annotated_dup =
       [ "tet_mesh_t", "db/d3a/structtet__mesh_1_1tet__mesh__t.html", "db/d3a/structtet__mesh_1_1tet__mesh__t" ]
     ] ],
     [ "time_based_controller", "d5/d11/namespacetime__based__controller.html", [
-      [ "time_based_controller_t", "db/de7/structtime__based__controller_1_1time__based__controller__t.html", "db/de7/structtime__based__controller_1_1time__based__controller__t" ],
-      [ "assignment(=)", "da/d69/interfacetime__based__controller_1_1assignment_07_0a_08.html", "da/d69/interfacetime__based__controller_1_1assignment_07_0a_08" ]
+      [ "assignment(=)", "da/d69/interfacetime__based__controller_1_1assignment_07_0a_08.html", "da/d69/interfacetime__based__controller_1_1assignment_07_0a_08" ],
+      [ "time_based_controller_t", "db/de7/structtime__based__controller_1_1time__based__controller__t.html", "db/de7/structtime__based__controller_1_1time__based__controller__t" ]
     ] ],
     [ "time_interpolator", "d7/d12/namespacetime__interpolator.html", [
       [ "time_interpolator_t", "d8/d85/structtime__interpolator_1_1time__interpolator__t.html", "d8/d85/structtime__interpolator_1_1time__interpolator__t" ]
     ] ],
     [ "time_scheme", "dd/d54/namespacetime__scheme.html", [
-      [ "time_scheme_t", "de/da4/structtime__scheme_1_1time__scheme__t.html", "de/da4/structtime__scheme_1_1time__scheme__t" ],
-      [ "compute_coeffs", "db/d60/interfacetime__scheme_1_1compute__coeffs.html", "db/d60/interfacetime__scheme_1_1compute__coeffs" ]
+      [ "compute_coeffs", "db/d60/interfacetime__scheme_1_1compute__coeffs.html", "db/d60/interfacetime__scheme_1_1compute__coeffs" ],
+      [ "time_scheme_t", "de/da4/structtime__scheme_1_1time__scheme__t.html", "de/da4/structtime__scheme_1_1time__scheme__t" ]
     ] ],
     [ "time_scheme_controller", "dc/dfb/namespacetime__scheme__controller.html", [
       [ "time_scheme_controller_t", "d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t.html", "d5/d79/structtime__scheme__controller_1_1time__scheme__controller__t" ]
@@ -1139,55 +1139,55 @@ var annotated_dup =
       [ "tri_mesh_t", "d2/dd7/structtri__mesh_1_1tri__mesh__t.html", "d2/dd7/structtri__mesh_1_1tri__mesh__t" ]
     ] ],
     [ "tuple", "df/dec/namespacetuple.html", [
-      [ "tuple_t", "d1/d3b/structtuple_1_1tuple__t.html", "d1/d3b/structtuple_1_1tuple__t" ],
-      [ "tuple_i4_t", "d5/d16/structtuple_1_1tuple__i4__t.html", "d5/d16/structtuple_1_1tuple__i4__t" ],
       [ "tuple3_i4_t", "d9/d51/structtuple_1_1tuple3__i4__t.html", "d9/d51/structtuple_1_1tuple3__i4__t" ],
       [ "tuple4_i4_t", "dd/de4/structtuple_1_1tuple4__i4__t.html", "dd/de4/structtuple_1_1tuple4__i4__t" ],
-      [ "tuple_r8_t", "d7/d14/structtuple_1_1tuple__r8__t.html", "d7/d14/structtuple_1_1tuple__r8__t" ],
-      [ "tuple_i4r8_t", "d4/deb/structtuple_1_1tuple__i4r8__t.html", "d4/deb/structtuple_1_1tuple__i4r8__t" ],
       [ "tuple_2i4r8_t", "da/d95/structtuple_1_1tuple__2i4r8__t.html", "da/d95/structtuple_1_1tuple__2i4r8__t" ],
       [ "tuple_assign_tuple", "d5/de9/interfacetuple_1_1tuple__assign__tuple.html", "d5/de9/interfacetuple_1_1tuple__assign__tuple" ],
       [ "tuple_assign_vector", "d8/db1/interfacetuple_1_1tuple__assign__vector.html", "d8/db1/interfacetuple_1_1tuple__assign__vector" ],
-      [ "tuple_equal", "db/df0/interfacetuple_1_1tuple__equal.html", "db/df0/interfacetuple_1_1tuple__equal" ]
+      [ "tuple_equal", "db/df0/interfacetuple_1_1tuple__equal.html", "db/df0/interfacetuple_1_1tuple__equal" ],
+      [ "tuple_i4_t", "d5/d16/structtuple_1_1tuple__i4__t.html", "d5/d16/structtuple_1_1tuple__i4__t" ],
+      [ "tuple_i4r8_t", "d4/deb/structtuple_1_1tuple__i4r8__t.html", "d4/deb/structtuple_1_1tuple__i4r8__t" ],
+      [ "tuple_r8_t", "d7/d14/structtuple_1_1tuple__r8__t.html", "d7/d14/structtuple_1_1tuple__r8__t" ],
+      [ "tuple_t", "d1/d3b/structtuple_1_1tuple__t.html", "d1/d3b/structtuple_1_1tuple__t" ]
     ] ],
     [ "user_intf", "d9/dbc/namespaceuser__intf.html", [
+      [ "user_final_modules", "d9/dfa/interfaceuser__intf_1_1user__final__modules.html", "d9/dfa/interfaceuser__intf_1_1user__final__modules" ],
+      [ "user_initialize_modules", "de/d4e/interfaceuser__intf_1_1user__initialize__modules.html", "de/d4e/interfaceuser__intf_1_1user__initialize__modules" ],
+      [ "user_material_properties", "dd/db6/interfaceuser__intf_1_1user__material__properties.html", "dd/db6/interfaceuser__intf_1_1user__material__properties" ],
+      [ "user_simcomp_init", "de/d93/interfaceuser__intf_1_1user__simcomp__init.html", "de/d93/interfaceuser__intf_1_1user__simcomp__init" ],
+      [ "user_t", "d7/da0/structuser__intf_1_1user__t.html", "d7/da0/structuser__intf_1_1user__t" ],
+      [ "usercheck", "d3/d11/interfaceuser__intf_1_1usercheck.html", "d3/d11/interfaceuser__intf_1_1usercheck" ],
       [ "useric", "d1/daa/interfaceuser__intf_1_1useric.html", "d1/daa/interfaceuser__intf_1_1useric" ],
       [ "useric_scalar", "d7/d69/interfaceuser__intf_1_1useric__scalar.html", "d7/d69/interfaceuser__intf_1_1useric__scalar" ],
-      [ "user_initialize_modules", "de/d4e/interfaceuser__intf_1_1user__initialize__modules.html", "de/d4e/interfaceuser__intf_1_1user__initialize__modules" ],
-      [ "user_simcomp_init", "de/d93/interfaceuser__intf_1_1user__simcomp__init.html", "de/d93/interfaceuser__intf_1_1user__simcomp__init" ],
-      [ "usermsh", "da/dd1/interfaceuser__intf_1_1usermsh.html", "da/dd1/interfaceuser__intf_1_1usermsh" ],
-      [ "usercheck", "d3/d11/interfaceuser__intf_1_1usercheck.html", "d3/d11/interfaceuser__intf_1_1usercheck" ],
-      [ "user_final_modules", "d9/dfa/interfaceuser__intf_1_1user__final__modules.html", "d9/dfa/interfaceuser__intf_1_1user__final__modules" ],
-      [ "user_material_properties", "dd/db6/interfaceuser__intf_1_1user__material__properties.html", "dd/db6/interfaceuser__intf_1_1user__material__properties" ],
-      [ "user_t", "d7/da0/structuser__intf_1_1user__t.html", "d7/da0/structuser__intf_1_1user__t" ]
+      [ "usermsh", "da/dd1/interfaceuser__intf_1_1usermsh.html", "da/dd1/interfaceuser__intf_1_1usermsh" ]
     ] ],
     [ "uset", "df/da5/namespaceuset.html", [
-      [ "uset_t", "d8/d9e/structuset_1_1uset__t.html", "d8/d9e/structuset_1_1uset__t" ],
-      [ "uset_i4_t", "d6/db2/structuset_1_1uset__i4__t.html", "d6/db2/structuset_1_1uset__i4__t" ],
-      [ "uset_i8_t", "d0/d60/structuset_1_1uset__i8__t.html", "d0/d60/structuset_1_1uset__i8__t" ],
-      [ "uset_r8_t", "d3/d19/structuset_1_1uset__r8__t.html", "d3/d19/structuset_1_1uset__r8__t" ],
-      [ "uset_init", "da/d4f/interfaceuset_1_1uset__init.html", "da/d4f/interfaceuset_1_1uset__init" ],
-      [ "uset_free", "d3/d82/interfaceuset_1_1uset__free.html", "d3/d82/interfaceuset_1_1uset__free" ],
-      [ "uset_size", "df/dc3/interfaceuset_1_1uset__size.html", "df/dc3/interfaceuset_1_1uset__size" ],
+      [ "uset_add", "dd/d59/interfaceuset_1_1uset__add.html", "dd/d59/interfaceuset_1_1uset__add" ],
       [ "uset_clear", "d3/dcc/interfaceuset_1_1uset__clear.html", "d3/dcc/interfaceuset_1_1uset__clear" ],
       [ "uset_element", "db/d02/interfaceuset_1_1uset__element.html", "db/d02/interfaceuset_1_1uset__element" ],
-      [ "uset_add", "dd/d59/interfaceuset_1_1uset__add.html", "dd/d59/interfaceuset_1_1uset__add" ],
-      [ "uset_remove", "d3/d45/interfaceuset_1_1uset__remove.html", "d3/d45/interfaceuset_1_1uset__remove" ]
+      [ "uset_free", "d3/d82/interfaceuset_1_1uset__free.html", "d3/d82/interfaceuset_1_1uset__free" ],
+      [ "uset_i4_t", "d6/db2/structuset_1_1uset__i4__t.html", "d6/db2/structuset_1_1uset__i4__t" ],
+      [ "uset_i8_t", "d0/d60/structuset_1_1uset__i8__t.html", "d0/d60/structuset_1_1uset__i8__t" ],
+      [ "uset_init", "da/d4f/interfaceuset_1_1uset__init.html", "da/d4f/interfaceuset_1_1uset__init" ],
+      [ "uset_r8_t", "d3/d19/structuset_1_1uset__r8__t.html", "d3/d19/structuset_1_1uset__r8__t" ],
+      [ "uset_remove", "d3/d45/interfaceuset_1_1uset__remove.html", "d3/d45/interfaceuset_1_1uset__remove" ],
+      [ "uset_size", "df/dc3/interfaceuset_1_1uset__size.html", "df/dc3/interfaceuset_1_1uset__size" ],
+      [ "uset_t", "d8/d9e/structuset_1_1uset__t.html", "d8/d9e/structuset_1_1uset__t" ]
     ] ],
     [ "usr_inflow", "dc/d45/namespaceusr__inflow.html", [
-      [ "usr_inflow_t", "d8/d63/structusr__inflow_1_1usr__inflow__t.html", "d8/d63/structusr__inflow_1_1usr__inflow__t" ],
-      [ "usr_inflow_eval", "d6/d76/interfaceusr__inflow_1_1usr__inflow__eval.html", "d6/d76/interfaceusr__inflow_1_1usr__inflow__eval" ]
+      [ "usr_inflow_eval", "d6/d76/interfaceusr__inflow_1_1usr__inflow__eval.html", "d6/d76/interfaceusr__inflow_1_1usr__inflow__eval" ],
+      [ "usr_inflow_t", "d8/d63/structusr__inflow_1_1usr__inflow__t.html", "d8/d63/structusr__inflow_1_1usr__inflow__t" ]
     ] ],
     [ "usr_scalar", "dd/d87/namespaceusr__scalar.html", [
-      [ "usr_scalar_t", "d5/d57/structusr__scalar_1_1usr__scalar__t.html", "d5/d57/structusr__scalar_1_1usr__scalar__t" ],
-      [ "usr_scalar_bc_eval", "d8/dbe/interfaceusr__scalar_1_1usr__scalar__bc__eval.html", "d8/dbe/interfaceusr__scalar_1_1usr__scalar__bc__eval" ]
+      [ "usr_scalar_bc_eval", "d8/dbe/interfaceusr__scalar_1_1usr__scalar__bc__eval.html", "d8/dbe/interfaceusr__scalar_1_1usr__scalar__bc__eval" ],
+      [ "usr_scalar_t", "d5/d57/structusr__scalar_1_1usr__scalar__t.html", "d5/d57/structusr__scalar_1_1usr__scalar__t" ]
     ] ],
     [ "utils", "d6/d84/namespaceutils.html", [
       [ "neko_error", "d7/d83/interfaceutils_1_1neko__error.html", "d7/d83/interfaceutils_1_1neko__error" ]
     ] ],
     [ "vector", "d7/d34/namespacevector.html", [
-      [ "vector_t", "d3/d5b/structvector_1_1vector__t.html", "d3/d5b/structvector_1_1vector__t" ],
-      [ "vector_ptr_t", "d5/d0b/structvector_1_1vector__ptr__t.html", "d5/d0b/structvector_1_1vector__ptr__t" ]
+      [ "vector_ptr_t", "d5/d0b/structvector_1_1vector__ptr__t.html", "d5/d0b/structvector_1_1vector__ptr__t" ],
+      [ "vector_t", "d3/d5b/structvector_1_1vector__t.html", "d3/d5b/structvector_1_1vector__t" ]
     ] ],
     [ "vorticity", "dd/de3/namespacevorticity.html", [
       [ "vorticity_t", "da/d79/structvorticity_1_1vorticity__t.html", "da/d79/structvorticity_1_1vorticity__t" ]
@@ -1202,10 +1202,10 @@ var annotated_dup =
       [ "no_slip_wall_t", "dd/d9d/structwall_1_1no__slip__wall__t.html", "dd/d9d/structwall_1_1no__slip__wall__t" ]
     ] ],
     [ "wall_model", "da/ddd/namespacewall__model.html", [
-      [ "wall_model_t", "d4/d70/structwall__model_1_1wall__model__t.html", "d4/d70/structwall__model_1_1wall__model__t" ],
       [ "wall_model_compute", "dc/dae/interfacewall__model_1_1wall__model__compute.html", "dc/dae/interfacewall__model_1_1wall__model__compute" ],
+      [ "wall_model_free", "dd/d3e/interfacewall__model_1_1wall__model__free.html", "dd/d3e/interfacewall__model_1_1wall__model__free" ],
       [ "wall_model_init", "d5/db1/interfacewall__model_1_1wall__model__init.html", "d5/db1/interfacewall__model_1_1wall__model__init" ],
-      [ "wall_model_free", "dd/d3e/interfacewall__model_1_1wall__model__free.html", "dd/d3e/interfacewall__model_1_1wall__model__free" ]
+      [ "wall_model_t", "d4/d70/structwall__model_1_1wall__model__t.html", "d4/d70/structwall__model_1_1wall__model__t" ]
     ] ],
     [ "wall_model_bc", "de/d2c/namespacewall__model__bc.html", [
       [ "wall_model_bc_t", "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html", "d1/d49/structwall__model__bc_1_1wall__model__bc__t" ]

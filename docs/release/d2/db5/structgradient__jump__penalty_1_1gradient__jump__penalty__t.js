@@ -1,9 +1,9 @@
 var structgradient__jump__penalty_1_1gradient__jump__penalty__t =
 [
-    [ "compute", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#ad66f630b1df96c882fe0321f6aeed253", null ],
-    [ "free", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#ac8af9c9c5a363bf1918ced25b881b63f", null ],
-    [ "init", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#a6f5c3528856448e1198ce0dd21adccc6", null ],
-    [ "perform", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#aaf4f98f1f4a6abf26aa6338c3144cb3e", null ],
+    [ "compute", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#a86ec9cc6ab3ca1ef9f7ef5aae39e4a44", null ],
+    [ "free", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#ac2dcce3c4c329229eaae232b15b4445e", null ],
+    [ "init", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#afd2f9addf8f449aaf45050662924d7ed", null ],
+    [ "perform", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#abd210a3d01efe9624f6f2b794b87a0c3", null ],
     [ "absvolflux", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#a0cb3a446b1039a1e58ca6c22083735f0", null ],
     [ "absvolflux_d", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#ab5dce9d3491cc76442382c8e63aeddc4", null ],
     [ "coef", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#ae27289fdc094e643613c230ac3223157", null ],

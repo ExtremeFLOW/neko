@@ -1,9 +1,9 @@
 var cheby_8f90 =
 [
-    [ "cheby_t", "db/d28/structcheby_1_1cheby__t.html", "db/d28/structcheby_1_1cheby__t" ],
+    [ "cheby::cheby_t", "db/d28/structcheby_1_1cheby__t.html", "db/d28/structcheby_1_1cheby__t" ],
     [ "cheby_free", "de/da4/cheby_8f90.html#a93752963bbda5360039dc8e6dcc8ec90", null ],
-    [ "cheby_init", "de/da4/cheby_8f90.html#a480b68d2ad1374291d429d9ef80f27bd", null ],
-    [ "cheby_power", "de/da4/cheby_8f90.html#a1be499dc18770d07c40418b57eeb7439", null ],
-    [ "cheby_solve", "de/da4/cheby_8f90.html#a84bf363b199702d8b94099e58848218e", null ],
-    [ "cheby_solve_coupled", "de/da4/cheby_8f90.html#ad55ea585a238553d39ff947fd83f2566", null ]
+    [ "cheby_init", "de/da4/cheby_8f90.html#aa9e4e58c71fe092ba4fe142a023649b8", null ],
+    [ "cheby_power", "de/da4/cheby_8f90.html#ab40c8151b9adc5d370afba6bc0ef9b65", null ],
+    [ "cheby_solve", "de/da4/cheby_8f90.html#af7979c0181a627e385c8bd107d603e84", null ],
+    [ "cheby_solve_coupled", "de/da4/cheby_8f90.html#aa4120bff5159b763736786cae4e18518", null ]
 ];

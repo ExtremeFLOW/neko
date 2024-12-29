@@ -1,6 +1,6 @@
 var gs__sx_8f90 =
 [
-    [ "gs_sx_t", "db/d5b/structgs__sx_1_1gs__sx__t.html", "db/d5b/structgs__sx_1_1gs__sx__t" ],
+    [ "gs_sx::gs_sx_t", "db/d5b/structgs__sx_1_1gs__sx__t.html", "db/d5b/structgs__sx_1_1gs__sx__t" ],
     [ "gs_gather_kernel_add", "de/d94/gs__sx_8f90.html#abfb7f815b44dbd81d06c1c0c2eae1040", null ],
     [ "gs_gather_kernel_max", "de/d94/gs__sx_8f90.html#a72adf2a457f0d0b6c83b4d0737c2b7ce", null ],
     [ "gs_gather_kernel_min", "de/d94/gs__sx_8f90.html#ab03ce833fa343aaa8dd85a1101fbd4db", null ],

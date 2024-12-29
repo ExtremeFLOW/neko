@@ -1,0 +1,7 @@
+<map id="file::file_t::file_free" name="file::file_t::file_free">
+<area shape="rect" id="Node000001" title="File operation destructor." alt="" coords="5,31,148,56"/>
+<area shape="rect" id="Node000002" href="$da/d16/namespacefile.html#aa1b75b689ccaf533d011ac92fb6e8d5b" title="File operation destructor." alt="" coords="196,5,299,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,30,182,25,183,30,149,35"/>
+<area shape="rect" id="Node000003" href="$da/d16/namespacefile.html#a0fab241fca30beb5b3de7e4245044f8e" title="File reader/writer constructor." alt="" coords="198,55,297,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="149,51,185,56,184,61,148,56"/>
+</map>

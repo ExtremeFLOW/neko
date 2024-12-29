@@ -1,7 +1,7 @@
 var mxm__wrapper_8F90 =
 [
-    [ "mxm_blas", "dc/dac/interfacemxm__wrapper_1_1mxm__blas.html", "dc/dac/interfacemxm__wrapper_1_1mxm__blas" ],
-    [ "mxm_libxsmm", "de/dd8/interfacemxm__wrapper_1_1mxm__libxsmm.html", "de/dd8/interfacemxm__wrapper_1_1mxm__libxsmm" ],
+    [ "mxm_wrapper::mxm_blas", "dc/dac/interfacemxm__wrapper_1_1mxm__blas.html", "dc/dac/interfacemxm__wrapper_1_1mxm__blas" ],
+    [ "mxm_wrapper::mxm_libxsmm", "de/dd8/interfacemxm__wrapper_1_1mxm__libxsmm.html", "de/dd8/interfacemxm__wrapper_1_1mxm__libxsmm" ],
     [ "mxm", "d8/d25/mxm__wrapper_8F90.html#ab3632911ec4db7f1ffe82b006aa287ed", null ],
     [ "mxm_blas_dp", "d8/d25/mxm__wrapper_8F90.html#a57101fee27b95f64c8d7e504daa6840b", null ],
     [ "mxm_blas_qp", "d8/d25/mxm__wrapper_8F90.html#a855ce4f78a260106ba9131467b840fed", null ],

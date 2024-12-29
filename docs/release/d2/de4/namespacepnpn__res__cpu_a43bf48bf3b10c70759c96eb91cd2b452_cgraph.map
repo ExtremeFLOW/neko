@@ -1,0 +1,26 @@
+<map id="pnpn_res_cpu::pnpn_vel_res_cpu_compute" name="pnpn_res_cpu::pnpn_vel_res_cpu_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,111,176,151"/>
+<area shape="rect" id="Node000002" href="$dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix." alt="" coords="224,119,361,144"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,129,210,129,210,134,177,134"/>
+<area shape="rect" id="Node000003" href="$d3/d4d/namespaceopr__device.html#ad5bf8b83c33e9c73125c466a6fab72df" title=" " alt="" coords="409,62,581,102"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="345,116,399,103,400,108,346,121"/>
+<area shape="rect" id="Node000008" href="$d9/d5a/namespaceopr__xsmm.html#ac368e7ac69182681cdbea4a3f378bc50" title=" " alt="" coords="411,143,579,183"/>
+<area shape="poly" id="edge10_Node000002_Node000008" title=" " alt="" coords="362,140,398,145,397,151,361,145"/>
+<area shape="rect" id="Node000004" href="$d6/d68/opr__opgrad_8cu.html#a47a2678dd1f3bc0187df518f5fce764d" title=" " alt="" coords="927,5,1032,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="581,62,629,54,782,34,913,21,913,26,782,40,630,59,582,67"/>
+<area shape="rect" id="Node000006" href="$d0/d82/opr__opgrad_8c.html#a8844437d901cf613744a5f9b55d1a72c" title=" " alt="" coords="682,69,799,95"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="582,79,669,79,669,85,582,85"/>
+<area shape="rect" id="Node000005" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="1107,49,1271,89"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1033,28,1094,43,1093,48,1032,33"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="1150,49,1147,39,1153,30,1167,24,1189,22,1213,25,1226,32,1224,37,1211,30,1189,27,1169,29,1157,34,1152,40,1155,48"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="800,78,1093,69,1093,74,800,83"/>
+<area shape="rect" id="Node000007" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="913,107,1045,132"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="800,88,900,104,899,110,799,94"/>
+<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="1032,104,1092,89,1094,94,1033,109"/>
+<area shape="rect" id="Node000009" href="$d9/d5a/namespaceopr__xsmm.html#afced4474e6070b5f75f9767b4b107aaf" title=" " alt="" coords="653,151,828,176"/>
+<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="580,161,639,161,639,166,580,166"/>
+<area shape="rect" id="Node000011" href="$d9/d5a/namespaceopr__xsmm.html#a005ad99d806e0b64c65c52b0819b08ec" title=" " alt="" coords="629,200,852,225"/>
+<area shape="poly" id="edge13_Node000008_Node000011" title=" " alt="" coords="580,178,664,195,663,200,579,183"/>
+<area shape="rect" id="Node000010" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="900,156,1059,181"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="828,163,886,164,886,169,828,168"/>
+</map>

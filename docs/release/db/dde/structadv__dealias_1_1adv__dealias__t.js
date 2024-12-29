@@ -1,9 +1,12 @@
 var structadv__dealias_1_1adv__dealias__t =
 [
-    [ "compute", "db/dde/structadv__dealias_1_1adv__dealias__t.html#a8cd71aff395f3fdf49446c96929008d1", null ],
-    [ "compute_scalar", "db/dde/structadv__dealias_1_1adv__dealias__t.html#ad4f30898647215fd8715252a8f138ec9", null ],
-    [ "free", "db/dde/structadv__dealias_1_1adv__dealias__t.html#a5545cbbb5d25e58675d59d1c438d9fd6", null ],
-    [ "init", "db/dde/structadv__dealias_1_1adv__dealias__t.html#a24b3931c8eb562757a481f5ab4698c6b", null ],
+    [ "compute", "db/dde/structadv__dealias_1_1adv__dealias__t.html#a253f01ef8bf8ec315e3cb16c6660a0ba", null ],
+    [ "compute", "db/dde/structadv__dealias_1_1adv__dealias__t.html#a23b1db5337aceb1a8e521690fe44c5f9", null ],
+    [ "compute_scalar", "db/dde/structadv__dealias_1_1adv__dealias__t.html#a7f251eef0cc5388883e1b103429c352e", null ],
+    [ "compute_scalar", "db/dde/structadv__dealias_1_1adv__dealias__t.html#a568f92196499a6935ac36609e42ca636", null ],
+    [ "free", "db/dde/structadv__dealias_1_1adv__dealias__t.html#a8ee7af6799711537b374111f3232be6a", null ],
+    [ "free", "db/dde/structadv__dealias_1_1adv__dealias__t.html#a55b829d9713e27c1f6ab9ae5d9a1fa19", null ],
+    [ "init", "db/dde/structadv__dealias_1_1adv__dealias__t.html#afe9f3456b5ba3be5dbdc3229b50e4f2c", null ],
     [ "coef_gl", "db/dde/structadv__dealias_1_1adv__dealias__t.html#a55721cafe0df5aeee513f1bba98757b6", null ],
     [ "coef_gll", "db/dde/structadv__dealias_1_1adv__dealias__t.html#ae46495be1d74f7be3dd02397331940c8", null ],
     [ "gll_to_gl", "db/dde/structadv__dealias_1_1adv__dealias__t.html#a33f7bb2bab4f623c1f516648a29fb755", null ],

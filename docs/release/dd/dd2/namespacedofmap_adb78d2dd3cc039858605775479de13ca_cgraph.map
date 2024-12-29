@@ -1,0 +1,42 @@
+<map id="dofmap::dofmap_xyzquad" name="dofmap::dofmap_xyzquad">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,207,197,232"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="538,257,633,283"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,227,525,261,524,266,197,232"/>
+<area shape="rect" id="Node000003" href="$dd/dd2/namespacedofmap.html#a971e44364f26c18dcc5aeaa06ab7d50d" title="Generate the x, y, z coordinates of the dofs in a signle element, assuming linear element edges." alt="" coords="261,105,437,131"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="125,204,179,177,244,148,288,132,290,137,246,152,181,181,128,209"/>
+<area shape="rect" id="Node000004" href="$dc/d5b/namespacefast3d.html#a8cf69d1d964e71a541204bd6c2fc41c4" title="Compute finite&#45;difference stencil weights for evaluating derivatives up to order &#160;at a point." alt="" coords="500,5,671,31"/>
+<area shape="poly" id="edge15_Node000001_Node000004" title=" " alt="" coords="107,205,126,173,157,131,196,89,244,54,304,30,367,16,429,10,486,8,486,14,430,15,368,22,305,36,247,59,200,93,161,135,131,176,112,208"/>
+<area shape="rect" id="Node000005" href="$dd/d8c/namespacetensor.html#ac922512260dbb68bbfaf9cfca3f564e7" title="Tensor product ." alt="" coords="529,55,641,80"/>
+<area shape="poly" id="edge22_Node000001_Node000005" title=" " alt="" coords="110,205,162,147,201,115,244,90,314,69,387,58,456,55,516,57,516,63,456,61,387,63,315,74,246,95,204,120,166,151,114,208"/>
+<area shape="rect" id="Node000007" href="$dd/d8c/namespacetensor.html#afe76fa9151a4e8618ad1923f6e2bc597" title="Computes ." alt="" coords="520,156,651,181"/>
+<area shape="poly" id="edge23_Node000001_Node000007" title=" " alt="" coords="196,204,245,198,506,173,506,178,246,203,196,209"/>
+<area shape="rect" id="Node000011" href="$dd/d8c/namespacetensor.html#a8947209d2430fc2471fbf9d2984485da" title="Transpose of a rectangular tensor ." alt="" coords="537,207,633,232"/>
+<area shape="poly" id="edge24_Node000001_Node000011" title=" " alt="" coords="198,217,524,217,524,222,198,222"/>
+<area shape="rect" id="Node000012" href="$dd/dd2/namespacedofmap.html#a1036efd4469d06921a6eacca861cad39" title="Extend 2D faces into interior via gordon hall gh_type: 1 &#45; vertex only 2 &#45; vertex and faces." alt="" coords="245,308,452,333"/>
+<area shape="poly" id="edge16_Node000001_Node000012" title=" " alt="" coords="128,230,181,257,246,286,290,301,288,306,244,291,179,262,125,235"/>
+<area shape="rect" id="Node000015" href="$dd/dd2/namespacedofmap.html#ae710cdf2efdddfe06dfd930addd83c84" title="Extend faces into interior via gordon hall gh_type: 1 &#45; vertex only 2 &#45; vertex and edges 3 &#45; vertex,..." alt="" coords="245,357,452,383"/>
+<area shape="poly" id="edge20_Node000001_Node000015" title=" " alt="" coords="115,230,168,285,205,316,247,342,265,351,263,355,244,347,202,320,164,289,111,234"/>
+<area shape="rect" id="Node000016" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="275,407,423,432"/>
+<area shape="poly" id="edge21_Node000001_Node000016" title=" " alt="" coords="112,231,131,264,160,309,200,355,247,393,263,401,260,406,244,398,196,358,156,312,126,267,107,234"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="364,129,420,183,459,214,501,241,526,252,524,257,499,246,456,218,417,187,360,133"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="370,103,428,72,499,40,520,32,522,37,501,44,430,77,373,108"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="408,103,515,79,516,85,410,108"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="410,128,513,150,512,156,408,133"/>
+<area shape="poly" id="edge14_Node000003_Node000011" title=" " alt="" coords="374,128,431,158,501,190,527,200,526,205,499,195,429,163,372,133"/>
+<area shape="rect" id="Node000006" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="941,135,1100,160"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="641,62,759,63,827,70,894,83,945,102,989,125,987,130,943,107,893,89,826,75,758,69,641,67"/>
+<area shape="rect" id="Node000008" href="$d4/d59/namespacetensor__cpu.html#acc19954200ae575492692c19bba2a7c3" title=" " alt="" coords="735,98,877,138"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="641,153,721,135,722,140,642,158"/>
+<area shape="rect" id="Node000009" href="$db/de7/namespacetensor__sx.html#ae40bc41ded753e9b7c41a6ca576a6cfd" title=" " alt="" coords="719,163,893,188"/>
+<area shape="poly" id="edge10_Node000007_Node000009" title=" " alt="" coords="651,168,705,170,704,175,651,173"/>
+<area shape="rect" id="Node000010" href="$dd/d89/namespacetensor__xsmm.html#ab2fc4092fde9a9041871a0d027db9a64" title=" " alt="" coords="726,213,886,253"/>
+<area shape="poly" id="edge12_Node000007_Node000010" title=" " alt="" coords="631,179,724,206,723,211,630,184"/>
+<area shape="poly" id="edge9_Node000008_Node000006" title=" " alt="" coords="878,125,928,132,927,137,877,130"/>
+<area shape="poly" id="edge11_Node000009_Node000006" title=" " alt="" coords="893,161,927,157,928,162,894,167"/>
+<area shape="poly" id="edge13_Node000010_Node000006" title=" " alt="" coords="859,210,892,197,975,163,977,168,894,202,861,215"/>
+<area shape="poly" id="edge18_Node000012_Node000002" title=" " alt="" coords="408,305,524,280,525,285,410,310"/>
+<area shape="rect" id="Node000013" href="$dd/d47/namespacemath.html#a79189c047ee36fa194f43257bda3c8d8" title="Vector addition ." alt="" coords="537,357,633,383"/>
+<area shape="poly" id="edge17_Node000012_Node000013" title=" " alt="" coords="411,331,524,355,523,360,410,336"/>
+<area shape="rect" id="Node000014" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="537,308,634,333"/>
+<area shape="poly" id="edge19_Node000012_Node000014" title=" " alt="" coords="452,318,523,318,523,323,452,323"/>
+</map>

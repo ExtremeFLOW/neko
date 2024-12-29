@@ -1,10 +1,10 @@
 var structdatadist_1_1linear__dist__t =
 [
-    [ "end_idx", "d7/d4f/structdatadist_1_1linear__dist__t.html#a6d318a5a841d356da3db404e71bc8d1d", null ],
+    [ "end_idx", "d7/d4f/structdatadist_1_1linear__dist__t.html#a0a0c335ca2aeace94cae6c3bfc248a63", null ],
     [ "linear_dist_init", "d7/d4f/structdatadist_1_1linear__dist__t.html#a8d453d0f9ad69be5b805a3dcbc40998e", null ],
-    [ "num_global", "d7/d4f/structdatadist_1_1linear__dist__t.html#a22d44b870804b665b6e848777f2ce615", null ],
-    [ "num_local", "d7/d4f/structdatadist_1_1linear__dist__t.html#af71498eaf5be5ce055ac81c5cd6ca1aa", null ],
-    [ "start_idx", "d7/d4f/structdatadist_1_1linear__dist__t.html#a854eb01573a2a3331ee2fc226bc9bf03", null ],
+    [ "num_global", "d7/d4f/structdatadist_1_1linear__dist__t.html#acf0b00de5801b155ac7d38ac4008621c", null ],
+    [ "num_local", "d7/d4f/structdatadist_1_1linear__dist__t.html#a540d837de4b5290195e4e90892ef4dd5", null ],
+    [ "start_idx", "d7/d4f/structdatadist_1_1linear__dist__t.html#ab19d53ed6a57e50ae6d29ef1214525ee", null ],
     [ "comm", "d7/d4f/structdatadist_1_1linear__dist__t.html#a4870107dae31c01bcbe0b24f4eb67ead", null ],
     [ "ip", "d7/d4f/structdatadist_1_1linear__dist__t.html#a75b68956dd94dbdef57722c66555c6ae", null ],
     [ "l", "d7/d4f/structdatadist_1_1linear__dist__t.html#a242b52bf16ab0f94f68932c3aa192943", null ],

@@ -1,6 +1,6 @@
 var hex_8f90 =
 [
-    [ "hex_t", "d6/d66/structhex_1_1hex__t.html", "d6/d66/structhex_1_1hex__t" ],
+    [ "hex::hex_t", "d6/d66/structhex_1_1hex__t.html", "d6/d66/structhex_1_1hex__t" ],
     [ "hex_centroid", "d0/d81/hex_8f90.html#a0173f3963c82c5080ab464143648f97e", null ],
     [ "hex_diameter", "d0/d81/hex_8f90.html#a7e2efdb1ea737389ce81e707ff06ceed", null ],
     [ "hex_edge_id", "d0/d81/hex_8f90.html#a340bb9cb6c89b8f16e1fd61e96ce4adf", null ],

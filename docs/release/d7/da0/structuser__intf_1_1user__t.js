@@ -1,6 +1,6 @@
 var structuser__intf_1_1user__t =
 [
-    [ "init", "d7/da0/structuser__intf_1_1user__t.html#a8f935babf9caeb74e8f4b0ae200bf2a9", null ],
+    [ "init", "d7/da0/structuser__intf_1_1user__t.html#ad1b7b518bda62069381721ca09eb0c0d", null ],
     [ "fluid_user_f", "d7/da0/structuser__intf_1_1user__t.html#a5b21c2a3f7e3c18890e63ea8c9d1c8a5", null ],
     [ "fluid_user_f_vector", "d7/da0/structuser__intf_1_1user__t.html#a7530a0d1e6e2a31a5c49cb524ac69974", null ],
     [ "fluid_user_ic", "d7/da0/structuser__intf_1_1user__t.html#a35c539e2ba57c773797d183685fe2fca", null ],

@@ -1,0 +1,24 @@
+<map id="speclib::pnleg" name="speclib::pnleg">
+<area shape="rect" id="Node000001" title=" " alt="" coords="507,116,619,141"/>
+<area shape="poly" id="edge12_Node000001_Node000001" title=" " alt="" coords="591,105,582,98,563,95,546,97,537,101,535,107,540,115,536,117,530,108,533,98,544,92,563,89,585,93,594,101"/>
+<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a05661077bac4533389e8ad59f95a6c9d" title=" " alt="" coords="353,29,453,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="529,111,457,68,434,57,436,52,460,64,532,106"/>
+<area shape="rect" id="Node000006" href="$dd/df0/namespacespeclib.html#a3231458d41eaf61a6a929646fa088d59" title=" " alt="" coords="347,79,459,104"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="494,115,457,107,458,101,495,110"/>
+<area shape="rect" id="Node000007" href="$dd/df0/namespacespeclib.html#a9e4bfc19ce726daca140f06543c860bc" title=" " alt="" coords="355,152,451,177"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="494,147,451,157,450,151,492,142"/>
+<area shape="rect" id="Node000009" href="$dd/df0/namespacespeclib.html#ad8e2497ed688bdd4cee872c739fa7620" title=" " alt="" coords="353,225,453,251"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="533,152,424,227,421,223,530,147"/>
+<area shape="rect" id="Node000003" href="$dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4" title="Generate matrices for single element, 1D operators: a = Laplacian b = diagonal mass matrix c = convec..." alt="" coords="171,5,291,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="339,36,291,29,292,24,340,31"/>
+<area shape="rect" id="Node000005" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="164,55,299,80"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="340,54,299,60,299,55,339,49"/>
+<area shape="rect" id="Node000004" href="$d3/d4c/namespacefdm.html#ae8af19abfe644b11f304710d291ff549" title=" " alt="" coords="5,5,116,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="158,21,117,21,117,15,158,15"/>
+<area shape="poly" id="edge7_Node000007_Node000007" title=" " alt="" coords="431,141,422,134,403,131,386,133,377,137,375,143,380,151,376,153,370,144,373,134,384,128,403,125,425,129,434,137"/>
+<area shape="rect" id="Node000008" href="$dd/df0/namespacespeclib.html#a60d2550a6e618b433597eb64b9aea5eb" title=" " alt="" coords="179,152,284,177"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="341,167,284,167,284,162,341,162"/>
+<area shape="poly" id="edge10_Node000009_Node000009" title=" " alt="" coords="431,215,422,207,403,204,386,206,377,211,375,216,380,224,376,227,370,217,373,207,384,201,403,199,425,202,434,211"/>
+<area shape="rect" id="Node000010" href="$dd/df0/namespacespeclib.html#acc89ea55a725ed6aecb63955d35204b2" title=" " alt="" coords="177,225,286,251"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="339,241,286,241,286,235,339,235"/>
+</map>

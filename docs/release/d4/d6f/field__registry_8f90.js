@@ -1,6 +1,6 @@
 var field__registry_8f90 =
 [
-    [ "field_registry_t", "dd/d96/structfield__registry_1_1field__registry__t.html", "dd/d96/structfield__registry_1_1field__registry__t" ],
+    [ "field_registry::field_registry_t", "dd/d96/structfield__registry_1_1field__registry__t.html", "dd/d96/structfield__registry_1_1field__registry__t" ],
     [ "add_field", "d4/d6f/field__registry_8f90.html#af9ca5bbdaa677a3db9694136627df9c4", null ],
     [ "expand", "d4/d6f/field__registry_8f90.html#a51dfb77eeff70fd6c757e8017b42dd74", null ],
     [ "field_exists", "d4/d6f/field__registry_8f90.html#aa10c2573f49356e66e3eeb2075ffc979", null ],

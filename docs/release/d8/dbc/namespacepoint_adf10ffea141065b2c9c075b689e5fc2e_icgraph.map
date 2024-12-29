@@ -1,4 +1,5 @@
 <map id="point::point_add" name="point::point_add">
-<area shape="rect" id="node1" title="Returns the addition of 2 points ." alt="" coords="224,5,351,32"/>
-<area shape="rect" id="node2" href="$db/d6f/structpoint_1_1point__t.html#a0912a9ed076c20f94fea6f736a035036" title=" " alt="" coords="5,5,176,32"/>
+<area shape="rect" id="Node000001" title="Returns the addition of 2 points ." alt="" coords="224,5,351,31"/>
+<area shape="rect" id="Node000002" href="$db/d6f/structpoint_1_1point__t.html#a00fdb89db566531477dc984dec61a7d5" title="Returns the addition of 2 points ." alt="" coords="5,5,176,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="210,21,176,21,176,15,210,15"/>
 </map>

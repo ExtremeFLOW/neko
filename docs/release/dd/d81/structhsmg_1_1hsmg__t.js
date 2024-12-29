@@ -1,9 +1,11 @@
 var structhsmg_1_1hsmg__t =
 [
-    [ "free", "dd/d81/structhsmg_1_1hsmg__t.html#a0590b8e27df367fb3efd43121e8c247e", null ],
-    [ "init", "dd/d81/structhsmg_1_1hsmg__t.html#ab90bb1589d1e19619aeebc3217a2ee60", null ],
-    [ "solve", "dd/d81/structhsmg_1_1hsmg__t.html#a13658231157cab7eb3bf0dad6e8a686b", null ],
-    [ "update", "dd/d81/structhsmg_1_1hsmg__t.html#aa35bbeeddf51cd0007618c74c6246e7a", null ],
+    [ "free", "dd/d81/structhsmg_1_1hsmg__t.html#ad5753b567830cdbaaf739b40746ee10f", null ],
+    [ "init", "dd/d81/structhsmg_1_1hsmg__t.html#a24a62d469ac23d9d4594b6f789758645", null ],
+    [ "solve", "dd/d81/structhsmg_1_1hsmg__t.html#a029b536d8b9b9f38bb8201476b6f28c8", null ],
+    [ "solve", "dd/d81/structhsmg_1_1hsmg__t.html#a265fdd4ee86cb585d2531ecf861fd32f", null ],
+    [ "update", "dd/d81/structhsmg_1_1hsmg__t.html#a57bb694f3e44604eb5a4cca80def80a8", null ],
+    [ "update", "dd/d81/structhsmg_1_1hsmg__t.html#a70b83c20da370be4ac14af3ad1fcb83c", null ],
     [ "ax", "dd/d81/structhsmg_1_1hsmg__t.html#a27c634bc85f379dd5c48797312e6d9d2", null ],
     [ "bc_crs", "dd/d81/structhsmg_1_1hsmg__t.html#af5cab985ccf74eac1dad7c45bdd3fefa", null ],
     [ "bc_mg", "dd/d81/structhsmg_1_1hsmg__t.html#ad10c4b0b3ff243c64e0c6524e940cf57", null ],

@@ -1,11 +1,11 @@
 var fdm_8f90 =
 [
-    [ "fdm_t", "de/d85/structfdm_1_1fdm__t.html", "de/d85/structfdm_1_1fdm__t" ],
-    [ "sygv", "d3/d46/interfacefdm_1_1sygv.html", "d3/d46/interfacefdm_1_1sygv" ],
+    [ "fdm::fdm_t", "de/d85/structfdm_1_1fdm__t.html", "de/d85/structfdm_1_1fdm__t" ],
+    [ "fdm::sygv", "d3/d46/interfacefdm_1_1sygv.html", "d3/d46/interfacefdm_1_1sygv" ],
     [ "dp_sygv", "d0/da2/fdm_8f90.html#a7a6bab2aaecfd6ec540e3af45b8ddcdd", null ],
     [ "fdm_compute", "d0/da2/fdm_8f90.html#a560a8542a9618d26c701bad9968ba30b", null ],
     [ "fdm_free", "d0/da2/fdm_8f90.html#a64e85f5d3be390e220059491298872d1", null ],
-    [ "fdm_init", "d0/da2/fdm_8f90.html#af3a1a3b08ecd8ff4dd376ac7afaa555f", null ],
+    [ "fdm_init", "d0/da2/fdm_8f90.html#ae8af19abfe644b11f304710d291ff549", null ],
     [ "fdm_setup_fast", "d0/da2/fdm_8f90.html#a44dfc3864c487c0445e167df75091904", null ],
     [ "fdm_setup_fast1d", "d0/da2/fdm_8f90.html#a8a1d2f27ff81cb45f1085337e07c429a", null ],
     [ "fdm_setup_fast1d_a", "d0/da2/fdm_8f90.html#abcb267e6e19214d0e7a53e435b1c40b7", null ],

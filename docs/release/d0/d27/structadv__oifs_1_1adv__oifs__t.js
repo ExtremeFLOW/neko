@@ -1,10 +1,13 @@
 var structadv__oifs_1_1adv__oifs__t =
 [
-    [ "compute", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a0b8c12ef694548b6eb98ca4ff8edc1d5", null ],
-    [ "compute_scalar", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a6eb98fcd382a7efba6841faff40ca7c1", null ],
-    [ "free", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#abe9777e1ce68c38f53cec4fe74c9d534", null ],
-    [ "init", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a203dd01379dff1025b0b5e19a122febf", null ],
-    [ "set_conv_velocity_fst", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a81a3e36d2b5fa65b2caad29f15aca746", null ],
+    [ "compute", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a253f01ef8bf8ec315e3cb16c6660a0ba", null ],
+    [ "compute", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a1828c1c42bcb648531e74193f42549a1", null ],
+    [ "compute_scalar", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a7f251eef0cc5388883e1b103429c352e", null ],
+    [ "compute_scalar", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#acb9ba8461bf59395e51b196691582c6b", null ],
+    [ "free", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a8ee7af6799711537b374111f3232be6a", null ],
+    [ "free", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a0bf4d39e6fd3feb80b642ae21ddea8dc", null ],
+    [ "init", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a4499f5f6778cb519514d56cd42365f57", null ],
+    [ "set_conv_velocity_fst", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a82d8aa68871115da38ebbb08d22b41c3", null ],
     [ "c", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a79bdccc7682c36318a1c1a88687a4c07", null ],
     [ "coef_gl", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a1c5e1f1b3c24dc4ae8814bebba6c93db", null ],
     [ "coef_gll", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a1ba8f457e466f8e80600800c7c6537f1", null ],

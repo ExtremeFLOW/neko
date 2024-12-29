@@ -1,0 +1,11 @@
+<map id="opr_cpu::opr_cpu_curl" name="opr_cpu::opr_cpu_curl">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,80,168,105"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="234,5,329,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,77,215,40,232,33,234,38,217,44,121,82"/>
+<area shape="rect" id="Node000003" href="$d2/dd4/namespacemathops.html#a2f4fd77e04e2fdec101dae9afe9caa58" title=" " alt="" coords="216,55,347,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="168,79,202,75,203,80,169,85"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="233,104,330,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="169,100,219,106,218,112,168,105"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#a797f1134edbf7948a9f9c040fd5061d0" title="Vector subtraction ." alt="" coords="234,153,329,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="122,103,235,146,233,151,120,108"/>
+</map>

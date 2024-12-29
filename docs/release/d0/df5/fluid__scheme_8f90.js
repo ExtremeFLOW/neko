@@ -1,10 +1,10 @@
 var fluid__scheme_8f90 =
 [
-    [ "fluid_scheme_t", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html", "da/dd4/structfluid__scheme_1_1fluid__scheme__t" ],
-    [ "fluid_scheme_init_intrf", "d1/de2/interfacefluid__scheme_1_1fluid__scheme__init__intrf.html", "d1/de2/interfacefluid__scheme_1_1fluid__scheme__init__intrf" ],
-    [ "fluid_scheme_free_intrf", "d7/dc7/interfacefluid__scheme_1_1fluid__scheme__free__intrf.html", "d7/dc7/interfacefluid__scheme_1_1fluid__scheme__free__intrf" ],
-    [ "fluid_scheme_step_intrf", "d5/d83/interfacefluid__scheme_1_1fluid__scheme__step__intrf.html", "d5/d83/interfacefluid__scheme_1_1fluid__scheme__step__intrf" ],
-    [ "fluid_scheme_restart_intrf", "de/de1/interfacefluid__scheme_1_1fluid__scheme__restart__intrf.html", "de/de1/interfacefluid__scheme_1_1fluid__scheme__restart__intrf" ],
+    [ "fluid_scheme::fluid_scheme_t", "da/dd4/structfluid__scheme_1_1fluid__scheme__t.html", "da/dd4/structfluid__scheme_1_1fluid__scheme__t" ],
+    [ "fluid_scheme::fluid_scheme_init_intrf", "d1/de2/interfacefluid__scheme_1_1fluid__scheme__init__intrf.html", "d1/de2/interfacefluid__scheme_1_1fluid__scheme__init__intrf" ],
+    [ "fluid_scheme::fluid_scheme_free_intrf", "d7/dc7/interfacefluid__scheme_1_1fluid__scheme__free__intrf.html", "d7/dc7/interfacefluid__scheme_1_1fluid__scheme__free__intrf" ],
+    [ "fluid_scheme::fluid_scheme_step_intrf", "d5/d83/interfacefluid__scheme_1_1fluid__scheme__step__intrf.html", "d5/d83/interfacefluid__scheme_1_1fluid__scheme__step__intrf" ],
+    [ "fluid_scheme::fluid_scheme_restart_intrf", "de/de1/interfacefluid__scheme_1_1fluid__scheme__restart__intrf.html", "de/de1/interfacefluid__scheme_1_1fluid__scheme__restart__intrf" ],
     [ "fluid_compute_cfl", "d0/df5/fluid__scheme_8f90.html#a2275b69b1d1959f4c8cf29b011dee8e8", null ],
     [ "fluid_scheme_bc_apply_prs", "d0/df5/fluid__scheme_8f90.html#af53df9e2dca6bd4b6ae9cdccc2e35bb7", null ],
     [ "fluid_scheme_bc_apply_vel", "d0/df5/fluid__scheme_8f90.html#a9bdf3634a28f508c4892c1a02fe6c8b0", null ],

@@ -1,6 +1,6 @@
 var point__zone__registry_8f90 =
 [
-    [ "point_zone_registry_t", "dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t.html", "dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t" ],
+    [ "point_zone_registry::point_zone_registry_t", "dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t.html", "dc/d9b/structpoint__zone__registry_1_1point__zone__registry__t" ],
     [ "add_point_zone_from_json", "d6/d9f/point__zone__registry_8f90.html#ac000af656c591a6a7a133c1290416264", null ],
     [ "build_combine_point_zone", "d6/d9f/point__zone__registry_8f90.html#a07b62ba2ea24a84336d5ada586b6402f", null ],
     [ "expand", "d6/d9f/point__zone__registry_8f90.html#a1151594323b56968bb34fc7d1a022447", null ],

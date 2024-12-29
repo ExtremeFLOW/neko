@@ -1,6 +1,6 @@
 var gs__cpu_8f90 =
 [
-    [ "gs_cpu_t", "da/dc2/structgs__cpu_1_1gs__cpu__t.html", "da/dc2/structgs__cpu_1_1gs__cpu__t" ],
+    [ "gs_cpu::gs_cpu_t", "da/dc2/structgs__cpu_1_1gs__cpu__t.html", "da/dc2/structgs__cpu_1_1gs__cpu__t" ],
     [ "gs_cpu_free", "d6/d75/gs__cpu_8f90.html#ab462d9a566f77c1f642aa36a8c58791c", null ],
     [ "gs_cpu_init", "d6/d75/gs__cpu_8f90.html#a64b8bfefa8e30faca9a36931a44771e5", null ],
     [ "gs_gather_cpu", "d6/d75/gs__cpu_8f90.html#aa9efc97271dbcfc09b7da65b33b22024", null ],

@@ -5,5 +5,5 @@ var namespacestats =
     [ "stats_add", "d4/de4/namespacestats.html#add265154519a3e080d50a0bcd9e3a01e", null ],
     [ "stats_eval", "d4/de4/namespacestats.html#a5265c022e4f5b9264c501767b2456db2", null ],
     [ "stats_free", "d4/de4/namespacestats.html#a87a26c52a0913d423d4be1c7fa3d4d7b", null ],
-    [ "stats_init", "d4/de4/namespacestats.html#a337f804e2924bf4570c33a6f5f686c7e", null ]
+    [ "stats_init", "d4/de4/namespacestats.html#acc53c6a713ed4ac4baad91b882270034", null ]
 ];

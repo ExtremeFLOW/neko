@@ -1,6 +1,6 @@
 var probes_8F90 =
 [
-    [ "probes_t", "d7/dd3/structprobes_1_1probes__t.html", "d7/dd3/structprobes_1_1probes__t" ],
+    [ "probes::probes_t", "d7/dd3/structprobes_1_1probes__t.html", "d7/dd3/structprobes_1_1probes__t" ],
     [ "add_points", "d6/dfb/probes_8F90.html#a27da5032a894e076ade6b945085a2164", null ],
     [ "probes_debug", "d6/dfb/probes_8F90.html#a9a5fe480805cf73f0ed8ec0c532de369", null ],
     [ "probes_evaluate_and_write", "d6/dfb/probes_8F90.html#ac8103306b5d86eb1da82c66855f449a9", null ],

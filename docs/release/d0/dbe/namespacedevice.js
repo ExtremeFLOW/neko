@@ -1,11 +1,11 @@
 var namespacedevice =
 [
-    [ "device_memcpy", "d6/dac/interfacedevice_1_1device__memcpy.html", "d6/dac/interfacedevice_1_1device__memcpy" ],
-    [ "device_map", "da/db0/interfacedevice_1_1device__map.html", "da/db0/interfacedevice_1_1device__map" ],
     [ "device_associate", "d6/d17/interfacedevice_1_1device__associate.html", "d6/d17/interfacedevice_1_1device__associate" ],
     [ "device_associated", "d0/d30/interfacedevice_1_1device__associated.html", "d0/d30/interfacedevice_1_1device__associated" ],
     [ "device_deassociate", "da/d73/interfacedevice_1_1device__deassociate.html", "da/d73/interfacedevice_1_1device__deassociate" ],
     [ "device_get_ptr", "dd/d49/interfacedevice_1_1device__get__ptr.html", "dd/d49/interfacedevice_1_1device__get__ptr" ],
+    [ "device_map", "da/db0/interfacedevice_1_1device__map.html", "da/db0/interfacedevice_1_1device__map" ],
+    [ "device_memcpy", "d6/dac/interfacedevice_1_1device__memcpy.html", "d6/dac/interfacedevice_1_1device__memcpy" ],
     [ "device_sync", "d0/dbb/interfacedevice_1_1device__sync.html", "d0/dbb/interfacedevice_1_1device__sync" ],
     [ "device_alloc", "d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9", null ],
     [ "device_associate_r1", "d0/dbe/namespacedevice.html#a959618fb8789b55250cfbdb29b200082", null ],

@@ -1,0 +1,28 @@
+<map id="speclib::pnormj" name="speclib::pnormj">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1036,31,1159,56"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="1126,20,1118,12,1097,9,1080,11,1071,16,1069,22,1074,29,1070,32,1064,22,1067,13,1078,6,1097,4,1120,7,1130,16"/>
+<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a80692f5a33b00328a2600d1d409035f7" title=" " alt="" coords="873,31,988,56"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="1022,46,988,46,988,41,1022,41"/>
+<area shape="rect" id="Node000003" href="$dd/df0/namespacespeclib.html#a5c35429298522dea2bd177d45c7efc2c" title=" " alt="" coords="713,5,819,31"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="859,35,819,29,820,24,860,30"/>
+<area shape="rect" id="Node000008" href="$dd/df0/namespacespeclib.html#a47a06503ffdba7aebba5ae4f41661c04" title=" " alt="" coords="707,55,825,80"/>
+<area shape="poly" id="edge8_Node000002_Node000008" title=" " alt="" coords="860,56,826,61,825,56,860,51"/>
+<area shape="rect" id="Node000004" href="$dd/df0/namespacespeclib.html#acf61de5c4c6c150e008f2f7981ca10db" title="Generate NP Gauss Legendre points Z and weights W associated with Jacobi polynomial ...." alt="" coords="391,5,498,31"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="699,21,498,21,498,15,699,15"/>
+<area shape="rect" id="Node000005" href="$dc/d5b/namespacefast3d.html#a71d142b2e4b813e2a446dc2cae7d47a4" title="Generate matrices for single element, 1D operators: a = Laplacian b = diagonal mass matrix c = convec..." alt="" coords="209,55,329,80"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="386,37,316,57,314,52,385,32"/>
+<area shape="rect" id="Node000007" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="201,5,336,31"/>
+<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="378,21,336,21,336,15,378,15"/>
+<area shape="rect" id="Node000006" href="$d3/d4c/namespacefdm.html#ae8af19abfe644b11f304710d291ff549" title=" " alt="" coords="21,55,132,80"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="195,70,132,70,132,65,195,65"/>
+<area shape="rect" id="Node000009" href="$dd/df0/namespacespeclib.html#a5b864c5653986341347795cb5ac75c92" title=" " alt="" coords="548,55,659,80"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="693,70,659,70,659,65,693,65"/>
+<area shape="rect" id="Node000010" href="$dd/df0/namespacespeclib.html#a35488656016cc28e6422a81377ee7434" title=" " alt="" coords="389,55,500,80"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="535,70,500,70,500,65,535,65"/>
+<area shape="poly" id="edge13_Node000010_Node000005" title=" " alt="" coords="375,70,329,70,329,65,375,65"/>
+<area shape="poly" id="edge14_Node000010_Node000007" title=" " alt="" coords="385,53,314,33,316,28,386,48"/>
+<area shape="rect" id="Node000011" href="$dd/d26/namespaceelementwise__filter__cpu.html#aafca1eafd7fe7847fb28b285189ca02f" title="Build the 1d filter for an element on the CPU. Suppose field x is filtered into x_hat by x_hat = fh*x..." alt="" coords="196,105,341,145"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="393,87,331,107,330,102,391,82"/>
+<area shape="rect" id="Node000012" href="$dd/d52/namespaceelementwise__filter.html#ac2f5a8a0a33529944fc5302eee1e04f5" title="Build the 1d filter for an element." alt="" coords="5,105,148,145"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="182,127,148,127,148,122,182,122"/>
+</map>

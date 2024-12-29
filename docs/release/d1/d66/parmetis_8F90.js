@@ -1,7 +1,7 @@
 var parmetis_8F90 =
 [
-    [ "parmetis_v3_partmeshkway", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway.html", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway" ],
-    [ "parmetis_v3_partgeom", "d2/de5/interfaceparmetis_1_1parmetis__v3__partgeom.html", "d2/de5/interfaceparmetis_1_1parmetis__v3__partgeom" ],
+    [ "parmetis::parmetis_v3_partmeshkway", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway.html", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway" ],
+    [ "parmetis::parmetis_v3_partgeom", "d2/de5/interfaceparmetis_1_1parmetis__v3__partgeom.html", "d2/de5/interfaceparmetis_1_1parmetis__v3__partgeom" ],
     [ "M_INT", "d1/d66/parmetis_8F90.html#a7d7a62842f24cb108f65eccaffd1792e", null ],
     [ "M_REAL", "d1/d66/parmetis_8F90.html#a117bf85a7f8041eab555e60013be2a40", null ],
     [ "neko_idx", "d1/d66/parmetis_8F90.html#ab95dd4228bd87fd0840df645d082fd2f", null ],

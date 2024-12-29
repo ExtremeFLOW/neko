@@ -1,8 +1,8 @@
 var structoutput_1_1output__t =
 [
-    [ "init_base", "dd/d5f/structoutput_1_1output__t.html#a40bbdaa3c46f95ed051b7f02d214ccc3", null ],
-    [ "sample", "dd/d5f/structoutput_1_1output__t.html#a03a1615b95e5e7e29830b1a268ef6d86", null ],
-    [ "set_counter", "dd/d5f/structoutput_1_1output__t.html#a5ee173886404db3cf794593000a784f7", null ],
-    [ "set_start_counter", "dd/d5f/structoutput_1_1output__t.html#a88b6907ea038cd6b1a852c2247cf88e7", null ],
+    [ "init_base", "dd/d5f/structoutput_1_1output__t.html#a901669a133c005189e509dac771374f0", null ],
+    [ "sample", "dd/d5f/structoutput_1_1output__t.html#af5d4cdfe7ed6d35653ed43bd9367359f", null ],
+    [ "set_counter", "dd/d5f/structoutput_1_1output__t.html#a9d3113c083480f602b99fbaa78c4ad8a", null ],
+    [ "set_start_counter", "dd/d5f/structoutput_1_1output__t.html#ae07d24750681c81283914f8b3496304c", null ],
     [ "file_", "dd/d5f/structoutput_1_1output__t.html#adf461dea61d83b5cc030eec5d76f5730", null ]
 ];

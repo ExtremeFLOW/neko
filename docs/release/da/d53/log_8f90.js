@@ -1,6 +1,6 @@
 var log_8f90 =
 [
-    [ "log_t", "d0/d7b/structlogger_1_1log__t.html", "d0/d7b/structlogger_1_1log__t" ],
+    [ "logger::log_t", "d0/d7b/structlogger_1_1log__t.html", "d0/d7b/structlogger_1_1log__t" ],
     [ "log_begin", "da/d53/log_8f90.html#a74e550d4b7b4f2d473d577bbfc2d7eea", null ],
     [ "log_end", "da/d53/log_8f90.html#a1c857f10ca5adb4d2fc1ca01258301d4", null ],
     [ "log_end_section", "da/d53/log_8f90.html#a808b22ce5cee030b830b7c5e6fe8b0d8", null ],
@@ -15,7 +15,7 @@ var log_8f90 =
     [ "log_newline", "da/d53/log_8f90.html#abe16d24271114fb1b15eab73223fd452", null ],
     [ "log_section", "da/d53/log_8f90.html#af26458fdb2a8632e8c01296fc65f962b", null ],
     [ "log_section_c", "da/d53/log_8f90.html#accdcb0b637b2330ce2717845b8fe1c55", null ],
-    [ "log_status", "da/d53/log_8f90.html#a191c6eaea136bb6b4c2e6ac128c063d9", null ],
+    [ "log_status", "da/d53/log_8f90.html#acecf27e6da617823b1727e4a127b4304", null ],
     [ "log_warning", "da/d53/log_8f90.html#a865ce1013019a8679865fc3ba1dc17bf", null ],
     [ "log_warning_c", "da/d53/log_8f90.html#aba52cf419d2fa76de5933019a325565a", null ],
     [ "log_size", "da/d53/log_8f90.html#ade757cfc4235350ea17397117ea3c4a6", null ],

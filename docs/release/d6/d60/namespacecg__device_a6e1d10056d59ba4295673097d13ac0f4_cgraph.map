@@ -1,9 +1,0 @@
-<map id="cg_device::cg_device_solve" name="cg_device::cg_device_solve">
-<area shape="rect" id="node1" title="Standard PCG solve." alt="" coords="5,155,165,196"/>
-<area shape="rect" id="node2" href="$d2/d73/namespacedevice__math.html#a15efe533d8411a3ff44ea486c8ce276d" title=" " alt="" coords="233,5,391,47"/>
-<area shape="rect" id="node3" href="$d2/d73/namespacedevice__math.html#a3b9c190380a831ba86fa3fe155dae8f7" title="Vector addition with scalar multiplication &#160;(multiplication on first argument)" alt="" coords="233,71,391,112"/>
-<area shape="rect" id="node4" href="$d2/d73/namespacedevice__math.html#addb4596de81a7518fcafd9e40aa7ed57" title="Copy a vector ." alt="" coords="215,137,409,163"/>
-<area shape="rect" id="node5" href="$d0/dbe/namespacedevice.html#a08e073f459027c6c1b067ff777f0bbf9" title="Synchronize an event." alt="" coords="213,187,411,214"/>
-<area shape="rect" id="node6" href="$d2/d73/namespacedevice__math.html#ac80b69645b556fc4dc3022739f00bbd1" title="Weighted inner product ." alt="" coords="233,239,391,280"/>
-<area shape="rect" id="node7" href="$d2/d73/namespacedevice__math.html#a2b8132d3d15d4b553af3a1b55d6f8d87" title="Zero a real vector." alt="" coords="233,304,391,345"/>
-</map>

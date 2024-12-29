@@ -1,4 +1,5 @@
 <map id="projection::device_proj_ortho" name="projection::device_proj_ortho">
-<area shape="rect" id="node1" title=" " alt="" coords="277,5,416,47"/>
-<area shape="rect" id="node2" href="$d3/d06/namespaceprojection.html#a25be6cf95eeacd177d57821fe46a5e18" title=" " alt="" coords="5,13,229,39"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="277,5,416,45"/>
+<area shape="rect" id="Node000002" href="$d3/d06/namespaceprojection.html#a56d60824af6be625d76a70c8720e6c8b" title=" " alt="" coords="5,13,229,38"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="264,28,229,28,229,23,264,23"/>
 </map>

@@ -1,0 +1,19 @@
+<map id="hsmg::hsmg_init" name="hsmg::hsmg_init">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,112,136,137"/>
+<area shape="rect" id="Node000002" href="$d0/dc0/namespacebc.html#a132f9467b1f6ee956b4e31bf758b1199" title="Add a condition to a list of boundary conditions." alt="" coords="205,5,323,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="84,110,127,75,183,40,198,33,200,38,185,44,130,80,88,114"/>
+<area shape="rect" id="Node000003" href="$d0/dc0/namespacebc.html#a52ed37bbb9188c0673416ffa5de4dc5e" title="Constructor for a list of boundary conditions." alt="" coords="207,55,321,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="114,109,207,81,208,87,115,114"/>
+<area shape="rect" id="Node000005" href="$d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479" title="Create a device event queue." alt="" coords="184,105,344,145"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="136,122,170,122,170,127,136,127"/>
+<area shape="rect" id="Node000006" href="$dd/dd1/namespacehsmg.html#a85bb6dc5e43b5b530f93d3e2eafec031" title=" " alt="" coords="185,169,343,195"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="115,135,208,163,207,168,114,140"/>
+<area shape="rect" id="Node000007" href="$dd/dd1/namespacehsmg.html#a25c9fa74d9a25ea39e51a25695e12cf3" title=" " alt="" coords="192,219,336,244"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="88,136,130,170,185,205,200,211,198,216,183,210,127,174,84,140"/>
+<area shape="rect" id="Node000004" href="$d0/dc0/namespacebc.html#a70aeff826889ae0f54bd98cfacb0decb" title="Destructor for a list of boundary conditions." alt="" coords="429,55,549,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="322,65,415,65,415,70,322,70"/>
+<area shape="rect" id="Node000008" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="442,193,537,219"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="336,221,428,210,429,215,337,226"/>
+<area shape="rect" id="Node000009" href="$d2/d73/namespacedevice__math.html#addb4596de81a7518fcafd9e40aa7ed57" title="Copy a vector ." alt="" coords="392,243,587,268"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="337,236,378,241,378,246,336,242"/>
+</map>

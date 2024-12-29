@@ -1,9 +1,9 @@
 var structtime__based__controller_1_1time__based__controller__t =
 [
-    [ "check", "db/de7/structtime__based__controller_1_1time__based__controller__t.html#acef5c2123baa67c04fc6742520573f75", null ],
-    [ "init", "db/de7/structtime__based__controller_1_1time__based__controller__t.html#ae3421359b90cb125a00d7508adb94d1c", null ],
-    [ "register_execution", "db/de7/structtime__based__controller_1_1time__based__controller__t.html#ae2fd7c2676a76a1e3a2ecbc46962515d", null ],
-    [ "set_counter", "db/de7/structtime__based__controller_1_1time__based__controller__t.html#a46c54af1ac79d819fdddf43e5580f807", null ],
+    [ "check", "db/de7/structtime__based__controller_1_1time__based__controller__t.html#ae8ce2040448d8d832d71d76ac975aaca", null ],
+    [ "init", "db/de7/structtime__based__controller_1_1time__based__controller__t.html#a3f2f8d908595147c32c288deb66c4cc4", null ],
+    [ "register_execution", "db/de7/structtime__based__controller_1_1time__based__controller__t.html#a6872627fb27c70fe72c8aa702c956bb3", null ],
+    [ "set_counter", "db/de7/structtime__based__controller_1_1time__based__controller__t.html#a317b1f3773cec910301c5336efd4361e", null ],
     [ "control_mode", "db/de7/structtime__based__controller_1_1time__based__controller__t.html#a70ed418a684f6d827ecb314bfc52520b", null ],
     [ "control_value", "db/de7/structtime__based__controller_1_1time__based__controller__t.html#a316815e5c7630d095000f8f41a66f720", null ],
     [ "end_time", "db/de7/structtime__based__controller_1_1time__based__controller__t.html#ac213036df29127c4567bee1d8440d6e0", null ],

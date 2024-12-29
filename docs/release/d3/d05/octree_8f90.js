@@ -1,8 +1,8 @@
 var octree_8f90 =
 [
-    [ "oct_ptr_t", "d6/deb/structoctree_1_1oct__ptr__t.html", "d6/deb/structoctree_1_1oct__ptr__t" ],
-    [ "oct_t", "d5/dae/structoctree_1_1oct__t.html", "d5/dae/structoctree_1_1oct__t" ],
-    [ "octree_t", "d4/d27/structoctree_1_1octree__t.html", "d4/d27/structoctree_1_1octree__t" ],
+    [ "octree::oct_ptr_t", "d6/deb/structoctree_1_1oct__ptr__t.html", "d6/deb/structoctree_1_1oct__ptr__t" ],
+    [ "octree::oct_t", "d5/dae/structoctree_1_1oct__t.html", "d5/dae/structoctree_1_1oct__t" ],
+    [ "octree::octree_t", "d4/d27/structoctree_1_1octree__t.html", "d4/d27/structoctree_1_1octree__t" ],
     [ "octree_find", "d3/d05/octree_8f90.html#a94d784c902224f7b0d658de9d76ce81b", null ],
     [ "octree_free", "d3/d05/octree_8f90.html#a36f53ea0ecfacb6b1ee426e8bfa6bf66", null ],
     [ "octree_free_oct", "d3/d05/octree_8f90.html#a705270b5780e9cd2da7f565fdf96e8fb", null ],

@@ -1,6 +1,6 @@
 var re2__file_8f90 =
 [
-    [ "re2_file_t", "d2/dfe/structre2__file_1_1re2__file__t.html", "d2/dfe/structre2__file_1_1re2__file__t" ],
+    [ "re2_file::re2_file_t", "d2/dfe/structre2__file_1_1re2__file__t.html", "d2/dfe/structre2__file_1_1re2__file__t" ],
     [ "re2_file_add_point", "d0/d81/re2__file_8f90.html#a859e702ddca0f77f1d6f6659b4c6ca41", null ],
     [ "re2_file_mark_labeled_bc", "d0/d81/re2__file_8f90.html#a0421ca12e4efe5ac20a0842d522c762a", null ],
     [ "re2_file_read", "d0/d81/re2__file_8f90.html#a1ad91a0a25277baa07002b8876c517dc", null ],

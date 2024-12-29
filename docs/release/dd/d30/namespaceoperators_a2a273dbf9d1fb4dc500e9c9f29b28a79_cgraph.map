@@ -1,4 +1,0 @@
-<map id="operators::runge_kutta" name="operators::runge_kutta">
-<area shape="rect" id="node1" title="Compute one step of Runge Kutta time interpolation for OIFS scheme." alt="" coords="5,13,175,39"/>
-<area shape="rect" id="node2" href="$dd/d30/namespaceoperators.html#a7c098c05316b78ad3ba3d7ccfddbba22" title="Apply the convecting velocity c to the to the scalar field u, used in the OIFS scheme." alt="" coords="223,5,365,47"/>
-</map>

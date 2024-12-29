@@ -1,7 +1,7 @@
 var namespaceparmetis =
 [
-    [ "parmetis_v3_partmeshkway", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway.html", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway" ],
     [ "parmetis_v3_partgeom", "d2/de5/interfaceparmetis_1_1parmetis__v3__partgeom.html", "d2/de5/interfaceparmetis_1_1parmetis__v3__partgeom" ],
+    [ "parmetis_v3_partmeshkway", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway.html", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway" ],
     [ "parmetis_dist", "d1/dd7/namespaceparmetis.html#a4d14c4d16427d26c17bd770369629803", null ],
     [ "parmetis_mark_parts", "d1/dd7/namespaceparmetis.html#a167b3313549fa07a2cd414118bd40489", null ],
     [ "parmetis_partgeom", "d1/dd7/namespaceparmetis.html#afc65e966bf7728f9211082aa10b19989", null ],

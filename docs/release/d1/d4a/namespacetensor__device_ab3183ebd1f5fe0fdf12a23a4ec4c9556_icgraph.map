@@ -1,6 +1,0 @@
-<map id="tensor_device::tnsr3d_device" name="tensor_device::tnsr3d_device">
-<area shape="rect" id="node1" title=" " alt="" coords="439,46,601,87"/>
-<area shape="rect" id="node2" href="$dd/d8c/namespacetensor.html#a31e5a2faed314a1d5896d5061b803055" title="Tensor product &#160;performed on nelv elements." alt="" coords="279,53,391,80"/>
-<area shape="rect" id="node3" href="$dd/d52/namespaceelementwise__filter.html#aaef0ce44b4e36713bcc046b0badd3e05" title="Filter a 3D field." alt="" coords="43,5,193,61"/>
-<area shape="rect" id="node4" href="$d9/da0/namespaceinterpolation.html#a54fff1a3a8d409fda1871c53c8e4b7dd" title="Interpolates an array to one of Xh or Yh." alt="" coords="5,85,231,112"/>
-</map>

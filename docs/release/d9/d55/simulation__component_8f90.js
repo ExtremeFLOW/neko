@@ -1,9 +1,9 @@
 var simulation__component_8f90 =
 [
-    [ "simulation_component_t", "dc/d0d/structsimulation__component_1_1simulation__component__t.html", "dc/d0d/structsimulation__component_1_1simulation__component__t" ],
-    [ "simulation_component_wrapper_t", "d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html", "d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t" ],
-    [ "simulation_component_init", "d6/deb/interfacesimulation__component_1_1simulation__component__init.html", "d6/deb/interfacesimulation__component_1_1simulation__component__init" ],
-    [ "simulation_component_free", "d7/d7f/interfacesimulation__component_1_1simulation__component__free.html", "d7/d7f/interfacesimulation__component_1_1simulation__component__free" ],
+    [ "simulation_component::simulation_component_t", "dc/d0d/structsimulation__component_1_1simulation__component__t.html", "dc/d0d/structsimulation__component_1_1simulation__component__t" ],
+    [ "simulation_component::simulation_component_wrapper_t", "d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t.html", "d7/dc2/structsimulation__component_1_1simulation__component__wrapper__t" ],
+    [ "simulation_component::simulation_component_init", "d6/deb/interfacesimulation__component_1_1simulation__component__init.html", "d6/deb/interfacesimulation__component_1_1simulation__component__init" ],
+    [ "simulation_component::simulation_component_free", "d7/d7f/interfacesimulation__component_1_1simulation__component__free.html", "d7/d7f/interfacesimulation__component_1_1simulation__component__free" ],
     [ "compute_", "d9/d55/simulation__component_8f90.html#ab6302d6af13da1480e89bfe47299feb1", null ],
     [ "preprocess_", "d9/d55/simulation__component_8f90.html#a0679f88e8bea097537ed3100c384102a", null ],
     [ "restart_", "d9/d55/simulation__component_8f90.html#ad5bb16cd79d3a4163f4115431bc4872c", null ],

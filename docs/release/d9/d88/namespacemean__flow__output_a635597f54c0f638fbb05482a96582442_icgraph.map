@@ -1,0 +1,5 @@
+<map id="mean_flow_output::mean_flow_output_init" name="mean_flow_output::mean_flow_output_init">
+<area shape="rect" id="Node000001" title=" " alt="" coords="240,5,427,45"/>
+<area shape="rect" id="Node000002" href="$db/dca/structmean__flow__output_1_1mean__flow__output__t.html#a75f00d66b6ddea1b3eacee1468f2f7df" title="Sample a mean flow field at time t." alt="" coords="5,5,192,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="227,28,192,28,192,23,227,23"/>
+</map>
