@@ -60,8 +60,10 @@ module neko
   use field, only : field_t, field_ptr_t
   use neko_mpi_types
   use gather_scatter
+  use krylov
   use coefs, only : coef_t
   use bc
+  use bc_list
   use wall, only : no_slip_wall_t
   use dirichlet, only : dirichlet_t
   use ax_product, only : ax_t, ax_helm_factory
