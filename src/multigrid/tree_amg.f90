@@ -109,6 +109,9 @@ module tree_amg
     procedure, pass(this) :: matvec_impl => tamg_matvec_impl
     procedure, pass(this) :: interp_f2c => tamg_restriction_operator
     procedure, pass(this) :: interp_c2f => tamg_prolongation_operator
+    procedure, pass(this) :: interp_f2c_d => tamg_device_restriction_operator
+    procedure, pass(this) :: interp_c2f_d => tamg_device_prolongation_operator
+    procedure, pass(this) :: device_matvec => tamg_device_matvec_flat_impl
   end type tamg_hierarchy_t
 
   public tamg_lvl_init, tamg_node_init
@@ -484,7 +487,7 @@ contains
     integer :: i, n
     n = this%lvl(lvl)%nnodes
     call device_rzero(vec_out_d, this%lvl(lvl)%fine_lvl_dofs)
-    !call device_prolong_kernel(vec_out_d, vec_in_d, this%lvl(lvl)%nodes_ptr_d, this%lvl(lvl)%nodes_gid_d, this%lvl(lvl)%nodes_dofs_d, n)
+    call device_masked_red_copy(vec_out_d, vec_in_d, this%lvl(lvl)%f2c_d, this%lvl(lvl)%nnodes, n)
   end subroutine tamg_device_prolongation_operator
 
 end module tree_amg

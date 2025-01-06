@@ -59,10 +59,20 @@ module tree_amg_multigrid
   implicit none
   private
 
+  type :: tamg_wrk_t
+    real(kind=rp), allocatable :: r(:)
+    real(kind=rp), allocatable :: rc(:)
+    real(kind=rp), allocatable :: tmp(:)
+    type(c_ptr) :: r_d
+    type(c_ptr) :: rc_d
+    type(c_ptr) :: tmp_d
+  end type tamg_wrk_t
+
   !> Type for the TreeAMG solver
   type, public :: tamg_solver_t
     type(tamg_hierarchy_t), allocatable :: amg
     type(amg_cheby_t), allocatable :: smoo(:)
+    type(tamg_wrk_t), allocatable :: wrk(:)
     !type(amg_jacobi_t), allocatable :: jsmoo(:)
     integer :: nlvls
     integer :: max_iter
@@ -154,6 +164,20 @@ contains
     do lvl = 0, nlvls-1
       n = this%amg%lvl(lvl+1)%fine_lvl_dofs
       call this%smoo(lvl)%init(n ,lvl, cheby_degree)
+    end do
+
+    !> Allocate work space on each level
+    allocate(this%wrk(nlvls))
+    do lvl = 1, nlvls
+      n = this%amg%lvl(lvl)%fine_lvl_dofs
+      allocate( this%wrk(lvl)%r(n) )
+      allocate( this%wrk(lvl)%rc(n) )
+      allocate( this%wrk(lvl)%tmp(n) )
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+        call device_map(  this%wrk(lvl)%r, this%wrk(lvl)%r_d, n)
+        call device_map(  this%wrk(lvl)%rc, this%wrk(lvl)%rc_d, n)
+        call device_map(  this%wrk(lvl)%tmp, this%wrk(lvl)%tmp_d, n)
+      end if
     end do
 
     !allocate(this%jsmoo(0:(nlvls)))
@@ -274,6 +298,74 @@ contains
     !print *, "LVL:",lvl, "POST RESID:", sqrt(glsc2(r, r, n))
   end subroutine tamg_mg_cycle
 
+  !> Recrsive multigrid cycle for the TreeAMG solver object on device
+  !! @param x The solution to be returned
+  !! @param b The right-hand side
+  !! @param n Number of dofs
+  !! @param lvl Current level of the cycle
+  !! @param amg The TreeAMG object
+  !! @param mgstuff The Solver object. TODO: rename this
+  recursive subroutine tamg_mg_cycle_d(x, b, x_d, b_d, n, lvl, amg, mgstuff)
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: x(n)
+    real(kind=rp), intent(inout) :: b(n)
+    type(c_ptr) :: x_d
+    type(c_ptr) :: b_d
+    type(tamg_hierarchy_t), intent(inout) :: amg
+    type(tamg_solver_t), intent(inout) :: mgstuff
+    integer, intent(in) :: lvl
+    integer :: iter, num_iter
+    integer :: max_lvl
+    integer :: i, cyt
+    max_lvl = mgstuff%nlvls-1
+    !>----------<!
+    !> SMOOTH   <!
+    !>----------<!
+    call mgstuff%smoo(lvl)%device_solve(x, b, x_d, b_d, n, amg)
+    if (lvl .eq. max_lvl) then !> Is coarsest grid.
+      return
+    end if
+  associate( r => mgstuff%wrk(lvl+1)%r, r_d => mgstuff%wrk(lvl+1)%r_d, &
+             rc => mgstuff%wrk(lvl+1)%rc, rc_d => mgstuff%wrk(lvl+1)%rc_d, &
+             tmp => mgstuff%wrk(lvl+1)%tmp, tmp_d => mgstuff%wrk(lvl+1)%tmp_d )
+    !>----------<!
+    !> Residual <!
+    !>----------<!
+    call device_rzero(r_d, n)
+    call amg%device_matvec(r, x, r_d, x_d, lvl)
+    call device_sub3(r_d, b_d, r_d, n)
+    !>----------<!
+    !> Restrict <!
+    !>----------<!
+    if (lvl .eq. 0) then
+      call amg%gs_h%op(r, n, GS_OP_ADD)
+      call device_col2(r_d, amg%coef%mult_d, n)
+    end if
+    call amg%interp_f2c_d(rc_d, r_d, lvl+1)
+    !>-------------------<!
+    !> Call Coarse solve <!
+    !>-------------------<!
+    call device_rzero(tmp_d, n)
+    call tamg_mg_cycle_d(tmp, rc, tmp_d, rc_d, amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff)
+    !>----------<!
+    !> Project  <!
+    !>----------<!
+    call amg%interp_c2f_d(r_d, tmp_d, lvl+1)
+    if (lvl .eq. 0) then
+      call amg%gs_h%op(r, n, GS_OP_ADD)
+      call device_col2(r_d, amg%coef%mult_d, n)
+    end if
+    !>----------<!
+    !> Correct  <!
+    !>----------<!
+    call device_add2(x_d, r_d, n)
+  end associate
+    !>----------<!
+    !> SMOOTH   <!
+    !>----------<!
+    call mgstuff%smoo(lvl)%device_solve(x, b, x_d, b_d, n, amg)
+  end subroutine tamg_mg_cycle_d
+
 
   !> Wrapper function to calculate residyal
   !! @param r The residual to be returned
@@ -291,7 +383,6 @@ contains
     integer, intent(in) :: lvl
     integer :: i
     r = 0d0
-    !call my_matvec(r, x, n, lvl, amg)
     call amg%matvec(r, x, lvl)
     do  i = 1, n
       r(i) = b(i) - r(i)
