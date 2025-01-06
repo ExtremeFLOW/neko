@@ -180,7 +180,6 @@ contains
              call neko_log%message(args, NEKO_LOG_QUIET)
           end do
        end if
-              
        !
        ! Job information
        !
@@ -242,7 +241,6 @@ contains
             '/', date(1:4), '-', date(5:6), '-', date(7:8)
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
     end if
-    
     write(log_buf, '(a)') 'Running on: '
     sw = 10
     if (pe_size .lt. 1e1) then
@@ -270,14 +268,12 @@ contains
        write(log_buf(13:), '(i6,a)') pe_size, ' MPI ranks'
        rw = 6
     end if
-    
     nthrds = 1
     !$omp parallel
     !$omp master
     !$ nthrds = omp_get_num_threads()
     !$omp end master
     !$omp end parallel
-    
     if (nthrds .gt. 1) then
        if (nthrds .lt. 1e1) then
           write(log_buf(13 + rw + sw:), '(a,i1,a)') ', using ', &
@@ -321,7 +317,6 @@ contains
        call device_name(log_buf(13:))
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
     end if
-    
     write(log_buf, '(a)') 'Real type : '
     select case (rp)
     case (real32)
@@ -332,8 +327,6 @@ contains
        write(log_buf(13:), '(a)') 'quad precision'
     end select
     call neko_log%message(log_buf, NEKO_LOG_QUIET)
-    
-    call neko_log%end()    
+    call neko_log%end()
   end subroutine neko_job_info
-  
 end module neko
