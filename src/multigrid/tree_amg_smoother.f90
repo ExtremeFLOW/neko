@@ -42,6 +42,8 @@ module tree_amg_smoother
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
+  use device, only: device_map, device_free, c_ptr, C_NULL_PTR
+  use neko_config, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -99,6 +101,11 @@ contains
     allocate(this%d(n))
     allocate(this%w(n))
     allocate(this%r(n))
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      call device_map(this%d, this%d_d, n)
+      call device_map(this%w, this%w_d, n)
+      call device_map(this%r, this%r_d, n)
+    end if
     this%n = n
     this%lvl = lvl
     this%max_iter = max_iter
