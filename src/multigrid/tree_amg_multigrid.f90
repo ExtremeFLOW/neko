@@ -45,6 +45,7 @@ module tree_amg_multigrid
   use num_types
   use utils
   use math
+  use device_math
   use comm
   use coefs, only : coef_t
   use mesh, only : mesh_t
@@ -56,6 +57,8 @@ module tree_amg_multigrid
   use tree_amg_aggregate
   use tree_amg_smoother
   use logger, only : neko_log, LOG_SIZE
+  use device, only: device_map, device_free, c_ptr, C_NULL_PTR
+  use neko_config, only: NEKO_BCKND_DEVICE
   implicit none
   private
 
@@ -79,6 +82,7 @@ module tree_amg_multigrid
   contains
     procedure, pass(this) :: init => tamg_mg_init
     procedure, pass(this) :: solve => tamg_mg_solve
+    procedure, pass(this) :: device_solve => tamg_mg_solve_device
   end type tamg_solver_t
 
 contains
@@ -214,6 +218,30 @@ contains
       call tamg_mg_cycle(z, r, n, 0, this%amg, this)
     end do
   end subroutine tamg_mg_solve
+
+  !> Solver function for the TreeAMG solver object
+  !! @param z The solution to be returned
+  !! @param r The right-hand side
+  !! @param n Number of dofs
+  subroutine tamg_mg_solve_device(this, z, r, z_d, r_d, n)
+    integer, intent(in) :: n
+    class(tamg_solver_t), intent(inout) :: this
+    real(kind=rp), dimension(n), intent(inout) :: z
+    real(kind=rp), dimension(n), intent(inout) :: r
+    type(c_ptr) :: z_d
+    type(c_ptr) :: r_d
+    integer :: iter, max_iter
+
+    max_iter = this%max_iter
+
+    ! Zero out the initial guess becuase we do not handle null spaces very well...
+    call device_rzero(z_d, n)
+
+    ! Call the amg cycle
+    do iter = 1, max_iter
+      call tamg_mg_cycle_d(z, r, z_d, r_d, n, 0, this%amg, this)
+    end do
+  end subroutine tamg_mg_solve_device
 
   !> Recrsive multigrid cycle for the TreeAMG solver object
   !! @param x The solution to be returned
