@@ -485,10 +485,11 @@ contains
     type(c_ptr) :: vec_out_d
     type(c_ptr) :: vec_in_d
     integer, intent(in) :: lvl
-    integer :: i, n
+    integer :: i, n, m
     n = this%lvl(lvl)%nnodes
-    call device_rzero(vec_out_d, this%lvl(lvl)%fine_lvl_dofs)
-    call device_masked_red_copy(vec_out_d, vec_in_d, this%lvl(lvl)%nodes_gids_d, this%lvl(lvl)%nnodes, this%lvl(lvl)%fine_lvl_dofs)
+    m = this%lvl(lvl)%fine_lvl_dofs
+    call device_rzero(vec_out_d, m)
+    call device_masked_red_copy(vec_out_d, vec_in_d, this%lvl(lvl)%nodes_gids_d, n, m)
   end subroutine tamg_device_prolongation_operator
 
 end module tree_amg
