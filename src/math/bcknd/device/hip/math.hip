@@ -84,6 +84,22 @@ extern "C" {
 
   } 
 
+  /** Fortran wrapper for masked atomic reduction
+   * update a vector \f$ a += b(mask) \f$ where mask is not unique
+   */
+  void hip_masked_atomic_reduction(void *a, void *b, void *mask, int *n, int *m) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_atomic_reduction_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) a, (real *) b, (int *) mask, *n, *m);
+
+    HIP_CHECK(hipGetLastError());
+
+  } 
+
   /** Fortran wrapper for cfill_mask
    * Fill a scalar to vector \f$ a_i = s, for i \in mask \f$
    */

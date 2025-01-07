@@ -67,7 +67,7 @@ module device_math
        device_glsc3, device_glsc3_many, device_add2s2_many, device_glsc2, &
        device_glsum, device_masked_copy, device_cfill_mask, &
        device_masked_red_copy, device_vcross, device_absval, &
-       device_pwmax, device_pwmin
+       device_pwmax, device_pwmin, device_masked_atomic_reduction
 
 contains
 
@@ -114,6 +114,20 @@ contains
     call neko_error('no device backend configured')
 #endif
   end subroutine device_masked_red_copy
+
+  subroutine device_masked_atomic_reduction(a_d, b_d, mask_d, n, m)
+    type(c_ptr) :: a_d, b_d, mask_d
+    integer :: n, m
+#if HAVE_HIP
+    call hip_masked_atomic_reduction(a_d, b_d, mask_d, n, m)
+#elif HAVE_CUDA
+    call neko_error('No CUDA bcknd, masked atomic reduction')
+#elif HAVE_OPENCL
+    call neko_error('No OpenCL bcknd, masked atomic reduction')
+#else
+    call neko_error('no device backend configured')
+#endif
+  end subroutine device_masked_atomic_reduction
 
   !> @brief Fill a constant to a masked vector.
   !! \f$ a_i = c, for i in mask \f$

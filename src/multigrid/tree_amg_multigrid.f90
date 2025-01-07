@@ -468,7 +468,9 @@ contains
     end do
     if (NEKO_BCKND_DEVICE .eq. 1) then
       do l = 1, amg%nlvls
+        amg%lvl(l)%map_f2c_dof(0) = n
         call device_memcpy( amg%lvl(l)%map_f2c_dof, amg%lvl(l)%f2c_d, n, HOST_TO_DEVICE, .true.)
+        call device_memcpy( amg%lvl(l)%nodes_gids, amg%lvl(l)%nodes_gids_d, amg%lvl(l)%fine_lvl_dofs+1, HOST_TO_DEVICE, .true.)
       end do
     end if
   end subroutine

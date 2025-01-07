@@ -80,6 +80,7 @@ module tree_amg
     integer, allocatable :: nodes_dofs(:)
     type(c_ptr) :: nodes_dofs_d = C_NULL_PTR
     integer, allocatable :: nodes_gids(:)
+    type(c_ptr) :: nodes_gids_d = C_NULL_PTR
     ! could make another array of the same size of nodes_dofs
     ! that stores the parent node gid information
     ! (similar to nodes_gid that stores the gid of each node)
@@ -152,9 +153,9 @@ contains
     allocate( this%lvl(this%nlvls) )
 
     do i = 1, nlvls
-      allocate( this%lvl(i)%map_f2c_dof( coef%dof%size() ))
+      allocate( this%lvl(i)%map_f2c_dof( 0:coef%dof%size() ))
       if (NEKO_BCKND_DEVICE .eq. 1) then
-        call device_map(this%lvl(i)%map_f2c_dof, this%lvl(i)%f2c_d, coef%dof%size())
+        call device_map(this%lvl(i)%map_f2c_dof, this%lvl(i)%f2c_d, coef%dof%size()+1)
       end if
     end do
 
@@ -177,7 +178,10 @@ contains
     allocate( tamg_lvl%nodes_ptr(tamg_lvl%nnodes+1) )
     allocate( tamg_lvl%nodes_gid(tamg_lvl%nnodes) )
     allocate( tamg_lvl%nodes_dofs(ndofs) )
-    allocate( tamg_lvl%nodes_gids(ndofs) )
+    allocate( tamg_lvl%nodes_gids(0:ndofs) )
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      call device_map(tamg_lvl%nodes_gids, tamg_lvl%nodes_gids_d, ndofs+1)
+    end if
 
     tamg_lvl%fine_lvl_dofs = ndofs
     allocate( tamg_lvl%wrk_in( ndofs ) )
@@ -440,7 +444,7 @@ contains
       call this%gs_h%op(this%lvl(1)%wrk_out, n, GS_OP_ADD)
       call this%blst%apply(this%lvl(1)%wrk_out, n)
       !> Map finest level matvec back to output level
-      !TODO: THIS NEEDS A REDUCTION KERNEL THING... something like (I don't know how to write this):
+      call device_masked_atomic_reduction(vec_out_d, wrk_out_d, this%lvl(lvl)%f2c_d, this%lvl(lvl)%nnodes, n)!TODO: swap n and m
 !!!!!!/**
 !!!!!! * Device kernel for masked atomic update
 !!!!!! */
@@ -458,11 +462,7 @@ contains
 !!!!!!    atomicAdd( &(a[mask[i]-1]), b[i]);//a[mask[i]-1] = a[mask[i]-1] + b[i];
 !!!!!!  }
 !!!!!!}
-      !call masked_atomic_reduction_kernel(vec_out_d, wrk_out_d, this%lvl(lvl)%f2c_d, n, this%lvl(lvl)%nnodes)
-      !!!!!do i = 1, n
-      !!!!!  cdof = this%lvl(lvl)%map_f2c_dof(i)
-      !!!!!  vec_out(cdof) = vec_out(cdof) + wrk_out( i )
-      !!!!!end do
+!!!!!!      !call masked_atomic_reduction_kernel(vec_out_d, wrk_out_d, this%lvl(lvl)%f2c_d, n, this%lvl(lvl)%nnodes)
       end associate
 
     end if
@@ -473,10 +473,11 @@ contains
     type(c_ptr) :: vec_out_d
     type(c_ptr) :: vec_in_d
     integer, intent(in) :: lvl
-    integer :: i, n
+    integer :: i, n, m
     n = this%lvl(lvl)%nnodes
+    m = this%lvl(lvl)%fine_lvl_dofs
     call device_rzero(vec_out_d, n)
-    !call device_restrict_kernel(vec_out_d, vec_in_d, this%lvl(lvl)%nodes_ptr_d, this%lvl(lvl)%nodes_gid_d, this%lvl(lvl)%nodes_dofs_d, n)
+    call device_masked_atomic_reduction(vec_out_d, vec_in_d, this%lvl(lvl)%nodes_gids_d, n, m)!TODO: swap n and m
   end subroutine tamg_device_restriction_operator
 
   subroutine tamg_device_prolongation_operator(this, vec_out_d, vec_in_d, lvl)
@@ -487,7 +488,7 @@ contains
     integer :: i, n
     n = this%lvl(lvl)%nnodes
     call device_rzero(vec_out_d, this%lvl(lvl)%fine_lvl_dofs)
-    call device_masked_red_copy(vec_out_d, vec_in_d, this%lvl(lvl)%f2c_d, this%lvl(lvl)%nnodes, n)
+    call device_masked_red_copy(vec_out_d, vec_in_d, this%lvl(lvl)%nodes_gids_d, this%lvl(lvl)%nnodes, this%lvl(lvl)%fine_lvl_dofs)
   end subroutine tamg_device_prolongation_operator
 
 end module tree_amg
