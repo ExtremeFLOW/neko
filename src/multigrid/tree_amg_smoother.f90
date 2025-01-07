@@ -42,7 +42,7 @@ module tree_amg_smoother
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
-  use device, only: device_map, device_free, c_ptr, C_NULL_PTR
+  use device, only: device_map, device_free, c_ptr, C_NULL_PTR, device_memcpy, HOST_TO_DEVICE
   use neko_config, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
@@ -265,6 +265,7 @@ contains
         !TODO: replace with a better way to initialize power method
         d(i) = sin(real(i))
       end do
+      call device_memcpy(this%d, this%d_d, n, HOST_TO_DEVICE, .true.)
       if (this%lvl .eq. 0) then
         call gs_h%op(d, n, GS_OP_ADD)!TODO
         call blst%apply(d, n)

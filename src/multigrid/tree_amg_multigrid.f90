@@ -57,7 +57,7 @@ module tree_amg_multigrid
   use tree_amg_aggregate
   use tree_amg_smoother
   use logger, only : neko_log, LOG_SIZE
-  use device, only: device_map, device_free, c_ptr, C_NULL_PTR
+  use device, only: device_map, device_free, c_ptr, C_NULL_PTR, device_memcpy, HOST_TO_DEVICE
   use neko_config, only: NEKO_BCKND_DEVICE
   implicit none
   private
@@ -66,9 +66,9 @@ module tree_amg_multigrid
     real(kind=rp), allocatable :: r(:)
     real(kind=rp), allocatable :: rc(:)
     real(kind=rp), allocatable :: tmp(:)
-    type(c_ptr) :: r_d
-    type(c_ptr) :: rc_d
-    type(c_ptr) :: tmp_d
+    type(c_ptr) :: r_d = C_NULL_PTR
+    type(c_ptr) :: rc_d = C_NULL_PTR
+    type(c_ptr) :: tmp_d = C_NULL_PTR
   end type tamg_wrk_t
 
   !> Type for the TreeAMG solver
@@ -466,5 +466,10 @@ contains
         end do
       end do
     end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      do l = 1, amg%nlvls
+        call device_memcpy( amg%lvl(l)%map_f2c_dof, amg%lvl(l)%f2c_d, n, HOST_TO_DEVICE, .true.)
+      end do
+    end if
   end subroutine
 end module tree_amg_multigrid

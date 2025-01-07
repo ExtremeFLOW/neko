@@ -429,7 +429,7 @@ contains
 
       associate( wrk_in_d => this%lvl(1)%wrk_in_d, wrk_out_d => this%lvl(1)%wrk_out_d)
       call device_rzero(wrk_out_d, n)
-      call device_rzero(vec_out_d, n)
+      call device_rzero(vec_out_d, this%lvl(lvl)%nnodes)
       !> Map input level to finest level
       call device_masked_red_copy(wrk_in_d, vec_in_d, this%lvl(lvl)%f2c_d, this%lvl(lvl)%nnodes, n)
       !> Average on overlapping dofs
