@@ -49,15 +49,15 @@
 /**
  * Fortran wrapper for device zero-dirichlet apply vector
  */
-void opencl_no_slip_wall_apply_scalar(void *msk, void *x, int *m) {
+void opencl_zero_dirichlet_apply_scalar(void *msk, void *x, int *m) {
 
   cl_int err;
 
-  if (no_slip_wall_program == NULL)
-    opencl_kernel_jit(no_slip_wall_kernel, (cl_program *) &no_slip_wall_program);
+  if (zero_dirichlet_program == NULL)
+    opencl_kernel_jit(zero_dirichlet_kernel, (cl_program *) &zero_dirichlet_program);
 
-  cl_kernel kernel = clCreateKernel(no_slip_wall_program,
-                                    "no_slip_wall_apply_scalar_kernel", &err);
+  cl_kernel kernel = clCreateKernel(zero_dirichlet_program,
+                                    "zero_dirichlet_apply_scalar_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &msk));
@@ -76,15 +76,15 @@ void opencl_no_slip_wall_apply_scalar(void *msk, void *x, int *m) {
 /**
  * Fortran wrapper for device zero-dirichlet apply vector
  */
-void opencl_no_slip_wall_apply_vector(void *msk, void *x, void *y,
-                                      void *z, int *m) {
+void opencl_zero_dirichlet_apply_vector(void *msk, void *x, void *y,
+                                        void *z, int *m) {
   cl_int err;
 
-  if (no_slip_wall_program == NULL)
-    opencl_kernel_jit(no_slip_wall_kernel, (cl_program *) &no_slip_wall_program);
+  if (zero_dirichlet_program == NULL)
+    opencl_kernel_jit(zero_dirichlet_kernel, (cl_program *) &zero_dirichlet_program);
 
-  cl_kernel kernel = clCreateKernel(no_slip_wall_program,
-                                    "no_slip_wall_apply_vector_kernel", &err);
+  cl_kernel kernel = clCreateKernel(zero_dirichlet_program,
+                                    "zero_dirichlet_apply_vector_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &msk));
