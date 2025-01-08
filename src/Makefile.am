@@ -328,7 +328,6 @@ neko_fortran_SOURCES = \
 	les/bcknd/device/dynamic_smagorinsky_device.f90\
 	les/bcknd/device/device_dynamic_smagorinsky_nut.F90\
 	les/elementwise_filter.f90\
-	les/bcknd/cpu/elementwise_filter_cpu.f90\
 	les/sigma.f90\
 	les/bcknd/cpu/sigma_cpu.f90\
 	les/bcknd/device/sigma_device.f90\
