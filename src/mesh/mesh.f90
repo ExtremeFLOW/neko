@@ -329,7 +329,7 @@ contains
     call this%htf%free()
     call this%hte%free()
     call distdata_free(this%ddata)
-
+    call this%curve%free()
 
     if (allocated(this%dfrmd_el)) then
        deallocate(this%dfrmd_el)
