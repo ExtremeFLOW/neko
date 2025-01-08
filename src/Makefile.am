@@ -426,6 +426,7 @@ libneko_la_SOURCES += \
 	common/bcknd/device/cuda/projection.cu\
 	common/bcknd/device/cuda/gradient_jump_penalty.cu\
 	fluid/bcknd/device/cuda/pnpn_res.cu\
+	fluid/bcknd/device/cuda/euler_res.cu\
 	fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
 	sem/bcknd/device/cuda/coef.cu\

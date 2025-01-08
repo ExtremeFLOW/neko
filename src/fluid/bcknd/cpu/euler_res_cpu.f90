@@ -7,7 +7,7 @@ module euler_res_cpu
   use num_types, only : rp
   use operators, only: div
   use math, only: subcol3, copy, sub2, add2, add3, col2, col3, addcol3, cmult, cfill, invcol3
-  use gs_ops, only : GS_OP_ADD, GS_OP_MIN_ABS
+  use gs_ops, only : GS_OP_ADD
   use scratch_registry, only: neko_scratch_registry
 
   type, public, extends(euler_rhs_t) :: euler_res_cpu_t
@@ -30,8 +30,8 @@ contains
     type(field_t), pointer :: temp, f_x, f_y, f_z
     integer :: temp_indices(4)
 
-    h = 0.01_rp / 1.0_rp ! grid size / polynomial degreedm
-    c_avisc = 0.5_rp*h
+    h = 0.001_rp / 1.0_rp ! grid size / polynomial degreedm
+    c_avisc = 2.0_rp*h
     n = c_Xh%dof%size()
     call neko_scratch_registry%request_field(temp, temp_indices(1))
     call neko_scratch_registry%request_field(f_x, temp_indices(2))
@@ -40,14 +40,6 @@ contains
 
     !> rho = rho - dt * div(m)
     call div(rhs_rho_field%x, m_x%x, m_y%x, m_z%x, c_Xh)
-    ! artificial diffusion for rho
-    call Ax%compute(temp%x, rho_field%x, c_Xh, p%msh, p%Xh)
-    call gs_Xh%op(temp, GS_OP_ADD)
-
-    do concurrent (i = 1:n)
-      rhs_rho_field%x(i,1,1,1) = rhs_rho_field%x(i,1,1,1) &
-        + c_avisc * c_Xh%Binv(i,1,1,1) * temp%x(i,1,1,1)
-    end do
 
     ! m = m - dt * div(rho * u * u^T + p*I)
     !> m_x
@@ -58,13 +50,6 @@ contains
       f_z%x(i,1,1,1) = m_x%x(i,1,1,1) * m_z%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
     end do
     call div(rhs_m_x%x, f_x%x, f_y%x, f_z%x, c_Xh)
-    ! artificial diffusion for m_x
-    call Ax%compute(temp%x, m_x%x, c_Xh, p%msh, p%Xh)
-    call gs_Xh%op(temp, GS_OP_ADD)
-    do concurrent (i = 1:n)
-      rhs_m_x%x(i,1,1,1) = rhs_m_x%x(i,1,1,1) &
-        + c_avisc * c_Xh%Binv(i,1,1,1) * temp%x(i,1,1,1)
-    end do
 
     !> m_y
     do concurrent (i = 1:n)
@@ -74,13 +59,6 @@ contains
       f_z%x(i,1,1,1) = m_y%x(i,1,1,1) * m_z%x(i,1,1,1) / rho_field%x(i, 1, 1, 1)
     end do
     call div(rhs_m_y%x, f_x%x, f_y%x, f_z%x, c_Xh)
-    ! artificial diffusion for m_y
-    call Ax%compute(temp%x, m_y%x, c_Xh, p%msh, p%Xh)
-    call gs_Xh%op(temp, GS_OP_ADD)
-    do concurrent (i = 1:n)
-      rhs_m_y%x(i,1,1,1) = rhs_m_y%x(i,1,1,1) &
-        + c_avisc * c_Xh%Binv(i,1,1,1) * temp%x(i,1,1,1)
-    end do
 
     !> m_z
     do concurrent (i = 1:n)
@@ -90,13 +68,6 @@ contains
                         + p%x(i,1,1,1)
     end do
     call div(rhs_m_z%x, f_x%x, f_y%x, f_z%x, c_Xh)
-    ! artificial diffusion for m_z
-    call Ax%compute(temp%x, m_z%x, c_Xh, p%msh, p%Xh)
-    call gs_Xh%op(temp, GS_OP_ADD)
-    do concurrent (i = 1:n)
-      rhs_m_z%x(i,1,1,1) = rhs_m_z%x(i,1,1,1) &
-        + c_avisc * c_Xh%Binv(i,1,1,1) * temp%x(i,1,1,1)
-    end do
 
     ! E = E - dt * div(u * (E + p))
     do concurrent (i = 1:n)
@@ -108,6 +79,49 @@ contains
                         * w%x(i,1,1,1)
     end do
     call div(rhs_E%x, f_x%x, f_y%x, f_z%x, c_Xh)
+
+    call gs_Xh%op(rhs_rho_field, GS_OP_ADD)
+    call gs_Xh%op(rhs_m_x, GS_OP_ADD)
+    call gs_Xh%op(rhs_m_y, GS_OP_ADD)
+    call gs_Xh%op(rhs_m_z, GS_OP_ADD)
+    call gs_Xh%op(rhs_E, GS_OP_ADD)
+
+    do concurrent (i = 1:rhs_E%dof%size())
+      rhs_rho_field%x(i,1,1,1) = rhs_rho_field%x(i,1,1,1) * c_Xh%mult(i,1,1,1)
+      rhs_m_x%x(i,1,1,1) = rhs_m_x%x(i,1,1,1) * c_Xh%mult(i,1,1,1)
+      rhs_m_y%x(i,1,1,1) = rhs_m_y%x(i,1,1,1) * c_Xh%mult(i,1,1,1)
+      rhs_m_z%x(i,1,1,1) = rhs_m_z%x(i,1,1,1) * c_Xh%mult(i,1,1,1)
+      rhs_E%x(i,1,1,1) = rhs_E%x(i,1,1,1) * c_Xh%mult(i,1,1,1)
+    end do
+
+    ! artificial diffusion for rho
+    call Ax%compute(temp%x, rho_field%x, c_Xh, p%msh, p%Xh)
+    call gs_Xh%op(temp, GS_OP_ADD)
+    do concurrent (i = 1:n)
+      rhs_rho_field%x(i,1,1,1) = rhs_rho_field%x(i,1,1,1) &
+        + c_avisc * c_Xh%Binv(i,1,1,1) * temp%x(i,1,1,1)
+    end do
+    ! artificial diffusion for m_x
+    call Ax%compute(temp%x, m_x%x, c_Xh, p%msh, p%Xh)
+    call gs_Xh%op(temp, GS_OP_ADD)
+    do concurrent (i = 1:n)
+      rhs_m_x%x(i,1,1,1) = rhs_m_x%x(i,1,1,1) &
+        + c_avisc * c_Xh%Binv(i,1,1,1) * temp%x(i,1,1,1)
+    end do
+    ! artificial diffusion for m_y
+    call Ax%compute(temp%x, m_y%x, c_Xh, p%msh, p%Xh)
+    call gs_Xh%op(temp, GS_OP_ADD)
+    do concurrent (i = 1:n)
+      rhs_m_y%x(i,1,1,1) = rhs_m_y%x(i,1,1,1) &
+        + c_avisc * c_Xh%Binv(i,1,1,1) * temp%x(i,1,1,1)
+    end do
+    ! artificial diffusion for m_z
+    call Ax%compute(temp%x, m_z%x, c_Xh, p%msh, p%Xh)
+    call gs_Xh%op(temp, GS_OP_ADD)
+    do concurrent (i = 1:n)
+      rhs_m_z%x(i,1,1,1) = rhs_m_z%x(i,1,1,1) &
+        + c_avisc * c_Xh%Binv(i,1,1,1) * temp%x(i,1,1,1)
+    end do
     ! artificial diffusion for E
     call Ax%compute(temp%x, E%x, c_Xh, p%msh, p%Xh)
     call gs_Xh%op(temp, GS_OP_ADD)

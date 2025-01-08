@@ -219,21 +219,16 @@ contains
     !> rho = rho - dt * div(m)
     call field_cmult(rhs_rho_field, dt, n)
     call field_sub2(rho_field, rhs_rho_field, n)
-    call this%gs_Xh%op(rho_field, GS_OP_MIN)
     !> m = m - dt * div(rho * u * u^T + p*I)
     call field_cmult(rhs_m_x, dt, n)
     call field_sub2(m_x, rhs_m_x, n)
-    call this%gs_Xh%op(m_x, GS_OP_MIN)
     call field_cmult(rhs_m_y, dt, n)
     call field_sub2(m_y, rhs_m_y, n)
-    call this%gs_Xh%op(m_y, GS_OP_MIN)
     call field_cmult(rhs_m_z, dt, n)
     call field_sub2(m_z, rhs_m_z, n)
-    call this%gs_Xh%op(m_z, GS_OP_MIN)
     !> E = E - dt * div(u * (E + p))
     call field_cmult(rhs_E, dt, n)
     call field_sub2(E, rhs_E, n)
-    call this%gs_Xh%op(E, GS_OP_MIN)
 
   end subroutine rk4
 

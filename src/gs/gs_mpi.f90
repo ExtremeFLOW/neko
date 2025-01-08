@@ -34,7 +34,7 @@
 module gs_mpi
   use num_types, only : rp
   use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU
-  use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL, GS_OP_MIN_ABS
+  use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
   use stack, only : stack_i4_t
   use comm
   use, intrinsic :: iso_c_binding
@@ -209,15 +209,6 @@ contains
                    !NEC$ IVDEP
                    do concurrent (j = 1:this%send_dof(src)%size())
                       u(sp(j)) = min(u(sp(j)), this%recv_buf(i)%data(j))
-                   end do
-                case (GS_OP_MIN_ABS)
-                   !NEC$ IVDEP
-                   do concurrent (j = 1:this%send_dof(src)%size())
-                      if (abs(u(sp(j))) < abs(this%recv_buf(i)%data(j))) then
-                        u(sp(j)) = u(sp(j))
-                      else
-                        u(sp(j)) = this%recv_buf(i)%data(j)
-                      end if
                    end do
                 case (GS_OP_MAX)
                    !NEC$ IVDEP

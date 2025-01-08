@@ -33,7 +33,8 @@ module user
 
     ! rho_L = 1, u_L = (0, 0), p_L = 1
     ! rho_R = 0.125, u_R = (0, 0), p_R = 0.1
-    ! end time = 0.25
+    ! end time = 0.2
+    theta = 0.01
     mux = 0.5
     do i = 1, rho%dof%size()
       x = rho%dof%x(i,1,1,1)
@@ -49,39 +50,11 @@ module user
         rho%x(i,1,1,1) = 0.125
         p%x(i,1,1,1) = 0.1
       end if
+
+      ! the smoothen initial condition
+      ! rho%x(i,1,1,1) = (1-tanh((x-0.5)/theta))/2.0 * (1.0-0.125) + 0.125
+      ! p%x(i,1,1,1) = (1-tanh((x-0.5)/theta))/2.0 * (1.0-0.1) + 0.1
     end do
-
-    ! ! Density
-    ! ! Center of the cone
-    ! mux = 0.5
-    ! muy = 0.5
-
-    ! cone_radius = 0.1
-
-    ! do i = 1, rho%dof%size()
-    !    x = rho%dof%x(i,1,1,1) - mux
-    !    y = rho%dof%y(i,1,1,1) - muy
-
-    !    r = sqrt(x**2 + y**2)
-
-    !    ! rho%x(i,1,1,1) = exp(-r**2 / cone_radius**2)
-    !    if (r < cone_radius) then
-    !      rho%x(i,1,1,1) = 1.0
-    !    else
-    !      rho%x(i,1,1,1) = 0.125
-    !    end if
-    ! end do
-
-    ! ! Velocity field
-
-    ! do i = 1, u%dof%size()
-    !    x = u%dof%x(i,1,1,1)
-    !    y = u%dof%y(i,1,1,1)
-
-    !    u%x(i,1,1,1) = 1.0
-    !    v%x(i,1,1,1) = 0
-    !    w%x(i,1,1,1) = 0
-    ! end do
   end subroutine user_ic
 
 end module user
