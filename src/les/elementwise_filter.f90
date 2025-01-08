@@ -34,11 +34,13 @@
 !> Implements `explicit_filter_t`.
 module elementwise_filter
   use num_types, only : rp
-  use math, only : rzero, rone
+  use math, only : rzero, rone, copy
   use field, only : field_t
+  use coefs, only : coef_t
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
-  use math, only : copy
+  use json_module, only : json_file
+  use json_utils, only : json_get_or_default
   use speclib, only : zwgll, legendre_poly
   use matrix, only : matrix_t
   use mxm_wrapper, only : mxm
@@ -54,11 +56,13 @@ module elementwise_filter
   type, public :: elementwise_filter_t
      !> filter type:
      !> possible options: "Boyd", "nonBoyd"
-     character(len=64) :: filter_type
+     character(len=:), allocatable :: filter_type
      !> dimension
      integer :: nx
      !> filtered wavenumber
      integer :: nt
+     !> coef
+     type(coef_t), pointer :: coef
      !> matrix for 1d elementwise filtering
      real(kind=rp), allocatable :: fh(:,:), fht(:,:)
      type(c_ptr) :: fh_d = C_NULL_PTR
@@ -67,7 +71,10 @@ module elementwise_filter
      real(kind=rp), allocatable :: trnsfr(:)
    contains
      !> Constructor.
-     procedure, pass(this) :: init => elementwise_filter_init
+     procedure, pass(this) :: init => elementwise_filter_init_from_json
+     !> Actual constructor.
+     procedure, pass(this) :: init_from_attributes => &
+          elementwise_filter_init_from_attributes
      !> Destructor.
      procedure, pass(this) :: free => elementwise_filter_free
      !> Set up 1D filter inside an element.
@@ -77,17 +84,32 @@ module elementwise_filter
   end type elementwise_filter_t
 
 contains
-  !> Constructor.
+  !> Constructor
+  subroutine elementwise_filter_init_from_json(this, json, coef)
+    class(elementwise_filter_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    type(coef_t), target, intent(in) :: coef
+    character(len=:), allocatable :: filter_type
+
+    call json_get_or_default(json, "test_filter_type", filter_type, "nonBoyd")
+    this%filter_type = filter_type
+
+    ! Filter assumes lx = ly = lz
+    ! call this%init_base(json, coef)
+    this%coef => coef
+    call this%init_from_attributes(coef%dof%xh%lx, this%filter_type)
+
+  end subroutine elementwise_filter_init_from_json
+  !> Actual Constructor.
   !! @param nx number of points in an elements in one direction.
   !! @param filter_type possible options: "Boyd", "nonBoyd"
-  subroutine elementwise_filter_init(this, nx, filter_type)
+  subroutine elementwise_filter_init_from_attributes(this, nx, filter_type)
     class(elementwise_filter_t), intent(inout) :: this
     character(len=*) :: filter_type
     integer :: nx
     
     this%nx = nx
     this%nt = nx ! initialize as if nothing is filtered yet 
-    this%filter_type = filter_type
 
     allocate(this%fh(nx, nx))
     allocate(this%fht(nx, nx))
@@ -104,7 +126,7 @@ contains
        call device_cfill(this%fht_d, 0.0_rp, this%nx * this%nx)
     end if
     
-  end subroutine elementwise_filter_init
+  end subroutine elementwise_filter_init_from_attributes
 
   !> Destructor.
   subroutine elementwise_filter_free(this)
