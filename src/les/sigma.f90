@@ -44,6 +44,7 @@ module sigma
   use sigma_cpu, only : sigma_compute_cpu
   use sigma_device, only : sigma_compute_device
   use coefs, only : coef_t
+  use logger, only : LOG_SIZE, neko_log
   implicit none
   private
 
@@ -76,11 +77,21 @@ contains
     character(len=:), allocatable :: nut_name
     real(kind=rp) :: c
     character(len=:), allocatable :: delta_type
+    character(len=LOG_SIZE) :: log_buf
 
     call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     ! Based on  C = 1.35 as default values
     call json_get_or_default(json, "c", c, 1.35_rp)
+
+    call neko_log%section('LES model')
+    write(log_buf, '(A)') 'Model : Sigma'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Delta evaluation : ', delta_type
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'c : ', c
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
 
     call sigma_init_from_components(this, dofmap, coef, c, nut_name, delta_type)
   end subroutine sigma_init

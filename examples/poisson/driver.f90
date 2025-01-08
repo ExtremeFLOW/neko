@@ -14,7 +14,7 @@ program poisson
   type(field_t) :: x
   type(ax_poisson_t) :: ax
   type(coef_t) :: coef
-  type(cg_t) :: solver
+  class(ksp_t), allocatable :: solver
   type(ksp_monitor_t) :: ksp_mon
   integer :: argc, lx, n, n_glb, niter, ierr
   character(len=80) :: suffix
@@ -31,7 +31,9 @@ program poisson
      stop
   end if
   
-  call neko_init 
+  call neko_init
+  call neko_job_info
+  
   call get_command_argument(1, fname)
   call get_command_argument(2, lxchar)
   call get_command_argument(3, iterchar)
@@ -52,23 +54,23 @@ program poisson
 
   n = Xh%lx * Xh%ly * Xh%lz * msh%nelv
 
-  call dir_bc%init(coef)
+  call dir_bc%init_base(coef)
   call dir_bc%set_g(real(0.0d0,rp))
  
   !user specified
   call set_bc(dir_bc, msh)
  
   call dir_bc%finalize()
-  call bc_list_init(bclst)
-  call bc_list_add(bclst,dir_bc)
-  call solver%init(n, niter, abs_tol = tol)
+  call bclst%init()
+  call bclst%append(dir_bc)
+  call krylov_solver_factory(solver, n, 'cg', niter, abstol = tol)
 
   allocate(f(n))
 
   !user specified
   call rzero(f,n)
   call set_f(f, coef%mult, dm, n, gs_h)
-  call bc_list_apply(bclst,f,n)
+  call bclst%apply(f, n)
   ksp_mon = solver%solve(ax, x, f, n, coef, bclst, gs_h, niter)
   n_glb = Xh%lx * Xh%ly * Xh%lz * msh%glb_nelv
   
@@ -84,7 +86,7 @@ program poisson
   deallocate(f)
   call solver%free()
   call dir_bc%free()
-  call bc_list_free(bclst)
+  call bclst%free()
   call Xh%free()
   call x%free()
   call msh%free() 

@@ -39,7 +39,6 @@ module simulation
   use file, only : file_t
   use logger, only : LOG_SIZE, neko_log
   use jobctrl, only : jobctrl_time_limit
-  use field, only : field_t
   use profiler, only : profiler_start, profiler_stop, &
        profiler_start_region, profiler_end_region
   use simcomp_executor, only : neko_simcomps
@@ -160,7 +159,6 @@ contains
        ! Execute all simulation components
        call neko_simcomps%compute(t, tstep)
 
-       call C%output_controller%execute(t, tstep)
 
        !> @todo Temporary fix until we have reworked the material properties
        rho = C%fluid%rho
@@ -182,6 +180,8 @@ contains
 
        call C%usr%user_check(t, tstep, C%fluid%u, C%fluid%v, C%fluid%w, &
                              C%fluid%p, C%fluid%c_Xh, C%params)
+
+       call C%output_controller%execute(t, tstep)
 
        call neko_log%end_section()
        end_time = MPI_WTIME()
