@@ -53,7 +53,7 @@ module PDE_filter
   use field_registry, only: neko_field_registry
   use filter, only: filter_t
   use scratch_registry, only: neko_scratch_registry
-  use field_math, only: field_copy
+  use field_math, only: field_copy, field_add3
   use coefs, only: coef_t
   use logger, only: neko_log, LOG_SIZE
   use neko_config, only: NEKO_BCKND_DEVICE
@@ -63,7 +63,7 @@ module PDE_filter
   use sx_jacobi, only: sx_jacobi_t
   use hsmg, only: hsmg_t
   use utils, only: neko_error
-  use device_math, only: device_cfill, device_col3
+  use device_math, only: device_cfill, device_subcol3, device_cmult
   implicit none
   private
 
@@ -196,7 +196,7 @@ contains
     type(field_t), intent(inout) :: F_out
     integer :: n, i
     ! type(field_t), pointer :: RHS
-    type(field_t) :: RHS
+    type(field_t) :: RHS, d_F_out
     character(len=LOG_SIZE) :: log_buf
     ! integer :: temp_indices(1)
 
@@ -207,6 +207,18 @@ contains
     ! So we can't use the scratch registry here.
     ! call neko_scratch_registry%request_field(RHS, temp_indices(1))
     call RHS%init(this%coef%dof)
+    call d_F_out%init(this%coef%dof)
+
+    ! in a similar fasion to pressure/velocity, we will solve for d_F_out.
+
+    ! to improve convergence, we use F_in as an initial guess for F_out.
+    ! so F_out = F_in + d_F_in.
+
+    ! Defining the operator A = -r^2 \nabla^2 + I
+    ! the system changes from:
+    ! A (F_out) = F_in
+    ! to
+    ! A (d_F_out) = F_in - A(F_in)
 
     ! set up Helmholtz operators and RHS
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -214,18 +226,33 @@ contains
        ! I think this is correct but I've never tested it
        call device_cfill(this%coef%h1_d, this%r**2, n)
        call device_cfill(this%coef%h2_d, 1.0_rp, n)
-       call device_col3(RHS%x_d, F_in%x_d, this%coef%B_d, n)
     else
        do i = 1, n
           ! h1 is already negative in its definition
           this%coef%h1(i,1,1,1) = this%r**2
           ! ax_helm includes the mass matrix in h2
           this%coef%h2(i,1,1,1) = 1.0_rp
-          ! mass matrix should be included here
-          RHS%x(i,1,1,1) = F_in%x(i,1,1,1) * this%coef%B(i,1,1,1)
        end do
     end if
     this%coef%ifh2 = .true.
+
+    ! compute the A(F_in) component of the RHS 
+    ! (note, to be safe with the inout intent we first copy F_in to the
+    !  temporary d_F_out)
+    call field_copy(d_F_out, F_in)
+    call this%Ax%compute(RHS%x, d_F_out%x, this%coef, this%coef%msh, &
+        this%coef%Xh)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_subcol3(RHS%x_d, F_in%x_d, this%coef%B_d, n)
+       call device_cmult(RHS%x_d, -1.0_rp, n)
+    else
+       do i = 1, n
+          ! mass matrix should be included here
+          RHS%x(i,1,1,1) = F_in%x(i,1,1,1) * this%coef%B(i,1,1,1) &
+              - RHS%x(i,1,1,1)
+       end do
+    end if
 
     ! gather scatter
     call this%coef%gs_h%op(RHS, GS_OP_ADD)
@@ -236,11 +263,13 @@ contains
     ! Solve Helmholtz equation
     call profiler_start_region('filter solve')
     this%ksp_results(1) = &
-         this%ksp_filt%solve(this%Ax, F_out, RHS%x, n, this%coef, &
+         this%ksp_filt%solve(this%Ax, d_F_out, RHS%x, n, this%coef, &
          this%bclst_filt, this%coef%gs_h)
 
     call profiler_end_region
 
+    ! add result
+    call field_add3(F_out, F_in, d_F_out)
     ! update preconditioner (needed?)
     call this%pc_filt%update()
 
@@ -256,6 +285,7 @@ contains
 
     !call neko_scratch_registry%relinquish_field(temp_indices)
     call RHS%free()
+    call d_F_out%free()
 
   end subroutine PDE_filter_apply
 
