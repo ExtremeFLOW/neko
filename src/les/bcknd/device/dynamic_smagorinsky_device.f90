@@ -159,9 +159,9 @@ contains
     call neko_scratch_registry%request_field(fvw, temp_indices(9))
 
     ! Use test filter for the velocity fields
-    call test_filter%filter_3d(fu, u, nelv)
-    call test_filter%filter_3d(fv, v, nelv)
-    call test_filter%filter_3d(fw, w, nelv)
+    call test_filter%apply(fu, u, nelv)
+    call test_filter%apply(fv, v, nelv)
+    call test_filter%apply(fw, w, nelv)
 
     !!         ___ ___
     !! Compute u_i*u_j and u_i*u_j
@@ -173,12 +173,12 @@ contains
                                   fuv%x_d, fuw%x_d, fvw%x_d, n)
 
     !! Filter u_i*u_j by the test filter
-    call test_filter%filter_3d(fuu, fuu, nelv)
-    call test_filter%filter_3d(fvv, fvv, nelv)
-    call test_filter%filter_3d(fww, fww, nelv)
-    call test_filter%filter_3d(fuv, fuv, nelv)
-    call test_filter%filter_3d(fuw, fuw, nelv)
-    call test_filter%filter_3d(fvw, fvw, nelv)
+    call test_filter%apply(fuu, fuu, nelv)
+    call test_filter%apply(fvv, fvv, nelv)
+    call test_filter%apply(fww, fww, nelv)
+    call test_filter%apply(fuv, fuv, nelv)
+    call test_filter%apply(fuw, fuw, nelv)
+    call test_filter%apply(fvw, fvw, nelv)
     
     !! Assember the final form
     !!        ___ ___   _______
@@ -251,13 +251,13 @@ contains
     !! Compute M_ij
     !!         _____     ____
     !! Compute s_abs and s_ij
-    call test_filter%filter_3d(fs_abs, s_abs, nelv)
-    call test_filter%filter_3d(fs11, s11, nelv)
-    call test_filter%filter_3d(fs22, s22, nelv)
-    call test_filter%filter_3d(fs33, s33, nelv)
-    call test_filter%filter_3d(fs12, s12, nelv)
-    call test_filter%filter_3d(fs13, s13, nelv)
-    call test_filter%filter_3d(fs23, s23, nelv)
+    call test_filter%apply(fs_abs, s_abs, nelv)
+    call test_filter%apply(fs11, s11, nelv)
+    call test_filter%apply(fs22, s22, nelv)
+    call test_filter%apply(fs33, s33, nelv)
+    call test_filter%apply(fs12, s12, nelv)
+    call test_filter%apply(fs13, s13, nelv)
+    call test_filter%apply(fs23, s23, nelv)
     
     !!                              _____ ____
     !! Compute (delta_test/delta)^2 s_abs*s_ij and s_abs*s_ij
@@ -272,12 +272,12 @@ contains
                                   delta_ratio2, n)
 
     !! Filter s_abs*s_ij by the test filter
-    call test_filter%filter_3d(fsabss11, fsabss11, nelv)
-    call test_filter%filter_3d(fsabss22, fsabss22, nelv)
-    call test_filter%filter_3d(fsabss33, fsabss33, nelv)
-    call test_filter%filter_3d(fsabss12, fsabss12, nelv)
-    call test_filter%filter_3d(fsabss13, fsabss13, nelv)
-    call test_filter%filter_3d(fsabss23, fsabss23, nelv)
+    call test_filter%apply(fsabss11, fsabss11, nelv)
+    call test_filter%apply(fsabss22, fsabss22, nelv)
+    call test_filter%apply(fsabss33, fsabss33, nelv)
+    call test_filter%apply(fsabss12, fsabss12, nelv)
+    call test_filter%apply(fsabss13, fsabss13, nelv)
+    call test_filter%apply(fsabss23, fsabss23, nelv)
 
     !! Finalise the compute of Mij and nut
     call device_mij_nut_compute_part2(mij(1)%x_d, mij(2)%x_d, mij(3)%x_d, &

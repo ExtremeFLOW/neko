@@ -73,7 +73,7 @@ module elementwise_filter
      !> Set up 1D filter inside an element.
      procedure, pass(this) :: build_1d
      !> Filter a 3D field
-     procedure, pass(this) :: filter_3d => elementwise_field_filter_3d
+     procedure, pass(this) :: apply => elementwise_field_filter_3d
   end type elementwise_filter_t
 
 contains

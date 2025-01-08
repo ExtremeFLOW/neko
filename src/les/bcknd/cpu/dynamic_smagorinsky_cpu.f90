@@ -168,9 +168,9 @@ contains
     call neko_scratch_registry%request_field(fu, temp_indices(1))
     call neko_scratch_registry%request_field(fv, temp_indices(2))
     call neko_scratch_registry%request_field(fw, temp_indices(3))
-    call test_filter%filter_3d(fu, u, nelv)
-    call test_filter%filter_3d(fv, v, nelv)
-    call test_filter%filter_3d(fw, w, nelv)
+    call test_filter%apply(fu, u, nelv)
+    call test_filter%apply(fv, v, nelv)
+    call test_filter%apply(fw, w, nelv)
 
     !! The first term
     call col3(lij(1)%x, fu%x, fu%x, n)
@@ -184,27 +184,27 @@ contains
     !! use test filter for the cross terms
     !! fu and fv are used as work array
     call col3(fu%x, u%x, u%x, n)
-    call test_filter%filter_3d(fv, fu, nelv)
+    call test_filter%apply(fv, fu, nelv)
     call sub2(lij(1)%x, fv%x, n)
 
     call col3(fu%x, v%x, v%x, n)
-    call test_filter%filter_3d(fv, fu, nelv)
+    call test_filter%apply(fv, fu, nelv)
     call sub2(lij(2)%x, fv%x, n)
 
     call col3(fu%x, w%x, w%x, n)
-    call test_filter%filter_3d(fv, fu, nelv)
+    call test_filter%apply(fv, fu, nelv)
     call sub2(lij(3)%x, fv%x, n)
 
     call col3(fu%x, u%x, v%x, n)
-    call test_filter%filter_3d(fv, fu, nelv)
+    call test_filter%apply(fv, fu, nelv)
     call sub2(lij(4)%x, fv%x, n)
 
     call col3(fu%x, u%x, w%x, n)
-    call test_filter%filter_3d(fv, fu, nelv)
+    call test_filter%apply(fv, fu, nelv)
     call sub2(lij(5)%x, fv%x, n)
 
     call col3(fu%x, v%x, w%x, n)
-    call test_filter%filter_3d(fv, fu, nelv)
+    call test_filter%apply(fv, fu, nelv)
     call sub2(lij(6)%x, fv%x, n)
 
   end subroutine compute_lij_cpu
@@ -244,29 +244,29 @@ contains
     !! The first term:
     !!                      _____ ____
     !! (delta_test/delta)^2 s_abs*s_ij
-    call test_filter%filter_3d(fs_abs, s_abs, nelv)
+    call test_filter%apply(fs_abs, s_abs, nelv)
 
-    call test_filter%filter_3d(fs11, s11, nelv)
+    call test_filter%apply(fs11, s11, nelv)
     call col3(mij(1)%x, fs_abs%x, fs11%x, n)
     call cmult(mij(1)%x, delta_ratio2, n)
 
-    call test_filter%filter_3d(fs22, s22, nelv)
+    call test_filter%apply(fs22, s22, nelv)
     call col3(mij(2)%x, fs_abs%x, fs22%x, n)
     call cmult(mij(2)%x, delta_ratio2, n)
 
-    call test_filter%filter_3d(fs33, s33, nelv)
+    call test_filter%apply(fs33, s33, nelv)
     call col3(mij(3)%x, fs_abs%x, fs33%x, n)
     call cmult(mij(3)%x, delta_ratio2, n)
 
-    call test_filter%filter_3d(fs12, s12, nelv)
+    call test_filter%apply(fs12, s12, nelv)
     call col3(mij(4)%x, fs_abs%x, fs12%x, n)
     call cmult(mij(4)%x, delta_ratio2, n)
 
-    call test_filter%filter_3d(fs13, s13, nelv)
+    call test_filter%apply(fs13, s13, nelv)
     call col3(mij(5)%x, fs_abs%x, fs13%x, n)
     call cmult(mij(5)%x, delta_ratio2, n)
 
-    call test_filter%filter_3d(fs23, s23, nelv)
+    call test_filter%apply(fs23, s23, nelv)
     call col3(mij(6)%x, fs_abs%x, fs23%x, n)
     call cmult(mij(6)%x, delta_ratio2, n)
 
@@ -275,27 +275,27 @@ contains
     !! (delta_test/delta)^2 s_abs*s_ij - s_abs*s_ij
     !! fs11 and fs22 are used as work array
     call col3(fs11%x, s_abs%x, s11%x, n)
-    call test_filter%filter_3d(fs22, fs11, nelv)
+    call test_filter%apply(fs22, fs11, nelv)
     call sub2(mij(1)%x, fs22%x, n)
 
     call col3(fs11%x, s_abs%x, s22%x, n)
-    call test_filter%filter_3d(fs22, fs11, nelv)
+    call test_filter%apply(fs22, fs11, nelv)
     call sub2(mij(2)%x, fs22%x, n)
 
     call col3(fs11%x, s_abs%x, s33%x, n)
-    call test_filter%filter_3d(fs22, fs11, nelv)
+    call test_filter%apply(fs22, fs11, nelv)
     call sub2(mij(3)%x, fs22%x, n)
 
     call col3(fs11%x, s_abs%x, s12%x, n)
-    call test_filter%filter_3d(fs22, fs11, nelv)
+    call test_filter%apply(fs22, fs11, nelv)
     call sub2(mij(4)%x, fs22%x, n)
 
     call col3(fs11%x, s_abs%x, s13%x, n)
-    call test_filter%filter_3d(fs22, fs11, nelv)
+    call test_filter%apply(fs22, fs11, nelv)
     call sub2(mij(5)%x, fs22%x, n)
 
     call col3(fs11%x, s_abs%x, s23%x, n)
-    call test_filter%filter_3d(fs22, fs11, nelv)
+    call test_filter%apply(fs22, fs11, nelv)
     call sub2(mij(6)%x, fs22%x, n)
 
     !! Lastly multiplied by delta^2
