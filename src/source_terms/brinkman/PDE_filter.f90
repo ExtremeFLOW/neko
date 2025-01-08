@@ -44,8 +44,7 @@ module PDE_filter
   use krylov, only: ksp_t, ksp_monitor_t, krylov_solver_factory, &
        krylov_solver_destroy
   use precon, only: pc_t, precon_factory, precon_destroy
-  use bc, only: bc_list_add, bc_list_t, bc_list_apply_scalar, bc_list_init, &
-       bc_list_free
+  use bc_list, only : bc_list_t
   use neumann, only: neumann_t
   use profiler, only: profiler_start_region, profiler_end_region
   use gather_scatter, only: gs_t, GS_OP_ADD
@@ -82,9 +81,7 @@ module PDE_filter
      class(ksp_t), allocatable :: ksp_filt
      !> Filter Preconditioner
      class(pc_t), allocatable :: pc_filt
-     !> They will all be Neumann conditions.
-     type(neumann_t) :: filter_bcs
-     !> Filter boundary conditions
+     !> Filter boundary conditions (they will all be Neumann, so empty)
      type(bc_list_t) :: bclst_filt
 
      ! Inputs from the user
@@ -130,10 +127,10 @@ contains
 
     call json_get_or_default(json, "filter.max_iter", this%ksp_max_iter, 200)
 
-    call json_get_or_default(json, "filter.solver", this%ksp_solver, 'gmres')
+    call json_get_or_default(json, "filter.solver", this%ksp_solver, 'cg')
 
     call json_get_or_default(json, "filter.preconditioner", &
-         this%precon_type_filt, 'ident')
+         this%precon_type_filt, 'jacobi')
 
     call this%init_base(json, coef)
     call PDE_filter_init_from_attributes(this, coef)
@@ -145,30 +142,11 @@ contains
     class(PDE_filter_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     integer :: n
-    character(len=NEKO_MSH_MAX_ZLBL_LEN) :: &
-         bc_labels_all_neuman(NEKO_MSH_MAX_ZLBLS)
 
     n = this%coef%dof%size()
 
-    ! initialize the filter BCs
-    call this%filter_bcs%init_base(this%coef)
-
-    ! Create list with just Neumann bcs
-
-    ! init the list
-    call bc_list_init(this%bclst_filt)
-
-    ! Mark ALL the BCs as Neumann, regardless of what's prescribed
-    bc_labels_all_neuman = 'o'
-    call this%filter_bcs%mark_zones_from_list(coef%msh%labeled_zones,&
-         'o', bc_labels_all_neuman)
-
-    ! set the flux to zero
-    call this%filter_bcs%finalize_neumann(0.0_rp)
-
-    ! add them to the filter BCs
-    call bc_list_add(this%bclst_filt, this%filter_bcs)
-
+    ! init the bc list (all Neuman BCs, will remain empty)
+    call this%bclst_filt%init()
 
     ! Setup backend dependent Ax routines
     call ax_helm_factory(this%Ax, full_formulation = .false.)
@@ -178,26 +156,35 @@ contains
          this%ksp_max_iter, this%abstol_filt)
 
     ! set up preconditioner
-    call precon_factory(this%pc_filt, this%precon_type_filt)
+    call filter_precon_factory(this%pc_filt, this%ksp_filt, &                      
+                                      this%coef, this%coef%dof, &
+                                      this%coef%gs_h, &      
+                                      this%bclst_filt, this%precon_type_filt)
 
   end subroutine PDE_filter_init_from_attributes
 
   !> Destructor.
   subroutine PDE_filter_free(this)
     class(PDE_filter_t), intent(inout) :: this
+
     if (allocated(this%Ax)) then
        deallocate(this%Ax)
     end if
 
-    call krylov_solver_destroy(this%ksp_filt)
+    if (allocated(this%ksp_filt)) then                                               
+       call krylov_solver_destroy(this%ksp_filt)                                     
+       deallocate(this%ksp_filt)                                                     
+    end if                                                                      
+                                                                                
+    if (allocated(this%pc_filt)) then                                                
+       call precon_destroy(this%pc_filt)                                             
+       deallocate(this%pc_filt)                                                      
+    end if                    
 
-    call precon_destroy(this%pc_filt)
-
-    call this%filter_bcs%free()
-
-    call bc_list_free(this%bclst_filt)
+    call this%bclst_filt%free()
 
     call this%free_base()
+
   end subroutine PDE_filter_free
 
   !> Apply the filter
@@ -240,15 +227,11 @@ contains
     end if
     this%coef%ifh2 = .true.
 
-    ! This is a good idea from Niels' email!
-    ! copy the unfiltered design as an initial guess for the filtered design
-    ! to improved convergence
-    call field_copy(F_out, F_in)
-
     ! gather scatter
     call this%coef%gs_h%op(RHS, GS_OP_ADD)
+
     ! set BCs
-    call bc_list_apply_scalar(this%bclst_filt, RHS%x, n)
+    call this%bclst_filt%apply_scalar(RHS%x, n)
 
     ! Solve Helmholtz equation
     call profiler_start_region('filter solve')
@@ -275,5 +258,42 @@ contains
     call RHS%free()
 
   end subroutine PDE_filter_apply
+
+  !> Initialize a Krylov preconditioner
+  subroutine filter_precon_factory(pc, ksp, coef, dof, gs, bclst, &
+       pctype)
+    class(pc_t), allocatable, target, intent(inout) :: pc
+    class(ksp_t), target, intent(inout) :: ksp
+    type(coef_t), target, intent(in) :: coef
+    type(dofmap_t), target, intent(in) :: dof
+    type(gs_t), target, intent(inout) :: gs
+    type(bc_list_t), target, intent(inout) :: bclst
+    character(len=*) :: pctype
+
+    call precon_factory(pc, pctype)
+
+    select type (pcp => pc)
+      type is (jacobi_t)
+       call pcp%init(coef, dof, gs)
+      type is (sx_jacobi_t)
+       call pcp%init(coef, dof, gs)
+      type is (device_jacobi_t)
+       call pcp%init(coef, dof, gs)
+      type is (hsmg_t)
+       if (len_trim(pctype) .gt. 4) then
+          if (index(pctype, '+') .eq. 5) then
+             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &
+                  trim(pctype(6:)))
+          else
+             call neko_error('Unknown coarse grid solver')
+          end if
+       else
+          call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
+       end if
+    end select
+
+    call ksp%set_pc(pc)
+
+  end subroutine filter_precon_factory
 
 end module PDE_filter
