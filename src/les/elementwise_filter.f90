@@ -152,11 +152,11 @@ contains
   subroutine elementwise_field_filter_3d(this, v, u, nelv)
     class(elementwise_filter_t), intent(in) :: this
     integer, intent(inout) :: nelv
-    real(kind=rp), intent(inout), dimension(this%nx, this%nx, this%nx, nelv) :: v
-    real(kind=rp), intent(in), dimension(this%nx, this%nx, this%nx, nelv) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(in) :: u
 
     ! v = fh x fh x fh x u
-    call tnsr3d(v, this%nx, u, this%nx, this%fh, this%fht, this%fht, nelv)
+    call tnsr3d(v%x, this%nx, u%x, this%nx, this%fh, this%fht, this%fht, nelv)
 
   end subroutine elementwise_field_filter_3d
 

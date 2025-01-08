@@ -161,49 +161,51 @@ contains
     integer, intent(inout) :: nelv
     integer :: i
     !> filtered u,v,w by the test filter
-    real(kind=rp), dimension(u%dof%size()) :: fu, fv, fw
+    integer :: temp_indices(3)
+    type(field_t), pointer :: fu, fv, fw
 
     ! Use test filter for the velocity fields
-    call test_filter%filter_3d(fu, u%x, nelv)
-    call test_filter%filter_3d(fv, v%x, nelv)
-    call test_filter%filter_3d(fw, w%x, nelv)
+    call neko_scratch_registry%request_field(fu, temp_indices(1))
+    call neko_scratch_registry%request_field(fv, temp_indices(2))
+    call neko_scratch_registry%request_field(fw, temp_indices(3))
+    call test_filter%filter_3d(fu, u, nelv)
+    call test_filter%filter_3d(fv, v, nelv)
+    call test_filter%filter_3d(fw, w, nelv)
 
     !! The first term
-    do concurrent (i = 1:n)
-       lij(1)%x(i,1,1,1) = fu(i) * fu(i)
-       lij(2)%x(i,1,1,1) = fv(i) * fv(i)
-       lij(3)%x(i,1,1,1) = fw(i) * fw(i)
-       lij(4)%x(i,1,1,1) = fu(i) * fv(i)
-       lij(5)%x(i,1,1,1) = fu(i) * fw(i)
-       lij(6)%x(i,1,1,1) = fv(i) * fw(i)
-    end do
+    call col3(lij(1)%x, fu%x, fu%x, n)
+    call col3(lij(2)%x, fv%x, fv%x, n)
+    call col3(lij(3)%x, fw%x, fw%x, n)
+    call col3(lij(4)%x, fu%x, fv%x, n)
+    call col3(lij(5)%x, fu%x, fw%x, n)
+    call col3(lij(6)%x, fv%x, fw%x, n)
 
     !! Subtract the second term:
     !! use test filter for the cross terms
     !! fu and fv are used as work array
-    call col3(fu, u%x, u%x, n)
+    call col3(fu%x, u%x, u%x, n)
     call test_filter%filter_3d(fv, fu, nelv)
-    call sub2(lij(1)%x, fv, n)
+    call sub2(lij(1)%x, fv%x, n)
 
-    call col3(fu, v%x, v%x, n)
+    call col3(fu%x, v%x, v%x, n)
     call test_filter%filter_3d(fv, fu, nelv)
-    call sub2(lij(2)%x, fv, n)
+    call sub2(lij(2)%x, fv%x, n)
 
-    call col3(fu, w%x, w%x, n)
+    call col3(fu%x, w%x, w%x, n)
     call test_filter%filter_3d(fv, fu, nelv)
-    call sub2(lij(3)%x, fv, n)
+    call sub2(lij(3)%x, fv%x, n)
 
-    call col3(fu, u%x, v%x, n)
+    call col3(fu%x, u%x, v%x, n)
     call test_filter%filter_3d(fv, fu, nelv)
-    call sub2(lij(4)%x, fv, n)
+    call sub2(lij(4)%x, fv%x, n)
 
-    call col3(fu, u%x, w%x, n)
+    call col3(fu%x, u%x, w%x, n)
     call test_filter%filter_3d(fv, fu, nelv)
-    call sub2(lij(5)%x, fv, n)
+    call sub2(lij(5)%x, fv%x, n)
 
-    call col3(fu, v%x, w%x, n)
+    call col3(fu%x, v%x, w%x, n)
     call test_filter%filter_3d(fv, fu, nelv)
-    call sub2(lij(6)%x, fv, n)
+    call sub2(lij(6)%x, fv%x, n)
 
   end subroutine compute_lij_cpu
 
@@ -223,70 +225,78 @@ contains
     type(field_t), intent(in) :: delta
     integer, intent(in) :: n
     integer, intent(inout) :: nelv
-
-    real(kind=rp), dimension(n) :: fs11, fs22, fs33, fs12, fs13, fs23, fs_abs
+    
+    integer :: temp_indices(7)
+    type(field_t), pointer :: fs11, fs22, fs33, fs12, fs13, fs23, fs_abs
     real(kind=rp) :: delta_ratio2 !test- to grid- filter ratio, squared
     integer :: i
     real(kind=rp) :: delta2
 
     delta_ratio2 = ((test_filter%nx-1.0_rp)/(test_filter%nt-1.0_rp))**2
-
+    
+    call neko_scratch_registry%request_field(fs11, temp_indices(1))
+    call neko_scratch_registry%request_field(fs22, temp_indices(2))
+    call neko_scratch_registry%request_field(fs33, temp_indices(3))
+    call neko_scratch_registry%request_field(fs12, temp_indices(4))
+    call neko_scratch_registry%request_field(fs13, temp_indices(5))
+    call neko_scratch_registry%request_field(fs23, temp_indices(6))
+    call neko_scratch_registry%request_field(fs_abs, temp_indices(7))
     !! The first term:
     !!                      _____ ____
     !! (delta_test/delta)^2 s_abs*s_ij
-    call test_filter%filter_3d(fs_abs, s_abs%x, nelv)
+    call test_filter%filter_3d(fs_abs, s_abs, nelv)
 
-    call test_filter%filter_3d(fs11, s11%x, nelv)
-    call col3(mij(1)%x, fs_abs, fs11, n)
+    call test_filter%filter_3d(fs11, s11, nelv)
+    call col3(mij(1)%x, fs_abs%x, fs11%x, n)
     call cmult(mij(1)%x, delta_ratio2, n)
 
-    call test_filter%filter_3d(fs22, s22%x, nelv)
-    call col3(mij(2)%x, fs_abs, fs22, n)
+    call test_filter%filter_3d(fs22, s22, nelv)
+    call col3(mij(2)%x, fs_abs%x, fs22%x, n)
     call cmult(mij(2)%x, delta_ratio2, n)
 
-    call test_filter%filter_3d(fs33, s33%x, nelv)
-    call col3(mij(3)%x, fs_abs, fs33, n)
+    call test_filter%filter_3d(fs33, s33, nelv)
+    call col3(mij(3)%x, fs_abs%x, fs33%x, n)
     call cmult(mij(3)%x, delta_ratio2, n)
 
-    call test_filter%filter_3d(fs12, s12%x, nelv)
-    call col3(mij(4)%x, fs_abs, fs12, n)
+    call test_filter%filter_3d(fs12, s12, nelv)
+    call col3(mij(4)%x, fs_abs%x, fs12%x, n)
     call cmult(mij(4)%x, delta_ratio2, n)
 
-    call test_filter%filter_3d(fs13, s13%x, nelv)
-    call col3(mij(5)%x, fs_abs, fs13, n)
+    call test_filter%filter_3d(fs13, s13, nelv)
+    call col3(mij(5)%x, fs_abs%x, fs13%x, n)
     call cmult(mij(5)%x, delta_ratio2, n)
 
-    call test_filter%filter_3d(fs23, s23%x, nelv)
-    call col3(mij(6)%x, fs_abs, fs23, n)
+    call test_filter%filter_3d(fs23, s23, nelv)
+    call col3(mij(6)%x, fs_abs%x, fs23%x, n)
     call cmult(mij(6)%x, delta_ratio2, n)
 
     !! Substract the second term:
     !!                      _____ ____   __________
     !! (delta_test/delta)^2 s_abs*s_ij - s_abs*s_ij
     !! fs11 and fs22 are used as work array
-    call col3(fs11, s_abs%x, s11%x, n)
+    call col3(fs11%x, s_abs%x, s11%x, n)
     call test_filter%filter_3d(fs22, fs11, nelv)
-    call sub2(mij(1)%x, fs22, n)
+    call sub2(mij(1)%x, fs22%x, n)
 
-    call col3(fs11, s_abs%x, s22%x, n)
+    call col3(fs11%x, s_abs%x, s22%x, n)
     call test_filter%filter_3d(fs22, fs11, nelv)
-    call sub2(mij(2)%x, fs22, n)
+    call sub2(mij(2)%x, fs22%x, n)
 
-    call col3(fs11, s_abs%x, s33%x, n)
+    call col3(fs11%x, s_abs%x, s33%x, n)
     call test_filter%filter_3d(fs22, fs11, nelv)
-    call sub2(mij(3)%x, fs22, n)
+    call sub2(mij(3)%x, fs22%x, n)
 
-    call col3(fs11, s_abs%x, s12%x, n)
+    call col3(fs11%x, s_abs%x, s12%x, n)
     call test_filter%filter_3d(fs22, fs11, nelv)
-    call sub2(mij(4)%x, fs22, n)
+    call sub2(mij(4)%x, fs22%x, n)
 
-    call col3(fs11, s_abs%x, s13%x, n)
+    call col3(fs11%x, s_abs%x, s13%x, n)
     call test_filter%filter_3d(fs22, fs11, nelv)
-    call sub2(mij(5)%x, fs22, n)
+    call sub2(mij(5)%x, fs22%x, n)
 
-    call col3(fs11, s_abs%x, s23%x, n)
+    call col3(fs11%x, s_abs%x, s23%x, n)
     call test_filter%filter_3d(fs22, fs11, nelv)
-    call sub2(mij(6)%x, fs22, n)
+    call sub2(mij(6)%x, fs22%x, n)
 
     !! Lastly multiplied by delta^2
     do concurrent (i = 1:n)
