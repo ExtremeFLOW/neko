@@ -428,22 +428,22 @@ contains
       call device_col2( vec_in_d, this%coef%mult_d, n)
       call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
       call this%gs_h%op(vec_out, n, GS_OP_ADD)
-      call this%blst%apply(vec_out, n)
+      !call this%blst%apply(vec_out, n)
     else !> pass down through hierarchy
 
       associate( wrk_in_d => this%lvl(1)%wrk_in_d, wrk_out_d => this%lvl(1)%wrk_out_d)
-      call device_rzero(wrk_out_d, n)
-      call device_rzero(vec_out_d, this%lvl(lvl)%nnodes)
       !> Map input level to finest level
       call device_masked_red_copy(wrk_in_d, vec_in_d, this%lvl(lvl)%f2c_d, this%lvl(lvl)%nnodes, n)
       !> Average on overlapping dofs
       call this%gs_h%op(this%lvl(1)%wrk_in, n, GS_OP_ADD)
       call device_col2( wrk_in_d, this%coef%mult_d, n)
       !> Finest level matvec (Call local finite element assembly)
+      call device_rzero(wrk_out_d, n)
       call this%ax%compute(this%lvl(1)%wrk_out, this%lvl(1)%wrk_in, this%coef, this%msh, this%Xh)
       call this%gs_h%op(this%lvl(1)%wrk_out, n, GS_OP_ADD)
-      call this%blst%apply(this%lvl(1)%wrk_out, n)
+      !call this%blst%apply(this%lvl(1)%wrk_out, n)
       !> Map finest level matvec back to output level
+      call device_rzero(vec_out_d, this%lvl(lvl)%nnodes)
       call device_masked_atomic_reduction(vec_out_d, wrk_out_d, this%lvl(lvl)%f2c_d, this%lvl(lvl)%nnodes, n)!TODO: swap n and m
 !!!!!!/**
 !!!!!! * Device kernel for masked atomic update
@@ -488,7 +488,7 @@ contains
     integer :: i, n, m
     n = this%lvl(lvl)%nnodes
     m = this%lvl(lvl)%fine_lvl_dofs
-    call device_rzero(vec_out_d, m)
+    !call device_rzero(vec_out_d, m)!this is probably unneeded since below is a copy
     call device_masked_red_copy(vec_out_d, vec_in_d, this%lvl(lvl)%nodes_gids_d, n, m)
   end subroutine tamg_device_prolongation_operator
 
