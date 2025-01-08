@@ -31,7 +31,7 @@ contains
     integer :: temp_indices(4)
 
     h = 0.001_rp / 1.0_rp ! grid size / polynomial degreedm
-    c_avisc = 2.0_rp*h
+    c_avisc = 1.0_rp*h
     n = c_Xh%dof%size()
     call neko_scratch_registry%request_field(temp, temp_indices(1))
     call neko_scratch_registry%request_field(f_x, temp_indices(2))

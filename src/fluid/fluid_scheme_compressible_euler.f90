@@ -178,14 +178,14 @@ contains
       call field_copy(w, m_z, n)
       call field_invcol2(w, rho_field, n)
 
-      ! Update p = (gamma - 1) * (E / rho - 0.5 * (u^2 + v^2 + w^2))
+      ! Update p = (gamma - 1) * (E - 0.5 * rho * (u^2 + v^2 + w^2))
       call field_col3(temp, u, u, n)
       call field_addcol3(temp, v, v, n)
       call field_addcol3(temp, w, w, n)
+      call field_col2(temp, rho_field, n)
       call field_cmult(temp, 0.5_rp, n)
       call field_copy(p, E, n)
-      call field_invcol2(p, rho_field, n)
-      call field_add2(p, temp, n)
+      call field_sub2(p, temp, n)
       call field_cmult(p, this%gamma - 1.0_rp, n)
 
       !> TODO: Update maximum wave speed

@@ -175,11 +175,8 @@ contains
     call field_col3(this%m_z, this%w, this%rho_field)
 
     !> Initialize total energy
-    !> Specific internal energy e := p / (gamma - 1)
-    !> Total energy E := rho * e + 0.5 * rho * (u^2 + v^2 + w^2)
-    call field_cmult2(temp, this%p, 1.0_rp/(this%gamma - 1.0_rp), n)
-    call field_col3(this%E, temp, this%rho_field, n)
-    call field_cfill(temp, 0.0_rp, n)
+    !> Total energy E := p / (gamma - 1) + 0.5 * rho * (u^2 + v^2 + w^2)
+    call field_cmult2(this%E, this%p, 1.0_rp/(this%gamma - 1.0_rp), n)
     call field_col3(temp, this%u, this%u, n)
     call field_addcol3(temp, this%v, this%v, n)
     call field_addcol3(temp, this%w, this%w, n)
