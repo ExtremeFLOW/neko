@@ -101,7 +101,7 @@ contains
 
     ! Compute h
     call this%compute_h()
-    call json_get_or_default(params, 'case.numerics.c_avisc_low', this%c_avisc_low, 1.0_rp)
+    call json_get_or_default(params, 'case.numerics.c_avisc_low', this%c_avisc_low, 0.5_rp)
 
   end subroutine fluid_scheme_compressible_euler_init
 
