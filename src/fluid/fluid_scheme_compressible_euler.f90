@@ -5,6 +5,7 @@ module fluid_scheme_compressible_euler
   use field_math, only : field_add2, field_cfill, field_cmult, field_cadd, field_copy, field_col2, &
                          field_col3, field_addcol3, field_sub2, field_invcol2
   use math, only : col2
+  use device_math, only : device_col2
   use field, only : field_t
   use fluid_scheme_compressible, only: fluid_scheme_compressible_t
   use gs_ops, only : GS_OP_ADD, GS_OP_MIN
