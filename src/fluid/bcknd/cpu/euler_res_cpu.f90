@@ -18,20 +18,18 @@ module euler_res_cpu
 contains
   subroutine euler_res_cpu_compute(rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E, &
                 rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
-                c_Xh, gs_Xh)
+                c_Xh, gs_Xh, h, c_avisc_low)
     type(field_t), intent(inout) :: rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
-    type(field_t), intent(in) :: p, u, v, w
+    type(field_t), intent(in) :: p, u, v, w, h
     class(Ax_t), intent(inout) :: Ax
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
+    real(kind=rp) :: c_avisc_low
     integer :: n
-    real(kind=rp) :: h, c_avisc
     type(field_t), pointer :: temp, f_x, f_y, f_z
     integer :: temp_indices(4)
 
-    h = 0.001_rp / 1.0_rp ! grid size / polynomial degreedm
-    c_avisc = 1.0_rp*h
     n = c_Xh%dof%size()
     call neko_scratch_registry%request_field(temp, temp_indices(1))
     call neko_scratch_registry%request_field(f_x, temp_indices(2))
@@ -99,35 +97,35 @@ contains
     call gs_Xh%op(temp, GS_OP_ADD)
     do concurrent (i = 1:n)
       rhs_rho_field%x(i,1,1,1) = rhs_rho_field%x(i,1,1,1) &
-        + c_avisc * c_Xh%Binv(i,1,1,1) * temp%x(i,1,1,1)
+        + c_avisc_low * h%x(i,1,1,1) * c_Xh%Binv(i,1,1,1) * temp%x(i,1,1,1)
     end do
     ! artificial diffusion for m_x
     call Ax%compute(temp%x, m_x%x, c_Xh, p%msh, p%Xh)
     call gs_Xh%op(temp, GS_OP_ADD)
     do concurrent (i = 1:n)
       rhs_m_x%x(i,1,1,1) = rhs_m_x%x(i,1,1,1) &
-        + c_avisc * c_Xh%Binv(i,1,1,1) * temp%x(i,1,1,1)
+        + c_avisc_low * h%x(i,1,1,1) * c_Xh%Binv(i,1,1,1) * temp%x(i,1,1,1)
     end do
     ! artificial diffusion for m_y
     call Ax%compute(temp%x, m_y%x, c_Xh, p%msh, p%Xh)
     call gs_Xh%op(temp, GS_OP_ADD)
     do concurrent (i = 1:n)
       rhs_m_y%x(i,1,1,1) = rhs_m_y%x(i,1,1,1) &
-        + c_avisc * c_Xh%Binv(i,1,1,1) * temp%x(i,1,1,1)
+        + c_avisc_low * h%x(i,1,1,1) * c_Xh%Binv(i,1,1,1) * temp%x(i,1,1,1)
     end do
     ! artificial diffusion for m_z
     call Ax%compute(temp%x, m_z%x, c_Xh, p%msh, p%Xh)
     call gs_Xh%op(temp, GS_OP_ADD)
     do concurrent (i = 1:n)
       rhs_m_z%x(i,1,1,1) = rhs_m_z%x(i,1,1,1) &
-        + c_avisc * c_Xh%Binv(i,1,1,1) * temp%x(i,1,1,1)
+        + c_avisc_low * h%x(i,1,1,1) * c_Xh%Binv(i,1,1,1) * temp%x(i,1,1,1)
     end do
     ! artificial diffusion for E
     call Ax%compute(temp%x, E%x, c_Xh, p%msh, p%Xh)
     call gs_Xh%op(temp, GS_OP_ADD)
     do concurrent (i = 1:n)
       rhs_E%x(i,1,1,1) = rhs_E%x(i,1,1,1) &
-        + c_avisc * c_Xh%Binv(i,1,1,1) * temp%x(i,1,1,1)
+        + c_avisc_low * h%x(i,1,1,1) * c_Xh%Binv(i,1,1,1) * temp%x(i,1,1,1)
     end do
 
     call neko_scratch_registry%relinquish_field(temp_indices)

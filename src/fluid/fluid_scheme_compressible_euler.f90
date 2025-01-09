@@ -4,6 +4,7 @@ module fluid_scheme_compressible_euler
   use dofmap, only : dofmap_t
   use field_math, only : field_add2, field_cfill, field_cmult, field_cadd, field_copy, field_col2, &
                          field_col3, field_addcol3, field_sub2, field_invcol2
+  use math, only : col2
   use field, only : field_t
   use fluid_scheme_compressible, only: fluid_scheme_compressible_t
   use gs_ops, only : GS_OP_ADD, GS_OP_MIN
@@ -29,6 +30,8 @@ module fluid_scheme_compressible_euler
   type, public, extends(fluid_scheme_compressible_t) :: fluid_scheme_compressible_euler_t
      type(field_t) :: rho_res, m_x_res, m_y_res, m_z_res, m_E_res
      type(field_t) :: drho, dm_x, dm_y, dm_z, dE
+     type(field_t) :: h
+     real(kind=rp) :: c_avisc_low
      class(advection_t), allocatable :: adv
      class(ax_t), allocatable :: Ax
      class(euler_rhs_t), allocatable :: euler_rhs
@@ -38,6 +41,7 @@ module fluid_scheme_compressible_euler
      procedure, pass(this) :: step => fluid_scheme_compressible_euler_step
      procedure, pass(this) :: restart => fluid_scheme_compressible_euler_restart
      procedure, pass(this) :: rk4
+     procedure, pass(this) :: compute_h
   end type fluid_scheme_compressible_euler_t
 
 contains
@@ -49,7 +53,6 @@ contains
     type(user_t), target, intent(in) :: user
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     character(len=12), parameter :: scheme = 'compressible'
-    logical :: advection
 
     call this%free()
 
@@ -66,6 +69,7 @@ contains
       call this%dm_y%init(dm_Xh, 'dm_y')
       call this%dm_z%init(dm_Xh, 'dm_z')
       call this%dE%init(dm_Xh, 'dE')
+      call this%h%init(dm_Xh, 'h')
 
     end associate
 
@@ -94,6 +98,10 @@ contains
 
     ! Initialize the diffusion operator
     call ax_helm_factory(this%Ax, full_formulation = .false.)
+
+    ! Compute h
+    call this%compute_h()
+    call json_get_or_default(params, 'case.numerics.c_avisc_low', this%c_avisc_low, 1.0_rp)
 
   end subroutine fluid_scheme_compressible_euler_init
 
@@ -146,7 +154,7 @@ contains
       f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
       drho => this%drho, dm_x => this%dm_x, dm_y => this%dm_y, &
       dm_z => this%dm_z, dE => this%dE, &
-      euler_rhs => this%euler_rhs)
+      euler_rhs => this%euler_rhs, h => this%h)
 
       ! WIP: debugging setting m to (rho, 0, 0)
       ! call field_copy(m_x, rho_field, n)
@@ -191,7 +199,7 @@ contains
       !> TODO: Update maximum wave speed
 
       ! WIP: debugging visualizing rho
-      ! call field_copy(p, rho_field, n);
+      ! call field_copy(p, rho_field, n)
       call field_copy(w, rho_field, n)
 
     end associate
@@ -210,7 +218,7 @@ contains
 
     call this%euler_rhs%compute(rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E, &
           rho_field, m_x, m_y, m_z, E, this%p, this%u, this%v, this%w, this%Ax, &
-          this%c_Xh, this%gs_Xh)
+          this%c_Xh, this%gs_Xh, this%h, this%c_avisc_low)
 
     n = this%dm_Xh%size()
 
@@ -231,6 +239,74 @@ contains
     call field_sub2(E, rhs_E, n)
 
   end subroutine rk4
+
+  !> Copied from les_model_compute_delta in les_model.f90
+  subroutine compute_h(this)
+    class(fluid_scheme_compressible_euler_t), intent(inout) :: this
+    integer :: e, i, j, k
+    integer :: im, ip, jm, jp, km, kp
+    real(kind=rp) :: di, dj, dk, ndim_inv
+    integer :: lx_half, ly_half, lz_half
+
+    lx_half = this%c_Xh%Xh%lx / 2
+    ly_half = this%c_Xh%Xh%ly / 2
+    lz_half = this%c_Xh%Xh%lz / 2
+
+    do e = 1, this%c_Xh%msh%nelv
+      do k = 1, this%c_Xh%Xh%lz
+          km = max(1, k-1)
+          kp = min(this%c_Xh%Xh%lz, k+1)
+
+          do j = 1, this%c_Xh%Xh%ly
+            jm = max(1, j-1)
+            jp = min(this%c_Xh%Xh%ly, j+1)
+
+            do i = 1, this%c_Xh%Xh%lx
+                im = max(1, i-1)
+                ip = min(this%c_Xh%Xh%lx, i+1)
+
+                di = (this%c_Xh%dof%x(ip, j, k, e) - &
+                      this%c_Xh%dof%x(im, j, k, e))**2 &
+                  + (this%c_Xh%dof%y(ip, j, k, e) - &
+                      this%c_Xh%dof%y(im, j, k, e))**2 &
+                  + (this%c_Xh%dof%z(ip, j, k, e) - &
+                      this%c_Xh%dof%z(im, j, k, e))**2
+
+                dj = (this%c_Xh%dof%x(i, jp, k, e) - &
+                      this%c_Xh%dof%x(i, jm, k, e))**2 &
+                  + (this%c_Xh%dof%y(i, jp, k, e) - &
+                      this%c_Xh%dof%y(i, jm, k, e))**2 &
+                  + (this%c_Xh%dof%z(i, jp, k, e) - &
+                      this%c_Xh%dof%z(i, jm, k, e))**2
+
+                dk = (this%c_Xh%dof%x(i, j, kp, e) - &
+                      this%c_Xh%dof%x(i, j, km, e))**2 &
+                  + (this%c_Xh%dof%y(i, j, kp, e) - &
+                      this%c_Xh%dof%y(i, j, km, e))**2 &
+                  + (this%c_Xh%dof%z(i, j, kp, e) - &
+                      this%c_Xh%dof%z(i, j, km, e))**2
+
+                di = sqrt(di) / (ip - im)
+                dj = sqrt(dj) / (jp - jm)
+                dk = sqrt(dk) / (kp - km)
+                this%h%x(i,j,k,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
+
+            end do
+          end do
+      end do
+    end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      call device_memcpy(this%h%x, this%h%x_d, this%h%dof%size(),&
+                          HOST_TO_DEVICE, sync = .false.)
+      call this%c_Xh%gs_h%op(this%h%x, this%h%dof%size(), GS_OP_ADD)
+      call device_col2(this%h%x_d, this%c_Xh%mult_d, this%h%dof%size())
+    else
+      call this%c_Xh%gs_h%op(this%h%x, this%h%dof%size(), GS_OP_ADD)
+      call col2(this%h%x, this%c_Xh%mult, this%h%dof%size())
+    end if
+
+  end subroutine compute_h
 
   subroutine fluid_scheme_compressible_euler_restart(this, dtlag, tlag)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this

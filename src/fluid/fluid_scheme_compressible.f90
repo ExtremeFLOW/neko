@@ -12,6 +12,7 @@ module fluid_scheme_compressible
   use space, only : space_t, GLL
   use user_intf, only : user_t
   use usr_inflow, only : usr_inflow_eval
+  use json_utils, only : json_get_or_default
 
   !> Base type of compressible fluid formulations.
   type, abstract, extends(fluid_scheme_base_t) :: fluid_scheme_compressible_t
@@ -21,7 +22,7 @@ module fluid_scheme_compressible
      type(field_t), pointer :: m_z => null()    !< z-component of Momentum
      type(field_t), pointer :: E => null()    !< Total energy
 
-     real(kind=rp) :: gamma = 1.4_rp
+     real(kind=rp) :: gamma
 
      type(scratch_registry_t) :: scratch       !< Manager for temporary fields
 
@@ -127,6 +128,9 @@ contains
     call this%f_x%init(this%dm_Xh, fld_name = "fluid_rhs_x")
     call this%f_y%init(this%dm_Xh, fld_name = "fluid_rhs_y")
     call this%f_z%init(this%dm_Xh, fld_name = "fluid_rhs_z")
+
+    ! Compressible parameters
+    call json_get_or_default(params, 'case.fluid.gamma', this%gamma, 1.4_rp)
   end subroutine fluid_scheme_compressible_init
 
   subroutine fluid_scheme_compressible_free(this)
