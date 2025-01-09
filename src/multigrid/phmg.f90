@@ -245,7 +245,9 @@ contains
     type(field_t) :: z, r, w
     integer :: i
 
-
+    !>----------<!
+    !> SMOOTH   <!
+    !>----------<!
     if (NEKO_BCKND_DEVICE .eq. 1) then
       ksp_results =  mg(lvl)%cheby_device%solve(Ax, z, &
                                          r%x, mg(lvl)%dm_Xh%size(), &
@@ -258,7 +260,11 @@ contains
                                        mg(lvl)%gs_h, niter = 15)
     end if
 
+    !>----------<!
+    !> Residual <!
+    !>----------<!
     call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
+    call mg(lvl)%gs_h%op(mg(lvl)%w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
       
     if (NEKO_BCKND_DEVICE .eq. 1) then
       call device_sub3(w%x_d, r%x_d, w%x_d, mg(lvl)%dm_Xh%size())
@@ -266,6 +272,9 @@ contains
       w%x = r%x - w%x
     end if
 
+    !>----------<!
+    !> Restrict <!
+    !>----------<!
     call intrp(lvl+1)%map(mg(lvl+1)%r%x, w%x, msh%nelv, mg(lvl+1)%Xh)
 
     call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD)
@@ -280,7 +289,9 @@ contains
     call mg(lvl+1)%bclst%apply_scalar( &
                               mg(lvl+1)%r%x, &
                               mg(lvl+1)%dm_Xh%size())
-      
+    !>----------<!
+    !> SOLVE    <!
+    !>----------<!
     if (NEKO_BCKND_DEVICE .eq. 1) then
       call device_rzero(mg(lvl+1)%z%x_d, mg(lvl+1)%dm_Xh%size())
     else
@@ -288,17 +299,17 @@ contains
     end if
     if (lvl+1 .eq. clvl) then
        
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-        call amg_solver%device_solve(mg(lvl+1)%z%x, &
-                             mg(lvl+1)%r%x, &
-                             mg(lvl+1)%z%x_d, &
-                             mg(lvl+1)%r%x_d, &
-                             mg(lvl+1)%dm_Xh%size())
-      else
-        call amg_solver%solve(mg(lvl+1)%z%x, &
-                             mg(lvl+1)%r%x, &
-                             mg(lvl+1)%dm_Xh%size())
-      end if
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+         call amg_solver%device_solve(mg(lvl+1)%z%x, &
+                              mg(lvl+1)%r%x, &
+                              mg(lvl+1)%z%x_d, &
+                              mg(lvl+1)%r%x_d, &
+                              mg(lvl+1)%dm_Xh%size())
+       else
+         call amg_solver%solve(mg(lvl+1)%z%x, &
+                              mg(lvl+1)%r%x, &
+                              mg(lvl+1)%dm_Xh%size())
+       end if
       
        call mg(lvl+1)%bclst%apply_scalar( &
                                  mg(lvl+1)%z%x,&
@@ -308,6 +319,9 @@ contains
             clvl, mg, intrp, msh, Ax, amg_solver)
     end if
 
+    !>----------<!
+    !> Project  <!
+    !>----------<!
     call intrp(lvl+1)%map(w%x, mg(lvl+1)%z%x, msh%nelv, mg(lvl)%Xh)
 
     call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
@@ -320,12 +334,18 @@ contains
     
     call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
        
+    !>----------<!
+    !> Correct  <!
+    !>----------<!
     if (NEKO_BCKND_DEVICE .eq. 1) then
       call device_add2(z%x_d, w%x_d, mg(lvl)%dm_Xh%size())
     else
       z%x = z%x + w%x
     end if
     
+    !>----------<!
+    !> SMOOTH   <!
+    !>----------<!
     if (NEKO_BCKND_DEVICE .eq. 1) then
       ksp_results =  mg(lvl)%cheby_device%solve(Ax, z, &
                                        r%x, mg(lvl)%dm_Xh%size(), &
