@@ -70,8 +70,8 @@ module tree_amg
     type(c_ptr) :: wrk_in_d = C_NULL_PTR
     real(kind=rp), allocatable :: wrk_out(:) !< Work vector for data leaving the level
     type(c_ptr) :: wrk_out_d = C_NULL_PTR
-    integer, allocatable :: map_f2c_dof(:)
-    type(c_ptr) :: f2c_d = C_NULL_PTR
+    integer, allocatable :: map_finest2lvl(:)
+    type(c_ptr) :: map_finest2lvl_d = C_NULL_PTR
     !--!
     integer, allocatable :: nodes_ptr(:)
     type(c_ptr) :: nodes_ptr_d = C_NULL_PTR
@@ -79,8 +79,8 @@ module tree_amg
     type(c_ptr) :: nodes_gid_d = C_NULL_PTR
     integer, allocatable :: nodes_dofs(:)
     type(c_ptr) :: nodes_dofs_d = C_NULL_PTR
-    integer, allocatable :: nodes_gids(:)
-    type(c_ptr) :: nodes_gids_d = C_NULL_PTR
+    integer, allocatable :: map_f2c(:)
+    type(c_ptr) :: map_f2c_d = C_NULL_PTR
     ! could make another array of the same size of nodes_dofs
     ! that stores the parent node gid information
     ! (similar to nodes_gid that stores the gid of each node)
@@ -153,9 +153,9 @@ contains
     allocate( this%lvl(this%nlvls) )
 
     do i = 1, nlvls
-      allocate( this%lvl(i)%map_f2c_dof( 0:coef%dof%size() ))
+      allocate( this%lvl(i)%map_finest2lvl( 0:coef%dof%size() ))
       if (NEKO_BCKND_DEVICE .eq. 1) then
-        call device_map(this%lvl(i)%map_f2c_dof, this%lvl(i)%f2c_d, coef%dof%size()+1)
+        call device_map(this%lvl(i)%map_finest2lvl, this%lvl(i)%map_finest2lvl_d, coef%dof%size()+1)
       end if
     end do
 
@@ -178,9 +178,9 @@ contains
     allocate( tamg_lvl%nodes_ptr(tamg_lvl%nnodes+1) )
     allocate( tamg_lvl%nodes_gid(tamg_lvl%nnodes) )
     allocate( tamg_lvl%nodes_dofs(ndofs) )
-    allocate( tamg_lvl%nodes_gids(0:ndofs) )
+    allocate( tamg_lvl%map_f2c(0:ndofs) )
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      call device_map(tamg_lvl%nodes_gids, tamg_lvl%nodes_gids_d, ndofs+1)
+      call device_map(tamg_lvl%map_f2c, tamg_lvl%map_f2c_d, ndofs+1)
     end if
 
     tamg_lvl%fine_lvl_dofs = ndofs
@@ -325,7 +325,7 @@ contains
 
       !> Map input level to finest level
       do i = 1, n
-        cdof = this%lvl(lvl)%map_f2c_dof(i)
+        cdof = this%lvl(lvl)%map_finest2lvl(i)
         wrk_in(i) = vec_in( cdof )
       end do
 
@@ -341,7 +341,7 @@ contains
 
       !> Map finest level matvec back to output level
       do i = 1, n
-        cdof = this%lvl(lvl)%map_f2c_dof(i)
+        cdof = this%lvl(lvl)%map_finest2lvl(i)
         vec_out(cdof) = vec_out(cdof) + wrk_out( i )
       end do
       end associate
@@ -433,18 +433,17 @@ contains
 
       associate( wrk_in_d => this%lvl(1)%wrk_in_d, wrk_out_d => this%lvl(1)%wrk_out_d)
       !> Map input level to finest level
-      call device_masked_red_copy(wrk_in_d, vec_in_d, this%lvl(lvl)%f2c_d, this%lvl(lvl)%nnodes, n)
+      call device_masked_red_copy(wrk_in_d, vec_in_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)
       !> Average on overlapping dofs
       call this%gs_h%op(this%lvl(1)%wrk_in, n, GS_OP_ADD)
       call device_col2( wrk_in_d, this%coef%mult_d, n)
       !> Finest level matvec (Call local finite element assembly)
-      !--call device_rzero(wrk_out_d, n)
       call this%ax%compute(this%lvl(1)%wrk_out, this%lvl(1)%wrk_in, this%coef, this%msh, this%Xh)
       call this%gs_h%op(this%lvl(1)%wrk_out, n, GS_OP_ADD)
       !call this%blst%apply(this%lvl(1)%wrk_out, n)
       !> Map finest level matvec back to output level
       call device_rzero(vec_out_d, this%lvl(lvl)%nnodes)
-      call device_masked_atomic_reduction(vec_out_d, wrk_out_d, this%lvl(lvl)%f2c_d, this%lvl(lvl)%nnodes, n)!TODO: swap n and m
+      call device_masked_atomic_reduction(vec_out_d, wrk_out_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)!TODO: swap n and m
       end associate
 
     end if
@@ -459,7 +458,7 @@ contains
     n = this%lvl(lvl)%nnodes
     m = this%lvl(lvl)%fine_lvl_dofs
     call device_rzero(vec_out_d, n)
-    call device_masked_atomic_reduction(vec_out_d, vec_in_d, this%lvl(lvl)%nodes_gids_d, n, m)!TODO: swap n and m
+    call device_masked_atomic_reduction(vec_out_d, vec_in_d, this%lvl(lvl)%map_f2c_d, n, m)
   end subroutine tamg_device_restriction_operator
 
   subroutine tamg_device_prolongation_operator(this, vec_out_d, vec_in_d, lvl)
@@ -470,8 +469,7 @@ contains
     integer :: i, n, m
     n = this%lvl(lvl)%nnodes
     m = this%lvl(lvl)%fine_lvl_dofs
-    !call device_rzero(vec_out_d, m)!this is probably unneeded since below is a copy
-    call device_masked_red_copy(vec_out_d, vec_in_d, this%lvl(lvl)%nodes_gids_d, n, m)
+    call device_masked_red_copy(vec_out_d, vec_in_d, this%lvl(lvl)%map_f2c_d, n, m)
   end subroutine tamg_device_prolongation_operator
 
 end module tree_amg

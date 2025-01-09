@@ -353,13 +353,12 @@ contains
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
       return
     end if
-  associate( r => mgstuff%wrk(lvl+1)%r, r_d => mgstuff%wrk(lvl+1)%r_d, &
-             rc => mgstuff%wrk(lvl+1)%rc, rc_d => mgstuff%wrk(lvl+1)%rc_d, &
-             tmp => mgstuff%wrk(lvl+1)%tmp, tmp_d => mgstuff%wrk(lvl+1)%tmp_d )
+    associate( r => mgstuff%wrk(lvl+1)%r, r_d => mgstuff%wrk(lvl+1)%r_d, &
+               rc => mgstuff%wrk(lvl+1)%rc, rc_d => mgstuff%wrk(lvl+1)%rc_d, &
+               tmp => mgstuff%wrk(lvl+1)%tmp, tmp_d => mgstuff%wrk(lvl+1)%tmp_d )
     !>----------<!
     !> Residual <!
     !>----------<!
-    !--call device_rzero(r_d, n)
     call amg%device_matvec(r, x, r_d, x_d, lvl)
     call device_sub3(r_d, b_d, r_d, n)
     !>----------<!
@@ -387,7 +386,7 @@ contains
     !> Correct  <!
     !>----------<!
     call device_add2(x_d, r_d, n)
-  end associate
+    end associate
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
@@ -450,17 +449,17 @@ contains
     do j = 1, amg%lvl(1)%nnodes
       do k = 1, amg%lvl(1)%nodes(j)%ndofs
         nid = amg%lvl(1)%nodes(j)%dofs(k)
-        amg%lvl(1)%map_f2c_dof(nid) = amg%lvl(1)%nodes(j)%gid
+        amg%lvl(1)%map_finest2lvl(nid) = amg%lvl(1)%nodes(j)%gid
       end do
     end do
-    n = size(amg%lvl(1)%map_f2c_dof)
+    n = size(amg%lvl(1)%map_finest2lvl)
     do l = 2, amg%nlvls
       do i = 1, n
-        nid = amg%lvl(l-1)%map_f2c_dof(i)
+        nid = amg%lvl(l-1)%map_finest2lvl(i)
         do j = 1, amg%lvl(l)%nnodes
           do k = 1, amg%lvl(l)%nodes(j)%ndofs
             if (nid .eq. amg%lvl(l)%nodes(j)%dofs(k)) then
-              amg%lvl(l)%map_f2c_dof(i) = amg%lvl(l)%nodes(j)%gid
+              amg%lvl(l)%map_finest2lvl(i) = amg%lvl(l)%nodes(j)%gid
             end if
           end do
         end do
@@ -468,9 +467,9 @@ contains
     end do
     if (NEKO_BCKND_DEVICE .eq. 1) then
       do l = 1, amg%nlvls
-        amg%lvl(l)%map_f2c_dof(0) = n
-        call device_memcpy( amg%lvl(l)%map_f2c_dof, amg%lvl(l)%f2c_d, n, HOST_TO_DEVICE, .true.)
-        call device_memcpy( amg%lvl(l)%nodes_gids, amg%lvl(l)%nodes_gids_d, amg%lvl(l)%fine_lvl_dofs+1, HOST_TO_DEVICE, .true.)
+        amg%lvl(l)%map_finest2lvl(0) = n
+        call device_memcpy( amg%lvl(l)%map_finest2lvl, amg%lvl(l)%map_finest2lvl_d, n, HOST_TO_DEVICE, .true.)
+        call device_memcpy( amg%lvl(l)%map_f2c, amg%lvl(l)%map_f2c_d, amg%lvl(l)%fine_lvl_dofs+1, HOST_TO_DEVICE, .true.)
       end do
     end if
   end subroutine
