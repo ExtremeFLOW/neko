@@ -10,7 +10,7 @@
     "numerics": {
         "time_order": 3,
         "polynomial_order": 3,
-        "c_avisc_low": 0.5
+        "c_avisc_low": 1.0
     },
     "fluid": {
         "scheme": "compressible",

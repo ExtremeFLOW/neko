@@ -112,5 +112,20 @@ extern "C" {
                                       (real *) rho_field, (real *) p, (real *) E, *n);
     CUDA_CHECK(cudaGetLastError());
   }
+
+  void euler_res_part_coef_mult_hip(void *rhs_rho, void *rhs_m_x,
+                                    void *rhs_m_y, void *rhs_m_z,
+                                    void *rhs_E, void *mult, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+    euler_res_part_coef_mult_kernel<real>
+      <<<nblcks, nthrds, 0, stream>>>((real *) rhs_rho, (real *) rhs_m_x,
+                                      (real *) rhs_m_y, (real *) rhs_m_z,
+                                      (real *) rhs_E, (real *) mult, *n);
+    CUDA_CHECK(cudaGetLastError());
+  }
 }
 

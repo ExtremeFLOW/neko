@@ -19,7 +19,7 @@ module euler_residual
   abstract interface
      subroutine euler_rhs(rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E, &
                           rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
-                          c_Xh, gs_Xh, h, c_avisc_low)
+                          coef, gs, h, c_avisc_low)
 
        import field_t
        import Ax_t
@@ -30,8 +30,8 @@ module euler_residual
        type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
        type(field_t), intent(in) :: p, u, v, w, h
        class(Ax_t), intent(inout) :: Ax
-       type(coef_t), intent(inout) :: c_Xh
-       type(gs_t), intent(inout) :: gs_Xh
+       type(coef_t), intent(inout) :: coef
+       type(gs_t), intent(inout) :: gs
        real(kind=rp) :: c_avisc_low
      end subroutine euler_rhs
   end interface

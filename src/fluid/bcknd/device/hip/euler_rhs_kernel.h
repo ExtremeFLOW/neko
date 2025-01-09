@@ -101,4 +101,25 @@ __global__ void euler_res_part_E_flux_kernel(T * __restrict__ f_x,
   }
 }
 
+template< typename T >
+__global__ void euler_res_part_coef_mult_kernel(T * __restrict__ rhs_rho,
+                                     T * __restrict__ rhs_m_x,
+                                     T * __restrict__ rhs_m_y,
+                                     T * __restrict__ rhs_m_z,
+                                     T * __restrict__ rhs_E,
+                                     const T * __restrict__ mult,
+                                     const int n) {
+  
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  
+  for (int i = idx; i < n; i += str) {
+    rhs_rho[i] = rhs_rho[i] * mult[i];
+    rhs_m_x[i] = rhs_m_x[i] * mult[i];
+    rhs_m_y[i] = rhs_m_y[i] * mult[i];
+    rhs_m_z[i] = rhs_m_z[i] * mult[i];
+    rhs_E[i] = rhs_E[i] * mult[i];
+  }
+}
+
 #endif // __FLUID_EULER_RES_KERNEL__
