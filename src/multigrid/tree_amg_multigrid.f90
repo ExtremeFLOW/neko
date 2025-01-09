@@ -359,7 +359,7 @@ contains
     !>----------<!
     !> Residual <!
     !>----------<!
-    call device_rzero(r_d, n)
+    !--call device_rzero(r_d, n)
     call amg%device_matvec(r, x, r_d, x_d, lvl)
     call device_sub3(r_d, b_d, r_d, n)
     !>----------<!

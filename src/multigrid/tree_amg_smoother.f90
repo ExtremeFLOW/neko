@@ -328,26 +328,28 @@ contains
     end if
     associate( w_d => this%w_d, r_d => this%r_d, d_d => this%d_d, blst=>amg%blst)
       call device_copy(r_d, f_d, n)
-      call device_rzero(w_d, n)
+      !---call device_rzero(w_d, n)
       call amg%device_matvec(this%w, x, w_d, x_d, this%lvl)
       call device_sub2(r_d, w_d, n)
       thet = this%tha
       delt = this%dlt
       s1 = thet / delt
       rhok = 1.0_rp / s1
-      call device_copy(d_d, r_d, n)
-      call device_cmult(d_d, 1.0_rp/thet, n)
+      !call device_copy(d_d, r_d, n)
+      !call device_cmult(d_d, 1.0_rp/thet, n)
+      call device_cmult2(d_d, r_d, 1.0_rp/thet, n)
       do iter = 1, max_iter
         call device_add2(x_d,d_d,n)
-        call device_rzero(w_d, n)
+        !---call device_rzero(w_d, n)
         call amg%device_matvec(this%w, this%d, w_d, d_d, this%lvl)
         call device_sub2(r_d, w_d, n)
         rhokp1 = 1.0_rp / (2.0_rp * s1 - rhok)
         tmp1 = rhokp1 * rhok
         tmp2 = 2.0_rp * rhokp1 / delt
         rhok = rhokp1
-        call device_cmult(d_d, tmp1, n)
-        call device_add2s2(d_d, r_d, tmp2, n)
+        !call device_cmult(d_d, tmp1, n)
+        !call device_add2s2(d_d, r_d, tmp2, n)
+        call device_add3s2(d_d, d_d, r_d, tmp1, tmp2, n)
       end do
     end associate
   end subroutine amg_device_cheby_solve

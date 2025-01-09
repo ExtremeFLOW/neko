@@ -100,7 +100,8 @@ __global__ void masked_atomic_reduction_kernel(T * __restrict__ a,
   const int str = blockDim.x * gridDim.x;
 
   for (int i = idx; i < m; i += str) {
-    atomicAdd( &(a[mask[i+1]-1]), b[i]);//a[mask[i]-1] = a[mask[i]-1] + b[i];
+    unsafeAtomicAdd( &(a[mask[i+1]-1]), b[i]);//a[mask[i]-1] = a[mask[i]-1] + b[i];
+    //atomicAdd( &(a[mask[i+1]-1]), b[i]);//a[mask[i]-1] = a[mask[i]-1] + b[i];
   }
 }
 

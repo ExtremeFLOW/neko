@@ -438,31 +438,13 @@ contains
       call this%gs_h%op(this%lvl(1)%wrk_in, n, GS_OP_ADD)
       call device_col2( wrk_in_d, this%coef%mult_d, n)
       !> Finest level matvec (Call local finite element assembly)
-      call device_rzero(wrk_out_d, n)
+      !--call device_rzero(wrk_out_d, n)
       call this%ax%compute(this%lvl(1)%wrk_out, this%lvl(1)%wrk_in, this%coef, this%msh, this%Xh)
       call this%gs_h%op(this%lvl(1)%wrk_out, n, GS_OP_ADD)
       !call this%blst%apply(this%lvl(1)%wrk_out, n)
       !> Map finest level matvec back to output level
       call device_rzero(vec_out_d, this%lvl(lvl)%nnodes)
       call device_masked_atomic_reduction(vec_out_d, wrk_out_d, this%lvl(lvl)%f2c_d, this%lvl(lvl)%nnodes, n)!TODO: swap n and m
-!!!!!!/**
-!!!!!! * Device kernel for masked atomic update
-!!!!!! */
-!!!!!!template< typename T >
-!!!!!!__global__ void masked_atomic_reduction_kernel(T * __restrict__ a,
-!!!!!!                                   T * __restrict__ b,
-!!!!!!                                   int * __restrict__ mask,                    
-!!!!!!                                   const int n,
-!!!!!!                                   const int m) {
-!!!!!!
-!!!!!!  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-!!!!!!  const int str = blockDim.x * gridDim.x;
-!!!!!!
-!!!!!!  for (int i = idx; i < m; i += str) {
-!!!!!!    atomicAdd( &(a[mask[i]-1]), b[i]);//a[mask[i]-1] = a[mask[i]-1] + b[i];
-!!!!!!  }
-!!!!!!}
-!!!!!!      !call masked_atomic_reduction_kernel(vec_out_d, wrk_out_d, this%lvl(lvl)%f2c_d, n, this%lvl(lvl)%nnodes)
       end associate
 
     end if
