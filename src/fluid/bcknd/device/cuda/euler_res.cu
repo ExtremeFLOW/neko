@@ -39,8 +39,8 @@
 
 extern "C" {
 
-  void euler_res_part_visc_cuda(void *rhs_rho, void *Binv,
-                                void *lap_rho, real *c_avisc, int *n) {
+  void euler_res_part_visc_cuda(void *rhs_rho, void *Binv, void *lap_rho,
+                                void *h, real *c_avisc, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
@@ -48,7 +48,8 @@ extern "C" {
 
     euler_res_part_visc_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) rhs_rho, (real *) Binv, 
-                                      (real *) lap_rho, *c_avisc, *n);
+                                      (real *) lap_rho, (real *) h,
+                                      *c_avisc, *n);
     CUDA_CHECK(cudaGetLastError());
   }
 

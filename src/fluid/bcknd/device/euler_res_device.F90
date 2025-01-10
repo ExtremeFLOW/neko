@@ -17,12 +17,13 @@ module euler_res_device
 
 #ifdef HAVE_HIP
   interface
-    subroutine euler_res_part_visc_hip(rhs_rho_field_d, Binv_d, lap_rho_d, c_avisc_low, n) &
+    subroutine euler_res_part_visc_hip(rhs_rho_field_d, Binv_d, lap_rho_d, &
+                                        h, c_avisc_low, n) &
         bind(c, name = 'euler_res_part_visc_hip')
       use, intrinsic :: iso_c_binding
       import c_rp
       implicit none
-      type(c_ptr), value :: rhs_rho_field_d, Binv_d, lap_rho_d
+      type(c_ptr), value :: rhs_rho_field_d, Binv_d, lap_rho_d, h
       real(c_rp) :: c_avisc_low
       integer(c_int) :: n
     end subroutine euler_res_part_visc_hip
@@ -81,12 +82,13 @@ module euler_res_device
   end interface
 #elif HAVE_CUDA
   interface
-  subroutine euler_res_part_visc_cuda(rhs_rho_field_d, Binv_d, lap_rho_d, c_avisc_low, n) &
+  subroutine euler_res_part_visc_cuda(rhs_rho_field_d, Binv_d, lap_rho_d, &
+                                      h, c_avisc_low, n) &
       bind(c, name = 'euler_res_part_visc_cuda')
     use, intrinsic :: iso_c_binding
     import c_rp
     implicit none
-    type(c_ptr), value :: rhs_rho_field_d, Binv_d, lap_rho_d
+    type(c_ptr), value :: rhs_rho_field_d, Binv_d, lap_rho_d, h
     real(c_rp) :: c_avisc_low
     integer(c_int) :: n
   end subroutine euler_res_part_visc_cuda
@@ -227,6 +229,14 @@ contains
     call gs%op(rhs_m_z, GS_OP_ADD)
     call gs%op(rhs_E, GS_OP_ADD)
 
+#ifdef HAVE_HIP
+    call euler_res_part_coef_mult_hip(rhs_rho_field%x_d, rhs_m_x%x_d, rhs_m_y%x_d, rhs_m_z%x_d, &
+                                      rhs_E%x_d, coef%mult_d, n)
+#elif HAVE_CUDA
+    call euler_res_part_coef_mult_cuda(rhs_rho_field%x_d, rhs_m_x%x_d, rhs_m_y%x_d, rhs_m_z%x_d, &
+                                      rhs_E%x_d, coef%mult_d, n)
+#endif
+
     call neko_scratch_registry%request_field(visc_rho, temp_indices(5))
     call neko_scratch_registry%request_field(visc_m_x, temp_indices(6))
     call neko_scratch_registry%request_field(visc_m_y, temp_indices(7))
@@ -247,21 +257,17 @@ contains
     call gs%op(visc_E, GS_OP_ADD)
 
 #ifdef HAVE_HIP
-    call euler_res_part_coef_mult_hip(rhs_rho_field%x_d, rhs_m_x%x_d, rhs_m_y%x_d, rhs_m_z%x_d, &
-                                      rhs_E%x_d, coef%mult_d, n)
-    call euler_res_part_visc_hip(rhs_rho_field%x_d, coef%Binv_d, visc_rho%x_d, c_avisc_low, n)
-    call euler_res_part_visc_hip(rhs_m_x%x_d, coef%Binv_d, visc_m_x%x_d, c_avisc_low, n)
-    call euler_res_part_visc_hip(rhs_m_y%x_d, coef%Binv_d, visc_m_y%x_d, c_avisc_low, n)
-    call euler_res_part_visc_hip(rhs_m_z%x_d, coef%Binv_d, visc_m_z%x_d, c_avisc_low, n)
-    call euler_res_part_visc_hip(rhs_E%x_d, coef%Binv_d, visc_E%x_d, c_avisc_low, n)
+    call euler_res_part_visc_hip(rhs_rho_field%x_d, coef%Binv_d, visc_rho%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_hip(rhs_m_x%x_d, coef%Binv_d, visc_m_x%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_hip(rhs_m_y%x_d, coef%Binv_d, visc_m_y%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_hip(rhs_m_z%x_d, coef%Binv_d, visc_m_z%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_hip(rhs_E%x_d, coef%Binv_d, visc_E%x_d, h%x_d, c_avisc_low, n)
 #elif HAVE_CUDA
-    call euler_res_part_coef_mult_cuda(rhs_rho_field%x_d, rhs_m_x%x_d, rhs_m_y%x_d, rhs_m_z%x_d, &
-                                      rhs_E%x_d, coef%mult_d, n)
-    call euler_res_part_visc_cuda(rhs_rho_field%x_d, coef%Binv_d, visc_rho%x_d, c_avisc_low, n)
-    call euler_res_part_visc_cuda(rhs_m_x%x_d, coef%Binv_d, visc_m_x%x_d, c_avisc_low, n)
-    call euler_res_part_visc_cuda(rhs_m_y%x_d, coef%Binv_d, visc_m_y%x_d, c_avisc_low, n)
-    call euler_res_part_visc_cuda(rhs_m_z%x_d, coef%Binv_d, visc_m_z%x_d, c_avisc_low, n)
-    call euler_res_part_visc_cuda(rhs_E%x_d, coef%Binv_d, visc_E%x_d, c_avisc_low, n)
+    call euler_res_part_visc_cuda(rhs_rho_field%x_d, coef%Binv_d, visc_rho%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_cuda(rhs_m_x%x_d, coef%Binv_d, visc_m_x%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_cuda(rhs_m_y%x_d, coef%Binv_d, visc_m_y%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_cuda(rhs_m_z%x_d, coef%Binv_d, visc_m_z%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_cuda(rhs_E%x_d, coef%Binv_d, visc_E%x_d, h%x_d, c_avisc_low, n)
 #elif HAVE_OPENCL
     call neko_error("OpenCL not supported")
 #endif
