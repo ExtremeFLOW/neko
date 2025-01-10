@@ -34,12 +34,18 @@
 !> Implements `explicit_filter_t`.
 module elementwise_filter
   use num_types, only : rp
-  use math, only : rzero, rone
+  use filter, only: filter_t
+  use math, only : rzero, rone, copy
   use field, only : field_t
+  use coefs, only : coef_t
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
-  use elementwise_filter_cpu
-  use tensor, only : tnsr3d
+  use json_module, only : json_file
+  use json_utils, only : json_get_or_default
+  use speclib, only : zwgll, legendre_poly
+  use matrix, only : matrix_t
+  use mxm_wrapper, only : mxm
+  use tensor, only : tnsr3d, trsp
   use device, only : device_map, device_free, c_ptr, &
                     C_NULL_PTR, device_memcpy, HOST_TO_DEVICE
   use device_math, only : device_cfill
@@ -48,10 +54,10 @@ module elementwise_filter
   private
 
   !> Implements the explicit filter for SEM.
-  type, public :: elementwise_filter_t
+  type, public, extends(filter_t) :: elementwise_filter_t
      !> filter type:
      !> possible options: "Boyd", "nonBoyd"
-     character(len=64) :: filter_type
+     character(len=:), allocatable :: filter_type
      !> dimension
      integer :: nx
      !> filtered wavenumber
@@ -64,27 +70,45 @@ module elementwise_filter
      real(kind=rp), allocatable :: trnsfr(:)
    contains
      !> Constructor.
-     procedure, pass(this) :: init => elementwise_filter_init
+     procedure, pass(this) :: init => elementwise_filter_init_from_json
+     !> Actual constructor.
+     procedure, pass(this) :: init_from_attributes => &
+          elementwise_filter_init_from_attributes
      !> Destructor.
      procedure, pass(this) :: free => elementwise_filter_free
      !> Set up 1D filter inside an element.
      procedure, pass(this) :: build_1d
      !> Filter a 3D field
-     procedure, pass(this) :: filter_3d => elementwise_field_filter_3d
+     procedure, pass(this) :: apply => elementwise_field_filter_3d
   end type elementwise_filter_t
 
 contains
-  !> Constructor.
+  !> Constructor
+  subroutine elementwise_filter_init_from_json(this, json, coef)
+    class(elementwise_filter_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    type(coef_t), intent(in) :: coef
+    character(len=:), allocatable :: filter_type
+
+    call json_get_or_default(json, "test_filter_type", filter_type, "nonBoyd")
+    this%filter_type = filter_type
+
+    ! Filter assumes lx = ly = lz
+    call this%init_base(json, coef)
+
+    call this%init_from_attributes(coef%dof%xh%lx, this%filter_type)
+
+  end subroutine elementwise_filter_init_from_json
+  !> Actual Constructor.
   !! @param nx number of points in an elements in one direction.
   !! @param filter_type possible options: "Boyd", "nonBoyd"
-  subroutine elementwise_filter_init(this, nx, filter_type)
+  subroutine elementwise_filter_init_from_attributes(this, nx, filter_type)
     class(elementwise_filter_t), intent(inout) :: this
     character(len=*) :: filter_type
     integer :: nx
     
     this%nx = nx
     this%nt = nx ! initialize as if nothing is filtered yet 
-    this%filter_type = filter_type
 
     allocate(this%fh(nx, nx))
     allocate(this%fht(nx, nx))
@@ -101,7 +125,7 @@ contains
        call device_cfill(this%fht_d, 0.0_rp, this%nx * this%nx)
     end if
     
-  end subroutine elementwise_filter_init
+  end subroutine elementwise_filter_init_from_attributes
 
   !> Destructor.
   subroutine elementwise_filter_free(this)
@@ -131,6 +155,8 @@ contains
     this%nx = 0
     this%nt = 0
 
+    call this%free_base()
+
   end subroutine elementwise_filter_free
 
   !> Build the 1d filter for an element.
@@ -149,15 +175,72 @@ contains
   end subroutine build_1d
 
   !> Filter a 3D field.
-  subroutine elementwise_field_filter_3d(this, v, u, nelv)
-    class(elementwise_filter_t), intent(in) :: this
-    integer, intent(inout) :: nelv
-    real(kind=rp), intent(inout), dimension(this%nx, this%nx, this%nx, nelv) :: v
-    real(kind=rp), intent(in), dimension(this%nx, this%nx, this%nx, nelv) :: u
+  subroutine elementwise_field_filter_3d(this, F_out, F_in)
+    class(elementwise_filter_t), intent(inout) :: this
+    type(field_t), intent(inout) :: F_out
+    type(field_t), intent(in) :: F_in
 
-    ! v = fh x fh x fh x u
-    call tnsr3d(v, this%nx, u, this%nx, this%fh, this%fht, this%fht, nelv)
+    ! F_out = fh x fh x fh x F_in
+    call tnsr3d(F_out%x, this%nx, F_in%x, this%nx, this%fh, this%fht, this%fht, &
+                this%coef%msh%nelv)
 
   end subroutine elementwise_field_filter_3d
+
+  !> Build the 1d filter for an element on the CPU.
+  !> Suppose field x is filtered into x_hat by x_hat = fh*x.
+  !! @param fh The 1D filter operator.
+  !! @param fht The transpose of fh.
+  !! @param trnfr The transfer function containing weights for different modes.
+  !! @param nx number of points, dimension of x.
+  !! @param filter_type
+  subroutine build_1d_cpu(fh, fht, trnsfr, nx, filter_type)
+    integer, intent(in) :: nx
+    real(kind=rp), intent(inout) :: fh(nx, nx), fht(nx, nx)
+    real(kind=rp), intent(in) :: trnsfr(nx)
+    real(kind=rp) :: diag(nx, nx), rmult(nx), Lj(nx), zpts(nx)
+    type(matrix_t) :: phi, pht
+    integer :: n, i, j, k
+    real(kind=rp) :: z
+    character(len=*), intent(in) :: filter_type
+
+    call phi%init(nx, nx)
+    call pht%init(nx, nx)
+
+    call zwgll(zpts, rmult, nx)
+
+    n  = nx-1
+    do j = 1, nx
+       z = zpts(j)
+       call legendre_poly(Lj, z, n)
+       select case (filter_type)
+       case("Boyd")
+          pht%x(1,j) = Lj(1)
+          pht%x(2,j) = Lj(2)
+          do k=3,nx
+             pht%x(k,j) = Lj(k)-Lj(k-2)
+          end do
+       case("nonBoyd")
+          pht%x(:,j) = Lj
+       end select
+    end do
+
+    call trsp(phi%x, nx, pht%x, nx)
+    pht%x = phi%x
+
+    call pht%inverse(0) ! "0" for cpu implementation
+
+    diag = 0.0_rp
+
+    do i=1,nx
+       diag(i,i) = trnsfr(i)
+    end do
+
+    call mxm  (diag, nx, pht%x, nx, fh, nx)       !          -1
+    call mxm  (phi%x, nx, fh, nx, pht%x, nx)      !     V D V
+
+    call copy      (fh, pht%x, nx*nx)
+    call trsp (fht, nx, fh, nx)
+
+  end subroutine build_1d_cpu
 
 end module elementwise_filter

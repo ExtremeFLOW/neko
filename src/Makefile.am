@@ -310,6 +310,7 @@ neko_fortran_SOURCES = \
 	source_terms/brinkman/filters.f90\
 	source_terms/brinkman/filter.f90\
 	source_terms/brinkman/PDE_filter.f90\
+	source_terms/brinkman/elementwise_filter.f90\
 	source_terms/bcknd/cpu/filters_cpu.f90\
 	source_terms/bcknd/device/filters_device.F90\
 	source_terms/bcknd/device/cuda/cuda_filters.f90\
@@ -329,8 +330,6 @@ neko_fortran_SOURCES = \
 	les/bcknd/cpu/dynamic_smagorinsky_cpu.f90\
 	les/bcknd/device/dynamic_smagorinsky_device.f90\
 	les/bcknd/device/device_dynamic_smagorinsky_nut.F90\
-	les/elementwise_filter.f90\
-	les/bcknd/cpu/elementwise_filter_cpu.f90\
 	les/sigma.f90\
 	les/bcknd/cpu/sigma_cpu.f90\
 	les/bcknd/device/sigma_device.f90\
