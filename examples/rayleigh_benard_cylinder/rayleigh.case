@@ -1,7 +1,7 @@
 {
     "version": 1.0,
     "case": {
-        "mesh_file": "cylinder.nmsh",
+        "mesh_file": "rayleigh.nmsh",
         "output_at_end": true,
         "output_boundary": true,
         "end_time": 250,
@@ -51,7 +51,7 @@
             "output_control": "nsamples",
             "output_value": 10,
             "boundary_types": [
-                "w"
+                "w", "v", "w"
             ]
         },
         "scalar": {
@@ -59,7 +59,10 @@
             "Pr": 1.0,
             "initial_condition": {
                 "type": "user"
-            }
+            },
+            "boundary_types": [
+                "user", "user", ""
+            ]
         },
         "simulation_components": [
             {
