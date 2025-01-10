@@ -40,11 +40,11 @@ EXTRA_DIST = \
 	examples/turb_channel/turb_channel.f90\
 	examples/turb_channel/box.nmsh\
 	examples/turb_pipe/turb_pipe.case\
+	examples/turb_pipe/turb_pipe_source.case\
 	examples/turb_pipe/turb_pipe.f90\
 	examples/turb_pipe/turb_pipe.nmsh\
 	examples/turb_pipe/turb_pipe.geo\
 	examples/turb_pipe/README.md\
-	examples/turb_pipe/pipe_source.case\
 	examples/hemi/hemi.nmsh\
 	examples/hemi/README.md\
 	examples/hemi/hemi.case\
