@@ -39,11 +39,12 @@ EXTRA_DIST = \
 	examples/turb_channel/README.md\
 	examples/turb_channel/turb_channel.f90\
 	examples/turb_channel/box.nmsh\
-	examples/turbpipe/pipe.case\
-	examples/turbpipe/pipe.f90\
-	examples/turbpipe/pipe.nmsh\
-	examples/turbpipe/README.md\
-	examples/turbpipe/pipe_source.case\
+	examples/turb_pipe/turb_pipe.case\
+	examples/turb_pipe/turb_pipe.f90\
+	examples/turb_pipe/turb_pipe.nmsh\
+	examples/turb_pipe/turb_pipe.geo\
+	examples/turb_pipe/README.md\
+	examples/turb_pipe/pipe_source.case\
 	examples/hemi/hemi.nmsh\
 	examples/hemi/README.md\
 	examples/hemi/hemi.case\
@@ -79,22 +80,23 @@ EXTRA_DIST = \
 	examples/cyl_boundary_layer/cyl_bl_user.case\
 	examples/cyl_boundary_layer/cyl_bl_basic.case\
 	examples/cyl_boundary_layer/cyl.nmsh\
-	examples/rayleigh-benard/rayleigh.f90\
-	examples/rayleigh-benard/README.md\
-	examples/rayleigh-benard/box.nmsh\
-	examples/rayleigh-benard/rayleigh.case\
+	examples/rayleigh_benard/rayleigh.f90\
+	examples/rayleigh_benard/README.md\
+	examples/rayleigh_benard/box.nmsh\
+	examples/rayleigh_benard/rayleigh.case\
 	examples/tgv/262144.nmsh\
 	examples/tgv/tgv.case\
 	examples/tgv/README.md\
 	examples/tgv/32768.nmsh\
 	examples/tgv/tgv.f90\
 	examples/tgv/512.nmsh\
-	examples/rayleigh-benard-cylinder/probes.csv\
-	examples/rayleigh-benard-cylinder/rayleigh.f90\
-	examples/rayleigh-benard-cylinder/README.md\
-	examples/rayleigh-benard-cylinder/cylinder.nmsh\
-	examples/rayleigh-benard-cylinder/rayleigh.case\
-	examples/rayleigh-benard-cylinder/postprocess_probes.py\
+	examples/rayleigh_benard_cylinder/probes.csv\
+	examples/rayleigh_benard_cylinder/rayleigh.f90\
+	examples/rayleigh_benard_cylinder/README.md\
+	examples/rayleigh_benard_cylinder/rayleigh.nmsh\
+	examples/rayleigh_benard_cylinder/rayleigh.geo\
+	examples/rayleigh_benard_cylinder/rayleigh.case\
+	examples/rayleigh_benard_cylinder/postprocess_probes.py\
 	tests/reframe/checks.py\
 	tests/reframe/settings.py\
 	tests/reframe/README.md\
