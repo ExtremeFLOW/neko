@@ -127,9 +127,9 @@ contains
                                s23%x(i,1,1,1)*s23%x(i,1,1,1)))
     end do
 
-    call compute_lij_cpu(lij, u, v, w, test_filter, u%dof%size(), u%msh%nelv)
+    call compute_lij_cpu(lij, u, v, w, test_filter, u%dof%size())
     call compute_mij_cpu(mij, s11, s22, s33, s12, s13, s23, &
-                             s_abs, test_filter, delta, u%dof%size(), u%msh%nelv)
+                             s_abs, test_filter, delta, u%dof%size())
     call compute_num_den_cpu(num, den, lij, mij, alpha, u%dof%size())
 
     do concurrent (i =1:u%dof%size())
@@ -153,12 +153,11 @@ contains
   !! @param v y-velocity resolved (only filtered once)
   !! @param w z-velocity resolved (only filtered once)
   !! @param test_filter
-  subroutine compute_lij_cpu(lij, u, v, w, test_filter, n, nelv)
+  subroutine compute_lij_cpu(lij, u, v, w, test_filter, n)
     type(field_t), intent(inout) :: lij(6)
     type(field_t), pointer, intent(in) :: u, v, w
     type(elementwise_filter_t), intent(inout) :: test_filter
     integer, intent(in) :: n
-    integer, intent(inout) :: nelv
     integer :: i
     !> filtered u,v,w by the test filter
     integer :: temp_indices(3)
@@ -168,9 +167,9 @@ contains
     call neko_scratch_registry%request_field(fu, temp_indices(1))
     call neko_scratch_registry%request_field(fv, temp_indices(2))
     call neko_scratch_registry%request_field(fw, temp_indices(3))
-    call test_filter%apply(fu, u, nelv)
-    call test_filter%apply(fv, v, nelv)
-    call test_filter%apply(fw, w, nelv)
+    call test_filter%apply(fu, u)
+    call test_filter%apply(fv, v)
+    call test_filter%apply(fw, w)
 
     !! The first term
     call col3(lij(1)%x, fu%x, fu%x, n)
@@ -184,27 +183,27 @@ contains
     !! use test filter for the cross terms
     !! fu and fv are used as work array
     call col3(fu%x, u%x, u%x, n)
-    call test_filter%apply(fv, fu, nelv)
+    call test_filter%apply(fv, fu)
     call sub2(lij(1)%x, fv%x, n)
 
     call col3(fu%x, v%x, v%x, n)
-    call test_filter%apply(fv, fu, nelv)
+    call test_filter%apply(fv, fu)
     call sub2(lij(2)%x, fv%x, n)
 
     call col3(fu%x, w%x, w%x, n)
-    call test_filter%apply(fv, fu, nelv)
+    call test_filter%apply(fv, fu)
     call sub2(lij(3)%x, fv%x, n)
 
     call col3(fu%x, u%x, v%x, n)
-    call test_filter%apply(fv, fu, nelv)
+    call test_filter%apply(fv, fu)
     call sub2(lij(4)%x, fv%x, n)
 
     call col3(fu%x, u%x, w%x, n)
-    call test_filter%apply(fv, fu, nelv)
+    call test_filter%apply(fv, fu)
     call sub2(lij(5)%x, fv%x, n)
 
     call col3(fu%x, v%x, w%x, n)
-    call test_filter%apply(fv, fu, nelv)
+    call test_filter%apply(fv, fu)
     call sub2(lij(6)%x, fv%x, n)
 
   end subroutine compute_lij_cpu
@@ -218,13 +217,12 @@ contains
   !! @param w z-velocity resolved (only filtered once)
   !! @param test_filter
   subroutine compute_mij_cpu(mij, s11, s22, s33, s12, s13, s23, &
-                             s_abs, test_filter, delta, n, nelv)
+                             s_abs, test_filter, delta, n)
     type(field_t), intent(inout) :: mij(6)
     type(field_t), intent(inout) :: s11, s22, s33, s12, s13, s23, s_abs
     type(elementwise_filter_t), intent(inout) :: test_filter
     type(field_t), intent(in) :: delta
     integer, intent(in) :: n
-    integer, intent(inout) :: nelv
     
     integer :: temp_indices(7)
     type(field_t), pointer :: fs11, fs22, fs33, fs12, fs13, fs23, fs_abs
@@ -244,29 +242,29 @@ contains
     !! The first term:
     !!                      _____ ____
     !! (delta_test/delta)^2 s_abs*s_ij
-    call test_filter%apply(fs_abs, s_abs, nelv)
+    call test_filter%apply(fs_abs, s_abs)
 
-    call test_filter%apply(fs11, s11, nelv)
+    call test_filter%apply(fs11, s11)
     call col3(mij(1)%x, fs_abs%x, fs11%x, n)
     call cmult(mij(1)%x, delta_ratio2, n)
 
-    call test_filter%apply(fs22, s22, nelv)
+    call test_filter%apply(fs22, s22)
     call col3(mij(2)%x, fs_abs%x, fs22%x, n)
     call cmult(mij(2)%x, delta_ratio2, n)
 
-    call test_filter%apply(fs33, s33, nelv)
+    call test_filter%apply(fs33, s33)
     call col3(mij(3)%x, fs_abs%x, fs33%x, n)
     call cmult(mij(3)%x, delta_ratio2, n)
 
-    call test_filter%apply(fs12, s12, nelv)
+    call test_filter%apply(fs12, s12)
     call col3(mij(4)%x, fs_abs%x, fs12%x, n)
     call cmult(mij(4)%x, delta_ratio2, n)
 
-    call test_filter%apply(fs13, s13, nelv)
+    call test_filter%apply(fs13, s13)
     call col3(mij(5)%x, fs_abs%x, fs13%x, n)
     call cmult(mij(5)%x, delta_ratio2, n)
 
-    call test_filter%apply(fs23, s23, nelv)
+    call test_filter%apply(fs23, s23)
     call col3(mij(6)%x, fs_abs%x, fs23%x, n)
     call cmult(mij(6)%x, delta_ratio2, n)
 
@@ -275,27 +273,27 @@ contains
     !! (delta_test/delta)^2 s_abs*s_ij - s_abs*s_ij
     !! fs11 and fs22 are used as work array
     call col3(fs11%x, s_abs%x, s11%x, n)
-    call test_filter%apply(fs22, fs11, nelv)
+    call test_filter%apply(fs22, fs11)
     call sub2(mij(1)%x, fs22%x, n)
 
     call col3(fs11%x, s_abs%x, s22%x, n)
-    call test_filter%apply(fs22, fs11, nelv)
+    call test_filter%apply(fs22, fs11)
     call sub2(mij(2)%x, fs22%x, n)
 
     call col3(fs11%x, s_abs%x, s33%x, n)
-    call test_filter%apply(fs22, fs11, nelv)
+    call test_filter%apply(fs22, fs11)
     call sub2(mij(3)%x, fs22%x, n)
 
     call col3(fs11%x, s_abs%x, s12%x, n)
-    call test_filter%apply(fs22, fs11, nelv)
+    call test_filter%apply(fs22, fs11)
     call sub2(mij(4)%x, fs22%x, n)
 
     call col3(fs11%x, s_abs%x, s13%x, n)
-    call test_filter%apply(fs22, fs11, nelv)
+    call test_filter%apply(fs22, fs11)
     call sub2(mij(5)%x, fs22%x, n)
 
     call col3(fs11%x, s_abs%x, s23%x, n)
-    call test_filter%apply(fs22, fs11, nelv)
+    call test_filter%apply(fs22, fs11)
     call sub2(mij(6)%x, fs22%x, n)
 
     !! Lastly multiplied by delta^2

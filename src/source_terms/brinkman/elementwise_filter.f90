@@ -34,6 +34,7 @@
 !> Implements `explicit_filter_t`.
 module elementwise_filter
   use num_types, only : rp
+  use filter, only: filter_t
   use math, only : rzero, rone, copy
   use field, only : field_t
   use coefs, only : coef_t
@@ -53,7 +54,7 @@ module elementwise_filter
   private
 
   !> Implements the explicit filter for SEM.
-  type, public :: elementwise_filter_t
+  type, public, extends(filter_t) :: elementwise_filter_t
      !> filter type:
      !> possible options: "Boyd", "nonBoyd"
      character(len=:), allocatable :: filter_type
@@ -61,8 +62,6 @@ module elementwise_filter
      integer :: nx
      !> filtered wavenumber
      integer :: nt
-     !> coef
-     type(coef_t), pointer :: coef
      !> matrix for 1d elementwise filtering
      real(kind=rp), allocatable :: fh(:,:), fht(:,:)
      type(c_ptr) :: fh_d = C_NULL_PTR
@@ -88,15 +87,15 @@ contains
   subroutine elementwise_filter_init_from_json(this, json, coef)
     class(elementwise_filter_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(coef_t), target, intent(in) :: coef
+    type(coef_t), intent(in) :: coef
     character(len=:), allocatable :: filter_type
 
     call json_get_or_default(json, "test_filter_type", filter_type, "nonBoyd")
     this%filter_type = filter_type
 
     ! Filter assumes lx = ly = lz
-    ! call this%init_base(json, coef)
-    this%coef => coef
+    call this%init_base(json, coef)
+
     call this%init_from_attributes(coef%dof%xh%lx, this%filter_type)
 
   end subroutine elementwise_filter_init_from_json
@@ -156,6 +155,8 @@ contains
     this%nx = 0
     this%nt = 0
 
+    call this%free_base()
+
   end subroutine elementwise_filter_free
 
   !> Build the 1d filter for an element.
@@ -174,14 +175,14 @@ contains
   end subroutine build_1d
 
   !> Filter a 3D field.
-  subroutine elementwise_field_filter_3d(this, v, u, nelv)
-    class(elementwise_filter_t), intent(in) :: this
-    integer, intent(inout) :: nelv
-    type(field_t), intent(inout) :: v
-    type(field_t), intent(in) :: u
+  subroutine elementwise_field_filter_3d(this, F_out, F_in)
+    class(elementwise_filter_t), intent(inout) :: this
+    type(field_t), intent(inout) :: F_out
+    type(field_t), intent(in) :: F_in
 
-    ! v = fh x fh x fh x u
-    call tnsr3d(v%x, this%nx, u%x, this%nx, this%fh, this%fht, this%fht, nelv)
+    ! F_out = fh x fh x fh x F_in
+    call tnsr3d(F_out%x, this%nx, F_in%x, this%nx, this%fh, this%fht, this%fht, &
+                this%coef%msh%nelv)
 
   end subroutine elementwise_field_filter_3d
 
