@@ -172,12 +172,14 @@ contains
     call test_filter%apply(fw, w)
 
     !! The first term
-    call col3(lij(1)%x, fu%x, fu%x, n)
-    call col3(lij(2)%x, fv%x, fv%x, n)
-    call col3(lij(3)%x, fw%x, fw%x, n)
-    call col3(lij(4)%x, fu%x, fv%x, n)
-    call col3(lij(5)%x, fu%x, fw%x, n)
-    call col3(lij(6)%x, fv%x, fw%x, n)
+    do concurrent (i = 1:n)
+       lij(1)%x(i,1,1,1) = fu%x(I,1,1,1) * fu%x(i,1,1,1)
+       lij(2)%x(i,1,1,1) = fv%x(i,1,1,1) * fv%x(i,1,1,1)
+       lij(3)%x(i,1,1,1) = fw%x(i,1,1,1) * fw%x(i,1,1,1)
+       lij(4)%x(i,1,1,1) = fu%x(i,1,1,1) * fv%x(i,1,1,1)
+       lij(5)%x(i,1,1,1) = fu%x(i,1,1,1) * fw%x(i,1,1,1)
+       lij(6)%x(i,1,1,1) = fv%x(i,1,1,1) * fw%x(i,1,1,1)
+    end do
 
     !! Subtract the second term:
     !! use test filter for the cross terms
