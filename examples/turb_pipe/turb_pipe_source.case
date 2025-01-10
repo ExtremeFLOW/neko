@@ -42,7 +42,8 @@
             "max_iterations": 800
         },
         "output_control": "simulationtime",
-        "output_value": 5 
+        "output_value": 5,
+        "boundary_types": ["", "", "w"]
     }
 }
 }
