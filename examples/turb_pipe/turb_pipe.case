@@ -1,7 +1,7 @@
 {
 "version": 1.0,
 "case": {
-    "mesh_file": "pipe.nmsh",
+    "mesh_file": "turb_pipe.nmsh",
     "output_at_end": true,
     "output_boundary": true,
     "output_checkpoints": true,
@@ -17,13 +17,6 @@
     "fluid": {
         "scheme": "pnpn",
         "Re": 2650,
-        "source_terms": 
-        [
-            {
-                "type": "constant",
-                "values": [0, 0, 0.0092274831]
-            }
-        ],
         "initial_condition": {
             "type": "user"
         },
@@ -41,9 +34,14 @@
             "absolute_tolerance": 1e-4,
             "max_iterations": 800
         },
+        "flow_rate_force": {
+            "direction": 3,
+            "value": 1.0,
+            "use_averaged_flow": true
+        },
         "output_control": "simulationtime",
-        "output_value": 5 
+        "output_value": 5,
+        "boundary_types": ["", "", "w"]
     }
 }
 }
-
