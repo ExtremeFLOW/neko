@@ -878,7 +878,7 @@ contains
     integer, intent(in) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
     real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
-    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(in) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
 
     if (nu .eq. 2 .and. nv .eq. 4) then
        call tnsr3d_nu2nv4_cpu(v, u, A, Bt, Ct, nelv)
@@ -894,7 +894,7 @@ contains
     integer, intent(in) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
     real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
-    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(in) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2), tmp
     integer :: ie, i, j, k, l, ii, jj
     integer :: nunu, nvnu, nvnv
@@ -953,7 +953,7 @@ contains
     integer, intent(in) :: nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
     real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
-    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(in) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2), tmp
     integer :: ie, i, j, k, l, ii, jj
 
@@ -997,7 +997,7 @@ contains
     integer, intent(in) :: nv, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
     real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
-    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(in) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
     real(kind=rp) :: work(nu**2*nv), work2(nu*nv**2), tmp
     integer :: ie, i, j, k, l, ii, jj
     integer :: nvnu, nvnv

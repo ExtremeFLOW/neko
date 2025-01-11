@@ -99,6 +99,12 @@ program prepart
      call new_msh%mark_outlet_facet(msh%outlet%facet_el(i)%x(1), idx)
   end do
 
+  do i = 1, msh%outlet_normal%size
+     idx = idx_map(msh%outlet_normal%facet_el(i)%x(2))
+     call new_msh%mark_outlet_normal_facet(msh%outlet_normal%facet_el(i)%x(1), &
+                                           idx)
+  end do
+
   do i = 1, msh%sympln%size
      idx = idx_map(msh%sympln%facet_el(i)%x(2))
      call new_msh%mark_sympln_facet(msh%sympln%facet_el(i)%x(1), idx)
@@ -125,6 +131,12 @@ program prepart
      p_idx = idx_map(msh%periodic%p_facet_el(i)%x(2))
      call new_msh%apply_periodic_facet(msh%periodic%facet_el(i)%x(1), idx, &
           msh%periodic%p_facet_el(i)%x(1), p_idx, msh%periodic%p_ids(i)%x)
+  end do
+
+  do i = 1, msh%curve%size
+     idx = idx_map(msh%curve%curve_el(i)%el_idx)
+     call new_msh%mark_curve_element(idx, msh%curve%curve_el(i)%curve_data, &
+                                     msh%curve%curve_el(i)%curve_type)
   end do
   
   call new_msh%finalize()

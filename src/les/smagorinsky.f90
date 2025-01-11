@@ -42,7 +42,9 @@ module smagorinsky
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
   use smagorinsky_cpu, only : smagorinsky_compute_cpu
+  use smagorinsky_device, only : smagorinsky_compute_device
   use coefs, only : coef_t
+  use logger, only : LOG_SIZE, neko_log
   implicit none
   private
 
@@ -76,10 +78,20 @@ contains
     character(len=:), allocatable :: nut_name
     real(kind=rp) :: c_s
     character(len=:), allocatable :: delta_type
+    character(len=LOG_SIZE) :: log_buf
 
     call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     call json_get_or_default(json, "c_s", c_s, 0.17_rp)
+
+    call neko_log%section('LES model')
+    write(log_buf, '(A)') 'Model : Smagorinsky'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Delta evaluation : ', delta_type
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'c_s : ', c_s
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
 
     call smagorinsky_init_from_components(this, dofmap, coef, c_s, nut_name, &
           delta_type)
@@ -122,7 +134,8 @@ contains
     integer, intent(in) :: tstep
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call neko_error("Smagorinsky model not implemented on accelarators.")
+        call smagorinsky_compute_device(t, tstep, this%coef, this%nut, this%delta,&
+                                this%c_s)
     else
         call smagorinsky_compute_cpu(t, tstep, this%coef, this%nut, this%delta,&
                                 this%c_s)

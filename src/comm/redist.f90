@@ -59,11 +59,8 @@ contains
     type(stack_nz_t), allocatable :: new_zone_dist(:)
     type(stack_nc_t), allocatable :: new_curve_dist(:)
     type(nmsh_hex_t) :: el
-    class(nmsh_hex_t), pointer :: np(:)
     type(nmsh_hex_t), allocatable :: recv_buf_msh(:)
-    class(nmsh_zone_t), pointer :: zp(:)
     type(nmsh_zone_t), allocatable :: recv_buf_zone(:)
-    type(nmsh_curve_el_t), pointer :: cp(:)
     type(nmsh_curve_el_t), allocatable :: recv_buf_curve(:)
     class(element_t), pointer :: ep
     integer, allocatable :: recv_buf_idx(:), send_buf_idx(:)
@@ -95,6 +92,7 @@ contains
     call redist_zone(msh, msh%outlet, 3, parts, new_zone_dist)
     call redist_zone(msh, msh%sympln, 4, parts, new_zone_dist)
     call redist_zone(msh, msh%periodic, 5, parts, new_zone_dist)
+    call redist_zone(msh, msh%outlet_normal, 6, parts, new_zone_dist)
 
     do j = 1, NEKO_MSH_MAX_ZLBLS
        label = j
@@ -144,6 +142,7 @@ contains
 
     call MPI_Allreduce(MPI_IN_PLACE, max_recv, 3, MPI_INTEGER, &
          MPI_MAX, NEKO_COMM, ierr)
+
     allocate(recv_buf_msh(max_recv(1)))
     allocate(recv_buf_zone(max_recv(2)))
     allocate(recv_buf_curve(max_recv(3)))
@@ -304,59 +303,66 @@ contains
     !
     ! Add zone data for new mesh distribution
     !
-    zp => new_zone_dist(pe_rank)%array()
-    do i = 1, new_zone_dist(pe_rank)%size()
-       if (el_map%get(zp(i)%e, new_el_idx) .gt. 0) then
-          call neko_error('Missing element after redistribution')
-       end if
-       select case(zp(i)%type)
-       case(1)
-          call msh%mark_wall_facet(zp(i)%f, new_el_idx)
-       case(2)
-          call msh%mark_inlet_facet(zp(i)%f, new_el_idx)
-       case(3)
-          call msh%mark_outlet_facet(zp(i)%f, new_el_idx)
-       case(4)
-          call msh%mark_sympln_facet(zp(i)%f, new_el_idx)
-       case(5)
-          if (glb_map%get(zp(i)%p_e, new_pel_idx) .gt. 0) then
-             call neko_error('Missing periodic element after redistribution')
+    select type (zp => new_zone_dist(pe_rank)%data)
+    type is (nmsh_zone_t)
+       do i = 1, new_zone_dist(pe_rank)%size()
+          if (el_map%get(zp(i)%e, new_el_idx) .gt. 0) then
+             call neko_error('Missing element after redistribution')
           end if
-
-          call msh%mark_periodic_facet(zp(i)%f, new_el_idx, &
-               zp(i)%p_f, new_pel_idx, zp(i)%glb_pt_ids)
-       case(7)
-          call msh%mark_labeled_facet(zp(i)%f, new_el_idx, zp(i)%p_f)
-       end select
-    end do
-    do i = 1, new_zone_dist(pe_rank)%size()
-       if (el_map%get(zp(i)%e, new_el_idx) .gt. 0) then
-          call neko_error('Missing element after redistribution')
-       end if
-       select case(zp(i)%type)
-       case(5)
-          if (glb_map%get(zp(i)%p_e, new_pel_idx) .gt. 0) then
-             call neko_error('Missing periodic element after redistribution')
+          select case(zp(i)%type)
+          case(1)
+             call msh%mark_wall_facet(zp(i)%f, new_el_idx)
+          case(2)
+             call msh%mark_inlet_facet(zp(i)%f, new_el_idx)
+          case(3)
+             call msh%mark_outlet_facet(zp(i)%f, new_el_idx)
+          case(4)
+             call msh%mark_sympln_facet(zp(i)%f, new_el_idx)
+          case(5)
+             if (glb_map%get(zp(i)%p_e, new_pel_idx) .gt. 0) then
+                call neko_error('Missing periodic element after redistribution')
+             end if
+             
+             call msh%mark_periodic_facet(zp(i)%f, new_el_idx, &
+                  zp(i)%p_f, new_pel_idx, zp(i)%glb_pt_ids)
+          case(6)
+             call msh%mark_outlet_normal_facet(zp(i)%f, new_el_idx)
+          case(7)
+             call msh%mark_labeled_facet(zp(i)%f, new_el_idx, zp(i)%p_f)
+          end select
+       end do
+       do i = 1, new_zone_dist(pe_rank)%size()
+          if (el_map%get(zp(i)%e, new_el_idx) .gt. 0) then
+             call neko_error('Missing element after redistribution')
           end if
-
-          call msh%apply_periodic_facet(zp(i)%f, new_el_idx, &
-               zp(i)%p_f, new_pel_idx, zp(i)%glb_pt_ids)
-       end select
-    end do
-
+          select case(zp(i)%type)
+          case(5)
+             if (glb_map%get(zp(i)%p_e, new_pel_idx) .gt. 0) then
+                call neko_error('Missing periodic element after redistribution')
+             end if
+             
+             call msh%apply_periodic_facet(zp(i)%f, new_el_idx, &
+                  zp(i)%p_f, new_pel_idx, zp(i)%glb_pt_ids)
+          end select
+       end do
+    end select
     call new_zone_dist(pe_rank)%free()
 
+       
     !
     ! Add curve element information for new mesh distribution
     !
-    cp => new_curve_dist(pe_rank)%array()
-    do i = 1, new_curve_dist(pe_rank)%size()
-       if (el_map%get(cp(i)%e, new_el_idx) .gt. 0) then
-          call neko_error('Missing element after redistribution')
-       end if
-       call msh%mark_curve_element(new_el_idx, cp(i)%curve_data, cp(i)%type)
-    end do
+    select type (cp => new_curve_dist(pe_rank)%data)
+    type is (nmsh_curve_el_t)
+       do i = 1, new_curve_dist(pe_rank)%size()
+          if (el_map%get(cp(i)%e, new_el_idx) .gt. 0) then
+             call neko_error('Missing element after redistribution')
+          end if
+          call msh%mark_curve_element(new_el_idx, cp(i)%curve_data, cp(i)%type)
+       end do
+    end select
     call new_curve_dist(pe_rank)%free()
+           
 
     call msh%finalize()
 

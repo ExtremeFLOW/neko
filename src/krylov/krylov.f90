@@ -40,7 +40,7 @@ module krylov
   use mesh, only : mesh_t
   use field, only : field_t
   use utils, only : neko_error, neko_warning
-  use bc, only : bc_list_t
+  use bc_list, only : bc_list_t
   use identity, only : ident_t
   use device_identity, only : device_ident_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -60,6 +60,8 @@ module krylov
      real(kind=rp) :: res_start
      !> FInal residual
      real(kind=rp) :: res_final
+     !> Status
+     logical :: converged = .false.
   end type ksp_monitor_t
 
   !> Base abstract type for a canonical Krylov method, solving \f$ Ax = f \f$.
@@ -87,6 +89,8 @@ module krylov
      procedure, pass(this) :: monitor_stop => krylov_monitor_stop
      !> Monitor iteration
      procedure, pass(this) :: monitor_iter => krylov_monitor_iter
+     !> Check for convergence
+     procedure, pass(this) :: is_converged => krylov_is_converged
      !> Destructor.
      procedure(ksp_t_free), pass(this), deferred :: free
   end type ksp_t
@@ -119,7 +123,7 @@ module krylov
        integer, intent(in) :: n
        real(kind=rp), dimension(n), intent(in) :: f
        type(coef_t), intent(inout) :: coef
-       type(bc_list_t), intent(in) :: blst
+       type(bc_list_t), intent(inout) :: blst
        type(gs_t), intent(inout) :: gs_h
        integer, optional, intent(in) :: niter
        type(ksp_monitor_t) :: ksp_results
@@ -161,9 +165,9 @@ module krylov
        real(kind=rp), dimension(n), intent(in) :: fy
        real(kind=rp), dimension(n), intent(in) :: fz
        type(coef_t), intent(inout) :: coef
-       type(bc_list_t), intent(in) :: blstx
-       type(bc_list_t), intent(in) :: blsty
-       type(bc_list_t), intent(in) :: blstz
+       type(bc_list_t), intent(inout) :: blstx
+       type(bc_list_t), intent(inout) :: blsty
+       type(bc_list_t), intent(inout) :: blstz
        type(gs_t), intent(inout) :: gs_h
        integer, optional, intent(in) :: niter
        type(ksp_monitor_t), dimension(3) :: ksp_results
@@ -327,5 +331,25 @@ contains
     end if
     
   end subroutine krylov_monitor_iter
+
+  !> Check for convergence
+  !!
+  !! This function checks if the Krylov solver has converged.
+  !! The solver is considered converged if the residual is less than the
+  !! absolute tolerance.
+  !!
+  !! @param residual Residual
+  !! @param iter Iteration number
+  pure function krylov_is_converged(this, iter, residual) result(converged)
+    class(ksp_t), intent(in) :: this
+    integer, intent(in) :: iter
+    real(kind=rp), intent(in) :: residual
+    logical :: converged
+
+    converged = .true.
+    if (iter .ge. this%max_iter) converged = .false.
+    if (residual .gt. this%abs_tol) converged = .false.
+
+  end function krylov_is_converged
 
 end module krylov
