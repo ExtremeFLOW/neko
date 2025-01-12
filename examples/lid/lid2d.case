@@ -30,12 +30,13 @@
       "preconditioner": "hsmg",
       "projection_space_size": 8,
       "absolute_tolerance": 1e-7,
-      "max_iterations": 200
+      "max_iterations": 200,
+      "boundary_types": ["w", "v"]
     },
     "output_control": "simulationtime",
     "output_value": 5
   },
-  "simulation_components": 
+  "simulation_components":
   [
     {
       "type": "vorticity",
