@@ -382,7 +382,7 @@ class MiniTgv8(NekoTestBase):
 @rfm.simple_test
 class MiniRB(NekoTestBase):
     descr = 'Two iterations of 3D RB as a smoke test'
-    mesh_file = '../examples/rayleigh-benard/box.nmsh'
+    mesh_file = '../examples/rayleigh_benard/box.nmsh'
     dt = 1e-2
     T_end = 0.02
     executable = './neko'
