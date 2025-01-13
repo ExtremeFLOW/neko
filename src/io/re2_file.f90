@@ -349,7 +349,7 @@ contains
                 if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
              end if
              ! swap vertices to keep symmetric vertex numbering in neko
-             call msh%add_element(i, p(1), p(2), p(4), p(3))
+             call msh%add_element(i, i, p(1), p(2), p(4), p(3))
           end do
           deallocate(re2v1_data_xy)
        else
@@ -366,7 +366,7 @@ contains
                 if(mod(i,nelv/10) .eq. 0) write(*,*) i, 'elements read'
              end if
              ! swap vertices to keep symmetric vertex numbering in neko
-             call msh%add_element(i, p(1), p(2), p(4), p(3))
+             call msh%add_element(i, i, p(1), p(2), p(4), p(3))
           end do
           deallocate(re2v2_data_xy)
        end if
@@ -387,7 +387,7 @@ contains
                 if(mod(i,nelv/100) .eq. 0) write(*,*) i, 'elements read'
              end if
              ! swap vertices to keep symmetric vertex numbering in neko
-             call msh%add_element(i, &
+             call msh%add_element(i, i, &
                   p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
           end do
           deallocate(re2v1_data_xyz)
@@ -406,7 +406,7 @@ contains
                 if(mod(i,nelv/100) .eq. 0) write(*,*) i, 'elements read'
              end if
              ! swap vertices to keep symmetric vertex numbering in neko
-             call msh%add_element(i, &
+             call msh%add_element(i, i, &
                   p(1), p(2), p(4), p(3), p(5), p(6), p(8), p(7))
           end do
           deallocate(re2v2_data_xyz)

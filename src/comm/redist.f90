@@ -220,7 +220,7 @@ contains
           do j = 1, 8
              p(j) = point_t(np(i)%v(j)%v_xyz, np(i)%v(j)%v_idx)
           end do
-          call msh%add_element(i, &
+          call msh%add_element(i, np(i)%el_idx, &
                p(1), p(2), p(3), p(4), p(5), p(6), p(7), p(8))
 
           if (el_map%get(np(i)%el_idx, tmp) .gt. 0) then
@@ -324,7 +324,7 @@ contains
              end if
              
              call msh%mark_periodic_facet(zp(i)%f, new_el_idx, &
-                  zp(i)%p_f, new_pel_idx, zp(i)%glb_pt_ids)
+                  zp(i)%p_f, zp(i)%p_e, zp(i)%glb_pt_ids)
           case(6)
              call msh%mark_outlet_normal_facet(zp(i)%f, new_el_idx)
           case(7)
@@ -342,7 +342,7 @@ contains
              end if
              
              call msh%apply_periodic_facet(zp(i)%f, new_el_idx, &
-                  zp(i)%p_f, new_pel_idx, zp(i)%glb_pt_ids)
+                  zp(i)%p_f, zp(i)%p_e, zp(i)%glb_pt_ids)
           end select
        end do
     end select
@@ -389,7 +389,7 @@ contains
     type is (facet_zone_periodic_t)
        do i = 1, zp%size
           zone_el =  zp%facet_el(i)%x(2)
-          nmsh_zone%e = zp%facet_el(i)%x(2) + msh%offset_el
+          nmsh_zone%e = msh%elements(zp%facet_el(i)%x(2))%e%id()
           nmsh_zone%f = zp%facet_el(i)%x(1)
           nmsh_zone%p_e = zp%p_facet_el(i)%x(2)
           nmsh_zone%p_f = zp%p_facet_el(i)%x(1)
@@ -400,7 +400,7 @@ contains
     type is (facet_zone_t)
        do i = 1, zp%size
           zone_el =  zp%facet_el(i)%x(2)
-          nmsh_zone%e = zp%facet_el(i)%x(2) + msh%offset_el
+          nmsh_zone%e = msh%elements(zp%facet_el(i)%x(2))%e%id()
           nmsh_zone%f = zp%facet_el(i)%x(1)
           nmsh_zone%p_f = lbl ! Labels are encoded in the periodic facet...
           nmsh_zone%type = type
@@ -420,7 +420,7 @@ contains
 
     do i = 1, c%size
        curve_el = c%curve_el(i)%el_idx
-       nmsh_curve%e = curve_el + msh%offset_el
+       nmsh_curve%e = msh%elements(curve_el)%e%id()
        nmsh_curve%curve_data = c%curve_el(i)%curve_data
        nmsh_curve%type = c%curve_el(i)%curve_type
        call new_dist(parts%data(curve_el))%push(nmsh_curve)
