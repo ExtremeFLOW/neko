@@ -36,7 +36,7 @@
 module PDE_filter
   use num_types, only: rp
   use json_module, only: json_file
-  use json_utils, only: json_get_or_default
+  use json_utils, only: json_get_or_default, json_get
   use field_registry, only: neko_field_registry
   use field, only: field_t
   use coefs, only: coef_t
