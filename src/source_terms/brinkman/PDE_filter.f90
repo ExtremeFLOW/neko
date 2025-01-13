@@ -120,7 +120,7 @@ contains
     type(coef_t), intent(in) :: coef
 
     ! user parameters
-    call json_get_or_default(json, "filter.radius", this%r, 1.0_rp)
+    call json_get(json, "filter.radius")
 
     call json_get_or_default(json, "filter.tolerance", this%abstol_filt, &
          1.0e-10_rp)
