@@ -66,7 +66,7 @@ program prepart
      idx = idx_cntr(rank) + new_el(rank)
      idx_cntr(rank) = idx_cntr(rank) + 1
      idx_map(i) = idx
-     call new_msh%add_element(idx, &
+     call new_msh%add_element(idx, idx, &
                               msh%elements(i)%e%pts(1)%p, &
                               msh%elements(i)%e%pts(2)%p, &
                               msh%elements(i)%e%pts(3)%p, &
