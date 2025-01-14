@@ -6,6 +6,7 @@ libdir=${exec_prefix}/lib
 includedir_pkg=${prefix}/include/neko
 FC=@FC@
 FCFLAGS='@FCFLAGS@'
+extra_files=@adios_files@
 
 printf "\n%s\n" 'N E K O build tool, Version @PACKAGE_VERSION@'
 printf "%s\n" '@NEKO_BUILD_INFO@'
@@ -34,7 +35,7 @@ end program usrneko
 _ACEOF
 
 $FC $FCFLAGS -I$includedir_pkg -L$libdir $@ usr_driver.f90\
-    -lneko @LDFLAGS@ @LIBS@ -o neko
+    -lneko @LDFLAGS@ @LIBS@ $extra_files -o neko
 
 rm -f usr_driver.f90
 

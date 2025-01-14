@@ -26,10 +26,15 @@ AC_DEFUN([AX_ADIOS2],[
 	      have_adios2=yes
 	      AC_SUBST(have_adios2)
               AC_DEFINE(HAVE_ADIOS2,1,[Define if you have ADIOS2.])
+
+              adios_files=`pwd`/src/io/nek_adios2.o
+
 	    else
 	      with_adios2=no
+              adios_files=""
 	    fi
             PATH="$PATH_SAVED"
+	    AC_SUBST(adios_files)
 	    
 	fi
 ])
