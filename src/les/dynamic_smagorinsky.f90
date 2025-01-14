@@ -87,20 +87,17 @@ contains
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
-    character(len=:), allocatable :: nut_name !! The name of the SGS viscosity field.
+    character(len=:), allocatable :: nut_name
     integer :: i
     character(len=:), allocatable :: delta_type
-    character(len=:), allocatable :: test_filter_type
     character(len=LOG_SIZE) :: log_buf
 
     call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
-    call json_get_or_default(json, "test_filter_type", test_filter_type, "nonBoyd")
 
     call this%free()
     call this%init_base(dofmap, coef, nut_name, delta_type)
-    ! Filter assumes lx = ly = lz
-    call this%test_filter%init(dofmap%xh%lx, test_filter_type)
+    call this%test_filter%init(json, coef)
     call set_ds_filt(this%test_filter)
 
     call neko_log%section('LES model')
@@ -108,7 +105,8 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A, A)') 'Delta evaluation : ', delta_type
     call neko_log%message(log_buf)
-    write(log_buf, '(A, A)') 'Test filter type : ', test_filter_type
+    write(log_buf, '(A, A)') 'Test filter type : ', &
+                                 this%test_filter%filter_type
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
