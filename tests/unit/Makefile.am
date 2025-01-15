@@ -12,6 +12,7 @@ SUBDIRS = tuple\
 	  space\
 	  dofmap\
 	  field\
+	  global_interpolation\
 	  mean_field\
 	  mean_sqr_field\
 	  gather_scatter\
@@ -48,6 +49,7 @@ TESTS = device/device_test\
 	space/space_test\
 	dofmap/dofmap_test\
 	field/field_test\
+	global_interpolation/global_interpolation_test\
 	mean_field/mean_field_test\
 	mean_sqr_field/mean_sqr_field_test\
 	gather_scatter/gather_scatter_test\
@@ -85,6 +87,7 @@ EXTRA_DIST = \
 	jobctrl/jobctrl_parallel.pf\
 	dofmap/dofmap_parallel.pf\
 	field/field_parallel.pf\
+	global_interpolation/global_interpolation_parallel.pf\
 	mean_field/mean_field_parallel.pf\
 	mean_sqr_field/mean_sqr_field_parallel.pf\
 	device/device.pf\
@@ -117,6 +120,7 @@ EXTRA_DIST = \
 	jobctrl/jobctrl_test\
 	math/math_test\
 	field/field_test\
+	global_interpolation/global_interpolation_test\
 	mean_field/mean_field_test\
 	mean_sqr_field/mean_sqr_field_test\
 	device_math/device_math_test\
