@@ -33,9 +33,10 @@
       "max_iterations": 200
     },
     "output_control": "simulationtime",
-    "output_value": 5
+    "output_value": 5,
+    "boundary_types": ["w", "v"]
   },
-  "simulation_components": 
+  "simulation_components":
   [
     {
       "type": "vorticity",

@@ -117,11 +117,11 @@ contains
                                          s12%x_d, s13%x_d, s23%x_d, &
                                          coef%mult_d, s11%dof%size())
 
-    call compute_lij_device(lij, u, v, w, test_filter, u%dof%size(), u%msh%nelv)
+    call compute_lij_device(lij, u, v, w, test_filter, u%dof%size())
     call compute_nut_device(nut, c_dyn, num, den, lij, mij, &
                             s11, s22, s33, s12, s13, s23, &
                             s_abs, test_filter, delta, alpha, &
-                            u%dof%size(), u%msh%nelv)
+                            u%dof%size())
 
     call coef%gs_h%op(nut, GS_OP_ADD)
     call device_col2(nut%x_d, coef%mult_d, nut%dof%size())
@@ -137,12 +137,11 @@ contains
   !! @param v y-velocity resolved (only filtered once)
   !! @param w z-velocity resolved (only filtered once)
   !! @param test_filter
-  subroutine compute_lij_device(lij, u, v, w, test_filter, n, nelv)
+  subroutine compute_lij_device(lij, u, v, w, test_filter, n)
     type(field_t), intent(inout) :: lij(6)
     type(field_t), pointer, intent(in) :: u, v, w
     type(elementwise_filter_t), intent(inout) :: test_filter
     integer, intent(in) :: n
-    integer, intent(inout) :: nelv
     integer :: i
     !> filtered u,v,w by the test filter
     type(field_t), pointer :: fu, fv, fw, fuu, fvv, fww, fuv, fuw, fvw
@@ -159,9 +158,9 @@ contains
     call neko_scratch_registry%request_field(fvw, temp_indices(9))
 
     ! Use test filter for the velocity fields
-    call test_filter%filter_3d(fu%x, u%x, nelv)
-    call test_filter%filter_3d(fv%x, v%x, nelv)
-    call test_filter%filter_3d(fw%x, w%x, nelv)
+    call test_filter%apply(fu, u)
+    call test_filter%apply(fv, v)
+    call test_filter%apply(fw, w)
 
     !!         ___ ___
     !! Compute u_i*u_j and u_i*u_j
@@ -173,12 +172,12 @@ contains
                                   fuv%x_d, fuw%x_d, fvw%x_d, n)
 
     !! Filter u_i*u_j by the test filter
-    call test_filter%filter_3d(fuu%x, fuu%x, nelv)
-    call test_filter%filter_3d(fvv%x, fvv%x, nelv)
-    call test_filter%filter_3d(fww%x, fww%x, nelv)
-    call test_filter%filter_3d(fuv%x, fuv%x, nelv)
-    call test_filter%filter_3d(fuw%x, fuw%x, nelv)
-    call test_filter%filter_3d(fvw%x, fvw%x, nelv)
+    call test_filter%apply(fuu, fuu)
+    call test_filter%apply(fvv, fvv)
+    call test_filter%apply(fww, fww)
+    call test_filter%apply(fuv, fuv)
+    call test_filter%apply(fuw, fuw)
+    call test_filter%apply(fvw, fvw)
     
     !! Assember the final form
     !!        ___ ___   _______
@@ -210,11 +209,10 @@ contains
   !! @param delta The filter size
   !! @param alpha The moving average coefficient
   !! @param n The number of points
-  !! @param nelv The number of elements
   subroutine compute_nut_device(nut, c_dyn, num, den, lij, mij, &
                             s11, s22, s33, s12, s13, s23, &
                             s_abs, test_filter, delta, alpha, &
-                            n, nelv)
+                            n)
     type(field_t), intent(inout) :: nut, c_dyn
     type(field_t), intent(inout) :: num, den
     type(field_t), intent(in) :: lij(6)
@@ -224,7 +222,6 @@ contains
     type(field_t), intent(in) :: delta
     real(kind=rp), intent(in) :: alpha
     integer, intent(in) :: n
-    integer, intent(inout) :: nelv
 
     real(kind=rp) :: delta_ratio2
     integer :: temp_indices(13)
@@ -251,13 +248,13 @@ contains
     !! Compute M_ij
     !!         _____     ____
     !! Compute s_abs and s_ij
-    call test_filter%filter_3d(fs_abs%x, s_abs%x, nelv)
-    call test_filter%filter_3d(fs11%x, s11%x, nelv)
-    call test_filter%filter_3d(fs22%x, s22%x, nelv)
-    call test_filter%filter_3d(fs33%x, s33%x, nelv)
-    call test_filter%filter_3d(fs12%x, s12%x, nelv)
-    call test_filter%filter_3d(fs13%x, s13%x, nelv)
-    call test_filter%filter_3d(fs23%x, s23%x, nelv)
+    call test_filter%apply(fs_abs, s_abs)
+    call test_filter%apply(fs11, s11)
+    call test_filter%apply(fs22, s22)
+    call test_filter%apply(fs33, s33)
+    call test_filter%apply(fs12, s12)
+    call test_filter%apply(fs13, s13)
+    call test_filter%apply(fs23, s23)
     
     !!                              _____ ____
     !! Compute (delta_test/delta)^2 s_abs*s_ij and s_abs*s_ij
@@ -272,12 +269,12 @@ contains
                                   delta_ratio2, n)
 
     !! Filter s_abs*s_ij by the test filter
-    call test_filter%filter_3d(fsabss11%x, fsabss11%x, nelv)
-    call test_filter%filter_3d(fsabss22%x, fsabss22%x, nelv)
-    call test_filter%filter_3d(fsabss33%x, fsabss33%x, nelv)
-    call test_filter%filter_3d(fsabss12%x, fsabss12%x, nelv)
-    call test_filter%filter_3d(fsabss13%x, fsabss13%x, nelv)
-    call test_filter%filter_3d(fsabss23%x, fsabss23%x, nelv)
+    call test_filter%apply(fsabss11, fsabss11)
+    call test_filter%apply(fsabss22, fsabss22)
+    call test_filter%apply(fsabss33, fsabss33)
+    call test_filter%apply(fsabss12, fsabss12)
+    call test_filter%apply(fsabss13, fsabss13)
+    call test_filter%apply(fsabss23, fsabss23)
 
     !! Finalise the compute of Mij and nut
     call device_mij_nut_compute_part2(mij(1)%x_d, mij(2)%x_d, mij(3)%x_d, &
