@@ -622,10 +622,6 @@ contains
     integer :: n
     ! Solver results monitors (pressure + 3 velocity)
     type(ksp_monitor_t) :: ksp_results(4)
-    ! Extrapolated velocity for the pressure residual
-    type(field_t), pointer :: u_e, v_e, w_e
-    ! Indices for tracking temporary fields
-    integer :: temp_indices(3)
 
     if (this%freeze) return
 
@@ -633,6 +629,7 @@ contains
 
     call profiler_start_region('Fluid', 1)
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
+         u_e => this%u_e, v_e => this%v_e, w_e => this%w_e, &
          du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
          u_res => this%u_res, v_res => this%v_res, w_res => this%w_res, &
          p_res => this%p_res, Ax_vel => this%Ax_vel, Ax_prs => this%Ax_prs, &
@@ -652,9 +649,6 @@ contains
          dt_last_change => dt_controller%dt_last_change)
 
       ! Get temporary arrays
-      call this%scratch%request_field(u_e, temp_indices(1))
-      call this%scratch%request_field(v_e, temp_indices(2))
-      call this%scratch%request_field(w_e, temp_indices(3))
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
 
@@ -831,8 +825,6 @@ contains
       end if
 
       call fluid_step_info(tstep, t, dt, ksp_results, this%strict_convergence)
-
-      call this%scratch%relinquish_field(temp_indices)
 
     end associate
     call profiler_end_region('Fluid', 1)
