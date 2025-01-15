@@ -357,6 +357,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
 		 tests/unit/space/Makefile\
 		 tests/unit/dofmap/Makefile\
 		 tests/unit/field/Makefile\
+		 tests/unit/global_interpolation/Makefile\
 		 tests/unit/mean_field/Makefile\
 		 tests/unit/mean_sqr_field/Makefile\
 		 tests/unit/gather_scatter/Makefile\
