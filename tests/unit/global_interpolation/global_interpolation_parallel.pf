@@ -100,6 +100,7 @@ contains
     integer, parameter :: LX2 = 4
     type(field_t) :: test_field
     integer :: ierr, i
+    real(kind=rp) :: temp, cord
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
@@ -118,19 +119,22 @@ contains
     call glob_interp%find_points(dof2%x, dof2%y, dof2%z, dof2%size())
     call glob_interp%evaluate(test_field%x, dof%x, .true.)
     do i = 1, dof2%size()
-       @assertEqual(test_field%x(i,1,1,1), dof2%x(i,1,1,1), &
-                    tolerance=glob_interp%tol)
+       temp = test_field%x(i,1,1,1)
+       cord = dof2%x(i,1,1,1)
+       @assertEqual(temp, cord,tolerance=glob_interp%tol)
     end do
     call glob_interp%evaluate(test_field%x, dof%y, .true.)
     do i = 1, dof2%size()
-       @assertEqual(test_field%x(i,1,1,1), dof2%y(i,1,1,1), &
-                    tolerance=glob_interp%tol)
+       temp = test_field%x(i,1,1,1)
+       cord = dof2%y(i,1,1,1)
+       @assertEqual(temp, cord,tolerance=glob_interp%tol)
     end do
 
     call glob_interp%evaluate(test_field%x, dof%z, .true.)
     do i = 1, dof2%size()
-       @assertEqual(test_field%x(i,1,1,1), dof2%z(i,1,1,1), &
-                    tolerance=glob_interp%tol)
+       temp = test_field%x(i,1,1,1)
+       cord = dof2%y(i,1,1,1)
+       @assertEqual(temp, cord,tolerance=glob_interp%tol)
     end do  
   end subroutine test_global_interpolation_interp_down
   
