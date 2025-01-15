@@ -175,7 +175,7 @@ contains
   subroutine global_interpolation_init_dof(this, dof, comm, tol)
     class(global_interpolation_t), intent(inout) :: this
     type(dofmap_t), target :: dof
-    type(MPI_COMM), optional :: comm
+    type(MPI_COMM), optional, intent(in) :: comm
     real(kind=rp), optional :: tol
 
     ! NOTE: Passing dof%x(:,1,1,1), etc in init_xyz passes down the entire
