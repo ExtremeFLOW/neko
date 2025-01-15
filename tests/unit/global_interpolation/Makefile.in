@@ -12,8 +12,8 @@ FC = @FC@
 check: global_interpolation_suite
 
 
-field_suite_TESTS := global_interpolation_parallel.pf
-field_suite_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko -lblas
+global_interpolation_suite_TESTS := global_interpolation_parallel.pf
+global_interpolation_suite_OTHER_LIBRARIES = -L@top_builddir@/src/.libs @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,global_interpolation_suite))
 
 
