@@ -91,6 +91,11 @@ module fluid_scheme
      type(field_t), pointer :: u => null() !< x-component of Velocity
      type(field_t), pointer :: v => null() !< y-component of Velocity
      type(field_t), pointer :: w => null() !< z-component of Velocity
+     ! Extrapolated velocity for pressure residual, 
+     ! SGS models or other source terms if possible
+     type(field_t), pointer :: u_e => null() !< x-component
+     type(field_t), pointer :: v_e => null() !< y-component
+     type(field_t), pointer :: w_e => null() !< z-component
      type(field_t), pointer :: p => null() !< Pressure
      type(field_series_t) :: ulag, vlag, wlag !< fluid field (lag)
      type(space_t) :: Xh        !< Function space \f$ X_h \f$
@@ -688,9 +693,15 @@ contains
     call neko_field_registry%add_field(this%dm_Xh, 'u')
     call neko_field_registry%add_field(this%dm_Xh, 'v')
     call neko_field_registry%add_field(this%dm_Xh, 'w')
+    call neko_field_registry%add_field(this%dm_Xh, 'u_e')
+    call neko_field_registry%add_field(this%dm_Xh, 'v_e')
+    call neko_field_registry%add_field(this%dm_Xh, 'w_e')
     this%u => neko_field_registry%get_field('u')
     this%v => neko_field_registry%get_field('v')
     this%w => neko_field_registry%get_field('w')
+    this%u_e => neko_field_registry%get_field('u_e')
+    this%v_e => neko_field_registry%get_field('v_e')
+    this%w_e => neko_field_registry%get_field('w_e')
 
     !! Initialize time-lag fields
     call this%ulag%init(this%u, 2)
@@ -895,6 +906,10 @@ contains
     nullify(this%v)
     nullify(this%w)
     nullify(this%p)
+    
+    nullify(this%u_e)
+    nullify(this%v_e)
+    nullify(this%w_e)
 
     call this%ulag%free()
     call this%vlag%free()
