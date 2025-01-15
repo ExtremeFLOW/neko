@@ -7,6 +7,7 @@ test-suite.log
 
 # Test scripts
 !field/field_test
+!global_interpolation/global_interpolation_test
 !dofmap/dofmap_test
 !device_math/device_math_test
 !gather_scatter/gather_scatter_test
@@ -31,6 +32,7 @@ device_math/device_math_suite
 device_mathops/device_mathops_test
 dofmap/dofmap_suite
 field/field_suite
+global_interpolation/global_interpolation_suite
 hex/hex_test
 htable/htable_test
 krylov/krylov_test
