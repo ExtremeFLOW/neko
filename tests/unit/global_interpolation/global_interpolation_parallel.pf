@@ -76,17 +76,17 @@ contains
     call glob_interp%find_points(dof%x, dof%y, dof%z, dof%size())
     call glob_interp%evaluate(test_field%x, dof%x, .true.)
     do i = 1, dof%size()
-       @assertEqual(test_field%x(i,1,1,1), dof%x(i,1,1,1), tolerance=glob_interp%tol)       
+       @assertEqual(test_field%x(i,1,1,1), dof%x(i,1,1,1), tolerance=glob_interp%tol)
     end do
     call glob_interp%evaluate(test_field%x, dof%y, .true.)
     do i = 1, dof%size()
-       @assertEqual(test_field%x(i,1,1,1), dof%y(i,1,1,1), tolerance=glob_interp%tol)       
+       @assertEqual(test_field%x(i,1,1,1), dof%y(i,1,1,1), tolerance=glob_interp%tol)
     end do
 
     call glob_interp%evaluate(test_field%x, dof%z, .true.)
     do i = 1, dof%size()
-       @assertEqual(test_field%x(i,1,1,1), dof%z(i,1,1,1), tolerance=glob_interp%tol)       
-    end do  
+       @assertEqual(test_field%x(i,1,1,1), dof%z(i,1,1,1), tolerance=glob_interp%tol)
+    end do
   end subroutine test_global_interpolation_init
 
   @test(npes=[7])
@@ -118,16 +118,19 @@ contains
     call glob_interp%find_points(dof2%x, dof2%y, dof2%z, dof2%size())
     call glob_interp%evaluate(test_field%x, dof%x, .true.)
     do i = 1, dof2%size()
-       @assertEqual(test_field%x(i,1,1,1), dof2%x(i,1,1,1), tolerance=glob_interp%tol)       
+       @assertEqual(test_field%x(i,1,1,1), dof2%x(i,1,1,1), &
+                    tolerance=glob_interp%tol)
     end do
     call glob_interp%evaluate(test_field%x, dof%y, .true.)
     do i = 1, dof2%size()
-       @assertEqual(test_field%x(i,1,1,1), dof2%y(i,1,1,1), tolerance=glob_interp%tol)       
+       @assertEqual(test_field%x(i,1,1,1), dof2%y(i,1,1,1), &
+                    tolerance=glob_interp%tol)
     end do
 
     call glob_interp%evaluate(test_field%x, dof%z, .true.)
     do i = 1, dof2%size()
-       @assertEqual(test_field%x(i,1,1,1), dof2%z(i,1,1,1), tolerance=glob_interp%tol)       
+       @assertEqual(test_field%x(i,1,1,1), dof2%z(i,1,1,1), &
+                    tolerance=glob_interp%tol)
     end do  
   end subroutine test_global_interpolation_interp_down
   
@@ -167,8 +170,10 @@ contains
        do r = 1, nr
           do phi = 1, nphi
              id = (i-1) * nr*nphi + (r-1)*nphi + phi 
- 	     pts(1,id) = 0.0499*real(r,rp)/real(nr,rp) *cos(real(phi,rp)/real(nphi,rp)*2.0*pi)
- 	     pts(2,id) = 0.0499*real(r,rp)/real(nr,rp) *sin(real(phi,rp)/real(nphi,rp)*2.0*pi)
+ 	     pts(1,id) = 0.0499*real(r,rp)/real(nr,rp) * &
+                         cos(real(phi,rp)/real(nphi,rp)*2.0*pi)
+ 	     pts(2,id) = 0.0499*real(r,rp)/real(nr,rp) * &
+                         sin(real(phi,rp)/real(nphi,rp)*2.0*pi)
  	     pts(3,id) = real(i,rp)/real(nlvl,rp)
             
        
@@ -188,15 +193,15 @@ contains
     call glob_interp%find_points(pts, npts)
     call glob_interp%evaluate(interpvals, dof%x, .true.)
     do i = 1, npts
-       @assertEqual(interpvals(i), pts(1,i), tolerance=glob_interp%tol)       
+       @assertEqual(interpvals(i), pts(1,i), tolerance=glob_interp%tol)
     end do
     call glob_interp%evaluate(interpvals, dof%y, .true.)
     do i = 1, npts
-       @assertEqual(interpvals(i), pts(2,i), tolerance=glob_interp%tol)       
-    end do 
+       @assertEqual(interpvals(i), pts(2,i), tolerance=glob_interp%tol)
+    end do
     call glob_interp%evaluate(interpvals, dof%z, .true.)
     do i = 1, npts
-       @assertEqual(interpvals(i), pts(3,i), tolerance=glob_interp%tol)       
+       @assertEqual(interpvals(i), pts(3,i), tolerance=glob_interp%tol)
     end do
     call glob_interp%evaluate(interpvals, sinefield%x, .true.)
     do i = 1, npts
@@ -204,7 +209,7 @@ contains
                         cos(pts(2,i)*5.0) * &
                         sin(pts(3,i)*10.0)
 
-       @assertEqual(interpvals(i), analytical_val, tolerance=glob_interp%tol)       
+       @assertEqual(interpvals(i), analytical_val, tolerance=glob_interp%tol)
     end do
   end subroutine test_global_interpolation_sinwaves_radial
 
