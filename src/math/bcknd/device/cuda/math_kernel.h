@@ -1,7 +1,7 @@
 #ifndef __MATH_MATH_KERNEL_H__
 #define __MATH_MATH_KERNEL_H__
 /*
- Copyright (c) 2021-2023, The Neko Authors
+ Copyright (c) 2021-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -66,6 +66,24 @@ __global__ void masked_red_copy_kernel(T * __restrict__ a,
 
   for (int i = idx; i < m; i += str) {
     a[i] = b[mask[i+1]-1];
+  }
+}
+
+/**
+ * Device kernel for masked atomic update
+ */
+template< typename T >
+__global__ void masked_atomic_reduction_kernel(T * __restrict__ a,
+                                               T * __restrict__ b,
+                                               int * __restrict__ mask,
+                                               const int n,
+                                               const int m) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < m; i += str) {
+    AtomicAdd( &(a[mask[i+1]-1]), b[i]);
   }
 }
 
