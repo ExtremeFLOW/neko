@@ -32,20 +32,29 @@
 !
 !> Implements the `brinkman_source_term_t` type.
 module brinkman_source_term
-  use num_types, only: rp, dp
+  use aabb, only : aabb_t, get_aabb
+  use coefs, only: coef_t
+  use device, only: device_memcpy, HOST_TO_DEVICE
+  use device_math, only: device_pwmax, device_cfill_mask
   use field, only: field_t
   use field_list, only: field_list_t
-  use json_module, only: json_file
-  use json_utils, only: json_get, json_get_or_default, json_extract_item
-  use field_registry, only: neko_field_registry
-  use source_term, only: source_term_t
-  use coefs, only: coef_t
-  use neko_config, only: NEKO_BCKND_DEVICE
-  use utils, only: neko_error
   use field_math, only: field_subcol3
-
-  use math, only: pwmax
-  use device_math, only: device_pwmax
+  use field_registry, only: neko_field_registry
+  use filters, only: smooth_step_field, step_function_field, permeability_field
+  use file, only: file_t
+  use json_module, only: json_file, json_core, json_value
+  use json_utils, only: json_get, json_get_or_default, json_extract_item
+  use logger, only: neko_log, LOG_SIZE
+  use math, only: pwmax, cfill_mask
+  use tri_mesh, only: tri_mesh_t
+  use neko_config, only: NEKO_BCKND_DEVICE
+  use num_types, only: rp, dp
+  use point_zone, only: point_zone_t
+  use point_zone_registry, only: neko_point_zone_registry
+  use profiler, only: profiler_start_region, profiler_end_region
+  use signed_distance, only: signed_distance_field
+  use source_term, only: source_term_t
+  use utils, only: neko_error
   implicit none
   private
 
@@ -84,16 +93,6 @@ contains
   !! @param fields A list of fields for adding the source values.
   !! @param coef The SEM coeffs.
   subroutine brinkman_source_term_init_from_json(this, json, fields, coef)
-    use file, only: file_t
-    use tri_mesh, only: tri_mesh_t
-    use device, only: device_memcpy, HOST_TO_DEVICE
-    use filters, only: smooth_step_field, step_function_field, &
-         permeability_field
-    use signed_distance, only: signed_distance_field
-    use profiler, only: profiler_start_region, profiler_end_region
-    use json_module, only: json_core, json_value
-    implicit none
-
     class(brinkman_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(field_list_t), intent(in), target :: fields
@@ -190,6 +189,7 @@ contains
     call this%indicator%free()
     call this%brinkman%free()
     call this%free_base()
+
   end subroutine brinkman_source_term_free
 
   !> Computes the source term and adds the result to `fields`.
@@ -223,16 +223,6 @@ contains
 
   !> Initializes the source term from a boundary mesh.
   subroutine init_boundary_mesh(this, json)
-    use file, only: file_t
-    use tri_mesh, only: tri_mesh_t
-    use device, only: device_memcpy, HOST_TO_DEVICE
-    use filters, only: smooth_step_field, step_function_field, &
-         permeability_field
-    use signed_distance, only: signed_distance_field
-    use profiler, only: profiler_start_region, profiler_end_region
-    use aabb, only : aabb_t, get_aabb
-    implicit none
-
     class(brinkman_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
 
@@ -256,6 +246,7 @@ contains
     type(field_t) :: temp_field
     type(aabb_t) :: mesh_box, target_box
     integer :: idx_p
+    character(len=LOG_SIZE) :: log_msg
 
     ! ------------------------------------------------------------------------ !
     ! Read the options for the boundary mesh
@@ -310,6 +301,14 @@ contains
           boundary_mesh%points(idx_p)%x = &
                scaling * boundary_mesh%points(idx_p)%x + translation
        end do
+
+       ! Report the transformation applied
+       write(log_msg, '(A)') "The following transformation was applied:"
+       call neko_log%message(log_msg)
+       write(log_msg, '(A, 3F12.6)') "Scaling: ", scaling
+       call neko_log%message(log_msg)
+       write(log_msg, '(A, 3F12.6)') "Translation: ", translation
+       call neko_log%message(log_msg)
 
       case default
        call neko_error('Unknown mesh transform')
@@ -369,15 +368,6 @@ contains
 
   !> Initializes the source term from a point zone.
   subroutine init_point_zone(this, json)
-    use filters, only: smooth_step_field, step_function_field, &
-         permeability_field
-    use signed_distance, only: signed_distance_field
-    use profiler, only: profiler_start_region, profiler_end_region
-    use point_zone, only: point_zone_t
-    use device, only: device_memcpy, HOST_TO_DEVICE
-    use point_zone_registry, only: neko_point_zone_registry
-    implicit none
-
     class(brinkman_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
 
@@ -400,9 +390,13 @@ contains
 
     my_point_zone => neko_point_zone_registry%get_point_zone(zone_name)
 
-    do i = 1, my_point_zone%size
-       temp_field%x(my_point_zone%mask(i), 1, 1, 1) = 1.0_rp
-    end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cfill_mask(temp_field%x_d, 1.0_rp, temp_field%size(), &
+            my_point_zone%mask_d, my_point_zone%size)
+    else
+       call cfill_mask(temp_field%x, 1.0_rp, temp_field%size(), &
+            my_point_zone%mask, my_point_zone%size)
+    end if
 
     ! Run filter on the temporary indicator field to smooth it out.
 
@@ -414,7 +408,12 @@ contains
     end select
 
     ! Update the global indicator field by max operator
-    this%indicator%x = max(this%indicator%x, temp_field%x)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_pwmax(this%indicator%x_d, temp_field%x_d, &
+            this%indicator%size())
+    else
+       this%indicator%x = max(this%indicator%x, temp_field%x)
+    end if
 
   end subroutine init_point_zone
 

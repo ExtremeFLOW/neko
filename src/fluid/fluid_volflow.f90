@@ -67,7 +67,7 @@ module fluid_volflow
   use field, only : field_t
   use coefs, only : coef_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use math, only : copy, glsc2, glmin, glmax, add2, add2s2
+  use math, only : copy, glsc2, glmin, glmax, add2
   use comm
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_rzero, device_copy, &
@@ -77,7 +77,7 @@ module fluid_volflow
   use json_module, only : json_file
   use json_utils, only: json_get
   use scratch_registry, only : scratch_registry_t
-  use bc, only : bc_list_t, bc_list_apply_vector, bc_list_apply_scalar
+  use bc_list, only : bc_list_t
   use ax_product, only : ax_t
   implicit none
   private
@@ -157,8 +157,8 @@ contains
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
     type(time_scheme_controller_t), intent(in) :: ext_bdf
-    type(bc_list_t), intent(in) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
-    type(bc_list_t), intent(in) :: bclst_vel_res
+    type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
+    type(bc_list_t), intent(inout) :: bclst_vel_res
     class(ax_t), intent(in) :: Ax_vel
     class(ax_t), intent(in) :: Ax_prs
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
@@ -225,7 +225,7 @@ contains
       end if
 
       call gs_Xh%op(p_res, GS_OP_ADD)
-      call bc_list_apply_scalar(bclst_dp, p_res%x, n)
+      call bclst_dp%apply_scalar(p_res%x, n)
       call pc_prs%update()
       ksp_results(1) = ksp_prs%solve(Ax_prs, p_vol, p_res%x, n, &
            c_Xh, bclst_dp, gs_Xh, prs_max_iter)
@@ -246,8 +246,7 @@ contains
          call copy(ta2%x, c_Xh%B, n)
          call copy(ta3%x, c_Xh%B, n)
       end if
-      call bc_list_apply_vector(bclst_vel_res,&
-           ta1%x, ta2%x, ta3%x, n)
+      call bclst_vel_res%apply_vector(ta1%x, ta2%x, ta3%x, n)
 
       ! add forcing
 
@@ -284,8 +283,7 @@ contains
       call gs_Xh%op(v_res, GS_OP_ADD)
       call gs_Xh%op(w_res, GS_OP_ADD)
 
-      call bc_list_apply_vector(bclst_vel_res,&
-            u_res%x, v_res%x, w_res%x, n)
+      call bclst_vel_res%apply_vector(u_res%x, v_res%x, w_res%x, n)
       call pc_vel%update()
 
       ksp_results(2:4) = ksp_vel%solve_coupled(Ax_vel, &
@@ -349,8 +347,8 @@ contains
     type(gs_t), intent(inout) :: gs_Xh
     type(time_scheme_controller_t), intent(in) :: ext_bdf
     real(kind=rp), intent(in) :: rho, mu, dt
-    type(bc_list_t), intent(in) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
-    type(bc_list_t), intent(in) :: bclst_vel_res
+    type(bc_list_t), intent(inout) :: bclst_dp, bclst_du, bclst_dv, bclst_dw
+    type(bc_list_t), intent(inout) :: bclst_vel_res
     class(ax_t), intent(in) :: Ax_vel
     class(ax_t), intent(in) :: Ax_prs
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
@@ -359,7 +357,6 @@ contains
     real(kind=rp) :: ifcomp, flow_rate, xsec
     real(kind=rp) :: current_flow, delta_flow, scale
     integer :: n, ierr, i
-    type(field_t), pointer :: ta1, ta2, ta3
 
     associate(u_vol => this%u_vol, v_vol => this%v_vol, &
          w_vol => this%w_vol, p_vol => this%p_vol)

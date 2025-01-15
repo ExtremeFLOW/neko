@@ -1,0 +1,6 @@
+#!/bin/sh
+if which mpirun >/dev/null; then
+    mpirun -np 7 ./global_interpolation/global_interpolation_suite
+else
+    mpiexec -np 7 ./global_interpolation/global_interpolation_suite
+fi

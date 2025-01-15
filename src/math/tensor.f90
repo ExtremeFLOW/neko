@@ -224,7 +224,7 @@ contains
     integer, intent(in) :: nv, nu, nelv
     real(kind=rp), intent(inout) :: v(nv*nv*nv,nelv)
     real(kind=rp), intent(in) :: u(nu*nu*nu,nelv)
-    real(kind=rp), intent(inout) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
+    real(kind=rp), intent(in) :: A(nv,nu), Bt(nu, nv), Ct(nu,nv)
     type(c_ptr) :: v_d, u_d, A_d, Bt_d, Ct_d
 
 

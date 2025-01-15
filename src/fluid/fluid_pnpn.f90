@@ -49,22 +49,21 @@ module fluid_pnpn
   use device, only : device_memcpy, HOST_TO_DEVICE
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get_or_default
   use json_module, only : json_file
   use ax_product, only : ax_t, ax_helm_factory
   use field, only : field_t
   use dirichlet, only : dirichlet_t
   use facet_normal, only : facet_normal_t
   use non_normal, only : non_normal_t
+  use comm
   use mesh, only : mesh_t
   use user_intf, only : user_t
   use time_step_controller, only : time_step_controller_t
   use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
-  use math, only : col2, glsum
   use mathops, only : opadd2cm, opcolv
-  use bc, only: bc_list_t, bc_list_init, bc_list_add, bc_list_free, &
-                bc_list_apply_scalar, bc_list_apply_vector
+  use bc_list, only : bc_list_t
   use utils, only : neko_error
   use field_math, only : field_add2, field_copy
   use operators, only : ortho
@@ -101,7 +100,7 @@ module fluid_pnpn
      type(bc_list_t) :: bclst_dw
      type(bc_list_t) :: bclst_dp
      
-     logical :: no_prs_dirichlet = .false.
+     logical :: prs_dirichlet = .false.
 
      class(advection_t), allocatable :: adv
 
@@ -270,16 +269,15 @@ contains
       'd_pres', this%bc_labels)
     call this%bc_field_dirichlet_p%finalize()
     call this%bc_field_dirichlet_p%set_g(0.0_rp)
-    call bc_list_init(this%bclst_dp)
-    call bc_list_add(this%bclst_dp, this%bc_field_dirichlet_p)
+    call this%bclst_dp%init()
+    call this%bclst_dp%append(this%bc_field_dirichlet_p)
     !Add 0 prs bcs
-    call bc_list_add(this%bclst_dp, this%bc_prs)
+    call this%bclst_dp%append(this%bc_prs)
     
-    if (this%bclst_dp%is_empty()) then
-       this%no_prs_dirichlet = .true.
-    else 
-       this%no_prs_dirichlet = .false.
-    end if
+    this%prs_dirichlet =  .not. this%bclst_dp%is_empty()
+
+    call MPI_Allreduce(MPI_IN_PLACE, this%prs_dirichlet, 1, &
+                       MPI_LOGICAL, MPI_LOR, NEKO_COMM)
      
 
     call this%bc_field_dirichlet_u%init_base(this%c_Xh)
@@ -311,37 +309,37 @@ contains
                                               'w', this%bc_labels)
     call this%bc_vel_res%finalize()
     call this%bc_vel_res%set_g(0.0_rp)
-    call bc_list_init(this%bclst_vel_res)
-    call bc_list_add(this%bclst_vel_res, this%bc_vel_res)
-    call bc_list_add(this%bclst_vel_res, this%bc_vel_res_non_normal)
-    call bc_list_add(this%bclst_vel_res, this%bc_sym)
-    call bc_list_add(this%bclst_vel_res, this%bc_sh%symmetry)
-    call bc_list_add(this%bclst_vel_res, this%bc_wallmodel%symmetry)
+    call this%bclst_vel_res%init()
+    call this%bclst_vel_res%append(this%bc_vel_res)
+    call this%bclst_vel_res%append(this%bc_vel_res_non_normal)
+    call this%bclst_vel_res%append(this%bc_sym)
+    call this%bclst_vel_res%append(this%bc_sh%symmetry)
+    call this%bclst_vel_res%append(this%bc_wallmodel%symmetry)
 
     !Initialize bcs for u, v, w velocity components
-    call bc_list_init(this%bclst_du)
-    call bc_list_add(this%bclst_du, this%bc_sym%bc_x)
-    call bc_list_add(this%bclst_du, this%bc_sh%symmetry%bc_x)
-    call bc_list_add(this%bclst_du, this%bc_wallmodel%symmetry%bc_x)
-    call bc_list_add(this%bclst_du, this%bc_vel_res_non_normal%bc_x)
-    call bc_list_add(this%bclst_du, this%bc_vel_res)
-    call bc_list_add(this%bclst_du, this%bc_field_dirichlet_u)
+    call this%bclst_du%init()
+    call this%bclst_du%append(this%bc_sym%bc_x)
+    call this%bclst_du%append(this%bc_sh%symmetry%bc_x)
+    call this%bclst_du%append(this%bc_wallmodel%symmetry%bc_x)
+    call this%bclst_du%append(this%bc_vel_res_non_normal%bc_x)
+    call this%bclst_du%append(this%bc_vel_res)
+    call this%bclst_du%append(this%bc_field_dirichlet_u)
 
-    call bc_list_init(this%bclst_dv)
-    call bc_list_add(this%bclst_dv, this%bc_sym%bc_y)
-    call bc_list_add(this%bclst_dv, this%bc_sh%symmetry%bc_y)
-    call bc_list_add(this%bclst_dv, this%bc_wallmodel%symmetry%bc_y)
-    call bc_list_add(this%bclst_dv, this%bc_vel_res_non_normal%bc_y)
-    call bc_list_add(this%bclst_dv, this%bc_vel_res)
-    call bc_list_add(this%bclst_dv, this%bc_field_dirichlet_v)
+    call this%bclst_dv%init()
+    call this%bclst_dv%append(this%bc_sym%bc_y)
+    call this%bclst_dv%append(this%bc_sh%symmetry%bc_y)
+    call this%bclst_dv%append(this%bc_wallmodel%symmetry%bc_y)
+    call this%bclst_dv%append(this%bc_vel_res_non_normal%bc_y)
+    call this%bclst_dv%append(this%bc_vel_res)
+    call this%bclst_dv%append(this%bc_field_dirichlet_v)
 
-    call bc_list_init(this%bclst_dw)
-    call bc_list_add(this%bclst_dw, this%bc_sym%bc_z)
-    call bc_list_add(this%bclst_dw, this%bc_sh%symmetry%bc_z)
-    call bc_list_add(this%bclst_dw, this%bc_wallmodel%symmetry%bc_z)
-    call bc_list_add(this%bclst_dw, this%bc_vel_res_non_normal%bc_z)
-    call bc_list_add(this%bclst_dw, this%bc_vel_res)
-    call bc_list_add(this%bclst_dw, this%bc_field_dirichlet_w)
+    call this%bclst_dw%init()
+    call this%bclst_dw%append(this%bc_sym%bc_z)
+    call this%bclst_dw%append(this%bc_sh%symmetry%bc_z)
+    call this%bclst_dw%append(this%bc_wallmodel%symmetry%bc_z)
+    call this%bclst_dw%append(this%bc_vel_res_non_normal%bc_z)
+    call this%bclst_dw%append(this%bc_vel_res)
+    call this%bclst_dw%append(this%bc_field_dirichlet_w)
 
     !Intialize projection space thingy
 
@@ -386,20 +384,31 @@ contains
     class(fluid_pnpn_t), target, intent(inout) :: this
     real(kind=rp) :: dtlag(10), tlag(10)
     type(field_t) :: u_temp, v_temp, w_temp
-    integer :: i, n
+    integer :: i, j,  n
 
     n = this%u%dof%size()
     if (allocated(this%chkp%previous_mesh%elements) .or. &
-        this%chkp%previous_Xh%lx .ne. this%Xh%lx) then
-       call col2(this%u%x, this%c_Xh%mult, this%u%dof%size())
-       call col2(this%v%x, this%c_Xh%mult, this%u%dof%size())
-       call col2(this%w%x, this%c_Xh%mult, this%u%dof%size())
-       call col2(this%p%x, this%c_Xh%mult, this%u%dof%size())
-       do i = 1, this%ulag%size()
-          call col2(this%ulag%lf(i)%x, this%c_Xh%mult, this%u%dof%size())
-          call col2(this%vlag%lf(i)%x, this%c_Xh%mult, this%u%dof%size())
-          call col2(this%wlag%lf(i)%x, this%c_Xh%mult, this%u%dof%size())
-       end do
+         this%chkp%previous_Xh%lx .ne. this%Xh%lx) then
+       associate(u => this%u, v => this%v, w => this%w, p => this%p, &
+            c_Xh => this%c_Xh, ulag => this%ulag, vlag => this%vlag, &
+            wlag => this%wlag)
+         do concurrent (j=1:n)
+            u%x(j,1,1,1) = u%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
+            v%x(j,1,1,1) = v%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
+            w%x(j,1,1,1) = w%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
+            p%x(j,1,1,1) = p%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
+         end do
+         do i = 1, this%ulag%size()
+            do concurrent (j=1:n)
+               ulag%lf(i)%x(j,1,1,1) = ulag%lf(i)%x(j,1,1,1) &
+                                     * c_Xh%mult(j,1,1,1)
+               vlag%lf(i)%x(j,1,1,1) = vlag%lf(i)%x(j,1,1,1) &
+                                     * c_Xh%mult(j,1,1,1)
+               wlag%lf(i)%x(j,1,1,1) = wlag%lf(i)%x(j,1,1,1) &
+                                     * c_Xh%mult(j,1,1,1)
+            end do
+         end do
+       end associate
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -531,8 +540,8 @@ contains
 
     call this%bc_prs_surface%free()
     call this%bc_sym_surface%free()
-    call bc_list_free(this%bclst_vel_res)
-    call bc_list_free(this%bclst_dp)
+    call this%bclst_vel_res%free()
+    call this%bclst_dp%free()
     call this%proj_prs%free()
     call this%proj_u%free()
     call this%proj_v%free()
@@ -653,7 +662,7 @@ contains
       call this%source_term%compute(t, tstep)
 
       ! Add Neumann bc contributions to the RHS
-      call bc_list_apply_vector(this%bclst_vel_neumann, f_x%x, f_y%x, f_z%x, &
+      call this%bclst_vel_neumann%apply_vector(f_x%x, f_y%x, f_z%x, &
            this%dm_Xh%size(), t, tstep)
 
       ! Compute the grandient jump penalty term
@@ -733,9 +742,9 @@ contains
                            Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
                            mu_field, rho_field)
 
-      if (this%no_prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n) 
+      if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n) 
       call gs_Xh%op(p_res, GS_OP_ADD)
-      call bc_list_apply_scalar(this%bclst_dp, p_res%x, p%dof%size(), t, tstep)
+      call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), t, tstep)
       call profiler_end_region('Pressure_residual', 18)
 
       call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
@@ -752,7 +761,7 @@ contains
                                  this%bclst_dp, gs_Xh, n, tstep, dt_controller)
 
       call field_add2(p, dp, n)
-      if (this%no_prs_dirichlet) call ortho(p%x, this%glb_n_points, n) 
+      if (.not. this%prs_dirichlet) call ortho(p%x, this%glb_n_points, n) 
 
       ! Compute velocity.
       call profiler_start_region('Velocity_residual', 19)
@@ -768,9 +777,8 @@ contains
       call gs_Xh%op(v_res, GS_OP_ADD)
       call gs_Xh%op(w_res, GS_OP_ADD)
 
-      call bc_list_apply_vector(this%bclst_vel_res,&
-                                u_res%x, v_res%x, w_res%x, dm_Xh%size(),&
-                                t, tstep)
+      call this%bclst_vel_res%apply_vector(u_res%x, v_res%x, w_res%x, &
+           dm_Xh%size(), t, tstep)
 
       ! We should implement a bc that takes three field_bcs and implements
       ! vector_apply
@@ -822,7 +830,7 @@ contains
               this%ksp_vel%max_iter)
       end if
 
-      call fluid_step_info(tstep, t, dt, ksp_results)
+      call fluid_step_info(tstep, t, dt, ksp_results, this%strict_convergence)
 
       call this%scratch%relinquish_field(temp_indices)
 

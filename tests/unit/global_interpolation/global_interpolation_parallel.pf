@@ -1,0 +1,212 @@
+ module global_interpolation_parallel
+  use pfunit
+  use field
+  use mesh
+  use space
+  use dofmap
+  use num_types
+  use device
+  use space
+  use mesh
+  use dofmap
+  use file
+  use math
+  use global_interpolation
+  use comm, only : NEKO_COMM, pe_rank, pe_size, comm_init
+  use neko_config
+  use neko_mpi_types
+  implicit none
+
+  @TestCase
+  type, extends(MPITestCase) :: test_global_interpolation
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_global_interpolation
+ 
+contains
+
+  subroutine setUp(this)
+    class(test_global_interpolation), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+    call comm_init
+    call neko_mpi_types_init
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_global_interpolation), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_finalize
+   end if
+ end subroutine tearDown
+
+  subroutine test_global_interpolation_gen_msh(msh)
+    type(mesh_t), intent(inout) :: msh
+    type(file_t) :: mesh_file
+    mesh_file = file_t("global_interpolation/cylinder.nmsh")
+    call mesh_file%read(msh)
+  
+  end subroutine test_global_interpolation_gen_msh
+  
+  @test(npes=[7])
+  subroutine test_global_interpolation_init(this)
+    class (test_global_interpolation), intent(inout) :: this
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    type(dofmap_t) :: dof
+    type(global_interpolation_t) :: glob_interp
+    integer, parameter :: LX = 4
+    type(field_t) :: test_field
+    integer :: ierr, i
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+    call test_global_interpolation_gen_msh(msh)
+    call Xh%init(GLL, lx, lx, lx)
+    call dof%init(msh, Xh)
+    call glob_interp%init(dof)
+    
+    @assertTrue(allocated(glob_interp%global_aabb))
+    @assertTrue(allocated(glob_interp%local_aabb))
+    call test_field%init(dof)
+    call glob_interp%find_points(dof%x, dof%y, dof%z, dof%size())
+    call glob_interp%evaluate(test_field%x, dof%x, .true.)
+    do i = 1, dof%size()
+       @assertEqual(test_field%x(i,1,1,1), dof%x(i,1,1,1), tolerance=glob_interp%tol)       
+    end do
+    call glob_interp%evaluate(test_field%x, dof%y, .true.)
+    do i = 1, dof%size()
+       @assertEqual(test_field%x(i,1,1,1), dof%y(i,1,1,1), tolerance=glob_interp%tol)       
+    end do
+
+    call glob_interp%evaluate(test_field%x, dof%z, .true.)
+    do i = 1, dof%size()
+       @assertEqual(test_field%x(i,1,1,1), dof%z(i,1,1,1), tolerance=glob_interp%tol)       
+    end do  
+  end subroutine test_global_interpolation_init
+
+  @test(npes=[7])
+  subroutine test_global_interpolation_interp_down(this)
+    class (test_global_interpolation), intent(inout) :: this
+    type(space_t) :: Xh, Xh2
+    type(mesh_t) :: msh
+    type(dofmap_t) :: dof, dof2
+    type(global_interpolation_t) :: glob_interp
+    integer, parameter :: LX = 6
+    integer, parameter :: LX2 = 4
+    type(field_t) :: test_field
+    integer :: ierr, i
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+    call test_global_interpolation_gen_msh(msh)
+    call Xh%init(GLL, lx, lx, lx)
+    call dof%init(msh, Xh)
+    call Xh2%init(GLL, lx2, lx2, lx2)
+    call dof2%init(msh, Xh2)
+    call glob_interp%init(dof)
+    
+    @assertTrue(allocated(glob_interp%global_aabb))
+    @assertTrue(allocated(glob_interp%local_aabb))
+    call test_field%init(dof2)
+    call glob_interp%find_points(dof2%x, dof2%y, dof2%z, dof2%size())
+    call glob_interp%evaluate(test_field%x, dof%x, .true.)
+    do i = 1, dof2%size()
+       @assertEqual(test_field%x(i,1,1,1), dof2%x(i,1,1,1), tolerance=glob_interp%tol)       
+    end do
+    call glob_interp%evaluate(test_field%x, dof%y, .true.)
+    do i = 1, dof2%size()
+       @assertEqual(test_field%x(i,1,1,1), dof2%y(i,1,1,1), tolerance=glob_interp%tol)       
+    end do
+
+    call glob_interp%evaluate(test_field%x, dof%z, .true.)
+    do i = 1, dof2%size()
+       @assertEqual(test_field%x(i,1,1,1), dof2%z(i,1,1,1), tolerance=glob_interp%tol)       
+    end do  
+  end subroutine test_global_interpolation_interp_down
+  
+  @test(npes=[7])
+  subroutine test_global_interpolation_sinwaves_radial(this)
+    class (test_global_interpolation), intent(inout) :: this
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    type(dofmap_t) :: dof
+    type(global_interpolation_t) :: glob_interp
+    integer, parameter :: LX = 6
+    type(field_t) :: sinefield
+    real(kind=rp), allocatable :: pts(:,:), interpvals(:)
+    integer :: ierr, i, r, phi, npts, nlvl, nphi, nr, id
+    real(kind=rp) :: analytical_val, tol
+
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+    call test_global_interpolation_gen_msh(msh)
+    call Xh%init(GLL, lx, lx, lx)
+    call dof%init(msh, Xh)
+    tol = 1e-8
+    call glob_interp%init(dof, tol=tol)
+    
+    @assertTrue(allocated(glob_interp%global_aabb))
+    @assertTrue(allocated(glob_interp%local_aabb))
+    call sinefield%init(dof)
+    nphi = 5
+    nr = 5
+    nlvl = 10
+    npts = nlvl * nphi * nr    
+    allocate(pts(3,npts))
+    allocate(interpvals(npts))
+    do i = 1, nlvl
+       do r = 1, nr
+          do phi = 1, nphi
+             id = (i-1) * nr*nphi + (r-1)*nphi + phi 
+ 	     pts(1,id) = 0.0499*real(r,rp)/real(nr,rp) *cos(real(phi,rp)/real(nphi,rp)*2.0*pi)
+ 	     pts(2,id) = 0.0499*real(r,rp)/real(nr,rp) *sin(real(phi,rp)/real(nphi,rp)*2.0*pi)
+ 	     pts(3,id) = real(i,rp)/real(nlvl,rp)
+            
+       
+          end do
+       end do
+    end do
+    
+    do i = 1, dof%size()
+       sinefield%x(i,1,1,1) = cos(dof%x(i,1,1,1)*3.0) * &
+                              cos(dof%y(i,1,1,1)*5.0) * &
+                              sin(dof%z(i,1,1,1)*10.0)
+    end do
+
+ 
+
+
+    call glob_interp%find_points(pts, npts)
+    call glob_interp%evaluate(interpvals, dof%x, .true.)
+    do i = 1, npts
+       @assertEqual(interpvals(i), pts(1,i), tolerance=glob_interp%tol)       
+    end do
+    call glob_interp%evaluate(interpvals, dof%y, .true.)
+    do i = 1, npts
+       @assertEqual(interpvals(i), pts(2,i), tolerance=glob_interp%tol)       
+    end do 
+    call glob_interp%evaluate(interpvals, dof%z, .true.)
+    do i = 1, npts
+       @assertEqual(interpvals(i), pts(3,i), tolerance=glob_interp%tol)       
+    end do
+    call glob_interp%evaluate(interpvals, sinefield%x, .true.)
+    do i = 1, npts
+       analytical_val = cos(pts(1,i)*3.0) * &
+                        cos(pts(2,i)*5.0) * &
+                        sin(pts(3,i)*10.0)
+
+       @assertEqual(interpvals(i), analytical_val, tolerance=glob_interp%tol)       
+    end do
+  end subroutine test_global_interpolation_sinwaves_radial
+
+
+end module global_interpolation_parallel
