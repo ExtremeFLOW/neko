@@ -58,7 +58,7 @@ module les_simcomp
      !> Destructor.
      procedure, pass(this) :: free => les_simcomp_free
      !> Compute the les_simcomp field.
-     procedure, pass(this) :: compute_ => les_simcomp_compute
+     procedure, pass(this) :: preprocess_ => les_simcomp_compute
      !> Compute the les_simcomp field when restart.
      procedure, pass(this) :: restart_ => les_simcomp_restart
   end type les_simcomp_t
