@@ -18,16 +18,16 @@
   implicit none
 
   @TestCase
-  type, extends(MPITestCase) :: test_global_interpolation
+  type, extends(MPITestCase) :: test_glob_interp
    contains
      procedure :: setUp
      procedure :: tearDown
-  end type test_global_interpolation
+  end type test_glob_interp
  
 contains
 
   subroutine setUp(this)
-    class(test_global_interpolation), intent(inout) :: this
+    class(test_glob_interp), intent(inout) :: this
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
@@ -36,23 +36,23 @@ contains
   end subroutine setUp
 
   subroutine tearDown(this)
-    class(test_global_interpolation), intent(inout) :: this
+    class(test_glob_interp), intent(inout) :: this
     if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_finalize
    end if
  end subroutine tearDown
 
-  subroutine test_global_interpolation_gen_msh(msh)
+  subroutine test_glob_interp_gen_msh(msh)
     type(mesh_t), intent(inout) :: msh
     type(file_t) :: mesh_file
     mesh_file = file_t("global_interpolation/cylinder.nmsh")
     call mesh_file%read(msh)
   
-  end subroutine test_global_interpolation_gen_msh
+  end subroutine test_glob_interp_gen_msh
   
   @test(npes=[1])
-  subroutine test_global_interpolation_init(this)
-    class (test_global_interpolation), intent(inout) :: this
+  subroutine test_glob_interp_init(this)
+    class (test_glob_interp), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dof
@@ -65,7 +65,7 @@ contains
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
-    call test_global_interpolation_gen_msh(msh)
+    call test_glob_interp_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
     call glob_interp%init(dof)
@@ -95,11 +95,11 @@ contains
        cord = dof%z(i,1,1,1)
        @assertEqual(temp, cord,tolerance=test_tol)
     end do
-  end subroutine test_global_interpolation_init
+  end subroutine test_glob_interp_init
 
   @test(npes=[1])
-  subroutine test_global_interpolation_interp_down(this)
-    class (test_global_interpolation), intent(inout) :: this
+  subroutine test_glob_interp_interp_down(this)
+    class (test_glob_interp), intent(inout) :: this
     type(space_t) :: Xh, Xh2
     type(mesh_t) :: msh
     type(dofmap_t) :: dof, dof2
@@ -114,7 +114,7 @@ contains
 
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
-    call test_global_interpolation_gen_msh(msh)
+    call test_glob_interp_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
     call Xh2%init(GLL, lx2, lx2, lx2)
@@ -145,11 +145,11 @@ contains
        cord = dof2%z(i,1,1,1)
        @assertEqual(temp, cord,tolerance=test_tol)
     end do
-  end subroutine test_global_interpolation_interp_down
+  end subroutine test_glob_interp_interp_down
   
   @test(npes=[1])
-  subroutine test_global_interpolation_sinwaves_radial(this)
-    class (test_global_interpolation), intent(inout) :: this
+  subroutine test_glob_interp_sinwaves_radial(this)
+    class (test_glob_interp), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
     type(dofmap_t) :: dof
@@ -164,7 +164,7 @@ contains
 
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
-    call test_global_interpolation_gen_msh(msh)
+    call test_glob_interp_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
     call glob_interp%init(dof)
@@ -224,5 +224,5 @@ contains
 
        @assertEqual(interpvals(i), analytical_val, tolerance=test_tol)
     end do
-  end subroutine test_global_interpolation_sinwaves_radial
+  end subroutine test_glob_interp_sinwaves_radial
 end module glob_interp_par
