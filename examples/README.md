@@ -1,4 +1,4 @@
-# Example cases 
+# Example cases
 
 # Prime tutorial examples
 More documentation and more effort is spent to make sure these cases work. Illsutrates the general workflow and features of Neko.
@@ -15,9 +15,9 @@ Examples that illustrate certain features and usages of Neko. May be less docume
 - immersed_zones, Brinkman source term for immersed sonzes in a flow.
 - lid, typical lid-driven cavity case
 - poisson, shos how to use neko as a library and setup a simple Poisson solver.
-- rayleigh-benard, Rayleigh Benard convection (RBC) (temperature as aadditional scalar)
-- rayleigh-benard-cylinder, Cylindrical domain RBC 
+- rayleigh_benard, Rayleigh Benard convection (RBC) (temperature as aadditional scalar)
+- rayleigh_benard_cylinder, Cylindrical domain RBC
 - scalar_mms, method of manifactured soltutions for the scalar verification
 - tgv, 3D Taylor-Green vortex with several different meshes.
-- turbpipe, Turbulent pipeflow
+- turb_pipe, Turbulent pipeflow
 

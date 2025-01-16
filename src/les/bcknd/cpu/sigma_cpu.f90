@@ -44,7 +44,7 @@ module sigma_cpu
   use operators, only : dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
-  use math, only : NEKO_EPS
+  use math, only : NEKO_EPS, col2
   implicit none
   private
 
@@ -271,6 +271,9 @@ contains
 
        end do
     end do
+
+    call coef%gs_h%op(nut, GS_OP_ADD)
+    call col2(nut%x, coef%mult, nut%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine sigma_compute_cpu

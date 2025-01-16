@@ -40,6 +40,7 @@ module vreman_device
   use operators, only : dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
+  use device_math, only : device_col2
   use device_vreman_nut, only : device_vreman_nut_compute
   implicit none
   private
@@ -128,6 +129,9 @@ contains
                                   a31%x_d, a32%x_d, a33%x_d, &
                                   delta%x_d, nut%x_d, coef%mult_d, &
                                   c, NEKO_EPS, a11%dof%size())
+                          
+    call coef%gs_h%op(nut, GS_OP_ADD)
+    call device_col2(nut%x_d, coef%mult_d, nut%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine vreman_compute_device
