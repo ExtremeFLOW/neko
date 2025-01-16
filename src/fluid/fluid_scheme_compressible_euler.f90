@@ -299,10 +299,10 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
       call device_memcpy(this%h%x, this%h%x_d, this%h%dof%size(),&
                           HOST_TO_DEVICE, sync = .false.)
-      call this%c_Xh%gs_h%op(this%h%x, this%h%dof%size(), GS_OP_ADD)
+      call this%gs_Xh%op(this%h, GS_OP_ADD)
       call device_col2(this%h%x_d, this%c_Xh%mult_d, this%h%dof%size())
     else
-      call this%c_Xh%gs_h%op(this%h%x, this%h%dof%size(), GS_OP_ADD)
+      call this%gs_Xh%op(this%h, GS_OP_ADD)
       call col2(this%h%x, this%c_Xh%mult, this%h%dof%size())
     end if
 

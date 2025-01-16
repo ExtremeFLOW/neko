@@ -20,7 +20,7 @@ module fluid_scheme_compressible
      type(field_t), pointer :: m_x => null()    !< x-component of Momentum
      type(field_t), pointer :: m_y => null()    !< y-component of Momentum
      type(field_t), pointer :: m_z => null()    !< z-component of Momentum
-     type(field_t), pointer :: E => null()    !< Total energy
+     type(field_t), pointer :: E => null()      !< Total energy
 
      real(kind=rp) :: gamma
 

@@ -114,7 +114,7 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
   }
 
-  void euler_res_part_coef_mult_hip(void *rhs_rho, void *rhs_m_x,
+  void euler_res_part_coef_mult_cuda(void *rhs_rho, void *rhs_m_x,
                                     void *rhs_m_y, void *rhs_m_z,
                                     void *rhs_E, void *mult, int *n) {
 
