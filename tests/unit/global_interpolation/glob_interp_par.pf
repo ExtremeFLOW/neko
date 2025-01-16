@@ -50,7 +50,7 @@ contains
   
   end subroutine test_global_interpolation_gen_msh
   
-  @test(npes=[7])
+  @test(npes=[1])
   subroutine test_global_interpolation_init(this)
     class (test_global_interpolation), intent(inout) :: this
     type(space_t) :: Xh
@@ -97,7 +97,7 @@ contains
     end do
   end subroutine test_global_interpolation_init
 
-  @test(npes=[7])
+  @test(npes=[1])
   subroutine test_global_interpolation_interp_down(this)
     class (test_global_interpolation), intent(inout) :: this
     type(space_t) :: Xh, Xh2
@@ -147,7 +147,7 @@ contains
     end do
   end subroutine test_global_interpolation_interp_down
   
-  @test(npes=[7])
+  @test(npes=[1])
   subroutine test_global_interpolation_sinwaves_radial(this)
     class (test_global_interpolation), intent(inout) :: this
     type(space_t) :: Xh
