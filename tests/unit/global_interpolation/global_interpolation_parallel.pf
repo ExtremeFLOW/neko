@@ -60,15 +60,17 @@ contains
     integer, parameter :: LX = 4
     type(field_t) :: test_field
     integer :: ierr, i
+    real(kind=rp) :: temp, cord, test_tol
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-
     pe_rank = this%getProcessRank()
     pe_size = this%getNumProcesses()
     call test_global_interpolation_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
     call glob_interp%init(dof)
+    test_tol = glob_interp%tol
+    
     
     @assertTrue(allocated(glob_interp%global_aabb))
     @assertTrue(allocated(glob_interp%local_aabb))
@@ -76,16 +78,22 @@ contains
     call glob_interp%find_points(dof%x, dof%y, dof%z, dof%size())
     call glob_interp%evaluate(test_field%x, dof%x, .true.)
     do i = 1, dof%size()
-       @assertEqual(test_field%x(i,1,1,1), dof%x(i,1,1,1), tolerance=glob_interp%tol)
+       temp = test_field%x(i,1,1,1)
+       cord = dof%x(i,1,1,1)
+       @assertEqual(temp, cord,tolerance=test_tol)
     end do
     call glob_interp%evaluate(test_field%x, dof%y, .true.)
     do i = 1, dof%size()
-       @assertEqual(test_field%x(i,1,1,1), dof%y(i,1,1,1), tolerance=glob_interp%tol)
+       temp = test_field%x(i,1,1,1)
+       cord = dof%y(i,1,1,1)
+       @assertEqual(temp, cord,tolerance=test_tol)
     end do
 
     call glob_interp%evaluate(test_field%x, dof%z, .true.)
     do i = 1, dof%size()
-       @assertEqual(test_field%x(i,1,1,1), dof%z(i,1,1,1), tolerance=glob_interp%tol)
+       temp = test_field%x(i,1,1,1)
+       cord = dof%z(i,1,1,1)
+       @assertEqual(temp, cord,tolerance=test_tol)
     end do
   end subroutine test_global_interpolation_init
 
@@ -100,7 +108,7 @@ contains
     integer, parameter :: LX2 = 4
     type(field_t) :: test_field
     integer :: ierr, i
-    real(kind=rp) :: temp, cord
+    real(kind=rp) :: temp, cord, test_tol
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
@@ -112,6 +120,7 @@ contains
     call Xh2%init(GLL, lx2, lx2, lx2)
     call dof2%init(msh, Xh2)
     call glob_interp%init(dof)
+    test_tol = glob_interp%tol
     
     @assertTrue(allocated(glob_interp%global_aabb))
     @assertTrue(allocated(glob_interp%local_aabb))
@@ -121,21 +130,21 @@ contains
     do i = 1, dof2%size()
        temp = test_field%x(i,1,1,1)
        cord = dof2%x(i,1,1,1)
-       @assertEqual(temp, cord,tolerance=glob_interp%tol)
+       @assertEqual(temp, cord,tolerance=test_tol)
     end do
     call glob_interp%evaluate(test_field%x, dof%y, .true.)
     do i = 1, dof2%size()
        temp = test_field%x(i,1,1,1)
        cord = dof2%y(i,1,1,1)
-       @assertEqual(temp, cord,tolerance=glob_interp%tol)
+       @assertEqual(temp, cord,tolerance=test_tol)
     end do
 
     call glob_interp%evaluate(test_field%x, dof%z, .true.)
     do i = 1, dof2%size()
        temp = test_field%x(i,1,1,1)
-       cord = dof2%y(i,1,1,1)
-       @assertEqual(temp, cord,tolerance=glob_interp%tol)
-    end do  
+       cord = dof2%z(i,1,1,1)
+       @assertEqual(temp, cord,tolerance=test_tol)
+    end do
   end subroutine test_global_interpolation_interp_down
   
   @test(npes=[7])
@@ -149,7 +158,7 @@ contains
     type(field_t) :: sinefield
     real(kind=rp), allocatable :: pts(:,:), interpvals(:)
     integer :: ierr, i, r, phi, npts, nlvl, nphi, nr, id
-    real(kind=rp) :: analytical_val, tol
+    real(kind=rp) :: analytical_val, test_tol
 
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
@@ -158,8 +167,8 @@ contains
     call test_global_interpolation_gen_msh(msh)
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
-    tol = 1e-8
-    call glob_interp%init(dof, tol=tol)
+    call glob_interp%init(dof)
+    test_tol = glob_interp%tol
     
     @assertTrue(allocated(glob_interp%global_aabb))
     @assertTrue(allocated(glob_interp%local_aabb))
@@ -167,7 +176,7 @@ contains
     nphi = 5
     nr = 5
     nlvl = 10
-    npts = nlvl * nphi * nr    
+    npts = nlvl * nphi * nr
     allocate(pts(3,npts))
     allocate(interpvals(npts))
     do i = 1, nlvl
@@ -197,15 +206,15 @@ contains
     call glob_interp%find_points(pts, npts)
     call glob_interp%evaluate(interpvals, dof%x, .true.)
     do i = 1, npts
-       @assertEqual(interpvals(i), pts(1,i), tolerance=glob_interp%tol)
+       @assertEqual(interpvals(i), pts(1,i), tolerance=test_tol)
     end do
     call glob_interp%evaluate(interpvals, dof%y, .true.)
     do i = 1, npts
-       @assertEqual(interpvals(i), pts(2,i), tolerance=glob_interp%tol)
+       @assertEqual(interpvals(i), pts(2,i), tolerance=test_tol)
     end do
     call glob_interp%evaluate(interpvals, dof%z, .true.)
     do i = 1, npts
-       @assertEqual(interpvals(i), pts(3,i), tolerance=glob_interp%tol)
+       @assertEqual(interpvals(i), pts(3,i), tolerance=test_tol)
     end do
     call glob_interp%evaluate(interpvals, sinefield%x, .true.)
     do i = 1, npts
@@ -213,9 +222,7 @@ contains
                         cos(pts(2,i)*5.0) * &
                         sin(pts(3,i)*10.0)
 
-       @assertEqual(interpvals(i), analytical_val, tolerance=glob_interp%tol)
+       @assertEqual(interpvals(i), analytical_val, tolerance=test_tol)
     end do
   end subroutine test_global_interpolation_sinwaves_radial
-
-
 end module global_interpolation_parallel
