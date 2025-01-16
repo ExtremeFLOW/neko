@@ -87,7 +87,7 @@ EXTRA_DIST = \
 	jobctrl/jobctrl_parallel.pf\
 	dofmap/dofmap_parallel.pf\
 	field/field_parallel.pf\
-	global_interpolation/global_interpolation_parallel.pf\
+	global_interpolation/glob_interp_par.pf\
 	mean_field/mean_field_parallel.pf\
 	mean_sqr_field/mean_sqr_field_parallel.pf\
 	device/device.pf\
