@@ -154,7 +154,7 @@ contains
     type(mesh_t) :: msh
     type(dofmap_t) :: dof
     type(global_interpolation_t) :: glob_interp
-    integer, parameter :: LX = 6
+    integer, parameter :: LX = 10
     type(field_t) :: sinefield
     real(kind=rp), allocatable :: pts(:,:), interpvals(:)
     integer :: ierr, i, r, phi, npts, nlvl, nphi, nr, id
