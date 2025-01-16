@@ -109,13 +109,16 @@ contains
     
     this%msh => msh
 
-    this%nlvls = Xh%lx - 1
+    !this%nlvls = Xh%lx - 1
+    this%nlvls = 3! Xh%lx - 1
 
     allocate(lx_lvls(0:this%nlvls - 1))
     lx_lvls(0) = Xh%lx
-    do i = 1, this%nlvls -1
-       lx_lvls(i) = Xh%lx - i
-    end do
+    lx_lvls(1) = 5
+    lx_lvls(2) = 2
+    !!do i = 1, this%nlvls -1
+    !!   lx_lvls(i) = Xh%lx - i
+    !!end do
 
     allocate(this%phmg_hrchy%lvl(0:this%nlvls - 1))
 
@@ -244,7 +247,13 @@ contains
     type(mesh_t), intent(inout) :: msh
     type(field_t) :: z, r, w
     integer :: i
+    real(kind=rp) :: val
 
+!--!    call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
+!--!    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
+!--!    call device_sub3(w%x_d, r%x_d, w%x_d, mg(lvl)%dm_Xh%size())
+!--!    val = device_glsc2(w%x_d, w%x_d, mg(lvl)%dm_Xh%size())
+!--!    print *, "PREPRE",lvl,val
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
@@ -252,19 +261,24 @@ contains
       ksp_results =  mg(lvl)%cheby_device%solve(Ax, z, &
                                          r%x, mg(lvl)%dm_Xh%size(), &
                                          mg(lvl)%coef, mg(lvl)%bclst, &
-                                         mg(lvl)%gs_h, niter = 15)
+                                         mg(lvl)%gs_h, niter = 11)
     else
       ksp_results =  mg(lvl)%cheby%solve(Ax, z, &
                                        r%x, mg(lvl)%dm_Xh%size(), &
                                        mg(lvl)%coef, mg(lvl)%bclst, &
                                        mg(lvl)%gs_h, niter = 15)
     end if
+!--!    call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
+!--!    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
+!--!    call device_sub3(w%x_d, r%x_d, w%x_d, mg(lvl)%dm_Xh%size())
+!--!    val = device_glsc2(w%x_d, w%x_d, mg(lvl)%dm_Xh%size())
+!--!    print *, "PREPOST",lvl,val
 
     !>----------<!
     !> Residual <!
     !>----------<!
     call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
-    call mg(lvl)%gs_h%op(mg(lvl)%w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
+    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
       
     if (NEKO_BCKND_DEVICE .eq. 1) then
       call device_sub3(w%x_d, r%x_d, w%x_d, mg(lvl)%dm_Xh%size())
@@ -275,20 +289,26 @@ contains
     !>----------<!
     !> Restrict <!
     !>----------<!
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      call device_col2(w%x_d, mg(lvl)%coef%mult_d, mg(lvl)%dm_Xh%size())
+    else
+      call col2(w%x, mg(lvl)%coef%mult, mg(lvl)%dm_Xh%size())
+    end if
+
     call intrp(lvl+1)%map(mg(lvl+1)%r%x, w%x, msh%nelv, mg(lvl+1)%Xh)
 
     call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD)
     
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-      call device_col2(mg(lvl+1)%r%x_d, mg(lvl+1)%coef%mult_d, mg(lvl+1)%dm_Xh%size())
-    else
-      call col2(mg(lvl+1)%r%x, mg(lvl+1)%coef%mult, mg(lvl+1)%dm_Xh%size())
-    end if
+    !!!if (NEKO_BCKND_DEVICE .eq. 1) then
+    !!!  call device_col2(mg(lvl+1)%r%x_d, mg(lvl+1)%coef%mult_d, mg(lvl+1)%dm_Xh%size())
+    !!!else
+    !!!  call col2(mg(lvl+1)%r%x, mg(lvl+1)%coef%mult, mg(lvl+1)%dm_Xh%size())
+    !!!end if
 
 
-    call mg(lvl+1)%bclst%apply_scalar( &
-                              mg(lvl+1)%r%x, &
-                              mg(lvl+1)%dm_Xh%size())
+!!!    call mg(lvl+1)%bclst%apply_scalar( &
+!!!                              mg(lvl+1)%r%x, &
+!!!                              mg(lvl+1)%dm_Xh%size())
     !>----------<!
     !> SOLVE    <!
     !>----------<!
@@ -299,6 +319,11 @@ contains
     end if
     if (lvl+1 .eq. clvl) then
        
+!--!    call Ax%compute(mg(lvl+1)%w%x, mg(lvl+1)%z%x, mg(lvl+1)%coef, msh, mg(lvl+1)%Xh)
+!--!    call mg(lvl+1)%gs_h%op(mg(lvl+1)%w%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD)
+!--!    call device_sub3(mg(lvl+1)%w%x_d, mg(lvl+1)%r%x_d, mg(lvl+1)%w%x_d, mg(lvl+1)%dm_Xh%size())
+!--!    val = device_glsc2(mg(lvl+1)%w%x_d, mg(lvl+1)%w%x_d, mg(lvl+1)%dm_Xh%size())
+!--!    print *, "PREAMG",lvl,val
        if (NEKO_BCKND_DEVICE .eq. 1) then
          call amg_solver%device_solve(mg(lvl+1)%z%x, &
                               mg(lvl+1)%r%x, &
@@ -310,13 +335,28 @@ contains
                               mg(lvl+1)%r%x, &
                               mg(lvl+1)%dm_Xh%size())
        end if
+!--!    call Ax%compute(mg(lvl+1)%w%x, mg(lvl+1)%z%x, mg(lvl+1)%coef, msh, mg(lvl+1)%Xh)
+!--!    call mg(lvl+1)%gs_h%op(mg(lvl+1)%w%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD)
+!--!    call device_sub3(mg(lvl+1)%w%x_d, mg(lvl+1)%r%x_d, mg(lvl+1)%w%x_d, mg(lvl+1)%dm_Xh%size())
+!--!    val = device_glsc2(mg(lvl+1)%w%x_d, mg(lvl+1)%w%x_d, mg(lvl+1)%dm_Xh%size())
+!--!    print *, "POSTAMG",lvl,val
       
-       call mg(lvl+1)%bclst%apply_scalar( &
-                                 mg(lvl+1)%z%x,&
-                                 mg(lvl+1)%dm_Xh%size())
+!!!!       call mg(lvl+1)%bclst%apply_scalar( &
+!!!!                                 mg(lvl+1)%z%x,&
+!!!!                                 mg(lvl+1)%dm_Xh%size())
     else
+!--!    call Ax%compute(mg(lvl+1)%w%x, mg(lvl+1)%z%x, mg(lvl+1)%coef, msh, mg(lvl+1)%Xh)
+!--!    call mg(lvl+1)%gs_h%op(mg(lvl+1)%w%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD)
+!--!    call device_sub3(mg(lvl+1)%w%x_d, mg(lvl+1)%r%x_d, mg(lvl+1)%w%x_d, mg(lvl+1)%dm_Xh%size())
+!--!    val = device_glsc2(mg(lvl+1)%w%x_d, mg(lvl+1)%w%x_d, mg(lvl+1)%dm_Xh%size())
+!--!    print *, "CYCLE-PRE",lvl,val
        call phmg_mg_cycle(mg(lvl+1)%z, mg(lvl+1)%r, mg(lvl+1)%w, lvl+1, &
             clvl, mg, intrp, msh, Ax, amg_solver)
+!--!    call Ax%compute(mg(lvl+1)%w%x, mg(lvl+1)%z%x, mg(lvl+1)%coef, msh, mg(lvl+1)%Xh)
+!--!    call mg(lvl+1)%gs_h%op(mg(lvl+1)%w%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD)
+!--!    call device_sub3(mg(lvl+1)%w%x_d, mg(lvl+1)%r%x_d, mg(lvl+1)%w%x_d, mg(lvl+1)%dm_Xh%size())
+!--!    val = device_glsc2(mg(lvl+1)%w%x_d, mg(lvl+1)%w%x_d, mg(lvl+1)%dm_Xh%size())
+!--!    print *, "CYCLE-POST",lvl,val
     end if
 
     !>----------<!
@@ -332,7 +372,7 @@ contains
       call col2(w%x, mg(lvl)%coef%mult, mg(lvl)%dm_Xh%size())
     end if
     
-    call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
+!!!    call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
        
     !>----------<!
     !> Correct  <!
@@ -343,6 +383,11 @@ contains
       z%x = z%x + w%x
     end if
     
+!--!    call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
+!--!    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
+!--!    call device_sub3(w%x_d, r%x_d, w%x_d, mg(lvl)%dm_Xh%size())
+!--!    val = device_glsc2(w%x_d, w%x_d, mg(lvl)%dm_Xh%size())
+!--!    print *, "POSTPRE",lvl,val
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
@@ -350,13 +395,18 @@ contains
       ksp_results =  mg(lvl)%cheby_device%solve(Ax, z, &
                                        r%x, mg(lvl)%dm_Xh%size(), &
                                        mg(lvl)%coef, mg(lvl)%bclst, &
-                                       mg(lvl)%gs_h, niter = 15)
+                                       mg(lvl)%gs_h, niter = 11)
     else
       ksp_results =  mg(lvl)%cheby%solve(Ax, z, &
                                        r%x, mg(lvl)%dm_Xh%size(), &
                                        mg(lvl)%coef, mg(lvl)%bclst, &
                                        mg(lvl)%gs_h, niter = 15)
     end if
+!--!    call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
+!--!    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
+!--!    call device_sub3(w%x_d, r%x_d, w%x_d, mg(lvl)%dm_Xh%size())
+!--!    val = device_glsc2(w%x_d, w%x_d, mg(lvl)%dm_Xh%size())
+!--!    print *, "POSTPOST",lvl,val
 
     
 
