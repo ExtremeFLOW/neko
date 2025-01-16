@@ -35,6 +35,7 @@
 module les_model
   use num_types, only : rp
   use case, only : case_t
+  use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_sumab_fctry
   use field, only : field_t, field_ptr_t
   use json_module, only : json_file
   use field_registry, only : neko_field_registry
@@ -52,6 +53,8 @@ module les_model
   type, abstract, public :: les_model_t
      !> Pointer to the simulation case.
      type(case_t), pointer :: case
+     !> Summation of AB/BDF contributions to extrapolate the field
+     class(rhs_maker_sumab_t), allocatable :: sumab
      !> Extrapolation velocity fields
      type(field_t), pointer :: u_e => null() !< Extrapolated x-Velocity
      type(field_t), pointer :: v_e => null() !< Extrapolated y-Velocity
@@ -93,14 +96,12 @@ module les_model
 
   abstract interface
      !> Common constructor.
-     !! @param dofmap SEM map of degrees of freedom.
-     !! @param coef SEM coefficients.
+     !! @param case The case_t object.
      !! @param json A dictionary with parameters.
-     subroutine les_model_init(this, dofmap, coef, json)
-       import les_model_t, json_file, dofmap_t, coef_t
+     subroutine les_model_init(this, case, json)
+       import les_model_t, json_file, case_t
        class(les_model_t), intent(inout) :: this
-       type(coef_t), intent(in) :: coef
-       type(dofmap_t), intent(in) :: dofmap
+       class(case_t), intent(inout), target :: case
        type(json_file), intent(inout) :: json
      end subroutine les_model_init
   end interface
@@ -133,15 +134,17 @@ module les_model
   
 contains
   !> Constructor for the les_model_t (base) class.
-  !! @param dofmap SEM map of degrees of freedom.
-  !! @param coef SEM coefficients.
+  !! @param case The case_t object.
   !! @param nu_name The name of the turbulent viscosity field.
-  subroutine les_model_init_base(this, dofmap, coef, nut_name, delta_type)
+  !! @param delta_type The type of filter size
+  subroutine les_model_init_base(this, case, nut_name, delta_type)
     class(les_model_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dofmap
-    type(coef_t), target, intent(in) :: coef
+    class(case_t), intent(inout), target :: case
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
+
+    associate(dofmap => case%fluid%dm_Xh, &
+              coef => case%fluid%c_Xh)
 
     if (.not. neko_field_registry%field_exists(trim(nut_name))) then
        call neko_field_registry%add_field(dofmap, trim(nut_name))
@@ -156,12 +159,18 @@ contains
 
     call this%compute_delta()
 
-    call neko_field_registry%add_field(this%dm_Xh, 'u_e')
-    call neko_field_registry%add_field(this%dm_Xh, 'v_e')
-    call neko_field_registry%add_field(this%dm_Xh, 'w_e')
+    call neko_field_registry%add_field(dofmap, 'u_e')
+    call neko_field_registry%add_field(dofmap, 'v_e')
+    call neko_field_registry%add_field(dofmap, 'w_e')
     this%u_e => neko_field_registry%get_field('u_e')
     this%v_e => neko_field_registry%get_field('v_e')
     this%w_e => neko_field_registry%get_field('w_e')
+
+    ! Setup backend dependent summation of AB/BDF
+    this%case => case
+    call rhs_maker_sumab_fctry(this%sumab)
+
+    end associate
   end subroutine les_model_init_base
 
   !> Destructor for the les_model_t (base) class.
@@ -174,6 +183,9 @@ contains
     nullify(this%u_e)
     nullify(this%v_e)
     nullify(this%w_e)
+    if (allocated(this%sumab)) then
+       deallocate(this%sumab)
+    end if
   end subroutine les_model_free_base
 
   !> Compute the LES lengthscale.

@@ -36,6 +36,7 @@ module dynamic_smagorinsky
   use math
   use field_list, only : field_list_t
   use field, only : field_t
+  use case, only : case_t
   use les_model, only : les_model_t
   use dofmap , only : dofmap_t
   use json_utils, only : json_get, json_get_or_default
@@ -79,24 +80,25 @@ module dynamic_smagorinsky
 
 contains
   !> Constructor.
-  !! @param dofmap SEM map of degrees of freedom.
-  !! @param coef SEM coefficients.
+  !! @param case The case_t object.
   !! @param json A dictionary with parameters.
-  subroutine dynamic_smagorinsky_init(this, dofmap, coef, json)
+  subroutine dynamic_smagorinsky_init(this, case, json)
     class(dynamic_smagorinsky_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dofmap
-    type(coef_t), intent(in) :: coef
+    class(case_t), intent(inout), target :: case
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: nut_name
     integer :: i
     character(len=:), allocatable :: delta_type
     character(len=LOG_SIZE) :: log_buf
 
+    associate(dofmap => case%fluid%dm_Xh, &
+              coef => case%fluid%c_Xh)
+
     call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
 
     call this%free()
-    call this%init_base(dofmap, coef, nut_name, delta_type)
+    call this%init_base(case, nut_name, delta_type)
     call this%test_filter%init(json, coef)
     call set_ds_filt(this%test_filter)
 
@@ -118,6 +120,8 @@ contains
        call this%mij(i)%init(dofmap)
        call this%lij(i)%init(dofmap)
     end do
+
+    end associate
 
   end subroutine dynamic_smagorinsky_init
 
