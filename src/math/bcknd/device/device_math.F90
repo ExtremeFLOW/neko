@@ -121,7 +121,7 @@ contains
 #if HAVE_HIP
     call hip_masked_atomic_reduction(a_d, b_d, mask_d, n, m)
 #elif HAVE_CUDA
-    call neko_error('No CUDA bcknd, masked atomic reduction')
+    call cuda_masked_atomic_reduction(a_d, b_d, mask_d, n, m)
 #elif HAVE_OPENCL
     call neko_error('No OpenCL bcknd, masked atomic reduction')
 #else

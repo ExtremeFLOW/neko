@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -56,6 +56,13 @@ module cuda_math
        type(c_ptr), value :: a_d, b_d, mask_d
        integer(c_int) :: n, m
      end subroutine cuda_masked_red_copy
+
+     subroutine cuda_masked_atomic_reduction(a_d, b_d, mask_d, n, m) &
+          bind(c, name = 'cuda_masked_atomic_reduction')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       type(c_ptr), value :: a_d, b_d, mask_d
+       integer(c_int) :: n, m
+     end subroutine cuda_masked_atomic_reduction
 
      subroutine cuda_cfill_mask(a_d, c, size, mask_d, mask_size) &
           bind(c, name = 'cuda_cfill_mask')
