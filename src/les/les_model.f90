@@ -34,6 +34,7 @@
 !> Implements `les_model_t`.
 module les_model
   use num_types, only : rp
+  use case, only : case_t
   use field, only : field_t, field_ptr_t
   use json_module, only : json_file
   use field_registry, only : neko_field_registry
@@ -49,6 +50,12 @@ module les_model
 
   !> Base abstract type for LES models based on the Boussinesq approximation.
   type, abstract, public :: les_model_t
+     !> Pointer to the simulation case.
+     type(case_t), pointer :: case
+     !> Extrapolation velocity fields
+     type(field_t), pointer :: u_e => null() !< Extrapolated x-Velocity
+     type(field_t), pointer :: v_e => null() !< Extrapolated y-Velocity
+     type(field_t), pointer :: w_e => null() !< Extrapolated z-Velocity
      !> Subgrid kinematic viscosity.
      type(field_t), pointer :: nut => null()
      !> LES lengthscale type
@@ -148,6 +155,13 @@ contains
     this%delta_type = delta_type
 
     call this%compute_delta()
+
+    call neko_field_registry%add_field(this%dm_Xh, 'u_e')
+    call neko_field_registry%add_field(this%dm_Xh, 'v_e')
+    call neko_field_registry%add_field(this%dm_Xh, 'w_e')
+    this%u_e => neko_field_registry%get_field('u_e')
+    this%v_e => neko_field_registry%get_field('v_e')
+    this%w_e => neko_field_registry%get_field('w_e')
   end subroutine les_model_init_base
 
   !> Destructor for the les_model_t (base) class.
@@ -157,6 +171,9 @@ contains
     nullify(this%nut)
     nullify(this%delta)
     nullify(this%coef)
+    nullify(this%u_e)
+    nullify(this%v_e)
+    nullify(this%w_e)
   end subroutine les_model_free_base
 
   !> Compute the LES lengthscale.
