@@ -239,7 +239,7 @@ contains
                nmsh_curve, ncurves, MPI_NMSH_CURVE, status, ierr)
 
           do i = 1, ncurves
-             el_idx_glb = nmsh_curve(i)%e - msh%offset_el
+             el_idx_glb = nmsh_curve(i)%e
              if (msh%htel%get(el_idx_glb, el_idx) .eq. 0) then
                 call msh%mark_curve_element(el_idx, &
                      nmsh_curve(i)%curve_data, nmsh_curve(i)%type)
