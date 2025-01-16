@@ -130,6 +130,18 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
+    ! Extrapolate the velocity fields
+    associate(u => this%case%fluid%u, v => this%case%fluid%v, &
+              w => this%case%fluid%w, ulag => this%case%fluid%ulag, &
+              vlag => this%case%fluid%vlag, wlag => this%case%fluid%wlag, &
+              ext_bdf => this%case%ext_bdf)
+    
+    call this%sumab%compute_fluid(this%u_e, this%v_e, this%w_e, u, v, w, &
+           ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+
+    end associate
+    
+    ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
         call sigma_compute_device(t, tstep, this%coef, this%nut, this%delta, &
                                 this%c)
