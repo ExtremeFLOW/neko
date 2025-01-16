@@ -41,38 +41,23 @@ module device_local_interpolation
 
 #ifdef HAVE_HIP
   interface
-     subroutine hip_coef_generate_geo(G11, G12, G13, G22, G23, G33, &
-          drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
-          jacinv, w3, nel, lx, gdim) &
-          bind(c, name='hip_coef_generate_geo')
+     subroutine hip_find_rst_legendre(rst, pt_x, pt_y, pt_z, &
+                                       x_hat, y_hat, z_hat, &
+                                       resx, resy, resz, &
+                                       lx, el_ids, n_pt, tol, conv_pts) &
+          bind(c, name='hip_find_rst_legendre')
        use, intrinsic :: iso_c_binding
+       use num_types 
        implicit none
-       type(c_ptr), value :: G11, G12, G13, G22, G23, G33
-       type(c_ptr), value :: drdx, drdy, drdz
-       type(c_ptr), value :: dsdx, dsdy, dsdz
-       type(c_ptr), value :: dtdx, dtdy, dtdz
-       type(c_ptr), value :: jacinv, w3
-       integer(c_int) :: nel, gdim, lx
-     end subroutine hip_coef_generate_geo
-  end interface
+       type(c_ptr), value :: rst
+       type(c_ptr), value :: pt_x, pt_y, pt_z
+       type(c_ptr), value :: x_hat, y_hat, z_hat
+       type(c_ptr), value :: resx, resy, resz
+       type(c_ptr), value :: el_ids, conv_pts
+       integer(c_int) :: lx, n_pt
+       real(c_rp) :: tol
+     end subroutine hip_find_rst_legendre
 
-  interface
-     subroutine hip_coef_generate_dxyzdrst(drdx, drdy, drdz, dsdx, dsdy, &
-          dsdz, dtdx, dtdy, dtdz, dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, &
-          dydt, dzdt, dx, dy, dz, x, y, z, jacinv, jac, lx, nel) &
-          bind(c, name='hip_coef_generate_dxyzdrst')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       type(c_ptr), value :: drdx, drdy, drdz
-       type(c_ptr), value :: dsdx, dsdy, dsdz
-       type(c_ptr), value :: dtdx, dtdy, dtdz
-       type(c_ptr), value :: dxdr, dydr, dzdr
-       type(c_ptr), value :: dxds, dyds, dzds
-       type(c_ptr), value :: dxdt, dydt, dzdt
-       type(c_ptr), value :: dx, dy, dz, x, y, z
-       type(c_ptr), value :: jacinv, jac
-       integer(c_int) :: lx, nel
-     end subroutine hip_coef_generate_dxyzdrst
   end interface
 #elif HAVE_CUDA
   interface
@@ -94,40 +79,6 @@ module device_local_interpolation
      end subroutine cuda_find_rst_legendre
   end interface
 #elif HAVE_OPENCL
-  interface
-     subroutine opencl_coef_generate_geo(G11, G12, G13, G22, G23, G33, &
-          drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
-          jacinv, w3, nel, lx, gdim) &
-          bind(c, name='opencl_coef_generate_geo')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       type(c_ptr), value :: G11, G12, G13, G22, G23, G33
-       type(c_ptr), value :: drdx, drdy, drdz
-       type(c_ptr), value :: dsdx, dsdy, dsdz
-       type(c_ptr), value :: dtdx, dtdy, dtdz
-       type(c_ptr), value :: jacinv, w3
-       integer(c_int) :: nel, gdim, lx
-     end subroutine opencl_coef_generate_geo
-  end interface
-
-  interface
-     subroutine opencl_coef_generate_dxyzdrst(drdx, drdy, drdz, dsdx, dsdy, &
-          dsdz, dtdx, dtdy, dtdz, dxdr, dydr, dzdr, dxds, dyds, dzds, dxdt, &
-          dydt, dzdt, dx, dy, dz, x, y, z, jacinv, jac, lx, nel) &
-          bind(c, name='opencl_coef_generate_dxyzdrst')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       type(c_ptr), value :: drdx, drdy, drdz
-       type(c_ptr), value :: dsdx, dsdy, dsdz
-       type(c_ptr), value :: dtdx, dtdy, dtdz
-       type(c_ptr), value :: dxdr, dydr, dzdr
-       type(c_ptr), value :: dxds, dyds, dzds
-       type(c_ptr), value :: dxdt, dydt, dzdt
-       type(c_ptr), value :: dx, dy, dz, x, y, z
-       type(c_ptr), value :: jacinv, jac
-       integer(c_int) :: lx, nel
-     end subroutine opencl_coef_generate_dxyzdrst
-  end interface
 #endif
 
 contains
@@ -144,18 +95,17 @@ contains
     real(kind=c_rp) :: tol
 
 #ifdef HAVE_HIP
-    call hip_coef_generate_geo(G11_d, G12_d, G13_d, G22_d, G23_d, &
-         G33_d, drdx_d, drdy_d, drdz_d, dsdx_d, dsdy_d, dsdz_d, &
-         dtdx_d, dtdy_d, dtdz_d, jacinv_d, w3_d, nel, lx, gdim)
+     call hip_find_rst_legendre(rst_d, pt_x_d, pt_y_d, pt_z_d, &
+                                       x_hat_d, y_hat_d, z_hat_d, &
+                                       resx_d, resy_d, resz_d, &
+                                       lx, el_ids_d, n_pts, tol, conv_pts_d)
 #elif HAVE_CUDA
      call cuda_find_rst_legendre(rst_d, pt_x_d, pt_y_d, pt_z_d, &
                                        x_hat_d, y_hat_d, z_hat_d, &
                                        resx_d, resy_d, resz_d, &
                                        lx, el_ids_d, n_pts, tol, conv_pts_d)
 #elif HAVE_OPENCL
-    call opencl_coef_generate_geo(G11_d, G12_d, G13_d, G22_d, G23_d, &
-         G33_d, drdx_d, drdy_d, drdz_d, dsdx_d, dsdy_d, dsdz_d, &
-         dtdx_d, dtdy_d, dtdz_d, jacinv_d, w3_d, nel, lx, gdim)
+    call neko_error('OpenCL not supported yet for finding rst')
 #else
     call neko_error('No device backend configured')
 #endif
