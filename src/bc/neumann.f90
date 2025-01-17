@@ -88,7 +88,7 @@ contains
     call this%init_base(coef)
     this%strong = .false.
 
-    call json_get(json, "value", flux)
+    call json_get(json, "flux", flux)
     this%init_flux_ = flux
   end subroutine neumann_init
 
