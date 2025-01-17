@@ -34,6 +34,7 @@
 
 module scalar_pnpn
   use num_types, only: rp
+  use, intrinsic :: iso_fortran_env, only: error_unit
   use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_oifs_t, &
        rhs_maker_ext_fctry, rhs_maker_bdf_fctry, rhs_maker_oifs_fctry
   use scalar_scheme, only : scalar_scheme_t
@@ -396,7 +397,7 @@ contains
       call slag%update()
 
       !> Apply strong boundary conditions.
-      call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), t, tstep, .true.) 
+      call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), t, tstep, .true.)
 
       ! Update material properties if necessary
       call this%update_material_properties()
@@ -463,12 +464,15 @@ contains
   subroutine scalar_pnpn_setup_bcs_(this, user)
     class(scalar_pnpn_t), intent(inout) :: this
     type(user_t), target, intent(in) :: user
-    integer :: i, n_bcs
+    integer :: i, j, n_bcs
     type(json_core) :: core
     type(json_value), pointer :: bc_object
     type(json_file) :: bc_subdict
     class(bc_t), pointer :: bc_i
     logical :: found
+    ! Monitor which boundary zones have been marked
+    logical, allocatable :: marked_zones(:)
+    integer, allocatable :: zone_indices(:)
 
 
     if (this%params%valid_path('case.scalar.boundary_conditions')) then
@@ -479,12 +483,54 @@ contains
 
        call this%bcs%init(n_bcs)
 
+       allocate(marked_zones(size(this%msh%labeled_zones)))
+       marked_zones = .false.
+
        do i = 1, n_bcs
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
+
+          ! Check that we are not trying to assing a bc to zone, for which one
+          ! has already been assigned and that the zone has more than 0 size
+          ! in the mesh.
+          do j = 1, size(zone_indices)
+             if (this%msh%labeled_zones(zone_indices(j))%size .eq. 0) then
+                write(error_unit, '(A, A, I0, A, A, I0, A)') "*** ERROR ***: ",&
+                     "Zone index ", zone_indices(j), &
+                     " is invalid as this zone has 0 size, meaning it ", &
+                     "does not in the mesh. Check scalar boundary condition ", &
+                     i, "."
+                error stop
+             end if
+
+             if (marked_zones(zone_indices(j)) .eqv. .true.) then
+                write(error_unit, '(A, A, I0, A, A, A, A)') "*** ERROR ***: ", &
+                     "Zone with index ", zone_indices(j), &
+                     " has already been assigned a boundary condition. ", &
+                     "Please check your boundary_conditions entry for the ", &
+                     "scalar and make sure that each zone index appears only ",&
+                     "in a single boundary condition."
+                error stop
+             else
+                marked_zones(zone_indices(j)) = .true.
+             end if
+          end do
+
           bc_i => null()
+          call json_get(bc_subdict, "zone_indices", zone_indices)
+
           call bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
           call this%bcs%append(bc_i)
+       end do
+
+       ! Make sure all labeled zones with non-zero size have been marked
+       do i = 1, size(this%msh%labeled_zones)
+          if ((this%msh%labeled_zones(i)%size .gt. 0) .and. &
+               (marked_zones(i) .eqv. .false.)) then
+             write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
+                "No scalar boundary condition assigned to zone ", i
+             error stop
+          end if
        end do
     end if
   end subroutine scalar_pnpn_setup_bcs_

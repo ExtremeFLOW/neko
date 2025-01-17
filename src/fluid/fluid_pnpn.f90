@@ -33,6 +33,7 @@
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn
   use comm
+  use, intrinsic :: iso_fortran_env, only: error_unit
   use coefs, only : coef_t
   use symmetry, only : symmetry_t
   use field_registry, only : neko_field_registry
@@ -825,14 +826,6 @@ contains
                            mu_field, rho_field, ext_bdf%diffusion_coeffs(1), &
                            dt, dm_Xh%size())
 
-      ! TODO REMOVE
-!      dump_file = file_t('u_res.fld')
-!      call dump_file%write(u_res)
-!      dump_file = file_t('v_res.fld')
-!      call dump_file%write(v_res)
-!      dump_file = file_t('w_res.fld')
-!      call dump_file%write(w_res)
-
       call gs_Xh%op(u_res, GS_OP_ADD)
       call gs_Xh%op(v_res, GS_OP_ADD)
       call gs_Xh%op(w_res, GS_OP_ADD)
@@ -903,12 +896,15 @@ contains
   subroutine fluid_pnpn_setup_bcs(this, user)
     class(fluid_pnpn_t), intent(inout) :: this
     type(user_t), target, intent(in) :: user
-    integer :: i, n_bcs, zone_index
+    integer :: i, n_bcs, zone_index, j
     class(bc_t), pointer :: bc_i
     type(json_core) :: core
     type(json_value), pointer :: bc_object
     type(json_file) :: bc_subdict
     logical :: found
+    ! Monitor which boundary zones have been marked
+    logical, allocatable :: marked_zones(:)
+    integer, allocatable :: zone_indices(:)
 
     ! Lists for the residuals and solution increments
     call this%bclst_vel_res%init()
@@ -938,11 +934,44 @@ contains
        !
        call this%bcs_vel%init(n_bcs)
 
+       allocate(marked_zones(size(this%msh%labeled_zones)))
+       marked_zones = .false.
+
        do i=1, n_bcs
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
 
           bc_i => null()
+
+          call json_get(bc_subdict, "zone_indices", zone_indices)
+
+          ! Check that we are not trying to assing a bc to zone, for which one
+          ! has already been assigned and that the zone has more than 0 size
+          ! in the mesh.
+          do j = 1, size(zone_indices)
+             if (this%msh%labeled_zones(zone_indices(j))%size .eq. 0) then
+                write(error_unit, '(A, A, I0, A, A, I0, A)') "*** ERROR ***: ",&
+                     "Zone index ", zone_indices(j), &
+                     " is invalid as this zone has 0 size, meaning it ", &
+                     "does not in the mesh. Check fluid boundary condition ", &
+                     i, "."
+                error stop
+             end if
+
+             if (marked_zones(zone_indices(j)) .eqv. .true.) then
+                write(error_unit, '(A, A, I0, A, A, A, A)') "*** ERROR ***: ", &
+                     "Zone with index ", zone_indices(j), &
+                     " has already been assigned a boundary condition. ", &
+                     "Please check your boundary_conditions entry for the ", &
+                     "fluid and make sure that each zone index appears only ", &
+                     "in a single boundary condition."
+                error stop
+             else
+                marked_zones(zone_indices(j)) = .true.
+             end if
+
+          end do
+
           call velocity_bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
 
           ! Not all bcs require an allocation for velocity in particular,
@@ -950,7 +979,7 @@ contains
           if (associated(bc_i)) then
 
             ! We need to treat mixed bcs separately because they are by
-            ! cconvention the are marked weak and currently contain nested
+            ! convention marked weak and currently contain nested
             ! bcs, some of which are strong.
              select type(bc_i)
              type is (symmetry_t)
@@ -1012,6 +1041,16 @@ contains
 
                 call this%bcs_vel%append(bc_i)
              end select
+          end if
+       end do
+
+       ! Make sure all labeled zones with non-zero size have been marked
+       do i = 1, size(this%msh%labeled_zones)
+          if ((this%msh%labeled_zones(i)%size .gt. 0) .and. &
+               (marked_zones(i) .eqv. .false.)) then
+             write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
+                "No fluid boundary condition assigned to zone ", i
+             error stop
           end if
        end do
 
