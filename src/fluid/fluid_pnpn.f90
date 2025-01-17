@@ -755,16 +755,6 @@ contains
       ! Compute pressure residual.
       call profiler_start_region('Pressure_residual', 18)
 
-      call this%bc_prs_surface%debug_mask_("bc_prs_surface.fld")
-      call this%bc_sym_surface%debug_mask_("bc_sym_surface.fld")
-      bc_i => this%bcs_prs%get(1)
-      call bc_i%debug_mask_("p_outflow.fld")
-
-      bc_i => this%bcs_vel%get(1)
-      call bc_i%debug_mask_("vel_zone5.fld")
-      bc_i => this%bcs_vel%get(2)
-      call bc_i%debug_mask_("vel_zone6.fld")
-
       call prs_res%compute(p, p_res,&
                            u, v, w, &
                            u_e, v_e, w_e, &
