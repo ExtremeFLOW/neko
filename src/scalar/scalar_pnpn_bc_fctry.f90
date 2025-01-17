@@ -31,14 +31,14 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> Defines a factory subroutine for `scalar_pnpn_t`. 
+!> Defines a factory subroutine for `scalar_pnpn_t`.
 submodule(scalar_pnpn) scalar_pnpn_bc_fctry
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
   use usr_scalar, only : usr_scalar_t
   use user_intf, only : user_t
   use usr_scalar, only : usr_scalar_t
-  use utils, only : neko_type_error 
+  use utils, only : neko_type_error
   use field_dirichlet, only : field_dirichlet_t
   implicit none
 
@@ -64,41 +64,44 @@ contains
     type(coef_t), intent(in) :: coef
     type(user_t), intent(in) :: user
     character(len=:), allocatable :: type
-    integer :: zone_index, i
+    integer :: i
+    integer, allocatable :: zone_indices(:)
 
     call json_get(json, "type", type)
 
-    if (trim(type) .eq. "user_pointwise") then
+    select case (trim(type))
+      case("user_pointwise")
        allocate(usr_scalar_t::object)
        select type(obj => object)
-       type is(usr_scalar_t)
-          call obj%set_eval(user%scalar_user_bc)
+         type is(usr_scalar_t)
+            call obj%set_eval(user%scalar_user_bc)
        end select
-    else if (trim(type) .eq. "user") then
+      case("user")
        allocate(field_dirichlet_t::object)
        select type(obj => object)
-       type is(field_dirichlet_t)
-          obj%update => user%user_dirichlet_update
+         type is(field_dirichlet_t)
+            obj%update => user%user_dirichlet_update
           ! Add the name of the dummy field in the bc, matching the scalar
           ! solved for.
-          call json%add("field_name", scheme%s%name)
+            call json%add("field_name", scheme%s%name)
        end select
-    else if (trim(type) .eq. "dirichlet") then
+      case("dirichet")
        allocate(dirichlet_t::object)
-    else if (trim(type) .eq. "neumann") then
+      case("neumann")
        allocate(neumann_t::object)
-    else
-       return
-      do i=1, size(SCALAR_PNPN_KNOWN_BCS)
-         if (trim(type) .eq. trim(SCALAR_PNPN_KNOWN_BCS(i))) return
-      end do
-      call neko_type_error("scalar_pnpn boundary conditions", type, &
-           SCALAR_PNPN_KNOWN_BCS)
-    end if
+      case default
+       do i=1, size(SCALAR_PNPN_KNOWN_BCS)
+          if (trim(type) .eq. trim(SCALAR_PNPN_KNOWN_BCS(i))) return
+       end do
+       call neko_type_error("scalar_pnpn boundary conditions", type, &
+            SCALAR_PNPN_KNOWN_BCS)
+    end select
 
-    call json_get(json, "zone_index", zone_index)
+    call json_get(json, "zone_indice", zone_indices)
     call object%init(coef, json)
-    call object%mark_zone(coef%msh%labeled_zones(zone_index))
+    do i =1, size(zone_indices)
+       call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
+    end do
     call object%finalize()
 
   end subroutine bc_factory

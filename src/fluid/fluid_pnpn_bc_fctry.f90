@@ -32,10 +32,10 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> Defines factory subroutines for `fluid_pnpn_t`. 
+!> Defines factory subroutines for `fluid_pnpn_t`.
 submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   use user_intf, only : user_t
-  use utils, only : neko_type_error 
+  use utils, only : neko_type_error
   use field_dirichlet, only : field_dirichlet_t
   use inflow, only : inflow_t
   use usr_inflow, only : usr_inflow_t, usr_inflow_eval
@@ -78,7 +78,8 @@ contains
     type(coef_t), intent(in) :: coef
     type(user_t), intent(in) :: user
     character(len=:), allocatable :: type
-    integer :: zone_index, i, j, k
+    integer :: i, j, k
+    integer, allocatable :: zone_indices(:)
 
     call json_get(json, "type", type)
 
@@ -102,18 +103,23 @@ contains
             FLUID_PNPN_KNOWN_BCS)
     end select
 
-    call json_get(json, "zone_index", zone_index)
+    call json_get(json, "zone_indices", zone_indices)
     call object%init(coef, json)
-    call object%mark_zone(coef%msh%labeled_zones(zone_index))
+
+    do i = 1, size(zone_indices)
+       call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
+    end do
     call object%finalize()
 
     ! All pressure bcs are currently strong, so for all of them we
     ! mark with value 1 in the mesh
-    do j = 1, scheme%msh%nelv
+    do i =1, size(zone_indices)
+       do j = 1, scheme%msh%nelv
           do k = 1, 2 * scheme%msh%gdim
-             if (scheme%msh%facet_type(k,j) .eq. -zone_index) then
-                scheme%msh%facet_type(k, j) = 1
-          end if
+             if (scheme%msh%facet_type(k,j) .eq. -zone_indices(i)) then
+                 scheme%msh%facet_type(k, j) = 1
+             end if
+          end do
        end do
     end do
   end subroutine pressure_bc_factory
@@ -131,7 +137,8 @@ contains
     type(coef_t), intent(in) :: coef
     type(user_t), intent(in) :: user
     character(len=:), allocatable :: type
-    integer :: zone_index, i, j, k
+    integer :: i, j, k
+    integer, allocatable :: zone_indices(:)
 
     call json_get(json, "type", type)
 
@@ -174,19 +181,24 @@ contains
             FLUID_PNPN_KNOWN_BCS)
     end select
 
-    call json_get(json, "zone_index", zone_index)
+    call json_get(json, "zone_indices", zone_indices)
     call object%init(coef, json)
-    call object%mark_zone(coef%msh%labeled_zones(zone_index))
+    do i = 1, size(zone_indices)
+       call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
+    end do
     call object%finalize()
 
     ! Exclude these two because they are bcs for the residual, not velocity
-    if (type .ne. "normal_outflow" .and. type .ne. "normal_outflow+dong") then
-       do j = 1, scheme%msh%nelv
-          do k = 1, 2 * scheme%msh%gdim
-             if (scheme%msh%facet_type(k,j) .eq. -zone_index) then
-                 scheme%msh%facet_type(k, j) = 2
-             end if
-          end do
+    if (trim(type) .ne. "normal_outflow" .and. &
+         trim(type) .ne. "normal_outflow+dong") then
+       do i = 1, size(zone_indices)
+           do j = 1, scheme%msh%nelv
+              do k = 1, 2 * scheme%msh%gdim
+                 if (scheme%msh%facet_type(k,j) .eq. -zone_indices(i)) then
+                    scheme%msh%facet_type(k, j) = 2
+                 end if
+              end do
+           end do
        end do
     end if
   end subroutine velocity_bc_factory

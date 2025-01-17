@@ -86,10 +86,10 @@ module fluid_pnpn
 
   type, public, extends(fluid_scheme_t) :: fluid_pnpn_t
 
-     !> The right-hand sides in the linear solves. 
+     !> The right-hand sides in the linear solves.
      type(field_t) :: p_res, u_res, v_res, w_res
 
-     !> The unknowns in the linear solves, i.e. the solution increments with 
+     !> The unknowns in the linear solves, i.e. the solution increments with
      !! respect to the previous time-step.
      type(field_t) :: dp, du, dv, dw
 
@@ -146,7 +146,7 @@ module fluid_pnpn
      type(bc_list_t) :: bclst_dv
      type(bc_list_t) :: bclst_dw
      type(bc_list_t) :: bclst_dp
-     
+
 
      ! Checker for wether we have a strong pressure bc. If not, the pressure
      ! is demeaned at every time step.
@@ -213,7 +213,7 @@ module fluid_pnpn
         type(json_file), intent(inout) :: json
         type(coef_t), intent(in) :: coef
         type(user_t), intent(in) :: user
-     end subroutine pressure_bc_factory 
+     end subroutine pressure_bc_factory
   end interface
 
   interface
@@ -779,7 +779,7 @@ contains
 !      write(*,*) "PRS DIRICHLET", this%prs_dirichlet
 
       ! De-mean the pressure residual when no strong pressure boundaries present
-      if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n) 
+      if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n)
 
       call gs_Xh%op(p_res, GS_OP_ADD)
 
@@ -809,7 +809,7 @@ contains
 
       ! Update the pressure with the increment. Demean if necessary.
       call field_add2(p, dp, n)
-      if (.not. this%prs_dirichlet) call ortho(p%x, this%glb_n_points, n) 
+      if (.not. this%prs_dirichlet) call ortho(p%x, this%glb_n_points, n)
 
 
 !      dump_file = file_t('u.fld')
@@ -898,7 +898,7 @@ contains
 !      call exit()
   end subroutine fluid_pnpn_step
 
-  !> Fills up the bcs_vel bcs_prs lists.
+  !> Sets up the boundary condition for the scheme.
   !! @param user The user interface.
   subroutine fluid_pnpn_setup_bcs(this, user)
     class(fluid_pnpn_t), intent(inout) :: this
@@ -933,7 +933,7 @@ contains
        call this%params%get_core(core)
        call this%params%get('case.fluid.boundary_conditions', bc_object, found)
 
-       ! 
+       !
        ! Velocity bcs
        !
        call this%bcs_vel%init(n_bcs)
@@ -949,14 +949,14 @@ contains
           ! so we check.
           if (associated(bc_i)) then
 
-            ! We need to treat mixed bcs separately because they are by 
+            ! We need to treat mixed bcs separately because they are by
             ! cconvention the are marked weak and currently contain nested
             ! bcs, some of which are strong.
              select type(bc_i)
              type is (symmetry_t)
                 ! Symmetry has 3 internal bcs, but only one actually contains
-                ! markings. 
-                ! Symmetry's apply_scalar doesn't do anything, so we need to mark 
+                ! markings.
+                ! Symmetry's apply_scalar doesn't do anything, so we need to mark
                 ! individual nested bcs to the du,dv,dw, whereas the vel_res can
                 ! just get symmetry as a whole, because on this list we call
                 ! apply_vector.
@@ -996,9 +996,9 @@ contains
 
                 call this%bcs_vel%append(bc_i)
              class default
-              
-                ! For the default case we use our dummy zero_dirichlet bcs to 
-                ! mark the same faces as in ordinary velocity dirichlet 
+
+                ! For the default case we use our dummy zero_dirichlet bcs to
+                ! mark the same faces as in ordinary velocity dirichlet
                 ! conditions.
                 ! Additionally we mark the special PnPn pressure  bc.
                 if (bc_i%strong .eqv. .true.) then
