@@ -56,6 +56,7 @@ module phmg
   use neko_config, only: NEKO_BCKND_DEVICE
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory, krylov_solver_destroy
+  use logger, only : neko_log, LOG_SIZE
   implicit none
   private
 
@@ -249,11 +250,6 @@ contains
     integer :: i
     real(kind=rp) :: val
 
-!--!    call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
-!--!    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
-!--!    call device_sub3(w%x_d, r%x_d, w%x_d, mg(lvl)%dm_Xh%size())
-!--!    val = device_glsc2(w%x_d, w%x_d, mg(lvl)%dm_Xh%size())
-!--!    print *, "PREPRE",lvl,val
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
@@ -268,11 +264,6 @@ contains
                                        mg(lvl)%coef, mg(lvl)%bclst, &
                                        mg(lvl)%gs_h, niter = 15)
     end if
-!--!    call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
-!--!    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
-!--!    call device_sub3(w%x_d, r%x_d, w%x_d, mg(lvl)%dm_Xh%size())
-!--!    val = device_glsc2(w%x_d, w%x_d, mg(lvl)%dm_Xh%size())
-!--!    print *, "PREPOST",lvl,val
 
     !>----------<!
     !> Residual <!
@@ -299,16 +290,9 @@ contains
 
     call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD)
     
-    !!!if (NEKO_BCKND_DEVICE .eq. 1) then
-    !!!  call device_col2(mg(lvl+1)%r%x_d, mg(lvl+1)%coef%mult_d, mg(lvl+1)%dm_Xh%size())
-    !!!else
-    !!!  call col2(mg(lvl+1)%r%x, mg(lvl+1)%coef%mult, mg(lvl+1)%dm_Xh%size())
-    !!!end if
-
-
-!!!    call mg(lvl+1)%bclst%apply_scalar( &
-!!!                              mg(lvl+1)%r%x, &
-!!!                              mg(lvl+1)%dm_Xh%size())
+    call mg(lvl+1)%bclst%apply_scalar( &
+                              mg(lvl+1)%r%x, &
+                              mg(lvl+1)%dm_Xh%size())
     !>----------<!
     !> SOLVE    <!
     !>----------<!
@@ -319,11 +303,6 @@ contains
     end if
     if (lvl+1 .eq. clvl) then
        
-!--!    call Ax%compute(mg(lvl+1)%w%x, mg(lvl+1)%z%x, mg(lvl+1)%coef, msh, mg(lvl+1)%Xh)
-!--!    call mg(lvl+1)%gs_h%op(mg(lvl+1)%w%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD)
-!--!    call device_sub3(mg(lvl+1)%w%x_d, mg(lvl+1)%r%x_d, mg(lvl+1)%w%x_d, mg(lvl+1)%dm_Xh%size())
-!--!    val = device_glsc2(mg(lvl+1)%w%x_d, mg(lvl+1)%w%x_d, mg(lvl+1)%dm_Xh%size())
-!--!    print *, "PREAMG",lvl,val
        if (NEKO_BCKND_DEVICE .eq. 1) then
          call amg_solver%device_solve(mg(lvl+1)%z%x, &
                               mg(lvl+1)%r%x, &
@@ -335,28 +314,13 @@ contains
                               mg(lvl+1)%r%x, &
                               mg(lvl+1)%dm_Xh%size())
        end if
-!--!    call Ax%compute(mg(lvl+1)%w%x, mg(lvl+1)%z%x, mg(lvl+1)%coef, msh, mg(lvl+1)%Xh)
-!--!    call mg(lvl+1)%gs_h%op(mg(lvl+1)%w%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD)
-!--!    call device_sub3(mg(lvl+1)%w%x_d, mg(lvl+1)%r%x_d, mg(lvl+1)%w%x_d, mg(lvl+1)%dm_Xh%size())
-!--!    val = device_glsc2(mg(lvl+1)%w%x_d, mg(lvl+1)%w%x_d, mg(lvl+1)%dm_Xh%size())
-!--!    print *, "POSTAMG",lvl,val
       
-!!!!       call mg(lvl+1)%bclst%apply_scalar( &
-!!!!                                 mg(lvl+1)%z%x,&
-!!!!                                 mg(lvl+1)%dm_Xh%size())
+       call mg(lvl+1)%bclst%apply_scalar( &
+                                 mg(lvl+1)%z%x,&
+                                 mg(lvl+1)%dm_Xh%size())
     else
-!--!    call Ax%compute(mg(lvl+1)%w%x, mg(lvl+1)%z%x, mg(lvl+1)%coef, msh, mg(lvl+1)%Xh)
-!--!    call mg(lvl+1)%gs_h%op(mg(lvl+1)%w%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD)
-!--!    call device_sub3(mg(lvl+1)%w%x_d, mg(lvl+1)%r%x_d, mg(lvl+1)%w%x_d, mg(lvl+1)%dm_Xh%size())
-!--!    val = device_glsc2(mg(lvl+1)%w%x_d, mg(lvl+1)%w%x_d, mg(lvl+1)%dm_Xh%size())
-!--!    print *, "CYCLE-PRE",lvl,val
        call phmg_mg_cycle(mg(lvl+1)%z, mg(lvl+1)%r, mg(lvl+1)%w, lvl+1, &
             clvl, mg, intrp, msh, Ax, amg_solver)
-!--!    call Ax%compute(mg(lvl+1)%w%x, mg(lvl+1)%z%x, mg(lvl+1)%coef, msh, mg(lvl+1)%Xh)
-!--!    call mg(lvl+1)%gs_h%op(mg(lvl+1)%w%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD)
-!--!    call device_sub3(mg(lvl+1)%w%x_d, mg(lvl+1)%r%x_d, mg(lvl+1)%w%x_d, mg(lvl+1)%dm_Xh%size())
-!--!    val = device_glsc2(mg(lvl+1)%w%x_d, mg(lvl+1)%w%x_d, mg(lvl+1)%dm_Xh%size())
-!--!    print *, "CYCLE-POST",lvl,val
     end if
 
     !>----------<!
@@ -372,7 +336,7 @@ contains
       call col2(w%x, mg(lvl)%coef%mult, mg(lvl)%dm_Xh%size())
     end if
     
-!!!    call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
+    call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
        
     !>----------<!
     !> Correct  <!
@@ -383,11 +347,6 @@ contains
       z%x = z%x + w%x
     end if
     
-!--!    call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
-!--!    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
-!--!    call device_sub3(w%x_d, r%x_d, w%x_d, mg(lvl)%dm_Xh%size())
-!--!    val = device_glsc2(w%x_d, w%x_d, mg(lvl)%dm_Xh%size())
-!--!    print *, "POSTPRE",lvl,val
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
@@ -402,14 +361,38 @@ contains
                                        mg(lvl)%coef, mg(lvl)%bclst, &
                                        mg(lvl)%gs_h, niter = 15)
     end if
-!--!    call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
-!--!    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
-!--!    call device_sub3(w%x_d, r%x_d, w%x_d, mg(lvl)%dm_Xh%size())
-!--!    val = device_glsc2(w%x_d, w%x_d, mg(lvl)%dm_Xh%size())
-!--!    print *, "POSTPOST",lvl,val
-
-    
 
   end subroutine phmg_mg_cycle
+
+  subroutine phmg_resid_monitor(z, r, w, mg, msh, Ax, lvl, typ)
+    integer :: lvl, typ
+    type(phmg_lvl_t) :: mg
+    class(ax_t), intent(inout) :: Ax
+    type(mesh_t), intent(inout) :: msh
+    type(field_t) :: z, r, w
+    real(kind=rp) :: val
+    character(len=LOG_SIZE) :: log_buf
+    call Ax%compute(w%x, z%x, mg%coef, msh, mg%Xh)
+    call mg%gs_h%op(w%x, mg%dm_Xh%size(), GS_OP_ADD)
+    call mg%bclst%apply_scalar(w%x, mg%dm_Xh%size())
+    call device_sub3(w%x_d, r%x_d, w%x_d, mg%dm_Xh%size())
+    val = device_glsc2(w%x_d, w%x_d, mg%dm_Xh%size())
+    if (typ .eq. 1) then
+      write(log_buf, '(A15,I4,F12.6)') 'PRESMOO - PRE', lvl, val
+    else if (typ .eq. 2) then
+      write(log_buf, '(A15,I4,F12.6)') 'PRESMOO -POST', lvl, val
+    else if (typ .eq. 3) then
+      write(log_buf, '(A15,I4,F12.6)') 'POSTSMOO- PRE', lvl, val
+    else if (typ .eq. 4) then
+      write(log_buf, '(A15,I4,F12.6)') 'POSTSMOO-POST', lvl, val
+    else if (typ .eq. 5) then
+      write(log_buf, '(A15,I4,F12.6)') 'TAMG - PRE', lvl, val
+    else if (typ .eq. 6) then
+      write(log_buf, '(A15,I4,F12.6)') 'TAMG -POST', lvl, val
+    else
+      write(log_buf, '(A15,I4,F12.6)') 'RESID', lvl, val
+    end if
+    call neko_log%message(log_buf)
+  end subroutine phmg_resid_monitor
   
 end module phmg
