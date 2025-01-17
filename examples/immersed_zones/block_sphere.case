@@ -42,7 +42,7 @@
             "output_value": 250,
             "boundary_conditions": [
                 {
-                    "type": "velocity_dirichlet",
+                    "type": "velocity_value",
                     "value": [1, 0, 0],
                     "zone_indices": [1]
                 },
