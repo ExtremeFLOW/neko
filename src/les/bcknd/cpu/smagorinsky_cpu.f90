@@ -40,6 +40,7 @@ module smagorinsky_cpu
   use operators, only : strain_rate
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
+  use math, only : col2
   implicit none
   private
 
@@ -110,6 +111,9 @@ contains
           nut%x(i,1,1,e) = c_s**2 * delta%x(i,1,1,e)**2 * s_abs
        end do
     end do
+
+    call coef%gs_h%op(nut, GS_OP_ADD)
+    call col2(nut%x, coef%mult, nut%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine smagorinsky_compute_cpu

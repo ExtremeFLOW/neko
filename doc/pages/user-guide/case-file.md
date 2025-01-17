@@ -138,7 +138,7 @@ provided, the simulation will issue an error.
 
 As an alternative to providing material properties in the case file, it is
 possible to do that in a special routine in the user file. This is demonstrated
-in the `rayleigh-benard-cylinder` example. Ultimately, both `rho` and `mu` have
+in the `rayleigh_benard_cylinder` example. Ultimately, both `rho` and `mu` have
 to be set in the subroutine, but it can be based on arbitrary computations and
 arbitrary parameters read from the case file. Additionally, this allows to
 change the material properties in time.

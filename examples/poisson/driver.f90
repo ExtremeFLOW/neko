@@ -14,7 +14,7 @@ program poisson
   type(field_t) :: x
   type(ax_poisson_t) :: ax
   type(coef_t) :: coef
-  type(cg_t) :: solver
+  class(ksp_t), allocatable :: solver
   type(ksp_monitor_t) :: ksp_mon
   integer :: argc, lx, n, n_glb, niter, ierr
   character(len=80) :: suffix
@@ -32,6 +32,8 @@ program poisson
   end if
 
   call neko_init
+  call neko_job_info
+
   call get_command_argument(1, fname)
   call get_command_argument(2, lxchar)
   call get_command_argument(3, iterchar)
@@ -60,7 +62,7 @@ program poisson
   call dir_bc%finalize()
   call bclst%init()
   call bclst%append(dir_bc)
-  call solver%init(n, niter, abs_tol = tol)
+  call krylov_solver_factory(solver, n, 'cg', niter, abstol = tol)
 
   allocate(f(n))
 

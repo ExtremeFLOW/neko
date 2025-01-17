@@ -170,6 +170,13 @@ contains
        call neko_log%section('Load Balancing')
        call parmetis_partmeshkway(this%msh, parts)
        call redist_mesh(this%msh, parts)
+       
+       ! store the balanced mesh (for e.g. restarts)
+       string_val = trim(string_val(1:scan(trim(string_val), &
+            '.', back=.true.) - 1))//'_lb.nmsh'
+       msh_file = file_t(string_val)
+       call msh_file%write(this%msh)
+
        call neko_log%end_section()
     end if
 

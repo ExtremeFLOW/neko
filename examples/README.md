@@ -24,7 +24,7 @@ documented and up to date.
 - poisson, shos how to use neko as a library and setup a simple Poisson solver.
 - rayleigh_benard, Rayleigh Benard convection (RBC) (temperature as additional
   scalar)
-- rayleigh_benard-cylinder, Cylindrical domain RBC
+- rayleigh_benard_cylinder, Cylindrical domain RBC
 - scalar_mms, method of manufactured solutions for the scalar verification
 - tgv, 3D Taylor-Green vortex with several different meshes.
 - turb_pipe, Turbulent pipe flow
