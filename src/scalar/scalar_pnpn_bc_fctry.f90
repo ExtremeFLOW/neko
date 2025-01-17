@@ -43,9 +43,10 @@ submodule(scalar_pnpn) scalar_pnpn_bc_fctry
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: SCALAR_PNPN_KNOWN_BCS(3) = [character(len=25) :: &
+  character(len=25) :: SCALAR_PNPN_KNOWN_BCS(4) = [character(len=25) :: &
      "dirichlet", &
      "user_pointwise", &
+     "user", &
      "neumann"]
 
 contains
@@ -85,19 +86,16 @@ contains
           ! solved for.
             call json%add("field_name", scheme%s%name)
        end select
-      case("dirichet")
+      case("dirichlet")
        allocate(dirichlet_t::object)
       case("neumann")
        allocate(neumann_t::object)
       case default
-       do i=1, size(SCALAR_PNPN_KNOWN_BCS)
-          if (trim(type) .eq. trim(SCALAR_PNPN_KNOWN_BCS(i))) return
-       end do
        call neko_type_error("scalar_pnpn boundary conditions", type, &
             SCALAR_PNPN_KNOWN_BCS)
     end select
 
-    call json_get(json, "zone_indice", zone_indices)
+    call json_get(json, "zone_indices", zone_indices)
     call object%init(coef, json)
     do i =1, size(zone_indices)
        call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))

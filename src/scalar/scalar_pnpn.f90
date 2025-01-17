@@ -494,6 +494,8 @@ contains
           ! Check that we are not trying to assing a bc to zone, for which one
           ! has already been assigned and that the zone has more than 0 size
           ! in the mesh.
+          call json_get(bc_subdict, "zone_indices", zone_indices)
+
           do j = 1, size(zone_indices)
              zone_size = this%msh%labeled_zones(zone_indices(j))%size
              call MPI_Allreduce(zone_size, global_zone_size, 1, &
@@ -522,7 +524,6 @@ contains
           end do
 
           bc_i => null()
-          call json_get(bc_subdict, "zone_indices", zone_indices)
 
           call bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
           call this%bcs%append(bc_i)
