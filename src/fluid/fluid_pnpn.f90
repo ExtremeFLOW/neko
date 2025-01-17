@@ -941,7 +941,7 @@ contains
           do j = 1, size(zone_indices)
              zone_size = this%msh%labeled_zones(zone_indices(j))%size
              call MPI_Allreduce(zone_size, global_zone_size, 1, &
-                  MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+                  MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
              if (global_zone_size .eq. 0) then
                 write(error_unit, '(A, A, I0, A, A, I0, A)') "*** ERROR ***: ",&
