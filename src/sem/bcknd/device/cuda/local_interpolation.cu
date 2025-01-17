@@ -380,10 +380,11 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
     conv_pts[pt] = 0;
     tol2 = tol*tol;
     if (rstdiff <= tol2) conv_pts[pt] = true;
-    leg_outside = LX*LX*(LX-one)*(LX-one)/4.0;
-    if(r_leg[LX-1]*r_leg[LX-1] > leg_outside) conv_pts[pt] = true;
-    if(s_leg[LX-1]*s_leg[LX-1] > leg_outside) conv_pts[pt] = true;
-    if(t_leg[LX-1]*t_leg[LX-1] > leg_outside) conv_pts[pt] = true;
+    if (rstdiff > 4.0) conv_pts[pt] = true;
+    //leg_outside = LX*LX*(LX-one)*(LX-one)/4.0;
+    //if(r_leg[LX-1]*r_leg[LX-1] > leg_outside) conv_pts[pt] = true;
+    //if(s_leg[LX-1]*s_leg[LX-1] > leg_outside) conv_pts[pt] = true;
+    //if(t_leg[LX-1]*t_leg[LX-1] > leg_outside) conv_pts[pt] = true;
 
   }
 }
