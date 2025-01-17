@@ -82,26 +82,25 @@ contains
 
     call json_get(json, "type", type)
 
-    if ( (trim(type) .eq. "outflow") .or. &
-         (trim(type) .eq. "normal_outflow"))  then
+    select case (trim(type))
+      case ("outflow", "normal_outflow")
        allocate(zero_dirichlet_t::object)
-    else if ((trim(type) .eq. "outflow+dong") .or. &
-            (trim(type) .eq. "normal_outflow+dong")) then
+      case ("outflow+dong", "normal_outflow+dong")
        allocate(dong_outflow_t::object)
-    else if (trim(type) .eq. "user_pressure") then
+      case ("user_pressure")
        allocate(field_dirichlet_t::object)
        select type(obj => object)
-       type is(field_dirichlet_t)
+         type is(field_dirichlet_t)
           obj%update => user%user_dirichlet_update
           call json%add("field_name", scheme%p%name)
        end select
-    else
-      do i=1, size(FLUID_PNPN_KNOWN_BCS)
-         if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
-      end do
-      call neko_type_error("fluid_pnpn boundary conditions", type, &
-           FLUID_PNPN_KNOWN_BCS)
-    end if
+      case default
+       do i = 1, size(FLUID_PNPN_KNOWN_BCS)
+          if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
+       end do
+       call neko_type_error("fluid_pnpn boundary conditions", type, &
+            FLUID_PNPN_KNOWN_BCS)
+    end select
 
     call json_get(json, "zone_index", zone_index)
     call object%init(coef, json)
