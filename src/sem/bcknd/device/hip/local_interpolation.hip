@@ -408,7 +408,7 @@ extern "C" {
 
 #define RST_CASE(LX)                                                            \
     case LX:                                                                    \
-      hipLaunchKernelGGL(
+      hipLaunchKernelGGL( \
          HIP_KERNEL_NAME(find_rst_legendre_kernel<real,xreal, LX, 128>),                                  \
          nblcks, nthrds, 0, stream,                                         \
          (real *) rst,(real *) pt_x, (real *) pt_y, (real *) pt_z,                              \
