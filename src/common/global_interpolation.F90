@@ -805,9 +805,9 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%el_owner0, this%el_owner0_d, &
             this%n_points, HOST_TO_DEVICE, sync = .true.)
-       call device_map(this%el_owner0_local, this%el_owner0_local_d, this%n_points)
+       call device_map(this%el_owner0_local, this%el_owner0_local_d, this%n_points_local)
        call device_memcpy(this%el_owner0_local, this%el_owner0_local_d, &
-            this%n_points, HOST_TO_DEVICE, sync = .true.)
+            this%n_points_local, HOST_TO_DEVICE, sync = .true.)
     end if
 
     !Free stuff
