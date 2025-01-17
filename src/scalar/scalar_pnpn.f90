@@ -33,6 +33,7 @@
 !> Contains the `scalar_pnpn_t` type.
 
 module scalar_pnpn
+  use comm
   use num_types, only: rp
   use, intrinsic :: iso_fortran_env, only: error_unit
   use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_oifs_t, &
@@ -464,7 +465,7 @@ contains
   subroutine scalar_pnpn_setup_bcs_(this, user)
     class(scalar_pnpn_t), intent(inout) :: this
     type(user_t), target, intent(in) :: user
-    integer :: i, j, n_bcs
+    integer :: i, j, n_bcs, zone_size, global_zone_size, ierr
     type(json_core) :: core
     type(json_value), pointer :: bc_object
     type(json_file) :: bc_subdict
@@ -494,7 +495,11 @@ contains
           ! has already been assigned and that the zone has more than 0 size
           ! in the mesh.
           do j = 1, size(zone_indices)
-             if (this%msh%labeled_zones(zone_indices(j))%size .eq. 0) then
+             zone_size = this%msh%labeled_zones(zone_indices(j))%size
+             call MPI_Allreduce(zone_size, global_zone_size, 1, &
+                  MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+
+             if (global_zone_size .eq. 0) then
                 write(error_unit, '(A, A, I0, A, A, I0, A)') "*** ERROR ***: ",&
                      "Zone index ", zone_indices(j), &
                      " is invalid as this zone has 0 size, meaning it ", &

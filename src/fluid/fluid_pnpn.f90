@@ -886,7 +886,7 @@ contains
   subroutine fluid_pnpn_setup_bcs(this, user)
     class(fluid_pnpn_t), intent(inout) :: this
     type(user_t), target, intent(in) :: user
-    integer :: i, n_bcs, zone_index, j
+    integer :: i, n_bcs, zone_index, j, zone_size, global_zone_size, ierr
     class(bc_t), pointer :: bc_i
     type(json_core) :: core
     type(json_value), pointer :: bc_object
@@ -939,7 +939,11 @@ contains
           ! has already been assigned and that the zone has more than 0 size
           ! in the mesh.
           do j = 1, size(zone_indices)
-             if (this%msh%labeled_zones(zone_indices(j))%size .eq. 0) then
+             zone_size = this%msh%labeled_zones(zone_indices(j))%size
+             call MPI_Allreduce(zone_size, global_zone_size, 1, &
+                  MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+
+             if (global_zone_size .eq. 0) then
                 write(error_unit, '(A, A, I0, A, A, I0, A)') "*** ERROR ***: ",&
                      "Zone index ", zone_indices(j), &
                      " is invalid as this zone has 0 size, meaning it ", &
