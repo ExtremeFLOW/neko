@@ -50,9 +50,6 @@
             },
             "output_control": "nsamples",
             "output_value": 10,
-            "boundary_types": [
-                "w", "v", "w"
-            ]
             "boundary_conditions": [
                 {
                     "type": "no_slip",
@@ -70,6 +67,11 @@
                 {
                     "type": "user_pointwise",
                     "zone_indices": [1, 2]
+                },
+                {
+                    "type": "neumann",
+                    "flux": 0,
+                    "zone_indices": [3]
                 }
             ]
         },

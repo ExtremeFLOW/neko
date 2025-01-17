@@ -44,7 +44,7 @@
         "boundary_conditions": [
             {
                 "type": "no_slip",
-                "zone_index": 3
+                "zone_indices": [3]
             }
         ]
     }
