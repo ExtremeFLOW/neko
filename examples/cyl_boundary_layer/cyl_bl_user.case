@@ -37,7 +37,7 @@
         "boundary_conditions":
         [
             {
-                "type": "user_velocity",
+                "type": "user_velocity_pointwise",
                 "zone_indices": [1]
             },
             {
