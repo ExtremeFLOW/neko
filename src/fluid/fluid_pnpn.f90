@@ -764,11 +764,6 @@ contains
                            Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
                            mu_field, rho_field)
 
-      ! TODO REMOVE
-!      dump_file = file_t('p_res.fld')
-!      call dump_file%write(p_res)
-!      write(*,*) "PRS DIRICHLET", this%prs_dirichlet
-
       ! De-mean the pressure residual when no strong pressure boundaries present
       if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n)
 
@@ -802,10 +797,6 @@ contains
       call field_add2(p, dp, n)
       if (.not. this%prs_dirichlet) call ortho(p%x, this%glb_n_points, n)
 
-
-!      dump_file = file_t('u.fld')
-!      call dump_file%write(u)
-
       ! Compute velocity residual.
       call profiler_start_region('Velocity_residual', 19)
       call vel_res%compute(Ax_vel, u, v, w, &
@@ -832,22 +823,12 @@ contains
 
       call this%pc_vel%update()
 
-!      dump_file = file_t('p.fld')
-!      call dump_file%write(p)
-
       call profiler_start_region("Velocity_solve", 4)
       ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax_vel, du, dv, dw, &
            u_res%x, v_res%x, w_res%x, n, c_Xh, &
            this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, &
            this%ksp_vel%max_iter)
       call profiler_end_region("Velocity_solve", 4)
-
-!      dump_file = file_t('du.fld')
-!      call dump_file%write(du)
-!      dump_file = file_t('dv.fld')
-!      call dump_file%write(dv)
-!      dump_file = file_t('dw.fld')
-!      call dump_file%write(dw)
 
       call this%proj_u%post_solving(du%x, Ax_vel, c_Xh, &
                                  this%bclst_du, gs_Xh, n, tstep, dt_controller)
@@ -1093,13 +1074,6 @@ contains
     this%prs_dirichlet =  .not. this%bclst_dp%is_empty()
     call MPI_Allreduce(MPI_IN_PLACE, this%prs_dirichlet, 1, &
          MPI_LOGICAL, MPI_LOR, NEKO_COMM)
-
-    write(*,*) "BCLST_DU size", this%bclst_du%size()
-    write(*,*) "BCLST_DV size", this%bclst_dv%size()
-    write(*,*) "BCLST_DW size", this%bclst_dw%size()
-    write(*,*) "BCLST_DP size", this%bclst_dp%size()
-    write(*,*) "BCLST_VEL_RES size", this%bclst_vel_res%size()
-
 
   end subroutine
 
