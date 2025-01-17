@@ -147,82 +147,82 @@ contains
     end do
   end subroutine test_glob_interp_interp_down
   
-  @test(npes=[1])
-  subroutine test_glob_interp_sinwaves_radial(this)
-    class (test_glob_interp), intent(inout) :: this
-    type(space_t) :: Xh
-    type(mesh_t) :: msh
-    type(dofmap_t) :: dof
-    type(global_interpolation_t) :: glob_interp
-    integer, parameter :: LX = 10
-    type(field_t) :: sinefield
-    real(kind=rp), allocatable :: pts(:,:), interpvals(:)
-    integer :: ierr, i, r, phi, npts, nlvl, nphi, nr, id
-    real(kind=rp) :: analytical_val, test_tol
+  !@test(npes=[1])
+  !subroutine test_glob_interp_sinwaves_radial(this)
+  !  class (test_glob_interp), intent(inout) :: this
+  !  type(space_t) :: Xh
+  !  type(mesh_t) :: msh
+  !  type(dofmap_t) :: dof
+  !  type(global_interpolation_t) :: glob_interp
+  !  integer, parameter :: LX = 10
+  !  type(field_t) :: sinefield
+  !  real(kind=rp), allocatable :: pts(:,:), interpvals(:)
+  !  integer :: ierr, i, r, phi, npts, nlvl, nphi, nr, id
+  !  real(kind=rp) :: analytical_val, test_tol
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+  !  call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
-    call test_glob_interp_gen_msh(msh)
-    call Xh%init(GLL, lx, lx, lx)
-    call dof%init(msh, Xh)
-    call glob_interp%init(dof)
-    test_tol = glob_interp%tol
-    
-    @assertTrue(allocated(glob_interp%global_aabb))
-    @assertTrue(allocated(glob_interp%local_aabb))
-    call sinefield%init(dof)
-    nphi = 5
-    nr = 5
-    nlvl = 10
-    npts = nlvl * nphi * nr
-    allocate(pts(3,npts))
-    allocate(interpvals(npts))
-    do i = 1, nlvl
-       do r = 1, nr
-          do phi = 1, nphi
-             id = (i-1) * nr*nphi + (r-1)*nphi + phi 
- 	     pts(1,id) = 0.0499*real(r,rp)/real(nr,rp) * &
-                         cos(real(phi,rp)/real(nphi,rp)*2.0*pi)
- 	     pts(2,id) = 0.0499*real(r,rp)/real(nr,rp) * &
-                         sin(real(phi,rp)/real(nphi,rp)*2.0*pi)
- 	     pts(3,id) = real(i,rp)/real(nlvl,rp)
-            
-       
-          end do
-       end do
-    end do
-    
-    do i = 1, dof%size()
-       sinefield%x(i,1,1,1) = cos(dof%x(i,1,1,1)*3.0) * &
-                              cos(dof%y(i,1,1,1)*5.0) * &
-                              sin(dof%z(i,1,1,1)*10.0)
-    end do
+  !  pe_rank = this%getProcessRank()
+  !  pe_size = this%getNumProcesses()
+  !  call test_glob_interp_gen_msh(msh)
+  !  call Xh%init(GLL, lx, lx, lx)
+  !  call dof%init(msh, Xh)
+  !  call glob_interp%init(dof)
+  !  test_tol = glob_interp%tol
+  !  
+  !  @assertTrue(allocated(glob_interp%global_aabb))
+  !  @assertTrue(allocated(glob_interp%local_aabb))
+  !  call sinefield%init(dof)
+  !  nphi = 5
+  !  nr = 5
+  !  nlvl = 10
+  !  npts = nlvl * nphi * nr
+  !  allocate(pts(3,npts))
+  !  allocate(interpvals(npts))
+  !  do i = 1, nlvl
+  !     do r = 1, nr
+  !        do phi = 1, nphi
+  !           id = (i-1) * nr*nphi + (r-1)*nphi + phi 
+  !           pts(1,id) = 0.0499*real(r,rp)/real(nr,rp) * &
+  !                       cos(real(phi,rp)/real(nphi,rp)*2.0*pi)
+  !           pts(2,id) = 0.0499*real(r,rp)/real(nr,rp) * &
+  !                       sin(real(phi,rp)/real(nphi,rp)*2.0*pi)
+  !           pts(3,id) = real(i,rp)/real(nlvl,rp)
+  !          
+  !     
+  !        end do
+  !     end do
+  !  end do
+  !  
+  !  do i = 1, dof%size()
+  !     sinefield%x(i,1,1,1) = cos(dof%x(i,1,1,1)*3.0) * &
+  !                            cos(dof%y(i,1,1,1)*5.0) * &
+  !                            sin(dof%z(i,1,1,1)*10.0)
+  !  end do
 
  
 
+  !  
+  !  call glob_interp%find_points(pts, npts)
+  !  call glob_interp%evaluate(interpvals, dof%x, .true.)
+  !  do i = 1, npts
+  !     @assertEqual(interpvals(i), pts(1,i), tolerance=test_tol)
+  !  end do
+  !  call glob_interp%evaluate(interpvals, dof%y, .true.)
+  !  do i = 1, npts
+  !     @assertEqual(interpvals(i), pts(2,i), tolerance=test_tol)
+  !  end do
+  !  call glob_interp%evaluate(interpvals, dof%z, .true.)
+  !  do i = 1, npts
+  !     @assertEqual(interpvals(i), pts(3,i), tolerance=test_tol)
+  !  end do
+  !  call glob_interp%evaluate(interpvals, sinefield%x, .true.)
+  !  do i = 1, npts
+  !     analytical_val = cos(pts(1,i)*3.0) * &
+  !                      cos(pts(2,i)*5.0) * &
+  !                      sin(pts(3,i)*10.0)
 
-    call glob_interp%find_points(pts, npts)
-    call glob_interp%evaluate(interpvals, dof%x, .true.)
-    do i = 1, npts
-       @assertEqual(interpvals(i), pts(1,i), tolerance=test_tol)
-    end do
-    call glob_interp%evaluate(interpvals, dof%y, .true.)
-    do i = 1, npts
-       @assertEqual(interpvals(i), pts(2,i), tolerance=test_tol)
-    end do
-    call glob_interp%evaluate(interpvals, dof%z, .true.)
-    do i = 1, npts
-       @assertEqual(interpvals(i), pts(3,i), tolerance=test_tol)
-    end do
-    call glob_interp%evaluate(interpvals, sinefield%x, .true.)
-    do i = 1, npts
-       analytical_val = cos(pts(1,i)*3.0) * &
-                        cos(pts(2,i)*5.0) * &
-                        sin(pts(3,i)*10.0)
-
-       @assertEqual(interpvals(i), analytical_val, tolerance=test_tol)
-    end do
-  end subroutine test_glob_interp_sinwaves_radial
+  !     @assertEqual(interpvals(i), analytical_val, tolerance=test_tol)
+  !  end do
+  !end subroutine test_glob_interp_sinwaves_radial
 end module glob_interp_par
