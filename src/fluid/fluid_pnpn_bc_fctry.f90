@@ -135,44 +135,44 @@ contains
 
     call json_get(json, "type", type)
 
-    if (trim(type) .eq. "symmetry") then
+    select case (trim(type))
+      case ("symmetry")
        allocate(symmetry_t::object)
-    else if (trim(type) .eq. "velocity_value") then
+      case ("velocity_value")
        allocate(inflow_t::object)
-    else if (trim(type) .eq. "no_slip") then
+      case ("no_slip")
        allocate(zero_dirichlet_t::object)
-    else if (trim(type) .eq. "normal_outflow" .or. &
-             trim(type) .eq. "normal_outflow+dong") then
+      case ("normal_outflow", "normal_outflow+dong")
        allocate(non_normal_t::object)
-    else if (trim(type) .eq. "blasius_profile") then
+      case ("blasius_profile")
        allocate(blasius_t::object)
-    else if (trim(type) .eq. "shear_stress") then
+      case ("shear_stress")
        allocate(shear_stress_t::object)
-    else if (trim(type) .eq. "wall_model") then
+      case ("wall_model")
        allocate(wall_model_bc_t::object)
        ! Kind of hack, but maybe OK? The thing is, we need the nu for
        ! initing the wall model, and forcing the user duplicate that there
        ! would be a nightmare.
        call json%add("nu", scheme%mu / scheme%rho)
-    else if (trim(type) .eq. "user_velocity") then
+      case ("user_velocity")
        allocate(field_dirichlet_vector_t::object)
        select type(obj => object)
-       type is(field_dirichlet_vector_t)
+         type is(field_dirichlet_vector_t)
           obj%update => user%user_dirichlet_update
        end select
-    else if (trim(type) .eq. "user_velocity_pointwise") then
+      case ("user_velocity_pointwise")
        allocate(usr_inflow_t::object)
        select type(obj => object)
-       type is(usr_inflow_t)
+         type is(usr_inflow_t)
           call obj%set_eval(user%fluid_user_if)
        end select
-    else
-      do i=1, size(FLUID_PNPN_KNOWN_BCS)
-         if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
-      end do
-      call neko_type_error("fluid_pnpn boundary conditions", type, &
-           FLUID_PNPN_KNOWN_BCS)
-    end if
+      case default
+       do i = 1, size(FLUID_PNPN_KNOWN_BCS)
+          if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
+       end do
+       call neko_type_error("fluid_pnpn boundary conditions", type, &
+            FLUID_PNPN_KNOWN_BCS)
+    end select
 
     call json_get(json, "zone_index", zone_index)
     call object%init(coef, json)
