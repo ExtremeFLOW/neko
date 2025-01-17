@@ -53,6 +53,12 @@
             "boundary_types": [
                 "w", "v", "w"
             ]
+            "boundary_conditions": [
+                {
+                    "type": "no_slip",
+                    "zone_indices": [1, 2, 3]
+                }
+            ]
         },
         "scalar": {
             "enabled": true,
@@ -60,8 +66,11 @@
             "initial_condition": {
                 "type": "user"
             },
-            "boundary_types": [
-                "user", "user", ""
+            "boundary_conditions": [
+                {
+                    "type": "user_pointwise",
+                    "zone_indices": [1, 2]
+                }
             ]
         },
         "simulation_components": [

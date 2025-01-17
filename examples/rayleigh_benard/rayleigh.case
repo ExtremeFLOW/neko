@@ -43,36 +43,32 @@
             },
             "output_control": "simulationtime",
             "output_value": 0.1,
-            "boundary_types": [
-                "",
-                "",
-                "",
-                "",
-                "w",
-                "w"
+            "boundary_conditions": [
+                {
+                    "type": "no_slip",
+                    "zone_indices": [5, 6]
+                }
             ]
         },
         "scalar": {
             "enabled": true,
             "Pr": 0.71,
             "boundary_conditions": [
-            {
-                "type": "dirichlet",
-                "zone_index": 5,
-                "value": 1.0
-            },
-            {
-                "type": "dirichlet",
-                "zone_index": 6,
-                "value": 0.0
-            },
-            {
-                "type": "user_pointwise"
-            }
+                {
+                    "type": "dirichlet",
+                    "value": 1,
+                    "zone_indices": [5]
+                },
+                {
+                    "type": "dirichlet",
+                    "value": 0,
+                    "zone_indices": [6]
+                }
             ],
             "initial_condition": {
                 "type": "user"
             }
         }
+    }
     }
 }

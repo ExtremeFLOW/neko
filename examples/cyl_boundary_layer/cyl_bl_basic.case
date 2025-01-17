@@ -38,35 +38,26 @@
         [
             {
                 "type": "velocity_value",
-                "zone_index": 1,
+                "zone_indices": [1],
                 "value": [1, 0, 0]
             },
             {
                 "type": "outflow",
-                "zone_index": 2
+                "zone_indices": [2]
             },
             {
                 "type": "symmetry",
-                "zone_index": 3
+                "zone_indices": [3]
             },
             {
                 "type": "no_slip",
-                "zone_index": 4
+                "zone_indices": [4, 7]
             },
             {
                 "type": "normal_outflow",
-                "zone_index": 5
-            },
-            {
-                "type": "normal_outflow",
-                "zone_index": 6
-            },
-            {
-                "type": "no_slip",
-                "zone_index": 7
+                "zone_indices": [5, 6]
             }
         ],
-        "boundary_types": ["v", "o", "sym", "w", "on", "on", "w"],
         "output_control": "nsamples",
         "output_value": 400
     }

@@ -40,25 +40,24 @@
         "boundary_conditions": [
         {
             "type": "symmetry",
-            "zone_index": 1
+            "zone_indices": [1]
         },
         {
             "type": "no_slip",
-            "zone_index": 2
+            "zone_indices": [2]
         },
         {
             "type": "outflow",
-            "zone_index": 3
+            "zone_indices": [3]
         },
         {
             "type": "blasius_profile",
-            "zone_index": 4,
+            "zone_indices": [4],
             "approximation": "sin",
             "delta": 0.6,
             "freestream_velocity": [1.0, 0.0, 0.0]
         }
         ],
-        "boundary_types": ["sym", "w", "o", "v"],
         "output_control": "nsamples",
         "output_value": 2 
     }

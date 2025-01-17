@@ -41,7 +41,12 @@
         },
         "output_control": "simulationtime",
         "output_value": 5,
-        "boundary_types": ["", "", "w"]
+        "boundary_conditions": [
+            {
+                "type": "no_slip",
+                "zone_index": 3
+            }
+        ]
     }
 }
 }

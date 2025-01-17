@@ -24,12 +24,6 @@
                     0.0
                 ]
             },
-            "inflow_condition": {
-                "type": "uniform",
-                "value": [
-                    1.0
-                ]
-            },
             "velocity_solver": {
                 "type": "cg",
                 "preconditioner": "jacobi",
@@ -46,13 +40,20 @@
             },
             "output_control": "nsamples",
             "output_value": 250,
-            "boundary_types": [
-                "v",
-                "o",
-                "w",
-                "w",
-                "w",
-                "w"
+            "boundary_conditions": [
+                {
+                    "type": "velocity_dirichlet",
+                    "value": [1, 0, 0],
+                    "zone_indices": [1]
+                },
+                {
+                    "type": "outflow",
+                    "zone_indices": [2]
+                },
+                {
+                    "type": "no_slip",
+                    "zone_indices": [3, 4, 5, 6]
+                }
             ],
             "source_terms": [
                 {

@@ -34,7 +34,16 @@
     },
     "output_control": "simulationtime",
     "output_value": 5,
-    "boundary_types": ["w", "v"]
+    "boundary_conditions": [
+        {
+            "type": "no_slip",
+            "zone_indices": [1]
+        },
+        {
+            "type": "user_velocity_pointwise",
+            "zone_indices": [2]
+        }
+    ]
   },
   "simulation_components":
   [
