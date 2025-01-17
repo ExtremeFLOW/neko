@@ -50,7 +50,7 @@ contains
   
   end subroutine test_glob_interp_gen_msh
   
-  @test(npes=[1])
+  @test(npes=[2])
   subroutine test_glob_interp_init(this)
     class (test_glob_interp), intent(inout) :: this
     type(space_t) :: Xh
@@ -97,7 +97,7 @@ contains
     end do
   end subroutine test_glob_interp_init
 
-  @test(npes=[1])
+  @test(npes=[2])
   subroutine test_glob_interp_interp_down(this)
     class (test_glob_interp), intent(inout) :: this
     type(space_t) :: Xh, Xh2
@@ -147,7 +147,7 @@ contains
     end do
   end subroutine test_glob_interp_interp_down
   
-  @test(npes=[1])
+  @test(npes=[2])
   subroutine test_glob_interp_sinwaves_radial(this)
     class (test_glob_interp), intent(inout) :: this
     type(space_t) :: Xh
