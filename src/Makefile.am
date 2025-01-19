@@ -182,6 +182,7 @@ neko_fortran_SOURCES = \
 	time_schemes/ext_time_scheme.f90\
 	time_schemes/ab_time_scheme.f90\
 	time_schemes/time_scheme_controller.f90\
+	time_schemes/runge_kutta_scheme.f90\
 	common/time_based_controller.f90\
 	common/stats_quant.f90\
 	common/statistics.f90\
@@ -614,7 +615,7 @@ EXTRA_DIST = \
 	common/bcknd/device/hip/gradient_jump_penalty_kernel.h\
 	fluid/bcknd/device/hip/prs_res_kernel.h\
 	fluid/bcknd/device/hip/vel_res_update_kernel.h\
-	fluid/bcknd/device/hip/euler_rhs_kernel.h\
+	fluid/bcknd/device/hip/euler_res_kernel.h\
 	fluid/stress_formulation/bcknd/device/hip/prs_stress_res_kernel.h\
 	scalar/bcknd/device/hip/scalar_residual_update_kernel.h\
 	krylov/bcknd/device/cuda/pipecg_kernel.h\

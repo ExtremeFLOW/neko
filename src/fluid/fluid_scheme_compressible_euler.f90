@@ -4,7 +4,7 @@ module fluid_scheme_compressible_euler
   use dofmap, only : dofmap_t
   use field_math, only : field_add2, field_cfill, field_cmult, field_cadd, field_copy, field_col2, &
                          field_col3, field_addcol3, field_sub2, field_invcol2
-  use math, only : col2
+  use math, only : col2, copy, col3, addcol3, subcol3
   use device_math, only : device_col2
   use field, only : field_t
   use fluid_scheme_compressible, only: fluid_scheme_compressible_t
@@ -25,6 +25,7 @@ module fluid_scheme_compressible_euler
   use space, only : space_t
   use euler_residual, only: euler_rhs_t, euler_rhs_factory
   use neko_config, only : NEKO_BCKND_DEVICE
+  use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   implicit none
   private
 
@@ -36,12 +37,13 @@ module fluid_scheme_compressible_euler
      class(advection_t), allocatable :: adv
      class(ax_t), allocatable :: Ax
      class(euler_rhs_t), allocatable :: euler_rhs
+     type(runge_kutta_time_scheme_t) :: rk_scheme
    contains
      procedure, pass(this) :: init => fluid_scheme_compressible_euler_init
      procedure, pass(this) :: free => fluid_scheme_compressible_euler_free
      procedure, pass(this) :: step => fluid_scheme_compressible_euler_step
      procedure, pass(this) :: restart => fluid_scheme_compressible_euler_restart
-     procedure, pass(this) :: rk4
+     !procedure, pass(this) :: advance_primitive_variables
      procedure, pass(this) :: compute_h
   end type fluid_scheme_compressible_euler_t
 
@@ -54,6 +56,7 @@ contains
     type(user_t), target, intent(in) :: user
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     character(len=12), parameter :: scheme = 'compressible'
+    integer :: rk_order
 
     call this%free()
 
@@ -104,6 +107,10 @@ contains
     call this%compute_h()
     call json_get_or_default(params, 'case.numerics.c_avisc_low', this%c_avisc_low, 0.5_rp)
 
+    ! Initialize Runge-Kutta scheme
+    call json_get_or_default(params, 'case.numerics.time_order', rk_order, 4)
+    call this%rk_scheme%init(rk_order)
+
   end subroutine fluid_scheme_compressible_euler_init
 
   subroutine fluid_scheme_compressible_euler_free(this)
@@ -139,7 +146,6 @@ contains
     integer :: temp_indices(1)
     ! number of degrees of freedom
     integer :: n
-    type(field_list_t) :: rhs_fields
 
     n = this%dm_Xh%size()
     call this%scratch%request_field(temp, temp_indices(1))
@@ -155,26 +161,16 @@ contains
       f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
       drho => this%drho, dm_x => this%dm_x, dm_y => this%dm_y, &
       dm_z => this%dm_z, dE => this%dE, &
-      euler_rhs => this%euler_rhs, h => this%h)
+      euler_rhs => this%euler_rhs, h => this%h, &
+      c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
-      ! WIP: debugging setting m to (rho, 0, 0)
-      ! call field_copy(m_x, rho_field, n)
-      ! call field_col2(m_x, m_x, n) ! burgers
-      ! call field_cfill(m_y, 0.0_rp, n)
+      ! WIP: Use m_z for visualization of rho
       call field_cfill(m_z, 0.0_rp, n)
 
-      call rhs_fields%init(5)
-      call rhs_fields%assign(1, rho_field)
-      call rhs_fields%assign(2, m_x)
-      call rhs_fields%assign(3, m_y)
-      call rhs_fields%assign(4, m_z)
-      call rhs_fields%assign(5, E)
-
-      ! call euler_rhs%compute(drho, dm_x, dm_y, dm_z, dE, &
-      !     rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
-      !     c_Xh, gs_Xh)
-
-      call this%rk4(dt, rho_field, m_x, m_y, m_z, E, drho, dm_x, dm_y, dm_z, dE)
+      call this%euler_rhs%step(rho_field, m_x, m_y, m_z, E, &
+                                p, u, v, w, Ax, &
+                                c_Xh, gs_Xh, h, c_avisc_low, &
+                                rk_scheme, dt)
 
       !> TODO: apply boundary conditions
 
@@ -209,38 +205,8 @@ contains
 
   end subroutine fluid_scheme_compressible_euler_step
 
-  subroutine rk4(this, dt, rho_field, m_x, m_y, m_z, E, rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E)
-    class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
-    real(kind=rp), intent(in) :: dt
-    type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
-    type(field_t), intent(inout) :: rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E
-    integer :: n
-
-    call this%euler_rhs%compute(rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E, &
-          rho_field, m_x, m_y, m_z, E, this%p, this%u, this%v, this%w, this%Ax, &
-          this%c_Xh, this%gs_Xh, this%h, this%c_avisc_low)
-
-    n = this%dm_Xh%size()
-
-    !> WIP: starting with forward Euler first
-
-    !> rho = rho - dt * div(m)
-    call field_cmult(rhs_rho_field, dt, n)
-    call field_sub2(rho_field, rhs_rho_field, n)
-    !> m = m - dt * div(rho * u * u^T + p*I)
-    call field_cmult(rhs_m_x, dt, n)
-    call field_sub2(m_x, rhs_m_x, n)
-    call field_cmult(rhs_m_y, dt, n)
-    call field_sub2(m_y, rhs_m_y, n)
-    call field_cmult(rhs_m_z, dt, n)
-    call field_sub2(m_z, rhs_m_z, n)
-    !> E = E - dt * div(u * (E + p))
-    call field_cmult(rhs_E, dt, n)
-    call field_sub2(E, rhs_E, n)
-
-  end subroutine rk4
-
   !> Copied from les_model_compute_delta in les_model.f90
+  !> TODO: move to a separate module
   subroutine compute_h(this)
     class(fluid_scheme_compressible_euler_t), intent(inout) :: this
     integer :: e, i, j, k

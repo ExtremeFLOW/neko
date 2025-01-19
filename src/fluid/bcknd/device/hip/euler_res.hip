@@ -36,20 +36,20 @@
 #include <device/device_config.h>
 #include <device/hip/check.h>
 
-#include "euler_rhs_kernel.h"
+#include "euler_res_kernel.h"
 
 extern "C" {
 
-  void euler_res_part_visc_hip(void *rhs_rho, void *Binv, void * h,
-                              void *lap_rho, real *c_avisc, int *n) {
+  void euler_res_part_visc_hip(void *rhs, void *Binv, void * h,
+                              void *lap_sol, real *c_avisc, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME( euler_res_part_visc_kernel<real> ),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                       (real *) rhs_rho, (real *) Binv, 
-                       (real *) lap_rho, (real *) h,
+                       (real *) rhs, (real *) Binv, 
+                       (real *) lap_sol, (real *) h,
                        *c_avisc, *n);
     HIP_CHECK(hipGetLastError());
   }
@@ -126,6 +126,24 @@ extern "C" {
                        (real *) rhs_rho, (real *) rhs_m_x,
                        (real *) rhs_m_y, (real *) rhs_m_z,
                        (real *) rhs_E, (real *) mult, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  void euler_res_part_rk_sum_hip(void *rho, void *m_x, void *m_y,
+                                  void *m_z, void *E,
+                                  void *k_rho_i, void *k_m_x_i, void *k_m_y_i,
+                                  void *k_m_z_i, void *k_E_i,
+                                  real *dt, real *c, int *n) {
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME( euler_res_part_rk_sum_kernel<real> ),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) rho, (real *) m_x, (real *) m_y,
+                       (real *) m_z, (real *) E,
+                       (real *) k_rho_i, (real *) k_m_x_i, (real *) k_m_y_i,
+                       (real *) k_m_z_i, (real *) k_E_i,
+                       *dt, *c, *n);
     HIP_CHECK(hipGetLastError());
   }
 }

@@ -2,9 +2,9 @@
 #define __FLUID_EULER_RES_KERNEL__
 
 template< typename T >
-__global__ void euler_res_part_visc_kernel(T * __restrict__ rhs_rho,
+__global__ void euler_res_part_visc_kernel(T * __restrict__ rhs,
                                      const T * __restrict__ Binv,
-                                     const T * __restrict__ lap_rho,
+                                     const T * __restrict__ lap_sol,
                                      const T * __restrict__ h,
                                      const T c_avisc,
                                      const int n) {
@@ -13,7 +13,7 @@ __global__ void euler_res_part_visc_kernel(T * __restrict__ rhs_rho,
   const int str = blockDim.x * gridDim.x;
   
   for (int i = idx; i < n; i += str) {
-    rhs_rho[i] =  rhs_rho[i] + c_avisc * h[i] * Binv[i] * lap_rho[i];
+    rhs[i] =  -rhs[i] - c_avisc * h[i] * Binv[i] * lap_sol[i];
   }
 }
 
@@ -120,6 +120,33 @@ __global__ void euler_res_part_coef_mult_kernel(T * __restrict__ rhs_rho,
     rhs_m_y[i] = rhs_m_y[i] * mult[i];
     rhs_m_z[i] = rhs_m_z[i] * mult[i];
     rhs_E[i] = rhs_E[i] * mult[i];
+  }
+}
+
+template< typename T >
+__global__ void euler_res_part_rk_sum_kernel(T * __restrict__ rho,
+                                    T * __restrict__ m_x,
+                                    T * __restrict__ m_y,
+                                    T * __restrict__ m_z,
+                                    T * __restrict__ E,
+                                    const T * __restrict__ k_rho_i,
+                                    const T * __restrict__ k_m_x_i,
+                                    const T * __restrict__ k_m_y_i,
+                                    const T * __restrict__ k_m_z_i,
+                                    const T * __restrict__ k_E_i,
+                                    const T dt,
+                                    const T c,
+                                    const int n) {
+  
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  
+  for (int i = idx; i < n; i += str) {
+    rho[i] = rho[i] + dt * c * k_rho_i[i];
+    m_x[i] = m_x[i] + dt * c * k_m_x_i[i];
+    m_y[i] = m_y[i] + dt * c * k_m_y_i[i];
+    m_z[i] = m_z[i] + dt * c * k_m_z_i[i];
+    E[i] = E[i] + dt * c * k_E_i[i];
   }
 }
 
