@@ -41,23 +41,23 @@
         {
             "type": "velocity_value",
             "value": [1, 0, 0],
-            "zone_index": 1
+            "zone_indices": [1]
         },
         {
             "type": "outflow+dong",
-            "zone_index": 2
+            "zone_indices": [2]
         },
         {
             "type": "normal_outflow",
-            "zone_index": 5
+            "zone_indices": [5]
         },
         {
             "type": "normal_outflow",
-            "zone_index": 6
+            "zone_indices": [6]
         },
         {
             "type": "no_slip",
-            "zone_index": 7
+            "zone_indices": [7]
         }
         ],
         "output_control": "simulationtime",
