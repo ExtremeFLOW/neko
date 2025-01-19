@@ -93,6 +93,7 @@ module euler_res_device
                                           dt, b_i, n) &
         bind(c, name = 'euler_res_part_rk_sum_hip')
       use, intrinsic :: iso_c_binding
+      import c_rp
       implicit none
       type(c_ptr), value :: rho, m_x, m_y, m_z, E, &
                             k_rho_i, k_m_x_i, k_m_y_i, &
@@ -174,6 +175,7 @@ module euler_res_device
                                           dt, c, n) &
         bind(c, name = 'euler_res_part_rk_sum_cuda')
       use, intrinsic :: iso_c_binding
+      import c_rp
       implicit none
       type(c_ptr), value :: rho, m_x, m_y, m_z, E, &
                             k_rho_i, k_m_x_i, k_m_y_i, &
@@ -270,12 +272,12 @@ contains
 
         do j = 1, i-1
 #ifdef HAVE_HIP
-          call euler_res_part_rk_sum_hip(temp_rho%x_d, temp_m_x%x_d, temp_m_y%x_d, temp_m_z%x_d, &
+          call euler_res_part_rk_sum_hip(temp_rho%x_d, temp_m_x%x_d, temp_m_y%x_d, temp_m_z%x_d, temp_E%x_d, &
                                           k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, k_m_y%items(j)%ptr%x_d, &
                                           k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
                                           dt, rk_scheme%coeffs_A(i, j), n)
 #elif HAVE_CUDA
-          call euler_res_part_rk_sum_cuda(temp_rho%x_d, temp_m_x%x_d, temp_m_y%x_d, temp_m_z%x_d, &
+          call euler_res_part_rk_sum_cuda(temp_rho%x_d, temp_m_x%x_d, temp_m_y%x_d, temp_m_z%x_d, temp_E%x_d, &
                                           k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, k_m_y%items(j)%ptr%x_d, &
                                           k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
                                           dt, rk_scheme%coeffs_A(i, j), n)
@@ -295,12 +297,12 @@ contains
     ! Update the solution
     do i = 1, s
 #ifdef HAVE_HIP
-      call euler_res_part_rk_sum_hip(rho_field%x_d, m_x%x_d, m_y%x_d, m_z%x_d, &
+      call euler_res_part_rk_sum_hip(rho_field%x_d, m_x%x_d, m_y%x_d, m_z%x_d, E%x_d, &
                                       k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, k_m_y%items(i)%ptr%x_d, &
                                       k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
                                       dt, rk_scheme%coeffs_b(i), n)
 #elif HAVE_CUDA
-      call euler_res_part_rk_sum_cuda(rho_field%x_d, m_x%x_d, m_y%x_d, m_z%x_d, &
+      call euler_res_part_rk_sum_cuda(rho_field%x_d, m_x%x_d, m_y%x_d, m_z%x_d, E%x_d, &
                                       k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, k_m_y%items(i)%ptr%x_d, &
                                       k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
                                       dt, rk_scheme%coeffs_b(i), n)
