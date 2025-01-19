@@ -644,53 +644,39 @@ u%scalar_user_f_vector => set_source
 
 ### Complex fluid and/or scalar boundary conditions {#user-file_field-dirichlet-update}
 
-This user function can be used to specify dirichlet boundary values for velocity
-components `u,v,w`, the pressure `p`, and/or the scalar `s`. This type of boundary
-condition allows for time-dependent velocity profiles (currently
-not possible with a standard `user_inflow`) or non-uniform pressure profiles
-to e.g. impose an outlet pressure computed from another simulation.
+This user function can be used to specify Dirichlet boundary values for velocity
+components `u,v,w`, the pressure `p`, and/or the scalar `s`. This type of
+boundary condition allows for time-dependent velocity profiles (currently not
+possible with the `user_pointiwse` boundary condition) or non-uniform pressure
+profiles to e.g. impose an outlet pressure computed from another simulation.
 
-The selection of such boundary condition is done in the `case.fluid.boundary_types`
-array for the velocities and pressure, and in the `case.scalar.boundary_types`
-array for the scalar. The [case file](@ref case-file_boundary-types) outlines which keywords can be used for such purpose:
-* `d_vel_u` for the `u` component of the velocity field
-* `d_vel_v` for the `v` component of the velocity field
-* `d_vel_w` for the `w` component of the velocity field
-* `d_pres` for the pressure field
-* `d_s` for the scalar field (cannot be combined with the above)
+The user routine is called by the `user_velocity` and `user_pressure` boundary
+condtitions for the fluid, and the `user` boundary condtition for the scalar.
+Once the appropriate boundaries have been identified, the user function
+`field_dirichlet_update` should be used to compute and apply the desired values
+to our velocity/pressure/scalar field(s). The prefix "field" in
+`field_dirichlet_update` refers to the fact that a list of entire fields is
+passed down for the user to edit.
 
-The separator `"/"` can be used to combine the keywords related to `u,v,w` and `p`.
-For example, if one wants to only apply `u,v` and `p` values on a given boundary, one
-should use `"d_vel_u/d_vel_v/d_pres"`. In this case, the `w` component would be
-left untouched (not zeroed!). An example of case file from the
-[cyl-boundary-layer example](https://github.com/ExtremeFLOW/neko/blob/develop/examples/cyl_boundary_layer/cyl_bl_user_bc_test.case) is shown below.
+The fields that are passed down depends on the underlying boundary conditions.
+For `user_velocity`, it will be a list of 3 fields with names `u`, `v`, `w`; For
+`user_pressure`, a list with a single field `p`; For the scalar, also a single
+field with the same name as the solution field for the scalar (`s` by default).
 
-```.json
+It is crucial to understand that all three boundary condition will call the same
+routine! So, if one has, for example, both `user_velocity` for the fluid and
+`user` for the scalar, it is necessary to have an `if` statement in the user
+routine to distinguish between the two cases. The convenient way to do that is
+to check the size of the passed field list and the names of the fields inside.
+For example, if there is one field and it is called `s`, one executes the code
+setting the boundary values for the scalar `s`.
 
-"case": {
-    "fluid": {
-        "boundary_types": [
-          "d_vel_u/d_vel_v/d_vel_w",
-          "d_vel_u/d_vel_v/d_vel_w/d_pres",
- 	      "sym",
-          "w",
-          "on",
-          "on",
-          "w"
-        ]
-    }
-    "scalar": {
-        "boundary_types": [
-          "d_s",
-          "d_s",
-          "",
-          "",
-          "",
-          ""
-        ]
-    }
-}
-```
+Note that the fields that one manipulates in the user routine are not the actual
+velocity fields, etc. Instead, the code copy does a masked copy from the fields
+manipuated in the user routine to the actual fields of unknowns, with the mask
+corresponding to the boundary faces. So, even if you somehow manipulate the
+fields elsewhere in the domain inside the user routine, that will not affect the
+solution.
 
 In this example, we indicate in `case.fluid.boundary_types` that we would like
 to apply a velocity profile on all three components `u,v,w` on the boundary
@@ -699,15 +685,6 @@ boundary), we also indicate the three velocity components, with the addition
 of the pressure. In `case.scalar.boundary_types`, we indicate the same for the
 scalar on boundaries 1 and 2 (inlet and outlet).
 
-@attention Do not confuse the `d_s` and `d=x` boundary conditions for the scalar.
-The latter is to be used to specify a constant Dirichlet value `x` along the
-relevant boundary.
-
-Once the appropriate boundaries have been identified and labeled,
-the user function `field_dirichlet_update` should be used to compute and
-apply the desired values to our velocity/pressure/scalar field(s). The prefix
-"field" in `field_dirichlet_update` refers to the fact that
-a list of entire fields is passed down for the user to edit.
 
 The fields that are passed down are tied to the `boundary_types` keywords passed in
 the case file. The function `field_dirichlet_update` is then called internally,
@@ -725,7 +702,6 @@ The header of the user function is given in the code snippet below.
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    character(len=*), intent(in) :: which_solver
 ```
 
 The arguments and their purpose are as follows:
@@ -734,11 +710,6 @@ The arguments and their purpose are as follows:
 of `field_t` objects.
   * The field `i` contained in `field_bc_list` is accessed using
   `field_bc_list%%items(i)%%ptr` and will refer to a `field_t` object.
-  * If `which_solver = "fluid"`, it will contain the 4 fields `u,v,w,p`. They
-  are retrieved in that order in `field_bc_list`, i.e. `u` corresponds to
-  `field_bc_list%%items(1)%%ptr`, etc.
-  * If `which_solver = "scalar"`, it will only contain the scalar field `s`.
-
 * `bc_bc_list` contains a list of the `bc_t` objects to help access the
   boundary indices through the boundary `mask`.
   * The boundary `i` contained in `bc_bc_list` is accessed with
@@ -756,7 +727,6 @@ of `field_t` objects.
 * `coef` is a `coef_t` object containing various numerical parameters and
 variables, such as the polynomial order `lx`, derivatives, facet normals...
 * `t`, `tstep` are self-explanatory.
-* `which_solver` takes the value `"fluid"` when the user function is called in
 the fluid solver. It takes the value `"scalar"` when it is called in the scalar
 solver.
 
