@@ -169,7 +169,7 @@ contains
     call Xh%init(GLL, lx, lx, lx)
     call dof%init(msh, Xh)
     call glob_interp%init(dof,tol=NEKO_EPS*1e3)
-    test_tol = glob_interp%tol*1e3
+    test_tol = max(glob_interp%tol,1e-9)
     
     @assertTrue(allocated(glob_interp%global_aabb))
     @assertTrue(allocated(glob_interp%local_aabb))
