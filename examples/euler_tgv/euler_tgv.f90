@@ -1,8 +1,4 @@
-! Lid-driven cavity
-!
-! Time-integration of the lid-driven cavity with smoothened
-! belt velocity to fulfil continuity equation.
-!
+! Taylor-Green vortex (TGV)
 module user
   use neko
   implicit none

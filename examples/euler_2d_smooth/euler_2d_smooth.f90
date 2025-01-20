@@ -1,7 +1,5 @@
-! Lid-driven cavity
-!
-! Time-integration of the lid-driven cavity with smoothened
-! belt velocity to fulfil continuity equation.
+! Exact solution for the smooth wave propagation problem
+! with periodic boundary conditions
 !
 module user
   use neko

@@ -1,7 +1,4 @@
-! Lid-driven cavity
-!
-! Time-integration of the lid-driven cavity with smoothened
-! belt velocity to fulfil continuity equation.
+! Sod's shock tube problem
 !
 module user
   use neko
@@ -50,10 +47,6 @@ module user
         rho%x(i,1,1,1) = 0.125
         p%x(i,1,1,1) = 0.1
       end if
-
-      ! the smoothen initial condition
-      ! rho%x(i,1,1,1) = (1-tanh((x-0.5)/theta))/2.0 * (1.0-0.125) + 0.125
-      ! p%x(i,1,1,1) = (1-tanh((x-0.5)/theta))/2.0 * (1.0-0.1) + 0.1
     end do
   end subroutine user_ic
 

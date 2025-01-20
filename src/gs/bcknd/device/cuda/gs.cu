@@ -154,17 +154,6 @@ extern "C" {
                                           dof_d + offset, n);
       }
       break;
-    case GS_OP_MIN:
-      if (stream == NULL) {
-        gs_unpack_add_kernel<real>
-          <<<nblcks, nthrds>>>(u_d, buf_d + offset, dof_d + offset, n);
-      }
-      else {
-        gs_unpack_add_kernel<real>
-          <<<nblcks, nthrds, 0, stream>>>(u_d, buf_d + offset,
-                                          dof_d + offset, n);
-      }
-      break;
     default:
       printf("%s: unknown gs op %d\n", __FILE__, op);
       abort();

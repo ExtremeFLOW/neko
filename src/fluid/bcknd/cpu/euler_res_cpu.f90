@@ -1,3 +1,4 @@
+!> Functions related to the residual of the Euler equations
 module euler_res_cpu
   use euler_residual, only : euler_rhs_t
   use field, only : field_t
