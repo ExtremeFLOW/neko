@@ -33,7 +33,7 @@
 !> Implements global_interpolation given a dofmap.
 !!
 module global_interpolation
-  use num_types, only: rp, dp
+  use num_types, only: rp, dp, xp
   use space, only: space_t
   use stack
   use dofmap, only: dofmap_t
