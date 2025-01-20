@@ -101,55 +101,55 @@ contains
     print*,'can I print in the CI 5?'
   end subroutine test_glob_interp_init
 
-  !@test(npes=[2])
-  !subroutine test_glob_interp_interp_down(this)
-  !  class (test_glob_interp), intent(inout) :: this
-  !  type(space_t) :: Xh, Xh2
-  !  type(mesh_t) :: msh
-  !  type(dofmap_t) :: dof, dof2
-  !  type(global_interpolation_t) :: glob_interp
-  !  integer, parameter :: LX = 6
-  !  integer, parameter :: LX2 = 4
-  !  type(field_t) :: test_field
-  !  integer :: ierr, i
-  !  real(kind=rp) :: temp, cord, test_tol
+  @test(npes=[2])
+  subroutine test_glob_interp_interp_down(this)
+    class (test_glob_interp), intent(inout) :: this
+    type(space_t) :: Xh, Xh2
+    type(mesh_t) :: msh
+    type(dofmap_t) :: dof, dof2
+    type(global_interpolation_t) :: glob_interp
+    integer, parameter :: LX = 6
+    integer, parameter :: LX2 = 4
+    type(field_t) :: test_field
+    integer :: ierr, i
+    real(kind=rp) :: temp, cord, test_tol
 
-  !  call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
-  !  pe_rank = this%getProcessRank()
-  !  pe_size = this%getNumProcesses()
-  !  call test_glob_interp_gen_msh(msh)
-  !  call Xh%init(GLL, lx, lx, lx)
-  !  call dof%init(msh, Xh)
-  !  call Xh2%init(GLL, lx2, lx2, lx2)
-  !  call dof2%init(msh, Xh2)
-  !  call glob_interp%init(dof)
-  !  test_tol = glob_interp%tol
-  !  
-  !  @assertTrue(allocated(glob_interp%global_aabb))
-  !  @assertTrue(allocated(glob_interp%local_aabb))
-  !  call test_field%init(dof2)
-  !  call glob_interp%find_points(dof2%x, dof2%y, dof2%z, dof2%size())
-  !  call glob_interp%evaluate(test_field%x, dof%x, .true.)
-  !  do i = 1, dof2%size()
-  !     temp = test_field%x(i,1,1,1)
-  !     cord = dof2%x(i,1,1,1)
-  !     @assertEqual(temp, cord,tolerance=test_tol)
-  !  end do
-  !  call glob_interp%evaluate(test_field%x, dof%y, .true.)
-  !  do i = 1, dof2%size()
-  !     temp = test_field%x(i,1,1,1)
-  !     cord = dof2%y(i,1,1,1)
-  !     @assertEqual(temp, cord,tolerance=test_tol)
-  !  end do
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+    call test_glob_interp_gen_msh(msh)
+    call Xh%init(GLL, lx, lx, lx)
+    call dof%init(msh, Xh)
+    call Xh2%init(GLL, lx2, lx2, lx2)
+    call dof2%init(msh, Xh2)
+    call glob_interp%init(dof)
+    test_tol = glob_interp%tol
+    
+    @assertTrue(allocated(glob_interp%global_aabb))
+    @assertTrue(allocated(glob_interp%local_aabb))
+    call test_field%init(dof2)
+    call glob_interp%find_points(dof2%x, dof2%y, dof2%z, dof2%size())
+    call glob_interp%evaluate(test_field%x, dof%x, .true.)
+    do i = 1, dof2%size()
+       temp = test_field%x(i,1,1,1)
+       cord = dof2%x(i,1,1,1)
+       @assertEqual(temp, cord,tolerance=test_tol)
+    end do
+    call glob_interp%evaluate(test_field%x, dof%y, .true.)
+    do i = 1, dof2%size()
+       temp = test_field%x(i,1,1,1)
+       cord = dof2%y(i,1,1,1)
+       @assertEqual(temp, cord,tolerance=test_tol)
+    end do
 
-  !  call glob_interp%evaluate(test_field%x, dof%z, .true.)
-  !  do i = 1, dof2%size()
-  !     temp = test_field%x(i,1,1,1)
-  !     cord = dof2%z(i,1,1,1)
-  !     @assertEqual(temp, cord,tolerance=test_tol)
-  !  end do
-  !end subroutine test_glob_interp_interp_down
+    call glob_interp%evaluate(test_field%x, dof%z, .true.)
+    do i = 1, dof2%size()
+       temp = test_field%x(i,1,1,1)
+       cord = dof2%z(i,1,1,1)
+       @assertEqual(temp, cord,tolerance=test_tol)
+    end do
+  end subroutine test_glob_interp_interp_down
   !
   !@test(npes=[2])
   !subroutine test_glob_interp_sinwaves_radial(this)
