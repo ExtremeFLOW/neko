@@ -97,7 +97,8 @@ module device
        device_profiler_start, device_profiler_stop, device_alloc, &
        device_init, device_name, device_event_create, device_event_destroy, &
        device_event_record, device_event_sync, device_finalize, &
-       device_stream_wait_event, device_memcpy_common
+       device_stream_wait_event
+  private :: device_memcpy_common
 
 contains
 
@@ -353,8 +354,8 @@ contains
   !! @note For host-device copies @a dst is the host pointer and @a src is the
   !! device pointer (regardless of @a dir)
   subroutine device_memcpy_cptr(dst, src, s, dir, sync, strm)
-    type(c_ptr), intent(inout) :: dst
-    type(c_ptr), intent(inout) :: src
+    type(c_ptr), intent(in) :: dst
+    type(c_ptr), intent(in) :: src
     integer(c_size_t), intent(in) :: s
     integer, intent(in), value :: dir
     logical, optional :: sync
