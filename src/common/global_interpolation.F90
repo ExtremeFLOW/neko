@@ -563,7 +563,7 @@ contains
                                  resx%x_d, resy%x_d, resz%x_d, &
                                  this%Xh%lx,el_cands_d, n_point_cand, this%tol, &
                                  conv_pts_d)
-          call device_memcpy_common(c_loc(conv_pts), conv_pts_d, bytes, DEVICE_TO_HOST, .true., glb_cmd_queue)
+          call device_memcpy(c_loc(conv_pts), conv_pts_d, bytes, DEVICE_TO_HOST, .true., glb_cmd_queue)
           converged = .true.
           iter = iter + 1
           do i = 1, n_point_cand
