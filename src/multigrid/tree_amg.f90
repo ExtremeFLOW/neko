@@ -424,11 +424,9 @@ contains
     lvl = lvl_out
     n = this%lvl(1)%fine_lvl_dofs
     if (lvl .eq. 0) then !> isleaf true
-      call this%gs_h%op(vec_in, n, GS_OP_ADD)
-      call device_col2( vec_in_d, this%coef%mult_d, n)
       call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
       call this%gs_h%op(vec_out, n, GS_OP_ADD)
-      !call this%blst%apply(vec_out, n)
+      call this%blst%apply(vec_out, n)
     else !> pass down through hierarchy
 
       associate( wrk_in_d => this%lvl(1)%wrk_in_d, wrk_out_d => this%lvl(1)%wrk_out_d)
@@ -440,7 +438,7 @@ contains
       !> Finest level matvec (Call local finite element assembly)
       call this%ax%compute(this%lvl(1)%wrk_out, this%lvl(1)%wrk_in, this%coef, this%msh, this%Xh)
       call this%gs_h%op(this%lvl(1)%wrk_out, n, GS_OP_ADD)
-      !call this%blst%apply(this%lvl(1)%wrk_out, n)
+      call this%blst%apply(this%lvl(1)%wrk_out, n)
       !> Map finest level matvec back to output level
       call device_rzero(vec_out_d, this%lvl(lvl)%nnodes)
       call device_masked_atomic_reduction(vec_out_d, wrk_out_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)!TODO: swap n and m

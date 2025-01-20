@@ -364,10 +364,10 @@ contains
     !>----------<!
     !> Restrict <!
     !>----------<!
-    if (lvl .eq. 0) then
-      call amg%gs_h%op(r, n, GS_OP_ADD)
-      call device_col2(r_d, amg%coef%mult_d, n)
-    end if
+!!!    if (lvl .eq. 0) then
+!!!      call amg%gs_h%op(r, n, GS_OP_ADD)
+!!!      call device_col2(r_d, amg%coef%mult_d, n)
+!!!    end if
     call amg%interp_f2c_d(rc_d, r_d, lvl+1)
     !>-------------------<!
     !> Call Coarse solve <!
@@ -386,11 +386,11 @@ contains
     !> Correct  <!
     !>----------<!
     call device_add2(x_d, r_d, n)
-    end associate
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
     call mgstuff%smoo(lvl)%device_solve(x, b, x_d, b_d, n, amg)
+    end associate
   end subroutine tamg_mg_cycle_d
 
 
@@ -442,6 +442,26 @@ contains
     write(log_buf, '(A33,I6)') 'Target Aggregates:',nagg
     call neko_log%message(log_buf)
   end subroutine print_preagg_info
+
+  subroutine print_resid_info(r, x, b, r_d, x_d, b_d, amg, lvl, n)
+    integer, intent(in) :: lvl, n
+    real(kind=rp), intent(inout) :: r(n)
+    real(kind=rp), intent(inout) :: x(n)
+    real(kind=rp), intent(inout) :: b(n)
+    type(c_ptr) :: r_d
+    type(c_ptr) :: x_d
+    type(c_ptr) :: b_d
+    type(tamg_hierarchy_t), intent(inout) :: amg
+    real(kind=rp) :: val
+    character(len=LOG_SIZE) :: log_buf
+
+    call amg%device_matvec(r, x, r_d, x_d, lvl)
+    call device_sub3(r_d, b_d, r_d, n)
+    val = device_glsc2(r_d, r_d, n)
+
+    write(log_buf, '(A33,I6,F12.6)') 'tAMG resid:', lvl, val
+    call neko_log%message(log_buf)
+  end subroutine print_resid_info
 
   subroutine fill_lvl_map(amg)
     type(tamg_hierarchy_t), intent(inout) :: amg
