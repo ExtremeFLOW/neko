@@ -144,7 +144,7 @@ extern "C" {
                       (real *) k_rho_i, (real *) k_m_x_i, (real *) k_m_y_i,
                       (real *) k_m_z_i, (real *) k_E_i,
                       *dt, *c, *n);
-    HIP_CHECK(hipGetLastError());
+    CUDA_CHECK(cudaGetLastError());
   }
 }
 

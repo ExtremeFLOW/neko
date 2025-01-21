@@ -156,4 +156,31 @@ __global__ void euler_res_part_coef_mult_kernel(T * __restrict__ rhs_rho,
   }
 }
 
+template< typename T >
+__global__ void euler_res_part_rk_sum_kernel(T * __restrict__ rho,
+                                    T * __restrict__ m_x,
+                                    T * __restrict__ m_y,
+                                    T * __restrict__ m_z,
+                                    T * __restrict__ E,
+                                    const T * __restrict__ k_rho_i,
+                                    const T * __restrict__ k_m_x_i,
+                                    const T * __restrict__ k_m_y_i,
+                                    const T * __restrict__ k_m_z_i,
+                                    const T * __restrict__ k_E_i,
+                                    const T dt,
+                                    const T c,
+                                    const int n) {
+  
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+  
+  for (int i = idx; i < n; i += str) {
+    rho[i] = rho[i] + dt * c * k_rho_i[i];
+    m_x[i] = m_x[i] + dt * c * k_m_x_i[i];
+    m_y[i] = m_y[i] + dt * c * k_m_y_i[i];
+    m_z[i] = m_z[i] + dt * c * k_m_z_i[i];
+    E[i] = E[i] + dt * c * k_E_i[i];
+  }
+}
+
 #endif // __FLUID_EULER_RES_KERNEL__
