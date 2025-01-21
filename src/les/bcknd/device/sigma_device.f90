@@ -78,9 +78,9 @@ contains
     eps = NEKO_EPS
 
     ! get fields from registry
-    u => neko_field_registry%get_field_by_name("u")
-    v => neko_field_registry%get_field_by_name("v")
-    w => neko_field_registry%get_field_by_name("w")
+    u => neko_field_registry%get_field_by_name("u_e")
+    v => neko_field_registry%get_field_by_name("v_e")
+    w => neko_field_registry%get_field_by_name("w_e")
 
     call neko_scratch_registry%request_field(g11, temp_indices(1))
     call neko_scratch_registry%request_field(g12, temp_indices(2))

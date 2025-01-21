@@ -35,6 +35,7 @@
 module smagorinsky
   use num_types, only : rp
   use field, only : field_t
+  use case, only : case_t
   use les_model, only : les_model_t
   use dofmap , only : dofmap_t
   use json_utils, only : json_get, json_get_or_default
@@ -70,10 +71,9 @@ contains
   !! @param dofmap SEM map of degrees of freedom.
   !! @param coef SEM coefficients.
   !! @param json A dictionary with parameters.
-  subroutine smagorinsky_init(this, dofmap, coef, json)
+  subroutine smagorinsky_init(this, case, json)
     class(smagorinsky_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dofmap
-    type(coef_t), intent(in) :: coef
+    class(case_t), intent(inout), target :: case
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: nut_name
     real(kind=rp) :: c_s
@@ -93,27 +93,27 @@ contains
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    call smagorinsky_init_from_components(this, dofmap, coef, c_s, nut_name, &
+    call smagorinsky_init_from_components(this, case, c_s, nut_name, &
           delta_type)
+
   end subroutine smagorinsky_init
 
   !> Constructor from components.
-  !! @param dofmap SEM map of degrees of freedom.
-  !! @param coef SEM coefficients.
+  !! @param case The case_t object.
   !! @param c_s The model constant.
   !! @param nut_name The name of the SGS viscosity field.
-  subroutine smagorinsky_init_from_components(this, dofmap, coef, c_s, &
+  !! @param delta_type The type of filter size
+  subroutine smagorinsky_init_from_components(this, case, c_s, &
        nut_name, delta_type)
     class(smagorinsky_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dofmap
-    type(coef_t), intent(in) :: coef
+    class(case_t), intent(inout), target :: case
     real(kind=rp) :: c_s
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
 
     call this%free()
 
-    call this%init_base(dofmap, coef, nut_name, delta_type)
+    call this%init_base(case, nut_name, delta_type)
     this%c_s = c_s
 
   end subroutine smagorinsky_init_from_components
@@ -133,6 +133,18 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
+    ! Extrapolate the velocity fields
+    associate(u => this%case%fluid%u, v => this%case%fluid%v, &
+              w => this%case%fluid%w, ulag => this%case%fluid%ulag, &
+              vlag => this%case%fluid%vlag, wlag => this%case%fluid%wlag, &
+              ext_bdf => this%case%ext_bdf)
+    
+    call this%sumab%compute_fluid(this%u_e, this%v_e, this%w_e, u, v, w, &
+           ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+
+    end associate
+
+    ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
         call smagorinsky_compute_device(t, tstep, this%coef, this%nut, this%delta,&
                                 this%c_s)
