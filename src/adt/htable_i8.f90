@@ -262,7 +262,7 @@ contains
 
     select type(kp => this%t)
     type is (htable_i8_t)
-       key = kp%key(this%n)
+       key => kp%key(this%n)
     class default
        call neko_error('Invalid key (i8)')
     end select
