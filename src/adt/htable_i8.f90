@@ -114,10 +114,31 @@ contains
     call tmp%init(ishft(this%size, 1), data)
 
     do i = 0, this%size - 1
-       if (this%valid(i)) then
-          call tmp%set(this%key(i), this%data(i))
+       if (this%valid(i)) then          
+          select type (datap => this%data(i))
+          type is (integer)
+             call tmp%set(this%key(i), datap)
+          type is (integer(i8))
+             call tmp%set(this%key(i), datap)
+          type is (double precision)
+             call tmp%set(this%key(i), datap)
+          type is (point_t)
+             call tmp%set(this%key(i), datap)
+          class is (tuple_t)
+             select type(tuplep => datap)
+             type is (tuple_i4_t)
+                call tmp%set(this%key(i), tuplep)
+             type is (tuple4_i4_t)
+                call tmp%set(this%key(i), tuplep)
+             end select
+          type is (h_cptr_t)
+             call tmp%set(this%key(i), datap)
+          class default
+             call neko_error('Invalid htable data')
+          end select
        end if
     end do
+
     this%size = tmp%size
     this%entries = tmp%entries
 
@@ -125,7 +146,6 @@ contains
     call move_alloc(tmp%data, this%data)
     call move_alloc(tmp%valid, this%valid)
     call move_alloc(tmp%skip, this%skip)
-!    call move_alloc(tmp%t, this%t)
 
     call this%set(key, data)
 
