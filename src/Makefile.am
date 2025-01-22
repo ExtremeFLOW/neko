@@ -53,6 +53,13 @@ neko_fortran_SOURCES = \
 	mesh/tet.f90\
 	mesh/tri.f90\
 	adt/htable.f90\
+	adt/htable_i4.f90\
+	adt/htable_i8.f90\
+	adt/htable_r8.f90\
+	adt/htable_pt.f90\
+	adt/htable_i4t2.f90\
+	adt/htable_i4t4.f90\
+	adt/htable_cptr.f90\
 	adt/uset.f90\
 	adt/stack.f90\
 	adt/tuple.f90\

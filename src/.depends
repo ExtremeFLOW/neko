@@ -49,6 +49,13 @@ mesh/hex.lo : mesh/hex.f90 mesh/point.lo adt/tuple.lo mesh/element.lo config/num
 mesh/tet.lo : mesh/tet.f90 mesh/point.lo adt/tuple.lo mesh/element.lo config/num_types.lo 
 mesh/tri.lo : mesh/tri.f90 mesh/point.lo adt/tuple.lo mesh/element.lo config/num_types.lo 
 adt/htable.lo : adt/htable.f90 math/math.lo adt/tuple.lo mesh/point.lo common/utils.lo config/num_types.lo 
+adt/htable_i4.lo : adt/htable_i4.f90 adt/htable.lo 
+adt/htable_i8.lo : adt/htable_i8.f90 adt/htable.lo 
+adt/htable_r8.lo : adt/htable_r8.f90 adt/htable.lo 
+adt/htable_pt.lo : adt/htable_pt.f90 adt/htable.lo 
+adt/htable_i4t2.lo : adt/htable_i4t2.f90 adt/htable.lo 
+adt/htable_i4t4.lo : adt/htable_i4t4.f90 adt/htable.lo 
+adt/htable_cptr.lo : adt/htable_cptr.f90 adt/htable.lo 
 adt/uset.lo : adt/uset.f90 adt/htable.lo config/num_types.lo common/utils.lo 
 adt/stack.lo : adt/stack.f90 adt/tuple.lo math/math.lo common/structs.lo mesh/point.lo common/utils.lo io/format/nmsh.lo config/num_types.lo 
 adt/tuple.lo : adt/tuple.f90 config/num_types.lo math/math.lo 
