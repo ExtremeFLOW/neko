@@ -1210,8 +1210,9 @@ contains
          call cfill(this%mu_field%x, this%mu, n)
          call add2s2(this%mu_field%x, nut%x, this%rho, n)
       end if
+    else then
+      this%mu_field = this%mu
     end if
-
   end subroutine fluid_scheme_update_material_properties
 
   !> Sets rho and mu

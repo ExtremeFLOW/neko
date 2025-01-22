@@ -679,6 +679,8 @@ contains
           call cfill(this%lambda_field%x, this%lambda, n)
           call add2s2(this%lambda_field%x, nut%x, lambda_factor, n)
        end if
+    else then
+      this%lambda_field = this%lambda
     end if
 
   end subroutine scalar_scheme_update_material_properties
