@@ -137,7 +137,6 @@ module fluid_scheme
      type(bc_list_t) :: bclst_vel_neumann      !< List of neumann velocity conditions
      type(bc_list_t) :: bclst_prs              !< List of pressure conditions
      type(field_t) :: bdry                     !< Boundary markings
-     type(json_file), pointer :: params        !< Parameters
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
      type(mean_flow_t) :: mean                 !< Mean flow field
@@ -305,10 +304,6 @@ contains
 
     ! Local scratch registry
     this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
-
-    ! Case parameters
-    this%params => params
-
 
     !
     ! First section of fluid log
@@ -889,8 +884,6 @@ contains
 
     call this%scratch%free()
 
-    nullify(this%params)
-
     nullify(this%u)
     nullify(this%v)
     nullify(this%w)
@@ -956,10 +949,6 @@ contains
 
     if (.not. allocated(this%ksp_prs)) then
        call neko_error('No Krylov solver for pressure defined')
-    end if
-
-    if (.not. associated(this%params)) then
-       call neko_error('No parameters defined')
     end if
 
     if (allocated(this%bc_inflow)) then
