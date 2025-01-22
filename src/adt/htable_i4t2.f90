@@ -131,7 +131,7 @@ contains
   end subroutine htable_i4t2_set
 
   !> Retrive an integer 2-tuple with key @a key from the hash table
-  function htable_i4t2_get(this, key, data) result(rcode)
+  module function htable_i4t2_get(this, key, data) result(rcode)
     class(htable_i4t2_t), intent(inout) :: this
     type(tuple_i4_t), intent(inout) :: key   !< Key to retrieve
     class(*), intent(inout) :: data !< Retrieved data
@@ -165,7 +165,7 @@ contains
   end function htable_i4t2_get
 
   !> Hash function for an integer 2-tuple hash table
-  pure function htable_i4t2_hash(this, k, c) result(hash)
+  pure module function htable_i4t2_hash(this, k, c) result(hash)
     class(htable_i4t2_t), intent(in) :: this
     class(*), intent(in) :: k
     integer, value :: c
@@ -202,7 +202,7 @@ contains
   end function htable_i4t2_hash
 
   !> Remove an integer 2-tuple with key @a key from the hash table
-  subroutine htable_i4t2_remove(this, key)
+  module subroutine htable_i4t2_remove(this, key)
     class(htable_i4t2_t), intent(inout) :: this
     type(tuple_i4_t), intent(inout) :: key   !< Table key
     integer :: index, i, c
@@ -230,7 +230,7 @@ contains
   end subroutine htable_i4t2_remove
 
   !> Initialize an integer 2-tuple based hash table iterator
-  subroutine htable_iter_i4t2_init(this, t)
+  module subroutine htable_iter_i4t2_init(this, t)
     class(htable_iter_i4t2_t), intent(inout) :: this
     type(htable_i4t2_t), target, intent(inout) :: t
 
@@ -240,13 +240,13 @@ contains
   end subroutine htable_iter_i4t2_init
 
   !> Destroy an integer 2-tuple based  hash table iterator
-  subroutine htable_iter_i4t2_free(this)
+  module subroutine htable_iter_i4t2_free(this)
     type(htable_iter_i4t2_t), intent(inout) :: this
     nullify(this%t)
   end subroutine htable_iter_i4t2_free
 
   !> Return the current value of integer based 2-tuple hash table iterator
-  function htable_iter_i4t2_value(this) result(value)
+  module function htable_iter_i4t2_value(this) result(value)
     class(htable_iter_i4t2_t), intent(inout) :: this
     type(tuple_i4_t), pointer :: value
 
@@ -260,7 +260,7 @@ contains
   end function htable_iter_i4t2_value
 
   !> Return the current key of integer based 2-tuple hash table iterator
-  function htable_iter_i4t2_key(this) result(key)
+  module function htable_iter_i4t2_key(this) result(key)
     class(htable_iter_i4t2_t), intent(inout) :: this
     type(tuple_i4_t), pointer :: key
 
