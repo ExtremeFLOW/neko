@@ -116,7 +116,7 @@ contains
 
     do k = 0, m
        do j = 0, n
-          cx(j,k) = 0d0
+          cx(j,k) = 0.0_xp
        end do
     end do
 
