@@ -87,15 +87,15 @@ contains
 
   !> Constructor.
   !! @param size The size of the list to allocate.
-  subroutine bc_list_init(this, size)
+  subroutine bc_list_init(this, capacity)
     class(bc_list_t), intent(inout), target :: this
-    integer, optional :: size
+    integer, optional ::capacity
     integer :: n
 
     call this%free()
 
     n = 1
-    if (present(size)) n = size
+    if (present(capacity)) n = capacity
 
     allocate(this%items(n))
 

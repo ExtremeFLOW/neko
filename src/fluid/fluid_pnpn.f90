@@ -65,7 +65,6 @@ module fluid_pnpn
   use wall_model_bc, only : wall_model_bc_t
   use facet_normal, only : facet_normal_t
   use non_normal, only : non_normal_t
-  use field_dirichlet_vector, only : field_dirichlet_vector_t
   use comm
   use mesh, only : mesh_t
   use user_intf, only : user_t
@@ -199,6 +198,9 @@ module fluid_pnpn
      procedure, pass(this) :: restart => fluid_pnpn_restart
      !> Set up boundary conditions.
      procedure, pass(this) :: setup_bcs => fluid_pnpn_setup_bcs
+     !> Write a field with boundary condition specifications.
+     procedure, pass(this) :: write_boundary_conditions => &
+       fluid_pnpn_write_boundary_conditions
   end type fluid_pnpn_t
 
   interface
@@ -208,6 +210,7 @@ module fluid_pnpn
      !! @param[in] scheme The `scalar_pnpn` scheme.
      !! @param[inout] json JSON object for initializing the bc.
      !! @param[in] coef SEM coefficients.
+     !! @param[in] user The user interface.
      module subroutine pressure_bc_factory(object, scheme, json, coef, user)
         class(bc_t), pointer, intent(inout) :: object
         type(fluid_pnpn_t), intent(in) :: scheme
@@ -224,6 +227,7 @@ module fluid_pnpn
      !! @param[in] scheme The `scalar_pnpn` scheme.
      !! @param[inout] json JSON object for initializing the bc.
      !! @param[in] coef SEM coefficients.
+     !! @param[in] user The user interface.
      module subroutine velocity_bc_factory(object, scheme, json, coef, user)
         class(bc_t), pointer, intent(inout) :: object
         type(fluid_pnpn_t), intent(in) :: scheme
@@ -249,7 +253,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
     integer :: ierr, integer_val, solver_maxiter
     character(len=:), allocatable :: solver_type, precon_type
-    logical :: monitor
+    logical :: monitor, found
     logical :: advection
 
     call this%free()
@@ -319,15 +323,6 @@ contains
       call this%advx%init(dm_Xh, "advx")
       call this%advy%init(dm_Xh, "advy")
       call this%advz%init(dm_Xh, "advz")
-      this%abx1 = 0.0_rp
-      this%aby1 = 0.0_rp
-      this%abz1 = 0.0_rp
-      this%abx2 = 0.0_rp
-      this%aby2 = 0.0_rp
-      this%abz2 = 0.0_rp
-      this%advx = 0.0_rp
-      this%advy = 0.0_rp
-      this%advz = 0.0_rp
     end associate
 
     call this%du%init(this%dm_Xh, 'du')
@@ -338,8 +333,11 @@ contains
     ! Set up boundary conditions
     call this%setup_bcs(user)
 
-    ! Intialize projection space
+    ! Check if we need to output boundaries
+    call json_get_or_default(params, 'case.output_boundary', found, .false.)
+    if (found) call this%write_boundary_conditions()
 
+    ! Intialize projection space
     if (this%variable_material_properties .and. &
           this%vel_projection_dim .gt. 0) then
        call neko_error("Velocity projection not available for full stress &
@@ -912,8 +910,6 @@ contains
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
 
-          bc_i => null()
-
           call json_get(bc_subdict, "zone_indices", zone_indices)
 
           ! Check that we are not trying to assing a bc to zone, for which one
@@ -944,9 +940,9 @@ contains
              else
                 marked_zones(zone_indices(j)) = .true.
              end if
-
           end do
 
+          bc_i => null()
           call velocity_bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
 
           ! Not all bcs require an allocation for velocity in particular,
@@ -965,7 +961,6 @@ contains
                 ! just get symmetry as a whole, because on this list we call
                 ! apply_vector.
                 ! Additionally we have to mark the special surface bc for p.
-                write(*,*) "MARKING SYMMETRY IN VELOCITY BLISTS"
                 call this%bclst_vel_res%append(bc_i)
                 call this%bc_du%mark_facets(bc_i%bc_x%marked_facet)
                 call this%bc_dv%mark_facets(bc_i%bc_y%marked_facet)
@@ -983,7 +978,6 @@ contains
                 call this%bc_dw%mark_facets(bc_i%bc_z%marked_facet)
              type is (shear_stress_t)
                 ! Same as symmetry
-                write(*,*) "MARKING SHEAR_STRESS IN VELOCITY BLISTS"
                 call this%bclst_vel_res%append(bc_i%symmetry)
                 call this%bclst_du%append(bc_i%symmetry%bc_x)
                 call this%bclst_dv%append(bc_i%symmetry%bc_y)
@@ -992,7 +986,6 @@ contains
                 call this%bcs_vel%append(bc_i)
              type is (wall_model_bc_t)
                 ! Same as symmetry
-                write(*,*) "MARKING WALL MODELS IN VELOCITY BLISTS"
                 call this%bclst_vel_res%append(bc_i%symmetry)
                 call this%bclst_du%append(bc_i%symmetry%bc_x)
                 call this%bclst_dv%append(bc_i%symmetry%bc_y)
@@ -1077,5 +1070,137 @@ contains
 
   end subroutine
 
+  !> Write a field with boundary condition specifications
+  subroutine fluid_pnpn_write_boundary_conditions(this)
+    use inflow, only : inflow_t
+    use field_dirichlet, only : field_dirichlet_t
+    use blasius, only : blasius_t
+    use field_dirichlet_vector, only : field_dirichlet_vector_t
+    use usr_inflow, only : usr_inflow_t
+    use dong_outflow, only : dong_outflow_t
+    class(fluid_pnpn_t), target, intent(inout) :: this
+    type(dirichlet_t) :: bdry_mask
+    type(field_t), pointer :: bdry_field
+    type(file_t) :: bdry_file
+    integer :: temp_index, i
+    class(bc_t), pointer :: bci
+    character(len=LOG_SIZE) :: log_buf
+
+    call neko_log%section("Fuid boundary conditions")
+    write(log_buf, '(A)') 'Marking using integer keys in bdry0.f00000'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A)') 'Condition-value pairs: '
+    call neko_log%message(log_buf)
+    write(log_buf, '(A)') '  periodic                        = 0'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A)') '  no_slip                         = 1'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A)') '  velocity_value                  = 2'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A)') '  outflow, normal_outflow (+dong) = 3'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A)') '  symmetry                        = 4'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A)') '  user_velocity_pointwise         = 5'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A)') '  blasius_profile                 = 6'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A)') '  user_velocity                   = 7'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A)') '  user_pressure                   = 8'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A)') '  shear_stress                    = 9'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A)') '  wall_modelling                  = 10'
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
+
+    call this%scratch%request_field(bdry_field, temp_index)
+    bdry_field = 0.0_rp
+
+    do i = 1, this%bcs_prs%size()
+       bci => this%bcs_prs%get(i)
+       select type(bc => bci)
+         type is (zero_dirichlet_t)
+          call bdry_mask%init_from_components(this%c_Xh, 3.0_rp)
+          call bdry_mask%mark_facets(bci%marked_facet)
+          call bdry_mask%finalize()
+          call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
+          call bdry_mask%free()
+         type is (dong_outflow_t)
+          call bdry_mask%init_from_components(this%c_Xh, 3.0_rp)
+          call bdry_mask%mark_facets(bci%marked_facet)
+          call bdry_mask%finalize()
+          call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
+          call bdry_mask%free()
+         type is (field_dirichlet_t)
+          call bdry_mask%init_from_components(this%c_Xh, 8.0_rp)
+          call bdry_mask%mark_facets(bci%marked_facet)
+          call bdry_mask%finalize()
+          call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
+          call bdry_mask%free()
+       end select
+    end do
+
+    do i = 1, this%bcs_vel%size()
+       bci => this%bcs_vel%get(i)
+       select type(bc => bci)
+         type is (zero_dirichlet_t)
+          call bdry_mask%init_from_components(this%c_Xh, 1.0_rp)
+          call bdry_mask%mark_facets(bci%marked_facet)
+          call bdry_mask%finalize()
+          call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
+          call bdry_mask%free()
+         type is (inflow_t)
+          call bdry_mask%init_from_components(this%c_Xh, 2.0_rp)
+          call bdry_mask%mark_facets(bci%marked_facet)
+          call bdry_mask%finalize()
+          call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
+          call bdry_mask%free()
+         type is (symmetry_t)
+          call bdry_mask%init_from_components(this%c_Xh, 4.0_rp)
+          call bdry_mask%mark_facets(bci%marked_facet)
+          call bdry_mask%finalize()
+          call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
+          call bdry_mask%free()
+         type is (usr_inflow_t)
+          call bdry_mask%init_from_components(this%c_Xh, 5.0_rp)
+          call bdry_mask%mark_facets(bci%marked_facet)
+          call bdry_mask%finalize()
+          call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
+          call bdry_mask%free()
+         type is (blasius_t)
+          call bdry_mask%init_from_components(this%c_Xh, 6.0_rp)
+          call bdry_mask%mark_facets(bci%marked_facet)
+          call bdry_mask%finalize()
+          call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
+          call bdry_mask%free()
+         type is (field_dirichlet_vector_t)
+          call bdry_mask%init_from_components(this%c_Xh, 7.0_rp)
+          call bdry_mask%mark_facets(bci%marked_facet)
+          call bdry_mask%finalize()
+          call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
+          call bdry_mask%free()
+         type is (shear_stress_t)
+          call bdry_mask%init_from_components(this%c_Xh, 9.0_rp)
+          call bdry_mask%mark_facets(bci%marked_facet)
+          call bdry_mask%finalize()
+          call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
+          call bdry_mask%free()
+         type is (wall_model_bc_t)
+          call bdry_mask%init_from_components(this%c_Xh, 10.0_rp)
+          call bdry_mask%mark_facets(bci%marked_facet)
+          call bdry_mask%finalize()
+          call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
+          call bdry_mask%free()
+       end select
+    end do
+
+
+    bdry_file = file_t('bdry.fld')
+    call bdry_file%write(bdry_field)
+
+    call this%scratch%relinquish_field(temp_index)
+  end subroutine fluid_pnpn_write_boundary_conditions
 
 end module fluid_pnpn

@@ -170,7 +170,7 @@ contains
        call neko_log%section('Load Balancing')
        call parmetis_partmeshkway(this%msh, parts)
        call redist_mesh(this%msh, parts)
-       
+
        ! store the balanced mesh (for e.g. restarts)
        string_val = trim(string_val(1:scan(trim(string_val), &
             '.', back=.true.) - 1))//'_lb.nmsh'
@@ -265,17 +265,6 @@ contains
     end if
 
     !
-    ! Setup user defined conditions
-    !
-    if (this%params%valid_path('case.fluid.inflow_condition')) then
-       call json_get(this%params, 'case.fluid.inflow_condition.type',&
-            string_val)
-       if (trim(string_val) .eq. 'user') then
-          call this%fluid%set_usr_inflow(this%usr%fluid_user_if)
-       end if
-    end if
-
-    !
     ! Setup initial conditions
     !
     call json_get(this%params, 'case.fluid.initial_condition.type',&
@@ -348,16 +337,6 @@ contains
              call execute_command_line('mkdir -p '//this%output_directory)
           end if
        end if
-    end if
-
-    !
-    ! Save boundary markings for fluid (if requested)
-    !
-    call json_get_or_default(this%params, 'case.output_boundary',&
-         logical_val, .false.)
-    if (logical_val) then
-       bdry_file = file_t(trim(this%output_directory)//'bdry.fld')
-       call bdry_file%write(this%fluid%bdry)
     end if
 
     !

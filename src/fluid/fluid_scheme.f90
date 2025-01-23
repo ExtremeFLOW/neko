@@ -127,7 +127,6 @@ module fluid_scheme
      type(bc_list_t) :: bcs_prs
      ! List of boundary conditions for velocity
      type(bc_list_t) :: bcs_vel
-     type(field_t) :: bdry                     !< Boundary markings
      type(json_file), pointer :: params        !< Parameters
      type(mesh_t), pointer :: msh => null()    !< Mesh
      type(chkp_t) :: chkp                      !< Checkpoint
@@ -163,8 +162,6 @@ module fluid_scheme
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      !> Apply velocity boundary conditions
      procedure, pass(this) :: bc_apply_prs => fluid_scheme_bc_apply_prs
-     !> Set the user inflow procedure
-     procedure, pass(this) :: set_usr_inflow => fluid_scheme_set_usr_inflow
      !> Compute the CFL number
      procedure, pass(this) :: compute_cfl => fluid_compute_cfl
      !> Set rho and mu
@@ -180,8 +177,6 @@ module fluid_scheme
      procedure(fluid_scheme_restart_intrf), pass(this), deferred :: restart
      !> Setup boundary conditions
      procedure(fluid_scheme_setup_bcs_intrf), pass(this), deferred :: setup_bcs
-     procedure, private, pass(this) :: set_bc_type_output => &
-       fluid_scheme_set_bc_type_output
      !> Update variable material properties
      procedure, pass(this) :: update_material_properties => &
        fluid_scheme_update_material_properties
@@ -405,40 +400,6 @@ contains
                              .false.)
     write(log_buf, '(A, L1)') 'Save bdry  : ',  logical_val
     call neko_log%message(log_buf)
-!    if (logical_val) then
-!       write(log_buf, '(A)') 'bdry keys: '
-!       call neko_log%message(log_buf)
-!       write(log_buf, '(A)') 'No-slip wall             ''w'' = 1'
-!       call neko_log%message(log_buf)
-!       write(log_buf, '(A)') 'Inlet/velocity dirichlet ''v'' = 2'
-!       call neko_log%message(log_buf)
-!       write(log_buf, '(A)') 'Outlet                   ''o'' = 3'
-!       call neko_log%message(log_buf)
-!       write(log_buf, '(A)') 'Symmetry               ''sym'' = 4'
-!       call neko_log%message(log_buf)
-!       write(log_buf, '(A)') 'Outlet-normal           ''on'' = 5'
-!       call neko_log%message(log_buf)
-!       write(log_buf, '(A)') 'Periodic                     = 6'
-!       call neko_log%message(log_buf)
-!       write(log_buf, '(A)') 'Dirichlet on velocity components: '
-!       call neko_log%message(log_buf)
-!       write(log_buf, '(A)') ' ''d_vel_u, d_vel_v, d_vel_w'' = 7'
-!       call neko_log%message(log_buf)
-!       write(log_buf, '(A)') 'Pressure dirichlet  ''d_pres'' = 8'
-!       call neko_log%message(log_buf)
-!       write(log_buf, '(A)') '''d_vel_(u,v,w)'' and ''d_pres'' = 8'
-!       call neko_log%message(log_buf)
-!       write(log_buf, '(A)') 'Shear stress            ''sh'' = 9'
-!       call neko_log%message(log_buf)
-!       write(log_buf, '(A)') 'Wall modelling          ''wm'' = 10'
-!       call neko_log%message(log_buf)
-!       write(log_buf, '(A)') 'No boundary condition set    = 0'
-!       call neko_log%message(log_buf)
-!    end if
-
-    !
-    ! Check if we need to output boundary types to a separate field
-    call fluid_scheme_set_bc_type_output(this, params)
 
     !
     ! Setup right-hand side fields.
@@ -453,10 +414,6 @@ contains
     ! Initialize the source term
     call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user)
     call this%source_term%add(params, 'case.fluid.source_terms')
-
-    ! If case.output_boundary is true, set the values for the bc types in the
-    ! output of the field.
-    call this%set_bc_type_output(params)
 
     ! Initialize velocity solver
     if (kspv_init) then
@@ -537,8 +494,6 @@ contains
 
   subroutine fluid_scheme_free(this)
     class(fluid_scheme_t), intent(inout) :: this
-
-    call this%bdry%free()
 
     !
     ! Free everything related to field_dirichlet BCs
@@ -745,20 +700,6 @@ contains
 
   end subroutine fluid_scheme_precon_factory
 
-  !> Initialize a user defined inflow condition
-  subroutine fluid_scheme_set_usr_inflow(this, usr_eval)
-    class(fluid_scheme_t), intent(inout) :: this
-    procedure(usr_inflow_eval) :: usr_eval
-
-    ! TODO
-!    select type (bc_if => this%bc_inflow)
-!    type is (usr_inflow_t)
-!       call bc_if%set_eval(usr_eval)
-!    class default
-!       call neko_error("Not a user defined inflow condition")
-!    end select
-  end subroutine fluid_scheme_set_usr_inflow
-
   !> Compute CFL
   function fluid_compute_cfl(this, dt) result(c)
     class(fluid_scheme_t), intent(in) :: this
@@ -770,28 +711,6 @@ contains
 
   end function fluid_compute_cfl
 
-  !> Set boundary types for the diagnostic output.
-  !! @param params The JSON case file.
-  subroutine fluid_scheme_set_bc_type_output(this, params)
-    class(fluid_scheme_t), target, intent(inout) :: this
-    type(json_file), intent(inout) :: params
-    type(dirichlet_t) :: bdry_mask
-    logical :: found
-
-    !
-    ! Check if we need to output boundaries
-    !
-    call json_get_or_default(params, 'case.output_boundary', found, .false.)
-
-    if (found) then
-      call this%bdry%init(this%dm_Xh, 'bdry')
-      this%bdry = 0.0_rp
-
-      ! TODO: FILL THIS BACK IN NOT BASED ON BC_LABELS
-
-    end if
-
-  end subroutine fluid_scheme_set_bc_type_output
 
   !> Update the values of `mu_field` if necessary.
   subroutine fluid_scheme_update_material_properties(this)
