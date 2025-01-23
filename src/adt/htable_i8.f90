@@ -42,7 +42,7 @@ contains
     class(*), intent(inout), optional :: data !< Data to associate with @a key
     integer :: i
     
-    call htable_free(this)
+    call this%free()
 
     if (size .lt. 4) then
        size = 4
