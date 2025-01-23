@@ -118,8 +118,6 @@ contains
     class(bc_t), intent(inout), target :: bc
     type(bc_ptr_t), allocatable :: tmp(:)
 
-    !> Do not add if bc is empty
-    if(bc%marked_facet%size() .eq. 0) return
 
     if (this%size .ge. this%capacity) then
        this%capacity = this%capacity * 2
@@ -150,11 +148,16 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
        do i = 1, this%size
-          call this%items(i)%ptr%apply_scalar_dev(x_d, t, tstep)
+          !Make check if it is an empty bc 
+          if (this%items(i)%ptr%msk(0) .gt. 0) then
+             call this%items(i)%ptr%apply_scalar_dev(x_d, t, tstep)
+          end if
        end do
     else
        do i = 1, this%size
-          call this%items(i)%ptr%apply_scalar(x, n, t, tstep)
+          if (this%items(i)%ptr%msk(0) .gt. 0) then
+             call this%items(i)%ptr%apply_scalar(x, n, t, tstep)
+          end if
        end do
     end if
   end subroutine bc_list_apply_scalar
@@ -184,11 +187,15 @@ contains
        y_d = device_get_ptr(y)
        z_d = device_get_ptr(z)
        do i = 1, this%size
-          call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t, tstep)
+          if (this%items(i)%ptr%msk(0) .gt. 0) then
+             call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t, tstep)
+          end if
        end do
     else
        do i = 1, this%size
-          call this%items(i)%ptr%apply_vector(x, y, z, n, t, tstep)
+          if (this%items(i)%ptr%msk(0) .gt. 0) then
+             call this%items(i)%ptr%apply_vector(x, y, z, n, t, tstep)
+          end if
        end do
     end if
 
