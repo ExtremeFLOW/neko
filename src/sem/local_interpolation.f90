@@ -302,202 +302,17 @@ contains
     B(3,3) = +detinv * (A(1,1)*A(2,2) - A(1,2)*A(2,1))
   end function matinv3
 
-!  !> Using the Legendre-Perez method to find the rst coordinates.
-!  subroutine find_rst_legendre_bad(rst, pt_x, pt_y, pt_z, Xh, x, y, z, &
-!                                   el_list, n_pts, nelv, &
-!                                   resx, resy, resz, tol)
-!    integer, intent(in) :: n_pts, nelv
-!    real(kind=rp), intent(inout) :: rst(3, n_pts)
-!    type(space_t), intent(inout) :: Xh
-!    real(kind=rp), intent(inout) :: x(Xh%lx, Xh%ly, Xh%lz, nelv)
-!    real(kind=rp), intent(inout) :: y(Xh%lx, Xh%ly, Xh%lz, nelv)
-!    real(kind=rp), intent(inout) :: z(Xh%lx, Xh%ly, Xh%lz, nelv)
-!    real(kind=rp), intent(inout) :: resx(n_pts)
-!    real(kind=rp), intent(inout) :: resy(n_pts)
-!    real(kind=rp), intent(inout) :: resz(n_pts)
-!    integer, intent(in) :: el_list(n_pts)
-!    real(kind=rp), intent(in) :: tol 
-!    real(kind=rp), allocatable :: x_hat(:, :, :, :)
-!    real(kind=rp), allocatable :: y_hat(:, :, :, :)
-!    real(kind=rp), allocatable :: z_hat(:, :, :, :)
-!    real(kind=rp), allocatable :: pt_x(:)
-!    real(kind=rp), allocatable :: pt_y(:)
-!    real(kind=rp), allocatable :: pt_z(:)
-!    real(kind=rp), allocatable :: xt(:)
-!    real(kind=rp), allocatable :: yt(:)
-!    real(kind=rp), allocatable :: zt(:)
-!    real(kind=rp), allocatable :: r_legendre(:,:) 
-!    real(kind=rp), allocatable :: s_legendre(:,:) 
-!    real(kind=rp), allocatable :: t_legendre(:,:) 
-!    real(kind=rp), allocatable :: dr_legendre(:,:) 
-!    real(kind=rp), allocatable :: ds_legendre(:,:) 
-!    real(kind=rp), allocatable :: dt_legendre(:,:) 
-!    real(kind=rp), allocatable :: jac11(:), jac12(:), jac13(:)
-!    real(kind=rp), allocatable :: jac21(:), jac22(:), jac23(:)
-!    real(kind=rp), allocatable :: jac31(:), jac32(:), jac33(:)
-!    real(kind=rp) :: jacinv(3,3), tmp(Xh%lx), tmp2(Xh%lx), rst_d(3), avgx, avgy, avgz
-!    integer, allocatable :: conv_pts(:)
-!    logical :: converged
-!    integer :: i, j, k, iter, lx, n_pts1
-!
-!    allocate(x_hat(xh%lx, xh%ly, xh%lz, nelv))
-!    allocate(y_hat(xh%lx, xh%ly, xh%lz, nelv))
-!    allocate(z_hat(xh%lx, xh%ly, xh%lz, nelv))
-!    allocate(r_legendre(xh%lx, n_pts))
-!    allocate(s_legendre(xh%lx, n_pts))
-!    allocate(t_legendre(xh%lx, n_pts))
-!    allocate(dr_legendre(xh%lx, n_pts))
-!    allocate(ds_legendre(xh%lx, n_pts))
-!    allocate(dt_legendre(xh%lx, n_pts))
-!    allocate(xt(n_pts))
-!    allocate(yt(n_pts))
-!    allocate(zt(n_pts))
-!    allocate(conv_pts(n_pts))
-!    allocate(jac11(n_pts), jac12(n_pts), jac13(n_pts))
-!    allocate(jac21(n_pts), jac22(n_pts), jac23(n_pts))
-!    allocate(jac31(n_pts), jac32(n_pts), jac33(n_pts))
-!    
-!    lx = Xh%lx
-!    if (n_pts .lt. 1) return
-!    
-!    !> Transform into legendre space
-!    !> hats are in Legendre space
-!    call tnsr3d(x_hat, Xh%lx, x, &
-!                Xh%lx, Xh%vinv, &
-!                Xh%vinvt, Xh%vinvt, nelv)
-!
-!    call tnsr3d(y_hat, Xh%lx, x_hat, &
-!                Xh%lx, Xh%v, &
-!                Xh%vt, Xh%vt, nelv)
-!    call tnsr3d(y_hat, Xh%lx, y, &
-!                Xh%lx, Xh%vinv, &
-!                Xh%vinvt, Xh%vinvt, nelv)
-!    call tnsr3d(z_hat, Xh%lx, z, &
-!                Xh%lx, Xh%vinv, &
-!                Xh%vinvt, Xh%vinvt, nelv)
-!
-!    do i = 1, n_pts
-!    end do
-!    n_pts1 = n_pts
-! 
-!    do k = 1, n_pts1
-!       i = k 
-!       avgx = 0.0
-!       avgy = 0.0
-!       avgz = 0.0
-!       do j = 1, lx*lx*lx
-!          avgx = avgx + x(j,1,1,el_list(i)+1)
-!          avgy = avgy + y(j,1,1,el_list(i)+1)
-!          avgz = avgz + z(j,1,1,el_list(i)+1)
-!       end do
-!       rst(1,i) = 1.7/(lx*lx*lx)*(pt_x(i)*(lx*lx*lx) - avgx)/&
-!  (maxval(x(:,:,:,el_list(i)+1))-minval(x(:,:,:,el_list(i)+1)))
-!       rst(2,i) = 1.7/(lx*lx*lx)*(pt_y(i)*(lx*lx*lx) - avgy)/&
-!       (maxval(y(:,:,:,el_list(i)+1))-minval(y(:,:,:,el_list(i)+1)))
-!       rst(3,i) = 1.7/(lx*lx*lx)*(pt_z(i)*(lx*lx*lx) - avgz)/&
-!(maxval(z(:,:,:,el_list(i)+1))-minval(z(:,:,:,el_list(i)+1)))
-!       
-!       call legendre_poly(r_legendre(1,1),rst(1,i),lx-1)     
-!       call legendre_poly(s_legendre(1,1),rst(2,i),lx-1)     
-!       call legendre_poly(t_legendre(1,1),rst(3,i),lx-1)     
-!       do j = 0, lx-1
-!          dr_legendre(j+1,1) = PNDLEG(rst(1,i),j)
-!          ds_legendre(j+1,1) = PNDLEG(rst(2,i),j)
-!          dt_legendre(j+1,1) = PNDLEG(rst(3,i),j)
-!       end do
-!    iter = 0 
-!    converged = .false.
-!    do while (.not. converged)
-!       iter  = iter + 1
-!
-!       !xyz = local_interpolator_evaluate(rst)
-!       !Compute xyz based on coord
-!       call tnsr3d_el_list(xt, 1, x_hat, Xh%lx, &
-!            r_legendre, s_legendre, t_legendre, el_list(k), 1)
-!       call tnsr3d_el_list(yt, 1, y_hat, Xh%lx, &
-!            r_legendre, s_legendre, t_legendre, el_list(k), 1)
-!       call tnsr3d_el_list(zt, 1, z_hat, Xh%lx, &
-!            r_legendre, s_legendre, t_legendre, el_list(k), 1)
-!       !check where to go
-!       xt(1) = pt_x(k) - xt(1)
-!       yt(1) = pt_y(k) - yt(1)
-!       zt(1) = pt_z(k) - zt(1)
-!       
-!       ! compute jacobian
-!       call tnsr3d_el_list(jac11, 1, x_hat, Xh%lx, &
-!            dr_legendre, s_legendre, t_legendre, el_list(k),1)
-!       call tnsr3d_el_list(jac12, 1, y_hat, Xh%lx, &
-!            dr_legendre, s_legendre, t_legendre, el_list(k),1)
-!       call tnsr3d_el_list(jac13, 1, z_hat, Xh%lx, &
-!            dr_legendre, s_legendre, t_legendre, el_list(k),1)
-!       call tnsr3d_el_list(jac21, 1, x_hat, Xh%lx, &
-!            r_legendre, ds_legendre, t_legendre, el_list(k),1)
-!       call tnsr3d_el_list(jac22, 1, y_hat, Xh%lx, &
-!            r_legendre, ds_legendre, t_legendre, el_list(k),1)
-!       call tnsr3d_el_list(jac23, 1, z_hat, Xh%lx, &
-!            r_legendre, ds_legendre, t_legendre, el_list(k),1)
-!       call tnsr3d_el_list(jac31, 1, x_hat, Xh%lx, &
-!            r_legendre, s_legendre, dt_legendre, el_list(k),1)
-!       call tnsr3d_el_list(jac32, 1, y_hat, Xh%lx, &
-!            r_legendre, s_legendre, dt_legendre, el_list(k),1)
-!       call tnsr3d_el_list(jac33, 1, z_hat, Xh%lx, &
-!            r_legendre, s_legendre, dt_legendre, el_list(k),1)
-!       !do jac inverse
-!       conv_pts = 1
-!          jacinv = matinv39(jac11(1),jac12(1),jac13(1),&
-!                            jac21(1),jac22(1),jac23(1),&
-!                            jac31(1),jac32(1),jac33(1))
-!          rst_d(1) = (xt(1)*jacinv(1,1)+jacinv(2,1)*yt(1)+jacinv(3,1)*zt(1))
-!          rst_d(2) = (xt(1)*jacinv(1,2)+jacinv(2,2)*yt(1)+jacinv(3,2)*zt(1))
-!          rst_d(3) = (xt(1)*jacinv(1,3)+jacinv(2,3)*yt(1)+jacinv(3,3)*zt(1))
-!
-!          rst(1,k) = rst(1,k) + rst_d(1)
-!          rst(2,k) = rst(2,k) + rst_d(2)
-!          rst(3,k) = rst(3,k) + rst_d(3)
-!          if ( (rst_d(1) > rst(1,k)*tol .and. &
-!               rst_d(2) >  rst(2,k)*tol .and. &
-!               rst_d(3) >  rst(3,k)*tol ) .and. &
-!               norm2((/xt(1),yt(1),zt(1)/)) > tol) then
-!               if (norm2((/xt(1),yt(1),zt(1)/)) < 10) then
-!                  if (norm2((/xt(1),yt(1),zt(1)/)) < 10) then
-!                     if( abs(rst(1,k)) .lt. 1.0+tol .and. &
-!                         abs(rst(2,k)) .lt. 1.0+tol .and. &
-!                         abs(rst(3,k)) .lt. 1.0+tol) then
-!                         conv_pts(1) = 0
-!                    end if
-!                 end if   
-!             end if
-!          end if
-!           
-!       !call jacobian_inverse(jacinv,xyz)
-!       !rst = rst -(jacinv*dir)
-!       !converged = (maxval(abs(xt)) < NEKO_EPS*10) .and. &
-!       !            (maxval(abs(yt)) < NEKO_EPS*10) .and. &
-!       !            (maxval(abs(zt)) < NEKO_EPS*10) 
-!       resx(k) = xt(1)
-!       resy(k) = yt(1)
-!       resz(k) = zt(1)
-!       converged = conv_pts(1) .eq. 1
-!       !if (converged) print *, 'are we true?',converged
-!       !if (converged) print *,'maxabsnorm', sum(conv_pts), n_pts,'iter', iter
-!       ! Need some kind of reasonable convergence criterion  
-!
-!       if (iter .gt. 50) exit
-!       i = 1
-!          call legendre_poly(r_legendre(1,i),rst(1,k),lx-1)     
-!          call legendre_poly(s_legendre(1,i),rst(2,k),lx-1)     
-!          call legendre_poly(t_legendre(1,i),rst(3,k),lx-1)     
-!          do j = 0, lx-1
-!             dr_legendre(j+1,i) = PNDLEG(rst(1,k),j)
-!             ds_legendre(j+1,i) = PNDLEG(rst(2,k),j)
-!             dt_legendre(j+1,i) = PNDLEG(rst(3,k),j)
-!          end do
-!    end do
-!    end do
-!
-!  end subroutine find_rst_legendre_bad
  
-  !> Using the Legendre-Perez method to find the rst coordinates.
+  !> Using the Legendre polynomials to find the rst coordinates.
+  !! @param rst holds the computed rst values
+  !! @param pt_{x,y,z} are the computed xyz coords from rst
+  !! @param Xh is the function spacec
+  !! @param x,y,z are the actual phsyical coordinates
+  !! @param el_list are the elements in which we look for rst
+  !! @param n_pts the number of points
+  !! @param nelv the number of elements
+  !! @param res{x,y,z} are the difference between pt_{xyz} and xyz
+  !! @param tol, the specifiedd tolerance 
   subroutine find_rst_legendre(rst, pt_x, pt_y, pt_z, Xh, x, y, z, &
                                el_list, n_pts, nelv, resx, resy, resz, &
                                tol)
@@ -556,9 +371,6 @@ contains
        converged = .false.
        do while (.not. converged)
           iter  = iter + 1
-          !call legendre_poly(r_legendre,rst(1,i),lx-1)     
-          !call legendre_poly(s_legendre,rst(2,i),lx-1)     
-          !call legendre_poly(t_legendre,rst(3,i),lx-1)     
           do j = 0, lx-1
              r_legendre(j+1) = PNLEG(real(rst(1,i),xp),j)
              s_legendre(j+1) = PNLEG(real(rst(2,i),xp),j)
@@ -594,9 +406,6 @@ contains
                r_legendre, s_legendre, dt_legendre)
           call tnsr3d_el_cpu(jac(3,3), 1, z_hat(1,1,1,e), Xh%lx, &
                r_legendre, s_legendre, dt_legendre)
-          !do jac inverse
-          !print *, 'dxyzdr',jac(:,1)
-          !print *, "new x", resx(i)
           resx(i) = pt_x(i) - resx(i)
           resy(i) = pt_y(i) - resy(i)
           resz(i) = pt_z(i) - resz(i)
@@ -641,7 +450,7 @@ contains
        !print *,'cpu iter', iter
     end do
   end subroutine find_rst_legendre
-  !> Compares two sets of rst coordinates and checks whether rst2 is better than rst1  
+  !> Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance 
   !> res1 and res2 are the distances to the interpolated xyz coordinate and true xyz coord
   function rst_cmp(rst1, rst2,res1, res2, tol) result(rst2_better)
     real(kind=rp) :: rst1(3), res1(3)
