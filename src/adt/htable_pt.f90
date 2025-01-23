@@ -30,6 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
+!> Point based hash table implementation
 submodule (htable) htable_pt
   implicit none
 
@@ -85,7 +86,7 @@ contains
     integer index, i, c
 
     c = 0
-    i = log(1.0/this%size)/log(0.6)
+    i = ceiling(log(1.0_rp/real(this%size,rp))/log(0.6_rp))
     index = 0
 
     do while (i .ge. 0)
@@ -159,7 +160,7 @@ contains
     integer :: index, i, c
 
     c = 0
-    i = log(1.0/this%size)/log(0.6)
+    i = ceiling(log(1.0_rp/real(this%size,rp))/log(0.6_rp))
 
     do while (i .ge. 0)
        index = this%hash(key, c**2)

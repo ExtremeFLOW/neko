@@ -30,6 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
+!> Integer*8 based hash table implementation
 submodule (htable) htable_i8
   implicit none
 
@@ -86,7 +87,7 @@ contains
     integer index, i, c
 
     c = 0
-    i = log(1.0/this%size)/log(0.6)
+    i = ceiling(log(1.0_rp/real(this%size,rp))/log(0.6_rp))
     index = 0
 
     do while (i .ge. 0)

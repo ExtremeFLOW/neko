@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements a dynamic stack ADT
+!> Integer 2-tuple based hash table implementation
 submodule (htable) htable_i4t2
   implicit none
 
