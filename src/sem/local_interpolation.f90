@@ -177,7 +177,8 @@ contains
   !! number of points to interpolate.
   !! @note The weights can be generated with the subroutine `compute_weights`.
   !! Assumes weights have been computed for these points.
-  subroutine local_interpolator_evaluate(this, interp_values, el_list, field,nel, on_host)
+  subroutine local_interpolator_evaluate(this, interp_values, el_list, field, &
+       nel, on_host)
     class(local_interpolator_t), intent(inout) :: this
     integer, intent(in) :: el_list(this%n_points)
     integer, intent(in) :: nel
@@ -186,7 +187,8 @@ contains
     logical, intent(in) :: on_host
 
     call tnsr3d_el_list(interp_values, 1, field, this%Xh%lx, &
-         this%weights_r, this%weights_s, this%weights_t, el_list, this%n_points, on_host)
+         this%weights_r, this%weights_s, this%weights_t, el_list, &
+         this%n_points, on_host)
 
   end subroutine local_interpolator_evaluate
 
@@ -197,7 +199,7 @@ contains
   !! @param Y Values of the field \f$ Y \f$ at points.
   !! @param Z Values of the field \f$ Z \f$ at points.
   subroutine jacobian(jac, rst, x, y, z, n_pts, Xh)
-    integer :: n_pts
+    integer, intent(in) :: n_pts
     real(kind=rp), intent(inout) :: rst(3, n_pts)
     type(space_t), intent(inout) :: Xh
     real(kind=rp), intent(inout) :: x(Xh%lx, Xh%ly, Xh%lz, n_pts)
@@ -220,19 +222,24 @@ contains
        call fd_weights_full(rst(3,i), Xh%zg(:,3), lz-1, 1, ht)
 
        ! d(x,y,z)/dr
-       call triple_tensor_product(tmp(1), X(:,:,:,i), lx, hr(:,2), hs(:,1), ht(:,1))
+       call triple_tensor_product(tmp(1), X(:,:,:,i), lx, hr(:,2), hs(:,1), &
+            ht(:,1))
        jac(1,1,i) = tmp(1)
-       call triple_tensor_product(tmp(1), Y(:,:,:,i), lx, hr(:,2), hs(:,1), ht(:,1))
+       call triple_tensor_product(tmp(1), Y(:,:,:,i), lx, hr(:,2), hs(:,1), &
+            ht(:,1))
        jac(1,2,i) = tmp(1)
-       call triple_tensor_product(tmp(1), Z(:,:,:,i), lx, hr(:,2), hs(:,1), ht(:,1))
+       call triple_tensor_product(tmp(1), Z(:,:,:,i), lx, hr(:,2), hs(:,1), &
+            ht(:,1))
        jac(1,3,i) = tmp(1)
 
        ! d(x,y,z)/ds
-       call triple_tensor_product(tmp, X(:,:,:,i), Y(:,:,:,i), Z(:,:,:,i), lx, hr(:,1), hs(:,2), ht(:,1))
+       call triple_tensor_product(tmp, X(:,:,:,i), Y(:,:,:,i), Z(:,:,:,i), lx, &
+            hr(:,1), hs(:,2), ht(:,1))
        jac(2,:,i) = tmp
 
        ! d(x,y,z)/dt
-       call triple_tensor_product(tmp, X(:,:,:,i), Y(:,:,:,i), Z(:,:,:,i), lx, hr(:,1), hs(:,1), ht(:,2))
+       call triple_tensor_product(tmp, X(:,:,:,i), Y(:,:,:,i), Z(:,:,:,i), lx, &
+            hr(:,1), hs(:,1), ht(:,2))
        jac(3,:,i) = tmp
     end do
 
@@ -257,10 +264,12 @@ contains
     end do
 
   end subroutine jacobian_inverse
- !M33INV and M44INV by David G. Simpson pure function version from https://fortranwiki.org/fortran/show/Matrix+inversion
- ! Invert 3x3 matrix
-  function matinv39(a11,a12,a13,a21,a22,a23,a31,a32,a33) result(B)
-    real(rp), intent(in) :: a11, a12, a13,a21, a22, a23,a31, a32, a33
+  ! M33INV and M44INV by David G. Simpson pure function version from 
+  ! https://fortranwiki.org/fortran/show/Matrix+inversion
+  ! Invert 3x3 matrix
+  function matinv39(a11, a12, a13, a21, a22, a23, a31, a32, a33) &
+       result(B)
+    real(kind=rp), intent(in) :: a11, a12, a13, a21, a22, a23, a31, a32, a33
     real(xp) :: A(3,3)   !! Matrix
     real(rp) :: B(3,3)   !! Inverse matrix
     A(1,1) = a11
