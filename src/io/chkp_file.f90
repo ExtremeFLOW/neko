@@ -481,7 +481,8 @@ contains
     if (this%mesh2mesh) then
        call dof%init(msh, this%chkp_Xh)
        call this%global_interp%init(dof, NEKO_COMM, tol = tol)
-       call this%global_interp%find_points(u%dof%x,u%dof%y,u%dof%z,u%dof%size())
+       call this%global_interp%find_points(u%dof%x, u%dof%y, u%dof%z, &
+            u%dof%size())
     else
        call this%space_interp%init(this%sim_Xh, this%chkp_Xh)
     end if
@@ -626,7 +627,7 @@ contains
                n, MPI_REAL_PRECISION, status, ierr)
     if (this%mesh2mesh) then
        x = 0.0_rp
-       call this%global_interp%evaluate(x,read_array,interp_on_host)
+       call this%global_interp%evaluate(x, read_array, interp_on_host)
 
     else if (this%sim_Xh%lx .ne. this%chkp_Xh%lx) then
        call this%space_interp%map_host(x, read_array, nel, this%sim_Xh)

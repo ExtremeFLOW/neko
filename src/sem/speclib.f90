@@ -965,7 +965,7 @@ contains
     P3   = P2
     DO 10 K = 1, N-1
        FK  = (K)
-       P3  = ((2._rp*FK+1.0_rp)*Z*P2 - FK*P1)/(FK+1.0_rp)
+       P3  = ((2.0_rp*FK+1.0_rp)*Z*P2 - FK*P1)/(FK+1.0_rp)
        P1  = P2
        P2  = P3
 10  CONTINUE

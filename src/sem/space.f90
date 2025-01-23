@@ -297,11 +297,16 @@ contains
        call device_memcpy(s%dyt, s%dyt_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(s%dzt, s%dzt_d, s%lxy, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(s%w3, s%w3_d, s%lxyz, HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(s%v,     s%v_d,     s%lxy,HOST_TO_DEVICE,sync=.false.)
-       call device_memcpy(s%vt,    s%vt_d,    s%lxy,HOST_TO_DEVICE,sync=.false.)
-       call device_memcpy(s%vinv,  s%vinv_d,  s%lxy,HOST_TO_DEVICE,sync=.false.)
-       call device_memcpy(s%vinvt, s%vinvt_d, s%lxy,HOST_TO_DEVICE,sync=.false.)
-       call device_memcpy(s%w,     s%w_d,     s%lxy,HOST_TO_DEVICE,sync=.false.)
+       call device_memcpy(s%v,     s%v_d,     s%lxy, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(s%vt,    s%vt_d,    s%lxy, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(s%vinv,  s%vinv_d,  s%lxy, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(s%vinvt, s%vinvt_d, s%lxy, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(s%w,     s%w_d,     s%lxy, HOST_TO_DEVICE, &
+            sync = .false.)
 
        ix = s%lx * 3
        call device_map(s%zg, s%zg_d, ix)
@@ -529,7 +534,7 @@ contains
 
     real(kind=rp) :: L(0:Xh%lx-1)
     real(kind=rp) :: delta(Xh%lx)
-    integer :: i, kj, j, j2, kk 
+    integer :: i, kj, j, j2, kk
     type(matrix_t) :: m 
     logical :: scaled = .false.
 
@@ -539,7 +544,7 @@ contains
       ! Then proceed to compose the transform matrix
       kj = 0
       do j = 1, Xh%lx
-         call legendre_poly(L,Xh%zg(j,1),Xh%lx-1)
+         call legendre_poly(L, Xh%zg(j, 1), Xh%lx - 1)
          do kk = 1, Xh%lx
             kj = kj+1
             v(kj,1) = L(KK-1)
@@ -593,12 +598,12 @@ contains
          call copy(vinvt, vinv, Xh%lx * Xh%lx)
          call trsp1(vinvt, Xh%lx)
       else
-         call copy(vt,v,Xh%lxy)
+         call copy(vt, v, Xh%lxy)
          call trsp1(vt, Xh%lx)
-         call m%init(Xh%lx,Xh%lx)
-         call copy(m%x,v,Xh%lxy)
+         call m%init(Xh%lx, Xh%lx)
+         call copy(m%x, v, Xh%lxy)
          call m%inverse_on_host()
-         call copy(vinv,m%x,Xh%lxy)
+         call copy(vinv, m%x, Xh%lxy)
          call copy(vinvt, vinv, Xh%lx * Xh%lx)
          call trsp1(vinvt, Xh%lx)
          call m%free()

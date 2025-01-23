@@ -250,7 +250,8 @@ contains
     integer :: i
     real(kind=dp) :: box_min(3), box_max(3)
 
-    box_min = huge(0.0_dp); box_max = -huge(0.0_dp)
+    box_min = huge(0.0_dp)
+    box_max = -huge(0.0_dp)
     box_min = min(box_min, object%x)
     box_max = max(box_max, object%x)
     call box%init(box_min, box_max)

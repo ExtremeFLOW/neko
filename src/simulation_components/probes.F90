@@ -641,7 +641,8 @@ contains
     !> Check controller to determine if we must write
     do i = 1, this%n_fields
        call this%global_interp%evaluate(this%out_values(:,i), &
-                                        this%sampled_fields%items(i)%ptr%x,do_interp_on_host)
+                                        this%sampled_fields%items(i)%ptr%x, &
+                                        do_interp_on_host)
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
