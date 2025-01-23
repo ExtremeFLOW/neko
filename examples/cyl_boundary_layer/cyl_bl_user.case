@@ -5,7 +5,7 @@
     "output_at_end": true,
     "output_boundary": true,
     "output_checkpoints": false,
-    "end_time": 100,
+    "end_time": 2e-3,
     "output_directory": "results_user",
     "timestep": 8e-4,
     "numerics": {

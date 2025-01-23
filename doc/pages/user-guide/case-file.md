@@ -90,22 +90,26 @@ but also defines several parameters that pertain to the simulation as a whole.
 <h3> Boundary type numbering in the `output_boundary` field </h3>
 
 When the `output_boundary` setting is set to `true`, and additional `.fld` file
-will be stored in the beginning of the simulation, where the recognized
-boundaries will be marked with an integer number. This is a good way to debug
-the simulation setup. The value of the number depends on the type of the
-boundary as follows:
+will be stored in the beginning of the simulation, where the recognized boundary
+conditions for the fluid  will be marked with an integer number. This is a good
+way to debug the simulation setup. The value of the number depends on the type
+of the boundary as follows.
 
-1. A wall boundary, i.e. the `w` label.
-2. A Dirichlet boundary, i.e. the `v` label.
-3. An outlet boundary, i.e. the `o` label.
-4. A symmetry boundary, i.e. the `sym` label.
-5. An wall-normal transpiration boundary, i.e. the `on` label.
-6. A periodic boundary.
+| Boundary Condition               | Key |
+|----------------------------------|-----|
+| periodic                         | 0   |
+| no_slip                          | 1   |
+| velocity_value                   | 2   |
+| outflow, normal_outflow (+dong)  | 3   |
+| symmetry                         | 4   |
+| user_velocity_pointwise          | 5   |
+| blasius_profile                  | 6   |
+| user_velocity                    | 7   |
+| user_pressure                    | 8   |
+| shear_stress                     | 9   |
+| wall_model                       | 10  |
 
-Note that the boundary conditions can be both prescribed via the labels in the
-case file or built into the mesh via conversion from a `.re2` file. Both types
-will be picked up and marked in the field produced by `output_boundary`.
-
+For a description of the boundary conditions themselves, see below.
 
 ## Numerics
 Used to define the properties of the numerical discretization.
