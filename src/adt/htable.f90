@@ -79,6 +79,14 @@ module htable
   end interface
 
   !
+  ! Type wrappers
+  !
+  type, public :: h_cptr_t
+     type(c_ptr) :: ptr
+  end type h_cptr_t
+
+
+  !
   ! Implementations
   !
 
@@ -243,12 +251,6 @@ module htable
      final :: htable_iter_cptr_free
   end type htable_iter_cptr_t
 
-  !
-  ! Type wrappers
-  !
-  type, public :: h_cptr_t
-     type(c_ptr) :: ptr
-  end type h_cptr_t
 
   !
   ! Integer based implementation
