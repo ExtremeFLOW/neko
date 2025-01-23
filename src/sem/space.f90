@@ -36,7 +36,7 @@ module space
   use num_types, only : rp
   use speclib
   use device
-  use matrix
+  use matrix, only : matrix_t
   use utils, only : neko_error
   use fast3d, only : setup_intp
   use math
