@@ -161,7 +161,6 @@ contains
   !! coef:              Coef object.
   !! t:                 Current time.
   !! tstep:             Current time step.
-  !! which_solver:      Indicates wether the fields provided come from "fluid" or "scalar".
   subroutine dirichlet_update(field_bc_list, bc, coef, t, tstep)
     type(field_list_t), intent(inout) :: field_bc_list
     type(field_dirichlet_t), intent(in) :: bc
@@ -181,19 +180,28 @@ contains
        associate(u => field_bc_list%items(1)%ptr, &
             v => field_bc_list%items(2)%ptr, &
             w => field_bc_list%items(3)%ptr)
-! TODO?
-!            p => field_bc_list%items(4)%ptr)
 
-         !
-         ! Perform operations on u%x, v%x, w%x and p%x here
+         ! Perform operations on u%x, v%x, w%x here
          ! Here we are applying very simple uniform boundaries (u,v,w) = (1,0,0)
-         ! and nonsensical pressure outlet of p = -1
-         !
+         ! Technically the values are put in the interior as well, but this
+         ! does not matter, only the boundary values will be copied to the
+         ! actual fields
          u = 1.0_rp
          v = 0.0_rp
          w = 0.0_rp
-! TODO?
-!        p = -1.0_rp
+
+       end associate
+    ! Check that we are being called by the user_pressure bc via the name
+    ! of the field
+    else if (field_bc_list%items(1)%ptr%name .eq. "p") then
+       associate( p => field_bc_list%items(1)%ptr)
+         !
+         ! Perform operations on the pressure field here
+         !
+
+         do i = 1, bc%msk(0)
+            p%x(bc%msk(i), 1, 1, 1) = -1 
+         end do
 
        end associate
 
