@@ -192,8 +192,6 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%x, this%x_d, this%size(), &
                           memdir, sync)
-    else
-       call neko_error('field_t, copy between host and device w/o device backend')
     end if
 
   end subroutine field_copyto

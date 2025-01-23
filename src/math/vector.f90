@@ -149,8 +149,6 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(v%x, v%x_d, v%n, &
                           memdir, sync)
-    else
-       call neko_error('vector_t, copy between host and device w/o device backend')
     end if
 
   end subroutine vector_copyto
