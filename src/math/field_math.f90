@@ -61,15 +61,18 @@ module field_math
   use neko_config, only: NEKO_BCKND_DEVICE
   use num_types, only: rp
   use field, only: field_t
+  use device
   use math, only: rzero, rone, copy, cmult, cadd, cfill, invcol1, vdot3, add2, &
        add3, add4, sub2, sub3, add2s1, add2s2, addsqr2s2, cmult2, invcol2, &
-       col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glsc2, glsc3
+       col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glsc2, glsc3, &
+       masked_gather_copy, masked_scatter_copy
   use device_math, only: device_rzero, device_rone, device_copy, device_cmult, &
        device_cadd, device_cfill, device_invcol1, device_vdot3, device_add2, &
        device_add3, device_add4, device_sub2, device_sub3, device_add2s1, &
        device_add2s2, device_addsqr2s2, device_cmult2, device_invcol2, &
        device_col2, device_col3, device_subcol3, device_add3s2, &
-       device_addcol3, device_addcol4, device_glsum, device_glsc2, device_glsc3
+       device_addcol3, device_addcol4, device_glsum, device_glsc2, device_glsc3, &
+       device_masked_gather_copy, device_masked_scatter_copy
   implicit none
   private
 
@@ -79,7 +82,8 @@ module field_math
        field_add2s2, field_addsqr2s2, field_cmult2, &
        field_invcol2, field_col2, field_col3, field_subcol3, &
        field_add3s2, field_addcol3, field_addcol4, field_glsum, &
-       field_glsc2, field_glsc3, field_add3
+       field_glsc2, field_glsc3, field_add3, field_masked_gather_copy, &
+       field_masked_scatter_copy
   
 contains
 
@@ -661,5 +665,57 @@ contains
     end if
 
   end function field_glsc3
+
+  !> Gather a field to reduced contigous array
+  !! \f$ a = b(mask) \f$.
+  !! @param a Destination array of size `m`.
+  !! @param b Source array of size `n`.
+  !! @param mask Mask array of length m+1, where `mask(0) =m`
+  !! the length of the mask array.
+  !! @param n Size of the array `b`.
+  !! @param m Size of the mask array `mask` and `a`.
+  subroutine field_masked_gather_copy(a, b, mask, n, m)
+    integer, intent(in) :: n, m
+    real(kind=rp), dimension(m), intent(inout) :: a
+    type(field_t) :: b
+    integer, dimension(0:m) :: mask
+    type(c_ptr) :: mask_d, a_d
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       mask_d = device_get_ptr(mask)
+       a_d = device_get_ptr(a)
+       call device_masked_gather_copy(a_d, b%x_d, mask_d, b%size(), mask(0))
+    else
+       call masked_gather_copy(a, b%x, mask, b%size(), mask(0))
+    end if
+
+  end subroutine field_masked_gather_copy
+
+  !> Gather a contigous array into a field
+  !! \f$ a(mask) = b \f$.
+  !! @param a Destination field.
+  !! @param b Source array of size `m`.
+  !! @param mask Mask array of length m+1, where `mask(0) =m`
+  !! the length of the mask array.
+  !! @param n Size of the array `b`.
+  !! @param m Size of the mask array `mask` and `a`.
+  subroutine field_masked_scatter_copy(a, b, mask, n, m)
+    integer, intent(in) :: n, m
+    real(kind=rp), dimension(m), intent(in) :: b
+    type(field_t), intent(inout) :: a
+    integer, dimension(0:m) :: mask
+    type(c_ptr) :: mask_d, b_d
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       mask_d = device_get_ptr(mask)
+       b_d = device_get_ptr(b)
+       call device_masked_scatter_copy(a%x_d, b_d, mask_d, a%size(), mask(0))
+    else
+       call masked_scatter_copy(a%x, b, mask, a%size(), mask(0))
+    end if
+
+  end subroutine field_masked_scatter_copy
+
+
 
 end module field_math
