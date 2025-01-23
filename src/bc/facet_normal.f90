@@ -33,7 +33,7 @@
 !> Dirichlet condition applied in the facet normal direction
 module facet_normal
   use device_facet_normal
-  use num_types
+  use num_types, only : rp
   use math
   use coefs, only : coef_t
   use bc, only : bc_t
@@ -107,7 +107,8 @@ contains
   end subroutine facet_normal_apply_scalar_dev
 
   !> No-op vector apply on device
-  subroutine facet_normal_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
+  subroutine facet_normal_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
+       strong)
     class(facet_normal_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -150,22 +151,22 @@ contains
          k = this%msk(i)
          facet = this%facet(i)
          idx = nonlinear_index(k, c%Xh%lx, c%Xh%lx, c%Xh%lx)
-         select case(facet)
-         case(1,2)
+         select case (facet)
+         case (1,2)
             x(k) = u(k) * c%nx(idx(2), idx(3), facet, idx(4)) &
                  * c%area(idx(2), idx(3), facet, idx(4))
             y(k) = v(k) * c%ny(idx(2), idx(3), facet, idx(4)) &
                  * c%area(idx(2), idx(3), facet, idx(4))
             z(k) = w(k) * c%nz(idx(2), idx(3), facet, idx(4)) &
                  * c%area(idx(2), idx(3), facet, idx(4))
-         case(3,4)
+         case (3,4)
             x(k) = u(k) * c%nx(idx(1), idx(3), facet, idx(4)) &
                  * c%area(idx(1), idx(3), facet, idx(4))
             y(k) = v(k) * c%ny(idx(1), idx(3), facet, idx(4)) &
                  * c%area(idx(1), idx(3), facet, idx(4))
             z(k) = w(k) * c%nz(idx(1), idx(3), facet, idx(4)) &
                  * c%area(idx(1), idx(3), facet, idx(4))
-         case(5,6)
+         case (5,6)
             x(k) = u(k) * c%nx(idx(1), idx(2), facet, idx(4)) &
                  * c%area(idx(1), idx(2), facet, idx(4))
             y(k) = v(k) * c%ny(idx(1), idx(2), facet, idx(4)) &

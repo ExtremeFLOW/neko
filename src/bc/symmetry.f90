@@ -151,13 +151,13 @@ contains
     real(kind=rp), parameter :: TOL = 1d-3
     type(tuple_i4_t) :: bc_facet
 
-    associate(c=>this%coef, nx => this%coef%nx, ny => this%coef%ny, &
+    associate(c => this%coef, nx => this%coef%nx, ny => this%coef%ny, &
               nz => this%coef%nz)
       sx = 0d0
       sy = 0d0
       sz = 0d0
       select case (facet)
-      case(1,2)
+      case (1, 2)
          do l = 2, c%Xh%lx - 1
             do j = 2, c%Xh%lx -1
                sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
@@ -165,7 +165,7 @@ contains
                sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
             end do
          end do
-      case(3,4)
+      case (3, 4)
          do l = 2, c%Xh%lx - 1
             do j = 2, c%Xh%lx - 1
                sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
@@ -173,7 +173,7 @@ contains
                sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
             end do
          end do
-      case(5,6)
+      case (5, 6)
          do l = 2, c%Xh%lx - 1
             do j = 2, c%Xh%lx - 1
                sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)

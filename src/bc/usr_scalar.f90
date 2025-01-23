@@ -164,8 +164,8 @@ contains
             k = this%msk(i)
             facet = this%facet(i)
             idx = nonlinear_index(k, lx, lx, lx)
-            select case(facet)
-            case(1,2)
+            select case (facet)
+            case (1, 2)
                call this%eval(x(k), &
                   xc(idx(1), idx(2), idx(3), idx(4)), &
                   yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -175,7 +175,7 @@ contains
                   nz(idx(2), idx(3), facet, idx(4)), &
                   idx(1), idx(2), idx(3), idx(4), &
                   t_, tstep_)
-            case(3,4)
+            case (3, 4)
                call this%eval(x(k), &
                   xc(idx(1), idx(2), idx(3), idx(4)), &
                   yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -185,7 +185,7 @@ contains
                   nz(idx(1), idx(3), facet, idx(4)), &
                   idx(1), idx(2), idx(3), idx(4), &
                   t_, tstep_)
-            case(5,6)
+            case (5, 6)
                call this%eval(x(k), &
                   xc(idx(1), idx(2), idx(3), idx(4)), &
                   yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -236,7 +236,8 @@ contains
 
     associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
               zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
-              nz => this%coef%nz, lx => this%coef%Xh%lx, usr_x_d => this%usr_x_d)
+              nz => this%coef%nz, lx => this%coef%Xh%lx, &
+              usr_x_d => this%usr_x_d)
 
 
       ! Pretabulate values during first call to apply
@@ -284,7 +285,7 @@ contains
             end select
          end do
 
-         call device_memcpy(x, this%usr_x_d, m, HOST_TO_DEVICE, sync=.true.)
+         call device_memcpy(x, this%usr_x_d, m, HOST_TO_DEVICE, sync = .true.)
 
          deallocate(x)
       end if

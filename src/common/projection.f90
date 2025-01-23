@@ -220,7 +220,8 @@ contains
 
   end subroutine projection_free
 
-  subroutine projection_pre_solving(this, b, tstep, coef, n, dt_controller, string)
+  subroutine projection_pre_solving(this, b, tstep, coef, n, dt_controller, &
+       string)
     class(projection_t), intent(inout) :: this
     integer, intent(inout) :: n
     real(kind=rp), intent(inout), dimension(n) :: b
@@ -251,7 +252,8 @@ contains
 
   end subroutine projection_pre_solving
 
-  subroutine projection_post_solving(this, x, Ax, coef, bclst, gs_h, n, tstep, dt_controller)
+  subroutine projection_post_solving(this, x, Ax, coef, bclst, gs_h, n, tstep, &
+       dt_controller)
     class(projection_t), intent(inout) :: this
     integer, intent(inout) :: n
     class(Ax_t), intent(inout) :: Ax
@@ -648,7 +650,7 @@ contains
          scl1 = 1.0_rp / alpha(m)
          do i = 0, (n - 1)
             xx(1+i,m) = scl1 * xx(1+i,m)
-            bb(1+i,m) = scl1 * bb(1+i,m) 
+            bb(1+i,m) = scl1 * bb(1+i,m)
          end do
 
       else !New vector is not linearly independent, forget about it

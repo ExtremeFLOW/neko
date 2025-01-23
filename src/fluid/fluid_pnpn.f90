@@ -412,14 +412,14 @@ contains
        associate(u => this%u, v => this%v, w => this%w, p => this%p, &
             c_Xh => this%c_Xh, ulag => this%ulag, vlag => this%vlag, &
             wlag => this%wlag)
-         do concurrent (j=1:n)
+         do concurrent (j = 1:n)
             u%x(j,1,1,1) = u%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
             v%x(j,1,1,1) = v%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
             w%x(j,1,1,1) = w%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
             p%x(j,1,1,1) = p%x(j,1,1,1) * c_Xh%mult(j,1,1,1)
          end do
          do i = 1, this%ulag%size()
-            do concurrent (j=1:n)
+            do concurrent (j = 1:n)
                ulag%lf(i)%x(j,1,1,1) = ulag%lf(i)%x(j,1,1,1) &
                                      * c_Xh%mult(j,1,1,1)
                vlag%lf(i)%x(j,1,1,1) = vlag%lf(i)%x(j,1,1,1) &
@@ -895,7 +895,7 @@ contains
 
     ! Populate bcs_vel and bcs_prs based on the case file
     if (params%valid_path('case.fluid.boundary_conditions')) then
-       call params%info('case.fluid.boundary_conditions', n_children=n_bcs)
+       call params%info('case.fluid.boundary_conditions', n_children = n_bcs)
        call params%get_core(core)
        call params%get('case.fluid.boundary_conditions', bc_object, found)
 
@@ -907,7 +907,7 @@ contains
        allocate(marked_zones(size(this%msh%labeled_zones)))
        marked_zones = .false.
 
-       do i=1, n_bcs
+       do i = 1, n_bcs
           ! Create a new json containing just the subdict for this bc
           call json_extract_item(core, bc_object, i, bc_subdict)
 
@@ -953,7 +953,7 @@ contains
             ! We need to treat mixed bcs separately because they are by
             ! convention marked weak and currently contain nested
             ! bcs, some of which are strong.
-             select type(bc_i)
+             select type (bc_i)
              type is (symmetry_t)
                 ! Symmetry has 3 internal bcs, but only one actually contains
                 ! markings.
@@ -970,7 +970,7 @@ contains
                 call this%bcs_vel%append(bc_i)
 
                 call this%bc_sym_surface%mark_facets(bc_i%marked_facet)
-             type is(non_normal_t)
+             type is (non_normal_t)
                 ! This is a bc for the residuals and increments, not the
                 ! velocity itself. So, don't append to bcs_vel
                 call this%bclst_vel_res%append(bc_i)
@@ -1121,7 +1121,7 @@ contains
 
     do i = 1, this%bcs_prs%size()
        bci => this%bcs_prs%get(i)
-       select type(bc => bci)
+       select type (bc => bci)
          type is (zero_dirichlet_t)
           call bdry_mask%init_from_components(this%c_Xh, 3.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
@@ -1145,7 +1145,7 @@ contains
 
     do i = 1, this%bcs_vel%size()
        bci => this%bcs_vel%get(i)
-       select type(bc => bci)
+       select type (bc => bci)
          type is (zero_dirichlet_t)
           call bdry_mask%init_from_components(this%c_Xh, 1.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)

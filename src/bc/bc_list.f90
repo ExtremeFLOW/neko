@@ -131,7 +131,7 @@ contains
     type(bc_ptr_t), allocatable :: tmp(:)
 
     !> Do not add if bc is empty
-    if(bc%marked_facet%size() .eq. 0) return
+    if (bc%marked_facet%size() .eq. 0) return
 
     if (this%size_ .ge. this%capacity) then
        this%capacity = this%capacity * 2
@@ -181,7 +181,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
        do i = 1, this%size_
-          call this%items(i)%ptr%apply_scalar_dev(x_d, t=t, tstep=tstep)
+          call this%items(i)%ptr%apply_scalar_dev(x_d, t = t, tstep = tstep)
        end do
     else
        do i = 1, this%size_

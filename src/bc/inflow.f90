@@ -44,7 +44,7 @@ module inflow
 
   !> Dirichlet condition for inlet (vector valued)
   type, public, extends(bc_t) :: inflow_t
-     real(kind=rp), dimension(3) :: x = (/0d0, 0d0, 0d0 /)
+     real(kind=rp), dimension(3) :: x = [0d0, 0d0, 0d0]
    contains
      procedure, pass(this) :: apply_scalar => inflow_apply_scalar
      procedure, pass(this) :: apply_vector => inflow_apply_vector

@@ -90,8 +90,8 @@ contains
        allocate(dong_outflow_t::object)
       case ("user_pressure")
        allocate(field_dirichlet_t::object)
-       select type(obj => object)
-         type is(field_dirichlet_t)
+       select type (obj => object)
+         type is (field_dirichlet_t)
           obj%update => user%user_dirichlet_update
           call json%add("field_name", scheme%p%name)
        end select
@@ -113,7 +113,7 @@ contains
 
     ! All pressure bcs are currently strong, so for all of them we
     ! mark with value 1 in the mesh
-    do i =1, size(zone_indices)
+    do i = 1, size(zone_indices)
        do j = 1, scheme%msh%nelv
           do k = 1, 2 * scheme%msh%gdim
              if (scheme%msh%facet_type(k,j) .eq. -zone_indices(i)) then
@@ -163,14 +163,14 @@ contains
        call json%add("nu", scheme%mu / scheme%rho)
       case ("user_velocity")
        allocate(field_dirichlet_vector_t::object)
-       select type(obj => object)
+       select type (obj => object)
          type is(field_dirichlet_vector_t)
           obj%update => user%user_dirichlet_update
        end select
       case ("user_velocity_pointwise")
        allocate(usr_inflow_t::object)
-       select type(obj => object)
-         type is(usr_inflow_t)
+       select type (obj => object)
+         type is (usr_inflow_t)
           call obj%set_eval(user%fluid_user_if)
           call obj%validate()
        end select

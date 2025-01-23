@@ -90,8 +90,8 @@ contains
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
 
-    associate(c=>this%coef, nx => this%coef%nx, ny => this%coef%ny, &
-              nz => this%coef%nz)
+    associate(c => this%coef, nx => this%coef%nx, ny => this%coef%ny, &
+         nz => this%coef%nz)
       bfp => this%marked_facet%array()
       do i = 1, this%marked_facet%size()
          bc_facet = bfp(i)

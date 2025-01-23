@@ -38,7 +38,7 @@ module device_zero_dirichlet
 #ifdef HAVE_HIP
   interface
      subroutine hip_zero_dirichlet_apply_scalar(msk, x, m) &
-          bind(c, name='hip_zero_dirichlet_apply_scalar')
+          bind(c, name = 'hip_zero_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
@@ -48,7 +48,7 @@ module device_zero_dirichlet
 
   interface
      subroutine hip_zero_dirichlet_apply_vector(msk, x, y, z, m) &
-          bind(c, name='hip_zero_dirichlet_apply_vector')
+          bind(c, name = 'hip_zero_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
@@ -58,7 +58,7 @@ module device_zero_dirichlet
 #elif HAVE_CUDA
   interface
      subroutine cuda_zero_dirichlet_apply_scalar(msk, x, m) &
-          bind(c, name='cuda_zero_dirichlet_apply_scalar')
+          bind(c, name = 'cuda_zero_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
@@ -68,7 +68,7 @@ module device_zero_dirichlet
 
   interface
      subroutine cuda_zero_dirichlet_apply_vector(msk, x, y, z, m) &
-          bind(c, name='cuda_zero_dirichlet_apply_vector')
+          bind(c, name = 'cuda_zero_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
@@ -78,7 +78,7 @@ module device_zero_dirichlet
 #elif HAVE_OPENCL
   interface
      subroutine opencl_zero_dirichlet_apply_scalar(msk, x, m) &
-          bind(c, name='opencl_zero_dirichlet_apply_scalar')
+          bind(c, name = 'opencl_zero_dirichlet_apply_scalar')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
@@ -88,7 +88,7 @@ module device_zero_dirichlet
 
   interface
      subroutine opencl_zero_dirichlet_apply_vector(msk, x, y, z, m) &
-          bind(c, name='opencl_zero_dirichlet_apply_vector')
+          bind(c, name = 'opencl_zero_dirichlet_apply_vector')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m
@@ -97,7 +97,8 @@ module device_zero_dirichlet
   end interface
 #endif
 
-  public :: device_zero_dirichlet_apply_scalar, device_zero_dirichlet_apply_vector
+  public :: device_zero_dirichlet_apply_scalar, &
+       device_zero_dirichlet_apply_vector
 
 contains
 

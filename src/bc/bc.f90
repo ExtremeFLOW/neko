@@ -33,7 +33,7 @@
 !> Defines a boundary condition
 module bc
   use neko_config
-  use num_types
+  use num_types, only : rp
   use device
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
@@ -308,21 +308,21 @@ contains
        y_d = device_get_ptr(y)
        z_d = device_get_ptr(z)
        if (present(t) .and. present(tstep)) then
-          call this%apply_vector_dev(x_d, y_d, z_d, t=t, tstep=tstep)
+          call this%apply_vector_dev(x_d, y_d, z_d, t = t, tstep = tstep)
        else if (present(t)) then
-          call this%apply_vector_dev(x_d, y_d, z_d, t=t)
+          call this%apply_vector_dev(x_d, y_d, z_d, t = t)
        else if (present(tstep)) then
-          call this%apply_vector_dev(x_d, y_d, z_d, tstep=tstep)
+          call this%apply_vector_dev(x_d, y_d, z_d, tstep = tstep)
        else
           call this%apply_vector_dev(x_d, y_d, z_d)
        end if
     else
        if (present(t) .and. present(tstep)) then
-          call this%apply_vector(x, y, z, n, t=t, tstep=tstep)
+          call this%apply_vector(x, y, z, n, t = t, tstep = tstep)
        else if (present(t)) then
-          call this%apply_vector(x, y, z, n, t=t)
+          call this%apply_vector(x, y, z, n, t = t)
        else if (present(tstep)) then
-          call this%apply_vector(x, y, z, n, tstep=tstep)
+          call this%apply_vector(x, y, z, n, tstep = tstep)
        else
           call this%apply_vector(x, y, z, n)
        end if
@@ -351,21 +351,21 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
        if (present(t) .and. present(tstep)) then
-          call this%apply_scalar_dev(x_d, t=t, tstep=tstep)
+          call this%apply_scalar_dev(x_d, t = t, tstep = tstep)
        else if (present(t)) then
-          call this%apply_scalar_dev(x_d, t=t)
+          call this%apply_scalar_dev(x_d, t = t)
        else if (present(tstep)) then
-          call this%apply_scalar_dev(x_d, tstep=tstep)
+          call this%apply_scalar_dev(x_d, tstep = tstep)
        else
           call this%apply_scalar_dev(x_d)
        end if
     else
        if (present(t) .and. present(tstep)) then
-          call this%apply_scalar(x, n, t=t, tstep=tstep)
+          call this%apply_scalar(x, n, t = t, tstep = tstep)
        else if (present(t)) then
-          call this%apply_scalar(x, n, t=t)
+          call this%apply_scalar(x, n, t = t)
        else if (present(tstep)) then
-          call this%apply_scalar(x, n, tstep=tstep)
+          call this%apply_scalar(x, n, tstep = tstep)
        else
           call this%apply_scalar(x, n)
        end if
@@ -382,7 +382,7 @@ contains
     integer, intent(in) :: el
     type(tuple_i4_t) :: t
 
-    t%x = (/facet, el/)
+    t%x = [facet, el]
     call this%marked_facet%push(t)
 
   end subroutine bc_mark_facet
@@ -451,7 +451,7 @@ contains
           do l = 1, lz
              do k = 1, ly
                 msk_c = msk_c + 1
-                this%msk(msk_c) = linear_index(1,k,l,el,lx,ly,lz)
+                this%msk(msk_c) = linear_index(1, k, l, el, lx, ly, lz)
                 this%facet(msk_c) = 1
              end do
           end do
@@ -459,39 +459,39 @@ contains
           do l = 1, lz
              do k = 1, ly
                 msk_c = msk_c + 1
-                this%msk(msk_c) = linear_index(lx,k,l,el,lx,ly,lz)
+                this%msk(msk_c) = linear_index(lx, k, l, el, lx, ly, lz)
                 this%facet(msk_c) = 2
              end do
           end do
-       case(3)
+       case (3)
           do l = 1, lz
              do j = 1, lx
                 msk_c = msk_c + 1
-                this%msk(msk_c) = linear_index(j,1,l,el,lx,ly,lz)
+                this%msk(msk_c) = linear_index(j, 1, l, el, lx, ly, lz)
                 this%facet(msk_c) = 3
              end do
           end do
-       case(4)
+       case (4)
           do l = 1, lz
              do j = 1, lx
                 msk_c = msk_c + 1
-                this%msk(msk_c) = linear_index(j,ly,l,el,lx,ly,lz)
+                this%msk(msk_c) = linear_index(j, ly, l, el, lx, ly, lz)
                 this%facet(msk_c) = 4
              end do
           end do
-       case(5)
+       case (5)
           do k = 1, ly
              do j = 1, lx
                 msk_c = msk_c + 1
-                this%msk(msk_c) = linear_index(j,k,1,el,lx,ly,lz)
+                this%msk(msk_c) = linear_index(j, k, 1, el, lx, ly, lz)
                 this%facet(msk_c) = 5
              end do
           end do
-       case(6)
+       case (6)
           do k = 1, ly
              do j = 1, lx
                 msk_c = msk_c + 1
-                this%msk(msk_c) = linear_index(j,k,lz,el,lx,ly,lz)
+                this%msk(msk_c) = linear_index(j, k, lz, el, lx, ly, lz)
                 this%facet(msk_c) = 6
              end do
           end do
@@ -507,9 +507,9 @@ contains
        call device_map(this%facet, this%facet_d, n)
 
        call device_memcpy(this%msk, this%msk_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%facet, this%facet_d, n, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
     end if
 
   end subroutine bc_finalize_base

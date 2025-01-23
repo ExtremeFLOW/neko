@@ -114,19 +114,19 @@ contains
        do i = 1, m
           k = this%msk(i)
           facet = this%facet(i)
-          idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx,this%Xh%lx)
+          idx = nonlinear_index(k, this%Xh%lx, this%Xh%lx, this%Xh%lx)
           normal_xyz = &
-                this%coef%get_normal(idx(1), idx(2), idx(3), idx(4),facet)
+                this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
           temp_x(i) = normal_xyz(1)
           temp_y(i) = normal_xyz(2)
           temp_z(i) = normal_xyz(3)
        end do
        call device_memcpy(temp_x, this%normal_x_d, m, HOST_TO_DEVICE, &
-             sync=.false.)
+             sync = .false.)
        call device_memcpy(temp_y, this%normal_y_d, m, HOST_TO_DEVICE, &
-             sync=.false.)
+             sync = .false.)
        call device_memcpy(temp_z, this%normal_z_d, m, HOST_TO_DEVICE, &
-             sync=.true.)
+             sync = .true.)
        deallocate( temp_x, temp_y, temp_z)
       end if
   end subroutine dong_outflow_init
@@ -154,8 +154,9 @@ contains
          ux = this%u%x(k,1,1,1)
          uy = this%v%x(k,1,1,1)
          uz = this%w%x(k,1,1,1)
-         idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx,this%Xh%lx)
-         normal_xyz = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4),facet)
+         idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx, this%Xh%lx)
+         normal_xyz = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), &
+              facet)
          vn = ux*normal_xyz(1) + uy*normal_xyz(2) + uz*normal_xyz(3)
          S0 = 0.5_rp*(1.0_rp - tanh(vn / (this%uinf * this%delta)))
 
@@ -192,9 +193,9 @@ contains
 
     if (strong_) then
        call device_dong_outflow_apply_scalar(this%msk_d,x_d, &
-            this%normal_x_d, this%normal_y_d, this%normal_z_d,&
-            this%u%x_d, this%v%x_d, this%w%x_d,&
-            this%uinf, this%delta,&
+            this%normal_x_d, this%normal_y_d, this%normal_z_d, &
+            this%u%x_d, this%v%x_d, this%w%x_d, &
+            this%uinf, this%delta, &
             this%msk(0))
     end if
 
