@@ -34,8 +34,8 @@
 !! @details A hash table storing tuples @a (key, data), with fixed
 !! data-type @a key but with arbitrary typed @a data
 module htable
-  use num_types
-  use utils
+  use num_types, only : i4, i8, dp, rp
+  use utils, only : neko_error
   use point, only : point_t
   use tuple, only : tuple_i4_t, tuple4_i4_t, tuple_t
   use math, only : NEKO_M_LN2

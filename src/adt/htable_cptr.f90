@@ -210,7 +210,7 @@ contains
     integer :: index, i, c
 
     c = 0
-    i = log(1.0/this%size)/log(0.6)
+    i = ceiling(log(1.0_rp/real(this%size,rp))/log(0.6_rp))
 
     do while (i .ge. 0)
        index = this%hash(key, c**2)
