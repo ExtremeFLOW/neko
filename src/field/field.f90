@@ -63,6 +63,7 @@ module field
      procedure, private, pass(this) :: assign_scalar => field_assign_scalar
      procedure, private, pass(this) :: add_field => field_add_field
      procedure, private, pass(this) :: add_scalar => field_add_scalar
+     procedure, pass(this) :: copyto => field_copyto
      procedure, pass(this) :: free => field_free
      !> Return the size of the field.
      procedure, pass(this) :: size => field_size
@@ -178,6 +179,25 @@ contains
     end if
 
   end subroutine field_free
+
+  !> Easy way to copy between host and device.
+  !! @param this field to copy to/from device/host
+  !! @memdir direction to copy (HOST_TO_DEVICE or DEVICE_TO_HOST)
+  !! @sync whether the memcopy to be blocking or not
+  subroutine field_copyto(this, memdir, sync)
+    class(field_t), intent(inout) :: this
+    integer, intent(in) :: memdir
+    logical, intent(in) :: sync
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%x, this%x_d, this%size(), &
+                          memdir, sync)
+    else
+       call neko_error('field_t, copy between host and device w/o device backend')
+    end if
+
+  end subroutine field_copyto
+
 
   !> Assignment \f$ this = G \f$
   !! @note @a this will be initialized if it has a different size than

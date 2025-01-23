@@ -143,6 +143,9 @@ contains
 
 
   !> Easy way to copy between host and device.
+  !! @param m matrix to copy to/from device/host
+  !! @memdir direction to copy (HOST_TO_DEVICE or DEVICE_TO_HOST)
+  !! @sync whether the memcopy to be blocking or not
   subroutine matrix_copyto(m, memdir, sync)
     class(matrix_t), intent(inout) :: m
     integer, intent(in) :: memdir

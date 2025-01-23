@@ -138,6 +138,9 @@ contains
   end function vector_size
 
   !> Easy way to copy between host and device.
+  !! @param v vector to copy to/from device/host
+  !! @memdir direction to copy (HOST_TO_DEVICE or DEVICE_TO_HOST)
+  !! @sync whether the memcopy to be blocking or not
   subroutine vector_copyto(v, memdir, sync)
     class(vector_t), intent(inout) :: v
     integer, intent(in) :: memdir
