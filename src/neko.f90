@@ -36,13 +36,8 @@ module neko
   use comm
   use utils
   use logger
-  use math, only : abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, &
-       cfill, glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, &
-       invers2, vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, &
-       sub3, add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
-       add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
-       glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
-       swap, reord, flipv, cadd2, pi, absval
+  use math 
+  use field_math
   use speclib
   use dofmap, only : dofmap_t
   use space, only : space_t, GL, GLL, GJ
@@ -82,15 +77,7 @@ module neko
   use jobctrl, only : jobctrl_init, jobctrl_set_time_limit, &
        jobctrl_time_limit, jobctrl_jobtime
   use device
-  use device_math, only : device_copy, device_rzero, device_rone, &
-       device_cmult, device_cmult2, device_cadd, device_cfill, device_add2, &
-       device_add2s1, device_add2s2, device_addsqr2s2, device_add3s2, &
-       device_invcol1, device_invcol2, device_col2, device_col3, &
-       device_subcol3, device_sub2, device_sub3, device_addcol3, &
-       device_addcol4, device_vdot3, device_vlsc3, device_glsc3, &
-       device_glsc3_many, device_add2s2_many, device_glsc2, device_glsum, &
-       device_masked_copy, device_cfill_mask, device_add3, device_cadd2, &
-       device_absval
+  use device_math 
   use map_1d, only : map_1d_t
   use map_2d, only : map_2d_t
   use cpr, only : cpr_t, cpr_init, cpr_free
