@@ -331,7 +331,7 @@ contains
     call this%dp%init(this%dm_Xh, 'dp')
 
     ! Set up boundary conditions
-    call this%setup_bcs(user)
+    call this%setup_bcs(user, params)
 
     ! Check if we need to output boundaries
     call json_get_or_default(params, 'case.output_boundary', found, .false.)
@@ -862,9 +862,10 @@ contains
 
   !> Sets up the boundary condition for the scheme.
   !! @param user The user interface.
-  subroutine fluid_pnpn_setup_bcs(this, user)
+  subroutine fluid_pnpn_setup_bcs(this, user, params)
     class(fluid_pnpn_t), intent(inout) :: this
     type(user_t), target, intent(in) :: user
+    type(json_file), intent(inout) :: params
     integer :: i, n_bcs, zone_index, j, zone_size, global_zone_size, ierr
     class(bc_t), pointer :: bc_i
     type(json_core) :: core
@@ -893,10 +894,10 @@ contains
     call this%bc_sym_surface%init_from_components(this%c_Xh)
 
     ! Populate bcs_vel and bcs_prs based on the case file
-    if (this%params%valid_path('case.fluid.boundary_conditions')) then
-       call this%params%info('case.fluid.boundary_conditions', n_children=n_bcs)
-       call this%params%get_core(core)
-       call this%params%get('case.fluid.boundary_conditions', bc_object, found)
+    if (params%valid_path('case.fluid.boundary_conditions')) then
+       call params%info('case.fluid.boundary_conditions', n_children=n_bcs)
+       call params%get_core(core)
+       call params%get('case.fluid.boundary_conditions', bc_object, found)
 
        !
        ! Velocity bcs

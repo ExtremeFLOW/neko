@@ -241,10 +241,11 @@ module fluid_scheme
 
   !> Abstract interface to setup boundary conditions
   abstract interface
-     subroutine fluid_scheme_setup_bcs_intrf(this, user)
-       import fluid_scheme_t, user_t
+     subroutine fluid_scheme_setup_bcs_intrf(this, user, params)
+       import fluid_scheme_t, user_t, json_file
        class(fluid_scheme_t), intent(inout) :: this
        type(user_t), target, intent(in) :: user
+       type(json_file), intent(inout) :: params
      end subroutine fluid_scheme_setup_bcs_intrf
   end interface
 
