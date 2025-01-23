@@ -624,13 +624,13 @@ module htable
 
      !> Return the current value of integer based 2-tuple hash table iterator
      module function htable_iter_i4t2_value(this) result(value)
-       class(htable_iter_i4t2_t), intent(inout) :: this
+       class(htable_iter_i4t2_t), target, intent(inout) :: this
        type(tuple_i4_t), pointer :: value
      end function htable_iter_i4t2_value
 
      !> Return the current key of integer based 2-tuple hash table iterator
      module function htable_iter_i4t2_key(this) result(key)
-       class(htable_iter_i4t2_t), intent(inout) :: this
+       class(htable_iter_i4t2_t), target, intent(inout) :: this
        type(tuple_i4_t), pointer :: key
      end function htable_iter_i4t2_key
 
