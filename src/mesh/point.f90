@@ -94,7 +94,7 @@ contains
 
   end subroutine point_init2
 
-  !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates.
+  !> Destructor.
   subroutine point_free(this) 
     class(point_t), intent(inout) :: this
     this%x = 0.0
