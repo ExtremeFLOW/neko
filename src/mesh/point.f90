@@ -53,7 +53,7 @@ module point
      procedure :: point_scalar_mult
      procedure, pass(p1) :: dist => point_euclid_dist
      procedure, pass(x) :: point_mat_mult
-     procedure, pass(this) :: init => point_init2
+     procedure, pass(this) :: init => point_init_from_array
      procedure, pass(this) :: free => point_free
      generic :: operator(.eq.) => point_eq
      generic :: operator(.ne.) => point_ne
@@ -77,7 +77,9 @@ module point
 contains
 
   !> Initialize a point from an array @a x of \f$ (x,y,z) \f$ coordinates.
-  subroutine point_init2(this, x, id) 
+  !! @param x coords
+  !! @id point id
+  subroutine point_init_from_array(this, x, id) 
     real(kind=dp), dimension(3), intent(in) :: x
     integer, optional, intent(inout) :: id
     class(point_t), intent(inout) :: this
@@ -92,7 +94,7 @@ contains
 
     this%x = x
 
-  end subroutine point_init2
+  end subroutine point_init_from_array
 
   !> Destructor.
   subroutine point_free(this) 
