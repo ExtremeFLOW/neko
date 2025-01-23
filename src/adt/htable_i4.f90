@@ -52,7 +52,7 @@ contains
 
     allocate(this%key(0:size))
     if (present(data)) then
-       allocate(this%data(0:size), source=data)       
+       allocate(this%data(0:size), source=data)
     else
        allocate(integer::this%data(0:size))
     end if
@@ -74,7 +74,7 @@ contains
     end if
 
     call this%free_base()
-    
+
   end subroutine htable_i4_free
 
   !> Insert an integer into the hash table
@@ -86,7 +86,7 @@ contains
     integer index, i, c
 
     c = 0
-    i = log(1.0/this%size)/log(0.6)    
+    i = log(1.0/this%size)/log(0.6)
     index = 0
 
     do while (i .ge. 0)
@@ -114,7 +114,7 @@ contains
     call tmp%init(ishft(this%size, 1), data)
 
     do i = 0, this%size - 1
-       if (this%valid(i)) then          
+       if (this%valid(i)) then
           select type (datap => this%data(i))
           type is (integer)
              call tmp%set(this%key(i), datap)
@@ -182,7 +182,7 @@ contains
        c = c + 1
     end do
     rcode = 1
-    
+
   end function htable_i4_get
 
   !> Hash function for an integer based hash table

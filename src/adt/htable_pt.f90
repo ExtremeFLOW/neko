@@ -34,7 +34,7 @@ submodule (htable) htable_pt
   implicit none
 
 contains
-  
+
   !> Initialize a point based hash table
   module subroutine htable_pt_init(this, size, data)
     class(htable_pt_t), intent(inout) :: this
@@ -51,9 +51,9 @@ contains
 
     allocate(this%key(0:size))
     if (present(data)) then
-       allocate(this%data(0:size), source=data)       
+       allocate(this%data(0:size), source=data)
     else
-       allocate(point_t::this%data(0:size))       
+       allocate(point_t::this%data(0:size))
     end if
 
     allocate(this%valid(0:size))
@@ -73,7 +73,7 @@ contains
     end if
 
     call this%free_base()
-    
+
   end subroutine htable_pt_free
 
   !> Insert a point @a key (with @a data) into the hash table
@@ -85,7 +85,7 @@ contains
     integer index, i, c
 
     c = 0
-    i = log(1.0/this%size)/log(0.6)    
+    i = log(1.0/this%size)/log(0.6)
     index = 0
 
     do while (i .ge. 0)
@@ -113,7 +113,7 @@ contains
     call tmp%init(ishft(this%size, 1), data)
 
     do i = 0, this%size - 1
-       if (this%valid(i)) then          
+       if (this%valid(i)) then
           select type (datap => this%data(i))
           type is (integer)
              call tmp%set(this%key(i), datap)
@@ -294,5 +294,5 @@ contains
     end select
 
   end function htable_iter_pt_key
-  
+
 end submodule htable_pt
