@@ -52,7 +52,7 @@ contains
 
     allocate(this%key(0:size))
     if (present(data)) then
-       allocate(this%data(0:size), source=data)       
+       allocate(this%data(0:size), source=data)
     else
        allocate(tuple_i4_t::this%data(0:size))
     end if
@@ -63,7 +63,7 @@ contains
     this%skip = .false.
     this%size = size
     this%entries = 0
-    
+
   end subroutine htable_i4t2_init
 
   module subroutine htable_i4t2_free(this)
@@ -74,7 +74,7 @@ contains
     end if
 
     call this%free_base()
-    
+
   end subroutine htable_i4t2_free
 
   !> Insert an integer 2-tuple into the hash table
@@ -85,7 +85,7 @@ contains
     type(htable_i4t2_t), allocatable :: tmp
     integer index, i, c
     c = 0
-    i = log(1.0/this%size)/log(0.6)    
+    i = log(1.0/this%size)/log(0.6)
     index = 0
 
     do while (i .ge. 0)
@@ -113,7 +113,7 @@ contains
     call tmp%init(ishft(this%size, 1), data)
 
     do i = 0, this%size - 1
-       if (this%valid(i)) then          
+       if (this%valid(i)) then
           select type (datap => this%data(i))
           type is (integer)
              call tmp%set(this%key(i), datap)
@@ -137,7 +137,7 @@ contains
           end select
        end if
     end do
-    
+
     this%size = tmp%size
     this%entries = tmp%entries
 
@@ -292,5 +292,5 @@ contains
     end select
 
   end function htable_iter_i4t2_key
-  
+
 end submodule htable_i4t2
