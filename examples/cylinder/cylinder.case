@@ -7,7 +7,7 @@
     "output_checkpoints": true,
     "checkpoint_control": "simulationtime",
     "checkpoint_value": 50,
-    "end_time": 0.2000,
+    "end_time": 200.0,
     "variable_timestep": true,
     "target_cfl": 0.5,
     "max_timestep": 1e-1,

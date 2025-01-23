@@ -7,7 +7,7 @@
     "output_checkpoints": true,
     "checkpoint_control": "simulationtime",
     "checkpoint_value": 5,
-    "end_time": 5e-3,
+    "end_time": 30,
     "timestep": 2.5e-3,
     "numerics": {
         "time_order": 3,
@@ -19,8 +19,6 @@
         "Re": 2650,
         "initial_condition": {
             "type": "user"
-           // "type": "uniform",
-          //  "value": [1, 0, 0]
         },
         "velocity_solver": {
             "type": "cg",

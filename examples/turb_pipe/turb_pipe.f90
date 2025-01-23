@@ -20,7 +20,7 @@ contains
     real(kind=rp) :: uvw(3)
 
     do i = 1, u%dof%size()
-       uvw = pipe_ic(u%dof%x(i,1,1,1),u%dof%y(i,1,1,1),u%dof%z(i,1,1,1))
+       uvw = pipe_ic(u%dof%x(i,1,1,1), u%dof%y(i,1,1,1), u%dof%z(i,1,1,1))
        u%x(i,1,1,1) = uvw(1)
        v%x(i,1,1,1) = uvw(2)
        w%x(i,1,1,1) = uvw(3)
@@ -58,10 +58,10 @@ contains
 
     arg_tht = freq_t*th + phase_z
     amp_sin = 5d0*sin(arg_tht)
-    if (amp_sin.gt. amp_clip) amp_sin =  amp_clip
-    if (amp_sin.lt.-amp_clip) amp_sin = -amp_clip
+    if (amp_sin .gt.  amp_clip) amp_sin =  amp_clip
+    if (amp_sin .lt. -amp_clip) amp_sin = -amp_clip
 
-    if (rr.gt.(1-blt)) uz = uz + amp_sin
+    if (rr .gt. (1-blt)) uz = uz + amp_sin
     call random_number(rand)
 
     ux   = 5d-2*rand*rand

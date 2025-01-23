@@ -8,7 +8,7 @@
   "output_at_end": true,
   "load_balance": false,
   "job_timelimit": "00:00:00",
-  "end_time": 0.1,
+  "end_time": 3.0,
   "timestep": 1e-2,
   "numerics": {
     "time_order": 3,

@@ -4,7 +4,7 @@
         "mesh_file": "rayleigh.nmsh",
         "output_at_end": true,
         "output_boundary": true,
-        "end_time": 2e-2,
+        "end_time": 250,
         "timestep": 2e-3,
         "output_checkpoints": true,
         "checkpoint_control": "simulationtime",
