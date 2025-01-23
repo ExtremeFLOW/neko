@@ -66,19 +66,34 @@ extern "C" {
 
   }
 
-  /** Fortran wrapper for masked copy
-   * Copy a vector \f$ a(mask) = b(mask) \f$
+  /** Fortran wrapper for masked gather copy
+   * Copy a vector \f$ a(i) = b(mask(i)) \f$
    */
-  void cuda_masked_red_copy(void *a, void *b, void *mask, int *n, int *m) {
+  void cuda_masked_gather_copy(void *a, void *b, void *mask, int *n, int *m) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
-    masked_red_copy_kernel<real><<<nblcks, nthrds, 0,
+    masked_gather_copy_kernel<real><<<nblcks, nthrds, 0,
       (cudaStream_t) glb_cmd_queue>>>((real *) a, (real*) b,(int*) mask, *n, *m);
     CUDA_CHECK(cudaGetLastError());
 
   }
+
+  /** Fortran wrapper for masked scatter copy
+   * Copy a vector \f$ a(mask(i)) = b(i) \f$
+   */
+  void cuda_masked_scatter_copy(void *a, void *b, void *mask, int *n, int *m) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    masked_scatter_copy_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real*) b,(int*) mask, *n, *m);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
 
   /** Fortran wrapper for cfill_mask
    * Fill a scalar to vector \f$ a_i = s, for i \in mask \f$
