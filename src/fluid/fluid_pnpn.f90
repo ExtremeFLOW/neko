@@ -198,7 +198,7 @@ module fluid_pnpn
      !> Restart from a previous solution.
      procedure, pass(this) :: restart => fluid_pnpn_restart
      !> Set up boundary conditions.
-     procedure, pass(this) :: pnpn_setup_bcs => fluid_pnpn_setup_bcs
+     procedure, pass(this) :: setup_bcs => fluid_pnpn_setup_bcs
   end type fluid_pnpn_t
 
   interface
@@ -336,7 +336,7 @@ contains
     call this%dp%init(this%dm_Xh, 'dp')
 
     ! Set up boundary conditions
-    call this%pnpn_setup_bcs(user)
+    call this%setup_bcs(user)
 
     ! Intialize projection space
 

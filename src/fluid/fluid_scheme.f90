@@ -58,7 +58,7 @@ module fluid_scheme
   use phmg, only : phmg_t
   use precon, only : pc_t, precon_factory, precon_destroy
   use fluid_stats, only : fluid_stats_t
-  use bc, only : bc_t 
+  use bc, only : bc_t
   use bc_list, only : bc_list_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use math, only : cfill, add2s2, glsum
@@ -178,6 +178,8 @@ module fluid_scheme
      procedure(fluid_scheme_step_intrf), pass(this), deferred :: step
      !> Restart from a checkpoint
      procedure(fluid_scheme_restart_intrf), pass(this), deferred :: restart
+     !> Setup boundary conditions
+     procedure(fluid_scheme_setup_bcs_intrf), pass(this), deferred :: setup_bcs
      procedure, private, pass(this) :: set_bc_type_output => &
        fluid_scheme_set_bc_type_output
      !> Update variable material properties
@@ -241,6 +243,15 @@ module fluid_scheme
        real(kind=rp) :: dtlag(10), tlag(10)
 
      end subroutine fluid_scheme_restart_intrf
+  end interface
+
+  !> Abstract interface to setup boundary conditions
+  abstract interface
+     subroutine fluid_scheme_setup_bcs_intrf(this, user)
+       import fluid_scheme_t, user_t
+       class(fluid_scheme_t), intent(inout) :: this
+       type(user_t), target, intent(in) :: user
+     end subroutine fluid_scheme_setup_bcs_intrf
   end interface
 
   interface
@@ -394,36 +405,36 @@ contains
                              .false.)
     write(log_buf, '(A, L1)') 'Save bdry  : ',  logical_val
     call neko_log%message(log_buf)
-    if (logical_val) then
-       write(log_buf, '(A)') 'bdry keys: '
-       call neko_log%message(log_buf)
-       write(log_buf, '(A)') 'No-slip wall             ''w'' = 1'
-       call neko_log%message(log_buf)
-       write(log_buf, '(A)') 'Inlet/velocity dirichlet ''v'' = 2'
-       call neko_log%message(log_buf)
-       write(log_buf, '(A)') 'Outlet                   ''o'' = 3'
-       call neko_log%message(log_buf)
-       write(log_buf, '(A)') 'Symmetry               ''sym'' = 4'
-       call neko_log%message(log_buf)
-       write(log_buf, '(A)') 'Outlet-normal           ''on'' = 5'
-       call neko_log%message(log_buf)
-       write(log_buf, '(A)') 'Periodic                     = 6'
-       call neko_log%message(log_buf)
-       write(log_buf, '(A)') 'Dirichlet on velocity components: '
-       call neko_log%message(log_buf)
-       write(log_buf, '(A)') ' ''d_vel_u, d_vel_v, d_vel_w'' = 7'
-       call neko_log%message(log_buf)
-       write(log_buf, '(A)') 'Pressure dirichlet  ''d_pres'' = 8'
-       call neko_log%message(log_buf)
-       write(log_buf, '(A)') '''d_vel_(u,v,w)'' and ''d_pres'' = 8'
-       call neko_log%message(log_buf)
-       write(log_buf, '(A)') 'Shear stress            ''sh'' = 9'
-       call neko_log%message(log_buf)
-       write(log_buf, '(A)') 'Wall modelling          ''wm'' = 10'
-       call neko_log%message(log_buf)
-       write(log_buf, '(A)') 'No boundary condition set    = 0'
-       call neko_log%message(log_buf)
-    end if
+!    if (logical_val) then
+!       write(log_buf, '(A)') 'bdry keys: '
+!       call neko_log%message(log_buf)
+!       write(log_buf, '(A)') 'No-slip wall             ''w'' = 1'
+!       call neko_log%message(log_buf)
+!       write(log_buf, '(A)') 'Inlet/velocity dirichlet ''v'' = 2'
+!       call neko_log%message(log_buf)
+!       write(log_buf, '(A)') 'Outlet                   ''o'' = 3'
+!       call neko_log%message(log_buf)
+!       write(log_buf, '(A)') 'Symmetry               ''sym'' = 4'
+!       call neko_log%message(log_buf)
+!       write(log_buf, '(A)') 'Outlet-normal           ''on'' = 5'
+!       call neko_log%message(log_buf)
+!       write(log_buf, '(A)') 'Periodic                     = 6'
+!       call neko_log%message(log_buf)
+!       write(log_buf, '(A)') 'Dirichlet on velocity components: '
+!       call neko_log%message(log_buf)
+!       write(log_buf, '(A)') ' ''d_vel_u, d_vel_v, d_vel_w'' = 7'
+!       call neko_log%message(log_buf)
+!       write(log_buf, '(A)') 'Pressure dirichlet  ''d_pres'' = 8'
+!       call neko_log%message(log_buf)
+!       write(log_buf, '(A)') '''d_vel_(u,v,w)'' and ''d_pres'' = 8'
+!       call neko_log%message(log_buf)
+!       write(log_buf, '(A)') 'Shear stress            ''sh'' = 9'
+!       call neko_log%message(log_buf)
+!       write(log_buf, '(A)') 'Wall modelling          ''wm'' = 10'
+!       call neko_log%message(log_buf)
+!       write(log_buf, '(A)') 'No boundary condition set    = 0'
+!       call neko_log%message(log_buf)
+!    end if
 
     !
     ! Check if we need to output boundary types to a separate field
