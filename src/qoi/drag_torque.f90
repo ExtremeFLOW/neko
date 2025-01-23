@@ -63,12 +63,12 @@ module drag_torque
   use coefs, only : coef_t
   use facet_zone, only : facet_zone_t
   use comm
-  use math, only : rzero, masked_red_copy, col3, vdot3, cmult
+  use math, only : rzero, col3, vdot3, cmult
   use space, only : space_t
   use num_types, only : rp
   use utils, only : nonlinear_index
   use device
-  use device_math, only : device_cmult, device_masked_red_copy, &
+  use device_math, only : device_cmult, &
                           device_col3, device_vdot3, device_rzero
   implicit none
   private
