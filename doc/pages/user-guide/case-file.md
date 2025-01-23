@@ -750,20 +750,40 @@ the name matching that set for the simulation component with the LES model.
 Additionally, the turbulent Prandtl number, `Pr_t` should be set. The eddy
 viscosity values will be divided by it to produce eddy diffusivity.
 
-### Boundary types
+### Boundary conditions
 
 The boundary conditions for the scalar are specified through the
-`boundary_types` keyword.
+`boundary_conditions` keyword, which follows the same format as the fluid, for
+specifying the type of the condition and where it is applied.
+Four types of conditions are available for the scalar:
 
-The value of the keyword is an array of strings, with the following possible values:
-* Standard boundary conditions
-  * `d=x`, sets a uniform Dirichlet boundary of value `x` (e.g. `d=1` to set
-  `s` to `1` on the boundary, see the Rayleigh-Benard example case).
-
-* Advanced boundary conditions
-    * `d_s`, a Dirichlet boundary condition for more complex, non-uniform
-    and/or time-dependent profiles. This boundary condition uses a
-    [more advanced user interface](#user-file_field-dirichlet-update).
+* `dirichlet`. Sets the value of the scalar, controlled by the `value` keyword.
+  ```json
+  {
+    "type": "dirichlet",
+    "value": 1,
+    "zone_indices": [1, 2]
+  }
+  ```
+* `neumann`. Sets the flux of the scalar, controlled by the `flux` keyword.
+  ```json
+  {
+    "type": "neumann",
+    "flux": 1,
+    "zone_indices": [1, 2]
+  }
+* `user_pointwise`. Sets the scalar in the pointwise user interface routine.
+  ```json
+  {
+    "type": "user_poinwise",
+    "zone_indices": [1, 2]
+  }
+* `user`. User boundary condition, see [further documentation](#user-file_field-dirichlet-update).
+  ```json
+  {
+    "type": "user",
+    "zone_indices": [1, 2]
+  }
 
 ### Initial conditions
 
