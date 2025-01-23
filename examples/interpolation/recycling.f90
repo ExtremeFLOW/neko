@@ -6,7 +6,9 @@ module user
    
   type(global_interpolation_t) :: interpolate
   type(matrix_t) :: xyz
-  type(vector_t) :: res
+  type(vector_t) :: res, B
+  real(kind=rp) :: vol
+  integer :: n_pts = 0
 
 contains
 
@@ -25,33 +27,34 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     character(len=*), intent(in) :: which_solver
-    integer :: i, n_pts, pt
-    real(kind=rp) :: y,z
+    integer :: i, pt, msk_idx
+    real(kind=rp) :: y, z, scale
     type(field_t), pointer :: field
-
     ! Only do this at the first time step since our BCs are constants.
     if (tstep .eq. 1) then
-       n_pts = 0
-       do i = 1, coef%dof%size()
-          if (coef%dof%x(i,1,1,1) .lt. 1e-3) then
-             n_pts = n_pts + 1 
-          end if
-       end do
+       n_pts = bc_bc_list%items(1)%ptr%msk(0)
+
        call xyz%init(3,n_pts)
+       call B%init(n_pts)
        pt = 0
-       do i = 1, coef%dof%size()
-          if (coef%dof%x(i,1,1,1) .lt. 1e-3) then
-             pt = pt + 1
-             xyz%x(1,pt) = coef%dof%x(i,1,1,1) + 10.0
-             xyz%x(2,pt) = coef%dof%y(i,1,1,1)
-             xyz%x(3,pt) = coef%dof%z(i,1,1,1)
-          end if
+       do i = 1, n_pts
+          ! Get idx of point and its coords and store in contigous xyz array
+          msk_idx = bc_bc_list%items(1)%ptr%msk(i)
+          ! We want to recycle the flow from 10 units upstream
+          xyz%x(1,i) = coef%dof%x(msk_idx,1,1,1) + 10.0
+          xyz%x(2,i) = coef%dof%y(msk_idx,1,1,1)
+          xyz%x(3,i) = coef%dof%z(msk_idx,1,1,1)
+          B%x(i) = coef%B(msk_idx,1,1,1)
        end do
-       !call xyz%copyto(HOST_TO_DEVICE, .true.)
+       vol = glsum(B%x,n_pts)
+       B%x(i) = coef%B(msk_idx,1,1,1)
+       call xyz%copyto(HOST_TO_DEVICE,.false.)
+       call B%copyto(HOST_TO_DEVICE,.false.)
+       !Initialize interpolator
        call interpolate%init(coef%dof)
-       print *, 'yo'
+       ! Find the the points we want to interpolate on the inflow
        call interpolate%find_points(xyz%x, n_pts)
-       print *, 'yo2'
+       ! Initialize a temporary array
        call res%init(n_pts)
     end if
 
@@ -59,43 +62,33 @@ contains
     if (trim(which_solver) .eq. "fluid") then
 
        associate(u => field_bc_list%items(1)%ptr, &
-            v => field_bc_list%items(2)%ptr, &
-            w => field_bc_list%items(3)%ptr)
-         
-         if (allocated(u%x)) then
-            field => neko_field_registry%get_field('u')
-            call interpolate%evaluate(res%x, field%x, .false.)
-            pt = 0
-            do i = 1, coef%dof%size()
-               if (coef%dof%x(i,1,1,1) .lt. 1e-3) then
-                  pt = pt + 1
-                  u%x(i,1,1,1) = res%x(pt)
-               end if
-            end do
-         end if
-
-         if (allocated(v%x)) then
-            field => neko_field_registry%get_field('v')
-            call interpolate%evaluate(res%x, field%x, .false.)
-            pt = 0
-            do i = 1, coef%dof%size()
-               if (coef%dof%x(i,1,1,1) .lt. 1e-3) then
-                  pt = pt + 1
-                  v%x(i,1,1,1) = res%x(pt)
-               end if
-            end do
-         end if
-         if (allocated(w%x)) then
-            field => neko_field_registry%get_field('w')
-            call interpolate%evaluate(res%x, field%x, .false.)
-            pt = 0
-            do i = 1, coef%dof%size()
-               if (coef%dof%x(i,1,1,1) .lt. 1e-3) then
-                  pt = pt + 1
-                  w%x(i,1,1,1) = res%x(pt)
-               end if
-            end do
-         end if
+                 v => field_bc_list%items(2)%ptr, &
+                 w => field_bc_list%items(3)%ptr)
+       
+       field => neko_field_registry%get_field('u')
+       ! get the x-velocity (u) values 10 units upstream into res
+       call interpolate%evaluate(res%x, field%x, .false.)
+       !Enforce that bulk velocity is 1
+       !If we run on GPU, do this on the GPU directly
+       !Moving data to and from the GPU kills performance
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          scale = 1.0_rp/(device_glsc2(res%x_d,B%x_d,n_pts)/vol)
+          call device_cmult(res%x_d,scale, n_pts)
+       else
+          scale = 1.0_rp/(glsc2(res%x,B%x,n_pts)/vol)
+          call cmult(res%x,scale, n_pts)
+       end if
+       ! scatter the values in res into the correct spots in u
+       call field_masked_scatter_copy(u, res%x, bc_bc_list%items(1)%ptr%msk, u%size(), n_pts)
+       ! repeat for v and w
+       field => neko_field_registry%get_field('v')
+       call interpolate%evaluate(res%x, field%x, .false.)
+       call field_masked_scatter_copy(v, res%x, bc_bc_list%items(1)%ptr%msk, u%size(), n_pts)
+     
+       field => neko_field_registry%get_field('w')
+       call interpolate%evaluate(res%x, field%x, .false.)
+       call field_masked_scatter_copy(w, res%x, bc_bc_list%items(1)%ptr%msk, u%size(), n_pts)
+      
        end associate
     end if
 
@@ -103,8 +96,8 @@ contains
 
 
   ! Rescale mesh, we create a mesh with some refinement close to the wall.
-  ! initial mesh: 0..4, -1..1, 0..1.5
-  ! mesh size (4*pi,2*delta,4/3*pi)
+  ! initial mesh: 0..8, -1..1, 0..1.5
+  ! mesh size (8*pi,2*delta,4/3*pi)
   ! New mesh can easily be genreated with genmeshbox
   ! OBS refinement is not smooth and the constant values are a bit ad hoc.
   ! Stats converge close to reference DNS
@@ -117,7 +110,7 @@ contains
     integer :: el_in_visc_lay, el_in_y
     real(kind=rp) :: llx, llz
 
-    ! target mesh size
+    !constants to scale mesh size
     llx = 4.*pi
     llz = 4./3.*pi
 
