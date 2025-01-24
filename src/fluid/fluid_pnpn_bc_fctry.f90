@@ -161,12 +161,14 @@ contains
        ! initing the wall model, and forcing the user duplicate that there
        ! would be a nightmare.
        call json%add("nu", scheme%mu / scheme%rho)
+
       case ("user_velocity")
        allocate(field_dirichlet_vector_t::object)
        select type (obj => object)
-         type is(field_dirichlet_vector_t)
+         type is (field_dirichlet_vector_t)
           obj%update => user%user_dirichlet_update
        end select
+
       case ("user_velocity_pointwise")
        allocate(usr_inflow_t::object)
        select type (obj => object)
@@ -174,6 +176,7 @@ contains
           call obj%set_eval(user%fluid_user_if)
           call obj%validate()
        end select
+
       case default
        do i = 1, size(FLUID_PNPN_KNOWN_BCS)
           if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return

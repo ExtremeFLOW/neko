@@ -84,7 +84,7 @@ module hsmg
   use mesh, only : mesh_t
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory, krylov_solver_destroy
-  use tree_amg_multigrid, only : tamg_solver_t 
+  use tree_amg_multigrid, only : tamg_solver_t
   use zero_dirichlet, only : zero_dirichlet_t
   !$ use omp_lib
   implicit none
@@ -156,7 +156,7 @@ contains
     if (Xh%lx .lt. 5) then
        lx_mid = max(Xh%lx-1,3)
 
-       if(Xh%lx .le. 2) then
+       if (Xh%lx .le. 2) then
           call neko_error('Polynomial order < 2 not supported for hsmg precon')
        end if
 
@@ -249,7 +249,7 @@ contains
     type is (device_jacobi_t)
        call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
     end select
-    
+
     call device_event_create(this%hsmg_event, 2)
     call device_event_create(this%gs_event, 2)
 
@@ -266,8 +266,9 @@ contains
                this%grids(1)%coef, this%msh, this%grids(1)%gs_h, 4, &
                this%grids(1)%bclst, 1)
        else
-          call krylov_solver_factory(this%crs_solver, &            
-               this%dm_crs%size(), trim(crs_pctype), KSP_MAX_ITER, M = this%pc_crs)
+          call krylov_solver_factory(this%crs_solver, &
+               this%dm_crs%size(), trim(crs_pctype), KSP_MAX_ITER, &
+                    M = this%pc_crs)
        end if
     else
        call krylov_solver_factory(this%crs_solver, &
@@ -282,7 +283,8 @@ contains
   subroutine hsmg_set_h(this)
     class(hsmg_t), intent(inout) :: this
 !    integer :: i
-    !Yeah I dont really know what to do here. For incompressible flow not much happens
+    ! Yeah I dont really know what to do here. For incompressible flow not
+    ! much happens
     this%grids(1)%coef%ifh2 = .false.
     call copy(this%grids(1)%coef%h1, this%grids(3)%coef%h1, &
          this%grids(1)%dof%size())
@@ -368,7 +370,6 @@ contains
     type(c_ptr) :: z_d, r_d
     type(ksp_monitor_t) :: crs_info
     integer :: thrdid, nthrds
-
 
     call profiler_start_region('HSMG_solve', 8)
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -474,7 +475,8 @@ contains
 
        call profiler_start_region('HSMG_coarse-solve', 11)
        if (allocated(this%amg_solver)) then
-          call this%amg_solver%solve(this%grids(1)%e%x, this%r, this%grids(1)%dof%size())
+          call this%amg_solver%solve(this%grids(1)%e%x, this%r, &
+               this%grids(1)%dof%size())
        else
           crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
                                            this%grids(1)%dof%size(), &

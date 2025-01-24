@@ -69,7 +69,8 @@ module projection
   use comm
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device
+  use device, only : device_alloc, HOST_TO_DEVICE, device_memcpy, &
+       device_get_ptr, device_free
   use device_math, only : device_glsc3, device_add2s2, device_cmult, &
        device_rzero, device_copy, device_add2, device_add2s2_many, &
        device_glsc3_many
@@ -138,19 +139,19 @@ contains
 
     this%m = 0
 
-    allocate(this%xx(n,this%L))
-    allocate(this%bb(n,this%L))
+    allocate(this%xx(n, this%L))
+    allocate(this%bb(n, this%L))
     allocate(this%xbar(n))
     allocate(this%xx_d(this%L))
     allocate(this%bb_d(this%L))
-    call rzero(this%xbar,n)
+    call rzero(this%xbar, n)
     do i = 1, this%L
-       call rzero(this%xx(1,i),n)
-       call rzero(this%bb(1,i),n)
+       call rzero(this%xx(1, i), n)
+       call rzero(this%bb(1, i), n)
     end do
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       call device_map(this%xbar, this%xbar_d,n)
+       call device_map(this%xbar, this%xbar_d, n)
        call device_alloc(this%alpha_d, int(c_sizeof(dummy)*this%L,c_size_t))
 
        call device_rzero(this%xbar_d, n)
@@ -158,21 +159,21 @@ contains
 
        do i = 1, this%L
           this%xx_d(i) = C_NULL_PTR
-          call device_map(this%xx(:,i), this%xx_d(i), n)
+          call device_map(this%xx(:, i), this%xx_d(i), n)
           call device_rzero(this%xx_d(i), n)
           this%bb_d(i) = C_NULL_PTR
-          call device_map(this%bb(:,i), this%bb_d(i), n)
+          call device_map(this%bb(:, i), this%bb_d(i), n)
           call device_rzero(this%bb_d(i), n)
        end do
 
        ptr_size = c_sizeof(C_NULL_PTR) * this%L
        call device_alloc(this%xx_d_d, ptr_size)
        ptr = c_loc(this%xx_d)
-       call device_memcpy(ptr,this%xx_d_d, ptr_size, &
+       call device_memcpy(ptr, this%xx_d_d, ptr_size, &
                           HOST_TO_DEVICE, sync=.false.)
        call device_alloc(this%bb_d_d, ptr_size)
        ptr = c_loc(this%bb_d)
-       call device_memcpy(ptr,this%bb_d_d, ptr_size, &
+       call device_memcpy(ptr, this%bb_d_d, ptr_size, &
                           HOST_TO_DEVICE, sync=.false.)
     end if
 
@@ -232,7 +233,8 @@ contains
 
     if( tstep .gt. this%activ_step .and. this%L .gt. 0) then
        if (dt_controller%if_variable_dt) then
-          if (dt_controller%dt_last_change .eq. 0) then ! the time step at which dt is changed
+          ! the time step at which dt is changed
+          if (dt_controller%dt_last_change .eq. 0) then
              call this%clear(n)
           else if (dt_controller%dt_last_change .gt. this%activ_step - 1) then
              ! activate projection some steps after dt is changed
@@ -301,34 +303,35 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
-       if (this%m .gt. 0) call device_add2(x_d,this%xbar_d,n)      ! Restore desired solution
+      ! Restore desired solution
+       if (this%m .gt. 0) call device_add2(x_d, this%xbar_d, n)
        if (this%m .eq. this%L) then
           this%m = 1
        else
-          this%m = min(this%m+1,this%L)
+          this%m = min(this%m+1, this%L)
        end if
 
-       call device_copy(this%xx_d(this%m),x_d,n)   ! Update (X,B)
+       call device_copy(this%xx_d(this%m), x_d, n)   ! Update (X,B)
 
     else
-       if (this%m.gt.0) call add2(x,this%xbar,n)      ! Restore desired solution
+       if (this%m.gt.0) call add2(x, this%xbar, n)      ! Restore desired solution
        if (this%m .eq. this%L) then
           this%m = 1
        else
-          this%m = min(this%m+1,this%L)
+          this%m = min(this%m+1, this%L)
        end if
 
-       call copy        (this%xx(1,this%m),x,n)   ! Update (X,B)
+       call copy(this%xx(1, this%m), x, n)   ! Update (X,B)
     end if
 
-    call Ax%compute(this%bb(1,this%m), x, coef, coef%msh, coef%Xh)
-    call gs_h%gs_op_vector(this%bb(1,this%m), n, GS_OP_ADD)
-    call bclst%apply_scalar(this%bb(1,this%m), n)
+    call Ax%compute(this%bb(1, this%m), x, coef, coef%msh, coef%Xh)
+    call gs_h%gs_op_vector(this%bb(1, this%m), n, GS_OP_ADD)
+    call bclst%apply_scalar(this%bb(1, this%m), n)
 
     if (NEKO_BCKND_DEVICE .eq. 1)  then
        call device_proj_ortho(this, this%xx_d, this%bb_d, coef%mult_d, n)
     else
-       call cpu_proj_ortho  (this,this%xx,this%bb,coef%mult,n)
+       call cpu_proj_ortho  (this, this%xx, this%bb, coef%mult, n)
     end if
     call profiler_end_region('Project back', 17)
   end subroutine bcknd_project_back
@@ -350,14 +353,14 @@ contains
 
       !First round of CGS
       call rzero(alpha, this%m)
-      this%proj_res = sqrt(glsc3(b,b,coef%mult,n)/coef%volume)
+      this%proj_res = sqrt(glsc3(b, b, coef%mult, n) / coef%volume)
       this%proj_m = this%m
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, this%m
             s = 0.0_rp
             do l = 0, (j-1)
-               s = s + xx(i+l,k) * coef%mult(i+l,1,1,1) * b(i+l)
+               s = s + xx(i+l, k) * coef%mult(i+l,1,1,1) * b(i+l)
             end do
             alpha(k) = alpha(k) + s
          end do
@@ -423,7 +426,7 @@ contains
 
 
 
-      this%proj_res = sqrt(device_glsc3(b_d,b_d,coef%mult_d,n)/coef%volume)
+      this%proj_res = sqrt(device_glsc3(b_d, b_d, coef%mult_d, n)/coef%volume)
       this%proj_m = this%m
       if (NEKO_DEVICE_MPI .and. (NEKO_BCKND_OPENCL .ne. 1)) then
          call device_proj_on(alpha_d, b_d, xx_d_d, bb_d_d, &
@@ -431,10 +434,10 @@ contains
       else
          if (NEKO_BCKND_OPENCL .eq. 1) then
             do i = 1, this%m
-               alpha(i) = device_glsc3(b_d,xx_d(i),coef%mult_d,n)
+               alpha(i) = device_glsc3(b_d, xx_d(i), coef%mult_d, n)
             end do
          else
-            call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
+            call device_glsc3_many(alpha, b_d, xx_d_d, coef%mult_d, this%m, n)
             call device_memcpy(alpha, alpha_d, this%m, &
                                HOST_TO_DEVICE, sync=.false.)
          end if
@@ -452,11 +455,11 @@ contains
          if (NEKO_BCKND_OPENCL .eq. 1) then
             do i = 1, this%m
                call device_add2s2(b_d, bb_d(i), alpha(i), n)
-               alpha(i) = device_glsc3(b_d,xx_d(i),coef%mult_d,n)
+               alpha(i) = device_glsc3(b_d, xx_d(i), coef%mult_d, n)
             end do
          else
             call device_add2s2_many(b_d, bb_d_d, alpha_d, this%m, n)
-            call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
+            call device_glsc3_many(alpha,b_d, xx_d_d, coef%mult_d, this%m, n)
             call device_memcpy(alpha, alpha_d, this%m, &
                                HOST_TO_DEVICE, sync=.false.)
          end if
@@ -498,41 +501,41 @@ contains
       else
          if (NEKO_BCKND_OPENCL .eq. 1)then
             do i = 1, m
-               alpha(i) = device_glsc3(bb_d(m),xx_d(i),w_d,n)
+               alpha(i) = device_glsc3(bb_d(m), xx_d(i), w_d,n)
             end do
          else
-            call device_glsc3_many(alpha,bb_d(m),xx_d_d,w_d,m,n)
+            call device_glsc3_many(alpha,bb_d(m), xx_d_d, w_d, m, n)
          end if
          nrm = sqrt(alpha(m))
          call cmult(alpha, -1.0_rp,m)
          if (NEKO_BCKND_OPENCL .eq. 1)then
             do i = 1, m - 1
-               call device_add2s2(xx_d(m),xx_d(i),alpha(i), n)
-               call device_add2s2(bb_d(m),bb_d(i),alpha(i),n)
+               call device_add2s2(xx_d(m), xx_d(i), alpha(i), n)
+               call device_add2s2(bb_d(m), bb_d(i), alpha(i), n)
 
-               alpha(i) = device_glsc3(bb_d(m),xx_d(i),w_d,n)
+               alpha(i) = device_glsc3(bb_d(m), xx_d(i), w_d, n)
             end do
          else
             call device_memcpy(alpha, alpha_d, this%m, &
                                HOST_TO_DEVICE, sync=.false.)
-            call device_add2s2_many(xx_d(m),xx_d_d,alpha_d,m-1,n)
-            call device_add2s2_many(bb_d(m),bb_d_d,alpha_d,m-1,n)
+            call device_add2s2_many(xx_d(m), xx_d_d, alpha_d, m-1, n)
+            call device_add2s2_many(bb_d(m), bb_d_d, alpha_d, m-1, n)
 
-            call device_glsc3_many(alpha,bb_d(m),xx_d_d,w_d,m,n)
+            call device_glsc3_many(alpha, bb_d(m), xx_d_d, w_d, m, n)
          end if
          call cmult(alpha, -1.0_rp,m)
          if (NEKO_BCKND_OPENCL .eq. 1)then
             do i = 1, m - 1
-               call device_add2s2(xx_d(m),xx_d(i),alpha(i),n)
-               call device_add2s2(bb_d(m),bb_d(i),alpha(i),n)
-               alpha(i) =  device_glsc3(bb_d(m),xx_d(i),w_d,n)
+               call device_add2s2(xx_d(m), xx_d(i), alpha(i), n)
+               call device_add2s2(bb_d(m), bb_d(i), alpha(i), n)
+               alpha(i) =  device_glsc3(bb_d(m), xx_d(i), w_d, n)
             end do
          else
             call device_memcpy(alpha, alpha_d, m, &
                                HOST_TO_DEVICE, sync=.false.)
-            call device_add2s2_many(xx_d(m),xx_d_d,alpha_d,m-1,n)
-            call device_add2s2_many(bb_d(m),bb_d_d,alpha_d,m-1,n)
-            call device_glsc3_many(alpha,bb_d(m),xx_d_d,w_d,m,n)
+            call device_add2s2_many(xx_d(m), xx_d_d, alpha_d, m-1, n)
+            call device_add2s2_many(bb_d(m), bb_d_d, alpha_d, m-1, n)
+            call device_glsc3_many(alpha, bb_d(m), xx_d_d, w_d, m, n)
          end if
       end if
 

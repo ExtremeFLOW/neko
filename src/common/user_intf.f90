@@ -466,7 +466,7 @@ contains
 
     call params%get_core(core)
     call params%get(simcomp_object)
-    call params%info('', n_children=n_simcomps)
+    call params%info('', n_children = n_simcomps)
 
     found = .false.
     do i = 1, n_simcomps

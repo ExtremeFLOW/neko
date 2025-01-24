@@ -252,7 +252,7 @@ contains
             facet = this%facet(i)
             idx = nonlinear_index(k, lx, lx, lx)
             select case(facet)
-            case(1,2)
+            case (1,2)
                call this%eval(x(i), &
                     xc(idx(1), idx(2), idx(3), idx(4)), &
                     yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -262,7 +262,7 @@ contains
                     nz(idx(2), idx(3), facet, idx(4)), &
                     idx(1), idx(2), idx(3), idx(4), &
                     t_, tstep_)
-            case(3,4)
+            case (3,4)
                call this%eval(x(i), &
                     xc(idx(1), idx(2), idx(3), idx(4)), &
                     yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -272,7 +272,7 @@ contains
                     nz(idx(1), idx(3), facet, idx(4)), &
                     idx(1), idx(2), idx(3), idx(4), &
                     t_, tstep_)
-            case(5,6)
+            case (5,6)
                call this%eval(x(i), &
                     xc(idx(1), idx(2), idx(3), idx(4)), &
                     yc(idx(1), idx(2), idx(3), idx(4)), &
