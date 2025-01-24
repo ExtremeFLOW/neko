@@ -131,7 +131,7 @@ contains
     type(bc_ptr_t), allocatable :: tmp(:)
 
     !> Do not add if bc is empty
-    if (bc%marked_facet%size() .eq. 0) return
+    !if (bc%marked_facet%size() .eq. 0) return
 
     if (this%size_ .ge. this%capacity) then
        this%capacity = this%capacity * 2
