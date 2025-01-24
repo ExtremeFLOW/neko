@@ -154,7 +154,7 @@ contains
 
     associate(c => this%coef, nx => this%coef%nx, ny => this%coef%ny, &
               nz => this%coef%nz)
-      sx = 0d0
+      sx = 0.0_rp
       sy = 0d0
       sz = 0d0
       select case (facet)
