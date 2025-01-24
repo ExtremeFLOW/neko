@@ -1,4 +1,4 @@
-! Copyright (c) 2022, The Neko Authors
+! Copyright (c) 2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,14 +34,14 @@
 module dong_outflow
   use neko_config
   use dirichlet, only : dirichlet_t
-  use device
+  use device, only : device_memcpy, device_alloc, HOST_TO_DEVICE
   use num_types, only : rp, c_rp
   use bc, only : bc_t
   use field, only : field_t
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
-  use utils
-  use device_dong_outflow
+  use utils, only : nonlinear_index
+  use device_dong_outflow, only : device_dong_outflow_apply_scalar
   use field_registry, only : neko_field_registry
   use, intrinsic :: iso_c_binding, only : c_ptr, c_sizeof
   use json_module, only : json_file
@@ -154,7 +154,7 @@ contains
          ux = this%u%x(k,1,1,1)
          uy = this%v%x(k,1,1,1)
          uz = this%w%x(k,1,1,1)
-         idx = nonlinear_index(k,this%Xh%lx, this%Xh%lx, this%Xh%lx)
+         idx = nonlinear_index(k, this%Xh%lx, this%Xh%lx, this%Xh%lx)
          normal_xyz = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), &
               facet)
          vn = ux*normal_xyz(1) + uy*normal_xyz(2) + uz*normal_xyz(3)
@@ -192,7 +192,7 @@ contains
     if (present(strong)) strong_ = strong
 
     if (strong_) then
-       call device_dong_outflow_apply_scalar(this%msk_d,x_d, &
+       call device_dong_outflow_apply_scalar(this%msk_d, x_d, &
             this%normal_x_d, this%normal_y_d, this%normal_z_d, &
             this%u%x_d, this%v%x_d, this%w%x_d, &
             this%uinf, this%delta, &

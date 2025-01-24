@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
 module blasius
   use num_types, only : rp
   use coefs, only : coef_t
-  use utils
-  use device
+  use utils, only : nonlinear_index
+  use device, only : HOST_TO_DEVICE, device_memcpy, device_free, device_alloc
   use device_inhom_dirichlet
   use flow_profile
   use, intrinsic :: iso_fortran_env
@@ -263,18 +263,18 @@ contains
             k = this%msk(i)
             facet = this%facet(i)
             idx = nonlinear_index(k, lx, lx, lx)
-            select case(facet)
-            case(1,2)
+            select case (facet)
+            case (1,2)
                bla_x(i) = this%bla(zc(idx(1), idx(2), idx(3), idx(4)), &
                     this%delta, this%uinf(1))
                bla_y(i) = 0.0_rp
                bla_z(i) = 0.0_rp
-            case(3,4)
+            case (3,4)
                bla_x(i) = 0.0_rp
                bla_y(i) = this%bla(xc(idx(1), idx(2), idx(3), idx(4)), &
                     this%delta, this%uinf(2))
                bla_z(i) = 0.0_rp
-            case(5,6)
+            case (5,6)
                bla_x(i) = 0.0_rp
                bla_y(i) = 0.0_rp
                bla_z(i) = this%bla(yc(idx(1), idx(2), idx(3), idx(4)), &
@@ -307,16 +307,16 @@ contains
     this%delta = delta
     this%uinf = uinf
 
-    select case(trim(type))
-    case('linear')
+    select case (trim(type))
+    case ('linear')
        this%bla => blasius_linear
-    case('quadratic')
+    case ('quadratic')
        this%bla => blasius_quadratic
-    case('cubic')
+    case ('cubic')
        this%bla => blasius_cubic
-    case('quartic')
+    case ('quartic')
        this%bla => blasius_quartic
-    case('sin')
+    case ('sin')
        this%bla => blasius_sin
     case default
        call neko_error('Invalid Blasius approximation')

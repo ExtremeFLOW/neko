@@ -26,7 +26,7 @@ contains
        w%x(i,1,1,1) = uvw(3)
     end do
   end subroutine user_ic
-  
+
   function pipe_ic(x, y, z) result(uvw)
     real(kind=rp) :: x, y, z
     real(kind=rp) :: uvw(3)
@@ -38,7 +38,7 @@ contains
     xr = x
     yr = y
     rr = xr*xr + yr*yr
-    if (rr.gt.0) rr=sqrt(rr)
+    if (rr .gt. 0) rr = sqrt(rr)
     th = atan2(y,x)
     zo = 2*pi*z/25d0
 
@@ -67,7 +67,7 @@ contains
     ux   = 5d-2*rand*rand
     uy   = 1d-1*rand*rand*rand
     uz   = uz + 1d-2*rand
-    
+
     uvw(1) = ux
     uvw(2) = uy
     uvw(3) = uz

@@ -32,9 +32,10 @@
 !
 !> Defines a boundary condition
 module bc
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
-  use device
+  use device, only : device_get_ptr, HOST_TO_DEVICE, c_associated, &
+       device_memcpy, device_free
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use space, only : space_t
