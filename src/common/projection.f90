@@ -70,7 +70,7 @@ module projection
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_alloc, HOST_TO_DEVICE, device_memcpy, &
-       device_get_ptr, device_free
+       device_get_ptr, device_free, device_map
   use device_math, only : device_glsc3, device_add2s2, device_cmult, &
        device_rzero, device_copy, device_add2, device_add2s2_many, &
        device_glsc3_many
