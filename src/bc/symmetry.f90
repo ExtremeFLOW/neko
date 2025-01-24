@@ -148,6 +148,7 @@ contains
     integer, intent(in) :: el
     integer :: i, m, j, l
     type(tuple_i4_t), pointer :: bfp(:)
+    ! TODO is the tolerance too large?
     real(kind=rp), parameter :: TOL = 1d-3
     type(tuple_i4_t) :: bc_facet
 
@@ -189,6 +190,11 @@ contains
   end subroutine symmetry_get_normal_axis
 
   !> No-op scalar apply
+  !! @param x The field for which to apply the boundary condition.
+  !! @param n The size of x.
+  !! @param t Current time.
+  !! @param tstep Current time-step.
+  !! @param strong Whether we are setting a strong or a weak bc.
   subroutine symmetry_apply_scalar(this, x, n, t, tstep, strong)
     class(symmetry_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -199,6 +205,13 @@ contains
   end subroutine symmetry_apply_scalar
 
   !> Apply symmetry conditions (axis aligned)
+  !! @param x The x comp of the field for which to apply the bc.
+  !! @param y The y comp of the field for which to apply the bc.
+  !! @param z The z comp of the field for which to apply the bc.
+  !! @param n The size of x, y, and z.
+  !! @param t Current time.
+  !! @param tstep Current time-step.
+  !! @param strong Whether we are setting a strong or a weak bc.
   subroutine symmetry_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(symmetry_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -221,6 +234,10 @@ contains
   end subroutine symmetry_apply_vector
 
   !> No-op scalar apply (device version)
+  !! @param x_d Device pointer to the field.
+  !! @param t The time value.
+  !! @param tstep The time iteration.
+  !! @param strong Whether we are setting a strong or a weak bc.
   subroutine symmetry_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(symmetry_t), intent(inout), target :: this
     type(c_ptr) :: x_d
@@ -230,6 +247,12 @@ contains
   end subroutine symmetry_apply_scalar_dev
 
   !> Apply symmetry conditions (axis aligned) (device version)
+  !! @param x_d Device pointer to the values to be applied for the x comp.
+  !! @param y_d Device pointer to the values to be applied for the y comp.
+  !! @param z_d Device pointer to the values to be applied for the z comp.
+  !! @param t The time value.
+  !! @param tstep Current time-step.
+  !! @param strong Whether we are setting a strong or a weak bc.
   subroutine symmetry_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
     class(symmetry_t), intent(inout), target :: this
     type(c_ptr) :: x_d
@@ -249,7 +272,7 @@ contains
     end if
   end subroutine symmetry_apply_vector_dev
 
-  !> Destructor
+  !> Destructor.
   subroutine symmetry_free(this)
     class(symmetry_t), target, intent(inout) :: this
 

@@ -210,7 +210,7 @@ module bc
   end interface
 
   abstract interface
-     !> Apply the boundary condition to a vector field on the device
+     !> Apply the boundary condition to a vector field on the device.
      !! @param x_d Device pointer to the values to be applied for the x comp.
      !! @param y_d Device pointer to the values to be applied for the y comp.
      !! @param z_d Device pointer to the values to be applied for the z comp.
