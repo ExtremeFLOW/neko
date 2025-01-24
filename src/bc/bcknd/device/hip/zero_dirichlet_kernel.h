@@ -42,8 +42,8 @@
  */
 template< typename T >
 __global__ void zero_dirichlet_apply_scalar_kernel(const int * __restrict__ msk,
-						 T * __restrict__ x,
-						 const int m) {
+                         T * __restrict__ x,
+                         const int m) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
