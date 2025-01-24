@@ -1092,8 +1092,6 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A)') 'Condition-value pairs: '
     call neko_log%message(log_buf)
-    write(log_buf, '(A)') '  periodic                        = 0'
-    call neko_log%message(log_buf)
     write(log_buf, '(A)') '  no_slip                         = 1'
     call neko_log%message(log_buf)
     write(log_buf, '(A)') '  velocity_value                  = 2'
@@ -1104,7 +1102,7 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A)') '  user_velocity_pointwise         = 5'
     call neko_log%message(log_buf)
-    write(log_buf, '(A)') '  blasius_profile                 = 6'
+    write(log_buf, '(A)') '  periodic                        = 6'
     call neko_log%message(log_buf)
     write(log_buf, '(A)') '  user_velocity                   = 7'
     call neko_log%message(log_buf)
@@ -1114,10 +1112,20 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A)') '  wall_modelling                  = 10'
     call neko_log%message(log_buf)
+    write(log_buf, '(A)') '  blasius_profile                 = 11'
+    call neko_log%message(log_buf)
     call neko_log%end_section()
 
     call this%scratch%request_field(bdry_field, temp_index)
     bdry_field = 0.0_rp
+
+
+
+    call bdry_mask%init_from_components(this%c_Xh, 6.0_rp)
+    call bdry_mask%mark_zone(this%msh%periodic)
+    call bdry_mask%finalize()
+    call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
+    call bdry_mask%free()
 
     do i = 1, this%bcs_prs%size()
        bci => this%bcs_prs%get(i)
@@ -1170,12 +1178,6 @@ contains
           call bdry_mask%finalize()
           call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
           call bdry_mask%free()
-         type is (blasius_t)
-          call bdry_mask%init_from_components(this%c_Xh, 6.0_rp)
-          call bdry_mask%mark_facets(bci%marked_facet)
-          call bdry_mask%finalize()
-          call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
-          call bdry_mask%free()
          type is (field_dirichlet_vector_t)
           call bdry_mask%init_from_components(this%c_Xh, 7.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
@@ -1190,6 +1192,12 @@ contains
           call bdry_mask%free()
          type is (wall_model_bc_t)
           call bdry_mask%init_from_components(this%c_Xh, 10.0_rp)
+          call bdry_mask%mark_facets(bci%marked_facet)
+          call bdry_mask%finalize()
+          call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
+          call bdry_mask%free()
+         type is (blasius_t)
+          call bdry_mask%init_from_components(this%c_Xh, 11.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
           call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())

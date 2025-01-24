@@ -197,7 +197,7 @@ contains
 
     if (present(strong)) strong_ = strong
 
-    if (this%msk(0)) then
+    if (strong_) then
        call this%update(this%field_list, this, this%coef, t, tstep)
        call device_masked_copy(x_d, this%field_bc%x_d, this%msk_d, &
             this%field_bc%dof%size(), this%msk(0))

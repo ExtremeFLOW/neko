@@ -97,17 +97,17 @@ of the boundary as follows.
 
 | Boundary Condition               | Key |
 |----------------------------------|-----|
-| periodic                         | 0   |
 | no_slip                          | 1   |
 | velocity_value                   | 2   |
 | outflow, normal_outflow (+dong)  | 3   |
 | symmetry                         | 4   |
 | user_velocity_pointwise          | 5   |
-| blasius_profile                  | 6   |
+| periodic                         | 6   |
 | user_velocity                    | 7   |
 | user_pressure                    | 8   |
 | shear_stress                     | 9   |
 | wall_model                       | 10  |
+| blasius_profile                  | 11  |
 
 For a description of the boundary conditions themselves, see below.
 
