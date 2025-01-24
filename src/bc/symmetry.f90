@@ -105,7 +105,7 @@ contains
     integer :: i, m, j, l
     type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx, sy, sz
-    real(kind=rp), parameter :: TOL = 1d-3
+    real(kind=rp), parameter :: TOL = 1e-3_rp
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
 

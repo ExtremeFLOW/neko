@@ -241,7 +241,7 @@ contains
        call device_map(this%r, this%r_d, n)
     end if
 
-    select type(pc => this%pc_crs)
+    select type (pc => this%pc_crs)
     type is (jacobi_t)
        call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
     type is (sx_jacobi_t)

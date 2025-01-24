@@ -378,7 +378,7 @@ contains
             xbar(i+l) = alpha(1) * xx(i+l,1)
             b(i+l) = b(i+l) - alpha(1) * bb(i+l,1)
          end do
-         do k = 2,this%m
+         do k = 2, this%m
             do l = 0, (j-1)
                xbar(i+l) = xbar(i+l) + alpha(k) * xx(i+l,k)
                b(i+l) = b(i+l)- alpha(k) * bb(i+l,k)
@@ -399,7 +399,7 @@ contains
 
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
-         do k = 1,this%m
+         do k = 1, this%m
             do l = 0, (j-1)
                xbar(i+l) = xbar(i+l) + alpha(k) * xx(i+l,k)
                b(i+l) = b(i+l) - alpha(k) * bb(i+l,k)
@@ -676,7 +676,7 @@ contains
     if (this%proj_m .gt. 0) then
        write(log_buf, '(A,A)') 'Projection ', string
        call neko_log%message(log_buf)
-       write(log_buf, '(A,A)') 'Proj. vec.:','   Orig. residual:'
+       write(log_buf, '(A,A)') 'Proj. vec.:', '   Orig. residual:'
        call neko_log%message(log_buf)
        write(log_buf, '(I11,3x, E15.7,5x)')  this%proj_m, this%proj_res
        call neko_log%message(log_buf)
