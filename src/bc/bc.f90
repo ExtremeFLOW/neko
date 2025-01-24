@@ -34,8 +34,9 @@
 module bc
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
-  use device, only : device_get_ptr, HOST_TO_DEVICE, c_associated, &
-       device_memcpy, device_free, device_map
+  use device, only : device_get_ptr, HOST_TO_DEVICE,  device_memcpy, &
+        device_free, device_map
+  use iso_c_binding, only: c_associated
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use space, only : space_t
