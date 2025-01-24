@@ -173,7 +173,7 @@ contains
 
        ! store the balanced mesh (for e.g. restarts)
        string_val = trim(string_val(1:scan(trim(string_val), &
-            '.', back = .true.) - 1))//'_lb.nmsh'
+            '.', back = .true.) - 1)) // '_lb.nmsh'
        msh_file = file_t(string_val)
        call msh_file%write(this%msh)
 
