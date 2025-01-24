@@ -152,7 +152,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
        call device_map(this%xbar, this%xbar_d, n)
-       call device_alloc(this%alpha_d, int(c_sizeof(dummy)*this%L,c_size_t))
+       call device_alloc(this%alpha_d, int(c_sizeof(dummy)*this%L, c_size_t))
 
        call device_rzero(this%xbar_d, n)
        call device_rzero(this%alpha_d, this%L)
@@ -170,11 +170,11 @@ contains
        call device_alloc(this%xx_d_d, ptr_size)
        ptr = c_loc(this%xx_d)
        call device_memcpy(ptr, this%xx_d_d, ptr_size, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_alloc(this%bb_d_d, ptr_size)
        ptr = c_loc(this%bb_d)
        call device_memcpy(ptr, this%bb_d_d, ptr_size, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
     end if
 
 
@@ -231,7 +231,7 @@ contains
     type(time_step_controller_t), intent(in) :: dt_controller
     character(len=*), optional :: string
 
-    if( tstep .gt. this%activ_step .and. this%L .gt. 0) then
+    if (tstep .gt. this%activ_step .and. this%L .gt. 0) then
        if (dt_controller%if_variable_dt) then
           ! the time step at which dt is changed
           if (dt_controller%dt_last_change .eq. 0) then
@@ -289,7 +289,7 @@ contains
     call profiler_end_region('Project on', 16)
   end subroutine bcknd_project_on
 
-  subroutine bcknd_project_back(this,x,Ax,coef, bclst, gs_h, n)
+  subroutine bcknd_project_back(this, x, Ax, coef, bclst, gs_h, n)
     class(projection_t) :: this
     integer, intent(inout) :: n
     class(Ax_t), intent(inout) :: Ax
@@ -314,7 +314,7 @@ contains
        call device_copy(this%xx_d(this%m), x_d, n)   ! Update (X,B)
 
     else
-       if (this%m.gt.0) call add2(x, this%xbar, n)      ! Restore desired solution
+       if (this%m .gt. 0) call add2(x, this%xbar, n)      ! Restore desired solution
        if (this%m .eq. this%L) then
           this%m = 1
        else
@@ -439,7 +439,7 @@ contains
          else
             call device_glsc3_many(alpha, b_d, xx_d_d, coef%mult_d, this%m, n)
             call device_memcpy(alpha, alpha_d, this%m, &
-                               HOST_TO_DEVICE, sync=.false.)
+                               HOST_TO_DEVICE, sync = .false.)
          end if
          call device_rzero(xbar_d, n)
          if (NEKO_BCKND_OPENCL .eq. 1) then
@@ -459,9 +459,9 @@ contains
             end do
          else
             call device_add2s2_many(b_d, bb_d_d, alpha_d, this%m, n)
-            call device_glsc3_many(alpha,b_d, xx_d_d, coef%mult_d, this%m, n)
+            call device_glsc3_many(alpha, b_d, xx_d_d, coef%mult_d, this%m, n)
             call device_memcpy(alpha, alpha_d, this%m, &
-                               HOST_TO_DEVICE, sync=.false.)
+                               HOST_TO_DEVICE, sync = .false.)
          end if
 
          if (NEKO_BCKND_OPENCL .eq. 1) then
@@ -493,7 +493,7 @@ contains
     associate(m => this%m,  xx_d_d => this%xx_d_d, &
               bb_d_d => this%bb_d_d, alpha_d => this%alpha_d)
 
-      if(m .le. 0) return
+      if (m .le. 0) return
 
       if (NEKO_DEVICE_MPI .and. (NEKO_BCKND_OPENCL .ne. 1)) then
          call device_project_ortho(alpha_d, bb_d(m), xx_d_d, bb_d_d, &
@@ -504,7 +504,7 @@ contains
                alpha(i) = device_glsc3(bb_d(m), xx_d(i), w_d,n)
             end do
          else
-            call device_glsc3_many(alpha,bb_d(m), xx_d_d, w_d, m, n)
+            call device_glsc3_many(alpha, bb_d(m), xx_d_d, w_d, m, n)
          end if
          nrm = sqrt(alpha(m))
          call cmult(alpha, -1.0_rp,m)
@@ -517,7 +517,7 @@ contains
             end do
          else
             call device_memcpy(alpha, alpha_d, this%m, &
-                               HOST_TO_DEVICE, sync=.false.)
+                               HOST_TO_DEVICE, sync = .false.)
             call device_add2s2_many(xx_d(m), xx_d_d, alpha_d, m-1, n)
             call device_add2s2_many(bb_d(m), bb_d_d, alpha_d, m-1, n)
 
@@ -532,7 +532,7 @@ contains
             end do
          else
             call device_memcpy(alpha, alpha_d, m, &
-                               HOST_TO_DEVICE, sync=.false.)
+                               HOST_TO_DEVICE, sync = .false.)
             call device_add2s2_many(xx_d(m), xx_d_d, alpha_d, m-1, n)
             call device_add2s2_many(bb_d(m), bb_d_d, alpha_d, m-1, n)
             call device_glsc3_many(alpha, bb_d(m), xx_d_d, w_d, m, n)
@@ -542,18 +542,18 @@ contains
       alpha(m) = device_glsc3(xx_d(m), w_d, bb_d(m), n)
       alpha(m) = sqrt(alpha(m))
 
-      if(alpha(m) .gt. this%tol*nrm) then !New vector is linearly independent
+      if (alpha(m) .gt. this%tol*nrm) then !New vector is linearly independent
          scl = 1.0_rp / alpha(m)
          call device_cmult(xx_d(m), scl, n)
          call device_cmult(bb_d(m), scl, n)
 
 
       else !New vector is not linearly independent, forget about it
-         if(pe_rank .eq. 0) then
+         if (pe_rank .eq. 0) then
             call neko_warning('New vector not linearly indepependent!')
          end if
          m = m - 1 !Remove column
-      endif
+      end if
 
     end associate
 
@@ -571,7 +571,7 @@ contains
 
     associate(m => this%m)
 
-      if(m .le. 0) return !No vectors to ortho-normalize
+      if (m .le. 0) return !No vectors to ortho-normalize
 
       ! AX = B
       ! Calculate dx, db: dx = x-XX^Tb, db=b-BX^Tb
@@ -597,7 +597,7 @@ contains
 
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
-         do k = 1,m-1
+         do k = 1, m-1
             do l = 0, (j-1)
                xx(i+l,m) = xx(i+l,m) - alpha(k) * xx(i+l,k)
                bb(i+l,m) = bb(i+l,m) - alpha(k) * bb(i+l,k)
@@ -608,7 +608,7 @@ contains
 
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
-         do k = 1,m-1
+         do k = 1, m-1
             s = 0.0_rp
             c = 0.0_rp
             do l = 0, (j-1)
@@ -648,7 +648,7 @@ contains
       alpha(m) = sqrt(alpha(m))
       !dx and db now stored in last column of xx and bb
 
-      if(alpha(m) .gt. this%tol*nrm) then !New vector is linearly independent
+      if (alpha(m) .gt. this%tol*nrm) then !New vector is linearly independent
          !Normalize dx and db
          scl1 = 1.0_rp / alpha(m)
          do i = 0, (n - 1)
@@ -658,17 +658,17 @@ contains
 
       else !New vector is not linearly independent, forget about it
          k = m !location of rank deficient column
-         if(pe_rank .eq. 0) then
+         if (pe_rank .eq. 0) then
             call neko_warning('New vector not linearly indepependent!')
          end if
          m = m - 1 !Remove column
-      endif
+      end if
 
     end associate
 
   end subroutine cpu_proj_ortho
 
-  subroutine print_proj_info(this,string)
+  subroutine print_proj_info(this, string)
     class(projection_t) :: this
     character(len=*) :: string
     character(len=LOG_SIZE) :: log_buf
