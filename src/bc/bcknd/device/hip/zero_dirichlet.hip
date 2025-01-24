@@ -57,7 +57,7 @@ extern "C" {
    * Fortran wrapper for device zero-dirichlet apply vector
    */
   void hip_zero_dirichlet_apply_vector(void *msk, void *x, void *y,
-				     void *z, int *m) {
+                     void *z, int *m) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
