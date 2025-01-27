@@ -90,6 +90,7 @@ contains
     character(len=:), allocatable :: nut_name
     integer :: i
     character(len=:), allocatable :: delta_type
+    character(len=:), allocatable :: filter_type
     character(len=LOG_SIZE) :: log_buf
 
     call json_get_or_default(json, "nut_field", nut_name, "nut")
@@ -98,6 +99,8 @@ contains
     call this%free()
     call this%init_base(dofmap, coef, nut_name, delta_type)
     call this%test_filter%init(json, coef)
+    call json_get_or_default(json, "test_filter_type", filter_type, "nonBoyd")
+    this%test_filter%elementwise_filter_type = filter_type
     call set_ds_filt(this%test_filter)
 
     call neko_log%section('LES model')
@@ -106,7 +109,7 @@ contains
     write(log_buf, '(A, A)') 'Delta evaluation : ', delta_type
     call neko_log%message(log_buf)
     write(log_buf, '(A, A)') 'Test filter type : ', &
-                                 this%test_filter%filter_type
+                                 this%test_filter%elementwise_filter_type
     call neko_log%message(log_buf)
     call neko_log%end_section()
 

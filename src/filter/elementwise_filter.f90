@@ -57,7 +57,7 @@ module elementwise_filter
   type, public, extends(filter_t) :: elementwise_filter_t
      !> filter type:
      !> possible options: "Boyd", "nonBoyd"
-     character(len=:), allocatable :: filter_type
+     character(len=:), allocatable :: elementwise_filter_type
      !> dimension
      integer :: nx
      !> filtered wavenumber
@@ -88,23 +88,17 @@ contains
     class(elementwise_filter_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
-    character(len=:), allocatable :: filter_type
-
-    call json_get_or_default(json, "test_filter_type", filter_type, "nonBoyd")
-    this%filter_type = filter_type
-
+    
     ! Filter assumes lx = ly = lz
     call this%init_base(json, coef)
 
-    call this%init_from_attributes(coef%dof%xh%lx, this%filter_type)
+    call this%init_from_attributes(coef%dof%xh%lx)
 
   end subroutine elementwise_filter_init_from_json
   !> Actual Constructor.
   !! @param nx number of points in an elements in one direction.
-  !! @param filter_type possible options: "Boyd", "nonBoyd"
-  subroutine elementwise_filter_init_from_attributes(this, nx, filter_type)
+  subroutine elementwise_filter_init_from_attributes(this, nx)
     class(elementwise_filter_t), intent(inout) :: this
-    character(len=*) :: filter_type
     integer :: nx
     
     this%nx = nx
@@ -151,7 +145,7 @@ contains
        call device_free(this%fht_d)
     end if
 
-    this%filter_type = ""
+    this%elementwise_filter_type = ""
     this%nx = 0
     this%nt = 0
 
@@ -164,7 +158,7 @@ contains
     class(elementwise_filter_t), intent(inout) :: this
 
     call build_1d_cpu(this%fh, this%fht, this%trnsfr, &
-                               this%nx, this%filter_type)
+                               this%nx, this%elementwise_filter_type)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%fh, this%fh_d, &
                           this%nx * this%nx, HOST_TO_DEVICE, sync = .false.)
