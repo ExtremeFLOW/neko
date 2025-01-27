@@ -103,10 +103,6 @@ contains
     class(filter_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in), target :: coef
-    character(len=:), allocatable :: compute_control, output_control
-    real(kind=rp) :: compute_value, output_value
-    integer :: order
-
 
     this%coef => coef
 
