@@ -199,8 +199,10 @@ contains
 
     if (strong_) then
        call this%update(this%field_list, this, this%coef, t, tstep)
-       call device_masked_copy(x_d, this%field_bc%x_d, this%msk_d, &
-            this%field_bc%dof%size(), this%msk(0))
+       if (this%msk(0) .gt. 0) then
+          call device_masked_copy(x_d, this%field_bc%x_d, this%msk_d, &
+               this%field_bc%dof%size(), this%msk(0))
+       end if
     end if
 
   end subroutine field_dirichlet_apply_scalar_dev

@@ -188,10 +188,11 @@ contains
     integer, intent(in), optional :: tstep
 
     associate(c => this%coef)
-      call device_facet_normal_apply_surfvec(this%msk_d, this%facet_d, &
-                                             x_d, y_d, z_d, u_d, v_d, w_d, &
-                                             c%nx_d, c%ny_d, c%nz_d, c%area_d, &
-                                             c%Xh%lx, size(this%msk))
+      if (this%msk(0) .gt. 0) then
+         call device_facet_normal_apply_surfvec(this%msk_d, this%facet_d, &
+              x_d, y_d, z_d, u_d, v_d, w_d, c%nx_d, c%ny_d, c%nz_d, c%area_d, &
+              c%Xh%lx, size(this%msk))
+      end if
     end associate
 
   end subroutine facet_normal_apply_surfvec_dev

@@ -125,13 +125,11 @@ contains
 
   !> Append a condition to the end of the list.
   !! @param bc The boundary condition to add.
+  !! @details Will add the object to the list, even if the mask has zero size.
   subroutine bc_list_append(this, bc)
     class(bc_list_t), intent(inout) :: this
     class(bc_t), intent(inout), target :: bc
     type(bc_ptr_t), allocatable :: tmp(:)
-
-    !> Do not add if bc is empty
-    !if (bc%marked_facet%size() .eq. 0) return
 
     if (this%size_ .ge. this%capacity) then
        this%capacity = this%capacity * 2

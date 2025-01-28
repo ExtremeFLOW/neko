@@ -124,7 +124,7 @@ contains
 
     if (present(strong)) strong_ = strong
 
-    if (strong_) then 
+    if (strong_) then
       m = this%msk(0)
       do i = 1, m
         k = this%msk(i)
@@ -147,7 +147,7 @@ contains
 
     if (present(strong)) strong_ = strong
 
-    if (strong_) then
+    if (strong_ .and. (this%msk(0) .gt. 0)) then
        call device_zero_dirichlet_apply_scalar(this%msk_d, x_d, size(this%msk))
     end if
 
@@ -167,7 +167,7 @@ contains
 
     if (present(strong)) strong_ = strong
 
-    if (strong_) then
+    if (strong_ .and. (this%msk(0) .gt. 0)) then
        call device_zero_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
             size(this%msk))
     end if

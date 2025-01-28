@@ -265,7 +265,7 @@ contains
 
     if (present(strong)) strong_ = strong
 
-    if (strong_) then
+    if (strong_ .and. (this%msk(0) .gt. 0)) then
        call device_symmetry_apply_vector(this%bc_x%msk_d, this%bc_y%msk_d, &
             this%bc_z%msk_d, x_d, y_d, z_d, &
             this%bc_x%msk(0), this%bc_y%msk(0), this%bc_z%msk(0))

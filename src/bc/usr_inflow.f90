@@ -272,7 +272,8 @@ contains
 
 
       ! Pretabulate values during first call to apply
-      if (.not. c_associated(usr_x_d) .and. strong_) then
+      if (.not. c_associated(usr_x_d) .and. strong_ .and. &
+          (this%msk(0) .gt. 0)) then
          allocate(x(m), y(m), z(m)) ! Temp arrays
 
          s = m*rp
@@ -331,7 +332,7 @@ contains
          deallocate(x, y, z)
       end if
 
-      if (strong_) then
+      if (strong_ .and. (this%msk(0) .gt. 0)) then
          call device_inhom_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, &
               usr_x_d, usr_y_d, usr_z_d, m)
       end if

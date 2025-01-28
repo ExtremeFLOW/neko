@@ -191,7 +191,7 @@ contains
 
     if (present(strong)) strong_ = strong
 
-    if (strong_) then
+    if (strong_ .and. this%msk(0) .gt. 0) then
        call device_dong_outflow_apply_scalar(this%msk_d, x_d, &
             this%normal_x_d, this%normal_y_d, this%normal_z_d, &
             this%u%x_d, this%v%x_d, this%w%x_d, &

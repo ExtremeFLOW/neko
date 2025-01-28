@@ -115,6 +115,8 @@ contains
     call this%bc_v%init_from_components(coef, "v")
     call this%bc_w%init_from_components(coef, "w")
 
+    ! TODO set to u v w values
+
     call this%field_list%init(3)
     call this%field_list%assign_to_field(1, this%bc_u%field_bc)
     call this%field_list%assign_to_field(2, this%bc_v%field_bc)
@@ -169,7 +171,7 @@ contains
     logical, intent(in), optional :: strong
 
     call neko_error("field_dirichlet_vector cannot apply scalar BCs.&
-&Use field_dirichlet instead!")
+         & Use field_dirichlet instead!")
 
   end subroutine field_dirichlet_vector_apply_scalar_dev
 
@@ -229,12 +231,14 @@ contains
     if (strong_) then
        call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
 
-       call device_masked_copy(x_d, this%bc_u%field_bc%x_d, this%bc_u%msk_d, &
-            this%bc_u%dof%size(), this%msk(0))
-       call device_masked_copy(y_d, this%bc_v%field_bc%x_d, this%bc_v%msk_d, &
-            this%bc_v%dof%size(), this%msk(0))
-       call device_masked_copy(z_d, this%bc_w%field_bc%x_d, this%bc_w%msk_d, &
-            this%bc_w%dof%size(), this%msk(0))
+       if (this%msk(0) .gt. 0) then
+          call device_masked_copy(x_d, this%bc_u%field_bc%x_d, this%bc_u%msk_d,&
+               this%bc_u%dof%size(), this%msk(0))
+          call device_masked_copy(y_d, this%bc_v%field_bc%x_d, this%bc_v%msk_d,&
+               this%bc_v%dof%size(), this%msk(0))
+          call device_masked_copy(z_d, this%bc_w%field_bc%x_d, this%bc_w%msk_d,&
+               this%bc_w%dof%size(), this%msk(0))
+       end if
     end if
 
    end subroutine field_dirichlet_vector_apply_vector_dev

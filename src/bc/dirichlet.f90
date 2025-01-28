@@ -156,7 +156,7 @@ contains
     if (present(strong)) strong_ = strong
 
 
-    if (strong_) then
+    if (strong_ .and. this%msk(0) .gt. 0) then
        call device_dirichlet_apply_scalar(this%msk_d, x_d, &
             this%g, size(this%msk))
     end if
@@ -177,7 +177,7 @@ contains
 
     if (present(strong)) strong_ = strong
 
-    if (strong_) then
+    if (strong_ .and. this%msk(0) .gt. 0) then
        call device_dirichlet_apply_vector(this%msk_d, x_d, y_d, z_d, this%g, &
             size(this%msk))
     end if
