@@ -123,7 +123,7 @@ contains
        gdim = data%gdim
        glb_nelv = data%glb_nelv
        offset_el = data%offset_el
- 
+
        if (data%x%n .gt. 0) x%ptr => data%x%x
        if (data%y%n .gt. 0) y%ptr => data%y%x
        if (data%z%n .gt. 0) z%ptr => data%z%x
@@ -143,7 +143,7 @@ contains
           tem%ptr => data%t%x
        end if
        ! If gdim = 2 and Z-velocity component exists,
-       ! it is stored in last scalar field 
+       ! it is stored in last scalar field
        if (gdim .eq. 2 .and. data%w%n .gt. 0) then
           n_scalar_fields = data%n_scalars + 1
           allocate(scalar_fields(n_scalar_fields))
@@ -151,10 +151,10 @@ contains
              scalar_fields(i)%ptr => data%s(i)%x
           end do
           scalar_fields(n_scalar_fields)%ptr => data%w%x
-       else 
-          n_scalar_fields = data%n_scalars 
+       else
+          n_scalar_fields = data%n_scalars
           allocate(scalar_fields(n_scalar_fields+1))
-          do i = 1, n_scalar_fields 
+          do i = 1, n_scalar_fields
              scalar_fields(i)%ptr => data%s(i)%x
           end do
           scalar_fields(n_scalar_fields+1)%ptr => data%w%x
@@ -292,16 +292,16 @@ contains
 
     write_mesh = (this%counter .eq. this%start_counter)
     call MPI_Allreduce(MPI_IN_PLACE, write_mesh, 1, &
-         MPI_LOGICAL, MPI_LOR, NEKO_COMM) 
+         MPI_LOGICAL, MPI_LOR, NEKO_COMM)
     call MPI_Allreduce(MPI_IN_PLACE, write_velocity, 1, &
-         MPI_LOGICAL, MPI_LOR, NEKO_COMM) 
+         MPI_LOGICAL, MPI_LOR, NEKO_COMM)
     call MPI_Allreduce(MPI_IN_PLACE, write_pressure, 1, &
-         MPI_LOGICAL, MPI_LOR, NEKO_COMM) 
-    call MPI_Allreduce(MPI_IN_PLACE, write_temperature, 1, & 
-         MPI_LOGICAL, MPI_LOR, NEKO_COMM) 
+         MPI_LOGICAL, MPI_LOR, NEKO_COMM)
+    call MPI_Allreduce(MPI_IN_PLACE, write_temperature, 1, &
+         MPI_LOGICAL, MPI_LOR, NEKO_COMM)
     call MPI_Allreduce(MPI_IN_PLACE, n_scalar_fields, 1, &
-         MPI_INTEGER, MPI_MAX, NEKO_COMM) 
- 
+         MPI_INTEGER, MPI_MAX, NEKO_COMM)
+
     ! Build rdcode note that for field_t, we only support scalar
     ! fields at the moment
     rdcode = ' '
@@ -417,7 +417,7 @@ contains
             (int(lxyz, i8) * &
             int(FLD_DATA_SIZE, i8))
     end do
-    
+
     if (gdim .eq. 3) then
 
        !> Include metadata with bounding boxes (Just copying from nek5000)
@@ -525,7 +525,6 @@ contains
        write(9, fmt = '(A,i5)') 'firsttimestep: ', this%start_counter
        write(9, fmt = '(A,i5)') 'numtimesteps: ', &
             (this%counter + 1) - this%start_counter
-       write(9, fmt = '(A)') 'type: binary'
        close(9)
     end if
 
@@ -556,7 +555,7 @@ contains
        if (gdim .eq. 3) then
           buffer(j+0) = real(vlmin(z(1, el), lxyz), sp)
           buffer(j+1) = real(vlmax(z(1, el), lxyz), sp)
-          j = j + 2 
+          j = j + 2
        end if
     end do
 
