@@ -80,13 +80,12 @@ module fluid_scheme_compressible_euler
   end type fluid_scheme_compressible_euler_t
 
 contains
-  subroutine fluid_scheme_compressible_euler_init(this, msh, lx, params, user, time_scheme)
+  subroutine fluid_scheme_compressible_euler_init(this, msh, lx, params, user)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
-    type(time_scheme_controller_t), target, intent(in) :: time_scheme
     character(len=12), parameter :: scheme = 'compressible'
     integer :: rk_order
 
@@ -196,7 +195,7 @@ contains
       euler_rhs => this%euler_rhs, h => this%h, &
       c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
-      ! WIP: Use m_z for visualization of rho
+      ! Hack: If m_z is always zero, use it to visualize rho
       call field_cfill(m_z, 0.0_rp, n)
 
       call this%euler_rhs%step(rho_field, m_x, m_y, m_z, E, &
@@ -227,7 +226,7 @@ contains
 
       !> TODO: Update maximum wave speed
 
-      ! WIP: debugging visualizing rho
+      ! Hack: If m_z is always zero, use it to visualize rho
       call field_copy(w, rho_field, n)
 
     end associate

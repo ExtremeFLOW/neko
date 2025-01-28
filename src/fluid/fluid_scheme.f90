@@ -67,7 +67,6 @@ module fluid_scheme
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use math, only : cfill, add2s2, glsum
   use device_math, only : device_cfill, device_add2s2
-  use time_scheme_controller, only : time_scheme_controller_t
   use operators, only : cfl
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry

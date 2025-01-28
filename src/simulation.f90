@@ -121,7 +121,8 @@ contains
 
        write(log_buf, '(A,E15.7,1x,A,E15.7)') 'CFL:', cfl, 'dt:', C%dt
        call neko_log%message(log_buf)
-       call simulation_settime(t, C%dt, C%ext_bdf, C%tlag, C%dtlag, tstep)
+       
+       call simulation_settime(t, C%dt, C%fluid%ext_bdf, C%tlag, C%dtlag, tstep)
 
        ! Run the preprocessing
        call neko_log%section('Preprocessing')
@@ -129,7 +130,7 @@ contains
        call neko_log%end_section()
 
        call neko_log%section('Fluid')
-       call C%fluid%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
+       call C%fluid%step(t, tstep, C%dt, C%fluid%ext_bdf, dt_controller)
        end_time = MPI_WTIME()
        write(log_buf, '(A,E15.7)') &
             'Fluid step time (s):   ', end_time-start_time
@@ -142,7 +143,7 @@ contains
        if (allocated(C%scalar)) then
           start_time = MPI_WTIME()
           call neko_log%section('Scalar')
-          call C%scalar%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
+          call C%scalar%step(t, tstep, C%dt, C%fluid%ext_bdf, dt_controller)
           end_time = MPI_WTIME()
           write(log_buf, '(A,E15.7)') &
             'Scalar step time:      ', end_time-start_time
@@ -215,28 +216,29 @@ contains
   subroutine simulation_settime(t, dt, ext_bdf, tlag, dtlag, step)
     real(kind=rp), intent(inout) :: t
     real(kind=rp), intent(in) :: dt
-    type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    type(time_scheme_controller_t), intent(inout), allocatable :: ext_bdf
     real(kind=rp), dimension(10) :: tlag
     real(kind=rp), dimension(10) :: dtlag
     integer, intent(in) :: step
     integer :: i
 
+    if (allocated(ext_bdf)) then
+      do i = 10, 2, -1
+         tlag(i) = tlag(i-1)
+         dtlag(i) = dtlag(i-1)
+      end do
 
-    do i = 10, 2, -1
-       tlag(i) = tlag(i-1)
-       dtlag(i) = dtlag(i-1)
-    end do
+      dtlag(1) = dt
+      tlag(1) = t
+      if (ext_bdf%ndiff .eq. 0) then
+         dtlag(2) = dt
+         tlag(2) = t
+      end if
 
-    dtlag(1) = dt
-    tlag(1) = t
-    if (ext_bdf%ndiff .eq. 0) then
-       dtlag(2) = dt
-       tlag(2) = t
+      call ext_bdf%set_coeffs(dtlag)
     end if
 
     t = t + dt
-
-    call ext_bdf%set_coeffs(dtlag)
 
   end subroutine simulation_settime
 
@@ -274,7 +276,7 @@ contains
 
     !Free the previous mesh, dont need it anymore
     do i = 1, size(C%dtlag)
-       call C%ext_bdf%set_coeffs(C%dtlag)
+       call C%fluid%ext_bdf%set_coeffs(C%dtlag)
     end do
 
     call C%fluid%restart(C%dtlag, C%tlag)

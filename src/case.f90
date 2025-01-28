@@ -64,7 +64,6 @@ module case
   type, public :: case_t
      type(mesh_t) :: msh
      type(json_file) :: params
-     type(time_scheme_controller_t) :: ext_bdf
      real(kind=rp), dimension(10) :: tlag
      real(kind=rp), dimension(10) :: dtlag
      real(kind=rp) :: dt
@@ -205,8 +204,8 @@ contains
     !
     ! Set order of timestepper
     !
-    call json_get(this%params, 'case.numerics.time_order', integer_val)
-    call this%ext_bdf%init(integer_val)
+   !  call json_get(this%params, 'case.numerics.time_order', integer_val)
+   !  call this%ext_bdf%init(integer_val)
 
     !
     ! Setup fluid scheme
@@ -218,7 +217,7 @@ contains
     lx = lx + 1 ! add 1 to get number of gll points
     this%fluid%chkp%tlag => this%tlag
     this%fluid%chkp%dtlag => this%dtlag
-    call this%fluid%init(this%msh, lx, this%params, this%usr, this%ext_bdf)
+    call this%fluid%init(this%msh, lx, this%params, this%usr)
     select type (f => this%fluid)
       type is (fluid_pnpn_t)
        f%chkp%abx1 => f%abx1
@@ -250,7 +249,7 @@ contains
        this%scalar%chkp%dtlag => this%dtlag
        call this%scalar%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
             this%params, this%usr, this%fluid%ulag, this%fluid%vlag, &
-            this%fluid%wlag, this%ext_bdf, this%fluid%rho)
+            this%fluid%wlag, this%fluid%ext_bdf, this%fluid%rho)
 
        call this%fluid%chkp%add_scalar(this%scalar%s)
 

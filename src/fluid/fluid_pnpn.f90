@@ -141,20 +141,24 @@ module fluid_pnpn
 
 contains
 
-  subroutine fluid_pnpn_init(this, msh, lx, params, user, time_scheme)
+  subroutine fluid_pnpn_init(this, msh, lx, params, user)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(inout) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
-    type(time_scheme_controller_t), target, intent(in) :: time_scheme
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     logical :: advection
+    integer :: integer_val
 
     call this%free()
 
     ! Initialize base class
     call this%scheme_init(msh, lx, params, .true., .true., scheme, user)
+
+    call json_get(params, 'case.numerics.time_order', integer_val)
+    allocate(this%ext_bdf)
+    call this%ext_bdf%init(integer_val)
 
     if (this%variable_material_properties .eqv. .true.) then
        ! Setup backend dependent Ax routines
@@ -363,7 +367,7 @@ contains
     call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
     call advection_factory(this%adv, params, this%c_Xh, &
                            this%ulag, this%vlag, this%wlag, &
-                           this%chkp%dtlag, this%chkp%tlag, time_scheme, &
+                           this%chkp%dtlag, this%chkp%tlag, this%ext_bdf, &
                            .not. advection)
 
     if (params%valid_path('case.fluid.flow_rate_force')) then
@@ -580,6 +584,10 @@ contains
 
     if (allocated(this%makeoifs)) then
        deallocate(this%makeoifs)
+    end if
+
+    if (allocated(this%ext_bdf)) then
+       deallocate(this%ext_bdf)
     end if
 
     call this%vol_flow%free()

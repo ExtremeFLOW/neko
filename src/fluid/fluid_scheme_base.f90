@@ -45,6 +45,7 @@ module fluid_scheme_base
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBL_LEN
   use space, only : space_t, GLL
   use time_scheme_controller, only : time_scheme_controller_t
+  use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use time_step_controller, only : time_step_controller_t
   use user_intf, only : user_t
   use wall, only : no_slip_wall_t
@@ -59,6 +60,8 @@ module fluid_scheme_base
      type(dofmap_t) :: dm_Xh    !< Dofmap associated with \f$ X_h \f$
      type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
      type(coef_t) :: c_Xh       !< Coefficients associated with \f$ X_h \f$
+
+     type(time_scheme_controller_t), allocatable :: ext_bdf
 
      !> The velocity field
      type(field_t), pointer :: u => null()    !< x-component of Velocity
@@ -184,8 +187,7 @@ module fluid_scheme_base
 
   !> Abstract interface to initialize a fluid formulation
   abstract interface
-     subroutine fluid_scheme_base_init_intrf(this, msh, lx, params, user, &
-          time_scheme)
+     subroutine fluid_scheme_base_init_intrf(this, msh, lx, params, user)
        import fluid_scheme_base_t
        import json_file
        import mesh_t
@@ -196,7 +198,6 @@ module fluid_scheme_base
        integer, intent(inout) :: lx
        type(json_file), target, intent(inout) :: params
        type(user_t), target, intent(in) :: user
-       type(time_scheme_controller_t), target, intent(in) :: time_scheme
      end subroutine fluid_scheme_base_init_intrf
   end interface
 
