@@ -131,7 +131,7 @@ module bc
        import :: bc_t, coef_t, json_file
        class(bc_t), intent(inout), target :: this
        type(coef_t), intent(in) :: coef
-       type(json_file), intent(inout) ::json
+       type(json_file), intent(inout) :: json
      end subroutine bc_constructor
   end interface
 
