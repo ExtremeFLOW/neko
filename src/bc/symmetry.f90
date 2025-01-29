@@ -38,44 +38,78 @@ module symmetry
   use bc, only : bc_t
   use tuple, only : tuple_i4_t
   use coefs, only : coef_t
+  use json_module, only : json_file
+  use zero_dirichlet, only : zero_dirichlet_t
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
-  !> Mixed Dirichlet-Neumann symmetry plane condition
+  !> Mixed Dirichlet-Neumann symmetry plane condition.
+  !! @warning Only works for axis-aligned plane boundaries.
   type, public, extends(bc_t) :: symmetry_t
-     type(dirichlet_t) :: bc_x
-     type(dirichlet_t) :: bc_y
-     type(dirichlet_t) :: bc_z
+     type(zero_dirichlet_t) :: bc_x
+     type(zero_dirichlet_t) :: bc_y
+     type(zero_dirichlet_t) :: bc_z
    contains
-     procedure, pass(this) :: init => symmetry_init
      procedure, pass(this) :: apply_scalar => symmetry_apply_scalar
      procedure, pass(this) :: apply_vector => symmetry_apply_vector
      procedure, pass(this) :: apply_scalar_dev => symmetry_apply_scalar_dev
      procedure, pass(this) :: apply_vector_dev => symmetry_apply_vector_dev
+     !> Constructor
+     procedure, pass(this) :: init => symmetry_init
+     !> Constructor from compoenents
+     procedure, pass(this) :: init_from_components => &
+          symmetry_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => symmetry_free
+     !> Get the axis coressponding to the direction of the normal.
+     procedure, pass(this) :: get_normal_axis => symmetry_get_normal_axis
+     !> Finalize.
+     procedure, pass(this) :: finalize => symmetry_finalize
   end type symmetry_t
 
 contains
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine symmetry_init(this, coef, json)
+    class(symmetry_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
 
-  !> Initialize symmetry mask for each axis
-  subroutine symmetry_init(this, coef)
-    class(symmetry_t), intent(inout) :: this
-    type(coef_t), target, intent(in) :: coef
-    integer :: i, j, l
+    call this%init_from_components(coef)
+
+  end subroutine symmetry_init
+
+  !> Constructor from components
+  !! @param[in] coef The SEM coefficients.
+  subroutine symmetry_init_from_components(this, coef)
+    class(symmetry_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+
+    call this%free()
+    this%strong = .false.
+
+    call this%init_base(coef)
+    call this%bc_x%init_from_components(this%coef)
+    call this%bc_y%init_from_components(this%coef)
+    call this%bc_z%init_from_components(this%coef)
+
+  end subroutine symmetry_init_from_components
+
+  !> Finalize.
+  !! Marks the appropriate faces for application of a homogeneous Dirchlet
+  !! condition based on the direction of the axis normal.
+  subroutine symmetry_finalize(this)
+    class(symmetry_t), target, intent(inout) :: this
+    integer :: i, m, j, l
     type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx, sy, sz
-    real(kind=rp), parameter :: TOL = 1d-3
+    real(kind=rp), parameter :: TOL = 1e-3_rp
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
 
-    call this%bc_x%free()
-    call this%bc_y%free()
-    call this%bc_z%free()
-    call this%bc_x%init_base(this%coef)
-    call this%bc_y%init_base(this%coef)
-    call this%bc_z%init_base(this%coef)
+    call this%finalize_base()
 
     associate(c => this%coef, nx => this%coef%nx, ny => this%coef%ny, &
               nz => this%coef%nz)
@@ -84,38 +118,7 @@ contains
          bc_facet = bfp(i)
          facet = bc_facet%x(1)
          el = bc_facet%x(2)
-         sx = 0d0
-         sy = 0d0
-         sz = 0d0
-         select case (facet)
-         case (1, 2)
-            do l = 2, c%Xh%lx - 1
-               do j = 2, c%Xh%lx -1
-                  sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
-                  sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
-                  sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
-               end do
-            end do
-         case (3, 4)
-            do l = 2, c%Xh%lx - 1
-               do j = 2, c%Xh%lx - 1
-                  sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
-                  sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
-                  sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
-               end do
-            end do
-         case (5, 6)
-            do l = 2, c%Xh%lx - 1
-               do j = 2, c%Xh%lx - 1
-                  sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
-                  sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
-                  sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
-               end do
-            end do
-         end select
-         sx = sx / (c%Xh%lx - 2)**2
-         sy = sy / (c%Xh%lx - 2)**2
-         sz = sz / (c%Xh%lx - 2)**2
+         call this%get_normal_axis(sx, sy, sz, facet, el)
 
          if (sx .lt. TOL) then
             call this%bc_x%mark_facet(facet, el)
@@ -131,25 +134,85 @@ contains
       end do
     end associate
     call this%bc_x%finalize()
-    call this%bc_x%set_g(0.0_rp)
     call this%bc_y%finalize()
-    call this%bc_y%set_g(0.0_rp)
     call this%bc_z%finalize()
-    call this%bc_z%set_g(0.0_rp)
+  end subroutine symmetry_finalize
 
-  end subroutine symmetry_init
+  !> Compute the average normal for a facet of an element.
+  !! @details The normal direction is the one for which s is 0, so e.g
+  !! for a y normal, sx and sz will be unity, and sy will be 0.
+  subroutine symmetry_get_normal_axis(this, sx, sy, sz, facet, el)
+    class(symmetry_t), target, intent(inout) :: this
+    real(kind=rp), intent(out) :: sx, sy, sz
+    integer, intent(in) :: facet
+    integer, intent(in) :: el
+    integer :: i, m, j, l
+    type(tuple_i4_t), pointer :: bfp(:)
+    ! TODO is the tolerance too large?
+    real(kind=rp), parameter :: TOL = 1d-3
+    type(tuple_i4_t) :: bc_facet
+
+    associate(c => this%coef, nx => this%coef%nx, ny => this%coef%ny, &
+              nz => this%coef%nz)
+      sx = 0.0_rp
+      sy = 0d0
+      sz = 0d0
+      select case (facet)
+      case (1, 2)
+         do l = 2, c%Xh%lx - 1
+            do j = 2, c%Xh%lx -1
+               sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
+               sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
+               sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
+            end do
+         end do
+      case (3, 4)
+         do l = 2, c%Xh%lx - 1
+            do j = 2, c%Xh%lx - 1
+               sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
+               sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
+               sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
+            end do
+         end do
+      case (5, 6)
+         do l = 2, c%Xh%lx - 1
+            do j = 2, c%Xh%lx - 1
+               sx = sx + abs(abs(nx(l, j, facet, el)) - 1d0)
+               sy = sy + abs(abs(ny(l, j, facet, el)) - 1d0)
+               sz = sz + abs(abs(nz(l, j, facet, el)) - 1d0)
+            end do
+         end do
+      end select
+      sx = sx / (c%Xh%lx - 2)**2
+      sy = sy / (c%Xh%lx - 2)**2
+      sz = sz / (c%Xh%lx - 2)**2
+   end associate
+  end subroutine symmetry_get_normal_axis
 
   !> No-op scalar apply
-  subroutine symmetry_apply_scalar(this, x, n, t, tstep)
+  !! @param x The field for which to apply the boundary condition.
+  !! @param n The size of x.
+  !! @param t Current time.
+  !! @param tstep Current time-step.
+  !! @param strong Whether we are setting a strong or a weak bc.
+  subroutine symmetry_apply_scalar(this, x, n, t, tstep, strong)
     class(symmetry_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
   end subroutine symmetry_apply_scalar
 
   !> Apply symmetry conditions (axis aligned)
-  subroutine symmetry_apply_vector(this, x, y, z, n, t, tstep)
+  !! @param x The x comp of the field for which to apply the bc.
+  !! @param y The y comp of the field for which to apply the bc.
+  !! @param z The z comp of the field for which to apply the bc.
+  !! @param n The size of x, y, and z.
+  !! @param t Current time.
+  !! @param tstep Current time-step.
+  !! @param strong Whether we are setting a strong or a weak bc.
+  subroutine symmetry_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(symmetry_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout),  dimension(n) :: x
@@ -157,39 +220,59 @@ contains
     real(kind=rp), intent(inout),  dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
+    logical :: strong_ = .true.
 
-    call this%bc_x%apply_scalar(x, n)
-    call this%bc_y%apply_scalar(y, n)
-    call this%bc_z%apply_scalar(z, n)
+    if (present(strong)) strong_ = strong
+
+    if (strong_) then
+       call this%bc_x%apply_scalar(x, n)
+       call this%bc_y%apply_scalar(y, n)
+       call this%bc_z%apply_scalar(z, n)
+    end if
 
   end subroutine symmetry_apply_vector
 
   !> No-op scalar apply (device version)
-  subroutine symmetry_apply_scalar_dev(this, x_d, t, tstep)
+  !! @param x_d Device pointer to the field.
+  !! @param t The time value.
+  !! @param tstep The time iteration.
+  !! @param strong Whether we are setting a strong or a weak bc.
+  subroutine symmetry_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(symmetry_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
   end subroutine symmetry_apply_scalar_dev
 
   !> Apply symmetry conditions (axis aligned) (device version)
-  subroutine symmetry_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  !! @param x_d Device pointer to the values to be applied for the x comp.
+  !! @param y_d Device pointer to the values to be applied for the y comp.
+  !! @param z_d Device pointer to the values to be applied for the z comp.
+  !! @param t The time value.
+  !! @param tstep Current time-step.
+  !! @param strong Whether we are setting a strong or a weak bc.
+  subroutine symmetry_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, strong)
     class(symmetry_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
+    logical :: strong_ = .true.
 
-    call device_symmetry_apply_vector(this%bc_x%msk_d, this%bc_y%msk_d, &
-                                      this%bc_z%msk_d, x_d, y_d, z_d, &
-                                      this%bc_x%msk(0), &
-                                      this%bc_y%msk(0), &
-                                      this%bc_z%msk(0))
+    if (present(strong)) strong_ = strong
 
+    if (strong_ .and. (this%msk(0) .gt. 0)) then
+       call device_symmetry_apply_vector(this%bc_x%msk_d, this%bc_y%msk_d, &
+            this%bc_z%msk_d, x_d, y_d, z_d, &
+            this%bc_x%msk(0), this%bc_y%msk(0), this%bc_z%msk(0))
+    end if
   end subroutine symmetry_apply_vector_dev
 
-  !> Destructor
+  !> Destructor.
   subroutine symmetry_free(this)
     class(symmetry_t), target, intent(inout) :: this
 

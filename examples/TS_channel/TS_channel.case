@@ -42,13 +42,18 @@
             "value": 0.66666666666666666666,
             "use_averaged_flow": true
         },
-        "boundary_types": ["", "", "w", "w"],
+        "boundary_conditions": [
+        {
+            "type": "no_slip",
+            "zone_indices": [3, 4]
+        }
+        ],
         "output_control": "simulationtime",
         "output_value": 1
     },
- "simulation_components": 
-  [ 
-    { 
+ "simulation_components":
+  [
+    {
       "type": "lambda2", // stored in the temperature field, check docs for more details on sim_comps
     },
     {
@@ -58,7 +63,7 @@
       "zone_id": 3,
       "zone_name": "Bottom wall",
       "center": [0,0,0]
-    },    
+    },
     {
       "type": "force_torque",
       "compute_control": "tsteps",

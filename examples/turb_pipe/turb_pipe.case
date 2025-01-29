@@ -7,11 +7,11 @@
     "output_checkpoints": true,
     "checkpoint_control": "simulationtime",
     "checkpoint_value": 5,
-    "end_time": 30.0,
+    "end_time": 30,
     "timestep": 2.5e-3,
     "numerics": {
         "time_order": 3,
-        "polynomial_order": 5,
+        "polynomial_order": 3,
         "dealias": true
     },
     "fluid": {
@@ -24,7 +24,7 @@
             "type": "cg",
             "preconditioner": "jacobi",
             "projection_space_size": 3,
-            "absolute_tolerance": 1e-7,
+            "absolute_tolerance": 1e-4,
             "max_iterations": 800
         },
         "pressure_solver": {
@@ -41,7 +41,12 @@
         },
         "output_control": "simulationtime",
         "output_value": 5,
-        "boundary_types": ["", "", "w"]
+        "boundary_conditions": [
+            {
+                "type": "no_slip",
+                "zone_indices": [3]
+            }
+        ]
     }
 }
 }

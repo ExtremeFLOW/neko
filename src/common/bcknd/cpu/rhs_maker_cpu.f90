@@ -44,17 +44,20 @@ contains
 
     n = uu%dof%size()
 
-    do concurrent (i = 1:n)
-       u%x(i,1,1,1) = ab(1) * uu%x(i,1,1,1) + ab(2) * uulag%lf(1)%x(i,1,1,1)
-       v%x(i,1,1,1) = ab(1) * vv%x(i,1,1,1) + ab(2) * vvlag%lf(1)%x(i,1,1,1)
-       w%x(i,1,1,1) = ab(1) * ww%x(i,1,1,1) + ab(2) * wwlag%lf(1)%x(i,1,1,1)
-    end do
-
     if (nab .eq. 3) then
        do concurrent (i = 1:n)
-          u%x(i,1,1,1) = u%x(i,1,1,1) + ab(3) * uulag%lf(2)%x(i,1,1,1)
-          v%x(i,1,1,1) = v%x(i,1,1,1) + ab(3) * vvlag%lf(2)%x(i,1,1,1)
-          w%x(i,1,1,1) = w%x(i,1,1,1) + ab(3) * wwlag%lf(2)%x(i,1,1,1)
+          u%x(i,1,1,1) = ab(1) * uu%x(i,1,1,1) + &
+               ab(2) * uulag%lf(1)%x(i,1,1,1) + ab(3) * uulag%lf(2)%x(i,1,1,1)
+          v%x(i,1,1,1) = ab(1) * vv%x(i,1,1,1) + &
+               ab(2) * vvlag%lf(1)%x(i,1,1,1) + ab(3) * vvlag%lf(2)%x(i,1,1,1)
+          w%x(i,1,1,1) = ab(1) * ww%x(i,1,1,1) + &
+               ab(2) * wwlag%lf(1)%x(i,1,1,1) + ab(3) * wwlag%lf(2)%x(i,1,1,1)
+       end do
+    else
+       do concurrent (i = 1:n)
+          u%x(i,1,1,1) = ab(1) * uu%x(i,1,1,1) + ab(2) * uulag%lf(1)%x(i,1,1,1)
+          v%x(i,1,1,1) = ab(1) * vv%x(i,1,1,1) + ab(2) * vvlag%lf(1)%x(i,1,1,1)
+          w%x(i,1,1,1) = ab(1) * ww%x(i,1,1,1) + ab(2) * wwlag%lf(1)%x(i,1,1,1)
        end do
     end if
 

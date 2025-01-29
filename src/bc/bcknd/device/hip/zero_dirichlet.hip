@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2021-2024, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -32,47 +32,40 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __BC_NO_SLIP_WALL_KERNEL__
-#define __BC_NO_SLIP_WALL_KERNEL__
-
 #include <hip/hip_runtime.h>
+#include <device/device_config.h>
+#include <device/hip/check.h>
+#include "zero_dirichlet_kernel.h"
 
-/**
- * Device kernel for scalar apply for a no-slip wall conditon
- */
-template< typename T >
-__global__ void no_slip_wall_apply_scalar_kernel(const int * __restrict__ msk,
-						 T * __restrict__ x,
-						 const int m) {
-  
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
+extern "C" {
 
-  for (int i = (idx + 1); i < m; i += str) {
-    const int k = (msk[i] - 1);
-    x[k] = 0.0;
+  /**
+   * Fortran wrapper for device zero-dirichlet apply vector
+   */
+  void hip_zero_dirichlet_apply_scalar(void *msk, void *x, int *m) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(zero_dirichlet_apply_scalar_kernel<real>),
+               nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+               (int *) msk, (real *) x, *m);
+    HIP_CHECK(hipGetLastError());
   }
-}
 
-/**
- * Device kernel for vector apply for a no-slip wall conditon
- */
-template< typename T >
-__global__ void no_slip_wall_apply_vector_kernel(const int * __restrict__ msk,
-						 T * __restrict__ x,
-						 T * __restrict__ y,
-						 T * __restrict__ z,
-						 const int m) {
-  
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
+  /**
+   * Fortran wrapper for device zero-dirichlet apply vector
+   */
+  void hip_zero_dirichlet_apply_vector(void *msk, void *x, void *y,
+                     void *z, int *m) {
 
-  for (int i = (idx + 1); i < m; i += str) {
-    const int k = (msk[i] - 1);
-    x[k] = 0.0;
-    y[k] = 0.0;
-    z[k] = 0.0;
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(zero_dirichlet_apply_vector_kernel<real>),
+               nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (int *) msk, (real *) x, (real *) y, (real *) z, *m);
+    HIP_CHECK(hipGetLastError());
   }
-}
 
-#endif // __BC_NO_SLIP_WALL_KERNEL__
+}
