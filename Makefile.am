@@ -50,7 +50,6 @@ EXTRA_DIST = \
 	examples/hemi/hemi.case\
 	examples/lid/lid.f90\
 	examples/lid/lid2d.nmsh\
-	examples/lid/lid2d.f90\
 	examples/lid/lid.nmsh\
 	examples/lid/README.md\
 	examples/lid/lid2d.box\
