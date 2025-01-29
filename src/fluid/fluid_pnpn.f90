@@ -857,7 +857,6 @@ contains
 
     end associate
     call profiler_end_region('Fluid', 1)
-!      call exit()
   end subroutine fluid_pnpn_step
 
   !> Sets up the boundary condition for the scheme.
