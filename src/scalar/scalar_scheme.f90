@@ -68,6 +68,7 @@ module scalar_scheme
   use scalar_source_term, only : scalar_source_term_t
   use field_series, only : field_series_t
   use math, only : cfill, add2s2
+  use field_math, only : field_add2s2
   use device_math, only : device_cfill, device_add2s2
   use neko_config, only : NEKO_BCKND_DEVICE
   use field_series, only : field_series_t
@@ -513,17 +514,12 @@ contains
     real(kind=rp) :: lambda_factor
 
     lambda_factor = this%rho*this%cp/this%pr_turb
+    this%lambda_field = this%lambda
 
     if (this%variable_material_properties) then
        nut => neko_field_registry%get_field(this%nut_field_name)
        n = nut%size()
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_cfill(this%lambda_field%x_d, this%lambda, n)
-          call device_add2s2(this%lambda_field%x_d, nut%x_d, lambda_factor, n)
-       else
-          call cfill(this%lambda_field%x, this%lambda, n)
-          call add2s2(this%lambda_field%x, nut%x, lambda_factor, n)
-       end if
+       call field_add2s2(this%lambda_field, nut, lambda_factor, n)
     end if
 
   end subroutine scalar_scheme_update_material_properties

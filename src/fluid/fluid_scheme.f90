@@ -77,7 +77,7 @@ module fluid_scheme
   use utils, only : neko_error, neko_warning
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
-  use field_math, only : field_cfill
+  use field_math, only : field_cfill, field_add2s2
   use wall_model_bc, only : wall_model_bc_t
   use shear_stress, only : shear_stress_t
   use gradient_jump_penalty, only : gradient_jump_penalty_t
@@ -699,19 +699,12 @@ contains
     type(field_t), pointer :: nut
     integer :: n
 
+    this%mu_field = this%mu
     if (this%variable_material_properties) then
       nut => neko_field_registry%get_field(this%nut_field_name)
       n = nut%size()
-
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_cfill(this%mu_field%x_d, this%mu, n)
-         call device_add2s2(this%mu_field%x_d, nut%x_d, this%rho, n)
-      else
-         call cfill(this%mu_field%x, this%mu, n)
-         call add2s2(this%mu_field%x, nut%x, this%rho, n)
-      end if
+      call field_add2s2(this%mu_field, nut, this%rho, n)
     end if
-
   end subroutine fluid_scheme_update_material_properties
 
   !> Sets rho and mu
