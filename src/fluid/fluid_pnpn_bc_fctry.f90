@@ -86,8 +86,10 @@ contains
     select case (trim(type))
       case ("outflow", "normal_outflow")
        allocate(zero_dirichlet_t::object)
+
       case ("outflow+dong", "normal_outflow+dong")
        allocate(dong_outflow_t::object)
+
       case ("user_pressure")
        allocate(field_dirichlet_t::object)
        select type (obj => object)
@@ -95,6 +97,7 @@ contains
           obj%update => user%user_dirichlet_update
           call json%add("field_name", scheme%p%name)
        end select
+
       case default
        do i = 1, size(FLUID_PNPN_KNOWN_BCS)
           if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
