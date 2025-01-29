@@ -118,7 +118,7 @@ contains
     end if
 
     if (c_associated(zero_dirichlet_program)) then
-       if(clReleaseProgram(zero_dirichlet_program) .ne. CL_SUCCESS) then
+       if (clReleaseProgram(zero_dirichlet_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
        end if
        zero_dirichlet_program = C_NULL_PTR
