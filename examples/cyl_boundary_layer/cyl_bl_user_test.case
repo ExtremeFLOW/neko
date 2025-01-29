@@ -5,11 +5,11 @@
     "output_at_end": true,
     "output_boundary": true,
     "output_checkpoints": false,
-    "end_time": 100,
+    "end_time": 1e-3,
     "output_directory": "results_user",
-    "timestep": 8e-4,
+    "timestep": 1e-3,
     "numerics": {
-        "time_order": 3,
+        "time_order": 2,
         "polynomial_order": 5,
         "dealias": true
     },
@@ -37,11 +37,11 @@
         "boundary_conditions":
         [
             {
-                "type": "user_velocity_pointwise",
+                "type": "user_velocity",
                 "zone_indices": [1]
             },
             {
-                "type": "outflow",
+                "type": "user_pressure",
                 "zone_indices": [2]
             },
             {
@@ -59,6 +59,25 @@
         ],
         "output_control": "nsamples",
         "output_value": 400
+    },
+    "scalar": {
+        "enabled": true,
+        "Pe": 0.71,
+        "boundary_conditions": [
+            {
+                "type": "user",
+                "zone_indices": [1, 4, 7]
+            },
+            {
+                "type": "neumann",
+                "flux": 0,
+                "zone_indices": [2, 3, 5, 6]
+            }
+        ],
+        "initial_condition": {
+            "type": "uniform",
+            "value": 1.0
+        }
     }
 }
 }

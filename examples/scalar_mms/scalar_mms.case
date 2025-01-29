@@ -55,21 +55,18 @@
           ]
         }
       ],
-      "boundary_types": [
-          "d=0", "n=0.01"
+      "boundary_conditions": [
+          {
+              "type": "dirichlet",
+              "zone_indices": [1],
+              "value": 0
+          },
+          {
+              "type": "neumann",
+              "zone_indices": [2],
+              "flux": 0.01
+          }
       ]
-    },
-    "simulation_components": [
-      {
-        "type": "probes",
-        "compute_control": "nsamples",
-        "compute_value": 1,
-        "points_file": "probes.csv",
-        "output_file": "output.csv",
-        "fields": [
-          "s"
-        ]
-      }
-    ]
+    }
   }
 }

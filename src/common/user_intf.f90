@@ -49,6 +49,8 @@ module user_intf
   use json_utils, only : json_extract_item, json_get, json_get_or_default
   use utils, only : neko_error, neko_warning
   use logger, only : neko_log
+  use bc, only : bc_t
+  use field_dirichlet, only : field_dirichlet_t
   implicit none
   private
 
@@ -426,14 +428,13 @@ contains
     type(json_file), intent(inout) :: params
   end subroutine dummy_user_final_no_modules
 
-  subroutine dirichlet_do_nothing(dirichlet_field_list, dirichlet_bc_list, &
-                                  coef, t, tstep, which_solver)
+  subroutine dirichlet_do_nothing(dirichlet_field_list, dirichlet_bc, &
+                                  coef, t, tstep)
     type(field_list_t), intent(inout) :: dirichlet_field_list
-    type(bc_list_t), intent(inout) :: dirichlet_bc_list
+    type(field_dirichlet_t), intent(in) :: dirichlet_bc
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    character(len=*), intent(in) :: which_solver
   end subroutine dirichlet_do_nothing
 
   subroutine dummy_user_material_properties(t, tstep, rho, mu, cp, lambda,&
@@ -465,7 +466,7 @@ contains
 
     call params%get_core(core)
     call params%get(simcomp_object)
-    call params%info('', n_children=n_simcomps)
+    call params%info('', n_children = n_simcomps)
 
     found = .false.
     do i = 1, n_simcomps

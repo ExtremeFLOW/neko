@@ -32,40 +32,43 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <hip/hip_runtime.h>
-#include <device/device_config.h>
-#include <device/hip/check.h>
-#include "no_slip_wall_kernel.h"
+#ifndef __BC_ZERO_DIRICHLET_KERNEL__
+#define __BC_ZERO_DIRICHLET_KERNEL__
 
-extern "C" {
+/**
+ * Device kernel for scalar apply for a zero-valued Dirichlet conditon
+ */
+__kernel void zero_dirichlet_apply_scalar_kernel(__global const int *msk,
+                                                 __global real *x,
+                                                 const int m) {
 
-  /** 
-   * Fortran wrapper for device no-slip wall apply vector
-   */
-  void hip_no_slip_wall_apply_scalar(void *msk, void *x, int *m) {
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
 
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
-
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(no_slip_wall_apply_scalar_kernel<real>),
-		       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-		       (int *) msk, (real *) x, *m);
-    HIP_CHECK(hipGetLastError());
+  for (int i = (idx + 1); i < m; i += str) {
+    const int k = (msk[i] - 1);
+    x[k] = 0.0;
   }
-  
-  /** 
-   * Fortran wrapper for device no-slip wall apply vector
-   */
-  void hip_no_slip_wall_apply_vector(void *msk, void *x, void *y,
-				     void *z, int *m) {
-
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
-
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(no_slip_wall_apply_vector_kernel<real>),
-		       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                       (int *) msk, (real *) x, (real *) y, (real *) z, *m);
-    HIP_CHECK(hipGetLastError());
-  }
- 
 }
+
+/**
+ * Device kernel for vector apply for a zero-valued Dirichlet conditon
+ */
+__kernel void zero_dirichlet_apply_vector_kernel(__global const int *msk,
+                                                 __global real *x,
+                                                 __global real *y,
+                                                 __global real *z,
+                                                 const int m) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = (idx + 1); i < m; i += str) {
+    const int k = (msk[i] - 1);
+    x[k] = 0.0;
+    y[k] = 0.0;
+    z[k] = 0.0;
+  }
+}
+
+#endif // __BC_ZERO_DIRICHLET_KERNEL__

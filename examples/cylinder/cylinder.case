@@ -37,16 +37,38 @@
             "absolute_tolerance": 1e-3,
             "max_iterations": 800
         },
-        "boundary_types": ["v", "o+dong", "", "", "on", "on", "w"],
+        "boundary_conditions": [
+        {
+            "type": "velocity_value",
+            "value": [1, 0, 0],
+            "zone_indices": [1]
+        },
+        {
+            "type": "outflow+dong",
+            "zone_indices": [2]
+        },
+        {
+            "type": "normal_outflow",
+            "zone_indices": [5]
+        },
+        {
+            "type": "normal_outflow",
+            "zone_indices": [6]
+        },
+        {
+            "type": "no_slip",
+            "zone_indices": [7]
+        }
+        ],
         "output_control": "simulationtime",
         "output_value": 2.0
     },
- "simulation_components": 
-  [ 
-    { 
+ "simulation_components":
+  [
+    {
       "type": "lambda2",// stored in the temperature field, check docs for more details on sim_comps
     },
-    { 
+    {
       "type": "vorticity", // Stored in scalar 1,2,3. Changes order if simcomp is added before lambda2
     },
     {
@@ -56,8 +78,8 @@
       "zone_id": 7,
       "zone_name": "Cylinder",
       "center": [0,0,0],
-    },    
-    { 
+    },
+    {
       "type": "fluid_stats",
       "output_control": "simulationtime",
       "output_value": 10,
@@ -67,6 +89,6 @@
       "avg_direction": "z",
       "set_of_stats": "basic"
     }
-  ]   
+  ]
 }
 }
