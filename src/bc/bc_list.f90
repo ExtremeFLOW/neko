@@ -89,7 +89,7 @@ contains
   !! @param size The size of the list to allocate.
   subroutine bc_list_init(this, capacity)
     class(bc_list_t), intent(inout), target :: this
-    integer, optional ::capacity
+    integer, optional :: capacity
     integer :: n
 
     call this%free()
