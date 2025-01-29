@@ -71,7 +71,7 @@ contains
   subroutine zero_dirichlet_init(this, coef, json)
     class(zero_dirichlet_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
-    type(json_file), intent(inout) ::json
+    type(json_file), intent(inout) :: json
 
     call this%init_from_components(coef)
   end subroutine zero_dirichlet_init

@@ -50,7 +50,7 @@ module neumann
   !! to the right-hand-side.
   type, public, extends(bc_t) :: neumann_t
      real(kind=rp), allocatable :: flux_(:)
-     real(kind=rp), private ::  init_flux_
+     real(kind=rp), private :: init_flux_
    contains
      procedure, pass(this) :: apply_scalar => neumann_apply_scalar
      procedure, pass(this) :: apply_vector => neumann_apply_vector

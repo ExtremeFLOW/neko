@@ -109,7 +109,7 @@ contains
   subroutine usr_scalar_init(this, coef, json)
     class(usr_scalar_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
-    type(json_file), intent(inout) ::json
+    type(json_file), intent(inout) :: json
 
     call this%init_base(coef)
   end subroutine usr_scalar_init
