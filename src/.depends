@@ -1,3 +1,4 @@
+abi/neko_abi.lo : abi/neko_abi.f90 neko.lo 
 config/num_types.lo : config/num_types.f90 
 common/structs.lo : common/structs.f90 config/num_types.lo 
 io/format/nmsh.lo : io/format/nmsh.f90 config/num_types.lo 

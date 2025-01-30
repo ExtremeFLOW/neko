@@ -34,6 +34,10 @@ AC_ARG_ENABLE(device-mpi,
 AC_ARG_ENABLE(openmp, AC_HELP_STRING([--enable-openmp], [Enable OpenMP]),
               [enable_openmp=${enableval}], [enable_openmp=no])
 
+AC_ARG_ENABLE(python, AC_HELP_STRING([--enable-python],
+              [Install Python modules, requires a Python interpreter]),
+              [enable_python=${enableval}],[enable_python=no])
+
 # Test for a sane fortran environment (^-^)
 AC_LANG(Fortran)
 AC_PROG_FC(,90)
@@ -330,6 +334,17 @@ if (test "x${have_cuda}" = xyes ||
 else
     AC_SUBST(device_bcknd, "0")
 fi
+
+found_python="no"
+if (test "x$enable_python" = xyes); then
+   AM_PATH_PYTHON([3.5])
+   if ! ${HAVE_PYTHON}; then
+        AC_MSG_ERROR([Python interpreter not found, pyNeko cannot be installed.])
+   fi
+   found_python="yes"
+fi
+
+AM_CONDITIONAL([ENABLE_PYTHON], [test "x${found_python}" = xyes])
 
 AC_CONFIG_FILES([Makefile\
 		 src/Makefile\

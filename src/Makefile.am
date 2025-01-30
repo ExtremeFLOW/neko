@@ -2,6 +2,7 @@
 lib_LTLIBRARIES = libneko.la
 libneko_la_LDFLAGS = -release ${PACKAGE_VERSION}
 neko_fortran_SOURCES = \
+	api/neko_api.f90\
 	config/num_types.f90\
 	common/structs.f90\
 	io/format/nmsh.f90\
@@ -557,6 +558,11 @@ endif
 if ENABLE_MAKEDEPF90
 depend:
 	$(MAKEDEPF90) $(neko_fortran_SOURCES) | $(SED) 's/\.o/\.lo/g'  > .depends
+endif
+
+if ENABLE_PYTHON
+nobase_python_PYTHON = python/pyneko/__init__.py\
+		       python/pyneko/intf.py
 endif
 
 # Note we need to list any headers etc here for the dist. script
