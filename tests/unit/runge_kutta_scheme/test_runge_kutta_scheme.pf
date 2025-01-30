@@ -138,6 +138,8 @@ end subroutine test_rk4
 @test 
 subroutine test_memory_management()
   use pfunit
+  use neko_config
+  use device
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use, intrinsic :: iso_c_binding, only : c_associated
   implicit none
@@ -148,19 +150,19 @@ subroutine test_memory_management()
   call rk%init(4)
   
   ! Test device pointers are properly allocated when NEKO_BCKND_DEVICE = 1
-  ! if (NEKO_BCKND_DEVICE == 1) then
-  !   @assertTrue(c_associated(rk%coeffs_A_d))
-  !   @assertTrue(c_associated(rk%coeffs_b_d))
-  !   @assertTrue(c_associated(rk%coeffs_c_d))
-  ! end if
+  if (NEKO_BCKND_DEVICE == 1) then
+    @assertTrue(c_associated(rk%coeffs_A_d))
+    @assertTrue(c_associated(rk%coeffs_b_d))
+    @assertTrue(c_associated(rk%coeffs_c_d))
+  end if
   
   ! Free memory
   call rk%free()
   
   ! Test device pointers are properly deallocated
-  ! if (NEKO_BCKND_DEVICE == 1) then
-  !   @assertFalse(c_associated(rk%coeffs_A_d))
-  !   @assertFalse(c_associated(rk%coeffs_b_d))
-  !   @assertFalse(c_associated(rk%coeffs_c_d))
-  ! end if
+  if (NEKO_BCKND_DEVICE == 1) then
+    @assertFalse(c_associated(rk%coeffs_A_d))
+    @assertFalse(c_associated(rk%coeffs_b_d))
+    @assertFalse(c_associated(rk%coeffs_c_d))
+  end if
 end subroutine test_memory_management
