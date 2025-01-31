@@ -259,6 +259,7 @@ contains
     real(kind=c_double), value :: t
     integer(c_int), value :: tstep
     logical(kind=c_bool), value :: force_output
+    real(kind=rp) :: f_t
     logical :: f_force_output
     type(case_t), pointer :: C
     type(c_ptr) :: cp
@@ -271,8 +272,9 @@ contains
     end if
 
     f_force_output = transfer(force_output, f_force_output)
+    f_t = transfer(t, f_t)
 
-    call C%output_controller%execute(t, tstep, f_force_output)
+    call C%output_controller%execute(f_t, tstep, f_force_output)
 
   end subroutine neko_api_output_ctrl_execute
 
