@@ -95,19 +95,19 @@ conditions for the fluid  will be marked with an integer number. This is a good
 way to debug the simulation setup. The value of the number depends on the type
 of the boundary as follows.
 
-| Boundary Condition               | Key |
-|----------------------------------|-----|
-| no_slip                          | 1   |
-| velocity_value                   | 2   |
-| outflow, normal_outflow (+dong)  | 3   |
-| symmetry                         | 4   |
-| user_velocity_pointwise          | 5   |
-| periodic                         | 6   |
-| user_velocity                    | 7   |
-| user_pressure                    | 8   |
-| shear_stress                     | 9   |
-| wall_model                       | 10  |
-| blasius_profile                  | 11  |
+| Boundary Condition              | Key |
+|---------------------------------|-----|
+| no_slip                         | 1   |
+| velocity_value                  | 2   |
+| outflow, normal_outflow (+dong) | 3   |
+| symmetry                        | 4   |
+| user_velocity_pointwise         | 5   |
+| periodic                        | 6   |
+| user_velocity                   | 7   |
+| user_pressure                   | 8   |
+| shear_stress                    | 9   |
+| wall_model                      | 10  |
+| blasius_profile                 | 11  |
 
 For a description of the boundary conditions themselves, see below.
 
@@ -809,22 +809,34 @@ file documentation.
 The configuration of source terms is the same as for the fluid. A demonstration
 of using source terms for the scalar can be found in the `scalar_mms` example.
 
+### Linear solver configuration
+
+Should be provided as an object under the `solver` keyword. For available
+configuration options, see the corresponding documentation for the fliud. A
+standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
+
 ### Full parameter table
 
-| Name                      | Description                                                       | Admissible values                       | Default value |
-|---------------------------|-------------------------------------------------------------------|-----------------------------------------|---------------|
-| `enabled`                 | Whether to enable the scalar computation.                         | `true` or `false`                       | `true`        |
-| `Pe`                      | The Peclet number.                                                | Positive real                           | -             |
-| `cp`                      | Specific heat capacity.                                           | Positive real                           | -             |
-| `lambda`                  | Thermal conductivity.                                             | Positive real                           | -             |
-| `nut_field`               | Name of the turbulent kinematic viscosity field.                  | String                                  | Empty string  |
-| `Pr_t`                    | Turbulent Prandtl number                                          | Positive real                           | -             |
-| `boundary_types`          | Boundary types/conditions labels.                                 | Array of strings                        | -             |
-| `initial_condition.type`  | Initial condition type.                                           | `user`, `uniform`, `point_zone`         | -             |
-| `initial_condition.value` | Value of the velocity initial condition.                          | Real                                    | -             |
-| `source_terms`            | Array of JSON objects, defining additional source terms.          | See list of source terms above          | -             |
-| `gradient_jump_penalty`   | Array of JSON objects, defining additional gradient jump penalty. | See list of gradient jump penalty above | -             |
-| `advection`               | Whether to compute the advetion term.                             | `true` or `false`                       | `true`        |
+| Name                           | Description                                                       | Admissible values                           | Default value |
+|--------------------------------|-------------------------------------------------------------------|---------------------------------------------|---------------|
+| `enabled`                      | Whether to enable the scalar computation.                         | `true` or `false`                           | `true`        |
+| `Pe`                           | The Peclet number.                                                | Positive real                               | -             |
+| `cp`                           | Specific heat capacity.                                           | Positive real                               | -             |
+| `lambda`                       | Thermal conductivity.                                             | Positive real                               | -             |
+| `nut_field`                    | Name of the turbulent kinematic viscosity field.                  | String                                      | Empty string  |
+| `Pr_t`                         | Turbulent Prandtl number                                          | Positive real                               | -             |
+| `boundary_types`               | Boundary types/conditions labels.                                 | Array of strings                            | -             |
+| `initial_condition.type`       | Initial condition type.                                           | `user`, `uniform`, `point_zone`             | -             |
+| `initial_condition.value`      | Value of the velocity initial condition.                          | Real                                        | -             |
+| `source_terms`                 | Array of JSON objects, defining additional source terms.          | See list of source terms above              | -             |
+| `gradient_jump_penalty`        | Array of JSON objects, defining additional gradient jump penalty. | See list of gradient jump penalty above     | -             |
+| `advection`                    | Whether to compute the advetion term.                             | `true` or `false`                           | `true`        |
+| `solver.type`                  | Linear solver for scalar equation.                                | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres` | -             |
+| `solver.preconditioner`        | Linear solver preconditioner for the momentum equation.           | `ident`, `hsmg`, `jacobi`                   | -             |
+| `solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.    | Positive real                               | -             |
+| `solver.maxiter`               | Linear solver max iteration count for the momentum equation.      | Positive real                               | 800           |
+| `solver.projection_space_size` | Projection space size for the scalar equation.                    | Positive integer                            | 20            |
+| `solver.projection_hold_steps` | Holding steps of the projection for the scalar equation.          | Positive integer                            | 5             |
 
 
 ## Simulation components

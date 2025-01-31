@@ -253,17 +253,17 @@ contains
     this%w => neko_field_registry%get_field('w')
 
     call neko_log%section('Scalar')
-    call json_get(params, 'case.fluid.velocity_solver.type', solver_type)
-    call json_get(params, 'case.fluid.velocity_solver.preconditioner', &
+    call json_get(params, 'case.scalar.solver.type', solver_type)
+    call json_get(params, 'case.scalar.solver.preconditioner', &
          solver_precon)
-    call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance', &
+    call json_get(params, 'case.scalar.solver.absolute_tolerance', &
          solver_abstol)
 
     call json_get_or_default(params, &
-         'case.fluid.velocity_solver.projection_space_size', &
+         'case.scalar.solver.projection_space_size', &
          this%projection_dim, 20)
     call json_get_or_default(params, &
-         'case.fluid.velocity_solver.projection_hold_steps', &
+         'case.scalar.solver.projection_hold_steps', &
          this%projection_activ_step, 5)
 
 
