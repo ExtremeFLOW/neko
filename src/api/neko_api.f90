@@ -149,12 +149,12 @@ contains
 
   !> Compute a time-step for a neko case
   !! @param case_iptr Opaque pointer for the Neko case
-  !! @param t The time value
+  !! @param time The time value
   !! @param tstep The current time-stepper iteration
-  subroutine neko_api_step(case_iptr, t, tstep) bind(c, name="neko_step")
+  subroutine neko_api_step(case_iptr, time, tstep) bind(c, name="neko_step")
     use time_step_controller, only : time_step_controller_t
     integer(c_intptr_t), intent(inout) :: case_iptr
-    real(kind=c_double), value :: t
+    real(kind=c_double), value :: time
     integer(c_int), value :: tstep
     type(case_t), pointer :: C
     type(c_ptr) :: cptr
@@ -162,8 +162,10 @@ contains
     real(kind=rp) :: rho, mu, cp, lambda
     type(time_step_controller_t) :: dt_controller
     real(kind=rp) :: cfl_avrg = 0.0_rp
-    real(kind=rp) :: cfl
+    real(kind=rp) :: cfl, t
     integer :: i
+
+    t = real(time, rp)
 
     cptr = transfer(case_iptr, c_null_ptr)
     if (c_associated(cptr)) then
@@ -256,13 +258,13 @@ contains
   subroutine neko_api_output_ctrl_execute(case_iptr, t, tstep, force_output) &
        bind(c, name="neko_output_ctrl_execute")
     integer(c_intptr_t), intent(inout) :: case_iptr
-    real(kind=c_double), value :: t
+    real(kind=c_dp), value :: t
     integer(c_int), value :: tstep
     logical(kind=c_bool), value :: force_output
-    real(kind=rp) :: f_t
     logical :: f_force_output
     type(case_t), pointer :: C
     type(c_ptr) :: cp
+    real(kind=rp) :: f_t
 
     cp = transfer(case_iptr, c_null_ptr)
     if (c_associated(cp)) then
@@ -272,7 +274,7 @@ contains
     end if
 
     f_force_output = transfer(force_output, f_force_output)
-    f_t = transfer(t, f_t)
+    f_t = real(t, rp)
 
     call C%output_controller%execute(f_t, tstep, f_force_output)
 
