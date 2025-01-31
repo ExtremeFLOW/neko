@@ -34,15 +34,15 @@
 !> Implements `vreman_t`.
 module vreman
   use num_types, only : rp
-  use field, only : field_t
   use les_model, only : les_model_t
   use dofmap , only : dofmap_t
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get_or_default
   use json_module, only : json_file
-  use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
   use vreman_cpu, only : vreman_compute_cpu
+  use vreman_device, only : vreman_compute_device
   use coefs, only : coef_t
+  use logger, only : LOG_SIZE, neko_log
   implicit none
   private
 
@@ -55,7 +55,8 @@ module vreman
      !> Constructor from JSON.
      procedure, pass(this) :: init => vreman_init
      !> Constructor from components.
-     procedure, pass(this) :: init_from_components => vreman_init_from_components
+     procedure, pass(this) :: init_from_components => &
+          vreman_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => vreman_free
      !> Compute eddy viscosity.
@@ -74,12 +75,25 @@ contains
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: nut_name
     real(kind=rp) :: c
+    character(len=:), allocatable :: delta_type
+    character(len=LOG_SIZE) :: log_buf
 
-    call json_get(json, "nut_field", nut_name)
+    call json_get_or_default(json, "nut_field", nut_name, "nut")
+    call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     ! Based on the Smagorinsky Cs = 0.17.
     call json_get_or_default(json, "c", c, 0.07_rp)
 
-    call vreman_init_from_components(this, dofmap, coef, c, nut_name)
+    call neko_log%section('LES model')
+    write(log_buf, '(A)') 'Model : Vreman'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Delta evaluation : ', delta_type
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'c : ', c
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
+
+    call vreman_init_from_components(this, dofmap, coef, c, nut_name, &
+          delta_type)
   end subroutine vreman_init
 
   !> Constructor from components.
@@ -87,16 +101,18 @@ contains
   !! @param coef SEM coefficients.
   !! @param c The model constant.
   !! @param nut_name The name of the SGS viscosity field.
-  subroutine vreman_init_from_components(this, dofmap, coef, c, nut_name)
+  subroutine vreman_init_from_components(this, dofmap, coef, c, nut_name, &
+       delta_type)
     class(vreman_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), intent(in) :: coef
     real(kind=rp) :: c
     character(len=*), intent(in) :: nut_name
+    character(len=*), intent(in) :: delta_type
 
     call this%free()
 
-    call this%init_base(dofmap, coef, nut_name)
+    call this%init_base(dofmap, coef, nut_name, delta_type)
     this%c = c
 
   end subroutine vreman_init_from_components
@@ -117,7 +133,8 @@ contains
     integer, intent(in) :: tstep
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call neko_error("Vreman model not implemented on accelarators.")
+        call vreman_compute_device(t, tstep, this%coef, this%nut, this%delta,&
+                                this%c)
     else
         call vreman_compute_cpu(t, tstep, this%coef, this%nut, this%delta,&
                                 this%c)

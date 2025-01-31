@@ -37,7 +37,7 @@ module mesh
   use element, only : element_t
   use hex
   use quad
-  use utils, only : neko_error
+  use utils, only : neko_error, neko_warning
   use stack, only : stack_i4_t, stack_i8_t, stack_i4t4_t, stack_i4t2_t
   use tuple, only : tuple_i4_t, tuple4_i4_t
   use htable
@@ -48,10 +48,14 @@ module mesh
   use math
   use uset, only : uset_i8_t
   use curve, only : curve_t
+  use logger, only : LOG_SIZE
   implicit none
   private
 
-  integer, public, parameter :: NEKO_MSH_MAX_ZLBLS = 20 !< Max num. zone labels
+  !> Max num. zone labels
+  integer, public, parameter :: NEKO_MSH_MAX_ZLBLS = 20
+  !> Max length of a zone label
+  integer, public, parameter :: NEKO_MSH_MAX_ZLBL_LEN = 40
 
   type, private :: mesh_element_t
      class(element_t), allocatable :: e
@@ -80,6 +84,8 @@ module mesh
      type(htable_i4_t) :: htp   !< Table of unique points (global->local)
      type(htable_i4t4_t) :: htf !< Table of unique faces (facet->local id)
      type(htable_i4t2_t) :: hte !< Table of unique edges (edge->local id)
+     type(htable_i4_t) :: htel  !< Table of unique elements (global->local)
+
 
      integer, allocatable :: facet_neigh(:,:)  !< Facet to neigh. element table
 
@@ -182,11 +188,17 @@ contains
     integer, intent(in) :: gdim          !< Geometric dimension
     integer, intent(in) :: nelv          !< Local number of elements
     integer :: ierr
+    character(len=LOG_SIZE) :: log_buf
 
     call this%free()
 
     this%nelv = nelv
     this%gdim = gdim
+
+    if (this%nelv < 1) then
+       write(log_buf, '(A,I0,A)') 'MPI rank ', pe_rank, ' has zero elements'
+       call neko_warning(log_buf)
+    end if
 
     call MPI_Allreduce(this%nelv, this%glb_nelv, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
@@ -204,10 +216,15 @@ contains
     class(mesh_t), intent(inout) :: this    !< Mesh
     integer, intent(in) :: gdim             !< Geometric dimension
     type(linear_dist_t), intent(in) :: dist !< Data distribution
+    character(len=LOG_SIZE) :: log_buf
 
     call this%free()
 
     this%nelv = dist%num_local()
+    if (this%nelv < 1) then
+       write(log_buf, '(A,I0,A)') 'MPI rank ', pe_rank, ' has zero elements'
+       call neko_warning(log_buf)
+    end if
     this%glb_nelv = dist%num_global()
     this%offset_el = dist%start_idx()
     this%gdim = gdim
@@ -279,6 +296,7 @@ contains
     this%facet_type = 0
 
     call this%htp%init(this%npts*this%nelv, i)
+    call this%htel%init(this%nelv, i)
 
     call this%wall%init(this%nelv)
     call this%inlet%init(this%nelv)
@@ -313,11 +331,10 @@ contains
     call this%htp%free()
     call this%htf%free()
     call this%hte%free()
+    call this%htel%free()
     call distdata_free(this%ddata)
+    call this%curve%free()
 
-    if (allocated(this%points)) then
-       deallocate(this%points)
-    end if
     if (allocated(this%dfrmd_el)) then
        deallocate(this%dfrmd_el)
     end if
@@ -369,6 +386,10 @@ contains
        deallocate(this%neigh_order)
     end if
 
+    if (allocated(this%points)) then
+       deallocate(this%points)
+    end if
+
     call this%wall%free()
     call this%inlet%free()
     call this%outlet%free()
@@ -385,7 +406,7 @@ contains
   subroutine mesh_finalize(this)
     class(mesh_t), target, intent(inout) :: this
     integer :: i
-    
+
     call mesh_generate_flags(this)
     call mesh_generate_conn(this)
 
@@ -450,14 +471,14 @@ contains
     class(element_t), pointer :: ep
     type(tuple_i4_t) :: e
     type(tuple4_i4_t) :: f
-    integer :: p_local_idx, res
+    integer :: p_local_idx
     integer :: el, id
     integer :: i, j, k, ierr, el_glb_idx, n_sides, n_nodes, src, dst
 
     if (this%lconn) return
 
     if (.not. this%lgenc) return
- 
+
     !If we generate connectivity, we do that here.
     do el = 1, this%nelv
        ep => this%elements(el)%e
@@ -830,7 +851,7 @@ contains
     integer :: i, j, k
     integer :: max_recv, ierr, src, dst, n_recv, neigh_el
     integer :: pt_glb_idx, pt_loc_idx, num_neigh
-    integer, pointer :: neighs(:)
+    integer, contiguous, pointer :: neighs(:)
 
 
     call send_buffer%init(this%mpts * 2)
@@ -899,7 +920,7 @@ contains
     type(htable_i8_t) :: glb_to_loc
     type(MPI_Status) :: status
     type(MPI_Request) :: send_req, recv_req
-    integer, pointer :: p1(:), p2(:), ns_id(:)
+    integer, contiguous, pointer :: p1(:), p2(:), ns_id(:)
     integer :: i, j, id, ierr, num_edge_glb, edge_offset, num_edge_loc
     integer :: k, l , shared_offset, glb_nshared, n_glb_id
     integer(kind=i8) :: C, glb_max, glb_id
@@ -1378,12 +1399,11 @@ contains
 
 
   !> Add a quadrilateral element to the mesh @a this
-  subroutine mesh_add_quad(this, el, p1, p2, p3, p4)
+  subroutine mesh_add_quad(this, el, el_glb, p1, p2, p3, p4)
     class(mesh_t), target, intent(inout) :: this
-    integer, value :: el
-    type(point_t), intent(inout) :: p1, p2, p3, p4
-    class(element_t), pointer :: ep
-    integer :: p(4), el_glb_idx, i, p_local_idx
+    integer, value :: el, el_glb
+    type(point_t), target, intent(inout) :: p1, p2, p3, p4
+    integer :: p(4)
     type(tuple_i4_t) :: e
 
     ! Connectivity invalidated if a new element is added
@@ -1397,12 +1417,9 @@ contains
     call this%add_point(p3, p(3))
     call this%add_point(p4, p(4))
 
-    ep => this%elements(el)%e
-    el_glb_idx = el + this%offset_el
-
-    select type(ep)
+    select type (ep => this%elements(el)%e)
     type is (quad_t)
-       call ep%init(el_glb_idx, &
+       call ep%init(el_glb, &
             this%points(p(1)), this%points(p(2)), &
             this%points(p(3)), this%points(p(4)))
 
@@ -1414,12 +1431,11 @@ contains
   end subroutine mesh_add_quad
 
   !> Add a hexahedral element to the mesh @a this
-  subroutine mesh_add_hex(this, el, p1, p2, p3, p4, p5, p6, p7, p8)
+  subroutine mesh_add_hex(this, el, el_glb, p1, p2, p3, p4, p5, p6, p7, p8)
     class(mesh_t), target, intent(inout) :: this
-    integer, value :: el
-    type(point_t), intent(inout) :: p1, p2, p3, p4, p5, p6, p7, p8
-    class(element_t), pointer :: ep
-    integer :: p(8), el_glb_idx, i, p_local_idx
+    integer, value :: el, el_glb
+    type(point_t), target, intent(inout) :: p1, p2, p3, p4, p5, p6, p7, p8
+    integer :: p(8)
     type(tuple4_i4_t) :: f
     type(tuple_i4_t) :: e
 
@@ -1438,11 +1454,12 @@ contains
     call this%add_point(p7, p(7))
     call this%add_point(p8, p(8))
 
-    ep => this%elements(el)%e
-    el_glb_idx = el + this%offset_el
-    select type(ep)
+    ! Global to local mapping
+    call this%htel%set(el_glb, el)
+
+    select type (ep => this%elements(el)%e)
     type is (hex_t)
-       call ep%init(el_glb_idx, &
+       call ep%init(el_glb, &
             this%points(p(1)), this%points(p(2)), &
             this%points(p(3)), this%points(p(4)), &
             this%points(p(5)), this%points(p(6)), &
@@ -1661,7 +1678,6 @@ contains
     type(point_t), pointer :: pi
     type(tuple4_i4_t) :: t
     type(tuple_i4_t) :: t2
-    integer :: i
 
     select type(ele => this%elements(e)%e)
     type is(hex_t)

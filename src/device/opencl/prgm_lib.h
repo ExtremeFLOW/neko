@@ -17,8 +17,8 @@ extern void *dirichlet_program;
 /** Device Inflow kernels */
 extern void *inflow_program;
 
-/** Device No-slip wall kernels */
-extern void *no_slip_wall_program;
+/** Device zero dirichlet kernels */
+extern void *zero_dirichlet_program;
 
 /** Device Symmetry kernels */
 extern void *symmetry_program;
@@ -80,6 +80,8 @@ extern void *scalar_residual_program;
 /** Device lambda2 kernel */
 extern void *lambda2_program;
 
+/** Device filter kernel */
+extern void *filter_program;
 
 
 #endif

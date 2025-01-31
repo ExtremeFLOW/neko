@@ -123,6 +123,7 @@
 !     Other:
 !
 !     PNLEG     Compute Legendre polynomial of degree N
+!     legendre_poly Compute Legendre polynomial of degree 0-N
 !     PNDLEG    Compute derivative of Legendre polynomial of degree N
 !
 !     Comments:
@@ -145,7 +146,7 @@
 !
 !==============================================================================
 module speclib
-  use num_types, only : rp
+  use num_types, only : rp, xp
   use utils, only: neko_error
 
 
@@ -192,7 +193,7 @@ contains
 !--------------------------------------------------------------------
     PARAMETER (NMAX=84)
     PARAMETER (NZD = NMAX)
-    REAL(KIND=RP)  ZD(NZD),WD(NZD),ALPHAD,BETAD
+    REAL(KIND=XP)  ZD(NZD),WD(NZD),ALPHAD,BETAD
     REAL(KIND=RP) Z(1),W(1),ALPHA,BETA
 
     NPMAX = NZD
@@ -221,8 +222,8 @@ contains
 !     Double precision version.
 !
 !--------------------------------------------------------------------
-    IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
-    REAL(KIND=RP)  Z(1),W(1),ALPHA,BETA
+    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    REAL(KIND=XP)  Z(1),W(1),ALPHA,BETA
 
     N     = NP-1
     DN    = ((N))
@@ -275,7 +276,7 @@ contains
 !--------------------------------------------------------------------
     PARAMETER (NMAX=84)
     PARAMETER (NZD = NMAX)
-    REAL(KIND=RP)  ZD(NZD),WD(NZD),ALPHAD,BETAD
+    REAL(KIND=XP)  ZD(NZD),WD(NZD),ALPHAD,BETAD
     REAL(KIND=RP) Z(1),W(1),ALPHA,BETA
 
     NPMAX = NZD
@@ -304,8 +305,8 @@ contains
 !     Double precision version.
 !
 !--------------------------------------------------------------------
-    IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
-    REAL(KIND=RP)  Z(NP),W(NP),ALPHA,BETA
+    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    REAL(KIND=XP)  Z(NP),W(NP),ALPHA,BETA
 
     N     = NP-1
     NM1   = N-1
@@ -340,9 +341,9 @@ contains
 !      RETURN
   end subroutine ZWGLJD
 
-  REAL(KIND=RP)  FUNCTION ENDW1 (N,ALPHA,BETA)
-    IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
-    REAL(KIND=RP)  ALPHA,BETA
+  REAL(KIND=XP)  FUNCTION ENDW1 (N,ALPHA,BETA)
+    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    REAL(KIND=XP)  ALPHA,BETA
     ZERO  = 0.
     ONE   = 1.
     TWO   = 2.
@@ -384,9 +385,9 @@ contains
     RETURN
   end function ENDW1
 
-  REAL(KIND=RP)  FUNCTION ENDW2 (N,ALPHA,BETA)
-    IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
-    REAL(KIND=RP)  ALPHA,BETA
+  REAL(KIND=XP)  FUNCTION ENDW2 (N,ALPHA,BETA)
+    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    REAL(KIND=XP)  ALPHA,BETA
     ZERO  = 0.
     ONE   = 1.
     TWO   = 2.
@@ -428,9 +429,9 @@ contains
     RETURN
   end function ENDW2
 
-  REAL(KIND=RP)  FUNCTION GAMMAF (X)
-    IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
-    REAL(KIND=RP)  X
+  REAL(KIND=XP)  FUNCTION GAMMAF (X)
+    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    REAL(KIND=XP)  X
     ZERO = 0.0
     HALF = 0.5
     ONE  = 1.0
@@ -452,9 +453,9 @@ contains
     RETURN
   end function GAMMAF
 
-  REAL(KIND=RP)  FUNCTION PNORMJ (N,ALPHA,BETA)
-    IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
-    REAL(KIND=RP)  ALPHA,BETA
+  REAL(KIND=XP)  FUNCTION PNORMJ (N,ALPHA,BETA)
+    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    REAL(KIND=XP)  ALPHA,BETA
     ONE   = 1.
     TWO   = 2.
     DN    = ((N))
@@ -489,8 +490,8 @@ contains
 !     ALPHA = BETA = -0.5  ->  Chebyshev points
 !
 !--------------------------------------------------------------------
-    IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
-    REAL(KIND=RP)  XJAC(1)
+    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    REAL(KIND=XP)  XJAC(1)
     DATA KSTOP /10/
     DATA EPS/1.0e-12_RP/
     N   = NP-1
@@ -543,7 +544,7 @@ contains
 !     of degree N at X.
 !
 !--------------------------------------------------------------------
-    IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
+    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
     APB  = ALP+BET
     POLY = 1.
     PDER = 0.
@@ -576,7 +577,7 @@ contains
     RETURN
   end subroutine JACOBF
 
-  REAL(KIND=RP) FUNCTION HGJ (II,Z,ZGJ,NP,ALPHA,BETA)
+  REAL(KIND=XP) FUNCTION HGJ (II,Z,ZGJ,NP,ALPHA,BETA)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGJ through
@@ -586,8 +587,8 @@ contains
 !---------------------------------------------------------------------
     PARAMETER (NMAX=84)
     PARAMETER (NZD = NMAX)
-    REAL(KIND=RP)  ZD,ZGJD(NZD),ALPHAD,BETAD
-    REAL(KIND=RP)  Z,ZGJ(1),ALPHA,BETA
+    REAL(KIND=XP)  ZD,ZGJD(NZD),ALPHAD,BETAD
+    REAL(KIND=XP)  Z,ZGJ(1),ALPHA,BETA
     NPMAX = NZD
     IF (NP.GT.NPMAX) THEN
        WRITE (6,*) 'Too large polynomial degree in HGJ'
@@ -605,7 +606,7 @@ contains
     RETURN
   end function HGJ
 
-  REAL(KIND=RP)  FUNCTION HGJD (II,Z,ZGJ,NP,ALPHA,BETA)
+  REAL(KIND=XP)  FUNCTION HGJD (II,Z,ZGJ,NP,ALPHA,BETA)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGJD through
@@ -613,8 +614,8 @@ contains
 !     Double precision version.
 !
 !---------------------------------------------------------------------
-    IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
-    REAL(KIND=RP)  Z,ZGJ(1),ALPHA,BETA
+    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    REAL(KIND=XP)  Z,ZGJ(1),ALPHA,BETA
     EPS = 1.e-5
     ONE = 1.
     ZI  = ZGJ(II)
@@ -629,7 +630,7 @@ contains
     RETURN
   end function HGJD
 
-  REAL(KIND=RP) FUNCTION HGLJ (II,Z,ZGLJ,NP,ALPHA,BETA)
+  REAL(KIND=XP) FUNCTION HGLJ (II,Z,ZGLJ,NP,ALPHA,BETA)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGLJ through
@@ -639,8 +640,8 @@ contains
 !---------------------------------------------------------------------
     PARAMETER (NMAX=84)
     PARAMETER (NZD = NMAX)
-    REAL(KIND=RP)  ZD,ZGLJD(NZD),ALPHAD,BETAD
-    REAL(KIND=RP)  Z,ZGLJ(1),ALPHA,BETA
+    REAL(KIND=XP)  ZD,ZGLJD(NZD),ALPHAD,BETAD
+    REAL(KIND=XP)  Z,ZGLJ(1),ALPHA,BETA
     NPMAX = NZD
     IF (NP.GT.NPMAX) THEN
        WRITE (6,*) 'Too large polynomial degree in HGLJ'
@@ -658,7 +659,7 @@ contains
     RETURN
   end function HGLJ
 
-  REAL(KIND=RP)  FUNCTION HGLJD (I,Z,ZGLJ,NP,ALPHA,BETA)
+  REAL(KIND=XP)  FUNCTION HGLJD (I,Z,ZGLJ,NP,ALPHA,BETA)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGLJD through
@@ -666,8 +667,8 @@ contains
 !     Double precision version.
 !
 !---------------------------------------------------------------------
-    IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
-    REAL(KIND=RP)  Z,ZGLJ(1),ALPHA,BETA
+    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    REAL(KIND=XP)  Z,ZGLJ(1),ALPHA,BETA
     EPS = 1.e-5
     ONE = 1.
     ZI  = ZGLJ(I)
@@ -698,8 +699,8 @@ contains
 !-----------------------------------------------------------------
     PARAMETER (NMAX=84)
     PARAMETER (NZDD = NMAX)
-    REAL(KIND=RP)  DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
-    REAL(KIND=RP) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
+    REAL(KIND=XP)  DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
+    REAL(KIND=XP) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
 
     IF (NZ.LE.0) THEN
        WRITE (6,*) 'DGJ: Minimum number of Gauss points is 1'
@@ -740,8 +741,8 @@ contains
 !     Double precision version.
 !
 !-----------------------------------------------------------------
-    IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
-    REAL(KIND=RP)  D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
+    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    REAL(KIND=XP)  D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
     N    = NZ-1
     DN   = ((N))
     ONE  = 1.
@@ -781,8 +782,8 @@ contains
 !-----------------------------------------------------------------
     PARAMETER (NMAX=84)
     PARAMETER (NZDD = NMAX)
-    REAL(KIND=RP)  DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
-    REAL(KIND=RP) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
+    REAL(KIND=XP)  DD(NZDD,NZDD),DTD(NZDD,NZDD),ZD(NZDD),ALPHAD,BETAD
+    REAL(KIND=XP) D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
 
     IF (NZ.LE.1) THEN
        WRITE (6,*) 'DGLJ: Minimum number of Gauss-Lobatto points is 2'
@@ -823,8 +824,8 @@ contains
 !     Double precision version.
 !
 !-----------------------------------------------------------------
-    IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
-    REAL(KIND=RP)  D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
+    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    REAL(KIND=XP)  D(NZD,NZD),DT(NZD,NZD),Z(1),ALPHA,BETA
     N    = NZ-1
     DN   = ((N))
     ONE  = 1.
@@ -869,7 +870,7 @@ contains
 !     Note: D and DT are square matrices.
 !
 !-----------------------------------------------------------------
-    IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
+    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
     PARAMETER (NMAX=84)
     REAL(KIND=RP) D(NZD,NZD),DT(NZD,NZD),Z(1)
     N  = NZ-1
@@ -887,8 +888,8 @@ contains
     DO I=1,NZ
        DO J=1,NZ
           D(I,J) = 0.
-          IF  (I.NE.J) D(I,J) = PNLEG(Z(I),N)/ &
-                             (PNLEG(Z(J),N)*(Z(I)-Z(J)))
+          IF  (I.NE.J) D(I,J) = PNLEG(real(Z(I),xp),N)/ &
+                             (PNLEG(real(Z(J),xp),N)*(Z(I)-Z(J)))
           IF ((I.EQ.J).AND.(I.EQ.1))  D(I,J) = -d0
           IF ((I.EQ.J).AND.(I.EQ.NZ)) D(I,J) =  d0
           DT(J,I) = D(I,J)
@@ -897,15 +898,15 @@ contains
     RETURN
   end subroutine DGLL
 
-  REAL(KIND=RP) FUNCTION HGLL (I,Z,ZGLL,NZ)
+  REAL(KIND=XP) FUNCTION HGLL (I,Z,ZGLL,NZ)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant L through
 !     the NZ Gauss-Lobatto Legendre points ZGLL at the point Z.
 !
 !---------------------------------------------------------------------
-    IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
-    REAL(KIND=RP) ZGLL(1), EPS, DZ, Z
+    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    REAL(KIND=XP) ZGLL(1), EPS, DZ, Z
     EPS = 1.E-5
     DZ = Z - ZGLL(I)
     IF (ABS(DZ) .LT. EPS) THEN
@@ -919,14 +920,14 @@ contains
     RETURN
   end function HGLL
 
-  REAL(KIND=RP) FUNCTION HGL (I,Z,ZGL,NZ)
+  REAL(KIND=XP) FUNCTION HGL (I,Z,ZGL,NZ)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Lagrangian interpolant HGL through
 !     the NZ Gauss Legendre points ZGL at the point Z.
 !
 !---------------------------------------------------------------------
-    REAL(KIND=RP) ZGL(1), Z, EPS, DZ
+    REAL(KIND=XP) ZGL(1), Z, EPS, DZ
     EPS = 1.E-5
     DZ = Z - ZGL(I)
     IF (ABS(DZ) .LT. EPS) THEN
@@ -938,7 +939,7 @@ contains
     RETURN
   end function HGL
 
-  REAL(KIND=RP) FUNCTION PNLEG (Z,N)
+  REAL(KIND=XP) FUNCTION PNLEG (Z,N)
 !---------------------------------------------------------------------
 !
 !     Compute the value of the Nth order Legendre polynomial at Z.
@@ -950,8 +951,8 @@ contains
 !     This next statement is to overcome the underflow bug in the i860.
 !     It can be removed at a later date.  11 Aug 1990   pff.
 !
-    IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
-    REAL(KIND=RP) Z, P1, P2, P3
+    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    REAL(KIND=XP) Z, P1, P2, P3
     IF(ABS(Z) .LT. 1.0E-25) Z = 0.0
 
 
@@ -972,8 +973,25 @@ contains
     if (n.eq.0) pnleg = 1.
     RETURN
   end function PNLEG
+   
+  !> Evaluate Legendre polynomials of degrees 0-N at point x
+  !! and store in array L
+  subroutine legendre_poly(L, x, N)
+    real(kind=rp), intent(inout):: L(0:N)
+    real(kind=rp) :: x
+    integer :: N, j
 
-  REAL(KIND=RP) FUNCTION PNDLEG (Z,N)
+    L(0) = 1.0_xp
+    if (N .eq. 0) return
+    L(1) = x
+
+    do j=1, N-1
+       L(j+1) = ( (2.0_xp * real(j, xp) + 1.0_xp) * x * L(j) &
+            - real(j, xp) * L(j-1) ) / (real(j, xp) + 1.0_xp) 
+    end do
+  end subroutine legendre_poly
+
+  REAL(KIND=XP) FUNCTION PNDLEG (Z,N)
 !----------------------------------------------------------------------
 !
 !     Compute the derivative of the Nth order Legendre polynomial at Z.
@@ -981,8 +999,8 @@ contains
 !     Based on the recursion formula for the Legendre polynomials.
 !
 !----------------------------------------------------------------------
-    IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
-    REAL(KIND=RP) P1, P2, P1D, P2D, P3D, Z
+    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    REAL(KIND=XP) P1, P2, P1D, P2D, P3D, Z
     P1   = 1.
     P2   = Z
     P1D  = 0.
@@ -1014,8 +1032,8 @@ contains
 !     Note: D and DT are rectangular matrices.
 !
 !-----------------------------------------------------------------------
-    REAL(KIND=RP) D(ND2,ND1), DT(ND1,ND2), ZM1(ND1), ZM2(ND2), IM12(ND2,ND1)
-    REAL(KIND=RP) EPS, ZP, ZQ
+    REAL(KIND=XP) D(ND2,ND1), DT(ND1,ND2), ZM1(ND1), ZM2(ND2), IM12(ND2,ND1)
+    REAL(KIND=XP) EPS, ZP, ZQ
     IF (NZM1.EQ.1) THEN
        D (1,1) = 0.
        DT(1,1) = 0.
@@ -1052,12 +1070,12 @@ contains
 !     Single precision version.
 !
 !-----------------------------------------------------------------------
-    REAL(KIND=RP) D(ND2,ND1), DT(ND1,ND2), ZGL(ND1), ZG(ND2), IGLG(ND2,ND1)
+    REAL(KIND=XP) D(ND2,ND1), DT(ND1,ND2), ZGL(ND1), ZG(ND2), IGLG(ND2,ND1)
     PARAMETER (NMAX=84)
     PARAMETER (NDD = NMAX)
-    REAL(KIND=RP)  DD(NDD,NDD), DTD(NDD,NDD)
-    REAL(KIND=RP)  ZGD(NDD), ZGLD(NDD), IGLGD(NDD,NDD)
-    REAL(KIND=RP)  ALPHAD, BETAD
+    REAL(KIND=XP)  DD(NDD,NDD), DTD(NDD,NDD)
+    REAL(KIND=XP)  ZGD(NDD), ZGLD(NDD), IGLGD(NDD,NDD)
+    REAL(KIND=XP)  ALPHAD, BETAD
 
     IF (NPGL.LE.1) THEN
        WRITE(6,*) 'DGLJGJ: Minimum number of Gauss-Lobatto points is 2'
@@ -1108,9 +1126,9 @@ contains
 !     Double precision version.
 !
 !-----------------------------------------------------------------------
-    IMPLICIT REAL(KIND=RP)  (A-H,O-Z)
-    REAL(KIND=RP)  D(ND2,ND1), DT(ND1,ND2), ZGL(ND1), ZG(ND2)
-    REAL(KIND=RP)  IGLG(ND2,ND1), ALPHA, BETA
+    IMPLICIT REAL(KIND=XP)  (A-H,O-Z)
+    REAL(KIND=XP)  D(ND2,ND1), DT(ND1,ND2), ZGL(ND1), ZG(ND2)
+    REAL(KIND=XP)  IGLG(ND2,ND1), ALPHA, BETA
 
     IF (NPGL.LE.1) THEN
        WRITE(6,*) 'DGLJGJD: Minimum number of Gauss-Lobatto points is 2'
@@ -1159,7 +1177,7 @@ contains
 !     Z2 : NZ2 points on mesh M.
 !
 !--------------------------------------------------------------------
-    REAL(KIND=RP) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2), ZI
+    REAL(KIND=XP) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2), ZI
     IF (NZ1 .EQ. 1) THEN
        I12 (1,1) = 1.
        IT12(1,1) = 1.
@@ -1185,7 +1203,7 @@ contains
 !     Z2 : NZ2 points on mesh M.
 !
 !--------------------------------------------------------------------
-    REAL(KIND=RP) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI
+    REAL(KIND=XP) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI
     IF (NZ1 .EQ. 1) THEN
        I12 (1,1) = 1.
        IT12(1,1) = 1.
@@ -1212,7 +1230,7 @@ contains
 !     Single precision version.
 !
 !--------------------------------------------------------------------
-    REAL(KIND=RP) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI,ALPHA,BETA
+    REAL(KIND=XP) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI,ALPHA,BETA
     IF (NZ1 .EQ. 1) THEN
        I12 (1,1) = 1.
        IT12(1,1) = 1.
@@ -1239,7 +1257,7 @@ contains
 !     Single precision version.
 !
 !--------------------------------------------------------------------
-    REAL(KIND=RP) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI,ALPHA,BETA
+    REAL(KIND=XP) I12(ND2,ND1),IT12(ND1,ND2),Z1(ND1),Z2(ND2),ZI,ALPHA,BETA
     IF (NZ1 .EQ. 1) THEN
        I12 (1,1) = 1.
        IT12(1,1) = 1.

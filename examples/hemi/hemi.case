@@ -18,9 +18,6 @@
         "initial_condition": {
             "type": "blasius"
         },
-        "inflow_condition": {
-            "type": "blasius"
-        },
         "blasius": {
             "approximation": "sin",
             "delta": 0.6,
@@ -37,9 +34,30 @@
             "type": "gmres",
             "preconditioner": "hsmg",
             "projection_space_size": 4,
-            "absolute_tolerance": 1e-7,
+            "absolute_tolerance": 1e-4,
             "max_iterations": 800
         },
+        "boundary_conditions": [
+        {
+            "type": "symmetry",
+            "zone_indices": [1]
+        },
+        {
+            "type": "no_slip",
+            "zone_indices": [2]
+        },
+        {
+            "type": "outflow",
+            "zone_indices": [3]
+        },
+        {
+            "type": "blasius_profile",
+            "zone_indices": [4],
+            "approximation": "sin",
+            "delta": 0.6,
+            "freestream_velocity": [1.0, 0.0, 0.0]
+        }
+        ],
         "output_control": "nsamples",
         "output_value": 100
     }

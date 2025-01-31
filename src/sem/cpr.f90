@@ -147,7 +147,6 @@ contains
     real(kind=rp) :: L(0:cpr%Xh%lx-1)
     real(kind=rp) :: delta(cpr%Xh%lx)
     integer :: i, kj, j, j2, kk
-    character(len=LOG_SIZE) :: log_buf
 
     associate(Xh => cpr%Xh, v=> cpr%v, vt => cpr%vt, &
          vinv => cpr%vinv, vinvt => cpr%vinvt, w => cpr%w)
@@ -224,8 +223,7 @@ contains
     real(kind=rp) :: w1(cpr%Xh%lx,cpr%Xh%lx,cpr%Xh%lx)
     real(kind=rp) :: specmat(cpr%Xh%lx,cpr%Xh%lx)
     real(kind=rp) :: specmatt(cpr%Xh%lx,cpr%Xh%lx)
-    integer :: i, j, k, e, nxyz, nelv
-    character(len=LOG_SIZE) :: log_buf
+    integer :: k, e, nxyz, nelv
     character(len=4) :: space
 
     ! define some constants
@@ -268,15 +266,15 @@ contains
     type(coef_t), intent(inout) :: coef
     real(kind=rp) :: w2(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
     real(kind=rp) :: w1(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
-    real(kind=rp) :: vsort(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
+    real(kind=rp) :: vsort(cpr%Xh%lx * cpr%Xh%lx * cpr%Xh%lx)
     real(kind=rp) :: vtrunc(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
-    real(kind=rp) :: vtemp(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
+    real(kind=rp) :: vtemp(cpr%Xh%lx * cpr%Xh%lx * cpr%Xh%lx)
     real(kind=rp) :: errvec(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
     real(kind=rp) :: fx(cpr%Xh%lx, cpr%Xh%lx)
     real(kind=rp) :: fy(cpr%Xh%lx, cpr%Xh%lx)
     real(kind=rp) :: fz(cpr%Xh%lx, cpr%Xh%lx)
     real(kind=rp) :: l2norm, oldl2norm, targeterr
-    integer :: isort(cpr%Xh%lx, cpr%Xh%lx, cpr%Xh%lx)
+    integer :: isort(cpr%Xh%lx * cpr%Xh%lx * cpr%Xh%lx)
     integer :: i, j, k, e, nxyz, nelv
     integer :: kut, kutx, kuty, kutz, nx
     character(len=LOG_SIZE) :: log_buf
@@ -365,7 +363,7 @@ contains
           call neko_log%message(log_buf)
           do i = 1, 10
              write(log_buf, '(A,E15.7,A,E15.7)') &
-                  'org coeff:', vsort(i,1,1), ' truncated coeff', &
+                  'org coeff:', vsort(i), ' truncated coeff', &
                   cpr%fldhat(i,1,1,e)
              call neko_log%message(log_buf)
           end do
@@ -381,9 +379,7 @@ contains
     real(kind=rp), intent(inout) :: vsort(nxyz)
     real(kind=rp), intent(inout) :: v(nxyz)
     integer, intent(inout) :: isort(nxyz)
-    real(kind=rp) :: wrksort(nxyz)
-    integer :: wrkisort(nxyz)
-    integer :: i, j, k
+    integer :: i
 
     ! copy absolute values to sort by magnitude
     do i =1, nxyz
@@ -403,63 +399,6 @@ contains
     call swap(vsort, isort, nxyz)
 
   end subroutine sortcoeff
-
-  !> Flip vector b and ind
-  subroutine flipv(b, ind, n)
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: b(n)
-    integer, intent(inout) :: ind(n)
-    real(kind=rp) :: temp(n)
-    integer :: tempind(n)
-    integer :: i, jj
-
-    do i = 1, n
-       jj = n+1-i
-       temp(jj) = b(i)
-       tempind(jj) = ind(i)
-    end do
-    do i = 1,n
-       b(i) = temp(i)
-       ind(i) = tempind(i)
-    end do
-
-  end subroutine flipv
-
-  !> sort the array acording to ind vector
-  subroutine swap(b, ind, n)
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: b(n)
-    integer, intent(inout) :: ind(n)
-    real(kind=rp) :: temp(n)
-    integer :: i, jj
-
-    do i = 1, n
-       temp(i)=b(i)
-    end do
-    do i = 1, n
-       jj=ind(i)
-       b(i)=temp(jj)
-    end do
-
-  end subroutine swap
-
-  !> reorder the array - inverse of swap
-  subroutine reord(b, ind, n)
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: b(n)
-    integer, intent(inout) :: ind(n)
-    real(kind=rp) :: temp(n)
-    integer :: i, jj
-
-    do i = 1, n
-       temp(i) = b(i)
-    end do
-    do i = 1, n
-       jj = ind(i)
-       b(jj) = temp(i)
-    end do
-
-  end subroutine reord
 
   !> create filter transfer function
   subroutine build_filter_tf(fx, fy, fz, kut, lx)
@@ -531,7 +470,7 @@ contains
     type(coef_t), intent(in) :: coef
     real(kind=rp) :: elemdata(coef%Xh%lx, coef%Xh%lx, coef%Xh%lx)
     real(kind=rp) :: vole, suma, l2e
-    integer i, e, eg, nxyz
+    integer i, e, nxyz
     character(len=4) :: space
 
     ! Get the volume of the element

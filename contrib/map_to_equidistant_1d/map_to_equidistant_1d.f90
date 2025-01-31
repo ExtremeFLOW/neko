@@ -8,7 +8,7 @@ program map_to_equidistant_1d
   use fast3d
   use tensor
   implicit none
-  
+
   character(len=NEKO_FNAME_LEN) :: inputchar, field_fname, hom_dir, output_fname
   type(file_t) :: field_file, output_file
   real(kind=rp) :: x_equid
@@ -18,28 +18,28 @@ program map_to_equidistant_1d
   type(vector_ptr_t), allocatable :: fields(:)
   integer :: argc, i, lx, j, file_precision
   logical :: dp_precision
-  
+
   argc = command_argument_count()
 
   if ((argc .lt. 4) .or. (argc .gt. 4)) then
      if (pe_rank .eq. 0) then
-        write(*,*) 'Usage: ./map_to_equidistant_1d field.fld dir(x, y, z) outfield.fld precision' 
+        write(*,*) 'Usage: ./map_to_equidistant_1d field.fld dir(x, y, z) outfield.fld precision'
         write(*,*) 'Example command: ./map_to_equidistant_1d fieldblabla.fld x outfield.fld .true.'
         write(*,*) 'Redistribute the points to be equidistant in elements '
         write(*,*) 'in x of the field fieldblabla.nek5000 and stores in outfield.fld, both are double precision'
      end if
      stop
   end if
-  
-  call neko_init 
 
-  call get_command_argument(1, inputchar) 
+  call neko_init
+
+  call get_command_argument(1, inputchar)
   read(inputchar, fmt='(A)') field_fname
-  call get_command_argument(2, inputchar) 
+  call get_command_argument(2, inputchar)
   read(inputchar, *) hom_dir
-  call get_command_argument(3, inputchar) 
+  call get_command_argument(3, inputchar)
   read(inputchar, fmt='(A)') output_fname
-  call get_command_argument(4, inputchar) 
+  call get_command_argument(4, inputchar)
   read(inputchar, *) dp_precision
 
   if (dp_precision) then
@@ -53,7 +53,7 @@ program map_to_equidistant_1d
   if (trim(hom_dir) .ne. 'x' .and. trim(hom_dir) .ne. 'y' .and. trim(hom_dir) .ne. 'z') then
      call neko_error('The homogenous direction should be "x", "y" or "z"')
   end if
-  
+
   call field_data%init()
   if (pe_rank .eq. 0) write(*,*) 'Reading file:', 1
   call field_file%read(field_data)
@@ -88,15 +88,15 @@ program map_to_equidistant_1d
   call field_data%get_list(fields,field_data%size())
   do i = 1, field_data%size()
      if (trim(hom_dir) .eq. 'x') then
-        call tnsr1_3d(fields(i)%v%x, lx, lx, wt, ident, ident, field_data%nelv)
+        call tnsr1_3d(fields(i)%ptr%x, lx, lx, wt, ident, ident, field_data%nelv)
      else if (trim(hom_dir) .eq. 'y') then
-        call tnsr1_3d(fields(i)%v%x, lx, lx, ident, wtt, ident, field_data%nelv)
+        call tnsr1_3d(fields(i)%ptr%x, lx, lx, ident, wtt, ident, field_data%nelv)
      else if (trim(hom_dir) .eq. 'z') then
-        call tnsr1_3d(fields(i)%v%x, lx, lx, ident, ident, wtt, field_data%nelv)
+        call tnsr1_3d(fields(i)%ptr%x, lx, lx, ident, ident, wtt, field_data%nelv)
      end if
-  end do 
+  end do
 
-  ! output at t=0  
+  ! output at t=0
   output_file = file_t(trim(output_fname),precision=file_precision)
   call output_file%write(field_data, field_data%time)
 
@@ -107,20 +107,20 @@ program map_to_equidistant_1d
      call field_data%get_list(fields,field_data%size())
      do j = 1, field_data%size()
         if (trim(hom_dir) .eq. 'x') then
-           call tnsr1_3d(fields(j)%v%x, lx, lx, wt, ident, ident, field_data%nelv)
+           call tnsr1_3d(fields(j)%ptr%x, lx, lx, wt, ident, ident, field_data%nelv)
         else if (trim(hom_dir) .eq. 'y') then
-           call tnsr1_3d(fields(j)%v%x, lx, lx, ident, wtt, ident, field_data%nelv)
+           call tnsr1_3d(fields(j)%ptr%x, lx, lx, ident, wtt, ident, field_data%nelv)
         else if (trim(hom_dir) .eq. 'z') then
-           call tnsr1_3d(fields(j)%v%x, lx, lx, ident, ident, wtt, field_data%nelv)
+           call tnsr1_3d(fields(j)%ptr%x, lx, lx, ident, ident, wtt, field_data%nelv)
         end if
-     end do 
+     end do
      ! output for t>0
      call output_file%write(field_data, field_data%time)
   end do
-  
-  
+
+
   if (pe_rank .eq. 0) write(*,*) 'Done'
-  
+
   call neko_finalize
 
 end program map_to_equidistant_1d

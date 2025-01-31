@@ -32,7 +32,7 @@
 !
 !> Defines a statistical quantity
 module stats_quant
-  use num_types
+  use num_types, only : rp
   implicit none
   private
 

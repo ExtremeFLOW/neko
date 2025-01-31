@@ -19,15 +19,9 @@
             "initial_condition": {
                 "type": "uniform",
                 "value": [
-                    100.0,
+                    1.0,
                     0.0,
                     0.0
-                ]
-            },
-            "inflow_condition": {
-                "type": "uniform",
-                "value": [
-                    100.0
                 ]
             },
             "velocity_solver": {
@@ -46,13 +40,20 @@
             },
             "output_control": "nsamples",
             "output_value": 250,
-            "boundary_types": [
-                "v",
-                "o",
-                "w",
-                "w",
-                "w",
-                "w"
+            "boundary_conditions": [
+                {
+                    "type": "velocity_value",
+                    "value": [1, 0, 0],
+                    "zone_indices": [1]
+                },
+                {
+                    "type": "outflow",
+                    "zone_indices": [2]
+                },
+                {
+                    "type": "no_slip",
+                    "zone_indices": [3, 4, 5, 6]
+                }
             ],
             "source_terms": [
                 {
@@ -63,7 +64,21 @@
                             "name": "bunny.stl",
                             "distance_transform": {
                                 "type": "smooth_step",
-                                "value": 10.0
+                                "value": 0.05
+                            },
+                            "mesh_transform": {
+                                "type": "bounding_box",
+                                "box_min": [
+                                    0.75,
+                                    0.25,
+                                    0.00
+                                ],
+                                "box_max": [
+                                    1.25,
+                                    0.75,
+                                    0.50
+                                ],
+                                "keep_aspect_ratio": true
                             }
                         }
                     ],
@@ -73,7 +88,7 @@
                             1000.0
                         ],
                         "penalty": 1.0
-                    },
+                    }
                 }
             ]
         }

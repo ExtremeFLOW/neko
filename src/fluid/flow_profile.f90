@@ -32,8 +32,9 @@
 !
 !> Defines a flow profile
 module flow_profile
-  use num_types
+  use num_types, only : rp
   implicit none
+  private
 
   !> Abstract interface for computing a Blasius flow profile
   abstract interface
@@ -43,6 +44,9 @@ module flow_profile
        real(kind=rp) :: blasius_profile
      end function blasius_profile
   end interface
+
+  public :: blasius_profile, blasius_linear, blasius_cubic, blasius_quadratic, &
+            blasius_quartic, blasius_sin
 
 contains
 

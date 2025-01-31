@@ -33,24 +33,24 @@
 !> Gather-scatter
 module gather_scatter
   use neko_config
-  use gs_bcknd
+  use gs_bcknd, only : gs_bcknd_t, GS_BCKND_CPU, GS_BCKND_SX, GS_BCKND_DEV
   use gs_device, only : gs_device_t
   use gs_sx, only : gs_sx_t
   use gs_cpu, only : gs_cpu_t
-  use gs_ops
-  use gs_comm, only : gs_comm_t
+  use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
+  use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU
   use gs_mpi, only : gs_mpi_t
   use gs_device_mpi, only : gs_device_mpi_t
   use mesh, only : mesh_t
   use comm
   use dofmap, only : dofmap_t
   use field, only : field_t
-  use num_types
+  use num_types, only : rp, dp, i2
   use htable, only : htable_i8_t, htable_iter_i8_t
   use stack, only : stack_i4_t
-  use utils
-  use logger
-  use profiler
+  use utils, only : neko_error, linear_index
+  use logger, only : neko_log, LOG_SIZE
+  use profiler, only : profiler_start_region, profiler_end_region
   use device
   implicit none
   private
@@ -83,18 +83,26 @@ module gather_scatter
      generic :: op => gs_op_fld, gs_op_r4, gs_op_vector
   end type gs_t
 
+  ! Expose available gather-scatter operation
   public :: GS_OP_ADD, GS_OP_MUL, GS_OP_MIN, GS_OP_MAX
+
+  ! Expose available gather-scatter backends
+  public :: GS_BCKND_CPU, GS_BCKND_SX, GS_BCKND_DEV
+
+  ! Expose available gather-scatter comm. backends
+  public :: GS_COMM_MPI, GS_COMM_MPIGPU
+
 
 contains
 
   !> Initialize a gather-scatter kernel
-  subroutine gs_init(gs, dofmap, bcknd)
+  subroutine gs_init(gs, dofmap, bcknd, comm_bcknd)
     class(gs_t), intent(inout) :: gs
     type(dofmap_t), target, intent(inout) :: dofmap
     character(len=LOG_SIZE) :: log_buf
     character(len=20) :: bcknd_str
-    integer, optional :: bcknd
-    integer :: i, j, ierr, bcknd_
+    integer, optional :: bcknd, comm_bcknd
+    integer :: i, j, ierr, bcknd_, comm_bcknd_
     integer(i8) :: glb_nshared, glb_nlocal
     logical :: use_device_mpi
     real(kind=rp), allocatable :: tmp(:)
@@ -110,18 +118,28 @@ contains
 
     gs%dofmap => dofmap
 
-    ! Here one could use some heuristic or autotuning to select comm method,
-    ! such as only using device MPI when there is enough data.
-    !use_device_mpi = NEKO_DEVICE_MPI .and. gs%nshared .gt. 20000
-    use_device_mpi = NEKO_DEVICE_MPI
-
-    if (use_device_mpi) then
-       call neko_log%message('Comm         :   Device MPI')
-       allocate(gs_device_mpi_t::gs%comm)
+    use_device_mpi = .false.
+    if (present(comm_bcknd)) then
+       comm_bcknd_ = comm_bcknd
     else
+       if (NEKO_DEVICE_MPI) then
+          comm_bcknd_ = GS_COMM_MPIGPU
+          use_device_mpi = .true.
+       else
+          comm_bcknd_ = GS_COMM_MPI
+       end if
+    end if
+
+    select case (comm_bcknd_)
+    case (GS_COMM_MPI)
        call neko_log%message('Comm         :          MPI')
        allocate(gs_mpi_t::gs%comm)
-    end if
+    case (GS_COMM_MPIGPU)
+       call neko_log%message('Comm         :   Device MPI')
+       allocate(gs_device_mpi_t::gs%comm)
+    case default
+       call neko_error('Unknown Gather-scatter comm. backend')
+    end select
 
     call gs%comm%init_dofs()
     call gs_init_mapping(gs)
@@ -450,6 +468,10 @@ contains
           end if
        end if
     end do
+
+    ! Clear local dofmap table
+    call dm%clear()
+
     if (lz .gt. 1) then
        !
        ! Setup mapping for dofs on edges
@@ -654,6 +676,10 @@ contains
           end if
        end do
     end if
+
+    ! Clear local dofmap table
+    call dm%clear()
+
     !
     ! Setup mapping for dofs on facets
     !
@@ -1259,7 +1285,7 @@ contains
   subroutine gs_op_r4(gs, u, n, op, event)
     class(gs_t), intent(inout) :: gs
     integer, intent(in) :: n
-    real(kind=rp), dimension(:,:,:,:), intent(inout) :: u
+    real(kind=rp), contiguous, dimension(:,:,:,:), intent(inout) :: u
     type(c_ptr), optional, intent(inout) :: event
     integer :: op
 
@@ -1284,20 +1310,20 @@ contains
     m = gs%nlocal
     l = gs%nshared
 
-    call profiler_start_region("gather-scatter", 5)
+    call profiler_start_region("gather_scatter", 5)
     ! Gather shared dofs
     if (pe_size .gt. 1) then
        call profiler_start_region("gs_nbrecv", 13)
        call gs%comm%nbrecv()
-       call profiler_end_region
+       call profiler_end_region("gs_nbrecv", 13)
        call profiler_start_region("gs_gather_shared", 14)
        call gs%bcknd%gather(gs%shared_gs, l, so, gs%shared_dof_gs, u, n, &
             gs%shared_gs_dof, gs%nshared_blks, gs%shared_blk_len, op, .true.)
-       call profiler_end_region
+       call profiler_end_region("gs_gather_shared", 14)
        call profiler_start_region("gs_nbsend", 6)
        call gs%comm%nbsend(gs%shared_gs, l, &
             gs%bcknd%gather_event, gs%bcknd%gs_stream)
-       call profiler_end_region
+       call profiler_end_region("gs_nbsend", 6)
 
     end if
 
@@ -1307,12 +1333,12 @@ contains
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, op, .false.)
     call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, .false., C_NULL_PTR)
-    call profiler_end_region
+    call profiler_end_region("gs_local", 12)
     ! Scatter shared dofs
     if (pe_size .gt. 1) then
        call profiler_start_region("gs_nbwait", 7)
        call gs%comm%nbwait(gs%shared_gs, l, op, gs%bcknd%gs_stream)
-       call profiler_end_region
+       call profiler_end_region("gs_nbwait",  7)
        call profiler_start_region("gs_scatter_shared", 15)
        if (present(event)) then
           call gs%bcknd%scatter(gs%shared_gs, l,&
@@ -1325,10 +1351,10 @@ contains
                                 gs%shared_gs_dof, gs%nshared_blks, &
                                 gs%shared_blk_len, .true., C_NULL_PTR)
        end if
-       call profiler_end_region
+       call profiler_end_region("gs_scatter_shared", 15)
     end if
 
-    call profiler_end_region
+    call profiler_end_region("gather_scatter", 5)
 
   end subroutine gs_op_vector
 

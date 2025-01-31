@@ -18,9 +18,9 @@
 /**
  * Return the systems' CPU id
  */ 
-void system_cpuid(char *name, int len) {  
+void system_cpuid(char *name, size_t len) {  
 #if defined(__APPLE__)
-  sysctlbyname("machdep.cpu.brand_string", name,(size_t *) &len, NULL, 0);
+  sysctlbyname("machdep.cpu.brand_string", name, &len, NULL, 0);
 #elif defined(__x86_64__) && defined(HAVE_CPUID_H)
   uint32_t brand[12];
   __get_cpuid(0x80000002, brand+0x0, brand+0x1, brand+0x2, brand+0x3);
@@ -35,6 +35,7 @@ void system_cpuid(char *name, int len) {
   /* Generic ARM unless we found something known */
   strncpy(name, "ARM", len);
   int cpufj = 0;
+  int cpuarm = 0;
 #endif
   while (fgets (buf, MAXLEN, fp)) {
 #if defined(_ARCH_PPC64)
@@ -52,15 +53,28 @@ void system_cpuid(char *name, int len) {
         cpufj = 1;
         continue;
       }
+      else if(strstr(token, "0x41")) {
+	cpuarm = 1;
+	continue;
+      }
     }
 
     if (strstr(buf, "CPU part") && cpufj) {
       char *token = strtok (buf, delim);
       token = strtok (NULL, delim);
       if (strstr(token, "0x001")) {
-        strncpy(name, "A64FX", len);
+        strncpy(name, "Fujitsu A64FX", len);
         break;
-      }
+      }      
+    }
+
+    if (strstr(buf, "CPU part") && cpuarm) {
+      char *token = strtok (buf, delim);
+      token = strtok (NULL, delim);
+      if (strstr(token, "0xd4f")) {
+        strncpy(name, "ARM Neoverse V2", len);
+        break;
+      }      
     }   
 #endif
   }

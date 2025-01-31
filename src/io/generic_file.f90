@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2022, The Neko Authors
+! Copyright (c) 2019-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,8 @@ module generic_file
      character(len=1024) :: fname
      integer :: counter
      integer :: start_counter = 0
+     !> File format is serial
+     logical :: serial = .false.
    contains
      !> Generic file constructor.
      procedure :: init => generic_file_init
@@ -112,11 +114,13 @@ contains
 
     file_exists = .false.
 
-    if (pe_rank .eq. 0) then
+    if (pe_rank .eq. 0 .or. this%serial) then
        ! Stop if the file does not exist
        inquire(file=this%fname, exist=file_exists)
     end if
-    call MPI_Bcast(file_exists, 1, MPI_LOGICAL, 0, NEKO_COMM, neko_mpi_ierr)
+    if (.not. this%serial) then
+       call MPI_Bcast(file_exists, 1, MPI_LOGICAL, 0, NEKO_COMM, neko_mpi_ierr)
+    end if
 
     if (.not. file_exists) then
        call neko_error('File does not exist: '//trim(this%fname))
