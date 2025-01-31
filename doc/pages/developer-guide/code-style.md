@@ -57,37 +57,20 @@ respectively. For 16, 32, or 64-bit integers, Neko has defined the kinds ` i2`,
 `i4` or `i8`, respectively; however, for standard integers, it is perfectly fine
 to use a plain `integer`.
 
-## Linting rules
+## Enforcing rules
 
-Submitting a pull request to Neko requires that the code passes the linting
-rules. The linting rules are enforced by the
-[flint](https://github.com/marshallward/flint) tool. The rules are defined in the
-`flinter_rc.yml` file in the root of the repository. 
+Submitting a pull request to Neko requires that the code adheres to the linting
+rules and to the formatting. The linting will require that the code does not
+reduce the linting score of the repository, while the formatting should be
+completed for any modified files.
 
-Please note, newer versions of flint fails to execute for some of our large files (htable.f90 and stack.f90).
-
-One way to install flint is through pip:
-```sh
-pip install nobvisual==0.2.0 flinter==0.4.0
-```
-
-
-To test your code against the linting rules, you can run the following command:
-
-```sh
-flint score -r flinter_rc.yml <file>.f90
-```
-The whole src directory can be checked with:
-```sh
-flint score -r flinter_rc.yml src/
-```
-
-The rules are as follows:
+In addition to the indentation specified above, the following rules are
+enforced:
 
 - Lines may not exceed 80 characters.
 - Do loop specification must have spaces `do i = 1, 10`.
 - Logical operators must have spaces around them `a .eq. b`.
-- The separator `::` must have a spaces around it.
+- The separator `::` must have a spaces around it when declaring variables.
 - Punctuations must have spaces after them `foo(b, c)`.
 - Context blocks must have a space before the parenthesis `if (a .eq. b)`.
 - Usage of OpenMP should be prepended with `!$`.
@@ -119,15 +102,47 @@ However, there are some exceptions to these rules:
 - Spaces after the comma are not required in format specifiers.
 - Spaces around the `=` operator are not required in type declarations.
 
-## Tools
+### Tools
 
-In order to simplify compliance to the indentation rules the
-[findent](https://github.com/wvermin/findent) tool can be used to enforce these
-rules by assigning the following options. The documentation of `findent` provide
-details for emacs, vim and gedit. For VSCode, the [Modern
-Fortran](https://marketplace.visualstudio.com/items?itemName=fortran-lang.linter-gfortran)
+In order to simplify compliance to the formatting and linting rules the
+following tools can be used:
+
+- [flint](https://github.com/marshallward/flint) to test the linting compliance.
+- [findent](https://github.com/wvermin/findent) to apply the formatting rules.
+
+#### flint
+
+The linting rules are enforced by the
+[flint](https://github.com/marshallward/flint) tool. The rules are defined in the
+`flinter_rc.yml` file in the root of the repository. 
+
+Please note, newer versions of flint fails to execute for some of our large
+files (htable.f90 and stack.f90).
+
+One way to install flint is through pip:
+```sh
+pip install nobvisual==0.2.0 flinter==0.4.0
+```
+
+To test your code against the linting rules, you can run the following command:
+
+```sh
+flint score -r flinter_rc.yml <file>.f90
+```
+The whole src directory can be checked with:
+```sh
+flint score -r flinter_rc.yml src/
+```
+
+#### findent
+
+This tool can be used to enforce these rules by assigning the following options.
+The documentation of `findent` provide details for emacs, vim and gedit. For
+VSCode, the [Modern Fortran](https://marketplace.visualstudio.com/items?itemName=fortran-lang.linter-gfortran)
 extension provides an integration.
 
 ```sh
-findent -Rr -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k5 --ws_remred --openmp=0 < input.f90 > formatted.f90
+pip install findent
+findent -Rr -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k5 --ws_remred --indent_ampersand --openmp=0 < file.f90 > file.f90.tmp
+mv file.f90.tmp file.f90
 ```
