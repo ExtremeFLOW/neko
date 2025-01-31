@@ -21,7 +21,7 @@ contains
   subroutine fluid_plan1_init(this, msh, lx, param)
     class(fluid_plan1_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
-    integer, intent(inout) :: lx
+    integer, intent(in) :: lx
     type(param_t), target, intent(inout) :: param
     character(len=15), parameter :: scheme = 'plan1 (Pn/Pn-2)'
     integer :: lx2
@@ -72,9 +72,9 @@ contains
 
   subroutine fluid_plan1_step(this, t, tstep, ext_bdf, dt_controller)
     class(fluid_plan1_t), target, intent(inout) :: this
-    real(kind=rp), intent(inout) :: t
-    integer, intent(inout) :: tstep
-    type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    type(time_scheme_controller_t), intent(in) :: ext_bdf
     type(time_step_controller_t), intent(in) :: dt_controller
 
     if (this%freeze) return

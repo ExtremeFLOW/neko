@@ -62,7 +62,7 @@ module rhs_maker_device
   interface
      subroutine rhs_maker_sumab_hip(u_d, v_d, w_d, uu_d, vv_d, ww_d, &
           uulag1, uulag2, vvlag1, vvlag2, wwlag1, wwlag2, ab1, ab2, ab3, nab, n)&
-          bind(c, name='rhs_maker_sumab_hip')
+          bind(c, name = 'rhs_maker_sumab_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: u_d, v_d, w_d, uu_d, vv_d, ww_d
@@ -77,7 +77,7 @@ module rhs_maker_device
                                   abx2_d, aby2_d, abz2_d, &
                                   bfx_d, bfy_d, bfz_d, &
                                   rho, ab1, ab2, ab3, n) &
-                                  bind(c, name='rhs_maker_ext_hip')
+                                  bind(c, name = 'rhs_maker_ext_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: abx1_d, aby1_d, abz1_d
@@ -91,7 +91,7 @@ module rhs_maker_device
   interface
      subroutine scalar_rhs_maker_ext_hip(fs_lag_d, fs_laglag_d, fs_d, rho, &
                                           ext1, ext2, ext3, n) &
-                                          bind(c, name='scalar_rhs_maker_ext_hip')
+                                          bind(c, name = 'scalar_rhs_maker_ext_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: fs_lag_d, fs_laglag_d, fs_d
@@ -103,7 +103,7 @@ module rhs_maker_device
   interface
      subroutine rhs_maker_bdf_hip(ulag1_d, ulag2_d, vlag1_d, vlag2_d, &
           wlag1_d, wlag2_d, bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d, &
-          rho, dt, bd2, bd3, bd4, nbd, n) bind(c, name='rhs_maker_bdf_hip')
+          rho, dt, bd2, bd3, bd4, nbd, n) bind(c, name = 'rhs_maker_bdf_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: ulag1_d, ulag2_d, vlag1_d
@@ -117,7 +117,7 @@ module rhs_maker_device
   interface
      subroutine scalar_rhs_maker_bdf_hip(s_lag_d, s_laglag_d, fs_d, s_d, B_d, &
           rho, dt, bd2, bd3, bd4, nbd, n) &
-          bind(c, name='scalar_rhs_maker_bdf_hip')
+          bind(c, name = 'scalar_rhs_maker_bdf_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: s_lag_d, s_laglag_d
@@ -130,7 +130,7 @@ module rhs_maker_device
   interface
      subroutine rhs_maker_sumab_cuda(u_d, v_d, w_d, uu_d, vv_d, ww_d, &
           uulag1, uulag2, vvlag1, vvlag2, wwlag1, wwlag2, ab1, ab2, ab3, nab, n)&
-          bind(c, name='rhs_maker_sumab_cuda')
+          bind(c, name = 'rhs_maker_sumab_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: u_d, v_d, w_d, uu_d, vv_d, ww_d
@@ -145,7 +145,7 @@ module rhs_maker_device
                                    abx2_d, aby2_d, abz2_d, &
                                    bfx_d, bfy_d, bfz_d, &
                                    rho, ab1, ab2, ab3, n) &
-                                   bind(c, name='rhs_maker_ext_cuda')
+                                   bind(c, name = 'rhs_maker_ext_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: abx1_d, aby1_d, abz1_d
@@ -159,7 +159,7 @@ module rhs_maker_device
   interface
      subroutine scalar_rhs_maker_ext_cuda(fs_lag_d, fs_laglag_d, fs_d, rho, &
                                           ext1, ext2, ext3, n) &
-                                          bind(c, name='scalar_rhs_maker_ext_cuda')
+                                          bind(c, name = 'scalar_rhs_maker_ext_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: fs_lag_d, fs_laglag_d, fs_d
@@ -171,7 +171,7 @@ module rhs_maker_device
   interface
      subroutine rhs_maker_bdf_cuda(ulag1_d, ulag2_d, vlag1_d, vlag2_d, &
           wlag1_d, wlag2_d, bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d, &
-          rho, dt, bd2, bd3, bd4, nbd, n) bind(c, name='rhs_maker_bdf_cuda')
+          rho, dt, bd2, bd3, bd4, nbd, n) bind(c, name = 'rhs_maker_bdf_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: ulag1_d, ulag2_d, vlag1_d
@@ -185,7 +185,7 @@ module rhs_maker_device
   interface
      subroutine scalar_rhs_maker_bdf_cuda(s_lag_d, s_laglag_d, fs_d, s_d, B_d, &
           rho, dt, bd2, bd3, bd4, nbd, n) &
-          bind(c, name='scalar_rhs_maker_bdf_cuda')
+          bind(c, name = 'scalar_rhs_maker_bdf_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: s_lag_d, s_laglag_d
@@ -198,7 +198,7 @@ module rhs_maker_device
   interface
      subroutine rhs_maker_sumab_opencl(u_d, v_d, w_d, uu_d, vv_d, ww_d, &
           uulag1, uulag2, vvlag1, vvlag2, wwlag1, wwlag2, ab1, ab2, ab3, nab, n)&
-          bind(c, name='rhs_maker_sumab_opencl')
+          bind(c, name = 'rhs_maker_sumab_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: u_d, v_d, w_d, uu_d, vv_d, ww_d
@@ -213,7 +213,7 @@ module rhs_maker_device
                                      abx2_d, aby2_d, abz2_d, &
                                      bfx_d, bfy_d, bfz_d, &
                                      rho, ab1, ab2, ab3, n) &
-                                     bind(c, name='rhs_maker_ext_opencl')
+                                     bind(c, name = 'rhs_maker_ext_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: abx1_d, aby1_d, abz1_d
@@ -227,7 +227,7 @@ module rhs_maker_device
   interface
      subroutine scalar_rhs_maker_ext_opencl(fs_lag_d, fs_laglag_d, fs_d, rho, &
                                           ext1, ext2, ext3, n) &
-                                          bind(c, name='scalar_rhs_maker_ext_opencl')
+                                          bind(c, name = 'scalar_rhs_maker_ext_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: fs_lag_d, fs_laglag_d, fs_d
@@ -239,7 +239,7 @@ module rhs_maker_device
   interface
      subroutine rhs_maker_bdf_opencl(ulag1_d, ulag2_d, vlag1_d, vlag2_d, &
           wlag1_d, wlag2_d, bfx_d, bfy_d, bfz_d, u_d, v_d, w_d, B_d, &
-          rho, dt, bd2, bd3, bd4, nbd, n) bind(c, name='rhs_maker_bdf_opencl')
+          rho, dt, bd2, bd3, bd4, nbd, n) bind(c, name = 'rhs_maker_bdf_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: ulag1_d, ulag2_d, vlag1_d
@@ -253,7 +253,7 @@ module rhs_maker_device
   interface
      subroutine scalar_rhs_maker_bdf_opencl(s_lag_d, s_laglag_d, fs_d, s_d, B_d, &
           rho, dt, bd2, bd3, bd4, nbd, n) &
-          bind(c, name='scalar_rhs_maker_bdf_opencl')
+          bind(c, name = 'scalar_rhs_maker_bdf_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: s_lag_d, s_laglag_d
@@ -297,7 +297,7 @@ contains
                            rho, ext_coeffs, n)
     type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
     type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
-    real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
+    real(kind=rp), intent(in) :: rho, ext_coeffs(4)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
     type(c_ptr) :: fx_d, fy_d, fz_d
@@ -329,7 +329,7 @@ contains
                            rho, ext_coeffs, n)
     type(field_t), intent(inout) :: fs_lag
     type(field_t), intent(inout) :: fs_laglag
-    real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
+    real(kind=rp), intent(in) :: rho, ext_coeffs(4)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: fs(n)
     type(c_ptr) :: fs_d

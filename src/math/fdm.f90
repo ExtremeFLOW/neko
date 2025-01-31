@@ -106,10 +106,10 @@ module fdm
 
 contains
 
-  subroutine fdm_init(this, Xh, dm, gs_h)
+  subroutine fdm_init(this, Xh, dof, gs_h)
     class(fdm_t), intent(inout) :: this
     type(space_t), target, intent(inout) :: Xh
-    type(dofmap_t), target, intent(inout) :: dm
+    type(dofmap_t), target, intent(in) :: dof
     type(gs_t), target, intent(inout) :: gs_h
     !We only really use ah, bh
     real(kind=rp), dimension((Xh%lx)**2) :: ah, bh, ch, dh, zh
@@ -118,42 +118,42 @@ contains
 
     n = Xh%lx -1 !Polynomnial degree
     nl = Xh%lx + 2 !Schwarz!
-    nelv = dm%msh%nelv
+    nelv = dof%msh%nelv
     call fdm_free(this)
-    allocate(this%s(nl*nl,2,dm%msh%gdim, dm%msh%nelv))
-    allocate(this%d(nl**3,dm%msh%nelv))
-    allocate(this%swplen(Xh%lx, Xh%lx, Xh%lx,dm%msh%nelv))
+    allocate(this%s(nl*nl,2,dof%msh%gdim, dof%msh%nelv))
+    allocate(this%d(nl**3,dof%msh%nelv))
+    allocate(this%swplen(Xh%lx, Xh%lx, Xh%lx,dof%msh%nelv))
     allocate(this%len_lr(nelv), this%len_ls(nelv), this%len_lt(nelv))
     allocate(this%len_mr(nelv), this%len_ms(nelv), this%len_mt(nelv))
     allocate(this%len_rr(nelv), this%len_rs(nelv), this%len_rt(nelv))
 
     ! Zeroing here enables easier debugging since then
     ! MPI messages in GS are deterministic
-    call rzero(this%swplen, Xh%lxyz * dm%msh%nelv)
+    call rzero(this%swplen, Xh%lxyz * dof%msh%nelv)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%s, this%s_d,nl*nl*2*dm%msh%gdim*dm%msh%nelv)
-       call device_map(this%d, this%d_d,nl**dm%msh%gdim*dm%msh%nelv)
-       call device_map(this%swplen,this%swplen_d, Xh%lxyz*dm%msh%nelv)
+       call device_map(this%s, this%s_d,nl*nl*2*dof%msh%gdim*dof%msh%nelv)
+       call device_map(this%d, this%d_d,nl**dof%msh%gdim*dof%msh%nelv)
+       call device_map(this%swplen,this%swplen_d, Xh%lxyz*dof%msh%nelv)
     end if
 
     call semhat(ah, bh, ch, dh, zh, dph, jph, bgl, zglhat, dgl, jgl, n, wh)
     this%Xh => Xh
-    this%dof => dm
+    this%dof => dof
     this%gs_h => gs_h
-    this%msh => dm%msh
+    this%msh => dof%msh
 
-    call swap_lengths(this, dm%x, dm%y, dm%z, dm%msh%nelv, dm%msh%gdim)
+    call swap_lengths(this, dof%x, dof%y, dof%z, dof%msh%nelv, dof%msh%gdim)
 
     call fdm_setup_fast(this, ah, bh, nl, n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s, this%s_d, &
-            nl*nl*2*dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE, sync=.false.)
+            nl*nl*2*dof%msh%gdim*dof%msh%nelv, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%d, this%d_d, &
-            nl**dm%msh%gdim*dm%msh%nelv, HOST_TO_DEVICE, sync=.false.)
+            nl**dof%msh%gdim*dof%msh%nelv, HOST_TO_DEVICE, sync=.false.)
        call device_memcpy(this%swplen, this%swplen_d, &
-            Xh%lxyz*dm%msh%nelv, HOST_TO_DEVICE, sync=.false.)
+            Xh%lxyz*dof%msh%nelv, HOST_TO_DEVICE, sync=.false.)
     end if
   end subroutine fdm_init
 

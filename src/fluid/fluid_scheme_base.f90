@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module fluid_scheme_base
-  use bc, only : bc_t, bc_list_t
+  use bc, only : bc_t
   use checkpoint, only : chkp_t
   use coefs, only: coef_t
   use dirichlet, only : dirichlet_t
@@ -48,9 +48,9 @@ module fluid_scheme_base
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use time_step_controller, only : time_step_controller_t
   use user_intf, only : user_t
-  use wall, only : no_slip_wall_t
   use usr_inflow, only : usr_inflow_eval
   use utils, only : neko_error
+  use bc_list, only : bc_list_t
   implicit none
   private
 
@@ -82,11 +82,10 @@ module fluid_scheme_base
      type(field_t), pointer :: f_z => null()
 
      !> Boundary conditions
-     type(field_t) :: bdry                     !< Boundary markings
-     type(no_slip_wall_t) :: bc_wall           !< No-slip wall for velocity
-     class(bc_t), allocatable :: bc_inflow     !< Dirichlet inflow for velocity
-     type(bc_list_t) :: bclst_vel              !< List of velocity conditions
-     type(bc_list_t) :: bclst_vel_neumann      !< List of neumann velocity conditions
+     ! List of boundary conditions for pressure
+     type(bc_list_t) :: bcs_prs
+     ! List of boundary conditions for velocity
+     type(bc_list_t) :: bcs_vel
 
      type(json_file), pointer :: params        !< Parameters
      type(mesh_t), pointer :: msh => null()    !< Mesh
@@ -100,7 +99,9 @@ module fluid_scheme_base
 
      !> The variable mu field
      type(field_t) :: mu_field
-     
+
+     !> Is mu varying in time? Currently only due to LES models.
+     logical :: variable_material_properties = .false.
    contains
      !> Constructor
      procedure(fluid_scheme_base_init_intrf), pass(this), deferred :: init
@@ -110,11 +111,11 @@ module fluid_scheme_base
      procedure(fluid_scheme_base_step_intrf), pass(this), deferred :: step
      !> Restart from a checkpoint
      procedure(fluid_scheme_base_restart_intrf), pass(this), deferred :: restart
+     ! Setup boundary conditions
+     procedure(fluid_scheme_setup_bcs_intrf), pass(this), deferred :: setup_bcs
 
      !> Set the user inflow
      procedure(validate_intrf), pass(this), deferred :: validate
-     !> Set the user inflow
-     procedure(set_usr_inflow_intrf), pass(this), deferred :: set_usr_inflow
      !> Compute the CFL number
      procedure(fluid_scheme_base_compute_cfl_intrf), pass(this), deferred :: compute_cfl
      !> Set rho and mu
@@ -195,7 +196,7 @@ module fluid_scheme_base
        import time_scheme_controller_t
        class(fluid_scheme_base_t), target, intent(inout) :: this
        type(mesh_t), target, intent(inout) :: msh
-       integer, intent(inout) :: lx
+       integer, intent(in) :: lx
        type(json_file), target, intent(inout) :: params
        type(user_t), target, intent(in) :: user
      end subroutine fluid_scheme_base_init_intrf
@@ -218,10 +219,10 @@ module fluid_scheme_base
        import time_step_controller_t
        import rp
        class(fluid_scheme_base_t), target, intent(inout) :: this
-       real(kind=rp), intent(inout) :: t
-       integer, intent(inout) :: tstep
+       real(kind=rp), intent(in) :: t
+       integer, intent(in) :: tstep
        real(kind=rp), intent(in) :: dt
-       type(time_scheme_controller_t), intent(inout) :: ext_bdf
+       type(time_scheme_controller_t), intent(in) :: ext_bdf
        type(time_step_controller_t), intent(in) :: dt_controller
      end subroutine fluid_scheme_base_step_intrf
   end interface
@@ -235,6 +236,16 @@ module fluid_scheme_base
        real(kind=rp) :: dtlag(10), tlag(10)
 
      end subroutine fluid_scheme_base_restart_intrf
+  end interface
+
+  !> Abstract interface to setup boundary conditions
+  abstract interface
+     subroutine fluid_scheme_setup_bcs_intrf(this, user, params)
+       import fluid_scheme_base_t, user_t, json_file
+       class(fluid_scheme_base_t), intent(inout) :: this
+       type(user_t), target, intent(in) :: user
+       type(json_file), intent(inout) :: params
+     end subroutine fluid_scheme_setup_bcs_intrf
   end interface
 
   !> Abstract interface to validate the user inflow
@@ -253,17 +264,6 @@ module fluid_scheme_base
        import user_t
        class(fluid_scheme_base_t), intent(inout) :: this
      end subroutine update_material_properties
-  end interface
-
-  !> Abstract interface to set the user inflow
-  abstract interface
-     subroutine set_usr_inflow_intrf(this, usr_eval)
-       import fluid_scheme_base_t
-       import rp
-       import usr_inflow_eval
-       class(fluid_scheme_base_t), intent(inout) :: this
-       procedure(usr_inflow_eval) :: usr_eval
-     end subroutine set_usr_inflow_intrf
   end interface
 
   !> Compute the CFL number

@@ -66,8 +66,6 @@ module fluid_scheme_compressible
 
      !> Validate that all components are properly allocated
      procedure, pass(this) :: validate => fluid_scheme_compressible_validate
-     !> Set the user inflow procedure
-     procedure, pass(this) :: set_usr_inflow => fluid_scheme_compressible_set_usr_inflow
      !> Compute the CFL number
      procedure, pass(this) :: compute_cfl => fluid_scheme_compressible_compute_cfl
      !> Set rho and mu
@@ -82,7 +80,7 @@ contains
     implicit none
     class(fluid_scheme_compressible_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
-    integer, intent(inout) :: lx
+    integer, intent(in) :: lx
     character(len=*), intent(in) :: scheme
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
@@ -223,13 +221,6 @@ contains
     call this%scratch%relinquish_field(temp_indices)
     
   end subroutine fluid_scheme_compressible_validate
-
-  !> Initialize a user defined inflow condition
-  subroutine fluid_scheme_compressible_set_usr_inflow(this, usr_eval)
-    class(fluid_scheme_compressible_t), intent(inout) :: this
-    procedure(usr_inflow_eval) :: usr_eval
-    !> TODO: fill here
-  end subroutine fluid_scheme_compressible_set_usr_inflow
 
   !> Compute CFL
   function fluid_scheme_compressible_compute_cfl(this, dt) result(c)

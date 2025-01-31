@@ -239,7 +239,7 @@ contains
   !> Push data onto the stack
   subroutine stack_push(this, data)
     class(stack_t), target, intent(inout) :: this
-    class(*), intent(inout) :: data !< Arbitrary typed data (same type as stack)
+    class(*), intent(in) :: data !< Arbitrary typed data (same type as stack)
     class(*), allocatable :: tmp(:)
     integer :: i
 

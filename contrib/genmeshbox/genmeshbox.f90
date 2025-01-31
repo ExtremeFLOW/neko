@@ -210,7 +210,7 @@ program genmeshbox
                  end do
               end do
            end do
-           call msh%add_element(i, p(1,1,1), p(2,1,1),p(1,2,1),p(2,2,1),&
+           call msh%add_element(i, i, p(1,1,1), p(2,1,1),p(1,2,1),p(2,2,1),&
                 p(1,1,2), p(2,1,2), p(1,2,2), p(2,2,2))
            i = i + 1
         end do

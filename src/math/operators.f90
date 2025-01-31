@@ -34,7 +34,7 @@
 module operators
   use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_DEVICE, NEKO_BCKND_XSMM, &
                           NEKO_DEVICE_MPI
-  use num_types, only : rp
+  use num_types, only : rp, i8
   use opr_cpu, only : opr_cpu_cfl, opr_cpu_curl, opr_cpu_opgrad, &
                       opr_cpu_conv1, opr_cpu_convect_scalar, opr_cpu_cdtp, &
                       opr_cpu_dudxyz, opr_cpu_lambda2, opr_cpu_set_convect_rst
@@ -54,7 +54,7 @@ module operators
   use math, only : glsum, cmult, add2, add3s2, cadd, copy, col2, invcol2, &
                    invcol3, rzero
   use device, only : c_ptr, device_get_ptr
-  use device_math, only : device_add2, device_cmult, device_copy
+  use device_math, only : device_add2, device_cmult, device_copy, device_glsum, device_cadd
   use scratch_registry, only : neko_scratch_registry
   use comm
   implicit none
@@ -202,16 +202,22 @@ contains
 
   !> Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T.
   !! @param x The vector to orthogonolize.
-  !! @param n The size of `x`.
-  !! @param glb_n The global number of elements of `x` across all MPI ranks. Be careful with overflow!
-  subroutine ortho(x, n, glb_n)
+  !! @param glb_n_points The global number of non-unique gll points in the grid.
+  !! @note This is equivalent to subtracting the mean of `x` from each of its elements.
+  subroutine ortho(x, glb_n_points, n)
     integer, intent(in) :: n
-    integer, intent(in) :: glb_n
+    integer(kind=i8), intent(in) :: glb_n_points
     real(kind=rp), dimension(n), intent(inout) :: x
-    real(kind=rp) :: rlam
-
-    rlam = glsum(x, n)/glb_n
-    call cadd(x, -rlam, n)
+    real(kind=rp) :: c
+    type(c_ptr) :: x_d
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       x_d = device_get_ptr(x)
+       c = device_glsum(x_d, n)/glb_n_points
+       call device_cadd(x_d, -c, n)
+    else
+       c = glsum(x, n)/glb_n_points
+       call cadd(x, -c, n)
+    end if 
 
   end subroutine ortho
 
@@ -271,8 +277,8 @@ contains
   !! @param es Starting element index, defaults to 1.
   !! @param ee Last element index, defaults to mesh size.
   subroutine conv1(du, u, vx, vy, vz, Xh, coef, es, ee)
-    type(space_t), intent(inout) :: Xh
-    type(coef_t), intent(inout) :: coef
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
     real(kind=rp), intent(inout) :: du(Xh%lxyz, coef%msh%nelv)
     real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
     real(kind=rp), intent(inout) :: vx(Xh%lx, Xh%ly, Xh%lz, coef%msh%nelv)
@@ -362,9 +368,9 @@ contains
     type(field_t), intent(inout) :: w1
     type(field_t), intent(inout) :: w2
     type(field_t), intent(inout) :: w3
-    type(field_t), intent(inout) :: u1
-    type(field_t), intent(inout) :: u2
-    type(field_t), intent(inout) :: u3
+    type(field_t), intent(in) :: u1
+    type(field_t), intent(in) :: u2
+    type(field_t), intent(in) :: u3
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
     type(coef_t), intent(in) :: coef
@@ -559,9 +565,9 @@ contains
   !! @param n_GL the size in the GL space
   subroutine runge_kutta(phi, c_r1, c_r23, c_r4, Xh_GLL, Xh_GL, coef, &
                          coef_GL, GLL_to_GL, tau, dtau, n, nel, n_GL)
-    type(space_t), intent(inout) :: Xh_GLL
+    type(space_t), intent(in) :: Xh_GLL
     type(space_t), intent(inout) :: Xh_GL
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(in) :: coef
     type(coef_t), intent(inout) :: coef_GL
     type(interpolator_t) :: GLL_to_GL
     real(kind=rp), intent(inout) :: tau, dtau

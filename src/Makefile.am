@@ -110,6 +110,12 @@ neko_fortran_SOURCES = \
 	math/vector.f90\
 	math/matrix.f90\
 	math/signed_distance.f90\
+	multigrid/tree_amg.f90\
+	multigrid/tree_amg_utils.f90\
+	multigrid/tree_amg_aggregate.f90\
+	multigrid/tree_amg_multigrid.f90\
+	multigrid/tree_amg_smoother.f90\
+	multigrid/phmg.f90\
 	common/checkpoint.f90\
 	io/generic_file.f90\
 	io/map_file.f90\
@@ -137,11 +143,12 @@ neko_fortran_SOURCES = \
 	common/profiler.F90\
 	common/craypat.F90\
 	bc/bc.f90\
+	bc/bc_list.f90\
 	bc/dirichlet.f90\
 	bc/neumann.f90\
 	bc/shear_stress.f90\
 	bc/dong_outflow.f90\
-	bc/wall.f90\
+	bc/zero_dirichlet.f90\
 	bc/inflow.f90\
 	bc/field_dirichlet.f90\
 	bc/field_dirichlet_vector.f90\
@@ -208,6 +215,7 @@ neko_fortran_SOURCES = \
 	fluid/fluid_aux.f90\
 	fluid/fluid_pnpn.f90\
 	fluid/fluid_base_fctry.f90\
+	fluid/fluid_pnpn_bc_fctry.f90\
 	fluid/fluid_volflow.f90\
 	fluid/pnpn_res.f90\
 	fluid/pnpn_res_fctry.f90\
@@ -271,7 +279,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/device/device_mathops.F90\
 	bc/bcknd/device/device_dirichlet.F90\
 	bc/bcknd/device/device_inflow.F90\
-	bc/bcknd/device/device_wall.F90\
+	bc/bcknd/device/device_zero_dirichlet.F90\
 	bc/bcknd/device/device_symmetry.F90\
 	bc/bcknd/device/device_facet_normal.F90\
 	bc/bcknd/device/device_inhom_dirichlet.F90\
@@ -279,6 +287,7 @@ neko_fortran_SOURCES = \
 	scalar/bcknd/device/scalar_residual_device.F90\
 	scalar/scalar_scheme.f90\
 	scalar/scalar_pnpn.f90\
+	scalar/scalar_pnpn_bc_fctry.f90\
 	scalar/scalar_aux.f90\
 	scalar/scalar_residual.f90\
 	scalar/scalar_residual_fctry.f90\
@@ -310,6 +319,9 @@ neko_fortran_SOURCES = \
 	source_terms/source_term_fctry.f90\
 	source_terms/brinkman_source_term.f90\
 	source_terms/brinkman/filters.f90\
+	source_terms/brinkman/filter.f90\
+	source_terms/brinkman/PDE_filter.f90\
+	source_terms/brinkman/elementwise_filter.f90\
 	source_terms/bcknd/cpu/filters_cpu.f90\
 	source_terms/bcknd/device/filters_device.F90\
 	source_terms/bcknd/device/cuda/cuda_filters.f90\
@@ -323,10 +335,12 @@ neko_fortran_SOURCES = \
 	les/bcknd/device/device_vreman_nut.F90\
 	les/smagorinsky.f90\
 	les/bcknd/cpu/smagorinsky_cpu.f90\
+	les/bcknd/device/smagorinsky_device.f90\
+	les/bcknd/device/device_smagorinsky_nut.F90\
 	les/dynamic_smagorinsky.f90\
 	les/bcknd/cpu/dynamic_smagorinsky_cpu.f90\
-	les/elementwise_filter.f90\
-	les/bcknd/cpu/elementwise_filter_cpu.f90\
+	les/bcknd/device/dynamic_smagorinsky_device.f90\
+	les/bcknd/device/device_dynamic_smagorinsky_nut.F90\
 	les/sigma.f90\
 	les/bcknd/cpu/sigma_cpu.f90\
 	les/bcknd/device/sigma_device.f90\
@@ -376,7 +390,7 @@ libneko_la_SOURCES += \
 	gs/bcknd/device/hip/gs.hip\
 	bc/bcknd/device/hip/dirichlet.hip\
 	bc/bcknd/device/hip/inflow.hip\
-	bc/bcknd/device/hip/no_slip_wall.hip\
+	bc/bcknd/device/hip/zero_dirichlet.hip\
 	bc/bcknd/device/hip/symmetry.hip\
 	bc/bcknd/device/hip/facet_normal.hip\
 	bc/bcknd/device/hip/inhom_dirichlet.hip\
@@ -391,7 +405,9 @@ libneko_la_SOURCES += \
 	sem/bcknd/device/hip/coef.hip\
 	source_terms/bcknd/device/hip/filters.hip\
 	les/bcknd/device/hip/sigma_nut.hip\
-	les/bcknd/device/hip/vreman_nut.hip
+	les/bcknd/device/hip/vreman_nut.hip\
+	les/bcknd/device/hip/smagorinsky_nut.hip\
+	les/bcknd/device/hip/dynamic_smagorinsky_nut.hip
 endif
 
 if ENABLE_CUDA
@@ -418,7 +434,7 @@ libneko_la_SOURCES += \
 	gs/bcknd/device/cuda/gs.cu\
 	bc/bcknd/device/cuda/dirichlet.cu\
 	bc/bcknd/device/cuda/inflow.cu\
-	bc/bcknd/device/cuda/no_slip_wall.cu\
+	bc/bcknd/device/cuda/zero_dirichlet.cu\
 	bc/bcknd/device/cuda/symmetry.cu\
 	bc/bcknd/device/cuda/facet_normal.cu\
 	bc/bcknd/device/cuda/inhom_dirichlet.cu\
@@ -433,7 +449,9 @@ libneko_la_SOURCES += \
 	sem/bcknd/device/cuda/coef.cu\
 	source_terms/bcknd/device/cuda/filters.cu\
 	les/bcknd/device/cuda/sigma_nut.cu\
-	les/bcknd/device/cuda/vreman_nut.cu
+	les/bcknd/device/cuda/vreman_nut.cu\
+	les/bcknd/device/cuda/smagorinsky_nut.cu\
+	les/bcknd/device/cuda/dynamic_smagorinsky_nut.cu
 
 BUILT_SOURCES = libtool_cuda
 
@@ -459,7 +477,7 @@ libneko_la_SOURCES += \
 	gs/bcknd/device/opencl/gs.c\
 	bc/bcknd/device/opencl/dirichlet.c\
 	bc/bcknd/device/opencl/inflow.c\
-	bc/bcknd/device/opencl/no_slip_wall.c\
+	bc/bcknd/device/opencl/zero_dirichlet.c\
 	bc/bcknd/device/opencl/symmetry.c\
 	bc/bcknd/device/opencl/facet_normal.c\
 	bc/bcknd/device/opencl/inhom_dirichlet.c\
@@ -556,7 +574,7 @@ endif
 EXTRA_DIST = \
 	bc/bcknd/device/cuda/dirichlet_kernel.h\
 	bc/bcknd/device/cuda/inflow_kernel.h\
-	bc/bcknd/device/cuda/no_slip_wall_kernel.h\
+	bc/bcknd/device/cuda/zero_dirichlet_kernel.h\
 	bc/bcknd/device/cuda/symmetry_kernel.h\
 	bc/bcknd/device/cuda/facet_normal_kernel.h\
 	bc/bcknd/device/cuda/inhom_dirichlet_kernel.h\
@@ -587,9 +605,11 @@ EXTRA_DIST = \
 	sem/bcknd/device/cuda/coef_kernel.h\
 	les/bcknd/device/cuda/sigma_nut_kernel.h\
 	les/bcknd/device/cuda/vreman_nut_kernel.h\
+	les/bcknd/device/cuda/smagorinsky_nut_kernel.h\
+	les/bcknd/device/cuda/dynamic_smagorinsky_nut_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
-	bc/bcknd/device/hip/no_slip_wall_kernel.h\
+	bc/bcknd/device/hip/zero_dirichlet_kernel.h\
 	bc/bcknd/device/hip/symmetry_kernel.h\
 	bc/bcknd/device/hip/facet_normal_kernel.h\
 	bc/bcknd/device/hip/inhom_dirichlet_kernel.h\
@@ -629,9 +649,11 @@ EXTRA_DIST = \
 	sem/bcknd/device/hip/coef_kernel.h\
 	les/bcknd/device/hip/sigma_nut_kernel.h\
 	les/bcknd/device/hip/vreman_nut_kernel.h\
+	les/bcknd/device/hip/smagorinsky_nut_kernel.h\
+	les/bcknd/device/hip/dynamic_smagorinsky_nut_kernel.h\
 	bc/bcknd/device/opencl/dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/inflow_kernel.cl\
-	bc/bcknd/device/opencl/no_slip_wall_kernel.cl\
+	bc/bcknd/device/opencl/zero_dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/symmetry_kernel.cl\
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
 	bc/bcknd/device/opencl/inhom_dirichlet_kernel.cl\

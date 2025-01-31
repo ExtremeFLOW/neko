@@ -75,7 +75,8 @@ module fluid_scheme_compressible_euler
      procedure, pass(this) :: free => fluid_scheme_compressible_euler_free
      procedure, pass(this) :: step => fluid_scheme_compressible_euler_step
      procedure, pass(this) :: restart => fluid_scheme_compressible_euler_restart
-     !procedure, pass(this) :: advance_primitive_variables
+     !> Set up boundary conditions.
+     procedure, pass(this) :: setup_bcs => fluid_scheme_compressible_euler_setup_bcs
      procedure, pass(this) :: compute_h
   end type fluid_scheme_compressible_euler_t
 
@@ -83,7 +84,7 @@ contains
   subroutine fluid_scheme_compressible_euler_init(this, msh, lx, params, user)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
-    integer, intent(inout) :: lx
+    integer, intent(in) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
     character(len=12), parameter :: scheme = 'compressible'
@@ -168,10 +169,10 @@ contains
   !! @param dt_controller timestep controller
   subroutine fluid_scheme_compressible_euler_step(this, t, tstep, dt, ext_bdf, dt_controller)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
-    real(kind=rp), intent(inout) :: t
-    integer, intent(inout) :: tstep
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
     real(kind=rp), intent(in) :: dt
-    type(time_scheme_controller_t), intent(inout) :: ext_bdf
+    type(time_scheme_controller_t), intent(in) :: ext_bdf
     type(time_step_controller_t), intent(in) :: dt_controller
     type(field_t), pointer :: temp
     integer :: temp_indices(1)
@@ -196,7 +197,7 @@ contains
       c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
       ! Hack: If m_z is always zero, use it to visualize rho
-      call field_cfill(m_z, 0.0_rp, n)
+      ! call field_cfill(m_z, 0.0_rp, n)
 
       call this%euler_rhs%step(rho_field, m_x, m_y, m_z, E, &
                                 p, u, v, w, Ax, &
@@ -227,7 +228,7 @@ contains
       !> TODO: Update maximum wave speed
 
       ! Hack: If m_z is always zero, use it to visualize rho
-      call field_copy(w, rho_field, n)
+      ! call field_copy(w, rho_field, n)
 
     end associate
     call profiler_end_region('Fluid compressible', 1)
@@ -235,6 +236,13 @@ contains
     call this%scratch%relinquish_field(temp_indices)
 
   end subroutine fluid_scheme_compressible_euler_step
+
+  subroutine fluid_scheme_compressible_euler_setup_bcs(this, user, params)
+    class(fluid_scheme_compressible_euler_t), intent(inout) :: this
+    type(user_t), target, intent(in) :: user
+    type(json_file), intent(inout) :: params
+    !> TODO: Implement setup bcs
+  end subroutine fluid_scheme_compressible_euler_setup_bcs
 
   !> Copied from les_model_compute_delta in les_model.f90
   !> TODO: move to a separate module

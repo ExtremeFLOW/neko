@@ -33,7 +33,7 @@
 !> Defines a matrix
 module matrix
   use neko_config, only: NEKO_BCKND_DEVICE
-  use math, only: sub3, chsign, add3, cmult2, cadd2, copy
+  use math, only: sub3, chsign, add3, cmult2, cadd2
   use num_types, only: rp
   use device, only: device_map, device_free, c_ptr, C_NULL_PTR
   use device_math, only: device_copy, device_cfill, device_cmult, &
@@ -340,13 +340,18 @@ contains
 
   end function matrix_cmult_right
 
-  subroutine matrix_bcknd_inverse(m)
+  subroutine matrix_bcknd_inverse(m, bcknd)
     class(matrix_t), intent(inout) :: m
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error("matrix_bcknd_inverse not implemented on accelarators.")
+    integer, optional :: bcknd
+
+    if (NEKO_BCKND_DEVICE .eq. 1 .and. &
+         bcknd .eq. NEKO_BCKND_DEVICE) then
+       call neko_error("matrix_bcknd_inverse not &
+                        &implemented on accelarators.")
     else
        call cpu_matrix_inverse(m)
     end if
+
   end subroutine matrix_bcknd_inverse
 
   subroutine cpu_matrix_inverse(m)

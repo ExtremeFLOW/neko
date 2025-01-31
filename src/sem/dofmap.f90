@@ -240,7 +240,7 @@ contains
     num_dofs_edges(1) =  int(Xh%lx - 2, i8)
     num_dofs_edges(2) =  int(Xh%ly - 2, i8)
     num_dofs_edges(3) =  int(Xh%lz - 2, i8)
-    edge_offset = int(msh%glb_mpts, i8) + int(1, 4)
+    edge_offset = int(msh%glb_mpts, i8) + int(1, i8)
 
     do i = 1, msh%nelv
 
@@ -380,7 +380,7 @@ contains
              end do
           end if
 
-          call ep%edge_id(edge, i8)
+          call ep%edge_id(edge, 8)
           shared_dof = msh%is_shared(edge)
           global_id = msh%get_global(edge)
           edge_id = edge_offset + int((global_id - 1), i8) * num_dofs_edges(2)

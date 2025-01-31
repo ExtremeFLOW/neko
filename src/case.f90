@@ -44,17 +44,16 @@ module case
   use output_controller, only : output_controller_t
   use flow_ic, only : set_flow_ic
   use scalar_ic, only : set_scalar_ic
-  use stats, only : stats_t
   use file, only : file_t
   use utils, only : neko_error
   use mesh, only : mesh_t
   use comm
   use time_scheme_controller, only : time_scheme_controller_t
-  use logger, only : neko_log, NEKO_LOG_QUIET, LOG_SIZE
+  use logger, only : neko_log, NEKO_LOG_QUIET
   use jobctrl, only : jobctrl_set_time_limit
   use user_intf, only : user_t
   use scalar_pnpn, only : scalar_pnpn_t
-  use json_module, only : json_file, json_core, json_value
+  use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
@@ -171,6 +170,13 @@ contains
        call neko_log%section('Load Balancing')
        call parmetis_partmeshkway(this%msh, parts)
        call redist_mesh(this%msh, parts)
+
+       ! store the balanced mesh (for e.g. restarts)
+       string_val = trim(string_val(1:scan(trim(string_val), &
+            '.', back = .true.) - 1)) // '_lb.nmsh'
+       msh_file = file_t(string_val)
+       call msh_file%write(this%msh)
+
        call neko_log%end_section()
     end if
 
@@ -259,22 +265,6 @@ contains
     end if
 
     !
-    ! Setup user defined conditions
-    !
-    if (this%params%valid_path('case.fluid.inflow_condition')) then
-       call json_get(this%params, 'case.fluid.inflow_condition.type',&
-            string_val)
-       if (trim(string_val) .eq. 'user') then
-          call this%fluid%set_usr_inflow(this%usr%fluid_user_if)
-       end if
-    end if
-
-    ! Setup user boundary conditions for the scalar.
-    if (scalar) then
-       call this%scalar%set_user_bc(this%usr%scalar_user_bc)
-    end if
-
-    !
     ! Setup initial conditions
     !
     call json_get(this%params, 'case.fluid.initial_condition.type',&
@@ -354,16 +344,6 @@ contains
              call execute_command_line('mkdir -p '//this%output_directory)
           end if
        end if
-    end if
-
-    !
-    ! Save boundary markings for fluid (if requested)
-    !
-    call json_get_or_default(this%params, 'case.output_boundary',&
-         logical_val, .false.)
-    if (logical_val) then
-       bdry_file = file_t(trim(this%output_directory)//'bdry.fld')
-       call bdry_file%write(this%fluid%bdry)
     end if
 
     !
