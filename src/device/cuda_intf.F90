@@ -34,7 +34,7 @@
 module cuda_intf
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding
-!$ use omp_lib
+  !$ use omp_lib
   implicit none
 
 #ifdef HAVE_CUDA
