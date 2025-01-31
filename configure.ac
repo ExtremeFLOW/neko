@@ -335,11 +335,12 @@ else
     AC_SUBST(device_bcknd, "0")
 fi
 
+# Checks for python bindings
 found_python="no"
 if (test "x$enable_python" = xyes); then
    AM_PATH_PYTHON([3.5])
    if ! ${HAVE_PYTHON}; then
-        AC_MSG_ERROR([Python interpreter not found, pyNeko cannot be installed.])
+        AC_MSG_ERROR([Python interpreter not found, pyneko cannot be installed.])
    fi
    found_python="yes"
 fi
