@@ -223,6 +223,7 @@ contains
     call neko_log%section('Postprocessing')
     ! Execute all simulation components
     call neko_simcomps%compute(t, tstep)
+    call neko_log%end_section()
 
 
     !> @todo Temporary fix until we have reworked the material properties
