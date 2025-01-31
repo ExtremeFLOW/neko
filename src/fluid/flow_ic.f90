@@ -475,10 +475,10 @@ contains
 
     if (mesh_mismatch .and. .not. interpolate) then
        call neko_error("The fld file must match the current mesh! &
-            &Use 'interpolate': 'true' to enable interpolation.")
+          &Use 'interpolate': 'true' to enable interpolation.")
     else if (.not. mesh_mismatch .and. interpolate) then
        call neko_log%warning("You have activated interpolation but you might &
-            &still be using the same mesh.")
+          &still be using the same mesh.")
     end if
 
     ! Mesh interpolation if specified
