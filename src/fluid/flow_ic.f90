@@ -420,8 +420,8 @@ contains
     sample_idx = extract_fld_file_index(file_name, -1)
 
     if (sample_idx .eq. -1) &
-         call neko_error("Invalid file name for the initial condition. The&
-         & file format must be e.g. 'mean0.f00001'")
+     call neko_error("Invalid file name for the initial condition. The&
+     & file format must be e.g. 'mean0.f00001'")
 
     ! Change from "field0.f000*" to "field0.fld" for the fld reader
     call filename_chsuffix(file_name, file_name, 'fld')
@@ -441,8 +441,8 @@ contains
           sample_mesh_idx = extract_fld_file_index(mesh_file_name, -1)
 
           if (sample_mesh_idx .eq. -1) &
-               call neko_error("Invalid file name for the initial condition. &
-               &The file format must be e.g. 'mean0.f00001'")
+            call neko_error("Invalid file name for the initial condition. &
+            &The file format must be e.g. 'mean0.f00001'")
 
           write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance
           call neko_log%message(log_buf)
@@ -475,10 +475,10 @@ contains
 
     if (mesh_mismatch .and. .not. interpolate) then
        call neko_error("The fld file must match the current mesh! &
-          &Use 'interpolate': 'true' to enable interpolation.")
+       &Use 'interpolate': 'true' to enable interpolation.")
     else if (.not. mesh_mismatch .and. interpolate) then
        call neko_log%warning("You have activated interpolation but you might &
-          &still be using the same mesh.")
+       &still be using the same mesh.")
     end if
 
     ! Mesh interpolation if specified
@@ -489,11 +489,11 @@ contains
          type is (fld_file_t)
           if (.not. ft%dp_precision) then
              call neko_warning("The coordinates read from the field file are &
-                  &in single precision.")
+               &in single precision.")
              call neko_log%message("It is recommended to use a mesh in double &
-                  &precision for better interpolation results.")
+               &precision for better interpolation results.")
              call neko_log%message("If the interpolation does not work, you&
-                  &can try to increase the tolerance.")
+               &can try to increase the tolerance.")
           end if
          class default
        end select

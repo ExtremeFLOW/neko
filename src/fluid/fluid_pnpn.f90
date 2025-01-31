@@ -344,7 +344,7 @@ contains
     if (this%variable_material_properties .and. &
          this%vel_projection_dim .gt. 0) then
        call neko_error("Velocity projection not available for full stress &
-         &formulation")
+       &formulation")
     end if
 
 
