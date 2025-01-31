@@ -44,7 +44,7 @@
       "initial_condition": {
         "type": "user"
       },
-      "ssolver": {
+      "solver": {
         "type": "cg",
         "preconditioner": "jacobi",
         "projection_space_size": 0,
