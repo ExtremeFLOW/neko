@@ -42,7 +42,8 @@ module boussinesq_source_term
   use neko_config, only : NEKO_BCKND_DEVICE
   use utils, only : neko_error
   use boussinesq_source_term_cpu, only : boussinesq_source_term_compute_cpu
-  use boussinesq_source_term_device, only : boussinesq_source_term_compute_device
+  use boussinesq_source_term_device, only : &
+       boussinesq_source_term_compute_device
   use field_registry, only : neko_field_registry
   implicit none
   private
@@ -84,8 +85,8 @@ contains
   subroutine boussinesq_source_term_init_from_json(this, json, fields, coef)
     class(boussinesq_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout) :: coef
+    type(field_list_t), intent(in), target :: fields
+    type(coef_t), intent(in), target :: coef
     real(kind=rp), allocatable :: values(:)
     real(kind=rp) :: start_time, end_time, ref_value
     character(len=:), allocatable :: scalar_name
@@ -96,7 +97,7 @@ contains
        call neko_error("Boussinesq term expects 3 fields to work on.")
     end if
 
-    call json_get_or_default(json, "scalar_field", start_time, 0.0_rp)
+    call json_get_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
 
     call json_get_or_default(json, "scalar_field", scalar_name, "s")
@@ -126,7 +127,7 @@ contains
   subroutine boussinesq_source_term_init_from_components(this, fields, &
     scalar_name, ref_value, g, beta, coef, start_time, end_time)
     class(boussinesq_source_term_t), intent(inout) :: this
-    class(field_list_t), intent(inout), target :: fields
+    class(field_list_t), intent(in), target :: fields
     character(len=*), intent(in) :: scalar_name
     real(kind=rp), intent(in) :: ref_value
     real(kind=rp), intent(in) :: g(3)

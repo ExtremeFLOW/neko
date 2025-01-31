@@ -96,7 +96,7 @@ contains
     this%msh => msh
 
     allocate(this%dof)
-    this%dof = dofmap_t(this%msh, this%Xh)
+    call this%dof%init(this%msh, this%Xh)
     this%internal_dofmap = .true.
 
     if (present(fld_name)) then
@@ -139,7 +139,7 @@ contains
 
       if (.not. allocated(this%x)) then
          allocate(this%x(lx, ly, lz, nelv), stat = ierr)
-         this%x = 0d0
+         this%x = 0.0_rp
       end if
 
       if (present(fld_name)) then

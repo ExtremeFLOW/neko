@@ -38,10 +38,10 @@ module les_simcomp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use case, only : case_t
-  use les_model, only : les_model_t
-  use les_model_fctry, only : les_model_factory
+  use les_model, only : les_model_t, les_model_factory
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
+  use utils, only : neko_error
   implicit none
   private
 
@@ -59,6 +59,8 @@ module les_simcomp
      procedure, pass(this) :: free => les_simcomp_free
      !> Compute the les_simcomp field.
      procedure, pass(this) :: compute_ => les_simcomp_compute
+     !> Compute the les_simcomp field when restart.
+     procedure, pass(this) :: restart_ => les_simcomp_restart
   end type les_simcomp_t
 
 contains
@@ -73,6 +75,14 @@ contains
     character(len=20) :: fields(2)
 
     call this%free()
+
+    ! Check for whether eddy viscosity is enabled in fluid_scheme
+    if (case%fluid%variable_material_properties .eqv. .false.) then
+        call neko_error("Eddy viscosity is not acting &
+                          &on the equations. &
+                          &Please set up a nut_field option &
+                          &in the fluid solver")
+    end if
 
     ! Add fields keyword to the json so that the field_writer picks it up.
     ! Will also add fields to the registry if missing.
@@ -114,5 +124,15 @@ contains
 
     call this%les_model%compute(t, tstep)
   end subroutine les_simcomp_compute
+
+  !> Compute the les_simcomp field when restart.
+  !! @param t The time value.
+  !! @param tstep The current time-step.
+  subroutine les_simcomp_restart(this, t)
+    class(les_simcomp_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+
+    call this%les_model%compute(t, 0)
+  end subroutine les_simcomp_restart
 
 end module les_simcomp

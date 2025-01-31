@@ -19,8 +19,8 @@ module opencl_prgm_lib
   !> Device Inflow kernels
   type(c_ptr), bind(c) :: inflow_program = C_NULL_PTR
 
-  !> Device No-slip wall kernels
-  type(c_ptr), bind(c) :: no_slip_wall_program = C_NULL_PTR
+  !> Device zero dirichlet kernels
+  type(c_ptr), bind(c) :: zero_dirichlet_program = C_NULL_PTR
 
   !> Device Symmetry kernels
   type(c_ptr), bind(c) :: symmetry_program = C_NULL_PTR
@@ -82,6 +82,9 @@ module opencl_prgm_lib
   !> Device lambda2 kernels
   type(c_ptr), bind(c) :: lambda2_program = C_NULL_PTR
 
+  !> Device filter kernels
+  type(c_ptr), bind(c) :: filter_program = C_NULL_PTR
+
 contains
 
   subroutine opencl_prgm_lib_release
@@ -114,11 +117,11 @@ contains
        inflow_program = C_NULL_PTR
     end if
 
-    if (c_associated(no_slip_wall_program)) then
-       if(clReleaseProgram(no_slip_wall_program) .ne. CL_SUCCESS) then
+    if (c_associated(zero_dirichlet_program)) then
+       if (clReleaseProgram(zero_dirichlet_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
        end if
-       no_slip_wall_program = C_NULL_PTR
+       zero_dirichlet_program = C_NULL_PTR
     end if
 
     if (c_associated(symmetry_program)) then
@@ -260,6 +263,13 @@ contains
        end if
        lambda2_program = C_NULL_PTR
     end if
+
+    if (c_associated(filter_program)) then
+      if(clReleaseProgram(filter_program) .ne. CL_SUCCESS) then
+         call neko_error('Failed to release program')
+      end if
+      filter_program = C_NULL_PTR
+   end if
 
   end subroutine opencl_prgm_lib_release
 

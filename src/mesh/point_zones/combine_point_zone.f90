@@ -32,16 +32,16 @@
 !
 ! Implements a geometry subset that combines different zones.
 module combine_point_zone
-  use point_zone, only: point_zone_t, point_zone_pointer_t, point_zone_wrapper_t
-  use box_point_zone, only: box_point_zone_t
-  use sphere_point_zone, only: sphere_point_zone_t
-  use cylinder_point_zone, only: cylinder_point_zone_t
-  use num_types, only: rp
-  use json_utils, only: json_get, json_get_or_default
-  use json_module, only: json_file, json_core, json_value
-  use utils, only: neko_error, concat_string_array
-  use logger, only: neko_log
-  use point_zone_fctry, only: point_zone_factory
+  use point_zone, only : point_zone_t, point_zone_pointer_t, &
+       point_zone_wrapper_t, point_zone_factory
+  use box_point_zone, only : box_point_zone_t
+  use sphere_point_zone, only : sphere_point_zone_t
+  use cylinder_point_zone, only : cylinder_point_zone_t
+  use num_types, only : rp
+  use json_utils, only : json_get, json_get_or_default
+  use json_module, only : json_file, json_core, json_value
+  use utils, only : neko_error, concat_string_array
+  use logger, only : neko_log
   implicit none
   private
 

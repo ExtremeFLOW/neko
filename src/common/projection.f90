@@ -61,20 +61,25 @@
 !! @note In this code we assume that the matrix project for the
 !! pressure Ax does not vary in time.
 module projection
-  use num_types, only : rp
-  use math
+  use num_types, only : rp, c_rp
+  use math, only : rzero, glsc3, add2, copy, cmult
   use coefs, only : coef_t
   use ax_product, only : ax_t
-  use bc, only : bc_list_t, bc_list_apply_scalar
+  use bc_list, only : bc_list_t
   use comm
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device
-  use device_math
-  use device_projection
+  use device, only : device_alloc, HOST_TO_DEVICE, device_memcpy, &
+       device_get_ptr, device_free, device_map
+  use device_math, only : device_glsc3, device_add2s2, device_cmult, &
+       device_rzero, device_copy, device_add2, device_add2s2_many, &
+       device_glsc3_many
+  use device_projection, only : device_proj_on, device_project_ortho
   use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : LOG_SIZE, neko_log
+  use utils, only : neko_warning
   use, intrinsic :: iso_c_binding
+  use bc_list, only : bc_list_t
   use time_step_controller, only : time_step_controller_t
 
   implicit none
@@ -134,42 +139,42 @@ contains
 
     this%m = 0
 
-    allocate(this%xx(n,this%L))
-    allocate(this%bb(n,this%L))
+    allocate(this%xx(n, this%L))
+    allocate(this%bb(n, this%L))
     allocate(this%xbar(n))
     allocate(this%xx_d(this%L))
     allocate(this%bb_d(this%L))
-    call rzero(this%xbar,n)
+    call rzero(this%xbar, n)
     do i = 1, this%L
-       call rzero(this%xx(1,i),n)
-       call rzero(this%bb(1,i),n)
+       call rzero(this%xx(1, i), n)
+       call rzero(this%bb(1, i), n)
     end do
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
-       call device_map(this%xbar, this%xbar_d,n)
-       call device_alloc(this%alpha_d, int(c_sizeof(dummy)*this%L,c_size_t))
+       call device_map(this%xbar, this%xbar_d, n)
+       call device_alloc(this%alpha_d, int(c_sizeof(dummy)*this%L, c_size_t))
 
        call device_rzero(this%xbar_d, n)
        call device_rzero(this%alpha_d, this%L)
 
        do i = 1, this%L
           this%xx_d(i) = C_NULL_PTR
-          call device_map(this%xx(:,i), this%xx_d(i), n)
+          call device_map(this%xx(:, i), this%xx_d(i), n)
           call device_rzero(this%xx_d(i), n)
           this%bb_d(i) = C_NULL_PTR
-          call device_map(this%bb(:,i), this%bb_d(i), n)
+          call device_map(this%bb(:, i), this%bb_d(i), n)
           call device_rzero(this%bb_d(i), n)
        end do
 
        ptr_size = c_sizeof(C_NULL_PTR) * this%L
        call device_alloc(this%xx_d_d, ptr_size)
        ptr = c_loc(this%xx_d)
-       call device_memcpy(ptr,this%xx_d_d, ptr_size, &
-                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(ptr, this%xx_d_d, ptr_size, &
+                          HOST_TO_DEVICE, sync = .false.)
        call device_alloc(this%bb_d_d, ptr_size)
        ptr = c_loc(this%bb_d)
-       call device_memcpy(ptr,this%bb_d_d, ptr_size, &
-                          HOST_TO_DEVICE, sync=.false.)
+       call device_memcpy(ptr, this%bb_d_d, ptr_size, &
+                          HOST_TO_DEVICE, sync = .false.)
     end if
 
 
@@ -216,7 +221,8 @@ contains
 
   end subroutine projection_free
 
-  subroutine projection_pre_solving(this, b, tstep, coef, n, dt_controller, string)
+  subroutine projection_pre_solving(this, b, tstep, coef, n, dt_controller, &
+       string)
     class(projection_t), intent(inout) :: this
     integer, intent(inout) :: n
     real(kind=rp), intent(inout), dimension(n) :: b
@@ -225,9 +231,10 @@ contains
     type(time_step_controller_t), intent(in) :: dt_controller
     character(len=*), optional :: string
 
-    if( tstep .gt. this%activ_step .and. this%L .gt. 0) then
+    if (tstep .gt. this%activ_step .and. this%L .gt. 0) then
        if (dt_controller%if_variable_dt) then
-          if (dt_controller%dt_last_change .eq. 0) then ! the time step at which dt is changed
+          ! the time step at which dt is changed
+          if (dt_controller%dt_last_change .eq. 0) then
              call this%clear(n)
           else if (dt_controller%dt_last_change .gt. this%activ_step - 1) then
              ! activate projection some steps after dt is changed
@@ -247,7 +254,8 @@ contains
 
   end subroutine projection_pre_solving
 
-  subroutine projection_post_solving(this, x, Ax, coef, bclst, gs_h, n, tstep, dt_controller)
+  subroutine projection_post_solving(this, x, Ax, coef, bclst, gs_h, n, tstep, &
+       dt_controller)
     class(projection_t), intent(inout) :: this
     integer, intent(inout) :: n
     class(Ax_t), intent(inout) :: Ax
@@ -278,10 +286,10 @@ contains
     else
        call cpu_project_on(this, b, coef, n)
     end if
-    call profiler_end_region
+    call profiler_end_region('Project on', 16)
   end subroutine bcknd_project_on
 
-  subroutine bcknd_project_back(this,x,Ax,coef, bclst, gs_h, n)
+  subroutine bcknd_project_back(this, x, Ax, coef, bclst, gs_h, n)
     class(projection_t) :: this
     integer, intent(inout) :: n
     class(Ax_t), intent(inout) :: Ax
@@ -295,36 +303,37 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
-       if (this%m .gt. 0) call device_add2(x_d,this%xbar_d,n)      ! Restore desired solution
+      ! Restore desired solution
+       if (this%m .gt. 0) call device_add2(x_d, this%xbar_d, n)
        if (this%m .eq. this%L) then
           this%m = 1
        else
-          this%m = min(this%m+1,this%L)
+          this%m = min(this%m+1, this%L)
        end if
 
-       call device_copy(this%xx_d(this%m),x_d,n)   ! Update (X,B)
+       call device_copy(this%xx_d(this%m), x_d, n)   ! Update (X,B)
 
     else
-       if (this%m.gt.0) call add2(x,this%xbar,n)      ! Restore desired solution
+       if (this%m .gt. 0) call add2(x, this%xbar, n)      ! Restore desired solution
        if (this%m .eq. this%L) then
           this%m = 1
        else
-          this%m = min(this%m+1,this%L)
+          this%m = min(this%m+1, this%L)
        end if
 
-       call copy        (this%xx(1,this%m),x,n)   ! Update (X,B)
+       call copy(this%xx(1, this%m), x, n)   ! Update (X,B)
     end if
 
-    call Ax%compute(this%bb(1,this%m), x, coef, coef%msh, coef%Xh)
-    call gs_h%gs_op_vector(this%bb(1,this%m), n, GS_OP_ADD)
-    call bc_list_apply_scalar(bclst, this%bb(1,this%m), n)
+    call Ax%compute(this%bb(1, this%m), x, coef, coef%msh, coef%Xh)
+    call gs_h%gs_op_vector(this%bb(1, this%m), n, GS_OP_ADD)
+    call bclst%apply_scalar(this%bb(1, this%m), n)
 
     if (NEKO_BCKND_DEVICE .eq. 1)  then
        call device_proj_ortho(this, this%xx_d, this%bb_d, coef%mult_d, n)
     else
-       call cpu_proj_ortho  (this,this%xx,this%bb,coef%mult,n)
+       call cpu_proj_ortho  (this, this%xx, this%bb, coef%mult, n)
     end if
-    call profiler_end_region
+    call profiler_end_region('Project back', 17)
   end subroutine bcknd_project_back
 
 
@@ -334,8 +343,8 @@ contains
     integer, intent(inout) :: n
     class(coef_t), intent(inout) :: coef
     real(kind=rp), intent(inout), dimension(n) :: b
-    integer :: i, j, k, ierr
-    real(kind=rp) :: work(this%L), alpha(this%L)
+    integer :: i, j, k, l, ierr
+    real(kind=rp) :: work(this%L), alpha(this%L), s
 
     associate(xbar => this%xbar, xx => this%xx, &
               bb => this%bb)
@@ -344,12 +353,16 @@ contains
 
       !First round of CGS
       call rzero(alpha, this%m)
-      this%proj_res = sqrt(glsc3(b,b,coef%mult,n)/coef%volume)
+      this%proj_res = sqrt(glsc3(b, b, coef%mult, n) / coef%volume)
       this%proj_m = this%m
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, this%m
-            alpha(k) = alpha(k) + vlsc3(xx(i,k), coef%mult(i,1,1,1), b(i), j)
+            s = 0.0_rp
+            do l = 0, (j-1)
+               s = s + xx(i+l, k) * coef%mult(i+l,1,1,1) * b(i+l)
+            end do
+            alpha(k) = alpha(k) + s
          end do
       end do
 
@@ -361,15 +374,23 @@ contains
 
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
-         call cmult2(xbar(i), xx(i,1), alpha(1), j)
-         call add2s2(b(i), bb(i,1), -alpha(1), j)
-         do k = 2,this%m
-            call add2s2(xbar(i), xx(i,k), alpha(k), j)
-            call add2s2(b(i), bb(i,k), -alpha(k), j)
+         do l = 0, (j-1)
+            xbar(i+l) = alpha(1) * xx(i+l,1)
+            b(i+l) = b(i+l) - alpha(1) * bb(i+l,1)
+         end do
+         do k = 2, this%m
+            do l = 0, (j-1)
+               xbar(i+l) = xbar(i+l) + alpha(k) * xx(i+l,k)
+               b(i+l) = b(i+l)- alpha(k) * bb(i+l,k)
+            end do
          end do
          !Second round of CGS
          do k = 1, this%m
-            work(k) = work(k) + vlsc3(xx(i,k), coef%mult(i,1,1,1), b(i), j)
+            s = 0.0_rp
+            do l = 0, (j-1)
+               s = s + xx(i+l,k) * coef%mult(i+l,1,1,1) * b(i+l)
+            end do
+            work(k) = work(k) + s
          end do
       end do
 
@@ -378,9 +399,11 @@ contains
 
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
-         do k = 1,this%m
-            call add2s2(xbar(i), xx(i,k), alpha(k), j)
-            call add2s2(b(i), bb(i,k), -alpha(k), j)
+         do k = 1, this%m
+            do l = 0, (j-1)
+               xbar(i+l) = xbar(i+l) + alpha(k) * xx(i+l,k)
+               b(i+l) = b(i+l) - alpha(k) * bb(i+l,k)
+            end do
          end do
       end do
     end associate
@@ -403,7 +426,7 @@ contains
 
 
 
-      this%proj_res = sqrt(device_glsc3(b_d,b_d,coef%mult_d,n)/coef%volume)
+      this%proj_res = sqrt(device_glsc3(b_d, b_d, coef%mult_d, n)/coef%volume)
       this%proj_m = this%m
       if (NEKO_DEVICE_MPI .and. (NEKO_BCKND_OPENCL .ne. 1)) then
          call device_proj_on(alpha_d, b_d, xx_d_d, bb_d_d, &
@@ -411,12 +434,12 @@ contains
       else
          if (NEKO_BCKND_OPENCL .eq. 1) then
             do i = 1, this%m
-               alpha(i) = device_glsc3(b_d,xx_d(i),coef%mult_d,n)
+               alpha(i) = device_glsc3(b_d, xx_d(i), coef%mult_d, n)
             end do
          else
-            call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
+            call device_glsc3_many(alpha, b_d, xx_d_d, coef%mult_d, this%m, n)
             call device_memcpy(alpha, alpha_d, this%m, &
-                               HOST_TO_DEVICE, sync=.false.)
+                               HOST_TO_DEVICE, sync = .false.)
          end if
          call device_rzero(xbar_d, n)
          if (NEKO_BCKND_OPENCL .eq. 1) then
@@ -432,13 +455,13 @@ contains
          if (NEKO_BCKND_OPENCL .eq. 1) then
             do i = 1, this%m
                call device_add2s2(b_d, bb_d(i), alpha(i), n)
-               alpha(i) = device_glsc3(b_d,xx_d(i),coef%mult_d,n)
+               alpha(i) = device_glsc3(b_d, xx_d(i), coef%mult_d, n)
             end do
          else
             call device_add2s2_many(b_d, bb_d_d, alpha_d, this%m, n)
-            call device_glsc3_many(alpha,b_d,xx_d_d,coef%mult_d,this%m,n)
+            call device_glsc3_many(alpha, b_d, xx_d_d, coef%mult_d, this%m, n)
             call device_memcpy(alpha, alpha_d, this%m, &
-                               HOST_TO_DEVICE, sync=.false.)
+                               HOST_TO_DEVICE, sync = .false.)
          end if
 
          if (NEKO_BCKND_OPENCL .eq. 1) then
@@ -470,7 +493,7 @@ contains
     associate(m => this%m,  xx_d_d => this%xx_d_d, &
               bb_d_d => this%bb_d_d, alpha_d => this%alpha_d)
 
-      if(m .le. 0) return
+      if (m .le. 0) return
 
       if (NEKO_DEVICE_MPI .and. (NEKO_BCKND_OPENCL .ne. 1)) then
          call device_project_ortho(alpha_d, bb_d(m), xx_d_d, bb_d_d, &
@@ -478,59 +501,59 @@ contains
       else
          if (NEKO_BCKND_OPENCL .eq. 1)then
             do i = 1, m
-               alpha(i) = device_glsc3(bb_d(m),xx_d(i),w_d,n)
+               alpha(i) = device_glsc3(bb_d(m), xx_d(i), w_d,n)
             end do
          else
-            call device_glsc3_many(alpha,bb_d(m),xx_d_d,w_d,m,n)
+            call device_glsc3_many(alpha, bb_d(m), xx_d_d, w_d, m, n)
          end if
          nrm = sqrt(alpha(m))
          call cmult(alpha, -1.0_rp,m)
          if (NEKO_BCKND_OPENCL .eq. 1)then
             do i = 1, m - 1
-               call device_add2s2(xx_d(m),xx_d(i),alpha(i), n)
-               call device_add2s2(bb_d(m),bb_d(i),alpha(i),n)
+               call device_add2s2(xx_d(m), xx_d(i), alpha(i), n)
+               call device_add2s2(bb_d(m), bb_d(i), alpha(i), n)
 
-               alpha(i) = device_glsc3(bb_d(m),xx_d(i),w_d,n)
+               alpha(i) = device_glsc3(bb_d(m), xx_d(i), w_d, n)
             end do
          else
             call device_memcpy(alpha, alpha_d, this%m, &
-                               HOST_TO_DEVICE, sync=.false.)
-            call device_add2s2_many(xx_d(m),xx_d_d,alpha_d,m-1,n)
-            call device_add2s2_many(bb_d(m),bb_d_d,alpha_d,m-1,n)
+                               HOST_TO_DEVICE, sync = .false.)
+            call device_add2s2_many(xx_d(m), xx_d_d, alpha_d, m-1, n)
+            call device_add2s2_many(bb_d(m), bb_d_d, alpha_d, m-1, n)
 
-            call device_glsc3_many(alpha,bb_d(m),xx_d_d,w_d,m,n)
+            call device_glsc3_many(alpha, bb_d(m), xx_d_d, w_d, m, n)
          end if
          call cmult(alpha, -1.0_rp,m)
          if (NEKO_BCKND_OPENCL .eq. 1)then
             do i = 1, m - 1
-               call device_add2s2(xx_d(m),xx_d(i),alpha(i),n)
-               call device_add2s2(bb_d(m),bb_d(i),alpha(i),n)
-               alpha(i) =  device_glsc3(bb_d(m),xx_d(i),w_d,n)
+               call device_add2s2(xx_d(m), xx_d(i), alpha(i), n)
+               call device_add2s2(bb_d(m), bb_d(i), alpha(i), n)
+               alpha(i) =  device_glsc3(bb_d(m), xx_d(i), w_d, n)
             end do
          else
             call device_memcpy(alpha, alpha_d, m, &
-                               HOST_TO_DEVICE, sync=.false.)
-            call device_add2s2_many(xx_d(m),xx_d_d,alpha_d,m-1,n)
-            call device_add2s2_many(bb_d(m),bb_d_d,alpha_d,m-1,n)
-            call device_glsc3_many(alpha,bb_d(m),xx_d_d,w_d,m,n)
+                               HOST_TO_DEVICE, sync = .false.)
+            call device_add2s2_many(xx_d(m), xx_d_d, alpha_d, m-1, n)
+            call device_add2s2_many(bb_d(m), bb_d_d, alpha_d, m-1, n)
+            call device_glsc3_many(alpha, bb_d(m), xx_d_d, w_d, m, n)
          end if
       end if
 
       alpha(m) = device_glsc3(xx_d(m), w_d, bb_d(m), n)
       alpha(m) = sqrt(alpha(m))
 
-      if(alpha(m) .gt. this%tol*nrm) then !New vector is linearly independent
+      if (alpha(m) .gt. this%tol*nrm) then !New vector is linearly independent
          scl = 1.0_rp / alpha(m)
          call device_cmult(xx_d(m), scl, n)
          call device_cmult(bb_d(m), scl, n)
 
 
       else !New vector is not linearly independent, forget about it
-         if(pe_rank .eq. 0) then
+         if (pe_rank .eq. 0) then
             call neko_warning('New vector not linearly indepependent!')
          end if
          m = m - 1 !Remove column
-      endif
+      end if
 
     end associate
 
@@ -544,11 +567,11 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: w
     real(kind=rp) :: nrm, scl1, scl2, c, s
     real(kind=rp) :: alpha(this%L), beta(this%L)
-    integer :: i, j, k, h, ierr
+    integer :: i, j, k, l, h, ierr
 
     associate(m => this%m)
 
-      if(m .le. 0) return !No vectors to ortho-normalize
+      if (m .le. 0) return !No vectors to ortho-normalize
 
       ! AX = B
       ! Calculate dx, db: dx = x-XX^Tb, db=b-BX^Tb
@@ -556,8 +579,13 @@ contains
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
          do k = 1, m !First round CGS
-            alpha(k) = alpha(k) + 0.5_rp * (vlsc3(xx(i,k), w(i), bb(i,m), j) &
-                 + vlsc3(bb(i,k), w(i), xx(i,m), j))
+            s = 0.0_rp
+            c = 0.0_rp
+            do l = 0, (j-1)
+               s = s + xx(i+l,k) * w(i+l) * bb(i+l,m)
+               c = c + bb(i+l,k) * w(i+l) * xx(i+l,m)
+            end do
+            alpha(k) = alpha(k) + 0.5_rp * (s + c)
          end do
       end do
 
@@ -569,18 +597,25 @@ contains
 
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
-         do k = 1,m-1
-            call add2s2(xx(i,m), xx(i,k), -alpha(k), j)
-            call add2s2(bb(i,m), bb(i,k), -alpha(k), j)
+         do k = 1, m-1
+            do l = 0, (j-1)
+               xx(i+l,m) = xx(i+l,m) - alpha(k) * xx(i+l,k)
+               bb(i+l,m) = bb(i+l,m) - alpha(k) * bb(i+l,k)
+            end do
          end do
       end do
       call rzero(beta,m)
 
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE, n-i+1)
-         do k = 1,m-1
-            beta(k) = beta(k) + 0.5_rp * (vlsc3(xx(i,k), w(i), bb(i,m), j) &
-                 + vlsc3(bb(i,k), w(i), xx(i,m), j))
+         do k = 1, m-1
+            s = 0.0_rp
+            c = 0.0_rp
+            do l = 0, (j-1)
+               s = s + xx(i+l,k) * w(i+l) * bb(i+l,m)
+               c = c + bb(i+l,k) * w(i+l) * xx(i+l,m)
+            end do
+            beta(k) = beta(k) + 0.5_rp * (s + c)
          end do
       end do
 
@@ -592,10 +627,16 @@ contains
       do i = 1, n, NEKO_BLK_SIZE
          j = min(NEKO_BLK_SIZE,n-i+1)
          do k = 1, m-1
-            call add2s2(xx(i,m), xx(i,k), -beta(k), j)
-            call add2s2(bb(i,m), bb(i,k), -beta(k), j)
+            do l = 0, (j-1)
+               xx(i+l,m) = xx(i+l,m) - beta(k) * xx(i+l,k)
+               bb(i+l,m) = bb(i+l,m) - beta(k) * bb(i+l,k)
+            end do
          end do
-         alpha(m) = alpha(m) + vlsc3(xx(i,m), w(i), bb(i,m), j)
+         s = 0.0_rp
+         do l = 0, (j-1)
+            s = s + xx(i+l,m) * w(i+l) * bb(i+l,m)
+         end do
+         alpha(m) = alpha(m) + s
       end do
       do k = 1, m-1
          alpha(k) = alpha(k) + beta(k)
@@ -607,25 +648,27 @@ contains
       alpha(m) = sqrt(alpha(m))
       !dx and db now stored in last column of xx and bb
 
-      if(alpha(m) .gt. this%tol*nrm) then !New vector is linearly independent
+      if (alpha(m) .gt. this%tol*nrm) then !New vector is linearly independent
          !Normalize dx and db
          scl1 = 1.0_rp / alpha(m)
-         call cmult(xx(1,m), scl1, n)
-         call cmult(bb(1,m), scl1, n)
+         do i = 0, (n - 1)
+            xx(1+i,m) = scl1 * xx(1+i,m)
+            bb(1+i,m) = scl1 * bb(1+i,m)
+         end do
 
       else !New vector is not linearly independent, forget about it
          k = m !location of rank deficient column
-         if(pe_rank .eq. 0) then
+         if (pe_rank .eq. 0) then
             call neko_warning('New vector not linearly indepependent!')
          end if
          m = m - 1 !Remove column
-      endif
+      end if
 
     end associate
 
   end subroutine cpu_proj_ortho
 
-  subroutine print_proj_info(this,string)
+  subroutine print_proj_info(this, string)
     class(projection_t) :: this
     character(len=*) :: string
     character(len=LOG_SIZE) :: log_buf
@@ -633,7 +676,7 @@ contains
     if (this%proj_m .gt. 0) then
        write(log_buf, '(A,A)') 'Projection ', string
        call neko_log%message(log_buf)
-       write(log_buf, '(A,A)') 'Proj. vec.:','   Orig. residual:'
+       write(log_buf, '(A,A)') 'Proj. vec.:', '   Orig. residual:'
        call neko_log%message(log_buf)
        write(log_buf, '(I11,3x, E15.7,5x)')  this%proj_m, this%proj_res
        call neko_log%message(log_buf)
@@ -644,7 +687,7 @@ contains
   subroutine bcknd_clear(this, n)
     class(projection_t) :: this
     integer, intent(in) :: n
-    integer :: i
+    integer :: i, j
 
     this%m = 0
     this%proj_m = 0
@@ -654,8 +697,10 @@ contains
           call device_rzero(this%xx_d(i), n)
           call device_rzero(this%xx_d(i), n)
        else
-          call rzero(this%xx(1,i),n)
-          call rzero(this%bb(1,i),n)
+          do j = 1, n
+             this%xx(j,i) = 0.0_rp
+             this%bb(j,i) = 0.0_rp
+          end do
        end if
     end do
 

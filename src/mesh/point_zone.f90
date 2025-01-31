@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2021, The Neko Authors
+! Copyright (c) 2019-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -136,6 +136,21 @@ module point_zone
        class(point_zone_t), intent(inout) :: this
      end subroutine point_zone_free
   end interface
+
+  interface
+     !> Point zone factory. Constructs, initializes, and maps the
+     !! point zone object.
+     !! @param object The object allocated by the factory.
+     !! @param json JSON object initializing the point zone.
+     !! @param dof Dofmap from which to map the point zone.
+     module subroutine point_zone_factory(object, json, dof)
+       class(point_zone_t), allocatable, intent(inout) :: object
+       type(json_file), intent(inout) :: json
+       type(dofmap_t), intent(inout), optional :: dof
+     end subroutine point_zone_factory
+  end interface
+
+  public :: point_zone_factory
 
 contains
 

@@ -39,7 +39,7 @@ module pipecg_device
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, &
        device_glsc3, device_vlsc3
@@ -168,13 +168,14 @@ contains
   end subroutine device_cg_update_xp
 
   !> Initialise a pipelined PCG solver
-  subroutine pipecg_device_init(this, n, max_iter, M, rel_tol, abs_tol)
+  subroutine pipecg_device_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
     class(pipecg_device_t), target, intent(inout) :: this
-    class(pc_t), optional, intent(inout), target :: M
+    class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
-    real(kind=rp), optional, intent(inout) :: rel_tol
-    real(kind=rp), optional, intent(inout) :: abs_tol
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
+    logical, optional, intent(in) :: monitor
     type(c_ptr) :: ptr
     integer(c_size_t) :: u_size
     integer :: i
@@ -219,12 +220,20 @@ contains
     call device_memcpy(ptr,this%u_d_d, u_size, &
                        HOST_TO_DEVICE, sync=.false.)
 
-    if (present(rel_tol) .and. present(abs_tol)) then
+    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
+    else if (present(monitor) .and. present(abs_tol)) then
+       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
     else if (present(rel_tol)) then
-       call this%ksp_init(max_iter, rel_tol=rel_tol)
+       call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
-       call this%ksp_init(max_iter, abs_tol=abs_tol)
+       call this%ksp_init(max_iter, abs_tol = abs_tol)
+    else if (present(monitor)) then
+       call this%ksp_init(max_iter, monitor = monitor)
     else
        call this%ksp_init(max_iter)
     end if
@@ -327,10 +336,10 @@ contains
   !> Pipelined PCG solve
   function pipecg_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(pipecg_device_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: f
+    real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
@@ -375,7 +384,7 @@ contains
       call Ax%compute(w, u(1,u_prev), coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
       call device_event_sync(this%gs_event)
-      call bc_list_apply(blst, w, n)
+      call blst%apply_scalar(w, n)
 
       rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
       rnorm = sqrt(rtr)*norm_fac
@@ -395,6 +404,7 @@ contains
       reduction(2) = tmp2
       reduction(3) = tmp3
 
+      call this%monitor_start('PipeCG')
       do iter = 1, max_iter
          call MPI_Iallreduce(MPI_IN_PLACE, reduction, 3, &
               MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, request, ierr)
@@ -403,7 +413,7 @@ contains
          call Ax%compute(ni, mi, coef, x%msh, x%Xh)
          call gs_h%op(ni, n, GS_OP_ADD, this%gs_event)
          call device_event_sync(this%gs_event)
-         call bc_list_apply(blst, ni, n)
+         call blst%apply(ni, n)
 
          call MPI_Wait(request, status, ierr)
          gamma2 = gamma1
@@ -412,6 +422,7 @@ contains
          rtr = reduction(3)
 
          rnorm = sqrt(rtr)*norm_fac
+         call this%monitor_iter(iter, rnorm)
          if (rnorm .lt. this%abs_tol) exit
 
 
@@ -453,9 +464,10 @@ contains
          call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, p_cur, &
                                   DEVICE_PIPECG_P_SPACE, n)
       end if
-
+      call this%monitor_stop()
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
+      ksp_results%converged = this%is_converged(iter, rnorm)
 
     end associate
 
@@ -465,14 +477,14 @@ contains
   function pipecg_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
     class(pipecg_device_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: fx
-    real(kind=rp), dimension(n), intent(inout) :: fy
-    real(kind=rp), dimension(n), intent(inout) :: fz
+    real(kind=rp), dimension(n), intent(in) :: fx
+    real(kind=rp), dimension(n), intent(in) :: fy
+    real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blstx
     type(bc_list_t), intent(inout) :: blsty

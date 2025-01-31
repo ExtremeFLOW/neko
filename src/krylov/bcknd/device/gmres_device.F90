@@ -39,7 +39,7 @@ module gmres_device
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use device_identity, only : device_ident_t
   use math, only : rone, rzero, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3, &
@@ -131,14 +131,15 @@ contains
 
   !> Initialise a standard GMRES solver
   subroutine gmres_device_init(this, n, max_iter, M, m_restart, &
-       rel_tol, abs_tol)
+       rel_tol, abs_tol, monitor)
     class(gmres_device_t), target, intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
-    class(pc_t), optional, intent(inout), target :: M
-    integer, optional, intent(inout) :: m_restart
-    real(kind=rp), optional, intent(inout) :: rel_tol
-    real(kind=rp), optional, intent(inout) :: abs_tol
+    class(pc_t), optional, intent(in), target :: M
+    integer, optional, intent(in) :: m_restart
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
+    logical, optional, intent(in) :: monitor
     type(device_ident_t), target :: M_ident
     type(c_ptr) :: ptr
     integer(c_size_t) :: z_size
@@ -203,12 +204,20 @@ contains
                        HOST_TO_DEVICE, sync = .false.)
 
 
-    if (present(rel_tol) .and. present(abs_tol)) then
+    if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(abs_tol)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol)
+    else if (present(monitor) .and. present(abs_tol)) then
+       call this%ksp_init(max_iter, abs_tol = abs_tol, monitor = monitor)
+    else if (present(rel_tol) .and. present(monitor)) then
+       call this%ksp_init(max_iter, rel_tol, monitor = monitor)
     else if (present(rel_tol)) then
        call this%ksp_init(max_iter, rel_tol = rel_tol)
     else if (present(abs_tol)) then
        call this%ksp_init(max_iter, abs_tol = abs_tol)
+    else if (present(monitor)) then
+       call this%ksp_init(max_iter, monitor = monitor)
     else
        call this%ksp_init(max_iter)
     end if
@@ -308,10 +317,10 @@ contains
   function gmres_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
        result(ksp_results)
     class(gmres_device_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: f
+    real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
@@ -354,6 +363,8 @@ contains
 !       do j = 1, this%m_restart
 !          call device_rzero(h_d(j), this%m_restart)
 !       end do
+
+      call this%monitor_start('GMRES')
       do while (.not. conv .and. iter .lt. max_iter)
 
          if (iter .eq. 0) then
@@ -363,7 +374,7 @@ contains
             call Ax%compute(w, x%x, coef, x%msh, x%Xh)
             call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
             call device_event_sync(this%gs_event)
-            call bc_list_apply(blst, w, n)
+            call blst%apply_scalar(w, n)
             call device_sub2(r_d, w_d, n)
          end if
 
@@ -385,7 +396,7 @@ contains
             call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
             call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
             call device_event_sync(this%gs_event)
-            call bc_list_apply(blst, w, n)
+            call blst%apply_scalar(w, n)
 
             if (NEKO_BCKND_OPENCL .eq. 1) then
                do i = 1, j
@@ -430,6 +441,7 @@ contains
             gam(j) = c(j) * gam(j)
 
             rnorm = abs(gam(j+1)) * norm_fac
+            call this%monitor_iter(iter, rnorm)
             if (rnorm .lt. this%abs_tol) then
                conv = .true.
                exit
@@ -464,9 +476,10 @@ contains
       end do
 
     end associate
-
+    call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
+    ksp_results%converged = this%is_converged(iter, rnorm)
 
   end function gmres_device_solve
 
@@ -474,14 +487,14 @@ contains
   function gmres_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
     class(gmres_device_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: fx
-    real(kind=rp), dimension(n), intent(inout) :: fy
-    real(kind=rp), dimension(n), intent(inout) :: fz
+    real(kind=rp), dimension(n), intent(in) :: fx
+    real(kind=rp), dimension(n), intent(in) :: fy
+    real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blstx
     type(bc_list_t), intent(inout) :: blsty

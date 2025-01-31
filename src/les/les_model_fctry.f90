@@ -1,5 +1,4 @@
-
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -31,23 +30,16 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module les_model_fctry
-  use les_model, only : les_model_t
+submodule (les_model) les_model_fctry
   use vreman, only : vreman_t
   use smagorinsky, only : smagorinsky_t
   use dynamic_smagorinsky, only : dynamic_smagorinsky_t
   use sigma, only : sigma_t
-  use dofmap, only : dofmap_t
-  use coefs, only : coef_t
   use utils, only : concat_string_array, neko_error
-  use json_module, only : json_file
   implicit none
-  private
-
-  public :: les_model_factory
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KNOWN_TYPES(4) = [character(len=20) :: &
+  character(len=20) :: LES_KNOWN_TYPES(4) = [character(len=20) :: &
      "vreman", &
      "smagorinsky", &
      "dymamic_smagorinsky", &
@@ -60,8 +52,8 @@ contains
   !! @param dofmap SEM map of degrees of freedom.
   !! @param coef SEM coefficients.
   !! @param json A dictionary with parameters.
-  subroutine les_model_factory(object, type_name, dofmap, coef, json)
-    class(les_model_t), allocatable, target, intent(inout) :: object
+  module subroutine les_model_factory(object, type_name, dofmap, coef, json)
+    class(les_model_t), allocatable, intent(inout) :: object
     character(len=*), intent(in) :: type_name
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), intent(in) :: coef
@@ -79,8 +71,8 @@ contains
     else if (trim(type_name) .eq. 'sigma') then
        allocate(sigma_t::object)
     else
-       type_string =  concat_string_array(KNOWN_TYPES, NEW_LINE('A') // "-  ", &
-                                          .true.)
+       type_string =  concat_string_array(LES_KNOWN_TYPES, &
+            NEW_LINE('A') // "-  ", .true.)
        call neko_error("Unknown LES model type: " &
                        // trim(type_name) // ".  Known types are: " &
                        // type_string)
@@ -90,4 +82,4 @@ contains
     call object%init(dofmap, coef, json)
   end subroutine les_model_factory
 
-end module les_model_fctry
+end submodule les_model_fctry

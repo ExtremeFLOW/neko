@@ -47,6 +47,7 @@ module fluid_output
      type(field_list_t) :: fluid
    contains
      procedure, pass(this) :: sample => fluid_output_sample
+     procedure, pass(this) :: free => fluid_output_free
   end type fluid_output_t
 
   interface fluid_output_t
@@ -92,6 +93,14 @@ contains
     end if
 
   end function fluid_output_init
+
+  !> Destroy a fluid output list
+  subroutine fluid_output_free(this)
+    class(fluid_output_t), intent(inout) :: this
+
+    call this%fluid%free()
+
+  end subroutine fluid_output_free
 
   !> Sample a fluid solution at time @a t
   subroutine fluid_output_sample(this, t)

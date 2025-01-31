@@ -46,6 +46,20 @@ module ax_product
      procedure(ax_compute_vector), pass(this), deferred :: compute_vector
   end type ax_t
 
+  interface
+     !> Factory routine for the a Helmholtz problem matrix-vector product.
+     !! The selection is based on the compute backend.
+     !! @param object The matrix-vector product type to be allocated.
+     !! @param full_formulation Whether to use the formulation with the full
+     !! viscous stress tensor, not assuming constant material properties.
+     module subroutine ax_helm_factory(object, full_formulation)
+       class(ax_t), allocatable, intent(inout) :: object
+       logical, intent(in) :: full_formulation
+     end subroutine ax_helm_factory
+  end interface
+
+  public :: ax_helm_factory
+  
   !> Abstract interface for computing\f$ Ax \f$ inside a Krylov method
   !!
   !! @param w Vector of size @a (lx,ly,lz,nelv).

@@ -53,7 +53,7 @@ module chkp_file
 
   !> Interface for Neko checkpoint files
   type, public, extends(generic_file_t) :: chkp_file_t
-     type(space_t) :: chkp_Xh !< Function space in the loaded checkpoint file
+     type(space_t), pointer :: chkp_Xh !< Function space in the loaded checkpoint file
      type(space_t), pointer :: sim_Xh !< Function space used in the simulation
      type(interpolator_t) :: space_interp !< Interpolation when only changing lx
      type(global_interpolation_t) :: global_interp !< Interpolation for different meshes
@@ -392,6 +392,7 @@ contains
        v => data%v
        w => data%w
        p => data%p
+       this%chkp_Xh => data%previous_Xh
        !> If checkpoint used another mesh
        if (allocated(data%previous_mesh%elements)) then
           msh => data%previous_mesh
@@ -478,7 +479,7 @@ contains
        call this%chkp_Xh%init(GLL, lx, lx)
     end if
     if (this%mesh2mesh) then
-       dof = dofmap_t(msh, this%chkp_Xh)
+       call dof%init(msh, this%chkp_Xh)
        allocate(x_coord(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
        allocate(y_coord(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
        allocate(z_coord(u%Xh%lx,u%Xh%ly,u%Xh%lz,u%msh%nelv))
@@ -642,19 +643,24 @@ contains
     real(kind=rp), allocatable :: read_array(:)
     integer :: nel_stride, frac_space
     type(MPI_Status) :: status
-    integer :: ierr
+    integer :: ierr, i, n
 
-    allocate(read_array(this%chkp_Xh%lxyz*nel))
+    n = this%chkp_xh%lxyz*nel
+    allocate(read_array(n))
 
-    call rzero(read_array,this%chkp_xh%lxyz*nel)
+    call rzero(read_array,n)
     call MPI_File_read_at_all(fh, byte_offset, read_array, &
-               nel*this%chkp_Xh%lxyz, MPI_REAL_PRECISION, status, ierr)
+               n, MPI_REAL_PRECISION, status, ierr)
     if (this%mesh2mesh) then
        x = 0.0_rp
        call this%global_interp%evaluate(x,read_array)
 
-    else
+    else if (this%sim_Xh%lx .ne. this%chkp_Xh%lx) then
        call this%space_interp%map_host(x, read_array, nel, this%sim_Xh)
+    else
+       do i = 1,n
+          x(i,1) = read_array(i)
+       end do
     end if
     deallocate(read_array)
   end subroutine chkp_read_field
