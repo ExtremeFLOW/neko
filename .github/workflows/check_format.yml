@@ -2,9 +2,9 @@
 #
 # This workflow checks the formatting of the source files in the repository. It
 # uses the `findent` tool to format the Fortran source files. This allow us to
-# enforce rather strict formatting rules.
+# enforce rather strickt formatting rules.
 
-name: Formatting
+name: Check Formatting
 
 on:
   # Allow the workflow to be called from other workflows.
@@ -13,7 +13,7 @@ on:
 
 jobs:
   check-formatting:
-    name: "Formatter (findent)"
+    name: Check formatting of changed files
     runs-on: ubuntu-20.04
     steps:
       # ---------------------------------------------------------------------- #
@@ -37,17 +37,33 @@ jobs:
           pip install -r .github/workflows/extra/requirements-formatting.txt
 
       # ---------------------------------------------------------------------- #
-      # Format the source files and check the formatting
+      # Determine modification of source files
+      # ---------------------------------------------------------------------- #
+
+      - name: Get changed files
+        id: get-changed-files
+        run: |
+          git fetch --unshallow origin develop
+          changes=($(git diff --name-only --diff-filter=d origin/develop))
+          echo "changed-files=${changes[@]}" >> $GITHUB_OUTPUT
+
+      # ---------------------------------------------------------------------- #
+      # Format the changed source files and check for changes
       # ---------------------------------------------------------------------- #
 
       - name: Format sources
         env:
-          FINDENT_FLAGS: "-i2 -d3 -f3 -s3 -w3 -t3 -j3 -k- -Rr -c3 --openmp=0"
+          FINDENT_FLAGS: "-Rr -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k5 --ws_remred --indent_ampersand --openmp=0"
         run: |
-          find src/ -iname "*.f90" -type f \
-            -exec bash -c 'findent < {} > {}.tmp; mv -f {}.tmp {}' \;
+          for file in ${{ steps.get-changed-files.outputs.changed-files }}; do
+            if [[ ${file: -4} != ".f90" && ${file: -4} != ".F90" ]]; then
+              continue
+            fi
+            findent < $file > $file.tmp
+            mv -f $file.tmp $file
+          done
 
-      - name: Check formatting
+      - name: Check format
         run: |
           if [[ $(git diff --exit-code) ]]; then
             echo "The formatting of the source files is incorrect." >&2
