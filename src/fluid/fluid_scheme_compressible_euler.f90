@@ -81,6 +81,12 @@ module fluid_scheme_compressible_euler
   end type fluid_scheme_compressible_euler_t
 
 contains
+  !> Initialize the compressible Euler fluid scheme
+  !> @param this The fluid scheme object 
+  !> @param msh Mesh data structure
+  !> @param lx Polynomial order in x-direction
+  !> @param params JSON configuration parameters
+  !> @param user User-defined parameters and functions
   subroutine fluid_scheme_compressible_euler_init(this, msh, lx, params, user)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
@@ -145,6 +151,8 @@ contains
 
   end subroutine fluid_scheme_compressible_euler_init
 
+  !> Free allocated memory and cleanup
+  !> @param this The fluid scheme object to destroy
   subroutine fluid_scheme_compressible_euler_free(this)
     class(fluid_scheme_compressible_euler_t), intent(inout) :: this
 
@@ -161,12 +169,13 @@ contains
     ! call this%scheme_free()
   end subroutine fluid_scheme_compressible_euler_free
 
-  !> Advance fluid simulation in time.
-  !! @param t The time value.
-  !! @param tstep The current interation.
-  !! @param dt The timestep
-  !! @param ext_bdf Time integration logic.
-  !! @param dt_controller timestep controller
+  !> Advance the fluid simulation one timestep
+  !> @param this The fluid scheme object
+  !> @param t Current simulation time
+  !> @param tstep Current timestep number
+  !> @param dt Timestep size
+  !> @param ext_bdf Time integration controller
+  !> @param dt_controller Timestep size controller
   subroutine fluid_scheme_compressible_euler_step(this, t, tstep, dt, ext_bdf, dt_controller)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     real(kind=rp), intent(in) :: t
@@ -237,6 +246,10 @@ contains
 
   end subroutine fluid_scheme_compressible_euler_step
 
+  !> Set up boundary conditions for the fluid scheme
+  !> @param this The fluid scheme object
+  !> @param user User-defined boundary conditions
+  !> @param params Configuration parameters
   subroutine fluid_scheme_compressible_euler_setup_bcs(this, user, params)
     class(fluid_scheme_compressible_euler_t), intent(inout) :: this
     type(user_t), target, intent(in) :: user
@@ -246,6 +259,8 @@ contains
 
   !> Copied from les_model_compute_delta in les_model.f90
   !> TODO: move to a separate module
+  !> Compute characteristic mesh size h
+  !> @param this The fluid scheme object
   subroutine compute_h(this)
     class(fluid_scheme_compressible_euler_t), intent(inout) :: this
     integer :: e, i, j, k
@@ -313,6 +328,10 @@ contains
 
   end subroutine compute_h
 
+  !> Restart the simulation from saved state
+  !> @param this The fluid scheme object
+  !> @param dtlag Previous timestep sizes
+  !> @param tlag Previous time values
   subroutine fluid_scheme_compressible_euler_restart(this, dtlag, tlag)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     real(kind=rp) :: dtlag(10), tlag(10)

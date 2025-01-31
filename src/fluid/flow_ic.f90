@@ -165,6 +165,8 @@ contains
 
   end subroutine set_flow_ic_usr
 
+  !> Set intial flow condition (user defined)
+  !> for compressible flows
   subroutine set_compressible_flow_ic_usr(rho, u, v, w, p, coef, gs, usr_ic_compressible, params)
    type(field_t), intent(inout) :: rho
    type(field_t), intent(inout) :: u

@@ -49,6 +49,7 @@ module euler_residual
      procedure(euler_rhs), nopass, deferred :: step
   end type euler_rhs_t
 
+  !> Abstract interface to evaluate rhs
   abstract interface
      subroutine euler_rhs(rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
                           coef, gs, h, c_avisc_low, rk_scheme, dt)
@@ -69,6 +70,7 @@ module euler_residual
      end subroutine euler_rhs
   end interface
 
+  !> Abstract interface to choose bcknd for rhs evaluation
   interface
      module subroutine euler_rhs_factory(object)
        class(euler_rhs_t), allocatable, intent(inout) :: object

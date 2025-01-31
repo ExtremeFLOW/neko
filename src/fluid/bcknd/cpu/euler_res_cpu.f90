@@ -1,4 +1,38 @@
-!> Functions related to the residual of the Euler equations
+! Copyright (c) 2025, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+!> This module implements CPU-based residual calculations for the Euler equations.
+!? It handles the time advancement of primitive variables using Runge-Kutta methods
+!? and evaluates the right-hand side terms of the Euler equations including artificial viscosity.
 module euler_res_cpu
   use euler_residual, only : euler_rhs_t
   use field, only : field_t
@@ -22,6 +56,20 @@ module euler_res_cpu
   end type euler_res_cpu_t
 
 contains
+  !> Advances the primitive variables (density, momentum, energy)
+  !> in time using a Runge-Kutta scheme
+  !> @param rho_field Density field
+  !> @param m_x,m_y,m_z Momentum components
+  !> @param E Total energy 
+  !> @param p Pressure field
+  !> @param u,v,w Velocity components
+  !> @param Ax Matrix-vector product operator
+  !> @param coef Coefficients for spatial discretization
+  !> @param gs Gather-scatter operator for parallel communication
+  !> @param h Mesh size field
+  !> @param c_avisc_low Low-order artificial viscosity coefficient
+  !> @param rk_scheme Runge-Kutta time integration scheme
+  !> @param dt Time step size
   subroutine advance_primitive_variables_cpu(rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
                 coef, gs, h, c_avisc_low, rk_scheme, dt)
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
@@ -71,6 +119,7 @@ contains
     call neko_scratch_registry%request_field(temp_m_z, temp_indices(24))
     call neko_scratch_registry%request_field(temp_E, temp_indices(25))
 
+    ! Initialize Runge-Kutta stage variables for each conserved quantity
     call k_rho%init(4)
     call k_rho%assign(1, k_rho_1)
     call k_rho%assign(2, k_rho_2)
@@ -97,14 +146,16 @@ contains
     call k_E%assign(3, k_E_3)
     call k_E%assign(4, k_E_4)
 
-    ! Runge-Kutta stages
+    ! Loop over Runge-Kutta stages
     do i = 1, s
+        ! Copy current solution state to temporary arrays for this RK stage
         call copy(temp_rho%x, rho_field%x, n)
         call copy(temp_m_x%x, m_x%x, n)
         call copy(temp_m_y%x, m_y%x, n)
         call copy(temp_m_z%x, m_z%x, n)
         call copy(temp_E%x, E%x, n)
 
+        ! Accumulate previous stage contributions using RK coefficients
         do j = 1, i-1
           do concurrent (k = 1:n)
             temp_rho%x(k,1,1,1) = temp_rho%x(k,1,1,1) + dt * rk_scheme%coeffs_A(i, j) * k_rho%items(j)%ptr%x(k,1,1,1)
@@ -115,7 +166,7 @@ contains
           end do
         end do
 
-        ! Compute f(U) = rhs(U) for the intermediate values
+        ! Evaluate RHS terms for current stage using intermediate solution values
         call evaluate_rhs_cpu(k_rho%items(i)%ptr, k_m_x%items(i)%ptr, &
                               k_m_y%items(i)%ptr, k_m_z%items(i)%ptr, k_E%items(i)%ptr, &
                               temp_rho, temp_m_x, temp_m_y, temp_m_z, temp_E, &
@@ -138,6 +189,27 @@ contains
 
   end subroutine advance_primitive_variables_cpu
 
+  !> Evaluates the right-hand side of the Euler equations
+  !> Computes fluxes, divergence terms, and artificial viscosity
+  !> @param rhs_rho_field Output array for density RHS terms
+  !> @param rhs_m_x Output array for x-momentum RHS terms
+  !> @param rhs_m_y Output array for y-momentum RHS terms
+  !> @param rhs_m_z Output array for z-momentum RHS terms
+  !> @param rhs_E Output array for energy RHS terms
+  !> @param rho_field Input density field
+  !> @param m_x Input x-momentum field
+  !> @param m_y Input y-momentum field
+  !> @param m_z Input z-momentum field
+  !> @param E Input total energy field
+  !> @param p Input pressure field
+  !> @param u Input x-velocity field
+  !> @param v Input y-velocity field
+  !> @param w Input z-velocity field
+  !> @param Ax Matrix-vector product operator
+  !> @param coef Spatial discretization coefficients
+  !> @param gs Gather-scatter operator for parallel communication
+  !> @param h Mesh size field
+  !> @param c_avisc_low Low-order artificial viscosity coefficient
   subroutine evaluate_rhs_cpu(rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E, &
                             rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
                             coef, gs, h, c_avisc_low)
@@ -160,9 +232,11 @@ contains
     call neko_scratch_registry%request_field(f_z, temp_indices(4))
 
     !> rho = rho - dt * div(m)
+    ! Compute density flux divergence
     call div(rhs_rho_field%x, m_x%x, m_y%x, m_z%x, coef)
 
     !> m = m - dt * div(rho * u * u^T + p*I)
+    ! Compute momentum flux divergences
     ! m_x
     do concurrent (i = 1:n)
       f_x%x(i,1,1,1) = m_x%x(i,1,1,1) * m_x%x(i,1,1,1) / rho_field%x(i, 1, 1, 1) &
@@ -189,6 +263,7 @@ contains
     call div(rhs_m_z%x, f_x%x, f_y%x, f_z%x, coef)
 
     !> E = E - dt * div(u * (E + p))
+    ! Compute energy flux divergence 
     do concurrent (i = 1:n)
       f_x%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) &
                         * u%x(i,1,1,1)
@@ -199,12 +274,12 @@ contains
     end do
     call div(rhs_E%x, f_x%x, f_y%x, f_z%x, coef)
 
+    ! gs
     call gs%op(rhs_rho_field, GS_OP_ADD)
     call gs%op(rhs_m_x, GS_OP_ADD)
     call gs%op(rhs_m_y, GS_OP_ADD)
     call gs%op(rhs_m_z, GS_OP_ADD)
     call gs%op(rhs_E, GS_OP_ADD)
-
     do concurrent (i = 1:rhs_E%dof%size())
       rhs_rho_field%x(i,1,1,1) = rhs_rho_field%x(i,1,1,1) * coef%mult(i,1,1,1)
       rhs_m_x%x(i,1,1,1) = rhs_m_x%x(i,1,1,1) * coef%mult(i,1,1,1)
@@ -226,13 +301,15 @@ contains
     call Ax%compute(visc_m_z%x, m_z%x, coef, p%msh, p%Xh)
     call Ax%compute(visc_E%x, E%x, coef, p%msh, p%Xh)
 
+    ! gs
     call gs%op(visc_rho, GS_OP_ADD)
     call gs%op(visc_m_x, GS_OP_ADD)
     call gs%op(visc_m_y, GS_OP_ADD)
     call gs%op(visc_m_z, GS_OP_ADD)
     call gs%op(visc_E, GS_OP_ADD)
 
-    ! Move div to the rhs and apply the artificial viscosity
+    ! Move div to the rhs and apply artificial viscosity
+    ! i.e., calculate -div(grad(f)) + div(visc*grad(u))
     do concurrent (i = 1:n)
       rhs_rho_field%x(i,1,1,1) = -rhs_rho_field%x(i,1,1,1) &
         - c_avisc_low * h%x(i,1,1,1) * coef%Binv(i,1,1,1) * visc_rho%x(i,1,1,1)

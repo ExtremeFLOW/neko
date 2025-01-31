@@ -57,7 +57,13 @@ module runge_kutta_time_scheme
   end type runge_kutta_time_scheme_t
 
 contains
-  !> Constructor
+  !> Constructor for Runge-Kutta time scheme
+  !> @param this The Runge-Kutta scheme object
+  !> @param order Order of accuracy (1-4), determines coefficients:
+  !>              1: Forward Euler
+  !>              2: Heun's method  
+  !>              3: SSPRK3
+  !>              4: Classic RK4
   subroutine runge_kutta_scheme_coeffs_init(this, order)
     implicit none
     class(runge_kutta_time_scheme_t), intent(inout) :: this
@@ -153,7 +159,8 @@ contains
 
   end subroutine runge_kutta_scheme_coeffs_init
 
-  !> Destructor
+  !> Destructor - deallocates device memory
+  !> @param this The Runge-Kutta scheme object to be destroyed
   subroutine runge_kutta_scheme_coeffs_free(this)
     implicit none
     class(runge_kutta_time_scheme_t) :: this

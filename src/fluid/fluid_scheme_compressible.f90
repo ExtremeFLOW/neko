@@ -75,7 +75,13 @@ module fluid_scheme_compressible
   end type fluid_scheme_compressible_t
 
 contains
-  !> Initialize common data for the current scheme
+  !> Initialize common data for compressible fluid scheme
+  !> @param this The compressible fluid scheme object
+  !> @param msh Mesh data structure
+  !> @param lx Polynomial order in x-direction
+  !> @param params JSON configuration parameters
+  !> @param scheme Name of the numerical scheme
+  !> @param user User-defined parameters and functions
   subroutine fluid_scheme_compressible_init(this, msh, lx, params, scheme, user)
     implicit none
     class(fluid_scheme_compressible_t), target, intent(inout) :: this
@@ -163,6 +169,8 @@ contains
     call json_get_or_default(params, 'case.fluid.gamma', this%gamma, 1.4_rp)
   end subroutine fluid_scheme_compressible_init
 
+  !> Free allocated memory and cleanup resources
+  !> @param this The compressible fluid scheme object to destroy
   subroutine fluid_scheme_compressible_free(this)
     class(fluid_scheme_compressible_t), intent(inout) :: this
     call this%dm_Xh%free()
@@ -193,7 +201,8 @@ contains
     call this%wlag%free()
   end subroutine fluid_scheme_compressible_free
 
-  !> Validate that all components are properly allocated
+  !> Validate field initialization and compute derived quantities
+  !> @param this The compressible fluid scheme object
   subroutine fluid_scheme_compressible_validate(this)
     class(fluid_scheme_compressible_t), target, intent(inout) :: this
     integer :: n
@@ -222,7 +231,10 @@ contains
     
   end subroutine fluid_scheme_compressible_validate
 
-  !> Compute CFL
+  !> Compute CFL number
+  !> @param this The compressible fluid scheme object
+  !> @param dt Current timestep size
+  !> @return Computed CFL number
   function fluid_scheme_compressible_compute_cfl(this, dt) result(c)
     class(fluid_scheme_compressible_t), intent(in) :: this
     real(kind=rp), intent(in) :: dt
@@ -234,6 +246,7 @@ contains
   end function fluid_scheme_compressible_compute_cfl
 
   !> Set rho and mu
+  !> @param this The compressible fluid scheme object
   subroutine fluid_scheme_compressible_update_material_properties(this)
     class(fluid_scheme_compressible_t), intent(inout) :: this
     !> TODO: fill here, may not be used?
