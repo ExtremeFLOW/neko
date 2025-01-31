@@ -129,5 +129,5 @@ Fortran](https://marketplace.visualstudio.com/items?itemName=fortran-lang.linter
 extension provides an integration.
 
 ```sh
-findent -Rr -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k5 --ws_remred --openmp=0 < input.f90 > formatted.f90
+findent -Rr -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k5 --ws_remred --indent_ampersand --openmp=0 < input.f90 > formatted.f90
 ```
