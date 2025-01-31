@@ -53,6 +53,12 @@ jobs:
       - prepare
     uses: ./.github/workflows/check_lint.yml
 
+  formatting:
+    name: Formatting
+    needs:
+      - prepare
+    uses: ./.github/workflows/check_format.yml
+
   depend:
     name: Make depend
     needs:
