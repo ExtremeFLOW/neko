@@ -149,6 +149,8 @@ contains
 
   !> Compute a time-step for a neko case
   !! @param case_iptr Opaque pointer for the Neko case
+  !! @param t The time value
+  !! @param tstep The current time-stepper iteration
   subroutine neko_api_step(case_iptr, t, tstep) bind(c, name="neko_step")
     use time_step_controller, only : time_step_controller_t
     integer(c_intptr_t), intent(inout) :: case_iptr
@@ -235,5 +237,34 @@ contains
     call neko_log%newline()
 
   end subroutine neko_api_step
+
+  !> Execute the Case's output controller
+  !! @param case_iptr Opaque pointer for the Neko case
+  !! @param t The time value
+  !! @param tstep The current time-stepper iteration
+  subroutine neko_api_output_ctrl_execute(case_iptr, t, tstep, force_output) &
+       bind(c, name="neko_output_ctrl_execute")
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    real(kind=c_rp), value :: t
+    integer(c_int), value :: tstep
+    logical(kind=c_bool), value :: force_output
+    logical :: f_force_output
+    type(case_t), pointer :: C
+    type(c_ptr) :: cp
+
+    cp = transfer(case_iptr, c_null_ptr)
+    if (c_associated(cp)) then
+       call c_f_pointer(cp, C)
+    else
+       call neko_error('Invalid Neko case')
+    end if
+
+    f_force_output = transfer(force_output, f_force_output)
+
+    call C%output_controller%execute(t, tstep, f_force_output)
+
+  end subroutine neko_api_output_ctrl_execute
+
+
 
 end module neko_api

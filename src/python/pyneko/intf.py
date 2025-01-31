@@ -1,4 +1,4 @@
-from ctypes import CDLL, util, c_char_p, c_int, c_double, POINTER, byref, cast, create_string_buffer
+from ctypes import CDLL, util, c_char_p, c_int, c_double, c_bool, POINTER, byref, cast, create_string_buffer
 import json
 
 libneko = CDLL(util.find_library("neko"))
@@ -17,6 +17,8 @@ libneko.neko_solve.argtypes = [POINTER(c_int)]
 libneko.neko_solve.resType = None
 
 libneko.neko_step.argtypes = [POINTER(c_int), c_double, c_int]
+
+libneko.neko_output_ctrl_execute.argtypes = [POINTER(c_int), c_double, c_int, c_bool]
 
 def init():
     libneko.neko_init()
@@ -43,6 +45,9 @@ def solve(case_descr):
 
 def step(case_descr, t, tstep):
     libneko.neko_step(byref(case_descr), t, tstep)
+
+def output(case_descr, t, tstep, force = False):
+    libneko.neko_output_ctrl_execute(byref(case_descr), t, tstep, force)
 
 
 #
