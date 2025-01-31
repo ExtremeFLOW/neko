@@ -258,7 +258,7 @@ contains
   subroutine neko_api_output_ctrl_execute(case_iptr, t, tstep, force_output) &
        bind(c, name="neko_output_ctrl_execute")
     integer(c_intptr_t), intent(inout) :: case_iptr
-    real(kind=c_dp), value :: t
+    real(kind=c_double, value :: t
     integer(c_int), value :: tstep
     logical(kind=c_bool), value :: force_output
     logical :: f_force_output
