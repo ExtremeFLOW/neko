@@ -35,9 +35,9 @@ module user_intf
   use field, only : field_t
   use field_list, only : field_list_t
   use fluid_user_source_term, only : fluid_user_source_term_t, &
-    fluid_source_compute_pointwise, fluid_source_compute_vector
+       fluid_source_compute_pointwise, fluid_source_compute_vector
   use scalar_user_source_term, only : scalar_user_source_term_t, &
-    scalar_source_compute_pointwise, scalar_source_compute_vector
+       scalar_source_compute_pointwise, scalar_source_compute_vector
   use coefs, only : coef_t
   use bc_list, only : bc_list_t
   use mesh, only : mesh_t
@@ -194,8 +194,8 @@ module user_intf
   end type user_t
 
   public :: useric, useric_scalar, useric_compressible, user_initialize_modules, &
-    usermsh, dummy_user_material_properties, user_material_properties, &
-    user_simcomp_init, simulation_component_user_settings
+       usermsh, dummy_user_material_properties, user_material_properties, &
+       user_simcomp_init, simulation_component_user_settings
 contains
 
   !> User interface initialization
@@ -222,13 +222,13 @@ contains
        write(extensions(n), '(A)') '- Scalar initial condition'
     end if
 
-   if (.not. associated(u%fluid_compressible_user_ic)) then
-      u%fluid_compressible_user_ic => dummy_user_ic_compressible
-   else
-      user_extended = .true.
-      n = n + 1
-      write(extensions(n), '(A)') '- Compressible fluid initial condition'
-   end if
+    if (.not. associated(u%fluid_compressible_user_ic)) then
+       u%fluid_compressible_user_ic => dummy_user_ic_compressible
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Compressible fluid initial condition'
+    end if
 
     if (.not. associated(u%fluid_user_f)) then
        u%fluid_user_f => dummy_user_f
@@ -352,13 +352,13 @@ contains
 
   !> Dummy user initial condition
   subroutine dummy_user_ic_compressible(rho, u, v, w, p, params)
-   type(field_t), intent(inout) :: rho
-   type(field_t), intent(inout) :: u
-   type(field_t), intent(inout) :: v
-   type(field_t), intent(inout) :: w
-   type(field_t), intent(inout) :: p
-   type(json_file), intent(inout) :: params
-   call neko_error('Dummy user defined initial condition set')
+    type(field_t), intent(inout) :: rho
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    type(field_t), intent(inout) :: p
+    type(json_file), intent(inout) :: params
+    call neko_error('Dummy user defined initial condition set')
   end subroutine dummy_user_ic_compressible
 
   !> Dummy user initial condition for scalar field
@@ -463,7 +463,7 @@ contains
   end subroutine dummy_user_final_no_modules
 
   subroutine dirichlet_do_nothing(dirichlet_field_list, dirichlet_bc, &
-                                  coef, t, tstep)
+       coef, t, tstep)
     type(field_list_t), intent(inout) :: dirichlet_field_list
     type(field_dirichlet_t), intent(in) :: dirichlet_bc
     type(coef_t), intent(inout) :: coef
@@ -472,7 +472,7 @@ contains
   end subroutine dirichlet_do_nothing
 
   subroutine dummy_user_material_properties(t, tstep, rho, mu, cp, lambda,&
-                                            params)
+       params)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     real(kind=rp), intent(inout) :: rho, mu, cp, lambda
@@ -517,7 +517,7 @@ contains
 
     if (.not. found) then
        call neko_error("User-defined simulation component " &
-                       // trim(name) // " not found in case file.")
+            // trim(name) // " not found in case file.")
     end if
 
   end function simulation_component_user_settings

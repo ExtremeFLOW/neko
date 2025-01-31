@@ -56,18 +56,18 @@ module fluid_scheme_base
 
   !> Base type of all fluid formulations.
   type, abstract :: fluid_scheme_base_t
-     type(space_t) :: Xh        !< Function space \f$ X_h \f$
-     type(dofmap_t) :: dm_Xh    !< Dofmap associated with \f$ X_h \f$
-     type(gs_t) :: gs_Xh        !< Gather-scatter associated with \f$ X_h \f$
-     type(coef_t) :: c_Xh       !< Coefficients associated with \f$ X_h \f$
+     type(space_t) :: Xh !< Function space \f$ X_h \f$
+     type(dofmap_t) :: dm_Xh !< Dofmap associated with \f$ X_h \f$
+     type(gs_t) :: gs_Xh !< Gather-scatter associated with \f$ X_h \f$
+     type(coef_t) :: c_Xh !< Coefficients associated with \f$ X_h \f$
 
      type(time_scheme_controller_t), allocatable :: ext_bdf
 
      !> The velocity field
-     type(field_t), pointer :: u => null()    !< x-component of Velocity
-     type(field_t), pointer :: v => null()    !< y-component of Velocity
-     type(field_t), pointer :: w => null()    !< z-component of Velocity
-     type(field_t), pointer :: p => null()    !< Pressure
+     type(field_t), pointer :: u => null() !< x-component of Velocity
+     type(field_t), pointer :: v => null() !< y-component of Velocity
+     type(field_t), pointer :: w => null() !< z-component of Velocity
+     type(field_t), pointer :: p => null() !< Pressure
      type(field_series_t) :: ulag, vlag, wlag !< fluid field (lag)
 
      !> Density
@@ -87,9 +87,9 @@ module fluid_scheme_base
      ! List of boundary conditions for velocity
      type(bc_list_t) :: bcs_vel
 
-     type(json_file), pointer :: params        !< Parameters
-     type(mesh_t), pointer :: msh => null()    !< Mesh
-     type(chkp_t) :: chkp                      !< Checkpoint
+     type(json_file), pointer :: params !< Parameters
+     type(mesh_t), pointer :: msh => null() !< Mesh
+     type(chkp_t) :: chkp !< Checkpoint
 
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
@@ -125,7 +125,7 @@ module fluid_scheme_base
   !> Initialize all fields
   abstract interface
      subroutine fluid_base_init_all_intrf(this, msh, lx, params, kspv_init, &
-                                          kspp_init, scheme, user)
+          kspp_init, scheme, user)
        import fluid_scheme_base_t
        import mesh_t
        import json_file
@@ -152,7 +152,7 @@ module fluid_scheme_base
   !> Initialize common data for the current scheme
   abstract interface
      subroutine fluid_base_init_common_intrf(this, msh, lx, params, scheme, user, &
-                                             kspv_init)
+          kspv_init)
        import fluid_scheme_base_t
        import mesh_t
        import json_file
@@ -213,7 +213,7 @@ module fluid_scheme_base
   !> Abstract interface to compute a time-step
   abstract interface
      subroutine fluid_scheme_base_step_intrf(this, t, tstep, dt, ext_bdf, &
-                                        dt_controller)
+          dt_controller)
        import fluid_scheme_base_t
        import time_scheme_controller_t
        import time_step_controller_t

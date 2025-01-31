@@ -61,7 +61,7 @@ contains
   !> @param this The Runge-Kutta scheme object
   !> @param order Order of accuracy (1-4), determines coefficients:
   !>              1: Forward Euler
-  !>              2: Heun's method  
+  !>              2: Heun's method
   !>              3: SSPRK3
   !>              4: Classic RK4
   subroutine runge_kutta_scheme_coeffs_init(this, order)
@@ -78,82 +78,82 @@ contains
     allocate(this%coeffs_c(order))
 
     associate( &
-      coeffs_A      => this%coeffs_A, &
-      coeffs_b      => this%coeffs_b, &
-      coeffs_c      => this%coeffs_c, &
-      coeffs_A_d    => this%coeffs_A_d, &
-      coeffs_b_d    => this%coeffs_b_d, &
-      coeffs_c_d    => this%coeffs_c_d)
+         coeffs_A => this%coeffs_A, &
+         coeffs_b => this%coeffs_b, &
+         coeffs_c => this%coeffs_c, &
+         coeffs_A_d => this%coeffs_A_d, &
+         coeffs_b_d => this%coeffs_b_d, &
+         coeffs_c_d => this%coeffs_c_d)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
-        call device_map(coeffs_A, coeffs_A_d, s)
-        call device_map(coeffs_b, coeffs_b_d, s)
-        call device_map(coeffs_c, coeffs_c_d, s)
+         call device_map(coeffs_A, coeffs_A_d, s)
+         call device_map(coeffs_b, coeffs_b_d, s)
+         call device_map(coeffs_c, coeffs_c_d, s)
       end if
 
       select case (order)
-      case (1)
-          !> Forward Euler
-          coeffs_A(1, 1) = 0.0_rp
-          coeffs_b(1) = 1.0_rp
-          coeffs_c(1) = 0.0_rp
-      case (2)
-          !> Heun's method
-          coeffs_A = 0.0_rp
-          coeffs_A(2, 1) = 1.0_rp
-    
-          coeffs_b(1) = 0.5_rp
-          coeffs_b(2) = 0.5_rp
-    
-          coeffs_c(1) = 0.0_rp
-          coeffs_c(2) = 1.0_rp
-      case (3)
-          !> SSPRK3
-          coeffs_A = 0.0_rp
-          coeffs_A(2, 1) = 1.0_rp
-          coeffs_A(3, 1) = 0.25_rp
-          coeffs_A(3, 2) = 0.25_rp
-    
-          coeffs_b(1) = 1.0_rp / 6.0_rp
-          coeffs_b(2) = 1.0_rp / 6.0_rp
-          coeffs_b(3) = 2.0_rp / 3.0_rp
-    
-          coeffs_c(1) = 0.0_rp
-          coeffs_c(2) = 1.0_rp
-          coeffs_c(3) = 0.5_rp
-      case (4)
-          !> RK4
-          coeffs_A = 0.0_rp
-          coeffs_A(2, 1) = 0.5_rp
-          coeffs_A(3, 2) = 0.5_rp
-          coeffs_A(4, 3) = 1.0_rp
-    
-          coeffs_b(1) = 1.0_rp / 6.0_rp
-          coeffs_b(2) = 1.0_rp / 3.0_rp
-          coeffs_b(3) = 1.0_rp / 3.0_rp
-          coeffs_b(4) = 1.0_rp / 6.0_rp
-    
-          coeffs_c(1) = 0.0_rp
-          coeffs_c(2) = 0.5_rp
-          coeffs_c(3) = 0.5_rp
-          coeffs_c(4) = 1.0_rp
-      case default
-        call neko_error("The time order must be 1 to 4.")
+        case (1)
+         !> Forward Euler
+         coeffs_A(1, 1) = 0.0_rp
+         coeffs_b(1) = 1.0_rp
+         coeffs_c(1) = 0.0_rp
+        case (2)
+         !> Heun's method
+         coeffs_A = 0.0_rp
+         coeffs_A(2, 1) = 1.0_rp
+
+         coeffs_b(1) = 0.5_rp
+         coeffs_b(2) = 0.5_rp
+
+         coeffs_c(1) = 0.0_rp
+         coeffs_c(2) = 1.0_rp
+        case (3)
+         !> SSPRK3
+         coeffs_A = 0.0_rp
+         coeffs_A(2, 1) = 1.0_rp
+         coeffs_A(3, 1) = 0.25_rp
+         coeffs_A(3, 2) = 0.25_rp
+
+         coeffs_b(1) = 1.0_rp / 6.0_rp
+         coeffs_b(2) = 1.0_rp / 6.0_rp
+         coeffs_b(3) = 2.0_rp / 3.0_rp
+
+         coeffs_c(1) = 0.0_rp
+         coeffs_c(2) = 1.0_rp
+         coeffs_c(3) = 0.5_rp
+        case (4)
+         !> RK4
+         coeffs_A = 0.0_rp
+         coeffs_A(2, 1) = 0.5_rp
+         coeffs_A(3, 2) = 0.5_rp
+         coeffs_A(4, 3) = 1.0_rp
+
+         coeffs_b(1) = 1.0_rp / 6.0_rp
+         coeffs_b(2) = 1.0_rp / 3.0_rp
+         coeffs_b(3) = 1.0_rp / 3.0_rp
+         coeffs_b(4) = 1.0_rp / 6.0_rp
+
+         coeffs_c(1) = 0.0_rp
+         coeffs_c(2) = 0.5_rp
+         coeffs_c(3) = 0.5_rp
+         coeffs_c(4) = 1.0_rp
+        case default
+         call neko_error("The time order must be 1 to 4.")
       end select
 
       if (c_associated(coeffs_A_d)) then
-        call device_memcpy(coeffs_A, coeffs_A_d, s, &
-                          HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(coeffs_A, coeffs_A_d, s, &
+              HOST_TO_DEVICE, sync = .false.)
       end if
 
       if (c_associated(coeffs_b_d)) then
-        call device_memcpy(coeffs_b, coeffs_b_d, s, &
-                          HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(coeffs_b, coeffs_b_d, s, &
+              HOST_TO_DEVICE, sync = .false.)
       end if
 
       if (c_associated(coeffs_c_d)) then
-        call device_memcpy(coeffs_c, coeffs_c_d, s, &
-                          HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(coeffs_c, coeffs_c_d, s, &
+              HOST_TO_DEVICE, sync = .false.)
       end if
     end associate
 
@@ -172,7 +172,7 @@ contains
        call device_free(this%coeffs_b_d)
     end if
     if (c_associated(this%coeffs_c_d)) then
-      call device_free(this%coeffs_c_d)
+       call device_free(this%coeffs_c_d)
     end if
   end subroutine runge_kutta_scheme_coeffs_free
 

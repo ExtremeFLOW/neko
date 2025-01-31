@@ -35,8 +35,8 @@ module fluid_scheme_compressible_euler
   use device, only : device_memcpy, HOST_TO_DEVICE
   use dofmap, only : dofmap_t
   use field_math, only : field_add2, field_cfill, field_cmult, field_cadd, &
-                        field_copy, field_col2, field_col3, &
-                        field_addcol3, field_sub2, field_invcol2
+       field_copy, field_col2, field_col3, &
+       field_addcol3, field_sub2, field_invcol2
   use math, only : col2, copy, col3, addcol3, subcol3
   use device_math, only : device_col2
   use field, only : field_t
@@ -63,7 +63,7 @@ module fluid_scheme_compressible_euler
   private
 
   type, public, extends(fluid_scheme_compressible_t) &
-      :: fluid_scheme_compressible_euler_t
+       :: fluid_scheme_compressible_euler_t
      type(field_t) :: rho_res, m_x_res, m_y_res, m_z_res, m_E_res
      type(field_t) :: drho, dm_x, dm_y, dm_z, dE
      type(field_t) :: h
@@ -79,13 +79,13 @@ module fluid_scheme_compressible_euler
      procedure, pass(this) :: restart => fluid_scheme_compressible_euler_restart
      !> Set up boundary conditions.
      procedure, pass(this) :: setup_bcs &
-                            => fluid_scheme_compressible_euler_setup_bcs
+          => fluid_scheme_compressible_euler_setup_bcs
      procedure, pass(this) :: compute_h
   end type fluid_scheme_compressible_euler_t
 
 contains
   !> Initialize the compressible Euler fluid scheme
-  !> @param this The fluid scheme object 
+  !> @param this The fluid scheme object
   !> @param msh Mesh data structure
   !> @param lx Polynomial order in x-direction
   !> @param params JSON configuration parameters
@@ -107,7 +107,7 @@ contains
     call euler_rhs_factory(this%euler_rhs)
 
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
-          dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
+         dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
 
       call this%drho%init(dm_Xh, 'drho')
       call this%dm_x%init(dm_Xh, 'dm_x')
@@ -119,26 +119,26 @@ contains
     end associate
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      associate(p => this%p, rho_field => this%rho_field, &
-           u => this%u, v => this%v, w => this%w, &
-           m_x => this%m_x, m_y => this%m_y, m_z => this%m_z)
-        call device_memcpy(p%x, p%x_d, p%dof%size(), &
-                           HOST_TO_DEVICE, sync = .false.)
-        call device_memcpy(rho_field%x, rho_field%x_d, rho_field%dof%size(), &
-                           HOST_TO_DEVICE, sync = .false.)
-        call device_memcpy(u%x, u%x_d, u%dof%size(), &
-                           HOST_TO_DEVICE, sync = .false.)
-        call device_memcpy(v%x, v%x_d, v%dof%size(), &
-                           HOST_TO_DEVICE, sync = .false.)
-        call device_memcpy(w%x, w%x_d, w%dof%size(), &
-                           HOST_TO_DEVICE, sync = .false.)
-        call device_memcpy(m_x%x, m_x%x_d, m_x%dof%size(), &
-                            HOST_TO_DEVICE, sync = .false.)
-        call device_memcpy(m_y%x, m_y%x_d, m_y%dof%size(), &
-                            HOST_TO_DEVICE, sync = .false.)
-        call device_memcpy(m_z%x, m_z%x_d, m_z%dof%size(), &
-                            HOST_TO_DEVICE, sync = .false.)
-      end associate
+       associate(p => this%p, rho_field => this%rho_field, &
+            u => this%u, v => this%v, w => this%w, &
+            m_x => this%m_x, m_y => this%m_y, m_z => this%m_z)
+         call device_memcpy(p%x, p%x_d, p%dof%size(), &
+              HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(rho_field%x, rho_field%x_d, rho_field%dof%size(), &
+              HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(u%x, u%x_d, u%dof%size(), &
+              HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(v%x, v%x_d, v%dof%size(), &
+              HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(w%x, w%x_d, w%dof%size(), &
+              HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(m_x%x, m_x%x_d, m_x%dof%size(), &
+              HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(m_y%x, m_y%x_d, m_y%dof%size(), &
+              HOST_TO_DEVICE, sync = .false.)
+         call device_memcpy(m_z%x, m_z%x_d, m_z%dof%size(), &
+              HOST_TO_DEVICE, sync = .false.)
+       end associate
     end if
 
     ! Initialize the diffusion operator
@@ -147,7 +147,7 @@ contains
     ! Compute h
     call this%compute_h()
     call json_get_or_default(params, 'case.numerics.c_avisc_low', &
-                                this%c_avisc_low, 0.5_rp)
+         this%c_avisc_low, 0.5_rp)
 
     ! Initialize Runge-Kutta scheme
     call json_get_or_default(params, 'case.numerics.time_order', rk_order, 4)
@@ -161,7 +161,7 @@ contains
     class(fluid_scheme_compressible_euler_t), intent(inout) :: this
 
     if (allocated(this%Ax)) then
-      deallocate(this%Ax)
+       deallocate(this%Ax)
     end if
 
     call this%drho%free()
@@ -181,7 +181,7 @@ contains
   !> @param ext_bdf Time integration controller
   !> @param dt_controller Timestep size controller
   subroutine fluid_scheme_compressible_euler_step(this, t, tstep, dt, &
-                                    ext_bdf, dt_controller)
+       ext_bdf, dt_controller)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
@@ -198,25 +198,25 @@ contains
 
     call profiler_start_region('Fluid compressible', 1)
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
-      m_x=> this%m_x, m_y => this%m_y, m_z => this%m_z, &
-      Xh => this%Xh, msh => this%msh, Ax => this%Ax, &
-      c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
-      rho => this%rho, mu => this%mu, E => this%E, &
-      rho_field => this%rho_field, mu_field => this%mu_field, &
-      ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
-      f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
-      drho => this%drho, dm_x => this%dm_x, dm_y => this%dm_y, &
-      dm_z => this%dm_z, dE => this%dE, &
-      euler_rhs => this%euler_rhs, h => this%h, &
-      c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
+         m_x=> this%m_x, m_y => this%m_y, m_z => this%m_z, &
+         Xh => this%Xh, msh => this%msh, Ax => this%Ax, &
+         c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
+         rho => this%rho, mu => this%mu, E => this%E, &
+         rho_field => this%rho_field, mu_field => this%mu_field, &
+         ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
+         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
+         drho => this%drho, dm_x => this%dm_x, dm_y => this%dm_y, &
+         dm_z => this%dm_z, dE => this%dE, &
+         euler_rhs => this%euler_rhs, h => this%h, &
+         c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
       ! Hack: If m_z is always zero, use it to visualize rho
       ! call field_cfill(m_z, 0.0_rp, n)
 
       call this%euler_rhs%step(rho_field, m_x, m_y, m_z, E, &
-                                p, u, v, w, Ax, &
-                                c_Xh, gs_Xh, h, c_avisc_low, &
-                                rk_scheme, dt)
+           p, u, v, w, Ax, &
+           c_Xh, gs_Xh, h, c_avisc_low, &
+           rk_scheme, dt)
 
       !> TODO: apply boundary conditions
 
@@ -278,57 +278,57 @@ contains
     lz_half = this%c_Xh%Xh%lz / 2
 
     do e = 1, this%c_Xh%msh%nelv
-      do k = 1, this%c_Xh%Xh%lz
+       do k = 1, this%c_Xh%Xh%lz
           km = max(1, k-1)
           kp = min(this%c_Xh%Xh%lz, k+1)
 
           do j = 1, this%c_Xh%Xh%ly
-            jm = max(1, j-1)
-            jp = min(this%c_Xh%Xh%ly, j+1)
+             jm = max(1, j-1)
+             jp = min(this%c_Xh%Xh%ly, j+1)
 
-            do i = 1, this%c_Xh%Xh%lx
+             do i = 1, this%c_Xh%Xh%lx
                 im = max(1, i-1)
                 ip = min(this%c_Xh%Xh%lx, i+1)
 
                 di = (this%c_Xh%dof%x(ip, j, k, e) - &
-                      this%c_Xh%dof%x(im, j, k, e))**2 &
-                  + (this%c_Xh%dof%y(ip, j, k, e) - &
-                      this%c_Xh%dof%y(im, j, k, e))**2 &
-                  + (this%c_Xh%dof%z(ip, j, k, e) - &
-                      this%c_Xh%dof%z(im, j, k, e))**2
+                     this%c_Xh%dof%x(im, j, k, e))**2 &
+                     + (this%c_Xh%dof%y(ip, j, k, e) - &
+                     this%c_Xh%dof%y(im, j, k, e))**2 &
+                     + (this%c_Xh%dof%z(ip, j, k, e) - &
+                     this%c_Xh%dof%z(im, j, k, e))**2
 
                 dj = (this%c_Xh%dof%x(i, jp, k, e) - &
-                      this%c_Xh%dof%x(i, jm, k, e))**2 &
-                  + (this%c_Xh%dof%y(i, jp, k, e) - &
-                      this%c_Xh%dof%y(i, jm, k, e))**2 &
-                  + (this%c_Xh%dof%z(i, jp, k, e) - &
-                      this%c_Xh%dof%z(i, jm, k, e))**2
+                     this%c_Xh%dof%x(i, jm, k, e))**2 &
+                     + (this%c_Xh%dof%y(i, jp, k, e) - &
+                     this%c_Xh%dof%y(i, jm, k, e))**2 &
+                     + (this%c_Xh%dof%z(i, jp, k, e) - &
+                     this%c_Xh%dof%z(i, jm, k, e))**2
 
                 dk = (this%c_Xh%dof%x(i, j, kp, e) - &
-                      this%c_Xh%dof%x(i, j, km, e))**2 &
-                  + (this%c_Xh%dof%y(i, j, kp, e) - &
-                      this%c_Xh%dof%y(i, j, km, e))**2 &
-                  + (this%c_Xh%dof%z(i, j, kp, e) - &
-                      this%c_Xh%dof%z(i, j, km, e))**2
+                     this%c_Xh%dof%x(i, j, km, e))**2 &
+                     + (this%c_Xh%dof%y(i, j, kp, e) - &
+                     this%c_Xh%dof%y(i, j, km, e))**2 &
+                     + (this%c_Xh%dof%z(i, j, kp, e) - &
+                     this%c_Xh%dof%z(i, j, km, e))**2
 
                 di = sqrt(di) / (ip - im)
                 dj = sqrt(dj) / (jp - jm)
                 dk = sqrt(dk) / (kp - km)
                 this%h%x(i,j,k,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
 
-            end do
+             end do
           end do
-      end do
+       end do
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      call device_memcpy(this%h%x, this%h%x_d, this%h%dof%size(),&
-                          HOST_TO_DEVICE, sync = .false.)
-      call this%gs_Xh%op(this%h, GS_OP_ADD)
-      call device_col2(this%h%x_d, this%c_Xh%mult_d, this%h%dof%size())
+       call device_memcpy(this%h%x, this%h%x_d, this%h%dof%size(),&
+            HOST_TO_DEVICE, sync = .false.)
+       call this%gs_Xh%op(this%h, GS_OP_ADD)
+       call device_col2(this%h%x_d, this%c_Xh%mult_d, this%h%dof%size())
     else
-      call this%gs_Xh%op(this%h, GS_OP_ADD)
-      call col2(this%h%x, this%c_Xh%mult, this%h%dof%size())
+       call this%gs_Xh%op(this%h, GS_OP_ADD)
+       call col2(this%h%x, this%c_Xh%mult, this%h%dof%size())
     end if
 
   end subroutine compute_h

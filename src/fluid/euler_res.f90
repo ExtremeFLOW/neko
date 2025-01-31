@@ -52,7 +52,7 @@ module euler_residual
   !> Abstract interface to evaluate rhs
   abstract interface
      subroutine euler_rhs(rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
-                          coef, gs, h, c_avisc_low, rk_scheme, dt)
+          coef, gs, h, c_avisc_low, rk_scheme, dt)
        import field_t
        import Ax_t
        import gs_t

@@ -34,7 +34,7 @@ module fluid_scheme_compressible
   use dirichlet, only : dirichlet_t
   use field, only : field_t
   use field_math, only : field_cfill, field_col2, field_col3, &
-          field_cmult2, field_cmult, field_addcol3, field_add2
+       field_cmult2, field_cmult, field_addcol3, field_add2
   use field_registry, only : neko_field_registry
   use fluid_scheme_base, only : fluid_scheme_base_t
   use json_module, only : json_file
@@ -50,14 +50,14 @@ module fluid_scheme_compressible
   !> Base type of compressible fluid formulations.
   type, abstract, extends(fluid_scheme_base_t) :: fluid_scheme_compressible_t
      !> The momentum field
-     type(field_t), pointer :: m_x => null()    !< x-component of Momentum
-     type(field_t), pointer :: m_y => null()    !< y-component of Momentum
-     type(field_t), pointer :: m_z => null()    !< z-component of Momentum
-     type(field_t), pointer :: E => null()      !< Total energy
+     type(field_t), pointer :: m_x => null() !< x-component of Momentum
+     type(field_t), pointer :: m_y => null() !< y-component of Momentum
+     type(field_t), pointer :: m_z => null() !< z-component of Momentum
+     type(field_t), pointer :: E => null() !< Total energy
 
      real(kind=rp) :: gamma
 
-     type(scratch_registry_t) :: scratch       !< Manager for temporary fields
+     type(scratch_registry_t) :: scratch !< Manager for temporary fields
 
    contains
      !> Constructors
@@ -69,7 +69,7 @@ module fluid_scheme_compressible
      procedure, pass(this) :: validate => fluid_scheme_compressible_validate
      !> Compute the CFL number
      procedure, pass(this) :: compute_cfl &
-                                => fluid_scheme_compressible_compute_cfl
+          => fluid_scheme_compressible_compute_cfl
      !> Set rho and mu
      procedure, pass(this) :: update_material_properties => &
           fluid_scheme_compressible_update_material_properties
@@ -230,7 +230,7 @@ contains
     call field_add2(this%E, temp, n)
 
     call this%scratch%relinquish_field(temp_indices)
-    
+
   end subroutine fluid_scheme_compressible_validate
 
   !> Compute CFL number

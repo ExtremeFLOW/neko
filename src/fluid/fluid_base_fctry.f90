@@ -38,7 +38,7 @@ submodule (fluid_scheme_base) fluid_base_fctry
 
   ! List of all possible types created by the factory routine
   character(len=20) :: FLUID_KNOWN_TYPES(2) = [character(len=20) :: &
-     "pnpn", "compressible"]
+       "pnpn", "compressible"]
 
 contains
 
@@ -56,8 +56,8 @@ contains
        type_string = concat_string_array(FLUID_KNOWN_TYPES, &
             NEW_LINE('A') // "-  ", .true.)
        call neko_error("Unknown fluid scheme type: " &
-                       // trim(type_name) // ". Known types are: " &
-                       // type_string)
+            // trim(type_name) // ". Known types are: " &
+            // type_string)
     end if
   end subroutine fluid_scheme_base_factory
 
