@@ -12,6 +12,8 @@ module euler_res_cpu
   use scratch_registry, only: neko_scratch_registry
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use field_list, only : field_list_t
+  implicit none
+  private
 
   type, public, extends(euler_rhs_t) :: euler_res_cpu_t
    contains
@@ -146,7 +148,7 @@ contains
     type(coef_t), intent(inout) :: coef
     type(gs_t), intent(inout) :: gs
     real(kind=rp) :: c_avisc_low
-    integer :: n
+    integer :: i, n
     type(field_t), pointer :: temp, f_x, f_y, f_z, &
                               visc_rho, visc_m_x, visc_m_y, visc_m_z, visc_E
     integer :: temp_indices(9)
