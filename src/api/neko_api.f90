@@ -36,15 +36,22 @@ module neko_api
   use, intrinsic :: iso_c_binding
   implicit none
   private
-  
+
 contains
 
   !> Initialise Neko
   subroutine neko_api_init() bind(c, name="neko_init")
 
     call neko_init()
-    
+
   end subroutine neko_api_init
+
+  !> Finalize Neko
+  subroutine neko_api_finalize() bind(c, name="neko_finalize")
+
+    call neko_finalize()
+
+  end subroutine neko_api_finalize
 
   !> Display job information
   subroutine neko_api_job_info() bind(c, name="neko_job_info")
@@ -58,7 +65,175 @@ contains
        call neko_job_info()
        call neko_log%newline()
     end if
-    
+
   end subroutine neko_api_job_info
-  
+
+  !> Initalise a Neko case
+  !! @param case_json Serialised JSON object describing the case
+  !! @param case_iptr Opaque pointer for the Neko case
+  subroutine neko_api_case_init(case_json, case_len, case_iptr) &
+       bind(c, name="neko_case_init")
+    type(c_ptr), intent(in) :: case_json
+    integer(c_int), value :: case_len
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    type(json_file) :: json_case
+    type(case_t), pointer :: C
+    type(c_ptr) :: cp
+
+    ! Convert passed in serialised JSON object into a Fortran
+    ! character string and create a json_file object
+    if (c_associated(case_json)) then
+       block
+         character(kind=c_char,len=case_len+1),pointer :: s
+         character(len=:), allocatable :: fcase_json
+         call c_f_pointer(case_json, s)
+         fcase_json = s(1:case_len)
+         call json_case%load_from_string(fcase_json)
+         deallocate(fcase_json)
+         nullify(s)
+       end block
+    end if
+
+    allocate(C)
+
+    !
+    ! Create case
+    !
+    call case_init(C, json_case)
+
+    !
+    ! Create simulation components
+    !
+    call neko_simcomps%init(C)
+
+
+    cp = c_loc(C)
+    case_iptr = transfer(cp, 0_c_intptr_t)
+
+  end subroutine neko_api_case_init
+
+
+  !> Destroy a Neko case
+  !! @param case_iptr Opaque pointer for the Neko case
+  subroutine neko_api_case_free(case_iptr) bind(c, name="neko_case_free")
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    type(case_t), pointer :: C
+    type(c_ptr) :: cp
+
+    cp = transfer(case_iptr, c_null_ptr)
+    if (c_associated(cp)) then
+       call c_f_pointer(cp, C)
+       call case_free(c)
+    else
+       call neko_error('Invalid Neko case')
+    end if
+
+  end subroutine neko_api_case_free
+
+  !> Solve a neko case
+  !! @param case_iptr Opaque pointer for the Neko case
+  subroutine neko_api_solve(case_iptr) bind(c, name="neko_solve")
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    type(case_t), pointer :: C
+    type(c_ptr) :: cp
+
+    cp = transfer(case_iptr, c_null_ptr)
+    if (c_associated(cp)) then
+       call c_f_pointer(cp, C)
+       call neko_solve(C)
+    else
+       call neko_error('Invalid Neko case')
+    end if
+
+  end subroutine neko_api_solve
+
+  !> Compute a time-step for a neko case
+  !! @param case_iptr Opaque pointer for the Neko case
+  subroutine neko_api_step(case_iptr, t, tstep) bind(c, name="neko_step")
+    use time_step_controller, only : time_step_controller_t
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    real(kind=c_rp), value :: t
+    integer(c_int), value :: tstep
+    type(case_t), pointer :: C
+    type(c_ptr) :: cptr
+    character(len=LOG_SIZE) :: log_buf
+    real(kind=rp) :: rho, mu, cp, lambda
+    type(time_step_controller_t) :: dt_controller
+    real(kind=rp) :: cfl_avrg = 0.0_rp
+    real(kind=rp) :: cfl
+    integer :: i
+
+    cptr = transfer(case_iptr, c_null_ptr)
+    if (c_associated(cptr)) then
+       call c_f_pointer(cptr, C)
+    else
+       call neko_error('Invalid Neko case')
+    end if
+
+    call dt_controller%init(C%params)
+
+    write(log_buf, '(A4,E15.7)') 't = ', t
+    call neko_log%message(repeat('-', 64), NEKO_LOG_QUIET)
+    call neko_log%message(log_buf, NEKO_LOG_QUIET)
+    call neko_log%message(repeat('-', 64), NEKO_LOG_QUIET)
+
+    call neko_log%begin()
+
+    cfl = C%fluid%compute_cfl(C%dt)
+    call dt_controller%set_dt(C%dt, cfl, cfl_avrg, tstep)
+
+    do i = 10, 2, -1
+       C%tlag(i) = C%tlag(i-1)
+       C%dtlag(i) = C%dtlag(i-1)
+    end do
+
+    C%dtlag(i) = C%dt
+    C%tlag(1) = t
+    if (C%ext_bdf%ndiff .eq. 0 ) then
+       C%dtlag(2) = C%dt
+       C%tlag(2) = t
+    end if
+
+    t = t + C%dt
+
+    call C%ext_bdf%set_coeffs(C%dtlag)
+
+    call neko_log%section('Fluid')
+    call C%fluid%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
+    call neko_log%end_section()
+
+    ! Scalar step
+    if (allocated(C%scalar)) then
+       call neko_log%section('Scalar')
+       call C%scalar%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
+       call neko_log%end_section()
+
+       !> @todo Temporary fix until we have reworked the material properties
+       cp = C%scalar%cp
+       lambda = C%scalar%lambda
+    end if
+
+    !> @todo Temporary fix until we have reworked the material properties
+    rho = C%fluid%rho
+    mu = C%fluid%mu
+
+    ! Update material properties
+    call C%usr%material_properties(t, tstep, rho, mu, cp, lambda, C%params)
+
+    !> @todo Temporary fix until we have reworked the material properties
+    C%fluid%rho = rho
+    C%fluid%mu = mu
+    call C%fluid%update_material_properties()
+
+    if (allocated(C%scalar)) then
+       C%scalar%cp = cp
+       C%scalar%lambda = lambda
+       call C%scalar%update_material_properties()
+    end if
+
+    call neko_log%end()
+    call neko_log%newline()
+
+  end subroutine neko_api_step
+
 end module neko_api
