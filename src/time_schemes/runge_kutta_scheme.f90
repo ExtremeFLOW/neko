@@ -138,22 +138,22 @@ contains
           coeffs_c(3) = 0.5_rp
           coeffs_c(4) = 1.0_rp
       case default
-        call neko_error("The order of the Runge-Kutta time scheme must be 1 to 4.")
+        call neko_error("The time order must be 1 to 4.")
       end select
 
       if (c_associated(coeffs_A_d)) then
         call device_memcpy(coeffs_A, coeffs_A_d, s, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
       end if
 
       if (c_associated(coeffs_b_d)) then
         call device_memcpy(coeffs_b, coeffs_b_d, s, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
       end if
 
       if (c_associated(coeffs_c_d)) then
         call device_memcpy(coeffs_c, coeffs_c_d, s, &
-                          HOST_TO_DEVICE, sync=.false.)
+                          HOST_TO_DEVICE, sync = .false.)
       end if
     end associate
 

@@ -33,7 +33,8 @@
 module fluid_scheme_compressible
   use dirichlet, only : dirichlet_t
   use field, only : field_t
-  use field_math, only : field_cfill, field_col2, field_col3, field_cmult2, field_cmult, field_addcol3, field_add2
+  use field_math, only : field_cfill, field_col2, field_col3, &
+          field_cmult2, field_cmult, field_addcol3, field_add2
   use field_registry, only : neko_field_registry
   use fluid_scheme_base, only : fluid_scheme_base_t
   use json_module, only : json_file
@@ -67,7 +68,8 @@ module fluid_scheme_compressible
      !> Validate that all components are properly allocated
      procedure, pass(this) :: validate => fluid_scheme_compressible_validate
      !> Compute the CFL number
-     procedure, pass(this) :: compute_cfl => fluid_scheme_compressible_compute_cfl
+     procedure, pass(this) :: compute_cfl &
+                                => fluid_scheme_compressible_compute_cfl
      !> Set rho and mu
      procedure, pass(this) :: update_material_properties => &
           fluid_scheme_compressible_update_material_properties

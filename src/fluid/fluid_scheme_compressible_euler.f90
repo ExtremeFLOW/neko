@@ -34,8 +34,9 @@ module fluid_scheme_compressible_euler
   use advection, only : advection_t, advection_factory
   use device, only : device_memcpy, HOST_TO_DEVICE
   use dofmap, only : dofmap_t
-  use field_math, only : field_add2, field_cfill, field_cmult, field_cadd, field_copy, field_col2, &
-                         field_col3, field_addcol3, field_sub2, field_invcol2
+  use field_math, only : field_add2, field_cfill, field_cmult, field_cadd, &
+                        field_copy, field_col2, field_col3, &
+                        field_addcol3, field_sub2, field_invcol2
   use math, only : col2, copy, col3, addcol3, subcol3
   use device_math, only : device_col2
   use field, only : field_t
@@ -61,7 +62,8 @@ module fluid_scheme_compressible_euler
   implicit none
   private
 
-  type, public, extends(fluid_scheme_compressible_t) :: fluid_scheme_compressible_euler_t
+  type, public, extends(fluid_scheme_compressible_t) &
+      :: fluid_scheme_compressible_euler_t
      type(field_t) :: rho_res, m_x_res, m_y_res, m_z_res, m_E_res
      type(field_t) :: drho, dm_x, dm_y, dm_z, dE
      type(field_t) :: h
@@ -76,7 +78,8 @@ module fluid_scheme_compressible_euler
      procedure, pass(this) :: step => fluid_scheme_compressible_euler_step
      procedure, pass(this) :: restart => fluid_scheme_compressible_euler_restart
      !> Set up boundary conditions.
-     procedure, pass(this) :: setup_bcs => fluid_scheme_compressible_euler_setup_bcs
+     procedure, pass(this) :: setup_bcs &
+                            => fluid_scheme_compressible_euler_setup_bcs
      procedure, pass(this) :: compute_h
   end type fluid_scheme_compressible_euler_t
 
@@ -143,7 +146,8 @@ contains
 
     ! Compute h
     call this%compute_h()
-    call json_get_or_default(params, 'case.numerics.c_avisc_low', this%c_avisc_low, 0.5_rp)
+    call json_get_or_default(params, 'case.numerics.c_avisc_low', &
+                                this%c_avisc_low, 0.5_rp)
 
     ! Initialize Runge-Kutta scheme
     call json_get_or_default(params, 'case.numerics.time_order', rk_order, 4)
@@ -176,7 +180,8 @@ contains
   !> @param dt Timestep size
   !> @param ext_bdf Time integration controller
   !> @param dt_controller Timestep size controller
-  subroutine fluid_scheme_compressible_euler_step(this, t, tstep, dt, ext_bdf, dt_controller)
+  subroutine fluid_scheme_compressible_euler_step(this, t, tstep, dt, &
+                                    ext_bdf, dt_controller)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep

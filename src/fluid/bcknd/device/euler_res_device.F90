@@ -67,7 +67,8 @@ module euler_res_device
   end interface
 
   interface
-    subroutine euler_res_part_mx_flux_hip(f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, n) &
+    subroutine euler_res_part_mx_flux_hip(f_x, f_y, f_z, &
+                        m_x, m_y, m_z, rho_field, p, n) &
         bind(c, name = 'euler_res_part_mx_flux_hip')
       use, intrinsic :: iso_c_binding
       implicit none
@@ -77,7 +78,8 @@ module euler_res_device
   end interface
 
   interface
-    subroutine euler_res_part_my_flux_hip(f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, n) &
+    subroutine euler_res_part_my_flux_hip(f_x, f_y, f_z, &
+                        m_x, m_y, m_z, rho_field, p, n) &
         bind(c, name = 'euler_res_part_my_flux_hip')
       use, intrinsic :: iso_c_binding
       implicit none
@@ -87,7 +89,8 @@ module euler_res_device
   end interface
 
   interface
-    subroutine euler_res_part_mz_flux_hip(f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, n) &
+    subroutine euler_res_part_mz_flux_hip(f_x, f_y, f_z, &
+                        m_x, m_y, m_z, rho_field, p, n) &
         bind(c, name = 'euler_res_part_mz_flux_hip')
       use, intrinsic :: iso_c_binding
       implicit none
@@ -97,7 +100,8 @@ module euler_res_device
   end interface
 
   interface
-    subroutine euler_res_part_E_flux_hip(f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, E, n) &
+    subroutine euler_res_part_E_flux_hip(f_x, f_y, f_z, &
+                        m_x, m_y, m_z, rho_field, p, E, n) &
         bind(c, name = 'euler_res_part_E_flux_hip')
       use, intrinsic :: iso_c_binding
       implicit none
@@ -107,7 +111,8 @@ module euler_res_device
   end interface
 
   interface
-    subroutine euler_res_part_coef_mult_hip(rhs_rho_field_d, rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
+    subroutine euler_res_part_coef_mult_hip(rhs_rho_field_d, rhs_m_x_d, &
+                                            rhs_m_y_d, rhs_m_z_d, &
                                             rhs_E_d, mult_d, n) &
         bind(c, name = 'euler_res_part_coef_mult_hip')
       use, intrinsic :: iso_c_binding
@@ -149,7 +154,8 @@ module euler_res_device
   end interface
 
   interface
-  subroutine euler_res_part_mx_flux_cuda(f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, n) &
+  subroutine euler_res_part_mx_flux_cuda(f_x, f_y, f_z, &
+                      m_x, m_y, m_z, rho_field, p, n) &
       bind(c, name = 'euler_res_part_mx_flux_cuda')
     use, intrinsic :: iso_c_binding
     implicit none
@@ -159,7 +165,8 @@ module euler_res_device
   end interface
 
   interface
-  subroutine euler_res_part_my_flux_cuda(f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, n) &
+  subroutine euler_res_part_my_flux_cuda(f_x, f_y, f_z, &
+                      m_x, m_y, m_z, rho_field, p, n) &
       bind(c, name = 'euler_res_part_my_flux_cuda')
     use, intrinsic :: iso_c_binding
     implicit none
@@ -169,7 +176,8 @@ module euler_res_device
   end interface
 
   interface
-  subroutine euler_res_part_mz_flux_cuda(f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, n) &
+  subroutine euler_res_part_mz_flux_cuda(f_x, f_y, f_z, &
+                      m_x, m_y, m_z, rho_field, p, n) &
       bind(c, name = 'euler_res_part_mz_flux_cuda')
     use, intrinsic :: iso_c_binding
     implicit none
@@ -179,7 +187,8 @@ module euler_res_device
   end interface
 
   interface
-  subroutine euler_res_part_E_flux_cuda(f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, E, n) &
+  subroutine euler_res_part_E_flux_cuda(f_x, f_y, f_z, &
+                      m_x, m_y, m_z, rho_field, p, E, n) &
       bind(c, name = 'euler_res_part_E_flux_cuda')
     use, intrinsic :: iso_c_binding
     implicit none
@@ -189,8 +198,9 @@ module euler_res_device
   end interface
 
   interface
-    subroutine euler_res_part_coef_mult_cuda(rhs_rho_field_d, rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
-                                            rhs_E_d, mult_d, n) &
+    subroutine euler_res_part_coef_mult_cuda(rhs_rho_field_d, &
+                            rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
+                            rhs_E_d, mult_d, n) &
         bind(c, name = 'euler_res_part_coef_mult_cuda')
       use, intrinsic :: iso_c_binding
       implicit none
@@ -219,7 +229,8 @@ module euler_res_device
 #endif
 
 contains
-  subroutine advance_primitive_variables_device(rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
+  subroutine advance_primitive_variables_device(rho_field, &
+                m_x, m_y, m_z, E, p, u, v, w, Ax, &
                 coef, gs, h, c_avisc_low, rk_scheme, dt)
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
     type(field_t), intent(in) :: p, u, v, w, h
@@ -304,15 +315,17 @@ contains
 
         do j = 1, i-1
 #ifdef HAVE_HIP
-          call euler_res_part_rk_sum_hip(temp_rho%x_d, temp_m_x%x_d, temp_m_y%x_d, temp_m_z%x_d, temp_E%x_d, &
-                                          k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, k_m_y%items(j)%ptr%x_d, &
-                                          k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
-                                          dt, rk_scheme%coeffs_A(i, j), n)
+          call euler_res_part_rk_sum_hip(temp_rho%x_d, temp_m_x%x_d, temp_m_y%x_d, &
+                  temp_m_z%x_d, temp_E%x_d, &
+                  k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, k_m_y%items(j)%ptr%x_d, &
+                  k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
+                  dt, rk_scheme%coeffs_A(i, j), n)
 #elif HAVE_CUDA
-          call euler_res_part_rk_sum_cuda(temp_rho%x_d, temp_m_x%x_d, temp_m_y%x_d, temp_m_z%x_d, temp_E%x_d, &
-                                          k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, k_m_y%items(j)%ptr%x_d, &
-                                          k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
-                                          dt, rk_scheme%coeffs_A(i, j), n)
+          call euler_res_part_rk_sum_cuda(temp_rho%x_d, temp_m_x%x_d, temp_m_y%x_d, &
+                  temp_m_z%x_d, temp_E%x_d, &
+                  k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, k_m_y%items(j)%ptr%x_d, &
+                  k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
+                  dt, rk_scheme%coeffs_A(i, j), n)
 #elif HAVE_OPENCL
           call neko_error("OpenCL not supported")
 #endif
@@ -329,15 +342,17 @@ contains
     ! Update the solution
     do i = 1, s
 #ifdef HAVE_HIP
-      call euler_res_part_rk_sum_hip(rho_field%x_d, m_x%x_d, m_y%x_d, m_z%x_d, E%x_d, &
-                                      k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, k_m_y%items(i)%ptr%x_d, &
-                                      k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
-                                      dt, rk_scheme%coeffs_b(i), n)
+      call euler_res_part_rk_sum_hip(rho_field%x_d, &
+          m_x%x_d, m_y%x_d, m_z%x_d, E%x_d, &
+          k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, k_m_y%items(i)%ptr%x_d, &
+          k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
+          dt, rk_scheme%coeffs_b(i), n)
 #elif HAVE_CUDA
-      call euler_res_part_rk_sum_cuda(rho_field%x_d, m_x%x_d, m_y%x_d, m_z%x_d, E%x_d, &
-                                      k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, k_m_y%items(i)%ptr%x_d, &
-                                      k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
-                                      dt, rk_scheme%coeffs_b(i), n)
+      call euler_res_part_rk_sum_cuda(rho_field%x_d, &
+          m_x%x_d, m_y%x_d, m_z%x_d, E%x_d, &
+          k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, k_m_y%items(i)%ptr%x_d, &
+          k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
+          dt, rk_scheme%coeffs_b(i), n)
 #elif HAVE_OPENCL
           call neko_error("OpenCL not supported")
 #endif
@@ -346,8 +361,9 @@ contains
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine advance_primitive_variables_device
 
-  subroutine evaluate_rhs_device(rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E, &
-                                rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
+  subroutine evaluate_rhs_device(rhs_rho_field, rhs_m_x, rhs_m_y, &
+                                rhs_m_z, rhs_E, rho_field, &
+                                m_x, m_y, m_z, E, p, u, v, w, Ax, &
                                 coef, gs, h, c_avisc_low)
     type(field_t), intent(inout) :: rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
@@ -373,9 +389,11 @@ contains
     !> m = m - dt * div(rho * u * u^T + p*I)
     ! m_x
 #ifdef HAVE_HIP
-    call euler_res_part_mx_flux_hip(f_x%x_d, f_y%x_d, f_z%x_d, m_x%x_d, m_y%x_d, m_z%x_d, rho_field%x_d, p%x_d, n)
+    call euler_res_part_mx_flux_hip(f_x%x_d, f_y%x_d, f_z%x_d, &
+          m_x%x_d, m_y%x_d, m_z%x_d, rho_field%x_d, p%x_d, n)
 #elif HAVE_CUDA
-    call euler_res_part_mx_flux_cuda(f_x%x_d, f_y%x_d, f_z%x_d, m_x%x_d, m_y%x_d, m_z%x_d, rho_field%x_d, p%x_d, n)
+    call euler_res_part_mx_flux_cuda(f_x%x_d, f_y%x_d, f_z%x_d, &
+          m_x%x_d, m_y%x_d, m_z%x_d, rho_field%x_d, p%x_d, n)
 #elif HAVE_OPENCL
     call neko_error("OpenCL not supported")
 #endif
@@ -428,10 +446,12 @@ contains
     call gs%op(rhs_E, GS_OP_ADD)
 
 #ifdef HAVE_HIP
-    call euler_res_part_coef_mult_hip(rhs_rho_field%x_d, rhs_m_x%x_d, rhs_m_y%x_d, rhs_m_z%x_d, &
+    call euler_res_part_coef_mult_hip(rhs_rho_field%x_d, rhs_m_x%x_d, &
+                                      rhs_m_y%x_d, rhs_m_z%x_d, &
                                       rhs_E%x_d, coef%mult_d, n)
 #elif HAVE_CUDA
-    call euler_res_part_coef_mult_cuda(rhs_rho_field%x_d, rhs_m_x%x_d, rhs_m_y%x_d, rhs_m_z%x_d, &
+    call euler_res_part_coef_mult_cuda(rhs_rho_field%x_d, rhs_m_x%x_d, &
+                                      rhs_m_y%x_d, rhs_m_z%x_d, &
                                       rhs_E%x_d, coef%mult_d, n)
 #endif
 
@@ -455,17 +475,27 @@ contains
     call gs%op(visc_E, GS_OP_ADD)
 
 #ifdef HAVE_HIP
-    call euler_res_part_visc_hip(rhs_rho_field%x_d, coef%Binv_d, visc_rho%x_d, h%x_d, c_avisc_low, n)
-    call euler_res_part_visc_hip(rhs_m_x%x_d, coef%Binv_d, visc_m_x%x_d, h%x_d, c_avisc_low, n)
-    call euler_res_part_visc_hip(rhs_m_y%x_d, coef%Binv_d, visc_m_y%x_d, h%x_d, c_avisc_low, n)
-    call euler_res_part_visc_hip(rhs_m_z%x_d, coef%Binv_d, visc_m_z%x_d, h%x_d, c_avisc_low, n)
-    call euler_res_part_visc_hip(rhs_E%x_d, coef%Binv_d, visc_E%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_hip(rhs_rho_field%x_d, coef%Binv_d, &
+        visc_rho%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_hip(rhs_m_x%x_d, coef%Binv_d, &
+        visc_m_x%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_hip(rhs_m_y%x_d, coef%Binv_d, &
+        visc_m_y%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_hip(rhs_m_z%x_d, coef%Binv_d, &
+        visc_m_z%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_hip(rhs_E%x_d, coef%Binv_d, &
+        visc_E%x_d, h%x_d, c_avisc_low, n)
 #elif HAVE_CUDA
-    call euler_res_part_visc_cuda(rhs_rho_field%x_d, coef%Binv_d, visc_rho%x_d, h%x_d, c_avisc_low, n)
-    call euler_res_part_visc_cuda(rhs_m_x%x_d, coef%Binv_d, visc_m_x%x_d, h%x_d, c_avisc_low, n)
-    call euler_res_part_visc_cuda(rhs_m_y%x_d, coef%Binv_d, visc_m_y%x_d, h%x_d, c_avisc_low, n)
-    call euler_res_part_visc_cuda(rhs_m_z%x_d, coef%Binv_d, visc_m_z%x_d, h%x_d, c_avisc_low, n)
-    call euler_res_part_visc_cuda(rhs_E%x_d, coef%Binv_d, visc_E%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_cuda(rhs_rho_field%x_d, coef%Binv_d, &
+        visc_rho%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_cuda(rhs_m_x%x_d, coef%Binv_d, &
+        visc_m_x%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_cuda(rhs_m_y%x_d, coef%Binv_d, &
+        visc_m_y%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_cuda(rhs_m_z%x_d, coef%Binv_d, &
+        visc_m_z%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_cuda(rhs_E%x_d, coef%Binv_d, &
+        visc_E%x_d, h%x_d, c_avisc_low, n)
 #elif HAVE_OPENCL
     call neko_error("OpenCL not supported")
 #endif

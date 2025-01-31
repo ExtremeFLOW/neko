@@ -41,7 +41,8 @@ module euler_res_cpu
   use gather_scatter, only : gs_t
   use num_types, only : rp
   use operators, only: div
-  use math, only: subcol3, copy, sub2, add2, add3, col2, col3, addcol3, cmult, cfill, invcol3
+  use math, only: subcol3, copy, sub2, add2, add3, &
+        col2, col3, addcol3, cmult, cfill, invcol3
   use gs_ops, only : GS_OP_ADD
   use scratch_registry, only: neko_scratch_registry
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
@@ -70,7 +71,8 @@ contains
   !> @param c_avisc_low Low-order artificial viscosity coefficient
   !> @param rk_scheme Runge-Kutta time integration scheme
   !> @param dt Time step size
-  subroutine advance_primitive_variables_cpu(rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
+  subroutine advance_primitive_variables_cpu(rho_field, m_x, m_y, m_z, &
+                E, p, u, v, w, Ax, &
                 coef, gs, h, c_avisc_low, rk_scheme, dt)
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
     type(field_t), intent(in) :: p, u, v, w, h
@@ -158,17 +160,23 @@ contains
         ! Accumulate previous stage contributions using RK coefficients
         do j = 1, i-1
           do concurrent (k = 1:n)
-            temp_rho%x(k,1,1,1) = temp_rho%x(k,1,1,1) + dt * rk_scheme%coeffs_A(i, j) * k_rho%items(j)%ptr%x(k,1,1,1)
-            temp_m_x%x(k,1,1,1) = temp_m_x%x(k,1,1,1) + dt * rk_scheme%coeffs_A(i, j) * k_m_x%items(j)%ptr%x(k,1,1,1)
-            temp_m_y%x(k,1,1,1) = temp_m_y%x(k,1,1,1) + dt * rk_scheme%coeffs_A(i, j) * k_m_y%items(j)%ptr%x(k,1,1,1)
-            temp_m_z%x(k,1,1,1) = temp_m_z%x(k,1,1,1) + dt * rk_scheme%coeffs_A(i, j) * k_m_z%items(j)%ptr%x(k,1,1,1)
-            temp_E%x(k,1,1,1)   = temp_E%x(k,1,1,1)   + dt * rk_scheme%coeffs_A(i, j) * k_E%items(j)%ptr%x(k,1,1,1)
+            temp_rho%x(k,1,1,1) = temp_rho%x(k,1,1,1) &
+              + dt * rk_scheme%coeffs_A(i, j) * k_rho%items(j)%ptr%x(k,1,1,1)
+            temp_m_x%x(k,1,1,1) = temp_m_x%x(k,1,1,1) &
+              + dt * rk_scheme%coeffs_A(i, j) * k_m_x%items(j)%ptr%x(k,1,1,1)
+            temp_m_y%x(k,1,1,1) = temp_m_y%x(k,1,1,1) &
+              + dt * rk_scheme%coeffs_A(i, j) * k_m_y%items(j)%ptr%x(k,1,1,1)
+            temp_m_z%x(k,1,1,1) = temp_m_z%x(k,1,1,1) &
+              + dt * rk_scheme%coeffs_A(i, j) * k_m_z%items(j)%ptr%x(k,1,1,1)
+            temp_E%x(k,1,1,1)   = temp_E%x(k,1,1,1) &
+              + dt * rk_scheme%coeffs_A(i, j) * k_E%items(j)%ptr%x(k,1,1,1)
           end do
         end do
 
         ! Evaluate RHS terms for current stage using intermediate solution values
         call evaluate_rhs_cpu(k_rho%items(i)%ptr, k_m_x%items(i)%ptr, &
-                              k_m_y%items(i)%ptr, k_m_z%items(i)%ptr, k_E%items(i)%ptr, &
+                              k_m_y%items(i)%ptr, k_m_z%items(i)%ptr, &
+                              k_E%items(i)%ptr, &
                               temp_rho, temp_m_x, temp_m_y, temp_m_z, temp_E, &
                               p, u, v, w, Ax, &
                               coef, gs, h, c_avisc_low)
@@ -177,11 +185,16 @@ contains
     ! Update the solution
     do i = 1, s
       do concurrent (k = 1:n)
-        rho_field%x(k,1,1,1) = rho_field%x(k,1,1,1) + dt * rk_scheme%coeffs_b(i) * k_rho%items(i)%ptr%x(k,1,1,1)
-        m_x%x(k,1,1,1) = m_x%x(k,1,1,1) + dt * rk_scheme%coeffs_b(i) * k_m_x%items(i)%ptr%x(k,1,1,1)
-        m_y%x(k,1,1,1) = m_y%x(k,1,1,1) + dt * rk_scheme%coeffs_b(i) * k_m_y%items(i)%ptr%x(k,1,1,1)
-        m_z%x(k,1,1,1) = m_z%x(k,1,1,1) + dt * rk_scheme%coeffs_b(i) * k_m_z%items(i)%ptr%x(k,1,1,1)
-        E%x(k,1,1,1) = E%x(k,1,1,1) + dt * rk_scheme%coeffs_b(i) * k_E%items(i)%ptr%x(k,1,1,1)
+        rho_field%x(k,1,1,1) = rho_field%x(k,1,1,1) &
+          + dt * rk_scheme%coeffs_b(i) * k_rho%items(i)%ptr%x(k,1,1,1)
+        m_x%x(k,1,1,1) = m_x%x(k,1,1,1) &
+          + dt * rk_scheme%coeffs_b(i) * k_m_x%items(i)%ptr%x(k,1,1,1)
+        m_y%x(k,1,1,1) = m_y%x(k,1,1,1) &
+          + dt * rk_scheme%coeffs_b(i) * k_m_y%items(i)%ptr%x(k,1,1,1)
+        m_z%x(k,1,1,1) = m_z%x(k,1,1,1) &
+          + dt * rk_scheme%coeffs_b(i) * k_m_z%items(i)%ptr%x(k,1,1,1)
+        E%x(k,1,1,1) = E%x(k,1,1,1) &
+          + dt * rk_scheme%coeffs_b(i) * k_E%items(i)%ptr%x(k,1,1,1)
       end do
     end do
 
@@ -213,7 +226,8 @@ contains
   subroutine evaluate_rhs_cpu(rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E, &
                             rho_field, m_x, m_y, m_z, E, p, u, v, w, Ax, &
                             coef, gs, h, c_avisc_low)
-    type(field_t), intent(inout) :: rhs_rho_field, rhs_m_x, rhs_m_y, rhs_m_z, rhs_E
+    type(field_t), intent(inout) :: rhs_rho_field, &
+                              rhs_m_x, rhs_m_y, rhs_m_z, rhs_E
     type(field_t), intent(inout) :: rho_field, m_x, m_y, m_z, E
     type(field_t), intent(in) :: p, u, v, w, h
     class(Ax_t), intent(inout) :: Ax
