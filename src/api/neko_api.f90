@@ -200,6 +200,11 @@ contains
 
     call C%ext_bdf%set_coeffs(C%dtlag)
 
+    ! Run the preprocessing
+    call neko_log%section('Preprocessing')
+    call neko_simcomps%preprocess(t, tstep)
+    call neko_log%end_section()
+
     call neko_log%section('Fluid')
     call C%fluid%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
     call neko_log%end_section()
@@ -214,6 +219,11 @@ contains
        cp = C%scalar%cp
        lambda = C%scalar%lambda
     end if
+
+    call neko_log%section('Postprocessing')
+    ! Execute all simulation components
+    call neko_simcomps%compute(t, tstep)
+
 
     !> @todo Temporary fix until we have reworked the material properties
     rho = C%fluid%rho
