@@ -62,7 +62,7 @@ module scalar_scheme
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
-                        user_material_properties
+       user_material_properties
   use utils, only : neko_error
   use comm, only: NEKO_COMM, MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
@@ -348,25 +348,25 @@ contains
 
     ! Initiate gradient jump penalty
     call json_get_or_default(params, &
-                            'case.scalar.gradient_jump_penalty.enabled',&
-                            this%if_gradient_jump_penalty, .false.)
+         'case.scalar.gradient_jump_penalty.enabled',&
+         this%if_gradient_jump_penalty, .false.)
 
     if (this%if_gradient_jump_penalty .eqv. .true.) then
        if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
           call json_get_or_default(params, &
-                            'case.scalar.gradient_jump_penalty.tau',&
-                            GJP_param_a, 0.02_rp)
+               'case.scalar.gradient_jump_penalty.tau',&
+               GJP_param_a, 0.02_rp)
           GJP_param_b = 0.0_rp
        else
           call json_get_or_default(params, &
-                        'case.scalar.gradient_jump_penalty.scaling_factor',&
-                            GJP_param_a, 0.8_rp)
+               'case.scalar.gradient_jump_penalty.scaling_factor',&
+               GJP_param_a, 0.8_rp)
           call json_get_or_default(params, &
-                        'case.scalar.gradient_jump_penalty.scaling_exponent',&
-                            GJP_param_b, 4.0_rp)
+               'case.scalar.gradient_jump_penalty.scaling_exponent',&
+               GJP_param_b, 4.0_rp)
        end if
        call this%gradient_jump_penalty%init(params, this%dm_Xh, this%c_Xh, &
-                                            GJP_param_a, GJP_param_b)
+            GJP_param_a, GJP_param_b)
     end if
 
     call neko_log%end_section()
@@ -533,7 +533,7 @@ contains
     type(user_t), target, intent(in) :: user
     character(len=LOG_SIZE) :: log_buf
     ! A local pointer that is needed to make Intel happy
-    procedure(user_material_properties),  pointer :: dummy_mp_ptr
+    procedure(user_material_properties), pointer :: dummy_mp_ptr
     real(kind=rp) :: dummy_mu, dummy_rho
 
     dummy_mp_ptr => dummy_user_material_properties
@@ -541,20 +541,20 @@ contains
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
 
        write(log_buf, '(A)') "Material properties must be set in the user&
-       & file!"
+            & file!"
        call neko_log%message(log_buf)
        call user%material_properties(0.0_rp, 0, dummy_rho, dummy_mu, &
-                                        this%cp, this%lambda, params)
+            this%cp, this%lambda, params)
     else
        if (params%valid_path('case.scalar.Pe') .and. &
-           (params%valid_path('case.scalar.lambda') .or. &
+            (params%valid_path('case.scalar.lambda') .or. &
             params%valid_path('case.scalar.cp'))) then
           call neko_error("To set the material properties for the scalar,&
-          & either provide Pe OR lambda and cp in the case file.")
+               & either provide Pe OR lambda and cp in the case file.")
           ! Non-dimensional case
        else if (params%valid_path('case.scalar.Pe')) then
           write(log_buf, '(A)') 'Non-dimensional scalar material properties &
-          & input.'
+               & input.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
           write(log_buf, '(A)') 'Specific heat capacity will be set to 1,'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
@@ -563,7 +563,7 @@ contains
 
           ! Read Pe into lambda for further manipulation.
           call json_get(params, 'case.scalar.Pe', this%lambda)
-          write(log_buf, '(A,ES13.6)') 'Pe         :',  this%lambda
+          write(log_buf, '(A,ES13.6)') 'Pe         :', this%lambda
           call neko_log%message(log_buf)
 
           ! Set cp and rho to 1 since the setup is non-dimensional.
