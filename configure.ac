@@ -410,3 +410,26 @@ fi
 AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])
 
 AC_OUTPUT
+
+
+# Display help text (if needed)
+if test "x${found_python}" = xyes; then
+echo \
+"
+---------------------------------------------------------
+                 _  __ ____ __ __ ____ 
+     ___  __ __ / |/ // __// //_// __ \\
+    / _ \/ // //    // _/ / ,<  / /_/ /
+   / .__/\\_, //_/|_//___//_/|_| \____/ (v${PACKAGE_VERSION})
+  /_/   /___/                         
+
+  Python modules will be installed in:
+
+        ${pythondir}
+
+  with \${prefix} = ${prefix} .
+
+  Do not forget to set the PYTHONPATH variable.
+---------------------------------------------------------
+"
+fi
