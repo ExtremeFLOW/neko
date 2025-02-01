@@ -37,7 +37,7 @@ module flow_ic
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use flow_profile, only : blasius_profile, blasius_linear, blasius_cubic, &
-       blasius_quadratic, blasius_quartic, blasius_sin
+    blasius_quadratic, blasius_quartic, blasius_sin
   use device, only: device_memcpy, HOST_TO_DEVICE
   use field, only : field_t
   use utils, only : neko_error, filename_suffix, filename_chsuffix, &
@@ -93,34 +93,34 @@ contains
        call json_get(params, 'case.fluid.initial_condition.value', uinf)
        call set_flow_ic_uniform(u, v, w, uinf)
 
-       !
-       ! Blasius boundary layer
-       !
+    !
+    ! Blasius boundary layer
+    !
     else if (trim(type) .eq. 'blasius') then
 
        call json_get(params, 'case.fluid.blasius.delta', delta)
        call json_get(params, 'case.fluid.blasius.approximation', &
-            read_str)
+                     read_str)
        call json_get(params, 'case.fluid.blasius.freestream_velocity', uinf)
 
        call set_flow_ic_blasius(u, v, w, delta, uinf, read_str)
 
-       !
-       ! Point zone initial condition
-       !
+    !
+    ! Point zone initial condition
+    !
     else if (trim(type) .eq. 'point_zone') then
 
        call json_get(params, 'case.fluid.initial_condition.base_value', uinf)
        call json_get(params, 'case.fluid.initial_condition.zone_name', &
-            read_str)
+                     read_str)
        call json_get(params, 'case.fluid.initial_condition.zone_value', &
             zone_value)
 
        call set_flow_ic_point_zone(u, v, w, uinf, read_str, zone_value)
 
-       !
-       ! Field initial condition (from fld file)
-       !
+    !
+    ! Field initial condition (from fld file)
+    !
     else if (trim(type) .eq. 'field') then
 
        call json_get(params, 'case.fluid.initial_condition.file_name', &
@@ -213,11 +213,11 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(u%x, u%x_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(v%x, v%x_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
+                          HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(w%x, w%x_d, n, &
-            HOST_TO_DEVICE, sync = .false.)
+                          HOST_TO_DEVICE, sync = .false.)
     end if
 
     ! Ensure continuity across elements for initial conditions
@@ -285,36 +285,36 @@ contains
     call neko_log%message(log_buf)
 
     select case (trim(type))
-      case ('linear')
+    case ('linear')
        bla => blasius_linear
-      case ('quadratic')
+    case ('quadratic')
        bla => blasius_quadratic
-      case ('cubic')
+    case ('cubic')
        bla => blasius_cubic
-      case ('quartic')
+    case ('quartic')
        bla => blasius_quartic
-      case ('sin')
+    case ('sin')
        bla => blasius_sin
-      case default
+    case default
        call neko_error('Invalid Blasius approximation')
     end select
 
     if ((uinf(1) .gt. 0.0_rp) .and. (uinf(2) .eq. 0.0_rp) &
-         .and. (uinf(3) .eq. 0.0_rp)) then
+       .and. (uinf(3) .eq. 0.0_rp)) then
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = bla(u%dof%z(i,1,1,1), delta, uinf(1))
           v%x(i,1,1,1) = 0.0_rp
           w%x(i,1,1,1) = 0.0_rp
        end do
     else if ((uinf(1) .eq. 0.0_rp) .and. (uinf(2) .gt. 0.0_rp) &
-         .and. (uinf(3) .eq. 0.0_rp)) then
+            .and. (uinf(3) .eq. 0.0_rp)) then
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = 0.0_rp
           v%x(i,1,1,1) = bla(u%dof%x(i,1,1,1), delta, uinf(2))
           w%x(i,1,1,1) = 0.0_rp
        end do
     else if ((uinf(1) .eq. 0.0_rp) .and. (uinf(2) .eq. 0.0_rp) &
-         .and. (uinf(3) .gt. 0.0_rp)) then
+            .and. (uinf(3) .gt. 0.0_rp)) then
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = 0.0_rp
           v%x(i,1,1,1) = 0.0_rp
@@ -420,8 +420,8 @@ contains
     sample_idx = extract_fld_file_index(file_name, -1)
 
     if (sample_idx .eq. -1) &
-     call neko_error("Invalid file name for the initial condition. The&
-          file format must be e.g. 'mean0.f00001'")
+         call neko_error("Invalid file name for the initial condition. The&
+         & file format must be e.g. 'mean0.f00001'")
 
     ! Change from "field0.f000*" to "field0.fld" for the fld reader
     call filename_chsuffix(file_name, file_name, 'fld')
@@ -441,12 +441,12 @@ contains
           sample_mesh_idx = extract_fld_file_index(mesh_file_name, -1)
 
           if (sample_mesh_idx .eq. -1) &
-            call neko_error("Invalid file name for the initial condition. &
-               The file format must be e.g. 'mean0.f00001'")
+               call neko_error("Invalid file name for the initial condition. &
+&The file format must be e.g. 'mean0.f00001'")
 
           write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance
           call neko_log%message(log_buf)
-          write (log_buf, '(A,A)') "Mesh file     : ", &
+          write (log_buf, '(A,A)')     "Mesh file     : ", &
                trim(mesh_file_name)
           call neko_log%message(log_buf)
 
@@ -475,10 +475,10 @@ contains
 
     if (mesh_mismatch .and. .not. interpolate) then
        call neko_error("The fld file must match the current mesh! &
-          Use 'interpolate': 'true' to enable interpolation.")
+&Use 'interpolate': 'true' to enable interpolation.")
     else if (.not. mesh_mismatch .and. interpolate) then
        call neko_log%warning("You have activated interpolation but you might &
-          still be using the same mesh.")
+&still be using the same mesh.")
     end if
 
     ! Mesh interpolation if specified
@@ -486,16 +486,16 @@ contains
 
        ! Issue a warning if the mesh is in single precision
        select type (ft => f%file_type)
-         type is (fld_file_t)
+       type is (fld_file_t)
           if (.not. ft%dp_precision) then
              call neko_warning("The coordinates read from the field file are &
-               in single precision.")
+&in single precision.")
              call neko_log%message("It is recommended to use a mesh in double &
-               precision for better interpolation results.")
+&precision for better interpolation results.")
              call neko_log%message("If the interpolation does not work, you&
-               can try to increase the tolerance.")
+&can try to increase the tolerance.")
           end if
-         class default
+       class default
        end select
 
        ! Generates an interpolator object and performs the point search
