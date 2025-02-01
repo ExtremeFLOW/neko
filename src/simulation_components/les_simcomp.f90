@@ -76,7 +76,7 @@ contains
 
     call this%free()
 
-    ! Check for whether eddy viscosity is enabled in fluid_scheme
+    ! Check for whether eddy viscosity is enabled in fluid_scheme_incompressible
     if (case%fluid%variable_material_properties .eqv. .false.) then
         call neko_error("Eddy viscosity is not acting &
                           &on the equations. &

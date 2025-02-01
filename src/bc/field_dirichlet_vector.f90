@@ -125,7 +125,7 @@ contains
   end subroutine field_dirichlet_vector_init_from_components
 
   !> Destructor. Currently unused as is, all field_dirichlet attributes
-  !! are freed in `fluid_scheme::free`.
+  !! are freed in `fluid_scheme_incompressible::free`.
   subroutine field_dirichlet_vector_free(this)
     class(field_dirichlet_vector_t), target, intent(inout) :: this
 

@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Fluid formulations
-module fluid_scheme
+module fluid_scheme_incompressible
   use fluid_scheme_base, only : fluid_scheme_base_t
   use gather_scatter, only : gs_t
   use mean_sqr_flow, only : mean_sqr_flow_t
@@ -83,7 +83,7 @@ module fluid_scheme
   private
 
   !> Base type of all fluid formulations
-  type, abstract, extends(fluid_scheme_base_t) :: fluid_scheme_t
+  type, abstract, extends(fluid_scheme_base_t) :: fluid_scheme_incompressible_t
      !> The source term for the momentum equation.
      type(fluid_source_term_t) :: source_term
      class(ksp_t), allocatable :: ksp_vel !< Krylov solver for velocity
@@ -138,7 +138,7 @@ module fluid_scheme
      procedure, nopass :: solver_factory => fluid_scheme_solver_factory
      !> Preconditioner factory
      procedure, pass(this) :: precon_factory_ => fluid_scheme_precon_factory
-  end type fluid_scheme_t
+  end type fluid_scheme_incompressible_t
 
   interface
      !> Initialise a fluid scheme
@@ -148,7 +148,7 @@ module fluid_scheme
      end subroutine fluid_scheme_factory
   end interface
 
-  public :: fluid_scheme_t, fluid_scheme_factory
+  public :: fluid_scheme_incompressible_t, fluid_scheme_factory
 
 contains
 
@@ -156,7 +156,7 @@ contains
   subroutine fluid_scheme_init_base(this, msh, lx, params, scheme, user, &
        kspv_init)
     implicit none
-    class(fluid_scheme_t), target, intent(inout) :: this
+    class(fluid_scheme_incompressible_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(in) :: lx
     character(len=*), intent(in) :: scheme
@@ -380,7 +380,7 @@ contains
   end subroutine fluid_scheme_init_base
 
   subroutine fluid_scheme_free(this)
-    class(fluid_scheme_t), intent(inout) :: this
+    class(fluid_scheme_incompressible_t), intent(inout) :: this
 
     !
     ! Free everything related to field_dirichlet BCs
@@ -458,7 +458,7 @@ contains
   !> Validate that all fields, solvers etc necessary for
   !! performing time-stepping are defined
   subroutine fluid_scheme_validate(this)
-    class(fluid_scheme_t), target, intent(inout) :: this
+    class(fluid_scheme_incompressible_t), target, intent(inout) :: this
     ! Variables for retrieving json parameters
     logical :: logical_val
 
@@ -496,7 +496,7 @@ contains
   !! shared points between elements that have different BCs, as done in Nek5000.
   !! @todo Why can't we call the interface here?
   subroutine fluid_scheme_bc_apply_vel(this, t, tstep, strong)
-    class(fluid_scheme_t), intent(inout) :: this
+    class(fluid_scheme_incompressible_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     logical, intent(in) :: strong
@@ -509,7 +509,7 @@ contains
   !> Apply all boundary conditions defined for pressure
   !! @todo Why can't we call the interface here?
   subroutine fluid_scheme_bc_apply_prs(this, t, tstep)
-    class(fluid_scheme_t), intent(inout) :: this
+    class(fluid_scheme_incompressible_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
@@ -535,8 +535,8 @@ contains
 
   !> Initialize a Krylov preconditioner
   subroutine fluid_scheme_precon_factory(this, pc, ksp, coef, dof, gs, bclst, &
-       pctype)
-    class(fluid_scheme_t), intent(inout) :: this
+                                         pctype)
+    class(fluid_scheme_incompressible_t), intent(inout) :: this
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
     type(coef_t), target, intent(in) :: coef
@@ -575,7 +575,7 @@ contains
 
   !> Compute CFL
   function fluid_compute_cfl(this, dt) result(c)
-    class(fluid_scheme_t), intent(in) :: this
+    class(fluid_scheme_incompressible_t), intent(in) :: this
     real(kind=rp), intent(in) :: dt
     real(kind=rp) :: c
 
@@ -587,7 +587,7 @@ contains
 
   !> Update the values of `mu_field` if necessary.
   subroutine fluid_scheme_update_material_properties(this)
-    class(fluid_scheme_t), intent(inout) :: this
+    class(fluid_scheme_incompressible_t), intent(inout) :: this
     type(field_t), pointer :: nut
     integer :: n
 
@@ -603,7 +603,7 @@ contains
   !! @param params The case paramter file.
   !! @param user The user interface.
   subroutine fluid_scheme_set_material_properties(this, params, user)
-    class(fluid_scheme_t), intent(inout) :: this
+    class(fluid_scheme_incompressible_t), intent(inout) :: this
     type(json_file), intent(inout) :: params
     type(user_t), target, intent(in) :: user
     character(len=LOG_SIZE) :: log_buf
@@ -659,4 +659,4 @@ contains
     end if
   end subroutine fluid_scheme_set_material_properties
 
-end module fluid_scheme
+end module fluid_scheme_incompressible

@@ -47,7 +47,7 @@ module fluid_pnpn
        rhs_maker_oifs_t, rhs_maker_sumab_fctry, rhs_maker_bdf_fctry, &
        rhs_maker_ext_fctry, rhs_maker_oifs_fctry
   use fluid_volflow, only : fluid_volflow_t
-  use fluid_scheme, only : fluid_scheme_t
+  use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
   use device_mathops, only : device_opcolv, device_opadd2cm
   use fluid_aux, only : fluid_step_info
   use time_scheme_controller, only : time_scheme_controller_t
@@ -84,7 +84,7 @@ module fluid_pnpn
 
 
 
-  type, public, extends(fluid_scheme_t) :: fluid_pnpn_t
+  type, public, extends(fluid_scheme_incompressible_t) :: fluid_pnpn_t
 
      !> The right-hand sides in the linear solves.
      type(field_t) :: p_res, u_res, v_res, w_res

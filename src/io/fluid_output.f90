@@ -33,7 +33,7 @@
 !> Defines an output for a fluid
 module fluid_output
   use num_types, only : rp
-  use fluid_scheme, only : fluid_scheme_t
+  use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use scalar_scheme, only : scalar_scheme_t
   use field_list, only : field_list_t

@@ -34,7 +34,7 @@
 module case
   use num_types, only : rp, sp, dp
   use fluid_pnpn, only : fluid_pnpn_t
-  use fluid_scheme, only : fluid_scheme_t
+  use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
   use fluid_scheme_base, only: fluid_scheme_base_t, fluid_scheme_base_factory
   use fluid_output, only : fluid_output_t
   use chkp_output, only : chkp_output_t
