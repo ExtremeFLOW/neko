@@ -344,7 +344,7 @@ contains
     if (this%variable_material_properties .and. &
          this%vel_projection_dim .gt. 0) then
        call neko_error("Velocity projection not available for full stress &
-       &formulation")
+            &formulation")
     end if
 
 
@@ -960,7 +960,7 @@ contains
              ! convention marked weak and currently contain nested
              ! bcs, some of which are strong.
              select type (bc_i)
-               type is (symmetry_t)
+             type is (symmetry_t)
                 ! Symmetry has 3 internal bcs, but only one actually contains
                 ! markings.
                 ! Symmetry's apply_scalar doesn't do anything, so we need to mark
@@ -976,14 +976,14 @@ contains
                 call this%bcs_vel%append(bc_i)
 
                 call this%bc_sym_surface%mark_facets(bc_i%marked_facet)
-               type is (non_normal_t)
+             type is (non_normal_t)
                 ! This is a bc for the residuals and increments, not the
                 ! velocity itself. So, don't append to bcs_vel
                 call this%bclst_vel_res%append(bc_i)
                 call this%bc_du%mark_facets(bc_i%bc_x%marked_facet)
                 call this%bc_dv%mark_facets(bc_i%bc_y%marked_facet)
                 call this%bc_dw%mark_facets(bc_i%bc_z%marked_facet)
-               type is (shear_stress_t)
+             type is (shear_stress_t)
                 ! Same as symmetry
                 call this%bclst_vel_res%append(bc_i%symmetry)
                 call this%bclst_du%append(bc_i%symmetry%bc_x)
@@ -991,7 +991,7 @@ contains
                 call this%bclst_dw%append(bc_i%symmetry%bc_z)
 
                 call this%bcs_vel%append(bc_i)
-               type is (wall_model_bc_t)
+             type is (wall_model_bc_t)
                 ! Same as symmetry
                 call this%bclst_vel_res%append(bc_i%symmetry)
                 call this%bclst_du%append(bc_i%symmetry%bc_x)
@@ -999,7 +999,7 @@ contains
                 call this%bclst_dw%append(bc_i%symmetry%bc_z)
 
                 call this%bcs_vel%append(bc_i)
-               class default
+             class default
 
                 ! For the default case we use our dummy zero_dirichlet bcs to
                 ! mark the same faces as in ordinary velocity dirichlet
@@ -1136,19 +1136,19 @@ contains
     do i = 1, this%bcs_prs%size()
        bci => this%bcs_prs%get(i)
        select type (bc => bci)
-         type is (zero_dirichlet_t)
+       type is (zero_dirichlet_t)
           call bdry_mask%init_from_components(this%c_Xh, 3.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
           call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
           call bdry_mask%free()
-         type is (dong_outflow_t)
+       type is (dong_outflow_t)
           call bdry_mask%init_from_components(this%c_Xh, 3.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
           call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
           call bdry_mask%free()
-         type is (field_dirichlet_t)
+       type is (field_dirichlet_t)
           call bdry_mask%init_from_components(this%c_Xh, 8.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
@@ -1160,49 +1160,49 @@ contains
     do i = 1, this%bcs_vel%size()
        bci => this%bcs_vel%get(i)
        select type (bc => bci)
-         type is (zero_dirichlet_t)
+       type is (zero_dirichlet_t)
           call bdry_mask%init_from_components(this%c_Xh, 1.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
           call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
           call bdry_mask%free()
-         type is (inflow_t)
+       type is (inflow_t)
           call bdry_mask%init_from_components(this%c_Xh, 2.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
           call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
           call bdry_mask%free()
-         type is (symmetry_t)
+       type is (symmetry_t)
           call bdry_mask%init_from_components(this%c_Xh, 4.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
           call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
           call bdry_mask%free()
-         type is (usr_inflow_t)
+       type is (usr_inflow_t)
           call bdry_mask%init_from_components(this%c_Xh, 5.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
           call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
           call bdry_mask%free()
-         type is (field_dirichlet_vector_t)
+       type is (field_dirichlet_vector_t)
           call bdry_mask%init_from_components(this%c_Xh, 7.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
           call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
           call bdry_mask%free()
-         type is (shear_stress_t)
+       type is (shear_stress_t)
           call bdry_mask%init_from_components(this%c_Xh, 9.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
           call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
           call bdry_mask%free()
-         type is (wall_model_bc_t)
+       type is (wall_model_bc_t)
           call bdry_mask%init_from_components(this%c_Xh, 10.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
           call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
           call bdry_mask%free()
-         type is (blasius_t)
+       type is (blasius_t)
           call bdry_mask%init_from_components(this%c_Xh, 11.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
