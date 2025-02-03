@@ -167,7 +167,8 @@ contains
 
   !> Set intial flow condition (user defined)
   !> for compressible flows
-  subroutine set_compressible_flow_ic_usr(rho, u, v, w, p, coef, gs, usr_ic_compressible, params)
+  subroutine set_compressible_flow_ic_usr(rho, u, v, w, p, coef, gs, &
+       usr_ic_compressible, params)
     type(field_t), intent(inout) :: rho
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
@@ -440,9 +441,10 @@ contains
           ! Extract sample index from the mesh file name
           sample_mesh_idx = extract_fld_file_index(mesh_file_name, -1)
 
-          if (sample_mesh_idx .eq. -1) &
-               call neko_error("Invalid file name for the initial condition. &
-               &The file format must be e.g. 'mean0.f00001'")
+          if (sample_mesh_idx .eq. -1) then  
+            call neko_error("Invalid file name for the initial condition. &  
+                 &The file format must be e.g. 'mean0.f00001'")  
+          end if  
 
           write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance
           call neko_log%message(log_buf)

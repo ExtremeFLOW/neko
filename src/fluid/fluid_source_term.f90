@@ -45,8 +45,8 @@ module fluid_source_term
 
   !> Wrapper contaning and executing the fluid source terms.
   !! @details
-  !! Exists mainly to keep the `fluid_scheme_incompressible_t` type smaller and also as
-  !! placeholder for future optimizations.
+  !! Exists mainly to keep the `fluid_scheme_incompressible_t` type smaller and
+  !! also as placeholder for future optimizations.
   type, public, extends(source_term_handler_t) :: fluid_source_term_t
 
    contains

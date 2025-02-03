@@ -208,12 +208,6 @@ contains
     call this%usr%user_mesh_setup(this%msh)
 
     !
-    ! Set order of timestepper
-    !
-    !  call json_get(this%params, 'case.numerics.time_order', integer_val)
-    !  call this%ext_bdf%init(integer_val)
-
-    !
     ! Setup fluid scheme
     !
     call json_get(this%params, 'case.fluid.scheme', string_val)

@@ -202,7 +202,7 @@ contains
   subroutine user_intf_init(u)
     class(user_t), intent(inout) :: u
     logical :: user_extended = .false.
-    character(len=256), dimension(13) :: extensions
+    character(len=256), dimension(14) :: extensions
     integer :: i, n
 
     n = 0

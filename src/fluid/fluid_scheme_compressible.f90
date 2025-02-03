@@ -46,9 +46,11 @@ module fluid_scheme_compressible
   use user_intf, only : user_t
   use usr_inflow, only : usr_inflow_eval
   use json_utils, only : json_get_or_default
+  implicit none
+  private
 
   !> Base type of compressible fluid formulations.
-  type, abstract, extends(fluid_scheme_base_t) :: fluid_scheme_compressible_t
+  type, public, abstract, extends(fluid_scheme_base_t) :: fluid_scheme_compressible_t
      !> The momentum field
      type(field_t), pointer :: m_x => null() !< x-component of Momentum
      type(field_t), pointer :: m_y => null() !< y-component of Momentum
@@ -85,7 +87,6 @@ contains
   !> @param scheme Name of the numerical scheme
   !> @param user User-defined parameters and functions
   subroutine fluid_scheme_compressible_init(this, msh, lx, params, scheme, user)
-    implicit none
     class(fluid_scheme_compressible_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(in) :: lx

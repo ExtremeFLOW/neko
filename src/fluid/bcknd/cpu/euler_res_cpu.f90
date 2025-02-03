@@ -279,12 +279,9 @@ contains
     !> E = E - dt * div(u * (E + p))
     ! Compute energy flux divergence
     do concurrent (i = 1:n)
-       f_x%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) &
-            * u%x(i,1,1,1)
-       f_y%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) &
-            * v%x(i,1,1,1)
-       f_z%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) &
-            * w%x(i,1,1,1)
+       f_x%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) * u%x(i,1,1,1)
+       f_y%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) * v%x(i,1,1,1)
+       f_z%x(i,1,1,1) = (E%x(i,1,1,1) + p%x(i,1,1,1)) * w%x(i,1,1,1)
     end do
     call div(rhs_E%x, f_x%x, f_y%x, f_z%x, coef)
 
