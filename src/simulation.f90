@@ -159,6 +159,8 @@ contains
        ! Execute all simulation components
        call neko_simcomps%compute(t, tstep)
 
+       call C%usr%user_check(t, tstep, C%fluid%u, C%fluid%v, C%fluid%w, &
+                             C%fluid%p, C%fluid%c_Xh, C%params)
 
        !> @todo Temporary fix until we have reworked the material properties
        rho = C%fluid%rho
@@ -178,8 +180,6 @@ contains
           call C%scalar%update_material_properties()
        end if
 
-       call C%usr%user_check(t, tstep, C%fluid%u, C%fluid%v, C%fluid%w, &
-                             C%fluid%p, C%fluid%c_Xh, C%params)
 
        call C%output_controller%execute(t, tstep)
 
