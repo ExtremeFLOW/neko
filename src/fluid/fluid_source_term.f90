@@ -94,7 +94,7 @@ contains
     allocate(fluid_user_source_term_t::source_term)
 
     select type (source_term)
-      type is (fluid_user_source_term_t)
+    type is (fluid_user_source_term_t)
        call source_term%init_from_components(rhs_fields, coef, type, &
             user%fluid_user_f_vector, &
             user%fluid_user_f)

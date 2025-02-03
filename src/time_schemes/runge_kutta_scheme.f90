@@ -92,12 +92,12 @@ contains
       end if
 
       select case (order)
-        case (1)
+      case (1)
          !> Forward Euler
          coeffs_A(1, 1) = 0.0_rp
          coeffs_b(1) = 1.0_rp
          coeffs_c(1) = 0.0_rp
-        case (2)
+      case (2)
          !> Heun's method
          coeffs_A = 0.0_rp
          coeffs_A(2, 1) = 1.0_rp
@@ -107,7 +107,7 @@ contains
 
          coeffs_c(1) = 0.0_rp
          coeffs_c(2) = 1.0_rp
-        case (3)
+      case (3)
          !> SSPRK3
          coeffs_A = 0.0_rp
          coeffs_A(2, 1) = 1.0_rp
@@ -121,7 +121,7 @@ contains
          coeffs_c(1) = 0.0_rp
          coeffs_c(2) = 1.0_rp
          coeffs_c(3) = 0.5_rp
-        case (4)
+      case (4)
          !> RK4
          coeffs_A = 0.0_rp
          coeffs_A(2, 1) = 0.5_rp
@@ -137,7 +137,7 @@ contains
          coeffs_c(2) = 0.5_rp
          coeffs_c(3) = 0.5_rp
          coeffs_c(4) = 1.0_rp
-        case default
+      case default
          call neko_error("The time order must be 1 to 4.")
       end select
 

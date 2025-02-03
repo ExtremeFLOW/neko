@@ -5,10 +5,10 @@ module fluid_plan1
   implicit none
 
   type, extends(fluid_scheme_incompressible_t) :: fluid_plan1_t
-     type(space_t) :: Yh        !< Function space for pressure \f$ Xh - 2 \f$
-     type(dofmap_t) :: dm_Yh    !< Dofmap associated with \f$ Yh \f$
-     type(gs_t) :: gs_Yh        !< Gather-scatter associated with \f$ Y_h \f$
-     type(coef_t) :: c_Yh       !< Coefficients associated with \f$ Y_h \f$
+     type(space_t) :: Yh !< Function space for pressure \f$ Xh - 2 \f$
+     type(dofmap_t) :: dm_Yh !< Dofmap associated with \f$ Yh \f$
+     type(gs_t) :: gs_Yh !< Gather-scatter associated with \f$ Y_h \f$
+     type(coef_t) :: c_Yh !< Coefficients associated with \f$ Y_h \f$
      !>@todo Remaning plan1 related data, ax, precon etc
    contains
      procedure, pass(this) :: init => fluid_plan1_init

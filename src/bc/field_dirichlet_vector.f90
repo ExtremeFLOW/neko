@@ -148,7 +148,7 @@ contains
   subroutine field_dirichlet_vector_apply_scalar(this, x, n, t, tstep, strong)
     class(field_dirichlet_vector_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
@@ -241,7 +241,7 @@ contains
        end if
     end if
 
-   end subroutine field_dirichlet_vector_apply_vector_dev
+  end subroutine field_dirichlet_vector_apply_vector_dev
 
   !> Finalize by building the mask arrays and propagating to underlying bcs.
   subroutine field_dirichlet_vector_finalize(this)
