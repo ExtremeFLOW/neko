@@ -68,7 +68,7 @@ jobs:
             echo "" >&2
             echo "Please run the following commands to fix the formatting:" >&2
             echo "pip install findent" >&2
-            echo "findent -Rr -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k5 --ws_remred --indent_ampersand --openmp=0 <file.f90 >file.f90.tmp" >&2
+            echo "findent -Rr -i2 -d3 -f3 -s3 -c3 -w3 -t3 -j3 -k5 --ws_remred --indent_ampersand --openmp=0 <file.f90 >file.f90.tmp" >&2
             echo "mv file.f90.tmp file.f90" >&2
             git diff >&2
             exit 1
