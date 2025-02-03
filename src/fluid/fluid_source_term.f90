@@ -45,7 +45,7 @@ module fluid_source_term
 
   !> Wrapper contaning and executing the fluid source terms.
   !! @details
-  !! Exists mainly to keep the `fluid_scheme_t` type smaller and also as
+  !! Exists mainly to keep the `fluid_scheme_incompressible_t` type smaller and also as
   !! placeholder for future optimizations.
   type, public, extends(source_term_handler_t) :: fluid_source_term_t
 
@@ -94,7 +94,7 @@ contains
     allocate(fluid_user_source_term_t::source_term)
 
     select type (source_term)
-      type is (fluid_user_source_term_t)
+    type is (fluid_user_source_term_t)
        call source_term%init_from_components(rhs_fields, coef, type, &
             user%fluid_user_f_vector, &
             user%fluid_user_f)
