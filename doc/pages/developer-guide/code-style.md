@@ -8,11 +8,14 @@ indentation level of 2, except for the extra indentation within `do` `if`,
 `type`, `interface`, where the indentation level is 3, continuation statements,
 which should be indented by 5 and a 0 indentation is
 used for `module` or `contains` (except for `contains` inside a derived type,
-where a single indentation level is used).
+where a single indentation level is used). It should be noted that no
+indentation should be applied to the `case` statements contained in a 
+`select case` block.
 
 These are the default rules in Emacs' Fortran mode, an example is given below,
 additional information on the Emacs' Fortran mode can be found at
-[https://emacsdocs.org](https://emacsdocs.org/docs/emacs/Fortran).
+[https://emacsdocs.org](https://emacsdocs.org/docs/emacs/Fortran) and the full
+formatting script for emacs can be found at the [Emacs' GitHub](https://github.com/emacs-mirror/emacs/blob/master/lisp/progmodes/f90.el).
 
 ~~~~~~~~~~~~~~~{.f90}
 module example
@@ -40,6 +43,13 @@ contains
        ... This statement is very long &
             continues on the next line
     end if
+    
+    select case (x)
+    case (1)
+       ...
+    case (2)
+       ...
+    end select
 
   end subroutine foo
 
