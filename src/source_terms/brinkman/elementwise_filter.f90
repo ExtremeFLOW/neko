@@ -46,10 +46,9 @@ module elementwise_filter
   use matrix, only : matrix_t
   use mxm_wrapper, only : mxm
   use tensor, only : tnsr3d, trsp
-  use device, only : device_map, device_free, c_ptr, &
-                    C_NULL_PTR, device_memcpy, HOST_TO_DEVICE
+  use device, only : device_map, device_free, device_memcpy, HOST_TO_DEVICE
   use device_math, only : device_cfill
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 

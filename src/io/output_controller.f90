@@ -34,12 +34,13 @@
 module output_controller
   use output, only: output_t, output_ptr_t
   use fld_file, only: fld_file_t
-  use comm
+  use comm, only : NEKO_COMM
   use logger, only : neko_log, LOG_SIZE
   use utils, only : neko_error
   use profiler, only : profiler_start_region, profiler_end_region
   use num_types, only : rp, dp
   use time_based_controller, only : time_based_controller_t
+  use mpi_f08
   implicit none
   private
 

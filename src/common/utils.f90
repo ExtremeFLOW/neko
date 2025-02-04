@@ -37,7 +37,7 @@ module utils
   implicit none
   private
 
-  integer, parameter :: NEKO_FNAME_LEN = 1024
+  integer, public, parameter :: NEKO_FNAME_LEN = 1024
 
   interface neko_error
      module procedure neko_error_plain, neko_error_msg
@@ -45,7 +45,7 @@ module utils
 
   public :: neko_error, neko_warning, nonlinear_index, filename_chsuffix, &
        filename_suffix, filename_suffix_pos, filename_tslash_pos, &
-       linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
+       linear_index, split_string, index_is_on_facet, &
        concat_string_array, extract_fld_file_index, neko_type_error
 
 

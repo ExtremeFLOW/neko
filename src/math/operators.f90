@@ -53,10 +53,14 @@ module operators
   use interpolation, only : interpolator_t
   use math, only : glsum, cmult, add2, add3s2, cadd, copy, col2, invcol2, &
                    invcol3, rzero
-  use device, only : c_ptr, device_get_ptr
-  use device_math, only : device_add2, device_cmult, device_copy, device_glsum, device_cadd
+  use device, only : device_get_ptr
+  use device_math, only : device_add2, device_cmult, device_copy, &
+       device_glsum, device_cadd
   use scratch_registry, only : neko_scratch_registry
-  use comm
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08
+  use, intrinsic :: iso_c_binding, only : c_ptr
+ 
   implicit none
   private
 

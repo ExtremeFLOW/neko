@@ -42,8 +42,11 @@ module fusedcg_device
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3
+  use utils, only : neko_error
   use device
   use comm
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t, &
+        c_sizeof, c_int, C_NULL_PTR, c_associated
   implicit none
   private
 

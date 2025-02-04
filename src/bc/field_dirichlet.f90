@@ -37,7 +37,6 @@ module field_dirichlet
   use dirichlet, only: dirichlet_t
   use bc, only: bc_t
   use bc_list, only : bc_list_t
-  use device, only: c_ptr, c_size_t
   use utils, only: split_string
   use field, only : field_t
   use field_list, only : field_list_t
@@ -48,6 +47,7 @@ module field_dirichlet
   use json_module, only : json_file
   use field_list, only : field_list_t
   use json_utils, only : json_get
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
   implicit none
   private
 

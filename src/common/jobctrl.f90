@@ -36,7 +36,8 @@ module jobctrl
   use signal, only : signal_timeout, signal_usr, signal_trap_usr, &
                      signal_set_timeout, signal_trap_cpulimit
   use utils, onlY : neko_error
-  use comm
+  use comm, only : NEKO_COMM
+  use mpi_f08
   use logger
   implicit none
   private

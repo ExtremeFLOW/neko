@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2022, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,9 @@ module gs_mpi
   use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU
   use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
   use stack, only : stack_i4_t
-  use comm
-  use, intrinsic :: iso_c_binding
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_Request, MPI_Status, MPI_STATUS_IGNORE
+  use, intrinsic :: iso_c_binding, only : c_ptr
   !$ use omp_lib
   implicit none
   private

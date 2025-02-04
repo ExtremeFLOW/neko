@@ -67,6 +67,8 @@ module scalar_pnpn
   use time_step_controller, only : time_step_controller_t
   use scratch_registry, only : neko_scratch_registry
   use bc, only : bc_t
+  use comm, only : NEKO_COMM
+  use mpi_f08
   implicit none
   private
 

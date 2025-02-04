@@ -36,9 +36,11 @@ module interpolation
   use num_types, only : rp
   use device
   use fast3d
+  use utils, only : neko_error
   use tensor, only : tnsr3d
   use tensor_cpu, only : tnsr3d_cpu
   use space, only : space_t, operator(.eq.), GL, GLL
+  use, intrinsic :: iso_c_binding, only : c_associated, c_ptr, C_NULL_PTR
   implicit none
   private
 

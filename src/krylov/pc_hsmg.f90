@@ -86,6 +86,7 @@ module hsmg
        krylov_solver_factory, krylov_solver_destroy
   use tree_amg_multigrid, only : tamg_solver_t
   use zero_dirichlet, only : zero_dirichlet_t
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   !$ use omp_lib
   implicit none
   private

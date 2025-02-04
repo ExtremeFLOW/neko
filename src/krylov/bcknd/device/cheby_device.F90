@@ -45,6 +45,8 @@ module cheby_device
   use device_math, only : device_cmult2, device_sub2, &
        device_add2s1, device_add2s2, device_glsc3, device_copy
   use device
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
+       c_associated
   implicit none
   private
 

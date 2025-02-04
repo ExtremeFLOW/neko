@@ -32,7 +32,7 @@
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn
-  use comm
+  use comm, only : NEKO_COMM
   use, intrinsic :: iso_fortran_env, only: error_unit
   use coefs, only : coef_t
   use symmetry, only : symmetry_t
@@ -79,6 +79,7 @@ module fluid_pnpn
   use bc, only : bc_t
   use file, only : file_t
   use operators, only : ortho
+  use mpi_f08
   implicit none
   private
 

@@ -40,6 +40,8 @@ module field
   use mesh, only : mesh_t
   use space, only : space_t, operator(.ne.)
   use dofmap, only : dofmap_t
+  use, intrinsic :: iso_c_binding, only : C_NULL_PTR, c_ptr, &
+       c_associated
   implicit none
   private
 

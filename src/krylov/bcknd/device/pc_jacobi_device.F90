@@ -39,6 +39,8 @@ module device_jacobi
   use device_math
   use device
   use gather_scatter
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
+       c_associated
   implicit none
   private
 

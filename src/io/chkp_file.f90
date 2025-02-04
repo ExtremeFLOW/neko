@@ -48,6 +48,7 @@ module chkp_file
   use neko_mpi_types
   use comm
   use global_interpolation
+  use mpi_f08
   implicit none
   private
 

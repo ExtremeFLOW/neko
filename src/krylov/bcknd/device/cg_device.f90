@@ -41,9 +41,11 @@ module cg_device
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : abscmp
+  use utils, only : neko_error
   use device
   use device_math, only : device_rzero, device_copy, device_glsc3, &
-                          device_add2s2, device_add2s1
+       device_add2s2, device_add2s1
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
 
   !> Device based preconditioned conjugate gradient method

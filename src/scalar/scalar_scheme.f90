@@ -64,7 +64,6 @@ module scalar_scheme
   use user_intf, only : user_t, dummy_user_material_properties, &
        user_material_properties
   use utils, only : neko_error
-  use comm, only: NEKO_COMM, MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
   use field_series, only : field_series_t
   use math, only : cfill, add2s2
@@ -75,6 +74,7 @@ module scalar_scheme
   use time_step_controller, only : time_step_controller_t
   use gradient_jump_penalty, only : gradient_jump_penalty_t
   implicit none
+  private
 
   !> Base type for a scalar advection-diffusion solver.
   type, abstract :: scalar_scheme_t
@@ -218,6 +218,8 @@ module scalar_scheme
        type(time_step_controller_t), intent(in) :: dt_controller
      end subroutine scalar_scheme_step_intrf
   end interface
+
+  public :: scalar_scheme_t
 
 contains
 

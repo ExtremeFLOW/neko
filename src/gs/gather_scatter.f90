@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -42,16 +42,18 @@ module gather_scatter
   use gs_mpi, only : gs_mpi_t
   use gs_device_mpi, only : gs_device_mpi_t
   use mesh, only : mesh_t
-  use comm
+  use comm, only : NEKO_COMM, pe_size, pe_rank
   use dofmap, only : dofmap_t
   use field, only : field_t
-  use num_types, only : rp, dp, i2
+  use num_types, only : rp, dp, i2, i8
   use htable, only : htable_i8_t, htable_iter_i8_t
   use stack, only : stack_i4_t
   use utils, only : neko_error, linear_index
   use logger, only : neko_log, LOG_SIZE
   use profiler, only : profiler_start_region, profiler_end_region
   use device
+  use mpi_f08
+  use, intrinsic :: iso_c_binding, only :  c_ptr, C_NULL_PTR
   implicit none
   private
 

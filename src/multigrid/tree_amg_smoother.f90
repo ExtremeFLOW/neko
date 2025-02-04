@@ -42,7 +42,7 @@ module tree_amg_smoother
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
   implicit none
-  private
+!  private
 
   !> Type for Chebyshev iteration using TreeAMG matvec
   type, public :: amg_jacobi_t

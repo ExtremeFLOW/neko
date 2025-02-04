@@ -36,9 +36,11 @@ module tree_amg_aggregate
   use utils
   use num_types
   use comm
+  use mpi_f08
   use mesh, only : mesh_t
   use logger, only : neko_log, LOG_SIZE
   implicit none
+  private
 
   type, public :: tamg_agg_monitor_t
     !> Summary info
@@ -52,6 +54,8 @@ module tree_amg_aggregate
     integer :: phase2_ndof_aggregated
   end type tamg_agg_monitor_t
 
+  public :: aggregate_finest_level, aggregate_greedy, aggregate_end
+  
 contains
 
   !> Aggregaiton on finest level

@@ -32,6 +32,7 @@
 !
 !> MPI derived types
 module neko_mpi_types
+  use mpi_f08
   use comm
   use re2
   use nmsh

@@ -47,7 +47,8 @@ module global_interpolation
   use math, only: copy
   use neko_mpi_types
   use structs, only: array_ptr_t
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr
+  use mpi_f08
   implicit none
   private
   !> Implements global interpolation for arbitrary points in the domain.

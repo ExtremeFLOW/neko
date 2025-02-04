@@ -61,12 +61,13 @@
 !! @note In this code we assume that the matrix project for the
 !! pressure Ax does not vary in time.
 module projection
+  use neko_config
   use num_types, only : rp, c_rp
   use math, only : rzero, glsc3, add2, copy, cmult
   use coefs, only : coef_t
   use ax_product, only : ax_t
   use bc_list, only : bc_list_t
-  use comm
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_alloc, HOST_TO_DEVICE, device_memcpy, &
@@ -78,6 +79,7 @@ module projection
   use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : LOG_SIZE, neko_log
   use utils, only : neko_warning
+  use mpi_f08
   use, intrinsic :: iso_c_binding
   use bc_list, only : bc_list_t
   use time_step_controller, only : time_step_controller_t

@@ -49,6 +49,7 @@ module mesh
   use uset, only : uset_i8_t
   use curve, only : curve_t
   use logger, only : LOG_SIZE
+  use mpi_f08
   implicit none
   private
 

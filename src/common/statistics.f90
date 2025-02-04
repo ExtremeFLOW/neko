@@ -35,7 +35,8 @@ module stats
   use num_types, only : rp, dp
   use stats_quant, only : stats_quant_t
   use logger, only : LOG_SIZE, neko_log
-  use comm
+  use comm, only : NEKO_COMM
+  use mpi_f08
   implicit none
   private
 

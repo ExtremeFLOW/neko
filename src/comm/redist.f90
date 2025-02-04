@@ -44,6 +44,7 @@ module redist
   use nmsh, only : nmsh_hex_t, nmsh_zone_t, nmsh_curve_el_t
   use facet_zone, only : facet_zone_t, facet_zone_periodic_t
   use element, only : element_t
+  use utils, only : neko_error
   implicit none
   private
 

@@ -58,6 +58,7 @@
 ! not be used for advertising or product endorsement purposes.
 !
 module fluid_volflow
+  use neko_config
   use operators, only : opgrad, cdtp
   use num_types, only : rp
   use mathops, only : opchsign
@@ -68,7 +69,7 @@ module fluid_volflow
   use coefs, only : coef_t
   use time_scheme_controller, only : time_scheme_controller_t
   use math, only : copy, glsc2, glmin, glmax, add2
-  use comm
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_rzero, device_copy, &
        device_add2, device_add2s2, device_glsc2
@@ -79,6 +80,7 @@ module fluid_volflow
   use scratch_registry, only : scratch_registry_t
   use bc_list, only : bc_list_t
   use ax_product, only : ax_t
+  use mpi_f08
   implicit none
   private
 

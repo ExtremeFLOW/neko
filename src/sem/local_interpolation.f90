@@ -45,6 +45,8 @@ module local_interpolation
   use device
   use device_math, only: device_rzero
   use neko_config, only: NEKO_BCKND_DEVICE
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, &
+       c_associated
   implicit none
 
   !> Interpolation on a set of points with known rst coordinates in elements local

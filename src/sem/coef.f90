@@ -46,7 +46,7 @@ module coefs
        device_coef_generate_dxydrst
   use mxm_wrapper, only : mxm
   use device
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 
