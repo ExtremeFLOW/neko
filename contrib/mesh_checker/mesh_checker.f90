@@ -33,6 +33,7 @@
 ! Mesh diagnostics tool
 program mesh_checker
   use neko
+  use mpi_f08
   implicit none
 
   character(len=NEKO_FNAME_LEN) :: inputchar, mesh_fname
