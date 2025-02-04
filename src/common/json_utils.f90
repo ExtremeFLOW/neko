@@ -267,7 +267,7 @@ contains
     end if
 
     call output%initialize()
-    call output%add(child)
+!    call output%add(child)
     nullify(child)
 
   end subroutine json_get_subdict

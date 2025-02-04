@@ -1,6 +1,7 @@
 !> Maps a 3D dofmap to a 2D spectral element grid.
 
 module map_2d
+  use neko_config
   use num_types, only: rp
   use dofmap, only: dofmap_t
   use map_1d
@@ -18,6 +19,7 @@ module map_2d
   use neko_mpi_types
   use fld_file_data
   use field
+  use mpi_f08
   use, intrinsic :: iso_c_binding
   implicit none
   private

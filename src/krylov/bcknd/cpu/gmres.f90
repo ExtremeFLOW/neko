@@ -32,6 +32,7 @@
 !
 !> Defines various GMRES methods
 module gmres
+  use neko_config, only : NEKO_BLK_SIZE
   use krylov, only : ksp_t, ksp_monitor_t
   use precon, only : pc_t
   use ax_product, only : ax_t
@@ -41,7 +42,8 @@ module gmres
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp
-  use comm
+  use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION
+  use mpi_f08
   implicit none
   private
 

@@ -41,7 +41,8 @@ module pipecg_sx
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, abscmp
-  use comm
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08
   implicit none
   private
 

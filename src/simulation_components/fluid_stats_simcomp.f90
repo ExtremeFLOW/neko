@@ -43,6 +43,7 @@ module fluid_stats_simcomp
   use case, only : case_t
   use coefs, only : coef_t
   use comm
+  use mpi_f08
   use logger, only : LOG_SIZE, neko_log
   use json_utils, only : json_get, json_get_or_default
   implicit none

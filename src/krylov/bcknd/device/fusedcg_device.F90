@@ -45,8 +45,9 @@ module fusedcg_device
   use utils, only : neko_error
   use device
   use comm
+  use mpi_f08
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t, &
-        c_sizeof, c_int, C_NULL_PTR, c_associated
+        c_loc, c_sizeof, c_int, C_NULL_PTR, c_associated
   implicit none
   private
 

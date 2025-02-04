@@ -32,6 +32,7 @@
 !
 !> Defines various GMRES methods
 module gmres_device
+  use neko_config, only : NEKO_BCKND_OPENCL
   use krylov, only : ksp_t, ksp_monitor_t
   use precon, only : pc_t
   use ax_product, only : ax_t
@@ -47,7 +48,9 @@ module gmres_device
                           device_cmult2, device_add2s2_many, device_glsc3_many,&
                           device_sub2
   use device
-  use comm
+  use utils, only : neko_error
+  use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
+  use mpi_f08
   use, intrinsic :: iso_c_binding
   implicit none
   private

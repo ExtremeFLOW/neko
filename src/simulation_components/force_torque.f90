@@ -34,6 +34,7 @@
 !> Implements the `force_torque_t` type.
 
 module force_torque
+  use neko_config
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
@@ -52,6 +53,7 @@ module force_torque
   use drag_torque
   use logger, only : LOG_SIZE, neko_log
   use comm
+  use mpi_f08
   use math, only : masked_red_copy, cadd, glsum, vcross
   use device_math, only : device_masked_red_copy, device_cadd, &
                           device_glsum, device_vcross

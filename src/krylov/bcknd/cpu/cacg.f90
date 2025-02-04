@@ -32,6 +32,7 @@
 !
 !> Defines a communication avoiding Conjugate Gradient method
 module cacg
+  use neko_config, only : NEKO_BLK_SIZE
   use num_types, only: rp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon,  only : pc_t
@@ -42,7 +43,8 @@ module cacg
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, x_update, abscmp
   use utils, only : neko_warning
-  use comm
+  use comm, only : NEKO_COMM, pe_rank, MPI_REAL_PRECISION
+  use mpi_f08
   use mxm_wrapper
   implicit none
   private

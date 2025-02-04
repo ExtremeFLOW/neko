@@ -35,6 +35,7 @@
 !! `findpts`, and `findpts_eval`. A full description of these subroutines can
 !! be found at https://github.com/Nek5000/gslib/blob/master/src/findpts.c
 module probes
+  use neko_config
   use num_types, only: rp
   use matrix, only: matrix_t
   use logger, only: neko_log, LOG_SIZE, NEKO_LOG_DEBUG
@@ -49,11 +50,12 @@ module probes
   use tensor, only: trsp
   use point_zone, only: point_zone_t
   use point_zone_registry, only: neko_point_zone_registry
-  use comm
+  use comm, only : NEKO_COMM, pe_rank, pe_size
   use device
   use file, only : file_t, file_free
   use csv_file, only : csv_file_t
   use case, only : case_t
+  use mpi_f08
   use, intrinsic :: iso_c_binding
   implicit none
   private
