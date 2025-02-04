@@ -34,7 +34,8 @@
 module case
   use num_types, only : rp, sp, dp
   use fluid_pnpn, only : fluid_pnpn_t
-  use fluid_scheme, only : fluid_scheme_t, fluid_scheme_factory
+  use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
+  use fluid_scheme_base, only: fluid_scheme_base_t, fluid_scheme_base_factory
   use fluid_output, only : fluid_output_t
   use chkp_output, only : chkp_output_t
   use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
@@ -62,7 +63,6 @@ module case
   type, public :: case_t
      type(mesh_t) :: msh
      type(json_file) :: params
-     type(time_scheme_controller_t) :: ext_bdf
      real(kind=rp), dimension(10) :: tlag
      real(kind=rp), dimension(10) :: dtlag
      real(kind=rp) :: dt
@@ -72,7 +72,7 @@ module case
      type(fluid_output_t) :: f_out
      type(chkp_output_t) :: f_chkp
      type(user_t) :: usr
-     class(fluid_scheme_t), allocatable :: fluid
+     class(fluid_scheme_base_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar
   end type case_t
 
@@ -208,24 +208,18 @@ contains
     call this%usr%user_mesh_setup(this%msh)
 
     !
-    ! Set order of timestepper
-    !
-    call json_get(this%params, 'case.numerics.time_order', integer_val)
-    call this%ext_bdf%init(integer_val)
-
-    !
     ! Setup fluid scheme
     !
     call json_get(this%params, 'case.fluid.scheme', string_val)
-    call fluid_scheme_factory(this%fluid, trim(string_val))
+    call fluid_scheme_base_factory(this%fluid, trim(string_val))
 
     call json_get(this%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get number of gll points
     this%fluid%chkp%tlag => this%tlag
     this%fluid%chkp%dtlag => this%dtlag
-    call this%fluid%init(this%msh, lx, this%params, this%usr, this%ext_bdf)
+    call this%fluid%init(this%msh, lx, this%params, this%usr)
     select type (f => this%fluid)
-      type is (fluid_pnpn_t)
+    type is (fluid_pnpn_t)
        f%chkp%abx1 => f%abx1
        f%chkp%abx2 => f%abx2
        f%chkp%aby1 => f%aby1
@@ -255,7 +249,7 @@ contains
        this%scalar%chkp%dtlag => this%dtlag
        call this%scalar%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
             this%params, this%usr, this%fluid%ulag, this%fluid%vlag, &
-            this%fluid%wlag, this%ext_bdf, this%fluid%rho)
+            this%fluid%wlag, this%fluid%ext_bdf, this%fluid%rho)
 
        call this%fluid%chkp%add_scalar(this%scalar%s)
 
@@ -276,11 +270,18 @@ contains
        call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, &
             this%fluid%p, this%fluid%c_Xh, this%fluid%gs_Xh, string_val, &
             this%params)
-
     else
-       call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p,&
-            this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_user_ic, &
-            this%params)
+       call json_get(this%params, 'case.fluid.scheme', string_val)
+       if (trim(string_val) .eq. 'compressible') then
+          call set_flow_ic(this%fluid%rho_field, &
+               this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p, &
+               this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_compressible_user_ic, &
+               this%params)
+       else
+          call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p,&
+               this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_user_ic, &
+               this%params)
+       end if
     end if
 
     call neko_log%end_section()
@@ -307,7 +308,7 @@ contains
 
     ! Add initial conditions to BDF scheme (if present)
     select type (f => this%fluid)
-      type is (fluid_pnpn_t)
+    type is (fluid_pnpn_t)
        call f%ulag%set(f%u)
        call f%vlag%set(f%v)
        call f%wlag%set(f%w)
