@@ -28,7 +28,7 @@ sem/dofmap.lo : sem/dofmap.f90 mesh/hex.lo mesh/quad.lo mesh/element.lo math/mat
 sem/coef.lo : sem/coef.f90 device/device.lo math/mxm_wrapper.lo sem/bcknd/device/device_coef.lo math/bcknd/device/device_math.lo mesh/mesh.lo math/math.lo sem/space.lo sem/dofmap.lo config/num_types.lo config/neko_config.lo gs/gs_ops.lo gs/gather_scatter.lo 
 sem/cpr.lo : sem/cpr.f90 sem/dofmap.lo common/log.lo math/mxm_wrapper.lo math/tensor.lo sem/coef.lo mesh/mesh.lo math/math.lo sem/space.lo field/field.lo config/num_types.lo config/neko_config.lo gs/gather_scatter.lo 
 common/time_interpolator.lo : common/time_interpolator.f90 math/fast3d.lo common/utils.lo math/math.lo math/bcknd/device/device_math.lo config/neko_config.lo field/field.lo config/num_types.lo 
-sem/interpolation.lo : sem/interpolation.f90 sem/space.lo math/bcknd/cpu/tensor_cpu.lo math/tensor.lo math/fast3d.lo device/device.lo config/num_types.lo config/neko_config.lo 
+sem/interpolation.lo : sem/interpolation.f90 sem/space.lo math/bcknd/cpu/tensor_cpu.lo math/tensor.lo common/utils.lo math/fast3d.lo device/device.lo config/num_types.lo config/neko_config.lo 
 sem/point_interpolator.lo : sem/point_interpolator.f90 config/neko_config.lo math/bcknd/device/device_math.lo device/device.lo common/utils.lo math/fast3d.lo math/math.lo mesh/point.lo config/num_types.lo sem/space.lo math/tensor.lo 
 sem/bcknd/device/device_coef.lo : sem/bcknd/device/device_coef.F90 common/utils.lo config/num_types.lo 
 gs/gs_bcknd.lo : gs/gs_bcknd.f90 config/num_types.lo 
