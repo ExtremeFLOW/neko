@@ -105,7 +105,6 @@ module fluid_scheme_incompressible
      type(fluid_stats_t) :: stats !< Fluid statistics
      type(mean_sqr_flow_t) :: mean_sqr !< Mean squared flow field
      logical :: forced_flow_rate = .false. !< Is the flow rate forced?
-     logical :: freeze = .false. !< Freeze velocity at initial condition?
 
      !> The turbulent kinematic viscosity field name
      character(len=:), allocatable :: nut_field_name
