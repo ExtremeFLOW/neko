@@ -36,9 +36,8 @@ module device
   use opencl_intf
   use cuda_intf
   use hip_intf
-  use htable
   use htable, only : htable_cptr_t, h_cptr_t
-  use utils, only: neko_error
+  use utils, only : neko_error
   use dummy_device
   use opencl_prgm_lib
   use, intrinsic :: iso_c_binding
