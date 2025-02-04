@@ -103,6 +103,9 @@ module fluid_scheme_base
 
      !> Is mu varying in time? Currently only due to LES models.
      logical :: variable_material_properties = .false.
+     !> Is the fluid frozen at the moment
+     logical :: freeze = .false.
+
    contains
      !> Constructor
      procedure(fluid_scheme_base_init_intrf), pass(this), deferred :: init
