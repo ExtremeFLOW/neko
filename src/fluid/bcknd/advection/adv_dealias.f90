@@ -43,7 +43,7 @@ module adv_dealias
     NEKO_BCKND_OPENCL, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
   use operators, only: opgrad
   use interpolation, only: interpolator_t
-  use device, only: device_map, device_get_ptr
+  use device
   use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR
   implicit none
   private

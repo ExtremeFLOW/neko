@@ -44,7 +44,7 @@ module adv_oifs
   use time_interpolator, only: time_interpolator_t
   use field_series, only: field_series_t
   use time_scheme_controller, only: time_scheme_controller_t
-  use device, only: device_map, device_get_ptr
+  use device
   use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR
   implicit none
   private

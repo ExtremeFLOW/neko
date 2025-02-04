@@ -37,7 +37,7 @@ module ax_helm_device
   use space, only : space_t
   use mesh, only : mesh_t
   use device_math, only : device_addcol4
-  use device, only : device_get_ptr
+  use device
   use num_types, only : rp
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none

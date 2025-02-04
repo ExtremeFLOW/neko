@@ -36,7 +36,7 @@ module runge_kutta_time_scheme
   use time_scheme, only: time_scheme_t
   use math, only : rzero
   use utils, only : neko_error
-  use device, only : device_free, device_map, device_memcpy, HOST_TO_DEVICE
+  use device
   use, intrinsic :: iso_c_binding, only : c_ptr, c_associated, C_NULL_PTR
   implicit none
   private

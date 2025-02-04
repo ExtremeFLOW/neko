@@ -43,7 +43,7 @@ module spectral_error
   use gather_scatter
   use neko_config
   use logger, only: neko_log
-  use device, only: DEVICE_TO_HOST, HOST_TO_DEVICE, device_memcpy
+  use device
   use comm, only: pe_rank
   use utils, only: NEKO_FNAME_LEN, neko_error
   use field_writer, only: field_writer_t

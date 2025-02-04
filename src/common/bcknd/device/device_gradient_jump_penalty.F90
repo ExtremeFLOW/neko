@@ -33,7 +33,7 @@
 module device_gradient_jump_penalty
   use num_types, only : c_rp, rp
   use utils, only : neko_error
-  use device, only : glb_cmd_queue
+  use device
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
   private

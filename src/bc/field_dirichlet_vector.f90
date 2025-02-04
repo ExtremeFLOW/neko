@@ -37,7 +37,7 @@ module field_dirichlet_vector
   use dirichlet, only: dirichlet_t
   use bc, only: bc_t
   use bc_list, only : bc_list_t
-  use device, only: c_ptr, c_size_t
+  use device
   use utils, only: split_string
   use field, only : field_t
   use field_list, only : field_list_t

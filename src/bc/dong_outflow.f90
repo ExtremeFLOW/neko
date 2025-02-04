@@ -34,7 +34,7 @@
 module dong_outflow
   use neko_config
   use dirichlet, only : dirichlet_t
-  use device, only : device_memcpy, device_alloc, HOST_TO_DEVICE
+  use device
   use num_types, only : rp, c_rp
   use bc, only : bc_t
   use field, only : field_t

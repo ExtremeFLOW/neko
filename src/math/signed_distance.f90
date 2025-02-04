@@ -37,7 +37,7 @@ module signed_distance
   use tri, only: tri_t
   use tri_mesh, only: tri_mesh_t
   use aabb_tree, only: aabb_tree_t
-  use device, only: device_memcpy, HOST_TO_DEVICE
+  use device
   use neko_config, only: NEKO_BCKND_DEVICE
   use utils, only: neko_error, neko_warning
 

@@ -35,7 +35,7 @@ module blasius
   use num_types, only : rp
   use coefs, only : coef_t
   use utils, only : nonlinear_index
-  use device, only : HOST_TO_DEVICE, device_memcpy, device_free, device_alloc
+  use device
   use device_inhom_dirichlet
   use flow_profile
   use, intrinsic :: iso_fortran_env

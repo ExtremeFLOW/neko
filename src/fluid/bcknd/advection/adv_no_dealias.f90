@@ -41,7 +41,7 @@ module adv_no_dealias
   use device_math, only: device_subcol3, device_rzero
   use neko_config, only: NEKO_BCKND_DEVICE
   use operators, only: conv1
-  use device, only: device_free, device_map, device_get_ptr
+  use device
   use, intrinsic :: iso_c_binding, only: c_ptr, C_NULL_PTR, c_associated
   implicit none
   private

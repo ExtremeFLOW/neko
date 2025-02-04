@@ -39,7 +39,7 @@ module fluid_user_source_term
   use json_module, only : json_file
   use field_list, only : field_list_t
   use coefs, only : coef_t
-  use device, only : device_map, device_free
+  use device
   use device_math, only : device_add2
   use math, only : add2
   use dofmap, only : dofmap_t

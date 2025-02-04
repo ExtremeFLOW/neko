@@ -35,7 +35,7 @@ module fld_file_output
   use num_types, only : rp
   use field_list, only : field_list_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : device_memcpy, DEVICE_TO_HOST
+  use device
   use output, only : output_t
   implicit none
   private

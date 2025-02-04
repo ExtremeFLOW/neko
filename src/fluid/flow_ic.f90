@@ -38,7 +38,7 @@ module flow_ic
   use neko_config, only : NEKO_BCKND_DEVICE
   use flow_profile, only : blasius_profile, blasius_linear, blasius_cubic, &
        blasius_quadratic, blasius_quartic, blasius_sin
-  use device, only: device_memcpy, HOST_TO_DEVICE
+  use device
   use field, only : field_t
   use utils, only : neko_error, filename_suffix, filename_chsuffix, &
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index

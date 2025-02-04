@@ -36,7 +36,7 @@ module scalar_ic
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use device_math, only : device_col2
-  use device, only : device_memcpy, HOST_TO_DEVICE
+  use device
   use field, only : field_t
   use utils, only : neko_error, filename_chsuffix, filename_suffix, &
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index

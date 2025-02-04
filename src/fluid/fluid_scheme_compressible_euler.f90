@@ -32,7 +32,7 @@
 !
 module fluid_scheme_compressible_euler
   use advection, only : advection_t, advection_factory
-  use device, only : device_memcpy, HOST_TO_DEVICE
+  use device
   use dofmap, only : dofmap_t
   use field_math, only : field_add2, field_cfill, field_cmult, field_cadd, &
        field_copy, field_col2, field_col3, &

@@ -45,7 +45,7 @@ module gather_scatter
   use comm
   use dofmap, only : dofmap_t
   use field, only : field_t
-  use num_types, only : rp, dp, i2
+  use num_types, only : rp, dp, i2, i8
   use htable, only : htable_i8_t, htable_iter_i8_t
   use stack, only : stack_i4_t
   use utils, only : neko_error, linear_index

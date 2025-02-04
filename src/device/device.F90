@@ -36,13 +36,14 @@ module device
   use opencl_intf
   use cuda_intf
   use hip_intf
+  use htable
   use htable, only : htable_cptr_t, h_cptr_t
-  use utils, only : neko_error
+  use utils, only: neko_error
   use dummy_device
   use opencl_prgm_lib
   use, intrinsic :: iso_c_binding
   implicit none
-!  private
+  private :: neko_error, i8, htable_cptr_t, h_cptr_t
 
   integer, public, parameter :: HOST_TO_DEVICE = 1, DEVICE_TO_HOST = 2, &
        DEVICE_TO_DEVICE = 3

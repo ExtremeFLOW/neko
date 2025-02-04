@@ -33,7 +33,7 @@
 !> Profiling interface
 module profiler
   use neko_config, only : NEKO_BCKND_CUDA
-  use device, only : device_profiler_start, device_profiler_stop
+  use device
   use nvtx
   use roctx
   use craypat

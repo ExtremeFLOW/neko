@@ -35,7 +35,7 @@ module bc_list
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use field, only : field_t
-  use device, only : device_get_ptr
+  use device
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr
   use bc, only : bc_t, bc_ptr_t

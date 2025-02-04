@@ -52,7 +52,7 @@ module fluid_pnpn
   use fluid_aux, only : fluid_step_info
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
-  use device, only : device_memcpy, HOST_TO_DEVICE
+  use device
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_module, only : json_file, json_core, json_value

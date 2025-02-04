@@ -38,7 +38,7 @@ module time_scheme_controller
   use bdf_time_scheme, only: bdf_time_scheme_t
   use ext_time_scheme, only: ext_time_scheme_t
   use ab_time_scheme, only: ab_time_scheme_t
-  use device, only : device_free, device_map, device_memcpy, HOST_TO_DEVICE
+  use device
   use, intrinsic :: iso_c_binding
   implicit none
   private

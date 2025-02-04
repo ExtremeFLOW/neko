@@ -44,7 +44,7 @@ module scalar_pnpn
   use mesh, only : mesh_t
   use checkpoint, only : chkp_t
   use coefs, only : coef_t
-  use device, only : HOST_TO_DEVICE, device_memcpy
+  use device
   use gather_scatter, only : gs_t, GS_OP_ADD
   use scalar_residual, only : scalar_residual_t, scalar_residual_factory
   use ax_product, only : ax_t, ax_helm_factory

@@ -33,7 +33,7 @@
 module fdm_device
   use num_types
   use utils
-  use device, only : device_get_ptr, glb_cmd_queue
+  use device
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
   private
