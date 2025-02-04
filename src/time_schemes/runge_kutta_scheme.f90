@@ -31,13 +31,13 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module runge_kutta_time_scheme
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use time_scheme, only: time_scheme_t
   use math, only : rzero
   use utils, only : neko_error
   use device, only : device_free, device_map, device_memcpy, HOST_TO_DEVICE
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_associated, C_NULL_PTR
   implicit none
   private
 
@@ -65,7 +65,6 @@ contains
   !>              3: SSPRK3
   !>              4: Classic RK4
   subroutine runge_kutta_scheme_coeffs_init(this, order)
-    implicit none
     class(runge_kutta_time_scheme_t), intent(inout) :: this
     integer, intent(in) :: order
     integer :: s

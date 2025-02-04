@@ -145,7 +145,8 @@ contains
     call this%field_list%assign_to_field(1, this%field_bc)
   end subroutine field_dirichlet_init_from_components
 
-  !> Destructor. Currently this%field_bc is being freed in `fluid_scheme_incompressible::free`
+  !> Destructor. Currently this%field_bc is being freed in
+  !! `fluid_scheme_incompressible::free`
   subroutine field_dirichlet_free(this)
     class(field_dirichlet_t), target, intent(inout) :: this
 

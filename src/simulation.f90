@@ -281,13 +281,11 @@ contains
 
     call C%fluid%restart(C%dtlag, C%tlag)
     call C%fluid%chkp%previous_mesh%free()
-    if (allocated(C%scalar)) &
-         call C%scalar%restart( C%dtlag, C%tlag)
+    if (allocated(C%scalar)) call C%scalar%restart(C%dtlag, C%tlag)
 
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')
-    write(log_buf, '(A,A)') 'File :   ', &
-         trim(restart_file)
+    write(log_buf, '(A,A)') 'File :   ', trim(restart_file)
     call neko_log%message(log_buf)
     write(log_buf, '(A,E15.7)') 'Time : ', t
     call neko_log%message(log_buf)

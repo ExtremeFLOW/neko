@@ -53,6 +53,7 @@ module fluid_scheme_base
   use bc_list, only : bc_list_t
   implicit none
   private
+  public :: fluid_scheme_base_t, fluid_scheme_base_factory
 
   !> Base type of all fluid formulations.
   type, abstract :: fluid_scheme_base_t
@@ -151,8 +152,8 @@ module fluid_scheme_base
 
   !> Initialize common data for the current scheme
   abstract interface
-     subroutine fluid_base_init_common_intrf(this, msh, lx, params, scheme, user, &
-          kspv_init)
+     subroutine fluid_base_init_common_intrf(this, msh, lx, params, scheme, &
+          user, kspv_init)
        import fluid_scheme_base_t
        import mesh_t
        import json_file
@@ -284,6 +285,4 @@ module fluid_scheme_base
        character(len=*) :: type_name
      end subroutine fluid_scheme_base_factory
   end interface
-
-  public :: fluid_scheme_base_t, fluid_scheme_base_factory
 end module fluid_scheme_base
