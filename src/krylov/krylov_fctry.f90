@@ -47,10 +47,6 @@ submodule (krylov) krylov_fctry
   use cheby_device, only : cheby_device_t
   use gmres_sx, only : sx_gmres_t
   use gmres_device, only : gmres_device_t
-  use num_Types, only : rp
-  use precon, only : pc_t
-  use utils, only : concat_string_array
-  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_OPENCL
   implicit none
 
   ! List of all possible types created by the factory routine

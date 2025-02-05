@@ -39,11 +39,11 @@ module krylov
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use field, only : field_t
-  use utils, only : neko_error, neko_warning
+  use utils, only : neko_error, neko_warning, concat_string_array
   use bc_list, only : bc_list_t
   use identity, only : ident_t
   use device_identity, only : device_ident_t
-  use neko_config, only : NEKO_BCKND_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_OPENCL
   use logger, only : neko_log, LOG_SIZE
   implicit none
   private
