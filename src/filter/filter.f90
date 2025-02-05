@@ -108,11 +108,10 @@ module filter
        character(len=*), intent(in) :: type_name
        type(coef_t), intent(in) :: coef
        type(json_file), intent(inout) :: json
-       character(len=:), allocatable :: type_string
      end subroutine filter_factory
   end interface
 
-  ! public :: filter_factory
+  public :: filter_factory
 
 contains
   !> Constructor for the `filter_t` (base) class.
