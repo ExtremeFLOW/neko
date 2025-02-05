@@ -41,7 +41,7 @@ module elementwise_filter
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
   use json_module, only : json_file
-  use json_utils, only : json_get_or_default
+  use json_utils, only : json_get_or_default, json_get
   use speclib, only : zwgll, legendre_poly
   use matrix, only : matrix_t
   use mxm_wrapper, only : mxm
@@ -93,6 +93,10 @@ contains
     call this%init_base(json, coef)
 
     call this%init_from_attributes(coef%dof%xh%lx)
+
+    if (json%valid_path('filter.transfer_function')) then
+       call json_get(json, 'filter.transfer_function', this%trnsfr)
+    end if
 
   end subroutine elementwise_filter_init_from_json
   !> Actual Constructor.
