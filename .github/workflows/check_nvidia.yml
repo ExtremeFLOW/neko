@@ -37,8 +37,8 @@ jobs:
               export NVARCH
               NVCOMPILERS=/opt/nvidia/hpc_sdk
               export NVCOMPILERS
-              PATH=$NVCOMPILERS/$NVARCH/24.11/compilers/bin:$PATH; export PATH
-              export PATH=$NVCOMPILERS/$NVARCH/24.11/comm_libs/mpi/bin:$PATH
+              PATH=$NVCOMPILERS/$NVARCH/25.1/compilers/bin:$PATH; export PATH
+              export PATH=$NVCOMPILERS/$NVARCH/25.1/comm_libs/mpi/bin:$PATH
               printenv >> $GITHUB_ENV
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
