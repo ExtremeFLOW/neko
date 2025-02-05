@@ -91,7 +91,7 @@ jobs:
         run: |
           git apply patches/nvhpc_bge.patch
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O0" --enable-real=${RP}
+          ./configure FC=${FC} FCFLAGS="-O2" --enable-real=${RP}
           make
 
       - name: Build (CUDA backend)
@@ -99,7 +99,7 @@ jobs:
         run: |
           git apply patches/nvhpc_bge.patch
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O0" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/25.1/cuda/
+          ./configure FC=${FC} FCFLAGS="-O2" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/25.1/cuda/
           make
 
       - name: Dist (CPU backend)
@@ -111,7 +111,7 @@ jobs:
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
           patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
-          ./configure FC=${FC} FCFLAGS="-O0" --enable-real=${RP}
+          ./configure FC=${FC} FCFLAGS="-O2" --enable-real=${RP}
           make -j $(nproc)
 
       - name: Dist (CUDA backend)
@@ -123,5 +123,5 @@ jobs:
           tar xf neko-*.tar.gz -C releng
           cd releng/neko-*
           patch -u src/common/signal.f90 -i patches/nvhpc_bge.patch
-          ./configure FC=${FC} FCFLAGS="-O0" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/25.1/cuda/
+          ./configure FC=${FC} FCFLAGS="-O2" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/Linux_x86_64/25.1/cuda/
           make -j $(nproc)
