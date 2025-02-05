@@ -108,6 +108,8 @@ contains
        end if
     end if
 
+    call this%build_1d()
+
   end subroutine elementwise_filter_init_from_json
   !> Actual Constructor.
   !! @param nx number of points in an elements in one direction.

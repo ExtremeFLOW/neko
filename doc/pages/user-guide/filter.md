@@ -14,15 +14,25 @@ The PDE filter is defined in the derived type `PDE_filter_t`. ...
 
 ## Elementwise filter
 
-The elementwise filter is defined in the derived type `elementwise_filter_t`. Basing on the spectral element discretization, it is performed by mapping the field into hierarchical polynomials element by element (currently only Legendre-like polynomials are supported) and then attenuating the kernel for different orders. It could be constructed by calling subroutine `elementwise_filter_t%init(json_t, coef_t)`. 
+The elementwise filter is defined in the derived type `elementwise_filter_t`. Basing on the spectral element discretization, it is performed by mapping the field into hierarchical polynomials element by element (currently only Legendre-like polynomials are supported) and then attenuating the kernel for different orders. One could directly set it up through the json file if the filter is needed in any section.
 
-After constructing the object, one should also set up `elementwise_filter_t%elementwise_filter_type` and `elementwise_filter_t%trnsfr`.
+One could also modify `elementwise_filter_type` and `transfer_function` according to his/her need.
 
-`elementwise_filter_type` is a string to specify the type of usage of the polynomial for the filter.
+`elementwise_filter_type` is a optional string to specify the type of usage of the polynomial for the filter.
 
 | Name                         | Polynomials |
 | ---------------------------- | -------------------------- |
 | `nonBoyd`                    | i-th order polynomials L_i(x) |
 | `Boyd`                       | L_i(x) for i<2, L_i(x) - L_{i-2}(x) for i>=2|
 
-The kernel is defined through an array `real(kind=rp), allocatable :: trnsfr(:)` whose size is the number of polynomials. The indices of `elementwise_filter_t%trnsfr` corresponds to the polynomial order in ascending order. `elementwise_filter_t%trnsfr` is initialized to be all `1` such that the filter has no effect by default unless further defined. Once `elementwise_filter_t%trnsfr` is defined, one should call the subroutine `elementwise_filter_t%build_1d()` to settle the settings. One could also refer `dynamic_smagorinsky.f90` for an example of using `elementwise_filter_t`.
+The kernel is defined through an optional array `transfer_function` whose size is the number of polynomials. The indices of `transfer_function` corresponds to the polynomial order in ascending order. `transfer_function` is initialized to be all `1` such that the filter has no effect by default unless further defined.
+
+One could set up the elementwise_filter in the following way for polynomial order `7`.
+~~~~~~~~~~~~~~~{.json}
+"filter": {
+    "type": "elementwise",
+    "elementwise_filter_type": "Boyd",
+    "transfer_function": [1,1,1,0.7,0.3,0,0,0]
+}
+~~~~~~~~~~~~~~~
+One could also refer to `dynamic_smagorinsky.f90` for an example of using `elementwise_filter_t` in the neko code.
