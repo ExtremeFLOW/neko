@@ -34,7 +34,7 @@
 module tet
   use num_types, only : dp
   use element, only : element_t
-  use tuple
+  use tuple, only : tuple_t, tuple3_i4_t, tuple_i4_t
   use point, only : point_t
   implicit none
   private

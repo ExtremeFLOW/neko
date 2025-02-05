@@ -32,12 +32,11 @@
 !
 !> Generic Gather-scatter backend for accelerators
 module gs_device
-  use neko_config
   use num_types
-  use gs_bcknd
+  use gs_bcknd, only : gs_bcknd_t
   use device
   use gs_ops
-  use utils
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int, C_NULL_PTR, &
                                           c_associated
   implicit none

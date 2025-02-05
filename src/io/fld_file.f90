@@ -33,7 +33,7 @@
 !> NEKTON fld file format
 !! @details this module defines interface to write NEKTON's fld fields
 module fld_file
-  use num_types, only: rp, dp, sp, i8
+  use num_types, only : rp, dp, sp, i8
   use generic_file, only: generic_file_t
   use field, only: field_t
   use field_list, only: field_list_t

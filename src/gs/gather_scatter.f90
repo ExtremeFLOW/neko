@@ -52,7 +52,9 @@ module gather_scatter
   use logger, only : neko_log, LOG_SIZE
   use profiler, only : profiler_start_region, profiler_end_region
   use device
-  use mpi_f08
+  use mpi_f08, only : MPI_Reduce, MPI_IN_PLACE, MPI_INTEGER8, MPI_SUM, &
+       MPI_INTEGER, MPI_Wtime, MPI_Status, MPI_Request, MPI_STATUS_IGNORE, &
+       MPI_MAX, MPI_INTEGER2, MPI_Isend, MPI_Irecv, MPI_Allreduce
   use, intrinsic :: iso_c_binding, only :  c_ptr, C_NULL_PTR
   implicit none
   private

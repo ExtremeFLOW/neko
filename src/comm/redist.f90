@@ -33,7 +33,8 @@
 !> Redistribution routines
 module redist
   use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
-  use neko_mpi_types
+  use neko_mpi_types, only : MPI_NMSH_HEX, MPI_NMSH_CURVE, &
+       MPI_NMSH_ZONE
   use mpi_f08, only : MPI_Status, MPI_Allreduce, MPI_IN_PLACE, &
        MPI_Sendrecv, MPI_INTEGER, MPI_MAX
   use htable, only : htable_i4_t

@@ -41,7 +41,6 @@ module opr_device
   use utils, only : neko_error
   use device_math, only : device_sub3, device_rzero, device_copy
   use device_mathops, only : device_opcolv
-  use comm
   use, intrinsic :: iso_c_binding
   implicit none
   private

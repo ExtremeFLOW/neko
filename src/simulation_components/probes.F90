@@ -55,7 +55,8 @@ module probes
   use file, only : file_t, file_free
   use csv_file, only : csv_file_t
   use case, only : case_t
-  use mpi_f08
+  use mpi_f08, only : MPI_Allreduce, MPI_SUM, MPI_DOUBLE_PRECISION, &
+       MPI_INTEGER
   use, intrinsic :: iso_c_binding
   implicit none
   private

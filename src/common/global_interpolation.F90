@@ -43,14 +43,15 @@ module global_interpolation
   use logger, only: neko_log, LOG_SIZE
   use utils, only: neko_error, neko_warning
   use local_interpolation
-  use comm
+  use comm, only : NEKO_COMM, pe_size, pe_rank
   use math, only: copy
-  use neko_mpi_types
   use structs, only: array_ptr_t
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use mpi_f08
+  use mpi_f08, only : MPI_Reduce, MPI_INTEGER, MPI_SUM, &
+       MPI_DOUBLE_PRECISION
   implicit none
   private
+
   !> Implements global interpolation for arbitrary points in the domain.
   type, public :: global_interpolation_t
      !> X coordinates from which to interpolate.

@@ -5,7 +5,7 @@ module map_1d
   use num_types, only: rp
   use space, only: space_t
   use dofmap, only: dofmap_t
-  use gather_scatter
+  use gather_scatter, only : gs_t, GS_OP_ADD
   use mesh, only: mesh_t
   use device
   use comm, only : NEKO_COMM, pe_rank, pe_size, MPI_REAL_PRECISION
@@ -15,8 +15,7 @@ module map_1d
   use vector, only: vector_ptr_t
   use utils, only: neko_error, neko_warning
   use math, only: glmax, glmin, glimax, relcmp, cmult, add2s1, col2
-  use neko_mpi_types
-  use mpi_f08
+  use mpi_f08, only : MPI_IN_PLACE, MPI_Allreduce, MPI_SUM
   use, intrinsic :: iso_c_binding
   implicit none
   private

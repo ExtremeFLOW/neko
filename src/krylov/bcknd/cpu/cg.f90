@@ -42,8 +42,8 @@ module cg
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
-  use comm
-  use mpi_f08
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
+  use mpi_f08, only : MPI_Allreduce, MPI_SUM, MPI_IN_PLACE
   implicit none
   private
 

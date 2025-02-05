@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ module output_controller
   use profiler, only : profiler_start_region, profiler_end_region
   use num_types, only : rp, dp
   use time_based_controller, only : time_based_controller_t
-  use mpi_f08
+  use mpi_f08, only : MPI_Barrier, MPI_Wtime
   implicit none
   private
 
@@ -231,7 +231,7 @@ contains
     call profiler_start_region('Output controller', 22)
     !Do we need this Barrier?
     call MPI_Barrier(NEKO_COMM, ierr)
-    sample_start_time = MPI_WTIME()
+    sample_start_time = MPI_Wtime()
 
     write_output = .false.
     ! Determine if at least one output needs to be written
@@ -277,7 +277,7 @@ contains
     end select
 
     call MPI_Barrier(NEKO_COMM, ierr)
-    sample_end_time = MPI_WTIME()
+    sample_end_time = MPI_Wtime()
 
     sample_time = sample_end_time - sample_start_time
     if (write_output) then

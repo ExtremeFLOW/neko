@@ -44,7 +44,7 @@ module cacg
   use math, only : glsc3, rzero, copy, x_update, abscmp
   use utils, only : neko_warning
   use comm, only : NEKO_COMM, pe_rank, MPI_REAL_PRECISION
-  use mpi_f08
+  use mpi_f08, only : MPI_Allreduce, MPI_SUM
   use mxm_wrapper
   implicit none
   private

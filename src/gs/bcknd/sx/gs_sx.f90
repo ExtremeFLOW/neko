@@ -33,7 +33,7 @@
 !> Generic Gather-scatter backend for NEC Vector Engines
 module gs_sx
   use num_types
-  use gs_bcknd
+  use gs_bcknd, only : gs_bcknd_t
   use gs_ops
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none

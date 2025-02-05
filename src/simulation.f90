@@ -32,7 +32,6 @@
 !
 !> Simulation driver
 module simulation
-  use mpi_f08
   use case, only : case_t
   use num_types, only : rp, dp
   use time_scheme_controller, only : time_scheme_controller_t
@@ -44,6 +43,7 @@ module simulation
   use simcomp_executor, only : neko_simcomps
   use json_utils, only : json_get_or_default
   use time_step_controller, only : time_step_controller_t
+  use mpi_f08, only : MPI_Wtime
   implicit none
   private
 
@@ -99,12 +99,12 @@ contains
 
     call profiler_start
     cfl = C%fluid%compute_cfl(C%dt)
-    start_time_org = MPI_WTIME()
+    start_time_org = MPI_Wtime()
 
     do while (t .lt. C%end_time .and. (.not. jobctrl_time_limit()))
        call profiler_start_region('Time-Step')
        tstep = tstep + 1
-       start_time = MPI_WTIME()
+       start_time = MPI_Wtime()
        tstep_start_time = start_time
        if (dt_controller%dt_last_change .eq. 0) then
           cfl_avrg = cfl
@@ -130,7 +130,7 @@ contains
 
        call neko_log%section('Fluid')
        call C%fluid%step(t, tstep, C%dt, C%fluid%ext_bdf, dt_controller)
-       end_time = MPI_WTIME()
+       end_time = MPI_Wtime()
        write(log_buf, '(A,E15.7)') &
             'Fluid step time (s):   ', end_time-start_time
        call neko_log%message(log_buf)
@@ -140,10 +140,10 @@ contains
 
        ! Scalar step
        if (allocated(C%scalar)) then
-          start_time = MPI_WTIME()
+          start_time = MPI_Wtime()
           call neko_log%section('Scalar')
           call C%scalar%step(t, tstep, C%dt, C%fluid%ext_bdf, dt_controller)
-          end_time = MPI_WTIME()
+          end_time = MPI_Wtime()
           write(log_buf, '(A,E15.7)') &
                'Scalar step time:      ', end_time-start_time
           call neko_log%message(log_buf)
@@ -185,7 +185,7 @@ contains
        call C%output_controller%execute(t, tstep)
 
        call neko_log%end_section()
-       end_time = MPI_WTIME()
+       end_time = MPI_Wtime()
        call neko_log%section('Step summary')
        write(log_buf, '(A,I8,A,E15.7)') &
             'Total time for step ', tstep, ' (s): ', end_time-tstep_start_time

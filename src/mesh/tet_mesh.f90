@@ -33,10 +33,10 @@
 !> Defines a tetrahedral mesh
 !! @details Mesh dervied from an existing hexahedral mesh via bisection
 module tet_mesh
-  use mesh
+  use mesh, only : mesh_t
   use tet
-  use point
-  use utils
+  use point, only : point_T
+  use utils, only : neko_error
   implicit none
   private
 

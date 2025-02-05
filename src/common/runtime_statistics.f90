@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -41,8 +41,9 @@ module runtime_stats
   use file, only : file_t
   use matrix, only : matrix_t
   use utils, only : neko_error
-  use comm
-  use mpi_f08
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use mpi_f08, only : MPI_Wtime, MPI_DOUBLE_PRECISION, MPI_SUM, &
+       MPI_IN_PLACE, MPI_Allreduce 
   implicit none
   private
 

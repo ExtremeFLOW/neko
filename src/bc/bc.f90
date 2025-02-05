@@ -36,7 +36,6 @@ module bc
   use num_types, only : rp
   use device, only : device_get_ptr, HOST_TO_DEVICE,  device_memcpy, &
         device_free, device_map
-  use iso_c_binding, only: c_associated
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use space, only : space_t
@@ -45,7 +44,7 @@ module bc
   use stack, only : stack_i4t2_t
   use tuple, only : tuple_i4_t
   use utils, only : neko_error, linear_index, split_string
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   use json_module, only : json_file
   implicit none
   private

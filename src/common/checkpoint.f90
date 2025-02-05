@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,14 +32,14 @@
 !
 !> Defines a checkpoint
 module checkpoint
-  use neko_config
+  use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp, dp
   use field_series, only : field_series_t
-  use space
+  use space, only : space_t, operator(.ne.)
   use device
   use field, only : field_t
   use utils, only : neko_error
-  use mesh, only: mesh_t
+  use mesh, only : mesh_t
   implicit none
   private
 

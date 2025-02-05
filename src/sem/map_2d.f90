@@ -4,22 +4,21 @@ module map_2d
   use neko_config
   use num_types, only: rp
   use dofmap, only: dofmap_t
-  use map_1d
-  use gather_scatter
+  use map_1d, only : map_1d_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
   use mesh, only: mesh_t
   use device
-  use utils
-  use comm
-  use field_list
+  use utils, only : neko_error, linear_index
+  use comm, only : NEKO_COMM
+  use field_list, only : field_list_t
   use coefs, only: coef_t
   use field_list, only: field_list_t
   use vector, only: vector_ptr_t
   use utils, only: neko_error
   use math, only: cmult, col2, copy, rzero
-  use neko_mpi_types
-  use fld_file_data
-  use field
-  use mpi_f08
+  use fld_file_data, only : fld_file_data_t
+  use field, only: field_t
+  use mpi_f08, only : MPI_Exscan, MPI_Allreduce, MPI_INTEGER, MPI_SUM
   use, intrinsic :: iso_c_binding
   implicit none
   private

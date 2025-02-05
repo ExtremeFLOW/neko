@@ -1,4 +1,4 @@
-! Copyright (c) 2018-2023, The Neko Authors
+! Copyright (c) 2018-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -35,21 +35,24 @@ module mesh
   use num_types, only : rp, dp, i8
   use point, only : point_t
   use element, only : element_t
-  use hex
-  use quad
+  use hex, only : hex_t, NEKO_HEX_NEDS, NEKO_HEX_NPTS, NEKO_HEX_NFCS
+  use quad, only : quad_t, NEKO_QUAD_NPTS, NEKO_QUAD_NEDS
   use utils, only : neko_error, neko_warning
   use stack, only : stack_i4_t, stack_i8_t, stack_i4t4_t, stack_i4t2_t
   use tuple, only : tuple_i4_t, tuple4_i4_t
-  use htable
-  use datadist
+  use htable, only : htable_i4t4_t, htable_i4t2_t, htable_i8_t, htable_i4_t, &
+       htable_t, htable_iter_i4t2_t, htable_iter_i4t4_t
+  use datadist, only : linear_dist_t
   use distdata
-  use comm
+  use comm, only : NEKO_COMM, pe_size, pe_rank
   use facet_zone, only : facet_zone_t, facet_zone_periodic_t
-  use math
+  use math, only : abscmp
   use uset, only : uset_i8_t
   use curve, only : curve_t
   use logger, only : LOG_SIZE
-  use mpi_f08
+  use mpi_f08, only : MPI_Allreduce, MPI_Integer, MPI_SUM, MPI_Request, &
+       MPI_MAX, MPI_IN_PLACE, MPI_Status, MPI_STATUS_IGNORE, &
+       MPI_INTEGER8, MPI_Irecv, MPI_Isend
   implicit none
   private
 
