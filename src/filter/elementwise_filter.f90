@@ -88,14 +88,24 @@ contains
     class(elementwise_filter_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
+    real(kind=rp), allocatable :: trnsfr(:)
     
     ! Filter assumes lx = ly = lz
     call this%init_base(json, coef)
 
     call this%init_from_attributes(coef%dof%xh%lx)
 
+    call json_get_or_default(json, "filter.elementwise_filter_type", &
+                             this%elementwise_filter_type, "nonBoyd")
+
     if (json%valid_path('filter.transfer_function')) then
-       call json_get(json, 'filter.transfer_function', this%trnsfr)
+       call json_get(json, 'filter.transfer_function', trnsfr)
+       if (size(trnsfr) .eq. coef%dof%xh%lx) then
+          this%trnsfr = trnsfr
+       else
+          call neko_error("The transfer function of the elementwise &
+                  filter must correspond the order of the polynomial")
+       end if
     end if
 
   end subroutine elementwise_filter_init_from_json

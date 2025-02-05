@@ -99,8 +99,20 @@ contains
     call this%free()
     call this%init_base(dofmap, coef, nut_name, delta_type)
     call this%test_filter%init(json, coef)
-    call json_get_or_default(json, "test_filter_type", filter_type, "nonBoyd")
-    this%test_filter%elementwise_filter_type = filter_type
+    if (json%valid_path('filter.transfer_function')) then
+       call neko_error("Dynamic Smagorinsky model does not support transfer &
+                        &function specified in the json file. &
+                        &Please hard-code it in &
+                        &subroutine set_ds_filt() in &
+                        &src/les/dynamic_smagorisnky.f90")
+    end if
+    if (json%valid_path('filter.type')) then
+       call json_get(json, "filter.type", filter_type)
+       if (trim(filter_type) .ne. "elementwise") then
+          call neko_error("Currently only elementwise filter is supported &
+                           for dynamic smagorinsky model.")
+       end if
+    end if
     call set_ds_filt(this%test_filter)
 
     call neko_log%section('LES model')
