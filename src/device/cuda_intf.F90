@@ -317,7 +317,10 @@ contains
     end if
   end subroutine cuda_init
 
-  subroutine cuda_finalize
+  subroutine cuda_finalizeglb_cmd_queue, aux_cmd_queue)
+    type(c_ptr), intent(inout) :: glb_cmd_queue
+    type(c_ptr), intent(inout) :: aux_cmd_queue
+    
     if (cudaStreamDestroy(glb_cmd_queue) .ne. cudaSuccess) then
        call neko_error('Error destroying main stream')
     end if

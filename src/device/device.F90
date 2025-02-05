@@ -134,9 +134,9 @@ contains
     call device_addrtbl%free()
 
 #ifdef HAVE_HIP
-    call hip_finalize
+    call hip_finalize(glb_cmd_queue, aux_cmd_queue)
 #elif HAVE_CUDA
-    call cuda_finalize
+    call cuda_finalize(glb_cmd_queue, aux_cmd_queue)
 #elif HAVE_OPENCL
     call opencl_prgm_lib_release
     call opencl_finalize(glb_cmd_queue, aux_cmd_queue)

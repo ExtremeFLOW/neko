@@ -245,7 +245,10 @@ contains
     end if
   end subroutine hip_init
 
-  subroutine hip_finalize
+  subroutine hip_finalize(glb_cmd_queue, aux_cmd_queue)
+    type(c_ptr), intent(inout) :: glb_cmd_queue
+    type(c_ptr), intent(inout) :: aux_cmd_queue
+    
     if (hipStreamDestroy(glb_cmd_queue) .ne. hipSuccess) then
        call neko_error('Error destroying main stream')
     end if
