@@ -22,8 +22,8 @@ math/math.lo : math/math.f90 comm/comm.lo config/num_types.lo
 math/mathops.lo : math/mathops.f90 config/num_types.lo 
 math/fast3d.lo : math/fast3d.f90 math/math.lo sem/speclib.lo config/num_types.lo 
 sem/space.lo : sem/space.f90 math/mxm_wrapper.lo math/tensor.lo math/math.lo math/fast3d.lo common/utils.lo device/device.lo sem/speclib.lo config/num_types.lo config/neko_config.lo 
-sem/map_1d.lo : sem/map_1d.f90 comm/mpi_types.lo math/math.lo common/utils.lo math/vector.lo math/matrix.lo field/field_list.lo sem/coef.lo comm/comm.lo device/device.lo mesh/mesh.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo config/num_types.lo config/neko_config.lo 
-sem/map_2d.lo : sem/map_2d.f90 field/field.lo io/fld_file_data.lo comm/mpi_types.lo math/math.lo math/vector.lo sem/coef.lo field/field_list.lo comm/comm.lo common/utils.lo device/device.lo mesh/mesh.lo gs/gather_scatter.lo sem/map_1d.lo sem/dofmap.lo config/num_types.lo config/neko_config.lo 
+sem/map_1d.lo : sem/map_1d.f90 math/math.lo common/utils.lo math/vector.lo math/matrix.lo field/field_list.lo sem/coef.lo comm/comm.lo device/device.lo mesh/mesh.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo config/num_types.lo config/neko_config.lo 
+sem/map_2d.lo : sem/map_2d.f90 field/field.lo io/fld_file_data.lo math/math.lo math/vector.lo sem/coef.lo field/field_list.lo comm/comm.lo common/utils.lo device/device.lo mesh/mesh.lo gs/gather_scatter.lo sem/map_1d.lo sem/dofmap.lo config/num_types.lo config/neko_config.lo 
 sem/dofmap.lo : sem/dofmap.f90 mesh/hex.lo mesh/quad.lo mesh/element.lo math/math.lo device/device.lo math/tensor.lo math/fast3d.lo common/utils.lo config/num_types.lo adt/tuple.lo sem/space.lo mesh/mesh.lo config/neko_config.lo 
 sem/coef.lo : sem/coef.f90 device/device.lo math/mxm_wrapper.lo sem/bcknd/device/device_coef.lo math/bcknd/device/device_math.lo mesh/mesh.lo math/math.lo sem/space.lo sem/dofmap.lo config/num_types.lo config/neko_config.lo gs/gs_ops.lo gs/gather_scatter.lo 
 sem/cpr.lo : sem/cpr.f90 sem/dofmap.lo common/log.lo math/mxm_wrapper.lo math/tensor.lo sem/coef.lo mesh/mesh.lo math/math.lo sem/space.lo field/field.lo config/num_types.lo config/neko_config.lo gs/gather_scatter.lo 
@@ -34,7 +34,7 @@ sem/bcknd/device/device_coef.lo : sem/bcknd/device/device_coef.F90 common/utils.
 gs/gs_bcknd.lo : gs/gs_bcknd.f90 config/num_types.lo 
 gs/bcknd/cpu/gs_cpu.lo : gs/bcknd/cpu/gs_cpu.f90 gs/gs_ops.lo gs/gs_bcknd.lo config/num_types.lo 
 gs/bcknd/sx/gs_sx.lo : gs/bcknd/sx/gs_sx.f90 gs/gs_ops.lo gs/gs_bcknd.lo config/num_types.lo 
-gs/bcknd/device/gs_device.lo : gs/bcknd/device/gs_device.F90 common/utils.lo gs/gs_ops.lo device/device.lo gs/gs_bcknd.lo config/num_types.lo config/neko_config.lo 
+gs/bcknd/device/gs_device.lo : gs/bcknd/device/gs_device.F90 common/utils.lo gs/gs_ops.lo device/device.lo gs/gs_bcknd.lo config/num_types.lo 
 gs/gs_ops.lo : gs/gs_ops.f90 
 gs/gs_comm.lo : gs/gs_comm.f90 adt/stack.lo comm/comm.lo config/num_types.lo 
 gs/gs_mpi.lo : gs/gs_mpi.f90 comm/comm.lo adt/stack.lo gs/gs_ops.lo gs/gs_comm.lo config/num_types.lo 
@@ -93,7 +93,7 @@ math/operators.lo : math/operators.f90 comm/comm.lo field/scratch_registry.lo ma
 math/bcknd/cpu/opr_cpu.lo : math/bcknd/cpu/opr_cpu.f90 math/mathops.lo sem/interpolation.lo gs/gather_scatter.lo field/field.lo math/math.lo sem/coef.lo sem/space.lo config/num_types.lo 
 math/bcknd/sx/opr_sx.lo : math/bcknd/sx/opr_sx.f90 math/mathops.lo field/field.lo math/math.lo sem/coef.lo sem/space.lo config/num_types.lo sem/interpolation.lo gs/gather_scatter.lo 
 math/bcknd/xsmm/opr_xsmm.lo : math/bcknd/xsmm/opr_xsmm.F90 math/mathops.lo gs/gather_scatter.lo sem/interpolation.lo field/field.lo mesh/mesh.lo math/math.lo sem/coef.lo sem/space.lo math/mxm_wrapper.lo config/num_types.lo 
-math/bcknd/device/opr_device.lo : math/bcknd/device/opr_device.F90 comm/comm.lo math/bcknd/device/device_mathops.lo math/bcknd/device/device_math.lo common/utils.lo field/field.lo sem/coef.lo sem/space.lo device/device.lo config/num_types.lo gs/gather_scatter.lo 
+math/bcknd/device/opr_device.lo : math/bcknd/device/opr_device.F90 math/bcknd/device/device_mathops.lo math/bcknd/device/device_math.lo common/utils.lo field/field.lo sem/coef.lo sem/space.lo device/device.lo config/num_types.lo gs/gather_scatter.lo 
 math/tensor.lo : math/tensor.f90 device/device.lo config/neko_config.lo math/mxm_wrapper.lo config/num_types.lo math/bcknd/device/tensor_device.lo math/bcknd/sx/tensor_sx.lo math/bcknd/cpu/tensor_cpu.lo math/bcknd/xsmm/tensor_xsmm.lo 
 math/bcknd/cpu/tensor_cpu.lo : math/bcknd/cpu/tensor_cpu.f90 math/mxm_wrapper.lo config/num_types.lo 
 math/bcknd/sx/tensor_sx.lo : math/bcknd/sx/tensor_sx.f90 math/mxm_wrapper.lo config/num_types.lo 
@@ -135,7 +135,7 @@ io/fluid_stats_output.lo : io/fluid_stats_output.f90 math/matrix.lo io/output.lo
 io/mean_sqr_flow_output.lo : io/mean_sqr_flow_output.f90 io/output.lo config/num_types.lo fluid/mean_sqr_flow.lo 
 io/data_streamer.lo : io/data_streamer.F90 config/neko_config.lo comm/mpi_types.lo comm/comm.lo device/device.lo common/utils.lo sem/coef.lo field/field.lo config/num_types.lo 
 io/output_controller.lo : io/output_controller.f90 common/time_based_controller.lo config/num_types.lo common/profiler.lo common/utils.lo common/log.lo comm/comm.lo io/fld_file.lo io/output.lo 
-common/global_interpolation.lo : common/global_interpolation.F90 common/structs.lo comm/mpi_types.lo math/math.lo comm/comm.lo sem/local_interpolation.lo common/utils.lo common/log.lo mesh/mesh.lo sem/dofmap.lo sem/space.lo config/num_types.lo 
+common/global_interpolation.lo : common/global_interpolation.F90 common/structs.lo math/math.lo comm/comm.lo sem/local_interpolation.lo common/utils.lo common/log.lo mesh/mesh.lo sem/dofmap.lo sem/space.lo config/num_types.lo 
 common/profiler.lo : common/profiler.F90 common/runtime_statistics.lo common/craypat.lo device/hip/roctx.lo device/cuda/nvtx.lo device/device.lo config/neko_config.lo 
 common/craypat.lo : common/craypat.F90 
 bc/bc.lo : bc/bc.f90 io/file.lo field/field.lo common/utils.lo adt/tuple.lo adt/stack.lo mesh/facet_zone.lo mesh/mesh.lo sem/space.lo sem/coef.lo sem/dofmap.lo device/device.lo config/num_types.lo config/neko_config.lo 
