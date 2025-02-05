@@ -50,7 +50,8 @@ module force_torque
   use operators, only : strain_rate
   use vector, only : vector_t
   use dirichlet, only : dirichlet_t
-  use drag_torque, only : setup_normals, calc_force_array
+  use drag_torque, only : setup_normals, calc_force_array, &
+       device_calc_force_array
   use logger, only : LOG_SIZE, neko_log
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
