@@ -146,9 +146,10 @@ contains
     end select
     !Initialize a stack for each rank containging which dofs to send/recv at that rank
     call gs%comm%init_dofs()
-    !
+    !Initialize mapping between local ids and gather-scatter ids
     call gs_init_mapping(gs)
-
+    !Setup buffers and which ranks to send/recv data from based on mapping
+    !Initializes gs%comm (sets up gs%comm%send_dof and gs%comm%recv_dof and recv_pe/send_pe)
     call gs_schedule(gs)
     !Global number of points not needing to be sent over mpi for gs operations
     !"Internal points"
@@ -395,18 +396,20 @@ contains
        ! Check if this dof is shared among ranks or not
        if (dofmap%shared_dof(1, 1, 1, i)) then
           id = gs_mapping_add_dof(sdm, dofmap%dof(1, 1, 1, i), max_sid)
-          !If add unique gather-scatter id to shared_dof
+          !If add unique gather-scatter id to shared_dof stack
           call shared_dof%push(id)
-          !If add local id to dof_shared
+          !If add local id to dof_shared stack
           call dof_shared%push(lid)
-          !Now we have the mapping of local id - gather scatter id!
+          !Now we have the mapping of local id <-> gather scatter id!
        else 
           ! Same here, only here we know the point is local
-          ! It will as such not need to be sent to other ranks
+          ! It will as such not need to be sent to other ranks later
           id = gs_mapping_add_dof(dm, dofmap%dof(1, 1, 1, i), max_id)
           call local_dof%push(id)
           call dof_local%push(lid)
        end if
+       !This procedure is then repeated for all vertices and edges
+       ! Facets can be treated a little bit differently since they only have one neighbor
 
        lid = linear_index(lx, 1, 1, i, lx, ly, lz)
        if (dofmap%shared_dof(lx, 1, 1, i)) then
@@ -489,7 +492,7 @@ contains
 
     ! Clear local dofmap table
     call dm%clear()
-
+    !Get gather scatter ids and local ids of edges
     if (lz .gt. 1) then
        !
        ! Setup mapping for dofs on edges
@@ -701,6 +704,7 @@ contains
     !
     ! Setup mapping for dofs on facets
     !
+    ! This is for 2d
     if (lz .eq. 1) then
        do i = 1, msh%nelv
 
