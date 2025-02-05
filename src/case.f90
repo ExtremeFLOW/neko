@@ -34,7 +34,6 @@
 module case
   use num_types, only : rp, sp, dp
   use fluid_pnpn, only : fluid_pnpn_t
-  use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
   use fluid_scheme_base, only: fluid_scheme_base_t, fluid_scheme_base_factory
   use fluid_output, only : fluid_output_t
   use chkp_output, only : chkp_output_t
@@ -57,7 +56,7 @@ module case
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
-  use mpi_f08
+  use mpi_f08, only : MPI_Bcast, MPI_INTEGER, MPI_CHARACTER
   implicit none
   private
 

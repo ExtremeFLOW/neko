@@ -1,11 +1,12 @@
 !> NEKTON map
 !! @todo Figure out a better name for this module
 module map
-  use mesh
+  use mesh, only : mesh_t
   implicit none
+  private
 
   !> NEKTON vertex mapping
-  type :: map_t
+  type, public :: map_t
      integer :: nel, nlv
      integer, allocatable :: imap(:)
      integer, allocatable :: vertex(:,:)
@@ -14,6 +15,9 @@ module map
   interface map_init
      module procedure map_init_nel_nelv, map_init_mesh
   end interface map_init
+
+  public :: map_init
+  
 contains
 
   subroutine map_init_mesh(m, msh)

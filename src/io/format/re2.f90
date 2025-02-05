@@ -2,12 +2,13 @@
 module re2
   use num_types
   implicit none
+  private
 
   !> NEKTON re2 header size
-  integer, parameter :: RE2_HDR_SIZE = 80
+  integer, public, parameter :: RE2_HDR_SIZE = 80
 
   !> NEKTION re2 endian test
-  real(kind=sp), parameter :: RE2_ENDIAN_TEST = 6.54321
+  real(kind=sp), public, parameter :: RE2_ENDIAN_TEST = 6.54321
 
   !> NEKTON re2 element data (version 1)
   type :: re2v1_t

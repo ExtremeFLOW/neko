@@ -50,7 +50,7 @@ module gmres_device
   use device
   use utils, only : neko_error
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
-  use mpi_f08
+  use mpi_f08, only : MPI_SUM, MPI_IN_PLACE
   use, intrinsic :: iso_c_binding
   implicit none
   private

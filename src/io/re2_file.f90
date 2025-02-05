@@ -34,19 +34,26 @@
 !! @details This module is used to read/write binary NEKTION mesh data
 module re2_file
   use generic_file, only: generic_file_t
-  use num_types, only: rp
-  use utils
-  use mesh, only: mesh_t
+  use num_types, only: rp, dp, sp, i8
+  use utils, only : neko_error, filename_chsuffix
+  use mesh, only: mesh_t, NEKO_MSH_MAX_ZLBLS
   use point, only: point_t
-  use comm
-  use mpi_f08
-  use neko_mpi_types
+  use comm, only : NEKO_COMM, pe_size, pe_rank
+  use mpi_f08, only : MPI_Status, MPI_File, MPI_OFFSET_KIND, MPI_Type_size, &
+       MPI_File_open, MPI_File_close, MPI_File_read_at_all, MPI_MODE_RDONLY, &
+       MPI_REAL, MPI_INFO_NULL, MPI_INTEGER, MPI_MODE_CREATE, MPI_MODE_WRONLY, &
+       MPI_SUM, MPI_DOUBLE_PRECISION
+  use neko_mpi_types, only : MPI_RE2V2_DATA_XY, MPI_RE2V2_DATA_XYZ, &
+       MPI_RE2V2_DATA_CV, MPI_RE2V2_DATA_BC, MPI_RE2V1_DATA_XY, &
+       MPI_RE2V1_DATA_XYZ, MPI_RE2V1_DATA_CV, MPI_RE2V1_DATA_BC, &
+       MPI_INTEGER_SIZE, MPI_CHARACTER_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
+       MPI_REAL_SIZE
   use datadist
   use re2
-  use map
-  use map_file
-  use htable
-  use logger, only: neko_log, LOG_SIZE
+  use map, only : map_t, map_init
+  use map_file, only : map_file_t
+  use htable, only : htable_pt_t
+  use logger, only : neko_log, LOG_SIZE
   implicit none
   private
 

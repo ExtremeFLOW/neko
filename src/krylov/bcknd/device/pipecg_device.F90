@@ -45,10 +45,11 @@ module pipecg_device
        device_glsc3, device_vlsc3
   use utils, only : neko_error
   use device
-  use comm
-  use mpi_f08
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_Request, MPI_Status, MPI_IN_PLACE, &
+       MPI_IAllreduce, MPI_SUM
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t, &
-       c_int, c_sizeof, C_NULL_PTR, c_associated
+       c_int, c_loc, c_sizeof, C_NULL_PTR, c_associated
   implicit none
   private
 

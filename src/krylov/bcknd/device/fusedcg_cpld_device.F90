@@ -44,7 +44,7 @@ module fusedcg_cpld_device
   use device_math, only : device_rzero, device_copy, device_glsc3, device_glsc2
   use utils, only : neko_error
   use device
-  use mpi_f08
+  use mpi_f08, only : MPI_IN_PLACE, MPI_SUM
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_size
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t, &
        c_loc, c_sizeof, C_NULL_PTR, C_INT, c_associated

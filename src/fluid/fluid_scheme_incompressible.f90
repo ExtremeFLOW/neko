@@ -39,7 +39,6 @@ module fluid_scheme_incompressible
   use checkpoint, only : chkp_t
   use mean_flow, only : mean_flow_t
   use num_types, only : rp, i8
-  use comm
   use fluid_source_term, only: fluid_source_term_t
   use field, only : field_t
   use space, only : space_t, GLL

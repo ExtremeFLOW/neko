@@ -34,8 +34,6 @@
 !
 !> Defines factory subroutines for `fluid_pnpn_t`.
 submodule(fluid_pnpn) fluid_pnpn_bc_fctry
-  use user_intf, only : user_t
-  use utils, only : neko_type_error
   use field_dirichlet, only : field_dirichlet_t
   use inflow, only : inflow_t
   use usr_inflow, only : usr_inflow_t, usr_inflow_eval
@@ -43,7 +41,6 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   use dirichlet, only : dirichlet_t
   use dong_outflow, only : dong_outflow_t
   use symmetry, only : symmetry_t
-  use non_normal, only : non_normal_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
   implicit none
 

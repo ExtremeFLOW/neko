@@ -65,7 +65,7 @@ module fluid_pnpn
   use wall_model_bc, only : wall_model_bc_t
   use facet_normal, only : facet_normal_t
   use non_normal, only : non_normal_t
-  use comm
+  use comm, only : NEKO_COMM
   use mesh, only : mesh_t
   use user_intf, only : user_t
   use time_step_controller, only : time_step_controller_t
@@ -79,7 +79,8 @@ module fluid_pnpn
   use bc, only : bc_t
   use file, only : file_t
   use operators, only : ortho
-  use mpi_f08
+  use mpi_f08, only :  MPI_Allreduce, MPI_LOR, MPI_MAX, MPI_IN_PLACE, &
+       MPI_INTEGER, MPI_LOGICAL
   implicit none
   private
 

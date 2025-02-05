@@ -49,7 +49,7 @@ module fluid_scheme_base
   use time_step_controller, only : time_step_controller_t
   use user_intf, only : user_t
   use usr_inflow, only : usr_inflow_eval
-  use utils, only : neko_error
+  use utils, only : neko_error, concat_string_array
   use bc_list, only : bc_list_t
   implicit none
   private

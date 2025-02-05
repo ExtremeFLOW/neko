@@ -167,8 +167,8 @@ contains
           call device_map(this%bb(:, i), this%bb_d(i), n)
           call device_rzero(this%bb_d(i), n)
        end do
-
-       ptr_size = c_sizeof(C_NULL_PTR) * this%L
+       ! GCC 13.2.1 can't take c_sizeof of C_NULL_PTR
+       ptr_size = c_sizeof(ptr) * this%L
        call device_alloc(this%xx_d_d, ptr_size)
        ptr = c_loc(this%xx_d)
        call device_memcpy(ptr, this%xx_d_d, ptr_size, &
