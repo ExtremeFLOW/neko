@@ -375,18 +375,31 @@ contains
                 Xh%lx, Xh%vinv, &
                 Xh%vinvt, Xh%vinvt, nelv)
     rst = 0.0_rp
+    print *, 'n_points', n_pts
     do i = 1, n_pts
        iter = 0 
        converged = .false.
        do while (.not. converged)
           iter  = iter + 1
-          do j = 0, lx-1
-             r_legendre(j+1) = PNLEG(real(rst(1,i),xp),j)
-             s_legendre(j+1) = PNLEG(real(rst(2,i),xp),j)
-             t_legendre(j+1) = PNLEG(real(rst(3,i),xp),j)
-             dr_legendre(j+1) = PNDLEG(real(rst(1,i),xp),j)
-             ds_legendre(j+1) = PNDLEG(real(rst(2,i),xp),j)
-             dt_legendre(j+1) = PNDLEG(real(rst(3,i),xp),j)
+          r_legendre(1) = 1.0
+          r_legendre(2) = rst(1,i)
+          s_legendre(1) = 1.0
+          s_legendre(2) = rst(2,i)
+          t_legendre(1) = 1.0
+          t_legendre(2) = rst(3,i)
+          dr_legendre(1) = 0.0
+          dr_legendre(2) = 1.0
+          ds_legendre(1) = 0.0
+          ds_legendre(2) = 1.0
+          dt_legendre(1) = 0.0
+          dt_legendre(2) = 1.0
+          do j = 2, lx-1
+             r_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp)*rst(1,i)*r_legendre(j) - (j-1.0_xp)*r_legendre(j-1))/(real(j,xp))
+             s_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp)*rst(2,i)*s_legendre(j) - (j-1.0_xp)*s_legendre(j-1))/(real(j,xp))
+             t_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp)*rst(3,i)*t_legendre(j) - (j-1.0_xp)*t_legendre(j-1))/(real(j,xp))
+             dr_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * r_legendre(j) + rst(1,i)*dr_legendre(j)
+             ds_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * s_legendre(j) + rst(2,i)*ds_legendre(j)
+             dt_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * t_legendre(j) + rst(3,i)*dt_legendre(j)
           end do
           e = el_list(i)+1
           !print *,'leg and xhat', r_legendre(6), dr_legendre(6), x_hat(1,1,1,e), i, rst(1,i)
@@ -452,9 +465,9 @@ contains
           rst(2,i) = rst(2,i) + rst_d(2)
           rst(3,i) = rst(3,i) + rst_d(3)
           
-          converged = conv_pts .eq. 1
+          !converged = conv_pts .eq. 1
       !    if(pt_z(i) .gt. 0.999) print *, rst_d, resx(i), resy(i), resz(i), (norm2(real(rst_d,xp))), iter, rst(:,i)
-          if (iter .ge. 50) converged = .true.
+          if (iter .ge. 10) converged = .true.
        end do
        !print *,'cpu iter', iter
     end do
