@@ -6,6 +6,7 @@ subroutine test_mathops_opchsign
   use device_mathops
   use num_types
   use neko_config
+  use, intrinsic :: iso_c_bindings
   implicit none 
   integer, parameter :: n = 17
   real(kind=rp), dimension(n) :: a1, a2, a3
