@@ -50,7 +50,7 @@ module neko
   use uset
   use stack
   use tuple
-  use mesh, only : mesh_t
+  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
   use point, only : point_t
   use mesh_field, only : mesh_fld_t
   use map
