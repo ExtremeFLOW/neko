@@ -45,19 +45,13 @@ jobs:
           - os: ubuntu-24.04
             compiler: gfortran-11
           - os: ubuntu-24.04
-            compiler: gfortran-13
-          - os: ubuntu-24.04
-            compiler: gfortran-14
-          - os: ubuntu-24.04
             backend: opencl
           - os: macos-13
             compiler: gfortran-10
           - os : macos-13
-            compiler: gfortran-11
+            compiler: gfortran-12
           - os : macos-13
-            compiler: gfrotran-12
-          - os : macos-13
-            compiler: gfrotran-13
+            compiler: gfortran-13
           - os: macos-13
             backend: cuda
           - os: macos-13
@@ -87,7 +81,7 @@ jobs:
               export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
               brew install openmpi
               brew install automake
-              brew install gcc@13
+              brew install gcc@11
               brew install gcc@14
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
