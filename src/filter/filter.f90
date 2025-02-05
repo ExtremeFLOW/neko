@@ -97,6 +97,23 @@ module filter
      end subroutine filter_apply
   end interface
 
+  interface
+     !> Filter factory. Both constructs and initializes the object.
+     !! @param object The object to be allocated.
+     !! @param type_name The name of the filter.
+     !! @param json A dictionary with parameters.
+     !! @param coef SEM coefficients.
+     module subroutine filter_factory(object, type_name, json, coef)
+       class(filter_t), allocatable, intent(inout) :: object
+       character(len=*), intent(in) :: type_name
+       type(coef_t), intent(in) :: coef
+       type(json_file), intent(inout) :: json
+       character(len=:), allocatable :: type_string
+     end subroutine filter_factory
+  end interface
+
+  ! public :: filter_factory
+
 contains
   !> Constructor for the `filter_t` (base) class.
   subroutine filter_init_base(this, json, coef)

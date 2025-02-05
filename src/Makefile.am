@@ -309,6 +309,7 @@ neko_fortran_SOURCES = \
 	source_terms/brinkman_source_term.f90\
 	filter/filters.f90\
 	filter/filter.f90\
+	filter/filter_fctry.f90\
 	filter/PDE_filter.f90\
 	filter/elementwise_filter.f90\
 	filter/bcknd/cpu/filters_cpu.f90\
