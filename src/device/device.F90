@@ -108,7 +108,8 @@ module device
        device_profiler_start, device_profiler_stop, device_alloc, &
        device_init, device_name, device_event_create, device_event_destroy, &
        device_event_record, device_event_sync, device_finalize, &
-       device_stream_wait_event, device_count
+       device_stream_wait_event, device_count, &
+       device_stream_create_with_priority
 
   private :: device_memcpy_common
 
