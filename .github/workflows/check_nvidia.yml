@@ -25,7 +25,7 @@ jobs:
         backend: [cpu, cuda]
         precision: [dp]
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-24.04
             setup-env: |
               sudo apt-get update
               sudo apt-get install -y autoconf automake autotools-dev make git m4 libopenblas-dev
@@ -43,10 +43,10 @@ jobs:
               echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
 
     env:
-      CC: gcc
+      CC: nvc
       FC: ${{ matrix.compiler }}
       OMPI_FC: ${{ matrix.compiler }}
-      OMPI_CC: gcc
+      OMPI_CC: nvc
       OMPI_ALLOW_RUN_AS_ROOT: 1
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
