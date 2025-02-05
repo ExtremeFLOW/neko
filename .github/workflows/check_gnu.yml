@@ -31,9 +31,9 @@ jobs:
         precision: [sp, dp]
         exclude:
           - os: ubuntu-20.04
-            compiler: gfortran-11
+            compiler: gfortran-13
           - os: ubuntu-20.04
-            compiler: gfortran-12
+            compiler: gfortran-14
           - os: ubuntu-20.04
             backend: opencl
           - os: macos-13
