@@ -119,7 +119,7 @@ contains
 
     call neko_log%section('Gather-Scatter')
     ! Currently this is using the dofmap which atm also contains geometric information
-    ! Only conncetivity/numbering of points is necessary for gs
+    ! Only connectivity/numbering of points is technically necessary for gs
     gs%dofmap => dofmap
 
     use_device_mpi = .false.
@@ -144,21 +144,23 @@ contains
     case default
        call neko_error('Unknown Gather-scatter comm. backend')
     end select
-    !Initialize a stack for each rank containging which dofs to send/recv at that rank
+    ! Initialize a stack for each rank containing which dofs to send/recv at that rank
     call gs%comm%init_dofs()
-    !Initialize mapping between local ids and gather-scatter ids
+    ! Initialize mapping between local ids and gather-scatter ids
+    ! based on the global numbering in dofmap
     call gs_init_mapping(gs)
-    !Setup buffers and which ranks to send/recv data from based on mapping
-    !Initializes gs%comm (sets up gs%comm%send_dof and gs%comm%recv_dof and recv_pe/send_pe)
+    ! Setup buffers and which ranks to send/recv data from based on mapping
+    ! and initializes gs%comm (sets up gs%comm%send_dof and gs%comm%recv_dof and recv_pe/send_pe)
     call gs_schedule(gs)
-    !Global number of points not needing to be sent over mpi for gs operations
-    !"Internal points"
+    ! Global number of points not needing to be sent over mpi for gs operations
+    ! "Internal points"
     glb_nlocal = int(gs%nlocal, i8)
-    !Global number of points needing to be communicated with other pes/ranks
-    !"external points"
+    ! Global number of points needing to be communicated with other pes/ranks
+    ! "external points"
     glb_nshared = int(gs%nshared, i8)
     ! Can be thought of a measure of the volume of this rank (glb_nlocal) and 
     ! the surface area (glb_nshared) that is shared with other ranks
+    ! Lots of internal volume compared to surface that needs communcation is good
 
     if (pe_rank .eq. 0) then
        call MPI_Reduce(MPI_IN_PLACE, glb_nlocal, 1, &

@@ -65,9 +65,9 @@ module gs_comm
      procedure, pass(this) :: free_order
   end type gs_comm_t
 
-  !> Abstract interface for initialising a Gather-scatter communication method
+  !> Abstract interface for initializing a Gather-scatter communication method
   !! @param send_pe, stack of ranks this process will send messages to
-  !! @param recv_pe, stack of ranks this process will recieve messages from
+  !! @param recv_pe, stack of ranks this process will receive messages from
   abstract interface
      subroutine gs_comm_init(this, send_pe, recv_pe)
        import gs_comm_t
@@ -116,7 +116,8 @@ module gs_comm
   end interface
 
   !> Abstract interface for waiting on non-blocking operations
-  !! Waits and unpacks buffers into correct location in u
+  !! Waits and checks that data is in buffers and unpacks buffers
+  !! into correct location in u
   !! u(recv_dof(recv_pe(i))) = gs_op(recieve_buffers(recv_pe) for this dof)
   !! @param u, data to store operation into
   !! @param n, length of u (redundant)
@@ -175,9 +176,9 @@ contains
 
   end subroutine free_dofs
 
-  !Obtains which ranks to send and recieve data from
-  !send_pe only contains rank ids this porcesss should send to
-  !recv_pe only the ranks this process should receive from
+  !>Obtains which ranks to send and receive data from
+  !! @param send_pe, only contains rank ids this porcesss should send to
+  !! @param recv_pe, only the ranks this process should receive from
   subroutine init_order(this, send_pe, recv_pe)
     class(gs_comm_t), intent(inout) :: this
     type(stack_i4_t), intent(inout) :: send_pe
