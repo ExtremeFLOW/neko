@@ -43,7 +43,7 @@ module mesh
   use htable, only : htable_i4t4_t, htable_i4t2_t, htable_i8_t, htable_i4_t, &
        htable_t, htable_iter_i4t2_t, htable_iter_i4t4_t
   use datadist, only : linear_dist_t
-  use distdata
+  use distdata, only : distdata_t
   use comm, only : NEKO_COMM, pe_size, pe_rank
   use facet_zone, only : facet_zone_t, facet_zone_periodic_t
   use math, only : abscmp
@@ -316,7 +316,7 @@ contains
 
     call this%curve%init(this%nelv)
 
-    call distdata_init(this%ddata)
+    call this%ddata%init()
 
     allocate(this%neigh(0:pe_size-1))
     this%neigh = .false.
@@ -336,7 +336,7 @@ contains
     call this%htf%free()
     call this%hte%free()
     call this%htel%free()
-    call distdata_free(this%ddata)
+    call this%ddata%free()
     call this%curve%free()
 
     if (allocated(this%dfrmd_el)) then
@@ -778,11 +778,11 @@ contains
 
                    !  Update facet map
                    call fmp%set(edge, facet_data)
-
-                   call distdata_set_shared_el_facet(this%ddata, element, facet)
+                  
+                   call this%ddata%set_shared_el_facet(element, facet)
 
                    if (this%hte%get(edge, facet) .eq. 0) then
-                      call distdata_set_shared_facet(this%ddata, facet)
+                      call this%ddata%set_shared_facet(facet)
                    else
                       call neko_error("Invalid shared edge")
                    end if
@@ -818,10 +818,10 @@ contains
                    ! Update facet map
                    call fmp%set(face, facet_data)
 
-                   call distdata_set_shared_el_facet(this%ddata, element, facet)
+                   call this%ddata%set_shared_el_facet(element, facet)
 
                    if (this%htf%get(face, facet) .eq. 0) then
-                      call distdata_set_shared_facet(this%ddata, facet)
+                      call this%ddata%set_shared_facet(facet)
                    else
                       call neko_error("Invalid shared face")
                    end if
@@ -899,7 +899,7 @@ contains
              do k = 1, num_neigh
                 neigh_el = -recv_buffer(j + 1 + k)
                 call this%point_neigh(pt_loc_idx)%push(neigh_el)
-                call distdata_set_shared_point(this%ddata, pt_loc_idx)
+                call this%ddata%set_shared_point(pt_loc_idx)
              end do
           end if
           j = j + (2 + num_neigh)
@@ -975,7 +975,7 @@ contains
           do j = 1, this%point_neigh(l)%size()
              if ((p1(i) .eq. p2(j)) .and. &
                   (p1(i) .lt. 0) .and. (p2(j) .lt. 0)) then
-                call distdata_set_shared_edge(this%ddata, id)
+                call this%ddata%set_shared_edge(id)
                 shared_edge = .true.
              end if
           end do
@@ -1005,7 +1005,7 @@ contains
     ! Construct global numbering of locally owned edges
     ns_id => non_shared_edges%array()
     do i = 1, non_shared_edges%size()
-       call distdata_set_local_to_global_edge(this%ddata, ns_id(i), edge_offset)
+       call this%ddata%set_local_to_global_edge(ns_id(i), edge_offset)
        edge_offset = edge_offset + 1
     end do
     nullify(ns_id)
@@ -1075,7 +1075,7 @@ contains
     do while (owner%iter_next())
        glb_ptr => owner%iter_value()
        if (glb_to_loc%get(glb_ptr, id) .eq. 0) then
-          call distdata_set_local_to_global_edge(this%ddata, id, shared_offset)
+          call this%ddata%set_local_to_global_edge(id, shared_offset)
 
           ! Add new number to send data as [old_glb_id new_glb_id] for each edge
           call send_buff%push(glb_ptr)    ! Old glb_id integer*8
@@ -1134,8 +1134,7 @@ contains
              if (ghost%element(recv_buff(j))) then
                 if (glb_to_loc%get(recv_buff(j), id) .eq. 0) then
                    n_glb_id = int(recv_buff(j + 1 ), 4)
-                   call distdata_set_local_to_global_edge(this%ddata, id, &
-                                                          n_glb_id)
+                   call this%ddata%set_local_to_global_edge(id, n_glb_id)
                 else
                    call neko_error('Invalid edge id')
                 end if
@@ -1209,8 +1208,7 @@ contains
           call edge_it%data(id)
           edge => edge_it%key()
           if (.not. this%ddata%shared_facet%element(id)) then
-             call distdata_set_local_to_global_facet(this%ddata, &
-                  id, facet_offset)
+             call this%ddata%set_local_to_global_facet(id, facet_offset)
              facet_offset = facet_offset + 1
           else
              select type(fmp => this%facet_map)
@@ -1236,8 +1234,7 @@ contains
           call face_it%data(id)
           face => face_it%key()
           if (.not. this%ddata%shared_facet%element(id)) then
-             call distdata_set_local_to_global_facet(this%ddata, &
-                  id, facet_offset)
+             call this%ddata%set_local_to_global_facet(id, facet_offset)
              facet_offset = facet_offset + 1
           else
              select type(fmp => this%facet_map)
@@ -1280,8 +1277,7 @@ contains
        ed => edge_owner%array()
        do i = 1, edge_owner%size()
           if (this%hte%get(ed(i), id) .eq. 0) then
-             call distdata_set_local_to_global_facet(this%ddata, id, &
-                                                     shared_offset)
+             call this%ddata%set_local_to_global_facet(id, shared_offset)
 
              ! Add new number to send buffer
              ! [edge id1 ... edge idn new_glb_id]
@@ -1305,8 +1301,7 @@ contains
        fd => face_owner%array()
        do i = 1, face_owner%size()
           if (this%htf%get(fd(i), id) .eq. 0) then
-             call distdata_set_local_to_global_facet(this%ddata, id, &
-                                                     shared_offset)
+             call this%ddata%set_local_to_global_facet(id, shared_offset)
 
              ! Add new number to send buffer
              ! [face id1 ... face idn new_glb_id]
@@ -1363,8 +1358,7 @@ contains
 
                 ! Check if the PE has the shared edge
                 if (edge_ghost%get(recv_edge, id) .eq. 0) then
-                   call distdata_set_local_to_global_facet(this%ddata, &
-                        id, recv_buff(j+2))
+                   call this%ddata%set_local_to_global_facet(id, recv_buff(j+2))
                 end if
              end do
           else
@@ -1375,8 +1369,7 @@ contains
 
                 ! Check if the PE has the shared face
                 if (face_ghost%get(recv_face, id) .eq. 0) then
-                   call distdata_set_local_to_global_facet(this%ddata, &
-                        id, recv_buff(j+4))
+                   call this%ddata%set_local_to_global_facet(id, recv_buff(j+4))
                 end if
              end do
           end if

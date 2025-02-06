@@ -2,6 +2,7 @@
 !! Martin Karp 27/01-23
 program average_fields_in_time
   use neko
+  use fld_file_data, only : fld_file_data_t
   implicit none
   
   character(len=NEKO_FNAME_LEN) :: inputchar, mesh_fname, fld_fname, output_fname

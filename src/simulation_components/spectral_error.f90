@@ -37,7 +37,7 @@ module spectral_error
   use coefs, only: coef_t
   use field_list, only: field_list_t
   use math, only: rzero, copy
-  use file, only: file_t, file_free
+  use file, only: file_t
   use tensor, only: tnsr3d
   use device_math, only: device_copy
   use gather_scatter

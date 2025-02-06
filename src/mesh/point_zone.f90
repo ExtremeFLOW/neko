@@ -34,7 +34,7 @@
 module point_zone
   use stack, only: stack_i4_t
   use num_types, only: rp
-  use utils, only: neko_error, nonlinear_index
+  use utils, only: neko_error, nonlinear_index, concat_string_array
   use dofmap, only: dofmap_t
   use json_module, only: json_file
   use neko_config, only: NEKO_BCKND_DEVICE

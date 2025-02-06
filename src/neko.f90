@@ -33,9 +33,11 @@
 !> Master module
 module neko
   use num_types, only : rp, sp, dp, qp
-  use comm
+  use comm, only : NEKO_COMM, pe_rank, pe_size, &
+       MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
   use utils
-  use logger
+  use logger, only : log_t, neko_log, LOG_SIZE, NEKO_LOG_QUIET, NEKO_LOG_INFO, &
+       NEKO_LOG_VERBOSE, NEKO_LOG_DEBUG
   use math, only : abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, &
        cfill, glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, &
        invers2, vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, &
@@ -46,21 +48,26 @@ module neko
   use speclib
   use dofmap, only : dofmap_t
   use space, only : space_t, GL, GLL, GJ
-  use htable
-  use uset
-  use stack
-  use tuple
+  use htable, only : htable_i4_t, htable_i8_t, htable_r8_t, htable_i4t2_t, &
+       htable_i4t4_t, htable_pt_t, htable_cptr_t
+  use uset, only : uset_i4_t, uset_i8_t, uset_r8_t
+  use stack, only : stack_i4_t, stack_i8_t, stack_r8_t, stack_i4t2_t, &
+       stack_i4t4_t, stack_i4r8t2_t, stack_2i4r8t3_t, stack_curve_t, &
+       stack_nq_t, stack_nh_t, stack_nz_t, stack_nc_t, stack_pt_t
+  use tuple, only : tuple_i4_t, tuple3_i4_t, tuple4_i4_t, tuple_r8_t, &
+       tuple_i4r8_t, tuple_2i4r8_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
   use point, only : point_t
   use mesh_field, only : mesh_fld_t
-  use map
   use mxm_wrapper, only : mxm
-  use global_interpolation
-  use file
+  use global_interpolation, only : global_interpolation_t
+  use file, only : file_t
+  use fld_file_data, only : fld_file_data_t
   use field, only : field_t, field_ptr_t
   use neko_mpi_types
-  use gather_scatter
-  use krylov
+  use gather_scatter, only : gs_t, GS_OP_ADD, GS_OP_MUL, GS_OP_MIN, GS_OP_MAX
+  use krylov, only : ksp_t, KSP_MAX_ITER, KSP_ABS_TOL, KSP_REL_TOL, &
+       krylov_solver_factory
   use coefs, only : coef_t
   use bc, only : bc_t
   use zero_dirichlet, only : zero_dirichlet_t
@@ -76,7 +83,6 @@ module neko
   use operators, only : dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl,&
        lambda2op, strain_rate, div, grad
   use mathops, only : opchsign, opcolv, opcolv3c, opadd2cm, opadd2col
-  use projection
   use user_intf
   use signal
   use jobctrl, only : jobctrl_init, jobctrl_set_time_limit, &

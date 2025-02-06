@@ -34,8 +34,8 @@
 !! @details Mesh dervied from an existing hexahedral mesh via bisection
 module tet_mesh
   use mesh, only : mesh_t
-  use tet
-  use point, only : point_T
+  use tet, only : tet_t
+  use point, only : point_t
   use utils, only : neko_error
   implicit none
   private

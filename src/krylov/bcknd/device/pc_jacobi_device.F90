@@ -32,13 +32,13 @@
 !
 !> Jacobi preconditioner accelerator backend
 module device_jacobi
-  use precon
-  use coefs
-  use dofmap
-  use num_types
+  use precon, only : pc_t
+  use coefs, only : coef_t
+  use dofmap, only : dofmap_t
+  use num_types, only : rp
   use device_math
   use device
-  use gather_scatter
+  use gather_scatter, only : gs_t, GS_OP_ADD
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
        c_associated
   implicit none

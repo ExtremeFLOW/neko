@@ -37,7 +37,6 @@ submodule (point_zone) point_zone_fctry
   use sphere_point_zone, only: sphere_point_zone_t
   use cylinder_point_zone, only: cylinder_point_zone_t
   use json_utils, only: json_get
-  use utils, only : concat_string_array
   implicit none
 
   ! List of all possible types created by the factory routine

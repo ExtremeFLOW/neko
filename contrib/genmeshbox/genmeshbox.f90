@@ -149,7 +149,7 @@ program genmeshbox
      do i = 1, nelx
         el_len_x(i) = dist_x%x(i+1) - dist_x%x(i)
      end do
-     call file_free(dist_x_file)
+     call dist_x_file%free()
      call dist_x%free()
   end if
 
@@ -162,7 +162,7 @@ program genmeshbox
      do i = 1, nely
         el_len_y(i) = dist_y%x(i+1) - dist_y%x(i)
      end do
-     call file_free(dist_y_file)
+     call dist_y_file%free()
      call dist_y%free()
   end if
 
@@ -175,7 +175,6 @@ program genmeshbox
      do i = 1, nelz
         el_len_z(i) = dist_z%x(i+1) - dist_z%x(i)
      end do
-     call file_free(dist_z_file)
      call dist_z%free()
   end if
 

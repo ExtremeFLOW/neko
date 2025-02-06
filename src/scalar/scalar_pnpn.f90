@@ -141,13 +141,13 @@ module scalar_pnpn
      !! @param[in] scheme The `scalar_pnpn` scheme.
      !! @param[inout] json JSON object for initializing the bc.
      !! @param[in] coef SEM coefficients.
-     module subroutine bc_factory(object, scheme, json, coef, user)
+     module subroutine scalar_bc_factory(object, scheme, json, coef, user)
         class(bc_t), pointer, intent(inout) :: object
-        type(scalar_pnpn_t), intent(in) :: scheme
+        type(scalar_pnpn_t), intent(inout) :: scheme
         type(json_file), intent(inout) :: json
         type(coef_t), intent(in) :: coef
         type(user_t), intent(in) :: user
-     end subroutine bc_factory
+     end subroutine scalar_bc_factory
   end interface
 
 contains
@@ -524,7 +524,7 @@ contains
 
           bc_i => null()
 
-          call bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
+          call scalar_bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
           call this%bcs%append(bc_i)
        end do
 

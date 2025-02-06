@@ -32,7 +32,7 @@
 !
 !> Compression
 module cpr
-  use gather_scatter
+  use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config
   use num_types
   use field, only : field_t

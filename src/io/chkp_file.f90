@@ -44,10 +44,10 @@ module chkp_file
   use space, only : space_t, GLL
   use mesh, only : mesh_t
   use math
-  use interpolation
+  use interpolation, only : interpolator_t
   use neko_mpi_types
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
-  use global_interpolation
+  use global_interpolation, only : global_interpolation_t
   use mpi_f08, only : MPI_Status, MPI_INFO_NULL, MPI_File, MPI_INTEGER, &
        MPI_OFFSET_KIND, MPI_DOUBLE_PRECISION, MPI_MODE_RDONLY, &
        MPI_MODE_WRONLY, MPI_MODE_CREATE, MPI_File_read_all, &

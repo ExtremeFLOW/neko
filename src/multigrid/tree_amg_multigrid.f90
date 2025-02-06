@@ -42,10 +42,10 @@
 !>  call amg_solver%solve(x%x, f, n)
 !>
 module tree_amg_multigrid
-  use num_types
-  use utils
+  use num_types, only : rp
+  use utils, only : neko_error
   use math
-  use comm
+!  use comm, only : NEKO_COMM
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use space, only : space_t

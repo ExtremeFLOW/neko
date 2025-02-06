@@ -47,11 +47,12 @@ module file
   use csv_file, only : csv_file_t
   use hdf5_file, only : hdf5_file_t
   implicit none
+  private
 
   !> A wrapper around a polymorphic `generic_file_t` that handles its init.
   !! This is essentially a factory for `generic_file_t` descendants additionally
   !! handling special CSV file parameters (header and precision).
-  type file_t
+  type, public :: file_t
      class(generic_file_t), allocatable :: file_type
    contains
      !> Writes data to a file.
@@ -67,7 +68,7 @@ module file
      !> Set a file's output precision.
      procedure :: set_precision => file_set_precision
      !> File operation destructor.
-     final :: file_free
+     procedure :: free => file_free
   end type file_t
 
   interface file_t
@@ -131,7 +132,7 @@ contains
 
   !> File operation destructor.
   subroutine file_free(this)
-    type(file_t), intent(inout) :: this
+    class(file_t), intent(inout) :: this
 
     if (allocated(this%file_type)) then
        deallocate(this%file_type)

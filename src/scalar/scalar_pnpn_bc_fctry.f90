@@ -58,9 +58,9 @@ contains
   !! @param[inout] json JSON object for initializing the bc.
   !! @param[in] coef SEM coefficients.
   !! @param[in] user The user interface.
-  module subroutine bc_factory(object, scheme, json, coef, user)
+  module subroutine scalar_bc_factory(object, scheme, json, coef, user)
     class(bc_t), pointer, intent(inout) :: object
-    type(scalar_pnpn_t), intent(in) :: scheme
+    type(scalar_pnpn_t), intent(inout) :: scheme
     type(json_file), intent(inout) :: json
     type(coef_t), intent(in) :: coef
     type(user_t), intent(in) :: user
@@ -102,7 +102,7 @@ contains
     end do
     call object%finalize()
 
-  end subroutine bc_factory
+  end subroutine scalar_bc_factory
 
 
 end submodule scalar_pnpn_bc_fctry

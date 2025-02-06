@@ -44,7 +44,6 @@ module cheby
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp, glsc2,  &
        add2s1, add2s2
-  use comm
   implicit none
   private
 

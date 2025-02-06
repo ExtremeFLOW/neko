@@ -32,11 +32,12 @@
 !
 !> Implements an aggregation for TreeAMG hierarchy structure.
 module tree_amg_aggregate
-  use tree_amg
+  use tree_amg, only : tamg_hierarchy_t, tamg_lvl_init, tamg_node_init
   use utils
   use num_types
-  use comm
-  use mpi_f08
+  use comm, only : NEKO_COMM, pe_size
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_INTEGER8, &
+       MPI_MIN, MPI_MAX, MPI_SUM
   use mesh, only : mesh_t
   use logger, only : neko_log, LOG_SIZE
   implicit none
@@ -417,9 +418,9 @@ contains
     !write(log_buf, '(A44)') 'Aggregation: Element-as-Aggregate'
     call neko_log%message(log_buf)
 
-    call MPI_ALLREDUCE(nagg, na_max, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)
-    call MPI_ALLREDUCE(nagg, na_min, 1, MPI_INTEGER, MPI_MIN, NEKO_COMM)
-    call MPI_ALLREDUCE(nagg, na_sum, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM)
+    call MPI_Allreduce(nagg, na_max, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)
+    call MPI_Allreduce(nagg, na_min, 1, MPI_INTEGER, MPI_MIN, NEKO_COMM)
+    call MPI_Allreduce(nagg, na_sum, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM)
     na_avg = na_sum / pe_size
     write(log_buf, '(A35,I6,A1,I6,A1,I6,A1)') 'Number of Aggregates: (',na_min,',',na_avg,',',na_max,')'
     call neko_log%message(log_buf)
@@ -446,20 +447,20 @@ contains
 
     loc_aggd = int(num_aggregated, i8)
     loc_dof = int(ndof, i8)
-    call MPI_ALLREDUCE(loc_dof, glb_dof, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM)
-    call MPI_ALLREDUCE(loc_aggd, glb_aggd, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM)
+    call MPI_Allreduce(loc_dof, glb_dof, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM)
+    call MPI_Allreduce(loc_aggd, glb_aggd, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM)
     agg_frac = real(glb_aggd,rp) / real(glb_dof,rp)
 
-    call MPI_ALLREDUCE(nagg, na_max, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)
-    call MPI_ALLREDUCE(nagg, na_min, 1, MPI_INTEGER, MPI_MIN, NEKO_COMM)
-    call MPI_ALLREDUCE(nagg, na_sum, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM)
+    call MPI_Allreduce(nagg, na_max, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)
+    call MPI_Allreduce(nagg, na_min, 1, MPI_INTEGER, MPI_MIN, NEKO_COMM)
+    call MPI_Allreduce(nagg, na_sum, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM)
     na_avg = na_sum / pe_size
     write(log_buf, '(A35,I6,A1,I6,A1,I6,A1)') 'Number of Aggregates: (',na_min,',',na_avg,',',na_max,')'
     call neko_log%message(log_buf)
 
-    call MPI_ALLREDUCE(num_aggregated, na_max, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)
-    call MPI_ALLREDUCE(num_aggregated, na_min, 1, MPI_INTEGER, MPI_MIN, NEKO_COMM)
-    call MPI_ALLREDUCE(num_aggregated, na_sum, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM)
+    call MPI_Allreduce(num_aggregated, na_max, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)
+    call MPI_Allreduce(num_aggregated, na_min, 1, MPI_INTEGER, MPI_MIN, NEKO_COMM)
+    call MPI_Allreduce(num_aggregated, na_sum, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM)
     na_avg = na_sum / pe_size
     write(log_buf, '(A35,I6,A1,I6,A1,I6,A1,F6.2)') 'Aggregated: (',na_min,',',na_avg,',',na_max,')',(agg_frac*100)
     call neko_log%message(log_buf)
@@ -484,20 +485,20 @@ contains
 
     loc_aggd = int(num_aggregated, i8)
     loc_dof = int(ndof, i8)
-    call MPI_ALLREDUCE(loc_dof, glb_dof, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM)
-    call MPI_ALLREDUCE(loc_aggd, glb_aggd, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM)
+    call MPI_Allreduce(loc_dof, glb_dof, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM)
+    call MPI_Allreduce(loc_aggd, glb_aggd, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM)
     agg_frac = real(glb_aggd,rp) / real(glb_dof,rp)
 
-    call MPI_ALLREDUCE(nagg, na_max, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)
-    call MPI_ALLREDUCE(nagg, na_min, 1, MPI_INTEGER, MPI_MIN, NEKO_COMM)
-    call MPI_ALLREDUCE(nagg, na_sum, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM)
+    call MPI_Allreduce(nagg, na_max, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)
+    call MPI_Allreduce(nagg, na_min, 1, MPI_INTEGER, MPI_MIN, NEKO_COMM)
+    call MPI_Allreduce(nagg, na_sum, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM)
     na_avg = na_sum / pe_size
     write(log_buf, '(A35,I6,A1,I6,A1,I6,A1)') 'Number of Aggregates: (',na_min,',',na_avg,',',na_max,')'
     call neko_log%message(log_buf)
 
-    call MPI_ALLREDUCE(num_aggregated, na_max, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)
-    call MPI_ALLREDUCE(num_aggregated, na_min, 1, MPI_INTEGER, MPI_MIN, NEKO_COMM)
-    call MPI_ALLREDUCE(num_aggregated, na_sum, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM)
+    call MPI_Allreduce(num_aggregated, na_max, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)
+    call MPI_Allreduce(num_aggregated, na_min, 1, MPI_INTEGER, MPI_MIN, NEKO_COMM)
+    call MPI_Allreduce(num_aggregated, na_sum, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM)
     na_avg = na_sum / pe_size
     write(log_buf, '(A35,I6,A1,I6,A1,I6,A1,F6.2)') 'Aggregated: (',na_min,',',na_avg,',',na_max,')',(agg_frac*100)
     call neko_log%message(log_buf)

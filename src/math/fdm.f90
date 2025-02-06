@@ -60,7 +60,7 @@
 !> Type for the Fast Diagonalization connected with the schwarz overlapping solves.
 module fdm
   use neko_config
-  use num_types, only : rp
+  use num_types, only : rp, sp, dp, qp
   use speclib
   use math
   use mesh, only : mesh_t

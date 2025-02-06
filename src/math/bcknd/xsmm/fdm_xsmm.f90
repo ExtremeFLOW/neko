@@ -3,6 +3,9 @@ module fdm_xsmm
   use num_types
   use tensor_xsmm
   implicit none
+  private
+
+  public :: fdm_do_fast_xsmm
 
 contains
 

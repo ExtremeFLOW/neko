@@ -37,8 +37,6 @@ module data_streamer
   use coefs, only: coef_t
   use utils, only: neko_warning
   use device
-  use comm
-  use neko_mpi_types
   use neko_config
   use, intrinsic :: iso_c_binding
   implicit none

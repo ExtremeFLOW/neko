@@ -52,7 +52,7 @@ module probes
   use point_zone_registry, only: neko_point_zone_registry
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use device
-  use file, only : file_t, file_free
+  use file, only : file_t
   use csv_file, only : csv_file_t
   use case, only : case_t
   use mpi_f08, only : MPI_Allreduce, MPI_SUM, MPI_DOUBLE_PRECISION, &
@@ -704,7 +704,7 @@ contains
     end select
 
     !> Close the file
-    call file_free(file_in)
+    call file_in%free()
 
   end subroutine read_probe_locations
 

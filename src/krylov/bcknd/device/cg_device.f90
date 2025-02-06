@@ -47,6 +47,7 @@ module cg_device
        device_add2s2, device_add2s1
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
+  private
 
   !> Device based preconditioned conjugate gradient method
   type, public, extends(ksp_t) :: cg_device_t

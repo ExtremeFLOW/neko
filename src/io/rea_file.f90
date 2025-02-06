@@ -33,19 +33,19 @@
 !> NEKTON session data reader
 !! @details This module is used to read NEKTON session data in ascii
 module rea_file
-  use generic_file
-  use num_types
-  use utils
-  use mesh
-  use point
-  use map
-  use rea
+  use generic_file, only : generic_file_t
+  use num_types, only : rp, dp
+  use utils, only : neko_error, filename_chsuffix
+  use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
+  use point, only : point_t
+  use map, only : map_t, map_init
+  use rea, only : rea_t, rea_free
   use re2_file, only: re2_file_t
-  use map_file
-  use comm
-  use datadist
-  use htable
-  use logger
+  use map_file, only : map_file_t
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use datadist, only : linear_dist_t
+  use htable, only : htable_pt_t
+  use logger, only : neko_log, LOG_SIZE, neko_log_debug
   implicit none
   private
 

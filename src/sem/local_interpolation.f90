@@ -48,13 +48,14 @@ module local_interpolation
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, &
        c_associated
   implicit none
-
+  private
+  
   !> Interpolation on a set of points with known rst coordinates in elements local
   !! to this process.
   !! Similar to point_interpolator, but prioritizes performance
   !! Only works with arrays of coordinates
   !! Performs interpolation with the configured NEKO_BCKND
-  type :: local_interpolator_t
+  type, public :: local_interpolator_t
      !> First space.
      type(space_t), pointer :: Xh => null()
      !> Number of points to interpolate on

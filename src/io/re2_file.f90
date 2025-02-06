@@ -48,7 +48,7 @@ module re2_file
        MPI_RE2V1_DATA_XYZ, MPI_RE2V1_DATA_CV, MPI_RE2V1_DATA_BC, &
        MPI_INTEGER_SIZE, MPI_CHARACTER_SIZE, MPI_DOUBLE_PRECISION_SIZE, &
        MPI_REAL_SIZE
-  use datadist
+  use datadist, only : linear_dist_t
   use re2
   use map, only : map_t, map_init
   use map_file, only : map_file_t

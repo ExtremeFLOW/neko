@@ -47,23 +47,21 @@ module fluid_output
   type, public, extends(output_t) :: fluid_output_t
      type(field_list_t) :: fluid
    contains
+     procedure, pass(this) :: init => fluid_output_init
      procedure, pass(this) :: sample => fluid_output_sample
      procedure, pass(this) :: free => fluid_output_free
   end type fluid_output_t
 
-  interface fluid_output_t
-     module procedure fluid_output_init
-  end interface fluid_output_t
-
 contains
 
-  function fluid_output_init(precision, fluid, scalar, name, path) result(this)
+  subroutine fluid_output_init(this, precision, fluid, scalar, name, path)
+    class(fluid_output_t), intent(inout) :: this
     integer, intent(inout) :: precision
     class(fluid_scheme_base_t), intent(in), target :: fluid
     class(scalar_scheme_t), intent(in), optional, target :: scalar
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
-    type(fluid_output_t) :: this
+
     character(len=1024) :: fname
 
     if (present(name) .and. present(path)) then
@@ -93,7 +91,7 @@ contains
        call this%fluid%assign(5, scalar%s)
     end if
 
-  end function fluid_output_init
+  end subroutine fluid_output_init
 
   !> Destroy a fluid output list
   subroutine fluid_output_free(this)

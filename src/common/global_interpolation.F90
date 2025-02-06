@@ -42,11 +42,14 @@ module global_interpolation
   use mesh, only: mesh_t
   use logger, only: neko_log, LOG_SIZE
   use utils, only: neko_error, neko_warning
-  use local_interpolation
+  use local_interpolation, only : local_interpolator_t
   use comm, only : NEKO_COMM, pe_size, pe_rank
   use math, only: copy
   use structs, only: array_ptr_t
-  use, intrinsic :: iso_c_binding, only : c_ptr
+  use neko_config, only: NEKO_BCKND_DEVICE
+  use device, only : device_free, device_map, device_memcpy
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, &
+       c_associated
   use mpi_f08, only : MPI_Reduce, MPI_INTEGER, MPI_SUM, &
        MPI_DOUBLE_PRECISION
   implicit none
