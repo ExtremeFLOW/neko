@@ -50,8 +50,11 @@
             },
             "output_control": "nsamples",
             "output_value": 10,
-            "boundary_types": [
-                "w", "v", "w"
+            "boundary_conditions": [
+                {
+                    "type": "no_slip",
+                    "zone_indices": [1, 2, 3]
+                }
             ]
         },
         "scalar": {
@@ -60,8 +63,23 @@
             "initial_condition": {
                 "type": "user"
             },
-            "boundary_types": [
-                "user", "user", ""
+            "solver": {
+                "type": "cg",
+                "preconditioner": "jacobi",
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-6,
+                "max_iterations": 800
+            },
+            "boundary_conditions": [
+                {
+                    "type": "user_pointwise",
+                    "zone_indices": [1, 2]
+                },
+                {
+                    "type": "neumann",
+                    "flux": 0,
+                    "zone_indices": [3]
+                }
             ]
         },
         "simulation_components": [

@@ -20,13 +20,13 @@ contains
     real(kind=rp) :: uvw(3)
 
     do i = 1, u%dof%size()
-       uvw = pipe_ic(u%dof%x(i,1,1,1),u%dof%y(i,1,1,1),u%dof%z(i,1,1,1))
+       uvw = pipe_ic(u%dof%x(i,1,1,1), u%dof%y(i,1,1,1), u%dof%z(i,1,1,1))
        u%x(i,1,1,1) = uvw(1)
        v%x(i,1,1,1) = uvw(2)
        w%x(i,1,1,1) = uvw(3)
     end do
   end subroutine user_ic
-  
+
   function pipe_ic(x, y, z) result(uvw)
     real(kind=rp) :: x, y, z
     real(kind=rp) :: uvw(3)
@@ -38,7 +38,7 @@ contains
     xr = x
     yr = y
     rr = xr*xr + yr*yr
-    if (rr.gt.0) rr=sqrt(rr)
+    if (rr .gt. 0) rr = sqrt(rr)
     th = atan2(y,x)
     zo = 2*pi*z/25d0
 
@@ -58,16 +58,16 @@ contains
 
     arg_tht = freq_t*th + phase_z
     amp_sin = 5d0*sin(arg_tht)
-    if (amp_sin.gt. amp_clip) amp_sin =  amp_clip
-    if (amp_sin.lt.-amp_clip) amp_sin = -amp_clip
+    if (amp_sin .gt.  amp_clip) amp_sin =  amp_clip
+    if (amp_sin .lt. -amp_clip) amp_sin = -amp_clip
 
-    if (rr.gt.(1-blt)) uz = uz + amp_sin
+    if (rr .gt. (1-blt)) uz = uz + amp_sin
     call random_number(rand)
 
     ux   = 5d-2*rand*rand
     uy   = 1d-1*rand*rand*rand
     uz   = uz + 1d-2*rand
-    
+
     uvw(1) = ux
     uvw(2) = uy
     uvw(3) = uz

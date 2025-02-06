@@ -41,6 +41,13 @@
       "enabled": true,
       "lambda": 1e-16,
       "cp": 1.0,
+      "solver": {
+        "type": "cg",
+        "preconditioner": "jacobi",
+        "projection_space_size": 0,
+        "absolute_tolerance": 1e-07,
+        "max_iterations": 800
+      },
       "initial_condition": {
         "type": "user"
       }

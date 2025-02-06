@@ -140,7 +140,7 @@ contains
 
       if (.not. allocated(this%x)) then
          allocate(this%x(lx, ly, lz, nelv), stat = ierr)
-         this%x = 0d0
+         this%x = 0.0_rp
       end if
 
       if (present(fld_name)) then

@@ -46,7 +46,7 @@ extern "C" {
 extern "C" {
   void cuda_s_abs_compute(void *s_abs, void *s11, void *s22, void *s33,
                          void *s12, void *s13, void *s23,
-                         void *mult, int * n){
+                         int * n){
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
@@ -56,7 +56,7 @@ extern "C" {
     <<<nblcks, nthrds, 0, stream>>>((real *) s_abs,
                                     (real *) s11, (real *) s22, (real *) s33,
                                     (real *) s12, (real *) s13, (real *) s23,
-                                    (real *) mult, * n);
+                                    * n);
     CUDA_CHECK(cudaGetLastError());
   }
   
@@ -137,7 +137,7 @@ extern "C" {
                              void *fsabss12, void *fsabss13, void *fsabss23,
                              void *num, void *den, void *c_dyn, void *delta,
                              void *s_abs, void *nut,
-                             real * alpha, int * n){
+                             real * alpha, void *mult, int * n){
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
@@ -152,7 +152,7 @@ extern "C" {
                                     (real *) fsabss12, (real *) fsabss13, (real *) fsabss23,
                                     (real *) num, (real *) den, (real *) c_dyn,
                                     (real *) delta, (real *) s_abs, (real *) nut,
-                                    * alpha, * n);
+                                    * alpha, (real *) mult, * n);
     CUDA_CHECK(cudaGetLastError());
   }
 }

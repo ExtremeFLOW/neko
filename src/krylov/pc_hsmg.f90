@@ -67,7 +67,7 @@ module hsmg
   use ax_product, only : ax_t, ax_helm_factory
   use gather_scatter, only : gs_t, GS_OP_ADD
   use interpolation, only : interpolator_t
-  use bc, only : bc_t
+  use bc, only: bc_t
   use bc_list, only : bc_list_t
   use dirichlet, only : dirichlet_t
   use schwarz, only : schwarz_t
@@ -84,7 +84,8 @@ module hsmg
   use mesh, only : mesh_t
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory, krylov_solver_destroy
-  use tree_amg_multigrid, only : tamg_solver_t 
+  use tree_amg_multigrid, only : tamg_solver_t
+  use zero_dirichlet, only : zero_dirichlet_t
   !$ use omp_lib
   implicit none
   private
@@ -108,7 +109,7 @@ module hsmg
      type(space_t) :: Xh_crs, Xh_mg !< spaces for lower levels
      type(dofmap_t) :: dm_crs, dm_mg
      type(coef_t) :: c_crs, c_mg
-     type(dirichlet_t) :: bc_crs, bc_mg, bc_reg
+     type(zero_dirichlet_t) :: bc_crs, bc_mg, bc_reg
      type(bc_list_t) :: bclst_crs, bclst_mg, bclst_reg
      type(schwarz_t) :: schwarz, schwarz_mg, schwarz_crs !< Schwarz decompostions
      type(field_t) :: e, e_mg, e_crs !< Solve fields
@@ -147,6 +148,7 @@ contains
     character(len=*), optional :: crs_pctype
     integer :: n, i
     integer :: lx_crs, lx_mid
+    class(bc_t), pointer :: bc_i
 
     call this%free()
     this%nlvls = 3
@@ -154,7 +156,7 @@ contains
     if (Xh%lx .lt. 5) then
        lx_mid = max(Xh%lx-1,3)
 
-       if(Xh%lx .le. 2) then
+       if (Xh%lx .le. 2) then
           call neko_error('Polynomial order < 2 not supported for hsmg precon')
        end if
 
@@ -195,26 +197,26 @@ contains
     call this%bc_crs%init_base(this%c_crs)
     call this%bc_mg%init_base(this%c_mg)
     call this%bc_reg%init_base(coef)
-    if (bclst%size .gt. 0) then
-       do i = 1, bclst%size
-          call this%bc_reg%mark_facets(bclst%items(i)%ptr%marked_facet)
-          call this%bc_crs%mark_facets(bclst%items(i)%ptr%marked_facet)
-          call this%bc_mg%mark_facets(bclst%items(i)%ptr%marked_facet)
+    if (bclst%size() .gt. 0) then
+       do i = 1, bclst%size()
+          bc_i => bclst%get(i)
+          call this%bc_reg%mark_facets(bc_i%marked_facet)
+          bc_i => bclst%get(i)
+          call this%bc_crs%mark_facets(bc_i%marked_facet)
+          bc_i => bclst%get(i)
+          call this%bc_mg%mark_facets(bc_i%marked_facet)
        end do
     end if
     call this%bc_reg%finalize()
-    call this%bc_reg%set_g(real(0d0, rp))
-    call this%bclst_reg%init()
-    call this%bclst_reg%append(this%bc_reg)
-
     call this%bc_crs%finalize()
-    call this%bc_crs%set_g(real(0d0, rp))
-    call this%bclst_crs%init()
-    call this%bclst_crs%append(this%bc_crs)
-
     call this%bc_mg%finalize()
-    call this%bc_mg%set_g(0.0_rp)
+
+    call this%bclst_reg%init()
+    call this%bclst_crs%init()
     call this%bclst_mg%init()
+
+    call this%bclst_reg%append(this%bc_reg)
+    call this%bclst_crs%append(this%bc_crs)
     call this%bclst_mg%append(this%bc_mg)
 
     call this%schwarz%init(Xh, dof, gs_h, this%bclst_reg, msh)
@@ -239,7 +241,7 @@ contains
        call device_map(this%r, this%r_d, n)
     end if
 
-    select type(pc => this%pc_crs)
+    select type (pc => this%pc_crs)
     type is (jacobi_t)
        call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
     type is (sx_jacobi_t)
@@ -247,7 +249,7 @@ contains
     type is (device_jacobi_t)
        call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
     end select
-    
+
     call device_event_create(this%hsmg_event, 2)
     call device_event_create(this%gs_event, 2)
 
@@ -264,8 +266,9 @@ contains
                this%grids(1)%coef, this%msh, this%grids(1)%gs_h, 4, &
                this%grids(1)%bclst, 1)
        else
-          call krylov_solver_factory(this%crs_solver, &            
-               this%dm_crs%size(), trim(crs_pctype), KSP_MAX_ITER, M = this%pc_crs)
+          call krylov_solver_factory(this%crs_solver, &
+               this%dm_crs%size(), trim(crs_pctype), KSP_MAX_ITER, &
+                    M = this%pc_crs)
        end if
     else
        call krylov_solver_factory(this%crs_solver, &
@@ -280,7 +283,8 @@ contains
   subroutine hsmg_set_h(this)
     class(hsmg_t), intent(inout) :: this
 !    integer :: i
-    !Yeah I dont really know what to do here. For incompressible flow not much happens
+    ! Yeah I dont really know what to do here. For incompressible flow not
+    ! much happens
     this%grids(1)%coef%ifh2 = .false.
     call copy(this%grids(1)%coef%h1, this%grids(3)%coef%h1, &
          this%grids(1)%dof%size())
@@ -471,7 +475,8 @@ contains
 
        call profiler_start_region('HSMG_coarse-solve', 11)
        if (allocated(this%amg_solver)) then
-          call this%amg_solver%solve(this%grids(1)%e%x, this%r, this%grids(1)%dof%size())
+          call this%amg_solver%solve(this%grids(1)%e%x, this%r, &
+               this%grids(1)%dof%size())
        else
           crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
                                            this%grids(1)%dof%size(), &

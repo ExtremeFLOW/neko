@@ -115,13 +115,13 @@ contains
 
     call device_s_abs_compute(s_abs%x_d, s11%x_d, s22%x_d, s33%x_d, &
                                          s12%x_d, s13%x_d, s23%x_d, &
-                                         coef%mult_d, s11%dof%size())
+                                         s11%dof%size())
 
     call compute_lij_device(lij, u, v, w, test_filter, u%dof%size())
     call compute_nut_device(nut, c_dyn, num, den, lij, mij, &
                             s11, s22, s33, s12, s13, s23, &
                             s_abs, test_filter, delta, alpha, &
-                            u%dof%size())
+                            coef, u%dof%size())
 
     call coef%gs_h%op(nut, GS_OP_ADD)
     call device_col2(nut%x_d, coef%mult_d, nut%dof%size())
@@ -212,7 +212,7 @@ contains
   subroutine compute_nut_device(nut, c_dyn, num, den, lij, mij, &
                             s11, s22, s33, s12, s13, s23, &
                             s_abs, test_filter, delta, alpha, &
-                            n)
+                            coef, n)
     type(field_t), intent(inout) :: nut, c_dyn
     type(field_t), intent(inout) :: num, den
     type(field_t), intent(in) :: lij(6)
@@ -221,6 +221,7 @@ contains
     type(elementwise_filter_t), intent(inout) :: test_filter
     type(field_t), intent(in) :: delta
     real(kind=rp), intent(in) :: alpha
+    type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
 
     real(kind=rp) :: delta_ratio2
@@ -284,7 +285,7 @@ contains
                                   fsabss11%x_d, fsabss22%x_d, fsabss33%x_d, &
                                   fsabss12%x_d, fsabss13%x_d, fsabss23%x_d, &
                                   num%x_d, den%x_d, c_dyn%x_d, delta%x_d, &
-                                  s_abs%x_d, nut%x_d, alpha, n)
+                                  s_abs%x_d, nut%x_d, alpha, coef%mult_d, n)
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine compute_nut_device
 

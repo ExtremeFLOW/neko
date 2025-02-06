@@ -43,25 +43,34 @@
             },
             "output_control": "simulationtime",
             "output_value": 0.1,
-            "boundary_types": [
-                "",
-                "",
-                "",
-                "",
-                "w",
-                "w"
+            "boundary_conditions": [
+                {
+                    "type": "no_slip",
+                    "zone_indices": [5, 6]
+                }
             ]
         },
         "scalar": {
             "enabled": true,
             "Pr": 0.71,
-            "boundary_types": [
-                "",
-                "",
-                "",
-                "",
-                "d=1",
-                "d=0"
+            "solver": {
+                "type": "cg",
+                "preconditioner": "jacobi",
+                "projection_space_size": 4,
+                "absolute_tolerance": 1e-6,
+                "max_iterations": 800
+            },
+            "boundary_conditions": [
+                {
+                    "type": "dirichlet",
+                    "value": 1,
+                    "zone_indices": [5]
+                },
+                {
+                    "type": "dirichlet",
+                    "value": 0,
+                    "zone_indices": [6]
+                }
             ],
             "initial_condition": {
                 "type": "user"

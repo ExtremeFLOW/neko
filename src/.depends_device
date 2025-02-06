@@ -94,6 +94,7 @@ bc/bcknd/device/opencl/inflow.lo : bc/bcknd/device/opencl/inflow.c bc/bcknd/devi
 bc/bcknd/device/opencl/no_slip_wall.lo : bc/bcknd/device/opencl/no_slip_wall.c bc/bcknd/device/opencl/no_slip_wall_kernel.cl.h
 bc/bcknd/device/opencl/symmetry.lo : bc/bcknd/device/opencl/symmetry.c bc/bcknd/device/opencl/symmetry_kernel.cl.h
 bc/bcknd/device/opencl/facet_normal.lo : bc/bcknd/device/opencl/facet_normal.c bc/bcknd/device/opencl/facet_normal_kernel.cl.h
+bc/bcknd/device/opencl/zero_dirichlet.lo : bc/bcknd/device/opencl/zero_dirichlet.c bc/bcknd/device/opencl/zero_dirichlet_kernel.cl.h
 bc/bcknd/device/opencl/inhom_dirichlet.lo : bc/bcknd/device/opencl/inhom_dirichlet.c bc/bcknd/device/opencl/inhom_dirichlet_kernel.cl.h
 bc/bcknd/device/opencl/dong_outflow.lo : bc/bcknd/device/opencl/dong_outflow.c bc/bcknd/device/opencl/dong_outflow_kernel.cl.h
 common/bcknd/device/opencl/rhs_maker.lo : common/bcknd/device/opencl/rhs_maker.c common/bcknd/device/opencl/rhs_maker_kernel.cl.h
