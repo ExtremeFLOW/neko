@@ -44,7 +44,7 @@ module fluid_stats
   use field, only : field_t
   use field_list, only : field_list_t
   use stats_quant, only : stats_quant_t
-  use device
+  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use neko_config, only : NEKO_BCKND_DEVICE
   use utils, only : neko_warning
   implicit none
