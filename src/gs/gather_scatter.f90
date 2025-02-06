@@ -118,7 +118,7 @@ contains
     call gs%free()
 
     call neko_log%section('Gather-Scatter')
-    ! Currently this is using the dofmap which atm also contains geometric information
+    ! Currently this uses the dofmap which also contains geometric information
     ! Only connectivity/numbering of points is technically necessary for gs
     gs%dofmap => dofmap
 
@@ -144,13 +144,15 @@ contains
     case default
        call neko_error('Unknown Gather-scatter comm. backend')
     end select
-    ! Initialize a stack for each rank containing which dofs to send/recv at that rank
+    ! Initialize a stack for each rank containing which dofs to send/recv at 
+    ! that rank
     call gs%comm%init_dofs()
     ! Initialize mapping between local ids and gather-scatter ids
     ! based on the global numbering in dofmap
     call gs_init_mapping(gs)
     ! Setup buffers and which ranks to send/recv data from based on mapping
-    ! and initializes gs%comm (sets up gs%comm%send_dof and gs%comm%recv_dof and recv_pe/send_pe)
+    ! and initializes gs%comm (sets up gs%comm%send_dof and gs%comm%recv_dof and
+    ! recv_pe/send_pe)
     call gs_schedule(gs)
     ! Global number of points not needing to be sent over mpi for gs operations
     ! "Internal points"
@@ -160,7 +162,8 @@ contains
     glb_nshared = int(gs%nshared, i8)
     ! Can be thought of a measure of the volume of this rank (glb_nlocal) and 
     ! the surface area (glb_nshared) that is shared with other ranks
-    ! Lots of internal volume compared to surface that needs communcation is good
+    ! Lots of internal volume compared to surface that needs communication is 
+    ! good
 
     if (pe_rank .eq. 0) then
        call MPI_Reduce(MPI_IN_PLACE, glb_nlocal, 1, &
@@ -410,8 +413,9 @@ contains
           call local_dof%push(id)
           call dof_local%push(lid)
        end if
-       !This procedure is then repeated for all vertices and edges
-       ! Facets can be treated a little bit differently since they only have one neighbor
+       ! This procedure is then repeated for all vertices and edges
+       ! Facets can be treated a little bit differently since they only have one 
+       ! neighbor
 
        lid = linear_index(lx, 1, 1, i, lx, ly, lz)
        if (dofmap%shared_dof(lx, 1, 1, i)) then
@@ -494,7 +498,7 @@ contains
 
     ! Clear local dofmap table
     call dm%clear()
-    !Get gather scatter ids and local ids of edges
+    ! Get gather scatter ids and local ids of edges
     if (lz .gt. 1) then
        !
        ! Setup mapping for dofs on edges
@@ -1078,9 +1082,9 @@ contains
 
     !> Register a unique dof
     !! Takes the unique id dof and checks if it is in the htable map_
-    !! If it is we return the gather-scatter id this global dof has been assigned to 
-    !! This is done as the global id can be very large max(integer8)
-    !! but the number of local points is at most max(integer4)
+    !! If it is we return the gather-scatter id this global dof has been 
+    !! assigned to. This is done as the global id can be very large 
+    !! max(integer8), but the number of local points is at most max(integer4)
     !! @param map_, htable of global unique id to local unique id
     !! @param dof, global unique id of dof
     !! @param max_id, current number of entries in map_

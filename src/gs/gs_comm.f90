@@ -43,16 +43,17 @@ module gs_comm
 
   !> Gather-scatter communication method
   type, public, abstract :: gs_comm_t
-     !> send_dof(rank_i) is a stack of dof indices local to this process to send to rank_i
-     type(stack_i4_t), allocatable :: send_dof(:)     
-     !> recv_dof(rank_i) is a stack of dof indices local to this process to receive from rank_i
-     !! size(recv_dof) == pe_size
-     type(stack_i4_t), allocatable :: recv_dof(:)  
-     !> array of ranks that this process should send to 
-     !! OBS: this will usually be fewer than the total number of ranks size(send_pe) <= pe_size
-     integer, allocatable :: send_pe(:) 
+     !> A list of stacks of dof indices local to this process to send to rank_i
+     type(stack_i4_t), allocatable :: send_dof(:)
+     !> recv_dof(rank_i) is a stack of dof indices local to this process to 
+     !! receive from rank_i. size(recv_dof) == pe_size
+     type(stack_i4_t), allocatable :: recv_dof(:)
+     !> Array of ranks that this process should send to 
+     !! @note: this will usually be fewer than the total number of ranks 
+     !! size(send_pe) <= pe_size
+     integer, allocatable :: send_pe(:)
      !> array of ranks that this process will receive messages from 
-     integer, allocatable :: recv_pe(:)       
+     integer, allocatable :: recv_pe(:)
    contains
      procedure(gs_comm_init), pass(this), deferred :: init
      procedure(gs_comm_free), pass(this), deferred :: free
@@ -87,7 +88,8 @@ module gs_comm
   end interface
 
   !> Abstract interface for initiating non-blocking send operations
-  !! Sends the values in u(send_dof(send_pe(i))) to each rank send_pe(i) for all ranks in send_pe
+  !! Sends the values in u(send_dof(send_pe(i))) to each rank send_pe(i) for all 
+  !! ranks in send_pe
   !! @param n, length of u (redundant)
   !! @param deps, gather_event (for device aware mpi)
   !! @param strm, device stream to execute operation on

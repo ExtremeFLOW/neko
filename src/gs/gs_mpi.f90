@@ -58,7 +58,7 @@ module gs_mpi
   !> Gather-scatter communication using MPI
   type, public, extends(gs_comm_t) :: gs_mpi_t
      !> Comm. buffers for send operations
-     type(gs_comm_mpi_t), allocatable :: send_buf(:)     
+     type(gs_comm_mpi_t), allocatable :: send_buf(:)
      !> Comm. buffers for recv operations
      type(gs_comm_mpi_t), allocatable :: recv_buf(:)   
    contains
@@ -238,7 +238,8 @@ contains
           end if
        end do
     end do
-    ! Finally, check that the non-blocking sends this rank have issued have also completed successfully 
+    ! Finally, check that the non-blocking sends this rank have issued have also 
+    ! completed successfully
     nreqs = size(this%send_pe)
     do while (nreqs .gt. 0)
        do i = 1, size(this%send_pe)
