@@ -43,6 +43,7 @@ module fluid_stats_simcomp
   use case, only : case_t
   use coefs, only : coef_t
   use comm
+  use utils, only: NEKO_FNAME_LEN
   use logger, only : LOG_SIZE, neko_log
   use json_utils, only : json_get, json_get_or_default
   implicit none
@@ -171,7 +172,13 @@ contains
   subroutine fluid_stats_simcomp_restart(this, t)
     class(fluid_stats_simcomp_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
+    character(len=NEKO_FNAME_LEN) :: fname
+    character(len=5) :: prefix
     if (t .gt. this%time) this%time = t
+
+    write (prefix, '(I5)') this%stats_output%file_%get_counter()
+    fname = "fluid_stats"//trim(adjustl(prefix))//".fld"
+    call this%stats_output%init_base(fname)
   end subroutine fluid_stats_simcomp_restart
 
   !> fluid_stats, called depending on compute_control and compute_value
