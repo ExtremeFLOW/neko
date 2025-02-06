@@ -134,7 +134,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     type(c_ptr), intent(inout) :: deps
     type(c_ptr), intent(inout) :: strm
-    integer ::  i, j, ierr, dst, thrdid
+    integer :: i, j, ierr, dst, thrdid
     integer , pointer :: sp(:)
 
     thrdid = 0
@@ -215,7 +215,7 @@ contains
                 case (GS_OP_ADD)
                    !NEC$ IVDEP
                    do concurrent (j = 1:this%send_dof(src)%size())
-                      
+
                       u(sp(j)) = u(sp(j)) + this%recv_buf(i)%data(j)
                    end do
                 case (GS_OP_MUL)
@@ -238,7 +238,7 @@ contains
           end if
        end do
     end do
-    ! Finally, check that the non-blocking sends this rank have issued have also 
+    ! Finally, check that the non-blocking sends this rank have issued have also
     ! completed successfully
     nreqs = size(this%send_pe)
     do while (nreqs .gt. 0)

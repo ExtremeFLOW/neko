@@ -45,14 +45,14 @@ module gs_comm
   type, public, abstract :: gs_comm_t
      !> A list of stacks of dof indices local to this process to send to rank_i
      type(stack_i4_t), allocatable :: send_dof(:)
-     !> recv_dof(rank_i) is a stack of dof indices local to this process to 
+     !> recv_dof(rank_i) is a stack of dof indices local to this process to
      !! receive from rank_i. size(recv_dof) == pe_size
      type(stack_i4_t), allocatable :: recv_dof(:)
-     !> Array of ranks that this process should send to 
-     !! @note: this will usually be fewer than the total number of ranks 
+     !> Array of ranks that this process should send to
+     !! @note: this will usually be fewer than the total number of ranks
      !! size(send_pe) <= pe_size
      integer, allocatable :: send_pe(:)
-     !> array of ranks that this process will receive messages from 
+     !> array of ranks that this process will receive messages from
      integer, allocatable :: recv_pe(:)
    contains
      procedure(gs_comm_init), pass(this), deferred :: init
@@ -88,7 +88,7 @@ module gs_comm
   end interface
 
   !> Abstract interface for initiating non-blocking send operations
-  !! Sends the values in u(send_dof(send_pe(i))) to each rank send_pe(i) for all 
+  !! Sends the values in u(send_dof(send_pe(i))) to each rank send_pe(i) for all
   !! ranks in send_pe
   !! @param n, length of u (redundant)
   !! @param deps, gather_event (for device aware mpi)
@@ -107,7 +107,7 @@ module gs_comm
      end subroutine gs_nbsend
   end interface
 
- 
+
   !> Abstract interface for initiating non-blocking recieve operations
   !! Posts non-blocking recieve of values and puts the values into buffers
   abstract interface
@@ -141,7 +141,7 @@ module gs_comm
 
   public :: gs_comm_init, gs_comm_free, gs_nbsend, gs_nbrecv, gs_nbwait
 contains
-  !Initalize stacks for each rank of dof indices to send/recv 
+  !Initalize stacks for each rank of dof indices to send/recv
   subroutine init_dofs(this)
     class(gs_comm_t), intent(inout) :: this
     integer :: i
