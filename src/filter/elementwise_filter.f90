@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> Implements `explicit_filter_t`.
+!> Implements `elementwise_filter_t`.
 module elementwise_filter
   use num_types, only : rp
   use filter, only: filter_t
