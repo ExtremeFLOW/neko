@@ -23,7 +23,7 @@ jobs:
         os: [ubuntu-24.04-arm]
         compiler: [nvfortran]
 #        backend: [cpu, cuda]
-        backend: [CPU]
+        backend: [cpu]
         precision: [dp]
         include:
 #          - os: ubuntu-24.04
