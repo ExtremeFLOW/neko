@@ -60,7 +60,7 @@ module gs_mpi
      !> Comm. buffers for send operations
      type(gs_comm_mpi_t), allocatable :: send_buf(:)
      !> Comm. buffers for recv operations
-     type(gs_comm_mpi_t), allocatable :: recv_buf(:)   
+     type(gs_comm_mpi_t), allocatable :: recv_buf(:)
    contains
      procedure, pass(this) :: init => gs_mpi_init
      procedure, pass(this) :: free => gs_mpi_free
