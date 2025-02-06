@@ -287,4 +287,80 @@ __global__ void gs_unpack_add_kernel(T * __restrict__ u,
   }
 }
 
+__device__ float atomicMinFloat(float* address, float val) {
+    int* address_as_int = (int*)address;
+    int val_as_int = __float_as_int(val);
+
+    // Adjust the float representation to preserve ordering
+    if (val_as_int < 0) val_as_int = 0x80000000 - val_as_int;
+
+    int old = atomicMin(address_as_int, val_as_int);
+
+    // Adjust back the float representation
+    if (old < 0) old = 0x80000000 - old;
+
+    return __int_as_float(old);
+}
+
+template< typename T >
+__global__ void gs_unpack_min_kernel(T * __restrict__ u,
+                                     const T * __restrict__ buf,
+                                     const int32_t * __restrict__ dof,
+                                     const int n) {
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j >= n)
+    return;
+
+  const int32_t idx = dof[j];
+  const T val = buf[j];
+
+  if (idx < 0) {
+    // Use atomicMin for shared nodal points
+    atomicMinFloat(&u[-idx-1], val);
+  } else {
+    // Directly compute min for non-shared nodal points
+    atomicMinFloat(&u[idx-1], val);
+  }
+}
+
+__device__ float atomicMaxFloat(float* address, float val) {
+    int* address_as_int = (int*)address;
+    int val_as_int = __float_as_int(val);
+
+    // Adjust the float representation to preserve ordering
+    if (val_as_int < 0) val_as_int = 0x80000000 - val_as_int;
+
+    int old = atomicMax(address_as_int, val_as_int);
+
+    // Adjust back the float representation
+    if (old < 0) old = 0x80000000 - old;
+
+    return __int_as_float(old);
+}
+
+template< typename T >
+__global__ void gs_unpack_max_kernel(T * __restrict__ u,
+                                     const T * __restrict__ buf,
+                                     const int32_t * __restrict__ dof,
+                                     const int n) {
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j >= n)
+    return;
+
+  const int32_t idx = dof[j];
+  const T val = buf[j];
+
+  if (idx < 0) {
+    // Use atomicMax for shared nodal points
+    atomicMaxFloat(&u[-idx-1], val);
+  } else {
+    // Directly compute max for non-shared nodal points
+    atomicMaxFloat(&u[idx-1], val);
+  }
+}
+
 #endif // __GS_GS_KERNELS__
