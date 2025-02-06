@@ -47,7 +47,8 @@ module global_interpolation
   use math, only: copy
   use structs, only: array_ptr_t
   use neko_config, only: NEKO_BCKND_DEVICE
-  use device, only : device_free, device_map, device_memcpy
+  use device, only : device_free, device_map, device_memcpy, &
+       HOST_TO_DEVICE
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, &
        c_associated
   use mpi_f08, only : MPI_Reduce, MPI_INTEGER, MPI_SUM, &
