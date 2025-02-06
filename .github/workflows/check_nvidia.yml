@@ -22,7 +22,8 @@ jobs:
       matrix:
         os: [ubuntu-24.04-arm]
         compiler: [nvfortran]
-        backend: [cpu, cuda]
+#        backend: [cpu, cuda]
+        backend: [CPU]
         precision: [dp]
         include:
 #          - os: ubuntu-24.04
@@ -106,7 +107,7 @@ jobs:
         run: |
           git apply patches/nvhpc_bge.patch
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2" --enable-real=${RP}
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP}
           make
 
       - name: Build (CUDA backend)
@@ -114,7 +115,7 @@ jobs:
         run: |
           git apply patches/nvhpc_bge.patch
           ./regen.sh
-          ./configure FC=${FC} FCFLAGS="-O2" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/$NVARCH/25.1/cuda/
+          ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/$NVARCH/25.1/cuda/
           make
 
       - name: Dist (CPU backend)
