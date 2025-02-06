@@ -34,7 +34,7 @@
 module neko
   use num_types, only : rp, sp, dp, qp
   use comm, only : NEKO_COMM, pe_rank, pe_size, &
-       MPI_REAL_PRECISION, MPI_EXTRA_PRECISION
+       MPI_REAL_PRECISION, MPI_EXTRA_PRECISION, comm_init, comm_free
   use utils
   use logger, only : log_t, neko_log, LOG_SIZE, NEKO_LOG_QUIET, NEKO_LOG_INFO, &
        NEKO_LOG_VERBOSE, NEKO_LOG_DEBUG
