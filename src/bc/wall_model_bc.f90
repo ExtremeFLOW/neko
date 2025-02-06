@@ -174,8 +174,9 @@ contains
     class(wall_model_bc_t), target, intent(inout) :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
+    real(kind=rp) :: value(3) = [0, 0, 0]
 
-    call this%shear_stress_t%init(coef, json)
+    call this%shear_stress_t%init_from_components(coef, value)
     call json_get(json, "nu", this%nu)
     this%params_ = json
 
