@@ -53,7 +53,7 @@ module elementwise_filter
   implicit none
   private
 
-  !> Implements the explicit filter for SEM.
+  !> Implements the elementwise filter for SEM.
   type, public, extends(filter_t) :: elementwise_filter_t
      !> filter type:
      !> possible options: "Boyd", "nonBoyd"
