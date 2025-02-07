@@ -45,6 +45,8 @@ module global_interpolation
   use device
   use point
   use comm
+  use gs_mpi
+  use gs_ops, only: GS_OP_ADD
   use aabb, only: aabb_t
   use aabb_tree, only: aabb_tree_t
   use vector, only: vector_t
@@ -131,8 +133,8 @@ module global_interpolation
      integer :: n_send_pe, n_recv_pe
      integer, allocatable :: offset_send_pe(:), n_points_send_pe(:)
      integer, allocatable :: offset_recv_pe(:), n_points_recv_pe(:)
-     integer, allocatable :: pe_send_id(:), pe_recv_id(:)
      type(MPI_request), allocatable :: mpi_send_request(:), mpi_recv_request(:)
+     type(gs_mpi_t) :: gs_comm
      !> Working vectors for global interpolation
      type(vector_t) :: temp_local, temp
 
@@ -312,14 +314,13 @@ contains
     if (allocated(this%mpi_send_flag)) deallocate(this%mpi_send_flag)
     if (allocated(this%offset_send_pe)) deallocate(this%offset_send_pe)
     if (allocated(this%n_points_send_pe)) deallocate(this%n_points_send_pe)
-    if (allocated(this%pe_send_id)) deallocate(this%pe_send_id)
     if (allocated(this%mpi_send_request)) deallocate(this%mpi_send_request)
 
     if (allocated(this%mpi_recv_flag)) deallocate(this%mpi_recv_flag)
     if (allocated(this%offset_recv_pe)) deallocate(this%offset_recv_pe)
     if (allocated(this%n_points_recv_pe)) deallocate(this%n_points_recv_pe)
-    if (allocated(this%pe_recv_id)) deallocate(this%pe_recv_id)
     if (allocated(this%mpi_recv_request)) deallocate(this%mpi_recv_request)
+    call this%gs_comm%free()
 
 
   end subroutine global_interpolation_free_points
@@ -361,7 +362,7 @@ contains
     logical(kind=c_bool), allocatable, target :: conv_pts(:)
     type(c_ptr) :: conv_pts_d = c_null_ptr
     type(c_ptr) :: el_cands_d = c_null_ptr
-    real(kind=rp), allocatable :: rsts(:,:)
+    type(c_ptr) :: null_ptr = c_null_ptr
     real(kind=rp), allocatable :: res(:,:)
     logical :: isdiff
     real(kind=dp) :: pt_xyz(3), res1
@@ -377,16 +378,26 @@ contains
     integer, pointer :: pe_cands(:) => Null()
     integer, pointer :: el_cands(:) => Null()
     integer, pointer :: point_ids(:) => NUll()
+    integer, pointer :: send_recv(:) => NUll()
     real(kind=rp), allocatable :: xyz_send_to_pe(:,:)
     real(kind=rp), allocatable :: rst_send_to_pe(:,:)
     real(kind=rp), allocatable :: rst_recv_from_pe(:,:)
     real(kind=rp), allocatable :: res_recv_from_pe(:,:)
-    integer, allocatable :: el_owner0s(:), el_send_to_pe(:)
-    integer :: ierr, max_n_points_to_send, ii, n_point_cand, point_id, i_send, i_recv
+    real(kind=rp), allocatable :: res_results(:,:)
+    real(kind=rp), allocatable :: rst_results(:,:)
+    integer, allocatable :: el_owner0s(:), el_send_to_pe(:), el_owner_results(:)
+    integer :: ierr, max_n_points_to_send, ii, n_point_cand, n_glb_point_cand, point_id, rank
     real(kind=rp) :: time1, time2, time_start
     logical :: converged
+    !Temp stuff for gs_comm
+    type(stack_i4_t) :: send_pe, recv_pe
+    type(gs_mpi_t) :: gs_find, gs_find_back
+    type(stack_i4_t) :: send_pe_find, recv_pe_find
+    
 
-
+    call gs_find%init_dofs() 
+    call send_pe_find%init()
+    call recv_pe_find%init()
     call MPI_Barrier(this%comm)
     time_start = MPI_Wtime()
     write(log_buf,'(A)') 'Setting up global interpolation'
@@ -398,9 +409,9 @@ contains
     if (allocated(this%n_points_offset_pe_local)) deallocate(this%n_points_offset_pe_local)
     if (allocated(this%n_points_offset_pe)) deallocate(this%n_points_offset_pe)
     allocate(this%n_points_pe(0:(this%pe_size-1)))
+    allocate(this%n_points_offset_pe(0:(this%pe_size-1)))
     allocate(this%n_points_pe_local(0:(this%pe_size-1)))
     allocate(this%n_points_offset_pe_local(0:(this%pe_size-1)))
-    allocate(this%n_points_offset_pe(0:(this%pe_size-1)))
     !Working arrays
     allocate(points_at_pe(0:(this%pe_size-1)))
     allocate(pe_candidates(this%n_points))
@@ -433,13 +444,10 @@ contains
     ! n_points_pe_local -> how many points local on this rank that other pes might want
     this%n_points_pe_local = 0
     this%n_points_local = 0
-    do i = 0, (this%pe_size - 1)
-       call MPI_Reduce(this%n_points_pe(i), this%n_points_local, 1, MPI_INTEGER, &
-            MPI_SUM, i, this%comm, ierr)
-       !n_points_pe_local gives the number of points I will receive from every rank
-       call MPI_Gather(this%n_points_pe(i), 1, MPI_INTEGER,&
-                      this%n_points_pe_local, 1, MPI_INTEGER, i, this%comm, ierr)
-    end do
+    call MPI_Reduce_scatter_block(this%n_points_pe, this%n_points_local, 1, MPI_INTEGER, &
+         MPI_SUM, this%comm, ierr)
+    call MPI_Alltoall(this%n_points_pe, 1, MPI_INTEGER,&
+         this%n_points_pe_local, 1, MPI_INTEGER, this%comm, ierr)
     !Set up offset arrays
     this%n_points_offset_pe_local(0) = 0
     this%n_points_offset_pe(0) = 0
@@ -449,25 +457,55 @@ contains
        this%n_points_offset_pe(i) = this%n_points_pe(i-1)&
                                  + this%n_points_offset_pe(i-1)
     end do
+    do i = 0, (this%pe_size-1)
+       if (this%n_points_pe(i) .gt. 0) then
+          call send_pe_find%push(i)
+          point_ids => points_at_pe(i)%array()
+          do j = 1, this%n_points_pe(i)
+             call gs_find%send_dof(i)%push(3*(point_ids(j)-1)+1)
+             call gs_find%send_dof(i)%push(3*(point_ids(j)-1)+2)
+             call gs_find%send_dof(i)%push(3*(point_ids(j)-1)+3)
+          end do
+       end if
+       if (this%n_points_pe_local(i) .gt. 0) then
+          call recv_pe_find%push(i)
+          do j = 1, this%n_points_pe_local(i)
+             call gs_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+1)
+             call gs_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+2)
+             call gs_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+3)
+          end do
+       end if
+    end do
+
+
     
+    call gs_find%init(send_pe_find, recv_pe_find)
+     
+    call gs_find_back%init_dofs()
+    ii = 0
+    do i = 0, (this%pe_size-1)
+       send_recv => gs_find%recv_dof(i)%array() 
+       do j = 1, gs_find%recv_dof(i)%size()
+          call gs_find_back%send_dof(i)%push(send_recv(j))
+       end do
+       send_recv => gs_find%send_dof(i)%array() 
+       do j = 1, gs_find%send_dof(i)%size() 
+          ii = ii + 1
+          call gs_find_back%recv_dof(i)%push(ii)
+       end do
+    end do
+    
+    call gs_find_back%init(recv_pe_find, send_pe_find)
+ 
+
     if (allocated(this%xyz_local)) deallocate(this%xyz_local)
     allocate(this%xyz_local(3, this%n_points_local))
     max_n_points_to_send = max(maxval(this%n_points_pe),1)
     allocate(xyz_send_to_pe(3, max_n_points_to_send))
-
-    ! Send coordinates of points to candidate pes
-    do i = 0, (this%pe_size - 1)
-       point_ids => points_at_pe(i)%array()
-       do j = 1, this%n_points_pe(i)
-          xyz_send_to_pe(:,j) = this%xyz(:,point_ids(j))
-       end do
-       call MPI_Gatherv(xyz_send_to_pe,3*this%n_points_pe(i), &
-                        MPI_REAL_PRECISION, this%xyz_local,3*this%n_points_pe_local, &
-                        3*this%n_points_offset_pe_local, &
-                        MPI_REAL_PRECISION, i, this%comm, ierr)
-    end do
-
-
+    this%xyz_local = 0.0_rp
+    call gs_find%nbrecv()
+    call gs_find%nbsend(this%xyz, this%n_points*3, null_ptr, null_ptr)
+    call gs_find%nbwait(this%xyz_local, this%n_points_local*3, GS_OP_ADD, null_ptr)
 
     !Okay, now we need to find the rst...
     call all_el_candidates%init()
@@ -582,7 +620,6 @@ contains
  
     call MPI_Barrier(this%comm)
     time2 = MPI_Wtime()
-
     write(log_buf, '(A,E15.7)') &
     'GPU Found rst with Newton iteration, time (s):', time2-time1
     call neko_log%message(log_buf)  
@@ -617,38 +654,52 @@ contains
           end if
        end do
     end do
-    allocate(rsts(3,this%n_points))
     allocate(res(3,this%n_points))
     allocate(rst_recv_from_pe(3, max_n_points_to_send))
     allocate(res_recv_from_pe(3, max_n_points_to_send))
     allocate(el_owner0s(max_n_points_to_send))
+    n_glb_point_cand = sum(this%n_points_pe)
+    allocate(rst_results(3,n_glb_point_cand))
+    allocate(res_results(3,n_glb_point_cand))
+    allocate(el_owner_results(n_glb_point_cand))
     res = 1e2
     this%rst = 1e2
     this%pe_owner = -1
-    !> Send rst and res to rank who want this point  S
-    ! Send/receive best point candidate to/from each rank
-    do i = 0, (this%pe_size - 1)
-       call MPI_Scatterv(this%rst_local,3*this%n_points_pe_local, &
-                         3*this%n_points_offset_pe_local,&
-                         MPI_REAL_PRECISION, rst_recv_from_pe,3*this%n_points_pe(i), &
-                         MPI_REAL_PRECISION, i, this%comm, ierr)
-       call MPI_Scatterv(this%xyz_local,3*this%n_points_pe_local, &
-                         3*this%n_points_offset_pe_local,&
-                         MPI_REAL_PRECISION, res_recv_from_pe,3*this%n_points_pe(i), &
-                         MPI_REAL_PRECISION, i, this%comm, ierr)
-       call MPI_Scatterv(this%el_owner0_local,this%n_points_pe_local, &
-                         this%n_points_offset_pe_local,&
-                         MPI_INTEGER, el_owner0s,this%n_points_pe(i), &
-                         MPI_INTEGER, i, this%comm, ierr)
-       point_ids => points_at_pe(i)%array()
-       do j = 1, this%n_points_pe(i)
+    call gs_find_back%nbrecv()
+    call gs_find_back%nbsend(this%xyz_local, this%n_points_local*3, null_ptr, null_ptr)
+    call gs_find_back%nbwait(res_results, n_glb_point_cand*3, GS_OP_ADD, null_ptr)
+    call gs_find_back%nbrecv()
+    call gs_find_back%nbsend(this%rst_local, this%n_points_local*3, null_ptr, null_ptr)
+    call gs_find_back%nbwait(rst_results, n_glb_point_cand*3, GS_OP_ADD, null_ptr)
+    do i = 1, size(gs_find_back%send_pe)
+       rank = gs_find_back%send_pe(i)
+       call MPI_Isend(this%el_owner0_local(this%n_points_offset_pe_local(rank)+1),&
+                      this%n_points_pe_local(rank), &
+                      MPI_INTEGER, rank, 0, &
+                      this%comm, gs_find_back%send_buf(i)%request, ierr)
+       gs_find_back%send_buf(i)%flag = .false.
+    end do
+     do i = 1, size(gs_find_back%recv_pe)
+       rank = gs_find_back%recv_pe(i)
+       call MPI_IRecv(el_owner_results(this%n_points_offset_pe(rank)+1),&
+                      this%n_points_pe(rank), &
+                      MPI_INTEGER, rank, 0, &
+                      this%comm, gs_find_back%recv_buf(i)%request, ierr)
+       gs_find_back%recv_buf(i)%flag = .false.
+    end do 
+    call gs_find_back%nbwait_no_op()
+    ii = 0
+    do i = 1, size(gs_find_back%recv_pe)
+       point_ids => points_at_pe(gs_find_back%recv_pe(i))%array()
+       do j = 1, this%n_points_pe(gs_find_back%recv_pe(i))
           point_id = point_ids(j)
-          if (rst_cmp(this%rst(:,point_id), rst_recv_from_pe(:,j), &
-                      res(:,point_id), res_recv_from_pe(:,j), this%tol)) then
-             this%rst(:,point_ids(j)) = rst_recv_from_pe(:,j)
-             res(:,point_ids(j)) = res_recv_from_pe(:,j)
-             this%pe_owner(point_ids(j)) = i
-             this%el_owner0(point_ids(j)) = el_owner0s(j)
+          ii = ii + 1
+          if (rst_cmp(this%rst(:,point_id), rst_results(:,ii), &
+                      res(:,point_id), res_results(:,ii), this%tol)) then
+             this%rst(:,point_ids(j)) = rst_results(:,ii)
+             res(:,point_ids(j)) = res_results(:,ii)
+             this%pe_owner(point_ids(j)) = gs_find_back%recv_pe(i)
+             this%el_owner0(point_ids(j)) = el_owner_results(ii)
           end if
        end do
     end do
@@ -670,14 +721,10 @@ contains
        
        this%n_points_pe(this%pe_owner(i)) =  this%n_points_pe(this%pe_owner(i)) + 1
     end do
-
-    do i = 0, (this%pe_size - 1)
-       call MPI_Reduce(this%n_points_pe(i), this%n_points_local, 1, MPI_INTEGER, &
-            MPI_SUM, i, this%comm, ierr)
-       !n_points_pe_local gives the number of points I will receive from every rank
-       call MPI_Gather(this%n_points_pe(i), 1, MPI_INTEGER,&
-                      this%n_points_pe_local, 1, MPI_INTEGER, i, this%comm, ierr)
-    end do
+    call MPI_Reduce_scatter_block(this%n_points_pe, this%n_points_local, 1, MPI_INTEGER, &
+         MPI_SUM, this%comm, ierr)
+    call MPI_Alltoall(this%n_points_pe, 1, MPI_INTEGER,&
+         this%n_points_pe_local, 1, MPI_INTEGER, this%comm, ierr)
     this%n_points_offset_pe_local(0) = 0
     this%n_points_offset_pe(0) = 0
     do i = 1, (this%pe_size - 1)
@@ -686,8 +733,91 @@ contains
        this%n_points_offset_pe(i) = this%n_points_pe(i-1)&
                                  + this%n_points_offset_pe(i-1)
     end do
-    allocate(rst_send_to_pe(3, max_n_points_to_send))
-    allocate(el_send_to_pe(max_n_points_to_send))
+    call send_pe_find%free()
+    call recv_pe_find%free()
+    call gs_find%free()
+    call send_pe_find%init()
+    call recv_pe_find%init()
+    call gs_find%init_dofs()
+    !setup comm to send xyz and rst to chosen ranks
+    do i = 0, (this%pe_size-1)
+       if (this%n_points_pe(i) .gt. 0) then
+          call send_pe_find%push(i)
+          point_ids => points_at_pe(i)%array()
+          do j = 1, this%n_points_pe(i)
+             call gs_find%send_dof(i)%push(3*(point_ids(j)-1)+1)
+             call gs_find%send_dof(i)%push(3*(point_ids(j)-1)+2)
+             call gs_find%send_dof(i)%push(3*(point_ids(j)-1)+3)
+          end do
+       end if
+       if (this%n_points_pe_local(i) .gt. 0) then
+          call recv_pe_find%push(i)
+          do j = 1, this%n_points_pe_local(i)
+             call gs_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+1)
+             call gs_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+2)
+             call gs_find%recv_dof(i)%push(3*(j+this%n_points_offset_pe_local(i)-1)+3)
+          end do
+       end if
+    end do
+
+
+    call gs_find%init(send_pe_find, recv_pe_find)
+    call gs_find%nbrecv()
+    this%xyz_local = 0.0
+    call gs_find%nbsend(this%xyz, this%n_points*3, null_ptr, null_ptr)
+    call gs_find%nbwait(this%xyz_local, this%n_points_local*3, GS_OP_ADD, null_ptr)
+    call gs_find%nbrecv()
+    this%rst_local = 0.0
+    call gs_find%nbsend(this%rst, this%n_points*3, null_ptr, null_ptr)
+    call gs_find%nbwait(this%rst_local, this%n_points_local*3, GS_OP_ADD, null_ptr)
+    ii = 0
+    do i = 1, size(gs_find%send_pe)
+       rank = gs_find%send_pe(i)
+       point_ids => points_at_pe(rank)%array()
+       do j = 1, this%n_points_pe(rank)
+          ii = ii + 1
+          el_owner_results(ii) = this%el_owner0(point_ids(j))
+       end do
+       call MPI_Isend(el_owner_results(this%n_points_offset_pe(rank)+1),&
+                      this%n_points_pe(rank), &
+                      MPI_INTEGER, rank, 0, &
+                      this%comm, gs_find%send_buf(i)%request, ierr)
+       gs_find%send_buf(i)%flag = .false.
+    end do
+    do i = 1, size(gs_find%recv_pe)
+       rank = gs_find%recv_pe(i)
+       call MPI_IRecv(this%el_owner0_local(this%n_points_offset_pe_local(rank)+1),&
+                      this%n_points_pe_local(rank), &
+                      MPI_INTEGER, rank, 0, &
+                      this%comm, gs_find%recv_buf(i)%request, ierr)
+       gs_find%recv_buf(i)%flag = .false.
+    end do 
+    call gs_find%nbwait_no_op()
+  
+    call gs_find%free()
+    
+    !Set up final way of doing communication
+    call send_pe%init()
+    call recv_pe%init()
+    call this%gs_comm%init_dofs() 
+    do i = 0, (this%pe_size-1)
+       if (this%n_points_pe(i) .gt. 0) then
+          call recv_pe%push(i)
+          point_ids => points_at_pe(i)%array()
+          do j = 1, this%n_points_pe(i)
+             call this%gs_comm%recv_dof(i)%push(point_ids(j))
+          end do
+       end if
+       if (this%n_points_pe_local(i) .gt. 0) then
+          call send_pe%push(i)
+          do j = 1, this%n_points_pe_local(i)
+             call this%gs_comm%send_dof(i)%push(j+this%n_points_offset_pe_local(i))
+          end do
+       end if
+    end do
+    call this%gs_comm%init(send_pe, recv_pe)
+
+
     if (allocated(this%pt_ids)) deallocate(this%pt_ids)
     allocate(this%pt_ids(this%n_points))
     ii = 0
@@ -695,66 +825,9 @@ contains
        point_ids => points_at_pe(i)%array()
        do j = 1, this%n_points_pe(i)
           ii = ii + 1
-          xyz_send_to_pe(:,j) = this%xyz(:,point_ids(j))
-          rst_send_to_pe(:,j) = this%rst(:,point_ids(j))
-          el_send_to_pe(j) = this%el_owner0(point_ids(j))
           this%pt_ids(ii) = point_ids(j)
-       end do
-       call MPI_Gatherv(xyz_send_to_pe,3*this%n_points_pe(i), &
-                        MPI_REAL_PRECISION, this%xyz_local, &
-                        3*this%n_points_pe_local, &
-                        3*this%n_points_offset_pe_local, &
-                        MPI_REAL_PRECISION, i, this%comm, ierr)
-       call MPI_Gatherv(rst_send_to_pe,3*this%n_points_pe(i), &
-                        MPI_REAL_PRECISION, this%rst_local, &
-                        3*this%n_points_pe_local, &
-                        3*this%n_points_offset_pe_local, &
-                        MPI_REAL_PRECISION, i, this%comm, ierr)
-       call MPI_Gatherv(el_send_to_pe,this%n_points_pe(i), &
-                        MPI_INTEGER, this%el_owner0_local,this%n_points_pe_local, &
-                        this%n_points_offset_pe_local, &
-                        MPI_INTEGER, i, this%comm, ierr)
-
+       end do 
     end do
-    !Now everything is known
-    ! Create arrays for send-receive communication instead for collectives
-    this%n_send_pe = 0 
-    this%n_recv_pe = 0 
-    do i = 0, (this%pe_size-1)
-       if (this%n_points_pe(i) .gt. 0) then
-          this%n_recv_pe = this%n_recv_pe + 1
-       end if
-       if (this%n_points_pe_local(i) .gt. 0) then
-          this%n_send_pe = this%n_send_pe + 1
-       end if
-    end do
-    allocate(this%offset_send_pe(this%n_send_pe), &
-             this%n_points_send_pe(this%n_send_pe), &
-             this%pe_send_id(this%n_send_pe), &
-             this%mpi_send_flag(this%n_send_pe), &
-             this%mpi_send_request(this%n_send_pe))
-    allocate(this%offset_recv_pe(this%n_recv_pe), &
-             this%n_points_recv_pe(this%n_recv_pe), &
-             this%pe_recv_id(this%n_recv_pe), &
-             this%mpi_recv_flag(this%n_recv_pe), &
-             this%mpi_recv_request(this%n_recv_pe))
-    i_send = 0
-    i_recv = 0
-    do i = 0, (this%pe_size-1)
-       if (this%n_points_pe(i) .gt. 0) then
-          i_recv = i_recv + 1
-          this%n_points_recv_pe(i_recv) = this%n_points_pe(i)
-          this%offset_recv_pe(i_recv) = this%n_points_offset_pe(i)
-          this%pe_recv_id(i_recv) = i
-       end if
-       if (this%n_points_pe_local(i) .gt. 0) then
-          i_send = i_send + 1
-          this%n_points_send_pe(i_send) = this%n_points_pe_local(i)
-          this%offset_send_pe(i_send) = this%n_points_offset_pe_local(i)
-          this%pe_send_id(i_send) = i
-       end if
-    end do
-
     !Initialize working arrays for evaluation
     call this%temp_local%init(this%n_points_local)
     call this%temp%init(this%n_points)
@@ -811,6 +884,11 @@ contains
     end if
 
     !Free stuff
+    call send_pe%free()
+    call recv_pe%free()
+    call gs_find_back%free()
+    call send_pe_find%free()
+    call recv_pe_find%free()
     call x_check%free()
     call x_vec%free()
     call y_check%free()
@@ -828,7 +906,6 @@ contains
     call y_hat%free()
     call z_hat%free()
     if (allocated(conv_pts)) deallocate(conv_pts)
-    if (allocated(rsts)) deallocate(rsts)
     if (allocated(res)) deallocate(res)
     if (allocated(my_point)) deallocate(my_point)
     if (allocated(my_points)) deallocate(my_points)
@@ -1005,6 +1082,8 @@ contains
     real(kind=rp) :: time1, time2
     type(c_ptr) :: field_d, interp_d
     integer :: nreqs
+    character(len=8000) :: log_buf
+
     if (.not. this%all_points_local) then
        call this%local_interp%evaluate(this%temp_local%x, this%el_owner0_local, &
                                           field, this%nelv, on_host)
@@ -1012,55 +1091,15 @@ contains
           call device_memcpy(this%temp_local%x, this%temp_local%x_d, &
                this%n_points_local, DEVICE_TO_HOST, .true.)
        end if
-       !Post sends
-       do i = 1, this%n_send_pe
-          call MPI_Isend(this%temp_local%x(this%offset_send_pe(i)+1), &
-                         this%n_points_send_pe(i), &
-                         MPI_REAL_PRECISION, this%pe_send_id(i), 0, &
-                         this%comm, this%mpi_send_request(i), ierr)  
-          this%mpi_send_flag(i) = .false.
-       end do
-       !Post receives
-       do i = 1, this%n_recv_pe
-          call MPI_Irecv(this%temp%x(this%offset_recv_pe(i)+1), &
-                         this%n_points_recv_pe(i), &
-                         MPI_REAL_PRECISION, this%pe_recv_id(i), 0, &
-                         this%comm, this%mpi_recv_request(i), ierr) 
-           this%mpi_recv_flag(i) = .false.
-       end do
-       !> Check if I have my stuff
-       nreqs = 0
-       do while (nreqs .lt. this%n_recv_pe)
-          do i = 1, this%n_recv_pe
-             if (.not. this%mpi_recv_flag(i)) then
-                call MPI_Test(this%mpi_recv_request(i), &
-                              this%mpi_recv_flag(i), &
-                              MPI_STATUS_IGNORE, ierr)
-                if (this%mpi_recv_flag(i)) nreqs = nreqs + 1
-             end if
-          end do
-       end do
-       !Fix so my points go back to their ortiginal id
-       do i = 1, this%n_points
-          interp_values(this%pt_ids(i)) = this%temp%x(i)
-       end do
+       interp_values = 0.0
+       call this%gs_comm%nbrecv()
+       call this%gs_comm%nbsend(this%temp_local%x, this%n_points_local, field_d, interp_d)
+       call this%gs_comm%nbwait(interp_values, this%n_points, GS_OP_ADD, field_d)
        if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
           interp_d = device_get_ptr(interp_values)
           call device_memcpy(interp_values, interp_d, &
                this%n_points, HOST_TO_DEVICE, .false.)
        end if  
-       !> Lastly, check that my sends are ok
-       nreqs = 0
-       do while (nreqs .lt. this%n_send_pe)
-          do i = 1, this%n_send_pe
-             if (.not. this%mpi_send_flag(i)) then
-                call MPI_Test(this%mpi_send_request(i), &
-                              this%mpi_send_flag(i), &
-                              MPI_STATUS_IGNORE, ierr) 
-                if (this%mpi_send_flag(i)) nreqs = nreqs + 1
-             end if
-          end do
-       end do
     else 
        call this%local_interp%evaluate(interp_values, this%el_owner0_local, &
                                        field, this%nelv, on_host)
