@@ -36,7 +36,7 @@ module tree_amg_utils
   use utils, only : neko_error
   use math
   use tree_amg, only : tamg_hierarchy_t
-  use gather_scatter, only : GS_OP_ADD
+  use gs_ops, only : GS_OP_ADD
   implicit none
   private
 

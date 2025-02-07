@@ -32,7 +32,8 @@
 !
 !> Scalar initial condition
 module scalar_ic
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
   use device_math, only : device_col2

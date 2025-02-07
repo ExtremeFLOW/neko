@@ -65,7 +65,8 @@ module schwarz
   use space, only : space_t, GLL
   use dofmap, only : dofmap_t
   use bc, only : bc_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   use device_schwarz
   use device_math
   use fdm, only : fdm_t

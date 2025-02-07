@@ -34,7 +34,8 @@
 module flow_ic
   use num_types, only : rp
   use logger, only: neko_log, LOG_SIZE
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use flow_profile, only : blasius_profile, blasius_linear, blasius_cubic, &
        blasius_quadratic, blasius_quartic, blasius_sin

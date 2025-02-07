@@ -1,6 +1,6 @@
 !> Operators SX-Aurora backend
 module opr_sx
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gs_ops, only : GS_OP_ADD
   use interpolation, only : interpolator_t
   use num_types, only : rp
   use space, only : space_t

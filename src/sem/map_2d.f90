@@ -5,7 +5,8 @@ module map_2d
   use num_types, only: rp
   use dofmap, only: dofmap_t
   use map_1d, only : map_1d_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   use mesh, only: mesh_t
   use device
   use utils, only : neko_error, linear_index

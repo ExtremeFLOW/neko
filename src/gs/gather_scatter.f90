@@ -89,13 +89,13 @@ module gather_scatter
   end type gs_t
 
   ! Expose available gather-scatter operation
-  public :: GS_OP_ADD, GS_OP_MUL, GS_OP_MIN, GS_OP_MAX
+!  public :: GS_OP_ADD, GS_OP_MUL, GS_OP_MIN, GS_OP_MAX
 
   ! Expose available gather-scatter backends
-  public :: GS_BCKND_CPU, GS_BCKND_SX, GS_BCKND_DEV
+!  public :: GS_BCKND_CPU, GS_BCKND_SX, GS_BCKND_DEV
 
   ! Expose available gather-scatter comm. backends
-  public :: GS_COMM_MPI, GS_COMM_MPIGPU
+!  public :: GS_COMM_MPI, GS_COMM_MPIGPU
 
 
 contains

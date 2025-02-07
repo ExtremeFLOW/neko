@@ -37,7 +37,8 @@ module sx_jacobi
   use coefs, only : coef_t
   use dofmap, only : dofmap_t
   use num_types, only : rp
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   implicit none
   private
 

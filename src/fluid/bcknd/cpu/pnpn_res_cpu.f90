@@ -1,6 +1,7 @@
 !> Residuals in the Pn-Pn formulation (CPU version)
 module pnpn_res_cpu
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   use operators, only : opgrad, curl, cdtp
   use field, only : field_t
   use ax_product, only : ax_t

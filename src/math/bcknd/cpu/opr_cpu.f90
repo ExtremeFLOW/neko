@@ -37,7 +37,7 @@ module opr_cpu
   use coefs, only : coef_t
   use math, only : sub3, copy, rzero, PI
   use field, only : field_t
-  use gather_scatter, only : GS_OP_ADD
+  use gs_ops, only : GS_OP_ADD
   use interpolation, only : interpolator_t
   use mathops, only : opcolv
   implicit none

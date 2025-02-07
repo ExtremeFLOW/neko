@@ -66,7 +66,8 @@ module fdm
   use mesh, only : mesh_t
   use space, only : space_t
   use dofmap, only : dofmap_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   use fast3d
   use tensor
   use fdm_sx

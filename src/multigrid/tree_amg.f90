@@ -40,7 +40,8 @@ module tree_amg
   use space, only : space_t
   use ax_product, only: ax_t
   use bc_list, only: bc_list_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   implicit none
   private
 

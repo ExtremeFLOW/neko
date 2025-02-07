@@ -65,9 +65,11 @@ module neko
   use fld_file_data, only : fld_file_data_t
   use field, only : field_t, field_ptr_t
   use neko_mpi_types
-  use gather_scatter, only : gs_t, GS_OP_ADD, GS_OP_MUL, GS_OP_MIN, GS_OP_MAX
-  use krylov, only : ksp_t, KSP_MAX_ITER, KSP_ABS_TOL, KSP_REL_TOL, &
-       krylov_solver_factory
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD, GS_OP_MUL, GS_OP_MIN, GS_OP_MAX
+  use gs_bcknd, only : gs_bcknd_t, GS_BCKND_CPU, GS_BCKND_SX, GS_BCKND_DEV
+  use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory, &
+       KSP_MAX_ITER, KSP_ABS_TOL, KSP_REL_TOL
   use coefs, only : coef_t
   use bc, only : bc_t
   use zero_dirichlet, only : zero_dirichlet_t

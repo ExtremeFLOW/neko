@@ -32,7 +32,8 @@
 !
 !> Implements the base abstract type for Krylov solvers plus helper types.
 module krylov
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   use ax_product, only : ax_t
   use num_types, only: rp, c_rp
   use precon, only : pc_t

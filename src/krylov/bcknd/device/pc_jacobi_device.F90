@@ -38,7 +38,8 @@ module device_jacobi
   use num_types, only : rp
   use device_math
   use device
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
        c_associated
   implicit none

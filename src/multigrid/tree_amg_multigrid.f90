@@ -51,7 +51,8 @@ module tree_amg_multigrid
   use space, only : space_t
   use ax_product, only: ax_t
   use bc_list, only : bc_list_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   use tree_amg, only : tamg_hierarchy_t, tamg_lvl_init, tamg_node_init
   use tree_amg_aggregate
   use tree_amg_smoother

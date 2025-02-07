@@ -47,7 +47,8 @@ module PDE_filter
   use bc_list, only : bc_list_t
   use neumann, only: neumann_t
   use profiler, only: profiler_start_region, profiler_end_region
-  use gather_scatter, only: gs_t, GS_OP_ADD
+  use gather_scatter, only: gs_t
+  use gs_ops, only : GS_OP_ADD
   use pnpn_residual, only: pnpn_prs_res_t
   use mesh, only: mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use field_registry, only: neko_field_registry

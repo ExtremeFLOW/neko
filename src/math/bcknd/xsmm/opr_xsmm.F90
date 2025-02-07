@@ -67,7 +67,7 @@ module opr_xsmm
   use mesh, only : mesh_t
   use field, only : field_t
   use interpolation, only : interpolator_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gs_ops, only : GS_OP_ADD
   use mathops, only : opcolv
 #ifdef HAVE_LIBXSMM
   use libxsmm, only: libxsmm_mmcall => libxsmm_dmmcall_abc, &

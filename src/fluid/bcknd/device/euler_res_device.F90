@@ -35,7 +35,8 @@ module euler_res_device
   use field, only : field_t
   use ax_product, only : ax_t
   use coefs, only : coef_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   use num_types, only : rp, c_rp
   use scratch_registry, only: neko_scratch_registry
   use utils, only : neko_error
@@ -45,7 +46,9 @@ module euler_res_device
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use field_list, only : field_list_t
   use device_math, only : device_copy
-
+  implicit none
+  private
+  
   type, public, extends(euler_rhs_t) :: euler_res_device_t
    contains
      procedure, nopass :: step => advance_primitive_variables_device

@@ -39,7 +39,8 @@ module gmres
   use num_types, only: rp, xp
   use field, only : field_t
   use coefs, only : coef_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp
   use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION

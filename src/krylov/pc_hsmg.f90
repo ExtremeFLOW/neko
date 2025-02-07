@@ -65,7 +65,8 @@ module hsmg
   use utils, only : neko_error
   use precon, only : pc_t, precon_factory, precon_destroy
   use ax_product, only : ax_t, ax_helm_factory
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   use interpolation, only : interpolator_t
   use bc, only: bc_t
   use bc_list, only : bc_list_t

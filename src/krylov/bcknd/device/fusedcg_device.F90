@@ -38,7 +38,8 @@ module fusedcg_device
   use num_types, only: rp, c_rp
   use field, only : field_t
   use coefs, only : coef_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3

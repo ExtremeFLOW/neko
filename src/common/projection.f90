@@ -68,7 +68,8 @@ module projection
   use ax_product, only : ax_t
   use bc_list, only : bc_list_t
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_alloc, HOST_TO_DEVICE, device_memcpy, &
        device_get_ptr, device_free, device_map

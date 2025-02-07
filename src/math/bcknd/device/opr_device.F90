@@ -32,7 +32,7 @@
 !
 !> Operators accelerator backends
 module opr_device
-  use gather_scatter, only : GS_OP_ADD
+  use gs_ops, only : GS_OP_ADD
   use num_types, only : rp, c_rp
   use device, only : device_get_ptr
   use space, only : space_t

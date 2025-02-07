@@ -39,7 +39,8 @@ module tree_amg_smoother
   use math
   use krylov, only : ksp_monitor_t
   use bc_list, only: bc_list_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
   implicit none
   private

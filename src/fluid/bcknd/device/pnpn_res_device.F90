@@ -31,7 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module pnpn_res_device
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   use operators
   use field, only : field_t
   use ax_product, only : ax_t

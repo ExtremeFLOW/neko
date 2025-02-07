@@ -5,7 +5,8 @@ module map_1d
   use num_types, only: rp
   use space, only: space_t
   use dofmap, only: dofmap_t
-  use gather_scatter, only : gs_t, GS_OP_ADD
+  use gather_scatter, only : gs_t
+  use gs_ops, only : GS_OP_ADD
   use mesh, only: mesh_t
   use device
   use comm, only : NEKO_COMM, pe_rank, pe_size, MPI_REAL_PRECISION
