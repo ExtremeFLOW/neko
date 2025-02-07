@@ -252,17 +252,18 @@ contains
        call this%global_aabb(i)%init(rank_xyz_min(:,i), rank_xyz_max(:,i))
 
     end do
-    padding = 1e-2
+    padding = 1e-5
     call this%global_aabb_tree%init(this%pe_size+1)
     call this%global_aabb_tree%build(this%global_aabb, padding)
     !> Create a local tree for each element at this rank
     do i = 1, nelv
-       id1 = lx*ly*lz*(i-1)
+       id1 = lx*ly*lz*(i-1)+1
        id2 = lx*ly*lz*(i)
        max_xyz = (/maxval(this%x%ptr(id1:id2)), &
        maxval(this%y%ptr(id1:id2)), maxval(this%z%ptr(id1:id2))/)
        min_xyz = (/minval(this%x%ptr(id1:id2)), &
        minval(this%y%ptr(id1:id2)), minval(this%z%ptr(id1:id2))/)
+       print *, max_xyz, min_xyz, pe_rank
        call this%local_aabb(i)%init(min_xyz, max_xyz)
     end do
 
@@ -559,6 +560,7 @@ contains
     time1 = MPI_Wtime()
     el_cands => all_el_candidates%array() 
     if ( NEKO_BCKND_DEVICE .ne. 1) then 
+       print *, 'n_point_cands', n_point_cand, pe_rank
        call find_rst_legendre(rst_local_cand%x, x_t%x, y_t%x, z_t%x, this%Xh, &
                               this%x%ptr, this%y%ptr, this%z%ptr, &
                               el_cands, n_point_cand, this%nelv, &
@@ -665,6 +667,8 @@ contains
     res = 1e2
     this%rst = 1e2
     this%pe_owner = -1
+    res_results = 0.0
+    rst_results = 0.0
     call gs_find_back%nbrecv()
     call gs_find_back%nbsend(this%xyz_local, this%n_points_local*3, null_ptr, null_ptr)
     call gs_find_back%nbwait(res_results, n_glb_point_cand*3, GS_OP_ADD, null_ptr)
@@ -716,7 +720,7 @@ contains
     do i = 1, this%n_points
        stupid_intent = i
        if (this%pe_owner(i) .eq. -1) print *, 'Something is not right for global interpolation',&
-                                              ' rank, point cootds', stupid_intent, this%xyz(:,i)
+                                              ' rank, point coords', stupid_intent, this%xyz(:,i)
        call points_at_pe(this%pe_owner(i))%push(stupid_intent)
        
        this%n_points_pe(this%pe_owner(i)) =  this%n_points_pe(this%pe_owner(i)) + 1
