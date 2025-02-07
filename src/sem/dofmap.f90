@@ -671,6 +671,8 @@ contains
     integer, intent(in) :: k1, j1, lk1, lj1
     integer :: k, j, lk, lj
 
+    facet_idx = -1
+    
     k = k1 - 2
     j = j1 - 2
     lk = lk1 - 2
