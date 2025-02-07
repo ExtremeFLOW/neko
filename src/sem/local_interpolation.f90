@@ -375,7 +375,6 @@ contains
                 Xh%lx, Xh%vinv, &
                 Xh%vinvt, Xh%vinvt, nelv)
     rst = 0.0_rp
-    print *, 'n_points', n_pts
     do i = 1, n_pts
        iter = 0 
        converged = .false.
