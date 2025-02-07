@@ -305,9 +305,15 @@ __device__ double atomicMinFloat<double>(double* address, double val) {
     unsigned long long* address_as_ull = (unsigned long long*)address;
     unsigned long long val_as_ull = __double_as_longlong(val);
 
-    if (val_as_ull < 0) val_as_ull = 0x8000000000000000ULL - val_as_ull;
+    // Check MSB instead of comparing with 0
+    if (val_as_ull & 0x8000000000000000ULL) 
+        val_as_ull = 0x8000000000000000ULL - val_as_ull;
+        
     unsigned long long old = atomicMin(address_as_ull, val_as_ull);
-    if (old < 0) old = 0x8000000000000000ULL - old;
+    
+    // Check MSB for old value
+    if (old & 0x8000000000000000ULL) 
+        old = 0x8000000000000000ULL - old;
 
     return __longlong_as_double(old);
 }
@@ -367,7 +373,7 @@ __device__ double atomicMaxFloat_CAS<double>(double* address, double val) {
     unsigned long long assumed;
     unsigned long long val_as_ull = __double_as_longlong(val);
 
-    if (val_as_ull < 0) 
+    if (val_as_ull & 0x8000000000000000ULL) 
         val_as_ull = 0x8000000000000000ULL - val_as_ull;
 
     do {
@@ -376,7 +382,7 @@ __device__ double atomicMaxFloat_CAS<double>(double* address, double val) {
                        max(val_as_ull, assumed));
     } while (assumed != old);
 
-    if (old < 0) 
+    if (old & 0x8000000000000000ULL) 
         old = 0x8000000000000000ULL - old;
 
     return __longlong_as_double(old);
@@ -402,9 +408,11 @@ __device__ double atomicMaxFloat<double>(double* address, double val) {
     unsigned long long* address_as_ull = (unsigned long long*)address;
     unsigned long long val_as_ull = __double_as_longlong(val);
 
-    if (val_as_ull < 0) val_as_ull = 0x8000000000000000ULL - val_as_ull;
+    if (val_as_ull & 0x8000000000000000ULL)
+      val_as_ull = 0x8000000000000000ULL - val_as_ull;
     unsigned long long old = atomicMax(address_as_ull, val_as_ull);
-    if (old < 0) old = 0x8000000000000000ULL - old;
+    if (old & 0x8000000000000000ULL)
+      old = 0x8000000000000000ULL - old;
 
     return __longlong_as_double(old);
 }
