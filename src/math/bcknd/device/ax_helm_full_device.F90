@@ -67,7 +67,7 @@ module ax_helm_full_device
        type(c_ptr), value :: dsdx_d, dsdy_d, dsdz_d
        type(c_ptr), value :: dtdx_d, dtdy_d, dtdz_d
        type(c_ptr), value :: jacinv_d, weight3_d
-       integer(c_int) :: nel, lx
+       integer(c_int) :: nelv, lx
      end subroutine hip_ax_helm_stress_vector
   end interface
 
@@ -100,7 +100,7 @@ module ax_helm_full_device
        type(c_ptr), value :: dsdx_d, dsdy_d, dsdz_d
        type(c_ptr), value :: dtdx_d, dtdy_d, dtdz_d
        type(c_ptr), value :: jacinv_d, weight3_d
-       integer(c_int) :: nel, lx
+       integer(c_int) :: nelv, lx
      end subroutine cuda_ax_helm_stress_vector
   end interface
 

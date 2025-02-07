@@ -60,7 +60,7 @@ module ax_helm_device
        type(c_ptr), value :: dx_d, dy_d, dz_d
        type(c_ptr), value :: dxt_d, dyt_d, dzt_d
        type(c_ptr), value :: h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d
-       integer(c_int) :: nel, lx
+       integer(c_int) :: nelv, lx
      end subroutine hip_ax_helm
   end interface
 
@@ -75,7 +75,7 @@ module ax_helm_device
        type(c_ptr), value :: dx_d, dy_d, dz_d
        type(c_ptr), value :: dxt_d, dyt_d, dzt_d
        type(c_ptr), value :: h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d
-       integer(c_int) :: nel, lx
+       integer(c_int) :: nelv, lx
      end subroutine hip_ax_helm_vector
   end interface
 
@@ -100,7 +100,7 @@ module ax_helm_device
        type(c_ptr), value :: dx_d, dy_d, dz_d
        type(c_ptr), value :: dxt_d, dyt_d, dzt_d
        type(c_ptr), value :: h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d
-       integer(c_int) :: nel, lx
+       integer(c_int) :: nelv, lx
      end subroutine cuda_ax_helm
   end interface
 
@@ -115,7 +115,7 @@ module ax_helm_device
        type(c_ptr), value :: dx_d, dy_d, dz_d
        type(c_ptr), value :: dxt_d, dyt_d, dzt_d
        type(c_ptr), value :: h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d
-       integer(c_int) :: nel, lx
+       integer(c_int) :: nelv, lx
      end subroutine cuda_ax_helm_vector
   end interface
 
@@ -140,7 +140,7 @@ module ax_helm_device
        type(c_ptr), value :: dx_d, dy_d, dz_d
        type(c_ptr), value :: dxt_d, dyt_d, dzt_d
        type(c_ptr), value :: h1_d, g11_d, g22_d, g33_d, g12_d, g13_d, g23_d
-       integer(c_int) :: nel, lx
+       integer(c_int) :: nelv, lx
      end subroutine opencl_ax_helm
   end interface
 #endif
