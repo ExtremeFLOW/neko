@@ -68,6 +68,7 @@ module gs_mpi
      procedure, pass(this) :: nbsend => gs_nbsend_mpi
      procedure, pass(this) :: nbrecv => gs_nbrecv_mpi
      procedure, pass(this) :: nbwait => gs_nbwait_mpi
+     procedure, pass(this) :: nbwait_no_op => gs_nbwait_no_op_mpi
   end type gs_mpi_t
 
 contains
@@ -185,6 +186,48 @@ contains
   end subroutine gs_nbrecv_mpi
 
   !> Wait for non-blocking operations
+  subroutine gs_nbwait_no_op_mpi(this)
+    class(gs_mpi_t), intent(inout) :: this
+    integer :: i, j, src, ierr
+    integer , pointer :: sp(:)
+    integer :: nreqs
+
+    nreqs = size(this%recv_pe)
+
+    do while (nreqs .gt. 0)
+       do i = 1, size(this%recv_pe)
+          if (.not. this%recv_buf(i)%flag) then
+             ! Check if we have recieved the data we want
+             call MPI_Test(this%recv_buf(i)%request, this%recv_buf(i)%flag, &
+                  this%recv_buf(i)%status, ierr)
+             ! If it has been received
+             if (this%recv_buf(i)%flag) then
+                ! One more request has been succesful
+                nreqs = nreqs - 1
+             end if
+          end if
+       end do
+    end do
+    ! Finally, check that the non-blocking sends this rank have issued have also
+    ! completed successfully
+
+    nreqs = size(this%send_pe)
+    do while (nreqs .gt. 0)
+       do i = 1, size(this%send_pe)
+          if (.not. this%send_buf(i)%flag) then
+             call MPI_Test(this%send_buf(i)%request, this%send_buf(i)%flag, &
+                  MPI_STATUS_IGNORE, ierr)
+             if (this%send_buf(i)%flag) nreqs = nreqs - 1
+          end if
+       end do
+    end do
+
+  end subroutine gs_nbwait_no_op_mpi
+
+
+
+
+  !> Wait for non-blocking operations
   subroutine gs_nbwait_mpi(this, u, n, op, strm)
     class(gs_mpi_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -194,6 +237,7 @@ contains
     integer :: op
     integer , pointer :: sp(:)
     integer :: nreqs
+    character(len=8000) :: log_buf
 
     nreqs = size(this%recv_pe)
 
@@ -214,23 +258,23 @@ contains
                 select case(op)
                 case (GS_OP_ADD)
                    !NEC$ IVDEP
-                   do concurrent (j = 1:this%send_dof(src)%size())
+                   do concurrent (j = 1:this%recv_dof(src)%size())
 
                       u(sp(j)) = u(sp(j)) + this%recv_buf(i)%data(j)
                    end do
                 case (GS_OP_MUL)
                    !NEC$ IVDEP
-                   do concurrent (j = 1:this%send_dof(src)%size())
+                   do concurrent (j = 1:this%recv_dof(src)%size())
                       u(sp(j)) = u(sp(j)) * this%recv_buf(i)%data(j)
                    end do
                 case (GS_OP_MIN)
                    !NEC$ IVDEP
-                   do concurrent (j = 1:this%send_dof(src)%size())
+                   do concurrent (j = 1:this%recv_dof(src)%size())
                       u(sp(j)) = min(u(sp(j)), this%recv_buf(i)%data(j))
                    end do
                 case (GS_OP_MAX)
                    !NEC$ IVDEP
-                   do concurrent (j = 1:this%send_dof(src)%size())
+                   do concurrent (j = 1:this%recv_dof(src)%size())
                       u(sp(j)) = max(u(sp(j)), this%recv_buf(i)%data(j))
                    end do
                 end select
@@ -240,6 +284,7 @@ contains
     end do
     ! Finally, check that the non-blocking sends this rank have issued have also
     ! completed successfully
+
     nreqs = size(this%send_pe)
     do while (nreqs .gt. 0)
        do i = 1, size(this%send_pe)
