@@ -185,7 +185,7 @@ contains
   end subroutine ax_helm_device_compute
 
   subroutine ax_helm_device_compute_vector(this, au, av, aw, &
-                                           u, v, w, coef, msh, Xh)
+       u, v, w, coef, msh, Xh)
     class(ax_helm_device_t), intent(in) :: this
     type(space_t), intent(inout) :: Xh
     type(mesh_t), intent(inout) :: msh
