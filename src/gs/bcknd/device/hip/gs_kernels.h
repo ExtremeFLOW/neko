@@ -323,6 +323,29 @@ __global__ void gs_unpack_min_kernel(T * __restrict__ u,
   }
 }
 
+__device__ float atomicMaxFloat_CAS(float* address, float val) {
+    int* address_as_int = (int*)address;
+    int old = *address_as_int;
+    int assumed;
+    int val_as_int = __float_as_int(val);
+
+    // Adjust for IEEE 754 ordering
+    if (val_as_int < 0) 
+        val_as_int = 0x80000000 - val_as_int;
+
+    do {
+        assumed = old;
+        old = atomicCAS(address_as_int, assumed, 
+                       max(val_as_int, assumed));
+    } while (assumed != old);
+
+    // Convert back to float representation
+    if (old < 0) 
+        old = 0x80000000 - old;
+
+    return __int_as_float(old);
+}
+
 __device__ float atomicMaxFloat(float* address, float val) {
     int* address_as_int = (int*)address;
     int val_as_int = __float_as_int(val);
@@ -354,10 +377,10 @@ __global__ void gs_unpack_max_kernel(T * __restrict__ u,
 
   if (idx < 0) {
     // Use atomicMax for shared nodal points
-    atomicMaxFloat(&u[-idx-1], val);
+    atomicMaxFloat_CAS(&u[-idx-1], val);
   } else {
     // Directly compute max for non-shared nodal points
-    atomicMaxFloat(&u[idx-1], val);
+    atomicMaxFloat_CAS(&u[idx-1], val);
   }
 }
 
