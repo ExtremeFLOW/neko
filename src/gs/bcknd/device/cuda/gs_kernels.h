@@ -287,19 +287,31 @@ __global__ void gs_unpack_add_kernel(T * __restrict__ u,
   }
 }
 
-__device__ float atomicMinFloat(float* address, float val) {
+template<typename T>
+__device__ T atomicMinFloat(T* address, T val);
+
+template<>
+__device__ float atomicMinFloat<float>(float* address, float val) {
     int* address_as_int = (int*)address;
     int val_as_int = __float_as_int(val);
 
-    // Adjust the float representation to preserve ordering
     if (val_as_int < 0) val_as_int = 0x80000000 - val_as_int;
-
     int old = atomicMin(address_as_int, val_as_int);
-
-    // Adjust back the float representation
     if (old < 0) old = 0x80000000 - old;
 
     return __int_as_float(old);
+}
+
+template<>
+__device__ double atomicMinFloat<double>(double* address, double val) {
+    unsigned long long* address_as_ull = (unsigned long long*)address;
+    unsigned long long val_as_ull = __double_as_longlong(val);
+
+    if (val_as_ull < 0) val_as_ull = 0x8000000000000000ULL - val_as_ull;
+    unsigned long long old = atomicMin(address_as_ull, val_as_ull);
+    if (old < 0) old = 0x8000000000000000ULL - old;
+
+    return __longlong_as_double(old);
 }
 
 template< typename T >
@@ -325,13 +337,16 @@ __global__ void gs_unpack_min_kernel(T * __restrict__ u,
   }
 }
 
-__device__ float atomicMaxFloat_CAS(float* address, float val) {
+template<typename T>
+__device__ T atomicMaxFloat_CAS(T* address, T val);
+
+template<>
+__device__ float atomicMaxFloat_CAS<float>(float* address, float val) {
     int* address_as_int = (int*)address;
     int old = *address_as_int;
     int assumed;
     int val_as_int = __float_as_int(val);
 
-    // Adjust for IEEE 754 ordering
     if (val_as_int < 0) 
         val_as_int = 0x80000000 - val_as_int;
 
@@ -341,26 +356,59 @@ __device__ float atomicMaxFloat_CAS(float* address, float val) {
                        max(val_as_int, assumed));
     } while (assumed != old);
 
-    // Convert back to float representation
     if (old < 0) 
         old = 0x80000000 - old;
 
     return __int_as_float(old);
 }
 
-__device__ float atomicMaxFloat(float* address, float val) {
+template<>
+__device__ double atomicMaxFloat_CAS<double>(double* address, double val) {
+    unsigned long long* address_as_ull = (unsigned long long*)address;
+    unsigned long long old = *address_as_ull;
+    unsigned long long assumed;
+    unsigned long long val_as_ull = __double_as_longlong(val);
+
+    if (val_as_ull < 0) 
+        val_as_ull = 0x8000000000000000ULL - val_as_ull;
+
+    do {
+        assumed = old;
+        old = atomicCAS(address_as_ull, assumed,
+                       max(val_as_ull, assumed));
+    } while (assumed != old);
+
+    if (old < 0) 
+        old = 0x8000000000000000ULL - old;
+
+    return __longlong_as_double(old);
+}
+
+template<typename T>
+__device__ T atomicMaxFloat(T* address, T val);
+
+template<>
+__device__ float atomicMaxFloat<float>(float* address, float val) {
     int* address_as_int = (int*)address;
     int val_as_int = __float_as_int(val);
 
-    // Adjust the float representation to preserve ordering
     if (val_as_int < 0) val_as_int = 0x80000000 - val_as_int;
-
     int old = atomicMax(address_as_int, val_as_int);
-
-    // Adjust back the float representation
     if (old < 0) old = 0x80000000 - old;
 
     return __int_as_float(old);
+}
+
+template<>
+__device__ double atomicMaxFloat<double>(double* address, double val) {
+    unsigned long long* address_as_ull = (unsigned long long*)address;
+    unsigned long long val_as_ull = __double_as_longlong(val);
+
+    if (val_as_ull < 0) val_as_ull = 0x8000000000000000ULL - val_as_ull;
+    unsigned long long old = atomicMax(address_as_ull, val_as_ull);
+    if (old < 0) old = 0x8000000000000000ULL - old;
+
+    return __longlong_as_double(old);
 }
 
 template< typename T >
