@@ -69,7 +69,7 @@ module scalar_pnpn
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   use, intrinsic :: iso_fortran_env, only: error_unit
   implicit none
-  private
+!  private
 
 
   type, public, extends(scalar_scheme_t) :: scalar_pnpn_t

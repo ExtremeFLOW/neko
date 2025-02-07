@@ -40,7 +40,7 @@ module cg_cpld
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
-  use math, only : glsc3, glsc2
+  use math, only : glsc3, glsc2, abscmp
   use utils, only : neko_error
   implicit none
   private
@@ -260,7 +260,7 @@ contains
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
       ksp_results%iter = 0
-      if (rnorm .eq. zero) return
+      if (abscmp(rnorm, zero)) return
 
       call this%monitor_start('cpldCG')
       do iter = 1, max_iter

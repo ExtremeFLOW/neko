@@ -15,7 +15,7 @@ module map_1d
   use vector, only: vector_ptr_t
   use utils, only: neko_error, neko_warning
   use math, only: glmax, glmin, glimax, relcmp, cmult, add2s1, col2
-  use mpi_f08, only : MPI_IN_PLACE, MPI_Allreduce, MPI_SUM
+  use mpi_f08, only : MPI_IN_PLACE, MPI_Allreduce, MPI_SUM, MPI_Barrier
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -109,12 +109,12 @@ contains
     allocate(this%pt_lvl(lx, lx, lx, nelv))
     allocate(min_vals(lx, lx, lx, nelv))
     allocate(min_temp(lx, lx, lx, nelv))
-    call MPI_BARRIER(NEKO_COMM)
+    call MPI_Barrier(NEKO_COMM)
     if (NEKO_BCKND_DEVICE .eq. 1) then
 
        call device_map(min_vals,min_vals_d,n)
     end if
-    call MPI_BARRIER(NEKO_COMM)
+    call MPI_Barrier(NEKO_COMM)
 
     do i = 1, nelv
        !store which direction r,s,t corresponds to speciifed direction, x,y,z

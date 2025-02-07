@@ -52,7 +52,7 @@ module global_interpolation
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, &
        c_associated
   use mpi_f08, only : MPI_Reduce, MPI_INTEGER, MPI_SUM, &
-       MPI_DOUBLE_PRECISION
+       MPI_DOUBLE_PRECISION, MPI_Gather, MPI_Gatherv
   implicit none
   private
 

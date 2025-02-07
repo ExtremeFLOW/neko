@@ -47,7 +47,7 @@ module pipecg_device
   use device
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Request, MPI_Status, MPI_IN_PLACE, &
-       MPI_IAllreduce, MPI_SUM
+       MPI_IAllreduce, MPI_SUM, MPI_Allreduce, MPI_Wait
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t, &
        c_int, c_loc, c_sizeof, C_NULL_PTR, c_associated
   implicit none

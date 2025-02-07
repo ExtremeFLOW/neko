@@ -36,7 +36,7 @@ module redist
   use neko_mpi_types, only : MPI_NMSH_HEX, MPI_NMSH_CURVE, &
        MPI_NMSH_ZONE
   use mpi_f08, only : MPI_Status, MPI_Allreduce, MPI_IN_PLACE, &
-       MPI_Sendrecv, MPI_INTEGER, MPI_MAX
+       MPI_Sendrecv, MPI_INTEGER, MPI_MAX, MPI_Get_count
   use htable, only : htable_i4_t
   use point, only : point_t
   use stack, only : stack_i4_t, stack_nh_t, stack_nc_t, stack_nz_t

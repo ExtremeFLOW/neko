@@ -39,7 +39,7 @@ module stl_file
   use point, only : point_t
   use neko_mpi_types, only : MPI_STL_HEADER, MPI_STL_TRIANGLE
   use mpi_f08, only : MPI_Status, MPI_File, MPI_File_Open, MPI_File_read_all, &
-       MPI_MODE_RDONLY, MPI_INFO_NULL
+       MPI_MODE_RDONLY, MPI_INFO_NULL, MPI_File_close
   use utils, only: neko_error
   use comm, only : NEKO_COMM
   use stl, only : stl_hdr_t, stl_triangle_t

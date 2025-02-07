@@ -74,7 +74,7 @@ module scalar_scheme
   use time_step_controller, only : time_step_controller_t
   use gradient_jump_penalty, only : gradient_jump_penalty_t
   implicit none
-  private
+!  private
 
   !> Base type for a scalar advection-diffusion solver.
   type, abstract :: scalar_scheme_t

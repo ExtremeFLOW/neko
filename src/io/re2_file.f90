@@ -42,7 +42,8 @@ module re2_file
   use mpi_f08, only : MPI_Status, MPI_File, MPI_OFFSET_KIND, MPI_Type_size, &
        MPI_File_open, MPI_File_close, MPI_File_read_at_all, MPI_MODE_RDONLY, &
        MPI_REAL, MPI_INFO_NULL, MPI_INTEGER, MPI_MODE_CREATE, MPI_MODE_WRONLY, &
-       MPI_SUM, MPI_DOUBLE_PRECISION
+       MPI_SUM, MPI_DOUBLE_PRECISION, MPI_Reduce, MPI_Exscan, MPI_Barrier, &
+       MPI_File_write_at
   use neko_mpi_types, only : MPI_RE2V2_DATA_XY, MPI_RE2V2_DATA_XYZ, &
        MPI_RE2V2_DATA_CV, MPI_RE2V2_DATA_BC, MPI_RE2V1_DATA_XY, &
        MPI_RE2V1_DATA_XYZ, MPI_RE2V1_DATA_CV, MPI_RE2V1_DATA_BC, &

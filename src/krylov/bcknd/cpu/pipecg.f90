@@ -44,7 +44,7 @@ module pipecg
   use math, only : glsc3, rzero, copy, abscmp
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Request, MPI_Status, MPI_IN_PLACE, &
-       MPI_IAllreduce, MPI_SUM
+       MPI_IAllreduce, MPI_SUM, MPI_Allreduce, MPI_Wait
   implicit none
   private
 

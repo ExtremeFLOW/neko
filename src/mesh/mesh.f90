@@ -52,7 +52,8 @@ module mesh
   use logger, only : LOG_SIZE
   use mpi_f08, only : MPI_Allreduce, MPI_Integer, MPI_SUM, MPI_Request, &
        MPI_MAX, MPI_IN_PLACE, MPI_Status, MPI_STATUS_IGNORE, &
-       MPI_INTEGER8, MPI_Irecv, MPI_Isend
+       MPI_INTEGER8, MPI_Irecv, MPI_Isend, MPI_Exscan, MPI_wait, MPI_Get_count, &
+       MPI_Sendrecv
   implicit none
   private
 
