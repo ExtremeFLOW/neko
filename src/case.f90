@@ -370,10 +370,10 @@ contains
     !
     call this%output_controller%init(this%end_time)
     if (scalar) then
-       this%f_out = fluid_output_t(precision, this%fluid, this%scalar, &
+       call this%f_out%init(precision, this%fluid, this%scalar, &
             path = trim(this%output_directory))
     else
-       this%f_out = fluid_output_t(precision, this%fluid, &
+       call this%f_out%init(precision, this%fluid, &
             path = trim(this%output_directory))
     end if
 
