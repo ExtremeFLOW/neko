@@ -68,7 +68,7 @@ void device_mpi_isend(void *buf_d, int offset, int nbytes, int rank,
 
 void device_mpi_irecv(void *buf_d, int offset, int nbytes, int rank,
 		      void *vreqs, int i) {
-  MPI_Request *reqs = (MPI_Reuqest *) vreqs;
+  MPI_Request *reqs = (MPI_Request *) vreqs;
 #ifdef _OPENMP
   int tid = omp_get_thread_num();
 #else
