@@ -78,6 +78,7 @@ jobs:
               export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
               brew install openmpi
               brew install automake
+              brew install libtool
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
               
