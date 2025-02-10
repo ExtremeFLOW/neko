@@ -34,7 +34,7 @@
 module matrix
   use neko_config, only: NEKO_BCKND_DEVICE
   use math, only: sub3, chsign, add3, cmult2, cadd2
-  use num_types, only: rp
+  use num_types, only: rp, c_rp
   use device, only: device_map, device_free, c_ptr, C_NULL_PTR
   use device_math, only: device_copy, device_cfill, device_cmult, &
        device_sub3, device_cmult2, device_add3, device_cadd2
@@ -44,8 +44,9 @@ module matrix
   private
 
   type, public ::  matrix_t
-     real(kind=rp), allocatable :: x(:,:) !< Matrix entries.
-     type(c_ptr) :: x_d = C_NULL_PTR      !< Device pointer.
+     real(kind=rp), allocatable :: x(:,:)   !< Matrix entries.
+     type(c_ptr) :: x_d = C_NULL_PTR        !< Device pointer.
+     type(c_ptr), allocatable :: col_ptr(:) !< Device pointer for each col.
      integer :: nrows  = 0 !< Number of matrix rows.
      integer :: ncols  = 0 !< Number of matrix columns.
      integer :: n = 0      !< Total size nows*ncols.
@@ -97,6 +98,9 @@ contains
     class(matrix_t), intent(inout) :: m
     integer, intent(in) :: nrows
     integer, intent(in) :: ncols
+    integer :: i
+    ! integer(c_size_t) :: s
+    ! real(c_rp) :: rp_dummy
 
     call m%free()
 
@@ -109,6 +113,20 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_map(m%x, m%x_d, m%n)
        call device_cfill(m%x_d, 0.0_rp, m%n)
+
+       ! create a list of pointers for each column
+       allocate(m%col_ptr(ncols)) 
+
+       ! This is Grizzly B's idea
+       do i = 1, m%ncols
+          call device_map(m%x(1:m%nrows,i), m%col_ptr(i), m%nrows)
+       end do
+
+       ! This was Martin's idea, I couldn't make it work
+       ! s = c_sizeof(rp_dummy) * nrows
+       ! do i = 1, ncols
+       !    m%col_ptr(i) = m%x_d + (i-1) * s 
+       ! end do
     end if
 
   end subroutine matrix_init
