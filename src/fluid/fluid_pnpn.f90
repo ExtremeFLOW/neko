@@ -1093,7 +1093,7 @@ contains
     class(bc_t), pointer :: bci
     character(len=LOG_SIZE) :: log_buf
 
-    call neko_log%section("Fuid boundary conditions")
+    call neko_log%section("Fluid boundary conditions")
     write(log_buf, '(A)') 'Marking using integer keys in bdry0.f00000'
     call neko_log%message(log_buf)
     write(log_buf, '(A)') 'Condition-value pairs: '
