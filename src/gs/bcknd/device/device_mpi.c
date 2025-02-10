@@ -46,7 +46,7 @@
 #include <comm/comm.h>
 
 void device_mpi_init_reqs(int n, void **reqs_out) {
-  MPI_Request *reqs = malloc(n * sizeof(MPI_Request));
+  MPI_Request *reqs = (MPI_Request *) malloc(n * sizeof(MPI_Request));
   *reqs_out = reqs;
 }
 
@@ -57,7 +57,7 @@ void device_mpi_free_reqs(void **reqs) {
 
 void device_mpi_isend(void *buf_d, int offset, int nbytes, int rank,
 		      void *vreqs, int i) {
-  MPI_Request *reqs = vreqs;
+  MPI_Request *reqs = (MPI_Request *) vreqs;
 #ifdef _OPENMP
   int tid = omp_get_thread_num();
 #else
@@ -68,7 +68,7 @@ void device_mpi_isend(void *buf_d, int offset, int nbytes, int rank,
 
 void device_mpi_irecv(void *buf_d, int offset, int nbytes, int rank,
 		      void *vreqs, int i) {
-  MPI_Request *reqs = vreqs;
+  MPI_Request *reqs = (MPI_Reuqest *) vreqs;
 #ifdef _OPENMP
   int tid = omp_get_thread_num();
 #else
@@ -79,19 +79,19 @@ void device_mpi_irecv(void *buf_d, int offset, int nbytes, int rank,
 }
 
 int device_mpi_test(void *vreqs, int i) {
-  MPI_Request *reqs = vreqs;
+  MPI_Request *reqs = (MPI_Request *) vreqs;
   int flag = 0;
   MPI_Test(&reqs[i-1], &flag, MPI_STATUS_IGNORE);
   return flag;
 }
 
 void device_mpi_waitall(int n, void *vreqs) {
-  MPI_Request *reqs = vreqs;
+  MPI_Request *reqs = (MPI_Request *) vreqs;
   MPI_Waitall(n, reqs, MPI_STATUSES_IGNORE);
 }
 
 int device_mpi_waitany(int n, void *vreqs, int *i) {
-  MPI_Request *reqs = vreqs;
+  MPI_Request *reqs = (MPI_Request *) vreqs;
   int j;
   MPI_Waitany(n, reqs, &j, MPI_STATUSES_IGNORE);
   if (j == MPI_UNDEFINED) {
