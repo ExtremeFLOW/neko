@@ -35,6 +35,8 @@ jobs:
           - os: ubuntu-20.04
             compiler: gfortran-12
           - os: ubuntu-20.04
+            compiler: gfortran-14
+          - os: ubuntu-20.04
             backend: opencl
           - os: macos-13
             compiler: gfortran-10
@@ -49,8 +51,6 @@ jobs:
           - os: ubuntu-24.04
             compiler: gfortran-12
           - os: ubuntu-24.04
-            compiler: gfortran-13
-          - os: ubuntu-24.04
             backend: cuda
           - os: ubuntu-24.04
             backend: hip
@@ -62,8 +62,6 @@ jobs:
             compiler: gfortran-11
           - os: ubuntu-24.04-arm
             compiler: gfortran-12
-          - os: ubuntu-24.04-arm
-            compiler: gfortran-13
           - os: ubuntu-24.04-arm
             backend: cuda
           - os: ubuntu-24.04-arm
