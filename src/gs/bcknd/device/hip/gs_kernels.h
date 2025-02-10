@@ -341,6 +341,8 @@ __global__ void gs_unpack_min_kernel(T * __restrict__ u,
   }
 }
 
+
+// atomicMaxFloat_CAS for comparision, will remove later
 template<typename T>
 __device__ T atomicMaxFloat_CAS(T* address, T val);
 
@@ -433,10 +435,10 @@ __global__ void gs_unpack_max_kernel(T * __restrict__ u,
 
   if (idx < 0) {
     // Use atomicMax for shared nodal points
-    atomicMaxFloat_CAS(&u[-idx-1], val);
+    atomicMaxFloat(&u[-idx-1], val);
   } else {
     // Directly compute max for non-shared nodal points
-    atomicMaxFloat_CAS(&u[idx-1], val);
+    atomicMaxFloat(&u[idx-1], val);
   }
 }
 
