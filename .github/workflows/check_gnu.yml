@@ -25,8 +25,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macos-13]
-        compiler: [gfortran-10, gfortran-11, gfortran-12]
+        os: [ubuntu-20.04, macos-13, ubuntu-24.04, ubuntu-24.04-arm]
+        compiler: [gfortran-10, gfortran-11, gfortran-12, gfortran-14]
         backend: [cpu, cuda, hip, opencl]
         precision: [sp, dp]
         exclude:
@@ -42,9 +42,54 @@ jobs:
             backend: cuda
           - os: macos-13
             backend: hip
-
+          - os: ubuntu-24.04
+            compiler: gfortran-10
+          - os: ubuntu-24.04
+            compiler: gfortran-11
+          - os: ubuntu-24.04
+            compiler: gfortran-12
+          - os: ubuntu-24.04
+            compiler: gfortran-13
+          - os: ubuntu-24.04
+            backend: cuda
+          - os: ubuntu-24.04
+            backend: hip
+          - os: ubuntu-24.04
+            backend: opencl
+          - os: ubuntu-24.04-arm
+            compiler: gfortran-10
+          - os: ubuntu-24.04-arm
+            compiler: gfortran-11
+          - os: ubuntu-24.04-arm
+            compiler: gfortran-12
+          - os: ubuntu-24.04-arm
+            compiler: gfortran-13
+          - os: ubuntu-24.04-arm
+            backend: cuda
+          - os: ubuntu-24.04-arm
+            backend: hip
+          - os: ubuntu-24.04-arm
+            backend: opencl
         include:
           - os: ubuntu-20.04
+            setup-env: |
+              sudo apt-get update
+              sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
+                automake autotools-dev libopenblas-dev make git m4 python3 \
+                cmake-curses-gui
+              echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
+              echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
+
+          - os: ubuntu-24.04
+            setup-env: |
+              sudo apt-get update
+              sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
+                automake autotools-dev libopenblas-dev make git m4 python3 \
+                cmake-curses-gui
+              echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
+              echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
+
+          - os: ubuntu-24.04-arm
             setup-env: |
               sudo apt-get update
               sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
