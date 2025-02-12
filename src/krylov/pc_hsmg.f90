@@ -222,19 +222,19 @@ contains
 
     call this%schwarz%init(Xh, dof, gs_h, this%bclst_reg, msh)
     call this%schwarz_mg%init(this%Xh_mg, this%dm_mg, this%gs_mg,&
-                              this%bclst_mg, msh)
+         this%bclst_mg, msh)
 
     call this%interp_fine_mid%init(Xh, this%Xh_mg)
     call this%interp_mid_crs%init(this%Xh_mg, this%Xh_crs)
 
     call hsmg_fill_grid(dof, gs_h, Xh, coef, this%bclst_reg, this%schwarz, &
-                        this%e, this%grids, 3)
+         this%e, this%grids, 3)
     call hsmg_fill_grid(this%dm_mg, this%gs_mg, this%Xh_mg, this%c_mg, &
-                        this%bclst_mg, this%schwarz_mg, this%e_mg, &
-                        this%grids, 2)
+         this%bclst_mg, this%schwarz_mg, this%e_mg, &
+         this%grids, 2)
     call hsmg_fill_grid(this%dm_crs, this%gs_crs, this%Xh_crs, &
-                        this%c_crs, this%bclst_crs, this%schwarz_crs, &
-                        this%e_crs, this%grids, 1)
+         this%c_crs, this%bclst_crs, this%schwarz_crs, &
+         this%e_crs, this%grids, 1)
 
     call hsmg_set_h(this)
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -269,7 +269,7 @@ contains
        else
           call krylov_solver_factory(this%crs_solver, &
                this%dm_crs%size(), trim(crs_pctype), KSP_MAX_ITER, &
-                    M = this%pc_crs)
+               M = this%pc_crs)
        end if
     else
        call krylov_solver_factory(this%crs_solver, &
@@ -283,7 +283,7 @@ contains
 
   subroutine hsmg_set_h(this)
     class(hsmg_t), intent(inout) :: this
-!    integer :: i
+    !    integer :: i
     ! Yeah I dont really know what to do here. For incompressible flow not
     ! much happens
     this%grids(1)%coef%ifh2 = .false.
@@ -383,12 +383,12 @@ contains
        !OVERLAPPING Schwarz exchange and solve
        !! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
        call device_col2(this%r_d, this%grids(3)%coef%mult_d, &
-                        this%grids(3)%dof%size())
+            this%grids(3)%dof%size())
        !Restrict to middle level
        call this%interp_fine_mid%map(this%e%x, this%r, &
-                                     this%msh%nelv, this%grids(2)%Xh)
+            this%msh%nelv, this%grids(2)%Xh)
        call this%grids(2)%gs_h%op(this%e%x, &
-                  this%grids(2)%dof%size(), GS_OP_ADD, this%gs_event)
+            this%grids(2)%dof%size(), GS_OP_ADD, this%gs_event)
        call device_event_sync(this%gs_event)
        call device_copy(this%r_d, r_d, n)
        call this%bclst_reg%apply_scalar(r, n)
@@ -396,10 +396,10 @@ contains
        call this%bclst_mg%apply_scalar(this%w, this%grids(2)%dof%size())
        !OVERLAPPING Schwarz exchange and solve
        call device_col2(this%w_d, this%grids(2)%coef%mult_d, &
-                        this%grids(2)%dof%size())
+            this%grids(2)%dof%size())
        !restrict residual to crs
        call this%interp_mid_crs%map(this%wf%x, this%w, this%msh%nelv, &
-                                    this%grids(1)%Xh)
+            this%grids(1)%Xh)
        !Crs solve
        call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
        call this%bclst_mg%apply_scalar(this%w, this%grids(2)%dof%size())
@@ -426,11 +426,11 @@ contains
                this%grids(1)%dof%size())
           call profiler_start_region('HSMG_coarse_solve', 11)
           crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, &
-                                       this%wf%x, &
-                                       this%grids(1)%dof%size(), &
-                                       this%grids(1)%coef, &
-                                       this%grids(1)%bclst, &
-                                       this%grids(1)%gs_h, this%niter)
+               this%wf%x, &
+               this%grids(1)%dof%size(), &
+               this%grids(1)%coef, &
+               this%grids(1)%bclst, &
+               this%grids(1)%gs_h, this%niter)
           call profiler_end_region('HSMG_coarse_solve', 11)
           call this%grids(1)%bclst%apply_scalar(this%grids(1)%e%x,&
                this%grids(1)%dof%size())
@@ -439,17 +439,17 @@ contains
        !$omp end parallel
 
        call this%interp_mid_crs%map(this%w, this%grids(1)%e%x, &
-                                    this%msh%nelv, this%grids(2)%Xh)
+            this%msh%nelv, this%grids(2)%Xh)
        call device_add2(this%grids(2)%e%x_d, this%w_d, this%grids(2)%dof%size())
 
        call this%interp_fine_mid%map(this%w, this%grids(2)%e%x, &
-                                     this%msh%nelv, this%grids(3)%Xh)
+            this%msh%nelv, this%grids(3)%Xh)
        call device_add2(z_d, this%w_d, this%grids(3)%dof%size())
        call this%grids(3)%gs_h%op(z, this%grids(3)%dof%size(), &
-                                     GS_OP_ADD, this%gs_event)
+            GS_OP_ADD, this%gs_event)
        call device_event_sync(this%gs_event)
        call device_col2(z_d, this%grids(3)%coef%mult_d, &
-                        this%grids(3)%dof%size())
+            this%grids(3)%dof%size())
     else
        !We should not work with the input
        call copy(this%r, r, n)
@@ -458,10 +458,10 @@ contains
        call this%grids(3)%schwarz%compute(z, this%r)
        ! DOWNWARD Leg of V-cycle, we are pretty hardcoded here but w/e
        call col2(this%r, this%grids(3)%coef%mult, &
-                 this%grids(3)%dof%size())
+            this%grids(3)%dof%size())
        !Restrict to middle level
        call this%interp_fine_mid%map(this%w, this%r, &
-                                     this%msh%nelv, this%grids(2)%Xh)
+            this%msh%nelv, this%grids(2)%Xh)
        call this%grids(2)%gs_h%op(this%w, this%grids(2)%dof%size(), GS_OP_ADD)
        !OVERLAPPING Schwarz exchange and solve
        call this%grids(2)%schwarz%compute(this%grids(2)%e%x, this%w)
@@ -480,10 +480,10 @@ contains
                this%grids(1)%dof%size())
        else
           crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, this%r, &
-                                           this%grids(1)%dof%size(), &
-                                           this%grids(1)%coef, &
-                                           this%grids(1)%bclst, &
-                                           this%grids(1)%gs_h, this%niter)
+               this%grids(1)%dof%size(), &
+               this%grids(1)%coef, &
+               this%grids(1)%bclst, &
+               this%grids(1)%gs_h, this%niter)
        end if
        call profiler_end_region('HSMG_coarse-solve', 11)
 
@@ -492,11 +492,11 @@ contains
 
 
        call this%interp_mid_crs%map(this%w, this%grids(1)%e%x, &
-                                    this%msh%nelv, this%grids(2)%Xh)
+            this%msh%nelv, this%grids(2)%Xh)
        call add2(this%grids(2)%e%x, this%w, this%grids(2)%dof%size())
 
        call this%interp_fine_mid%map(this%w, this%grids(2)%e%x, &
-                                     this%msh%nelv, this%grids(3)%Xh)
+            this%msh%nelv, this%grids(3)%Xh)
        call add2(z, this%w, this%grids(3)%dof%size())
        call this%grids(3)%gs_h%op(z, this%grids(3)%dof%size(), GS_OP_ADD)
        call col2(z, this%grids(3)%coef%mult, this%grids(3)%dof%size())

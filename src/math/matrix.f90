@@ -347,7 +347,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1 .and. &
          bcknd .eq. NEKO_BCKND_DEVICE) then
        call neko_error("matrix_bcknd_inverse not &
-                        &implemented on accelarators.")
+            &implemented on accelarators.")
     else
        call cpu_matrix_inverse(m)
     end if
@@ -366,7 +366,7 @@ contains
 
     if (.not. (m%ncols .eq. m%nrows)) then
        call neko_error("Fatal error: trying to invert m matrix that is not &
-&square")
+            &square")
     end if
 
     eps = 1e-9_rp

@@ -197,7 +197,7 @@ module fusedcg_cpld_device
 contains
 
   subroutine device_fusedcg_cpld_part1(a1_d, a2_d, a3_d, &
-                                       b1_d, b2_d, b3_d, tmp_d, n)
+       b1_d, b2_d, b3_d, tmp_d, n)
     type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d
     type(c_ptr), value :: tmp_d
     integer(c_int) :: n
@@ -211,32 +211,32 @@ contains
   end subroutine device_fusedcg_cpld_part1
 
   subroutine device_fusedcg_cpld_update_p(p1_d, p2_d, p3_d, z1_d, z2_d, z3_d, &
-                                          po1_d, po2_d, po3_d, beta, n)
+       po1_d, po2_d, po3_d, beta, n)
     type(c_ptr), value :: p1_d, p2_d, p3_d, z1_d, z2_d, z3_d
     type(c_ptr), value :: po1_d, po2_d, po3_d
     real(c_rp) :: beta
     integer(c_int) :: n
 #ifdef HAVE_HIP
     call hip_fusedcg_cpld_update_p(p1_d, p2_d, p3_d, z1_d, z2_d, z3_d, &
-                                    po1_d, po2_d, po3_d, beta, n)
+         po1_d, po2_d, po3_d, beta, n)
 #elif HAVE_CUDA
     call cuda_fusedcg_cpld_update_p(p1_d, p2_d, p3_d, z1_d, z2_d, z3_d, &
-                                    po1_d, po2_d, po3_d, beta, n)
+         po1_d, po2_d, po3_d, beta, n)
 #else
     call neko_error('No device backend configured')
 #endif
   end subroutine device_fusedcg_cpld_update_p
 
   subroutine device_fusedcg_cpld_update_x(x1_d, x2_d, x3_d, &
-                                          p1_d, p2_d, p3_d, alpha, p_cur, n)
+       p1_d, p2_d, p3_d, alpha, p_cur, n)
     type(c_ptr), value :: x1_d, x2_d, x3_d, p1_d, p2_d, p3_d, alpha
     integer(c_int) :: p_cur, n
 #ifdef HAVE_HIP
     call hip_fusedcg_cpld_update_x(x1_d, x2_d, x3_d, &
-                                    p1_d, p2_d, p3_d, alpha, p_cur, n)
+         p1_d, p2_d, p3_d, alpha, p_cur, n)
 #elif HAVE_CUDA
     call cuda_fusedcg_cpld_update_x(x1_d, x2_d, x3_d, &
-                                    p1_d, p2_d, p3_d, alpha, p_cur, n)
+         p1_d, p2_d, p3_d, alpha, p_cur, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -271,7 +271,7 @@ contains
 
   !> Initialise a fused PCG solver
   subroutine fusedcg_cpld_device_init(this, n, max_iter, M, &
-                                      rel_tol, abs_tol, monitor)
+       rel_tol, abs_tol, monitor)
     class(fusedcg_cpld_device_t), target, intent(inout) :: this
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
@@ -335,13 +335,13 @@ contains
     call device_alloc(this%p3_d_d, p_size)
     ptr = c_loc(this%p1_d)
     call device_memcpy(ptr, this%p1_d_d, p_size, &
-                       HOST_TO_DEVICE, sync=.false.)
+         HOST_TO_DEVICE, sync=.false.)
     ptr = c_loc(this%p2_d)
     call device_memcpy(ptr, this%p2_d_d, p_size, &
-                      HOST_TO_DEVICE, sync=.false.)
+         HOST_TO_DEVICE, sync=.false.)
     ptr = c_loc(this%p3_d)
     call device_memcpy(ptr, this%p3_d_d, p_size, &
-                       HOST_TO_DEVICE, sync=.false.)
+         HOST_TO_DEVICE, sync=.false.)
     if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
     else if (present(rel_tol) .and. present(abs_tol)) then
@@ -576,7 +576,7 @@ contains
       call device_copy(r3_d, fz_d, n)
 
       call device_fusedcg_cpld_part1(r1_d, r2_d, r3_d, r1_d, &
-                                     r2_d, r3_d, tmp_d, n)
+           r2_d, r3_d, tmp_d, n)
 
       rtr = device_glsc3(tmp_d, coef%mult_d, coef%binv_d, n)
 
@@ -593,7 +593,7 @@ contains
          call this%M%solve(z3, r3, n)
          rtz2 = rtz1
          call device_fusedcg_cpld_part1(z1_d, z2_d, z3_d, &
-                                        r1_d, r2_d, r3_d, tmp_d, n)
+              r1_d, r2_d, r3_d, tmp_d, n)
          rtz1 = device_glsc2(tmp_d, coef%mult_d, n)
 
          beta = rtz1 / rtz2
@@ -615,7 +615,7 @@ contains
          call blstz%apply(w3, n)
 
          call device_fusedcg_cpld_part1(w1_d, w2_d, w3_d,  p1_d(p_cur), &
-                                        p2_d(p_cur), p3_d(p_cur), tmp_d, n)
+              p2_d(p_cur), p3_d(p_cur), tmp_d, n)
 
          pap = device_glsc2(tmp_d, coef%mult_d, n)
 
@@ -669,5 +669,3 @@ contains
   end function fusedcg_cpld_device_solve
 
 end module fusedcg_cpld_device
-
-

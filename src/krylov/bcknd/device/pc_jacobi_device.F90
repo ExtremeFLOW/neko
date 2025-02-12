@@ -157,19 +157,19 @@ contains
 
 #ifdef HAVE_HIP
       call hip_jacobi_update(this%d_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, &
-                             coef%G11_d, coef%G22_d, coef%G33_d, &
-                             coef%G12_d, coef%G13_d, coef%G23_d, &
-                             nelv, lx)
+           coef%G11_d, coef%G22_d, coef%G33_d, &
+           coef%G12_d, coef%G13_d, coef%G23_d, &
+           nelv, lx)
 #elif HAVE_CUDA
       call cuda_jacobi_update(this%d_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, &
-                             coef%G11_d, coef%G22_d, coef%G33_d, &
-                             coef%G12_d, coef%G13_d, coef%G23_d, &
-                             nelv, lx)
+           coef%G11_d, coef%G22_d, coef%G33_d, &
+           coef%G12_d, coef%G13_d, coef%G23_d, &
+           nelv, lx)
 #elif HAVE_OPENCL
       call opencl_jacobi_update(this%d_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, &
-                                coef%G11_d, coef%G22_d, coef%G33_d, &
-                                coef%G12_d, coef%G13_d, coef%G23_d, &
-                                nelv, lx)
+           coef%G11_d, coef%G22_d, coef%G33_d, &
+           coef%G12_d, coef%G13_d, coef%G23_d, &
+           nelv, lx)
 #endif
 
       call device_col2(this%d_d, coef%h1_d, coef%dof%size())
