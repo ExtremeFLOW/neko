@@ -66,9 +66,9 @@ module projection
   use coefs, only : coef_t
   use ax_product, only : ax_t
   use bc_list, only : bc_list_t
-  use comm
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use neko_config, only : NEKO_BCKND_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BLK_SIZE, &
+       NEKO_DEVICE_MPI, NEKO_BCKND_OPENCL
   use device, only : device_alloc, HOST_TO_DEVICE, device_memcpy, &
        device_get_ptr, device_free, device_map
   use device_math, only : device_glsc3, device_add2s2, device_cmult, &
@@ -78,10 +78,12 @@ module projection
   use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : LOG_SIZE, neko_log
   use utils, only : neko_warning
-  use, intrinsic :: iso_c_binding
   use bc_list, only : bc_list_t
   use time_step_controller, only : time_step_controller_t
-
+  use comm, only : NEKO_COMM, pe_rank, MPI_Allreduce, MPI_IN_PLACE, &
+       MPI_SUM, MPI_REAL_PRECISION
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t, &
+       c_sizeof, C_NULL_PTR, c_loc, c_associated
   implicit none
   private
 

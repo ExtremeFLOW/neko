@@ -45,13 +45,14 @@ module gather_scatter
   use comm
   use dofmap, only : dofmap_t
   use field, only : field_t
-  use num_types, only : rp, dp, i2
+  use num_types, only : rp, dp, i2, i8
   use htable, only : htable_i8_t, htable_iter_i8_t
   use stack, only : stack_i4_t
   use utils, only : neko_error, linear_index
   use logger, only : neko_log, LOG_SIZE
   use profiler, only : profiler_start_region, profiler_end_region
   use device
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 

@@ -266,7 +266,6 @@ neko_fortran_SOURCES = \
 	device/hip/roctx.F90\
 	device/opencl_intf.F90\
 	device/opencl/prgm_lib.F90\
-	device/dummy_device.F90\
 	device/device.F90\
 	math/field_math.f90\
 	math/bcknd/device/device_math.F90\

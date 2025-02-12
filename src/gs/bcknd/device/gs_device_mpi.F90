@@ -40,7 +40,8 @@ module gs_device_mpi
   use htable, only : htable_i4_t
   use device
   use utils, only : neko_error
-  use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t
+  use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &
+       c_ptr, C_NULL_PTR, c_size_t, c_associated
   implicit none
   private
 

@@ -45,6 +45,7 @@ module cheby_device
   use device_math, only : device_cmult2, device_sub2, &
        device_add2s1, device_add2s2, device_glsc3, device_copy
   use device
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 
@@ -111,14 +112,14 @@ contains
     end if
 
     call device_event_create(this%gs_event, 2)
-    
+
   end subroutine cheby_device_init
 
   subroutine cheby_device_free(this)
     class(cheby_device_t), intent(inout) :: this
 
     call this%ksp_free()
-    
+
     if (allocated(this%d)) then
        deallocate(this%d)
     end if
@@ -132,7 +133,7 @@ contains
     end if
 
     nullify(this%M)
-    
+
     if (c_associated(this%d_d)) then
        call device_free(this%d_d)
     end if
@@ -148,7 +149,7 @@ contains
     if (c_associated(this%gs_event)) then
        call device_event_destroy(this%gs_event)
     end if
-    
+
   end subroutine cheby_device_free
 
   subroutine cheby_device_power(this, Ax, x, n, coef, blst, gs_h)
@@ -179,13 +180,13 @@ contains
 
       !Power method to get lamba max
       do i = 1, this%power_its
-        call ax%compute(w, d, coef, x%msh, x%Xh)
-        call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-        call blst%apply(w, n)
+         call ax%compute(w, d, coef, x%msh, x%Xh)
+         call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
+         call blst%apply(w, n)
 
-        wtw = device_glsc3(w_d, coef%mult_d, w_d, n)
-        call device_cmult2(d_d, w_d, 1.0_rp/sqrt(wtw), n)
-        call blst%apply(d, n)
+         wtw = device_glsc3(w_d, coef%mult_d, w_d, n)
+         call device_cmult2(d_d, w_d, 1.0_rp/sqrt(wtw), n)
+         call blst%apply(d, n)
       end do
 
       call ax%compute(w, d, coef, x%msh, x%Xh)
@@ -226,7 +227,7 @@ contains
     if (this%recompute_eigs) then
        call cheby_device_power(this, Ax, x, n, coef, blst, gs_h)
     end if
-    
+
     if (present(niter)) then
        max_iter = niter
     else
@@ -257,24 +258,24 @@ contains
 
       ! Rest of the iterations
       do iter = 2, max_iter
-        ! calculate residual
-        call device_copy(r_d, f_d, n)
-        call ax%compute(w, x%x, coef, x%msh, x%Xh)
-        call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-        call blst%apply(w, n)
-        call device_sub2(r_d, w_d, n)
+         ! calculate residual
+         call device_copy(r_d, f_d, n)
+         call ax%compute(w, x%x, coef, x%msh, x%Xh)
+         call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
+         call blst%apply(w, n)
+         call device_sub2(r_d, w_d, n)
 
-        call this%M%solve(w, r, n)
+         call this%M%solve(w, r, n)
 
-        if (iter .eq. 2) then
-          b = 0.5_rp * (this%dlt * a)**2
-        else
-          b = (this%dlt * a / 2.0_rp)**2
-        end if
-        a = 1.0_rp/(this%tha - b/a)
-        call device_add2s1(d_d, w_d, b, n)! d = w + b*d
+         if (iter .eq. 2) then
+            b = 0.5_rp * (this%dlt * a)**2
+         else
+            b = (this%dlt * a / 2.0_rp)**2
+         end if
+         a = 1.0_rp/(this%tha - b/a)
+         call device_add2s1(d_d, w_d, b, n)! d = w + b*d
 
-        call device_add2s2(x%x_d, d_d, a, n)! x = x + a*d
+         call device_add2s2(x%x_d, d_d, a, n)! x = x + a*d
       end do
 
       ! calculate residual
@@ -320,5 +321,3 @@ contains
   end function cheby_device_solve_coupled
 
 end module cheby_device
-
-

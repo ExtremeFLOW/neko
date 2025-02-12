@@ -53,6 +53,7 @@ module gradient_jump_penalty
   use device
   use device_math
   use device_gradient_jump_penalty
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
 
   implicit none
   private
