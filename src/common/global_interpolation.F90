@@ -50,10 +50,10 @@ module global_interpolation
   use math, only : copy
   use neko_mpi_types
   use structs, only : array_ptr_t
-  use, intrinsic :: iso_c_binding  
+  use, intrinsic :: iso_c_binding
   implicit none
   private
-  
+
   !> Implements global interpolation for arbitrary points in the domain.
   type, public :: global_interpolation_t
      !> X coordinates from which to interpolate.
