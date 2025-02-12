@@ -41,6 +41,7 @@ module gmres
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp
+  use neko_config, only : NEKO_BLK_SIZE
   use comm
   implicit none
   private

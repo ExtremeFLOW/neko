@@ -38,14 +38,25 @@ module device
   use hip_intf
   use htable, only : htable_cptr_t, h_cptr_t
   use utils, only : neko_error
-  use dummy_device
   use opencl_prgm_lib
   use, intrinsic :: iso_c_binding
   implicit none
-!  private
+  private
 
   integer, public, parameter :: HOST_TO_DEVICE = 1, DEVICE_TO_HOST = 2, &
        DEVICE_TO_DEVICE = 3
+
+  !> Global HIP command queue
+  type(c_ptr), public, bind(c) :: glb_cmd_queue = C_NULL_PTR
+
+  !> Aux HIP command queue
+  type(c_ptr), public, bind(c) :: aux_cmd_queue = C_NULL_PTR
+
+  !> High priority stream setting
+  integer, public :: STRM_HIGH_PRIO
+
+  !> Low priority stream setting
+  integer, public :: STRM_LOW_PRIO
 
   !> Copy data between host and device (or device and device)
   interface device_memcpy
@@ -97,7 +108,8 @@ module device
        device_profiler_start, device_profiler_stop, device_alloc, &
        device_init, device_name, device_event_create, device_event_destroy, &
        device_event_record, device_event_sync, device_finalize, &
-       device_stream_wait_event
+       device_stream_wait_event, device_count, &
+       device_stream_create_with_priority
 
   private :: device_memcpy_common
 
@@ -108,11 +120,11 @@ contains
     call device_addrtbl%init(64)
 
 #ifdef HAVE_HIP
-    call hip_init
+    call hip_init(glb_cmd_queue, aux_cmd_queue, STRM_HIGH_PRIO, STRM_LOW_PRIO)
 #elif HAVE_CUDA
-    call cuda_init
+    call cuda_init(glb_cmd_queue, aux_cmd_queue, STRM_HIGH_PRIO, STRM_LOW_PRIO)
 #elif HAVE_OPENCL
-    call opencl_init
+    call opencl_init(glb_cmd_queue, aux_cmd_queue)
 #endif
 
 #endif
@@ -123,12 +135,12 @@ contains
     call device_addrtbl%free()
 
 #ifdef HAVE_HIP
-    call hip_finalize
+    call hip_finalize(glb_cmd_queue, aux_cmd_queue)
 #elif HAVE_CUDA
-    call cuda_finalize
+    call cuda_finalize(glb_cmd_queue, aux_cmd_queue)
 #elif HAVE_OPENCL
     call opencl_prgm_lib_release
-    call opencl_finalize
+    call opencl_finalize(glb_cmd_queue, aux_cmd_queue)
 #endif
 
 #endif

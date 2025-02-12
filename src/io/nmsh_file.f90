@@ -48,7 +48,7 @@ module nmsh_file
        MPI_MODE_WRONLY, MPI_MODE_CREATE, MPI_MODE_RDONLY, MPI_INFO_NULL, &
        MPI_File_open, MPI_File_close, MPI_File_read_all, MPI_File_write_all, &
        MPI_File_write_at_all, MPI_File_read_at_all, MPI_INTEGER, MPI_SUM, &
-       MPI_Exscan, MPI_Barrier, MPI_Type_size
+       MPI_Exscan, MPI_Barrier, MPI_Type_size, MPI_Allreduce, MPI_File_sync
   use logger, only: neko_log, LOG_SIZE
   implicit none
 
