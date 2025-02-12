@@ -58,6 +58,8 @@ module global_interpolation
   use, intrinsic :: iso_c_binding
   implicit none
   private
+  
+  integer, public, parameter :: GLOB_MAP_SIZE = 100000
   !> Implements global interpolation for arbitrary points in the domain.
   type, public :: global_interpolation_t
      !> X coordinates from which to interpolate.
@@ -121,6 +123,8 @@ module global_interpolation
      !> Structure to find rank candidates
      type(aabb_t), allocatable :: global_aabb(:)
      type(aabb_tree_t) :: global_aabb_tree
+     integer :: pe_box_num 
+     integer :: glob_map_size 
      !> Structure to find element candidates
      type(aabb_t), allocatable :: local_aabb(:)
      type(aabb_tree_t) :: local_aabb_tree
@@ -208,9 +212,9 @@ contains
     type(space_t), intent(in), target :: Xh
     real(kind=rp), intent(in), optional :: tol
     integer :: lx, ly, lz, max_pts_per_iter, ierr, i, id1, id2, n
-    real(kind=dp), allocatable :: rank_xyz_max(:,:), rank_xyz_min(:,:)
+    real(kind=dp), allocatable :: rank_xyz_max(:,:), rank_xyz_min(:,:), max_xyz(:,:), min_xyz(:,:)
     type(stack_i4_t) :: pe_candidates
-    real(kind=dp) :: max_xyz(3), min_xyz(3), padding
+    integer :: start, last, n_box_el
    
     call this%free()
       
@@ -235,40 +239,49 @@ contains
     ly = Xh%ly
     lz = Xh%lz
     n = nelv * lx*ly*lz
-    allocate(rank_xyz_max(3,this%pe_size))
-    allocate(rank_xyz_min(3,this%pe_size))
-    max_xyz = (/maxval(x(1:n)), maxval(y(1:n)), maxval(z(1:n))/)
-    min_xyz = (/minval(x(1:n)), minval(y(1:n)), minval(z(1:n))/)
-    call MPI_Allgather(max_xyz, 3, MPI_DOUBLE_PRECISION, &
-    rank_xyz_max, 3, MPI_DOUBLE_PRECISION, this%comm, ierr) 
-    call MPI_Allgather(min_xyz, 3, MPI_DOUBLE_PRECISION, &
-    rank_xyz_min, 3, MPI_DOUBLE_PRECISION, this%comm, ierr) 
+    this%pe_box_num = min(GLOB_MAP_SIZE/this%pe_size,nelv)
+    call MPI_Allreduce(MPI_IN_PLACE, this%pe_box_num, 1, MPI_INTEGER, &
+                       MPI_MIN, this%comm, ierr) 
+    this%glob_map_size = this%pe_box_num*this%pe_size
+    if (pe_rank .eq. 0) print *, this%pe_box_num, this%glob_map_size
+    allocate(rank_xyz_max(3,this%glob_map_size))
+    allocate(rank_xyz_min(3,this%glob_map_size))
+    allocate(min_xyz(3,this%pe_box_num))
+    allocate(max_xyz(3,this%pe_box_num))
+    do i = 1, this%pe_box_num
+       n_box_el = (nelv+this%pe_box_num)/this%pe_box_num
+       start = 1+(i-1)*n_box_el*lx*ly*lz
+       last = min(i*n_box_el*lx*ly*lz,n)
+       max_xyz(:,i) = (/maxval(x(start:last)), maxval(y(start:last)), maxval(z(start:last))/)
+       min_xyz(:,i) = (/minval(x(start:last)), minval(y(start:last)), minval(z(start:last))/)
+    end do
+    call MPI_Allgather(max_xyz, 3*this%pe_box_num, MPI_DOUBLE_PRECISION, &
+    rank_xyz_max, 3*this%pe_box_num, MPI_DOUBLE_PRECISION, this%comm, ierr) 
+    call MPI_Allgather(min_xyz, 3*this%pe_box_num, MPI_DOUBLE_PRECISION, &
+    rank_xyz_min, 3*this%pe_box_num, MPI_DOUBLE_PRECISION, this%comm, ierr) 
     if (allocated(this%global_aabb)) deallocate(this%global_aabb)
     if (allocated(this%local_aabb)) deallocate(this%local_aabb)
-    allocate(this%global_aabb(this%pe_size))
+    allocate(this%global_aabb(this%glob_map_size))
     allocate(this%local_aabb(nelv))
     !> Create global tree for each rank
-    do i = 1, this%pe_size
+    do i = 1, this%glob_map_size
        call this%global_aabb(i)%init(rank_xyz_min(:,i), rank_xyz_max(:,i))
-
     end do
-    padding = 1e-5
-    call this%global_aabb_tree%init(this%pe_size+1)
-    call this%global_aabb_tree%build(this%global_aabb, padding)
+    call this%global_aabb_tree%init(this%glob_map_size)
+    call this%global_aabb_tree%build(this%global_aabb)
     !> Create a local tree for each element at this rank
     do i = 1, nelv
        id1 = lx*ly*lz*(i-1)+1
        id2 = lx*ly*lz*(i)
-       max_xyz = (/maxval(this%x%ptr(id1:id2)), &
+       max_xyz(:,1) = (/maxval(this%x%ptr(id1:id2)), &
        maxval(this%y%ptr(id1:id2)), maxval(this%z%ptr(id1:id2))/)
-       min_xyz = (/minval(this%x%ptr(id1:id2)), &
+       min_xyz(:,1) = (/minval(this%x%ptr(id1:id2)), &
        minval(this%y%ptr(id1:id2)), minval(this%z%ptr(id1:id2))/)
-       print *, max_xyz, min_xyz, pe_rank
-       call this%local_aabb(i)%init(min_xyz, max_xyz)
+       call this%local_aabb(i)%init(min_xyz(:,1), max_xyz(:,1))
     end do
 
     call this%local_aabb_tree%init(nelv)
-    call this%local_aabb_tree%build(this%local_aabb, padding)
+    call this%local_aabb_tree%build(this%local_aabb)
 
   end subroutine global_interpolation_init_xyz
 
@@ -431,9 +444,10 @@ contains
        call this%global_aabb_tree%query_overlaps(my_point(i),-1, pe_candidates(i))
        pe_cands => pe_candidates(i)%array()
        do j = 1, pe_candidates(i)%size()
-          this%n_points_pe(pe_cands(j)-1) = this%n_points_pe(pe_cands(j)-1) + 1
+          rank = (pe_cands(j)-1)/this%pe_box_num
+          this%n_points_pe(rank) = this%n_points_pe(rank) + 1
           stupid_intent = i
-          call points_at_pe(pe_cands(j)-1)%push(stupid_intent)
+          call points_at_pe(rank)%push(stupid_intent)
        end do
        if (pe_candidates(i)%size() .lt. 1) then
           write (*,*) 'WARNING, point', this%xyz(:,i), &
