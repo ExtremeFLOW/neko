@@ -326,8 +326,8 @@ __global__ void gs_unpack_min_kernel(T * __restrict__ u,
     // Use atomicMin for shared nodal points
     atomicMinFloat(&u[-idx-1], val);
   } else {
-    // Directly compute min for non-shared nodal points
-    atomicMinFloat(&u[idx-1], val);
+    // Directly compute min for nodal points on edges
+    u[idx-1] = min(u[idx-1], val);
   }
 }
 
@@ -370,8 +370,8 @@ __global__ void gs_unpack_max_kernel(T * __restrict__ u,
     // Use atomicMax for shared nodal points
     atomicMaxFloat(&u[-idx-1], val);
   } else {
-    // Directly compute max for non-shared nodal points
-    atomicMaxFloat(&u[idx-1], val);
+    // Directly compute min for nodal points on edges
+    u[idx-1] = max(u[idx-1], val);
   }
 }
 
