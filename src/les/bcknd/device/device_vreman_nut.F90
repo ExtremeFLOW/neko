@@ -34,8 +34,6 @@ module device_vreman_nut
   use, intrinsic :: iso_c_binding, only: c_ptr, c_int
   use num_types, only: rp, c_rp
   use utils, only: neko_error
-  use comm, only: NEKO_COMM, pe_size, MPI_REAL_PRECISION
-  use mpi_f08, only: MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
   
   implicit none
   private
