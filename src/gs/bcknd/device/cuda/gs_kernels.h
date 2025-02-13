@@ -302,11 +302,12 @@ __device__ float atomicMinFloat<float>(float* address, float val) {
 template<>
 __device__ double atomicMinFloat<double>(double* address, double val) {
     double old;
+#if __CUDA_ARCH__ >= 600
     old = !signbit(val) ? __longlong_as_double(atomicMin((unsigned long long*)address, 
-                            (unsigned long long)__double_as_longlong(val))) :
+                                            __double_as_longlong(val))) :
           __longlong_as_double(atomicMax((unsigned long long*)address, 
-                            (unsigned long long)__double_as_longlong(val)));
-    
+                                            __double_as_longlong(val)));
+#endif
     return old;
 }
 
@@ -347,10 +348,12 @@ __device__ float atomicMaxFloat<float>(float* address, float val) {
 template<>
 __device__ double atomicMaxFloat<double>(double* address, double val) {
     double old;
+#if __CUDA_ARCH__ >= 600
     old = !signbit(val) ? __longlong_as_double(atomicMax((unsigned long long*)address, 
-                              (unsigned long long)__double_as_longlong(val))) :
+                                                __double_as_longlong(val))) :
           __longlong_as_double(atomicMin((unsigned long long*)address, 
-                              (unsigned long long)__double_as_longlong(val)));
+                                                __double_as_longlong(val)));
+#endif
     return old;
 }
 

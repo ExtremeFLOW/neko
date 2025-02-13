@@ -301,10 +301,9 @@ template<>
 __device__ double atomicMinFloat<double>(double* address, double val) {
     double old;
     old = !signbit(val) ? __longlong_as_double(atomicMin((unsigned long long*)address, 
-                            (unsigned long long)__double_as_longlong(val))) :
+                                            __double_as_longlong(val))) :
           __longlong_as_double(atomicMax((unsigned long long*)address, 
-                            (unsigned long long)__double_as_longlong(val)));
-    
+                                            __double_as_longlong(val)));
     return old;
 }
 
@@ -346,9 +345,9 @@ template<>
 __device__ double atomicMaxFloat<double>(double* address, double val) {
     double old;
     old = !signbit(val) ? __longlong_as_double(atomicMax((unsigned long long*)address, 
-                              (unsigned long long)__double_as_longlong(val))) :
+                                                __double_as_longlong(val))) :
           __longlong_as_double(atomicMin((unsigned long long*)address, 
-                              (unsigned long long)__double_as_longlong(val)));
+                                                __double_as_longlong(val)));
     return old;
 }
 
