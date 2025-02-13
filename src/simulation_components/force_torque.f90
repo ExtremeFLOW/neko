@@ -32,8 +32,8 @@
 !
 !
 !> Implements the `force_torque_t` type.
-
 module force_torque
+  use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
@@ -51,12 +51,12 @@ module force_torque
   use dirichlet, only : dirichlet_t
   use drag_torque
   use logger, only : LOG_SIZE, neko_log
-  use comm
+  use comm, only : NEKO_COMM
   use math, only : masked_red_copy, cadd, glsum, vcross
   use device_math, only : device_masked_red_copy, device_cadd, &
                           device_glsum, device_vcross
   use device
-  
+  use mpi_f08, only : MPI_Allreduce, MPI_SUM, MPI_INTEGER
   implicit none
   private
 

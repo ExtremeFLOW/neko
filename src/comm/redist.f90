@@ -32,14 +32,16 @@
 !
 !> Redistribution routines
 module redist
+  use utils, only : neko_error
   use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
   use neko_mpi_types
-  use mpi_f08
+  use mpi_f08, only : MPI_Status, MPI_Allreduce, MPI_Get_count, &
+       MPI_IN_PLACE, MPI_INTEGER, MPI_Sendrecv, MPI_MAX
   use htable, only : htable_i4_t
   use point, only : point_t
   use stack, only : stack_i4_t, stack_nh_t, stack_nc_t, stack_nz_t
   use curve, only : curve_t
-  use comm
+  use comm, only : NEKO_COMM, pe_size, pe_rank
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
   use nmsh, only : nmsh_hex_t, nmsh_zone_t, nmsh_curve_el_t
   use facet_zone, only : facet_zone_t, facet_zone_periodic_t

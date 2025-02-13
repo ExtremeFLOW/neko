@@ -42,9 +42,10 @@ module fluid_stats_simcomp
   use fluid_stats_output, only : fluid_stats_output_t
   use case, only : case_t
   use coefs, only : coef_t
-  use comm
+  use comm, only : NEKO_COMM
   use logger, only : LOG_SIZE, neko_log
   use json_utils, only : json_get, json_get_or_default
+  use mpi_f08, only : MPI_Barrier, MPI_Wtime
   implicit none
   private
 
@@ -191,13 +192,13 @@ contains
 
        call MPI_Barrier(NEKO_COMM, ierr)
 
-       sample_start_time = MPI_WTIME()
+       sample_start_time = MPI_Wtime()
 
        call this%stats%update(delta_t)
        call MPI_Barrier(NEKO_COMM, ierr)
        this%time = t
 
-       sample_time = MPI_WTIME() - sample_start_time
+       sample_time = MPI_Wtime() - sample_start_time
 
        call neko_log%section('Fluid stats')
        write(log_buf, '(A,E15.7)') 'Sampling at time:', t

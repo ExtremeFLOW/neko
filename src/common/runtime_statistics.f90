@@ -40,6 +40,7 @@ module runtime_stats
   use json_module, only : json_file
   use file, only : file_t
   use matrix, only : matrix_t
+  use utils, only : neko_error
   use comm
   use mpi_f08
   implicit none

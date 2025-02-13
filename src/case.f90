@@ -47,7 +47,7 @@ module case
   use file, only : file_t
   use utils, only : neko_error
   use mesh, only : mesh_t
-  use comm
+  use comm, only : NEKO_COMM, pe_size, pe_rank
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, NEKO_LOG_QUIET
   use jobctrl, only : jobctrl_set_time_limit
@@ -57,6 +57,7 @@ module case
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
+  use mpi_f08, only : MPI_Bcast, MPI_CHARACTER, MPI_INTEGER
   implicit none
   private
 

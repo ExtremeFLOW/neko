@@ -36,8 +36,9 @@ module jobctrl
   use signal, only : signal_timeout, signal_usr, signal_trap_usr, &
                      signal_set_timeout, signal_trap_cpulimit
   use utils, onlY : neko_error
-  use comm
+  use comm, only : NEKO_COMM
   use logger
+  use mpi_f08, only : MPI_Bcast, MPI_Wtime, MPI_LOGICAL
   implicit none
   private
 
@@ -128,11 +129,11 @@ contains
     logical, save :: init = .false.
 
     if (.not. init) then
-       stime = MPI_WTIME()
+       stime = MPI_Wtime()
        init = .true.
     end if
 
-    jobtime = MPI_WTIME() - stime
+    jobtime = MPI_Wtime() - stime
   end function jobctrl_jobtime
 
 end module jobctrl

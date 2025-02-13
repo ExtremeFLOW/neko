@@ -64,7 +64,6 @@ module scalar_scheme
   use user_intf, only : user_t, dummy_user_material_properties, &
        user_material_properties
   use utils, only : neko_error
-  use comm, only: NEKO_COMM, MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
   use field_series, only : field_series_t
   use math, only : cfill, add2s2

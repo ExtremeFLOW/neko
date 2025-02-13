@@ -68,8 +68,9 @@ module fluid_volflow
   use coefs, only : coef_t
   use time_scheme_controller, only : time_scheme_controller_t
   use math, only : copy, glsc2, glmin, glmax, add2
-  use comm
-  use neko_config, only : NEKO_BCKND_DEVICE
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_HIP, &
+       NEKO_BCKND_CUDA, NEKO_BCKND_OPENCL
   use device_math, only : device_cfill, device_rzero, device_copy, &
        device_add2, device_add2s2, device_glsc2
   use device_mathops, only : device_opchsign
@@ -79,6 +80,7 @@ module fluid_volflow
   use scratch_registry, only : scratch_registry_t
   use bc_list, only : bc_list_t
   use ax_product, only : ax_t
+  use mpi_f08, only : MPI_Allreduce, MPI_SUM, MPI_IN_PLACE
   implicit none
   private
 

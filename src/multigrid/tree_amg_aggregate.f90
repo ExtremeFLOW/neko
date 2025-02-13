@@ -35,9 +35,11 @@ module tree_amg_aggregate
   use tree_amg
   use utils
   use num_types
-  use comm
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_size
   use mesh, only : mesh_t
   use logger, only : neko_log, LOG_SIZE
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_INTEGER8, &
+       MPI_MIN, MPI_MAX, MPI_SUM
   implicit none
 
   type, public :: tamg_agg_monitor_t

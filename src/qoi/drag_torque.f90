@@ -59,17 +59,20 @@
 !
 
 module drag_torque
+  use neko_config, only : NEKO_BCKND_DEVICE
   use field, only :  field_t
   use coefs, only : coef_t
   use facet_zone, only : facet_zone_t
-  use comm
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use math, only : rzero, masked_red_copy, col3, vdot3, cmult
   use space, only : space_t
   use num_types, only : rp
-  use utils, only : nonlinear_index
+  use utils, only : nonlinear_index, neko_error
   use device
   use device_math, only : device_cmult, device_masked_red_copy, &
-                          device_col3, device_vdot3, device_rzero
+       device_col3, device_vdot3, device_rzero
+  use mpi_f08, only : MPI_Allreduce, MPI_SUM, MPI_IN_PLACE
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
   !> Some functions to calculate the lift/drag and torque

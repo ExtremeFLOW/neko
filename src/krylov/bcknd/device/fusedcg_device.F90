@@ -44,8 +44,8 @@ module fusedcg_device
   use device_math, only : device_rzero, device_copy, device_glsc3
   use device
   use utils, only : neko_error
-  use comm, only : NEKO_COMM, MPI_Allreduce, MPI_IN_PLACE, &
-       MPI_REAL_PRECISION, MPI_SUM, pe_size
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_size
+  use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
        c_associated, c_size_t, c_sizeof, c_int, c_loc
   implicit none
