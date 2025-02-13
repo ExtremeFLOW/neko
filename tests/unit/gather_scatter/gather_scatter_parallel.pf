@@ -12,10 +12,10 @@ module gather_scatter_parallel
   use datadist
   use gather_scatter
   use device
-  use neko_config  
-  use comm, only : NEKO_COMM, pe_rank, pe_size 
+  use neko_config
+  use comm, only : NEKO_COMM, pe_rank, pe_size
   implicit none
-  
+
 contains
   @test(npes=[1])
   subroutine test_dofmap_face12(this)
@@ -30,9 +30,9 @@ contains
     integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
-    
+
     call device_init
-    
+
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
@@ -79,12 +79,12 @@ contains
 
     call d%init(m, Xh)
     call gs_h%init(d)
-    call x%init(m, Xh, "x")   
+    call x%init(m, Xh, "x")
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
 
     !> Test GS_OP_ADD
     call rone(x%x, n)
-    call add2(x%x,real(d%dof,rp), n/2)
+    call add2(x%x, real(d%dof, rp), n/2)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
@@ -97,17 +97,17 @@ contains
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
-            
+
     do i = 1,lx
-      do j = 1,lx
-      @assertEqual(x%x(lx,j,i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
-      enddo
-    enddo 
+       do j = 1,lx
+          @assertEqual(x%x(lx,j,i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
     !> Test GS_OP_MIN
     call rone(x%x, n)
     ! Multiply by dof create different values from both sides
-    call col2(x%x,real(d%dof,rp), n/2)
+    call col2(x%x, real(d%dof, rp), n/2)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
@@ -123,10 +123,10 @@ contains
 
     ! Checks if values match at shared face between elements
     do i = 1,lx
-      do j = 1,lx
-      @assertEqual(x%x(lx,j,i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
-      enddo
-    enddo
+       do j = 1,lx
+          @assertEqual(x%x(lx,j,i,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
     !> Test GS_OP_MAX
     call rone(x%x, n)
@@ -147,13 +147,13 @@ contains
 
     ! Checks if values match at shared face between elements
     do i = 1,lx
-      do j = 1,lx
-      @assertEqual(x%x(lx,j,i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
-      enddo
-    enddo
+       do j = 1,lx
+          @assertEqual(x%x(lx,j,i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
     call device_finalize
-    
+
   end subroutine test_dofmap_face12
 
 
@@ -170,9 +170,9 @@ contains
     integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
-    
+
     call device_init
-    
+
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
@@ -218,7 +218,7 @@ contains
 
     call d%init(m, Xh)
     call gs_h%init(d)
-    call x%init(m, Xh, "x")   
+    call x%init(m, Xh, "x")
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
 
     !> Test GS_OP_ADD
@@ -229,19 +229,19 @@ contains
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
-    
+
     call gs_h%op(x%x, n, GS_OP_ADD)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
-    
+
     do i = 1,lx
-      do j = 1,lx
-      @assertEqual(x%x(lx+1-i,j,lx,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
-      enddo
-    enddo
+       do j = 1,lx
+          @assertEqual(x%x(lx+1-i,j,lx,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
     !> Test GS_OP_MIN
     call rone(x%x, n)
@@ -251,44 +251,44 @@ contains
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
-    
+
     call gs_h%op(x%x, n, GS_OP_MIN)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
-    
+
     do i = 1,lx
-      do j = 1,lx
-      @assertEqual(x%x(lx+1-i,j,lx,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
-      enddo
-    enddo
+       do j = 1,lx
+          @assertEqual(x%x(lx+1-i,j,lx,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
     !> Test GS_OP_MAX
     call rone(x%x, n)
-    call col2(x%x,real(d%dof,rp), n/2)
+    call col2(x%x, real(d%dof, rp), n/2)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
-    
+
     call gs_h%op(x%x, n, GS_OP_MAX)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
-    
+
     do i = 1,lx
-      do j = 1,lx
-      @assertEqual(x%x(lx+1-i,j,lx,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
-      enddo
-    enddo
+       do j = 1,lx
+          @assertEqual(x%x(lx+1-i,j,lx,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
     call device_finalize
-    
+
   end subroutine test_dofmap_face15
 
   @test(npes=[1])
@@ -304,9 +304,9 @@ contains
     integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
-    
+
     call device_init
-    
+
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
@@ -352,77 +352,77 @@ contains
     call m%generate_conn()
     call d%init(m, Xh)
     call gs_h%init(d)
-    call x%init(m, Xh, "x")   
+    call x%init(m, Xh, "x")
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
 
     !> Test GS_OP_ADD
     call rone(x%x, n)
-    call add2(x%x,real(d%dof,rp), n/2)
+    call add2(x%x, real(d%dof, rp), n/2)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
-    
+
     call gs_h%op(x%x, n, GS_OP_ADD)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
-    
+
     do i = 1,lx
-      do j = 1,lx
-      @assertEqual(x%x(1,lx+1-j,lx+1-i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
-      enddo
-    enddo
+       do j = 1,lx
+          @assertEqual(x%x(1,lx+1-j,lx+1-i,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
     !> Test GS_OP_MIN
     call rone(x%x, n)
-    call col2(x%x,real(d%dof,rp), n/2)
+    call col2(x%x, real(d%dof, rp), n/2)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
-    
+
     call gs_h%op(x%x, n, GS_OP_MIN)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
-    
+
     do i = 1,lx
-      do j = 1,lx
-      @assertEqual(x%x(1,lx+1-j,lx+1-i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
-      enddo
-    enddo
+       do j = 1,lx
+          @assertEqual(x%x(1,lx+1-j,lx+1-i,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
     !> Test GS_OP_MAX
     call rone(x%x, n)
-    call col2(x%x,real(d%dof,rp), n/2)
+    call col2(x%x, real(d%dof, rp), n/2)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
-    
+
     call gs_h%op(x%x, n, GS_OP_MAX)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
-    
+
     do i = 1,lx
-      do j = 1,lx
-      @assertEqual(x%x(1,lx+1-j,lx+1-i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
-      enddo
-    enddo
+       do j = 1,lx
+          @assertEqual(x%x(1,lx+1-j,lx+1-i,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
     call device_finalize
-    
+
   end subroutine test_dofmap_face11
 
   @test(npes=[1])
@@ -438,9 +438,9 @@ contains
     integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
-    
+
     call device_init
-    
+
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
@@ -486,40 +486,40 @@ contains
     call m%generate_conn()
     call d%init(m, Xh)
     call gs_h%init(d)
-    call x%init(m, Xh, "x")   
+    call x%init(m, Xh, "x")
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
 
     !> Test GS_OP_ADD
     call rone(x%x, n)
-    call add2(x%x,real(d%dof,rp), n/2)
+    call add2(x%x, real(d%dof, rp), n/2)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
-    
+
     call gs_h%op(x%x, n, GS_OP_ADD)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
-    
+
     do i = 1,lx
-      do j = 1,lx
-      @assertEqual(x%x(1,j,lx+1-i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
-      enddo
-    enddo
+       do j = 1,lx
+          @assertEqual(x%x(1,j,lx+1-i,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
     !> Test GS_OP_MIN
     call rone(x%x, n)
-    call col2(x%x,real(d%dof,rp), n/2)
+    call col2(x%x, real(d%dof, rp), n/2)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
-    
+
     call gs_h%op(x%x, n, GS_OP_MIN)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
@@ -528,34 +528,34 @@ contains
     end if
 
     do i = 1,lx
-      do j = 1,lx
-      @assertEqual(x%x(1,j,lx+1-i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
-      enddo
-    enddo
+       do j = 1,lx
+          @assertEqual(x%x(1,j,lx+1-i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
-   !> Test GS_OP_MAX
-   call rone(x%x, n)
-   call col2(x%x,real(d%dof,rp), n/2)
+    !> Test GS_OP_MAX
+    call rone(x%x, n)
+    call col2(x%x, real(d%dof, rp), n/2)
 
-   if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-        (NEKO_BCKND_OPENCL .eq. 1)) then
-      call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
-   end if
-   
-   call gs_h%op(x%x, n, GS_OP_MAX)
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
+    end if
 
-   if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-        (NEKO_BCKND_OPENCL .eq. 1)) then
-      call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
-   end if
+    call gs_h%op(x%x, n, GS_OP_MAX)
 
-   do i = 1,lx
-     do j = 1,lx
-     @assertEqual(x%x(1,j,lx+1-i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
-     enddo
-   enddo
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
+    end if
 
-   call device_finalize
+    do i = 1,lx
+       do j = 1,lx
+          @assertEqual(x%x(1,j,lx+1-i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
+       end do
+    end do
+
+    call device_finalize
 
   end subroutine test_dofmap_face11rot
 
@@ -572,9 +572,9 @@ contains
     integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
-    
+
     call device_init
-    
+
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
@@ -620,76 +620,76 @@ contains
     call m%generate_conn()
     call d%init(m, Xh)
     call gs_h%init(d)
-    call x%init(m, Xh, "x")   
+    call x%init(m, Xh, "x")
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
 
     !> Test GS_OP_ADD
-    call rone(x%x, n)    
-    call add2(x%x,real(d%dof,rp), n/2)
+    call rone(x%x, n)
+    call add2(x%x, real(d%dof, rp), n/2)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
-    
+
     call gs_h%op(x%x, n, GS_OP_ADD)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
-    
+
     do i = 1,lx
-      do j = 1,lx
-      @assertEqual(x%x(i,j,1,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
-      enddo
-    enddo
+       do j = 1,lx
+          @assertEqual(x%x(i,j,1,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
-   !> Test GS_OP_MIN
-   call rone(x%x, n)
-   call col2(x%x,real(d%dof,rp), n/2)
+    !> Test GS_OP_MIN
+    call rone(x%x, n)
+    call col2(x%x, real(d%dof, rp), n/2)
 
-   if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-        (NEKO_BCKND_OPENCL .eq. 1)) then
-      call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
-   end if
-   
-   call gs_h%op(x%x, n, GS_OP_MIN)
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
+    end if
 
-   if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-        (NEKO_BCKND_OPENCL .eq. 1)) then
-      call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
-   end if
-   
-   do i = 1,lx
-     do j = 1,lx
-     @assertEqual(x%x(i,j,1,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
-     enddo
-   enddo
+    call gs_h%op(x%x, n, GS_OP_MIN)
 
-   !> Test GS_OP_MAX
-   call rone(x%x, n)
-   call col2(x%x,real(d%dof,rp), n/2)
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
+    end if
 
-   if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-        (NEKO_BCKND_OPENCL .eq. 1)) then
-      call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
-   end if
-   
-   call gs_h%op(x%x, n, GS_OP_MAX)
+    do i = 1,lx
+       do j = 1,lx
+          @assertEqual(x%x(i,j,1,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
-   if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-        (NEKO_BCKND_OPENCL .eq. 1)) then
-      call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
-   end if
-   
-   do i = 1,lx
-     do j = 1,lx
-     @assertEqual(x%x(i,j,1,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
-     enddo
-   enddo
+    !> Test GS_OP_MAX
+    call rone(x%x, n)
+    call col2(x%x, real(d%dof, rp), n/2)
 
-   call device_finalize
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
+    end if
+
+    call gs_h%op(x%x, n, GS_OP_MAX)
+
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1)) then
+       call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
+    end if
+
+    do i = 1,lx
+       do j = 1,lx
+          @assertEqual(x%x(i,j,1,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
+       end do
+    end do
+
+    call device_finalize
 
   end subroutine test_dofmap_face16
 
@@ -706,9 +706,9 @@ contains
     integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
-    
+
     call device_init
-    
+
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
@@ -754,52 +754,52 @@ contains
     call m%generate_conn()
     call d%init(m, Xh)
     call gs_h%init(d)
-    call x%init(m, Xh, "x")   
+    call x%init(m, Xh, "x")
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
 
     !> Test GS_OP_ADD
     call rone(x%x, n)
-    call add2(x%x,real(d%dof,rp), n/2)
+    call add2(x%x, real(d%dof, rp), n/2)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
-    
+
     call gs_h%op(x%x, n, GS_OP_ADD)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
-    
+
     do i = 1,lx
-      do j = 1,lx
-      @assertEqual(x%x(lx+1-j,lx,i,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
-      enddo
-    enddo
+       do j = 1,lx
+          @assertEqual(x%x(lx+1-j,lx,i,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
     !> Test GS_OP_MIN
     call rone(x%x, n)
-    call col2(x%x,real(d%dof,rp), n/2)
+    call col2(x%x, real(d%dof, rp), n/2)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
-    
+
     call gs_h%op(x%x, n, GS_OP_MIN)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
-    
+
     do i = 1,lx
-      do j = 1,lx
-      @assertEqual(x%x(lx+1-j,lx,i,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
-      enddo
-    enddo
+       do j = 1,lx
+          @assertEqual(x%x(lx+1-j,lx,i,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
     !> Test GS_OP_MAX
     call rone(x%x, n)
@@ -809,22 +809,22 @@ contains
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
-    
+
     call gs_h%op(x%x, n, GS_OP_MAX)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
-    
+
     do i = 1,lx
-      do j = 1,lx
-      @assertEqual(x%x(lx+1-j,lx,i,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
-      enddo
-    enddo
+       do j = 1,lx
+          @assertEqual(x%x(lx+1-j,lx,i,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
     call device_finalize
-    
+
   end subroutine test_dofmap_face13
 
   @test(npes=[1])
@@ -840,9 +840,9 @@ contains
     integer :: ierr, i,j, lx, n
     integer, parameter :: gdim = 3
     lx = 5
-    
+
     call device_init
-    
+
     call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
 
     pe_rank = this%getProcessRank()
@@ -888,77 +888,77 @@ contains
     call m%generate_conn()
     call d%init(m, Xh)
     call gs_h%init(d)
-    call x%init(m, Xh, "x")   
+    call x%init(m, Xh, "x")
     n = Xh%lx * Xh%ly * Xh%lz * m%nelv
 
     !> Test GS_OP_ADD
     call rone(x%x, n)
-    call add2(x%x,real(d%dof,rp), n/2)
+    call add2(x%x, real(d%dof, rp), n/2)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
-    
+
     call gs_h%op(x%x, n, GS_OP_ADD)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
-    
+
     do i = 1,lx
-      do j = 1,lx
-      @assertEqual(x%x(j,1,i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
-      enddo
-    enddo
+       do j = 1,lx
+          @assertEqual(x%x(j,1,i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
     !> Test GS_OP_MIN
     call rone(x%x, n)
-    call col2(x%x,real(d%dof,rp), n/2)
+    call col2(x%x, real(d%dof, rp), n/2)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
-    
+
     call gs_h%op(x%x, n, GS_OP_MIN)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
-    
+
     do i = 1,lx
-      do j = 1,lx
-      @assertEqual(x%x(j,1,i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
-      enddo
-    enddo
+       do j = 1,lx
+          @assertEqual(x%x(j,1,i,1), x%x(1,j,i,2), tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
     !> Test GS_OP_MAX
     call rone(x%x, n)
-    call col2(x%x,real(d%dof,rp), n/2)
+    call col2(x%x, real(d%dof, rp), n/2)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), HOST_TO_DEVICE, sync=.false.)
     end if
-    
+
     call gs_h%op(x%x, n, GS_OP_MAX)
 
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
          (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(x%x, x%x_d, size(x%x), DEVICE_TO_HOST, sync=.true.)
     end if
-    
+
     do i = 1,lx
-      do j = 1,lx
-      @assertEqual(x%x(j,1,i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
-      enddo
-    enddo
+       do j = 1,lx
+          @assertEqual(x%x(j,1,i,1), x%x(1,j,i,2),tolerance=epsilon(1.0_rp))
+       end do
+    end do
 
     call device_finalize
-    
+
   end subroutine test_dofmap_face14
-  
+
 end module gather_scatter_parallel
