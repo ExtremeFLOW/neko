@@ -41,8 +41,9 @@ module runtime_stats
   use file, only : file_t
   use matrix, only : matrix_t
   use utils, only : neko_error
-  use comm
-  use mpi_f08
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use mpi_f08, only : MPI_Wtime, MPI_DOUBLE_PRECISION, &
+       MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
   implicit none
   private
 
