@@ -65,7 +65,7 @@ module dynamic_smagorinsky
      type(field_t) :: num
      !> <M_lm M_lm>
      type(field_t) :: den
-  contains
+   contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => dynamic_smagorinsky_init
      !> Destructor.
@@ -89,34 +89,34 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     associate(dofmap => fluid%dm_Xh, &
-              coef => fluid%c_Xh)
+         coef => fluid%c_Xh)
 
-    call json_get_or_default(json, "nut_field", nut_name, "nut")
-    call json_get_or_default(json, "delta_type", delta_type, "pointwise")
+      call json_get_or_default(json, "nut_field", nut_name, "nut")
+      call json_get_or_default(json, "delta_type", delta_type, "pointwise")
 
-    call this%free()
-    call this%init_base(fluid, nut_name, delta_type)
-    call this%test_filter%init(json, coef)
-    call set_ds_filt(this%test_filter)
+      call this%free()
+      call this%init_base(fluid, nut_name, delta_type)
+      call this%test_filter%init(json, coef)
+      call set_ds_filt(this%test_filter)
 
-    call neko_log%section('LES model')
-    write(log_buf, '(A)') 'Model : Dynamic Smagorinsky'
-    call neko_log%message(log_buf)
-    write(log_buf, '(A, A)') 'Delta evaluation : ', delta_type
-    call neko_log%message(log_buf)
-    write(log_buf, '(A, A)') 'Test filter type : ', &
-                                 this%test_filter%filter_type
-    call neko_log%message(log_buf)
-    call neko_log%end_section()
+      call neko_log%section('LES model')
+      write(log_buf, '(A)') 'Model : Dynamic Smagorinsky'
+      call neko_log%message(log_buf)
+      write(log_buf, '(A, A)') 'Delta evaluation : ', delta_type
+      call neko_log%message(log_buf)
+      write(log_buf, '(A, A)') 'Test filter type : ', &
+           this%test_filter%filter_type
+      call neko_log%message(log_buf)
+      call neko_log%end_section()
 
-    call this%c_dyn%init(dofmap, "ds_c_dyn")
-    call this%num%init(dofmap, "ds_num")
-    call this%den%init(dofmap, "ds_den")
+      call this%c_dyn%init(dofmap, "ds_c_dyn")
+      call this%num%init(dofmap, "ds_num")
+      call this%den%init(dofmap, "ds_den")
 
-    do i = 1, 6
-       call this%mij(i)%init(dofmap)
-       call this%lij(i)%init(dofmap)
-    end do
+      do i = 1, 6
+         call this%mij(i)%init(dofmap)
+         call this%lij(i)%init(dofmap)
+      end do
 
     end associate
 
@@ -146,38 +146,38 @@ contains
     class(dynamic_smagorinsky_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    
+
     type(field_t), pointer :: u, v, w, u_e, v_e, w_e
-    
+
     if (this%if_ext .eqv. .true.) then
        ! Extrapolate the velocity fields
        associate(ulag => this%ulag, vlag => this%vlag, &
-                wlag => this%wlag, ext_bdf => this%ext_bdf)
-               
-       u => neko_field_registry%get_field_by_name("u")
-       v => neko_field_registry%get_field_by_name("v")
-       w => neko_field_registry%get_field_by_name("w")
-       u_e => neko_field_registry%get_field_by_name("u_e")
-       v_e => neko_field_registry%get_field_by_name("v_e")
-       w_e => neko_field_registry%get_field_by_name("w_e")
-      
-       call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
-                  ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+            wlag => this%wlag, ext_bdf => this%ext_bdf)
+
+         u => neko_field_registry%get_field_by_name("u")
+         v => neko_field_registry%get_field_by_name("v")
+         w => neko_field_registry%get_field_by_name("w")
+         u_e => neko_field_registry%get_field_by_name("u_e")
+         v_e => neko_field_registry%get_field_by_name("v_e")
+         w_e => neko_field_registry%get_field_by_name("w_e")
+
+         call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
+              ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
 
        end associate
     end if
-    
+
     ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call dynamic_smagorinsky_compute_device(this%if_ext, t, tstep, &
-                                this%coef, this%nut, &
-                                this%delta, this%c_dyn, this%test_filter, &
-                                this%mij, this%lij, this%num, this%den)
+       call dynamic_smagorinsky_compute_device(this%if_ext, t, tstep, &
+            this%coef, this%nut, &
+            this%delta, this%c_dyn, this%test_filter, &
+            this%mij, this%lij, this%num, this%den)
     else
-        call dynamic_smagorinsky_compute_cpu(this%if_ext, t, tstep, &
-                                this%coef, this%nut, &
-                                this%delta, this%c_dyn, this%test_filter, &
-                                this%mij, this%lij, this%num, this%den)
+       call dynamic_smagorinsky_compute_cpu(this%if_ext, t, tstep, &
+            this%coef, this%nut, &
+            this%delta, this%c_dyn, this%test_filter, &
+            this%mij, this%lij, this%num, this%den)
     end if
 
   end subroutine dynamic_smagorinsky_compute
@@ -188,8 +188,8 @@ contains
     integer :: i
 
     if (filter_1d%nx .le. 2) then
-        call neko_error("Dynamic Smagorinsky model error: test filter is not &
-             &defined for the current polynomial order")
+       call neko_error("Dynamic Smagorinsky model error: test filter is not &
+            &defined for the current polynomial order")
     end if
     if (mod(filter_1d%nx,2) .eq. 0) then ! number of grid spacing is odd
        ! cutoff at polynomial order int((filter_1d%nx)/2)

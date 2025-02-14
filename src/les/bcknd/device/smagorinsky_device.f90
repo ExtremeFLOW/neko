@@ -65,7 +65,7 @@ contains
     type(field_t), intent(inout) :: nut
     type(field_t), intent(in) :: delta
     real(kind=rp), intent(in) :: c_s
-   type(field_t), pointer :: u, v, w
+    type(field_t), pointer :: u, v, w
     ! double of the strain rate tensor
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23
     integer :: temp_indices(6)
@@ -97,12 +97,12 @@ contains
     call coef%gs_h%op(s12, GS_OP_ADD)
     call coef%gs_h%op(s13, GS_OP_ADD)
     call coef%gs_h%op(s23, GS_OP_ADD)
-    
+
     call device_smagorinsky_nut_compute(s11%x_d, s22%x_d, s33%x_d, &
-                                  s12%x_d, s13%x_d, s23%x_d, &
-                                  delta%x_d, nut%x_d, coef%mult_d, &
-                                  c_s, s11%dof%size())
-    
+         s12%x_d, s13%x_d, s23%x_d, &
+         delta%x_d, nut%x_d, coef%mult_d, &
+         c_s, s11%dof%size())
+
     call coef%gs_h%op(nut, GS_OP_ADD)
     call device_col2(nut%x_d, coef%mult_d, nut%dof%size())
 

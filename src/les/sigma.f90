@@ -57,7 +57,7 @@ module sigma
      procedure, pass(this) :: init => sigma_init
      !> Constructor from components.
      procedure, pass(this) :: init_from_components &
-                            => sigma_init_from_components
+          => sigma_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => sigma_free
      !> Compute eddy viscosity.
@@ -130,32 +130,32 @@ contains
     integer, intent(in) :: tstep
 
     type(field_t), pointer :: u, v, w, u_e, v_e, w_e
-    
+
     if (this%if_ext .eqv. .true.) then
        ! Extrapolate the velocity fields
        associate(ulag => this%ulag, vlag => this%vlag, &
-                wlag => this%wlag, ext_bdf => this%ext_bdf)
-               
-       u => neko_field_registry%get_field_by_name("u")
-       v => neko_field_registry%get_field_by_name("v")
-       w => neko_field_registry%get_field_by_name("w")
-       u_e => neko_field_registry%get_field_by_name("u_e")
-       v_e => neko_field_registry%get_field_by_name("v_e")
-       w_e => neko_field_registry%get_field_by_name("w_e")
-      
-       call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
-                    ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+            wlag => this%wlag, ext_bdf => this%ext_bdf)
+
+         u => neko_field_registry%get_field_by_name("u")
+         v => neko_field_registry%get_field_by_name("v")
+         w => neko_field_registry%get_field_by_name("w")
+         u_e => neko_field_registry%get_field_by_name("u_e")
+         v_e => neko_field_registry%get_field_by_name("v_e")
+         w_e => neko_field_registry%get_field_by_name("w_e")
+
+         call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
+              ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
 
        end associate
     end if
-    
+
     ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call sigma_compute_device(this%if_ext, t, tstep, this%coef, &
-                                this%nut, this%delta, this%c)
+       call sigma_compute_device(this%if_ext, t, tstep, this%coef, &
+            this%nut, this%delta, this%c)
     else
-        call sigma_compute_cpu(this%if_ext, t, tstep, this%coef, &
-                                this%nut, this%delta, this%c)
+       call sigma_compute_cpu(this%if_ext, t, tstep, this%coef, &
+            this%nut, this%delta, this%c)
     end if
 
   end subroutine sigma_compute

@@ -40,10 +40,10 @@ submodule (les_model) les_model_fctry
 
   ! List of all possible types created by the factory routine
   character(len=20) :: LES_KNOWN_TYPES(4) = [character(len=20) :: &
-     "vreman", &
-     "smagorinsky", &
-     "dymamic_smagorinsky", &
-     "sigma"]
+       "vreman", &
+       "smagorinsky", &
+       "dymamic_smagorinsky", &
+       "sigma"]
 
 contains
   !> LES model factory. Both constructs and initializes the object.
@@ -71,15 +71,15 @@ contains
     else if (trim(type_name) .eq. 'sigma') then
        allocate(sigma_t::object)
     else
-       type_string =  concat_string_array(LES_KNOWN_TYPES, &
+       type_string = concat_string_array(LES_KNOWN_TYPES, &
             NEW_LINE('A') // "-  ", .true.)
        call neko_error("Unknown LES model type: " &
-                       // trim(type_name) // ".  Known types are: " &
-                       // type_string)
+            // trim(type_name) // ".  Known types are: " &
+            // type_string)
        stop
 
     end if
-    
+
   end subroutine les_model_factory
 
 end submodule les_model_fctry

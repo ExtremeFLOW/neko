@@ -124,11 +124,11 @@ contains
     call coef%gs_h%op(g33, GS_OP_ADD)
 
     call device_sigma_nut_compute(g11%x_d, g12%x_d, g13%x_d, &
-                                  g21%x_d, g22%x_d, g23%x_d, &
-                                  g31%x_d, g32%x_d, g33%x_d, &
-                                  delta%x_d, nut%x_d, coef%mult_d, &
-                                  c, eps, g11%dof%size())
-                                  
+         g21%x_d, g22%x_d, g23%x_d, &
+         g31%x_d, g32%x_d, g33%x_d, &
+         delta%x_d, nut%x_d, coef%mult_d, &
+         c, eps, g11%dof%size())
+
     call coef%gs_h%op(nut, GS_OP_ADD)
     call device_col2(nut%x_d, coef%mult_d, nut%dof%size())
 

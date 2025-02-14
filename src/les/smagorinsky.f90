@@ -91,7 +91,7 @@ contains
     call neko_log%end_section()
 
     call smagorinsky_init_from_components(this, fluid, c_s, nut_name, &
-          delta_type)
+         delta_type)
 
   end subroutine smagorinsky_init
 
@@ -135,28 +135,28 @@ contains
     if (this%if_ext .eqv. .true.) then
        ! Extrapolate the velocity fields
        associate(ulag => this%ulag, vlag => this%vlag, &
-                wlag => this%wlag, ext_bdf => this%ext_bdf)
-               
-       u => neko_field_registry%get_field_by_name("u")
-       v => neko_field_registry%get_field_by_name("v")
-       w => neko_field_registry%get_field_by_name("w")
-       u_e => neko_field_registry%get_field_by_name("u_e")
-       v_e => neko_field_registry%get_field_by_name("v_e")
-       w_e => neko_field_registry%get_field_by_name("w_e")
-      
-       call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
-                    ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+            wlag => this%wlag, ext_bdf => this%ext_bdf)
+
+         u => neko_field_registry%get_field_by_name("u")
+         v => neko_field_registry%get_field_by_name("v")
+         w => neko_field_registry%get_field_by_name("w")
+         u_e => neko_field_registry%get_field_by_name("u_e")
+         v_e => neko_field_registry%get_field_by_name("v_e")
+         w_e => neko_field_registry%get_field_by_name("w_e")
+
+         call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
+              ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
 
        end associate
     end if
 
     ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call smagorinsky_compute_device(this%if_ext, t, tstep, this%coef, &
-                        this%nut, this%delta, this%c_s)
+       call smagorinsky_compute_device(this%if_ext, t, tstep, this%coef, &
+            this%nut, this%delta, this%c_s)
     else
-        call smagorinsky_compute_cpu(this%if_ext, t, tstep, this%coef, &
-                        this%nut, this%delta, this%c_s)
+       call smagorinsky_compute_cpu(this%if_ext, t, tstep, this%coef, &
+            this%nut, this%delta, this%c_s)
     end if
 
   end subroutine smagorinsky_compute

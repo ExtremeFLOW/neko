@@ -92,7 +92,7 @@ contains
     call neko_log%end_section()
 
     call vreman_init_from_components(this, fluid, c, nut_name, &
-          delta_type)
+         delta_type)
   end subroutine vreman_init
 
   !> Constructor from components.
@@ -134,28 +134,28 @@ contains
     if (this%if_ext .eqv. .true.) then
        ! Extrapolate the velocity fields
        associate(ulag => this%ulag, vlag => this%vlag, &
-                wlag => this%wlag, ext_bdf => this%ext_bdf)
-               
-       u => neko_field_registry%get_field_by_name("u")
-       v => neko_field_registry%get_field_by_name("v")
-       w => neko_field_registry%get_field_by_name("w")
-       u_e => neko_field_registry%get_field_by_name("u_e")
-       v_e => neko_field_registry%get_field_by_name("v_e")
-       w_e => neko_field_registry%get_field_by_name("w_e")
-      
-       call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
-                    ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+            wlag => this%wlag, ext_bdf => this%ext_bdf)
+
+         u => neko_field_registry%get_field_by_name("u")
+         v => neko_field_registry%get_field_by_name("v")
+         w => neko_field_registry%get_field_by_name("w")
+         u_e => neko_field_registry%get_field_by_name("u_e")
+         v_e => neko_field_registry%get_field_by_name("v_e")
+         w_e => neko_field_registry%get_field_by_name("w_e")
+
+         call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
+              ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
 
        end associate
     end if
-    
+
     ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call vreman_compute_device(this%if_ext, t, tstep, this%coef, &
-                  this%nut, this%delta, this%c)
+       call vreman_compute_device(this%if_ext, t, tstep, this%coef, &
+            this%nut, this%delta, this%c)
     else
-        call vreman_compute_cpu(this%if_ext, t, tstep, this%coef, &
-                  this%nut, this%delta, this%c)
+       call vreman_compute_cpu(this%if_ext, t, tstep, this%coef, &
+            this%nut, this%delta, this%c)
     end if
 
   end subroutine vreman_compute
