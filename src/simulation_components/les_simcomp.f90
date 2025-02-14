@@ -99,7 +99,7 @@ contains
 
     call les_model_factory(this%les_model, name, case%fluid%dm_Xh,&
                            case%fluid%c_Xh, json)
-    call this%les_model%init(case, json)
+    call this%les_model%init(case%fluid, json)
 
   end subroutine les_simcomp_init_from_json
 

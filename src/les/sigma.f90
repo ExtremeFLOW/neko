@@ -35,7 +35,7 @@
 module sigma
   use num_types, only : rp
   use field, only : field_t
-  use case, only : case_t
+  use fluid_scheme_base, only : fluid_scheme_base_t
   use les_model, only : les_model_t
   use dofmap , only : dofmap_t
   use json_utils, only : json_get, json_get_or_default
@@ -45,6 +45,7 @@ module sigma
   use sigma_cpu, only : sigma_compute_cpu
   use sigma_device, only : sigma_compute_device
   use coefs, only : coef_t
+  use field_registry, only : neko_field_registry
   use logger, only : LOG_SIZE, neko_log
   implicit none
   private
@@ -67,11 +68,11 @@ module sigma
 
 contains
   !> Constructor.
-  !! @param case The case_t object.
+  !! @param fluid The fluid_scheme_t object.
   !! @param json A dictionary with parameters.
-  subroutine sigma_init(this, case, json)
+  subroutine sigma_init(this, fluid, json)
     class(sigma_t), intent(inout) :: this
-    class(case_t), intent(inout), target :: case
+    class(fluid_scheme_base_t), intent(inout), target :: fluid
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: nut_name
     real(kind=rp) :: c
@@ -92,24 +93,24 @@ contains
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    call sigma_init_from_components(this, case, c, nut_name, delta_type)
+    call sigma_init_from_components(this, fluid, c, nut_name, delta_type)
   end subroutine sigma_init
 
   !> Constructor from components.
-  !! @param case The case_t object.
+  !! @param fluid The fluid_scheme_t object.
   !! @param c The model constant.
   !! @param nut_name The name of the SGS viscosity field.
-  subroutine sigma_init_from_components(this, case, c, nut_name, &
+  subroutine sigma_init_from_components(this, fluid, c, nut_name, &
        delta_type)
     class(sigma_t), intent(inout) :: this
-    class(case_t), intent(inout), target :: case
+    class(fluid_scheme_base_t), intent(inout), target :: fluid
     real(kind=rp) :: c
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
 
     call this%free()
 
-    call this%init_base(case, nut_name, delta_type)
+    call this%init_base(fluid, nut_name, delta_type)
 
     this%c = c
 
@@ -130,11 +131,15 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
+    type(field_t), pointer :: u, v, w
+
     ! Extrapolate the velocity fields
-    associate(u => this%case%fluid%u, v => this%case%fluid%v, &
-              w => this%case%fluid%w, ulag => this%case%fluid%ulag, &
-              vlag => this%case%fluid%vlag, wlag => this%case%fluid%wlag, &
-              ext_bdf => this%case%ext_bdf)
+    associate(ulag => this%ulag, vlag => this%vlag, &
+              wlag => this%wlag, ext_bdf => this%ext_bdf)
+              
+    u => neko_field_registry%get_field_by_name("u")
+    v => neko_field_registry%get_field_by_name("v")
+    w => neko_field_registry%get_field_by_name("w")
     
     call this%sumab%compute_fluid(this%u_e, this%v_e, this%w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)

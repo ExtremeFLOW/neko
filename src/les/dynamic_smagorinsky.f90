@@ -36,7 +36,7 @@ module dynamic_smagorinsky
   use math
   use field_list, only : field_list_t
   use field, only : field_t
-  use case, only : case_t
+  use fluid_scheme_base, only : fluid_scheme_base_t
   use les_model, only : les_model_t
   use dofmap , only : dofmap_t
   use json_utils, only : json_get, json_get_or_default
@@ -47,6 +47,7 @@ module dynamic_smagorinsky
   use elementwise_filter, only : elementwise_filter_t
   use dynamic_smagorinsky_cpu, only : dynamic_smagorinsky_compute_cpu
   use logger, only : LOG_SIZE, neko_log
+  use field_registry, only : neko_field_registry
   use dynamic_smagorinsky_device, only : dynamic_smagorinsky_compute_device
   implicit none
   private
@@ -80,25 +81,25 @@ module dynamic_smagorinsky
 
 contains
   !> Constructor.
-  !! @param case The case_t object.
+  !! @param fluid The fluid_scheme_t object.
   !! @param json A dictionary with parameters.
-  subroutine dynamic_smagorinsky_init(this, case, json)
+  subroutine dynamic_smagorinsky_init(this, fluid, json)
     class(dynamic_smagorinsky_t), intent(inout) :: this
-    class(case_t), intent(inout), target :: case
+    class(fluid_scheme_base_t), intent(inout), target :: fluid
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: nut_name
     integer :: i
     character(len=:), allocatable :: delta_type
     character(len=LOG_SIZE) :: log_buf
 
-    associate(dofmap => case%fluid%dm_Xh, &
-              coef => case%fluid%c_Xh)
+    associate(dofmap => fluid%dm_Xh, &
+              coef => fluid%c_Xh)
 
     call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
 
     call this%free()
-    call this%init_base(case, nut_name, delta_type)
+    call this%init_base(fluid, nut_name, delta_type)
     call this%test_filter%init(json, coef)
     call set_ds_filt(this%test_filter)
 
@@ -150,11 +151,15 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     
+    type(field_t), pointer :: u, v, w
+
     ! Extrapolate the velocity fields
-    associate(u => this%case%fluid%u, v => this%case%fluid%v, &
-              w => this%case%fluid%w, ulag => this%case%fluid%ulag, &
-              vlag => this%case%fluid%vlag, wlag => this%case%fluid%wlag, &
-              ext_bdf => this%case%ext_bdf)
+    associate(ulag => this%ulag, vlag => this%vlag, &
+              wlag => this%wlag, ext_bdf => this%ext_bdf)
+              
+    u => neko_field_registry%get_field_by_name("u")
+    v => neko_field_registry%get_field_by_name("v")
+    w => neko_field_registry%get_field_by_name("w")
     
     call this%sumab%compute_fluid(this%u_e, this%v_e, this%w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)

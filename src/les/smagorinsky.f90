@@ -35,7 +35,7 @@
 module smagorinsky
   use num_types, only : rp
   use field, only : field_t
-  use case, only : case_t
+  use fluid_scheme_base, only : fluid_scheme_base_t
   use les_model, only : les_model_t
   use dofmap , only : dofmap_t
   use json_utils, only : json_get, json_get_or_default
@@ -45,6 +45,7 @@ module smagorinsky
   use smagorinsky_cpu, only : smagorinsky_compute_cpu
   use smagorinsky_device, only : smagorinsky_compute_device
   use coefs, only : coef_t
+  use field_registry, only : neko_field_registry
   use logger, only : LOG_SIZE, neko_log
   implicit none
   private
@@ -68,12 +69,11 @@ module smagorinsky
 
 contains
   !> Constructor.
-  !! @param dofmap SEM map of degrees of freedom.
-  !! @param coef SEM coefficients.
+  !! @param fluid The fluid_scheme_t object.
   !! @param json A dictionary with parameters.
-  subroutine smagorinsky_init(this, case, json)
+  subroutine smagorinsky_init(this, fluid, json)
     class(smagorinsky_t), intent(inout) :: this
-    class(case_t), intent(inout), target :: case
+    class(fluid_scheme_base_t), intent(inout), target :: fluid
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: nut_name
     real(kind=rp) :: c_s
@@ -93,27 +93,27 @@ contains
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    call smagorinsky_init_from_components(this, case, c_s, nut_name, &
+    call smagorinsky_init_from_components(this, fluid, c_s, nut_name, &
           delta_type)
 
   end subroutine smagorinsky_init
 
   !> Constructor from components.
-  !! @param case The case_t object.
+  !! @param fluid The fluid_scheme_t object.
   !! @param c_s The model constant.
   !! @param nut_name The name of the SGS viscosity field.
   !! @param delta_type The type of filter size
-  subroutine smagorinsky_init_from_components(this, case, c_s, &
+  subroutine smagorinsky_init_from_components(this, fluid, c_s, &
        nut_name, delta_type)
     class(smagorinsky_t), intent(inout) :: this
-    class(case_t), intent(inout), target :: case
+    class(fluid_scheme_base_t), intent(inout), target :: fluid
     real(kind=rp) :: c_s
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
 
     call this%free()
 
-    call this%init_base(case, nut_name, delta_type)
+    call this%init_base(fluid, nut_name, delta_type)
     this%c_s = c_s
 
   end subroutine smagorinsky_init_from_components
@@ -133,11 +133,15 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
+    type(field_t), pointer :: u, v, w
+
     ! Extrapolate the velocity fields
-    associate(u => this%case%fluid%u, v => this%case%fluid%v, &
-              w => this%case%fluid%w, ulag => this%case%fluid%ulag, &
-              vlag => this%case%fluid%vlag, wlag => this%case%fluid%wlag, &
-              ext_bdf => this%case%ext_bdf)
+    associate(ulag => this%ulag, vlag => this%vlag, &
+              wlag => this%wlag, ext_bdf => this%ext_bdf)
+
+    u => neko_field_registry%get_field_by_name("u")
+    v => neko_field_registry%get_field_by_name("v")
+    w => neko_field_registry%get_field_by_name("w")
     
     call this%sumab%compute_fluid(this%u_e, this%v_e, this%w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
