@@ -37,14 +37,11 @@ module smagorinsky
   use field, only : field_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use les_model, only : les_model_t
-  use dofmap , only : dofmap_t
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get_or_default
   use json_module, only : json_file
-  use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
   use smagorinsky_cpu, only : smagorinsky_compute_cpu
   use smagorinsky_device, only : smagorinsky_compute_device
-  use coefs, only : coef_t
   use field_registry, only : neko_field_registry
   use logger, only : LOG_SIZE, neko_log
   implicit none

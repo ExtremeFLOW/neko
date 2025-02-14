@@ -38,7 +38,7 @@ module les_model
   use fluid_pnpn, only : fluid_pnpn_t
   use time_scheme_controller, only : time_scheme_controller_t
   use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_sumab_fctry
-  use field, only : field_t, field_ptr_t
+  use field, only : field_t
   use field_series, only : field_series_t
   use json_module, only : json_file
   use field_registry, only : neko_field_registry
