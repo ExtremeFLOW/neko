@@ -162,18 +162,20 @@ contains
        w_e => neko_field_registry%get_field_by_name("w_e")
       
        call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
-                       ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+                  ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
 
        end associate
     end if
     
     ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call dynamic_smagorinsky_compute_device(this%if_ext, t, tstep, this%coef, this%nut, &
+        call dynamic_smagorinsky_compute_device(this%if_ext, t, tstep, &
+                                this%coef, this%nut, &
                                 this%delta, this%c_dyn, this%test_filter, &
                                 this%mij, this%lij, this%num, this%den)
     else
-        call dynamic_smagorinsky_compute_cpu(this%if_ext, t, tstep, this%coef, this%nut, &
+        call dynamic_smagorinsky_compute_cpu(this%if_ext, t, tstep, &
+                                this%coef, this%nut, &
                                 this%delta, this%c_dyn, this%test_filter, &
                                 this%mij, this%lij, this%num, this%den)
     end if
