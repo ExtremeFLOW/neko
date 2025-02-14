@@ -90,25 +90,17 @@ contains
     call coef%gs_h%op(s13, GS_OP_ADD)
     call coef%gs_h%op(s23, GS_OP_ADD)
 
-    do concurrent (i = 1:s11%dof%size())
-       s11%x(i,1,1,1) = s11%x(i,1,1,1) * coef%mult(i,1,1,1)
-       s22%x(i,1,1,1) = s22%x(i,1,1,1) * coef%mult(i,1,1,1)
-       s33%x(i,1,1,1) = s33%x(i,1,1,1) * coef%mult(i,1,1,1)
-       s12%x(i,1,1,1) = s12%x(i,1,1,1) * coef%mult(i,1,1,1)
-       s13%x(i,1,1,1) = s13%x(i,1,1,1) * coef%mult(i,1,1,1)
-       s23%x(i,1,1,1) = s23%x(i,1,1,1) * coef%mult(i,1,1,1)
-    end do
-
     do concurrent (e = 1:coef%msh%nelv)
        do concurrent (i = 1:coef%Xh%lxyz)
           s_abs = sqrt(2.0_rp * (s11%x(i,1,1,e)*s11%x(i,1,1,e) + &
-                                 s22%x(i,1,1,e)*s22%x(i,1,1,e) + &
-                                 s33%x(i,1,1,e)*s33%x(i,1,1,e)) + &
-                       4.0_rp * (s12%x(i,1,1,e)*s12%x(i,1,1,e) + &
-                                 s13%x(i,1,1,e)*s13%x(i,1,1,e) + &
-                                 s23%x(i,1,1,e)*s23%x(i,1,1,e)))
+               s22%x(i,1,1,e)*s22%x(i,1,1,e) + &
+               s33%x(i,1,1,e)*s33%x(i,1,1,e)) + &
+               4.0_rp * (s12%x(i,1,1,e)*s12%x(i,1,1,e) + &
+               s13%x(i,1,1,e)*s13%x(i,1,1,e) + &
+               s23%x(i,1,1,e)*s23%x(i,1,1,e)))
 
-          nut%x(i,1,1,e) = c_s**2 * delta%x(i,1,1,e)**2 * s_abs
+          nut%x(i,1,1,e) = c_s**2 * delta%x(i,1,1,e)**2 * s_abs &
+               * coef%mult(i,1,1,e)
        end do
     end do
 

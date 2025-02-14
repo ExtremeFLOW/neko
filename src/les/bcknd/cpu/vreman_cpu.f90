@@ -41,7 +41,7 @@ module vreman_cpu
   use operators, only : dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
-   implicit none
+  implicit none
   private
 
   public :: vreman_compute_cpu
@@ -115,18 +115,6 @@ contains
     call coef%gs_h%op(a32, GS_OP_ADD)
     call coef%gs_h%op(a33, GS_OP_ADD)
 
-    do concurrent (i = 1:a11%dof%size())
-       a11%x(i,1,1,1) = a11%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a12%x(i,1,1,1) = a12%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a13%x(i,1,1,1) = a13%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a21%x(i,1,1,1) = a21%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a22%x(i,1,1,1) = a22%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a23%x(i,1,1,1) = a23%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a31%x(i,1,1,1) = a31%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a32%x(i,1,1,1) = a32%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a33%x(i,1,1,1) = a33%x(i,1,1,1) * coef%mult(i,1,1,1)
-    end do
-
     do concurrent (e = 1:coef%msh%nelv)
        do concurrent (i = 1:coef%Xh%lxyz)
           ! beta_ij = alpha_mi alpha_mj
@@ -134,17 +122,17 @@ contains
           beta22 = a12%x(i,1,1,e)**2 + a22%x(i,1,1,e)**2 + a32%x(i,1,1,e)**2
           beta33 = a13%x(i,1,1,e)**2 + a23%x(i,1,1,e)**2 + a33%x(i,1,1,e)**2
           beta12 = a11%x(i,1,1,e)*a12%x(i,1,1,e) + &
-                   a21%x(i,1,1,e)*a22%x(i,1,1,e) + &
-                   a31%x(i,1,1,e)*a32%x(i,1,1,e)
+               a21%x(i,1,1,e)*a22%x(i,1,1,e) + &
+               a31%x(i,1,1,e)*a32%x(i,1,1,e)
           beta13 = a11%x(i,1,1,e)*a13%x(i,1,1,e) + &
-                   a21%x(i,1,1,e)*a23%x(i,1,1,e) + &
-                   a31%x(i,1,1,e)*a33%x(i,1,1,e)
+               a21%x(i,1,1,e)*a23%x(i,1,1,e) + &
+               a31%x(i,1,1,e)*a33%x(i,1,1,e)
           beta23 = a12%x(i,1,1,e)*a13%x(i,1,1,e) + &
-                   a22%x(i,1,1,e)*a23%x(i,1,1,e) + &
-                   a32%x(i,1,1,e)*a33%x(i,1,1,e)
+               a22%x(i,1,1,e)*a23%x(i,1,1,e) + &
+               a32%x(i,1,1,e)*a33%x(i,1,1,e)
 
           b_beta = beta11*beta22 - beta12*beta12 + beta11*beta33 - beta13*beta13 &
-                  + beta22*beta33 - beta23*beta23
+               + beta22*beta33 - beta23*beta23
 
           b_beta = max(0.0_rp, b_beta)
 
@@ -152,7 +140,8 @@ contains
           aijaij = beta11 + beta22 + beta33
 
           nut%x(i,1,1,e) = c*delta%x(i,1,1,e)*delta%x(i,1,1,e) &
-                            * sqrt(b_beta/(aijaij + NEKO_EPS))
+               * sqrt(b_beta/(aijaij + NEKO_EPS)) &
+               * coef%mult(i,1,1,e)
        end do
     end do
 

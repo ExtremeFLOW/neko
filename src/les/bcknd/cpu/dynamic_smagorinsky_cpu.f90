@@ -62,7 +62,7 @@ contains
   !! @param num The numerator in the expression of c_dyn, i.e. <mij*lij>
   !! @param den The denominator in the expression of c_dyn, i.e. <mij*mij>
   subroutine dynamic_smagorinsky_compute_cpu(t, tstep, coef, nut, delta, &
-                                             c_dyn, test_filter, mij, lij, num, den)
+       c_dyn, test_filter, mij, lij, num, den)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
@@ -109,27 +109,18 @@ contains
     call coef%gs_h%op(s13%x, s11%dof%size(), GS_OP_ADD)
     call coef%gs_h%op(s23%x, s11%dof%size(), GS_OP_ADD)
 
-    do concurrent (i = 1:s11%dof%size())
-       s11%x(i,1,1,1) = s11%x(i,1,1,1) * coef%mult(i,1,1,1)
-       s22%x(i,1,1,1) = s22%x(i,1,1,1) * coef%mult(i,1,1,1)
-       s33%x(i,1,1,1) = s33%x(i,1,1,1) * coef%mult(i,1,1,1)
-       s12%x(i,1,1,1) = s12%x(i,1,1,1) * coef%mult(i,1,1,1)
-       s13%x(i,1,1,1) = s13%x(i,1,1,1) * coef%mult(i,1,1,1)
-       s23%x(i,1,1,1) = s23%x(i,1,1,1) * coef%mult(i,1,1,1)
-    end do
-
     do concurrent (i = 1:u%dof%size())
        s_abs%x(i,1,1,1) = sqrt(2.0_rp * (s11%x(i,1,1,1)*s11%x(i,1,1,1) + &
-                               s22%x(i,1,1,1)*s22%x(i,1,1,1) + &
-                               s33%x(i,1,1,1)*s33%x(i,1,1,1)) + &
-                     4.0_rp * (s12%x(i,1,1,1)*s12%x(i,1,1,1) + &
-                               s13%x(i,1,1,1)*s13%x(i,1,1,1) + &
-                               s23%x(i,1,1,1)*s23%x(i,1,1,1)))
+            s22%x(i,1,1,1)*s22%x(i,1,1,1) + &
+            s33%x(i,1,1,1)*s33%x(i,1,1,1)) + &
+            4.0_rp * (s12%x(i,1,1,1)*s12%x(i,1,1,1) + &
+            s13%x(i,1,1,1)*s13%x(i,1,1,1) + &
+            s23%x(i,1,1,1)*s23%x(i,1,1,1)))
     end do
 
     call compute_lij_cpu(lij, u, v, w, test_filter, u%dof%size())
     call compute_mij_cpu(mij, s11, s22, s33, s12, s13, s23, &
-                             s_abs, test_filter, delta, u%dof%size())
+         s_abs, test_filter, delta, u%dof%size())
     call compute_num_den_cpu(num, den, lij, mij, alpha, u%dof%size())
 
     do concurrent (i =1:u%dof%size())
@@ -139,7 +130,8 @@ contains
           c_dyn%x(i,1,1,1) = 0.0_rp
        end if
        c_dyn%x(i,1,1,1) = max(c_dyn%x(i,1,1,1),0.0_rp)
-       nut%x(i,1,1,1) = c_dyn%x(i,1,1,1) * delta%x(i,1,1,1)**2 * s_abs%x(i,1,1,1)
+       nut%x(i,1,1,1) = c_dyn%x(i,1,1,1) * delta%x(i,1,1,1)**2 * s_abs%x(i,1,1,1) &
+            * coef%mult(i,1,1,1)
     end do
 
     call coef%gs_h%op(nut, GS_OP_ADD)
@@ -222,13 +214,13 @@ contains
   !! @param w z-velocity resolved (only filtered once)
   !! @param test_filter
   subroutine compute_mij_cpu(mij, s11, s22, s33, s12, s13, s23, &
-                             s_abs, test_filter, delta, n)
+       s_abs, test_filter, delta, n)
     type(field_t), intent(inout) :: mij(6)
     type(field_t), intent(inout) :: s11, s22, s33, s12, s13, s23, s_abs
     type(elementwise_filter_t), intent(inout) :: test_filter
     type(field_t), intent(in) :: delta
     integer, intent(in) :: n
-    
+
     integer :: temp_indices(7)
     type(field_t), pointer :: fs11, fs22, fs33, fs12, fs13, fs23, fs_abs
     real(kind=rp) :: delta_ratio2 !test- to grid- filter ratio, squared
@@ -236,7 +228,7 @@ contains
     real(kind=rp) :: delta2
 
     delta_ratio2 = ((test_filter%nx-1.0_rp)/(test_filter%nt-1.0_rp))**2
-    
+
     call neko_scratch_registry%request_field(fs11, temp_indices(1))
     call neko_scratch_registry%request_field(fs22, temp_indices(2))
     call neko_scratch_registry%request_field(fs33, temp_indices(3))
@@ -319,7 +311,7 @@ contains
   !! @param den The denominator in the expression of c_dyn, i.e. <mij*mij>
   !! @param mij
   !! @param lij The Germano identity.
-  !! @param alpha The moving average coefficient 
+  !! @param alpha The moving average coefficient
   subroutine compute_num_den_cpu(num, den, lij, mij, alpha, n)
     type(field_t), intent(inout) :: num, den
     type(field_t), intent(in) :: lij(6), mij(6)
@@ -331,17 +323,17 @@ contains
 
     do concurrent (i = 1:n)
        num_curr(i) = mij(1)%x(i,1,1,1)*lij(1)%x(i,1,1,1) + &
-                     mij(2)%x(i,1,1,1)*lij(2)%x(i,1,1,1) + &
-                     mij(3)%x(i,1,1,1)*lij(3)%x(i,1,1,1) + &
-                     2.0_rp*(mij(4)%x(i,1,1,1)*lij(4)%x(i,1,1,1) + &
-                     mij(5)%x(i,1,1,1)*lij(5)%x(i,1,1,1) + &
-                     mij(6)%x(i,1,1,1)*lij(6)%x(i,1,1,1))
+            mij(2)%x(i,1,1,1)*lij(2)%x(i,1,1,1) + &
+            mij(3)%x(i,1,1,1)*lij(3)%x(i,1,1,1) + &
+            2.0_rp*(mij(4)%x(i,1,1,1)*lij(4)%x(i,1,1,1) + &
+            mij(5)%x(i,1,1,1)*lij(5)%x(i,1,1,1) + &
+            mij(6)%x(i,1,1,1)*lij(6)%x(i,1,1,1))
        den_curr(i) = mij(1)%x(i,1,1,1)*mij(1)%x(i,1,1,1) + &
-                     mij(2)%x(i,1,1,1)*mij(2)%x(i,1,1,1) + &
-                     mij(3)%x(i,1,1,1)*mij(3)%x(i,1,1,1) + &
-                     2.0_rp*(mij(4)%x(i,1,1,1)*mij(4)%x(i,1,1,1) + &
-                     mij(5)%x(i,1,1,1)*mij(5)%x(i,1,1,1) + &
-                     mij(6)%x(i,1,1,1)*mij(6)%x(i,1,1,1))
+            mij(2)%x(i,1,1,1)*mij(2)%x(i,1,1,1) + &
+            mij(3)%x(i,1,1,1)*mij(3)%x(i,1,1,1) + &
+            2.0_rp*(mij(4)%x(i,1,1,1)*mij(4)%x(i,1,1,1) + &
+            mij(5)%x(i,1,1,1)*mij(5)%x(i,1,1,1) + &
+            mij(6)%x(i,1,1,1)*mij(6)%x(i,1,1,1))
     end do
 
     ! running average over time
