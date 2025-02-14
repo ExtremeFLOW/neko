@@ -340,7 +340,7 @@ contains
          this%pr_projection_activ_step)
 
     call this%proj_vel%init(this%dm_Xh%size(), this%vel_projection_dim, &
-                              this%vel_projection_activ_step)
+         this%vel_projection_activ_step)
 
 
     ! Add lagged term to checkpoint
@@ -818,7 +818,7 @@ contains
       call profiler_end_region("Velocity_solve", 4)
 
       call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
-                                 this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, n, tstep, dt_controller)
+           this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, n, tstep, dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opadd2cm(u%x_d, v%x_d, w%x_d, &
