@@ -375,7 +375,7 @@ contains
        call this%gradient_jump_penalty_w%init(params, this%dm_Xh, this%c_Xh, &
             GJP_param_a, GJP_param_b)
     end if
-    
+
     if (this%variable_material_properties) then
        call neko_field_registry%add_field(this%dm_Xh, 'u_e')
        call neko_field_registry%add_field(this%dm_Xh, 'v_e')
