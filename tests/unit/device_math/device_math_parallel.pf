@@ -7,6 +7,7 @@ module device_math_parallel
   use neko_config
   use num_types
   use comm, only : NEKO_COMM, pe_rank, pe_size
+  use, intrinsic :: iso_c_binding
   implicit none
 
   @TestCase

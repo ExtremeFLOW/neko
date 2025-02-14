@@ -47,7 +47,7 @@ module les_simcomp
 
   !> A simulation component that drives the computation of the SGS
   !! viscosity.
-   type, public, extends(simulation_component_t) :: les_simcomp_t
+  type, public, extends(simulation_component_t) :: les_simcomp_t
      !> The LES model.
      class(les_model_t), allocatable :: les_model
      !> Output writer.
@@ -76,12 +76,12 @@ contains
 
     call this%free()
 
-    ! Check for whether eddy viscosity is enabled in fluid_scheme
+    ! Check for whether eddy viscosity is enabled in fluid_scheme_incompressible
     if (case%fluid%variable_material_properties .eqv. .false.) then
-        call neko_error("Eddy viscosity is not acting &
-                          &on the equations. &
-                          &Please set up a nut_field option &
-                          &in the fluid solver")
+       call neko_error("Eddy viscosity is not acting &
+            &on the equations. &
+            &Please set up a nut_field option &
+            &in the fluid solver")
     end if
 
     ! Add fields keyword to the json so that the field_writer picks it up.
@@ -110,8 +110,8 @@ contains
     call this%writer%free()
 
     if (allocated(this%les_model)) then
-      call this%les_model%free()
-      deallocate(this%les_model)
+       call this%les_model%free()
+       deallocate(this%les_model)
     end if
   end subroutine les_simcomp_free
 
