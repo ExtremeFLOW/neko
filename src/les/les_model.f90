@@ -35,6 +35,7 @@
 module les_model
   use num_types, only : rp
   use fluid_scheme_base, only : fluid_scheme_base_t
+  use fluid_pnpn, only : fluid_pnpn_t
   use time_scheme_controller, only : time_scheme_controller_t
   use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_sumab_fctry
   use field, only : field_t, field_ptr_t
@@ -61,10 +62,8 @@ module les_model
      type(field_series_t), pointer :: wlag => null()
      !> Summation of AB/BDF contributions to extrapolate the field
      class(rhs_maker_sumab_t), allocatable :: sumab
-     !> Extrapolation velocity fields
-     type(field_t), pointer :: u_e => null() !< Extrapolated x-Velocity
-     type(field_t), pointer :: v_e => null() !< Extrapolated y-Velocity
-     type(field_t), pointer :: w_e => null() !< Extrapolated z-Velocity
+     !> Logical variable for extrapolation
+     logical :: if_ext = .false.
      !> Subgrid kinematic viscosity.
      type(field_t), pointer :: nut => null()
      !> LES lengthscale type
@@ -165,20 +164,16 @@ contains
 
     call this%compute_delta()
 
-    call neko_field_registry%add_field(dofmap, 'u_e')
-    call neko_field_registry%add_field(dofmap, 'v_e')
-    call neko_field_registry%add_field(dofmap, 'w_e')
-    this%u_e => neko_field_registry%get_field('u_e')
-    this%v_e => neko_field_registry%get_field('v_e')
-    this%w_e => neko_field_registry%get_field('w_e')
-    
-    this%ulag => fluid%ulag
-    this%vlag => fluid%vlag
-    this%wlag => fluid%wlag
-
-    ! Setup backend dependent summation of AB/BDF
-    this%ext_bdf => fluid%ext_bdf
-    call rhs_maker_sumab_fctry(this%sumab)
+    select type (fluid)
+    type is (fluid_pnpn_t)
+       this%if_ext = .true.
+       this%ulag => fluid%ulag
+       this%vlag => fluid%vlag
+       this%wlag => fluid%wlag
+       ! Setup backend dependent summation of AB/BDF
+       this%ext_bdf => fluid%ext_bdf
+       call rhs_maker_sumab_fctry(this%sumab)
+    end select
 
     end associate
   end subroutine les_model_init_base
@@ -190,9 +185,6 @@ contains
     nullify(this%nut)
     nullify(this%delta)
     nullify(this%coef)
-    nullify(this%u_e)
-    nullify(this%v_e)
-    nullify(this%w_e)
     if (allocated(this%sumab)) then
        deallocate(this%sumab)
     end if

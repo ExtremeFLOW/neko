@@ -50,6 +50,7 @@ module dynamic_smagorinsky_cpu
 contains
 
   !> Compute eddy viscosity on the CPU.
+  !! @param if_ext If extrapolate the velocity field to evaluate
   !! @param t The time value.
   !! @param tstep The current time-step.
   !! @param coef SEM coefficients.
@@ -61,8 +62,9 @@ contains
   !! @param lij The Germano identity.
   !! @param num The numerator in the expression of c_dyn, i.e. <mij*lij>
   !! @param den The denominator in the expression of c_dyn, i.e. <mij*mij>
-  subroutine dynamic_smagorinsky_compute_cpu(t, tstep, coef, nut, delta, &
+  subroutine dynamic_smagorinsky_compute_cpu(if_ext, t, tstep, coef, nut, delta, &
                                              c_dyn, test_filter, mij, lij, num, den)
+    logical :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
@@ -86,10 +88,17 @@ contains
     else
        alpha = 0.9_rp
     end if
+    
+    if (if_ext .eqv. .true.) then
+       u => neko_field_registry%get_field_by_name("u_e")
+       v => neko_field_registry%get_field_by_name("v_e")
+       w => neko_field_registry%get_field_by_name("w_e")
+    else
+       u => neko_field_registry%get_field_by_name("u")
+       v => neko_field_registry%get_field_by_name("v")
+       w => neko_field_registry%get_field_by_name("w")
+    end if
 
-    u => neko_field_registry%get_field_by_name("u_e")
-    v => neko_field_registry%get_field_by_name("v_e")
-    w => neko_field_registry%get_field_by_name("w_e")
 
     call neko_scratch_registry%request_field(s11, temp_indices(1))
     call neko_scratch_registry%request_field(s22, temp_indices(2))

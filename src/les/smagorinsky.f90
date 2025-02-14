@@ -69,7 +69,7 @@ module smagorinsky
 
 contains
   !> Constructor.
-  !! @param fluid The fluid_scheme_t object.
+  !! @param fluid The fluid_scheme_base_t object.
   !! @param json A dictionary with parameters.
   subroutine smagorinsky_init(this, fluid, json)
     class(smagorinsky_t), intent(inout) :: this
@@ -99,7 +99,7 @@ contains
   end subroutine smagorinsky_init
 
   !> Constructor from components.
-  !! @param fluid The fluid_scheme_t object.
+  !! @param fluid The fluid_scheme_base_t object.
   !! @param c_s The model constant.
   !! @param nut_name The name of the SGS viscosity field.
   !! @param delta_type The type of filter size
@@ -133,27 +133,32 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    type(field_t), pointer :: u, v, w
+    type(field_t), pointer :: u, v, w, u_e, v_e, w_e
 
-    ! Extrapolate the velocity fields
-    associate(ulag => this%ulag, vlag => this%vlag, &
-              wlag => this%wlag, ext_bdf => this%ext_bdf)
+    if (this%if_ext .eqv. .true.) then
+       ! Extrapolate the velocity fields
+       associate(ulag => this%ulag, vlag => this%vlag, &
+                wlag => this%wlag, ext_bdf => this%ext_bdf)
+               
+       u => neko_field_registry%get_field_by_name("u")
+       v => neko_field_registry%get_field_by_name("v")
+       w => neko_field_registry%get_field_by_name("w")
+       u_e => neko_field_registry%get_field_by_name("u_e")
+       v_e => neko_field_registry%get_field_by_name("v_e")
+       w_e => neko_field_registry%get_field_by_name("w_e")
+      
+       call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
+                       ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
 
-    u => neko_field_registry%get_field_by_name("u")
-    v => neko_field_registry%get_field_by_name("v")
-    w => neko_field_registry%get_field_by_name("w")
-    
-    call this%sumab%compute_fluid(this%u_e, this%v_e, this%w_e, u, v, w, &
-           ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
-
-    end associate
+       end associate
+    end if
 
     ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call smagorinsky_compute_device(t, tstep, this%coef, this%nut, this%delta,&
+        call smagorinsky_compute_device(this%if_ext, t, tstep, this%coef, this%nut, this%delta,&
                                 this%c_s)
     else
-        call smagorinsky_compute_cpu(t, tstep, this%coef, this%nut, this%delta,&
+        call smagorinsky_compute_cpu(this%if_ext, t, tstep, this%coef, this%nut, this%delta,&
                                 this%c_s)
     end if
 

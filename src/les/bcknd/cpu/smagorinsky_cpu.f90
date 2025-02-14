@@ -49,13 +49,15 @@ module smagorinsky_cpu
 contains
 
   !> Compute eddy viscosity on the CPU.
+  !! @param if_ext If extrapolate the velocity field to evaluate
   !! @param t The time value.
   !! @param tstep The current time-step.
   !! @param coef SEM coefficients.
   !! @param nut The SGS viscosity array.
   !! @param delta The LES lengthscale.
   !! @param c_s The smagorinsky model constant
-  subroutine smagorinsky_compute_cpu(t, tstep, coef, nut, delta, c_s)
+  subroutine smagorinsky_compute_cpu(if_ext, t, tstep, coef, nut, delta, c_s)
+    logical :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
@@ -69,9 +71,15 @@ contains
     integer :: temp_indices(6)
     integer :: e, i
 
-    u => neko_field_registry%get_field_by_name("u_e")
-    v => neko_field_registry%get_field_by_name("v_e")
-    w => neko_field_registry%get_field_by_name("w_e")
+    if (if_ext .eqv. .true.) then
+       u => neko_field_registry%get_field_by_name("u_e")
+       v => neko_field_registry%get_field_by_name("v_e")
+       w => neko_field_registry%get_field_by_name("w_e")
+    else
+       u => neko_field_registry%get_field_by_name("u")
+       v => neko_field_registry%get_field_by_name("v")
+       w => neko_field_registry%get_field_by_name("w")
+    end if
 
     call neko_scratch_registry%request_field(s11, temp_indices(1))
     call neko_scratch_registry%request_field(s22, temp_indices(2))
