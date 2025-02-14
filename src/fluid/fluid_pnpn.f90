@@ -336,14 +336,6 @@ contains
     call json_get_or_default(params, 'case.output_boundary', found, .false.)
     if (found) call this%write_boundary_conditions()
 
-    ! Intialize projection space
-    if (this%variable_material_properties .and. &
-         this%vel_projection_dim .gt. 0) then
-       call neko_error("Velocity projection not available for full stress &
-            &formulation")
-    end if
-
-
     call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
          this%pr_projection_activ_step)
 
@@ -813,7 +805,8 @@ contains
       call profiler_end_region('Velocity_residual', 19)
 
       call this%proj_vel%pre_solving(u_res%x, v_res%x, w_res%x, &
-                                     tstep, c_Xh, n, dt_controller)
+           tstep, c_Xh, n, dt_controller, &
+           'Velocity')
 
       call this%pc_vel%update()
 
