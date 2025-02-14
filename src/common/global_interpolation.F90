@@ -44,11 +44,12 @@ module global_interpolation
   use device_local_interpolation
   use device
   use point
+  use tuple, only: tuple_i4_t
   use comm
   use gs_mpi
   use gs_ops, only: GS_OP_ADD
   use aabb, only: aabb_t
-  use aabb_tree, only: aabb_tree_t
+  use aabb_tree, only: aabb_tree_t, aabb_node_t, AABB_NULL_NODE
   use vector, only: vector_t
   use matrix, only: matrix_t
   use math, only: copy, glsum
@@ -59,7 +60,7 @@ module global_interpolation
   implicit none
   private
   
-  integer, public, parameter :: GLOB_MAP_SIZE = 100000
+  integer, public, parameter :: GLOB_MAP_SIZE = 4096
   !> Implements global interpolation for arbitrary points in the domain.
   type, public :: global_interpolation_t
      !> X coordinates from which to interpolate.
@@ -211,10 +212,15 @@ contains
     type(MPI_COMM), intent(in), optional :: comm
     type(space_t), intent(in), target :: Xh
     real(kind=rp), intent(in), optional :: tol
-    integer :: lx, ly, lz, max_pts_per_iter, ierr, i, id1, id2, n
+    integer :: lx, ly, lz, max_pts_per_iter, ierr, i, id1, id2, n, j
     real(kind=dp), allocatable :: rank_xyz_max(:,:), rank_xyz_min(:,:), max_xyz(:,:), min_xyz(:,:)
     type(stack_i4_t) :: pe_candidates
-    integer :: start, last, n_box_el
+    type(stack_i4t2_t) :: traverse_stack
+    integer :: start, last, n_box_el, lvl
+    type(tuple_i4_t) :: id_lvl, temp_id_lvl
+    character(len=8000) :: log_buf
+    real(kind=rp) :: time1, time_start
+    type(aabb_node_t) :: node
    
     call this%free()
       
@@ -235,55 +241,105 @@ contains
     this%Xh => Xh
     if (present(tol)) this%tol = tol
 
+    time_start = MPI_Wtime()
     lx = Xh%lx
     ly = Xh%ly
     lz = Xh%lz
     n = nelv * lx*ly*lz
+   !> Create a local tree for each element at this rank
+    call this%local_aabb_tree%init(nelv)
+    allocate(this%local_aabb(nelv))
+    do i = 1, nelv
+       id1 = lx*ly*lz*(i-1)+1
+       id2 = lx*ly*lz*(i)
+       call this%local_aabb(i)%init( (/minval(this%x%ptr(id1:id2)), &
+                                       minval(this%y%ptr(id1:id2)), &
+                                       minval(this%z%ptr(id1:id2))/), &
+                                     (/maxval(this%x%ptr(id1:id2)), &
+                                       maxval(this%y%ptr(id1:id2)), &
+                                       maxval(this%z%ptr(id1:id2))/))
+       call this%local_aabb_tree%insert_object(this%local_aabb(i),i)
+    end do
+
+
+
+
     this%pe_box_num = min(GLOB_MAP_SIZE/this%pe_size,nelv)
+    this%pe_box_num = ishft(1, ceiling(log(real(this%pe_box_num, rp)) / NEKO_M_LN2))
     call MPI_Allreduce(MPI_IN_PLACE, this%pe_box_num, 1, MPI_INTEGER, &
                        MPI_MIN, this%comm, ierr) 
+    this%pe_box_num = max(this%pe_box_num,2)
     this%glob_map_size = this%pe_box_num*this%pe_size
     if (pe_rank .eq. 0) print *, this%pe_box_num, this%glob_map_size
     allocate(rank_xyz_max(3,this%glob_map_size))
     allocate(rank_xyz_min(3,this%glob_map_size))
     allocate(min_xyz(3,this%pe_box_num))
     allocate(max_xyz(3,this%pe_box_num))
-    do i = 1, this%pe_box_num
-       n_box_el = (nelv+this%pe_box_num)/this%pe_box_num
-       start = 1+(i-1)*n_box_el*lx*ly*lz
-       last = min(i*n_box_el*lx*ly*lz,n)
-       max_xyz(:,i) = (/maxval(x(start:last)), maxval(y(start:last)), maxval(z(start:last))/)
-       min_xyz(:,i) = (/minval(x(start:last)), minval(y(start:last)), minval(z(start:last))/)
+    i = 1
+    id_lvl = (/this%local_aabb_tree%get_root_index(),0/)
+    call traverse_stack%init()
+    call traverse_stack%push(id_lvl)
+    lvl = 0
+    do while (traverse_stack%size() > 0)
+       id_lvl = traverse_stack%pop() 
+       lvl = id_lvl%x(2)
+       node = this%local_aabb_tree%get_node(id_lvl%x(1))
+       if (2**lvl == this%pe_box_num .or. node%is_leaf()) then
+          min_xyz(:,i) = node%aabb%get_min()
+          max_xyz(:,i) = node%aabb%get_max()
+          i = i + 1
+       else if (2**lvl < this%pe_box_num) then
+          if (node%get_left_index() .ne. AABB_NULL_NODE) then
+             temp_id_lvl = (/node%get_left_index(),lvl+1/)
+             call traverse_stack%push(temp_id_lvl)
+          end if
+          if (node%get_right_index() .ne. AABB_NULL_NODE) then
+             temp_id_lvl = (/node%get_right_index(),lvl+1/)
+             call traverse_stack%push(temp_id_lvl)
+          end if
+       end if
     end do
+    !Needs to be something in the domain
+    !If somehow we dont need all boxes we just put a point here
+    do j = i, this%pe_box_num
+          min_xyz(:,j) =[x(1), y(1), z(1)]
+          max_xyz(:,j) =[x(1), y(1), z(1)]
+    end do
+    !Build local tree with small depth instead of minimizing box area
+    call this%local_aabb_tree%build(this%local_aabb)
+    !do j = 1, this%pe_box_num
+    !   n_box_el = max(nelv/this%pe_box_num,1)
+    !   start = 1+(i-1)*n_box_el*lx*ly*lz
+    !   last = i*n_box_el*lx*ly*lz
+    !   if (i .eq. this%pe_box_num) last = n
+    !   max_xyz(:,i) = (/maxval(x(start:last)), maxval(y(start:last)), maxval(z(start:last))/)
+    !   min_xyz(:,i) = (/minval(x(start:last)), minval(y(start:last)), minval(z(start:last))/)
+    !end do
     call MPI_Allgather(max_xyz, 3*this%pe_box_num, MPI_DOUBLE_PRECISION, &
     rank_xyz_max, 3*this%pe_box_num, MPI_DOUBLE_PRECISION, this%comm, ierr) 
     call MPI_Allgather(min_xyz, 3*this%pe_box_num, MPI_DOUBLE_PRECISION, &
     rank_xyz_min, 3*this%pe_box_num, MPI_DOUBLE_PRECISION, this%comm, ierr) 
+    call MPI_Barrier(this%comm)
+    time1 = MPI_Wtime()
+    write(log_buf, '(A,E15.7)') &
+    'Sent bounding box info (s):', time1-time_start
+    call neko_log%message(log_buf)  
     if (allocated(this%global_aabb)) deallocate(this%global_aabb)
     if (allocated(this%local_aabb)) deallocate(this%local_aabb)
     allocate(this%global_aabb(this%glob_map_size))
-    allocate(this%local_aabb(nelv))
     !> Create global tree for each rank
+    !call this%global_aabb_tree%init(this%glob_map_size)
     do i = 1, this%glob_map_size
        call this%global_aabb(i)%init(rank_xyz_min(:,i), rank_xyz_max(:,i))
+       !call this%global_aabb_tree%insert_object(this%global_aabb(i),(i-1)/this%pe_box_num)
     end do
-    call this%global_aabb_tree%init(this%glob_map_size)
     call this%global_aabb_tree%build(this%global_aabb)
-    !> Create a local tree for each element at this rank
-    do i = 1, nelv
-       id1 = lx*ly*lz*(i-1)+1
-       id2 = lx*ly*lz*(i)
-       max_xyz(:,1) = (/maxval(this%x%ptr(id1:id2)), &
-       maxval(this%y%ptr(id1:id2)), maxval(this%z%ptr(id1:id2))/)
-       min_xyz(:,1) = (/minval(this%x%ptr(id1:id2)), &
-       minval(this%y%ptr(id1:id2)), minval(this%z%ptr(id1:id2))/)
-       call this%local_aabb(i)%init(min_xyz(:,1), max_xyz(:,1))
-    end do
-
-    call this%local_aabb_tree%init(nelv)
-    call this%local_aabb_tree%build(this%local_aabb)
-
-  end subroutine global_interpolation_init_xyz
+    call MPI_Barrier(this%comm)
+    time1 = MPI_Wtime()
+    write(log_buf, '(A,E15.7)') &
+    'Built global map of domain (s):', time1-time_start
+    call neko_log%message(log_buf)  
+   end subroutine global_interpolation_init_xyz
 
 
   !> Destructor
@@ -382,12 +438,11 @@ contains
     real(kind=dp) :: pt_xyz(3), res1
     integer :: i, j, stupid_intent, iter
     integer(kind=8) :: bytes
-    type(point_t), allocatable :: my_point(:)
-    type(point_t), allocatable :: my_points(:)
+    type(point_t) :: my_point
     type(stack_i4_t) :: all_el_candidates
     type(stack_i4_t), allocatable :: points_at_pe(:)
-    type(stack_i4_t), allocatable :: pe_candidates(:)
-    type(stack_i4_t), allocatable :: el_candidates(:)
+    type(stack_i4_t) :: pe_candidates, temp_stack
+    type(stack_i4_t) :: el_candidates
     integer, allocatable :: n_el_cands(:)
     integer, pointer :: pe_cands(:) => Null()
     integer, pointer :: el_cands(:) => Null()
@@ -403,6 +458,7 @@ contains
     integer :: ierr, max_n_points_to_send, ii, n_point_cand, n_glb_point_cand, point_id, rank
     real(kind=rp) :: time1, time2, time_start
     logical :: converged
+    logical, allocatable :: marked_rank(:)
     !Temp stuff for gs_comm
     type(stack_i4_t) :: send_pe, recv_pe
     type(gs_mpi_t) :: gs_find, gs_find_back
@@ -423,37 +479,46 @@ contains
     if (allocated(this%n_points_offset_pe_local)) deallocate(this%n_points_offset_pe_local)
     if (allocated(this%n_points_offset_pe)) deallocate(this%n_points_offset_pe)
     allocate(this%n_points_pe(0:(this%pe_size-1)))
+    allocate(marked_rank(0:(this%pe_size-1)))
     allocate(this%n_points_offset_pe(0:(this%pe_size-1)))
     allocate(this%n_points_pe_local(0:(this%pe_size-1)))
     allocate(this%n_points_offset_pe_local(0:(this%pe_size-1)))
     !Working arrays
     allocate(points_at_pe(0:(this%pe_size-1)))
-    allocate(pe_candidates(this%n_points))
-    allocate(my_point(this%n_points))
     this%n_points_pe = 0
     do i = 0, this%pe_size-1
        call points_at_pe(i)%init() 
     end do
-    do i = 1, this%n_points
-       pt_xyz = (/ this%xyz(1,i),this%xyz(2,i),this%xyz(3,i) /)
-       call pe_candidates(i)%init() 
-       call my_point(i)%init(pt_xyz) 
-    end do
+    call pe_candidates%init() 
+    call temp_stack%init() 
     !> Check which ranks might have this point
     do i = 1, this%n_points
-       call this%global_aabb_tree%query_overlaps(my_point(i),-1, pe_candidates(i))
-       pe_cands => pe_candidates(i)%array()
-       do j = 1, pe_candidates(i)%size()
+       marked_rank = .false.
+       pt_xyz = (/ this%xyz(1,i),this%xyz(2,i),this%xyz(3,i) /)
+       call my_point%init(pt_xyz) 
+       call pe_candidates%clear()
+       call this%global_aabb_tree%query_overlaps(my_point,-1, pe_candidates)
+       pe_cands => pe_candidates%array()
+       do j = 1, pe_candidates%size()
+          !rank = pe_cands(j)
           rank = (pe_cands(j)-1)/this%pe_box_num
-          this%n_points_pe(rank) = this%n_points_pe(rank) + 1
-          stupid_intent = i
-          call points_at_pe(rank)%push(stupid_intent)
+          if (.not. marked_rank(rank)) then
+             this%n_points_pe(rank) = this%n_points_pe(rank) + 1
+             stupid_intent = i
+             call points_at_pe(rank)%push(stupid_intent)
+             marked_rank(rank) = .true.
+          end if
        end do
-       if (pe_candidates(i)%size() .lt. 1) then
+       if (pe_candidates%size() .lt. 1) then
           write (*,*) 'WARNING, point', this%xyz(:,i), &
                       'found to be outside domain, something is likely very wrong'
        end if
     end do
+    call MPI_Barrier(this%comm)
+    time1 = MPI_Wtime()
+    write(log_buf, '(A,E15.7)') &
+    'GPU Found PE candidates time since start of findpts (s):', time1-time_start
+    call neko_log%message(log_buf)  
     !Send number of points I want to candidates
     ! n_points_local -> how many points might be at this rank
     ! n_points_pe_local -> how many points local on this rank that other pes might want
@@ -522,25 +587,27 @@ contains
     call gs_find%nbsend(this%xyz, this%n_points*3, null_ptr, null_ptr)
     call gs_find%nbwait(this%xyz_local, this%n_points_local*3, GS_OP_ADD, null_ptr)
 
+    call MPI_Barrier(this%comm)
+    time1 = MPI_Wtime()
+    write(log_buf, '(A,E15.7)') &
+    'Sent to points to PE candidates, time since start of find_points (s):', time1-time_start
+    call neko_log%message(log_buf)  
     !Okay, now we need to find the rst...
     call all_el_candidates%init()
-    allocate(el_candidates(this%n_points_local))
-    allocate(my_points(this%n_points_local))
-    do i = 1, this%n_points_local
-       call el_candidates(i)%init()
-       pt_xyz = (/ this%xyz_local(1,i),this%xyz_local(2,i),this%xyz_local(3,i) /)
-       call my_points(i)%init(pt_xyz) 
-    end do
+    call el_candidates%init()
     allocate(n_el_cands(this%n_points_local))
     !> Find element candidates at this rank
     do i = 1, this%n_points_local
-       call this%local_aabb_tree%query_overlaps(my_points(i),-1, el_candidates(i))
-       el_cands => el_candidates(i)%array()
-       do j = 1, el_candidates(i)%size()
+       pt_xyz = (/ this%xyz_local(1,i),this%xyz_local(2,i),this%xyz_local(3,i) /)
+       call my_point%init(pt_xyz) 
+       call el_candidates%clear()
+       call this%local_aabb_tree%query_overlaps(my_point,-1, el_candidates)
+       el_cands => el_candidates%array()
+       do j = 1, el_candidates%size()
           stupid_intent = el_cands(j) - 1
           call all_el_candidates%push(stupid_intent) !< OBS c indexing
        end do
-       n_el_cands(i) = el_candidates(i)%size()
+       n_el_cands(i) = el_candidates%size()
     end do
 
       
@@ -559,6 +626,11 @@ contains
        end do
     end do
 
+    call MPI_Barrier(this%comm)
+    time1 = MPI_Wtime()
+    write(log_buf, '(A,E15.7)') &
+    'Element candidates found, now time for finding rst,time since start of find_points (s):', time1-time_start
+    call neko_log%message(log_buf)  
     call rst_local_cand%init(3,n_point_cand)
     call resx%init(n_point_cand)
     call resy%init(n_point_cand)
@@ -574,7 +646,6 @@ contains
     time1 = MPI_Wtime()
     el_cands => all_el_candidates%array() 
     if ( NEKO_BCKND_DEVICE .ne. 1) then 
-       print *, 'n_point_cands', n_point_cand, pe_rank
        call find_rst_legendre(rst_local_cand%x, x_t%x, y_t%x, z_t%x, this%Xh, &
                               this%x%ptr, this%y%ptr, this%z%ptr, &
                               el_cands, n_point_cand, this%nelv, &
@@ -925,8 +996,6 @@ contains
     call z_hat%free()
     if (allocated(conv_pts)) deallocate(conv_pts)
     if (allocated(res)) deallocate(res)
-    if (allocated(my_point)) deallocate(my_point)
-    if (allocated(my_points)) deallocate(my_points)
     call all_el_candidates%free()
     if (allocated(points_at_pe)) then
        do i = 0, this%pe_size-1
@@ -934,18 +1003,8 @@ contains
        end do
        deallocate(points_at_pe)
     end if
-    if (allocated(pe_candidates)) then
-       do i = 1, this%n_points
-          call pe_candidates(i)%free()
-       end do
-       deallocate(pe_candidates)
-    end if
-    if (allocated(el_candidates)) then
-       do i = 1, size(el_candidates)
-          call el_candidates(i)%free()
-       end do
-       deallocate(el_candidates)
-    end if
+    call pe_candidates%free()
+    call el_candidates%free()
     if (associated(pe_cands)) pe_cands => Null()
     if (associated(el_cands)) pe_cands => Null()
     if (associated(point_ids)) point_ids => Null()
