@@ -56,7 +56,7 @@ module projection_vel
   implicit none
   private
 
-  type, public ::  projection_vel_t
+  type, public :: projection_vel_t
      type(projection_t) :: proj_u, proj_v, proj_w
      integer :: activ_step
      integer :: L
@@ -94,7 +94,7 @@ contains
   subroutine projection_free_vel(this)
     class(projection_vel_t), intent(inout) :: this
     integer :: i
-    
+
     call this%proj_u%free()
     call this%proj_v%free()
     call this%proj_w%free()
@@ -102,8 +102,8 @@ contains
   end subroutine projection_free_vel
 
   subroutine projection_pre_solving_vel(this, b_u, b_v, b_w, tstep, coef, n, &
-                                        dt_controller, &
-                                        stringx, stringy, stringz)
+       dt_controller, &
+       stringx, stringy, stringz)
     class(projection_vel_t), intent(inout) :: this
     integer, intent(inout) :: n
     real(kind=rp), intent(inout), dimension(n) :: b_u, b_v, b_w
@@ -111,7 +111,7 @@ contains
     class(coef_t), intent(inout) :: coef
     type(time_step_controller_t), intent(in) :: dt_controller
     character(len=*), optional :: stringx, stringy, stringz
-    
+
     call this%proj_u%pre_solving(b_u, tstep, coef, n, dt_controller, stringx)
     call this%proj_v%pre_solving(b_v, tstep, coef, n, dt_controller, stringy)
     call this%proj_w%pre_solving(b_w, tstep, coef, n, dt_controller, stringz)
@@ -119,8 +119,8 @@ contains
   end subroutine projection_pre_solving_vel
 
   subroutine projection_post_solving_vel(this, x_u, x_v, x_w, Ax, coef, &
-                                         bclst_u, bclst_v, bclst_w, &
-                                         gs_h, n, tstep, dt_controller)
+       bclst_u, bclst_v, bclst_w, &
+       gs_h, n, tstep, dt_controller)
     class(projection_vel_t), intent(inout) :: this
     integer, intent(inout) :: n
     class(Ax_t), intent(inout) :: Ax
@@ -130,12 +130,12 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: x_u, x_v, x_w
     integer, intent(in) :: tstep
     type(time_step_controller_t), intent(in) :: dt_controller
-    
+
     ! Here we assume the projection space sizes and activate steps
     ! for all three velocity equations are the same
     if (tstep .gt. this%activ_step .and. this%L .gt. 0) then
        if (.not.(dt_controller%if_variable_dt) .or. &
-       (dt_controller%dt_last_change .gt. this%activ_step - 1)) then
+            (dt_controller%dt_last_change .gt. this%activ_step - 1)) then
           call this%project_back(x_u, x_v, x_w, Ax, coef, bclst_u, bclst_v, bclst_w, gs_h, n)
        end if
     end if
@@ -143,7 +143,7 @@ contains
   end subroutine projection_post_solving_vel
 
   subroutine bcknd_project_back_vel(this, x_u, x_v, x_w, &
-                                    Ax, coef, bclst_u, bclst_v, bclst_w, gs_h, n)
+       Ax, coef, bclst_u, bclst_v, bclst_w, gs_h, n)
     class(projection_vel_t) :: this
     integer, intent(inout) :: n
     class(Ax_t), intent(inout) :: Ax
@@ -164,7 +164,7 @@ contains
        end if
        if (this%proj_v%m .gt. 0) then ! Restore desired solution
           call device_add2(x_v_d, this%proj_v%xbar_d, n)
-       end if 
+       end if
        if (this%proj_w%m .gt. 0) then ! Restore desired solution
           call device_add2(x_w_d, this%proj_w%xbar_d, n)
        end if
@@ -186,11 +186,11 @@ contains
        end if
 
        call device_copy(this%proj_u%xx_d(this%proj_u%m), &
-                        x_u_d,n) ! Update (X,B)
+            x_u_d,n) ! Update (X,B)
        call device_copy(this%proj_v%xx_d(this%proj_u%m), &
-                        x_v_d,n) ! Update (X,B)
+            x_v_d,n) ! Update (X,B)
        call device_copy(this%proj_w%xx_d(this%proj_u%m), &
-                        x_w_d,n) ! Update (X,B)
+            x_w_d,n) ! Update (X,B)
 
     else
        if (this%proj_u%m .gt. 0) then
@@ -219,15 +219,15 @@ contains
           this%proj_w%m = min(this%proj_w%m + 1, this%proj_w%L)
        end if
 
-       call copy(this%proj_u%xx(1, this%proj_u%m), x_u, n)   ! Update (X,B)
-       call copy(this%proj_v%xx(1, this%proj_v%m), x_v, n)   ! Update (X,B)
-       call copy(this%proj_w%xx(1, this%proj_w%m), x_w, n)   ! Update (X,B)
+       call copy(this%proj_u%xx(1, this%proj_u%m), x_u, n) ! Update (X,B)
+       call copy(this%proj_v%xx(1, this%proj_v%m), x_v, n) ! Update (X,B)
+       call copy(this%proj_w%xx(1, this%proj_w%m), x_w, n) ! Update (X,B)
     end if
 
     call Ax%compute_vector(this%proj_u%bb(1,this%proj_u%m), &
-                           this%proj_v%bb(1,this%proj_v%m), &
-                           this%proj_w%bb(1,this%proj_w%m), x_u, x_v, x_w, &
-                           coef, coef%msh, coef%Xh)
+         this%proj_v%bb(1,this%proj_v%m), &
+         this%proj_w%bb(1,this%proj_w%m), x_u, x_v, x_w, &
+         coef, coef%msh, coef%Xh)
 
     call gs_h%gs_op_vector(this%proj_u%bb(1,this%proj_u%m), n, GS_OP_ADD)
     call gs_h%gs_op_vector(this%proj_v%bb(1,this%proj_v%m), n, GS_OP_ADD)
@@ -237,20 +237,20 @@ contains
     call bclst_v%apply_scalar(this%proj_v%bb(1,this%proj_v%m), n)
     call bclst_w%apply_scalar(this%proj_w%bb(1,this%proj_w%m), n)
 
-    if (NEKO_BCKND_DEVICE .eq. 1)  then
+    if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_proj_ortho(this%proj_u, this%proj_u%xx_d, &
-                              this%proj_u%bb_d, coef%mult_d, n)
+            this%proj_u%bb_d, coef%mult_d, n)
        call device_proj_ortho(this%proj_v, this%proj_v%xx_d, &
-                              this%proj_v%bb_d, coef%mult_d, n)
+            this%proj_v%bb_d, coef%mult_d, n)
        call device_proj_ortho(this%proj_w, this%proj_w%xx_d, &
-                              this%proj_w%bb_d, coef%mult_d, n)
+            this%proj_w%bb_d, coef%mult_d, n)
     else
        call cpu_proj_ortho(this%proj_u, this%proj_u%xx, &
-                           this%proj_u%bb, coef%mult, n)
+            this%proj_u%bb, coef%mult, n)
        call cpu_proj_ortho(this%proj_v, this%proj_v%xx, &
-                           this%proj_v%bb, coef%mult, n)
+            this%proj_v%bb, coef%mult, n)
        call cpu_proj_ortho(this%proj_w, this%proj_w%xx, &
-                           this%proj_w%bb, coef%mult, n)
+            this%proj_w%bb, coef%mult, n)
     end if
     call profiler_end_region('Project back', 17)
   end subroutine bcknd_project_back_vel
