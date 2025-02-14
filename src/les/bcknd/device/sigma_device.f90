@@ -120,6 +120,9 @@ contains
                                   g31%x_d, g32%x_d, g33%x_d, &
                                   delta%x_d, nut%x_d, coef%mult_d, &
                                   c, eps, g11%dof%size())
+                                  
+    call coef%gs_h%op(nut, GS_OP_ADD)
+    call device_col2(nut%x_d, coef%mult_d, nut%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine sigma_compute_device
