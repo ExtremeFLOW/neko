@@ -464,7 +464,7 @@ contains
           rst(2,i) = rst(2,i) + rst_d(2)
           rst(3,i) = rst(3,i) + rst_d(3)
           
-          !converged = conv_pts .eq. 1
+          converged = conv_pts .eq. 1
       !    if(pt_z(i) .gt. 0.999) print *, rst_d, resx(i), resy(i), resz(i), (norm2(real(rst_d,xp))), iter, rst(:,i)
           if (iter .ge. 10) converged = .true.
        end do
