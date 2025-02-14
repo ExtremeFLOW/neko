@@ -53,6 +53,7 @@ module gs_mpi
      logical :: flag
      !> Buffer with data to send/recieve
      real(kind=rp), allocatable :: data(:)
+   
   end type gs_comm_mpi_t
 
   !> Gather-scatter communication using MPI
@@ -146,17 +147,17 @@ contains
        ! Gather data from u into buffers according to indices in send_dof
        ! We want to send contigous data to each process in send_pe
        sp => this%send_dof(dst)%array()
-       do concurrent (j = 1:this%send_dof(dst)%size())
+       do j = 1,this%send_dof(dst)%size()
           this%send_buf(i)%data(j) = u(sp(j))
        end do
        ! We should not need this extra associate block, ant it works
        ! great without it for GNU, Intel, NEC and Cray, but throws an
        ! ICE with NAG.
-       associate(send_data => this%send_buf(i)%data)
-         call MPI_Isend(send_data, size(send_data), &
+       !associate(send_data => this%send_buf(i)%data)
+         call MPI_Isend(this%send_buf(i)%data, this%send_dof(dst)%size(), &
               MPI_REAL_PRECISION, this%send_pe(i), thrdid, &
               NEKO_COMM, this%send_buf(i)%request, ierr)
-       end associate
+       !end associate
        this%send_buf(i)%flag = .false.
     end do
   end subroutine gs_nbsend_mpi
@@ -237,7 +238,6 @@ contains
     integer :: op
     integer , pointer :: sp(:)
     integer :: nreqs
-    character(len=8000) :: log_buf
 
     nreqs = size(this%recv_pe)
 
@@ -257,8 +257,10 @@ contains
                 !Do operation with data in buffer on dof specified by recv_dof
                 select case(op)
                 case (GS_OP_ADD)
+                   !Isnt this a datarace?
+                   !How do things like this ever get into the code...
                    !NEC$ IVDEP
-                   do concurrent (j = 1:this%recv_dof(src)%size())
+                   do j = 1, this%recv_dof(src)%size()
 
                       u(sp(j)) = u(sp(j)) + this%recv_buf(i)%data(j)
                    end do
