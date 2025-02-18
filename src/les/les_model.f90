@@ -245,9 +245,7 @@ contains
              volume_element = volume_element + this%coef%B(k, 1, 1, e)
           end do
           this%delta%x(:,:,:,e) = (volume_element / this%coef%Xh%lx &
-               / this%coef%Xh%ly &
-               / this%coef%Xh%lz) &
-               **(1.0_rp / 3.0_rp)
+               / this%coef%Xh%ly / this%coef%Xh%lz)**(1.0_rp / 3.0_rp)
        end do
     else if (this%delta_type .eq. "pointwise") then
        do e = 1, this%coef%msh%nelv
