@@ -51,7 +51,7 @@ module projection_vel
   use utils, only : neko_warning
   use, intrinsic :: iso_c_binding
   use time_step_controller, only : time_step_controller_t
-  use projection, only : projection_t, cpu_proj_ortho, device_proj_ortho
+  use projection, only : projection_t, proj_ortho
 
   implicit none
   private
@@ -237,21 +237,9 @@ contains
     call bclst_v%apply_scalar(this%proj_v%bb(1,this%proj_v%m), n)
     call bclst_w%apply_scalar(this%proj_w%bb(1,this%proj_w%m), n)
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_proj_ortho(this%proj_u, this%proj_u%xx_d, &
-            this%proj_u%bb_d, coef%mult_d, n)
-       call device_proj_ortho(this%proj_v, this%proj_v%xx_d, &
-            this%proj_v%bb_d, coef%mult_d, n)
-       call device_proj_ortho(this%proj_w, this%proj_w%xx_d, &
-            this%proj_w%bb_d, coef%mult_d, n)
-    else
-       call cpu_proj_ortho(this%proj_u, this%proj_u%xx, &
-            this%proj_u%bb, coef%mult, n)
-       call cpu_proj_ortho(this%proj_v, this%proj_v%xx, &
-            this%proj_v%bb, coef%mult, n)
-       call cpu_proj_ortho(this%proj_w, this%proj_w%xx, &
-            this%proj_w%bb, coef%mult, n)
-    end if
+    call proj_ortho(this%proj_u, coef, n)
+    call proj_ortho(this%proj_v, coef, n)
+    call proj_ortho(this%proj_w, coef, n)
     call profiler_end_region('Project back', 17)
   end subroutine bcknd_project_back_vel
 end module projection_vel

@@ -86,7 +86,7 @@ module projection
        c_sizeof, C_NULL_PTR, c_loc, c_associated
   implicit none
   private
-  public :: cpu_proj_ortho, device_proj_ortho
+  public :: proj_ortho
 
   type, public :: projection_t
      real(kind=rp), allocatable :: xx(:,:)
@@ -331,11 +331,7 @@ contains
     call gs_h%gs_op_vector(this%bb(1, this%m), n, GS_OP_ADD)
     call bclst%apply_scalar(this%bb(1, this%m), n)
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_proj_ortho(this, this%xx_d, this%bb_d, coef%mult_d, n)
-    else
-       call cpu_proj_ortho (this, this%xx, this%bb, coef%mult, n)
-    end if
+    call proj_ortho(this, coef, n)
     call profiler_end_region('Project back', 17)
   end subroutine bcknd_project_back
 
@@ -482,13 +478,26 @@ contains
 
     end associate
   end subroutine device_project_on
+  
+  !Choose between CPU or device for proj_ortho
+  subroutine proj_ortho(this, coef, n)
+    class(projection_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: n
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_proj_ortho(this, this%xx_d, this%bb_d, coef%mult_d, n)
+    else
+       call cpu_proj_ortho (this, this%xx, this%bb, coef%mult, n)
+    end if
+  end subroutine proj_ortho
 
   !This is a lot more primitive than on the CPU
   subroutine device_proj_ortho(this, xx_d, bb_d, w_d, n)
     type(projection_t) :: this
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     type(c_ptr), dimension(this%L) :: xx_d, bb_d
-    type(c_ptr) :: w_d
+    type(c_ptr), intent(in) :: w_d
     real(kind=rp) :: nrm, scl
     real(kind=rp) :: alpha(this%L)
     integer :: i
@@ -565,9 +574,9 @@ contains
 
   subroutine cpu_proj_ortho(this, xx, bb, w, n)
     type(projection_t) :: this
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     real(kind=rp), dimension(n, this%L), intent(inout) :: xx, bb
-    real(kind=rp), dimension(n), intent(inout) :: w
+    real(kind=rp), dimension(n), intent(in) :: w
     real(kind=rp) :: nrm, scl1, scl2, c, s
     real(kind=rp) :: alpha(this%L), beta(this%L)
     integer :: i, j, k, l, h, ierr
