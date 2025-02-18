@@ -131,7 +131,7 @@ contains
        end if
        c_dyn%x(i,1,1,1) = max(c_dyn%x(i,1,1,1),0.0_rp)
        nut%x(i,1,1,1) = c_dyn%x(i,1,1,1) * delta%x(i,1,1,1)**2 &
-                        * s_abs%x(i,1,1,1) * coef%mult(i,1,1,1)
+            * s_abs%x(i,1,1,1) * coef%mult(i,1,1,1)
     end do
 
     call coef%gs_h%op(nut, GS_OP_ADD)
