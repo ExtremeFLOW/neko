@@ -39,7 +39,7 @@ module cacg
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply, bc_list_apply_scalar
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, x_update, abscmp
   use utils, only : neko_warning
   use comm
@@ -65,13 +65,13 @@ contains
   !> Initialise a s-step CA  PCG solver
   subroutine cacg_init(this, n, max_iter, M, s, rel_tol, abs_tol, monitor)
     class(cacg_t), intent(inout) :: this
-    class(pc_t), optional, intent(inout), target :: M
+    class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
-    real(kind=rp), optional, intent(inout) :: rel_tol
-    real(kind=rp), optional, intent(inout) :: abs_tol
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
-    integer, optional, intent(inout) :: s
+    integer, optional, intent(in) :: s
     call this%free()
 
     if (present(s)) then
@@ -137,10 +137,10 @@ contains
   !> S-step CA PCG solve
   function cacg_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(cacg_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: f
+    real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
@@ -187,7 +187,7 @@ contains
             if (mod(i,2) .eq. 0) then
                call Ax%compute(PR(1,i), PR(1,i-1), coef, x%msh, x%Xh)
                call gs_h%gs_op_vector(PR(1,i), n, GS_OP_ADD)
-               call bc_list_apply_scalar(blst, PR(1,i), n)
+               call blst%apply_scalar(PR(1,i), n)
             else
                call this%M%solve(PR(1,i), PR(1,i-1), n)
             end if
@@ -199,7 +199,7 @@ contains
             else
                call Ax%compute(PR(1,i+1), PR(1,i), coef, x%msh, x%Xh)
                call gs_h%gs_op_vector(PR(1,i+1), n, GS_OP_ADD)
-               call bc_list_apply_scalar(blst, PR(1,1+i), n)
+               call blst%apply_scalar(PR(1,1+i), n)
             end if
          end do
 
@@ -328,6 +328,7 @@ contains
       call this%monitor_stop()
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
+      ksp_results%converged = this%is_converged(iter, rnorm)
 
     end associate
 
@@ -352,14 +353,14 @@ contains
   function cacg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
     class(cacg_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: fx
-    real(kind=rp), dimension(n), intent(inout) :: fy
-    real(kind=rp), dimension(n), intent(inout) :: fz
+    real(kind=rp), dimension(n), intent(in) :: fx
+    real(kind=rp), dimension(n), intent(in) :: fy
+    real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blstx
     type(bc_list_t), intent(inout) :: blsty

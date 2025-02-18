@@ -45,8 +45,8 @@ module fluid_source_term
 
   !> Wrapper contaning and executing the fluid source terms.
   !! @details
-  !! Exists mainly to keep the `fluid_scheme_t` type smaller and also as
-  !! placeholder for future optimizations.
+  !! Exists mainly to keep the `fluid_scheme_incompressible_t` type smaller and
+  !! also as placeholder for future optimizations.
   type, public, extends(source_term_handler_t) :: fluid_source_term_t
 
    contains
@@ -63,7 +63,7 @@ contains
   subroutine fluid_source_term_init(this, f_x, f_y, f_z, coef, user)
     class(fluid_source_term_t), intent(inout) :: this
     type(field_t), pointer, intent(in) :: f_x, f_y, f_z
-    type(coef_t), target, intent(inout) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(user_t), target, intent(in) :: user
 
     type(field_list_t) :: rhs_fields
@@ -87,14 +87,14 @@ contains
   subroutine fluid_init_user_source(source_term, rhs_fields, coef, type, user)
     class(source_term_t), allocatable, intent(inout) :: source_term
     type(field_list_t) :: rhs_fields
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(in) :: coef
     character(len=*) :: type
     type(user_t), intent(in) :: user
 
     allocate(fluid_user_source_term_t::source_term)
 
     select type (source_term)
-      type is (fluid_user_source_term_t)
+    type is (fluid_user_source_term_t)
        call source_term%init_from_components(rhs_fields, coef, type, &
             user%fluid_user_f_vector, &
             user%fluid_user_f)

@@ -38,11 +38,9 @@ module field_writer
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
-  use field, only : field_t
-  use operators, only : curl
   use case, only : case_t
   use fld_file_output, only : fld_file_output_t
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get
   implicit none
   private
 
@@ -128,9 +126,9 @@ contains
           call this%output%fields%assign(i, neko_field_registry%get_field(fieldi))
        end do
 
-       call this%case%s%add(this%output, &
-                            this%output_controller%control_value, &
-                            this%output_controller%control_mode)
+       call this%case%output_controller%add(this%output, &
+            this%output_controller%control_value, &
+            this%output_controller%control_mode)
     else
       do i=1, size(fields)
          fieldi = trim(fields(i))

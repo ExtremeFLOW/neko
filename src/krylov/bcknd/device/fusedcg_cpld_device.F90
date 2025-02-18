@@ -39,11 +39,15 @@ module fusedcg_cpld_device
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3, device_glsc2
   use device
-  use comm
+  use utils, only : neko_error
+  use comm, only : NEKO_COMM, MPI_IN_PLACE, MPI_Allreduce, &
+       MPI_SUM, MPI_REAL_PRECISION, pe_size
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
+       c_associated, c_size_t, c_sizeof, c_int, c_loc
   implicit none
   private
 
@@ -67,7 +71,7 @@ module fusedcg_cpld_device
      real(kind=rp), allocatable :: alpha(:)
      type(c_ptr) :: w1_d = C_NULL_PTR
      type(c_ptr) :: w2_d = C_NULL_PTR
-     type(c_ptr) :: w3_d = C_NULL_PTR     
+     type(c_ptr) :: w3_d = C_NULL_PTR
      type(c_ptr) :: r1_d = C_NULL_PTR
      type(c_ptr) :: r2_d = C_NULL_PTR
      type(c_ptr) :: r3_d = C_NULL_PTR
@@ -141,16 +145,64 @@ module fusedcg_cpld_device
      end function cuda_fusedcg_cpld_part2
   end interface
 #elif HAVE_HIP
+  interface
+     subroutine hip_fusedcg_cpld_part1(a1_d, a2_d, a3_d, &
+          b1_d, b2_d, b3_d, tmp_d, n) bind(c, name='hip_fusedcg_cpld_part1')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, tmp_d
+       integer(c_int) :: n
+     end subroutine hip_fusedcg_cpld_part1
+  end interface
+
+  interface
+     subroutine hip_fusedcg_cpld_update_p(p1_d, p2_d, p3_d, z1_d, z2_d, z3_d, &
+          po1_d, po2_d, po3_d, beta, n) bind(c, name='hip_fusedcg_cpld_update_p')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: p1_d, p2_d, p3_d, z1_d, z2_d, z3_d
+       type(c_ptr), value :: po1_d, po2_d, po3_d
+       real(c_rp) :: beta
+       integer(c_int) :: n
+     end subroutine hip_fusedcg_cpld_update_p
+  end interface
+
+  interface
+     subroutine hip_fusedcg_cpld_update_x(x1_d, x2_d, x3_d, p1_d, p2_d, p3_d, &
+          alpha, p_cur, n) bind(c, name='hip_fusedcg_cpld_update_x')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: x1_d, x2_d, x3_d, p1_d, p2_d, p3_d, alpha
+       integer(c_int) :: p_cur, n
+     end subroutine hip_fusedcg_cpld_update_x
+  end interface
+
+  interface
+     real(c_rp) function hip_fusedcg_cpld_part2(a1_d, a2_d, a3_d, b_d, &
+          c1_d, c2_d, c3_d, alpha_d, alpha,  p_cur, n) &
+          bind(c, name='hip_fusedcg_cpld_part2')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a1_d, a2_d, a3_d, b_d
+       type(c_ptr), value :: c1_d, c2_d, c3_d, alpha_d
+       real(c_rp) :: alpha
+       integer(c_int) :: n, p_cur
+     end function hip_fusedcg_cpld_part2
+  end interface
 #endif
 
 contains
 
   subroutine device_fusedcg_cpld_part1(a1_d, a2_d, a3_d, &
-                                       b1_d, b2_d, b3_d, tmp_d, n)
+       b1_d, b2_d, b3_d, tmp_d, n)
     type(c_ptr), value :: a1_d, a2_d, a3_d, b1_d, b2_d, b3_d
     type(c_ptr), value :: tmp_d
     integer(c_int) :: n
 #ifdef HAVE_HIP
+    call hip_fusedcg_cpld_part1(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, tmp_d, n)
 #elif HAVE_CUDA
     call cuda_fusedcg_cpld_part1(a1_d, a2_d, a3_d, b1_d, b2_d, b3_d, tmp_d, n)
 #else
@@ -159,28 +211,32 @@ contains
   end subroutine device_fusedcg_cpld_part1
 
   subroutine device_fusedcg_cpld_update_p(p1_d, p2_d, p3_d, z1_d, z2_d, z3_d, &
-                                          po1_d, po2_d, po3_d, beta, n)
+       po1_d, po2_d, po3_d, beta, n)
     type(c_ptr), value :: p1_d, p2_d, p3_d, z1_d, z2_d, z3_d
     type(c_ptr), value :: po1_d, po2_d, po3_d
     real(c_rp) :: beta
     integer(c_int) :: n
 #ifdef HAVE_HIP
+    call hip_fusedcg_cpld_update_p(p1_d, p2_d, p3_d, z1_d, z2_d, z3_d, &
+         po1_d, po2_d, po3_d, beta, n)
 #elif HAVE_CUDA
     call cuda_fusedcg_cpld_update_p(p1_d, p2_d, p3_d, z1_d, z2_d, z3_d, &
-                                    po1_d, po2_d, po3_d, beta, n)
+         po1_d, po2_d, po3_d, beta, n)
 #else
     call neko_error('No device backend configured')
 #endif
   end subroutine device_fusedcg_cpld_update_p
 
   subroutine device_fusedcg_cpld_update_x(x1_d, x2_d, x3_d, &
-                                          p1_d, p2_d, p3_d, alpha, p_cur, n)
+       p1_d, p2_d, p3_d, alpha, p_cur, n)
     type(c_ptr), value :: x1_d, x2_d, x3_d, p1_d, p2_d, p3_d, alpha
     integer(c_int) :: p_cur, n
 #ifdef HAVE_HIP
+    call hip_fusedcg_cpld_update_x(x1_d, x2_d, x3_d, &
+         p1_d, p2_d, p3_d, alpha, p_cur, n)
 #elif HAVE_CUDA
     call cuda_fusedcg_cpld_update_x(x1_d, x2_d, x3_d, &
-                                    p1_d, p2_d, p3_d, alpha, p_cur, n)
+         p1_d, p2_d, p3_d, alpha, p_cur, n)
 #else
     call neko_error('No device backend configured')
 #endif
@@ -195,6 +251,8 @@ contains
     real(kind=rp) :: res
     integer :: ierr
 #ifdef HAVE_HIP
+    res = hip_fusedcg_cpld_part2(a1_d, a2_d, a3_d, b_d, &
+         c1_d, c2_d, c3_d, alpha_d, alpha, p_cur, n)
 #elif HAVE_CUDA
     res = cuda_fusedcg_cpld_part2(a1_d, a2_d, a3_d, b_d, &
          c1_d, c2_d, c3_d, alpha_d, alpha, p_cur, n)
@@ -213,13 +271,13 @@ contains
 
   !> Initialise a fused PCG solver
   subroutine fusedcg_cpld_device_init(this, n, max_iter, M, &
-                                      rel_tol, abs_tol, monitor)
+       rel_tol, abs_tol, monitor)
     class(fusedcg_cpld_device_t), target, intent(inout) :: this
-    class(pc_t), optional, intent(inout), target :: M
+    class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
-    real(kind=rp), optional, intent(inout) :: rel_tol
-    real(kind=rp), optional, intent(inout) :: abs_tol
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
     type(c_ptr) :: ptr
     integer(c_size_t) :: p_size
@@ -263,10 +321,10 @@ contains
     do i = 1, DEVICE_FUSEDCG_CPLD_P_SPACE+1
        this%p1_d(i) = C_NULL_PTR
        call device_map(this%p1(:,i), this%p1_d(i), n)
-       
+
        this%p2_d(i) = C_NULL_PTR
        call device_map(this%p2(:,i), this%p2_d(i), n)
-       
+
        this%p3_d(i) = C_NULL_PTR
        call device_map(this%p3(:,i), this%p3_d(i), n)
     end do
@@ -277,13 +335,13 @@ contains
     call device_alloc(this%p3_d_d, p_size)
     ptr = c_loc(this%p1_d)
     call device_memcpy(ptr, this%p1_d_d, p_size, &
-                       HOST_TO_DEVICE, sync=.false.)
+         HOST_TO_DEVICE, sync=.false.)
     ptr = c_loc(this%p2_d)
     call device_memcpy(ptr, this%p2_d_d, p_size, &
-                      HOST_TO_DEVICE, sync=.false.)
+         HOST_TO_DEVICE, sync=.false.)
     ptr = c_loc(this%p3_d)
     call device_memcpy(ptr, this%p3_d_d, p_size, &
-                       HOST_TO_DEVICE, sync=.false.)   
+         HOST_TO_DEVICE, sync=.false.)
     if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
     else if (present(rel_tol) .and. present(abs_tol)) then
@@ -318,11 +376,11 @@ contains
     if (allocated(this%w1)) then
        deallocate(this%w1)
     end if
-    
+
     if (allocated(this%w2)) then
        deallocate(this%w2)
     end if
-    
+
     if (allocated(this%w3)) then
        deallocate(this%w3)
     end if
@@ -448,7 +506,7 @@ contains
     if (c_associated(this%gs_event2)) then
        call device_event_destroy(this%gs_event2)
     end if
-    
+
     if (c_associated(this%gs_event3)) then
        call device_event_destroy(this%gs_event3)
     end if
@@ -459,14 +517,14 @@ contains
   function fusedcg_cpld_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
     class(fusedcg_cpld_device_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: fx
-    real(kind=rp), dimension(n), intent(inout) :: fy
-    real(kind=rp), dimension(n), intent(inout) :: fz
+    real(kind=rp), dimension(n), intent(in) :: fx
+    real(kind=rp), dimension(n), intent(in) :: fy
+    real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blstx
     type(bc_list_t), intent(inout) :: blsty
@@ -505,8 +563,8 @@ contains
       rtz1 = 1.0_rp
       p_prev = DEVICE_FUSEDCG_CPLD_P_SPACE
       p_cur = 1
-          
- 
+
+
       call device_rzero(x%x_d, n)
       call device_rzero(y%x_d, n)
       call device_rzero(z%x_d, n)
@@ -518,10 +576,10 @@ contains
       call device_copy(r3_d, fz_d, n)
 
       call device_fusedcg_cpld_part1(r1_d, r2_d, r3_d, r1_d, &
-                                     r2_d, r3_d, tmp_d, n)
+           r2_d, r3_d, tmp_d, n)
 
       rtr = device_glsc3(tmp_d, coef%mult_d, coef%binv_d, n)
-      
+
       rnorm = sqrt(rtr)*norm_fac
       ksp_results%res_start = rnorm
       ksp_results%res_final = rnorm
@@ -534,14 +592,13 @@ contains
          call this%M%solve(z2, r2, n)
          call this%M%solve(z3, r3, n)
          rtz2 = rtz1
-
          call device_fusedcg_cpld_part1(z1_d, z2_d, z3_d, &
-                                        r1_d, r2_d, r3_d, tmp_d, n)
+              r1_d, r2_d, r3_d, tmp_d, n)
          rtz1 = device_glsc2(tmp_d, coef%mult_d, n)
 
          beta = rtz1 / rtz2
          if (iter .eq. 1) beta = 0.0_rp
-         
+
          call device_fusedcg_cpld_update_p(p1_d(p_cur), p2_d(p_cur), p3_d(p_cur), &
               z1_d, z2_d, z3_d, p1_d(p_prev), p2_d(p_prev), p3_d(p_prev), beta, n)
 
@@ -553,15 +610,15 @@ contains
          call device_event_sync(this%gs_event1)
          call device_event_sync(this%gs_event2)
          call device_event_sync(this%gs_event3)
-         call bc_list_apply(blstx, w1, n)
-         call bc_list_apply(blsty, w2, n)
-         call bc_list_apply(blstz, w3, n)
+         call blstx%apply(w1, n)
+         call blsty%apply(w2, n)
+         call blstz%apply(w3, n)
 
          call device_fusedcg_cpld_part1(w1_d, w2_d, w3_d,  p1_d(p_cur), &
-                                        p2_d(p_cur), p3_d(p_cur), tmp_d, n)
+              p2_d(p_cur), p3_d(p_cur), tmp_d, n)
 
          pap = device_glsc2(tmp_d, coef%mult_d, n)
-                  
+
          alpha(p_cur) = rtz1 / pap
          rtr = device_fusedcg_cpld_part2(r1_d, r2_d, r3_d, coef%mult_d, &
               w1_d, w2_d, w3_d, alpha_d, alpha(p_cur), p_cur, n)
@@ -582,6 +639,7 @@ contains
       call this%monitor_stop()
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
+      ksp_results%converged = this%is_converged(iter, rnorm)
 
     end associate
 
@@ -591,10 +649,10 @@ contains
   function fusedcg_cpld_device_solve(this, Ax, x, f, n, coef, blst, &
        gs_h, niter)  result(ksp_results)
     class(fusedcg_cpld_device_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: f
+    real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
@@ -602,13 +660,12 @@ contains
     integer, optional, intent(in) :: niter
 
     ! Throw and error
-    call neko_error('Only defined for coupled solves')
+    call neko_error('The cpldcg solver is only defined for coupled solves')
 
     ksp_results%res_final = 0.0
     ksp_results%iter = 0
-    
+    ksp_results%converged = .false.
+
   end function fusedcg_cpld_device_solve
-  
+
 end module fusedcg_cpld_device
-
-

@@ -39,12 +39,6 @@ module opencl_intf
 
 #ifdef HAVE_OPENCL
 
-  !> Global OpenCL command queue
-  type(c_ptr), bind(c) :: glb_cmd_queue = C_NULL_PTR
-
-  !> Aux OpenCL command queue
-  type(c_ptr), bind(c) :: aux_cmd_queue = C_NULL_PTR
-
   !> Global OpenCL context
   type(c_ptr), bind(c) :: glb_ctx = C_NULL_PTR
 
@@ -273,6 +267,15 @@ module opencl_intf
      end function clEnqueueMarker
   end interface
 
+    interface
+     integer(c_int) function clEnqueueBarrier(cmd_queue) &
+          bind(c, name = 'clEnqueueBarrier')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: cmd_queue
+     end function clEnqueueBarrier
+  end interface
+
   interface
      integer(c_int) function clEnqueueWaitForEvents(queue, &
                                                     num_events, event_list) &
@@ -394,7 +397,9 @@ module opencl_intf
 
 contains
 
-  subroutine opencl_init
+  subroutine opencl_init(glb_cmd_queue, aux_cmd_queue)
+    type(c_ptr), intent(inout) :: glb_cmd_queue
+    type(c_ptr), intent(inout) :: aux_cmd_queue
     type(c_ptr), target :: platform_id
     integer(c_int) :: num_platforms, num_devices, ierr
     integer(c_intptr_t) :: ctx_prop(3)
@@ -432,15 +437,22 @@ contains
 
     glb_cmd_queue = clCreateCommandQueue(glb_ctx, glb_device_id, queue_props, &
                                          ierr)
+    if (ierr .ne. CL_SUCCESS) then
+       call neko_error('Failed to create a command queue')
+    end if
 
+    aux_cmd_queue = clCreateCommandQueue(glb_ctx, glb_device_id, queue_props, &
+                                         ierr)
     if (ierr .ne. CL_SUCCESS) then
        call neko_error('Failed to create a command queue')
     end if
 
   end subroutine opencl_init
 
-  subroutine opencl_finalize
-
+  subroutine opencl_finalize(glb_cmd_queue, aux_cmd_queue)
+    type(c_ptr), intent(inout) :: glb_cmd_queue
+    type(c_ptr), intent(inout) :: aux_cmd_queue
+    
     if (c_associated(glb_ctx)) then
        if (clReleaseContext(glb_ctx) .ne. CL_SUCCESS) then
           call neko_error('Failed to release context')
@@ -450,14 +462,21 @@ contains
 
     if (c_associated(glb_cmd_queue)) then
        if (clReleaseCommandQueue(glb_cmd_queue) .ne. CL_SUCCESS) then
-          call neko_error('Faield to release command queue')
+          call neko_error('Failed to release command queue')
        end if
        glb_cmd_queue = C_NULL_PTR
     end if
 
+    if (c_associated(aux_cmd_queue)) then
+       if (clReleaseCommandQueue(aux_cmd_queue) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release command queue')
+       end if
+       aux_cmd_queue = C_NULL_PTR
+    end if
+
     if (c_associated(glb_device_id)) then
        if (clReleaseDevice(glb_device_id) .ne. CL_SUCCESS) then
-          call neko_error('Faield to release device')
+          call neko_error('Failed to release device')
        end if
     end if
 

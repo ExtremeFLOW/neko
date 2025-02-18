@@ -147,7 +147,7 @@ contains
     call fd_weights_full(t, tlag, no, 0, wt) ! interpolation weights
     call rzero(f_interpolated, n)
 
-    do i = 1, n
+    do concurrent (i = 1:n)
        do l = 0, no
         f_interpolated(i) = f_interpolated(i) + wt(l) * f_n(i,l)
       end do

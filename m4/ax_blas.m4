@@ -222,6 +222,11 @@ if test $ax_blas_ok = no; then
 	AC_CHECK_LIB(blas_sequential, sgemm, [ax_blas_ok=yes; BLAS_LIBS="-lblas_sequential"])
 fi
 
+# BLAS in NVIDIA Performance Library (NVPL)?
+if test $ax_blas_ok = no; then
+       AC_CHECK_LIB(nvpl_blas_lp64_seq, sgemm, [ax_blas_ok=yes; BLAS_LIBS="-lnvpl_blas_lp64_seq"])
+fi
+
 # BLAS in AMD Blis?
 if test $ax_blas_ok = no; then
 	AC_CHECK_LIB(blis, sgemm, [ax_blas_ok=yes; BLAS_LIBS="-lblis"])

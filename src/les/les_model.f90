@@ -114,7 +114,7 @@ module les_model
      !! @param coef SEM coefficients.
      !! @param json A dictionary with parameters.
      module subroutine les_model_factory(object, type_name, dofmap, coef, json)
-       class(les_model_t), allocatable, target, intent(inout) :: object
+       class(les_model_t), allocatable, intent(inout) :: object
        character(len=*), intent(in) :: type_name
        type(dofmap_t), intent(in) :: dofmap
        type(coef_t), intent(in) :: coef
@@ -169,14 +169,14 @@ contains
     class(les_model_t), intent(inout) :: this
     integer :: e, i, j, k
     integer :: im, ip, jm, jp, km, kp
-    real(kind=rp) :: di, dj, dk, ndim_inv
+    real(kind=rp) :: di, dj, dk, ndim_inv, volume_element
     integer :: lx_half, ly_half, lz_half
 
     lx_half = this%coef%Xh%lx / 2
     ly_half = this%coef%Xh%ly / 2
     lz_half = this%coef%Xh%lz / 2
 
-    if (this%delta_type .eq. "elementwise") then
+    if (this%delta_type .eq. "elementwise_max") then
        ! use a same length scale throughout an entire element
        ! the length scale is based on maximum GLL spacing
        do e = 1, this%coef%msh%nelv
@@ -205,7 +205,19 @@ contains
           dk = sqrt(dk)
           this%delta%x(:,:,:,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
        end do
-
+    else if (this%delta_type .eq. "elementwise_average") then
+       ! use a same length scale throughout an entire element
+       ! the length scale is based on (volume)^(1/3)/(N+1)
+       do e = 1, this%coef%msh%nelv
+          volume_element = 0.0_rp
+          do k = 1, this%coef%Xh%lx * this%coef%Xh%ly * this%coef%Xh%lz
+             volume_element = volume_element + this%coef%B(k, 1, 1, e)
+          end do
+          this%delta%x(:,:,:,e) = (volume_element / this%coef%Xh%lx &
+                                                  / this%coef%Xh%ly &
+                                                  / this%coef%Xh%lz) &
+                                                  **(1.0_rp / 3.0_rp)                
+       end do
     else if (this%delta_type .eq. "pointwise") then
        do e = 1, this%coef%msh%nelv
           do k = 1, this%coef%Xh%lz

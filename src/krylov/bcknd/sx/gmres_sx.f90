@@ -33,13 +33,13 @@
 !> Defines various GMRES methods
 module gmres_sx
   use krylov, only : ksp_t, ksp_monitor_t
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only: rp
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, rone, copy, cmult2, col2, col3, add2s2, abscmp
   use comm
   implicit none
@@ -71,14 +71,14 @@ contains
 
   !> Initialise a standard GMRES solver
   subroutine sx_gmres_init(this, n, max_iter, M, lgmres, &
-                           rel_tol, abs_tol, monitor)
+       rel_tol, abs_tol, monitor)
     class(sx_gmres_t), intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
-    class(pc_t), optional, intent(inout), target :: M
-    integer, optional, intent(inout) :: lgmres
-    real(kind=rp), optional, intent(inout) :: rel_tol
-    real(kind=rp), optional, intent(inout) :: abs_tol
+    class(pc_t), optional, intent(in), target :: M
+    integer, optional, intent(in) :: lgmres
+    real(kind=rp), optional, intent(in) :: rel_tol
+    real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
 
     if (present(lgmres)) then
@@ -187,10 +187,10 @@ contains
   !> Standard PCG solve
   function sx_gmres_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) result(ksp_results)
     class(sx_gmres_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: f
+    real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
@@ -200,7 +200,7 @@ contains
     integer :: i, j, k, ierr
     real(kind=rp), parameter :: one = 1.0
     real(kind=rp) :: rnorm
-    real(kind=rp) ::  alpha, temp, l
+    real(kind=rp) :: alpha, temp, l
     real(kind=rp) :: ratio, div0, norm_fac
     logical :: conv
     integer outer
@@ -232,10 +232,10 @@ contains
           call col3(this%r,this%ml,f,n)
        else
           !update residual
-          call copy  (this%r,f,n)
+          call copy (this%r,f,n)
           call Ax%compute(this%w, x%x, coef, x%msh, x%Xh)
           call gs_h%op(this%w, n, GS_OP_ADD)
-          call bc_list_apply(blst, this%w, n)
+          call blst%apply(this%w, n)
           call add2s2(this%r,this%w,-one,n)
           call col2(this%r,this%ml,n)
        endif
@@ -259,7 +259,7 @@ contains
 
           call Ax%compute(this%w, this%z(1,j), coef, x%msh, x%Xh)
           call gs_h%op(this%w, n, GS_OP_ADD)
-          call bc_list_apply(blst, this%w, n)
+          call blst%apply(this%w, n)
           call col2(this%w, this%ml, n)
 
           do i = 1, j
@@ -284,7 +284,7 @@ contains
           !apply Givens rotations to new column
           do i=1,j-1
              temp = this%h(i,j)
-             this%h(i  ,j) =  this%c(i)*temp + this%s(i)*this%h(i+1,j)
+             this%h(i ,j) = this%c(i)*temp + this%s(i)*this%h(i+1,j)
              this%h(i+1,j) = -this%s(i)*temp + this%c(i)*this%h(i+1,j)
           end do
 
@@ -297,10 +297,10 @@ contains
           l = sqrt(this%h(j,j) * this%h(j,j) + alpha**2)
           temp = one / l
           this%c(j) = this%h(j,j) * temp
-          this%s(j) = alpha  * temp
+          this%s(j) = alpha * temp
           this%h(j,j) = l
           this%gam(j+1) = -this%s(j) * this%gam(j)
-          this%gam(j)   =  this%c(j) * this%gam(j)
+          this%gam(j) = this%c(j) * this%gam(j)
 
           rnorm = abs(this%gam(j+1)) * norm_fac
           call this%monitor_iter(iter, rnorm)
@@ -336,20 +336,21 @@ contains
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
+    ksp_results%converged = this%is_converged(iter, rnorm)
   end function sx_gmres_solve
 
   !> Standard GMRES coupled solve
   function sx_gmres_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
     class(sx_gmres_t), intent(inout) :: this
-    class(ax_t), intent(inout) :: Ax
+    class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     type(field_t), intent(inout) :: y
     type(field_t), intent(inout) :: z
     integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: fx
-    real(kind=rp), dimension(n), intent(inout) :: fy
-    real(kind=rp), dimension(n), intent(inout) :: fz
+    real(kind=rp), dimension(n), intent(in) :: fx
+    real(kind=rp), dimension(n), intent(in) :: fy
+    real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
     type(bc_list_t), intent(inout) :: blstx
     type(bc_list_t), intent(inout) :: blsty
@@ -358,9 +359,9 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function sx_gmres_solve_coupled
 

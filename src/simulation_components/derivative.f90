@@ -149,7 +149,7 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
-    call dudxyz(this%du%x, this%u%x, this%dr, this%dr, this%dr,&
+    call dudxyz(this%du%x, this%u%x, this%dr, this%ds, this%dt,&
                 this%case%fluid%c_Xh)
   end subroutine derivative_compute
 

@@ -39,6 +39,8 @@ module interpolation
   use tensor, only : tnsr3d
   use tensor_cpu, only : tnsr3d_cpu
   use space, only : space_t, operator(.eq.), GL, GLL
+  use utils, only : neko_error
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -166,7 +168,7 @@ contains
     class(interpolator_t), intent(inout) :: this
     integer :: nel
     type(space_t) :: to_space
-    real(kind=rp), intent(inout) :: x(this%Xh%lx, this%Xh%lx, this%Xh%lx, nel)
+    real(kind=rp), intent(in) :: x(this%Xh%lx, this%Xh%lx, this%Xh%lx, nel)
     real(kind=rp), intent(inout) :: y(this%Yh%lx, this%Yh%lx, this%Yh%lx, nel)
     if (to_space .eq. this%Yh) then
        call tnsr3d(y, this%Yh%lx, x, &

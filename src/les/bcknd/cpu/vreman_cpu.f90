@@ -34,7 +34,7 @@
 module vreman_cpu
   use num_types, only : rp
   use field_list, only : field_list_t
-  use math, only : cadd, NEKO_EPS
+  use math, only : cadd, NEKO_EPS, col2
   use scratch_registry, only : neko_scratch_registry
   use field_registry, only : neko_field_registry
   use field, only : field_t
@@ -105,15 +105,15 @@ contains
     call dudxyz (a32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (a33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
-    call coef%gs_h%op(a11%x, a11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(a12%x, a11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(a13%x, a11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(a21%x, a11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(a22%x, a11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(a23%x, a11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(a31%x, a11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(a32%x, a11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(a33%x, a11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(a11, GS_OP_ADD)
+    call coef%gs_h%op(a12, GS_OP_ADD)
+    call coef%gs_h%op(a13, GS_OP_ADD)
+    call coef%gs_h%op(a21, GS_OP_ADD)
+    call coef%gs_h%op(a22, GS_OP_ADD)
+    call coef%gs_h%op(a23, GS_OP_ADD)
+    call coef%gs_h%op(a31, GS_OP_ADD)
+    call coef%gs_h%op(a32, GS_OP_ADD)
+    call coef%gs_h%op(a33, GS_OP_ADD)
 
     do concurrent (i = 1:a11%dof%size())
        a11%x(i,1,1,1) = a11%x(i,1,1,1) * coef%mult(i,1,1,1)
@@ -155,6 +155,9 @@ contains
                             * sqrt(b_beta/(aijaij + NEKO_EPS))
        end do
     end do
+
+    call coef%gs_h%op(nut, GS_OP_ADD)
+    call col2(nut%x, coef%mult, nut%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine vreman_compute_cpu

@@ -40,6 +40,7 @@ module smagorinsky_cpu
   use operators, only : strain_rate
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
+  use math, only : col2
   implicit none
   private
 
@@ -82,12 +83,12 @@ contains
     ! Compute the strain rate tensor
     call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, u, v, w, coef)
 
-    call coef%gs_h%op(s11%x, s11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(s22%x, s11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(s33%x, s11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(s12%x, s11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(s13%x, s11%dof%size(), GS_OP_ADD)
-    call coef%gs_h%op(s23%x, s11%dof%size(), GS_OP_ADD)
+    call coef%gs_h%op(s11, GS_OP_ADD)
+    call coef%gs_h%op(s22, GS_OP_ADD)
+    call coef%gs_h%op(s33, GS_OP_ADD)
+    call coef%gs_h%op(s12, GS_OP_ADD)
+    call coef%gs_h%op(s13, GS_OP_ADD)
+    call coef%gs_h%op(s23, GS_OP_ADD)
 
     do concurrent (i = 1:s11%dof%size())
        s11%x(i,1,1,1) = s11%x(i,1,1,1) * coef%mult(i,1,1,1)
@@ -110,6 +111,9 @@ contains
           nut%x(i,1,1,e) = c_s**2 * delta%x(i,1,1,e)**2 * s_abs
        end do
     end do
+
+    call coef%gs_h%op(nut, GS_OP_ADD)
+    call col2(nut%x, coef%mult, nut%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine smagorinsky_compute_cpu

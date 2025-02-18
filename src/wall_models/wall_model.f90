@@ -34,7 +34,7 @@
 !> Implements `wall_model_t`.
 module wall_model
   use num_types, only : rp
-  use field, only : field_t, field_ptr_t
+  use field, only : field_t
   use json_module, only : json_file
   use field_registry, only : neko_field_registry
   use dofmap, only : dofmap_t
@@ -155,13 +155,12 @@ module wall_model
      !! @param h_index The off-wall index of the sampling cell.
      !! @param json A dictionary with parameters.
      module subroutine wall_model_factory(object, coef, msk, facet, nu, &
-          h_index, json)
-       class(wall_model_t), allocatable, target, intent(inout) :: object
+          json)
+       class(wall_model_t), allocatable, intent(inout) :: object
        type(coef_t), intent(in) :: coef
        integer, intent(in) :: msk(:)
        integer, intent(in) :: facet(:)
        real(kind=rp), intent(in) :: nu
-       integer, intent(in) :: h_index
        type(json_file), intent(inout) :: json
      end subroutine wall_model_factory
   end interface
@@ -170,14 +169,16 @@ module wall_model
 
 contains
   !> Constructor for the wall_model_t (base) class.
-  !! @param dof SEM map of degrees of freedom.
   !! @param coef SEM coefficients.
-  !! @param nu_name The name of the turbulent viscosity field.
+  !! @param msk The underlying mask of the boundary condition.
+  !! @param facet, The underlying facet index list of the boundary condition.
+  !! @param nu The kinematic viscosity.
+  !! @param index The off-wall index of the sampling point.
   subroutine wall_model_init_base(this, coef, msk, facet, nu, index)
     class(wall_model_t), intent(inout) :: this
     type(coef_t), target, intent(in) :: coef
     integer, target, intent(in) :: msk(0:)
-    integer, target, intent(in) :: facet(:)
+    integer, target, intent(in) :: facet(0:)
     real(kind=rp), intent(in) :: nu
     integer, intent(in) :: index
 
@@ -186,7 +187,7 @@ contains
     this%coef => coef
     this%dof => coef%dof
     this%msk(0:msk(0)) => msk
-    this%facet => facet
+    this%facet(0:msk(0)) => facet
     this%nu = nu
     this%h_index = index
 
@@ -241,6 +242,7 @@ contains
     call this%n_z%free()
   end subroutine wall_model_free_base
 
+  !> Find sampling points based on the requested index.
   subroutine wall_model_find_points(this)
     class(wall_model_t), intent(inout) :: this
     integer :: n_nodes, fid, idx(4), i, linear
@@ -249,6 +251,7 @@ contains
 
     n_nodes = this%msk(0)
     this%n_nodes = n_nodes
+
     do i = 1, n_nodes
        linear = this%msk(i)
        fid = this%facet(i)
@@ -289,7 +292,7 @@ contains
          this%ind_s(i) = idx(2)
          this%ind_t(i) = idx(3) - this%h_index
        case default
-         call neko_error("The face index is not correct")
+         call neko_error("The face index is not correct ")
        end select
        this%ind_e(i) = idx(4)
 
@@ -299,7 +302,6 @@ contains
        zw = this%dof%z(idx(1), idx(2), idx(3), idx(4))
 
        ! Location of the sampling point
-!       write(*,*) "IND", this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i), fid
        x = this%dof%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
                       this%ind_e(i))
        y = this%dof%y(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
@@ -329,11 +331,11 @@ contains
     end do
 
     hmin = glmin(this%h%x, n_nodes)
-    hmax = glmax(this%h%x, n_nodes)
-
-    if (pe_rank .eq. 0) then
-       write(*,*) "h min / max", hmin, hmax
-    end if
+!    hmax = glmax(this%h%x, n_nodes)
+!
+!    if (pe_rank .eq. 0) then
+!       write(*, "(A, F10.4, F10.4)") "   h min / max:", hmin, hmax
+!    end if
 
 
 

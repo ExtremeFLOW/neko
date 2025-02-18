@@ -79,7 +79,7 @@ module field_math
        field_add2s2, field_addsqr2s2, field_cmult2, &
        field_invcol2, field_col2, field_col3, field_subcol3, &
        field_add3s2, field_addcol3, field_addcol4, field_glsum, &
-       field_glsc2, field_glsc3
+       field_glsc2, field_glsc3, field_add3
   
 contains
 

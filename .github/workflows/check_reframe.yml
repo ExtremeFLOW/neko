@@ -63,5 +63,5 @@ jobs:
       - name: Regression tests
         run: |
           ./regen.sh
-          cd reframe
+          cd tests/reframe
           env NEKO_REAL=${RP} NEKO_SCHEME=pnpn reframe -v -C settings.py -c checks.py -n MiniHemi -n MiniTgv8 -n MiniRB -r --performance-report --system github-actions:cpu

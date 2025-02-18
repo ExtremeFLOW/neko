@@ -79,6 +79,7 @@ contains
     class(*), target, intent(in) :: data
     real(kind=rp), intent(in), optional :: t
     type(array_ptr_t) :: x, y, z, u, v, w, p, tem
+    real(kind=rp), allocatable, target :: tempo(:)
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dof
     type(space_t), pointer :: Xh
@@ -122,10 +123,11 @@ contains
        gdim = data%gdim
        glb_nelv = data%glb_nelv
        offset_el = data%offset_el
- 
+
        if (data%x%n .gt. 0) x%ptr => data%x%x
        if (data%y%n .gt. 0) y%ptr => data%y%x
        if (data%z%n .gt. 0) z%ptr => data%z%x
+       if (gdim .eq. 2) z%ptr => data%y%x
        if (data%u%n .gt. 0) then
           u%ptr => data%u%x
           write_velocity = .true.
@@ -140,7 +142,8 @@ contains
           write_temperature = .true.
           tem%ptr => data%t%x
        end if
-       
+       ! If gdim = 2 and Z-velocity component exists,
+       ! it is stored in last scalar field
        if (gdim .eq. 2 .and. data%w%n .gt. 0) then
           n_scalar_fields = data%n_scalars + 1
           allocate(scalar_fields(n_scalar_fields))
@@ -148,13 +151,27 @@ contains
              scalar_fields(i)%ptr => data%s(i)%x
           end do
           scalar_fields(n_scalar_fields)%ptr => data%w%x
-       else 
-          n_scalar_fields = data%n_scalars 
+       else
+          n_scalar_fields = data%n_scalars
           allocate(scalar_fields(n_scalar_fields+1))
-          do i = 1, n_scalar_fields 
+          do i = 1, n_scalar_fields
              scalar_fields(i)%ptr => data%s(i)%x
           end do
           scalar_fields(n_scalar_fields+1)%ptr => data%w%x
+       end if
+       ! This is very stupid...
+       ! Some compilers cannot handle that these pointers dont point to anything
+       ! (although they are not used) this fixes a segfault due to this.
+       if (nelv .eq. 0) then
+          allocate(tempo(1))
+          x%ptr => tempo
+          y%ptr => tempo
+          z%ptr => tempo
+          u%ptr => tempo
+          v%ptr => tempo
+          w%ptr => tempo
+          p%ptr => tempo
+          tem%ptr => tempo
        end if
 
        allocate(idx(nelv))
@@ -262,7 +279,6 @@ contains
     else
        FLD_DATA_SIZE = MPI_REAL_SIZE
     end if
-
     if (this%dp_precision) then
        allocate(tmp_dp(gdim*n))
     else
@@ -276,16 +292,16 @@ contains
 
     write_mesh = (this%counter .eq. this%start_counter)
     call MPI_Allreduce(MPI_IN_PLACE, write_mesh, 1, &
-         MPI_LOGICAL, MPI_LOR, NEKO_COMM) 
+         MPI_LOGICAL, MPI_LOR, NEKO_COMM)
     call MPI_Allreduce(MPI_IN_PLACE, write_velocity, 1, &
-         MPI_LOGICAL, MPI_LOR, NEKO_COMM) 
+         MPI_LOGICAL, MPI_LOR, NEKO_COMM)
     call MPI_Allreduce(MPI_IN_PLACE, write_pressure, 1, &
-         MPI_LOGICAL, MPI_LOR, NEKO_COMM) 
-    call MPI_Allreduce(MPI_IN_PLACE, write_temperature, 1, & 
-         MPI_LOGICAL, MPI_LOR, NEKO_COMM) 
+         MPI_LOGICAL, MPI_LOR, NEKO_COMM)
+    call MPI_Allreduce(MPI_IN_PLACE, write_temperature, 1, &
+         MPI_LOGICAL, MPI_LOR, NEKO_COMM)
     call MPI_Allreduce(MPI_IN_PLACE, n_scalar_fields, 1, &
-         MPI_INTEGER, MPI_MAX, NEKO_COMM) 
- 
+         MPI_INTEGER, MPI_MAX, NEKO_COMM)
+
     ! Build rdcode note that for field_t, we only support scalar
     ! fields at the moment
     rdcode = ' '
@@ -341,15 +357,12 @@ contains
     call MPI_File_write_at_all(fh, byte_offset, idx, nelv, &
          MPI_INTEGER, status, ierr)
     mpi_offset = mpi_offset + int(glb_nelv, i8) * int(MPI_INTEGER_SIZE, i8)
-
     deallocate(idx)
-
     if (write_mesh) then
 
        byte_offset = mpi_offset + int(offset_el, i8) * &
             (int(gdim*lxyz, i8) * &
             int(FLD_DATA_SIZE, i8))
-
        call fld_file_write_vector_field(this, fh, byte_offset, &
             x%ptr, y%ptr, z%ptr, &
             n, gdim, lxyz, nelv)
@@ -357,7 +370,6 @@ contains
             (int(gdim *lxyz, i8) * &
             int(FLD_DATA_SIZE, i8))
     end if
-
     if (write_velocity) then
        byte_offset = mpi_offset + int(offset_el, i8) * &
             (int(gdim * (lxyz), i8) * int(FLD_DATA_SIZE, i8))
@@ -405,7 +417,7 @@ contains
             (int(lxyz, i8) * &
             int(FLD_DATA_SIZE, i8))
     end do
-    
+
     if (gdim .eq. 3) then
 
        !> Include metadata with bounding boxes (Just copying from nek5000)
@@ -501,7 +513,6 @@ contains
 
     call MPI_File_sync(fh, ierr)
     call MPI_File_close(fh, ierr)
-
     ! Write metadata file
     if (pe_rank .eq. 0) then
        tslash_pos = filename_tslash_pos(this%fname)
@@ -514,7 +525,6 @@ contains
        write(9, fmt = '(A,i5)') 'firsttimestep: ', this%start_counter
        write(9, fmt = '(A,i5)') 'numtimesteps: ', &
             (this%counter + 1) - this%start_counter
-       write(9, fmt = '(A)') 'type: binary'
        close(9)
     end if
 
@@ -545,7 +555,7 @@ contains
        if (gdim .eq. 3) then
           buffer(j+0) = real(vlmin(z(1, el), lxyz), sp)
           buffer(j+1) = real(vlmax(z(1, el), lxyz), sp)
-          j = j + 2 
+          j = j + 2
        end if
     end do
 
