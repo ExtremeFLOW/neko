@@ -805,8 +805,7 @@ contains
       call profiler_end_region('Velocity_residual', 19)
 
       call this%proj_vel%pre_solving(u_res%x, v_res%x, w_res%x, &
-           tstep, c_Xh, n, dt_controller, &
-           'Velocity')
+           tstep, c_Xh, n, dt_controller, 'Velocity')
 
       call this%pc_vel%update()
 
