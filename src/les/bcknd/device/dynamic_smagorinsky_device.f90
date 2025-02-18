@@ -68,7 +68,7 @@ contains
   subroutine dynamic_smagorinsky_compute_device(if_ext, t, tstep, coef, nut, delta, &
        c_dyn, test_filter, mij, lij, &
        num, den)
-    logical :: if_ext
+    logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
