@@ -478,7 +478,7 @@ contains
 
     end associate
   end subroutine device_project_on
-  
+
   !Choose between CPU or device for proj_ortho
   subroutine proj_ortho(this, coef, n)
     class(projection_t), intent(inout) :: this
