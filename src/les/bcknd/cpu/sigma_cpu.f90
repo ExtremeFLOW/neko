@@ -161,9 +161,9 @@ contains
                g22%x(i,1,1,e)*g23%x(i,1,1,e) + &
                g32%x(i,1,1,e)*g33%x(i,1,1,e)
 
-          !        If LAPACK compute eigenvalues of the semi-definite positive matrix G
-          !        ..........to be done later on......
-          !        ELSE use the analytical method as done in the following
+          ! If LAPACK compute eigenvalues of the semi-definite positive matrix G
+          ! ..........to be done later on......
+          ! ELSE use the analytical method as done in the following
 
           ! eigenvalues with the analytical method of Hasan et al. (2001)
           ! doi:10.1006/jmre.2001.2400
