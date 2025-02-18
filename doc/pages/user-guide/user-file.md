@@ -251,12 +251,11 @@ The registering of the above function in `user_setup` should then be done as fol
 ### Scalar boundary conditions {#user-file_scalar-bc}
 
 This user function can be used to specify the scalar boundary values, on all
-zones that are not already set to uniform Dirichlet or Neumann values e.g. `d=1`
-or `n=0`. For more information on the scalar, see the
-[relevant section of the case file](@ref case-file_scalar). The example below
-sets the scalar boundary condition values to be a linear function of the `z`
-coordinate (taken from the
-[rayleigh_benard example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/rayleigh_benard_cylinder/rayleigh.f90#L41-L63)).
+boundaries of type `user_pointwise`. See [relevant section of the case
+file](@ref case-file_scalar). The example below sets the scalar boundary
+condition values to be a linear function of the `z` coordinate (taken from the
+[rayleigh_benard
+example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/rayleigh_benard_cylinder/rayleigh.f90#L41-L63)).
 
 ```fortran
 
@@ -471,25 +470,13 @@ u%fluid_user_ic => set_velocity
 u%scalar_user_ic => set_s_ic
 ```
 
-### Fluid inflow condition {#user-file_fluid-user-if}
+### Fluid pointwise velocity boundary values {#user-file_fluid-user-if}
 
-Enabling user defined inflow condition for the fluid is done by setting
-the `case.fluid.inflow_condition.type` to `"user"`:
-
-```.json
-
-"case": {
-    "fluid": {
-        "inflow_condition": {
-            "type": "user"
-        }
-    }
-}
-```
-
-See the [the relevant section](@ref case-file_fluid-if) in the
+This routine will be used to compute the velocity on all boundaries of type
+`user_velocity_pointwise`.
+See the [the relevant section](@ref case-file_fluid-boundary-conditions) in the
 [case file page](@ref case-file) for more details. The associated user
-function for the fluid inflow condition can then be added to the user file.
+function for the fluid velocity can then be added to the user file.
 An example inspired from the
 [lid-driven cavity example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/lid/lid.f90#L29-L53)
 is shown below.
