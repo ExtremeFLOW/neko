@@ -34,21 +34,15 @@
 !> Couple projections for velocity
 module projection_vel
   use num_types, only : rp, c_rp
-  use math, only : rzero, glsc3, add2, copy, cmult
+  use math, only : add2, copy
   use coefs, only : coef_t
   use ax_product, only : ax_t
   use bc_list, only : bc_list_t
-  use comm
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device
-  use device_math, only : device_glsc3, device_add2s2, device_cmult, &
-       device_rzero, device_copy, device_add2, device_add2s2_many, &
-       device_glsc3_many
-  use device_projection, only : device_proj_on, device_project_ortho
+  use device, only : device_get_ptr
+  use device_math, only : device_copy, device_add2
   use profiler, only : profiler_start_region, profiler_end_region
-  use logger, only : LOG_SIZE, neko_log
-  use utils, only : neko_warning
   use, intrinsic :: iso_c_binding
   use time_step_controller, only : time_step_controller_t
   use projection, only : projection_t, proj_ortho
@@ -123,7 +117,7 @@ contains
        gs_h, n, tstep, dt_controller)
     class(projection_vel_t), intent(inout) :: this
     integer, intent(inout) :: n
-    class(Ax_t), intent(inout) :: Ax
+    class(ax_t), intent(inout) :: Ax
     class(coef_t), intent(inout) :: coef
     class(bc_list_t), intent(inout) :: bclst_u, bclst_v, bclst_w
     type(gs_t), intent(inout) :: gs_h
@@ -146,7 +140,7 @@ contains
        Ax, coef, bclst_u, bclst_v, bclst_w, gs_h, n)
     class(projection_vel_t) :: this
     integer, intent(inout) :: n
-    class(Ax_t), intent(inout) :: Ax
+    class(ax_t), intent(inout) :: Ax
     class(coef_t), intent(inout) :: coef
     class(bc_list_t), intent(inout) :: bclst_u, bclst_v, bclst_w
     type(gs_t), intent(inout) :: gs_h
