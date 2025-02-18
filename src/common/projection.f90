@@ -293,7 +293,7 @@ contains
   end subroutine bcknd_project_on
 
   subroutine bcknd_project_back(this, x, Ax, coef, bclst, gs_h, n)
-    class(projection_t) :: this
+    class(projection_t), intent(inout) :: this
     integer, intent(inout) :: n
     class(Ax_t), intent(inout) :: Ax
     class(coef_t), intent(inout) :: coef
@@ -494,7 +494,7 @@ contains
 
   !This is a lot more primitive than on the CPU
   subroutine device_proj_ortho(this, xx_d, bb_d, w_d, n)
-    type(projection_t) :: this
+    type(projection_t), intent(inout) :: this
     integer, intent(in) :: n
     type(c_ptr), dimension(this%L) :: xx_d, bb_d
     type(c_ptr), intent(in) :: w_d
@@ -573,7 +573,7 @@ contains
 
 
   subroutine cpu_proj_ortho(this, xx, bb, w, n)
-    type(projection_t) :: this
+    type(projection_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n, this%L), intent(inout) :: xx, bb
     real(kind=rp), dimension(n), intent(in) :: w
@@ -681,8 +681,8 @@ contains
   end subroutine cpu_proj_ortho
 
   subroutine print_proj_info(this, string)
-    class(projection_t) :: this
-    character(len=*) :: string
+    class(projection_t), intent(in) :: this
+    character(len=*), intent(in) :: string
     character(len=LOG_SIZE) :: log_buf
 
     if (this%proj_m .gt. 0) then
@@ -697,7 +697,7 @@ contains
   end subroutine print_proj_info
 
   subroutine bcknd_clear(this, n)
-    class(projection_t) :: this
+    class(projection_t), intent(inout) :: this
     integer, intent(in) :: n
     integer :: i, j
 
