@@ -352,10 +352,12 @@ neko_fortran_SOURCES = \
 
 neko_c_SOURCES = \
 	comm/comm_wrapper.c\
+	comm/comm_nccl.c\
 	common/sighdl.c\
 	common/cpuid.c\
 	gs/bcknd/device/device_mpi.c\
-	math/bcknd/device/device_mpi_reduce.c
+	math/bcknd/device/device_mpi_reduce.c\
+	math/bcknd/device/cuda/device_nccl_reduce.c
 
 libneko_la_SOURCES = \
 	$(neko_fortran_SOURCES)\
@@ -678,6 +680,8 @@ EXTRA_DIST = \
 	sem/bcknd/device/opencl/coef_kernel.cl\
 	math/bcknd/device/device_mpi_reduce.h\
 	math/bcknd/device/device_mpi_op.h\
+	math/bcknd/device/cuda/device_nccl_reduce.h\
+	math/bcknd/device/cuda/device_nccl_op.h\
 	source_terms/bcknd/device/cuda/filter_kernels.h\
 	source_terms/bcknd/device/hip/filter_kernels.h\
 	source_terms/bcknd/device/opencl/filter_kernels.cl\
@@ -686,6 +690,7 @@ EXTRA_DIST = \
 	device/opencl/check.h\
 	device/hip/check.h\
 	device/cuda/check.h\
+	comm/comm_nccl.h\
 	comm/comm.h\
 	common/neko_log.h
 
