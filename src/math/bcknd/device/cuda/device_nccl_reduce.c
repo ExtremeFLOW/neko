@@ -38,7 +38,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <nccl.h>
 #include <comm/comm_nccl.h>
 
 #include "device_nccl_op.h"
@@ -46,6 +45,7 @@
 void device_nccl_allreduce(void *sbuf_d, void *rbuf_d, int count,
                            int nbytes, int op, void *stream) {
   
+#ifdef HAVE_NCCL
   if (nbytes == sizeof(float)) {
     if (op == DEVICE_NCCL_SUM)
       ncclAllReduce(sbuf_d, rbuf_d, count, ncclFloat, ncclSum,
@@ -73,5 +73,6 @@ void device_nccl_allreduce(void *sbuf_d, void *rbuf_d, int count,
   else {
     fprintf(stderr, __FILE__ ": Invalid data type)\n");
     exit(1);
-  }  
+  }
+#endif
 }
