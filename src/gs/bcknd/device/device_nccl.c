@@ -43,7 +43,8 @@
 void device_nccl_sendrecv(void *sbuf_d, int soffset, int scount, int srank,
                           void *rbuf_d, int roffset, int rcount, int rrank,
                           int nbytes, void *stream) {
-#ifdef HAVE_NCCL
+
+#if defined(HAVE_NCCL) || defined(HAVE_RCCL)
   if (nbytes == sizeof(float)) {
     ncclGroupStart();
     ncclSend(sbuf_d+soffset, scount, ncclFloat, srank, NEKO_COMM_NCCL, stream);

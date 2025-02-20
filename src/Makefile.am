@@ -360,7 +360,7 @@ neko_c_SOURCES = \
 	gs/bcknd/device/device_mpi.c\
 	gs/bcknd/device/device_nccl.c\
 	math/bcknd/device/device_mpi_reduce.c\
-	math/bcknd/device/cuda/device_nccl_reduce.c
+	math/bcknd/device/device_nccl_reduce.c
 
 libneko_la_SOURCES = \
 	$(neko_fortran_SOURCES)\
