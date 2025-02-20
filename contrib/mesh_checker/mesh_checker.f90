@@ -69,7 +69,6 @@ program mesh_checker
 
   write_zone_ids = .false.
 
-  ! Check for optional boolean flag
   do i = 2, argc
      call get_command_argument(i, inputchar)
      if (trim(inputchar) == "--write_zone_ids") then
@@ -135,7 +134,7 @@ program mesh_checker
 
 
   if (write_zone_ids) then
-     if (pe_rank .eq. 0) write(*,*) 'Writing zone ids to zoneids0.f00000'
+     if (pe_rank .eq. 0) write(*,*) 'Writing zone ids to zone_ids0.f00000'
      call Xh%init(1, 2, 2, 2)
      call dofmap%init(msh, Xh)
      call gs%init(dofmap)
