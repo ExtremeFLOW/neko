@@ -133,18 +133,6 @@ contains
     call coef%gs_h%op(g32, GS_OP_ADD)
     call coef%gs_h%op(g33, GS_OP_ADD)
 
-    do concurrent (i = 1:g11%dof%size())
-       g11%x(i,1,1,1) = g11%x(i,1,1,1) * coef%mult(i,1,1,1)
-       g12%x(i,1,1,1) = g12%x(i,1,1,1) * coef%mult(i,1,1,1)
-       g13%x(i,1,1,1) = g13%x(i,1,1,1) * coef%mult(i,1,1,1)
-       g21%x(i,1,1,1) = g21%x(i,1,1,1) * coef%mult(i,1,1,1)
-       g22%x(i,1,1,1) = g22%x(i,1,1,1) * coef%mult(i,1,1,1)
-       g23%x(i,1,1,1) = g23%x(i,1,1,1) * coef%mult(i,1,1,1)
-       g31%x(i,1,1,1) = g31%x(i,1,1,1) * coef%mult(i,1,1,1)
-       g32%x(i,1,1,1) = g32%x(i,1,1,1) * coef%mult(i,1,1,1)
-       g33%x(i,1,1,1) = g33%x(i,1,1,1) * coef%mult(i,1,1,1)
-    end do
-
     do concurrent (e = 1:coef%msh%nelv)
        do concurrent (i = 1:coef%Xh%lxyz)
           ! G_ij = g^t g = g_mi g_mj
@@ -275,8 +263,8 @@ contains
 
           ! estimate turbulent viscosity
 
-          nut%x(i,1,1,e) = (c*delta%x(i,1,1,e))**2 * Dsigma
-
+          nut%x(i,1,1,e) = (c*delta%x(i,1,1,e))**2 * Dsigma &
+               * coef%mult(i,1,1,1)
 
        end do
     end do
