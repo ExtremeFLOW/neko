@@ -168,8 +168,8 @@ you have two zones, which should be no-slip walls, you can either create two
 apply it to both.
 
 The indices your boundaries have is determined by the mesh. To check them, you
-can use the `mesh_checker` utility with the optional `--write_zone_ids`
-argument. This will output a `zone_ids0.f00000` file that you can inspect in
+can use the `mesh_checker` utility with the optional `--write_zone_indices`
+argument. This will output a `zone_indices0.f00000` file that you can inspect in
 Paraview, and the boundaries will be marked by their index value.
 
 Recall that periodic conditions are built into the mesh, since they are

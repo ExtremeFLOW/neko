@@ -55,9 +55,9 @@ program mesh_checker
 
   if (argc .lt. 1) then
      if (pe_rank .eq. 0) then
-        write(*,*) 'Usage: ./mesh_checker mesh.nmsh [--write_zone_ids]'
-        write(*,*) '--write-zone-ids : write a field file with boundaries &
-        & marked by zone ID.'
+        write(*,*) 'Usage: ./mesh_checker mesh.nmsh [--write_zone_indices]'
+        write(*,*) '--write_zone_indices : write a field file with boundaries &
+        & marked by zone index.'
      end if
      stop
   end if
@@ -71,7 +71,7 @@ program mesh_checker
 
   do i = 2, argc
      call get_command_argument(i, inputchar)
-     if (trim(inputchar) == "--write_zone_ids") then
+     if (trim(inputchar) == "--write_zone_indices") then
          write_zone_ids = .true.
      end if
   end do
@@ -132,7 +132,7 @@ program mesh_checker
       end do
 
   if (write_zone_ids) then
-     if (pe_rank .eq. 0) write(*,*) 'Writing zone ids to zone_ids0.f00000'
+     if (pe_rank .eq. 0) write(*,*) 'Writing zone ids to zone_indices0.f00000'
      call Xh%init(1, 2, 2, 2)
      call dofmap%init(msh, Xh)
      call gs%init(dofmap)
@@ -148,7 +148,7 @@ program mesh_checker
           call bdry_mask%free()
      end do
 
-     bdry_file = file_t('zone_ids.fld')
+     bdry_file = file_t('zone_indices.fld')
      call bdry_file%write(bdry_field)
 
      call Xh%free()
