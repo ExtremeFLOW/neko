@@ -34,8 +34,8 @@
 module bc
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : rp
-  use device, only : device_get_ptr, HOST_TO_DEVICE,  device_memcpy, &
-        device_free, device_map, DEVICE_TO_HOST
+  use device, only : device_get_ptr, HOST_TO_DEVICE, device_memcpy, &
+       device_free, device_map, DEVICE_TO_HOST
   use iso_c_binding, only: c_associated
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
@@ -125,7 +125,7 @@ module bc
   ! Helper type to have an array of polymorphic bc_t objects.
   type, public :: bc_alloc_t
      class(bc_t), allocatable :: obj
-  end type
+  end type bc_alloc_t
 
 
   abstract interface
@@ -424,7 +424,7 @@ contains
   !! Relevant for bcs where the normal direction is important
   !! and where and shared dofs should not be included.
   !! @details This will linearize the marked facet's indicies in the msk array.
-  !! 
+  !!
   subroutine bc_finalize_base(this, only_facets)
     class(bc_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
@@ -515,7 +515,7 @@ contains
     if ( .not. only_facet) then
        !Makes check for points not on facet that should have bc applied
        call test_field%init(this%dof)
-       
+
        n = test_field%size()
        test_field%x = 0.0_rp
        !Apply this bc once
@@ -524,13 +524,13 @@ contains
        end do
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(test_field%x, test_field%x_d, n, &
-                             HOST_TO_DEVICE, sync=.true.)
+               HOST_TO_DEVICE, sync=.true.)
        end if
        !Check if some point that was not zeroed was zeroed on another element
        call this%coef%gs_h%op(test_field,GS_OP_ADD)
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_memcpy(test_field%x, test_field%x_d, n, &
-                             DEVICE_TO_HOST, sync=.true.)
+               DEVICE_TO_HOST, sync=.true.)
        end if
        msk_c = 0
        do i = 1, this%dof%size()
@@ -561,9 +561,9 @@ contains
        call device_map(this%facet, this%facet_d, n)
 
        call device_memcpy(this%msk, this%msk_d, n, &
-                          HOST_TO_DEVICE, sync = .false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%facet, this%facet_d, n, &
-                          HOST_TO_DEVICE, sync = .true.)
+            HOST_TO_DEVICE, sync = .true.)
     end if
 
   end subroutine bc_finalize_base
@@ -572,8 +572,8 @@ contains
   !! @details The mask will be marked with 1.
   !! @param file_name The name of the fld file.
   subroutine bc_debug_mask(this, file_name)
-   use field, only : field_t
-   use file, only : file_t
+    use field, only : field_t
+    use file, only : file_t
 
     class(bc_t), intent(inout) :: this
     character(len=*), intent(in) :: file_name

@@ -181,7 +181,7 @@ contains
 
   !> Apply in facet normal direction (vector valued, device version)
   subroutine facet_normal_apply_surfvec_dev(this, x_d, y_d, z_d, &
-                                            u_d, v_d, w_d, t, tstep)
+       u_d, v_d, w_d, t, tstep)
     class(facet_normal_t), intent(in), target :: this
     type(c_ptr) :: x_d, y_d, z_d, u_d, v_d, w_d
     real(kind=rp), intent(in), optional :: t
