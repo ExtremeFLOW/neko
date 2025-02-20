@@ -57,7 +57,7 @@ contains
   !! @param delta The LES lengthscale.
   !! @param c_s The smagorinsky model constant
   subroutine smagorinsky_compute_cpu(if_ext, t, tstep, coef, nut, delta, c_s)
-    logical :: if_ext
+    logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef

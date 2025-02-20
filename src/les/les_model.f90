@@ -151,12 +151,8 @@ contains
     associate(dofmap => fluid%dm_Xh, &
          coef => fluid%c_Xh)
 
-      if (.not. neko_field_registry%field_exists(trim(nut_name))) then
-         call neko_field_registry%add_field(dofmap, trim(nut_name))
-      end if
-      if (.not. neko_field_registry%field_exists("les_delta")) then
-         call neko_field_registry%add_field(dofmap, "les_delta")
-      end if
+      call neko_field_registry%add_field(dofmap, trim(nut_name), .true.)
+      call neko_field_registry%add_field(dofmap, "les_delta", .true.)
       this%nut => neko_field_registry%get_field(trim(nut_name))
       this%delta => neko_field_registry%get_field("les_delta")
       this%coef => coef
@@ -245,9 +241,7 @@ contains
              volume_element = volume_element + this%coef%B(k, 1, 1, e)
           end do
           this%delta%x(:,:,:,e) = (volume_element / this%coef%Xh%lx &
-               / this%coef%Xh%ly &
-               / this%coef%Xh%lz) &
-               **(1.0_rp / 3.0_rp)
+               / this%coef%Xh%ly / this%coef%Xh%lz)**(1.0_rp / 3.0_rp)
        end do
     else if (this%delta_type .eq. "pointwise") then
        do e = 1, this%coef%msh%nelv
