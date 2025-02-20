@@ -49,14 +49,14 @@ module fluid_stats_simcomp
   implicit none
   private
 
-  !> A simulation component that computes the velocity and pressure statistics 
+  !> A simulation component that computes the velocity and pressure statistics
   !! up to 4th order. Can be used to reconstruct the term budget of transport
   !! equations for, e.g. the Reynolds stresses and the turbulent kinetic energy.
-  !! 
+  !!
   !! Similar in functionality to the satistics module in the KTH Framework for
   !! Nek5000: https://github.com/KTH-Nek5000/KTH_Framework
-  !! See Turbulence Statistics in a Spectral-Element Code: A Toolbox for 
-  !! High-Fidelity Simulations or the origin KTH Nek5000 framework for details. 
+  !! See Turbulence Statistics in a Spectral-Element Code: A Toolbox for
+  !! High-Fidelity Simulations or the origin KTH Nek5000 framework for details.
   !!
   !! For further details see the Neko documentation.
   type, public, extends(simulation_component_t) :: fluid_stats_simcomp_t
@@ -72,7 +72,7 @@ module fluid_stats_simcomp
      procedure, pass(this) :: init => fluid_stats_simcomp_init_from_json
      !> Actual constructor.
      procedure, pass(this) :: init_from_attributes => &
-        fluid_stats_simcomp_init_from_attributes
+          fluid_stats_simcomp_init_from_attributes
      !> Destructor.
      procedure, pass(this) :: free => fluid_stats_simcomp_free
      !> Does sampling for statistics.
@@ -136,7 +136,7 @@ contains
     type(field_t), intent(inout) :: u, v, w, p !>Should really be intent in I think
     type(coef_t), intent(in) :: coef
     character(len=LOG_SIZE) :: log_buf
-    
+
     call neko_log%section('Fluid stats')
     write(log_buf, '(A,E15.7)') 'Start time: ', start_time
     call neko_log%message(log_buf)
@@ -151,15 +151,15 @@ contains
     this%start_time = start_time
     this%time = start_time
 
-    call this%stats_output%init(this%stats, this%start_time, & 
+    call this%stats_output%init(this%stats, this%start_time, &
          hom_dir = hom_dir, path = this%case%output_directory)
 
     call this%case%output_controller%add(this%stats_output, &
          this%output_controller%control_value, &
          this%output_controller%control_mode)
- 
+
     call neko_log%end_section()
-  
+
   end subroutine fluid_stats_simcomp_init_from_attributes
 
   !> Destructor.
