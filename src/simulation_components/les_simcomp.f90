@@ -117,10 +117,11 @@ contains
   !> Compute the les_simcomp field.
   !! @param t The time value.
   !! @param tstep The current time-step.
-  subroutine les_simcomp_compute(this, t, tstep)
+  subroutine les_simcomp_compute(this, t, tstep, dt)
     class(les_simcomp_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    real(kind=rp), intent(in) :: dt
 
     call this%les_model%compute(t, tstep)
   end subroutine les_simcomp_compute

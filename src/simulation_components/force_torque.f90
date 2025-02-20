@@ -56,7 +56,7 @@ module force_torque
   use device_math, only : device_masked_red_copy, device_cadd, &
                           device_glsum, device_vcross
   use device
-  
+
   implicit none
   private
 
@@ -82,7 +82,7 @@ module force_torque
      real(kind=rp) :: center(3) = 0.0_rp
      real(kind=rp) :: scale
      integer :: zone_id
-     character(len=20) :: zone_name 
+     character(len=20) :: zone_name
      type(coef_t), pointer :: coef
      type(dirichlet_t) :: bc
      character(len=80) :: print_format
@@ -111,7 +111,7 @@ contains
     character(len=:), allocatable :: zone_name
     real(kind=rp) :: scale
     logical :: long_print
-    
+
     ! Add fields keyword to the json so that the field_writer picks it up.
     ! Will also add fields to the registry.
 
@@ -146,18 +146,18 @@ contains
     this%scale = scale
     this%zone_name = zone_name
     if (long_print ) then
-       this%print_format = '(I7,E20.10,E20.10,E20.10,E20.10,A)'    
+       this%print_format = '(I7,E20.10,E20.10,E20.10,E20.10,A)'
     else
-       this%print_format = '(I7,E13.5,E13.5,E13.5,E13.5,A)'    
+       this%print_format = '(I7,E13.5,E13.5,E13.5,E13.5,A)'
     end if
 
     this%u => neko_field_registry%get_field_by_name("u")
     this%v => neko_field_registry%get_field_by_name("v")
     this%w => neko_field_registry%get_field_by_name("w")
     this%p => neko_field_registry%get_field_by_name("p")
-    
-    
-    call this%bc%init_base(this%coef) 
+
+
+    call this%bc%init_base(this%coef)
     call this%bc%mark_zone(this%case%msh%labeled_zones(this%zone_id))
     call this%bc%finalize()
     n_pts = this%bc%msk(0)
@@ -186,7 +186,7 @@ contains
          this%u%size(), n_pts)
     call masked_red_copy(this%r2%x, this%coef%dof%y, this%bc%msk, &
          this%u%size(), n_pts)
-    call masked_red_copy(this%r3%x, this%coef%dof%z, this%bc%msk, & 
+    call masked_red_copy(this%r3%x, this%coef%dof%z, this%bc%msk, &
          this%u%size(), n_pts)
 
     call MPI_Allreduce(n_pts, glb_n_pts, 1, &
@@ -213,17 +213,17 @@ contains
     call cadd(this%r3%x,-center(3), n_pts)
     if (NEKO_BCKND_DEVICE .eq. 1 .and. n_pts .gt. 0) then
        call device_memcpy(this%n1%x, this%n1%x_d, n_pts, HOST_TO_DEVICE, &
-            .false.)   
+            .false.)
        call device_memcpy(this%n2%x, this%n2%x_d, n_pts, HOST_TO_DEVICE, &
-            .false.)   
+            .false.)
        call device_memcpy(this%n3%x, this%n3%x_d, n_pts, HOST_TO_DEVICE, &
-            .true.)   
+            .true.)
        call device_memcpy(this%r1%x, this%r1%x_d, n_pts, HOST_TO_DEVICE, &
-            .false.)   
+            .false.)
        call device_memcpy(this%r2%x, this%r2%x_d, n_pts, HOST_TO_DEVICE, &
-            .false.)   
+            .false.)
        call device_memcpy(this%r3%x, this%r3%x_d, n_pts, HOST_TO_DEVICE, &
-            .true.)   
+            .true.)
     end if
 
   end subroutine force_torque_init_from_attributes
@@ -243,10 +243,11 @@ contains
   !> Compute the force_torque field.
   !! @param t The time value.
   !! @param tstep The current time-step
-  subroutine force_torque_compute(this, t, tstep)
+  subroutine force_torque_compute(this, t, tstep, dt)
     class(force_torque_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    real(kind=rp), intent(in) :: dt
     real(kind=rp) :: dgtq(12) = 0.0_rp
     integer :: n_pts, temp_indices(6)
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23
@@ -307,7 +308,7 @@ contains
        call vcross(this%s11msk%x, this%s22msk%x, this%s33msk%x, &
                    this%r1%x, this%r2%x, this%r3%x, &
                    this%force1%x, this%force2%x, this%force3%x, n_pts)
-       
+
        dgtq(7) = glsum(this%s11msk%x, n_pts)
        dgtq(8) = glsum(this%s22msk%x, n_pts)
        dgtq(9) = glsum(this%s33msk%x, n_pts)
@@ -353,7 +354,7 @@ contains
                              this%n2%x_d, &
                              this%n3%x_d, &
                              this%case%fluid%mu, &
-                             n_pts)    
+                             n_pts)
           !Overwriting masked s11, s22, s33 as they are no longer needed
           call device_vcross(this%s11msk%x_d, this%s22msk%x_d, &
                              this%s33msk%x_d, &
@@ -363,7 +364,7 @@ contains
           call device_vcross(this%s12msk%x_d,this%s13msk%x_d,this%s23msk%x_d, &
                       this%r1%x_d, this%r2%x_d, this%r3%x_d, &
                       this%force4%x_d, this%force5%x_d, this%force6%x_d, n_pts)
-       end if   
+       end if
        dgtq(1) = device_glsum(this%force1%x_d, n_pts)
        dgtq(2) = device_glsum(this%force2%x_d, n_pts)
        dgtq(3) = device_glsum(this%force3%x_d, n_pts)

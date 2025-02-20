@@ -123,10 +123,11 @@ contains
   !> Compute the lambda2 field.
   !! @param t The time value.
   !! @param tstep The current time-step
-  subroutine lambda2_compute(this, t, tstep)
+  subroutine lambda2_compute(this, t, tstep, dt)
     class(lambda2_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    real(kind=rp), intent(in) :: dt
 
     call lambda2op(this%lambda2, this%u, this%v, this%w, this%case%fluid%c_Xh)
 

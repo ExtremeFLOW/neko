@@ -126,14 +126,16 @@ contains
   !> Check if the execution should be performed.
   !! @param t Time value.
   !! @param tstep Current timestep.
+  !! @param dt Timestep size.
   !! @param force Whether to force returning true. Optional.
   !! @note In the logic, `nsteps` being zero corresponds to us not knowing the
   !! number of time-steps between executions and thus having to rely on
   !! `nexecutions`. This is done in anticipation of having a variable timestep.
-  function time_based_controller_check(this, t, tstep, force) result(check)
+  function time_based_controller_check(this, t, tstep, dt, force) result(check)
     class(time_based_controller_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    real(kind=rp), intent(in) :: dt
     logical, intent(in), optional :: force
     logical :: check
     logical :: ifforce

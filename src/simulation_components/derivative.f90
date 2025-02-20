@@ -144,10 +144,11 @@ contains
   !> Compute the derivative field.
   !! @param t The time value.
   !! @param tstep The current time-step
-  subroutine derivative_compute(this, t, tstep)
+  subroutine derivative_compute(this, t, tstep, dt)
     class(derivative_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    real(kind=rp), intent(in) :: dt
 
     call dudxyz(this%du%x, this%u%x, this%dr, this%ds, this%dt,&
                 this%case%fluid%c_Xh)

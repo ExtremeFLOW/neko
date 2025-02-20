@@ -45,7 +45,7 @@ module output_controller
 
 
   !> Centralized controller for a list of outputs.
-  !! @details Holds a list of `output_t` and corresponding 
+  !! @details Holds a list of `output_t` and corresponding
   !! `time_based_controller_t`s. Uses the latter to determine, which outputs
   !! need to be sampled and written to disk at a given time step.
   type, public :: output_controller_t
@@ -124,7 +124,7 @@ contains
 
   !> Add an output @a out to the controller
   !! @param out The output to add.
-  !! @param write_par The output frequency value, in accordance with 
+  !! @param write_par The output frequency value, in accordance with
   !! `write_control`.
   !! @param write_control Determines the meaning of `write_par`. Accepts the
   !! usual list of control options.
@@ -210,10 +210,11 @@ contains
   !! @param t The time value.
   !! @param tstep The current time-stepper iteration.
   !! @param ifforce Whether to force a write. Optional, defaults to 0.
-  subroutine output_controller_execute(this, t, tstep, ifforce)
+  subroutine output_controller_execute(this, t, tstep, dt, ifforce)
     class(output_controller_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    real(kind=rp) :: dt
     logical, intent(in), optional :: ifforce
     real(kind=dp) :: sample_start_time, sample_end_time
     real(kind=dp) :: sample_time
@@ -240,7 +241,7 @@ contains
     select type (samp => this)
     type is (output_controller_t)
        do i = 1, samp%n
-          if (this%controllers(i)%check(t, tstep, force)) then
+          if (this%controllers(i)%check(t, tstep, dt, force)) then
              write_output = .true.
              exit
           end if
@@ -258,7 +259,7 @@ contains
     select type (samp => this)
     type is (output_controller_t)
        do i = 1, this%n
-          if (this%controllers(i)%check(t, tstep, force)) then
+          if (this%controllers(i)%check(t, tstep, dt, force)) then
              call neko_log%message('File name     : '// &
                   trim(samp%output_list(i)%ptr%file_%file_type%fname))
 

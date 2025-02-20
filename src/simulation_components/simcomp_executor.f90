@@ -334,17 +334,18 @@ contains
   !> Execute preprocess_ for all simcomps.
   !! @param t The time value.
   !! @param tstep The timestep number.
-  subroutine simcomp_executor_preprocess(this, t, tstep)
+  subroutine simcomp_executor_preprocess(this, t, tstep, dt)
     class(simcomp_executor_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    real(kind=rp), intent(in) :: dt
     integer :: i
 
     if (.not. this%finalized) call this%finalize()
 
     if (allocated(this%simcomps)) then
        do i = 1, size(this%simcomps)
-          call this%simcomps(i)%simcomp%preprocess(t, tstep)
+          call this%simcomps(i)%simcomp%preprocess(t, tstep, dt)
        end do
     end if
 
@@ -353,17 +354,18 @@ contains
   !> Execute compute_ for all simcomps.
   !! @param t The time value.
   !! @param tstep The timestep number.
-  subroutine simcomp_executor_compute(this, t, tstep)
+  subroutine simcomp_executor_compute(this, t, tstep, dt)
     class(simcomp_executor_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    real(kind=rp), intent(in) :: dt
     integer :: i
 
     if (.not. this%finalized) call this%finalize()
 
     if (allocated(this%simcomps)) then
        do i = 1, this%n_simcomps
-          call this%simcomps(i)%simcomp%compute(t, tstep)
+          call this%simcomps(i)%simcomp%compute(t, tstep, dt)
        end do
     end if
 

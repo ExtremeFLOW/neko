@@ -189,12 +189,13 @@ contains
   !! Serves as the public interface.
   !! @param t The time value.
   !! @param tstep The current time-step
-  subroutine simulation_component_preprocess_wrapper(this, t, tstep)
+  subroutine simulation_component_preprocess_wrapper(this, t, tstep, dt)
     class(simulation_component_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    real(kind=rp), intent(in) :: dt
 
-    if (this%preprocess_controller%check(t, tstep)) then
+    if (this%preprocess_controller%check(t, tstep, dt)) then
        call this%preprocess_(t, tstep)
        call this%preprocess_controller%register_execution()
     end if
@@ -204,13 +205,14 @@ contains
   !! Serves as the public interface.
   !! @param t The time value.
   !! @param tstep The current time-step
-  subroutine simulation_component_compute_wrapper(this, t, tstep)
+  subroutine simulation_component_compute_wrapper(this, t, tstep, dt)
     class(simulation_component_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    real(kind=rp), intent(in) :: dt
 
-    if (this%compute_controller%check(t, tstep)) then
-       call this%compute_(t, tstep)
+    if (this%compute_controller%check(t, tstep, dt)) then
+       call this%compute_(t, tstep, dt)
        call this%compute_controller%register_execution()
     end if
   end subroutine simulation_component_compute_wrapper
@@ -224,7 +226,7 @@ contains
 
     call this%compute_controller%set_counter(t)
     call this%output_controller%set_counter(t)
-    call this%restart_(t) 
+    call this%restart_(t)
 
   end subroutine simulation_component_restart_wrapper
 
@@ -250,11 +252,13 @@ contains
 
   !> Dummy compute function.
   !! @param t The time value.
-  !! @param tstep The current time-step
-  subroutine compute_(this, t, tstep)
+  !! @param tstep The current time-step.
+  !! @param dt The size of the timestep.
+  subroutine compute_(this, t, tstep, dt)
     class(simulation_component_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    real(kind=rp), intent(in) :: dt
 
     ! Do nothing
   end subroutine compute_

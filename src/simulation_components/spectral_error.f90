@@ -226,10 +226,11 @@ contains
   end subroutine spectral_error_free
 
   !> Compute the spectral error indicator.
-  subroutine spectral_error_compute(this, t, tstep)
+  subroutine spectral_error_compute(this, t, tstep, dt)
     class(spectral_error_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    real(kind=rp), intent(in) :: dt
 
     integer :: e, i, lx, ly, lz, nelv, n
 

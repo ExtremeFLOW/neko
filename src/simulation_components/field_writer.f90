@@ -147,10 +147,11 @@ contains
   !> Here to comply with the interface, does nothing.
   !! @param t The time value.
   !! @param tstep The current time-step
-  subroutine field_writer_compute(this, t, tstep)
+  subroutine field_writer_compute(this, t, tstep, dt)
     class(field_writer_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    real(kind=rp), intent(in) :: dt
 
   end subroutine field_writer_compute
 

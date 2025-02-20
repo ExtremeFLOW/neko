@@ -632,10 +632,11 @@ contains
   !! @note The final interpolated field is only available on rank 0.
   !! @param t Current simulation time.
   !! @param tstep Current time step.
-  subroutine probes_evaluate_and_write(this, t, tstep)
+  subroutine probes_evaluate_and_write(this, t, tstep, dt)
     class(probes_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    real(kind=rp), intent(in) :: dt
     integer :: i, ierr
 
     !> Check controller to determine if we must write
@@ -651,7 +652,7 @@ contains
        end do
     end if
 
-    if (this%output_controller%check(t, tstep)) then
+    if (this%output_controller%check(t, tstep, dt)) then
        ! Gather all values to rank 0
        ! If io is only done at root
        if (this%seq_io) then

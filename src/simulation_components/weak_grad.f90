@@ -130,10 +130,11 @@ contains
   !> Compute the weak_grad field.
   !! @param t The time value.
   !! @param tstep The current time-step
-  subroutine weak_grad_compute(this, t, tstep)
+  subroutine weak_grad_compute(this, t, tstep, dt)
     class(weak_grad_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    real(kind=rp), intent(in) :: dt
 
     call opgrad(this%grad_x%x, this%grad_y%x, this%grad_z%x, this%u%x,&
                 this%case%fluid%c_Xh)

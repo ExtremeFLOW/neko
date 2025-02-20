@@ -143,10 +143,11 @@ contains
   !> Compute the vorticity field.
   !! @param t The time value.
   !! @param tstep The current time-step
-  subroutine vorticity_compute(this, t, tstep)
+  subroutine vorticity_compute(this, t, tstep, dt)
     class(vorticity_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    real(kind=rp), intent(in) :: dt
 
     call curl(this%omega_x, this%omega_y, this%omega_z, this%u, this%v, &
                  this%w, this%temp1, this%temp2, this%case%fluid%c_Xh)

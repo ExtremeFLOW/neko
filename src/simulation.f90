@@ -90,7 +90,7 @@ contains
 
     !> Execute outputs and user-init before time loop
     call neko_log%section('Postprocessing')
-    call C%output_controller%execute(t, tstep)
+    call C%output_controller%execute(t, tstep, C%dt)
 
     call C%usr%user_init_modules(t, C%fluid%u, C%fluid%v, C%fluid%w,&
          C%fluid%p, C%fluid%c_Xh, C%params)
@@ -125,7 +125,7 @@ contains
 
        ! Run the preprocessing
        call neko_log%section('Preprocessing')
-       call neko_simcomps%preprocess(t, tstep)
+       call neko_simcomps%preprocess(t, tstep, C%dt)
        call neko_log%end_section()
 
        call neko_log%section('Fluid')
@@ -158,7 +158,7 @@ contains
 
        call neko_log%section('Postprocessing')
        ! Execute all simulation components
-       call neko_simcomps%compute(t, tstep)
+       call neko_simcomps%compute(t, tstep, C%dt)
 
 
        !> @todo Temporary fix until we have reworked the material properties
@@ -182,7 +182,7 @@ contains
        call C%usr%user_check(t, tstep, C%fluid%u, C%fluid%v, C%fluid%w, &
             C%fluid%p, C%fluid%c_Xh, C%params)
 
-       call C%output_controller%execute(t, tstep)
+       call C%output_controller%execute(t, tstep, C%dt)
 
        call neko_log%end_section()
        end_time = MPI_WTIME()
@@ -201,7 +201,7 @@ contains
 
     call json_get_or_default(C%params, 'case.output_at_end',&
          output_at_end, .true.)
-    call C%output_controller%execute(t, tstep, output_at_end)
+    call C%output_controller%execute(t, tstep, C%dt, output_at_end)
 
     if (.not. (output_at_end) .and. t .lt. C%end_time) then
        call simulation_joblimit_chkp(C, t)
