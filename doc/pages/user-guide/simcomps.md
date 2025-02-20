@@ -281,10 +281,13 @@ keywords:
     - `c`: The model constant, defaults to 0.07.
   - `sigma`: The Sigma model. Configured by the following additional keyword:
     - `c`: The model constant, defaults to 1.35.
-- `les_delta`: Selects the way to compute the LES length scale. Currently two
-  alternatives are provided:
+- `les_delta`: Selects the way to compute the LES length scale. Currently three
+  alternatives are provided and the default one is `pointwise` if 
+  nothing is specified:
   - `pointwise`: Computes a local value based on the spacing of the GLL nodes.
-  - `elementwise`: Computes a single value for the whole element based on the
+  - `elementwise_avg`: Computes a single value for the whole element based on the
+    average spacing of the GLL nodes within the element.
+  - `elementwise_max`: Computes a single value for the whole element based on the
     maximum spacing of the GLL nodes within the element.
   The `les_delta` field is added to the registry and written to the .fld files.
 - `nut_field`: The name of the SGS viscosity field added to the registry.
@@ -295,6 +298,7 @@ keywords:
  {
    "type": "les_model"
    "model": "smagorinsky",
+   "delta_type": "pointwise",
    "output_control" : "never"
  }
  ~~~~~~~~~~~~~~~
