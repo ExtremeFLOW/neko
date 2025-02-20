@@ -53,13 +53,15 @@ module sigma_cpu
 contains
 
   !> Compute eddy viscosity on the CPU.
+  !! @param if_ext If extrapolate the velocity field to evaluate
   !! @param t The time value.
   !! @param tstep The current time-step.
   !! @param coef SEM coefficients.
   !! @param nut The SGS viscosity array.
   !! @param delta The LES lengthscale.
   !! @param c The Sigma model constant
-  subroutine sigma_compute_cpu(t, tstep, coef, nut, delta, c)
+  subroutine sigma_compute_cpu(if_ext, t, tstep, coef, nut, delta, c)
+    logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
@@ -87,9 +89,15 @@ contains
 
 
     ! get fields from registry
-    u => neko_field_registry%get_field_by_name("u")
-    v => neko_field_registry%get_field_by_name("v")
-    w => neko_field_registry%get_field_by_name("w")
+    if (if_ext .eqv. .true.) then
+       u => neko_field_registry%get_field_by_name("u_e")
+       v => neko_field_registry%get_field_by_name("v_e")
+       w => neko_field_registry%get_field_by_name("w_e")
+    else
+       u => neko_field_registry%get_field_by_name("u")
+       v => neko_field_registry%get_field_by_name("v")
+       w => neko_field_registry%get_field_by_name("w")
+    end if
 
     call neko_scratch_registry%request_field(g11, temp_indices(1))
     call neko_scratch_registry%request_field(g12, temp_indices(2))
@@ -141,9 +149,9 @@ contains
                g22%x(i,1,1,e)*g23%x(i,1,1,e) + &
                g32%x(i,1,1,e)*g33%x(i,1,1,e)
 
-          !        If LAPACK compute eigenvalues of the semi-definite positive matrix G
-          !        ..........to be done later on......
-          !        ELSE use the analytical method as done in the following
+          ! If LAPACK compute eigenvalues of the semi-definite positive matrix G
+          ! ..........to be done later on......
+          ! ELSE use the analytical method as done in the following
 
           ! eigenvalues with the analytical method of Hasan et al. (2001)
           ! doi:10.1006/jmre.2001.2400
@@ -224,8 +232,9 @@ contains
                 alpha3 = acos(tmp1)/3.0_rp
 
                 if (abs(Invariant3) .lt. eps) then
-                   ! In case of Invariant3=0, one or more eigenvalues are equal to zero
-                   ! Therefore force sigma3 to 0 and compute sigma1 and sigma2
+                   ! In case of Invariant3=0, one or more eigenvalues are equal
+                   ! to zero. Therefore force sigma3 to 0 and compute sigma1 and
+                   ! sigma2
                    sigma1 = sqrt(max(Invariant1/3.0_rp + &
                         2.0_rp*sqrt(alpha1)*cos(alpha3), 0.0_rp))
                    sigma2 = sqrt(abs(Invariant1 - sigma1*sigma1))

@@ -50,28 +50,36 @@ module smagorinsky_device
 contains
 
   !> Compute eddy viscosity on the device.
+  !! @param if_ext If extrapolate the velocity field to evaluate
   !! @param t The time value.
   !! @param tstep The current time-step.
   !! @param coef SEM coefficients.
   !! @param nut The SGS viscosity array.
   !! @param delta The LES lengthscale.
   !! @param c_s The smagorinsky model constant
-  subroutine smagorinsky_compute_device(t, tstep, coef, nut, delta, c_s)
+  subroutine smagorinsky_compute_device(if_ext, t, tstep, coef, nut, delta, c_s)
+    logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
     type(field_t), intent(inout) :: nut
     type(field_t), intent(in) :: delta
     real(kind=rp), intent(in) :: c_s
-   type(field_t), pointer :: u, v, w
+    type(field_t), pointer :: u, v, w
     ! double of the strain rate tensor
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23
     integer :: temp_indices(6)
     integer :: e, i
 
-    u => neko_field_registry%get_field_by_name("u")
-    v => neko_field_registry%get_field_by_name("v")
-    w => neko_field_registry%get_field_by_name("w")
+    if (if_ext .eqv. .true.) then
+       u => neko_field_registry%get_field_by_name("u_e")
+       v => neko_field_registry%get_field_by_name("v_e")
+       w => neko_field_registry%get_field_by_name("w_e")
+    else
+       u => neko_field_registry%get_field_by_name("u")
+       v => neko_field_registry%get_field_by_name("v")
+       w => neko_field_registry%get_field_by_name("w")
+    end if
 
     call neko_scratch_registry%request_field(s11, temp_indices(1))
     call neko_scratch_registry%request_field(s22, temp_indices(2))
@@ -89,12 +97,12 @@ contains
     call coef%gs_h%op(s12, GS_OP_ADD)
     call coef%gs_h%op(s13, GS_OP_ADD)
     call coef%gs_h%op(s23, GS_OP_ADD)
-    
+
     call device_smagorinsky_nut_compute(s11%x_d, s22%x_d, s33%x_d, &
-                                  s12%x_d, s13%x_d, s23%x_d, &
-                                  delta%x_d, nut%x_d, coef%mult_d, &
-                                  c_s, s11%dof%size())
-    
+         s12%x_d, s13%x_d, s23%x_d, &
+         delta%x_d, nut%x_d, coef%mult_d, &
+         c_s, s11%dof%size())
+
     call coef%gs_h%op(nut, GS_OP_ADD)
     call device_col2(nut%x_d, coef%mult_d, nut%dof%size())
 
