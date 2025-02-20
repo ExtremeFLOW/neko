@@ -376,14 +376,12 @@ contains
             GJP_param_a, GJP_param_b)
     end if
 
-    if (this%variable_material_properties) then
-       call neko_field_registry%add_field(this%dm_Xh, 'u_e')
-       call neko_field_registry%add_field(this%dm_Xh, 'v_e')
-       call neko_field_registry%add_field(this%dm_Xh, 'w_e')
-       this%u_e => neko_field_registry%get_field('u_e')
-       this%v_e => neko_field_registry%get_field('v_e')
-       this%w_e => neko_field_registry%get_field('w_e')
-    end if
+    call neko_field_registry%add_field(this%dm_Xh, 'u_e')
+    call neko_field_registry%add_field(this%dm_Xh, 'v_e')
+    call neko_field_registry%add_field(this%dm_Xh, 'w_e')
+    this%u_e => neko_field_registry%get_field('u_e')
+    this%v_e => neko_field_registry%get_field('v_e')
+    this%w_e => neko_field_registry%get_field('w_e')
 
     call neko_log%end_section()
 
