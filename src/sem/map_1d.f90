@@ -1,13 +1,14 @@
 
 !> Creates a 1d GLL point map along a specified direction based on the connectivity in the mesh.
 module map_1d
+  use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only: rp
   use space, only: space_t
   use dofmap, only: dofmap_t
   use gather_scatter
   use mesh, only: mesh_t
   use device
-  use comm
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
   use coefs, only: coef_t
   use field_list, only: field_list_t
   use matrix, only: matrix_t
@@ -15,7 +16,8 @@ module map_1d
   use utils, only: neko_error, neko_warning
   use math, only: glmax, glmin, glimax, relcmp, cmult, add2s1, col2
   use neko_mpi_types
-  use, intrinsic :: iso_c_binding
+  use mpi_f08, only : MPI_Allreduce, MPI_SUM, MPI_Barrier, MPI_IN_PLACE
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
   !> Type that encapsulates a mapping from each gll point in the mesh

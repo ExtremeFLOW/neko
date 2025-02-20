@@ -32,6 +32,7 @@
 !
 !> Defines various Conjugate Gradient methods
 module cg
+  use neko_config, only : NEKO_BLK_SIZE
   use num_types, only: rp, xp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
   use precon,  only : pc_t
@@ -41,7 +42,8 @@ module cg
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
-  use comm
+  use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION
+  use mpi_f08, only : MPI_Allreduce, MPI_SUM, MPI_IN_PLACE
   implicit none
   private
 

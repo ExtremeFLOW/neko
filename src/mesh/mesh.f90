@@ -43,7 +43,11 @@ module mesh
   use htable
   use datadist
   use distdata
-  use comm
+  use comm, only : NEKO_COMM, pe_size, pe_rank, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_INTEGER, MPI_SUM, MPI_Allreduce, MPI_Exscan, &
+       MPI_Status, MPI_STATUS_IGNORE, MPI_MAX, MPI_Request, MPI_Irecv, &
+       MPI_Isend, MPI_IN_PLACE, MPI_INTEGER8, MPI_Wait, MPI_Get_count, &
+       MPI_Sendrecv
   use facet_zone, only : facet_zone_t, facet_zone_periodic_t
   use math
   use uset, only : uset_i8_t

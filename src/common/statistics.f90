@@ -35,7 +35,8 @@ module stats
   use num_types, only : rp, dp
   use stats_quant, only : stats_quant_t
   use logger, only : LOG_SIZE, neko_log
-  use comm
+  use comm, only : NEKO_COMM
+  use mpi_f08, only : MPI_Barrier, MPI_Wtime
   implicit none
   private
 
@@ -139,13 +140,13 @@ contains
        if (mod(tstep,this%samp_interval) .eq. 0) then
           call neko_log%section('Statistics')
           call MPI_Barrier(NEKO_COMM, ierr)
-          sample_start_time = MPI_WTIME()
+          sample_start_time = MPI_Wtime()
           do i = 1, this%n
              call this%quant_list(i)%quantp%update(this%t_diff)
           end do
           this%t_diff = 0.0_rp
           call MPI_Barrier(NEKO_COMM, ierr)
-          sample_end_time = MPI_WTIME()
+          sample_end_time = MPI_Wtime()
           sample_time = sample_end_time - sample_start_time
           write(log_buf,'(A17,1x,F10.6,A,F9.6)') 'Sampling at time:', t, &
           ' Sampling time (s): ', sample_time

@@ -45,8 +45,9 @@ module global_interpolation
   use utils, only : neko_error, neko_warning
   use local_interpolation, only : local_interpolator_t
   use device
-  use comm, only : NEKO_COMM, pe_size, pe_rank, MPI_Gather, &
-       MPI_DOUBLE_PRECISION, MPI_INTEGER, MPI_SUM, MPI_Reduce, MPI_Gatherv
+  use comm, only : NEKO_COMM, pe_size, pe_rank
+  use mpi_f08, only : MPI_Gather, MPI_DOUBLE_PRECISION, MPI_INTEGER, &
+       MPI_SUM, MPI_Reduce, MPI_Gatherv
   use math, only : copy
   use neko_mpi_types
   use structs, only : array_ptr_t

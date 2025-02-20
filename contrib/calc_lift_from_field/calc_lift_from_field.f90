@@ -8,6 +8,7 @@ program calc_lift_from_field
   use neko
   use mean_flow
   use matrix
+  use mpi_f08
   implicit none
   
   character(len=NEKO_FNAME_LEN) :: inputchar, mesh_fname, field_fname, hom_dir, output_fname

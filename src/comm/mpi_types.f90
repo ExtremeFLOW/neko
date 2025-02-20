@@ -32,10 +32,14 @@
 !
 !> MPI derived types
 module neko_mpi_types
-  use comm
+  use mpi_f08, only : MPI_Datatype, MPI_Get_address, MPI_ADDRESS_KIND, &
+       MPI_Aint_diff, MPI_DOUBLE_PRECISION, MPI_REAL, MPI_INTEGER, &
+       MPI_CHARACTER, MPI_INTEGER2, MPI_LOGICAL, MPI_Type_free, &
+       MPI_Type_commit, MPI_Type_create_struct, MPI_Type_size, MPI_barrier
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use re2
-  use nmsh
-  use stl
+  use nmsh, only : nmsh_quad_t, nmsh_hex_t, nmsh_zone_t, nmsh_curve_el_t
+  use stl, only : stl_hdr_t, stl_triangle_t
   implicit none
   private
 

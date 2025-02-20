@@ -1,24 +1,25 @@
 !> Maps a 3D dofmap to a 2D spectral element grid.
 
 module map_2d
-  use num_types, only: rp
-  use dofmap, only: dofmap_t
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp
+  use dofmap, only : dofmap_t
   use map_1d
   use gather_scatter
-  use mesh, only: mesh_t
+  use mesh, only : mesh_t
   use device
-  use utils
+  use utils, only : neko_error, linear_index
   use comm
-  use field_list
-  use coefs, only: coef_t
-  use field_list, only: field_list_t
-  use vector, only: vector_ptr_t
-  use utils, only: neko_error
-  use math, only: cmult, col2, copy, rzero
+  use field_list, only : field_list_t
+  use coefs, only : coef_t
+  use field_list, only : field_list_t
+  use vector, only : vector_ptr_t
+  use math, only : cmult, col2, copy, rzero
   use neko_mpi_types
   use fld_file_data
-  use field
-  use, intrinsic :: iso_c_binding
+  use field, only : field_t
+  use mpi_f08, only : MPI_INTEGER, MPI_Allreduce, MPI_Exscan, MPI_SUM
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
   

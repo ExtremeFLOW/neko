@@ -46,8 +46,13 @@ module chkp_file
   use math
   use interpolation
   use neko_mpi_types
-  use comm
-  use global_interpolation
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION
+  use global_interpolation, only : global_interpolation_t
+  use mpi_f08, only : MPI_Status, MPI_INFO_NULL, MPI_File, MPI_INTEGER, &
+       MPI_OFFSET_KIND, MPI_DOUBLE_PRECISION, MPI_MODE_RDONLY, &
+       MPI_MODE_WRONLY, MPI_MODE_CREATE, MPI_File_read_all, &
+       MPI_File_write_all, MPI_File_read_at_all, MPI_File_write_at_all, &
+       MPI_File_open, MPI_File_close
   implicit none
   private
 

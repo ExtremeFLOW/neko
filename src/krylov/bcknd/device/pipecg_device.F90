@@ -45,9 +45,9 @@ module pipecg_device
        device_glsc3, device_vlsc3
   use device
   use utils, only : neko_error
-  use comm, only : NEKO_COMM, pe_size, MPI_Iallreduce, MPI_Status, &
-       MPI_REAL_PRECISION, MPI_SUM, MPI_IN_PLACE, MPI_Request, &
-       MPI_Wait
+  use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
+  use mpi_f08, only : MPI_Iallreduce, MPI_Status, MPI_SUM, &
+       MPI_IN_PLACE, MPI_Request, MPI_Wait
   use, intrinsic :: iso_c_binding, only :  c_ptr, C_NULL_PTR, &
        c_associated, c_size_t, c_sizeof, c_int, c_loc
   implicit none

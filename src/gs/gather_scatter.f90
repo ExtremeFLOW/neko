@@ -43,7 +43,7 @@ module gather_scatter
   use gs_device_mpi, only : gs_device_mpi_t
   use gs_device_nccl, only : gs_device_nccl_t
   use mesh, only : mesh_t
-  use comm
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
   use dofmap, only : dofmap_t
   use field, only : field_t
   use num_types, only : rp, dp, i2, i8
@@ -53,6 +53,10 @@ module gather_scatter
   use logger, only : neko_log, LOG_SIZE
   use profiler, only : profiler_start_region, profiler_end_region
   use device
+  use mpi_f08, only : MPI_SUM, MPI_IN_PLACE, MPI_INTEGER8, MPI_INTEGER, &
+       MPI_INTEGER2, MPI_Wtime, MPI_Request, MPI_Status, MPI_Wait, &
+       MPI_Get_count, MPI_STATUS_IGNORE, MPI_MAX, MPI_Reduce, MPI_Isend, &
+       MPI_Irecv, MPI_Allreduce, MPI_Barrier
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
