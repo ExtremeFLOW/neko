@@ -102,9 +102,9 @@ contains
     call m%init(gdim, dist)
     if (this%getNumProcesses() .eq. 1) then
 
-       call m%add_element(1, p(1), p(2), p(3), p(4))
+       call m%add_element(1, 1, p(1), p(2), p(3), p(4))
 
-       call m%add_element(2, p(2), p(5), p(4), p(6))
+       call m%add_element(2, 2, p(2), p(5), p(4), p(6))
 
        @assertEqual(6, m%htp%num_entries())
 
@@ -127,7 +127,7 @@ contains
     else   
        if (this%getProcessRank() .eq. 0) then
 
-          call m%add_element(1, p(1), p(2), p(3), p(4))
+          call m%add_element(1, 1, p(1), p(2), p(3), p(4))
 
           @assertEqual(4, m%htp%num_entries())
 
@@ -141,7 +141,7 @@ contains
 
        else
 
-          call m%add_element(1, p(2), p(5), p(4), p(6))
+          call m%add_element(1, 1, p(2), p(5), p(4), p(6))
 
           @assertEqual(4, m%htp%num_entries())
 
@@ -202,11 +202,11 @@ contains
     call m%init(gdim, dist)
     if (this%getNumProcesses() .eq. 1) then
 
-       call m%add_element(1, p(1), p(2), p(3), p(4), &
+       call m%add_element(1, 1, p(1), p(2), p(3), p(4), &
             p(7), p(8), p(10), p(9))
 
 
-       call m%add_element(2, p(2), p(5), p(4), p(6), &
+       call m%add_element(2, 2, p(2), p(5), p(4), p(6), &
             p(8), p(11), p(9), p(12))
 
        @assertEqual(12, m%htp%num_entries())
@@ -238,7 +238,7 @@ contains
     else   
        if (this%getProcessRank() .eq. 0) then
 
-          call m%add_element(1, p(1), p(2), p(3), p(4), &
+          call m%add_element(1, 1, p(1), p(2), p(3), p(4), &
                p(7), p(8), p(10), p(9))
 
           @assertEqual(8, m%htp%num_entries())
@@ -257,7 +257,7 @@ contains
 
        else
 
-          call m%add_element(1, p(2), p(5), p(4), p(6), &
+          call m%add_element(1, 1, p(2), p(5), p(4), p(6), &
                p(8), p(11), p(9), p(12))
 
           @assertEqual(8, m%htp%num_entries())
@@ -312,9 +312,9 @@ contains
     call m%init(gdim, dist)
     if (this%getNumProcesses() .eq. 1) then
 
-       call m%add_element(1, p(1), p(2), p(3), p(4))
+       call m%add_element(1, 1, p(1), p(2), p(3), p(4))
 
-       call m%add_element(2, p(2), p(5), p(4), p(6))
+       call m%add_element(2, 2, p(2), p(5), p(4), p(6))
 
        call m%generate_conn()
 
@@ -347,7 +347,7 @@ contains
     else   
        if (this%getProcessRank() .eq. 0) then
 
-          call m%add_element(1, p(1), p(2), p(3), p(4))
+          call m%add_element(1, 1, p(1), p(2), p(3), p(4))
 
           call m%generate_conn()
 
@@ -371,7 +371,7 @@ contains
        
        else
 
-          call m%add_element(1, p(2), p(5), p(4), p(6))
+          call m%add_element(1, 1, p(2), p(5), p(4), p(6))
 
           call m%generate_conn()
 
@@ -444,11 +444,11 @@ contains
     call m%init(gdim, dist)
     if (this%getNumProcesses() .eq. 1) then
 
-       call m%add_element(1, p(1), p(2), p(3), p(4), &
+       call m%add_element(1, 1, p(1), p(2), p(3), p(4), &
             p(7), p(8), p(10), p(9))
 
 
-       call m%add_element(2, p(2), p(5), p(4), p(6), &
+       call m%add_element(2, 2, p(2), p(5), p(4), p(6), &
             p(8), p(11), p(9), p(12))
 
        call m%generate_conn()
@@ -521,7 +521,7 @@ contains
     else   
        if (this%getProcessRank() .eq. 0) then
 
-          call m%add_element(1, p(1), p(2), p(3), p(4), &
+          call m%add_element(1, 1, p(1), p(2), p(3), p(4), &
                p(7), p(8), p(10), p(9))
 
           call m%generate_conn()
@@ -563,7 +563,7 @@ contains
 
        else
 
-          call m%add_element(1, p(2), p(5), p(4), p(6), &
+          call m%add_element(1, 1, p(2), p(5), p(4), p(6), &
                p(8), p(11), p(9), p(12))
 
           call m%generate_conn()

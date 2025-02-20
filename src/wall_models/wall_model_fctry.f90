@@ -68,7 +68,7 @@ contains
     type_string =  concat_string_array(WALLM_KNOWN_TYPES, &
          NEW_LINE('A') // "-  ", prepend = .true.)
 
-    call json_get(json, "type", type_name)
+    call json_get(json, "model", type_name)
 
     if (trim(type_name) .eq. "spalding") then
        allocate(spalding_t::object)

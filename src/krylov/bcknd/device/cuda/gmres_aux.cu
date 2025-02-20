@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2022-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,11 @@ extern "C" {
 
 #include <math/bcknd/device/device_mpi_reduce.h>
 #include <math/bcknd/device/device_mpi_op.h>
+
+#ifdef HAVE_NCCL
+#include <math/bcknd/device/cuda/device_nccl_reduce.h>
+#include <math/bcknd/device/cuda/device_nccl_op.h>
+#endif
   
   /**
    * @todo Make sure that this gets deleted at some point...
@@ -76,7 +81,13 @@ extern "C" {
     reduce_kernel<real><<<1, 1024, 0, stream>>>(gmres_bfd1, nb);
     CUDA_CHECK(cudaGetLastError());
 
-#ifdef HAVE_DEVICE_MPI
+#ifdef HAVE_NCCL
+    device_nccl_allreduce(gmres_bfd1, gmres_bfd1, 1, sizeof(real),
+                          DEVICE_NCCL_SUM, stream);
+    CUDA_CHECK(cudaMemcpyAsync(gmres_bf1, gmres_bfd1, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_DEVICE_MPI
     cudaStreamSynchronize(stream);
     device_mpi_allreduce(gmres_bfd1, gmres_bf1, 1, sizeof(real), DEVICE_MPI_SUM);
 #else

@@ -47,7 +47,7 @@ module les_simcomp
 
   !> A simulation component that drives the computation of the SGS
   !! viscosity.
-   type, public, extends(simulation_component_t) :: les_simcomp_t
+  type, public, extends(simulation_component_t) :: les_simcomp_t
      !> The LES model.
      class(les_model_t), allocatable :: les_model
      !> Output writer.
@@ -58,7 +58,9 @@ module les_simcomp
      !> Destructor.
      procedure, pass(this) :: free => les_simcomp_free
      !> Compute the les_simcomp field.
-     procedure, pass(this) :: compute_ => les_simcomp_compute
+     procedure, pass(this) :: preprocess_ => les_simcomp_compute
+     !> Compute the les_simcomp field when restart.
+     procedure, pass(this) :: restart_ => les_simcomp_restart
   end type les_simcomp_t
 
 contains
@@ -74,12 +76,12 @@ contains
 
     call this%free()
 
-    ! Check for whether eddy viscosity is enabled in fluid_scheme
+    ! Check for whether eddy viscosity is enabled in fluid_scheme_incompressible
     if (case%fluid%variable_material_properties .eqv. .false.) then
-        call neko_error("Eddy viscosity is not acting &
-                          &on the equations. &
-                          &Please set up a nut_field option &
-                          &in the fluid solver")
+       call neko_error("Eddy viscosity is not acting &
+            &on the equations. &
+            &Please set up a nut_field option &
+            &in the fluid solver")
     end if
 
     ! Add fields keyword to the json so that the field_writer picks it up.
@@ -96,7 +98,8 @@ contains
     call json_get(json, "model", name)
 
     call les_model_factory(this%les_model, name, case%fluid%dm_Xh,&
-                           case%fluid%c_Xh, json)
+         case%fluid%c_Xh, json)
+    call this%les_model%init(case%fluid, json)
 
   end subroutine les_simcomp_init_from_json
 
@@ -107,8 +110,8 @@ contains
     call this%writer%free()
 
     if (allocated(this%les_model)) then
-      call this%les_model%free()
-      deallocate(this%les_model)
+       call this%les_model%free()
+       deallocate(this%les_model)
     end if
   end subroutine les_simcomp_free
 
@@ -122,5 +125,15 @@ contains
 
     call this%les_model%compute(t, tstep)
   end subroutine les_simcomp_compute
+
+  !> Compute the les_simcomp field when restart.
+  !! @param t The time value.
+  !! @param tstep The current time-step.
+  subroutine les_simcomp_restart(this, t)
+    class(les_simcomp_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: t
+
+    call this%les_model%compute(t, 0)
+  end subroutine les_simcomp_restart
 
 end module les_simcomp

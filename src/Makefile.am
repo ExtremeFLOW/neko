@@ -43,6 +43,7 @@ neko_fortran_SOURCES = \
 	gs/gs_comm.f90\
 	gs/gs_mpi.f90\
 	gs/bcknd/device/gs_device_mpi.F90\
+	gs/bcknd/device/gs_device_nccl.F90\
 	gs/gather_scatter.f90\
 	mesh/entity.f90\
 	mesh/point.f90\
@@ -148,7 +149,7 @@ neko_fortran_SOURCES = \
 	bc/neumann.f90\
 	bc/shear_stress.f90\
 	bc/dong_outflow.f90\
-	bc/wall.f90\
+	bc/zero_dirichlet.f90\
 	bc/inflow.f90\
 	bc/field_dirichlet.f90\
 	bc/field_dirichlet_vector.f90\
@@ -189,6 +190,7 @@ neko_fortran_SOURCES = \
 	time_schemes/ext_time_scheme.f90\
 	time_schemes/ab_time_scheme.f90\
 	time_schemes/time_scheme_controller.f90\
+	time_schemes/runge_kutta_scheme.f90\
 	common/time_based_controller.f90\
 	common/stats_quant.f90\
 	common/statistics.f90\
@@ -207,13 +209,19 @@ neko_fortran_SOURCES = \
 	fluid/stress_formulation/pnpn_res_stress_fctry.f90\
 	fluid/stress_formulation/bcknd/cpu/pnpn_res_stress_cpu.f90\
 	fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.F90\
-	fluid/fluid_scheme.f90\
+	fluid/fluid_scheme_base.f90\
+	fluid/fluid_scheme_incompressible.f90\
+	fluid/fluid_scheme_compressible.f90\
+	fluid/fluid_scheme_compressible_euler.f90\
 	fluid/fluid_aux.f90\
 	fluid/fluid_pnpn.f90\
-	fluid/fluid_fctry.f90\
+	fluid/fluid_base_fctry.f90\
+	fluid/fluid_pnpn_bc_fctry.f90\
 	fluid/fluid_volflow.f90\
 	fluid/pnpn_res.f90\
 	fluid/pnpn_res_fctry.f90\
+	fluid/euler_res.f90\
+	fluid/euler_res_fctry.f90\
 	fluid/mean_flow.f90\
 	fluid/fluid_stats.f90\
 	fluid/mean_sqr_flow.f90\
@@ -228,6 +236,9 @@ neko_fortran_SOURCES = \
 	fluid/bcknd/cpu/pnpn_res_cpu.f90\
 	fluid/bcknd/sx/pnpn_res_sx.f90\
 	fluid/bcknd/device/pnpn_res_device.F90\
+	fluid/bcknd/cpu/euler_res_cpu.f90\
+	fluid/bcknd/sx/euler_res_sx.f90\
+	fluid/bcknd/device/euler_res_device.F90\
 	fluid/fluid_user_source_term.f90\
 	fluid/fluid_source_term.f90\
 	common/time_step_controller.f90\
@@ -244,6 +255,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/device/ax_helm_device.F90\
 	math/bcknd/device/ax_helm_full_device.F90\
 	common/projection.f90\
+	common/projection_vel.f90\
 	common/bcknd/device/device_projection.F90\
 	comm/parmetis.F90\
 	comm/redist.f90\
@@ -256,7 +268,6 @@ neko_fortran_SOURCES = \
 	device/hip/roctx.F90\
 	device/opencl_intf.F90\
 	device/opencl/prgm_lib.F90\
-	device/dummy_device.F90\
 	device/device.F90\
 	math/field_math.f90\
 	math/bcknd/device/device_math.F90\
@@ -269,7 +280,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/device/device_mathops.F90\
 	bc/bcknd/device/device_dirichlet.F90\
 	bc/bcknd/device/device_inflow.F90\
-	bc/bcknd/device/device_wall.F90\
+	bc/bcknd/device/device_zero_dirichlet.F90\
 	bc/bcknd/device/device_symmetry.F90\
 	bc/bcknd/device/device_facet_normal.F90\
 	bc/bcknd/device/device_inhom_dirichlet.F90\
@@ -277,6 +288,7 @@ neko_fortran_SOURCES = \
 	scalar/bcknd/device/scalar_residual_device.F90\
 	scalar/scalar_scheme.f90\
 	scalar/scalar_pnpn.f90\
+	scalar/scalar_pnpn_bc_fctry.f90\
 	scalar/scalar_aux.f90\
 	scalar/scalar_residual.f90\
 	scalar/scalar_residual_fctry.f90\
@@ -308,6 +320,9 @@ neko_fortran_SOURCES = \
 	source_terms/source_term_fctry.f90\
 	source_terms/brinkman_source_term.f90\
 	source_terms/brinkman/filters.f90\
+	source_terms/brinkman/filter.f90\
+	source_terms/brinkman/PDE_filter.f90\
+	source_terms/brinkman/elementwise_filter.f90\
 	source_terms/bcknd/cpu/filters_cpu.f90\
 	source_terms/bcknd/device/filters_device.F90\
 	source_terms/bcknd/device/cuda/cuda_filters.f90\
@@ -327,8 +342,6 @@ neko_fortran_SOURCES = \
 	les/bcknd/cpu/dynamic_smagorinsky_cpu.f90\
 	les/bcknd/device/dynamic_smagorinsky_device.f90\
 	les/bcknd/device/device_dynamic_smagorinsky_nut.F90\
-	les/elementwise_filter.f90\
-	les/bcknd/cpu/elementwise_filter_cpu.f90\
 	les/sigma.f90\
 	les/bcknd/cpu/sigma_cpu.f90\
 	les/bcknd/device/sigma_device.f90\
@@ -341,10 +354,13 @@ neko_fortran_SOURCES = \
 
 neko_c_SOURCES = \
 	comm/comm_wrapper.c\
+	comm/comm_nccl.c\
 	common/sighdl.c\
 	common/cpuid.c\
 	gs/bcknd/device/device_mpi.c\
-	math/bcknd/device/device_mpi_reduce.c
+	gs/bcknd/device/device_nccl.c\
+	math/bcknd/device/device_mpi_reduce.c\
+	math/bcknd/device/cuda/device_nccl_reduce.c
 
 libneko_la_SOURCES = \
 	$(neko_fortran_SOURCES)\
@@ -378,7 +394,7 @@ libneko_la_SOURCES += \
 	gs/bcknd/device/hip/gs.hip\
 	bc/bcknd/device/hip/dirichlet.hip\
 	bc/bcknd/device/hip/inflow.hip\
-	bc/bcknd/device/hip/no_slip_wall.hip\
+	bc/bcknd/device/hip/zero_dirichlet.hip\
 	bc/bcknd/device/hip/symmetry.hip\
 	bc/bcknd/device/hip/facet_normal.hip\
 	bc/bcknd/device/hip/inhom_dirichlet.hip\
@@ -387,6 +403,7 @@ libneko_la_SOURCES += \
 	common/bcknd/device/hip/projection.hip\
 	common/bcknd/device/hip/gradient_jump_penalty.hip\
 	fluid/bcknd/device/hip/pnpn_res.hip\
+	fluid/bcknd/device/hip/euler_res.hip\
 	fluid/stress_formulation/bcknd/device/hip/pnpn_stress_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
 	sem/bcknd/device/hip/coef.hip\
@@ -421,7 +438,7 @@ libneko_la_SOURCES += \
 	gs/bcknd/device/cuda/gs.cu\
 	bc/bcknd/device/cuda/dirichlet.cu\
 	bc/bcknd/device/cuda/inflow.cu\
-	bc/bcknd/device/cuda/no_slip_wall.cu\
+	bc/bcknd/device/cuda/zero_dirichlet.cu\
 	bc/bcknd/device/cuda/symmetry.cu\
 	bc/bcknd/device/cuda/facet_normal.cu\
 	bc/bcknd/device/cuda/inhom_dirichlet.cu\
@@ -430,6 +447,7 @@ libneko_la_SOURCES += \
 	common/bcknd/device/cuda/projection.cu\
 	common/bcknd/device/cuda/gradient_jump_penalty.cu\
 	fluid/bcknd/device/cuda/pnpn_res.cu\
+	fluid/bcknd/device/cuda/euler_res.cu\
 	fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
 	sem/bcknd/device/cuda/coef.cu\
@@ -463,7 +481,7 @@ libneko_la_SOURCES += \
 	gs/bcknd/device/opencl/gs.c\
 	bc/bcknd/device/opencl/dirichlet.c\
 	bc/bcknd/device/opencl/inflow.c\
-	bc/bcknd/device/opencl/no_slip_wall.c\
+	bc/bcknd/device/opencl/zero_dirichlet.c\
 	bc/bcknd/device/opencl/symmetry.c\
 	bc/bcknd/device/opencl/facet_normal.c\
 	bc/bcknd/device/opencl/inhom_dirichlet.c\
@@ -560,7 +578,7 @@ endif
 EXTRA_DIST = \
 	bc/bcknd/device/cuda/dirichlet_kernel.h\
 	bc/bcknd/device/cuda/inflow_kernel.h\
-	bc/bcknd/device/cuda/no_slip_wall_kernel.h\
+	bc/bcknd/device/cuda/zero_dirichlet_kernel.h\
 	bc/bcknd/device/cuda/symmetry_kernel.h\
 	bc/bcknd/device/cuda/facet_normal_kernel.h\
 	bc/bcknd/device/cuda/inhom_dirichlet_kernel.h\
@@ -586,6 +604,7 @@ EXTRA_DIST = \
 	common/bcknd/device/cuda/gradient_jump_penalty_kernel.h\
 	fluid/bcknd/device/cuda/prs_res_kernel.h\
 	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
+	fluid/bcknd/device/cuda/euler_res_kernel.h\
 	fluid/stress_formulation/bcknd/device/cuda/prs_stress_res_kernel.h\
 	scalar/bcknd/device/cuda/scalar_residual_update_kernel.h\
 	sem/bcknd/device/cuda/coef_kernel.h\
@@ -595,7 +614,7 @@ EXTRA_DIST = \
 	les/bcknd/device/cuda/dynamic_smagorinsky_nut_kernel.h\
 	bc/bcknd/device/hip/dirichlet_kernel.h\
 	bc/bcknd/device/hip/inflow_kernel.h\
-	bc/bcknd/device/hip/no_slip_wall_kernel.h\
+	bc/bcknd/device/hip/zero_dirichlet_kernel.h\
 	bc/bcknd/device/hip/symmetry_kernel.h\
 	bc/bcknd/device/hip/facet_normal_kernel.h\
 	bc/bcknd/device/hip/inhom_dirichlet_kernel.h\
@@ -621,6 +640,7 @@ EXTRA_DIST = \
 	common/bcknd/device/hip/gradient_jump_penalty_kernel.h\
 	fluid/bcknd/device/hip/prs_res_kernel.h\
 	fluid/bcknd/device/hip/vel_res_update_kernel.h\
+	fluid/bcknd/device/hip/euler_res_kernel.h\
 	fluid/stress_formulation/bcknd/device/hip/prs_stress_res_kernel.h\
 	scalar/bcknd/device/hip/scalar_residual_update_kernel.h\
 	krylov/bcknd/device/cuda/pipecg_kernel.h\
@@ -638,7 +658,7 @@ EXTRA_DIST = \
 	les/bcknd/device/hip/dynamic_smagorinsky_nut_kernel.h\
 	bc/bcknd/device/opencl/dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/inflow_kernel.cl\
-	bc/bcknd/device/opencl/no_slip_wall_kernel.cl\
+	bc/bcknd/device/opencl/zero_dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/symmetry_kernel.cl\
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
 	bc/bcknd/device/opencl/inhom_dirichlet_kernel.cl\
@@ -663,6 +683,8 @@ EXTRA_DIST = \
 	sem/bcknd/device/opencl/coef_kernel.cl\
 	math/bcknd/device/device_mpi_reduce.h\
 	math/bcknd/device/device_mpi_op.h\
+	math/bcknd/device/cuda/device_nccl_reduce.h\
+	math/bcknd/device/cuda/device_nccl_op.h\
 	source_terms/bcknd/device/cuda/filter_kernels.h\
 	source_terms/bcknd/device/hip/filter_kernels.h\
 	source_terms/bcknd/device/opencl/filter_kernels.cl\
@@ -671,6 +693,7 @@ EXTRA_DIST = \
 	device/opencl/check.h\
 	device/hip/check.h\
 	device/cuda/check.h\
+	comm/comm_nccl.h\
 	comm/comm.h\
 	common/neko_log.h
 

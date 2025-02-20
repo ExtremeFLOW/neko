@@ -1,14 +1,17 @@
 !> Classic NEKTON formulation
 !! Compute pressure and velocity using consistent approximation spaces.
 module fluid_plan1
-  use fluid_scheme
+  use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t, &
+       fluid_scheme_solver_factory, fluid_scheme_precon_factory, &
+       space_t, dofmap_t, gs_t, coef_t, gs_init, gs_free, space_free, &
+       mesh_t, rp, time_step_controller_t, time_scheme_controller_t
   implicit none
 
-  type, extends(fluid_scheme_t) :: fluid_plan1_t
-     type(space_t) :: Yh        !< Function space for pressure \f$ Xh - 2 \f$
-     type(dofmap_t) :: dm_Yh    !< Dofmap associated with \f$ Yh \f$
-     type(gs_t) :: gs_Yh        !< Gather-scatter associated with \f$ Y_h \f$
-     type(coef_t) :: c_Yh       !< Coefficients associated with \f$ Y_h \f$
+  type, extends(fluid_scheme_incompressible_t) :: fluid_plan1_t
+     type(space_t) :: Yh !< Function space for pressure \f$ Xh - 2 \f$
+     type(dofmap_t) :: dm_Yh !< Dofmap associated with \f$ Yh \f$
+     type(gs_t) :: gs_Yh !< Gather-scatter associated with \f$ Y_h \f$
+     type(coef_t) :: c_Yh !< Coefficients associated with \f$ Y_h \f$
      !>@todo Remaning plan1 related data, ax, precon etc
    contains
      procedure, pass(this) :: init => fluid_plan1_init

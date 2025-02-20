@@ -18,8 +18,8 @@ module user
   real(kind=rp), parameter :: y1 = 0.0
   real(kind=rp), parameter :: delta = 0.005*h
 contains
-  
-  
+
+
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
@@ -27,7 +27,7 @@ contains
     u%fluid_user_if => user_inflow_eval
     u%user_dirichlet_update => dirichlet_update
   end subroutine user_setup
- 
+
   subroutine cylinder_deform(msh)
     type(mesh_t), intent(inout) :: msh
     msh%apply_deform => cylinder_gen_curve
@@ -45,25 +45,26 @@ contains
     integer :: e, i, j ,k, l,  facet
 
     !The cylinders zone number is 7
-    do l = 1,msh%labeled_zones(7)%size
+    do l = 1, msh%labeled_zones(7)%size
        el_and_facet = msh%labeled_zones(7)%facet_el(l)
        facet = el_and_facet%x(1)
        e = el_and_facet%x(2)
        do k = 1, lz
           do j = 1, ly
               do i = 1, lx
-                 if (index_is_on_facet(i,j,k,lx,ly,lz, facet)) then
+                 if (index_is_on_facet(i, j, k, lx, ly, lz, facet)) then
                     th = atan2(z(i,j,k,e), x(i,j,k,e))
                     x(i,j,k,e) = rad * cos(th)
-                    z(i,j,k,e) = rad * sin(th) 
+                    z(i,j,k,e) = rad * sin(th)
                  end if
               end do
           end do
        end do
     end do
   end subroutine cylinder_gen_curve
-  
-  subroutine user_inflow_eval(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
+
+  subroutine user_inflow_eval(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, &
+       tstep)
     real(kind=rp), intent(inout) :: u
     real(kind=rp), intent(inout) :: v
     real(kind=rp), intent(inout) :: w
@@ -79,7 +80,7 @@ contains
     integer, intent(in) :: ie
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    real(kind=rp) ::  u_th,dist,th, yy
+    real(kind=rp) ::  u_th, dist, th, yy
     real(kind=rp) ::  arg
 
 !   Two different regions (inflow & cyl) have the label 'v  '
@@ -91,19 +92,19 @@ contains
     if (dist .gt. 1.1*rad) then
        u =  ucl*y**pw
     end if
-! --- 
+! ---
 
     w = 0.0
     v = 0.0
 ! --- SPINNING CYLINDER
 
-    if (dist.lt.1.5*rad .and. y.gt. 0.1) then                      
-       th = atan2(z,x)
+    if (dist .lt. 1.5*rad .and. y .gt. 0.1) then
+       th = atan2(z, x)
        u = cos(th)*u_rho - sin(th)*u_th2
-       w = sin(th)*u_rho + cos(th)*u_th2   
-    end if     
-                    
-! --- 
+       w = sin(th)*u_rho + cos(th)*u_th2
+    end if
+
+! ---
 
 
 !     Smoothing function for the velocity u_th on the spinning cylinder
@@ -111,22 +112,22 @@ contains
 
 !     u_th is smoothed if z0 < z < delta
 !     u_th=1 if z >= delta
- 
 
-    yy = y + abs(y0) ! coordinate shift 
 
-    if (dist .lt. 1.5*rad) then 
-       if (yy.lt.delta) then
+    yy = y + abs(y0) ! coordinate shift
+
+    if (dist .lt. 1.5*rad) then
+       if (yy .lt. delta) then
           arg  = yy/delta
           u_th = u_th2/(1.0_rp+exp(1.0_rp/(arg-1.0_rp)+1.0_rp/arg))
        else
           u_th = u_th2
-       endif
+       end if
 
        th = atan2(z,x)
 
        u = cos(th)*u_rho - sin(th)*u_th
-       w = sin(th)*u_rho + cos(th)*u_th  
+       w = sin(th)*u_rho + cos(th)*u_th
     end if
   end subroutine user_inflow_eval
 
@@ -154,23 +155,18 @@ contains
   !! Parameters:
   !! -----------
   !! field_bc_list:     List of fields from which the BC conditions zill be extracted.
-  !!                    If which_solver = "fluid", contains (u,v,w,p).
-  !!                    If which_solver = "scalar", contains (s).
-  !! bc_bc_list:        List of BCs containing field_dirichlet_t BC objects only.
-  !!                    If which_solver = "fluid", contains the bc objects
-  !!                    (d_vel_u, d_vel_v, d_vel_w, d_pres).
-  !!                    If which_solver = "scalar", contains the bc object (d_s).
+  !!                    If called by the fluid, contains (u,v,w,p).
+  !!                    If called by the scalar, contains (s).
+  !! bc:                The BC containing the boundary mask, etc.
   !! coef:              Coef object.
   !! t:                 Current time.
   !! tstep:             Current time step.
-  !! which_solver:      Indicates wether the fields provided come from "fluid" or "scalar".
-  subroutine dirichlet_update(field_bc_list, bc_bc_list, coef, t, tstep, which_solver)
+  subroutine dirichlet_update(field_bc_list, bc, coef, t, tstep)
     type(field_list_t), intent(inout) :: field_bc_list
-    type(bc_list_t), intent(inout) :: bc_bc_list
+    type(field_dirichlet_t), intent(in) :: bc
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    character(len=*), intent(in) :: which_solver
 
     integer :: i
     real(kind=rp) :: y,z
@@ -178,50 +174,51 @@ contains
     ! Only do this at the first time step since our BCs are constants.
     if (tstep .ne. 1) return
 
-    ! Check that we are being called by `fluid`
-    if (trim(which_solver) .eq. "fluid") then
+    ! Check that we are being called by the fluid via the name of the field
+    if (field_bc_list%items(1)%ptr%name .eq. "u") then
 
        associate(u => field_bc_list%items(1)%ptr, &
             v => field_bc_list%items(2)%ptr, &
-            w => field_bc_list%items(3)%ptr, &
-            p => field_bc_list%items(4)%ptr)
+            w => field_bc_list%items(3)%ptr)
 
-         !
-         ! Perform operations on u%x, v%x, w%x and p%x here
-         ! Note that we are checking if fields are allocated. If the
-         ! boundary type only contains e.g. "d_vel_u/d_pres", the fields
-         ! v%x and w%x will not be allocated.
-         !
+         ! Perform operations on u%x, v%x, w%x here
          ! Here we are applying very simple uniform boundaries (u,v,w) = (1,0,0)
-         ! and nonsensical pressure outlet of p = -1
+         ! Technically the values are put in the interior as well, but this
+         ! does not matter, only the boundary values will be copied to the
+         ! actual fields
+         u = 1.0_rp
+         v = 0.0_rp
+         w = 0.0_rp
+
+       end associate
+    ! Check that we are being called by the user_pressure bc via the name
+    ! of the field
+    else if (field_bc_list%items(1)%ptr%name .eq. "p") then
+       associate( p => field_bc_list%items(1)%ptr)
          !
-         if (allocated(u%x)) u = 1.0_rp
-         if (allocated(v%x)) v = 0.0_rp
-         if (allocated(w%x)) w = 0.0_rp
-         if (allocated(p%x)) p = -1.0_rp
+         ! Perform operations on the pressure field here
+         !
+
+         do i = 1, bc%msk(0)
+            p%x(bc%msk(i), 1, 1, 1) = -1 
+         end do
 
        end associate
 
-    ! Check that we are being called by `scalar`
-    else if (trim(which_solver) .eq. "scalar") then
+    ! Check that we are being called by the scalar via the name of the field
+       else if (field_bc_list%items(1)%ptr%name .eq. "s") then
 
-       associate( s => field_bc_list%items(1)%ptr, &
-            s_bc => bc_bc_list%bc(1)%bcp)
-
+       associate( s => field_bc_list%items(1)%ptr)
          !
          ! Perform operations on the scalar field here
-         ! Note that we are checking if the field is allocated, in
-         ! case the boundary is empty.
          !
-         if (allocated(s%x)) then
 
-            do i = 1, s_bc%msk(0)
-               y = s_bc%dof%y(s_bc%msk(i), 1, 1, 1)
-               z = s_bc%dof%z(s_bc%msk(i), 1, 1, 1)
-               s%x(s_bc%msk(i), 1, 1, 1) = sin(y)*sin(z)
-            end do
+         do i = 1, bc%msk(0)
+            y = bc%dof%y(bc%msk(i), 1, 1, 1)
+            z = bc%dof%z(bc%msk(i), 1, 1, 1)
+            s%x(bc%msk(i), 1, 1, 1) = sin(y)*sin(z)
+         end do
 
-         end if
        end associate
 
     end if

@@ -23,6 +23,7 @@ subroutine test_device_alloc
   use neko_config
   use pfunit
   use device
+  use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: x_d
   integer(c_size_t) :: size_
@@ -44,6 +45,7 @@ subroutine test_device_free
   use neko_config
   use pfunit
   use device
+  use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: x_d
   integer(c_size_t) :: size_
@@ -70,6 +72,7 @@ subroutine test_device_associate
   use neko_config
   use pfunit
   use device
+  use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: x_d
   integer(c_size_t) :: size_
@@ -94,6 +97,7 @@ subroutine test_device_associated
   use neko_config
   use pfunit
   use device
+  use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: x_d
   integer(c_size_t) :: size_
@@ -118,6 +122,7 @@ subroutine test_device_get_ptr
   use neko_config
   use pfunit
   use device
+  use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: x_d, dev
   integer(c_size_t) :: size_
@@ -147,6 +152,7 @@ subroutine test_device_map
   use neko_config
   use pfunit
   use device
+  use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: x_d, dev
   integer(c_size_t) :: size_
@@ -174,6 +180,7 @@ subroutine test_device_memcpy
   use neko_config
   use pfunit
   use device
+  use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: x_d, y_d, dev
   integer(c_size_t) :: size_
@@ -225,6 +232,7 @@ subroutine test_device_stream_create
   use neko_config
   use pfunit
   use device
+  use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: stream
 
@@ -243,6 +251,7 @@ subroutine test_device_stream_destroy
   use neko_config
   use pfunit
   use device
+  use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: stream
 
@@ -263,6 +272,7 @@ subroutine test_device_sync_stream
   use neko_config
   use pfunit
   use device
+  use, intrinsic :: iso_c_binding
   implicit none
   type(c_ptr) :: stream1, stream2
 
