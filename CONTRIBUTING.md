@@ -41,6 +41,8 @@ end module example
 ```
 Please note that the maximum line length in Neko should not exceed 80 columns.
 
+Additional information on the style can be found in our [documentation](https://neko.cfd/docs/release/index.html).
+
 ### Data types
 For portability reasons, it is essential to only use data type kinds defined in `src/config/num_types.f90` and avoid legacy constructs like `real*8` or `integer(kind=8)`
 

@@ -53,6 +53,12 @@ jobs:
       - prepare
     uses: ./.github/workflows/check_lint.yml
 
+  formatting:
+    name: Formatting
+    needs:
+      - prepare
+    uses: ./.github/workflows/check_format.yml
+
   depend:
     name: Make depend
     needs:
@@ -142,6 +148,7 @@ jobs:
     needs:
       - prepare
       - linting
+      - formatting
       - depend
       - GNU
       - Intel
@@ -151,6 +158,7 @@ jobs:
     env:
       draft_status: ${{ needs.prepare.result }}
       flint_status: ${{ needs.linting.result }}
+      format_status: ${{ needs.formatting.result }}
       gnu_status: ${{ needs.GNU.result }}
       inel_status: ${{ needs.Intel.result }}
       nvidia_status: ${{ needs.Nvidia.result }}
@@ -165,22 +173,32 @@ jobs:
             fail+=("\t- Draft check: $draft_status")
             success=false
           fi
+
           if [ "$flint_status" != "success" ]; then
             fail+=("\t- Linting check: $flint_status")
             success=false
           fi
+
+          if [ "$format_status" != "success" ]; then
+            fail+=("\t- Formatting check: $format_status")
+            success=false
+          fi
+
           if [ "$gnu_status" != "success" ]; then
             fail+=("\t- GNU check: $gnu_status")
             success=false
           fi
+
           if [ "$inel_status" != "success" ]; then
             fail+=("\t- Intel check: $inel_status")
             success=false
           fi
+
           if [ "$nvidia_status" != "success" ]; then
             fail+=("\t- NVIDIA check: $nvidia_status")
             success=false
           fi
+
           if [ "$reframe_status" != "success" ]; then
             fail+=("\t- ReFrame check: $reframe_status")
             success=false

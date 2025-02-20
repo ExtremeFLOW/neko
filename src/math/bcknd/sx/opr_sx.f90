@@ -44,8 +44,8 @@ module opr_sx
      end subroutine opr_sx_cdtp
 
      module subroutine opr_sx_conv1(du, u, vx, vy, vz, Xh, coef, nelv)
-       type(space_t), intent(inout) :: Xh
-       type(coef_t), intent(inout) :: coef
+       type(space_t), intent(in) :: Xh
+       type(coef_t), intent(in) :: coef
        integer, intent(in) :: nelv
        real(kind=rp), intent(inout) ::  du(Xh%lxyz, nelv)
        real(kind=rp), intent(inout) ::  u(Xh%lx, Xh%ly, Xh%lz, nelv)
@@ -100,9 +100,9 @@ contains
     type(field_t), intent(inout) :: w1
     type(field_t), intent(inout) :: w2
     type(field_t), intent(inout) :: w3
-    type(field_t), intent(inout) :: u1
-    type(field_t), intent(inout) :: u2
-    type(field_t), intent(inout) :: u3
+    type(field_t), intent(in) :: u1
+    type(field_t), intent(in) :: u2
+    type(field_t), intent(in) :: u3
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
     type(coef_t), intent(in)  :: c_Xh

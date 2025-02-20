@@ -44,17 +44,20 @@ contains
 
     n = uu%dof%size()
 
-    do concurrent (i = 1:n)
-       u%x(i,1,1,1) = ab(1) * uu%x(i,1,1,1) + ab(2) * uulag%lf(1)%x(i,1,1,1)
-       v%x(i,1,1,1) = ab(1) * vv%x(i,1,1,1) + ab(2) * vvlag%lf(1)%x(i,1,1,1)
-       w%x(i,1,1,1) = ab(1) * ww%x(i,1,1,1) + ab(2) * wwlag%lf(1)%x(i,1,1,1)
-    end do
-
     if (nab .eq. 3) then
        do concurrent (i = 1:n)
-          u%x(i,1,1,1) = u%x(i,1,1,1) + ab(3) * uulag%lf(2)%x(i,1,1,1)
-          v%x(i,1,1,1) = v%x(i,1,1,1) + ab(3) * vvlag%lf(2)%x(i,1,1,1)
-          w%x(i,1,1,1) = w%x(i,1,1,1) + ab(3) * wwlag%lf(2)%x(i,1,1,1)
+          u%x(i,1,1,1) = ab(1) * uu%x(i,1,1,1) + &
+               ab(2) * uulag%lf(1)%x(i,1,1,1) + ab(3) * uulag%lf(2)%x(i,1,1,1)
+          v%x(i,1,1,1) = ab(1) * vv%x(i,1,1,1) + &
+               ab(2) * vvlag%lf(1)%x(i,1,1,1) + ab(3) * vvlag%lf(2)%x(i,1,1,1)
+          w%x(i,1,1,1) = ab(1) * ww%x(i,1,1,1) + &
+               ab(2) * wwlag%lf(1)%x(i,1,1,1) + ab(3) * wwlag%lf(2)%x(i,1,1,1)
+       end do
+    else
+       do concurrent (i = 1:n)
+          u%x(i,1,1,1) = ab(1) * uu%x(i,1,1,1) + ab(2) * uulag%lf(1)%x(i,1,1,1)
+          v%x(i,1,1,1) = ab(1) * vv%x(i,1,1,1) + ab(2) * vvlag%lf(1)%x(i,1,1,1)
+          w%x(i,1,1,1) = ab(1) * ww%x(i,1,1,1) + ab(2) * wwlag%lf(1)%x(i,1,1,1)
        end do
     end if
 
@@ -65,7 +68,7 @@ contains
                              rho, ext_coeffs, n)
     type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
     type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
-    real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
+    real(kind=rp), intent(in) :: rho, ext_coeffs(4)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
     integer :: i
@@ -108,7 +111,7 @@ contains
                                       ext_coeffs, n)
     type(field_t), intent(inout) :: fs_lag
     type(field_t), intent(inout) :: fs_laglag
-    real(kind=rp), intent(inout) :: rho, ext_coeffs(4)
+    real(kind=rp), intent(in) :: rho, ext_coeffs(4)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: fs(n)
     integer :: i

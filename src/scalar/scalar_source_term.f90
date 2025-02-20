@@ -63,7 +63,7 @@ contains
   subroutine scalar_source_term_init(this, f, coef, user)
     class(scalar_source_term_t), intent(inout) :: this
     type(field_t), pointer, intent(in) :: f
-    type(coef_t), target, intent(inout) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(user_t), target, intent(in) :: user
 
     type(field_list_t) :: rhs_fields
@@ -85,7 +85,7 @@ contains
   subroutine scalar_init_user_source(source_term, rhs_fields, coef, type, user)
     class(source_term_t), allocatable, intent(inout) :: source_term
     type(field_list_t) :: rhs_fields
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), intent(in) :: coef
     character(len=*) :: type
     type(user_t), intent(in) :: user
 

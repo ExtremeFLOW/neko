@@ -34,7 +34,8 @@
 module case
   use num_types, only : rp, sp, dp
   use fluid_pnpn, only : fluid_pnpn_t
-  use fluid_scheme, only : fluid_scheme_t, fluid_scheme_factory
+  use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
+  use fluid_scheme_base, only: fluid_scheme_base_t, fluid_scheme_base_factory
   use fluid_output, only : fluid_output_t
   use chkp_output, only : chkp_output_t
   use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
@@ -43,17 +44,16 @@ module case
   use output_controller, only : output_controller_t
   use flow_ic, only : set_flow_ic
   use scalar_ic, only : set_scalar_ic
-  use stats, only : stats_t
   use file, only : file_t
   use utils, only : neko_error
   use mesh, only : mesh_t
   use comm
   use time_scheme_controller, only : time_scheme_controller_t
-  use logger, only : neko_log, NEKO_LOG_QUIET, LOG_SIZE
+  use logger, only : neko_log, NEKO_LOG_QUIET
   use jobctrl, only : jobctrl_set_time_limit
   use user_intf, only : user_t
   use scalar_pnpn, only : scalar_pnpn_t
-  use json_module, only : json_file, json_core, json_value
+  use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
@@ -63,7 +63,6 @@ module case
   type, public :: case_t
      type(mesh_t) :: msh
      type(json_file) :: params
-     type(time_scheme_controller_t) :: ext_bdf
      real(kind=rp), dimension(10) :: tlag
      real(kind=rp), dimension(10) :: dtlag
      real(kind=rp) :: dt
@@ -73,7 +72,7 @@ module case
      type(fluid_output_t) :: f_out
      type(chkp_output_t) :: f_chkp
      type(user_t) :: usr
-     class(fluid_scheme_t), allocatable :: fluid
+     class(fluid_scheme_base_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar
   end type case_t
 
@@ -171,6 +170,13 @@ contains
        call neko_log%section('Load Balancing')
        call parmetis_partmeshkway(this%msh, parts)
        call redist_mesh(this%msh, parts)
+
+       ! store the balanced mesh (for e.g. restarts)
+       string_val = trim(string_val(1:scan(trim(string_val), &
+            '.', back = .true.) - 1)) // '_lb.nmsh'
+       msh_file = file_t(string_val)
+       call msh_file%write(this%msh)
+
        call neko_log%end_section()
     end if
 
@@ -202,24 +208,18 @@ contains
     call this%usr%user_mesh_setup(this%msh)
 
     !
-    ! Set order of timestepper
-    !
-    call json_get(this%params, 'case.numerics.time_order', integer_val)
-    call this%ext_bdf%init(integer_val)
-
-    !
     ! Setup fluid scheme
     !
     call json_get(this%params, 'case.fluid.scheme', string_val)
-    call fluid_scheme_factory(this%fluid, trim(string_val))
+    call fluid_scheme_base_factory(this%fluid, trim(string_val))
 
     call json_get(this%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get number of gll points
     this%fluid%chkp%tlag => this%tlag
     this%fluid%chkp%dtlag => this%dtlag
-    call this%fluid%init(this%msh, lx, this%params, this%usr, this%ext_bdf)
+    call this%fluid%init(this%msh, lx, this%params, this%usr)
     select type (f => this%fluid)
-      type is (fluid_pnpn_t)
+    type is (fluid_pnpn_t)
        f%chkp%abx1 => f%abx1
        f%chkp%abx2 => f%abx2
        f%chkp%aby1 => f%aby1
@@ -249,29 +249,13 @@ contains
        this%scalar%chkp%dtlag => this%dtlag
        call this%scalar%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
             this%params, this%usr, this%fluid%ulag, this%fluid%vlag, &
-            this%fluid%wlag, this%ext_bdf, this%fluid%rho)
+            this%fluid%wlag, this%fluid%ext_bdf, this%fluid%rho)
 
        call this%fluid%chkp%add_scalar(this%scalar%s)
 
        this%fluid%chkp%abs1 => this%scalar%abx1
        this%fluid%chkp%abs2 => this%scalar%abx2
        this%fluid%chkp%slag => this%scalar%slag
-    end if
-
-    !
-    ! Setup user defined conditions
-    !
-    if (this%params%valid_path('case.fluid.inflow_condition')) then
-       call json_get(this%params, 'case.fluid.inflow_condition.type',&
-            string_val)
-       if (trim(string_val) .eq. 'user') then
-          call this%fluid%set_usr_inflow(this%usr%fluid_user_if)
-       end if
-    end if
-
-    ! Setup user boundary conditions for the scalar.
-    if (scalar) then
-       call this%scalar%set_user_bc(this%usr%scalar_user_bc)
     end if
 
     !
@@ -286,11 +270,18 @@ contains
        call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, &
             this%fluid%p, this%fluid%c_Xh, this%fluid%gs_Xh, string_val, &
             this%params)
-
     else
-       call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p,&
-            this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_user_ic, &
-            this%params)
+       call json_get(this%params, 'case.fluid.scheme', string_val)
+       if (trim(string_val) .eq. 'compressible') then
+          call set_flow_ic(this%fluid%rho_field, &
+               this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p, &
+               this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_compressible_user_ic, &
+               this%params)
+       else
+          call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p,&
+               this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_user_ic, &
+               this%params)
+       end if
     end if
 
     call neko_log%end_section()
@@ -317,7 +308,7 @@ contains
 
     ! Add initial conditions to BDF scheme (if present)
     select type (f => this%fluid)
-      type is (fluid_pnpn_t)
+    type is (fluid_pnpn_t)
        call f%ulag%set(f%u)
        call f%vlag%set(f%v)
        call f%wlag%set(f%w)
@@ -350,16 +341,6 @@ contains
     end if
 
     !
-    ! Save boundary markings for fluid (if requested)
-    !
-    call json_get_or_default(this%params, 'case.output_boundary',&
-         logical_val, .false.)
-    if (logical_val) then
-       bdry_file = file_t(trim(this%output_directory)//'bdry.fld')
-       call bdry_file%write(this%fluid%bdry)
-    end if
-
-    !
     ! Save mesh partitions (if requested)
     !
     call json_get_or_default(this%params, 'case.output_partitions',&
@@ -389,10 +370,10 @@ contains
     !
     call this%output_controller%init(this%end_time)
     if (scalar) then
-       this%f_out = fluid_output_t(precision, this%fluid, this%scalar, &
+       call this%f_out%init(precision, this%fluid, this%scalar, &
             path = trim(this%output_directory))
     else
-       this%f_out = fluid_output_t(precision, this%fluid, &
+       call this%f_out%init(precision, this%fluid, &
             path = trim(this%output_directory))
     end if
 

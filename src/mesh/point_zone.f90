@@ -39,7 +39,7 @@ module point_zone
   use json_module, only: json_file
   use neko_config, only: NEKO_BCKND_DEVICE
   use device
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr
+  use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, c_associated
   implicit none
   private
 

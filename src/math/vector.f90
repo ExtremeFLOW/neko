@@ -33,9 +33,9 @@
 !> Defines a vector
 module vector
   use neko_config, only: NEKO_BCKND_DEVICE
-  use math, only: sub3, chsign, add3, cmult2, cadd2, cfill, copy
+  use math, only: sub3, add3, cmult2, cadd2, cfill
   use num_types, only: rp
-  use device, only: device_map, device_free, c_ptr, C_NULL_PTR
+  use device, only: device_map, device_free
   use device_math, only: device_copy, device_cfill, device_cmult, &
        device_sub3, device_cmult2, device_add3, device_cadd2
   use utils, only: neko_error
@@ -288,7 +288,6 @@ contains
        call device_cmult(v%x_d, -1.0_rp, v%n)
     else
        v%x = -v%x
-       !call chsign(v%x, v%n)
     end if
 
   end function vector_sub_scalar_right
