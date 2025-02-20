@@ -12,7 +12,7 @@ module comm
      end subroutine neko_comm_wrapper_init
   end interface
 
-#ifdef HAVE_NCCL
+#if defined(HAVE_NCCL) || defined(HAVE_RCCL)
   interface
      subroutine neko_comm_nccl_init() &
           bind(c, name='neko_comm_nccl_init')
@@ -107,7 +107,7 @@ contains
     call neko_comm_wrapper_init(NEKO_COMM%mpi_val)
 
 
-#ifdef HAVE_NCCL
+#if defined(HAVE_NCCL) | defined(HAVE_RCCL)
     ! Setup NCCL (if requested)
     call neko_comm_nccl_init()
 #endif
