@@ -256,7 +256,7 @@ contains
           b%shared_on_host = .false.
        end select
     end if
-    
+
     if (use_device_mpi) then
        if(pe_size .gt. 1) then
           ! Select fastest device MPI strategy at runtime

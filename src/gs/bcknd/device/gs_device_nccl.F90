@@ -47,11 +47,11 @@ module gs_device_nccl
 
   !> Buffers for non-blocking communication and packing/unpacking
   type, private :: gs_device_nccl_buf_t
-     integer, allocatable :: ndofs(:)           !< Number of dofs
-     integer, allocatable :: offset(:)          !< Offset into buf
-     integer :: total                           !< Total number of dofs
-     type(c_ptr) :: buf_d = C_NULL_PTR          !< Device buffer
-     type(c_ptr) :: dof_d = C_NULL_PTR          !< Dof mapping for pack/unpack
+     integer, allocatable :: ndofs(:) !< Number of dofs
+     integer, allocatable :: offset(:) !< Offset into buf
+     integer :: total !< Total number of dofs
+     type(c_ptr) :: buf_d = C_NULL_PTR !< Device buffer
+     type(c_ptr) :: dof_d = C_NULL_PTR !< Dof mapping for pack/unpack
    contains
      procedure, pass(this) :: init => gs_device_nccl_buf_init
      procedure, pass(this) :: free => gs_device_nccl_buf_free
@@ -119,7 +119,7 @@ module gs_device_nccl
   interface
      subroutine device_nccl_sendrecv(sbuf_d, soffset, scount, srank, &
           rbuf_d, roffset, rcount, rrank, nbytes, stream) &
-          bind(c, name='device_nccl_sendrecv') 
+          bind(c, name='device_nccl_sendrecv')
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int), value :: soffset, scount, roffset, rcount
@@ -265,7 +265,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     type(c_ptr), intent(inout) :: deps
     type(c_ptr), intent(inout) :: strm
-    integer ::  i
+    integer :: i
     type(c_ptr) :: u_d
 
     u_d = device_get_ptr(u)
@@ -274,18 +274,18 @@ contains
        call device_stream_wait_event(this%stream(i), deps, 0)
 #ifdef HAVE_HIP
        call hip_gs_pack(u_d, &
-                        this%send_buf%buf_d, &
-                        this%send_buf%dof_d, &
-                        this%send_buf%offset(i), &
-                        this%send_buf%ndofs(i), &
-                        this%stream(i))
+            this%send_buf%buf_d, &
+            this%send_buf%dof_d, &
+            this%send_buf%offset(i), &
+            this%send_buf%ndofs(i), &
+            this%stream(i))
 #elif HAVE_CUDA
        call cuda_gs_pack(u_d, &
-                         this%send_buf%buf_d, &
-                         this%send_buf%dof_d, &
-                         this%send_buf%offset(i), &
-                         this%send_buf%ndofs(i), &
-                         this%stream(i))
+            this%send_buf%buf_d, &
+            this%send_buf%dof_d, &
+            this%send_buf%offset(i), &
+            this%send_buf%ndofs(i), &
+            this%stream(i))
 #else
        call neko_error('gs_device_nccl: no backend')
 #endif
@@ -322,30 +322,30 @@ contains
     do i = 1, size(this%send_pe)
 
        call device_nccl_sendrecv(this%send_buf%buf_d, &
-                                 nbytes*this%send_buf%offset(i), &
-                                 this%send_buf%ndofs(i), &
-                                 this%send_pe(i), &
-                                 this%recv_buf%buf_d, &
-                                 nbytes*this%recv_buf%offset(i), &
-                                 this%recv_buf%ndofs(i), &
-                                 this%recv_pe(i), &
-                                 nbytes, &
-                                 this%stream(i))
-              
+            nbytes*this%send_buf%offset(i), &
+            this%send_buf%ndofs(i), &
+            this%send_pe(i), &
+            this%recv_buf%buf_d, &
+            nbytes*this%recv_buf%offset(i), &
+            this%recv_buf%ndofs(i), &
+            this%recv_pe(i), &
+            nbytes, &
+            this%stream(i))
+
 #ifdef HAVE_HIP
        call hip_gs_unpack(u_d, op, &
-                          this%recv_buf%buf_d, &
-                          this%recv_buf%dof_d, &
-                          this%recv_buf%offset(i), &
-                          this%recv_buf%ndofs(i), &
-                          this%stream(i))
+            this%recv_buf%buf_d, &
+            this%recv_buf%dof_d, &
+            this%recv_buf%offset(i), &
+            this%recv_buf%ndofs(i), &
+            this%stream(i))
 #elif HAVE_CUDA
        call cuda_gs_unpack(u_d, op, &
-                           this%recv_buf%buf_d, &
-                           this%recv_buf%dof_d, &
-                           this%recv_buf%offset(i), &
-                           this%recv_buf%ndofs(i), &
-                           this%stream(i))
+            this%recv_buf%buf_d, &
+            this%recv_buf%dof_d, &
+            this%recv_buf%offset(i), &
+            this%recv_buf%ndofs(i), &
+            this%stream(i))
 #else
        call neko_error('gs_device_mpi: no backend')
 #endif
@@ -357,7 +357,7 @@ contains
        call device_stream_wait_event(strm, &
             this%event(done_req), 0)
     end do
-    
+
   end subroutine gs_device_nccl_nbwait
 
 end module gs_device_nccl
