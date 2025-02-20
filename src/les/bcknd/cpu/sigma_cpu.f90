@@ -244,8 +244,9 @@ contains
                 alpha3 = acos(tmp1)/3.0_rp
 
                 if (abs(Invariant3) .lt. eps) then
-                   ! In case of Invariant3=0, one or more eigenvalues are equal to zero
-                   ! Therefore force sigma3 to 0 and compute sigma1 and sigma2
+                   ! In case of Invariant3=0, one or more eigenvalues are equal 
+                   ! to zero. Therefore force sigma3 to 0 and compute sigma1 and
+                   ! sigma2
                    sigma1 = sqrt(max(Invariant1/3.0_rp + &
                         2.0_rp*sqrt(alpha1)*cos(alpha3), 0.0_rp))
                    sigma2 = sqrt(abs(Invariant1 - sigma1*sigma1))
