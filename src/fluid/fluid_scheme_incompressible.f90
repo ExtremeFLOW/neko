@@ -502,15 +502,15 @@ contains
 
     call this%bcs_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep, strong)
-    call this%gs_Xh%op(this%u,GS_OP_MIN)
-    call this%gs_Xh%op(this%v,GS_OP_MIN)
-    call this%gs_Xh%op(this%w,GS_OP_MIN)
+    call this%gs_Xh%op(this%u, GS_OP_MIN)
+    call this%gs_Xh%op(this%v, GS_OP_MIN)
+    call this%gs_Xh%op(this%w, GS_OP_MIN)
 
     call this%bcs_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep, strong)
-    call this%gs_Xh%op(this%u,GS_OP_MAX)
-    call this%gs_Xh%op(this%v,GS_OP_MAX)
-    call this%gs_Xh%op(this%w,GS_OP_MAX)
+    call this%gs_Xh%op(this%u, GS_OP_MAX)
+    call this%gs_Xh%op(this%v, GS_OP_MAX)
+    call this%gs_Xh%op(this%w, GS_OP_MAX)
 
   end subroutine fluid_scheme_bc_apply_vel
 
