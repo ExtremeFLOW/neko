@@ -683,8 +683,8 @@ EXTRA_DIST = \
 	sem/bcknd/device/opencl/coef_kernel.cl\
 	math/bcknd/device/device_mpi_reduce.h\
 	math/bcknd/device/device_mpi_op.h\
-	math/bcknd/device/cuda/device_nccl_reduce.h\
-	math/bcknd/device/cuda/device_nccl_op.h\
+	math/bcknd/device/device_nccl_reduce.h\
+	math/bcknd/device/device_nccl_op.h\
 	source_terms/bcknd/device/cuda/filter_kernels.h\
 	source_terms/bcknd/device/hip/filter_kernels.h\
 	source_terms/bcknd/device/opencl/filter_kernels.cl\
