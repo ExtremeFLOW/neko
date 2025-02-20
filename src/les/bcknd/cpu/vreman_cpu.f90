@@ -41,7 +41,7 @@ module vreman_cpu
   use operators, only : dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
-   implicit none
+  implicit none
   private
 
   public :: vreman_compute_cpu
@@ -49,13 +49,15 @@ module vreman_cpu
 contains
 
   !> Compute eddy viscosity on the CPU.
+  !! @param if_ext If extrapolate the velocity field to evaluate
   !! @param t The time value.
   !! @param tstep The current time-step.
   !! @param coef SEM coefficients.
   !! @param nut The SGS viscosity array.
   !! @param delta The LES lengthscale.
   !! @param c The Vreman model constant
-  subroutine vreman_compute_cpu(t, tstep, coef, nut, delta, c)
+  subroutine vreman_compute_cpu(if_ext, t, tstep, coef, nut, delta, c)
+    logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
@@ -77,9 +79,15 @@ contains
     integer :: temp_indices(9)
     integer :: e, i
 
-    u => neko_field_registry%get_field_by_name("u")
-    v => neko_field_registry%get_field_by_name("v")
-    w => neko_field_registry%get_field_by_name("w")
+    if (if_ext .eqv. .true.) then
+       u => neko_field_registry%get_field_by_name("u_e")
+       v => neko_field_registry%get_field_by_name("v_e")
+       w => neko_field_registry%get_field_by_name("w_e")
+    else
+       u => neko_field_registry%get_field_by_name("u")
+       v => neko_field_registry%get_field_by_name("v")
+       w => neko_field_registry%get_field_by_name("w")
+    end if
 
     call neko_scratch_registry%request_field(a11, temp_indices(1))
     call neko_scratch_registry%request_field(a12, temp_indices(2))
@@ -134,17 +142,17 @@ contains
           beta22 = a12%x(i,1,1,e)**2 + a22%x(i,1,1,e)**2 + a32%x(i,1,1,e)**2
           beta33 = a13%x(i,1,1,e)**2 + a23%x(i,1,1,e)**2 + a33%x(i,1,1,e)**2
           beta12 = a11%x(i,1,1,e)*a12%x(i,1,1,e) + &
-                   a21%x(i,1,1,e)*a22%x(i,1,1,e) + &
-                   a31%x(i,1,1,e)*a32%x(i,1,1,e)
+               a21%x(i,1,1,e)*a22%x(i,1,1,e) + &
+               a31%x(i,1,1,e)*a32%x(i,1,1,e)
           beta13 = a11%x(i,1,1,e)*a13%x(i,1,1,e) + &
-                   a21%x(i,1,1,e)*a23%x(i,1,1,e) + &
-                   a31%x(i,1,1,e)*a33%x(i,1,1,e)
+               a21%x(i,1,1,e)*a23%x(i,1,1,e) + &
+               a31%x(i,1,1,e)*a33%x(i,1,1,e)
           beta23 = a12%x(i,1,1,e)*a13%x(i,1,1,e) + &
-                   a22%x(i,1,1,e)*a23%x(i,1,1,e) + &
-                   a32%x(i,1,1,e)*a33%x(i,1,1,e)
+               a22%x(i,1,1,e)*a23%x(i,1,1,e) + &
+               a32%x(i,1,1,e)*a33%x(i,1,1,e)
 
-          b_beta = beta11*beta22 - beta12*beta12 + beta11*beta33 - beta13*beta13 &
-                  + beta22*beta33 - beta23*beta23
+          b_beta = beta11*beta22 - beta12*beta12 + beta11*beta33 &
+               - beta13*beta13 + beta22*beta33 - beta23*beta23
 
           b_beta = max(0.0_rp, b_beta)
 
@@ -152,7 +160,7 @@ contains
           aijaij = beta11 + beta22 + beta33
 
           nut%x(i,1,1,e) = c*delta%x(i,1,1,e)*delta%x(i,1,1,e) &
-                            * sqrt(b_beta/(aijaij + NEKO_EPS))
+               * sqrt(b_beta/(aijaij + NEKO_EPS))
        end do
     end do
 
