@@ -661,8 +661,8 @@ contains
 
     call profiler_start_region('Fluid', 1)
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
-         u_e => this%u_e, v_e => this%v_e, w_e => this%w_e
-    du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
+         u_e => this%u_e, v_e => this%v_e, w_e => this%w_e, &
+         du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
          u_res => this%u_res, v_res => this%v_res, w_res => this%w_res, &
          p_res => this%p_res, Ax_vel => this%Ax_vel, Ax_prs => this%Ax_prs, &
          Xh => this%Xh, &
@@ -681,7 +681,7 @@ contains
          dt_last_change => dt_controller%dt_last_change)
 
     ! Extrapolate the velocity if it's not done in nut_field estimation
-    if (this%material_properties .eqv. .false.) then
+    if (this%variable_material_properties .eqv. .false.) then
        call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
             ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
     end if
@@ -855,8 +855,6 @@ contains
     end if
 
     call fluid_step_info(tstep, t, dt, ksp_results, this%strict_convergence)
-
-    call this%scratch%relinquish_field(temp_indices)
 
   end associate
   call profiler_end_region('Fluid', 1)

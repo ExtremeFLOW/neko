@@ -65,7 +65,7 @@ contains
   !! @param lij The Germano identity.
   !! @param num The numerator in the expression of c_dyn, i.e. <mij*lij>
   !! @param den The denominator in the expression of c_dyn, i.e. <mij*mij>
-  subroutine dynamic_smagorinsky_compute_device(if_ext, t, tstep, coef, nut, 
+  subroutine dynamic_smagorinsky_compute_device(if_ext, t, tstep, coef, nut, &
        delta, c_dyn, test_filter, mij, lij, num, den)
     logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
