@@ -76,7 +76,6 @@ program mesh_checker
      end if
   end do
 
-
   mesh_file = file_t(trim(mesh_fname))
 
   call mesh_file%read(msh)
@@ -132,7 +131,6 @@ program mesh_checker
          end if
       end do
 
-
   if (write_zone_ids) then
      if (pe_rank .eq. 0) write(*,*) 'Writing zone ids to zone_ids0.f00000'
      call Xh%init(1, 2, 2, 2)
@@ -141,7 +139,6 @@ program mesh_checker
      call coef%init(gs)
 
      call bdry_field%init(dofmap)
-
 
      do i = 1, size(msh%labeled_zones)
           call bdry_mask%init_from_components(coef, real(i, kind=rp))
