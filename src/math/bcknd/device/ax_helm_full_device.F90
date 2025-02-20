@@ -67,7 +67,7 @@ module ax_helm_full_device
        type(c_ptr), value :: dsdx_d, dsdy_d, dsdz_d
        type(c_ptr), value :: dtdx_d, dtdy_d, dtdz_d
        type(c_ptr), value :: jacinv_d, weight3_d
-       integer(c_int) :: nel, lx
+       integer(c_int) :: nelv, lx
      end subroutine hip_ax_helm_stress_vector
   end interface
 
@@ -100,7 +100,7 @@ module ax_helm_full_device
        type(c_ptr), value :: dsdx_d, dsdy_d, dsdz_d
        type(c_ptr), value :: dtdx_d, dtdy_d, dtdz_d
        type(c_ptr), value :: jacinv_d, weight3_d
-       integer(c_int) :: nel, lx
+       integer(c_int) :: nelv, lx
      end subroutine cuda_ax_helm_stress_vector
   end interface
 
@@ -119,7 +119,7 @@ module ax_helm_full_device
 contains
 
   subroutine ax_helm_full_device_compute_vector(this, au, av, aw, &
-                                           u, v, w, coef, msh, Xh)
+       u, v, w, coef, msh, Xh)
     class(ax_helm_full_device_t), intent(in) :: this
     type(space_t), intent(inout) :: Xh
     type(mesh_t), intent(inout) :: msh
@@ -162,10 +162,10 @@ contains
     if (coef%ifh2) then
 #ifdef HAVE_HIP
        call hip_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
-                                     coef%h2_d, coef%B_d, coef%dof%size())
+            coef%h2_d, coef%B_d, coef%dof%size())
 #elif HAVE_CUDA
        call cuda_ax_helm_stress_vector_part2(au_d, av_d, aw_d, u_d, v_d, w_d, &
-                                     coef%h2_d, coef%B_d, coef%dof%size())
+            coef%h2_d, coef%B_d, coef%dof%size())
 #else
        call device_addcol4(au_d ,coef%h2_d, coef%B_d, u_d, coef%dof%size())
        call device_addcol4(av_d ,coef%h2_d, coef%B_d, v_d, coef%dof%size())

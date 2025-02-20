@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2022-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -43,12 +43,17 @@ extern "C" {
 #include <math/bcknd/device/device_mpi_reduce.h>
 #include <math/bcknd/device/device_mpi_op.h>
 
+#ifdef HAVE_NCCL
+#include <math/bcknd/device/cuda/device_nccl_reduce.h>
+#include <math/bcknd/device/cuda/device_nccl_op.h>
+#endif
+
   /**
    * @todo Make sure that this gets deleted at some point...
    */
   real *cfl_d = NULL;
-  
-  /** 
+
+  /**
    * Fortran wrapper for device cuda CFL
    */
   real cuda_cfl(real *dt, void *u, void *v, void *w,
@@ -57,10 +62,10 @@ extern "C" {
                 void *drdz, void *dsdz, void *dtdz,
                 void *dr_inv, void *ds_inv, void *dt_inv,
                 void *jacinv, int *nel, int *lx) {
-    
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;      
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     if (cfl_d == NULL) {
       CUDA_CHECK(cudaMalloc(&cfl_d, (*nel) * sizeof(real)));
@@ -80,7 +85,7 @@ extern "C" {
          (real *) jacinv, (real *) cfl_d);                                      \
       CUDA_CHECK(cudaGetLastError());                                           \
       break
-      
+
     switch(*lx) {
       CASE(2);
       CASE(3);
@@ -102,7 +107,13 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
 
     real cfl;
-#ifdef HAVE_DEVICE_MPI
+#ifdef HAVE_NCCL
+    device_nccl_allreduce(cfl_d, cfl_d, 1, sizeof(real),
+                          DEVICE_NCCL_MAX, stream);
+    CUDA_CHECK(cudaMemcpyAsync(&cfl, cfl_d, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_DEVICE_MPI
     cudaStreamSynchronize(stream);
     device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(real), DEVICE_MPI_MAX);
 #else
@@ -110,7 +121,6 @@ extern "C" {
                                cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);
 #endif
-    
     return cfl;
-  } 
+  }
 }
