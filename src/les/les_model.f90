@@ -44,7 +44,7 @@ module les_model
   use device, only : device_memcpy, HOST_TO_DEVICE
   use math, only : col2
   use device_math, only : device_col2
-  use utils, only : neko_error, concat_string_array
+  use utils, only : neko_type_error, concat_string_array
   implicit none
   private
 
@@ -273,9 +273,8 @@ contains
     else
        type_string = concat_string_array(DELTA_KNOWN_TYPES, &
             NEW_LINE('A') // "-  ", .true.)
-       call neko_error("Unknown delta_type: " &
-            // trim(this%delta_type) // ".  Known types are: " &
-            // type_string)
+       call neko_type_error("delta_type for LES model", &
+            type_string, DELTA_KNOWN_TYPES)
        stop
     end if
 

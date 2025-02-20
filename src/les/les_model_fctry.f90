@@ -72,11 +72,7 @@ contains
     else
        type_string = concat_string_array(LES_KNOWN_TYPES, &
             NEW_LINE('A') // "-  ", .true.)
-       call neko_type_error("LES model", type, LES_KNOWN_TYPES)
-
-            // trim(type_name) // ".  Known types are: " &
-            // type_string)
-       stop
+       call neko_type_error("LES model", type_string, LES_KNOWN_TYPES)
 
     end if
     call object%init(dofmap, coef, json)
