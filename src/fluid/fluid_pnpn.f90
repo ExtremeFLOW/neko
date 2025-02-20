@@ -650,10 +650,6 @@ contains
     integer :: n
     ! Solver results monitors (pressure + 3 velocity)
     type(ksp_monitor_t) :: ksp_results(4)
-    ! Extrapolated velocity for the pressure residual
-    type(field_t), pointer :: u_e, v_e, w_e
-    ! Indices for tracking temporary fields
-    integer :: temp_indices(3)
 
     type(file_t) :: dump_file
     class(bc_t), pointer :: bc_i
