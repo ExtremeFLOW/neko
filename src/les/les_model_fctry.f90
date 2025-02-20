@@ -75,7 +75,7 @@ contains
        call neko_type_error("LES model", type_string, LES_KNOWN_TYPES)
 
     end if
-    call object%init(dofmap, coef, json)
+
   end subroutine les_model_factory
 
 end submodule les_model_fctry

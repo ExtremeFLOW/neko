@@ -34,7 +34,12 @@
 !> Implements `les_model_t`.
 module les_model
   use num_types, only : rp
-  use field, only : field_t, field_ptr_t
+  use fluid_scheme_base, only : fluid_scheme_base_t
+  use fluid_pnpn, only : fluid_pnpn_t
+  use time_scheme_controller, only : time_scheme_controller_t
+  use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_sumab_fctry
+  use field, only : field_t
+  use field_series, only : field_series_t
   use json_module, only : json_file
   use field_registry, only : neko_field_registry
   use dofmap, only : dofmap_t
@@ -56,6 +61,16 @@ module les_model
 
   !> Base abstract type for LES models based on the Boussinesq approximation.
   type, abstract, public :: les_model_t
+     !> Pointer to the extrapolation scheme.
+     type(time_scheme_controller_t), pointer :: ext_bdf => null()
+     !> Pointer to the lag list of the velocities
+     type(field_series_t), pointer :: ulag => null()
+     type(field_series_t), pointer :: vlag => null()
+     type(field_series_t), pointer :: wlag => null()
+     !> Summation of AB/BDF contributions to extrapolate the field
+     class(rhs_maker_sumab_t), allocatable :: sumab
+     !> Logical variable for extrapolation
+     logical :: if_ext = .false.
      !> Subgrid kinematic viscosity.
      type(field_t), pointer :: nut => null()
      !> LES lengthscale type
@@ -93,14 +108,12 @@ module les_model
 
   abstract interface
      !> Common constructor.
-     !! @param dofmap SEM map of degrees of freedom.
-     !! @param coef SEM coefficients.
+     !! @param fluid The fluid_scheme_t object.
      !! @param json A dictionary with parameters.
-     subroutine les_model_init(this, dofmap, coef, json)
-       import les_model_t, json_file, dofmap_t, coef_t
+     subroutine les_model_init(this, fluid, json)
+       import les_model_t, json_file, fluid_scheme_base_t
        class(les_model_t), intent(inout) :: this
-       type(coef_t), intent(in) :: coef
-       type(dofmap_t), intent(in) :: dofmap
+       class(fluid_scheme_base_t), intent(inout), target :: fluid
        type(json_file), intent(inout) :: json
      end subroutine les_model_init
   end interface
@@ -133,28 +146,39 @@ module les_model
 
 contains
   !> Constructor for the les_model_t (base) class.
-  !! @param dofmap SEM map of degrees of freedom.
-  !! @param coef SEM coefficients.
+  !! @param fluid The fluid_scheme_t object.
   !! @param nu_name The name of the turbulent viscosity field.
-  subroutine les_model_init_base(this, dofmap, coef, nut_name, delta_type)
+  !! @param delta_type The type of filter size
+  subroutine les_model_init_base(this, fluid, nut_name, delta_type)
     class(les_model_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dofmap
-    type(coef_t), target, intent(in) :: coef
+    class(fluid_scheme_base_t), intent(inout), target :: fluid
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
 
-    if (.not. neko_field_registry%field_exists(trim(nut_name))) then
-       call neko_field_registry%add_field(dofmap, trim(nut_name))
-    end if
-    if (.not. neko_field_registry%field_exists("les_delta")) then
-       call neko_field_registry%add_field(dofmap, "les_delta")
-    end if
-    this%nut => neko_field_registry%get_field(trim(nut_name))
-    this%delta => neko_field_registry%get_field("les_delta")
-    this%coef => coef
-    this%delta_type = delta_type
+    associate(dofmap => fluid%dm_Xh, &
+         coef => fluid%c_Xh)
 
-    call this%compute_delta()
+      call neko_field_registry%add_field(dofmap, trim(nut_name), .true.)
+      call neko_field_registry%add_field(dofmap, "les_delta", .true.)
+      this%nut => neko_field_registry%get_field(trim(nut_name))
+      this%delta => neko_field_registry%get_field("les_delta")
+      this%coef => coef
+      this%delta_type = delta_type
+
+      call this%compute_delta()
+
+      select type (fluid)
+      type is (fluid_pnpn_t)
+         this%if_ext = .true.
+         this%ulag => fluid%ulag
+         this%vlag => fluid%vlag
+         this%wlag => fluid%wlag
+         ! Setup backend dependent summation of AB/BDF
+         this%ext_bdf => fluid%ext_bdf
+         call rhs_maker_sumab_fctry(this%sumab)
+      end select
+
+    end associate
   end subroutine les_model_init_base
 
   !> Destructor for the les_model_t (base) class.
@@ -164,6 +188,9 @@ contains
     nullify(this%nut)
     nullify(this%delta)
     nullify(this%coef)
+    if (allocated(this%sumab)) then
+       deallocate(this%sumab)
+    end if
   end subroutine les_model_free_base
 
   !> Compute the LES lengthscale.
@@ -222,9 +249,7 @@ contains
              volume_element = volume_element + this%coef%B(k, 1, 1, e)
           end do
           this%delta%x(:,:,:,e) = (volume_element / this%coef%Xh%lx &
-               / this%coef%Xh%ly &
-               / this%coef%Xh%lz) &
-               **(1.0_rp / 3.0_rp)
+               / this%coef%Xh%ly / this%coef%Xh%lz)**(1.0_rp / 3.0_rp)
        end do
     else if (this%delta_type .eq. "pointwise") then
        do e = 1, this%coef%msh%nelv
