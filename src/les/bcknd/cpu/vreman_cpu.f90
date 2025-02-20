@@ -151,8 +151,8 @@ contains
                a22%x(i,1,1,e)*a23%x(i,1,1,e) + &
                a32%x(i,1,1,e)*a33%x(i,1,1,e)
 
-          b_beta = beta11*beta22 - beta12*beta12 + beta11*beta33 - beta13*beta13 &
-               + beta22*beta33 - beta23*beta23
+          b_beta = beta11*beta22 - beta12*beta12 + beta11*beta33 &
+               - beta13*beta13 + beta22*beta33 - beta23*beta23
 
           b_beta = max(0.0_rp, b_beta)
 
