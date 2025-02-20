@@ -52,9 +52,12 @@ For example, if one wants to compute only the basic statistics and sample the fi
       "start_time":60.0,
       "avg_direction":"xz",
       "set_of_stats":"basic"
-    }1
+    }
   ]
 ~~~~~~~~~~~~~~~
+
+@attention For simulations requiring restarts, it is recommended to run each 
+restart in a different output directory as a precaution to avoid potential overwritings of files.
 
 Preferably set the initial transient to a multiple of output_value as otherwise the first output will be slightly shorter than the rest. The code related to fluid statistics are located in fluid_stats and fluid_stats_simcomp.
 
