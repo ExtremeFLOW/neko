@@ -90,7 +90,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 
 ### Restarts and joblimit
 Restarts will restart the simulation from the exact state at a given time that 
-the checkpoitn was written. This means that the flow field and potential scalars
+the checkpoint was written. This means that the flow field and potential scalars
 will be at the exact same values before as after restarts. However, derived
 quantities from the flow field and any observables are not guaranteed to be
 restarted. In addition, Neko does not guarantee that any files are not
