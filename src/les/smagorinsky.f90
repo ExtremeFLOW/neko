@@ -90,7 +90,7 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A, E15.7)') 'c_s : ', c_s
     call neko_log%message(log_buf)
-    write(log_buf, '(A, E15.7)') 'extrapolation : ', if_ext
+    write(log_buf, '(A, L1)') 'extrapolation : ', if_ext
     call neko_log%message(log_buf)
     call neko_log%end_section()
 

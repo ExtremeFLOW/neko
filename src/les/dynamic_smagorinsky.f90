@@ -109,7 +109,7 @@ contains
       write(log_buf, '(A, A)') 'Test filter type : ', &
            this%test_filter%filter_type
       call neko_log%message(log_buf)
-      write(log_buf, '(A, E15.7)') 'extrapolation : ', if_ext
+      write(log_buf, '(A, L1)') 'extrapolation : ', if_ext
       call neko_log%message(log_buf)
       call neko_log%end_section()
 
