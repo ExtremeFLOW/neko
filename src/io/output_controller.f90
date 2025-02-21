@@ -171,7 +171,7 @@ contains
 
     ! Show the output precision if we are outputting an fld file
     select type (ft => out%file_%file_type)
-      type is (fld_file_t)
+    type is (fld_file_t)
        if (ft%dp_precision) then
           call neko_log%message('Output precision : double')
        else
@@ -240,7 +240,7 @@ contains
     ! without it for GNU, Intel and NEC, but breaks horribly on Cray
     ! (>11.0.x) when using high opt. levels.
     select type (samp => this)
-      type is (output_controller_t)
+    type is (output_controller_t)
        do i = 1, samp%n
           if (this%controllers(i)%check(t, tstep, force)) then
              write_output = .true.
@@ -258,7 +258,7 @@ contains
     ! without it for GNU, Intel and NEC, but breaks horribly on Cray
     ! (>11.0.x) when using high opt. levels.
     select type (samp => this)
-      type is (output_controller_t)
+    type is (output_controller_t)
        do i = 1, this%n
           if (this%controllers(i)%check(t, tstep, force)) then
              call neko_log%message('File name     : '// &
@@ -273,7 +273,7 @@ contains
              call this%controllers(i)%register_execution()
           end if
        end do
-      class default
+    class default
        call neko_error('Invalid output_controller output list')
     end select
 
