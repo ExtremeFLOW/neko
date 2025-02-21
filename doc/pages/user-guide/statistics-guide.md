@@ -35,10 +35,12 @@ Statistics are enable in the the case file as a simcomp with the added argument 
 | `avg_direction`        | Directions to compute spatial average.                         | x,y,z,xy,xz,yz  |  No spatial average           |
 | `set_of_stats`        | What set of stats to compute.                         | basic, full  |  full         |
 | `compute_value` | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int  | Not set (but recommended with every 50 timesteps or so  |
+| `output_filename`        | Userspecified filename to store output in                         | filename.fld  |  fluid_statsX*        |
 
-In addition to the usual controls for the output, which then outputs the averages computes from the last time the statistics were written to file.
+\*The name of the written statistics file will by default be `fluid_statsX_0.f0000X,..., fluid_statsX_0.f0000Y` where X is the number of the first outputted statistic of the current run.
 
-For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work:
+
+In addition, one can specify the usual controles for the output, which then outputs the averages computes from the last time the statistics were written to file. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work:
 
 ~~~~~~~~~~~~~~~{.json}
 "simulation_components": 
@@ -59,7 +61,7 @@ For example, if one wants to compute only the basic statistics and sample the fi
 @attention For simulations requiring restarts, it is recommended to run each 
 restart in a different output directory as a precaution to avoid potential overwritings of files.
 
-Preferably set the initial transient to a multiple of output_value as otherwise the first output will be slightly shorter than the rest. The code related to fluid statistics are located in fluid_stats and fluid_stats_simcomp. The name of the outputted statistics will by default be `fluid_statsX_0.f0000X,..., fluid_statsX_0.f0000Y` where X is the number of the first outputted statistic of the current run.
+Preferably set the initial transient to a multiple of output_value as otherwise the first output will be slightly shorter than the rest. The code related to fluid statistics are located in fluid_stats and fluid_stats_simcomp. 
 
 The argument "avg_direction" is optional and if ignored we output 3d fields. The statistics are saved in a fld file according to the following in 2D and 3D. Observe that in 2D the mean Z-velocity is stored in a last scalar field. All other fields are kept the same. This is due to a limitation of the fld file format.
 
