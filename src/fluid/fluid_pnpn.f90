@@ -66,6 +66,7 @@ module fluid_pnpn
   use wall_model_bc, only : wall_model_bc_t
   use facet_normal, only : facet_normal_t
   use non_normal, only : non_normal_t
+  use checkpoint, only : chkp_t
   use comm
   use mesh, only : mesh_t
   use user_intf, only : user_t
@@ -343,19 +344,9 @@ contains
          this%vel_projection_activ_step)
 
 
-    ! Add lagged term to checkpoint
-    call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
 
     ! Determine the time-interpolation scheme
     call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
-
-    ! Initialize the advection factory
-    call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
-    call advection_factory(this%adv, params, this%c_Xh, &
-         this%ulag, this%vlag, this%wlag, &
-         this%chkp%dtlag, this%chkp%tlag, this%ext_bdf, &
-         .not. advection)
-
     if (params%valid_path('case.fluid.flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)
     end if
@@ -387,15 +378,19 @@ contains
 
   end subroutine fluid_pnpn_init
 
-  subroutine fluid_pnpn_restart(this, dtlag, tlag)
+  subroutine fluid_pnpn_restart(this,chkp)
     class(fluid_pnpn_t), target, intent(inout) :: this
+    type(chkp_t), intent(inout) :: chkp
     real(kind=rp) :: dtlag(10), tlag(10)
     type(field_t) :: u_temp, v_temp, w_temp
     integer :: i, j, n
 
+    dtlag = chkp%dtlag
+    tlag = chkp%tlag
+
     n = this%u%dof%size()
-    if (allocated(this%chkp%previous_mesh%elements) .or. &
-         this%chkp%previous_Xh%lx .ne. this%Xh%lx) then
+    if (allocated(chkp%previous_mesh%elements) .or. &
+         chkp%previous_Xh%lx .ne. this%Xh%lx) then
        associate(u => this%u, v => this%v, w => this%w, p => this%p, &
             c_Xh => this%c_Xh, ulag => this%ulag, vlag => this%vlag, &
             wlag => this%wlag)
@@ -468,8 +463,8 @@ contains
     ! Do not do this for lagged rhs
     ! (derivatives are not necessairly coninous across elements)
 
-    if (allocated(this%chkp%previous_mesh%elements) &
-         .or. this%chkp%previous_Xh%lx .ne. this%Xh%lx) then
+    if (allocated(chkp%previous_mesh%elements) &
+         .or. chkp%previous_Xh%lx .ne. this%Xh%lx) then
        call this%gs_Xh%op(this%u, GS_OP_ADD)
        call this%gs_Xh%op(this%v, GS_OP_ADD)
        call this%gs_Xh%op(this%w, GS_OP_ADD)
@@ -481,62 +476,6 @@ contains
           call this%gs_Xh%op(this%wlag%lf(i), GS_OP_ADD)
        end do
     end if
-
-    !! If we would decide to only restart from lagged fields instead of saving
-    !! abx1, aby1 etc.
-    !! Observe that one also needs to recompute the focing at the old time steps
-    !u_temp = this%ulag%lf(2)
-    !v_temp = this%vlag%lf(2)
-    !w_temp = this%wlag%lf(2)
-    !! Compute the source terms
-    !call this%source_term%compute(tlag(2), -1)
-    !
-    !! Pre-multiply the source terms with the mass matrix.
-    !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, &
-    !                      this%c_Xh%B_d, this%msh%gdim, n)
-    !else
-    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, &
-    !               this%c_Xh%B, this%msh%gdim, n)
-    !end if
-
-    !! Add the advection operators to the right-hand-side.
-    !call this%adv%compute(u_temp, v_temp, w_temp, &
-    !                      this%f_x%x, this%f_y%x, this%f_z%x, &
-    !                      this%Xh, this%c_Xh, this%dm_Xh%size())
-    !this%abx2 = this%f_x
-    !this%aby2 = this%f_y
-    !this%abz2 = this%f_z
-    !
-    !u_temp = this%ulag%lf(1)
-    !v_temp = this%vlag%lf(1)
-    !w_temp = this%wlag%lf(1)
-    !call this%source_term%compute(tlag(1), 0)
-
-    !! Pre-multiply the source terms with the mass matrix.
-    !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, &
-    !                      this%c_Xh%B_d, this%msh%gdim, n)
-    !else
-    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, &
-    !               this%c_Xh%B, this%msh%gdim, n)
-    !end if
-
-    !! Pre-multiply the source terms with the mass matrix.
-    !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, &
-    !                      this%c_Xh%B_d, this%msh%gdim, n)
-    !else
-    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, &
-    !               this%c_Xh%B, this%msh%gdim, n)
-    !end if
-
-    !call this%adv%compute(u_temp, v_temp, w_temp, &
-    !                      this%f_x%x, this%f_y%x, this%f_z%x, &
-    !                      this%Xh, this%c_Xh, this%dm_Xh%size())
-    !this%abx1 = this%f_x
-    !this%aby1 = this%f_y
-    !this%abz1 = this%f_z
 
   end subroutine fluid_pnpn_restart
 
