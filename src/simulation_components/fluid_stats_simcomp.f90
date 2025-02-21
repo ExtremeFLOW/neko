@@ -136,6 +136,8 @@ contains
     type(field_t), intent(inout) :: u, v, w, p !>Should really be intent in I think
     type(coef_t), intent(in) :: coef
     character(len=LOG_SIZE) :: log_buf
+    character(len=NEKO_FNAME_LEN) :: fname
+    character(len=5) :: prefix
 
     call neko_log%section('Fluid stats')
     write(log_buf, '(A,E15.7)') 'Start time: ', start_time
@@ -153,6 +155,9 @@ contains
 
     call this%stats_output%init(this%stats, this%start_time, &
          hom_dir = hom_dir, path = this%case%output_directory)
+    write (prefix, '(I5)') this%stats_output%file_%get_counter()
+    fname = "fluid_stats"//trim(adjustl(prefix))//"_.fld"
+    call this%stats_output%init_base(fname)
 
     call this%case%output_controller%add(this%stats_output, &
          this%output_controller%control_value, &
@@ -177,7 +182,7 @@ contains
     if (t .gt. this%time) this%time = t
 
     write (prefix, '(I5)') this%stats_output%file_%get_counter()
-    fname = "fluid_stats"//trim(adjustl(prefix))//".fld"
+    fname = "fluid_stats"//trim(adjustl(prefix))//"_.fld"
     call this%stats_output%init_base(fname)
   end subroutine fluid_stats_simcomp_restart
 
