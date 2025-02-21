@@ -35,12 +35,11 @@ Statistics are enable in the the case file as a simcomp with the added argument 
 | `avg_direction`        | Directions to compute spatial average.                         | x,y,z,xy,xz,yz  |  No spatial average           |
 | `set_of_stats`        | What set of stats to compute.                         | basic, full  |  full         |
 | `compute_value` | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int  | Not set (but recommended with every 50 timesteps or so  |
-| `output_filename`        | Userspecified filename to store output in                         | filename.fld  |  fluid_statsX*        |
+| `output_filename`        | Userspecified filename to store output in.                       | filename.fld  |  fluid_statsX*        |
 
 \*The name of the written statistics file will by default be `fluid_statsX_0.f0000X,..., fluid_statsX_0.f0000Y` where X is the number of the first outputted statistic of the current run.
 
-
-In addition, one can specify the usual controles for the output, which then outputs the averages computes from the last time the statistics were written to file. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work:
+In addition, one can specify the usual controls for the output, which then outputs the averages computes from the last time the statistics were written to file. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work:
 
 ~~~~~~~~~~~~~~~{.json}
 "simulation_components": 
