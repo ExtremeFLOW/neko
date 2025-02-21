@@ -481,7 +481,7 @@ contains
     end if
 
     !> Initialize the output file
-    this%fout = file_t(trim(output_file))
+    this%fout = file_t(trim(this%case%output_directory) // trim(output_file))
 
     select type (ft => this%fout%file_type)
       type is (csv_file_t)
@@ -637,6 +637,8 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     integer :: i, ierr
+
+    print *, pe_rank, "[PROBES]", this%n_local_probes, this%n_fields, this%which_fields
 
     !> Check controller to determine if we must write
     do i = 1, this%n_fields
