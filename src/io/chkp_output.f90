@@ -71,9 +71,9 @@ contains
     else if (present(name)) then
        fname = trim(name) // trim(suffix)
     else if (present(path)) then
-       fname = trim(path) // 'fluid' // trim(suffix)
+       fname = trim(path) // 'case' // trim(suffix)
     else
-       fname= 'fluid' // trim(suffix)
+       fname= 'case' // trim(suffix)
     end if
 
     call this%init_base(fname)
