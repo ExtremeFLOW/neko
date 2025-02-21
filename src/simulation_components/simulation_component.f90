@@ -67,7 +67,7 @@ module simulation_component
      !> Wrapper for calling `preprocess_` based on the `preprocess_controller`.
      !! Serves as the public interface.
      procedure, pass(this) :: preprocess => &
-       simulation_component_preprocess_wrapper
+          simulation_component_preprocess_wrapper
      !> Wrapper for calling `compute_` based on the `compute_controller`.
      !! Serves as the public interface.
      procedure, pass(this) :: compute => simulation_component_compute_wrapper
@@ -138,43 +138,43 @@ contains
 
     ! We default to preprocess every time-step
     call json_get_or_default(json, "preprocess_control", preprocess_control, &
-                             "tsteps")
+         "tsteps")
     call json_get_or_default(json, "preprocess_value", preprocess_value, 1.0_rp)
 
     ! We default to compute every time-step
     call json_get_or_default(json, "compute_control", compute_control, &
-                             "tsteps")
+         "tsteps")
     call json_get_or_default(json, "compute_value", compute_value, 1.0_rp)
 
     if (compute_control .eq. "fluid_output") then
-      call json_get(this%case%params, 'case.fluid.output_control', &
+       call json_get(this%case%params, 'case.fluid.output_control', &
             compute_control)
-      call json_get(this%case%params, 'case.fluid.output_value', &
+       call json_get(this%case%params, 'case.fluid.output_value', &
             compute_value)
     end if
 
     ! We default to output whenever we execute
     call json_get_or_default(json, "output_control", output_control, &
-                             compute_control)
+         compute_control)
     call json_get_or_default(json, "output_value", output_value, &
-                             compute_value)
+         compute_value)
 
     if (output_control == "global") then
        call json_get(this%case%params, 'case.fluid.output_control', &
-                     output_control)
+            output_control)
        call json_get(this%case%params, 'case.fluid.output_value', &
-                     output_value)
+            output_value)
     end if
 
     call json_get_or_default(json, "order", order, -1)
     this%order = order
 
-    call this%preprocess_controller%init(case%end_time, preprocess_control, &
-                                         preprocess_value)
-    call this%compute_controller%init(case%end_time, compute_control, &
-                                      compute_value)
-    call this%output_controller%init(case%end_time, output_control, &
-                                     output_value)
+    call this%preprocess_controller%init(case%time%end_time, preprocess_control, &
+         preprocess_value)
+    call this%compute_controller%init(case%time%end_time, compute_control, &
+         compute_value)
+    call this%output_controller%init(case%time%end_time, output_control, &
+         output_value)
 
   end subroutine simulation_component_init_base
 
@@ -224,7 +224,7 @@ contains
 
     call this%compute_controller%set_counter(t)
     call this%output_controller%set_counter(t)
-    call this%restart_(t) 
+    call this%restart_(t)
 
   end subroutine simulation_component_restart_wrapper
 
