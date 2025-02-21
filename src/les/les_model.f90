@@ -49,7 +49,7 @@ module les_model
   use device, only : device_memcpy, HOST_TO_DEVICE
   use math, only : col2
   use device_math, only : device_col2
-  use utils, only : neko_type_error, concat_string_array
+  use utils, only : neko_type_error, concat_string_array, neko_error
   implicit none
   private
 
@@ -169,13 +169,17 @@ contains
 
       select type (fluid)
       type is (fluid_pnpn_t)
-         this%if_ext = .true.
          this%ulag => fluid%ulag
          this%vlag => fluid%vlag
          this%wlag => fluid%wlag
          ! Setup backend dependent summation of AB/BDF
          this%ext_bdf => fluid%ext_bdf
          call rhs_maker_sumab_fctry(this%sumab)
+      class default
+         if (this%if_ext .eqv. .true.) then
+            call neko_error("Fluid scheme does not support &
+                 &velocity extrapolation")
+         end if
       end select
 
     end associate
