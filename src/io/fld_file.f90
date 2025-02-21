@@ -520,11 +520,12 @@ contains
        open(unit = 9, &
             file = trim(this%fname(1:suffix_pos-1)) // &
             trim(adjustl(start_field)), status = 'replace')
-       !This will specify that each files is the filename followed by a 0.
+       !The following string will specify that the files in the file series
+       !are defined by the filename followed by a 0.
        !This 0 is necessary as it specifies the index of number of files
        !the output file is split across.
        !In the past, many .f files were generated for each write.
-       !To be constitent with this the trailing 0 is still necessary today.
+       !To be consistent with this the trailing 0 is still necessary today.
        write(9, fmt = '(A,A,A)') 'filetemplate:         ', &
             this%fname(tslash_pos+1:suffix_pos-1), '%01d.f%05d'
        write(9, fmt = '(A,i5)') 'firsttimestep: ', this%start_counter
