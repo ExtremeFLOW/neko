@@ -45,6 +45,7 @@ module fluid_scheme_compressible_euler
   use gather_scatter, only : gs_t
   use num_types, only : rp
   use mesh, only : mesh_t
+  use checkpoint, only : chkp_t
   use operators, only: div, grad
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
@@ -337,9 +338,9 @@ contains
   !> @param this The fluid scheme object
   !> @param dtlag Previous timestep sizes
   !> @param tlag Previous time values
-  subroutine fluid_scheme_compressible_euler_restart(this, dtlag, tlag)
+  subroutine fluid_scheme_compressible_euler_restart(this, chkp)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
-    real(kind=rp) :: dtlag(10), tlag(10)
+    type(chkp_t), intent(inout) :: chkp
   end subroutine fluid_scheme_compressible_euler_restart
 
 end module fluid_scheme_compressible_euler
