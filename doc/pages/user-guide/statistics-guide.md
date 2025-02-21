@@ -52,11 +52,14 @@ For example, if one wants to compute only the basic statistics and sample the fi
       "start_time":60.0,
       "avg_direction":"xz",
       "set_of_stats":"basic"
-    }1
+    }
   ]
 ~~~~~~~~~~~~~~~
 
-Preferably set the initial transient to a multiple of output_value as otherwise the first output will be slightly shorter than the rest. The code related to fluid statistics are located in fluid_stats and fluid_stats_simcomp.
+@attention For simulations requiring restarts, it is recommended to run each 
+restart in a different output directory as a precaution to avoid potential overwritings of files.
+
+Preferably set the initial transient to a multiple of output_value as otherwise the first output will be slightly shorter than the rest. The code related to fluid statistics are located in fluid_stats and fluid_stats_simcomp. The name of the outputted statistics will by default be `fluid_statsX_0.f0000X,..., fluid_statsX_0.f0000Y` where X is the number of the first outputted statistic of the current run.
 
 The argument "avg_direction" is optional and if ignored we output 3d fields. The statistics are saved in a fld file according to the following in 2D and 3D. Observe that in 2D the mean Z-velocity is stored in a last scalar field. All other fields are kept the same. This is due to a limitation of the fld file format.
 
