@@ -520,7 +520,7 @@ contains
        open(unit = 9, &
             file = trim(this%fname(1:suffix_pos-1)) // &
             trim(adjustl(start_field)), status = 'replace')
-       !This will specify each filename is followed by a 0
+       !This will specify that each files is the filename followed by a 0.
        !This 0 is necessary as it specifies the index of number of files
        !the output file is split across.
        !In the past, many .f files were generated for each write.
