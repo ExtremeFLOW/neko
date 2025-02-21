@@ -42,6 +42,7 @@ module fluid_scheme_base
   use json_module, only : json_file
   use logger, only : LOG_SIZE
   use num_types, only : rp
+  use checkpoint, only : chkp_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBL_LEN
   use space, only : space_t, GLL
   use time_scheme_controller, only : time_scheme_controller_t
@@ -90,7 +91,6 @@ module fluid_scheme_base
 
      type(json_file), pointer :: params !< Parameters
      type(mesh_t), pointer :: msh => null() !< Mesh
-     type(chkp_t) :: chkp !< Checkpoint
 
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
@@ -233,12 +233,12 @@ module fluid_scheme_base
 
   !> Abstract interface to restart a fluid scheme
   abstract interface
-     subroutine fluid_scheme_base_restart_intrf(this, dtlag, tlag)
+     subroutine fluid_scheme_base_restart_intrf(this, chkp)
        import fluid_scheme_base_t
        import rp
+       import chkp_t
        class(fluid_scheme_base_t), target, intent(inout) :: this
-       real(kind=rp) :: dtlag(10), tlag(10)
-
+       type(chkp_t), intent(inout) :: chkp
      end subroutine fluid_scheme_base_restart_intrf
   end interface
 
