@@ -47,7 +47,9 @@ module case
   use file, only : file_t
   use utils, only : neko_error
   use mesh, only : mesh_t
+  use advection, only : advection_factory
   use comm
+  use checkpoint, only: chkp_t
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, NEKO_LOG_QUIET
   use jobctrl, only : jobctrl_set_time_limit
@@ -60,17 +62,24 @@ module case
   implicit none
   private
 
-  type, public :: case_t
-     type(mesh_t) :: msh
-     type(json_file) :: params
+  !Contains all info about the time for this case
+  type, public :: time_struct_t
      real(kind=rp), dimension(10) :: tlag
      real(kind=rp), dimension(10) :: dtlag
      real(kind=rp) :: dt
+     real(kind=rp) :: t
      real(kind=rp) :: end_time
+  end type time_struct_t
+
+  type, public :: case_t
+     type(mesh_t) :: msh
+     type(json_file) :: params
      character(len=:), allocatable :: output_directory
      type(output_controller_t) :: output_controller
      type(fluid_output_t) :: f_out
+     type(time_struct_t) :: time
      type(chkp_output_t) :: f_chkp
+     type(chkp_t) :: chkp
      type(user_t) :: usr
      class(fluid_scheme_base_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar
@@ -91,6 +100,7 @@ contains
     integer :: ierr, integer_val
     character(len=:), allocatable :: json_buffer
     logical :: exist
+
 
     ! Check if the file exists
     inquire(file = trim(case_file), exist = exist)
@@ -146,6 +156,7 @@ contains
     character(len = :), allocatable :: string_val
     integer :: output_dir_len
     integer :: precision
+    logical :: advection
 
     !
     ! Load mesh
@@ -185,16 +196,16 @@ contains
     !
     call this%params%get('case.variable_timestep', logical_val, found)
     if (.not. logical_val) then
-       call json_get(this%params, 'case.timestep', this%dt)
+       call json_get(this%params, 'case.timestep', this%time%dt)
     else
        ! randomly set an initial dt to get cfl when dt is variable
-       this%dt = 1.0_rp
+       this%time%dt = 1.0_rp
     end if
 
     !
     ! End time
     !
-    call json_get(this%params, 'case.end_time', this%end_time)
+    call json_get(this%params, 'case.end_time', this%time%end_time)
 
     !
     ! Initialize point_zones registry
@@ -215,17 +226,29 @@ contains
 
     call json_get(this%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get number of gll points
-    this%fluid%chkp%tlag => this%tlag
-    this%fluid%chkp%dtlag => this%dtlag
     call this%fluid%init(this%msh, lx, this%params, this%usr)
+
+
+    call this%chkp%init(this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p)
+    this%chkp%tlag => this%time%tlag
+    this%chkp%dtlag => this%time%dtlag
     select type (f => this%fluid)
     type is (fluid_pnpn_t)
-       f%chkp%abx1 => f%abx1
-       f%chkp%abx2 => f%abx2
-       f%chkp%aby1 => f%aby1
-       f%chkp%aby2 => f%aby2
-       f%chkp%abz1 => f%abz1
-       f%chkp%abz2 => f%abz2
+       ! Initialize the advection factory
+       call json_get_or_default(this%params, 'case.fluid.advection', advection, .true.)
+       call advection_factory(f%adv, this%params, f%c_Xh, &
+            f%ulag, f%vlag, f%wlag, &
+            this%time%dtlag, this%time%tlag, f%ext_bdf, &
+            .not. advection)
+
+
+       this%chkp%abx1 => f%abx1
+       this%chkp%abx2 => f%abx2
+       this%chkp%aby1 => f%aby1
+       this%chkp%aby2 => f%aby2
+       this%chkp%abz1 => f%abz1
+       this%chkp%abz2 => f%abz2
+       call this%chkp%add_lag(f%ulag, f%vlag, f%wlag)
     end select
 
 
@@ -245,17 +268,29 @@ contains
 
     if (scalar) then
        allocate(this%scalar)
-       this%scalar%chkp%tlag => this%tlag
-       this%scalar%chkp%dtlag => this%dtlag
+       this%chkp%tlag => this%time%tlag
+       this%chkp%dtlag => this%time%dtlag
        call this%scalar%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
             this%params, this%usr, this%fluid%ulag, this%fluid%vlag, &
             this%fluid%wlag, this%fluid%ext_bdf, this%fluid%rho)
+       ! Initialize advection factory
+       call json_get_or_default(this%params, 'case.scalar.advection', advection, .true.)
 
-       call this%fluid%chkp%add_scalar(this%scalar%s)
+       associate (s => this%scalar)
+         select type (f => this%fluid)
+         type is (fluid_pnpn_t)
+            call advection_factory(s%adv, this%params, s%c_Xh, &
+                 f%ulag, f%vlag, f%wlag, this%time%dtlag, &
+                 this%time%tlag, f%ext_bdf, .not. advection, &
+                 s%slag)
 
-       this%fluid%chkp%abs1 => this%scalar%abx1
-       this%fluid%chkp%abs2 => this%scalar%abx2
-       this%fluid%chkp%slag => this%scalar%slag
+            call this%chkp%add_scalar(s%s)
+
+            this%chkp%abs1 => s%abx1
+            this%chkp%abs2 => s%abx2
+            this%chkp%slag => s%slag
+         end select
+       end associate
     end if
 
     !
@@ -368,7 +403,7 @@ contains
     !
     ! Setup output_controller
     !
-    call this%output_controller%init(this%end_time)
+    call this%output_controller%init(this%time%end_time)
     if (scalar) then
        call this%f_out%init(precision, this%fluid, this%scalar, &
             path = trim(this%output_directory))
@@ -402,7 +437,7 @@ contains
     if (logical_val) then
        call json_get_or_default(this%params, 'case.checkpoint_format', &
             string_val, "chkp")
-       this%f_chkp = chkp_output_t(this%fluid%chkp, &
+       this%f_chkp = chkp_output_t(this%chkp, &
             path = this%output_directory, fmt = trim(string_val))
        call json_get_or_default(this%params, 'case.checkpoint_control', &
             string_val, "simulationtime")
