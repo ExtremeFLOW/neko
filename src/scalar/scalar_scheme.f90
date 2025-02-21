@@ -117,7 +117,7 @@ module scalar_scheme
      !> Mesh.
      type(mesh_t), pointer :: msh => null()
      !> Checkpoint for restarts.
-     type(chkp_t) :: chkp
+     type(chkp_t),pointer :: chkp
      !> Thermal diffusivity.
      real(kind=rp) :: lambda
      !> The variable lambda field
@@ -185,12 +185,12 @@ module scalar_scheme
 
   !> Abstract interface to restart a scalar formulation
   abstract interface
-     subroutine scalar_scheme_restart_intrf(this, dtlag, tlag)
+     subroutine scalar_scheme_restart_intrf(this, chkp)
        import scalar_scheme_t
        import chkp_t
        import rp
        class(scalar_scheme_t), target, intent(inout) :: this
-       real(kind=rp) :: dtlag(10), tlag(10)
+       type(chkp_t), intent(inout) :: chkp
      end subroutine scalar_scheme_restart_intrf
   end interface
 
@@ -443,12 +443,6 @@ contains
     if (.not. associated(this%params)) then
        call neko_error('No parameters defined')
     end if
-
-    !
-    ! Setup checkpoint structure (if everything is fine)
-    !
-!    @todo no io for now
-!    call this%chkp%init(this%u, this%v, this%w, this%p)
 
   end subroutine scalar_scheme_validate
 
