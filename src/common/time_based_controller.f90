@@ -158,7 +158,7 @@ contains
        check = .true.
     else if (this%never) then
        check = .false.
-    else if (this%start_time .lt. t) then
+    else if (t .lt. this%start_time) then
        check = .false.
     else if ( (this%nsteps .eq. 0) .and. &
          (t .ge. this%nexecutions * this%time_interval) ) then
