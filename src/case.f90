@@ -47,6 +47,7 @@ module case
   use file, only : file_t
   use utils, only : neko_error
   use mesh, only : mesh_t
+  use math, only : NEKO_EPS
   use comm
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, NEKO_LOG_QUIET
@@ -219,7 +220,7 @@ contains
     this%fluid%chkp%dtlag => this%dtlag
     call this%fluid%init(this%msh, lx, this%params, this%usr)
     select type (f => this%fluid)
-    type is (fluid_pnpn_t)
+      type is (fluid_pnpn_t)
        f%chkp%abx1 => f%abx1
        f%chkp%abx2 => f%abx2
        f%chkp%aby1 => f%aby1
@@ -308,7 +309,7 @@ contains
 
     ! Add initial conditions to BDF scheme (if present)
     select type (f => this%fluid)
-    type is (fluid_pnpn_t)
+      type is (fluid_pnpn_t)
        call f%ulag%set(f%u)
        call f%vlag%set(f%v)
        call f%wlag%set(f%w)
@@ -408,7 +409,7 @@ contains
             string_val, "simulationtime")
        call json_get_or_default(this%params, 'case.checkpoint_value', real_val,&
             1e10_rp)
-       call this%output_controller%add(this%f_chkp, real_val, string_val)
+       call this%output_controller%add(this%f_chkp, real_val, string_val, NEKO_EPS)
     end if
 
     !
