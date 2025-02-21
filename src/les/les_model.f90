@@ -50,7 +50,7 @@ module les_model
   use math, only : col2
   use device_math, only : device_col2
   use utils, only : neko_type_error, concat_string_array, neko_error, &
-      neko_warning
+       neko_warning
   use comm, only : pe_rank
   implicit none
   private
@@ -173,10 +173,10 @@ contains
       if (pe_rank .eq. 0) then
          if (if_ext .eqv. .true.) then
             call neko_warning("Extrapolation of the velocity in eddy &
-               &viscosity estimation might be unstable.")
+                 &viscosity estimation might be unstable.")
          else
             call neko_warning("The time integration for eddy viscosity estimation &
-               &is only first-order accurate")
+                 &is only first-order accurate")
          end if
       end if
 
