@@ -148,12 +148,14 @@ contains
   !> Constructor for the les_model_t (base) class.
   !! @param fluid The fluid_scheme_t object.
   !! @param nu_name The name of the turbulent viscosity field.
-  !! @param delta_type The type of filter size
-  subroutine les_model_init_base(this, fluid, nut_name, delta_type)
+  !! @param delta_type The type of filter size.
+  !! @param if_ext Whether trapolate the velocity.
+  subroutine les_model_init_base(this, fluid, nut_name, delta_type, if_ext)
     class(les_model_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
+    logical, intent(in) :: if_ext
 
     associate(dofmap => fluid%dm_Xh, &
          coef => fluid%c_Xh)
@@ -164,6 +166,7 @@ contains
       this%delta => neko_field_registry%get_field("les_delta")
       this%coef => coef
       this%delta_type = delta_type
+      this%if_ext = if_ext
 
       call this%compute_delta()
 

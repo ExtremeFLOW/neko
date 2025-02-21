@@ -75,12 +75,14 @@ contains
     character(len=:), allocatable :: nut_name
     real(kind=rp) :: c
     character(len=:), allocatable :: delta_type
+    logical :: if_ext
     character(len=LOG_SIZE) :: log_buf
 
     call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     ! Based on the Smagorinsky Cs = 0.17.
     call json_get_or_default(json, "c", c, 0.07_rp)
+    call json_get_or_default(json, "extrapolation", if_ext, .true.)
 
     call neko_log%section('LES model')
     write(log_buf, '(A)') 'Model : Vreman'
@@ -89,27 +91,32 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A, E15.7)') 'c : ', c
     call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'extrapolation : ', if_ext
+    call neko_log%message(log_buf)
     call neko_log%end_section()
 
     call vreman_init_from_components(this, fluid, c, nut_name, &
-         delta_type)
+         delta_type, if_ext)
   end subroutine vreman_init
 
   !> Constructor from components.
   !! @param fluid The fluid_scheme_base_t object.
   !! @param c The model constant.
   !! @param nut_name The name of the SGS viscosity field.
+  !! @param delta_type The type of filter size.
+  !! @param if_ext Whether trapolate the velocity.
   subroutine vreman_init_from_components(this, fluid, c, nut_name, &
-       delta_type)
+       delta_type, if_ext)
     class(vreman_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     real(kind=rp) :: c
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
+    logical, intent(in) :: if_ext
 
     call this%free()
 
-    call this%init_base(fluid, nut_name, delta_type)
+    call this%init_base(fluid, nut_name, delta_type, if_ext)
     this%c = c
 
   end subroutine vreman_init_from_components
