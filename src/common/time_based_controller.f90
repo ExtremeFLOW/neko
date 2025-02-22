@@ -131,6 +131,7 @@ contains
   !! @note In the logic, `nsteps` being zero corresponds to us not knowing the
   !! number of time-steps between executions and thus having to rely on
   !! `nexecutions`. This is done in anticipation of having a variable timestep.
+  !! A fraction of the time step (10 percent) is used as a tolerance.
   function time_based_controller_check(this, t, tstep, dt, force) result(check)
     class(time_based_controller_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
@@ -152,7 +153,7 @@ contains
     else if (this%never) then
        check = .false.
     else if ( (this%nsteps .eq. 0) .and. &
-              (t .ge. this%nexecutions * this%time_interval) ) then
+         (t .ge. this%nexecutions * this%time_interval - 0.1 * dt) ) then
        check = .true.
     else if (this%nsteps .gt. 0) then
        if (mod(tstep, this%nsteps) .eq. 0) then
