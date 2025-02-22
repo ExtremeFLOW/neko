@@ -38,8 +38,23 @@
 #include <nvshmem.h>
 #include <nvshmemx.h>
 //#include <comm/comm.h>
-#include "gs_kernels.h"
+//#include "gs_kernels.h"
 #include "gs_nvshmem_kernels.h"
+
+
+template< typename T >
+__global__ void gs_pack_kernel(const T * __restrict__ u,
+			       T * __restrict__ buf,
+			       const int32_t * __restrict__ dof,
+			       const int n) {
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j >= n)
+    return;
+
+  buf[j] = u[dof[j]-1];
+}
 
 extern "C" {
 
@@ -76,7 +91,7 @@ extern "C" {
     const int nblcks = (n+nthrds-1)/nthrds;
       
     // TO DO investigate merging following 2 kernels (and also unpack).  
-    gs_pack_kernel
+    gs_pack_kernel<real>
           <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) sbuf_d + soffset,
                                           (int *) sdof_d + soffset, n);
     
