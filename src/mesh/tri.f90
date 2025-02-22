@@ -42,6 +42,7 @@ module tri
   integer, public, parameter :: NEKO_TRI_NPTS = 3 !< Number of points
   integer, public, parameter :: NEKO_TRI_NEDS = 3 !< Number of edges
   integer, public, parameter :: NEKO_TRI_GDIM = 2 !< Geometric dimension
+  integer, public, parameter :: NEKO_TRI_SDIM = 3 !< Dimension of space
 
   !> Triangular element
   !! @details
@@ -114,8 +115,8 @@ contains
     p1 => this%p(edge_nodes(1, side))
     p2 => this%p(edge_nodes(2, side))
 
-    select type(t)
-    type is(tuple_i4_t)
+    select type (t)
+    type is (tuple_i4_t)
        if (p1 .lt. p2) then
           t%x = (/ p1%id(), p2%id() /)
        else
@@ -135,8 +136,8 @@ contains
     p1 => this%p(edge_nodes(1, side))
     p2 => this%p(edge_nodes(2, side))
 
-    select type(t)
-    type is(tuple_i4_t)
+    select type (t)
+    type is (tuple_i4_t)
        t%x = (/ p1%id(), p2%id() /)
     end select
 
@@ -157,7 +158,7 @@ contains
     p2 => this%p(2)
     p3 => this%p(3)
 
-    do i = 1, NEKO_TRI_GDIM
+    do i = 1, NEKO_TRI_SDIM
        d1 = d1 + (p2%x(i) - p1%x(i))**2
        d2 = d2 + (p3%x(i) - p2%x(i))**2
        d3 = d3 + (p1%x(i) - p3%x(i))**2
@@ -179,7 +180,7 @@ contains
     p3 => this%p(3)
     res%x = 0d0
 
-    do i = 1, this%gdim()
+    do i = 1, NEKO_TRI_SDIM
        res%x(i) = 1d0/3d0 * (p1%x(i) + p2%x(i) + p3%x(i))
     end do
   end function tri_centroid
@@ -193,11 +194,11 @@ contains
     logical :: res
 
     res = .false.
-    select type(other)
+    select type (other)
     class is (tri_t)
        if ((this%gdim() .eq. other%gdim()) .and. &
             (this%npts() .eq. other%npts())) then
-          do i = 1, this%npts()
+          do i = 1, NEKO_TRI_NPTS
              if (this%pts(i)%p .ne. other%pts(i)%p) then
                 return
              end if

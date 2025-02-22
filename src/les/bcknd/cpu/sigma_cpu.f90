@@ -44,7 +44,7 @@ module sigma_cpu
   use operators, only : dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
-  use math, only : NEKO_EPS
+  use math, only : NEKO_EPS, col2
   implicit none
   private
 
@@ -53,13 +53,15 @@ module sigma_cpu
 contains
 
   !> Compute eddy viscosity on the CPU.
+  !! @param if_ext If extrapolate the velocity field to evaluate
   !! @param t The time value.
   !! @param tstep The current time-step.
   !! @param coef SEM coefficients.
   !! @param nut The SGS viscosity array.
   !! @param delta The LES lengthscale.
   !! @param c The Sigma model constant
-  subroutine sigma_compute_cpu(t, tstep, coef, nut, delta, c)
+  subroutine sigma_compute_cpu(if_ext, t, tstep, coef, nut, delta, c)
+    logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
@@ -87,9 +89,15 @@ contains
 
 
     ! get fields from registry
-    u => neko_field_registry%get_field_by_name("u")
-    v => neko_field_registry%get_field_by_name("v")
-    w => neko_field_registry%get_field_by_name("w")
+    if (if_ext .eqv. .true.) then
+       u => neko_field_registry%get_field_by_name("u_e")
+       v => neko_field_registry%get_field_by_name("v_e")
+       w => neko_field_registry%get_field_by_name("w_e")
+    else
+       u => neko_field_registry%get_field_by_name("u")
+       v => neko_field_registry%get_field_by_name("v")
+       w => neko_field_registry%get_field_by_name("w")
+    end if
 
     call neko_scratch_registry%request_field(g11, temp_indices(1))
     call neko_scratch_registry%request_field(g12, temp_indices(2))
@@ -125,18 +133,6 @@ contains
     call coef%gs_h%op(g32, GS_OP_ADD)
     call coef%gs_h%op(g33, GS_OP_ADD)
 
-    do concurrent (i = 1:g11%dof%size())
-       g11%x(i,1,1,1) = g11%x(i,1,1,1) * coef%mult(i,1,1,1)
-       g12%x(i,1,1,1) = g12%x(i,1,1,1) * coef%mult(i,1,1,1)
-       g13%x(i,1,1,1) = g13%x(i,1,1,1) * coef%mult(i,1,1,1)
-       g21%x(i,1,1,1) = g21%x(i,1,1,1) * coef%mult(i,1,1,1)
-       g22%x(i,1,1,1) = g22%x(i,1,1,1) * coef%mult(i,1,1,1)
-       g23%x(i,1,1,1) = g23%x(i,1,1,1) * coef%mult(i,1,1,1)
-       g31%x(i,1,1,1) = g31%x(i,1,1,1) * coef%mult(i,1,1,1)
-       g32%x(i,1,1,1) = g32%x(i,1,1,1) * coef%mult(i,1,1,1)
-       g33%x(i,1,1,1) = g33%x(i,1,1,1) * coef%mult(i,1,1,1)
-    end do
-
     do concurrent (e = 1:coef%msh%nelv)
        do concurrent (i = 1:coef%Xh%lxyz)
           ! G_ij = g^t g = g_mi g_mj
@@ -144,133 +140,137 @@ contains
           sigG22 = g12%x(i,1,1,e)**2 + g22%x(i,1,1,e)**2 + g32%x(i,1,1,e)**2
           sigG33 = g13%x(i,1,1,e)**2 + g23%x(i,1,1,e)**2 + g33%x(i,1,1,e)**2
           sigG12 = g11%x(i,1,1,e)*g12%x(i,1,1,e) + &
-                   g21%x(i,1,1,e)*g22%x(i,1,1,e) + &
-                   g31%x(i,1,1,e)*g32%x(i,1,1,e)
+               g21%x(i,1,1,e)*g22%x(i,1,1,e) + &
+               g31%x(i,1,1,e)*g32%x(i,1,1,e)
           sigG13 = g11%x(i,1,1,e)*g13%x(i,1,1,e) + &
-                   g21%x(i,1,1,e)*g23%x(i,1,1,e) + &
-                   g31%x(i,1,1,e)*g33%x(i,1,1,e)
+               g21%x(i,1,1,e)*g23%x(i,1,1,e) + &
+               g31%x(i,1,1,e)*g33%x(i,1,1,e)
           sigG23 = g12%x(i,1,1,e)*g13%x(i,1,1,e) + &
-                   g22%x(i,1,1,e)*g23%x(i,1,1,e) + &
-                   g32%x(i,1,1,e)*g33%x(i,1,1,e)
+               g22%x(i,1,1,e)*g23%x(i,1,1,e) + &
+               g32%x(i,1,1,e)*g33%x(i,1,1,e)
 
-          !        If LAPACK compute eigenvalues of the semi-definite positive matrix G
-          !        ..........to be done later on......
-          !        ELSE use the analytical method as done in the following
+          ! If LAPACK compute eigenvalues of the semi-definite positive matrix G
+          ! ..........to be done later on......
+          ! ELSE use the analytical method as done in the following
 
           ! eigenvalues with the analytical method of Hasan et al. (2001)
           ! doi:10.1006/jmre.2001.2400
-              if (abs(sigG11) .lt. eps) then
-                 sigG11 = 0.0_rp
-              end if
-              if (abs(sigG12) .lt. eps) then
-                 sigG12 = 0.0_rp
-              end if
-              if (abs(sigG13) .lt. eps) then
-                 sigG13 = 0.0_rp
-              end if
-              if (abs(sigG22) .lt. eps) then
-                 sigG22 = 0.0_rp
-              end if
-              if (abs(sigG23) .lt. eps) then
-                 sigG23 = 0.0_rp
-              end if
-              if (abs(sigG33) .lt. eps) then
-                 sigG33 = 0.0_rp
-              end if
+          if (abs(sigG11) .lt. eps) then
+             sigG11 = 0.0_rp
+          end if
+          if (abs(sigG12) .lt. eps) then
+             sigG12 = 0.0_rp
+          end if
+          if (abs(sigG13) .lt. eps) then
+             sigG13 = 0.0_rp
+          end if
+          if (abs(sigG22) .lt. eps) then
+             sigG22 = 0.0_rp
+          end if
+          if (abs(sigG23) .lt. eps) then
+             sigG23 = 0.0_rp
+          end if
+          if (abs(sigG33) .lt. eps) then
+             sigG33 = 0.0_rp
+          end if
 
-              if (abs(sigG12*sigG12 + &
-                      sigG13*sigG13 + sigG23*sigG23) .lt. eps) then
-                 !             G is diagonal
-                 ! estimate the singular values according to:
-                 sigma1 = sqrt(max(max(max(sigG11, sigG22), sigG33), 0.0_rp))
-                 sigma3 = sqrt(max(min(min(sigG11, sigG22), sigG33), 0.0_rp))
-                 Invariant1 = sigG11 + sigG22 + sigG33
-                 sigma2 = sqrt(abs(Invariant1 - sigma1*sigma1 - sigma3*sigma3))
-              else
+          if (abs(sigG12*sigG12 + &
+               sigG13*sigG13 + sigG23*sigG23) .lt. eps) then
+             !             G is diagonal
+             ! estimate the singular values according to:
+             sigma1 = sqrt(max(max(max(sigG11, sigG22), sigG33), 0.0_rp))
+             sigma3 = sqrt(max(min(min(sigG11, sigG22), sigG33), 0.0_rp))
+             Invariant1 = sigG11 + sigG22 + sigG33
+             sigma2 = sqrt(abs(Invariant1 - sigma1*sigma1 - sigma3*sigma3))
+          else
 
-                 !  estimation of invariants
-                 Invariant1 = sigG11 + sigG22 + sigG33
-                 Invariant2 = sigG11*sigG22 + sigG11*sigG33 + sigG22*sigG33 - &
-                           (sigG12*sigG12 + sigG13*sigG13 + sigG23*sigG23)
-                 Invariant3 = sigG11*sigG22*sigG33 + &
-                              2.0_rp*sigG12*sigG13*sigG23 - &
-                           (sigG11*sigG23*sigG23 + sigG22*sigG13*sigG13 + &
-                            sigG33*sigG12*sigG12)
+             !  estimation of invariants
+             Invariant1 = sigG11 + sigG22 + sigG33
+             Invariant2 = sigG11*sigG22 + sigG11*sigG33 + sigG22*sigG33 - &
+                  (sigG12*sigG12 + sigG13*sigG13 + sigG23*sigG23)
+             Invariant3 = sigG11*sigG22*sigG33 + &
+                  2.0_rp*sigG12*sigG13*sigG23 - &
+                  (sigG11*sigG23*sigG23 + sigG22*sigG13*sigG13 + &
+                  sigG33*sigG12*sigG12)
 
-                 ! G is symmetric semi-definite positive matrix:
-                 ! the invariants have to be larger-equal zero
-                 ! which is obtained via forcing
-                 Invariant1 = max(Invariant1, 0.0_rp)
-                 Invariant2 = max(Invariant2, 0.0_rp)
-                 Invariant3 = max(Invariant3, 0.0_rp)
+             ! G is symmetric semi-definite positive matrix:
+             ! the invariants have to be larger-equal zero
+             ! which is obtained via forcing
+             Invariant1 = max(Invariant1, 0.0_rp)
+             Invariant2 = max(Invariant2, 0.0_rp)
+             Invariant3 = max(Invariant3, 0.0_rp)
 
-                 ! compute the following angles from the invariants
-                 alpha1 = Invariant1*Invariant1/9.0_rp - Invariant2/3.0_rp
+             ! compute the following angles from the invariants
+             alpha1 = Invariant1*Invariant1/9.0_rp - Invariant2/3.0_rp
 
-                 ! since alpha1 is always positive (see Hasan et al. (2001))
-                 ! forcing is applied
-                 alpha1 = max(alpha1, 0.0_rp)
+             ! since alpha1 is always positive (see Hasan et al. (2001))
+             ! forcing is applied
+             alpha1 = max(alpha1, 0.0_rp)
 
-                 alpha2 = Invariant1*Invariant1*Invariant1/27.0_rp - &
-                        Invariant1*Invariant2/6.0_rp + Invariant3/2.0_rp
+             alpha2 = Invariant1*Invariant1*Invariant1/27.0_rp - &
+                  Invariant1*Invariant2/6.0_rp + Invariant3/2.0_rp
 
-                 ! since acos(alpha2/(alpha1^(3/2)))/3.0_rp only valid for
-                 ! alpha2^2 < alpha1^3.0_rp and arccos(x) only valid for -1<=x<=1
-                 !  alpha3 is between 0 and pi/3
-                 tmp1 = alpha2/sqrt(alpha1 * alpha1 * alpha1)
+             ! since acos(alpha2/(alpha1^(3/2)))/3.0_rp only valid for
+             ! alpha2^2 < alpha1^3.0_rp and arccos(x) only valid for -1<=x<=1
+             !  alpha3 is between 0 and pi/3
+             tmp1 = alpha2/sqrt(alpha1 * alpha1 * alpha1)
 
-                 if (tmp1 .le. -1.0_rp) then
-                    ! alpha3=pi/3 -> cos(alpha3)=0.5
-                    ! compute the singular values
-                    sigma1 = sqrt(max(Invariant1/3.0_rp + sqrt(alpha1), 0.0_rp))
-                    sigma2 = sigma1
-                    sigma3 = sqrt(Invariant1/3.0_rp - 2.0_rp*sqrt(alpha1))
+             if (tmp1 .le. -1.0_rp) then
+                ! alpha3=pi/3 -> cos(alpha3)=0.5
+                ! compute the singular values
+                sigma1 = sqrt(max(Invariant1/3.0_rp + sqrt(alpha1), 0.0_rp))
+                sigma2 = sigma1
+                sigma3 = sqrt(Invariant1/3.0_rp - 2.0_rp*sqrt(alpha1))
 
-                elseif (tmp1 .ge. 1.0_rp) then
-                    ! alpha3=0.0_rp -> cos(alpha3)=1.0
-                    sigma1 = sqrt(max(Invariant1/3.0_rp + 2.0_rp*sqrt(alpha1), &
-                                      0.0_rp))
-                    sigma2 = sqrt(Invariant1/3.0_rp - sqrt(alpha1))
-                    sigma3 = sigma2
+             elseif (tmp1 .ge. 1.0_rp) then
+                ! alpha3=0.0_rp -> cos(alpha3)=1.0
+                sigma1 = sqrt(max(Invariant1/3.0_rp + 2.0_rp*sqrt(alpha1), &
+                     0.0_rp))
+                sigma2 = sqrt(Invariant1/3.0_rp - sqrt(alpha1))
+                sigma3 = sigma2
+             else
+                alpha3 = acos(tmp1)/3.0_rp
+
+                if (abs(Invariant3) .lt. eps) then
+                   ! In case of Invariant3=0, one or more eigenvalues are equal
+                   ! to zero. Therefore force sigma3 to 0 and compute sigma1 and
+                   ! sigma2
+                   sigma1 = sqrt(max(Invariant1/3.0_rp + &
+                        2.0_rp*sqrt(alpha1)*cos(alpha3), 0.0_rp))
+                   sigma2 = sqrt(abs(Invariant1 - sigma1*sigma1))
+                   sigma3 = 0.0_rp
                 else
-                    alpha3 = acos(tmp1)/3.0_rp
+                   sigma1 = sqrt(max(Invariant1/3.0_rp + &
+                        2.0_rp*sqrt(alpha1)*cos(alpha3), 0.0_rp))
+                   sigma2 = sqrt(Invariant1/3.0_rp - &
+                        2.0_rp*sqrt(alpha1)*cos(pi_3 + alpha3))
+                   sigma3 = sqrt(abs(Invariant1 - &
+                        sigma1*sigma1-sigma2*sigma2))
+                end if ! Invariant3=0 ?
+             end if ! tmp1
+          end if ! G diagonal ?
 
-                  if (abs(Invariant3) .lt. eps) then
-                     ! In case of Invariant3=0, one or more eigenvalues are equal to zero
-                     ! Therefore force sigma3 to 0 and compute sigma1 and sigma2
-                     sigma1 = sqrt(max(Invariant1/3.0_rp + &
-                                   2.0_rp*sqrt(alpha1)*cos(alpha3), 0.0_rp))
-                     sigma2 = sqrt(abs(Invariant1 - sigma1*sigma1))
-                     sigma3 = 0.0_rp
-                  else
-                     sigma1 = sqrt(max(Invariant1/3.0_rp + &
-                                   2.0_rp*sqrt(alpha1)*cos(alpha3), 0.0_rp))
-                     sigma2 = sqrt(Invariant1/3.0_rp - &
-                                   2.0_rp*sqrt(alpha1)*cos(pi_3 + alpha3))
-                     sigma3 = sqrt(abs(Invariant1 - &
-                                       sigma1*sigma1-sigma2*sigma2))
-                  end if ! Invariant3=0 ?
-                end if ! tmp1
-              end if ! G diagonal ?
+          ! Estimate Dsigma
+          if (sigma1 .gt. 0.0_rp) then
+             Dsigma = &
+                  sigma3*(sigma1 - sigma2)*(sigma2 - sigma3)/(sigma1*sigma1)
+          else
+             Dsigma = 0.0_rp
+          end if
 
-              ! Estimate Dsigma
-              if (sigma1 .gt. 0.0_rp) then
-                 Dsigma = &
-                   sigma3*(sigma1 - sigma2)*(sigma2 - sigma3)/(sigma1*sigma1)
-              else
-                 Dsigma = 0.0_rp
-              end if
+          !clipping to avoid negative values
+          Dsigma = max(Dsigma, 0.0_rp)
 
-              !clipping to avoid negative values
-              Dsigma = max(Dsigma, 0.0_rp)
+          ! estimate turbulent viscosity
 
-              ! estimate turbulent viscosity
-
-              nut%x(i,1,1,e) = (c*delta%x(i,1,1,e))**2 * Dsigma
-
+          nut%x(i,1,1,e) = (c*delta%x(i,1,1,e))**2 * Dsigma &
+               * coef%mult(i,1,1,1)
 
        end do
     end do
+
+    call coef%gs_h%op(nut, GS_OP_ADD)
+    call col2(nut%x, coef%mult, nut%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine sigma_compute_cpu

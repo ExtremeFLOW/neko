@@ -30,13 +30,13 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines inflow dirichlet conditions
+!> Defines user dirichlet condition for a scalar field.
 module field_dirichlet
   use num_types, only: rp
   use coefs, only: coef_t
   use dirichlet, only: dirichlet_t
-  use bc, only: bc_list_t, bc_t
-  use device, only: c_ptr, c_size_t
+  use bc, only: bc_t
+  use bc_list, only : bc_list_t
   use utils, only: split_string
   use field, only : field_t
   use field_list, only : field_list_t
@@ -44,7 +44,10 @@ module field_dirichlet
   use device_math, only: device_masked_copy
   use dofmap, only : dofmap_t
   use utils, only: neko_error
+  use json_module, only : json_file
   use field_list, only : field_list_t
+  use json_utils, only : json_get
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t    
   implicit none
   private
 
@@ -69,17 +72,24 @@ module field_dirichlet
      procedure(field_dirichlet_update), nopass, pointer :: update => null()
    contains
      !> Constructor.
-     procedure, pass(this) :: init_field => field_dirichlet_init
+     procedure, pass(this) :: init => field_dirichlet_init
+     !> Constructor from components.
+     procedure, pass(this) :: init_from_components => &
+          field_dirichlet_init_from_components
+     !> Destructor.
+     procedure, pass(this) :: free => field_dirichlet_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => field_dirichlet_finalize
      !> Apply scalar by performing a masked copy.
      procedure, pass(this) :: apply_scalar => field_dirichlet_apply_scalar
      !> (No-op) Apply vector.
      procedure, pass(this) :: apply_vector => field_dirichlet_apply_vector
      !> (No-op) Apply vector (device).
-     procedure, pass(this) :: apply_vector_dev => field_dirichlet_apply_vector_dev
+     procedure, pass(this) :: apply_vector_dev => &
+          field_dirichlet_apply_vector_dev
      !> Apply scalar (device).
-     procedure, pass(this) :: apply_scalar_dev => field_dirichlet_apply_scalar_dev
-     !> Destructor
-     procedure, pass(this) :: free => field_dirichlet_free
+     procedure, pass(this) :: apply_scalar_dev => &
+          field_dirichlet_apply_scalar_dev
 
   end type field_dirichlet_t
 
@@ -93,37 +103,50 @@ module field_dirichlet
   !! @param which_solver Indicates wether the fields provided come from "fluid"
   !! or "scalar".
   abstract interface
-     subroutine field_dirichlet_update(dirichlet_field_list, dirichlet_bc_list, coef, t, tstep, which_solver)
-       import rp
-       import field_list_t
-       import bc_list_t
-       import coef_t
+     subroutine field_dirichlet_update(dirichlet_field_list, dirichlet_bc, &
+          coef, t, tstep)
+       import rp, field_list_t, bc_t, coef_t, field_dirichlet_t
        type(field_list_t), intent(inout) :: dirichlet_field_list
-       type(bc_list_t), intent(inout) :: dirichlet_bc_list
+       type(field_dirichlet_t), intent(in) :: dirichlet_bc
        type(coef_t), intent(inout) :: coef
        real(kind=rp), intent(in) :: t
        integer, intent(in) :: tstep
-       character(len=*), intent(in) :: which_solver
      end subroutine field_dirichlet_update
   end interface
 
   public :: field_dirichlet_update
 
 contains
+  !> Constructor
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine field_dirichlet_init(this, coef, json)
+    class(field_dirichlet_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
+    character(len=:), allocatable :: field_name
 
-  !> Initializes this%field_bc.
-  !! @param bc_name Name of this%field_bc
-  subroutine field_dirichlet_init(this, bc_name)
-    class(field_dirichlet_t), target, intent(inout) :: this
-    character(len=*), intent(in) :: bc_name
-
-    call this%field_bc%init(this%dof, bc_name)
-    call this%field_list%init(1)
-    call this%field_list%assign_to_field(1, this%field_bc)
+    call json_get(json, "field_name", field_name)
+    call this%init_from_components(coef, field_name)
 
   end subroutine field_dirichlet_init
 
-  !> Destructor. Currently this%field_bc is being freed in `fluid_scheme::free`
+  !> Constructor from components.
+  !! @param[in] coef The SEM coefficients.
+  subroutine field_dirichlet_init_from_components(this, coef, field_name)
+    class(field_dirichlet_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    character(len=*), intent(in) :: field_name
+
+    call this%init_base(coef)
+
+    call this%field_bc%init(this%dof, field_name)
+    call this%field_list%init(1)
+    call this%field_list%assign_to_field(1, this%field_bc)
+  end subroutine field_dirichlet_init_from_components
+
+  !> Destructor. Currently this%field_bc is being freed in
+  !! `fluid_scheme_incompressible::free`
   subroutine field_dirichlet_free(this)
     class(field_dirichlet_t), target, intent(inout) :: this
 
@@ -142,14 +165,20 @@ contains
   !! @param n Size of the array `x`.
   !! @param t Time.
   !! @param tstep Time step.
-  subroutine field_dirichlet_apply_scalar(this, x, n, t, tstep)
+  subroutine field_dirichlet_apply_scalar(this, x, n, t, tstep, strong)
     class(field_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
+    logical :: strong_ = .true.
 
-    if (this%msk(0) .gt. 0) then
+    if (present(strong)) strong_ = strong
+
+    if (strong_) then
+
+       call this%update(this%field_list, this, this%coef, t, tstep)
        call masked_copy(x, this%field_bc%x, this%msk, n, this%msk(0))
     end if
 
@@ -159,15 +188,22 @@ contains
   !! @param x_d Device pointer to the field onto which to copy the values.
   !! @param t Time.
   !! @param tstep Time step.
-  subroutine field_dirichlet_apply_scalar_dev(this, x_d, t, tstep)
+  subroutine field_dirichlet_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(field_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
+    logical :: strong_ = .true.
 
-    if (this%msk(0) .gt. 0) then
-       call device_masked_copy(x_d, this%field_bc%x_d, this%msk_d, &
-            this%field_bc%dof%size(), this%msk(0))
+    if (present(strong)) strong_ = strong
+
+    if (strong_) then
+       call this%update(this%field_list, this, this%coef, t, tstep)
+       if (this%msk(0) .gt. 0) then
+          call device_masked_copy(x_d, this%field_bc%x_d, this%msk_d, &
+               this%field_bc%dof%size(), this%msk(0))
+       end if
     end if
 
   end subroutine field_dirichlet_apply_scalar_dev
@@ -179,17 +215,18 @@ contains
   !! @param n Size of the `x`, `y` and `z` arrays.
   !! @param t Time.
   !! @param tstep Time step.
-  subroutine field_dirichlet_apply_vector(this, x, y, z, n, t, tstep)
+  subroutine field_dirichlet_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(field_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
-    real(kind=rp), intent(inout),  dimension(n) :: y
-    real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
     call neko_error("field_dirichlet cannot apply vector BCs.&
-&Use field_dirichlet_vector instead!")
+         & Use field_dirichlet_vector instead!")
 
   end subroutine field_dirichlet_apply_vector
 
@@ -199,17 +236,25 @@ contains
   !! @param z z-component of the field onto which to apply the values.
   !! @param t Time.
   !! @param tstep Time step.
-  subroutine field_dirichlet_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  subroutine field_dirichlet_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
+       strong)
     class(field_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
     call neko_error("field_dirichlet cannot apply vector BCs.&
-&Use field_dirichlet_vector instead!")
+         & Use field_dirichlet_vector instead!")
 
   end subroutine field_dirichlet_apply_vector_dev
 
+  !> Finalize
+  subroutine field_dirichlet_finalize(this)
+    class(field_dirichlet_t), target, intent(inout) :: this
+
+    call this%finalize_base()
+  end subroutine field_dirichlet_finalize
 end module field_dirichlet

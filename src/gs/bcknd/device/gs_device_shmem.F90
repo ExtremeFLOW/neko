@@ -40,7 +40,8 @@ module gs_device_shmem
   use device
   use comm
   use utils, only : neko_error
-  use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, c_int64_t
+  use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, c_int64_t, &
+       c_ptr, C_NULL_PTR, c_size_t, c_associated
   implicit none
   private
 
@@ -305,7 +306,15 @@ contains
        call device_stream_wait_event(this%stream(i), deps, 0)
         ! Not clear why this sync is required, but there seems to be a race condition
        ! without it for certain run configs
- 
+
+       if (this%recv_buf%remote_offset(i) .eq. -1) then
+          call MPI_Sendrecv(this%recv_buf%offset(i), 1, MPI_INTEGER, &
+               this%recv_pe(i), 0, &
+               this%recv_buf%remote_offset(i), 1, MPI_INTEGER, &
+               this%send_pe(i), 0, NEKO_COMM, MPI_STATUS_IGNORE)
+       end if
+
+       
 !       call device_sync(this%stream(i))
        ! NVSHMEM path
        ! Using single stream for NVSHMEM for now.

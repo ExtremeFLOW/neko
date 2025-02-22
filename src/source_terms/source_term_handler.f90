@@ -43,7 +43,6 @@ module source_term_handler
   use json_module, only: json_file
   use coefs, only: coef_t
   use user_intf, only: user_t
-  use utils, only: neko_warning
   use field_math, only: field_rzero
   use math, only : col2
   use device_math, only : device_col2
@@ -96,7 +95,7 @@ module source_term_handler
        import :: source_term_t, field_list_t, coef_t, user_t
        class(source_term_t), allocatable, intent(inout) :: source_term
        type(field_list_t) :: rhs_fields
-       type(coef_t), intent(inout) :: coef
+       type(coef_t), intent(in) :: coef
        character(len=*) :: type
        type(user_t), intent(in) :: user
      end subroutine source_term_handler_init_user_source
@@ -108,7 +107,7 @@ contains
   subroutine source_term_handler_init_base(this, rhs_fields, coef, user)
     class(source_term_handler_t), intent(inout) :: this
     type(field_list_t), intent(in) :: rhs_fields
-    type(coef_t), target, intent(inout) :: coef
+    type(coef_t), target, intent(in) :: coef
     type(user_t), target, intent(in) :: user
 
     call this%free()

@@ -72,8 +72,8 @@ contains
   subroutine coriolis_source_term_init_from_json(this, json, fields, coef)
     class(coriolis_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout), target :: coef
+    type(field_list_t), intent(in), target :: fields
+    type(coef_t), intent(in), target :: coef
     ! Rotation vector and geostrophic wind
     real(kind=rp), allocatable :: rotation_vec(:), u_geo(:)
     ! Alternative parameters to set the rotation vector
@@ -130,7 +130,7 @@ contains
   subroutine coriolis_source_term_init_from_components(this, fields, omega, &
        u_geo, coef, start_time, end_time)
     class(coriolis_source_term_t), intent(inout) :: this
-    class(field_list_t), intent(inout), target :: fields
+    class(field_list_t), intent(in), target :: fields
     real(kind=rp), intent(in) :: omega(3)
     real(kind=rp), intent(in) :: u_geo(3)
     type(coef_t) :: coef

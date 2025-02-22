@@ -291,6 +291,9 @@ AX_NCCL
 # Checks for RCCL backend
 AX_RCCL
 
+# Checks for NVSHMEM backend
+AX_NVSHMEM
+
 # Checks for NVTX profiling
 AX_NVTX
 
@@ -375,6 +378,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
                  tests/unit/fast3d/Makefile\
                  tests/unit/time_scheme/Makefile\
                  tests/unit/time_scheme_controller/Makefile\
+                 tests/unit/runge_kutta_scheme/Makefile\
                  tests/unit/time_based_controller/Makefile\
                  tests/unit/point_interpolation/Makefile])
 

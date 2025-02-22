@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2023, The Neko Authors
+ Copyright (c) 2021-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,11 @@ extern "C" {
 
 #include <math/bcknd/device/device_mpi_reduce.h>
 #include <math/bcknd/device/device_mpi_op.h>
+
+#ifdef HAVE_NCCL
+#include <math/bcknd/device/device_nccl_reduce.h>
+#include <math/bcknd/device/device_nccl_op.h>
+#endif
 
   /** Fortran wrapper for copy
    * Copy a vector \f$ a = b \f$
@@ -540,7 +545,13 @@ extern "C" {
     reduce_kernel<real><<<1, 1024, 0, stream>>> (bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
 
-#ifdef HAVE_DEVICE_MPI
+#ifdef HAVE_NCCL
+    device_nccl_allreduce(bufred_d, bufred_d, 1, sizeof(real),
+                          DEVICE_NCCL_SUM, stream);
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_DEVICE_MPI
     cudaStreamSynchronize(stream);
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
@@ -584,7 +595,13 @@ extern "C" {
     glsc3_reduce_kernel<real><<<(*j), 1024, 0, stream>>>(bufred_d, nb, *j);
     CUDA_CHECK(cudaGetLastError());
 
-#ifdef HAVE_DEVICE_MPI
+#ifdef HAVE_NCCL
+    device_nccl_allreduce(bufred_d, bufred_d, (*j), sizeof(real),
+                          DEVICE_NCCL_SUM, stream);
+    CUDA_CHECK(cudaMemcpyAsync(h, bufred_d, (*j) * sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_DEVICE_MPI
     cudaStreamSynchronize(stream);
     device_mpi_allreduce(bufred_d, h, (*j), sizeof(real), DEVICE_MPI_SUM);
 #else
@@ -623,7 +640,13 @@ extern "C" {
     reduce_kernel<real><<<1, 1024, 0, stream>>> (bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
 
-#ifdef HAVE_DEVICE_MPI
+#ifdef HAVE_NCCL
+    device_nccl_allreduce(bufred_d, bufred_d, 1, sizeof(real),
+                          DEVICE_NCCL_SUM, stream);
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_DEVICE_MPI
     cudaStreamSynchronize(stream);
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
@@ -661,7 +684,13 @@ extern "C" {
       reduce_kernel<real><<<1, 1024, 0, stream>>> (bufred_d, nb);
       CUDA_CHECK(cudaGetLastError());
     }
-#ifdef HAVE_DEVICE_MPI
+#ifdef HAVE_NCCL
+    device_nccl_allreduce(bufred_d, bufred_d, 1, sizeof(real),
+                          DEVICE_NCCL_SUM, stream);
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_DEVICE_MPI
     cudaStreamSynchronize(stream);
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else

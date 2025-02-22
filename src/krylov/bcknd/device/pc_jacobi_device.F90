@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,13 +32,14 @@
 !
 !> Jacobi preconditioner accelerator backend
 module device_jacobi
-  use precon
-  use coefs
-  use dofmap
-  use num_types
+  use precon, only : pc_t
+  use coefs, only : coef_t
+  use dofmap, only : dofmap_t
+  use num_types, only : rp
   use device_math
   use device
-  use gather_scatter
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 
@@ -93,8 +94,8 @@ contains
 
   subroutine device_jacobi_init(this, coef, dof, gs_h)
     class(device_jacobi_t), intent(inout) :: this
-    type(coef_t), intent(inout), target :: coef
-    type(dofmap_t), intent(inout), target :: dof
+    type(coef_t), intent(in), target :: coef
+    type(dofmap_t), intent(in), target :: dof
     type(gs_t), intent(inout), target :: gs_h
 
     call this%free()
@@ -156,19 +157,19 @@ contains
 
 #ifdef HAVE_HIP
       call hip_jacobi_update(this%d_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, &
-                             coef%G11_d, coef%G22_d, coef%G33_d, &
-                             coef%G12_d, coef%G13_d, coef%G23_d, &
-                             nelv, lx)
+           coef%G11_d, coef%G22_d, coef%G33_d, &
+           coef%G12_d, coef%G13_d, coef%G23_d, &
+           nelv, lx)
 #elif HAVE_CUDA
       call cuda_jacobi_update(this%d_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, &
-                             coef%G11_d, coef%G22_d, coef%G33_d, &
-                             coef%G12_d, coef%G13_d, coef%G23_d, &
-                             nelv, lx)
+           coef%G11_d, coef%G22_d, coef%G33_d, &
+           coef%G12_d, coef%G13_d, coef%G23_d, &
+           nelv, lx)
 #elif HAVE_OPENCL
       call opencl_jacobi_update(this%d_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, &
-                                coef%G11_d, coef%G22_d, coef%G33_d, &
-                                coef%G12_d, coef%G13_d, coef%G23_d, &
-                                nelv, lx)
+           coef%G11_d, coef%G22_d, coef%G33_d, &
+           coef%G12_d, coef%G13_d, coef%G23_d, &
+           nelv, lx)
 #endif
 
       call device_col2(this%d_d, coef%h1_d, coef%dof%size())

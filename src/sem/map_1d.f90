@@ -12,9 +12,8 @@ module map_1d
   use field_list, only: field_list_t
   use matrix, only: matrix_t
   use vector, only: vector_ptr_t
-  use logger, only: neko_log, LOG_SIZE
   use utils, only: neko_error, neko_warning
-  use math, only: glmax, glmin, glimax, glimin, relcmp, cmult, add2s1, col2
+  use math, only: glmax, glmin, glimax, relcmp, cmult, add2s1, col2
   use neko_mpi_types
   use, intrinsic :: iso_c_binding
   implicit none

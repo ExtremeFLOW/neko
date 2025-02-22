@@ -34,10 +34,10 @@
 
 #include <device/device_config.h>
 #include <device/cuda/check.h>
-#include <mpi.h>
+//#include <mpi.h>
 #include <nvshmem.h>
 #include <nvshmemx.h>
-#include <comm/comm.h>
+//#include <comm/comm.h>
 #include "gs_kernels.h"
 #include "gs_nvshmem_kernels.h"
 
@@ -63,7 +63,7 @@ extern "C" {
 			     int rrank, int counter, void* notifyDone, void* notifyReady,
 			     int iter)
   {
-    
+    /*  
     if(remote_offset[iter-1] == -1)
     {
       MPI_Sendrecv(&roffset, 1, MPI_INT,
@@ -71,7 +71,7 @@ extern "C" {
                    &(remote_offset[iter-1]), 1, MPI_INT,
                    srank, 0, NEKO_COMM, MPI_STATUS_IGNORE);
     }
-    
+    */
     const int nthrds = 1024;
     const int nblcks = (n+nthrds-1)/nthrds;
       
