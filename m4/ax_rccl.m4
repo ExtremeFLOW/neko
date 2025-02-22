@@ -13,8 +13,10 @@ AC_DEFUN([AX_RCCL],[
                     [
                     if test -d "$withval"; then
                        ac_rccl_path="$withval";
-                       RCCL_LDFLAGS="-L$ac_rccl_path/lib"
-                       RCCL_CFLAGS="-I$ac_rccl_path/include"
+                       AS_IF([test -d "$ac_rccl_path/lib64"],
+                             [suffix="64"],[suffix=""])
+                       RCCL_LDFLAGS="-L$ac_rccl_path/lib$suffix"
+                       RCCL_CFLAGS="-I$ac_rccl_path/include/rccl"
                     fi
                     ], [with_rccl=no])
         rccl_bcknd="0"
@@ -33,9 +35,11 @@ AC_DEFUN([AX_RCCL],[
 	   fi
 
               _CC=$CC
+              _CFLAGS=$CFLAGS
 	      _LIBS=$LIBS
 	      AC_LANG_PUSH([C])
 	      CC=$HIPCC
+              CFLAGS=""
 	      LIBS=""
 
 	      AC_CHECK_LIB(rccl, ncclCommDestroy,
@@ -46,12 +50,15 @@ AC_DEFUN([AX_RCCL],[
                  rccl_bcknd="1"
                  AC_DEFINE(HAVE_RCCL,1,[Define if you have RCCL.])
                  LIBS="$RCCL_LIBS $_LIBS"
-                 HIP_HIPCC_FLAGS="$HIP_HIPCC_FLAGS $RCCL_CFLAGS"
+                 HIP_HIPCC_FLAGS="$HIP_HIPCC_FLAGS $RCCL_CFLAGS -DHAVE_RCCL=1"
+                 CFLAGS="$_CFLAGS $RCCL_CFLAGS"
               else
                  AC_MSG_ERROR([RCCL not found])
+                 CFLAGS=$_CFLAGS
               fi
               CC=$_CC
               AC_LANG_POP([C])
         fi
         AC_SUBST(rccl_bcknd)      
 ])
+

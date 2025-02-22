@@ -43,6 +43,7 @@ module fluid_stats_simcomp
   use case, only : case_t
   use coefs, only : coef_t
   use comm
+  use utils, only: NEKO_FNAME_LEN
   use logger, only : LOG_SIZE, neko_log
   use json_utils, only : json_get, json_get_or_default
   implicit none
@@ -71,7 +72,7 @@ module fluid_stats_simcomp
      procedure, pass(this) :: init => fluid_stats_simcomp_init_from_json
      !> Actual constructor.
      procedure, pass(this) :: init_from_attributes => &
-        fluid_stats_simcomp_init_from_attributes
+          fluid_stats_simcomp_init_from_attributes
      !> Destructor.
      procedure, pass(this) :: free => fluid_stats_simcomp_free
      !> Does sampling for statistics.
@@ -132,9 +133,11 @@ contains
     character(len=*), intent(in) :: hom_dir
     character(len=*), intent(in) :: stat_set
     real(kind=rp), intent(in) :: start_time
-    type(field_t), intent(inout) :: u, v, w, p !>Should really be intent in I think
+    type(field_t), intent(in) :: u, v, w, p
     type(coef_t), intent(in) :: coef
     character(len=LOG_SIZE) :: log_buf
+    character(len=NEKO_FNAME_LEN) :: fname
+    character(len=5) :: prefix
 
     call neko_log%section('Fluid stats')
     write(log_buf, '(A,E15.7)') 'Start time: ', start_time
@@ -152,6 +155,9 @@ contains
 
     call this%stats_output%init(this%stats, this%start_time, &
          hom_dir = hom_dir, path = this%case%output_directory)
+    write (prefix, '(I5)') this%stats_output%file_%get_counter()
+    fname = "fluid_stats"//trim(adjustl(prefix))//"_.fld"
+    call this%stats_output%init_base(fname)
 
     call this%case%output_controller%add(this%stats_output, &
          this%output_controller%control_value, &
@@ -171,7 +177,13 @@ contains
   subroutine fluid_stats_simcomp_restart(this, t)
     class(fluid_stats_simcomp_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
+    character(len=NEKO_FNAME_LEN) :: fname
+    character(len=5) :: prefix
     if (t .gt. this%time) this%time = t
+
+    write (prefix, '(I5)') this%stats_output%file_%get_counter()
+    fname = "fluid_stats"//trim(adjustl(prefix))//"_.fld"
+    call this%stats_output%init_base(fname)
   end subroutine fluid_stats_simcomp_restart
 
   !> fluid_stats, called depending on compute_control and compute_value

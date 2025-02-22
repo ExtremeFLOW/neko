@@ -52,6 +52,7 @@ module fluid_pnpn
   use fluid_aux, only : fluid_step_info
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
+  use projection_vel, only : projection_vel_t
   use device, only : device_memcpy, HOST_TO_DEVICE
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
@@ -108,12 +109,7 @@ module fluid_pnpn
 
      !> Pressure projection
      type(projection_t) :: proj_prs
-     !> X velocity projection
-     type(projection_t) :: proj_u
-     !> Y velocity projection
-     type(projection_t) :: proj_v
-     !> Z velocity projection
-     type(projection_t) :: proj_w
+     type(projection_vel_t) :: proj_vel
 
      !
      ! Special Karniadakis scheme boundary conditions in the pressure equation
@@ -340,22 +336,10 @@ contains
     call json_get_or_default(params, 'case.output_boundary', found, .false.)
     if (found) call this%write_boundary_conditions()
 
-    ! Intialize projection space
-    if (this%variable_material_properties .and. &
-         this%vel_projection_dim .gt. 0) then
-       call neko_error("Velocity projection not available for full stress &
-            &formulation")
-    end if
-
-
     call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
          this%pr_projection_activ_step)
 
-    call this%proj_u%init(this%dm_Xh%size(), this%vel_projection_dim, &
-         this%vel_projection_activ_step)
-    call this%proj_v%init(this%dm_Xh%size(), this%vel_projection_dim, &
-         this%vel_projection_activ_step)
-    call this%proj_w%init(this%dm_Xh%size(), this%vel_projection_dim, &
+    call this%proj_vel%init(this%dm_Xh%size(), this%vel_projection_dim, &
          this%vel_projection_activ_step)
 
 
@@ -567,9 +551,7 @@ contains
     call this%bclst_vel_res%free()
     call this%bclst_dp%free()
     call this%proj_prs%free()
-    call this%proj_u%free()
-    call this%proj_v%free()
-    call this%proj_w%free()
+    call this%proj_vel%free()
 
     call this%p_res%free()
     call this%u_res%free()
@@ -650,10 +632,6 @@ contains
     integer :: n
     ! Solver results monitors (pressure + 3 velocity)
     type(ksp_monitor_t) :: ksp_results(4)
-    ! Extrapolated velocity for the pressure residual
-    type(field_t), pointer :: u_e, v_e, w_e
-    ! Indices for tracking temporary fields
-    integer :: temp_indices(3)
 
     type(file_t) :: dump_file
     class(bc_t), pointer :: bc_i
@@ -665,6 +643,7 @@ contains
 
     call profiler_start_region('Fluid', 1)
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
+         u_e => this%u_e, v_e => this%v_e, w_e => this%w_e, &
          du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
          u_res => this%u_res, v_res => this%v_res, w_res => this%w_res, &
          p_res => this%p_res, Ax_vel => this%Ax_vel, Ax_prs => this%Ax_prs, &
@@ -683,12 +662,11 @@ contains
          if_variable_dt => dt_controller%if_variable_dt, &
          dt_last_change => dt_controller%dt_last_change)
 
-      ! Get temporary arrays
-      call this%scratch%request_field(u_e, temp_indices(1))
-      call this%scratch%request_field(v_e, temp_indices(2))
-      call this%scratch%request_field(w_e, temp_indices(3))
-      call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
-           ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+      ! Extrapolate the velocity if it's not done in nut_field estimation
+      if (this%variable_material_properties .eqv. .false.) then
+         call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
+              ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+      end if
 
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
@@ -822,9 +800,8 @@ contains
 
       call profiler_end_region('Velocity_residual', 19)
 
-      call this%proj_u%pre_solving(u_res%x, tstep, c_Xh, n, dt_controller)
-      call this%proj_v%pre_solving(v_res%x, tstep, c_Xh, n, dt_controller)
-      call this%proj_w%pre_solving(w_res%x, tstep, c_Xh, n, dt_controller)
+      call this%proj_vel%pre_solving(u_res%x, v_res%x, w_res%x, &
+           tstep, c_Xh, n, dt_controller, 'Velocity')
 
       call this%pc_vel%update()
 
@@ -835,12 +812,9 @@ contains
            this%ksp_vel%max_iter)
       call profiler_end_region("Velocity_solve", 4)
 
-      call this%proj_u%post_solving(du%x, Ax_vel, c_Xh, &
-           this%bclst_du, gs_Xh, n, tstep, dt_controller)
-      call this%proj_v%post_solving(dv%x, Ax_vel, c_Xh, &
-           this%bclst_dv, gs_Xh, n, tstep, dt_controller)
-      call this%proj_w%post_solving(dw%x, Ax_vel, c_Xh, &
-           this%bclst_dw, gs_Xh, n, tstep, dt_controller)
+      call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
+           this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, n, tstep, &
+           dt_controller)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_opadd2cm(u%x_d, v%x_d, w%x_d, &
@@ -859,8 +833,6 @@ contains
       end if
 
       call fluid_step_info(tstep, t, dt, ksp_results, this%strict_convergence)
-
-      call this%scratch%relinquish_field(temp_indices)
 
     end associate
     call profiler_end_region('Fluid', 1)

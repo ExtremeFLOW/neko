@@ -35,13 +35,14 @@
 module vreman
   use num_types, only : rp
   use les_model, only : les_model_t
-  use dofmap , only : dofmap_t
+  use field, only : field_t
+  use fluid_scheme_base, only : fluid_scheme_base_t
   use json_utils, only : json_get_or_default
   use json_module, only : json_file
   use neko_config, only : NEKO_BCKND_DEVICE
   use vreman_cpu, only : vreman_compute_cpu
   use vreman_device, only : vreman_compute_device
-  use coefs, only : coef_t
+  use field_registry, only : neko_field_registry
   use logger, only : LOG_SIZE, neko_log
   implicit none
   private
@@ -65,13 +66,11 @@ module vreman
 
 contains
   !> Constructor.
-  !! @param dofmap SEM map of degrees of freedom.
-  !! @param coef SEM coefficients.
+  !! @param fluid The fluid_scheme_base_t object.
   !! @param json A dictionary with parameters.
-  subroutine vreman_init(this, dofmap, coef, json)
+  subroutine vreman_init(this, fluid, json)
     class(vreman_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dofmap
-    type(coef_t), intent(in) :: coef
+    class(fluid_scheme_base_t), intent(inout), target :: fluid
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: nut_name
     real(kind=rp) :: c
@@ -92,27 +91,25 @@ contains
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    call vreman_init_from_components(this, dofmap, coef, c, nut_name, &
-          delta_type)
+    call vreman_init_from_components(this, fluid, c, nut_name, &
+         delta_type)
   end subroutine vreman_init
 
   !> Constructor from components.
-  !! @param dofmap SEM map of degrees of freedom.
-  !! @param coef SEM coefficients.
+  !! @param fluid The fluid_scheme_base_t object.
   !! @param c The model constant.
   !! @param nut_name The name of the SGS viscosity field.
-  subroutine vreman_init_from_components(this, dofmap, coef, c, nut_name, &
+  subroutine vreman_init_from_components(this, fluid, c, nut_name, &
        delta_type)
     class(vreman_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dofmap
-    type(coef_t), intent(in) :: coef
+    class(fluid_scheme_base_t), intent(inout), target :: fluid
     real(kind=rp) :: c
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
 
     call this%free()
 
-    call this%init_base(dofmap, coef, nut_name, delta_type)
+    call this%init_base(fluid, nut_name, delta_type)
     this%c = c
 
   end subroutine vreman_init_from_components
@@ -132,12 +129,33 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
+    type(field_t), pointer :: u, v, w, u_e, v_e, w_e
+
+    if (this%if_ext .eqv. .true.) then
+       ! Extrapolate the velocity fields
+       associate(ulag => this%ulag, vlag => this%vlag, &
+            wlag => this%wlag, ext_bdf => this%ext_bdf)
+
+         u => neko_field_registry%get_field_by_name("u")
+         v => neko_field_registry%get_field_by_name("v")
+         w => neko_field_registry%get_field_by_name("w")
+         u_e => neko_field_registry%get_field_by_name("u_e")
+         v_e => neko_field_registry%get_field_by_name("v_e")
+         w_e => neko_field_registry%get_field_by_name("w_e")
+
+         call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
+              ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+
+       end associate
+    end if
+
+    ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call vreman_compute_device(t, tstep, this%coef, this%nut, this%delta,&
-                                this%c)
+       call vreman_compute_device(this%if_ext, t, tstep, this%coef, &
+            this%nut, this%delta, this%c)
     else
-        call vreman_compute_cpu(t, tstep, this%coef, this%nut, this%delta,&
-                                this%c)
+       call vreman_compute_cpu(this%if_ext, t, tstep, this%coef, &
+            this%nut, this%delta, this%c)
     end if
 
   end subroutine vreman_compute

@@ -58,7 +58,7 @@ module les_simcomp
      !> Destructor.
      procedure, pass(this) :: free => les_simcomp_free
      !> Compute the les_simcomp field.
-     procedure, pass(this) :: compute_ => les_simcomp_compute
+     procedure, pass(this) :: preprocess_ => les_simcomp_compute
      !> Compute the les_simcomp field when restart.
      procedure, pass(this) :: restart_ => les_simcomp_restart
   end type les_simcomp_t
@@ -99,6 +99,7 @@ contains
 
     call les_model_factory(this%les_model, name, case%fluid%dm_Xh,&
          case%fluid%c_Xh, json)
+    call this%les_model%init(case%fluid, json)
 
   end subroutine les_simcomp_init_from_json
 

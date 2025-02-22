@@ -33,42 +33,29 @@
 */
 
 /**
- * C wrapper for NCCL reduction calls
+ * C wrapper for NCCL point-to-point calls,
  */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <comm/comm_nccl.h>
 
-#include "device_nccl_op.h"
+void device_nccl_sendrecv(void *sbuf_d, int soffset, int scount, int srank,
+                          void *rbuf_d, int roffset, int rcount, int rrank,
+                          int nbytes, void *stream) {
 
-void device_nccl_allreduce(void *sbuf_d, void *rbuf_d, int count,
-                           int nbytes, int op, void *stream) {
-  
-#ifdef HAVE_NCCL
+#if defined(HAVE_NCCL) || defined(HAVE_RCCL)
   if (nbytes == sizeof(float)) {
-    if (op == DEVICE_NCCL_SUM)
-      ncclAllReduce(sbuf_d, rbuf_d, count, ncclFloat, ncclSum,
-                    NEKO_COMM_NCCL, stream);
-    else if (op == DEVICE_NCCL_MAX)
-      ncclAllReduce(sbuf_d, rbuf_d, count, ncclFloat, ncclMax,
-                    NEKO_COMM_NCCL, stream);
-    else {
-      fprintf(stderr, __FILE__ ": Invalid reduction op)\n");
-      exit(1);
-    }
+    ncclGroupStart();
+    ncclSend(sbuf_d+soffset, scount, ncclFloat, srank, NEKO_COMM_NCCL, stream);
+    ncclRecv(rbuf_d+roffset, rcount, ncclFloat, rrank, NEKO_COMM_NCCL, stream);
+    ncclGroupEnd();
   }
   else if (nbytes == sizeof(double)) {
-    if (op == DEVICE_NCCL_SUM)
-      ncclAllReduce(sbuf_d, rbuf_d, count, ncclFloat64, ncclSum,
-                    NEKO_COMM_NCCL, stream);
-    else if (op == DEVICE_NCCL_MAX)
-      ncclAllReduce(sbuf_d, rbuf_d, count, ncclFloat64, ncclMax,
-                    NEKO_COMM_NCCL, stream);
-    else {
-      fprintf(stderr, __FILE__ ": Invalid reduction op)\n");
-      exit(1);
-    }
+    ncclGroupStart();
+    ncclSend(sbuf_d+soffset, scount, ncclFloat64, srank, NEKO_COMM_NCCL, stream);
+    ncclRecv(rbuf_d+roffset, rcount, ncclFloat64, rrank, NEKO_COMM_NCCL, stream);
+    ncclGroupEnd();
   }
   else {
     fprintf(stderr, __FILE__ ": Invalid data type)\n");

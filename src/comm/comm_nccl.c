@@ -2,7 +2,7 @@
 #include <comm/comm_nccl.h>
 #include <comm/comm.h>
 
-#ifdef HAVE_NCCL
+#if defined(HAVE_NCCL) || defined(HAVE_RCCL)
 
 /**
  * NCCL communicator

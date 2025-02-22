@@ -86,6 +86,23 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                             | Positive real less than `1`                     | `0.2`         |
 | `end_time`                 | Final time at which the simulation is stopped.                                                        | Positive reals                                  | -             |
 | `job_timelimit`            | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
+| `output_at_end`            | Whether to always write all enabled output at the end of the run.                                    | `true` or `false`                               | `true`        |
+
+### Restarts and joblimit
+Restarts will restart the simulation from the exact state at a given time that 
+the checkpoint was written. This means that the flow field and potential scalars
+will be at the exact same values before as after restarts. However, derived
+quantities from the flow field and any observables are not guaranteed to be
+restarted. In addition, Neko does not guarantee that any files are not
+overwritten. As such, it is recommended to run in different directories
+if doing large scale simulations that require many restarts. Unless 
+`output_at_end` is disabled Neko will also ensure that all output is written to
+file when reaching the `end_time` or the `job_timelimit`. In particular, unless
+`output_checkpoints` and `output_at_end` are set to false a checkpoint at the 
+final time will be written as to avoid losing progress as far as possible. 
+
+@attention For simulations requiring restarts, it is recommended to run each 
+restart in a different output directory as a precaution to avoid potential overwritings of files.
 
 ### Boundary type numbering in the `output_boundary` field
 
@@ -166,6 +183,11 @@ zones or specify several conditions applied to one zone each. For example, if
 you have two zones, which should be no-slip walls, you can either create two
 `no_slip` conditions, one for each zone, or just create a single condition and
 apply it to both.
+
+The indices your boundaries have is determined by the mesh. To check them, you
+can use the `mesh_checker` utility with the optional `--write_zone_indices`
+argument. This will output a `zone_indices0.f00000` file that you can inspect in
+Paraview, and the boundaries will be marked by their index value.
 
 Recall that periodic conditions are built into the mesh, since they are
 topological in nature. This means that you must not specify any conditions for
