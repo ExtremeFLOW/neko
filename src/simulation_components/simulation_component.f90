@@ -196,7 +196,7 @@ contains
     real(kind=rp), intent(in) :: dt
 
     if (this%preprocess_controller%check(t, tstep, dt)) then
-       call this%preprocess_(t, tstep)
+       call this%preprocess_(t, tstep, dt)
        call this%preprocess_controller%register_execution()
     end if
   end subroutine simulation_component_preprocess_wrapper
@@ -242,10 +242,12 @@ contains
   !> Dummy preprocessing function.
   !! @param t The time value.
   !! @param tstep The current time-step
-  subroutine preprocess_(this, t, tstep)
+  !! @param dt The size of the timestep.
+  subroutine preprocess_(this, t, tstep, dt)
     class(simulation_component_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    real(kind=rp), intent(in) :: dt
 
     ! Do nothing
   end subroutine preprocess_
