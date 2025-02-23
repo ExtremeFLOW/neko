@@ -77,16 +77,7 @@ module gs_device_shmem
   end type gs_device_shmem_t
 
 
-#ifdef HAVE_CUDA
-  interface
-     subroutine cuda_gs_pack(u_d, buf_d, dof_d, offset, n, stream) &
-          bind(c, name='cuda_gs_pack')
-       use, intrinsic :: iso_c_binding
-       implicit none
-       integer(c_int), value :: n, offset
-       type(c_ptr), value :: u_d, buf_d, dof_d, stream
-     end subroutine cuda_gs_pack
-  end interface
+#if defined (HAVE_CUDA) && defined(HAVE_NVSHMEM)
 
   interface
      subroutine cudamalloc_nvshmem(ptr, size) &
@@ -121,7 +112,6 @@ module gs_device_shmem
        integer(c_int),dimension(*) ::  remote_offset
      end subroutine cuda_gs_pack_and_push
   end interface
-
 
   interface
      subroutine cuda_gs_pack_and_push_wait(stream, nvshmem_counter, notifyDone) &
@@ -337,7 +327,7 @@ contains
     type(c_ptr) :: u_d
 
     u_d = device_get_ptr(u)
-
+#ifdef HAVE_NVSHMEM
     do i = 1, size(this%send_pe)
       if (this%recv_buf%remote_offset(i) .eq. -1) then
           call MPI_Sendrecv(this%recv_buf%offset(i), 1, MPI_INTEGER, &
@@ -385,7 +375,7 @@ contains
        call device_stream_wait_event(strm, &
             this%event(done_req), 0)
     end do
-
+#endif
 end subroutine gs_device_shmem_nbwait
 
 end module gs_device_shmem
