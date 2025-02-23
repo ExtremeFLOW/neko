@@ -1,3 +1,6 @@
+
+#ifdef HAVE_NVSHMEM
+
 #include <nvshmemx.h>
 #include <comm/comm.h>
 
@@ -15,5 +18,12 @@ extern "C" {
       nvshmemx_init_attr(NVSHMEMX_INIT_WITH_MPI_COMM, &attr);
     }
   }
+
+  void neko_comm_nvshmem_finalize() {
+    nvshmem_finalize();
+  }
+    
   
 }
+
+#endif
