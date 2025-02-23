@@ -10,21 +10,29 @@ module comm
           bind(c, name='neko_comm_wrapper_init')
        integer, value :: fcomm
      end subroutine neko_comm_wrapper_init
-  end interface
+
+#ifdef HAVE_NVSHMEM
+     subroutine neko_comm_nvshmem_init() &
+          bind(c, name='neko_comm_nvshmem_init')
+     end subroutine neko_comm_nvshmem_init
+
+     subroutine neko_comm_nvshmem_finalize() &
+          bind(c, name='neko_comm_nvshmem_finalize')
+     end subroutine neko_comm_nvshmem_finalize
+#endif
 
 #if defined(HAVE_NCCL) || defined(HAVE_RCCL)
-  interface
      subroutine neko_comm_nccl_init() &
           bind(c, name='neko_comm_nccl_init')
      end subroutine neko_comm_nccl_init
-  end interface
-
-    interface
+     
      subroutine neko_comm_nccl_finalize() &
           bind(c, name='neko_comm_nccl_finalize')
      end subroutine neko_comm_nccl_finalize
-  end interface
 #endif
+     
+  end interface
+
   
   !> MPI communicator
   type(MPI_Comm) :: NEKO_COMM
@@ -107,10 +115,16 @@ contains
     call neko_comm_wrapper_init(NEKO_COMM%mpi_val)
 
 
+#ifdef HAVE_NVSHMEM
+    ! Setup NVSHMEM (if requested)
+    call neko_comm_nvshmem_init()
+#endif
+
 #if defined(HAVE_NCCL) | defined(HAVE_RCCL)
     ! Setup NCCL (if requested)
     call neko_comm_nccl_init()
 #endif
+
 
   end subroutine comm_init
 
@@ -123,7 +137,11 @@ contains
 #ifdef HAVE_NCCL
     call neko_comm_nccl_finalize()
 #endif
-    
+
+#ifdef HAVE_NVSHMEM
+    call neko_comm_nvshmem_finalize()
+#endif
+
     call MPI_Finalize(ierr)
 
   end subroutine comm_free

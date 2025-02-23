@@ -38,10 +38,12 @@ module gather_scatter
   use gs_sx, only : gs_sx_t
   use gs_cpu, only : gs_cpu_t
   use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
-  use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL
+  use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, &
+       GS_COMM_NVSHMEM
   use gs_mpi, only : gs_mpi_t
   use gs_device_mpi, only : gs_device_mpi_t
   use gs_device_nccl, only : gs_device_nccl_t
+  use gs_device_shmem, only : gs_device_shmem_t
   use mesh, only : mesh_t
   use comm
   use dofmap, only : dofmap_t
@@ -92,7 +94,8 @@ module gather_scatter
   public :: GS_BCKND_CPU, GS_BCKND_SX, GS_BCKND_DEV
 
   ! Expose available gather-scatter comm. backends
-  public :: GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL
+
+  public :: GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, GS_COMM_NVSHMEM
 
 
 contains
@@ -109,14 +112,14 @@ contains
     integer, optional :: bcknd, comm_bcknd
     integer :: i, j, ierr, bcknd_, comm_bcknd_
     integer(i8) :: glb_nshared, glb_nlocal
-    logical :: use_device_mpi, use_device_nccl, use_host_mpi
+    logical :: use_device_mpi, use_device_nccl, use_device_shmem, use_host_mpi
     real(kind=rp), allocatable :: tmp(:)
     type(c_ptr) :: tmp_d = C_NULL_PTR
     integer :: strtgy(4) = (/ int(B'00'), int(B'01'), int(B'10'), int(B'11') /)
     integer :: avg_strtgy, env_len
     character(len=255) :: env_strtgy, env_gscomm
     real(kind=dp) :: strtgy_time(4)
-
+    
     call gs%free()
 
     call neko_log%section('Gather-Scatter')
@@ -126,9 +129,9 @@ contains
 
     use_device_mpi = .false.
     use_device_nccl = .false.
-    use_host_mpi = .false.
+    use_device_shmem = .false.
+    use_host_mpi = .false.    
     ! Check if a comm-backend is requested via env. variables
-
     call get_environment_variable("NEKO_GS_COMM", env_gscomm, env_len)
     if (env_len .gt. 0) then
        if (env_gscomm(1:env_len) .eq. "MPI") then
@@ -137,8 +140,13 @@ contains
           use_device_mpi = .true.
        else if (env_gscomm(1:env_len) .eq. "NCCL") then
           use_device_nccl = .true.
+       else if (env_gscomm(1:env_len) .eq. "SHMEM") then
+          use_device_shmem = .true.
+       else
+          call neko_error('Unknown Gather-scatter comm. backend')
        end if
     end if
+
 
     if (present(comm_bcknd)) then
        comm_bcknd_ = comm_bcknd
@@ -148,6 +156,8 @@ contains
        comm_bcknd_ = GS_COMM_MPIGPU
     else if (use_device_nccl) then
        comm_bcknd_ = GS_COMM_NCCL
+    else if (use_device_shmem) then
+       comm_bcknd_ = GS_COMM_NVSHMEM
     else
        if (NEKO_DEVICE_MPI) then
           comm_bcknd_ = GS_COMM_MPIGPU
@@ -167,6 +177,9 @@ contains
     case (GS_COMM_NCCL)
        call neko_log%message('Comm         :         NCCL')
        allocate(gs_device_nccl_t::gs%comm)
+    case (GS_COMM_NVSHMEM)
+       call neko_log%message('Comm         :      NVSHMEM')
+       allocate(gs_device_shmem_t::gs%comm)       
     case default
        call neko_error('Unknown Gather-scatter comm. backend')
     end select
@@ -250,7 +263,7 @@ contains
 
     call gs%bcknd%init(gs%nlocal, gs%nshared, gs%nlocal_blks, gs%nshared_blks)
 
-    if (use_device_mpi .or. use_device_nccl) then
+    if (use_device_mpi .or. use_device_nccl .or. use_device_shmem) then
        select type(b => gs%bcknd)
        type is (gs_device_t)
           b%shared_on_host = .false.
