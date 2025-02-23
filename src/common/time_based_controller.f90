@@ -70,10 +70,10 @@ module time_based_controller
      procedure, pass(this) :: check => time_based_controller_check
      !> Increment `nexectutions`.
      procedure, pass(this) :: register_execution => &
-       time_based_controller_register_execution
+          time_based_controller_register_execution
      !> Set the counter based on a time (for restarts)
      procedure, pass(this) :: set_counter => &
-       time_based_controller_set_counter
+          time_based_controller_set_counter
 
   end type time_based_controller_t
 
@@ -88,7 +88,7 @@ contains
   !! @param control_mode The way to interpret the `control_value` parameter.
   !! @param control_value The value definining the execution frequency.
   subroutine time_based_controller_init(this, end_time, control_mode, &
-     control_value)
+       control_value)
     class(time_based_controller_t), intent(inout) :: this
     real(kind=rp), intent(in) :: end_time
     character(len=*), intent(in) :: control_mode
@@ -119,7 +119,7 @@ contains
        this%never = .true.
     else
        call neko_error("The control parameter must be simulationtime, nsamples&
-       & tsteps, or never, but received "//trim(control_mode))
+            & tsteps, or never, but received "//trim(control_mode))
     end if
   end subroutine time_based_controller_init
 
