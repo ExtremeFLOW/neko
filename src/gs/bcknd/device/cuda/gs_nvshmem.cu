@@ -34,13 +34,14 @@
 
 #include <device/device_config.h>
 #include <device/cuda/check.h>
+#ifdef HAVE_NVSHMEM
 #include <nvshmem.h>
-#include <nvshmemx.h>
 #include "gs_nvshmem_kernels.h"
-
+#endif
 
 extern "C" {
 
+#ifdef HAVE_NVSHMEM
   void cudamalloc_nvshmem(void** ptr, size_t size)
   {
     *ptr = nvshmem_malloc(size);
@@ -83,4 +84,26 @@ extern "C" {
     pushShmemKernelWait<<<1,1,0,stream>>>(counter_,(uint64_t*) notifyDone);
     CUDA_CHECK(cudaGetLastError());
   }
+#else
+
+  void cudamalloc_nvshmem(void** ptr, size_t size) {
+#error NVSHMEM required
+  }
+
+  void cudafree_nvshmem(void** ptr, size_t size){
+#error NVSHMEM required
+  }
+  
+  void cuda_gs_pack_and_push(void *u_d, void *sbuf_d, void *sdof_d,
+                             int soffset, int n, cudaStream_t stream,
+                             int srank,  void *rbuf_d, int roffset, int* remote_offset,
+                             int rrank, int counter, void* notifyDone, void* notifyReady,
+                             int iter) {
+  #error NVSHMEM required
+  }
+  
+  void cuda_gs_pack_and_push_wait(cudaStream_t stream, int counter, void* notifyDone) {
+#error NVSHMEM required
+  }
+#endif
 }

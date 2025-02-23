@@ -35,11 +35,26 @@
 #ifndef __GS_NVSHMEM_KERNELS__
 #define __GS_NVHSMEM_KERNELS__
 
+#include <nvshmemx.h>
+
+
 template< typename T >
 __global__ void pack_pushShmemKernel(const T * __restrict__ u,
                                      T * dest,
-                                     T * src,
-                                     const int * dof,
+                                     T * __restrict__ src,
+                                     const int * __restrict__ dof,
+                                     const int destRank,
+                                     const int srcRank,
+                                     const int n,
+                                     uint64_t counter,
+                                     uint64_t * notifyDone,
+                                     uint64_t * notifyReady);
+
+template<>
+__global__ void pack_pushShmemKernel(const float * __restrict__ u,
+                                     float * dest,
+                                     float * __restrict__ src,
+                                     const int * __restrict__ dof,
                                      const int destRank,
                                      const int srcRank,
                                      const int n,
@@ -62,7 +77,54 @@ __global__ void pack_pushShmemKernel(const T * __restrict__ u,
   {
     size_t n_per_block = n/numBlocksForTransfer;
     size_t block_offset = n_per_block*blockIdx.x;
-    size_t dataSize = blockIdx.x != (numBlocksForTransfer - 1) ? n_per_block : max(n - block_offset, n_per_block);
+    size_t dataSize = blockIdx.x != (numBlocksForTransfer - 1) ?
+      n_per_block : max(n - block_offset, n_per_block);
+    
+    // Notify ready to sending rank, and wait until recieving rank is ready
+    if (threadIdx.x == 0) {
+      nvshmemx_signal_op(notifyReady, counter, NVSHMEM_SIGNAL_SET, srcRank);
+      nvshmem_signal_wait_until(notifyReady, NVSHMEM_CMP_EQ, counter);
+    }
+    __syncthreads();
+    
+    // Push data
+    nvshmemx_float_put_signal_nbi_block(dest + block_offset, src +
+                                        block_offset, dataSize,
+                                        notifyDone, counter,
+                                        NVSHMEM_SIGNAL_SET, destRank);
+  }
+}
+
+template<>
+__global__ void pack_pushShmemKernel(const double * __restrict__ u,
+                                     double * dest,
+                                     double * __restrict__ src,
+                                     const int * __restrict__ dof,
+                                     const int destRank,
+                                     const int srcRank,
+                                     const int n,
+                                     uint64_t counter,
+                                     uint64_t * notifyDone,
+                                     uint64_t * notifyReady)
+{
+
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j <  n) {
+    src[j] = u[dof[j]-1];
+  }
+  __syncthreads();
+  
+  //TO DO: 1 block transfers seem best from initial investigations, check this more thoroughly
+  size_t numBlocksForTransfer = 1; 
+  if(blockIdx.x < numBlocksForTransfer)
+  {
+    size_t n_per_block = n/numBlocksForTransfer;
+    size_t block_offset = n_per_block*blockIdx.x;
+    size_t dataSize = blockIdx.x != (numBlocksForTransfer - 1) ?
+      n_per_block : max(n - block_offset, n_per_block);
+    
     // Notify ready to sending rank, and wait until recieving rank is ready
     if (threadIdx.x == 0) {
       nvshmemx_signal_op(notifyReady, counter, NVSHMEM_SIGNAL_SET, srcRank);
