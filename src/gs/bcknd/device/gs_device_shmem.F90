@@ -179,7 +179,9 @@ contains
     this%total = total
 
     sz = c_sizeof(rp_dummy) * max_total
+#ifdef HAVE_NVSHMEM
     call cudamalloc_nvshmem(this%buf_d, sz)
+#endif
 
     sz = c_sizeof(i4_dummy) * total
     call device_alloc(this%dof_d, sz)
@@ -228,7 +230,9 @@ contains
     if (allocated(this%ndofs)) deallocate(this%ndofs)
     if (allocated(this%offset)) deallocate(this%offset)
 
+#ifdef HAVE_NVSHMEM
     if (c_associated(this%buf_d)) call cudafree_nvshmem(this%buf_d)
+#endif
     if (c_associated(this%dof_d)) call device_free(this%dof_d)
 
   end subroutine gs_device_shmem_buf_free
@@ -257,12 +261,14 @@ contains
        call device_event_create(this%event(i), 2)
     end do
 
+#ifdef HAVE_NVSHMEM
     allocate(this%notifyDone(size(this%recv_pe)))
     allocate(this%notifyReady(size(this%recv_pe)))
     do i = 1, size(this%recv_pe)
        call cudamalloc_nvshmem(this%notifyDone(i), 8_8)
        call cudamalloc_nvshmem(this%notifyReady(i), 8_8)
     end do
+#endif
 #endif
 
   end subroutine gs_device_shmem_init
