@@ -69,7 +69,7 @@ module derivative
      procedure, pass(this) :: init => derivative_init_from_json
      !> Actual constructor.
      procedure, pass(this) :: init_from_attributes => &
-        derivative_init_from_attributes
+          derivative_init_from_attributes
      !> Destructor.
      procedure, pass(this) :: free => derivative_free
      !> Compute the derivative field.
@@ -110,7 +110,7 @@ contains
     this%u => neko_field_registry%get_field_by_name(trim(fieldname))
 
     this%du => neko_field_registry%get_field_by_name(&
-                        "d" // fieldname // "_d" // direction)
+         "d" // fieldname // "_d" // direction)
 
     if (direction .eq. "x") then
        this%dr => this%case%fluid%c_Xh%drdx
@@ -125,7 +125,7 @@ contains
        this%ds => this%case%fluid%c_Xh%dsdz
        this%dt => this%case%fluid%c_Xh%dtdz
     else
-        call neko_error("The direction of the derivative must be x, y or z")
+       call neko_error("The direction of the derivative must be x, y or z")
     end if
   end subroutine derivative_init_from_attributes
 
@@ -151,7 +151,7 @@ contains
     real(kind=rp), intent(in) :: dt
 
     call dudxyz(this%du%x, this%u%x, this%dr, this%ds, this%dt,&
-                this%case%fluid%c_Xh)
+         this%case%fluid%c_Xh)
   end subroutine derivative_compute
 
 end module derivative

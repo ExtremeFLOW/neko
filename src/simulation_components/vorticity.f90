@@ -77,7 +77,7 @@ module vorticity
      procedure, pass(this) :: init => vorticity_init_from_json
      !> Actual constructor.
      procedure, pass(this) :: init_from_attributes => &
-        vorticity_init_from_attributes
+          vorticity_init_from_attributes
      !> Destructor.
      procedure, pass(this) :: free => vorticity_free
      !> Compute the vorticity field.
@@ -150,7 +150,7 @@ contains
     real(kind=rp), intent(in) :: dt
 
     call curl(this%omega_x, this%omega_y, this%omega_z, this%u, this%v, &
-                 this%w, this%temp1, this%temp2, this%case%fluid%c_Xh)
+         this%w, this%temp1, this%temp2, this%case%fluid%c_Xh)
   end subroutine vorticity_compute
 
 end module vorticity

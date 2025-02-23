@@ -66,7 +66,7 @@ module weak_grad
      procedure, pass(this) :: init => weak_grad_init_from_json
      !> Actual constructor.
      procedure, pass(this) :: init_from_attributes => &
-        weak_grad_init_from_attributes
+          weak_grad_init_from_attributes
      !> Destructor.
      procedure, pass(this) :: free => weak_grad_free
      !> Compute the weak_grad field.
@@ -107,11 +107,11 @@ contains
     this%u => neko_field_registry%get_field_by_name(trim(fieldname))
 
     this%grad_x => neko_field_registry%get_field_by_name(&
-                        "weak_grad_" // fieldname // "_x")
+         "weak_grad_" // fieldname // "_x")
     this%grad_y => neko_field_registry%get_field_by_name(&
-                        "weak_grad_" // fieldname // "_y")
+         "weak_grad_" // fieldname // "_y")
     this%grad_z => neko_field_registry%get_field_by_name(&
-                        "weak_grad_" // fieldname // "_z")
+         "weak_grad_" // fieldname // "_z")
 
 
   end subroutine weak_grad_init_from_attributes
@@ -137,7 +137,7 @@ contains
     real(kind=rp), intent(in) :: dt
 
     call opgrad(this%grad_x%x, this%grad_y%x, this%grad_z%x, this%u%x,&
-                this%case%fluid%c_Xh)
+         this%case%fluid%c_Xh)
   end subroutine weak_grad_compute
 
 end module weak_grad
