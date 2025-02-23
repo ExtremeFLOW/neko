@@ -40,7 +40,7 @@ module gs_device_shmem
   use device
   use comm
   use utils, only : neko_error
-  use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, c_int64_t, &
+  use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &
        c_ptr, C_NULL_PTR, c_size_t, c_associated
   implicit none
   private
@@ -87,7 +87,7 @@ module gs_device_shmem
        type(c_ptr), value :: u_d, buf_d, dof_d, stream
      end subroutine cuda_gs_pack
   end interface
-  
+
   interface
      subroutine cudamalloc_nvshmem(ptr, size) &
           bind(c, name='cudamalloc_nvshmem')
@@ -158,7 +158,7 @@ contains
     integer :: dupe, marked, k
     real(c_rp) :: rp_dummy
     integer(c_int32_t) :: i4_dummy
-     
+
     allocate(this%ndofs(size(pe_order)))
     allocate(this%offset(size(pe_order)))
     allocate(this%remote_offset(size(pe_order)))
@@ -166,7 +166,7 @@ contains
     do i = 1, size(pe_order)
        this%remote_offset(i)=-1
     end do
-    
+
     total = 0
     do i = 1, size(pe_order)
        this%ndofs(i) = dof_stack(pe_order(i))%size()
@@ -175,7 +175,7 @@ contains
     end do
 
     call MPI_Allreduce(total, max_total, 1, MPI_INTEGER, MPI_MAX, NEKO_COMM)
-    
+
     this%total = total
 
     sz = c_sizeof(rp_dummy) * max_total
@@ -230,16 +230,15 @@ contains
 
     if (c_associated(this%buf_d)) call cudafree_nvshmem(this%buf_d)
     if (c_associated(this%dof_d)) call device_free(this%dof_d)
-    
+
   end subroutine gs_device_shmem_buf_free
-  
+
   !> Initialise MPI based communication method
   subroutine gs_device_shmem_init(this, send_pe, recv_pe)
     class(gs_device_shmem_t), intent(inout) :: this
     type(stack_i4_t), intent(inout) :: send_pe
     type(stack_i4_t), intent(inout) :: recv_pe
     integer :: i
-    integer(c_int64_t) :: i64_dummy
 
     call this%init_order(send_pe, recv_pe)
 
@@ -304,21 +303,43 @@ contains
 
     do i = 1, size(this%send_pe)
        call device_stream_wait_event(this%stream(i), deps, 0)
-        ! Not clear why this sync is required, but there seems to be a race condition
+       ! Not clear why this sync is required, but there seems to be a race condition
        ! without it for certain run configs
+       call device_sync(this%stream(i))
+    end do
 
-       if (this%recv_buf%remote_offset(i) .eq. -1) then
+    ! We do the rest in the "wait" routine below
+
+  end subroutine gs_device_shmem_nbsend
+
+  !> Post non-blocking receive operations
+  subroutine gs_device_shmem_nbrecv(this)
+    class(gs_device_shmem_t), intent(inout) :: this
+    integer :: i
+
+    ! We do everything in the "wait" routine below
+
+  end subroutine gs_device_shmem_nbrecv
+
+  !> Wait for non-blocking operations
+  subroutine gs_device_shmem_nbwait(this, u, n, op, strm)
+    class(gs_device_shmem_t), intent(inout) :: this
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: u
+    type(c_ptr), intent(inout) :: strm
+    integer :: op, done_req, i
+    type(c_ptr) :: u_d
+
+    u_d = device_get_ptr(u)
+
+    do i = 1, size(this%send_pe)
+      if (this%recv_buf%remote_offset(i) .eq. -1) then
           call MPI_Sendrecv(this%recv_buf%offset(i), 1, MPI_INTEGER, &
                this%recv_pe(i), 0, &
                this%recv_buf%remote_offset(i), 1, MPI_INTEGER, &
                this%send_pe(i), 0, NEKO_COMM, MPI_STATUS_IGNORE)
        end if
 
-       
-!       call device_sync(this%stream(i))
-       ! NVSHMEM path
-       ! Using single stream for NVSHMEM for now.
-       ! Multi-stream works but is slower in some cases, more investigation required          
        call cuda_gs_pack_and_push(u_d, &
             this%send_buf%buf_d, &
             this%send_buf%dof_d, &
@@ -336,28 +357,6 @@ contains
             i)
        this%nvshmem_counter = this%nvshmem_counter + 1
     end do
-    
-  end subroutine gs_device_shmem_nbsend
-
-  !> Post non-blocking receive operations
-  subroutine gs_device_shmem_nbrecv(this)
-    class(gs_device_shmem_t), intent(inout) :: this
-    integer :: i
-
-    ! We do everything in the "wait" routine below
-
-  end subroutine gs_device_shmem_nbrecv
-  
-  !> Wait for non-blocking operations
-  subroutine gs_device_shmem_nbwait(this, u, n, op, strm)
-    class(gs_device_shmem_t), intent(inout) :: this
-    integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: u
-    type(c_ptr), intent(inout) :: strm
-    integer :: op, done_req, i
-    type(c_ptr) :: u_d
-
-    u_d = device_get_ptr(u)
 
     do i = 1, size(this%send_pe)
        call cuda_gs_pack_and_push_wait(this%stream(i), &
@@ -374,13 +373,13 @@ contains
             this%stream(done_req))
        call device_event_record(this%event(done_req), this%stream(done_req))
     end do
-    
+
     ! Sync non-blocking streams
     do done_req = 1, size(this%recv_pe)
        call device_stream_wait_event(strm, &
             this%event(done_req), 0)
     end do
-    this%nvshmem_counter = 1
+
 end subroutine gs_device_shmem_nbwait
-  
+
 end module gs_device_shmem
