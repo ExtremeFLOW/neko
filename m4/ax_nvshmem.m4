@@ -42,7 +42,7 @@ AC_DEFUN([AX_NVSHMEM],[
               CFLAGS=""
 	      LIBS=""
 
-	      AC_CHECK_LIB(nvshmem, nvshmemi_finalize,
+	      AC_CHECK_LIB(nvshmem, nvshmem_quiet,
 	                   [have_nvshmem=yes;NVSHMEM_LIBS="-lnvshmem"],
                            [have_nvshmem=no],[])
               AC_SUBST(have_nvshmem)
