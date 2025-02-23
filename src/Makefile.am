@@ -458,7 +458,7 @@ libneko_la_SOURCES += \
 	les/bcknd/device/cuda/vreman_nut.cu\
 	les/bcknd/device/cuda/smagorinsky_nut.cu\
 	les/bcknd/device/cuda/dynamic_smagorinsky_nut.cu\
-	comm/bcknd/device/cuda/nvshmem.cu
+	comm/bcknd/device/cuda/comm_nvshmem.cu
 
 
 BUILT_SOURCES = libtool_cuda
@@ -531,10 +531,11 @@ libneko_la_LIBADD = \
 endif
 
 
-#bin_PROGRAMS = neko
-#neko_SOURCES = driver.f90
-#neko_LDADD= libneko.la
-
+if !ENABLE_NVSHMEM
+bin_PROGRAMS = neko
+neko_SOURCES = driver.f90
+neko_LDADD= libneko.la
+endif
 
 pkginclude_HEADERS = \
 	$(wildcard *.mod)\

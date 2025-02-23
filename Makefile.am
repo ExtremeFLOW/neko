@@ -4,12 +4,14 @@ pkgconfig_DATA = neko.pc
 
 SUBDIRS = src
 
+if !ENABLE_NVSHMEM
 if ENABLE_CONTRIB
 SUBDIRS += contrib
 endif
 
 if ENABLE_PFUNIT
 SUBDIRS += tests/unit
+endif
 endif
 
 if ENABLE_DOXYGEN
