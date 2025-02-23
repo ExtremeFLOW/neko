@@ -164,7 +164,7 @@ contains
     ! The code below only prints to console
     call neko_log%section('Adding write output')
     call neko_log%message('File name        : '// &
-          trim(this%output_list(this%n)%ptr%file_%file_type%fname))
+         trim(this%output_list(this%n)%ptr%file_%file_type%fname))
     call neko_log%message('Write control    : '//trim(write_control))
 
     ! Show the output precision if we are outputting an fld file
@@ -177,28 +177,28 @@ contains
        end if
     end select
 
-   if (trim(write_control) .eq. 'simulationtime') then
+    if (trim(write_control) .eq. 'simulationtime') then
        write(log_buf, '(A,ES13.6)') 'Writes per time unit (Freq.): ', &
-             this%controllers(n)%frequency
+            this%controllers(n)%frequency
        call neko_log%message(log_buf)
        write(log_buf, '(A,ES13.6)') 'Time between writes: ', &
-          this%controllers(n)%time_interval
+            this%controllers(n)%time_interval
        call neko_log%message(log_buf)
     else if (trim(write_control) .eq. 'nsamples') then
-       write(log_buf, '(A,I13)') 'Total samples: ',  int(write_par)
+       write(log_buf, '(A,I13)') 'Total samples: ', int(write_par)
        call neko_log%message(log_buf)
-       write(log_buf, '(A,ES13.6)') 'Writes per time unit (Freq.): ',  &
-             this%controllers(n)%frequency
+       write(log_buf, '(A,ES13.6)') 'Writes per time unit (Freq.): ', &
+            this%controllers(n)%frequency
        call neko_log%message(log_buf)
        write(log_buf, '(A,ES13.6)') 'Time between writes: ', &
-          this%controllers(n)%time_interval
+            this%controllers(n)%time_interval
        call neko_log%message(log_buf)
     else if (trim(write_control) .eq. 'tsteps') then
-       write(log_buf, '(A,I13)') 'Time step interval: ',  int(write_par)
+       write(log_buf, '(A,I13)') 'Time step interval: ', int(write_par)
        call neko_log%message(log_buf)
     else if (trim(write_control) .eq. 'org') then
        write(log_buf, '(A)') &
-             'Write control not set, defaulting to first output settings'
+            'Write control not set, defaulting to first output settings'
        call neko_log%message(log_buf)
     end if
 
