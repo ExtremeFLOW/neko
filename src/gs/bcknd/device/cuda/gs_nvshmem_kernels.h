@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2024, The Neko Authors
+ Copyright (c) 2024-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -36,16 +36,26 @@
 #define __GS_NVHSMEM_KERNELS__
 
 template< typename T >
-__global__ void pushShmemKernel(T * dest,
-                                T * src,
-                                const int * dof,
-                                const int destRank,
-                                const int srcRank,
-                                const int n,
-                                uint64_t counter,
-                                uint64_t * notifyDone,
-                                uint64_t * notifyReady)
+__global__ void pack_pushShmemKernel(const T * __restrict__ u,
+                                     T * dest,
+                                     T * src,
+                                     const int * dof,
+                                     const int destRank,
+                                     const int srcRank,
+                                     const int n,
+                                     uint64_t counter,
+                                     uint64_t * notifyDone,
+                                     uint64_t * notifyReady)
 {
+
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j <  n) {
+    src[j] = u[dof[j]-1];
+  }
+  __syncthreads();
+  
   //TO DO: 1 block transfers seem best from initial investigations, check this more thoroughly
   size_t numBlocksForTransfer = 1; 
   if(blockIdx.x < numBlocksForTransfer)

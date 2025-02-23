@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2024, The Neko Authors
+ Copyright (c) 2024-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -34,27 +34,10 @@
 
 #include <device/device_config.h>
 #include <device/cuda/check.h>
-//#include <mpi.h>
 #include <nvshmem.h>
 #include <nvshmemx.h>
-//#include <comm/comm.h>
-//#include "gs_kernels.h"
 #include "gs_nvshmem_kernels.h"
 
-
-template< typename T >
-__global__ void gs_pack_kernel(const T * __restrict__ u,
-			       T * __restrict__ buf,
-			       const int32_t * __restrict__ dof,
-			       const int n) {
-
-  const int j = threadIdx.x + blockDim.x * blockIdx.x;
-
-  if (j >= n)
-    return;
-
-  buf[j] = u[dof[j]-1];
-}
 
 extern "C" {
 
@@ -77,31 +60,20 @@ extern "C" {
                              int srank,  void *rbuf_d, int roffset, int* remote_offset,
 			     int rrank, int counter, void* notifyDone, void* notifyReady,
 			     int iter)
+
   {
-    /*  
-    if(remote_offset[iter-1] == -1)
-    {
-      MPI_Sendrecv(&roffset, 1, MPI_INT,
-                   rrank, 0,
-                   &(remote_offset[iter-1]), 1, MPI_INT,
-                   srank, 0, NEKO_COMM, MPI_STATUS_IGNORE);
-    }
-    */
+    
     const int nthrds = 1024;
     const int nblcks = (n+nthrds-1)/nthrds;
-      
-    // TO DO investigate merging following 2 kernels (and also unpack).  
-    gs_pack_kernel<real>
-          <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) sbuf_d + soffset,
-                                          (int *) sdof_d + soffset, n);
-    
-    pushShmemKernel<real>
-      <<<nblcks,nthrds,0,stream>>>((real *) rbuf_d + remote_offset[iter-1],
+
+    pack_pushShmemKernel<real>
+      <<<nblcks,nthrds,0,stream>>>((real *) u_d,
+                                   (real *) rbuf_d + remote_offset[iter-1],
                                    (real *) sbuf_d + soffset,
                                    (int *) sdof_d + soffset,
                                    srank, rrank, n, counter,
                                    (uint64_t*) notifyDone,
-                                   (uint64_t*) notifyReady);
+                                   (uint64_t*) notifyReady);         
     CUDA_CHECK(cudaGetLastError());
   }
 
