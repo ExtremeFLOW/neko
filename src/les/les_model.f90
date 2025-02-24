@@ -315,10 +315,8 @@ contains
           end do
        end do
     else
-       type_string = concat_string_array(DELTA_KNOWN_TYPES, &
-            NEW_LINE('A') // "-  ", .true.)
        call neko_type_error("delta_type for LES model", &
-            type_string, DELTA_KNOWN_TYPES)
+            this%delta_type, DELTA_KNOWN_TYPES)
        stop
     end if
 

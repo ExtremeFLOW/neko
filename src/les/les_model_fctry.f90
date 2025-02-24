@@ -59,22 +59,20 @@ contains
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: type_string
 
-    if (allocated(object)) then
-       deallocate(object)
-    else if (trim(type_name) .eq. 'vreman') then
-       allocate(vreman_t::object)
-    else if (trim(type_name) .eq. 'smagorinsky') then
-       allocate(smagorinsky_t::object)
-    else if (trim(type_name) .eq. 'dynamic_smagorinsky') then
-       allocate(dynamic_smagorinsky_t::object)
-    else if (trim(type_name) .eq. 'sigma') then
-       allocate(sigma_t::object)
-    else
-       type_string = concat_string_array(LES_KNOWN_TYPES, &
-            NEW_LINE('A') // "-  ", .true.)
-       call neko_type_error("LES model", type_string, LES_KNOWN_TYPES)
+    if (allocated(object)) deallocate(object)
 
-    end if
+    select case (trim(type_name))
+    case ('vreman')
+       allocate(vreman_t::object)
+    case ('smagorinsky')
+       allocate(smagorinsky_t::object)
+    case ('dynamic_smagorinsky')
+       allocate(dynamic_smagorinsky_t::object)
+    case ('sigma')
+       allocate(sigma_t::object)
+    case default
+       call neko_type_error("LES model", type_name, LES_KNOWN_TYPES)
+    end select
 
   end subroutine les_model_factory
 
