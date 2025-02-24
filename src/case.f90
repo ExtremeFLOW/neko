@@ -409,7 +409,8 @@ contains
             string_val, "simulationtime")
        call json_get_or_default(this%params, 'case.checkpoint_value', real_val,&
             1e10_rp)
-       call this%output_controller%add(this%f_chkp, real_val, string_val, NEKO_EPS)
+       call this%output_controller%add(this%f_chkp, real_val, string_val, &
+            NEKO_EPS)
     end if
 
     !

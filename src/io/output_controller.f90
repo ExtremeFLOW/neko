@@ -129,7 +129,8 @@ contains
   !! @param write_control Determines the meaning of `write_par`. Accepts the
   !! usual list of control options.
   !! @param start_time When to start writing the output
-  subroutine output_controller_add(this, out, write_par, write_control, start_time)
+  subroutine output_controller_add(this, out, write_par, write_control, &
+       start_time)
     class(output_controller_t), intent(inout) :: this
     class(output_t), intent(inout), target :: out
     real(kind=rp), intent(in) :: write_par
@@ -160,7 +161,8 @@ contains
     if (trim(write_control) .eq. "org") then
        this%controllers(n) = this%controllers(1)
     else
-       call this%controllers(n)%init(this%time_end, write_control, write_par, start_time)
+       call this%controllers(n)%init(this%time_end, write_control, write_par, &
+            start_time)
     end if
 
     ! The code below only prints to console
