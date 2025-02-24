@@ -133,12 +133,12 @@ module user
     call addcol3(w1%x,w%x,w%x,ntot)
     ekin = 0.5 * glsc2(w1%x,coef%B,ntot) / coef%volume
 
-    ! compute enstrophy (why is there a factor 0.5?)
+    ! compute enstrophy (vorticity squared)
     call curl(vort1,vort2,vort3, u, v, w, temp1, temp2, coef)    
     call col3(w1%x,vort1%x,vort1%x,ntot)
     call addcol3(w1%x,vort2%x,vort2%x,ntot)
     call addcol3(w1%x,vort3%x,vort3%x,ntot)
-    enst = 0.5 * glsc2(w1%x,coef%B,ntot) / coef%volume
+    enst = glsc2(w1%x,coef%B,ntot) / coef%volume
 
     ! Output all this to file
     call neko_log%message("Writing csv file")
