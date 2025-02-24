@@ -95,7 +95,8 @@ contains
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    call sigma_init_from_components(this, fluid, c, nut_name, delta_type, if_ext)
+    call sigma_init_from_components(this, fluid, c, nut_name, delta_type, &
+         if_ext)
   end subroutine sigma_init
 
   !> Constructor from components.
