@@ -45,7 +45,7 @@
 void device_nccl_allreduce(void *sbuf_d, void *rbuf_d, int count,
                            int nbytes, int op, void *stream) {
   
-#ifdef HAVE_NCCL
+#if defined(HAVE_NCCL) || defined(HAVE_RCCL)
   if (nbytes == sizeof(float)) {
     if (op == DEVICE_NCCL_SUM)
       ncclAllReduce(sbuf_d, rbuf_d, count, ncclFloat, ncclSum,

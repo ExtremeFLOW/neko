@@ -123,18 +123,6 @@ contains
     call coef%gs_h%op(a32, GS_OP_ADD)
     call coef%gs_h%op(a33, GS_OP_ADD)
 
-    do concurrent (i = 1:a11%dof%size())
-       a11%x(i,1,1,1) = a11%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a12%x(i,1,1,1) = a12%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a13%x(i,1,1,1) = a13%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a21%x(i,1,1,1) = a21%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a22%x(i,1,1,1) = a22%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a23%x(i,1,1,1) = a23%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a31%x(i,1,1,1) = a31%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a32%x(i,1,1,1) = a32%x(i,1,1,1) * coef%mult(i,1,1,1)
-       a33%x(i,1,1,1) = a33%x(i,1,1,1) * coef%mult(i,1,1,1)
-    end do
-
     do concurrent (e = 1:coef%msh%nelv)
        do concurrent (i = 1:coef%Xh%lxyz)
           ! beta_ij = alpha_mi alpha_mj
@@ -160,7 +148,8 @@ contains
           aijaij = beta11 + beta22 + beta33
 
           nut%x(i,1,1,e) = c*delta%x(i,1,1,e)*delta%x(i,1,1,e) &
-               * sqrt(b_beta/(aijaij + NEKO_EPS))
+               * sqrt(b_beta/(aijaij + NEKO_EPS)) &
+               * coef%mult(i,1,1,e)
        end do
     end do
 

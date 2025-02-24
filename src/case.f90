@@ -47,6 +47,7 @@ module case
   use file, only : file_t
   use utils, only : neko_error
   use mesh, only : mesh_t
+  use math, only : NEKO_EPS
   use comm
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, NEKO_LOG_QUIET
@@ -408,7 +409,8 @@ contains
             string_val, "simulationtime")
        call json_get_or_default(this%params, 'case.checkpoint_value', real_val,&
             1e10_rp)
-       call this%output_controller%add(this%f_chkp, real_val, string_val)
+       call this%output_controller%add(this%f_chkp, real_val, string_val, &
+            NEKO_EPS)
     end if
 
     !

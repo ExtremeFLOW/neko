@@ -44,6 +44,7 @@ neko_fortran_SOURCES = \
 	gs/gs_mpi.f90\
 	gs/bcknd/device/gs_device_mpi.F90\
 	gs/bcknd/device/gs_device_nccl.F90\
+	gs/bcknd/device/gs_device_shmem.F90\
 	gs/gather_scatter.f90\
 	mesh/entity.f90\
 	mesh/point.f90\
@@ -360,7 +361,7 @@ neko_c_SOURCES = \
 	gs/bcknd/device/device_mpi.c\
 	gs/bcknd/device/device_nccl.c\
 	math/bcknd/device/device_mpi_reduce.c\
-	math/bcknd/device/cuda/device_nccl_reduce.c
+	math/bcknd/device/device_nccl_reduce.c
 
 libneko_la_SOURCES = \
 	$(neko_fortran_SOURCES)\
@@ -436,6 +437,7 @@ libneko_la_SOURCES += \
 	krylov/bcknd/device/cuda/fusedcg_cpld_aux.cu\
 	krylov/bcknd/device/cuda/gmres_aux.cu\
 	gs/bcknd/device/cuda/gs.cu\
+	gs/bcknd/device/cuda/gs_nvshmem.cu\
 	bc/bcknd/device/cuda/dirichlet.cu\
 	bc/bcknd/device/cuda/inflow.cu\
 	bc/bcknd/device/cuda/zero_dirichlet.cu\
@@ -455,7 +457,9 @@ libneko_la_SOURCES += \
 	les/bcknd/device/cuda/sigma_nut.cu\
 	les/bcknd/device/cuda/vreman_nut.cu\
 	les/bcknd/device/cuda/smagorinsky_nut.cu\
-	les/bcknd/device/cuda/dynamic_smagorinsky_nut.cu
+	les/bcknd/device/cuda/dynamic_smagorinsky_nut.cu\
+	comm/bcknd/device/cuda/comm_nvshmem.cu
+
 
 BUILT_SOURCES = libtool_cuda
 
@@ -527,10 +531,11 @@ libneko_la_LIBADD = \
 endif
 
 
+if !ENABLE_NVSHMEM
 bin_PROGRAMS = neko
 neko_SOURCES = driver.f90
 neko_LDADD= libneko.la
-
+endif
 
 pkginclude_HEADERS = \
 	$(wildcard *.mod)\
@@ -584,6 +589,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/inhom_dirichlet_kernel.h\
 	bc/bcknd/device/cuda/dong_outflow_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
+	gs/bcknd/device/cuda/gs_nvshmem_kernels.h\
 	math/bcknd/device/cuda/math_kernel.h\
 	math/bcknd/device/cuda/tensor_kernel.h\
 	math/bcknd/device/cuda/fdm_kernel.h\
@@ -683,8 +689,8 @@ EXTRA_DIST = \
 	sem/bcknd/device/opencl/coef_kernel.cl\
 	math/bcknd/device/device_mpi_reduce.h\
 	math/bcknd/device/device_mpi_op.h\
-	math/bcknd/device/cuda/device_nccl_reduce.h\
-	math/bcknd/device/cuda/device_nccl_op.h\
+	math/bcknd/device/device_nccl_reduce.h\
+	math/bcknd/device/device_nccl_op.h\
 	source_terms/bcknd/device/cuda/filter_kernels.h\
 	source_terms/bcknd/device/hip/filter_kernels.h\
 	source_terms/bcknd/device/opencl/filter_kernels.cl\

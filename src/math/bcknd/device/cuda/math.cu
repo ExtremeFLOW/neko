@@ -44,8 +44,8 @@ extern "C" {
 #include <math/bcknd/device/device_mpi_op.h>
 
 #ifdef HAVE_NCCL
-#include <math/bcknd/device/cuda/device_nccl_reduce.h>
-#include <math/bcknd/device/cuda/device_nccl_op.h>
+#include <math/bcknd/device/device_nccl_reduce.h>
+#include <math/bcknd/device/device_nccl_op.h>
 #endif
 
   /** Fortran wrapper for copy
