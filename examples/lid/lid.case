@@ -16,6 +16,7 @@
     "inflow_condition": {
       "type": "user"
     },
+    "ipostproc": 50,
     "initial_condition": {
       "type": "user"
     },
@@ -33,7 +34,7 @@
       "max_iterations": 200
     },
     "output_control": "simulationtime",
-    "output_value": 5,
+    "output_value": 5.,
     "boundary_conditions": [
         {
             "type": "no_slip",
@@ -45,13 +46,5 @@
         }
     ]
   },
-  "simulation_components":
-  [
-    {
-      "type": "vorticity",
-      "compute_control": "tsteps",
-      "compute_value": 50
-    }
-  ]
   }
 }

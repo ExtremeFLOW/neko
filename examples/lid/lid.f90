@@ -1,7 +1,7 @@
 ! Lid-driven cavity
 !
 ! Time-integration of the lid-driven cavity with smoothened
-! belt velocity to fulfil continuity equation.
+! belt velocity to fulfil the continuity equation in the corners.
 !
 module user
   use neko
@@ -9,9 +9,12 @@ module user
 
   ! Global user variables
   type(field_t) :: w1
-
+  type(field_t) :: temp1,temp2
+  type(field_t) :: vort1,vort2,vort3
+    
   type(file_t) output_file ! output file
   type(vector_t) :: vec_out    ! will store our output data
+  integer :: ipostproc
 
  contains
 
@@ -44,7 +47,7 @@ module user
     integer, intent(in) :: tstep
 
     real(kind=rp) lsmoothing
-    lsmoothing = 0.05_rp    ! length scale of smoothing at the edges
+    lsmoothing = 0.1_rp    ! length scale of smoothing at the edges
 
     u = step( x/lsmoothing ) * step( (1._rp-x)/lsmoothing )
     v = 0._rp
@@ -59,6 +62,8 @@ module user
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
     type(json_file), intent(inout) :: params
+
+    ! all zero velocity and pressure
     u = 0._rp
     v = 0._rp
     w = 0._rp
@@ -76,6 +81,8 @@ module user
     type(json_file), intent(inout) :: params
 
     integer tstep
+    character(len=50) :: mess
+
     ! Initialize the file object and create the output.csv file
     ! in the working directory
     output_file = file_init("output.csv")
@@ -84,7 +91,18 @@ module user
 
     ! initialize work arrays for postprocessing
     call w1%init(u%dof, 'work1')
+    call temp1%init(u%dof)
+    call temp2%init(u%dof)
+    call vort1%init(u%dof)
+    call vort2%init(u%dof)
+    call vort3%init(u%dof)
 
+    ! read postprocessing interval
+    call json_get(params, "case.fluid.ipostproc", ipostproc)
+    write(mess,*) "postprocessing steps : ",ipostproc
+    call neko_log%message(mess)
+
+    
     ! call usercheck also for tstep=0
     tstep = 0
     call user_calc_quantities(t, tstep, u, v, w, p, coef, params)
@@ -101,40 +119,39 @@ module user
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
     type(field_t), intent(inout) :: p
-    type(field_t), pointer :: om1, om2, om3
     integer :: ntot, i
-    real(kind=rp) :: e1, e2
+    real(kind=rp) :: ekin, enst
 
-    if (mod(tstep,50).ne.0) return
+    ! do the postprocessing only every 50 time steps (including 0)
+    if (mod(tstep,ipostproc).ne.0) return
 
-    om1 => neko_field_registry%get_field("omega_x")
-    om2 => neko_field_registry%get_field("omega_y")
-    om3 => neko_field_registry%get_field("omega_z")
-    
     ntot = u%dof%size()
 
+    ! compute the kinetic energy
     call col3(w1%x,u%x,u%x,ntot)
     call addcol3(w1%x,v%x,v%x,ntot)
     call addcol3(w1%x,w%x,w%x,ntot)
-    e1 = 0.5 * glsc2(w1%x,coef%B,ntot) / coef%volume
+    ekin = 0.5 * glsc2(w1%x,coef%B,ntot) / coef%volume
 
-    call col3(w1%x,om1%x,om1%x,ntot)
-    call addcol3(w1%x,om2%x,om2%x,ntot)
-    call addcol3(w1%x,om3%x,om3%x,ntot)
-    e2 = 0.5 * glsc2(w1%x,coef%B,ntot) / coef%volume
+    ! compute enstrophy (why is there a factor 0.5?)
+    call curl(vort1,vort2,vort3, u, v, w, temp1, temp2, coef)    
+    call col3(w1%x,vort1%x,vort1%x,ntot)
+    call addcol3(w1%x,vort2%x,vort2%x,ntot)
+    call addcol3(w1%x,vort3%x,vort3%x,ntot)
+    enst = 0.5 * glsc2(w1%x,coef%B,ntot) / coef%volume
 
     ! Output all this to file
     call neko_log%message("Writing csv file")
-    vec_out%x = (/e1, e2/)
+    vec_out%x = (/ekin, enst/)
     call output_file%write(vec_out, t)
 
   end subroutine user_calc_quantities
 
   ! Smooth step function
   function step(x)
-  ! Taken from Simson code
-  ! x<=0 : step(x) = 0
-  ! x>=1 : step(x) = 1
+    ! Taken from Simson code
+    ! x<=0 : step(x) = 0
+    ! x>=1 : step(x) = 1
     real(kind=rp) :: step, x
 
     if (x.le.0.02_rp) then
