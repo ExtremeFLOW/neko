@@ -175,8 +175,8 @@ contains
             call neko_warning("Extrapolation of the velocity in eddy &
                  &viscosity estimation might be unstable.")
          else
-            call neko_warning("The time integration for eddy viscosity estimation &
-                 &is only first-order accurate")
+            call neko_warning("The time integration for eddy viscosity &
+                 &estimation is only first-order accurate")
          end if
       end if
 
