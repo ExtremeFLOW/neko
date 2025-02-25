@@ -38,6 +38,11 @@
 #include <device/cuda/check.h>
 
 
+#ifdef HAVE_NVSHMEM
+#include <nvshmem.h>
+#include <nvshmemx.h>
+#endif
+
 extern "C" {
 
 #include <math/bcknd/device/device_mpi_reduce.h>
@@ -51,7 +56,7 @@ extern "C" {
   /**
    * @todo Make sure that this gets deleted at some point...
    */
-  real *cfl_d = NULL;
+  void *cfl_d = NULL;
 
   /**
    * Fortran wrapper for device cuda CFL
@@ -68,10 +73,12 @@ extern "C" {
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     if (cfl_d == NULL) {
+#ifdef HAVE_NVSHMEM
+      cfl_d = (real *) nvshmem_malloc(sizeof(real));
+#else
       CUDA_CHECK(cudaMalloc(&cfl_d, (*nel) * sizeof(real)));
+#endif
     }
-
-
 
 #define CASE(LX)                                                                \
     case LX:                                                                    \
@@ -103,13 +110,27 @@ extern "C" {
       }
     }
 
-    cfl_reduce_kernel<real><<<1, 1024, 0, stream>>> (cfl_d, (*nel));
+    cfl_reduce_kernel<real><<<1, 1024, 0, stream>>> ((real *) cfl_d, (*nel));
     CUDA_CHECK(cudaGetLastError());
 
     real cfl;
 #ifdef HAVE_NCCL
     device_nccl_allreduce(cfl_d, cfl_d, 1, sizeof(real),
                           DEVICE_NCCL_MAX, stream);
+    CUDA_CHECK(cudaMemcpyAsync(&cfl, cfl_d, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_NVSHMEM
+    if (sizeof(real) == sizeof(float)) {
+      nvshmemx_float_max_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                          (float *) cfl_d,
+                                          (float *) cfl_d, 1, stream);
+    }
+    else if (sizeof(real) == sizeof(double)) {
+      nvshmemx_double_max_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                           (double *) cfl_d,
+                                           (double *) cfl_d, 1, stream);
+    }
     CUDA_CHECK(cudaMemcpyAsync(&cfl, cfl_d, sizeof(real),
                                cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);
