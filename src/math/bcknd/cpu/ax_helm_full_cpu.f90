@@ -64,12 +64,12 @@ contains
   subroutine ax_helm_full_compute_vector(this, au, av, aw, u, v, w, coef, msh,&
                                          Xh)
     class(ax_helm_full_cpu_t), intent(in) :: this
-    type(mesh_t), intent(inout) :: msh
-    type(space_t), intent(inout) :: Xh
-    type(coef_t), intent(inout) :: coef
-    real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: v(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
-    real(kind=rp), intent(inout) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    type(mesh_t), intent(in) :: msh
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
+    real(kind=rp), intent(in) :: u(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(in) :: v(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
+    real(kind=rp), intent(in) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: au(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: av(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
     real(kind=rp), intent(inout) :: aw(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
@@ -174,9 +174,9 @@ contains
        jacinv, weights3, n, lx)
 
     integer, intent(in) :: n, lx
-    real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: v(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: v(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: w(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: au(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: av(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
@@ -191,7 +191,7 @@ contains
     real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -372,9 +372,9 @@ contains
        jacinv, weights3, n)
     integer, parameter :: lx = 14
     integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: v(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: v(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: w(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: au(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: av(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
@@ -389,7 +389,7 @@ contains
     real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -777,9 +777,9 @@ contains
        jacinv, weights3, n)
     integer, parameter :: lx = 13
     integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: v(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: v(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: w(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: au(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: av(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
@@ -794,7 +794,7 @@ contains
     real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -1163,9 +1163,9 @@ contains
        jacinv, weights3, n)
     integer, parameter :: lx = 12
     integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: v(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: v(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: w(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: au(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: av(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
@@ -1180,7 +1180,7 @@ contains
     real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -1531,9 +1531,9 @@ contains
        jacinv, weights3, n)
     integer, parameter :: lx = 11
     integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: v(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: v(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: w(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: au(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: av(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
@@ -1548,7 +1548,7 @@ contains
     real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -1880,9 +1880,9 @@ contains
        jacinv, weights3, n)
     integer, parameter :: lx = 10
     integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: v(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: v(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: w(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: au(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: av(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
@@ -1897,7 +1897,7 @@ contains
     real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -2211,9 +2211,9 @@ contains
        jacinv, weights3, n)
     integer, parameter :: lx = 9
     integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: v(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: v(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: w(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: au(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: av(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
@@ -2228,7 +2228,7 @@ contains
     real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -2524,9 +2524,9 @@ contains
        jacinv, weights3, n)
     integer, parameter :: lx = 8
     integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: v(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: v(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: w(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: au(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: av(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
@@ -2541,7 +2541,7 @@ contains
     real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -2820,9 +2820,9 @@ contains
        jacinv, weights3, n)
     integer, parameter :: lx = 7
     integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: v(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: v(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: w(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: au(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: av(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
@@ -2837,7 +2837,7 @@ contains
     real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -3099,9 +3099,9 @@ contains
        jacinv, weights3, n)
     integer, parameter :: lx = 6
     integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: v(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: v(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: w(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: au(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: av(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
@@ -3116,7 +3116,7 @@ contains
     real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -3358,9 +3358,9 @@ contains
        jacinv, weights3, n)
     integer, parameter :: lx = 5
     integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: v(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: v(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: w(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: au(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: av(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
@@ -3375,7 +3375,7 @@ contains
     real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -3600,9 +3600,9 @@ contains
        jacinv, weights3, n)
     integer, parameter :: lx = 4
     integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: v(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: v(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: w(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: au(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: av(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
@@ -3617,7 +3617,7 @@ contains
     real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -3823,9 +3823,9 @@ contains
        jacinv, weights3, n)
     integer, parameter :: lx = 3
     integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: v(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: v(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: w(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: au(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: av(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
@@ -3840,7 +3840,7 @@ contains
     real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -4028,9 +4028,9 @@ contains
        jacinv, weights3, n)
     integer, parameter :: lx = 2
     integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: u(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: v(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: w(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: u(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: v(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: w(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: au(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: av(lx, lx, lx, n)
     real(kind=rp), intent(inout) :: aw(lx, lx, lx, n)
@@ -4045,7 +4045,7 @@ contains
     real(kind=rp), intent(in) :: dtdx(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdy(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dtdz(lx, lx, lx, n)
-    real(kind=rp), intent(inout) :: jacinv(lx, lx, lx, n)
+    real(kind=rp), intent(in) :: jacinv(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
