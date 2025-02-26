@@ -209,8 +209,8 @@ contains
           fname = "fluid_stats"// &
                trim(adjustl(prefix))//"."//suffix
        end if
+       call this%stats_output%init_base(fname)
     end if
-    call this%stats_output%init_base(fname)
   end subroutine fluid_stats_simcomp_restart
 
   !> fluid_stats, called depending on compute_control and compute_value
