@@ -43,7 +43,7 @@ module fluid_stats_simcomp
   use case, only : case_t
   use coefs, only : coef_t
   use comm
-  use utils, only: NEKO_FNAME_LEN
+  use utils, only: NEKO_FNAME_LEN, filename_suffix, filename_tslash_pos
   use logger, only : LOG_SIZE, neko_log
   use json_utils, only : json_get, json_get_or_default
   implicit none
@@ -152,12 +152,9 @@ contains
 
     this%start_time = start_time
     this%time = start_time
-
+    fname = "fluid_stats0"
     call this%stats_output%init(this%stats, this%start_time, &
-         hom_dir = hom_dir, path = this%case%output_directory)
-    write (prefix, '(I5)') this%stats_output%file_%get_counter()
-    fname = "fluid_stats"//trim(adjustl(prefix))//"_.fld"
-    call this%stats_output%init_base(fname)
+         hom_dir = hom_dir,name = fname,path = this%case%output_directory)
 
     call this%case%output_controller%add(this%stats_output, &
          this%output_controller%control_value, &
@@ -178,11 +175,20 @@ contains
     class(fluid_stats_simcomp_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     character(len=NEKO_FNAME_LEN) :: fname
-    character(len=5) :: prefix
+    character(len=5) :: prefix,suffix
+    integer :: last_slash_pos
     if (t .gt. this%time) this%time = t
 
     write (prefix, '(I5)') this%stats_output%file_%get_counter()
-    fname = "fluid_stats"//trim(adjustl(prefix))//"_.fld"
+    call filename_suffix(this%stats_output%file_%file_type%fname,suffix)
+    last_slash_pos = filename_tslash_pos(this%stats_output%file_%file_type%fname)
+    if (last_slash_pos .ne. 0) then
+       fname = this%stats_output%file_%file_type%fname(0:last_slash_pos)//"fluid_stats"// &
+            trim(adjustl(prefix))//"."//suffix
+    else
+       fname = "fluid_stats"// &
+            trim(adjustl(prefix))//"."//suffix
+    end if
     call this%stats_output%init_base(fname)
   end subroutine fluid_stats_simcomp_restart
 
