@@ -68,6 +68,9 @@ done
 FLAGS="-Rr -i2 -d3 -f3 -s3 -c3 -w3 -t3 -j3 --ws_remred --indent_ampersand --openmp=0"
 FLAGS="$FLAGS -k$CONTINUATION"
 
+# ---------------------------------------------------------------------------- #
+# Handle the files
+
 # If no files are provided, format all the Fortran files in the repository which are modified
 if [ $# -gt 0 ]; then
     files=($@)
@@ -90,6 +93,9 @@ if [ ${#files[@]} -eq 0 ]; then
     echo "No files to format"
     exit 0
 fi
+
+# ---------------------------------------------------------------------------- #
+# Format the files
 
 for file in ${files[@]}; do
     if [[ ${file: -4} != ".f90" && ${file: -4} != ".F90" ]]; then
