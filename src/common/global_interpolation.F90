@@ -54,6 +54,7 @@ module global_interpolation
   use aabb_tree, only: aabb_tree_t, aabb_node_t, AABB_NULL_NODE
   use vector, only: vector_t
   use matrix, only: matrix_t
+  use tensor, only: tnsr3d
   use math, only: copy, glsum, NEKO_M_LN2, NEKO_EPS
   use device_math
   !use comm, only : NEKO_COMM, pe_size, pe_rank, MPI_Gather, &
