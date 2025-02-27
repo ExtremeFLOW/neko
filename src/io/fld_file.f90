@@ -115,7 +115,7 @@ contains
     write_temperature = .false.
 
     select type (data)
-      type is (fld_file_data_t)
+    type is (fld_file_data_t)
        nelv = data%nelv
        lx = data%lx
        ly = data%ly
@@ -178,35 +178,35 @@ contains
        do i = 1, nelv
           idx(i) = data%idx(i)
        end do
-      type is (field_t)
+    type is (field_t)
        p%ptr => data%x(:,1,1,1)
        dof => data%dof
        write_pressure = .true.
        write_velocity = .false.
-      type is (field_list_t)
+    type is (field_list_t)
        select case (data%size())
-         case (1)
+       case (1)
           p%ptr => data%items(1)%ptr%x(:,1,1,1)
           write_pressure = .true.
           write_velocity = .false.
-         case (2)
+       case (2)
           p%ptr => data%items(1)%ptr%x(:,1,1,1)
           tem%ptr => data%items(2)%ptr%x(:,1,1,1)
           write_pressure = .true.
           write_temperature = .true.
-         case (3)
+       case (3)
           u%ptr => data%items(1)%ptr%x(:,1,1,1)
           v%ptr => data%items(2)%ptr%x(:,1,1,1)
           w%ptr => data%items(3)%ptr%x(:,1,1,1)
           write_velocity = .true.
-         case (4)
+       case (4)
           p%ptr => data%items(1)%ptr%x(:,1,1,1)
           u%ptr => data%items(2)%ptr%x(:,1,1,1)
           v%ptr => data%items(3)%ptr%x(:,1,1,1)
           w%ptr => data%items(4)%ptr%x(:,1,1,1)
           write_pressure = .true.
           write_velocity = .true.
-         case (5:99)
+       case (5:99)
           p%ptr => data%items(1)%ptr%x(:,1,1,1)
           u%ptr => data%items(2)%ptr%x(:,1,1,1)
           v%ptr => data%items(3)%ptr%x(:,1,1,1)
@@ -220,12 +220,12 @@ contains
           write_pressure = .true.
           write_velocity = .true.
           write_temperature = .true.
-         case default
+       case default
           call neko_error('This many fields not supported yet, fld_file')
        end select
        dof => data%dof(1)
 
-      type is (mean_flow_t)
+    type is (mean_flow_t)
        u%ptr => data%u%mf%x(:,1,1,1)
        v%ptr => data%v%mf%x(:,1,1,1)
        w%ptr => data%w%mf%x(:,1,1,1)
@@ -233,7 +233,7 @@ contains
        dof => data%u%mf%dof
        write_pressure = .true.
        write_velocity = .true.
-      type is (mean_sqr_flow_t)
+    type is (mean_sqr_flow_t)
        u%ptr => data%uu%mf%x(:,1,1,1)
        v%ptr => data%vv%mf%x(:,1,1,1)
        w%ptr => data%ww%mf%x(:,1,1,1)
@@ -241,7 +241,7 @@ contains
        dof => data%pp%mf%dof
        write_pressure = .true.
        write_velocity = .true.
-      class default
+    class default
        call neko_error('Invalid data')
     end select
     ! Fix things for pointers that do not exist in all data types...
@@ -520,6 +520,12 @@ contains
        open(unit = 9, &
             file = trim(this%fname(1:suffix_pos-1)) // &
             trim(adjustl(start_field)), status = 'replace')
+       ! The following string will specify that the files in the file series
+       ! are defined by the filename followed by a 0.
+       ! This 0 is necessary as it specifies the index of number of files
+       ! the output file is split across.
+       ! In the past, many .f files were generated for each write.
+       ! To be consistent with this the trailing 0 is still necessary today.
        write(9, fmt = '(A,A,A)') 'filetemplate:         ', &
             this%fname(tslash_pos+1:suffix_pos-1), '%01d.f%05d'
        write(9, fmt = '(A,i5)') 'firsttimestep: ', this%start_counter
@@ -696,7 +702,7 @@ contains
     character :: rdcode(10), temp_str(4)
 
     select type (data)
-      type is (fld_file_data_t)
+    type is (fld_file_data_t)
        call filename_chsuffix(this%fname, meta_fname, 'nek5000')
 
        inquire(file = trim(meta_fname), exist = meta_file)
@@ -931,7 +937,7 @@ contains
 
        if (allocated(tmp_dp)) deallocate(tmp_dp)
        if (allocated(tmp_sp)) deallocate(tmp_sp)
-      class default
+    class default
        call neko_error('Currently we only read into fld_file_data_t, &
             &please use that data structure instead.')
     end select
