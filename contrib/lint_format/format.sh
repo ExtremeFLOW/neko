@@ -44,6 +44,7 @@ OPT=h,k:
 
 # Assign default values to the options
 CONTINUATION="5"
+TARGET_BRANCH="develop"
 
 # Parse the inputs for options
 PARSED=$(getopt --options=$OPT --longoptions=$OPTIONS --name "$0" -- "$@")
@@ -73,7 +74,7 @@ if [ $# -gt 0 ]; then
 else
     echo "Formatting all the modified Fortran files in the repository."
 
-    git fetch origin $TARGET_BRANCH
+    git fetch origin $TARGET_BRANCH >/dev/null 2>&1
     files=($(git diff --name-only --diff-filter=d origin/$TARGET_BRANCH))
 fi
 
