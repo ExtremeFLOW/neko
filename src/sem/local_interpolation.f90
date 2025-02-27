@@ -81,7 +81,7 @@ module local_interpolation
 
   end type local_interpolator_t
    
-  public :: find_rst_legendre
+  public :: find_rst_legendre, rst_cmp
 
 contains
 
