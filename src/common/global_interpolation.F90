@@ -33,14 +33,16 @@
 !> Implements global_interpolation given a dofmap.
 !!
 module global_interpolation
+<<<<<<< HEAD
   use num_types, only: rp, dp, xp
+  use neko_config, only : NEKO_BCKND_DEVICE
   use space, only: space_t
   use stack
   use dofmap, only: dofmap_t
   use mesh, only: mesh_t
   use logger, only: neko_log, LOG_SIZE
   use utils, only: neko_error, neko_warning
-  use local_interpolation
+  use local_interpolation, only : local_interpolator_t
   use device_local_interpolation
   use device
   use point
@@ -54,13 +56,16 @@ module global_interpolation
   use matrix, only: matrix_t
   use math, only: copy, glsum
   use device_math
+  !use comm, only : NEKO_COMM, pe_size, pe_rank, MPI_Gather, &
+  !     MPI_DOUBLE_PRECISION, MPI_INTEGER, MPI_SUM, MPI_Reduce, MPI_Gatherv
   use neko_mpi_types
-  use structs, only: array_ptr_t
+  use structs, only : array_ptr_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
   
   integer, public, parameter :: GLOB_MAP_SIZE = 4096
+
   !> Implements global interpolation for arbitrary points in the domain.
   type, public :: global_interpolation_t
      !> X coordinates from which to interpolate.

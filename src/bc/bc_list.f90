@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -176,15 +176,88 @@ contains
     type(c_ptr) :: x_d
     integer :: i
 
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
-       do i = 1, this%size_
-          call this%items(i)%ptr%apply_scalar_dev(x_d, t = t, tstep = tstep)
-       end do
+       if (present(strong)) then
+          if (present(t) .and. present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar_dev(x_d, t, tstep, strong)
+             end do
+          else if (present(t)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar_dev(x_d, t = t, &
+                     strong = strong)
+             end do
+          else if (present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar_dev(x_d, tstep = tstep, &
+                     strong = strong)
+             end do
+          else
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar_dev(x_d)
+             end do
+          end if
+       else
+          if (present(t) .and. present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar_dev(x_d, t = t, &
+                     tstep = tstep)
+             end do
+          else if (present(t)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar_dev(x_d, t = t)
+             end do
+          else if (present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar_dev(x_d, tstep = tstep)
+             end do
+          else
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar_dev(x_d)
+             end do
+          end if
+       end if
     else
-       do i = 1, this%size_
-          call this%items(i)%ptr%apply_scalar(x, n, t, tstep, strong)
-       end do
+       if (present(strong)) then
+          if (present(t) .and. present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar(x, n, t, tstep, strong)
+             end do
+          else if (present(t)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar(x, n, t = t, strong = strong)
+             end do
+          else if (present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar(x, n, tstep = tstep, &
+                     strong = strong)
+             end do
+          else
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar(x, n, strong = strong)
+             end do
+          end if
+       else
+          if (present(t) .and. present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar(x, n, t = t, tstep = tstep)
+             end do
+          else if (present(t)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar(x, n, t = t)
+             end do
+          else if (present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar(x, n, tstep = tstep)
+             end do
+          else
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar(x, n)
+             end do
+          end if
+       end if
     end if
   end subroutine bc_list_apply_scalar_array
 
@@ -216,13 +289,90 @@ contains
        x_d = device_get_ptr(x)
        y_d = device_get_ptr(y)
        z_d = device_get_ptr(z)
-       do i = 1, this%size_
-          call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t, tstep)
-       end do
+
+       if (present(strong)) then
+          if (present(t) .and. present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t, &
+                     tstep, strong)
+             end do
+          else if (present(t)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t = t, &
+                     strong = strong)
+             end do
+          else if (present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, &
+                     tstep = tstep, strong = strong)
+             end do
+          else
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, &
+                     strong = strong)
+             end do
+          end if
+       else
+          if (present(t) .and. present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t, &
+                     tstep)
+             end do
+          else if (present(t)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, t = t)
+             end do
+          else if (present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d, &
+                     tstep = tstep)
+             end do
+          else
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector_dev(x_d, y_d, z_d)
+             end do
+          end if
+       end if
     else
-       do i = 1, this%size_
-          call this%items(i)%ptr%apply_vector(x, y, z, n, t, tstep, strong)
-       end do
+       if (present(strong)) then
+          if (present(t) .and. present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector(x, y, z, n, t, tstep, strong)
+             end do
+          else if (present(t)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector(x, y, z, n, t = t, &
+                     strong = strong)
+             end do
+          else if (present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector(x, y, z, n, &
+                     tstep = tstep, strong = strong)
+             end do
+          else
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector(x, y, z, n, strong = strong)
+             end do
+          end if
+       else
+          if (present(t) .and. present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector(x, y, z, n, t, tstep)
+             end do
+          else if (present(t)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector(x, y, z, n, t = t)
+             end do
+          else if (present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector(x, y, z, n, tstep = tstep)
+             end do
+          else
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector(x, y, z, n)
+             end do
+          end if
+       end if
     end if
 
   end subroutine bc_list_apply_vector_array
@@ -243,9 +393,45 @@ contains
 
     n = x%size()
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       do i = 1, this%size_
-          call this%items(i)%ptr%apply_scalar_dev(x%x_d, t, tstep)
-       end do
+       if (present(strong)) then
+          if (present(t) .and. present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar_dev(x%x_d, t, tstep, strong)
+             end do
+          else if (present(t)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar_dev(x%x_d, t = t, &
+                     strong = strong)
+             end do
+          else if (present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar_dev(x%x_d, tstep = tstep, &
+                     strong = strong)
+             end do
+          else
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar_dev(x%x_d, strong = strong)
+             end do
+          end if
+       else
+          if (present(t) .and. present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar_dev(x%x_d, t, tstep)
+             end do
+          else if (present(t)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar_dev(x%x_d, t = t)
+             end do
+          else if (present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar_dev(x%x_d, tstep = tstep)
+             end do
+          else
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_scalar_dev(x%x_d)
+             end do
+          end if
+       end if
     else
        do i = 1, this%size_
           call this%items(i)%ptr%apply_scalar(x%x, n, t, tstep, strong)
@@ -282,14 +468,95 @@ contains
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       do i = 1, this%size_
-          call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, t, tstep)
-       end do
+       if (present(strong)) then
+          if (present(t) .and. present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
+                     t, tstep, strong)
+             end do
+          else if (present(t)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
+                     t = t, strong = strong)
+             end do
+          else if (present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
+                     tstep = tstep, strong = strong)
+             end do
+          else
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
+                     strong = strong)
+             end do
+          end if
+       else
+          if (present(t) .and. present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
+                     t, tstep)
+             end do
+          else if (present(t)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
+                     t = t)
+             end do
+          else if (present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d, &
+                     tstep = tstep)
+             end do
+          else
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector_dev(x%x_d, y%x_d, z%x_d)
+             end do
+          end if
+       end if
     else
-       do i = 1, this%size_
-          call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, t, tstep, &
-               strong)
-       end do
+       if (present(strong)) then
+          if (present(t) .and. present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, t, &
+                     tstep, strong)
+             end do
+          else if (present(t)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, &
+                     t = t, strong = strong)
+             end do
+          else if (present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, &
+                     tstep = tstep, strong = strong)
+             end do
+          else
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, &
+                     strong = strong)
+             end do
+          end if
+       else
+          if (present(t) .and. present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, t, &
+                     tstep)
+             end do
+          else if (present(t)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, &
+                     t = t)
+             end do
+          else if (present(tstep)) then
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n, &
+                     tstep = tstep)
+             end do
+          else
+             do i = 1, this%size_
+                call this%items(i)%ptr%apply_vector(x%x, y%x, z%x, n)
+             end do
+          end if
+       end if
     end if
 
   end subroutine bc_list_apply_vector_field

@@ -66,9 +66,9 @@ module projection
   use coefs, only : coef_t
   use ax_product, only : ax_t
   use bc_list, only : bc_list_t
-  use comm
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use neko_config, only : NEKO_BCKND_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BLK_SIZE, &
+       NEKO_DEVICE_MPI, NEKO_BCKND_OPENCL
   use device, only : device_alloc, HOST_TO_DEVICE, device_memcpy, &
        device_get_ptr, device_free, device_map
   use device_math, only : device_glsc3, device_add2s2, device_cmult, &
@@ -78,14 +78,17 @@ module projection
   use profiler, only : profiler_start_region, profiler_end_region
   use logger, only : LOG_SIZE, neko_log
   use utils, only : neko_warning
-  use, intrinsic :: iso_c_binding
   use bc_list, only : bc_list_t
   use time_step_controller, only : time_step_controller_t
-
+  use comm, only : NEKO_COMM, pe_rank, MPI_Allreduce, MPI_IN_PLACE, &
+       MPI_SUM, MPI_REAL_PRECISION
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t, &
+       c_sizeof, C_NULL_PTR, c_loc, c_associated
   implicit none
   private
+  public :: proj_ortho
 
-  type, public ::  projection_t
+  type, public :: projection_t
      real(kind=rp), allocatable :: xx(:,:)
      real(kind=rp), allocatable :: bb(:,:)
      real(kind=rp), allocatable :: xbar(:)
@@ -170,11 +173,11 @@ contains
        call device_alloc(this%xx_d_d, ptr_size)
        ptr = c_loc(this%xx_d)
        call device_memcpy(ptr, this%xx_d_d, ptr_size, &
-                          HOST_TO_DEVICE, sync = .false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_alloc(this%bb_d_d, ptr_size)
        ptr = c_loc(this%bb_d)
        call device_memcpy(ptr, this%bb_d_d, ptr_size, &
-                          HOST_TO_DEVICE, sync = .false.)
+            HOST_TO_DEVICE, sync = .false.)
     end if
 
 
@@ -268,7 +271,7 @@ contains
 
     if (tstep .gt. this%activ_step .and. this%L .gt. 0) then
        if (.not.(dt_controller%if_variable_dt) .or. &
-       (dt_controller%dt_last_change .gt. this%activ_step - 1)) then
+            (dt_controller%dt_last_change .gt. this%activ_step - 1)) then
           call this%project_back(x, Ax, coef, bclst, gs_h, n)
        end if
     end if
@@ -290,7 +293,7 @@ contains
   end subroutine bcknd_project_on
 
   subroutine bcknd_project_back(this, x, Ax, coef, bclst, gs_h, n)
-    class(projection_t) :: this
+    class(projection_t), intent(inout) :: this
     integer, intent(inout) :: n
     class(Ax_t), intent(inout) :: Ax
     class(coef_t), intent(inout) :: coef
@@ -303,7 +306,7 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        x_d = device_get_ptr(x)
-      ! Restore desired solution
+       ! Restore desired solution
        if (this%m .gt. 0) call device_add2(x_d, this%xbar_d, n)
        if (this%m .eq. this%L) then
           this%m = 1
@@ -311,28 +314,24 @@ contains
           this%m = min(this%m+1, this%L)
        end if
 
-       call device_copy(this%xx_d(this%m), x_d, n)   ! Update (X,B)
+       call device_copy(this%xx_d(this%m), x_d, n) ! Update (X,B)
 
     else
-       if (this%m .gt. 0) call add2(x, this%xbar, n)      ! Restore desired solution
+       if (this%m .gt. 0) call add2(x, this%xbar, n) ! Restore desired solution
        if (this%m .eq. this%L) then
           this%m = 1
        else
           this%m = min(this%m+1, this%L)
        end if
 
-       call copy(this%xx(1, this%m), x, n)   ! Update (X,B)
+       call copy(this%xx(1, this%m), x, n) ! Update (X,B)
     end if
 
     call Ax%compute(this%bb(1, this%m), x, coef, coef%msh, coef%Xh)
     call gs_h%gs_op_vector(this%bb(1, this%m), n, GS_OP_ADD)
     call bclst%apply_scalar(this%bb(1, this%m), n)
 
-    if (NEKO_BCKND_DEVICE .eq. 1)  then
-       call device_proj_ortho(this, this%xx_d, this%bb_d, coef%mult_d, n)
-    else
-       call cpu_proj_ortho  (this, this%xx, this%bb, coef%mult, n)
-    end if
+    call proj_ortho(this, coef, n)
     call profiler_end_region('Project back', 17)
   end subroutine bcknd_project_back
 
@@ -347,7 +346,7 @@ contains
     real(kind=rp) :: work(this%L), alpha(this%L), s
 
     associate(xbar => this%xbar, xx => this%xx, &
-              bb => this%bb)
+         bb => this%bb)
 
       if (this%m .le. 0) return
 
@@ -420,7 +419,7 @@ contains
     b_d = device_get_ptr(b)
 
     associate(xbar_d => this%xbar_d, xx_d => this%xx_d, xx_d_d => this%xx_d_d, &
-              bb_d => this%bb_d, bb_d_d => this%bb_d_d, alpha_d => this%alpha_d)
+         bb_d => this%bb_d, bb_d_d => this%bb_d_d, alpha_d => this%alpha_d)
 
       if (this%m .le. 0) return
 
@@ -439,7 +438,7 @@ contains
          else
             call device_glsc3_many(alpha, b_d, xx_d_d, coef%mult_d, this%m, n)
             call device_memcpy(alpha, alpha_d, this%m, &
-                               HOST_TO_DEVICE, sync = .false.)
+                 HOST_TO_DEVICE, sync = .false.)
          end if
          call device_rzero(xbar_d, n)
          if (NEKO_BCKND_OPENCL .eq. 1) then
@@ -461,7 +460,7 @@ contains
             call device_add2s2_many(b_d, bb_d_d, alpha_d, this%m, n)
             call device_glsc3_many(alpha, b_d, xx_d_d, coef%mult_d, this%m, n)
             call device_memcpy(alpha, alpha_d, this%m, &
-                               HOST_TO_DEVICE, sync = .false.)
+                 HOST_TO_DEVICE, sync = .false.)
          end if
 
          if (NEKO_BCKND_OPENCL .eq. 1) then
@@ -480,18 +479,31 @@ contains
     end associate
   end subroutine device_project_on
 
+  !Choose between CPU or device for proj_ortho
+  subroutine proj_ortho(this, coef, n)
+    class(projection_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    integer, intent(in) :: n
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_proj_ortho(this, this%xx_d, this%bb_d, coef%mult_d, n)
+    else
+       call cpu_proj_ortho (this, this%xx, this%bb, coef%mult, n)
+    end if
+  end subroutine proj_ortho
+
   !This is a lot more primitive than on the CPU
   subroutine device_proj_ortho(this, xx_d, bb_d, w_d, n)
-    type(projection_t)  :: this
-    integer, intent(inout) :: n
+    type(projection_t), intent(inout) :: this
+    integer, intent(in) :: n
     type(c_ptr), dimension(this%L) :: xx_d, bb_d
-    type(c_ptr) :: w_d
+    type(c_ptr), intent(in) :: w_d
     real(kind=rp) :: nrm, scl
     real(kind=rp) :: alpha(this%L)
     integer :: i
 
-    associate(m => this%m,  xx_d_d => this%xx_d_d, &
-              bb_d_d => this%bb_d_d, alpha_d => this%alpha_d)
+    associate(m => this%m, xx_d_d => this%xx_d_d, &
+         bb_d_d => this%bb_d_d, alpha_d => this%alpha_d)
 
       if (m .le. 0) return
 
@@ -517,7 +529,7 @@ contains
             end do
          else
             call device_memcpy(alpha, alpha_d, this%m, &
-                               HOST_TO_DEVICE, sync = .false.)
+                 HOST_TO_DEVICE, sync = .false.)
             call device_add2s2_many(xx_d(m), xx_d_d, alpha_d, m-1, n)
             call device_add2s2_many(bb_d(m), bb_d_d, alpha_d, m-1, n)
 
@@ -528,11 +540,11 @@ contains
             do i = 1, m - 1
                call device_add2s2(xx_d(m), xx_d(i), alpha(i), n)
                call device_add2s2(bb_d(m), bb_d(i), alpha(i), n)
-               alpha(i) =  device_glsc3(bb_d(m), xx_d(i), w_d, n)
+               alpha(i) = device_glsc3(bb_d(m), xx_d(i), w_d, n)
             end do
          else
             call device_memcpy(alpha, alpha_d, m, &
-                               HOST_TO_DEVICE, sync = .false.)
+                 HOST_TO_DEVICE, sync = .false.)
             call device_add2s2_many(xx_d(m), xx_d_d, alpha_d, m-1, n)
             call device_add2s2_many(bb_d(m), bb_d_d, alpha_d, m-1, n)
             call device_glsc3_many(alpha, bb_d(m), xx_d_d, w_d, m, n)
@@ -561,10 +573,10 @@ contains
 
 
   subroutine cpu_proj_ortho(this, xx, bb, w, n)
-    type(projection_t)  :: this
-    integer, intent(inout) :: n
+    type(projection_t), intent(inout) :: this
+    integer, intent(in) :: n
     real(kind=rp), dimension(n, this%L), intent(inout) :: xx, bb
-    real(kind=rp), dimension(n), intent(inout) :: w
+    real(kind=rp), dimension(n), intent(in) :: w
     real(kind=rp) :: nrm, scl1, scl2, c, s
     real(kind=rp) :: alpha(this%L), beta(this%L)
     integer :: i, j, k, l, h, ierr
@@ -669,8 +681,8 @@ contains
   end subroutine cpu_proj_ortho
 
   subroutine print_proj_info(this, string)
-    class(projection_t) :: this
-    character(len=*) :: string
+    class(projection_t), intent(in) :: this
+    character(len=*), intent(in) :: string
     character(len=LOG_SIZE) :: log_buf
 
     if (this%proj_m .gt. 0) then
@@ -678,14 +690,14 @@ contains
        call neko_log%message(log_buf)
        write(log_buf, '(A,A)') 'Proj. vec.:', '   Orig. residual:'
        call neko_log%message(log_buf)
-       write(log_buf, '(I11,3x, E15.7,5x)')  this%proj_m, this%proj_res
+       write(log_buf, '(I11,3x, E15.7,5x)') this%proj_m, this%proj_res
        call neko_log%message(log_buf)
     end if
 
   end subroutine print_proj_info
 
   subroutine bcknd_clear(this, n)
-    class(projection_t) :: this
+    class(projection_t), intent(inout) :: this
     integer, intent(in) :: n
     integer :: i, j
 

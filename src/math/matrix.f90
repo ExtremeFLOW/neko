@@ -35,7 +35,7 @@ module matrix
   use neko_config, only: NEKO_BCKND_DEVICE
   use math, only: sub3, chsign, add3, cmult2, cadd2, copy
   use num_types, only: rp, xp
-  use device, only: device_map, device_free, c_ptr, C_NULL_PTR, device_memcpy
+  use device, only: device_map, device_free,device_memcpy
   use device_math, only: device_copy, device_cfill, device_cmult, &
        device_sub3, device_cmult2, device_add3, device_cadd2
   use utils, only: neko_error
@@ -368,7 +368,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1 .and. &
          bcknd .eq. NEKO_BCKND_DEVICE) then
        call neko_error("matrix_bcknd_inverse not &
-                        &implemented on accelarators.")
+            &implemented on accelarators.")
     else
        call cpu_matrix_inverse(m)
     end if
@@ -387,7 +387,7 @@ contains
 
     if (.not. (m%ncols .eq. m%nrows)) then
        call neko_error("Fatal error: trying to invert m matrix that is not &
-&square")
+            &square")
     end if
 
     eps = 1e-9_rp

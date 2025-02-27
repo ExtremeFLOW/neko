@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,20 +38,24 @@ module gather_scatter
   use gs_sx, only : gs_sx_t
   use gs_cpu, only : gs_cpu_t
   use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
-  use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU
+  use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, &
+       GS_COMM_NVSHMEM
   use gs_mpi, only : gs_mpi_t
   use gs_device_mpi, only : gs_device_mpi_t
+  use gs_device_nccl, only : gs_device_nccl_t
+  use gs_device_shmem, only : gs_device_shmem_t
   use mesh, only : mesh_t
   use comm
   use dofmap, only : dofmap_t
   use field, only : field_t
-  use num_types, only : rp, dp, i2
+  use num_types, only : rp, dp, i2, i8
   use htable, only : htable_i8_t, htable_iter_i8_t
   use stack, only : stack_i4_t
   use utils, only : neko_error, linear_index
   use logger, only : neko_log, LOG_SIZE
   use profiler, only : profiler_start_region, profiler_end_region
   use device
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR
   implicit none
   private
 
@@ -90,7 +94,7 @@ module gather_scatter
   public :: GS_BCKND_CPU, GS_BCKND_SX, GS_BCKND_DEV
 
   ! Expose available gather-scatter comm. backends
-  public :: GS_COMM_MPI, GS_COMM_MPIGPU
+  public :: GS_COMM_MPI, GS_COMM_MPIGPU, GS_COMM_NCCL, GS_COMM_NVSHMEM
 
 
 contains
@@ -107,14 +111,14 @@ contains
     integer, optional :: bcknd, comm_bcknd
     integer :: i, j, ierr, bcknd_, comm_bcknd_
     integer(i8) :: glb_nshared, glb_nlocal
-    logical :: use_device_mpi
+    logical :: use_device_mpi, use_device_nccl, use_device_shmem, use_host_mpi
     real(kind=rp), allocatable :: tmp(:)
     type(c_ptr) :: tmp_d = C_NULL_PTR
     integer :: strtgy(4) = (/ int(B'00'), int(B'01'), int(B'10'), int(B'11') /)
     integer :: avg_strtgy, env_len
-    character(len=255) :: env_strtgy
+    character(len=255) :: env_strtgy, env_gscomm
     real(kind=dp) :: strtgy_time(4)
-
+    
     call gs%free()
 
     call neko_log%section('Gather-Scatter')
@@ -123,8 +127,36 @@ contains
     gs%dofmap => dofmap
 
     use_device_mpi = .false.
+    use_device_nccl = .false.
+    use_device_shmem = .false.
+    use_host_mpi = .false.    
+    ! Check if a comm-backend is requested via env. variables
+    call get_environment_variable("NEKO_GS_COMM", env_gscomm, env_len)
+    if (env_len .gt. 0) then
+       if (env_gscomm(1:env_len) .eq. "MPI") then
+          use_host_mpi = .true.
+       else if (env_gscomm(1:env_len) .eq. "MPIGPU") then
+          use_device_mpi = .true.
+       else if (env_gscomm(1:env_len) .eq. "NCCL") then
+          use_device_nccl = .true.
+       else if (env_gscomm(1:env_len) .eq. "SHMEM") then
+          use_device_shmem = .true.
+       else
+          call neko_error('Unknown Gather-scatter comm. backend')
+       end if
+    end if
+
+
     if (present(comm_bcknd)) then
        comm_bcknd_ = comm_bcknd
+    else if (use_host_mpi) then
+       comm_bcknd_ = GS_COMM_MPI
+    else if (use_device_mpi) then
+       comm_bcknd_ = GS_COMM_MPIGPU
+    else if (use_device_nccl) then
+       comm_bcknd_ = GS_COMM_NCCL
+    else if (use_device_shmem) then
+       comm_bcknd_ = GS_COMM_NVSHMEM
     else
        if (NEKO_DEVICE_MPI) then
           comm_bcknd_ = GS_COMM_MPIGPU
@@ -141,6 +173,12 @@ contains
     case (GS_COMM_MPIGPU)
        call neko_log%message('Comm         :   Device MPI')
        allocate(gs_device_mpi_t::gs%comm)
+    case (GS_COMM_NCCL)
+       call neko_log%message('Comm         :         NCCL')
+       allocate(gs_device_nccl_t::gs%comm)
+    case (GS_COMM_NVSHMEM)
+       call neko_log%message('Comm         :      NVSHMEM')
+       allocate(gs_device_shmem_t::gs%comm)       
     case default
        call neko_error('Unknown Gather-scatter comm. backend')
     end select
@@ -224,12 +262,14 @@ contains
 
     call gs%bcknd%init(gs%nlocal, gs%nshared, gs%nlocal_blks, gs%nshared_blks)
 
-    if (use_device_mpi) then
+    if (use_device_mpi .or. use_device_nccl .or. use_device_shmem) then
        select type(b => gs%bcknd)
        type is (gs_device_t)
           b%shared_on_host = .false.
        end select
+    end if
 
+    if (use_device_mpi) then
        if(pe_size .gt. 1) then
           ! Select fastest device MPI strategy at runtime
           select type(c => gs%comm)

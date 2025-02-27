@@ -34,7 +34,12 @@
 !> Implements `les_model_t`.
 module les_model
   use num_types, only : rp
-  use field, only : field_t, field_ptr_t
+  use fluid_scheme_base, only : fluid_scheme_base_t
+  use fluid_pnpn, only : fluid_pnpn_t
+  use time_scheme_controller, only : time_scheme_controller_t
+  use rhs_maker, only : rhs_maker_sumab_t, rhs_maker_sumab_fctry
+  use field, only : field_t
+  use field_series, only : field_series_t
   use json_module, only : json_file
   use field_registry, only : neko_field_registry
   use dofmap, only : dofmap_t
@@ -49,6 +54,16 @@ module les_model
 
   !> Base abstract type for LES models based on the Boussinesq approximation.
   type, abstract, public :: les_model_t
+     !> Pointer to the extrapolation scheme.
+     type(time_scheme_controller_t), pointer :: ext_bdf => null()
+     !> Pointer to the lag list of the velocities
+     type(field_series_t), pointer :: ulag => null()
+     type(field_series_t), pointer :: vlag => null()
+     type(field_series_t), pointer :: wlag => null()
+     !> Summation of AB/BDF contributions to extrapolate the field
+     class(rhs_maker_sumab_t), allocatable :: sumab
+     !> Logical variable for extrapolation
+     logical :: if_ext = .false.
      !> Subgrid kinematic viscosity.
      type(field_t), pointer :: nut => null()
      !> LES lengthscale type
@@ -86,14 +101,12 @@ module les_model
 
   abstract interface
      !> Common constructor.
-     !! @param dofmap SEM map of degrees of freedom.
-     !! @param coef SEM coefficients.
+     !! @param fluid The fluid_scheme_t object.
      !! @param json A dictionary with parameters.
-     subroutine les_model_init(this, dofmap, coef, json)
-       import les_model_t, json_file, dofmap_t, coef_t
+     subroutine les_model_init(this, fluid, json)
+       import les_model_t, json_file, fluid_scheme_base_t
        class(les_model_t), intent(inout) :: this
-       type(coef_t), intent(in) :: coef
-       type(dofmap_t), intent(in) :: dofmap
+       class(fluid_scheme_base_t), intent(inout), target :: fluid
        type(json_file), intent(inout) :: json
      end subroutine les_model_init
   end interface
@@ -123,31 +136,42 @@ module les_model
   end interface
 
   public :: les_model_factory
-  
+
 contains
   !> Constructor for the les_model_t (base) class.
-  !! @param dofmap SEM map of degrees of freedom.
-  !! @param coef SEM coefficients.
+  !! @param fluid The fluid_scheme_t object.
   !! @param nu_name The name of the turbulent viscosity field.
-  subroutine les_model_init_base(this, dofmap, coef, nut_name, delta_type)
+  !! @param delta_type The type of filter size
+  subroutine les_model_init_base(this, fluid, nut_name, delta_type)
     class(les_model_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dofmap
-    type(coef_t), target, intent(in) :: coef
+    class(fluid_scheme_base_t), intent(inout), target :: fluid
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
 
-    if (.not. neko_field_registry%field_exists(trim(nut_name))) then
-       call neko_field_registry%add_field(dofmap, trim(nut_name))
-    end if
-    if (.not. neko_field_registry%field_exists("les_delta")) then
-       call neko_field_registry%add_field(dofmap, "les_delta")
-    end if
-    this%nut => neko_field_registry%get_field(trim(nut_name))
-    this%delta => neko_field_registry%get_field("les_delta")
-    this%coef => coef
-    this%delta_type = delta_type
+    associate(dofmap => fluid%dm_Xh, &
+         coef => fluid%c_Xh)
 
-    call this%compute_delta()
+      call neko_field_registry%add_field(dofmap, trim(nut_name), .true.)
+      call neko_field_registry%add_field(dofmap, "les_delta", .true.)
+      this%nut => neko_field_registry%get_field(trim(nut_name))
+      this%delta => neko_field_registry%get_field("les_delta")
+      this%coef => coef
+      this%delta_type = delta_type
+
+      call this%compute_delta()
+
+      select type (fluid)
+      type is (fluid_pnpn_t)
+         this%if_ext = .true.
+         this%ulag => fluid%ulag
+         this%vlag => fluid%vlag
+         this%wlag => fluid%wlag
+         ! Setup backend dependent summation of AB/BDF
+         this%ext_bdf => fluid%ext_bdf
+         call rhs_maker_sumab_fctry(this%sumab)
+      end select
+
+    end associate
   end subroutine les_model_init_base
 
   !> Destructor for the les_model_t (base) class.
@@ -157,6 +181,9 @@ contains
     nullify(this%nut)
     nullify(this%delta)
     nullify(this%coef)
+    if (allocated(this%sumab)) then
+       deallocate(this%sumab)
+    end if
   end subroutine les_model_free_base
 
   !> Compute the LES lengthscale.
@@ -181,25 +208,25 @@ contains
        ! the length scale is based on maximum GLL spacing
        do e = 1, this%coef%msh%nelv
           di = (this%coef%dof%x(lx_half, 1, 1, e) &
-              - this%coef%dof%x(lx_half + 1, 1, 1, e))**2 &
-             + (this%coef%dof%y(lx_half, 1, 1, e) &
-              - this%coef%dof%y(lx_half + 1, 1, 1, e))**2 &
-             + (this%coef%dof%z(lx_half, 1, 1, e) &
-              - this%coef%dof%z(lx_half + 1, 1, 1, e))**2
+               - this%coef%dof%x(lx_half + 1, 1, 1, e))**2 &
+               + (this%coef%dof%y(lx_half, 1, 1, e) &
+               - this%coef%dof%y(lx_half + 1, 1, 1, e))**2 &
+               + (this%coef%dof%z(lx_half, 1, 1, e) &
+               - this%coef%dof%z(lx_half + 1, 1, 1, e))**2
 
           dj = (this%coef%dof%x(1, ly_half, 1, e) &
-              - this%coef%dof%x(1, ly_half + 1, 1, e))**2 &
-             + (this%coef%dof%y(1, ly_half, 1, e) &
-              - this%coef%dof%y(1, ly_half + 1, 1, e))**2 &
-             + (this%coef%dof%z(1, ly_half, 1, e) &
-              - this%coef%dof%z(1, ly_half + 1, 1, e))**2
+               - this%coef%dof%x(1, ly_half + 1, 1, e))**2 &
+               + (this%coef%dof%y(1, ly_half, 1, e) &
+               - this%coef%dof%y(1, ly_half + 1, 1, e))**2 &
+               + (this%coef%dof%z(1, ly_half, 1, e) &
+               - this%coef%dof%z(1, ly_half + 1, 1, e))**2
 
           dk = (this%coef%dof%x(1, 1, lz_half, e) &
-              - this%coef%dof%x(1, 1, lz_half + 1, e))**2 &
-             + (this%coef%dof%y(1, 1, lz_half, e) &
-              - this%coef%dof%y(1, 1, lz_half + 1, e))**2 &
-             + (this%coef%dof%z(1, 1, lz_half, e) &
-              - this%coef%dof%z(1, 1, lz_half + 1, e))**2
+               - this%coef%dof%x(1, 1, lz_half + 1, e))**2 &
+               + (this%coef%dof%y(1, 1, lz_half, e) &
+               - this%coef%dof%y(1, 1, lz_half + 1, e))**2 &
+               + (this%coef%dof%z(1, 1, lz_half, e) &
+               - this%coef%dof%z(1, 1, lz_half + 1, e))**2
           di = sqrt(di)
           dj = sqrt(dj)
           dk = sqrt(dk)
@@ -214,9 +241,7 @@ contains
              volume_element = volume_element + this%coef%B(k, 1, 1, e)
           end do
           this%delta%x(:,:,:,e) = (volume_element / this%coef%Xh%lx &
-                                                  / this%coef%Xh%ly &
-                                                  / this%coef%Xh%lz) &
-                                                  **(1.0_rp / 3.0_rp)                
+               / this%coef%Xh%ly / this%coef%Xh%lz)**(1.0_rp / 3.0_rp)
        end do
     else if (this%delta_type .eq. "pointwise") then
        do e = 1, this%coef%msh%nelv
@@ -233,25 +258,25 @@ contains
                    ip = min(this%coef%Xh%lx, i+1)
 
                    di = (this%coef%dof%x(ip, j, k, e) - &
-                         this%coef%dof%x(im, j, k, e))**2 &
-                      + (this%coef%dof%y(ip, j, k, e) - &
-                         this%coef%dof%y(im, j, k, e))**2 &
-                      + (this%coef%dof%z(ip, j, k, e) - &
-                         this%coef%dof%z(im, j, k, e))**2
+                        this%coef%dof%x(im, j, k, e))**2 &
+                        + (this%coef%dof%y(ip, j, k, e) - &
+                        this%coef%dof%y(im, j, k, e))**2 &
+                        + (this%coef%dof%z(ip, j, k, e) - &
+                        this%coef%dof%z(im, j, k, e))**2
 
                    dj = (this%coef%dof%x(i, jp, k, e) - &
-                         this%coef%dof%x(i, jm, k, e))**2 &
-                      + (this%coef%dof%y(i, jp, k, e) - &
-                         this%coef%dof%y(i, jm, k, e))**2 &
-                      + (this%coef%dof%z(i, jp, k, e) - &
-                         this%coef%dof%z(i, jm, k, e))**2
+                        this%coef%dof%x(i, jm, k, e))**2 &
+                        + (this%coef%dof%y(i, jp, k, e) - &
+                        this%coef%dof%y(i, jm, k, e))**2 &
+                        + (this%coef%dof%z(i, jp, k, e) - &
+                        this%coef%dof%z(i, jm, k, e))**2
 
                    dk = (this%coef%dof%x(i, j, kp, e) - &
-                         this%coef%dof%x(i, j, km, e))**2 &
-                      + (this%coef%dof%y(i, j, kp, e) - &
-                         this%coef%dof%y(i, j, km, e))**2 &
-                      + (this%coef%dof%z(i, j, kp, e) - &
-                         this%coef%dof%z(i, j, km, e))**2
+                        this%coef%dof%x(i, j, km, e))**2 &
+                        + (this%coef%dof%y(i, j, kp, e) - &
+                        this%coef%dof%y(i, j, km, e))**2 &
+                        + (this%coef%dof%z(i, j, kp, e) - &
+                        this%coef%dof%z(i, j, km, e))**2
 
                    di = sqrt(di) / (ip - im)
                    dj = sqrt(dj) / (jp - jm)
@@ -265,13 +290,13 @@ contains
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      call device_memcpy(this%delta%x, this%delta%x_d, this%delta%dof%size(),&
-                          HOST_TO_DEVICE, sync = .false.)
-      call this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), GS_OP_ADD)
-      call device_col2(this%delta%x_d, this%coef%mult_d, this%delta%dof%size())
+       call device_memcpy(this%delta%x, this%delta%x_d, this%delta%dof%size(),&
+            HOST_TO_DEVICE, sync = .false.)
+       call this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), GS_OP_ADD)
+       call device_col2(this%delta%x_d, this%coef%mult_d, this%delta%dof%size())
     else
-      call this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), GS_OP_ADD)
-      call col2(this%delta%x, this%coef%mult, this%delta%dof%size())
+       call this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), GS_OP_ADD)
+       call col2(this%delta%x, this%coef%mult, this%delta%dof%size())
     end if
 
   end subroutine les_model_compute_delta
