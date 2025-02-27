@@ -33,7 +33,6 @@
 !> Implements global_interpolation given a dofmap.
 !!
 module global_interpolation
-<<<<<<< HEAD
   use num_types, only: rp, dp, xp
   use neko_config, only : NEKO_BCKND_DEVICE
   use space, only: space_t
@@ -42,7 +41,8 @@ module global_interpolation
   use mesh, only: mesh_t
   use logger, only: neko_log, LOG_SIZE
   use utils, only: neko_error, neko_warning
-  use local_interpolation, only : local_interpolator_t
+  use local_interpolation, only : local_interpolator_t, rst_cmp, &
+       find_rst_legendre
   use device_local_interpolation
   use device
   use point
@@ -54,7 +54,7 @@ module global_interpolation
   use aabb_tree, only: aabb_tree_t, aabb_node_t, AABB_NULL_NODE
   use vector, only: vector_t
   use matrix, only: matrix_t
-  use math, only: copy, glsum
+  use math, only: copy, glsum, NEKO_M_LN2, NEKO_EPS
   use device_math
   !use comm, only : NEKO_COMM, pe_size, pe_rank, MPI_Gather, &
   !     MPI_DOUBLE_PRECISION, MPI_INTEGER, MPI_SUM, MPI_Reduce, MPI_Gatherv
