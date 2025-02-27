@@ -200,10 +200,10 @@ contains
        write (prefix, '(I5)') this%stats_output%file_%get_counter()
        call filename_suffix(this%stats_output%file_%file_type%fname,suffix)
        last_slash_pos = &
-       filename_tslash_pos(this%stats_output%file_%file_type%fname)
+            filename_tslash_pos(this%stats_output%file_%file_type%fname)
        if (last_slash_pos .ne. 0) then
-          fname = & 
-          trim(this%stats_output%file_%file_type%fname(1:last_slash_pos))// &
+          fname = &
+               trim(this%stats_output%file_%file_type%fname(1:last_slash_pos))// &
                "fluid_stats"//trim(adjustl(prefix))//"."//suffix
        else
           fname = "fluid_stats"// &
