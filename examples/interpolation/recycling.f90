@@ -9,6 +9,7 @@ module user
   type(vector_t) :: res, B
   real(kind=rp) :: vol
   integer :: n_pts = 0
+  logical :: init = .false.
 
 contains
 
@@ -20,26 +21,26 @@ contains
     u%user_dirichlet_update => dirichlet_update
   end subroutine user_setup
 
-  subroutine dirichlet_update(field_bc_list, bc_bc_list, coef, t, tstep, which_solver)
+  !Observe this might be called multiple times per time step by different solvers
+  subroutine dirichlet_update(field_bc_list, bc, coef, t, tstep)
     type(field_list_t), intent(inout) :: field_bc_list
-    type(bc_list_t), intent(inout) :: bc_bc_list
+    type(field_dirichlet_t), intent(in) :: bc
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    character(len=*), intent(in) :: which_solver
     integer :: i, pt, msk_idx
     real(kind=rp) :: y, z, scale
     type(field_t), pointer :: field
     ! Only do this at the first time step since our BCs are constants.
-    if (tstep .eq. 1) then
-       n_pts = bc_bc_list%items(1)%ptr%msk(0)
+    if (tstep .eq. 1 .and. .not. init) then
+       n_pts = bc%msk(0)
 
        call xyz%init(3,n_pts)
        call B%init(n_pts)
        pt = 0
        do i = 1, n_pts
           ! Get idx of point and its coords and store in contigous xyz array
-          msk_idx = bc_bc_list%items(1)%ptr%msk(i)
+          msk_idx = bc%msk(i)
           ! We want to recycle the flow from 10 units upstream
           xyz%x(1,i) = coef%dof%x(msk_idx,1,1,1) + 10.0
           xyz%x(2,i) = coef%dof%y(msk_idx,1,1,1)
@@ -56,10 +57,11 @@ contains
        call interpolate%find_points(xyz%x, n_pts)
        ! Initialize a temporary array
        call res%init(n_pts)
+       init = .true.
     end if
 
     ! Check that we are being called by `fluid`
-    if (trim(which_solver) .eq. "fluid") then
+    if (field_bc_list%items(1)%ptr%name .eq. "u") then
 
        associate(u => field_bc_list%items(1)%ptr, &
                  v => field_bc_list%items(2)%ptr, &
@@ -79,15 +81,15 @@ contains
           call cmult(res%x,scale, n_pts)
        end if
        ! scatter the values in res into the correct spots in u
-       call field_masked_scatter_copy(u, res%x, bc_bc_list%items(1)%ptr%msk, u%size(), n_pts)
+       call field_masked_scatter_copy(u, res%x, bc%msk, u%size(), n_pts)
        ! repeat for v and w
        field => neko_field_registry%get_field('v')
        call interpolate%evaluate(res%x, field%x, .false.)
-       call field_masked_scatter_copy(v, res%x, bc_bc_list%items(1)%ptr%msk, u%size(), n_pts)
+       call field_masked_scatter_copy(v, res%x, bc%msk, u%size(), n_pts)
      
        field => neko_field_registry%get_field('w')
        call interpolate%evaluate(res%x, field%x, .false.)
-       call field_masked_scatter_copy(w, res%x, bc_bc_list%items(1)%ptr%msk, u%size(), n_pts)
+       call field_masked_scatter_copy(w, res%x, bc%msk, u%size(), n_pts)
       
        end associate
     end if
@@ -100,7 +102,7 @@ contains
   ! mesh size (8*pi,2*delta,4/3*pi)
   ! New mesh can easily be genreated with genmeshbox
   ! OBS refinement is not smooth and the constant values are a bit ad hoc.
-  ! Stats converge close to reference DNS
+  ! OBS only moves element vertices
   subroutine user_mesh_scale(msh)
     type(mesh_t), intent(inout) :: msh
     integer :: i, p, nvert
