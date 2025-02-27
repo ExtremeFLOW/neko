@@ -290,7 +290,7 @@ contains
           w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
                                           + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
+          dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -588,7 +588,7 @@ contains
           w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
                                           + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
+          dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -984,7 +984,7 @@ contains
           w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
                                           + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
+          dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -1361,7 +1361,7 @@ contains
           w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
                                           + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
+          dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -1719,7 +1719,7 @@ contains
           w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
                                           + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
+          dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -2059,7 +2059,7 @@ contains
           w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
                                           + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
+          dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -2206,7 +2206,7 @@ contains
 
   end subroutine ax_helm_stress_lx10
 
-  subroutine ax_helm_stress_lx9(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt,  &
+  subroutine ax_helm_stress_lx9(au, av, aw, u, v, w, Dx, Dy, Dz, Dxt, Dyt, &
        Dzt, h1, h2, drdx, drdy, drdz, dsdx, dsdy, dsdz, dtdx, dtdy, dtdz, &
        jacinv, weights3, n)
     integer, parameter :: lx = 9
@@ -2381,7 +2381,7 @@ contains
           w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
                                           + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
+          dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -2685,7 +2685,7 @@ contains
           w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
                                           + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
+          dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -2973,7 +2973,7 @@ contains
           w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
                                           + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
+          dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -3242,7 +3242,7 @@ contains
           w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
                                           + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
+          dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -3492,7 +3492,7 @@ contains
           w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
                                           + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
+          dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -3725,7 +3725,7 @@ contains
           w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
                                           + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
+          dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -3939,7 +3939,7 @@ contains
           w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
                                           + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
+          dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -4135,7 +4135,7 @@ contains
           w3 = wwr(i,1,1) * drdz(i,1,1,e) + wws(i,1,1) * dsdz(i,1,1,e) &
                                           + wwt(i,1,1) * dtdz(i,1,1,e)
 
-          dj  = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
+          dj = h1(i,1,1,e) * weights3(i,1,1) * jacinv(i,1,1,e)
           s11 = dj*(u1 + u1)
           s12 = dj*(u2 + v1)
           s13 = dj*(u3 + w1)
@@ -4210,4 +4210,4 @@ contains
 
   end subroutine ax_helm_stress_lx2
 
-end module
+end module ax_helm_full_cpu

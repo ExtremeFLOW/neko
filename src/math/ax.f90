@@ -59,7 +59,7 @@ module ax_product
   end interface
 
   public :: ax_helm_factory
-  
+
   !> Abstract interface for computing\f$ Ax \f$ inside a Krylov method
   !!
   !! @param w Vector of size @a (lx,ly,lz,nelv).
