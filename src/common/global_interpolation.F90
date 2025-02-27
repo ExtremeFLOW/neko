@@ -36,19 +36,25 @@ module global_interpolation
   use num_types, only: rp, dp, xp
   use neko_config, only : NEKO_BCKND_DEVICE
   use space, only: space_t
-  use stack
+  use stack, only: stack_i4_t, stack_i4t2_t
   use dofmap, only: dofmap_t
   use mesh, only: mesh_t
   use logger, only: neko_log, LOG_SIZE
   use utils, only: neko_error, neko_warning
   use local_interpolation, only : local_interpolator_t, rst_cmp, &
        find_rst_legendre
-  use device_local_interpolation
-  use device
-  use point
+  use device_local_interpolation, only: device_find_rst_legendre
+  use device, only: device_free, device_alloc, device_map, device_memcpy, &
+       device_deassociate, HOST_TO_DEVICE, DEVICE_TO_HOST, glb_cmd_queue, &
+       device_get_ptr
+  use point, only: point_t
   use tuple, only: tuple_i4_t
-  use comm
-  use gs_mpi
+  use comm, only: NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
+  use mpi_f08, only: MPI_SUM, MPI_Reduce, MPI_COMM, MPI_Comm_rank, &
+       MPI_Comm_size, MPI_Wtime, MPI_Allreduce, MPI_IN_PLACE, MPI_INTEGER, &
+       MPI_MIN, MPI_Allgather, MPI_Barrier, MPI_Reduce_Scatter_block, MPI_alltoall, &
+       MPI_ISend, MPI_IRecv, MPI_Request, MPI_DOUBLE_PRECISION
+  use gs_mpi, only: gs_mpi_t
   use gs_ops, only: GS_OP_ADD
   use aabb, only: aabb_t
   use aabb_tree, only: aabb_tree_t, aabb_node_t, AABB_NULL_NODE
@@ -56,12 +62,11 @@ module global_interpolation
   use matrix, only: matrix_t
   use tensor, only: tnsr3d
   use math, only: copy, glsum, NEKO_M_LN2, NEKO_EPS
-  use device_math
   !use comm, only : NEKO_COMM, pe_size, pe_rank, MPI_Gather, &
   !     MPI_DOUBLE_PRECISION, MPI_INTEGER, MPI_SUM, MPI_Reduce, MPI_Gatherv
-  use neko_mpi_types
   use structs, only : array_ptr_t
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, c_associated, &
+       c_sizeof, c_bool, c_loc
   implicit none
   private
   
