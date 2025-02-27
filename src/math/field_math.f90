@@ -61,7 +61,8 @@ module field_math
   use neko_config, only: NEKO_BCKND_DEVICE
   use num_types, only: rp
   use field, only: field_t
-  use device
+  use device, only: device_get_ptr
+  use, intrinsic :: iso_c_binding
   use math, only: rzero, rone, copy, cmult, cadd, cfill, invcol1, vdot3, add2, &
        add3, add4, sub2, sub3, add2s1, add2s2, addsqr2s2, cmult2, invcol2, &
        col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glsc2, glsc3, &
