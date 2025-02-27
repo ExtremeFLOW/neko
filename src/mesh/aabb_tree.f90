@@ -635,7 +635,7 @@ contains
 
     do while (.not. simple_stack%is_empty())
        node_index = simple_stack%pop()
-
+       
        if (node_index == AABB_NULL_NODE) cycle
 
        if (this%nodes(node_index)%aabb%overlaps(object_box)) then
@@ -646,9 +646,13 @@ contains
              end if
           else
              left_index = this%get_left_index(node_index)
-             call simple_stack%push(left_index)
+             if (left_index .ne. AABB_NULL_NODE) then
+                call simple_stack%push(left_index)
+             end if
              right_index = this%get_right_index(node_index)
-             call simple_stack%push(right_index)
+             if (right_index .ne. AABB_NULL_NODE) then
+                call simple_stack%push(right_index)
+             end if
           end if
        end if
     end do
