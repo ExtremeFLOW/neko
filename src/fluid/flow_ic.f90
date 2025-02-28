@@ -98,7 +98,7 @@ contains
        !
     else if (trim(type) .eq. 'blasius') then
 
-       call json_get(params, 'basius.delta', delta)
+       call json_get(params, 'blasius.delta', delta)
        call json_get(params, 'blasius.approximation', read_str)
        call json_get(params, 'blasius.freestream_velocity', uinf)
 
