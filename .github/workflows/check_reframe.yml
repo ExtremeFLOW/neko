@@ -12,12 +12,13 @@ on:
 
 jobs:
   ReFrame:
-    runs-on: ubuntu-20.04
+    runs-on: ${{matrix.os}}
     strategy:
       fail-fast: true
       matrix:
+        os: [ubuntu-24.04, ubuntu-24.04-arm]
         precision: [sp, dp]
-        compiler: [gfortran-10]
+        compiler: [gfortran-14]
     env:
       FC: ${{ matrix.compiler }}
       OMPI_FC: ${{ matrix.compiler}}
@@ -25,7 +26,7 @@ jobs:
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM: 1
       OMPI_MCA_btl_vader_single_copy_mechanism: none
       RP: ${{ matrix.precision }}
-    name: ReFrame - ${{ matrix.compiler}} - ${{ matrix.precision }}
+    name: ReFrame - ${{ matrix.os }} - ${{ matrix.compiler}} - ${{ matrix.precision }}
     steps:
       - name: Setup env.
         id: setup-env
