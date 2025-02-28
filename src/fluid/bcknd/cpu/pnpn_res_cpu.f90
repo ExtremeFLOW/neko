@@ -61,13 +61,13 @@ contains
     call neko_scratch_registry%request_field(work2, temp_indices(8))
 
     n = c_Xh%dof%size()
-    
+
     ! We assume the material properties are constant
     rho_val = rho%x(1,1,1,1)
     mu_val = mu%x(1,1,1,1)
     do i = 1, n
-      c_Xh%h1(i,1,1,1) = 1.0_rp / rho_val
-      c_Xh%h2(i,1,1,1) = 0.0_rp
+       c_Xh%h1(i,1,1,1) = 1.0_rp / rho_val
+       c_Xh%h2(i,1,1,1) = 0.0_rp
     end do
     c_Xh%ifh2 = .false.
 
@@ -77,11 +77,11 @@ contains
     ! ta = f / rho - wa * mu / rho * B
     do concurrent (i = 1:n)
        ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho_val &
-             - ((wa1%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1))
-        ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho_val &
-             - ((wa2%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1))
-        ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho_val &
-             - ((wa3%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1))
+            - ((wa1%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1))
+       ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho_val &
+            - ((wa2%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1))
+       ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho_val &
+            - ((wa3%x(i,1,1,1) * (mu_val / rho_val)) * c_Xh%B(i,1,1,1))
     end do
 
     call gs_Xh%op(ta1, GS_OP_ADD)
@@ -102,7 +102,7 @@ contains
 
     do concurrent (i = 1:n)
        p_res%x(i,1,1,1) = (-p_res%x(i,1,1,1)) &
-                        + wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1)
+            + wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1)
     end do
 
     !
@@ -154,14 +154,14 @@ contains
     type(field_t), pointer :: ta1, ta2, ta3
     integer, intent(in) :: n
     integer :: i
-    
+
     ! We assume the material properties are constant
     rho_val = rho%x(1,1,1,1)
     mu_val = mu%x(1,1,1,1)
-    
-    do i = 1, n
-      c_Xh%h1(i,1,1,1) = mu_val
-      c_Xh%h2(i,1,1,1) = rho_val * bd / dt
+
+    do concurrent (i = 1:n)
+       c_Xh%h1(i,1,1,1) = mu_val
+       c_Xh%h2(i,1,1,1) = rho_val * bd / dt
     end do
     c_Xh%ifh2 = .true.
 

@@ -579,7 +579,7 @@ contains
     real(kind=rp), dimension(3 * n_GL), intent(inout) :: c_r1, c_r23, c_r4
     real(kind=rp) :: c1, c2, c3
     ! Work Arrays
-    real(kind=rp), dimension(n) ::  u1, r1, r2, r3, r4
+    real(kind=rp), dimension(n) :: u1, r1, r2, r3, r4
     real(kind=rp), dimension(n_GL) :: u1_GL
     integer :: i, e
 
@@ -604,7 +604,7 @@ contains
 
     ! Stage 3:
     call add3s2 (u1, phi, r2, c1, c2, n)
-    call invcol2 (u1,  coef%B, n)
+    call invcol2 (u1, coef%B, n)
     call GLL_to_GL%map(u1_GL, u1, nel, Xh_GL)
     call convect_scalar(r3, u1_GL, c_r23, Xh_GLL, Xh_GL, coef, &
          coef_GL, GLL_to_GL)

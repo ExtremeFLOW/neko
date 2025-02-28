@@ -61,13 +61,13 @@ contains
     call neko_scratch_registry%request_field(work2, temp_indices(8))
 
     n = c_Xh%dof%size()
-    
+
     ! We assume the material properties are constant
     rho_val = rho%x(1,1,1,1)
     mu_val = mu%x(1,1,1,1)
     do i = 1, n
-      c_Xh%h1(i,1,1,1) = 1.0_rp / rho_val
-      c_Xh%h2(i,1,1,1) = 0.0_rp
+       c_Xh%h1(i,1,1,1) = 1.0_rp / rho_val
+       c_Xh%h2(i,1,1,1) = 0.0_rp
     end do
     c_Xh%ifh2 = .false.
 
@@ -103,7 +103,7 @@ contains
     call cdtp(wa3%x, ta3%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
     do i = 1, n
        p_res%x(i,1,1,1) = (-p_res%x(i,1,1,1)) &
-                        + wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1)
+            + wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1)
     end do
 
     !
@@ -116,7 +116,7 @@ contains
     end do
 
     call bc_sym_surface%apply_surfvec(wa1%x, wa2%x, wa3%x, ta1%x, ta2%x, ta3%x,&
-                                      n)
+         n)
 
     dtbd = bd / dt
     do i = 1, n
@@ -154,13 +154,13 @@ contains
     type(field_t), pointer :: ta1, ta2, ta3
     integer :: i
     real(kind=rp) :: rho_val, mu_val
-    
+
     rho_val = rho%x(1,1,1,1)
     mu_val = mu%x(1,1,1,1)
 
     do i = 1, n
-      c_Xh%h1(i,1,1,1) = mu_val
-      c_Xh%h2(i,1,1,1) = rho_val * bd / dt
+       c_Xh%h1(i,1,1,1) = mu_val
+       c_Xh%h2(i,1,1,1) = rho_val * bd / dt
     end do
 
     c_Xh%ifh2 = .true.

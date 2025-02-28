@@ -144,10 +144,10 @@ module pnpn_residual
      module subroutine pnpn_vel_res_stress_factory(object)
        class(pnpn_vel_res_t), allocatable, intent(inout) :: object
      end subroutine pnpn_vel_res_stress_factory
-     
+
   end interface
 
   public :: pnpn_prs_res_factory, pnpn_vel_res_factory, &
        pnpn_prs_res_stress_factory, pnpn_vel_res_stress_factory
-  
+
 end module pnpn_residual
