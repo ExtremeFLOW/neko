@@ -374,7 +374,7 @@ file documentation.
 2. `uniform`, the value is a constant vector, looked up under the `value`
    keyword.
 3. `blasius`, a Blasius profile is prescribed. Its properties are looked up
-   in the `case.fluid.blasius` object, see below.
+   in the `case.fluid.initial_condition.blasius` object, see below.
 4. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
    point zone is specified by the `name` keyword, and should be defined in the
