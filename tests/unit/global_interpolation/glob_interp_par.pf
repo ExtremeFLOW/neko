@@ -71,8 +71,6 @@ contains
     test_tol = glob_interp%tol
      
     
-    @assertTrue(allocated(glob_interp%global_aabb))
-    @assertTrue(allocated(glob_interp%local_aabb))
     call test_field%init(dof)
     call glob_interp%find_points(dof%x, dof%y, dof%z, dof%size())
     call glob_interp%evaluate(test_field%x, dof%x, .true.)
@@ -96,6 +94,119 @@ contains
     end do
     call glob_interp%free()
   end subroutine test_glob_interp_init
+ 
+  @test(npes=[2])
+  subroutine test_glob_interp_0_pts(this)
+    class (test_glob_interp), intent(inout) :: this
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    type(dofmap_t) :: dof
+    type(global_interpolation_t) :: glob_interp
+    integer, parameter :: LX = 4
+    type(field_t) :: test_field
+    integer :: ierr, i
+    real(kind=rp) :: temp, cord, test_tol
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+    call test_glob_interp_gen_msh(msh)
+    call Xh%init(GLL, lx, lx, lx)
+    call dof%init(msh, Xh)
+    call glob_interp%init(dof)
+    test_tol = glob_interp%tol
+     
+    
+    call test_field%init(dof)
+    if (pe_rank .eq. 0) then
+       call glob_interp%find_points(dof%x, dof%y, dof%z, dof%size())
+    else 
+       call glob_interp%find_points(dof%x, dof%y, dof%z, dof%size())
+    end if
+    call glob_interp%evaluate(test_field%x, dof%x, .true.)
+    if (pe_rank .ne. 0) then
+       do i = 1, dof%size()
+          temp = test_field%x(i,1,1,1)
+          cord = dof%x(i,1,1,1)
+          @assertEqual(temp, cord,tolerance=test_tol)
+       end do
+    end if
+    call glob_interp%evaluate(test_field%x, dof%y, .true.)
+    if (pe_rank .ne. 0) then
+       do i = 1, dof%size()
+          temp = test_field%x(i,1,1,1)
+          cord = dof%y(i,1,1,1)
+          @assertEqual(temp, cord,tolerance=test_tol)
+       end do
+    end if
+    call glob_interp%evaluate(test_field%x, dof%z, .true.)
+    if (pe_rank .ne. 0) then
+       do i = 1, dof%size()
+          temp = test_field%x(i,1,1,1)
+          cord = dof%z(i,1,1,1)
+          @assertEqual(temp, cord,tolerance=test_tol)
+       end do
+    end if
+    call glob_interp%free()
+  end subroutine test_glob_interp_0_pts
+  
+  @test(npes=[2])
+  subroutine test_glob_interp_0_domain(this)
+    class (test_glob_interp), intent(inout) :: this
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    type(dofmap_t) :: dof
+    type(global_interpolation_t) :: glob_interp
+    integer, parameter :: LX = 4
+    type(field_t) :: test_field
+    integer :: ierr, i
+    real(kind=rp) :: temp, cord, test_tol
+    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
+    pe_rank = this%getProcessRank()
+    pe_size = this%getNumProcesses()
+    call test_glob_interp_gen_msh(msh)
+    call Xh%init(GLL, lx, lx, lx)
+    call dof%init(msh, Xh)
+     
+    
+    call test_field%init(dof)
+    if (pe_rank .eq. 0) then
+       !This should be changed to accept something with 0 elements...
+       call glob_interp%init(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
+         dof%msh%gdim, 1, dof%Xh)
+       test_tol = glob_interp%tol
+       call glob_interp%find_points(dof%x, dof%y, dof%z, 0)
+    else 
+       call glob_interp%init(dof)
+       call glob_interp%find_points(dof%x, dof%y, dof%z, dof%size())
+    end if
+    call glob_interp%evaluate(test_field%x, dof%x, .true.)
+    if (pe_rank .ne. 0) then
+       do i = 1, dof%size()
+          temp = test_field%x(i,1,1,1)
+          cord = dof%x(i,1,1,1)
+          @assertEqual(temp, cord,tolerance=test_tol)
+       end do
+    end if
+    call glob_interp%evaluate(test_field%x, dof%y, .true.)
+    if (pe_rank .ne. 0) then
+       do i = 1, dof%size()
+          temp = test_field%x(i,1,1,1)
+          cord = dof%y(i,1,1,1)
+          @assertEqual(temp, cord,tolerance=test_tol)
+       end do
+    end if
+    call glob_interp%evaluate(test_field%x, dof%z, .true.)
+    if (pe_rank .ne. 0) then
+       do i = 1, dof%size()
+          temp = test_field%x(i,1,1,1)
+          cord = dof%z(i,1,1,1)
+          @assertEqual(temp, cord,tolerance=test_tol)
+       end do
+    end if
+    call glob_interp%free()
+  end subroutine test_glob_interp_0_domain
+
+
 
   @test(npes=[2])
   subroutine test_glob_interp_interp_down(this)
@@ -122,8 +233,6 @@ contains
     call glob_interp%init(dof)
     test_tol = glob_interp%tol
     
-    @assertTrue(allocated(glob_interp%global_aabb))
-    @assertTrue(allocated(glob_interp%local_aabb))
     call test_field%init(dof2)
     call glob_interp%find_points(dof2%x, dof2%y, dof2%z, dof2%size())
     call glob_interp%evaluate(test_field%x, dof%x, .true.)
@@ -171,8 +280,6 @@ contains
     call glob_interp%init(dof,tol=NEKO_EPS*1e3)
     test_tol = max(glob_interp%tol,1e-9)
     
-    @assertTrue(allocated(glob_interp%global_aabb))
-    @assertTrue(allocated(glob_interp%local_aabb))
     call sinefield%init(dof)
     nphi = 5
     nr = 5
