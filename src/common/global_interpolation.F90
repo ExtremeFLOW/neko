@@ -571,7 +571,7 @@ contains
 
 
     
-    call gs_find%init(send_pe_find, recv_pe_find)
+    call gs_find%init(send_pe_find, recv_pe_find, this%comm)
      
     call gs_find_back%init_dofs()
     ii = 0
@@ -587,7 +587,7 @@ contains
        end do
     end do
     
-    call gs_find_back%init(recv_pe_find, send_pe_find)
+    call gs_find_back%init(recv_pe_find, send_pe_find, this%comm)
  
 
     if (allocated(this%xyz_local)) deallocate(this%xyz_local)
@@ -916,7 +916,7 @@ contains
           end do
        end if
     end do
-    call this%gs_comm%init(send_pe, recv_pe)
+    call this%gs_comm%init(send_pe, recv_pe,this%comm)
 
 
     if (allocated(this%pt_ids)) deallocate(this%pt_ids)
