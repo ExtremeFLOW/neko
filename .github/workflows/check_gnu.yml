@@ -40,6 +40,14 @@ jobs:
             backend: cuda
           - os: macos-13
             backend: hip
+          - compiler: gfortran-12
+            backend: cuda
+          - compiler: gfortran-12
+            backend: hip
+          - compiler: gfortran-13
+            backend: cuda
+          - compiler: gfortran-13
+            backend: hip
 
         include:
           - os: ubuntu-24.04
