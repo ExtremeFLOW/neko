@@ -185,7 +185,7 @@ jobs:
   # Create a badge for the flint score
   create-badge-lint:
     name: "Create linting badge"
-    runs-on: ubuntu-24.github/workflows/check_lint.yml .04
+    runs-on: ubuntu-24.04
     needs:
       - lint-current
 
