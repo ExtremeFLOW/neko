@@ -284,7 +284,7 @@ contains
 
     sample_time = sample_end_time - sample_start_time
     if (write_output) then
-       write(log_buf, '(A16,1x,F10.6,A,F9.6)') 'Writing at time:', t, &
+       write(log_buf, '(A16,1x,F12.6,A,F9.6)') 'Writing at time:', t, &
             ' Output time (s): ', sample_time
        call neko_log%message(log_buf)
        call neko_log%end_section()
