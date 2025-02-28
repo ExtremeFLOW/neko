@@ -62,6 +62,8 @@ module gs_mpi
      type(gs_comm_mpi_t), allocatable :: send_buf(:)
      !> Comm. buffers for recv operations
      type(gs_comm_mpi_t), allocatable :: recv_buf(:)
+     !> Communicator
+     type(MPI_Comm) :: comm
    contains
      procedure, pass(this) :: init => gs_mpi_init
      procedure, pass(this) :: free => gs_mpi_free
@@ -76,13 +78,19 @@ contains
 
   !> Initialise MPI based communication method
   !! See gs_comm.f90 for details
-  subroutine gs_mpi_init(this, send_pe, recv_pe)
+  subroutine gs_mpi_init(this, send_pe, recv_pe, comm)
     class(gs_mpi_t), intent(inout) :: this
     type(stack_i4_t), intent(inout) :: send_pe
     type(stack_i4_t), intent(inout) :: recv_pe
+    type(MPI_Comm), intent(inout), optional :: comm
     integer, pointer :: sp(:), rp(:)
     integer :: i
-
+    if (present(comm)) then
+       this%comm = comm
+    else
+       this%comm = NEKO_COMM
+    end if
+    
     call this%init_order(send_pe, recv_pe)
 
     allocate(this%send_buf(send_pe%size()))
@@ -156,7 +164,7 @@ contains
        !associate(send_data => this%send_buf(i)%data)
          call MPI_Isend(this%send_buf(i)%data, this%send_dof(dst)%size(), &
               MPI_REAL_PRECISION, this%send_pe(i), thrdid, &
-              NEKO_COMM, this%send_buf(i)%request, ierr)
+              this%comm, this%send_buf(i)%request, ierr)
        !end associate
        this%send_buf(i)%flag = .false.
     end do
@@ -179,7 +187,7 @@ contains
        associate(recv_data => this%recv_buf(i)%data)
          call MPI_IRecv(recv_data, size(recv_data), &
               MPI_REAL_PRECISION, this%recv_pe(i), thrdid, &
-              NEKO_COMM, this%recv_buf(i)%request, ierr)
+              this%comm, this%recv_buf(i)%request, ierr)
        end associate
        this%recv_buf(i)%flag = .false.
     end do

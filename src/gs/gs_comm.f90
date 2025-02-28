@@ -36,6 +36,7 @@ module gs_comm
   use comm, only : pe_size
   use stack, only : stack_i4_t
   use, intrinsic :: iso_c_binding
+  use mpi_f08, only : MPI_COMM
   implicit none
   private
 
@@ -71,12 +72,14 @@ module gs_comm
   !! @param send_pe, stack of ranks this process will send messages to
   !! @param recv_pe, stack of ranks this process will receive messages from
   abstract interface
-     subroutine gs_comm_init(this, send_pe, recv_pe)
+     subroutine gs_comm_init(this, send_pe, recv_pe, comm)
        import gs_comm_t
        import stack_i4_t
+       import MPI_COMM
        class(gs_comm_t), intent(inout) :: this
        type(stack_i4_t), intent(inout) :: send_pe
        type(stack_i4_t), intent(inout) :: recv_pe
+       type(MPI_Comm), intent(inout), optional :: comm
      end subroutine gs_comm_init
   end interface
 
