@@ -25,26 +25,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macos-13]
-        compiler: [gfortran-10, gfortran-11, gfortran-12]
+        os: [ubuntu-24.04, macos-13]
+        compiler: [gfortran-12, gfortran-13, gfortran-14]
         backend: [cpu, cuda, hip, opencl]
         precision: [sp, dp]
         exclude:
-          - os: ubuntu-20.04
-            compiler: gfortran-11
-          - os: ubuntu-20.04
-            compiler: gfortran-12
-          - os: ubuntu-20.04
+          - os: ubuntu-24.04
             backend: opencl
           - os: macos-13
-            compiler: gfortran-10
+            compiler: gfortran-12
+          - os: macos-13
+            compiler: gfortran-13
           - os: macos-13
             backend: cuda
           - os: macos-13
             backend: hip
 
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-24.04
             setup-env: |
               sudo apt-get update
               sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \

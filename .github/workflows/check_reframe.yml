@@ -12,12 +12,12 @@ on:
 
 jobs:
   ReFrame:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: true
       matrix:
         precision: [sp, dp]
-        compiler: [gfortran-10]
+        compiler: [gfortran-14]
     env:
       FC: ${{ matrix.compiler }}
       OMPI_FC: ${{ matrix.compiler}}
