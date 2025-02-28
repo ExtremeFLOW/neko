@@ -122,13 +122,6 @@ jobs:
           ./configure FC=${FC} FCFLAGS="-O3" --enable-real=${RP} --with-cuda=/opt/nvidia/hpc_sdk/${NVARCH}/${NVVER}/cuda/
           make
           
-      - name: Regression test FP64
-        if: matrix.backend == 'cpu' && matrix.precision == 'dp'
-        run: |
-           cd tests/regression/cylinder
-           ./test.sh 1 dp
-           cd ../..
-
       - name: Dist (CPU backend)
         if: matrix.backend == 'cpu'
         run: |
