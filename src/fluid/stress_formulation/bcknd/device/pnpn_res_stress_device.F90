@@ -237,7 +237,7 @@ contains
     call neko_scratch_registry%request_field(work2, temp_indices(8))
     call neko_scratch_registry%request_field(work3, temp_indices(9))
 
-   ! Stress tensor
+    ! Stress tensor
     call neko_scratch_registry%request_field(s11, temp_indices(10))
     call neko_scratch_registry%request_field(s22, temp_indices(11))
     call neko_scratch_registry%request_field(s33, temp_indices(12))
