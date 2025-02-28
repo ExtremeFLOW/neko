@@ -89,11 +89,13 @@ jobs:
               brew install automake
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
+              
           - os: macos-15
             setup-env: |
               export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
               brew install openmpi
               brew install automake
+              brew install libtool
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 
