@@ -94,32 +94,25 @@ contains
 
     if (trim(type) .eq. 'uniform') then
 
-       call json_get(params, 'case.scalar.initial_condition.value', ic_value)
+       call json_get(params, 'value', ic_value)
        call set_scalar_ic_uniform(s, ic_value)
 
     else if (trim(type) .eq. 'point_zone') then
 
-       call json_get(params, 'case.scalar.initial_condition.base_value', &
-            ic_value)
-       call json_get(params, 'case.scalar.initial_condition.zone_name', &
-            read_str)
-       call json_get(params, 'case.scalar.initial_condition.zone_value', &
-            zone_value)
+       call json_get(params, 'base_value', ic_value)
+       call json_get(params, 'zone_name', read_str)
+       call json_get(params, 'zone_value', zone_value)
 
        call set_scalar_ic_point_zone(s, ic_value, read_str, zone_value)
 
     else if (trim(type) .eq. 'field') then
 
-       call json_get(params, 'case.scalar.initial_condition.file_name', &
-            read_str)
+       call json_get(params, 'file_name', read_str)
        fname = trim(read_str)
-       call json_get_or_default(params, &
-            'case.scalar.initial_condition.interpolate', interpolate, &
+       call json_get_or_default(params, 'interpolate', interpolate, &
             .false.)
-       call json_get_or_default(params, &
-            'case.scalar.initial_condition.tolerance', tol, 0.000001_rp)
-       call json_get_or_default(params, &
-            'case.scalar.initial_condition.mesh_file_name', read_str, &
+       call json_get_or_default(params, 'tolerance', tol, 0.000001_rp)
+       call json_get_or_default(params, 'mesh_file_name', read_str, &
             "none")
        mesh_fname = trim(read_str)
 
