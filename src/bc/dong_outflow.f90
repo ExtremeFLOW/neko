@@ -43,7 +43,7 @@ module dong_outflow
   use utils, only : nonlinear_index
   use device_dong_outflow, only : device_dong_outflow_apply_scalar
   use field_registry, only : neko_field_registry
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_sizeof
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_sizeof, c_null_ptr
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
   implicit none
@@ -60,9 +60,9 @@ module dong_outflow
      type(field_t), pointer :: w
      real(kind=rp) :: delta
      real(kind=rp) :: uinf
-     type(c_ptr) :: normal_x_d
-     type(c_ptr) :: normal_y_d
-     type(c_ptr) :: normal_z_d
+     type(c_ptr) :: normal_x_d = c_null_ptr
+     type(c_ptr) :: normal_y_d = c_null_ptr
+     type(c_ptr) :: normal_z_d = c_null_ptr
    contains
      procedure, pass(this) :: apply_scalar => dong_outflow_apply_scalar
      procedure, pass(this) :: apply_vector => dong_outflow_apply_vector
@@ -84,13 +84,6 @@ contains
     class(dong_outflow_t), target, intent(inout) :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
-    real(kind=rp), allocatable :: temp_x(:)
-    real(kind=rp), allocatable :: temp_y(:)
-    real(kind=rp), allocatable :: temp_z(:)
-    real(c_rp) :: dummy
-    integer :: i, m, k, facet, idx(4)
-    real(kind=rp) :: normal_xyz(3)
-
     call this%free()
     call this%init_base(coef)
 
@@ -99,36 +92,6 @@ contains
     call json_get_or_default(json, 'velocity_scale', &
                              this%uinf, 1.0_rp)
 
-    this%u => neko_field_registry%get_field("u")
-    this%v => neko_field_registry%get_field("v")
-    this%w => neko_field_registry%get_field("w")
-
-    if ((NEKO_BCKND_DEVICE .eq. 1) .and. (this%msk(0) .gt. 0)) then
-       call device_alloc(this%normal_x_d, c_sizeof(dummy)*this%msk(0))
-       call device_alloc(this%normal_y_d, c_sizeof(dummy)*this%msk(0))
-       call device_alloc(this%normal_z_d, c_sizeof(dummy)*this%msk(0))
-       m = this%msk(0)
-       allocate(temp_x(m))
-       allocate(temp_y(m))
-       allocate(temp_z(m))
-       do i = 1, m
-          k = this%msk(i)
-          facet = this%facet(i)
-          idx = nonlinear_index(k, this%Xh%lx, this%Xh%lx, this%Xh%lx)
-          normal_xyz = &
-                this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
-          temp_x(i) = normal_xyz(1)
-          temp_y(i) = normal_xyz(2)
-          temp_z(i) = normal_xyz(3)
-       end do
-       call device_memcpy(temp_x, this%normal_x_d, m, HOST_TO_DEVICE, &
-             sync = .false.)
-       call device_memcpy(temp_y, this%normal_y_d, m, HOST_TO_DEVICE, &
-             sync = .false.)
-       call device_memcpy(temp_z, this%normal_z_d, m, HOST_TO_DEVICE, &
-             sync = .true.)
-       deallocate( temp_x, temp_y, temp_z)
-      end if
   end subroutine dong_outflow_init
 
   !> Boundary condition apply for a generic Dirichlet condition
@@ -229,8 +192,44 @@ contains
   !> Finalize
   subroutine dong_outflow_finalize(this)
     class(dong_outflow_t), target, intent(inout) :: this
+    real(kind=rp), allocatable :: temp_x(:)
+    real(kind=rp), allocatable :: temp_y(:)
+    real(kind=rp), allocatable :: temp_z(:)
+    real(c_rp) :: dummy
+    integer :: i, m, k, facet, idx(4)
+    real(kind=rp) :: normal_xyz(3)
 
-    call this%finalize_base()
+
+    call this%finalize_base(.true.)
+    this%u => neko_field_registry%get_field("u")
+    this%v => neko_field_registry%get_field("v")
+    this%w => neko_field_registry%get_field("w")
+    if ((NEKO_BCKND_DEVICE .eq. 1) .and. (this%msk(0) .gt. 0)) then
+       call device_alloc(this%normal_x_d, c_sizeof(dummy)*this%msk(0))
+       call device_alloc(this%normal_y_d, c_sizeof(dummy)*this%msk(0))
+       call device_alloc(this%normal_z_d, c_sizeof(dummy)*this%msk(0))
+       m = this%msk(0)
+       allocate(temp_x(m))
+       allocate(temp_y(m))
+       allocate(temp_z(m))
+       do i = 1, m
+          k = this%msk(i)
+          facet = this%facet(i)
+          idx = nonlinear_index(k, this%Xh%lx, this%Xh%lx, this%Xh%lx)
+          normal_xyz = &
+                this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
+          temp_x(i) = normal_xyz(1)
+          temp_y(i) = normal_xyz(2)
+          temp_z(i) = normal_xyz(3)
+       end do
+       call device_memcpy(temp_x, this%normal_x_d, m, HOST_TO_DEVICE, &
+             sync = .false.)
+       call device_memcpy(temp_y, this%normal_y_d, m, HOST_TO_DEVICE, &
+             sync = .false.)
+       call device_memcpy(temp_z, this%normal_z_d, m, HOST_TO_DEVICE, &
+             sync = .true.)
+       deallocate( temp_x, temp_y, temp_z)
+    end if
   end subroutine dong_outflow_finalize
 
 end module dong_outflow
