@@ -40,6 +40,7 @@ module pnpn_residual
   use space, only : space_t
   use mesh, only : mesh_t
   use num_types, only : rp
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
@@ -57,13 +58,14 @@ module pnpn_residual
 
   abstract interface
      subroutine prs_res(p, p_res, u, v, w, u_e, v_e, w_e, f_x, f_y, f_z, c_xh,&
-          gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, mu, rho)
+          gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt, mu, rho, event)
        import field_t
        import Ax_t
        import gs_t
        import facet_normal_t
        import coef_t
        import rp
+       import c_ptr
        type(field_t), intent(inout) :: p, u, v, w
        type(field_t), intent(in) :: u_e, v_e, w_e !< time-extrapolated velocity
        type(field_t), intent(inout) :: p_res
@@ -78,6 +80,7 @@ module pnpn_residual
        real(kind=rp), intent(in) :: dt
        type(field_t), intent(in) :: mu
        type(field_t), intent(in) :: rho
+       type(c_ptr), intent(inout) :: event
      end subroutine prs_res
   end interface
 

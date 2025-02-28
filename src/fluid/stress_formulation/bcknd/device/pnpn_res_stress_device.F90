@@ -203,7 +203,7 @@ contains
 
   subroutine pnpn_prs_res_stress_device_compute(p, p_res, u, v, w, u_e, v_e,&
        w_e, f_x, f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd,&
-       dt, mu, rho)
+       dt, mu, rho, event)
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(in) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
@@ -217,6 +217,7 @@ contains
     real(kind=rp), intent(in) :: dt
     type(field_t), intent(in) :: mu
     type(field_t), intent(in) :: rho
+    type(c_ptr), intent(inout) :: event
     real(kind=rp) :: dtbd
     integer :: n, nelv, lxyz, gdim
     integer :: i, e
@@ -255,8 +256,8 @@ contains
     c_Xh%ifh2 = .false.
 
     ! mu times the double curl of the velocity
-    call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
-    call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
+    call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh, event)
+    call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh, event)
 
     call device_col2(wa1%x_d, mu%x_d, n)
     call device_col2(wa2%x_d, mu%x_d, n)

@@ -12,6 +12,7 @@ module pnpn_res_stress_cpu
   use num_types, only : rp
   use space, only : space_t
   use math, only : rzero, vdot3, cmult, sub2, col2, copy, cfill, invers2, cmult2
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
@@ -33,7 +34,7 @@ contains
 
   subroutine pnpn_prs_res_stress_cpu_compute(p, p_res, u, v, w, u_e, v_e, w_e,&
        f_x, f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd, dt,&
-       mu, rho)
+       mu, rho, event)
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(in) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
@@ -47,6 +48,7 @@ contains
     real(kind=rp), intent(in) :: dt
     type(field_t), intent(in) :: mu
     type(field_t), intent(in) :: rho
+    type(c_ptr), intent(inout) :: event
     real(kind=rp) :: dtbd
     integer :: n, nelv, lxyz
     integer :: i, e

@@ -366,7 +366,7 @@ contains
   !! @param work1 A temporary array for computations.
   !! @param work2 A temporary array for computations.
   !! @param coef The SEM coefficients.
-  subroutine curl(w1, w2, w3, u1, u2, u3, work1, work2, coef)
+  subroutine curl(w1, w2, w3, u1, u2, u3, work1, work2, coef, event)
     type(field_t), intent(inout) :: w1
     type(field_t), intent(inout) :: w2
     type(field_t), intent(inout) :: w3
@@ -376,13 +376,14 @@ contains
     type(field_t), intent(inout) :: work1
     type(field_t), intent(inout) :: work2
     type(coef_t), intent(in) :: coef
+    type(c_ptr), optional, intent(inout) :: event
 
     if (NEKO_BCKND_SX .eq. 1) then
        call opr_sx_curl(w1, w2, w3, u1, u2, u3, work1, work2, coef)
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_curl(w1, w2, w3, u1, u2, u3, work1, work2, coef)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-       call opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, coef)
+       call opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, coef, event)
     else
        call opr_cpu_curl(w1, w2, w3, u1, u2, u3, work1, work2, coef)
     end if
