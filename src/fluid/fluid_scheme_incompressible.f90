@@ -565,13 +565,13 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_stream_wait_event(glb_cmd_queue, this%event, 0)
     end if
-    
+
     call this%bcs_prs%apply(this%p, t, tstep)
     call this%gs_Xh%op(this%p,GS_OP_MAX, this%event)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_stream_wait_event(glb_cmd_queue, this%event, 0)
     end if
-    
+
 
   end subroutine fluid_scheme_bc_apply_prs
 
