@@ -75,11 +75,13 @@ contains
     character(len=:), allocatable :: nut_name
     real(kind=rp) :: c_s
     character(len=:), allocatable :: delta_type
+    logical :: if_ext
     character(len=LOG_SIZE) :: log_buf
 
     call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     call json_get_or_default(json, "c_s", c_s, 0.17_rp)
+    call json_get_or_default(json, "extrapolation", if_ext, .true.)
 
     call neko_log%section('LES model')
     write(log_buf, '(A)') 'Model : Smagorinsky'
@@ -88,10 +90,12 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A, E15.7)') 'c_s : ', c_s
     call neko_log%message(log_buf)
+    write(log_buf, '(A, L1)') 'extrapolation : ', if_ext
+    call neko_log%message(log_buf)
     call neko_log%end_section()
 
     call smagorinsky_init_from_components(this, fluid, c_s, nut_name, &
-         delta_type)
+         delta_type, if_ext)
 
   end subroutine smagorinsky_init
 
@@ -99,18 +103,20 @@ contains
   !! @param fluid The fluid_scheme_base_t object.
   !! @param c_s The model constant.
   !! @param nut_name The name of the SGS viscosity field.
-  !! @param delta_type The type of filter size
+  !! @param delta_type The type of filter size.
+  !! @param if_ext Whether trapolate the velocity.
   subroutine smagorinsky_init_from_components(this, fluid, c_s, &
-       nut_name, delta_type)
+       nut_name, delta_type, if_ext)
     class(smagorinsky_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     real(kind=rp) :: c_s
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
+    logical, intent(in) :: if_ext
 
     call this%free()
 
-    call this%init_base(fluid, nut_name, delta_type)
+    call this%init_base(fluid, nut_name, delta_type, if_ext)
     this%c_s = c_s
 
   end subroutine smagorinsky_init_from_components
