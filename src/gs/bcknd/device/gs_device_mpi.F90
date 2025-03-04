@@ -38,6 +38,7 @@ module gs_device_mpi
   use stack, only : stack_i4_t
   use comm, only : pe_size, pe_rank
   use htable, only : htable_i4_t
+  use mpi_f08, only : MPI_Comm
   use device
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &
@@ -272,10 +273,11 @@ contains
   end subroutine gs_device_mpi_buf_free
 
   !> Initialise MPI based communication method
-  subroutine gs_device_mpi_init(this, send_pe, recv_pe)
+  subroutine gs_device_mpi_init(this, send_pe, recv_pe, comm)
     class(gs_device_mpi_t), intent(inout) :: this
     type(stack_i4_t), intent(inout) :: send_pe
     type(stack_i4_t), intent(inout) :: recv_pe
+    type(MPI_Comm), intent(inout), optional :: comm
     integer :: i
 
     call this%init_order(send_pe, recv_pe)

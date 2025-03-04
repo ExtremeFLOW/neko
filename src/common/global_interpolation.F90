@@ -230,6 +230,7 @@ contains
     integer :: start, last, n_box_el, lvl
     type(tuple_i4_t) :: id_lvl, temp_id_lvl
     character(len=8000) :: log_buf
+    real(kind=dp) :: padding = 1e-5
     real(kind=rp) :: time1, time_start
     type(aabb_node_t) :: node
    
@@ -317,7 +318,7 @@ contains
           max_xyz(:,j) =[x(1), y(1), z(1)]
     end do
     !Build local tree with small depth instead of minimizing box area
-    call this%local_aabb_tree%build(this%local_aabb)
+    call this%local_aabb_tree%build(this%local_aabb, padding)
     !do j = 1, this%pe_box_num
     !   n_box_el = max(nelv/this%pe_box_num,1)
     !   start = 1+(i-1)*n_box_el*lx*ly*lz
@@ -344,7 +345,7 @@ contains
        call this%global_aabb(i)%init(rank_xyz_min(:,i), rank_xyz_max(:,i))
        !call this%global_aabb_tree%insert_object(this%global_aabb(i),(i-1)/this%pe_box_num)
     end do
-    call this%global_aabb_tree%build(this%global_aabb)
+    call this%global_aabb_tree%build(this%global_aabb,padding)
     call MPI_Barrier(this%comm)
     time1 = MPI_Wtime()
     write(log_buf, '(A,E15.7)') &
@@ -570,7 +571,7 @@ contains
 
 
     
-    call gs_find%init(send_pe_find, recv_pe_find)
+    call gs_find%init(send_pe_find, recv_pe_find, this%comm)
      
     call gs_find_back%init_dofs()
     ii = 0
@@ -586,7 +587,7 @@ contains
        end do
     end do
     
-    call gs_find_back%init(recv_pe_find, send_pe_find)
+    call gs_find_back%init(recv_pe_find, send_pe_find, this%comm)
  
 
     if (allocated(this%xyz_local)) deallocate(this%xyz_local)
@@ -915,7 +916,7 @@ contains
           end do
        end if
     end do
-    call this%gs_comm%init(send_pe, recv_pe)
+    call this%gs_comm%init(send_pe, recv_pe,this%comm)
 
 
     if (allocated(this%pt_ids)) deallocate(this%pt_ids)
