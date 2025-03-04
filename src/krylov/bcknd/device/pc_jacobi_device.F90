@@ -50,6 +50,7 @@ module device_jacobi
      type(gs_t), pointer :: gs_h
      type(dofmap_t), pointer :: dof
      type(coef_t), pointer :: coef
+     type(c_ptr) :: gs_event = C_NULL_PTR
    contains
      procedure, pass(this) :: init => device_jacobi_init
      procedure, pass(this) :: free => device_jacobi_free
@@ -108,6 +109,8 @@ contains
 
     call device_map(this%d, this%d_d, size(this%d))
 
+    call device_event_create(this%gs_event, 2)
+
     call device_jacobi_update(this)
 
   end subroutine device_jacobi_init
@@ -122,6 +125,10 @@ contains
 
     if (allocated(this%d)) then
        deallocate(this%d)
+    end if
+
+    if (c_associated(this%gs_event)) then
+       call device_event_destroy(this%gs_event)
     end if
 
     nullify(this%dof)
@@ -178,7 +185,8 @@ contains
          call device_addcol3(this%d_d, coef%h2_d, coef%B_d, coef%dof%size())
       end if
 
-      call gs_h%op(this%d, dof%size(), GS_OP_ADD)
+      call gs_h%op(this%d, dof%size(), GS_OP_ADD, this%gs_event)
+      call device_stream_wait_event(glb_cmd_queue, this%gs_event, 0)
 
       call device_invcol1(this%d_d, dof%size())
     end associate
