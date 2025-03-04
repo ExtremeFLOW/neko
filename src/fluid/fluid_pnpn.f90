@@ -665,10 +665,8 @@ contains
          event => this%event)
 
       ! Extrapolate the velocity if it's not done in nut_field estimation
-      if (this%variable_material_properties .eqv. .false.) then
-         call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
-              ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
-      end if
+      call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
+           ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
 
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
