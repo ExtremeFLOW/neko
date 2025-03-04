@@ -55,7 +55,7 @@ module case
   use user_intf, only : user_t
   use scalar_pnpn, only : scalar_pnpn_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, json_extract_object
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
   implicit none
@@ -265,7 +265,7 @@ contains
     !
     call json_get(this%params, 'case.fluid.initial_condition.type',&
          string_val)
-    call json_get(this%params, 'case.fluid.initial_condition', &
+    call json_extract_object(this%params, 'case.fluid.initial_condition', &
        json_subdict)
 
     call neko_log%section("Fluid initial condition ")
@@ -280,11 +280,11 @@ contains
           call set_flow_ic(this%fluid%rho_field, &
                this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p, &
                this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_compressible_user_ic, &
-               json_subdict)
+               this%params)
        else
           call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p,&
                this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_user_ic, &
-               json_subdict)
+               this%params)
        end if
     end if
 
@@ -294,7 +294,7 @@ contains
 
        call json_get(this%params, 'case.scalar.initial_condition.type', &
             string_val)
-       call json_get(this%params, 'case.scalar.initial_condition', &
+       call json_extract_object(this%params, 'case.scalar.initial_condition', &
           json_subdict)
 
        call neko_log%section("Scalar initial condition ")
@@ -305,7 +305,7 @@ contains
        else
           call set_scalar_ic(this%scalar%s, &
                this%scalar%c_Xh, this%scalar%gs_Xh, this%usr%scalar_user_ic, &
-               json_subdict)
+               this%params)
        end if
 
        call neko_log%end_section()
