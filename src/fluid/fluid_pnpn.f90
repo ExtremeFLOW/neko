@@ -182,7 +182,7 @@ module fluid_pnpn
 
      !> Adjust flow volume
      type(fluid_volflow_t) :: vol_flow
-     
+
    contains
      !> Constructor.
      procedure, pass(this) :: init => fluid_pnpn_init

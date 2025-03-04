@@ -79,7 +79,7 @@ module fluid_scheme_incompressible
   use field_math, only : field_cfill, field_add2s2
   use shear_stress, only : shear_stress_t
   use gradient_jump_penalty, only : gradient_jump_penalty_t
-  use device, only :  device_event_sync, device_stream_wait_event, &
+  use device, only : device_event_sync, device_stream_wait_event, &
        glb_cmd_queue, glb_cmd_event
   implicit none
   private
