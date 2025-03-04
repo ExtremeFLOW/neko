@@ -35,9 +35,11 @@ AC_DEFUN([AX_NCCL],[
 	   fi
 
               _CC=$CC
+              _CFLAGS=$CFLAGS
 	      _LIBS=$LIBS
 	      AC_LANG_PUSH([C])
 	      CC=$NVCC
+              CFLAGS=""
 	      LIBS=""
 
 	      AC_CHECK_LIB(nccl, ncclCommDestroy,
@@ -48,9 +50,11 @@ AC_DEFUN([AX_NCCL],[
                  nccl_bcknd="1"
                  AC_DEFINE(HAVE_NCCL,1,[Define if you have NCCL.])
                  LIBS="$NCCL_LIBS $_LIBS"
-                 CUDA_CFLAGS="$CUDA_CFLAGS $NCCL_CFLAGS"
+                 CUDA_CFLAGS="$CUDA_CFLAGS $NCCL_CFLAGS -DHAVE_NCCL=1"
+                 CFLAGS="$_CFLAGS $NCCL_CFLAGS"
               else
                  AC_MSG_ERROR([NCCL not found])
+                 CFLAGS=$_CFLAGS
               fi
               CC=$_CC
               AC_LANG_POP([C])

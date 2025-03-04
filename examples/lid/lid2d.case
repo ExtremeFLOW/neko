@@ -31,7 +31,17 @@
       "projection_space_size": 8,
       "absolute_tolerance": 1e-7,
       "max_iterations": 200,
-      "boundary_types": ["w", "v"]
+    },
+    "boundary_conditions": [
+        {
+            "type": "no_slip",
+            "zone_indices": [1]
+        },
+        {
+            "type": "user_velocity_pointwise",
+            "zone_indices": [2]
+        }
+    ],
     },
     "output_control": "simulationtime",
     "output_value": 5

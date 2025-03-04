@@ -42,7 +42,7 @@ module phmg
   use mesh, only : mesh_t
   use bc, only : bc_t
   use bc_list, only : bc_list_t
-  use dirichlet , only : dirichlet_t
+  use dirichlet, only : dirichlet_t
   use utils, only : neko_error
   use cheby, only : cheby_t
   use cheby_device, only : cheby_device_t
@@ -59,6 +59,7 @@ module phmg
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory, krylov_solver_destroy
   use logger, only : neko_log, LOG_SIZE
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -81,11 +82,11 @@ module phmg
   type, public :: phmg_hrchy_t
      type(phmg_lvl_t), allocatable :: lvl(:)
   end type phmg_hrchy_t
-  
-    
+
+
   type, public, extends(pc_t) :: phmg_t
      type(tamg_solver_t) :: amg_solver
-     integer :: nlvls 
+     integer :: nlvls
      type(phmg_hrchy_t) :: phmg_hrchy
      class(ax_t), allocatable :: ax
      type(interpolator_t), allocatable :: intrp(:)
@@ -94,7 +95,7 @@ module phmg
      procedure, pass(this) :: init => phmg_init
      procedure, pass(this) :: free => phmg_free
      procedure, pass(this) :: solve => phmg_solve
-     procedure, pass(this) :: update => phmg_update     
+     procedure, pass(this) :: update => phmg_update
   end type phmg_t
 
 contains
@@ -110,7 +111,8 @@ contains
     integer :: lx_crs, lx_mid
     integer, allocatable :: lx_lvls(:)
     integer :: n, i, j
-    
+    class(bc_t), pointer :: bc_j
+
     this%msh => msh
 
     !this%nlvls = Xh%lx - 1
@@ -131,7 +133,7 @@ contains
     this%phmg_hrchy%lvl(0)%coef => coef
     this%phmg_hrchy%lvl(0)%dm_Xh => dof
     this%phmg_hrchy%lvl(0)%gs_h => gs_h
-    
+
     do i = 1, this%nlvls - 1
        allocate(this%phmg_hrchy%lvl(i)%Xh)
        allocate(this%phmg_hrchy%lvl(i)%dm_Xh)
@@ -139,7 +141,8 @@ contains
        allocate(this%phmg_hrchy%lvl(i)%coef)
 
        this%phmg_hrchy%lvl(i)%lvl = i
-       call this%phmg_hrchy%lvl(i)%Xh%init(GLL, lx_lvls(i), lx_lvls(i), lx_lvls(i))
+       call this%phmg_hrchy%lvl(i)%Xh%init(GLL, lx_lvls(i), lx_lvls(i), &
+            lx_lvls(i))
        call this%phmg_hrchy%lvl(i)%dm_Xh%init(msh, this%phmg_hrchy%lvl(i)%Xh)
        call this%phmg_hrchy%lvl(i)%gs_h%init(this%phmg_hrchy%lvl(i)%dm_Xh)
        call this%phmg_hrchy%lvl(i)%coef%init(this%phmg_hrchy%lvl(i)%gs_h)
@@ -156,22 +159,25 @@ contains
          call this%phmg_hrchy%lvl(i)%cheby%init(this%phmg_hrchy%lvl(i)%dm_Xh%size(), KSP_MAX_ITER)
        end if
 
-!       call this%phmg_hrchy%lvl(i)%jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
-!                                               this%phmg_hrchy%lvl(i)%dm_Xh, &
-!                                               this%phmg_hrchy%lvl(i)%gs_h)
-       call this%phmg_hrchy%lvl(i)%device_jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
-                                                      this%phmg_hrchy%lvl(i)%dm_Xh, &
-                                                      this%phmg_hrchy%lvl(i)%gs_h)
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+         call this%phmg_hrchy%lvl(i)%device_jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
+                                                        this%phmg_hrchy%lvl(i)%dm_Xh, &
+                                                        this%phmg_hrchy%lvl(i)%gs_h)
+       else
+         call this%phmg_hrchy%lvl(i)%jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
+                                                 this%phmg_hrchy%lvl(i)%dm_Xh, &
+                                                 this%phmg_hrchy%lvl(i)%gs_h)
+       end if
               
        this%phmg_hrchy%lvl(i)%coef%ifh2 = coef%ifh2
        call copy(this%phmg_hrchy%lvl(i)%coef%h1, coef%h1, &
             this%phmg_hrchy%lvl(i)%dm_Xh%size())
 
        call this%phmg_hrchy%lvl(i)%bc%init_base(this%phmg_hrchy%lvl(i)%coef)
-       if (bclst%size .gt. 0 ) then
-          do j = 1, bclst%size
-             call this%phmg_hrchy%lvl(i)%bc%mark_facets(&
-                  bclst%items(j)%ptr%marked_facet)
+       if (bclst%size() .gt. 0 ) then
+          do j = 1, bclst%size()
+             bc_j => bclst%get(j)
+             call this%phmg_hrchy%lvl(i)%bc%mark_facets(bc_j%marked_facet)
           end do
        end if
        call this%phmg_hrchy%lvl(i)%bc%finalize()
@@ -185,21 +191,22 @@ contains
 
     ! Interpolator Fine + mg levels
     allocate(this%intrp(this%nlvls - 1))
-    do i = 1, this%nlvls -1     
-       call this%intrp(i)%init(this%phmg_hrchy%lvl(i-1)%Xh, this%phmg_hrchy%lvl(i)%Xh)
+    do i = 1, this%nlvls -1
+       call this%intrp(i)%init(this%phmg_hrchy%lvl(i-1)%Xh, &
+            this%phmg_hrchy%lvl(i)%Xh)
     end do
-    
+
     call this%amg_solver%init(this%ax, this%phmg_hrchy%lvl(this%nlvls -1)%Xh, &
-                              this%phmg_hrchy%lvl(this%nlvls -1)%coef, this%msh, &
-                              this%phmg_hrchy%lvl(this%nlvls-1)%gs_h, 4, &
-                              this%phmg_hrchy%lvl(this%nlvls -1)%bclst, 1)
-        
+         this%phmg_hrchy%lvl(this%nlvls -1)%coef, this%msh, &
+         this%phmg_hrchy%lvl(this%nlvls-1)%gs_h, 4, &
+         this%phmg_hrchy%lvl(this%nlvls -1)%bclst, 1)
+
   end subroutine phmg_init
 
   subroutine phmg_free(this)
     class(phmg_t), intent(inout) :: this
 
-    
+
   end subroutine phmg_free
 
   subroutine phmg_solve(this, z, r, n)
@@ -452,5 +459,5 @@ contains
     end if
     call neko_log%message(log_buf)
   end subroutine phmg_resid_monitor
-  
+
 end module phmg

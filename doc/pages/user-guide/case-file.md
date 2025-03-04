@@ -61,7 +61,7 @@ This object is mostly used as a high-level container for all the other objects,
 but also defines several parameters that pertain to the simulation as a whole.
 
 | Name                       | Description                                                                                           | Admissible values                               | Default value |
-| -------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------- |
+|----------------------------|-------------------------------------------------------------------------------------------------------|-------------------------------------------------|---------------|
 | `mesh_file`                | The name of the mesh file.                                                                            | Strings ending with `.nmsh`                     | -             |
 | `output_boundary`          | Whether to write a `bdry0.f0000` file with boundary labels. Can be used to check boundary conditions. | `true` or `false`                               | `false`       |
 | `output_directory`         | Folder for redirecting solver output. Note that the folder has to exist!                              | Path to an existing directory                   | `.`           |
@@ -86,32 +86,53 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                             | Positive real less than `1`                     | `0.2`         |
 | `end_time`                 | Final time at which the simulation is stopped.                                                        | Positive reals                                  | -             |
 | `job_timelimit`            | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
+| `output_at_end`            | Whether to always write all enabled output at the end of the run.                                    | `true` or `false`                               | `true`        |
 
-<h3> Boundary type numbering in the `output_boundary` field </h3>
+### Restarts and joblimit
+Restarts will restart the simulation from the exact state at a given time that 
+the checkpoint was written. This means that the flow field and potential scalars
+will be at the exact same values before as after restarts. However, derived
+quantities from the flow field and any observables are not guaranteed to be
+restarted. In addition, Neko does not guarantee that any files are not
+overwritten. As such, it is recommended to run in different directories
+if doing large scale simulations that require many restarts. Unless 
+`output_at_end` is disabled Neko will also ensure that all output is written to
+file when reaching the `end_time` or the `job_timelimit`. In particular, unless
+`output_checkpoints` and `output_at_end` are set to false a checkpoint at the 
+final time will be written as to avoid losing progress as far as possible. 
+
+@attention For simulations requiring restarts, it is recommended to run each 
+restart in a different output directory as a precaution to avoid potential overwritings of files.
+
+### Boundary type numbering in the `output_boundary` field
 
 When the `output_boundary` setting is set to `true`, and additional `.fld` file
-will be stored in the beginning of the simulation, where the recognized
-boundaries will be marked with an integer number. This is a good way to debug
-the simulation setup. The value of the number depends on the type of the
-boundary as follows:
+will be stored in the beginning of the simulation, where the recognized boundary
+conditions for the fluid  will be marked with an integer number. This is a good
+way to debug the simulation setup. The value of the number depends on the type
+of the boundary as follows.
 
-1. A wall boundary, i.e. the `w` label.
-2. A Dirichlet boundary, i.e. the `v` label.
-3. An outlet boundary, i.e. the `o` label.
-4. A symmetry boundary, i.e. the `sym` label.
-5. An wall-normal transpiration boundary, i.e. the `on` label.
-6. A periodic boundary.
+| Boundary Condition              | Key |
+|---------------------------------|-----|
+| no_slip                         | 1   |
+| velocity_value                  | 2   |
+| outflow, normal_outflow (+dong) | 3   |
+| symmetry                        | 4   |
+| user_velocity_pointwise         | 5   |
+| periodic                        | 6   |
+| user_velocity                   | 7   |
+| user_pressure                   | 8   |
+| shear_stress                    | 9   |
+| wall_model                      | 10  |
+| blasius_profile                 | 11  |
 
-Note that the boundary conditions can be both prescribed via the labels in the
-case file or built into the mesh via conversion from a `.re2` file. Both types
-will be picked up and marked in the field produced by `output_boundary`.
-
+For a description of the boundary conditions themselves, see below.
 
 ## Numerics
 Used to define the properties of the numerical discretization.
 
 | Name                         | Description                                                                                                     | Admissible values          | Default value                   |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------------- | ------------------------------- |
+|------------------------------|-----------------------------------------------------------------------------------------------------------------|----------------------------|---------------------------------|
 | `polynomial_order`           | The order of the polynomial basis.                                                                              | Integers, typically 5 to 9 | -                               |
 | `time_order`                 | The order of the time integration scheme. Refer to the `time_scheme_controller` type documentation for details. | 1, 2, 3                    | -                               |
 | `dealias`                    | Whether to apply dealiasing to advection terms.                                                                 | `true` or `false`          | `false`                         |
@@ -143,103 +164,203 @@ to be set in the subroutine, but it can be based on arbitrary computations and
 arbitrary parameters read from the case file. Additionally, this allows to
 change the material properties in time.
 
-### Boundary types {#case-file_boundary-types}
-The optional `boundary_types` keyword can be used to specify boundary conditions.
-The reason for it being optional, is that some conditions can be specified
-directly inside the mesh file.
-In particular, this happens when Nek5000 `.re2` files are converted to `.nmsh`.
-Periodic boundary conditions are *always* defined inside the mesh file.
+### Turbulence modelling
 
-The value of the keyword is an array of strings, with the following possible
-values:
+Neko currently provides several LES models via the `les_model` simulation
+component. The simcomp computes the viscosity and stores in the field registry
+under the name selected in the case file. For more details, see the
+documentation of the simcomp. To enable LES in the fluid solver, one simply has
+to add the `nut_field` keyword to the configuration and set it to the name of
+the field generated by the `les_model` simcomp. This will automatically change
+the governing equations to feature the full viscous stress tensor, as required
+for a variable viscosity field.
 
-* Standard boundary conditions
-  * `w`, a no-slip wall.
-  * `v`, a velocity Dirichlet boundary.
-  * `sym`, a symmetry boundary.
-  * `o`, outlet boundary.
-  * `on`, Dirichlet for the boundary-parallel velocity and homogeneous Neumann
-   for the wall-normal. The wall-parallel velocity is defined by the initial
-   condition.
-  * `sh`, Non-penetration condition combined with a set shear stress vector.
-    Only works with axis-aligned boundaries. See [below](#case-file_fluid-sh)
-    for how to set the stress vector.
+Note that the full viscous stress tensor requires the equations for the 3
+velocity components to be solved in a coupled manner. Therefore, the `cpldcg`
+solver should be used for velocity.
 
-* Advanced boundary conditions
-  * `d_vel_u`, `d_vel_v`, `d_vel_w` (or a combination of them, separated by a
-  `"/"`), a Dirichlet boundary for more complex velocity profiles. This boundary
+=======
+### Boundary conditions {#case-file_fluid-boundary-conditions}
+The optional `boundary_conditions` keyword can be used to specify boundary
+conditions. The reason for it being optional, is that periodic bounary
+conditions are built into the definition of the  mesh, so for a periodic box
+nothings needs to be added to the case file. The TGV example is such a case, for
+instance.
+The value of the keyword is an array of JSON objects, each specifying a single
+boundary condition.
+
+#### Specifying the boundaries
+
+In Neko we usually refer to boundaries as "zones", which in this case are face
+zones, i.e. a collection of element faces. Which zones the boundary condition is
+applied to is controlled by the `zone_indices` keyword, which takes an array of
+integers. It is up to the user whether to apply a single condition to multiple
+zones or specify several conditions applied to one zone each. For example, if
+you have two zones, which should be no-slip walls, you can either create two
+`no_slip` conditions, one for each zone, or just create a single condition and
+apply it to both.
+
+The indices your boundaries have is determined by the mesh. To check them, you
+can use the `mesh_checker` utility with the optional `--write_zone_indices`
+argument. This will output a `zone_indices0.f00000` file that you can inspect in
+Paraview, and the boundaries will be marked by their index value.
+
+Recall that periodic conditions are built into the mesh, since they are
+topological in nature. This means that you must not specify any conditions for
+the corresponding zones. For example, in the `turb_pipe` example, which is a
+periodic pipe simulation, two periodic zones comprise the boundary conditions in
+the streamwise direction. Only one condition, corresponding to zone index 3 (the
+wall) is the specified in the case file.
+
+#### Available conditions
+The conditions to apply is specified by `type` keyword inside each of the JSON
+objects. The full list of possible conditions for the fluid is specified in the
+table below.
+
+| Boundary Condition      | Description                                                                                                                                             |
+|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| symmetry                | A symmetry plain. Must be axis-aligned.                                                                                                                 |
+| velocity_value          | A Dirichlet condition for velocity.                                                                                                                     |
+| no_slip                 | A no-slip wall.                                                                                                                                         |
+| outflow                 | A pressure outlet.                                                                                                                                      |
+| normal_outflow          | An Neumann condition  for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. Must be axis-aligned. |
+| outflow+dong            | A pressure outlet with the Dong condition applied.                                                                                                      |
+| normal_outflow+dong     | The `normal_outflow` with the Dong condition applied. Must be axis-aligned.                                                                             |
+| shear_stress            | Prescribed wall shear stress. Must be axis-aligned.                                                                                                     |
+| wall_model              | Shear stress condition based on a wall model for large-eddy simulation.                                                                                 |
+| blasius_profile         | A Blasius velocity profile.                                                                                                                             |
+| user_velocity           | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                                           |
+| user_pressure           | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                                                  |
+| user_velocity_pointwise | The pointwise user-defined Dirichlet condition for velocity.                                                                                            |
+
+A more detailed description of each boundary condition is provided below.
+
+* `symmetry`. A symmetry plain that must be axis-aligned. Sets the
+  surface-normal velocity to 0 and applies a homogenous Neumann condition to the
+  surface-parallel components. Requires no additional keywords.
+  ```json
+  {
+    "type": "symmetry",
+    "zone_indices": [1, 2]
+  }
+  ```
+* `velocity_value`. A Dirichlet condition for velocity. Suitable for velocity
+  inlets, moving walls, certain freestream conditions, etc. The value is
+  prescribed by the `value` keyword, that should be an array of 3 reals.
+
+  ```json
+  {
+    "type": "velocity_value",
+    "value": ["1, 0, 0"],
+    "zone_indices": [1, 2]
+  }
+  ```
+* `no_slip`. A standard no-slip wall, which sets velocity to zero. Requires no
+  additional keywords.
+  ```json
+  {
+    "type": "no_slip",
+    "zone_indices": [1, 2]
+  }
+  ```
+* `outflow`. A standard pressure outlet condition. Requires no additional
+  keywords.
+  ```json
+  {
+    "type": "outflow",
+    "zone_indices": [1, 2]
+  }
+  ```
+* `normal_outflow`. The condition lets the flow escape through the boundary by
+  setting a homogeneous Neumann condition for the surface-normal velocity
+  component, but fixes the values of the surface-parallel components. The latter
+  values are not prescribed in the boundary condition's JSON, but are instead
+  taken from the initial conditions. The boundary must be axis-aligned.
+
+* `outflow+dong`. Same as `outflow`, but additionally applies the Dong boundary
+  condition on the pressure. This is a way to prevent backflow and therefore
+  promotes numerical stability without having to create a mesh "sponge" at the
+  outlet.
+
+* `normal_outflow+dong`. Same as `normal_outflow`, but additionally applies the
+  Dong boundary condition for the pressure to prevent backflow. Must be
+  axis-aligned.
+
+* `shear_stress`. Non-penetration condition combined with a set shear stress
+   vector. Only works with axis-aligned boundaries. The stress value is
+   specified by the `value` keyword, which should be an array of 3 reals. It is
+   the responsibility of the user to set the vector in the direction parallel
+   to the boundary.
+  ```json
+  {
+    "type": "shear_stress",
+    "value": ["1, 0, 0"],
+    "zone_indices": [1, 2]
+  }
+  ```
+
+* `wall_model`. A shear stress condition, where the values is computed by a wall
+   model. Meant to be used for wall-modelled large-eddy simulation. Only works
+   with axis-aligned boundaries. The model is selected using the `model`
+   keyword. Additional configuration depends on the model selected.
+
+   * The `spalding`model requires specifying `kappa` and `B`, which are the
+     log-law constants. This model is suitable for smooth walls.
+
+   * The `rough_log_law` model requires specifying `kappa` and `B`, which are
+     the log-law constants, and `z0`, which is the characteristic roughness
+     height.
+
+    For all wall models, the distance to the sampling point has to be specified
+    based on the off-wall index in the wall-normal direction. Thus, the sampling
+    is currently from a GLL node and arbitrary distances are not yet supported.
+    The index is set by the `h_index` keyword, with 1 being the minimal value, and
+    the polynomial order + 1 being the maximum.
+
+    A 3D field with the name `tau` will be registered in the field registry. At
+    the boundary it will store the magnitude of the predicted stress. This can
+    be used to post-process the predictions. Additionally, the sampling points
+    are marked with values -1 in this field, for verification purposes.
+
+  ```json
+  {
+    "type": "wall_model",
+    "model": "spalding",
+    "kappa": 0.41,
+    "B": 5.2,
+    "zone_indices": [1, 2],
+    "h_index": 1
+  }
+  ```
+* `user_pointwise`. Allows to set the velocity values using the appropriate
+  routine in the user file. The routine is executed on a pointwise basis, which
+  is reflected in the name of this condition. It is advisable to instead use the
+  more general `user_velocity` condition. Requires no additional keywords.
+
+  ```json
+  {
+    "type": "user_pointwise",
+    "zone_indices": [1, 2]
+  }
+  ```
+* `user_velocity`, a Dirichlet boundary for more complex velocity profiles. This boundary
   condition uses a [more advanced user
   interface](#user-file_field-dirichlet-update).
-  * `d_pres`, a boundary for specified non-uniform pressure profiles, similar in
+  ```json
+  {
+    "type": "user_velocity",
+    "zone_indices": [1, 2]
+  }
+  ```
+  * `user_pressure`, a boundary for specified non-uniform pressure profiles, similar in
   essence to `d_vel_u`,`d_vel_v` and `d_vel_w`. Can be combined with other
   complex Dirichlet conditions by specifying e.g.: `"d_vel_u/d_vel_v/d_pres"`.
-  * `o+dong`, outlet boundary using the Dong condition.
-  * `on+dong`, an `on` boundary using the Dong condition, ensuring that the
-   wall-normal velocity is directed outwards.
-  * `wm`, Non-penetration condition combined with a wall model that sets the
-    shear stress vector. Only works with axis-aligned boundaries.
-
-In some cases, only some boundary types have to be provided.
-For example, when one has periodic boundaries, like in the channel flow example.
-In this case, to put the specification of the boundary at the right index,
-preceding boundary types can be marked with an empty string.
-For example, if boundaries with index 1 and 2 are periodic, and the third one is
-a wall, we can set.
-```
-"boundary_types": ["", "", "w"]
-```
-
-Some boundary types require extra input to make sense, e.g. for `v`, the
-velocity value to be set has to be specified. This is controlled by separate
-JSON objects inside the `fluid`, as specified below.
-
-### Inflow boundary conditions {#case-file_fluid-if}
-The object `inflow_condition` is used to specify velocity values at a Dirichlet
-boundary.
-This does not necessarily have to be an inflow boundary, so the name is not so
-good, and will most likely be changed along with type changes in the code.
-Since not all cases have Dirichlet boundaries (note, the special case of a
-no-slip boundary is treated separately in the configuration), this object
-is not obligatory.
-The means of prescribing the values are controlled via the `type` keyword:
-
-1. `user`, the values are set inside the compiled user file.
-2. `uniform`, the value is a constant vector, looked up under the `value`
-   keyword.
-3. `blasius`, a Blasius profile is prescribed. Its properties are looked up
-   in the `case.fluid.blasius` object, see below.
-
-### Shear stress boundary conditions {#case-file_fluid-sh}
-The object `shear_stress` is used to specify the shear stress vector used at the
-`sh` boundaries. The only keyword to specify is `value`, which should be a real
-vector with three components, corresponding to the three coordinate axes. It is
-the responsibility of the user to set the vector in the direction parallel to
-the boundary.
-
-### Wall model  boundary conditions {#case-file_fluid-wm}
-The object `wall_modelling` is used to specify the wall model configuration for
-`wm` boundaries. The following wall models are currently available, selectable
-via the `type` keyword:
-
-1. `rough_log_law`. Implements the logarithmic law for rough walls. Additional
-parameters are `kappa`, `B`, and `z0`. The latter is the roughness length-scale
-normalizing the wall-normal coordinate, and the former two are the standard
-log-law constants. The value of `kappa` defaults to 0.41.
-
-2. `spalding`. Implements the Spalding profile. Additional
-parameters are `kappa` and `B`, which are the standard log-law constants. The
-default values are 0.41 and 5.2, respectively.
-
-For all wall models, the distance to the sampling point has to be specified
-based on the off-wall index in the wall-normal direction. Thus, the sampling
-is currently from a GLL node and arbitrary distances are not yet supported.
-The index is set by the `h_index` keyword, with 1 being the minimal value, and
-the polynomial order + 1 being the maximum.
-
-A 3D field with the name `tau` will be registered in the field registry. At `wm`
-boundaries it will store the magnitude of the predicted stress. This can be used
-to post-process the predictions. Additionally, the sampling points are marked
-with values -1 in this field, for verification purposes.
+  ```json
+  {
+    "type": "user_pressure",
+    "zone_indices": [1, 2]
+  }
+  ```
 
 ### Initial conditions {#case-file_fluid-ic}
 The object `initial_condition` is used to provide initial conditions.
@@ -262,7 +383,7 @@ file documentation.
    The following keywords can be used:
 
 | Name             | Description                                                                                        | Admissible values            | Default value |
-| ---------------- | -------------------------------------------------------------------------------------------------- | ---------------------------- | ------------- |
+|------------------|----------------------------------------------------------------------------------------------------|------------------------------|---------------|
 | `file_name`      | Name of the field file to use (e.g. `myfield0.f00034`).                                            | Strings ending with `f*****` | -             |
 | `interpolate`    | Whether to interpolate the velocity and pressure fields from the field file onto the current mesh. | `true` or `false`            | `false`       |
 | `tolerance`      | Tolerance for the point search.                                                                    | Positive real.               | `1e-6`        |
@@ -415,7 +536,7 @@ applied to the final indicator field, after all sources have been added.
 Additional keywords are available to modify the Brinkman force term.
 
 | Name                               | Description                                                                                   | Admissible values                 | Default value |
-| ---------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------- | ------------- |
+|------------------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------|---------------|
 | `brinkman.limits`                  | Brinkman factor at free-flow (\f$ \kappa_0 \f$) and solid domain (\f$ \kappa_1 \f$).          | Vector of 2 reals.                | -             |
 | `brinkman.penalty`                 | Penalty parameter \f$ q \f$ when estimating Brinkman factor.                                  | Real                              | \f$ 1.0 \f$   |
 | `objects`                          | Array of JSON objects, defining the objects to be immersed.                                   | Each object must specify a `type` | -             |
@@ -507,7 +628,8 @@ The following keywords are used, with the corresponding options.
   - `pipecg`, a pipelined conjugate gradient solver.
   - `bicgstab`, a bi-conjugate gradient stabilized solver.
   - `cacg`, a communication-avoiding conjugate gradient solver.
-  - `cpldcg`, a coupled conjugate gradient solver.
+  - `cpldcg`, a coupled conjugate gradient solver. Must be used for velocity
+    when viscosity varies in space.
   - `gmres`, a GMRES solver. Typically used for pressure.
   - `fusedcg`, a conjugate gradient solver optimised for accelerators using
     kernel fusion.
@@ -556,11 +678,12 @@ subobjects discussed above, as well as keyword parameters that can be described
 concisely directly in the table.
 
 | Name                                    | Description                                                                                       | Admissible values                                           | Default value |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------- |
+|-----------------------------------------|---------------------------------------------------------------------------------------------------|-------------------------------------------------------------|---------------|
 | `scheme`                                | The fluid solve type.                                                                             | `pnpn`                                                      | -             |
 | `Re`                                    | The Reynolds number.                                                                              | Positive real                                               | -             |
 | `rho`                                   | The density of the fluid.                                                                         | Positive real                                               | -             |
 | `mu`                                    | The dynamic viscosity of the fluid.                                                               | Positive real                                               | -             |
+| `nut_field`                             | The name of the turbulent viscosity field.                                                        | String                                                      | -             |
 | `output_control`                        | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never`             | -             |
 | `output_value`                          | The frequency of sampling in terms of `output_control`.                                           | Positive real or integer                                    | -             |
 | `inflow_condition.type`                 | Velocity inflow condition type.                                                                   | `user`, `uniform`, `blasius`                                | -             |
@@ -619,20 +742,45 @@ the name matching that set for the simulation component with the LES model.
 Additionally, the turbulent Prandtl number, `Pr_t` should be set. The eddy
 viscosity values will be divided by it to produce eddy diffusivity.
 
-### Boundary types
+### Turbulence modelling
+
+The configuration is identical to the Fluid, however, one additionally has to
+provide the value of the turbulent Prandl number via the `Pr_t` keyword.
+
+### Boundary conditions
 
 The boundary conditions for the scalar are specified through the
-`boundary_types` keyword.
+`boundary_conditions` keyword, which follows the same format as the fluid, for
+specifying the type of the condition and where it is applied.
+Four types of conditions are available for the scalar:
 
-The value of the keyword is an array of strings, with the following possible values:
-* Standard boundary conditions
-  * `d=x`, sets a uniform Dirichlet boundary of value `x` (e.g. `d=1` to set
-  `s` to `1` on the boundary, see the Rayleigh-Benard example case).
-
-* Advanced boundary conditions
-    * `d_s`, a Dirichlet boundary condition for more complex, non-uniform
-    and/or time-dependent profiles. This boundary condition uses a
-    [more advanced user interface](#user-file_field-dirichlet-update).
+* `dirichlet`. Sets the value of the scalar, controlled by the `value` keyword.
+  ```json
+  {
+    "type": "dirichlet",
+    "value": 1,
+    "zone_indices": [1, 2]
+  }
+  ```
+* `neumann`. Sets the flux of the scalar, controlled by the `flux` keyword.
+  ```json
+  {
+    "type": "neumann",
+    "flux": 1,
+    "zone_indices": [1, 2]
+  }
+* `user_pointwise`. Sets the scalar in the pointwise user interface routine.
+  ```json
+  {
+    "type": "user_poinwise",
+    "zone_indices": [1, 2]
+  }
+* `user`. User boundary condition, see [further documentation](#user-file_field-dirichlet-update).
+  ```json
+  {
+    "type": "user",
+    "zone_indices": [1, 2]
+  }
 
 ### Initial conditions
 
@@ -658,22 +806,34 @@ file documentation.
 The configuration of source terms is the same as for the fluid. A demonstration
 of using source terms for the scalar can be found in the `scalar_mms` example.
 
+### Linear solver configuration
+
+Should be provided as an object under the `solver` keyword. For available
+configuration options, see the corresponding documentation for the fliud. A
+standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
+
 ### Full parameter table
 
-| Name                      | Description                                                       | Admissible values                       | Default value |
-| ------------------------- | ----------------------------------------------------------------- | --------------------------------------- | ------------- |
-| `enabled`                 | Whether to enable the scalar computation.                         | `true` or `false`                       | `true`        |
-| `Pe`                      | The Peclet number.                                                | Positive real                           | -             |
-| `cp`                      | Specific heat capacity.                                           | Positive real                           | -             |
-| `lambda`                  | Thermal conductivity.                                             | Positive real                           | -             |
-| `nut_field`               | Name of the turbulent kinematic viscosity field.                  | String                                  | Empty string  |
-| `Pr_t`                    | Turbulent Prandtl number                                          | Positive real                           | -             |
-| `boundary_types`          | Boundary types/conditions labels.                                 | Array of strings                        | -             |
-| `initial_condition.type`  | Initial condition type.                                           | `user`, `uniform`, `point_zone`         | -             |
-| `initial_condition.value` | Value of the velocity initial condition.                          | Real                                    | -             |
-| `source_terms`            | Array of JSON objects, defining additional source terms.          | See list of source terms above          | -             |
-| `gradient_jump_penalty`   | Array of JSON objects, defining additional gradient jump penalty. | See list of gradient jump penalty above | -             |
-| `advection`               | Whether to compute the advetion term.                             | `true` or `false`                       | `true`        |
+| Name                           | Description                                                       | Admissible values                           | Default value |
+|--------------------------------|-------------------------------------------------------------------|---------------------------------------------|---------------|
+| `enabled`                      | Whether to enable the scalar computation.                         | `true` or `false`                           | `true`        |
+| `Pe`                           | The Peclet number.                                                | Positive real                               | -             |
+| `cp`                           | Specific heat capacity.                                           | Positive real                               | -             |
+| `lambda`                       | Thermal conductivity.                                             | Positive real                               | -             |
+| `nut_field`                    | Name of the turbulent kinematic viscosity field.                  | String                                      | Empty string  |
+| `Pr_t`                         | Turbulent Prandtl number                                          | Positive real                               | -             |
+| `boundary_types`               | Boundary types/conditions labels.                                 | Array of strings                            | -             |
+| `initial_condition.type`       | Initial condition type.                                           | `user`, `uniform`, `point_zone`             | -             |
+| `initial_condition.value`      | Value of the velocity initial condition.                          | Real                                        | -             |
+| `source_terms`                 | Array of JSON objects, defining additional source terms.          | See list of source terms above              | -             |
+| `gradient_jump_penalty`        | Array of JSON objects, defining additional gradient jump penalty. | See list of gradient jump penalty above     | -             |
+| `advection`                    | Whether to compute the advetion term.                             | `true` or `false`                           | `true`        |
+| `solver.type`                  | Linear solver for scalar equation.                                | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres` | -             |
+| `solver.preconditioner`        | Linear solver preconditioner for the momentum equation.           | `ident`, `hsmg`, `jacobi`                   | -             |
+| `solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.    | Positive real                               | -             |
+| `solver.maxiter`               | Linear solver max iteration count for the momentum equation.      | Positive real                               | 800           |
+| `solver.projection_space_size` | Projection space size for the scalar equation.                    | Positive integer                            | 20            |
+| `solver.projection_hold_steps` | Holding steps of the projection for the scalar equation.          | Positive integer                            | 5             |
 
 
 ## Simulation components
@@ -707,6 +867,6 @@ currently supports 50 regions, with id 1..25 being reserved for internal use.
 
 
 | Name             | Description                                                 | Admissible values | Default value |
-| ---------------- | ----------------------------------------------------------- | ----------------- | ------------- |
+|------------------|-------------------------------------------------------------|-------------------|---------------|
 | `enabled`        | Whether to enable gathering of runtime statistics           | `true` or `false` | `false`       |
 | `output_profile` | Whether to output all gathered profiling data as a CSV file | `true` or `false` | `false`       |

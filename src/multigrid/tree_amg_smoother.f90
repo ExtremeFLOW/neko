@@ -42,7 +42,8 @@ module tree_amg_smoother
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
-  use device, only: device_map, device_free, c_ptr, C_NULL_PTR, device_memcpy, HOST_TO_DEVICE
+  !use device, only: device_map, device_free, c_ptr, C_NULL_PTR, device_memcpy, HOST_TO_DEVICE
+  use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE
   use neko_config, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none

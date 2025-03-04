@@ -4,12 +4,14 @@ pkgconfig_DATA = neko.pc
 
 SUBDIRS = src
 
+if !ENABLE_NVSHMEM
 if ENABLE_CONTRIB
 SUBDIRS += contrib
 endif
 
 if ENABLE_PFUNIT
 SUBDIRS += tests/unit
+endif
 endif
 
 if ENABLE_DOXYGEN
@@ -50,7 +52,6 @@ EXTRA_DIST = \
 	examples/hemi/hemi.case\
 	examples/lid/lid.f90\
 	examples/lid/lid2d.nmsh\
-	examples/lid/lid2d.f90\
 	examples/lid/lid.nmsh\
 	examples/lid/README.md\
 	examples/lid/lid2d.box\

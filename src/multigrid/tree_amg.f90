@@ -42,7 +42,8 @@ module tree_amg
   use ax_product, only: ax_t
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use device, only: device_map, device_free, c_ptr, C_NULL_PTR
+  !use device, only: device_map, device_free, c_ptr, C_NULL_PTR
+  use device, only: device_map, device_free
   use neko_config, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none

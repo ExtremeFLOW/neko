@@ -1,0 +1,83 @@
+{
+"version": 1.0,
+"case": {
+    "mesh_file": "cyl.nmsh",
+    "output_at_end": true,
+    "output_boundary": true,
+    "output_checkpoints": false,
+    "end_time": 1e-3,
+    "output_directory": "results_user",
+    "timestep": 1e-3,
+    "numerics": {
+        "time_order": 2,
+        "polynomial_order": 5,
+        "dealias": true
+    },
+    "fluid": {
+        "scheme": "pnpn",
+        "Re": 500,
+        "initial_condition": {
+            "type": "uniform",
+            "value": [1.0, 0.0, 0.0]
+        },
+        "velocity_solver": {
+            "type": "cg",
+            "preconditioner": "jacobi",
+            "projection_space_size": 3,
+            "absolute_tolerance": 1e-8,
+            "max_iterations": 800
+        },
+        "pressure_solver": {
+            "type": "gmres",
+            "preconditioner": "hsmg",
+            "projection_space_size": 10,
+            "absolute_tolerance": 1e-5,
+            "max_iterations": 800
+        },
+        "boundary_conditions":
+        [
+            {
+                "type": "user_velocity",
+                "zone_indices": [1]
+            },
+            {
+                "type": "user_pressure",
+                "zone_indices": [2]
+            },
+            {
+                "type": "symmetry",
+                "zone_indices": [3]
+            },
+            {
+                "type": "no_slip",
+                "zone_indices": [4, 7]
+            },
+            {
+                "type": "normal_outflow",
+                "zone_indices": [5, 6]
+            }
+        ],
+        "output_control": "nsamples",
+        "output_value": 400
+    },
+    "scalar": {
+        "enabled": true,
+        "Pe": 0.71,
+        "boundary_conditions": [
+            {
+                "type": "user",
+                "zone_indices": [1, 4, 7]
+            },
+            {
+                "type": "neumann",
+                "flux": 0,
+                "zone_indices": [2, 3, 5, 6]
+            }
+        ],
+        "initial_condition": {
+            "type": "uniform",
+            "value": 1.0
+        }
+    }
+}
+}

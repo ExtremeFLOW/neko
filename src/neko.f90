@@ -62,9 +62,9 @@ module neko
   use gather_scatter
   use krylov
   use coefs, only : coef_t
-  use bc
-  use bc_list
-  use wall, only : no_slip_wall_t
+  use bc, only : bc_t
+  use zero_dirichlet, only : zero_dirichlet_t
+  use bc_list, only : bc_list_t
   use dirichlet, only : dirichlet_t
   use ax_product, only : ax_t, ax_helm_factory
   use parmetis, only : parmetis_partgeom, parmetis_partmeshkway
@@ -122,6 +122,7 @@ module neko
   use runtime_stats, only : neko_rt_stats
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use bc_list, only : bc_list_t
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
@@ -234,7 +235,7 @@ contains
     character(8), optional, intent(in) :: date
     character(len=LOG_SIZE) :: log_buf
     integer :: nthrds, rw, sw
-    
+
     call neko_log%section("Job Information")
 
     if (present(time) .and. present(date)) then

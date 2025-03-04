@@ -40,6 +40,7 @@ module field
   use mesh, only : mesh_t
   use space, only : space_t, operator(.ne.)
   use dofmap, only : dofmap_t
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -139,7 +140,7 @@ contains
 
       if (.not. allocated(this%x)) then
          allocate(this%x(lx, ly, lz, nelv), stat = ierr)
-         this%x = 0d0
+         this%x = 0.0_rp
       end if
 
       if (present(fld_name)) then
