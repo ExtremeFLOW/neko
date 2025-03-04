@@ -15,12 +15,12 @@ module user
   type(field_t) :: w1
   type(field_t) :: temp1,temp2
   type(field_t) :: vort1,vort2,vort3
-    
-  type(file_t) output_file     ! output file
-  type(vector_t) :: vec_out    ! will store our output data
-  integer :: ipostproc         ! frequency of the output
 
- contains
+  type(file_t) output_file ! output file
+  type(vector_t) :: vec_out ! will store our output data
+  integer :: ipostproc ! frequency of the output
+
+contains
 
   ! Register user-defined functions (see user_intf.f90)
   subroutine user_setup(user)
@@ -34,7 +34,7 @@ module user
 
   ! user-defined boundary condition
   subroutine user_bc(u, v, w, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
-    real(kind=rp), intent(inout) :: u, v,w 
+    real(kind=rp), intent(inout) :: u, v,w
     real(kind=rp), intent(in) :: x, y, z
     real(kind=rp), intent(in) :: nx, ny, nz
     integer, intent(in) :: ix, iy, iz, ie
@@ -42,14 +42,14 @@ module user
     integer, intent(in) :: tstep
 
     real(kind=rp) lsmoothing
-    lsmoothing = 0.1_rp    ! length scale of smoothing at the edges
+    lsmoothing = 0.1_rp ! length scale of smoothing at the edges
 
     u = step( x/lsmoothing ) * step( (1._rp-x)/lsmoothing )
     v = 0._rp
     w = 0._rp
-    
+
   end subroutine user_bc
-  
+
   ! User-defined initial condition
   subroutine user_ic(u, v, w, p, params)
     type(field_t), intent(inout) :: u, v, w, p
@@ -61,7 +61,7 @@ module user
     w = 0._rp
     p = 0._rp
   end subroutine user_ic
-  
+
   ! User-defined initialization called just before time loop starts
   subroutine user_initialize(t, u, v, w, p, coef, params)
     real(kind=rp) :: t
@@ -90,7 +90,7 @@ module user
     call json_get(params, "case.fluid.ipostproc", ipostproc)
     write(mess,*) "postprocessing steps : ",ipostproc
     call neko_log%message(mess)
-    
+
     ! call usercheck also for tstep=0
     tstep = 0
     call user_calc_quantities(t, tstep, u, v, w, p, coef, params)
@@ -122,7 +122,7 @@ module user
     ! (the factor of 0.5 depends on the definition of enstrophy. We
     ! follow the reference paper by the HiOCFD4 workshop, but the book
     ! by Pope for instance would not include this factor)
-    call curl(vort1,vort2,vort3, u, v, w, temp1, temp2, coef)    
+    call curl(vort1,vort2,vort3, u, v, w, temp1, temp2, coef)
     call col3(w1%x,vort1%x,vort1%x,ntot)
     call addcol3(w1%x,vort2%x,vort2%x,ntot)
     call addcol3(w1%x,vort3%x,vort3%x,ntot)
@@ -139,7 +139,7 @@ module user
     ! a perhaps more verbose alternative would be:
     !   use field_math, only: field_rzero
     !   call field_rzero(w, ntot)
-    
+
   end subroutine user_calc_quantities
 
   ! User-defined finalization routine called at the end of the simulation
@@ -167,9 +167,9 @@ module user
        step = 0.0_rp
     else
        if (x.le.0.98_rp) then
-           step = 1._rp/( 1._rp + exp(1._rp/(x-1._rp) + 1._rp/x) )
+          step = 1._rp/( 1._rp + exp(1._rp/(x-1._rp) + 1._rp/x) )
        else
-           step = 1._rp
+          step = 1._rp
        end if
     end if
 
