@@ -54,7 +54,8 @@ module fluid_pnpn
   use projection, only : projection_t
   use projection_vel, only : projection_vel_t
   use device, only : device_memcpy, HOST_TO_DEVICE, device_event_sync,&
-       device_stream_wait_event, glb_cmd_queue
+       device_event_create, device_event_destroy, device_stream_wait_event, &
+       glb_cmd_queue
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_module, only : json_file, json_core, json_value
@@ -184,6 +185,10 @@ module fluid_pnpn
 
      !> Adjust flow volume
      type(fluid_volflow_t) :: vol_flow
+
+     !> Gather-scatter event
+     type(c_ptr) :: event = C_NULL_PTR
+
    contains
      !> Constructor.
      procedure, pass(this) :: init => fluid_pnpn_init
@@ -385,6 +390,11 @@ contains
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_prs, precon_type)
 
     call neko_log%end_section()
+
+    ! Setup gather-scatter event (only relevant on devices)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_event_create(this%event, 2)
+    end if
 
   end subroutine fluid_pnpn_init
 
@@ -613,6 +623,12 @@ contains
     end if
 
     call this%vol_flow%free()
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (c_associated(this%event)) then
+          call device_event_destroy(this%event)
+       end if
+    end if
 
   end subroutine fluid_pnpn_free
 

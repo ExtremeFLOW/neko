@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2025, The Neko Authors
+! Copyright (c) 2020-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -79,9 +79,6 @@ module fluid_scheme_incompressible
   use field_math, only : field_cfill, field_add2s2
   use shear_stress, only : shear_stress_t
   use gradient_jump_penalty, only : gradient_jump_penalty_t
-  use device, only : device_event_create, device_event_destroy, &
-       device_event_sync, device_stream_wait_event, glb_cmd_queue
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 
@@ -121,10 +118,6 @@ module fluid_scheme_incompressible
      !> Global number of GLL points for the fluid (unique)
      integer(kind=i8) :: glb_unique_points
      type(scratch_registry_t) :: scratch !< Manager for temporary fields
-
-     !> Gather-scatter event
-     type(c_ptr) :: event = C_NULL_PTR
-
    contains
      !> Constructor for the base type
      procedure, pass(this) :: init_base => fluid_scheme_init_base
@@ -392,10 +385,7 @@ contains
 
     call neko_log%end_section()
 
-    ! Setup gather-scatter event (only relevant on devices)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_event_create(this%event, 2)
-    end if
+
 
   end subroutine fluid_scheme_init_base
 
@@ -478,12 +468,6 @@ contains
        call this%gradient_jump_penalty_w%free()
     end if
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       if (c_associated(this%event)) then
-          call device_event_destroy(this%event)
-          this%event = C_NULL_PTR
-       end if
-    end if
 
   end subroutine fluid_scheme_free
 
@@ -535,21 +519,15 @@ contains
 
     call this%bcs_vel%apply_vector(&
       this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep, strong)
-    call this%gs_Xh%op(this%u, GS_OP_MIN, this%event)
-    call this%gs_Xh%op(this%v, GS_OP_MIN, this%event)
-    call this%gs_Xh%op(this%w, GS_OP_MIN, this%event)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_stream_wait_event(glb_cmd_queue, this%event, 0)
-    end if
+    call this%gs_Xh%op(this%u, GS_OP_MIN)
+    call this%gs_Xh%op(this%v, GS_OP_MIN)
+    call this%gs_Xh%op(this%w, GS_OP_MIN)
 
     call this%bcs_vel%apply_vector(&
       this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep, strong)
-    call this%gs_Xh%op(this%u, GS_OP_MAX, this%event)
-    call this%gs_Xh%op(this%v, GS_OP_MAX, this%event)
-    call this%gs_Xh%op(this%w, GS_OP_MAX, this%event)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_stream_wait_event(glb_cmd_queue, this%event, 0)
-    end if
+    call this%gs_Xh%op(this%u, GS_OP_MAX)
+    call this%gs_Xh%op(this%v, GS_OP_MAX)
+    call this%gs_Xh%op(this%w, GS_OP_MAX)
 
   end subroutine fluid_scheme_bc_apply_vel
 
@@ -561,17 +539,9 @@ contains
     integer, intent(in) :: tstep
 
     call this%bcs_prs%apply(this%p, t, tstep)
-    call this%gs_Xh%op(this%p,GS_OP_MIN, this%event)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_stream_wait_event(glb_cmd_queue, this%event, 0)
-    end if
-
+    call this%gs_Xh%op(this%p,GS_OP_MIN)
     call this%bcs_prs%apply(this%p, t, tstep)
-    call this%gs_Xh%op(this%p,GS_OP_MAX, this%event)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_stream_wait_event(glb_cmd_queue, this%event, 0)
-    end if
-
+    call this%gs_Xh%op(this%p,GS_OP_MAX)
 
   end subroutine fluid_scheme_bc_apply_prs
 
