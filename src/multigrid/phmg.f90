@@ -47,12 +47,14 @@ module phmg
   use cheby, only : cheby_t
   use cheby_device, only : cheby_device_t
   use jacobi, only : jacobi_t
+  use device_jacobi, only : device_jacobi_t
   use ax_product, only : ax_t, ax_helm_factory
   use tree_amg_multigrid, only : tamg_solver_t
   use interpolation, only : interpolator_t
   use math, only : copy, col2, add2
   use device
   use device_math
+  use profiler, only : profiler_start_region, profiler_end_region
   use neko_config, only: NEKO_BCKND_DEVICE
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory, krylov_solver_destroy
@@ -69,6 +71,7 @@ module phmg
      type(cheby_t) :: cheby
      type(cheby_device_t) :: cheby_device
      type(jacobi_t) :: jacobi
+     type(device_jacobi_t) :: device_jacobi
      type(coef_t), pointer :: coef
      type(bc_list_t) :: bclst
      type(dirichlet_t) :: bc
@@ -156,6 +159,9 @@ contains
 !       call this%phmg_hrchy%lvl(i)%jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
 !                                               this%phmg_hrchy%lvl(i)%dm_Xh, &
 !                                               this%phmg_hrchy%lvl(i)%gs_h)
+       call this%phmg_hrchy%lvl(i)%device_jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
+                                                      this%phmg_hrchy%lvl(i)%dm_Xh, &
+                                                      this%phmg_hrchy%lvl(i)%gs_h)
               
        this%phmg_hrchy%lvl(i)%coef%ifh2 = coef%ifh2
        call copy(this%phmg_hrchy%lvl(i)%coef%h1, coef%h1, &
@@ -250,26 +256,33 @@ contains
     integer :: i
     real(kind=rp) :: val
 
+    call profiler_start_region('PHMG_cycle', 8)
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-      ksp_results =  mg(lvl)%cheby_device%solve(Ax, z, &
-                                         r%x, mg(lvl)%dm_Xh%size(), &
-                                         mg(lvl)%coef, mg(lvl)%bclst, &
-                                         mg(lvl)%gs_h, niter = 11)
-    else
-      ksp_results =  mg(lvl)%cheby%solve(Ax, z, &
-                                       r%x, mg(lvl)%dm_Xh%size(), &
-                                       mg(lvl)%coef, mg(lvl)%bclst, &
-                                       mg(lvl)%gs_h, niter = 15)
-    end if
+    call profiler_start_region('PHMG_PreSmooth', 9)
+    !!!!!!--------------------------------------------------------------------------------------------------------------
+    call phmg_jacobi_smoother(z, r, w, mg(lvl), msh, Ax, mg(lvl)%dm_Xh%size(), lvl)
+    !!!!!!--------------------------------------------------------------------------------------------------------------
+    !if (NEKO_BCKND_DEVICE .eq. 1) then
+    !  ksp_results =  mg(lvl)%cheby_device%solve(Ax, z, &
+    !                                     r%x, mg(lvl)%dm_Xh%size(), &
+    !                                     mg(lvl)%coef, mg(lvl)%bclst, &
+    !                                     mg(lvl)%gs_h, niter = 11)
+    !else
+    !  ksp_results =  mg(lvl)%cheby%solve(Ax, z, &
+    !                                   r%x, mg(lvl)%dm_Xh%size(), &
+    !                                   mg(lvl)%coef, mg(lvl)%bclst, &
+    !                                   mg(lvl)%gs_h, niter = 15)
+    !end if
+    call profiler_end_region('PHMG_PreSmooth', 9)
 
     !>----------<!
     !> Residual <!
     !>----------<!
     call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
     call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
+    !call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
       
     if (NEKO_BCKND_DEVICE .eq. 1) then
       call device_sub3(w%x_d, r%x_d, w%x_d, mg(lvl)%dm_Xh%size())
@@ -286,7 +299,9 @@ contains
       call col2(w%x, mg(lvl)%coef%mult, mg(lvl)%dm_Xh%size())
     end if
 
+    call profiler_start_region('PHMG_map_to_coarse', 9)
     call intrp(lvl+1)%map(mg(lvl+1)%r%x, w%x, msh%nelv, mg(lvl+1)%Xh)
+    call profiler_end_region('PHMG_map_to_coarse', 9)
 
     call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD)
     
@@ -302,6 +317,7 @@ contains
       mg(lvl+1)%z%x = 0.0_rp
     end if
     if (lvl+1 .eq. clvl) then
+       call profiler_start_region('PHMG_tAMG_coarse_grid', 10)
        
        if (NEKO_BCKND_DEVICE .eq. 1) then
          call amg_solver%device_solve(mg(lvl+1)%z%x, &
@@ -314,6 +330,7 @@ contains
                               mg(lvl+1)%r%x, &
                               mg(lvl+1)%dm_Xh%size())
        end if
+       call profiler_end_region('PHMG_tAMG_coarse_grid', 10)
       
        call mg(lvl+1)%bclst%apply_scalar( &
                                  mg(lvl+1)%z%x,&
@@ -326,7 +343,9 @@ contains
     !>----------<!
     !> Project  <!
     !>----------<!
+    call profiler_start_region('PHMG_map_to_fine', 9)
     call intrp(lvl+1)%map(w%x, mg(lvl+1)%z%x, msh%nelv, mg(lvl)%Xh)
+    call profiler_end_region('PHMG_map_to_fine', 9)
 
     call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
     
@@ -350,19 +369,58 @@ contains
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-      ksp_results =  mg(lvl)%cheby_device%solve(Ax, z, &
-                                       r%x, mg(lvl)%dm_Xh%size(), &
-                                       mg(lvl)%coef, mg(lvl)%bclst, &
-                                       mg(lvl)%gs_h, niter = 11)
-    else
-      ksp_results =  mg(lvl)%cheby%solve(Ax, z, &
-                                       r%x, mg(lvl)%dm_Xh%size(), &
-                                       mg(lvl)%coef, mg(lvl)%bclst, &
-                                       mg(lvl)%gs_h, niter = 15)
-    end if
+    call profiler_start_region('PHMG_PostSmooth', 9)
+    !!!!!!--------------------------------------------------------------------------------------------------------------
+    call phmg_jacobi_smoother(z, r, w, mg(lvl), msh, Ax, mg(lvl)%dm_Xh%size(), lvl)
+    !!!!!!--------------------------------------------------------------------------------------------------------------
+!    if (NEKO_BCKND_DEVICE .eq. 1) then
+!      ksp_results =  mg(lvl)%cheby_device%solve(Ax, z, &
+!                                       r%x, mg(lvl)%dm_Xh%size(), &
+!                                       mg(lvl)%coef, mg(lvl)%bclst, &
+!                                       mg(lvl)%gs_h, niter = 11)
+!    else
+!      ksp_results =  mg(lvl)%cheby%solve(Ax, z, &
+!                                       r%x, mg(lvl)%dm_Xh%size(), &
+!                                       mg(lvl)%coef, mg(lvl)%bclst, &
+!                                       mg(lvl)%gs_h, niter = 15)
+!    end if
+    call profiler_end_region('PHMG_PostSmooth', 9)
 
+    call profiler_end_region('PHMG_cycle', 8)
   end subroutine phmg_mg_cycle
+
+  subroutine phmg_jacobi_smoother(z, r, w, mg, msh, Ax, n, lvl)
+    type(phmg_lvl_t) :: mg
+    class(ax_t), intent(inout) :: Ax
+    type(mesh_t), intent(inout) :: msh
+    type(field_t), intent(inout) :: z, r, w
+    integer, intent(in) :: n, lvl
+    integer :: i, iblk, ni, niblk
+
+    ni = 1
+    niblk = 3
+
+    do i = 1, ni
+      call Ax%compute(w%x, z%x, mg%coef, msh, mg%Xh)
+      call mg%gs_h%op(w%x, n, GS_OP_ADD)
+      call mg%bclst%apply_scalar(w%x, n)
+      call device_sub3(w%x_d, r%x_d, w%x_d, n)
+
+      call mg%device_jacobi%solve(w%x, w%x, n)
+
+      call device_add2s2(z%x_d, w%x_d, 0.8d0, n)
+
+      do iblk = 1, niblk
+        call Ax%compute(w%x, z%x, mg%coef, msh, mg%Xh)
+        call device_invcol2(w%x_d, mg%coef%mult_d, n)
+        call device_sub3(w%x_d, r%x_d, w%x_d, n)
+        call mg%device_jacobi%solve(w%x, w%x, n)
+        call device_add2s2(z%x_d, w%x_d, 0.8d0, n)
+      end do
+      !call phmg_resid_monitor(z, r, w, mg, msh, Ax, lvl, 0)
+    end do
+  end subroutine phmg_jacobi_smoother
+
 
   subroutine phmg_resid_monitor(z, r, w, mg, msh, Ax, lvl, typ)
     integer :: lvl, typ
