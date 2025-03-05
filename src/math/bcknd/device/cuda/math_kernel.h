@@ -83,7 +83,9 @@ __global__ void masked_atomic_reduction_kernel(T * __restrict__ a,
   const int str = blockDim.x * gridDim.x;
 
   for (int i = idx; i < m; i += str) {
+#if __CUDA_ARCH__ >= 600
     atomicAdd( &(a[mask[i+1]-1]), b[i]);
+#endif
   }
 }
 
