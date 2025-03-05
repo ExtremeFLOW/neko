@@ -54,8 +54,7 @@ module fluid_pnpn
   use projection, only : projection_t
   use projection_vel, only : projection_vel_t
   use device, only : device_memcpy, HOST_TO_DEVICE, device_event_sync,&
-       device_event_create, device_event_destroy, device_stream_wait_event, &
-       glb_cmd_queue
+       device_stream_wait_event, glb_cmd_queue, glb_cmd_event
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_module, only : json_file, json_core, json_value
@@ -68,7 +67,6 @@ module fluid_pnpn
   use wall_model_bc, only : wall_model_bc_t
   use facet_normal, only : facet_normal_t
   use non_normal, only : non_normal_t
-  use comm
   use mesh, only : mesh_t
   use user_intf, only : user_t
   use time_step_controller, only : time_step_controller_t
@@ -82,7 +80,6 @@ module fluid_pnpn
   use bc, only : bc_t
   use file, only : file_t
   use operators, only : ortho
-  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 
@@ -185,9 +182,6 @@ module fluid_pnpn
 
      !> Adjust flow volume
      type(fluid_volflow_t) :: vol_flow
-
-     !> Gather-scatter event
-     type(c_ptr) :: event = C_NULL_PTR
 
    contains
      !> Constructor.
@@ -390,11 +384,6 @@ contains
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_prs, precon_type)
 
     call neko_log%end_section()
-
-    ! Setup gather-scatter event (only relevant on devices)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_event_create(this%event, 2)
-    end if
 
   end subroutine fluid_pnpn_init
 
@@ -624,12 +613,6 @@ contains
 
     call this%vol_flow%free()
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       if (c_associated(this%event)) then
-          call device_event_destroy(this%event)
-       end if
-    end if
-
   end subroutine fluid_pnpn_free
 
   !> Advance fluid simulation in time.
@@ -678,7 +661,7 @@ contains
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
          if_variable_dt => dt_controller%if_variable_dt, &
          dt_last_change => dt_controller%dt_last_change, &
-         event => this%event)
+         event => glb_cmd_event)
 
       ! Extrapolate the velocity if it's not done in nut_field estimation
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &

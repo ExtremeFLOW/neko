@@ -46,11 +46,14 @@ module device
   integer, public, parameter :: HOST_TO_DEVICE = 1, DEVICE_TO_HOST = 2, &
        DEVICE_TO_DEVICE = 3
 
-  !> Global HIP command queue
+  !> Global command queue
   type(c_ptr), public, bind(c) :: glb_cmd_queue = C_NULL_PTR
 
-  !> Aux HIP command queue
+  !> Aux command queue
   type(c_ptr), public, bind(c) :: aux_cmd_queue = C_NULL_PTR
+
+  !> Event for the global command queue
+  type(c_ptr), public, bind(c) :: glb_cmd_event
 
   !> High priority stream setting
   integer, public :: STRM_HIGH_PRIO
@@ -126,7 +129,7 @@ contains
 #elif HAVE_OPENCL
     call opencl_init(glb_cmd_queue, aux_cmd_queue)
 #endif
-
+    call device_event_create(glb_cmd_event, 2)
 #endif
   end subroutine device_init
 
@@ -142,7 +145,7 @@ contains
     call opencl_prgm_lib_release
     call opencl_finalize(glb_cmd_queue, aux_cmd_queue)
 #endif
-
+    call device_event_destroy(glb_cmd_event)
 #endif
   end subroutine device_finalize
 
