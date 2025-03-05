@@ -94,7 +94,7 @@ module hsmg
   !Struct to arrange our multigridlevels
   type, private :: multigrid_t
      type(dofmap_t), pointer :: dof
-     type(gs_t), pointer  :: gs_h
+     type(gs_t), pointer :: gs_h
      type(space_t), pointer :: Xh
      type(coef_t), pointer :: coef
      type(bc_list_t), pointer :: bclst
@@ -426,10 +426,10 @@ contains
                this%grids(1)%dof%size())
           call profiler_start_region('HSMG_coarse_solve', 11)
           if (allocated(this%amg_solver)) then
-            call this%amg_solver%device_solve(this%grids(1)%e%x, this%wf%x,&
+             call this%amg_solver%device_solve(this%grids(1)%e%x, this%wf%x,&
               this%grids(1)%e%x_d, this%wf%x_d, this%grids(1)%dof%size())
           else
-            crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, &
+             crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, &
                                        this%wf%x, &
                                        this%grids(1)%dof%size(), &
                                        this%grids(1)%coef, &
