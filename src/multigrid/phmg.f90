@@ -269,19 +269,19 @@ contains
     !>----------<!
     call profiler_start_region('PHMG_PreSmooth', 9)
     !!!!!!--------------------------------------------------------------------------------------------------------------
-    call phmg_jacobi_smoother(z, r, w, mg(lvl), msh, Ax, mg(lvl)%dm_Xh%size(), lvl)
+    !call phmg_jacobi_smoother(z, r, w, mg(lvl), msh, Ax, mg(lvl)%dm_Xh%size(), lvl)
     !!!!!!--------------------------------------------------------------------------------------------------------------
-    !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !  ksp_results =  mg(lvl)%cheby_device%solve(Ax, z, &
-    !                                     r%x, mg(lvl)%dm_Xh%size(), &
-    !                                     mg(lvl)%coef, mg(lvl)%bclst, &
-    !                                     mg(lvl)%gs_h, niter = 11)
-    !else
-    !  ksp_results =  mg(lvl)%cheby%solve(Ax, z, &
-    !                                   r%x, mg(lvl)%dm_Xh%size(), &
-    !                                   mg(lvl)%coef, mg(lvl)%bclst, &
-    !                                   mg(lvl)%gs_h, niter = 15)
-    !end if
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      ksp_results =  mg(lvl)%cheby_device%solve(Ax, z, &
+                                         r%x, mg(lvl)%dm_Xh%size(), &
+                                         mg(lvl)%coef, mg(lvl)%bclst, &
+                                         mg(lvl)%gs_h, niter = 11)
+    else
+      ksp_results =  mg(lvl)%cheby%solve(Ax, z, &
+                                       r%x, mg(lvl)%dm_Xh%size(), &
+                                       mg(lvl)%coef, mg(lvl)%bclst, &
+                                       mg(lvl)%gs_h, niter = 15)
+    end if
     call profiler_end_region('PHMG_PreSmooth', 9)
 
     !>----------<!
@@ -378,19 +378,19 @@ contains
     !>----------<!
     call profiler_start_region('PHMG_PostSmooth', 9)
     !!!!!!--------------------------------------------------------------------------------------------------------------
-    call phmg_jacobi_smoother(z, r, w, mg(lvl), msh, Ax, mg(lvl)%dm_Xh%size(), lvl)
+    !call phmg_jacobi_smoother(z, r, w, mg(lvl), msh, Ax, mg(lvl)%dm_Xh%size(), lvl)
     !!!!!!--------------------------------------------------------------------------------------------------------------
-!    if (NEKO_BCKND_DEVICE .eq. 1) then
-!      ksp_results =  mg(lvl)%cheby_device%solve(Ax, z, &
-!                                       r%x, mg(lvl)%dm_Xh%size(), &
-!                                       mg(lvl)%coef, mg(lvl)%bclst, &
-!                                       mg(lvl)%gs_h, niter = 11)
-!    else
-!      ksp_results =  mg(lvl)%cheby%solve(Ax, z, &
-!                                       r%x, mg(lvl)%dm_Xh%size(), &
-!                                       mg(lvl)%coef, mg(lvl)%bclst, &
-!                                       mg(lvl)%gs_h, niter = 15)
-!    end if
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+      ksp_results =  mg(lvl)%cheby_device%solve(Ax, z, &
+                                       r%x, mg(lvl)%dm_Xh%size(), &
+                                       mg(lvl)%coef, mg(lvl)%bclst, &
+                                       mg(lvl)%gs_h, niter = 11)
+    else
+      ksp_results =  mg(lvl)%cheby%solve(Ax, z, &
+                                       r%x, mg(lvl)%dm_Xh%size(), &
+                                       mg(lvl)%coef, mg(lvl)%bclst, &
+                                       mg(lvl)%gs_h, niter = 15)
+    end if
     call profiler_end_region('PHMG_PostSmooth', 9)
 
     call profiler_end_region('PHMG_cycle', 8)
