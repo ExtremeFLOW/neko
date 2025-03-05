@@ -65,26 +65,26 @@ module tree_amg_multigrid
   private
 
   type :: tamg_wrk_t
-    real(kind=rp), allocatable :: r(:)
-    real(kind=rp), allocatable :: rc(:)
-    real(kind=rp), allocatable :: tmp(:)
-    type(c_ptr) :: r_d = C_NULL_PTR
-    type(c_ptr) :: rc_d = C_NULL_PTR
-    type(c_ptr) :: tmp_d = C_NULL_PTR
+     real(kind=rp), allocatable :: r(:)
+     real(kind=rp), allocatable :: rc(:)
+     real(kind=rp), allocatable :: tmp(:)
+     type(c_ptr) :: r_d = C_NULL_PTR
+     type(c_ptr) :: rc_d = C_NULL_PTR
+     type(c_ptr) :: tmp_d = C_NULL_PTR
   end type tamg_wrk_t
 
   !> Type for the TreeAMG solver
   type, public :: tamg_solver_t
-    type(tamg_hierarchy_t), allocatable :: amg
-    type(amg_cheby_t), allocatable :: smoo(:)
-    type(tamg_wrk_t), allocatable :: wrk(:)
-    !type(amg_jacobi_t), allocatable :: jsmoo(:)
-    integer :: nlvls
-    integer :: max_iter
-  contains
-    procedure, pass(this) :: init => tamg_mg_init
-    procedure, pass(this) :: solve => tamg_mg_solve
-    procedure, pass(this) :: device_solve => tamg_mg_solve_device
+     type(tamg_hierarchy_t), allocatable :: amg
+     type(amg_cheby_t), allocatable :: smoo(:)
+     type(tamg_wrk_t), allocatable :: wrk(:)
+     !type(amg_jacobi_t), allocatable :: jsmoo(:)
+     integer :: nlvls
+     integer :: max_iter
+   contains
+     procedure, pass(this) :: init => tamg_mg_init
+     procedure, pass(this) :: solve => tamg_mg_solve
+     procedure, pass(this) :: device_solve => tamg_mg_solve_device
   end type tamg_solver_t
 
 contains
@@ -114,7 +114,7 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     call neko_log%section('AMG')
-    
+
     call get_environment_variable("NEKO_TAMG_MAX_LVL", &
          env_mlvl, env_len)
     if (env_len .eq. 0) then
@@ -137,14 +137,14 @@ contains
     !> Create the remaining levels
     allocate( agg_nhbr, SOURCE=msh%facet_neigh )
     do mlvl = 2, nlvls-1
-      target_num_aggs = this%amg%lvl(mlvl-1)%nnodes / 8
-      call print_preagg_info( mlvl, target_num_aggs)
-      if ( target_num_aggs .lt. 4 ) then
-        call neko_error("TAMG: Too many levels. Not enough DOFs for coarsest grid.")
-      end if
-      call aggregate_greedy( this%amg, mlvl, target_num_aggs, agg_nhbr, asdf)
-      agg_nhbr = asdf
-      deallocate( asdf )
+       target_num_aggs = this%amg%lvl(mlvl-1)%nnodes / 8
+       call print_preagg_info( mlvl, target_num_aggs)
+       if ( target_num_aggs .lt. 4 ) then
+          call neko_error("TAMG: Too many levels. Not enough DOFs for coarsest grid.")
+       end if
+       call aggregate_greedy( this%amg, mlvl, target_num_aggs, agg_nhbr, asdf)
+       agg_nhbr = asdf
+       deallocate( asdf )
     end do
     deallocate( agg_nhbr )
 
@@ -155,7 +155,7 @@ contains
 
     this%nlvls = this%amg%nlvls!TODO: read from parameter
     if (this%nlvls .gt. this%amg%nlvls) then
-      call neko_error("Requested number multigrid levels is greater than the initialized AMG levels")
+       call neko_error("Requested number multigrid levels is greater than the initialized AMG levels")
     end if
 
     call get_environment_variable("NEKO_TAMG_CHEBY_DEGREE", &
@@ -165,25 +165,25 @@ contains
     else
        read(env_cheby_degree(1:env_len), *) cheby_degree
     end if
-    
+
     allocate(this%smoo(0:(nlvls)))
     do lvl = 0, nlvls-1
-      n = this%amg%lvl(lvl+1)%fine_lvl_dofs
-      call this%smoo(lvl)%init(n ,lvl, cheby_degree)
+       n = this%amg%lvl(lvl+1)%fine_lvl_dofs
+       call this%smoo(lvl)%init(n ,lvl, cheby_degree)
     end do
 
     !> Allocate work space on each level
     allocate(this%wrk(nlvls))
     do lvl = 1, nlvls
-      n = this%amg%lvl(lvl)%fine_lvl_dofs
-      allocate( this%wrk(lvl)%r(n) )
-      allocate( this%wrk(lvl)%rc(n) )
-      allocate( this%wrk(lvl)%tmp(n) )
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-        call device_map(  this%wrk(lvl)%r, this%wrk(lvl)%r_d, n)
-        call device_map(  this%wrk(lvl)%rc, this%wrk(lvl)%rc_d, n)
-        call device_map(  this%wrk(lvl)%tmp, this%wrk(lvl)%tmp_d, n)
-      end if
+       n = this%amg%lvl(lvl)%fine_lvl_dofs
+       allocate( this%wrk(lvl)%r(n) )
+       allocate( this%wrk(lvl)%rc(n) )
+       allocate( this%wrk(lvl)%tmp(n) )
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map( this%wrk(lvl)%r, this%wrk(lvl)%r_d, n)
+          call device_map( this%wrk(lvl)%rc, this%wrk(lvl)%rc_d, n)
+          call device_map( this%wrk(lvl)%tmp, this%wrk(lvl)%tmp_d, n)
+       end if
     end do
 
     !allocate(this%jsmoo(0:(nlvls)))
@@ -195,9 +195,9 @@ contains
     call fill_lvl_map(this%amg)
 
     call neko_log%end_section()
-    
+
   end subroutine tamg_mg_init
- 
+
 
   !> Solver function for the TreeAMG solver object
   !! @param z The solution to be returned
@@ -217,7 +217,7 @@ contains
 
     ! Call the amg cycle
     do iter = 1, max_iter
-      call tamg_mg_cycle(z, r, n, 0, this%amg, this)
+       call tamg_mg_cycle(z, r, n, 0, this%amg, this)
     end do
   end subroutine tamg_mg_solve
 
@@ -241,7 +241,7 @@ contains
 
     ! Call the amg cycle
     do iter = 1, max_iter
-      call tamg_mg_cycle_d(z, r, z_d, r_d, n, 0, this%amg, this)
+       call tamg_mg_cycle_d(z, r, z_d, r_d, n, 0, this%amg, this)
     end do
   end subroutine tamg_mg_solve_device
 
@@ -280,7 +280,7 @@ contains
     call mgstuff%smoo(lvl)%solve(x,b, n, amg)
     !call mgstuff%jsmoo(lvl)%solve(x,b, n, amg)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
-      return
+       return
     end if
 
     !>----------<!
@@ -292,7 +292,7 @@ contains
     !> Restrict <!
     !>----------<!
     if (lvl .eq. 0) then
-      call average_duplicates(r,amg,lvl,n)
+       call average_duplicates(r,amg,lvl,n)
     end if
     call amg%interp_f2c(rc, r, lvl+1)
 
@@ -307,7 +307,7 @@ contains
     !>----------<!
     call amg%interp_c2f(r, tmp, lvl+1)
     if (lvl .eq. 0) then
-      call average_duplicates(r,amg,lvl,n)
+       call average_duplicates(r,amg,lvl,n)
     end if
 
     !>----------<!
@@ -353,45 +353,45 @@ contains
     !>----------<!
     call mgstuff%smoo(lvl)%device_solve(x, b, x_d, b_d, n, amg)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
-      return
+       return
     end if
     associate( r => mgstuff%wrk(lvl+1)%r, r_d => mgstuff%wrk(lvl+1)%r_d, &
-               rc => mgstuff%wrk(lvl+1)%rc, rc_d => mgstuff%wrk(lvl+1)%rc_d, &
-               tmp => mgstuff%wrk(lvl+1)%tmp, tmp_d => mgstuff%wrk(lvl+1)%tmp_d )
-    !>----------<!
-    !> Residual <!
-    !>----------<!
-    call amg%device_matvec(r, x, r_d, x_d, lvl)
-    call device_sub3(r_d, b_d, r_d, n)
-    !>----------<!
-    !> Restrict <!
-    !>----------<!
+         rc => mgstuff%wrk(lvl+1)%rc, rc_d => mgstuff%wrk(lvl+1)%rc_d, &
+         tmp => mgstuff%wrk(lvl+1)%tmp, tmp_d => mgstuff%wrk(lvl+1)%tmp_d )
+      !>----------<!
+      !> Residual <!
+      !>----------<!
+      call amg%device_matvec(r, x, r_d, x_d, lvl)
+      call device_sub3(r_d, b_d, r_d, n)
+      !>----------<!
+      !> Restrict <!
+      !>----------<!
 !!!    if (lvl .eq. 0) then
 !!!      call amg%gs_h%op(r, n, GS_OP_ADD)
 !!!      call device_col2(r_d, amg%coef%mult_d, n)
 !!!    end if
-    call amg%interp_f2c_d(rc_d, r_d, lvl+1)
-    !>-------------------<!
-    !> Call Coarse solve <!
-    !>-------------------<!
-    call device_rzero(tmp_d, n)
-    call tamg_mg_cycle_d(tmp, rc, tmp_d, rc_d, amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff)
-    !>----------<!
-    !> Project  <!
-    !>----------<!
-    call amg%interp_c2f_d(r_d, tmp_d, lvl+1)
-    if (lvl .eq. 0) then
-      call amg%gs_h%op(r, n, GS_OP_ADD)
-      call device_col2(r_d, amg%coef%mult_d, n)
-    end if
-    !>----------<!
-    !> Correct  <!
-    !>----------<!
-    call device_add2(x_d, r_d, n)
-    !>----------<!
-    !> SMOOTH   <!
-    !>----------<!
-    call mgstuff%smoo(lvl)%device_solve(x, b, x_d, b_d, n, amg)
+      call amg%interp_f2c_d(rc_d, r_d, lvl+1)
+      !>-------------------<!
+      !> Call Coarse solve <!
+      !>-------------------<!
+      call device_rzero(tmp_d, n)
+      call tamg_mg_cycle_d(tmp, rc, tmp_d, rc_d, amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff)
+      !>----------<!
+      !> Project  <!
+      !>----------<!
+      call amg%interp_c2f_d(r_d, tmp_d, lvl+1)
+      if (lvl .eq. 0) then
+         call amg%gs_h%op(r, n, GS_OP_ADD)
+         call device_col2(r_d, amg%coef%mult_d, n)
+      end if
+      !>----------<!
+      !> Correct  <!
+      !>----------<!
+      call device_add2(x_d, r_d, n)
+      !>----------<!
+      !> SMOOTH   <!
+      !>----------<!
+      call mgstuff%smoo(lvl)%device_solve(x, b, x_d, b_d, n, amg)
     end associate
   end subroutine tamg_mg_cycle_d
 
@@ -413,8 +413,8 @@ contains
     integer :: i
     r = 0d0
     call amg%matvec(r, x, lvl)
-    do  i = 1, n
-      r(i) = b(i) - r(i)
+    do i = 1, n
+       r(i) = b(i) - r(i)
     end do
   end subroutine calc_resid
 
@@ -430,8 +430,8 @@ contains
     integer, intent(in) :: lvl
     integer :: i
     call amg%gs_h%op(U, n, GS_OP_ADD)
-    do  i = 1, n
-      U(i) = U(i) * amg%coef%mult(i,1,1,1)
+    do i = 1, n
+       U(i) = U(i) * amg%coef%mult(i,1,1,1)
     end do
   end subroutine average_duplicates
 
@@ -469,30 +469,30 @@ contains
     type(tamg_hierarchy_t), intent(inout) :: amg
     integer :: i, j, k, l, nid, n
     do j = 1, amg%lvl(1)%nnodes
-      do k = 1, amg%lvl(1)%nodes(j)%ndofs
-        nid = amg%lvl(1)%nodes(j)%dofs(k)
-        amg%lvl(1)%map_finest2lvl(nid) = amg%lvl(1)%nodes(j)%gid
-      end do
+       do k = 1, amg%lvl(1)%nodes(j)%ndofs
+          nid = amg%lvl(1)%nodes(j)%dofs(k)
+          amg%lvl(1)%map_finest2lvl(nid) = amg%lvl(1)%nodes(j)%gid
+       end do
     end do
     n = size(amg%lvl(1)%map_finest2lvl)
     do l = 2, amg%nlvls
-      do i = 1, n
-        nid = amg%lvl(l-1)%map_finest2lvl(i)
-        do j = 1, amg%lvl(l)%nnodes
-          do k = 1, amg%lvl(l)%nodes(j)%ndofs
-            if (nid .eq. amg%lvl(l)%nodes(j)%dofs(k)) then
-              amg%lvl(l)%map_finest2lvl(i) = amg%lvl(l)%nodes(j)%gid
-            end if
+       do i = 1, n
+          nid = amg%lvl(l-1)%map_finest2lvl(i)
+          do j = 1, amg%lvl(l)%nnodes
+             do k = 1, amg%lvl(l)%nodes(j)%ndofs
+                if (nid .eq. amg%lvl(l)%nodes(j)%dofs(k)) then
+                   amg%lvl(l)%map_finest2lvl(i) = amg%lvl(l)%nodes(j)%gid
+                end if
+             end do
           end do
-        end do
-      end do
+       end do
     end do
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      do l = 1, amg%nlvls
-        amg%lvl(l)%map_finest2lvl(0) = n
-        call device_memcpy( amg%lvl(l)%map_finest2lvl, amg%lvl(l)%map_finest2lvl_d, n, HOST_TO_DEVICE, .true.)
-        call device_memcpy( amg%lvl(l)%map_f2c, amg%lvl(l)%map_f2c_d, amg%lvl(l)%fine_lvl_dofs+1, HOST_TO_DEVICE, .true.)
-      end do
+       do l = 1, amg%nlvls
+          amg%lvl(l)%map_finest2lvl(0) = n
+          call device_memcpy( amg%lvl(l)%map_finest2lvl, amg%lvl(l)%map_finest2lvl_d, n, HOST_TO_DEVICE, .true.)
+          call device_memcpy( amg%lvl(l)%map_f2c, amg%lvl(l)%map_f2c_d, amg%lvl(l)%fine_lvl_dofs+1, HOST_TO_DEVICE, .true.)
+       end do
     end if
-  end subroutine
+  end subroutine fill_lvl_map
 end module tree_amg_multigrid

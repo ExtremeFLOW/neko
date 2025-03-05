@@ -63,7 +63,7 @@ module tree_amg_smoother
      procedure, pass(this) :: init => amg_jacobi_init
      procedure, pass(this) :: solve => amg_jacobi_solve
      procedure, pass(this) :: comp_diag => amg_jacobi_diag
-   end type amg_jacobi_t
+  end type amg_jacobi_t
 
   !> Type for Chebyshev iteration using TreeAMG matvec
   type, public :: amg_cheby_t
@@ -103,9 +103,9 @@ contains
     allocate(this%w(n))
     allocate(this%r(n))
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      call device_map(this%d, this%d_d, n)
-      call device_map(this%w, this%w_d, n)
-      call device_map(this%r, this%r_d, n)
+       call device_map(this%d, this%d_d, n)
+       call device_map(this%w, this%w_d, n)
+       call device_map(this%r, this%r_d, n)
     end if
     this%n = n
     this%lvl = lvl
@@ -133,47 +133,47 @@ contains
          msh=>amg%msh, Xh=>amg%Xh, blst=>amg%blst)
 
       do i = 1, n
-        !TODO: replace with a better way to initialize power method
-        !call random_number(rn)
-        !d(i) = rn + 10.0_rp
-        d(i) = sin(real(i))
+         !TODO: replace with a better way to initialize power method
+         !call random_number(rn)
+         !d(i) = rn + 10.0_rp
+         d(i) = sin(real(i))
       end do
       if (this%lvl .eq. 0) then
-        call gs_h%op(d, n, GS_OP_ADD)!TODO
-        call blst%apply(d, n)
+         call gs_h%op(d, n, GS_OP_ADD)!TODO
+         call blst%apply(d, n)
       end if
 
       !Power method to get lamba max
       do i = 1, this%power_its
-        w = 0d0
-        call amg%matvec(w, d, this%lvl)
+         w = 0d0
+         call amg%matvec(w, d, this%lvl)
 
-        if (this%lvl .eq. 0) then
-          !call blst%apply(w, n)
-          wtw = glsc3(w, coef%mult, w, n)
-        else
-          wtw = glsc2(w, w, n)
-        end if
+         if (this%lvl .eq. 0) then
+            !call blst%apply(w, n)
+            wtw = glsc3(w, coef%mult, w, n)
+         else
+            wtw = glsc2(w, w, n)
+         end if
 
-        call cmult2(d, w, 1.0_rp/sqrt(wtw), n)
+         call cmult2(d, w, 1.0_rp/sqrt(wtw), n)
 
-        if (this%lvl .eq. 0) then
-          !call blst%apply(d, n)
-        end if
+         if (this%lvl .eq. 0) then
+            !call blst%apply(d, n)
+         end if
       end do
 
       w = 0d0
       call amg%matvec(w, d, this%lvl)
       if (this%lvl .eq. 0) then
-        !call blst%apply(w, n)
+         !call blst%apply(w, n)
       end if
 
       if (this%lvl .eq. 0) then
-        dtw = glsc3(d, coef%mult, w, n)
-        dtd = glsc3(d, coef%mult, d, n)
+         dtw = glsc3(d, coef%mult, w, n)
+         dtd = glsc3(d, coef%mult, d, n)
       else
-        dtw = glsc2(d, w, n)
-        dtd = glsc2(d, d, n)
+         dtw = glsc2(d, w, n)
+         dtd = glsc2(d, d, n)
       end if
       lam = dtw / dtd
       b = lam * boost
@@ -230,19 +230,19 @@ contains
       call cmult(d, 1.0_rp/thet, n)
 
       do iter = 1, max_iter
-        call add2(x,d,n)
+         call add2(x,d,n)
 
-        w = 0d0
-        call amg%matvec(w, d, this%lvl)
-        call sub2(r, w, n)
+         w = 0d0
+         call amg%matvec(w, d, this%lvl)
+         call sub2(r, w, n)
 
-        rhokp1 = 1.0_rp / (2.0_rp * s1 - rhok)
-        tmp1 = rhokp1 * rhok
-        tmp2 = 2.0_rp * rhokp1 / delt
-        rhok = rhokp1
+         rhokp1 = 1.0_rp / (2.0_rp * s1 - rhok)
+         tmp1 = rhokp1 * rhok
+         tmp2 = 2.0_rp * rhokp1 / delt
+         rhok = rhokp1
 
-        call cmult(d, tmp1, n)
-        call add2s2(d, r, tmp2, n)
+         call cmult(d, tmp1, n)
+         call add2s2(d, r, tmp2, n)
       end do
 
     end associate
@@ -263,32 +263,32 @@ contains
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
          msh=>amg%msh, Xh=>amg%Xh, blst=>amg%blst)
       do i = 1, n
-        !TODO: replace with a better way to initialize power method
-        d(i) = sin(real(i))
+         !TODO: replace with a better way to initialize power method
+         d(i) = sin(real(i))
       end do
       call device_memcpy(this%d, this%d_d, n, HOST_TO_DEVICE, .true.)
       if (this%lvl .eq. 0) then
-        call gs_h%op(d, n, GS_OP_ADD)!TODO
-        call blst%apply(d, n)
+         call gs_h%op(d, n, GS_OP_ADD)!TODO
+         call blst%apply(d, n)
       end if
       do i = 1, this%power_its
-        call device_rzero(this%w_d, n)
-        call amg%device_matvec(w, d, this%w_d, this%d_d, this%lvl)
-        if (this%lvl .eq. 0) then
-          wtw = device_glsc3(this%w_d, coef%mult_d, this%w_d, n)
-        else
-          wtw = device_glsc2(this%w_d, this%w_d, n)
-        end if
-        call device_cmult2(this%d_d, this%w_d, 1.0_rp/sqrt(wtw), n)
+         call device_rzero(this%w_d, n)
+         call amg%device_matvec(w, d, this%w_d, this%d_d, this%lvl)
+         if (this%lvl .eq. 0) then
+            wtw = device_glsc3(this%w_d, coef%mult_d, this%w_d, n)
+         else
+            wtw = device_glsc2(this%w_d, this%w_d, n)
+         end if
+         call device_cmult2(this%d_d, this%w_d, 1.0_rp/sqrt(wtw), n)
       end do
       call device_rzero(this%w_d, n)
       call amg%device_matvec(w, d, this%w_d, this%d_d, this%lvl)
       if (this%lvl .eq. 0) then
-        dtw = device_glsc3(this%d_d, coef%mult_d, this%w_d, n)
-        dtd = device_glsc3(this%d_d, coef%mult_d, this%d_d, n)
+         dtw = device_glsc3(this%d_d, coef%mult_d, this%w_d, n)
+         dtd = device_glsc3(this%d_d, coef%mult_d, this%d_d, n)
       else
-        dtw = device_glsc2(this%d_d, this%w_d, n)
-        dtd = device_glsc2(this%d_d, this%d_d, n)
+         dtw = device_glsc2(this%d_d, this%w_d, n)
+         dtd = device_glsc2(this%d_d, this%d_d, n)
       end if
       lam = dtw / dtd
       b = lam * boost
@@ -340,17 +340,17 @@ contains
       !call device_cmult(d_d, 1.0_rp/thet, n)
       call device_cmult2(d_d, r_d, 1.0_rp/thet, n)
       do iter = 1, max_iter
-        call device_add2(x_d,d_d,n)
-        !---call device_rzero(w_d, n)
-        call amg%device_matvec(this%w, this%d, w_d, d_d, this%lvl)
-        call device_sub2(r_d, w_d, n)
-        rhokp1 = 1.0_rp / (2.0_rp * s1 - rhok)
-        tmp1 = rhokp1 * rhok
-        tmp2 = 2.0_rp * rhokp1 / delt
-        rhok = rhokp1
-        !call device_cmult(d_d, tmp1, n)
-        !call device_add2s2(d_d, r_d, tmp2, n)
-        call device_add3s2(d_d, d_d, r_d, tmp1, tmp2, n)
+         call device_add2(x_d,d_d,n)
+         !---call device_rzero(w_d, n)
+         call amg%device_matvec(this%w, this%d, w_d, d_d, this%lvl)
+         call device_sub2(r_d, w_d, n)
+         rhokp1 = 1.0_rp / (2.0_rp * s1 - rhok)
+         tmp1 = rhokp1 * rhok
+         tmp2 = 2.0_rp * rhokp1 / delt
+         rhok = rhokp1
+         !call device_cmult(d_d, tmp1, n)
+         !call device_add2s2(d_d, r_d, tmp2, n)
+         call device_add3s2(d_d, d_d, r_d, tmp1, tmp2, n)
       end do
     end associate
   end subroutine amg_device_cheby_solve
@@ -385,8 +385,8 @@ contains
     real(kind=rp) :: val
     integer :: i
     do i = 1, n
-      call tamg_sample_matrix_val(val, amg, this%lvl, i, i)
-      this%d(i) = 1.0_rp / val
+       call tamg_sample_matrix_val(val, amg, this%lvl, i, i)
+       this%d(i) = 1.0_rp / val
     end do
     this%recompute_diag = .false.
   end subroutine amg_jacobi_diag
@@ -409,7 +409,7 @@ contains
     integer :: i
 
     if (this%recompute_diag) then
-      call this%comp_diag(amg, n)
+       call this%comp_diag(amg, n)
     end if
 
     if (present(niter)) then
@@ -421,17 +421,17 @@ contains
     ! x = x + omega * Dinv( f - Ax )
     associate( w => this%w, r => this%r, d => this%d)
       do iter = 1, max_iter
-        w = 0.0_rp
-        !> w = A x
-        call amg%matvec(w, x, this%lvl)
-        !> r = f - Ax
-        call copy(r, f, n)
-        call sub2(r, w, n)
-        !print *, iter, "RES", sqrt(glsc2(r,r,n))!>DEBUG
-        !> r = Dinv * (f - Ax)
-        call col2(r, d, n)
-        !> x = x + omega * Dinv * (f - Ax)
-        call add2s2(x, r, this%omega, n)
+         w = 0.0_rp
+         !> w = A x
+         call amg%matvec(w, x, this%lvl)
+         !> r = f - Ax
+         call copy(r, f, n)
+         call sub2(r, w, n)
+         !print *, iter, "RES", sqrt(glsc2(r,r,n))!>DEBUG
+         !> r = Dinv * (f - Ax)
+         call col2(r, d, n)
+         !> x = x + omega * Dinv * (f - Ax)
+         call add2s2(x, r, this%omega, n)
       end do
     end associate
   end subroutine amg_jacobi_solve
