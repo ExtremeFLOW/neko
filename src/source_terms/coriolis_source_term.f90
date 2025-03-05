@@ -110,7 +110,7 @@ contains
        rotation_vec(3) = 0.5_rp * f
     else
        call neko_error("Specify either rotation_vector, phi and omega, or f &
-             & for the Coriolis source term.")
+         & for the Coriolis source term.")
     end if
 
 
