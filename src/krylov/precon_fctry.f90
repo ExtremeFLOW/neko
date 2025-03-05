@@ -82,7 +82,7 @@ contains
        end if
     else
        type_string =  concat_string_array(PC_KNOWN_TYPES, &
-            NEW_LINE('A') // "-  ",  .true.)
+            NEW_LINE('A') // "-  ", .true.)
        call neko_error("Unknown preconditioner type: " &
                        // trim(type_name) // ".  Known types are: " &
                        // type_string)
