@@ -102,7 +102,7 @@ contains
        rotation_vec(2) = omega * cos(phi * pi / 180 )
        rotation_vec(3) = omega * sin(phi * pi / 180)
     else if (json%valid_path("f")) then
-       call json_get(json, "f", phi)
+       call json_get(json, "f", f)
 
        allocate(rotation_vec(3))
        rotation_vec(1) = 0.0_rp
