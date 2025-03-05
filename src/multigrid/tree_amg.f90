@@ -442,7 +442,8 @@ contains
          call this%blst%apply(this%lvl(1)%wrk_out, n)
          !> Map finest level matvec back to output level
          call device_rzero(vec_out_d, this%lvl(lvl)%nnodes)
-         call device_masked_atomic_reduction(vec_out_d, wrk_out_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)!TODO: swap n and m
+         call device_masked_atomic_reduction(vec_out_d, wrk_out_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)
+         !TODO: swap n and m
        end associate
 
     end if
