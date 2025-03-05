@@ -415,14 +415,14 @@ contains
 
        call mg%device_jacobi%solve(w%x, w%x, n)
 
-       call device_add2s2(z%x_d, w%x_d, 0.8d0, n)
+       call device_add2s2(z%x_d, w%x_d, 0.8_rp, n)
 
        do iblk = 1, niblk
           call Ax%compute(w%x, z%x, mg%coef, msh, mg%Xh)
           call device_invcol2(w%x_d, mg%coef%mult_d, n)
           call device_sub3(w%x_d, r%x_d, w%x_d, n)
           call mg%device_jacobi%solve(w%x, w%x, n)
-          call device_add2s2(z%x_d, w%x_d, 0.8d0, n)
+          call device_add2s2(z%x_d, w%x_d, 0.8_rp, n)
        end do
        !call phmg_resid_monitor(z, r, w, mg, msh, Ax, lvl, 0)
     end do
