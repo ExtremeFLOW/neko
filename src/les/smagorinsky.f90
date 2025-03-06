@@ -50,7 +50,7 @@ module smagorinsky
   !> Implements the smagorinsky LES model.
   !! @note Reference DOI: 10.1175/1520-0493(1963)091<0099:GCEWTP>2.3.CO;2
   type, public, extends(les_model_t) :: smagorinsky_t
-     !> Model constant, defaults to 0.07.
+     !> Model constant, defaults to 0.17.
      real(kind=rp) :: c_s
    contains
      !> Constructor from JSON.
