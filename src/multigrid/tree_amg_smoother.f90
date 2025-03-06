@@ -32,12 +32,11 @@
 !
 !> Implements smoothers for use with TreeAMG matrix vector product
 module tree_amg_smoother
-  use tree_amg
-  use tree_amg_utils
-  use num_types
-  use utils
-  use math
-  use device_math
+  use tree_amg_utils, only : tamg_sample_matrix_val
+  use num_types, only : rp
+  use math, only : col2, add2, add2s2
+  use device_math, : only device_glsc2, device_glsc3, device_rzero, &
+       device_cmult2
   use krylov, only : ksp_monitor_t
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD

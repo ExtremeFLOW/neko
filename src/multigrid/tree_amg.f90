@@ -32,10 +32,10 @@
 !
 !> Implements the base type for TreeAMG hierarchy structure.
 module tree_amg
-  use num_types
-  use utils
-  use math
-  use device_math
+  use num_types, only : rp
+  use utils, only : neko_error
+  use math, only : rzero, col2
+  use device_math , only : device_rzero, device_col2
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use space, only : space_t
