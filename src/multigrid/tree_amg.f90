@@ -42,8 +42,7 @@ module tree_amg
   use ax_product, only: ax_t
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  !use device, only: device_map, device_free, c_ptr, C_NULL_PTR
-  use device, only: device_map, device_free
+  use device, only: device_map, device_free, device_stream_wait_event, glb_cmd_queue, glb_cmd_event
   use neko_config, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
@@ -426,7 +425,8 @@ contains
     n = this%lvl(1)%fine_lvl_dofs
     if (lvl .eq. 0) then !> isleaf true
        call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
-       call this%gs_h%op(vec_out, n, GS_OP_ADD)
+       call this%gs_h%op(vec_out, n, GS_OP_ADD, glb_cmd_event)
+       call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
        call this%blst%apply(vec_out, n)
     else !> pass down through hierarchy
 
@@ -435,10 +435,12 @@ contains
          call device_masked_red_copy(wrk_in_d, vec_in_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)
          !> Average on overlapping dofs
          call this%gs_h%op(this%lvl(1)%wrk_in, n, GS_OP_ADD)
+         call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
          call device_col2( wrk_in_d, this%coef%mult_d, n)
          !> Finest level matvec (Call local finite element assembly)
          call this%ax%compute(this%lvl(1)%wrk_out, this%lvl(1)%wrk_in, this%coef, this%msh, this%Xh)
          call this%gs_h%op(this%lvl(1)%wrk_out, n, GS_OP_ADD)
+         call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
          call this%blst%apply(this%lvl(1)%wrk_out, n)
          !> Map finest level matvec back to output level
          call device_rzero(vec_out_d, this%lvl(lvl)%nnodes)
