@@ -94,7 +94,7 @@ module hsmg
   !Struct to arrange our multigridlevels
   type, private :: multigrid_t
      type(dofmap_t), pointer :: dof
-     type(gs_t), pointer  :: gs_h
+     type(gs_t), pointer :: gs_h
      type(space_t), pointer :: Xh
      type(coef_t), pointer :: coef
      type(bc_list_t), pointer :: bclst
@@ -257,12 +257,7 @@ contains
     ! Create a backend specific krylov solver
     if (present(crs_pctype)) then
        if (trim(crs_pctype) .eq. 'tamg') then
-          if (NEKO_BCKND_DEVICE .eq. 1) then
-             call neko_error('Tree-amg only supported for CPU')
-          end if
-
           allocate(this%amg_solver)
-
           call this%amg_solver%init(this%ax, this%grids(1)%e%Xh, &
                this%grids(1)%coef, this%msh, this%grids(1)%gs_h, 4, &
                this%grids(1)%bclst, 1)
@@ -425,12 +420,17 @@ contains
           call this%grids(1)%bclst%apply_scalar(this%wf%x, &
                this%grids(1)%dof%size())
           call profiler_start_region('HSMG_coarse_solve', 11)
-          crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, &
-               this%wf%x, &
-               this%grids(1)%dof%size(), &
-               this%grids(1)%coef, &
-               this%grids(1)%bclst, &
-               this%grids(1)%gs_h, this%niter)
+          if (allocated(this%amg_solver)) then
+             call this%amg_solver%device_solve(this%grids(1)%e%x, this%wf%x,&
+              this%grids(1)%e%x_d, this%wf%x_d, this%grids(1)%dof%size())
+          else
+             crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, &
+                                       this%wf%x, &
+                                       this%grids(1)%dof%size(), &
+                                       this%grids(1)%coef, &
+                                       this%grids(1)%bclst, &
+                                       this%grids(1)%gs_h, this%niter)
+          end if
           call profiler_end_region('HSMG_coarse_solve', 11)
           call this%grids(1)%bclst%apply_scalar(this%grids(1)%e%x,&
                this%grids(1)%dof%size())

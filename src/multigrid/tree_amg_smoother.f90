@@ -37,10 +37,14 @@ module tree_amg_smoother
   use num_types
   use utils
   use math
+  use device_math
   use krylov, only : ksp_monitor_t
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use logger, only : neko_log, LOG_SIZE
+  use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE
+  use neko_config, only: NEKO_BCKND_DEVICE
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -58,13 +62,16 @@ module tree_amg_smoother
      procedure, pass(this) :: init => amg_jacobi_init
      procedure, pass(this) :: solve => amg_jacobi_solve
      procedure, pass(this) :: comp_diag => amg_jacobi_diag
-   end type amg_jacobi_t
+  end type amg_jacobi_t
 
   !> Type for Chebyshev iteration using TreeAMG matvec
   type, public :: amg_cheby_t
      real(kind=rp), allocatable :: d(:)
+     type(c_ptr) :: d_d = C_NULL_PTR
      real(kind=rp), allocatable :: w(:)
+     type(c_ptr) :: w_d = C_NULL_PTR
      real(kind=rp), allocatable :: r(:)
+     type(c_ptr) :: r_d = C_NULL_PTR
      real(kind=rp) :: tha, dlt
      integer :: lvl
      integer :: n
@@ -75,6 +82,8 @@ module tree_amg_smoother
      procedure, pass(this) :: init => amg_cheby_init
      procedure, pass(this) :: solve => amg_cheby_solve
      procedure, pass(this) :: comp_eig => amg_cheby_power
+     procedure, pass(this) :: device_solve => amg_device_cheby_solve
+     procedure, pass(this) :: device_comp_eig => amg_device_cheby_power
   end type amg_cheby_t
 
 contains
@@ -92,6 +101,11 @@ contains
     allocate(this%d(n))
     allocate(this%w(n))
     allocate(this%r(n))
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%d, this%d_d, n)
+       call device_map(this%w, this%w_d, n)
+       call device_map(this%r, this%r_d, n)
+    end if
     this%n = n
     this%lvl = lvl
     this%max_iter = max_iter
@@ -118,47 +132,47 @@ contains
          msh=>amg%msh, Xh=>amg%Xh, blst=>amg%blst)
 
       do i = 1, n
-        !TODO: replace with a better way to initialize power method
-        !call random_number(rn)
-        !d(i) = rn + 10.0_rp
-        d(i) = sin(real(i))
+         !TODO: replace with a better way to initialize power method
+         !call random_number(rn)
+         !d(i) = rn + 10.0_rp
+         d(i) = sin(real(i))
       end do
       if (this%lvl .eq. 0) then
-        call gs_h%op(d, n, GS_OP_ADD)!TODO
-        call blst%apply(d, n)
+         call gs_h%op(d, n, GS_OP_ADD)!TODO
+         call blst%apply(d, n)
       end if
 
       !Power method to get lamba max
       do i = 1, this%power_its
-        w = 0d0
-        call amg%matvec(w, d, this%lvl)
+         w = 0d0
+         call amg%matvec(w, d, this%lvl)
 
-        if (this%lvl .eq. 0) then
-          !call blst%apply(w, n)
-          wtw = glsc3(w, coef%mult, w, n)
-        else
-          wtw = glsc2(w, w, n)
-        end if
+         if (this%lvl .eq. 0) then
+            !call blst%apply(w, n)
+            wtw = glsc3(w, coef%mult, w, n)
+         else
+            wtw = glsc2(w, w, n)
+         end if
 
-        call cmult2(d, w, 1.0_rp/sqrt(wtw), n)
+         call cmult2(d, w, 1.0_rp/sqrt(wtw), n)
 
-        if (this%lvl .eq. 0) then
-          !call blst%apply(d, n)
-        end if
+         if (this%lvl .eq. 0) then
+            !call blst%apply(d, n)
+         end if
       end do
 
       w = 0d0
       call amg%matvec(w, d, this%lvl)
       if (this%lvl .eq. 0) then
-        !call blst%apply(w, n)
+         !call blst%apply(w, n)
       end if
 
       if (this%lvl .eq. 0) then
-        dtw = glsc3(d, coef%mult, w, n)
-        dtd = glsc3(d, coef%mult, d, n)
+         dtw = glsc3(d, coef%mult, w, n)
+         dtd = glsc3(d, coef%mult, d, n)
       else
-        dtw = glsc2(d, w, n)
-        dtd = glsc2(d, d, n)
+         dtw = glsc2(d, w, n)
+         dtd = glsc2(d, d, n)
       end if
       lam = dtw / dtd
       b = lam * boost
@@ -215,23 +229,124 @@ contains
       call cmult(d, 1.0_rp/thet, n)
 
       do iter = 1, max_iter
-        call add2(x,d,n)
+         call add2(x,d,n)
 
-        w = 0d0
-        call amg%matvec(w, d, this%lvl)
-        call sub2(r, w, n)
+         w = 0d0
+         call amg%matvec(w, d, this%lvl)
+         call sub2(r, w, n)
 
-        rhokp1 = 1.0_rp / (2.0_rp * s1 - rhok)
-        tmp1 = rhokp1 * rhok
-        tmp2 = 2.0_rp * rhokp1 / delt
-        rhok = rhokp1
+         rhokp1 = 1.0_rp / (2.0_rp * s1 - rhok)
+         tmp1 = rhokp1 * rhok
+         tmp2 = 2.0_rp * rhokp1 / delt
+         rhok = rhokp1
 
-        call cmult(d, tmp1, n)
-        call add2s2(d, r, tmp2, n)
+         call cmult(d, tmp1, n)
+         call add2s2(d, r, tmp2, n)
       end do
 
     end associate
   end subroutine amg_cheby_solve
+
+  !> Power method to approximate largest eigenvalue
+  !! @param amg TreeAMG object
+  !! @param n Number of dofs
+  subroutine amg_device_cheby_power(this, amg, n)
+    class(amg_cheby_t), intent(inout) :: this
+    type(tamg_hierarchy_t), intent(inout) :: amg
+    integer, intent(in) :: n
+    real(kind=rp) :: lam, b, a, rn
+    real(kind=rp), parameter :: boost = 1.1_rp
+    real(kind=rp), parameter :: lam_factor = 30.0_rp
+    real(kind=rp) :: wtw, dtw, dtd
+    integer :: i
+    associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
+         msh=>amg%msh, Xh=>amg%Xh, blst=>amg%blst)
+      do i = 1, n
+         !TODO: replace with a better way to initialize power method
+         d(i) = sin(real(i))
+      end do
+      call device_memcpy(this%d, this%d_d, n, HOST_TO_DEVICE, .true.)
+      if (this%lvl .eq. 0) then
+         call gs_h%op(d, n, GS_OP_ADD)!TODO
+         call blst%apply(d, n)
+      end if
+      do i = 1, this%power_its
+         call device_rzero(this%w_d, n)
+         call amg%device_matvec(w, d, this%w_d, this%d_d, this%lvl)
+         if (this%lvl .eq. 0) then
+            wtw = device_glsc3(this%w_d, coef%mult_d, this%w_d, n)
+         else
+            wtw = device_glsc2(this%w_d, this%w_d, n)
+         end if
+         call device_cmult2(this%d_d, this%w_d, 1.0_rp/sqrt(wtw), n)
+      end do
+      call device_rzero(this%w_d, n)
+      call amg%device_matvec(w, d, this%w_d, this%d_d, this%lvl)
+      if (this%lvl .eq. 0) then
+         dtw = device_glsc3(this%d_d, coef%mult_d, this%w_d, n)
+         dtd = device_glsc3(this%d_d, coef%mult_d, this%d_d, n)
+      else
+         dtw = device_glsc2(this%d_d, this%w_d, n)
+         dtd = device_glsc2(this%d_d, this%d_d, n)
+      end if
+      lam = dtw / dtd
+      b = lam * boost
+      a = lam / lam_factor
+      this%tha = (b+a)/2.0_rp
+      this%dlt = (b-a)/2.0_rp
+      this%recompute_eigs = .false.
+      call amg_cheby_monitor(this%lvl,lam)
+    end associate
+  end subroutine amg_device_cheby_power
+
+  !> Chebyshev smoother
+  !> From Saad's iterative methods textbook
+  !! @param x The solution to be returned
+  !! @param f The right-hand side
+  !! @param n Number of dofs
+  !! @param amg The TreeAMG object
+  subroutine amg_device_cheby_solve(this, x, f, x_d, f_d, n, amg, niter)
+    class(amg_cheby_t), intent(inout) :: this
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: x
+    real(kind=rp), dimension(n), intent(inout) :: f
+    type(c_ptr) :: x_d
+    type(c_ptr) :: f_d
+    class(tamg_hierarchy_t), intent(inout) :: amg
+    type(ksp_monitor_t) :: ksp_results
+    integer, optional, intent(in) :: niter
+    integer :: iter, max_iter
+    real(kind=rp) :: rtr, rnorm
+    real(kind=rp) :: rhok, rhokp1, s1, thet, delt, tmp1, tmp2
+    if (this%recompute_eigs) then
+       call this%device_comp_eig(amg, n)
+    end if
+    if (present(niter)) then
+       max_iter = niter
+    else
+       max_iter = this%max_iter
+    end if
+    associate( w_d => this%w_d, r_d => this%r_d, d_d => this%d_d, blst=>amg%blst)
+      call device_copy(r_d, f_d, n)
+      call amg%device_matvec(this%w, x, w_d, x_d, this%lvl)
+      call device_sub2(r_d, w_d, n)
+      thet = this%tha
+      delt = this%dlt
+      s1 = thet / delt
+      rhok = 1.0_rp / s1
+      call device_cmult2(d_d, r_d, 1.0_rp/thet, n)
+      do iter = 1, max_iter
+         call device_add2(x_d,d_d,n)
+         call amg%device_matvec(this%w, this%d, w_d, d_d, this%lvl)
+         call device_sub2(r_d, w_d, n)
+         rhokp1 = 1.0_rp / (2.0_rp * s1 - rhok)
+         tmp1 = rhokp1 * rhok
+         tmp2 = 2.0_rp * rhokp1 / delt
+         rhok = rhokp1
+         call device_add3s2(d_d, d_d, r_d, tmp1, tmp2, n)
+      end do
+    end associate
+  end subroutine amg_device_cheby_solve
 
   !> Initialization of Jacobi (this is expensive...)
   !! @param n Number of dofs
@@ -263,8 +378,8 @@ contains
     real(kind=rp) :: val
     integer :: i
     do i = 1, n
-      call tamg_sample_matrix_val(val, amg, this%lvl, i, i)
-      this%d(i) = 1.0_rp / val
+       call tamg_sample_matrix_val(val, amg, this%lvl, i, i)
+       this%d(i) = 1.0_rp / val
     end do
     this%recompute_diag = .false.
   end subroutine amg_jacobi_diag
@@ -287,7 +402,7 @@ contains
     integer :: i
 
     if (this%recompute_diag) then
-      call this%comp_diag(amg, n)
+       call this%comp_diag(amg, n)
     end if
 
     if (present(niter)) then
@@ -299,17 +414,17 @@ contains
     ! x = x + omega * Dinv( f - Ax )
     associate( w => this%w, r => this%r, d => this%d)
       do iter = 1, max_iter
-        w = 0.0_rp
-        !> w = A x
-        call amg%matvec(w, x, this%lvl)
-        !> r = f - Ax
-        call copy(r, f, n)
-        call sub2(r, w, n)
-        !print *, iter, "RES", sqrt(glsc2(r,r,n))!>DEBUG
-        !> r = Dinv * (f - Ax)
-        call col2(r, d, n)
-        !> x = x + omega * Dinv * (f - Ax)
-        call add2s2(x, r, this%omega, n)
+         w = 0.0_rp
+         !> w = A x
+         call amg%matvec(w, x, this%lvl)
+         !> r = f - Ax
+         call copy(r, f, n)
+         call sub2(r, w, n)
+         !print *, iter, "RES", sqrt(glsc2(r,r,n))!>DEBUG
+         !> r = Dinv * (f - Ax)
+         call col2(r, d, n)
+         !> x = x + omega * Dinv * (f - Ax)
+         call add2s2(x, r, this%omega, n)
       end do
     end associate
   end subroutine amg_jacobi_solve

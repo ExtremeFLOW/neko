@@ -41,15 +41,15 @@ module tree_amg_aggregate
   implicit none
 
   type, public :: tamg_agg_monitor_t
-    !> Summary info
-    integer :: level
-    integer :: num_dofs
-    integer :: num_aggs
-    !> aggregation progress info
-    integer :: phase1_naggs
-    integer :: phase1_ndof_aggregated
-    integer :: phase2_naggs
-    integer :: phase2_ndof_aggregated
+     !> Summary info
+     integer :: level
+     integer :: num_dofs
+     integer :: num_aggs
+     !> aggregation progress info
+     integer :: phase1_naggs
+     integer :: phase1_ndof_aggregated
+     integer :: phase2_naggs
+     integer :: phase2_ndof_aggregated
   end type tamg_agg_monitor_t
 
 contains
@@ -75,23 +75,24 @@ contains
     call tamg_lvl_init(tamg%lvl(lvl_id), lvl_id, ne, nt)
     gid_ptr = 1
     do l = 1, ne
-      tamg%lvl(lvl_id)%nodes_ptr(l) = gid_ptr
-      tamg%lvl(lvl_id)%nodes_gid(l) = l
-      call tamg_node_init( tamg%lvl(lvl_id)%nodes(l), l, nl)
-      !> Fill the nodes
-      lid = 0
-      do k = 1, lz
-        do j = 1, ly
-          do i = 1, lx
-            lid = lid + 1
-            tamg%lvl(lvl_id)%nodes(l)%dofs(lid) = linear_index(i,j,k,l,lx,ly,lz)
+       tamg%lvl(lvl_id)%nodes_ptr(l) = gid_ptr
+       tamg%lvl(lvl_id)%nodes_gid(l) = l
+       call tamg_node_init( tamg%lvl(lvl_id)%nodes(l), l, nl)
+       !> Fill the nodes
+       lid = 0
+       do k = 1, lz
+          do j = 1, ly
+             do i = 1, lx
+                lid = lid + 1
+                tamg%lvl(lvl_id)%nodes(l)%dofs(lid) = linear_index(i,j,k,l,lx,ly,lz)
 
-            tamg%lvl(lvl_id)%nodes_dofs(gid_ptr) = linear_index(i,j,k,l,lx,ly,lz)
-            tamg%lvl(lvl_id)%nodes_gids(gid_ptr) = l
-            gid_ptr = gid_ptr + 1
+                tamg%lvl(lvl_id)%nodes_dofs(gid_ptr) = linear_index(i,j,k,l,lx,ly,lz)
+                !tamg%lvl(lvl_id)%nodes_gids(gid_ptr) = l
+                tamg%lvl(lvl_id)%map_f2c(linear_index(i,j,k,l,lx,ly,lz)) = l
+                gid_ptr = gid_ptr + 1
+             end do
           end do
-        end do
-      end do
+       end do
     end do
     tamg%lvl(lvl_id)%nodes_ptr(ne+1) = gid_ptr
 
@@ -109,7 +110,7 @@ contains
   !! @param is_aggregated Array containing aggregate info. Maps from dof id to agg id
   !! @param aggregate_size Array containing the size of each aggregate
   subroutine agg_greedy_first_pass(naggs, max_aggs, n_elements, &
-      facet_neigh, offset_el, n_facet, is_aggregated, aggregate_size)
+       facet_neigh, offset_el, n_facet, is_aggregated, aggregate_size)
     integer, intent(inout):: naggs
     integer, intent(in) :: max_aggs, n_elements
     integer, intent(in) :: facet_neigh(:,:)
@@ -125,39 +126,39 @@ contains
 !-----!      call random_number(random_value)
 !-----!      i = floor(random_value * n_elements + 1)
     do i = 1, n_elements!> THE NON-RANDOM VERSION...
-      if (is_aggregated(i) .eq. -1) then
-        !> Check to see if any of the points neighbors are aggregated
-        no_nhbr_agg = .true.
-        do side = 1, n_facet
-          nhbr = facet_neigh(side, i) - offset_el
-          if ((nhbr .gt. 0).and.(nhbr .le. n_elements)) then!> if nhbr exists
-            if (is_aggregated(nhbr) .ne. -1) then
-              no_nhbr_agg = .false.
-            end if
-          end if
-        end do! side
-
-        !> if no neighbors are aggregated, create new aggregate
-        if (no_nhbr_agg) then
-          naggs = naggs + 1
-          is_aggregated(i) = naggs
-          if(size(aggregate_size).lt.naggs) then
-            allocate(as_tmp(naggs + 20))
-            as_tmp(1:size(aggregate_size)) = aggregate_size
-            call move_alloc(as_tmp, aggregate_size)
-          end if
-          aggregate_size(naggs) = 1
+       if (is_aggregated(i) .eq. -1) then
+          !> Check to see if any of the points neighbors are aggregated
+          no_nhbr_agg = .true.
           do side = 1, n_facet
-            nhbr = facet_neigh(side, i) - offset_el
-            if ((nhbr .gt. 0).and.(nhbr .le. n_elements)) then!> if nhbr exists
-              if (is_aggregated(nhbr) .eq. -1) then
-                is_aggregated(nhbr) = naggs
-                aggregate_size(naggs) = aggregate_size(naggs) + 1
-              end if
-            end if
+             nhbr = facet_neigh(side, i) - offset_el
+             if ((nhbr .gt. 0).and.(nhbr .le. n_elements)) then!> if nhbr exists
+                if (is_aggregated(nhbr) .ne. -1) then
+                   no_nhbr_agg = .false.
+                end if
+             end if
           end do! side
-        end if! no_nhbr_agg
-      end if! is_aggregated(i)
+
+          !> if no neighbors are aggregated, create new aggregate
+          if (no_nhbr_agg) then
+             naggs = naggs + 1
+             is_aggregated(i) = naggs
+             if(size(aggregate_size).lt.naggs) then
+                allocate(as_tmp(naggs + 20))
+                as_tmp(1:size(aggregate_size)) = aggregate_size
+                call move_alloc(as_tmp, aggregate_size)
+             end if
+             aggregate_size(naggs) = 1
+             do side = 1, n_facet
+                nhbr = facet_neigh(side, i) - offset_el
+                if ((nhbr .gt. 0).and.(nhbr .le. n_elements)) then!> if nhbr exists
+                   if (is_aggregated(nhbr) .eq. -1) then
+                      is_aggregated(nhbr) = naggs
+                      aggregate_size(naggs) = aggregate_size(naggs) + 1
+                   end if
+                end if
+             end do! side
+          end if! no_nhbr_agg
+       end if! is_aggregated(i)
     end do
   end subroutine agg_greedy_first_pass
 
@@ -172,7 +173,7 @@ contains
   !! @param is_aggregated Array containing aggregate info. Maps from dof id to agg id
   !! @param aggregate_size Array containing the size of each aggregate
   subroutine agg_greedy_second_pass(naggs, max_aggs, n_elements, &
-      facet_neigh, offset_el, n_facet, is_aggregated, aggregate_size)
+       facet_neigh, offset_el, n_facet, is_aggregated, aggregate_size)
     integer, intent(inout):: naggs
     integer, intent(in) :: max_aggs, n_elements
     integer, intent(in) :: facet_neigh(:,:)
@@ -184,51 +185,51 @@ contains
 
     !> Add remaining unaggregated nodes to aggregates
     do i = 1, n_elements
-      if (is_aggregated(i) .eq. -1) then
-        !> dof i is unaggregated. Check neighbors, add to smallest neighbor
-        tnt_agg = -1
-        tnt_size = 999!TODO: replace with large number
-        tst_agg = -1
-        tst_size = 999!TODO: replace with large number
-        do side = 1, n_facet
-          nhbr = facet_neigh(side, i) - offset_el
-          if ((nhbr .gt. 0).and.(nhbr .le. n_elements)) then!> if nhbr exists
-            if (is_aggregated(nhbr) .ne. -1) then
-              tst_agg = is_aggregated(nhbr)
-              tst_size = aggregate_size(tst_agg)
-              if (tst_size .lt. tnt_size) then
-                tnt_size = tst_size
-                tnt_agg = tst_agg
-              end if
-            end if
-          end if
-        end do
-
-        if (tnt_agg .ne. -1) then
-          !> if neighbor aggregate found add to that aggregate
-          is_aggregated(i) = tnt_agg
-          aggregate_size(tnt_agg) = aggregate_size(tnt_agg) + 1
-        else
-          !> if none of the neignbors are aggregated. might as well make a new aggregate
-          naggs = naggs + 1
-          if (naggs .gt. size(aggregate_size)) then!TODO: another movealoc here? Error? the max_aggs needs to change though...
-            call neko_error("Creating too many aggregates... something might be wrong... try increasing max_aggs")
-          end if
-          is_aggregated(i) = naggs
-          aggregate_size(naggs) = 1
-          !> Add neighbors to aggregate if unaggregated
+       if (is_aggregated(i) .eq. -1) then
+          !> dof i is unaggregated. Check neighbors, add to smallest neighbor
+          tnt_agg = -1
+          tnt_size = 999!TODO: replace with large number
+          tst_agg = -1
+          tst_size = 999!TODO: replace with large number
           do side = 1, n_facet
-            nhbr = facet_neigh(side, i) - offset_el
-            if ((nhbr .gt. 0).and.(nhbr .le. n_elements)) then!> if nhbr exists
-              if (is_aggregated(nhbr) .eq. -1) then
-                aggregate_size(naggs) = aggregate_size(naggs) + 1
-                is_aggregated(nhbr) = naggs
-              end if
-            end if
+             nhbr = facet_neigh(side, i) - offset_el
+             if ((nhbr .gt. 0).and.(nhbr .le. n_elements)) then!> if nhbr exists
+                if (is_aggregated(nhbr) .ne. -1) then
+                   tst_agg = is_aggregated(nhbr)
+                   tst_size = aggregate_size(tst_agg)
+                   if (tst_size .lt. tnt_size) then
+                      tnt_size = tst_size
+                      tnt_agg = tst_agg
+                   end if
+                end if
+             end if
           end do
-        end if
 
-      end if
+          if (tnt_agg .ne. -1) then
+             !> if neighbor aggregate found add to that aggregate
+             is_aggregated(i) = tnt_agg
+             aggregate_size(tnt_agg) = aggregate_size(tnt_agg) + 1
+          else
+             !> if none of the neignbors are aggregated. might as well make a new aggregate
+             naggs = naggs + 1
+             if (naggs .gt. size(aggregate_size)) then!TODO: another movealoc here? Error? the max_aggs needs to change though...
+                call neko_error("Creating too many aggregates... something might be wrong... try increasing max_aggs")
+             end if
+             is_aggregated(i) = naggs
+             aggregate_size(naggs) = 1
+             !> Add neighbors to aggregate if unaggregated
+             do side = 1, n_facet
+                nhbr = facet_neigh(side, i) - offset_el
+                if ((nhbr .gt. 0).and.(nhbr .le. n_elements)) then!> if nhbr exists
+                   if (is_aggregated(nhbr) .eq. -1) then
+                      aggregate_size(naggs) = aggregate_size(naggs) + 1
+                      is_aggregated(nhbr) = naggs
+                   end if
+                end if
+             end do
+          end if
+
+       end if
     end do
   end subroutine agg_greedy_second_pass
 
@@ -242,7 +243,7 @@ contains
   !! @param is_aggregated Array containing aggregate info. Maps from dof id to agg id
   !! @param aggregate_size Array containing the size of each aggregate
   subroutine agg_fill_nhbr_info(agg_nhbr, n_agg_nhbr, n_elements, &
-      facet_neigh, offset_el, n_facet, is_aggregated, aggregate_size)
+       facet_neigh, offset_el, n_facet, is_aggregated, aggregate_size)
     integer, intent(inout) :: agg_nhbr(:,:)
     integer, intent(inout) :: n_agg_nhbr
     integer, intent(in) :: n_elements
@@ -256,27 +257,27 @@ contains
     n_agg_nhbr = 0
 
     do i = 1, n_elements!TODO: this is the lazy expensive way...
-      tnt_agg = is_aggregated(i)
-      do side = 1, n_facet
-        nhbr = facet_neigh(side,i) - offset_el
-        if ((nhbr .gt. 0).and.(nhbr .le. n_elements)) then!> if nhbr exists
-          tst_agg = is_aggregated(nhbr)
-          if (tst_agg .le. 0) call neko_error("Unaggregated element detected. We do not want to handle that here...")
-          if (tst_agg .ne. tnt_agg) then
-            agg_added = .false.
-            do j = 1, 50!TODO: this hard-coded value
-              if ((agg_nhbr(j,tnt_agg) .eq. tst_agg)) then
-                agg_added = .true.
-              else if ((agg_nhbr(j,tnt_agg).eq.-1).and.(.not.agg_added)) then
-                agg_nhbr(j,tnt_agg) = tst_agg
-                agg_added = .true.
-                n_agg_nhbr = max(n_agg_nhbr, j)
-              end if
-            end do! j
-            if (.not.agg_added) call neko_error("Aggregates have too many neighbors... probably. Or some other error.")
+       tnt_agg = is_aggregated(i)
+       do side = 1, n_facet
+          nhbr = facet_neigh(side,i) - offset_el
+          if ((nhbr .gt. 0).and.(nhbr .le. n_elements)) then!> if nhbr exists
+             tst_agg = is_aggregated(nhbr)
+             if (tst_agg .le. 0) call neko_error("Unaggregated element detected. We do not want to handle that here...")
+             if (tst_agg .ne. tnt_agg) then
+                agg_added = .false.
+                do j = 1, 50!TODO: this hard-coded value
+                   if ((agg_nhbr(j,tnt_agg) .eq. tst_agg)) then
+                      agg_added = .true.
+                   else if ((agg_nhbr(j,tnt_agg).eq.-1).and.(.not.agg_added)) then
+                      agg_nhbr(j,tnt_agg) = tst_agg
+                      agg_added = .true.
+                      n_agg_nhbr = max(n_agg_nhbr, j)
+                   end if
+                end do! j
+                if (.not.agg_added) call neko_error("Aggregates have too many neighbors... probably. Or some other error.")
+             end if
           end if
-        end if
-      end do! side
+       end do! side
     end do! i
   end subroutine agg_fill_nhbr_info
 
@@ -298,13 +299,13 @@ contains
     integer :: i, j, l, ntot, n_agg_facet, gid_ptr
 
     if (lvl_id .lt. 2) then
-      call neko_error("For now, can only use greedy agg after elms have been aggregated to points (level 1)")
+       call neko_error("For now, can only use greedy agg after elms have been aggregated to points (level 1)")
     else if (lvl_id .eq. 2) then
-      n_facet = 6 !> NEKO elements are hexes, thus have 6 face neighbors
-      offset_el = tamg%msh%offset_el
+       n_facet = 6 !> NEKO elements are hexes, thus have 6 face neighbors
+       offset_el = tamg%msh%offset_el
     else
-      n_facet = 50!TODO: this hard-coded value. how many neighbors can there be?
-      offset_el = 0
+       n_facet = 50!TODO: this hard-coded value. how many neighbors can there be?
+       offset_el = 0
     end if
 
     naggs = 0
@@ -320,54 +321,55 @@ contains
 
     !> First pass of greedy aggregation.
     call agg_greedy_first_pass(naggs, max_aggs, n_elements, &
-      facet_neigh, offset_el, n_facet, &
-      is_aggregated, aggregate_size)
+         facet_neigh, offset_el, n_facet, &
+         is_aggregated, aggregate_size)
 
     call aggregation_monitor_phase1(lvl_id, n_elements, naggs, is_aggregated)
 
     !> Second pass of greedy aggregation, adding unaggregated dofs to neighboring aggregates.
     call agg_greedy_second_pass(naggs, max_aggs, n_elements, &
-      facet_neigh, offset_el, n_facet, &
-      is_aggregated, aggregate_size)
+         facet_neigh, offset_el, n_facet, &
+         is_aggregated, aggregate_size)
 
     call aggregation_monitor_phase2(lvl_id, n_elements, naggs, is_aggregated)
 
     if (.true.) then!> if needed on next level...
-      allocate( agg_nhbr(50, max_aggs*2) )!TODO: this hard-coded n_facet value (20)...
-      agg_nhbr = -1
-      call agg_fill_nhbr_info(agg_nhbr, n_agg_facet, n_elements, &
-        facet_neigh, offset_el, n_facet, &
-        is_aggregated, aggregate_size)
+       allocate( agg_nhbr(50, max_aggs*2) )!TODO: this hard-coded n_facet value (20)...
+       agg_nhbr = -1
+       call agg_fill_nhbr_info(agg_nhbr, n_agg_facet, n_elements, &
+            facet_neigh, offset_el, n_facet, &
+            is_aggregated, aggregate_size)
     end if
 
     !> count things
     ntot = 0
     do l = 1, naggs
-      ntot = ntot + aggregate_size(l)
+       ntot = ntot + aggregate_size(l)
     end do
     !> Allocate and fill lvl and nodes
     call tamg_lvl_init( tamg%lvl(lvl_id), lvl_id, naggs, ntot)
     ntot = 0
     gid_ptr = 1
     do l = 1, naggs
-      tamg%lvl(lvl_id)%nodes_ptr(l) = gid_ptr
-      tamg%lvl(lvl_id)%nodes_gid(l) = l
-      call tamg_node_init( tamg%lvl(lvl_id)%nodes(l), l, aggregate_size(l))
-      j = 0
-      do i = 1, n_elements!TODO: this is the lazy expensive way...
-        if (is_aggregated(i) .eq. l) then
-          j = j+1
-          tamg%lvl(lvl_id)%nodes(l)%dofs(j) = i
+       tamg%lvl(lvl_id)%nodes_ptr(l) = gid_ptr
+       tamg%lvl(lvl_id)%nodes_gid(l) = l
+       call tamg_node_init( tamg%lvl(lvl_id)%nodes(l), l, aggregate_size(l))
+       j = 0
+       do i = 1, n_elements!TODO: this is the lazy expensive way...
+          if (is_aggregated(i) .eq. l) then
+             j = j+1
+             tamg%lvl(lvl_id)%nodes(l)%dofs(j) = i
 
-          tamg%lvl(lvl_id)%nodes_dofs(gid_ptr) = i
-          tamg%lvl(lvl_id)%nodes_gids(gid_ptr) = l
-          gid_ptr = gid_ptr + 1
-        end if
-      end do
-      if (j .ne. tamg%lvl(lvl_id)%nodes(l)%ndofs) then
-        call neko_error("Aggregation problem. Not enough dofs in node.")
-      end if
-      ntot = ntot + aggregate_size(l)
+             tamg%lvl(lvl_id)%nodes_dofs(gid_ptr) = i
+             !tamg%lvl(lvl_id)%nodes_gids(gid_ptr) = l
+             tamg%lvl(lvl_id)%map_f2c(i) = l
+             gid_ptr = gid_ptr + 1
+          end if
+       end do
+       if (j .ne. tamg%lvl(lvl_id)%nodes(l)%ndofs) then
+          call neko_error("Aggregation problem. Not enough dofs in node.")
+       end if
+       ntot = ntot + aggregate_size(l)
     end do
     tamg%lvl(lvl_id)%nodes_ptr(naggs+1) = gid_ptr
 
@@ -393,10 +395,10 @@ contains
     call tamg_node_init( tamg%lvl(lvl_id)%nodes(1), 1, nt)
     !> Fill node
     do i = 1, tamg%lvl(lvl_id-1)%nnodes
-      tamg%lvl(lvl_id)%nodes(1)%dofs(i) = tamg%lvl(lvl_id-1)%nodes(i)%gid
+       tamg%lvl(lvl_id)%nodes(1)%dofs(i) = tamg%lvl(lvl_id-1)%nodes(i)%gid
 
-      tamg%lvl(lvl_id)%nodes_dofs(i) = tamg%lvl(lvl_id-1)%nodes(i)%gid
-      tamg%lvl(lvl_id)%nodes_gids(i) = 1
+       tamg%lvl(lvl_id)%nodes_dofs(i) = tamg%lvl(lvl_id-1)%nodes(i)%gid
+       tamg%lvl(lvl_id)%map_f2c(i) = 1
     end do
 
     tamg%lvl(lvl_id)%nodes_ptr(1) = 1
@@ -431,9 +433,9 @@ contains
     character(len=LOG_SIZE) :: log_buf
     num_aggregated = 0
     do i = 1, ndof
-      if (is_aggregated(i) .gt. -1) then
-        num_aggregated = num_aggregated + 1
-      end if
+       if (is_aggregated(i) .gt. -1) then
+          num_aggregated = num_aggregated + 1
+       end if
     end do
 
     !write(log_buf, '(A8,I2,A24)') '-- level',lvl,'-- Aggregation: phase1'
@@ -470,9 +472,9 @@ contains
     character(len=LOG_SIZE) :: log_buf
     num_aggregated = 0
     do i = 1, ndof
-      if (is_aggregated(i) .gt. -1) then
-        num_aggregated = num_aggregated + 1
-      end if
+       if (is_aggregated(i) .gt. -1) then
+          num_aggregated = num_aggregated + 1
+       end if
     end do
     !write(log_buf, '(A8,I2,A24)') '-- level',lvl,'-- Aggregation: phase2'
     write(log_buf, '(A27)') 'Aggregation: phase2'
