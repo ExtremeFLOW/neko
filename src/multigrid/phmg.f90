@@ -54,7 +54,7 @@ module phmg
   use math, only : copy, col2, add2
   use device, only : device_get_ptr
   use device_math, only : device_rzero, device_copy, device_add2, device_sub3,&
-       device_add2s2, device_invcol2, device_glsc2
+       device_add2s2, device_invcol2, device_glsc2, device_col2
   use profiler, only : profiler_start_region, profiler_end_region
   use neko_config, only: NEKO_BCKND_DEVICE
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
