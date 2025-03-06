@@ -112,19 +112,18 @@ contains
     integer, allocatable :: lx_lvls(:)
     integer :: n, i, j
     class(bc_t), pointer :: bc_j
+    logical :: use_jacobi, use_cheby
+    use_jacobi = .false.
+    use_cheby = .true.
 
     this%msh => msh
 
-    !this%nlvls = Xh%lx - 1
-    this%nlvls = 3! Xh%lx - 1
+    this%nlvls = Xh%lx - 1
 
     allocate(lx_lvls(0:this%nlvls - 1))
-    lx_lvls(0) = Xh%lx
-    lx_lvls(1) = 5
-    lx_lvls(2) = 2
-    !!do i = 1, this%nlvls -1
-    !!   lx_lvls(i) = Xh%lx - i
-    !!end do
+    do i = 1, this%nlvls -1
+       lx_lvls(i) = Xh%lx - i
+    end do
 
     allocate(this%phmg_hrchy%lvl(0:this%nlvls - 1))
 
@@ -153,20 +152,24 @@ contains
        call this%phmg_hrchy%lvl(i)%w%init(this%phmg_hrchy%lvl(i)%dm_Xh)
        call this%phmg_hrchy%lvl(i)%z%init(this%phmg_hrchy%lvl(i)%dm_Xh)
 
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call this%phmg_hrchy%lvl(i)%cheby_device%init(this%phmg_hrchy%lvl(i)%dm_Xh%size(), KSP_MAX_ITER)
-       else
-          call this%phmg_hrchy%lvl(i)%cheby%init(this%phmg_hrchy%lvl(i)%dm_Xh%size(), KSP_MAX_ITER)
+       if (use_cheby) then
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call this%phmg_hrchy%lvl(i)%cheby_device%init(this%phmg_hrchy%lvl(i)%dm_Xh%size(), KSP_MAX_ITER)
+          else
+             call this%phmg_hrchy%lvl(i)%cheby%init(this%phmg_hrchy%lvl(i)%dm_Xh%size(), KSP_MAX_ITER)
+          end if
        end if
 
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call this%phmg_hrchy%lvl(i)%device_jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
-               this%phmg_hrchy%lvl(i)%dm_Xh, &
-               this%phmg_hrchy%lvl(i)%gs_h)
-       else
-          call this%phmg_hrchy%lvl(i)%jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
-               this%phmg_hrchy%lvl(i)%dm_Xh, &
-               this%phmg_hrchy%lvl(i)%gs_h)
+       if (use_jacobi) then
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call this%phmg_hrchy%lvl(i)%device_jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
+                  this%phmg_hrchy%lvl(i)%dm_Xh, &
+                  this%phmg_hrchy%lvl(i)%gs_h)
+          else
+             call this%phmg_hrchy%lvl(i)%jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
+                  this%phmg_hrchy%lvl(i)%dm_Xh, &
+                  this%phmg_hrchy%lvl(i)%gs_h)
+          end if
        end if
 
        this%phmg_hrchy%lvl(i)%coef%ifh2 = coef%ifh2
@@ -205,8 +208,6 @@ contains
 
   subroutine phmg_free(this)
     class(phmg_t), intent(inout) :: this
-
-
   end subroutine phmg_free
 
   subroutine phmg_solve(this, z, r, n)
@@ -424,7 +425,6 @@ contains
           call mg%device_jacobi%solve(w%x, w%x, n)
           call device_add2s2(z%x_d, w%x_d, 0.8_rp, n)
        end do
-       !call phmg_resid_monitor(z, r, w, mg, msh, Ax, lvl, 0)
     end do
   end subroutine phmg_jacobi_smoother
 
