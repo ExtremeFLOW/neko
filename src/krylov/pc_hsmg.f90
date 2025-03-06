@@ -257,12 +257,7 @@ contains
     ! Create a backend specific krylov solver
     if (present(crs_pctype)) then
        if (trim(crs_pctype) .eq. 'tamg') then
-          !if (NEKO_BCKND_DEVICE .eq. 1) then
-          !   call neko_error('Tree-amg only supported for CPU')
-          !end if
-
           allocate(this%amg_solver)
-
           call this%amg_solver%init(this%ax, this%grids(1)%e%Xh, &
                this%grids(1)%coef, this%msh, this%grids(1)%gs_h, 4, &
                this%grids(1)%bclst, 1)
