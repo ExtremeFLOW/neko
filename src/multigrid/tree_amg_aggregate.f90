@@ -33,7 +33,7 @@
 !> Implements an aggregation for TreeAMG hierarchy structure.
 module tree_amg_aggregate
   use tree_amg, only : tamg_lvl_init, tamg_node_init, tamg_hierarchy_t
-  use utils, only : neko_error
+  use utils, only : neko_error, linear_index
   use num_types, only : rp, dp, i8
   use comm
   use mesh, only : mesh_t
