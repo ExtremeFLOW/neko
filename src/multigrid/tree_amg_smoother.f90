@@ -35,7 +35,7 @@ module tree_amg_smoother
   use tree_amg, only : tamg_hierarchy_t
   use tree_amg_utils, only : tamg_sample_matrix_val
   use num_types, only : rp
-  use math, only : col2, add2, add2s2, glsc2, glsc3
+  use math, only : col2, add2, add2s2, glsc2, glsc3, sub2, cmult, copy
   use device_math, only : device_glsc2, device_glsc3, device_rzero, &
        device_cmult2, device_sub2, device_add2, device_add3s2
   use krylov, only : ksp_monitor_t
