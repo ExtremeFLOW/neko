@@ -32,9 +32,7 @@
 !
 !> Implements utilities for the TreeAMG hierarchy structure.
 module tree_amg_utils
-  use num_types
-  use utils
-  use math
+  use num_types, only : rp
   use tree_amg, only : tamg_hierarchy_t
   use gather_scatter, only : GS_OP_ADD
   implicit none
