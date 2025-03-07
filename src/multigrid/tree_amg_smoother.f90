@@ -37,7 +37,7 @@ module tree_amg_smoother
   use num_types, only : rp
   use math, only : col2, add2, add2s2, glsc2, glsc3
   use device_math, only : device_glsc2, device_glsc3, device_rzero, &
-       device_cmult2
+       device_cmult2, device_sub2_, device_add2_, device_add3s2_
   use krylov, only : ksp_monitor_t
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
