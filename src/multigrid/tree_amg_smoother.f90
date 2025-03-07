@@ -32,6 +32,7 @@
 !
 !> Implements smoothers for use with TreeAMG matrix vector product
 module tree_amg_smoother
+  use tree_amg, only : tamg_hierarchy_t
   use tree_amg_utils, only : tamg_sample_matrix_val
   use num_types, only : rp
   use math, only : col2, add2, add2s2
