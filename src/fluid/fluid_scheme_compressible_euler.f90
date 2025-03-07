@@ -390,7 +390,7 @@ contains
 
           ! Add to appropriate lists
           if (associated(bc_i)) then
-               call this%bcs_vel%append(bc_i)
+             call this%bcs_vel%append(bc_i)
           end if
        end do
 

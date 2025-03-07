@@ -49,21 +49,21 @@ submodule(fluid_scheme_compressible_euler) euler_bc_fctry
 
   ! List of all possible types created by the boundary condition factories
   character(len=25) :: EULER_KNOWN_BCS(7) = [character(len=25) :: &
-     "velocity_value", &
-     "density_value", &
-     "pressure_value", &
-     "no_slip", &
-     "symmetry", &
-     "outflow", &
-     "normal_outflow"]
+       "velocity_value", &
+       "density_value", &
+       "pressure_value", &
+       "no_slip", &
+       "symmetry", &
+       "outflow", &
+       "normal_outflow"]
 
 contains
   !> Factory routine for pressure boundary conditions.
-    !! @param object The boundary condition to be allocated.
-    !! @param scheme The `fluid_scheme_compressible_euler_t`  scheme.
-    !! @param json The parameter dictionary for the boundary.
-    !! @param coef The SEM coeffcients.
-    !! @param user The user interface.
+  !! @param object The boundary condition to be allocated.
+  !! @param scheme The `fluid_scheme_compressible_euler_t`  scheme.
+  !! @param json The parameter dictionary for the boundary.
+  !! @param coef The SEM coeffcients.
+  !! @param user The user interface.
   module subroutine density_bc_factory(object, scheme, json, coef, user)
     class(bc_t), pointer, intent(inout) :: object
     type(fluid_scheme_compressible_euler_t), intent(in) :: scheme
@@ -77,31 +77,31 @@ contains
     call json_get(json, "type", type)
 
     select case (trim(type))
-      case ("density_value")
+    case ("density_value")
        allocate(dirichlet_t::object)
-      case default
-      do i = 1, size(EULER_KNOWN_BCS)
+    case default
+       do i = 1, size(EULER_KNOWN_BCS)
           if (trim(type) .eq. trim(EULER_KNOWN_BCS(i))) return
-      end do
-      call neko_type_error("compressible_euler boundary conditions", type, &
-      EULER_KNOWN_BCS)
+       end do
+       call neko_type_error("compressible_euler boundary conditions", type, &
+            EULER_KNOWN_BCS)
     end select
 
     call json_get(json, "zone_indices", zone_indices)
     call object%init(coef, json)
 
     do i = 1, size(zone_indices)
-      call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
+       call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
     call object%finalize()
   end subroutine density_bc_factory
 
   !> Factory routine for pressure boundary conditions.
-    !! @param object The boundary condition to be allocated.
-    !! @param scheme The `fluid_scheme_compressible_euler_t`  scheme.
-    !! @param json The parameter dictionary for the boundary.
-    !! @param coef The SEM coeffcients.
-    !! @param user The user interface.
+  !! @param object The boundary condition to be allocated.
+  !! @param scheme The `fluid_scheme_compressible_euler_t`  scheme.
+  !! @param json The parameter dictionary for the boundary.
+  !! @param coef The SEM coeffcients.
+  !! @param user The user interface.
   module subroutine pressure_bc_factory(object, scheme, json, coef, user)
     class(bc_t), pointer, intent(inout) :: object
     type(fluid_scheme_compressible_euler_t), intent(in) :: scheme
@@ -115,36 +115,36 @@ contains
     call json_get(json, "type", type)
 
     select case (trim(type))
-      case ("outflow", "normal_outflow")
+    case ("outflow", "normal_outflow")
        allocate(zero_dirichlet_t::object)
-      case ("pressure_value")
+    case ("pressure_value")
        allocate(dirichlet_t::object)
-      case default
-      do i = 1, size(EULER_KNOWN_BCS)
+    case default
+       do i = 1, size(EULER_KNOWN_BCS)
           if (trim(type) .eq. trim(EULER_KNOWN_BCS(i))) return
-      end do
-      call neko_type_error("compressible_euler boundary conditions", type, &
-      EULER_KNOWN_BCS)
+       end do
+       call neko_type_error("compressible_euler boundary conditions", type, &
+            EULER_KNOWN_BCS)
     end select
 
     call json_get(json, "zone_indices", zone_indices)
     call object%init(coef, json)
 
     do i = 1, size(zone_indices)
-      call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
+       call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
     end do
     call object%finalize()
 
     ! All pressure bcs are currently strong, so for all of them we
     ! mark with value 1 in the mesh
     do i = 1, size(zone_indices)
-      do j = 1, scheme%msh%nelv
+       do j = 1, scheme%msh%nelv
           do k = 1, 2 * scheme%msh%gdim
-            if (scheme%msh%facet_type(k,j) .eq. -zone_indices(i)) then
+             if (scheme%msh%facet_type(k,j) .eq. -zone_indices(i)) then
                 scheme%msh%facet_type(k, j) = 1
-            end if
+             end if
           end do
-      end do
+       end do
     end do
   end subroutine pressure_bc_factory
 
@@ -167,13 +167,13 @@ contains
     call json_get(json, "type", type)
 
     select case (trim(type))
-      case ("symmetry")
+    case ("symmetry")
        allocate(symmetry_t::object)
-      case ("no_slip")
+    case ("no_slip")
        allocate(zero_dirichlet_t::object)
-      case ("velocity_value")
+    case ("velocity_value")
        allocate(inflow_t::object)
-      case default
+    case default
        do i = 1, size(EULER_KNOWN_BCS)
           if (trim(type) .eq. trim(EULER_KNOWN_BCS(i))) return
        end do
