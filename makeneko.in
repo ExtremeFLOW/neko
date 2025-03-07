@@ -18,17 +18,38 @@ if [ -z "$1" ]
 fi
 printf '\n%s' "Building user NEKO ..."
 rm -f usr_driver.f90
+
+# Find all user-defined modules (excluding 'user')
+user_modules=$(grep -hoP 'module \K\w+' *.f90 | grep -v '^user$' | sort -u)
+
 cat >> usr_driver.f90 << _ACEOF
 program usrneko
   use neko
   use user
+_ACEOF
+
+# Automatically import user modules
+for mod in $user_modules; do
+  echo "  use $mod, only: ${mod}_register_types" >> usr_driver.f90
+done
+
+cat >> usr_driver.f90 << _ACEOF
+
   type(case_t), target :: C
-  
+
+  ! Call register_types() for all modules
   call user_setup(C%usr)
+_ACEOF
+
+# Generate calls to renamed `register_types` routines
+for mod in $user_modules; do
+  echo "  call ${mod}_register_types()" >> usr_driver.f90
+done
+
+cat >> usr_driver.f90 << _ACEOF
   call neko_init(C)
   call neko_solve(C)
   call neko_finalize(C)
-
 
 end program usrneko
 _ACEOF

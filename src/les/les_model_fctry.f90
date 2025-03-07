@@ -35,6 +35,7 @@ submodule (les_model) les_model_fctry
   use smagorinsky, only : smagorinsky_t
   use dynamic_smagorinsky, only : dynamic_smagorinsky_t
   use sigma, only : sigma_t
+  use fluid_scheme_base, only : fluid_scheme_base_t
   implicit none
 
   ! List of all possible types created by the factory routine
@@ -44,20 +45,44 @@ submodule (les_model) les_model_fctry
        "dynamic_smagorinsky", &
        "sigma"]
 
+  ! Interface for an object allocator. Implemented in the user modules.
+  abstract interface
+     subroutine les_model_allocate(obj)
+        import les_model_t
+        class(les_model_t), allocatable :: obj
+     end subroutine les_model_allocate
+  end interface
+
+  ! A name-allocator pair for user-defined types. A helper type.
+  type allocator_entry
+     character(len=20) :: type_name
+     procedure(les_model_allocate), pointer, nopass :: allocator
+  end type allocator_entry
+
+  ! Registry of LES model allocators for user-defined types
+  type(allocator_entry), allocatable :: les_model_registry(:)
+
+  ! The size of the `les_model_registry`
+  integer :: les_model_registry_size = 0
+
 contains
-  !> LES model factory. Both constructs and initializes the object.
+  !> LES model factory.
   !! @param object The object to be allocated.
   !! @param type_name The name of the LES model.
+  !! @param fluid The fluid scheme base type pointer.
   !! @param dofmap SEM map of degrees of freedom.
   !! @param coef SEM coefficients.
   !! @param json A dictionary with parameters.
-  module subroutine les_model_factory(object, type_name, dofmap, coef, json)
+  module subroutine les_model_factory(object, type_name, fluid, dofmap, coef, &
+       json)
     class(les_model_t), allocatable, intent(inout) :: object
     character(len=*), intent(in) :: type_name
+    class(fluid_scheme_base_t), intent(in) :: fluid
     type(dofmap_t), intent(in) :: dofmap
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: type_string
+    integer :: i
 
     if (allocated(object)) deallocate(object)
 
@@ -71,9 +96,36 @@ contains
     case ('sigma')
        allocate(sigma_t::object)
     case default
+       do i = 1, les_model_registry_size
+          if (trim(type_name) == trim(les_model_registry(i)%type_name)) then
+              call les_model_registry(i)%allocator(object)
+              return
+          end if
+       end do
+
        call neko_type_error("LES model", type_name, LES_KNOWN_TYPES)
     end select
 
   end subroutine les_model_factory
+
+  !> Register an LES model constructor
+  subroutine register_les_model(type_name, allocator)
+    character(len=*), intent(in) :: type_name
+    procedure(les_model_allocate), pointer :: allocator
+    type(allocator_entry), allocatable :: temp(:)
+
+    ! Expand registry
+    if (les_model_registry_size == 0) then
+      allocate(les_model_registry(1))
+    else
+      allocate(temp(les_model_registry_size + 1))
+      temp(1:les_model_registry_size) = les_model_registry
+      call move_alloc(temp, les_model_registry)
+    end if
+
+    les_model_registry_size = les_model_registry_size + 1
+    les_model_registry(les_model_registry_size)%type_name = type_name
+    les_model_registry(les_model_registry_size)%allocator => allocator
+  end subroutine register_les_model
 
 end submodule les_model_fctry

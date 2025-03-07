@@ -18,11 +18,12 @@
   "fluid": {
     "scheme": "pnpn",
     "Re": 360,
+    "nut_field" : "nut",
     "initial_condition": {
       "type": "user"
     },
     "velocity_solver": {
-      "type": "cg",
+      "type": "coupledcg",
       "preconditioner": "jacobi",
       "projection_space_size": 0,
       "absolute_tolerance": 1e-7,
@@ -44,6 +45,11 @@
       "type": "vorticity",
       "compute_control": "tsteps",
       "compute_value": 50
+    },
+    {
+      "type": "les_model",
+      "model" : "smagorinsky",
+      "nut_field": "nut"
     }
   ]
   }

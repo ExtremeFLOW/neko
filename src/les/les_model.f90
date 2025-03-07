@@ -132,12 +132,15 @@ module les_model
      !> LES model factory. Both constructs and initializes the object.
      !! @param object The object to be allocated.
      !! @param type_name The name of the LES model.
+     !! @param fluid The fluid scheme base type pointer.
      !! @param dofmap SEM map of degrees of freedom.
      !! @param coef SEM coefficients.
      !! @param json A dictionary with parameters.
-     module subroutine les_model_factory(object, type_name, dofmap, coef, json)
+     module subroutine les_model_factory(object, type_name, fluid, dofmap, &
+          coef, json)
        class(les_model_t), allocatable, intent(inout) :: object
        character(len=*), intent(in) :: type_name
+       class(fluid_scheme_base_t), intent(in) :: fluid
        type(dofmap_t), intent(in) :: dofmap
        type(coef_t), intent(in) :: coef
        type(json_file), intent(inout) :: json

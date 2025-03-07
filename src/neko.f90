@@ -123,6 +123,7 @@ module neko
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use bc_list, only : bc_list_t
+  use les_model, only : les_model_t
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
