@@ -35,9 +35,11 @@ module tree_amg_smoother
   use tree_amg, only : tamg_hierarchy_t
   use tree_amg_utils, only : tamg_sample_matrix_val
   use num_types, only : rp
-  use math, only : col2, add2, add2s2, glsc2, glsc3, sub2, cmult, copy
+  use math, only : col2, add2, add2s2, glsc2, glsc3, sub2, cmult, &
+       cmult2, copy
   use device_math, only : device_glsc2, device_glsc3, device_rzero, &
-       device_cmult2, device_sub2, device_add2, device_add3s2
+       device_cmult2, device_sub2, device_add2, device_add3s2, &
+       device_copy
   use krylov, only : ksp_monitor_t
   use bc_list, only: bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
