@@ -97,10 +97,7 @@ contains
 
     call json_get(json, "model", name)
 
-    call les_model_factory(this%les_model, name, case%fluid, case%fluid%dm_Xh,&
-         case%fluid%c_Xh, json)
-    call this%les_model%init(case%fluid, json)
-
+    call les_model_factory(this%les_model, name, case%fluid, json)
   end subroutine les_simcomp_init_from_json
 
   !> Destructor.

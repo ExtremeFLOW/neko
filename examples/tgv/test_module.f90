@@ -1,6 +1,6 @@
 module test_module
   use num_types, only : rp
-  use les_model, only : les_model_t
+  use les_model, only : les_model_t, register_les_model, les_model_allocate
   use field, only : field_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use json_utils, only : json_get_or_default
@@ -8,8 +8,6 @@ module test_module
   use field_registry, only : neko_field_registry
   use logger, only : LOG_SIZE, neko_log
   use field_math, only : field_cfill
-
-!  use les_model_fctry, only : les_model_allocate
 
   implicit none
 
@@ -93,13 +91,31 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
+    write(*,*) "Executing custom SGS model!!"
     ! Just a value to test
     call field_cfill(this%nut, 1e-3_rp)
 
   end subroutine my_model_compute
 
+  !> The allocator for my_model_t
+  subroutine custom_allocator(obj)
+    class(les_model_t), allocatable, intent(inout) :: obj
+
+    allocate(my_model_t::obj)
+  end subroutine custom_allocator
+
+  !> module name + register_types routine
+  !! Can register all the custom types from the module here!
   subroutine test_module_register_types()
-    print *, "Registering MySolver types!"
+    procedure(les_model_allocate), pointer :: allocator_ptr
+
+    allocator_ptr => custom_allocator  ! Assign procedure pointer
+
+    write(*,*) "Registering the my_model_t SGS model"
+    call register_les_model("my_model", allocator_ptr)
+    write(*,*) "Done"
+
   end subroutine test_module_register_types
+
 
 end module test_module

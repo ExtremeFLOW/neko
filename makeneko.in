@@ -20,7 +20,11 @@ printf '\n%s' "Building user NEKO ..."
 rm -f usr_driver.f90
 
 # Find all user-defined modules (excluding 'user')
-user_modules=$(grep -hoP 'module \K\w+' *.f90 | grep -v '^user$' | sort -u)
+user_modules=$(grep -hE '^[[:space:]]*module[[:space:]]+[a-zA-Z_][a-zA-Z0-9_]*' *.f90 | \
+               grep -vE '^[[:space:]]*!' | \
+               grep -vE 'module procedure' | \
+               awk '{if ($2 != "user") print $2}' | sort -u)
+
 
 cat >> usr_driver.f90 << _ACEOF
 program usrneko

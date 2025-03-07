@@ -45,26 +45,6 @@ submodule (les_model) les_model_fctry
        "dynamic_smagorinsky", &
        "sigma"]
 
-  ! Interface for an object allocator. Implemented in the user modules.
-  abstract interface
-     subroutine les_model_allocate(obj)
-        import les_model_t
-        class(les_model_t), allocatable :: obj
-     end subroutine les_model_allocate
-  end interface
-
-  ! A name-allocator pair for user-defined types. A helper type.
-  type allocator_entry
-     character(len=20) :: type_name
-     procedure(les_model_allocate), pointer, nopass :: allocator
-  end type allocator_entry
-
-  ! Registry of LES model allocators for user-defined types
-  type(allocator_entry), allocatable :: les_model_registry(:)
-
-  ! The size of the `les_model_registry`
-  integer :: les_model_registry_size = 0
-
 contains
   !> LES model factory.
   !! @param object The object to be allocated.
@@ -73,15 +53,23 @@ contains
   !! @param dofmap SEM map of degrees of freedom.
   !! @param coef SEM coefficients.
   !! @param json A dictionary with parameters.
-  module subroutine les_model_factory(object, type_name, fluid, dofmap, coef, &
-       json)
+  module subroutine les_model_factory(object, type_name, fluid, json)
     class(les_model_t), allocatable, intent(inout) :: object
     character(len=*), intent(in) :: type_name
-    class(fluid_scheme_base_t), intent(in) :: fluid
-    type(dofmap_t), intent(in) :: dofmap
-    type(coef_t), intent(in) :: coef
+    class(fluid_scheme_base_t), intent(inout) :: fluid
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: type_string
+
+    call les_model_allocator(object, type_name)
+    call object%init(fluid, json)
+  end subroutine les_model_factory
+
+  !> LES model allocator.
+  !! @param object The object to be allocated.
+  !! @param type_name The name of the LES model.
+  module subroutine les_model_allocator(object, type_name)
+    class(les_model_t), allocatable, intent(inout) :: object
+    character(len=*), intent(in) :: type_name
     integer :: i
 
     if (allocated(object)) deallocate(object)
@@ -106,12 +94,12 @@ contains
        call neko_type_error("LES model", type_name, LES_KNOWN_TYPES)
     end select
 
-  end subroutine les_model_factory
+  end subroutine les_model_allocator
 
   !> Register an LES model constructor
   subroutine register_les_model(type_name, allocator)
     character(len=*), intent(in) :: type_name
-    procedure(les_model_allocate), pointer :: allocator
+    procedure(les_model_allocate), pointer, intent(in) :: allocator
     type(allocator_entry), allocatable :: temp(:)
 
     ! Expand registry
