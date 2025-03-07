@@ -49,8 +49,17 @@ module les_model
   use device, only : device_memcpy, HOST_TO_DEVICE
   use math, only : col2
   use device_math, only : device_col2
+  use utils, only : neko_type_error, concat_string_array, neko_error, &
+       neko_warning
+  use comm, only : pe_rank
   implicit none
   private
+
+  ! List of all possible types created by the factory routine
+  character(len=20) :: DELTA_KNOWN_TYPES(3) = [character(len=20) :: &
+       "pointwise", &
+       "elementwise_avg", &
+       "elementwise_max"]
 
   !> Base abstract type for LES models based on the Boussinesq approximation.
   type, abstract, public :: les_model_t
@@ -141,12 +150,14 @@ contains
   !> Constructor for the les_model_t (base) class.
   !! @param fluid The fluid_scheme_t object.
   !! @param nu_name The name of the turbulent viscosity field.
-  !! @param delta_type The type of filter size
-  subroutine les_model_init_base(this, fluid, nut_name, delta_type)
+  !! @param delta_type The type of filter size.
+  !! @param if_ext Whether trapolate the velocity.
+  subroutine les_model_init_base(this, fluid, nut_name, delta_type, if_ext)
     class(les_model_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
+    logical, intent(in) :: if_ext
 
     associate(dofmap => fluid%dm_Xh, &
          coef => fluid%c_Xh)
@@ -157,18 +168,33 @@ contains
       this%delta => neko_field_registry%get_field("les_delta")
       this%coef => coef
       this%delta_type = delta_type
+      this%if_ext = if_ext
+
+      if (pe_rank .eq. 0) then
+         if (if_ext .eqv. .true.) then
+            call neko_warning("Extrapolation of the velocity in eddy &
+                 &viscosity estimation might be unstable.")
+         else
+            call neko_warning("The time integration for eddy viscosity &
+                 &estimation is only first-order accurate")
+         end if
+      end if
 
       call this%compute_delta()
 
       select type (fluid)
       type is (fluid_pnpn_t)
-         this%if_ext = .true.
          this%ulag => fluid%ulag
          this%vlag => fluid%vlag
          this%wlag => fluid%wlag
          ! Setup backend dependent summation of AB/BDF
          this%ext_bdf => fluid%ext_bdf
          call rhs_maker_sumab_fctry(this%sumab)
+      class default
+         if (this%if_ext .eqv. .true.) then
+            call neko_error("Fluid scheme does not support &
+                 &velocity extrapolation")
+         end if
       end select
 
     end associate
@@ -198,6 +224,7 @@ contains
     integer :: im, ip, jm, jp, km, kp
     real(kind=rp) :: di, dj, dk, ndim_inv, volume_element
     integer :: lx_half, ly_half, lz_half
+    character(len=:), allocatable :: type_string
 
     lx_half = this%coef%Xh%lx / 2
     ly_half = this%coef%Xh%ly / 2
@@ -287,6 +314,10 @@ contains
              end do
           end do
        end do
+    else
+       call neko_type_error("delta_type for LES model", &
+            this%delta_type, DELTA_KNOWN_TYPES)
+       stop
     end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then

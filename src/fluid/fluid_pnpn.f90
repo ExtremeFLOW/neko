@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2024, The Neko Authors
+! Copyright (c) 2022-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,8 @@ module fluid_pnpn
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
   use projection_vel, only : projection_vel_t
-  use device, only : device_memcpy, HOST_TO_DEVICE
+  use device, only : device_memcpy, HOST_TO_DEVICE, device_event_sync,&
+       device_stream_wait_event, glb_cmd_queue, glb_cmd_event
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_module, only : json_file, json_core, json_value
@@ -66,7 +67,6 @@ module fluid_pnpn
   use wall_model_bc, only : wall_model_bc_t
   use facet_normal, only : facet_normal_t
   use non_normal, only : non_normal_t
-  use comm
   use mesh, only : mesh_t
   use user_intf, only : user_t
   use time_step_controller, only : time_step_controller_t
@@ -660,13 +660,12 @@ contains
          rho_field => this%rho_field, mu_field => this%mu_field, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
          if_variable_dt => dt_controller%if_variable_dt, &
-         dt_last_change => dt_controller%dt_last_change)
+         dt_last_change => dt_controller%dt_last_change, &
+         event => glb_cmd_event)
 
       ! Extrapolate the velocity if it's not done in nut_field estimation
-      if (this%variable_material_properties .eqv. .false.) then
-         call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
-              ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
-      end if
+      call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
+           ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
 
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
@@ -745,12 +744,15 @@ contains
            c_Xh, gs_Xh, &
            this%bc_prs_surface, this%bc_sym_surface,&
            Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
-           mu_field, rho_field)
+           mu_field, rho_field, event)
 
       ! De-mean the pressure residual when no strong pressure boundaries present
       if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n)
 
-      call gs_Xh%op(p_res, GS_OP_ADD)
+      call gs_Xh%op(p_res, GS_OP_ADD, event)
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_stream_wait_event(glb_cmd_queue, event, 0)
+      end if
 
       ! Set the residual to zero at strong pressure boundaries.
       call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), t, tstep)
@@ -790,9 +792,12 @@ contains
            mu_field, rho_field, ext_bdf%diffusion_coeffs(1), &
            dt, dm_Xh%size())
 
-      call gs_Xh%op(u_res, GS_OP_ADD)
-      call gs_Xh%op(v_res, GS_OP_ADD)
-      call gs_Xh%op(w_res, GS_OP_ADD)
+      call gs_Xh%op(u_res, GS_OP_ADD, event)
+      call gs_Xh%op(v_res, GS_OP_ADD, event)
+      call gs_Xh%op(w_res, GS_OP_ADD, event)
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_stream_wait_event(glb_cmd_queue, event, 0)
+      end if
 
       ! Set residual to zero at strong velocity boundaries.
       call this%bclst_vel_res%apply(u_res, v_res, w_res, t, tstep)
