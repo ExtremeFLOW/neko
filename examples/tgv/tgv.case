@@ -48,7 +48,8 @@
     },
     {
       "type": "les_model",
-      "model" : "my_model",
+      //"model" : "my_model",
+      "model" : "my_model2",
       "nut_field": "nut",
       "output_control": "global",
       "output_filename": "les"

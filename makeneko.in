@@ -7,46 +7,94 @@ includedir_pkg=${prefix}/include/neko
 FC=@FC@
 FCFLAGS='@FCFLAGS@'
 
-printf "\n%s\n" 'N E K O build tool, Version @PACKAGE_VERSION@'
-printf "%s\n" '@NEKO_BUILD_INFO@'
+NEKO_PLUGINS=${NEKO_PLUGINS}
 
-
-if [ -z "$1" ]
-  then
-      echo "No user file provided"
-      exit 1
+# Ensure user provides at least one .f90 file
+if [ $# -eq 0 ]; then
+    echo "Usage: makeneko <file1.f90> <file2.f90>"
+    exit 1
 fi
-printf '\n%s' "Building user NEKO ..."
-rm -f usr_driver.f90
 
-# Find all user-defined modules (excluding 'user')
-user_modules=$(grep -hE '^[[:space:]]*module[[:space:]]+[a-zA-Z_][a-zA-Z0-9_]*' *.f90 | \
+# Collect user-provided .f90 files (excluding usr_driver.f90)
+USER_FILES=""
+for file in "$@"; do
+    if [ "$file" != "plugins.txt" ] && [ "$file" != "usr_driver.f90" ]; then
+        USER_FILES="$USER_FILES $file"
+    fi
+done
+
+# Read plugins list if provided as an argument
+PLUGINS_FILE="plugins.txt"
+PLUGINS=""
+if [ -f "$PLUGINS_FILE" ]; then
+    PLUGINS=$(grep -v '^[[:space:]]*$' "$PLUGINS_FILE" | grep -v '^#')  # Ignore empty lines and comments
+fi
+
+PLUGIN_FILES=""
+PLUGIN_MODULES=""
+
+# Process each plugin
+for PLUGIN in $PLUGINS; do
+    PLUGIN_DIR="$NEKO_PLUGINS/$PLUGIN"
+    MODULES_FILE="$PLUGIN_DIR/modules.txt"
+
+    if [ ! -d "$PLUGIN_DIR" ]; then
+        echo "Warning: Plugin '$PLUGIN' not found in $NEKO_PLUGINS"
+        continue
+    fi
+
+    # Collect .f90 files from the plugin directory
+    for FILE in "$PLUGIN_DIR"/*.f90; do
+        PLUGIN_FILES="$PLUGIN_FILES $FILE"
+    done
+
+    # Read module names from modules.txt
+    if [ -f "$MODULES_FILE" ]; then
+        MODULES=$(grep -v '^[[:space:]]*$' "$MODULES_FILE" | grep -v '^#')  # Ignore empty lines and comments
+        PLUGIN_MODULES="$PLUGIN_MODULES $MODULES"
+    else
+        echo "Warning: Plugin '$PLUGIN' has no modules.txt file ($MODULES_FILE)"
+    fi
+done
+
+# Extract module names from user-provided .f90 files
+USER_MODULES=$(grep -hE '^[[:space:]]*module[[:space:]]+[a-zA-Z_][a-zA-Z0-9_]*' $USER_FILES 2>/dev/null | \
                grep -vE '^[[:space:]]*!' | \
-               grep -vE 'module procedure' | \
-               awk '{if ($2 != "user") print $2}' | sort -u)
+               grep -vE 'module procedure|module[[:space:]]+user' | \
+               awk '{print $2}' | sort -u)
 
-
-cat >> usr_driver.f90 << _ACEOF
+# Create usr_driver.f90
+cat > usr_driver.f90 << _ACEOF
 program usrneko
   use neko
   use user
 _ACEOF
 
-# Automatically import user modules
-for mod in $user_modules; do
-  echo "  use $mod, only: ${mod}_register_types" >> usr_driver.f90
+# Insert `use` statements for local user .f90 files
+for mod in $USER_MODULES; do
+  echo "  use $mod" >> usr_driver.f90
+done
+
+# Insert `use` statements for plugins
+for mod in $PLUGIN_MODULES; do
+  echo "  use $mod" >> usr_driver.f90
 done
 
 cat >> usr_driver.f90 << _ACEOF
 
   type(case_t), target :: C
 
-  ! Call register_types() for all modules
+  ! Register all user-defined types
   call user_setup(C%usr)
 _ACEOF
 
-# Generate calls to renamed `register_types` routines
-for mod in $user_modules; do
+# Register types from local user .f90 files
+for mod in $USER_MODULES; do
+  echo "  call ${mod}_register_types()" >> usr_driver.f90
+done
+
+# Register types from plugins
+for mod in $PLUGIN_MODULES; do
   echo "  call ${mod}_register_types()" >> usr_driver.f90
 done
 
@@ -58,9 +106,8 @@ cat >> usr_driver.f90 << _ACEOF
 end program usrneko
 _ACEOF
 
-$FC $FCFLAGS -I$includedir_pkg -L$libdir $@ usr_driver.f90\
-    -lneko @LDFLAGS@ @LIBS@ -o neko
+# Compile everything
+$FC $FCFLAGS -I$includedir_pkg -L$libdir $USER_FILES $PLUGIN_FILES usr_driver.f90 -lneko @LDFLAGS@ @LIBS@ -o neko
 
 rm -f usr_driver.f90
-
-printf "%s\n" ' done!'
+echo "User NEKO build complete!"
