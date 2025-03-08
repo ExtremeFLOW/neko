@@ -31,7 +31,7 @@ contains
        u%x(i,1,1,1) = 1.0
        v%x(i,1,1,1) = 0.0
        w%x(i,1,1,1) = 0.0
-       rho%x(i,1,1,1) = 1.0
+       rho%x(i,1,1,1) = 1.4
        p%x(i,1,1,1) = 1.0
     end do
   end subroutine user_ic

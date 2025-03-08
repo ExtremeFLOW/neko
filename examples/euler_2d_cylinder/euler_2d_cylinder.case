@@ -5,7 +5,7 @@
       "mesh_file": "cyl.nmsh",
       "output_at_end": true,
       "output_checkpoints": false,
-      "end_time": 0.1,
+      "end_time": 2,
       "timestep": 1e-4,
 
       "numerics": {
@@ -30,6 +30,11 @@
             {
                 "type": "density_value",
                 "zone_indices": [1],
+                "value": 1.4
+            },
+            {
+                "type": "pressure_value",
+                "zone_indices": [1],
                 "value": 1
             },
             {
@@ -43,7 +48,7 @@
         ],
 
         "output_control": "nsamples",
-        "output_value": 20
+        "output_value": 100
       }
     }
 }

@@ -39,7 +39,7 @@ extruded[] = Extrude {0, 0, depth} {
   Recombine;
 };
 
-// Boundary conditions (assign unique labels for Nek5000)
+// Boundary labels
 Physical Surface("inlet") = {19};          // Extruded from line 7 (inlet)
 Physical Surface("outlet") = {35};         // Extruded from line 4 (outlet)
 Physical Surface("top_wall") = {39, 43}; // Extruded from lines 5-6 (top walls)

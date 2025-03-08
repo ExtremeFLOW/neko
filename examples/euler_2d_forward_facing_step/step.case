@@ -30,7 +30,7 @@
             {
                 "type": "density_value",
                 "zone_indices": [1],
-                "value": 1
+                "value": 1.4
             },
             {
                 "type": "pressure_value",
@@ -44,7 +44,7 @@
         ],
 
         "output_control": "nsamples",
-        "output_value": 100
+        "output_value": 20
       }
     }
 }
