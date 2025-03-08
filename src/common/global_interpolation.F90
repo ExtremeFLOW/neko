@@ -665,7 +665,7 @@ contains
  
 
     end if
-    if (NEKO_BCKND_DEVICE .eq. 1) then
+    if (NEKO_BCKND_DEVICE .eq. 1 .and. n_point_cand .gt. 0) then
        ! Initialize working arrays
        call x_hat%init(this%nelv*this%Xh%lxyz)
        call y_hat%init(this%nelv*this%Xh%lxyz)
