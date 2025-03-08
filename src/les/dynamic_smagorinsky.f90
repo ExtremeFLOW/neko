@@ -86,6 +86,7 @@ contains
     character(len=:), allocatable :: nut_name
     integer :: i
     character(len=:), allocatable :: delta_type
+    logical :: if_ext
     character(len=LOG_SIZE) :: log_buf
 
     associate(dofmap => fluid%dm_Xh, &
@@ -93,9 +94,10 @@ contains
 
       call json_get_or_default(json, "nut_field", nut_name, "nut")
       call json_get_or_default(json, "delta_type", delta_type, "pointwise")
+      call json_get_or_default(json, "extrapolation", if_ext, .true.)
 
       call this%free()
-      call this%init_base(fluid, nut_name, delta_type)
+      call this%init_base(fluid, nut_name, delta_type, if_ext)
       call this%test_filter%init(json, coef)
       call set_ds_filt(this%test_filter)
 
@@ -106,6 +108,8 @@ contains
       call neko_log%message(log_buf)
       write(log_buf, '(A, A)') 'Test filter type : ', &
            this%test_filter%filter_type
+      call neko_log%message(log_buf)
+      write(log_buf, '(A, L1)') 'extrapolation : ', if_ext
       call neko_log%message(log_buf)
       call neko_log%end_section()
 
