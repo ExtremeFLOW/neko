@@ -278,11 +278,11 @@ contains
     end if
 
     if (c_associated(filter_program)) then
-      if(clReleaseProgram(filter_program) .ne. CL_SUCCESS) then
-         call neko_error('Failed to release program')
-      end if
-      filter_program = C_NULL_PTR
-   end if
+       if(clReleaseProgram(filter_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       filter_program = C_NULL_PTR
+    end if
 
   end subroutine opencl_prgm_lib_release
 
