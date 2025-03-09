@@ -90,7 +90,7 @@ module opencl_prgm_lib
   type(c_ptr), public, bind(c) :: filter_program = C_NULL_PTR
 
   public :: opencl_prgm_lib_release
-  
+
 contains
 
   subroutine opencl_prgm_lib_release
@@ -226,7 +226,7 @@ contains
           call neko_error('Failed to release program')
        end if
        euler_res_program = C_NULL_PTR
-    end if    
+    end if
 
     if (c_associated(fdm_program)) then
        if(clReleaseProgram(fdm_program) .ne. CL_SUCCESS) then

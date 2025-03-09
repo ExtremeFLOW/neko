@@ -491,7 +491,7 @@ contains
          m_x%x_d, m_y%x_d, m_z%x_d, rho_field%x_d, p%x_d, n)
 #elif HAVE_OPENCL
     call euler_res_part_mx_flux_opencl(f_x%x_d, f_y%x_d, f_z%x_d, &
-         m_x%x_d, m_y%x_d, m_z%x_d, rho_field%x_d, p%x_d, n)    
+         m_x%x_d, m_y%x_d, m_z%x_d, rho_field%x_d, p%x_d, n)
 #endif
     call div(rhs_m_x%x, f_x%x, f_y%x, f_z%x, coef)
     ! m_y
@@ -506,7 +506,7 @@ contains
 #elif HAVE_OPENCL
     call euler_res_part_my_flux_opencl(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, &
-         rho_field%x_d, p%x_d, n)    
+         rho_field%x_d, p%x_d, n)
 #endif
     call div(rhs_m_y%x, f_x%x, f_y%x, f_z%x, coef)
     ! m_z
@@ -558,7 +558,7 @@ contains
 #elif HAVE_OPENCL
     call euler_res_part_coef_mult_opencl(rhs_rho_field%x_d, rhs_m_x%x_d, &
          rhs_m_y%x_d, rhs_m_z%x_d, &
-         rhs_E%x_d, coef%mult_d, n)    
+         rhs_E%x_d, coef%mult_d, n)
 #endif
 
     call neko_scratch_registry%request_field(visc_rho, temp_indices(5))
@@ -612,7 +612,7 @@ contains
     call euler_res_part_visc_opencl(rhs_m_z%x_d, coef%Binv_d, &
          visc_m_z%x_d, h%x_d, c_avisc_low, n)
     call euler_res_part_visc_opencl(rhs_E%x_d, coef%Binv_d, &
-         visc_E%x_d, h%x_d, c_avisc_low, n)    
+         visc_E%x_d, h%x_d, c_avisc_low, n)
 #endif
 
     call neko_scratch_registry%relinquish_field(temp_indices)
@@ -620,4 +620,3 @@ contains
   end subroutine evaluate_rhs_device
 
 end module euler_res_device
-
