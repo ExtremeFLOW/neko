@@ -156,9 +156,9 @@ contains
 
     ! set up preconditioner
     call filter_precon_factory(this%pc_filt, this%ksp_filt, &
-                                      this%coef, this%coef%dof, &
-                                      this%coef%gs_h, &
-                                      this%bclst_filt, this%precon_type_filt)
+         this%coef, this%coef%dof, &
+         this%coef%gs_h, &
+         this%bclst_filt, this%precon_type_filt)
 
   end subroutine PDE_filter_init_from_attributes
 
@@ -240,7 +240,7 @@ contains
     !  temporary d_F_out)
     call field_copy(d_F_out, F_in)
     call this%Ax%compute(RHS%x, d_F_out%x, this%coef, this%coef%msh, &
-        this%coef%Xh)
+         this%coef%Xh)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_subcol3(RHS%x_d, F_in%x_d, this%coef%B_d, n)
@@ -249,7 +249,7 @@ contains
        do i = 1, n
           ! mass matrix should be included here
           RHS%x(i,1,1,1) = F_in%x(i,1,1,1) * this%coef%B(i,1,1,1) &
-              - RHS%x(i,1,1,1)
+               - RHS%x(i,1,1,1)
        end do
     end if
 
@@ -302,13 +302,13 @@ contains
     call precon_factory(pc, pctype)
 
     select type (pcp => pc)
-      type is (jacobi_t)
+    type is (jacobi_t)
        call pcp%init(coef, dof, gs)
-      type is (sx_jacobi_t)
+    type is (sx_jacobi_t)
        call pcp%init(coef, dof, gs)
-      type is (device_jacobi_t)
+    type is (device_jacobi_t)
        call pcp%init(coef, dof, gs)
-      type is (hsmg_t)
+    type is (hsmg_t)
        if (len_trim(pctype) .gt. 4) then
           if (index(pctype, '+') .eq. 5) then
              call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &
