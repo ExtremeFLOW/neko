@@ -87,7 +87,7 @@ contains
     character(len=:), allocatable :: type_string
 
     if (allocated(object)) then
-       call krylov_solver_destroy(object)
+       call object%free()
        deallocate(object)
     end if
 
@@ -159,68 +159,9 @@ contains
                        // type_string)
     end if
 
-    ! This select type is in principle not necessary,but we have it due to
-    ! issues with compilers, when it was not there. However, at some point we
-    ! should check if we can get away with just having one obj%init statement.
-    ! Same applies to the code in the "destroy" routine below.
-    select type (obj => object)
-    type is (cg_t)
-       call obj%init(n, max_iter, M = M, abs_tol = abstol,&
-            monitor = monitor)
-    type is (sx_cg_t)
-       call obj%init(n, max_iter, M = M, abs_tol = abstol,&
-            monitor = monitor)
-    type is (cg_cpld_t)
-       call obj%init(n, max_iter, M = M, abs_tol = abstol,&
-            monitor = monitor)
-    type is (cg_device_t)
-       call obj%init(n, max_iter, M = M, abs_tol = abstol,&
-            monitor = monitor)
-    type is (pipecg_t)
-       call obj%init(n, max_iter, M = M, abs_tol = abstol,&
-            monitor = monitor)
-    type is (sx_pipecg_t)
-       call obj%init(n, max_iter, M = M, abs_tol = abstol,&
-            monitor = monitor)
-    type is (pipecg_device_t)
-       call obj%init(n, max_iter, M = M, abs_tol = abstol,&
-            monitor = monitor)
-    type is (fusedcg_device_t)
-       call obj%init(n, max_iter, M = M, abs_tol = abstol,&
-            monitor = monitor)
-    type is (fusedcg_cpld_device_t)
-       call obj%init(n, max_iter, M = M, abs_tol = abstol,&
-            monitor = monitor)
-    type is (cacg_t)
-       call obj%init(n, max_iter, M = M, abs_tol = abstol,&
-            monitor = monitor)
-    type is (gmres_t)
-       call obj%init(n, max_iter, M = M, abs_tol = abstol,&
-            monitor = monitor)
-    type is (sx_gmres_t)
-       call obj%init(n, max_iter, M = M, abs_tol = abstol,&
-            monitor = monitor)
-    type is (gmres_device_t)
-       call obj%init(n, max_iter, M = M, abs_tol = abstol,&
-            monitor = monitor)
-    type is (bicgstab_t)
-       call obj%init(n, max_iter, M = M, abs_tol = abstol,&
-            monitor = monitor)
-    type is (cheby_t)
-       call obj%init(n, max_iter, M = M, abs_tol = abstol,&
-            monitor = monitor)
-    type is (cheby_device_t)
-       call obj%init(n, max_iter, M = M, abs_tol = abstol,&
-            monitor = monitor)
-    end select
+    call object%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
 
   end subroutine krylov_solver_factory
-
-  !> Destroy an iterative Krylov type_name
-  module subroutine krylov_solver_destroy(object)
-    class(ksp_t), allocatable, intent(inout) :: object
-    call object%free()
-  end subroutine krylov_solver_destroy
 
 end submodule krylov_fctry
 

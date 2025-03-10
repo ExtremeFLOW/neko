@@ -41,8 +41,7 @@ module PDE_filter
   use field, only: field_t
   use coefs, only: coef_t
   use ax_product, only: ax_t, ax_helm_factory
-  use krylov, only: ksp_t, ksp_monitor_t, krylov_solver_factory, &
-       krylov_solver_destroy
+  use krylov, only: ksp_t, ksp_monitor_t, krylov_solver_factory
   use precon, only: pc_t, precon_factory, precon_destroy
   use bc_list, only : bc_list_t
   use neumann, only: neumann_t
@@ -156,9 +155,9 @@ contains
          this%ksp_max_iter, this%abstol_filt)
 
     ! set up preconditioner
-    call filter_precon_factory(this%pc_filt, this%ksp_filt, &                      
+    call filter_precon_factory(this%pc_filt, this%ksp_filt, &
                                       this%coef, this%coef%dof, &
-                                      this%coef%gs_h, &      
+                                      this%coef%gs_h, &
                                       this%bclst_filt, this%precon_type_filt)
 
   end subroutine PDE_filter_init_from_attributes
@@ -171,15 +170,15 @@ contains
        deallocate(this%Ax)
     end if
 
-    if (allocated(this%ksp_filt)) then                                               
-       call krylov_solver_destroy(this%ksp_filt)                                     
-       deallocate(this%ksp_filt)                                                     
-    end if                                                                      
-                                                                                
-    if (allocated(this%pc_filt)) then                                                
-       call precon_destroy(this%pc_filt)                                             
-       deallocate(this%pc_filt)                                                      
-    end if                    
+    if (allocated(this%ksp_filt)) then
+       call this%ksp_filt%free()
+       deallocate(this%ksp_filt)
+    end if
+
+    if (allocated(this%pc_filt)) then
+       call precon_destroy(this%pc_filt)
+       deallocate(this%pc_filt)
+    end if
 
     call this%bclst_filt%free()
 
@@ -236,7 +235,7 @@ contains
     end if
     this%coef%ifh2 = .true.
 
-    ! compute the A(F_in) component of the RHS 
+    ! compute the A(F_in) component of the RHS
     ! (note, to be safe with the inout intent we first copy F_in to the
     !  temporary d_F_out)
     call field_copy(d_F_out, F_in)

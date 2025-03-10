@@ -58,7 +58,7 @@ module gmres_device
 
   !> Standard preconditioned generalized minimal residual method
   type, public, extends(ksp_t) :: gmres_device_t
-     integer :: m_restart
+     integer :: m_restart = 30
      real(kind=rp), allocatable :: w(:)
      real(kind=rp), allocatable :: c(:)
      real(kind=rp), allocatable :: r(:)
@@ -134,13 +134,11 @@ contains
   end function device_gmres_part2
 
   !> Initialise a standard GMRES solver
-  subroutine gmres_device_init(this, n, max_iter, M, m_restart, &
-       rel_tol, abs_tol, monitor)
+  subroutine gmres_device_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
     class(gmres_device_t), target, intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(in), target :: M
-    integer, optional, intent(in) :: m_restart
     real(kind=rp), optional, intent(in) :: rel_tol
     real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
@@ -148,13 +146,6 @@ contains
     type(c_ptr) :: ptr
     integer(c_size_t) :: z_size
     integer :: i
-
-    if (present(m_restart)) then
-       this%m_restart = m_restart
-    else
-       this%m_restart = 30
-    end if
-
 
     call this%free()
 

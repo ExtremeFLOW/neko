@@ -71,7 +71,7 @@ contains
 
   !> Initialise a coupled PCG solver
   subroutine cg_cpld_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
-    class(cg_cpld_t), intent(inout) :: this
+    class(cg_cpld_t), target, intent(inout) :: this
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n

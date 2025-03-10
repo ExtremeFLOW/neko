@@ -67,7 +67,7 @@ contains
 
   !> Initialise a pipelined PCG solver
   subroutine sx_pipecg_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
-    class(sx_pipecg_t), intent(inout) :: this
+    class(sx_pipecg_t), target, intent(inout) :: this
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter

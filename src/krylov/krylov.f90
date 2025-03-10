@@ -73,6 +73,8 @@ module krylov
      class(pc_t), allocatable :: M_ident !< Internal preconditioner (Identity)
      logical :: monitor                  !< Turn on/off monitoring
    contains
+     !> Constructor.
+     procedure(ksp_init_intrf), deferred, pass(this) :: init
      !> Base type constructor.
      procedure, pass(this) :: ksp_init => krylov_init
      !> Base type destructor.
@@ -95,6 +97,22 @@ module krylov
      procedure(ksp_t_free), pass(this), deferred :: free
   end type ksp_t
 
+  !> Abstract interface for a Krylov method's constructor
+  !!
+  !! @param x field to solve for
+  abstract interface
+     subroutine ksp_init_intrf(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+       import :: pc_t, ksp_t, rp
+       implicit none
+       class(ksp_t), target, intent(inout) :: this
+       integer, intent(in) :: max_iter
+       class(pc_t), optional, intent(in), target :: M
+       integer, intent(in) :: n
+       real(kind=rp), optional, intent(in) :: rel_tol
+       real(kind=rp), optional, intent(in) :: abs_tol
+       logical, optional, intent(in) :: monitor
+     end subroutine ksp_init_intrf
+  end interface
 
   !> Abstract interface for a Krylov method's solve routine
   !!
@@ -202,13 +220,9 @@ module krylov
        logical, optional, intent(in) :: monitor
      end subroutine krylov_solver_factory
 
-     !> Destroy an iterative Krylov type_name
-     module subroutine krylov_solver_destroy(object)
-       class(ksp_t), allocatable, intent(inout) :: object
-     end subroutine krylov_solver_destroy
   end interface
 
-  public :: krylov_solver_factory, krylov_solver_destroy
+  public :: krylov_solver_factory
 contains
 
   !> Constructor for the base type.
@@ -293,7 +307,7 @@ contains
     class(ksp_t), intent(in) :: this
     character(len=*) :: name
     character(len=LOG_SIZE) :: log_buf
-    
+
     if (this%monitor) then
        write(log_buf, '(A)') 'Krylov monitor (' // trim(name) // ')'
        call neko_log%section(trim(log_buf))
@@ -317,7 +331,7 @@ contains
     end if
   end subroutine krylov_monitor_stop
 
-  
+
   !> Monitor iteration
   subroutine krylov_monitor_iter(this, iter, rnorm)
     class(ksp_t), intent(in) :: this
@@ -329,7 +343,7 @@ contains
        write(log_buf, '(I6,E15.7)') iter, rnorm
        call neko_log%message(log_buf)
     end if
-    
+
   end subroutine krylov_monitor_iter
 
   !> Check for convergence

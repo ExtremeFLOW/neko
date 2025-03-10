@@ -40,8 +40,7 @@ module scalar_scheme
   use field_list, only: field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy, &
-       KSP_MAX_ITER
+  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
@@ -385,7 +384,7 @@ contains
     nullify(this%params)
 
     if (allocated(this%ksp)) then
-       call krylov_solver_destroy(this%ksp)
+       call this%ksp%free()
        deallocate(this%ksp)
     end if
 

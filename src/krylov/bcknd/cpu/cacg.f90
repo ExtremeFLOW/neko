@@ -52,7 +52,7 @@ module cacg
      real(kind=rp), allocatable :: r(:)
      real(kind=rp), allocatable :: p(:)
      real(kind=rp), allocatable :: PR(:,:)
-     integer :: s
+     integer :: s = 4
    contains
      procedure, pass(this) :: init => cacg_init
      procedure, pass(this) :: free => cacg_free
@@ -63,22 +63,16 @@ module cacg
 contains
 
   !> Initialise a s-step CA  PCG solver
-  subroutine cacg_init(this, n, max_iter, M, s, rel_tol, abs_tol, monitor)
-    class(cacg_t), intent(inout) :: this
+  subroutine cacg_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+    class(cacg_t), target, intent(inout) :: this
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
     real(kind=rp), optional, intent(in) :: rel_tol
     real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
-    integer, optional, intent(in) :: s
     call this%free()
 
-    if (present(s)) then
-       this%s = s
-    else
-       this%s = 4
-    end if
     if (pe_rank .eq. 0) then
        call neko_warning("Communication Avoiding CG chosen,&
             & be aware of potential instabilities")

@@ -69,7 +69,7 @@ contains
 
   !> Initialise a device based PCG solver
   subroutine cg_device_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
-    class(cg_device_t), intent(inout) :: this
+    class(cg_device_t), target, intent(inout) :: this
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
