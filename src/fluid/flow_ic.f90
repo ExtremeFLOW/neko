@@ -99,9 +99,9 @@ contains
        !
     else if (trim(type) .eq. 'blasius') then
 
-       call json_get(params, 'blasius.delta', delta)
-       call json_get(params, 'blasius.approximation', read_str)
-       call json_get(params, 'blasius.freestream_velocity', uinf)
+       call json_get(params, 'delta', delta)
+       call json_get(params, 'approximation', read_str)
+       call json_get(params, 'freestream_velocity', uinf)
 
        call set_flow_ic_blasius(u, v, w, delta, uinf, read_str)
 
