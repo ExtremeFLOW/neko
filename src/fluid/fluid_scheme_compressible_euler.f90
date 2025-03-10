@@ -43,7 +43,7 @@ module fluid_scheme_compressible_euler
   use device_math, only : device_col2
   use field, only : field_t
   use fluid_scheme_compressible, only: fluid_scheme_compressible_t
-  use gs_ops, only : GS_OP_ADD, GS_OP_MIN
+  use gs_ops, only : GS_OP_ADD
   use gather_scatter, only : gs_t
   use num_types, only : rp
   use mesh, only : mesh_t

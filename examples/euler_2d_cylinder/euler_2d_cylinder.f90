@@ -28,7 +28,7 @@ contains
     integer :: i
 
     do i = 1, rho%dof%size()
-       u%x(i,1,1,1) = 1.0
+       u%x(i,1,1,1) = 1.1
        v%x(i,1,1,1) = 0.0
        w%x(i,1,1,1) = 0.0
        rho%x(i,1,1,1) = 1.4
