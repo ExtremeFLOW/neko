@@ -532,11 +532,11 @@ extern "C" {
         CUDA_CHECK(cudaFree(bufred_d));
 #endif
       }
-      CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
+      CUDA_CHECK(cudaMallocHost(&bufred,red_s*sizeof(real)));
 #ifdef HAVE_NVSHMEM
-      bufred_d = (real *) nvshmem_malloc(sizeof(real));
+      bufred_d = (real *) nvshmem_malloc(red_s*sizeof(real));
 #else
-      CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
+      CUDA_CHECK(cudaMalloc(&bufred_d, red_s*sizeof(real)));
 #endif
     }
   }
@@ -628,7 +628,7 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
     reduce_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
-    }
+    } else { cuda_rzero(bufred_d,&red_s); }
     cuda_global_reduce_add(bufred, bufred_d, 1, stream);
 
     return bufred[0];
@@ -658,7 +658,7 @@ extern "C" {
     glsc3_reduce_kernel<real>
       <<<(*j), 1024, 0, stream>>>((real *) bufred_d, nb, *j);
     CUDA_CHECK(cudaGetLastError());
-    }
+    } else { cuda_rzero(bufred_d,&red_s); }
     cuda_global_reduce_add(h, bufred_d, (*j), stream);
   }
 
@@ -683,7 +683,7 @@ extern "C" {
       CUDA_CHECK(cudaGetLastError());
       reduce_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d, nb);
       CUDA_CHECK(cudaGetLastError());
-    }
+    } else { cuda_rzero(bufred_d,&red_s); }
     cuda_global_reduce_add(bufred, bufred_d, 1, stream);
 
     return bufred[0];
@@ -706,7 +706,7 @@ extern "C" {
       CUDA_CHECK(cudaGetLastError());
       reduce_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d, nb);
       CUDA_CHECK(cudaGetLastError());
-    }
+    } else { cuda_rzero(bufred_d,&red_s); }
     cuda_global_reduce_add(bufred, bufred_d, 1, stream);
     return bufred[0];
   }
