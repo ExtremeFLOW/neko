@@ -94,6 +94,10 @@ extern "C" {
    * update a vector \f$ a += b(mask) \f$ where mask is not unique
    */
   void cuda_masked_atomic_reduction(void *a, void *b, void *mask, int *n, int *m) {
+   
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+    
     masked_atomic_reduction_kernel<real><<<nblcks, nthrds, 0,
       (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b,
                                       (int *) mask, *n, *m);
@@ -625,7 +629,7 @@ extern "C" {
     reduce_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
     }
-    cuda_global_reduce_add(bufred, bufred_d, 1, stream)
+    cuda_global_reduce_add(bufred, bufred_d, 1, stream);
 
     return bufred[0];
   }
@@ -644,7 +648,7 @@ extern "C" {
     const dim3 nblcks(((*n)+nt - 1)/nt, 1, 1);
     const int nb = ((*n) + nt - 1)/nt;
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-    cuda_redbuf_check_alloc((*j)*nb)
+    cuda_redbuf_check_alloc((*j)*nb);
   
     if ( *n > 0) {
     glsc3_many_kernel<real><<<nblcks, nthrds, 0, stream>>>
@@ -655,7 +659,7 @@ extern "C" {
       <<<(*j), 1024, 0, stream>>>((real *) bufred_d, nb, *j);
     CUDA_CHECK(cudaGetLastError());
     }
-    cuda_global_reduce_add(h, bufred_d, (*j), stream)
+    cuda_global_reduce_add(h, bufred_d, (*j), stream);
   }
 
   /**
@@ -680,7 +684,7 @@ extern "C" {
       reduce_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d, nb);
       CUDA_CHECK(cudaGetLastError());
     }
-    cuda_global_reduce_add(bufred, bufred_d, 1, stream)
+    cuda_global_reduce_add(bufred, bufred_d, 1, stream);
 
     return bufred[0];
   }
@@ -703,7 +707,7 @@ extern "C" {
       reduce_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d, nb);
       CUDA_CHECK(cudaGetLastError());
     }
-    cuda_global_reduce_add(bufred, bufred_d, 1, stream)
+    cuda_global_reduce_add(bufred, bufred_d, 1, stream);
     return bufred[0];
   }
 
