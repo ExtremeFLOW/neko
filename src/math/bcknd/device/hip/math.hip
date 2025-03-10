@@ -478,6 +478,34 @@ extern "C" {
   real * bufred = NULL;
   real * bufred_d = NULL;
   
+  void hip_redbuf_check_alloc(int nb) {
+    if ( nb >= red_s){
+      red_s = nb+1;
+      if (bufred != NULL) {
+        HIP_CHECK(hipHostFree(bufred));
+        HIP_CHECK(hipFree(bufred_d));        
+      }
+      HIP_CHECK(hipHostMalloc(&bufred,nb*sizeof(real),hipHostMallocDefault));
+      HIP_CHECK(hipMalloc(&bufred_d, nb*sizeof(real)));
+    }
+  }
+
+  void hip_global_reduce_add(real * bufred, void * bufred_d, int n, const hipStream_t stream) {
+    #ifdef HAVE_RCCL
+        device_nccl_allreduce(bufred_d, bufred_d, n, sizeof(real),
+                              DEVICE_NCCL_SUM, stream);
+        HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real),
+                                 hipMemcpyDeviceToHost, stream));
+        HIP_CHECK(hipStreamSynchronize(stream));
+    #elif HAVE_DEVICE_MPI
+        HIP_CHECK(hipStreamSynchronize(stream));
+        device_mpi_allreduce(bufred_d, bufred, n, sizeof(real), DEVICE_MPI_SUM);
+    #else
+        HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real),
+                                 hipMemcpyDeviceToHost, stream));
+        HIP_CHECK(hipStreamSynchronize(stream));
+    #endif
+  }
   /**
    * Fortran wrapper vlsc3
    * Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$
@@ -488,16 +516,8 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+    hip_redbuf_check_alloc((*j)*nb);
     
-    if ( nb > red_s){
-      red_s = nb;
-      if (bufred != NULL) {
-        HIP_CHECK(hipHostFree(bufred));
-        HIP_CHECK(hipFree(bufred_d));        
-      }
-      HIP_CHECK(hipHostMalloc(&bufred,nb*sizeof(real),hipHostMallocDefault));
-      HIP_CHECK(hipMalloc(&bufred_d, nb*sizeof(real)));
-    }
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real>),
                        nblcks, nthrds, 0, stream,
@@ -527,16 +547,9 @@ extern "C" {
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const hipStream_t stream = (hipStream_t) glb_cmd_queue;
     
-    if ( nb > red_s){
-      red_s = nb;
-      if (bufred != NULL) {
-        HIP_CHECK(hipHostFree(bufred));
-        HIP_CHECK(hipFree(bufred_d));        
-      }
-      HIP_CHECK(hipHostMalloc(&bufred,nb*sizeof(real),hipHostMallocDefault));
-      HIP_CHECK(hipMalloc(&bufred_d, nb*sizeof(real)));
-    }
-     
+    hip_redbuf_check_alloc(nb)
+    
+    if (*n > 0) { 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real>),
                        nblcks, nthrds, 0, stream,
                        (real *) a, (real *) b,
@@ -545,21 +558,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
                        1, 1024, 0, stream, bufred_d, nb);
     HIP_CHECK(hipGetLastError());
-
-#ifdef HAVE_RCCL
-    device_nccl_allreduce(bufred_d, bufred_d, 1, sizeof(real),
-                          DEVICE_NCCL_SUM, stream);
-    HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
-                             hipMemcpyDeviceToHost, stream));
-    HIP_CHECK(hipStreamSynchronize(stream));
-#elif HAVE_DEVICE_MPI
-    HIP_CHECK(hipStreamSynchronize(stream));
-    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
-#else
-    HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
-                             hipMemcpyDeviceToHost, stream));
-    HIP_CHECK(hipStreamSynchronize(stream));
-#endif
+    }
     return bufred[0];
   }
 
@@ -579,16 +578,8 @@ extern "C" {
     const dim3 nblcks_red( (*j),1,1);
     const int nb = ((*n) + nt - 1)/nt;
     const hipStream_t stream = (hipStream_t) glb_cmd_queue;
-    
-    if((*j)*nb>red_s){
-      red_s = (*j)*nb;
-      if (bufred != NULL) {
-        HIP_CHECK(hipHostFree(bufred));
-        HIP_CHECK(hipFree(bufred_d));
-      }      
-      HIP_CHECK(hipHostMalloc(&bufred,(*j)*nb*sizeof(real),hipHostMallocDefault));
-      HIP_CHECK(hipMalloc(&bufred_d, (*j)*nb*sizeof(real)));
-    }
+    hip_redbuf_check_alloc((*j)*nb);
+    if (*n > 0) { 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_many_kernel<real>),
                        nblcks, nthrds, 0, stream,
                        (const real *) w, (const real **) v,
@@ -599,21 +590,8 @@ extern "C" {
                        nblcks_red, nthrds_red, 0, stream,
                        bufred_d, nb, *j);
     HIP_CHECK(hipGetLastError());
-
-#ifdef HAVE_RCCL
-    device_nccl_allreduce(bufred_d, bufred_d, (*j), sizeof(real),
-                          DEVICE_NCCL_SUM, stream);
-    HIP_CHECK(hipMemcpyAsync(h, bufred_d, (*j)* sizeof(real),
-                             hipMemcpyDeviceToHost, stream));
-    HIP_CHECK(hipStreamSynchronize(stream));
-#elif HAVE_DEVICE_MPI
-    HIP_CHECK(hipStreamSynchronize(stream));
-    device_mpi_allreduce(bufred_d, h, (*j), sizeof(real), DEVICE_MPI_SUM);
-#else
-    HIP_CHECK(hipMemcpyAsync(h, bufred_d, (*j)* sizeof(real),
-                             hipMemcpyDeviceToHost, stream));
-    HIP_CHECK(hipStreamSynchronize(stream));
-#endif    
+    }
+    hip_global_reduce_add(h, bufred_d, (*j), stream);
   }
 
   /**
@@ -660,16 +638,10 @@ extern "C" {
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const hipStream_t stream = (hipStream_t) glb_cmd_queue;
         
-    if ( nb > red_s){
-      red_s = nb;
-      if (bufred != NULL) {
-        HIP_CHECK(hipHostFree(bufred));
-        HIP_CHECK(hipFree(bufred_d));        
-      }
-      HIP_CHECK(hipHostMalloc(&bufred,nb*sizeof(real),hipHostMallocDefault));
-      HIP_CHECK(hipMalloc(&bufred_d, nb*sizeof(real)));
-    }
-     
+   
+    hip_redbuf_check_alloc(nb);
+    
+    if( *n > 0) { 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc2_kernel<real>),
                        nblcks, nthrds, 0, stream,
                        (real *) a, (real *) b, bufred_d, *n);
@@ -677,21 +649,9 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
                        1, 1024, 0, stream, bufred_d, nb);
     HIP_CHECK(hipGetLastError());
+    }
+    hip_global_reduce_add(bufred, bufred_d, (*j), stream);
 
-#ifdef HAVE_RCCL
-    device_nccl_allreduce(bufred_d, bufred_d, 1, sizeof(real),
-                          DEVICE_NCCL_SUM, stream);
-    HIP_CHECK(hipMemcpyAsync(bufred, bufred_d,sizeof(real),
-                             hipMemcpyDeviceToHost, stream));
-    HIP_CHECK(hipStreamSynchronize(stream));
-#elif HAVE_DEVICE_MPI
-    HIP_CHECK(hipStreamSynchronize(stream));
-    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
-#else
-    HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
-                             hipMemcpyDeviceToHost, stream));
-    HIP_CHECK(hipStreamSynchronize(stream));
-#endif
     return bufred[0];
   }
 
@@ -705,15 +665,7 @@ extern "C" {
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const hipStream_t stream = (hipStream_t) glb_cmd_queue;
     
-    if ( nb > red_s){
-      red_s = nb;
-      if (bufred != NULL) {
-        HIP_CHECK(hipHostFree(bufred));
-        HIP_CHECK(hipFree(bufred_d));        
-      }
-      HIP_CHECK(hipHostMalloc(&bufred,nb*sizeof(real),hipHostMallocDefault));
-      HIP_CHECK(hipMalloc(&bufred_d, nb*sizeof(real)));
-    }
+    hip_redbuf_check_alloc(nb);
     if( *n > 0) { 
       hipLaunchKernelGGL(HIP_KERNEL_NAME(glsum_kernel<real>),
                        nblcks, nthrds, 0, stream,
@@ -723,21 +675,7 @@ extern "C" {
                        1, 1024, 0, stream, bufred_d, nb);
       HIP_CHECK(hipGetLastError());
     }
-
-#ifdef HAVE_RCCL
-    device_nccl_allreduce(bufred_d, bufred_d, 1, sizeof(real),
-                          DEVICE_NCCL_SUM, stream);
-    HIP_CHECK(hipMemcpyAsync(bufred, bufred_d,sizeof(real),
-                             hipMemcpyDeviceToHost, stream));
-    HIP_CHECK(hipStreamSynchronize(stream));
-#elif HAVE_DEVICE_MPI
-    HIP_CHECK(hipStreamSynchronize(stream));
-    device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
-#else
-    HIP_CHECK(hipMemcpyAsync(bufred, bufred_d,sizeof(real),
-                             hipMemcpyDeviceToHost, stream));
-    HIP_CHECK(hipStreamSynchronize(stream));
-#endif    
+    hip_global_reduce_add(bufred, bufred_d, (*j), stream);
     return bufred[0];
   }
 
