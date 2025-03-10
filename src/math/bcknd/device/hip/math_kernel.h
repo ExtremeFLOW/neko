@@ -87,23 +87,6 @@ __global__ void masked_gather_copy_kernel(T * __restrict__ a,
 }
 
 /**
- * Device kernel for masked gather copy
- */
-template< typename T >
-__global__ void masked_scatter_copy_kernel(T * __restrict__ a,
-                                   T * __restrict__ b,
-                                   int * __restrict__ mask,                    
-                                   const int n,
-                                   const int m) {
-
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-
-  for (int i = idx; i < m; i += str) {
-    a[mask[i+1]-1] = b[i];
-  }
-}
-/**
  * Device kernel for masked atomic update
  */
 template< typename T >
