@@ -34,7 +34,7 @@
 module cacg
   use num_types, only: rp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
@@ -214,7 +214,7 @@ contains
                      it = it + 1
                      do k = 1, NEKO_BLK_SIZE
                         temp(it,1) = temp(it,1) &
-                                   + PR(i+k,j) * PR(i+k,l) * coef%mult(i+k,1,1,1)
+                             + PR(i+k,j) * PR(i+k,l) * coef%mult(i+k,1,1,1)
                      end do
                   end do
                end do
@@ -224,7 +224,7 @@ contains
                      it = it + 1
                      do k = 1, n-i
                         temp(it,1) = temp(it,1) &
-                                   + PR(i+k,j) * PR(i+k,l) * coef%mult(i+k,1,1,1)
+                             + PR(i+k,j) * PR(i+k,l) * coef%mult(i+k,1,1,1)
                      end do
                   end do
                end do
@@ -263,7 +263,7 @@ contains
                do k = 1, 4*s+1
                   tmp = tmp + Tt(i,k) * p_c(k,j)
                end do
-               r_c(i,j+1) =  r_c(i,j) - alpha(j)*tmp
+               r_c(i,j+1) = r_c(i,j) - alpha(j)*tmp
                tmp = 0.0_rp
                do k = 1, 4*s+1
                   tmp = tmp + Tt(i,k)*r_c(k,j+1)
@@ -278,7 +278,7 @@ contains
             end do
             beta(j) = alpha2 / alpha1
             do i = 1,4*s+1
-               p_c(i,j+1) = z_c(i,j+1) +  beta(j)*p_c(i,j)
+               p_c(i,j+1) = z_c(i,j+1) + beta(j)*p_c(i,j)
             end do
          end do
 
@@ -363,9 +363,9 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function cacg_solve_coupled
 

@@ -34,7 +34,7 @@
 module cg_cpld
   use num_types, only: rp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
@@ -271,8 +271,8 @@ contains
 
          do concurrent (i = 1:n)
             this%tmp(i) = z1(i) * r1(i) &
-                        + z2(i) * r2(i) &
-                        + z3(i) * r3(i)
+                 + z2(i) * r2(i) &
+                 + z3(i) * r3(i)
          end do
 
          rtz1 = glsc2(tmp, coef%mult, n)
@@ -295,8 +295,8 @@ contains
 
          do concurrent (i = 1:n)
             tmp(i) = w1(i) * p1(i) &
-                   + w2(i) * p2(i) &
-                   + w3(i) * p3(i)
+                 + w2(i) * p2(i) &
+                 + w3(i) * p3(i)
          end do
 
          pap = glsc2(tmp, coef%mult, n)

@@ -48,7 +48,7 @@ module krylov
   implicit none
   private
 
-  integer, public, parameter :: KSP_MAX_ITER = 1e3       !< Maximum number of iters.
+  integer, public, parameter :: KSP_MAX_ITER = 1e3 !< Maximum number of iters.
   real(kind=rp), public, parameter :: KSP_ABS_TOL = 1d-9 !< Absolut tolerance
   real(kind=rp), public, parameter :: KSP_REL_TOL = 1d-9 !< Relative tolerance
 
@@ -67,11 +67,11 @@ module krylov
   !> Base abstract type for a canonical Krylov method, solving \f$ Ax = f \f$.
   type, public, abstract :: ksp_t
      class(pc_t), pointer :: M => null() !< Preconditioner
-     real(kind=rp) :: rel_tol            !< Relative tolerance
-     real(kind=rp) :: abs_tol            !< Absolute tolerance
-     integer :: max_iter                 !< Maximum number of iterations
+     real(kind=rp) :: rel_tol !< Relative tolerance
+     real(kind=rp) :: abs_tol !< Absolute tolerance
+     integer :: max_iter !< Maximum number of iterations
      class(pc_t), allocatable :: M_ident !< Internal preconditioner (Identity)
-     logical :: monitor                  !< Turn on/off monitoring
+     logical :: monitor !< Turn on/off monitoring
    contains
      !> Constructor.
      procedure(ksp_init_intrf), deferred, pass(this) :: init

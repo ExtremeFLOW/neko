@@ -55,15 +55,15 @@ submodule (krylov) krylov_fctry
 
   ! List of all possible types created by the factory routine
   character(len=20) :: KSP_KNOWN_TYPES(9) = [character(len=20) :: &
-     "cg", &
-     "pipecg", &
-     "fusedcg", &
-     "cacg", &
-     "gmres", &
-     "cheby", &
-     "bicgstab", &
-     "fusedcoupledcg", &
-     "coupledcg"]
+       "cg", &
+       "pipecg", &
+       "fusedcg", &
+       "cacg", &
+       "gmres", &
+       "cheby", &
+       "bicgstab", &
+       "fusedcoupledcg", &
+       "coupledcg"]
 
 contains
 
@@ -152,11 +152,11 @@ contains
     else if (trim(type_name) .eq. 'bicgstab') then
        allocate(bicgstab_t::object)
     else
-       type_string =  concat_string_array(KSP_KNOWN_TYPES,&
-            NEW_LINE('A') // "-  ",  .true.)
+       type_string = concat_string_array(KSP_KNOWN_TYPES,&
+            NEW_LINE('A') // "-  ", .true.)
        call neko_error("Unknown Krylov solver type: " &
-                       // trim(type_name) // ". Known types are: " &
-                       // type_string)
+            // trim(type_name) // ". Known types are: " &
+            // type_string)
     end if
 
     call object%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
