@@ -73,6 +73,7 @@ module field_math
        device_col2, device_col3, device_subcol3, device_add3s2, &
        device_addcol3, device_addcol4, device_glsum, device_glsc2, device_glsc3, &
        device_masked_gather_copy, device_masked_scatter_copy
+  use, intrinsic :: iso_c_binding, only: c_ptr
   implicit none
   private
 
