@@ -97,9 +97,13 @@ module krylov
      procedure(ksp_t_free), pass(this), deferred :: free
   end type ksp_t
 
-  !> Abstract interface for a Krylov method's constructor
-  !!
-  !! @param x field to solve for
+  !> Abstract interface for a Krylov method's constructor.
+  !! @param n Size of work arrays.
+  !! @param max_iter Max number of iterations.
+  !! @param M The preconditioner (optional).
+  !! @param rel_tol Relative tolerance (optional).
+  !! @param abs_tol Absolute tolerance (optional).
+  !! @param monitor Whether to log the iteration count and residuals (optional).
   abstract interface
      subroutine ksp_init_intrf(this, n, max_iter, M, rel_tol, abs_tol, monitor)
        import :: pc_t, ksp_t, rp
