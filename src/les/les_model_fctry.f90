@@ -41,7 +41,7 @@ submodule (les_model) les_model_fctry
   character(len=20) :: LES_KNOWN_TYPES(4) = [character(len=20) :: &
        "vreman", &
        "smagorinsky", &
-       "dymamic_smagorinsky", &
+       "dynamic_smagorinsky", &
        "sigma"]
 
 contains

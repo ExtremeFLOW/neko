@@ -858,7 +858,7 @@ contains
             MPI_REAL, status, ierr)
        if (temp .ne. test_pattern) then
           call neko_error('Incorrect format for fld file, &
-               &test pattern does not match.')
+            &test pattern does not match.')
        end if
        mpi_offset = mpi_offset + MPI_REAL_SIZE
 
@@ -939,7 +939,7 @@ contains
        if (allocated(tmp_sp)) deallocate(tmp_sp)
     class default
        call neko_error('Currently we only read into fld_file_data_t, &
-            &please use that data structure instead.')
+         &please use that data structure instead.')
     end select
 
   end subroutine fld_file_read

@@ -651,10 +651,10 @@ contains
     !!    BC dependent, Needs to change if cyclic
 
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%B_d, gdim, n)
-    call c_Xh%gs_h%op(w1, GS_OP_ADD, event)
-    call c_Xh%gs_h%op(w2, GS_OP_ADD, event)
-    call c_Xh%gs_h%op(w3, GS_OP_ADD, event)
-    call device_stream_wait_event(glb_cmd_queue, event, 0)
+    call c_Xh%gs_h%op(w1, GS_OP_ADD)
+    call c_Xh%gs_h%op(w2, GS_OP_ADD)
+    call c_Xh%gs_h%op(w3, GS_OP_ADD)
+    !call device_stream_wait_event(glb_cmd_queue, event, 0)
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%Binv_d, gdim, n)
 
 #else

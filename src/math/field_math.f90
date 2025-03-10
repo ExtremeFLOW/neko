@@ -62,7 +62,6 @@ module field_math
   use num_types, only: rp
   use field, only: field_t
   use device, only: device_get_ptr
-  use, intrinsic :: iso_c_binding
   use math, only: rzero, rone, copy, cmult, cadd, cfill, invcol1, vdot3, add2, &
        add3, add4, sub2, sub3, add2s1, add2s2, addsqr2s2, cmult2, invcol2, &
        col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glsc2, glsc3, &
@@ -74,6 +73,7 @@ module field_math
        device_col2, device_col3, device_subcol3, device_add3s2, &
        device_addcol3, device_addcol4, device_glsum, device_glsc2, device_glsc3, &
        device_masked_gather_copy, device_masked_scatter_copy
+  use, intrinsic :: iso_c_binding, only: c_ptr
   implicit none
   private
 
