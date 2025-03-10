@@ -76,12 +76,28 @@ extern "C" {
   /** Fortran wrapper for masked reduced copy
    * Copy a vector \f$ a = b(mask) \f$
    */
-  void hip_masked_red_copy(void *a, void *b, void *mask, int *n, int *m) {
+  void hip_masked_gather_copy(void *a, void *b, void *mask, int *n, int *m) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_red_copy_kernel<real>),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_gather_copy_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) a, (real *) b, (int *) mask, *n, *m);
+
+    HIP_CHECK(hipGetLastError());
+
+  } 
+ 
+  /** Fortran wrapper for masked scatter copy
+   * Copy a vector \f$ a(mask) = b \f$
+   */
+  void hip_masked_scatter_copy(void *a, void *b, void *mask, int *n, int *m) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_scatter_copy_kernel<real>),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a, (real *) b, (int *) mask, *n, *m);
 
@@ -516,7 +532,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const hipStream_t stream = (hipStream_t) glb_cmd_queue;
-    hip_redbuf_check_alloc((*j)*nb);
+    hip_redbuf_check_alloc(nb);
     
      
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real>),
@@ -547,7 +563,7 @@ extern "C" {
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const hipStream_t stream = (hipStream_t) glb_cmd_queue;
     
-    hip_redbuf_check_alloc(nb)
+    hip_redbuf_check_alloc(nb);
     
     if (*n > 0) { 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real>),
@@ -559,6 +575,7 @@ extern "C" {
                        1, 1024, 0, stream, bufred_d, nb);
     HIP_CHECK(hipGetLastError());
     }
+    hip_global_reduce_add(bufred, bufred_d, 1, stream);
     return bufred[0];
   }
 
@@ -650,7 +667,7 @@ extern "C" {
                        1, 1024, 0, stream, bufred_d, nb);
     HIP_CHECK(hipGetLastError());
     }
-    hip_global_reduce_add(bufred, bufred_d, (*j), stream);
+    hip_global_reduce_add(bufred, bufred_d, 1, stream);
 
     return bufred[0];
   }
@@ -675,7 +692,7 @@ extern "C" {
                        1, 1024, 0, stream, bufred_d, nb);
       HIP_CHECK(hipGetLastError());
     }
-    hip_global_reduce_add(bufred, bufred_d, (*j), stream);
+    hip_global_reduce_add(bufred, bufred_d, 1, stream);
     return bufred[0];
   }
 
