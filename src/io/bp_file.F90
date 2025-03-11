@@ -550,7 +550,7 @@ contains
           if (.not. allocated(inpbuf)) allocate(buffer_1d_t::inpbuf)
        else if (this%layout .eq. 2) then
           if (.not. allocated(inpbuf)) allocate(buffer_4d_t::inpbuf)
-       else if (this%layout .eq. 4) then
+       else if (this%layout .eq. 3) then
           if (.not. allocated(inpbuf)) allocate(buffer_4d_npar_t::inpbuf)
        end if
 
@@ -659,7 +659,7 @@ contains
           call inpbuf_points%copy(data%z)
        end if
 
-       if (this%layout .gt. 3) then
+       if (this%layout .eq. 3) then
           call inpbuf%inquire(variable, ioReader, 'fields', ierr)
           call inpbuf%read(bpReader, variable, ierr)
        end if
@@ -758,7 +758,7 @@ contains
     integer, intent(in) :: layout
 
     !> Messy at the moment but anticipates other layouts.
-    if (layout .ge. 1 .and. layout .le. 4 .and. layout .ne. 3) then
+    if (layout .ge. 1 .and. layout .le. 3) then
        this%layout = layout
     else
        call neko_error('Invalid data layout')
