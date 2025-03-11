@@ -67,6 +67,7 @@ module phmg
 
   type, private :: phmg_lvl_t
      integer :: lvl = -1
+     integer :: smoother_itrs = 10
      type(space_t), pointer :: Xh
      type(dofmap_t), pointer :: dm_Xh
      type(gs_t), pointer :: gs_h
@@ -114,10 +115,20 @@ contains
     integer :: n, i, j
     class(bc_t), pointer :: bc_j
     logical :: use_jacobi, use_cheby
+    character(len=255) :: env_smoother_itrs
+    integer :: env_len, smoother_itrs
     use_jacobi = .false.
     use_cheby = .true.
 
     this%msh => msh
+
+    call get_environment_variable("NEKO_PHMG_SMOOTHER_ITERS", &
+         env_smoother_itrs, env_len)
+    if (env_len .eq. 0) then
+       smoother_itrs = 10
+    else
+       read(env_smoother_itrs(1:env_len), *) smoother_itrs
+    end if
 
     this%nlvls = Xh%lx - 1
 
@@ -129,6 +140,7 @@ contains
     allocate(this%phmg_hrchy%lvl(0:this%nlvls - 1))
 
     this%phmg_hrchy%lvl(0)%lvl = 0
+    this%phmg_hrchy%lvl(0)%smoother_itrs = smoother_itrs
     this%phmg_hrchy%lvl(0)%Xh => Xh
     this%phmg_hrchy%lvl(0)%coef => coef
     this%phmg_hrchy%lvl(0)%dm_Xh => dof
@@ -141,6 +153,7 @@ contains
        allocate(this%phmg_hrchy%lvl(i)%coef)
 
        this%phmg_hrchy%lvl(i)%lvl = i
+       this%phmg_hrchy%lvl(i)%smoother_itrs = smoother_itrs
        call this%phmg_hrchy%lvl(i)%Xh%init(GLL, lx_lvls(i), lx_lvls(i), &
             lx_lvls(i))
        call this%phmg_hrchy%lvl(i)%dm_Xh%init(msh, this%phmg_hrchy%lvl(i)%Xh)
@@ -277,12 +290,12 @@ contains
        ksp_results = mg(lvl)%cheby_device%solve(Ax, z, &
             r%x, mg(lvl)%dm_Xh%size(), &
             mg(lvl)%coef, mg(lvl)%bclst, &
-            mg(lvl)%gs_h, niter = 11)
+            mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
     else
        ksp_results = mg(lvl)%cheby%solve(Ax, z, &
             r%x, mg(lvl)%dm_Xh%size(), &
             mg(lvl)%coef, mg(lvl)%bclst, &
-            mg(lvl)%gs_h, niter = 15)
+            mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
     end if
     call profiler_end_region('PHMG_PreSmooth', 9)
 
@@ -386,12 +399,12 @@ contains
        ksp_results = mg(lvl)%cheby_device%solve(Ax, z, &
             r%x, mg(lvl)%dm_Xh%size(), &
             mg(lvl)%coef, mg(lvl)%bclst, &
-            mg(lvl)%gs_h, niter = 11)
+            mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
     else
        ksp_results = mg(lvl)%cheby%solve(Ax, z, &
             r%x, mg(lvl)%dm_Xh%size(), &
             mg(lvl)%coef, mg(lvl)%bclst, &
-            mg(lvl)%gs_h, niter = 15)
+            mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
     end if
     call profiler_end_region('PHMG_PostSmooth', 9)
 
