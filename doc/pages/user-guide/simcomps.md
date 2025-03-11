@@ -30,7 +30,7 @@ in Neko. The list will be updated as new simcomps are added.
 - Computation of the derivative of a field \ref simcomp_derivative
 - Computation of forces and torque on a surface \ref simcomp_force_torque
 - Computation of the weak gradient of a field \ref simcomp_weak_grad
-- Computation of subgrid scale velocity via an LES model.
+- Computation of subgrid scale velocity via an LES model \ref simcomp_les_model
 - User defined components \ref user-file_simcomps
 - Fluid statistics simcomp, "fluid_stats", for more details see the [statistics guide](@ref statistics-guide)
 - Computation of the spectral error indicator \ref simcomp_speri
@@ -293,6 +293,12 @@ keywords:
 - `nut_field`: The name of the SGS viscosity field added to the registry.
   Defaults to `nut`. This allows to have two different LES models active, saved
   to different fields. For example, one for the scalar and one to the fluid.
+- `extrapolation`: Whether or not extrapolate the velocity to 
+  compute the eddy viscosity.
+  - `true`: the default option, extrapolate the velocity as the same order as 
+  the time scheme.
+  - `false`: disable the extrapolation. In this case, the estimation of the eddy
+  viscosity is of first order, while circumvent the risk of unstable extrapolation.
 
  ~~~~~~~~~~~~~~~{.json}
  {
