@@ -86,14 +86,14 @@ contains
     end if
 
     ! Read the parameters from the json file
-    call json_get(json, 'case.numerics.dealias', dealias)
-    call json_get(json, 'case.numerics.polynomial_order', order)
-    call json_get_or_default(json, 'case.numerics.oifs', oifs, .false.)
+    call json_get(json, 'dealias', dealias)
+    call json_get(json, 'polynomial_order', order)
+    call json_get_or_default(json, 'oifs', oifs, .false.)
 
-    call json_get_or_default(json, 'case.numerics.dealiased_polynomial_order', &
+    call json_get_or_default(json, 'dealiased_polynomial_order', &
                              lxd, ( 3 * (order + 1) ) / 2)
 
-    call json_get_or_default(json, 'case.numerics.target_cfl', ctarget, 1.9_rp)
+    call json_get_or_default(json, 'target_cfl', ctarget, 1.9_rp)
 
 
     if (oifs) then

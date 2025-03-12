@@ -86,7 +86,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                             | Positive real less than `1`                     | `0.2`         |
 | `end_time`                 | Final time at which the simulation is stopped.                                                        | Positive reals                                  | -             |
 | `job_timelimit`            | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
-| `output_at_end`            | Whether to always write all enabled output at the end of the run.                                    | `true` or `false`                               | `true`        |
+| `output_at_end`            | Whether to always write all enabled output at the end of the run.                                     | `true` or `false`                               | `true`        |
 
 ### Restarts and joblimit
 Restarts will restart the simulation from the exact state at a given time that
@@ -182,7 +182,7 @@ solver should be used for velocity.
 =======
 ### Boundary conditions {#case-file_fluid-boundary-conditions}
 The optional `boundary_conditions` keyword can be used to specify boundary
-conditions. The reason for it being optional, is that periodic bounary
+conditions. The reason for it being optional, is that periodic boundary
 conditions are built into the definition of the  mesh, so for a periodic box
 nothings needs to be added to the case file. The TGV example is such a case, for
 instance.
@@ -725,7 +725,7 @@ concisely directly in the table.
 ## Scalar {#case-file_scalar}
 The scalar object allows to add a scalar transport equation to the solution. The
 solution variable is called `s` by default, but can be controlled by the
- `field_name` parameters in the case file. In the fld files it is saved as
+ `field_name` entry in the case file. In the fld files, it is saved as
 `temperature`. Some properties of the object are inherited from `fluid`: the
 value of the density, and the output control.
 
@@ -816,6 +816,7 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | Name                           | Description                                                       | Admissible values                           | Default value |
 |--------------------------------|-------------------------------------------------------------------|---------------------------------------------|---------------|
 | `enabled`                      | Whether to enable the scalar computation.                         | `true` or `false`                           | `true`        |
+| `field_name`                   | The name of the solution in the field registry.                   | A string                                    | `s`           |
 | `Pe`                           | The Peclet number.                                                | Positive real                               | -             |
 | `cp`                           | Specific heat capacity.                                           | Positive real                               | -             |
 | `lambda`                       | Thermal conductivity.                                             | Positive real                               | -             |

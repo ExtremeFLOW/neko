@@ -162,13 +162,14 @@ contains
   !! @param wlag Lag arrays for the z velocity component.
   !! @param time_scheme The time-integration controller.
   !! @param rho The fluid density.
-  subroutine scalar_pnpn_init(this, msh, coef, gs, params, user, &
-       ulag, vlag, wlag, time_scheme, rho)
+  subroutine scalar_pnpn_init(this, msh, coef, gs, params, numerics_params, &
+       user, ulag, vlag, wlag, time_scheme, rho)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(in) :: msh
     type(coef_t), target, intent(in) :: coef
     type(gs_t), target, intent(inout) :: gs
     type(json_file), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: numerics_params
     type(user_t), target, intent(in) :: user
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
@@ -246,7 +247,7 @@ contains
 
     ! Initialize advection factory
     call json_get_or_default(params, 'advection', advection, .true.)
-    call advection_factory(this%adv, params, this%c_Xh, &
+    call advection_factory(this%adv, numerics_params, this%c_Xh, &
                            ulag, vlag, wlag, this%chkp%dtlag, &
                            this%chkp%tlag, time_scheme, .not. advection, &
                            this%slag)
@@ -473,7 +474,6 @@ contains
     logical, allocatable :: marked_zones(:)
     integer, allocatable :: zone_indices(:)
 
-
     if (this%params%valid_path('boundary_conditions')) then
        call this%params%info('boundary_conditions', &
             n_children = n_bcs)
@@ -537,6 +537,15 @@ contains
           end if
        end do
     else
+       ! Check that there are no labeled zones, i.e. all are periodic.
+       do i = 1, size(this%msh%labeled_zones)
+          if (this%msh%labeled_zones(i)%size .gt. 0) then
+             write(error_unit, '(A, A, A)') "*** ERROR ***: ", &
+                "No boundary_conditions entry in the case file for scalar ", &
+                this%s%name
+             error stop
+          end if
+       end do
     end if
   end subroutine scalar_pnpn_setup_bcs_
 

@@ -160,8 +160,8 @@ module scalar_scheme
 
   !> Abstract interface to initialize a scalar formulation
   abstract interface
-     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, user, &
-          ulag, vlag, wlag, time_scheme, rho)
+     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, &
+          numerics_params, user, ulag, vlag, wlag, time_scheme, rho)
        import scalar_scheme_t
        import json_file
        import coef_t
@@ -176,6 +176,7 @@ module scalar_scheme
        type(coef_t), target, intent(in) :: coef
        type(gs_t), target, intent(inout) :: gs
        type(json_file), target, intent(inout) :: params
+       type(json_file), target, intent(inout) :: numerics_params
        type(user_t), target, intent(in) :: user
        type(field_series_t), target, intent(in) :: ulag, vlag, wlag
        type(time_scheme_controller_t), target, intent(in) :: time_scheme

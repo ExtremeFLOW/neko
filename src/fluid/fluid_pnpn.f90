@@ -58,7 +58,8 @@ module fluid_pnpn
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_module, only : json_file, json_core, json_value
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_extract_object
   use json_module, only : json_file
   use ax_product, only : ax_t, ax_helm_factory
   use field, only : field_t
@@ -250,6 +251,7 @@ contains
     character(len=:), allocatable :: solver_type, precon_type
     logical :: monitor, found
     logical :: advection
+    type(json_file)  :: numerics_params
 
     call this%free()
 
@@ -351,7 +353,8 @@ contains
 
     ! Initialize the advection factory
     call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
-    call advection_factory(this%adv, params, this%c_Xh, &
+    call json_extract_object(params, 'case.numerics', numerics_params)
+    call advection_factory(this%adv, numerics_params, this%c_Xh, &
          this%ulag, this%vlag, this%wlag, &
          this%chkp%dtlag, this%chkp%tlag, this%ext_bdf, &
          .not. advection)
