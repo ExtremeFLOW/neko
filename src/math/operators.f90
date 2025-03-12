@@ -388,6 +388,7 @@ contains
                work1, work2, coef, event)
        else
           call opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, coef)
+       end if
     else
        call opr_cpu_curl(w1, w2, w3, u1, u2, u3, work1, work2, coef)
     end if
