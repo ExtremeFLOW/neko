@@ -89,19 +89,19 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `output_at_end`            | Whether to always write all enabled output at the end of the run.                                    | `true` or `false`                               | `true`        |
 
 ### Restarts and joblimit
-Restarts will restart the simulation from the exact state at a given time that 
+Restarts will restart the simulation from the exact state at a given time that
 the checkpoint was written. This means that the flow field and potential scalars
 will be at the exact same values before as after restarts. However, derived
 quantities from the flow field and any observables are not guaranteed to be
 restarted. In addition, Neko does not guarantee that any files are not
 overwritten. As such, it is recommended to run in different directories
-if doing large scale simulations that require many restarts. Unless 
+if doing large scale simulations that require many restarts. Unless
 `output_at_end` is disabled Neko will also ensure that all output is written to
 file when reaching the `end_time` or the `job_timelimit`. In particular, unless
-`output_checkpoints` and `output_at_end` are set to false a checkpoint at the 
-final time will be written as to avoid losing progress as far as possible. 
+`output_checkpoints` and `output_at_end` are set to false a checkpoint at the
+final time will be written as to avoid losing progress as far as possible.
 
-@attention For simulations requiring restarts, it is recommended to run each 
+@attention For simulations requiring restarts, it is recommended to run each
 restart in a different output directory as a precaution to avoid potential overwritings of files.
 
 ### Boundary type numbering in the `output_boundary` field
@@ -444,11 +444,11 @@ The following types are currently implemented.
 
 1. `constant`, constant forcing. Strength defined by the `values` array with 3
    reals corresponding to the 3 components of the forcing.
-2. `boussinesq`, a source term introducing boyancy based on the Boussinesq
-   approximation, \f$ \rho \beta (T - T_{ref}) \cdot \mathbf{g} \f$. Here, \f$ \rho \f$ is
-   density, \f$ \beta \f$ the thermal expansion coefficient, \f$ \mathbf{g} \f$ the
-   gravity vector, and \f$ T_{ref} \f$ a reference value of the scalar, typically
-   temperature.
+2. `boussinesq`, a source term introducing buoyancy based on the Boussinesq
+   approximation, \f$ \rho \beta (T - T_{ref}) \cdot \mathbf{g} \f$. Here, \f$
+   \rho \f$ is density, \f$ \beta \f$ the thermal expansion coefficient, \f$
+   \mathbf{g} \f$ the gravity vector, and \f$ T_{ref} \f$ a reference value of
+   the scalar, typically temperature.
 
    Reads the following entries:
    - `scalar_field`: The name of the scalar that drives the source term,
@@ -723,12 +723,11 @@ concisely directly in the table.
 | `advection`                             | Whether to compute the advection term.                                                            | `true` or `false`                                           | `true`        |
 
 ## Scalar {#case-file_scalar}
-The scalar object allows to add a scalar transport equation to the solution.
-The solution variable is called `s`, but saved as `temperature` in the fld
- files.
-Some properties of the object are inherited from `fluid`: the properties of the
-linear solver, the value of the density, and the output
-control.
+The scalar object allows to add a scalar transport equation to the solution. The
+solution variable is called `s` by default, but can be controlled by the
+ `field_name` parameters in the case file. In the fld files it is saved as
+`temperature`. Some properties of the object are inherited from `fluid`: the
+value of the density, and the output control.
 
 ### Material properties
 
