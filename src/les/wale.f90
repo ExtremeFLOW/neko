@@ -158,7 +158,7 @@ contains
 
     ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error("Wale model not implemented on accelarators jet.")
+       call neko_error("Wale model not implemented on accelarators yet.")
     else
        call wale_compute_cpu(this%if_ext, t, tstep, this%coef, &
             this%nut, this%delta, this%c_w)
