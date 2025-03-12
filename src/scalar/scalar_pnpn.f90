@@ -245,7 +245,7 @@ contains
     call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
 
     ! Initialize advection factory
-    call json_get_or_default(params, 'case.scalar.advection', advection, .true.)
+    call json_get_or_default(params, 'advection', advection, .true.)
     call advection_factory(this%adv, params, this%c_Xh, &
                            ulag, vlag, wlag, this%chkp%dtlag, &
                            this%chkp%tlag, time_scheme, .not. advection, &
@@ -474,11 +474,11 @@ contains
     integer, allocatable :: zone_indices(:)
 
 
-    if (this%params%valid_path('case.scalar.boundary_conditions')) then
-       call this%params%info('case.scalar.boundary_conditions', &
+    if (this%params%valid_path('boundary_conditions')) then
+       call this%params%info('boundary_conditions', &
             n_children = n_bcs)
        call this%params%get_core(core)
-       call this%params%get('case.scalar.boundary_conditions', bc_object, found)
+       call this%params%get('boundary_conditions', bc_object, found)
 
        call this%bcs%init(n_bcs)
 
@@ -536,6 +536,7 @@ contains
              error stop
           end if
        end do
+    else
     end if
   end subroutine scalar_pnpn_setup_bcs_
 

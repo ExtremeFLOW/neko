@@ -225,7 +225,7 @@ contains
   !! @param msh The mesh.
   !! @param c_Xh The coefficients.
   !! @param gs_Xh The gather-scatter.
-  !! @param params The case parameter file in json.
+  !! @param params The parameter dictionary in json.
   !! @param scheme The name of the scalar scheme.
   !! @param user Type with user-defined procedures.
   !! @param rho The density of the fluid.
@@ -245,7 +245,7 @@ contains
     logical :: logical_val
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val, ierr
-    character(len=:), allocatable :: solver_type, solver_precon
+    character(len=:), allocatable :: solver_type, solver_precon, field_name
     real(kind=rp) :: GJP_param_a, GJP_param_b
 
     this%u => neko_field_registry%get_field('u')
@@ -253,17 +253,17 @@ contains
     this%w => neko_field_registry%get_field('w')
 
     call neko_log%section('Scalar')
-    call json_get(params, 'case.scalar.solver.type', solver_type)
-    call json_get(params, 'case.scalar.solver.preconditioner', &
+    call json_get(params, 'solver.type', solver_type)
+    call json_get(params, 'solver.preconditioner', &
          solver_precon)
-    call json_get(params, 'case.scalar.solver.absolute_tolerance', &
+    call json_get(params, 'solver.absolute_tolerance', &
          solver_abstol)
 
     call json_get_or_default(params, &
-         'case.scalar.solver.projection_space_size', &
+         'solver.projection_space_size', &
          this%projection_dim, 20)
     call json_get_or_default(params, &
-         'case.scalar.solver.projection_hold_steps', &
+         'solver.projection_hold_steps', &
          this%projection_activ_step, 5)
 
 
@@ -278,10 +278,14 @@ contains
     this%dm_Xh => this%u%dof
     this%params => params
     this%msh => msh
-    if (.not. neko_field_registry%field_exists('s')) then
-       call neko_field_registry%add_field(this%dm_Xh, 's')
+
+    call json_get_or_default(params, 'field_name', field_name, 's')
+
+    if (.not. neko_field_registry%field_exists(field_name)) then
+       call neko_field_registry%add_field(this%dm_Xh, field_name)
     end if
-    this%s => neko_field_registry%get_field('s')
+
+    this%s => neko_field_registry%get_field(field_name)
 
     call this%slag%init(this%s, 2)
 
@@ -304,9 +308,9 @@ contains
     !
     ! Turbulence modelling and variable material properties
     !
-    if (params%valid_path('case.scalar.nut_field')) then
-       call json_get(params, 'case.scalar.Pr_t', this%pr_turb)
-       call json_get(params, 'case.scalar.nut_field', this%nut_field_name)
+    if (params%valid_path('nut_field')) then
+       call json_get(params, 'Pr_t', this%pr_turb)
+       call json_get(params, 'nut_field', this%nut_field_name)
        this%variable_material_properties = .true.
     else
        this%nut_field_name = ""
@@ -332,14 +336,14 @@ contains
 
     ! Initialize the source term
     call this%source_term%init(this%f_Xh, this%c_Xh, user)
-    call this%source_term%add(params, 'case.scalar.source_terms')
+    call this%source_term%add(params, 'source_terms')
 
     ! todo parameter file ksp tol should be added
     call json_get_or_default(params, &
-         'case.fluid.velocity_solver.max_iterations', &
+         'solver.max_iterations', &
          integer_val, KSP_MAX_ITER)
     call json_get_or_default(params, &
-         'case.fluid.velocity_solver.monitor', &
+         'solver.monitor', &
          logical_val, .false.)
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, integer_val, solver_abstol, logical_val)
@@ -348,21 +352,21 @@ contains
 
     ! Initiate gradient jump penalty
     call json_get_or_default(params, &
-         'case.scalar.gradient_jump_penalty.enabled',&
+         'gradient_jump_penalty.enabled',&
          this%if_gradient_jump_penalty, .false.)
 
     if (this%if_gradient_jump_penalty .eqv. .true.) then
        if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
           call json_get_or_default(params, &
-               'case.scalar.gradient_jump_penalty.tau',&
+               'gradient_jump_penalty.tau',&
                GJP_param_a, 0.02_rp)
           GJP_param_b = 0.0_rp
        else
           call json_get_or_default(params, &
-               'case.scalar.gradient_jump_penalty.scaling_factor',&
+               'gradient_jump_penalty.scaling_factor',&
                GJP_param_a, 0.8_rp)
           call json_get_or_default(params, &
-               'case.scalar.gradient_jump_penalty.scaling_exponent',&
+               'gradient_jump_penalty.scaling_exponent',&
                GJP_param_b, 4.0_rp)
        end if
        call this%gradient_jump_penalty%init(params, this%dm_Xh, this%c_Xh, &
@@ -525,7 +529,7 @@ contains
   end subroutine scalar_scheme_update_material_properties
 
   !> Set lamdba and cp.
-  !! @param params The case parameter file.
+  !! @param params The case file configuration dictionary.
   !! @param user The user interface.
   subroutine scalar_scheme_set_material_properties(this, params, user)
     class(scalar_scheme_t), intent(inout) :: this
@@ -546,13 +550,13 @@ contains
        call user%material_properties(0.0_rp, 0, dummy_rho, dummy_mu, &
             this%cp, this%lambda, params)
     else
-       if (params%valid_path('case.scalar.Pe') .and. &
-            (params%valid_path('case.scalar.lambda') .or. &
-            params%valid_path('case.scalar.cp'))) then
+       if (params%valid_path('Pe') .and. &
+            (params%valid_path('lambda') .or. &
+            params%valid_path('cp'))) then
           call neko_error("To set the material properties for the scalar,&
                & either provide Pe OR lambda and cp in the case file.")
           ! Non-dimensional case
-       else if (params%valid_path('case.scalar.Pe')) then
+       else if (params%valid_path('Pe')) then
           write(log_buf, '(A)') 'Non-dimensional scalar material properties &
                & input.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
@@ -562,7 +566,7 @@ contains
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
           ! Read Pe into lambda for further manipulation.
-          call json_get(params, 'case.scalar.Pe', this%lambda)
+          call json_get(params, 'Pe', this%lambda)
           write(log_buf, '(A,ES13.6)') 'Pe         :', this%lambda
           call neko_log%message(log_buf)
 
@@ -573,8 +577,8 @@ contains
           this%lambda = 1.0_rp/this%lambda
           ! Dimensional case
        else
-          call json_get(params, 'case.scalar.lambda', this%lambda)
-          call json_get(params, 'case.scalar.cp', this%cp)
+          call json_get(params, 'lambda', this%lambda)
+          call json_get(params, 'cp', this%cp)
        end if
 
     end if

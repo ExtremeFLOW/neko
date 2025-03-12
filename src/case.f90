@@ -55,7 +55,7 @@ module case
   use user_intf, only : user_t
   use scalar_pnpn, only : scalar_pnpn_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, json_extract_object
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
   implicit none
@@ -147,6 +147,7 @@ contains
     character(len = :), allocatable :: string_val
     integer :: output_dir_len
     integer :: precision
+    type(json_file) :: scalar_config
 
     !
     ! Load mesh
@@ -248,8 +249,11 @@ contains
        allocate(this%scalar)
        this%scalar%chkp%tlag => this%tlag
        this%scalar%chkp%dtlag => this%dtlag
+
+       call json_extract_object(this%params, 'case.scalar', scalar_config)
+
        call this%scalar%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-            this%params, this%usr, this%fluid%ulag, this%fluid%vlag, &
+            scalar_config, this%usr, this%fluid%ulag, this%fluid%vlag, &
             this%fluid%wlag, this%fluid%ext_bdf, this%fluid%rho)
 
        call this%fluid%chkp%add_scalar(this%scalar%s)
