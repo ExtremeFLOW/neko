@@ -1034,9 +1034,7 @@ contains
        ! Check that there are no labeled zones, i.e. all are periodic.
        do i = 1, size(this%msh%labeled_zones)
           if (this%msh%labeled_zones(i)%size .gt. 0) then
-             write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
-                  "No boundary_conditions entry in the case file!"
-             error stop
+             call neko_error("No boundary_conditions entry in the case file!")
           end if
        end do
 
