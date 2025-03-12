@@ -251,7 +251,7 @@ contains
     character(len=:), allocatable :: solver_type, precon_type
     logical :: monitor, found
     logical :: advection
-    type(json_file)  :: numerics_params
+    type(json_file) :: numerics_params
 
     call this%free()
 
