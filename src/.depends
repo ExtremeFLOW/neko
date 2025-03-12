@@ -91,7 +91,7 @@ math/bcknd/sx/sx_cfl.lo : math/bcknd/sx/sx_cfl.f90 math/bcknd/sx/opr_sx.lo
 math/bcknd/sx/sx_lambda2.lo : math/bcknd/sx/sx_lambda2.f90 math/math.lo math/bcknd/sx/opr_sx.lo 
 math/bcknd/sx/sx_convect_scalar.lo : math/bcknd/sx/sx_convect_scalar.f90 math/math.lo config/num_types.lo math/bcknd/sx/opr_sx.lo 
 math/bcknd/sx/sx_set_convect_rst.lo : math/bcknd/sx/sx_set_convect_rst.f90 config/num_types.lo math/bcknd/sx/opr_sx.lo 
-math/operators.lo : math/operators.f90 comm/comm.lo common/utils.lo field/scratch_registry.lo math/bcknd/device/device_math.lo device/device.lo math/math.lo sem/interpolation.lo field/field.lo sem/coef.lo sem/space.lo math/bcknd/device/opr_device.lo math/bcknd/xsmm/opr_xsmm.lo math/bcknd/sx/opr_sx.lo math/bcknd/cpu/opr_cpu.lo config/num_types.lo config/neko_config.lo 
+math/operators.lo : math/operators.f90 comm/comm.lo field/scratch_registry.lo math/bcknd/device/device_math.lo device/device.lo math/math.lo sem/interpolation.lo field/field.lo sem/coef.lo sem/space.lo math/bcknd/device/opr_device.lo math/bcknd/xsmm/opr_xsmm.lo math/bcknd/sx/opr_sx.lo math/bcknd/cpu/opr_cpu.lo config/num_types.lo config/neko_config.lo 
 math/bcknd/cpu/opr_cpu.lo : math/bcknd/cpu/opr_cpu.f90 math/mathops.lo sem/interpolation.lo gs/gather_scatter.lo field/field.lo math/math.lo sem/coef.lo sem/space.lo config/num_types.lo 
 math/bcknd/sx/opr_sx.lo : math/bcknd/sx/opr_sx.f90 math/mathops.lo field/field.lo math/math.lo sem/coef.lo sem/space.lo config/num_types.lo sem/interpolation.lo gs/gather_scatter.lo 
 math/bcknd/xsmm/opr_xsmm.lo : math/bcknd/xsmm/opr_xsmm.F90 math/mathops.lo gs/gather_scatter.lo sem/interpolation.lo field/field.lo mesh/mesh.lo math/math.lo sem/coef.lo sem/space.lo math/mxm_wrapper.lo config/num_types.lo 
