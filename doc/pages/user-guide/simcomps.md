@@ -281,6 +281,8 @@ keywords:
     - `c`: The model constant, defaults to 0.07.
   - `sigma`: The Sigma model. Configured by the following additional keyword:
     - `c`: The model constant, defaults to 1.35.
+  - `wale`: The WALE model. Configured by the following additional keyword:
+    - `c_w`: The WALE constant, defaults to 0.55.
 - `les_delta`: Selects the way to compute the LES length scale. Currently three
   alternatives are provided and the default one is `pointwise` if 
   nothing is specified:
