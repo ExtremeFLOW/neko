@@ -1,4 +1,4 @@
-AC_PREREQ([2.71])
+AC_PREREQ([2.69])
 AC_INIT([neko],[0.9.99])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
@@ -31,7 +31,7 @@ AC_ARG_ENABLE(device-mpi,
 	      AS_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
 	      [enable_device_mpi=${enableval}], [enable_device_mpi=no])
 
-AC_ARG_ENABLE(openmp, AS_HELP_STRING([--enable-openmp],[Enable OpenMP]),
+AC_ARG_ENABLE(openmp, AC_HELP_STRING([--enable-openmp], [Enable OpenMP]),
               [enable_openmp=${enableval}], [enable_openmp=no])
 
 # Test for a sane fortran environment (^-^)
