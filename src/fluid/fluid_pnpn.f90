@@ -908,7 +908,7 @@ contains
                 write(error_unit, '(A, A, I0, A, A, I0, A)') "*** ERROR ***: ",&
                      "Zone index ", zone_indices(j), &
                      " is invalid as this zone has 0 size, meaning it ", &
-                     "does not in the mesh. Check fluid boundary condition ", &
+                     "is not in the mesh. Check fluid boundary condition ", &
                      i, "."
                 error stop
              end if
@@ -1030,6 +1030,16 @@ contains
           end if
 
        end do
+    else
+       ! Check that there are no labeled zones, i.e. all are periodic.
+       do i = 1, size(this%msh%labeled_zones)
+          if (this%msh%labeled_zones(i)%size .gt. 0) then
+             write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
+                  "No boundary_conditions entry in the case file!"
+             error stop
+          end if
+       end do
+
     end if
 
     call this%bc_prs_surface%finalize()
