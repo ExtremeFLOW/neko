@@ -53,6 +53,7 @@ submodule (simulation_component) simulation_component_fctry
      "les_model", &
      "field_writer", &
      "fluid_stats", &
+     "weak_grad", &
      "force_torque", &
      "spectral_error"]
 
