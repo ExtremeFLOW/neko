@@ -55,7 +55,7 @@ module case
   use user_intf, only : user_t
   use scalar_pnpn, only : scalar_pnpn_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, json_extract_object
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
   implicit none
@@ -147,6 +147,7 @@ contains
     character(len = :), allocatable :: string_val
     integer :: output_dir_len
     integer :: precision
+    type(json_file) :: json_subdict
 
     !
     ! Setup user defined functions
@@ -269,13 +270,15 @@ contains
     !
     call json_get(this%params, 'case.fluid.initial_condition.type',&
          string_val)
+    call json_extract_object(this%params, 'case.fluid.initial_condition', &
+       json_subdict)
 
     call neko_log%section("Fluid initial condition ")
 
     if (trim(string_val) .ne. 'user') then
        call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, &
             this%fluid%p, this%fluid%c_Xh, this%fluid%gs_Xh, string_val, &
-            this%params)
+            json_subdict)
     else
        call json_get(this%params, 'case.fluid.scheme', string_val)
        if (trim(string_val) .eq. 'compressible') then
@@ -296,12 +299,14 @@ contains
 
        call json_get(this%params, 'case.scalar.initial_condition.type', &
             string_val)
+       call json_extract_object(this%params, 'case.scalar.initial_condition', &
+          json_subdict)
 
        call neko_log%section("Scalar initial condition ")
 
        if (trim(string_val) .ne. 'user') then
           call set_scalar_ic(this%scalar%s, &
-               this%scalar%c_Xh, this%scalar%gs_Xh, string_val, this%params)
+               this%scalar%c_Xh, this%scalar%gs_Xh, string_val, json_subdict)
        else
           call set_scalar_ic(this%scalar%s, &
                this%scalar%c_Xh, this%scalar%gs_Xh, this%usr%scalar_user_ic, &
