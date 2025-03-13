@@ -373,8 +373,17 @@ The means of prescribing the values are controlled via the `type` keyword:
 file documentation.
 2. `uniform`, the value is a constant vector, looked up under the `value`
    keyword.
-3. `blasius`, a Blasius profile is prescribed. Its properties are looked up
-   in the `case.fluid.blasius` object, see below.
+3. `blasius`, a Blasius profile is prescribed. The boundary cannot be tilted 
+  with respect to the coordinate axes.
+   It requires the following parameters:
+   1. `delta`, the thickness of the boundary layer.
+   2. `freestream_velocity`, the velocity value in the free stream.
+   3. `approximation`, the numerical approximation to the Blasius profile.
+      - `linear`, linear approximation.
+      - `quadratic`, quadratic approximation.
+      - `cubic`, cubic approximation.
+      - `quartic`, quartic approximation.
+      - `sin`, sine function approximation.
 4. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
    point zone is specified by the `name` keyword, and should be defined in the
@@ -410,20 +419,9 @@ file documentation.
    Interpolation will always be performed if `"interpolate"` is set
    to `true` even if the field file matches with the current simulation.
 
-### Blasius profile
-The `blasius` object is used to specify the Blasius profile that can be used for the
-initial and inflow condition.
-The boundary cannot be tilted with respect to the coordinate axes.
-It requires  the following parameters:
 
-1. `delta`, the thickness of the boundary layer.
-2. `freestream_velocity`, the velocity value in the free stream.
-3. `approximation`, the numerical approximation to the Blasius profile.
-   - `linear`, linear approximation.
-   - `quadratic`, quadratic approximation.
-   - `cubic`, cubic approximation.
-   - `quartic`, quartic approximation.
-   - `sin`, sine function approximation.
+
+
 
 ### Source terms {#case-file_fluid-source-term}
 The `source_terms` object should be used to specify the source terms in the
