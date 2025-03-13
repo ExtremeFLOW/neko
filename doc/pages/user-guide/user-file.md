@@ -97,7 +97,7 @@ executed, regardless of what is set in the case file:
 
 ### Initializing and finalizing {#user-file_init-and-final}
 
-Threeo subroutines `user_startup`, `user_init_modules` and
+Three subroutines `user_startup`, `user_init_modules` and
 `user_finalize_modules` may be used to initialize/finalize any user defined
 variables, external objects, or processes.  The `user_startup` routine is called
 immediately after the case file is read in, meaning that no important objects
