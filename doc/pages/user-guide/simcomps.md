@@ -30,7 +30,7 @@ in Neko. The list will be updated as new simcomps are added.
 - Computation of the derivative of a field \ref simcomp_derivative
 - Computation of forces and torque on a surface \ref simcomp_force_torque
 - Computation of the weak gradient of a field \ref simcomp_weak_grad
-- Computation of subgrid scale velocity via an LES model.
+- Computation of subgrid-scale (SGS) eddy viscosity via a SGS model \ref simcomp_les_model
 - User defined components \ref user-file_simcomps
 - Fluid statistics simcomp, "fluid_stats", for more details see the [statistics guide](@ref statistics-guide)
 - Computation of the spectral error indicator \ref simcomp_speri
@@ -266,13 +266,13 @@ writing the computed fields to disk via the usual common keywords.
  ~~~~~~~~~~~~~~~
 
 ### les_model {#simcomp_les_model}
-Computes a subgrid viscosity field using an LES model. **Note*:* The simcomp
-*only* computes the viscosity field. You have to select the corresponding
+Computes a subgrid eddy viscosity field using an SGS model. **Note*:* The simcomp
+*only* computes the eddy viscosity field. You have to select the corresponding
 `nut_field` in the fluid and/or scalar JSON object to actually enable LES, see
 corresponding documentation. The simcomp is controlled by the following
 keywords:
 
-- `model`: Selects the LES model. Currently available models are:
+- `model`: Selects the SGS model. Currently available models are:
   - `smagorinsky`: The standard Smagorinsky model. Configured by the
     following additional keyword:
     - `c_s`: The Smagorinsky constant, defaults to 0.17.
@@ -283,7 +283,7 @@ keywords:
     - `c`: The model constant, defaults to 1.35.
   - `wale`: The WALE model. Configured by the following additional keyword:
     - `c_w`: The WALE constant, defaults to 0.55.
-- `les_delta`: Selects the way to compute the LES length scale. Currently three
+- `les_delta`: Selects the way to compute the LES filter length scale. Currently three
   alternatives are provided and the default one is `pointwise` if 
   nothing is specified:
   - `pointwise`: Computes a local value based on the spacing of the GLL nodes.
@@ -292,9 +292,15 @@ keywords:
   - `elementwise_max`: Computes a single value for the whole element based on the
     maximum spacing of the GLL nodes within the element.
   The `les_delta` field is added to the registry and written to the .fld files.
-- `nut_field`: The name of the SGS viscosity field added to the registry.
-  Defaults to `nut`. This allows to have two different LES models active, saved
+- `nut_field`: The name of the SGS eddy viscosity field added to the registry.
+  Defaults to `nut`. This allows to have two different SGS models active, saved
   to different fields. For example, one for the scalar and one to the fluid.
+- `extrapolation`: Whether or not extrapolate the velocity to 
+  compute the eddy viscosity.
+  - `true`: the default option, extrapolate the velocity as the same order as 
+  the time scheme.
+  - `false`: disable the extrapolation. In this case, the estimation of the eddy
+  viscosity is of first order, while circumvent the risk of unstable extrapolation.
 
  ~~~~~~~~~~~~~~~{.json}
  {
