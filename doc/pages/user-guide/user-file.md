@@ -215,12 +215,9 @@ example](https://github.com/ExtremeFLOW/neko/blob/564686b127ff75a362a06126c6b23e
     integer, intent(in) :: tstep
     real(kind=rp), intent(inout) :: rho, mu, cp, lambda
     type(json_file), intent(inout) :: params
-    real(kind=rp) :: Re
 
-    call json_get(params, "case.fluid.Ra", Ra)
-    call json_get(params, "case.scalar.Pr", Pr)
+    ! Re and Pr computed in `user_startup`
 
-    Re = sqrt(Ra / Pr)
     mu = 1.0_rp / Re
     lambda = mu / Pr
     rho = 1.0_rp
