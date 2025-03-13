@@ -69,7 +69,7 @@ contains
     type(field_t), pointer :: g11, g12, g13, g21, g22, g23, g31, g32, g33
     ! strain rate tensor
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23
-    
+
     real(kind=rp) :: gsqr_11, gsqr_12, gsqr_13, gsqr_21, gsqr_22, gsqr_23, gsqr_31, gsqr_32, gsqr_33
     real(kind=rp) :: sd11, sd22, sd33, sd12, sd13, sd23
     real(kind=rp) :: Sdij_Sdij
@@ -88,7 +88,7 @@ contains
        v => neko_field_registry%get_field_by_name("v")
        w => neko_field_registry%get_field_by_name("w")
     end if
-    
+
     call neko_scratch_registry%request_field(g11, temp_indices(1))
     call neko_scratch_registry%request_field(g12, temp_indices(2))
     call neko_scratch_registry%request_field(g13, temp_indices(3))
@@ -105,7 +105,7 @@ contains
     call neko_scratch_registry%request_field(s12, temp_indices(13))
     call neko_scratch_registry%request_field(s13, temp_indices(14))
     call neko_scratch_registry%request_field(s23, temp_indices(15))
-      
+
 
     ! Compute the velocity gradient tensor g
     call dudxyz(g11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
@@ -140,7 +140,7 @@ contains
     call coef%gs_h%op(s13, GS_OP_ADD)
     call coef%gs_h%op(s23, GS_OP_ADD)
 
-    
+
     do concurrent(e = 1:coef%msh%nelv)
        do concurrent(i = 1:coef%Xh%lxyz)
           ! gij^2 = g_ik * g_kj
@@ -184,10 +184,10 @@ contains
           Sdij_Sdij = sd11*sd11 + sd22*sd22 + sd33*sd33 + &
                             2.0_rp * (sd12*sd12 + sd13*sd13 + sd23*sd23)
           ! Sij*Sij
-          Sij_Sij = s11%x(i,1,1,e)*s11%x(i,1,1,e) +  s22%x(i,1,1,e)*s22%x(i,1,1,e) + &
+          Sij_Sij = s11%x(i,1,1,e)*s11%x(i,1,1,e) + s22%x(i,1,1,e)*s22%x(i,1,1,e) + &
                     s33%x(i,1,1,e)*s33%x(i,1,1,e) + 2.0_rp * (s12%x(i,1,1,e)*s12%x(i,1,1,e) + &
                     s13%x(i,1,1,e)*s13%x(i,1,1,e) + s23%x(i,1,1,e)*s23%x(i,1,1,e))
-          
+
           ! Wale operator
           OP_wale = Sdij_Sdij**(3.0_rp / 2.0_rp) / &
                     max((Sij_Sij**(5.0_rp / 2.0_rp) + Sdij_Sdij**(5.0_rp / 4.0_rp)), NEKO_EPS)
