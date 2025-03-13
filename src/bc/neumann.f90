@@ -60,7 +60,7 @@ module neumann
      procedure, pass(this) :: init => neumann_init
      !> Constructor from components
      procedure, pass(this) :: init_from_components => &
-        neumann_init_from_components
+          neumann_init_from_components
      procedure, pass(this) :: flux => neumann_flux
      !> Set the flux using a scalar.
      procedure, pass(this) :: set_flux_scalar => neumann_set_flux_scalar
@@ -109,7 +109,7 @@ contains
   subroutine neumann_apply_scalar(this, x, n, t, tstep, strong)
     class(neumann_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
@@ -129,16 +129,16 @@ contains
                this%coef%Xh%lx)
           select case (facet)
           case (1,2)
-              x(k) = x(k) + this%flux_(i)*this%coef%area(idx(2), idx(3), facet,&
+             x(k) = x(k) + this%flux_(i)*this%coef%area(idx(2), idx(3), facet,&
                   idx(4))
           case (3,4)
-              x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(3), facet,&
+             x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(3), facet,&
                   idx(4))
           case (5,6)
-              x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(2), facet,&
+             x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(2), facet,&
                   idx(4))
           end select
-      end do
+       end do
     end if
   end subroutine neumann_apply_scalar
 
@@ -147,13 +147,13 @@ contains
   subroutine neumann_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(neumann_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
-    real(kind=rp), intent(inout),  dimension(n) :: y
-    real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
-    if (.not. this%uniform_0) then
+    if (.not. this%uniform_0 .and. this%msk(0) .gt. 0) then
        call neko_error("Neumann bc not implemented for vectors")
     end if
   end subroutine neumann_apply_vector
@@ -167,7 +167,7 @@ contains
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
 
-    if (.not. this%uniform_0) then
+    if (.not. this%uniform_0 .and. this%msk(0) .gt. 0) then
        call neko_error("Neumann bc not implemented on the device")
     end if
   end subroutine neumann_apply_scalar_dev
@@ -183,7 +183,7 @@ contains
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
 
-    if (.not. this%uniform_0) then
+    if (.not. this%uniform_0 .and. this%msk(0) .gt. 0) then
        call neko_error("Neumann bc not implemented on the device")
     end if
 
@@ -242,7 +242,7 @@ contains
     do i = 1,this%msk(0)
        this%uniform_0 = abscmp(flux(i),0.0_rp) .and. this%uniform_0
     end do
-    
+
   end subroutine neumann_set_flux_array
 
 end module neumann
