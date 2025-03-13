@@ -148,6 +148,8 @@ contains
     integer :: output_dir_len
     integer :: precision
 
+    call this%usr%user_startup(this%params)
+
     !
     ! Load mesh
     !

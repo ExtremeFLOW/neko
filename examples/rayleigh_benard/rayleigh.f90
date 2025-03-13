@@ -14,7 +14,15 @@ contains
     u%fluid_user_f_vector => forcing
     u%scalar_user_bc => scalar_bc
     u%material_properties => set_material_properties
+    u%user_startup => startup
   end subroutine user_setup
+
+  subroutine startup(params)
+    type(json_file), intent(inout) :: params
+
+    call json_get(params, "case.fluid.Ra", Ra)
+    call json_get(params, "case.scalar.Pr", Pr)
+  end subroutine startup
 
   subroutine set_material_properties(t, tstep, rho, mu, cp, lambda, params)
     real(kind=rp), intent(in) :: t
@@ -22,9 +30,6 @@ contains
     real(kind=rp), intent(inout) :: rho, mu, cp, lambda
     type(json_file), intent(inout) :: params
     real(kind=rp) :: Re
-
-    call json_get(params, "case.fluid.Ra", Ra)
-    call json_get(params, "case.scalar.Pr", Pr)
 
     Re = 1.0_rp / Pr
 
