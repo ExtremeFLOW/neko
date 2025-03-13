@@ -80,18 +80,18 @@ contains
                 rand = cos(real(e+s%msh%offset_el,rp)*real(i*j*k,rp))
                 z = s%dof%z(i,j,k,e)
                 s%x(i,j,k,e) = 1-z + 0.0001* rand*&
-                                     sin(4*pi/4.5*s%dof%x(i,j,k,e)) &
-                * sin(4*pi/4.5*s%dof%y(i,j,k,e))
+                     sin(4*pi/4.5*s%dof%x(i,j,k,e)) &
+                     * sin(4*pi/4.5*s%dof%y(i,j,k,e))
 
-            end do
+             end do
           end do
        end do
     end do
 
     if ((NEKO_BCKND_DEVICE .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-       .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(s%x, s%x_d, s%dof%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync=.false.)
     end if
 
 
@@ -112,7 +112,7 @@ contains
     ta2pr = ta2*Pr
 
     if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-       .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_cmult2(f%u_d,v%x_d,Ta2Pr,f%dm%size())
        call device_cmult2(f%v_d,u%x_d,Ta2Pr,f%dm%size())
        call device_cmult2(f%w_d,s%x_d,rapr,f%dm%size())

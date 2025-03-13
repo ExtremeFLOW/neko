@@ -88,14 +88,14 @@ contains
                 r = sqrt(s%dof%x(i,j,k,e)**2+s%dof%y(i,j,k,e)**2)
                 z = s%dof%z(i,j,k,e)
                 s%x(i,j,k,e) = 1-z + 0.0001*rand*s%dof%x(i,j,k,e)*&
-                                                    sin(3*pi*r/0.05_rp)*sin(10*pi*z)
+                     sin(3*pi*r/0.05_rp)*sin(10*pi*z)
              end do
           end do
        end do
     end do
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(s%x, s%x_d, s%dof%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync=.false.)
     end if
 
   end subroutine set_initial_conditions_for_s

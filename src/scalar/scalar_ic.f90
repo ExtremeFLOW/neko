@@ -169,7 +169,7 @@ contains
     n = s%dof%size()
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(s%x, s%x_d, n, &
-                          HOST_TO_DEVICE, sync = .false.)
+            HOST_TO_DEVICE, sync = .false.)
     end if
 
     ! Ensure continuity across elements for initial conditions
@@ -309,11 +309,11 @@ contains
 
           if (sample_mesh_idx .eq. -1) &
                call neko_error("Invalid file name for the initial condition. &
-&The file format must be e.g. 'mean0.f00001'")
+               &The file format must be e.g. 'mean0.f00001'")
 
           write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance
           call neko_log%message(log_buf)
-          write (log_buf, '(A,A)')     "Mesh file     : ", &
+          write (log_buf, '(A,A)') "Mesh file     : ", &
                trim(mesh_file_name)
           call neko_log%message(log_buf)
 
@@ -342,10 +342,10 @@ contains
 
     if (mesh_mismatch .and. .not. interpolate) then
        call neko_error("The fld file must match the current mesh! &
-&Use 'interpolate': 'true' to enable interpolation.")
+            &Use 'interpolate': 'true' to enable interpolation.")
     else if (.not. mesh_mismatch .and. interpolate) then
        call neko_log%warning("You have activated interpolation but you might &
-&still be using the same mesh.")
+            &still be using the same mesh.")
     end if
 
 
@@ -356,11 +356,11 @@ contains
        type is (fld_file_t)
           if (.not. ft%dp_precision) then
              call neko_warning("The coordinates read from the field file are &
-&in single precision.")
+                  &in single precision.")
              call neko_log%message("It is recommended to use a mesh in double &
-&precision for better interpolation results.")
+                  &precision for better interpolation results.")
              call neko_log%message("If the interpolation does not work, you&
-&can try to increase the tolerance.")
+                  &can try to increase the tolerance.")
           end if
        class default
        end select
