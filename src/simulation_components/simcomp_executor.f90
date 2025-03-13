@@ -56,7 +56,7 @@ module simcomp_executor
      !> Number of simcomps
      integer, private :: n_simcomps
      !> The case
-     type(case_t), pointer, private :: case
+     type(case_t), pointer :: case
      !> Flag to indicate if the simcomp executor has been finalized.
      logical, private :: finalized = .false.
    contains
