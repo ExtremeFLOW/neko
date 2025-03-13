@@ -22,9 +22,6 @@
             "delta": 0.6,
             "freestream_velocity": [1.0, 0.0, 0.0]
         },
-        "inflow_condition": {
-            "type": "blasius"
-        },
         "velocity_solver": {
             "type": "cg",
             "preconditioner": "jacobi",
