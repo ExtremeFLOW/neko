@@ -173,9 +173,9 @@ contains
                 g33%x(i,1,1,e)*g33%x(i,1,1,e)
 
           ! sdij components
-          sd11 = gsqr_11 - ((1.0_rp / 3.0_rp) * (gsqr_11 + gsqr_22 + gsqr_33))
-          sd22 = gsqr_22 - ((1.0_rp / 3.0_rp) * (gsqr_11 + gsqr_22 + gsqr_33))
-          sd33 = gsqr_33 - ((1.0_rp / 3.0_rp) * (gsqr_11 + gsqr_22 + gsqr_33))
+          sd11 = gsqr_11 - ( (gsqr_11 + gsqr_22 + gsqr_33) / 3.0_rp)
+          sd22 = gsqr_22 - ( (gsqr_11 + gsqr_22 + gsqr_33) / 3.0_rp)
+          sd33 = gsqr_33 - ( (gsqr_11 + gsqr_22 + gsqr_33) / 3.0_rp)
           sd12 = 0.5_rp * (gsqr_12 + gsqr_21)
           sd13 = 0.5_rp * (gsqr_13 + gsqr_31)
           sd23 = 0.5_rp * (gsqr_23 + gsqr_32)
