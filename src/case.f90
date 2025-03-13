@@ -148,6 +148,12 @@ contains
     integer :: output_dir_len
     integer :: precision
 
+    !
+    ! Setup user defined functions
+    !
+    call this%usr%init()
+
+    ! Run user startup routine
     call this%usr%user_startup(this%params)
 
     !
@@ -204,10 +210,7 @@ contains
     !
     call neko_point_zone_registry%init(this%params, this%msh)
 
-    !
-    ! Setup user defined functions
-    !
-    call this%usr%init()
+    ! Run user mesh motion routine
     call this%usr%user_mesh_setup(this%msh)
 
     !

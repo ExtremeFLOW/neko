@@ -228,11 +228,17 @@ module user_intf
      !! (much more powerful than pointwise in terms of what can be done).
      procedure(field_dirichlet_update), nopass, pointer :: &
           user_dirichlet_update => null()
-     !> Routine to set material properties
+     !> Routine to set material properties.
      procedure(user_material_properties), nopass, pointer :: &
           material_properties => null()
    contains
-     !> Constructor.
+     !> Constructor that points non-associated routines to dummy ones.
+     !! Calling a dummy routine causes an error in most cases, but sometimes
+     !! the dummy routine just does nothing. E.g., the dummmy `user_startup`
+     !! just does nothing. The association of the actual routines defined by
+     !! the user happens in the `user_setup` routine inside the user file.
+     !! A call to this routine is injected into the neko executable by
+     !! `makeneko`.
      procedure, pass(this) :: init => user_intf_init
   end type user_t
 
@@ -395,7 +401,6 @@ contains
   !> Dummy user startup
   subroutine dummy_user_startup(params)
     type(json_file), intent(inout) :: params
-    call neko_error('Dummy user defined start-up routine')
   end subroutine dummy_user_startup
 
   !> Dummy user initial condition
