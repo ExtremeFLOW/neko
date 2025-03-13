@@ -667,8 +667,8 @@ contains
        if (params%valid_path('case.fluid.Re') .and. &
             (params%valid_path('case.fluid.mu') .or. &
             params%valid_path('case.fluid.rho'))) then
-          call neko_error("To set the material properties for the fluid,&
-          & either provide Re OR mu and rho in the case file.")
+          call neko_error("To set the material properties for the fluid," // &
+               " either provide Re OR mu and rho in the case file.")
 
           ! Non-dimensional case
        else if (params%valid_path('case.fluid.Re')) then
