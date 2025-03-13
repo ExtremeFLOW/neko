@@ -47,15 +47,15 @@ submodule (simulation_component) simulation_component_fctry
 
   ! List of all possible types created by the factory routine
   character(len=20) :: SIMCOMPS_KNOWN_TYPES(8) = [character(len=20) :: &
-     "vorticity", &
-     "lambda2", &
-     "probes", &
-     "les_model", &
-     "field_writer", &
-     "fluid_stats", &
-     "weak_grad", &
-     "force_torque", &
-     "spectral_error"]
+       "vorticity", &
+       "lambda2", &
+       "probes", &
+       "les_model", &
+       "field_writer", &
+       "fluid_stats", &
+       "weak_grad", &
+       "force_torque", &
+       "spectral_error"]
 
 contains
 
@@ -98,11 +98,11 @@ contains
     else if (trim(type_name) .eq. "spectral_error") then
        allocate(spectral_error_t::object)
     else
-       type_string =  concat_string_array(SIMCOMPS_KNOWN_TYPES, &
-            NEW_LINE('A') // "-  ",  .true.)
+       type_string = concat_string_array(SIMCOMPS_KNOWN_TYPES, &
+            NEW_LINE('A') // "-  ", .true.)
        call neko_error("Unknown simulation component type: " &
-                       // trim(type_name) // ".  Known types are: " &
-                       // type_string)
+            // trim(type_name) // ".  Known types are: " &
+            // type_string)
        stop
     end if
 
