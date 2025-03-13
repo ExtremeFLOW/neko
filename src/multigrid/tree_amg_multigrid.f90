@@ -44,7 +44,7 @@
 module tree_amg_multigrid
   use num_types, only: rp
   use utils, only : neko_error
-  use math, only : add2
+  use math, only : add2, rzero, glsc2, sub3, col2
   use device_math, only : device_rzero, device_col2, device_add2, device_sub3, &
        device_glsc2
   use comm
@@ -266,24 +266,17 @@ contains
     integer :: iter, num_iter
     integer :: max_lvl
     integer :: i, cyt
-
-    r = 0d0
-    rc = 0d0
-    tmp = 0d0
-
     max_lvl = mgstuff%nlvls-1
-
-    !call calc_resid(r,x,b,amg,lvl,n)!> TODO: for debug
-    !print *, "LVL:",lvl, "PRE RESID:", sqrt(glsc2(r, r, n))
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
+    !call calc_resid(r,x,b,amg,lvl,n)!> TODO: for debug
+    !print *, "LVL:",lvl, "PRE RESID:", sqrt(glsc2(r, r, n))
     call mgstuff%smoo(lvl)%solve(x,b, n, amg)
     !call mgstuff%jsmoo(lvl)%solve(x,b, n, amg)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
        return
     end if
-
     !>----------<!
     !> Residual <!
     !>----------<!
@@ -292,17 +285,16 @@ contains
     !>----------<!
     !> Restrict <!
     !>----------<!
-    if (lvl .eq. 0) then
-       call average_duplicates(r,amg,lvl,n)
-    end if
+!    if (lvl .eq. 0) then
+!       call average_duplicates(r,amg,lvl,n)
+!    end if
     call amg%interp_f2c(rc, r, lvl+1)
 
     !>-------------------<!
     !> Call Coarse solve <!
     !>-------------------<!
-    tmp = 0d0
+    call rzero(tmp, n)
     call tamg_mg_cycle(tmp, rc, amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff)
-
     !>----------<!
     !> Project  <!
     !>----------<!
@@ -322,9 +314,6 @@ contains
     call mgstuff%smoo(lvl)%solve(x,b, n, amg)
     !call mgstuff%jsmoo(lvl)%solve(x,b, n, amg)
 
-    !>----------<!
-    !> Residual <!
-    !>----------<!
     !call calc_resid(r,x,b,amg,lvl,n)!> TODO: for debug
     !print *, "LVL:",lvl, "POST RESID:", sqrt(glsc2(r, r, n))
   end subroutine tamg_mg_cycle
@@ -412,11 +401,8 @@ contains
     type(tamg_hierarchy_t), intent(inout) :: amg
     integer, intent(in) :: lvl
     integer :: i
-    r = 0d0
     call amg%matvec(r, x, lvl)
-    do i = 1, n
-       r(i) = b(i) - r(i)
-    end do
+    call sub3(r, b, r, n)
   end subroutine calc_resid
 
   !> Wrapper function to gather scatter and average the duplicates
@@ -431,9 +417,7 @@ contains
     integer, intent(in) :: lvl
     integer :: i
     call amg%gs_h%op(U, n, GS_OP_ADD)
-    do i = 1, n
-       U(i) = U(i) * amg%coef%mult(i,1,1,1)
-    end do
+    call col2(U, amg%coef%mult, n)
   end subroutine average_duplicates
 
   subroutine print_preagg_info(lvl,nagg)
