@@ -118,6 +118,9 @@ contains
     ! Case parameters
     this%params => params
 
+    ! Assign a name
+    call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
+
     ! Fill mu and rho field with the physical value
     call this%mu_field%init(this%dm_Xh, "mu")
     call this%rho_field%init(this%dm_Xh, "rho")

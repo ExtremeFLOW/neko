@@ -78,6 +78,8 @@ module scalar_scheme
 
   !> Base type for a scalar advection-diffusion solver.
   type, abstract :: scalar_scheme_t
+     !> A name that can be used to distinguish this solver in e.g. user routines
+     character(len=:), allocatable :: name
      !> x-component of Velocity
      type(field_t), pointer :: u
      !> y-component of Velocity
@@ -256,6 +258,9 @@ contains
     this%v => neko_field_registry%get_field('v')
     this%w => neko_field_registry%get_field('w')
 
+    ! Assign a name
+    call json_get_or_default(params, 'name', this%name, "scalar")
+
     call neko_log%section('Scalar')
     call json_get(params, 'solver.type', solver_type)
     call json_get(params, 'solver.preconditioner', &
@@ -272,6 +277,8 @@ contains
 
 
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Name       : ', trim(this%name)
     call neko_log%message(log_buf)
     call neko_log%message('Ksp scalar : ('// trim(solver_type) // &
          ', ' // trim(solver_precon) // ')')
@@ -526,7 +533,7 @@ contains
 
     properties(1) = this%cp
     properties(2) = this%lambda
-    call this%user_material_properties(t, tstep, this%u%name, properties)
+    call this%user_material_properties(t, tstep, this%name, properties)
     this%cp = properties(1)
     this%lambda = properties(2)
 
@@ -563,7 +570,7 @@ contains
        call neko_log%message(log_buf)
        this%user_material_properties => user%material_properties
        properties = 0
-       call user%material_properties(0.0_rp, 0, this%s%name, properties)
+       call user%material_properties(0.0_rp, 0, this%name, properties)
        this%cp = properties(1)
        this%lambda = properties(2)
     else

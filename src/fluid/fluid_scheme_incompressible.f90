@@ -199,12 +199,17 @@ contains
     ! Local scratch registry
     this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
 
+    ! Assign a name
+    call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
+
     !
     ! First section of fluid log
     !
 
     call neko_log%section('Fluid')
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Name       : ', trim(this%name)
     call neko_log%message(log_buf)
 
     ! Assign velocity fields
@@ -638,7 +643,7 @@ contains
 
     properties(1) = this%rho
     properties(2) = this%mu
-    call this%user_material_properties(t, tstep, this%u%name, properties)
+    call this%user_material_properties(t, tstep, this%name, properties)
     this%rho = properties(1)
     this%mu = properties(2)
 
@@ -673,7 +678,7 @@ contains
        call neko_log%message(log_buf)
        properties = 0
        this%user_material_properties => user%material_properties
-       call user%material_properties(0.0_rp, 0, this%u%name, properties)
+       call user%material_properties(0.0_rp, 0, this%name, properties)
        this%rho = properties(1)
        this%mu = properties(2)
     else

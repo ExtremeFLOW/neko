@@ -163,17 +163,17 @@ module user_intf
   !> Abstract interface for setting material properties.
   !! @param t Time value.
   !! @param tstep Current time step.
-  !! @param field_name The solution field names for scheme. Use to determine the
-  !! callee.
+  !! @param name The name of the solver calling the routine. By default
+  !! "fluid" or "scalar"
   !! @param properties Array of properties, defined by convention for each
   !! scheme.
   !! @param params The JSON configuration of the scheme.
   abstract interface
-     subroutine user_material_properties(t, tstep, field_name, properties)
+     subroutine user_material_properties(t, tstep, name, properties)
        import rp
        real(kind=rp), intent(in) :: t
        integer, intent(in) :: tstep
-       character(len=*), intent(in) :: field_name
+       character(len=*), intent(in) :: name
        real(kind=rp), intent(inout) :: properties(:)
      end subroutine user_material_properties
   end interface
@@ -536,10 +536,10 @@ contains
     integer, intent(in) :: tstep
   end subroutine dirichlet_do_nothing
 
-  subroutine dummy_user_material_properties(t, tstep, field_name, properties)
+  subroutine dummy_user_material_properties(t, tstep, name, properties)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    character(len=*), intent(in) :: field_name
+    character(len=*), intent(in) :: name
     real(kind=rp), intent(inout) :: properties(:)
   end subroutine dummy_user_material_properties
 

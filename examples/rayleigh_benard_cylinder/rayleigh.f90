@@ -29,16 +29,16 @@ contains
     mu = 1.0_rp / Re
   end subroutine startup
 
-  subroutine set_material_properties(t, tstep, field_name, properties)
+  subroutine set_material_properties(t, tstep, name, properties)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    character(len=*), intent(in) :: field_name
+    character(len=*), intent(in) :: name
     real(kind=rp), intent(inout) :: properties(:)
 
-    if (field_name .eq. "u") then
+    if (name .eq. "fluid") then
        properties(1) = 1.0_rp
        properties(2) = mu
-    else if (field_name .eq. "s") then
+    else if (name .eq. "scalar") then
        properties(1) = 1.0_rp
        properties(2) = mu / Pr
     end if

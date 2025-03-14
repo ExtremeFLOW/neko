@@ -160,9 +160,10 @@ provided, the simulation will issue an error.
 As an alternative to providing material properties in the case file, it is
 possible to do that in a special routine in the user file. This is demonstrated
 in the `rayleigh_benard_cylinder` example. Ultimately, both `rho` and `mu` have
-to be set in the subroutine, but it can be based on arbitrary computations and
-arbitrary parameters read from the case file. Additionally, this allows to
-change the material properties in time.
+to be set in the subroutine.  Additionally, this allows to change the material
+properties in time. Yet another options is to directly manipulate the case file
+programmatically in the `user_startup` routine and inject the material
+properties there. This is demonstrated in the `rayleigh_benard` example.
 
 ### Turbulence modelling
 
@@ -373,7 +374,7 @@ The means of prescribing the values are controlled via the `type` keyword:
 file documentation.
 2. `uniform`, the value is a constant vector, looked up under the `value`
    keyword.
-3. `blasius`, a Blasius profile is prescribed. The boundary cannot be tilted 
+3. `blasius`, a Blasius profile is prescribed. The boundary cannot be tilted
   with respect to the coordinate axes.
    It requires the following parameters:
    1. `delta`, the thickness of the boundary layer.
@@ -678,6 +679,7 @@ concisely directly in the table.
 | Name                                    | Description                                                                                       | Admissible values                                           | Default value |
 |-----------------------------------------|---------------------------------------------------------------------------------------------------|-------------------------------------------------------------|---------------|
 | `scheme`                                | The fluid solve type.                                                                             | `pnpn`                                                      | -             |
+| `name`                                  | The name associated to the fluid solver. Useful for some user routines.                           | String                                                      | `fluid`        |
 | `Re`                                    | The Reynolds number.                                                                              | Positive real                                               | -             |
 | `rho`                                   | The density of the fluid.                                                                         | Positive real                                               | -             |
 | `mu`                                    | The dynamic viscosity of the fluid.                                                               | Positive real                                               | -             |
@@ -814,6 +816,7 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | Name                           | Description                                                       | Admissible values                           | Default value |
 |--------------------------------|-------------------------------------------------------------------|---------------------------------------------|---------------|
 | `enabled`                      | Whether to enable the scalar computation.                         | `true` or `false`                           | `true`        |
+| `name`                         | The name associated to the scalar solver.                         | String                                      | `scalar`      |
 | `field_name`                   | The name of the solution in the field registry.                   | A string                                    | `s`           |
 | `Pe`                           | The Peclet number.                                                | Positive real                               | -             |
 | `cp`                           | Specific heat capacity.                                           | Positive real                               | -             |
