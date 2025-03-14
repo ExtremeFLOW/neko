@@ -251,11 +251,14 @@ contains
        !> Call local finite element assembly
        call this%gs_h%op(vec_in, n, GS_OP_ADD)
        call col2( vec_in, this%coef%mult, n)
-       !>
+
        call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
-       !>
        call this%gs_h%op(vec_out, n, GS_OP_ADD)
        call this%blst%apply(vec_out, n)
+
+       if (lvl_out .ne. 0) then
+         call col2(vec_out, this%coef%mult, n)
+       end if
        !>
     else !> pass down through hierarchy
        if (lvl_out .ge. lvl) then
@@ -325,6 +328,8 @@ contains
          call this%ax%compute(wrk_out, wrk_in, this%coef, this%msh, this%Xh)
          call this%gs_h%op(wrk_out, n, GS_OP_ADD)
          call this%blst%apply(wrk_out, n)
+
+         call col2(wrk_out, this%coef%mult, n)
 
          !> Map finest level matvec back to output level
          call rzero(vec_out, this%lvl(lvl)%nnodes)
