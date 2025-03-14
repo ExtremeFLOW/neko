@@ -150,6 +150,14 @@ contains
     type(json_file) :: json_subdict
 
     !
+    ! Setup user defined functions
+    !
+    call this%usr%init()
+
+    ! Run user startup routine
+    call this%usr%user_startup(this%params)
+
+    !
     ! Load mesh
     !
     call json_get_or_default(this%params, 'case.mesh_file', string_val, &
@@ -203,10 +211,7 @@ contains
     !
     call neko_point_zone_registry%init(this%params, this%msh)
 
-    !
-    ! Setup user defined functions
-    !
-    call this%usr%init()
+    ! Run user mesh motion routine
     call this%usr%user_mesh_setup(this%msh)
 
     !
@@ -263,10 +268,10 @@ contains
     !
     ! Setup initial conditions
     !
-    call json_get(this%params, 'case.fluid.initial_condition.type',&
+    call json_get(this%params, 'case.fluid.initial_condition.type', &
          string_val)
     call json_extract_object(this%params, 'case.fluid.initial_condition', &
-       json_subdict)
+         json_subdict)
 
     call neko_log%section("Fluid initial condition ")
 
@@ -295,7 +300,7 @@ contains
        call json_get(this%params, 'case.scalar.initial_condition.type', &
             string_val)
        call json_extract_object(this%params, 'case.scalar.initial_condition', &
-          json_subdict)
+            json_subdict)
 
        call neko_log%section("Scalar initial condition ")
 
