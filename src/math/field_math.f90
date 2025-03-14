@@ -85,7 +85,7 @@ module field_math
        field_add3s2, field_addcol3, field_addcol4, field_glsum, &
        field_glsc2, field_glsc3, field_add3, field_masked_gather_copy, &
        field_masked_scatter_copy
-  
+
 contains
 
   !> Zero a real vector
