@@ -44,6 +44,7 @@ submodule (simulation_component) simulation_component_fctry
   use weak_grad, only : weak_grad_t
   use derivative, only : derivative_t
   use spectral_error, only: spectral_error_t
+  use utils, only : neko_type_error
 
   ! List of all possible types created by the factory routine
   character(len=20) :: SIMCOMPS_KNOWN_TYPES(9) = [character(len=20) :: &
