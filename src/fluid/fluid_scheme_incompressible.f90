@@ -677,6 +677,7 @@ contains
        this%rho = properties(1)
        this%mu = properties(2)
     else
+       this%user_material_properties => dummy_user_material_properties
        ! Incorrect user input
        if (params%valid_path('case.fluid.Re') .and. &
             (params%valid_path('case.fluid.mu') .or. &
