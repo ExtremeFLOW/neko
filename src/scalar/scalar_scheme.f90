@@ -546,7 +546,7 @@ contains
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
 
        write(log_buf, '(A)') "Material properties must be set in the user&
-            & file!"
+       & file!"
        call neko_log%message(log_buf)
        call user%material_properties(0.0_rp, 0, dummy_rho, dummy_mu, &
             this%cp, this%lambda, params)
@@ -555,11 +555,11 @@ contains
             (params%valid_path('lambda') .or. &
             params%valid_path('cp'))) then
           call neko_error("To set the material properties for the scalar,&
-               & either provide Pe OR lambda and cp in the case file.")
+          & either provide Pe OR lambda and cp in the case file.")
           ! Non-dimensional case
        else if (params%valid_path('Pe')) then
           write(log_buf, '(A)') 'Non-dimensional scalar material properties &
-               & input.'
+          & input.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
           write(log_buf, '(A)') 'Specific heat capacity will be set to 1,'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
