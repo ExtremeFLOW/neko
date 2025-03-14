@@ -210,13 +210,27 @@ example](https://github.com/ExtremeFLOW/neko/blob/564686b127ff75a362a06126c6b23e
 
 ```fortran
 
-  subroutine set_material_properties(t, tstep, rho, mu, cp, lambda, params)
+  subroutine set_material_properties(t, tstep, field_name, properties)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    real(kind=rp), intent(inout) :: rho, mu, cp, lambda
-    type(json_file), intent(inout) :: params
+    character(len=*), intent(in) :: field_name
+    real(kind=rp), intent(inout) :: properties(:)
 
-    ! Re and Pr computed in `user_startup`
+    ! mu and Pr computed in `user_startup`
+
+    ! If we are called from the fluid
+    if (field_name .eq. "u") then
+       ! density
+       properties(1) = 1.0_rp
+       ! viscosity
+       properties(2) = mu
+    ! If we are called from the scalar
+    else if (field_name .eq. "s") then
+       ! cp
+       properties(1) = 1.0_rp
+       ! lambda
+       properties(2) = mu / Pr
+    end if
 
     mu = 1.0_rp / Re
     lambda = mu / Pr
