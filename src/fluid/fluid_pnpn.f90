@@ -374,7 +374,7 @@ contains
          precon_type)
     call json_get(params, 'case.fluid.pressure_solver.absolute_tolerance', &
          abs_tol)
-    call json_get_or_default(params, 'case.fluid.velocity_solver.monitor', &
+    call json_get_or_default(params, 'case.fluid.pressure_solver.monitor', &
          monitor, .false.)
     call neko_log%message('Type       : ('// trim(solver_type) // &
          ', ' // trim(precon_type) // ')')
