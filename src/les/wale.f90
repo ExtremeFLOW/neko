@@ -39,9 +39,9 @@ module wale
   use les_model, only : les_model_t
   use json_utils, only : json_get_or_default
   use json_module, only : json_file
+  use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
   use wale_cpu, only : wale_compute_cpu
-!  use wale_device, only : wale_compute_device
   use field_registry, only : neko_field_registry
   use logger, only : LOG_SIZE, neko_log
   implicit none
