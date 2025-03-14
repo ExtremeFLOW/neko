@@ -1,7 +1,5 @@
 module user
   use neko
-  use json_module, only : json_file
-  use json_utils, only : json_get
   implicit none
 
   real(kind=rp) :: Ra
@@ -12,11 +10,19 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%fluid_user_f_vector => forcing
     u%scalar_user_ic => set_ic
+    u%fluid_user_f_vector => forcing
     u%scalar_user_bc => scalar_bc
     u%material_properties => set_material_properties
+    u%user_startup => startup
   end subroutine user_setup
+
+  subroutine startup(params)
+    type(json_file), intent(inout) :: params
+
+    call json_get(params, "case.fluid.Ra", Ra)
+    call json_get(params, "case.scalar.Pr", Pr)
+  end subroutine startup
 
   subroutine set_material_properties(t, tstep, rho, mu, cp, lambda, params)
     real(kind=rp), intent(in) :: t
@@ -24,9 +30,6 @@ contains
     real(kind=rp), intent(inout) :: rho, mu, cp, lambda
     type(json_file), intent(inout) :: params
     real(kind=rp) :: Re
-
-    call json_get(params, "case.fluid.Ra", Ra)
-    call json_get(params, "case.scalar.Pr", Pr)
 
     Re = 1.0_rp / Pr
 
@@ -55,7 +58,7 @@ contains
     s = 1.0_rp-z
   end subroutine scalar_bc
 
-  !> User initial condition for the scalar field
+  !> User initial condition
   subroutine set_ic(s, params)
     type(field_t), intent(inout) :: s
     type(json_file), intent(inout) :: params
@@ -85,15 +88,14 @@ contains
        end do
     end do
 
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
+    if ((NEKO_BCKND_DEVICE .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
          .or. (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(s%x, s%x_d, s%dof%size(), &
             HOST_TO_DEVICE, sync=.false.)
     end if
 
+
   end subroutine set_ic
-
-
 
   !> Forcing
   subroutine forcing(f, t)
