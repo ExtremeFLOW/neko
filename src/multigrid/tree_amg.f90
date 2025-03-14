@@ -355,6 +355,9 @@ contains
     integer :: i, n, node_start, node_end, node_id
 
     vec_out = 0d0
+    if (lvl-1 .eq. 0) then
+      call col2(vec_in, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
+    end if
     do n = 1, this%lvl(lvl)%nnodes
        associate (node => this%lvl(lvl)%nodes(n))
          do i = 1, node%ndofs
@@ -383,6 +386,10 @@ contains
          end do
        end associate
     end do
+    if (lvl-1 .eq. 0) then
+      call this%gs_h%op(vec_out, this%lvl(lvl)%fine_lvl_dofs, GS_OP_ADD)
+      call col2(vec_out, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
+    end if
   end subroutine tamg_prolongation_operator
 
 
