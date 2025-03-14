@@ -120,7 +120,7 @@ contains
     call neko_error('no device backend configured')
 #endif
   end subroutine device_masked_gather_copy
- 
+
   !> Scatter a masked vector \f$ a((mask(i)) = b(i) \f$.
   subroutine device_masked_scatter_copy(a_d, b_d, mask_d, n, m)
     type(c_ptr) :: a_d, b_d, mask_d
