@@ -52,6 +52,7 @@ module fluid_scheme_base
   use usr_inflow, only : usr_inflow_eval
   use utils, only : neko_error
   use bc_list, only : bc_list_t
+  use field_list, only : field_list_t
   implicit none
   private
   public :: fluid_scheme_base_t, fluid_scheme_base_factory
@@ -75,9 +76,6 @@ module fluid_scheme_base
      type(field_t), pointer :: p => null() !< Pressure
      type(field_series_t) :: ulag, vlag, wlag !< fluid field (lag)
 
-     !> Density
-     real(kind=rp) :: rho
-     type(field_t) :: rho_field
 
      !> X-component of the right-hand side.
      type(field_t), pointer :: f_x => null()
@@ -99,13 +97,19 @@ module fluid_scheme_base
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
 
-     !> Dynamic viscosity
-     real(kind=rp) :: mu
+     !> Constant density
+     real(kind=rp) :: rho
 
-     !> The variable mu field
+     !> Density field
+     type(field_t) :: rho_field
+
+     !> The dynamic viscosity
      type(field_t) :: mu_field
 
-     !> Is mu varying in time? Currently only due to LES models.
+     !> A helper that packs material properties to pass to the user routine.
+     type(field_list_t) :: material_properties
+
+     !> Are material properties varying in space and time?
      logical :: variable_material_properties = .false.
      !> Is the fluid frozen at the moment
      logical :: freeze = .false.

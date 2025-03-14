@@ -268,7 +268,7 @@ contains
          m_x=> this%m_x, m_y => this%m_y, m_z => this%m_z, &
          Xh => this%Xh, msh => this%msh, Ax => this%Ax, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
-         rho => this%rho, mu => this%mu, E => this%E, &
+         E => this%E, &
          rho_field => this%rho_field, mu_field => this%mu_field, &
          ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &

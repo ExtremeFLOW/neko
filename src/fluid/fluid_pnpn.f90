@@ -659,7 +659,7 @@ contains
          makeabf => this%makeabf, makebdf => this%makebdf, &
          vel_projection_dim => this%vel_projection_dim, &
          pr_projection_dim => this%pr_projection_dim, &
-         rho => this%rho, mu => this%mu, oifs => this%oifs, &
+         rho => this%rho, oifs => this%oifs, &
          rho_field => this%rho_field, mu_field => this%mu_field, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
          if_variable_dt => dt_controller%if_variable_dt, &
@@ -832,8 +832,9 @@ contains
       end if
 
       if (this%forced_flow_rate) then
+         ! Horrible mu hack?!
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
-              c_Xh, gs_Xh, ext_bdf, rho, mu, dt, &
+              c_Xh, gs_Xh, ext_bdf, rho, mu_field%x(1,1,1,1), dt, &
               this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax_vel, Ax_prs, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
