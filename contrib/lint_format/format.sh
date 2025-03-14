@@ -65,7 +65,7 @@ done
 [ $CONTINUATION == "none" ] && CONTINUATION="-"
 
 # Set the options
-FLAGS="-Rr -i2 -d3 -f3 -s3 -c3 -w3 -t3 -j3 --ws_remred --indent_ampersand --openmp=0"
+FLAGS="-Rr -i2 -d3 -f3 -s3 -c3 -w3 -t3 -j3 --ws_remred --openmp=0"
 FLAGS="$FLAGS -k$CONTINUATION"
 
 # ---------------------------------------------------------------------------- #

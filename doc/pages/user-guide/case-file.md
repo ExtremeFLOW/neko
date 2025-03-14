@@ -86,22 +86,22 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                             | Positive real less than `1`                     | `0.2`         |
 | `end_time`                 | Final time at which the simulation is stopped.                                                        | Positive reals                                  | -             |
 | `job_timelimit`            | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
-| `output_at_end`            | Whether to always write all enabled output at the end of the run.                                    | `true` or `false`                               | `true`        |
+| `output_at_end`            | Whether to always write all enabled output at the end of the run.                                     | `true` or `false`                               | `true`        |
 
 ### Restarts and joblimit
-Restarts will restart the simulation from the exact state at a given time that 
+Restarts will restart the simulation from the exact state at a given time that
 the checkpoint was written. This means that the flow field and potential scalars
 will be at the exact same values before as after restarts. However, derived
 quantities from the flow field and any observables are not guaranteed to be
 restarted. In addition, Neko does not guarantee that any files are not
 overwritten. As such, it is recommended to run in different directories
-if doing large scale simulations that require many restarts. Unless 
+if doing large scale simulations that require many restarts. Unless
 `output_at_end` is disabled Neko will also ensure that all output is written to
 file when reaching the `end_time` or the `job_timelimit`. In particular, unless
-`output_checkpoints` and `output_at_end` are set to false a checkpoint at the 
-final time will be written as to avoid losing progress as far as possible. 
+`output_checkpoints` and `output_at_end` are set to false a checkpoint at the
+final time will be written as to avoid losing progress as far as possible.
 
-@attention For simulations requiring restarts, it is recommended to run each 
+@attention For simulations requiring restarts, it is recommended to run each
 restart in a different output directory as a precaution to avoid potential overwritings of files.
 
 ### Boundary type numbering in the `output_boundary` field
@@ -182,7 +182,7 @@ solver should be used for velocity.
 =======
 ### Boundary conditions {#case-file_fluid-boundary-conditions}
 The optional `boundary_conditions` keyword can be used to specify boundary
-conditions. The reason for it being optional, is that periodic bounary
+conditions. The reason for it being optional, is that periodic boundary
 conditions are built into the definition of the  mesh, so for a periodic box
 nothings needs to be added to the case file. The TGV example is such a case, for
 instance.
@@ -373,8 +373,17 @@ The means of prescribing the values are controlled via the `type` keyword:
 file documentation.
 2. `uniform`, the value is a constant vector, looked up under the `value`
    keyword.
-3. `blasius`, a Blasius profile is prescribed. Its properties are looked up
-   in the `case.fluid.blasius` object, see below.
+3. `blasius`, a Blasius profile is prescribed. The boundary cannot be tilted 
+  with respect to the coordinate axes.
+   It requires the following parameters:
+   1. `delta`, the thickness of the boundary layer.
+   2. `freestream_velocity`, the velocity value in the free stream.
+   3. `approximation`, the numerical approximation to the Blasius profile.
+      - `linear`, linear approximation.
+      - `quadratic`, quadratic approximation.
+      - `cubic`, cubic approximation.
+      - `quartic`, quartic approximation.
+      - `sin`, sine function approximation.
 4. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
    point zone is specified by the `name` keyword, and should be defined in the
@@ -410,20 +419,9 @@ file documentation.
    Interpolation will always be performed if `"interpolate"` is set
    to `true` even if the field file matches with the current simulation.
 
-### Blasius profile
-The `blasius` object is used to specify the Blasius profile that can be used for the
-initial and inflow condition.
-The boundary cannot be tilted with respect to the coordinate axes.
-It requires  the following parameters:
 
-1. `delta`, the thickness of the boundary layer.
-2. `freestream_velocity`, the velocity value in the free stream.
-3. `approximation`, the numerical approximation to the Blasius profile.
-   - `linear`, linear approximation.
-   - `quadratic`, quadratic approximation.
-   - `cubic`, cubic approximation.
-   - `quartic`, quartic approximation.
-   - `sin`, sine function approximation.
+
+
 
 ### Source terms {#case-file_fluid-source-term}
 The `source_terms` object should be used to specify the source terms in the
@@ -444,11 +442,11 @@ The following types are currently implemented.
 
 1. `constant`, constant forcing. Strength defined by the `values` array with 3
    reals corresponding to the 3 components of the forcing.
-2. `boussinesq`, a source term introducing boyancy based on the Boussinesq
-   approximation, \f$ \rho \beta (T - T_{ref}) \cdot \mathbf{g} \f$. Here, \f$ \rho \f$ is
-   density, \f$ \beta \f$ the thermal expansion coefficient, \f$ \mathbf{g} \f$ the
-   gravity vector, and \f$ T_{ref} \f$ a reference value of the scalar, typically
-   temperature.
+2. `boussinesq`, a source term introducing buoyancy based on the Boussinesq
+   approximation, \f$ \rho \beta (T - T_{ref}) \cdot \mathbf{g} \f$. Here, \f$
+   \rho \f$ is density, \f$ \beta \f$ the thermal expansion coefficient, \f$
+   \mathbf{g} \f$ the gravity vector, and \f$ T_{ref} \f$ a reference value of
+   the scalar, typically temperature.
 
    Reads the following entries:
    - `scalar_field`: The name of the scalar that drives the source term,
@@ -723,12 +721,11 @@ concisely directly in the table.
 | `advection`                             | Whether to compute the advection term.                                                            | `true` or `false`                                           | `true`        |
 
 ## Scalar {#case-file_scalar}
-The scalar object allows to add a scalar transport equation to the solution.
-The solution variable is called `s`, but saved as `temperature` in the fld
- files.
-Some properties of the object are inherited from `fluid`: the properties of the
-linear solver, the value of the density, and the output
-control.
+The scalar object allows to add a scalar transport equation to the solution. The
+solution variable is called `s` by default, but can be controlled by the
+ `field_name` entry in the case file. In the fld files, it is saved as
+`temperature`. Some properties of the object are inherited from `fluid`: the
+value of the density, and the output control.
 
 ### Material properties
 
@@ -817,6 +814,7 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | Name                           | Description                                                       | Admissible values                           | Default value |
 |--------------------------------|-------------------------------------------------------------------|---------------------------------------------|---------------|
 | `enabled`                      | Whether to enable the scalar computation.                         | `true` or `false`                           | `true`        |
+| `field_name`                   | The name of the solution in the field registry.                   | A string                                    | `s`           |
 | `Pe`                           | The Peclet number.                                                | Positive real                               | -             |
 | `cp`                           | Specific heat capacity.                                           | Positive real                               | -             |
 | `lambda`                       | Thermal conductivity.                                             | Positive real                               | -             |

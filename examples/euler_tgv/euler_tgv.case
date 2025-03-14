@@ -9,7 +9,7 @@
     "timestep": 0.00001,
     "numerics": {
         "time_order": 3,
-        "polynomial_order": 1,
+        "polynomial_order": 5,
         "c_avisc_low": 0.5
     },
     "fluid": {
