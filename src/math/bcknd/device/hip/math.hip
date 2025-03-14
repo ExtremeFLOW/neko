@@ -73,7 +73,7 @@ extern "C" {
   }
   
  
-  /** Fortran wrapper for masked reduced copy
+  /** Fortran wrapper for masked gather copy
    * Copy a vector \f$ a = b(mask) \f$
    */
   void hip_masked_gather_copy(void *a, void *b, void *mask, int *n, int *m) {
@@ -501,8 +501,8 @@ extern "C" {
         HIP_CHECK(hipHostFree(bufred));
         HIP_CHECK(hipFree(bufred_d));        
       }
-      HIP_CHECK(hipHostMalloc(&bufred,nb*sizeof(real),hipHostMallocDefault));
-      HIP_CHECK(hipMalloc(&bufred_d, nb*sizeof(real)));
+      HIP_CHECK(hipHostMalloc(&bufred,red_s*sizeof(real),hipHostMallocDefault));
+      HIP_CHECK(hipMalloc(&bufred_d, red_s*sizeof(real)));
     }
   }
 
@@ -574,7 +574,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
                        1, 1024, 0, stream, bufred_d, nb);
     HIP_CHECK(hipGetLastError());
-    }
+    } else { hip_rzero(bufred_d,&red_s); }
     hip_global_reduce_add(bufred, bufred_d, 1, stream);
     return bufred[0];
   }
@@ -607,7 +607,7 @@ extern "C" {
                        nblcks_red, nthrds_red, 0, stream,
                        bufred_d, nb, *j);
     HIP_CHECK(hipGetLastError());
-    }
+    } else { hip_rzero(bufred_d,&red_s); }
     hip_global_reduce_add(h, bufred_d, (*j), stream);
   }
 
@@ -666,7 +666,7 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
                        1, 1024, 0, stream, bufred_d, nb);
     HIP_CHECK(hipGetLastError());
-    }
+    } else { hip_rzero(bufred_d,&red_s); }
     hip_global_reduce_add(bufred, bufred_d, 1, stream);
 
     return bufred[0];
@@ -691,7 +691,7 @@ extern "C" {
       hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_kernel<real>),
                        1, 1024, 0, stream, bufred_d, nb);
       HIP_CHECK(hipGetLastError());
-    }
+    } else { hip_rzero(bufred_d,&red_s); }
     hip_global_reduce_add(bufred, bufred_d, 1, stream);
     return bufred[0];
   }
