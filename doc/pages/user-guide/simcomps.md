@@ -259,7 +259,7 @@ writing the computed fields to disk via the usual common keywords.
 
  ~~~~~~~~~~~~~~~{.json}
  {
-   "type": "weak_gradient"
+   "type": "weak_grad"
    "field": "u",
    "output_control" : "never"
  }
@@ -284,7 +284,7 @@ keywords:
   - `wale`: The WALE model. Configured by the following additional keyword:
     - `c_w`: The WALE constant, defaults to 0.55.
 - `les_delta`: Selects the way to compute the LES filter length scale. Currently three
-  alternatives are provided and the default one is `pointwise` if 
+  alternatives are provided and the default one is `pointwise` if
   nothing is specified:
   - `pointwise`: Computes a local value based on the spacing of the GLL nodes.
   - `elementwise_avg`: Computes a single value for the whole element based on the
@@ -295,9 +295,9 @@ keywords:
 - `nut_field`: The name of the SGS eddy viscosity field added to the registry.
   Defaults to `nut`. This allows to have two different SGS models active, saved
   to different fields. For example, one for the scalar and one to the fluid.
-- `extrapolation`: Whether or not extrapolate the velocity to 
+- `extrapolation`: Whether or not extrapolate the velocity to
   compute the eddy viscosity.
-  - `true`: the default option, extrapolate the velocity as the same order as 
+  - `true`: the default option, extrapolate the velocity as the same order as
   the time scheme.
   - `false`: disable the extrapolation. In this case, the estimation of the eddy
   viscosity is of first order, while circumvent the risk of unstable extrapolation.
