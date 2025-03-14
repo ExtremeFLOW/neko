@@ -147,6 +147,7 @@ contains
     character(len = :), allocatable :: string_val
     integer :: output_dir_len
     integer :: precision
+    type(json_file) :: scalar_params, numerics_params
     type(json_file) :: json_subdict
 
     !
@@ -214,6 +215,8 @@ contains
     ! Run user mesh motion routine
     call this%usr%user_mesh_setup(this%msh)
 
+    call json_extract_object(this%params, 'case.numerics', numerics_params)
+
     !
     ! Setup fluid scheme
     !
@@ -254,9 +257,13 @@ contains
        allocate(this%scalar)
        this%scalar%chkp%tlag => this%tlag
        this%scalar%chkp%dtlag => this%dtlag
+
+       call json_extract_object(this%params, 'case.scalar', scalar_params)
+
        call this%scalar%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-            this%params, this%usr, this%fluid%ulag, this%fluid%vlag, &
-            this%fluid%wlag, this%fluid%ext_bdf, this%fluid%rho)
+            scalar_params, numerics_params, this%usr, this%fluid%ulag, &
+            this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
+            this%fluid%rho)
 
        call this%fluid%chkp%add_scalar(this%scalar%s)
 
