@@ -147,7 +147,16 @@ contains
     character(len = :), allocatable :: string_val
     integer :: output_dir_len
     integer :: precision
+    type(json_file) :: scalar_params, numerics_params
     type(json_file) :: json_subdict
+
+    !
+    ! Setup user defined functions
+    !
+    call this%usr%init()
+
+    ! Run user startup routine
+    call this%usr%user_startup(this%params)
 
     !
     ! Load mesh
@@ -203,11 +212,10 @@ contains
     !
     call neko_point_zone_registry%init(this%params, this%msh)
 
-    !
-    ! Setup user defined functions
-    !
-    call this%usr%init()
+    ! Run user mesh motion routine
     call this%usr%user_mesh_setup(this%msh)
+
+    call json_extract_object(this%params, 'case.numerics', numerics_params)
 
     !
     ! Setup fluid scheme
@@ -249,9 +257,13 @@ contains
        allocate(this%scalar)
        this%scalar%chkp%tlag => this%tlag
        this%scalar%chkp%dtlag => this%dtlag
+
+       call json_extract_object(this%params, 'case.scalar', scalar_params)
+
        call this%scalar%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-            this%params, this%usr, this%fluid%ulag, this%fluid%vlag, &
-            this%fluid%wlag, this%fluid%ext_bdf, this%fluid%rho)
+            scalar_params, numerics_params, this%usr, this%fluid%ulag, &
+            this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
+            this%fluid%rho)
 
        call this%fluid%chkp%add_scalar(this%scalar%s)
 
@@ -263,10 +275,10 @@ contains
     !
     ! Setup initial conditions
     !
-    call json_get(this%params, 'case.fluid.initial_condition.type',&
+    call json_get(this%params, 'case.fluid.initial_condition.type', &
          string_val)
     call json_extract_object(this%params, 'case.fluid.initial_condition', &
-       json_subdict)
+         json_subdict)
 
     call neko_log%section("Fluid initial condition ")
 
@@ -295,7 +307,7 @@ contains
        call json_get(this%params, 'case.scalar.initial_condition.type', &
             string_val)
        call json_extract_object(this%params, 'case.scalar.initial_condition', &
-          json_subdict)
+            json_subdict)
 
        call neko_log%section("Scalar initial condition ")
 
