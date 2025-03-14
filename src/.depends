@@ -267,7 +267,7 @@ device/hip/roctx.lo : device/hip/roctx.F90
 device/opencl_intf.lo : device/opencl_intf.F90 common/utils.lo config/num_types.lo 
 device/opencl/prgm_lib.lo : device/opencl/prgm_lib.F90 common/utils.lo device/opencl_intf.lo 
 device/device.lo : device/device.F90 device/opencl/prgm_lib.lo common/utils.lo adt/htable.lo device/hip_intf.lo device/cuda_intf.lo device/opencl_intf.lo config/num_types.lo 
-math/field_math.lo : math/field_math.f90 math/bcknd/device/device_math.lo math/math.lo field/field.lo config/num_types.lo config/neko_config.lo 
+math/field_math.lo : math/field_math.f90 math/bcknd/device/device_math.lo math/math.lo device/device.lo field/field.lo config/num_types.lo config/neko_config.lo 
 math/bcknd/device/device_math.lo : math/bcknd/device/device_math.F90 math/bcknd/device/opencl/opencl_math.lo math/bcknd/device/cuda/cuda_math.lo math/bcknd/device/hip/hip_math.lo comm/comm.lo common/utils.lo config/num_types.lo 
 math/bcknd/device/hip/hip_math.lo : math/bcknd/device/hip/hip_math.f90 config/num_types.lo 
 math/bcknd/device/cuda/cuda_math.lo : math/bcknd/device/cuda/cuda_math.f90 config/num_types.lo 
