@@ -125,7 +125,7 @@ module scalar_scheme
      !> The turbulent kinematic viscosity field name
      character(len=:), allocatable :: nut_field_name
      !> Density.
-     real(kind=rp) :: rho
+     real(kind=rp), pointer :: rho
      !> Specific heat capacity.
      real(kind=rp) :: cp
      !> Turbulent Prandtl number.
@@ -183,7 +183,7 @@ module scalar_scheme
        type(user_t), target, intent(in) :: user
        type(field_series_t), target, intent(in) :: ulag, vlag, wlag
        type(time_scheme_controller_t), target, intent(in) :: time_scheme
-       real(kind=rp), intent(in) :: rho
+       real(kind=rp), target, intent(in) :: rho
      end subroutine scalar_scheme_init_intrf
   end interface
 
@@ -242,7 +242,7 @@ contains
     type(json_file), target, intent(inout) :: params
     character(len=*), intent(in) :: scheme
     type(user_t), target, intent(in) :: user
-    real(kind=rp), intent(in) :: rho
+    real(kind=rp), target, intent(in) :: rho
     ! IO buffer for log output
     character(len=LOG_SIZE) :: log_buf
     ! Variables for retrieving json parameters
@@ -299,7 +299,7 @@ contains
     !
     ! Material properties
     !
-    this%rho = rho
+    this%rho => rho
     call this%set_material_properties(params, user)
 
     write(log_buf, '(A,ES13.6)') 'rho        :', this%rho
