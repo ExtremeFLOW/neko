@@ -207,6 +207,14 @@ contains
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
     call neko_log%message(log_buf)
 
+    ! Assign velocity fields
+    call neko_field_registry%add_field(this%dm_Xh, 'u')
+    call neko_field_registry%add_field(this%dm_Xh, 'v')
+    call neko_field_registry%add_field(this%dm_Xh, 'w')
+    this%u => neko_field_registry%get_field('u')
+    this%v => neko_field_registry%get_field('v')
+    this%w => neko_field_registry%get_field('w')
+
     !
     ! Material properties
     !
@@ -338,13 +346,6 @@ contains
     call json_get_or_default(params, 'case.fluid.strict_convergence', &
          this%strict_convergence, .false.)
 
-    ! Assign velocity fields
-    call neko_field_registry%add_field(this%dm_Xh, 'u')
-    call neko_field_registry%add_field(this%dm_Xh, 'v')
-    call neko_field_registry%add_field(this%dm_Xh, 'w')
-    this%u => neko_field_registry%get_field('u')
-    this%v => neko_field_registry%get_field('v')
-    this%w => neko_field_registry%get_field('w')
 
     !! Initialize time-lag fields
     call this%ulag%init(this%u, 2)
@@ -627,10 +628,19 @@ contains
 
 
   !> Update the values of `mu_field` if necessary.
-  subroutine fluid_scheme_update_material_properties(this)
+  subroutine fluid_scheme_update_material_properties(this, t, tstep)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
+    real(kind=rp),intent(in) :: t
+    integer, intent(in) :: tstep
     type(field_t), pointer :: nut
     integer :: n
+    real(kind=rp) :: properties(2)
+
+    properties(1) = this%rho
+    properties(2) = this%mu
+    call this%user_material_properties(t, tstep, this%u%name, properties)
+    this%rho = properties(1)
+    this%mu = properties(2)
 
     this%mu_field = this%mu
     if (this%variable_material_properties) then
@@ -652,6 +662,7 @@ contains
     procedure(user_material_properties), pointer :: dummy_mp_ptr
     logical :: nondimensional
     real(kind=rp) :: dummy_lambda, dummy_cp
+    real(kind=rp) :: properties(2)
 
     dummy_mp_ptr => dummy_user_material_properties
 
@@ -660,8 +671,11 @@ contains
        write(log_buf, '(A)') "Material properties must be set in the user&
        & file!"
        call neko_log%message(log_buf)
-       call user%material_properties(0.0_rp, 0, this%rho, this%mu, &
-            dummy_cp, dummy_lambda, params)
+       properties = 0
+       this%user_material_properties => user%material_properties
+       call user%material_properties(0.0_rp, 0, this%u%name, properties)
+       this%rho = properties(1)
+       this%mu = properties(2)
     else
        ! Incorrect user input
        if (params%valid_path('case.fluid.Re') .and. &

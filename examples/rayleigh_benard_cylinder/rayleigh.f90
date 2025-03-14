@@ -5,6 +5,7 @@ module user
   !> Variables to store the Rayleigh and Prandlt numbers
   real(kind=rp) :: Ra = 0
   real(kind=rp) :: Re = 0
+  real(kind=rp) :: mu = 0
   real(kind=rp) :: Pr = 0
 
   !> =============================================
@@ -25,18 +26,22 @@ contains
     call json_get(params, "case.fluid.Ra", Ra)
     call json_get(params, "case.scalar.Pr", Pr)
     Re = sqrt(Ra / Pr)
+    mu = 1.0_rp / Re
   end subroutine startup
 
-  subroutine set_material_properties(t, tstep, rho, mu, cp, lambda, params)
+  subroutine set_material_properties(t, tstep, field_name, properties)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    real(kind=rp), intent(inout) :: rho, mu, cp, lambda
-    type(json_file), intent(inout) :: params
+    character(len=*), intent(in) :: field_name
+    real(kind=rp), intent(inout) :: properties(:)
 
-    mu = 1.0_rp / Re
-    lambda = mu / Pr
-    rho = 1.0_rp
-    cp = 1.0_rp
+    if (field_name .eq. "u") then
+       properties(1) = 1.0_rp
+       properties(2) = mu
+    else if (field_name .eq. "s") then
+       properties(1) = 1.0_rp
+       properties(2) = mu / Pr
+    end if
   end subroutine set_material_properties
 
 

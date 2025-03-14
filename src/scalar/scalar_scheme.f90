@@ -135,6 +135,9 @@ module scalar_scheme
      !> Gradient jump panelty
      logical :: if_gradient_jump_penalty
      type(gradient_jump_penalty_t) :: gradient_jump_penalty
+     !> Pointer to user material properties routine
+     procedure(user_material_properties), nopass, pointer :: &
+          user_material_properties => null()
    contains
      !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init
@@ -511,12 +514,21 @@ contains
   end subroutine scalar_scheme_precon_factory
 
   !> Update the values of `lambda_field` if necessary.
-  subroutine scalar_scheme_update_material_properties(this)
+  subroutine scalar_scheme_update_material_properties(t, tstep, this)
     class(scalar_scheme_t), intent(inout) :: this
+    real(kind=rp),intent(in) :: t
+    integer, intent(in) :: tstep
     type(field_t), pointer :: nut
     integer :: n
     ! Factor to transform nu_t to lambda_t
     real(kind=rp) :: lambda_factor
+    real(kind=rp) :: properties(2)
+
+    properties(1) = this%cp
+    properties(2) = this%lambda
+    call this%user_material_properties(t, tstep, this%u%name, properties)
+    this%cp = properties(1)
+    this%lambda = properties(2)
 
     lambda_factor = this%rho*this%cp/this%pr_turb
     this%lambda_field = this%lambda
@@ -540,26 +552,31 @@ contains
     ! A local pointer that is needed to make Intel happy
     procedure(user_material_properties), pointer :: dummy_mp_ptr
     real(kind=rp) :: dummy_mu, dummy_rho
+    real(kind=rp) :: properties(2)
 
     dummy_mp_ptr => dummy_user_material_properties
 
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
 
        write(log_buf, '(A)') "Material properties must be set in the user&
-            & file!"
+       & file!"
        call neko_log%message(log_buf)
-       call user%material_properties(0.0_rp, 0, dummy_rho, dummy_mu, &
-            this%cp, this%lambda, params)
+       this%user_material_properties => user%material_properties
+       properties = 0
+       call user%material_properties(0.0_rp, 0, this%s%name, properties)
+       this%cp = properties(1)
+       this%lambda = properties(2)
     else
+       this%user_material_properties => dummy_user_material_properties
        if (params%valid_path('Pe') .and. &
             (params%valid_path('lambda') .or. &
             params%valid_path('cp'))) then
           call neko_error("To set the material properties for the scalar,&
-               & either provide Pe OR lambda and cp in the case file.")
+          & either provide Pe OR lambda and cp in the case file.")
           ! Non-dimensional case
        else if (params%valid_path('Pe')) then
           write(log_buf, '(A)') 'Non-dimensional scalar material properties &
-               & input.'
+          & input.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
           write(log_buf, '(A)') 'Specific heat capacity will be set to 1,'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)

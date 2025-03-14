@@ -402,7 +402,7 @@ contains
       call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), t, tstep, .true.)
 
       ! Update material properties if necessary
-      call this%update_material_properties()
+      call this%update_material_properties(t, tstep)
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar_residual', 20)

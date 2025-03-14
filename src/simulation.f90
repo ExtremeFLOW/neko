@@ -160,25 +160,6 @@ contains
        ! Execute all simulation components
        call neko_simcomps%compute(t, tstep)
 
-
-       !> @todo Temporary fix until we have reworked the material properties
-       rho = C%fluid%rho
-       mu = C%fluid%mu
-
-       ! Update material properties
-       call C%usr%material_properties(t, tstep, rho, mu, cp, lambda, C%params)
-
-       !> @todo Temporary fix until we have reworked the material properties
-       C%fluid%rho = rho
-       C%fluid%mu = mu
-       call C%fluid%update_material_properties()
-
-       if (allocated(C%scalar)) then
-          C%scalar%cp = cp
-          C%scalar%lambda = lambda
-          call C%scalar%update_material_properties()
-       end if
-
        call C%usr%user_check(t, tstep, C%fluid%u, C%fluid%v, C%fluid%w, &
             C%fluid%p, C%fluid%c_Xh, C%params)
 

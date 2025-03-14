@@ -735,7 +735,7 @@ contains
       call this%bc_apply_prs(t, tstep)
 
       ! Update material properties if necessary
-      call this%update_material_properties()
+      call this%update_material_properties(t, tstep)
 
       ! Compute pressure residual.
       call profiler_start_region('Pressure_residual', 18)

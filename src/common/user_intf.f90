@@ -163,18 +163,18 @@ module user_intf
   !> Abstract interface for setting material properties.
   !! @param t Time value.
   !! @param tstep Current time step.
-  !! @param rho Fluid density.
-  !! @param mu Fluid dynamic viscosity.
-  !! @param cp Scalar specific heat capacity.
-  !! @param lambda Scalar thermal conductivity.
+  !! @param field_name The solution field names for scheme. Use to determine the
+  !! callee.
+  !! @param properties Array of properties, defined by convention for each
+  !! scheme.
+  !! @param params The JSON configuration of the scheme.
   abstract interface
-     subroutine user_material_properties(t, tstep, rho, mu, cp, lambda, params)
+     subroutine user_material_properties(t, tstep, field_name, properties)
        import rp
-       import json_file
        real(kind=rp), intent(in) :: t
        integer, intent(in) :: tstep
-       real(kind=rp), intent(inout) :: rho, mu, cp, lambda
-       type(json_file), intent(inout) :: params
+       character(len=*), intent(in) :: field_name
+       real(kind=rp), intent(inout) :: properties(:)
      end subroutine user_material_properties
   end interface
 
@@ -536,12 +536,11 @@ contains
     integer, intent(in) :: tstep
   end subroutine dirichlet_do_nothing
 
-  subroutine dummy_user_material_properties(t, tstep, rho, mu, cp, lambda,&
-       params)
+  subroutine dummy_user_material_properties(t, tstep, field_name, properties)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    real(kind=rp), intent(inout) :: rho, mu, cp, lambda
-    type(json_file), intent(inout) :: params
+    character(len=*), intent(in) :: field_name
+    real(kind=rp), intent(inout) :: properties(:)
   end subroutine dummy_user_material_properties
 
   ! ========================================================================== !

@@ -250,8 +250,10 @@ contains
 
   !> Set rho and mu
   !> @param this The compressible fluid scheme object
-  subroutine fluid_scheme_compressible_update_material_properties(this)
+  subroutine fluid_scheme_compressible_update_material_properties(this, t, tstep)
     class(fluid_scheme_compressible_t), intent(inout) :: this
+    real(kind=rp),intent(in) :: t
+    integer, intent(in) :: tstep
     !> TODO: fill here, may not be used?
   end subroutine fluid_scheme_compressible_update_material_properties
 end module fluid_scheme_compressible
