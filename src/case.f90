@@ -268,10 +268,10 @@ contains
     !
     ! Setup initial conditions
     !
-    call json_get(this%params, 'case.fluid.initial_condition.type',&
+    call json_get(this%params, 'case.fluid.initial_condition.type', &
          string_val)
     call json_extract_object(this%params, 'case.fluid.initial_condition', &
-       json_subdict)
+         json_subdict)
 
     call neko_log%section("Fluid initial condition ")
 
@@ -300,7 +300,7 @@ contains
        call json_get(this%params, 'case.scalar.initial_condition.type', &
             string_val)
        call json_extract_object(this%params, 'case.scalar.initial_condition', &
-          json_subdict)
+            json_subdict)
 
        call neko_log%section("Scalar initial condition ")
 
