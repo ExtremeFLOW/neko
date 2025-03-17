@@ -414,17 +414,21 @@ contains
        associate( wrk_in_d => this%lvl(1)%wrk_in_d, wrk_out_d => this%lvl(1)%wrk_out_d)
          !> Map input level to finest level
          call device_masked_red_copy(wrk_in_d, vec_in_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)
+
          !> Average on overlapping dofs
          call this%gs_h%op(this%lvl(1)%wrk_in, n, GS_OP_ADD, glb_cmd_event)
          call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
          call device_col2( wrk_in_d, this%coef%mult_d, n)
+
          !> Finest level matvec (Call local finite element assembly)
          call this%ax%compute(this%lvl(1)%wrk_out, this%lvl(1)%wrk_in, this%coef, this%msh, this%Xh)
-         call this%gs_h%op(this%lvl(1)%wrk_out, n, GS_OP_ADD)
+         call this%gs_h%op(this%lvl(1)%wrk_out, n, GS_OP_ADD, glb_cmd_event)
          call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
          call this%blst%apply(this%lvl(1)%wrk_out, n)
-         !> Map finest level matvec back to output level
+
          call device_col2( wrk_out_d, this%coef%mult_d, n)
+
+         !> Map finest level matvec back to output level
          call device_rzero(vec_out_d, this%lvl(lvl)%nnodes)
          call device_masked_atomic_reduction(vec_out_d, wrk_out_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)
        end associate
