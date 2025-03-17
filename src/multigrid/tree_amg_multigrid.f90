@@ -346,9 +346,6 @@ contains
       !>----------<!
       !> Restrict <!
       !>----------<!
-      if (lvl .eq. 0) then
-         call device_col2(r_d, amg%coef%mult_d, n)
-      end if
       call amg%interp_f2c_d(rc_d, r_d, lvl+1)
       !>-------------------<!
       !> Call Coarse solve <!
@@ -358,11 +355,7 @@ contains
       !>----------<!
       !> Project  <!
       !>----------<!
-      call amg%interp_c2f_d(r_d, tmp_d, lvl+1)
-      if (lvl .eq. 0) then
-         call amg%gs_h%op(r, n, GS_OP_ADD)
-         call device_col2(r_d, amg%coef%mult_d, n)
-      end if
+      call amg%interp_c2f_d(r_d, tmp_d, lvl+1, r)
       !>----------<!
       !> Correct  <!
       !>----------<!

@@ -356,7 +356,7 @@ contains
 
     vec_out = 0d0
     if (lvl-1 .eq. 0) then
-      call col2(vec_in, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
+       call col2(vec_in, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
     end if
     do n = 1, this%lvl(lvl)%nnodes
        associate (node => this%lvl(lvl)%nodes(n))
@@ -387,8 +387,8 @@ contains
        end associate
     end do
     if (lvl-1 .eq. 0) then
-      call this%gs_h%op(vec_out, this%lvl(lvl)%fine_lvl_dofs, GS_OP_ADD)
-      call col2(vec_out, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
+       call this%gs_h%op(vec_out, this%lvl(lvl)%fine_lvl_dofs, GS_OP_ADD)
+       call col2(vec_out, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
     end if
   end subroutine tamg_prolongation_operator
 
@@ -415,7 +415,7 @@ contains
          !> Map input level to finest level
          call device_masked_red_copy(wrk_in_d, vec_in_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)
          !> Average on overlapping dofs
-         call this%gs_h%op(this%lvl(1)%wrk_in, n, GS_OP_ADD)
+         call this%gs_h%op(this%lvl(1)%wrk_in, n, GS_OP_ADD, glb_cmd_event)
          call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
          call device_col2( wrk_in_d, this%coef%mult_d, n)
          !> Finest level matvec (Call local finite element assembly)
@@ -424,6 +424,7 @@ contains
          call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
          call this%blst%apply(this%lvl(1)%wrk_out, n)
          !> Map finest level matvec back to output level
+         call device_col2( wrk_out_d, this%coef%mult_d, n)
          call device_rzero(vec_out_d, this%lvl(lvl)%nnodes)
          call device_masked_atomic_reduction(vec_out_d, wrk_out_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)
        end associate
@@ -439,12 +440,16 @@ contains
     integer :: i, n, m
     n = this%lvl(lvl)%nnodes
     m = this%lvl(lvl)%fine_lvl_dofs
+    if (lvl-1 .eq. 0) then
+       call device_col2(vec_in_d, this%coef%mult_d, m)
+    end if
     call device_rzero(vec_out_d, n)
     call device_masked_atomic_reduction(vec_out_d, vec_in_d, this%lvl(lvl)%map_f2c_d, n, m)
   end subroutine tamg_device_restriction_operator
 
-  subroutine tamg_device_prolongation_operator(this, vec_out_d, vec_in_d, lvl)
+  subroutine tamg_device_prolongation_operator(this, vec_out_d, vec_in_d, lvl, vec_out)
     class(tamg_hierarchy_t), intent(inout) :: this
+    real(kind=rp), intent(inout) :: vec_out(:)
     type(c_ptr) :: vec_out_d
     type(c_ptr) :: vec_in_d
     integer, intent(in) :: lvl
@@ -452,6 +457,11 @@ contains
     n = this%lvl(lvl)%nnodes
     m = this%lvl(lvl)%fine_lvl_dofs
     call device_masked_red_copy(vec_out_d, vec_in_d, this%lvl(lvl)%map_f2c_d, n, m)
+    if (lvl-1 .eq. 0) then
+       call this%gs_h%op(vec_out, m, GS_OP_ADD, glb_cmd_event)
+       call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+       call device_col2( vec_out_d, this%coef%mult_d, m)
+    end if
   end subroutine tamg_device_prolongation_operator
 
 end module tree_amg
