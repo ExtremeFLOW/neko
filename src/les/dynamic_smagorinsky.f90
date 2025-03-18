@@ -94,7 +94,7 @@ contains
 
       call json_get_or_default(json, "nut_field", nut_name, "nut")
       call json_get_or_default(json, "delta_type", delta_type, "pointwise")
-      call json_get_or_default(json, "extrapolation", if_ext, .true.)
+      call json_get_or_default(json, "extrapolation", if_ext, .false.)
 
       call this%free()
       call this%init_base(fluid, nut_name, delta_type, if_ext)

@@ -81,7 +81,7 @@ contains
     call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     call json_get_or_default(json, "c_w", c_w, 0.55_rp)
-    call json_get_or_default(json, "extrapolation", if_ext, .true.)
+    call json_get_or_default(json, "extrapolation", if_ext, .false.)
 
     call neko_log%section('LES model')
     write(log_buf, '(A)') 'Model : Wale'
