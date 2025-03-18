@@ -62,6 +62,9 @@ module opencl_prgm_lib
   !> Device pnpn residual kernels
   type(c_ptr), public, bind(c) :: pnpn_res_program = C_NULL_PTR
 
+  !> Device euler residual kernels
+  type(c_ptr), public, bind(c) :: euler_res_program = C_NULL_PTR
+
   !> Device fdm kernels
   type(c_ptr), public, bind(c) :: fdm_program = C_NULL_PTR
 
@@ -87,7 +90,7 @@ module opencl_prgm_lib
   type(c_ptr), public, bind(c) :: filter_program = C_NULL_PTR
 
   public :: opencl_prgm_lib_release
-  
+
 contains
 
   subroutine opencl_prgm_lib_release
@@ -218,6 +221,13 @@ contains
        pnpn_res_program = C_NULL_PTR
     end if
 
+    if (c_associated(euler_res_program)) then
+       if(clReleaseProgram(euler_res_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       euler_res_program = C_NULL_PTR
+    end if
+
     if (c_associated(fdm_program)) then
        if(clReleaseProgram(fdm_program) .ne. CL_SUCCESS) then
           call neko_error('Failed to release program')
@@ -268,11 +278,11 @@ contains
     end if
 
     if (c_associated(filter_program)) then
-      if(clReleaseProgram(filter_program) .ne. CL_SUCCESS) then
-         call neko_error('Failed to release program')
-      end if
-      filter_program = C_NULL_PTR
-   end if
+       if(clReleaseProgram(filter_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       filter_program = C_NULL_PTR
+    end if
 
   end subroutine opencl_prgm_lib_release
 

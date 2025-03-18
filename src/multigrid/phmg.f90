@@ -58,7 +58,7 @@ module phmg
   use profiler, only : profiler_start_region, profiler_end_region
   use neko_config, only: NEKO_BCKND_DEVICE
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
-       krylov_solver_factory, krylov_solver_destroy
+       krylov_solver_factory
   use logger, only : neko_log, LOG_SIZE
   use, intrinsic :: iso_c_binding
   implicit none

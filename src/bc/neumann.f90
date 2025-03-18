@@ -39,8 +39,7 @@ module neumann
   use coefs, only : coef_t
   use json_module, only : json_file
   use json_utils, only : json_get
-  use math, only : cfill
-  use math, only : cfill, copy
+  use math, only : cfill, copy, abscmp
   implicit none
   private
 
@@ -51,6 +50,7 @@ module neumann
   type, public, extends(bc_t) :: neumann_t
      real(kind=rp), allocatable :: flux_(:)
      real(kind=rp), private :: init_flux_
+     logical :: uniform_0 = .false.
    contains
      procedure, pass(this) :: apply_scalar => neumann_apply_scalar
      procedure, pass(this) :: apply_vector => neumann_apply_vector
@@ -60,7 +60,7 @@ module neumann
      procedure, pass(this) :: init => neumann_init
      !> Constructor from components
      procedure, pass(this) :: init_from_components => &
-        neumann_init_from_components
+          neumann_init_from_components
      procedure, pass(this) :: flux => neumann_flux
      !> Set the flux using a scalar.
      procedure, pass(this) :: set_flux_scalar => neumann_set_flux_scalar
@@ -109,7 +109,7 @@ contains
   subroutine neumann_apply_scalar(this, x, n, t, tstep, strong)
     class(neumann_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
@@ -129,16 +129,16 @@ contains
                this%coef%Xh%lx)
           select case (facet)
           case (1,2)
-              x(k) = x(k) + this%flux_(i)*this%coef%area(idx(2), idx(3), facet,&
+             x(k) = x(k) + this%flux_(i)*this%coef%area(idx(2), idx(3), facet,&
                   idx(4))
           case (3,4)
-              x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(3), facet,&
+             x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(3), facet,&
                   idx(4))
           case (5,6)
-              x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(2), facet,&
+             x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(2), facet,&
                   idx(4))
           end select
-      end do
+       end do
     end if
   end subroutine neumann_apply_scalar
 
@@ -147,15 +147,15 @@ contains
   subroutine neumann_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(neumann_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
-    real(kind=rp), intent(inout),  dimension(n) :: y
-    real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
-
-    call neko_error("Neumann bc not implemented for vectors")
-
+    if (.not. this%uniform_0 .and. this%msk(0) .gt. 0) then
+       call neko_error("Neumann bc not implemented for vectors")
+    end if
   end subroutine neumann_apply_vector
 
   !> Boundary condition apply for a generic Neumann condition
@@ -167,8 +167,9 @@ contains
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
 
-    call neko_error("Neumann bc not implemented on the device")
-
+    if (.not. this%uniform_0 .and. this%msk(0) .gt. 0) then
+       call neko_error("Neumann bc not implemented on the device")
+    end if
   end subroutine neumann_apply_scalar_dev
 
   !> Boundary condition apply for a generic Neumann condition
@@ -182,7 +183,9 @@ contains
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
 
-    call neko_error("Neumann bc not implemented on the device")
+    if (.not. this%uniform_0 .and. this%msk(0) .gt. 0) then
+       call neko_error("Neumann bc not implemented on the device")
+    end if
 
   end subroutine neumann_apply_vector_dev
 
@@ -197,14 +200,20 @@ contains
   !> Finalize by setting the flux.
   subroutine neumann_finalize(this)
     class(neumann_t), target, intent(inout) :: this
+    integer :: i
 
     call this%finalize_base()
     allocate(this%flux_(this%msk(0)))
 
     call cfill(this%flux_, this%init_flux_, this%msk(0))
+    this%uniform_0 = .true.
+    do i = 1,this%msk(0)
+       this%uniform_0 = abscmp(this%flux_(i),0.0_rp) .and. this%uniform_0
+    end do
   end subroutine neumann_finalize
 
   !> Get the flux.
+  !This looks really sketchy IMO /Martin
   pure function neumann_flux(this) result(flux)
     class(neumann_t), intent(in) :: this
     real(kind=rp) :: flux(this%msk(0))
@@ -218,6 +227,7 @@ contains
     real(kind=rp), intent(in) :: flux
 
     this%flux_ = flux
+    this%uniform_0 = abscmp(flux,0.0_rp)
   end subroutine neumann_set_flux_scalar
 
   !> Set the flux using an array of values.
@@ -225,8 +235,14 @@ contains
   subroutine neumann_set_flux_array(this, flux)
     class(neumann_t), intent(inout) :: this
     real(kind=rp), intent(in) :: flux(this%msk(0))
+    integer :: i
 
     call copy(this%flux_, flux, this%msk(0))
+    this%uniform_0 = .true.
+    do i = 1,this%msk(0)
+       this%uniform_0 = abscmp(flux(i),0.0_rp) .and. this%uniform_0
+    end do
+
   end subroutine neumann_set_flux_array
 
 end module neumann
