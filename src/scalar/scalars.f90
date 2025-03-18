@@ -47,7 +47,7 @@ module scalars
   use field_series, only: field_series_t
   use field_registry, only: neko_field_registry
   use checkpoint, only: chkp_t
-  use krylov, only: ksp_t, krylov_solver_factory, krylov_solver_destroy
+  use krylov, only: ksp_t
   use logger, only: neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use user_intf, only: user_t
   use utils, only: neko_error
@@ -83,16 +83,17 @@ module scalars
 contains
 
   !> Initialize the scalars container
-  subroutine scalars_init(this, n_scalars, msh, c_Xh, gs_Xh, params, usr, ulag, vlag, wlag, ext_bdf, rho)
+  subroutine scalars_init(this, n_scalars, msh, coef, gs, params, numerics_params, user, ulag, vlag, wlag, time_scheme, rho)
     class(scalars_t), intent(inout) :: this
     integer, intent(in) :: n_scalars
-    type(mesh_t), intent(inout), target :: msh
-    type(coef_t), intent(inout), target :: c_Xh
-    type(gs_t), intent(inout), target :: gs_Xh
-    type(json_file), intent(inout) :: params
-    type(user_t), intent(inout), target :: usr
-    type(field_series_t), target, intent(inout) :: ulag, vlag, wlag
-    type(time_scheme_controller_t), intent(inout), target :: ext_bdf
+    type(mesh_t), target, intent(in) :: msh
+    type(coef_t), target, intent(in) :: coef
+    type(gs_t), target, intent(inout) :: gs
+    type(json_file), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: numerics_params
+    type(user_t), target, intent(in) :: user
+    type(field_series_t), target, intent(in) :: ulag, vlag, wlag
+    type(time_scheme_controller_t), target, intent(in) :: time_scheme
     real(kind=rp), intent(in) :: rho
     integer :: i
     
@@ -103,7 +104,7 @@ contains
        this%scalar(i)%chkp%dtlag => this%dtlag
        
        ! Initialize the scalar field
-       call this%scalar(i)%init(msh, c_Xh, gs_Xh, params, usr, ulag, vlag, wlag, ext_bdf, rho)
+       call this%scalar(i)%init(msh, coef, gs, params, numerics_params, user, ulag, vlag, wlag, time_scheme, rho)
     end do
   end subroutine scalars_init
   
@@ -165,12 +166,6 @@ contains
          call this%scalar(i)%free()
       end do
       deallocate(this%scalar)
-    end if
-    
-    ! Free the shared KSP solver
-    if (allocated(this%shared_ksp)) then
-      call krylov_solver_destroy(this%shared_ksp)
-      deallocate(this%shared_ksp)
     end if
   end subroutine scalars_free
 

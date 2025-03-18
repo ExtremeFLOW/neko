@@ -83,7 +83,7 @@ module hsmg
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
-       krylov_solver_factory, krylov_solver_destroy
+       krylov_solver_factory
   use tree_amg_multigrid, only : tamg_solver_t
   use zero_dirichlet, only : zero_dirichlet_t
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
@@ -347,7 +347,7 @@ contains
     call this%interp_fine_mid%free()
 
     if (allocated(this%crs_solver)) then
-       call krylov_solver_destroy(this%crs_solver)
+       call this%crs_solver%free()
        deallocate(this%crs_solver)
     end if
 
@@ -422,14 +422,14 @@ contains
           call profiler_start_region('HSMG_coarse_solve', 11)
           if (allocated(this%amg_solver)) then
              call this%amg_solver%device_solve(this%grids(1)%e%x, this%wf%x,&
-              this%grids(1)%e%x_d, this%wf%x_d, this%grids(1)%dof%size())
+                  this%grids(1)%e%x_d, this%wf%x_d, this%grids(1)%dof%size())
           else
              crs_info = this%crs_solver%solve(this%Ax, this%grids(1)%e, &
-                                       this%wf%x, &
-                                       this%grids(1)%dof%size(), &
-                                       this%grids(1)%coef, &
-                                       this%grids(1)%bclst, &
-                                       this%grids(1)%gs_h, this%niter)
+                  this%wf%x, &
+                  this%grids(1)%dof%size(), &
+                  this%grids(1)%coef, &
+                  this%grids(1)%bclst, &
+                  this%grids(1)%gs_h, this%niter)
           end if
           call profiler_end_region('HSMG_coarse_solve', 11)
           call this%grids(1)%bclst%apply_scalar(this%grids(1)%e%x,&
