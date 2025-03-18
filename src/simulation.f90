@@ -139,7 +139,7 @@ contains
        call neko_log%end_section(log_buf)
 
        ! Scalar step
-       if (allocated(C%scalar)) then
+       if (allocated(C%scalars)) then
           start_time = MPI_WTIME()
           call neko_log%section('Scalar')
           call C%scalar%step(t, tstep, C%dt, C%fluid%ext_bdf, dt_controller)
@@ -152,8 +152,10 @@ contains
           call neko_log%end_section(log_buf)
 
           !> @todo Temporary fix until we have reworked the material properties
-          cp = C%scalar%cp
-          lambda = C%scalar%lambda
+          !cp = C%scalar%cp
+          !lambda = C%scalar%lambda
+          cp = 1.0_rp
+          lambda = 1e-16_rp
        end if
 
        call neko_log%section('Postprocessing')
@@ -173,9 +175,10 @@ contains
        C%fluid%mu = mu
        call C%fluid%update_material_properties()
 
-       if (allocated(C%scalar)) then
-          C%scalar%cp = cp
-          C%scalar%lambda = lambda
+       if (allocated(C%scalars)) then
+          !> @todo Temporary fix until we have reworked the material properties
+          C%scalar%cp = 1.0_rp
+          C%scalar%lambda = 1e-16_rp
           call C%scalar%update_material_properties()
        end if
 
@@ -281,7 +284,7 @@ contains
 
     call C%fluid%restart(C%dtlag, C%tlag)
     call C%fluid%chkp%previous_mesh%free()
-    if (allocated(C%scalar)) call C%scalar%restart(C%dtlag, C%tlag)
+    if (allocated(C%scalars)) call C%scalar%restart(C%dtlag, C%tlag)
 
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')

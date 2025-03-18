@@ -58,6 +58,7 @@ module case
   use json_utils, only : json_get, json_get_or_default, json_extract_object
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
+  use scalars, only : scalars_t
   implicit none
   private
 
@@ -74,7 +75,8 @@ module case
      type(chkp_output_t) :: f_chkp
      type(user_t) :: usr
      class(fluid_scheme_base_t), allocatable :: fluid
-     type(scalar_pnpn_t), allocatable :: scalar
+     type(scalars_t), allocatable :: scalars
+     type(scalar_pnpn_t), pointer :: scalar
   end type case_t
 
   interface case_init
@@ -148,6 +150,7 @@ contains
     integer :: output_dir_len
     integer :: precision
     type(json_file) :: json_subdict
+    integer :: n_scalars
 
     !
     ! Load mesh
@@ -240,24 +243,37 @@ contains
     ! Setup scalar scheme
     !
     ! @todo no scalar factory for now, probably not needed
+    scalar = .false.
+    n_scalars = 0
     if (this%params%valid_path('case.scalar')) then
        call json_get_or_default(this%params, 'case.scalar.enabled', scalar,&
             .true.)
+       n_scalars = 1
+    else if (this%params%valid_path('case.scalars')) then
+       call this%params%info('case.scalars', n_children = n_scalars)
+       if (n_scalars > 0) then
+          scalar = .true.
+       end if
     end if
 
     if (scalar) then
-       allocate(this%scalar)
-       this%scalar%chkp%tlag => this%tlag
-       this%scalar%chkp%dtlag => this%dtlag
-       call this%scalar%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
+       allocate(this%scalars)
+       this%scalars%tlag => this%tlag
+       this%scalars%dtlag => this%dtlag
+       call this%scalars%init(n_scalars, this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
             this%params, this%usr, this%fluid%ulag, this%fluid%vlag, &
             this%fluid%wlag, this%fluid%ext_bdf, this%fluid%rho)
 
-       call this%fluid%chkp%add_scalar(this%scalar%s)
+       ! TODO: fix this for multiple scalars
+       call this%fluid%chkp%add_scalar(this%scalars%scalar(1)%s)
 
-       this%fluid%chkp%abs1 => this%scalar%abx1
-       this%fluid%chkp%abs2 => this%scalar%abx2
-       this%fluid%chkp%slag => this%scalar%slag
+       ! Take these properties from the first scalar
+       this%fluid%chkp%abs1 => this%scalars%scalar(1)%abx1
+       this%fluid%chkp%abs2 => this%scalars%scalar(1)%abx2
+       this%fluid%chkp%slag => this%scalars%scalar(1)%slag
+
+       ! TODO: this is a temporary fix to make simulation.f90 work
+       this%scalar => this%scalars%scalar(1)
     end if
 
     !
@@ -300,11 +316,11 @@ contains
        call neko_log%section("Scalar initial condition ")
 
        if (trim(string_val) .ne. 'user') then
-          call set_scalar_ic(this%scalar%s, &
-               this%scalar%c_Xh, this%scalar%gs_Xh, string_val, json_subdict)
+          call set_scalar_ic(this%scalars%scalar(1)%s, &
+               this%scalars%scalar(1)%c_Xh, this%scalars%scalar(1)%gs_Xh, string_val, json_subdict)
        else
-          call set_scalar_ic(this%scalar%s, &
-               this%scalar%c_Xh, this%scalar%gs_Xh, this%usr%scalar_user_ic, &
+          call set_scalar_ic(this%scalars%scalar(1)%s, &
+               this%scalars%scalar(1)%c_Xh, this%scalars%scalar(1)%gs_Xh, this%usr%scalar_user_ic, &
                this%params)
        end if
 
@@ -326,8 +342,8 @@ contains
     call this%fluid%validate
 
     if (scalar) then
-       call this%scalar%slag%set(this%scalar%s)
-       call this%scalar%validate
+       call this%scalars%scalar(1)%slag%set(this%scalars%scalar(1)%s)
+       call this%scalars%scalar(1)%validate
     end if
 
     !
@@ -376,7 +392,7 @@ contains
     !
     call this%output_controller%init(this%end_time)
     if (scalar) then
-       call this%f_out%init(precision, this%fluid, this%scalar, &
+       call this%f_out%init(precision, this%fluid, this%scalars%scalar(1), &
             path = trim(this%output_directory))
     else
        call this%f_out%init(precision, this%fluid, &
@@ -439,9 +455,9 @@ contains
        deallocate(this%fluid)
     end if
 
-    if (allocated(this%scalar)) then
-       call this%scalar%free()
-       deallocate(this%scalar)
+    if (allocated(this%scalars)) then
+       call this%scalars%free()
+       deallocate(this%scalars)
     end if
 
     call this%msh%free()
