@@ -44,6 +44,7 @@ module vorticity
   use fld_file_output, only : fld_file_output_t
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
+  use device, only : glb_cmd_event
   implicit none
   private
 
@@ -149,7 +150,8 @@ contains
     integer, intent(in) :: tstep
 
     call curl(this%omega_x, this%omega_y, this%omega_z, this%u, this%v, &
-                 this%w, this%temp1, this%temp2, this%case%fluid%c_Xh)
+         this%w, this%temp1, this%temp2, this%case%fluid%c_Xh, &
+         glb_cmd_event)
   end subroutine vorticity_compute
 
 end module vorticity
