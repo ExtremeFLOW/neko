@@ -226,32 +226,12 @@ contains
 
     call json_get(this%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get number of gll points
-    call this%fluid%init(this%msh, lx, this%params, this%usr)
-
-    
-    call this%chkp%init(this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p)
+    !> Set time lags in chkp 
     this%chkp%tlag => this%time%tlag
     this%chkp%dtlag => this%time%dtlag
-    select type (f => this%fluid)
-    type is (fluid_pnpn_t)
-       ! Initialize the advection factory
-       call json_get_or_default(this%params, 'case.fluid.advection', advection, .true.)
-       call advection_factory(f%adv, this%params, f%c_Xh, &
-            f%ulag, f%vlag, f%wlag, &
-            this%time%dtlag, this%time%tlag, f%ext_bdf, &
-            .not. advection)
+    call this%fluid%init(this%msh, lx, this%params, this%usr, this%chkp)
 
-
-       this%chkp%abx1 => f%abx1
-       this%chkp%abx2 => f%abx2
-       this%chkp%aby1 => f%aby1
-       this%chkp%aby2 => f%aby2
-       this%chkp%abz1 => f%abz1
-       this%chkp%abz2 => f%abz2
-       call this%chkp%add_lag(f%ulag, f%vlag, f%wlag)
-    end select
-
-
+    
     !
     ! Setup scratch registry
     !
@@ -268,29 +248,13 @@ contains
 
     if (scalar) then
        allocate(this%scalar)
-       this%chkp%tlag => this%time%tlag
-       this%chkp%dtlag => this%time%dtlag
        call this%scalar%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-            this%params, this%usr, this%fluid%ulag, this%fluid%vlag, &
-            this%fluid%wlag, this%fluid%ext_bdf, this%fluid%rho)
+            this%params, this%usr, this%chkp, this%fluid%ulag, &
+            this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
+            this%fluid%rho)
        ! Initialize advection factory
        call json_get_or_default(this%params, 'case.scalar.advection', advection, .true.)
    
-       associate (s => this%scalar)
-       select type (f => this%fluid)
-       type is (fluid_pnpn_t)
-          call advection_factory(s%adv, this%params, s%c_Xh, &
-                              f%ulag, f%vlag, f%wlag, this%time%dtlag, &
-                              this%time%tlag, f%ext_bdf, .not. advection, &
-                              s%slag)
-
-          call this%chkp%add_scalar(s%s)
-
-          this%chkp%abs1 => s%abx1
-          this%chkp%abs2 => s%abx2
-          this%chkp%slag => s%slag
-       end select
-       end associate
     end if
 
     !

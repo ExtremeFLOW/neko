@@ -117,7 +117,7 @@ module scalar_scheme
      !> Mesh.
      type(mesh_t), pointer :: msh => null()
      !> Checkpoint for restarts.
-     type(chkp_t),pointer :: chkp
+     type(chkp_t),pointer :: chkp => null()
      !> Thermal diffusivity.
      real(kind=rp) :: lambda
      !> The variable lambda field
@@ -161,13 +161,14 @@ module scalar_scheme
   !> Abstract interface to initialize a scalar formulation
   abstract interface
      subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, user, &
-          ulag, vlag, wlag, time_scheme, rho)
+          chkp, ulag, vlag, wlag, time_scheme, rho)
        import scalar_scheme_t
        import json_file
        import coef_t
        import gs_t
        import mesh_t
        import user_t
+       import chkp_t
        import field_series_t
        import time_scheme_controller_t
        import rp
@@ -177,6 +178,7 @@ module scalar_scheme
        type(gs_t), target, intent(inout) :: gs
        type(json_file), target, intent(inout) :: params
        type(user_t), target, intent(in) :: user
+       type(chkp_t), target, intent(inout) :: chkp
        type(field_series_t), target, intent(in) :: ulag, vlag, wlag
        type(time_scheme_controller_t), target, intent(in) :: time_scheme
        real(kind=rp), intent(in) :: rho

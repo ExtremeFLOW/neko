@@ -91,12 +91,14 @@ contains
   !> @param lx Polynomial order in x-direction
   !> @param params JSON configuration parameters
   !> @param user User-defined parameters and functions
-  subroutine fluid_scheme_compressible_euler_init(this, msh, lx, params, user)
+  !> @param chkp Checkpoint to write to
+  subroutine fluid_scheme_compressible_euler_init(this, msh, lx, params, user, chkp)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(in) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
+    type(chkp_t), target, intent(inout) :: chkp
     character(len=12), parameter :: scheme = 'compressible'
     integer :: rk_order
 

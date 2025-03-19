@@ -162,7 +162,7 @@ contains
   !! @param wlag Lag arrays for the z velocity component.
   !! @param time_scheme The time-integration controller.
   !! @param rho The fluid density.
-  subroutine scalar_pnpn_init(this, msh, coef, gs, params, user, &
+  subroutine scalar_pnpn_init(this, msh, coef, gs, params, user, chkp, &
        ulag, vlag, wlag, time_scheme, rho)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(in) :: msh
@@ -170,12 +170,14 @@ contains
     type(gs_t), target, intent(inout) :: gs
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
+    type(chkp_t), target, intent(inout) :: chkp
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     real(kind=rp), intent(in) :: rho
     integer :: i
     class(bc_t), pointer :: bc_i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
+    logical :: advection
 
     call this%free()
 
@@ -238,7 +240,19 @@ contains
 
     ! Determine the time-interpolation scheme
     call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
-
+    !> Point to case checkpoint
+    this%chkp => chkp
+    ! Initialize advection factory
+    call json_get_or_default(params, 'case.scalar.advection', advection, .true.)
+    call advection_factory(this%adv, params, this%c_Xh, &
+                           ulag, vlag, wlag, this%chkp%dtlag, &
+                           this%chkp%tlag, time_scheme, .not. advection, &
+                           this%slag)
+    !Add scalar info to checkpoint
+    call this%chkp%add_scalar(this%s)
+    this%chkp%abs1 => this%abx1
+    this%chkp%abs2 => this%abx2
+    this%chkp%slag => this%slag
   end subroutine scalar_pnpn_init
 
   !Restarts the scalar from a checkpoint

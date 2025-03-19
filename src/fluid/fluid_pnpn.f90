@@ -236,12 +236,13 @@ module fluid_pnpn
 
 contains
 
-  subroutine fluid_pnpn_init(this, msh, lx, params, user)
+  subroutine fluid_pnpn_init(this, msh, lx, params, user, chkp)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(in) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
+    type(chkp_t), target, intent(inout) :: chkp
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     integer :: i
     class(bc_t), pointer :: bc_i, vel_bc
@@ -261,7 +262,7 @@ contains
     ! Xh as the velocity
     call neko_field_registry%add_field(this%dm_Xh, 'p')
     this%p => neko_field_registry%get_field('p')
-
+    
     !
     ! Select governing equations via associated residual and Ax types
     !
@@ -305,6 +306,7 @@ contains
 
     ! Setup backend dependent summations of the OIFS method
     call rhs_maker_oifs_fctry(this%makeoifs)
+
 
     ! Initialize variables specific to this plan
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
@@ -373,6 +375,25 @@ contains
          solver_type, solver_maxiter, abs_tol, monitor)
     call this%precon_factory_(this%pc_prs, this%ksp_prs, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_prs, precon_type)
+    ! Initialize the advection factory
+    call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
+    call advection_factory(this%adv, params, this%c_Xh, &
+         this%ulag, this%vlag, this%wlag, &
+         chkp%dtlag, chkp%tlag, this%ext_bdf, &
+         .not. advection)
+    !> Should be in init_base maybe? 
+    this%chkp => chkp
+    !> This is probably scheme specific
+    !> Should not be init really, but more like, add fluid or something...
+    call this%chkp%init(this%u, this%v, this%w, this%p)
+
+    this%chkp%abx1 => this%abx1
+    this%chkp%abx2 => this%abx2
+    this%chkp%aby1 => this%aby1
+    this%chkp%aby2 => this%aby2
+    this%chkp%abz1 => this%abz1
+    this%chkp%abz2 => this%abz2
+    call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
 
     call neko_log%end_section()
 
