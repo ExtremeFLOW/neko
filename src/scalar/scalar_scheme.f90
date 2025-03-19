@@ -550,13 +550,13 @@ contains
        call user%material_properties(0.0_rp, 0, dummy_rho, dummy_mu, &
             this%cp, this%lambda, params)
     else
-       if (params%valid_path('case.scalar.Pe') .and. &
-            (params%valid_path('case.scalar.lambda') .or. &
-            params%valid_path('case.scalar.cp'))) then
+       if (params%valid_path('Pe') .and. &
+            (params%valid_path('lambda') .or. &
+            params%valid_path('cp'))) then
           call neko_error("To set the material properties for the scalar, " // &
                "either provide Pe OR lambda and cp in the case file.")
           ! Non-dimensional case
-       else if (params%valid_path('case.scalar.Pe')) then
+       else if (params%valid_path('Pe')) then
           write(log_buf, '(A)') 'Non-dimensional scalar material properties' //&
                ' input.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
