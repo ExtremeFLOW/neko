@@ -287,7 +287,7 @@ keywords:
   alternatives are provided and the default one is `pointwise` if
   nothing is specified:
   - `pointwise`: Computes a local value based on the spacing of the GLL nodes.
-  - `elementwise_avg`: Computes a single value for the whole element based on the
+  - `elementwise_average`: Computes a single value for the whole element based on the
     average spacing of the GLL nodes within the element.
   - `elementwise_max`: Computes a single value for the whole element based on the
     maximum spacing of the GLL nodes within the element.
