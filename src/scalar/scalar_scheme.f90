@@ -255,7 +255,7 @@ contains
     this%w => neko_field_registry%get_field('w')
 
     ! Assign a name
-    call json_get_or_default(params, 'name', this%name, "scalar")
+    call json_get_or_default(params, 'name', this%name, 'scalar')
 
     call neko_log%section('Scalar')
     call json_get(params, 'solver.type', solver_type)
