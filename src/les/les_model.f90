@@ -58,7 +58,7 @@ module les_model
   ! List of all possible types created by the factory routine
   character(len=20) :: DELTA_KNOWN_TYPES(3) = [character(len=20) :: &
        "pointwise", &
-       "elementwise_avg", &
+       "elementwise_average", &
        "elementwise_max"]
 
   !> Base abstract type for LES models based on the Boussinesq approximation.
