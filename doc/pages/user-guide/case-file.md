@@ -373,7 +373,7 @@ The means of prescribing the values are controlled via the `type` keyword:
 file documentation.
 2. `uniform`, the value is a constant vector, looked up under the `value`
    keyword.
-3. `blasius`, a Blasius profile is prescribed. The boundary cannot be tilted 
+3. `blasius`, a Blasius profile is prescribed. The boundary cannot be tilted
   with respect to the coordinate axes.
    It requires the following parameters:
    1. `delta`, the thickness of the boundary layer.
@@ -678,6 +678,7 @@ concisely directly in the table.
 | Name                                    | Description                                                                                       | Admissible values                                           | Default value |
 |-----------------------------------------|---------------------------------------------------------------------------------------------------|-------------------------------------------------------------|---------------|
 | `scheme`                                | The fluid solve type.                                                                             | `pnpn`                                                      | -             |
+| `name`                                  | The name associated to the fluid scheme.                                                          | String                                                      | `fluid`       |
 | `Re`                                    | The Reynolds number.                                                                              | Positive real                                               | -             |
 | `rho`                                   | The density of the fluid.                                                                         | Positive real                                               | -             |
 | `mu`                                    | The dynamic viscosity of the fluid.                                                               | Positive real                                               | -             |
@@ -814,6 +815,7 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | Name                           | Description                                                       | Admissible values                           | Default value |
 |--------------------------------|-------------------------------------------------------------------|---------------------------------------------|---------------|
 | `enabled`                      | Whether to enable the scalar computation.                         | `true` or `false`                           | `true`        |
+| `name`                         | The name associated to the scalar solver.                         | String                                      | `scalar`      |
 | `field_name`                   | The name of the solution in the field registry.                   | A string                                    | `s`           |
 | `Pe`                           | The Peclet number.                                                | Positive real                               | -             |
 | `cp`                           | Specific heat capacity.                                           | Positive real                               | -             |

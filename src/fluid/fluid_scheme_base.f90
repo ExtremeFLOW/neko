@@ -57,6 +57,9 @@ module fluid_scheme_base
 
   !> Base type of all fluid formulations.
   type, abstract :: fluid_scheme_base_t
+     !> A name that can be used to distinguish this solver in e.g. user routines
+     character(len=:), allocatable :: name
+
      type(space_t) :: Xh !< Function space \f$ X_h \f$
      type(dofmap_t) :: dm_Xh !< Dofmap associated with \f$ X_h \f$
      type(gs_t) :: gs_Xh !< Gather-scatter associated with \f$ X_h \f$
