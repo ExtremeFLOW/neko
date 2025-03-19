@@ -6,7 +6,7 @@ Neko can be installed in various ways, either building directly from source, man
 
 ## Building from source
 
-To build Neko, you will need a Fortran compiler supporting the Fortran-08 standard, autotools, libtool, pkg-config, a working MPI installation supporting the Fortran 2008 bindings (`mpi_f08`), BLAS/LAPACK and JSON-Fortran. Optional dependencies are PFunit, gslib and ParMETIS.
+To build Neko, you will need a Fortran compiler supporting the Fortran-08 standard, autotools, libtool, pkg-config, a working MPI installation supporting the Fortran 2008 bindings (`mpi_f08`), BLAS/LAPACK and JSON-Fortran. Optional dependencies are PFunit, gslib, HDF5 and ParMETIS.
 
 Follow the steps below to install the less common dependencies (e.g. JSON-Fortran).
 
