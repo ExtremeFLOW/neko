@@ -75,12 +75,14 @@ contains
     character(len=:), allocatable :: nut_name
     real(kind=rp) :: c
     character(len=:), allocatable :: delta_type
+    logical :: if_ext
     character(len=LOG_SIZE) :: log_buf
 
     call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     ! Based on  C = 1.35 as default values
     call json_get_or_default(json, "c", c, 1.35_rp)
+    call json_get_or_default(json, "extrapolation", if_ext, .false.)
 
     call neko_log%section('LES model')
     write(log_buf, '(A)') 'Model : Sigma'
@@ -89,26 +91,32 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A, E15.7)') 'c : ', c
     call neko_log%message(log_buf)
+    write(log_buf, '(A, L1)') 'extrapolation : ', if_ext
+    call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    call sigma_init_from_components(this, fluid, c, nut_name, delta_type)
+    call sigma_init_from_components(this, fluid, c, nut_name, delta_type, &
+         if_ext)
   end subroutine sigma_init
 
   !> Constructor from components.
   !! @param fluid The fluid_scheme_base_t object.
   !! @param c The model constant.
   !! @param nut_name The name of the SGS viscosity field.
+  !! @param delta_type The type of filter size.
+  !! @param if_ext Whether trapolate the velocity.
   subroutine sigma_init_from_components(this, fluid, c, nut_name, &
-       delta_type)
+       delta_type, if_ext)
     class(sigma_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     real(kind=rp) :: c
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
+    logical, intent(in) :: if_ext
 
     call this%free()
 
-    call this%init_base(fluid, nut_name, delta_type)
+    call this%init_base(fluid, nut_name, delta_type, if_ext)
 
     this%c = c
 

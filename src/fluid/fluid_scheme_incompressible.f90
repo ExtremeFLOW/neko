@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2024, The Neko Authors
+! Copyright (c) 2020-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 !> Fluid formulations
 module fluid_scheme_incompressible
   use fluid_scheme_base, only : fluid_scheme_base_t
-  use gather_scatter, only : gs_t
+  use gather_scatter, only : gs_t, GS_OP_MIN, GS_OP_MAX
   use mean_sqr_flow, only : mean_sqr_flow_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use checkpoint, only : chkp_t
@@ -45,8 +45,7 @@ module fluid_scheme_incompressible
   use space, only : space_t, GLL
   use dofmap, only : dofmap_t
   use zero_dirichlet, only : zero_dirichlet_t
-  use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy, &
-       KSP_MAX_ITER
+  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
   use coefs, only: coef_t
   use usr_inflow, only : usr_inflow_t, usr_inflow_eval
   use dirichlet, only : dirichlet_t
@@ -79,6 +78,8 @@ module fluid_scheme_incompressible
   use field_math, only : field_cfill, field_add2s2
   use shear_stress, only : shear_stress_t
   use gradient_jump_penalty, only : gradient_jump_penalty_t
+  use device, only : device_event_sync, device_stream_wait_event, &
+       glb_cmd_queue, glb_cmd_event
   implicit none
   private
 
@@ -197,12 +198,17 @@ contains
     ! Local scratch registry
     this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
 
+    ! Assign a name
+    call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
+
     !
     ! First section of fluid log
     !
 
     call neko_log%section('Fluid')
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Name       : ', trim(this%name)
     call neko_log%message(log_buf)
 
     !
@@ -385,8 +391,6 @@ contains
 
     call neko_log%end_section()
 
-
-
   end subroutine fluid_scheme_init_base
 
   subroutine fluid_scheme_free(this)
@@ -399,12 +403,12 @@ contains
     call this%Xh%free()
 
     if (allocated(this%ksp_vel)) then
-       call krylov_solver_destroy(this%ksp_vel)
+       call this%ksp_vel%free()
        deallocate(this%ksp_vel)
     end if
 
     if (allocated(this%ksp_prs)) then
-       call krylov_solver_destroy(this%ksp_prs)
+       call this%ksp_prs%free()
        deallocate(this%ksp_prs)
     end if
 
@@ -468,7 +472,6 @@ contains
        call this%gradient_jump_penalty_w%free()
     end if
 
-
   end subroutine fluid_scheme_free
 
   !> Validate that all fields, solvers etc necessary for
@@ -519,6 +522,21 @@ contains
 
     call this%bcs_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep, strong)
+    call this%gs_Xh%op(this%u, GS_OP_MIN, glb_cmd_event)
+    call this%gs_Xh%op(this%v, GS_OP_MIN, glb_cmd_event)
+    call this%gs_Xh%op(this%w, GS_OP_MIN, glb_cmd_event)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+    end if
+
+    call this%bcs_vel%apply_vector(&
+         this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep, strong)
+    call this%gs_Xh%op(this%u, GS_OP_MAX, glb_cmd_event)
+    call this%gs_Xh%op(this%v, GS_OP_MAX, glb_cmd_event)
+    call this%gs_Xh%op(this%w, GS_OP_MAX, glb_cmd_event)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+    end if
 
   end subroutine fluid_scheme_bc_apply_vel
 
@@ -530,6 +548,17 @@ contains
     integer, intent(in) :: tstep
 
     call this%bcs_prs%apply(this%p, t, tstep)
+    call this%gs_Xh%op(this%p,GS_OP_MIN, glb_cmd_event)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+    end if
+
+    call this%bcs_prs%apply(this%p, t, tstep)
+    call this%gs_Xh%op(this%p,GS_OP_MAX, glb_cmd_event)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+    end if
+
 
   end subroutine fluid_scheme_bc_apply_prs
 
@@ -633,7 +662,7 @@ contains
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
 
        write(log_buf, '(A)') "Material properties must be set in the user&
-            & file!"
+       & file!"
        call neko_log%message(log_buf)
        call user%material_properties(0.0_rp, 0, this%rho, this%mu, &
             dummy_cp, dummy_lambda, params)
@@ -642,17 +671,17 @@ contains
        if (params%valid_path('case.fluid.Re') .and. &
             (params%valid_path('case.fluid.mu') .or. &
             params%valid_path('case.fluid.rho'))) then
-          call neko_error("To set the material properties for the fluid,&
-               & either provide Re OR mu and rho in the case file.")
+          call neko_error("To set the material properties for the fluid," // &
+               " either provide Re OR mu and rho in the case file.")
 
           ! Non-dimensional case
        else if (params%valid_path('case.fluid.Re')) then
 
           write(log_buf, '(A)') 'Non-dimensional fluid material properties &
-               & input.'
+          & input.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
           write(log_buf, '(A)') 'Density will be set to 1, dynamic viscosity to&
-               & 1/Re.'
+          & 1/Re.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
           ! Read Re into mu for further manipulation.

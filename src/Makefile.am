@@ -44,6 +44,7 @@ neko_fortran_SOURCES = \
 	gs/gs_mpi.f90\
 	gs/bcknd/device/gs_device_mpi.F90\
 	gs/bcknd/device/gs_device_nccl.F90\
+	gs/bcknd/device/gs_device_shmem.F90\
 	gs/gather_scatter.f90\
 	mesh/entity.f90\
 	mesh/point.f90\
@@ -217,6 +218,7 @@ neko_fortran_SOURCES = \
 	fluid/fluid_pnpn.f90\
 	fluid/fluid_base_fctry.f90\
 	fluid/fluid_pnpn_bc_fctry.f90\
+	fluid/euler_bc_fctry.f90\
 	fluid/fluid_volflow.f90\
 	fluid/pnpn_res.f90\
 	fluid/pnpn_res_fctry.f90\
@@ -346,6 +348,8 @@ neko_fortran_SOURCES = \
 	les/bcknd/cpu/sigma_cpu.f90\
 	les/bcknd/device/sigma_device.f90\
 	les/bcknd/device/device_sigma_nut.F90\
+	les/wale.f90\
+	les/bcknd/cpu/wale_cpu.f90\
 	wall_models/wall_model.f90\
 	wall_models/rough_log_law.f90\
 	wall_models/spalding.f90\
@@ -436,6 +440,7 @@ libneko_la_SOURCES += \
 	krylov/bcknd/device/cuda/fusedcg_cpld_aux.cu\
 	krylov/bcknd/device/cuda/gmres_aux.cu\
 	gs/bcknd/device/cuda/gs.cu\
+	gs/bcknd/device/cuda/gs_nvshmem.cu\
 	bc/bcknd/device/cuda/dirichlet.cu\
 	bc/bcknd/device/cuda/inflow.cu\
 	bc/bcknd/device/cuda/zero_dirichlet.cu\
@@ -455,7 +460,9 @@ libneko_la_SOURCES += \
 	les/bcknd/device/cuda/sigma_nut.cu\
 	les/bcknd/device/cuda/vreman_nut.cu\
 	les/bcknd/device/cuda/smagorinsky_nut.cu\
-	les/bcknd/device/cuda/dynamic_smagorinsky_nut.cu
+	les/bcknd/device/cuda/dynamic_smagorinsky_nut.cu\
+	comm/bcknd/device/cuda/comm_nvshmem.cu
+
 
 BUILT_SOURCES = libtool_cuda
 
@@ -488,6 +495,7 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/opencl/dong_outflow.c\
 	common/bcknd/device/opencl/rhs_maker.c\
 	fluid/bcknd/device/opencl/pnpn_res.c\
+	fluid/bcknd/device/opencl/euler_res.c\
 	scalar/bcknd/device/opencl/scalar_residual.c\
 	sem/bcknd/device/opencl/coef.c\
 	source_terms/bcknd/device/opencl/filters.c
@@ -527,10 +535,11 @@ libneko_la_LIBADD = \
 endif
 
 
+if !ENABLE_NVSHMEM
 bin_PROGRAMS = neko
 neko_SOURCES = driver.f90
 neko_LDADD= libneko.la
-
+endif
 
 pkginclude_HEADERS = \
 	$(wildcard *.mod)\
@@ -584,6 +593,7 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/inhom_dirichlet_kernel.h\
 	bc/bcknd/device/cuda/dong_outflow_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
+	gs/bcknd/device/cuda/gs_nvshmem_kernels.h\
 	math/bcknd/device/cuda/math_kernel.h\
 	math/bcknd/device/cuda/tensor_kernel.h\
 	math/bcknd/device/cuda/fdm_kernel.h\
@@ -677,6 +687,7 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/cfl_kernel.cl\
 	common/bcknd/device/opencl/rhs_maker_kernel.cl\
 	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\
+	fluid/bcknd/device/opencl/euler_res_kernel.cl\
 	scalar/bcknd/device/opencl/scalar_residual_kernel.cl\
 	gs/bcknd/device/opencl/gs_kernels.cl\
 	krylov/bcknd/device/opencl/jacobi_kernel.cl\
