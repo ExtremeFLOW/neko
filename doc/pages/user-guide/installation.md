@@ -44,7 +44,7 @@ tar xvf hdf5_1.14.6.tar.gz
 cd hdf5-hdf5_1.14.6/
 mkdir build && cd build
 
-cmake -DCMAKE_INSTALL_PREFIX=/path/to/installation -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_Fortran_COMPILER=mpifort -DHDF5_ENABLE_PARALLEL=ON -DHDF5_BUILD_FORTRAN=ON -DHDF5_BUILD_HL_FORTRAN=ON  ..
+cmake -DCMAKE_INSTALL_PREFIX=/path/to/installation -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_Fortran_COMPILER=mpifort -DHDF5_ENABLE_PARALLEL=ON -DHDF5_BUILD_FORTRAN=ON ..
 
 make install
 ```
