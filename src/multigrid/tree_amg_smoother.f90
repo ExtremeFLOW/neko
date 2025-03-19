@@ -307,7 +307,7 @@ contains
   !! @param f The right-hand side
   !! @param n Number of dofs
   !! @param amg The TreeAMG object
-  subroutine amg_device_cheby_solve(this, x, f, x_d, f_d, n, amg, niter)
+  subroutine amg_device_cheby_solve(this, x, f, x_d, f_d, n, amg, zero_init)
     class(amg_cheby_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: x
@@ -316,29 +316,33 @@ contains
     type(c_ptr) :: f_d
     class(tamg_hierarchy_t), intent(inout) :: amg
     type(ksp_monitor_t) :: ksp_results
-    integer, optional, intent(in) :: niter
+    logical, optional, intent(in) :: zero_init
     integer :: iter, max_iter
     real(kind=rp) :: rtr, rnorm
     real(kind=rp) :: rhok, rhokp1, s1, thet, delt, tmp1, tmp2
+    logical :: zero_initial_guess
     if (this%recompute_eigs) then
        call this%device_comp_eig(amg, n)
     end if
-    if (present(niter)) then
-       max_iter = niter
+    if (present(zero_init)) then
+      zero_initial_guess = zero_init
     else
-       max_iter = this%max_iter
+      zero_initial_guess = .false.
     end if
+    max_iter = this%max_iter
     associate( w_d => this%w_d, r_d => this%r_d, d_d => this%d_d, blst=>amg%blst)
       call device_copy(r_d, f_d, n)
-      call amg%device_matvec(this%w, x, w_d, x_d, this%lvl)
-      call device_sub2(r_d, w_d, n)
+      if (.not. zero_initial_guess) then
+         call amg%device_matvec(this%w, x, w_d, x_d, this%lvl)
+         call device_sub2(r_d, w_d, n)
+      end if
       thet = this%tha
       delt = this%dlt
       s1 = thet / delt
       rhok = 1.0_rp / s1
       call device_cmult2(d_d, r_d, 1.0_rp/thet, n)
+      call device_add2(x_d,d_d,n)
       do iter = 1, max_iter
-         call device_add2(x_d,d_d,n)
          call amg%device_matvec(this%w, this%d, w_d, d_d, this%lvl)
          call device_sub2(r_d, w_d, n)
          rhokp1 = 1.0_rp / (2.0_rp * s1 - rhok)
@@ -346,6 +350,7 @@ contains
          tmp2 = 2.0_rp * rhokp1 / delt
          rhok = rhokp1
          call device_add3s2(d_d, d_d, r_d, tmp1, tmp2, n)
+         call device_add2(x_d,d_d,n)
       end do
     end associate
   end subroutine amg_device_cheby_solve
