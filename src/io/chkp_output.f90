@@ -59,21 +59,21 @@ contains
     character(len=1024) :: fname
     character(len=10) :: suffix
 
-    !suffix = '.chkp'
-    !if (present(fmt)) then
-    !   if (fmt .eq. 'hdf5') then
-    !      suffix = '.h5'
-    !   end if
-    !end if
+    suffix = '.chkp'
+    if (present(fmt)) then
+       if (fmt .eq. 'hdf5') then
+          suffix = '.h5'
+       end if
+    end if
 
     if (present(name) .and. present(path)) then
-       fname = trim(path) // trim(name)
+       fname = trim(path) // trim(name) // trim(suffix)
     else if (present(name)) then
-       fname = trim(name) 
+       fname = trim(name) // trim(suffix)
     else if (present(path)) then
-       fname = trim(path) // 'fluid.chkp'
+       fname = trim(path) // 'fluid' // trim(suffix)
     else
-       fname= 'fluid.chkp'
+       fname= 'fluid' // trim(suffix)
     end if
 
     call this%init_base(fname)
