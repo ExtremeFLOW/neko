@@ -351,18 +351,6 @@ contains
 
     ! Determine the time-interpolation scheme
     call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
-<<<<<<< HEAD
-=======
-
-    ! Initialize the advection factory
-    call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
-    call json_extract_object(params, 'case.numerics', numerics_params)
-    call advection_factory(this%adv, numerics_params, this%c_Xh, &
-         this%ulag, this%vlag, this%wlag, &
-         this%chkp%dtlag, this%chkp%tlag, this%ext_bdf, &
-         .not. advection)
-
->>>>>>> 24660f35a432d43dc911371585531c41c0375977
     if (params%valid_path('case.fluid.flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)
     end if

@@ -166,7 +166,6 @@ contains
 
     ! Run user startup routine
     call this%usr%user_startup(this%params)
->>>>>>> 24660f35a432d43dc911371585531c41c0375977
 
     !
     ! Load mesh
@@ -258,11 +257,9 @@ contains
     if (scalar) then
        allocate(this%scalar)
        call this%scalar%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-            this%params, this%usr, this%chkp, this%fluid%ulag, &
+            scalar_params, numerics_params, this%usr, this%chkp, this%fluid%ulag, &
             this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
             this%fluid%rho)
-       ! Initialize advection factory
-       call json_get_or_default(this%params, 'case.scalar.advection', advection, .true.)
    
     end if
 
