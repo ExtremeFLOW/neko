@@ -508,9 +508,9 @@ contains
   end subroutine compute_h
 
   !> Restart the simulation from saved state
-  !> @param this The fluid scheme object
-  !> @param dtlag Previous timestep sizes
-  !> @param tlag Previous time values
+  !! @param this The fluid scheme object
+  !! @param dtlag Previous timestep sizes
+  !! @param tlag Previous time values
   subroutine fluid_scheme_compressible_euler_restart(this, chkp)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp

@@ -309,7 +309,6 @@ contains
     ! Setup backend dependent summations of the OIFS method
     call rhs_maker_oifs_fctry(this%makeoifs)
 
-
     ! Initialize variables specific to this plan
     associate(Xh_lx => this%Xh%lx, Xh_ly => this%Xh%ly, Xh_lz => this%Xh%lz, &
          dm_Xh => this%dm_Xh, nelv => this%msh%nelv)
