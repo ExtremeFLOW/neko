@@ -25,26 +25,59 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macos-13]
-        compiler: [gfortran-10, gfortran-11, gfortran-12]
+        os: [ubuntu-24.04, ubuntu-24.04-arm, macos-13, macos-15]
+        compiler: [gfortran-12, gfortran-13, gfortran-14]
         backend: [cpu, cuda, hip, opencl]
         precision: [sp, dp]
         exclude:
-          - os: ubuntu-20.04
-            compiler: gfortran-11
-          - os: ubuntu-20.04
-            compiler: gfortran-12
-          - os: ubuntu-20.04
+          - os: ubuntu-24.04
             backend: opencl
+          - os: ubuntu-24.04-arm
+            backend: cuda
+          - os: ubuntu-24.04-arm
+            backend: hip
+          - os: ubuntu-24.04-arm
+            backend: opencl
+          - os: ubuntu-24.04-arm
+            compiler: gfortran-12
+          - os: ubuntu-24.04-arm
+            compiler: gfortran-13
           - os: macos-13
-            compiler: gfortran-10
+            compiler: gfortran-12
+          - os: macos-13
+            compiler: gfortran-13
           - os: macos-13
             backend: cuda
           - os: macos-13
             backend: hip
+          - os: macos-15
+            compiler: gfortran-12
+          - os: macos-15
+            compiler: gfortran-13
+          - os: macos-15
+            backend: cuda
+          - os: macos-15
+            backend: hip
+          - compiler: gfortran-12
+            backend: cuda
+          - compiler: gfortran-12
+            backend: hip
+          - compiler: gfortran-13
+            backend: cuda
+          - compiler: gfortran-13
+            backend: hip
 
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-24.04
+            setup-env: |
+              sudo apt-get update
+              sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
+                automake autotools-dev libopenblas-dev make git m4 python3 \
+                cmake-curses-gui
+              echo "nproc=$(nproc)" >> $GITHUB_OUTPUT
+              echo "os-version=$(lsb_release -ds | tr " " -)" >> $GITHUB_OUTPUT
+
+          - os: ubuntu-24.04-arm
             setup-env: |
               sudo apt-get update
               sudo apt-get install -y openmpi-bin libopenmpi-dev autoconf \
@@ -58,8 +91,15 @@ jobs:
               export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
               brew install openmpi
               brew install automake
-              brew install gcc@11
-              brew install gcc@12
+              echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
+              echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
+              
+          - os: macos-15
+            setup-env: |
+              export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+              brew install openmpi
+              brew install automake
+              brew install libtool
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
 

@@ -122,6 +122,16 @@ module simulation_component
      end subroutine simulation_component_factory
   end interface
 
+  interface
+     !> Simulation component allocator.
+     !! @param object The object to be allocated.
+     !! @param type_name The name of the simcomp type.
+     module subroutine simulation_component_allocator(object, type_name)
+       class(simulation_component_t), allocatable, intent(inout) :: object
+       character(len=*), intent(in):: type_name
+     end subroutine simulation_component_allocator
+  end interface
+
   public :: simulation_component_factory
 
 contains

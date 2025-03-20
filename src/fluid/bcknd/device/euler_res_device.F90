@@ -226,6 +226,93 @@ module euler_res_device
        integer(c_int) :: n
      end subroutine euler_res_part_rk_sum_cuda
   end interface
+#elif HAVE_OPENCL
+  interface
+     subroutine euler_res_part_visc_opencl(rhs_field_d, Binv_d, field_d, &
+          h, c_avisc_low, n) &
+          bind(c, name = 'euler_res_part_visc_opencl')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: rhs_field_d, Binv_d, field_d, h
+       real(c_rp) :: c_avisc_low
+       integer(c_int) :: n
+     end subroutine euler_res_part_visc_opencl
+  end interface
+
+  interface
+     subroutine euler_res_part_mx_flux_opencl(f_x, f_y, f_z, &
+          m_x, m_y, m_z, rho_field, p, n) &
+          bind(c, name = 'euler_res_part_mx_flux_opencl')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
+       integer(c_int) :: n
+     end subroutine euler_res_part_mx_flux_opencl
+  end interface
+
+  interface
+     subroutine euler_res_part_my_flux_opencl(f_x, f_y, f_z, &
+          m_x, m_y, m_z, rho_field, p, n) &
+          bind(c, name = 'euler_res_part_my_flux_opencl')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
+       integer(c_int) :: n
+     end subroutine euler_res_part_my_flux_opencl
+  end interface
+
+  interface
+     subroutine euler_res_part_mz_flux_opencl(f_x, f_y, f_z, &
+          m_x, m_y, m_z, rho_field, p, n) &
+          bind(c, name = 'euler_res_part_mz_flux_opencl')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p
+       integer(c_int) :: n
+     end subroutine euler_res_part_mz_flux_opencl
+  end interface
+
+  interface
+     subroutine euler_res_part_E_flux_opencl(f_x, f_y, f_z, &
+          m_x, m_y, m_z, rho_field, p, E, n) &
+          bind(c, name = 'euler_res_part_E_flux_opencl')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: f_x, f_y, f_z, m_x, m_y, m_z, rho_field, p, E
+       integer(c_int) :: n
+     end subroutine euler_res_part_E_flux_opencl
+  end interface
+
+  interface
+     subroutine euler_res_part_coef_mult_opencl(rhs_rho_field_d, &
+          rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
+          rhs_E_d, mult_d, n) &
+          bind(c, name = 'euler_res_part_coef_mult_opencl')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       type(c_ptr), value :: rhs_rho_field_d, rhs_m_x_d, rhs_m_y_d, rhs_m_z_d, &
+            rhs_E_d, mult_d
+       integer(c_int) :: n
+     end subroutine euler_res_part_coef_mult_opencl
+  end interface
+
+  interface
+     subroutine euler_res_part_rk_sum_opencl(rho, m_x, m_y, m_z, E, &
+          k_rho_i, k_m_x_i, k_m_y_i, &
+          k_m_z_i, k_E_i, &
+          dt, c, n) &
+          bind(c, name = 'euler_res_part_rk_sum_opencl')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       implicit none
+       type(c_ptr), value :: rho, m_x, m_y, m_z, E, &
+            k_rho_i, k_m_x_i, k_m_y_i, &
+            k_m_z_i, k_E_i
+       real(c_rp) :: dt, c
+       integer(c_int) :: n
+     end subroutine euler_res_part_rk_sum_opencl
+  end interface
 #endif
 
 contains
@@ -327,7 +414,11 @@ contains
                k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
                dt, rk_scheme%coeffs_A(i, j), n)
 #elif HAVE_OPENCL
-          call neko_error("OpenCL not supported")
+          call euler_res_part_rk_sum_opencl(temp_rho%x_d, temp_m_x%x_d, temp_m_y%x_d, &
+               temp_m_z%x_d, temp_E%x_d, &
+               k_rho%items(j)%ptr%x_d, k_m_x%items(j)%ptr%x_d, k_m_y%items(j)%ptr%x_d, &
+               k_m_z%items(j)%ptr%x_d, k_E%items(j)%ptr%x_d, &
+               dt, rk_scheme%coeffs_A(i, j), n)
 #endif
        end do
 
@@ -354,7 +445,11 @@ contains
             k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
             dt, rk_scheme%coeffs_b(i), n)
 #elif HAVE_OPENCL
-       call neko_error("OpenCL not supported")
+       call euler_res_part_rk_sum_opencl(rho_field%x_d, &
+            m_x%x_d, m_y%x_d, m_z%x_d, E%x_d, &
+            k_rho%items(i)%ptr%x_d, k_m_x%items(i)%ptr%x_d, k_m_y%items(i)%ptr%x_d, &
+            k_m_z%items(i)%ptr%x_d, k_E%items(i)%ptr%x_d, &
+            dt, rk_scheme%coeffs_b(i), n)
 #endif
     end do
 
@@ -395,7 +490,8 @@ contains
     call euler_res_part_mx_flux_cuda(f_x%x_d, f_y%x_d, f_z%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, rho_field%x_d, p%x_d, n)
 #elif HAVE_OPENCL
-    call neko_error("OpenCL not supported")
+    call euler_res_part_mx_flux_opencl(f_x%x_d, f_y%x_d, f_z%x_d, &
+         m_x%x_d, m_y%x_d, m_z%x_d, rho_field%x_d, p%x_d, n)
 #endif
     call div(rhs_m_x%x, f_x%x, f_y%x, f_z%x, coef)
     ! m_y
@@ -408,7 +504,9 @@ contains
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, n)
 #elif HAVE_OPENCL
-    call neko_error("OpenCL not supported")
+    call euler_res_part_my_flux_opencl(f_x%x_d, f_y%x_d, f_z%x_d, &
+         m_x%x_d, m_y%x_d, m_z%x_d, &
+         rho_field%x_d, p%x_d, n)
 #endif
     call div(rhs_m_y%x, f_x%x, f_y%x, f_z%x, coef)
     ! m_z
@@ -421,7 +519,9 @@ contains
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, n)
 #elif HAVE_OPENCL
-    call neko_error("OpenCL not supported")
+    call euler_res_part_mz_flux_opencl(f_x%x_d, f_y%x_d, f_z%x_d, &
+         m_x%x_d, m_y%x_d, m_z%x_d, &
+         rho_field%x_d, p%x_d, n)
 #endif
     call div(rhs_m_z%x, f_x%x, f_y%x, f_z%x, coef)
 
@@ -435,7 +535,9 @@ contains
          m_x%x_d, m_y%x_d, m_z%x_d, &
          rho_field%x_d, p%x_d, E%x_d, n)
 #elif HAVE_OPENCL
-    call neko_error("OpenCL not supported")
+    call euler_res_part_E_flux_opencl(f_x%x_d, f_y%x_d, f_z%x_d, &
+         m_x%x_d, m_y%x_d, m_z%x_d, &
+         rho_field%x_d, p%x_d, E%x_d, n)
 #endif
     call div(rhs_E%x, f_x%x, f_y%x, f_z%x, coef)
 
@@ -451,6 +553,10 @@ contains
          rhs_E%x_d, coef%mult_d, n)
 #elif HAVE_CUDA
     call euler_res_part_coef_mult_cuda(rhs_rho_field%x_d, rhs_m_x%x_d, &
+         rhs_m_y%x_d, rhs_m_z%x_d, &
+         rhs_E%x_d, coef%mult_d, n)
+#elif HAVE_OPENCL
+    call euler_res_part_coef_mult_opencl(rhs_rho_field%x_d, rhs_m_x%x_d, &
          rhs_m_y%x_d, rhs_m_z%x_d, &
          rhs_E%x_d, coef%mult_d, n)
 #endif
@@ -497,7 +603,16 @@ contains
     call euler_res_part_visc_cuda(rhs_E%x_d, coef%Binv_d, &
          visc_E%x_d, h%x_d, c_avisc_low, n)
 #elif HAVE_OPENCL
-    call neko_error("OpenCL not supported")
+    call euler_res_part_visc_opencl(rhs_rho_field%x_d, coef%Binv_d, &
+         visc_rho%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_opencl(rhs_m_x%x_d, coef%Binv_d, &
+         visc_m_x%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_opencl(rhs_m_y%x_d, coef%Binv_d, &
+         visc_m_y%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_opencl(rhs_m_z%x_d, coef%Binv_d, &
+         visc_m_z%x_d, h%x_d, c_avisc_low, n)
+    call euler_res_part_visc_opencl(rhs_E%x_d, coef%Binv_d, &
+         visc_E%x_d, h%x_d, c_avisc_low, n)
 #endif
 
     call neko_scratch_registry%relinquish_field(temp_indices)

@@ -47,7 +47,7 @@ module case
   use file, only : file_t
   use utils, only : neko_error
   use mesh, only : mesh_t
-  use advection, only : advection_factory
+  use math, only : NEKO_EPS
   use comm
   use checkpoint, only: chkp_t
   use time_scheme_controller, only : time_scheme_controller_t
@@ -56,7 +56,7 @@ module case
   use user_intf, only : user_t
   use scalar_pnpn, only : scalar_pnpn_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, json_extract_object
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
   implicit none
@@ -156,7 +156,17 @@ contains
     character(len = :), allocatable :: string_val, name
     integer :: output_dir_len
     integer :: precision
-    logical :: advection
+    type(json_file) :: scalar_params, numerics_params
+    type(json_file) :: json_subdict
+
+    !
+    ! Setup user defined functions
+    !
+    call this%usr%init()
+
+    ! Run user startup routine
+    call this%usr%user_startup(this%params)
+>>>>>>> 24660f35a432d43dc911371585531c41c0375977
 
     !
     ! Load mesh
@@ -212,11 +222,10 @@ contains
     !
     call neko_point_zone_registry%init(this%params, this%msh)
 
-    !
-    ! Setup user defined functions
-    !
-    call this%usr%init()
+    ! Run user mesh motion routine
     call this%usr%user_mesh_setup(this%msh)
+
+    call json_extract_object(this%params, 'case.numerics', numerics_params)
 
     !
     ! Setup fluid scheme
@@ -260,15 +269,17 @@ contains
     !
     ! Setup initial conditions
     !
-    call json_get(this%params, 'case.fluid.initial_condition.type',&
+    call json_get(this%params, 'case.fluid.initial_condition.type', &
          string_val)
+    call json_extract_object(this%params, 'case.fluid.initial_condition', &
+         json_subdict)
 
     call neko_log%section("Fluid initial condition ")
 
     if (trim(string_val) .ne. 'user') then
        call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, &
             this%fluid%p, this%fluid%c_Xh, this%fluid%gs_Xh, string_val, &
-            this%params)
+            json_subdict)
     else
        call json_get(this%params, 'case.fluid.scheme', string_val)
        if (trim(string_val) .eq. 'compressible') then
@@ -289,12 +300,14 @@ contains
 
        call json_get(this%params, 'case.scalar.initial_condition.type', &
             string_val)
+       call json_extract_object(this%params, 'case.scalar.initial_condition', &
+            json_subdict)
 
        call neko_log%section("Scalar initial condition ")
 
        if (trim(string_val) .ne. 'user') then
           call set_scalar_ic(this%scalar%s, &
-               this%scalar%c_Xh, this%scalar%gs_Xh, string_val, this%params)
+               this%scalar%c_Xh, this%scalar%gs_Xh, string_val, json_subdict)
        else
           call set_scalar_ic(this%scalar%s, &
                this%scalar%c_Xh, this%scalar%gs_Xh, this%usr%scalar_user_ic, &
@@ -407,7 +420,8 @@ contains
             string_val, "simulationtime")
        call json_get_or_default(this%params, 'case.checkpoint_value', real_val,&
             1e10_rp)
-       call this%output_controller%add(this%f_chkp, real_val, string_val)
+       call this%output_controller%add(this%f_chkp, real_val, string_val, &
+            NEKO_EPS)
     end if
 
     !

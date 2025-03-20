@@ -157,18 +157,20 @@ contains
   !! @param gs The gather-scatter.
   !! @param params The case parameter file in json.
   !! @param user Type with user-defined procedures.
+  !! @param chkp Set up checkpoint for restarts.
   !! @param ulag Lag arrays for the x velocity component.
   !! @param vlag Lag arrays for the y velocity component.
   !! @param wlag Lag arrays for the z velocity component.
   !! @param time_scheme The time-integration controller.
   !! @param rho The fluid density.
-  subroutine scalar_pnpn_init(this, msh, coef, gs, params, user, chkp, &
-       ulag, vlag, wlag, time_scheme, rho)
+  subroutine scalar_pnpn_init(this, msh, coef, gs, params, numerics_params, &
+       user, chkp, ulag, vlag, wlag, time_scheme, rho)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(in) :: msh
     type(coef_t), target, intent(in) :: coef
     type(gs_t), target, intent(inout) :: gs
     type(json_file), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: numerics_params
     type(user_t), target, intent(in) :: user
     type(chkp_t), target, intent(inout) :: chkp
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
@@ -243,11 +245,12 @@ contains
     !> Point to case checkpoint
     this%chkp => chkp
     ! Initialize advection factory
-    call json_get_or_default(params, 'case.scalar.advection', advection, .true.)
-    call advection_factory(this%adv, params, this%c_Xh, &
-                           ulag, vlag, wlag, this%chkp%dtlag, &
-                           this%chkp%tlag, time_scheme, .not. advection, &
-                           this%slag)
+    call json_get_or_default(params, 'advection', advection, .true.)
+
+    call advection_factory(this%adv, numerics_params, this%c_Xh, &
+         ulag, vlag, wlag, this%chkp%dtlag, &
+         this%chkp%tlag, time_scheme, .not. advection, &
+         this%slag)
     !Add scalar info to checkpoint
     call this%chkp%add_scalar(this%s)
     this%chkp%abs1 => this%abx1
@@ -478,12 +481,11 @@ contains
     logical, allocatable :: marked_zones(:)
     integer, allocatable :: zone_indices(:)
 
-
-    if (this%params%valid_path('case.scalar.boundary_conditions')) then
-       call this%params%info('case.scalar.boundary_conditions', &
+    if (this%params%valid_path('boundary_conditions')) then
+       call this%params%info('boundary_conditions', &
             n_children = n_bcs)
        call this%params%get_core(core)
-       call this%params%get('case.scalar.boundary_conditions', bc_object, found)
+       call this%params%get('boundary_conditions', bc_object, found)
 
        call this%bcs%init(n_bcs)
 
@@ -538,6 +540,16 @@ contains
                (marked_zones(i) .eqv. .false.)) then
              write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
                   "No scalar boundary condition assigned to zone ", i
+             error stop
+          end if
+       end do
+    else
+       ! Check that there are no labeled zones, i.e. all are periodic.
+       do i = 1, size(this%msh%labeled_zones)
+          if (this%msh%labeled_zones(i)%size .gt. 0) then
+             write(error_unit, '(A, A, A)') "*** ERROR ***: ", &
+                  "No boundary_conditions entry in the case file for scalar ", &
+                  this%s%name
              error stop
           end if
        end do

@@ -87,6 +87,25 @@ __global__ void masked_red_copy_kernel(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for masked atomic update
+ */
+template< typename T >
+__global__ void masked_atomic_reduction_kernel(T * __restrict__ a,
+                                   T * __restrict__ b,
+                                   int * __restrict__ mask,                    
+                                   const int n,
+                                   const int m) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < m; i += str) {
+    unsafeAtomicAdd( &(a[mask[i+1]-1]), b[i]);//a[mask[i]-1] = a[mask[i]-1] + b[i];
+    //atomicAdd( &(a[mask[i+1]-1]), b[i]);//a[mask[i]-1] = a[mask[i]-1] + b[i];
+  }
+}
+
+/**
  * Device kernel for cfill_mask
  */
 template< typename T >

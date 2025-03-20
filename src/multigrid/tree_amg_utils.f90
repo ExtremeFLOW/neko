@@ -32,9 +32,7 @@
 !
 !> Implements utilities for the TreeAMG hierarchy structure.
 module tree_amg_utils
-  use num_types
-  use utils
-  use math
+  use num_types, only : rp
   use tree_amg, only : tamg_hierarchy_t
   use gather_scatter, only : GS_OP_ADD
   implicit none
@@ -88,20 +86,20 @@ contains
     allocate( v(n) )
 
     do i = 1, n
-      do j = 1, n
-        u = 0.0_rp
-        v = 0.0_rp
+       do j = 1, n
+          u = 0.0_rp
+          v = 0.0_rp
 
-        u(i) = 1.0_rp
-        !> Get the ghosts to agree on the value of 1.0
-        if (lvl.eq.0) call amg%gs_h%op(u, n, GS_OP_ADD)
+          u(i) = 1.0_rp
+          !> Get the ghosts to agree on the value of 1.0
+          if (lvl.eq.0) call amg%gs_h%op(u, n, GS_OP_ADD)
 
-        call amg%matvec(v, u, lvl)
+          call amg%matvec(v, u, lvl)
 
-        val = v(j)
+          val = v(j)
 
-        print *, j, i, val
-      end do
+          print *, j, i, val
+       end do
     end do
 
     deallocate( u )
@@ -123,20 +121,20 @@ contains
     allocate( v(m) )
 
     do i = 1, n
-      do j = 1, m
-        u = 0.0_rp
-        v = 0.0_rp
+       do j = 1, m
+          u = 0.0_rp
+          v = 0.0_rp
 
-        u(i) = 1.0_rp
-        !> Get the ghosts to agree on the value of 1.0
-        if (lvl.eq.0) call amg%gs_h%op(u, n, GS_OP_ADD)
+          u(i) = 1.0_rp
+          !> Get the ghosts to agree on the value of 1.0
+          if (lvl.eq.0) call amg%gs_h%op(u, n, GS_OP_ADD)
 
-        call amg%interp_f2c(v, u, lvl+1)
+          call amg%interp_f2c(v, u, lvl+1)
 
-        val = v(j)
+          val = v(j)
 
-        print *, j, i, val
-      end do
+          print *, j, i, val
+       end do
     end do
 
     deallocate( u )
@@ -158,20 +156,20 @@ contains
     allocate( v(n) )
 
     do i = 1, m
-      do j = 1, n
-        u = 0.0_rp
-        v = 0.0_rp
+       do j = 1, n
+          u = 0.0_rp
+          v = 0.0_rp
 
-        u(i) = 1.0_rp
-        !---!> Get the ghosts to agree on the value of 1.0
-        !---if (lvl.eq.0) call amg%gs_h%op(u, n, GS_OP_ADD)
+          u(i) = 1.0_rp
+          !---!> Get the ghosts to agree on the value of 1.0
+          !---if (lvl.eq.0) call amg%gs_h%op(u, n, GS_OP_ADD)
 
-        call amg%interp_c2f(v, u, lvl+1)
+          call amg%interp_c2f(v, u, lvl+1)
 
-        val = v(j)
+          val = v(j)
 
-        print *, j, i, val
-      end do
+          print *, j, i, val
+       end do
     end do
 
     deallocate( u )

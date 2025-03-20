@@ -120,6 +120,10 @@ following tools can be used:
 - [flint](https://github.com/marshallward/flint) to test the linting compliance.
 - [findent](https://github.com/wvermin/findent) to apply the formatting rules.
 
+We have scripts available under the `contrib/lint_format` directory that can be
+used to lint and format the code. The scripts are `lint.sh` and `format.sh`
+respectively.
+
 #### flint
 
 The linting rules are enforced by the
@@ -153,6 +157,6 @@ extension provides an integration.
 
 ```sh
 pip install findent
-findent -Rr -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k5 --ws_remred --indent_ampersand --openmp=0 < file.f90 > file.f90.tmp
+findent -Rr -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k- --ws_remred --indent_ampersand --openmp=0 < file.f90 > file.f90.tmp
 mv file.f90.tmp file.f90
 ```
