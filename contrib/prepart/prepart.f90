@@ -16,7 +16,7 @@ program prepart
      stop
   end if
 
-  call neko_init
+  call neko_init()
 
   call get_command_argument(1, fname)
   call get_command_argument(2, nprtschr)
