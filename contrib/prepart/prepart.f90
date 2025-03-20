@@ -119,8 +119,8 @@ program prepart
   deallocate(idx_map)
   call msh%free()
 
-  output_ = trim(fname(1:scan(trim(fname), &
-       '.', back=.true.) - 1))//'_'//trim(nprtschr)//'.nmsh'
+  output_ = trim(fname(1:scan(trim(fname), '.', back = .true.) - 1)) // &
+       '_' // trim(nprtschr) // '.nmsh'
 
   new_msh_file = file_t(output_)
   call new_msh_file%write(new_msh)

@@ -1633,18 +1633,20 @@ contains
     integer :: i, j, id, p_local_idx, match
     type(tuple4_i4_t) :: ft
     type(tuple_i4_t) :: et
-    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,7,3,&
+    integer, dimension(4, 6) :: face_nodes = reshape([&
+         1,5,7,3,&
          2,6,8,4,&
          1,2,6,5,&
          3,4,8,7,&
          1,2,4,3,&
-         5,6,8,7/),&
-         (/4,6/))
-    integer, dimension(2, 4) :: edge_nodes = reshape((/1,3,&
+         5,6,8,7],&
+         ([4,6]))
+    integer, dimension(2, 4) :: edge_nodes = reshape([&
+         1,3,&
          2,4,&
          1,2,&
-         3,4 /),&
-         (/2,4/))
+         3,4 ],&
+         ([2,4]))
 
     select type(ele => this%elements(e)%e)
     type is(hex_t)
@@ -1715,13 +1717,14 @@ contains
     integer :: i, id, p_local_idx
     type(tuple4_i4_t) :: ft
     type(tuple_i4_t) :: et
-    integer, dimension(4, 6) :: face_nodes = reshape((/1,5,7,3,&
+    integer, dimension(4, 6) :: face_nodes = reshape([&
+         1,5,7,3,&
          2,6,8,4,&
          1,2,6,5,&
          3,4,8,7,&
          1,2,4,3,&
-         5,6,8,7/),&
-         (/4,6/))
+         5,6,8,7],&
+         [4,6])
     select type(ele => this%elements(e)%e)
     type is(hex_t)
        do i = 1, 4
