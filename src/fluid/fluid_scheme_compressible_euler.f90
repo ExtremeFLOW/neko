@@ -150,12 +150,12 @@ module fluid_scheme_compressible_euler
 
 contains
   !> Initialize the compressible Euler fluid scheme
-  !> @param this The fluid scheme object
-  !> @param msh Mesh data structure
-  !> @param lx Polynomial order in x-direction
-  !> @param params JSON configuration parameters
-  !> @param user User-defined parameters and functions
-  !> @param chkp Checkpoint to write to
+  !! @param this The fluid scheme object
+  !! @param msh Mesh data structure
+  !! @param lx Polynomial order in x-direction
+  !! @param params JSON configuration parameters
+  !! @param user User-defined parameters and functions
+  !! @param chkp Checkpoint to write to
   subroutine fluid_scheme_compressible_euler_init(this, msh, lx, params, user, &
        chkp)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this

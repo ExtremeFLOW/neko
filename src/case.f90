@@ -235,7 +235,7 @@ contains
 
     call json_get(this%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get number of gll points
-    !> Set time lags in chkp
+    ! Set time lags in chkp
     this%chkp%tlag => this%time%tlag
     this%chkp%dtlag => this%time%dtlag
     call this%fluid%init(this%msh, lx, this%params, this%usr, this%chkp)

@@ -383,10 +383,10 @@ contains
          this%ulag, this%vlag, this%wlag, &
          chkp%dtlag, chkp%tlag, this%ext_bdf, &
          .not. advection)
-    !> Should be in init_base maybe?
+    ! Should be in init_base maybe?
     this%chkp => chkp
-    !> This is probably scheme specific
-    !> Should not be init really, but more like, add fluid or something...
+    ! This is probably scheme specific
+    ! Should not be init really, but more like, add fluid or something...
     call this%chkp%init(this%u, this%v, this%w, this%p)
 
     this%chkp%abx1 => this%abx1
