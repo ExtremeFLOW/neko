@@ -1578,14 +1578,14 @@ contains
     integer :: pe
     integer :: org_ids(4), pids(4)
     type(point_t), pointer :: pi
-    integer, dimension(4, 6) :: face_nodes = &
-         reshape((/1,5,7,3,&
-         2,6,8,4,&
-         1,2,6,5,&
-         3,4,8,7,&
-         1,2,4,3,&
-         5,6,8,7/),&
-         (/4,6/))
+    integer, dimension(4, 6) :: face_nodes = reshape([ &
+         1,5,7,3, &
+         2,6,8,4, &
+         1,2,6,5, &
+         3,4,8,7, &
+         1,2,4,3, &
+         5,6,8,7],&
+         [4,6])
     integer, dimension(2, 4) :: edge_nodes = &
          reshape((/1,3,&
          2,4,&
