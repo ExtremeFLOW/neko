@@ -78,7 +78,7 @@ module case
      type(output_controller_t) :: output_controller
      type(fluid_output_t) :: f_out
      type(time_struct_t) :: time
-     type(chkp_output_t) :: f_chkp
+     type(chkp_output_t) :: chkp_out
      type(chkp_t) :: chkp
      type(user_t) :: usr
      class(fluid_scheme_base_t), allocatable :: fluid
@@ -411,14 +411,16 @@ contains
          logical_val, .true.)
     if (logical_val) then
        call json_get_or_default(this%params, 'case.checkpoint_output_filename', &
-            name, "fluid.chkp")
-       this%f_chkp = chkp_output_t(this%chkp, name = name,&
-            path = this%output_directory)
+            name, "fluid")
+       call json_get_or_default(this%params, 'case.checkpoint_format', &
+            string_val, "chkp")
+       this%chkp_out = chkp_output_t(this%chkp, name = name,&
+            path = this%output_directory, fmt = trim(string_val))
        call json_get_or_default(this%params, 'case.checkpoint_control', &
             string_val, "simulationtime")
        call json_get_or_default(this%params, 'case.checkpoint_value', real_val,&
             1e10_rp)
-       call this%output_controller%add(this%f_chkp, real_val, string_val, &
+       call this%output_controller%add(this%chkp_out, real_val, string_val, &
             NEKO_EPS)
     end if
 
