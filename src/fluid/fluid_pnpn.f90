@@ -264,7 +264,7 @@ contains
     ! Xh as the velocity
     call neko_field_registry%add_field(this%dm_Xh, 'p')
     this%p => neko_field_registry%get_field('p')
-    
+
     !
     ! Select governing equations via associated residual and Ax types
     !
@@ -384,7 +384,7 @@ contains
          this%ulag, this%vlag, this%wlag, &
          chkp%dtlag, chkp%tlag, this%ext_bdf, &
          .not. advection)
-    !> Should be in init_base maybe? 
+    !> Should be in init_base maybe?
     this%chkp => chkp
     !> This is probably scheme specific
     !> Should not be init really, but more like, add fluid or something...

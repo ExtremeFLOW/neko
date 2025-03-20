@@ -61,7 +61,7 @@ module case
   use point_zone_registry, only: neko_point_zone_registry
   implicit none
   private
- 
+
   !Contains all info about the time for this case
   type, public :: time_struct_t
      real(kind=rp), dimension(10) :: tlag
@@ -69,7 +69,7 @@ module case
      real(kind=rp) :: dt
      real(kind=rp) :: t
      real(kind=rp) :: end_time
-  end type
+  end type time_struct_t
 
   type, public :: case_t
      type(mesh_t) :: msh
@@ -100,7 +100,7 @@ contains
     integer :: ierr, integer_val
     character(len=:), allocatable :: json_buffer
     logical :: exist
- 
+
 
     ! Check if the file exists
     inquire(file = trim(case_file), exist = exist)
@@ -234,12 +234,12 @@ contains
 
     call json_get(this%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get number of gll points
-    !> Set time lags in chkp 
+    !> Set time lags in chkp
     this%chkp%tlag => this%time%tlag
     this%chkp%dtlag => this%time%dtlag
     call this%fluid%init(this%msh, lx, this%params, this%usr, this%chkp)
 
-    
+
     !
     ! Setup scratch registry
     !
@@ -261,7 +261,7 @@ contains
             scalar_params, numerics_params, this%usr, this%chkp, this%fluid%ulag, &
             this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
             this%fluid%rho)
-   
+
     end if
 
     !

@@ -116,7 +116,7 @@ contains
        ! advance time step from t to t+dt
        !Update to just pass time_struct
        call simulation_settime(C%time%t, C%time%dt, C%fluid%ext_bdf, &
-                               C%time%tlag, C%time%dtlag, tstep)
+            C%time%tlag, C%time%dtlag, tstep)
 
        call neko_log%status(C%time%t, C%time%end_time)
        write(log_buf, '(A,I6)') 'Time-step: ', tstep
