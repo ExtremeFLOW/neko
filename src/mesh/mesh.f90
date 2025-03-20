@@ -101,11 +101,6 @@ module mesh
 
      integer(2), allocatable :: facet_type(:,:) !< Facet type
 
-     type(facet_zone_t) :: wall                 !< Zone of wall facets
-     type(facet_zone_t) :: inlet                !< Zone of inlet facets
-     type(facet_zone_t) :: outlet               !< Zone of outlet facets
-     type(facet_zone_t) :: outlet_normal        !< Zone of outlet normal facets
-     type(facet_zone_t) :: sympln               !< Zone of symmetry plane facets
      type(facet_zone_t), allocatable :: labeled_zones(:) !< Zones with labeled facets
      type(facet_zone_periodic_t) :: periodic             !< Zones with periodic facets
      type(curve_t) :: curve                        !< Set of curved elements
@@ -136,13 +131,7 @@ module mesh
      procedure, private, pass(this) :: is_shared_facet => mesh_is_shared_facet
      procedure, pass(this) :: free => mesh_free
      procedure, pass(this) :: finalize => mesh_finalize
-     procedure, pass(this) :: mark_wall_facet => mesh_mark_wall_facet
-     procedure, pass(this) :: mark_inlet_facet => mesh_mark_inlet_facet
-     procedure, pass(this) :: mark_outlet_facet => mesh_mark_outlet_facet
-     procedure, pass(this) :: mark_sympln_facet => mesh_mark_sympln_facet
      procedure, pass(this) :: mark_periodic_facet => mesh_mark_periodic_facet
-     procedure, pass(this) :: mark_outlet_normal_facet => &
-          mesh_mark_outlet_normal_facet
      procedure, pass(this) :: mark_labeled_facet => mesh_mark_labeled_facet
      procedure, pass(this) :: mark_curve_element => mesh_mark_curve_element
      procedure, pass(this) :: apply_periodic_facet => mesh_apply_periodic_facet
@@ -298,11 +287,6 @@ contains
     call this%htp%init(this%npts*this%nelv, i)
     call this%htel%init(this%nelv, i)
 
-    call this%wall%init(this%nelv)
-    call this%inlet%init(this%nelv)
-    call this%outlet%init(this%nelv)
-    call this%outlet_normal%init(this%nelv)
-    call this%sympln%init(this%nelv)
     call this%periodic%init(this%nelv)
 
     allocate(this%labeled_zones(NEKO_MSH_MAX_ZLBLS))
@@ -390,11 +374,6 @@ contains
        deallocate(this%points)
     end if
 
-    call this%wall%free()
-    call this%inlet%free()
-    call this%outlet%free()
-    call this%outlet_normal%free()
-    call this%sympln%free()
     call this%periodic%free()
     this%lconn = .false.
     this%lnumr = .false.
@@ -410,11 +389,6 @@ contains
     call mesh_generate_flags(this)
     call mesh_generate_conn(this)
 
-    call this%wall%finalize()
-    call this%inlet%finalize()
-    call this%outlet%finalize()
-    call this%outlet_normal%finalize()
-    call this%sympln%finalize()
     call this%periodic%finalize()
     do i = 1, NEKO_MSH_MAX_ZLBLS
        call this%labeled_zones(i)%finalize()
@@ -1520,25 +1494,6 @@ contains
 
   end subroutine mesh_add_edge
 
-  !> Mark facet @a f in element @a e as a wall
-  subroutine mesh_mark_wall_facet(this, f, e)
-    class(mesh_t), intent(inout) :: this
-    integer, intent(inout) :: f
-    integer, intent(inout) :: e
-
-    if (e .gt. this%nelv) then
-       call neko_error('Invalid element index')
-    end if
-
-    if ((this%gdim .eq. 2 .and. f .gt. 4) .or. &
-         (this%gdim .eq. 3 .and. f .gt. 6)) then
-       call neko_error('Invalid facet index')
-    end if
-    this%facet_type(f, e) = 2
-    call this%wall%add_facet(f, e)
-
-  end subroutine mesh_mark_wall_facet
-
   !> Mark element @a e as a curve element
   subroutine mesh_mark_curve_element(this, e, curve_data, curve_type)
     class(mesh_t), intent(inout) :: this
@@ -1555,26 +1510,6 @@ contains
     call this%curve%add_element(e, curve_data, curve_type)
 
   end subroutine mesh_mark_curve_element
-
-
-  !> Mark facet @a f in element @a e as an inlet
-  subroutine mesh_mark_inlet_facet(this, f, e)
-    class(mesh_t), intent(inout) :: this
-    integer, intent(in) :: f
-    integer, intent(in) :: e
-
-    if (e .gt. this%nelv) then
-       call neko_error('Invalid element index')
-    end if
-
-    if ((this%gdim .eq. 2 .and. f .gt. 4) .or. &
-         (this%gdim .eq. 3 .and. f .gt. 6)) then
-       call neko_error('Invalid facet index')
-    end if
-    this%facet_type(f, e) = 2
-    call this%inlet%add_facet(f, e)
-
-  end subroutine mesh_mark_inlet_facet
 
   !> Mark facet @a f in element @a e with label
   subroutine mesh_mark_labeled_facet(this, f, e, label)
@@ -1595,65 +1530,6 @@ contains
     this%facet_type(f,e) = -label
 
   end subroutine mesh_mark_labeled_facet
-
-
-  !> Mark facet @a f in element @a e as an outlet normal
-  subroutine mesh_mark_outlet_normal_facet(this, f, e)
-    class(mesh_t), intent(inout) :: this
-    integer, intent(inout) :: f
-    integer, intent(inout) :: e
-
-    if (e .gt. this%nelv) then
-       call neko_error('Invalid element index')
-    end if
-
-    if ((this%gdim .eq. 2 .and. f .gt. 4) .or. &
-         (this%gdim .eq. 3 .and. f .gt. 6)) then
-       call neko_error('Invalid facet index')
-    end if
-    this%facet_type(f, e) = 1
-    call this%outlet_normal%add_facet(f, e)
-
-  end subroutine mesh_mark_outlet_normal_facet
-
-
-  !> Mark facet @a f in element @a e as an outlet
-  subroutine mesh_mark_outlet_facet(this, f, e)
-    class(mesh_t), intent(inout) :: this
-    integer, intent(inout) :: f
-    integer, intent(inout) :: e
-
-    if (e .gt. this%nelv) then
-       call neko_error('Invalid element index')
-    end if
-
-    if ((this%gdim .eq. 2 .and. f .gt. 4) .or. &
-         (this%gdim .eq. 3 .and. f .gt. 6)) then
-       call neko_error('Invalid facet index')
-    end if
-    this%facet_type(f, e) = 1
-    call this%outlet%add_facet(f, e)
-
-  end subroutine mesh_mark_outlet_facet
-
-  !> Mark facet @a f in element @a e as a symmetry plane
-  subroutine mesh_mark_sympln_facet(this, f, e)
-    class(mesh_t), intent(inout) :: this
-    integer, intent(inout) :: f
-    integer, intent(inout) :: e
-
-    if (e .gt. this%nelv) then
-       call neko_error('Invalid element index')
-    end if
-
-    if ((this%gdim .eq. 2 .and. f .gt. 4) .or. &
-         (this%gdim .eq. 3 .and. f .gt. 6)) then
-       call neko_error('Invalid facet index')
-    end if
-    this%facet_type(f, e) = 2
-    call this%sympln%add_facet(f, e)
-
-  end subroutine mesh_mark_sympln_facet
 
   !> Mark facet @a f in element @a e as periodic with (@a pf, @a pe)
   subroutine mesh_mark_periodic_facet(this, f, e, pf, pe, pids)

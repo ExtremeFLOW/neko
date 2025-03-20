@@ -87,12 +87,7 @@ contains
        call new_zone_dist(i)%init()
     end do
 
-    call redist_zone(msh, msh%wall, 1, parts, new_zone_dist)
-    call redist_zone(msh, msh%inlet, 2, parts, new_zone_dist)
-    call redist_zone(msh, msh%outlet, 3, parts, new_zone_dist)
-    call redist_zone(msh, msh%sympln, 4, parts, new_zone_dist)
     call redist_zone(msh, msh%periodic, 5, parts, new_zone_dist)
-    call redist_zone(msh, msh%outlet_normal, 6, parts, new_zone_dist)
 
     do j = 1, NEKO_MSH_MAX_ZLBLS
        label = j
@@ -310,23 +305,13 @@ contains
              call neko_error('Missing element after redistribution')
           end if
           select case(zp(i)%type)
-          case(1)
-             call msh%mark_wall_facet(zp(i)%f, new_el_idx)
-          case(2)
-             call msh%mark_inlet_facet(zp(i)%f, new_el_idx)
-          case(3)
-             call msh%mark_outlet_facet(zp(i)%f, new_el_idx)
-          case(4)
-             call msh%mark_sympln_facet(zp(i)%f, new_el_idx)
           case(5)
              if (glb_map%get(zp(i)%p_e, new_pel_idx) .gt. 0) then
                 call neko_error('Missing periodic element after redistribution')
              end if
-             
+
              call msh%mark_periodic_facet(zp(i)%f, new_el_idx, &
                   zp(i)%p_f, zp(i)%p_e, zp(i)%glb_pt_ids)
-          case(6)
-             call msh%mark_outlet_normal_facet(zp(i)%f, new_el_idx)
           case(7)
              call msh%mark_labeled_facet(zp(i)%f, new_el_idx, zp(i)%p_f)
           end select
@@ -340,7 +325,7 @@ contains
              if (glb_map%get(zp(i)%p_e, new_pel_idx) .gt. 0) then
                 call neko_error('Missing periodic element after redistribution')
              end if
-             
+
              call msh%apply_periodic_facet(zp(i)%f, new_el_idx, &
                   zp(i)%p_f, zp(i)%p_e, zp(i)%glb_pt_ids)
           end select
@@ -348,7 +333,7 @@ contains
     end select
     call new_zone_dist(pe_rank)%free()
 
-       
+
     !
     ! Add curve element information for new mesh distribution
     !
@@ -362,7 +347,7 @@ contains
        end do
     end select
     call new_curve_dist(pe_rank)%free()
-           
+
 
     call msh%finalize()
 
