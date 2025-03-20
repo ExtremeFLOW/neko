@@ -53,8 +53,8 @@ contains
 
   !> Redistribute a mesh @a msh according to new partitions
   subroutine redist_mesh(msh, parts)
-    type(mesh_t), intent(inout), target :: msh    !< Mesh
-    type(mesh_fld_t), intent(in) :: parts         !< Partitions
+    type(mesh_t), intent(inout), target :: msh !< Mesh
+    type(mesh_fld_t), intent(in) :: parts !< Partitions
     type(stack_nh_t), allocatable :: new_mesh_dist(:)
     type(stack_nz_t), allocatable :: new_zone_dist(:)
     type(stack_nc_t), allocatable :: new_curve_dist(:)
@@ -167,8 +167,8 @@ contains
        select type (nzd_array => new_zone_dist(dst)%data)
        type is (nmsh_zone_t)
           call MPI_Sendrecv(nzd_array, &
-            new_zone_dist(dst)%size(), MPI_NMSH_ZONE, dst, 1, recv_buf_zone,&
-            max_recv(2), MPI_NMSH_ZONE, src, 1, NEKO_COMM, status, ierr)
+               new_zone_dist(dst)%size(), MPI_NMSH_ZONE, dst, 1, recv_buf_zone,&
+               max_recv(2), MPI_NMSH_ZONE, src, 1, NEKO_COMM, status, ierr)
        end select
        call MPI_Get_count(status, MPI_NMSH_ZONE, recv_size, ierr)
 
@@ -225,7 +225,7 @@ contains
 
              ! Old glb to new glb
              tmp = msh%elements(i)%e%id()
-             call glb_map%set(np(i)%el_idx,  tmp)
+             call glb_map%set(np(i)%el_idx, tmp)
           else
              call neko_error('Global element id already defined')
           end if
@@ -288,7 +288,7 @@ contains
        call MPI_Get_count(status, MPI_INTEGER, recv_size, ierr)
 
        do j = 1, recv_size, 2
-          call glb_map%set(recv_buf_idx(j),  recv_buf_idx(j+1))
+          call glb_map%set(recv_buf_idx(j), recv_buf_idx(j+1))
        end do
     end do
     deallocate(recv_buf_idx)
@@ -373,7 +373,7 @@ contains
     select type(zp => z)
     type is (facet_zone_periodic_t)
        do i = 1, zp%size
-          zone_el =  zp%facet_el(i)%x(2)
+          zone_el = zp%facet_el(i)%x(2)
           nmsh_zone%e = msh%elements(zp%facet_el(i)%x(2))%e%id()
           nmsh_zone%f = zp%facet_el(i)%x(1)
           nmsh_zone%p_e = zp%p_facet_el(i)%x(2)
@@ -384,7 +384,7 @@ contains
        end do
     type is (facet_zone_t)
        do i = 1, zp%size
-          zone_el =  zp%facet_el(i)%x(2)
+          zone_el = zp%facet_el(i)%x(2)
           nmsh_zone%e = msh%elements(zp%facet_el(i)%x(2))%e%id()
           nmsh_zone%f = zp%facet_el(i)%x(1)
           nmsh_zone%p_f = lbl ! Labels are encoded in the periodic facet...

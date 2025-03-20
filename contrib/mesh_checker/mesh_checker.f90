@@ -57,7 +57,7 @@ program mesh_checker
      if (pe_rank .eq. 0) then
         write(*,*) 'Usage: ./mesh_checker mesh.nmsh [--write_zone_indices]'
         write(*,*) '--write_zone_indices : write a field file with boundaries &
-             & marked by zone index.'
+        & marked by zone index.'
      end if
      stop
   end if

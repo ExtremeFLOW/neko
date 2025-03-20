@@ -67,14 +67,14 @@ program prepart
      idx_cntr(rank) = idx_cntr(rank) + 1
      idx_map(i) = idx
      call new_msh%add_element(idx, idx, &
-                              msh%elements(i)%e%pts(1)%p, &
-                              msh%elements(i)%e%pts(2)%p, &
-                              msh%elements(i)%e%pts(3)%p, &
-                              msh%elements(i)%e%pts(4)%p, &
-                              msh%elements(i)%e%pts(5)%p, &
-                              msh%elements(i)%e%pts(6)%p, &
-                              msh%elements(i)%e%pts(7)%p, &
-                              msh%elements(i)%e%pts(8)%p)
+          msh%elements(i)%e%pts(1)%p, &
+          msh%elements(i)%e%pts(2)%p, &
+          msh%elements(i)%e%pts(3)%p, &
+          msh%elements(i)%e%pts(4)%p, &
+          msh%elements(i)%e%pts(5)%p, &
+          msh%elements(i)%e%pts(6)%p, &
+          msh%elements(i)%e%pts(7)%p, &
+          msh%elements(i)%e%pts(8)%p)
 
   end do
 
@@ -97,7 +97,7 @@ program prepart
         idx = idx_map(msh%labeled_zones(j)%facet_el(i)%x(2))
         label = j ! adhere to standards...
         call new_msh%mark_labeled_facet(msh%labeled_zones(j)%facet_el(i)%x(1), &
-                                        idx, label)
+             idx, label)
      end do
   end do
 
@@ -111,7 +111,7 @@ program prepart
   do i = 1, msh%curve%size
      idx = idx_map(msh%curve%curve_el(i)%el_idx)
      call new_msh%mark_curve_element(idx, msh%curve%curve_el(i)%curve_data, &
-                                     msh%curve%curve_el(i)%curve_type)
+          msh%curve%curve_el(i)%curve_type)
   end do
 
   call new_msh%finalize()

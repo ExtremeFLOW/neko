@@ -457,8 +457,8 @@ contains
     integer :: ncurves, ncurves_glb, ncurves_offset
     integer :: el_idx, el_idx_glb
     class(element_t), pointer :: ep
-    integer(i4), dimension(8), parameter :: vcyc_to_sym = [1, 2, 4, 3, 5, &
-         & 6, 8, 7] ! cyclic to symmetric vertex mapping
+    integer(i4), dimension(8), parameter :: vcyc_to_sym = &
+         [1, 2, 4, 3, 5, 6, 8, 7] ! cyclic to symmetric vertex mapping
 
     select type (data)
     type is (mesh_t)
@@ -528,7 +528,7 @@ contains
        call neko_error('Invalid dimension of mesh')
     end if
 
-    nzones =  msh%periodic%size
+    nzones = msh%periodic%size
     do i = 1, NEKO_MSH_MAX_ZLBLS
        nzones = nzones + msh%labeled_zones(i)%size
     end do
