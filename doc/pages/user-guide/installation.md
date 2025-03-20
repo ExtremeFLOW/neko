@@ -42,11 +42,12 @@ and so on).
 wget https://github.com/HDFGroup/hdf5/archive/refs/tags/hdf5_1.14.6.tar.gz
 tar xvf hdf5_1.14.6.tar.gz
 cd hdf5-hdf5_1.14.6/
-mkdir build && cd build
-
-cmake -DCMAKE_INSTALL_PREFIX=/path/to/installation -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_Fortran_COMPILER=mpifort -DHDF5_ENABLE_PARALLEL=ON -DHDF5_BUILD_FORTRAN=ON ..
-
-make install
+cmake -B build -S ./ --install-prefix /path/to/installation \
+    -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx \
+    -DCMAKE_Fortran_COMPILER=mpifort -DHDF5_ENABLE_PARALLEL=ON \
+    -DHDF5_BUILD_FORTRAN=ON
+cmake --build build/ --parallel
+cmake --install build/
 ```
 
 It can be a good idea to double-check that you have files starting with
