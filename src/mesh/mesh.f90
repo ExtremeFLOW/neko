@@ -521,7 +521,7 @@ contains
                 call this%elements(i)%e%facet_id(edge, j)
 
                 ! Assume that all facets are on the exterior
-                facet_data%x = (/ 0, 0/)
+                facet_data%x = [0, 0]
 
                 !check it this face has shown up earlier
                 if (fmp%get(edge, facet_data) .eq. 0) then
@@ -565,7 +565,7 @@ contains
                    if (facet_data%x(1) .eq. el_glb_idx ) then
                       this%facet_neigh(j, i) = facet_data%x(2)
                       call this%elements(i)%e%facet_id(face_comp, &
-                           j+(2*mod(j,2)-1))
+                           j + (2*mod(j, 2) - 1))
                       if (face_comp .eq. face) then
                          facet_data%x(2) = el_glb_idx
                          this%facet_neigh(j, i) = facet_data%x(1)
