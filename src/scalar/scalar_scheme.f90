@@ -118,7 +118,7 @@ module scalar_scheme
      !> Mesh.
      type(mesh_t), pointer :: msh => null()
      !> Checkpoint for restarts.
-     type(chkp_t),pointer :: chkp => null()
+     type(chkp_t), pointer :: chkp => null()
      !> Thermal diffusivity.
      real(kind=rp) :: lambda
      !> The variable lambda field

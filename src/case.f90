@@ -62,7 +62,7 @@ module case
   implicit none
   private
 
-  !Contains all info about the time for this case
+  ! Contains all info about the time for this case
   type, public :: time_struct_t
      real(kind=rp), dimension(10) :: tlag
      real(kind=rp), dimension(10) :: dtlag
@@ -203,7 +203,8 @@ contains
     !
     ! Time step
     !
-    call this%params%get('case.variable_timestep', logical_val, found)
+    call json_get_or_default(this%params, 'case.variable_timestep', &
+         logical_val, .false.)
     if (.not. logical_val) then
        call json_get(this%params, 'case.timestep', this%time%dt)
     else
@@ -410,7 +411,7 @@ contains
     call json_get_or_default(this%params, 'case.output_checkpoints',&
          logical_val, .true.)
     if (logical_val) then
-       call json_get_or_default(this%params, 'case.checkpoint_output_filename', &
+       call json_get_or_default(this%params, 'case.checkpoint_filename', &
             name, "fluid")
        call json_get_or_default(this%params, 'case.checkpoint_format', &
             string_val, "chkp")

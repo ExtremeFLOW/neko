@@ -402,7 +402,7 @@ contains
 
   end subroutine fluid_pnpn_init
 
-  subroutine fluid_pnpn_restart(this,chkp)
+  subroutine fluid_pnpn_restart(this, chkp)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
     real(kind=rp) :: dtlag(10), tlag(10)

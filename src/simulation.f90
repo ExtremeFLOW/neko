@@ -68,7 +68,8 @@ contains
     C%time%t = 0d0
     tstep = 0
     call neko_log%section('Starting simulation')
-    write(log_buf, '(A, E15.7,A,E15.7,A)') 'T  : [', 0d0, ',', C%time%end_time, ')'
+    write(log_buf, '(A, E15.7,A,E15.7,A)') &
+         'T  : [', 0d0, ',', C%time%end_time, ']'
     call neko_log%message(log_buf)
     call dt_controller%init(C%params)
     if (.not. dt_controller%if_variable_dt) then
@@ -132,7 +133,8 @@ contains
        call neko_log%end_section()
 
        call neko_log%section('Fluid')
-       call C%fluid%step(C%time%t, tstep, C%time%dt, C%fluid%ext_bdf, dt_controller)
+       call C%fluid%step(C%time%t, tstep, C%time%dt, C%fluid%ext_bdf, &
+            dt_controller)
        end_time = MPI_WTIME()
        write(log_buf, '(A,E15.7)') &
             'Fluid step time (s):   ', end_time-start_time
@@ -145,7 +147,8 @@ contains
        if (allocated(C%scalar)) then
           start_time = MPI_WTIME()
           call neko_log%section('Scalar')
-          call C%scalar%step(C%time%t, tstep, C%time%dt, C%fluid%ext_bdf, dt_controller)
+          call C%scalar%step(C%time%t, tstep, C%time%dt, C%fluid%ext_bdf, &
+               dt_controller)
           end_time = MPI_WTIME()
           write(log_buf, '(A,E15.7)') &
                'Scalar step time:      ', end_time-start_time
@@ -169,7 +172,8 @@ contains
        mu = C%fluid%mu
 
        ! Update material properties
-       call C%usr%material_properties(C%time%t, tstep, rho, mu, cp, lambda, C%params)
+       call C%usr%material_properties(C%time%t, tstep, rho, mu, cp, lambda, &
+            C%params)
 
        !> @todo Temporary fix until we have reworked the material properties
        C%fluid%rho = rho

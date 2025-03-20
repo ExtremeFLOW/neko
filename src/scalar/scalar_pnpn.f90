@@ -242,7 +242,7 @@ contains
 
     ! Determine the time-interpolation scheme
     call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
-    !> Point to case checkpoint
+    ! Point to case checkpoint
     this%chkp => chkp
     ! Initialize advection factory
     call json_get_or_default(params, 'advection', advection, .true.)
@@ -251,14 +251,14 @@ contains
          ulag, vlag, wlag, this%chkp%dtlag, &
          this%chkp%tlag, time_scheme, .not. advection, &
          this%slag)
-    !Add scalar info to checkpoint
+    ! Add scalar info to checkpoint
     call this%chkp%add_scalar(this%s)
     this%chkp%abs1 => this%abx1
     this%chkp%abs2 => this%abx2
     this%chkp%slag => this%slag
   end subroutine scalar_pnpn_init
 
-  !Restarts the scalar from a checkpoint
+  ! Restarts the scalar from a checkpoint
   subroutine scalar_pnpn_restart(this, chkp)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp

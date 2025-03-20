@@ -156,7 +156,8 @@ contains
   !> @param params JSON configuration parameters
   !> @param user User-defined parameters and functions
   !> @param chkp Checkpoint to write to
-  subroutine fluid_scheme_compressible_euler_init(this, msh, lx, params, user, chkp)
+  subroutine fluid_scheme_compressible_euler_init(this, msh, lx, params, user, &
+       chkp)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(in) :: lx
