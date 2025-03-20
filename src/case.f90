@@ -256,6 +256,7 @@ contains
 
     if (scalar) then
        allocate(this%scalar)
+       call json_extract_object(this%params, 'case.scalar', scalar_params)
        call this%scalar%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
             scalar_params, numerics_params, this%usr, this%chkp, this%fluid%ulag, &
             this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &

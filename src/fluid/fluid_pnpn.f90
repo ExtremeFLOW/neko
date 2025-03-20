@@ -379,7 +379,8 @@ contains
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_prs, precon_type)
     ! Initialize the advection factory
     call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
-    call advection_factory(this%adv, params, this%c_Xh, &
+    call json_extract_object(params, 'case.numerics', numerics_params)
+    call advection_factory(this%adv, numerics_params, this%c_Xh, &
          this%ulag, this%vlag, this%wlag, &
          chkp%dtlag, chkp%tlag, this%ext_bdf, &
          .not. advection)
