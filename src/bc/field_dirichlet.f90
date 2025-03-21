@@ -179,7 +179,6 @@ contains
     if (present(strong)) strong_ = strong
 
     if (strong_) then
-
        if (this%tstep_applied .ne. tstep) then
           call this%update(this%field_list, this, this%coef, t, tstep)
           this%tstep_applied = tstep
