@@ -75,7 +75,7 @@ module fluid_scheme_incompressible
   use utils, only : neko_error, neko_warning
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
-  use field_math, only : field_cfill, field_add2s2
+  use field_math, only : field_cfill, field_add2s2, field_addcol3
   use shear_stress, only : shear_stress_t
   use gradient_jump_penalty, only : gradient_jump_penalty_t
   use device, only : device_event_sync, device_stream_wait_event, &
@@ -294,7 +294,7 @@ contains
     write(log_buf, '(A, I0)') 'Unique pts.: ', this%glb_unique_points
     call neko_log%message(log_buf)
 
-    write(log_buf, '(A,ES13.6)') 'rho        :', this%rho
+    write(log_buf, '(A,ES13.6)') 'rho        :', this%rho_field%x(1,1,1,1)
     call neko_log%message(log_buf)
 !    write(log_buf, '(A,ES13.6)') 'mu         :', this%mu
 !    call neko_log%message(log_buf)
@@ -644,16 +644,14 @@ contains
     real(kind=rp),intent(in) :: t
     integer, intent(in) :: tstep
     type(field_t), pointer :: nut
-    integer :: n
-    real(kind=rp) :: properties(2)
 
-    call this%user_material_properties(t, tstep, this%name, properties)
+    call this%user_material_properties(t, tstep, this%name, &
+         this%material_properties)
 
     if (this%variable_material_properties .and. &
          len(trim(this%nut_field_name)) > 0) then
        nut => neko_field_registry%get_field(this%nut_field_name)
-       n = nut%size()
-       call field_add2s2(this%mu_field, nut, this%rho, n)
+       call field_addcol3(this%mu_field, nut, this%rho_field)
     end if
   end subroutine fluid_scheme_update_material_properties
 
@@ -669,10 +667,16 @@ contains
     procedure(user_material_properties), pointer :: dummy_mp_ptr
     logical :: nondimensional
     real(kind=rp) :: dummy_lambda, dummy_cp
-    real(kind=rp) :: properties(2), const_mu
+    real(kind=rp) :: const_mu, const_rho
 
 
     dummy_mp_ptr => dummy_user_material_properties
+
+    call this%mu_field%init(this%dm_Xh, "mu")
+    call this%rho_field%init(this%dm_Xh, "rho")
+    call this%material_properties%init(2)
+    call this%material_properties%assign_to_field(1, this%rho_field)
+    call this%material_properties%assign_to_field(2, this%mu_field)
 
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
 
@@ -681,9 +685,9 @@ contains
        call neko_log%message(log_buf)
        this%user_material_properties => user%material_properties
 
-       call this%material_properties%init(2)
-       call this%material_properties%assign_to_field(1, this%mu_field)
-       call user%material_properties(0.0_rp, 0, this%name, properties)
+       call user%material_properties(0.0_rp, 0, this%name, &
+            this%material_properties)
+
     else
        this%user_material_properties => dummy_user_material_properties
        ! Incorrect user input
@@ -693,9 +697,8 @@ contains
           call neko_error("To set the material properties for the fluid," // &
                " either provide Re OR mu and rho in the case file.")
 
-          ! Non-dimensional case
        else if (params%valid_path('case.fluid.Re')) then
-
+          ! Non-dimensional case
           write(log_buf, '(A)') 'Non-dimensional fluid material properties &
           & input.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
@@ -711,33 +714,30 @@ contains
           call neko_log%message(log_buf)
 
           ! Set rho to 1 since the setup is non-dimensional.
-          this%rho = 1.0_rp
+          const_rho = 1.0_rp
           ! Invert the Re to get viscosity.
           const_mu = 1.0_rp/const_mu
-          ! Dimensional case
        else
+          ! Dimensional case
           call json_get(params, 'case.fluid.mu', const_mu)
-          call json_get(params, 'case.fluid.rho', this%rho)
+          call json_get(params, 'case.fluid.rho', const_rho)
        end if
     end if
 
     ! We need to fill the fields based on the parsed const values
+    ! if the user routine is not used.
     if (associated(user%material_properties, dummy_mp_ptr)) then
        ! Fill mu and rho field with the physical value
-       call this%mu_field%init(this%dm_Xh, "mu")
-       call this%rho_field%init(this%dm_Xh, "rho")
        call field_cfill(this%mu_field, const_mu, this%mu_field%size())
-       call field_cfill(this%rho_field, this%rho, this%mu_field%size())
+       call field_cfill(this%rho_field, const_rho, this%mu_field%size())
 
        ! Since mu, rho is a field, and the none-stress simulation fetches
        ! data from the host arrays, we need to mirror the constant
        ! material properties on the host
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call cfill(this%mu_field%x, const_mu, this%mu_field%size())
-          call cfill(this%rho_field%x, this%rho, this%rho_field%size())
+          call cfill(this%rho_field%x, const_rho, this%rho_field%size())
        end if
-
-
     end if
   end subroutine fluid_scheme_set_material_properties
 

@@ -170,11 +170,11 @@ module user_intf
   !! @param params The JSON configuration of the scheme.
   abstract interface
      subroutine user_material_properties(t, tstep, name, properties)
-       import rp
+       import rp, field_list_t
        real(kind=rp), intent(in) :: t
        integer, intent(in) :: tstep
        character(len=*), intent(in) :: name
-       real(kind=rp), intent(inout) :: properties(:)
+       type(field_list_t), intent(inout) :: properties
      end subroutine user_material_properties
   end interface
 
@@ -540,7 +540,7 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     character(len=*), intent(in) :: name
-    real(kind=rp), intent(inout) :: properties(:)
+    type(field_list_t), intent(inout) :: properties
   end subroutine dummy_user_material_properties
 
   ! ========================================================================== !

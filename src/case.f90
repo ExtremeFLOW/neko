@@ -263,7 +263,7 @@ contains
        call this%scalar%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
             scalar_params, numerics_params, this%usr, this%fluid%ulag, &
             this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
-            this%fluid%rho)
+            this%fluid%rho_field)
 
        call this%fluid%chkp%add_scalar(this%scalar%s)
 

@@ -173,7 +173,7 @@ contains
     type(user_t), target, intent(in) :: user
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
-    real(kind=rp), target, intent(in) :: rho
+    type(field_t), target, intent(in) :: rho
     integer :: i
     class(bc_t), pointer :: bc_i
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
@@ -343,13 +343,12 @@ contains
 
     call profiler_start_region('Scalar', 2)
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
-         cp => this%cp, rho => this%rho, &
+         cp => this%cp, rho => this%rho, lambda => this%lambda, &
          ds => this%ds, &
          s_res => this%s_res, &
          Ax => this%Ax, f_Xh => this%f_Xh, Xh => this%Xh, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
          slag => this%slag, oifs => this%oifs, &
-         lambda_field => this%lambda_field, &
          projection_dim => this%projection_dim, &
          msh => this%msh, res => this%res, makeoifs => this%makeoifs, &
          makeext => this%makeext, makebdf => this%makebdf, &
@@ -375,10 +374,11 @@ contains
          call this%adv%compute_scalar(u, v, w, s, this%advs, &
               Xh, this%c_Xh, dm_Xh%size())
 
-         call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
-              ext_bdf%advection_coeffs, n)
+         call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
+         rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
 
-         call makeoifs%compute_scalar(this%advs%x, f_Xh%x, rho, dt, n)
+         call makeoifs%compute_scalar(this%advs%x, f_Xh%x, rho%x(1,1,1,1), dt,&
+          n)
       else
          ! Add the advection operators to the right-hans-side.
          call this%adv%compute_scalar(u, v, w, s, f_Xh, &
@@ -388,12 +388,12 @@ contains
          ! Neumann boundary sources and additional source terms, evaluated using
          ! the scalar field from the previous time-step. Now, this value is used in
          ! the explicit time scheme to advance these terms in time.
-         call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
-              ext_bdf%advection_coeffs, n)
+         call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
+         rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
 
          ! Add the RHS contributions coming from the BDF scheme.
-         call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho, dt, &
-              ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+         call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho%x(1,1,1,1), &
+         dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
       end if
 
       call slag%update()
@@ -406,8 +406,9 @@ contains
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar_residual', 20)
-      call res%compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda_field, &
-           rho*cp, ext_bdf%diffusion_coeffs(1), dt, dm_Xh%size())
+      call res%compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda, &
+           rho%x(1,1,1,1)*cp%x(1,1,1,1), ext_bdf%diffusion_coeffs(1), dt, &
+           dm_Xh%size())
 
       call gs_Xh%op(s_res, GS_OP_ADD)
 

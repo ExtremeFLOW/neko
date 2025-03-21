@@ -165,6 +165,27 @@ properties in time. Yet another options is to directly manipulate the case file
 programmatically in the `user_startup` routine and inject the material
 properties there. This is demonstrated in the `rayleigh_benard` example.
 
+When material properties are constant or only vary in time, one can use the
+simplified form of the viscous stress tensor in the governing equations.
+However, when there are spatial variations, it is necessary to use the general
+form. The variation may come, for example,  due to a turbulence model, the
+modifications in the user routine. The general form of the stress tensor
+requires solving the 3 equations for the velocity components in a coupled
+manner, which requires an appropriate linear solver. Neko uses the following
+logic to determine wether the material properties are varying in space:
+
+1. If the `variable_material_properties` entry is found in the case file, Neko
+   will treat that as the ground truth. The responsibility of setting up the rest
+   of the case setting appropriately then rests on the user.
+2. If the `nut_field` keyword is present in the fluid's configuration in the
+   case file (see section on turbulence modelling), or the material properties
+   user routine is active, the material properties are considered to be
+   spatially varying. Note that if you only vary the properties in time in the
+   user routine, you can safely use the `variable_material_properties` entry to
+   override, and keep the simplified viscous stress tensor formulation.
+3. Otherwise, the material properties are considered to vary only in time or be
+   constant.
+
 ### Turbulence modelling
 
 Neko currently provides several LES models via the `les_model` simulation

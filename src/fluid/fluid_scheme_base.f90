@@ -97,9 +97,6 @@ module fluid_scheme_base
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
 
-     !> Constant density
-     real(kind=rp) :: rho
-
      !> Density field
      type(field_t) :: rho_field
 

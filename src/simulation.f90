@@ -151,10 +151,6 @@ contains
           write(log_buf, '(A,E15.7)') &
                'Total elapsed time (s):', end_time-start_time_org
           call neko_log%end_section(log_buf)
-
-          !> @todo Temporary fix until we have reworked the material properties
-          cp = C%scalar%cp
-          lambda = C%scalar%lambda
        end if
 
        call neko_log%section('Postprocessing')
