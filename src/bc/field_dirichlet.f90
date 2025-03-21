@@ -70,7 +70,7 @@ module field_dirichlet
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
      procedure(field_dirichlet_update), nopass, pointer :: update => null()
-     !> A variable that prevents `update()` from being called twice per timestep.
+     !> A variable that prevents `update` from being called twice per timestep.
      integer :: tstep_applied = -1
    contains
      !> Constructor.
