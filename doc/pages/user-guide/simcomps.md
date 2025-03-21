@@ -287,7 +287,7 @@ keywords:
   alternatives are provided and the default one is `pointwise` if
   nothing is specified:
   - `pointwise`: Computes a local value based on the spacing of the GLL nodes.
-  - `elementwise_avg`: Computes a single value for the whole element based on the
+  - `elementwise_average`: Computes a single value for the whole element based on the
     average spacing of the GLL nodes within the element.
   - `elementwise_max`: Computes a single value for the whole element based on the
     maximum spacing of the GLL nodes within the element.
@@ -297,10 +297,11 @@ keywords:
   to different fields. For example, one for the scalar and one to the fluid.
 - `extrapolation`: Whether or not extrapolate the velocity to
   compute the eddy viscosity.
-  - `true`: the default option, extrapolate the velocity as the same order as
+  - `true`: extrapolate the velocity as the same order as
   the time scheme.
-  - `false`: disable the extrapolation. In this case, the estimation of the eddy
-  viscosity is of first order, while circumvent the risk of unstable extrapolation.
+  - `false`: the default option, disable the extrapolation. 
+  In this case, the estimation of the eddy viscosity is of first order, while 
+  circumvent the risk of unstable extrapolation.
 
  ~~~~~~~~~~~~~~~{.json}
  {

@@ -82,7 +82,7 @@ contains
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     ! Based on  C = 1.35 as default values
     call json_get_or_default(json, "c", c, 1.35_rp)
-    call json_get_or_default(json, "extrapolation", if_ext, .true.)
+    call json_get_or_default(json, "extrapolation", if_ext, .false.)
 
     call neko_log%section('LES model')
     write(log_buf, '(A)') 'Model : Sigma'

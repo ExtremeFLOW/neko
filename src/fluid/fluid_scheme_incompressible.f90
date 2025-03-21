@@ -45,8 +45,7 @@ module fluid_scheme_incompressible
   use space, only : space_t, GLL
   use dofmap, only : dofmap_t
   use zero_dirichlet, only : zero_dirichlet_t
-  use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy, &
-       KSP_MAX_ITER
+  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
   use coefs, only: coef_t
   use usr_inflow, only : usr_inflow_t, usr_inflow_eval
   use dirichlet, only : dirichlet_t
@@ -412,12 +411,12 @@ contains
     call this%Xh%free()
 
     if (allocated(this%ksp_vel)) then
-       call krylov_solver_destroy(this%ksp_vel)
+       call this%ksp_vel%free()
        deallocate(this%ksp_vel)
     end if
 
     if (allocated(this%ksp_prs)) then
-       call krylov_solver_destroy(this%ksp_prs)
+       call this%ksp_prs%free()
        deallocate(this%ksp_prs)
     end if
 

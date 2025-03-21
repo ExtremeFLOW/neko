@@ -40,8 +40,7 @@ module scalar_scheme
   use field_list, only: field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy, &
-       KSP_MAX_ITER
+  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
@@ -259,7 +258,7 @@ contains
     this%w => neko_field_registry%get_field('w')
 
     ! Assign a name
-    call json_get_or_default(params, 'name', this%name, "scalar")
+    call json_get_or_default(params, 'name', this%name, 'scalar')
 
     call neko_log%section('Scalar')
     call json_get(params, 'solver.type', solver_type)
@@ -400,7 +399,7 @@ contains
     nullify(this%params)
 
     if (allocated(this%ksp)) then
-       call krylov_solver_destroy(this%ksp)
+       call this%ksp%free()
        deallocate(this%ksp)
     end if
 
@@ -565,8 +564,8 @@ contains
 
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
 
-       write(log_buf, '(A)') "Material properties must be set in the user&
-       & file!"
+       write(log_buf, '(A)') "Material properties must be set in the user " // &
+            "file!"
        call neko_log%message(log_buf)
        this%user_material_properties => user%material_properties
        properties = 0
@@ -578,12 +577,12 @@ contains
        if (params%valid_path('Pe') .and. &
             (params%valid_path('lambda') .or. &
             params%valid_path('cp'))) then
-          call neko_error("To set the material properties for the scalar,&
-          & either provide Pe OR lambda and cp in the case file.")
+          call neko_error("To set the material properties for the scalar, " // &
+               "either provide Pe OR lambda and cp in the case file.")
           ! Non-dimensional case
        else if (params%valid_path('Pe')) then
-          write(log_buf, '(A)') 'Non-dimensional scalar material properties &
-          & input.'
+          write(log_buf, '(A)') 'Non-dimensional scalar material properties' //&
+               ' input.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
           write(log_buf, '(A)') 'Specific heat capacity will be set to 1,'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)

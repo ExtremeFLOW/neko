@@ -113,6 +113,9 @@ contains
        !calculate the cfl after the possibly varied dt
        cfl = C%fluid%compute_cfl(C%dt)
 
+       ! advance time step from t to t+dt
+       call simulation_settime(t, C%dt, C%fluid%ext_bdf, C%tlag, C%dtlag, tstep)
+
        call neko_log%status(t, C%end_time)
        write(log_buf, '(A,I6)') 'Time-step: ', tstep
        call neko_log%message(log_buf)
@@ -120,8 +123,6 @@ contains
 
        write(log_buf, '(A,E15.7,1x,A,E15.7)') 'CFL:', cfl, 'dt:', C%dt
        call neko_log%message(log_buf)
-
-       call simulation_settime(t, C%dt, C%fluid%ext_bdf, C%tlag, C%dtlag, tstep)
 
        ! Run the preprocessing
        call neko_log%section('Preprocessing')
