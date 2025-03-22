@@ -37,6 +37,7 @@ module gs_mpi
   use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
   use stack, only : stack_i4_t
   use comm
+  use mpi_f08, only : MPI_Barrier
   use, intrinsic :: iso_c_binding
   !$ use omp_lib
   implicit none
@@ -91,10 +92,11 @@ contains
        this%comm = NEKO_COMM
     end if
     
+    !call MPI_BARRIER(this%comm)
     call this%init_order(send_pe, recv_pe)
 
+    !call MPI_BARRIER(this%comm)
     allocate(this%send_buf(send_pe%size()))
-
     sp => send_pe%array()
     do i = 1, send_pe%size()
        allocate(this%send_buf(i)%data(this%send_dof(sp(i))%size()))
@@ -176,14 +178,10 @@ contains
     integer :: i, ierr, thrdid
 
     thrdid = 0
+    
     !$ thrdid = omp_get_thread_num()
-
+    
     do i = 1, size(this%recv_pe)
-       ! We should not need this extra associate block, ant it works
-       ! great without it for GNU, Intel, NEC and Cray, but throws an
-       ! ICE with NAG.
-       ! Issue recv requests, we will later check that these have finished
-       ! in nbwait
        associate(recv_data => this%recv_buf(i)%data)
          call MPI_IRecv(recv_data, size(recv_data), &
               MPI_REAL_PRECISION, this%recv_pe(i), thrdid, &

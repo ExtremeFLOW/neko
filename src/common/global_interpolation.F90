@@ -49,7 +49,7 @@ module global_interpolation
        device_get_ptr
   use point, only: point_t
   use tuple, only: tuple_i4_t
-  use comm, only: NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
+  use comm, only: NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only: MPI_SUM, MPI_Reduce, MPI_COMM, MPI_Comm_rank, &
        MPI_Comm_size, MPI_Wtime, MPI_Allreduce, MPI_IN_PLACE, MPI_INTEGER, &
        MPI_MIN, MPI_Allgather, MPI_Barrier, MPI_Reduce_Scatter_block, MPI_alltoall, &
@@ -193,7 +193,7 @@ contains
   subroutine global_interpolation_init_dof(this, dof, comm, tol)
     class(global_interpolation_t), intent(inout) :: this
     type(dofmap_t), target :: dof
-    type(MPI_COMM), optional, intent(in) :: comm
+    type(MPI_COMM), optional, intent(inout) :: comm
     real(kind=rp), optional :: tol
 
     ! NOTE: Passing dof%x(:,1,1,1), etc in init_xyz passes down the entire
@@ -220,7 +220,7 @@ contains
     real(kind=rp), intent(in), target :: z(:)
     integer, intent(in) :: gdim
     integer, intent(in) :: nelv
-    type(MPI_COMM), intent(in), optional :: comm
+    type(MPI_COMM), intent(inout), optional :: comm
     type(space_t), intent(in), target :: Xh
     real(kind=rp), intent(in), optional :: tol
     integer :: lx, ly, lz, max_pts_per_iter, ierr, i, id1, id2, n, j
@@ -282,7 +282,7 @@ contains
                        MPI_MIN, this%comm, ierr) 
     this%pe_box_num = max(this%pe_box_num,2)
     this%glob_map_size = this%pe_box_num*this%pe_size
-    if (pe_rank .eq. 0) print *, this%pe_box_num, this%glob_map_size
+    if (this%pe_rank .eq. 0) print *, this%pe_box_num, this%glob_map_size
     allocate(rank_xyz_max(3,this%glob_map_size))
     allocate(rank_xyz_min(3,this%glob_map_size))
     allocate(min_xyz(3,this%pe_box_num))
@@ -477,11 +477,12 @@ contains
     type(stack_i4_t) :: send_pe_find, recv_pe_find
     
 
-    call gs_find%init_dofs() 
+    call gs_find%init_dofs(this%pe_size) 
     call send_pe_find%init()
     call recv_pe_find%init()
     call MPI_Barrier(this%comm)
     time_start = MPI_Wtime()
+    !print *, this%pe_size, this%pe_rank, 'pesize/rank'
     write(log_buf,'(A)') 'Setting up global interpolation'
     call neko_log%message(log_buf)  
     ! Find pe candidates that the points i want may be at
@@ -573,7 +574,7 @@ contains
     
     call gs_find%init(send_pe_find, recv_pe_find, this%comm)
      
-    call gs_find_back%init_dofs()
+    call gs_find_back%init_dofs(this%pe_size)
     ii = 0
     do i = 0, (this%pe_size-1)
        send_recv => gs_find%recv_dof(i)%array() 
@@ -593,6 +594,7 @@ contains
     if (allocated(this%xyz_local)) deallocate(this%xyz_local)
     allocate(this%xyz_local(3, this%n_points_local))
     max_n_points_to_send = max(maxval(this%n_points_pe),1)
+    if (allocated(xyz_send_to_pe)) deallocate(xyz_send_to_pe)
     allocate(xyz_send_to_pe(3, max_n_points_to_send))
     this%xyz_local = 0.0_rp
     call gs_find%nbrecv()
@@ -839,7 +841,7 @@ contains
     call gs_find%free()
     call send_pe_find%init()
     call recv_pe_find%init()
-    call gs_find%init_dofs()
+    call gs_find%init_dofs(this%pe_size)
     !setup comm to send xyz and rst to chosen ranks
     do i = 0, (this%pe_size-1)
        if (this%n_points_pe(i) .gt. 0) then
@@ -862,7 +864,7 @@ contains
     end do
 
 
-    call gs_find%init(send_pe_find, recv_pe_find)
+    call gs_find%init(send_pe_find, recv_pe_find, this%comm)
     call gs_find%nbrecv()
     this%xyz_local = 0.0
     call gs_find%nbsend(this%xyz, this%n_points*3, null_ptr, null_ptr)
@@ -900,7 +902,7 @@ contains
     !Set up final way of doing communication
     call send_pe%init()
     call recv_pe%init()
-    call this%gs_comm%init_dofs() 
+    call this%gs_comm%init_dofs(this%pe_size) 
     do i = 0, (this%pe_size-1)
        if (this%n_points_pe(i) .gt. 0) then
           call recv_pe%push(i)

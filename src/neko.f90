@@ -128,7 +128,10 @@ contains
 
     call date_and_time(time = time, date = date)
 
-    call comm_init
+    call get_command_argument(2, case_file)
+    read(case_file, *) i
+    call comm_init(i)
+    print *, i
     call neko_mpi_types_init
     call jobctrl_init
     call device_init

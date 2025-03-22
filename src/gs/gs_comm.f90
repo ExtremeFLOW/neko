@@ -53,6 +53,7 @@ module gs_comm
      !> Array of ranks that this process should send to
      !! @note: this will usually be fewer than the total number of ranks
      !! size(send_pe) <= pe_size
+     integer :: pe_size
      integer, allocatable :: send_pe(:)
      !> array of ranks that this process will receive messages from
      integer, allocatable :: recv_pe(:)
@@ -146,16 +147,23 @@ module gs_comm
   public :: gs_comm_init, gs_comm_free, gs_nbsend, gs_nbrecv, gs_nbwait
 contains
   !Initalize stacks for each rank of dof indices to send/recv
-  subroutine init_dofs(this)
+  subroutine init_dofs(this, comm_size)
     class(gs_comm_t), intent(inout) :: this
+    integer, optional, intent(in) :: comm_size
     integer :: i
+    
+    if (present(comm_size)) then
+       this%pe_size = comm_size
+    else
+       this%pe_size = pe_size
+    end if
 
     call this%free_dofs()
 
-    allocate(this%send_dof(0:pe_size-1))
-    allocate(this%recv_dof(0:pe_size-1))
+    allocate(this%send_dof(0:this%pe_size-1))
+    allocate(this%recv_dof(0:this%pe_size-1))
 
-    do i = 0, pe_size -1
+    do i = 0, this%pe_size -1
        call this%send_dof(i)%init()
        call this%recv_dof(i)%init()
     end do
@@ -167,14 +175,14 @@ contains
     integer :: i
 
     if (allocated(this%send_dof)) then
-       do i = 0, pe_size - 1
+       do i = 0, this%pe_size - 1
           call this%send_dof(i)%free()
        end do
        deallocate(this%send_dof)
     end if
 
     if (allocated(this%recv_dof)) then
-       do i = 0, pe_size - 1
+       do i = 0, this%pe_size - 1
           call this%recv_dof(i)%free()
        end do
        deallocate(this%recv_dof)
@@ -189,7 +197,7 @@ contains
     class(gs_comm_t), intent(inout) :: this
     type(stack_i4_t), intent(inout) :: send_pe
     type(stack_i4_t), intent(inout) :: recv_pe
-    integer, pointer :: sp(:)
+    integer, pointer :: sp(:), rp(:)
     integer :: i
 
     allocate(this%send_pe(send_pe%size()))
@@ -201,9 +209,9 @@ contains
 
     allocate(this%recv_pe(recv_pe%size()))
 
-    sp => recv_pe%array()
+    rp => recv_pe%array()
     do i = 1, recv_pe%size()
-       this%recv_pe(i) = sp(i)
+       this%recv_pe(i) = rp(i)
     end do
 
   end subroutine init_order
