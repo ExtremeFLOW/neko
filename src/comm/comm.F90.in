@@ -36,6 +36,7 @@ module comm
   
   !> MPI communicator
   type(MPI_Comm) :: NEKO_COMM
+  type(MPI_Comm) :: NEKO_GLOBAL_COMM
 
   !> MPI type for working precision of REAL types
 #ifdef HAVE_MPI_PARAM_DTYPE
@@ -55,11 +56,18 @@ module comm
   !> I/O node
   logical :: nio
 
+  !> MPI rank
+  integer :: global_pe_rank
+  !> MPI size of communicator
+  integer :: global_pe_size
 contains
-  subroutine comm_init
+  subroutine comm_init(caseid)
     integer :: ierr
     logical :: initialized
     integer :: provided, nthrds
+    integer :: color = 0
+
+    if (present(caseid)) color = caseid
 
     pe_rank = -1
     pe_size = 0
@@ -105,7 +113,10 @@ contains
     call MPI_Comm_split(MPI_COMM_WORLD, 0, pe_rank, NEKO_COMM, ierr)
 #else    
     ! Original version duplicates the communicator:
-    call MPI_Comm_dup(MPI_COMM_WORLD, NEKO_COMM, ierr)
+    call MPI_Comm_dup(MPI_COMM_WORLD, NEKO_GLOBAL_COMM, ierr)
+    call MPI_Comm_rank(NEKO_GLOBAL_COMM, global_pe_rank, ierr)
+    call MPI_Comm_size(NEKO_GLOBAL_COMM, global_pe_size, ierr)
+    call MPI_Comm_split(NEKO_GLOBAL_COMM, color, global_pe_rank, NEKO_COMM, ierr)
 #endif
 
     call MPI_Comm_rank(NEKO_COMM, pe_rank, ierr)
