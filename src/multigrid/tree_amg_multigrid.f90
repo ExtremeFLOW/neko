@@ -45,7 +45,8 @@ module tree_amg_multigrid
   use num_types, only: rp
   use utils, only : neko_error
   use math, only : add2
-  use device_math, only : device_rzero, device_col2, device_add2, device_sub3, device_glsc2
+  use device_math, only : device_rzero, device_col2, device_add2, device_sub3, &
+       device_glsc2
   use comm
   use coefs, only : coef_t
   use mesh, only : mesh_t
@@ -54,8 +55,9 @@ module tree_amg_multigrid
   use bc_list, only : bc_list_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use tree_amg, only : tamg_hierarchy_t, tamg_lvl_init, tamg_node_init
-  use tree_amg_aggregate
-  use tree_amg_smoother
+  use tree_amg_aggregate, only : aggregate_finest_level, aggregate_greedy, &
+       aggregate_end
+  use tree_amg_smoother, only : amg_cheby_t
   use logger, only : neko_log, LOG_SIZE
   use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE
   use neko_config, only: NEKO_BCKND_DEVICE

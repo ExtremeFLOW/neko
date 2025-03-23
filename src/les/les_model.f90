@@ -58,7 +58,7 @@ module les_model
   ! List of all possible types created by the factory routine
   character(len=20) :: DELTA_KNOWN_TYPES(3) = [character(len=20) :: &
        "pointwise", &
-       "elementwise_avg", &
+       "elementwise_average", &
        "elementwise_max"]
 
   !> Base abstract type for LES models based on the Boussinesq approximation.
@@ -218,10 +218,10 @@ contains
       if (pe_rank .eq. 0) then
          if (if_ext .eqv. .true.) then
             call neko_warning("Extrapolation of the velocity in eddy &
-                 &viscosity estimation might be unstable.")
+            &viscosity estimation might be unstable.")
          else
             call neko_warning("The time integration for eddy viscosity &
-                 &estimation is only first-order accurate")
+            &estimation is only first-order accurate")
          end if
       end if
 
@@ -238,7 +238,7 @@ contains
       class default
          if (this%if_ext .eqv. .true.) then
             call neko_error("Fluid scheme does not support &
-                 &velocity extrapolation")
+            &velocity extrapolation")
          end if
       end select
 

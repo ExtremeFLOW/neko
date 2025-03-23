@@ -60,7 +60,8 @@ module flow_ic
   private
 
   interface set_flow_ic
-     module procedure set_flow_ic_int, set_flow_ic_usr, set_compressible_flow_ic_usr
+     module procedure set_flow_ic_int, set_flow_ic_usr, &
+      set_compressible_flow_ic_usr
   end interface set_flow_ic
 
   public :: set_flow_ic
@@ -90,7 +91,7 @@ contains
     !
     if (trim(type) .eq. 'uniform') then
 
-       call json_get(params, 'case.fluid.initial_condition.value', uinf)
+       call json_get(params, 'value', uinf)
        call set_flow_ic_uniform(u, v, w, uinf)
 
        !
@@ -98,10 +99,9 @@ contains
        !
     else if (trim(type) .eq. 'blasius') then
 
-       call json_get(params, 'case.fluid.blasius.delta', delta)
-       call json_get(params, 'case.fluid.blasius.approximation', &
-            read_str)
-       call json_get(params, 'case.fluid.blasius.freestream_velocity', uinf)
+       call json_get(params, 'delta', delta)
+       call json_get(params, 'approximation', read_str)
+       call json_get(params, 'freestream_velocity', uinf)
 
        call set_flow_ic_blasius(u, v, w, delta, uinf, read_str)
 
@@ -110,11 +110,9 @@ contains
        !
     else if (trim(type) .eq. 'point_zone') then
 
-       call json_get(params, 'case.fluid.initial_condition.base_value', uinf)
-       call json_get(params, 'case.fluid.initial_condition.zone_name', &
-            read_str)
-       call json_get(params, 'case.fluid.initial_condition.zone_value', &
-            zone_value)
+       call json_get(params, 'base_value', uinf)
+       call json_get(params, 'zone_name', read_str)
+       call json_get(params, 'zone_value', zone_value)
 
        call set_flow_ic_point_zone(u, v, w, uinf, read_str, zone_value)
 
@@ -123,17 +121,12 @@ contains
        !
     else if (trim(type) .eq. 'field') then
 
-       call json_get(params, 'case.fluid.initial_condition.file_name', &
-            read_str)
+       call json_get(params, 'file_name', read_str)
        fname = trim(read_str)
-       call json_get_or_default(params, &
-            'case.fluid.initial_condition.interpolate', interpolate, &
+       call json_get_or_default(params, 'interpolate', interpolate, &
             .false.)
-       call json_get_or_default(params, &
-            'case.fluid.initial_condition.tolerance', tol, 0.000001_rp)
-       call json_get_or_default(params, &
-            'case.fluid.initial_condition.mesh_file_name', read_str, &
-            "none")
+       call json_get_or_default(params, 'tolerance', tol, 0.000001_rp)
+       call json_get_or_default(params, 'mesh_file_name', read_str, "none")
        mesh_fname = trim(read_str)
 
        call set_flow_ic_fld(u, v, w, p, fname, interpolate, tol, mesh_fname)
@@ -422,7 +415,7 @@ contains
 
     if (sample_idx .eq. -1) &
          call neko_error("Invalid file name for the initial condition. The&
-         & file format must be e.g. 'mean0.f00001'")
+      & file format must be e.g. 'mean0.f00001'")
 
     ! Change from "field0.f000*" to "field0.fld" for the fld reader
     call filename_chsuffix(file_name, file_name, 'fld')
@@ -443,7 +436,7 @@ contains
 
           if (sample_mesh_idx .eq. -1) then
              call neko_error("Invalid file name for the initial condition. &
-                  &The file format must be e.g. 'mean0.f00001'")
+               &The file format must be e.g. 'mean0.f00001'")
           end if
 
           write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance
@@ -477,10 +470,10 @@ contains
 
     if (mesh_mismatch .and. .not. interpolate) then
        call neko_error("The fld file must match the current mesh! &
-            &Use 'interpolate': 'true' to enable interpolation.")
+         &Use 'interpolate': 'true' to enable interpolation.")
     else if (.not. mesh_mismatch .and. interpolate) then
        call neko_log%warning("You have activated interpolation but you might &
-            &still be using the same mesh.")
+         &still be using the same mesh.")
     end if
 
     ! Mesh interpolation if specified
@@ -491,11 +484,11 @@ contains
        type is (fld_file_t)
           if (.not. ft%dp_precision) then
              call neko_warning("The coordinates read from the field file are &
-                  &in single precision.")
+               &in single precision.")
              call neko_log%message("It is recommended to use a mesh in double &
-                  &precision for better interpolation results.")
+               &precision for better interpolation results.")
              call neko_log%message("If the interpolation does not work, you&
-                  &can try to increase the tolerance.")
+               &can try to increase the tolerance.")
           end if
        class default
        end select

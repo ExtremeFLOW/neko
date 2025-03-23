@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -36,14 +36,16 @@ submodule (les_model) les_model_fctry
   use dynamic_smagorinsky, only : dynamic_smagorinsky_t
   use sigma, only : sigma_t
   use fluid_scheme_base, only : fluid_scheme_base_t
+  use wale, only : wale_t
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: LES_KNOWN_TYPES(4) = [character(len=20) :: &
+  character(len=20) :: LES_KNOWN_TYPES(5) = [character(len=20) :: &
        "vreman", &
        "smagorinsky", &
-       "dynamic_smagorinsky", &
-       "sigma"]
+       "dymamic_smagorinsky", &
+       "sigma", &
+       "wale"]
 
 contains
   !> LES model factory.
@@ -83,6 +85,8 @@ contains
        allocate(dynamic_smagorinsky_t::object)
     case ('sigma')
        allocate(sigma_t::object)
+    case ('wale')
+       allocate(wale_t::object)
     case default
        do i = 1, les_model_registry_size
           if (trim(type_name) == trim(les_model_registry(i)%type_name)) then
