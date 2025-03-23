@@ -166,7 +166,9 @@ module les_model
      end subroutine register_les_model
   end interface
 
-  ! Interface for an object allocator. Implemented in the user modules.
+  !> Interface for an object allocator.
+  !! Implemented in the user modules, should allocate the `obj` to the custom
+  !! user type.
   abstract interface
      subroutine les_model_allocate(obj)
        import les_model_t
@@ -181,10 +183,10 @@ module les_model
      procedure(les_model_allocate), pointer, nopass :: allocator
   end type allocator_entry
 
-  ! Registry of LES model allocators for user-defined types
+  !> Registry of LES model allocators for user-defined types
   type(allocator_entry), allocatable :: les_model_registry(:)
 
-  ! The size of the `les_model_registry`
+  !> The size of the `les_model_registry`
   integer :: les_model_registry_size = 0
 
   public :: les_model_factory, les_model_allocator, register_les_model, &

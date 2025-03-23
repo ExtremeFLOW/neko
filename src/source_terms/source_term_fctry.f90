@@ -104,7 +104,7 @@ contains
   !! Called in custom user modules inside the `module_name_register_types`
   !! routine to add a custom type allocator to the registry.
   !! @param allocator The allocator for the custom user type.
-  subroutine register_source_term(type_name, allocator)
+  module subroutine register_source_term(type_name, allocator)
     character(len=*), intent(in) :: type_name
     procedure(source_term_allocate), pointer, intent(in) :: allocator
     type(allocator_entry), allocatable :: temp(:)
