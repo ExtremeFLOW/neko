@@ -16,6 +16,8 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
+echo "Building user NEKO ..."
+
 # Collect user-provided .f90 files (excluding usr_driver.f90)
 USER_FILES=""
 for file in "$@"; do
@@ -31,7 +33,9 @@ USER_MODULES=$(grep -hE '^[[:space:]]*module[[:space:]]+[a-zA-Z_][a-zA-Z0-9_]*' 
                awk '{print $2}' | sort -u)
 
 echo "Detected the following user modules:"
-echo $USER_MODULES
+for mod in $USER_MODULES; do
+  echo "    -" $mod
+done
 
 # Create usr_driver.f90
 cat > usr_driver.f90 << _ACEOF
@@ -70,4 +74,4 @@ _ACEOF
 $FC $FCFLAGS -I$includedir_pkg -L$libdir $USER_FILES usr_driver.f90 -lneko @LDFLAGS@ @LIBS@ -o neko
 
 rm -f usr_driver.f90
-printf "%s\n" ' done!'
+printf "%s\n" ' Done!'
