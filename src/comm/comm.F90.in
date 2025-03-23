@@ -62,6 +62,7 @@ module comm
   integer :: global_pe_size
 contains
   subroutine comm_init(caseid)
+    integer, optional :: caseid
     integer :: ierr
     logical :: initialized
     integer :: provided, nthrds
