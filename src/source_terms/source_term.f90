@@ -161,10 +161,10 @@ module source_term
      procedure(source_term_allocate), pointer, nopass :: allocator
   end type allocator_entry
 
-  ! Registry of source term allocators for user-defined types
+  !> Registry of source term allocators for user-defined types
   type(allocator_entry), allocatable :: source_term_registry(:)
 
-  ! The size of the `source_term_registry`
+  !> The size of the `source_term_registry`
   integer :: source_term_registry_size = 0
 
   public :: source_term_factory, source_term_allocator, register_source_term, &

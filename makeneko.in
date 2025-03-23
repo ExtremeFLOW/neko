@@ -7,6 +7,9 @@ includedir_pkg=${prefix}/include/neko
 FC=@FC@
 FCFLAGS='@FCFLAGS@'
 
+printf "\n%s\n" 'N E K O build tool, Version @PACKAGE_VERSION@'
+printf "%s\n" '@NEKO_BUILD_INFO@'
+
 # Ensure user provides at least one .f90 file
 if [ $# -eq 0 ]; then
     echo "Usage: makeneko <file1.f90> <file2.f90>"
@@ -67,4 +70,4 @@ _ACEOF
 $FC $FCFLAGS -I$includedir_pkg -L$libdir $USER_FILES usr_driver.f90 -lneko @LDFLAGS@ @LIBS@ -o neko
 
 rm -f usr_driver.f90
-echo "User NEKO build complete!"
+printf "%s\n" ' done!'
