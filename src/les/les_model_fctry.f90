@@ -90,8 +90,8 @@ contains
     case default
        do i = 1, les_model_registry_size
           if (trim(type_name) == trim(les_model_registry(i)%type_name)) then
-              call les_model_registry(i)%allocator(object)
-              return
+             call les_model_registry(i)%allocator(object)
+             return
           end if
        end do
 
@@ -100,7 +100,10 @@ contains
 
   end subroutine les_model_allocator
 
-  !> Register an LES model constructor
+  !> Register a custom LES model allocator.
+  !! Called in custom user modules inside the `module_name_register_types`
+  !! routine to add a custom type allocator to the registry.
+  !! @param allocator The allocator for the custom user type.
   subroutine register_les_model(type_name, allocator)
     character(len=*), intent(in) :: type_name
     procedure(les_model_allocate), pointer, intent(in) :: allocator
@@ -108,11 +111,11 @@ contains
 
     ! Expand registry
     if (les_model_registry_size == 0) then
-      allocate(les_model_registry(1))
+       allocate(les_model_registry(1))
     else
-      allocate(temp(les_model_registry_size + 1))
-      temp(1:les_model_registry_size) = les_model_registry
-      call move_alloc(temp, les_model_registry)
+       allocate(temp(les_model_registry_size + 1))
+       temp(1:les_model_registry_size) = les_model_registry
+       call move_alloc(temp, les_model_registry)
     end if
 
     les_model_registry_size = les_model_registry_size + 1

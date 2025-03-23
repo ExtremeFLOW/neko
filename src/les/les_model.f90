@@ -169,8 +169,8 @@ module les_model
   ! Interface for an object allocator. Implemented in the user modules.
   abstract interface
      subroutine les_model_allocate(obj)
-        import les_model_t
-        class(les_model_t), allocatable, intent(inout) :: obj
+       import les_model_t
+       class(les_model_t), allocatable, intent(inout) :: obj
      end subroutine les_model_allocate
   end interface
 
@@ -187,7 +187,7 @@ module les_model
   ! The size of the `les_model_registry`
   integer :: les_model_registry_size = 0
 
-  public :: les_model_factory, les_model_allocator,  register_les_model, &
+  public :: les_model_factory, les_model_allocator, register_les_model, &
        les_model_allocate
 
 
