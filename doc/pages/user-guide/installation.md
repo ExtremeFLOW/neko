@@ -48,7 +48,6 @@ cmake -B build -S ./ --install-prefix /path/to/installation \
     -DHDF5_BUILD_FORTRAN=ON
 cmake --build build/ --parallel
 cmake --install build/
-cmake --install build/
 ```
 
 It can be a good idea to double-check that you have files starting with
