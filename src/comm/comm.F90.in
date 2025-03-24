@@ -127,8 +127,12 @@ contains
 
     call MPI_Comm_rank(NEKO_GLOBAL_COMM, global_pe_rank, ierr)
     call MPI_Comm_size(NEKO_GLOBAL_COMM, global_pe_size, ierr)
-    call MPI_Comm_split(NEKO_GLOBAL_COMM, color, global_pe_rank, &
-         NEKO_COMM, ierr)
+    if (envvar_len .gt. 0) then
+       call MPI_Comm_split(NEKO_GLOBAL_COMM, color, global_pe_rank, &
+            NEKO_COMM, ierr)
+    else
+       call MPI_Comm_dup(NEKO_GLOBAL_COMM, NEKO_COMM, ierr)
+    end if
     call MPI_Comm_rank(NEKO_COMM, pe_rank, ierr)
     call MPI_Comm_size(NEKO_COMM, pe_size, ierr)
 
