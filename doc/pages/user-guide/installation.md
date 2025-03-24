@@ -45,7 +45,7 @@ cd hdf5-hdf5_1.14.6/
 cmake -B build -S ./ --install-prefix /path/to/installation \
     -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx \
     -DCMAKE_Fortran_COMPILER=mpifort -DHDF5_ENABLE_PARALLEL=ON \
-    -DHDF5_BUILD_FORTRAN=ON
+    -DHDF5_BUILD_FORTRAN=ON -DCMAKE_BUILD_TYPE=Release
 cmake --build build/ --parallel
 cmake --install build/
 ```
