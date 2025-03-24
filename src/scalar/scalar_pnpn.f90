@@ -102,9 +102,6 @@ module scalar_pnpn
      ! Time interpolation scheme
      logical :: oifs
 
-     ! Lag arrays for the RHS.
-     type(field_t) :: abx1, abx2
-
      ! Advection terms for the oifs method
      type(field_t) :: advs
 

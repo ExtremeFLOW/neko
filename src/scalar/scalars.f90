@@ -58,7 +58,7 @@ module scalars
   !> Type to manage multiple scalar transport equations
   type, public :: scalars_t
     !> The scalar fields
-    type(scalar_pnpn_t), allocatable :: scalar(:)
+    class(scalar_scheme_t), allocatable :: scalar(:)
     !> Shared KSP solver for all scalar fields
     class(ksp_t), allocatable :: shared_ksp
     !> Time lag
@@ -97,8 +97,10 @@ contains
     real(kind=rp), intent(in) :: rho
     integer :: i
     
-    ! Allocate the scalar field
-    allocate(this%scalar(n_scalars))
+    ! Allocate the scalar fields
+    ! If there are more scalar_scheme_t types, add a factory function here
+    allocate(scalar_pnpn_t::this%scalar(n_scalars))
+
     do i = 1, n_scalars
        this%scalar(i)%chkp%tlag => this%tlag
        this%scalar(i)%chkp%dtlag => this%dtlag
@@ -130,6 +132,8 @@ contains
     
     ! Iterate through all scalar fields
     do i = 1, size(this%scalar)
+       this%scalar(i)%cp = 1.0_rp
+       this%scalar(i)%lambda = 1e-16_rp
        call this%scalar(i)%update_material_properties()
     end do
   end subroutine scalars_update_material_properties

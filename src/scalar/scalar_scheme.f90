@@ -134,6 +134,8 @@ module scalar_scheme
      !> Gradient jump panelty
      logical :: if_gradient_jump_penalty
      type(gradient_jump_penalty_t) :: gradient_jump_penalty
+     ! Lag arrays for the RHS.
+     type(field_t) :: abx1, abx2
    contains
      !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init

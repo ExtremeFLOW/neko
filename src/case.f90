@@ -54,6 +54,7 @@ module case
   use jobctrl, only : jobctrl_set_time_limit
   use user_intf, only : user_t
   use scalar_pnpn, only : scalar_pnpn_t
+  use scalar_scheme, only : scalar_scheme_t
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, json_extract_object
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
@@ -76,7 +77,6 @@ module case
      type(user_t) :: usr
      class(fluid_scheme_base_t), allocatable :: fluid
      type(scalars_t), allocatable :: scalars
-     type(scalar_pnpn_t), pointer :: scalar
   end type case_t
 
   interface case_init
@@ -276,16 +276,13 @@ contains
          this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
          this%fluid%rho)
 
-       ! TODO: fix this for multiple scalars
+       ! TODO: add multiple scalars to fluid%chkp
        call this%fluid%chkp%add_scalar(this%scalars%scalar(1)%s)
 
        ! Take these properties from the first scalar
        this%fluid%chkp%abs1 => this%scalars%scalar(1)%abx1
        this%fluid%chkp%abs2 => this%scalars%scalar(1)%abx2
        this%fluid%chkp%slag => this%scalars%scalar(1)%slag
-
-       ! TODO: this is a temporary fix to make simulation.f90 work
-       this%scalar => this%scalars%scalar(1)
     end if
 
     !

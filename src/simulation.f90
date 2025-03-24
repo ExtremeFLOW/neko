@@ -142,7 +142,7 @@ contains
        if (allocated(C%scalars)) then
           start_time = MPI_WTIME()
           call neko_log%section('Scalar')
-          call C%scalar%step(t, tstep, C%dt, C%fluid%ext_bdf, dt_controller)
+          call C%scalars%step(t, tstep, C%dt, C%fluid%ext_bdf, dt_controller)
           end_time = MPI_WTIME()
           write(log_buf, '(A,E15.7)') &
                'Scalar step time:      ', end_time-start_time
@@ -177,9 +177,7 @@ contains
 
        if (allocated(C%scalars)) then
           !> @todo Temporary fix until we have reworked the material properties
-          C%scalar%cp = 1.0_rp
-          C%scalar%lambda = 1e-16_rp
-          call C%scalar%update_material_properties()
+          call C%scalars%update_material_properties()
        end if
 
        call C%usr%user_check(t, tstep, C%fluid%u, C%fluid%v, C%fluid%w, &
@@ -284,7 +282,7 @@ contains
 
     call C%fluid%restart(C%dtlag, C%tlag)
     call C%fluid%chkp%previous_mesh%free()
-    if (allocated(C%scalars)) call C%scalar%restart(C%dtlag, C%tlag)
+    if (allocated(C%scalars)) call C%scalars%restart(C%dtlag, C%tlag)
 
     t = C%fluid%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')
