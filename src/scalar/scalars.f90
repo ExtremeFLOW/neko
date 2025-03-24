@@ -83,7 +83,7 @@ module scalars
 contains
 
   !> Initialize the scalars container
-  subroutine scalars_init(this, n_scalars, msh, coef, gs, params, numerics_params, user, ulag, vlag, wlag, time_scheme, rho)
+  subroutine scalars_init(this, n_scalars, msh, coef, gs, params, numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
     class(scalars_t), intent(inout) :: this
     integer, intent(in) :: n_scalars
     type(mesh_t), target, intent(in) :: msh
@@ -95,6 +95,7 @@ contains
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     real(kind=rp), intent(in) :: rho
+    type(chkp_t), target, intent(inout) :: chkp
     integer :: i
     
     ! Allocate the scalar fields
@@ -102,11 +103,8 @@ contains
     allocate(scalar_pnpn_t::this%scalar(n_scalars))
 
     do i = 1, n_scalars
-       this%scalar(i)%chkp%tlag => this%tlag
-       this%scalar(i)%chkp%dtlag => this%dtlag
-       
        ! Initialize the scalar field
-       call this%scalar(i)%init(msh, coef, gs, params, numerics_params, user, ulag, vlag, wlag, time_scheme, rho)
+       call this%scalar(i)%init(msh, coef, gs, params, numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
     end do
   end subroutine scalars_init
   
@@ -139,13 +137,13 @@ contains
   end subroutine scalars_update_material_properties
   
   !> Restart from checkpoint data
-  subroutine scalars_restart(this, dtlag, tlag)
+  subroutine scalars_restart(this, chkp)
     class(scalars_t), intent(inout) :: this
-    real(kind=rp), dimension(10), intent(in) :: dtlag, tlag
+    type(chkp_t), intent(inout) :: chkp
     integer :: i
     ! Iterate through all scalar fields
     do i = 1, size(this%scalar)
-       call this%scalar(i)%restart(dtlag, tlag)
+       call this%scalar(i)%restart(chkp)
     end do
   end subroutine scalars_restart
   

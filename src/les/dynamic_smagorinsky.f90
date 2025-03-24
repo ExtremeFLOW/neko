@@ -94,7 +94,7 @@ contains
 
       call json_get_or_default(json, "nut_field", nut_name, "nut")
       call json_get_or_default(json, "delta_type", delta_type, "pointwise")
-      call json_get_or_default(json, "extrapolation", if_ext, .true.)
+      call json_get_or_default(json, "extrapolation", if_ext, .false.)
 
       call this%free()
       call this%init_base(fluid, nut_name, delta_type, if_ext)
@@ -193,7 +193,7 @@ contains
 
     if (filter_1d%nx .le. 2) then
        call neko_error("Dynamic Smagorinsky model error: test filter is not &
-            &defined for the current polynomial order")
+       &defined for the current polynomial order")
     end if
     if (mod(filter_1d%nx,2) .eq. 0) then ! number of grid spacing is odd
        ! cutoff at polynomial order int((filter_1d%nx)/2)
