@@ -120,7 +120,7 @@ contains
        this%never = .true.
     else
        call neko_error("The control parameter must be simulationtime, nsamples&
-            & tsteps, or never, but received "//trim(control_mode))
+       & tsteps, or never, but received "//trim(control_mode))
     end if
   end subroutine time_based_controller_init
 
