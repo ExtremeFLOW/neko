@@ -21,8 +21,10 @@ echo "Building user NEKO ..."
 # Collect user-provided .f90 files (excluding usr_driver.f90)
 USER_FILES=""
 for file in "$@"; do
-    if [ "$file" != "plugins.txt" ] && [ "$file" != "usr_driver.f90" ]; then
-        USER_FILES="$USER_FILES $file"
+    if [ "$file" != "usr_driver.f90" ]; then
+        case "$file" in
+            *.f90) USER_FILES="$USER_FILES $file" ;;
+        esac
     fi
 done
 
