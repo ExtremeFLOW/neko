@@ -39,10 +39,10 @@ module scalar_pnpn
   use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_oifs_t, &
        rhs_maker_ext_fctry, rhs_maker_bdf_fctry, rhs_maker_oifs_fctry
   use scalar_scheme, only : scalar_scheme_t
+  use checkpoint, only : chkp_t
   use field, only : field_t
   use bc_list, only : bc_list_t
   use mesh, only : mesh_t
-  use checkpoint, only : chkp_t
   use coefs, only : coef_t
   use device, only : HOST_TO_DEVICE, device_memcpy
   use gather_scatter, only : gs_t, GS_OP_ADD
@@ -157,13 +157,14 @@ contains
   !! @param gs The gather-scatter.
   !! @param params The case parameter file in json.
   !! @param user Type with user-defined procedures.
+  !! @param chkp Set up checkpoint for restarts.
   !! @param ulag Lag arrays for the x velocity component.
   !! @param vlag Lag arrays for the y velocity component.
   !! @param wlag Lag arrays for the z velocity component.
   !! @param time_scheme The time-integration controller.
   !! @param rho The fluid density.
   subroutine scalar_pnpn_init(this, msh, coef, gs, params, numerics_params, &
-       user, ulag, vlag, wlag, time_scheme, rho)
+       user, chkp, ulag, vlag, wlag, time_scheme, rho)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(in) :: msh
     type(coef_t), target, intent(in) :: coef
@@ -171,6 +172,7 @@ contains
     type(json_file), target, intent(inout) :: params
     type(json_file), target, intent(inout) :: numerics_params
     type(user_t), target, intent(in) :: user
+    type(chkp_t), target, intent(inout) :: chkp
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     real(kind=rp), intent(in) :: rho
@@ -238,27 +240,32 @@ contains
     call this%proj_s%init(this%dm_Xh%size(), this%projection_dim, &
          this%projection_activ_step)
 
-    ! Add lagged term to checkpoint
-    ! @todo Init chkp object, note, adding 3 slags
-    ! call this%chkp%add_lag(this%slag, this%slag, this%slag)
-
     ! Determine the time-interpolation scheme
     call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
-
+    ! Point to case checkpoint
+    this%chkp => chkp
     ! Initialize advection factory
     call json_get_or_default(params, 'advection', advection, .true.)
+
     call advection_factory(this%adv, numerics_params, this%c_Xh, &
          ulag, vlag, wlag, this%chkp%dtlag, &
          this%chkp%tlag, time_scheme, .not. advection, &
          this%slag)
+    ! Add scalar info to checkpoint
+    call this%chkp%add_scalar(this%s)
+    this%chkp%abs1 => this%abx1
+    this%chkp%abs2 => this%abx2
+    this%chkp%slag => this%slag
   end subroutine scalar_pnpn_init
 
-  !> I envision the arguments to this func might need to be expanded
-  subroutine scalar_pnpn_restart(this, dtlag, tlag)
+  ! Restarts the scalar from a checkpoint
+  subroutine scalar_pnpn_restart(this, chkp)
     class(scalar_pnpn_t), target, intent(inout) :: this
+    type(chkp_t), intent(inout) :: chkp
     real(kind=rp) :: dtlag(10), tlag(10)
     integer :: n
-
+    dtlag = chkp%dtlag
+    tlag = chkp%tlag
 
     n = this%s%dof%size()
 

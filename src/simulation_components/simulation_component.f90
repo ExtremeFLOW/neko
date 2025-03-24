@@ -179,11 +179,11 @@ contains
     call json_get_or_default(json, "order", order, -1)
     this%order = order
 
-    call this%preprocess_controller%init(case%end_time, preprocess_control, &
-         preprocess_value)
-    call this%compute_controller%init(case%end_time, compute_control, &
+    call this%preprocess_controller%init(case%time%end_time, &
+         preprocess_control, preprocess_value)
+    call this%compute_controller%init(case%time%end_time, compute_control, &
          compute_value)
-    call this%output_controller%init(case%end_time, output_control, &
+    call this%output_controller%init(case%time%end_time, output_control, &
          output_value)
 
   end subroutine simulation_component_init_base
