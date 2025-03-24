@@ -331,7 +331,7 @@ contains
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
-    call mgstuff%smoo(lvl)%device_solve(x, b, x_d, b_d, n, amg)
+    call mgstuff%smoo(lvl)%device_solve(x, b, x_d, b_d, n, amg, .true.)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
        return
     end if
