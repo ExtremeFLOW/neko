@@ -52,7 +52,7 @@ module phmg
   use tree_amg_multigrid, only : tamg_solver_t
   use interpolation, only : interpolator_t
   use math, only : copy, col2, add2, sub3, add2s2
-  use device, only : device_get_ptr
+  use device, only : device_get_ptr, device_stream_wait_event, glb_cmd_queue, glb_cmd_event
   use device_math, only : device_rzero, device_copy, device_add2, device_sub3,&
        device_add2s2, device_invcol2, device_glsc2, device_col2
   use profiler, only : profiler_start_region, profiler_end_region
@@ -130,12 +130,16 @@ contains
        read(env_smoother_itrs(1:env_len), *) smoother_itrs
     end if
 
-    this%nlvls = Xh%lx - 1
+    !TODO: hard coding the levels for now. (note: these levels match hsmg).
+    !this%nlvls = Xh%lx - 1
+    this%nlvls = 3
 
     allocate(lx_lvls(0:this%nlvls - 1))
-    do i = 1, this%nlvls -1
-       lx_lvls(i) = Xh%lx - i
-    end do
+    !do i = 1, this%nlvls -1
+    !   lx_lvls(i) = Xh%lx - i
+    !end do
+    lx_lvls(1) = 4
+    lx_lvls(2) = 2
 
     allocate(this%phmg_hrchy%lvl(0:this%nlvls - 1))
 
@@ -342,7 +346,7 @@ contains
        mg(lvl+1)%z%x = 0.0_rp
     end if
     if (lvl+1 .eq. clvl) then
-       call profiler_start_region('PHMG_tAMG_coarse_grid', 10)
+       call profiler_start_region('PHMG_tAMG_coarse_grid', 9)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call amg_solver%device_solve(mg(lvl+1)%z%x, &
@@ -355,7 +359,7 @@ contains
                mg(lvl+1)%r%x, &
                mg(lvl+1)%dm_Xh%size())
        end if
-       call profiler_end_region('PHMG_tAMG_coarse_grid', 10)
+       call profiler_end_region('PHMG_tAMG_coarse_grid', 9)
 
        call mg(lvl+1)%bclst%apply_scalar( &
             mg(lvl+1)%z%x,&
@@ -436,7 +440,8 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, ni
           call Ax%compute(w%x, z%x, mg%coef, msh, mg%Xh)
-          call mg%gs_h%op(w%x, n, GS_OP_ADD)
+          call mg%gs_h%op(w%x, n, GS_OP_ADD, glb_cmd_event)
+          call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
           call mg%bclst%apply_scalar(w%x, n)
           call device_sub3(w%x_d, r%x_d, w%x_d, n)
 
