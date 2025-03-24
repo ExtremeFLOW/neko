@@ -503,11 +503,6 @@ contains
        call neko_error('No Krylov solver for pressure defined')
     end if
 
-    !
-    ! Setup checkpoint structure (if everything is fine)
-    !
-    call this%chkp%init(this%u, this%v, this%w, this%p)
-
   end subroutine fluid_scheme_validate
 
   !> Apply all boundary conditions defined for velocity
