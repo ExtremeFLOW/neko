@@ -101,7 +101,6 @@ contains
     character(len=:), allocatable :: json_buffer
     logical :: exist
 
-
     ! Check if the file exists
     inquire(file = trim(case_file), exist = exist)
     if (.not. exist) then
