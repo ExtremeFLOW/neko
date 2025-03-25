@@ -87,7 +87,6 @@ contains
   !! @param end_time The final simulation time.
   !! @param control_mode The way to interpret the `control_value` parameter.
   !! @param control_value The value definining the execution frequency.
-  !! @param start_time Value for when to start the time based controller.
   subroutine time_based_controller_init(this, end_time, control_mode, &
        control_value)
     class(time_based_controller_t), intent(inout) :: this
