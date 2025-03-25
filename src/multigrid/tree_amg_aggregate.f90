@@ -84,7 +84,8 @@ contains
           do j = 1, ly
              do i = 1, lx
                 lid = lid + 1
-                tamg%lvl(lvl_id)%nodes(l)%dofs(lid) = linear_index(i,j,k,l,lx,ly,lz)
+                tamg%lvl(lvl_id)%nodes(l)%dofs(lid) = linear_index(i, j, k, l, &
+                     lx, ly, lz)
                 !tamg%lvl(lvl_id)%nodes(l)%xyz(1) = tamg%lvl(lvl_id)%nodes(l)%xyz(1) + xyz(1,linear_index(i,j,k,l,lx,ly,lz))
                 !tamg%lvl(lvl_id)%nodes(l)%xyz(2) = tamg%lvl(lvl_id)%nodes(l)%xyz(2) + xyz(2,linear_index(i,j,k,l,lx,ly,lz))
                 !tamg%lvl(lvl_id)%nodes(l)%xyz(3) = tamg%lvl(lvl_id)%nodes(l)%xyz(3) + xyz(3,linear_index(i,j,k,l,lx,ly,lz))
