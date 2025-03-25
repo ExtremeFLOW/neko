@@ -173,7 +173,8 @@ contains
 
        if (use_cheby) then
           if (NEKO_BCKND_DEVICE .eq. 1) then
-             call this%phmg_hrchy%lvl(i)%cheby_device%init(this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs)
+             call this%phmg_hrchy%lvl(i)%cheby_device%init( &
+                  this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs)
           else
              call this%phmg_hrchy%lvl(i)%cheby%init(this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs)
           end if
