@@ -79,9 +79,9 @@ contains
     ! Check for whether eddy viscosity is enabled in fluid_scheme_incompressible
     if (case%fluid%variable_material_properties .eqv. .false.) then
        call neko_error("Eddy viscosity is not acting &
-            &on the equations. &
-            &Please set up a nut_field option &
-            &in the fluid solver")
+       &on the equations. &
+       &Please set up a nut_field option &
+       &in the fluid solver")
     end if
 
     ! Add fields keyword to the json so that the field_writer picks it up.
