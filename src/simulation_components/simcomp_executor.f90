@@ -92,8 +92,6 @@ contains
     type(case_t), target, intent(inout) :: case
     character(len=*), optional, intent(in) :: simcomp_root
     integer :: n_simcomps, i
-    type(json_core) :: core
-    type(json_value), pointer :: simcomp_object
     type(json_file) :: comp_subdict
     logical :: found, is_user, has_user
     ! Help array for finding minimal values
@@ -116,8 +114,6 @@ contains
     end if
 
     ! Get the core json object and the simulation components object
-    call case%params%get_core(core)
-    call case%params%get(root_name, simcomp_object, found)
     if (.not. found) return
     call neko_log%section('Initialize simcomp')
 
@@ -135,7 +131,7 @@ contains
     has_user = .false.
     do i = 1, n_simcomps
        ! Create a new json containing just the subdict for this simcomp
-       call json_extract_item(core, simcomp_object, i, comp_subdict)
+       call json_extract_item(case%params, root_name, i, comp_subdict)
 
        call json_get_or_default(comp_subdict, "is_user", is_user, .false.)
        has_user = has_user .or. is_user
@@ -166,7 +162,7 @@ contains
 
     ! Init in the determined order.
     do i = 1, n_simcomps
-       call json_extract_item(core, simcomp_object, order(i), comp_subdict)
+       call json_extract_item(case%params, root_name, order(i), comp_subdict)
 
        ! Log the component type if it is not a user component
        call json_get(comp_subdict, "type", comp_type)
@@ -180,7 +176,7 @@ contains
     if (has_user) then
        call neko_log%message('Initialize user simcomp')
 
-       comp_subdict = json_file(simcomp_object)
+       call json_extract_object(case%params, root_name, comp_subdict)
        call case%usr%init_user_simcomp(comp_subdict)
     end if
 

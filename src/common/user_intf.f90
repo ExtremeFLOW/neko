@@ -556,20 +556,16 @@ contains
     type(json_file), intent(inout) :: params
     type(json_file) :: comp_subdict
 
-    type(json_core) :: core
-    type(json_value), pointer :: simcomp_object
     character(len=:), allocatable :: current_type
     integer :: n_simcomps
     integer :: i
     logical :: found, is_user
 
-    call params%get_core(core)
-    call params%get(simcomp_object)
     call params%info('', n_children = n_simcomps)
 
     found = .false.
     do i = 1, n_simcomps
-       call json_extract_item(core, simcomp_object, i, comp_subdict)
+       call json_extract_item(params, "", i, comp_subdict)
        call json_get_or_default(comp_subdict, "is_user", is_user, .false.)
        if (.not. is_user) cycle
 
