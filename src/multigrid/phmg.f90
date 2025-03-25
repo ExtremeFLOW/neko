@@ -293,7 +293,8 @@ contains
     !>----------<!
     call profiler_start_region('PHMG_PreSmooth', 9)
     if (use_jacobi) then
-       call phmg_jacobi_smoother(z, r, w, mg(lvl), msh, Ax, mg(lvl)%dm_Xh%size(), lvl)
+       call phmg_jacobi_smoother(z, r, w, mg(lvl), msh, Ax, &
+            mg(lvl)%dm_Xh%size(), lvl)
     else
        if (NEKO_BCKND_DEVICE .eq. 1) then
           ksp_results = mg(lvl)%cheby_device%solve(Ax, z, &
