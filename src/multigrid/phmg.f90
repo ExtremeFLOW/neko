@@ -52,7 +52,8 @@ module phmg
   use tree_amg_multigrid, only : tamg_solver_t
   use interpolation, only : interpolator_t
   use math, only : copy, col2, add2, sub3, add2s2
-  use device, only : device_get_ptr, device_stream_wait_event, glb_cmd_queue, glb_cmd_event
+  use device, only : device_get_ptr, device_stream_wait_event, glb_cmd_queue, &
+       glb_cmd_event
   use device_math, only : device_rzero, device_copy, device_add2, device_sub3,&
        device_add2s2, device_invcol2, device_glsc2, device_col2
   use profiler, only : profiler_start_region, profiler_end_region
