@@ -56,7 +56,7 @@ module simcomp_executor
      !> Number of simcomps
      integer, private :: n_simcomps
      !> The case
-     type(case_t), pointer, private :: case
+     type(case_t), pointer :: case
      !> Flag to indicate if the simcomp executor has been finalized.
      logical, private :: finalized = .false.
    contains
@@ -282,8 +282,8 @@ contains
           end if
        end do
        if (order_found .and. .not. previous_found) then
-          call neko_error("Simulation component order must be contiguous &
-               &starting at 1.")
+          call neko_error("Simulation component order must be contiguous " // &
+               "starting at 1.")
        end if
        previous_found = order_found
     end do

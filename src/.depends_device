@@ -35,6 +35,7 @@ les/bcknd/device/hip/dynamic_smagorinsky_nut.lo : les/bcknd/device/hip/dynamic_s
 les/bcknd/device/hip/smagorinsky_nut.lo : les/bcknd/device/hip/smagorinsky_nut.hip les/bcknd/device/hip/smagorinsky_nut_kernel.h
 les/bcknd/device/hip/vreman_nut.lo : les/bcknd/device/hip/vreman_nut.hip les/bcknd/device/hip/vreman_nut_kernel.h
 les/bcknd/device/hip/sigma_nut.lo : les/bcknd/device/hip/sigma_nut.hip les/bcknd/device/hip/sigma_nut_kernel.h
+comm/bcknd/device/cuda/nvshmem.lo : comm/bcknd/device/cuda/nvshmem.cu comm/comm.h
 device/cuda/check.lo : device/cuda/check.cu device/cuda/check.h
 math/bcknd/device/cuda/math.lo : math/bcknd/device/cuda/math.cu math/bcknd/device/cuda/math_kernel.h
 math/bcknd/device/cuda/mathops.lo : math/bcknd/device/cuda/mathops.cu math/bcknd/device/cuda/mathops_kernel.h
@@ -55,6 +56,7 @@ krylov/bcknd/device/cuda/fusedcg_aux.lo : krylov/bcknd/device/cuda/fusedcg_aux.c
 krylov/bcknd/device/cuda/fusedcg_cpld_aux.lo : krylov/bcknd/device/cuda/fusedcg_cpld_aux.cu krylov/bcknd/device/cuda/fusedcg_cpld_kernel.h
 krylov/bcknd/device/cuda/gmres_aux.lo : krylov/bcknd/device/cuda/gmres_aux.cu krylov/bcknd/device/cuda/gmres_kernel.h
 gs/bcknd/device/cuda/gs.lo : gs/bcknd/device/cuda/gs.cu gs/bcknd/device/cuda/gs_kernels.h
+gs/bcknd/device/cuda/gs_nvshmem.lo : gs/bcknd/device/cuda/gs_nvshmem.cu gs/bcknd/device/cuda/gs_kernels.h gs/bcknd/device/cuda/gs_nvshmem_kernels.h
 bc/bcknd/device/cuda/dirichlet.lo : bc/bcknd/device/cuda/dirichlet.cu bc/bcknd/device/cuda/dirichlet_kernel.h
 bc/bcknd/device/cuda/inflow.lo : bc/bcknd/device/cuda/inflow.cu bc/bcknd/device/cuda/inflow_kernel.h
 bc/bcknd/device/cuda/no_slip_wall.lo : bc/bcknd/device/cuda/no_slip_wall.cu bc/bcknd/device/cuda/no_slip_wall_kernel.h
@@ -99,6 +101,7 @@ bc/bcknd/device/opencl/inhom_dirichlet.lo : bc/bcknd/device/opencl/inhom_dirichl
 bc/bcknd/device/opencl/dong_outflow.lo : bc/bcknd/device/opencl/dong_outflow.c bc/bcknd/device/opencl/dong_outflow_kernel.cl.h
 common/bcknd/device/opencl/rhs_maker.lo : common/bcknd/device/opencl/rhs_maker.c common/bcknd/device/opencl/rhs_maker_kernel.cl.h
 fluid/bcknd/device/opencl/pnpn_res.lo : fluid/bcknd/device/opencl/pnpn_res.c fluid/bcknd/device/opencl/pnpn_res_kernel.cl.h
+fluid/bcknd/device/opencl/euler_res.lo : fluid/bcknd/device/opencl/euler_res.c fluid/bcknd/device/opencl/euler_res_kernel.cl.h
 scalar/bcknd/device/opencl/scalar_residual.lo : scalar/bcknd/device/opencl/scalar_residual.c scalar/bcknd/device/opencl/scalar_residual_kernel.cl.h
 sem/bcknd/device/opencl/coef.lo : sem/bcknd/device/opencl/coef.c sem/bcknd/device/opencl/coef_kernel.cl.h
 source_terms/bcknd/device/cuda/filters.lo : source_terms/bcknd/device/cuda/filters.cu source_terms/bcknd/device/cuda/filter_kernels.h

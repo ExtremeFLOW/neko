@@ -27,6 +27,9 @@ then
    echo "Did not pass sanity check" >> /dev/stderr
    exit 1
 else
+   echo 'Differences compared to reference logs:'
+   cat res
+   echo 'None.'
    echo "Passed sanity check"
 fi
 
