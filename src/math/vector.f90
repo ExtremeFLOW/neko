@@ -43,13 +43,13 @@ module vector
   implicit none
   private
 
-  type, public ::  vector_t
+  type, public :: vector_t
      !> Vector entries.
      real(kind=rp), allocatable :: x(:)
      !> Device pointer.
      type(c_ptr) :: x_d = C_NULL_PTR
      !> Size of vector.
-     integer :: n  = 0
+     integer :: n = 0
    contains
      !> Initialise a vector of size `n`.
      procedure, pass(v) :: init => vector_init
