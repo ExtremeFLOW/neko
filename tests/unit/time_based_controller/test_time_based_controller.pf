@@ -61,13 +61,20 @@ subroutine test_check_simulationtime()
   call ctrl%init(10.0_rp, "simulationtime", 1.0_rp)
 
   ! Expect true on first execution
-  @assertEqual(ctrl%check(0.0_rp, 0), .true.)
+  @assertEqual(ctrl%check(0.0_rp, 0, 0.0_rp), .true.)
   call ctrl%register_execution()
 
-  @assertEqual(ctrl%check(1.1_rp, 0), .true.)
+  @assertEqual(ctrl%check(1.1_rp, 0, 0.0_rp), .true.)
   call ctrl%register_execution()
 
-  @assertEqual(ctrl%check(1.5_rp, 0), .false.)
+  @assertEqual(ctrl%check(1.5_rp, 0, 0.0_rp), .false.)
+
+  @assertEqual(ctrl%check(1.99_rp, 0, 0.5_rp), .true.)
+  call ctrl%register_execution()
+  @assertEqual(ctrl%check(2.01_rp, 0, 0.5_rp), .false.)
+
+  @assertEqual(ctrl%check(3.01_rp, 0, 0.5_rp), .true.)
+  call ctrl%register_execution()
 
 end subroutine test_check_simulationtime
 
@@ -84,13 +91,13 @@ subroutine test_check_nsamples()
   call ctrl%init(10.0_rp, "nsamples", 10.0_rp)
 
   ! Expect true on first execution
-  @assertEqual(ctrl%check(0.0_rp, 0), .true.)
+  @assertEqual(ctrl%check(0.0_rp, 0, 0.0_rp), .true.)
   call ctrl%register_execution()
 
-  @assertEqual(ctrl%check(1.1_rp, 0), .true.)
+  @assertEqual(ctrl%check(1.1_rp, 0, 0.0_rp), .true.)
   call ctrl%register_execution()
 
-  @assertEqual(ctrl%check(1.5_rp, 0), .false.)
+  @assertEqual(ctrl%check(1.5_rp, 0, 0.0_rp), .false.)
 
 end subroutine test_check_nsamples
 
@@ -107,13 +114,13 @@ subroutine test_check_tsteps()
   call ctrl%init(10.0_rp, "tsteps", 10.0_rp)
 
   ! Expect true on first execution
-  @assertEqual(ctrl%check(0.0_rp, 0), .true.)
+  @assertEqual(ctrl%check(0.0_rp, 0, 0.0_rp), .true.)
   call ctrl%register_execution()
 
-  @assertEqual(ctrl%check(0.0_rp, 10), .true.)
+  @assertEqual(ctrl%check(0.0_rp, 10, 0.0_rp), .true.)
   call ctrl%register_execution()
 
-  @assertEqual(ctrl%check(0.0_rp, 15), .false.)
+  @assertEqual(ctrl%check(0.0_rp, 15, 0.0_rp), .false.)
 
 end subroutine test_check_tsteps
 
