@@ -611,6 +611,7 @@ contains
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n, ierr
     real(kind=rp) :: res
+    res = 0.0_rp
 #if HAVE_HIP
     res = hip_glsc3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
@@ -672,6 +673,7 @@ contains
     type(c_ptr) :: a_d, b_d
     integer :: n, ierr
     real(kind=rp) :: res
+    res = 0.0_rp
 #if HAVE_HIP
     res = hip_glsc2(a_d, b_d, n)
 #elif HAVE_CUDA
@@ -695,6 +697,7 @@ contains
     type(c_ptr) :: a_d
     integer :: n, ierr
     real(kind=rp) :: res
+    res = 0.0_rp
 #if HAVE_HIP
     res = hip_glsum(a_d, n)
 #elif HAVE_CUDA
