@@ -390,11 +390,13 @@ contains
     ! Setup output_controller
     !
     call this%output_controller%init(this%time%end_time)
+    call json_get_or_default(this%params, 'case.fluid.output_filename', &
+         name, "field")
     if (scalar) then
-       call this%f_out%init(precision, this%fluid, this%scalars%scalar(1), &
+       call this%f_out%init(precision, this%fluid, this%scalars%scalar(1), name = name, &
             path = trim(this%output_directory))
     else
-       call this%f_out%init(precision, this%fluid, &
+       call this%f_out%init(precision, this%fluid, name = name, &
             path = trim(this%output_directory))
     end if
 
