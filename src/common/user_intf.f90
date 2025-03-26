@@ -45,7 +45,7 @@ module user_intf
   use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
   use field_dirichlet, only: field_dirichlet_update
   use num_types, only : rp
-  use json_module, only : json_file, json_core, json_value
+  use json_module, only : json_file
   use json_utils, only : json_extract_item, json_get, json_get_or_default
   use utils, only : neko_error, neko_warning
   use logger, only : neko_log
