@@ -67,9 +67,9 @@ contains
     real(kind=rp) :: ux, uy, uz
     real(kind=rp) :: uvw(3)
 
-    uvw(1) = sin(x)*cos(y)*cos(z)
-    uvw(2) = -cos(x)*sin(y)*cos(z)
-    uvw(3) = 0._rp
+    uvw(1)   = sin(x)*cos(y)*cos(z)
+    uvw(2)   = -cos(x)*sin(y)*cos(z)
+    uvw(3)   = 0._rp
   end function tgv_ic
 
   ! User-defined initialization called just before time loop starts
@@ -87,14 +87,6 @@ contains
 
     ! initialize work arrays for postprocessing
     call w1%init(u%dof, 'work1')
-
-    ! Initializer of our omega fields
-    call neko_field_registry%add_field(coef%dof, "omega_x", &
-         ignore_existing = .true.)
-    call neko_field_registry%add_field(coef%dof, "omega_y", &
-         ignore_existing = .true.)
-    call neko_field_registry%add_field(coef%dof, "omega_z", &
-         ignore_existing = .true.)
 
     ! call usercheck also for tstep=0
     tstep = 0
@@ -173,10 +165,10 @@ contains
        e2 = 0.5 * glsc2(w1%x, coef%B, ntot) / coef%volume
     end if
 
-    if (pe_rank .eq. 0) then
-       write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
-            'POST: t:', t, ' Ekin:', e1, ' enst:', e2
-    end if
+    if (pe_rank .eq. 0) &
+         &  write(*,'(a,e18.9,a,e18.9,a,e18.9)') &
+         &  'POST: t:', t, ' Ekin:', e1, ' enst:', e2
+    
   end subroutine user_calc_quantities
 
   ! User-defined finalization routine called at the end of the simulation
