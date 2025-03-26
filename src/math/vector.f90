@@ -130,7 +130,7 @@ contains
 
   !> Return the number of entries in the vector.
   function vector_size(v) result(s)
-    class(vector_t), intent(inout) :: v
+    class(vector_t), intent(in) :: v
     integer :: s
     s = v%n
   end function vector_size

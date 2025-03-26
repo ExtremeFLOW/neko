@@ -133,7 +133,7 @@ contains
 
   !> Returns the number of entries in the matrix.
   function matrix_size(m) result(s)
-    class(matrix_t), intent(inout) :: m
+    class(matrix_t), intent(in) :: m
     integer :: s
     s = m%n
   end function matrix_size
