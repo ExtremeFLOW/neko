@@ -115,7 +115,7 @@ contains
     end if
 
     ! Get the core json object and the simulation components object
-    if (.not. found) return
+    if (.not. (root_name .in. case%params)) return
     call neko_log%section('Initialize simcomp')
 
     ! Set the number of simcomps and allocate the arrays
