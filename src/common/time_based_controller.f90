@@ -120,7 +120,7 @@ contains
        this%never = .true.
     else
        call neko_error("The control parameter must be simulationtime, nsamples&
-       & tsteps, or never, but received "//trim(control_mode))
+            & tsteps, or never, but received "//trim(control_mode))
     end if
   end subroutine time_based_controller_init
 
@@ -142,11 +142,11 @@ contains
     real(kind=rp) :: dt
     logical :: check
     logical :: ifforce
-   
+
     t = time%t
     dt = time%dt
     tstep = time%tstep
-    
+
 
     if (present(force)) then
        ifforce = force
@@ -199,7 +199,7 @@ contains
     type(time_t) :: time
 
     if (this%nsteps .eq. 0) then
-       this%nexecutions = int((time%t-0.1_rp*time%dt) / this%time_interval) + 1
+       this%nexecutions = int((time%t+0.1_rp*time%dt) / this%time_interval) + 1
     end if
 
   end subroutine time_based_controller_set_counter
