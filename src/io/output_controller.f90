@@ -139,7 +139,7 @@ contains
     type(output_ptr_t), allocatable :: tmp(:)
     type(time_based_controller_t), allocatable :: tmp_ctrl(:)
     character(len=LOG_SIZE) :: log_buf
-    integer :: n
+    integer :: n, nexecutions
     class(*), pointer :: ft
 
     if (this%n .ge. this%size) then
@@ -154,6 +154,7 @@ contains
        this%size = this%size * 2
     end if
 
+
     this%n = this%n + 1
     n = this%n
     this%output_list(this%n)%ptr => out
@@ -161,10 +162,17 @@ contains
     if (trim(write_control) .eq. "org") then
        this%controllers(n) = this%controllers(1)
     else
-       call this%controllers(n)%init(this%time_end, write_control, write_par, &
-            start_time)
+       call this%controllers(n)%init(this%time_end, write_control, write_par)
     end if
 
+    if (present(start_time)) then
+       if (start_time .gt. 0.0_rp) then
+          nexecutions = int(start_time / this%controllers(n)%time_interval) + 1
+          this%controllers(n)%nexecutions = nexecutions
+          call this%output_list(n)%ptr%set_counter(nexecutions)
+          call this%output_list(n)%ptr%set_start_counter(nexecutions)
+       end if
+    end if
     ! The code below only prints to console
     call neko_log%section('Adding write output')
     call neko_log%message('File name        : '// &
@@ -304,7 +312,6 @@ contains
        if (this%controllers(i)%nsteps .eq. 0) then
           nexecutions = int(t / this%controllers(i)%time_interval) + 1
           this%controllers(i)%nexecutions = nexecutions
-
           call this%output_list(i)%ptr%set_counter(nexecutions)
           call this%output_list(i)%ptr%set_start_counter(nexecutions)
        end if

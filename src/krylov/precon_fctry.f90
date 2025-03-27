@@ -73,9 +73,6 @@ contains
     else if (type_name(1:4) .eq. 'hsmg') then
        allocate(hsmg_t::pc)
     else if (type_name(1:4) .eq. 'phmg') then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call neko_error('Hybrid ph multigrid only supported for CPU')
-       end if
        allocate(phmg_t::pc)
     else if(trim(type_name) .eq. 'ident') then
        if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -84,8 +81,8 @@ contains
           allocate(ident_t::pc)
        end if
     else
-       type_string =  concat_string_array(PC_KNOWN_TYPES, &
-            NEW_LINE('A') // "-  ",  .true.)
+       type_string = concat_string_array(PC_KNOWN_TYPES, &
+            NEW_LINE('A') // "-  ", .true.)
        call neko_error("Unknown preconditioner type: " &
                        // trim(type_name) // ".  Known types are: " &
                        // type_string)

@@ -4,7 +4,7 @@ makeneko scalar_mms.f90
 python create_probes.py
 
 # Remove results if exist
-rm output.csv
+[ -f output.csv ] && rm output.csv
 
 # Generate mesh
 genmeshbox 0 1 0 1 0 1 20 1 1 .false. .true. .true.

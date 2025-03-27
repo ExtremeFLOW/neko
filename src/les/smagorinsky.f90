@@ -50,7 +50,7 @@ module smagorinsky
   !> Implements the smagorinsky LES model.
   !! @note Reference DOI: 10.1175/1520-0493(1963)091<0099:GCEWTP>2.3.CO;2
   type, public, extends(les_model_t) :: smagorinsky_t
-     !> Model constant, defaults to 0.07.
+     !> Model constant, defaults to 0.17.
      real(kind=rp) :: c_s
    contains
      !> Constructor from JSON.
@@ -81,7 +81,7 @@ contains
     call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     call json_get_or_default(json, "c_s", c_s, 0.17_rp)
-    call json_get_or_default(json, "extrapolation", if_ext, .true.)
+    call json_get_or_default(json, "extrapolation", if_ext, .false.)
 
     call neko_log%section('LES model')
     write(log_buf, '(A)') 'Model : Smagorinsky'

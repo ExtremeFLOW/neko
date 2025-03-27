@@ -31,6 +31,8 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 module fluid_scheme_compressible_euler
+  use comm
+  use, intrinsic :: iso_fortran_env, only: error_unit
   use advection, only : advection_t, advection_factory
   use device, only : device_memcpy, HOST_TO_DEVICE
   use dofmap, only : dofmap_t
@@ -41,13 +43,14 @@ module fluid_scheme_compressible_euler
   use device_math, only : device_col2
   use field, only : field_t
   use fluid_scheme_compressible, only: fluid_scheme_compressible_t
-  use gs_ops, only : GS_OP_ADD, GS_OP_MIN
+  use gs_ops, only : GS_OP_ADD
   use gather_scatter, only : gs_t
   use num_types, only : rp
   use mesh, only : mesh_t
+  use checkpoint, only : chkp_t
   use operators, only: div, grad
-  use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default
+  use json_module, only : json_file, json_core, json_value
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
   use profiler, only : profiler_start_region, profiler_end_region
   use user_intf, only : user_t
   use time_scheme_controller, only : time_scheme_controller_t
@@ -59,6 +62,14 @@ module fluid_scheme_compressible_euler
   use euler_residual, only: euler_rhs_t, euler_rhs_factory
   use neko_config, only : NEKO_BCKND_DEVICE
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
+  use field_dirichlet, only : field_dirichlet_t
+  use field_dirichlet_vector, only : field_dirichlet_vector_t
+  use bc_list, only: bc_list_t
+  use zero_dirichlet, only : zero_dirichlet_t
+  use field_math, only : field_copy
+  use bc, only : bc_t
+  use utils, only : neko_error, neko_warning
+  use logger, only : LOG_SIZE
   implicit none
   private
 
@@ -72,6 +83,9 @@ module fluid_scheme_compressible_euler
      class(ax_t), allocatable :: Ax
      class(euler_rhs_t), allocatable :: euler_rhs
      type(runge_kutta_time_scheme_t) :: rk_scheme
+
+     ! List of boundary conditions for velocity
+     type(bc_list_t) :: bcs_density
    contains
      procedure, pass(this) :: init => fluid_scheme_compressible_euler_init
      procedure, pass(this) :: free => fluid_scheme_compressible_euler_free
@@ -83,19 +97,73 @@ module fluid_scheme_compressible_euler
      procedure, pass(this) :: compute_h
   end type fluid_scheme_compressible_euler_t
 
+  interface
+     !> Boundary condition factory for density.
+     !! @details Will mark a mesh zone for the bc and finalize.
+     !! @param[inout] object The object to be allocated.
+     !! @param[in] scheme The `fluid_scheme_compressible_euler_t` scheme.
+     !! @param[inout] json JSON object for initializing the bc.
+     !! @param[in] coef SEM coefficients.
+     !! @param[in] user The user interface.
+     module subroutine density_bc_factory(object, scheme, json, coef, user)
+       class(bc_t), pointer, intent(inout) :: object
+       type(fluid_scheme_compressible_euler_t), intent(in) :: scheme
+       type(json_file), intent(inout) :: json
+       type(coef_t), intent(in) :: coef
+       type(user_t), intent(in) :: user
+     end subroutine density_bc_factory
+  end interface
+
+  interface
+     !> Boundary condition factory for pressure.
+     !! @details Will mark a mesh zone for the bc and finalize.
+     !! @param[inout] object The object to be allocated.
+     !! @param[in] scheme The `fluid_scheme_compressible_euler_t` scheme.
+     !! @param[inout] json JSON object for initializing the bc.
+     !! @param[in] coef SEM coefficients.
+     !! @param[in] user The user interface.
+     module subroutine pressure_bc_factory(object, scheme, json, coef, user)
+       class(bc_t), pointer, intent(inout) :: object
+       type(fluid_scheme_compressible_euler_t), intent(in) :: scheme
+       type(json_file), intent(inout) :: json
+       type(coef_t), intent(in) :: coef
+       type(user_t), intent(in) :: user
+     end subroutine pressure_bc_factory
+  end interface
+
+  interface
+     !> Boundary condition factory for velocity
+     !! @details Will mark a mesh zone for the bc and finalize.
+     !! @param[inout] object The object to be allocated.
+     !! @param[in] scheme The `fluid_scheme_compressible_euler_t` scheme.
+     !! @param[inout] json JSON object for initializing the bc.
+     !! @param[in] coef SEM coefficients.
+     !! @param[in] user The user interface.
+     module subroutine velocity_bc_factory(object, scheme, json, coef, user)
+       class(bc_t), pointer, intent(inout) :: object
+       type(fluid_scheme_compressible_euler_t), intent(in) :: scheme
+       type(json_file), intent(inout) :: json
+       type(coef_t), intent(in) :: coef
+       type(user_t), intent(in) :: user
+     end subroutine velocity_bc_factory
+  end interface
+
 contains
   !> Initialize the compressible Euler fluid scheme
-  !> @param this The fluid scheme object
-  !> @param msh Mesh data structure
-  !> @param lx Polynomial order in x-direction
-  !> @param params JSON configuration parameters
-  !> @param user User-defined parameters and functions
-  subroutine fluid_scheme_compressible_euler_init(this, msh, lx, params, user)
+  !! @param this The fluid scheme object
+  !! @param msh Mesh data structure
+  !! @param lx Polynomial order in x-direction
+  !! @param params JSON configuration parameters
+  !! @param user User-defined parameters and functions
+  !! @param chkp Checkpoint to write to
+  subroutine fluid_scheme_compressible_euler_init(this, msh, lx, params, user, &
+       chkp)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(in) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
+    type(chkp_t), target, intent(inout) :: chkp
     character(len=12), parameter :: scheme = 'compressible'
     integer :: rk_order
 
@@ -152,6 +220,9 @@ contains
     ! Initialize Runge-Kutta scheme
     call json_get_or_default(params, 'case.numerics.time_order', rk_order, 4)
     call this%rk_scheme%init(rk_order)
+
+    ! Set up boundary conditions
+    call this%setup_bcs(user, params)
 
   end subroutine fluid_scheme_compressible_euler_init
 
@@ -213,14 +284,15 @@ contains
       ! Hack: If m_z is always zero, use it to visualize rho
       ! call field_cfill(m_z, 0.0_rp, n)
 
-      call this%euler_rhs%step(rho_field, m_x, m_y, m_z, E, &
+      call euler_rhs%step(rho_field, m_x, m_y, m_z, E, &
            p, u, v, w, Ax, &
            c_Xh, gs_Xh, h, c_avisc_low, &
            rk_scheme, dt)
 
-      !> TODO: apply boundary conditions
+      !> Apply density boundary conditions
+      call this%bcs_density%apply(rho_field, t, tstep)
 
-      ! Update variables
+      !> Update variables
       ! Update u, v, w
       call field_copy(u, m_x, n)
       call field_invcol2(u, rho_field, n)
@@ -229,7 +301,17 @@ contains
       call field_copy(w, m_z, n)
       call field_invcol2(w, rho_field, n)
 
-      ! Update p = (gamma - 1) * (E - 0.5 * rho * (u^2 + v^2 + w^2))
+      !> Apply velocity boundary conditions
+      call this%bcs_vel%apply_vector(u%x, v%x, w%x, &
+           dm_Xh%size(), t, tstep, strong = .true.)
+      call field_copy(m_x, u, n)
+      call field_col2(m_x, rho_field, n)
+      call field_copy(m_y, v, n)
+      call field_col2(m_y, rho_field, n)
+      call field_copy(m_z, w, n)
+      call field_col2(m_z, rho_field, n)
+
+      !> Update p = (gamma - 1) * (E - 0.5 * rho * (u^2 + v^2 + w^2))
       call field_col3(temp, u, u, n)
       call field_addcol3(temp, v, v, n)
       call field_addcol3(temp, w, w, n)
@@ -238,6 +320,15 @@ contains
       call field_copy(p, E, n)
       call field_sub2(p, temp, n)
       call field_cmult(p, this%gamma - 1.0_rp, n)
+
+      !> Apply pressure boundary conditions
+      call this%bcs_prs%apply(p, t, tstep)
+      ! TODO: Make sure pressure is positive
+      ! E = p / (gamma - 1) + 0.5 * rho * (u^2 + v^2 + w^2)
+      call field_copy(E, p, n)
+      call field_cmult(E, 1.0_rp / (this%gamma - 1.0_rp), n)
+      ! temp = 0.5 * rho * (u^2 + v^2 + w^2)
+      call field_add2(E, temp, n)
 
       !> TODO: Update maximum wave speed
 
@@ -259,7 +350,90 @@ contains
     class(fluid_scheme_compressible_euler_t), intent(inout) :: this
     type(user_t), target, intent(in) :: user
     type(json_file), intent(inout) :: params
-    !> TODO: Implement setup bcs
+    integer :: i, n_bcs, zone_index, j, zone_size, global_zone_size, ierr
+    class(bc_t), pointer :: bc_i
+    type(json_core) :: core
+    type(json_value), pointer :: bc_object
+    type(json_file) :: bc_subdict
+    logical :: found
+    integer, allocatable :: zone_indices(:)
+    character(len=LOG_SIZE) :: log_buf
+
+    ! Process boundary conditions
+    if (params%valid_path('case.fluid.boundary_conditions')) then
+       call params%info('case.fluid.boundary_conditions', n_children = n_bcs)
+       call params%get_core(core)
+       call params%get('case.fluid.boundary_conditions', bc_object, found)
+
+       !
+       ! Velocity bcs
+       !
+       call this%bcs_vel%init(n_bcs)
+
+       do i = 1, n_bcs
+          ! Extract BC configuration
+          call json_extract_item(core, bc_object, i, bc_subdict)
+          call json_get(bc_subdict, "zone_indices", zone_indices)
+
+          ! Validate zones
+          do j = 1, size(zone_indices)
+             zone_size = this%msh%labeled_zones(zone_indices(j))%size
+             call MPI_Allreduce(zone_size, global_zone_size, 1, &
+                  MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
+
+             if (global_zone_size .eq. 0) then
+                write(error_unit,'(A,I0,A)') "Error: Zone ", zone_indices(j), &
+                     " has zero size"
+                error stop
+             end if
+          end do
+
+          ! Create BC
+          bc_i => null()
+          call velocity_bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
+
+          ! Add to appropriate lists
+          if (associated(bc_i)) then
+             call this%bcs_vel%append(bc_i)
+          end if
+       end do
+
+       !
+       ! Pressure bcs
+       !
+       call this%bcs_prs%init(n_bcs)
+
+       do i = 1, n_bcs
+          ! Create a new json containing just the subdict for this bc
+          call json_extract_item(core, bc_object, i, bc_subdict)
+          bc_i => null()
+          call pressure_bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
+
+          ! Not all bcs require an allocation for pressure in particular,
+          ! so we check.
+          if (associated(bc_i)) then
+             call this%bcs_prs%append(bc_i)
+          end if
+       end do
+
+       !
+       ! Density bcs
+       !
+       call this%bcs_density%init(n_bcs)
+
+       do i = 1, n_bcs
+          ! Create a new json containing just the subdict for this bc
+          call json_extract_item(core, bc_object, i, bc_subdict)
+          bc_i => null()
+          call density_bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
+
+          ! Not all bcs require an allocation for pressure in particular,
+          ! so we check.
+          if (associated(bc_i)) then
+             call this%bcs_density%append(bc_i)
+          end if
+       end do
+    end if
   end subroutine fluid_scheme_compressible_euler_setup_bcs
 
   !> Copied from les_model_compute_delta in les_model.f90
@@ -334,12 +508,12 @@ contains
   end subroutine compute_h
 
   !> Restart the simulation from saved state
-  !> @param this The fluid scheme object
-  !> @param dtlag Previous timestep sizes
-  !> @param tlag Previous time values
-  subroutine fluid_scheme_compressible_euler_restart(this, dtlag, tlag)
+  !! @param this The fluid scheme object
+  !! @param dtlag Previous timestep sizes
+  !! @param tlag Previous time values
+  subroutine fluid_scheme_compressible_euler_restart(this, chkp)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
-    real(kind=rp) :: dtlag(10), tlag(10)
+    type(chkp_t), intent(inout) :: chkp
   end subroutine fluid_scheme_compressible_euler_restart
 
 end module fluid_scheme_compressible_euler

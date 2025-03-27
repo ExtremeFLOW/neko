@@ -55,8 +55,6 @@ module time_based_controller
      real(kind=rp) :: end_time = 0
      !> Number of times already executed.
      integer :: nexecutions = 0
-     !> Start_time
-     real(kind=rp) :: start_time
      !> Whether to never output.
      logical :: never = .false.
      !> Control mode defining the meaning of `control_value`.
@@ -89,23 +87,16 @@ contains
   !! @param end_time The final simulation time.
   !! @param control_mode The way to interpret the `control_value` parameter.
   !! @param control_value The value definining the execution frequency.
-  !! @param start_time Value for when to start the time based controller.
   subroutine time_based_controller_init(this, end_time, control_mode, &
-       control_value, start_time)
+       control_value)
     class(time_based_controller_t), intent(inout) :: this
     real(kind=rp), intent(in) :: end_time
     character(len=*), intent(in) :: control_mode
     real(kind=rp), intent(in) :: control_value
-    real(kind=rp), intent(in), optional :: start_time
 
     this%end_time = end_time
     this%control_mode = control_mode
     this%control_value = control_value
-    if (present(start_time)) then
-       this%start_time = start_time
-    else
-       this%start_time = 0.0_rp
-    end if
 
     if (trim(control_mode) .eq. 'simulationtime') then
        this%time_interval = control_value
@@ -128,7 +119,7 @@ contains
        this%never = .true.
     else
        call neko_error("The control parameter must be simulationtime, nsamples&
-            & tsteps, or never, but received "//trim(control_mode))
+       & tsteps, or never, but received "//trim(control_mode))
     end if
   end subroutine time_based_controller_init
 
@@ -157,8 +148,6 @@ contains
     if (ifforce) then
        check = .true.
     else if (this%never) then
-       check = .false.
-    else if (t .lt. this%start_time) then
        check = .false.
     else if ( (this%nsteps .eq. 0) .and. &
          (t .ge. this%nexecutions * this%time_interval) ) then
