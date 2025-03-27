@@ -225,9 +225,9 @@ contains
     real(kind=rp) :: delta_t, t
     real(kind=rp) :: sample_start_time, sample_time
     character(len=LOG_SIZE) :: log_buf
-    integer :: ierr 
-    
-    t = time%t 
+    integer :: ierr
+
+    t = time%t
 
     if (t .ge. this%start_time) then
        delta_t = t - this%time !This is only a real number
