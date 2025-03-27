@@ -99,6 +99,16 @@ module user_intf
      end subroutine useric_scalar
   end interface
 
+  abstract interface
+     subroutine useric_scalars(s, scalar_index, params)
+       import field_t
+       import json_file
+       type(field_t), intent(inout) :: s
+       integer, intent(in) :: scalar_index
+       type(json_file), intent(inout) :: params
+     end subroutine useric_scalars
+  end interface
+
   !> Abstract interface for initilialization of modules
   abstract interface
      subroutine user_initialize_modules(t, u, v, w, p, coef, params)
@@ -195,6 +205,7 @@ module user_intf
           fluid_compressible_user_ic => null()
      !> Compute user initial conditions for the scalar.
      procedure(useric_scalar), nopass, pointer :: scalar_user_ic => null()
+     procedure(useric_scalars), nopass, pointer :: scalars_user_ic => null()
      !> Constructor for the user simcomp. Ran in the constructor of
      !! neko_simcomps.
      procedure(user_simcomp_init), nopass, pointer :: &
@@ -242,7 +253,7 @@ module user_intf
      procedure, pass(this) :: init => user_intf_init
   end type user_t
 
-  public :: useric, useric_scalar, useric_compressible, &
+  public :: useric, useric_scalar, useric_scalars, useric_compressible, &
        user_initialize_modules, usermsh, dummy_user_material_properties, &
        user_material_properties, user_simcomp_init, &
        simulation_component_user_settings, user_startup_intrf
@@ -278,6 +289,14 @@ contains
        user_extended = .true.
        n = n + 1
        write(extensions(n), '(A)') '- Scalar initial condition'
+    end if
+
+    if (.not. associated(this%scalars_user_ic)) then
+       this%scalars_user_ic => dummy_user_ic_scalars
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Multiple scalar initial conditions'
     end if
 
     if (.not. associated(this%fluid_compressible_user_ic)) then
@@ -432,6 +451,13 @@ contains
     type(json_file), intent(inout) :: params
     call neko_error('Dummy user defined scalar initial condition set')
   end subroutine dummy_user_ic_scalar
+
+  subroutine dummy_user_ic_scalars(s, scalar_index, params)
+      type(field_t), intent(inout) :: s
+      integer, intent(in) :: scalar_index
+      type(json_file), intent(inout) :: params
+    call neko_warning('Dummy multiple scalar initial condition called')
+  end subroutine dummy_user_ic_scalars
 
   !> Dummy user (fluid) forcing
   subroutine dummy_user_f_vector(f, t)

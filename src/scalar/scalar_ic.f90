@@ -42,7 +42,7 @@ module scalar_ic
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
   use coefs, only : coef_t
   use math, only : col2, cfill, cfill_mask
-  use user_intf, only : useric_scalar
+  use user_intf, only : useric_scalar, useric_scalars
   use json_module, only : json_file
   use json_utils, only: json_get, json_get_or_default
   use point_zone, only: point_zone_t
@@ -60,7 +60,7 @@ module scalar_ic
   private
 
   interface set_scalar_ic
-     module procedure set_scalar_ic_int, set_scalar_ic_usr
+     module procedure set_scalar_ic_int, set_scalar_ic_usr, set_scalars_ic_usr
   end interface set_scalar_ic
 
   public :: set_scalar_ic
@@ -146,6 +146,26 @@ contains
     call set_scalar_ic_common(s, coef, gs)
 
   end subroutine set_scalar_ic_usr
+
+  !> Set scalar initial condition (user defined)
+  !! @details Set scalar initial condition using a user defined function.
+  !! @param s Scalar field.
+  !! @param scalar_index Index of the scalar field.
+  !! @param params JSON parameters.
+  subroutine set_scalars_ic_usr(s, coef, gs, usr_ic, scalar_index, params)
+    type(field_t), intent(inout) :: s
+    type(coef_t), intent(in) :: coef
+    type(gs_t), intent(inout) :: gs
+    procedure(useric_scalars) :: usr_ic
+    integer, intent(in) :: scalar_index
+    type(json_file), intent(inout) :: params
+
+    call neko_log%message("Type: user")
+    call usr_ic(s, scalar_index, params)
+
+    call set_scalar_ic_common(s, coef, gs)
+
+  end subroutine set_scalars_ic_usr
 
   !> Set scalar initial condition (common)
   !! @details Finalize scalar initial condition by distributing the initial

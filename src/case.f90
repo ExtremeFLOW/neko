@@ -159,7 +159,7 @@ contains
     integer :: precision
     type(json_file) :: scalar_params, numerics_params
     type(json_file) :: json_subdict
-    integer :: n_scalars
+    integer :: n_scalars, i
 
     !
     ! Setup user defined functions
@@ -315,12 +315,24 @@ contains
        call neko_log%section("Scalar initial condition ")
 
        if (trim(string_val) .ne. 'user') then
-          call set_scalar_ic(this%scalars%scalar(1)%s, &
-               this%scalars%scalar(1)%c_Xh, this%scalars%scalar(1)%gs_Xh, string_val, json_subdict)
+          do i = 1, n_scalars ! loop over all scalars
+             call set_scalar_ic(this%scalars%scalar(i)%s, &
+                  this%scalars%scalar(i)%c_Xh, this%scalars%scalar(i)%gs_Xh, string_val, json_subdict)
+          end do
        else
-          call set_scalar_ic(this%scalars%scalar(1)%s, &
-               this%scalars%scalar(1)%c_Xh, this%scalars%scalar(1)%gs_Xh, this%usr%scalar_user_ic, &
-               this%params)
+          if (n_scalars > 1) then
+             do i = 1, n_scalars ! loop over all scalars
+                ! Require user to define the function for multiple scalars
+                ! TODO: identify the scalar by field_name or field instead of index
+                call set_scalar_ic(this%scalars%scalar(i)%s, &
+                    this%scalars%scalar(i)%c_Xh, this%scalars%scalar(i)%gs_Xh, &
+                    this%usr%scalars_user_ic, i, this%params)
+             end do
+          else
+             call set_scalar_ic(this%scalars%scalar(1)%s, &
+                  this%scalars%scalar(1)%c_Xh, this%scalars%scalar(1)%gs_Xh, &
+                  this%usr%scalar_user_ic, this%params)
+          end if
        end if
 
        call neko_log%end_section()
