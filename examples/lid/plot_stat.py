@@ -2,7 +2,6 @@
 
 import numpy as np
 import matplotlib.pyplot as plt 
-%matplotlib widget
 
 data1 = np.genfromtxt('ekin.csv', delimiter=',')
 

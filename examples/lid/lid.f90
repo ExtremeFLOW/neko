@@ -113,20 +113,31 @@ contains
     ntot = u%dof%size()
 
     ! compute the kinetic energy
-    call col3(w1%x,u%x,u%x,ntot)
-    call addcol3(w1%x,v%x,v%x,ntot)
-    call addcol3(w1%x,w%x,w%x,ntot)
-    ekin = 0.5_rp * glsc2(w1%x,coef%B,ntot) / coef%volume
+    ! field_ routines operate on the configured backend
+    call field_col3(w1,u,u,ntot)
+    call field_addcol3(w1,v,v,ntot)
+    call field_addcol3(w1,w,w,ntot)
+    ! For glsc2 we need to call the correct backend
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       ekin = 0.5_rp * device_glsc2(w1%x_d,coef%B_d,ntot) / coef%volume
+    else
+       ekin = 0.5_rp * glsc2(w1%x,coef%B,ntot) / coef%volume
+    end if
 
     ! compute enstrophy
     ! (the factor of 0.5 depends on the definition of enstrophy. We
     ! follow the reference paper by the HiOCFD4 workshop, but the book
     ! by Pope for instance would not include this factor)
     call curl(vort1,vort2,vort3, u, v, w, temp1, temp2, coef)
-    call col3(w1%x,vort1%x,vort1%x,ntot)
-    call addcol3(w1%x,vort2%x,vort2%x,ntot)
-    call addcol3(w1%x,vort3%x,vort3%x,ntot)
-    enst = 0.5_rp * glsc2(w1%x,coef%B,ntot) / coef%volume
+    call field_col3(w1,vort1,vort1,ntot)
+    call field_addcol3(w1,vort2,vort2,ntot)
+    call field_addcol3(w1,vort3,vort3,ntot)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       enst = 0.5_rp * device_glsc2(w1%x_d,coef%B_d,ntot) / coef%volume
+    else
+       enst = 0.5_rp * glsc2(w1%x,coef%B,ntot) / coef%volume
+    end if
+
 
     ! output all this to file
     call neko_log%message("Writing csv file")
