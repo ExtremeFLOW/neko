@@ -40,6 +40,7 @@ module weak_grad
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use operators, only : opgrad
+  use neko_time, only : time_t
   use case, only : case_t
   use fld_file_output, only : fld_file_output_t
   use json_utils, only : json_get, json_get_or_default
@@ -128,13 +129,10 @@ contains
   end subroutine weak_grad_free
 
   !> Compute the weak_grad field.
-  !! @param t The time value.
-  !! @param tstep The current time-step
-  subroutine weak_grad_compute(this, t, tstep, dt)
+  !! @param time The current time value
+  subroutine weak_grad_compute(this, time)
     class(weak_grad_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    real(kind=rp), intent(in) :: dt
+    type(time_t), intent(in) :: time
 
     call opgrad(this%grad_x%x, this%grad_y%x, this%grad_z%x, this%u%x,&
          this%case%fluid%c_Xh)

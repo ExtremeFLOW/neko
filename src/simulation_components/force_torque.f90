@@ -39,6 +39,7 @@ module force_torque
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use scratch_registry, only : neko_scratch_registry
+  use neko_time, only : time_t
   use field, only : field_t
   use operators, only : curl
   use case, only : case_t
@@ -243,11 +244,9 @@ contains
   !> Compute the force_torque field.
   !! @param t The time value.
   !! @param tstep The current time-step
-  subroutine force_torque_compute(this, t, tstep, dt)
+  subroutine force_torque_compute(this, time)
     class(force_torque_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    real(kind=rp), intent(in) :: dt
+    type(time_t), intent(in) :: time
     real(kind=rp) :: dgtq(12) = 0.0_rp
     integer :: n_pts, temp_indices(6)
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23
@@ -386,22 +385,22 @@ contains
          'Time step, time, total force/torque, pressure, viscous, direction'
     call neko_log%message(log_buf)
     write(log_buf, this%print_format) &
-         tstep,t,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),', forcex'
+         time%tstep,time%t,dgtq(1)+dgtq(4),dgtq(1),dgtq(4),', forcex'
     call neko_log%message(log_buf)
     write(log_buf, this%print_format) &
-         tstep,t,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),', forcey'
+         time%tstep,time%t,dgtq(2)+dgtq(5),dgtq(2),dgtq(5),', forcey'
     call neko_log%message(log_buf)
     write(log_buf, this%print_format) &
-         tstep,t,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),', forcez'
+         time%tstep,time%t,dgtq(3)+dgtq(6),dgtq(3),dgtq(6),', forcez'
     call neko_log%message(log_buf)
     write(log_buf, this%print_format) &
-         tstep,t,dgtq(7)+dgtq(10),dgtq(7),dgtq(10),', torquex'
+         time%tstep,time%t,dgtq(7)+dgtq(10),dgtq(7),dgtq(10),', torquex'
     call neko_log%message(log_buf)
     write(log_buf, this%print_format) &
-         tstep,t,dgtq(8)+dgtq(11),dgtq(8),dgtq(11),', torquey'
+         time%tstep,time%t,dgtq(8)+dgtq(11),dgtq(8),dgtq(11),', torquey'
     call neko_log%message(log_buf)
     write(log_buf, this%print_format) &
-         tstep,t,dgtq(9)+dgtq(12),dgtq(9),dgtq(12),', torquez'
+         time%tstep,time%t,dgtq(9)+dgtq(12),dgtq(9),dgtq(12),', torquez'
     call neko_log%message(log_buf)
     call neko_scratch_registry%relinquish_field(temp_indices)
 

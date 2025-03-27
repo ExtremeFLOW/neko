@@ -37,6 +37,7 @@ module derivative
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
+  use neko_time, only : time_t
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use operators, only : dudxyz
@@ -142,13 +143,10 @@ contains
   end subroutine derivative_free
 
   !> Compute the derivative field.
-  !! @param t The time value.
-  !! @param tstep The current time-step
-  subroutine derivative_compute(this, t, tstep, dt)
+  !! @param time The current time.
+  subroutine derivative_compute(this, time)
     class(derivative_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    real(kind=rp), intent(in) :: dt
+    type(time_t), intent(in) :: time
 
     call dudxyz(this%du%x, this%u%x, this%dr, this%ds, this%dt,&
          this%case%fluid%c_Xh)

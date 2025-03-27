@@ -34,6 +34,7 @@
 module time_based_controller
   use num_types, only : rp
   use utils, only : neko_error
+  use neko_time, only : time_t
   implicit none
   private
 
@@ -132,14 +133,20 @@ contains
   !! number of time-steps between executions and thus having to rely on
   !! `nexecutions`. This is done in anticipation of having a variable timestep.
   !! A fraction of the time step (10 percent) is used as a tolerance.
-  function time_based_controller_check(this, t, tstep, dt, force) result(check)
+  function time_based_controller_check(this, time, force) result(check)
     class(time_based_controller_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    real(kind=rp), intent(in) :: dt
+    type(time_t), intent(in) :: time
     logical, intent(in), optional :: force
+    real(kind=rp) :: t
+    integer :: tstep
+    real(kind=rp) :: dt
     logical :: check
     logical :: ifforce
+   
+    t = time%t
+    dt = time%dt
+    tstep = time%tstep
+    
 
     if (present(force)) then
        ifforce = force
@@ -186,13 +193,13 @@ contains
   end subroutine time_based_controller_register_execution
 
   !> Set the counter based on a time (for restarts)
-  !! @param t simulation time.
-  subroutine time_based_controller_set_counter(this,t)
+  !! @param time Current time.
+  subroutine time_based_controller_set_counter(this, time)
     class(time_based_controller_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    type(time_t) :: time
 
     if (this%nsteps .eq. 0) then
-       this%nexecutions = int(t / this%time_interval) + 1
+       this%nexecutions = int((time%t-0.1_rp*time%dt) / this%time_interval) + 1
     end if
 
   end subroutine time_based_controller_set_counter

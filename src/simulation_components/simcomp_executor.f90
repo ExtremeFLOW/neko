@@ -38,6 +38,7 @@ module simcomp_executor
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use case, only : case_t
+  use neko_time, only : time_t
   use utils, only : neko_error
   use logger, only : neko_log
   implicit none
@@ -332,55 +333,49 @@ contains
   end subroutine simcomp_executor_finalize
 
   !> Execute preprocess_ for all simcomps.
-  !! @param t The time value.
-  !! @param tstep The timestep number.
-  subroutine simcomp_executor_preprocess(this, t, tstep, dt)
+  !! @param time The current time
+  subroutine simcomp_executor_preprocess(this, time)
     class(simcomp_executor_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    real(kind=rp), intent(in) :: dt
+    type(time_t), intent(in) :: time
     integer :: i
 
     if (.not. this%finalized) call this%finalize()
 
     if (allocated(this%simcomps)) then
        do i = 1, size(this%simcomps)
-          call this%simcomps(i)%simcomp%preprocess(t, tstep, dt)
+          call this%simcomps(i)%simcomp%preprocess(time)
        end do
     end if
 
   end subroutine simcomp_executor_preprocess
 
   !> Execute compute_ for all simcomps.
-  !! @param t The time value.
-  !! @param tstep The timestep number.
-  subroutine simcomp_executor_compute(this, t, tstep, dt)
+  !! @param time The current time
+  subroutine simcomp_executor_compute(this, time)
     class(simcomp_executor_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    real(kind=rp), intent(in) :: dt
+    type(time_t), intent(in) :: time
     integer :: i
 
     if (.not. this%finalized) call this%finalize()
 
     if (allocated(this%simcomps)) then
        do i = 1, this%n_simcomps
-          call this%simcomps(i)%simcomp%compute(t, tstep, dt)
+          call this%simcomps(i)%simcomp%compute(time)
        end do
     end if
 
   end subroutine simcomp_executor_compute
 
   !> Execute restart for all simcomps.
-  !! @param t The time value.
-  subroutine simcomp_executor_restart(this, t)
+  !! @param time The current time
+  subroutine simcomp_executor_restart(this, time)
     class(simcomp_executor_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    type(time_t), intent(in) :: time
     integer :: i
 
     if (allocated(this%simcomps)) then
        do i = 1, this%n_simcomps
-          call this%simcomps(i)%simcomp%restart(t)
+          call this%simcomps(i)%simcomp%restart(time)
        end do
     end if
 
