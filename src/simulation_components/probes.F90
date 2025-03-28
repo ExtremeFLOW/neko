@@ -40,7 +40,7 @@ module probes
   use logger, only: neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use utils, only: neko_error, nonlinear_index
   use field_list, only: field_list_t
-  use neko_time, only : time_t
+  use time_state, only : time_state_t
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use dofmap, only: dofmap_t
@@ -635,7 +635,7 @@ contains
   !! @param tstep Current time step.
   subroutine probes_evaluate_and_write(this, time)
     class(probes_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
     integer :: i, ierr
 
     !> Check controller to determine if we must write
