@@ -35,7 +35,7 @@ module output_controller
   use output, only: output_t, output_ptr_t
   use fld_file, only: fld_file_t
   use comm
-  use neko_time, only : time_t
+  use time_state, only : time_state_t
   use logger, only : neko_log, LOG_SIZE
   use utils, only : neko_error
   use profiler, only : profiler_start_region, profiler_end_region
@@ -225,7 +225,7 @@ contains
   !! @param ifforce Whether to force a write. Optional, defaults to 0.
   subroutine output_controller_execute(this, time, ifforce)
     class(output_controller_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
     logical, intent(in), optional :: ifforce
     real(kind=dp) :: sample_start_time, sample_end_time
     real(kind=dp) :: sample_time
@@ -304,7 +304,7 @@ contains
   !> @param time Current time info.
   subroutine output_controller_set_counter(this, time)
     class(output_controller_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
     integer :: i, nexecutions
 
 
