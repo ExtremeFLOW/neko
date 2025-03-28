@@ -3,7 +3,7 @@
 subroutine test_init()
   use pfunit
   use time_based_controller, only : time_based_controller_t
-  use neko_time, only : time_t
+  use time_state, only : time_state_t
   use num_types, only : rp
   implicit none
   
@@ -55,11 +55,11 @@ subroutine test_check_simulationtime()
   use pfunit
   use time_based_controller, only : time_based_controller_t
   use num_types, only : rp
-  use neko_time, only : time_t
+  use time_state, only : time_state_t
   implicit none
   
   type(time_based_controller_t) ctrl
-  type(time_t) :: time
+  type(time_state_t) :: time
 
   call ctrl%init(10.0_rp, "simulationtime", 1.0_rp)
   time%t = 0.0_rp
@@ -97,11 +97,11 @@ subroutine test_check_nsamples()
   use pfunit
   use time_based_controller, only : time_based_controller_t
   use num_types, only : rp
-  use neko_time, only : time_t
+  use time_state, only : time_state_t
   implicit none
   
   type(time_based_controller_t) ctrl
-  type(time_t) :: time
+  type(time_state_t) :: time
 
   call ctrl%init(10.0_rp, "nsamples", 10.0_rp)
 
@@ -125,11 +125,11 @@ subroutine test_check_tsteps()
   use pfunit
   use time_based_controller, only : time_based_controller_t
   use num_types, only : rp
-  use neko_time, only : time_t
+  use time_state, only : time_state_t
   implicit none
   
   type(time_based_controller_t) ctrl
-  type(time_t) :: time
+  type(time_state_t) :: time
 
   call ctrl%init(10.0_rp, "tsteps", 10.0_rp)
   time%tstep = 0
