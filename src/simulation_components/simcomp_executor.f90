@@ -38,7 +38,7 @@ module simcomp_executor
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use case, only : case_t
-  use neko_time, only : time_t
+  use time_state, only : time_state_t
   use utils, only : neko_error
   use logger, only : neko_log
   implicit none
@@ -336,7 +336,7 @@ contains
   !! @param time The current time
   subroutine simcomp_executor_preprocess(this, time)
     class(simcomp_executor_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
     integer :: i
 
     if (.not. this%finalized) call this%finalize()
@@ -353,7 +353,7 @@ contains
   !! @param time The current time
   subroutine simcomp_executor_compute(this, time)
     class(simcomp_executor_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
     integer :: i
 
     if (.not. this%finalized) call this%finalize()
@@ -370,7 +370,7 @@ contains
   !! @param time The current time
   subroutine simcomp_executor_restart(this, time)
     class(simcomp_executor_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
     integer :: i
 
     if (allocated(this%simcomps)) then

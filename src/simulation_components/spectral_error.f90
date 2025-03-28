@@ -38,7 +38,7 @@ module spectral_error
   use field_list, only: field_list_t
   use math, only: rzero, copy
   use file, only: file_t, file_free
-  use neko_time, only : time_t
+  use time_state, only : time_state_t
   use tensor, only: tnsr3d
   use device_math, only: device_copy
   use gather_scatter
@@ -229,7 +229,7 @@ contains
   !> Compute the spectral error indicator.
   subroutine spectral_error_compute(this, time)
     class(spectral_error_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
 
     integer :: e, i, lx, ly, lz, nelv, n
 

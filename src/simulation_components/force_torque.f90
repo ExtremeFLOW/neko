@@ -39,7 +39,7 @@ module force_torque
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use scratch_registry, only : neko_scratch_registry
-  use neko_time, only : time_t
+  use time_state, only : time_state_t
   use field, only : field_t
   use operators, only : curl
   use case, only : case_t
@@ -246,7 +246,7 @@ contains
   !! @param tstep The current time-step
   subroutine force_torque_compute(this, time)
     class(force_torque_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
     real(kind=rp) :: dgtq(12) = 0.0_rp
     integer :: n_pts, temp_indices(6)
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23

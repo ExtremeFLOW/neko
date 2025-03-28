@@ -37,7 +37,7 @@ module fluid_stats_simcomp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
-  use neko_time, only : time_t
+  use time_state, only : time_state_t
   use field, only : field_t
   use fluid_stats, only: fluid_stats_t
   use fluid_stats_output, only : fluid_stats_output_t
@@ -192,7 +192,7 @@ contains
 
   subroutine fluid_stats_simcomp_restart(this, time)
     class(fluid_stats_simcomp_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
     character(len=NEKO_FNAME_LEN) :: fname
     character(len=5) :: prefix,suffix
     integer :: last_slash_pos
@@ -221,7 +221,7 @@ contains
   !! @param tstep The current time-step
   subroutine fluid_stats_simcomp_compute(this, time)
     class(fluid_stats_simcomp_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
     real(kind=rp) :: delta_t, t
     real(kind=rp) :: sample_start_time, sample_time
     character(len=LOG_SIZE) :: log_buf

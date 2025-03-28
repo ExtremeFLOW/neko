@@ -39,7 +39,7 @@ module vorticity
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use field, only : field_t
-  use neko_time, only : time_t
+  use time_state, only : time_state_t
   use operators, only : curl
   use case, only : case_t
   use fld_file_output, only : fld_file_output_t
@@ -145,7 +145,7 @@ contains
   !> Compute the vorticity field.
   subroutine vorticity_compute(this, time)
     class(vorticity_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
 
     call curl(this%omega_x, this%omega_y, this%omega_z, this%u, this%v, &
          this%w, this%temp1, this%temp2, this%case%fluid%c_Xh, &

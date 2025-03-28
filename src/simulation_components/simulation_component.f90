@@ -41,7 +41,7 @@ module simulation_component
   use case, only : case_t
   use time_based_controller, only : time_based_controller_t
   use json_utils, only : json_get_or_default, json_get
-  use neko_time, only : time_t
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -201,7 +201,7 @@ contains
   !! @param time The current time.
   subroutine simulation_component_preprocess_wrapper(this, time)
     class(simulation_component_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
 
     if (this%preprocess_controller%check(time)) then
        call this%preprocess_(time)
@@ -214,7 +214,7 @@ contains
   !! @param time The current time.
   subroutine simulation_component_compute_wrapper(this, time)
     class(simulation_component_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
 
     if (this%compute_controller%check(time)) then
        call this%compute_(time)
@@ -226,7 +226,7 @@ contains
   !! @param time The current time.
   subroutine simulation_component_restart_wrapper(this, time)
     class(simulation_component_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
 
     call this%compute_controller%set_counter(time)
     call this%output_controller%set_counter(time)
@@ -238,7 +238,7 @@ contains
   !! @param time The current time.
   subroutine restart_(this, time)
     class(simulation_component_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
 
     ! Do nothing
   end subroutine restart_
@@ -247,7 +247,7 @@ contains
   !! @param time The current time.
   subroutine preprocess_(this, time)
     class(simulation_component_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
 
     ! Do nothing
   end subroutine preprocess_
@@ -256,7 +256,7 @@ contains
   !! @param time The current time.
   subroutine compute_(this, time)
     class(simulation_component_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
 
     ! Do nothing
   end subroutine compute_

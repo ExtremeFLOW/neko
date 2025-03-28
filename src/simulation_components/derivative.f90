@@ -37,7 +37,7 @@ module derivative
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
-  use neko_time, only : time_t
+  use time_state, only : time_state_t
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use operators, only : dudxyz
@@ -146,7 +146,7 @@ contains
   !! @param time The current time.
   subroutine derivative_compute(this, time)
     class(derivative_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
 
     call dudxyz(this%du%x, this%u%x, this%dr, this%ds, this%dt,&
          this%case%fluid%c_Xh)

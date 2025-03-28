@@ -38,7 +38,7 @@ module les_simcomp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use case, only : case_t
-  use neko_time, only : time_t
+  use time_state, only : time_state_t
   use les_model, only : les_model_t, les_model_factory
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
@@ -120,7 +120,7 @@ contains
   !! @param time The current time info
   subroutine les_simcomp_compute(this, time)
     class(les_simcomp_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
 
     call this%les_model%compute(time%t, time%tstep)
   end subroutine les_simcomp_compute
@@ -129,7 +129,7 @@ contains
   !! @param time The current time info
   subroutine les_simcomp_restart(this, time)
     class(les_simcomp_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
 
     call this%les_model%compute(time%t, 0)
   end subroutine les_simcomp_restart

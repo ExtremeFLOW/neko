@@ -37,7 +37,7 @@ module field_writer
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
-  use neko_time, only : time_t
+  use time_state, only : time_state_t
   use field_registry, only : neko_field_registry
   use case, only : case_t
   use fld_file_output, only : fld_file_output_t
@@ -148,7 +148,7 @@ contains
   !> Here to comply with the interface, does nothing.
   subroutine field_writer_compute(this, time)
     class(field_writer_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
 
   end subroutine field_writer_compute
 
