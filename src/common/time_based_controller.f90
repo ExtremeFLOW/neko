@@ -34,7 +34,7 @@
 module time_based_controller
   use num_types, only : rp
   use utils, only : neko_error
-  use neko_time, only : time_t
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -135,7 +135,7 @@ contains
   !! A fraction of the time step (10 percent) is used as a tolerance.
   function time_based_controller_check(this, time, force) result(check)
     class(time_based_controller_t), intent(inout) :: this
-    type(time_t), intent(in) :: time
+    type(time_state_t), intent(in) :: time
     logical, intent(in), optional :: force
     real(kind=rp) :: t
     integer :: tstep
@@ -196,7 +196,7 @@ contains
   !! @param time Current time.
   subroutine time_based_controller_set_counter(this, time)
     class(time_based_controller_t), intent(inout) :: this
-    type(time_t) :: time
+    type(time_state_t) :: time
 
     if (this%nsteps .eq. 0) then
        this%nexecutions = int((time%t+0.1_rp*time%dt) / this%time_interval) + 1
