@@ -323,10 +323,9 @@ contains
           if (n_scalars > 1) then
              do i = 1, n_scalars ! loop over all scalars
                 ! Require user to define the function for multiple scalars
-                ! TODO: identify the scalar by field_name or field instead of index
                 call set_scalar_ic(this%scalars%scalar(i)%s, &
                     this%scalars%scalar(i)%c_Xh, this%scalars%scalar(i)%gs_Xh, &
-                    this%usr%scalars_user_ic, i, this%params)
+                    this%usr%scalars_user_ic, this%scalars%scalar(i)%name, this%params)
              end do
           else
              call set_scalar_ic(this%scalars%scalar(1)%s, &
