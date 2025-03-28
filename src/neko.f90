@@ -58,6 +58,7 @@ module neko
   use global_interpolation
   use file
   use field, only : field_t, field_ptr_t
+  use field_math
   use neko_mpi_types
   use gather_scatter
   use krylov
