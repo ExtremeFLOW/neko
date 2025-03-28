@@ -79,7 +79,7 @@ module neko
   use projection
   use user_intf
   use signal
-  use neko_time
+  use time_state
   use jobctrl, only : jobctrl_init, jobctrl_set_time_limit, &
        jobctrl_time_limit, jobctrl_jobtime
   use device

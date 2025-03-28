@@ -55,7 +55,7 @@ module case
   use jobctrl, only : jobctrl_set_time_limit
   use user_intf, only : user_t
   use scalar_pnpn, only : scalar_pnpn_t
-  use neko_time, only : time_t
+  use time_state, only : time_state_t
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, json_extract_object
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
@@ -68,7 +68,7 @@ module case
      character(len=:), allocatable :: output_directory
      type(output_controller_t) :: output_controller
      type(fluid_output_t) :: f_out
-     type(time_t) :: time
+     type(time_state_t) :: time
      type(chkp_output_t) :: chkp_out
      type(chkp_t) :: chkp
      type(user_t) :: usr
