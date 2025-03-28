@@ -708,6 +708,9 @@ EXTRA_DIST = \
 	comm/comm.h\
 	common/neko_log.h
 
+
+nobase_pkginclude_HEADERS = ${EXTRA_DIST}
+
 # Fortran deps. (updated with makedepf90 via target 'depend')
 include	.depends
 
