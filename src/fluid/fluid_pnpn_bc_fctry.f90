@@ -177,7 +177,6 @@ contains
        select type (obj => object)
          type is (usr_inflow_t)
           call obj%set_eval(user%fluid_user_if)
-          call obj%validate()
        end select
 
       case default
