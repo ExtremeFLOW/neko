@@ -42,7 +42,8 @@ module scalars
   use time_scheme_controller, only: time_scheme_controller_t
   use time_step_controller, only: time_step_controller_t
   use json_module, only: json_file
-  use json_utils, only: json_get, json_get_or_default, json_extract_object
+  use json_utils, only: json_get, json_get_or_default, json_extract_object, &
+                        json_extract_item
   use field, only: field_t
   use field_series, only: field_series_t
   use field_registry, only: neko_field_registry
@@ -96,15 +97,15 @@ contains
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     real(kind=rp), intent(in) :: rho
     type(chkp_t), target, intent(inout) :: chkp
+    type(json_file) :: json_subdict
     integer :: i
-    
     ! Allocate the scalar fields
     ! If there are more scalar_scheme_t types, add a factory function here
     allocate(scalar_pnpn_t::this%scalar(n_scalars))
 
     do i = 1, n_scalars
-       ! Initialize the scalar field
-       call this%scalar(i)%init(msh, coef, gs, params, numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
+       call json_extract_item(params, "", i, json_subdict)
+       call this%scalar(i)%init(msh, coef, gs, json_subdict, numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
     end do
   end subroutine scalars_init
   

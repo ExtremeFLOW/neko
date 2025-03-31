@@ -57,7 +57,7 @@ module case
   use scalar_pnpn, only : scalar_pnpn_t
   use scalar_scheme, only : scalar_scheme_t
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_object
+  use json_utils, only : json_get, json_get_or_default, json_extract_object, json_extract_item
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
   use scalars, only : scalars_t
@@ -157,7 +157,7 @@ contains
     character(len = :), allocatable :: string_val, name
     integer :: output_dir_len
     integer :: precision
-    type(json_file) :: scalar_params, numerics_params
+    type(json_file) :: scalar_params, numerics_params, scalars_params
     type(json_file) :: json_subdict
     integer :: n_scalars, i
 
@@ -267,12 +267,21 @@ contains
 
     if (scalar) then
        allocate(this%scalars)
-       call json_extract_object(this%params, 'case.scalar', scalar_params)
-       call this%scalars%init(n_scalars,this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-            scalar_params, numerics_params, this%usr, this%chkp, this%fluid%ulag, &
-            this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
-            this%fluid%rho)
-
+       if (this%params%valid_path('case.scalar')) then
+         ! For backward compatibility
+         allocate(scalar_pnpn_t::this%scalars%scalar(1))
+         call json_extract_object(this%params, 'case.scalar', scalar_params)
+         call this%scalars%scalar(1)%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
+              scalar_params, numerics_params, this%usr, this%chkp, this%fluid%ulag, &
+              this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
+              this%fluid%rho)
+       else
+         call json_extract_object(this%params, 'case.scalars', scalars_params)
+         call this%scalars%init(n_scalars, this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
+               scalars_params, numerics_params, this%usr, this%chkp, this%fluid%ulag, &
+               this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
+               this%fluid%rho)
+       end if
     end if
 
     !
@@ -306,36 +315,43 @@ contains
     call neko_log%end_section()
 
     if (scalar) then
-
-       call json_get(this%params, 'case.scalar.initial_condition.type', &
-            string_val)
-       call json_extract_object(this%params, 'case.scalar.initial_condition', &
-            json_subdict)
-
        call neko_log%section("Scalar initial condition ")
 
-       if (trim(string_val) .ne. 'user') then
-          do i = 1, n_scalars ! loop over all scalars
-             call set_scalar_ic(this%scalars%scalar(i)%s, &
-                  this%scalars%scalar(i)%c_Xh, this%scalars%scalar(i)%gs_Xh, string_val, json_subdict)
-          end do
-       else
-          if (n_scalars > 1) then
-             do i = 1, n_scalars ! loop over all scalars
-                ! Require user to define the function for multiple scalars
-                call set_scalar_ic(this%scalars%scalar(i)%s, &
-                    this%scalars%scalar(i)%c_Xh, this%scalars%scalar(i)%gs_Xh, &
-                    this%usr%scalars_user_ic, this%scalars%scalar(i)%name, this%params)
-             end do
+       if (this%params%valid_path('case.scalar')) then
+          ! For backward compatibility with single scalar
+          call json_get(this%params, 'case.scalar.initial_condition.type', string_val)
+          call json_extract_object(this%params, 'case.scalar.initial_condition', json_subdict)
+
+          if (trim(string_val) .ne. 'user') then
+             call set_scalar_ic(this%scalars%scalar(1)%s, &
+                  this%scalars%scalar(1)%c_Xh, this%scalars%scalar(1)%gs_Xh, &
+                  string_val, json_subdict)
           else
              call set_scalar_ic(this%scalars%scalar(1)%s, &
                   this%scalars%scalar(1)%c_Xh, this%scalars%scalar(1)%gs_Xh, &
                   this%usr%scalar_user_ic, this%params)
           end if
+
+       else
+          ! Handle multiple scalars
+          do i = 1, n_scalars
+            call json_extract_item(this%params, 'case.scalars', i, scalar_params)
+            call json_get(scalar_params, 'initial_condition.type', string_val)
+            call json_extract_object(scalar_params, 'initial_condition', json_subdict)
+         
+            if (trim(string_val) .ne. 'user') then
+               call set_scalar_ic(this%scalars%scalar(i)%s, &
+                    this%scalars%scalar(i)%c_Xh, this%scalars%scalar(i)%gs_Xh, &
+                    string_val, json_subdict)
+            else
+               call set_scalar_ic(this%scalars%scalar(i)%s, &
+                    this%scalars%scalar(i)%c_Xh, this%scalars%scalar(i)%gs_Xh, &
+                    this%usr%scalar_user_ic, this%params)
+            end if
+         end do
        end if
 
        call neko_log%end_section()
-
     end if
 
     ! Add initial conditions to BDF scheme (if present)
