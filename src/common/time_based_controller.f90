@@ -38,7 +38,7 @@ module time_based_controller
   implicit none
   private
 
-  !> A utility type for determening whether an action should be executed based
+  !> A utility type for determining whether an action should be executed based
   !! on the current time value. Used to e.g. control whether we should write a
   !! file or execute a simcomp.
   !! Note that the nexecutions variable should be incremented externally by
@@ -50,7 +50,7 @@ module time_based_controller
      real(kind=rp) :: frequency = 0
      !> Time interval between executions.
      real(kind=rp) :: time_interval = 0
-     !> Number of timesteps in between executions.
+     !> Number of time steps in between executions.
      integer :: nsteps = 0
      !> Simulation end time.
      real(kind=rp) :: end_time = 0
@@ -120,7 +120,7 @@ contains
        this%never = .true.
     else
        call neko_error("The control parameter must be simulationtime, nsamples&
-            & tsteps, or never, but received "//trim(control_mode))
+       & tsteps, or never, but received "//trim(control_mode))
     end if
   end subroutine time_based_controller_init
 

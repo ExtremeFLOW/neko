@@ -149,7 +149,7 @@ contains
     do i = 1, this%n_fields
 
        call this%sampled_fields%assign(i, &
-            & neko_field_registry%get_field(trim(this%which_fields(i))))
+       & neko_field_registry%get_field(trim(this%which_fields(i))))
     end do
 
     ! Setup the required arrays and initialize variables.
