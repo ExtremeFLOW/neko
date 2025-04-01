@@ -544,35 +544,36 @@ extern "C" {
   /**
    * Global additive reduction
    */
-  void cuda_global_reduce_add(real * bufred, void * bufred_d, int n, const cudaStream_t stream) {
+  void cuda_global_reduce_add(real * red, void * red_d, int n, const cudaStream_t stream) {
 
 
 #ifdef HAVE_NCCL
-    device_nccl_allreduce(bufred_d, bufred_d, n, sizeof(real),
+    device_nccl_allreduce(red_d, red_d, n, sizeof(real),
                           DEVICE_NCCL_SUM, stream);
-    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real)*n,
+    CUDA_CHECK(cudaMemcpyAsync(red, red_d, sizeof(real)*n,
                                cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);
 #elif HAVE_NVSHMEM
     if (sizeof(real) == sizeof(float)) {
       nvshmemx_float_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD,
-                                           (float *) bufred_d,
-                                           (float *) bufred_d, n, stream);
+                                           (float *) red_d,
+                                           (float *) red_d, n, stream);
     }
     else if (sizeof(real) == sizeof(double)) {
       nvshmemx_double_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD,
-                                           (double *) bufred_d,
-                                           (double *) bufred_d, n, stream);
+                                           (double *) red_d,
+                                           (double *) red_d, n, stream);
 
     }
-    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d,
+    CUDA_CHECK(cudaMemcpyAsync(red, red_d,
                                sizeof(real)*n, cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);
 #elif HAVE_DEVICE_MPI
     cudaStreamSynchronize(stream);
-    device_mpi_allreduce(bufred_d, bufred, n, sizeof(real), DEVICE_MPI_SUM);
+    device_mpi_allreduce(red_d, red, n, sizeof(real), DEVICE_MPI_SUM);
+    cudaStreamSynchronize(stream);
 #else
-    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, n*sizeof(real),
+    CUDA_CHECK(cudaMemcpyAsync(red, red_d, n*sizeof(real),
                                cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);
 #endif

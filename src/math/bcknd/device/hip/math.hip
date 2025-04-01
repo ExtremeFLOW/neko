@@ -516,6 +516,7 @@ extern "C" {
     #elif HAVE_DEVICE_MPI
         HIP_CHECK(hipStreamSynchronize(stream));
         device_mpi_allreduce(bufred_d, bufred, n, sizeof(real), DEVICE_MPI_SUM);
+        HIP_CHECK(hipStreamSynchronize(stream));
     #else
         HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, n*sizeof(real),
                                  hipMemcpyDeviceToHost, stream));
