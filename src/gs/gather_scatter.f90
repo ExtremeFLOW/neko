@@ -1428,7 +1428,7 @@ contains
        end if
        call profiler_end_region("gs_scatter_shared", 15)
     end if
-    !call device_sync()
+    call device_sync()
     call profiler_end_region("gather_scatter", 5)
 
   end subroutine gs_op_vector
