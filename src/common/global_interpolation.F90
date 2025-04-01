@@ -1169,7 +1169,7 @@ contains
     logical, intent(in) :: on_host
     integer :: ierr, i
     real(kind=rp) :: time1, time2
-    type(c_ptr) :: field_d, interp_d
+    type(c_ptr) :: interp_d, null_ptr = c_null_ptr
     integer :: nreqs
     character(len=8000) :: log_buf
 
@@ -1182,8 +1182,8 @@ contains
        end if
        interp_values = 0.0
        call this%gs_comm%nbrecv()
-       call this%gs_comm%nbsend(this%temp_local%x, this%n_points_local, field_d, interp_d)
-       call this%gs_comm%nbwait(interp_values, this%n_points, GS_OP_ADD, field_d)
+       call this%gs_comm%nbsend(this%temp_local%x, this%n_points_local, null_ptr, null_ptr)
+       call this%gs_comm%nbwait(interp_values, this%n_points, GS_OP_ADD, null_ptr)
        if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
           interp_d = device_get_ptr(interp_values)
           call device_memcpy(interp_values, interp_d, &
