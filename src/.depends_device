@@ -101,6 +101,7 @@ bc/bcknd/device/opencl/inhom_dirichlet.lo : bc/bcknd/device/opencl/inhom_dirichl
 bc/bcknd/device/opencl/dong_outflow.lo : bc/bcknd/device/opencl/dong_outflow.c bc/bcknd/device/opencl/dong_outflow_kernel.cl.h
 common/bcknd/device/opencl/rhs_maker.lo : common/bcknd/device/opencl/rhs_maker.c common/bcknd/device/opencl/rhs_maker_kernel.cl.h
 fluid/bcknd/device/opencl/pnpn_res.lo : fluid/bcknd/device/opencl/pnpn_res.c fluid/bcknd/device/opencl/pnpn_res_kernel.cl.h
+fluid/bcknd/device/opencl/euler_res.lo : fluid/bcknd/device/opencl/euler_res.c fluid/bcknd/device/opencl/euler_res_kernel.cl.h
 scalar/bcknd/device/opencl/scalar_residual.lo : scalar/bcknd/device/opencl/scalar_residual.c scalar/bcknd/device/opencl/scalar_residual_kernel.cl.h
 sem/bcknd/device/opencl/coef.lo : sem/bcknd/device/opencl/coef.c sem/bcknd/device/opencl/coef_kernel.cl.h
 source_terms/bcknd/device/cuda/filters.lo : source_terms/bcknd/device/cuda/filters.cu source_terms/bcknd/device/cuda/filter_kernels.h

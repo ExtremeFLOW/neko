@@ -383,7 +383,12 @@ contains
     else if (NEKO_BCKND_XSMM .eq. 1) then
        call opr_xsmm_curl(w1, w2, w3, u1, u2, u3, work1, work2, coef)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
-       call opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, coef, event)
+       if (present(event)) then
+          call opr_device_curl(w1, w2, w3, u1, u2, u3, &
+               work1, work2, coef, event)
+       else
+          call opr_device_curl(w1, w2, w3, u1, u2, u3, work1, work2, coef)
+       end if
     else
        call opr_cpu_curl(w1, w2, w3, u1, u2, u3, work1, work2, coef)
     end if
