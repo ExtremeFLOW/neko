@@ -48,7 +48,6 @@ contains
           B%x(i) = coef%B(msk_idx,1,1,1)
        end do
        vol = glsum(B%x,n_pts)
-       B%x(i) = coef%B(msk_idx,1,1,1)
        call xyz%copyto(HOST_TO_DEVICE,.false.)
        call B%copyto(HOST_TO_DEVICE,.false.)
        !Initialize interpolator
