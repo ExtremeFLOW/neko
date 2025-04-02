@@ -53,8 +53,8 @@ module fluid_pnpn
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
   use projection_vel, only : projection_vel_t
-  use device, only : device_memcpy, HOST_TO_DEVICE, device_event_sync,&
-       device_stream_wait_event, glb_cmd_queue, glb_cmd_event
+  use device, only : device_memcpy, HOST_TO_DEVICE, device_event_sync, &
+       glb_cmd_event
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_module, only : json_file, json_core, json_value
@@ -712,9 +712,7 @@ contains
       if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n)
 
       call gs_Xh%op(p_res, GS_OP_ADD, event)
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_stream_wait_event(glb_cmd_queue, event, 0)
-      end if
+      call device_event_sync(event)
 
       ! Set the residual to zero at strong pressure boundaries.
       call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), t, tstep)
@@ -755,11 +753,11 @@ contains
            dt, dm_Xh%size())
 
       call gs_Xh%op(u_res, GS_OP_ADD, event)
+      call device_event_sync(event)
       call gs_Xh%op(v_res, GS_OP_ADD, event)
+      call device_event_sync(event)
       call gs_Xh%op(w_res, GS_OP_ADD, event)
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_stream_wait_event(glb_cmd_queue, event, 0)
-      end if
+      call device_event_sync(event)
 
       ! Set residual to zero at strong velocity boundaries.
       call this%bclst_vel_res%apply(u_res, v_res, w_res, t, tstep)
