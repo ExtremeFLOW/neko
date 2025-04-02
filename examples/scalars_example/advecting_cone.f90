@@ -6,13 +6,14 @@ contains
   !> Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%scalar_user_ic => set_s_ic
+    u%scalars_user_ic => set_scalars_ic
     u%fluid_user_ic => set_velocity
   end subroutine user_setup
 
-  !> User initial condition for the scalar
-  subroutine set_s_ic(s, params)
+  !> User initial condition for the scalars
+  subroutine set_scalars_ic(s, solver_name, params)
     type(field_t), intent(inout) :: s
+    CHARACTER(len=*), INTENT(IN) :: solver_name
     type(json_file), intent(inout) :: params
     integer :: i, e, k, j
     real(kind=rp) :: cone_radius, mux, muy, x, y, r, theta
@@ -42,7 +43,7 @@ contains
        call device_memcpy(s%x, s%x_d, s%dof%size(), &
                           HOST_TO_DEVICE, sync=.false.)
     end if
-  end subroutine set_s_ic
+  end subroutine set_scalars_ic
 
   !> Set the advecting velocity field.
   subroutine set_velocity(u, v, w, p, params)

@@ -118,9 +118,11 @@ contains
     type(time_scheme_controller_t), intent(inout) :: ext_bdf
     type(time_step_controller_t), intent(inout) :: dt_controller
     integer :: i
+
     ! Iterate through all scalar fields
     do i = 1, size(this%scalar)
        call this%scalar(i)%step(t, tstep, dt, ext_bdf, dt_controller)
+       exit ! DEBUGGING This loop doesn't work because of some dependencies in the scalar_pnpn module
     end do
   end subroutine scalars_step
   

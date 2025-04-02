@@ -346,7 +346,7 @@ contains
             else
                call set_scalar_ic(this%scalars%scalar(i)%s, &
                     this%scalars%scalar(i)%c_Xh, this%scalars%scalar(i)%gs_Xh, &
-                    this%usr%scalar_user_ic, this%params)
+                    this%usr%scalars_user_ic, this%scalars%scalar(i)%name, this%params)
             end if
          end do
        end if
@@ -368,8 +368,10 @@ contains
     call this%fluid%validate
 
     if (scalar) then
-       call this%scalars%scalar(1)%slag%set(this%scalars%scalar(1)%s)
-       call this%scalars%scalar(1)%validate
+       do i = 1, size(this%scalars%scalar)
+          call this%scalars%scalar(i)%slag%set(this%scalars%scalar(i)%s)
+          call this%scalars%scalar(i)%validate
+       end do
     end if
 
     !
@@ -420,6 +422,7 @@ contains
     call json_get_or_default(this%params, 'case.fluid.output_filename', &
          name, "field")
     if (scalar) then
+       ! TODO: fix this for multiple scalars
        call this%f_out%init(precision, this%fluid, this%scalars%scalar(1), name = name, &
             path = trim(this%output_directory))
     else
