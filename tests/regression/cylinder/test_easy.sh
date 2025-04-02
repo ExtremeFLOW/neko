@@ -18,7 +18,7 @@ awk '/Iteration/{getline;print($1)}' log1 > l1
 awk '/Iteration/{getline;print($1)}' ${ref1} > r1
 diff l1 r1 >> res
 #Check that residual is same after restart
-awk '/Pressure/ {i+=1; if(i== 8){getline;getline;print($1,$2)}}' log1 > l1
+awk '/Pressure/ {i+=1; if(i== 7){getline;getline;print($1,$2)}}' log1 > l1
 awk '/Pressure/ {i+=1; if(i== 2){getline;getline;print($1,$2)}}' log2 > l2
 diff l1 l2 >> res
 

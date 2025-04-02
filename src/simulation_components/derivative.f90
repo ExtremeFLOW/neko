@@ -37,6 +37,7 @@ module derivative
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
+  use time_state, only : time_state_t
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use operators, only : dudxyz
@@ -69,7 +70,7 @@ module derivative
      procedure, pass(this) :: init => derivative_init_from_json
      !> Actual constructor.
      procedure, pass(this) :: init_from_attributes => &
-        derivative_init_from_attributes
+          derivative_init_from_attributes
      !> Destructor.
      procedure, pass(this) :: free => derivative_free
      !> Compute the derivative field.
@@ -110,7 +111,7 @@ contains
     this%u => neko_field_registry%get_field_by_name(trim(fieldname))
 
     this%du => neko_field_registry%get_field_by_name(&
-                        "d" // fieldname // "_d" // direction)
+         "d" // fieldname // "_d" // direction)
 
     if (direction .eq. "x") then
        this%dr => this%case%fluid%c_Xh%drdx
@@ -125,7 +126,7 @@ contains
        this%ds => this%case%fluid%c_Xh%dsdz
        this%dt => this%case%fluid%c_Xh%dtdz
     else
-        call neko_error("The direction of the derivative must be x, y or z")
+       call neko_error("The direction of the derivative must be x, y or z")
     end if
   end subroutine derivative_init_from_attributes
 
@@ -142,15 +143,13 @@ contains
   end subroutine derivative_free
 
   !> Compute the derivative field.
-  !! @param t The time value.
-  !! @param tstep The current time-step
-  subroutine derivative_compute(this, t, tstep)
+  !! @param time The current time.
+  subroutine derivative_compute(this, time)
     class(derivative_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
 
     call dudxyz(this%du%x, this%u%x, this%dr, this%ds, this%dt,&
-                this%case%fluid%c_Xh)
+         this%case%fluid%c_Xh)
   end subroutine derivative_compute
 
 end module derivative
