@@ -34,10 +34,11 @@
 module time_based_controller
   use num_types, only : rp
   use utils, only : neko_error
+  use time_state, only : time_state_t
   implicit none
   private
 
-  !> A utility type for determening whether an action should be executed based
+  !> A utility type for determining whether an action should be executed based
   !! on the current time value. Used to e.g. control whether we should write a
   !! file or execute a simcomp.
   !! Note that the nexecutions variable should be incremented externally by
@@ -49,7 +50,7 @@ module time_based_controller
      real(kind=rp) :: frequency = 0
      !> Time interval between executions.
      real(kind=rp) :: time_interval = 0
-     !> Number of timesteps in between executions.
+     !> Number of time steps in between executions.
      integer :: nsteps = 0
      !> Simulation end time.
      real(kind=rp) :: end_time = 0
@@ -126,17 +127,26 @@ contains
   !> Check if the execution should be performed.
   !! @param t Time value.
   !! @param tstep Current timestep.
+  !! @param dt Timestep size.
   !! @param force Whether to force returning true. Optional.
   !! @note In the logic, `nsteps` being zero corresponds to us not knowing the
   !! number of time-steps between executions and thus having to rely on
   !! `nexecutions`. This is done in anticipation of having a variable timestep.
-  function time_based_controller_check(this, t, tstep, force) result(check)
+  !! A fraction of the time step (10 percent) is used as a tolerance.
+  function time_based_controller_check(this, time, force) result(check)
     class(time_based_controller_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     logical, intent(in), optional :: force
+    real(kind=rp) :: t
+    integer :: tstep
+    real(kind=rp) :: dt
     logical :: check
     logical :: ifforce
+
+    t = time%t
+    dt = time%dt
+    tstep = time%tstep
+
 
     if (present(force)) then
        ifforce = force
@@ -150,7 +160,7 @@ contains
     else if (this%never) then
        check = .false.
     else if ( (this%nsteps .eq. 0) .and. &
-         (t .ge. this%nexecutions * this%time_interval) ) then
+         (t .ge. this%nexecutions * this%time_interval - 0.1 * dt) ) then
        check = .true.
     else if (this%nsteps .gt. 0) then
        if (mod(tstep, this%nsteps) .eq. 0) then
@@ -183,13 +193,13 @@ contains
   end subroutine time_based_controller_register_execution
 
   !> Set the counter based on a time (for restarts)
-  !! @param t simulation time.
-  subroutine time_based_controller_set_counter(this,t)
+  !! @param time Current time.
+  subroutine time_based_controller_set_counter(this, time)
     class(time_based_controller_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    type(time_state_t) :: time
 
     if (this%nsteps .eq. 0) then
-       this%nexecutions = int(t / this%time_interval) + 1
+       this%nexecutions = int((time%t+0.1_rp*time%dt) / this%time_interval) + 1
     end if
 
   end subroutine time_based_controller_set_counter

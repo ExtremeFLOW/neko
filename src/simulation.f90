@@ -83,15 +83,15 @@ contains
     call C%params%get('case.restart_file', restart_file, found)
     if (found .and. len_trim(restart_file) .gt. 0) then
        ! Restart the case
-       call case_restart(C, C%time%t)
+       call case_restart(C)
 
        ! Restart the simulation components
-       call neko_simcomps%restart(C%time%t)
+       call neko_simcomps%restart(C%time)
     end if
 
     !> Execute outputs and user-init before time loop
     call neko_log%section('Postprocessing')
-    call C%output_controller%execute(C%time%t, tstep)
+    call C%output_controller%execute(C%time)
 
     call C%usr%user_init_modules(C%time%t, C%fluid%u, C%fluid%v, C%fluid%w,&
          C%fluid%p, C%fluid%c_Xh, C%params)
@@ -129,7 +129,7 @@ contains
 
        ! Run the preprocessing
        call neko_log%section('Preprocessing')
-       call neko_simcomps%preprocess(C%time%t, tstep)
+       call neko_simcomps%preprocess(C%time)
        call neko_log%end_section()
 
        call neko_log%section('Fluid')
@@ -164,7 +164,7 @@ contains
 
        call neko_log%section('Postprocessing')
        ! Execute all simulation components
-       call neko_simcomps%compute(C%time%t, tstep)
+       call neko_simcomps%compute(C%time)
 
 
        !> @todo Temporary fix until we have reworked the material properties
@@ -189,7 +189,7 @@ contains
        call C%usr%user_check(C%time%t, tstep, C%fluid%u, C%fluid%v, C%fluid%w, &
             C%fluid%p, C%fluid%c_Xh, C%params)
 
-       call C%output_controller%execute(C%time%t, tstep)
+       call C%output_controller%execute(C%time)
 
        call neko_log%end_section()
        end_time = MPI_WTIME()
@@ -208,7 +208,7 @@ contains
 
     call json_get_or_default(C%params, 'case.output_at_end',&
          output_at_end, .true.)
-    call C%output_controller%execute(C%time%t, tstep, output_at_end)
+    call C%output_controller%execute(C%time, output_at_end)
 
     if (.not. (output_at_end) .and. C%time%t .lt. C%time%end_time) then
        call simulation_joblimit_chkp(C, C%time%t)
@@ -250,10 +250,9 @@ contains
   end subroutine simulation_settime
 
   !> Restart a case @a C from a given checkpoint
-  subroutine case_restart(C, t)
+  subroutine case_restart(C)
     implicit none
     type(case_t), intent(inout) :: C
-    real(kind=rp), intent(inout) :: t
     integer :: i
     type(file_t) :: chkpf, previous_meshf
     character(len=LOG_SIZE) :: log_buf
@@ -290,15 +289,15 @@ contains
     call C%chkp%previous_mesh%free()
     if (allocated(C%scalar)) call C%scalar%restart(C%chkp)
 
-    t = C%chkp%restart_time()
+    C%time%t = C%chkp%restart_time()
     call neko_log%section('Restarting from checkpoint')
     write(log_buf, '(A,A)') 'File :   ', trim(restart_file)
     call neko_log%message(log_buf)
-    write(log_buf, '(A,E15.7)') 'Time : ', t
+    write(log_buf, '(A,E15.7)') 'Time : ', C%time%t
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
-    call C%output_controller%set_counter(t)
+    call C%output_controller%set_counter(C%time)
   end subroutine case_restart
 
   !> Write a checkpoint at joblimit
