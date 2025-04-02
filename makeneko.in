@@ -28,10 +28,10 @@ for file in "$@"; do
 done
 
 # Extract module names from user-provided .f90 files
-USER_MODULES=$(grep -hE '^[[:space:]]*module[[:space:]]+[a-zA-Z_][a-zA-Z0-9_]*' $USER_FILES 2>/dev/null | \
-               grep -vE '^[[:space:]]*!' | \
-               grep -vE 'module procedure|module[[:space:]]+user' | \
-               awk '{print $2}' | sort -u)
+USER_MODULES=$(@GREP@ -hE '^[[:space:]]*module[[:space:]]+[a-zA-Z_][a-zA-Z0-9_]*' $USER_FILES 2>/dev/null | \
+               @GREP@ -vE '^[[:space:]]*!' | \
+               @GREP@ -vE 'module procedure|module[[:space:]]+user' | \
+               @AWK@  '{print $2}' | sort -u)
 
 echo "Detected the following user modules:"
 for mod in $USER_MODULES; do
