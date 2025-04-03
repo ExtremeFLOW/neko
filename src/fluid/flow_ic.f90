@@ -37,7 +37,7 @@ module flow_ic
   use gather_scatter, only : gs_t, GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use flow_profile, only : blasius_profile, blasius_linear, blasius_cubic, &
-    blasius_quadratic, blasius_quartic, blasius_sin
+       blasius_quadratic, blasius_quartic, blasius_sin
   use device, only: device_memcpy, HOST_TO_DEVICE
   use field, only : field_t
   use utils, only : neko_error, filename_suffix, filename_chsuffix, &
@@ -45,7 +45,7 @@ module flow_ic
   use coefs, only : coef_t
   use math, only : col2, cfill, cfill_mask
   use device_math, only : device_col2, device_cfill, device_cfill_mask
-  use user_intf, only : useric
+  use user_intf, only : useric, useric_compressible
   use json_module, only : json_file
   use json_utils, only: json_get, json_get_or_default
   use point_zone, only: point_zone_t
@@ -60,7 +60,8 @@ module flow_ic
   private
 
   interface set_flow_ic
-     module procedure set_flow_ic_int, set_flow_ic_usr
+     module procedure set_flow_ic_int, set_flow_ic_usr, &
+      set_compressible_flow_ic_usr
   end interface set_flow_ic
 
   public :: set_flow_ic
@@ -90,50 +91,42 @@ contains
     !
     if (trim(type) .eq. 'uniform') then
 
-       call json_get(params, 'case.fluid.initial_condition.value', uinf)
+       call json_get(params, 'value', uinf)
        call set_flow_ic_uniform(u, v, w, uinf)
 
-    !
-    ! Blasius boundary layer
-    !
+       !
+       ! Blasius boundary layer
+       !
     else if (trim(type) .eq. 'blasius') then
 
-       call json_get(params, 'case.fluid.blasius.delta', delta)
-       call json_get(params, 'case.fluid.blasius.approximation', &
-                     read_str)
-       call json_get(params, 'case.fluid.blasius.freestream_velocity', uinf)
+       call json_get(params, 'delta', delta)
+       call json_get(params, 'approximation', read_str)
+       call json_get(params, 'freestream_velocity', uinf)
 
        call set_flow_ic_blasius(u, v, w, delta, uinf, read_str)
 
-    !
-    ! Point zone initial condition
-    !
+       !
+       ! Point zone initial condition
+       !
     else if (trim(type) .eq. 'point_zone') then
 
-       call json_get(params, 'case.fluid.initial_condition.base_value', uinf)
-       call json_get(params, 'case.fluid.initial_condition.zone_name', &
-                     read_str)
-       call json_get(params, 'case.fluid.initial_condition.zone_value', &
-            zone_value)
+       call json_get(params, 'base_value', uinf)
+       call json_get(params, 'zone_name', read_str)
+       call json_get(params, 'zone_value', zone_value)
 
        call set_flow_ic_point_zone(u, v, w, uinf, read_str, zone_value)
 
-    !
-    ! Field initial condition (from fld file)
-    !
+       !
+       ! Field initial condition (from fld file)
+       !
     else if (trim(type) .eq. 'field') then
 
-       call json_get(params, 'case.fluid.initial_condition.file_name', &
-            read_str)
+       call json_get(params, 'file_name', read_str)
        fname = trim(read_str)
-       call json_get_or_default(params, &
-            'case.fluid.initial_condition.interpolate', interpolate, &
+       call json_get_or_default(params, 'interpolate', interpolate, &
             .false.)
-       call json_get_or_default(params, &
-            'case.fluid.initial_condition.tolerance', tol, 0.000001_rp)
-       call json_get_or_default(params, &
-            'case.fluid.initial_condition.mesh_file_name', read_str, &
-            "none")
+       call json_get_or_default(params, 'tolerance', tol, 0.000001_rp)
+       call json_get_or_default(params, 'mesh_file_name', read_str, "none")
        mesh_fname = trim(read_str)
 
        call set_flow_ic_fld(u, v, w, p, fname, interpolate, tol, mesh_fname)
@@ -165,6 +158,42 @@ contains
 
   end subroutine set_flow_ic_usr
 
+  !> Set intial flow condition (user defined)
+  !> for compressible flows
+  subroutine set_compressible_flow_ic_usr(rho, u, v, w, p, coef, gs, &
+       usr_ic_compressible, params)
+    type(field_t), intent(inout) :: rho
+    type(field_t), intent(inout) :: u
+    type(field_t), intent(inout) :: v
+    type(field_t), intent(inout) :: w
+    type(field_t), intent(inout) :: p
+    type(coef_t), intent(in) :: coef
+    type(gs_t), intent(inout) :: gs
+    procedure(useric_compressible) :: usr_ic_compressible
+    type(json_file), intent(inout) :: params
+    integer :: n
+
+
+    call neko_log%message("Type: user (compressible flows)")
+    call usr_ic_compressible(rho, u, v, w, p, params)
+
+    call set_flow_ic_common(u, v, w, p, coef, gs)
+
+    n = u%dof%size()
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(p%x, p%x_d, n, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(rho%x, rho%x_d, n, &
+            HOST_TO_DEVICE, sync = .false.)
+    end if
+
+    ! Ensure continuity across elements for initial conditions
+    !call gs%op(p%x, p%dof%size(), GS_OP_ADD)
+    !call gs%op(rho%x, rho%dof%size(), GS_OP_ADD)
+
+  end subroutine set_compressible_flow_ic_usr
+
   subroutine set_flow_ic_common(u, v, w, p, coef, gs)
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
@@ -178,11 +207,11 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(u%x, u%x_d, n, &
-                          HOST_TO_DEVICE, sync = .false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(v%x, v%x_d, n, &
-                          HOST_TO_DEVICE, sync = .false.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(w%x, w%x_d, n, &
-                          HOST_TO_DEVICE, sync = .false.)
+            HOST_TO_DEVICE, sync = .false.)
     end if
 
     ! Ensure continuity across elements for initial conditions
@@ -265,21 +294,21 @@ contains
     end select
 
     if ((uinf(1) .gt. 0.0_rp) .and. (uinf(2) .eq. 0.0_rp) &
-       .and. (uinf(3) .eq. 0.0_rp)) then
+         .and. (uinf(3) .eq. 0.0_rp)) then
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = bla(u%dof%z(i,1,1,1), delta, uinf(1))
           v%x(i,1,1,1) = 0.0_rp
           w%x(i,1,1,1) = 0.0_rp
        end do
     else if ((uinf(1) .eq. 0.0_rp) .and. (uinf(2) .gt. 0.0_rp) &
-            .and. (uinf(3) .eq. 0.0_rp)) then
+         .and. (uinf(3) .eq. 0.0_rp)) then
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = 0.0_rp
           v%x(i,1,1,1) = bla(u%dof%x(i,1,1,1), delta, uinf(2))
           w%x(i,1,1,1) = 0.0_rp
        end do
     else if ((uinf(1) .eq. 0.0_rp) .and. (uinf(2) .eq. 0.0_rp) &
-            .and. (uinf(3) .gt. 0.0_rp)) then
+         .and. (uinf(3) .gt. 0.0_rp)) then
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = 0.0_rp
           v%x(i,1,1,1) = 0.0_rp
@@ -386,7 +415,7 @@ contains
 
     if (sample_idx .eq. -1) &
          call neko_error("Invalid file name for the initial condition. The&
-         & file format must be e.g. 'mean0.f00001'")
+      & file format must be e.g. 'mean0.f00001'")
 
     ! Change from "field0.f000*" to "field0.fld" for the fld reader
     call filename_chsuffix(file_name, file_name, 'fld')
@@ -405,13 +434,14 @@ contains
           ! Extract sample index from the mesh file name
           sample_mesh_idx = extract_fld_file_index(mesh_file_name, -1)
 
-          if (sample_mesh_idx .eq. -1) &
-               call neko_error("Invalid file name for the initial condition. &
-&The file format must be e.g. 'mean0.f00001'")
+          if (sample_mesh_idx .eq. -1) then
+             call neko_error("Invalid file name for the initial condition. &
+               &The file format must be e.g. 'mean0.f00001'")
+          end if
 
           write (log_buf, '(A,ES12.6)') "Tolerance     : ", tolerance
           call neko_log%message(log_buf)
-          write (log_buf, '(A,A)')     "Mesh file     : ", &
+          write (log_buf, '(A,A)') "Mesh file     : ", &
                trim(mesh_file_name)
           call neko_log%message(log_buf)
 
@@ -440,10 +470,10 @@ contains
 
     if (mesh_mismatch .and. .not. interpolate) then
        call neko_error("The fld file must match the current mesh! &
-&Use 'interpolate': 'true' to enable interpolation.")
+         &Use 'interpolate': 'true' to enable interpolation.")
     else if (.not. mesh_mismatch .and. interpolate) then
        call neko_log%warning("You have activated interpolation but you might &
-&still be using the same mesh.")
+         &still be using the same mesh.")
     end if
 
     ! Mesh interpolation if specified
@@ -454,11 +484,11 @@ contains
        type is (fld_file_t)
           if (.not. ft%dp_precision) then
              call neko_warning("The coordinates read from the field file are &
-&in single precision.")
+               &in single precision.")
              call neko_log%message("It is recommended to use a mesh in double &
-&precision for better interpolation results.")
+               &precision for better interpolation results.")
              call neko_log%message("If the interpolation does not work, you&
-&can try to increase the tolerance.")
+               &can try to increase the tolerance.")
           end if
        class default
        end select

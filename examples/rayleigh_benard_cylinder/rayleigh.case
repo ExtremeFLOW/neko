@@ -63,6 +63,13 @@
             "initial_condition": {
                 "type": "user"
             },
+            "solver": {
+                "type": "cg",
+                "preconditioner": "jacobi",
+                "projection_space_size": 0,
+                "absolute_tolerance": 1e-6,
+                "max_iterations": 800
+            },
             "boundary_conditions": [
                 {
                     "type": "user_pointwise",

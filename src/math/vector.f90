@@ -35,7 +35,7 @@ module vector
   use neko_config, only: NEKO_BCKND_DEVICE
   use math, only: sub3, add3, cmult2, cadd2, cfill
   use num_types, only: rp
-  use device, only: device_map, device_free, c_ptr, C_NULL_PTR
+  use device, only: device_map, device_free
   use device_math, only: device_copy, device_cfill, device_cmult, &
        device_sub3, device_cmult2, device_add3, device_cadd2
   use utils, only: neko_error
@@ -43,13 +43,13 @@ module vector
   implicit none
   private
 
-  type, public ::  vector_t
+  type, public :: vector_t
      !> Vector entries.
      real(kind=rp), allocatable :: x(:)
      !> Device pointer.
      type(c_ptr) :: x_d = C_NULL_PTR
      !> Size of vector.
-     integer :: n  = 0
+     integer :: n = 0
    contains
      !> Initialise a vector of size `n`.
      procedure, pass(v) :: init => vector_init
@@ -130,7 +130,7 @@ contains
 
   !> Return the number of entries in the vector.
   function vector_size(v) result(s)
-    class(vector_t), intent(inout) :: v
+    class(vector_t), intent(in) :: v
     integer :: s
     s = v%n
   end function vector_size

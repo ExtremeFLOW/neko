@@ -285,4 +285,93 @@ __global__ void gs_unpack_add_kernel(T * __restrict__ u,
   }
 }
 
+template<typename T>
+__device__ T atomicMinFloat(T* address, T val);
+
+template<>
+__device__ float atomicMinFloat<float>(float* address, float val) {
+    float old;
+    old = !signbit(val) ? __int_as_float(atomicMin((int*)address, __float_as_int(val))) :
+        __uint_as_float(atomicMax((unsigned int*)address, __float_as_uint(val)));
+
+    return old;
+}
+
+template<>
+__device__ double atomicMinFloat<double>(double* address, double val) {
+    double old;
+    old = !signbit(val) ? __longlong_as_double(atomicMin((unsigned long long*)address, 
+                                            __double_as_longlong(val))) :
+          __longlong_as_double(atomicMax((unsigned long long*)address, 
+                                            __double_as_longlong(val)));
+    return old;
+}
+
+template< typename T >
+__global__ void gs_unpack_min_kernel(T * __restrict__ u,
+                                     const T * __restrict__ buf,
+                                     const int32_t * __restrict__ dof,
+                                     const int n) {
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j >= n)
+    return;
+
+  const int32_t idx = dof[j];
+  const T val = buf[j];
+
+  if (idx < 0) {
+    // Use atomicMin for shared nodal points
+    atomicMinFloat(&u[-idx-1], val);
+  } else {
+    // Directly compute min for nodal points on edges
+    u[idx-1] = min(u[idx-1], val);
+  }
+}
+
+template<typename T>
+__device__ T atomicMaxFloat(T* address, T val);
+
+template<>
+__device__ float atomicMaxFloat<float>(float* address, float val) {
+    float old;
+    old = !signbit(val) ? __int_as_float(atomicMax((int*)address, __float_as_int(val))) :
+        __uint_as_float(atomicMin((unsigned int*)address, __float_as_uint(val)));
+    return old;
+}
+
+template<>
+__device__ double atomicMaxFloat<double>(double* address, double val) {
+    double old;
+    old = !signbit(val) ? __longlong_as_double(atomicMax((unsigned long long*)address, 
+                                                __double_as_longlong(val))) :
+          __longlong_as_double(atomicMin((unsigned long long*)address, 
+                                                __double_as_longlong(val)));
+    return old;
+}
+
+template< typename T >
+__global__ void gs_unpack_max_kernel(T * __restrict__ u,
+                                     const T * __restrict__ buf,
+                                     const int32_t * __restrict__ dof,
+                                     const int n) {
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j >= n)
+    return;
+
+  const int32_t idx = dof[j];
+  const T val = buf[j];
+
+  if (idx < 0) {
+    // Use atomicMax for shared nodal points
+    atomicMaxFloat(&u[-idx-1], val);
+  } else {
+    // Directly compute min for nodal points on edges
+    u[idx-1] = max(u[idx-1], val);
+  }
+}
+
 #endif // __GS_GS_KERNELS__

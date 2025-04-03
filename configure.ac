@@ -295,6 +295,9 @@ AX_NCCL
 # Checks for RCCL backend
 AX_RCCL
 
+# Checks for NVSHMEM backend
+AX_NVSHMEM
+
 # Checks for NVTX profiling
 AX_NVTX
 
@@ -320,6 +323,7 @@ AM_CONDITIONAL([ENABLE_CUDA], [test "x${have_cuda}" = xyes])
 AM_CONDITIONAL([ENABLE_HIP], [test "x${have_hip}" = xyes])
 AM_CONDITIONAL([ENABLE_OPENCL], [test "x${have_opencl}" = xyes])
 AM_CONDITIONAL([ENABLE_CONTRIB], [test "x${enable_contrib}" = xyes])
+AM_CONDITIONAL([ENABLE_NVSHMEM], [test "x${have_nvshmem}" = xyes])
 
 # Set device dependent flags
 AC_SUBST(CUDA_ARCH)
@@ -391,6 +395,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
                  tests/unit/fast3d/Makefile\
                  tests/unit/time_scheme/Makefile\
                  tests/unit/time_scheme_controller/Makefile\
+                 tests/unit/runge_kutta_scheme/Makefile\
                  tests/unit/time_based_controller/Makefile\
                  tests/unit/point_interpolation/Makefile])
 

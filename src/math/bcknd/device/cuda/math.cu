@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2023, The Neko Authors
+ Copyright (c) 2021-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -38,10 +38,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef HAVE_NVSHMEM
+#include <nvshmem.h>
+#include <nvshmemx.h>
+#endif
+
 extern "C" {
 
 #include <math/bcknd/device/device_mpi_reduce.h>
 #include <math/bcknd/device/device_mpi_op.h>
+
+#ifdef HAVE_NCCL
+#include <math/bcknd/device/device_nccl_reduce.h>
+#include <math/bcknd/device/device_nccl_op.h>
+#endif
 
   /** Fortran wrapper for copy
    * Copy a vector \f$ a = b \f$
@@ -79,6 +89,22 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
 
   }
+
+  /** Fortran wrapper for masked atomic reduction
+   * update a vector \f$ a += b(mask) \f$ where mask is not unique
+   */
+  void cuda_masked_atomic_reduction(void *a, void *b, void *mask, int *n, int *m) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    masked_atomic_reduction_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b,
+                                      (int *) mask, *n, *m);
+    CUDA_CHECK(cudaGetLastError());
+
+  } 
+
 
   /** Fortran wrapper for cfill_mask
    * Fill a scalar to vector \f$ a_i = s, for i \in mask \f$
@@ -477,7 +503,7 @@ extern "C" {
    */
   int red_s = 0;
   real * bufred = NULL;
-  real * bufred_d = NULL;
+  void * bufred_d = NULL;
 
   /**
    * Fortran wrapper vlsc3
@@ -501,9 +527,9 @@ extern "C" {
     }
 
     glsc3_kernel<real><<<nblcks, nthrds, 0, stream>>>
-      ((real *) u, (real *) v, (real *) w, bufred_d, *n);
+      ((real *) u, (real *) v, (real *) w, (real *) bufred_d, *n);
     CUDA_CHECK(cudaGetLastError());
-    reduce_kernel<real><<<1, 1024, 0, stream>>> (bufred_d, nb);
+    reduce_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
 
     CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real),
@@ -528,19 +554,48 @@ extern "C" {
       red_s = nb;
       if (bufred != NULL) {
         CUDA_CHECK(cudaFreeHost(bufred));
+#ifdef HAVE_NVSHMEM
+        nvshmem_free(bufred_d);
+#else
         CUDA_CHECK(cudaFree(bufred_d));
+#endif
       }
       CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
+#ifdef HAVE_NVSHMEM
+      bufred_d = (real *) nvshmem_malloc(sizeof(real));
+#else
       CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
+#endif
     }
 
     glsc3_kernel<real><<<nblcks, nthrds, 0, stream>>>
-      ((real *) a, (real *) b, (real *) c, bufred_d, *n);
+      ((real *) a, (real *) b, (real *) c, (real *) bufred_d, *n);
     CUDA_CHECK(cudaGetLastError());
-    reduce_kernel<real><<<1, 1024, 0, stream>>> (bufred_d, nb);
+    reduce_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
 
-#ifdef HAVE_DEVICE_MPI
+#ifdef HAVE_NCCL
+    device_nccl_allreduce(bufred_d, bufred_d, 1, sizeof(real),
+                          DEVICE_NCCL_SUM, stream);
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_NVSHMEM
+    if (sizeof(real) == sizeof(float)) {
+      nvshmemx_float_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                           (float *) bufred_d,
+                                           (float *) bufred_d, 1, stream);
+    }
+    else if (sizeof(real) == sizeof(double)) {
+      nvshmemx_double_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                           (double *) bufred_d,
+                                           (double *) bufred_d, 1, stream);
+
+    }
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d,
+                               sizeof(real), cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_DEVICE_MPI
     cudaStreamSynchronize(stream);
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
@@ -571,20 +626,49 @@ extern "C" {
       red_s = (*j)*nb;
       if (bufred != NULL) {
 	CUDA_CHECK(cudaFreeHost(bufred));
+#ifdef HAVE_NVSHMEM
+        nvshmem_free(bufred_d);
+#else
 	CUDA_CHECK(cudaFree(bufred_d));
+#endif
       }
       CUDA_CHECK(cudaMallocHost(&bufred,(*j)*nb*sizeof(real)));
+#ifdef HAVE_NVSHMEM
+      bufred_d = (real *) nvshmem_malloc((*j)*nb*sizeof(real));
+#else
       CUDA_CHECK(cudaMalloc(&bufred_d, (*j)*nb*sizeof(real)));
+#endif
     }
 
     glsc3_many_kernel<real><<<nblcks, nthrds, 0, stream>>>
       ((const real *) w, (const real **) v,
-       (const real *)mult, bufred_d, *j, *n);
+       (const real *)mult, (real *)bufred_d, *j, *n);
     CUDA_CHECK(cudaGetLastError());
-    glsc3_reduce_kernel<real><<<(*j), 1024, 0, stream>>>(bufred_d, nb, *j);
+    glsc3_reduce_kernel<real>
+      <<<(*j), 1024, 0, stream>>>((real *) bufred_d, nb, *j);
     CUDA_CHECK(cudaGetLastError());
 
-#ifdef HAVE_DEVICE_MPI
+#ifdef HAVE_NCCL
+    device_nccl_allreduce(bufred_d, bufred_d, (*j), sizeof(real),
+                          DEVICE_NCCL_SUM, stream);
+    CUDA_CHECK(cudaMemcpyAsync(h, bufred_d, (*j) * sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_NVSHMEM
+    if (sizeof(real) == sizeof(float)) {
+      nvshmemx_float_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                           (float *) bufred_d,
+                                           (float *) bufred_d, (*j), stream);
+    }
+    else if (sizeof(real) == sizeof(double)) {
+      nvshmemx_double_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                           (double *) bufred_d,
+                                           (double *) bufred_d, (*j), stream);
+    }
+    CUDA_CHECK(cudaMemcpyAsync(h, bufred_d, (*j) * sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_DEVICE_MPI
     cudaStreamSynchronize(stream);
     device_mpi_allreduce(bufred_d, h, (*j), sizeof(real), DEVICE_MPI_SUM);
 #else
@@ -609,21 +693,51 @@ extern "C" {
       red_s = nb;
       if (bufred != NULL) {
         CUDA_CHECK(cudaFreeHost(bufred));
+#ifdef HAVE_NVSHMEM
+        nvshmem_free(bufred_d);
+#else
         CUDA_CHECK(cudaFree(bufred_d));
+#endif
       }
       CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
+#ifdef HAVE_NVSHMEM
+      bufred_d = (real *) nvshmem_malloc(nb*sizeof(real));
+#else
       CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
+#endif
     }
 
     glsc2_kernel<real>
       <<<nblcks, nthrds, 0, stream>>>((real *) a,
                                       (real *) b,
-                                      bufred_d, *n);
+                                      (real *) bufred_d, *n);
     CUDA_CHECK(cudaGetLastError());
-    reduce_kernel<real><<<1, 1024, 0, stream>>> (bufred_d, nb);
+    reduce_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d, nb);
     CUDA_CHECK(cudaGetLastError());
 
-#ifdef HAVE_DEVICE_MPI
+#ifdef HAVE_NCCL
+    device_nccl_allreduce(bufred_d, bufred_d, 1, sizeof(real),
+                          DEVICE_NCCL_SUM, stream);
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_NVSHMEM
+    if (sizeof(real) == sizeof(float)) {
+      nvshmemx_float_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                           (float *) bufred_d,
+                                           (float *) bufred_d, 1, stream);
+    }
+    else if (sizeof(real) == sizeof(double)) {
+      nvshmemx_double_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                           (double *) bufred_d,
+                                           (double *) bufred_d, 1, stream);
+
+    }
+    CUDA_CHECK(cudaMemcpyAsync(bufred,
+                               bufred_d,
+                               sizeof(real), cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_DEVICE_MPI
     cudaStreamSynchronize(stream);
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
@@ -649,19 +763,51 @@ extern "C" {
       red_s = nb;
       if (bufred != NULL) {
         CUDA_CHECK(cudaFreeHost(bufred));
+#ifdef HAVE_NVSHMEM
+        nvshmem_free(bufred_d);
+#else
         CUDA_CHECK(cudaFree(bufred_d));
+#endif
       }
       CUDA_CHECK(cudaMallocHost(&bufred,nb*sizeof(real)));
+#ifdef HAVE_NVSHMEM
+      bufred_d = (real *) nvshmem_malloc(sizeof(real));
+#else
       CUDA_CHECK(cudaMalloc(&bufred_d, nb*sizeof(real)));
+#endif
     }
+
     if ( *n > 0) {
       glsum_kernel<real>
-        <<<nblcks, nthrds, 0, stream>>>((real *) a, bufred_d, *n);
+        <<<nblcks, nthrds, 0, stream>>>((real *) a,
+                                        (real *) bufred_d, *n);
       CUDA_CHECK(cudaGetLastError());
-      reduce_kernel<real><<<1, 1024, 0, stream>>> (bufred_d, nb);
+      reduce_kernel<real><<<1, 1024, 0, stream>>> ((real *) bufred_d, nb);
       CUDA_CHECK(cudaGetLastError());
     }
-#ifdef HAVE_DEVICE_MPI
+#ifdef HAVE_NCCL
+    device_nccl_allreduce(bufred_d, bufred_d, 1, sizeof(real),
+                          DEVICE_NCCL_SUM, stream);
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_NVSHMEM
+    if (sizeof(real) == sizeof(float)) {
+      nvshmemx_float_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                           (float *) bufred_d,
+                                           (float *) bufred_d, 1, stream);
+    }
+    else if (sizeof(real) == sizeof(double)) {
+      nvshmemx_double_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                           (double *) bufred_d,
+                                           (double *) bufred_d, 1, stream);
+
+    }
+    CUDA_CHECK(cudaMemcpyAsync(bufred,
+                               bufred_d,
+                               sizeof(real), cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_DEVICE_MPI
     cudaStreamSynchronize(stream);
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
@@ -706,13 +852,13 @@ extern "C" {
           (real *)a, (real *)b, *n);
       CUDA_CHECK(cudaGetLastError());
   }
-  
+
   /** Fortran wrapper for pwmax_vec3
    *
    * Compute the maximum of two vectors \f$ a = \max(b, c) \f$
    */
   void cuda_pwmax_vec3(void *a, void *b, void *c, int *n) {
-    
+
       const dim3 nthrds(1024, 1, 1);
       const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
       const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
@@ -721,13 +867,13 @@ extern "C" {
           (real *)a, (real *)b, (real *)c, *n);
       CUDA_CHECK(cudaGetLastError());
   }
-  
+
   /** Fortran wrapper for pwmax_sca2
    *
    * Compute the maximum of vector and scalar \f$ a = \max(a, c) \f$
    */
   void cuda_pwmax_sca2(void *a, real *c, int *n) {
-    
+
       const dim3 nthrds(1024, 1, 1);
       const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
       const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
@@ -736,13 +882,13 @@ extern "C" {
           (real *)a, *c, *n);
       CUDA_CHECK(cudaGetLastError());
   }
-  
+
   /** Fortran wrapper for pwmax_sca3
    *
    * Compute the maximum of vector and scalar \f$ a = \max(b, c) \f$
    */
   void cuda_pwmax_sca3(void *a, void *b, real *c, int *n) {
-    
+
       const dim3 nthrds(1024, 1, 1);
       const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
       const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
@@ -766,13 +912,13 @@ extern "C" {
           (real *)a, (real *)b, *n);
       CUDA_CHECK(cudaGetLastError());
   }
-  
+
   /** Fortran wrapper for pwmin_vec3
    *
    * Compute the minimum of two vectors \f$ a = \min(b, c) \f$
    */
   void cuda_pwmin_vec3(void *a, void *b, void *c, int *n) {
-    
+
       const dim3 nthrds(1024, 1, 1);
       const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
       const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
@@ -781,13 +927,13 @@ extern "C" {
           (real *)a, (real *)b, (real *)c, *n);
       CUDA_CHECK(cudaGetLastError());
   }
-  
+
   /** Fortran wrapper for pwmin_sca2
    *
    * Compute the minimum of vector and scalar \f$ a = \min(a, c) \f$
    */
   void cuda_pwmin_sca2(void *a, real *c, int *n) {
-    
+
       const dim3 nthrds(1024, 1, 1);
       const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
       const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
@@ -796,13 +942,13 @@ extern "C" {
           (real *)a, *c, *n);
       CUDA_CHECK(cudaGetLastError());
   }
-  
+
   /** Fortran wrapper for pwmin_sca3
    *
    * Compute the minimum of vector and scalar \f$ a = \min(b, c) \f$
    */
   void cuda_pwmin_sca3(void *a, void *b, real *c, int *n) {
-    
+
       const dim3 nthrds(1024, 1, 1);
       const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
       const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;

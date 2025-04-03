@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2023, The Neko Authors
+ Copyright (c) 2021-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,11 @@ extern "C" {
 
 #include <math/bcknd/device/device_mpi_reduce.h>
 #include <math/bcknd/device/device_mpi_op.h>
+
+#ifdef HAVE_RCCL
+#include <math/bcknd/device/device_nccl_reduce.h>
+#include <math/bcknd/device/device_nccl_op.h>
+#endif
   
   /** Fortran wrapper for copy
    * Copy a vector \f$ a = b \f$
@@ -77,6 +82,22 @@ extern "C" {
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_red_copy_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) a, (real *) b, (int *) mask, *n, *m);
+
+    HIP_CHECK(hipGetLastError());
+
+  } 
+
+  /** Fortran wrapper for masked atomic reduction
+   * update a vector \f$ a += b(mask) \f$ where mask is not unique
+   */
+  void hip_masked_atomic_reduction(void *a, void *b, void *mask, int *n, int *m) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_atomic_reduction_kernel<real>),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a, (real *) b, (int *) mask, *n, *m);
 
@@ -525,7 +546,13 @@ extern "C" {
                        1, 1024, 0, stream, bufred_d, nb);
     HIP_CHECK(hipGetLastError());
 
-#ifdef HAVE_DEVICE_MPI
+#ifdef HAVE_RCCL
+    device_nccl_allreduce(bufred_d, bufred_d, 1, sizeof(real),
+                          DEVICE_NCCL_SUM, stream);
+    HIP_CHECK(hipMemcpyAsync(bufred, bufred_d, sizeof(real),
+                             hipMemcpyDeviceToHost, stream));
+    HIP_CHECK(hipStreamSynchronize(stream));
+#elif HAVE_DEVICE_MPI
     HIP_CHECK(hipStreamSynchronize(stream));
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
@@ -573,7 +600,13 @@ extern "C" {
                        bufred_d, nb, *j);
     HIP_CHECK(hipGetLastError());
 
-#ifdef HAVE_DEVICE_MPI
+#ifdef HAVE_RCCL
+    device_nccl_allreduce(bufred_d, bufred_d, (*j), sizeof(real),
+                          DEVICE_NCCL_SUM, stream);
+    HIP_CHECK(hipMemcpyAsync(h, bufred_d, (*j)* sizeof(real),
+                             hipMemcpyDeviceToHost, stream));
+    HIP_CHECK(hipStreamSynchronize(stream));
+#elif HAVE_DEVICE_MPI
     HIP_CHECK(hipStreamSynchronize(stream));
     device_mpi_allreduce(bufred_d, h, (*j), sizeof(real), DEVICE_MPI_SUM);
 #else
@@ -645,7 +678,13 @@ extern "C" {
                        1, 1024, 0, stream, bufred_d, nb);
     HIP_CHECK(hipGetLastError());
 
-#ifdef HAVE_DEVICE_MPI
+#ifdef HAVE_RCCL
+    device_nccl_allreduce(bufred_d, bufred_d, 1, sizeof(real),
+                          DEVICE_NCCL_SUM, stream);
+    HIP_CHECK(hipMemcpyAsync(bufred, bufred_d,sizeof(real),
+                             hipMemcpyDeviceToHost, stream));
+    HIP_CHECK(hipStreamSynchronize(stream));
+#elif HAVE_DEVICE_MPI
     HIP_CHECK(hipStreamSynchronize(stream));
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else
@@ -684,7 +723,14 @@ extern "C" {
                        1, 1024, 0, stream, bufred_d, nb);
       HIP_CHECK(hipGetLastError());
     }
-#ifdef HAVE_DEVICE_MPI
+
+#ifdef HAVE_RCCL
+    device_nccl_allreduce(bufred_d, bufred_d, 1, sizeof(real),
+                          DEVICE_NCCL_SUM, stream);
+    HIP_CHECK(hipMemcpyAsync(bufred, bufred_d,sizeof(real),
+                             hipMemcpyDeviceToHost, stream));
+    HIP_CHECK(hipStreamSynchronize(stream));
+#elif HAVE_DEVICE_MPI
     HIP_CHECK(hipStreamSynchronize(stream));
     device_mpi_allreduce(bufred_d, bufred, 1, sizeof(real), DEVICE_MPI_SUM);
 #else

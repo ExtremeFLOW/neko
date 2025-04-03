@@ -37,7 +37,6 @@ module field_dirichlet
   use dirichlet, only: dirichlet_t
   use bc, only: bc_t
   use bc_list, only : bc_list_t
-  use device, only: c_ptr, c_size_t
   use utils, only: split_string
   use field, only : field_t
   use field_list, only : field_list_t
@@ -48,6 +47,7 @@ module field_dirichlet
   use json_module, only : json_file
   use field_list, only : field_list_t
   use json_utils, only : json_get
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t    
   implicit none
   private
 
@@ -145,7 +145,8 @@ contains
     call this%field_list%assign_to_field(1, this%field_bc)
   end subroutine field_dirichlet_init_from_components
 
-  !> Destructor. Currently this%field_bc is being freed in `fluid_scheme::free`
+  !> Destructor. Currently this%field_bc is being freed in
+  !! `fluid_scheme_incompressible::free`
   subroutine field_dirichlet_free(this)
     class(field_dirichlet_t), target, intent(inout) :: this
 
@@ -167,7 +168,7 @@ contains
   subroutine field_dirichlet_apply_scalar(this, x, n, t, tstep, strong)
     class(field_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
@@ -217,9 +218,9 @@ contains
   subroutine field_dirichlet_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(field_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
-    real(kind=rp), intent(inout),  dimension(n) :: y
-    real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong

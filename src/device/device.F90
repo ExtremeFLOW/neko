@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2023, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -38,14 +38,28 @@ module device
   use hip_intf
   use htable, only : htable_cptr_t, h_cptr_t
   use utils, only : neko_error
-  use dummy_device
   use opencl_prgm_lib
   use, intrinsic :: iso_c_binding
   implicit none
-!  private
+  private
 
   integer, public, parameter :: HOST_TO_DEVICE = 1, DEVICE_TO_HOST = 2, &
        DEVICE_TO_DEVICE = 3
+
+  !> Global command queue
+  type(c_ptr), public, bind(c) :: glb_cmd_queue = C_NULL_PTR
+
+  !> Aux command queue
+  type(c_ptr), public, bind(c) :: aux_cmd_queue = C_NULL_PTR
+
+  !> Event for the global command queue
+  type(c_ptr), public, bind(c) :: glb_cmd_event
+
+  !> High priority stream setting
+  integer, public :: STRM_HIGH_PRIO
+
+  !> Low priority stream setting
+  integer, public :: STRM_LOW_PRIO
 
   !> Copy data between host and device (or device and device)
   interface device_memcpy
@@ -97,7 +111,8 @@ module device
        device_profiler_start, device_profiler_stop, device_alloc, &
        device_init, device_name, device_event_create, device_event_destroy, &
        device_event_record, device_event_sync, device_finalize, &
-       device_stream_wait_event
+       device_stream_wait_event, device_count, &
+       device_stream_create_with_priority
 
   private :: device_memcpy_common
 
@@ -108,13 +123,13 @@ contains
     call device_addrtbl%init(64)
 
 #ifdef HAVE_HIP
-    call hip_init
+    call hip_init(glb_cmd_queue, aux_cmd_queue, STRM_HIGH_PRIO, STRM_LOW_PRIO)
 #elif HAVE_CUDA
-    call cuda_init
+    call cuda_init(glb_cmd_queue, aux_cmd_queue, STRM_HIGH_PRIO, STRM_LOW_PRIO)
 #elif HAVE_OPENCL
-    call opencl_init
+    call opencl_init(glb_cmd_queue, aux_cmd_queue)
 #endif
-
+    call device_event_create(glb_cmd_event, 2)
 #endif
   end subroutine device_init
 
@@ -123,14 +138,14 @@ contains
     call device_addrtbl%free()
 
 #ifdef HAVE_HIP
-    call hip_finalize
+    call hip_finalize(glb_cmd_queue, aux_cmd_queue)
 #elif HAVE_CUDA
-    call cuda_finalize
+    call cuda_finalize(glb_cmd_queue, aux_cmd_queue)
 #elif HAVE_OPENCL
     call opencl_prgm_lib_release
-    call opencl_finalize
+    call opencl_finalize(glb_cmd_queue, aux_cmd_queue)
 #endif
-
+    call device_event_destroy(glb_cmd_event)
 #endif
   end subroutine device_finalize
 
@@ -217,19 +232,19 @@ contains
     end if
 
     select type (x)
-      type is (integer)
+    type is (integer)
        s = n * 4
        ptr_h = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        s = n * 8
        ptr_h = c_loc(x)
-      type is (real)
+    type is (real)
        s = n * 4
        ptr_h = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        s = n * 8
        ptr_h = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -255,19 +270,19 @@ contains
     end if
 
     select type (x)
-      type is (integer)
+    type is (integer)
        s = n * 4
        ptr_h = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        s = n * 8
        ptr_h = c_loc(x)
-      type is (real)
+    type is (real)
        s = n * 4
        ptr_h = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        s = n * 8
        ptr_h = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -293,19 +308,19 @@ contains
     end if
 
     select type (x)
-      type is (integer)
+    type is (integer)
        s = n * 4
        ptr_h = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        s = n * 8
        ptr_h = c_loc(x)
-      type is (real)
+    type is (real)
        s = n * 4
        ptr_h = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        s = n * 8
        ptr_h = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -331,19 +346,19 @@ contains
     end if
 
     select type (x)
-      type is (integer)
+    type is (integer)
        s = n * 4
        ptr_h = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        s = n * 8
        ptr_h = c_loc(x)
-      type is (real)
+    type is (real)
        s = n * 4
        ptr_h = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        s = n * 8
        ptr_h = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -490,15 +505,15 @@ contains
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
 
     select type (x)
-      type is (integer)
+    type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
-      type is (real)
+    type is (real)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -515,15 +530,15 @@ contains
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
 
     select type (x)
-      type is (integer)
+    type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
-      type is (real)
+    type is (real)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -540,15 +555,15 @@ contains
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
 
     select type (x)
-      type is (integer)
+    type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
-      type is (real)
+    type is (real)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -565,15 +580,15 @@ contains
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
 
     select type (x)
-      type is (integer)
+    type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
-      type is (real)
+    type is (real)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -589,15 +604,15 @@ contains
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
 
     select type (x)
-      type is (integer)
+    type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
-      type is (real)
+    type is (real)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -613,15 +628,15 @@ contains
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
 
     select type (x)
-      type is (integer)
+    type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
-      type is (real)
+    type is (real)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -637,15 +652,15 @@ contains
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
 
     select type (x)
-      type is (integer)
+    type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
-      type is (real)
+    type is (real)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -661,15 +676,15 @@ contains
     type(h_cptr_t) :: htbl_ptr_h, htbl_ptr_d
 
     select type (x)
-      type is (integer)
+    type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
-      type is (real)
+    type is (real)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -691,15 +706,15 @@ contains
     end if
 
     select type (x)
-      type is (integer)
+    type is (integer)
        s = n * 4
-      type is (integer(i8))
+    type is (integer(i8))
        s = n * 8
-      type is (real)
+    type is (real)
        s = n * 4
-      type is (double precision)
+    type is (double precision)
        s = n * 8
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -720,15 +735,15 @@ contains
     end if
 
     select type (x)
-      type is (integer)
+    type is (integer)
        s = n * 4
-      type is (integer(i8))
+    type is (integer(i8))
        s = n * 8
-      type is (real)
+    type is (real)
        s = n * 4
-      type is (double precision)
+    type is (double precision)
        s = n * 8
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -749,15 +764,15 @@ contains
     end if
 
     select type (x)
-      type is (integer)
+    type is (integer)
        s = n * 4
-      type is (integer(i8))
+    type is (integer(i8))
        s = n * 8
-      type is (real)
+    type is (real)
        s = n * 4
-      type is (double precision)
+    type is (double precision)
        s = n * 8
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -778,15 +793,15 @@ contains
     end if
 
     select type (x)
-      type is (integer)
+    type is (integer)
        s = n * 4
-      type is (integer(i8))
+    type is (integer(i8))
        s = n * 8
-      type is (real)
+    type is (real)
        s = n * 4
-      type is (double precision)
+    type is (double precision)
        s = n * 8
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -802,15 +817,15 @@ contains
     logical :: assoc
 
     select type (x)
-      type is (integer)
+    type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
-      type is (real)
+    type is (real)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -829,15 +844,15 @@ contains
     logical :: assoc
 
     select type (x)
-      type is (integer)
+    type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
-      type is (real)
+    type is (real)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -856,15 +871,15 @@ contains
     logical :: assoc
 
     select type (x)
-      type is (integer)
+    type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
-      type is (real)
+    type is (real)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -883,15 +898,15 @@ contains
     logical :: assoc
 
     select type (x)
-      type is (integer)
+    type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
-      type is (real)
+    type is (real)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -912,15 +927,15 @@ contains
     device_get_ptr_r1 = C_NULL_PTR
 
     select type (x)
-      type is (integer)
+    type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
-      type is (real)
+    type is (real)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -940,15 +955,15 @@ contains
     device_get_ptr_r2 = C_NULL_PTR
 
     select type (x)
-      type is (integer)
+    type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
-      type is (real)
+    type is (real)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -968,15 +983,15 @@ contains
     device_get_ptr_r3 = C_NULL_PTR
 
     select type (x)
-      type is (integer)
+    type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
-      type is (real)
+    type is (real)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 
@@ -996,15 +1011,15 @@ contains
     device_get_ptr_r4 = C_NULL_PTR
 
     select type (x)
-      type is (integer)
+    type is (integer)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (integer(i8))
+    type is (integer(i8))
        htbl_ptr_h%ptr = c_loc(x)
-      type is (real)
+    type is (real)
        htbl_ptr_h%ptr = c_loc(x)
-      type is (double precision)
+    type is (double precision)
        htbl_ptr_h%ptr = c_loc(x)
-      class default
+    class default
        call neko_error('Unknown Fortran type')
     end select
 

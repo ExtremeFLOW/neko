@@ -83,7 +83,7 @@ module usr_inflow
      !! @param t Current time
      !! @param tstep Current time-step
      subroutine usr_inflow_eval(u, v, w, x, y, z, nx, ny, nz, &
-                                ix, iy, iz, ie, t, tstep)
+          ix, iy, iz, ie, t, tstep)
        import rp
        real(kind=rp), intent(inout) :: u
        real(kind=rp), intent(inout) :: v
@@ -141,7 +141,7 @@ contains
   subroutine usr_inflow_apply_scalar(this, x, n, t, tstep, strong)
     class(usr_inflow_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
@@ -160,9 +160,9 @@ contains
   subroutine usr_inflow_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(usr_inflow_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
-    real(kind=rp), intent(inout),  dimension(n) :: y
-    real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
@@ -197,34 +197,34 @@ contains
             select case (facet)
             case (1,2)
                call this%eval(x(k), y(k), z(k), &
-                  xc(idx(1), idx(2), idx(3), idx(4)), &
-                  yc(idx(1), idx(2), idx(3), idx(4)), &
-                  zc(idx(1), idx(2), idx(3), idx(4)), &
-                  nx(idx(2), idx(3), facet, idx(4)), &
-                  ny(idx(2), idx(3), facet, idx(4)), &
-                  nz(idx(2), idx(3), facet, idx(4)), &
-                  idx(1), idx(2), idx(3), idx(4), &
-                  t_, tstep_)
+                    xc(idx(1), idx(2), idx(3), idx(4)), &
+                    yc(idx(1), idx(2), idx(3), idx(4)), &
+                    zc(idx(1), idx(2), idx(3), idx(4)), &
+                    nx(idx(2), idx(3), facet, idx(4)), &
+                    ny(idx(2), idx(3), facet, idx(4)), &
+                    nz(idx(2), idx(3), facet, idx(4)), &
+                    idx(1), idx(2), idx(3), idx(4), &
+                    t_, tstep_)
             case (3,4)
                call this%eval(x(k), y(k), z(k), &
-                  xc(idx(1), idx(2), idx(3), idx(4)), &
-                  yc(idx(1), idx(2), idx(3), idx(4)), &
-                  zc(idx(1), idx(2), idx(3), idx(4)), &
-                  nx(idx(1), idx(3), facet, idx(4)), &
-                  ny(idx(1), idx(3), facet, idx(4)), &
-                  nz(idx(1), idx(3), facet, idx(4)), &
-                  idx(1), idx(2), idx(3), idx(4), &
-                  t_, tstep_)
+                    xc(idx(1), idx(2), idx(3), idx(4)), &
+                    yc(idx(1), idx(2), idx(3), idx(4)), &
+                    zc(idx(1), idx(2), idx(3), idx(4)), &
+                    nx(idx(1), idx(3), facet, idx(4)), &
+                    ny(idx(1), idx(3), facet, idx(4)), &
+                    nz(idx(1), idx(3), facet, idx(4)), &
+                    idx(1), idx(2), idx(3), idx(4), &
+                    t_, tstep_)
             case (5,6)
                call this%eval(x(k), y(k), z(k), &
-                  xc(idx(1), idx(2), idx(3), idx(4)), &
-                  yc(idx(1), idx(2), idx(3), idx(4)), &
-                  zc(idx(1), idx(2), idx(3), idx(4)), &
-                  nx(idx(1), idx(2), facet, idx(4)), &
-                  ny(idx(1), idx(2), facet, idx(4)), &
-                  nz(idx(1), idx(2), facet, idx(4)), &
-                  idx(1), idx(2), idx(3), idx(4), &
-                  t_, tstep_)
+                    xc(idx(1), idx(2), idx(3), idx(4)), &
+                    yc(idx(1), idx(2), idx(3), idx(4)), &
+                    zc(idx(1), idx(2), idx(3), idx(4)), &
+                    nx(idx(1), idx(2), facet, idx(4)), &
+                    ny(idx(1), idx(2), facet, idx(4)), &
+                    nz(idx(1), idx(2), facet, idx(4)), &
+                    idx(1), idx(2), idx(3), idx(4), &
+                    t_, tstep_)
             end select
          end do
       end if
@@ -273,7 +273,7 @@ contains
 
       ! Pretabulate values during first call to apply
       if (.not. c_associated(usr_x_d) .and. strong_ .and. &
-          (this%msk(0) .gt. 0)) then
+           (this%msk(0) .gt. 0)) then
          allocate(x(m), y(m), z(m)) ! Temp arrays
 
          s = m*rp
@@ -376,5 +376,6 @@ contains
     class(usr_inflow_t), target, intent(inout) :: this
 
     call this%finalize_base()
+    call this%validate()
   end subroutine usr_inflow_finalize
 end module usr_inflow

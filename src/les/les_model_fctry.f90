@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -35,15 +35,16 @@ submodule (les_model) les_model_fctry
   use smagorinsky, only : smagorinsky_t
   use dynamic_smagorinsky, only : dynamic_smagorinsky_t
   use sigma, only : sigma_t
-  use utils, only : concat_string_array, neko_error
+  use wale, only : wale_t
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: LES_KNOWN_TYPES(4) = [character(len=20) :: &
-     "vreman", &
-     "smagorinsky", &
-     "dymamic_smagorinsky", &
-     "sigma"]
+  character(len=20) :: LES_KNOWN_TYPES(5) = [character(len=20) :: &
+       "vreman", &
+       "smagorinsky", &
+       "dymamic_smagorinsky", &
+       "sigma", &
+       "wale"]
 
 contains
   !> LES model factory. Both constructs and initializes the object.
@@ -60,26 +61,23 @@ contains
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: type_string
 
-    if (allocated(object)) then
-       deallocate(object)
-    else if (trim(type_name) .eq. 'vreman') then
-       allocate(vreman_t::object)
-    else if (trim(type_name) .eq. 'smagorinsky') then
-       allocate(smagorinsky_t::object)
-    else if (trim(type_name) .eq. 'dynamic_smagorinsky') then
-       allocate(dynamic_smagorinsky_t::object)
-    else if (trim(type_name) .eq. 'sigma') then
-       allocate(sigma_t::object)
-    else
-       type_string =  concat_string_array(LES_KNOWN_TYPES, &
-            NEW_LINE('A') // "-  ", .true.)
-       call neko_error("Unknown LES model type: " &
-                       // trim(type_name) // ".  Known types are: " &
-                       // type_string)
-       stop
+    if (allocated(object)) deallocate(object)
 
-    end if
-    call object%init(dofmap, coef, json)
+    select case (trim(type_name))
+    case ('vreman')
+       allocate(vreman_t::object)
+    case ('smagorinsky')
+       allocate(smagorinsky_t::object)
+    case ('dynamic_smagorinsky')
+       allocate(dynamic_smagorinsky_t::object)
+    case ('sigma')
+       allocate(sigma_t::object)
+    case ('wale')
+       allocate(wale_t::object)
+    case default
+       call neko_type_error("LES model", type_name, LES_KNOWN_TYPES)
+    end select
+
   end subroutine les_model_factory
 
 end submodule les_model_fctry

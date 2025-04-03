@@ -37,7 +37,6 @@ module field_dirichlet_vector
   use dirichlet, only: dirichlet_t
   use bc, only: bc_t
   use bc_list, only : bc_list_t
-  use device, only: c_ptr, c_size_t
   use utils, only: split_string
   use field, only : field_t
   use field_list, only : field_list_t
@@ -48,6 +47,7 @@ module field_dirichlet_vector
   use utils, only: neko_error
   use json_module, only : json_file
   use field_list, only : field_list_t
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t    
   implicit none
   private
 
@@ -125,7 +125,7 @@ contains
   end subroutine field_dirichlet_vector_init_from_components
 
   !> Destructor. Currently unused as is, all field_dirichlet attributes
-  !! are freed in `fluid_scheme::free`.
+  !! are freed in `fluid_scheme_incompressible::free`.
   subroutine field_dirichlet_vector_free(this)
     class(field_dirichlet_vector_t), target, intent(inout) :: this
 
@@ -148,7 +148,7 @@ contains
   subroutine field_dirichlet_vector_apply_scalar(this, x, n, t, tstep, strong)
     class(field_dirichlet_vector_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
@@ -241,7 +241,7 @@ contains
        end if
     end if
 
-   end subroutine field_dirichlet_vector_apply_vector_dev
+  end subroutine field_dirichlet_vector_apply_vector_dev
 
   !> Finalize by building the mask arrays and propagating to underlying bcs.
   subroutine field_dirichlet_vector_finalize(this)

@@ -8,11 +8,14 @@ indentation level of 2, except for the extra indentation within `do` `if`,
 `type`, `interface`, where the indentation level is 3, continuation statements,
 which should be indented by 5 and a 0 indentation is
 used for `module` or `contains` (except for `contains` inside a derived type,
-where a single indentation level is used).
+where a single indentation level is used). It should be noted that no
+indentation should be applied to the `case` statements contained in a 
+`select case` block.
 
 These are the default rules in Emacs' Fortran mode, an example is given below,
 additional information on the Emacs' Fortran mode can be found at
-[https://emacsdocs.org](https://emacsdocs.org/docs/emacs/Fortran).
+[https://emacsdocs.org](https://emacsdocs.org/docs/emacs/Fortran) and the full
+formatting script for emacs can be found at the [Emacs' GitHub](https://github.com/emacs-mirror/emacs/blob/master/lisp/progmodes/f90.el).
 
 ~~~~~~~~~~~~~~~{.f90}
 module example
@@ -40,6 +43,13 @@ contains
        ... This statement is very long &
             continues on the next line
     end if
+    
+    select case (x)
+    case (1)
+       ...
+    case (2)
+       ...
+    end select
 
   end subroutine foo
 
@@ -110,6 +120,10 @@ following tools can be used:
 - [flint](https://github.com/marshallward/flint) to test the linting compliance.
 - [findent](https://github.com/wvermin/findent) to apply the formatting rules.
 
+We have scripts available under the `contrib/lint_format` directory that can be
+used to lint and format the code. The scripts are `lint.sh` and `format.sh`
+respectively.
+
 #### flint
 
 The linting rules are enforced by the
@@ -143,6 +157,6 @@ extension provides an integration.
 
 ```sh
 pip install findent
-findent -Rr -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k5 --ws_remred --indent_ampersand --openmp=0 < file.f90 > file.f90.tmp
+findent -Rr -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k- --ws_remred --indent_ampersand --openmp=0 < file.f90 > file.f90.tmp
 mv file.f90.tmp file.f90
 ```

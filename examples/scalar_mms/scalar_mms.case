@@ -34,6 +34,14 @@
         "absolute_tolerance": 1e-7,
         "max_iterations": 800
       },
+      "boundary_conditions": [
+          {
+              "type": "velocity_value",
+              "zone_indices": [1, 2],
+              "value": [1, 0, 0]
+          }
+
+      ],
       "output_control": "nsamples",
       "output_value": 1
     },
@@ -43,6 +51,13 @@
       "cp": 1,
       "initial_condition": {
         "type": "user"
+      },
+      "solver": {
+        "type": "cg",
+        "preconditioner": "jacobi",
+        "projection_space_size": 0,
+        "absolute_tolerance": 1e-7,
+        "max_iterations": 800
       },
       "source_terms": [
         {

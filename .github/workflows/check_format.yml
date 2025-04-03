@@ -14,7 +14,7 @@ on:
 jobs:
   check-formatting:
     name: Check formatting of changed files
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       # ---------------------------------------------------------------------- #
       # Checkout the repository and setup the environment
@@ -52,14 +52,12 @@ jobs:
       # ---------------------------------------------------------------------- #
 
       - name: Format sources
-        env:
-          FINDENT_FLAGS: "-Rr -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k5 --ws_remred --indent_ampersand --openmp=0"
         run: |
           for file in ${{ steps.get-changed-files.outputs.changed-files }}; do
             if [[ ${file: -4} != ".f90" && ${file: -4} != ".F90" ]]; then
               continue
             fi
-            findent < $file > $file.tmp
+            findent -Rr -i2 -d3 -f3 -s3 -c3 -w3 -t3 -j3 -k- --ws_remred --openmp=0 < $file > $file.tmp
             mv -f $file.tmp $file
           done
 
@@ -70,7 +68,7 @@ jobs:
             echo "" >&2
             echo "Please run the following commands to fix the formatting:" >&2
             echo "pip install findent" >&2
-            echo "findent -Rr -i2 -d3 -f3 -s3 -w3 -t3 -j3 -k5 --ws_remred --indent_ampersand --openmp=0 <file.f90 >file.f90.tmp" >&2
+            echo "findent -Rr -i2 -d3 -f3 -s3 -c3 -w3 -t3 -j3 -k- --ws_remred --openmp=0 <file.f90 >file.f90.tmp" >&2
             echo "mv file.f90.tmp file.f90" >&2
             git diff >&2
             exit 1
