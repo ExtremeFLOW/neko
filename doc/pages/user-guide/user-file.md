@@ -209,31 +209,20 @@ various material properties, such as `rho`, `mu` for the fluid and `cp`,
 example](https://github.com/ExtremeFLOW/neko/blob/564686b127ff75a362a06126c6b23e9b4e21879e/examples/rayleigh_benard_cylinder/rayleigh.f90#L22C1-L38C41).
 
 ```fortran
-
   subroutine set_material_properties(t, tstep, name, properties)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    character(len=*), intent(in) :: field_name
-    real(kind=rp), intent(inout) :: properties(:)
+    character(len=*), intent(in) :: name
+    type(field_list_t), intent(inout) :: properties
 
-    ! mu and Pr computed in `user_startup`
-
-    ! If we are called from the fluid
     if (name .eq. "fluid") then
-       ! density
-       properties(1) = 1.0_rp
-       ! viscosity
-       properties(2) = mu
-    ! If we are called from the scalar
+       call field_cfill(properties%get_by_name("rho"), 1.0_rp)
+       call field_cfill(properties%get_by_name("mu"), mu)
     else if (name .eq. "scalar") then
-       ! cp
-       properties(1) = 1.0_rp
-       ! lambda
-       properties(2) = mu / Pr
+       call field_cfill(properties%get_by_name("cp"), 1.0_rp)
+       call field_cfill(properties%get_by_name("lambda"), mu / Pr)
     end if
-
   end subroutine set_material_properties
-
 ```
 
 And of course not forgetting to register our function in `user_setup` by adding
@@ -281,10 +270,10 @@ The registering of the above function in `user_setup` should then be done as fol
 ### Scalar boundary conditions {#user-file_scalar-bc}
 
 This user function can be used to specify the scalar boundary values, on all
-boundaries of type `user_pointwise`. 
-See [relevant section of the case file](@ref case-file_scalar). The example 
-below sets the scalar boundary condition values to be a linear function of the 
-`z` coordinate (taken from the 
+boundaries of type `user_pointwise`.
+See [relevant section of the case file](@ref case-file_scalar). The example
+below sets the scalar boundary condition values to be a linear function of the
+`z` coordinate (taken from the
 [rayleigh_benard example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/rayleigh_benard_cylinder/rayleigh.f90#L41-L63)).
 
 ```fortran

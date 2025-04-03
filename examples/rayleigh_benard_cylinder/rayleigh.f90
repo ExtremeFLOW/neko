@@ -29,18 +29,21 @@ contains
     mu = 1.0_rp / Re
   end subroutine startup
 
+  ! Used here for demonstration purposes. Since the properties are
+  ! actually const, it is better to set them directly in the startup routine,
+  ! by adding the appropriate entries to the user file.
   subroutine set_material_properties(t, tstep, name, properties)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     character(len=*), intent(in) :: name
-    real(kind=rp), intent(inout) :: properties(:)
+    type(field_list_t), intent(inout) :: properties
 
     if (name .eq. "fluid") then
-       properties(1) = 1.0_rp
-       properties(2) = mu
+       call field_cfill(properties%get_by_name("rho"), 1.0_rp)
+       call field_cfill(properties%get_by_name("mu"), mu)
     else if (name .eq. "scalar") then
-       properties(1) = 1.0_rp
-       properties(2) = mu / Pr
+       call field_cfill(properties%get_by_name("cp"), 1.0_rp)
+       call field_cfill(properties%get_by_name("lambda"), mu / Pr)
     end if
   end subroutine set_material_properties
 

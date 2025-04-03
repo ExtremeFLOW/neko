@@ -541,8 +541,6 @@ contains
     call this%user_material_properties(t, tstep, this%name, &
          this%material_properties)
 
-
-
     ! factor = rho * cp / pr_turb
     if (this%variable_material_properties .and. &
          len(trim(this%nut_field_name)) > 0) then
