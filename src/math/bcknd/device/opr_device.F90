@@ -34,7 +34,7 @@
 module opr_device
   use gather_scatter, only : GS_OP_ADD
   use num_types, only : rp, c_rp
-  use device, only : device_get_ptr, device_stream_wait_event, glb_cmd_queue
+  use device, only : device_get_ptr, device_event_sync
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
@@ -653,9 +653,11 @@ contains
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%B_d, gdim, n)
     if (present(event)) then
        call c_Xh%gs_h%op(w1, GS_OP_ADD, event)
+       call device_event_sync(event)
        call c_Xh%gs_h%op(w2, GS_OP_ADD, event)
+       call device_event_sync(event)
        call c_Xh%gs_h%op(w3, GS_OP_ADD, event)
-       call device_stream_wait_event(glb_cmd_queue, event, 0)
+       call device_event_sync(event)
     else
        call c_Xh%gs_h%op(w1, GS_OP_ADD)
        call c_Xh%gs_h%op(w2, GS_OP_ADD)

@@ -78,8 +78,7 @@ module fluid_scheme_incompressible
   use field_math, only : field_cfill, field_add2s2
   use shear_stress, only : shear_stress_t
   use gradient_jump_penalty, only : gradient_jump_penalty_t
-  use device, only : device_event_sync, device_stream_wait_event, &
-       glb_cmd_queue, glb_cmd_event
+  use device, only : device_event_sync, glb_cmd_event
   implicit none
   private
 
@@ -198,12 +197,17 @@ contains
     ! Local scratch registry
     this%scratch = scratch_registry_t(this%dm_Xh, 10, 2)
 
+    ! Assign a name
+    call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
+
     !
     ! First section of fluid log
     !
 
     call neko_log%section('Fluid')
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Name       : ', trim(this%name)
     call neko_log%message(log_buf)
 
     !
@@ -498,11 +502,6 @@ contains
        call neko_error('No Krylov solver for pressure defined')
     end if
 
-    !
-    ! Setup checkpoint structure (if everything is fine)
-    !
-    call this%chkp%init(this%u, this%v, this%w, this%p)
-
   end subroutine fluid_scheme_validate
 
   !> Apply all boundary conditions defined for velocity
@@ -518,20 +517,21 @@ contains
     call this%bcs_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep, strong)
     call this%gs_Xh%op(this%u, GS_OP_MIN, glb_cmd_event)
+    call device_event_sync(glb_cmd_event)
     call this%gs_Xh%op(this%v, GS_OP_MIN, glb_cmd_event)
+    call device_event_sync(glb_cmd_event)
     call this%gs_Xh%op(this%w, GS_OP_MIN, glb_cmd_event)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
-    end if
+    call device_event_sync(glb_cmd_event)
+
 
     call this%bcs_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep, strong)
     call this%gs_Xh%op(this%u, GS_OP_MAX, glb_cmd_event)
+    call device_event_sync(glb_cmd_event)
     call this%gs_Xh%op(this%v, GS_OP_MAX, glb_cmd_event)
+    call device_event_sync(glb_cmd_event)
     call this%gs_Xh%op(this%w, GS_OP_MAX, glb_cmd_event)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
-    end if
+    call device_event_sync(glb_cmd_event)
 
   end subroutine fluid_scheme_bc_apply_vel
 
@@ -544,15 +544,11 @@ contains
 
     call this%bcs_prs%apply(this%p, t, tstep)
     call this%gs_Xh%op(this%p,GS_OP_MIN, glb_cmd_event)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
-    end if
+    call device_event_sync(glb_cmd_event)
 
     call this%bcs_prs%apply(this%p, t, tstep)
     call this%gs_Xh%op(this%p,GS_OP_MAX, glb_cmd_event)
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
-    end if
+    call device_event_sync(glb_cmd_event)
 
 
   end subroutine fluid_scheme_bc_apply_prs

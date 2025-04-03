@@ -271,11 +271,11 @@ The registering of the above function in `user_setup` should then be done as fol
 ### Scalar boundary conditions {#user-file_scalar-bc}
 
 This user function can be used to specify the scalar boundary values, on all
-boundaries of type `user_pointwise`. See [relevant section of the case
-file](@ref case-file_scalar). The example below sets the scalar boundary
-condition values to be a linear function of the `z` coordinate (taken from the
-[rayleigh_benard
-example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/rayleigh_benard_cylinder/rayleigh.f90#L41-L63)).
+boundaries of type `user_pointwise`. 
+See [relevant section of the case file](@ref case-file_scalar). The example 
+below sets the scalar boundary condition values to be a linear function of the 
+`z` coordinate (taken from the 
+[rayleigh_benard example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/rayleigh_benard_cylinder/rayleigh.f90#L41-L63)).
 
 ```fortran
 
