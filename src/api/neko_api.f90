@@ -165,7 +165,7 @@ contains
     real(kind=rp) :: cfl, t
     integer :: i
 
-    t = real(time, rp)
+    C%time%t = real(time, rp)
 
     cptr = transfer(case_iptr, c_null_ptr)
     if (c_associated(cptr)) then
@@ -183,38 +183,38 @@ contains
 
     call neko_log%begin()
 
-    cfl = C%fluid%compute_cfl(C%dt)
-    call dt_controller%set_dt(C%dt, cfl, cfl_avrg, tstep)
+    cfl = C%fluid%compute_cfl(C%time%dt)
+    call dt_controller%set_dt(C%time%dt, cfl, cfl_avrg, tstep)
 
     do i = 10, 2, -1
-       C%tlag(i) = C%tlag(i-1)
-       C%dtlag(i) = C%dtlag(i-1)
+       C%time%tlag(i) = C%time%tlag(i-1)
+       C%time%dtlag(i) = C%time%dtlag(i-1)
     end do
 
-    C%dtlag(i) = C%dt
-    C%tlag(1) = t
-    if (C%ext_bdf%ndiff .eq. 0 ) then
-       C%dtlag(2) = C%dt
-       C%tlag(2) = t
+    C%time%dtlag(i) = C%time%dt
+    C%time%tlag(1) = C%time%t
+    if (C%fluid%ext_bdf%ndiff .eq. 0 ) then
+       C%time%dtlag(2) = C%time%dt
+       C%time%tlag(2) = C%time%t
     end if
 
-    t = t + C%dt
+    C%time%t = C%time%t + C%time%dt
 
-    call C%ext_bdf%set_coeffs(C%dtlag)
+    call C%fluid%ext_bdf%set_coeffs(C%time%dtlag)
 
     ! Run the preprocessing
     call neko_log%section('Preprocessing')
-    call neko_simcomps%preprocess(t, tstep)
+    call neko_simcomps%preprocess(C%time)
     call neko_log%end_section()
 
     call neko_log%section('Fluid')
-    call C%fluid%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
+    call C%fluid%step(t, tstep, C%time%dt, C%fluid%ext_bdf, dt_controller)
     call neko_log%end_section()
 
     ! Scalar step
     if (allocated(C%scalar)) then
        call neko_log%section('Scalar')
-       call C%scalar%step(t, tstep, C%dt, C%ext_bdf, dt_controller)
+       call C%scalar%step(t, tstep, C%time%dt, C%fluid%ext_bdf, dt_controller)
        call neko_log%end_section()
 
        !> @todo Temporary fix until we have reworked the material properties
@@ -224,7 +224,7 @@ contains
 
     call neko_log%section('Postprocessing')
     ! Execute all simulation components
-    call neko_simcomps%compute(t, tstep)
+    call neko_simcomps%compute(C%time)
     call neko_log%end_section()
 
 
@@ -264,7 +264,7 @@ contains
     logical :: f_force_output
     type(case_t), pointer :: C
     type(c_ptr) :: cp
-    real(kind=rp) :: f_t
+    type(time_state_t) :: f_time
 
     cp = transfer(case_iptr, c_null_ptr)
     if (c_associated(cp)) then
@@ -274,9 +274,9 @@ contains
     end if
 
     f_force_output = transfer(force_output, f_force_output)
-    f_t = real(t, rp)
+    f_time%t = real(t, rp)
 
-    call C%output_controller%execute(f_t, tstep, f_force_output)
+    call C%output_controller%execute(f_time, f_force_output)
 
   end subroutine neko_api_output_ctrl_execute
 
