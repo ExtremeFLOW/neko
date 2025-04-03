@@ -37,6 +37,7 @@ module fluid_stats_simcomp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
+  use time_state, only : time_state_t
   use field, only : field_t
   use fluid_stats, only: fluid_stats_t
   use fluid_stats_output, only : fluid_stats_output_t
@@ -142,7 +143,7 @@ contains
     character(len=*), intent(in) :: hom_dir
     character(len=*), intent(in) :: stat_set
     real(kind=rp), intent(in) :: start_time
-    type(field_t), intent(inout) :: u, v, w, p !>Should really be intent in I think
+    type(field_t), intent(in) :: u, v, w, p
     type(coef_t), intent(in) :: coef
     character(len=*), intent(in), optional :: fname
     character(len=NEKO_FNAME_LEN) :: stats_fname
@@ -189,12 +190,14 @@ contains
     call this%stats%free()
   end subroutine fluid_stats_simcomp_free
 
-  subroutine fluid_stats_simcomp_restart(this, t)
+  subroutine fluid_stats_simcomp_restart(this, time)
     class(fluid_stats_simcomp_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    type(time_state_t), intent(in) :: time
     character(len=NEKO_FNAME_LEN) :: fname
     character(len=5) :: prefix,suffix
     integer :: last_slash_pos
+    real(kind=rp) :: t
+    t = time%t
     if (t .gt. this%time) this%time = t
     if (this%default_fname) then
        write (prefix, '(I5)') this%stats_output%file_%get_counter()
@@ -216,17 +219,18 @@ contains
   !> fluid_stats, called depending on compute_control and compute_value
   !! @param t The time value.
   !! @param tstep The current time-step
-  subroutine fluid_stats_simcomp_compute(this, t, tstep)
+  subroutine fluid_stats_simcomp_compute(this, time)
     class(fluid_stats_simcomp_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    real(kind=rp) :: delta_t
+    type(time_state_t), intent(in) :: time
+    real(kind=rp) :: delta_t, t
     real(kind=rp) :: sample_start_time, sample_time
     character(len=LOG_SIZE) :: log_buf
     integer :: ierr
 
+    t = time%t
+
     if (t .ge. this%start_time) then
-       delta_t = t - this%time
+       delta_t = t - this%time !This is only a real number
 
        call MPI_Barrier(NEKO_COMM, ierr)
 

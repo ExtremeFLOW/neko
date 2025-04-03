@@ -40,6 +40,7 @@ module lambda2
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use field, only : field_t
+  use time_state, only : time_state_t
   use operators, only : lambda2op
   use case, only : case_t
   use field_writer, only : field_writer_t
@@ -123,10 +124,9 @@ contains
   !> Compute the lambda2 field.
   !! @param t The time value.
   !! @param tstep The current time-step
-  subroutine lambda2_compute(this, t, tstep)
+  subroutine lambda2_compute(this, time)
     class(lambda2_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
 
     call lambda2op(this%lambda2, this%u, this%v, this%w, this%case%fluid%c_Xh)
 

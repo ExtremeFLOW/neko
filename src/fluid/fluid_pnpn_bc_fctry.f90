@@ -49,19 +49,19 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
 
   ! List of all possible types created by the boundary condition factories
   character(len=25) :: FLUID_PNPN_KNOWN_BCS(13) = [character(len=25) :: &
-     "symmetry", &
-     "velocity_value", &
-     "no_slip", &
-     "outflow", &
-     "normal_outflow", &
-     "outflow+dong", &
-     "normal_outflow+dong", &
-     "shear_stress", &
-     "user_velocity", &
-     "user_pressure", &
-     "blasius_profile", &
-     "user_velocity_pointwise", &
-     "wall_model"]
+       "symmetry", &
+       "velocity_value", &
+       "no_slip", &
+       "outflow", &
+       "normal_outflow", &
+       "outflow+dong", &
+       "normal_outflow+dong", &
+       "shear_stress", &
+       "user_velocity", &
+       "user_pressure", &
+       "blasius_profile", &
+       "user_velocity_pointwise", &
+       "wall_model"]
 
 contains
 
@@ -84,21 +84,21 @@ contains
     call json_get(json, "type", type)
 
     select case (trim(type))
-      case ("outflow", "normal_outflow")
+    case ("outflow", "normal_outflow")
        allocate(zero_dirichlet_t::object)
 
-      case ("outflow+dong", "normal_outflow+dong")
+    case ("outflow+dong", "normal_outflow+dong")
        allocate(dong_outflow_t::object)
 
-      case ("user_pressure")
+    case ("user_pressure")
        allocate(field_dirichlet_t::object)
        select type (obj => object)
-         type is (field_dirichlet_t)
+       type is (field_dirichlet_t)
           obj%update => user%user_dirichlet_update
           call json%add("field_name", scheme%p%name)
        end select
 
-      case default
+    case default
        do i = 1, size(FLUID_PNPN_KNOWN_BCS)
           if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
        end do
@@ -120,7 +120,7 @@ contains
        do j = 1, scheme%msh%nelv
           do k = 1, 2 * scheme%msh%gdim
              if (scheme%msh%facet_type(k,j) .eq. -zone_indices(i)) then
-                 scheme%msh%facet_type(k, j) = 1
+                scheme%msh%facet_type(k, j) = 1
              end if
           end do
        end do
@@ -146,41 +146,40 @@ contains
     call json_get(json, "type", type)
 
     select case (trim(type))
-      case ("symmetry")
+    case ("symmetry")
        allocate(symmetry_t::object)
-      case ("velocity_value")
+    case ("velocity_value")
        allocate(inflow_t::object)
-      case ("no_slip")
+    case ("no_slip")
        allocate(zero_dirichlet_t::object)
-      case ("normal_outflow", "normal_outflow+dong")
+    case ("normal_outflow", "normal_outflow+dong")
        allocate(non_normal_t::object)
-      case ("blasius_profile")
+    case ("blasius_profile")
        allocate(blasius_t::object)
-      case ("shear_stress")
+    case ("shear_stress")
        allocate(shear_stress_t::object)
-      case ("wall_model")
+    case ("wall_model")
        allocate(wall_model_bc_t::object)
        ! Kind of hack, but maybe OK? The thing is, we need the nu for
        ! initing the wall model, and forcing the user duplicate that there
        ! would be a nightmare.
        call json%add("nu", scheme%mu / scheme%rho)
 
-      case ("user_velocity")
+    case ("user_velocity")
        allocate(field_dirichlet_vector_t::object)
        select type (obj => object)
-         type is (field_dirichlet_vector_t)
+       type is (field_dirichlet_vector_t)
           obj%update => user%user_dirichlet_update
        end select
 
-      case ("user_velocity_pointwise")
+    case ("user_velocity_pointwise")
        allocate(usr_inflow_t::object)
        select type (obj => object)
-         type is (usr_inflow_t)
+       type is (usr_inflow_t)
           call obj%set_eval(user%fluid_user_if)
-          call obj%validate()
        end select
 
-      case default
+    case default
        do i = 1, size(FLUID_PNPN_KNOWN_BCS)
           if (trim(type) .eq. trim(FLUID_PNPN_KNOWN_BCS(i))) return
        end do
@@ -199,13 +198,13 @@ contains
     if (trim(type) .ne. "normal_outflow" .and. &
          trim(type) .ne. "normal_outflow+dong") then
        do i = 1, size(zone_indices)
-           do j = 1, scheme%msh%nelv
-              do k = 1, 2 * scheme%msh%gdim
-                 if (scheme%msh%facet_type(k,j) .eq. -zone_indices(i)) then
-                    scheme%msh%facet_type(k, j) = 2
-                 end if
-              end do
-           end do
+          do j = 1, scheme%msh%nelv
+             do k = 1, 2 * scheme%msh%gdim
+                if (scheme%msh%facet_type(k,j) .eq. -zone_indices(i)) then
+                   scheme%msh%facet_type(k, j) = 2
+                end if
+             end do
+          end do
        end do
     end if
   end subroutine velocity_bc_factory

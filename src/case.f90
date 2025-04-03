@@ -56,6 +56,7 @@ module case
   use user_intf, only : user_t
   use scalar_pnpn, only : scalar_pnpn_t
   use scalar_scheme, only : scalar_scheme_t
+  use time_state, only : time_state_t
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, json_extract_object, json_extract_item
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
@@ -63,23 +64,13 @@ module case
   use scalars, only : scalars_t
   implicit none
   private
-
-  ! Contains all info about the time for this case
-  type, public :: time_struct_t
-     real(kind=rp), dimension(10) :: tlag
-     real(kind=rp), dimension(10) :: dtlag
-     real(kind=rp) :: dt
-     real(kind=rp) :: t
-     real(kind=rp) :: end_time
-  end type time_struct_t
-
   type, public :: case_t
      type(mesh_t) :: msh
      type(json_file) :: params
      character(len=:), allocatable :: output_directory
      type(output_controller_t) :: output_controller
      type(fluid_output_t) :: f_out
-     type(time_struct_t) :: time
+     type(time_state_t) :: time
      type(chkp_output_t) :: chkp_out
      type(chkp_t) :: chkp
      type(user_t) :: usr
