@@ -293,7 +293,7 @@ contains
             this%n2%x, &
             this%n3%x, &
        ! Horrible mu hack
-            this%case%fluid%mu_field%x(1,1,1,1), &
+            this%case%fluid%mu%x(1,1,1,1), &
             n_pts)
        dgtq(1) = glsum(this%force1%x, n_pts)
        dgtq(2) = glsum(this%force2%x, n_pts)
@@ -354,7 +354,7 @@ contains
                this%n2%x_d, &
                this%n3%x_d, &
           ! Horrible mu hack
-               this%case%fluid%mu_field%x(1,1,1,1), &
+               this%case%fluid%mu%x(1,1,1,1), &
                n_pts)
           !Overwriting masked s11, s22, s33 as they are no longer needed
           call device_vcross(this%s11msk%x_d, this%s22msk%x_d, &

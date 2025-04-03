@@ -527,7 +527,10 @@ contains
 
   end subroutine scalar_scheme_precon_factory
 
-  !> Update the values of `lambda_field` if necessary.
+  !> Call user material properties routine and update the values of `lambda`
+  !! if necessary.
+  !! @param t Time value.
+  !! @param tstep Current time step.
   subroutine scalar_scheme_update_material_properties(t, tstep, this)
     class(scalar_scheme_t), intent(inout) :: this
     real(kind=rp),intent(in) :: t
@@ -536,7 +539,6 @@ contains
     integer :: index
     ! Factor to transform nu_t to lambda_t
     type(field_t), pointer :: lambda_factor
-
 
     call this%user_material_properties(t, tstep, this%name, &
          this%material_properties)

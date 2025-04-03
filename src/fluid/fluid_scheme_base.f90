@@ -100,10 +100,10 @@ module fluid_scheme_base
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
 
      !> Density field
-     type(field_t) :: rho_field
+     type(field_t) :: rho
 
      !> The dynamic viscosity
-     type(field_t) :: mu_field
+     type(field_t) :: mu
 
      !> A helper that packs material properties to pass to the user routine.
      type(field_list_t) :: material_properties

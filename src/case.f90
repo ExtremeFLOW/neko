@@ -251,7 +251,7 @@ contains
        call this%scalar%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
             scalar_params, numerics_params, this%usr, this%chkp, this%fluid%ulag, &
             this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
-            this%fluid%rho_field)
+            this%fluid%rho)
 
     end if
 
@@ -272,7 +272,7 @@ contains
     else
        call json_get(this%params, 'case.fluid.scheme', string_val)
        if (trim(string_val) .eq. 'compressible') then
-          call set_flow_ic(this%fluid%rho_field, &
+          call set_flow_ic(this%fluid%rho, &
                this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p, &
                this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_compressible_user_ic, &
                this%params)

@@ -465,8 +465,8 @@ contains
     nullify(this%f_y)
     nullify(this%f_z)
 
-    call this%rho_field%free()
-    call this%mu_field%free()
+    call this%rho%free()
+    call this%mu%free()
 
     ! Free gradient jump penalty
     if (this%if_gradient_jump_penalty .eqv. .true.) then
@@ -625,7 +625,10 @@ contains
   end function fluid_compute_cfl
 
 
-  !> Update the values of `mu_field` if necessary.
+  !> Call user material properties routine and update the values of `mu`
+  !! if necessary.
+  !! @param t Time value.
+  !! @param tstep Current time step.
   subroutine fluid_scheme_update_material_properties(this, t, tstep)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
     real(kind=rp),intent(in) :: t
@@ -638,7 +641,7 @@ contains
     if (this%variable_material_properties .and. &
          len(trim(this%nut_field_name)) > 0) then
        nut => neko_field_registry%get_field(this%nut_field_name)
-       call field_addcol3(this%mu_field, nut, this%rho_field)
+       call field_addcol3(this%mu, nut, this%rho)
     end if
   end subroutine fluid_scheme_update_material_properties
 
@@ -659,11 +662,11 @@ contains
 
     dummy_mp_ptr => dummy_user_material_properties
 
-    call this%mu_field%init(this%dm_Xh, "mu")
-    call this%rho_field%init(this%dm_Xh, "rho")
+    call this%mu%init(this%dm_Xh, "mu")
+    call this%rho%init(this%dm_Xh, "rho")
     call this%material_properties%init(2)
-    call this%material_properties%assign_to_field(1, this%rho_field)
-    call this%material_properties%assign_to_field(2, this%mu_field)
+    call this%material_properties%assign_to_field(1, this%rho)
+    call this%material_properties%assign_to_field(2, this%mu)
 
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
 
@@ -715,15 +718,15 @@ contains
     ! if the user routine is not used.
     if (associated(user%material_properties, dummy_mp_ptr)) then
        ! Fill mu and rho field with the physical value
-       call field_cfill(this%mu_field, const_mu, this%mu_field%size())
-       call field_cfill(this%rho_field, const_rho, this%mu_field%size())
+       call field_cfill(this%mu, const_mu)
+       call field_cfill(this%rho, const_rho)
 
        ! Since mu, rho is a field, and the none-stress simulation fetches
        ! data from the host arrays, we need to mirror the constant
        ! material properties on the host
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call cfill(this%mu_field%x, const_mu, this%mu_field%size())
-          call cfill(this%rho_field%x, const_rho, this%rho_field%size())
+          call cfill(this%mu%x, const_mu, this%mu%size())
+          call cfill(this%rho%x, const_rho, this%rho%size())
        end if
 
        write(log_buf, '(A,ES13.6)') 'rho        :', const_rho
