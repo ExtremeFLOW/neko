@@ -21,11 +21,10 @@ echo "Building user NEKO ..."
 # Collect user-provided .f90 files (excluding usr_driver.f90)
 USER_FILES=""
 for file in "$@"; do
-    if [ "$file" != "usr_driver.f90" ]; then
-        case "$file" in
-            *.f90) USER_FILES="$USER_FILES $file" ;;
-        esac
-    fi
+    case "$file" in
+        usr_driver.f90) continue ;;
+        *.f90) USER_FILES="$USER_FILES $file" ;;
+    esac
 done
 
 # Extract module names from user-provided .f90 files
