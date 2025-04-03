@@ -33,10 +33,14 @@ USER_MODULES=$(@GREP@ -hE '^[[:space:]]*module[[:space:]]+[a-zA-Z_][a-zA-Z0-9_]*
                @GREP@ -vE 'module procedure|module[[:space:]]+user' | \
                @AWK@  '{print $2}' | sort -u)
 
-echo "Detected the following user modules:"
-for mod in $USER_MODULES; do
-  echo "    -" $mod
-done
+if [ -n "$USER_MODULES" ]; then
+  echo "Detected the following user modules:"
+  for mod in $USER_MODULES; do
+    echo "    -" $mod
+  done
+else
+  echo "No user modules detected."
+fi
 
 # Create usr_driver.f90
 cat > usr_driver.f90 << _ACEOF
