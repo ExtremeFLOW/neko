@@ -1,10 +1,19 @@
+// Case file for the lid-driven cavity
+// Here, a 2D mesh is loaded, which is then extended to a 3D
+// mesh with width one element.
 {
   "version": 1.0,
   "case":
   {
   "mesh_file": "lid2d.nmsh",
-  "end_time": 50,
-  "timestep": 1e-3,
+  "end_time": 300,
+  "output_at_end": false,
+  "output_checkpoints": false,
+  "variable_timestep": true,
+  "max_timestep": 0.25e-2,
+  // some options for timestepping to play around
+  //"target_cfl": 0.2,
+  //"timestep": 1e-3,
   "numerics": {
     "time_order": 3,
     "polynomial_order": 7,
@@ -12,10 +21,12 @@
   },
   "fluid": {
     "scheme": "pnpn",
-    "Re": 5000,
+    "Re": 3000,
     "inflow_condition": {
       "type": "user"
     },
+    // frequency of postprocessing (energy and enstrophy)
+    "ipostproc": 50,
     "initial_condition": {
       "type": "user"
     },
@@ -23,36 +34,28 @@
       "type": "cg",
       "preconditioner": "jacobi",
       "absolute_tolerance": 1e-7,
-      "max_iterations": 200
+      "max_iterations": 200,
+      "projection_space_size": 8,
     },
     "pressure_solver": {
       "type": "gmres",
       "preconditioner": "hsmg",
       "projection_space_size": 8,
       "absolute_tolerance": 1e-7,
-      "max_iterations": 200,
-    },
-    "boundary_conditions": [
-        {
-            "type": "no_slip",
-            "zone_indices": [1]
-        },
-        {
-            "type": "user_velocity_pointwise",
-            "zone_indices": [2]
-        }
-    ],
+      "max_iterations": 200
     },
     "output_control": "simulationtime",
-    "output_value": 5
+    "output_value": 5.,
+    "boundary_conditions": [
+      {
+        "type": "no_slip",
+        "zone_indices": [1]
+      },
+      {
+        "type": "user_velocity_pointwise",
+        "zone_indices": [2]
+      }
+    ]
   },
-  "simulation_components":
-  [
-    {
-      "type": "vorticity",
-      "compute_control": "tsteps",
-      "compute_value": 50
-    }
-  ]
   }
 }

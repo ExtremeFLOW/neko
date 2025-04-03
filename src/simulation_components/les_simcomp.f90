@@ -38,6 +38,7 @@ module les_simcomp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use case, only : case_t
+  use time_state, only : time_state_t
   use les_model, only : les_model_t, les_model_factory
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
@@ -113,24 +114,21 @@ contains
   end subroutine les_simcomp_free
 
   !> Compute the les_simcomp field.
-  !! @param t The time value.
-  !! @param tstep The current time-step.
-  subroutine les_simcomp_compute(this, t, tstep)
+  !! @param time The current time info
+  subroutine les_simcomp_compute(this, time)
     class(les_simcomp_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
 
-    call this%les_model%compute(t, tstep)
+    call this%les_model%compute(time%t, time%tstep)
   end subroutine les_simcomp_compute
 
   !> Compute the les_simcomp field when restart.
-  !! @param t The time value.
-  !! @param tstep The current time-step.
-  subroutine les_simcomp_restart(this, t)
+  !! @param time The current time info
+  subroutine les_simcomp_restart(this, time)
     class(les_simcomp_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    type(time_state_t), intent(in) :: time
 
-    call this%les_model%compute(t, 0)
+    call this%les_model%compute(time%t, 0)
   end subroutine les_simcomp_restart
 
 end module les_simcomp

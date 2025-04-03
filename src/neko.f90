@@ -58,6 +58,7 @@ module neko
   use global_interpolation
   use file
   use field, only : field_t, field_ptr_t
+  use field_math
   use neko_mpi_types
   use gather_scatter
   use krylov
@@ -79,6 +80,7 @@ module neko
   use projection
   use user_intf
   use signal
+  use time_state
   use jobctrl, only : jobctrl_init, jobctrl_set_time_limit, &
        jobctrl_time_limit, jobctrl_jobtime
   use device

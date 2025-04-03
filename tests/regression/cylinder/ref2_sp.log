@@ -5,11 +5,11 @@
  /_/|_/ /___/ /_/|_|  \____/  
 
  (version: 0.9.99)
- (build: 2025-03-19 on aarch64-apple-darwin24.0.0 using gnu)
+ (build: 2025-03-26 on aarch64-apple-darwin24.0.0 using gnu)
 
 
  -------Job Information--------
- Start time: 10:03 / 2025-03-19
+ Start time: 10:46 / 2025-03-26
  Running on: 1 MPI rank
  CPU type  : Apple M3
  Bcknd type: CPU
@@ -26,7 +26,7 @@
    Reading deformation data
    Mesh read, setting up connectivity
    Done setting up mesh and connectivity
-   Mesh and connectivity setup (excluding read) time (s):  0.001149
+   Mesh and connectivity setup (excluding read) time (s):  0.001166
 
    --------Gather-Scatter--------
    Comm         :          MPI
@@ -36,6 +36,7 @@
 
    ------------Fluid-------------
    Type       : Modular (Pn/Pn)
+   Name       : fluid
    Read non-dimensional material properties
    Re         : 2.000000E+02
    Poly order : 5
@@ -107,19 +108,63 @@
    Scale:   0.1000000E+01
 
  -----Starting simulation------
- T  : [  0.0000000E+00,  0.1000000E+00)
+ T  : [  0.0000000E+00,  0.1000000E+00]
  dt :    0.1000000E-01
 
    --Restarting from checkpoint--
    File :   fluid00001.chkp
-   Time :   0.5999999E-01
+   Time :   0.5000000E-01
 
    --------Postprocessing--------
 
+      --------Writer output---------
+      File name     : field.fld
+      Output number :     1
+      File name     : fluid.chkp
+      Output number :     1
+      Writing at time:     0.050000 Output time (s):  0.002378
+
+ ----------------------------------------------------------------
+ t =   0.5999999E-01                                  [  60.00% ]
+ ----------------------------------------------------------------
+ Time-step:      1
+  CFL:  0.4588816E+00 dt:  0.1000000E-01
+
+    --------Preprocessing---------
+
+    ------------Fluid-------------
+    Pressure
+    Iterations:   Start residual:     Final residual:
+              8     0.3043062E-01       0.9227114E-03
+    X-Velocity
+    Iterations:   Start residual:     Final residual:
+              3     0.1092364E-01       0.8280525E-07
+    Y-Velocity
+    Iterations:   Start residual:     Final residual:
+              3     0.6731153E-02       0.8003187E-07
+    Z-Velocity
+    Iterations:   Start residual:     Final residual:
+              2     0.3991828E-04       0.1190494E-07
+    Fluid step time (s):     0.3965800E-01
+    Total elapsed time (s):  0.3965800E-01
+
+    --------Postprocessing--------
+    Force and torque on zone    7  Cylinder
+    Time step, time, total force/torque, pressure, viscous, direction
+          1  0.60000E-01  0.52708E-01 -0.67483E+00  0.72754E+00, forcex
+          1  0.60000E-01 -0.36377E-02 -0.36407E-02  0.30194E-05, forcey
+          1  0.60000E-01  0.15656E-07  0.15882E-07 -0.22646E-09, forcez
+          1  0.60000E-01  0.10920E-01  0.10929E-01 -0.90849E-05, torquex
+          1  0.60000E-01  0.15813E+00 -0.20245E+01  0.21826E+01, torquey
+          1  0.60000E-01  0.83266E-07  0.50637E-08  0.78202E-07, torquez
+
+    ---------Step summary---------
+    Total time for step        1 (s):   0.4067600E-01
+    Total elapsed time (s):             0.4067600E-01
  ----------------------------------------------------------------
  t =   0.6999999E-01                                  [  70.00% ]
  ----------------------------------------------------------------
- Time-step:      1
+ Time-step:      2
   CFL:  0.4580114E+00 dt:  0.1000000E-01
 
     --------Preprocessing---------
@@ -137,26 +182,26 @@
     Z-Velocity
     Iterations:   Start residual:     Final residual:
               2     0.3667934E-04       0.1866055E-07
-    Fluid step time (s):     0.4264600E-01
-    Total elapsed time (s):  0.4264600E-01
+    Fluid step time (s):     0.4169200E-01
+    Total elapsed time (s):  0.8237600E-01
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
     Time step, time, total force/torque, pressure, viscous, direction
-          1  0.70000E-01  0.52984E+01  0.45737E+01  0.72475E+00, forcex
-          1  0.70000E-01 -0.55731E-02 -0.55862E-02  0.13107E-04, forcey
-          1  0.70000E-01  0.16418E-07  0.16703E-07 -0.28505E-09, forcez
-          1  0.70000E-01  0.16693E-01  0.16733E-01 -0.39352E-04, torquex
-          1  0.70000E-01  0.15895E+02  0.13721E+02  0.21743E+01, torquey
-          1  0.70000E-01 -0.34911E-06 -0.54655E-07 -0.29445E-06, torquez
+          2  0.70000E-01  0.52984E+01  0.45737E+01  0.72475E+00, forcex
+          2  0.70000E-01 -0.55731E-02 -0.55862E-02  0.13107E-04, forcey
+          2  0.70000E-01  0.16418E-07  0.16703E-07 -0.28505E-09, forcez
+          2  0.70000E-01  0.16693E-01  0.16733E-01 -0.39352E-04, torquex
+          2  0.70000E-01  0.15895E+02  0.13721E+02  0.21743E+01, torquey
+          2  0.70000E-01 -0.34911E-06 -0.54655E-07 -0.29445E-06, torquez
 
     ---------Step summary---------
-    Total time for step        1 (s):   0.4364900E-01
-    Total elapsed time (s):             0.4364900E-01
+    Total time for step        2 (s):   0.4270800E-01
+    Total elapsed time (s):             0.8339200E-01
  ----------------------------------------------------------------
  t =   0.7999999E-01                                  [  80.00% ]
  ----------------------------------------------------------------
- Time-step:      2
+ Time-step:      3
   CFL:  0.4572776E+00 dt:  0.1000000E-01
 
     --------Preprocessing---------
@@ -174,26 +219,26 @@
     Z-Velocity
     Iterations:   Start residual:     Final residual:
               2     0.2357313E-04       0.7192148E-08
-    Fluid step time (s):     0.3637000E-01
-    Total elapsed time (s):  0.8002600E-01
+    Fluid step time (s):     0.3644200E-01
+    Total elapsed time (s):  0.1198420E+00
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
     Time step, time, total force/torque, pressure, viscous, direction
-          2  0.80000E-01  0.42952E+01  0.35734E+01  0.72181E+00, forcex
-          2  0.80000E-01  0.42644E-03  0.41100E-03  0.15434E-04, forcey
-          2  0.80000E-01  0.17301E-07  0.17654E-07 -0.35369E-09, forcez
-          2  0.80000E-01 -0.12444E-02 -0.11981E-02 -0.46337E-04, torquex
-          2  0.80000E-01  0.12886E+02  0.10720E+02  0.21654E+01, torquey
-          2  0.80000E-01 -0.31545E-06 -0.12499E-07 -0.30295E-06, torquez
+          3  0.80000E-01  0.42952E+01  0.35734E+01  0.72181E+00, forcex
+          3  0.80000E-01  0.42644E-03  0.41100E-03  0.15434E-04, forcey
+          3  0.80000E-01  0.17301E-07  0.17654E-07 -0.35369E-09, forcez
+          3  0.80000E-01 -0.12444E-02 -0.11981E-02 -0.46337E-04, torquex
+          3  0.80000E-01  0.12886E+02  0.10720E+02  0.21654E+01, torquey
+          3  0.80000E-01 -0.31545E-06 -0.12499E-07 -0.30295E-06, torquez
 
     ---------Step summary---------
-    Total time for step        2 (s):   0.3738000E-01
-    Total elapsed time (s):             0.8103600E-01
+    Total time for step        3 (s):   0.3746100E-01
+    Total elapsed time (s):             0.1208610E+00
  ----------------------------------------------------------------
  t =   0.8999999E-01                                  [  90.00% ]
  ----------------------------------------------------------------
- Time-step:      3
+ Time-step:      4
   CFL:  0.4567012E+00 dt:  0.1000000E-01
 
     --------Preprocessing---------
@@ -211,26 +256,26 @@
     Z-Velocity
     Iterations:   Start residual:     Final residual:
               2     0.1807024E-04       0.5216624E-08
-    Fluid step time (s):     0.3401300E-01
-    Total elapsed time (s):  0.1150560E+00
+    Fluid step time (s):     0.3392300E-01
+    Total elapsed time (s):  0.1547910E+00
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
     Time step, time, total force/torque, pressure, viscous, direction
-          3  0.90000E-01  0.34641E+01  0.27449E+01  0.71919E+00, forcex
-          3  0.90000E-01  0.41464E-02  0.41366E-02  0.98206E-05, forcey
-          3  0.90000E-01  0.18233E-07  0.18651E-07 -0.41806E-09, forcez
-          3  0.90000E-01 -0.12451E-01 -0.12422E-01 -0.29473E-04, torquex
-          3  0.90000E-01  0.10392E+02  0.82346E+01  0.21576E+01, torquey
-          3  0.90000E-01 -0.32842E-07  0.51827E-07 -0.84669E-07, torquez
+          4  0.90000E-01  0.34641E+01  0.27449E+01  0.71919E+00, forcex
+          4  0.90000E-01  0.41464E-02  0.41366E-02  0.98206E-05, forcey
+          4  0.90000E-01  0.18233E-07  0.18651E-07 -0.41806E-09, forcez
+          4  0.90000E-01 -0.12451E-01 -0.12422E-01 -0.29473E-04, torquex
+          4  0.90000E-01  0.10392E+02  0.82346E+01  0.21576E+01, torquey
+          4  0.90000E-01 -0.32842E-07  0.51827E-07 -0.84669E-07, torquez
 
     ---------Step summary---------
-    Total time for step        3 (s):   0.3501300E-01
-    Total elapsed time (s):             0.1160560E+00
+    Total time for step        4 (s):   0.3494400E-01
+    Total elapsed time (s):             0.1558120E+00
  ----------------------------------------------------------------
  t =   0.9999999E-01                                  [ 100.00% ]
  ----------------------------------------------------------------
- Time-step:      4
+ Time-step:      5
   CFL:  0.4561208E+00 dt:  0.1000000E-01
 
     --------Preprocessing---------
@@ -248,26 +293,33 @@
     Z-Velocity
     Iterations:   Start residual:     Final residual:
               2     0.9019534E-05       0.1802625E-08
-    Fluid step time (s):     0.3403600E-01
-    Total elapsed time (s):  0.1500990E+00
+    Fluid step time (s):     0.3405600E-01
+    Total elapsed time (s):  0.1898750E+00
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
     Time step, time, total force/torque, pressure, viscous, direction
-          4  0.10000E+00  0.32341E+01  0.25171E+01  0.71702E+00, forcex
-          4  0.10000E+00  0.17005E-02  0.16972E-02  0.32484E-05, forcey
-          4  0.10000E+00  0.19197E-07  0.19677E-07 -0.47974E-09, forcez
-          4  0.10000E+00 -0.50837E-02 -0.50740E-02 -0.97555E-05, torquex
-          4  0.10000E+00  0.97023E+01  0.75512E+01  0.21511E+01, torquey
-          4  0.10000E+00  0.11370E-07  0.20587E-07 -0.92164E-08, torquez
+          5  0.10000E+00  0.32341E+01  0.25171E+01  0.71702E+00, forcex
+          5  0.10000E+00  0.17005E-02  0.16972E-02  0.32484E-05, forcey
+          5  0.10000E+00  0.19197E-07  0.19677E-07 -0.47974E-09, forcez
+          5  0.10000E+00 -0.50837E-02 -0.50740E-02 -0.97555E-05, torquex
+          5  0.10000E+00  0.97023E+01  0.75512E+01  0.21511E+01, torquey
+          5  0.10000E+00  0.11370E-07  0.20587E-07 -0.92164E-08, torquez
+
+       --------Writer output---------
+       File name     : field.fld
+       Output number :     2
+       File name     : fluid.chkp
+       Output number :     2
+       Writing at time:     0.100000 Output time (s):  0.002232
 
     ---------Step summary---------
-    Total time for step        4 (s):   0.3504300E-01
-    Total elapsed time (s):             0.1511060E+00
+    Total time for step        5 (s):   0.3731600E-01
+    Total elapsed time (s):             0.1931350E+00
  ----------------------------------------------------------------
  t =   0.1100000E+00                                  [ 110.00% ]
  ----------------------------------------------------------------
- Time-step:      5
+ Time-step:      6
   CFL:  0.4555339E+00 dt:  0.1000000E-01
 
     --------Preprocessing---------
@@ -285,34 +337,27 @@
     Z-Velocity
     Iterations:   Start residual:     Final residual:
               2     0.1716796E-04       0.2659327E-08
-    Fluid step time (s):     0.3189100E-01
-    Total elapsed time (s):  0.1830040E+00
+    Fluid step time (s):     0.3048500E-01
+    Total elapsed time (s):  0.2236300E+00
 
     --------Postprocessing--------
     Force and torque on zone    7  Cylinder
     Time step, time, total force/torque, pressure, viscous, direction
-          5  0.11000E+00  0.31354E+01  0.24202E+01  0.71518E+00, forcex
-          5  0.11000E+00 -0.65725E-03 -0.65692E-03 -0.32642E-06, forcey
-          5  0.11000E+00  0.19723E-07  0.20267E-07 -0.54421E-09, forcez
-          5  0.11000E+00  0.19642E-02  0.19632E-02  0.98001E-06, torquex
-          5  0.11000E+00  0.94062E+01  0.72607E+01  0.21455E+01, torquey
-          5  0.11000E+00 -0.16826E-06 -0.21068E-07 -0.14720E-06, torquez
-
-       --------Writer output---------
-       File name     : field.fld
-       Output number :     2
-       File name     : fluid.chkp
-       Output number :     2
-       Writing at time:     0.110000 Output time (s):  0.003472
+          6  0.11000E+00  0.31354E+01  0.24202E+01  0.71518E+00, forcex
+          6  0.11000E+00 -0.65725E-03 -0.65692E-03 -0.32642E-06, forcey
+          6  0.11000E+00  0.19723E-07  0.20267E-07 -0.54421E-09, forcez
+          6  0.11000E+00  0.19642E-02  0.19632E-02  0.98001E-06, torquex
+          6  0.11000E+00  0.94062E+01  0.72607E+01  0.21455E+01, torquey
+          6  0.11000E+00 -0.16826E-06 -0.21068E-07 -0.14720E-06, torquez
 
     ---------Step summary---------
-    Total time for step        5 (s):   0.3637300E-01
-    Total elapsed time (s):             0.1874860E+00
+    Total time for step        6 (s):   0.3151300E-01
+    Total elapsed time (s):             0.2246580E+00
 
    --------Writer output---------
    File name     : field.fld
    Output number :     3
    File name     : fluid.chkp
    Output number :     3
-   Writing at time:     0.110000 Output time (s):  0.002008
+   Writing at time:     0.110000 Output time (s):  0.002069
  Normal end.

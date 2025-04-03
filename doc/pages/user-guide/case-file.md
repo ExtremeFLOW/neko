@@ -71,6 +71,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `output_checkpoints`       | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                               | `false`       |
 | `checkpoint_control`       | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -             |
 | `checkpoint_value`         | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                        | -             |
+| `checkpoint_filename`      | The filename of written checkpoint.                                                                   | Strings such as `my_name`                       | `fluid`       |
 | `checkpoint_format`        | The file format of checkpoints                                                                        | `chkp` or `hdf5`                                | `chkp`        |
 | `restart_file`             | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
 | `restart_mesh_file`        | If the restart file is on a different mesh, specify the .nmsh file used to generate it here           | Strings ending with `.nmsh`                     | -             |
@@ -685,6 +686,7 @@ concisely directly in the table.
 | `nut_field`                             | The name of the turbulent viscosity field.                                                        | String                                                      | -             |
 | `output_control`                        | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never`             | -             |
 | `output_value`                          | The frequency of sampling in terms of `output_control`.                                           | Positive real or integer                                    | -             |
+| `output_filename`                       | The output filename.                                                                              | String                                                      | `field`       |
 | `inflow_condition.type`                 | Velocity inflow condition type.                                                                   | `user`, `uniform`, `blasius`                                | -             |
 | `inflow_condition.value`                | Value of the inflow velocity.                                                                     | Vector of 3 reals                                           | -             |
 | `initial_condition.type`                | Initial condition type.                                                                           | `user`, `uniform`, `blasius`, `field`                       | -             |

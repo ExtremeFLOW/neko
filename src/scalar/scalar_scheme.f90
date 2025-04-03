@@ -118,7 +118,7 @@ module scalar_scheme
      !> Mesh.
      type(mesh_t), pointer :: msh => null()
      !> Checkpoint for restarts.
-     type(chkp_t) :: chkp
+     type(chkp_t), pointer :: chkp => null()
      !> Thermal diffusivity.
      real(kind=rp) :: lambda
      !> The variable lambda field
@@ -162,13 +162,14 @@ module scalar_scheme
   !> Abstract interface to initialize a scalar formulation
   abstract interface
      subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, &
-          numerics_params, user, ulag, vlag, wlag, time_scheme, rho)
+          numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
        import scalar_scheme_t
        import json_file
        import coef_t
        import gs_t
        import mesh_t
        import user_t
+       import chkp_t
        import field_series_t
        import time_scheme_controller_t
        import rp
@@ -179,6 +180,7 @@ module scalar_scheme
        type(json_file), target, intent(inout) :: params
        type(json_file), target, intent(inout) :: numerics_params
        type(user_t), target, intent(in) :: user
+       type(chkp_t), target, intent(inout) :: chkp
        type(field_series_t), target, intent(in) :: ulag, vlag, wlag
        type(time_scheme_controller_t), target, intent(in) :: time_scheme
        real(kind=rp), intent(in) :: rho
@@ -187,12 +189,12 @@ module scalar_scheme
 
   !> Abstract interface to restart a scalar formulation
   abstract interface
-     subroutine scalar_scheme_restart_intrf(this, dtlag, tlag)
+     subroutine scalar_scheme_restart_intrf(this, chkp)
        import scalar_scheme_t
        import chkp_t
        import rp
        class(scalar_scheme_t), target, intent(inout) :: this
-       real(kind=rp) :: dtlag(10), tlag(10)
+       type(chkp_t), intent(inout) :: chkp
      end subroutine scalar_scheme_restart_intrf
   end interface
 
@@ -454,12 +456,6 @@ contains
     if (.not. associated(this%params)) then
        call neko_error('No parameters defined')
     end if
-
-    !
-    ! Setup checkpoint structure (if everything is fine)
-    !
-!    @todo no io for now
-!    call this%chkp%init(this%u, this%v, this%w, this%p)
 
   end subroutine scalar_scheme_validate
 
