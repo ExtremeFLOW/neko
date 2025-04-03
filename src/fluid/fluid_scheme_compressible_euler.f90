@@ -47,6 +47,7 @@ module fluid_scheme_compressible_euler
   use gather_scatter, only : gs_t
   use num_types, only : rp
   use mesh, only : mesh_t
+  use checkpoint, only : chkp_t
   use operators, only: div, grad
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default, json_extract_item
@@ -149,17 +150,20 @@ module fluid_scheme_compressible_euler
 
 contains
   !> Initialize the compressible Euler fluid scheme
-  !> @param this The fluid scheme object
-  !> @param msh Mesh data structure
-  !> @param lx Polynomial order in x-direction
-  !> @param params JSON configuration parameters
-  !> @param user User-defined parameters and functions
-  subroutine fluid_scheme_compressible_euler_init(this, msh, lx, params, user)
+  !! @param this The fluid scheme object
+  !! @param msh Mesh data structure
+  !! @param lx Polynomial order in x-direction
+  !! @param params JSON configuration parameters
+  !! @param user User-defined parameters and functions
+  !! @param chkp Checkpoint to write to
+  subroutine fluid_scheme_compressible_euler_init(this, msh, lx, params, user, &
+       chkp)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(in) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
+    type(chkp_t), target, intent(inout) :: chkp
     character(len=12), parameter :: scheme = 'compressible'
     integer :: rk_order
 
@@ -504,12 +508,12 @@ contains
   end subroutine compute_h
 
   !> Restart the simulation from saved state
-  !> @param this The fluid scheme object
-  !> @param dtlag Previous timestep sizes
-  !> @param tlag Previous time values
-  subroutine fluid_scheme_compressible_euler_restart(this, dtlag, tlag)
+  !! @param this The fluid scheme object
+  !! @param dtlag Previous timestep sizes
+  !! @param tlag Previous time values
+  subroutine fluid_scheme_compressible_euler_restart(this, chkp)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
-    real(kind=rp) :: dtlag(10), tlag(10)
+    type(chkp_t), intent(inout) :: chkp
   end subroutine fluid_scheme_compressible_euler_restart
 
 end module fluid_scheme_compressible_euler

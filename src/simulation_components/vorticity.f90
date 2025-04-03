@@ -39,6 +39,7 @@ module vorticity
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use field, only : field_t
+  use time_state, only : time_state_t
   use operators, only : curl
   use case, only : case_t
   use fld_file_output, only : fld_file_output_t
@@ -78,7 +79,7 @@ module vorticity
      procedure, pass(this) :: init => vorticity_init_from_json
      !> Actual constructor.
      procedure, pass(this) :: init_from_attributes => &
-        vorticity_init_from_attributes
+          vorticity_init_from_attributes
      !> Destructor.
      procedure, pass(this) :: free => vorticity_free
      !> Compute the vorticity field.
@@ -142,12 +143,9 @@ contains
   end subroutine vorticity_free
 
   !> Compute the vorticity field.
-  !! @param t The time value.
-  !! @param tstep The current time-step
-  subroutine vorticity_compute(this, t, tstep)
+  subroutine vorticity_compute(this, time)
     class(vorticity_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
 
     call curl(this%omega_x, this%omega_y, this%omega_z, this%u, this%v, &
          this%w, this%temp1, this%temp2, this%case%fluid%c_Xh, &

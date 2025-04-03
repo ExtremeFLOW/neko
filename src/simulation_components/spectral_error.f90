@@ -38,6 +38,7 @@ module spectral_error
   use field_list, only: field_list_t
   use math, only: rzero, copy
   use file, only: file_t, file_free
+  use time_state, only : time_state_t
   use tensor, only: tnsr3d
   use device_math, only: device_copy
   use gather_scatter
@@ -64,9 +65,9 @@ module spectral_error
   !! formally only gives an indication of the error.
   type, public, extends(simulation_component_t) :: spectral_error_t
      !> Pointers to main fields
-     type(field_t), pointer :: u  => null()
-     type(field_t), pointer :: v  => null()
-     type(field_t), pointer :: w  => null()
+     type(field_t), pointer :: u => null()
+     type(field_t), pointer :: v => null()
+     type(field_t), pointer :: w => null()
      !> Transformed fields
      type(field_t), pointer :: u_hat => null()
      type(field_t), pointer :: v_hat => null()
@@ -160,15 +161,15 @@ contains
 
     !> The following code has been lifted from Adam's implementation
     associate(LX1 => coef%Xh%lx, LY1 => coef%Xh%ly, &
-      LZ1 => coef%Xh%lz, &
-      SERI_SMALL  => this%SERI_SMALL,  &
-      SERI_SMALLR => this%SERI_SMALLR, &
-      SERI_SMALLG => this%SERI_SMALLG, &
-      SERI_SMALLS => this%SERI_SMALLS, &
-      SERI_NP     => this%SERI_NP,     &
-      SERI_NP_MAX => this%SERI_NP_MAX, &
-      SERI_ELR    => this%SERI_ELR     &
-      )
+         LZ1 => coef%Xh%lz, &
+         SERI_SMALL => this%SERI_SMALL, &
+         SERI_SMALLR => this%SERI_SMALLR, &
+         SERI_SMALLG => this%SERI_SMALLG, &
+         SERI_SMALLS => this%SERI_SMALLS, &
+         SERI_NP => this%SERI_NP, &
+         SERI_NP_MAX => this%SERI_NP_MAX, &
+         SERI_ELR => this%SERI_ELR &
+         )
       ! correctness check
       if (SERI_NP.gt.SERI_NP_MAX) then
          call neko_log%message('SETI_NP greater than SERI_NP_MAX')
@@ -226,10 +227,9 @@ contains
   end subroutine spectral_error_free
 
   !> Compute the spectral error indicator.
-  subroutine spectral_error_compute(this, t, tstep)
+  subroutine spectral_error_compute(this, time)
     class(spectral_error_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
 
     integer :: e, i, lx, ly, lz, nelv, n
 
@@ -255,11 +255,11 @@ contains
     ! host arrays that contain the values.
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%u_hat%x, this%u_hat%x_d, lx*ly*lz*nelv, &
-                         HOST_TO_DEVICE, sync = .true.)
+            HOST_TO_DEVICE, sync = .true.)
        call device_memcpy(this%v_hat%x, this%v_hat%x_d, lx*ly*lz*nelv, &
-                         HOST_TO_DEVICE, sync = .true.)
+            HOST_TO_DEVICE, sync = .true.)
        call device_memcpy(this%w_hat%x, this%w_hat%x_d, lx*ly*lz*nelv, &
-                         HOST_TO_DEVICE, sync = .true.)
+            HOST_TO_DEVICE, sync = .true.)
     end if
 
   end subroutine spectral_error_compute
@@ -282,11 +282,11 @@ contains
     !> Define some constants
     nxyz = coef%Xh%lx*coef%Xh%lx*coef%Xh%lx
     nelv = coef%msh%nelv
-    n    = nxyz*nelv
+    n = nxyz*nelv
 
     !> Copy field to working array
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-      (NEKO_BCKND_OPENCL .eq. 1)) then
+         (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_copy(wk%x_d, u%x_d, n)
     else
        call copy(wk%x,u%x,n)
@@ -295,20 +295,20 @@ contains
     select case(space)
     case('spec')
        call tnsr3d(u_hat%x, coef%Xh%lx, wk%x, &
-                    coef%Xh%lx,coef%Xh%vinv, &
-                    coef%Xh%vinvt, coef%Xh%vinvt, nelv)
+            coef%Xh%lx,coef%Xh%vinv, &
+            coef%Xh%vinvt, coef%Xh%vinvt, nelv)
     case('phys')
        call tnsr3d(u_hat%x, coef%Xh%lx, wk%x, &
-                    coef%Xh%lx,coef%Xh%v, &
-                    coef%Xh%vt, coef%Xh%vt, nelv)
+            coef%Xh%lx,coef%Xh%v, &
+            coef%Xh%vt, coef%Xh%vt, nelv)
     end select
 
     ! Synchronize
     if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-       (NEKO_BCKND_OPENCL .eq. 1)) then
+         (NEKO_BCKND_OPENCL .eq. 1)) then
 
        call device_memcpy(u_hat%x,u_hat%x_d, n, &
-                         DEVICE_TO_HOST, sync=.true.)
+            DEVICE_TO_HOST, sync=.true.)
     end if
 
   end subroutine transform_to_spec_or_phys
@@ -327,13 +327,13 @@ contains
 
     ! Get the spectral error indicator
     call calculate_indicators(this, coef, this%eind_u, this%sig_u, &
-         coef%msh%nelv, coef%Xh%lx,  coef%Xh%ly,  coef%Xh%lz, &
+         coef%msh%nelv, coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
          this%u_hat%x)
     call calculate_indicators(this, coef, this%eind_v, this%sig_v, &
-         coef%msh%nelv, coef%Xh%lx,  coef%Xh%ly,  coef%Xh%lz, &
+         coef%msh%nelv, coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
          this%v_hat%x)
     call calculate_indicators(this, coef, this%eind_w, this%sig_w, &
-         coef%msh%nelv, coef%Xh%lx,  coef%Xh%ly,  coef%Xh%lz, &
+         coef%msh%nelv, coef%Xh%lx, coef%Xh%ly, coef%Xh%lz, &
          this%w_hat%x)
 
   end subroutine spectral_error_get_indicators
@@ -415,16 +415,16 @@ contains
     !> polynomial coefficients
     real(kind=rp) :: coeff(LX1,LY1,LZ1)
     !> Legendre coefficients; first value coeff(1,1,1)
-    real(kind=rp) ::  coef11
+    real(kind=rp) :: coef11
     !> copy of last SERI_NP columns of coefficients
-    real(kind=rp) ::  coefx(this%SERI_NP_MAX,LY1,LZ1), &
-                      coefy(this%SERI_NP_MAX,LX1,LZ1), &
-                      coefz(this%SERI_NP_MAX,LX1,LY1)
+    real(kind=rp) :: coefx(this%SERI_NP_MAX,LY1,LZ1), &
+         coefy(this%SERI_NP_MAX,LX1,LZ1), &
+         coefz(this%SERI_NP_MAX,LX1,LY1)
     !> estimated error
-    real(kind=rp) ::  estx, esty, estz
+    real(kind=rp) :: estx, esty, estz
     !> estimated decay rate
-    real(kind=rp) ::  sigx, sigy, sigz
-    real(kind=rp) ::  third
+    real(kind=rp) :: sigx, sigy, sigz
+    real(kind=rp) :: third
     parameter (third = 1.0/3.0)
 
     !> loop over elements
@@ -455,7 +455,7 @@ contains
           enddo
           !> get extrapolated values
           call speri_extrap(this,estx,sigx,coef11,coefx, &
-            j_st,j_en,LY1,LZ1)
+               j_st,j_en,LY1,LZ1)
 
           !> Y - direction
           !> copy last SERI_NP collumns (or less if NY1 is smaller)
@@ -471,7 +471,7 @@ contains
           enddo
           !> get extrapolated values
           call speri_extrap(this, esty,sigy,coef11,coefy, &
-             j_st,j_en,LX1,LZ1)
+               j_st,j_en,LX1,LZ1)
 
           !> Z - direction
           !> copy last SERI_NP collumns (or less if NZ1 is smaller)
@@ -487,11 +487,11 @@ contains
           enddo
           !> get extrapolated values
           call speri_extrap(this, estz,sigz,coef11,coefz, &
-        j_st,j_en,LX1,LY1)
+               j_st,j_en,LX1,LY1)
 
           !> average
-          est(il) =  sqrt(estx + esty + estz)
-          sig(il) =  third*(sigx + sigy + sigz)
+          est(il) = sqrt(estx + esty + estz)
+          sig(il) = third*(sigx + sigy + sigz)
 
        else
           !> for testing
@@ -503,7 +503,7 @@ contains
           sigz = -1.0
           !> for testing; end
 
-          est(il) =  0.0
+          est(il) = 0.0
           sig(il) = -1.0
        endif
 
@@ -521,7 +521,7 @@ contains
   !! @param nyl argument list
   !! @param nzl argument list
   subroutine speri_extrap(this,estx,sigx,coef11,coef, &
-                ix_st,ix_en,nyl,nzl)
+       ix_st,ix_en,nyl,nzl)
     implicit none
     type(spectral_error_t), intent(inout) :: this
     !> argument list
@@ -534,23 +534,23 @@ contains
     real(kind=rp) :: estx, sigx
 
     !> local variables
-    integer :: il, jl, kl, ll  ! loop index
+    integer :: il, jl, kl, ll ! loop index
     integer :: nsigt, pnr, nzlt
     real(kind=rp) :: sigt, smallr, cmin, cmax, cnm, rtmp, rtmp2, rtmp3
     real(kind=rp) :: sumtmp(4), cffl(this%SERI_NP_MAX)
     real(kind=rp) :: stmp, estt, clog, ctmp, cave, erlog
     logical :: cuse(this%SERI_NP_MAX)
 
-    associate(SERI_SMALL  => this%SERI_SMALL,  &
-             SERI_SMALLR => this%SERI_SMALLR, &
-             SERI_SMALLG => this%SERI_SMALLG, &
-             SERI_SMALLS => this%SERI_SMALLS, &
-             SERI_NP     => this%SERI_NP,     &
-             SERI_NP_MAX => this%SERI_NP_MAX, &
-             SERI_ELR    => this%SERI_ELR     &
-            )
+    associate(SERI_SMALL => this%SERI_SMALL, &
+         SERI_SMALLR => this%SERI_SMALLR, &
+         SERI_SMALLG => this%SERI_SMALLG, &
+         SERI_SMALLS => this%SERI_SMALLS, &
+         SERI_NP => this%SERI_NP, &
+         SERI_NP_MAX => this%SERI_NP_MAX, &
+         SERI_ELR => this%SERI_ELR &
+         )
       ! initial values
-      estx =  0.0
+      estx = 0.0
       sigx = -1.0
 
       ! relative cutoff
@@ -598,7 +598,7 @@ contains
                if (pnr.eq.4) then
                   ! should we neglect last values
                   if ((cffl(1).lt.smallr).and. &
-                 (cffl(2).lt.smallr)) then
+                       (cffl(2).lt.smallr)) then
                      if (cffl(3).lt.smallr) then
                         cuse(1) = .FALSE.
                         cuse(2) = .FALSE.
@@ -610,12 +610,12 @@ contains
                   else
                      ! should we take stronger gradient
                      if ((cffl(1)/cffl(2).lt.SERI_SMALLG).and. &
-                   (cffl(3)/cffl(4).lt.SERI_SMALLG)) then
+                          (cffl(3)/cffl(4).lt.SERI_SMALLG)) then
                         cuse(1) = .FALSE.
                         cuse(3) = .FALSE.
                         cnm = real(ix_en-1)
                      elseif ((cffl(2)/cffl(1).lt.SERI_SMALLG).and. &
-                       (cffl(4)/cffl(3).lt.SERI_SMALLG)) then
+                          (cffl(4)/cffl(3).lt.SERI_SMALLG)) then
                         cuse(2) = .FALSE.
                         cuse(4) = .FALSE.
                      endif
@@ -631,7 +631,7 @@ contains
                cmax = 0.0
                do kl =1,pnr
                   if(cuse(kl)) then
-                     rtmp  = real(ix_en-kl)
+                     rtmp = real(ix_en-kl)
                      rtmp2 = log(cffl(kl))
                      sumtmp(1) = sumtmp(1) +rtmp2
                      sumtmp(2) = sumtmp(2) +rtmp
@@ -644,7 +644,7 @@ contains
                enddo
                ! decay rate along single row
                stmp = (sumtmp(1)*sumtmp(2) - sumtmp(4)*cmax)/ &
-                   (sumtmp(3)*cmax - sumtmp(2)*sumtmp(2))
+                    (sumtmp(3)*cmax - sumtmp(2)*sumtmp(2))
                ! for averaging
                sigt = sigt + stmp
                nsigt = nsigt + 1
@@ -667,9 +667,9 @@ contains
                      if(cuse(kl)) then
                         erlog = clog - stmp*real(ix_en-kl)
                         sumtmp(1) = sumtmp(1)+ &
-                            (erlog-log(cffl(kl)))**2
+                             (erlog-log(cffl(kl)))**2
                         sumtmp(2) = sumtmp(2)+ &
-                  (erlog-cave)**2
+                             (erlog-cave)**2
                      endif
                   enddo
                   rtmp = 1.0 - sumtmp(1)/sumtmp(2)
@@ -682,7 +682,7 @@ contains
                endif
                ! add contribution to error estimator; variable weight
                estx = estx + estt/(2.0*(jl-1)+1.0)*rtmp3
-            endif  ! if((cmin.gt.0.0).and.(cmax.gt.smallr))
+            endif ! if((cmin.gt.0.0).and.(cmax.gt.smallr))
          enddo
       enddo
       ! constant weight
