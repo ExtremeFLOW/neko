@@ -123,7 +123,7 @@ module scalar_scheme
      !> The turbulent kinematic viscosity field name
      character(len=:), allocatable :: nut_field_name
      !> Density.
-     type(field_t), pointer :: rho
+     type(field_t), pointer :: rho => null()
      !> Thermal diffusivity.
      type(field_t) :: lambda
      !> Specific heat capacity.
@@ -176,6 +176,7 @@ module scalar_scheme
        import field_series_t, field_t
        import time_scheme_controller_t
        import rp
+       import chkp_t
        class(scalar_scheme_t), target, intent(inout) :: this
        type(mesh_t), target, intent(in) :: msh
        type(coef_t), target, intent(in) :: coef
@@ -258,6 +259,7 @@ contains
     this%u => neko_field_registry%get_field('u')
     this%v => neko_field_registry%get_field('v')
     this%w => neko_field_registry%get_field('w')
+    this%rho => rho
 
     ! Assign a name
     call json_get_or_default(params, 'name', this%name, 'scalar')
@@ -464,6 +466,10 @@ contains
 
     if (.not. associated(this%params)) then
        call neko_error('No parameters defined')
+    end if
+
+    if (.not. associated(this%rho)) then
+       call neko_error('No density field defined')
     end if
 
   end subroutine scalar_scheme_validate

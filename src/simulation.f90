@@ -162,7 +162,7 @@ contains
        ! Execute all simulation components
        call neko_simcomps%compute(C%time)
 
-       call C%usr%user_check(t, tstep, C%fluid%u, C%fluid%v, C%fluid%w, &
+       call C%usr%user_check(C%time%t, tstep, C%fluid%u, C%fluid%v, C%fluid%w, &
             C%fluid%p, C%fluid%c_Xh, C%params)
 
        call C%output_controller%execute(C%time)

@@ -242,7 +242,7 @@ contains
             dummy_user_material_properties)) .and. &
             (this%variable_material_properties .eqv. .false.)) then
           call neko_warning("You set variable_material properties to " // &
-               "false, you can only vary rho and mu in time in the user file.")
+               "false, you cannot vary rho and mu in space in the user file.")
        end if
     else if (params%valid_path('case.fluid.nut_field')) then
        call json_get(params, 'case.fluid.nut_field', this%nut_field_name)
@@ -293,10 +293,6 @@ contains
     write(log_buf, '(A, I0)') 'Unique pts.: ', this%glb_unique_points
     call neko_log%message(log_buf)
 
-    write(log_buf, '(A,ES13.6)') 'rho        :', this%rho_field%x(1,1,1,1)
-    call neko_log%message(log_buf)
-!    write(log_buf, '(A,ES13.6)') 'mu         :', this%mu
-!    call neko_log%message(log_buf)
 
     call json_get(params, 'case.numerics.dealias', logical_val)
     write(log_buf, '(A, L1)') 'Dealias    : ', logical_val
@@ -729,6 +725,11 @@ contains
           call cfill(this%mu_field%x, const_mu, this%mu_field%size())
           call cfill(this%rho_field%x, const_rho, this%rho_field%size())
        end if
+
+       write(log_buf, '(A,ES13.6)') 'rho        :', const_rho
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,ES13.6)') 'mu         :', const_mu
+       call neko_log%message(log_buf)
     end if
   end subroutine fluid_scheme_set_material_properties
 
