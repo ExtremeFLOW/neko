@@ -50,7 +50,8 @@ if [ $(uname) == "Darwin" ]; then
     if command -v gnu-getopt >/dev/null 2>&1; then
         PARSED=$(gnu-getopt --options=$OPT --longoptions=$OPTIONS --name "$0" -- "$@")
     else
-        echo "Warning: macOS uses BSD getopt, long options are not supported." >&2
+        echo "GNU-getopt not found." >&2
+        echo "Falling back to BSD getopt, long options are not supported." >&2
         PARSED=$(getopt $OPT "$@")
     fi
 else
