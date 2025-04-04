@@ -108,7 +108,7 @@ for file in ${files[@]}; do
 
     printf "\t- $file"
     score=$(flint score -r $ROOT_DIR/flinter_rc.yml $(realpath $file) 2>/dev/null |
-        grep -oP '(?<=\>\|)[^\|\<]+(?=\|\<)')
+        grep -oE '(?<=\>\|)[^|<]+(?=\|<)')
     printf ": $score\n"
 
     if (($(echo "$score < 10" | bc -l))); then
