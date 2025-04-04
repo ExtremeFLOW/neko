@@ -15,6 +15,7 @@ neko_fortran_SOURCES = \
 	common/datadist.f90\
 	common/distdata.f90\
 	common/utils.f90\
+	common/time_state.f90\
 	common/json_utils.f90\
 	common/system.f90\
 	common/runtime_statistics.f90\
@@ -707,6 +708,9 @@ EXTRA_DIST = \
 	comm/comm_nccl.h\
 	comm/comm.h\
 	common/neko_log.h
+
+# Expose the listed headers in the package
+nobase_pkginclude_HEADERS = ${EXTRA_DIST}
 
 # Fortran deps. (updated with makedepf90 via target 'depend')
 include	.depends

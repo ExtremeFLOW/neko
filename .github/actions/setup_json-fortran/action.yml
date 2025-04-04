@@ -129,6 +129,7 @@ runs:
         cmake -B $WORKING_DIR/build -S $WORKING_DIR \
           --install-prefix=$INSTALL_DIR \
           -DUSE_GNU_INSTALL_CONVENTION=ON \
+          -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
           -DSKIP_DOC_GEN=ON ${{ inputs.configure-options }}
 
     - name: Build

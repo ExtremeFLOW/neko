@@ -80,7 +80,7 @@ module usr_scalar
      !! @param t Current time
      !! @param tstep Current time-step
      subroutine usr_scalar_bc_eval(s, x, y, z, nx, ny, nz, &
-                                   ix, iy, iz, ie, t, tstep)
+          ix, iy, iz, ie, t, tstep)
        import rp
        real(kind=rp), intent(inout) :: s
        real(kind=rp), intent(in) :: x
@@ -133,7 +133,7 @@ contains
   subroutine usr_scalar_apply_scalar(this, x, n, t, tstep, strong)
     class(usr_scalar_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
@@ -156,8 +156,8 @@ contains
     end if
 
     associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
-              zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
-              nz => this%coef%nz, lx => this%coef%Xh%lx)
+         zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
+         nz => this%coef%nz, lx => this%coef%Xh%lx)
       m = this%msk(0)
       if (strong_) then
          do i = 1, m
@@ -167,34 +167,34 @@ contains
             select case (facet)
             case (1, 2)
                call this%eval(x(k), &
-                  xc(idx(1), idx(2), idx(3), idx(4)), &
-                  yc(idx(1), idx(2), idx(3), idx(4)), &
-                  zc(idx(1), idx(2), idx(3), idx(4)), &
-                  nx(idx(2), idx(3), facet, idx(4)), &
-                  ny(idx(2), idx(3), facet, idx(4)), &
-                  nz(idx(2), idx(3), facet, idx(4)), &
-                  idx(1), idx(2), idx(3), idx(4), &
-                  t_, tstep_)
+                    xc(idx(1), idx(2), idx(3), idx(4)), &
+                    yc(idx(1), idx(2), idx(3), idx(4)), &
+                    zc(idx(1), idx(2), idx(3), idx(4)), &
+                    nx(idx(2), idx(3), facet, idx(4)), &
+                    ny(idx(2), idx(3), facet, idx(4)), &
+                    nz(idx(2), idx(3), facet, idx(4)), &
+                    idx(1), idx(2), idx(3), idx(4), &
+                    t_, tstep_)
             case (3, 4)
                call this%eval(x(k), &
-                  xc(idx(1), idx(2), idx(3), idx(4)), &
-                  yc(idx(1), idx(2), idx(3), idx(4)), &
-                  zc(idx(1), idx(2), idx(3), idx(4)), &
-                  nx(idx(1), idx(3), facet, idx(4)), &
-                  ny(idx(1), idx(3), facet, idx(4)), &
-                  nz(idx(1), idx(3), facet, idx(4)), &
-                  idx(1), idx(2), idx(3), idx(4), &
-                  t_, tstep_)
+                    xc(idx(1), idx(2), idx(3), idx(4)), &
+                    yc(idx(1), idx(2), idx(3), idx(4)), &
+                    zc(idx(1), idx(2), idx(3), idx(4)), &
+                    nx(idx(1), idx(3), facet, idx(4)), &
+                    ny(idx(1), idx(3), facet, idx(4)), &
+                    nz(idx(1), idx(3), facet, idx(4)), &
+                    idx(1), idx(2), idx(3), idx(4), &
+                    t_, tstep_)
             case (5, 6)
                call this%eval(x(k), &
-                  xc(idx(1), idx(2), idx(3), idx(4)), &
-                  yc(idx(1), idx(2), idx(3), idx(4)), &
-                  zc(idx(1), idx(2), idx(3), idx(4)), &
-                  nx(idx(1), idx(2), facet, idx(4)), &
-                  ny(idx(1), idx(2), facet, idx(4)), &
-                  nz(idx(1), idx(2), facet, idx(4)), &
-                  idx(1), idx(2), idx(3), idx(4), &
-                  t_, tstep_)
+                    xc(idx(1), idx(2), idx(3), idx(4)), &
+                    yc(idx(1), idx(2), idx(3), idx(4)), &
+                    zc(idx(1), idx(2), idx(3), idx(4)), &
+                    nx(idx(1), idx(2), facet, idx(4)), &
+                    ny(idx(1), idx(2), facet, idx(4)), &
+                    nz(idx(1), idx(2), facet, idx(4)), &
+                    idx(1), idx(2), idx(3), idx(4), &
+                    t_, tstep_)
             end select
          end do
       end if
@@ -235,9 +235,9 @@ contains
     end if
 
     associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
-              zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
-              nz => this%coef%nz, lx => this%coef%Xh%lx, &
-              usr_x_d => this%usr_x_d)
+         zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
+         nz => this%coef%nz, lx => this%coef%Xh%lx, &
+         usr_x_d => this%usr_x_d)
 
 
       ! Pretabulate values during first call to apply
@@ -303,9 +303,9 @@ contains
   subroutine usr_scalar_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(usr_scalar_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
-    real(kind=rp), intent(inout),  dimension(n) :: y
-    real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
@@ -359,6 +359,7 @@ contains
     class(usr_scalar_t), target, intent(inout) :: this
 
     call this%finalize_base()
+    call this%validate()
   end subroutine usr_scalar_finalize
 
 end module usr_scalar

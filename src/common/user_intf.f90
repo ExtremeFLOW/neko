@@ -45,7 +45,7 @@ module user_intf
   use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
   use field_dirichlet, only: field_dirichlet_update
   use num_types, only : rp
-  use json_module, only : json_file, json_core, json_value
+  use json_module, only : json_file
   use json_utils, only : json_extract_item, json_get, json_get_or_default
   use utils, only : neko_error, neko_warning
   use logger, only : neko_log
@@ -556,20 +556,16 @@ contains
     type(json_file), intent(inout) :: params
     type(json_file) :: comp_subdict
 
-    type(json_core) :: core
-    type(json_value), pointer :: simcomp_object
     character(len=:), allocatable :: current_type
     integer :: n_simcomps
     integer :: i
     logical :: found, is_user
 
-    call params%get_core(core)
-    call params%get(simcomp_object)
     call params%info('', n_children = n_simcomps)
 
     found = .false.
     do i = 1, n_simcomps
-       call json_extract_item(core, simcomp_object, i, comp_subdict)
+       call json_extract_item(params, "", i, comp_subdict)
        call json_get_or_default(comp_subdict, "is_user", is_user, .false.)
        if (.not. is_user) cycle
 
