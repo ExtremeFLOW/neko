@@ -67,6 +67,7 @@ while true; do
 
     # End of options
     "--") shift && break ;;
+    *) echo "Unknown option: $1" >&2 && help && exit 1 ;; # Unknown option
     esac
 done
 
