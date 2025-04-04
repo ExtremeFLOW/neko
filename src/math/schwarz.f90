@@ -426,6 +426,7 @@ contains
          call device_event_sync(this%event)
 
          call this%gs_h%op(e, n, GS_OP_ADD, this%event)
+         call device_event_sync(this%event)
          call this%bclst%apply_scalar(e, n)
          call device_col2(e_d,this%wt_d, n)
          call device_stream_wait_event(aux_cmd_queue, this%event, 0)
