@@ -45,7 +45,18 @@ OPT=h
 TARGET_BRANCH="develop"
 
 # Parse the inputs for options
-PARSED=$(getopt --options=$OPT --longoptions=$OPTIONS --name "$0" -- "$@")
+if [ $(uname) == "Darwin" ]; then
+    # Use gnu-getopt on macOS
+    if command -v gnu-getopt >/dev/null 2>&1; then
+        PARSED=$(gnu-getopt --options=$OPT --longoptions=$OPTIONS --name "$0" -- "$@")
+    else
+        echo "Warning: macOS uses BSD getopt, long options are not supported." >&2
+        PARSED=$(getopt $OPT "$@")
+    fi
+else
+    # Use getopt on Linux
+    PARSED=$(getopt --options=$OPT --longoptions=$OPTIONS --name "$0" -- "$@")
+fi
 eval set -- "$PARSED"
 
 # Loop through the options and set the variables
