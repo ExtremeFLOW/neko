@@ -3,6 +3,7 @@
 subroutine test_init()
   use pfunit
   use time_based_controller, only : time_based_controller_t
+  use time_state, only : time_state_t
   use num_types, only : rp
   implicit none
   
@@ -54,20 +55,39 @@ subroutine test_check_simulationtime()
   use pfunit
   use time_based_controller, only : time_based_controller_t
   use num_types, only : rp
+  use time_state, only : time_state_t
   implicit none
   
   type(time_based_controller_t) ctrl
+  type(time_state_t) :: time
 
   call ctrl%init(10.0_rp, "simulationtime", 1.0_rp)
+  time%t = 0.0_rp
+  time%tstep = 0
+  time%dt = 0.0_rp
 
   ! Expect true on first execution
-  @assertEqual(ctrl%check(0.0_rp, 0), .true.)
+  @assertEqual(ctrl%check(time), .true.)
   call ctrl%register_execution()
+  time%t = 1.1_rp
 
-  @assertEqual(ctrl%check(1.1_rp, 0), .true.)
+  @assertEqual(ctrl%check(time), .true.)
   call ctrl%register_execution()
+  time%t = 1.5_rp
 
-  @assertEqual(ctrl%check(1.5_rp, 0), .false.)
+  @assertEqual(ctrl%check(time), .false.)
+  time%t = 1.99_rp
+  time%dt = 0.5_rp
+
+  @assertEqual(ctrl%check(time), .true.)
+  call ctrl%register_execution()
+  time%t = 2.01_rp
+  time%dt = 0.5_rp
+  @assertEqual(ctrl%check(time), .false.)
+
+  time%t = 3.01_rp
+  @assertEqual(ctrl%check(time), .true.)
+  call ctrl%register_execution()
 
 end subroutine test_check_simulationtime
 
@@ -77,20 +97,25 @@ subroutine test_check_nsamples()
   use pfunit
   use time_based_controller, only : time_based_controller_t
   use num_types, only : rp
+  use time_state, only : time_state_t
   implicit none
   
   type(time_based_controller_t) ctrl
+  type(time_state_t) :: time
 
   call ctrl%init(10.0_rp, "nsamples", 10.0_rp)
 
+  time%t = 0.0_rp
   ! Expect true on first execution
-  @assertEqual(ctrl%check(0.0_rp, 0), .true.)
+  @assertEqual(ctrl%check(time), .true.)
   call ctrl%register_execution()
+  time%t = 1.1_rp
 
-  @assertEqual(ctrl%check(1.1_rp, 0), .true.)
+  @assertEqual(ctrl%check(time), .true.)
   call ctrl%register_execution()
+  time%t = 1.5_rp
 
-  @assertEqual(ctrl%check(1.5_rp, 0), .false.)
+  @assertEqual(ctrl%check(time), .false.)
 
 end subroutine test_check_nsamples
 
@@ -100,20 +125,25 @@ subroutine test_check_tsteps()
   use pfunit
   use time_based_controller, only : time_based_controller_t
   use num_types, only : rp
+  use time_state, only : time_state_t
   implicit none
   
   type(time_based_controller_t) ctrl
+  type(time_state_t) :: time
 
   call ctrl%init(10.0_rp, "tsteps", 10.0_rp)
+  time%tstep = 0
 
   ! Expect true on first execution
-  @assertEqual(ctrl%check(0.0_rp, 0), .true.)
+  @assertEqual(ctrl%check(time), .true.)
   call ctrl%register_execution()
 
-  @assertEqual(ctrl%check(0.0_rp, 10), .true.)
+  time%tstep = 10
+  @assertEqual(ctrl%check(time), .true.)
   call ctrl%register_execution()
 
-  @assertEqual(ctrl%check(0.0_rp, 15), .false.)
+  time%tstep = 15
+  @assertEqual(ctrl%check(time), .false.)
 
 end subroutine test_check_tsteps
 
