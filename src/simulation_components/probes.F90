@@ -91,8 +91,8 @@ module probes
      !> Initialize from json
      procedure, pass(this) :: init => probes_init_from_json
      ! Actual constructor
-     procedure, pass(this) :: init_from_attributes => &
-          probes_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          probes_init_from_components
      !> Destructor
      procedure, pass(this) :: free => probes_free
      !> Setup offset for I/O when using sequential write/read from rank 0
@@ -202,7 +202,7 @@ contains
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
     call probes_show(this)
-    call this%init_from_attributes(case%fluid%dm_Xh, output_file)
+    call this%init_from_components(case%fluid%dm_Xh, output_file)
 
   end subroutine probes_init_from_json
 
@@ -452,7 +452,7 @@ contains
   !> Initialize without json things
   !! @param dof Dofmap to probe
   !! @output_file Name of output file, current must be CSV
-  subroutine probes_init_from_attributes(this, dof, output_file)
+  subroutine probes_init_from_components(this, dof, output_file)
     class(probes_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dof
     character(len=:), allocatable, intent(inout) :: output_file
@@ -524,7 +524,7 @@ contains
        call neko_error("Invalid data. Expected csv_file_t.")
     end select
 
-  end subroutine probes_init_from_attributes
+  end subroutine probes_init_from_components
 
   !> Destructor
   subroutine probes_free(this)
