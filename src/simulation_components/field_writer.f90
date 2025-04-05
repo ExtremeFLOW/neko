@@ -59,7 +59,7 @@ module field_writer
           init_from_controllers, init_from_controllers_properties
      procedure, pass(this) :: init_from_controllers => &
           field_writer_init_from_controllers
-     !> Constructor from components, passing the properties of 
+     !> Constructor from components, passing the properties of
      !! time_based_controllers.
      procedure, pass(this) :: init_from_controllers_properties => &
           field_writer_init_from_controllers_properties
@@ -129,12 +129,12 @@ contains
     integer, intent(in), optional :: precision
 
     call this%init_base_from_components(case, order, preprocess_controller, &
-    compute_controller, output_controller)
+         compute_controller, output_controller)
     call this%init_common(fields, filename, precision)
 
   end subroutine field_writer_init_from_controllers
 
-  !> Constructor from components, passing properties o the 
+  !> Constructor from components, passing properties to the
   !! time_based_controller` components in the base type.
   !! @param case The simulation case object.
   !! @param order The execution oder priority of the simcomp.
@@ -167,7 +167,7 @@ contains
 
     call this%init_base_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
-       output_value)
+         output_value)
     call this%init_common(fields, filename, precision)
 
   end subroutine field_writer_init_from_controllers_properties
