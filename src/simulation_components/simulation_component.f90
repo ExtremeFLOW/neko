@@ -179,11 +179,11 @@ contains
   !! @param case The simulation case object.
   !! @param order The execution oder priority of the simcomp.
   !! @param preprocess_controller Control mode for preprocessing.
-  !! @param preprocess_controller Value parameter for preprocessing.
+  !! @param preprocess_value Value parameter for preprocessing.
   !! @param compute_controller Control mode for computing.
-  !! @param compute_controller Value parameter for computing.
+  !! @param compute_value Value parameter for computing.
   !! @param output_controller Control mode for output.
-  !! @param output_controller Value parameter for output.
+  !! @param output_value Value parameter for output.
   subroutine simulation_component_init_base_from_controllers_properties(this, &
        case, order, preprocess_control, preprocess_value, compute_control, &
        compute_value, output_control, output_value)
@@ -234,7 +234,7 @@ contains
   !> Parse JSON to determine the properties of the `time_based_controllers`.
   !! @param json The JSON dictionary of the simcomp.
   !! @param case_params The entire case configuration JSON.
-  !! @param preprocess_controller Control mode for preprocessing.
+  !! @param preprocess_value Control mode for preprocessing.
   !! @param preprocess_controller Value parameter for preprocessing.
   !! @param compute_controller Control mode for computing.
   !! @param compute_controller Value parameter for computing.
