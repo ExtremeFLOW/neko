@@ -60,6 +60,20 @@ module simulation_component
    contains
      !> Constructor for the simulation_component_t (base) class.
      procedure, pass(this) :: init_base => simulation_component_init_base
+     !> Constructor for the simulation_component_t (base) class from components.
+     generic :: init_base_from_components => &
+          simulation_component_init_base_from_controllers_properties, &
+          simulation_component_init_base_from_controllers
+     !> Constructor for the simulation_component_t (base) class from 
+     !! time_based_controllers, essentially directly from all components (we
+     !! reserve that name for the generic binding).
+     procedure, pass(this) :: init_base_from_controllers => &
+          simulation_component_init_base_from_controllers
+     !> Constructor for the simulation_component_t (base) class from 
+     !! properties of time_based_controllers, so that the latter are
+     !! constructed.
+     procedure, pass(this) :: init_base_from_controllers_properties => &
+          simulation_component_init_base_from_controllers_properties
      !> Destructor for the simulation_component_t (base) class.
      procedure, pass(this) :: free_base => simulation_component_free_base
      !> Wrapper for calling `set_counter` for the time based controllers.
@@ -82,6 +96,8 @@ module simulation_component
      procedure, pass(this) :: compute_
      !> The restart function to be called upon restarting simulation
      procedure, pass(this) :: restart_
+     !> JSON parameter parser for the time-based controllers
+     procedure, pass(this) :: parse_json => simulation_component_parse_json
   end type simulation_component_t
 
   !> A helper type that is needed to have an array of polymorphic objects
@@ -141,11 +157,102 @@ contains
     class(simulation_component_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
-    character(len=:), allocatable :: preprocess_control, compute_control, output_control
+    character(len=:), allocatable :: preprocess_control, compute_control, &
+         output_control
     real(kind=rp) :: preprocess_value, compute_value, output_value
     integer :: order
 
+      call this%parse_json(json, case%params, preprocess_control, &
+         preprocess_value, compute_control, compute_value, output_control, &
+         output_value)
+
+    call json_get_or_default(json, "order", order, -1)
+
+    call this%init_base_from_components(case, order, &
+       preprocess_control, preprocess_value, compute_control, compute_value, &
+       output_control, output_value)
+
+  end subroutine simulation_component_init_base
+
+  !> Constructor for the `simulation_component_t` (base) class from components.
+  !! @param case The simulation case object.
+  !! @param order The execution oder priority of the simcomp.
+  !! @param preprocess_controller Control mode for preprocessing.
+  !! @param preprocess_controller Value parameter for preprocessing.
+  !! @param compute_controller Control mode for computing.
+  !! @param compute_controller Value parameter for computing.
+  !! @param output_controller Control mode for output.
+  !! @param output_controller Value parameter for output.
+  subroutine simulation_component_init_base_from_controllers_properties(this, &
+       case, order, &
+       preprocess_control, preprocess_value, &
+       compute_control, compute_value, &
+       output_control, output_value)
+    class(simulation_component_t), intent(inout) :: this
+    class(case_t), intent(inout), target :: case
+    integer :: order
+    character(len=*), intent(in) :: preprocess_control
+    real(kind=rp), intent(in) :: preprocess_value
+    character(len=*), intent(in) :: compute_control
+    real(kind=rp), intent(in) :: compute_value
+    character(len=*), intent(in) :: output_control
+    real(kind=rp), intent(in) :: output_value
+
     this%case => case
+    this%order = order
+
+    call this%preprocess_controller%init(case%time%end_time, &
+         preprocess_control, preprocess_value)
+    call this%compute_controller%init(case%time%end_time, compute_control, &
+         compute_value)
+    call this%output_controller%init(case%time%end_time, output_control, &
+         output_value)
+
+  end subroutine simulation_component_init_base_from_controllers_properties
+
+  !> Constructor for the `simulation_component_t` (base) class from components.
+  !! @param case The simulation case object.
+  !! @param order The execution oder priority of the simcomp.
+  !! @param preprocess_controller The controller for running preprocessing.
+  !! @param compute_controller The controller for running compute. 
+  !! @param output_controller The controller for producing output.
+  subroutine simulation_component_init_base_from_controllers(this, case, order, &
+       preprocess_controller, compute_controller, output_controller)
+    class(simulation_component_t), intent(inout) :: this
+    class(case_t), intent(inout), target :: case
+    integer :: order
+    type(time_based_controller_t), intent(in) :: preprocess_controller
+    type(time_based_controller_t), intent(in) :: compute_controller
+    type(time_based_controller_t), intent(in) :: output_controller
+
+    this%case => case
+    this%order = order
+    this%preprocess_controller = preprocess_controller
+    this%compute_controller = compute_controller
+    this%output_controller = output_controller
+  end subroutine simulation_component_init_base_from_controllers
+
+  !> Parse JSON to determine the properties of the `time_based_controllers`.
+  !! @param json The JSON dictionary of the simcomp.
+  !! @param case_params The entire case configuration JSON.
+  !! @param preprocess_controller Control mode for preprocessing.
+  !! @param preprocess_controller Value parameter for preprocessing.
+  !! @param compute_controller Control mode for computing.
+  !! @param compute_controller Value parameter for computing.
+  !! @param output_controller Control mode for output.
+  !! @param output_controller Value parameter for output.
+  subroutine simulation_component_parse_json(this, json, case_params, &
+       preprocess_control, preprocess_value, compute_control, compute_value, &
+       output_control, output_value)
+    class(simulation_component_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+    type(json_file), intent(inout) :: case_params 
+    character(len=:), allocatable, intent(inout) :: preprocess_control
+    real(kind=rp), intent(out) :: preprocess_value
+    character(len=:), allocatable, intent(inout) :: compute_control
+    real(kind=rp), intent(out) :: compute_value
+    character(len=:), allocatable, intent(inout) :: output_control
+    real(kind=rp), intent(out) :: output_value
 
     ! We default to preprocess every time-step
     call json_get_or_default(json, "preprocess_control", preprocess_control, &
@@ -158,9 +265,9 @@ contains
     call json_get_or_default(json, "compute_value", compute_value, 1.0_rp)
 
     if (compute_control .eq. "fluid_output") then
-       call json_get(this%case%params, 'case.fluid.output_control', &
+       call json_get(case_params, 'case.fluid.output_control', &
             compute_control)
-       call json_get(this%case%params, 'case.fluid.output_value', &
+       call json_get(case_params, 'case.fluid.output_value', &
             compute_value)
     end if
 
@@ -171,23 +278,12 @@ contains
          compute_value)
 
     if (output_control == "global") then
-       call json_get(this%case%params, 'case.fluid.output_control', &
+       call json_get(case_params, 'case.fluid.output_control', &
             output_control)
-       call json_get(this%case%params, 'case.fluid.output_value', &
+       call json_get(case_params, 'case.fluid.output_value', &
             output_value)
     end if
-
-    call json_get_or_default(json, "order", order, -1)
-    this%order = order
-
-    call this%preprocess_controller%init(case%time%end_time, &
-         preprocess_control, preprocess_value)
-    call this%compute_controller%init(case%time%end_time, compute_control, &
-         compute_value)
-    call this%output_controller%init(case%time%end_time, output_control, &
-         output_value)
-
-  end subroutine simulation_component_init_base
+  end subroutine simulation_component_parse_json
 
   !> Destructor for the `simulation_component_t` (base) class.
   subroutine simulation_component_free_base(this)

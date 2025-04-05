@@ -56,6 +56,8 @@ module field_writer
      !> Actual constructor.
      procedure, pass(this) :: init_from_components => &
           field_writer_init_from_components
+     !> Common part of both constructors.
+     procedure, private, pass(this) :: init_common => field_writer_init_common
      !> Destructor.
      procedure, pass(this) :: free => field_writer_free
      !> Here to compy with the interface, does nothing.
@@ -83,15 +85,15 @@ contains
        if (json%valid_path("output_precision")) then
           call json_get(json, "output_precision", precision)
           if (precision == "double") then
-             call field_writer_init_from_components(this, fields, filename, dp)
+             call this%init_common(fields, filename, dp)
           else
-             call field_writer_init_from_components(this, fields, filename, sp)
+             call this%init_common(fields, filename, sp)
           end if
        else
-          call field_writer_init_from_components(this, fields, filename)
+          call this%init_common(fields, filename)
        end if
     else
-       call field_writer_init_from_components(this, fields)
+       call this%init_common(fields)
     end if
   end subroutine field_writer_init_from_json
 
@@ -101,7 +103,52 @@ contains
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine field_writer_init_from_components(this, fields, filename, precision)
+  subroutine field_writer_init_from_components(this, fields, filename, &
+       precision)
+    class(field_writer_t), intent(inout) :: this
+    character(len=20), allocatable, intent(in) :: fields(:)
+    character(len=*), intent(in), optional :: filename
+    integer, intent(in), optional :: precision
+    character(len=20) :: fieldi
+    integer :: i
+
+    ! Register fields if they don't exist.
+    do i=1, size(fields)
+       fieldi = trim(fields(i))
+       call neko_field_registry%add_field(this%case%fluid%dm_Xh, fieldi,&
+            ignore_existing=.true.)
+    end do
+
+    if (present(filename)) then
+       if (present(precision)) then
+          call this%output%init(precision, filename, size(fields))
+       else
+          call this%output%init(sp, filename, size(fields))
+       end if
+       do i=1, size(fields)
+          fieldi = trim(fields(i))
+          call this%output%fields%assign(i, neko_field_registry%get_field(fieldi))
+       end do
+
+       call this%case%output_controller%add(this%output, &
+            this%output_controller%control_value, &
+            this%output_controller%control_mode)
+    else
+       do i=1, size(fields)
+          fieldi = trim(fields(i))
+          call this%case%f_out%fluid%append(neko_field_registry%get_field(fieldi))
+       end do
+    end if
+
+  end subroutine field_writer_init_from_components
+
+  !> Common part of both constructors.
+  !! @param fields Array of field names to be sampled.
+  !! @param filename The name of the file save the fields to. Optional, if not
+  !! provided, fields are added to the main output file.
+  !! @param precision The real precision of the output data. Optional, defaults
+  !! to single precision.
+  subroutine field_writer_init_common(this, fields, filename, precision)
     class(field_writer_t), intent(inout) :: this
     character(len=20), allocatable, intent(in) :: fields(:)
     character(len=*), intent(in), optional :: filename
@@ -137,7 +184,7 @@ contains
        end do
     end if
 
-  end subroutine field_writer_init_from_components
+  end subroutine field_writer_init_common
 
   !> Destructor.
   subroutine field_writer_free(this)
