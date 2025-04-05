@@ -71,7 +71,7 @@ module simulation_component
           simulation_component_init_base_from_controllers
      !> Constructor for the simulation_component_t (base) class from
      !! properties of time_based_controllers, so the latter are
-     !! constructed.
+     !! constructed instead of assigned.
      procedure, pass(this) :: init_base_from_controllers_properties => &
           simulation_component_init_base_from_controllers_properties
      !> Destructor for the simulation_component_t (base) class.
