@@ -107,8 +107,8 @@ for file in ${files[@]}; do
     fi
 
     printf "\t- $file"
-    score=$(flint score -r $ROOT_DIR/flinter_rc.yml $(realpath $file) 2>/dev/null |
-        grep -oP '(?<=\>\|)[^\|\<]+(?=\|\<)')
+    score=$(flint score -r $ROOT_DIR/flinter_rc.yml $file 2>/dev/null |
+        sed -n 's/.*|\([^|]*\)|.*/\1/p')
     printf ": $score\n"
 
     if (($(echo "$score < 10" | bc -l))); then
