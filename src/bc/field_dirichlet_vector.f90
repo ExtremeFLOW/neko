@@ -65,8 +65,6 @@ module field_dirichlet_vector
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
      procedure(field_dirichlet_update), nopass, pointer :: update => null()
-     !> A variable that prevents `update` from being called twice per timestep.
-     integer :: tstep_applied = -1
    contains
      !> Constructor.
      procedure, pass(this) :: init => field_dirichlet_vector_init
@@ -184,6 +182,7 @@ contains
   !! @param n Size of the `x`, `y` and `z` arrays.
   !! @param t Time.
   !! @param tstep Time step.
+  !! @note this%update() is called in fluid_scheme_incompressible.
   subroutine field_dirichlet_vector_apply_vector(this, x, y, z, n, t, tstep, &
        strong)
     class(field_dirichlet_vector_t), intent(inout) :: this
@@ -199,17 +198,6 @@ contains
     if (present(strong)) strong_ = strong
 
     if (strong_) then
-
-       if (this%tstep_applied .ne. tstep) then
-          ! We can send any of the 3 bcs we have as argument, since they are all
-          ! the same boundary.
-          call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
-
-          ! Store the timestep at which update() was last called, so that we
-          ! only call it once
-          this%tstep_applied = tstep
-       end if
-
        call masked_copy(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
        call masked_copy(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
        call masked_copy(z, this%bc_w%field_bc%x, this%msk, n, this%msk(0))
@@ -223,6 +211,7 @@ contains
   !! @param z z-component of the field onto which to apply the values.
   !! @param t Time.
   !! @param tstep Time step.
+  !! @note this%update() is called in fluid_scheme_incompressible.
   subroutine field_dirichlet_vector_apply_vector_dev(this, x_d, y_d, z_d, t, &
        tstep, strong)
     class(field_dirichlet_vector_t), intent(inout), target :: this
@@ -237,12 +226,6 @@ contains
     if (present(strong)) strong_ = strong
 
     if (strong_) then
-
-       if (this%tstep_applied .ne. tstep) then
-          call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
-          this%tstep_applied = tstep
-       end if
-
        if (this%msk(0) .gt. 0) then
           call device_masked_copy(x_d, this%bc_u%field_bc%x_d, this%bc_u%msk_d,&
                this%bc_u%dof%size(), this%msk(0))

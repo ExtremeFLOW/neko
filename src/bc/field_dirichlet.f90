@@ -70,8 +70,6 @@ module field_dirichlet
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
      procedure(field_dirichlet_update), nopass, pointer :: update => null()
-     !> A variable that prevents `update` from being called twice per timestep.
-     integer :: tstep_applied = -1
    contains
      !> Constructor.
      procedure, pass(this) :: init => field_dirichlet_init
@@ -167,6 +165,7 @@ contains
   !! @param n Size of the array `x`.
   !! @param t Time.
   !! @param tstep Time step.
+  !! @note this%update() is called in fluid_scheme_incompressible.
   subroutine field_dirichlet_apply_scalar(this, x, n, t, tstep, strong)
     class(field_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
@@ -179,11 +178,6 @@ contains
     if (present(strong)) strong_ = strong
 
     if (strong_) then
-       if (this%tstep_applied .ne. tstep) then
-          call this%update(this%field_list, this, this%coef, t, tstep)
-          this%tstep_applied = tstep
-       end if
-
        call masked_copy(x, this%field_bc%x, this%msk, n, this%msk(0))
     end if
 
@@ -193,6 +187,7 @@ contains
   !! @param x_d Device pointer to the field onto which to copy the values.
   !! @param t Time.
   !! @param tstep Time step.
+  !! @note this%update() is called in fluid_scheme_incompressible.
   subroutine field_dirichlet_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(field_dirichlet_t), intent(inout), target :: this
     type(c_ptr) :: x_d
@@ -204,11 +199,6 @@ contains
     if (present(strong)) strong_ = strong
 
     if (strong_) then
-       if (this%tstep_applied .ne. tstep) then
-          call this%update(this%field_list, this, this%coef, t, tstep)
-          this%tstep_applied = tstep
-       end if
-
        if (this%msk(0) .gt. 0) then
           call device_masked_copy(x_d, this%field_bc%x_d, this%msk_d, &
                this%field_bc%dof%size(), this%msk(0))

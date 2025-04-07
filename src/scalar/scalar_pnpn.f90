@@ -66,6 +66,7 @@ module scalar_pnpn
   use zero_dirichlet, only : zero_dirichlet_t
   use time_step_controller, only : time_step_controller_t
   use scratch_registry, only : neko_scratch_registry
+  use field_dirichlet, only: field_dirichlet_t
   use bc, only : bc_t
   implicit none
   private
@@ -346,6 +347,12 @@ contains
     type(ksp_monitor_t) :: ksp_results(1)
     character(len=LOG_SIZE) :: log_buf
 
+    integer :: i
+    class(bc_t), pointer :: b
+    type(field_dirichlet_t), pointer :: fd
+    fd => null()
+    !b => null()
+
     n = this%dm_Xh%size()
 
     call profiler_start_region('Scalar', 2)
@@ -404,6 +411,20 @@ contains
       end if
 
       call slag%update()
+
+      !
+      ! Update the field_dirichlet bcs
+      !
+      do i = 1,this%bcs%size()
+         b => this%bcs%get(i)
+         select type(b)
+         class is (field_dirichlet_t)
+            fd => b
+            call fd%update(fd%field_list, fd, this%c_Xh, t, tstep)
+         end select
+      end do
+      nullify(fd)
+      nullify(b)
 
       !> Apply strong boundary conditions.
       call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), t, tstep, .true.)
