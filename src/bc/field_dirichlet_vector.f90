@@ -46,8 +46,9 @@ module field_dirichlet_vector
   use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
   use utils, only: neko_error
   use json_module, only : json_file
+  use json_utils, only: json_get
   use field_list, only : field_list_t
-  use logger, only: neko_log, LOG_SIZE, NEKO_LOG_INFO, NEKO_LOG_DEBUG
+  use logger, only: neko_log, LOG_SIZE, NEKO_LOG_INFO
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t    
   implicit none
   private
@@ -55,12 +56,18 @@ module field_dirichlet_vector
   !> Extension of the user defined dirichlet condition `field_dirichlet`
   ! for the application on a vector field.
   type, public, extends(bc_t) :: field_dirichlet_vector_t
-     !> List of field_dirichlet bcs that need to be used
-     type(field_dirichlet_t) :: bc_list(:)
-     !> Number of field_dirichlet components
-     integer :: n_components
+     ! The bc for the first compoent.
+     type(field_dirichlet_t) :: bc_u
+     ! The bc for the second compoent.
+     type(field_dirichlet_t) :: bc_v
+     ! The bc for the third compoent.
+     type(field_dirichlet_t) :: bc_w
      !> A field list to store the bcs for passing to various subroutines.
-     type(field_list_t), allocatable :: field_list(:)
+     type(field_list_t) :: field_list
+     !> Velocity components on which dirichlet conditions should be applied.
+     character(len=20), allocatable :: components(:)
+     !> Number of components to apply dirichlet on.
+     integer :: n_components
      !> Function pointer to the user routine performing the update of the values
      !! of the boundary fields.
      procedure(field_dirichlet_update), nopass, pointer :: update => null()
@@ -97,19 +104,21 @@ contains
     class(field_dirichlet_vector_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
     type(json_file), intent(inout) ::json
-    character(len=20), allocatable :: components
 
+    character(len=20), allocatable :: components(:)
     integer :: i
 
+    call neko_log%section("F-D vector init", lvl=NEKO_LOG_INFO)
     call json_get(json, "velocity_components", components)
 
-    call neko_log%section("(F-D) Velocity components", lvl=NEKO_LOG_INFO)
+    call neko_log%message("Found components ", lvl=NEKO_LOG_INFO)
     do i = 1, size(components)
        call neko_log%message(trim(components(i)), lvl=NEKO_LOG_INFO)
     end do
 
     call this%init_from_components(coef, components)
-    call neko_log%end_section(lvl=NEKO_LOG_INFO)
+
+    call neko_log%end_section("end F-D vector init", lvl=NEKO_LOG_INFO)
 
   end subroutine field_dirichlet_vector_init
 
@@ -118,35 +127,37 @@ contains
   subroutine field_dirichlet_vector_init_from_components(this, coef, components)
     class(field_dirichlet_vector_t), intent(inout), target :: this
     type(coef_t), intent(in) :: coef
-    character(len=:), intent(in) :: components(:)
+    character(len=20), intent(in) :: components(:)
 
+    integer :: i
     character(len=LOG_SIZE) :: log_buf
-
-    integer :: i, n_components
 
     call this%init_base(coef)
 
-    if (allocated(this%bc_list)) &
-         call neko_error("field dirichlet already allocated!")
+    call this%bc_u%init_from_components(coef, "u")
+    call this%bc_v%init_from_components(coef, "v")
+    call this%bc_w%init_from_components(coef, "w")
 
+    ! TODO set to u v w values
+
+    call this%field_list%init(3)
+    call this%field_list%assign_to_field(1, this%bc_u%field_bc)
+    call this%field_list%assign_to_field(2, this%bc_v%field_bc)
+    call this%field_list%assign_to_field(3, this%bc_w%field_bc)
+
+    if (allocated(this%components)) &
+         call neko_error("Field dirichlet already allocated")
+
+    ! Allocate and fill components array
     this%n_components = size(components)
-    write (log_buf, *) "Nb of components: ", this%n_components
+    write(log_buf, *) "Found", this%n_components
     call neko_log%message(log_buf, lvl=NEKO_LOG_INFO)
 
-
-    ! Allocate and init the bc_list
-    call neko_log%message("Allocating BCs", lvl=NEKO_LOG_INFO)
-    allocate(this%bc_list(this%n_components))
+    allocate(this%components(this%n_components))
     do i = 1, this%n_components
-       call this%bc_list(i)%init_from_components(coef, components(i))
-    end do
-
-    ! Allocate, init and assign field list based on what is in
-    ! the bc_lsit
-    call neko_log%message("Allocating fields", lvl=NEKO_LOG_INFO)
-    call this%field_list%init(this%n_components)
-    do i = 1, this%n_components
-       call this%field_list%assign_to_field(i, this%bc_list(i)%field_bc)
+       call neko_log%message("Found field" // trim(components(i)),&
+            lvl=NEKO_LOG_INFO)
+       this%components(i) = components(i)
     end do
 
   end subroutine field_dirichlet_vector_init_from_components
@@ -156,15 +167,14 @@ contains
   subroutine field_dirichlet_vector_free(this)
     class(field_dirichlet_vector_t), target, intent(inout) :: this
 
-    integer :: i
-
-    do i = 1, this%n_components
-       this%bc_list(i)%free()
-    end do
-
-    this%n_components = 0
+    call this%bc_u%free()
+    call this%bc_v%free()
+    call this%bc_w%free()
 
     call this%field_list%free()
+
+    deallocate(this%components)
+    this%n_components = 0
 
     if (associated(this%update)) then
        nullify(this%update)
@@ -213,7 +223,6 @@ contains
   !! @param n Size of the `x`, `y` and `z` arrays.
   !! @param t Time.
   !! @param tstep Time step.
-  !! @note this%update() is called in fluid_scheme_incompressible.
   subroutine field_dirichlet_vector_apply_vector(this, x, y, z, n, t, tstep, &
        strong)
     class(field_dirichlet_vector_t), intent(inout) :: this
@@ -232,13 +241,13 @@ contains
 
     if (strong_) then
        do i = 1, this%n_components
-          if (this%field_list%items(i)%ptr%name .eq. "u") then
+          if (this%components(i) .eq. "u") then
              call neko_log%message("(F-D) Copying field u", lvl=NEKO_LOG_INFO)
              call masked_copy(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
-          else if (this%field_list%items(i)%ptr%name .eq. "v") then
+          else if (this%components(i) .eq. "v") then
              call neko_log%message("(F-D) Copying field v", lvl=NEKO_LOG_INFO)
              call masked_copy(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
-          else if (this%field_list%items(i)%ptr%name .eq. "w") then
+          else if (this%components(i) .eq. "w") then
              call neko_log%message("(F-D) Copying field w", lvl=NEKO_LOG_INFO)
              call masked_copy(z, this%bc_w%field_bc%x, this%msk, n, this%msk(0))
           end if
@@ -253,7 +262,6 @@ contains
   !! @param z z-component of the field onto which to apply the values.
   !! @param t Time.
   !! @param tstep Time step.
-  !! @note this%update() is called in fluid_scheme_incompressible.
   subroutine field_dirichlet_vector_apply_vector_dev(this, x_d, y_d, z_d, t, &
        tstep, strong)
     class(field_dirichlet_vector_t), intent(inout), target :: this
@@ -265,24 +273,18 @@ contains
     logical, intent(in), optional :: strong
     logical :: strong_ = .true.
 
-    integer :: i
-
     if (present(strong)) strong_ = strong
 
     if (strong_) then
+       call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
+
        if (this%msk(0) .gt. 0) then
-          do i = 1, this%n_components
-             if (this%field_list%items(i)%ptr%name .eq. "u") then
-                call device_masked_copy(x_d, this%bc_u%field_bc%x_d, &
-                     this%bc_u%msk_d, this%bc_u%dof%size(), this%msk(0))
-             else if (this%field_list%items(i)%ptr%name .eq. "v") then
-                call device_masked_copy(y_d, this%bc_v%field_bc%x_d, &
-                     this%bc_v%msk_d, this%bc_v%dof%size(), this%msk(0))
-             else if (this%field_list%items(i)%ptr%name .eq. "w") then
-                call device_masked_copy(z_d, this%bc_w%field_bc%x_d, &
-                     this%bc_w%msk_d, this%bc_w%dof%size(), this%msk(0))
-             end if
-          end do
+          call device_masked_copy(x_d, this%bc_u%field_bc%x_d, this%bc_u%msk_d,&
+               this%bc_u%dof%size(), this%msk(0))
+          call device_masked_copy(y_d, this%bc_v%field_bc%x_d, this%bc_v%msk_d,&
+               this%bc_v%dof%size(), this%msk(0))
+          call device_masked_copy(z_d, this%bc_w%field_bc%x_d, this%bc_w%msk_d,&
+               this%bc_w%dof%size(), this%msk(0))
        end if
     end if
 

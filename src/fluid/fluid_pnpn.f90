@@ -77,6 +77,7 @@ module fluid_pnpn
   use mathops, only : opadd2cm, opcolv
   use bc_list, only: bc_list_t
   use zero_dirichlet, only : zero_dirichlet_t
+  use field_dirichlet_vector, only: field_dirichlet_vector_t
   use utils, only : neko_error, neko_type_error
   use field_math, only : field_add2, field_copy
   use bc, only : bc_t
@@ -819,6 +820,11 @@ contains
     logical, allocatable :: marked_zones(:)
     integer, allocatable :: zone_indices(:)
 
+    ! For field dirichlet
+    type(field_dirichlet_vector_t), pointer :: fd
+    integer :: icomp
+    fd => null()
+
     ! Lists for the residuals and solution increments
     call this%bclst_vel_res%init()
     call this%bclst_du%init()
@@ -936,6 +942,20 @@ contains
                 call this%bclst_dw%append(bc_i%symmetry%bc_z)
 
                 call this%bcs_vel%append(bc_i)
+             type is (field_dirichlet_vector_t)
+                fd => bc_i
+                call this%bclst_vel_res%append(bc_i)
+                do icomp = 1, fd%n_components
+                   if (trim(fd%components(icomp)) .eq. "u") then
+                      call this%bclst_du%append(fd%bc_u)
+                   else if (trim(fd%components(icomp)) .eq. "v") then
+                      call this%bclst_dv%append(fd%bc_v)
+                   else if (trim(fd%components(icomp)) .eq. "w") then
+                      call this%bclst_dw%append(fd%bc_w)
+                   end if
+                end do
+
+                call this%bcs_vel%append(bc_i)
              class default
 
                 ! For the default case we use our dummy zero_dirichlet bcs to
@@ -981,6 +1001,7 @@ contains
           ! so we check.
           if (associated(bc_i)) then
              call this%bcs_prs%append(bc_i)
+             print *, "PRESSURE ASSOCIATED"
 
              ! Mark strong bcs in the dummy dp bc to force zero change.
              if (bc_i%strong .eqv. .true.) then

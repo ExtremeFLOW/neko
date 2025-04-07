@@ -45,10 +45,11 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   use symmetry, only : symmetry_t
   use non_normal, only : non_normal_t
   use field_dirichlet_vector, only : field_dirichlet_vector_t
+  use logger, only: neko_log, LOG_SIZE, NEKO_LOG_INFO
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: FLUID_PNPN_KNOWN_BCS(14) = [character(len=25) :: &
+  character(len=25) :: FLUID_PNPN_KNOWN_BCS(12) = [character(len=25) :: &
        "symmetry", &
        "velocity_value", &
        "no_slip", &
@@ -57,8 +58,6 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
        "outflow+dong", &
        "normal_outflow+dong", &
        "shear_stress", &
-       "user_velocity", &
-       "user_pressure", &
        "user_dirichlet", &
        "blasius_profile", &
        "user_velocity_pointwise", &
@@ -81,7 +80,10 @@ contains
     character(len=:), allocatable :: type
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
+
+    ! For user_dirichlet
     character(len=20), allocatable :: user_dirichlet_components(:)
+    logical :: pressure_found = .false.
 
     call json_get(json, "type", type)
 
@@ -92,27 +94,24 @@ contains
     case ("outflow+dong", "normal_outflow+dong")
        allocate(dong_outflow_t::object)
 
-    case ("user_pressure")
-       allocate(field_dirichlet_t::object)
-       select type (obj => object)
-       type is (field_dirichlet_t)
-          obj%update => user%user_dirichlet_update
-          call json%add("field_name", scheme%p%name)
-       end select
-
     case ("user_dirichlet")
        ! Check if "p" is specified in the dirichlet components
-       call json_get(json, "components", user_dirichlet_components)
-       do i = 1, size(field_components)
-          if (trim(field_components(i)) .eq. "p") then
+       call json_get(json, "fields", user_dirichlet_components)
+       do i = 1, size(user_dirichlet_components)
+          if (trim(user_dirichlet_components(i)) .eq. "p") then
+             print *, "found p"
              allocate(field_dirichlet_t::object)
              select type (obj => object)
              type is (field_dirichlet_t)
                 obj%update => user%user_dirichlet_update
                 call json%add("field_name", scheme%p%name)
              end select
-             continue
+             pressure_found = .true.
+             exit
           end if
+
+          if (.not. pressure_found) return
+
        end do
 
     case default
@@ -160,7 +159,15 @@ contains
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
 
+    ! For user_dirichlet
+    character(len=20), allocatable :: user_dirichlet_fields(:)
+    integer :: n_user_dirichlet_comps, idx
+    character(len=20), allocatable :: user_dirichlet_vel_comps(:)
+    character(len=LOG_SIZE) :: log_buf
+
     call json_get(json, "type", type)
+
+    call neko_log%message("BC is " // trim(type))
 
     select case (trim(type))
     case ("symmetry")
@@ -184,11 +191,58 @@ contains
 
     case ("user_dirichlet")
 
-       allocate(field_dirichlet_vector_t::object)
-       select type (obj => object)
-       type is (field_dirichlet_vector_t)
-          obj%update => user%user_dirichlet_update
-       end select
+       call json_get(json, "fields", user_dirichlet_fields)
+
+       ! Check if any velocity fields are specified and if so, how many
+       n_user_dirichlet_comps = 0
+       do i = 1, size(user_dirichlet_fields)
+          if ( trim(user_dirichlet_fields(i)) .eq. "u" .or. &
+               trim(user_dirichlet_fields(i)) .eq. "v" .or. &
+               trim(user_dirichlet_fields(i)) .eq. "w") &
+               n_user_dirichlet_comps = n_user_dirichlet_comps + 1
+       end do
+
+       call neko_log%section("(F-D, pnpn)", lvl=NEKO_LOG_INFO)
+       write (log_buf, *) "Found", n_user_dirichlet_comps, "components"
+       call neko_log%message(log_buf, lvl=NEKO_LOG_INFO)
+
+       ! If there are velocity components...
+       if (n_user_dirichlet_comps .gt. 0) then
+
+          ! ... duplicate only those velocity components, and inject the
+          ! modified array in the json, which will be picked
+          ! up by the field_dirichlet_vector_t constructor.
+          allocate(user_dirichlet_vel_comps(n_user_dirichlet_comps))
+
+          idx = 1
+          do i = 1, size(user_dirichlet_fields)
+             if ( trim(user_dirichlet_fields(i)) .eq. "u" .or. &
+                  trim(user_dirichlet_fields(i)) .eq. "v" .or. &
+                  trim(user_dirichlet_fields(i)) .eq. "w") then
+                call neko_log%message("found component " // trim(user_dirichlet_fields(i)), lvl=NEKO_LOG_INFO)
+                user_dirichlet_vel_comps(idx) = user_dirichlet_fields(i)
+                idx = idx + 1
+             end if
+          end do
+
+          ! the constructor of field_dirichlet_vector_t will search for
+          ! the "velocity_components" array
+          call neko_log%message("Adding new json array", lvl=NEKO_LOG_INFO)
+          call json%add("velocity_components", user_dirichlet_vel_comps)
+
+          allocate(field_dirichlet_vector_t::object)
+          select type (obj => object)
+          type is (field_dirichlet_vector_t)
+             obj%update => user%user_dirichlet_update
+          end select
+       else
+          return ! is this wonky? This simulates the fact that if
+                 ! we don't specify any velocity components we assume
+                 ! we want a "do nothing". In the case default this is
+                 ! what is done so...
+       end if
+
+    call neko_log%end_section(lvl=NEKO_LOG_INFO)
 
     case ("user_velocity_pointwise")
        allocate(usr_inflow_t::object)
