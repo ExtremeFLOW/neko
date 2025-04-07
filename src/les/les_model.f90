@@ -129,22 +129,69 @@ module les_model
   end interface
 
   interface
-     !> LES model factory. Both constructs and initializes the object.
+     !> LES model allocator.
      !! @param object The object to be allocated.
      !! @param type_name The name of the LES model.
+     module subroutine les_model_allocator(object, type_name)
+       class(les_model_t), allocatable, intent(inout) :: object
+       character(len=*), intent(in) :: type_name
+     end subroutine les_model_allocator
+  end interface
+
+  interface
+     !> LES model factory. Both allocates and initializes the object.
+     !! @param object The object to be allocated.
+     !! @param type_name The name of the LES model.
+     !! @param fluid The fluid scheme base type pointer.
      !! @param dofmap SEM map of degrees of freedom.
      !! @param coef SEM coefficients.
      !! @param json A dictionary with parameters.
-     module subroutine les_model_factory(object, type_name, dofmap, coef, json)
+     module subroutine les_model_factory(object, type_name, fluid, json)
        class(les_model_t), allocatable, intent(inout) :: object
        character(len=*), intent(in) :: type_name
-       type(dofmap_t), intent(in) :: dofmap
-       type(coef_t), intent(in) :: coef
+       class(fluid_scheme_base_t), intent(inout) :: fluid
        type(json_file), intent(inout) :: json
      end subroutine les_model_factory
   end interface
 
-  public :: les_model_factory
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  interface
+     !> Called in user modules to add an allocator for custom types.
+     module subroutine register_les_model(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(les_model_allocate), pointer, intent(in) :: allocator
+     end subroutine register_les_model
+  end interface
+
+  !> Interface for an object allocator.
+  !! Implemented in the user modules, should allocate the `obj` to the custom
+  !! user type.
+  abstract interface
+     subroutine les_model_allocate(obj)
+       import les_model_t
+       class(les_model_t), allocatable, intent(inout) :: obj
+     end subroutine les_model_allocate
+  end interface
+
+  ! A name-allocator pair for user-defined types. A helper type to define a
+  ! registry of custom allocators.
+  type allocator_entry
+     character(len=20) :: type_name
+     procedure(les_model_allocate), pointer, nopass :: allocator
+  end type allocator_entry
+
+  !> Registry of LES model allocators for user-defined types
+  type(allocator_entry), allocatable :: les_model_registry(:)
+
+  !> The size of the `les_model_registry`
+  integer :: les_model_registry_size = 0
+
+  public :: les_model_factory, les_model_allocator, register_les_model, &
+       les_model_allocate
+
 
 contains
   !> Constructor for the les_model_t (base) class.
