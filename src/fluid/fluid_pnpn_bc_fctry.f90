@@ -48,7 +48,7 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: FLUID_PNPN_KNOWN_BCS(13) = [character(len=25) :: &
+  character(len=25) :: FLUID_PNPN_KNOWN_BCS(14) = [character(len=25) :: &
        "symmetry", &
        "velocity_value", &
        "no_slip", &
@@ -59,6 +59,7 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
        "shear_stress", &
        "user_velocity", &
        "user_pressure", &
+       "user_dirichlet", &
        "blasius_profile", &
        "user_velocity_pointwise", &
        "wall_model"]
@@ -80,6 +81,7 @@ contains
     character(len=:), allocatable :: type
     integer :: i, j, k
     integer, allocatable :: zone_indices(:)
+    character(len=20), allocatable :: user_dirichlet_components(:)
 
     call json_get(json, "type", type)
 
@@ -97,6 +99,21 @@ contains
           obj%update => user%user_dirichlet_update
           call json%add("field_name", scheme%p%name)
        end select
+
+    case ("user_dirichlet")
+       ! Check if "p" is specified in the dirichlet components
+       call json_get(json, "components", user_dirichlet_components)
+       do i = 1, size(field_components)
+          if (trim(field_components(i)) .eq. "p") then
+             allocate(field_dirichlet_t::object)
+             select type (obj => object)
+             type is (field_dirichlet_t)
+                obj%update => user%user_dirichlet_update
+                call json%add("field_name", scheme%p%name)
+             end select
+             continue
+          end if
+       end do
 
     case default
        do i = 1, size(FLUID_PNPN_KNOWN_BCS)
@@ -165,7 +182,8 @@ contains
        ! would be a nightmare.
        call json%add("nu", scheme%mu / scheme%rho)
 
-    case ("user_velocity")
+    case ("user_dirichlet")
+
        allocate(field_dirichlet_vector_t::object)
        select type (obj => object)
        type is (field_dirichlet_vector_t)
