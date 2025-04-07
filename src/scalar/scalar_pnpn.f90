@@ -351,7 +351,7 @@ contains
     class(bc_t), pointer :: b
     type(field_dirichlet_t), pointer :: fd
     fd => null()
-    !b => null()
+    b => null()
 
     n = this%dm_Xh%size()
 
