@@ -68,7 +68,9 @@ module scalars
     real(kind=rp), pointer :: dtlag(:) => null()
   contains
     !> Initialize the scalars container
-    procedure :: init => scalars_init
+    generic :: init => scalars_init, scalars_init_single
+    procedure, private :: scalars_init
+    procedure, private :: scalars_init_single
     !> Perform a time step for all scalar fields
     procedure :: step => scalars_step
     !> Update the material properties for all scalar fields
@@ -108,6 +110,26 @@ contains
        call this%scalar(i)%init(msh, coef, gs, json_subdict, numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
     end do
   end subroutine scalars_init
+
+  subroutine scalars_init_single(this, msh, coef, gs, params, numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
+    class(scalars_t), intent(inout) :: this
+    type(mesh_t), target, intent(in) :: msh
+    type(coef_t), target, intent(in) :: coef
+    type(gs_t), target, intent(inout) :: gs
+    type(json_file), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: numerics_params
+    type(user_t), target, intent(in) :: user
+    type(chkp_t), target, intent(inout) :: chkp
+    type(field_series_t), target, intent(in) :: ulag, vlag, wlag
+    type(time_scheme_controller_t), target, intent(in) :: time_scheme
+    real(kind=rp), intent(in) :: rho
+    
+    ! Allocate a single scalar field
+    allocate(scalar_pnpn_t::this%scalar(1))
+    
+    ! Initialize it directly with the params
+    call this%scalar(1)%init(msh, coef, gs, params, numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
+  end subroutine scalars_init_single
   
   !> Perform a time step for all scalar fields
   subroutine scalars_step(this, t, tstep, dt, ext_bdf, dt_controller)

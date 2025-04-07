@@ -148,7 +148,7 @@ contains
     character(len = :), allocatable :: string_val, name
     integer :: output_dir_len
     integer :: precision
-    type(json_file) :: scalar_params, numerics_params, scalars_params
+    type(json_file) :: scalar_params, numerics_params
     type(json_file) :: json_subdict
     integer :: n_scalars, i
 
@@ -257,22 +257,22 @@ contains
     end if
 
     if (scalar) then
-       allocate(this%scalars)
-       if (this%params%valid_path('case.scalar')) then
+      allocate(this%scalars)
+      if (this%params%valid_path('case.scalar')) then
          ! For backward compatibility
-         allocate(scalar_pnpn_t::this%scalars%scalar(1))
          call json_extract_object(this%params, 'case.scalar', scalar_params)
-         call this%scalars%scalar(1)%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-              scalar_params, numerics_params, this%usr, this%chkp, this%fluid%ulag, &
-              this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
-              this%fluid%rho)
-       else
-         call json_extract_object(this%params, 'case.scalars', scalars_params)
-         call this%scalars%init(n_scalars, this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-               scalars_params, numerics_params, this%usr, this%chkp, this%fluid%ulag, &
+         call this%scalars%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
+               scalar_params, numerics_params, this%usr, this%chkp, this%fluid%ulag, &
                this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
                this%fluid%rho)
-       end if
+      else
+         ! Multiple scalars
+         call json_extract_object(this%params, 'case.scalars', json_subdict)
+         call this%scalars%init(n_scalars, this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
+               json_subdict, numerics_params, this%usr, this%chkp, this%fluid%ulag, &
+               this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
+               this%fluid%rho)
+      end if
     end if
 
     !
