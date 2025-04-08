@@ -54,8 +54,8 @@ module field_writer
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => field_writer_init_from_json
      !> Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-          field_writer_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          field_writer_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => field_writer_free
      !> Here to compy with the interface, does nothing.
@@ -83,15 +83,15 @@ contains
        if (json%valid_path("output_precision")) then
           call json_get(json, "output_precision", precision)
           if (precision == "double") then
-             call field_writer_init_from_attributes(this, fields, filename, dp)
+             call field_writer_init_from_components(this, fields, filename, dp)
           else
-             call field_writer_init_from_attributes(this, fields, filename, sp)
+             call field_writer_init_from_components(this, fields, filename, sp)
           end if
        else
-          call field_writer_init_from_attributes(this, fields, filename)
+          call field_writer_init_from_components(this, fields, filename)
        end if
     else
-       call field_writer_init_from_attributes(this, fields)
+       call field_writer_init_from_components(this, fields)
     end if
   end subroutine field_writer_init_from_json
 
@@ -101,7 +101,7 @@ contains
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine field_writer_init_from_attributes(this, fields, filename, precision)
+  subroutine field_writer_init_from_components(this, fields, filename, precision)
     class(field_writer_t), intent(inout) :: this
     character(len=20), allocatable, intent(in) :: fields(:)
     character(len=*), intent(in), optional :: filename
@@ -137,7 +137,7 @@ contains
        end do
     end if
 
-  end subroutine field_writer_init_from_attributes
+  end subroutine field_writer_init_from_components
 
   !> Destructor.
   subroutine field_writer_free(this)
