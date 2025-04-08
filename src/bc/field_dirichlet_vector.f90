@@ -47,7 +47,7 @@ module field_dirichlet_vector
   use utils, only: neko_error
   use json_module, only : json_file
   use field_list, only : field_list_t
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t    
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
   implicit none
   private
 
@@ -154,7 +154,7 @@ contains
     logical, intent(in), optional :: strong
 
     call neko_error("field_dirichlet_vector cannot apply scalar BCs.&
-         & Use field_dirichlet instead!")
+& Use field_dirichlet instead!")
 
   end subroutine field_dirichlet_vector_apply_scalar
 
@@ -171,7 +171,7 @@ contains
     logical, intent(in), optional :: strong
 
     call neko_error("field_dirichlet_vector cannot apply scalar BCs.&
-         & Use field_dirichlet instead!")
+& Use field_dirichlet instead!")
 
   end subroutine field_dirichlet_vector_apply_scalar_dev
 
