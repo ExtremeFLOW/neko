@@ -510,6 +510,7 @@ contains
 
     integer :: i
     class(bc_t), pointer :: b
+    b => null()
 
     call this%bcs_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep, strong)
@@ -534,6 +535,7 @@ contains
        b => this%bcs_vel%get(i)
        b%updated = .false.
     end do
+    nullify(b)
 
   end subroutine fluid_scheme_bc_apply_vel
 
@@ -546,6 +548,7 @@ contains
 
     integer :: i
     class(bc_t), pointer :: b
+    b => null()
 
     call this%bcs_prs%apply(this%p, t, tstep)
     call this%gs_Xh%op(this%p,GS_OP_MIN, glb_cmd_event)
@@ -559,6 +562,7 @@ contains
        b => this%bcs_prs%get(i)
        b%updated = .false.
     end do
+    nullify(b)
 
   end subroutine fluid_scheme_bc_apply_prs
 
