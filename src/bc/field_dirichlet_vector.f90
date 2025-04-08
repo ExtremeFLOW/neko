@@ -154,7 +154,7 @@ contains
     logical, intent(in), optional :: strong
 
     call neko_error("field_dirichlet_vector cannot apply scalar BCs.&
-& Use field_dirichlet instead!")
+    & Use field_dirichlet instead!")
 
   end subroutine field_dirichlet_vector_apply_scalar
 
@@ -171,7 +171,7 @@ contains
     logical, intent(in), optional :: strong
 
     call neko_error("field_dirichlet_vector cannot apply scalar BCs.&
-& Use field_dirichlet instead!")
+    & Use field_dirichlet instead!")
 
   end subroutine field_dirichlet_vector_apply_scalar_dev
 
