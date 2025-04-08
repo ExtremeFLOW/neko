@@ -347,12 +347,6 @@ contains
     type(ksp_monitor_t) :: ksp_results(1)
     character(len=LOG_SIZE) :: log_buf
 
-    integer :: i
-    class(bc_t), pointer :: b
-    type(field_dirichlet_t), pointer :: fd
-    fd => null()
-    b => null()
-
     n = this%dm_Xh%size()
 
     call profiler_start_region('Scalar', 2)
