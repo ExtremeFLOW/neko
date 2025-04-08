@@ -209,6 +209,7 @@ contains
   subroutine facet_normal_finalize(this, only_facets)
     class(facet_normal_t), target, intent(inout) :: this
     logical, optional, intent(in) :: only_facets
+    logical :: only_facets_
 
     if ( present(only_facets)) then
        only_facets_ = only_facets
