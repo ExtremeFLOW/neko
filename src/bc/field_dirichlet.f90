@@ -226,7 +226,7 @@ contains
     logical, intent(in), optional :: strong
 
     call neko_error("field_dirichlet cannot apply vector BCs.&
-         & Use field_dirichlet_vector instead!")
+    & Use field_dirichlet_vector instead!")
 
   end subroutine field_dirichlet_apply_vector
 
@@ -247,7 +247,7 @@ contains
     logical, intent(in), optional :: strong
 
     call neko_error("field_dirichlet cannot apply vector BCs.&
-         & Use field_dirichlet_vector instead!")
+    & Use field_dirichlet_vector instead!")
 
   end subroutine field_dirichlet_apply_vector_dev
 

@@ -166,7 +166,7 @@ contains
 
     if (size(value) .ne. 3) then
        call neko_error ("The shear stress vector provided for the shear stress &
-            & boundary condition should have 3 components.")
+       & boundary condition should have 3 components.")
     end if
 
     call this%init_from_components(coef, value)

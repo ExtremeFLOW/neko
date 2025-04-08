@@ -88,9 +88,9 @@ contains
     call this%init_base(coef)
 
     call json_get_or_default(json, 'delta', &
-      this%delta, 0.01_rp)
+         this%delta, 0.01_rp)
     call json_get_or_default(json, 'velocity_scale', &
-      this%uinf, 1.0_rp)
+         this%uinf, 1.0_rp)
 
   end subroutine dong_outflow_init
 
@@ -119,7 +119,7 @@ contains
           uz = this%w%x(k,1,1,1)
           idx = nonlinear_index(k, this%Xh%lx, this%Xh%lx, this%Xh%lx)
           normal_xyz = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), &
-            facet)
+               facet)
           vn = ux*normal_xyz(1) + uy*normal_xyz(2) + uz*normal_xyz(3)
           S0 = 0.5_rp*(1.0_rp - tanh(vn / (this%uinf * this%delta)))
 
@@ -156,10 +156,10 @@ contains
 
     if (strong_ .and. this%msk(0) .gt. 0) then
        call device_dong_outflow_apply_scalar(this%msk_d, x_d, &
-         this%normal_x_d, this%normal_y_d, this%normal_z_d, &
-         this%u%x_d, this%v%x_d, this%w%x_d, &
-         this%uinf, this%delta, &
-         this%msk(0))
+            this%normal_x_d, this%normal_y_d, this%normal_z_d, &
+            this%u%x_d, this%v%x_d, this%w%x_d, &
+            this%uinf, this%delta, &
+            this%msk(0))
     end if
 
   end subroutine dong_outflow_apply_scalar_dev
@@ -167,7 +167,7 @@ contains
   !> Boundary condition apply for a generic Dirichlet condition
   !! to vectors @a x, @a y and @a z (device version)
   subroutine dong_outflow_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
-    strong)
+       strong)
     class(dong_outflow_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
@@ -225,17 +225,17 @@ contains
           facet = this%facet(i)
           idx = nonlinear_index(k, this%Xh%lx, this%Xh%lx, this%Xh%lx)
           normal_xyz = &
-            this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
+               this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), facet)
           temp_x(i) = normal_xyz(1)
           temp_y(i) = normal_xyz(2)
           temp_z(i) = normal_xyz(3)
        end do
        call device_memcpy(temp_x, this%normal_x_d, m, HOST_TO_DEVICE, &
-         sync = .false.)
+            sync = .false.)
        call device_memcpy(temp_y, this%normal_y_d, m, HOST_TO_DEVICE, &
-         sync = .false.)
+            sync = .false.)
        call device_memcpy(temp_z, this%normal_z_d, m, HOST_TO_DEVICE, &
-         sync = .true.)
+            sync = .true.)
        deallocate( temp_x, temp_y, temp_z)
     end if
   end subroutine dong_outflow_finalize

@@ -78,7 +78,7 @@ contains
   subroutine inflow_apply_scalar(this, x, n, t, tstep, strong)
     class(inflow_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
@@ -97,9 +97,9 @@ contains
   subroutine inflow_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(inflow_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
-    real(kind=rp), intent(inout),  dimension(n) :: y
-    real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     logical, intent(in), optional :: strong
     integer, intent(in), optional :: tstep
@@ -111,12 +111,12 @@ contains
     m = this%msk(0)
 
     if (strong_) then
-      do i = 1, m
-        k = this%msk(i)
-        x(k) = this%x(1)
-        y(k) = this%x(2)
-        z(k) = this%x(3)
-      end do
+       do i = 1, m
+          k = this%msk(i)
+          x(k) = this%x(1)
+          y(k) = this%x(2)
+          z(k) = this%x(3)
+       end do
     end if
   end subroutine inflow_apply_vector
 

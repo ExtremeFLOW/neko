@@ -56,7 +56,7 @@ module dirichlet
      procedure, pass(this) :: init => dirichlet_init
      !> Constructor from components.
      procedure, pass(this) :: init_from_components => &
-        dirichlet_init_from_components
+          dirichlet_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => dirichlet_free
      !> Finalize.
@@ -97,7 +97,7 @@ contains
   subroutine dirichlet_apply_scalar(this, x, n, t, tstep, strong)
     class(dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
@@ -120,9 +120,9 @@ contains
   subroutine dirichlet_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
-    real(kind=rp), intent(inout),  dimension(n) :: y
-    real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
@@ -138,7 +138,7 @@ contains
           x(k) = this%g
           y(k) = this%g
           z(k) = this%g
-      end do
+       end do
     end if
 
   end subroutine dirichlet_apply_vector

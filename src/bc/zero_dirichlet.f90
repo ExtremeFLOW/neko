@@ -90,7 +90,7 @@ contains
   subroutine zero_dirichlet_apply_scalar(this, x, n, t, tstep, strong)
     class(zero_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
@@ -101,10 +101,10 @@ contains
     m = this%msk(0)
 
     if (strong_) then
-      do i = 1, m
-        k = this%msk(i)
-        x(k) = 0d0
-      end do
+       do i = 1, m
+          k = this%msk(i)
+          x(k) = 0d0
+       end do
     end if
 
   end subroutine zero_dirichlet_apply_scalar
@@ -113,9 +113,9 @@ contains
   subroutine zero_dirichlet_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(zero_dirichlet_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
-    real(kind=rp), intent(inout),  dimension(n) :: y
-    real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
@@ -125,13 +125,13 @@ contains
     if (present(strong)) strong_ = strong
 
     if (strong_) then
-      m = this%msk(0)
-      do i = 1, m
-        k = this%msk(i)
-        x(k) = 0d0
-        y(k) = 0d0
-        z(k) = 0d0
-      end do
+       m = this%msk(0)
+       do i = 1, m
+          k = this%msk(i)
+          x(k) = 0d0
+          y(k) = 0d0
+          z(k) = 0d0
+       end do
     end if
 
   end subroutine zero_dirichlet_apply_vector
