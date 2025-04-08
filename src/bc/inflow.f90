@@ -148,10 +148,20 @@ contains
   end subroutine inflow_free
 
   !> Finalize
-  subroutine inflow_finalize(this)
+  subroutine inflow_finalize(this, only_facets)
     class(inflow_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
+    logical :: only_facets_ = .false.
 
-    call this%finalize_base()
+    integer :: i
+
+    if ( present(only_facets)) then
+       only_facets_ = only_facets
+    else
+       only_facets_ = .false.
+    end if
+
+    call this%finalize_base(only_facets_)
   end subroutine inflow_finalize
 
 

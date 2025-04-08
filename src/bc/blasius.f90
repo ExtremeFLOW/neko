@@ -324,9 +324,17 @@ contains
   end subroutine blasius_set_params
 
   !> Finalize
-  subroutine blasius_finalize(this)
+  subroutine blasius_finalize(this, only_facets)
     class(blasius_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
+    logical :: only_facets_ = .false.
 
-    call this%finalize_base()
+    if ( present(only_facets)) then
+       only_facets_ = only_facets
+    else
+       only_facets_ = .false.
+    end if
+
+    call this%finalize_base(only_facets_)
   end subroutine blasius_finalize
 end module blasius

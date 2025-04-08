@@ -206,10 +206,17 @@ contains
   end subroutine facet_normal_free
 
   !> Finalize
-  subroutine facet_normal_finalize(this)
+  subroutine facet_normal_finalize(this, only_facets)
     class(facet_normal_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
 
-    call this%finalize_base(.true.)
+    if ( present(only_facets)) then
+       only_facets_ = only_facets
+    else
+       only_facets_ = .true.
+    end if
+
+    call this%finalize_base(only_facets_)
   end subroutine facet_normal_finalize
 
 end module facet_normal

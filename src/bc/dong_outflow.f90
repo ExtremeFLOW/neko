@@ -190,8 +190,10 @@ contains
   end subroutine dong_outflow_free
 
   !> Finalize
-  subroutine dong_outflow_finalize(this)
+  subroutine dong_outflow_finalize(this, only_facets)
     class(dong_outflow_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
+    logical :: only_facets_ = .false.
     real(kind=rp), allocatable :: temp_x(:)
     real(kind=rp), allocatable :: temp_y(:)
     real(kind=rp), allocatable :: temp_z(:)
@@ -199,8 +201,14 @@ contains
     integer :: i, m, k, facet, idx(4)
     real(kind=rp) :: normal_xyz(3)
 
+    if ( present(only_facets)) then
+       only_facets_ = only_facets
+    else
+       only_facets_ = .true.
+    end if
 
-    call this%finalize_base(.true.)
+    call this%finalize_base(only_facets_)
+
     this%u => neko_field_registry%get_field("u")
     this%v => neko_field_registry%get_field("v")
     this%w => neko_field_registry%get_field("w")

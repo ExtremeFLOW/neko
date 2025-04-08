@@ -81,14 +81,22 @@ contains
   end subroutine non_normal_init_from_components
 
   !> Finalize
-  subroutine non_normal_finalize(this)
+  subroutine non_normal_finalize(this, only_facets)
     class(non_normal_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
+    logical :: only_facets_ = .false.
     integer :: i, j, k, l
     type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx, sy, sz
     real(kind=rp), parameter :: TOL = 1d-3
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
+
+    if ( present(only_facets)) then
+       only_facets_ = only_facets
+    else
+       only_facets_ = .false.
+    end if
 
     associate(c => this%coef, nx => this%coef%nx, ny => this%coef%ny, &
          nz => this%coef%nz)
@@ -115,11 +123,11 @@ contains
          end if
       end do
     end associate
-    call this%bc_x%finalize()
-    call this%bc_y%finalize()
-    call this%bc_z%finalize()
+    call this%bc_x%finalize(only_facets_)
+    call this%bc_y%finalize(only_facets_)
+    call this%bc_z%finalize(only_facets_)
 
-    call this%finalize_base()
+    call this%finalize_base(only_facets_)
   end subroutine non_normal_finalize
 
   !> Destructor

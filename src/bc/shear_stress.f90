@@ -196,10 +196,18 @@ contains
 
   end subroutine shear_stress_init_from_components
 
-  subroutine shear_stress_finalize(this)
+  subroutine shear_stress_finalize(this, only_facets)
     class(shear_stress_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
+    logical :: only_facets_ = .false.
 
-    call this%finalize_base()
+    if ( present(only_facets)) then
+       only_facets_ = only_facets
+    else
+       only_facets_ = .false.
+    end if
+
+    call this%finalize_base(only_facets_)
 
     call this%symmetry%mark_facets(this%marked_facet)
     call this%symmetry%finalize()
@@ -209,9 +217,9 @@ contains
     call this%neumann_y%mark_facets(this%marked_facet)
     call this%neumann_z%mark_facets(this%marked_facet)
 
-    call this%neumann_x%finalize()
-    call this%neumann_y%finalize()
-    call this%neumann_z%finalize()
+    call this%neumann_x%finalize(only_facets_)
+    call this%neumann_y%finalize(only_facets_)
+    call this%neumann_z%finalize(only_facets_)
 
   end subroutine shear_stress_finalize
 
