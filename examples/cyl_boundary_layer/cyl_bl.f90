@@ -42,7 +42,7 @@ contains
     real(kind=rp), intent(inout) :: z(lx, lx, lx, msh%nelv)
     type(tuple_i4_t) :: el_and_facet
     real(kind=rp) :: th
-    integer :: e, i, j ,k, l,  facet
+    integer :: e, i, j ,k, l, facet
 
     !The cylinders zone number is 7
     do l = 1, msh%labeled_zones(7)%size
@@ -51,13 +51,13 @@ contains
        e = el_and_facet%x(2)
        do k = 1, lz
           do j = 1, ly
-              do i = 1, lx
-                 if (index_is_on_facet(i, j, k, lx, ly, lz, facet)) then
-                    th = atan2(z(i,j,k,e), x(i,j,k,e))
-                    x(i,j,k,e) = rad * cos(th)
-                    z(i,j,k,e) = rad * sin(th)
-                 end if
-              end do
+             do i = 1, lx
+                if (index_is_on_facet(i, j, k, lx, ly, lz, facet)) then
+                   th = atan2(z(i,j,k,e), x(i,j,k,e))
+                   x(i,j,k,e) = rad * cos(th)
+                   z(i,j,k,e) = rad * sin(th)
+                end if
+             end do
           end do
        end do
     end do
@@ -80,8 +80,8 @@ contains
     integer, intent(in) :: ie
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    real(kind=rp) ::  u_th, dist, th, yy
-    real(kind=rp) ::  arg
+    real(kind=rp) :: u_th, dist, th, yy
+    real(kind=rp) :: arg
 
 !   Two different regions (inflow & cyl) have the label 'v  '
 !   Let compute the distance from the (0,0) in the x-y plane
@@ -90,7 +90,7 @@ contains
 
 ! --- INFLOW
     if (dist .gt. 1.1*rad) then
-       u =  ucl*y**pw
+       u = ucl*y**pw
     end if
 ! ---
 
@@ -118,7 +118,7 @@ contains
 
     if (dist .lt. 1.5*rad) then
        if (yy .lt. delta) then
-          arg  = yy/delta
+          arg = yy/delta
           u_th = u_th2/(1.0_rp+exp(1.0_rp/(arg-1.0_rp)+1.0_rp/arg))
        else
           u_th = u_th2
@@ -143,7 +143,7 @@ contains
 
     do i = 1, u%dof%size()
        y = u%dof%y(i,1,1,1)
-       u%x(i,1,1,1) =  ucl*y**pw
+       u%x(i,1,1,1) = ucl*y**pw
        v%x(i,1,1,1) = 0.0
        w%x(i,1,1,1) = 0.0
     end do
@@ -191,8 +191,8 @@ contains
          w = 0.0_rp
 
        end associate
-    ! Check that we are being called by the user_pressure bc via the name
-    ! of the field
+       ! Check that we are being called by the user_pressure bc via the name
+       ! of the field
     else if (field_bc_list%items(1)%ptr%name .eq. "p") then
        associate( p => field_bc_list%items(1)%ptr)
          !
@@ -200,13 +200,13 @@ contains
          !
 
          do i = 1, bc%msk(0)
-            p%x(bc%msk(i), 1, 1, 1) = -1 
+            p%x(bc%msk(i), 1, 1, 1) = -1
          end do
 
        end associate
 
-    ! Check that we are being called by the scalar via the name of the field
-       else if (field_bc_list%items(1)%ptr%name .eq. "s") then
+       ! Check that we are being called by the scalar via the name of the field
+    else if (field_bc_list%items(1)%ptr%name .eq. "s") then
 
        associate( s => field_bc_list%items(1)%ptr)
          !
