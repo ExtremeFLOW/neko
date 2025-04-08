@@ -49,8 +49,6 @@ module fluid_scheme_incompressible
   use coefs, only: coef_t
   use usr_inflow, only : usr_inflow_t, usr_inflow_eval
   use dirichlet, only : dirichlet_t
-  use field_dirichlet, only : field_dirichlet_t
-  use field_dirichlet_vector, only: field_dirichlet_vector_t
   use jacobi, only : jacobi_t
   use sx_jacobi, only : sx_jacobi_t
   use device_jacobi, only : device_jacobi_t
@@ -511,31 +509,7 @@ contains
     logical, intent(in) :: strong
 
     integer :: i
-    type(field_dirichlet_t), pointer :: fd
-    type(field_dirichlet_vector_t), pointer :: fdv
     class(bc_t), pointer :: b
-
-    fd => null()
-    fdv => null()
-
-    !
-    ! Update all field_dirichlet velocity boundaries
-    !
-    do i = 1,this%bcs_vel%size()
-       b => this%bcs_vel%get(i)
-       select type(b)
-       class is (field_dirichlet_t) ! Do we need this case?
-          fd => b
-          call fd%update(fd%field_list, fd, this%c_Xh, t, tstep)
-       class is (field_dirichlet_vector_t)
-          fdv => b
-          call fdv%update(fdv%field_list, fdv%bc_u, this%c_Xh, t, tstep)
-       end select
-    end do
-
-    nullify(fd)
-    nullify(fdv)
-    nullify(b)
 
     call this%bcs_vel%apply_vector(&
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep, strong)
@@ -556,6 +530,11 @@ contains
     call this%gs_Xh%op(this%w, GS_OP_MAX, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
 
+    do i = 1, this%bcs_vel%size()
+       b => this%bcs_vel%get(i)
+       b%updated = .false.
+    end do
+
   end subroutine fluid_scheme_bc_apply_vel
 
   !> Apply all boundary conditions defined for pressure
@@ -566,26 +545,7 @@ contains
     integer, intent(in) :: tstep
 
     integer :: i
-    type(field_dirichlet_t), pointer :: fd
     class(bc_t), pointer :: b
-
-    fd => null()
-
-    !
-    ! Update all field_dirichlet pressure boundaries
-    !
-    do i = 1,this%bcs_prs%size()
-
-       b => this%bcs_prs%get(i)
-       select type(b)
-       class is (field_dirichlet_t)
-          fd => b
-          call fd%update(fd%field_list, fd, this%c_Xh, t, tstep)
-       end select
-    end do
-
-    nullify(fd)
-    nullify(b)
 
     call this%bcs_prs%apply(this%p, t, tstep)
     call this%gs_Xh%op(this%p,GS_OP_MIN, glb_cmd_event)
@@ -595,6 +555,10 @@ contains
     call this%gs_Xh%op(this%p,GS_OP_MAX, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
 
+    do i = 1, this%bcs_prs%size()
+       b => this%bcs_prs%get(i)
+       b%updated = .false.
+    end do
 
   end subroutine fluid_scheme_bc_apply_prs
 

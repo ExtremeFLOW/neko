@@ -154,9 +154,9 @@ contains
   ! in the scalar solver (if enabled).
   !! Parameters:
   !! -----------
-  !! field_bc_list:     List of fields from which the BC conditions zill be extracted.
-  !!                    If called by the fluid, contains (u,v,w,p).
-  !!                    If called by the scalar, contains (s).
+  !! field_bc_list:     List of fields from which the BC conditions will be extracted.
+  !!                    Depending on what is set in the case file, contains either:
+  !!                    (u,v,w), (p) or (s) (or a list of scalars).
   !! bc:                The BC containing the boundary mask, etc.
   !! coef:              Coef object.
   !! t:                 Current time.

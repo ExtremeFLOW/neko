@@ -54,11 +54,11 @@ module field_dirichlet_vector
   !> Extension of the user defined dirichlet condition `field_dirichlet`
   ! for the application on a vector field.
   type, public, extends(bc_t) :: field_dirichlet_vector_t
-     ! The bc for the first component.
+     ! The bc for the first compoent.
      type(field_dirichlet_t) :: bc_u
-     ! The bc for the second component.
+     ! The bc for the second compoent.
      type(field_dirichlet_t) :: bc_v
-     ! The bc for the third component.
+     ! The bc for the third compoent.
      type(field_dirichlet_t) :: bc_w
      !> A field list to store the bcs for passing to various subroutines.
      type(field_list_t) :: field_list
@@ -182,7 +182,6 @@ contains
   !! @param n Size of the `x`, `y` and `z` arrays.
   !! @param t Time.
   !! @param tstep Time step.
-  !! @note this%update() is called in fluid_scheme_incompressible.
   subroutine field_dirichlet_vector_apply_vector(this, x, y, z, n, t, tstep, &
        strong)
     class(field_dirichlet_vector_t), intent(inout) :: this
@@ -198,6 +197,14 @@ contains
     if (present(strong)) strong_ = strong
 
     if (strong_) then
+
+       ! We can send any of the 3 bcs we have as argument, since they are all
+       ! the same boundary.
+       if (.not. this%updated) then
+          call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
+          this%updated = .true.
+       end if
+
        call masked_copy(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
        call masked_copy(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
        call masked_copy(z, this%bc_w%field_bc%x, this%msk, n, this%msk(0))
@@ -211,7 +218,6 @@ contains
   !! @param z z-component of the field onto which to apply the values.
   !! @param t Time.
   !! @param tstep Time step.
-  !! @note this%update() is called in fluid_scheme_incompressible.
   subroutine field_dirichlet_vector_apply_vector_dev(this, x_d, y_d, z_d, t, &
        tstep, strong)
     class(field_dirichlet_vector_t), intent(inout), target :: this
@@ -226,6 +232,11 @@ contains
     if (present(strong)) strong_ = strong
 
     if (strong_) then
+       if (.not. this%updated) then
+          call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
+          this%updated = .true.
+       end if
+
        if (this%msk(0) .gt. 0) then
           call device_masked_copy(x_d, this%bc_u%field_bc%x_d, this%bc_u%msk_d,&
                this%bc_u%dof%size(), this%msk(0))

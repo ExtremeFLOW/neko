@@ -412,20 +412,6 @@ contains
 
       call slag%update()
 
-      !
-      ! Update the field_dirichlet bcs
-      !
-      do i = 1,this%bcs%size()
-         b => this%bcs%get(i)
-         select type(b)
-         class is (field_dirichlet_t)
-            fd => b
-            call fd%update(fd%field_list, fd, this%c_Xh, t, tstep)
-         end select
-      end do
-      nullify(fd)
-      nullify(b)
-
       !> Apply strong boundary conditions.
       call this%bcs%apply_scalar(this%s%x, this%dm_Xh%size(), t, tstep, .true.)
 
