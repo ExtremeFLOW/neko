@@ -66,7 +66,6 @@ module scalar_pnpn
   use zero_dirichlet, only : zero_dirichlet_t
   use time_step_controller, only : time_step_controller_t
   use scratch_registry, only : neko_scratch_registry
-  use field_dirichlet, only: field_dirichlet_t
   use bc, only : bc_t
   implicit none
   private
