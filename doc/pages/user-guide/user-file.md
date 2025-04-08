@@ -634,7 +634,7 @@ u%scalar_user_f_vector => set_source
 This user function can be used to specify Dirichlet boundary values for velocity
 components `u,v,w`, the pressure `p`, and/or the scalar `s`. This type of
 boundary condition allows for time-dependent velocity profiles (currently not
-possible with the `user_pointiwse` boundary condition) or non-uniform pressure
+possible with the `user_pointwise` boundary condition) or non-uniform pressure
 profiles to e.g. impose an outlet pressure computed from another simulation.
 
 The user routine is called by the `user_velocity` and `user_pressure` boundary
@@ -676,7 +676,7 @@ The header of the user function is given in the code snippet below.
 ```fortran
   subroutine dirichlet_update(field_bc_list, bc, coef, t, tstep)
     type(field_list_t), intent(inout) :: field_bc_list
-    type(bc_list_t), intent(inout) :: bc_bc_list
+    type(field_dirichlet_t), intent(inout) :: bc
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
@@ -711,12 +711,14 @@ A very simple example illustrating the above is shown below, which is taken from
 [cyl_boundary_layer example](https://github.com/ExtremeFLOW/neko/blob/feature/field_bcs/examples/cyl_boundary_layer/cyl_bl.f90)
 
 ```fortran
-  !! Initial example of using user specified dirichlet bcs
+  ! Initial example of using user specified dirichlet bcs
+  ! Note: This subroutine will be called two times, once in the fluid solver, and once
+  ! in the scalar solver (if enabled).
   !! Parameters:
   !! -----------
-  !! field_bc_list:     List of fields from which the BC conditions zill be extracted.
-  !!                    If called by the fluid, contains (u,v,w,p).
-  !!                    If called by the scalar, contains (s).
+  !! field_bc_list:     List of fields from which the BC conditions will be extracted.
+  !!                    Depending on what is set in the case file, contains either:
+  !!                    (u,v,w), (p) or (s) (or a list of scalars).
   !! bc:                The BC containing the boundary mask, etc.
   !! coef:              Coef object.
   !! t:                 Current time.
