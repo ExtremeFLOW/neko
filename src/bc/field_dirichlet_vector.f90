@@ -200,7 +200,10 @@ contains
 
        ! We can send any of the 3 bcs we have as argument, since they are all
        ! the same boundary.
-       call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
+       if (.not. this%updated) then
+          call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
+          this%updated = .true.
+       end if
 
        call masked_copy(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
        call masked_copy(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
@@ -229,7 +232,10 @@ contains
     if (present(strong)) strong_ = strong
 
     if (strong_) then
-       call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
+       if (.not. this%updated) then
+          call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
+          this%updated = .true.
+       end if
 
        if (this%msk(0) .gt. 0) then
           call device_masked_copy(x_d, this%bc_u%field_bc%x_d, this%bc_u%msk_d,&

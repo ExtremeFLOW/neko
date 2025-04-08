@@ -50,8 +50,6 @@ module fluid_scheme_incompressible
   use coefs, only: coef_t
   use usr_inflow, only : usr_inflow_t, usr_inflow_eval
   use dirichlet, only : dirichlet_t
-  use field_dirichlet, only : field_dirichlet_t
-  use field_dirichlet_vector, only: field_dirichlet_vector_t
   use jacobi, only : jacobi_t
   use sx_jacobi, only : sx_jacobi_t
   use device_jacobi, only : device_jacobi_t
@@ -516,6 +514,9 @@ contains
     integer, intent(in) :: tstep
     logical, intent(in) :: strong
 
+    integer :: i
+    class(bc_t), pointer :: b
+
     call this%bcs_vel%apply_vector(&
       this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), t, tstep, strong)
     call this%gs_Xh%op(this%u, GS_OP_MIN, glb_cmd_event)
@@ -534,6 +535,11 @@ contains
        call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
     end if
 
+    do i = 1, this%bcs_vel%size()
+       b => this%bcs_vel%get(i)
+       b%updated = .false.
+    end do
+
   end subroutine fluid_scheme_bc_apply_vel
 
   !> Apply all boundary conditions defined for pressure
@@ -542,6 +548,9 @@ contains
     class(fluid_scheme_incompressible_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+
+    integer :: i
+    class(bc_t), pointer :: b
 
     call this%bcs_prs%apply(this%p, t, tstep)
     call this%gs_Xh%op(this%p,GS_OP_MIN, glb_cmd_event)
@@ -555,6 +564,10 @@ contains
        call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
     end if
 
+    do i = 1, this%bcs_prs%size()
+       b => this%bcs_prs%get(i)
+       b%updated = .false.
+    end do
 
   end subroutine fluid_scheme_bc_apply_prs
 

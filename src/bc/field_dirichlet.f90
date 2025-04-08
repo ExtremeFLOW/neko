@@ -178,7 +178,11 @@ contains
 
     if (strong_) then
 
-       call this%update(this%field_list, this, this%coef, t, tstep)
+       if (.not. this%updated) then
+          call this%update(this%field_list, this, this%coef, t, tstep)
+          this%updated = .true.
+       end if
+
        call masked_copy(x, this%field_bc%x, this%msk, n, this%msk(0))
     end if
 
@@ -199,7 +203,11 @@ contains
     if (present(strong)) strong_ = strong
 
     if (strong_) then
-       call this%update(this%field_list, this, this%coef, t, tstep)
+       if (.not. this%updated) then
+          call this%update(this%field_list, this, this%coef, t, tstep)
+          this%updated = .true.
+       end if
+
        if (this%msk(0) .gt. 0) then
           call device_masked_copy(x_d, this%field_bc%x_d, this%msk_d, &
                this%field_bc%dof%size(), this%msk(0))
