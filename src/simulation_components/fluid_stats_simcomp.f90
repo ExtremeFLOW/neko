@@ -74,8 +74,8 @@ module fluid_stats_simcomp
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => fluid_stats_simcomp_init_from_json
      !> Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-          fluid_stats_simcomp_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          fluid_stats_simcomp_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => fluid_stats_simcomp_free
      !> Does sampling for statistics.
@@ -120,10 +120,10 @@ contains
 
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
-       call fluid_stats_simcomp_init_from_attributes(this, u, v, w, p, coef, &
+       call fluid_stats_simcomp_init_from_components(this, u, v, w, p, coef, &
             start_time, hom_dir, stat_set,filename)
     else
-       call fluid_stats_simcomp_init_from_attributes(this, u, v, w, p, coef, &
+       call fluid_stats_simcomp_init_from_components(this, u, v, w, p, coef, &
             start_time, hom_dir, stat_set)
     end if
 
@@ -137,7 +137,7 @@ contains
   !! @param start_time time to start sampling stats
   !! @param hom_dir directions to average in
   !! @param stat_set Set of statistics to compute (basic/full)
-  subroutine fluid_stats_simcomp_init_from_attributes(this, u, v, w, p, coef, &
+  subroutine fluid_stats_simcomp_init_from_components(this, u, v, w, p, coef, &
        start_time, hom_dir, stat_set, fname)
     class(fluid_stats_simcomp_t), intent(inout) :: this
     character(len=*), intent(in) :: hom_dir
@@ -181,7 +181,7 @@ contains
 
     call neko_log%end_section()
 
-  end subroutine fluid_stats_simcomp_init_from_attributes
+  end subroutine fluid_stats_simcomp_init_from_components
 
   !> Destructor.
   subroutine fluid_stats_simcomp_free(this)

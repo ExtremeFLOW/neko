@@ -78,8 +78,8 @@ module vorticity
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => vorticity_init_from_json
      !> Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-          vorticity_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          vorticity_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => vorticity_free
      !> Compute the vorticity field.
@@ -106,11 +106,11 @@ contains
     call this%init_base(json, case)
     call this%writer%init(json, case)
 
-    call vorticity_init_from_attributes(this)
+    call vorticity_init_from_components(this)
   end subroutine vorticity_init_from_json
 
   !> Actual constructor.
-  subroutine vorticity_init_from_attributes(this)
+  subroutine vorticity_init_from_components(this)
     class(vorticity_t), intent(inout) :: this
 
     this%u => neko_field_registry%get_field_by_name("u")
@@ -124,7 +124,7 @@ contains
     call this%temp1%init(this%u%dof)
     call this%temp2%init(this%u%dof)
 
-  end subroutine vorticity_init_from_attributes
+  end subroutine vorticity_init_from_components
 
   !> Destructor.
   subroutine vorticity_free(this)
