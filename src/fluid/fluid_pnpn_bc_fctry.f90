@@ -90,7 +90,7 @@ contains
     case ("outflow+dong", "normal_outflow+dong")
        allocate(dong_outflow_t::object)
 
-    case ("user_pressure")
+    case ("user_pressure", "outflow+user", "normal_outflow+user")
        allocate(field_dirichlet_t::object)
        select type (obj => object)
        type is (field_dirichlet_t)
@@ -152,7 +152,7 @@ contains
        allocate(inflow_t::object)
     case ("no_slip")
        allocate(zero_dirichlet_t::object)
-    case ("normal_outflow", "normal_outflow+dong")
+    case ("normal_outflow", "normal_outflow+dong", "normal_outflow+usr")
        allocate(non_normal_t::object)
     case ("blasius_profile")
        allocate(blasius_t::object)
