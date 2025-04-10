@@ -183,7 +183,6 @@ contains
           this%updated = .true.
        end if
 
-       print *, "(FD) DOING THE COPY"
        call masked_copy(x, this%field_bc%x, this%msk, n, this%msk(0))
     end if
 

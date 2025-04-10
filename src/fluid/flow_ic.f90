@@ -83,7 +83,7 @@ contains
     character(len=:), allocatable :: read_str
     character(len=NEKO_FNAME_LEN) :: fname, mesh_fname
     logical :: interpolate
-
+    character(len=1), allocatable :: fld_fields(:)
 
     !
     ! Uniform (Uinf, Vinf, Winf)
@@ -136,7 +136,10 @@ contains
             "none")
        mesh_fname = trim(read_str)
 
-       call set_flow_ic_fld(u, v, w, p, fname, interpolate, tol, mesh_fname)
+       call json_get(params, &
+            "case.fluid.initial_condition.fields", fld_fields)
+       call set_flow_ic_fld(u, v, w, p, fname, interpolate, tol, mesh_fname, &
+            fld_fields)
 
     else
        call neko_error('Invalid initial condition')
@@ -384,7 +387,7 @@ contains
   !! @param sample_mesh_idx If interpolation is enabled, index of the field
   !! file where the mesh coordinates are located.
   subroutine set_flow_ic_fld(u, v, w, p, file_name, &
-       interpolate, tolerance, mesh_file_name)
+       interpolate, tolerance, mesh_file_name, fields)
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
@@ -393,9 +396,10 @@ contains
     logical, intent(in) :: interpolate
     real(kind=rp), intent(in) :: tolerance
     character(len=*), intent(inout) :: mesh_file_name
+    character(len=*), intent(in) :: fields(:)
 
     character(len=LOG_SIZE) :: log_buf
-    integer :: sample_idx, sample_mesh_idx
+    integer :: sample_idx, sample_mesh_idx, i
     integer :: last_index
     type(fld_file_data_t) :: fld_data
     type(file_t) :: f
@@ -505,10 +509,22 @@ contains
             tolerance)
 
        ! Evaluate velocities and pressure
-       call global_interp%evaluate(u%x, fld_data%u%x, .true.)
-       call global_interp%evaluate(v%x, fld_data%v%x, .true.)
-       call global_interp%evaluate(w%x, fld_data%w%x, .true.)
-       call global_interp%evaluate(p%x, fld_data%p%x, .true.)
+
+       do i = 1, size(fields)
+          select case(fields(i))
+          case ("u")
+             call global_interp%evaluate(u%x, fld_data%u%x, .true.)
+          case ("v")
+             call global_interp%evaluate(v%x, fld_data%v%x, .true.)
+          case ("w")
+             call global_interp%evaluate(w%x, fld_data%w%x, .true.)
+          case ("p")
+             call global_interp%evaluate(p%x, fld_data%p%x, .true.)
+          case default
+             call neko_warning(fields(i) // " not recognized for IC")
+          end select
+       end do
+
 
        call global_interp%free
 
@@ -519,10 +535,20 @@ contains
        call space_interp%init(u%Xh, prev_Xh)
 
        ! Do the space-to-space interpolation
-       call space_interp%map_host(u%x, fld_data%u%x, fld_data%nelv, u%Xh)
-       call space_interp%map_host(v%x, fld_data%v%x, fld_data%nelv, u%Xh)
-       call space_interp%map_host(w%x, fld_data%w%x, fld_data%nelv, u%Xh)
-       call space_interp%map_host(p%x, fld_data%p%x, fld_data%nelv, u%Xh)
+       do i = 1, size(fields)
+          select case(fields(i))
+          case ("u")
+             call space_interp%map_host(u%x, fld_data%u%x, fld_data%nelv, u%Xh)
+          case ("v")
+             call space_interp%map_host(v%x, fld_data%v%x, fld_data%nelv, u%Xh)
+          case ("w")
+             call space_interp%map_host(w%x, fld_data%w%x, fld_data%nelv, u%Xh)
+          case ("p")
+             call space_interp%map_host(p%x, fld_data%p%x, fld_data%nelv, u%Xh)
+          case default
+             call neko_warning(fields(i) // " not recognized for IC")
+          end select
+       end do
 
        call space_interp%free
 
