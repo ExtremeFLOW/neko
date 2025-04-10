@@ -202,8 +202,10 @@ contains
     integer :: i, m, k, facet, idx(4)
     real(kind=rp) :: normal_xyz(3)
 
-    if ( present(only_facets) .and. only_facets .eqv. .false.) then
-       call neko_error("For dong_outflow_t, only_facets has to be true.")
+    if (present(only_facets)) then
+       if (only_facets .eqv. .false.) then
+          call neko_error("For dong_outflow_t, only_facets has to be true.")
+       end if
     end if
 
     call this%finalize_base(.true.)

@@ -211,8 +211,10 @@ contains
     logical, optional, intent(in) :: only_facets
     logical :: only_facets_
 
-    if ( present(only_facets) .and. only_facets .eqv. .false.) then
-       call neko_error("For face_normal_t, only_facets has to be true.")
+    if (present(only_facets)) then
+       if (only_facets .eqv. .false.) then
+          call neko_error("For facet_normal_t, only_facets has to be true.")
+       end if
     end if
 
     call this%finalize_base(.true.)
