@@ -390,10 +390,6 @@ contains
   subroutine fluid_scheme_free(this)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
 
-    !
-    ! Free everything related to field_dirichlet BCs
-    !
-
     call this%Xh%free()
 
     if (allocated(this%ksp_vel)) then
@@ -535,6 +531,12 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
     end if
+
+    do i = 1, this%bcs_vel%size()
+       b => this%bcs_vel%get(i)
+       b%updated = .false.
+    end do
+    nullify(b)
 
     do i = 1, this%bcs_vel%size()
        b => this%bcs_vel%get(i)
