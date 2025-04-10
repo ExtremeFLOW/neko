@@ -146,7 +146,7 @@ module simulation_component
        class(simulation_component_t), allocatable, intent(inout) :: obj
      end subroutine simulation_component_allocate
   end interface
-  
+
   interface
      !> Called in user modules to add an allocator for custom types.
      module subroutine register_simulation_component(type_name, allocator)

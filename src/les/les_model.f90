@@ -167,7 +167,7 @@ module les_model
        class(les_model_t), allocatable, intent(inout) :: obj
      end subroutine les_model_allocate
   end interface
-  
+
   interface
      !> Called in user modules to add an allocator for custom types.
      module subroutine register_les_model(type_name, allocator)
