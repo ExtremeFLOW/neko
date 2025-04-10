@@ -192,13 +192,11 @@ contains
     logical, optional, intent(in) :: only_facets
     logical :: only_facets_ = .false.
 
-    if ( present(only_facets)) then
-       only_facets_ = only_facets
-    else
-       only_facets_ = .true.
+    if ( present(only_facets) .and. only_facets .eqv. .false.) then
+       call neko_error("For wall_model_bc_t, only_facets has to be true.")
     end if
 
-    call this%shear_stress_t%finalize(only_facets_)
+    call this%shear_stress_t%finalize(.true.)
 
     call wall_model_factory(this%wall_model, this%coef, this%msk, &
          this%facet, this%nu, this%params_)

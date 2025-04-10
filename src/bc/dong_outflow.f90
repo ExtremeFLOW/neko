@@ -46,6 +46,7 @@ module dong_outflow
   use, intrinsic :: iso_c_binding, only : c_ptr, c_sizeof, c_null_ptr
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default
+  use utils, only : neko_error
   implicit none
   private
 
@@ -201,13 +202,11 @@ contains
     integer :: i, m, k, facet, idx(4)
     real(kind=rp) :: normal_xyz(3)
 
-    if ( present(only_facets)) then
-       only_facets_ = only_facets
-    else
-       only_facets_ = .true.
+    if ( present(only_facets) .and. only_facets .eqv. .false.) then
+       call neko_error("For dong_outflow_t, only_facets has to be true.")
     end if
 
-    call this%finalize_base(only_facets_)
+    call this%finalize_base(.true.)
 
     this%u => neko_field_registry%get_field("u")
     this%v => neko_field_registry%get_field("v")
