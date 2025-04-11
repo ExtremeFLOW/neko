@@ -59,7 +59,8 @@ module tree_amg_multigrid
        aggregate_end
   use tree_amg_smoother, only : amg_cheby_t
   use logger, only : neko_log, LOG_SIZE
-  use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE
+  use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE, &
+       device_get_ptr
   use neko_config, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
@@ -85,7 +86,6 @@ module tree_amg_multigrid
    contains
      procedure, pass(this) :: init => tamg_mg_init
      procedure, pass(this) :: solve => tamg_mg_solve
-     procedure, pass(this) :: device_solve => tamg_mg_solve_device
   end type tamg_solver_t
 
 contains
@@ -209,42 +209,31 @@ contains
     class(tamg_solver_t), intent(inout) :: this
     real(kind=rp), dimension(n), intent(inout) :: z
     real(kind=rp), dimension(n), intent(inout) :: r
-    integer :: iter, max_iter
-
-    max_iter = this%max_iter
-
-    ! Zero out the initial guess becuase we do not handle null spaces very well...
-    z = 0d0
-
-    ! Call the amg cycle
-    do iter = 1, max_iter
-       call tamg_mg_cycle(z, r, n, 0, this%amg, this)
-    end do
-  end subroutine tamg_mg_solve
-
-  !> Solver function for the TreeAMG solver object
-  !! @param z The solution to be returned
-  !! @param r The right-hand side
-  !! @param n Number of dofs
-  subroutine tamg_mg_solve_device(this, z, r, z_d, r_d, n)
-    integer, intent(in) :: n
-    class(tamg_solver_t), intent(inout) :: this
-    real(kind=rp), dimension(n), intent(inout) :: z
-    real(kind=rp), dimension(n), intent(inout) :: r
     type(c_ptr) :: z_d
     type(c_ptr) :: r_d
     integer :: iter, max_iter
 
     max_iter = this%max_iter
 
-    ! Zero out the initial guess becuase we do not handle null spaces very well...
-    call device_rzero(z_d, n)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       z_d = device_get_ptr(z)
+       r_d = device_get_ptr(r)
+       ! Zero out the initial guess becuase we do not handle null spaces very well...
+       call device_rzero(z_d, n)
+       ! Call the amg cycle
+       do iter = 1, max_iter
+          call tamg_mg_cycle_d(z, r, z_d, r_d, n, 0, this%amg, this)
+       end do
+    else
+       ! Zero out the initial guess becuase we do not handle null spaces very well...
+       call rzero(z, n)
+       ! Call the amg cycle
+       do iter = 1, max_iter
+          call tamg_mg_cycle(z, r, n, 0, this%amg, this)
+       end do
+    end if
+  end subroutine tamg_mg_solve
 
-    ! Call the amg cycle
-    do iter = 1, max_iter
-       call tamg_mg_cycle_d(z, r, z_d, r_d, n, 0, this%amg, this)
-    end do
-  end subroutine tamg_mg_solve_device
 
   !> Recrsive multigrid cycle for the TreeAMG solver object
   !! @param x The solution to be returned
@@ -270,7 +259,7 @@ contains
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
-    call mgstuff%smoo(lvl)%solve(x,b, n, amg)
+    call mgstuff%smoo(lvl)%solve(x,b, n, amg, .true.)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
        return
     end if
@@ -380,20 +369,6 @@ contains
     call sub3(r, b, r, n)
   end subroutine calc_resid
 
-  !> Wrapper function to gather scatter and average the duplicates
-  !! @param U The target array
-  !! @param amg The TreeAMG object
-  !! @param lvl Current level of the cycle
-  !! @param n Number of dofs
-  subroutine average_duplicates(U, amg, lvl, n)
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: U(n)
-    type(tamg_hierarchy_t), intent(inout) :: amg
-    integer, intent(in) :: lvl
-    integer :: i
-    call amg%gs_h%op(U, n, GS_OP_ADD)
-    call col2(U, amg%coef%mult, n)
-  end subroutine average_duplicates
 
   subroutine print_preagg_info(lvl,nagg)
     integer, intent(in) :: lvl,nagg

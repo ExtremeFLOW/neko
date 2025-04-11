@@ -351,18 +351,9 @@ contains
     end if
     if (lvl+1 .eq. clvl) then
        call profiler_start_region('PHMG_tAMG_coarse_grid', 9)
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call amg_solver%device_solve(mg(lvl+1)%z%x, &
-               mg(lvl+1)%r%x, &
-               mg(lvl+1)%z%x_d, &
-               mg(lvl+1)%r%x_d, &
-               mg(lvl+1)%dm_Xh%size())
-       else
-          call amg_solver%solve(mg(lvl+1)%z%x, &
-               mg(lvl+1)%r%x, &
-               mg(lvl+1)%dm_Xh%size())
-       end if
+       call amg_solver%solve(mg(lvl+1)%z%x, &
+            mg(lvl+1)%r%x, &
+            mg(lvl+1)%dm_Xh%size())
        call profiler_end_region('PHMG_tAMG_coarse_grid', 9)
 
        call mg(lvl+1)%bclst%apply_scalar( &
