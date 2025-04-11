@@ -325,9 +325,9 @@ contains
        call this%device_comp_eig(amg, n)
     end if
     if (present(zero_init)) then
-      zero_initial_guess = zero_init
+       zero_initial_guess = zero_init
     else
-      zero_initial_guess = .false.
+       zero_initial_guess = .false.
     end if
     max_iter = this%max_iter
     associate( w_d => this%w_d, r_d => this%r_d, d_d => this%d_d, blst=>amg%blst)

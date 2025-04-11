@@ -257,7 +257,7 @@ contains
        call this%blst%apply(vec_out, n)
 
        if (lvl_out .ne. 0) then
-         call col2(vec_out, this%coef%mult, n)
+          call col2(vec_out, this%coef%mult, n)
        end if
        !>
     else !> pass down through hierarchy
