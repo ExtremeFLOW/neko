@@ -270,10 +270,7 @@ contains
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
-    !call calc_resid(r,x,b,amg,lvl,n)!> TODO: for debug
-    !print *, "LVL:",lvl, "PRE RESID:", sqrt(glsc2(r, r, n))
     call mgstuff%smoo(lvl)%solve(x,b, n, amg)
-    !call mgstuff%jsmoo(lvl)%solve(x,b, n, amg)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
        return
     end if
@@ -302,10 +299,6 @@ contains
     !> SMOOTH   <!
     !>----------<!
     call mgstuff%smoo(lvl)%solve(x,b, n, amg)
-    !call mgstuff%jsmoo(lvl)%solve(x,b, n, amg)
-
-    !call calc_resid(r,x,b,amg,lvl,n)!> TODO: for debug
-    !print *, "LVL:",lvl, "POST RESID:", sqrt(glsc2(r, r, n))
   end subroutine tamg_mg_cycle
 
   !> Recrsive multigrid cycle for the TreeAMG solver object on device

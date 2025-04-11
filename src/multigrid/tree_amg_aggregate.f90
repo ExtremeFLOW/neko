@@ -86,9 +86,6 @@ contains
                 lid = lid + 1
                 tamg%lvl(lvl_id)%nodes(l)%dofs(lid) = linear_index(i, j, k, l, &
                      lx, ly, lz)
-                !tamg%lvl(lvl_id)%nodes(l)%xyz(1) = tamg%lvl(lvl_id)%nodes(l)%xyz(1) + xyz(1,linear_index(i,j,k,l,lx,ly,lz))
-                !tamg%lvl(lvl_id)%nodes(l)%xyz(2) = tamg%lvl(lvl_id)%nodes(l)%xyz(2) + xyz(2,linear_index(i,j,k,l,lx,ly,lz))
-                !tamg%lvl(lvl_id)%nodes(l)%xyz(3) = tamg%lvl(lvl_id)%nodes(l)%xyz(3) + xyz(3,linear_index(i,j,k,l,lx,ly,lz))
 
                 tamg%lvl(lvl_id)%nodes_dofs(gid_ptr) = linear_index(i,j,k,l,lx,ly,lz)
                 !tamg%lvl(lvl_id)%nodes_gids(gid_ptr) = l
@@ -363,9 +360,6 @@ contains
           if (is_aggregated(i) .eq. l) then
              j = j+1
              tamg%lvl(lvl_id)%nodes(l)%dofs(j) = i
-             !tamg%lvl(lvl_id)%nodes(l)%xyz(1) = tamg%lvl(lvl_id)%nodes(l)%xyz(1) + tamg%lvl(lvl_id-1)%nodes(i)%xyz(1)
-             !tamg%lvl(lvl_id)%nodes(l)%xyz(2) = tamg%lvl(lvl_id)%nodes(l)%xyz(2) + tamg%lvl(lvl_id-1)%nodes(i)%xyz(2)
-             !tamg%lvl(lvl_id)%nodes(l)%xyz(3) = tamg%lvl(lvl_id)%nodes(l)%xyz(3) + tamg%lvl(lvl_id-1)%nodes(i)%xyz(3)
 
              tamg%lvl(lvl_id)%nodes_dofs(gid_ptr) = i
              !tamg%lvl(lvl_id)%nodes_gids(gid_ptr) = l
