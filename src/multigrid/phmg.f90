@@ -315,7 +315,7 @@ contains
     !>----------<!
     call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
     call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
-    !call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
+    call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_sub3(w%x_d, r%x_d, w%x_d, mg(lvl)%dm_Xh%size())
