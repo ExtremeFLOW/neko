@@ -172,20 +172,12 @@ contains
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
 
-    type(vector_t) :: test
-
-    call test%init(this%msk(0))
-    test = 1.0_rp
-
-    write(*,*) "RUNNING DEVICE APPLY", this%uniform_0, test%n
+    write(*,*) "RUNNING DEVICE APPLY", this%uniform_0
     if (.not. this%uniform_0 .and. this%msk(0) .gt. 0) then
        write(*,*) "RUNNING DEVICE KERNEL"
        call device_neumann_apply_scalar(this%msk_d, this%facet_d, x_d, &
-            !this%flux_%x_d, this%coef%area_d, this%coef%Xh%lx, size(this%msk))
-            test%x_d, this%coef%area_d, this%coef%Xh%lx, size(this%msk))
+            this%flux_%x_d, this%coef%area_d, this%coef%Xh%lx, size(this%msk))
     end if
-
-    call test%free()
   end subroutine neumann_apply_scalar_dev
 
   !> Boundary condition apply for a generic Neumann condition

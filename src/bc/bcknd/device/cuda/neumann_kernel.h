@@ -81,7 +81,7 @@ void neumann_apply_scalar_kernel(const int * __restrict__ msk,
     const int f = (facet[i]);
     nonlinear_index1(msk[i], lx, index);
 
-    printf("THE FLUX ON DEVICE %f \n", flux[k]);
+    printf("THE FLUX ON DEVICE %f \n", flux[i]);
 
     switch(f) {
     case 1:
@@ -89,7 +89,7 @@ void neumann_apply_scalar_kernel(const int * __restrict__ msk,
       {
         const int na_idx = coef_normal_area_idx(index[1], index[2],
                                                 f, index[3], lx, 6);
-        x[k] += flux[k] * area[na_idx];
+        x[k] += flux[i] * area[na_idx];
         break;
       }
     case 3:
@@ -97,7 +97,7 @@ void neumann_apply_scalar_kernel(const int * __restrict__ msk,
       {
         const int na_idx = coef_normal_area_idx(index[0], index[2],
                                                 f, index[3], lx, 6);
-        x[k] += flux[k] * area[na_idx];
+        x[k] += flux[i] * area[na_idx];
         break;
       }
     case 5:
@@ -105,7 +105,7 @@ void neumann_apply_scalar_kernel(const int * __restrict__ msk,
       {
         const int na_idx = coef_normal_area_idx(index[0], index[1],
                                                 f, index[3], lx, 6);
-        x[k] += flux[k] * area[na_idx];
+        x[k] += flux[i] * area[na_idx];
         break;
       }
     }
