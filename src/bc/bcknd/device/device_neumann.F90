@@ -56,7 +56,7 @@ contains
 
   subroutine device_neumann_apply_scalar(msk, facet, x, flux, area, lx, m)
     integer, intent(in) :: m, lx
-    type(c_ptr) :: msk, facet, x, y, z, flux, area
+    type(c_ptr) :: msk, facet, x, flux, area
 
 #ifdef HAVE_HIP
     call neko_error("neumann_t not implemented for the HIP backend.")

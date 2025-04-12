@@ -39,10 +39,10 @@
 extern "C" {
 
   /**
-   * Fortran wrapper for device facet normal apply surfvec
+   * Fortran wrapper for device neumann apply scalar
    */
   void cuda_neumann_apply_scalar(void *msk, void *facet,
-                                 void *x, void *y, void *z, void *flux,
+                                 void *x, void *flux,
                                  void *area, int *lx, int *m) {
 
     const dim3 nthrds(1024, 1, 1);

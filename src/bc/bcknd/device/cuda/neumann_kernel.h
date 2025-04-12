@@ -48,7 +48,7 @@
  * @note Assumes idx is a Fortran index
  */
 __device__
-void nonlinear_index(const int idx, const int lx, int *index) {
+void nonlinear_index1(const int idx, const int lx, int *index) {
   const int idx2 = idx -1;
   index[3] = idx2/(lx * lx * lx) ;
   index[2] = (idx2 - (lx*lx*lx)*index[3])/(lx * lx);
@@ -60,9 +60,8 @@ void nonlinear_index(const int idx, const int lx, int *index) {
   index[3]++;
 }
 
-
 /**
- * Device kernel for vector apply for a symmetry condition
+ * Device kernel for neumann scalar boundary condition
  */
 template< typename T >
 __global__
@@ -80,8 +79,9 @@ void neumann_apply_scalar_kernel(const int * __restrict__ msk,
   for (int i = (idx + 1); i < m; i += str) {
     const int k = (msk[i] - 1);
     const int f = (facet[i]);
-    nonlinear_index(msk[i], lx, index);
+    nonlinear_index1(msk[i], lx, index);
 
+    printf("THE FLUX ON DEVICE %f \n", flux[k]);
 
     switch(f) {
     case 1:

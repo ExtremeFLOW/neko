@@ -21,7 +21,7 @@ pynekread(join(DATA_PATH, "field0.f00000"), comm, data_dtype=np.single, msh=mesh
 pynekread(join(DATA_PATH, "field0.f00001"), comm, data_dtype=np.single, fld=fld)
 
 #%%
-n = 100
+n = 500
 x = np.linspace(0, 2 * np.pi, n)
 y = np.zeros(n)
 z = np.ones(n) * 0.5
@@ -42,13 +42,11 @@ probes.interpolate_from_field_list(0, [fld.registry['t']], comm,
 
 temp = probes.interpolated_fields[:, 1]
 #%%
-
-
 ic = np.sin(x)
 fig, (ax1, ax2) = plt.subplots(1, 2)
 
 ax1.plot(x, ic, '--k', label="ICs")
-ax1.plot(x, data[200:, 1], label=r"Final solution")
+ax1.plot(x, temp, label=r"Final solution")
 
 ax1.set_xlabel(r"$x$")
 ax1.legend()

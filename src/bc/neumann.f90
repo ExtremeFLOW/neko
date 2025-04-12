@@ -43,7 +43,7 @@ module neumann
   use vector, only: vector_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_copy
-  use device, only : HOST_TO_DEVICE, device_memcpy, device_free, device_map
+  use device, only : HOST_TO_DEVICE, device_memcpy, device_free, device_map, DEVICE_TO_HOST
   use device_neumann, only : device_neumann_apply_scalar
   implicit none
   private
@@ -172,10 +172,20 @@ contains
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
 
+    type(vector_t) :: test
+
+    call test%init(this%msk(0))
+    test = 1.0_rp
+
+    write(*,*) "RUNNING DEVICE APPLY", this%uniform_0, test%n
     if (.not. this%uniform_0 .and. this%msk(0) .gt. 0) then
+       write(*,*) "RUNNING DEVICE KERNEL"
        call device_neumann_apply_scalar(this%msk_d, this%facet_d, x_d, &
-            this%flux_%x_d, this%coef%area_d, this%coef%Xh%lx, size(this%msk))
+            !this%flux_%x_d, this%coef%area_d, this%coef%Xh%lx, size(this%msk))
+            test%x_d, this%coef%area_d, this%coef%Xh%lx, size(this%msk))
     end if
+
+    call test%free()
   end subroutine neumann_apply_scalar_dev
 
   !> Boundary condition apply for a generic Neumann condition
@@ -190,7 +200,7 @@ contains
     logical, intent(in), optional :: strong
 
     if (.not. this%uniform_0 .and. this%msk(0) .gt. 0) then
-       call neko_error("Neumann bc not implemented on the device")
+       call neko_error("Neumann bc not implemented for vectors.")
     end if
 
   end subroutine neumann_apply_vector_dev
@@ -211,16 +221,12 @@ contains
     call this%finalize_base()
     call this%flux_%init(this%msk(0))
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_cfill(this%flux_%x_d, this%init_flux_, this%msk(0))
-    else
-       call cfill(this%flux_%x, this%init_flux_, this%msk(0))
-    end if
-
+    write(*,*) "INIT FLUX", this%init_flux_
+    this%flux_ = this%init_flux_
     this%uniform_0 = .true.
 
     do i = 1,this%msk(0)
-       this%uniform_0 = abscmp(this%flux_%x(i),0.0_rp) .and. this%uniform_0
+       this%uniform_0 = abscmp(this%init_flux_, 0.0_rp) .and. this%uniform_0
     end do
   end subroutine neumann_finalize
 
@@ -253,6 +259,7 @@ contains
 
     this%flux_ = flux
 
+    ! ONLY WORKS ON THE CPU
     this%uniform_0 = .true.
     do i = 1,this%msk(0)
        this%uniform_0 = abscmp(flux%x(i), 0.0_rp) .and. this%uniform_0
