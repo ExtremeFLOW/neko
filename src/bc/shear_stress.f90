@@ -42,6 +42,7 @@ module shear_stress
   use neumann, only : neumann_t
   use json_module, only : json_file
   use json_utils, only : json_get
+  use vector, only : vector_t
   implicit none
   private
 
@@ -166,7 +167,7 @@ contains
 
     if (size(value) .ne. 3) then
        call neko_error ("The shear stress vector provided for the shear stress &
-            & boundary condition should have 3 components.")
+       & boundary condition should have 3 components.")
     end if
 
     call this%init_from_components(coef, value)
@@ -231,11 +232,14 @@ contains
   end subroutine shear_stress_set_stress_scalar
 
   !> Set the shear stress components.
+  !! @param tau_x The x component of the stress.
+  !! @param tau_y The y component of the stress.
+  !! @param tau_z The z component of the stress.
   subroutine shear_stress_set_stress_array(this, tau_x, tau_y, tau_z)
     class(shear_stress_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: tau_x(this%msk(0))
-    real(kind=rp), intent(in) :: tau_y(this%msk(0))
-    real(kind=rp), intent(in) :: tau_z(this%msk(0))
+    type(vector_t), intent(in) :: tau_x
+    type(vector_t), intent(in) :: tau_y
+    type(vector_t), intent(in) :: tau_z
 
     call this%neumann_x%set_flux(tau_x)
     call this%neumann_y%set_flux(tau_y)

@@ -61,11 +61,11 @@ module wall_model
      !> The boundary condition facet ids. Stores the array size at index zero!
      integer, pointer :: facet(:) => null()
      !> The x component of the shear stress.
-     real(kind=rp), allocatable :: tau_x(:)
+     type(vector_t) :: tau_x
      !> The y component of the shear stress.
-     real(kind=rp), allocatable :: tau_y(:)
+     type(vector_t) :: tau_y
      !> The z component of the shear stress.
-     real(kind=rp), allocatable :: tau_z(:)
+     type(vector_t) :: tau_z
      !> The x component of the normal.
      type(vector_t) :: n_x
      !> The y component of the normal.
@@ -192,13 +192,13 @@ contains
     this%h_index = index
 
     call neko_field_registry%add_field(this%dof, "tau", &
-                                       ignore_existing = .true.)
+         ignore_existing = .true.)
 
     this%tau_field => neko_field_registry%get_field("tau")
 
-    allocate(this%tau_x(this%msk(0)))
-    allocate(this%tau_y(this%msk(0)))
-    allocate(this%tau_z(this%msk(0)))
+    call this%tau_x%init(this%msk(0))
+    call this%tau_y%init(this%msk(0))
+    call this%tau_z%init(this%msk(0))
 
     allocate(this%ind_r(this%msk(0)))
     allocate(this%ind_s(this%msk(0)))
@@ -223,17 +223,18 @@ contains
     nullify(this%facet)
     nullify(this%tau_field)
 
-    if (allocated(this%tau_x)) then
-      deallocate(this%tau_x)
-    end if
-    if (allocated(this%tau_y)) then
-      deallocate(this%tau_y)
-    end if
-    if (allocated(this%tau_z)) then
-      deallocate(this%tau_z)
-    end if
+    call this%tau_x%free
+    call this%tau_y%free
+    call this%tau_z%free
+
     if (allocated(this%ind_r)) then
-      deallocate(this%ind_r)
+       deallocate(this%ind_r)
+    end if
+    if (allocated(this%ind_s)) then
+       deallocate(this%ind_s)
+    end if
+    if (allocated(this%ind_t)) then
+       deallocate(this%ind_t)
     end if
 
     call this%h%free()
@@ -256,7 +257,7 @@ contains
        linear = this%msk(i)
        fid = this%facet(i)
        idx = nonlinear_index(linear, this%coef%Xh%lx, this%coef%Xh%lx,&
-                             this%coef%Xh%lx)
+            this%coef%Xh%lx)
        normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), fid)
 
        this%n_x%x(i) = normal(1)
@@ -268,31 +269,31 @@ contains
 
        select case (fid)
        case (1)
-         this%ind_r(i) = idx(1) + this%h_index
-         this%ind_s(i) = idx(2)
-         this%ind_t(i) = idx(3)
+          this%ind_r(i) = idx(1) + this%h_index
+          this%ind_s(i) = idx(2)
+          this%ind_t(i) = idx(3)
        case (2)
-         this%ind_r(i) = idx(1) - this%h_index
-         this%ind_s(i) = idx(2)
-         this%ind_t(i) = idx(3)
+          this%ind_r(i) = idx(1) - this%h_index
+          this%ind_s(i) = idx(2)
+          this%ind_t(i) = idx(3)
        case (3)
-         this%ind_r(i) = idx(1)
-         this%ind_s(i) = idx(2) + this%h_index
-         this%ind_t(i) = idx(3)
+          this%ind_r(i) = idx(1)
+          this%ind_s(i) = idx(2) + this%h_index
+          this%ind_t(i) = idx(3)
        case (4)
-         this%ind_r(i) = idx(1)
-         this%ind_s(i) = idx(2) - this%h_index
-         this%ind_t(i) = idx(3)
+          this%ind_r(i) = idx(1)
+          this%ind_s(i) = idx(2) - this%h_index
+          this%ind_t(i) = idx(3)
        case (5)
-         this%ind_r(i) = idx(1)
-         this%ind_s(i) = idx(2)
-         this%ind_t(i) = idx(3) + this%h_index
+          this%ind_r(i) = idx(1)
+          this%ind_s(i) = idx(2)
+          this%ind_t(i) = idx(3) + this%h_index
        case (6)
-         this%ind_r(i) = idx(1)
-         this%ind_s(i) = idx(2)
-         this%ind_t(i) = idx(3) - this%h_index
+          this%ind_r(i) = idx(1)
+          this%ind_s(i) = idx(2)
+          this%ind_t(i) = idx(3) - this%h_index
        case default
-         call neko_error("The face index is not correct ")
+          call neko_error("The face index is not correct ")
        end select
        this%ind_e(i) = idx(4)
 
@@ -303,11 +304,11 @@ contains
 
        ! Location of the sampling point
        x = this%dof%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
-                      this%ind_e(i))
+            this%ind_e(i))
        y = this%dof%y(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
-                      this%ind_e(i))
+            this%ind_e(i))
        z = this%dof%z(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
-                         this%ind_e(i))
+            this%ind_e(i))
 
 
        ! Vector from the sampling point to the wall
@@ -324,9 +325,9 @@ contains
        ! Look at how much the total distance distance from the normal and warn
        ! if significant
        if ((this%h%x(i) - magp) / magp > 0.1 &
-           .and. (neko_log%level_ .eq. NEKO_LOG_DEBUG)) then
+            .and. (neko_log%level_ .eq. NEKO_LOG_DEBUG)) then
           write(*,*) "Significant missalignment between wall normal and &
-                   & sampling point direction at wall node", xw, yw, zw
+          & sampling point direction at wall node", xw, yw, zw
        end if
     end do
 
@@ -340,14 +341,14 @@ contains
 
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      call device_memcpy(this%h%x, this%h%x_d, n_nodes, HOST_TO_DEVICE,&
-                         sync = .false.)
-      call device_memcpy(this%n_x%x, this%n_x%x_d, n_nodes, HOST_TO_DEVICE, &
-                         sync = .false.)
-      call device_memcpy(this%n_y%x, this%n_y%x_d, n_nodes, HOST_TO_DEVICE, &
-                         sync = .false.)
-      call device_memcpy(this%n_z%x, this%n_z%x_d, n_nodes, HOST_TO_DEVICE, &
-                         sync = .true.)
+       call device_memcpy(this%h%x, this%h%x_d, n_nodes, HOST_TO_DEVICE,&
+            sync = .false.)
+       call device_memcpy(this%n_x%x, this%n_x%x_d, n_nodes, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%n_y%x, this%n_y%x_d, n_nodes, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%n_z%x, this%n_z%x_d, n_nodes, HOST_TO_DEVICE, &
+            sync = .true.)
     end if
   end subroutine wall_model_find_points
 

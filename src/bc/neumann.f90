@@ -34,12 +34,16 @@
 module neumann
   use num_types, only : rp
   use bc, only : bc_t
-  use, intrinsic :: iso_c_binding, only : c_ptr
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
   use utils, only : neko_error, nonlinear_index
   use coefs, only : coef_t
   use json_module, only : json_file
   use json_utils, only : json_get
   use math, only : cfill, copy, abscmp
+  use vector, only: vector_t
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use device_math, only : device_cfill, device_copy
+  use device, only : HOST_TO_DEVICE, device_memcpy, device_free, device_map
   implicit none
   private
 
@@ -48,7 +52,7 @@ module neumann
   !! @note The condition is imposed weekly by adding an appropriate source term
   !! to the right-hand-side.
   type, public, extends(bc_t) :: neumann_t
-     real(kind=rp), allocatable :: flux_(:)
+     type(vector_t) :: flux_
      real(kind=rp), private :: init_flux_
      logical :: uniform_0 = .false.
    contains
@@ -129,14 +133,14 @@ contains
                this%coef%Xh%lx)
           select case (facet)
           case (1,2)
-             x(k) = x(k) + this%flux_(i)*this%coef%area(idx(2), idx(3), facet,&
-                  idx(4))
+             x(k) = x(k) + &
+                  this%flux_%x(i)*this%coef%area(idx(2), idx(3), facet, idx(4))
           case (3,4)
-             x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(3), facet,&
-                  idx(4))
+             x(k) = x(k) + &
+                  this%flux_%x(i)*this%coef%area(idx(1), idx(3), facet, idx(4))
           case (5,6)
-             x(k) = x(k) + this%flux_(i)*this%coef%area(idx(1), idx(2), facet,&
-                  idx(4))
+             x(k) = x(k) + &
+                  this%flux_%x(i)*this%coef%area(idx(1), idx(2), facet, idx(4))
           end select
        end do
     end if
@@ -203,12 +207,18 @@ contains
     integer :: i
 
     call this%finalize_base()
-    allocate(this%flux_(this%msk(0)))
+    call this%flux_%init(this%msk(0))
 
-    call cfill(this%flux_, this%init_flux_, this%msk(0))
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_cfill(this%flux_%x_d, this%init_flux_, this%msk(0))
+    else
+       call cfill(this%flux_%x, this%init_flux_, this%msk(0))
+    end if
+
     this%uniform_0 = .true.
+
     do i = 1,this%msk(0)
-       this%uniform_0 = abscmp(this%flux_(i),0.0_rp) .and. this%uniform_0
+       this%uniform_0 = abscmp(this%flux_%x(i),0.0_rp) .and. this%uniform_0
     end do
   end subroutine neumann_finalize
 
@@ -218,7 +228,7 @@ contains
     class(neumann_t), intent(in) :: this
     real(kind=rp) :: flux(this%msk(0))
 
-    flux = this%flux_
+    flux = this%flux_%x
   end function neumann_flux
 
   !> Set the flux using a scalar.
@@ -226,21 +236,25 @@ contains
     class(neumann_t), intent(inout) :: this
     real(kind=rp), intent(in) :: flux
 
+
     this%flux_ = flux
-    this%uniform_0 = abscmp(flux,0.0_rp)
+
+    this%uniform_0 = abscmp(flux, 0.0_rp)
+
   end subroutine neumann_set_flux_scalar
 
   !> Set the flux using an array of values.
   !> @param flux The desired flux.
   subroutine neumann_set_flux_array(this, flux)
     class(neumann_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: flux(this%msk(0))
+    type(vector_t), intent(in) :: flux
     integer :: i
 
-    call copy(this%flux_, flux, this%msk(0))
+    this%flux_ = flux
+
     this%uniform_0 = .true.
     do i = 1,this%msk(0)
-       this%uniform_0 = abscmp(flux(i),0.0_rp) .and. this%uniform_0
+       this%uniform_0 = abscmp(flux%x(i), 0.0_rp) .and. this%uniform_0
     end do
 
   end subroutine neumann_set_flux_array
