@@ -144,8 +144,8 @@ common/craypat.lo : common/craypat.F90
 bc/bc.lo : bc/bc.f90 io/file.lo common/utils.lo math/math.lo gs/gather_scatter.lo field/field.lo adt/tuple.lo adt/stack.lo mesh/facet_zone.lo mesh/mesh.lo sem/space.lo sem/coef.lo sem/dofmap.lo device/device.lo config/num_types.lo config/neko_config.lo 
 bc/bc_list.lo : bc/bc_list.f90 bc/bc.lo common/utils.lo device/device.lo field/field.lo config/num_types.lo config/neko_config.lo 
 bc/dirichlet.lo : bc/dirichlet.f90 common/json_utils.lo sem/coef.lo bc/bc.lo config/num_types.lo bc/bcknd/device/device_dirichlet.lo 
-bc/neumann.lo : bc/neumann.f90 math/math.lo common/json_utils.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
-bc/shear_stress.lo : bc/shear_stress.f90 common/json_utils.lo bc/neumann.lo bc/symmetry.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
+bc/neumann.lo : bc/neumann.f90 bc/bcknd/device/device_neumann.lo device/device.lo math/bcknd/device/device_math.lo config/neko_config.lo math/vector.lo math/math.lo common/json_utils.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
+bc/shear_stress.lo : bc/shear_stress.f90 math/vector.lo common/json_utils.lo bc/neumann.lo bc/symmetry.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
 bc/dong_outflow.lo : bc/dong_outflow.f90 common/json_utils.lo field/field_registry.lo bc/bcknd/device/device_dong_outflow.lo common/utils.lo sem/coef.lo sem/dofmap.lo field/field.lo bc/bc.lo config/num_types.lo device/device.lo bc/dirichlet.lo config/neko_config.lo 
 bc/zero_dirichlet.lo : bc/zero_dirichlet.f90 sem/coef.lo bc/bc.lo config/num_types.lo bc/bcknd/device/device_zero_dirichlet.lo 
 bc/inflow.lo : bc/inflow.f90 common/json_utils.lo sem/coef.lo bc/bc.lo config/num_types.lo bc/bcknd/device/device_inflow.lo 
@@ -282,6 +282,7 @@ bc/bcknd/device/device_inflow.lo : bc/bcknd/device/device_inflow.F90 common/util
 bc/bcknd/device/device_zero_dirichlet.lo : bc/bcknd/device/device_zero_dirichlet.F90 common/utils.lo 
 bc/bcknd/device/device_symmetry.lo : bc/bcknd/device/device_symmetry.F90 common/utils.lo config/num_types.lo 
 bc/bcknd/device/device_facet_normal.lo : bc/bcknd/device/device_facet_normal.F90 common/utils.lo 
+bc/bcknd/device/device_neumann.lo : bc/bcknd/device/device_neumann.F90 common/utils.lo 
 bc/bcknd/device/device_inhom_dirichlet.lo : bc/bcknd/device/device_inhom_dirichlet.F90 common/utils.lo config/num_types.lo 
 bc/bcknd/device/device_dong_outflow.lo : bc/bcknd/device/device_dong_outflow.F90 common/utils.lo config/num_types.lo 
 scalar/bcknd/device/scalar_residual_device.lo : scalar/bcknd/device/scalar_residual_device.F90 config/num_types.lo mesh/mesh.lo sem/space.lo sem/coef.lo field/field.lo math/ax.lo math/bcknd/device/device_math.lo scalar/scalar_residual.lo 

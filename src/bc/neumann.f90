@@ -44,6 +44,7 @@ module neumann
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_copy
   use device, only : HOST_TO_DEVICE, device_memcpy, device_free, device_map
+  use device_neumann, only : device_neumann_apply_scalar
   implicit none
   private
 
@@ -172,7 +173,8 @@ contains
     logical, intent(in), optional :: strong
 
     if (.not. this%uniform_0 .and. this%msk(0) .gt. 0) then
-       call neko_error("Neumann bc not implemented on the device")
+       call device_neumann_apply_scalar(this%msk_d, this%facet_d, x_d, &
+            this%flux_%x_d, this%coef%area_d, this%coef%Xh%lx, size(this%msk))
     end if
   end subroutine neumann_apply_scalar_dev
 
@@ -232,13 +234,12 @@ contains
   end function neumann_flux
 
   !> Set the flux using a scalar.
+  !! @param flux The desired flux.
   subroutine neumann_set_flux_scalar(this, flux)
     class(neumann_t), intent(inout) :: this
     real(kind=rp), intent(in) :: flux
 
-
     this%flux_ = flux
-
     this%uniform_0 = abscmp(flux, 0.0_rp)
 
   end subroutine neumann_set_flux_scalar
