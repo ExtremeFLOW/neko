@@ -172,9 +172,7 @@ contains
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
 
-    write(*,*) "RUNNING DEVICE APPLY", this%uniform_0
     if (.not. this%uniform_0 .and. this%msk(0) .gt. 0) then
-       write(*,*) "RUNNING DEVICE KERNEL"
        call device_neumann_apply_scalar(this%msk_d, this%facet_d, x_d, &
             this%flux_%x_d, this%coef%area_d, this%coef%Xh%lx, size(this%msk))
     end if
@@ -213,7 +211,6 @@ contains
     call this%finalize_base()
     call this%flux_%init(this%msk(0))
 
-    write(*,*) "INIT FLUX", this%init_flux_
     this%flux_ = this%init_flux_
     this%uniform_0 = .true.
 

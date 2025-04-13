@@ -56,7 +56,7 @@ ax1.set_xlim(0, np.pi * 2)
 
 ax2.plot(x, ic - temp, '--k', label="Absolute error")
 ax2.set_xlabel(r"$x$")
-ax2.set_ylabel(r"$absolute error$")
+ax2.set_ylabel(r"absolute error")
 
 plt.tight_layout()
 plt.savefig(join(DATA_PATH, "results.png"), dpi=300)
