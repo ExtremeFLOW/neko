@@ -44,7 +44,7 @@ module device_neumann
        use, intrinsic :: iso_c_binding
        implicit none
        integer(c_int) :: m, lx
-       type(c_ptr), value  :: msk, facet, x, flux, area
+       type(c_ptr), value :: msk, facet, x, flux, area
      end subroutine cuda_neumann_apply_scalar
   end interface
 #elif HAVE_OPENCL
