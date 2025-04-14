@@ -93,7 +93,7 @@ jobs:
               brew install automake
               echo "nproc=$(sysctl -n hw.ncpu)" >> $GITHUB_OUTPUT
               echo "os-version=$(sw_vers -productName)-$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
-              
+
           - os: macos-15
             setup-env: |
               export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
@@ -180,7 +180,7 @@ jobs:
         run: |
           # Following the instructions from https://rocm.docs.amd.com/projects/install-on-linux/en/latest/install/quick-start.html
 
-          wget -r -np -nd -A 'amdgpu*.deb' https://repo.radeon.com/amdgpu-install/latest/ubuntu/focal/
+          wget -r -np -nd -A 'amdgpu*.deb' https://repo.radeon.com/amdgpu-install/latest/ubuntu/noble/
           sudo apt install ./amdgpu-install_*.deb
 
           sudo apt-get update && sudo apt-get install -y amdgpu-dkms rocm-dev
