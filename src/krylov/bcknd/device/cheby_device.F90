@@ -41,10 +41,11 @@ module cheby_device
   use mesh, only : mesh_t
   use space, only : space_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use device_math, only : device_cmult2, device_sub2, &
        device_add2s1, device_add2s2, device_glsc3, device_copy
   use device
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 
@@ -111,14 +112,14 @@ contains
     end if
 
     call device_event_create(this%gs_event, 2)
-    
+
   end subroutine cheby_device_init
 
   subroutine cheby_device_free(this)
     class(cheby_device_t), intent(inout) :: this
 
     call this%ksp_free()
-    
+
     if (allocated(this%d)) then
        deallocate(this%d)
     end if
@@ -132,7 +133,7 @@ contains
     end if
 
     nullify(this%M)
-    
+
     if (c_associated(this%d_d)) then
        call device_free(this%d_d)
     end if
@@ -148,7 +149,7 @@ contains
     if (c_associated(this%gs_event)) then
        call device_event_destroy(this%gs_event)
     end if
-    
+
   end subroutine cheby_device_free
 
   subroutine cheby_device_power(this, Ax, x, n, coef, blst, gs_h)
@@ -157,7 +158,7 @@ contains
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blst
+    type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp) :: lam, b, a, rn
     real(kind=rp) :: boost = 1.2_rp
@@ -166,31 +167,31 @@ contains
     integer :: i
 
     associate(w => this%w, w_d => this%w_d, d => this%d, d_d => this%d_d)
-      
+
       do i = 1, n
          !TODO: replace with a better way to initialize power method
          call random_number(rn)
          d(i) = rn + 10.0_rp
       end do
       call device_memcpy(d, d_d, n, HOST_TO_DEVICE, sync = .true.)
-      
+
       call gs_h%op(d, n, GS_OP_ADD, this%gs_event)
-      call bc_list_apply(blst, d, n)
+      call blst%apply(d, n)
 
       !Power method to get lamba max
       do i = 1, this%power_its
-        call ax%compute(w, d, coef, x%msh, x%Xh)
-        call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-        call bc_list_apply(blst, w, n)
+         call ax%compute(w, d, coef, x%msh, x%Xh)
+         call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
+         call blst%apply(w, n)
 
-        wtw = device_glsc3(w_d, coef%mult_d, w_d, n)
-        call device_cmult2(d_d, w_d, 1.0_rp/sqrt(wtw), n)
-        call bc_list_apply(blst, d, n)
+         wtw = device_glsc3(w_d, coef%mult_d, w_d, n)
+         call device_cmult2(d_d, w_d, 1.0_rp/sqrt(wtw), n)
+         call blst%apply(d, n)
       end do
 
       call ax%compute(w, d, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-      call bc_list_apply(blst, w, n)
+      call blst%apply(w, n)
 
       dtw = device_glsc3(d_d, coef%mult_d, w_d, n)
       dtd = device_glsc3(d_d, coef%mult_d, d_d, n)
@@ -213,7 +214,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blst
+    type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -226,7 +227,7 @@ contains
     if (this%recompute_eigs) then
        call cheby_device_power(this, Ax, x, n, coef, blst, gs_h)
     end if
-    
+
     if (present(niter)) then
        max_iter = niter
     else
@@ -240,7 +241,7 @@ contains
       call device_copy(r_d, f_d, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-      call bc_list_apply(blst, w, n)
+      call blst%apply(w, n)
       call device_sub2(r_d, w_d, n)
 
       rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
@@ -257,36 +258,39 @@ contains
 
       ! Rest of the iterations
       do iter = 2, max_iter
-        ! calculate residual
-        call device_copy(r_d, f_d, n)
-        call ax%compute(w, x%x, coef, x%msh, x%Xh)
-        call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-        call bc_list_apply(blst, w, n)
-        call device_sub2(r_d, w_d, n)
+         ! calculate residual
+         call device_copy(r_d, f_d, n)
+         call ax%compute(w, x%x, coef, x%msh, x%Xh)
+         call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
+         call blst%apply(w, n)
+         call device_sub2(r_d, w_d, n)
 
-        call this%M%solve(w, r, n)
+         call this%M%solve(w, r, n)
 
-        if (iter .eq. 2) then
-          b = 0.5_rp * (this%dlt * a)**2
-        else
-          b = (this%dlt * a / 2.0_rp)**2
-        end if
-        a = 1.0_rp/(this%tha - b/a)
-        call device_add2s1(d_d, w_d, b, n)! d = w + b*d
+         if (iter .eq. 2) then
+            b = 0.5_rp * (this%dlt * a)**2
+         else
+            b = (this%dlt * a / 2.0_rp)**2
+         end if
+         a = 1.0_rp/(this%tha - b/a)
+         call device_add2s1(d_d, w_d, b, n)! d = w + b*d
 
-        call device_add2s2(x%x_d, d_d, a, n)! x = x + a*d
+         call device_add2s2(x%x_d, d_d, a, n)! x = x + a*d
       end do
 
       ! calculate residual
       call device_copy(r_d, f_d, n)
       call ax%compute(w, x%x, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-      call bc_list_apply(blst, w, n)
+      call blst%apply(w, n)
       call device_sub2(r_d, w_d, n)
       rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
       rnorm = sqrt(rtr) * norm_fac
+
+
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
+      ksp_results%converged = this%is_converged(iter, rnorm)
     end associate
   end function cheby_device_solve
 
@@ -303,9 +307,9 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blstx
-    type(bc_list_t), intent(in) :: blsty
-    type(bc_list_t), intent(in) :: blstz
+    type(bc_list_t), intent(inout) :: blstx
+    type(bc_list_t), intent(inout) :: blsty
+    type(bc_list_t), intent(inout) :: blstz
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -317,5 +321,3 @@ contains
   end function cheby_device_solve_coupled
 
 end module cheby_device
-
-

@@ -33,11 +33,12 @@
 !> Dirichlet condition applied in the facet normal direction
 module facet_normal
   use device_facet_normal
-  use num_types
+  use num_types, only : rp
   use math
   use coefs, only : coef_t
   use bc, only : bc_t
   use utils
+  use json_module, only : json_file
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -50,44 +51,76 @@ module facet_normal
      procedure, pass(this) :: apply_vector => facet_normal_apply_vector
      procedure, pass(this) :: apply_vector_dev => facet_normal_apply_vector_dev
      procedure, pass(this) :: apply_surfvec => facet_normal_apply_surfvec
-     procedure, pass(this) :: apply_surfvec_dev => facet_normal_apply_surfvec_dev
+     procedure, pass(this) :: apply_surfvec_dev => &
+          facet_normal_apply_surfvec_dev
+     !> Constructor.
+     procedure, pass(this) :: init => facet_normal_init
+     !> Constructor from components.
+     procedure, pass(this) :: init_from_components => &
+          facet_normal_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => facet_normal_free
+     !> Finalize.
+     procedure, pass(this) :: finalize => facet_normal_finalize
   end type facet_normal_t
 
 contains
 
+  !> Constructor.
+  !! @param[in] coef The SEM coefficients.
+  !! @param[inout] json The JSON object configuring the boundary condition.
+  subroutine facet_normal_init(this, coef, json)
+    class(facet_normal_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+    type(json_file), intent(inout) ::json
+
+    call this%init_from_components(coef)
+  end subroutine facet_normal_init
+
+  !> Constructor from components.
+  !! @param[in] coef The SEM coefficients.
+  subroutine facet_normal_init_from_components(this, coef)
+    class(facet_normal_t), intent(inout), target :: this
+    type(coef_t), intent(in) :: coef
+
+    call this%init_base(coef)
+  end subroutine facet_normal_init_from_components
+
   !> No-op scalar apply
-  subroutine facet_normal_apply_scalar(this, x, n, t, tstep)
+  subroutine facet_normal_apply_scalar(this, x, n, t, tstep, strong)
     class(facet_normal_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
   end subroutine facet_normal_apply_scalar
 
   !> No-op scalar apply on device
-  subroutine facet_normal_apply_scalar_dev(this, x_d, t, tstep)
+  subroutine facet_normal_apply_scalar_dev(this, x_d, t, tstep, strong)
     class(facet_normal_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
   end subroutine facet_normal_apply_scalar_dev
 
   !> No-op vector apply on device
-  subroutine facet_normal_apply_vector_dev(this, x_d, y_d, z_d, t, tstep)
+  subroutine facet_normal_apply_vector_dev(this, x_d, y_d, z_d, t, tstep, &
+       strong)
     class(facet_normal_t), intent(inout), target :: this
     type(c_ptr) :: x_d
     type(c_ptr) :: y_d
     type(c_ptr) :: z_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
 
   end subroutine facet_normal_apply_vector_dev
 
   !> No-op vector apply
-  subroutine facet_normal_apply_vector(this, x, y, z, n, t, tstep)
+  subroutine facet_normal_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(facet_normal_t), intent(inout) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
@@ -95,11 +128,12 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
+    logical, intent(in), optional :: strong
   end subroutine facet_normal_apply_vector
 
   !> Apply in facet normal direction (vector valued)
   subroutine facet_normal_apply_surfvec(this, x, y, z, u, v, w, n, t, tstep)
-    class(facet_normal_t), intent(inout) :: this
+    class(facet_normal_t), intent(in) :: this
     integer, intent(in) :: n
     real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(inout), dimension(n) :: y
@@ -117,22 +151,22 @@ contains
          k = this%msk(i)
          facet = this%facet(i)
          idx = nonlinear_index(k, c%Xh%lx, c%Xh%lx, c%Xh%lx)
-         select case(facet)
-         case(1,2)
+         select case (facet)
+         case (1,2)
             x(k) = u(k) * c%nx(idx(2), idx(3), facet, idx(4)) &
                  * c%area(idx(2), idx(3), facet, idx(4))
             y(k) = v(k) * c%ny(idx(2), idx(3), facet, idx(4)) &
                  * c%area(idx(2), idx(3), facet, idx(4))
             z(k) = w(k) * c%nz(idx(2), idx(3), facet, idx(4)) &
                  * c%area(idx(2), idx(3), facet, idx(4))
-         case(3,4)
+         case (3,4)
             x(k) = u(k) * c%nx(idx(1), idx(3), facet, idx(4)) &
                  * c%area(idx(1), idx(3), facet, idx(4))
             y(k) = v(k) * c%ny(idx(1), idx(3), facet, idx(4)) &
                  * c%area(idx(1), idx(3), facet, idx(4))
             z(k) = w(k) * c%nz(idx(1), idx(3), facet, idx(4)) &
                  * c%area(idx(1), idx(3), facet, idx(4))
-         case(5,6)
+         case (5,6)
             x(k) = u(k) * c%nx(idx(1), idx(2), facet, idx(4)) &
                  * c%area(idx(1), idx(2), facet, idx(4))
             y(k) = v(k) * c%ny(idx(1), idx(2), facet, idx(4)) &
@@ -147,17 +181,18 @@ contains
 
   !> Apply in facet normal direction (vector valued, device version)
   subroutine facet_normal_apply_surfvec_dev(this, x_d, y_d, z_d, &
-                                            u_d, v_d, w_d, t, tstep)
-    class(facet_normal_t), intent(inout), target :: this
+       u_d, v_d, w_d, t, tstep)
+    class(facet_normal_t), intent(in), target :: this
     type(c_ptr) :: x_d, y_d, z_d, u_d, v_d, w_d
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
 
     associate(c => this%coef)
-      call device_facet_normal_apply_surfvec(this%msk_d, this%facet_d, &
-                                             x_d, y_d, z_d, u_d, v_d, w_d, &
-                                             c%nx_d, c%ny_d, c%nz_d, c%area_d, &
-                                             c%Xh%lx, size(this%msk))
+      if (this%msk(0) .gt. 0) then
+         call device_facet_normal_apply_surfvec(this%msk_d, this%facet_d, &
+              x_d, y_d, z_d, u_d, v_d, w_d, c%nx_d, c%ny_d, c%nz_d, c%area_d, &
+              c%Xh%lx, size(this%msk))
+      end if
     end associate
 
   end subroutine facet_normal_apply_surfvec_dev
@@ -169,5 +204,12 @@ contains
     call this%free_base()
 
   end subroutine facet_normal_free
+
+  !> Finalize
+  subroutine facet_normal_finalize(this)
+    class(facet_normal_t), target, intent(inout) :: this
+
+    call this%finalize_base(.true.)
+  end subroutine facet_normal_finalize
 
 end module facet_normal

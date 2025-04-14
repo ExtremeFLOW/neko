@@ -35,21 +35,22 @@
 module smagorinsky
   use num_types, only : rp
   use field, only : field_t
+  use fluid_scheme_base, only : fluid_scheme_base_t
   use les_model, only : les_model_t
-  use dofmap , only : dofmap_t
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get_or_default
   use json_module, only : json_file
-  use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
   use smagorinsky_cpu, only : smagorinsky_compute_cpu
-  use coefs, only : coef_t
+  use smagorinsky_device, only : smagorinsky_compute_device
+  use field_registry, only : neko_field_registry
+  use logger, only : LOG_SIZE, neko_log
   implicit none
   private
 
   !> Implements the smagorinsky LES model.
   !! @note Reference DOI: 10.1175/1520-0493(1963)091<0099:GCEWTP>2.3.CO;2
   type, public, extends(les_model_t) :: smagorinsky_t
-     !> Model constant, defaults to 0.07.
+     !> Model constant, defaults to 0.17.
      real(kind=rp) :: c_s
    contains
      !> Constructor from JSON.
@@ -65,43 +66,57 @@ module smagorinsky
 
 contains
   !> Constructor.
-  !! @param dofmap SEM map of degrees of freedom.
-  !! @param coef SEM coefficients.
+  !! @param fluid The fluid_scheme_base_t object.
   !! @param json A dictionary with parameters.
-  subroutine smagorinsky_init(this, dofmap, coef, json)
+  subroutine smagorinsky_init(this, fluid, json)
     class(smagorinsky_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dofmap
-    type(coef_t), intent(in) :: coef
+    class(fluid_scheme_base_t), intent(inout), target :: fluid
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: nut_name
     real(kind=rp) :: c_s
     character(len=:), allocatable :: delta_type
+    logical :: if_ext
+    character(len=LOG_SIZE) :: log_buf
 
     call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     call json_get_or_default(json, "c_s", c_s, 0.17_rp)
+    call json_get_or_default(json, "extrapolation", if_ext, .false.)
 
-    call smagorinsky_init_from_components(this, dofmap, coef, c_s, nut_name, &
-          delta_type)
+    call neko_log%section('LES model')
+    write(log_buf, '(A)') 'Model : Smagorinsky'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Delta evaluation : ', delta_type
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'c_s : ', c_s
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, L1)') 'extrapolation : ', if_ext
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
+
+    call smagorinsky_init_from_components(this, fluid, c_s, nut_name, &
+         delta_type, if_ext)
+
   end subroutine smagorinsky_init
 
   !> Constructor from components.
-  !! @param dofmap SEM map of degrees of freedom.
-  !! @param coef SEM coefficients.
+  !! @param fluid The fluid_scheme_base_t object.
   !! @param c_s The model constant.
   !! @param nut_name The name of the SGS viscosity field.
-  subroutine smagorinsky_init_from_components(this, dofmap, coef, c_s, &
-       nut_name, delta_type)
+  !! @param delta_type The type of filter size.
+  !! @param if_ext Whether trapolate the velocity.
+  subroutine smagorinsky_init_from_components(this, fluid, c_s, &
+       nut_name, delta_type, if_ext)
     class(smagorinsky_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dofmap
-    type(coef_t), intent(in) :: coef
+    class(fluid_scheme_base_t), intent(inout), target :: fluid
     real(kind=rp) :: c_s
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
+    logical, intent(in) :: if_ext
 
     call this%free()
 
-    call this%init_base(dofmap, coef, nut_name, delta_type)
+    call this%init_base(fluid, nut_name, delta_type, if_ext)
     this%c_s = c_s
 
   end subroutine smagorinsky_init_from_components
@@ -121,11 +136,33 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
+    type(field_t), pointer :: u, v, w, u_e, v_e, w_e
+
+    if (this%if_ext .eqv. .true.) then
+       ! Extrapolate the velocity fields
+       associate(ulag => this%ulag, vlag => this%vlag, &
+            wlag => this%wlag, ext_bdf => this%ext_bdf)
+
+         u => neko_field_registry%get_field_by_name("u")
+         v => neko_field_registry%get_field_by_name("v")
+         w => neko_field_registry%get_field_by_name("w")
+         u_e => neko_field_registry%get_field_by_name("u_e")
+         v_e => neko_field_registry%get_field_by_name("v_e")
+         w_e => neko_field_registry%get_field_by_name("w_e")
+
+         call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
+              ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+
+       end associate
+    end if
+
+    ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call neko_error("Smagorinsky model not implemented on accelarators.")
+       call smagorinsky_compute_device(this%if_ext, t, tstep, this%coef, &
+            this%nut, this%delta, this%c_s)
     else
-        call smagorinsky_compute_cpu(t, tstep, this%coef, this%nut, this%delta,&
-                                this%c_s)
+       call smagorinsky_compute_cpu(this%if_ext, t, tstep, this%coef, &
+            this%nut, this%delta, this%c_s)
     end if
 
   end subroutine smagorinsky_compute

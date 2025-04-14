@@ -145,13 +145,13 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
 #ifdef HAVE_DEVICE_MPI
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
     device_mpi_allreduce(fusedcg_cpld_buf_d, fusedcg_cpld_buf, 1,
                          sizeof(real), DEVICE_MPI_SUM);
 #else
     HIP_CHECK(hipMemcpyAsync(fusedcg_cpld_buf, fusedcg_cpld_buf_d, sizeof(real),
                                hipMemcpyDeviceToHost, stream));
-    hipStreamSynchronize(stream);
+    HIP_CHECK(hipStreamSynchronize(stream));
 #endif
 
     return fusedcg_cpld_buf[0];

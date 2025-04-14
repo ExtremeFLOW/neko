@@ -39,11 +39,15 @@ module fusedcg_device
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3
   use device
-  use comm
+  use utils, only : neko_error
+  use comm, only : NEKO_COMM, MPI_Allreduce, MPI_IN_PLACE, &
+       MPI_REAL_PRECISION, MPI_SUM, pe_size
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, &
+       c_associated, c_size_t, c_sizeof, c_int, c_loc
   implicit none
   private
 
@@ -168,7 +172,7 @@ contains
   end subroutine device_fusedcg_update_x
 
   function device_fusedcg_part2(a_d, b_d, c_d, alpha_d, alpha, &
-                                p_cur, n) result(res)
+       p_cur, n) result(res)
     type(c_ptr), value :: a_d, b_d, c_d, alpha_d
     real(c_rp) :: alpha
     integer :: n, p_cur
@@ -193,7 +197,7 @@ contains
 
   !> Initialise a fused PCG solver
   subroutine fusedcg_device_init(this, n, max_iter, M, rel_tol, abs_tol, &
-                                 monitor)
+       monitor)
     class(fusedcg_device_t), target, intent(inout) :: this
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
@@ -231,7 +235,7 @@ contains
     call device_alloc(this%p_d_d, p_size)
     ptr = c_loc(this%p_d)
     call device_memcpy(ptr, this%p_d_d, p_size, &
-                       HOST_TO_DEVICE, sync=.false.)
+         HOST_TO_DEVICE, sync=.false.)
     if (present(rel_tol) .and. present(abs_tol) .and. present(monitor)) then
        call this%ksp_init(max_iter, rel_tol, abs_tol, monitor = monitor)
     else if (present(rel_tol) .and. present(abs_tol)) then
@@ -323,7 +327,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blst
+    type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -371,13 +375,13 @@ contains
          call Ax%compute(w, p(1, p_cur), coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
          call device_event_sync(this%gs_event)
-         call bc_list_apply(blst, w, n)
+         call blst%apply(w, n)
 
          pap = device_glsc3(w_d, coef%mult_d, this%p_d(p_cur), n)
 
          alpha(p_cur) = rtz1 / pap
          rtr = device_fusedcg_part2(r_d, coef%mult_d, w_d, &
-                                    alpha_d, alpha(p_cur), p_cur, n)
+              alpha_d, alpha(p_cur), p_cur, n)
          rnorm = sqrt(rtr)*norm_fac
          call this%monitor_iter(iter, rnorm)
          if ((p_cur .eq. DEVICE_FUSEDCG_P_SPACE) .or. &
@@ -394,6 +398,7 @@ contains
       call this%monitor_stop()
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
+      ksp_results%converged = this%is_converged(iter, rnorm)
 
     end associate
 
@@ -412,9 +417,9 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blstx
-    type(bc_list_t), intent(in) :: blsty
-    type(bc_list_t), intent(in) :: blstz
+    type(bc_list_t), intent(inout) :: blstx
+    type(bc_list_t), intent(inout) :: blsty
+    type(bc_list_t), intent(inout) :: blstz
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -424,7 +429,5 @@ contains
     ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function fusedcg_device_solve_coupled
-  
+
 end module fusedcg_device
-
-

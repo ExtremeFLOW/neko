@@ -40,6 +40,7 @@ module vreman_device
   use operators, only : dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
+  use device_math, only : device_col2
   use device_vreman_nut, only : device_vreman_nut_compute
   implicit none
   private
@@ -49,13 +50,15 @@ module vreman_device
 contains
 
   !> Compute eddy viscosity on the device.
+  !! @param if_ext If extrapolate the velocity field to evaluate
   !! @param t The time value.
   !! @param tstep The current time-step.
   !! @param coef SEM coefficients.
   !! @param nut The SGS viscosity array.
   !! @param delta The LES lengthscale.
   !! @param c The Vreman model constant
-  subroutine vreman_compute_device(t, tstep, coef, nut, delta, c)
+  subroutine vreman_compute_device(if_ext, t, tstep, coef, nut, delta, c)
+    logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
@@ -77,9 +80,15 @@ contains
     integer :: temp_indices(17)
     integer :: e, i
 
-    u => neko_field_registry%get_field_by_name("u")
-    v => neko_field_registry%get_field_by_name("v")
-    w => neko_field_registry%get_field_by_name("w")
+    if (if_ext .eqv. .true.) then
+       u => neko_field_registry%get_field_by_name("u_e")
+       v => neko_field_registry%get_field_by_name("v_e")
+       w => neko_field_registry%get_field_by_name("w_e")
+    else
+       u => neko_field_registry%get_field_by_name("u")
+       v => neko_field_registry%get_field_by_name("v")
+       w => neko_field_registry%get_field_by_name("w")
+    end if
 
     call neko_scratch_registry%request_field(a11, temp_indices(1))
     call neko_scratch_registry%request_field(a12, temp_indices(2))
@@ -122,12 +131,15 @@ contains
     call coef%gs_h%op(a31, GS_OP_ADD)
     call coef%gs_h%op(a32, GS_OP_ADD)
     call coef%gs_h%op(a33, GS_OP_ADD)
-    
+
     call device_vreman_nut_compute(a11%x_d, a12%x_d, a13%x_d, &
-                                  a21%x_d, a22%x_d, a23%x_d, &
-                                  a31%x_d, a32%x_d, a33%x_d, &
-                                  delta%x_d, nut%x_d, coef%mult_d, &
-                                  c, NEKO_EPS, a11%dof%size())
+         a21%x_d, a22%x_d, a23%x_d, &
+         a31%x_d, a32%x_d, a33%x_d, &
+         delta%x_d, nut%x_d, coef%mult_d, &
+         c, NEKO_EPS, a11%dof%size())
+
+    call coef%gs_h%op(nut, GS_OP_ADD)
+    call device_col2(nut%x_d, coef%mult_d, nut%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine vreman_compute_device

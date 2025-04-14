@@ -203,20 +203,21 @@ contains
 
   subroutine pnpn_prs_res_stress_device_compute(p, p_res, u, v, w, u_e, v_e,&
        w_e, f_x, f_y, f_z, c_Xh, gs_Xh, bc_prs_surface, bc_sym_surface, Ax, bd,&
-       dt, mu, rho)
+       dt, mu, rho, event)
     type(field_t), intent(inout) :: p, u, v, w
-    type(field_t), intent(inout) :: u_e, v_e, w_e
+    type(field_t), intent(in) :: u_e, v_e, w_e
     type(field_t), intent(inout) :: p_res
-    type(field_t), intent(inout) :: f_x, f_y, f_z
+    type(field_t), intent(in) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
     type(gs_t), intent(inout) :: gs_Xh
-    type(facet_normal_t), intent(inout) :: bc_prs_surface
-    type(facet_normal_t), intent(inout) :: bc_sym_surface
+    type(facet_normal_t), intent(in) :: bc_prs_surface
+    type(facet_normal_t), intent(in) :: bc_sym_surface
     class(Ax_t), intent(inout) :: Ax
-    real(kind=rp), intent(inout) :: bd
+    real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     type(field_t), intent(in) :: mu
     type(field_t), intent(in) :: rho
+    type(c_ptr), intent(inout) :: event
     real(kind=rp) :: dtbd
     integer :: n, nelv, lxyz, gdim
     integer :: i, e
@@ -236,7 +237,7 @@ contains
     call neko_scratch_registry%request_field(work2, temp_indices(8))
     call neko_scratch_registry%request_field(work3, temp_indices(9))
 
-   ! Stress tensor
+    ! Stress tensor
     call neko_scratch_registry%request_field(s11, temp_indices(10))
     call neko_scratch_registry%request_field(s22, temp_indices(11))
     call neko_scratch_registry%request_field(s33, temp_indices(12))
@@ -255,8 +256,8 @@ contains
     c_Xh%ifh2 = .false.
 
     ! mu times the double curl of the velocity
-    call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh)
-    call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh)
+    call curl(ta1, ta2, ta3, u_e, v_e, w_e, work1, work2, c_Xh, event)
+    call curl(wa1, wa2, wa3, ta1, ta2, ta3, work1, work2, c_Xh, event)
 
     call device_col2(wa1%x_d, mu%x_d, n)
     call device_col2(wa2%x_d, mu%x_d, n)
@@ -351,7 +352,7 @@ contains
     type(space_t), intent(inout) :: Xh
     type(field_t), intent(inout) :: p, u, v, w
     type(field_t), intent(inout) :: u_res, v_res, w_res
-    type(field_t), intent(inout) :: f_x, f_y, f_z
+    type(field_t), intent(in) :: f_x, f_y, f_z
     type(coef_t), intent(inout) :: c_Xh
     type(field_t), intent(in) :: mu
     type(field_t), intent(in) :: rho

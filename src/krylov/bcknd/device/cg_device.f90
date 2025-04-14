@@ -34,16 +34,17 @@
 module cg_device
   use num_types, only: rp
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : abscmp
   use device
   use device_math, only : device_rzero, device_copy, device_glsc3, &
-                          device_add2s2, device_add2s1
+       device_add2s2, device_add2s1
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
 
   !> Device based preconditioned conjugate gradient method
@@ -68,7 +69,7 @@ contains
 
   !> Initialise a device based PCG solver
   subroutine cg_device_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
-    class(cg_device_t), intent(inout) :: this
+    class(cg_device_t), target, intent(inout) :: this
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
@@ -167,7 +168,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blst
+    type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -210,7 +211,7 @@ contains
        call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)
        call gs_h%op(this%w, n, GS_OP_ADD, this%gs_event)
        call device_event_sync(this%gs_event)
-       call bc_list_apply(blst, this%w, n)
+       call blst%apply(this%w, n)
 
        pap = device_glsc3(this%w_d, coef%mult_d, this%p_d, n)
 
@@ -230,6 +231,7 @@ contains
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
+    ksp_results%converged = this%is_converged(iter, rnorm)
 
   end function cg_device_solve
 
@@ -246,19 +248,17 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blstx
-    type(bc_list_t), intent(in) :: blsty
-    type(bc_list_t), intent(in) :: blstz
+    type(bc_list_t), intent(inout) :: blstx
+    type(bc_list_t), intent(inout) :: blsty
+    type(bc_list_t), intent(inout) :: blstz
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function cg_device_solve_coupled
 
 end module cg_device
-
-

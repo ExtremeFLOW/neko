@@ -39,15 +39,16 @@ module gmres
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp
+  use neko_config, only : NEKO_BLK_SIZE
   use comm
   implicit none
   private
 
   !> Standard preconditioned generalized minimal residual method
   type, public, extends(ksp_t) :: gmres_t
-     integer :: lgmres
+     integer :: lgmres = 30
      real(kind=rp), allocatable :: w(:)
      real(kind=rp), allocatable :: r(:)
      real(kind=rp), allocatable :: z(:,:)
@@ -67,23 +68,14 @@ module gmres
 contains
 
   !> Initialise a standard GMRES solver
-  subroutine gmres_init(this, n, max_iter, M, lgmres, &
-                        rel_tol, abs_tol, monitor)
-    class(gmres_t), intent(inout) :: this
+  subroutine gmres_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+    class(gmres_t), target, intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(in), target :: M
-    integer, optional, intent(in) :: lgmres
     real(kind=rp), optional, intent(in) :: rel_tol
     real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
-
-    if (present(lgmres)) then
-       this%lgmres = lgmres
-    else
-       this%lgmres = 30
-    end if
-
 
     call this%free()
 
@@ -175,7 +167,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blst
+    type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -196,7 +188,7 @@ contains
     end if
 
     associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
-          v => this%v, s => this%s, gam => this%gam)
+         v => this%v, s => this%s, gam => this%gam)
 
       norm_fac = 1.0_rp / sqrt(coef%volume)
       call rzero(x%x, n)
@@ -213,7 +205,7 @@ contains
             call copy(r, f, n)
             call Ax%compute(w, x%x, coef, x%msh, x%Xh)
             call gs_h%op(w, n, GS_OP_ADD)
-            call bc_list_apply(blst, w, n)
+            call blst%apply(w, n)
             call sub2(r, w, n)
          end if
 
@@ -234,7 +226,7 @@ contains
 
             call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
             call gs_h%op(w, n, GS_OP_ADD)
-            call bc_list_apply(blst, w, n)
+            call blst%apply(w, n)
 
             do l = 1, j
                h(l,j) = 0.0_rp
@@ -245,21 +237,21 @@ contains
                   do l = 1, j
                      do k = 1, NEKO_BLK_SIZE
                         h(l,j) = h(l,j) + &
-                              w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
+                             w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
                      end do
                   end do
                else
                   do k = 1, n-i
                      do l = 1, j
                         h(l,j) = h(l,j) + &
-                              w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
+                             w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
                      end do
                   end do
                end if
             end do
 
             call MPI_Allreduce(MPI_IN_PLACE, h(1,j), j, &
-                  MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+                 MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
             alpha2 = 0.0_rp
             do i = 0, n, NEKO_BLK_SIZE
@@ -289,7 +281,7 @@ contains
             end do
 
             call MPI_Allreduce(MPI_IN_PLACE,alpha2, 1, &
-                  MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+                 MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
             alpha = sqrt(alpha2)
             do i = 1, j-1
                temp = h(i,j)
@@ -364,6 +356,7 @@ contains
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
+    ksp_results%converged = this%is_converged(iter, rnorm)
 
   end function gmres_solve
 
@@ -380,9 +373,9 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blstx
-    type(bc_list_t), intent(in) :: blsty
-    type(bc_list_t), intent(in) :: blstz
+    type(bc_list_t), intent(inout) :: blstx
+    type(bc_list_t), intent(inout) :: blsty
+    type(bc_list_t), intent(inout) :: blstz
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter

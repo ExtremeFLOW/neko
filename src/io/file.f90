@@ -58,6 +58,8 @@ module file
      procedure :: write => file_write
      !> Read @a data from a file.
      procedure :: read => file_read
+     !> Get a file's counter.
+     procedure :: get_counter => file_get_counter
      !> Set a file's counter.
      procedure :: set_counter => file_set_counter
      !> Set a file's start counter.
@@ -163,6 +165,19 @@ contains
     call this%file_type%read(data)
 
   end subroutine file_read
+
+  !> Get a file's counter.
+  function file_get_counter(this) result(n)
+    class(file_t), intent(inout) :: this
+    integer :: n
+    n = 0
+
+    select type(ft => this%file_type)
+    class is (generic_file_t)
+       n = ft%counter
+    end select
+
+  end function file_get_counter
 
   !> Set a file's counter.
   subroutine file_set_counter(this, n)

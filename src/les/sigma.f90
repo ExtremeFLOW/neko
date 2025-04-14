@@ -35,15 +35,15 @@
 module sigma
   use num_types, only : rp
   use field, only : field_t
+  use fluid_scheme_base, only : fluid_scheme_base_t
   use les_model, only : les_model_t
-  use dofmap , only : dofmap_t
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get_or_default
   use json_module, only : json_file
-  use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
   use sigma_cpu, only : sigma_compute_cpu
   use sigma_device, only : sigma_compute_device
-  use coefs, only : coef_t
+  use field_registry, only : neko_field_registry
+  use logger, only : LOG_SIZE, neko_log
   implicit none
   private
 
@@ -56,7 +56,8 @@ module sigma
      !> Constructor from JSON.
      procedure, pass(this) :: init => sigma_init
      !> Constructor from components.
-     procedure, pass(this) :: init_from_components => sigma_init_from_components
+     procedure, pass(this) :: init_from_components &
+          => sigma_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => sigma_free
      !> Compute eddy viscosity.
@@ -65,43 +66,57 @@ module sigma
 
 contains
   !> Constructor.
-  !! @param dofmap SEM map of degrees of freedom.
-  !! @param coef SEM coefficients.
+  !! @param fluid The fluid_scheme_base_t object.
   !! @param json A dictionary with parameters.
-  subroutine sigma_init(this, dofmap, coef, json)
+  subroutine sigma_init(this, fluid, json)
     class(sigma_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dofmap
-    type(coef_t), intent(in) :: coef
+    class(fluid_scheme_base_t), intent(inout), target :: fluid
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: nut_name
     real(kind=rp) :: c
     character(len=:), allocatable :: delta_type
+    logical :: if_ext
+    character(len=LOG_SIZE) :: log_buf
 
     call json_get_or_default(json, "nut_field", nut_name, "nut")
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     ! Based on  C = 1.35 as default values
     call json_get_or_default(json, "c", c, 1.35_rp)
+    call json_get_or_default(json, "extrapolation", if_ext, .false.)
 
-    call sigma_init_from_components(this, dofmap, coef, c, nut_name, delta_type)
+    call neko_log%section('LES model')
+    write(log_buf, '(A)') 'Model : Sigma'
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Delta evaluation : ', delta_type
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, E15.7)') 'c : ', c
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, L1)') 'extrapolation : ', if_ext
+    call neko_log%message(log_buf)
+    call neko_log%end_section()
+
+    call sigma_init_from_components(this, fluid, c, nut_name, delta_type, &
+         if_ext)
   end subroutine sigma_init
 
   !> Constructor from components.
-  !! @param dofmap SEM map of degrees of freedom.
-  !! @param coef SEM coefficients.
+  !! @param fluid The fluid_scheme_base_t object.
   !! @param c The model constant.
   !! @param nut_name The name of the SGS viscosity field.
-  subroutine sigma_init_from_components(this, dofmap, coef, c, nut_name, &
-       delta_type)
+  !! @param delta_type The type of filter size.
+  !! @param if_ext Whether trapolate the velocity.
+  subroutine sigma_init_from_components(this, fluid, c, nut_name, &
+       delta_type, if_ext)
     class(sigma_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dofmap
-    type(coef_t), intent(in) :: coef
+    class(fluid_scheme_base_t), intent(inout), target :: fluid
     real(kind=rp) :: c
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
+    logical, intent(in) :: if_ext
 
     call this%free()
 
-    call this%init_base(dofmap, coef, nut_name, delta_type)
+    call this%init_base(fluid, nut_name, delta_type, if_ext)
 
     this%c = c
 
@@ -122,12 +137,33 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
+    type(field_t), pointer :: u, v, w, u_e, v_e, w_e
+
+    if (this%if_ext .eqv. .true.) then
+       ! Extrapolate the velocity fields
+       associate(ulag => this%ulag, vlag => this%vlag, &
+            wlag => this%wlag, ext_bdf => this%ext_bdf)
+
+         u => neko_field_registry%get_field_by_name("u")
+         v => neko_field_registry%get_field_by_name("v")
+         w => neko_field_registry%get_field_by_name("w")
+         u_e => neko_field_registry%get_field_by_name("u_e")
+         v_e => neko_field_registry%get_field_by_name("v_e")
+         w_e => neko_field_registry%get_field_by_name("w_e")
+
+         call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
+              ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+
+       end associate
+    end if
+
+    ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call sigma_compute_device(t, tstep, this%coef, this%nut, this%delta, &
-                                this%c)
+       call sigma_compute_device(this%if_ext, t, tstep, this%coef, &
+            this%nut, this%delta, this%c)
     else
-        call sigma_compute_cpu(t, tstep, this%coef, this%nut, this%delta, &
-                                this%c)
+       call sigma_compute_cpu(this%if_ext, t, tstep, this%coef, &
+            this%nut, this%delta, this%c)
     end if
 
   end subroutine sigma_compute

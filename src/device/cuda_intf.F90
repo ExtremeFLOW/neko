@@ -39,18 +39,6 @@ module cuda_intf
 
 #ifdef HAVE_CUDA
 
-  !> Global HIP command queue
-  type(c_ptr), bind(c) :: glb_cmd_queue = C_NULL_PTR
-
-  !> Aux HIP command queue
-  type(c_ptr), bind(c) :: aux_cmd_queue = C_NULL_PTR
-
-  !> High priority stream setting
-  integer :: STRM_HIGH_PRIO
-
-  !> Low priority stream setting
-  integer :: STRM_LOW_PRIO
-
   !> Enum @a cudaError
   enum, bind(c)
     enumerator :: cudaSuccess = 0
@@ -285,7 +273,12 @@ module cuda_intf
 
 contains
 
-  subroutine cuda_init
+  subroutine cuda_init(glb_cmd_queue, aux_cmd_queue, &
+       STRM_HIGH_PRIO, STRM_LOW_PRIO)
+    type(c_ptr), intent(inout) :: glb_cmd_queue
+    type(c_ptr), intent(inout) :: aux_cmd_queue
+    integer, intent(inout) :: STRM_HIGH_PRIO
+    integer, intent(inout) :: STRM_LOW_PRIO
     integer(c_int) :: device_id
     integer :: nthrds = 1
 
@@ -324,7 +317,10 @@ contains
     end if
   end subroutine cuda_init
 
-  subroutine cuda_finalize
+  subroutine cuda_finalize(glb_cmd_queue, aux_cmd_queue)
+    type(c_ptr), intent(inout) :: glb_cmd_queue
+    type(c_ptr), intent(inout) :: aux_cmd_queue
+    
     if (cudaStreamDestroy(glb_cmd_queue) .ne. cudaSuccess) then
        call neko_error('Error destroying main stream')
     end if

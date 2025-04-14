@@ -40,7 +40,7 @@ module krylov
   use mesh, only : mesh_t
   use field, only : field_t
   use utils, only : neko_error, neko_warning
-  use bc, only : bc_list_t
+  use bc_list, only : bc_list_t
   use identity, only : ident_t
   use device_identity, only : device_ident_t
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -48,7 +48,7 @@ module krylov
   implicit none
   private
 
-  integer, public, parameter :: KSP_MAX_ITER = 1e3       !< Maximum number of iters.
+  integer, public, parameter :: KSP_MAX_ITER = 1e3 !< Maximum number of iters.
   real(kind=rp), public, parameter :: KSP_ABS_TOL = 1d-9 !< Absolut tolerance
   real(kind=rp), public, parameter :: KSP_REL_TOL = 1d-9 !< Relative tolerance
 
@@ -60,17 +60,21 @@ module krylov
      real(kind=rp) :: res_start
      !> FInal residual
      real(kind=rp) :: res_final
+     !> Status
+     logical :: converged = .false.
   end type ksp_monitor_t
 
   !> Base abstract type for a canonical Krylov method, solving \f$ Ax = f \f$.
   type, public, abstract :: ksp_t
      class(pc_t), pointer :: M => null() !< Preconditioner
-     real(kind=rp) :: rel_tol            !< Relative tolerance
-     real(kind=rp) :: abs_tol            !< Absolute tolerance
-     integer :: max_iter                 !< Maximum number of iterations
+     real(kind=rp) :: rel_tol !< Relative tolerance
+     real(kind=rp) :: abs_tol !< Absolute tolerance
+     integer :: max_iter !< Maximum number of iterations
      class(pc_t), allocatable :: M_ident !< Internal preconditioner (Identity)
-     logical :: monitor                  !< Turn on/off monitoring
+     logical :: monitor !< Turn on/off monitoring
    contains
+     !> Constructor.
+     procedure(ksp_init_intrf), deferred, pass(this) :: init
      !> Base type constructor.
      procedure, pass(this) :: ksp_init => krylov_init
      !> Base type destructor.
@@ -87,10 +91,32 @@ module krylov
      procedure, pass(this) :: monitor_stop => krylov_monitor_stop
      !> Monitor iteration
      procedure, pass(this) :: monitor_iter => krylov_monitor_iter
+     !> Check for convergence
+     procedure, pass(this) :: is_converged => krylov_is_converged
      !> Destructor.
      procedure(ksp_t_free), pass(this), deferred :: free
   end type ksp_t
 
+  !> Abstract interface for a Krylov method's constructor.
+  !! @param n Size of work arrays.
+  !! @param max_iter Max number of iterations.
+  !! @param M The preconditioner (optional).
+  !! @param rel_tol Relative tolerance (optional).
+  !! @param abs_tol Absolute tolerance (optional).
+  !! @param monitor Whether to log the iteration count and residuals (optional).
+  abstract interface
+     subroutine ksp_init_intrf(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+       import :: pc_t, ksp_t, rp
+       implicit none
+       class(ksp_t), target, intent(inout) :: this
+       integer, intent(in) :: max_iter
+       class(pc_t), optional, intent(in), target :: M
+       integer, intent(in) :: n
+       real(kind=rp), optional, intent(in) :: rel_tol
+       real(kind=rp), optional, intent(in) :: abs_tol
+       logical, optional, intent(in) :: monitor
+     end subroutine ksp_init_intrf
+  end interface
 
   !> Abstract interface for a Krylov method's solve routine
   !!
@@ -119,7 +145,7 @@ module krylov
        integer, intent(in) :: n
        real(kind=rp), dimension(n), intent(in) :: f
        type(coef_t), intent(inout) :: coef
-       type(bc_list_t), intent(in) :: blst
+       type(bc_list_t), intent(inout) :: blst
        type(gs_t), intent(inout) :: gs_h
        integer, optional, intent(in) :: niter
        type(ksp_monitor_t) :: ksp_results
@@ -161,9 +187,9 @@ module krylov
        real(kind=rp), dimension(n), intent(in) :: fy
        real(kind=rp), dimension(n), intent(in) :: fz
        type(coef_t), intent(inout) :: coef
-       type(bc_list_t), intent(in) :: blstx
-       type(bc_list_t), intent(in) :: blsty
-       type(bc_list_t), intent(in) :: blstz
+       type(bc_list_t), intent(inout) :: blstx
+       type(bc_list_t), intent(inout) :: blsty
+       type(bc_list_t), intent(inout) :: blstz
        type(gs_t), intent(inout) :: gs_h
        integer, optional, intent(in) :: niter
        type(ksp_monitor_t), dimension(3) :: ksp_results
@@ -198,13 +224,9 @@ module krylov
        logical, optional, intent(in) :: monitor
      end subroutine krylov_solver_factory
 
-     !> Destroy an iterative Krylov type_name
-     module subroutine krylov_solver_destroy(object)
-       class(ksp_t), allocatable, intent(inout) :: object
-     end subroutine krylov_solver_destroy
   end interface
 
-  public :: krylov_solver_factory, krylov_solver_destroy
+  public :: krylov_solver_factory
 contains
 
   !> Constructor for the base type.
@@ -289,7 +311,7 @@ contains
     class(ksp_t), intent(in) :: this
     character(len=*) :: name
     character(len=LOG_SIZE) :: log_buf
-    
+
     if (this%monitor) then
        write(log_buf, '(A)') 'Krylov monitor (' // trim(name) // ')'
        call neko_log%section(trim(log_buf))
@@ -313,7 +335,7 @@ contains
     end if
   end subroutine krylov_monitor_stop
 
-  
+
   !> Monitor iteration
   subroutine krylov_monitor_iter(this, iter, rnorm)
     class(ksp_t), intent(in) :: this
@@ -325,7 +347,27 @@ contains
        write(log_buf, '(I6,E15.7)') iter, rnorm
        call neko_log%message(log_buf)
     end if
-    
+
   end subroutine krylov_monitor_iter
+
+  !> Check for convergence
+  !!
+  !! This function checks if the Krylov solver has converged.
+  !! The solver is considered converged if the residual is less than the
+  !! absolute tolerance.
+  !!
+  !! @param residual Residual
+  !! @param iter Iteration number
+  pure function krylov_is_converged(this, iter, residual) result(converged)
+    class(ksp_t), intent(in) :: this
+    integer, intent(in) :: iter
+    real(kind=rp), intent(in) :: residual
+    logical :: converged
+
+    converged = .true.
+    if (iter .ge. this%max_iter) converged = .false.
+    if (residual .gt. this%abs_tol) converged = .false.
+
+  end function krylov_is_converged
 
 end module krylov

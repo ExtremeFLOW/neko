@@ -37,8 +37,8 @@ submodule (opr_sx) sx_conv1
 contains
 
   module subroutine opr_sx_conv1(du, u, vx, vy, vz, Xh, coef, nelv)
-    type(space_t), intent(inout) :: Xh
-    type(coef_t), intent(inout) :: coef
+    type(space_t), intent(in) :: Xh
+    type(coef_t), intent(in) :: coef
     integer, intent(in) :: nelv
     real(kind=rp), intent(inout) :: du(Xh%lxyz, nelv)
     real(kind=rp), intent(inout) :: u(Xh%lx, Xh%ly, Xh%lz, nelv)

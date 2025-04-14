@@ -33,18 +33,18 @@
 !> Implements `dynamic_smagorinsky_t`.
 module dynamic_smagorinsky
   use num_types, only : rp
-  use math
-  use field_list, only : field_list_t
   use field, only : field_t
+  use fluid_scheme_base, only : fluid_scheme_base_t
   use les_model, only : les_model_t
-  use dofmap , only : dofmap_t
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get_or_default
   use json_module, only : json_file
   use utils, only : neko_error
   use neko_config, only : NEKO_BCKND_DEVICE
-  use coefs, only : coef_t
   use elementwise_filter, only : elementwise_filter_t
   use dynamic_smagorinsky_cpu, only : dynamic_smagorinsky_compute_cpu
+  use logger, only : LOG_SIZE, neko_log
+  use field_registry, only : neko_field_registry
+  use dynamic_smagorinsky_device, only : dynamic_smagorinsky_compute_device
   implicit none
   private
 
@@ -54,7 +54,6 @@ module dynamic_smagorinsky
      !> Coefficient of the model.
      type(field_t) :: c_dyn
      !> Test filter.
-     character(len=:), allocatable :: test_filter_type
      type(elementwise_filter_t) :: test_filter
      !> Mij
      !! index for tensor mij and lij:
@@ -66,7 +65,7 @@ module dynamic_smagorinsky
      type(field_t) :: num
      !> <M_lm M_lm>
      type(field_t) :: den
-  contains
+   contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => dynamic_smagorinsky_init
      !> Destructor.
@@ -78,36 +77,52 @@ module dynamic_smagorinsky
 
 contains
   !> Constructor.
-  !! @param dofmap SEM map of degrees of freedom.
-  !! @param coef SEM coefficients.
+  !! @param fluid The fluid_scheme_base_t object.
   !! @param json A dictionary with parameters.
-  subroutine dynamic_smagorinsky_init(this, dofmap, coef, json)
+  subroutine dynamic_smagorinsky_init(this, fluid, json)
     class(dynamic_smagorinsky_t), intent(inout) :: this
-    type(dofmap_t), intent(in) :: dofmap
-    type(coef_t), intent(in) :: coef
+    class(fluid_scheme_base_t), intent(inout), target :: fluid
     type(json_file), intent(inout) :: json
-    character(len=:), allocatable :: nut_name !! The name of the SGS viscosity field.
+    character(len=:), allocatable :: nut_name
     integer :: i
     character(len=:), allocatable :: delta_type
+    logical :: if_ext
+    character(len=LOG_SIZE) :: log_buf
 
-    call json_get_or_default(json, "nut_field", nut_name, "nut")
-    call json_get_or_default(json, "delta_type", delta_type, "pointwise")
+    associate(dofmap => fluid%dm_Xh, &
+         coef => fluid%c_Xh)
 
-    call this%free()
-    call this%init_base(dofmap, coef, nut_name, delta_type)
-    this%test_filter_type = "nonBoyd"
-    ! Filter assumes lx = ly = lz
-    call this%test_filter%init(dofmap%xh%lx, this%test_filter_type)
-    call set_ds_filt(this%test_filter)
+      call json_get_or_default(json, "nut_field", nut_name, "nut")
+      call json_get_or_default(json, "delta_type", delta_type, "pointwise")
+      call json_get_or_default(json, "extrapolation", if_ext, .false.)
 
-    call this%c_dyn%init(dofmap, "ds_c_dyn")
-    call this%num%init(dofmap, "ds_num")
-    call this%den%init(dofmap, "ds_den")
+      call this%free()
+      call this%init_base(fluid, nut_name, delta_type, if_ext)
+      call this%test_filter%init(json, coef)
+      call set_ds_filt(this%test_filter)
 
-    do i = 1, 6
-       call this%mij(i)%init(dofmap)
-       call this%lij(i)%init(dofmap)
-    end do
+      call neko_log%section('LES model')
+      write(log_buf, '(A)') 'Model : Dynamic Smagorinsky'
+      call neko_log%message(log_buf)
+      write(log_buf, '(A, A)') 'Delta evaluation : ', delta_type
+      call neko_log%message(log_buf)
+      write(log_buf, '(A, A)') 'Test filter type : ', &
+           this%test_filter%filter_type
+      call neko_log%message(log_buf)
+      write(log_buf, '(A, L1)') 'extrapolation : ', if_ext
+      call neko_log%message(log_buf)
+      call neko_log%end_section()
+
+      call this%c_dyn%init(dofmap, "ds_c_dyn")
+      call this%num%init(dofmap, "ds_num")
+      call this%den%init(dofmap, "ds_den")
+
+      do i = 1, 6
+         call this%mij(i)%init(dofmap)
+         call this%lij(i)%init(dofmap)
+      end do
+
+    end associate
 
   end subroutine dynamic_smagorinsky_init
 
@@ -136,13 +151,37 @@ contains
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
 
+    type(field_t), pointer :: u, v, w, u_e, v_e, w_e
+
+    if (this%if_ext .eqv. .true.) then
+       ! Extrapolate the velocity fields
+       associate(ulag => this%ulag, vlag => this%vlag, &
+            wlag => this%wlag, ext_bdf => this%ext_bdf)
+
+         u => neko_field_registry%get_field_by_name("u")
+         v => neko_field_registry%get_field_by_name("v")
+         w => neko_field_registry%get_field_by_name("w")
+         u_e => neko_field_registry%get_field_by_name("u_e")
+         v_e => neko_field_registry%get_field_by_name("v_e")
+         w_e => neko_field_registry%get_field_by_name("w_e")
+
+         call this%sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
+              ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)
+
+       end associate
+    end if
+
+    ! Compute the eddy viscosity field
     if (NEKO_BCKND_DEVICE .eq. 1) then
-        call neko_error("Dynamic Smagorinsky model not implemented on &
-             &accelarators.")
+       call dynamic_smagorinsky_compute_device(this%if_ext, t, tstep, &
+            this%coef, this%nut, &
+            this%delta, this%c_dyn, this%test_filter, &
+            this%mij, this%lij, this%num, this%den)
     else
-        call dynamic_smagorinsky_compute_cpu(t, tstep, this%coef, this%nut, &
-                                this%delta, this%c_dyn, this%test_filter, &
-                                this%mij, this%lij, this%num, this%den)
+       call dynamic_smagorinsky_compute_cpu(this%if_ext, t, tstep, &
+            this%coef, this%nut, &
+            this%delta, this%c_dyn, this%test_filter, &
+            this%mij, this%lij, this%num, this%den)
     end if
 
   end subroutine dynamic_smagorinsky_compute
@@ -153,8 +192,8 @@ contains
     integer :: i
 
     if (filter_1d%nx .le. 2) then
-        call neko_error("Dynamic Smagorinsky model error: test filter is not &
-             &defined for the current polynomial order")
+       call neko_error("Dynamic Smagorinsky model error: test filter is not &
+       &defined for the current polynomial order")
     end if
     if (mod(filter_1d%nx,2) .eq. 0) then ! number of grid spacing is odd
        ! cutoff at polynomial order int((filter_1d%nx)/2)

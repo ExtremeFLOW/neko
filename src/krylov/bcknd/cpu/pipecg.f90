@@ -33,13 +33,13 @@
 !> Defines a pipelined Conjugate Gradient methods
 module pipecg
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only: rp
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc, only : bc_list_t, bc_list_apply
+  use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, copy, abscmp
   use comm
   implicit none
@@ -73,7 +73,7 @@ contains
 
   !> Initialise a pipelined PCG solver
   subroutine pipecg_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
-    class(pipecg_t), intent(inout) :: this
+    class(pipecg_t), target, intent(inout) :: this
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
@@ -163,7 +163,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blst
+    type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -197,7 +197,7 @@ contains
       call this%M%solve(u(1,u_prev), r, n)
       call Ax%compute(w, u(1,u_prev), coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD)
-      call bc_list_apply(blst, w, n)
+      call blst%apply(w, n)
 
       rtr = glsc3(r, coef%mult, r, n)
       rnorm = sqrt(rtr)*norm_fac
@@ -227,7 +227,7 @@ contains
          call this%M%solve(mi, w, n)
          call Ax%compute(ni, mi, coef, x%msh, x%Xh)
          call gs_h%op(ni, n, GS_OP_ADD)
-         call bc_list_apply(blst, ni, n)
+         call blst%apply(ni, n)
 
          call MPI_Wait(request, status, ierr)
          gamma2 = gamma1
@@ -256,9 +256,9 @@ contains
                   z(i+k) = beta(p_cur) * z(i+k) + ni(i+k)
                   q(i+k) = beta(p_cur) * q(i+k) + mi(i+k)
                   s(i+k) = beta(p_cur) * s(i+k) + w(i+k)
-                  r(i+k) =  r(i+k) - alpha(p_cur) * s(i+k)
-                  u(i+k,p_cur) =  u(i+k,u_prev) - alpha(p_cur) * q(i+k)
-                  w(i+k) =  w(i+k) - alpha(p_cur) * z(i+k)
+                  r(i+k) = r(i+k) - alpha(p_cur) * s(i+k)
+                  u(i+k,p_cur) = u(i+k,u_prev) - alpha(p_cur) * q(i+k)
+                  w(i+k) = w(i+k) - alpha(p_cur) * z(i+k)
                   tmp1 = tmp1 + r(i+k) * coef%mult(i+k,1,1,1) * u(i+k,p_cur)
                   tmp2 = tmp2 + w(i+k) * coef%mult(i+k,1,1,1) * u(i+k,p_cur)
                   tmp3 = tmp3 + r(i+k) * coef%mult(i+k,1,1,1) * r(i+k)
@@ -268,9 +268,9 @@ contains
                   z(i+k) = beta(p_cur) * z(i+k) + ni(i+k)
                   q(i+k) = beta(p_cur) * q(i+k) + mi(i+k)
                   s(i+k) = beta(p_cur) * s(i+k) + w(i+k)
-                  r(i+k) =  r(i+k) - alpha(p_cur) * s(i+k)
-                  u(i+k,p_cur) =  u(i+k,u_prev) - alpha(p_cur) * q(i+k)
-                  w(i+k) =  w(i+k) - alpha(p_cur) * z(i+k)
+                  r(i+k) = r(i+k) - alpha(p_cur) * s(i+k)
+                  u(i+k,p_cur) = u(i+k,u_prev) - alpha(p_cur) * q(i+k)
+                  w(i+k) = w(i+k) - alpha(p_cur) * z(i+k)
                   tmp1 = tmp1 + r(i+k) * coef%mult(i+k,1,1,1) * u(i+k,p_cur)
                   tmp2 = tmp2 + w(i+k) * coef%mult(i+k,1,1,1) * u(i+k,p_cur)
                   tmp3 = tmp3 + r(i+k) * coef%mult(i+k,1,1,1) * r(i+k)
@@ -362,6 +362,7 @@ contains
       call this%monitor_stop()
       ksp_results%res_final = rnorm
       ksp_results%iter = iter
+      ksp_results%converged = this%is_converged(iter, rnorm)
 
     end associate
 
@@ -369,7 +370,7 @@ contains
 
   !> Pipelined PCG coupled solve
   function pipecg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz,  gs_h, niter) result(ksp_results)
+       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
     class(pipecg_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -380,16 +381,16 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(in) :: blstx
-    type(bc_list_t), intent(in) :: blsty
-    type(bc_list_t), intent(in) :: blstz
+    type(bc_list_t), intent(inout) :: blstx
+    type(bc_list_t), intent(inout) :: blsty
+    type(bc_list_t), intent(inout) :: blstz
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
 
-    ksp_results(1) =  this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) =  this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) =  this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
 
   end function pipecg_solve_coupled
 

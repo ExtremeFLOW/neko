@@ -44,6 +44,9 @@ end module example
 ```
 Please note that the maximum line length in Neko should not exceed 80 columns.
 
+Additional details on the code style, as well as tools used to verify it, can be
+found under the [code style](@ref code-style).
+
 ### Data types
 For portability reasons, it is essential to only use data type kinds defined in `src/config/num_types.f90` and avoid legacy constructs like `real*8` or `integer(kind=8)`
 

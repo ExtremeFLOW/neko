@@ -72,8 +72,8 @@ contains
   subroutine coriolis_source_term_init_from_json(this, json, fields, coef)
     class(coriolis_source_term_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
-    type(field_list_t), intent(inout), target :: fields
-    type(coef_t), intent(inout), target :: coef
+    type(field_list_t), intent(in), target :: fields
+    type(coef_t), intent(in), target :: coef
     ! Rotation vector and geostrophic wind
     real(kind=rp), allocatable :: rotation_vec(:), u_geo(:)
     ! Alternative parameters to set the rotation vector
@@ -102,7 +102,7 @@ contains
        rotation_vec(2) = omega * cos(phi * pi / 180 )
        rotation_vec(3) = omega * sin(phi * pi / 180)
     else if (json%valid_path("f")) then
-       call json_get(json, "f", phi)
+       call json_get(json, "f", f)
 
        allocate(rotation_vec(3))
        rotation_vec(1) = 0.0_rp
@@ -110,7 +110,7 @@ contains
        rotation_vec(3) = 0.5_rp * f
     else
        call neko_error("Specify either rotation_vector, phi and omega, or f &
-             & for the Coriolis source term.")
+         & for the Coriolis source term.")
     end if
 
 
@@ -130,7 +130,7 @@ contains
   subroutine coriolis_source_term_init_from_components(this, fields, omega, &
        u_geo, coef, start_time, end_time)
     class(coriolis_source_term_t), intent(inout) :: this
-    class(field_list_t), intent(inout), target :: fields
+    class(field_list_t), intent(in), target :: fields
     real(kind=rp), intent(in) :: omega(3)
     real(kind=rp), intent(in) :: u_geo(3)
     type(coef_t) :: coef

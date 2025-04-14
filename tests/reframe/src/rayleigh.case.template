@@ -38,13 +38,11 @@
             "absolute_tolerance": 1e-6,
             "max_iterations": 800
         },
-        "boundary_types": [
-            "",
-            "",
-            "",
-            "",
-            "w",
-            "w"
+        "boundary_conditions": [
+            {
+                "type": "no_slip",
+                "zone_indices": [5, 6]
+            }
         ],
         "output_control": "never",
         "output_value": 0
@@ -52,16 +50,27 @@
     "scalar": {
         "enabled": true,
         "Pr": 0.71,
+        "solver": {
+            "type": "cg",
+            "preconditioner": "jacobi",
+            "projection_space_size": 4,
+            "absolute_tolerance": 1e-6,
+            "max_iterations": 800
+        },
         "initial_condition": {
             "type": "user"
         },
-        "boundary_types": [
-            "",
-            "",
-            "",
-            "",
-            "d=1",
-            "d=0"
+        "boundary_conditions": [
+            {
+                "type": "dirichlet",
+                "value": 1,
+                "zone_indices": [5]
+            },
+            {
+                "type": "dirichlet",
+                "value": 0,
+                "zone_indices": [6]
+            }
         ]
     }
 }

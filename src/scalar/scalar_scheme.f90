@@ -32,7 +32,6 @@
 !
 !> Contains the scalar_scheme_t type.
 
-! todo: module name
 module scalar_scheme
   use gather_scatter, only : gs_t
   use checkpoint, only : chkp_t
@@ -41,8 +40,7 @@ module scalar_scheme
   use field_list, only: field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy, &
-       KSP_MAX_ITER
+  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
@@ -50,9 +48,9 @@ module scalar_scheme
   use device_jacobi, only : device_jacobi_t
   use sx_jacobi, only : sx_jacobi_t
   use hsmg, only : hsmg_t
+  use bc, only : bc_t
+  use bc_list, only : bc_list_t
   use precon, only : pc_t, precon_factory, precon_destroy
-  use bc, only : bc_t, bc_list_t, bc_list_free, bc_list_init, &
-       bc_list_apply_scalar, bc_list_add
   use field_dirichlet, only: field_dirichlet_t, field_dirichlet_update
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS, NEKO_MSH_MAX_ZLBL_LEN
   use facet_zone, only : facet_zone_t
@@ -60,14 +58,16 @@ module scalar_scheme
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry
   use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
-  use json_utils, only : json_get, json_get_or_default
+  use json_utils, only : json_get, json_get_or_default, json_extract_item
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
-                        user_material_properties
+       user_material_properties
   use utils, only : neko_error
   use comm, only: NEKO_COMM, MPI_INTEGER, MPI_SUM
   use scalar_source_term, only : scalar_source_term_t
+  use field_series, only : field_series_t
   use math, only : cfill, add2s2
+  use field_math, only : field_add2s2
   use device_math, only : device_cfill, device_add2s2
   use neko_config, only : NEKO_BCKND_DEVICE
   use field_series, only : field_series_t
@@ -77,6 +77,8 @@ module scalar_scheme
 
   !> Base type for a scalar advection-diffusion solver.
   type, abstract :: scalar_scheme_t
+     !> A name that can be used to distinguish this solver in e.g. user routines
+     character(len=:), allocatable :: name
      !> x-component of Velocity
      type(field_t), pointer :: u
      !> y-component of Velocity
@@ -109,30 +111,14 @@ module scalar_scheme
      integer :: projection_activ_step
      !> Preconditioner.
      class(pc_t), allocatable :: pc
-     !> Dirichlet conditions.
-     type(dirichlet_t) :: dir_bcs(NEKO_MSH_MAX_ZLBLS)
-     !> Field Dirichlet conditions.
-     type(field_dirichlet_t) :: field_dir_bc
-     !> List of BC objects to pass to user_dirichlet_update
-     type(bc_list_t) :: field_dirichlet_bcs
-     !> Neumann conditions.
-     type(neumann_t) :: neumann_bcs(NEKO_MSH_MAX_ZLBLS)
-     !> User Dirichlet conditions.
-     type(usr_scalar_t) :: user_bc
-     !> Number of Dirichlet bcs.
-     integer :: n_dir_bcs = 0
-     !> Number of Neumann bcs.
-     integer :: n_neumann_bcs = 0
-     !> List of Dirichlet boundary conditions, including the user one.
-     type(bc_list_t) :: bclst_dirichlet
-     !> List of Neumann conditions list
-     type(bc_list_t) :: bclst_neumann
+     !> List of boundary conditions, including the user one.
+     type(bc_list_t) :: bcs
      !> Case paramters.
      type(json_file), pointer :: params
      !> Mesh.
      type(mesh_t), pointer :: msh => null()
      !> Checkpoint for restarts.
-     type(chkp_t) :: chkp
+     type(chkp_t), pointer :: chkp => null()
      !> Thermal diffusivity.
      real(kind=rp) :: lambda
      !> The variable lambda field
@@ -147,8 +133,6 @@ module scalar_scheme
      real(kind=rp) :: pr_turb
      !> Is lambda varying in time? Currently only due to LES models.
      logical :: variable_material_properties = .false.
-     !> Boundary condition labels (if any)
-     character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
      !> Gradient jump panelty
      logical :: if_gradient_jump_penalty
      type(gradient_jump_penalty_t) :: gradient_jump_penalty
@@ -159,8 +143,6 @@ module scalar_scheme
      procedure, pass(this) :: scheme_free => scalar_scheme_free
      !> Validate successful initialization.
      procedure, pass(this) :: validate => scalar_scheme_validate
-     !> Assigns the evaluation function for  `user_bc`.
-     procedure, pass(this) :: set_user_bc => scalar_scheme_set_user_bc
      !> Set lambda and cp
      procedure, pass(this) :: set_material_properties => &
           scalar_scheme_set_material_properties
@@ -179,23 +161,26 @@ module scalar_scheme
 
   !> Abstract interface to initialize a scalar formulation
   abstract interface
-     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, user, &
-          ulag, vlag, wlag, time_scheme, rho)
+     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, &
+          numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
        import scalar_scheme_t
        import json_file
        import coef_t
        import gs_t
        import mesh_t
        import user_t
+       import chkp_t
        import field_series_t
        import time_scheme_controller_t
        import rp
        class(scalar_scheme_t), target, intent(inout) :: this
-       type(mesh_t), target, intent(inout) :: msh
-       type(coef_t), target, intent(inout) :: coef
+       type(mesh_t), target, intent(in) :: msh
+       type(coef_t), target, intent(in) :: coef
        type(gs_t), target, intent(inout) :: gs
        type(json_file), target, intent(inout) :: params
+       type(json_file), target, intent(inout) :: numerics_params
        type(user_t), target, intent(in) :: user
+       type(chkp_t), target, intent(inout) :: chkp
        type(field_series_t), target, intent(in) :: ulag, vlag, wlag
        type(time_scheme_controller_t), target, intent(in) :: time_scheme
        real(kind=rp), intent(in) :: rho
@@ -204,12 +189,12 @@ module scalar_scheme
 
   !> Abstract interface to restart a scalar formulation
   abstract interface
-     subroutine scalar_scheme_restart_intrf(this, dtlag, tlag)
+     subroutine scalar_scheme_restart_intrf(this, chkp)
        import scalar_scheme_t
        import chkp_t
        import rp
        class(scalar_scheme_t), target, intent(inout) :: this
-       real(kind=rp) :: dtlag(10), tlag(10)
+       type(chkp_t), intent(inout) :: chkp
      end subroutine scalar_scheme_restart_intrf
   end interface
 
@@ -230,95 +215,29 @@ module scalar_scheme
        import time_step_controller_t
        import rp
        class(scalar_scheme_t), intent(inout) :: this
-       real(kind=rp), intent(inout) :: t
-       integer, intent(inout) :: tstep
+       real(kind=rp), intent(in) :: t
+       integer, intent(in) :: tstep
        real(kind=rp), intent(in) :: dt
-       type(time_scheme_controller_t), intent(inout) :: ext_bdf
+       type(time_scheme_controller_t), intent(in) :: ext_bdf
        type(time_step_controller_t), intent(in) :: dt_controller
      end subroutine scalar_scheme_step_intrf
   end interface
 
 contains
 
-  !> Initialize boundary conditions
-  !! @param zones List of zones
-  !! @param bc_labels List of user specified bcs from the parameter file
-  !! currently dirichlet 'd=X' and 'user' supported
-  subroutine scalar_scheme_add_bcs(this, zones, bc_labels)
-    class(scalar_scheme_t), intent(inout) :: this
-    type(facet_zone_t), intent(inout) :: zones(NEKO_MSH_MAX_ZLBLS)
-    character(len=NEKO_MSH_MAX_ZLBL_LEN), intent(in) :: bc_labels(:)
-    character(len=NEKO_MSH_MAX_ZLBL_LEN) :: bc_label
-    integer :: i
-    real(kind=rp) :: dir_value, flux
-    logical :: bc_exists
-
-    do i = 1, size(bc_labels)
-       bc_label = trim(bc_labels(i))
-       if (bc_label(1:2) .eq. 'd=') then
-! The idea of this commented piece of code is to merge bcs with the same
-! Dirichlet value into 1 so that one has less kernel launches. Currently
-! segfaults, needs investigation.
-!          bc_exists = .false.
-!          bc_idx = 0
-!          do j = 1, i-1
-!             if (bc_label .eq. bc_labels(j)) then
-!                bc_exists = .true.
-!                bc_idx = j
-!             end if
-!          end do
-
-!          if (bc_exists) then
-!             call this%dir_bcs(j)%mark_zone(zones(i))
-!          else
-          this%n_dir_bcs = this%n_dir_bcs + 1
-          call this%dir_bcs(this%n_dir_bcs)%init_base(this%c_Xh)
-          call this%dir_bcs(this%n_dir_bcs)%mark_zone(zones(i))
-          read(bc_label(3:), *) dir_value
-          call this%dir_bcs(this%n_dir_bcs)%set_g(dir_value)
-          call this%dir_bcs(this%n_dir_bcs)%finalize()
-       end if
-
-       if (bc_label(1:2) .eq. 'n=') then
-          this%n_neumann_bcs = this%n_neumann_bcs + 1
-          call this%neumann_bcs(this%n_neumann_bcs)%init_base(this%c_Xh)
-          call this%neumann_bcs(this%n_neumann_bcs)%mark_zone(zones(i))
-          read(bc_label(3:), *) flux
-          call this%neumann_bcs(this%n_neumann_bcs)%finalize_neumann(flux)
-       end if
-
-       !> Check if user bc on this zone
-       if (bc_label(1:4) .eq. 'user') then
-          call this%user_bc%mark_zone(zones(i))
-       end if
-
-    end do
-
-    do i = 1, this%n_dir_bcs
-       call bc_list_add(this%bclst_dirichlet, this%dir_bcs(i))
-    end do
-
-    ! Create list with just Neumann bcs
-    call bc_list_init(this%bclst_neumann, this%n_neumann_bcs)
-    do i = 1, this%n_neumann_bcs
-       call bc_list_add(this%bclst_neumann, this%neumann_bcs(i))
-    end do
-
-  end subroutine scalar_scheme_add_bcs
-
   !> Initialize all related components of the current scheme
   !! @param msh The mesh.
   !! @param c_Xh The coefficients.
   !! @param gs_Xh The gather-scatter.
-  !! @param params The case parameter file in json.
+  !! @param params The parameter dictionary in json.
   !! @param scheme The name of the scalar scheme.
   !! @param user Type with user-defined procedures.
   !! @param rho The density of the fluid.
   subroutine scalar_scheme_init(this, msh, c_Xh, gs_Xh, params, scheme, user, &
        rho)
     class(scalar_scheme_t), target, intent(inout) :: this
-    type(mesh_t), target, intent(inout) :: msh
-    type(coef_t), target, intent(inout) :: c_Xh
+    type(mesh_t), target, intent(in) :: msh
+    type(coef_t), target, intent(in) :: c_Xh
     type(gs_t), target, intent(inout) :: gs_Xh
     type(json_file), target, intent(inout) :: params
     character(len=*), intent(in) :: scheme
@@ -330,29 +249,34 @@ contains
     logical :: logical_val
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val, ierr
-    character(len=:), allocatable :: solver_type, solver_precon
+    character(len=:), allocatable :: solver_type, solver_precon, field_name
     real(kind=rp) :: GJP_param_a, GJP_param_b
 
     this%u => neko_field_registry%get_field('u')
     this%v => neko_field_registry%get_field('v')
     this%w => neko_field_registry%get_field('w')
 
+    ! Assign a name
+    call json_get_or_default(params, 'name', this%name, 'scalar')
+
     call neko_log%section('Scalar')
-    call json_get(params, 'case.fluid.velocity_solver.type', solver_type)
-    call json_get(params, 'case.fluid.velocity_solver.preconditioner', &
+    call json_get(params, 'solver.type', solver_type)
+    call json_get(params, 'solver.preconditioner', &
          solver_precon)
-    call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance', &
+    call json_get(params, 'solver.absolute_tolerance', &
          solver_abstol)
 
     call json_get_or_default(params, &
-         'case.fluid.velocity_solver.projection_space_size', &
+         'solver.projection_space_size', &
          this%projection_dim, 20)
     call json_get_or_default(params, &
-         'case.fluid.velocity_solver.projection_hold_steps', &
+         'solver.projection_hold_steps', &
          this%projection_activ_step, 5)
 
 
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Name       : ', trim(this%name)
     call neko_log%message(log_buf)
     call neko_log%message('Ksp scalar : ('// trim(solver_type) // &
          ', ' // trim(solver_precon) // ')')
@@ -363,10 +287,14 @@ contains
     this%dm_Xh => this%u%dof
     this%params => params
     this%msh => msh
-    if (.not. neko_field_registry%field_exists('s')) then
-       call neko_field_registry%add_field(this%dm_Xh, 's')
+
+    call json_get_or_default(params, 'field_name', field_name, 's')
+
+    if (.not. neko_field_registry%field_exists(field_name)) then
+       call neko_field_registry%add_field(this%dm_Xh, field_name)
     end if
-    this%s => neko_field_registry%get_field('s')
+
+    this%s => neko_field_registry%get_field(field_name)
 
     call this%slag%init(this%s, 2)
 
@@ -389,13 +317,16 @@ contains
     !
     ! Turbulence modelling and variable material properties
     !
-    if (params%valid_path('case.scalar.nut_field')) then
-       call json_get(params, 'case.scalar.Pr_t', this%pr_turb)
-       call json_get(params, 'case.scalar.nut_field', this%nut_field_name)
+    if (params%valid_path('nut_field')) then
+       call json_get(params, 'Pr_t', this%pr_turb)
+       call json_get(params, 'nut_field', this%nut_field_name)
        this%variable_material_properties = .true.
     else
        this%nut_field_name = ""
     end if
+
+    write(log_buf, '(A,L1)') 'LES        : ', this%variable_material_properties
+    call neko_log%message(log_buf)
 
     ! Fill lambda field with the physical value
     call this%lambda_field%init(this%dm_Xh, "lambda")
@@ -407,23 +338,6 @@ contains
     end if
 
     !
-    ! Setup scalar boundary conditions
-    !
-    call bc_list_init(this%bclst_dirichlet)
-    call this%user_bc%init_base(this%c_Xh)
-
-    ! Read boundary types from the case file
-    allocate(this%bc_labels(NEKO_MSH_MAX_ZLBLS))
-
-    ! A filler value
-    this%bc_labels = "not"
-
-    if (params%valid_path('case.scalar.boundary_types')) then
-       call json_get(params, 'case.scalar.boundary_types', this%bc_labels, &
-            'not')
-    end if
-
-    !
     ! Setup right-hand side field.
     !
     allocate(this%f_Xh)
@@ -431,74 +345,41 @@ contains
 
     ! Initialize the source term
     call this%source_term%init(this%f_Xh, this%c_Xh, user)
-    call this%source_term%add(params, 'case.scalar.source_terms')
-
-    call scalar_scheme_add_bcs(this, msh%labeled_zones, this%bc_labels)
-
-    ! Mark BC zones
-    call this%user_bc%mark_zone(msh%wall)
-    call this%user_bc%mark_zone(msh%inlet)
-    call this%user_bc%mark_zone(msh%outlet)
-    call this%user_bc%mark_zone(msh%outlet_normal)
-    call this%user_bc%mark_zone(msh%sympln)
-    call this%user_bc%finalize()
-    if (this%user_bc%msk(0) .gt. 0) call bc_list_add(this%bclst_dirichlet, &
-         this%user_bc)
-
-    ! Add field dirichlet BCs
-    call this%field_dir_bc%init_base(this%c_Xh)
-    call this%field_dir_bc%mark_zones_from_list(msh%labeled_zones, &
-         'd_s', this%bc_labels)
-    call this%field_dir_bc%finalize()
-    call MPI_Allreduce(this%field_dir_bc%msk(0), integer_val, 1, &
-         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-    if (integer_val .gt. 0) call this%field_dir_bc%init_field('d_s')
-
-    call bc_list_add(this%bclst_dirichlet, this%field_dir_bc)
-
-    !
-    ! Associate our field dirichlet update to the user one.
-    !
-    this%field_dir_bc%update => user%user_dirichlet_update
-
-    call bc_list_init(this%field_dirichlet_bcs, size = 1)
-    call bc_list_add(this%field_dirichlet_bcs, this%field_dir_bc)
-
+    call this%source_term%add(params, 'source_terms')
 
     ! todo parameter file ksp tol should be added
     call json_get_or_default(params, &
-         'case.fluid.velocity_solver.max_iterations', &
+         'solver.max_iterations', &
          integer_val, KSP_MAX_ITER)
     call json_get_or_default(params, &
-         'case.fluid.velocity_solver.monitor', &
+         'solver.monitor', &
          logical_val, .false.)
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, integer_val, solver_abstol, logical_val)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
-                                      this%c_Xh, this%dm_Xh, this%gs_Xh, &
-                                      this%bclst_dirichlet, solver_precon)
-   
+         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs, solver_precon)
+
     ! Initiate gradient jump penalty
     call json_get_or_default(params, &
-                            'case.scalar.gradient_jump_penalty.enabled',&
-                            this%if_gradient_jump_penalty, .false.)
+         'gradient_jump_penalty.enabled',&
+         this%if_gradient_jump_penalty, .false.)
 
     if (this%if_gradient_jump_penalty .eqv. .true.) then
        if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
           call json_get_or_default(params, &
-                            'case.scalar.gradient_jump_penalty.tau',&
-                            GJP_param_a, 0.02_rp)
+               'gradient_jump_penalty.tau',&
+               GJP_param_a, 0.02_rp)
           GJP_param_b = 0.0_rp
        else
           call json_get_or_default(params, &
-                        'case.scalar.gradient_jump_penalty.scaling_factor',&
-                            GJP_param_a, 0.8_rp)
+               'gradient_jump_penalty.scaling_factor',&
+               GJP_param_a, 0.8_rp)
           call json_get_or_default(params, &
-                        'case.scalar.gradient_jump_penalty.scaling_exponent',&
-                            GJP_param_b, 4.0_rp)
+               'gradient_jump_penalty.scaling_exponent',&
+               GJP_param_b, 4.0_rp)
        end if
        call this%gradient_jump_penalty%init(params, this%dm_Xh, this%c_Xh, &
-                                            GJP_param_a, GJP_param_b)
+            GJP_param_a, GJP_param_b)
     end if
 
     call neko_log%end_section()
@@ -517,7 +398,7 @@ contains
     nullify(this%params)
 
     if (allocated(this%ksp)) then
-       call krylov_solver_destroy(this%ksp)
+       call this%ksp%free()
        deallocate(this%ksp)
     end if
 
@@ -526,21 +407,12 @@ contains
        deallocate(this%pc)
     end if
 
-    if (allocated(this%bc_labels)) then
-       deallocate(this%bc_labels)
-    end if
-
     call this%source_term%free()
 
-    call bc_list_free(this%bclst_dirichlet)
-    call bc_list_free(this%bclst_neumann)
+    call this%bcs%free()
 
     call this%lambda_field%free()
     call this%slag%free()
-
-    ! Free everything related to field dirichlet BCs
-    call bc_list_free(this%field_dirichlet_bcs)
-    call this%field_dir_bc%free()
 
     ! Free gradient jump penalty
     if (this%if_gradient_jump_penalty .eqv. .true.) then
@@ -585,12 +457,6 @@ contains
        call neko_error('No parameters defined')
     end if
 
-    !
-    ! Setup checkpoint structure (if everything is fine)
-    !
-!    @todo no io for now
-!    call this%chkp%init(this%u, this%v, this%w, this%p)
-
   end subroutine scalar_scheme_validate
 
   !> Initialize a linear solver
@@ -614,8 +480,8 @@ contains
        pctype)
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
-    type(coef_t), target, intent(inout) :: coef
-    type(dofmap_t), target, intent(inout) :: dof
+    type(coef_t), target, intent(in) :: coef
+    type(dofmap_t), target, intent(in) :: dof
     type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
@@ -623,13 +489,13 @@ contains
     call precon_factory(pc, pctype)
 
     select type (pcp => pc)
-      type is (jacobi_t)
+    type is (jacobi_t)
        call pcp%init(coef, dof, gs)
-      type is (sx_jacobi_t)
+    type is (sx_jacobi_t)
        call pcp%init(coef, dof, gs)
-      type is (device_jacobi_t)
+    type is (device_jacobi_t)
        call pcp%init(coef, dof, gs)
-      type is (hsmg_t)
+    type is (hsmg_t)
        if (len_trim(pctype) .gt. 4) then
           if (index(pctype, '+') .eq. 5) then
              call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &
@@ -646,16 +512,6 @@ contains
 
   end subroutine scalar_scheme_precon_factory
 
-  !> Initialize a user defined scalar bc
-  !! @param usr_eval User specified boundary condition for scalar field
-  subroutine scalar_scheme_set_user_bc(this, usr_eval)
-    class(scalar_scheme_t), intent(inout) :: this
-    procedure(usr_scalar_bc_eval) :: usr_eval
-
-    call this%user_bc%set_eval(usr_eval)
-
-  end subroutine scalar_scheme_set_user_bc
-
   !> Update the values of `lambda_field` if necessary.
   subroutine scalar_scheme_update_material_properties(this)
     class(scalar_scheme_t), intent(inout) :: this
@@ -665,23 +521,18 @@ contains
     real(kind=rp) :: lambda_factor
 
     lambda_factor = this%rho*this%cp/this%pr_turb
+    this%lambda_field = this%lambda
 
     if (this%variable_material_properties) then
        nut => neko_field_registry%get_field(this%nut_field_name)
        n = nut%size()
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_cfill(this%lambda_field%x_d, this%lambda, n)
-          call device_add2s2(this%lambda_field%x_d, nut%x_d, lambda_factor, n)
-       else
-          call cfill(this%lambda_field%x, this%lambda, n)
-          call add2s2(this%lambda_field%x, nut%x, lambda_factor, n)
-       end if
+       call field_add2s2(this%lambda_field, nut, lambda_factor, n)
     end if
 
   end subroutine scalar_scheme_update_material_properties
 
   !> Set lamdba and cp.
-  !! @param params The case parameter file.
+  !! @param params The case file configuration dictionary.
   !! @param user The user interface.
   subroutine scalar_scheme_set_material_properties(this, params, user)
     class(scalar_scheme_t), intent(inout) :: this
@@ -689,28 +540,28 @@ contains
     type(user_t), target, intent(in) :: user
     character(len=LOG_SIZE) :: log_buf
     ! A local pointer that is needed to make Intel happy
-    procedure(user_material_properties),  pointer :: dummy_mp_ptr
+    procedure(user_material_properties), pointer :: dummy_mp_ptr
     real(kind=rp) :: dummy_mu, dummy_rho
 
     dummy_mp_ptr => dummy_user_material_properties
 
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
 
-       write(log_buf, '(A)') "Material properties must be set in the user&
-       & file!"
+       write(log_buf, '(A)') "Material properties must be set in the user " // &
+            "file!"
        call neko_log%message(log_buf)
        call user%material_properties(0.0_rp, 0, dummy_rho, dummy_mu, &
-                                        this%cp, this%lambda, params)
+            this%cp, this%lambda, params)
     else
-       if (params%valid_path('case.scalar.Pe') .and. &
-           (params%valid_path('case.scalar.lambda') .or. &
-            params%valid_path('case.scalar.cp'))) then
-          call neko_error("To set the material properties for the scalar,&
-          & either provide Pe OR lambda and cp in the case file.")
+       if (params%valid_path('Pe') .and. &
+            (params%valid_path('lambda') .or. &
+            params%valid_path('cp'))) then
+          call neko_error("To set the material properties for the scalar, " // &
+               "either provide Pe OR lambda and cp in the case file.")
           ! Non-dimensional case
-       else if (params%valid_path('case.scalar.Pe')) then
-          write(log_buf, '(A)') 'Non-dimensional scalar material properties &
-          & input.'
+       else if (params%valid_path('Pe')) then
+          write(log_buf, '(A)') 'Non-dimensional scalar material properties' //&
+               ' input.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
           write(log_buf, '(A)') 'Specific heat capacity will be set to 1,'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
@@ -718,8 +569,8 @@ contains
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
           ! Read Pe into lambda for further manipulation.
-          call json_get(params, 'case.scalar.Pe', this%lambda)
-          write(log_buf, '(A,ES13.6)') 'Pe         :',  this%lambda
+          call json_get(params, 'Pe', this%lambda)
+          write(log_buf, '(A,ES13.6)') 'Pe         :', this%lambda
           call neko_log%message(log_buf)
 
           ! Set cp and rho to 1 since the setup is non-dimensional.
@@ -729,13 +580,11 @@ contains
           this%lambda = 1.0_rp/this%lambda
           ! Dimensional case
        else
-          call json_get(params, 'case.scalar.lambda', this%lambda)
-          call json_get(params, 'case.scalar.cp', this%cp)
+          call json_get(params, 'lambda', this%lambda)
+          call json_get(params, 'cp', this%cp)
        end if
 
     end if
   end subroutine scalar_scheme_set_material_properties
-
-
 
 end module scalar_scheme

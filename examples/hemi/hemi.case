@@ -16,12 +16,7 @@
         "scheme": "pnpn",
         "Re": 1400,
         "initial_condition": {
-            "type": "blasius"
-        },
-        "inflow_condition": {
-            "type": "blasius"
-        },
-        "blasius": {
+            "type": "blasius",
             "approximation": "sin",
             "delta": 0.6,
             "freestream_velocity": [1.0, 0.0, 0.0]
@@ -40,7 +35,27 @@
             "absolute_tolerance": 1e-4,
             "max_iterations": 800
         },
-        "boundary_types": ["sym", "w", "o", "v"],
+        "boundary_conditions": [
+        {
+            "type": "symmetry",
+            "zone_indices": [1]
+        },
+        {
+            "type": "no_slip",
+            "zone_indices": [2]
+        },
+        {
+            "type": "outflow",
+            "zone_indices": [3]
+        },
+        {
+            "type": "blasius_profile",
+            "zone_indices": [4],
+            "approximation": "sin",
+            "delta": 0.6,
+            "freestream_velocity": [1.0, 0.0, 0.0]
+        }
+        ],
         "output_control": "nsamples",
         "output_value": 100
     }

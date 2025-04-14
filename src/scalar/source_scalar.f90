@@ -78,7 +78,7 @@ contains
   !> Initialize a source_scalar term @a f
   subroutine source_scalar_init(f, dm)
     type(source_scalar_t), intent(inout) :: f
-    type(dofmap_t), intent(inout), target :: dm
+    type(dofmap_t), intent(in), target :: dm
 
     call source_scalar_free(f)
 

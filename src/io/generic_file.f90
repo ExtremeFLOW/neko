@@ -37,7 +37,7 @@ module generic_file
   !> A generic file handler.
   type, abstract :: generic_file_t
      character(len=1024) :: fname
-     integer :: counter
+     integer :: counter = 0
      integer :: start_counter = 0
      !> File format is serial
      logical :: serial = .false.

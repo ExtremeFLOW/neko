@@ -4,7 +4,7 @@
 
 ## Mesh
 
-Neko has it's own mesh format, `.nmsh`. All meshes should be 3D and consist of
+Neko has its own mesh format, `.nmsh`. All meshes should be 3D and consist of
 hexahedral elements. A 2D or 1D case can be mimicked by having a single element
 across selected axes and applying periodic boundary conditions.
 
@@ -24,7 +24,7 @@ convenience.
 
 It should be noted, that the `.re2` format allows to store boundary conditions.
 This is relevant for users that have old Nek5000 cases, who wish to convert them
-to Neko. Boundary condition is converted and used by Neko, and for these
+to Neko. Boundary conditions are converted and used by Neko, and for these
 boundaries one does not need to provide information in the `boundary_types`
 keyword in the case file. This is why in some of the examples, `boundary_types`
 is only filled for some of the boundaries. However, since this feature
@@ -35,9 +35,9 @@ encoded into the mesh file, and this will remain so in the future.
 ## Three-dimensional field output
 Neko stores the 3D fields with results in the `.fld` format, which is the same
 as in Nek5000. The advantage of adopting this format, is that there is a reader
-in Paraview and Visit, which can be used to visualize them. Note that the latest
+in Paraview and VisIt, which can be used to visualize them. Note that the latest
 version of Paraview actually has two reader for `.fld`. For now, Neko has only
-been tested with the older reader, which uses Visit under the hood.  A file with
+been tested with the older reader, which uses VisIt under the hood.  A file with
 the `.nek5000` extension is used as the entry point for the readers and stores
 some metadata. Users may also find the Python package `pymech` useful for
 working with `.fld`s. Note that only the first output `.fld` file stores the
