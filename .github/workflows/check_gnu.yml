@@ -181,7 +181,6 @@ jobs:
           # Following the instructions from https://rocm.docs.amd.com/projects/install-on-linux/en/latest/install/quick-start.html
 
           wget -r -np -nd -A 'amdgpu*.deb' https://repo.radeon.com/amdgpu-install/latest/ubuntu/noble/
-
           sudo apt install ./amdgpu-install_*.deb
 
           sudo apt-get update && sudo apt-get install -y amdgpu-dkms rocm-dev
