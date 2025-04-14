@@ -78,6 +78,9 @@ module bc
      !! values are not affected.
      !! Mixed bcs are, by convention, weak.
      logical :: strong = .true.
+     !> Indicates wether the bc has been updated, for those BCs that need
+     !! additional computations
+     logical :: updated = .false.
    contains
      !> Constructor
      procedure, pass(this) :: init_base => bc_init_base
