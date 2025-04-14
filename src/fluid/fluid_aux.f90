@@ -21,12 +21,9 @@ contains
     logical, intent(in) :: strict_convergence
     character(len=LOG_SIZE) :: log_buf
     integer :: i
-
-    call neko_log%message('Pressure')
-
     character(len=40) :: out_format
 
-    out_format='(F12.6, A, A,2x, I6,3x, E11.4,3x, E11.4)'
+    out_format = '(F12.6, A, A,2x, I6,3x, E11.4,3x, E11.4)'
 
     write(log_buf, '(A,A,A,A,A,A)') &
          '       Time:', ' | ', &
