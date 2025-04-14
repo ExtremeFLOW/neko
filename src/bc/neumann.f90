@@ -205,7 +205,7 @@ contains
 
     integer :: i
 
-    if ( present(only_facets)) then
+    if (present(only_facets)) then
        only_facets_ = only_facets
     else
        only_facets_ = .false.
