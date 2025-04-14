@@ -65,13 +65,13 @@ contains
        if ((.not. ksp_results(i)%converged) .and. (pe_rank .eq. 0)) then
           log_buf = 'Fluid solver did not converge for'
           select case(i)
-            case(1)
+          case(1)
              log_buf = trim(log_buf) // ' pressure'
-            case(2)
+          case(2)
              log_buf = trim(log_buf) // ' x-velocity'
-            case(3)
+          case(3)
              log_buf = trim(log_buf) // ' y-velocity'
-            case(4)
+          case(4)
              log_buf = trim(log_buf) // ' z-velocity'
           end select
 
