@@ -250,18 +250,26 @@ contains
   end subroutine field_dirichlet_vector_apply_vector_dev
 
   !> Finalize by building the mask arrays and propagating to underlying bcs.
-  subroutine field_dirichlet_vector_finalize(this)
+  subroutine field_dirichlet_vector_finalize(this, only_facets)
     class(field_dirichlet_vector_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
+    logical :: only_facets_ = .false.
 
-    call this%finalize_base()
+    if (present(only_facets)) then
+       only_facets_ = only_facets
+    else
+       only_facets_ = .false.
+    end if
+
+    call this%finalize_base(only_facets_)
 
     call this%bc_u%mark_facets(this%marked_facet)
     call this%bc_v%mark_facets(this%marked_facet)
     call this%bc_w%mark_facets(this%marked_facet)
 
-    call this%bc_u%finalize()
-    call this%bc_v%finalize()
-    call this%bc_w%finalize()
+    call this%bc_u%finalize(only_facets_)
+    call this%bc_v%finalize(only_facets_)
+    call this%bc_w%finalize(only_facets_)
 
   end subroutine field_dirichlet_vector_finalize
 

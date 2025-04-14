@@ -94,7 +94,7 @@ contains
 
     if (size(uinf) .ne. 3) then
        call neko_error("The uinf keyword for the blasius profile should be an &
-& array of 3 reals")
+       & array of 3 reals")
     end if
 
     call this%init_from_components(coef, delta, uinf, approximation)
@@ -159,7 +159,7 @@ contains
   subroutine blasius_apply_scalar(this, x, n, t, tstep, strong)
     class(blasius_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: x
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
@@ -178,9 +178,9 @@ contains
   subroutine blasius_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(blasius_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
-    real(kind=rp), intent(inout),  dimension(n) :: y
-    real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
@@ -190,8 +190,8 @@ contains
     if (present(strong)) strong_ = strong
 
     associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
-              zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
-              nz => this%coef%nz, lx => this%coef%Xh%lx)
+         zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
+         nz => this%coef%nz, lx => this%coef%Xh%lx)
       m = this%msk(0)
       if (strong_) then
          do i = 1, m
@@ -201,19 +201,19 @@ contains
             select case (facet)
             case (1, 2)
                x(k) = this%bla(zc(idx(1), idx(2), idx(3), idx(4)), &
-                  this%delta, this%uinf(1))
+                    this%delta, this%uinf(1))
                y(k) = 0.0_rp
                z(k) = 0.0_rp
             case (3, 4)
                x(k) = 0.0_rp
                y(k) = this%bla(xc(idx(1), idx(2), idx(3), idx(4)), &
-                  this%delta, this%uinf(2))
+                    this%delta, this%uinf(2))
                z(k) = 0.0_rp
             case (5, 6)
                x(k) = 0.0_rp
                y(k) = 0.0_rp
                z(k) = this%bla(yc(idx(1), idx(2), idx(3), idx(4)), &
-                  this%delta, this%uinf(3))
+                    this%delta, this%uinf(3))
             end select
          end do
       end if
@@ -237,10 +237,10 @@ contains
     if (present(strong)) strong_ = strong
 
     associate(xc => this%coef%dof%x, yc => this%coef%dof%y, &
-              zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
-              nz => this%coef%nz, lx => this%coef%Xh%lx , &
-              blax_d => this%blax_d, blay_d => this%blay_d, &
-              blaz_d => this%blaz_d)
+         zc => this%coef%dof%z, nx => this%coef%nx, ny => this%coef%ny, &
+         nz => this%coef%nz, lx => this%coef%Xh%lx , &
+         blax_d => this%blax_d, blay_d => this%blay_d, &
+         blaz_d => this%blaz_d)
 
       m = this%msk(0)
 
@@ -324,9 +324,17 @@ contains
   end subroutine blasius_set_params
 
   !> Finalize
-  subroutine blasius_finalize(this)
+  subroutine blasius_finalize(this, only_facets)
     class(blasius_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
+    logical :: only_facets_ = .false.
 
-    call this%finalize_base()
+    if (present(only_facets)) then
+       only_facets_ = only_facets
+    else
+       only_facets_ = .false.
+    end if
+
+    call this%finalize_base(only_facets_)
   end subroutine blasius_finalize
 end module blasius

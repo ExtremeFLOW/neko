@@ -198,11 +198,21 @@ contains
   end subroutine neumann_free
 
   !> Finalize by setting the flux.
-  subroutine neumann_finalize(this)
+  subroutine neumann_finalize(this, only_facets)
     class(neumann_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
+    logical :: only_facets_ = .false.
+
     integer :: i
 
-    call this%finalize_base()
+    if (present(only_facets)) then
+       only_facets_ = only_facets
+    else
+       only_facets_ = .false.
+    end if
+
+    call this%finalize_base(only_facets_)
+
     allocate(this%flux_(this%msk(0)))
 
     call cfill(this%flux_, this%init_flux_, this%msk(0))
