@@ -181,7 +181,7 @@ jobs:
         run: |
           # Following the instructions from https://rocm.docs.amd.com/projects/install-on-linux/en/latest/install/quick-start.html
 
-          wget -r -np -nd -A 'amdgpu*.deb' https://repo.radeon.com/amdgpu-install/latest/ubuntu/focal/
+          wget -r -np -nd -A 'amdgpu*.deb' https://repo.radeon.com/amdgpu-install/latest/ubuntu/noble/
           echo "Downloading amdgpu-install_*.deb"
           ls -l amdgpu*.deb
 
