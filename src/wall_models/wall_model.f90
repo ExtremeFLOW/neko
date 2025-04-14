@@ -272,7 +272,6 @@ contains
        this%n_y%x(i) = normal(2)
        this%n_z%x(i) = normal(3)
 
-
        ! inward normal
        normal = -normal
 
