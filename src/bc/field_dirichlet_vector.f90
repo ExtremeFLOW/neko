@@ -47,7 +47,7 @@ module field_dirichlet_vector
   use utils, only: neko_error
   use json_module, only : json_file
   use field_list, only : field_list_t
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t    
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
   implicit none
   private
 
@@ -154,7 +154,7 @@ contains
     logical, intent(in), optional :: strong
 
     call neko_error("field_dirichlet_vector cannot apply scalar BCs.&
-         & Use field_dirichlet instead!")
+    & Use field_dirichlet instead!")
 
   end subroutine field_dirichlet_vector_apply_scalar
 
@@ -171,7 +171,7 @@ contains
     logical, intent(in), optional :: strong
 
     call neko_error("field_dirichlet_vector cannot apply scalar BCs.&
-         & Use field_dirichlet instead!")
+    & Use field_dirichlet instead!")
 
   end subroutine field_dirichlet_vector_apply_scalar_dev
 
@@ -200,7 +200,10 @@ contains
 
        ! We can send any of the 3 bcs we have as argument, since they are all
        ! the same boundary.
-       call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
+       if (.not. this%updated) then
+          call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
+          this%updated = .true.
+       end if
 
        call masked_copy(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
        call masked_copy(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
@@ -229,7 +232,10 @@ contains
     if (present(strong)) strong_ = strong
 
     if (strong_) then
-       call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
+       if (.not. this%updated) then
+          call this%update(this%field_list, this%bc_u, this%coef, t, tstep)
+          this%updated = .true.
+       end if
 
        if (this%msk(0) .gt. 0) then
           call device_masked_copy(x_d, this%bc_u%field_bc%x_d, this%bc_u%msk_d,&

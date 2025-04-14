@@ -70,8 +70,8 @@ module lambda2
      !> Constructor from json.
      procedure, pass(this) :: init => lambda2_init_from_json
      !> Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-          lambda2_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          lambda2_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => lambda2_free
      !> Compute the lambda2 field
@@ -100,11 +100,11 @@ contains
     w => neko_field_registry%get_field("w")
     lambda2 => neko_field_registry%get_field("lambda2")
 
-    call lambda2_init_from_attributes(this, u, v, w, lambda2)
+    call lambda2_init_from_components(this, u, v, w, lambda2)
   end subroutine lambda2_init_from_json
 
   !> Actual constructor.
-  subroutine lambda2_init_from_attributes(this, u, v, w, lambda2)
+  subroutine lambda2_init_from_components(this, u, v, w, lambda2)
     class(lambda2_t), intent(inout) :: this
     type(field_t), pointer, intent(inout) :: u, v, w, lambda2
 
@@ -113,7 +113,7 @@ contains
     this%w => w
     this%lambda2 => lambda2
 
-  end subroutine lambda2_init_from_attributes
+  end subroutine lambda2_init_from_components
 
   !> Destructor.
   subroutine lambda2_free(this)

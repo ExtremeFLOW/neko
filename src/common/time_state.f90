@@ -38,12 +38,12 @@ module time_state
 
   !> A struct that contains all info about the time, expand as needed
   type, public :: time_state_t
-     real(kind=rp), dimension(10) :: tlag = 0.0_rp!> Old times
-     real(kind=rp), dimension(10) :: dtlag = 0.0_rp!> Old dts
-     real(kind=rp) :: dt = 0.0_rp!> Current dt
-     real(kind=rp) :: t = 0.0_rp !> Current time
-     real(kind=rp) :: end_time = 0.0_rp !> End time
-     integer :: tstep = 0 !> Current timestep
+     real(kind=rp), dimension(10) :: tlag = 0.0_rp!< Old times
+     real(kind=rp), dimension(10) :: dtlag = 0.0_rp!< Old dts
+     real(kind=rp) :: dt = 0.0_rp!< Current dt
+     real(kind=rp) :: t = 0.0_rp !< Current time
+     real(kind=rp) :: end_time = 0.0_rp !< End time
+     integer :: tstep = 0 !< Current timestep
   end type time_state_t
 
 end module time_state
