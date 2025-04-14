@@ -124,7 +124,7 @@ contains
        call neko_log%begin()
 
 !!       write(log_buf, '(A,F8.4,2x,A,"1P, E14.7")') 'CFL:', cfl, 'dt:', C%dt
-       write(log_buf, "(A,F8.4,2x,A, 1P,E14.7)") 'CFL:', cfl, 'dt:', C%dt
+       write(log_buf, "(A,F8.4,2x,A, 1P,E14.7)") 'CFL:', cfl, 'dt:', C%time%dt
        call neko_log%message(log_buf)
 
        ! Run the preprocessing
