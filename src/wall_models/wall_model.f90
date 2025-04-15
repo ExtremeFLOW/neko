@@ -46,6 +46,8 @@ module wall_model
   use math, only : glmin, glmax
   use comm, only : pe_rank
   use logger, only : neko_log, NEKO_LOG_DEBUG
+  use file, only : file_t
+  use field_registry, only : neko_field_registry
 
   implicit none
   private
@@ -223,9 +225,9 @@ contains
     nullify(this%facet)
     nullify(this%tau_field)
 
-    call this%tau_x%free
-    call this%tau_y%free
-    call this%tau_z%free
+    call this%tau_x%free()
+    call this%tau_y%free()
+    call this%tau_z%free()
 
     if (allocated(this%ind_r)) then
        deallocate(this%ind_r)
@@ -249,15 +251,22 @@ contains
     integer :: n_nodes, fid, idx(4), i, linear
     real(kind=rp) :: normal(3), p(3), x, y, z, xw, yw, zw, magp
     real(kind=rp) :: hmin, hmax
+    type(field_t), pointer :: h_field
+    type(file_t) :: h_file
 
     n_nodes = this%msk(0)
     this%n_nodes = n_nodes
 
+    call neko_field_registry%add_field(this%coef%dof, "sampling_height", &
+         ignore_existing=.true.)
+
+    h_field => neko_field_registry%get_field_by_name("sampling_height")
+
     do i = 1, n_nodes
        linear = this%msk(i)
        fid = this%facet(i)
-       idx = nonlinear_index(linear, this%coef%Xh%lx, this%coef%Xh%lx,&
-            this%coef%Xh%lx)
+       idx = nonlinear_index(linear, this%coef%Xh%lx, this%coef%Xh%ly,&
+            this%coef%Xh%lz)
        normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), fid)
 
        this%n_x%x(i) = normal(1)
@@ -310,7 +319,6 @@ contains
        z = this%dof%z(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
             this%ind_e(i))
 
-
        ! Vector from the sampling point to the wall
        p(1) = x - xw
        p(2) = y - yw
@@ -322,6 +330,8 @@ contains
        ! Project on the normal direction to get h
        this%h%x(i) = p(1)*normal(1) + p(2)*normal(2) + p(3)*normal(3)
 
+       h_field%x(linear,1,1,1) = this%h%x(i)
+
        ! Look at how much the total distance distance from the normal and warn
        ! if significant
        if ((this%h%x(i) - magp) / magp > 0.1 &
@@ -331,14 +341,11 @@ contains
        end if
     end do
 
-    hmin = glmin(this%h%x, n_nodes)
+!    hmin = glmin(this%h%x, n_nodes)
 !    hmax = glmax(this%h%x, n_nodes)
-!
 !    if (pe_rank .eq. 0) then
 !       write(*, "(A, F10.4, F10.4)") "   h min / max:", hmin, hmax
 !    end if
-
-
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%h%x, this%h%x_d, n_nodes, HOST_TO_DEVICE,&
@@ -350,6 +357,11 @@ contains
        call device_memcpy(this%n_z%x, this%n_z%x_d, n_nodes, HOST_TO_DEVICE, &
             sync = .true.)
     end if
+
+    ! Each wall_model bc will do a write unfortunately... But very helpful
+    ! for setup debugging.
+    h_file = file_t("sampling_height.fld")
+    call h_file%write(h_field)
   end subroutine wall_model_find_points
 
 end module wall_model

@@ -355,10 +355,18 @@ contains
   end subroutine usr_scalar_validate
 
   !> Finalize
-  subroutine usr_scalar_finalize(this)
+  subroutine usr_scalar_finalize(this, only_facets)
     class(usr_scalar_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
+    logical :: only_facets_ = .false.
 
-    call this%finalize_base()
+    if (present(only_facets)) then
+       only_facets_ = only_facets
+    else
+       only_facets_ = .false.
+    end if
+
+    call this%finalize_base(only_facets_)
     call this%validate()
   end subroutine usr_scalar_finalize
 

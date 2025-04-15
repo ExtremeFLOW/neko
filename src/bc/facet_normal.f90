@@ -37,7 +37,7 @@ module facet_normal
   use math
   use coefs, only : coef_t
   use bc, only : bc_t
-  use utils
+  use utils, only : neko_error, nonlinear_index
   use json_module, only : json_file
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
@@ -206,8 +206,16 @@ contains
   end subroutine facet_normal_free
 
   !> Finalize
-  subroutine facet_normal_finalize(this)
+  subroutine facet_normal_finalize(this, only_facets)
     class(facet_normal_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
+    logical :: only_facets_
+
+    if (present(only_facets)) then
+       if (only_facets .eqv. .false.) then
+          call neko_error("For facet_normal_t, only_facets has to be true.")
+       end if
+    end if
 
     call this%finalize_base(.true.)
   end subroutine facet_normal_finalize
