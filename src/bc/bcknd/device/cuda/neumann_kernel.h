@@ -35,6 +35,8 @@
 #ifndef __BC_NEUMANN_KERNEL__
 #define __BC_NEUMANN_KERNEL__
 
+#include "bc_utils.h"
+
 /**
  * Computes the linear index for area and normal arrays
  * @note Fortran indexing input, C indexing output
@@ -43,22 +45,6 @@
 #define coef_normal_area_idx(i, j, k, l, lx, nf) \
   (((i) + (lx) * (((j) - 1) + (lx) * (((k) - 1) + (nf) * (((l) - 1))))) - 1)
 
-/**
- * Device function to compute i,j,k,e indices from a linear index
- * @note Assumes idx is a Fortran index
- */
-__device__
-void nonlinear_index1(const int idx, const int lx, int *index) {
-  const int idx2 = idx -1;
-  index[3] = idx2/(lx * lx * lx) ;
-  index[2] = (idx2 - (lx*lx*lx)*index[3])/(lx * lx);
-  index[1] = (idx2 - (lx*lx*lx)*index[3] - (lx*lx) * index[2]) / lx;
-  index[0] = (idx2 - (lx*lx*lx)*index[3] - (lx*lx) * index[2]) - lx*index[1];
-  index[0]++;
-  index[1]++;
-  index[2]++;
-  index[3]++;
-}
 
 /**
  * Device kernel for neumann scalar boundary condition
@@ -79,7 +65,7 @@ void neumann_apply_scalar_kernel(const int * __restrict__ msk,
   for (int i = (idx + 1); i < m; i += str) {
     const int k = (msk[i] - 1);
     const int f = (facet[i]);
-    nonlinear_index1(msk[i], lx, index);
+    nonlinear_index(msk[i], lx, index);
 
     switch(f) {
     case 1:
