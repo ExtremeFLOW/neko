@@ -92,8 +92,8 @@ module force_torque
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => force_torque_init_from_json
      !> Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-          force_torque_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          force_torque_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => force_torque_free
      !> Compute the force_torque field.
@@ -123,13 +123,13 @@ contains
     call json_get_or_default(json, 'scale', scale, 1.0_rp)
     call json_get_or_default(json, 'long_print', long_print, .false.)
     call json_get(json, 'center', center)
-    call force_torque_init_from_attributes(this, zone_id, zone_name, &
+    call force_torque_init_from_components(this, zone_id, zone_name, &
          center, scale, case%fluid%c_xh, &
          long_print)
   end subroutine force_torque_init_from_json
 
   !> Actual constructor.
-  subroutine force_torque_init_from_attributes(this, zone_id, zone_name, &
+  subroutine force_torque_init_from_components(this, zone_id, zone_name, &
        center, scale, coef, long_print)
     class(force_torque_t), intent(inout) :: this
     real(kind=rp), intent(in) :: center(3)
@@ -227,7 +227,7 @@ contains
             .true.)
     end if
 
-  end subroutine force_torque_init_from_attributes
+  end subroutine force_torque_init_from_components
 
   !> Destructor.
   subroutine force_torque_free(this)

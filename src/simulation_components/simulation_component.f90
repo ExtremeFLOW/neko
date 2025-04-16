@@ -133,7 +133,45 @@ module simulation_component
      end subroutine simulation_component_allocator
   end interface
 
-  public :: simulation_component_factory
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  !> Interface for an object allocator.
+  !! Implemented in the user modules, should allocate the `obj` to the custom
+  !! user type.
+  abstract interface
+     subroutine simulation_component_allocate(obj)
+       import simulation_component_t
+       class(simulation_component_t), allocatable, intent(inout) :: obj
+     end subroutine simulation_component_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom types.
+     module subroutine register_simulation_component(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(simulation_component_allocate), pointer, intent(in) :: &
+            allocator
+     end subroutine register_simulation_component
+  end interface
+
+  ! A name-allocator pair for user-defined types. A helper type to define a
+  ! registry of custom allocators.
+  type allocator_entry
+     character(len=20) :: type_name
+     procedure(simulation_component_allocate), pointer, nopass :: allocator
+  end type allocator_entry
+
+  !> Registry of allocators for user-defined types
+  type(allocator_entry), allocatable :: simcomp_registry(:)
+
+  !> The size of the `simulation_component_registry`
+  integer :: simcomp_registry_size = 0
+
+  public :: simulation_component_factory, simulation_component_allocator, &
+       register_simulation_component, simulation_component_allocate
+
 
 contains
   !> Constructor for the `simulation_component_t` (base) class.
@@ -141,7 +179,8 @@ contains
     class(simulation_component_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
-    character(len=:), allocatable :: preprocess_control, compute_control, output_control
+    character(len=:), allocatable :: preprocess_control, compute_control, &
+         output_control
     real(kind=rp) :: preprocess_value, compute_value, output_value
     integer :: order
 

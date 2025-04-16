@@ -102,8 +102,8 @@ module PDE_filter
      !> Constructor from json.
      procedure, pass(this) :: init => PDE_filter_init_from_json
      !> Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-          PDE_filter_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          PDE_filter_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => PDE_filter_free
      !> Apply the filter
@@ -132,12 +132,12 @@ contains
          this%precon_type_filt, 'jacobi')
 
     call this%init_base(json, coef)
-    call PDE_filter_init_from_attributes(this, coef)
+    call PDE_filter_init_from_components(this, coef)
 
   end subroutine PDE_filter_init_from_json
 
   !> Actual constructor.
-  subroutine PDE_filter_init_from_attributes(this, coef)
+  subroutine PDE_filter_init_from_components(this, coef)
     class(PDE_filter_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     integer :: n
@@ -160,7 +160,7 @@ contains
          this%coef%gs_h, &
          this%bclst_filt, this%precon_type_filt)
 
-  end subroutine PDE_filter_init_from_attributes
+  end subroutine PDE_filter_init_from_components
 
   !> Destructor.
   subroutine PDE_filter_free(this)

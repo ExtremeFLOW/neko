@@ -129,13 +129,13 @@ contains
     call this%init_base(json, case)
     call this%writer%init(json, case)
 
-    call spectral_error_init_from_attributes(this, case%fluid%c_Xh)
+    call spectral_error_init_from_components(this, case%fluid%c_Xh)
 
   end subroutine spectral_error_init
 
   !> Actual constructor.
   !! @param coef type with all geometrical variables.
-  subroutine spectral_error_init_from_attributes(this, coef)
+  subroutine spectral_error_init_from_components(this, coef)
     class(spectral_error_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     integer :: il, jl, aa
@@ -182,7 +182,7 @@ contains
       endif
     end associate
 
-  end subroutine spectral_error_init_from_attributes
+  end subroutine spectral_error_init_from_components
 
   !> Destructor
   subroutine spectral_error_free(this)

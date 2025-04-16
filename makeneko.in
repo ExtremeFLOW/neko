@@ -10,32 +10,73 @@ FCFLAGS='@FCFLAGS@'
 printf "\n%s\n" 'N E K O build tool, Version @PACKAGE_VERSION@'
 printf "%s\n" '@NEKO_BUILD_INFO@'
 
-
-if [ -z "$1" ]
-  then
-      echo "No user file provided"
-      exit 1
+# Ensure user provides at least one .f90 file
+if [ $# -eq 0 ]; then
+    echo "Usage: makeneko <file1.f90> <file2.f90>"
+    exit 1
 fi
-printf '\n%s' "Building user NEKO ..."
-rm -f usr_driver.f90
-cat >> usr_driver.f90 << _ACEOF
+
+echo "Building user NEKO ..."
+
+# Collect user-provided .f90 files (excluding usr_driver.f90)
+USER_FILES=""
+for file in "$@"; do
+    case "$file" in
+        usr_driver.f90) continue ;;
+        *.f90) USER_FILES="$USER_FILES $file" ;;
+    esac
+done
+
+# Extract module names from user-provided .f90 files
+USER_MODULES=$(@GREP@ -hE '^[[:space:]]*module[[:space:]]+[a-zA-Z_][a-zA-Z0-9_]*' $USER_FILES 2>/dev/null | \
+               @GREP@ -vE '^[[:space:]]*!' | \
+               @GREP@ -vE 'module procedure|module[[:space:]]+user' | \
+               @AWK@  '{print $2}' | sort -u)
+
+if [ -n "$USER_MODULES" ]; then
+  echo "Detected the following user modules:"
+  for mod in $USER_MODULES; do
+    echo "    -" $mod
+  done
+else
+  echo "No user modules detected."
+fi
+
+# Create usr_driver.f90
+cat > usr_driver.f90 << _ACEOF
 program usrneko
   use neko
   use user
+_ACEOF
+
+# Insert `use` statements for local user .f90 files
+for mod in $USER_MODULES; do
+  echo "  use $mod" >> usr_driver.f90
+done
+
+cat >> usr_driver.f90 << _ACEOF
+
   type(case_t), target :: C
-  
+
+  ! Register all user-defined types
   call user_setup(C%usr)
+_ACEOF
+
+# Register types from local user .f90 files
+for mod in $USER_MODULES; do
+  echo "  call ${mod}_register_types()" >> usr_driver.f90
+done
+
+cat >> usr_driver.f90 << _ACEOF
   call neko_init(C)
   call neko_solve(C)
   call neko_finalize(C)
 
-
 end program usrneko
 _ACEOF
 
-$FC $FCFLAGS -I$includedir_pkg -L$libdir $@ usr_driver.f90\
-    -lneko @LDFLAGS@ @LIBS@ -o neko
+# Compile everything
+$FC $FCFLAGS -I$includedir_pkg -L$libdir $USER_FILES usr_driver.f90 -lneko @LDFLAGS@ @LIBS@ -o neko
 
 rm -f usr_driver.f90
-
-printf "%s\n" ' done!'
+printf "%s\n" ' Done!'

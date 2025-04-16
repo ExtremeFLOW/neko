@@ -66,8 +66,8 @@ module weak_grad
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => weak_grad_init_from_json
      !> Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-          weak_grad_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          weak_grad_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => weak_grad_free
      !> Compute the weak_grad field.
@@ -97,11 +97,11 @@ contains
     call this%init_base(json, case)
     call this%writer%init(json, case)
 
-    call weak_grad_init_from_attributes(this, fieldname)
+    call weak_grad_init_from_components(this, fieldname)
   end subroutine weak_grad_init_from_json
 
   !> Actual constructor.
-  subroutine weak_grad_init_from_attributes(this, fieldname)
+  subroutine weak_grad_init_from_components(this, fieldname)
     class(weak_grad_t), intent(inout) :: this
     character(len=*) :: fieldname
 
@@ -115,7 +115,7 @@ contains
          "weak_grad_" // fieldname // "_z")
 
 
-  end subroutine weak_grad_init_from_attributes
+  end subroutine weak_grad_init_from_components
 
   !> Destructor.
   subroutine weak_grad_free(this)

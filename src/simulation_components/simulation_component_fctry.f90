@@ -116,10 +116,40 @@ contains
     case ("spectral_error")
        allocate(spectral_error_t::object)
     case default
+       do i = 1, simcomp_registry_size
+          if (trim(type_name) == &
+               trim(simcomp_registry(i)%type_name)) then
+             call simcomp_registry(i)%allocator(object)
+             return
+          end if
+       end do
        call neko_type_error("simulation component", trim(type_name), &
             SIMCOMPS_KNOWN_TYPES)
     end select
 
   end subroutine simulation_component_allocator
+
+  !> Register a custom simcomp allocator.
+  !! Called in custom user modules inside the `module_name_register_types`
+  !! routine to add a custom type allocator to the registry.
+  !! @param allocator The allocator for the custom user type.
+  module subroutine register_simulation_component(type_name, allocator)
+    character(len=*), intent(in) :: type_name
+    procedure(simulation_component_allocate), pointer, intent(in) :: allocator
+    type(allocator_entry), allocatable :: temp(:)
+
+    ! Expand registry
+    if (simcomp_registry_size == 0) then
+       allocate(simcomp_registry(1))
+    else
+       allocate(temp(simcomp_registry_size + 1))
+       temp(1:simcomp_registry_size) = simcomp_registry
+       call move_alloc(temp, simcomp_registry)
+    end if
+
+    simcomp_registry_size = simcomp_registry_size + 1
+    simcomp_registry(simcomp_registry_size)%type_name = type_name
+    simcomp_registry(simcomp_registry_size)%allocator => allocator
+  end subroutine register_simulation_component
 
 end submodule simulation_component_fctry

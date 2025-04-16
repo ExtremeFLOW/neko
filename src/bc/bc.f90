@@ -78,6 +78,9 @@ module bc
      !! values are not affected.
      !! Mixed bcs are, by convention, weak.
      logical :: strong = .true.
+     !> Indicates wether the bc has been updated, for those BCs that need
+     !! additional computations
+     logical :: updated = .false.
    contains
      !> Constructor
      procedure, pass(this) :: init_base => bc_init_base
@@ -148,9 +151,10 @@ module bc
 
   abstract interface
      !> Finalize by building the mask and facet arrays.
-     subroutine bc_finalize(this)
+     subroutine bc_finalize(this, only_facets)
        import :: bc_t
        class(bc_t), intent(inout), target :: this
+       logical, optional, intent(in) :: only_facets
      end subroutine bc_finalize
   end interface
 
