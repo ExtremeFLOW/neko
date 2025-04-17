@@ -136,14 +136,6 @@ module source_term
   ! Machinery for injecting user-defined types
   !
 
-  interface
-     !> Called in user modules to add an allocator for custom types.
-     module subroutine register_source_term(type_name, allocator)
-       character(len=*), intent(in) :: type_name
-       procedure(source_term_allocate), pointer, intent(in) :: allocator
-     end subroutine register_source_term
-  end interface
-
   !> Interface for an object allocator.
   !! Implemented in the user modules, should allocate the `obj` to the custom
   !! user type.
@@ -152,6 +144,14 @@ module source_term
        import source_term_t
        class(source_term_t), allocatable, intent(inout) :: obj
      end subroutine source_term_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom types.
+     module subroutine register_source_term(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(source_term_allocate), pointer, intent(in) :: allocator
+     end subroutine register_source_term
   end interface
 
   ! A name-allocator pair for user-defined types. A helper type to define a

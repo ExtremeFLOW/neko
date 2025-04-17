@@ -353,9 +353,8 @@ A more detailed description of each boundary condition is provided below.
     "zone_indices": [1, 2]
   }
   ```
-  * `user_pressure`, a boundary for specified non-uniform pressure profiles, similar in
-  essence to `d_vel_u`,`d_vel_v` and `d_vel_w`. Can be combined with other
-  complex Dirichlet conditions by specifying e.g.: `"d_vel_u/d_vel_v/d_pres"`.
+* `user_pressure`, a boundary for specified non-uniform pressure profiles, similar in
+  essence to `user_velocity`.
   ```json
   {
     "type": "user_pressure",
