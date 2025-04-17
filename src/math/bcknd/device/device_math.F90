@@ -66,8 +66,9 @@ module device_math
        device_addcol3, device_addcol4, device_vdot3, device_vlsc3, &
        device_glsc3, device_glsc3_many, device_add2s2_many, device_glsc2, &
        device_glsum, device_masked_copy, device_cfill_mask, &
-       device_masked_red_copy, device_vcross, device_absval, &
-       device_pwmax, device_pwmin, device_masked_atomic_reduction
+       device_vcross, device_absval, device_masked_atomic_reduction, &
+       device_pwmax, device_pwmin,device_masked_gather_copy, &
+       device_masked_scatter_copy
 
 contains
 
@@ -75,6 +76,8 @@ contains
   subroutine device_copy(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
     integer :: n
+
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_copy(a_d, b_d, n)
 #elif HAVE_CUDA
@@ -90,6 +93,7 @@ contains
   subroutine device_masked_copy(a_d, b_d, mask_d, n, m)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, m
+    if (n .lt. 1 .or. m .lt. 1) return
 #if HAVE_HIP
     call hip_masked_copy(a_d, b_d, mask_d, n, m)
 #elif HAVE_CUDA
@@ -101,23 +105,43 @@ contains
 #endif
   end subroutine device_masked_copy
 
-  subroutine device_masked_red_copy(a_d, b_d, mask_d, n, m)
+  !> Gather a masked vector \f$ a(i) = b(mask(i)) \f$.
+  subroutine device_masked_gather_copy(a_d, b_d, mask_d, n, m)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, m
+    if (n .lt. 1 .or. m .lt. 1) return
 #if HAVE_HIP
-    call hip_masked_red_copy(a_d, b_d, mask_d, n, m)
+    call hip_masked_gather_copy(a_d, b_d, mask_d, n, m)
 #elif HAVE_CUDA
-    call cuda_masked_red_copy(a_d, b_d, mask_d, n, m)
+    call cuda_masked_gather_copy(a_d, b_d, mask_d, n, m)
 #elif HAVE_OPENCL
     call neko_error('No OpenCL bcknd, masked red copy')
 #else
     call neko_error('no device backend configured')
 #endif
-  end subroutine device_masked_red_copy
+  end subroutine device_masked_gather_copy
+ 
+  !> Scatter a masked vector \f$ a((mask(i)) = b(i) \f$.
+  subroutine device_masked_scatter_copy(a_d, b_d, mask_d, n, m)
+    type(c_ptr) :: a_d, b_d, mask_d
+    integer :: n, m
+    if (n .lt. 1 .or. m .lt. 1) return
+#if HAVE_HIP
+    call hip_masked_scatter_copy(a_d, b_d, mask_d, n, m)
+#elif HAVE_CUDA
+    call cuda_masked_scatter_copy(a_d, b_d, mask_d, n, m)
+#elif HAVE_OPENCL
+    call neko_error('No OpenCL bcknd, masked red copy')
+#else
+    call neko_error('no device backend configured')
+#endif
+  end subroutine device_masked_scatter_copy
+
 
   subroutine device_masked_atomic_reduction(a_d, b_d, mask_d, n, m)
     type(c_ptr) :: a_d, b_d, mask_d
     integer :: n, m
+    if (n .lt. 1 .or. m .lt. 1) return
 #if HAVE_HIP
     call hip_masked_atomic_reduction(a_d, b_d, mask_d, n, m)
 #elif HAVE_CUDA
@@ -137,6 +161,7 @@ contains
     integer :: size
     type(c_ptr) :: mask_d
     integer :: mask_size
+    if (size .lt. 1 .or. mask_size .lt. 1) return
 #if HAVE_HIP
     call hip_cfill_mask(a_d, c, size, mask_d, mask_size)
 #elif HAVE_CUDA
@@ -152,6 +177,7 @@ contains
   subroutine device_rzero(a_d, n)
     type(c_ptr) :: a_d
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_rzero(a_d, n)
 #elif HAVE_CUDA
@@ -168,6 +194,7 @@ contains
     type(c_ptr) :: a_d
     integer :: n
     real(kind=rp), parameter :: one = 1.0_rp
+    if (n .lt. 1) return
 #if HAVE_HIP || HAVE_CUDA || HAVE_OPENCL
     call device_cfill(a_d, one, n)
 #else
@@ -180,6 +207,7 @@ contains
     type(c_ptr) :: a_d
     real(kind=rp), intent(in) :: c
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_cmult(a_d, c, n)
 #elif HAVE_CUDA
@@ -196,6 +224,7 @@ contains
     type(c_ptr) :: a_d, b_d
     real(kind=rp), intent(in) :: c
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_cmult2(a_d, b_d, c, n)
 #elif HAVE_CUDA
@@ -212,6 +241,7 @@ contains
     type(c_ptr) :: a_d
     real(kind=rp), intent(in) :: c
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_cadd(a_d, c, n)
 #elif HAVE_CUDA
@@ -229,6 +259,7 @@ contains
     type(c_ptr) :: b_d
     real(kind=rp), intent(in) :: c
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_cadd2(a_d, b_d, c, n)
 #elif HAVE_CUDA
@@ -245,6 +276,7 @@ contains
     type(c_ptr) :: a_d
     real(kind=rp), intent(in) :: c
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_cfill(a_d, c, n)
 #elif HAVE_CUDA
@@ -260,6 +292,7 @@ contains
   subroutine device_add2(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_add2(a_d, b_d, n)
 #elif HAVE_CUDA
@@ -274,6 +307,7 @@ contains
   subroutine device_add4(a_d, b_d, c_d, d_d, n)
     type(c_ptr) :: a_d, b_d, c_d, d_d
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_add4(a_d, b_d, c_d, d_d, n)
 #elif HAVE_CUDA
@@ -289,6 +323,7 @@ contains
     type(c_ptr) :: a_d, b_d
     real(kind=rp) :: c1
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_add2s1(a_d, b_d, c1, n)
 #elif HAVE_CUDA
@@ -306,6 +341,7 @@ contains
     type(c_ptr) :: a_d, b_d
     real(kind=rp) :: c1
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_add2s2(a_d, b_d, c1, n)
 #elif HAVE_CUDA
@@ -322,6 +358,7 @@ contains
     type(c_ptr) :: a_d, b_d
     real(kind=rp) :: c1
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_addsqr2s2(a_d, b_d, c1, n)
 #elif HAVE_CUDA
@@ -337,6 +374,7 @@ contains
   subroutine device_add3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_add3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
@@ -353,6 +391,7 @@ contains
     type(c_ptr) :: a_d, b_d, c_d
     real(kind=rp) :: c1, c2
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_add3s2(a_d, b_d, c_d, c1, c2, n)
 #elif HAVE_CUDA
@@ -368,6 +407,7 @@ contains
   subroutine device_invcol1(a_d, n)
     type(c_ptr) :: a_d
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_invcol1(a_d, n)
 #elif HAVE_CUDA
@@ -383,6 +423,7 @@ contains
   subroutine device_invcol2(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_invcol2(a_d, b_d, n)
 #elif HAVE_CUDA
@@ -398,6 +439,7 @@ contains
   subroutine device_col2(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_col2(a_d, b_d, n)
 #elif HAVE_CUDA
@@ -413,6 +455,7 @@ contains
   subroutine device_col3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_col3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
@@ -428,6 +471,7 @@ contains
   subroutine device_subcol3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_subcol3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
@@ -443,6 +487,7 @@ contains
   subroutine device_sub2(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_sub2(a_d, b_d, n)
 #elif HAVE_CUDA
@@ -458,6 +503,7 @@ contains
   subroutine device_sub3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_sub3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
@@ -473,6 +519,7 @@ contains
   subroutine device_addcol3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_addcol3(a_d, b_d, c_d, n)
 #elif HAVE_CUDA
@@ -488,6 +535,7 @@ contains
   subroutine device_addcol4(a_d, b_d, c_d, d_d, n)
     type(c_ptr) :: a_d, b_d, c_d, d_D
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_addcol4(a_d, b_d, c_d, d_d, n)
 #elif HAVE_CUDA
@@ -504,6 +552,7 @@ contains
   subroutine device_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n)
     type(c_ptr) :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n)
 #elif HAVE_CUDA
@@ -523,6 +572,7 @@ contains
     type(c_ptr) :: v1_d, v2_d, v3_d
     type(c_ptr) :: w1_d, w2_d, w3_d
     integer :: n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
          w1_d, w2_d, w3_d, n)
@@ -543,6 +593,7 @@ contains
     integer :: n
     real(kind=rp) :: res
     res = 0.0_rp
+    if (n .lt. 1) return
 #if HAVE_HIP
     res = hip_vlsc3(u_d, v_d, w_d, n)
 #elif HAVE_CUDA
@@ -604,6 +655,7 @@ contains
   subroutine device_add2s2_many(y_d, x_d_d, a_d, j, n)
     type(c_ptr), value :: y_d, x_d_d, a_d
     integer(c_int) :: j, n
+    if (n .lt. 1) return
 #if HAVE_HIP
     call hip_add2s2_many(y_d, x_d_d, a_d, j, n)
 #elif HAVE_CUDA
@@ -664,6 +716,7 @@ contains
   subroutine device_absval(a_d, n)
     integer, intent(in) :: n
     type(c_ptr) :: a_d
+    if (n .lt. 1) return
 #ifdef HAVE_HIP
     call hip_absval(a_d, n)
 #elif HAVE_CUDA
@@ -684,6 +737,7 @@ contains
   subroutine device_pwmax_vec2(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
     integer :: n
+    if (n .lt. 1) return
 
 #if HAVE_HIP
     call neko_error('No HIP backend for device_pwmax_vec2')
@@ -701,6 +755,7 @@ contains
   subroutine device_pwmax_vec3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
+    if (n .lt. 1) return
 
 #if HAVE_HIP
     call neko_error('No HIP backend for device_pwmax_vec3')
@@ -720,6 +775,7 @@ contains
     type(c_ptr) :: a_d
     real(kind=rp), intent(in) :: c
     integer :: n
+    if (n .lt. 1) return
 
 #if HAVE_HIP
     call neko_error('No HIP backend for device_pwmax_sca2')
@@ -739,6 +795,7 @@ contains
     type(c_ptr) :: a_d, b_d
     real(kind=rp), intent(in) :: c
     integer :: n
+    if (n .lt. 1) return
 
 #if HAVE_HIP
     call neko_error('No HIP backend for device_pwmax_sca3')
@@ -760,6 +817,7 @@ contains
   subroutine device_pwmin_vec2(a_d, b_d, n)
     type(c_ptr) :: a_d, b_d
     integer :: n
+    if (n .lt. 1) return
 
 #if HAVE_HIP
     call neko_error('No HIP backend for device_pwmin_vec2')
@@ -777,6 +835,7 @@ contains
   subroutine device_pwmin_vec3(a_d, b_d, c_d, n)
     type(c_ptr) :: a_d, b_d, c_d
     integer :: n
+    if (n .lt. 1) return
 
 #if HAVE_HIP
     call neko_error('No HIP backend for device_pwmin_vec3')
@@ -796,6 +855,7 @@ contains
     type(c_ptr) :: a_d
     real(kind=rp), intent(in) :: c
     integer :: n
+    if (n .lt. 1) return
 
 #if HAVE_HIP
     call neko_error('No HIP backend for device_pwmin_sca2')
@@ -815,6 +875,7 @@ contains
     type(c_ptr) :: a_d, b_d
     real(kind=rp), intent(in) :: c
     integer :: n
+    if (n .lt. 1) return
 
 #if HAVE_HIP
     call neko_error('No HIP backend for device_pwmin_sca3')
