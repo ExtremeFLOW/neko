@@ -35,6 +35,7 @@ module output_controller
   use output, only: output_t, output_ptr_t
   use fld_file, only: fld_file_t
   use comm
+  use time_state, only : time_state_t
   use logger, only : neko_log, LOG_SIZE
   use utils, only : neko_error
   use profiler, only : profiler_start_region, profiler_end_region
@@ -139,7 +140,7 @@ contains
     type(output_ptr_t), allocatable :: tmp(:)
     type(time_based_controller_t), allocatable :: tmp_ctrl(:)
     character(len=LOG_SIZE) :: log_buf
-    integer :: n
+    integer :: n, nexecutions
     class(*), pointer :: ft
 
     if (this%n .ge. this%size) then
@@ -154,6 +155,7 @@ contains
        this%size = this%size * 2
     end if
 
+
     this%n = this%n + 1
     n = this%n
     this%output_list(this%n)%ptr => out
@@ -161,10 +163,17 @@ contains
     if (trim(write_control) .eq. "org") then
        this%controllers(n) = this%controllers(1)
     else
-       call this%controllers(n)%init(this%time_end, write_control, write_par, &
-            start_time)
+       call this%controllers(n)%init(this%time_end, write_control, write_par)
     end if
 
+    if (present(start_time)) then
+       if (start_time .gt. 0.0_rp) then
+          nexecutions = int(start_time / this%controllers(n)%time_interval) + 1
+          this%controllers(n)%nexecutions = nexecutions
+          call this%output_list(n)%ptr%set_counter(nexecutions)
+          call this%output_list(n)%ptr%set_start_counter(nexecutions)
+       end if
+    end if
     ! The code below only prints to console
     call neko_log%section('Adding write output')
     call neko_log%message('File name        : '// &
@@ -214,10 +223,9 @@ contains
   !! @param t The time value.
   !! @param tstep The current time-stepper iteration.
   !! @param ifforce Whether to force a write. Optional, defaults to 0.
-  subroutine output_controller_execute(this, t, tstep, ifforce)
+  subroutine output_controller_execute(this, time, ifforce)
     class(output_controller_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     logical, intent(in), optional :: ifforce
     real(kind=dp) :: sample_start_time, sample_end_time
     real(kind=dp) :: sample_time
@@ -244,7 +252,7 @@ contains
     select type (samp => this)
     type is (output_controller_t)
        do i = 1, samp%n
-          if (this%controllers(i)%check(t, tstep, force)) then
+          if (this%controllers(i)%check(time, force)) then
              write_output = .true.
              exit
           end if
@@ -262,7 +270,7 @@ contains
     select type (samp => this)
     type is (output_controller_t)
        do i = 1, this%n
-          if (this%controllers(i)%check(t, tstep, force)) then
+          if (this%controllers(i)%check(time, force)) then
              call neko_log%message('File name     : '// &
                   trim(samp%output_list(i)%ptr%file_%file_type%fname))
 
@@ -270,7 +278,7 @@ contains
                   int(this%controllers(i)%nexecutions)
              call neko_log%message(log_buf)
 
-             call samp%output_list(i)%ptr%sample(t)
+             call samp%output_list(i)%ptr%sample(time%t)
 
              call this%controllers(i)%register_execution()
           end if
@@ -284,7 +292,7 @@ contains
 
     sample_time = sample_end_time - sample_start_time
     if (write_output) then
-       write(log_buf, '(A16,1x,F12.6,A,F9.6)') 'Writing at time:', t, &
+       write(log_buf, '(A16,1x,F12.6,A,F9.6)') 'Writing at time:', time%t, &
             ' Output time (s): ', sample_time
        call neko_log%message(log_buf)
        call neko_log%end_section()
@@ -293,18 +301,17 @@ contains
   end subroutine output_controller_execute
 
   !> Set write counter based on time (after restart)
-  !> @param t Time value.
-  subroutine output_controller_set_counter(this, t)
+  !> @param time Current time info.
+  subroutine output_controller_set_counter(this, time)
     class(output_controller_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    type(time_state_t), intent(in) :: time
     integer :: i, nexecutions
 
 
     do i = 1, this%n
        if (this%controllers(i)%nsteps .eq. 0) then
-          nexecutions = int(t / this%controllers(i)%time_interval) + 1
-          this%controllers(i)%nexecutions = nexecutions
-
+          call this%controllers(i)%set_counter(time)
+          nexecutions =this%controllers(i)%nexecutions
           call this%output_list(i)%ptr%set_counter(nexecutions)
           call this%output_list(i)%ptr%set_start_counter(nexecutions)
        end if

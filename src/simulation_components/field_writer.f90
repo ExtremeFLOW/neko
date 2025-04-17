@@ -37,6 +37,7 @@ module field_writer
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
+  use time_state, only : time_state_t
   use field_registry, only : neko_field_registry
   use case, only : case_t
   use fld_file_output, only : fld_file_output_t
@@ -53,8 +54,8 @@ module field_writer
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => field_writer_init_from_json
      !> Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-        field_writer_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          field_writer_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => field_writer_free
      !> Here to compy with the interface, does nothing.
@@ -80,17 +81,17 @@ contains
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
        if (json%valid_path("output_precision")) then
-           call json_get(json, "output_precision", precision)
-           if (precision == "double") then
-              call field_writer_init_from_attributes(this, fields, filename, dp)
-           else
-              call field_writer_init_from_attributes(this, fields, filename, sp)
-           end if
+          call json_get(json, "output_precision", precision)
+          if (precision == "double") then
+             call field_writer_init_from_components(this, fields, filename, dp)
+          else
+             call field_writer_init_from_components(this, fields, filename, sp)
+          end if
        else
-           call field_writer_init_from_attributes(this, fields, filename)
+          call field_writer_init_from_components(this, fields, filename)
        end if
     else
-       call field_writer_init_from_attributes(this, fields)
+       call field_writer_init_from_components(this, fields)
     end if
   end subroutine field_writer_init_from_json
 
@@ -100,7 +101,7 @@ contains
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine field_writer_init_from_attributes(this, fields, filename, precision)
+  subroutine field_writer_init_from_components(this, fields, filename, precision)
     class(field_writer_t), intent(inout) :: this
     character(len=20), allocatable, intent(in) :: fields(:)
     character(len=*), intent(in), optional :: filename
@@ -110,9 +111,9 @@ contains
 
     ! Regsiter fields if they don't exist.
     do i=1, size(fields)
-      fieldi = trim(fields(i))
-      call neko_field_registry%add_field(this%case%fluid%dm_Xh, fieldi,&
-                                         ignore_existing=.true.)
+       fieldi = trim(fields(i))
+       call neko_field_registry%add_field(this%case%fluid%dm_Xh, fieldi,&
+            ignore_existing=.true.)
     end do
 
     if (present(filename)) then
@@ -130,13 +131,13 @@ contains
             this%output_controller%control_value, &
             this%output_controller%control_mode)
     else
-      do i=1, size(fields)
-         fieldi = trim(fields(i))
-         call this%case%f_out%fluid%append(neko_field_registry%get_field(fieldi))
-      end do
+       do i=1, size(fields)
+          fieldi = trim(fields(i))
+          call this%case%f_out%fluid%append(neko_field_registry%get_field(fieldi))
+       end do
     end if
 
-  end subroutine field_writer_init_from_attributes
+  end subroutine field_writer_init_from_components
 
   !> Destructor.
   subroutine field_writer_free(this)
@@ -145,12 +146,9 @@ contains
   end subroutine field_writer_free
 
   !> Here to comply with the interface, does nothing.
-  !! @param t The time value.
-  !! @param tstep The current time-step
-  subroutine field_writer_compute(this, t, tstep)
+  subroutine field_writer_compute(this, time)
     class(field_writer_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
 
   end subroutine field_writer_compute
 

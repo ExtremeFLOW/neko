@@ -82,7 +82,7 @@ contains
     call json_get_or_default(json, "delta_type", delta_type, "pointwise")
     ! Based on the Smagorinsky Cs = 0.17.
     call json_get_or_default(json, "c", c, 0.07_rp)
-    call json_get_or_default(json, "extrapolation", if_ext, .true.)
+    call json_get_or_default(json, "extrapolation", if_ext, .false.)
 
     call neko_log%section('LES model')
     write(log_buf, '(A)') 'Model : Vreman'

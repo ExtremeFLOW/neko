@@ -119,11 +119,6 @@ contains
                this%wall_model%tau_y(i)**2 + &
                this%wall_model%tau_z(i)**2)
 
-          ! Mark sampling nodes with a -1 for debugging
-          this%wall_model%tau_field%x(this%wall_model%ind_r(i), &
-               this%wall_model%ind_s(i), &
-               this%wall_model%ind_t(i), &
-               this%wall_model%ind_e(i)) = -1.0_rp
           this%wall_model%tau_field%x(this%msk(i),1,1,1) = magtau
        end do
 
@@ -192,14 +187,21 @@ contains
   end subroutine wall_model_bc_free
 
   !> Finalize by building mask arrays and init'ing the wall model.
-  subroutine wall_model_bc_finalize(this)
+  subroutine wall_model_bc_finalize(this, only_facets)
     class(wall_model_bc_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
+    logical :: only_facets_ = .false.
 
-    call this%shear_stress_t%finalize()
+    if (present(only_facets)) then
+       if (only_facets .eqv. .false.) then
+          call neko_error("For wall_model_bc_t, only_facets has to be true.")
+       end if
+    end if
+
+    call this%shear_stress_t%finalize(.true.)
+
     call wall_model_factory(this%wall_model, this%coef, this%msk, &
          this%facet, this%nu, this%params_)
-
-
   end subroutine wall_model_bc_finalize
 
 end module wall_model_bc
