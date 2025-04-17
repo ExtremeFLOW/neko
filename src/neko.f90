@@ -183,7 +183,7 @@ contains
        if (argc .gt. 1) then
           write(log_buf, '(a)') 'Running with command line arguments: '
           call neko_log%message(log_buf, NEKO_LOG_QUIET)
-          do i = 2,argc
+          do i = 2, argc
              call get_command_argument(i, args)
              call neko_log%message(args, NEKO_LOG_QUIET)
           end do

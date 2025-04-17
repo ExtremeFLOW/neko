@@ -253,7 +253,7 @@ contains
   !! @param preprocess_controller The controller for running preprocessing.
   !! @param compute_controller The controller for running compute.
   !! @param output_controller The controller for producing output.
-  subroutine simulation_component_init_base_from_controllers(this, case, order, &
+  subroutine simulation_component_init_base_from_controllers(this, case, order,&
        preprocess_controller, compute_controller, output_controller)
     class(simulation_component_t), intent(inout) :: this
     class(case_t), intent(inout), target :: case

@@ -187,10 +187,10 @@ contains
     integer :: i
 
     ! Regsiter fields if they don't exist.
-    do i=1, size(fields)
+    do i = 1, size(fields)
        fieldi = trim(fields(i))
        call neko_field_registry%add_field(this%case%fluid%dm_Xh, fieldi,&
-            ignore_existing=.true.)
+            ignore_existing = .true.)
     end do
 
     if (present(filename)) then
@@ -199,18 +199,20 @@ contains
        else
           call this%output%init(sp, filename, size(fields))
        end if
-       do i=1, size(fields)
+       do i = 1, size(fields)
           fieldi = trim(fields(i))
-          call this%output%fields%assign(i, neko_field_registry%get_field(fieldi))
+          call this%output%fields%assign(i, &
+               neko_field_registry%get_field(fieldi))
        end do
 
        call this%case%output_controller%add(this%output, &
             this%output_controller%control_value, &
             this%output_controller%control_mode)
     else
-       do i=1, size(fields)
+       do i = 1, size(fields)
           fieldi = trim(fields(i))
-          call this%case%f_out%fluid%append(neko_field_registry%get_field(fieldi))
+          call this%case%f_out%fluid%append( &
+               neko_field_registry%get_field(fieldi))
        end do
     end if
 
