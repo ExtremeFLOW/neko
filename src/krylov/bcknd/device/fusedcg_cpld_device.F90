@@ -33,7 +33,7 @@
 !> Defines a fused Conjugate Gradient method for accelerators
 module fusedcg_cpld_device
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
-  use precon,  only : pc_t
+  use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only: rp, c_rp
   use field, only : field_t
@@ -133,7 +133,7 @@ module fusedcg_cpld_device
 
   interface
      real(c_rp) function cuda_fusedcg_cpld_part2(a1_d, a2_d, a3_d, b_d, &
-          c1_d, c2_d, c3_d, alpha_d, alpha,  p_cur, n) &
+          c1_d, c2_d, c3_d, alpha_d, alpha, p_cur, n) &
           bind(c, name='cuda_fusedcg_cpld_part2')
        use, intrinsic :: iso_c_binding
        import c_rp
@@ -181,7 +181,7 @@ module fusedcg_cpld_device
 
   interface
      real(c_rp) function hip_fusedcg_cpld_part2(a1_d, a2_d, a3_d, b_d, &
-          c1_d, c2_d, c3_d, alpha_d, alpha,  p_cur, n) &
+          c1_d, c2_d, c3_d, alpha_d, alpha, p_cur, n) &
           bind(c, name='hip_fusedcg_cpld_part2')
        use, intrinsic :: iso_c_binding
        import c_rp
@@ -533,7 +533,7 @@ contains
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
     integer :: iter, max_iter, ierr, i, p_cur, p_prev
-    real(kind=rp) :: rnorm, rtr, norm_fac,  rtz1, rtz2
+    real(kind=rp) :: rnorm, rtr, norm_fac, rtz1, rtz2
     real(kind=rp) :: pap, beta
     type(c_ptr) :: fx_d
     type(c_ptr) :: fy_d
@@ -552,7 +552,7 @@ contains
 
     associate(w1 => this%w1, w2 => this%w2, w3 => this%w3, r1 => this%r1, &
          r2 => this%r2, r3 => this%r3, p1 => this%p1, p2 => this%p2, &
-         p3 => this%p3, z1 => this%z1, z2 => this%z2, z3 => this%z3,  &
+         p3 => this%p3, z1 => this%z1, z2 => this%z2, z3 => this%z3, &
          tmp_d => this%tmp_d, alpha => this%alpha, alpha_d => this%alpha_d, &
          w1_d => this%w1_d, w2_d => this%w2_d, w3_d => this%w3_d, &
          r1_d => this%r1_d, r2_d => this%r2_d, r3_d => this%r3_d, &
@@ -614,7 +614,7 @@ contains
          call device_event_sync(this%gs_event3)
          call blstz%apply(w3, n)
 
-         call device_fusedcg_cpld_part1(w1_d, w2_d, w3_d,  p1_d(p_cur), &
+         call device_fusedcg_cpld_part1(w1_d, w2_d, w3_d, p1_d(p_cur), &
               p2_d(p_cur), p3_d(p_cur), tmp_d, n)
 
          pap = device_glsc2(tmp_d, coef%mult_d, n)
@@ -647,7 +647,7 @@ contains
 
   !> Pipelined PCG solve
   function fusedcg_cpld_device_solve(this, Ax, x, f, n, coef, blst, &
-       gs_h, niter)  result(ksp_results)
+       gs_h, niter) result(ksp_results)
     class(fusedcg_cpld_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
