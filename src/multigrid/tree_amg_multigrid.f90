@@ -161,7 +161,7 @@ contains
     if (this%nlvls .gt. this%amg%nlvls) then
        call neko_error( &
             "Requested number multigrid levels &
-            is greater than the initialized AMG levels")
+            & is greater than the initialized AMG levels")
     end if
 
     call get_environment_variable("NEKO_TAMG_CHEBY_DEGREE", &
