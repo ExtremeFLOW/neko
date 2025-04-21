@@ -99,10 +99,11 @@ contains
   !! @param nlvls_in Number of levels for the TreeAMG hierarchy
   !! @param blst Finest level BC list
   !! @param max_iter Number of AMG iterations
-  subroutine tamg_mg_init(this, ax, Xh, coef, msh, gs_h, nlvls_in, blst, max_iter)
+  subroutine tamg_mg_init(this, ax, Xh, coef, msh, gs_h, nlvls_in, blst, &
+       max_iter)
     class(tamg_solver_t), intent(inout), target :: this
     class(ax_t), target, intent(in) :: ax
-    type(space_t),target, intent(in) :: Xh
+    type(space_t), target, intent(in) :: Xh
     type(coef_t), target, intent(in) :: coef
     type(mesh_t), target, intent(in) :: msh
     type(gs_t), target, intent(in) :: gs_h
@@ -126,7 +127,8 @@ contains
        nlvls = mlvl
     end if
 
-    write(log_buf, '(A28,I2,A8)') 'Creating AMG hierarchy with', nlvls, 'levels.'
+    write(log_buf, '(A28,I2,A8)') 'Creating AMG hierarchy with', &
+         nlvls, 'levels.'
     call neko_log%message(log_buf)
 
     allocate( this%amg )
@@ -136,12 +138,13 @@ contains
     call aggregate_finest_level(this%amg, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
     !> Create the remaining levels
-    allocate( agg_nhbr, SOURCE=msh%facet_neigh )
+    allocate( agg_nhbr, SOURCE = msh%facet_neigh )
     do mlvl = 2, nlvls-1
        target_num_aggs = this%amg%lvl(mlvl-1)%nnodes / 8
        call print_preagg_info( mlvl, target_num_aggs)
        if ( target_num_aggs .lt. 4 ) then
-          call neko_error("TAMG: Too many levels. Not enough DOFs for coarsest grid.")
+          call neko_error( &
+               "TAMG: Too many levels. Not enough DOFs for coarsest grid.")
        end if
        call aggregate_greedy( this%amg, mlvl, target_num_aggs, agg_nhbr, asdf)
        agg_nhbr = asdf
@@ -156,7 +159,9 @@ contains
 
     this%nlvls = this%amg%nlvls!TODO: read from parameter
     if (this%nlvls .gt. this%amg%nlvls) then
-       call neko_error("Requested number multigrid levels is greater than the initialized AMG levels")
+       call neko_error( &
+            "Requested number multigrid levels &
+            is greater than the initialized AMG levels")
     end if
 
     call get_environment_variable("NEKO_TAMG_CHEBY_DEGREE", &
@@ -170,7 +175,7 @@ contains
     allocate(this%smoo(0:(nlvls)))
     do lvl = 0, nlvls-1
        n = this%amg%lvl(lvl+1)%fine_lvl_dofs
-       call this%smoo(lvl)%init(n ,lvl, cheby_degree)
+       call this%smoo(lvl)%init(n, lvl, cheby_degree)
     end do
 
     !> Allocate work space on each level
@@ -259,14 +264,14 @@ contains
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
-    call mgstuff%smoo(lvl)%solve(x,b, n, amg, .true.)
+    call mgstuff%smoo(lvl)%solve(x, b, n, amg, .true.)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
        return
     end if
     !>----------<!
     !> Residual <!
     !>----------<!
-    call calc_resid(r,x,b,amg,lvl,n)
+    call calc_resid(r, x, b, amg, lvl, n)
     !>----------<!
     !> Restrict <!
     !>----------<!
@@ -333,7 +338,8 @@ contains
       !> Call Coarse solve <!
       !>-------------------<!
       call device_rzero(tmp_d, n)
-      call tamg_mg_cycle_d(tmp, rc, tmp_d, rc_d, amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff)
+      call tamg_mg_cycle_d(tmp, rc, tmp_d, rc_d, &
+           amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff)
       !>----------<!
       !> Project  <!
       !>----------<!
@@ -370,13 +376,14 @@ contains
   end subroutine calc_resid
 
 
-  subroutine print_preagg_info(lvl,nagg)
-    integer, intent(in) :: lvl,nagg
+  subroutine print_preagg_info(lvl, nagg)
+    integer, intent(in) :: lvl, nagg
     character(len=LOG_SIZE) :: log_buf
     !TODO: calculate min and max agg size
-    write(log_buf, '(A8,I2,A31)') '-- level',lvl,'-- Calling Greedy Aggregation'
+    write(log_buf, '(A8,I2,A31)') '-- level', lvl, &
+         '-- Calling Greedy Aggregation'
     call neko_log%message(log_buf)
-    write(log_buf, '(A33,I6)') 'Target Aggregates:',nagg
+    write(log_buf, '(A33,I6)') 'Target Aggregates:', nagg
     call neko_log%message(log_buf)
   end subroutine print_preagg_info
 
@@ -425,8 +432,12 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do l = 1, amg%nlvls
           amg%lvl(l)%map_finest2lvl(0) = n
-          call device_memcpy( amg%lvl(l)%map_finest2lvl, amg%lvl(l)%map_finest2lvl_d, n, HOST_TO_DEVICE, .true.)
-          call device_memcpy( amg%lvl(l)%map_f2c, amg%lvl(l)%map_f2c_d, amg%lvl(l)%fine_lvl_dofs+1, HOST_TO_DEVICE, .true.)
+          call device_memcpy( amg%lvl(l)%map_finest2lvl, &
+               amg%lvl(l)%map_finest2lvl_d, n, &
+               HOST_TO_DEVICE, .true.)
+          call device_memcpy( amg%lvl(l)%map_f2c, &
+               amg%lvl(l)%map_f2c_d, amg%lvl(l)%fine_lvl_dofs+1, &
+               HOST_TO_DEVICE, .true.)
        end do
     end if
   end subroutine fill_lvl_map

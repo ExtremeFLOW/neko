@@ -113,7 +113,7 @@ contains
     this%max_iter = max_iter
     this%recompute_eigs = .true.
 
-    call amg_smoo_monitor(lvl,this)
+    call amg_smoo_monitor(lvl, this)
 
   end subroutine amg_cheby_init
 
@@ -131,7 +131,7 @@ contains
     real(kind=rp) :: wtw, dtw, dtd
     integer :: i
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
-         msh=>amg%msh, Xh=>amg%Xh, blst=>amg%blst)
+         msh => amg%msh, Xh => amg%Xh, blst => amg%blst)
 
       do i = 1, n
          !call random_number(rn)
@@ -171,7 +171,7 @@ contains
       this%dlt = (b-a)/2.0_rp
 
       this%recompute_eigs = .false.
-      call amg_cheby_monitor(this%lvl,lam)
+      call amg_cheby_monitor(this%lvl, lam)
     end associate
   end subroutine amg_cheby_power
 
@@ -204,7 +204,7 @@ contains
     end if
     max_iter = this%max_iter
 
-    associate( w => this%w, r => this%r, d => this%d, blst=>amg%blst)
+    associate( w => this%w, r => this%r, d => this%d, blst => amg%blst)
       call copy(r, f, n)
       if (.not. zero_initial_guess) then
          call amg%matvec(w, x, this%lvl)
@@ -247,7 +247,7 @@ contains
     real(kind=rp) :: wtw, dtw, dtd
     integer :: i
     associate(w => this%w, d => this%d, coef => amg%coef, gs_h => amg%gs_h, &
-         msh=>amg%msh, Xh=>amg%Xh, blst=>amg%blst)
+         msh => amg%msh, Xh => amg%Xh, blst => amg%blst)
       do i = 1, n
          !TODO: replace with a better way to initialize power method
          d(i) = sin(real(i))
@@ -285,7 +285,7 @@ contains
       this%dlt = (b-a)/2.0_rp
 
       this%recompute_eigs = .false.
-      call amg_cheby_monitor(this%lvl,lam)
+      call amg_cheby_monitor(this%lvl, lam)
     end associate
   end subroutine amg_device_cheby_power
 
@@ -320,7 +320,8 @@ contains
     end if
     max_iter = this%max_iter
 
-    associate( w_d => this%w_d, r_d => this%r_d, d_d => this%d_d, blst=>amg%blst)
+    associate( w_d => this%w_d, r_d => this%r_d, d_d => this%d_d, &
+         blst => amg%blst)
       call device_copy(r_d, f_d, n)
       if (.not. zero_initial_guess) then
          call amg%device_matvec(this%w, x, w_d, x_d, this%lvl)
@@ -333,7 +334,7 @@ contains
       rhok = 1.0_rp / s1
 
       call device_cmult2(d_d, r_d, 1.0_rp/thet, n)
-      call device_add2(x_d,d_d,n)
+      call device_add2(x_d, d_d, n)
       do iter = 1, max_iter
          call amg%device_matvec(this%w, this%d, w_d, d_d, this%lvl)
          call device_sub2(r_d, w_d, n)
@@ -344,7 +345,7 @@ contains
          rhok = rhokp1
 
          call device_add3s2(d_d, d_d, r_d, tmp1, tmp2, n)
-         call device_add2(x_d,d_d,n)
+         call device_add2(x_d, d_d, n)
       end do
     end associate
   end subroutine amg_device_cheby_solve
@@ -429,23 +430,24 @@ contains
     end associate
   end subroutine amg_jacobi_solve
 
-  subroutine amg_smoo_monitor(lvl,smoo)
+  subroutine amg_smoo_monitor(lvl, smoo)
     integer, intent(in) :: lvl
     class(amg_cheby_t), intent(in) :: smoo
     character(len=LOG_SIZE) :: log_buf
 
-    write(log_buf, '(A8,I2,A28)') '-- level',lvl,'-- init smoother: Chebyshev'
+    write(log_buf, '(A8,I2,A28)') '-- level', lvl, '-- init smoother: Chebyshev'
     call neko_log%message(log_buf)
-    write(log_buf, '(A22,I6)') 'Iterations:',smoo%max_iter
+    write(log_buf, '(A22,I6)') 'Iterations:', smoo%max_iter
     call neko_log%message(log_buf)
   end subroutine amg_smoo_monitor
 
-  subroutine amg_cheby_monitor(lvl,lam)
+  subroutine amg_cheby_monitor(lvl, lam)
     integer, intent(in) :: lvl
     real(kind=rp), intent(in) :: lam
     character(len=LOG_SIZE) :: log_buf
 
-    write(log_buf, '(A12,I2,A29,F12.3)') '-- AMG level',lvl,'-- Chebyshev approx. max eig', lam
+    write(log_buf, '(A12,I2,A29,F12.3)') '-- AMG level', lvl, &
+         '-- Chebyshev approx. max eig', lam
     call neko_log%message(log_buf)
   end subroutine amg_cheby_monitor
 
