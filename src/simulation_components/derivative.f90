@@ -69,8 +69,8 @@ module derivative
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => derivative_init_from_json
      !> Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-          derivative_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          derivative_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => derivative_free
      !> Compute the derivative field.
@@ -99,11 +99,11 @@ contains
     call this%init_base(json, case)
     call this%writer%init(json, case)
 
-    call derivative_init_from_attributes(this, fieldname, direction)
+    call derivative_init_from_components(this, fieldname, direction)
   end subroutine derivative_init_from_json
 
   !> Actual constructor.
-  subroutine derivative_init_from_attributes(this, fieldname, direction)
+  subroutine derivative_init_from_components(this, fieldname, direction)
     class(derivative_t), intent(inout) :: this
     character(len=*) :: fieldname
     character(len=*) :: direction
@@ -128,7 +128,7 @@ contains
     else
        call neko_error("The direction of the derivative must be x, y or z")
     end if
-  end subroutine derivative_init_from_attributes
+  end subroutine derivative_init_from_components
 
   !> Destructor.
   subroutine derivative_free(this)
