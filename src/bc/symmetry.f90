@@ -100,8 +100,10 @@ contains
   !> Finalize.
   !! Marks the appropriate faces for application of a homogeneous Dirchlet
   !! condition based on the direction of the axis normal.
-  subroutine symmetry_finalize(this)
+  subroutine symmetry_finalize(this, only_facets)
     class(symmetry_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
+    logical :: only_facets_ = .false.
     integer :: i, m, j, l
     type(tuple_i4_t), pointer :: bfp(:)
     real(kind=rp) :: sx, sy, sz
@@ -109,10 +111,16 @@ contains
     type(tuple_i4_t) :: bc_facet
     integer :: facet, el
 
-    call this%finalize_base()
+    if (present(only_facets)) then
+       only_facets_ = only_facets
+    else
+       only_facets_ = .false.
+    end if
+
+    call this%finalize_base(only_facets_)
 
     associate(c => this%coef, nx => this%coef%nx, ny => this%coef%ny, &
-              nz => this%coef%nz)
+         nz => this%coef%nz)
       bfp => this%marked_facet%array()
       do i = 1, this%marked_facet%size()
          bc_facet = bfp(i)
@@ -133,9 +141,9 @@ contains
          end if
       end do
     end associate
-    call this%bc_x%finalize()
-    call this%bc_y%finalize()
-    call this%bc_z%finalize()
+    call this%bc_x%finalize(only_facets_)
+    call this%bc_y%finalize(only_facets_)
+    call this%bc_z%finalize(only_facets_)
   end subroutine symmetry_finalize
 
   !> Compute the average normal for a facet of an element.
@@ -153,7 +161,7 @@ contains
     type(tuple_i4_t) :: bc_facet
 
     associate(c => this%coef, nx => this%coef%nx, ny => this%coef%ny, &
-              nz => this%coef%nz)
+         nz => this%coef%nz)
       sx = 0.0_rp
       sy = 0d0
       sz = 0d0
@@ -186,7 +194,7 @@ contains
       sx = sx / (c%Xh%lx - 2)**2
       sy = sy / (c%Xh%lx - 2)**2
       sz = sz / (c%Xh%lx - 2)**2
-   end associate
+    end associate
   end subroutine symmetry_get_normal_axis
 
   !> No-op scalar apply
@@ -215,9 +223,9 @@ contains
   subroutine symmetry_apply_vector(this, x, y, z, n, t, tstep, strong)
     class(symmetry_t), intent(inout) :: this
     integer, intent(in) :: n
-    real(kind=rp), intent(inout),  dimension(n) :: x
-    real(kind=rp), intent(inout),  dimension(n) :: y
-    real(kind=rp), intent(inout),  dimension(n) :: z
+    real(kind=rp), intent(inout), dimension(n) :: x
+    real(kind=rp), intent(inout), dimension(n) :: y
+    real(kind=rp), intent(inout), dimension(n) :: z
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong

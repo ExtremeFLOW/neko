@@ -57,7 +57,6 @@ contains
     real(kind=rp) :: cfl
     real(kind=dp) :: start_time_org, start_time, end_time, tstep_start_time
     character(len=LOG_SIZE) :: log_buf
-    integer :: tstep
     character(len=:), allocatable :: restart_file
     logical :: output_at_end, found
     ! for variable_tsteping
@@ -66,7 +65,7 @@ contains
     real(kind=rp) :: rho, mu, cp, lambda
 
     C%time%t = 0d0
-    tstep = 0
+    C%time%tstep = 0
     call neko_log%section('Starting simulation')
     write(log_buf, '(A, E15.7,A,E15.7,A)') &
          'T  : [', 0d0, ',', C%time%end_time, ']'
@@ -104,23 +103,23 @@ contains
 
     do while (C%time%t .lt. C%time%end_time .and. (.not. jobctrl_time_limit()))
        call profiler_start_region('Time-Step')
-       tstep = tstep + 1
+       C%time%tstep = C%time%tstep + 1
        start_time = MPI_WTIME()
        tstep_start_time = start_time
        if (dt_controller%dt_last_change .eq. 0) then
           cfl_avrg = cfl
        end if
-       call dt_controller%set_dt(C%time%dt, cfl, cfl_avrg, tstep)
+       call dt_controller%set_dt(C%time%dt, cfl, cfl_avrg, C%time%tstep)
        !calculate the cfl after the possibly varied dt
        cfl = C%fluid%compute_cfl(C%time%dt)
 
        ! advance time step from t to t+dt
        !Update to just pass time_struct
        call simulation_settime(C%time%t, C%time%dt, C%fluid%ext_bdf, &
-            C%time%tlag, C%time%dtlag, tstep)
+            C%time%tlag, C%time%dtlag, C%time%tstep)
 
        call neko_log%status(C%time%t, C%time%end_time)
-       write(log_buf, '(A,I6)') 'Time-step: ', tstep
+       write(log_buf, '(A,I6)') 'Time-step: ', C%time%tstep
        call neko_log%message(log_buf)
        call neko_log%begin()
 
@@ -133,7 +132,7 @@ contains
        call neko_log%end_section()
 
        call neko_log%section('Fluid')
-       call C%fluid%step(C%time%t, tstep, C%time%dt, C%fluid%ext_bdf, &
+       call C%fluid%step(C%time%t, C%time%tstep, C%time%dt, C%fluid%ext_bdf, &
             dt_controller)
        end_time = MPI_WTIME()
        write(log_buf, '(A,E15.7)') &
@@ -147,7 +146,7 @@ contains
        if (allocated(C%scalar)) then
           start_time = MPI_WTIME()
           call neko_log%section('Scalar')
-          call C%scalar%step(C%time%t, tstep, C%time%dt, C%fluid%ext_bdf, &
+          call C%scalar%step(C%time%t, C%time%tstep, C%time%dt, C%fluid%ext_bdf, &
                dt_controller)
           end_time = MPI_WTIME()
           write(log_buf, '(A,E15.7)') &
@@ -172,7 +171,7 @@ contains
        mu = C%fluid%mu
 
        ! Update material properties
-       call C%usr%material_properties(C%time%t, tstep, rho, mu, cp, lambda, &
+       call C%usr%material_properties(C%time%t, C%time%tstep, rho, mu, cp, lambda, &
             C%params)
 
        !> @todo Temporary fix until we have reworked the material properties
@@ -186,7 +185,7 @@ contains
           call C%scalar%update_material_properties()
        end if
 
-       call C%usr%user_check(C%time%t, tstep, C%fluid%u, C%fluid%v, C%fluid%w, &
+       call C%usr%user_check(C%time%t, C%time%tstep, C%fluid%u, C%fluid%v, C%fluid%w, &
             C%fluid%p, C%fluid%c_Xh, C%params)
 
        call C%output_controller%execute(C%time)
@@ -195,7 +194,7 @@ contains
        end_time = MPI_WTIME()
        call neko_log%section('Step summary')
        write(log_buf, '(A,I8,A,E15.7)') &
-            'Total time for step ', tstep, ' (s): ', end_time-tstep_start_time
+            'Total time for step ', C%time%tstep, ' (s): ', end_time-tstep_start_time
        call neko_log%message(log_buf)
        write(log_buf, '(A,E15.7)') &
             'Total elapsed time (s):           ', end_time-start_time_org
