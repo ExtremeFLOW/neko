@@ -212,12 +212,12 @@ contains
     integer :: i
 
     if (present(only_facets)) then
-       only_facets_ = only_facets
-    else
-       only_facets_ = .false.
+       if (only_facets .eqv. .false.) then
+          call neko_error("For neumann_t, only_facets has to be true.")
+       end if
     end if
 
-    call this%finalize_base(only_facets_)
+    call this%finalize_base(.true.)
 
     call this%flux_%init(this%msk(0))
 
