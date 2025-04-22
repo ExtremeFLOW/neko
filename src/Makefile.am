@@ -524,12 +524,21 @@ if ENABLE_ADIOS2
 #neko_LDADD = \
 #	io/adios2_example.o
 #
+# With the previous build system, the correct method was:
 #
-io/nek_adios2.o: io/nek_adios2.cpp
-	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ -c $^
+#io/nek_adios2.o: io/nek_adios2.cpp	
+#	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ -c $^
+
+#libneko_la_LIBADD = \
+#	io/nek_adios2.o
+#
+# Now, use libtools to wrap everything
+
+io/nek_adios2.lo: io/nek_adios2.cpp
+	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
 
 libneko_la_LIBADD = \
-	io/nek_adios2.o
+        io/nek_adios2.lo
 
 #neko_LDADD = \
 #	io/nek_adios2.o

@@ -47,7 +47,7 @@ module field_dirichlet
   use json_module, only : json_file
   use field_list, only : field_list_t
   use json_utils, only : json_get
-  use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t    
+  use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
   implicit none
   private
 
@@ -178,7 +178,11 @@ contains
 
     if (strong_) then
 
-       call this%update(this%field_list, this, this%coef, t, tstep)
+       if (.not. this%updated) then
+          call this%update(this%field_list, this, this%coef, t, tstep)
+          this%updated = .true.
+       end if
+
        call masked_copy(x, this%field_bc%x, this%msk, n, this%msk(0))
     end if
 
@@ -199,7 +203,11 @@ contains
     if (present(strong)) strong_ = strong
 
     if (strong_) then
-       call this%update(this%field_list, this, this%coef, t, tstep)
+       if (.not. this%updated) then
+          call this%update(this%field_list, this, this%coef, t, tstep)
+          this%updated = .true.
+       end if
+
        if (this%msk(0) .gt. 0) then
           call device_masked_copy(x_d, this%field_bc%x_d, this%msk_d, &
                this%field_bc%dof%size(), this%msk(0))
@@ -226,7 +234,7 @@ contains
     logical, intent(in), optional :: strong
 
     call neko_error("field_dirichlet cannot apply vector BCs.&
-         & Use field_dirichlet_vector instead!")
+    & Use field_dirichlet_vector instead!")
 
   end subroutine field_dirichlet_apply_vector
 
@@ -247,14 +255,22 @@ contains
     logical, intent(in), optional :: strong
 
     call neko_error("field_dirichlet cannot apply vector BCs.&
-         & Use field_dirichlet_vector instead!")
+    & Use field_dirichlet_vector instead!")
 
   end subroutine field_dirichlet_apply_vector_dev
 
   !> Finalize
-  subroutine field_dirichlet_finalize(this)
+  subroutine field_dirichlet_finalize(this, only_facets)
     class(field_dirichlet_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
+    logical :: only_facets_ = .false.
 
-    call this%finalize_base()
+    if (present(only_facets)) then
+       only_facets_ = only_facets
+    else
+       only_facets_ = .false.
+    end if
+
+    call this%finalize_base(only_facets_)
   end subroutine field_dirichlet_finalize
 end module field_dirichlet

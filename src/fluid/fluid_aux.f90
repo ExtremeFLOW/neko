@@ -5,6 +5,7 @@ module fluid_aux
   use krylov, only : ksp_monitor_t
   use, intrinsic :: ieee_arithmetic, only: ieee_is_nan
   use utils, only : neko_error, neko_warning
+  use comm, only : pe_rank
   implicit none
   private
 
@@ -61,17 +62,17 @@ contains
           call neko_error("Fluid solver diverged")
        end if
 
-       if (.not. ksp_results(i)%converged) then
-          log_buf = 'Fluid solver did not converge for '
+       if ((.not. ksp_results(i)%converged) .and. (pe_rank .eq. 0)) then
+          log_buf = 'Fluid solver did not converge for'
           select case(i)
-            case(1)
-             log_buf = trim(log_buf) // 'pressure'
-            case(2)
-             log_buf = trim(log_buf) // 'x-velocity'
-            case(3)
-             log_buf = trim(log_buf) // 'y-velocity'
-            case(4)
-             log_buf = trim(log_buf) // 'z-velocity'
+          case(1)
+             log_buf = trim(log_buf) // ' pressure'
+          case(2)
+             log_buf = trim(log_buf) // ' x-velocity'
+          case(3)
+             log_buf = trim(log_buf) // ' y-velocity'
+          case(4)
+             log_buf = trim(log_buf) // ' z-velocity'
           end select
 
           if (strict_convergence) then
