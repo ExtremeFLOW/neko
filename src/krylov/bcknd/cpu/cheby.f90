@@ -120,7 +120,7 @@ contains
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp) :: lam, b, a, rn
-    real(kind=rp) :: boost = 1.2_rp
+    real(kind=rp) :: boost = 1.1_rp
     real(kind=rp) :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
     integer :: i
@@ -139,6 +139,7 @@ contains
          call ax%compute(w, d, coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD)
          call blst%apply(w, n)
+         call this%M%solve(w, w, n)
 
          wtw = glsc3(w, coef%mult, w, n)
          call cmult2(d, w, 1.0_rp/sqrt(wtw), n)
@@ -148,6 +149,7 @@ contains
       call ax%compute(w, d, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD)
       call blst%apply(w, n)
+      call this%M%solve(w, w, n)
 
       dtw = glsc3(d, coef%mult, w, n)
       dtd = glsc3(d, coef%mult, d, n)
