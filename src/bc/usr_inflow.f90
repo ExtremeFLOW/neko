@@ -40,6 +40,7 @@ module usr_inflow
   use utils, only : neko_error, nonlinear_index, neko_warning
   use bc, only : bc_t
   use json_module, only : json_file
+  use, intrinsic :: iso_c_binding
   implicit none
   private
 
@@ -276,7 +277,7 @@ contains
            (this%msk(0) .gt. 0)) then
          allocate(x(m), y(m), z(m)) ! Temp arrays
 
-         s = m*rp
+         s = m * c_sizeof(x(1))
 
          call device_alloc(usr_x_d, s)
          call device_alloc(usr_y_d, s)

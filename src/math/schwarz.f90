@@ -60,13 +60,13 @@
 !> Overlapping schwarz solves
 module schwarz
   use num_types, only : rp, i8
-  use math, only : rzero
+  use math, only : rzero, rone
   use mesh, only : mesh_t
   use space, only : space_t, GLL
   use dofmap, only : dofmap_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use device_schwarz
-  use device_math, only : device_rzero
+  use device_math, only : device_rzero, device_col2
   use fdm, only : fdm_t
   use device, only : device_map, device_alloc, device_memcpy, &
        device_event_create, HOST_TO_DEVICE, DEVICE_TO_HOST, &
