@@ -59,18 +59,20 @@
 !
 !> Overlapping schwarz solves
 module schwarz
-  use num_types
-  use math
-  use mesh
-  use space
+  use num_types, only : rp, i8
+  use math, only : rzero
+  use mesh, only : mesh_t
+  use space, only : space_t, GLL
   use dofmap, only : dofmap_t
-  use bc
-  use gather_scatter
+  use gather_scatter, only : gs_t, GS_OP_ADD
   use device_schwarz
-  use device_math
+  use device_math, only : device_rzero
   use fdm, only : fdm_t
-  use device
-  use neko_config
+  use device, only : device_map, device_alloc, device_memcpy, &
+       device_event_create, HOST_TO_DEVICE, DEVICE_TO_HOST, &
+       device_get_ptr, glb_cmd_queue, aux_cmd_queue, &
+       device_event_record, device_event_sync, device_stream_wait_event
+  use neko_config, only : NEKO_BCKND_DEVICE
   use bc_list, only : bc_list_t
   use, intrinsic :: iso_c_binding
   implicit none
