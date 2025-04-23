@@ -43,7 +43,7 @@ module neumann
   use vector, only: vector_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_copy
-  use device, only : HOST_TO_DEVICE, device_memcpy, device_free, device_map, DEVICE_TO_HOST
+  use device, only : device_memcpy, DEVICE_TO_HOST
   use device_neumann, only : device_neumann_apply_scalar
   implicit none
   private
@@ -258,10 +258,13 @@ contains
 
     this%flux_ = flux
 
-    ! ONLY WORKS ON THE CPU
     this%uniform_0 = .true.
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%flux_%x, this%flux_%x_d, this%flux_%n, &
+            DEVICE_TO_HOST, sync=.true.)
+    end if
     do i = 1,this%msk(0)
-       this%uniform_0 = abscmp(flux%x(i), 0.0_rp) .and. this%uniform_0
+       this%uniform_0 = abscmp(this%flux_%x(i), 0.0_rp) .and. this%uniform_0
     end do
 
   end subroutine neumann_set_flux_array
