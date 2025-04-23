@@ -250,12 +250,15 @@ contains
        n = size(vec_in)
        !> Call local finite element assembly
        call this%gs_h%op(vec_in, n, GS_OP_ADD)
-       call col2( vec_in, this%coef%mult(1,1,1,1), n)
-       !>
+       call col2( vec_in, this%coef%mult, n)
+
        call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
-       !>
        call this%gs_h%op(vec_out, n, GS_OP_ADD)
        call this%blst%apply(vec_out, n)
+
+       if (lvl_out .ne. 0) then
+          call col2(vec_out, this%coef%mult, n)
+       end if
        !>
     else !> pass down through hierarchy
        if (lvl_out .ge. lvl) then
@@ -264,7 +267,6 @@ contains
           associate( wrk_in => this%lvl(lvl)%wrk_in, wrk_out => this%lvl(lvl)%wrk_out)
             n = this%lvl(lvl)%fine_lvl_dofs
             call rzero(wrk_in, n)
-            call rzero(wrk_out, n)
             call rzero(vec_out, this%lvl(lvl)%nnodes)
             do n = 1, this%lvl(lvl)%nnodes
                associate (node => this%lvl(lvl)%nodes(n))
@@ -305,25 +307,13 @@ contains
     integer :: i, n, cdof, lvl
 
     lvl = lvl_out
+    n = this%lvl(1)%fine_lvl_dofs
     if (lvl .eq. 0) then !> isleaf true
-       !> If on finest level, pass to neko ax_t matvec operator
-       n = size(vec_in)
-       !> Call local finite element assembly
-       call this%gs_h%op(vec_in, n, GS_OP_ADD)
-       call col2( vec_in, this%coef%mult(1,1,1,1), n)
-       !>
        call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
-       !>
        call this%gs_h%op(vec_out, n, GS_OP_ADD)
        call this%blst%apply(vec_out, n)
-       !>
     else !> pass down through hierarchy
-
        associate( wrk_in => this%lvl(1)%wrk_in, wrk_out => this%lvl(1)%wrk_out)
-         n = size(wrk_in)
-         call rzero(wrk_out, n)
-         call rzero(vec_out, this%lvl(lvl)%nnodes)
-
          !> Map input level to finest level
          do i = 1, n
             cdof = this%lvl(lvl)%map_finest2lvl(i)
@@ -332,21 +322,22 @@ contains
 
          !> Average on overlapping dofs
          call this%gs_h%op(wrk_in, n, GS_OP_ADD)
-         call col2( wrk_in, this%coef%mult(1,1,1,1), n)
+         call col2( wrk_in, this%coef%mult, n)
+
          !> Finest level matvec (Call local finite element assembly)
          call this%ax%compute(wrk_out, wrk_in, this%coef, this%msh, this%Xh)
-         !>
          call this%gs_h%op(wrk_out, n, GS_OP_ADD)
          call this%blst%apply(wrk_out, n)
-         !>
+
+         call col2(wrk_out, this%coef%mult, n)
 
          !> Map finest level matvec back to output level
+         call rzero(vec_out, this%lvl(lvl)%nnodes)
          do i = 1, n
             cdof = this%lvl(lvl)%map_finest2lvl(i)
             vec_out(cdof) = vec_out(cdof) + wrk_out( i )
          end do
        end associate
-
     end if
   end subroutine tamg_matvec_flat_impl
 
@@ -364,6 +355,9 @@ contains
     integer :: i, n, node_start, node_end, node_id
 
     vec_out = 0d0
+    if (lvl-1 .eq. 0) then
+       call col2(vec_in, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
+    end if
     do n = 1, this%lvl(lvl)%nnodes
        associate (node => this%lvl(lvl)%nodes(n))
          do i = 1, node%ndofs
@@ -371,15 +365,6 @@ contains
          end do
        end associate
     end do
-    !do n = 1, this%lvl(lvl)%nnodes
-    !  node_start = this%lvl(lvl)%nodes_ptr(n)
-    !  node_end   = this%lvl(lvl)%nodes_ptr(n+1)-1
-    !  node_id    = this%lvl(lvl)%nodes_gid(n)
-    !  do i = node_start, node_end
-    !    vec_out( node_id ) = vec_out( node_id ) + &
-    !      vec_in( this%lvl(lvl)%nodes_dofs(i) )
-    !  end do
-    !end do
   end subroutine tamg_restriction_operator
 
   !> Prolongation operator for TreeAMG. vec_out = P * vec_in
@@ -401,15 +386,10 @@ contains
          end do
        end associate
     end do
-    !do n = 1, this%lvl(lvl)%nnodes
-    !  node_start = this%lvl(lvl)%nodes_ptr(n)
-    !  node_end   = this%lvl(lvl)%nodes_ptr(n+1)-1
-    !  node_id    = this%lvl(lvl)%nodes_gid(n)
-    !  do i = node_start, node_end
-    !    vec_out( this%lvl(lvl)%nodes_dofs(i) ) = vec_out( this%lvl(lvl)%nodes_dofs(i) ) + &
-    !      vec_in(node_id)
-    !  end do
-    !end do
+    if (lvl-1 .eq. 0) then
+       call this%gs_h%op(vec_out, this%lvl(lvl)%fine_lvl_dofs, GS_OP_ADD)
+       call col2(vec_out, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
+    end if
   end subroutine tamg_prolongation_operator
 
 
@@ -434,19 +414,23 @@ contains
        associate( wrk_in_d => this%lvl(1)%wrk_in_d, wrk_out_d => this%lvl(1)%wrk_out_d)
          !> Map input level to finest level
          call device_masked_red_copy(wrk_in_d, vec_in_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)
+
          !> Average on overlapping dofs
-         call this%gs_h%op(this%lvl(1)%wrk_in, n, GS_OP_ADD)
+         call this%gs_h%op(this%lvl(1)%wrk_in, n, GS_OP_ADD, glb_cmd_event)
          call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
          call device_col2( wrk_in_d, this%coef%mult_d, n)
+
          !> Finest level matvec (Call local finite element assembly)
          call this%ax%compute(this%lvl(1)%wrk_out, this%lvl(1)%wrk_in, this%coef, this%msh, this%Xh)
-         call this%gs_h%op(this%lvl(1)%wrk_out, n, GS_OP_ADD)
+         call this%gs_h%op(this%lvl(1)%wrk_out, n, GS_OP_ADD, glb_cmd_event)
          call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
          call this%blst%apply(this%lvl(1)%wrk_out, n)
+
+         call device_col2( wrk_out_d, this%coef%mult_d, n)
+
          !> Map finest level matvec back to output level
          call device_rzero(vec_out_d, this%lvl(lvl)%nnodes)
          call device_masked_atomic_reduction(vec_out_d, wrk_out_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)
-         !TODO: swap n and m
        end associate
 
     end if
@@ -460,12 +444,16 @@ contains
     integer :: i, n, m
     n = this%lvl(lvl)%nnodes
     m = this%lvl(lvl)%fine_lvl_dofs
+    if (lvl-1 .eq. 0) then
+       call device_col2(vec_in_d, this%coef%mult_d, m)
+    end if
     call device_rzero(vec_out_d, n)
     call device_masked_atomic_reduction(vec_out_d, vec_in_d, this%lvl(lvl)%map_f2c_d, n, m)
   end subroutine tamg_device_restriction_operator
 
-  subroutine tamg_device_prolongation_operator(this, vec_out_d, vec_in_d, lvl)
+  subroutine tamg_device_prolongation_operator(this, vec_out_d, vec_in_d, lvl, vec_out)
     class(tamg_hierarchy_t), intent(inout) :: this
+    real(kind=rp), intent(inout) :: vec_out(:)
     type(c_ptr) :: vec_out_d
     type(c_ptr) :: vec_in_d
     integer, intent(in) :: lvl
@@ -473,6 +461,11 @@ contains
     n = this%lvl(lvl)%nnodes
     m = this%lvl(lvl)%fine_lvl_dofs
     call device_masked_red_copy(vec_out_d, vec_in_d, this%lvl(lvl)%map_f2c_d, n, m)
+    if (lvl-1 .eq. 0) then
+       call this%gs_h%op(vec_out, m, GS_OP_ADD, glb_cmd_event)
+       call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+       call device_col2( vec_out_d, this%coef%mult_d, m)
+    end if
   end subroutine tamg_device_prolongation_operator
 
 end module tree_amg
