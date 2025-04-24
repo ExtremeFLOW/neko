@@ -162,6 +162,7 @@ contains
 
        call device_map(this%xbar, this%xbar_d, n)
        call device_alloc(this%alpha_d, int(c_sizeof(dummy)*this%L, c_size_t))
+
        call device_rzero(this%xbar_d, n)
        call device_rzero(this%alpha_d, this%L)
 
