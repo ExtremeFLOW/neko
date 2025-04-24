@@ -40,8 +40,7 @@ module scalar_scheme
   use field_list, only: field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy, &
-       KSP_MAX_ITER
+  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
@@ -78,6 +77,8 @@ module scalar_scheme
 
   !> Base type for a scalar advection-diffusion solver.
   type, abstract :: scalar_scheme_t
+     !> A name that can be used to distinguish this solver in e.g. user routines
+     character(len=:), allocatable :: name
      !> x-component of Velocity
      type(field_t), pointer :: u
      !> y-component of Velocity
@@ -117,7 +118,7 @@ module scalar_scheme
      !> Mesh.
      type(mesh_t), pointer :: msh => null()
      !> Checkpoint for restarts.
-     type(chkp_t) :: chkp
+     type(chkp_t), pointer :: chkp => null()
      !> Thermal diffusivity.
      real(kind=rp) :: lambda
      !> The variable lambda field
@@ -160,14 +161,15 @@ module scalar_scheme
 
   !> Abstract interface to initialize a scalar formulation
   abstract interface
-     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, user, &
-          ulag, vlag, wlag, time_scheme, rho)
+     subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, &
+          numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
        import scalar_scheme_t
        import json_file
        import coef_t
        import gs_t
        import mesh_t
        import user_t
+       import chkp_t
        import field_series_t
        import time_scheme_controller_t
        import rp
@@ -176,7 +178,9 @@ module scalar_scheme
        type(coef_t), target, intent(in) :: coef
        type(gs_t), target, intent(inout) :: gs
        type(json_file), target, intent(inout) :: params
+       type(json_file), target, intent(inout) :: numerics_params
        type(user_t), target, intent(in) :: user
+       type(chkp_t), target, intent(inout) :: chkp
        type(field_series_t), target, intent(in) :: ulag, vlag, wlag
        type(time_scheme_controller_t), target, intent(in) :: time_scheme
        real(kind=rp), intent(in) :: rho
@@ -185,12 +189,12 @@ module scalar_scheme
 
   !> Abstract interface to restart a scalar formulation
   abstract interface
-     subroutine scalar_scheme_restart_intrf(this, dtlag, tlag)
+     subroutine scalar_scheme_restart_intrf(this, chkp)
        import scalar_scheme_t
        import chkp_t
        import rp
        class(scalar_scheme_t), target, intent(inout) :: this
-       real(kind=rp) :: dtlag(10), tlag(10)
+       type(chkp_t), intent(inout) :: chkp
      end subroutine scalar_scheme_restart_intrf
   end interface
 
@@ -225,7 +229,7 @@ contains
   !! @param msh The mesh.
   !! @param c_Xh The coefficients.
   !! @param gs_Xh The gather-scatter.
-  !! @param params The case parameter file in json.
+  !! @param params The parameter dictionary in json.
   !! @param scheme The name of the scalar scheme.
   !! @param user Type with user-defined procedures.
   !! @param rho The density of the fluid.
@@ -245,29 +249,34 @@ contains
     logical :: logical_val
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val, ierr
-    character(len=:), allocatable :: solver_type, solver_precon
+    character(len=:), allocatable :: solver_type, solver_precon, field_name
     real(kind=rp) :: GJP_param_a, GJP_param_b
 
     this%u => neko_field_registry%get_field('u')
     this%v => neko_field_registry%get_field('v')
     this%w => neko_field_registry%get_field('w')
 
+    ! Assign a name
+    call json_get_or_default(params, 'name', this%name, 'scalar')
+
     call neko_log%section('Scalar')
-    call json_get(params, 'case.scalar.solver.type', solver_type)
-    call json_get(params, 'case.scalar.solver.preconditioner', &
+    call json_get(params, 'solver.type', solver_type)
+    call json_get(params, 'solver.preconditioner', &
          solver_precon)
-    call json_get(params, 'case.scalar.solver.absolute_tolerance', &
+    call json_get(params, 'solver.absolute_tolerance', &
          solver_abstol)
 
     call json_get_or_default(params, &
-         'case.scalar.solver.projection_space_size', &
-         this%projection_dim, 20)
+         'solver.projection_space_size', &
+         this%projection_dim, 0)
     call json_get_or_default(params, &
-         'case.scalar.solver.projection_hold_steps', &
+         'solver.projection_hold_steps', &
          this%projection_activ_step, 5)
 
 
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Name       : ', trim(this%name)
     call neko_log%message(log_buf)
     call neko_log%message('Ksp scalar : ('// trim(solver_type) // &
          ', ' // trim(solver_precon) // ')')
@@ -278,10 +287,14 @@ contains
     this%dm_Xh => this%u%dof
     this%params => params
     this%msh => msh
-    if (.not. neko_field_registry%field_exists('s')) then
-       call neko_field_registry%add_field(this%dm_Xh, 's')
+
+    call json_get_or_default(params, 'field_name', field_name, 's')
+
+    if (.not. neko_field_registry%field_exists(field_name)) then
+       call neko_field_registry%add_field(this%dm_Xh, field_name)
     end if
-    this%s => neko_field_registry%get_field('s')
+
+    this%s => neko_field_registry%get_field(field_name)
 
     call this%slag%init(this%s, 2)
 
@@ -304,9 +317,9 @@ contains
     !
     ! Turbulence modelling and variable material properties
     !
-    if (params%valid_path('case.scalar.nut_field')) then
-       call json_get(params, 'case.scalar.Pr_t', this%pr_turb)
-       call json_get(params, 'case.scalar.nut_field', this%nut_field_name)
+    if (params%valid_path('nut_field')) then
+       call json_get(params, 'Pr_t', this%pr_turb)
+       call json_get(params, 'nut_field', this%nut_field_name)
        this%variable_material_properties = .true.
     else
        this%nut_field_name = ""
@@ -332,14 +345,14 @@ contains
 
     ! Initialize the source term
     call this%source_term%init(this%f_Xh, this%c_Xh, user)
-    call this%source_term%add(params, 'case.scalar.source_terms')
+    call this%source_term%add(params, 'source_terms')
 
     ! todo parameter file ksp tol should be added
     call json_get_or_default(params, &
-         'case.fluid.velocity_solver.max_iterations', &
+         'solver.max_iterations', &
          integer_val, KSP_MAX_ITER)
     call json_get_or_default(params, &
-         'case.fluid.velocity_solver.monitor', &
+         'solver.monitor', &
          logical_val, .false.)
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, integer_val, solver_abstol, logical_val)
@@ -348,21 +361,21 @@ contains
 
     ! Initiate gradient jump penalty
     call json_get_or_default(params, &
-         'case.scalar.gradient_jump_penalty.enabled',&
+         'gradient_jump_penalty.enabled',&
          this%if_gradient_jump_penalty, .false.)
 
     if (this%if_gradient_jump_penalty .eqv. .true.) then
        if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
           call json_get_or_default(params, &
-               'case.scalar.gradient_jump_penalty.tau',&
+               'gradient_jump_penalty.tau',&
                GJP_param_a, 0.02_rp)
           GJP_param_b = 0.0_rp
        else
           call json_get_or_default(params, &
-               'case.scalar.gradient_jump_penalty.scaling_factor',&
+               'gradient_jump_penalty.scaling_factor',&
                GJP_param_a, 0.8_rp)
           call json_get_or_default(params, &
-               'case.scalar.gradient_jump_penalty.scaling_exponent',&
+               'gradient_jump_penalty.scaling_exponent',&
                GJP_param_b, 4.0_rp)
        end if
        call this%gradient_jump_penalty%init(params, this%dm_Xh, this%c_Xh, &
@@ -385,7 +398,7 @@ contains
     nullify(this%params)
 
     if (allocated(this%ksp)) then
-       call krylov_solver_destroy(this%ksp)
+       call this%ksp%free()
        deallocate(this%ksp)
     end if
 
@@ -443,12 +456,6 @@ contains
     if (.not. associated(this%params)) then
        call neko_error('No parameters defined')
     end if
-
-    !
-    ! Setup checkpoint structure (if everything is fine)
-    !
-!    @todo no io for now
-!    call this%chkp%init(this%u, this%v, this%w, this%p)
 
   end subroutine scalar_scheme_validate
 
@@ -525,7 +532,7 @@ contains
   end subroutine scalar_scheme_update_material_properties
 
   !> Set lamdba and cp.
-  !! @param params The case parameter file.
+  !! @param params The case file configuration dictionary.
   !! @param user The user interface.
   subroutine scalar_scheme_set_material_properties(this, params, user)
     class(scalar_scheme_t), intent(inout) :: this
@@ -540,21 +547,21 @@ contains
 
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
 
-       write(log_buf, '(A)') "Material properties must be set in the user&
-            & file!"
+       write(log_buf, '(A)') "Material properties must be set in the user " // &
+            "file!"
        call neko_log%message(log_buf)
        call user%material_properties(0.0_rp, 0, dummy_rho, dummy_mu, &
             this%cp, this%lambda, params)
     else
-       if (params%valid_path('case.scalar.Pe') .and. &
-            (params%valid_path('case.scalar.lambda') .or. &
-            params%valid_path('case.scalar.cp'))) then
-          call neko_error("To set the material properties for the scalar,&
-               & either provide Pe OR lambda and cp in the case file.")
+       if (params%valid_path('Pe') .and. &
+            (params%valid_path('lambda') .or. &
+            params%valid_path('cp'))) then
+          call neko_error("To set the material properties for the scalar, " // &
+               "either provide Pe OR lambda and cp in the case file.")
           ! Non-dimensional case
-       else if (params%valid_path('case.scalar.Pe')) then
-          write(log_buf, '(A)') 'Non-dimensional scalar material properties &
-               & input.'
+       else if (params%valid_path('Pe')) then
+          write(log_buf, '(A)') 'Non-dimensional scalar material properties' //&
+               ' input.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
           write(log_buf, '(A)') 'Specific heat capacity will be set to 1,'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
@@ -562,7 +569,7 @@ contains
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
           ! Read Pe into lambda for further manipulation.
-          call json_get(params, 'case.scalar.Pe', this%lambda)
+          call json_get(params, 'Pe', this%lambda)
           write(log_buf, '(A,ES13.6)') 'Pe         :', this%lambda
           call neko_log%message(log_buf)
 
@@ -573,8 +580,8 @@ contains
           this%lambda = 1.0_rp/this%lambda
           ! Dimensional case
        else
-          call json_get(params, 'case.scalar.lambda', this%lambda)
-          call json_get(params, 'case.scalar.cp', this%cp)
+          call json_get(params, 'lambda', this%lambda)
+          call json_get(params, 'cp', this%cp)
        end if
 
     end if

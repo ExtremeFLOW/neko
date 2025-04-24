@@ -3,4 +3,4 @@ In this case we simulate a lid-driven cavity with smoothened belt velocity to fu
 
 The `lid.box` file needs to be converted to a .re2 file using the Nek5000 tool genbox, and then using rea2nbin into the `lid.nmsh` Neko mesh file.
 
-The cavity flow is stable (steady) up to a Reynolds number of about 8000. The mesh size may be changed in the box file.
+The cavity flow is stable (steady) up to a Reynolds number of about 8000. The mesh size may be changed in the box file. There is also a short postprocessing script to show how to plot the simulation data.

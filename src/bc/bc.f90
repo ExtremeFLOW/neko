@@ -60,13 +60,13 @@ module bc
      !> A list of facet ids (1 to 6), one for each element in msk
      integer, allocatable :: facet(:)
      !> Map of degrees of freedom
-     type(dofmap_t), pointer :: dof
+     type(dofmap_t), pointer :: dof => null()
      !> SEM coefficients
-     type(coef_t), pointer :: coef
+     type(coef_t), pointer :: coef => null()
      !> The mesh
-     type(mesh_t), pointer :: msh
+     type(mesh_t), pointer :: msh => null()
      !> The function space
-     type(space_t), pointer :: Xh
+     type(space_t), pointer :: Xh => null()
      !> Index tuples (facet, element) marked as part of the boundary condition
      type(stack_i4t2_t) :: marked_facet
      !> Device pointer for msk
@@ -78,6 +78,9 @@ module bc
      !! values are not affected.
      !! Mixed bcs are, by convention, weak.
      logical :: strong = .true.
+     !> Indicates wether the bc has been updated, for those BCs that need
+     !! additional computations
+     logical :: updated = .false.
    contains
      !> Constructor
      procedure, pass(this) :: init_base => bc_init_base
@@ -148,9 +151,10 @@ module bc
 
   abstract interface
      !> Finalize by building the mask and facet arrays.
-     subroutine bc_finalize(this)
+     subroutine bc_finalize(this, only_facets)
        import :: bc_t
        class(bc_t), intent(inout), target :: this
+       logical, optional, intent(in) :: only_facets
      end subroutine bc_finalize
   end interface
 
