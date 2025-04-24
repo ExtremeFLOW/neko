@@ -60,6 +60,8 @@ module probes
   private
 
   type, public, extends(simulation_component_t) :: probes_t
+     !> Time after which to start collecting probes
+     real(kind=rp) :: start_time     
      !> Number of output fields
      integer :: n_fields = 0
      type(global_interpolation_t) :: global_interp
@@ -200,6 +202,8 @@ contains
 
     call mpi_allreduce(this%n_local_probes, this%n_global_probes, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+ 
+    call json_get_or_default(json, "start_time", this%start_time, 0.0_rp)
 
     call probes_show(this)
     call this%init_from_components(case%fluid%dm_Xh, output_file)
@@ -585,6 +589,10 @@ contains
             "Field: ", i, " ", trim(this%which_fields(i))
        call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
     end do
+    
+    write (log_buf, '(A,F10.6)') "Start time: ", this%start_time
+    call neko_log%message(log_buf)
+    
     call neko_log%end_section()
     call neko_log%newline()
 
@@ -637,6 +645,8 @@ contains
     type(time_state_t), intent(in) :: time
     integer :: i, ierr
     logical :: do_interp_on_host = .false.
+
+    if (time%t .lt. this%start_time) return
 
     !> Check controller to determine if we must write
     do i = 1, this%n_fields
