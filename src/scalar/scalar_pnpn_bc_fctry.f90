@@ -44,10 +44,10 @@ submodule(scalar_pnpn) scalar_pnpn_bc_fctry
 
   ! List of all possible types created by the boundary condition factories
   character(len=25) :: SCALAR_PNPN_KNOWN_BCS(4) = [character(len=25) :: &
-     "dirichlet", &
-     "user_pointwise", &
-     "user", &
-     "neumann"]
+       "dirichlet", &
+       "user_pointwise", &
+       "user", &
+       "neumann"]
 
 contains
 
@@ -71,26 +71,26 @@ contains
     call json_get(json, "type", type)
 
     select case (trim(type))
-      case ("user_pointwise")
+    case ("user_pointwise")
        allocate(usr_scalar_t::object)
        select type (obj => object)
-         type is (usr_scalar_t)
-            call obj%set_eval(user%scalar_user_bc)
+       type is (usr_scalar_t)
+          call obj%set_eval(user%scalar_user_bc)
        end select
-      case ("user")
+    case ("user")
        allocate(field_dirichlet_t::object)
        select type (obj => object)
-         type is (field_dirichlet_t)
-            obj%update => user%user_dirichlet_update
+       type is (field_dirichlet_t)
+          obj%update => user%user_dirichlet_update
           ! Add the name of the dummy field in the bc, matching the scalar
           ! solved for.
-            call json%add("field_name", scheme%s%name)
+          call json%add("field_name", scheme%s%name)
        end select
-      case ("dirichlet")
+    case ("dirichlet")
        allocate(dirichlet_t::object)
-      case ("neumann")
+    case ("neumann")
        allocate(neumann_t::object)
-      case default
+    case default
        call neko_type_error("scalar_pnpn boundary conditions", type, &
             SCALAR_PNPN_KNOWN_BCS)
     end select

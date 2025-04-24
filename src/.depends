@@ -109,7 +109,7 @@ math/fdm.lo : math/fdm.f90 comm/comm.lo common/utils.lo device/device.lo math/bc
 math/bcknd/cpu/fdm_cpu.lo : math/bcknd/cpu/fdm_cpu.f90 math/bcknd/cpu/tensor_cpu.lo config/num_types.lo 
 math/bcknd/sx/fdm_sx.lo : math/bcknd/sx/fdm_sx.f90 math/bcknd/sx/tensor_sx.lo config/num_types.lo 
 math/bcknd/xsmm/fdm_xsmm.lo : math/bcknd/xsmm/fdm_xsmm.f90 math/bcknd/xsmm/tensor_xsmm.lo config/num_types.lo 
-math/schwarz.lo : math/schwarz.f90 bc/bc_list.lo config/neko_config.lo device/device.lo math/fdm.lo math/bcknd/device/device_math.lo math/bcknd/device/device_schwarz.lo gs/gather_scatter.lo bc/bc.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo config/num_types.lo 
+math/schwarz.lo : math/schwarz.f90 bc/bc_list.lo config/neko_config.lo device/device.lo math/fdm.lo math/bcknd/device/device_math.lo math/bcknd/device/device_schwarz.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo config/num_types.lo 
 math/vector.lo : math/vector.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/num_types.lo math/math.lo config/neko_config.lo 
 math/matrix.lo : math/matrix.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/num_types.lo math/math.lo config/neko_config.lo 
 math/signed_distance.lo : math/signed_distance.f90 adt/stack.lo mesh/search_tree/aabb.lo mesh/point.lo common/utils.lo config/neko_config.lo device/device.lo mesh/aabb_tree.lo mesh/tri_mesh.lo mesh/tri.lo field/field.lo config/num_types.lo 
