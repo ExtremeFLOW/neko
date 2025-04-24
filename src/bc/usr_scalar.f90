@@ -39,7 +39,7 @@ module usr_scalar
   use device_inhom_dirichlet
   use utils, only : neko_error, nonlinear_index, neko_warning
   use json_module, only : json_file
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only: c_sizeof 
   implicit none
   private
 

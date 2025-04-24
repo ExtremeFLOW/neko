@@ -40,7 +40,7 @@ module usr_inflow
   use utils, only : neko_error, nonlinear_index, neko_warning
   use bc, only : bc_t
   use json_module, only : json_file
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only: c_sizeof
   implicit none
   private
 
