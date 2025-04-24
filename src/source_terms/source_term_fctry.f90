@@ -113,13 +113,13 @@ contains
 
     do i = 1, size(SOURCE_KNOWN_TYPES)
        if (trim(type_name) .eq. trim(SOURCE_KNOWN_TYPES(i))) then
-          call neko_type_registration_error("source term", type_name)
+          call neko_type_registration_error("source term", type_name, .true.)
        end if
     end do
 
     do i = 1, source_term_registry_size
        if (trim(type_name) .eq. trim(source_term_registry(i)%type_name)) then
-          call neko_type_registration_error("source term", type_name)
+          call neko_type_registration_error("source term", type_name, .false.)
        end if
     end do
 

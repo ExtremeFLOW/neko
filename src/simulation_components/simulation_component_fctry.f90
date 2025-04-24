@@ -140,14 +140,16 @@ contains
 
     do i = 1, size(SIMCOMPS_KNOWN_TYPES)
        if (trim(type_name) .eq. trim(SIMCOMPS_KNOWN_TYPES(i))) then
-          call neko_type_registration_error("simulation component", type_name)
+          call neko_type_registration_error("simulation component", type_name, &
+               .true.)
        end if
     end do
 
     do i = 1, simulation_component_registry_size
        if (trim(type_name) .eq. &
-           trim(simcomp_registry(i)%type_name)) then
-          call neko_type_registration_error("simulation component", type_name)
+            trim(simcomp_registry(i)%type_name)) then
+          call neko_type_registration_error("simulation component", type_name, &
+          .false.)
        end if
     end do
 

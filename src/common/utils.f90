@@ -202,17 +202,17 @@ contains
 
     is_on = .false.
     select case (facet)
-      case (1)
+    case (1)
        if (i .eq. 1) is_on = .true.
-      case (2)
+    case (2)
        if (i .eq. lx) is_on = .true.
-      case (3)
+    case (3)
        if (j .eq. 1) is_on = .true.
-      case (4)
+    case (4)
        if (j .eq. ly) is_on = .true.
-      case (5)
+    case (5)
        if (k .eq. 1) is_on = .true.
-      case (6)
+    case (6)
        if (k .eq. lz) is_on = .true.
     end select
 
@@ -248,9 +248,9 @@ contains
   !! @param wrong_type The type that was attempted to construct.
   !! @param known_types A list of the types that are known.
   subroutine neko_type_error(base_type, wrong_type, known_types)
-    character(len=*) :: base_type
-    character(len=*) :: wrong_type
-    character(len=*) :: known_types(:)
+    character(len=*), intent(in) :: base_type
+    character(len=*), intent(in) :: wrong_type
+    character(len=*), intent(in) :: known_types(:)
     integer :: i
 
     write(error_unit, *) '*** ERROR WHEN SELECTING TYPE ***'
@@ -262,14 +262,20 @@ contains
     error stop
   end subroutine neko_type_error
 
-  subroutine neko_type_registration_error(base_type, wrong_type)
-    character(len=*) :: base_type
-    character(len=*) :: wrong_type
+  subroutine neko_type_registration_error(base_type, wrong_type, known)
+    character(len=*), intent(in) :: base_type
+    character(len=*),intent(in) :: wrong_type
+    logical, intent(in) :: known
 
     write(error_unit, *) '*** ERROR WHEN REGISTERING TYPE ***'
     write(error_unit, *) 'Type name ', wrong_type, &
          ' conflicts with and already existing ', base_type, " type"
-    write(error_unit, *) 'Please rename your custom type.'
+    if (known) then
+       write(error_unit, *) 'Please rename your custom type.'
+    else
+       write(error_unit, *) 'The already existing type is also custom.' // &
+            ' Make all custom type names unique!'
+    end if
     error stop
   end subroutine neko_type_registration_error
 

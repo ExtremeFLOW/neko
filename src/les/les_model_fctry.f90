@@ -113,13 +113,13 @@ contains
 
     do i = 1, size(LES_KNOWN_TYPES)
        if (trim(type_name) .eq. trim(LES_KNOWN_TYPES(i))) then
-          call neko_type_registration_error("LES model", type_name)
+          call neko_type_registration_error("LES model", type_name, .true.)
        end if
     end do
 
     do i = 1, les_model_registry_size
        if (trim(type_name) .eq. trim(les_model_registry(i)%type_name)) then
-          call neko_type_registration_error("LES model", type_name)
+          call neko_type_registration_error("LES model", type_name, .false.)
        end if
     end do
 
