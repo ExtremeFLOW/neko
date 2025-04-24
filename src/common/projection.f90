@@ -120,7 +120,8 @@ contains
   subroutine projection_init(this, n, L, activ_step)
     class(projection_t), target, intent(inout) :: this
     integer, intent(in) :: n
-    integer, optional, intent(in) :: L, activ_step
+    integer, intent(in) :: L
+    integer, optional, intent(in) :: activ_step
     integer :: i
     integer(c_size_t) :: ptr_size
     type(c_ptr) :: ptr
@@ -128,11 +129,7 @@ contains
 
     call this%free()
 
-    if (present(L)) then
-       this%L = L
-    else
-       this%L = 20
-    end if
+    this%L = L
 
     if (present(activ_step)) then
        this%activ_step = activ_step
