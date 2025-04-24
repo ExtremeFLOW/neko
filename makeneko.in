@@ -119,9 +119,11 @@ fi
 
 # Register types from local user .f90 files
 if [ $HAS_USER_MODULE -eq 1 ] && [ -n "$TYPEINJECTING_MODULES" ]; then
-    echo "  if (C%usr%suppress_type_injection .eqv. .false.) then " >> usr_driver.f90
+  echo "  if (C%usr%suppress_type_injection .eqv. .false.) then " >> usr_driver.f90
+  for mod in $TYPEINJECTING_MODULES; do
     echo "     call ${mod}_register_types()" >> usr_driver.f90
-    echo "  end if" >> usr_driver.f90
+  done
+  echo "  end if" >> usr_driver.f90
 else
   for mod in $TYPEINJECTING_MODULES; do
     echo "  call ${mod}_register_types()" >> usr_driver.f90
