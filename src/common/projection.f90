@@ -142,6 +142,12 @@ contains
 
     this%m = 0
 
+    ! Return if the space is 0, to avoid allocating zero sized
+    ! arrays, which are not supported for all backends
+    if (this%L .le. 0) then
+       return
+    end if
+
     allocate(this%xx(n, this%L))
     allocate(this%bb(n, this%L))
     allocate(this%xbar(n))
@@ -156,7 +162,6 @@ contains
 
        call device_map(this%xbar, this%xbar_d, n)
        call device_alloc(this%alpha_d, int(c_sizeof(dummy)*this%L, c_size_t))
-
        call device_rzero(this%xbar_d, n)
        call device_rzero(this%alpha_d, this%L)
 
