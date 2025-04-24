@@ -57,7 +57,7 @@ program mesh_checker
      if (pe_rank .eq. 0) then
         write(*,*) 'Usage: ./mesh_checker mesh.nmsh [--write_zone_indices]'
         write(*,*) '--write_zone_indices : write a field file with boundaries &
-             & marked by zone index.'
+        & marked by zone index.'
      end if
      stop
   end if
@@ -80,21 +80,8 @@ program mesh_checker
 
   call mesh_file%read(msh)
 
-  call MPI_Allreduce(msh%inlet%size, inlet_size, 1, &
-       MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-  call MPI_Allreduce(msh%wall%size, wall_size, 1, &
-       MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-  call MPI_Allreduce(msh%outlet%size, outlet_size, 1, &
-       MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-  call MPI_Allreduce(msh%outlet_normal%size, outlet_normal_size, 1, &
-       MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-  call MPI_Allreduce(msh%sympln%size, symmetry_size, 1, &
-       MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
   call MPI_Allreduce(msh%periodic%size, periodic_size, 1, &
        MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-
-  total_size = inlet_size + wall_size + outlet_size + outlet_normal_size &
-       + symmetry_size
 
   if (pe_rank .eq. 0) then
      write(*,*) ''
@@ -105,18 +92,8 @@ program mesh_checker
      write(*,*) 'Number of edges:    ', msh%glb_meds
      write(*,*) ''
      write(*,*) '--------------Zones------------'
-     write(*,*) 'Number of built-in inlet faces:         ', inlet_size
-     write(*,*) 'Number of built-in wall faces:          ', wall_size
-     write(*,*) 'Number of built-in outlet faces:        ', outlet_size
-     write(*,*) 'Number of built-in outlet-normal faces: ', outlet_normal_size
-     write(*,*) 'Number of built-in symmetry faces:      ', symmetry_size
-     write(*,*) 'Number of periodic faces:               ', periodic_size
+     write(*,'(A, I0)') 'Number of periodic faces: ', periodic_size
      write(*,*) ''
-     if (total_size .gt. 0) then
-        write(*,*) 'WARNING: Your mesh contains non-periodic "built-in" zones,&
-             & which are deprecated. Your mesh must have been created natively&
-             & by Nek5000, e.g. with genbox.'
-     end if
      write(*,*) 'Labeled zones: '
   end if
 

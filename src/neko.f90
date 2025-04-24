@@ -58,6 +58,7 @@ module neko
   use global_interpolation
   use file
   use field, only : field_t, field_ptr_t
+  use field_math
   use neko_mpi_types
   use gather_scatter
   use krylov
@@ -79,6 +80,7 @@ module neko
   use projection
   use user_intf
   use signal
+  use time_state
   use jobctrl, only : jobctrl_init, jobctrl_set_time_limit, &
        jobctrl_time_limit, jobctrl_jobtime
   use device
@@ -123,6 +125,9 @@ module neko
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use bc_list, only : bc_list_t
+  use les_model, only : les_model_t
+  use field_writer, only : field_writer_t
+  use time_based_controller, only : time_based_controller_t
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
@@ -178,7 +183,7 @@ contains
        if (argc .gt. 1) then
           write(log_buf, '(a)') 'Running with command line arguments: '
           call neko_log%message(log_buf, NEKO_LOG_QUIET)
-          do i = 2,argc
+          do i = 2, argc
              call get_command_argument(i, args)
              call neko_log%message(args, NEKO_LOG_QUIET)
           end do

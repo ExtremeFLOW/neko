@@ -12,8 +12,8 @@ adios2::Variable<double> f2py_field;
 adios2::Variable<double> py2f_field;
 // Global C variables
 int rank, size;
-int reader_start;
-int reader_count;
+unsigned int reader_start;
+unsigned int reader_count;
 
 extern "C" void adios2_initialize_(
     const int *lxyz,

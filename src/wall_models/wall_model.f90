@@ -46,6 +46,8 @@ module wall_model
   use math, only : glmin, glmax
   use comm, only : pe_rank
   use logger, only : neko_log, NEKO_LOG_DEBUG
+  use file, only : file_t
+  use field_registry, only : neko_field_registry
 
   implicit none
   private
@@ -192,7 +194,7 @@ contains
     this%h_index = index
 
     call neko_field_registry%add_field(this%dof, "tau", &
-                                       ignore_existing = .true.)
+         ignore_existing = .true.)
 
     this%tau_field => neko_field_registry%get_field("tau")
 
@@ -224,16 +226,16 @@ contains
     nullify(this%tau_field)
 
     if (allocated(this%tau_x)) then
-      deallocate(this%tau_x)
+       deallocate(this%tau_x)
     end if
     if (allocated(this%tau_y)) then
-      deallocate(this%tau_y)
+       deallocate(this%tau_y)
     end if
     if (allocated(this%tau_z)) then
-      deallocate(this%tau_z)
+       deallocate(this%tau_z)
     end if
     if (allocated(this%ind_r)) then
-      deallocate(this%ind_r)
+       deallocate(this%ind_r)
     end if
 
     call this%h%free()
@@ -248,15 +250,22 @@ contains
     integer :: n_nodes, fid, idx(4), i, linear
     real(kind=rp) :: normal(3), p(3), x, y, z, xw, yw, zw, magp
     real(kind=rp) :: hmin, hmax
+    type(field_t), pointer :: h_field
+    type(file_t) :: h_file
 
     n_nodes = this%msk(0)
     this%n_nodes = n_nodes
 
+    call neko_field_registry%add_field(this%coef%dof, "sampling_height", &
+         ignore_existing=.true.)
+
+    h_field => neko_field_registry%get_field_by_name("sampling_height")
+
     do i = 1, n_nodes
        linear = this%msk(i)
        fid = this%facet(i)
-       idx = nonlinear_index(linear, this%coef%Xh%lx, this%coef%Xh%lx,&
-                             this%coef%Xh%lx)
+       idx = nonlinear_index(linear, this%coef%Xh%lx, this%coef%Xh%ly,&
+            this%coef%Xh%lz)
        normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), fid)
 
        this%n_x%x(i) = normal(1)
@@ -268,31 +277,31 @@ contains
 
        select case (fid)
        case (1)
-         this%ind_r(i) = idx(1) + this%h_index
-         this%ind_s(i) = idx(2)
-         this%ind_t(i) = idx(3)
+          this%ind_r(i) = idx(1) + this%h_index
+          this%ind_s(i) = idx(2)
+          this%ind_t(i) = idx(3)
        case (2)
-         this%ind_r(i) = idx(1) - this%h_index
-         this%ind_s(i) = idx(2)
-         this%ind_t(i) = idx(3)
+          this%ind_r(i) = idx(1) - this%h_index
+          this%ind_s(i) = idx(2)
+          this%ind_t(i) = idx(3)
        case (3)
-         this%ind_r(i) = idx(1)
-         this%ind_s(i) = idx(2) + this%h_index
-         this%ind_t(i) = idx(3)
+          this%ind_r(i) = idx(1)
+          this%ind_s(i) = idx(2) + this%h_index
+          this%ind_t(i) = idx(3)
        case (4)
-         this%ind_r(i) = idx(1)
-         this%ind_s(i) = idx(2) - this%h_index
-         this%ind_t(i) = idx(3)
+          this%ind_r(i) = idx(1)
+          this%ind_s(i) = idx(2) - this%h_index
+          this%ind_t(i) = idx(3)
        case (5)
-         this%ind_r(i) = idx(1)
-         this%ind_s(i) = idx(2)
-         this%ind_t(i) = idx(3) + this%h_index
+          this%ind_r(i) = idx(1)
+          this%ind_s(i) = idx(2)
+          this%ind_t(i) = idx(3) + this%h_index
        case (6)
-         this%ind_r(i) = idx(1)
-         this%ind_s(i) = idx(2)
-         this%ind_t(i) = idx(3) - this%h_index
+          this%ind_r(i) = idx(1)
+          this%ind_s(i) = idx(2)
+          this%ind_t(i) = idx(3) - this%h_index
        case default
-         call neko_error("The face index is not correct ")
+          call neko_error("The face index is not correct ")
        end select
        this%ind_e(i) = idx(4)
 
@@ -303,12 +312,11 @@ contains
 
        ! Location of the sampling point
        x = this%dof%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
-                      this%ind_e(i))
+            this%ind_e(i))
        y = this%dof%y(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
-                      this%ind_e(i))
+            this%ind_e(i))
        z = this%dof%z(this%ind_r(i), this%ind_s(i), this%ind_t(i), &
-                         this%ind_e(i))
-
+            this%ind_e(i))
 
        ! Vector from the sampling point to the wall
        p(1) = x - xw
@@ -321,34 +329,38 @@ contains
        ! Project on the normal direction to get h
        this%h%x(i) = p(1)*normal(1) + p(2)*normal(2) + p(3)*normal(3)
 
+       h_field%x(linear,1,1,1) = this%h%x(i)
+
        ! Look at how much the total distance distance from the normal and warn
        ! if significant
        if ((this%h%x(i) - magp) / magp > 0.1 &
-           .and. (neko_log%level_ .eq. NEKO_LOG_DEBUG)) then
+            .and. (neko_log%level_ .eq. NEKO_LOG_DEBUG)) then
           write(*,*) "Significant missalignment between wall normal and &
-                   & sampling point direction at wall node", xw, yw, zw
+          & sampling point direction at wall node", xw, yw, zw
        end if
     end do
 
-    hmin = glmin(this%h%x, n_nodes)
+!    hmin = glmin(this%h%x, n_nodes)
 !    hmax = glmax(this%h%x, n_nodes)
-!
 !    if (pe_rank .eq. 0) then
 !       write(*, "(A, F10.4, F10.4)") "   h min / max:", hmin, hmax
 !    end if
 
-
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      call device_memcpy(this%h%x, this%h%x_d, n_nodes, HOST_TO_DEVICE,&
-                         sync = .false.)
-      call device_memcpy(this%n_x%x, this%n_x%x_d, n_nodes, HOST_TO_DEVICE, &
-                         sync = .false.)
-      call device_memcpy(this%n_y%x, this%n_y%x_d, n_nodes, HOST_TO_DEVICE, &
-                         sync = .false.)
-      call device_memcpy(this%n_z%x, this%n_z%x_d, n_nodes, HOST_TO_DEVICE, &
-                         sync = .true.)
+       call device_memcpy(this%h%x, this%h%x_d, n_nodes, HOST_TO_DEVICE,&
+            sync = .false.)
+       call device_memcpy(this%n_x%x, this%n_x%x_d, n_nodes, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%n_y%x, this%n_y%x_d, n_nodes, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%n_z%x, this%n_z%x_d, n_nodes, HOST_TO_DEVICE, &
+            sync = .true.)
     end if
+
+    ! Each wall_model bc will do a write unfortunately... But very helpful
+    ! for setup debugging.
+    h_file = file_t("sampling_height.fld")
+    call h_file%write(h_field)
   end subroutine wall_model_find_points
 
 end module wall_model

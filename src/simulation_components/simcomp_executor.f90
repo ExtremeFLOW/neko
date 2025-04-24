@@ -35,9 +35,11 @@ module simcomp_executor
   use num_types, only : rp
   use simulation_component, only : simulation_component_t, &
        simulation_component_wrapper_t, simulation_component_factory
-  use json_module, only : json_file, json_core, json_value
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_module, only : json_file
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_extract_object
   use case, only : case_t
+  use time_state, only : time_state_t
   use utils, only : neko_error
   use logger, only : neko_log
   implicit none
@@ -92,8 +94,6 @@ contains
     type(case_t), target, intent(inout) :: case
     character(len=*), optional, intent(in) :: simcomp_root
     integer :: n_simcomps, i
-    type(json_core) :: core
-    type(json_value), pointer :: simcomp_object
     type(json_file) :: comp_subdict
     logical :: found, is_user, has_user
     ! Help array for finding minimal values
@@ -116,9 +116,7 @@ contains
     end if
 
     ! Get the core json object and the simulation components object
-    call case%params%get_core(core)
-    call case%params%get(root_name, simcomp_object, found)
-    if (.not. found) return
+    if (.not. (root_name .in. case%params)) return
     call neko_log%section('Initialize simcomp')
 
     ! Set the number of simcomps and allocate the arrays
@@ -135,7 +133,7 @@ contains
     has_user = .false.
     do i = 1, n_simcomps
        ! Create a new json containing just the subdict for this simcomp
-       call json_extract_item(core, simcomp_object, i, comp_subdict)
+       call json_extract_item(case%params, root_name, i, comp_subdict)
 
        call json_get_or_default(comp_subdict, "is_user", is_user, .false.)
        has_user = has_user .or. is_user
@@ -166,7 +164,7 @@ contains
 
     ! Init in the determined order.
     do i = 1, n_simcomps
-       call json_extract_item(core, simcomp_object, order(i), comp_subdict)
+       call json_extract_item(case%params, root_name, order(i), comp_subdict)
 
        ! Log the component type if it is not a user component
        call json_get(comp_subdict, "type", comp_type)
@@ -180,7 +178,7 @@ contains
     if (has_user) then
        call neko_log%message('Initialize user simcomp')
 
-       comp_subdict = json_file(simcomp_object)
+       call json_extract_object(case%params, root_name, comp_subdict)
        call case%usr%init_user_simcomp(comp_subdict)
     end if
 
@@ -332,53 +330,49 @@ contains
   end subroutine simcomp_executor_finalize
 
   !> Execute preprocess_ for all simcomps.
-  !! @param t The time value.
-  !! @param tstep The timestep number.
-  subroutine simcomp_executor_preprocess(this, t, tstep)
+  !! @param time The current time
+  subroutine simcomp_executor_preprocess(this, time)
     class(simcomp_executor_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     integer :: i
 
     if (.not. this%finalized) call this%finalize()
 
     if (allocated(this%simcomps)) then
        do i = 1, size(this%simcomps)
-          call this%simcomps(i)%simcomp%preprocess(t, tstep)
+          call this%simcomps(i)%simcomp%preprocess(time)
        end do
     end if
 
   end subroutine simcomp_executor_preprocess
 
   !> Execute compute_ for all simcomps.
-  !! @param t The time value.
-  !! @param tstep The timestep number.
-  subroutine simcomp_executor_compute(this, t, tstep)
+  !! @param time The current time
+  subroutine simcomp_executor_compute(this, time)
     class(simcomp_executor_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     integer :: i
 
     if (.not. this%finalized) call this%finalize()
 
     if (allocated(this%simcomps)) then
        do i = 1, this%n_simcomps
-          call this%simcomps(i)%simcomp%compute(t, tstep)
+          call this%simcomps(i)%simcomp%compute(time)
        end do
     end if
 
   end subroutine simcomp_executor_compute
 
   !> Execute restart for all simcomps.
-  !! @param t The time value.
-  subroutine simcomp_executor_restart(this, t)
+  !! @param time The current time
+  subroutine simcomp_executor_restart(this, time)
     class(simcomp_executor_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    type(time_state_t), intent(in) :: time
     integer :: i
 
     if (allocated(this%simcomps)) then
        do i = 1, this%n_simcomps
-          call this%simcomps(i)%simcomp%restart(t)
+          call this%simcomps(i)%simcomp%restart(time)
        end do
     end if
 

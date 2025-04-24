@@ -36,6 +36,7 @@ module comm
   
   !> MPI communicator
   type(MPI_Comm) :: NEKO_COMM
+  type(MPI_Comm) :: NEKO_GLOBAL_COMM
 
   !> MPI type for working precision of REAL types
 #ifdef HAVE_MPI_PARAM_DTYPE
@@ -55,17 +56,33 @@ module comm
   !> I/O node
   logical :: nio
 
+  !> Global MPI rank
+  integer :: global_pe_rank
+
+  !> Global MPI size of communicator
+  integer :: global_pe_size
+
 contains
   subroutine comm_init
     integer :: ierr
     logical :: initialized
     integer :: provided, nthrds
+    integer :: color = 0
+    integer :: envvar_len
+    character(len=255) :: color_str
 
     pe_rank = -1
     pe_size = 0
     nio = .false.
 
     call MPI_Initialized(initialized, ierr)
+
+    call get_environment_variable("NEKO_COMM_ID", color_str, envvar_len)
+    if (envvar_len .gt. 0) then
+       read(color_str(1:envvar_len), *) color
+    else
+       color = 0
+    end if
 
     nthrds = 1
     !$omp parallel
@@ -102,12 +119,20 @@ contains
 #ifdef HAVE_ADIOS2
     ! We split the communicator it to work asynchronously (MPMD)
     call MPI_Comm_rank(MPI_COMM_WORLD, pe_rank, ierr)
-    call MPI_Comm_split(MPI_COMM_WORLD, 0, pe_rank, NEKO_COMM, ierr)
+    call MPI_Comm_split(MPI_COMM_WORLD, 0, pe_rank, NEKO_GLOBAL_COMM, ierr)
 #else    
     ! Original version duplicates the communicator:
-    call MPI_Comm_dup(MPI_COMM_WORLD, NEKO_COMM, ierr)
+    call MPI_Comm_dup(MPI_COMM_WORLD, NEKO_GLOBAL_COMM, ierr)
 #endif
 
+    call MPI_Comm_rank(NEKO_GLOBAL_COMM, global_pe_rank, ierr)
+    call MPI_Comm_size(NEKO_GLOBAL_COMM, global_pe_size, ierr)
+    if (envvar_len .gt. 0) then
+       call MPI_Comm_split(NEKO_GLOBAL_COMM, color, global_pe_rank, &
+            NEKO_COMM, ierr)
+    else
+       call MPI_Comm_dup(NEKO_GLOBAL_COMM, NEKO_COMM, ierr)
+    end if
     call MPI_Comm_rank(NEKO_COMM, pe_rank, ierr)
     call MPI_Comm_size(NEKO_COMM, pe_size, ierr)
 
