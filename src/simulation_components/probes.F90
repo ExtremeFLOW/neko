@@ -60,7 +60,7 @@ module probes
   private
 
   type, public, extends(simulation_component_t) :: probes_t
-     !> Time after which to start collecting probes
+     !> Time after which to start collecting probes.
      real(kind=rp) :: start_time
      !> Number of output fields
      integer :: n_fields = 0
