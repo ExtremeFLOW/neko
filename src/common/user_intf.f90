@@ -188,7 +188,7 @@ module user_intf
      logical :: suppress_type_injection = .false.
      !> Run as soon as the case file is read, with nothing else initialized.
      !! Use to manipulate the case file, and define custom parameters.
-      procedure(user_startup_intrf), nopass, pointer :: &
+     procedure(user_startup_intrf), nopass, pointer :: &
           user_startup => null()
      !> Run after the entire case is initialized and restarted, but before the
      !! time loop. Good place to create auxillary fields, etc.

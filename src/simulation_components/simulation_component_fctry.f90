@@ -149,7 +149,7 @@ contains
        if (trim(type_name) .eq. &
             trim(simcomp_registry(i)%type_name)) then
           call neko_type_registration_error("simulation component", type_name, &
-          .false.)
+               .false.)
        end if
     end do
 
