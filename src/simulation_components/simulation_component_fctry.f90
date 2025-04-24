@@ -44,7 +44,7 @@ submodule (simulation_component) simulation_component_fctry
   use weak_grad, only : weak_grad_t
   use derivative, only : derivative_t
   use spectral_error, only: spectral_error_t
-  use utils, only : neko_type_error
+  use utils, only : neko_type_error, neko_type_registration_error
 
   ! List of all possible types created by the factory routine
   character(len=20) :: SIMCOMPS_KNOWN_TYPES(9) = [character(len=20) :: &
@@ -137,6 +137,19 @@ contains
     character(len=*), intent(in) :: type_name
     procedure(simulation_component_allocate), pointer, intent(in) :: allocator
     type(allocator_entry), allocatable :: temp(:)
+
+    do i = 1, size(SIMCOMPS_KNOWN_TYPES)
+       if (trim(type_name) .eq. trim(SIMCOMPS_KNOWN_TYPES(i))) then
+          call neko_type_registration_error("simulation component", type_name)
+       end if
+    end do
+
+    do i = 1, simulation_component_registry_size
+       if (trim(type_name) .eq. &
+           trim(simcomp_registry(i)%type_name)) then
+          call neko_type_registration_error("simulation component", type_name)
+       end if
+    end do
 
     ! Expand registry
     if (simcomp_registry_size == 0) then

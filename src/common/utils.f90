@@ -46,7 +46,8 @@ module utils
   public :: neko_error, neko_warning, nonlinear_index, filename_chsuffix, &
        filename_suffix, filename_suffix_pos, filename_tslash_pos, &
        linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
-       concat_string_array, extract_fld_file_index, neko_type_error
+       concat_string_array, extract_fld_file_index, neko_type_error, &
+       neko_type_registration_error
 
 
 contains
@@ -242,13 +243,13 @@ contains
 
   !> Reports an error allocating a type for a particular base pointer class.
   !! @details Should be used in factories.
-  !! @param base_type The base type of the object, which the factory tried to 
+  !! @param base_type The base type of the object, which the factory tried to
   !! construct.
   !! @param wrong_type The type that was attempted to construct.
   !! @param known_types A list of the types that are known.
   subroutine neko_type_error(base_type, wrong_type, known_types)
-    character(len=*) :: base_type 
-    character(len=*) :: wrong_type 
+    character(len=*) :: base_type
+    character(len=*) :: wrong_type
     character(len=*) :: known_types(:)
     integer :: i
 
@@ -260,6 +261,17 @@ contains
     end do
     error stop
   end subroutine neko_type_error
+
+  subroutine neko_type_registration_error(base_type, wrong_type)
+    character(len=*) :: base_type
+    character(len=*) :: wrong_type
+
+    write(error_unit, *) '*** ERROR WHEN REGISTERING TYPE ***'
+    write(error_unit, *) 'Type name ', wrong_type, &
+         ' conflicts with and already existing ', base_type, " type"
+    write(error_unit, *) 'Please rename your custom type.'
+    error stop
+  end subroutine neko_type_registration_error
 
   !> Reports a warning to standard output
   subroutine neko_warning(warning_msg)
