@@ -58,7 +58,7 @@ state is reached. Thereafter, the `insitu` files can be executed.
 
 The files related to insitu execution are:
 - `insitu_turb_pipe.f90` is a new user file that includes the data streaming in the user module.
-- `insitu_turb_pipe.case` is a modified case file that includes a parameter that controls the data stream.
+- `turb_pipe.case` includes a parameter `istream` that controls the data-stream frequency.
 - `insitu_task.py` is the python script that performs the insitu POD.
 
 There are some dependecies for this to work:
@@ -83,7 +83,7 @@ generated, for example, as:
 
 ```bash
 cat > mpmd.conf << 'EOF'
-0 ./select_gpu ./neko insitu_turb_pipe.case
+0 ./select_gpu ./neko turb_pipe.case
 1 python3 insitu_task.py
 2 python3 insitu_task.py
 3 python3 insitu_task.py
