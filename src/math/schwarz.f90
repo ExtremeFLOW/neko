@@ -74,7 +74,7 @@ module schwarz
        device_event_record, device_event_sync, device_stream_wait_event
   use neko_config, only : NEKO_BCKND_DEVICE
   use bc_list, only : bc_list_t
-  use, intrinsic :: iso_c_binding, only: c_sizeof 
+  use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR
   implicit none
   private
 
