@@ -78,7 +78,7 @@ In supercomputers, for the particular case of slurm, one can run in mpmd mode by
 ```bash
 srun --multi-prog mpmd.conf
 ```
-`mpmd.conf`, in its simplest form,is a file that indicates what application each rank executes. It can be
+`mpmd.conf`, in its simplest form, is a file that indicates what application each rank executes. It can be
 generated, for example, as:
 
 ```bash
