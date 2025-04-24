@@ -143,7 +143,10 @@ neko_fortran_SOURCES = \
 	io/mean_sqr_flow_output.f90\
 	io/data_streamer.F90\
 	io/output_controller.f90\
-	common/global_interpolation.F90\
+	global_interpolation/global_interpolation.f90\
+	global_interpolation/aabb_pe_finder.f90\
+	global_interpolation/aabb_el_finder.f90\
+	global_interpolation/legendre_rst_finder.f90\
 	common/profiler.F90\
 	common/craypat.F90\
 	bc/bc.f90\
