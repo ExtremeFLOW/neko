@@ -117,7 +117,7 @@ contains
     rr = xr*xr + yr*yr
     if (rr .gt. 0) rr = sqrt(rr)
     th = atan2(y,x)
-    zo = 2*pi*z/25d0
+    zo = 2.0_rp * pi * z / 25.0_rp
 
     uz = 6d0*(1d0-rr**6d0)/5d0
 
