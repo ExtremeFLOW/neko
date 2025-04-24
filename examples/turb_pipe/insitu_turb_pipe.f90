@@ -1,7 +1,7 @@
 module user
   use neko
   implicit none
-  
+
   ! Data streamer
   type(data_streamer_t) :: dstream
   integer :: ipostproc ! frequency of the streaming
@@ -16,7 +16,7 @@ contains
     u%user_init_modules => user_initialize
     u%user_finalize_modules => user_finalize
   end subroutine user_setup
-  
+
   ! User-defined initialization called just before time loop starts
   subroutine user_initialize(t, u, v, w, p, coef, params)
     real(kind=rp) :: t
@@ -26,7 +26,7 @@ contains
 
     integer tstep
     character(len=50) :: mess
-    
+
     ! read postprocessing interval
     call json_get(params, "case.istream", ipostproc)
     write(mess,*) "streaming steps : ", ipostproc
@@ -34,14 +34,14 @@ contains
 
     ! Initialize the streamer
     call dstream%init(coef)
-    
+
     ! Stream the mesh
     call dstream%stream(coef%dof%x)
     call dstream%stream(coef%dof%y)
     call dstream%stream(coef%dof%z)
 
   end subroutine user_initialize
-  
+
   ! User-defined routine called at the end of every time step
   subroutine user_check(t, tstep, u, v, w, p, coef, params)
     real(kind=rp), intent(in) :: t
@@ -53,10 +53,10 @@ contains
     real(kind=rp) :: ekin, enst
 
     if (mod(tstep,ipostproc).ne.0) return
-    
+
     n = u%dof%size()
 
-    ! Average over interfaces 
+    ! Average over interfaces
     call coef%gs_h%op(u, GS_OP_ADD)
     call device_col2(u%x_d, coef%mult_d, n)
     call coef%gs_h%op(v, GS_OP_ADD)
@@ -64,7 +64,7 @@ contains
     call coef%gs_h%op(w, GS_OP_ADD)
     call device_col2(w%x_d, coef%mult_d, n)
 
-    ! Sync the GPU-CPU    
+    ! Sync the GPU-CPU
     call device_memcpy(u%x, u%x_d, n, DEVICE_TO_HOST, sync=.true.)
     call device_memcpy(v%x, v%x_d, n, DEVICE_TO_HOST, sync=.true.)
     call device_memcpy(w%x, w%x_d, n, DEVICE_TO_HOST, sync=.true.)
@@ -75,7 +75,7 @@ contains
     call dstream%stream(w%x)
 
   end subroutine user_check
-  
+
   ! User-defined finalization routine called at the end of the simulation
   subroutine user_finalize(t, params)
     real(kind=rp) :: t
@@ -85,7 +85,7 @@ contains
     call dstream%free()
 
   end subroutine user_finalize
-  
+
   ! User defined initial condition
   subroutine user_ic(u, v, w, p, params)
     type(field_t), intent(inout) :: u
@@ -122,28 +122,28 @@ contains
     uz = 6d0*(1d0-rr**6d0)/5d0
 
     ! Assign a wiggly shear layer near the wall
-    amp_z    = 35d-2  ! Fraction of 2pi for z-based phase modification
-    freq_z   = 5d0     ! Number of wiggles in axial- (z-) direction
-    freq_t   = 6d0     ! Frequency of wiggles in azimuthal-direction
+    amp_z = 35d-2 ! Fraction of 2pi for z-based phase modification
+    freq_z = 5d0 ! Number of wiggles in axial- (z-) direction
+    freq_t = 6d0 ! Frequency of wiggles in azimuthal-direction
 
-    amp_tht  = 10d0     ! Amplification factor for clipped sine function
-    amp_clip = 4d-1   ! Clipped amplitude
+    amp_tht = 10d0 ! Amplification factor for clipped sine function
+    amp_clip = 4d-1 ! Clipped amplitude
 
-    blt      = 3.5d-1  ! Fraction of boundary layer with momentum deficit
+    blt = 3.5d-1 ! Fraction of boundary layer with momentum deficit
 
     phase_z = amp_z*(2d0*pi)*sin(freq_z*zo)
 
     arg_tht = freq_t*th + phase_z
     amp_sin = 5d0*sin(arg_tht)
-    if (amp_sin .gt.  amp_clip) amp_sin =  amp_clip
+    if (amp_sin .gt. amp_clip) amp_sin = amp_clip
     if (amp_sin .lt. -amp_clip) amp_sin = -amp_clip
 
     if (rr .gt. (1-blt)) uz = uz + amp_sin
     call random_number(rand)
 
-    ux   = 5d-2*rand*rand
-    uy   = 1d-1*rand*rand*rand
-    uz   = uz + 1d-2*rand
+    ux = 5d-2*rand*rand
+    uy = 1d-1*rand*rand*rand
+    uz = uz + 1d-2*rand
 
     uvw(1) = ux
     uvw(2) = uy
