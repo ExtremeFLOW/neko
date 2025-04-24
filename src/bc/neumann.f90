@@ -258,14 +258,11 @@ contains
 
     this%flux_ = flux
 
-    this%uniform_0 = .true.
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%flux_%x, this%flux_%x_d, this%flux_%n, &
-            DEVICE_TO_HOST, sync=.true.)
-    end if
-    do i = 1,this%msk(0)
-       this%uniform_0 = abscmp(this%flux_%x(i), 0.0_rp) .and. this%uniform_0
-    end do
+    ! We assume that passing a homogeneous array is so rare that it is not
+    ! worth doing a check, which requires a loop over the flux values.
+    ! Note that this routine can be called at each timestep, e.g. by wall
+    ! models.
+    this%uniform_0 = .false.
 
   end subroutine neumann_set_flux_array
 
