@@ -39,6 +39,7 @@ module usr_scalar
   use device_inhom_dirichlet
   use utils, only : neko_error, nonlinear_index, neko_warning
   use json_module, only : json_file
+  use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR
   implicit none
   private
 
@@ -243,7 +244,7 @@ contains
       ! Pretabulate values during first call to apply
       if (.not. c_associated(usr_x_d) .and. strong_) then
          allocate(x(m)) ! Temp arrays
-         s = m*rp
+         s = m * c_sizeof(x(1))
 
          call device_alloc(this%usr_x_d, s)
 
