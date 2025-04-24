@@ -100,34 +100,34 @@ contains
     nthpar = nthpar + 1
     if (nthpar .le. npar) then
 
-    nelv = this%count_dims(1)
-    lx = this%count_dims(2)
-    ly = this%count_dims(3)
-    lz = this%count_dims(4)
+       nelv = this%count_dims(1)
+       lx = this%count_dims(2)
+       ly = this%count_dims(3)
+       lz = this%count_dims(4)
 
-    if (this%dp_precision) then
-       do i = 1, nelv
-          do j = 1, lz
-             do k = 1, ly
-                do l = 1, lx
-                   index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) + 1
-                   this%data_dp(i,l,k,j,nthpar) = real(x(index),dp)
+       if (this%dp_precision) then
+          do i = 1, nelv
+             do j = 1, lz
+                do k = 1, ly
+                   do l = 1, lx
+                      index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) + 1
+                      this%data_dp(i,l,k,j,nthpar) = real(x(index),dp)
+                   end do
                 end do
              end do
           end do
-       end do
-    else
-       do i = 1, nelv
-          do j = 1, lz
-             do k = 1, ly
-                do l = 1, lx
-                   index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) + 1
-                   this%data_sp(i,l,k,j,nthpar) = real(x(index),sp)
+       else
+          do i = 1, nelv
+             do j = 1, lz
+                do k = 1, ly
+                   do l = 1, lx
+                      index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) + 1
+                      this%data_sp(i,l,k,j,nthpar) = real(x(index),sp)
+                   end do
                 end do
              end do
           end do
-       end do
-    end if
+       end if
 
     end if
 
@@ -190,7 +190,7 @@ contains
     end if
 
   end subroutine buffer_4d_npar_write
-  
+
   subroutine buffer_4d_npar_read(this, engine, variable, ierr)
     class(buffer_4d_npar_t), intent(inout) :: this
     type(adios2_engine), intent(in) :: engine
@@ -215,34 +215,34 @@ contains
     nthpar = nthpar + 1
     if (nthpar .le. npar) then
 
-    nelv = this%count_dims(1)
-    lx = this%count_dims(2)
-    ly = this%count_dims(3)
-    lz = this%count_dims(4)
+       nelv = this%count_dims(1)
+       lx = this%count_dims(2)
+       ly = this%count_dims(3)
+       lz = this%count_dims(4)
 
-    if (this%dp_precision) then
-       do i = 1, nelv
-          do j = 1, lz
-             do k = 1, ly
-                do l = 1, lx
-                   index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) + 1
-                   x%x(index) = this%data_dp(i,l,k,j,nthpar)
+       if (this%dp_precision) then
+          do i = 1, nelv
+             do j = 1, lz
+                do k = 1, ly
+                   do l = 1, lx
+                      index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) + 1
+                      x%x(index) = this%data_dp(i,l,k,j,nthpar)
+                   end do
                 end do
              end do
           end do
-       end do
-    else
-       do i = 1, nelv
-          do j = 1, lz
-             do k = 1, ly
-                do l = 1, lx
-                   index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) + 1
-                   x%x(index) = this%data_sp(i,l,k,j,nthpar)
+       else
+          do i = 1, nelv
+             do j = 1, lz
+                do k = 1, ly
+                   do l = 1, lx
+                      index = (l-1) + lx*(k-1) + lx*ly*(j-1) + lx*ly*lz*(i-1) + 1
+                      x%x(index) = this%data_sp(i,l,k,j,nthpar)
+                   end do
                 end do
              end do
           end do
-       end do
-    end if
+       end if
 
     end if
 

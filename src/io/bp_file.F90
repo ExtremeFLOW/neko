@@ -58,9 +58,9 @@ module bp_file
   class(buffer_t), private, allocatable :: outbuf_npar
 
 #ifdef HAVE_ADIOS2_FORTRAN
-  type(adios2_adios)    :: adios
-  type(adios2_io)       :: ioWriter
-  type(adios2_io)       :: ioReader
+  type(adios2_adios) :: adios
+  type(adios2_io) :: ioWriter
+  type(adios2_io) :: ioReader
 #endif
 
   !> Interface for ADIOS2 bp files
@@ -100,11 +100,11 @@ contains
     integer :: n_scalar_fields
     logical :: write_mesh, write_velocity, write_pressure, write_temperature
     integer :: adios2_type
-    type(adios2_engine)   :: bpWriter
+    type(adios2_engine) :: bpWriter
     type(adios2_variable) :: variable_idx, variable_hdr, variable, variable_msh
     type(adios2_variable) :: variable_v, variable_p, variable_temp
     integer(kind=8), dimension(1) :: shape_dims, start_dims, count_dims
-  
+
     if (present(t)) then
        time = real(t,dp)
     else
@@ -442,7 +442,7 @@ contains
     type(linear_dist_t) :: dist
     character :: rdcode(10), temp_str(4)
     class(buffer_t), allocatable :: inpbuf_points, inpbuf
-    type(adios2_engine)   :: bpReader
+    type(adios2_engine) :: bpReader
     type(adios2_variable) :: variable_hdr, variable_idx, variable
     integer(kind=8), dimension(1) :: start_dims, count_dims
 
@@ -512,9 +512,9 @@ contains
        call adios2_get(bpReader, variable_hdr, hdr, adios2_mode_sync, ierr)
 
        read(hdr, 1) temp_str, adios2_type, lx, ly, lz, this%layout, glb_nelv,&
-          time, counter, npar, (rdcode(i),i=1,10)
+            time, counter, npar, (rdcode(i),i=1,10)
 1      format(4a,1x,i1,1x,i2,1x,i2,1x,i2,1x,i10,1x,i10,1x,e20.13,&
-         1x,i9,1x,i6,1x,10a)
+            1x,i9,1x,i6,1x,10a)
        if (data%nelv .eq. 0) then
           dist = linear_dist_t(glb_nelv, pe_rank, pe_size, NEKO_COMM)
           data%nelv = dist%num_local()
@@ -716,8 +716,8 @@ contains
        if (allocated(inpbuf)) deallocate(inpbuf)
     class default
        call neko_error('Currently we only read into fld_file_data_t,&
-                        please use that data structure instead.&
-                        (output_format.adios2)')
+            please use that data structure instead.&
+            (output_format.adios2)')
     end select
 
   end subroutine bp_file_read
