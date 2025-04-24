@@ -242,10 +242,10 @@ contains
     ! Projection spaces
     call json_get_or_default(params, &
          'case.fluid.velocity_solver.projection_space_size', &
-         this%vel_projection_dim, 20)
+         this%vel_projection_dim, 0)
     call json_get_or_default(params, &
          'case.fluid.pressure_solver.projection_space_size', &
-         this%pr_projection_dim, 20)
+         this%pr_projection_dim, 0)
     call json_get_or_default(params, &
          'case.fluid.velocity_solver.projection_hold_steps', &
          this%vel_projection_activ_step, 5)
