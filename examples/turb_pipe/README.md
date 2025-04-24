@@ -92,4 +92,4 @@ EOF
 ```
 
 This example has been succesfully executed in super computers such as lumi, leveraging the typically idling
-CPUs on a GPU compute node, to execute POD while the simulatio runs on GPUs.
+CPUs on a GPU compute node, to execute POD while the simulation runs on GPUs.
