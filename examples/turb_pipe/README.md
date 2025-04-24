@@ -68,7 +68,7 @@ There are some dependecies for this to work:
 ### Executing neko in mpmd
 The insitu run can be performed by executing neko and python in multiple program multiple data (mpmd) mode.
 
-In personal computers with mpi, one can execute, for example:
+On personal computers with mpi, one can execute, for example:
 ```bash
 mpirun -n 1 ./neko insitu_turb_pipe.case : -n 4 python3 insitu_task.py
 ```
