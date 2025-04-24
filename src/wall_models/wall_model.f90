@@ -63,11 +63,11 @@ module wall_model
      !> The boundary condition facet ids. Stores the array size at index zero!
      integer, pointer :: facet(:) => null()
      !> The x component of the shear stress.
-     real(kind=rp), allocatable :: tau_x(:)
+     type(vector_t) :: tau_x
      !> The y component of the shear stress.
-     real(kind=rp), allocatable :: tau_y(:)
+     type(vector_t) :: tau_y
      !> The z component of the shear stress.
-     real(kind=rp), allocatable :: tau_z(:)
+     type(vector_t) :: tau_z
      !> The x component of the normal.
      type(vector_t) :: n_x
      !> The y component of the normal.
@@ -198,9 +198,9 @@ contains
 
     this%tau_field => neko_field_registry%get_field("tau")
 
-    allocate(this%tau_x(this%msk(0)))
-    allocate(this%tau_y(this%msk(0)))
-    allocate(this%tau_z(this%msk(0)))
+    call this%tau_x%init(this%msk(0))
+    call this%tau_y%init(this%msk(0))
+    call this%tau_z%init(this%msk(0))
 
     allocate(this%ind_r(this%msk(0)))
     allocate(this%ind_s(this%msk(0)))
@@ -225,17 +225,18 @@ contains
     nullify(this%facet)
     nullify(this%tau_field)
 
-    if (allocated(this%tau_x)) then
-       deallocate(this%tau_x)
-    end if
-    if (allocated(this%tau_y)) then
-       deallocate(this%tau_y)
-    end if
-    if (allocated(this%tau_z)) then
-       deallocate(this%tau_z)
-    end if
+    call this%tau_x%free()
+    call this%tau_y%free()
+    call this%tau_z%free()
+
     if (allocated(this%ind_r)) then
        deallocate(this%ind_r)
+    end if
+    if (allocated(this%ind_s)) then
+       deallocate(this%ind_s)
+    end if
+    if (allocated(this%ind_t)) then
+       deallocate(this%ind_t)
     end if
 
     call this%h%free()
