@@ -494,11 +494,6 @@ contains
     call resy%init(n_point_cand)
     call resz%init(n_point_cand)
 
-    if (allocated(this%rst_local)) deallocate(this%rst_local)
-    if (allocated(this%el_owner0_local)) deallocate(this%el_owner0_local)
-    allocate(this%rst_local(3,this%n_points_local))
-    allocate(this%el_owner0_local(this%n_points_local))
-
     ! Find rst within all element candidates for target xyz (x_t, y_t, z_t)
     call MPI_Barrier(this%comm)
     time1 = MPI_Wtime()
@@ -516,9 +511,12 @@ contains
          el_cands, n_point_cand, &
          resx, resy, resz)
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       call rst_local_cand%copyto(DEVICE_TO_HOST,.false.)
        call resx%copyto(DEVICE_TO_HOST,.false.)
        call resy%copyto(DEVICE_TO_HOST,.false.)
        call resz%copyto(DEVICE_TO_HOST,.true.)
+       call device_deassociate(el_cands)
+       call device_free(el_cands_d)
     end if
     call MPI_Barrier(this%comm)
 
@@ -534,6 +532,10 @@ contains
          'Checking validity of points and choosing best candidates.'
     call neko_log%message(log_buf)
 
+    if (allocated(this%rst_local)) deallocate(this%rst_local)
+    if (allocated(this%el_owner0_local)) deallocate(this%el_owner0_local)
+    allocate(this%rst_local(3,this%n_points_local))
+    allocate(this%el_owner0_local(this%n_points_local))
     ! Choose the best candidate at this rank
     ii = 0
     do i = 1 , this%n_points_local
