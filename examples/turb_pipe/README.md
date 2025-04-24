@@ -74,7 +74,7 @@ mpirun -n 1 ./neko insitu_turb_pipe.case : -n 4 python3 insitu_task.py
 ```
 provided that the visible devices are set up correctly.
 
-In supercomputers, for the particular case of slurm, one can run in mpmd mode by executing a comand such as:
+On supercomputers, for the particular case of slurm, one can run in mpmd mode by executing a comand such as:
 ```bash
 srun --multi-prog mpmd.conf
 ```
