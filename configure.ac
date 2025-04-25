@@ -16,20 +16,20 @@ AC_ARG_ENABLE(contrib,
               [enable_contrib=${enableval}], [enable_contrib=yes])
 
 AC_ARG_ENABLE(real,
-	      AS_HELP_STRING([--enable-real=Xp  Specify working precision of REAL types:
+          AS_HELP_STRING([--enable-real=Xp  Specify working precision of REAL types:
                     ssp -- REAL(kind=4) xp -- sp
                     sp -- REAL(kind=4) xp -- dp
                     dp -- REAL(kind=8) xp -- dp (default)
                     qp -- REAL(kind=16) xp -- qp]),
-	        [enable_real=${enableval}], [enable_real=dp])
+            [enable_real=${enableval}], [enable_real=dp])
 
 AC_ARG_ENABLE(blk_size,
               AS_HELP_STRING([--enable-blk_size=number of values Specify size of fast memory]),
               [blk_size=${enableval}], [blk_size="10000"])
 
 AC_ARG_ENABLE(device-mpi,
-	      AS_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
-	      [enable_device_mpi=${enableval}], [enable_device_mpi=no])
+          AS_HELP_STRING([--enable-device-mpi],[Enable device aware MPI]),
+          [enable_device_mpi=${enableval}], [enable_device_mpi=no])
 
 AC_ARG_ENABLE(openmp, AC_HELP_STRING([--enable-openmp], [Enable OpenMP]),
               [enable_openmp=${enableval}], [enable_openmp=no])
@@ -51,7 +51,7 @@ if test "x${have_mpi}" != xno; then
    if  test "x${have_mpi}" != xno; then
        CC="$MPICC"
    else
-       AC_MSG_ERROR([Cannot find a suitable C MPI compiler])
+       AC_MSG_ERROR([Can't find a suitable C MPI compiler])
    fi
    AC_LANG(C++)
    AX_MPI([have_mpi=yes],[have_mpi=no])
@@ -60,7 +60,7 @@ if test "x${have_mpi}" != xno; then
    fi
    AC_LANG(Fortran)
 else
-   AC_MSG_ERROR([Cannot find a suitable MPI compiler])
+   AC_MSG_ERROR([Can't find a suitable MPI compiler])
 fi
 AX_MPIF08
 AX_MPI_DTYPE
@@ -146,7 +146,7 @@ if test "x${have_blas_lapack}" != xyes; then
 fi
 
 if test "x${have_blas_lapack}" != xyes; then
-   AC_MSG_ERROR([Cannot find a suitable BLAS/LAPACK library])
+   AC_MSG_ERROR([Can't find a suitable BLAS/LAPACK library])
 fi
 
 if test "x${have_darshan}" != xyes; then
@@ -263,7 +263,7 @@ if (test "x${have_cuda}" = xyes ||
 
       # Check that necessary accelerator modules are loaded
       if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
-      	 AX_CRAY_ACCEL
+           AX_CRAY_ACCEL
       fi
 
       AC_SUBST(device_mpi, .true.)
@@ -273,7 +273,7 @@ if (test "x${have_cuda}" = xyes ||
          CUDA_CFLAGS="$CUDA_CFLAGS -DHAVE_DEVICE_MPI=1"
 
          # Make sure we have support for atomicAdd
-      	 AS_IF([test "$CUDA_ARCH"],[],[CUDA_ARCH="-arch sm_60"])
+           AS_IF([test "$CUDA_ARCH"],[],[CUDA_ARCH="-arch sm_60"])
       fi
 
       if  test "x${have_hip}" = xyes; then
@@ -340,65 +340,66 @@ fi
 AC_SUBST(NEKO_PKG_FCFLAGS)
 FCFLAGS="$FCFLAGS $NEKO_PKG_FCFLAGS"
 
-AC_CONFIG_FILES([Makefile\
-		 src/Makefile\
-		 tests/unit/Makefile\
-		 src/comm/comm.F90\
-	 	 src/config/neko_config.f90\
-		 src/config/num_types.f90\
-		 src/device/device_config.h\
-		 src/scripts/cltostring.sh\
-		 makeneko\
-		 neko.pc])
+AC_CONFIG_FILES([
+        Makefile\
+        src/Makefile\
+        tests/unit/Makefile\
+        src/comm/comm.F90\
+        src/config/neko_config.f90\
+        src/config/num_types.f90\
+        src/device/device_config.h\
+        src/scripts/cltostring.sh\
+        makeneko\
+        neko.pc])
 
 # Config tests/unit
 AC_CONFIG_FILES([tests/unit/stack/Makefile\
-		 tests/unit/tuple/Makefile\
- 		 tests/unit/point/Makefile\
-		 tests/unit/htable/Makefile\
-		 tests/unit/uset/Makefile\
-		 tests/unit/quad/Makefile\
-		 tests/unit/hex/Makefile\
-		 tests/unit/tet/Makefile\
-		 tests/unit/tri/Makefile\
-		 tests/unit/math/Makefile\
-		 tests/unit/mesh/Makefile\
-		 tests/unit/space/Makefile\
-		 tests/unit/dofmap/Makefile\
-		 tests/unit/field/Makefile\
-		 tests/unit/mean_field/Makefile\
-		 tests/unit/mean_sqr_field/Makefile\
-		 tests/unit/gather_scatter/Makefile\
-		 tests/unit/krylov/Makefile\
-		 tests/unit/bc/Makefile\
-		 tests/unit/signal/Makefile\
-		 tests/unit/jobctrl/Makefile\
-		 tests/unit/device/Makefile\
-		 tests/unit/device_math/Makefile\
-		 tests/unit/mathops/Makefile\
-		 tests/unit/device_mathops/Makefile\
-		 tests/unit/octree/Makefile\
-                 tests/unit/vector/Makefile\
-                 tests/unit/matrix/Makefile\
-                 tests/unit/scratch_registry/Makefile\
-                 tests/unit/fast3d/Makefile\
-                 tests/unit/time_scheme/Makefile\
-                 tests/unit/time_scheme_controller/Makefile\
-                 tests/unit/runge_kutta_scheme/Makefile\
-                 tests/unit/time_based_controller/Makefile\
-                 tests/unit/point_interpolation/Makefile])
+        tests/unit/tuple/Makefile\
+        tests/unit/point/Makefile\
+        tests/unit/htable/Makefile\
+        tests/unit/uset/Makefile\
+        tests/unit/quad/Makefile\
+        tests/unit/hex/Makefile\
+        tests/unit/tet/Makefile\
+        tests/unit/tri/Makefile\
+        tests/unit/math/Makefile\
+        tests/unit/mesh/Makefile\
+        tests/unit/space/Makefile\
+        tests/unit/dofmap/Makefile\
+        tests/unit/field/Makefile\
+        tests/unit/mean_field/Makefile\
+        tests/unit/mean_sqr_field/Makefile\
+        tests/unit/gather_scatter/Makefile\
+        tests/unit/krylov/Makefile\
+        tests/unit/bc/Makefile\
+        tests/unit/signal/Makefile\
+        tests/unit/jobctrl/Makefile\
+        tests/unit/device/Makefile\
+        tests/unit/device_math/Makefile\
+        tests/unit/mathops/Makefile\
+        tests/unit/device_mathops/Makefile\
+        tests/unit/octree/Makefile\
+        tests/unit/vector/Makefile\
+        tests/unit/matrix/Makefile\
+        tests/unit/scratch_registry/Makefile\
+        tests/unit/fast3d/Makefile\
+        tests/unit/time_scheme/Makefile\
+        tests/unit/time_scheme_controller/Makefile\
+        tests/unit/runge_kutta_scheme/Makefile\
+        tests/unit/time_based_controller/Makefile\
+        tests/unit/point_interpolation/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
    AC_CONFIG_FILES([contrib/Makefile\
-		    contrib/rea2nbin/Makefile\
-		    contrib/genmeshbox/Makefile\
-		    contrib/average_fields_in_time/Makefile\
-		    contrib/calc_lift_from_field/Makefile\
-		    contrib/postprocess_fluid_stats/Makefile\
-		    contrib/average_field_in_space/Makefile\
-		    contrib/map_to_equidistant_1d/Makefile\
-		    contrib/mesh_checker/Makefile\
-		    contrib/prepart/Makefile])
+            contrib/rea2nbin/Makefile\
+            contrib/genmeshbox/Makefile\
+            contrib/average_fields_in_time/Makefile\
+            contrib/calc_lift_from_field/Makefile\
+            contrib/postprocess_fluid_stats/Makefile\
+            contrib/average_field_in_space/Makefile\
+            contrib/map_to_equidistant_1d/Makefile\
+            contrib/mesh_checker/Makefile\
+            contrib/prepart/Makefile])
 fi
 # Doxygen
 AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])
