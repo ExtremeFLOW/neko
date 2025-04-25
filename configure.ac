@@ -12,12 +12,12 @@ LT_INIT([disable-shared])
 LT_LANG([Fortran])
 
 AC_ARG_ENABLE(contrib,
-              AS_HELP_STRING([--enable-contrib],[Compile various tools]), 
+              AS_HELP_STRING([--enable-contrib],[Compile various tools]),
               [enable_contrib=${enableval}], [enable_contrib=yes])
 
 AC_ARG_ENABLE(real,
 	      AS_HELP_STRING([--enable-real=Xp  Specify working precision of REAL types:
-                    ssp -- REAL(kind=4) xp -- sp 
+                    ssp -- REAL(kind=4) xp -- sp
                     sp -- REAL(kind=4) xp -- dp
                     dp -- REAL(kind=8) xp -- dp (default)
                     qp -- REAL(kind=16) xp -- qp]),
@@ -51,7 +51,7 @@ if test "x${have_mpi}" != xno; then
    if  test "x${have_mpi}" != xno; then
        CC="$MPICC"
    else
-       AC_MSG_ERROR([Can't find a suitable C MPI compiler])
+       AC_MSG_ERROR([Cannot find a suitable C MPI compiler])
    fi
    AC_LANG(C++)
    AX_MPI([have_mpi=yes],[have_mpi=no])
@@ -60,7 +60,7 @@ if test "x${have_mpi}" != xno; then
    fi
    AC_LANG(Fortran)
 else
-   AC_MSG_ERROR([Can't find a suitable MPI compiler])   
+   AC_MSG_ERROR([Cannot find a suitable MPI compiler])
 fi
 AX_MPIF08
 AX_MPI_DTYPE
@@ -69,7 +69,8 @@ AX_MPI_DTYPE
 if test "x${enable_openmp}" != xno; then
    AX_OPENMP([have_openmp=yes], [have_openmp=no])
    if test "x${have_openmp}" != xno; then
-      FCFLAGS="$FCFLAGS $OPENMP_FCFLAGS"
+      NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS $OPENMP_FCFLAGS"
+      LDFLAGS="$OPENMP_LDFLAGS $LDFLAGS"
       AC_LANG(C)
       AX_OPENMP([have_openmp=yes], [have_openmp=no])
       if test "x${have_openmp}" != xno; then
@@ -82,20 +83,20 @@ fi
 AC_FC_PP_SRCEXT([F90])
 AX_COMPILER_VENDOR
 
-        
-              
+
+
 # Checks for platform headers
 AC_LANG_PUSH([C])
 AC_CHECK_HEADERS([cpuid.h])
-AC_LANG_POP([C])  
+AC_LANG_POP([C])
 
 # Set necessary flags to fix issues with various compilers
 if test "x$ax_cv_fc_compiler_vendor" = xportland; then
-   FCFLAGS="$FCFLAGS  -Mbackslash"
+   NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS  -Mbackslash"
 fi
 
 if test "x$ax_cv_fc_compiler_vendor" = xnvhpc; then
-   FCFLAGS="$FCFLAGS  -Mbackslash"
+   NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS  -Mbackslash"
 fi
 
 # Store build information (date, host, FC)
@@ -145,7 +146,7 @@ if test "x${have_blas_lapack}" != xyes; then
 fi
 
 if test "x${have_blas_lapack}" != xyes; then
-   AC_MSG_ERROR([Can't find a suitable BLAS/LAPACK library])
+   AC_MSG_ERROR([Cannot find a suitable BLAS/LAPACK library])
 fi
 
 if test "x${have_darshan}" != xyes; then
@@ -200,7 +201,7 @@ elif test "x$enable_real" = xsp; then
    AC_SUBST(NEKO_XREAL_TYPE, "dp")
    AC_SUBST(NEKO_C_XREAL_TYPE, "c_double")
    AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_DOUBLE_PRECISION")
-   AC_SUBST(NEKO_DEV_XREAL_TYPE, "double") 
+   AC_SUBST(NEKO_DEV_XREAL_TYPE, "double")
 elif test "x$enable_real" = xdp; then
    AC_SUBST(NEKO_REAL_TYPE, "dp")
    AC_SUBST(NEKO_C_REAL_TYPE, "c_double")
@@ -209,7 +210,7 @@ elif test "x$enable_real" = xdp; then
    AC_SUBST(NEKO_XREAL_TYPE, "dp")
    AC_SUBST(NEKO_C_XREAL_TYPE, "c_double")
    AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_DOUBLE_PRECISION")
-   AC_SUBST(NEKO_DEV_XREAL_TYPE, "double")   				
+   AC_SUBST(NEKO_DEV_XREAL_TYPE, "double")
 elif test "x$enable_real" = xqp; then
    AC_SUBST(NEKO_REAL_TYPE, "qp")
    AC_SUBST(NEKO_C_REAL_TYPE, "c_long_double")
@@ -230,7 +231,7 @@ else
    if test "x$enable_real" = xqp; then
       AC_MSG_ERROR([REAL128 not supported])
    fi
-fi                          
+fi
 
 AC_SUBST(blk_size, ${blk_size})
 
@@ -261,19 +262,19 @@ if (test "x${have_cuda}" = xyes ||
    if test "x${enable_device_mpi}" = xyes; then
 
       # Check that necessary accelerator modules are loaded
-      if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then    
+      if (test "x${is_cray}" = xyes || test "x${is_hpe_cray}" = xyes); then
       	 AX_CRAY_ACCEL
       fi
 
       AC_SUBST(device_mpi, .true.)
       AC_DEFINE(HAVE_DEVICE_MPI, 1, [Define if device MPI is requested.])
-      
+
       if test "x${have_cuda}" = xyes; then
          CUDA_CFLAGS="$CUDA_CFLAGS -DHAVE_DEVICE_MPI=1"
 
          # Make sure we have support for atomicAdd
-      	 AS_IF([test "$CUDA_ARCH"],[],[CUDA_ARCH="-arch sm_60"])         
-      fi      
+      	 AS_IF([test "$CUDA_ARCH"],[],[CUDA_ARCH="-arch sm_60"])
+      fi
 
       if  test "x${have_hip}" = xyes; then
          HIP_HIPCC_FLAGS="$HIP_HIPCC_FLAGS -DHAVE_DEVICE_MPI=1"
@@ -311,7 +312,7 @@ fi
 # JSON-Fortran
 PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 7.1.0])
 LIBS="$JSON_Fortran_LIBS $LIBS"
-FCFLAGS="$JSON_Fortran_CFLAGS $FCFLAGS"
+NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS $JSON_Fortran_CFLAGS"
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AM_CONDITIONAL([ENABLE_ADIOS2], [test "x${have_adios2}" = xyes])
@@ -334,6 +335,10 @@ if (test "x${have_cuda}" = xyes ||
 else
     AC_SUBST(device_bcknd, "0")
 fi
+
+# Append the NEKO compiler flags to the FCFLAGS
+AC_SUBST(NEKO_PKG_FCFLAGS)
+FCFLAGS="$FCFLAGS $NEKO_PKG_FCFLAGS"
 
 AC_CONFIG_FILES([Makefile\
 		 src/Makefile\
