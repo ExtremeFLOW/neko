@@ -25,6 +25,7 @@ bc/bcknd/device/hip/symmetry.lo : bc/bcknd/device/hip/symmetry.hip bc/bcknd/devi
 bc/bcknd/device/hip/facet_normal.lo : bc/bcknd/device/hip/facet_normal.hip bc/bcknd/device/hip/facet_normal_kernel.h
 bc/bcknd/device/hip/inhom_dirichlet.lo : bc/bcknd/device/hip/inhom_dirichlet.hip bc/bcknd/device/hip/inhom_dirichlet_kernel.h
 bc/bcknd/device/hip/dong_outflow.lo : bc/bcknd/device/hip/dong_outflow.hip bc/bcknd/device/hip/dong_outflow_kernel.h
+bc/bcknd/device/hip/neumann.lo : bc/bcknd/device/hip/neumann.hip bc/bcknd/device/hip/neumann_kernel.h
 common/bcknd/device/hip/rhs_maker.lo : common/bcknd/device/hip/rhs_maker.hip common/bcknd/device/hip/sumab_kernel.h common/bcknd/device/hip/makeext_kernel.h common/bcknd/device/hip/makebdf_kernel.h
 common/bcknd/device/hip/projection.lo : common/bcknd/device/hip/projection.hip common/bcknd/device/hip/projection_kernel.h
 common/bcknd/device/hip/gradient_jump_penalty.lo : common/bcknd/device/hip/gradient_jump_penalty.hip common/bcknd/device/hip/gradient_jump_penalty_kernel.h
@@ -96,7 +97,8 @@ bc/bcknd/device/opencl/dirichlet.lo : bc/bcknd/device/opencl/dirichlet.c bc/bckn
 bc/bcknd/device/opencl/inflow.lo : bc/bcknd/device/opencl/inflow.c bc/bcknd/device/opencl/inflow_kernel.cl.h
 bc/bcknd/device/opencl/no_slip_wall.lo : bc/bcknd/device/opencl/no_slip_wall.c bc/bcknd/device/opencl/no_slip_wall_kernel.cl.h
 bc/bcknd/device/opencl/symmetry.lo : bc/bcknd/device/opencl/symmetry.c bc/bcknd/device/opencl/symmetry_kernel.cl.h
-bc/bcknd/device/opencl/facet_normal.lo : bc/bcknd/device/opencl/facet_normal.c bc/bcknd/device/opencl/facet_normal_kernel.cl.h
+bc/bcknd/device/opencl/facet_normal.lo : bc/bcknd/device/opencl/facet_normal.c bc/bcknd/device/opencl/facet_normal_kernel.cl.h bc/bcknd/device/opencl/bc_utils.h
+bc/bcknd/device/opencl/neumann.lo : bc/bcknd/device/opencl/neumann.c bc/bcknd/device/opencl/neumann_kernel.cl.h bc/bcknd/device/opencl/bc_utils.h
 bc/bcknd/device/opencl/zero_dirichlet.lo : bc/bcknd/device/opencl/zero_dirichlet.c bc/bcknd/device/opencl/zero_dirichlet_kernel.cl.h
 bc/bcknd/device/opencl/inhom_dirichlet.lo : bc/bcknd/device/opencl/inhom_dirichlet.c bc/bcknd/device/opencl/inhom_dirichlet_kernel.cl.h
 bc/bcknd/device/opencl/dong_outflow.lo : bc/bcknd/device/opencl/dong_outflow.c bc/bcknd/device/opencl/dong_outflow_kernel.cl.h

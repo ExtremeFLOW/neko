@@ -1,4 +1,3 @@
-
 lib_LTLIBRARIES = libneko.la
 libneko_la_LDFLAGS = -release ${PACKAGE_VERSION}
 neko_fortran_SOURCES = \
@@ -403,6 +402,7 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/hip/zero_dirichlet.hip\
 	bc/bcknd/device/hip/symmetry.hip\
 	bc/bcknd/device/hip/facet_normal.hip\
+	bc/bcknd/device/hip/neumann.hip\
 	bc/bcknd/device/hip/inhom_dirichlet.hip\
 	bc/bcknd/device/hip/dong_outflow.hip\
 	common/bcknd/device/hip/rhs_maker.hip\
@@ -494,6 +494,7 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/opencl/zero_dirichlet.c\
 	bc/bcknd/device/opencl/symmetry.c\
 	bc/bcknd/device/opencl/facet_normal.c\
+	bc/bcknd/device/opencl/neumann.c\
 	bc/bcknd/device/opencl/inhom_dirichlet.c\
 	bc/bcknd/device/opencl/dong_outflow.c\
 	common/bcknd/device/opencl/rhs_maker.c\
@@ -641,6 +642,8 @@ EXTRA_DIST = \
 	bc/bcknd/device/hip/zero_dirichlet_kernel.h\
 	bc/bcknd/device/hip/symmetry_kernel.h\
 	bc/bcknd/device/hip/facet_normal_kernel.h\
+	bc/bcknd/device/hip/neumann_kernel.h\
+	bc/bcknd/device/hip/bc_utils.h\
 	bc/bcknd/device/hip/inhom_dirichlet_kernel.h\
 	bc/bcknd/device/hip/dong_outflow_kernel.h\
 	gs/bcknd/device/hip/gs_kernels.h\
@@ -685,6 +688,8 @@ EXTRA_DIST = \
 	bc/bcknd/device/opencl/zero_dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/symmetry_kernel.cl\
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
+	bc/bcknd/device/opencl/neumann_kernel.cl\
+	bc/bcknd/device/opencl/bc_utils.h\
 	bc/bcknd/device/opencl/inhom_dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/dong_outflow_kernel.cl\
 	math/bcknd/device/opencl/math_kernel.cl\
