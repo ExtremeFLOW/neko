@@ -149,6 +149,7 @@ module global_interpolation
      procedure, pass(this) :: free => global_interpolation_free
      !> Destructor for arrays related to evaluation points
      procedure, pass(this) :: free_points => global_interpolation_free_points
+     procedure, pass(this) :: free_points_local => global_interpolation_free_points_local
      procedure, pass(this) :: find_points_and_redist => &
          global_interpolation_find_and_redist
      !> Finds the process owner, global element number,
