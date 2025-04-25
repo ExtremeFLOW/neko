@@ -155,7 +155,7 @@ contains
     class(bc_t), pointer :: bc_i
     character(len=:), allocatable :: crs_solver, crs_pc
     character(len=LOG_SIZE) :: log_buf
-    
+
     call this%free()
     this%nlvls = 3
     lx_crs = 2
@@ -179,8 +179,8 @@ contains
 
     call json_get_or_default(hsmg_params, 'coarse_grid.preconditioner', &
          crs_pc, "jacobi")
-        
-   
+
+
     call neko_log%section('HSMG')
     if (this%nlvls .lt. 1e1) then
        write(log_buf, '(A,I1,A)') 'HSMG hierarchy      : ', this%nlvls, ' levels'
@@ -212,7 +212,7 @@ contains
     else
        call neko_log%message('Coarse grid solver  : ' // trim(crs_solver) )
     end if
-    
+
     this%msh => msh
     allocate(this%grids(this%nlvls))
     allocate(this%w(dof%size()))
@@ -318,7 +318,7 @@ contains
     end if
 
     call neko_log%end_section()
-    
+
   end subroutine hsmg_init
 
   subroutine hsmg_set_h(this)

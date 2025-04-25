@@ -174,7 +174,7 @@ contains
     character(len=:), allocatable :: string_val1, string_val2
     real(kind=rp) :: GJP_param_a, GJP_param_b
     type(json_file) :: json_subdict
-    
+
     !
     ! SEM simulation fundamentals
     !

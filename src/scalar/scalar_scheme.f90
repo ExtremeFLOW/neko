@@ -265,7 +265,7 @@ contains
     call json_get(params, 'solver.type', solver_type)
     call json_get(params, 'solver.preconditioner.type', &
          solver_precon)
-    call json_extract_object(params, 'solver.preconditioner', precon_params)         
+    call json_extract_object(params, 'solver.preconditioner', precon_params)
     call json_get(params, 'solver.absolute_tolerance', &
          solver_abstol)
 
@@ -489,7 +489,7 @@ contains
     type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
-    type(json_file), intent(inout) :: pcparams        
+    type(json_file), intent(inout) :: pcparams
 
     call precon_factory(pc, pctype)
 
