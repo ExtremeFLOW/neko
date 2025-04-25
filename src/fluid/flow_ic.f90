@@ -32,6 +32,7 @@
 !
 !> Initial flow condition
 module flow_ic
+  use comm, only: pe_rank 
   use num_types, only : rp
   use logger, only: neko_log, LOG_SIZE
   use gather_scatter, only : gs_t, GS_OP_ADD
@@ -471,7 +472,7 @@ contains
     if (mesh_mismatch .and. .not. interpolate) then
        call neko_error("The fld file must match the current mesh! &
          &Use 'interpolate': 'true' to enable interpolation.")
-    else if (.not. mesh_mismatch .and. interpolate) then
+    else if (.not. mesh_mismatch .and. interpolate .and. pe_rank .eq. 0) then
        call neko_log%warning("You have activated interpolation but you might &
          &still be using the same mesh.")
     end if
@@ -482,7 +483,7 @@ contains
        ! Issue a warning if the mesh is in single precision
        select type (ft => f%file_type)
        type is (fld_file_t)
-          if (.not. ft%dp_precision) then
+          if (.not. ft%dp_precision .and. pe_rank .eq. 0) then
              call neko_warning("The coordinates read from the field file are &
                &in single precision.")
              call neko_log%message("It is recommended to use a mesh in double &
