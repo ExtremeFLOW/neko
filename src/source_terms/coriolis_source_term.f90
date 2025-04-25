@@ -43,6 +43,8 @@ module coriolis_source_term
   use neko_config, only : NEKO_BCKND_DEVICE
   use utils, only : neko_error
   use coriolis_source_term_cpu, only : coriolis_source_term_compute_cpu
+  use field, only : field_t
+  use field_registry, only : neko_field_registry
   implicit none
   private
 
@@ -57,7 +59,7 @@ module coriolis_source_term
      procedure, pass(this) :: init => coriolis_source_term_init_from_json
      !> The costrucructor from type components.
      procedure, pass(this) :: init_from_compenents => &
-       coriolis_source_term_init_from_components
+          coriolis_source_term_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => coriolis_source_term_free
      !> Computes the source term and adds the result to `fields`.
@@ -110,13 +112,13 @@ contains
        rotation_vec(3) = 0.5_rp * f
     else
        call neko_error("Specify either rotation_vector, phi and omega, or f &
-         & for the Coriolis source term.")
+       & for the Coriolis source term.")
     end if
 
 
 
     call coriolis_source_term_init_from_components(this, fields, rotation_vec, &
-          u_geo, coef, start_time, end_time)
+         u_geo, coef, start_time, end_time)
 
   end subroutine coriolis_source_term_init_from_json
 
@@ -162,11 +164,16 @@ contains
     class(coriolis_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
+    type(field_t), pointer :: u, v, w
+
+    u => neko_field_registry%get_field("u")
+    v => neko_field_registry%get_field("v")
+    w => neko_field_registry%get_field("w")
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call neko_error("The Coriolis force is only implemented on the CPU")
     else
-       call coriolis_source_term_compute_cpu(this%fields, this%omega, &
+       call coriolis_source_term_compute_cpu(u, v, w, this%fields, this%omega, &
             this%u_geo)
     end if
   end subroutine coriolis_source_term_compute
