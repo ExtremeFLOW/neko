@@ -57,6 +57,15 @@ module device_neumann
      end subroutine cuda_neumann_apply_scalar
   end interface
 #elif HAVE_OPENCL
+  interface
+     subroutine opencl_neumann_apply_scalar(msk, facet, x, flux, area, lx, m) &
+          bind(c, name='opencl_neumann_apply_scalar')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, lx
+       type(c_ptr), value :: msk, facet, x, flux, area
+     end subroutine opencl_neumann_apply_scalar
+  end interface
 #endif
 
   public :: device_neumann_apply_scalar
@@ -72,7 +81,7 @@ contains
 #elif HAVE_CUDA
     call cuda_neumann_apply_scalar(msk, facet, x, flux, area, lx, m)
 #elif HAVE_OPENCL
-    call neko_error("neumann_t not implemented for the opencl backend.")
+    call opencl_neumann_apply_scalar(msk, facet, x, flux, area, lx, m)
 #else
     call neko_error('No device backend configured')
 #endif
