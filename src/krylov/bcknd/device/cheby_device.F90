@@ -347,7 +347,7 @@ contains
       ! calculate residual
       if (.not.this%zero_initial_guess) then
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
-         call gs_h%op(w, n, GS_OP_ADD)
+         call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
          call blst%apply(w, n)
          call device_sub3(r_d, f_d, w_d, n)
       else
@@ -381,7 +381,7 @@ contains
          rhok = rhokp1
          ! calculate residual
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
-         call gs_h%op(w, n, GS_OP_ADD)
+         call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
          call blst%apply(w, n)
          call device_sub3(r_d, f_d, w_d, n)
 

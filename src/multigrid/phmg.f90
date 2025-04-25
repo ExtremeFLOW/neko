@@ -332,7 +332,8 @@ contains
     !> Residual <!
     !>----------<!
     call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
-    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
+    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+    call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
     call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -354,7 +355,8 @@ contains
     call intrp(lvl+1)%map(mg(lvl+1)%r%x, w%x, msh%nelv, mg(lvl+1)%Xh)
     call profiler_end_region('PHMG_map_to_coarse', 9)
 
-    call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD)
+    call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+    call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
 
     call mg(lvl+1)%bclst%apply_scalar( &
          mg(lvl+1)%r%x, &
@@ -389,7 +391,8 @@ contains
     call intrp(lvl+1)%map(w%x, mg(lvl+1)%z%x, msh%nelv, mg(lvl)%Xh)
     call profiler_end_region('PHMG_map_to_fine', 9)
 
-    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
+    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+    call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col2(w%x_d, mg(lvl)%coef%mult_d, mg(lvl)%dm_Xh%size())
