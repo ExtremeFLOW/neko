@@ -133,6 +133,8 @@ module hsmg
      type(c_ptr) :: gs_event
    contains
      procedure, pass(this) :: init => hsmg_init
+     procedure, pass(this) :: init_from_components => &
+          hsmg_init_from_components
      procedure, pass(this) :: free => hsmg_free
      procedure, pass(this) :: solve => hsmg_solve
      procedure, pass(this) :: update => hsmg_set_h
@@ -140,36 +142,13 @@ module hsmg
 
 contains
 
-  !> @note I do not think we actually use the same grids as they do in the original!
-  subroutine hsmg_init(this, msh, Xh, coef, dof, gs_h, bclst, hsmg_params)
+  subroutine hsmg_init(this, coef, bclst, hsmg_params)
     class(hsmg_t), intent(inout), target :: this
-    type(mesh_t), intent(inout), target :: msh
-    type(space_t), intent(inout), target :: Xh
     type(coef_t), intent(in), target :: coef
-    type(dofmap_t), intent(in), target :: dof
-    type(gs_t), intent(inout), target :: gs_h
     type(bc_list_t), intent(inout), target :: bclst
     type(json_file), intent(inout) :: hsmg_params
-    integer :: n, i
-    integer :: lx_crs, lx_mid
-    class(bc_t), pointer :: bc_i
     character(len=:), allocatable :: crs_solver, crs_pc
-    character(len=LOG_SIZE) :: log_buf
-
-    call this%free()
-    this%nlvls = 3
-    lx_crs = 2
-    if (Xh%lx .lt. 5) then
-       lx_mid = max(Xh%lx-1,3)
-
-       if (Xh%lx .le. 2) then
-          call neko_error('Polynomial order < 2 not supported for hsmg precon')
-       end if
-
-    else
-       lx_mid = 4
-    end if
-
+    
     ! Exract coarse grid parameters
     call json_get_or_default(hsmg_params, 'coarse_grid.iterations', &
          this%niter, 10)
@@ -179,6 +158,36 @@ contains
 
     call json_get_or_default(hsmg_params, 'coarse_grid.preconditioner', &
          crs_pc, "jacobi")
+
+    call this%init_from_components(coef, bclst, crs_solver, crs_pc)
+    
+  end subroutine hsmg_init
+  
+  subroutine hsmg_init_from_components(this, coef, bclst, crs_solver, crs_pc)
+    class(hsmg_t), intent(inout), target :: this
+    type(coef_t), intent(in), target :: coef
+    type(bc_list_t), intent(inout), target :: bclst
+    character(len=:), intent(inout), allocatable :: crs_solver, crs_pc
+    integer :: n, i
+    integer :: lx_crs, lx_mid
+    class(bc_t), pointer :: bc_i
+
+    character(len=LOG_SIZE) :: log_buf
+
+    call this%free()
+    !> @note I do not think we actually use the same grids as they do in the original!
+    this%nlvls = 3
+    lx_crs = 2
+    if (coef%Xh%lx .lt. 5) then
+       lx_mid = max(coef%Xh%lx-1,3)
+
+       if (coef%Xh%lx .le. 2) then
+          call neko_error('Polynomial order < 2 not supported for hsmg precon')
+       end if
+
+    else
+       lx_mid = 4
+    end if
 
 
     call neko_log%section('HSMG')
@@ -213,27 +222,27 @@ contains
        call neko_log%message('Coarse grid solver  : ' // trim(crs_solver) )
     end if
 
-    this%msh => msh
+    this%msh => coef%msh
     allocate(this%grids(this%nlvls))
-    allocate(this%w(dof%size()))
-    allocate(this%r(dof%size()))
+    allocate(this%w(coef%dof%size()))
+    allocate(this%r(coef%dof%size()))
 
 
     ! Compute all elements as if they are deformed
-    call msh%all_deformed()
+    call coef%msh%all_deformed()
 
-    n = dof%size()
-    call this%e%init(dof, 'work array')
-    call this%wf%init(dof, 'work 2')
+    n = coef%dof%size()
+    call this%e%init(coef%dof, 'work array')
+    call this%wf%init(coef%dof, 'work 2')
 
     call this%Xh_crs%init(GLL, lx_crs, lx_crs, lx_crs)
-    call this%dm_crs%init(msh, this%Xh_crs)
+    call this%dm_crs%init(coef%msh, this%Xh_crs)
     call this%gs_crs%init(this%dm_crs)
     call this%e_crs%init(this%dm_crs, 'work crs')
     call this%c_crs%init(this%gs_crs)
 
     call this%Xh_mg%init(GLL, lx_mid, lx_mid, lx_mid)
-    call this%dm_mg%init(msh, this%Xh_mg)
+    call this%dm_mg%init(coef%msh, this%Xh_mg)
     call this%gs_mg%init(this%dm_mg)
     call this%e_mg%init(this%dm_mg, 'work midl')
     call this%c_mg%init(this%gs_mg)
@@ -241,7 +250,7 @@ contains
     ! Create backend specific Ax operator
     call ax_helm_factory(this%ax, full_formulation = .false.)
 
-     call this%bc_crs%init_base(this%c_crs)
+    call this%bc_crs%init_base(this%c_crs)
     call this%bc_mg%init_base(this%c_mg)
     call this%bc_reg%init_base(coef)
     if (bclst%size() .gt. 0) then
@@ -266,15 +275,16 @@ contains
     call this%bclst_crs%append(this%bc_crs)
     call this%bclst_mg%append(this%bc_mg)
 
-    call this%schwarz%init(Xh, dof, gs_h, this%bclst_reg, msh)
+    call this%schwarz%init(coef%Xh, coef%dof, coef%gs_h, &
+         this%bclst_reg, coef%msh)
     call this%schwarz_mg%init(this%Xh_mg, this%dm_mg, this%gs_mg,&
-         this%bclst_mg, msh)
+         this%bclst_mg, coef%msh)
 
-    call this%interp_fine_mid%init(Xh, this%Xh_mg)
+    call this%interp_fine_mid%init(coef%Xh, this%Xh_mg)
     call this%interp_mid_crs%init(this%Xh_mg, this%Xh_crs)
 
-    call hsmg_fill_grid(dof, gs_h, Xh, coef, this%bclst_reg, this%schwarz, &
-         this%e, this%grids, 3)
+    call hsmg_fill_grid(coef%dof, coef%gs_h, coef%Xh, coef, &
+         this%bclst_reg, this%schwarz, this%e, this%grids, 3)
     call hsmg_fill_grid(this%dm_mg, this%gs_mg, this%Xh_mg, this%c_mg, &
          this%bclst_mg, this%schwarz_mg, this%e_mg, &
          this%grids, 2)
@@ -319,7 +329,7 @@ contains
 
     call neko_log%end_section()
 
-  end subroutine hsmg_init
+  end subroutine hsmg_init_from_components
 
   subroutine hsmg_set_h(this)
     class(hsmg_t), intent(inout) :: this

@@ -501,7 +501,7 @@ contains
     type is (device_jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (hsmg_t)
-       call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, pcparams)
+       call pcp%init(coef, bclst, pcparams)
     end select
 
     call ksp%set_pc(pc)
