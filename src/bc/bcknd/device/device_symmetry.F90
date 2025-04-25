@@ -67,7 +67,7 @@ module device_symmetry
      end subroutine opencl_symmetry_apply_vector
   end interface
 #endif
-  
+
 contains
 
   subroutine device_symmetry_apply_vector(xmsk, ymsk, zmsk, x, y, z, m, n, l)
@@ -83,7 +83,7 @@ contains
 #else
     call neko_error('No device backend configured')
 #endif
-    
+
   end subroutine device_symmetry_apply_vector
-  
+
 end module device_symmetry

@@ -40,6 +40,19 @@
 
 extern "C" {
 
+#include <math/bcknd/device/device_mpi_reduce.h>
+#include <math/bcknd/device/device_mpi_op.h>
+
+#ifdef HAVE_RCCL
+#include <math/bcknd/device/device_nccl_reduce.h>
+#include <math/bcknd/device/device_nccl_op.h>
+#endif
+
+  /**
+   * @todo Make sure that this gets deleted at some point...
+   */
+  real *cfl_d = NULL;
+  
   /** 
    * Fortran wrapper for device hip CFL
    */
@@ -52,15 +65,15 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks((*nel), 1, 1);
-    real * cfl = (real *) malloc((*nel) * sizeof(real));
-    real * cfl_d ;
-
-    HIP_CHECK(hipMalloc(&cfl_d, (*nel) * sizeof(real)));
+  
+    if (cfl_d == NULL) {
+      HIP_CHECK(hipMalloc(&cfl_d, (*nel) * sizeof(real)));
+    }
 
 #define CASE(LX)                                                                \
     case LX:                                                                    \
         hipLaunchKernelGGL(HIP_KERNEL_NAME( cfl_kernel<real, LX, 1024> ),       \
-                           nblcks, nthrds, 0, 0,                                \
+                           nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,      \
                            *dt, (real *) u, (real *) v, (real *) w,             \
                            (real *) drdx, (real *) dsdx, (real *) dtdx,         \
                            (real *) drdy, (real *) dsdy, (real *) dtdy,         \
@@ -80,23 +93,40 @@ extern "C" {
       CASE(8);
       CASE(9);
       CASE(10);
+      CASE(11);
+      CASE(12);
     default:
       {
         fprintf(stderr, __FILE__ ": size not supported: %d\n", *lx);
         exit(1);
       }
     }
-    HIP_CHECK(hipMemcpy(cfl, cfl_d, (*nel) * sizeof(real),
-			hipMemcpyDeviceToHost));
-    
-    real cfl_max = 0.0;
-    for (int i = 0; i < (*nel); i++) {
-      cfl_max = fmax(cfl_max, cfl[i]);
-    }
 
-    free(cfl);
-    HIP_CHECK(hipFree(cfl_d));
 
-    return cfl_max;
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(cfl_reduce_kernel<real>),
+                       1, 1024, 0, (hipStream_t) glb_cmd_queue,
+                       cfl_d, (*nel));
+    HIP_CHECK(hipGetLastError());
+
+    real cfl = 0.0;
+#ifdef HAVE_RCCL
+    device_nccl_allreduce(cfl_d, cfl_d, 1, sizeof(real),
+                          DEVICE_NCCL_MAX, glb_cmd_queue);
+    HIP_CHECK(hipMemcpyAsync(&cfl, cfl_d, sizeof(real),
+                             hipMemcpyDeviceToHost,
+                             (hipStream_t) glb_cmd_queue));
+    HIP_CHECK(hipStreamSynchronize((hipStream_t) glb_cmd_queue));
+#elif HAVE_DEVICE_MPI
+    HIP_CHECK(hipStreamSynchronize((hipStream_t) glb_cmd_queue));
+    device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(real), DEVICE_MPI_MAX);
+#else
+    HIP_CHECK(hipMemcpyAsync(&cfl, cfl_d, sizeof(real),
+                             hipMemcpyDeviceToHost,
+                             (hipStream_t) glb_cmd_queue));
+    HIP_CHECK(hipStreamSynchronize((hipStream_t) glb_cmd_queue));
+#endif
+
+
+    return cfl;
   } 
 }

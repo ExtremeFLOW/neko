@@ -36,8 +36,8 @@ module parmetis
   use point
   use utils
   use num_types
-  use mesh_field 
-  use mesh, only : mesh_t
+  use mesh_field
+  use mesh
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -60,7 +60,7 @@ module parmetis
        type(c_ptr), value :: tpwgts, ubvec
      end function parmetis_v3_partmeshkway
   end interface
-  
+
   interface
      integer (c_int) function parmetis_v3_partgeom &
           (vtxdist, ndims, xyz, part) &
@@ -101,12 +101,12 @@ module parmetis
 #define neko_idx(i) (i)
 #endif
 #endif
-  
+
 contains
 
 #ifdef HAVE_PARMETIS
 
-  !> Compute a k-way partitioning of a mesh @a msh 
+  !> Compute a k-way partitioning of a mesh @a msh
   subroutine parmetis_partmeshkway(msh, parts, weights, nprts)
     type(mesh_t), intent(inout) :: msh                !< Mesh
     type(mesh_fld_t), intent(inout) :: parts          !< Partitions
@@ -132,13 +132,13 @@ contains
 
     if (present(nprts)) then
        nparts = nprts
-    else          
+    else
        nparts = pe_size
     end if
-    
+
     allocate(elmdist(0:pe_size), eptr(0:msh%nelv))
     allocate(eind(0:(msh%nelv * msh%npts)), part(msh%nelv))
-    allocate(elmwgt(msh%nelv), tpwgts(ncon * nparts), ubvec(ncon)) 
+    allocate(elmwgt(msh%nelv), tpwgts(ncon * nparts), ubvec(ncon))
 
     call parmetis_dist(elmdist, msh%nelv)
 
@@ -171,11 +171,11 @@ contains
     else
        call neko_error(rcode)
     end if
-    
+
     deallocate(elmdist, eptr, eind, part, elmwgt, tpwgts, ubvec)
 
   end subroutine parmetis_partmeshkway
-  
+
   !> Compute a k-way partitioning of a mesh @a msh using
   !! a coordinated-based space-filing curves method
   subroutine parmetis_partgeom(msh, parts)
@@ -193,7 +193,7 @@ contains
     allocate(vtxdist(0:pe_size))
 
     call parmetis_dist(vtxdist, msh%nelv)
-    
+
     i = 1
     do j = 1, msh%nelv
        c = msh%elements(j)%e%centroid()
@@ -202,18 +202,18 @@ contains
        xyz(i + 2) = parmetis_real(c%x(3))
        i = i + 3
     end do
-    
+
     rcode = parmetis_v3_partgeom(c_loc(vtxdist), c_loc(ndims), &
          c_loc(xyz), c_loc(part))
-    
+
     if (rcode .eq. METIS_OK) then
        call parmetis_mark_parts(parts, msh, part)
     else
        call neko_error(rcode)
     end if
 
-    deallocate(part, xyz, vtxdist)    
-    
+    deallocate(part, xyz, vtxdist)
+
   end subroutine parmetis_partgeom
 
   !> Fill mesh field according to new partitions
@@ -228,7 +228,7 @@ contains
     do i = 1, msh%nelv
        parts%data(i) = neko_idx(part(i))
     end do
-    
+
   end subroutine parmetis_mark_parts
 
   !> Setup weights and balance constraints for the dual graph
@@ -240,7 +240,7 @@ contains
     integer, intent(in) :: nparts, ncon
     type(mesh_fld_t), intent(in), optional :: weight
     integer :: i
-    
+
     if (present(weight)) then
        do i = 1, msh%nelv
           wgt(i) = parmetis_idx(weight%data(i))
@@ -248,7 +248,7 @@ contains
     else
        wgt = parmetis_idx(1)
     end if
-    
+
     do i = 1, (ncon * nparts)
        tpwgts(i) = parmetis_real(1) / parmetis_real(nparts)
     end do
@@ -258,7 +258,7 @@ contains
     end do
 
   end subroutine parmetis_wgt
-  
+
   !> Compute the (parallel) vertex distribution of the dual graph
   subroutine parmetis_dist(dist, nelv)
     integer(kind=M_INT), intent(inout) :: dist(0:pe_size)
@@ -283,7 +283,7 @@ contains
 
 #else
 
-  !> Compute a k-way partitioning of a mesh @a msh 
+  !> Compute a k-way partitioning of a mesh @a msh
   subroutine parmetis_partmeshkway(msh, parts, weights, nprts)
     type(mesh_t), intent(inout) :: msh                !< Mesh
     type(mesh_fld_t), intent(inout) :: parts          !< Partitions
@@ -299,7 +299,7 @@ contains
     type(mesh_fld_t), intent(inout) :: parts !< Partitions
     call neko_error('NEKO needs to be built with ParMETIS support')
   end subroutine parmetis_partgeom
-  
+
 #endif
-  
+
 end module parmetis

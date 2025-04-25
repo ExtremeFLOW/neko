@@ -5,13 +5,13 @@ module fdm_xsmm
   implicit none
 
 contains
-  
+
   subroutine fdm_do_fast_xsmm(e, r, s, d, nl, ldim, nelv)
     integer, intent(in) :: nl, nelv, ldim
     real(kind=rp), intent(inout) :: e(nl**ldim, nelv)
     real(kind=rp), intent(inout) :: r(nl**ldim, nelv)
     real(kind=rp), intent(inout) :: s(nl*nl,2,ldim, nelv)
-    real(kind=rp), intent(inout) :: d(nl**ldim, nelv)    
+    real(kind=rp), intent(inout) :: d(nl**ldim, nelv)
     integer ::  ie, nn, i
 
     nn = nl**ldim
@@ -35,5 +35,5 @@ contains
        end do
     end if
   end subroutine fdm_do_fast_xsmm
-  
+
 end module fdm_xsmm

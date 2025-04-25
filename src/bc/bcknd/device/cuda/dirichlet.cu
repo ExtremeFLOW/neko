@@ -48,7 +48,9 @@ extern "C" {
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     dirichlet_apply_scalar_kernel<real>
-      <<<nblcks, nthrds>>>((int *) msk, (real *) x, *g, *m);
+      <<<nblcks, nthrds, 0, (cudaStream_t) glb_cmd_queue>>>((int *) msk,
+                                                            (real *) x,
+                                                            *g, *m);
     CUDA_CHECK(cudaGetLastError());
   }
   
@@ -62,8 +64,11 @@ extern "C" {
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     dirichlet_apply_vector_kernel<real>
-      <<<nblcks, nthrds>>>((int *) msk,
-                           (real *) x, (real *) y, (real *) z, *g, *m);
+      <<<nblcks, nthrds, 0, (cudaStream_t) glb_cmd_queue>>>((int *) msk,
+                                                            (real *) x,
+                                                            (real *) y,
+                                                            (real *) z,
+                                                            *g, *m);
     CUDA_CHECK(cudaGetLastError());
   }
  

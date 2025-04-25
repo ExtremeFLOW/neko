@@ -35,6 +35,7 @@ module device_dong_outflow
   use utils
   use, intrinsic :: iso_c_binding
   implicit none
+  private
 
 #ifdef HAVE_HIP
   interface
@@ -45,7 +46,7 @@ module device_dong_outflow
        import c_rp
        implicit none
        integer(c_int) :: m
-       real(kind=c_rp) :: uinf, delta 
+       real(kind=c_rp) :: uinf, delta
        type(c_ptr), value :: msk, x, u, v, w, normal_x, normal_y, normal_z
      end subroutine hip_dong_outflow_apply_scalar
   end interface
@@ -58,7 +59,7 @@ module device_dong_outflow
        import c_rp
        implicit none
        integer(c_int) :: m
-       real(kind=c_rp) :: uinf, delta 
+       real(kind=c_rp) :: uinf, delta
        type(c_ptr), value :: msk, x, u, v, w, normal_x, normal_y, normal_z
      end subroutine cuda_dong_outflow_apply_scalar
   end interface
@@ -71,18 +72,20 @@ module device_dong_outflow
        import c_rp
        implicit none
        integer(c_int) :: m
-       real(kind=c_rp) :: uinf, delta 
+       real(kind=c_rp) :: uinf, delta
        type(c_ptr), value :: msk, x, u, v, w, normal_x, normal_y, normal_z
      end subroutine opencl_dong_outflow_apply_scalar
   end interface
 #endif
+
+  public :: device_dong_outflow_apply_scalar
 
 contains
 
   subroutine device_dong_outflow_apply_scalar(msk, x, normal_x, normal_y,&
                                               normal_z, u, v, w, uinf, delta, m)
     integer(c_int) :: m
-    real(kind=c_rp) :: uinf, delta 
+    real(kind=c_rp) :: uinf, delta
     type(c_ptr) :: msk, x, u, v, w, normal_x, normal_y, normal_z
 
 #ifdef HAVE_HIP
@@ -98,7 +101,7 @@ contains
 #else
     call neko_error('No device backend configured')
 #endif
-    
+
   end subroutine device_dong_outflow_apply_scalar
-  
+
 end module device_dong_outflow

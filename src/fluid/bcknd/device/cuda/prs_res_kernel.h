@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __FLUID_PRS_RES_KERNEL__
+#define __FLUID_PRS_RES_KERNEL__
+
 template< typename T >
 __global__ void prs_res_part1_kernel(T * __restrict__ ta1,
                                      T * __restrict__ ta2,
@@ -44,20 +47,19 @@ __global__ void prs_res_part1_kernel(T * __restrict__ ta1,
                                      const T * __restrict__ f_w,
                                      const T * __restrict__ B,
                                      T * __restrict__ h1,
-                                     const T Re,
+                                     const T mu,
                                      const T rho,
                                      const int n) {
   
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
   const T inv_rho = 1.0 / rho;
-  const T inv_Re = 1.0 / Re;
   
   for (int i = idx; i < n; i += str) {
     h1[i] = inv_rho;
-    ta1[i] = (f_u[i] / rho) - ((wa1[i] * (inv_Re / rho)) * B[i]);
-    ta2[i] = (f_v[i] / rho) - ((wa2[i] * (inv_Re / rho)) * B[i]);
-    ta3[i] = (f_w[i] / rho) - ((wa3[i] * (inv_Re / rho)) * B[i]);
+    ta1[i] = (f_u[i] / rho) - ((wa1[i] * (mu / rho)) * B[i]);
+    ta2[i] = (f_v[i] / rho) - ((wa2[i] * (mu / rho)) * B[i]);
+    ta3[i] = (f_w[i] / rho) - ((wa3[i] * (mu / rho)) * B[i]);
   }
 
 }
@@ -93,3 +95,5 @@ __global__ void prs_res_part3_kernel(T * __restrict__ p_res,
     p_res[i] = p_res[i] - (dtbd * (ta1[i] + ta2[i] + ta3[i]));
   }
 }
+
+#endif // __FLUID_PRS_RES_KERNEL__

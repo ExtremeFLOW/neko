@@ -39,7 +39,7 @@ module tet_mesh
   use utils
   implicit none
   private
-  
+
   integer, public, parameter :: TET_MSH_OTPV = 1, TET_MSH_FVTC = 2, &
        TET_MSH_SVTC = 3
 
@@ -60,9 +60,9 @@ contains
     type(mesh_t), intent(in), target :: msh
     integer, intent(in), optional :: mthd
     integer :: bsct_mthd
-    
+
     call this%free()
-    
+
     this%msh => msh
 
     if (present(mthd)) then
@@ -98,7 +98,7 @@ contains
     end if
 
     nullify(this%msh)
-    
+
   end subroutine tet_mesh_free
 
   ! Bisect hexahedral mesh into a tetrahedral mesh using
@@ -109,7 +109,7 @@ contains
     type(tet_mesh_t), intent(inout) :: tet_msh
     integer :: i, j
     type(point_t), pointer :: p1, p2, p3, p4
-    
+
     j = 0
     do i = 1, tet_msh%msh%nelv
 
@@ -170,7 +170,7 @@ contains
        call tet_msh%el(j)%init(j, p1, p2, p3, p4)
 
     end do
-    
+
   end subroutine tet_mesh_bisect_otpv
 
   !> Bisect each hexahedron into five tetrahedrons
@@ -269,10 +269,10 @@ contains
        p3 => tet_msh%msh%elements(i)%e%pts(3)%p
        p4 => tet_msh%msh%elements(i)%e%pts(4)%p
        call tet_msh%el(j)%init(j, p1, p2, p3, p4)
-       
+
     end do
-    
-    
+
+
   end subroutine tet_mesh_bisect_svtc
-  
+
 end module tet_mesh

@@ -49,7 +49,7 @@ extern "C" {
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(dirichlet_apply_scalar_kernel<real>),
-		       nblcks, nthrds, 0, 0,
+		       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
 		       (int *) msk, (real *) x, *g, *m);
     HIP_CHECK(hipGetLastError());
   }
@@ -64,7 +64,7 @@ extern "C" {
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(dirichlet_apply_vector_kernel<real>),
-		       nblcks, nthrds, 0, 0,
+		       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
 		       (int *) msk, (real *) x,
 		       (real *) y, (real *) z, *g, *m);
     HIP_CHECK(hipGetLastError());

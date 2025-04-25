@@ -52,9 +52,11 @@ extern "C" {
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
     inflow_apply_vector_kernel<real>
-      <<<nblcks, nthrds>>>((int *) msk,
-                           (real *) x, (real *) y, (real *) z,
-                           gx, gy, gz, *m);
+      <<<nblcks, nthrds, 0, (cudaStream_t) glb_cmd_queue>>>((int *) msk,
+                                                            (real *) x,
+                                                            (real *) y,
+                                                            (real *) z,
+                                                            gx, gy, gz, *m);
     CUDA_CHECK(cudaGetLastError());
   }
  

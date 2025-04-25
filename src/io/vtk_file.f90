@@ -46,7 +46,7 @@ module vtk_file
   use comm
   implicit none
   private
-  
+
   !> Interface for legacy VTK files
   type, public, extends(generic_file_t) :: vtk_file_t
    contains
@@ -105,7 +105,7 @@ contains
     if (associated(msh)) then
        write(9, fmt='(A)') 'DATASET UNSTRUCTURED_GRID'
 
-       call vtk_file_write_mesh(9, msh)       
+       call vtk_file_write_mesh(9, msh)
 
        if (associated(mfld)) then
           call vtk_file_write_cell_data(9, mfld)
@@ -127,13 +127,15 @@ contains
     else
        call neko_error('Invalid data')
     end if
-    
+
     close(9)
   end subroutine vtk_file_write
 
   subroutine vtk_file_read(this, data)
     class(vtk_file_t) :: this
     class(*), target, intent(inout) :: data
+
+    call neko_error('VTK file read not implemented')
   end subroutine vtk_file_read
 
   !> Write a mesh in legacy VTK format
@@ -141,7 +143,8 @@ contains
     integer :: unit
     type(mesh_t), intent(inout) :: msh
     integer :: i, j, vtk_type
-
+    integer,  dimension(8), parameter :: vcyc_to_sym = (/1, 2, 4, 3, &
+                                                         5, 6, 8, 7/)
     ! Dump coordinates
     write(unit, fmt='(A,I8,A)') 'POINTS', msh%mpts,' double'
     do i = 1, msh%mpts
@@ -153,7 +156,7 @@ contains
     j = 0
     do i = 1, msh%nelv
        write(unit, fmt='(I8,8I8)') msh%npts, &
-            (mesh_get_local_point(msh, msh%elements(i)%e%pts(j)%p) - 1, &
+            (msh%get_local(msh%elements(i)%e%pts(vcyc_to_sym(j))%p) - 1, &
             j=1, msh%npts)
     end do
 
@@ -176,15 +179,15 @@ contains
     write(unit, fmt='(A,I8)') 'CELL_DATA', mfld%msh%nelv
     write(unit, fmt='(A,A,A,I8)') 'SCALARS ', trim(mfld%name), ' int', 1
     write(unit, fmt='(A)') 'LOOKUP_TABLE default'
-    
+
     do i = 1, mfld%msh%nelv
        write(unit, fmt='(I8)') mfld%data(i)
     end do
-    
+
   end subroutine vtk_file_write_cell_data
 
   !> Write a field @a fld as point data
-  !! @note High-order fields will be interpolated down 
+  !! @note High-order fields will be interpolated down
   !! to the low-order mesh
   subroutine vtk_file_write_point_data(unit, fld)
     integer :: unit
@@ -201,35 +204,35 @@ contains
     write(unit, fmt='(A,I8)') 'POINT_DATA', fld%msh%mpts
     write(unit, fmt='(A,A,A,I8)') 'SCALARS ', trim(fld%name), ' double', 1
     write(unit, fmt='(A)') 'LOOKUP_TABLE default'
-    
+
     lx = fld%Xh%lx
     ly = fld%Xh%ly
     lz = fld%Xh%lz
     allocate(point_data(fld%msh%mpts))
-    
+
     do i = 1, fld%msh%nelv
        do j = 1, fld%msh%npts
-          id(j) = mesh_get_local(fld%msh, fld%msh%elements(i)%e%pts(j)%p)
+          id(j) = fld%msh%get_local(fld%msh%elements(i)%e%pts(j)%p)
        end do
 
        point_data(id(1)) = real(fld%x(1,1,1,i),dp)
        point_data(id(2)) = real(fld%x(lx,1,1,i),dp)
-       point_data(id(4)) = real(fld%x(1,ly,1,i),dp)
-       point_data(id(3)) = real(fld%x(lx,ly,1,i),dp)       
+       point_data(id(3)) = real(fld%x(1,ly,1,i),dp)
+       point_data(id(4)) = real(fld%x(lx,ly,1,i),dp)
 
        if (fld%msh%gdim .eq. 3) then
           point_data(id(5)) = real(fld%x(1,1,lz,i),dp)
           point_data(id(6)) = real(fld%x(lx,1,lz,i),dp)
-          point_data(id(8)) = real(fld%x(1,ly,lz,i),dp)
-          point_data(id(7)) = real(fld%x(lx,ly,lz,i),dp)    
+          point_data(id(7)) = real(fld%x(1,ly,lz,i),dp)
+          point_data(id(8)) = real(fld%x(lx,ly,lz,i),dp)
        end if
 
     end do
 
     write(unit, *) point_data
-    
-    deallocate(point_data)       
-    
+
+    deallocate(point_data)
+
   end subroutine vtk_file_write_point_data
 
   !> Write xyz-coordinates of a dofmap @a dm as points
@@ -257,30 +260,30 @@ contains
     do i = 1, size(dm%x)
        write(unit, fmt='(I8,I8)') 1,i-1
     end do
-    
-    
+
+
   end subroutine vtk_file_write_dofmap_coordinates
 
   !> Write a dofmap @a dm data as point data
-  subroutine vtk_file_write_dofmap_data(unit, dm)    
+  subroutine vtk_file_write_dofmap_data(unit, dm)
     integer :: unit
     type(dofmap_t), intent(inout) :: dm
     integer :: i, j, k, l
 
-     write(unit, fmt='(A,I8)') 'POINT_DATA', size(dm%dof)
-     write(unit, fmt='(A,A,A,I8)') 'SCALARS ', 'dof_id', ' integer', 1
-     write(unit, fmt='(A)') 'LOOKUP_TABLE default'
+    write(unit, fmt='(A,I8)') 'POINT_DATA', size(dm%dof)
+    write(unit, fmt='(A,A,A,I8)') 'SCALARS ', 'dof_id', ' integer', 1
+    write(unit, fmt='(A)') 'LOOKUP_TABLE default'
 
-     do i = 1, dm%msh%nelv
-        do l = 1, dm%Xh%lz
-           do k = 1, dm%Xh%ly
-              do j = 1, dm%Xh%lx
-                 write(unit, fmt='(I8)') real(dm%dof(j,k,l,i),dp)
-              end do
-           end do
-        end do
-     end do
-    
+    do i = 1, dm%msh%nelv
+       do l = 1, dm%Xh%lz
+          do k = 1, dm%Xh%ly
+             do j = 1, dm%Xh%lx
+                write(unit, fmt='(I8)') real(dm%dof(j,k,l,i),dp)
+             end do
+          end do
+       end do
+    end do
+
     write(unit, fmt='(A,A,A,I8)') 'SCALARS ', 'shared_dof', ' integer', 1
     write(unit, fmt='(A)') 'LOOKUP_TABLE default'
 
@@ -297,7 +300,7 @@ contains
           end do
        end do
     end do
-    
+
   end subroutine vtk_file_write_dofmap_data
 
   !> Write a tetrahedral mesh in legacy VTK format
@@ -318,7 +321,7 @@ contains
     j = 0
     do i = 1, tet_msh%nelv
        write(unit, fmt='(I8,8I8)') npts, &
-            (mesh_get_local_point(tet_msh%msh, tet_msh%el(i)%pts(j)%p) - 1, &
+            (tet_msh%msh%get_local(tet_msh%el(i)%pts(j)%p) - 1, &
             j=1, npts)
     end do
 

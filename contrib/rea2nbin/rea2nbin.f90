@@ -16,8 +16,16 @@ program rea2nbin
   end if
   
   call neko_init 
+
+  if (pe_size .gt. 1) then
+     call neko_error("rea2nbin can only run on 1 rank")
+  end if
   
   call get_command_argument(1, fname) 
+  call filename_suffix(fname, suffix)
+  if (suffix .ne. "re2") then
+     call neko_error("rea is no longer supported. Please convert to re2 first")
+  end if
 
   if (argc .eq. 2) then
      call get_command_argument(2, output_)
@@ -41,7 +49,7 @@ program rea2nbin
   
   call nmsh_file%write(msh)
   
-  call mesh_free(msh)
+  call msh%free()
   
   call neko_finalize
 

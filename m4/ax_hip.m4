@@ -9,7 +9,7 @@
 
 AC_DEFUN([AX_HIP],[
 	AC_ARG_WITH([hip],
-		    AC_HELP_STRING([--with-hip=DIR],
+		    AS_HELP_STRING([--with-hip=DIR],
 		    [Compile with HIP backend]),
 		    [
 		    if test -d "$withval"; then

@@ -71,12 +71,12 @@ contains
     real(kind=dp), intent(in) :: width
     type(point_t) :: origin
     integer, parameter :: top_level = 0
-    
+
     call octree_free(t)
 
     origin = (/ 0d0, 0d0, 0d0 /)
     call octree_oct_init(t%root, origin, width, top_level)
-    
+
   end subroutine octree_init
 
   !> Destroy an octree
@@ -84,7 +84,7 @@ contains
     class(octree_t), intent(inout) :: t
 
     call octree_free_oct(t%root)
-    
+
   end subroutine octree_free
 
   !> Insert a point @a p into the octree
@@ -93,7 +93,7 @@ contains
     type(point_t), intent(in) :: p
 
     call octree_oct_insert(t%root, p)
-    
+
   end subroutine octree_insert
 
   !> Find a point @a p in an octree
@@ -103,9 +103,9 @@ contains
     logical rcode
 
     rcode = (octree_oct_find(t%root, p) .eq. 0)
-    
+
   end function octree_find
-  
+
 
   !> Insert a point @a p into the octree rooted at @a o
   recursive subroutine octree_oct_insert(o, p)
@@ -113,7 +113,7 @@ contains
     type(point_t), intent(in) :: p
     type(point_t) :: tmp_pt, offset, new_origin
     integer :: i
-    
+
     if (.not. associated(o%oct(1)%ptr)) then
        if (.not. o%valid) then
           o%point = p
@@ -124,14 +124,14 @@ contains
              return
           else
              tmp_pt = o%point
-             o%valid = .false.             
+             o%valid = .false.
 
              do i = 1, 8
                 offset = (/ -0.5d0, -0.5d0, -0.5d0 /)
                 if (iand((i - 1), 4) .gt. 0) offset%x(1) = 0.5d0
                 if (iand((i - 1), 2) .gt. 0) offset%x(2) = 0.5d0
                 if (iand((i - 1), 1) .gt. 0) offset%x(3) = 0.5d0
-                
+
                 new_origin = o%origin%x + (o%width * offset%x)
                 call octree_oct_init(o%oct(i)%ptr, new_origin, &
                      o%width * 0.5d0, o%level + 1)
@@ -139,7 +139,7 @@ contains
 
              call octree_oct_insert(o%oct(octree_oct(o, tmp_pt))%ptr, tmp_pt)
              call octree_oct_insert(o%oct(octree_oct(o, p))%ptr, p)
-             
+
           end if
        end if
     else
@@ -165,7 +165,7 @@ contains
        oct_idx = octree_oct(o, p)
        rcode = octree_oct_find(o%oct(oct_idx)%ptr, p)
     end if
-    
+
   end function octree_oct_find
 
   !> Initialize an octant width a given width, origin and level
@@ -175,7 +175,7 @@ contains
     real(kind=dp), intent(in) :: width
     integer, intent(in) :: level
     integer :: i
-    
+
     if (associated(o)) then
        call neko_error('Octree octant already initialized')
     else
@@ -189,14 +189,14 @@ contains
           nullify(o%oct(i)%ptr)
        end do
     end if
-    
+
   end subroutine octree_oct_init
-    
+
   !> Deallocate an oct in an octree
   recursive subroutine octree_free_oct(o)
     type(oct_t), pointer, intent(inout) :: o
     integer :: i
-    
+
     if (.not. associated(o)) then
        return
     else if (.not. associated(o%oct(1)%ptr)) then
@@ -211,7 +211,7 @@ contains
        nullify(o)
     end if
 
-           
+
   end subroutine octree_free_oct
 
   !> Return the octant for a given point
@@ -225,7 +225,7 @@ contains
     if (point%x(2) .ge. oct%origin%x(2)) oct_idx = ior(oct_idx, 2)
     if (point%x(3) .ge. oct%origin%x(3)) oct_idx = ior(oct_idx, 1)
     oct_idx = oct_idx + 1
-    
+
   end function octree_oct
 
   !> Return if a point is inside an octant
@@ -244,5 +244,5 @@ contains
        inside = .true.
     end if
   end function octree_oct_inside
-  
+
 end module octree

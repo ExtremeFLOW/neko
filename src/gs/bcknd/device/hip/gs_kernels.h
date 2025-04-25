@@ -32,6 +32,9 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __GS_GS_KERNELS__
+#define __GS_GS_KERNELS__
+
 /**
  * Device gather kernel for addition of data
  * \f$ v(dg(i)) = v(dg(i)) + u(gd(i)) \f$
@@ -74,7 +77,7 @@ __global__ void gather_kernel_add(T * __restrict__ v,
       }
     }
   }
-  
+
 }
 
 /**
@@ -91,7 +94,7 @@ __global__ void gather_kernel_mul(T * __restrict__ v,
                                   const int * __restrict__ gd,
                                   const int nb,
                                   const int * __restrict__ b,
-                                  const int * __restrict__ bo) { 
+                                  const int * __restrict__ bo) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -136,7 +139,7 @@ __global__ void gather_kernel_min(T * __restrict__ v,
                                   const int * __restrict__ gd,
                                   const int nb,
                                   const int * __restrict__ b,
-                                  const int * __restrict__ bo) { 
+                                  const int * __restrict__ bo) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -164,7 +167,7 @@ __global__ void gather_kernel_min(T * __restrict__ v,
       }
     }
   }
-  
+
 }
 
 /**
@@ -181,7 +184,7 @@ __global__ void gather_kernel_max(T * __restrict__ v,
                                   const int * __restrict__ gd,
                                   const int nb,
                                   const int * __restrict__ b,
-                                  const int * __restrict__ bo) { 
+                                  const int * __restrict__ bo) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -195,7 +198,7 @@ __global__ void gather_kernel_max(T * __restrict__ v,
     }
     v[dg[k] - 1] = tmp;
   }
-  
+
   if (o < 0) {
     for (int i = ((abs(o) - 1) + idx); i < m ; i += str) {
       v[dg[i] - 1] = u[gd[i] - 1];
@@ -209,7 +212,7 @@ __global__ void gather_kernel_max(T * __restrict__ v,
       }
     }
   }
-  
+
 }
 
 /**
@@ -226,25 +229,25 @@ __global__ void scatter_kernel(T * __restrict__ v,
                                const int nb,
                                const int *__restrict__ b,
                                const int *__restrict__ bo) {
-  
+
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
-  
+
   for (int i = idx; i < nb; i += str) {
     const int blk_len = b[i];
     const int k = bo[i];
     T tmp = v[dg[k] - 1];
     for (int j = 0; j < blk_len; j++) {
       u[gd[k + j] - 1] = tmp;
-    }      
+    }
   }
 
   const int facet_offset = bo[nb - 1] + b[nb - 1];
-  
+
   for (int i = ((facet_offset - 1) + idx); i < m; i += str) {
     u[gd[i] - 1] = v[dg[i] - 1];
   }
-  
+
 }
 
 template< typename T >
@@ -281,3 +284,94 @@ __global__ void gs_unpack_add_kernel(T * __restrict__ u,
     u[idx-1] += val;
   }
 }
+
+template<typename T>
+__device__ T atomicMinFloat(T* address, T val);
+
+template<>
+__device__ float atomicMinFloat<float>(float* address, float val) {
+    float old;
+    old = !signbit(val) ? __int_as_float(atomicMin((int*)address, __float_as_int(val))) :
+        __uint_as_float(atomicMax((unsigned int*)address, __float_as_uint(val)));
+
+    return old;
+}
+
+template<>
+__device__ double atomicMinFloat<double>(double* address, double val) {
+    double old;
+    old = !signbit(val) ? __longlong_as_double(atomicMin((unsigned long long*)address, 
+                                            __double_as_longlong(val))) :
+          __longlong_as_double(atomicMax((unsigned long long*)address, 
+                                            __double_as_longlong(val)));
+    return old;
+}
+
+template< typename T >
+__global__ void gs_unpack_min_kernel(T * __restrict__ u,
+                                     const T * __restrict__ buf,
+                                     const int32_t * __restrict__ dof,
+                                     const int n) {
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j >= n)
+    return;
+
+  const int32_t idx = dof[j];
+  const T val = buf[j];
+
+  if (idx < 0) {
+    // Use atomicMin for shared nodal points
+    atomicMinFloat(&u[-idx-1], val);
+  } else {
+    // Directly compute min for nodal points on edges
+    u[idx-1] = min(u[idx-1], val);
+  }
+}
+
+template<typename T>
+__device__ T atomicMaxFloat(T* address, T val);
+
+template<>
+__device__ float atomicMaxFloat<float>(float* address, float val) {
+    float old;
+    old = !signbit(val) ? __int_as_float(atomicMax((int*)address, __float_as_int(val))) :
+        __uint_as_float(atomicMin((unsigned int*)address, __float_as_uint(val)));
+    return old;
+}
+
+template<>
+__device__ double atomicMaxFloat<double>(double* address, double val) {
+    double old;
+    old = !signbit(val) ? __longlong_as_double(atomicMax((unsigned long long*)address, 
+                                                __double_as_longlong(val))) :
+          __longlong_as_double(atomicMin((unsigned long long*)address, 
+                                                __double_as_longlong(val)));
+    return old;
+}
+
+template< typename T >
+__global__ void gs_unpack_max_kernel(T * __restrict__ u,
+                                     const T * __restrict__ buf,
+                                     const int32_t * __restrict__ dof,
+                                     const int n) {
+
+  const int j = threadIdx.x + blockDim.x * blockIdx.x;
+
+  if (j >= n)
+    return;
+
+  const int32_t idx = dof[j];
+  const T val = buf[j];
+
+  if (idx < 0) {
+    // Use atomicMax for shared nodal points
+    atomicMaxFloat(&u[-idx-1], val);
+  } else {
+    // Directly compute min for nodal points on edges
+    u[idx-1] = max(u[idx-1], val);
+  }
+}
+
+#endif // __GS_GS_KERNELS__

@@ -1,4 +1,4 @@
-! Copyright (c) 2021, The Neko Authors
+! Copyright (c) 2021-2023, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,16 +32,17 @@
 !
 !> Defines a triangular element
 module tri
-  use num_types
-  use element
-  use tuple
-  use point
+  use num_types, only : dp
+  use element, only : element_t
+  use tuple, only : tuple_t, tuple_i4_t
+  use point, only : point_t
   implicit none
   private
 
   integer, public, parameter :: NEKO_TRI_NPTS = 3 !< Number of points
   integer, public, parameter :: NEKO_TRI_NEDS = 3 !< Number of edges
   integer, public, parameter :: NEKO_TRI_GDIM = 2 !< Geometric dimension
+  integer, public, parameter :: NEKO_TRI_SDIM = 3 !< Dimension of space
 
   !> Triangular element
   !! @details
@@ -50,9 +51,9 @@ module tri
   !! Node numbering
   !!
   !!    3+
-  !!     |\          
+  !!     |\
   !!     | \        ^ s
-  !!     |  \       | 
+  !!     |  \       |
   !!     |   \      |
   !!    1+----+2    +---> r
   !!
@@ -74,9 +75,9 @@ module tri
   !! Edge numbering
   !!
   !!     +
-  !!     |\          
+  !!     |\
   !!     | \       ^ s
-  !!   1 |  \ 2    | 
+  !!   1 |  \ 2    |
   !!     |   \     |
   !!     +----+    +---> r
   !!       3
@@ -109,20 +110,20 @@ contains
     class(tri_t), intent(in) :: this
     class(tuple_t), intent(inout) :: t
     integer, intent(in) :: side
-    type(point_t), pointer :: p1, p2    
+    type(point_t), pointer :: p1, p2
 
     p1 => this%p(edge_nodes(1, side))
     p2 => this%p(edge_nodes(2, side))
 
-    select type(t)
-    type is(tuple_i4_t)
+    select type (t)
+    type is (tuple_i4_t)
        if (p1 .lt. p2) then
           t%x = (/ p1%id(), p2%id() /)
        else
           t%x = (/ p2%id(), p1%id() /)
        end if
     end select
-    
+
   end subroutine tri_facet_id
 
   !> Return the ordered edge for face @a i as a 2-tuple @a t
@@ -135,8 +136,8 @@ contains
     p1 => this%p(edge_nodes(1, side))
     p2 => this%p(edge_nodes(2, side))
 
-    select type(t)
-    type is(tuple_i4_t)
+    select type (t)
+    type is (tuple_i4_t)
        t%x = (/ p1%id(), p2%id() /)
     end select
 
@@ -157,7 +158,7 @@ contains
     p2 => this%p(2)
     p3 => this%p(3)
 
-    do i = 1, NEKO_TRI_GDIM
+    do i = 1, NEKO_TRI_SDIM
        d1 = d1 + (p2%x(i) - p1%x(i))**2
        d2 = d2 + (p3%x(i) - p2%x(i))**2
        d3 = d3 + (p1%x(i) - p3%x(i))**2
@@ -171,16 +172,15 @@ contains
   function tri_centroid(this) result(res)
     class(tri_t), intent(in) :: this
     type(point_t) :: res
-    type(point_t), pointer :: p1, p2, p3, p4
+    type(point_t), pointer :: p1, p2, p3
     integer :: i
 
     p1 => this%p(1)
     p2 => this%p(2)
     p3 => this%p(3)
-    p4 => this%p(4)
     res%x = 0d0
 
-    do i = 1, this%gdim()
+    do i = 1, NEKO_TRI_SDIM
        res%x(i) = 1d0/3d0 * (p1%x(i) + p2%x(i) + p3%x(i))
     end do
   end function tri_centroid
@@ -190,15 +190,15 @@ contains
   pure function tri_equal(this, other) result(res)
     class(tri_t), intent(in) :: this
     class(element_t), intent(in) :: other
-    integer :: i    
+    integer :: i
     logical :: res
 
     res = .false.
-    select type(other)
+    select type (other)
     class is (tri_t)
        if ((this%gdim() .eq. other%gdim()) .and. &
             (this%npts() .eq. other%npts())) then
-          do i = 1, this%npts()
+          do i = 1, NEKO_TRI_NPTS
              if (this%pts(i)%p .ne. other%pts(i)%p) then
                 return
              end if
@@ -206,7 +206,7 @@ contains
           res = .true.
        end if
     end select
-    
+
   end function tri_equal
-  
+
 end module tri

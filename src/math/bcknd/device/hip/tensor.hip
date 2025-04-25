@@ -36,6 +36,14 @@
 #include <device/device_config.h>
 #include <device/hip/check.h>
 #include "tensor_kernel.h"
+#include <stdio.h>
+
+#define max(a,b) \
+  ({ __typeof__ (a) _a = (a);  \
+     __typeof__ (b) _b = (b);   \
+     _a > _b ? _a : _b; })
+
+
 extern "C" {
 
   /** Fortran wrapper for tnsr3d **/
@@ -44,11 +52,83 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(*nel, 1, 1);
-    
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(tnsr3d_kernel<real>),
-                       nblcks, nthrds, 0, 0,
-                       (real *) v, *nv, (real *) u, 
-		       *nu, (real *) A, (real *) Bt, (real *) Ct);
-    HIP_CHECK(hipGetLastError());
+
+    int n = max(*nu,*nv);
+#define CASE(N)                                                     \
+    case N:                                                         \
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(tnsr3d_kernel<real, N>),     \
+                       nblcks, nthrds, 0,                           \
+                       (hipStream_t) glb_cmd_queue,                 \
+                       (real *) v, *nv,                             \
+                       (real *) u, *nu,                             \
+                       (real *) A, (real *) Bt, (real *) Ct);       \
+    HIP_CHECK(hipGetLastError());                                   \
+    break
+
+    switch(n) {
+      CASE(2);
+      CASE(3);
+      CASE(4);
+      CASE(5);
+      CASE(6);
+      CASE(7);
+      CASE(8); 
+      CASE(9);
+      CASE(10);
+      CASE(11);
+      CASE(12);
+      CASE(13);
+      CASE(14);
+      CASE(15);
+      CASE(16);
+    default:
+      {
+        fprintf(stderr, __FILE__ ": size not supported: %d\n", n);
+        exit(1);
+      }
+    }
   }
+
+ /** Fortran wrapper for tnsr3d **/
+  void hip_tnsr3d_el_list(void *v, int *nv, void *u, int *nu,
+		   void *A, void *Bt, void *Ct, int * elements, int* n_points) {
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(*n_points, 1, 1);
+
+    int n = max(*nu,*nv);
+#define CASE2(N)                                                    \
+    case N:                                                         \
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(tnsr3d_el_kernel<real, N>),  \
+                       nblcks, nthrds, 0,                           \
+                       (hipStream_t) glb_cmd_queue,                 \
+                       (real *) v, *nv,                             \
+                       (real *) u, *nu,                             \
+                       (real *) A, (real *) Bt, (real *) Ct,        \
+                       (int *) elements, *n_points);                \
+    HIP_CHECK(hipGetLastError());                                   \
+    break
+
+    switch(n) {
+      CASE2(2);
+      CASE2(3);
+      CASE2(4);
+      CASE2(5);
+      CASE2(6);
+      CASE2(7);
+      CASE2(8);
+      CASE2(9);
+      CASE2(10);
+      CASE2(11);
+      CASE2(12);
+      CASE2(13);
+      CASE2(14);
+    default:
+      {
+        fprintf(stderr, __FILE__ ": size not supported: %d\n", n);
+        exit(1);
+      }
+    }
+  }
+
+
 }

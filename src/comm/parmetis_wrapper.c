@@ -10,6 +10,8 @@
 #include <mpi.h>
 #include <parmetis.h>
 
+#include <comm/comm.h>
+
 
 /*!
   Fortran wrapper for ParMETIS PartGeom
@@ -18,14 +20,12 @@ int ParMETIS_V3_PartGeom_wrapper(idx_t *vtxdist, idx_t *ndims,
 				 real_t *xyz, idx_t *part)
 {
   int rcode;
-  MPI_Comm comm;
-  MPI_Comm_dup(MPI_COMM_WORLD, &comm);
 
   rcode = METIS_ERROR;
 
 #ifdef HAVE_PARMETIS
 
-  rcode = ParMETIS_V3_PartGeom(vtxdist, ndims, xyz, part, &comm);
+  rcode = ParMETIS_V3_PartGeom(vtxdist, ndims, xyz, part, &NEKO_COMM);
 
 #endif
 
@@ -45,8 +45,6 @@ int ParMETIS_V3_PartMeshKway_wrapper(idx_t *elmdist, idx_t *eptr, idx_t *eind,
 {
 
   int rcode;
-  MPI_Comm comm;
-  MPI_Comm_dup(MPI_COMM_WORLD, &comm);
 
   rcode = METIS_ERROR;
 
@@ -54,7 +52,7 @@ int ParMETIS_V3_PartMeshKway_wrapper(idx_t *elmdist, idx_t *eptr, idx_t *eind,
   
   rcode = ParMETIS_V3_PartMeshKway(elmdist, eptr, eind, elmwgt, wgtflag,
 				   numflag, ncon, ncommonnodes, nparts,tpwgts,
-				   ubvec, options, edgecut, part, &comm);
+				   ubvec, options, edgecut, part, &NEKO_COMM);
 #endif
 
   return rcode;

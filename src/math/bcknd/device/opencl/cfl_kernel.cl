@@ -1,3 +1,5 @@
+#ifndef __MATH_CFL_KERNEL_CL__
+#define __MATH_CFL_KERNEL_CL__
 /*
  Copyright (c) 2022, The Neko Authors
  All rights reserved.
@@ -145,3 +147,5 @@ DEFINE_CFL_KERNEL(7, 256)
 DEFINE_CFL_KERNEL(8, 256)
 DEFINE_CFL_KERNEL(9, 256)
 
+
+#endif // __MATH_CFL_KERNEL_CL__

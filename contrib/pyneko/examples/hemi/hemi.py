@@ -1,14 +1,19 @@
 import pyNeko
+import json
 
 # Initialize Neko
 pyNeko.init()
 
 # Create a json case
-hemi_case = pyNeko.create_case(mesh_file="hemi.nmsh", lx=6, T_end=1e-3)
+hemi_case = json.load(open('hemi.case'))
 
 # Solve the case
 pyNeko.solve(hemi_case)
 
-# Increase sample rate and rerun to get some data
-hemi_case['parameters']['nsamples'] = 1
+# Increase sample rate and rerun to get more data
+hemi_case['case']['nsamples'] = 2
 pyNeko.solve(hemi_case)
+
+
+# Finalize Neko
+pyNeko.finalize()

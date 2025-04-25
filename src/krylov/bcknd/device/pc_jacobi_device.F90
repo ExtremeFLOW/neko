@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,12 +32,16 @@
 !
 !> Jacobi preconditioner accelerator backend
 module device_jacobi
-  use precon
-  use coefs
-  use num_types
-  use device_math
-  use gather_scatter
-  use, intrinsic :: iso_c_binding
+  use precon, only : pc_t
+  use coefs, only : coef_t
+  use dofmap, only : dofmap_t
+  use num_types, only : rp
+  use device_math, only : device_col2, device_addcol3, device_invcol1,&
+       device_col3
+  use device, only : device_map, device_event_create, device_free, &
+       device_event_sync, device_get_ptr, device_event_destroy
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
   private
 
@@ -48,6 +52,7 @@ module device_jacobi
      type(gs_t), pointer :: gs_h
      type(dofmap_t), pointer :: dof
      type(coef_t), pointer :: coef
+     type(c_ptr) :: gs_event = C_NULL_PTR
    contains
      procedure, pass(this) :: init => device_jacobi_init
      procedure, pass(this) :: free => device_jacobi_free
@@ -65,7 +70,7 @@ module device_jacobi
        integer(c_int) :: nelv, lx
      end subroutine hip_jacobi_update
   end interface
-  
+
   interface
      subroutine cuda_jacobi_update(d_d, dxt_d, dyt_d, dzt_d, &
           G11_d, G22_d, G33_d, G12_d, G13_d, G23_d, nelv, lx) &
@@ -89,11 +94,11 @@ module device_jacobi
   end interface
 
 contains
-  
+
   subroutine device_jacobi_init(this, coef, dof, gs_h)
     class(device_jacobi_t), intent(inout) :: this
-    type(coef_t), intent(inout), target :: coef
-    type(dofmap_t), intent(inout), target :: dof
+    type(coef_t), intent(in), target :: coef
+    type(dofmap_t), intent(in), target :: dof
     type(gs_t), intent(inout), target :: gs_h
 
     call this%free()
@@ -106,6 +111,8 @@ contains
 
     call device_map(this%d, this%d_d, size(this%d))
 
+    call device_event_create(this%gs_event, 2)
+
     call device_jacobi_update(this)
 
   end subroutine device_jacobi_init
@@ -117,9 +124,13 @@ contains
        call device_free(this%d_d)
        this%d_d = C_NULL_PTR
     end if
-    
+
     if (allocated(this%d)) then
        deallocate(this%d)
+    end if
+
+    if (c_associated(this%gs_event)) then
+       call device_event_destroy(this%gs_event)
     end if
 
     nullify(this%dof)
@@ -130,17 +141,17 @@ contains
   !> The jacobi preconditioner \f$ J z = r \f$
   !! \f$ z = J^{-1}r\f$ where \f$ J^{-1} ~= 1/diag(A) \f$
   subroutine device_jacobi_solve(this, z, r, n)
-    integer, intent(inout) :: n
+    integer, intent(in) :: n
     class(device_jacobi_t), intent(inout) :: this
     real(kind=rp), dimension(n), intent(inout) :: z
     real(kind=rp), dimension(n), intent(inout) :: r
     type(c_ptr) :: z_d, r_d
-    
+
     z_d = device_get_ptr(z)
     r_d = device_get_ptr(r)
-    
+
     call device_col3(z_d, r_d, this%d_d, n)
-    
+
   end subroutine device_jacobi_solve
 
   subroutine device_jacobi_update(this)
@@ -155,30 +166,31 @@ contains
 
 #ifdef HAVE_HIP
       call hip_jacobi_update(this%d_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, &
-                             coef%G11_d, coef%G22_d, coef%G33_d, &
-                             coef%G12_d, coef%G13_d, coef%G23_d, &
-                             nelv, lx)
+           coef%G11_d, coef%G22_d, coef%G33_d, &
+           coef%G12_d, coef%G13_d, coef%G23_d, &
+           nelv, lx)
 #elif HAVE_CUDA
       call cuda_jacobi_update(this%d_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, &
-                             coef%G11_d, coef%G22_d, coef%G33_d, &
-                             coef%G12_d, coef%G13_d, coef%G23_d, &
-                             nelv, lx)
+           coef%G11_d, coef%G22_d, coef%G33_d, &
+           coef%G12_d, coef%G13_d, coef%G23_d, &
+           nelv, lx)
 #elif HAVE_OPENCL
       call opencl_jacobi_update(this%d_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, &
-                                coef%G11_d, coef%G22_d, coef%G33_d, &
-                                coef%G12_d, coef%G13_d, coef%G23_d, &
-                                nelv, lx)
+           coef%G11_d, coef%G22_d, coef%G33_d, &
+           coef%G12_d, coef%G13_d, coef%G23_d, &
+           nelv, lx)
 #endif
 
-      call device_col2(this%d_d, coef%h1_d, coef%dof%n_dofs)
+      call device_col2(this%d_d, coef%h1_d, coef%dof%size())
 
       if (coef%ifh2) then
-         call device_addcol3(this%d_d, coef%h2_d, coef%B_d, coef%dof%n_dofs)
+         call device_addcol3(this%d_d, coef%h2_d, coef%B_d, coef%dof%size())
       end if
-      
-      call gs_op(gs_h, this%d, dof%n_dofs, GS_OP_ADD)
 
-      call device_invcol1(this%d_d, dof%n_dofs)
+      call gs_h%op(this%d, dof%size(), GS_OP_ADD, this%gs_event)
+      call device_event_sync(this%gs_event)
+
+      call device_invcol1(this%d_d, dof%size())
     end associate
   end subroutine device_jacobi_update
 

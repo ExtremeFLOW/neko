@@ -24,7 +24,7 @@ contains
 
     m%nel = msh%nelv
     m%nlv = msh%npts
-    
+
     call map_init_common(m)
 
   end subroutine map_init_mesh
@@ -45,11 +45,11 @@ contains
 
   subroutine map_init_common(m)
     type(map_t), intent(inout) :: m
-    
+
     allocate(m%imap(m%nel))
-    
+
     allocate(m%vertex(m%nlv, m%nel))
-    
+
   end subroutine map_init_common
 
   subroutine map_free(m)
@@ -63,5 +63,5 @@ contains
        deallocate(m%vertex)
     end if
   end subroutine map_free
-  
+
 end module map

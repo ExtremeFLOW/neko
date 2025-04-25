@@ -35,6 +35,7 @@ module gs_sx
   use num_types
   use gs_bcknd
   use gs_ops
+  use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
 
@@ -50,9 +51,9 @@ module gs_sx
      procedure, pass(this) :: gather => gs_gather_sx
      procedure, pass(this) :: scatter => gs_scatter_sx
   end type gs_sx_t
-  
+
 contains
-  
+
   !> SX backend initialisation
   subroutine gs_sx_init(this, nlocal, nshared, nlcl_blks, nshrd_blks)
     class(gs_sx_t), intent(inout) :: this
@@ -60,7 +61,7 @@ contains
     integer, intent(in) :: nshared
     integer, intent(in) :: nlcl_blks
     integer, intent(in) :: nshrd_blks
-       
+
     call this%free()
 
     this%nlocal = nlocal
@@ -68,7 +69,7 @@ contains
 
     allocate(this%local_wrk(nlocal))
     allocate(this%shared_wrk(nshared))
-    
+
   end subroutine gs_sx_init
 
   !> SX backend deallocation
@@ -85,22 +86,22 @@ contains
 
     this%nlocal = 0
     this%nshared = 0
-    
+
   end subroutine gs_sx_free
 
   !> Gather kernel
   subroutine gs_gather_sx(this, v, m, o, dg, u, n, gd, nb, b, op, shrd)
-    integer, intent(inout) :: m
-    integer, intent(inout) :: n
-    integer, intent(inout) :: nb
+    integer, intent(in) :: m
+    integer, intent(in) :: n
+    integer, intent(in) :: nb
     class(gs_sx_t), intent(inout) :: this
     real(kind=rp), dimension(m), intent(inout) :: v
     integer, dimension(m), intent(inout) :: dg
     real(kind=rp), dimension(n), intent(inout) :: u
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
-    integer, intent(inout) :: o
-    integer, intent(inout) :: op
+    integer, intent(in) :: o
+    integer, intent(in) :: op
     logical, intent(in) :: shrd
 
     if (.not. shrd) then
@@ -130,9 +131,9 @@ contains
          end select
        end associate
     end if
-    
+
   end subroutine gs_gather_sx
- 
+
   !> Gather kernel for addition of data
   !! \f$ v(dg(i)) = v(dg(i)) + u(gd(i)) \f$
   subroutine gs_gather_kernel_add(v, m, o, dg, u, n, gd, nb, b, w)
@@ -149,7 +150,7 @@ contains
     integer :: i
     real(kind=rp) :: tmp
 
-    v = 0d0 
+    v = 0d0
     do i = 1, abs(o) - 1
        w(i) = u(gd(i))
     end do
@@ -157,7 +158,7 @@ contains
     do i = 1, abs(o) - 1
        v(dg(i)) = v(dg(i)) + w(i)
     end do
-    
+
     if (o .lt. 0) then
        do i = abs(o), m
           v(dg(i)) = u(gd(i))
@@ -168,7 +169,7 @@ contains
           v(dg(i)) = tmp
        end do
     end if
-    
+
   end subroutine gs_gather_kernel_add
 
   !> Gather kernel for multiplication of data
@@ -186,7 +187,7 @@ contains
     integer, intent(in) :: o
     integer :: i
     real(kind=rp) :: tmp
-    
+
     do i = 1, abs(o) - 1
        w(i) = u(gd(i))
     end do
@@ -194,7 +195,7 @@ contains
     do i = 1, abs(o) - 1
        v(dg(i)) = v(dg(i)) * w(i)
     end do
-    
+
     if (o .lt. 0) then
        do i = abs(o), m
           v(dg(i)) = u(gd(i))
@@ -205,9 +206,9 @@ contains
           v(dg(i)) = tmp
        end do
     end if
-    
+
   end subroutine gs_gather_kernel_mul
-  
+
   !> Gather kernel for minimum of data
   !! \f$ v(dg(i)) = \min(v(dg(i)), u(gd(i))) \f$
   subroutine gs_gather_kernel_min(v, m, o, dg, u, n, gd, nb, b, w)
@@ -231,7 +232,7 @@ contains
     do i = 1, abs(o) - 1
        v(dg(i)) = min(v(dg(i)), w(i))
     end do
-    
+
     if (o .lt. 0) then
        do i = abs(o), m
           v(dg(i)) = u(gd(i))
@@ -242,7 +243,7 @@ contains
           v(dg(i)) = tmp
        end do
     end if
-    
+
   end subroutine gs_gather_kernel_min
 
   !> Gather kernel for maximum of data
@@ -268,7 +269,7 @@ contains
     do i = 1, abs(o) - 1
        v(dg(i)) = max(v(dg(i)), w(i))
     end do
-    
+
     if (o .lt. 0) then
        do i = abs(o), m
           v(dg(i)) = u(gd(i))
@@ -279,11 +280,11 @@ contains
           v(dg(i)) = tmp
        end do
     end if
-    
+
   end subroutine gs_gather_kernel_max
 
   !> Scatter kernel  @todo Make the kernel abstract
-  subroutine gs_scatter_sx(this, v, m, dg, u, n, gd, nb, b, shrd)
+  subroutine gs_scatter_sx(this, v, m, dg, u, n, gd, nb, b, shrd, event)
     integer, intent(in) :: m
     integer, intent(in) :: n
     integer, intent(in) :: nb
@@ -294,7 +295,8 @@ contains
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     logical, intent(in) :: shrd
-        
+    type(c_ptr) :: event
+
     if (.not. shrd) then
        call gs_scatter_kernel(v, m, dg, u, n, gd, nb, b, this%local_wrk)
     else if (shrd) then
@@ -315,7 +317,7 @@ contains
     integer, dimension(m), intent(inout) :: gd
     integer, dimension(nb), intent(inout) :: b
     integer :: i
-    
+
     !NEC$ IVDEP
     do i = 1, m
        w(i) = v(dg(i))
@@ -325,7 +327,7 @@ contains
     do i = 1, m
        u(gd(i)) = w(i)
     end do
-    
+
   end subroutine gs_scatter_kernel
 
 end module gs_sx

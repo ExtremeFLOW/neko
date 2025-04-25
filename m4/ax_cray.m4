@@ -36,7 +36,16 @@ AC_DEFUN([AX_HPE_CRAY],[
 	[is_hpe_cray="no"
 	AC_MSG_RESULT([no])])
 	AC_LANG_POP([C])
-	AC_SUBST(is_hpe_cray)])
+        if test x"${is_hpe_cray}" = xyes; then
+           AC_MSG_CHECKING([if CrayPE wrappers are used])
+           if test "${FC}" = "ftn"; then
+              AC_MSG_RESULT([yes])
+           else
+              is_hpe_cray="no"
+              AC_MSG_RESULT([no])
+           fi
+        fi
+      	AC_SUBST(is_hpe_cray)]) 
 
 AC_DEFUN([AX_CRAY_PETSC],[
 	AC_MSG_CHECKING([Cray PETSc])
@@ -137,7 +146,7 @@ AC_DEFUN([AX_CRAY_ZOLTAN],[
 
 AC_DEFUN([AX_CRAY_LIBSCI],[
 	AC_MSG_CHECKING([Cray Scientific Libraries])
-	if test "${CRAY_LIBSCI_VERSION}"; then
+	if (test "${CRAY_LIBSCI_VERSION}" || test "${CRAY_PE_LIBSCI_VERSION}"); then
 	   AC_MSG_RESULT([yes])
 	   have_cray_libsci="yes"
 	else
@@ -186,8 +195,12 @@ AC_DEFUN([AX_CRAY_ROCM],[
 	    hip_bcknd="1"
 	  else
 	    AC_MSG_RESULT([no])
-            AC_MSG_ERROR([Cray ROCm Toolkit not found])
-	    have_hip="no"
+            if test "${ROCM_PATH}"; then
+              AX_HIP
+            else
+              AC_MSG_ERROR([Cray ROCm Toolkit not found])
+              have_hip="no"
+            fi
 	  fi
 	fi
 	AC_SUBST(hip_bcknd)
@@ -210,4 +223,23 @@ AC_DEFUN([AX_CRAY_ACCEL], [
 	   have_cray_accel="no"
 	fi
 	AC_SUBST(have_cray_accel)
+])
+
+
+AC_DEFUN([AX_CRAY_HDF5_PARALLEL],[
+	AC_ARG_WITH([hdf5],[],
+		    [
+		    ], [with_hdf5=no])
+	if test "x${with_hdf5}" != xno; then
+	AC_MSG_CHECKING([Cray HDF5 (parallel) ])
+	if test "${CRAY_HDF5_PARALLEL_VERSION}"; then
+	   AC_MSG_RESULT([yes])
+	   have_cray_hdf5="yes"
+      	   AC_DEFINE(HAVE_HDF5,1,[Define if you have HDF5.])
+	else
+	   AC_MSG_RESULT([no])
+	   have_cray_hdf5="no"
+	fi
+	AC_SUBST(have_cray_hdf5)
+        fi
 ])

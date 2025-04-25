@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2022, The Neko Authors
+! Copyright (c) 2021-2024, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,211 +30,143 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-module krylov_fctry
-  use cg
-  use cg_sx
-  use cg_device
-  use cacg
-  use pipecg
-  use pipecg_sx
-  use pipecg_device
-  use bicgstab
-  use gmres
-  use gmres_sx
-  use gmres_device
-  use krylov
-  use neko_config
+submodule (krylov) krylov_fctry
+  use cg, only : cg_t
+  use cg_sx, only : sx_cg_t
+  use cg_cpld, only : cg_cpld_t
+  use cg_device, only : cg_device_t
+  use cacg, only : cacg_t
+  use pipecg, only : pipecg_t
+  use pipecg_sx, only : sx_pipecg_t
+  use pipecg_device, only : pipecg_device_t
+  use fusedcg_device, only : fusedcg_device_t
+  use fusedcg_cpld_device, only : fusedcg_cpld_device_t
+  use bicgstab, only : bicgstab_t
+  use gmres, only : gmres_t
+  use cheby, only : cheby_t
+  use cheby_device, only : cheby_device_t
+  use gmres_sx, only : sx_gmres_t
+  use gmres_device, only : gmres_device_t
+  use num_Types, only : rp
+  use precon, only : pc_t
+  use utils, only : neko_type_error
+  use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_OPENCL
   implicit none
-  
+
+  ! List of all possible types created by the factory routine
+  character(len=20) :: KSP_KNOWN_TYPES(9) = [character(len=20) :: &
+       "cg", &
+       "pipecg", &
+       "fusedcg", &
+       "cacg", &
+       "gmres", &
+       "cheby", &
+       "bicgstab", &
+       "fusedcoupledcg", &
+       "coupledcg"]
+
 contains
 
-  !> Initialize an interative Krylov solver
-  subroutine krylov_solver_factory(ksp, n, solver, abstol, M)
-    class(ksp_t), allocatable, target, intent(inout) :: ksp
+  !> Factory for Krylov solvers. Both creates and initializes the object.
+  !! @param object The object to be allocated.
+  !! @param n Size of the vectors the solver operates on.
+  !! @param type_name The name of the solver type.
+  !! @param max_iter The maximum number of iterations
+  !! @param abstol The absolute tolerance, optional.
+  !! @param M The preconditioner, optional.
+  !! @param monitor Enable/disable residual history, optional.
+  module subroutine krylov_solver_factory(object, n, type_name, &
+       max_iter, abstol, M, monitor)
+    class(ksp_t), allocatable, intent(inout) :: object
     integer, intent(in), value :: n
-    character(len=*) :: solver
+    character(len=*), intent(in) :: type_name
+    integer, intent(in) :: max_iter
     real(kind=rp), optional :: abstol
-    class(pc_t), optional, intent(inout), target :: M
- 
-    if (allocated(ksp)) then
-       call krylov_solver_destroy(ksp)
-       deallocate(ksp)
+    class(pc_t), optional, intent(in), target :: M
+    logical, optional, intent(in) :: monitor
+
+    if (allocated(object)) then
+       call object%free()
+       deallocate(object)
     end if
 
-    if (trim(solver) .eq. 'cg') then
+    select case (trim(type_name))
+    case ('cg')
        if (NEKO_BCKND_SX .eq. 1) then
-          allocate(sx_cg_t::ksp)
-       else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
-          allocate(cg_device_t::ksp)
+          allocate(sx_cg_t::object)
+       else if (NEKO_BCKND_DEVICE .eq. 1) then
+          allocate(cg_device_t::object)
        else
-          allocate(cg_t::ksp)
+          allocate(cg_t::object)
        end if
-    else if (trim(solver) .eq. 'pipecg') then
-       if (NEKO_BCKND_SX .eq. 1) then
-          allocate(sx_pipecg_t::ksp)
-       else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
-          allocate(pipecg_device_t::ksp)
-       else
-          allocate(pipecg_t::ksp)
-       end if
-    else if (trim(solver) .eq. 'cacg') then
-       allocate(cacg_t::ksp)
-    else if (trim(solver) .eq. 'gmres') then
-       if (NEKO_BCKND_SX .eq. 1) then
-          allocate(sx_gmres_t::ksp)
-       else if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-            (NEKO_BCKND_OPENCL .eq. 1)) then
-          allocate(gmres_device_t::ksp)
-       else
-          allocate(gmres_t::ksp)
-       end if
-    else if (trim(solver) .eq. 'bicgstab') then
-       allocate(bicgstab_t::ksp)
-    else
-       call neko_error('Unknown Krylov solver')
-    end if
 
-    if (present(abstol) .and. present(M)) then
-       select type(kp => ksp)
-       type is(cg_t)
-          call kp%init(n, M = M, abs_tol = abstol)
-       type is(sx_cg_t)
-          call kp%init(n, M = M, abs_tol = abstol)
-       type is(cg_device_t)
-          call kp%init(n, M = M, abs_tol = abstol)
-       type is(pipecg_t)
-          call kp%init(n, M = M, abs_tol = abstol)
-       type is(sx_pipecg_t)
-          call kp%init(n, M = M, abs_tol = abstol)
-       type is(pipecg_device_t)
-          call kp%init(n, M = M, abs_tol = abstol)
-       type is(cacg_t)
-          call kp%init(n, M = M, abs_tol = abstol)
-       type is(gmres_t)
-          call kp%init(n, M = M, abs_tol = abstol)
-       type is(sx_gmres_t)
-          call kp%init(n, M = M, abs_tol = abstol)
-       type is(gmres_device_t)
-          call kp%init(n, M = M, abs_tol = abstol)
-       type is(bicgstab_t)
-          call kp%init(n, M = M, abs_tol = abstol)
-       end select
-    else if (present(abstol)) then
-       select type(kp => ksp)
-       type is(cg_t)
-          call kp%init(n, abs_tol = abstol)
-       type is(sx_cg_t)
-          call kp%init(n, abs_tol = abstol)       
-       type is(cg_device_t)
-          call kp%init(n, abs_tol = abstol)       
-       type is(pipecg_t)
-          call kp%init(n, abs_tol = abstol)
-       type is(sx_pipecg_t)
-          call kp%init(n, abs_tol = abstol)
-       type is (pipecg_device_t)
-          call kp%init(n, abs_tol = abstol)
-       type is(cacg_t)
-          call kp%init(n, abs_tol = abstol)
-       type is(gmres_t)
-          call kp%init(n, abs_tol = abstol)
-       type is(sx_gmres_t)
-          call kp%init(n, abs_tol = abstol)
-       type is(gmres_device_t)
-          call kp%init(n, abs_tol = abstol)
-       type is(bicgstab_t)
-          call kp%init(n, abs_tol = abstol)
-       end select
-    else if (present(M)) then
-       select type(kp => ksp)
-       type is(cg_t)
-          call kp%init(n, M = M)
-       type is(sx_cg_t)
-          call kp%init(n, M = M)       
-       type is(cg_device_t)
-          call kp%init(n, M = M)
-       type is(pipecg_t)
-          call kp%init(n, M = M)
-       type is(sx_pipecg_t)
-          call kp%init(n, M = M)
-       type is (pipecg_device_t)
-          call kp%init(n, M = M)
-       type is(cacg_t)
-          call kp%init(n, M = M)
-       type is(gmres_t)
-          call kp%init(n, M = M)
-       type is(sx_gmres_t)
-          call kp%init(n, M = M)
-       type is(gmres_device_t)
-          call kp%init(n, M = M)
-       type is(bicgstab_t)
-          call kp%init(n, M = M)
-       end select
-    else
-       select type(kp => ksp)
-       type is(cg_t)
-          call kp%init(n)
-       type is(sx_cg_t)
-          call kp%init(n)       
-       type is(cg_device_t)
-          call kp%init(n)       
-       type is(pipecg_t)
-          call kp%init(n)
-       type is(sx_pipecg_t)
-          call kp%init(n)
-       type is (pipecg_device_t)
-          call kp%init(n)
-       type is(cacg_t)
-          call kp%init(n)
-       type is(gmres_t)
-          call kp%init(n)
-       type is(sx_gmres_t)
-          call kp%init(n)
-       type is(gmres_device_t)
-          call kp%init(n)
-       type is(bicgstab_t)
-          call kp%init(n)
-       end select
-    end if
+    case ('coupledcg')
+       allocate(cg_cpld_t::object)
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call neko_error('Coupled CG only supported for CPU')
+       end if
+
+    case ('pipecg')
+       if (NEKO_BCKND_SX .eq. 1) then
+          allocate(sx_pipecg_t::object)
+       else if (NEKO_BCKND_DEVICE .eq. 1) then
+          if (NEKO_BCKND_OPENCL .eq. 1) then
+             call neko_error('PipeCG not supported for OpenCL')
+          end if
+          allocate(pipecg_device_t::object)
+       else
+          allocate(pipecg_t::object)
+       end if
+
+    case ('fusedcg')
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          if (NEKO_BCKND_OPENCL .eq. 1) then
+             call neko_error('FusedCG not supported for OpenCL')
+          end if
+          allocate(fusedcg_device_t::object)
+       else
+          call neko_error('FusedCG only supported for CUDA/HIP')
+       end if
+
+    case ('fusedcoupledcg')
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          if (NEKO_BCKND_OPENCL .eq. 1) then
+             call neko_error('Coupled FusedCG not supported for OpenCL')
+          end if
+          allocate(fusedcg_cpld_device_t::object)
+       else
+          call neko_error('Coupled FusedCG only supported for CUDA/HIP')
+       end if
+
+    case ('cacg')
+       allocate(cacg_t::object)
+
+    case ('gmres')
+       if (NEKO_BCKND_SX .eq. 1) then
+          allocate(sx_gmres_t::object)
+       else if (NEKO_BCKND_DEVICE .eq. 1) then
+          allocate(gmres_device_t::object)
+       else
+          allocate(gmres_t::object)
+       end if
+
+    case ('cheby')
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          allocate(cheby_device_t::object)
+       else
+          allocate(cheby_t::object)
+       end if
+
+    case ('bicgstab')
+       allocate(bicgstab_t::object)
+
+    case default
+       call neko_type_error('Krylov solver', type_name, KSP_KNOWN_TYPES)
+    end select
+
+    call object%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
 
   end subroutine krylov_solver_factory
 
-  !> Destroy an interative Krylov solver
-  subroutine krylov_solver_destroy(ksp)
-    class(ksp_t), allocatable, intent(inout) :: ksp
+end submodule krylov_fctry
 
-    if (allocated(ksp)) then
-       select type(kp => ksp)
-       type is(cg_t)
-          call kp%free()
-       type is(sx_cg_t)
-          call kp%free()
-       type is(cg_device_t)
-          call kp%free()       
-       type is(pipecg_t)
-          call kp%free()
-       type is(sx_pipecg_t)
-          call kp%free()
-       type is (pipecg_device_t)
-          call kp%free()
-       type is(cacg_t)
-          call kp%free()
-       type is(gmres_t)
-          call kp%free()
-       type is(sx_gmres_t)
-          call kp%free()
-       type is(gmres_device_t)
-          call kp%free()
-       type is(bicgstab_t)
-          call kp%free()
-       end select
-
-       call ksp%free()
-
-    end if
- 
-  end subroutine krylov_solver_destroy
-    
-end module krylov_fctry
-  

@@ -25,6 +25,7 @@ AC_DEFUN([AX_ADIOS2],[
       	      with_adios2=yes
 	      have_adios2=yes
 	      AC_SUBST(have_adios2)
+              AC_DEFINE(HAVE_ADIOS2,1,[Define if you have ADIOS2.])
 	    else
 	      with_adios2=no
 	    fi
