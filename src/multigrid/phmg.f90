@@ -213,11 +213,14 @@ contains
           if (NEKO_BCKND_DEVICE .eq. 1) then
              call this%phmg_hrchy%lvl(i)%cheby_device%init( &
                   this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs)
+             this%phmg_hrchy%lvl(i)%cheby_device%schwarz => &
+                this%phmg_hrchy%lvl(i)%schwarz
           else
              call this%phmg_hrchy%lvl(i)%cheby%init( &
                   this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs, &
                   this%phmg_hrchy%lvl(i)%jacobi)
-             this%phmg_hrchy%lvl(i)%cheby%schwarz => this%phmg_hrchy%lvl(i)%schwarz
+             this%phmg_hrchy%lvl(i)%cheby%schwarz => &
+                this%phmg_hrchy%lvl(i)%schwarz
           end if
        end if
 
@@ -310,6 +313,7 @@ contains
             mg(lvl)%dm_Xh%size(), lvl)
     else
        if (NEKO_BCKND_DEVICE .eq. 1) then
+          mg(lvl)%cheby_device%zero_initial_guess = .true.
           ksp_results = mg(lvl)%cheby_device%solve(Ax, z, &
                r%x, mg(lvl)%dm_Xh%size(), &
                mg(lvl)%coef, mg(lvl)%bclst, &

@@ -144,10 +144,10 @@ contains
          call gs_h%op(w, n, GS_OP_ADD)
          call blst%apply(w, n)
          if (associated(this%schwarz)) then
-         call this%schwarz%compute(r, w)
-         call copy(w, r, n)
+            call this%schwarz%compute(r, w)
+            call copy(w, r, n)
          else
-         call this%M%solve(w, w, n)
+            call this%M%solve(w, w, n)
          end if
 
          wtw = glsc3(w, coef%mult, w, n)
@@ -308,11 +308,10 @@ contains
       ksp_results%iter = 0
 
       ! First iteration
-      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!call this%M%solve(d, r, n)
       if (associated(this%schwarz)) then
-      call this%schwarz%compute(d, r)
+         call this%schwarz%compute(d, r)
       else
-      call this%M%solve(d, r, n)
+         call this%M%solve(d, r, n)
       end if
       call cmult( d, (1.0_rp / this%tha), n)
       call add2( x%x, d, n)
@@ -332,11 +331,10 @@ contains
          call blst%apply(w, n)
          call sub3(r, f, w, n)
 
-         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!call this%M%solve(w, r, n)
          if (associated(this%schwarz)) then
-         call this%schwarz%compute(w, r)
+            call this%schwarz%compute(w, r)
          else
-         call this%M%solve(w, r, n)
+            call this%M%solve(w, r, n)
          end if
          call cmult( d, tmp1, n)
          call add2s2( d, w, tmp2, n)
