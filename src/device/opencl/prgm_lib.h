@@ -26,6 +26,9 @@ extern void *symmetry_program;
 /** Device Facet normal kernels */
 extern void *facet_normal_program;
 
+/** Device Neumann kernels */
+extern void *neumann_program;
+
 /** Device Blasius profile kernel */
 extern void *inhom_dirichlet_program;
 
