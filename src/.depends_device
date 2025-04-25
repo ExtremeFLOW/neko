@@ -25,6 +25,7 @@ bc/bcknd/device/hip/symmetry.lo : bc/bcknd/device/hip/symmetry.hip bc/bcknd/devi
 bc/bcknd/device/hip/facet_normal.lo : bc/bcknd/device/hip/facet_normal.hip bc/bcknd/device/hip/facet_normal_kernel.h
 bc/bcknd/device/hip/inhom_dirichlet.lo : bc/bcknd/device/hip/inhom_dirichlet.hip bc/bcknd/device/hip/inhom_dirichlet_kernel.h
 bc/bcknd/device/hip/dong_outflow.lo : bc/bcknd/device/hip/dong_outflow.hip bc/bcknd/device/hip/dong_outflow_kernel.h
+bc/bcknd/device/hip/neumann.lo : bc/bcknd/device/hip/neumann.hip bc/bcknd/device/hip/neumann_kernel.h
 common/bcknd/device/hip/rhs_maker.lo : common/bcknd/device/hip/rhs_maker.hip common/bcknd/device/hip/sumab_kernel.h common/bcknd/device/hip/makeext_kernel.h common/bcknd/device/hip/makebdf_kernel.h
 common/bcknd/device/hip/projection.lo : common/bcknd/device/hip/projection.hip common/bcknd/device/hip/projection_kernel.h
 common/bcknd/device/hip/gradient_jump_penalty.lo : common/bcknd/device/hip/gradient_jump_penalty.hip common/bcknd/device/hip/gradient_jump_penalty_kernel.h

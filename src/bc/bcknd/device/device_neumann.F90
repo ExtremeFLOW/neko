@@ -37,6 +37,15 @@ module device_neumann
   private
 
 #ifdef HAVE_HIP
+  interface
+     subroutine hip_neumann_apply_scalar(msk, facet, x, flux, area, lx, m) &
+          bind(c, name='hip_neumann_apply_scalar')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, lx
+       type(c_ptr), value :: msk, facet, x, flux, area
+     end subroutine hip_neumann_apply_scalar
+  end interface
 #elif HAVE_CUDA
   interface
      subroutine cuda_neumann_apply_scalar(msk, facet, x, flux, area, lx, m) &
@@ -59,7 +68,7 @@ contains
     type(c_ptr) :: msk, facet, x, flux, area
 
 #ifdef HAVE_HIP
-    call neko_error("neumann_t not implemented for the HIP backend.")
+    call hip_neumann_apply_scalar(msk, facet, x, flux, area, lx, m)
 #elif HAVE_CUDA
     call cuda_neumann_apply_scalar(msk, facet, x, flux, area, lx, m)
 #elif HAVE_OPENCL
