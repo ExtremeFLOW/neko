@@ -305,6 +305,7 @@ Here is concise summary of how to add device kernels to the build system:
 
 In `src/Makefile.am`
 - Add `.f90` and `.F90` files under `neko_fortran_SOURCES = \`
+- Add `.c` files under `neko_c_SOURCES = \`
 - Add all `.h` and all `.cl` files under `EXTRA_DIST = \`
 - Add `.cu` files under 
 ```make
