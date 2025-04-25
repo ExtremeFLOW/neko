@@ -9,6 +9,7 @@
     "checkpoint_value": 5,
     "end_time": 30,
     "timestep": 2.5e-3,
+    "istream" : 100, // Used for data-streaming only
     "numerics": {
         "time_order": 3,
         "polynomial_order": 3,

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2022, The Neko Authors
+ Copyright (c) 2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,8 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __BC_FACET_NORMAL_KERNEL__
-#define __BC_FACET_NORMAL_KERNEL__
+#ifndef __BC_NEUMANN_KERNEL__
+#define __BC_NEUMANN_KERNEL__
 
 #include "bc_utils.h"
 
@@ -45,25 +45,19 @@
 #define coef_normal_area_idx(i, j, k, l, lx, nf) \
   (((i) + (lx) * (((j) - 1) + (lx) * (((k) - 1) + (nf) * (((l) - 1))))) - 1)
 
+
 /**
- * Device kernel for vector apply for a symmetry condition
+ * Device kernel for neumann scalar boundary condition
  */
 template< typename T >
 __global__
-void facet_normal_apply_surfvec_kernel(const int * __restrict__ msk,
-                                       const int * __restrict__ facet,
-                                       T * __restrict__ x,
-                                       T * __restrict__ y,
-                                       T * __restrict__ z,
-                                       const T * __restrict__ u,
-                                       const T * __restrict__ v,
-                                       const T * __restrict__ w,
-                                       const T * __restrict__ nx,
-                                       const T * __restrict__ ny,
-                                       const T * __restrict__ nz,
-                                       const T * __restrict__ area,
-                                       const int lx,
-                                       const int m) {
+void neumann_apply_scalar_kernel(const int * __restrict__ msk,
+                                 const int * __restrict__ facet,
+                                 T * __restrict__ x,
+                                 const T * __restrict__ flux,
+                                 const T * __restrict__ area,
+                                 const int lx,
+                                 const int m) {
   int index[4];
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -73,16 +67,13 @@ void facet_normal_apply_surfvec_kernel(const int * __restrict__ msk,
     const int f = (facet[i]);
     nonlinear_index(msk[i], lx, index);
 
-
     switch(f) {
     case 1:
     case 2:
       {
         const int na_idx = coef_normal_area_idx(index[1], index[2],
                                                 f, index[3], lx, 6);
-        x[k] = u[k] * nx[na_idx] * area[na_idx];
-        y[k] = v[k] * ny[na_idx] * area[na_idx];
-        z[k] = w[k] * nz[na_idx] * area[na_idx];
+        x[k] += flux[i-1] * area[na_idx];
         break;
       }
     case 3:
@@ -90,9 +81,7 @@ void facet_normal_apply_surfvec_kernel(const int * __restrict__ msk,
       {
         const int na_idx = coef_normal_area_idx(index[0], index[2],
                                                 f, index[3], lx, 6);
-        x[k] = u[k] * nx[na_idx] * area[na_idx];
-        y[k] = v[k] * ny[na_idx] * area[na_idx];
-        z[k] = w[k] * nz[na_idx] * area[na_idx];
+        x[k] += flux[i-1] * area[na_idx];
         break;
       }
     case 5:
@@ -100,13 +89,11 @@ void facet_normal_apply_surfvec_kernel(const int * __restrict__ msk,
       {
         const int na_idx = coef_normal_area_idx(index[0], index[1],
                                                 f, index[3], lx, 6);
-        x[k] = u[k] * nx[na_idx] * area[na_idx];
-        y[k] = v[k] * ny[na_idx] * area[na_idx];
-        z[k] = w[k] * nz[na_idx] * area[na_idx];
+        x[k] += flux[i-1] * area[na_idx];
         break;
       }
     }
   }
 }
 
-#endif // __BC_FACET_NORMAL_KERNEL__
+#endif // __BC_NEUMANN_KERNEL__

@@ -94,30 +94,31 @@ contains
        deallocate(this%file_type)
     end if
 
-    if (suffix .eq. "rea") then
+    select case (suffix)
+    case ("rea")
        allocate(rea_file_t::this%file_type)
-    else if (suffix .eq. "re2") then
+    case ("re2")
        allocate(re2_file_t::this%file_type)
-    else if (suffix .eq. "map") then
+    case ("map")
        allocate(map_file_t::this%file_type)
-    else if (suffix .eq. "vtk") then
+    case ("vtk")
        allocate(vtk_file_t::this%file_type)
-    else if (suffix .eq. "nmsh") then
+    case ("nmsh")
        allocate(nmsh_file_t::this%file_type)
-    else if (suffix .eq. "fld") then
+    case ("fld")
        allocate(fld_file_t::this%file_type)
-    else if (suffix .eq. "chkp") then
+    case ("chkp")
        allocate(chkp_file_t::this%file_type)
-    else if (suffix .eq. "stl") then
+    case ("stl")
        allocate(stl_file_t::this%file_type)
-    else if (suffix .eq. "csv") then
+    case ("csv")
        allocate(csv_file_t::this%file_type)
        this%file_type%serial = .true.
-    else if ((suffix .eq. "hdf5") .or. (suffix .eq. "h5")) then
+    case ("hdf5", "h5")
        allocate(hdf5_file_t::this%file_type)
-    else
+    case default
        call neko_error('Unknown file format')
-    end if
+    end select
 
     call this%file_type%init(fname)
 

@@ -105,7 +105,7 @@ math/fdm.lo : math/fdm.f90 comm/comm.lo common/utils.lo device/device.lo math/bc
 math/bcknd/cpu/fdm_cpu.lo : math/bcknd/cpu/fdm_cpu.f90 math/bcknd/cpu/tensor_cpu.lo config/num_types.lo 
 math/bcknd/sx/fdm_sx.lo : math/bcknd/sx/fdm_sx.f90 math/bcknd/sx/tensor_sx.lo config/num_types.lo 
 math/bcknd/xsmm/fdm_xsmm.lo : math/bcknd/xsmm/fdm_xsmm.f90 math/bcknd/xsmm/tensor_xsmm.lo config/num_types.lo 
-math/schwarz.lo : math/schwarz.f90 bc/bc_list.lo config/neko_config.lo device/device.lo math/fdm.lo math/bcknd/device/device_math.lo math/bcknd/device/device_schwarz.lo gs/gather_scatter.lo bc/bc.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo config/num_types.lo 
+math/schwarz.lo : math/schwarz.f90 bc/bc_list.lo config/neko_config.lo device/device.lo math/fdm.lo math/bcknd/device/device_math.lo math/bcknd/device/device_schwarz.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo math/math.lo config/num_types.lo 
 math/vector.lo : math/vector.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/num_types.lo math/math.lo config/neko_config.lo 
 math/matrix.lo : math/matrix.f90 common/utils.lo math/bcknd/device/device_math.lo device/device.lo config/num_types.lo math/math.lo config/neko_config.lo 
 math/signed_distance.lo : math/signed_distance.f90 adt/stack.lo mesh/search_tree/aabb.lo mesh/point.lo common/utils.lo config/neko_config.lo device/device.lo mesh/aabb_tree.lo mesh/tri_mesh.lo mesh/tri.lo field/field.lo config/num_types.lo 
@@ -144,8 +144,8 @@ common/craypat.lo : common/craypat.F90
 bc/bc.lo : bc/bc.f90 io/file.lo common/utils.lo math/math.lo gs/gather_scatter.lo field/field.lo adt/tuple.lo adt/stack.lo mesh/facet_zone.lo mesh/mesh.lo sem/space.lo sem/coef.lo sem/dofmap.lo device/device.lo config/num_types.lo config/neko_config.lo 
 bc/bc_list.lo : bc/bc_list.f90 bc/bc.lo common/utils.lo device/device.lo field/field.lo config/num_types.lo config/neko_config.lo 
 bc/dirichlet.lo : bc/dirichlet.f90 common/json_utils.lo sem/coef.lo bc/bc.lo config/num_types.lo bc/bcknd/device/device_dirichlet.lo 
-bc/neumann.lo : bc/neumann.f90 math/math.lo common/json_utils.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
-bc/shear_stress.lo : bc/shear_stress.f90 common/json_utils.lo bc/neumann.lo bc/symmetry.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
+bc/neumann.lo : bc/neumann.f90 bc/bcknd/device/device_neumann.lo device/device.lo math/bcknd/device/device_math.lo config/neko_config.lo math/vector.lo math/math.lo common/json_utils.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
+bc/shear_stress.lo : bc/shear_stress.f90 math/vector.lo common/json_utils.lo bc/neumann.lo bc/symmetry.lo sem/coef.lo common/utils.lo bc/bc.lo config/num_types.lo 
 bc/dong_outflow.lo : bc/dong_outflow.f90 common/json_utils.lo field/field_registry.lo bc/bcknd/device/device_dong_outflow.lo common/utils.lo sem/coef.lo sem/dofmap.lo field/field.lo bc/bc.lo config/num_types.lo device/device.lo bc/dirichlet.lo config/neko_config.lo 
 bc/zero_dirichlet.lo : bc/zero_dirichlet.f90 sem/coef.lo bc/bc.lo config/num_types.lo bc/bcknd/device/device_zero_dirichlet.lo 
 bc/inflow.lo : bc/inflow.f90 common/json_utils.lo sem/coef.lo bc/bc.lo config/num_types.lo bc/bcknd/device/device_inflow.lo 
@@ -282,6 +282,7 @@ bc/bcknd/device/device_inflow.lo : bc/bcknd/device/device_inflow.F90 common/util
 bc/bcknd/device/device_zero_dirichlet.lo : bc/bcknd/device/device_zero_dirichlet.F90 common/utils.lo 
 bc/bcknd/device/device_symmetry.lo : bc/bcknd/device/device_symmetry.F90 common/utils.lo config/num_types.lo 
 bc/bcknd/device/device_facet_normal.lo : bc/bcknd/device/device_facet_normal.F90 common/utils.lo 
+bc/bcknd/device/device_neumann.lo : bc/bcknd/device/device_neumann.F90 common/utils.lo 
 bc/bcknd/device/device_inhom_dirichlet.lo : bc/bcknd/device/device_inhom_dirichlet.F90 common/utils.lo config/num_types.lo 
 bc/bcknd/device/device_dong_outflow.lo : bc/bcknd/device/device_dong_outflow.F90 common/utils.lo config/num_types.lo 
 scalar/bcknd/device/scalar_residual_device.lo : scalar/bcknd/device/scalar_residual_device.F90 config/num_types.lo mesh/mesh.lo sem/space.lo sem/coef.lo field/field.lo math/ax.lo math/bcknd/device/device_math.lo scalar/scalar_residual.lo 

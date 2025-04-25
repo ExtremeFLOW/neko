@@ -268,7 +268,7 @@ contains
 
     call json_get_or_default(params, &
          'solver.projection_space_size', &
-         this%projection_dim, 20)
+         this%projection_dim, 0)
     call json_get_or_default(params, &
          'solver.projection_hold_steps', &
          this%projection_activ_step, 5)

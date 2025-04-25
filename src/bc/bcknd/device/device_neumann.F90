@@ -30,33 +30,44 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Factory for all fluid schemes
-submodule (fluid_scheme_base) fluid_base_fctry
-  use fluid_pnpn, only : fluid_pnpn_t
-  use fluid_scheme_compressible_euler, only : fluid_scheme_compressible_euler_t
-  use utils, only : neko_type_error
+module device_neumann
+  use utils, only : neko_error
+  use, intrinsic :: iso_c_binding, only : c_int, c_ptr
+  implicit none
+  private
 
-  ! List of all possible types created by the factory routine
-  character(len=20) :: FLUID_KNOWN_TYPES(2) = [character(len=20) :: &
-       "pnpn", "compressible"]
+#ifdef HAVE_HIP
+#elif HAVE_CUDA
+  interface
+     subroutine cuda_neumann_apply_scalar(msk, facet, x, flux, area, lx, m) &
+          bind(c, name='cuda_neumann_apply_scalar')
+       use, intrinsic :: iso_c_binding
+       implicit none
+       integer(c_int) :: m, lx
+       type(c_ptr), value :: msk, facet, x, flux, area
+     end subroutine cuda_neumann_apply_scalar
+  end interface
+#elif HAVE_OPENCL
+#endif
+
+  public :: device_neumann_apply_scalar
 
 contains
 
-  !> Initialise a fluid scheme
-  module subroutine fluid_scheme_base_factory(object, type_name)
-    class(fluid_scheme_base_t), intent(inout), allocatable :: object
-    character(len=*) :: type_name
-    character(len=:), allocatable :: type_string
+  subroutine device_neumann_apply_scalar(msk, facet, x, flux, area, lx, m)
+    integer, intent(in) :: m, lx
+    type(c_ptr) :: msk, facet, x, flux, area
 
-    select case (trim(type_name))
-    case ('pnpn')
-       allocate(fluid_pnpn_t::object)
-    case ('compressible')
-       allocate(fluid_scheme_compressible_euler_t::object)
-    case default
-       call neko_type_error("fluid scheme base", type_name, FLUID_KNOWN_TYPES)
-    end select
+#ifdef HAVE_HIP
+    call neko_error("neumann_t not implemented for the HIP backend.")
+#elif HAVE_CUDA
+    call cuda_neumann_apply_scalar(msk, facet, x, flux, area, lx, m)
+#elif HAVE_OPENCL
+    call neko_error("neumann_t not implemented for the opencl backend.")
+#else
+    call neko_error('No device backend configured')
+#endif
 
-  end subroutine fluid_scheme_base_factory
+  end subroutine device_neumann_apply_scalar
 
-end submodule fluid_base_fctry
+end module device_neumann

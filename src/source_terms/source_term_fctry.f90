@@ -38,7 +38,7 @@ submodule (source_term) source_term_fctry
   use brinkman_source_term, only: brinkman_source_term_t
   use coriolis_source_term, only : coriolis_source_term_t
   use json_utils, only : json_get
-  use utils, only : concat_string_array, neko_type_error
+  use utils, only : neko_type_error
   implicit none
 
   ! List of all possible types created by the factory routine
@@ -80,15 +80,16 @@ contains
     character(len=:), allocatable, intent(in) :: type_name
     integer :: i
 
-    if (trim(type_name) .eq. "constant") then
+    select case (trim(type_name))
+    case ("constant")
        allocate(const_source_term_t::object)
-    else if (trim(type_name) .eq. "boussinesq") then
+    case ("boussinesq")
        allocate(boussinesq_source_term_t::object)
-    else if (trim(type_name) .eq. "coriolis") then
+    case ("coriolis")
        allocate(coriolis_source_term_t::object)
-    else if (trim(type_name) .eq. "brinkman") then
+    case ("brinkman")
        allocate(brinkman_source_term_t::object)
-    else
+    case default
        do i = 1, source_term_registry_size
           if (trim(type_name) == trim(source_term_registry(i)%type_name)) then
              call source_term_registry(i)%allocator(object)
@@ -97,7 +98,7 @@ contains
        end do
 
        call neko_type_error("source term", type_name, SOURCE_KNOWN_TYPES)
-    end if
+    end select
   end subroutine source_term_allocator
 
   !> Register a custom source term allocator.
