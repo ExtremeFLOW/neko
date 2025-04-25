@@ -58,7 +58,8 @@ module scalar_scheme
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
   use field_registry, only : neko_field_registry
   use usr_scalar, only : usr_scalar_t, usr_scalar_bc_eval
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_extract_object
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
        user_material_properties
@@ -250,6 +251,7 @@ contains
     real(kind=rp) :: real_val, solver_abstol
     integer :: integer_val, ierr
     character(len=:), allocatable :: solver_type, solver_precon, field_name
+    type(json_file) :: precon_params
     real(kind=rp) :: GJP_param_a, GJP_param_b
 
     this%u => neko_field_registry%get_field('u')
@@ -261,8 +263,9 @@ contains
 
     call neko_log%section('Scalar')
     call json_get(params, 'solver.type', solver_type)
-    call json_get(params, 'solver.preconditioner', &
+    call json_get(params, 'solver.preconditioner.type', &
          solver_precon)
+    call json_extract_object(params, 'solver.preconditioner', precon_params)         
     call json_get(params, 'solver.absolute_tolerance', &
          solver_abstol)
 
@@ -357,7 +360,8 @@ contains
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, integer_val, solver_abstol, logical_val)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs, solver_precon)
+         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs, &
+         solver_precon, precon_params)
 
     ! Initiate gradient jump penalty
     call json_get_or_default(params, &
@@ -477,7 +481,7 @@ contains
 
   !> Initialize a Krylov preconditioner
   subroutine scalar_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, &
-       pctype)
+       pctype, pcparams)
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
     type(coef_t), target, intent(in) :: coef
@@ -485,6 +489,7 @@ contains
     type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
+    type(json_file), intent(inout) :: pcparams        
 
     call precon_factory(pc, pctype)
 
@@ -496,16 +501,7 @@ contains
     type is (device_jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (hsmg_t)
-       if (len_trim(pctype) .gt. 4) then
-          if (index(pctype, '+') .eq. 5) then
-             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &
-                  trim(pctype(6:)))
-          else
-             call neko_error('Unknown coarse grid solver')
-          end if
-       else
-          call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
-       end if
+       call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, pcparams)
     end select
 
     call ksp%set_pc(pc)

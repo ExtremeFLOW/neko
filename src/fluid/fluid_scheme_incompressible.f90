@@ -173,7 +173,8 @@ contains
     type(json_file) :: wm_json
     character(len=:), allocatable :: string_val1, string_val2
     real(kind=rp) :: GJP_param_a, GJP_param_b
-
+    type(json_file) :: json_subdict
+    
     !
     ! SEM simulation fundamentals
     !
@@ -315,8 +316,10 @@ contains
             'case.fluid.velocity_solver.max_iterations', &
             integer_val, KSP_MAX_ITER)
        call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
-       call json_get(params, 'case.fluid.velocity_solver.preconditioner', &
+       call json_get(params, 'case.fluid.velocity_solver.preconditioner.type', &
             string_val2)
+       call json_extract_object(params, &
+            'case.fluid.velocity_solver.preconditioner', json_subdict)
        call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance', &
             real_val)
        call json_get_or_default(params, &
@@ -331,7 +334,8 @@ contains
        call this%solver_factory(this%ksp_vel, this%dm_Xh%size(), &
             string_val1, integer_val, real_val, logical_val)
        call this%precon_factory_(this%pc_vel, this%ksp_vel, &
-            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_vel, string_val2)
+            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_vel, &
+            string_val2, json_subdict)
        call neko_log%end_section()
     end if
 
@@ -584,7 +588,7 @@ contains
 
   !> Initialize a Krylov preconditioner
   subroutine fluid_scheme_precon_factory(this, pc, ksp, coef, dof, gs, bclst, &
-       pctype)
+       pctype, pcparams)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
@@ -593,6 +597,7 @@ contains
     type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
+    type(json_file), intent(inout) :: pcparams
 
     call precon_factory(pc, pctype)
 
@@ -604,16 +609,7 @@ contains
     type is (device_jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (hsmg_t)
-       if (len_trim(pctype) .gt. 4) then
-          if (index(pctype, '+') .eq. 5) then
-             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &
-                  trim(pctype(6:)))
-          else
-             call neko_error('Unknown coarse grid solver')
-          end if
-       else
-          call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
-       end if
+       call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, pcparams)
     type is (phmg_t)
        call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
     end select

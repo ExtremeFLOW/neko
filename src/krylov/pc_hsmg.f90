@@ -82,10 +82,13 @@ module hsmg
   use field, only : field_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
+  use json_module, only : json_file
+  use json_utils, only : json_get_or_default
   use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER, &
        krylov_solver_factory
   use tree_amg_multigrid, only : tamg_solver_t
   use zero_dirichlet, only : zero_dirichlet_t
+  use logger, only : neko_log, LOG_SIZE
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   !$ use omp_lib
   implicit none
@@ -117,7 +120,7 @@ module hsmg
      type(field_t) :: wf !< Work fields
      class(ksp_t), allocatable :: crs_solver !< Solver for course problem
      type(tamg_solver_t), allocatable :: amg_solver
-     integer :: niter = 10 !< Number of iter of crs sovlve
+     integer :: niter !< Number of iter of crs iterations
      class(pc_t), allocatable :: pc_crs !< Some basic precon for crs
      class(ax_t), allocatable :: ax !< Matrix for crs solve
      real(kind=rp), allocatable :: r(:)!< Residual work array
@@ -138,7 +141,7 @@ module hsmg
 contains
 
   !> @note I do not think we actually use the same grids as they do in the original!
-  subroutine hsmg_init(this, msh, Xh, coef, dof, gs_h, bclst, crs_pctype)
+  subroutine hsmg_init(this, msh, Xh, coef, dof, gs_h, bclst, hsmg_params)
     class(hsmg_t), intent(inout), target :: this
     type(mesh_t), intent(inout), target :: msh
     type(space_t), intent(inout), target :: Xh
@@ -146,11 +149,13 @@ contains
     type(dofmap_t), intent(in), target :: dof
     type(gs_t), intent(inout), target :: gs_h
     type(bc_list_t), intent(inout), target :: bclst
-    character(len=*), optional :: crs_pctype
+    type(json_file), intent(inout) :: hsmg_params
     integer :: n, i
     integer :: lx_crs, lx_mid
     class(bc_t), pointer :: bc_i
-
+    character(len=:), allocatable :: crs_solver, crs_pc
+    character(len=LOG_SIZE) :: log_buf
+    
     call this%free()
     this%nlvls = 3
     lx_crs = 2
@@ -164,6 +169,50 @@ contains
     else
        lx_mid = 4
     end if
+
+    ! Exract coarse grid parameters
+    call json_get_or_default(hsmg_params, 'coarse_grid.iterations', &
+         this%niter, 10)
+
+    call json_get_or_default(hsmg_params, 'coarse_grid.solver', &
+         crs_solver, "cg")
+
+    call json_get_or_default(hsmg_params, 'coarse_grid.preconditioner', &
+         crs_pc, "jacobi")
+        
+   
+    call neko_log%section('HSMG')
+    if (this%nlvls .lt. 1e1) then
+       write(log_buf, '(A,I1,A)') 'HSMG hierarchy      : ', this%nlvls, ' levels'
+    else if (this%nlvls .lt. 1e2) then
+       write(log_buf, '(A,I2,A)') 'HSMG hierarchy      : ', this%nlvls, ' levels'
+    else if (this%nlvls .lt. 1e3) then
+       write(log_buf, '(A,I3,A)') 'HSMG hierarchy      : ', this%nlvls, ' levels'
+    else
+       write(log_buf, '(A,I6,A)') 'HSMG hierarchy      : ', this%nlvls, ' levels'
+    end if
+    call neko_log%message(log_buf)
+    if (trim(crs_solver) .ne. 'tamg' .or. trim(crs_solver) .eq. 'cheby') then
+       call neko_log%message('Coarse grid solver  : (' // trim(crs_solver) // &
+            ', ' // trim(crs_pc) // ')')
+
+       if (this%niter .lt. 1e1) then
+          write(log_buf, '(A,I1)') 'Coarse grid iters.  : ', this%niter
+       else if (this%niter .lt. 1e2) then
+          write(log_buf, '(A,I2)') 'Coarse grid iters.  : ', this%niter
+       else if (this%niter .lt. 1e3) then
+          write(log_buf, '(A,I3)') 'Coarse grid iters.  : ', this%niter
+       else if (this%niter .lt. 1e4) then
+          write(log_buf, '(A,I4)') 'Coarse grid iters.  : ', this%niter
+       else
+          write(log_buf, '(A,I6)') 'Coarse grid iters.  : ', this%niter
+       end if
+
+       call neko_log%message(log_buf)
+    else
+       call neko_log%message('Coarse grid solver  : ' // trim(crs_solver) )
+    end if
+    
     this%msh => msh
     allocate(this%grids(this%nlvls))
     allocate(this%w(dof%size()))
@@ -192,10 +241,7 @@ contains
     ! Create backend specific Ax operator
     call ax_helm_factory(this%ax, full_formulation = .false.)
 
-    ! Create a backend specific preconditioner
-    call precon_factory(this%pc_crs, 'jacobi')
-
-    call this%bc_crs%init_base(this%c_crs)
+     call this%bc_crs%init_base(this%c_crs)
     call this%bc_mg%init_base(this%c_mg)
     call this%bc_reg%init_base(coef)
     if (bclst%size() .gt. 0) then
@@ -242,38 +288,37 @@ contains
        call device_map(this%r, this%r_d, n)
     end if
 
-    select type (pc => this%pc_crs)
-    type is (jacobi_t)
-       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
-    type is (sx_jacobi_t)
-       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
-    type is (device_jacobi_t)
-       call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
-    end select
-
     call device_event_create(this%hsmg_event, 2)
     call device_event_create(this%gs_event, 2)
 
+
+
     ! Create a backend specific krylov solver
-    if (present(crs_pctype)) then
-       if (trim(crs_pctype) .eq. 'tamg') then
-          allocate(this%amg_solver)
-          call this%amg_solver%init(this%ax, this%grids(1)%e%Xh, &
-               this%grids(1)%coef, this%msh, this%grids(1)%gs_h, 4, &
-               this%grids(1)%bclst, 1)
-       else
-          call krylov_solver_factory(this%crs_solver, &
-               this%dm_crs%size(), trim(crs_pctype), KSP_MAX_ITER, &
-               M = this%pc_crs)
-       end if
+    if (trim(crs_solver) .eq. 'tamg') then
+       allocate(this%amg_solver)
+       call this%amg_solver%init(this%ax, this%grids(1)%e%Xh, &
+            this%grids(1)%coef, this%msh, this%grids(1)%gs_h, 4, &
+            this%grids(1)%bclst, 1)
     else
+       ! Create a backend specific preconditioner
+       call precon_factory(this%pc_crs, crs_pc)
+
+       select type (pc => this%pc_crs)
+       type is (jacobi_t)
+          call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+       type is (sx_jacobi_t)
+          call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+       type is (device_jacobi_t)
+          call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+       end select
+
        call krylov_solver_factory(this%crs_solver, &
-            this%dm_crs%size(), 'cg', KSP_MAX_ITER, M = this%pc_crs)
+            this%dm_crs%size(), trim(crs_solver), KSP_MAX_ITER, &
+            M = this%pc_crs)
     end if
 
-
-
-
+    call neko_log%end_section()
+    
   end subroutine hsmg_init
 
   subroutine hsmg_set_h(this)
