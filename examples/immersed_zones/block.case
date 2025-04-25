@@ -3,7 +3,7 @@
     "case": {
         "mesh_file": "box.nmsh",
         "output_directory": "block_fields",
-x        "output_at_end": false,
+        "output_at_end": false,
         "output_boundary": false,
         "output_checkpoints": false,
         "end_time": 20.0,
