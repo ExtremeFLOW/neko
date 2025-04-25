@@ -148,7 +148,7 @@ contains
     type(bc_list_t), intent(inout), target :: bclst
     type(json_file), intent(inout) :: hsmg_params
     character(len=:), allocatable :: crs_solver, crs_pc
-    
+
     ! Exract coarse grid parameters
     call json_get_or_default(hsmg_params, 'coarse_grid.iterations', &
          this%niter, 10)
@@ -160,9 +160,9 @@ contains
          crs_pc, "jacobi")
 
     call this%init_from_components(coef, bclst, crs_solver, crs_pc)
-    
+
   end subroutine hsmg_init
-  
+
   subroutine hsmg_init_from_components(this, coef, bclst, crs_solver, crs_pc)
     class(hsmg_t), intent(inout), target :: this
     type(coef_t), intent(in), target :: coef
