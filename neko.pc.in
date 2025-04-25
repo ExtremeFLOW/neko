@@ -10,4 +10,4 @@ Version: @PACKAGE_VERSION@
 Description:
 Requires:
 Libs: -L${libdir} -lneko @LDFLAGS@ @LIBS@
-Cflags: -I${includedir} -I${includedir_pkg}
+Cflags: @NEKO_PKG_FCFLAGS@ -I${includedir} -I${includedir_pkg}
