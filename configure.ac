@@ -70,7 +70,6 @@ if test "x${enable_openmp}" != xno; then
    AX_OPENMP([have_openmp=yes], [have_openmp=no])
    if test "x${have_openmp}" != xno; then
       NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS $OPENMP_FCFLAGS"
-      LDFLAGS="$OPENMP_LDFLAGS $LDFLAGS"
       AC_LANG(C)
       AX_OPENMP([have_openmp=yes], [have_openmp=no])
       if test "x${have_openmp}" != xno; then
