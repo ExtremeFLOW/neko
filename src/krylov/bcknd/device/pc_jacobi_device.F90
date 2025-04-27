@@ -36,8 +36,10 @@ module device_jacobi
   use coefs, only : coef_t
   use dofmap, only : dofmap_t
   use num_types, only : rp
-  use device_math
-  use device
+  use device_math, only : device_col2, device_addcol3, device_invcol1,&
+       device_col3
+  use device, only : device_map, device_event_create, device_free, &
+       device_event_sync, device_get_ptr, device_event_destroy
   use gather_scatter, only : gs_t, GS_OP_ADD
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
@@ -186,7 +188,7 @@ contains
       end if
 
       call gs_h%op(this%d, dof%size(), GS_OP_ADD, this%gs_event)
-      call device_stream_wait_event(glb_cmd_queue, this%gs_event, 0)
+      call device_event_sync(this%gs_event)
 
       call device_invcol1(this%d_d, dof%size())
     end associate

@@ -40,6 +40,7 @@ module weak_grad
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use operators, only : opgrad
+  use time_state, only : time_state_t
   use case, only : case_t
   use fld_file_output, only : fld_file_output_t
   use json_utils, only : json_get, json_get_or_default
@@ -65,8 +66,8 @@ module weak_grad
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => weak_grad_init_from_json
      !> Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-        weak_grad_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          weak_grad_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => weak_grad_free
      !> Compute the weak_grad field.
@@ -96,25 +97,25 @@ contains
     call this%init_base(json, case)
     call this%writer%init(json, case)
 
-    call weak_grad_init_from_attributes(this, fieldname)
+    call weak_grad_init_from_components(this, fieldname)
   end subroutine weak_grad_init_from_json
 
   !> Actual constructor.
-  subroutine weak_grad_init_from_attributes(this, fieldname)
+  subroutine weak_grad_init_from_components(this, fieldname)
     class(weak_grad_t), intent(inout) :: this
     character(len=*) :: fieldname
 
     this%u => neko_field_registry%get_field_by_name(trim(fieldname))
 
     this%grad_x => neko_field_registry%get_field_by_name(&
-                        "weak_grad_" // fieldname // "_x")
+         "weak_grad_" // fieldname // "_x")
     this%grad_y => neko_field_registry%get_field_by_name(&
-                        "weak_grad_" // fieldname // "_y")
+         "weak_grad_" // fieldname // "_y")
     this%grad_z => neko_field_registry%get_field_by_name(&
-                        "weak_grad_" // fieldname // "_z")
+         "weak_grad_" // fieldname // "_z")
 
 
-  end subroutine weak_grad_init_from_attributes
+  end subroutine weak_grad_init_from_components
 
   !> Destructor.
   subroutine weak_grad_free(this)
@@ -128,15 +129,13 @@ contains
   end subroutine weak_grad_free
 
   !> Compute the weak_grad field.
-  !! @param t The time value.
-  !! @param tstep The current time-step
-  subroutine weak_grad_compute(this, t, tstep)
+  !! @param time The current time value
+  subroutine weak_grad_compute(this, time)
     class(weak_grad_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
 
     call opgrad(this%grad_x%x, this%grad_y%x, this%grad_z%x, this%u%x,&
-                this%case%fluid%c_Xh)
+         this%case%fluid%c_Xh)
   end subroutine weak_grad_compute
 
 end module weak_grad

@@ -89,11 +89,18 @@ and s1 if neko is run with one scalar. To output in a different `fld` series, us
 
 ### probes {#simcomp_probes}
 Probes selected solution fields at a list of points. This list of points can be
-generated in a variety of ways, but the most common is to use the `csv` type.
+generated in a variety of ways, but the most common is to use the `csv` type. 
 
-#### Supported types:
+Mandatory fields for this simcomp are:
+- `fields`: a list of fields to probe. Should be a list of field names that exist in the registry. Example: `"fields": ["u", "v", "p", "s"]`.
+- `output_file`: Name of the file in which to output the probed fields. Must be `.csv`.
 
- - `file`: Reads a list of points from a CSV file. The name of the file is
+It is also possible to set a `start_time` before which the probes will not be 
+executed (same behavior as the statistics).
+
+#### Supported types
+
+- `file`: Reads a list of points from a CSV file. The name of the file is
    provided with the `file_name` keyword. The CSV file should have the
    following format:
    ~~~~~~~~~~~~~~~{.csv}
@@ -154,7 +161,8 @@ generated in a variety of ways, but the most common is to use the `csv` type.
   0.0, -1.0, 0.0
   ~~~~~~~~~~~~~~~
 
- #### Example usage:
+ #### Example usage
+ 
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "probes",
@@ -287,7 +295,7 @@ keywords:
   alternatives are provided and the default one is `pointwise` if
   nothing is specified:
   - `pointwise`: Computes a local value based on the spacing of the GLL nodes.
-  - `elementwise_avg`: Computes a single value for the whole element based on the
+  - `elementwise_average`: Computes a single value for the whole element based on the
     average spacing of the GLL nodes within the element.
   - `elementwise_max`: Computes a single value for the whole element based on the
     maximum spacing of the GLL nodes within the element.
@@ -297,10 +305,11 @@ keywords:
   to different fields. For example, one for the scalar and one to the fluid.
 - `extrapolation`: Whether or not extrapolate the velocity to
   compute the eddy viscosity.
-  - `true`: the default option, extrapolate the velocity as the same order as
+  - `true`: extrapolate the velocity as the same order as
   the time scheme.
-  - `false`: disable the extrapolation. In this case, the estimation of the eddy
-  viscosity is of first order, while circumvent the risk of unstable extrapolation.
+  - `false`: the default option, disable the extrapolation. 
+  In this case, the estimation of the eddy viscosity is of first order, while 
+  circumvent the risk of unstable extrapolation.
 
  ~~~~~~~~~~~~~~~{.json}
  {

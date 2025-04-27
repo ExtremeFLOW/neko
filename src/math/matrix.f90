@@ -43,12 +43,12 @@ module matrix
   implicit none
   private
 
-  type, public ::  matrix_t
+  type, public :: matrix_t
      real(kind=rp), allocatable :: x(:,:) !< Matrix entries.
-     type(c_ptr) :: x_d = C_NULL_PTR      !< Device pointer.
-     integer :: nrows  = 0 !< Number of matrix rows.
-     integer :: ncols  = 0 !< Number of matrix columns.
-     integer :: n = 0      !< Total size nows*ncols.
+     type(c_ptr) :: x_d = C_NULL_PTR !< Device pointer.
+     integer :: nrows = 0 !< Number of matrix rows.
+     integer :: ncols = 0 !< Number of matrix columns.
+     integer :: n = 0 !< Total size nows*ncols.
    contains
      !> Initialise a matrix of size `nrows*ncols`.
      procedure, pass(m) :: init => matrix_init
@@ -133,7 +133,7 @@ contains
 
   !> Returns the number of entries in the matrix.
   function matrix_size(m) result(s)
-    class(matrix_t), intent(inout) :: m
+    class(matrix_t), intent(in) :: m
     integer :: s
     s = m%n
   end function matrix_size
@@ -347,7 +347,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1 .and. &
          bcknd .eq. NEKO_BCKND_DEVICE) then
        call neko_error("matrix_bcknd_inverse not &
-            &implemented on accelarators.")
+       &implemented on accelarators.")
     else
        call cpu_matrix_inverse(m)
     end if
@@ -361,12 +361,12 @@ contains
     ! rmult is m  work array of length nrows = ncols
     class(matrix_t), intent(inout) :: m
     integer :: indr(m%nrows), indc(m%ncols), ipiv(m%ncols)
-    real(kind=rp) ::  rmult(m%nrows), amx, tmp, piv, eps
+    real(kind=rp) :: rmult(m%nrows), amx, tmp, piv, eps
     integer :: i, j, k, ir, jc
 
     if (.not. (m%ncols .eq. m%nrows)) then
        call neko_error("Fatal error: trying to invert m matrix that is not &
-            &square")
+       &square")
     end if
 
     eps = 1e-9_rp
@@ -374,14 +374,14 @@ contains
 
     do k = 1, m%nrows
        amx = 0.0_rp
-       do i = 1, m%nrows                    ! Pivot search
+       do i = 1, m%nrows ! Pivot search
           if (ipiv(i) .ne. 1) then
              do j = 1, m%nrows
                 if (ipiv(j) .eq. 0) then
                    if (abs(m%x(i, j)) .ge. amx) then
                       amx = abs(m%x(i, j))
-                      ir  = i
-                      jc  = j
+                      ir = i
+                      jc = j
                    end if
                 else if (ipiv(j) .gt. 1) then
                    return
@@ -394,7 +394,7 @@ contains
        !  Swap rows
        if (ir .ne. jc) then
           do j = 1, m%ncols
-             tmp       = m%x(ir, j)
+             tmp = m%x(ir, j)
              m%x(ir, j) = m%x(jc, j)
              m%x(jc, j) = tmp
           end do
@@ -412,13 +412,13 @@ contains
        end do
 
        do j = 1, m%ncols
-          tmp       = m%x(jc, j)
+          tmp = m%x(jc, j)
           m%x(jc, j) = m%x(1 , j)
           m%x(1 , j) = tmp
        end do
        do i = 2, m%nrows
-          rmult(i)   = m%x(i, jc)
-          m%x(i, jc)  = 0.0_rp
+          rmult(i) = m%x(i, jc)
+          m%x(i, jc) = 0.0_rp
        end do
 
        do j = 1, m%ncols
@@ -428,7 +428,7 @@ contains
        end do
 
        do j = 1, m%ncols
-          tmp       = m%x(jc, j)
+          tmp = m%x(jc, j)
           m%x(jc, j) = m%x(1 , j)
           m%x(1 , j) = tmp
        end do
@@ -438,7 +438,7 @@ contains
     do j= m%nrows, 1, -1
        if (indr(j) .ne. indc(j)) then
           do i = 1, m%nrows
-             tmp            = m%x(i, indr(j))
+             tmp = m%x(i, indr(j))
              m%x(i, indr(j)) = m%x(i, indc(j))
              m%x(i, indc(j)) = tmp
           end do

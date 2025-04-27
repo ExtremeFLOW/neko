@@ -40,8 +40,7 @@ module scalar_scheme
   use field_list, only: field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, krylov_solver_destroy, &
-       KSP_MAX_ITER
+  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use neumann, only : neumann_t
@@ -78,6 +77,8 @@ module scalar_scheme
 
   !> Base type for a scalar advection-diffusion solver.
   type, abstract :: scalar_scheme_t
+     !> A name that can be used to distinguish this solver in e.g. user routines
+     character(len=:), allocatable :: name
      !> x-component of Velocity
      type(field_t), pointer :: u
      !> y-component of Velocity
@@ -117,7 +118,7 @@ module scalar_scheme
      !> Mesh.
      type(mesh_t), pointer :: msh => null()
      !> Checkpoint for restarts.
-     type(chkp_t) :: chkp
+     type(chkp_t), pointer :: chkp => null()
      !> Thermal diffusivity.
      real(kind=rp) :: lambda
      !> The variable lambda field
@@ -161,13 +162,14 @@ module scalar_scheme
   !> Abstract interface to initialize a scalar formulation
   abstract interface
      subroutine scalar_scheme_init_intrf(this, msh, coef, gs, params, &
-          numerics_params, user, ulag, vlag, wlag, time_scheme, rho)
+          numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
        import scalar_scheme_t
        import json_file
        import coef_t
        import gs_t
        import mesh_t
        import user_t
+       import chkp_t
        import field_series_t
        import time_scheme_controller_t
        import rp
@@ -178,6 +180,7 @@ module scalar_scheme
        type(json_file), target, intent(inout) :: params
        type(json_file), target, intent(inout) :: numerics_params
        type(user_t), target, intent(in) :: user
+       type(chkp_t), target, intent(inout) :: chkp
        type(field_series_t), target, intent(in) :: ulag, vlag, wlag
        type(time_scheme_controller_t), target, intent(in) :: time_scheme
        real(kind=rp), intent(in) :: rho
@@ -186,12 +189,12 @@ module scalar_scheme
 
   !> Abstract interface to restart a scalar formulation
   abstract interface
-     subroutine scalar_scheme_restart_intrf(this, dtlag, tlag)
+     subroutine scalar_scheme_restart_intrf(this, chkp)
        import scalar_scheme_t
        import chkp_t
        import rp
        class(scalar_scheme_t), target, intent(inout) :: this
-       real(kind=rp) :: dtlag(10), tlag(10)
+       type(chkp_t), intent(inout) :: chkp
      end subroutine scalar_scheme_restart_intrf
   end interface
 
@@ -253,6 +256,9 @@ contains
     this%v => neko_field_registry%get_field('v')
     this%w => neko_field_registry%get_field('w')
 
+    ! Assign a name
+    call json_get_or_default(params, 'name', this%name, 'scalar')
+
     call neko_log%section('Scalar')
     call json_get(params, 'solver.type', solver_type)
     call json_get(params, 'solver.preconditioner', &
@@ -262,13 +268,15 @@ contains
 
     call json_get_or_default(params, &
          'solver.projection_space_size', &
-         this%projection_dim, 20)
+         this%projection_dim, 0)
     call json_get_or_default(params, &
          'solver.projection_hold_steps', &
          this%projection_activ_step, 5)
 
 
     write(log_buf, '(A, A)') 'Type       : ', trim(scheme)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A, A)') 'Name       : ', trim(this%name)
     call neko_log%message(log_buf)
     call neko_log%message('Ksp scalar : ('// trim(solver_type) // &
          ', ' // trim(solver_precon) // ')')
@@ -390,7 +398,7 @@ contains
     nullify(this%params)
 
     if (allocated(this%ksp)) then
-       call krylov_solver_destroy(this%ksp)
+       call this%ksp%free()
        deallocate(this%ksp)
     end if
 
@@ -448,12 +456,6 @@ contains
     if (.not. associated(this%params)) then
        call neko_error('No parameters defined')
     end if
-
-    !
-    ! Setup checkpoint structure (if everything is fine)
-    !
-!    @todo no io for now
-!    call this%chkp%init(this%u, this%v, this%w, this%p)
 
   end subroutine scalar_scheme_validate
 
@@ -545,8 +547,8 @@ contains
 
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
 
-       write(log_buf, '(A)') "Material properties must be set in the user&
-       & file!"
+       write(log_buf, '(A)') "Material properties must be set in the user " // &
+            "file!"
        call neko_log%message(log_buf)
        call user%material_properties(0.0_rp, 0, dummy_rho, dummy_mu, &
             this%cp, this%lambda, params)
@@ -554,12 +556,12 @@ contains
        if (params%valid_path('Pe') .and. &
             (params%valid_path('lambda') .or. &
             params%valid_path('cp'))) then
-          call neko_error("To set the material properties for the scalar,&
-          & either provide Pe OR lambda and cp in the case file.")
+          call neko_error("To set the material properties for the scalar, " // &
+               "either provide Pe OR lambda and cp in the case file.")
           ! Non-dimensional case
        else if (params%valid_path('Pe')) then
-          write(log_buf, '(A)') 'Non-dimensional scalar material properties &
-          & input.'
+          write(log_buf, '(A)') 'Non-dimensional scalar material properties' //&
+               ' input.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
           write(log_buf, '(A)') 'Specific heat capacity will be set to 1,'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)

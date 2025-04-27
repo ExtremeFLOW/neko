@@ -1,4 +1,3 @@
-
 lib_LTLIBRARIES = libneko.la
 libneko_la_LDFLAGS = -release ${PACKAGE_VERSION}
 neko_fortran_SOURCES = \
@@ -15,6 +14,7 @@ neko_fortran_SOURCES = \
 	common/datadist.f90\
 	common/distdata.f90\
 	common/utils.f90\
+	common/time_state.f90\
 	common/json_utils.f90\
 	common/system.f90\
 	common/runtime_statistics.f90\
@@ -285,6 +285,7 @@ neko_fortran_SOURCES = \
 	bc/bcknd/device/device_zero_dirichlet.F90\
 	bc/bcknd/device/device_symmetry.F90\
 	bc/bcknd/device/device_facet_normal.F90\
+	bc/bcknd/device/device_neumann.F90\
 	bc/bcknd/device/device_inhom_dirichlet.F90\
 	bc/bcknd/device/device_dong_outflow.F90\
 	scalar/bcknd/device/scalar_residual_device.F90\
@@ -401,6 +402,7 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/hip/zero_dirichlet.hip\
 	bc/bcknd/device/hip/symmetry.hip\
 	bc/bcknd/device/hip/facet_normal.hip\
+	bc/bcknd/device/hip/neumann.hip\
 	bc/bcknd/device/hip/inhom_dirichlet.hip\
 	bc/bcknd/device/hip/dong_outflow.hip\
 	common/bcknd/device/hip/rhs_maker.hip\
@@ -446,6 +448,7 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/cuda/zero_dirichlet.cu\
 	bc/bcknd/device/cuda/symmetry.cu\
 	bc/bcknd/device/cuda/facet_normal.cu\
+	bc/bcknd/device/cuda/neumann.cu\
 	bc/bcknd/device/cuda/inhom_dirichlet.cu\
 	bc/bcknd/device/cuda/dong_outflow.cu\
 	common/bcknd/device/cuda/rhs_maker.cu\
@@ -491,6 +494,7 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/opencl/zero_dirichlet.c\
 	bc/bcknd/device/opencl/symmetry.c\
 	bc/bcknd/device/opencl/facet_normal.c\
+	bc/bcknd/device/opencl/neumann.c\
 	bc/bcknd/device/opencl/inhom_dirichlet.c\
 	bc/bcknd/device/opencl/dong_outflow.c\
 	common/bcknd/device/opencl/rhs_maker.c\
@@ -522,12 +526,21 @@ if ENABLE_ADIOS2
 #neko_LDADD = \
 #	io/adios2_example.o
 #
+# With the previous build system, the correct method was:
 #
-io/nek_adios2.o: io/nek_adios2.cpp
-	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ -c $^
+#io/nek_adios2.o: io/nek_adios2.cpp	
+#	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ -c $^
+
+#libneko_la_LIBADD = \
+#	io/nek_adios2.o
+#
+# Now, use libtools to wrap everything
+
+io/nek_adios2.lo: io/nek_adios2.cpp
+	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
 
 libneko_la_LIBADD = \
-	io/nek_adios2.o
+        io/nek_adios2.lo
 
 #neko_LDADD = \
 #	io/nek_adios2.o
@@ -590,6 +603,8 @@ EXTRA_DIST = \
 	bc/bcknd/device/cuda/zero_dirichlet_kernel.h\
 	bc/bcknd/device/cuda/symmetry_kernel.h\
 	bc/bcknd/device/cuda/facet_normal_kernel.h\
+	bc/bcknd/device/cuda/neumann_kernel.h\
+	bc/bcknd/device/cuda/bc_utils.h\
 	bc/bcknd/device/cuda/inhom_dirichlet_kernel.h\
 	bc/bcknd/device/cuda/dong_outflow_kernel.h\
 	gs/bcknd/device/cuda/gs_kernels.h\
@@ -627,6 +642,8 @@ EXTRA_DIST = \
 	bc/bcknd/device/hip/zero_dirichlet_kernel.h\
 	bc/bcknd/device/hip/symmetry_kernel.h\
 	bc/bcknd/device/hip/facet_normal_kernel.h\
+	bc/bcknd/device/hip/neumann_kernel.h\
+	bc/bcknd/device/hip/bc_utils.h\
 	bc/bcknd/device/hip/inhom_dirichlet_kernel.h\
 	bc/bcknd/device/hip/dong_outflow_kernel.h\
 	gs/bcknd/device/hip/gs_kernels.h\
@@ -671,6 +688,8 @@ EXTRA_DIST = \
 	bc/bcknd/device/opencl/zero_dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/symmetry_kernel.cl\
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
+	bc/bcknd/device/opencl/neumann_kernel.cl\
+	bc/bcknd/device/opencl/bc_utils.h\
 	bc/bcknd/device/opencl/inhom_dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/dong_outflow_kernel.cl\
 	math/bcknd/device/opencl/math_kernel.cl\
@@ -707,6 +726,9 @@ EXTRA_DIST = \
 	comm/comm_nccl.h\
 	comm/comm.h\
 	common/neko_log.h
+
+# Expose the listed headers in the package
+nobase_pkginclude_HEADERS = ${EXTRA_DIST}
 
 # Fortran deps. (updated with makedepf90 via target 'depend')
 include	.depends

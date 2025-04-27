@@ -342,9 +342,9 @@ contains
   !> Vector subtraction \f$ a = b - c \f$
   subroutine field_sub3(a, b, c, n)
     integer, intent(in), optional :: n
-    type(field_t), intent(inout) :: c
-    type(field_t), intent(inout) :: b
-    type(field_t), intent(out) :: a
+    type(field_t), intent(inout) :: a
+    type(field_t), intent(in) :: b
+    type(field_t), intent(in) :: c
     integer :: size
 
     if (present(n)) then

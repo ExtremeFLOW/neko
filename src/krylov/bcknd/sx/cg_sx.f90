@@ -61,7 +61,7 @@ contains
 
   !> Initialise a standard PCG solver
   subroutine sx_cg_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
-    class(sx_cg_t), intent(inout) :: this
+    class(sx_cg_t), target, intent(inout) :: this
     class(pc_t), optional, intent(in), target :: M
     integer, intent(in) :: n
     integer, intent(in) :: max_iter

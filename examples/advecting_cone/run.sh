@@ -4,7 +4,7 @@ makeneko advecting_cone.f90
 python create_probes.py
 
 # Remove results if exist
-rm output.csv
+[ -f output.csv ] && rm output.csv
 
 # Set order
 python change_order.py 2
