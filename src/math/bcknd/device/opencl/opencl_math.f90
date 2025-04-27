@@ -50,6 +50,20 @@ module opencl_math
        integer(c_int) :: n, m
      end subroutine opencl_masked_copy
 
+     subroutine opencl_masked_red_copy(a_d, b_d, mask_d, n, m) &
+          bind(c, name = 'opencl_masked_red_copy')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       type(c_ptr), value :: a_d, b_d, mask_d
+       integer(c_int) :: n, m
+     end subroutine opencl_masked_red_copy
+
+     subroutine opencl_masked_scatter_copy(a_d, b_d, mask_d, n, m) &
+          bind(c, name = 'opencl_masked_scatter_copy')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       type(c_ptr), value :: a_d, b_d, mask_d
+       integer(c_int) :: n, m
+     end subroutine opencl_masked_scatter_copy
+
      subroutine opencl_cfill_mask(a_d, c, size, mask_d, mask_size) &
           bind(c, name = 'opencl_cfill_mask')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int

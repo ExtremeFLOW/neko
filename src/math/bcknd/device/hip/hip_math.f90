@@ -57,6 +57,13 @@ module hip_math
        integer(c_int) :: n, m
      end subroutine hip_masked_red_copy
 
+     subroutine hip_masked_scatter_copy(a_d, b_d, mask_d, n, m) &
+          bind(c, name = 'hip_masked_red_copy')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       type(c_ptr), value :: a_d, b_d, mask_d
+       integer(c_int) :: n, m
+     end subroutine hip_masked_scatter_copy
+
      subroutine hip_masked_atomic_reduction(a_d, b_d, mask_d, n, m) &
           bind(c, name = 'hip_masked_atomic_reduction')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
