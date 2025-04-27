@@ -76,8 +76,8 @@ extern "C" {
 
   }
 
-  /** Fortran wrapper for masked copy
-   * Copy a vector \f$ a(mask) = b(mask) \f$
+  /** Fortran wrapper for masked reduced copy
+   * Copy a vector \f$ a = b(mask) \f$
    */
   void cuda_masked_red_copy(void *a, void *b, void *mask, int *n, int *m) {
 
@@ -88,6 +88,19 @@ extern "C" {
       (cudaStream_t) glb_cmd_queue>>>((real *) a, (real*) b,(int*) mask, *n, *m);
     CUDA_CHECK(cudaGetLastError());
 
+  }
+
+  /** Fortran wrapper for masked scatter copy
+   * Copy a vector \f$ a(mask) = b \f$
+   */
+  void cuda_masked_scatter_copy(void *a, void *b, void *mask, int *n, int *m) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+
+    masked_red_copy_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real*) b,(int*) mask, *n, *m);
+    CUDA_CHECK(cudaGetLastError());
   }
 
   /** Fortran wrapper for masked atomic reduction
@@ -103,7 +116,7 @@ extern "C" {
                                       (int *) mask, *n, *m);
     CUDA_CHECK(cudaGetLastError());
 
-  } 
+  }
 
 
   /** Fortran wrapper for cfill_mask

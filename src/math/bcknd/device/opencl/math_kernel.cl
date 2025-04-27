@@ -48,18 +48,52 @@ __kernel void masked_copy_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[mask[i+1]-1] = b[mask[i+1]-1];
-  }  
+  }
+}
+
+/**
+ * Device kernel for masked reduced copy
+ */
+__kernel void masked_red_copy_kernel(__global real * __restrict__ a,
+                                     __global real * __restrict__ b,
+                                     __global int * __restrict__ mask,
+                                     const int n,
+                                     const int m) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = b[mask[i+1]-1];
+  }
+}
+
+/**
+ * Device kernel for masked reduced copy
+ */
+__kernel void masked_scatter_copy_kernel(__global real * __restrict__ a,
+                                         __global real * __restrict__ b,
+                                         __global int * __restrict__ mask,
+                                         const int n,
+                                         const int m) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    a[mask[i+1]-1] = b[i];
+  }
 }
 
 /**
  * Device kernel for cfill_mask
  */
-__kernel void cfill_mask_kernel(__global real * __restrict__ a, 
-                                const real c, 
-                                const int size, 
+__kernel void cfill_mask_kernel(__global real * __restrict__ a,
+                                const real c,
+                                const int size,
                                 __global int * __restrict__ mask,
                                 const int mask_size) {
-  
+
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
@@ -78,7 +112,7 @@ __kernel void cmult_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = c * a[i];
-  } 
+  }
 }
 
 /**
@@ -94,7 +128,7 @@ __kernel void cmult2_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = c * b[i];
-  } 
+  }
 }
 
 /**
@@ -109,7 +143,7 @@ __kernel void cadd_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] + c;
-  } 
+  }
 }
 
 /**
@@ -140,7 +174,7 @@ __kernel void cfill_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = c;
-  } 
+  }
 }
 
 /**
@@ -157,7 +191,7 @@ __kernel void add4_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = d[i] + c[i] + d[i];
-  } 
+  }
 }
 
 /**
@@ -172,7 +206,7 @@ __kernel void add2_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] + b[i];
-  } 
+  }
 }
 
 /**
@@ -204,7 +238,7 @@ __kernel void add2s1_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = c1 * a[i] + b[i];
-  } 
+  }
 }
 
 /**
@@ -287,13 +321,13 @@ __kernel void invcol1_kernel(__global real * __restrict__ a,
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
   const real one = 1.0;
-  
+
   for (int i = idx; i < n; i += str) {
     a[i] = one / a[i];
   }
 }
 
-/** 
+/**
  * Device kernel for invcol2
  */
 __kernel void invcol2_kernel(__global real * __restrict__ a,
@@ -305,10 +339,10 @@ __kernel void invcol2_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] / b[i];
-  }  
+  }
 }
 
-/** 
+/**
  * Device kernel for col2
  */
 __kernel void col2_kernel(__global real * __restrict__ a,
@@ -320,10 +354,10 @@ __kernel void col2_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] * b[i];
-  }  
+  }
 }
 
-/** 
+/**
  * Device kernel for col3
  */
 __kernel void col3_kernel(__global real * __restrict__ a,
@@ -336,10 +370,10 @@ __kernel void col3_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = b[i] * c[i];
-  }  
+  }
 }
 
-/** 
+/**
  * Device kernel for subcol3
  */
 __kernel void subcol3_kernel(__global real * __restrict__ a,
@@ -352,10 +386,10 @@ __kernel void subcol3_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] - b[i] * c[i];
-  }  
+  }
 }
 
-/** 
+/**
  * Device kernel for sub2
  */
 __kernel void sub2_kernel(__global real * __restrict__ a,
@@ -367,10 +401,10 @@ __kernel void sub2_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] - b[i];
-  }  
+  }
 }
 
-/** 
+/**
  * Device kernel for sub3
  */
 __kernel void sub3_kernel(__global real * __restrict__ a,
@@ -383,10 +417,10 @@ __kernel void sub3_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = b[i] - c[i];
-  }  
+  }
 }
 
-/** 
+/**
  * Device kernel for addcol3
  */
 __kernel void addcol3_kernel(__global real * __restrict__ a,
@@ -399,10 +433,10 @@ __kernel void addcol3_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] + b[i] * c[i];
-  }  
+  }
 }
 
-/** 
+/**
  * Device kernel for addcol4
  */
 __kernel void addcol4_kernel(__global real * __restrict__ a,
@@ -416,7 +450,7 @@ __kernel void addcol4_kernel(__global real * __restrict__ a,
 
   for (int i = idx; i < n; i += str) {
     a[i] = a[i] + b[i] * c[i] * d[i];
-  }  
+  }
 }
 
 /**
@@ -436,8 +470,8 @@ __kernel void vdot3_kernel(__global real * __restrict__ dot,
 
   for (int i = idx; i < n; i += str) {
     dot[i] = u1[i] * v1[i]  + u2[i] * v2[i] + u3[i] * v3[i];
-  }  
-  
+  }
+
 }
 
 /**
@@ -469,7 +503,7 @@ __kernel void glsc3_kernel(__global const real * __restrict__ a,
     barrier(CLK_LOCAL_MEM_FENCE);
     i = i>>1;
   }
- 
+
   if (get_local_id(0) == 0) {
     buf_h[get_group_id(0)] = buf[0];
   }
@@ -510,7 +544,7 @@ __kernel void glsc3_many_kernel(__global const real * __restrict__ a,
     barrier(CLK_LOCAL_MEM_FENCE);
     i = i>>1;
   }
-  
+
   if (get_local_id(0) == 0) {
     if( y < j) {
       buf_h[j * get_group_id(0) + y] = buf[y];
@@ -546,7 +580,7 @@ __kernel void glsc2_kernel(__global const real * __restrict__ a,
     barrier(CLK_LOCAL_MEM_FENCE);
     i = i>>1;
   }
- 
+
   if (get_local_id(0) == 0) {
     buf_h[get_group_id(0)] = buf[0];
   }
@@ -580,7 +614,7 @@ __kernel void glsum_kernel(__global const real * __restrict__ a,
     barrier(CLK_LOCAL_MEM_FENCE);
     i = i>>1;
   }
- 
+
   if (get_local_id(0) == 0) {
     buf_h[get_group_id(0)] = buf[0];
   }
