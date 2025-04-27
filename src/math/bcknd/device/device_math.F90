@@ -115,7 +115,7 @@ contains
 #elif HAVE_CUDA
     call cuda_masked_gather_copy(a_d, b_d, mask_d, n, m)
 #elif HAVE_OPENCL
-    call opencl_masked_red_copy(a_d, b_d, mask_d, n, m)
+    call opencl_masked_gather_copy(a_d, b_d, mask_d, n, m)
 #else
     call neko_error('no device backend configured')
 #endif

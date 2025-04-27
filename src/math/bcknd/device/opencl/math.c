@@ -87,13 +87,13 @@ void opencl_masked_copy(void *a, void *b, void *mask, int *n, int *m) {
 /** Fortran wrapper for masked reduced copy
  * Copy a vector \f$ a = b(mask) \f$
  */
-void opencl_masked_red_copy(void *a, void *b, void *mask, int *n, int *m) {
+void opencl_masked_gather_copy(void *a, void *b, void *mask, int *n, int *m) {
   cl_int err;
 
   if (math_program == NULL)
     opencl_kernel_jit(math_kernel, (cl_program *) &math_program);
 
-  cl_kernel kernel = clCreateKernel(math_program, "masked_red_copy_kernel",
+  cl_kernel kernel = clCreateKernel(math_program, "masked_gather_copy_kernel",
     &err);
   CL_CHECK(err);
 

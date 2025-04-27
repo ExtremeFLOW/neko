@@ -54,7 +54,7 @@ __kernel void masked_copy_kernel(__global real * __restrict__ a,
 /**
  * Device kernel for masked reduced copy
  */
-__kernel void masked_red_copy_kernel(__global real * __restrict__ a,
+__kernel void masked_gather_copy_kernel(__global real * __restrict__ a,
                                      __global real * __restrict__ b,
                                      __global int * __restrict__ mask,
                                      const int n,
