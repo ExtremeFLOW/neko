@@ -88,12 +88,12 @@ contains
     call device_cadd(tmp_w%x_d, -u_geo(3), n)
 
     ! The Coriolis term to be added to the RHS
-    call device_add3s2(tmp_fu%x_d,  tmp_w%x_d, tmp_v%x_d, -2.0_rp * omega(2), &
+    call device_add3s2(tmp_fu%x_d, tmp_w%x_d, tmp_v%x_d, -2.0_rp * omega(2), &
          2.0_rp * omega(3), n)
-    call device_add3s2(tmp_fv%x_d,  tmp_u%x_d, tmp_w%x_d, -2.0_rp * omega(3), &
-          2.0_rp * omega(1), n)
-    call device_add3s2(tmp_fw%x_d,  tmp_v%x_d, tmp_u%x_d, -2.0_rp * omega(1), &
-          2.0_rp * omega(2), n)
+    call device_add3s2(tmp_fv%x_d, tmp_u%x_d, tmp_w%x_d, -2.0_rp * omega(3), &
+         2.0_rp * omega(1), n)
+    call device_add3s2(tmp_fw%x_d, tmp_v%x_d, tmp_u%x_d, -2.0_rp * omega(1), &
+         2.0_rp * omega(2), n)
 
     ! Add the Coriolis term to the RHS
     call device_add2(fu%x_d, tmp_fu%x_d, n)
