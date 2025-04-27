@@ -37,21 +37,22 @@ module gradient_jump_penalty
   use utils, only : neko_error
   use json_utils, only : json_get_or_default
   use json_module, only : json_file
-  use math
+  use math, only: add2, col2, col3, invcol2, add3, copy
   use point, only : point_t
   use field, only : field_t
   use dofmap , only : dofmap_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use coefs, only : coef_t
   use element, only : element_t
-  use hex
-  use quad
+  use hex, only : hex_t
+  use quad, only : quad_t
   use operators, only : dudxyz
   use gs_ops, only : GS_OP_ADD
-  use space
+  use space, only : space_t, GLL
   use gather_scatter, only : gs_t
-  use device
-  use device_math
+  use device, only : device_map, HOST_TO_DEVICE, device_memcpy, device_free
+  use device_math, only : device_col2, device_add2, device_add2s2, &
+      device_col3, device_add3s2, device_invcol2, device_absval
   use device_gradient_jump_penalty
   use source_term, only : source_term_t
   use field_list, only : field_list_t
@@ -302,33 +303,33 @@ contains
        do j = 1, 6 ! for hexahedral elements
           do k = 1, this%lx
              do l = 1, this%lx
-                select case(j)
-                case(1)
+                select case (j)
+                case (1)
                    normal = this%coef%get_normal(1, l, k, i, j)
                    this%n1(1, l + 1, k + 1, i) = normal(1)
                    this%n2(1, l + 1, k + 1, i) = normal(2)
                    this%n3(1, l + 1, k + 1, i) = normal(3)
-                case(2)
+                case (2)
                    normal = this%coef%get_normal(1, l, k, i, j)
                    this%n1(this%lx + 2, l + 1, k + 1, i) = normal(1)
                    this%n2(this%lx + 2, l + 1, k + 1, i) = normal(2)
                    this%n3(this%lx + 2, l + 1, k + 1, i) = normal(3)
-                case(3)
+                case (3)
                    normal = this%coef%get_normal(l, 1, k, i, j)
                    this%n1(l + 1, 1, k + 1, i) = normal(1)
                    this%n2(l + 1, 1, k + 1, i) = normal(2)
                    this%n3(l + 1, 1, k + 1, i) = normal(3)
-                case(4)
+                case (4)
                    normal = this%coef%get_normal(l, 1, k, i, j)
                    this%n1(l + 1, this%lx + 2, k + 1, i) = normal(1)
                    this%n2(l + 1, this%lx + 2, k + 1, i) = normal(2)
                    this%n3(l + 1, this%lx + 2, k + 1, i) = normal(3)
-                case(5)
+                case (5)
                    normal = this%coef%get_normal(l, k, 1, i, j)
                    this%n1(l + 1, k + 1, 1, i) = normal(1)
                    this%n2(l + 1, k + 1, 1, i) = normal(2)
                    this%n3(l + 1, k + 1, 1, i) = normal(3)
-                case(6)
+                case (6)
                    normal = this%coef%get_normal(l, k, 1, i, j)
                    this%n1(l + 1, k + 1, this%lx + 2, i) = normal(1)
                    this%n2(l + 1, k + 1, this%lx + 2, i) = normal(2)
@@ -408,23 +409,23 @@ contains
     do j = 1, 6
        do k = 1, n
           do l = 1, n
-             select case(j)
-             case(1)
+             select case (j)
+             case (1)
                 h2_el(1, l + 1, k + 1) = &
                      dist2_quadrature_hex(l, k, j, i, n, dm, coef)
-             case(2)
+             case (2)
                 h2_el(n + 2, l + 1, k + 1) = &
                      dist2_quadrature_hex(l, k, j, i, n, dm, coef)
-             case(3)
+             case (3)
                 h2_el(l + 1, 1, k + 1) = &
                      dist2_quadrature_hex(l, k, j, i, n, dm, coef)
-             case(4)
+             case (4)
                 h2_el(l + 1, n + 2, k + 1) = &
                      dist2_quadrature_hex(l, k, j, i, n, dm, coef)
-             case(5)
+             case (5)
                 h2_el(l + 1, k + 1, 1) = &
                      dist2_quadrature_hex(l, k, j, i, n, dm, coef)
-             case(6)
+             case (6)
                 h2_el(l + 1, k + 1, n + 2) = &
                      dist2_quadrature_hex(l, k, j, i, n, dm, coef)
              case default
@@ -448,8 +449,8 @@ contains
     real(kind=rp) :: v1, v2, v3
 
     dist2 = 0.0_rp
-    select case(j)
-    case(1)
+    select case (j)
+    case (1)
        normal1 = coef%get_normal(1, l, k, i, 1)
        n11 = normal1(1)
        n12 = normal1(2)
@@ -464,7 +465,7 @@ contains
        x2 = dm%x(n, l, k, i)
        y2 = dm%y(n, l, k, i)
        z2 = dm%z(n, l, k, i)
-    case(2)
+    case (2)
        ! now the facet pair share the same value for h
        ! but just let it be here for furture possible changes
        normal1 = coef%get_normal(1, l, k, i, 2)
@@ -481,7 +482,7 @@ contains
        x2 = dm%x(1, l, k, i)
        y2 = dm%y(1, l, k, i)
        z2 = dm%z(1, l, k, i)
-    case(3)
+    case (3)
        normal1 = coef%get_normal(1, l, k, i, 3)
        n11 = normal1(1)
        n12 = normal1(2)
@@ -496,7 +497,7 @@ contains
        x2 = dm%x(l, n, k, i)
        y2 = dm%y(l, n, k, i)
        z2 = dm%z(l, n, k, i)
-    case(4)
+    case (4)
        normal1 = coef%get_normal(1, l, k, i, 4)
        n11 = normal1(1)
        n12 = normal1(2)
@@ -511,7 +512,7 @@ contains
        x2 = dm%x(l, 1, k, i)
        y2 = dm%y(l, 1, k, i)
        z2 = dm%z(l, 1, k, i)
-    case(5)
+    case (5)
        normal1 = coef%get_normal(1, l, k, i, 5)
        n11 = normal1(1)
        n12 = normal1(2)
@@ -526,7 +527,7 @@ contains
        x2 = dm%x(l, k, n, i)
        y2 = dm%y(l, k, n, i)
        z2 = dm%z(l, k, n, i)
-    case(6)
+    case (6)
        normal1 = coef%get_normal(1, l, k, i, 6)
        n11 = normal1(1)
        n12 = normal1(2)
@@ -578,8 +579,8 @@ contains
          do j = 1, 6 ! for hexahedral elementsh2
             do k = 1, lx
                do l = 1, lx
-                  select case(j)
-                  case(1)
+                  select case (j)
+                  case (1)
                      area_tmp = coef%get_area(1, l, k, i, j)
                      facet_factor(1, l + 1, k + 1, i) = area_tmp * tau * &
                           h2(1, l + 1, k + 1, i) * &
@@ -587,7 +588,7 @@ contains
                           n2(1, l + 1, k + 1, i) * coef%drdy(1, l, k, i) + &
                           n3(1, l + 1, k + 1, i) * coef%drdz(1, l, k, i) ) &
                           * jacinv(1, l, k, i)
-                  case(2)
+                  case (2)
                      area_tmp = coef%get_area(1, l, k, i, j)
                      facet_factor(lx + 2, l + 1, k + 1, i) = area_tmp * tau * &
                           h2(lx + 2, l + 1, k + 1, i) * &
@@ -598,7 +599,7 @@ contains
                           n3(lx + 2, l + 1, k + 1, i) * &
                           coef%drdz(lx, l, k, i) ) &
                           * jacinv(lx, l, k, i)
-                  case(3)
+                  case (3)
                      area_tmp = coef%get_area(l, 1, k, i, j)
                      facet_factor(l + 1, 1, k + 1, i) = area_tmp * tau * &
                           h2(l + 1, 1, k + 1, i) * &
@@ -606,7 +607,7 @@ contains
                           n2(l + 1, 1, k + 1, i) * coef%dsdy(l, 1, k, i) + &
                           n3(l + 1, 1, k + 1, i) * coef%dsdz(l, 1, k, i) ) &
                           * jacinv(l, 1, k, i)
-                  case(4)
+                  case (4)
                      area_tmp = coef%get_area(l, 1, k, i, j)
                      facet_factor(l + 1, lx + 2, k + 1, i) = area_tmp * tau * &
                           h2(l + 1, lx + 2, k + 1, i) * &
@@ -617,7 +618,7 @@ contains
                           n3(l + 1, lx + 2, k + 1, i) * &
                           coef%dsdz(l, lx, k, i) ) &
                           * jacinv(l, lx, k, i)
-                  case(5)
+                  case (5)
                      area_tmp = coef%get_area(l, k, 1, i, j)
                      facet_factor(l + 1, k + 1, 1, i) = area_tmp * tau * &
                           h2(l + 1, k + 1, 1, i) * &
@@ -625,13 +626,18 @@ contains
                           n2(l + 1, k + 1, 1, i) * coef%dtdy(l, k, 1, i) + &
                           n3(l + 1, k + 1, 1, i) * coef%dtdz(l, k, 1, i) ) &
                           * jacinv(l, k, 1, i)
-                  case(6)
+                  case (6)
                      area_tmp = coef%get_area(l, k, 1, i, j)
                      facet_factor(l + 1, k + 1, lx + 2, i) = area_tmp * tau * &
                           h2(l + 1, k + 1, lx + 2, i) * &
-                          (n1(l + 1, k + 1, lx + 2, i) * coef%dtdx(l, k, lx, i) + &
-                          n2(l + 1, k + 1, lx + 2, i) * coef%dtdy(l, k, lx, i) + &
-                          n3(l + 1, k + 1, lx + 2, i) * coef%dtdz(l, k, lx, i) ) &
+                          ( &
+                          n1(l + 1, k + 1, lx + 2, i) * &
+                          coef%dtdx(l, k, lx, i) + &
+                          n2(l + 1, k + 1, lx + 2, i) * &
+                          coef%dtdy(l, k, lx, i) + &
+                          n3(l + 1, k + 1, lx + 2, i) * &
+                          coef%dtdz(l, k, lx, i) &
+                          ) &
                           * jacinv(l, k, lx, i)
                   case default
                      call neko_error("The face index is not correct")
@@ -822,7 +828,7 @@ contains
 
 
 
-    do i=1, n_fields
+    do i = 1, n_fields
 
        call this%compute_single(this%s_fields%items(i)%ptr)
 
