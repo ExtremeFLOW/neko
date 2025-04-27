@@ -511,11 +511,11 @@ contains
     b => null()
 
     call this%bcs_prs%apply(this%p, t, tstep)
-    call this%gs_Xh%op(this%p,GS_OP_MIN, glb_cmd_event)
+    call this%gs_Xh%op(this%p, GS_OP_MIN, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
 
     call this%bcs_prs%apply(this%p, t, tstep)
-    call this%gs_Xh%op(this%p,GS_OP_MAX, glb_cmd_event)
+    call this%gs_Xh%op(this%p, GS_OP_MAX, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
 
     do i = 1, this%bcs_prs%size()
@@ -635,8 +635,8 @@ contains
        if (params%valid_path('case.fluid.Re') .and. &
             (params%valid_path('case.fluid.mu') .or. &
             params%valid_path('case.fluid.rho'))) then
-          call neko_error("To set the material properties for the fluid," // &
-               " either provide Re OR mu and rho in the case file.")
+          call neko_error("To set the material properties for the fluid, " // &
+               "either provide Re OR mu and rho in the case file.")
 
           ! Non-dimensional case
        else if (params%valid_path('case.fluid.Re')) then

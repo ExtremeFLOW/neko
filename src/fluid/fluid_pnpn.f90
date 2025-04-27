@@ -720,7 +720,8 @@ contains
 
       ! Solve for the pressure increment.
       ksp_results(1) = &
-           this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, this%bclst_dp, gs_Xh)
+           this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
+           this%bclst_dp, gs_Xh)
 
 
       call profiler_end_region('Pressure_solve', 3)
