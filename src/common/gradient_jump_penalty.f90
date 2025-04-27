@@ -52,8 +52,9 @@ module gradient_jump_penalty
   use gather_scatter, only : gs_t
   use device, only : device_map, HOST_TO_DEVICE, device_memcpy, device_free
   use device_math, only : device_col2, device_add2, device_add2s2, &
-      device_col3, device_add3s2, device_invcol2, device_absval
-  use device_gradient_jump_penalty
+       device_col3, device_add3s2, device_invcol2, device_absval
+  use device_gradient_jump_penalty, only : device_pick_facet_value_hex, &
+       device_gradient_jump_penalty_finalize
   use source_term, only : source_term_t
   use field_list, only : field_list_t
   use field_registry, only : neko_field_registry
