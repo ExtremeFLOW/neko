@@ -43,6 +43,7 @@ module coriolis_source_term
   use neko_config, only : NEKO_BCKND_DEVICE
   use utils, only : neko_error
   use coriolis_source_term_cpu, only : coriolis_source_term_compute_cpu
+  use coriolis_source_term_device, only : coriolis_source_term_compute_device
   use field, only : field_t
   use field_registry, only : neko_field_registry
   implicit none
@@ -171,7 +172,8 @@ contains
     w => neko_field_registry%get_field("w")
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error("The Coriolis force is only implemented on the CPU")
+       call coriolis_source_term_compute_device(u, v, w, this%fields, &
+            this%omega, this%u_geo)
     else
        call coriolis_source_term_compute_cpu(u, v, w, this%fields, this%omega, &
             this%u_geo)
