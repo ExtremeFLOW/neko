@@ -23,13 +23,20 @@ if [ -f usr_driver.f90 ]; then
     rm usr_driver.f90
 fi
 
+
 # Collect user-provided .f90 files
 USER_FILES=""
 for file in "$@"; do
     case "$file" in
-        *.f90) USER_FILES="$USER_FILES $file" ;;
+        *.f90|*.F90) USER_FILES="$USER_FILES $file" ;;
+        *) echo "Warning: Ignoring non-Fortran file '$file'" ;;
     esac
 done
+
+if [ -z "$USER_FILES" ]; then
+    echo "ERROR: No valid .f90 files provided. Please specify at least one Fortran source file."
+    exit 2
+fi
 
 # Check if we have `module user` in one of the .f90 files
 HAS_USER_MODULE=0
