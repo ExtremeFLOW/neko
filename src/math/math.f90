@@ -313,30 +313,6 @@ contains
 
   end subroutine masked_scatter_copy
 
-  !> Copy a contigous vector to another via a mask into the destination array.
-  !! \f$ a(mask) = b \f$.
-  !! @param a Destination array of size `m`.
-  !! @param b Source array of size `n`.
-  !! @param mask Mask array of length m+1, where `mask(0) =m`
-  !! the length of the mask array.
-  !! @param n Size of the array `b`.
-  !! @param m Size of the mask array `mask` and `a`.
-  !! @note Like `masked_red_copy`, but the mask is applied to the destination
-  !! array `a` instead of the source array `b`.
-  subroutine masked_scatter_copy(a, b, mask, n, m)
-    integer, intent(in) :: n, m
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(m), intent(inout) :: a
-    integer, dimension(0:m) :: mask
-    integer :: i, j
-
-    do i = 1, m
-       j = mask(i)
-       a(j) = b(i)
-    end do
-  end subroutine masked_scatter_copy
-
-
   !> @brief Fill a constant to a masked vector.
   !! \f$ a_i = c, for i in mask \f$
   subroutine cfill_mask(a, c, size, mask, mask_size)
