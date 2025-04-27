@@ -34,7 +34,8 @@
 module case
   use num_types, only : rp, sp, dp
   use fluid_pnpn, only : fluid_pnpn_t
-  use fluid_scheme, only : fluid_scheme_t, fluid_scheme_factory
+  use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
+  use fluid_scheme_base, only: fluid_scheme_base_t, fluid_scheme_base_factory
   use fluid_output, only : fluid_output_t
   use chkp_output, only : chkp_output_t
   use mesh_field, only : mesh_fld_t, mesh_field_init, mesh_field_free
@@ -43,37 +44,35 @@ module case
   use output_controller, only : output_controller_t
   use flow_ic, only : set_flow_ic
   use scalar_ic, only : set_scalar_ic
-  use stats, only : stats_t
   use file, only : file_t
   use utils, only : neko_error
   use mesh, only : mesh_t
+  use math, only : NEKO_EPS
   use comm
+  use checkpoint, only: chkp_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use logger, only : neko_log, NEKO_LOG_QUIET, LOG_SIZE
+  use logger, only : neko_log, NEKO_LOG_QUIET
   use jobctrl, only : jobctrl_set_time_limit
   use user_intf, only : user_t
   use scalar_pnpn, only : scalar_pnpn_t
-  use json_module, only : json_file, json_core, json_value
-  use json_utils, only : json_get, json_get_or_default
+  use time_state, only : time_state_t
+  use json_module, only : json_file
+  use json_utils, only : json_get, json_get_or_default, json_extract_object
   use scratch_registry, only : scratch_registry_t, neko_scratch_registry
   use point_zone_registry, only: neko_point_zone_registry
   implicit none
   private
-
   type, public :: case_t
      type(mesh_t) :: msh
      type(json_file) :: params
-     type(time_scheme_controller_t) :: ext_bdf
-     real(kind=rp), dimension(10) :: tlag
-     real(kind=rp), dimension(10) :: dtlag
-     real(kind=rp) :: dt
-     real(kind=rp) :: end_time
      character(len=:), allocatable :: output_directory
      type(output_controller_t) :: output_controller
      type(fluid_output_t) :: f_out
-     type(chkp_output_t) :: f_chkp
+     type(time_state_t) :: time
+     type(chkp_output_t) :: chkp_out
+     type(chkp_t) :: chkp
      type(user_t) :: usr
-     class(fluid_scheme_t), allocatable :: fluid
+     class(fluid_scheme_base_t), allocatable :: fluid
      type(scalar_pnpn_t), allocatable :: scalar
   end type case_t
 
@@ -91,10 +90,17 @@ contains
     character(len=*), intent(in) :: case_file
     integer :: ierr, integer_val
     character(len=:), allocatable :: json_buffer
+    logical :: exist
+
+    ! Check if the file exists
+    inquire(file = trim(case_file), exist = exist)
+    if (.not. exist) then
+       call neko_error('The case file '//trim(case_file)//' does not exist.')
+    end if
 
     call neko_log%section('Case')
     call neko_log%message('Reading case file ' // trim(case_file), &
-                          NEKO_LOG_QUIET)
+         NEKO_LOG_QUIET)
 
     if (pe_rank .eq. 0) then
        call this%params%load_file(filename = trim(case_file))
@@ -137,11 +143,19 @@ contains
     logical :: found, logical_val
     integer :: integer_val
     real(kind=rp) :: real_val
-    character(len = :), allocatable :: string_val
-    real(kind=rp) :: stats_start_time, stats_output_val
-    integer :: stats_sampling_interval
+    character(len = :), allocatable :: string_val, name
     integer :: output_dir_len
     integer :: precision
+    type(json_file) :: scalar_params, numerics_params
+    type(json_file) :: json_subdict
+
+    !
+    ! Setup user defined functions
+    !
+    call this%usr%init()
+
+    ! Run user startup routine
+    call this%usr%user_startup(this%params)
 
     !
     ! Load mesh
@@ -150,7 +164,7 @@ contains
          'no mesh')
     if (trim(string_val) .eq. 'no mesh') then
        call neko_error('The mesh_file keyword could not be found in the .' // &
-                       'case file. Often caused by incorrectly formatted json.')
+            'case file. Often caused by incorrectly formatted json.')
     end if
     msh_file = file_t(string_val)
 
@@ -160,68 +174,61 @@ contains
     ! Load Balancing
     !
     call json_get_or_default(this%params, 'case.load_balancing', logical_val,&
-                             .false.)
+         .false.)
 
     if (pe_size .gt. 1 .and. logical_val) then
        call neko_log%section('Load Balancing')
        call parmetis_partmeshkway(this%msh, parts)
        call redist_mesh(this%msh, parts)
+
+       ! store the balanced mesh (for e.g. restarts)
+       string_val = trim(string_val(1:scan(trim(string_val), &
+            '.', back = .true.) - 1)) // '_lb.nmsh'
+       msh_file = file_t(string_val)
+       call msh_file%write(this%msh)
+
        call neko_log%end_section()
     end if
 
     !
     ! Time step
     !
-    call this%params%get('case.variable_timestep', logical_val, found)
+    call json_get_or_default(this%params, 'case.variable_timestep', &
+         logical_val, .false.)
     if (.not. logical_val) then
-       call json_get(this%params, 'case.timestep', this%dt)
+       call json_get(this%params, 'case.timestep', this%time%dt)
     else
        ! randomly set an initial dt to get cfl when dt is variable
-       this%dt = 1.0_rp
+       this%time%dt = 1.0_rp
     end if
 
     !
     ! End time
     !
-    call json_get(this%params, 'case.end_time', this%end_time)
+    call json_get(this%params, 'case.end_time', this%time%end_time)
 
     !
     ! Initialize point_zones registry
     !
     call neko_point_zone_registry%init(this%params, this%msh)
 
-    !
-    ! Setup user defined functions
-    !
-    call this%usr%init()
+    ! Run user mesh motion routine
     call this%usr%user_mesh_setup(this%msh)
 
-    !
-    ! Set order of timestepper
-    !
-    call json_get(this%params, 'case.numerics.time_order', integer_val)
-    call this%ext_bdf%init(integer_val)
+    call json_extract_object(this%params, 'case.numerics', numerics_params)
 
     !
     ! Setup fluid scheme
     !
     call json_get(this%params, 'case.fluid.scheme', string_val)
-    call fluid_scheme_factory(this%fluid, trim(string_val))
+    call fluid_scheme_base_factory(this%fluid, trim(string_val))
 
     call json_get(this%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get number of gll points
-    this%fluid%chkp%tlag => this%tlag
-    this%fluid%chkp%dtlag => this%dtlag
-    call this%fluid%init(this%msh, lx, this%params, this%usr, this%ext_bdf)
-    select type (f => this%fluid)
-    type is (fluid_pnpn_t)
-       f%chkp%abx1 => f%abx1
-       f%chkp%abx2 => f%abx2
-       f%chkp%aby1 => f%aby1
-       f%chkp%aby2 => f%aby2
-       f%chkp%abz1 => f%abz1
-       f%chkp%abz2 => f%abz2
-    end select
+    ! Set time lags in chkp
+    this%chkp%tlag => this%time%tlag
+    this%chkp%dtlag => this%time%dtlag
+    call this%fluid%init(this%msh, lx, this%params, this%usr, this%chkp)
 
 
     !
@@ -235,58 +242,45 @@ contains
     ! @todo no scalar factory for now, probably not needed
     if (this%params%valid_path('case.scalar')) then
        call json_get_or_default(this%params, 'case.scalar.enabled', scalar,&
-                                .true.)
+            .true.)
     end if
 
     if (scalar) then
        allocate(this%scalar)
-       this%scalar%chkp%tlag => this%tlag
-       this%scalar%chkp%dtlag => this%dtlag
+       call json_extract_object(this%params, 'case.scalar', scalar_params)
        call this%scalar%init(this%msh, this%fluid%c_Xh, this%fluid%gs_Xh, &
-            this%params, this%usr, this%fluid%ulag, this%fluid%vlag, &
-            this%fluid%wlag, this%ext_bdf, this%fluid%rho)
+            scalar_params, numerics_params, this%usr, this%chkp, this%fluid%ulag, &
+            this%fluid%vlag, this%fluid%wlag, this%fluid%ext_bdf, &
+            this%fluid%rho)
 
-       call this%fluid%chkp%add_scalar(this%scalar%s)
-
-       this%fluid%chkp%abs1 => this%scalar%abx1
-       this%fluid%chkp%abs2 => this%scalar%abx2
-       this%fluid%chkp%slag => this%scalar%slag
-    end if
-
-    !
-    ! Setup user defined conditions
-    !
-    if (this%params%valid_path('case.fluid.inflow_condition')) then
-       call json_get(this%params, 'case.fluid.inflow_condition.type',&
-                     string_val)
-       if (trim(string_val) .eq. 'user') then
-          call this%fluid%set_usr_inflow(this%usr%fluid_user_if)
-       end if
-    end if
-
-    ! Setup user boundary conditions for the scalar.
-    if (scalar) then
-       call this%scalar%set_user_bc(this%usr%scalar_user_bc)
     end if
 
     !
     ! Setup initial conditions
     !
-    call json_get(this%params, 'case.fluid.initial_condition.type',&
-                  string_val)
-
+    call json_get(this%params, 'case.fluid.initial_condition.type', &
+         string_val)
+    call json_extract_object(this%params, 'case.fluid.initial_condition', &
+         json_subdict)
 
     call neko_log%section("Fluid initial condition ")
 
     if (trim(string_val) .ne. 'user') then
        call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, &
             this%fluid%p, this%fluid%c_Xh, this%fluid%gs_Xh, string_val, &
-            this%params)
-
+            json_subdict)
     else
-       call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p,&
-            this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_user_ic, &
-            this%params)
+       call json_get(this%params, 'case.fluid.scheme', string_val)
+       if (trim(string_val) .eq. 'compressible') then
+          call set_flow_ic(this%fluid%rho_field, &
+               this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p, &
+               this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_compressible_user_ic, &
+               this%params)
+       else
+          call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p,&
+               this%fluid%c_Xh, this%fluid%gs_Xh, this%usr%fluid_user_ic, &
+               this%params)
+       end if
     end if
 
     call neko_log%end_section()
@@ -295,16 +289,18 @@ contains
 
        call json_get(this%params, 'case.scalar.initial_condition.type', &
             string_val)
+       call json_extract_object(this%params, 'case.scalar.initial_condition', &
+            json_subdict)
 
        call neko_log%section("Scalar initial condition ")
 
        if (trim(string_val) .ne. 'user') then
           call set_scalar_ic(this%scalar%s, &
-            this%scalar%c_Xh, this%scalar%gs_Xh, string_val, this%params)
+               this%scalar%c_Xh, this%scalar%gs_Xh, string_val, json_subdict)
        else
           call set_scalar_ic(this%scalar%s, &
-            this%scalar%c_Xh, this%scalar%gs_Xh, this%usr%scalar_user_ic, &
-            this%params)
+               this%scalar%c_Xh, this%scalar%gs_Xh, this%usr%scalar_user_ic, &
+               this%params)
        end if
 
        call neko_log%end_section()
@@ -333,7 +329,7 @@ contains
     ! Get and process output directory
     !
     call json_get_or_default(this%params, 'case.output_directory',&
-                             this%output_directory, '')
+         this%output_directory, '')
 
     output_dir_len = len(trim(this%output_directory))
     if (output_dir_len .gt. 0) then
@@ -346,20 +342,10 @@ contains
     end if
 
     !
-    ! Save boundary markings for fluid (if requested)
-    !
-    call json_get_or_default(this%params, 'case.output_boundary',&
-                             logical_val, .false.)
-    if (logical_val) then
-       bdry_file = file_t(trim(this%output_directory)//'bdry.fld')
-       call bdry_file%write(this%fluid%bdry)
-    end if
-
-    !
     ! Save mesh partitions (if requested)
     !
     call json_get_or_default(this%params, 'case.output_partitions',&
-                             logical_val, .false.)
+         logical_val, .false.)
     if (logical_val) then
        call mesh_field_init(msh_part, this%msh, 'MPI_Rank')
        msh_part%data = pe_rank
@@ -383,12 +369,14 @@ contains
     !
     ! Setup output_controller
     !
-    call this%output_controller%init(this%end_time)
+    call this%output_controller%init(this%time%end_time)
+    call json_get_or_default(this%params, 'case.fluid.output_filename', &
+         name, "field")
     if (scalar) then
-       this%f_out = fluid_output_t(precision, this%fluid, this%scalar, &
+       call this%f_out%init(precision, this%fluid, this%scalar, name = name, &
             path = trim(this%output_directory))
     else
-       this%f_out = fluid_output_t(precision, this%fluid, &
+       call this%f_out%init(precision, this%fluid, name = name, &
             path = trim(this%output_directory))
     end if
 
@@ -413,17 +401,20 @@ contains
     ! Save checkpoints (if nothing specified, default to saving at end of sim)
     !
     call json_get_or_default(this%params, 'case.output_checkpoints',&
-                             logical_val, .true.)
+         logical_val, .true.)
     if (logical_val) then
+       call json_get_or_default(this%params, 'case.checkpoint_filename', &
+            name, "fluid")
        call json_get_or_default(this%params, 'case.checkpoint_format', &
             string_val, "chkp")
-       this%f_chkp = chkp_output_t(this%fluid%chkp, &
+       this%chkp_out = chkp_output_t(this%chkp, name = name,&
             path = this%output_directory, fmt = trim(string_val))
        call json_get_or_default(this%params, 'case.checkpoint_control', &
             string_val, "simulationtime")
        call json_get_or_default(this%params, 'case.checkpoint_value', real_val,&
             1e10_rp)
-       call this%output_controller%add(this%f_chkp, real_val, string_val)
+       call this%output_controller%add(this%chkp_out, real_val, string_val, &
+            NEKO_EPS)
     end if
 
     !

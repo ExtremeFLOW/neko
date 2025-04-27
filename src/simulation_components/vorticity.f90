@@ -39,11 +39,13 @@ module vorticity
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use field, only : field_t
+  use time_state, only : time_state_t
   use operators, only : curl
   use case, only : case_t
   use fld_file_output, only : fld_file_output_t
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
+  use device, only : glb_cmd_event
   implicit none
   private
 
@@ -76,8 +78,8 @@ module vorticity
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => vorticity_init_from_json
      !> Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-        vorticity_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          vorticity_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => vorticity_free
      !> Compute the vorticity field.
@@ -104,11 +106,11 @@ contains
     call this%init_base(json, case)
     call this%writer%init(json, case)
 
-    call vorticity_init_from_attributes(this)
+    call vorticity_init_from_components(this)
   end subroutine vorticity_init_from_json
 
   !> Actual constructor.
-  subroutine vorticity_init_from_attributes(this)
+  subroutine vorticity_init_from_components(this)
     class(vorticity_t), intent(inout) :: this
 
     this%u => neko_field_registry%get_field_by_name("u")
@@ -122,7 +124,7 @@ contains
     call this%temp1%init(this%u%dof)
     call this%temp2%init(this%u%dof)
 
-  end subroutine vorticity_init_from_attributes
+  end subroutine vorticity_init_from_components
 
   !> Destructor.
   subroutine vorticity_free(this)
@@ -141,15 +143,13 @@ contains
   end subroutine vorticity_free
 
   !> Compute the vorticity field.
-  !! @param t The time value.
-  !! @param tstep The current time-step
-  subroutine vorticity_compute(this, t, tstep)
+  subroutine vorticity_compute(this, time)
     class(vorticity_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
 
     call curl(this%omega_x, this%omega_y, this%omega_z, this%u, this%v, &
-                 this%w, this%temp1, this%temp2, this%case%fluid%c_Xh)
+         this%w, this%temp1, this%temp2, this%case%fluid%c_Xh, &
+         glb_cmd_event)
   end subroutine vorticity_compute
 
 end module vorticity

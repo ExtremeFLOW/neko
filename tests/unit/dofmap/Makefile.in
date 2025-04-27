@@ -13,7 +13,7 @@ check: dofmap_suite
 
 
 dofmap_suite_TESTS := dofmap_parallel.pf
-dofmap_suite_OTHER_LIBRARIES = -L@top_builddir@/src -lneko @LDFLAGS@ @LIBS@
+dofmap_suite_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,dofmap_suite))
 
 

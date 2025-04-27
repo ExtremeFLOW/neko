@@ -40,6 +40,7 @@ module lambda2
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use field, only : field_t
+  use time_state, only : time_state_t
   use operators, only : lambda2op
   use case, only : case_t
   use field_writer, only : field_writer_t
@@ -69,8 +70,8 @@ module lambda2
      !> Constructor from json.
      procedure, pass(this) :: init => lambda2_init_from_json
      !> Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-          lambda2_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          lambda2_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => lambda2_free
      !> Compute the lambda2 field
@@ -99,11 +100,11 @@ contains
     w => neko_field_registry%get_field("w")
     lambda2 => neko_field_registry%get_field("lambda2")
 
-    call lambda2_init_from_attributes(this, u, v, w, lambda2)
+    call lambda2_init_from_components(this, u, v, w, lambda2)
   end subroutine lambda2_init_from_json
 
   !> Actual constructor.
-  subroutine lambda2_init_from_attributes(this, u, v, w, lambda2)
+  subroutine lambda2_init_from_components(this, u, v, w, lambda2)
     class(lambda2_t), intent(inout) :: this
     type(field_t), pointer, intent(inout) :: u, v, w, lambda2
 
@@ -112,7 +113,7 @@ contains
     this%w => w
     this%lambda2 => lambda2
 
-  end subroutine lambda2_init_from_attributes
+  end subroutine lambda2_init_from_components
 
   !> Destructor.
   subroutine lambda2_free(this)
@@ -123,10 +124,9 @@ contains
   !> Compute the lambda2 field.
   !! @param t The time value.
   !! @param tstep The current time-step
-  subroutine lambda2_compute(this, t, tstep)
+  subroutine lambda2_compute(this, time)
     class(lambda2_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
 
     call lambda2op(this%lambda2, this%u, this%v, this%w, this%case%fluid%c_Xh)
 

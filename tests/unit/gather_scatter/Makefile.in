@@ -13,7 +13,7 @@ check: gather_scatter_suite
 
 
 gather_scatter_suite_TESTS := gather_scatter_parallel.pf
-gather_scatter_suite_OTHER_LIBRARIES = -L@top_builddir@/src -lneko @LDFLAGS@ @LIBS@
+gather_scatter_suite_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,gather_scatter_suite))
 
 

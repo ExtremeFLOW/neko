@@ -62,10 +62,10 @@ contains
 
     call m%init(gdim, dist)
 
-    call m%add_element(1, p(1), p(2), p(3), p(4), &
+    call m%add_element(1, 1, p(1), p(2), p(3), p(4), &
          p(7), p(8), p(10), p(9))
 
-    call m%add_element(2, p(2), p(5), p(4), p(6), &
+    call m%add_element(2, 2, p(2), p(5), p(4), p(6), &
          p(8), p(11), p(9), p(12))
 
     call Xh%init(GLL, 2, 2, 2)
@@ -131,10 +131,10 @@ contains
     call m%init(gdim, dist)
     Call Xh%init(GLL, lx,lx,lx)
 
-    call m%add_element(1, p(1), p(2), p(4), p(3), &
+    call m%add_element(1, 1, p(1), p(2), p(4), p(3), &
          p(5), p(6), p(8), p(7))
 
-    call m%add_element(2, p(2), p(9), p(3), p(10), &
+    call m%add_element(2, 2, p(2), p(9), p(3), p(10), &
          p(6), p(11), p(7), p(12))
     
     call m%generate_conn() 
@@ -206,9 +206,9 @@ contains
     Call Xh%init(GLL, lx,lx,lx)
 
 
-    call m%add_element(1, p(5), p(1), p(8), p(4), &
+    call m%add_element(1, 1, p(5), p(1), p(8), p(4), &
          p(6), p(2), p(7), p(3))
-    call m%add_element(2, p(2), p(9), p(3), p(10), &
+    call m%add_element(2, 2, p(2), p(9), p(3), p(10), &
          p(6), p(11), p(7), p(12))
 
     call m%generate_conn()
@@ -279,9 +279,9 @@ contains
     Call Xh%init(GLL, lx,lx,lx)
 
 
-    call m%add_element(1, p(7), p(8), p(6), p(5), &
+    call m%add_element(1, 1, p(7), p(8), p(6), p(5), &
          p(3), p(4), p(2), p(1))
-    call m%add_element(2, p(2), p(9), p(3), p(10), &
+    call m%add_element(2, 2, p(2), p(9), p(3), p(10), &
          p(6), p(11), p(7), p(12))
     call m%generate_conn()
     call d%init(m, Xh)
@@ -351,9 +351,9 @@ contains
     Call Xh%init(GLL, lx,lx,lx)
 
 
-    call m%add_element(1, p(6), p(5), p(7), p(8), &
+    call m%add_element(1, 1, p(6), p(5), p(7), p(8), &
          p(2), p(1), p(3), p(4))
-    call m%add_element(2, p(2), p(9), p(3), p(10), &
+    call m%add_element(2, 2, p(2), p(9), p(3), p(10), &
          p(6), p(11), p(7), p(12))
 
     call m%generate_conn()
@@ -424,9 +424,9 @@ contains
     Call Xh%init(GLL, lx,lx,lx)
 
 
-    call m%add_element(1, p(2), p(6), p(3), p(7), &
+    call m%add_element(1, 1, p(2), p(6), p(3), p(7), &
          p(1), p(5), p(4), p(8))
-    call m%add_element(2, p(2), p(9), p(3), p(10), &
+    call m%add_element(2, 2, p(2), p(9), p(3), p(10), &
          p(6), p(11), p(7), p(12))
     call m%generate_conn()
 
@@ -498,9 +498,9 @@ contains
     Call Xh%init(GLL, lx,lx,lx)
 
 
-    call m%add_element(1, p(4), p(1), p(3), p(2), &
+    call m%add_element(1, 1, p(4), p(1), p(3), p(2), &
          p(8), p(5), p(7), p(6))
-    call m%add_element(2, p(2), p(9), p(3), p(10), &
+    call m%add_element(2, 2, p(2), p(9), p(3), p(10), &
          p(6), p(11), p(7), p(12))
 
     call m%generate_conn()
@@ -571,9 +571,9 @@ contains
     Call Xh%init(GLL, lx,lx,lx)
 
 
-    call m%add_element(1, p(2), p(3), p(1), p(4), &
+    call m%add_element(1, 1, p(2), p(3), p(1), p(4), &
          p(6), p(7), p(5), p(8))
-    call m%add_element(2, p(2), p(9), p(3), p(10), &
+    call m%add_element(2, 2, p(2), p(9), p(3), p(10), &
          p(6), p(11), p(7), p(12))
 
     call m%generate_conn()

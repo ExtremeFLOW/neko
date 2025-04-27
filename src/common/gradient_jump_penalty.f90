@@ -36,7 +36,7 @@ module gradient_jump_penalty
   use num_types, only : rp
   use utils, only : neko_error
   use json_utils, only : json_get_or_default
-  use json_module, only : json_file 
+  use json_module, only : json_file
   use math
   use point, only : point_t
   use field, only : field_t
@@ -56,6 +56,7 @@ module gradient_jump_penalty
   use source_term, only : source_term_t
   use field_list, only : field_list_t
   use field_registry, only : neko_field_registry
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
 
   implicit none
   private
@@ -71,7 +72,7 @@ module gradient_jump_penalty
      type(field_t), pointer :: v
      !> The z component of velocity
      type(field_t), pointer :: w
-     
+
      !> Coefficient of the penalty.
      real(kind=rp) :: tau
      !> Polynomial order
@@ -219,11 +220,11 @@ contains
        call this%s_fields%assign(1, this%u)
        call this%s_fields%assign(2, this%v)
        call this%s_fields%assign(3, this%w)
-    else 
+    else
        call neko_error("The GJP source assumes either 3 or 1 RHS fields.")
     end if
 
-       
+
 
 
     this%p = coef%dof%Xh%lx - 1

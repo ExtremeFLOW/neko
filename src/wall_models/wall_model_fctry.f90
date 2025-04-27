@@ -34,14 +34,14 @@ submodule (wall_model) wall_model_fctry
   use vreman, only : vreman_t
   use spalding, only : spalding_t
   use rough_log_law, only : rough_log_law_t
-  use utils, only : concat_string_array
+  use utils, only : neko_type_error
   use json_utils, only : json_get
   implicit none
 
   ! List of all possible types created by the factory routine
   character(len=20) :: WALLM_KNOWN_TYPES(2) = [character(len=20) :: &
-     "spalding", &
-     "rough_log_law"]
+       "spalding", &
+       "rough_log_law"]
 
 contains
 
@@ -55,7 +55,7 @@ contains
   !! @param json A dictionary with parameters.
   module subroutine wall_model_factory(object, coef, msk, facet, nu, &
        json)
-    class(wall_model_t), allocatable, target, intent(inout) :: object
+    class(wall_model_t), allocatable, intent(inout) :: object
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
     integer, intent(in) :: facet(:)
@@ -65,20 +65,16 @@ contains
     character(len=:), allocatable :: type_string
     integer :: h_index
 
-    type_string =  concat_string_array(WALLM_KNOWN_TYPES, &
-         NEW_LINE('A') // "-  ", prepend = .true.)
+    call json_get(json, "model", type_name)
 
-    call json_get(json, "type", type_name)
-
-    if (trim(type_name) .eq. "spalding") then
+    select case (trim(type_name) )
+    case ("spalding")
        allocate(spalding_t::object)
-    else if (trim(type_name) .eq. "rough_log_law") then
+    case ("rough_log_law")
        allocate(rough_log_law_t::object)
-    else
-       call neko_error("Unknown wall model type: " // trim(type_name) // &
-          trim(type_name) // ".  Known types are: "  // type_string)
-       stop
-    end if
+    case default
+       call neko_type_error("wall model", trim(type_name), WALLM_KNOWN_TYPES)
+    end select
 
     call json_get(json, "h_index", h_index)
 

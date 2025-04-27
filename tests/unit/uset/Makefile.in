@@ -12,7 +12,7 @@ check: uset_test
 
 
 uset_test_TESTS := uset_i4.pf uset_i8.pf uset_r8.pf
-uset_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
+uset_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs/ -lneko
 $(eval $(call make_pfunit_test,uset_test))
 
 

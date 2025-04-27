@@ -12,7 +12,7 @@ check: tri_test
 
 
 tri_test_TESTS := tri.pf
-tri_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
+tri_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko
 $(eval $(call make_pfunit_test,tri_test))
 
 

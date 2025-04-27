@@ -30,19 +30,23 @@ in Neko. The list will be updated as new simcomps are added.
 - Computation of the derivative of a field \ref simcomp_derivative
 - Computation of forces and torque on a surface \ref simcomp_force_torque
 - Computation of the weak gradient of a field \ref simcomp_weak_grad
+- Computation of subgrid-scale (SGS) eddy viscosity via a SGS model \ref simcomp_les_model
 - User defined components \ref user-file_simcomps
 - Fluid statistics simcomp, "fluid_stats", for more details see the [statistics guide](@ref statistics-guide)
+- Computation of the spectral error indicator \ref simcomp_speri
 
 ## Controling execution and file output
 Each simulation component is, by default, executed once per time step to perform
 associated computations and output. However, this can be modified by using the
 `compute_control` and `compute_value` parameters for the computation and the
-`output_control and` and `output_value` for the output to disk. The parameters
+`output_control` and `output_value` for the output to disk. The parameters
 for the `_control` values are the same as for the fluid and checkpointing.
 Additionally, one can set `output_control` to `global` and `never`. The former
 will sync the `output_` parameter to that of the fluid. Choosing `never` will
 suppress output all together. If no parameters for the `output_` parameters are
- provided, they are set to be the same as for `compute_`.
+provided, they are set to be the same as for `compute_`. In order to simplify
+the configuration, the `compute_control` can be set to `fluid_output` to sync
+the computation to the fluid output.
 
 For simcomps that compute 3D fields, the output can be either added to the main
 `.fld` file, containing velocity and pressure, or saved to a separate file. For
@@ -63,20 +67,40 @@ vorticity fields will be added to the main `.fld` file.
 
 ### vorticity {#simcomp_vorticity}
 Computes the vorticity field an stores in the field registry as `omega_x`,
-`omega_y` and `omega_z`.
+`omega_y` and `omega_z`. By default, appends the 3 vorticity fields to the field files as
+scalars. To output in a different `fld` series, use the `"output_filename"` parameter.
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "vorticity"
+ }
+ ~~~~~~~~~~~~~~~
 
 ### lambda2 {#simcomp_lambda2}
 Computes \f$ \lambda_2 \f$ for the velocity field and stores it in the normal output files as the first unused field.
 This means that \f$ \lambda_2 \f$ can be found in the temperature field in then fld files if running without a scalar
-and s1 if neko is run with one scalar.
+and s1 if neko is run with one scalar. To output in a different `fld` series, use the `"output_filename"` parameter.
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "lambda2"
+ }
+ ~~~~~~~~~~~~~~~
 
 ### probes {#simcomp_probes}
 Probes selected solution fields at a list of points. This list of points can be
-generated in a variety of ways, but the most common is to use the `csv` type.
+generated in a variety of ways, but the most common is to use the `csv` type. 
 
-#### Supported types:
+Mandatory fields for this simcomp are:
+- `fields`: a list of fields to probe. Should be a list of field names that exist in the registry. Example: `"fields": ["u", "v", "p", "s"]`.
+- `output_file`: Name of the file in which to output the probed fields. Must be `.csv`.
 
- - `file`: Reads a list of points from a CSV file. The name of the file is
+It is also possible to set a `start_time` before which the probes will not be 
+executed (same behavior as the statistics).
+
+#### Supported types
+
+- `file`: Reads a list of points from a CSV file. The name of the file is
    provided with the `file_name` keyword. The CSV file should have the
    following format:
    ~~~~~~~~~~~~~~~{.csv}
@@ -137,7 +161,8 @@ generated in a variety of ways, but the most common is to use the `csv` type.
   0.0, -1.0, 0.0
   ~~~~~~~~~~~~~~~
 
- #### Example usage:
+ #### Example usage
+ 
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "probes",
@@ -198,15 +223,15 @@ field to derivate is controlled by the `field` keyword and the direction by the
 `direction` keyword. The simcomp will register the computed derivatives in the
 registry as `d[field]_d[direction]`, where the values in the brackets
 correspond to the choice of the user keywords. Supports writing the computed
-fields to disk via the usual common keywords.
+fields to disk via the usual common keywords. The resulting field will be
+appended as a scalar to the field files. To output in a different `fld` series,
+use the `"output_filename"` parameter.
 
  ~~~~~~~~~~~~~~~{.json}
  {
    "type": "derivative",
    "field": "u",
-   "direction", "y",
-   "output_control" : "simulation_time",
-   "output_value" : 1.0
+   "direction": "y"
  }
  ~~~~~~~~~~~~~~~
 
@@ -242,8 +267,70 @@ writing the computed fields to disk via the usual common keywords.
 
  ~~~~~~~~~~~~~~~{.json}
  {
-   "type": "weak_gradient"
+   "type": "weak_grad"
    "field": "u",
    "output_control" : "never"
+ }
+ ~~~~~~~~~~~~~~~
+
+### les_model {#simcomp_les_model}
+Computes a subgrid eddy viscosity field using an SGS model. **Note*:* The simcomp
+*only* computes the eddy viscosity field. You have to select the corresponding
+`nut_field` in the fluid and/or scalar JSON object to actually enable LES, see
+corresponding documentation. The simcomp is controlled by the following
+keywords:
+
+- `model`: Selects the SGS model. Currently available models are:
+  - `smagorinsky`: The standard Smagorinsky model. Configured by the
+    following additional keyword:
+    - `c_s`: The Smagorinsky constant, defaults to 0.17.
+  - `dynamic_smagorinsky`: The dynamic Smagorinsky model.
+  - `vreman`: The Vreman model. Configured by the following additional keyword:
+    - `c`: The model constant, defaults to 0.07.
+  - `sigma`: The Sigma model. Configured by the following additional keyword:
+    - `c`: The model constant, defaults to 1.35.
+  - `wale`: The WALE model. Configured by the following additional keyword:
+    - `c_w`: The WALE constant, defaults to 0.55.
+- `les_delta`: Selects the way to compute the LES filter length scale. Currently three
+  alternatives are provided and the default one is `pointwise` if
+  nothing is specified:
+  - `pointwise`: Computes a local value based on the spacing of the GLL nodes.
+  - `elementwise_average`: Computes a single value for the whole element based on the
+    average spacing of the GLL nodes within the element.
+  - `elementwise_max`: Computes a single value for the whole element based on the
+    maximum spacing of the GLL nodes within the element.
+  The `les_delta` field is added to the registry and written to the .fld files.
+- `nut_field`: The name of the SGS eddy viscosity field added to the registry.
+  Defaults to `nut`. This allows to have two different SGS models active, saved
+  to different fields. For example, one for the scalar and one to the fluid.
+- `extrapolation`: Whether or not extrapolate the velocity to
+  compute the eddy viscosity.
+  - `true`: extrapolate the velocity as the same order as
+  the time scheme.
+  - `false`: the default option, disable the extrapolation. 
+  In this case, the estimation of the eddy viscosity is of first order, while 
+  circumvent the risk of unstable extrapolation.
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "les_model"
+   "model": "smagorinsky",
+   "delta_type": "pointwise",
+   "output_control" : "never"
+ }
+ ~~~~~~~~~~~~~~~
+
+### Spectral error indicator {#simcomp_speri}
+
+Computes the spectral error indicator as developed by Mavriplis (1989) (https://doi.org/10.1007/978-3-663-13975-1_34).
+This is an a posteriori error measure, based on the local properties of
+the spectral solution. This method formally only gives an indication of the error.
+
+The spectral error indicator is computed for the 3 velocity fields, resulting
+in 3 additional fields appended to the field files.
+
+~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "spectral_error"
  }
  ~~~~~~~~~~~~~~~

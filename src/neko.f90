@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2024, The Neko Authors
+! Copyright (c) 2019-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -58,11 +58,14 @@ module neko
   use global_interpolation
   use file
   use field, only : field_t, field_ptr_t
+  use field_math
   use neko_mpi_types
   use gather_scatter
+  use krylov
   use coefs, only : coef_t
-  use bc
-  use wall, only : no_slip_wall_t
+  use bc, only : bc_t
+  use zero_dirichlet, only : zero_dirichlet_t
+  use bc_list, only : bc_list_t
   use dirichlet, only : dirichlet_t
   use ax_product, only : ax_t, ax_helm_factory
   use parmetis, only : parmetis_partgeom, parmetis_partmeshkway
@@ -77,6 +80,7 @@ module neko
   use projection
   use user_intf
   use signal
+  use time_state
   use jobctrl, only : jobctrl_init, jobctrl_set_time_limit, &
        jobctrl_time_limit, jobctrl_jobtime
   use device
@@ -102,7 +106,7 @@ module neko
   use simulation_component, only : simulation_component_t, &
        simulation_component_wrapper_t
   use probes, only : probes_t
-  use spectral_error_indicator
+  use spectral_error
   use system, only : system_cpu_name, system_cpuid
   use drag_torque, only : drag_torque_zone, drag_torque_facet, drag_torque_pt
   use field_registry, only : neko_field_registry
@@ -120,20 +124,25 @@ module neko
   use runtime_stats, only : neko_rt_stats
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use bc_list, only : bc_list_t
+  use les_model, only : les_model_t
+  use field_writer, only : field_writer_t
+  use time_based_controller, only : time_based_controller_t
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
 
 contains
 
+  !> Initialise Neko
   subroutine neko_init(C)
     type(case_t), target, intent(inout), optional :: C
-    character(len=NEKO_FNAME_LEN) :: case_file
+    character(len=NEKO_FNAME_LEN) :: case_file, args
     character(len=LOG_SIZE) :: log_buf
     character(len=10) :: suffix
     character(10) :: time
     character(8) :: date
-    integer :: argc, nthrds, rw, sw
+    integer :: argc, i
 
     call date_and_time(time = time, date = date)
 
@@ -151,8 +160,8 @@ contains
 
        argc = command_argument_count()
 
-       if ((argc .lt. 1) .or. (argc .gt. 1)) then
-          if (pe_rank .eq. 0) write(*,*) 'Usage: ./neko < case file >'
+       if (argc .lt. 1) then
+          if (pe_rank .eq. 0) write(*,*) 'Usage: ./neko <case file>'
           stop
        end if
 
@@ -160,7 +169,7 @@ contains
 
        call filename_suffix(case_file, suffix)
 
-       if (trim(suffix) .ne. 'case') then
+       if (trim(suffix) .ne. 'case' .and. trim(suffix) .ne. 'json') then
           call neko_error('Invalid case file')
        end if
 
@@ -171,105 +180,18 @@ contains
           end if
        end if
 
+       if (argc .gt. 1) then
+          write(log_buf, '(a)') 'Running with command line arguments: '
+          call neko_log%message(log_buf, NEKO_LOG_QUIET)
+          do i = 2, argc
+             call get_command_argument(i, args)
+             call neko_log%message(args, NEKO_LOG_QUIET)
+          end do
+       end if
        !
        ! Job information
        !
-       call neko_log%section("Job Information")
-       write(log_buf, '(A,A,A,A,1x,A,1x,A,A,A,A,A)') 'Start time: ',&
-            time(1:2), ':', time(3:4), &
-            '/', date(1:4), '-', date(5:6), '-', date(7:8)
-       call neko_log%message(log_buf, NEKO_LOG_QUIET)
-       write(log_buf, '(a)') 'Running on: '
-       sw = 10
-       if (pe_size .lt. 1e1) then
-          write(log_buf(13:), '(i1,a)') pe_size, ' MPI '
-          if (pe_size .eq. 1) then
-             write(log_buf(19:), '(a)') 'rank'
-             sw = 9
-          else
-             write(log_buf(19:), '(a)') 'ranks'
-          end if
-          rw = 1
-       else if (pe_size .lt. 1e2) then
-          write(log_buf(13:), '(i2,a)') pe_size, ' MPI ranks'
-          rw = 2
-       else if (pe_size .lt. 1e3) then
-          write(log_buf(13:), '(i3,a)') pe_size, ' MPI ranks'
-          rw = 3
-       else if (pe_size .lt. 1e4) then
-          write(log_buf(13:), '(i4,a)') pe_size, ' MPI ranks'
-          rw = 4
-       else if (pe_size .lt. 1e5) then
-          write(log_buf(13:), '(i5,a)') pe_size, ' MPI ranks'
-          rw = 5
-       else
-          write(log_buf(13:), '(i6,a)') pe_size, ' MPI ranks'
-          rw = 6
-       end if
-
-       nthrds = 1
-       !$omp parallel
-       !$omp master
-       !$ nthrds = omp_get_num_threads()
-       !$omp end master
-       !$omp end parallel
-
-       if (nthrds .gt. 1) then
-          if (nthrds .lt. 1e1) then
-             write(log_buf(13 + rw + sw:), '(a,i1,a)') ', using ', &
-                  nthrds, ' thrds each'
-          else if (nthrds .lt. 1e2) then
-             write(log_buf(13 + rw + sw:), '(a,i2,a)') ', using ', &
-                  nthrds, ' thrds each'
-          else if (nthrds .lt. 1e3) then
-             write(log_buf(13 + rw + sw:), '(a,i3,a)') ', using ', &
-                  nthrds, ' thrds each'
-          else if (nthrds .lt. 1e4) then
-             write(log_buf(13 + rw + sw:), '(a,i4,a)') ', using ', &
-                  nthrds, ' thrds each'
-          end if
-       end if
-       call neko_log%message(log_buf, NEKO_LOG_QUIET)
-
-       write(log_buf, '(a)') 'CPU type  : '
-       call system_cpu_name(log_buf(13:))
-       call neko_log%message(log_buf, NEKO_LOG_QUIET)
-
-       write(log_buf, '(a)') 'Bcknd type: '
-       if (NEKO_BCKND_SX .eq. 1) then
-          write(log_buf(13:), '(a)') 'SX-Aurora'
-       else if (NEKO_BCKND_XSMM .eq. 1) then
-          write(log_buf(13:), '(a)') 'CPU (libxsmm)'
-       else if (NEKO_BCKND_CUDA .eq. 1) then
-          write(log_buf(13:), '(a)') 'Accelerator (CUDA)'
-       else if (NEKO_BCKND_HIP .eq. 1) then
-          write(log_buf(13:), '(a)') 'Accelerator (HIP)'
-       else if (NEKO_BCKND_OPENCL .eq. 1) then
-          write(log_buf(13:), '(a)') 'Accelerator (OpenCL)'
-       else
-          write(log_buf(13:), '(a)') 'CPU'
-       end if
-       call neko_log%message(log_buf, NEKO_LOG_QUIET)
-
-       if (NEKO_BCKND_HIP .eq. 1 .or. NEKO_BCKND_CUDA .eq. 1 .or. &
-            NEKO_BCKND_OPENCL .eq. 1) then
-          write(log_buf, '(a)') 'Dev. name : '
-          call device_name(log_buf(13:))
-          call neko_log%message(log_buf, NEKO_LOG_QUIET)
-       end if
-
-       write(log_buf, '(a)') 'Real type : '
-       select case (rp)
-         case (real32)
-          write(log_buf(13:), '(a)') 'single precision'
-         case (real64)
-          write(log_buf(13:), '(a)') 'double precision'
-         case (real128)
-          write(log_buf(13:), '(a)') 'quad precision'
-       end select
-       call neko_log%message(log_buf, NEKO_LOG_QUIET)
-
-       call neko_log%end()
+       call neko_job_info(date, time)
 
        !
        ! Create case
@@ -291,6 +213,7 @@ contains
 
   end subroutine neko_init
 
+  !> Finalize Neko
   subroutine neko_finalize(C)
     type(case_t), intent(inout), optional :: C
 
@@ -309,4 +232,109 @@ contains
     call comm_free
   end subroutine neko_finalize
 
+
+  !> Display job information, number of MPI ranks,
+  !! CPU type and selected hardware backend
+  subroutine neko_job_info(date, time)
+    character(10), optional, intent(in) :: time
+    character(8), optional, intent(in) :: date
+    character(len=LOG_SIZE) :: log_buf
+    integer :: nthrds, rw, sw
+
+    call neko_log%section("Job Information")
+
+    if (present(time) .and. present(date)) then
+       write(log_buf, '(A,A,A,A,1x,A,1x,A,A,A,A,A)') 'Start time: ', &
+            time(1:2), ':', time(3:4), &
+            '/', date(1:4), '-', date(5:6), '-', date(7:8)
+       call neko_log%message(log_buf, NEKO_LOG_QUIET)
+    end if
+    write(log_buf, '(a)') 'Running on: '
+    sw = 10
+    if (pe_size .lt. 1e1) then
+       write(log_buf(13:), '(i1,a)') pe_size, ' MPI '
+       if (pe_size .eq. 1) then
+          write(log_buf(19:), '(a)') 'rank'
+          sw = 9
+       else
+          write(log_buf(19:), '(a)') 'ranks'
+       end if
+       rw = 1
+    else if (pe_size .lt. 1e2) then
+       write(log_buf(13:), '(i2,a)') pe_size, ' MPI ranks'
+       rw = 2
+    else if (pe_size .lt. 1e3) then
+       write(log_buf(13:), '(i3,a)') pe_size, ' MPI ranks'
+       rw = 3
+    else if (pe_size .lt. 1e4) then
+       write(log_buf(13:), '(i4,a)') pe_size, ' MPI ranks'
+       rw = 4
+    else if (pe_size .lt. 1e5) then
+       write(log_buf(13:), '(i5,a)') pe_size, ' MPI ranks'
+       rw = 5
+    else
+       write(log_buf(13:), '(i6,a)') pe_size, ' MPI ranks'
+       rw = 6
+    end if
+    nthrds = 1
+    !$omp parallel
+    !$omp master
+    !$ nthrds = omp_get_num_threads()
+    !$omp end master
+    !$omp end parallel
+    if (nthrds .gt. 1) then
+       if (nthrds .lt. 1e1) then
+          write(log_buf(13 + rw + sw:), '(a,i1,a)') ', using ', &
+               nthrds, ' thrds each'
+       else if (nthrds .lt. 1e2) then
+          write(log_buf(13 + rw + sw:), '(a,i2,a)') ', using ', &
+               nthrds, ' thrds each'
+       else if (nthrds .lt. 1e3) then
+          write(log_buf(13 + rw + sw:), '(a,i3,a)') ', using ', &
+               nthrds, ' thrds each'
+       else if (nthrds .lt. 1e4) then
+          write(log_buf(13 + rw + sw:), '(a,i4,a)') ', using ', &
+               nthrds, ' thrds each'
+       end if
+    end if
+    call neko_log%message(log_buf, NEKO_LOG_QUIET)
+
+    write(log_buf, '(a)') 'CPU type  : '
+    call system_cpu_name(log_buf(13:))
+    call neko_log%message(log_buf, NEKO_LOG_QUIET)
+
+    write(log_buf, '(a)') 'Bcknd type: '
+    if (NEKO_BCKND_SX .eq. 1) then
+       write(log_buf(13:), '(a)') 'SX-Aurora'
+    else if (NEKO_BCKND_XSMM .eq. 1) then
+       write(log_buf(13:), '(a)') 'CPU (libxsmm)'
+    else if (NEKO_BCKND_CUDA .eq. 1) then
+       write(log_buf(13:), '(a)') 'Accelerator (CUDA)'
+    else if (NEKO_BCKND_HIP .eq. 1) then
+       write(log_buf(13:), '(a)') 'Accelerator (HIP)'
+    else if (NEKO_BCKND_OPENCL .eq. 1) then
+       write(log_buf(13:), '(a)') 'Accelerator (OpenCL)'
+    else
+       write(log_buf(13:), '(a)') 'CPU'
+    end if
+    call neko_log%message(log_buf, NEKO_LOG_QUIET)
+
+    if (NEKO_BCKND_HIP .eq. 1 .or. NEKO_BCKND_CUDA .eq. 1 .or. &
+         NEKO_BCKND_OPENCL .eq. 1) then
+       write(log_buf, '(a)') 'Dev. name : '
+       call device_name(log_buf(13:))
+       call neko_log%message(log_buf, NEKO_LOG_QUIET)
+    end if
+    write(log_buf, '(a)') 'Real type : '
+    select case (rp)
+    case (real32)
+       write(log_buf(13:), '(a)') 'single precision'
+    case (real64)
+       write(log_buf(13:), '(a)') 'double precision'
+    case (real128)
+       write(log_buf(13:), '(a)') 'quad precision'
+    end select
+    call neko_log%message(log_buf, NEKO_LOG_QUIET)
+    call neko_log%end()
+  end subroutine neko_job_info
 end module neko

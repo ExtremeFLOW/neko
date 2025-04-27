@@ -13,7 +13,7 @@ check: mesh_suite
 
 
 mesh_suite_TESTS := mesh_parallel.pf
-mesh_suite_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
+mesh_suite_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko
 $(eval $(call make_pfunit_test,mesh_suite))
 
 

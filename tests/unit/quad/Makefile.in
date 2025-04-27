@@ -12,7 +12,7 @@ check: quad_test
 
 
 quad_test_TESTS := quad.pf
-quad_test_OTHER_LIBRARIES = -L@top_builddir@/src -lneko
+quad_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko
 $(eval $(call make_pfunit_test,quad_test))
 
 
