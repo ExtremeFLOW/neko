@@ -76,6 +76,7 @@ contains
     integer, intent(in) :: m, lx
     type(c_ptr) :: msk, facet, x, flux, area
 
+    if (m .lt. 1) return
 #ifdef HAVE_HIP
     call hip_neumann_apply_scalar(msk, facet, x, flux, area, lx, m)
 #elif HAVE_CUDA
