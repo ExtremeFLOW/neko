@@ -298,10 +298,6 @@ contains
     call this%f_y%init(this%dm_Xh, fld_name = "fluid_rhs_y")
     call this%f_z%init(this%dm_Xh, fld_name = "fluid_rhs_z")
 
-    ! Initialize the source term
-    call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user)
-    call this%source_term%add(params, 'case.fluid.source_terms')
-
     ! Initialize velocity solver
     if (kspv_init) then
        call neko_log%section("Velocity solver")
@@ -352,6 +348,10 @@ contains
     this%u_e => neko_field_registry%get_field('u_e')
     this%v_e => neko_field_registry%get_field('v_e')
     this%w_e => neko_field_registry%get_field('w_e')
+
+    ! Initialize the source term
+    call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user)
+    call this%source_term%add(params, 'case.fluid.source_terms')
 
     call neko_log%end_section()
 
