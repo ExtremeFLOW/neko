@@ -54,7 +54,7 @@ module field_series
      procedure, pass(this) :: size => field_series_size
   end type field_series_t
 
-  !> A wrapper for a pointer to a ``field_series_t`.
+  !> A wrapper for a pointer to a `field_series_t`.
   type, public :: field_series_ptr_t
      type(field_series_t), pointer :: ptr => null()
   end type field_series_ptr_t
