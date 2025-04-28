@@ -37,6 +37,7 @@ submodule (les_model) les_model_fctry
   use sigma, only : sigma_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use wale, only : wale_t
+  use utils, only : neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the factory routine
@@ -108,6 +109,19 @@ contains
     character(len=*), intent(in) :: type_name
     procedure(les_model_allocate), pointer, intent(in) :: allocator
     type(allocator_entry), allocatable :: temp(:)
+    integer :: i
+
+    do i = 1, size(LES_KNOWN_TYPES)
+       if (trim(type_name) .eq. trim(LES_KNOWN_TYPES(i))) then
+          call neko_type_registration_error("LES model", type_name, .true.)
+       end if
+    end do
+
+    do i = 1, les_model_registry_size
+       if (trim(type_name) .eq. trim(les_model_registry(i)%type_name)) then
+          call neko_type_registration_error("LES model", type_name, .false.)
+       end if
+    end do
 
     ! Expand registry
     if (les_model_registry_size == 0) then
