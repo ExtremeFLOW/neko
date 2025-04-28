@@ -46,7 +46,7 @@ extern "C" {
 #include <math/bcknd/device/device_nccl_reduce.h>
 #include <math/bcknd/device/device_nccl_op.h>
 #endif
-  
+
   /** Fortran wrapper for copy
    * Copy a vector \f$ a = b \f$
    */
@@ -71,8 +71,8 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
   }
-  
- 
+
+
   /** Fortran wrapper for masked gather copy
    * Copy a vector \f$ a = b(mask) \f$
    */
@@ -87,8 +87,8 @@ extern "C" {
 
     HIP_CHECK(hipGetLastError());
 
-  } 
- 
+  }
+
   /** Fortran wrapper for masked scatter copy
    * Copy a vector \f$ a(mask) = b \f$
    */
@@ -103,7 +103,7 @@ extern "C" {
 
     HIP_CHECK(hipGetLastError());
 
-  } 
+  }
 
   /** Fortran wrapper for masked atomic reduction
    * update a vector \f$ a += b(mask) \f$ where mask is not unique
@@ -119,7 +119,7 @@ extern "C" {
 
     HIP_CHECK(hipGetLastError());
 
-  } 
+  }
 
   /** Fortran wrapper for cfill_mask
    * Fill a scalar to vector \f$ a_i = s, for i \in mask \f$
@@ -128,7 +128,7 @@ extern "C" {
 
       const dim3 nthrds(1024, 1, 1);
       const dim3 nblcks(((*mask_size) + 1024 - 1) / 1024, 1, 1);
-      
+
     hipLaunchKernelGGL(HIP_KERNEL_NAME(cfill_mask_kernel<real>),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real*)a, *c, *size, (int*)mask, *mask_size);
@@ -151,12 +151,12 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
+
     hipLaunchKernelGGL(HIP_KERNEL_NAME(cmult_kernel<real>),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a, *c, *n);
     HIP_CHECK(hipGetLastError());
-    
+
   }
 
   /** Fortran wrapper for cmult
@@ -166,12 +166,12 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
+
     hipLaunchKernelGGL(HIP_KERNEL_NAME(cmult2_kernel<real>),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a,(real *) b, *c, *n);
     HIP_CHECK(hipGetLastError());
-    
+
   }
   /** Fortran wrapper for cadd
    * Add a scalar to vector \f$ a = \sum a_i + s \f$
@@ -180,11 +180,11 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
+
     hipLaunchKernelGGL(HIP_KERNEL_NAME(cadd_kernel<real>),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a, *c, *n);
-    HIP_CHECK(hipGetLastError()); 
+    HIP_CHECK(hipGetLastError());
   }
 
   /**
@@ -209,7 +209,7 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    if (*n > 0) { 
+    if (*n > 0) {
       hipLaunchKernelGGL(HIP_KERNEL_NAME(cfill_kernel<real>),
                          nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                          (real *) a, *c, *n);
@@ -222,25 +222,25 @@ extern "C" {
    * Vector addition \f$ a = a + b \f$
    */
   void hip_add2(void *a, void *b, int *n) {
-    
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
+
     hipLaunchKernelGGL(HIP_KERNEL_NAME(add2_kernel<real>),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a, (real *) b, *n);
     HIP_CHECK(hipGetLastError());
   }
-  
+
   /**
    * Fortran wrapper for add4
    * Vector addition \f$ a = b + c + d\f$
    */
   void hip_add4(void *a, void *b, void *c, void *d, int *n) {
-    
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
+
     hipLaunchKernelGGL(HIP_KERNEL_NAME(add4_kernel<real>),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a, (real *) b, (real *) c, (real *) d, *n);
@@ -250,13 +250,13 @@ extern "C" {
   /**
    * Fortran wrapper for add2s1
    * Vector addition with scalar multiplication \f$ a = c_1 a + b \f$
-   * (multiplication on first argument) 
+   * (multiplication on first argument)
    */
   void hip_add2s1(void *a, void *b, real *c1, int *n) {
-    
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
+
     hipLaunchKernelGGL(HIP_KERNEL_NAME(add2s1_kernel<real>),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a, (real *) b,
@@ -267,7 +267,7 @@ extern "C" {
   /**
    * Fortran wrapper for add2s2
    * Vector addition with scalar multiplication \f$ a = a + c_1 b \f$
-   * (multiplication on second argument) 
+   * (multiplication on second argument)
    */
   void hip_add2s2(void *a, void *b, real *c1, int *n) {
 
@@ -284,7 +284,7 @@ extern "C" {
   /**
    * Fortran wrapper for addsqr2s2
    * Vector addition with scalar multiplication \f$ a = a + c_1 (b * b) \f$
-   * (multiplication on second argument) 
+   * (multiplication on second argument)
    */
   void hip_addsqr2s2(void *a, void *b, real *c1, int *n) {
 
@@ -297,11 +297,11 @@ extern "C" {
                        *c1, *n);
     HIP_CHECK(hipGetLastError());
   }
-  
+
   /**
    * Fortran wrapper for add3s2
    * Vector addition with scalar multiplication \f$ a = c_1 b + c_2 c \f$
-   * (multiplication on second argument) 
+   * (multiplication on second argument)
    */
   void hip_add3s2(void *a, void *b, void *c, real *c1, real *c2, int *n) {
 
@@ -314,7 +314,7 @@ extern "C" {
                        *c1, *c2, *n);
     HIP_CHECK(hipGetLastError());
   }
-  
+
   /**
    * Fortran wrapper for invcol1
    * Invert a vector \f$ a = 1 / a \f$
@@ -344,7 +344,7 @@ extern "C" {
                        (real *) a, (real *) b, *n);
     HIP_CHECK(hipGetLastError());
   }
-  
+
   /**
    * Fortran wrapper for col2
    * Vector multiplication with 2 vectors \f$ a = a \cdot b \f$
@@ -359,7 +359,7 @@ extern "C" {
                        (real *) a, (real *) b, *n);
     HIP_CHECK(hipGetLastError());
   }
-  
+
   /**
    * Fortran wrapper for col3
    * Vector multiplication with 3 vectors \f$ a = b \cdot c \f$
@@ -389,7 +389,7 @@ extern "C" {
                        (real *) a, (real *) b, (real *) c, *n);
     HIP_CHECK(hipGetLastError());
   }
-  
+
   /**
    * Fortran wrapper for sub2
    * Vector subtraction \f$ a = a - b \f$
@@ -459,7 +459,7 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
+
     hipLaunchKernelGGL(HIP_KERNEL_NAME(vdot3_kernel<real>),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) dot, (real *) u1, (real *) u2, (real *) u3,
@@ -477,11 +477,11 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
+
     hipLaunchKernelGGL(HIP_KERNEL_NAME(vcross_kernel<real>),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) u1, (real *) u2, (real *) u3,
-                       (real *) v1, (real *) v2, (real *) v3, 
+                       (real *) v1, (real *) v2, (real *) v3,
                        (real *) w1, (real *) w2, (real *) w3, *n);
     HIP_CHECK(hipGetLastError());
   }
@@ -493,13 +493,13 @@ extern "C" {
   int red_s = 0;
   real * bufred = NULL;
   real * bufred_d = NULL;
-  
+
   void hip_redbuf_check_alloc(int nb) {
     if ( nb >= red_s){
       red_s = nb+1;
       if (bufred != NULL) {
         HIP_CHECK(hipHostFree(bufred));
-        HIP_CHECK(hipFree(bufred_d));        
+        HIP_CHECK(hipFree(bufred_d));
       }
       HIP_CHECK(hipHostMalloc(&bufred,red_s*sizeof(real),hipHostMallocDefault));
       HIP_CHECK(hipMalloc(&bufred_d, red_s*sizeof(real)));
@@ -527,14 +527,14 @@ extern "C" {
    * Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$
    */
   real hip_vlsc3(void *u, void *v, void *w, int *n) {
-        
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const hipStream_t stream = (hipStream_t) glb_cmd_queue;
     hip_redbuf_check_alloc(nb);
-    
-     
+
+
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real>),
                        nblcks, nthrds, 0, stream,
                        (real *) u, (real *) v,
@@ -550,22 +550,22 @@ extern "C" {
 
     return bufred[0];
   }
-  
+
 
   /**
    * Fortran wrapper glsc3
    * Weighted inner product \f$ a^T b c \f$
    */
   real hip_glsc3(void *a, void *b, void *c, int *n) {
-        
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const hipStream_t stream = (hipStream_t) glb_cmd_queue;
-    
+
     hip_redbuf_check_alloc(nb);
-    
-    if (*n > 0) { 
+
+    if (*n > 0) {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_kernel<real>),
                        nblcks, nthrds, 0, stream,
                        (real *) a, (real *) b,
@@ -583,12 +583,12 @@ extern "C" {
    * Fortran wrapper for doing an reduction to an array
    * Weighted inner product \f$ w^T v(n,1:j) c \f$
    */
-  void hip_glsc3_many(real *h, void * w, void *v,void *mult, int *j, int *n){ 
+  void hip_glsc3_many(real *h, void * w, void *v,void *mult, int *j, int *n){
     int pow2 = 1;
     while(pow2 < (*j)){
       pow2 = 2*pow2;
     }
-    const int nt = 1024/pow2;   
+    const int nt = 1024/pow2;
     const dim3 nthrds(pow2, nt, 1);
     const dim3 nblcks(((*n)+nt - 1)/nt, 1, 1);
     const dim3 nthrds_red(1024,1,1);
@@ -596,13 +596,13 @@ extern "C" {
     const int nb = ((*n) + nt - 1)/nt;
     const hipStream_t stream = (hipStream_t) glb_cmd_queue;
     hip_redbuf_check_alloc((*j)*nb);
-    if (*n > 0) { 
+    if (*n > 0) {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_many_kernel<real>),
                        nblcks, nthrds, 0, stream,
                        (const real *) w, (const real **) v,
                        (const real *)mult, bufred_d, *j, *n);
     HIP_CHECK(hipGetLastError());
-    
+
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc3_reduce_kernel<real>),
                        nblcks_red, nthrds_red, 0, stream,
                        bufred_d, nb, *j);
@@ -613,15 +613,15 @@ extern "C" {
 
   /**
    * Fortran wrapper for add2s2
-   * Vector addition with scalar multiplication 
+   * Vector addition with scalar multiplication
    * \f$ x = x + c_1 p1 + c_2p2 + ... + c_jpj \f$
-   * (multiplication on second argument) 
+   * (multiplication on second argument)
    */
   void hip_add2s2_many(void *x, void **p, void *alpha, int *j, int *n) {
-        
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
+
     hipLaunchKernelGGL(HIP_KERNEL_NAME(add2s2_many_kernel<real>),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) x, (const real **) p, (real *) alpha, *j, *n);
@@ -649,16 +649,16 @@ extern "C" {
    * Weighted inner product \f$ a^T b \f$
    */
   real hip_glsc2(void *a, void *b, int *n) {
-        
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const hipStream_t stream = (hipStream_t) glb_cmd_queue;
-        
-   
+
+
     hip_redbuf_check_alloc(nb);
-    
-    if( *n > 0) { 
+
+    if( *n > 0) {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(glsc2_kernel<real>),
                        nblcks, nthrds, 0, stream,
                        (real *) a, (real *) b, bufred_d, *n);
@@ -672,7 +672,7 @@ extern "C" {
     return bufred[0];
   }
 
-  /** 
+  /**
    * Fortran wrapper glsum
    * Sum a vector of length n
    */
@@ -681,9 +681,9 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const hipStream_t stream = (hipStream_t) glb_cmd_queue;
-    
+
     hip_redbuf_check_alloc(nb);
-    if( *n > 0) { 
+    if( *n > 0) {
       hipLaunchKernelGGL(HIP_KERNEL_NAME(glsum_kernel<real>),
                        nblcks, nthrds, 0, stream,
                        (real *) a, bufred_d, *n);
@@ -703,11 +703,11 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-    
+
     hipLaunchKernelGGL(HIP_KERNEL_NAME(absval_kernel<real>),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a, *n);
     HIP_CHECK(hipGetLastError());
-    
+
   }
 }

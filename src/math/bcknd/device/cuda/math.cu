@@ -94,16 +94,16 @@ extern "C" {
    * update a vector \f$ a += b(mask) \f$ where mask is not unique
    */
   void cuda_masked_atomic_reduction(void *a, void *b, void *mask, int *n, int *m) {
-   
+
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
-    
+
     masked_atomic_reduction_kernel<real><<<nblcks, nthrds, 0,
       (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b,
                                       (int *) mask, *n, *m);
     CUDA_CHECK(cudaGetLastError());
 
-  } 
+  }
   /** Fortran wrapper for masked scatter copy
    * Copy a vector \f$ a(mask(i)) = b(i) \f$
    */
@@ -115,7 +115,6 @@ extern "C" {
     masked_scatter_copy_kernel<real><<<nblcks, nthrds, 0,
       (cudaStream_t) glb_cmd_queue>>>((real *) a, (real*) b,(int*) mask, *n, *m);
     CUDA_CHECK(cudaGetLastError());
-
   }
 
 
@@ -590,9 +589,9 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-    
+
     cuda_redbuf_check_alloc(nb);
-   
+
     glsc3_kernel<real><<<nblcks, nthrds, 0, stream>>>
       ((real *) u, (real *) v, (real *) w, (real *) bufred_d, *n);
     CUDA_CHECK(cudaGetLastError());
@@ -621,7 +620,7 @@ extern "C" {
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     cuda_redbuf_check_alloc(nb);
-    
+
     if ( *n > 0) {
     glsc3_kernel<real><<<nblcks, nthrds, 0, stream>>>
       ((real *) a, (real *) b, (real *) c, (real *) bufred_d, *n);
@@ -649,7 +648,7 @@ extern "C" {
     const int nb = ((*n) + nt - 1)/nt;
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
     cuda_redbuf_check_alloc((*j)*nb);
-  
+
     if ( *n > 0) {
     glsc3_many_kernel<real><<<nblcks, nthrds, 0, stream>>>
       ((const real *) w, (const real **) v,
@@ -674,7 +673,7 @@ extern "C" {
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     cuda_redbuf_check_alloc(nb);
-    
+
     if ( *n > 0) {
       glsc2_kernel<real>
         <<<nblcks, nthrds, 0, stream>>>((real *) a,
@@ -697,7 +696,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-    
+
     cuda_redbuf_check_alloc(nb);
     if ( *n > 0) {
       glsum_kernel<real>

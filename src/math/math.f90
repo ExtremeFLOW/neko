@@ -313,7 +313,6 @@ contains
 
   end subroutine masked_scatter_copy
 
-
   !> @brief Fill a constant to a masked vector.
   !! \f$ a_i = c, for i in mask \f$
   subroutine cfill_mask(a, c, size, mask, mask_size)

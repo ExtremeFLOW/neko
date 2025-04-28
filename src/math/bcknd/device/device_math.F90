@@ -67,7 +67,7 @@ module device_math
        device_glsc3, device_glsc3_many, device_add2s2_many, device_glsc2, &
        device_glsum, device_masked_copy, device_cfill_mask, &
        device_vcross, device_absval, device_masked_atomic_reduction, &
-       device_pwmax, device_pwmin,device_masked_gather_copy, &
+       device_pwmax, device_pwmin, device_masked_gather_copy, &
        device_masked_scatter_copy
 
 contains
@@ -115,7 +115,7 @@ contains
 #elif HAVE_CUDA
     call cuda_masked_gather_copy(a_d, b_d, mask_d, n, m)
 #elif HAVE_OPENCL
-    call neko_error('No OpenCL bcknd, masked red copy')
+    call opencl_masked_gather_copy(a_d, b_d, mask_d, n, m)
 #else
     call neko_error('no device backend configured')
 #endif
@@ -131,12 +131,11 @@ contains
 #elif HAVE_CUDA
     call cuda_masked_scatter_copy(a_d, b_d, mask_d, n, m)
 #elif HAVE_OPENCL
-    call neko_error('No OpenCL bcknd, masked red copy')
+    call opencl_masked_scatter_copy(a_d, b_d, mask_d, n, m)
 #else
     call neko_error('no device backend configured')
 #endif
   end subroutine device_masked_scatter_copy
-
 
   subroutine device_masked_atomic_reduction(a_d, b_d, mask_d, n, m)
     type(c_ptr) :: a_d, b_d, mask_d
