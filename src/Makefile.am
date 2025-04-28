@@ -11,6 +11,7 @@ neko_fortran_SOURCES = \
 	comm/comm.F90\
 	mesh/curve.f90\
 	comm/mpi_types.f90\
+	comm/shmem.F90\
 	common/datadist.f90\
 	common/distdata.f90\
 	common/utils.f90\
