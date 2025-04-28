@@ -698,7 +698,7 @@ contains
   !! @param b Source array of size `m`.
   !! @param mask Mask array of length m+1, where `mask(0) =m`
   !! the length of the mask array.
-  !! @param n Size of the array `b`.
+  !! @param n Size of the array `b` and `mask`.
   !! @param m Size of the mask array `mask` and `a`.
   subroutine field_masked_scatter_copy(a, b, mask, n, m)
     integer, intent(in) :: n, m
@@ -710,9 +710,9 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        mask_d = device_get_ptr(mask)
        b_d = device_get_ptr(b)
-       call device_masked_scatter_copy(a%x_d, b_d, mask_d, a%size(), mask(0))
+       call device_masked_scatter_copy(a%x_d, b_d, mask_d, mask(0), a%size())
     else
-       call masked_scatter_copy(a%x, b, mask, a%size(), mask(0))
+       call masked_scatter_copy(a%x, b, mask, mask(0), a%size())
     end if
 
   end subroutine field_masked_scatter_copy
