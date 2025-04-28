@@ -580,7 +580,7 @@ the boundary mesh is computed using a step function with a cut-off distance of
 ]
 ~~~~~~~~~~~~~~~
 
-### Gradient Jump Penalty
+#### Gradient Jump Penalty
 The optional `gradient_jump_penalty` object can be used to perform gradient jump
 penalty as an continuous interior penalty option. The penalty term is performed
 on the weak form equation of quantity \f$ T \f$ (could either be velocity or
@@ -606,8 +606,6 @@ The penalty parameter  \f$ \tau \f$ could be expressed as the form \f$ \tau = a
 while \f$ a \f$ and \f$ b \f$ are user-defined parameters. The configuration
 uses the following parameters:
 
-* `enable`, the boolean to turn on and off the gradient jump penalty option,
-  default to be `false`.
 * `tau`, the penalty parameter that can be only used for \f$ P = 1 \f$, default
   to be `0.02`.
 * `scaling_factor`, the scaling parameter \f$ a \f$ for \f$ P > 1 \f$, default
