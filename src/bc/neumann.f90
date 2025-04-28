@@ -171,8 +171,12 @@ contains
     real(kind=rp), intent(in), optional :: t
     integer, intent(in), optional :: tstep
     logical, intent(in), optional :: strong
+    logical :: strong_ = .true.
 
-    if (.not. this%uniform_0 .and. this%msk(0) .gt. 0) then
+    if (present(strong)) strong_ = strong
+
+    if (.not. this%uniform_0 .and. this%msk(0) .gt. 0 .and. &
+         strong .eqv. .false.) then
        call device_neumann_apply_scalar(this%msk_d, this%facet_d, x_d, &
             this%flux_%x_d, this%coef%area_d, this%coef%Xh%lx, size(this%msk))
     end if
