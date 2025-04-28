@@ -63,7 +63,7 @@ __kernel void masked_gather_copy_kernel(__global real * __restrict__ a,
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
-  for (int i = idx; i < n; i += str) {
+  for (int i = idx; i < m; i += str) {
     a[i] = b[mask[i+1]-1];
   }
 }

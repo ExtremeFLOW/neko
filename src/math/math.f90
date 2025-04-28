@@ -276,6 +276,7 @@ contains
   !! the length of the mask array.
   !! @param n Size of the array `b`.
   !! @param m Size of the mask array `mask` and `a`.
+  !! @note Assumes `n .ge. m`.
   subroutine masked_gather_copy(a, b, mask, n, m)
     integer, intent(in) :: n, m
     real(kind=rp), dimension(n), intent(in) :: b
@@ -297,16 +298,17 @@ contains
   !! @param b Source array of size `m`.
   !! @param mask Mask array of length m+1, where `mask(0) =m`
   !! the length of the mask array.
-  !! @param n Size of the array `b`.
-  !! @param m Size of the mask array `mask` and `a`.
+  !! @param n Size of the array `mask`and array `b`.
+  !! @param m Size of the mask array `a`.
+  !! @note Assumes `m .ge. n`.
   subroutine masked_scatter_copy(a, b, mask, n, m)
     integer, intent(in) :: n, m
     real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), dimension(m), intent(inout) :: a
-    integer, dimension(0:m) :: mask
+    integer, dimension(0:n) :: mask
     integer :: i, j
 
-    do i = 1, m
+    do i = 1, n
        j = mask(i)
        a(j) = b(i)
     end do

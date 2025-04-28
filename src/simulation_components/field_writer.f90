@@ -87,6 +87,8 @@ contains
     call this%init_base(json, case)
     call json_get(json, "fields", fields)
 
+    write(*,*) "Field writer fields: ", fields
+
     if (json%valid_path("output_filename")) then
        call json_get(json, "output_filename", filename)
        if (json%valid_path("output_precision")) then
@@ -201,7 +203,9 @@ contains
        end if
        do i = 1, size(fields)
           fieldi = trim(fields(i))
+          write(*,*) "Field writer adding field: ", fieldi
           call this%output%fields%assign(i, &
+               !neko_field_registry%get_field(fieldi))
                neko_field_registry%get_field(fieldi))
        end do
 
