@@ -368,12 +368,6 @@ contains
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
 
-      ! Compute the grandient jump penalty term
-!      if (this%if_gradient_jump_penalty .eqv. .true.) then
-!         call this%gradient_jump_penalty%compute(u, v, w, s)
-!         call this%gradient_jump_penalty%perform(f_Xh)
-!      end if
-
       ! Apply weak boundary conditions, that contribute to the source terms.
       call this%bcs%apply_scalar(this%f_Xh%x, dm_Xh%size(), t, tstep, .false.)
 

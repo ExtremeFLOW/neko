@@ -132,9 +132,6 @@ module scalar_scheme
      real(kind=rp) :: pr_turb
      !> Is lambda varying in time? Currently only due to LES models.
      logical :: variable_material_properties = .false.
-     !> Gradient jump panelty
-!     logical :: if_gradient_jump_penalty
-!     type(gradient_jump_penalty_t) :: gradient_jump_penalty
    contains
      !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init
@@ -389,8 +386,6 @@ contains
 
     call this%lambda_field%free()
     call this%slag%free()
-
-    ! Free gradient jump penalty
 
   end subroutine scalar_scheme_free
 
