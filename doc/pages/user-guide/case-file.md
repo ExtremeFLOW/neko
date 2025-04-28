@@ -479,6 +479,7 @@ The following types are currently implemented.
 5. `user_vector`, the values are set inside the compiled user file, using the
    non-pointwise user file subroutine. Should be used when running on the GPU.
 6. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
+7. `gradient_jump_penalty`, perform gradient_jump_penalisation.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
