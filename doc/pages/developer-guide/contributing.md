@@ -174,7 +174,9 @@ similar for other device backends.
   - Contains `interface`s for the implementation on each device, binding Fortran
     that we can call from the wrappers in the `.F90` with C code that launches
     actual device kernels.
-- Thn `.cu` files in `bcknd/device/cuda` that contain C routines adhering to the interface defined in the `.F90`. They `#include` the kernel code, and launch the kernel.
+- Thn `.cu` files in `bcknd/device/cuda` that contain C routines adhering to the
+  interface defined in the `.F90`. They `#include` the kernel code, and launch 
+  the kernel.
 - The `_kernel.h` files in `bcknd/device/cuda` that contain implementations of
   CUDA kernels.
 
