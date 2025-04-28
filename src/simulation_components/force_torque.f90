@@ -55,7 +55,7 @@ module force_torque
   use comm
   use math, only : masked_gather_copy, cadd, glsum, vcross
   use device_math, only : device_masked_gather_copy, device_cadd, &
-                          device_glsum, device_vcross
+       device_glsum, device_vcross
   use device
 
   implicit none
@@ -187,7 +187,7 @@ contains
          this%u%size(), n_pts)
     call masked_gather_copy(this%r2%x, this%coef%dof%y, this%bc%msk, &
          this%u%size(), n_pts)
-    call masked_gather_copy(this%r3%x, this%coef%dof%z, this%bc%msk, & 
+    call masked_gather_copy(this%r3%x, this%coef%dof%z, this%bc%msk, &
          this%u%size(), n_pts)
 
     call MPI_Allreduce(n_pts, glb_n_pts, 1, &

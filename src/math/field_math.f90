@@ -85,7 +85,7 @@ module field_math
        field_add3s2, field_addcol3, field_addcol4, field_glsum, &
        field_glsc2, field_glsc3, field_add3, field_masked_gather_copy, &
        field_masked_scatter_copy
-  
+
 contains
 
   !> Zero a real vector
@@ -342,9 +342,9 @@ contains
   !> Vector subtraction \f$ a = b - c \f$
   subroutine field_sub3(a, b, c, n)
     integer, intent(in), optional :: n
-    type(field_t), intent(inout) :: c
-    type(field_t), intent(inout) :: b
-    type(field_t), intent(out) :: a
+    type(field_t), intent(inout) :: a
+    type(field_t), intent(in) :: b
+    type(field_t), intent(in) :: c
     integer :: size
 
     if (present(n)) then

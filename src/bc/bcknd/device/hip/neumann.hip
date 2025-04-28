@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2025, The Neko Authors
+ Copyright (c) 2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -35,41 +35,26 @@
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
-#include "inhom_dirichlet_kernel.h"
+#include "neumann_kernel.h"
 
 extern "C" {
 
   /** 
-   * Fortran wrapper for device inhom_dirichlet apply vector
+   * Fortran wrapper for device neumann apply scalar
    */
-  void hip_inhom_dirichlet_apply_vector(void *msk, void *x, void *y, void *z,
-                                        void *bla_x, void *bla_y, void *bla_z,
-                                        int *m) {
-    
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+  void hip_neumann_apply_scalar(void *msk, void *facet,
+                                void *x, void *flux,
+                                void *area, int *lx, int *m) {
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(inhom_dirichlet_apply_vector_kernel<real>),
-		       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                       (int *) msk, (real *) x, (real *) y, (real *) z,
-                       (real *) bla_x, (real *) bla_y, (real *) bla_z, *m);
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*m) + 1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(neumann_apply_scalar_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (int *) msk, (int *) facet,
+                       (real *) x, (real *) flux,
+                       (real *) area, *lx, *m);
     HIP_CHECK(hipGetLastError());
   }
- 
-  /** 
-   * Fortran wrapper for device inhom_dirichlet apply scalar
-   */
-  void hip_inhom_dirichlet_apply_scalar(void *msk, void *x, 
-                                        void *bla_x,  int *m) {
-    
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(inhom_dirichlet_apply_scalar_kernel<real>),
-		       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                       (int *) msk, (real *) x, (real *) bla_x, *m);
-    HIP_CHECK(hipGetLastError());
-  }
- 
-
-}
+} 

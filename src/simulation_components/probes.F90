@@ -60,6 +60,8 @@ module probes
   private
 
   type, public, extends(simulation_component_t) :: probes_t
+     !> Time after which to start collecting probes.
+     real(kind=rp) :: start_time
      !> Number of output fields
      integer :: n_fields = 0
      type(global_interpolation_t) :: global_interp
@@ -144,6 +146,7 @@ contains
     call json%info('fields', n_children = this%n_fields)
     call json_get(json, 'fields', this%which_fields)
     call json_get(json, 'output_file', output_file)
+    call json_get_or_default(json, 'start_time', this%start_time, -1.0_rp)
 
     call this%sampled_fields%init(this%n_fields)
     do i = 1, this%n_fields
@@ -637,6 +640,9 @@ contains
     type(time_state_t), intent(in) :: time
     integer :: i, ierr
     logical :: do_interp_on_host = .false.
+
+    !> Do not execute if we are below the start_time
+    if (time%t .lt. this%start_time) return
 
     !> Check controller to determine if we must write
     do i = 1, this%n_fields

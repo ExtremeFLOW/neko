@@ -103,7 +103,7 @@ extern "C" {
                                       (int *) mask, *n, *m);
     CUDA_CHECK(cudaGetLastError());
 
-  } 
+  }
   /** Fortran wrapper for masked scatter copy
    * Copy a vector \f$ a(mask(i)) = b(i) \f$
    */
@@ -115,7 +115,6 @@ extern "C" {
     masked_scatter_copy_kernel<real><<<nblcks, nthrds, 0,
       (cudaStream_t) glb_cmd_queue>>>((real *) a, (real*) b,(int*) mask, *n, *m);
     CUDA_CHECK(cudaGetLastError());
-
   }
 
 
@@ -544,36 +543,35 @@ extern "C" {
   /**
    * Global additive reduction
    */
-  void cuda_global_reduce_add(real * red, void * red_d, int n, const cudaStream_t stream) {
+  void cuda_global_reduce_add(real * bufred, void * bufred_d, int n, const cudaStream_t stream) {
 
 
 #ifdef HAVE_NCCL
-    device_nccl_allreduce(red_d, red_d, n, sizeof(real),
+    device_nccl_allreduce(bufred_d, bufred_d, n, sizeof(real),
                           DEVICE_NCCL_SUM, stream);
-    CUDA_CHECK(cudaMemcpyAsync(red, red_d, sizeof(real)*n,
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, sizeof(real)*n,
                                cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);
 #elif HAVE_NVSHMEM
     if (sizeof(real) == sizeof(float)) {
       nvshmemx_float_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD,
-                                           (float *) red_d,
-                                           (float *) red_d, n, stream);
+                                           (float *) bufred_d,
+                                           (float *) bufred_d, n, stream);
     }
     else if (sizeof(real) == sizeof(double)) {
       nvshmemx_double_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD,
-                                           (double *) red_d,
-                                           (double *) red_d, n, stream);
+                                           (double *) bufred_d,
+                                           (double *) bufred_d, n, stream);
 
     }
-    CUDA_CHECK(cudaMemcpyAsync(red, red_d,
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d,
                                sizeof(real)*n, cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);
 #elif HAVE_DEVICE_MPI
     cudaStreamSynchronize(stream);
-    device_mpi_allreduce(red_d, red, n, sizeof(real), DEVICE_MPI_SUM);
-    cudaStreamSynchronize(stream);
+    device_mpi_allreduce(bufred_d, bufred, n, sizeof(real), DEVICE_MPI_SUM);
 #else
-    CUDA_CHECK(cudaMemcpyAsync(red, red_d, n*sizeof(real),
+    CUDA_CHECK(cudaMemcpyAsync(bufred, bufred_d, n*sizeof(real),
                                cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);
 #endif
@@ -591,9 +589,9 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-    
+
     cuda_redbuf_check_alloc(nb);
-   
+
     glsc3_kernel<real><<<nblcks, nthrds, 0, stream>>>
       ((real *) u, (real *) v, (real *) w, (real *) bufred_d, *n);
     CUDA_CHECK(cudaGetLastError());
@@ -622,7 +620,7 @@ extern "C" {
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     cuda_redbuf_check_alloc(nb);
-    
+
     if ( *n > 0) {
     glsc3_kernel<real><<<nblcks, nthrds, 0, stream>>>
       ((real *) a, (real *) b, (real *) c, (real *) bufred_d, *n);
@@ -650,7 +648,7 @@ extern "C" {
     const int nb = ((*n) + nt - 1)/nt;
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
     cuda_redbuf_check_alloc((*j)*nb);
-  
+
     if ( *n > 0) {
     glsc3_many_kernel<real><<<nblcks, nthrds, 0, stream>>>
       ((const real *) w, (const real **) v,
@@ -675,7 +673,7 @@ extern "C" {
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
     cuda_redbuf_check_alloc(nb);
-    
+
     if ( *n > 0) {
       glsc2_kernel<real>
         <<<nblcks, nthrds, 0, stream>>>((real *) a,
@@ -698,7 +696,7 @@ extern "C" {
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
     const int nb = ((*n) + 1024 - 1)/ 1024;
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
-    
+
     cuda_redbuf_check_alloc(nb);
     if ( *n > 0) {
       glsum_kernel<real>

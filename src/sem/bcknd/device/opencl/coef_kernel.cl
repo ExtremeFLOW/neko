@@ -1,7 +1,7 @@
 #ifndef __SEM_COEF_KERNEL_CL__
 #define __SEM_COEF_KERNEL_CL__
 /*
- Copyright (c) 2022-2023, The Neko Authors
+ Copyright (c) 2022-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -66,10 +66,6 @@ void coef_generate_geo_kernel_lx##LX(__global real * __restrict__ G11,         \
                                                                                \
   __local real shw3[LX * LX * LX];                                             \
                                                                                \
-  if (iii < (LX * LX * LX)) {                                                  \
-    shw3[iii] = w3[iii];                                                       \
-  }                                                                            \
-                                                                               \
   j = iii;                                                                     \
   while( j < (LX * LX * LX)) {                                                 \
     const int i = j + e * LX * LX * LX;                                        \
@@ -80,6 +76,8 @@ void coef_generate_geo_kernel_lx##LX(__global real * __restrict__ G11,         \
     G12[i] = (drdx[i]*dsdx[i] + drdy[i]*dsdy[i] + drdz[i]*dsdz[i]) * jacinv[i];\
     G13[i] = (drdx[i]*dtdx[i] + drdy[i]*dtdy[i] + drdz[i]*dtdz[i]) * jacinv[i];\
     G23[i] = (dsdx[i]*dtdx[i] + dsdy[i]*dtdy[i] + dsdz[i]*dtdz[i]) * jacinv[i];\
+                                                                               \
+    shw3[j] = w3[j];                                                           \
     j = j + CHUNKS;                                                            \
   }                                                                            \
                                                                                \
@@ -159,7 +157,7 @@ void coef_generate_dxyz_kernel_lx##LX(__global real * __restrict__ dxdr,       \
                                                                                \
   j = iii;                                                                     \
   while(j < (LX * LX * LX)) {                                                  \
-    shu[iii] = x[j + e * LX * LX * LX];                                        \
+    shu[j] = x[j + e * LX * LX * LX];                                          \
     j = j + CHUNKS;                                                            \
   }                                                                            \
                                                                                \
@@ -190,7 +188,7 @@ void coef_generate_dxyz_kernel_lx##LX(__global real * __restrict__ dxdr,       \
                                                                                \
   j = iii;                                                                     \
   while(j < (LX * LX * LX)) {                                                  \
-    shu[iii] = y[j + e * LX * LX * LX];                                        \
+    shu[j] = y[j + e * LX * LX * LX];                                          \
     j = j + CHUNKS;                                                            \
   }                                                                            \
                                                                                \
@@ -221,7 +219,7 @@ void coef_generate_dxyz_kernel_lx##LX(__global real * __restrict__ dxdr,       \
                                                                                \
   j = iii;                                                                     \
   while(j < (LX * LX * LX)) {                                                  \
-    shu[iii] = z[j + e * LX * LX * LX];                                        \
+    shu[j] = z[j + e * LX * LX * LX];                                          \
     j = j + CHUNKS;                                                            \
   }                                                                            \
                                                                                \

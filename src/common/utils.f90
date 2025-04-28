@@ -46,7 +46,8 @@ module utils
   public :: neko_error, neko_warning, nonlinear_index, filename_chsuffix, &
        filename_suffix, filename_suffix_pos, filename_tslash_pos, &
        linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
-       concat_string_array, extract_fld_file_index, neko_type_error
+       concat_string_array, extract_fld_file_index, neko_type_error, &
+       neko_type_registration_error
 
 
 contains
@@ -201,17 +202,17 @@ contains
 
     is_on = .false.
     select case (facet)
-      case (1)
+    case (1)
        if (i .eq. 1) is_on = .true.
-      case (2)
+    case (2)
        if (i .eq. lx) is_on = .true.
-      case (3)
+    case (3)
        if (j .eq. 1) is_on = .true.
-      case (4)
+    case (4)
        if (j .eq. ly) is_on = .true.
-      case (5)
+    case (5)
        if (k .eq. 1) is_on = .true.
-      case (6)
+    case (6)
        if (k .eq. lz) is_on = .true.
     end select
 
@@ -242,14 +243,14 @@ contains
 
   !> Reports an error allocating a type for a particular base pointer class.
   !! @details Should be used in factories.
-  !! @param base_type The base type of the object, which the factory tried to 
+  !! @param base_type The base type of the object, which the factory tried to
   !! construct.
   !! @param wrong_type The type that was attempted to construct.
   !! @param known_types A list of the types that are known.
   subroutine neko_type_error(base_type, wrong_type, known_types)
-    character(len=*) :: base_type 
-    character(len=*) :: wrong_type 
-    character(len=*) :: known_types(:)
+    character(len=*), intent(in) :: base_type
+    character(len=*), intent(in) :: wrong_type
+    character(len=*), intent(in) :: known_types(:)
     integer :: i
 
     write(error_unit, *) '*** ERROR WHEN SELECTING TYPE ***'
@@ -260,6 +261,23 @@ contains
     end do
     error stop
   end subroutine neko_type_error
+
+  subroutine neko_type_registration_error(base_type, wrong_type, known)
+    character(len=*), intent(in) :: base_type
+    character(len=*),intent(in) :: wrong_type
+    logical, intent(in) :: known
+
+    write(error_unit, *) '*** ERROR WHEN REGISTERING TYPE ***'
+    write(error_unit, *) 'Type name ', wrong_type, &
+         ' conflicts with and already existing ', base_type, " type"
+    if (known) then
+       write(error_unit, *) 'Please rename your custom type.'
+    else
+       write(error_unit, *) 'The already existing type is also custom.' // &
+            ' Make all custom type names unique!'
+    end if
+    error stop
+  end subroutine neko_type_registration_error
 
   !> Reports a warning to standard output
   subroutine neko_warning(warning_msg)
