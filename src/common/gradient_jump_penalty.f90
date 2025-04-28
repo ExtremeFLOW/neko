@@ -37,7 +37,7 @@ module gradient_jump_penalty
   use utils, only : neko_error
   use json_utils, only : json_get_or_default
   use json_module, only : json_file
-  use math, only: add2, col2, col3, invcol2, add3, copy
+  use math, only: add2, col2, col3, invcol2, add3, copy, absval
   use point, only : point_t
   use field, only : field_t
   use dofmap , only : dofmap_t
