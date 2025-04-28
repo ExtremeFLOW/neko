@@ -391,9 +391,6 @@ contains
     call this%slag%free()
 
     ! Free gradient jump penalty
-!    if (this%if_gradient_jump_penalty .eqv. .true.) then
-!       call this%gradient_jump_penalty%free()
-!    end if
 
   end subroutine scalar_scheme_free
 
