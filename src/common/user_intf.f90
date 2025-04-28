@@ -178,8 +178,14 @@ module user_intf
      end subroutine user_material_properties
   end interface
 
-  !> A type collecting all the overridable user routines.
+  !> A type collecting all the overridable user routines and flag to suppress
+  !! type injection from custom modules.
   type, public :: user_t
+     !> Setting this to true in the user_setup routine in the user file will
+     !! suppress custom modules registering their types in the factories. So you
+     !! have to take care of type injection in `user_startup`. Use if you really
+     !! want full control  over type injection for some reason.
+     logical :: suppress_type_injection = .false.
      !> Run as soon as the case file is read, with nothing else initialized.
      !! Use to manipulate the case file, and define custom parameters.
      procedure(user_startup_intrf), nopass, pointer :: &

@@ -91,7 +91,9 @@ module neko
   use matrix, only : matrix_t
   use tensor
   use simulation_component, only : simulation_component_t, &
-       simulation_component_wrapper_t
+       simulation_component_wrapper_t, simulation_component_factory, &
+       simulation_component_allocator, simulation_component_allocate, &
+       register_simulation_component
   use probes, only : probes_t
   use spectral_error
   use system, only : system_cpu_name, system_cpuid
@@ -112,7 +114,12 @@ module neko
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use bc_list, only : bc_list_t
-  use les_model, only : les_model_t
+  use les_model, only : les_model_t, les_model_allocate, register_les_model, &
+       les_model_factory, les_model_allocator
+  use field_writer, only : field_writer_t
+  use time_based_controller, only : time_based_controller_t
+  use source_term, only : source_term_t, source_term_allocate, &
+       register_source_term, source_term_factory, source_term_allocator
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
