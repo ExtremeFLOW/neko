@@ -375,7 +375,7 @@ contains
     type(stack_i4_t) :: send_pe_find, recv_pe_find
 
 
-    call gs_find%init_dofs()
+    call gs_find%init_dofs(this%pe_size)
     call send_pe_find%init()
     call recv_pe_find%init()
     call MPI_Barrier(this%comm)
@@ -435,7 +435,7 @@ contains
 
     call gs_find%init(send_pe_find, recv_pe_find, this%comm)
 
-    call gs_find_back%init_dofs()
+    call gs_find_back%init_dofs(this%pe_size)
     ii = 0
     do i = 0, (this%pe_size-1)
        send_recv => gs_find%recv_dof(i)%array()
@@ -643,7 +643,7 @@ contains
     call gs_find%free()
     call send_pe_find%init()
     call recv_pe_find%init()
-    call gs_find%init_dofs()
+    call gs_find%init_dofs(this%pe_size)
     !setup comm to send xyz and rst to chosen ranks
     do i = 0, (this%pe_size-1)
        if (this%n_points_pe(i) .gt. 0) then
@@ -666,7 +666,7 @@ contains
     end do
 
 
-    call gs_find%init(send_pe_find, recv_pe_find)
+    call gs_find%init(send_pe_find, recv_pe_find, this%comm)
     call gs_find%sendrecv(this%xyz, this%xyz_local, this%n_points*3, &
          this%n_points_local*3, GS_OP_SET)
     call gs_find%sendrecv(this%rst, this%rst_local, this%n_points*3, &
@@ -700,7 +700,7 @@ contains
     !Set up final way of doing communication
     call send_pe%init()
     call recv_pe%init()
-    call this%gs_comm%init_dofs()
+    call this%gs_comm%init_dofs(this%pe_size)
     do i = 0, (this%pe_size-1)
        if (this%n_points_pe(i) .gt. 0) then
           call recv_pe%push(i)
