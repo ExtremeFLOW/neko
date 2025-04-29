@@ -669,25 +669,25 @@ contains
 
   !> Gather a field to reduced contigous array
   !! \f$ a = b(mask) \f$.
-  !! @param a Destination array of size `m`.
+  !! @param a Destination array of size `n_mask`.
   !! @param b Source array of size `n`.
-  !! @param mask Mask array of length m+1, where `mask(0) =m`
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
   !! the length of the mask array.
-  !! @param n Size of the array `b`.
-  !! @param m Size of the mask array `mask` and `a`.
-  subroutine field_masked_gather_copy(a, b, mask, n, m)
-    integer, intent(in) :: n, m
-    real(kind=rp), dimension(m), intent(inout) :: a
+  !! @param n Size of the field `b`.
+  !! @param n_mask Size of the mask array `mask` and `a`.
+  subroutine field_masked_gather_copy(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n_mask), intent(inout) :: a
     type(field_t) :: b
-    integer, dimension(0:m) :: mask
+    integer, dimension(0:n_mask) :: mask
     type(c_ptr) :: mask_d, a_d
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        mask_d = device_get_ptr(mask)
        a_d = device_get_ptr(a)
-       call device_masked_gather_copy(a_d, b%x_d, mask_d, b%size(), mask(0))
+       call device_masked_gather_copy(a_d, b%x_d, mask_d, n, n_mask)
     else
-       call masked_gather_copy(a, b%x, mask, b%size(), mask(0))
+       call masked_gather_copy(a, b%x, mask, n, n_mask)
     end if
 
   end subroutine field_masked_gather_copy
@@ -695,24 +695,24 @@ contains
   !> Gather a contigous array into a field
   !! \f$ a(mask) = b \f$.
   !! @param a Destination field.
-  !! @param b Source array of size `m`.
-  !! @param mask Mask array of length m+1, where `mask(0) =m`
+  !! @param b Source array of size `n_mask`.
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
   !! the length of the mask array.
-  !! @param n Size of the array `b` and `mask`.
-  !! @param m Size of the mask array `mask` and `a`.
-  subroutine field_masked_scatter_copy(a, b, mask, n, m)
-    integer, intent(in) :: n, m
-    real(kind=rp), dimension(m), intent(in) :: b
+  !! @param n Size of the field `a`.
+  !! @param n_mask Size of the mask array `mask` and `b`.
+  subroutine field_masked_scatter_copy(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n_mask), intent(in) :: b
     type(field_t), intent(inout) :: a
-    integer, dimension(0:m) :: mask
+    integer, dimension(0:n_mask) :: mask
     type(c_ptr) :: mask_d, b_d
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        mask_d = device_get_ptr(mask)
        b_d = device_get_ptr(b)
-       call device_masked_scatter_copy(a%x_d, b_d, mask_d, mask(0), a%size())
+       call device_masked_scatter_copy(a%x_d, b_d, mask_d, n, n_mask)
     else
-       call masked_scatter_copy(a%x, b, mask, mask(0), a%size())
+       call masked_scatter_copy(a%x, b, mask, n, n_mask)
     end if
 
   end subroutine field_masked_scatter_copy
