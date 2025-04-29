@@ -36,7 +36,6 @@ module aabb_el_finder
    use neko_config, only : NEKO_BCKND_DEVICE
    use space, only: space_t
    use stack, only: stack_i4_t
-   use utils, only: neko_error, neko_warning
    use tuple, only: tuple_i4_t
    use point, only: point_t
    use aabb, only: aabb_t

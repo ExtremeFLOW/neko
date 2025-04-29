@@ -318,22 +318,27 @@ contains
   subroutine aabb_tree_init(this, initial_capacity)
     class(aabb_tree_t), intent(inout) :: this
     integer, intent(in) :: initial_capacity
+    integer :: i, nonzero_capacity
 
-    integer :: i
+    if (initial_capacity < 1) then
+       nonzero_capacity = 1
+    else
+       nonzero_capacity = initial_capacity
+    end if
 
     this%root_node_index = AABB_NULL_NODE
     this%allocated_node_count = 0
     this%next_free_node_index = 1
-    this%node_capacity = initial_capacity
-    this%growth_size = initial_capacity
+    this%node_capacity = nonzero_capacity
+    this%growth_size = nonzero_capacity
 
     if (allocated(this%nodes)) deallocate(this%nodes)
-    allocate(this%nodes(initial_capacity))
+    allocate(this%nodes(nonzero_capacity))
 
-    do i = 1, initial_capacity
+    do i = 1, nonzero_capacity
        this%nodes(i)%next_node_index = i + 1
     end do
-    this%nodes(initial_capacity)%next_node_index = AABB_NULL_NODE
+    this%nodes(nonzero_capacity)%next_node_index = AABB_NULL_NODE
   end subroutine aabb_tree_init
 
   !> @brief Builds the tree.
@@ -356,10 +361,14 @@ contains
     real(kind=dp) :: aabb_padding
 
     call this%init(size(objects) * 2)
+    if (size(objects) .eq. 0) then
+       return
+    end if
 
     ! ------------------------------------------------------------------------ !
     ! Start by sorting the list of objects, then build a balanced binary tree
     ! from the sorted list
+
 
     allocate(box_list(size(objects)))
 
@@ -368,7 +377,7 @@ contains
     else
        aabb_padding = 0.0_dp
     end if
-       
+
     do i_obj = 1, size(objects)
        box_list(i_obj) = get_aabb(objects(i_obj), aabb_padding)
     end do
@@ -635,7 +644,7 @@ contains
 
     do while (.not. simple_stack%is_empty())
        node_index = simple_stack%pop()
-       
+
        if (node_index == AABB_NULL_NODE) cycle
 
        if (this%nodes(node_index)%aabb%overlaps(object_box)) then

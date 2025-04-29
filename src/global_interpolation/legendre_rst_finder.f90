@@ -40,7 +40,7 @@ module legendre_rst_finder
   use vector, only: vector_t
   use matrix, only: matrix_t
   use tensor, only: tnsr3d
-  use math, only: NEKO_EPS
+  use math, only: NEKO_EPS, matinv39
   use tensor_cpu, only: tnsr3d_cpu, tnsr3d_el_cpu
   use device_local_interpolation, only: device_find_rst_legendre
   use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, &
@@ -62,12 +62,6 @@ module legendre_rst_finder
      procedure, pass(this) :: free => legendre_rst_finder_free
      procedure, pass(this) :: find => legendre_rst_finder_find
   end type legendre_rst_finder_t
-
-  type, public :: rst_finder_monitor_t
-
-
-  end type rst_finder_monitor_t
-
 
 contains
 
@@ -333,100 +327,4 @@ contains
        end do
     end do
   end subroutine find_rst_legendre_cpu
-
-!> Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance
-!> res1 and res2 are the distances to the interpolated xyz coordinate and true xyz coord
-  function rst_cmp(rst1, rst2,res1, res2, tol) result(rst2_better)
-    real(kind=rp) :: rst1(3), res1(3)
-    real(kind=rp) :: rst2(3), res2(3)
-    real(kind=rp) :: tol
-    logical :: rst2_better
-!If rst1 is invalid and rst2 is valid, take rst2
-! If both invalidl, take smallest residual
-    if (abs(rst1(1)) .gt. 1.0_xp+tol .or. &
-         abs(rst1(2)) .gt. 1.0_xp+tol .or. &
-         abs(rst1(3)) .gt. 1.0_xp+tol) then
-       if (abs(rst2(1)) .le. 1.0_xp+tol .and. &
-            abs(rst2(2)) .le. 1.0_xp+tol .and. &
-            abs(rst2(3)) .le. 1.0_xp+tol) then
-          rst2_better = .true.
-       else
-          rst2_better = (norm2(real(res2,xp)) .lt. norm2(real(res1,xp)))
-       end if
-    else
-!> Else we check rst2 is inside and has a smaller distance
-       rst2_better = (norm2(real(res2,xp)) .lt. norm2(real(res1,xp)) .and.&
-            abs(rst2(1)) .le. 1.0_xp+tol .and. &
-            abs(rst2(2)) .le. 1.0_xp+tol .and. &
-            abs(rst2(3)) .le. 1.0_xp+tol)
-    end if
-  end function rst_cmp
-
-  subroutine jacobian_inverse(jacinv, rst, x, y, z, n_pts, Xh)
-    integer :: n_pts
-    real(kind=rp), intent(inout) :: rst(3, n_pts)
-    type(space_t), intent(inout) :: Xh
-    real(kind=rp), intent(inout) :: x(Xh%lx, Xh%ly, Xh%lz, n_pts)
-    real(kind=rp), intent(inout) :: y(Xh%lx, Xh%ly, Xh%lz, n_pts)
-    real(kind=rp), intent(inout) :: z(Xh%lx, Xh%ly, Xh%lz, n_pts)
-    real(kind=rp), intent(out) :: jacinv(3,3, n_pts)
-    real(kind=rp) :: tmp(3,3)
-    integer :: i
-
-    call jacobian(jacinv, rst, x, y, z, n_pts, Xh)
-
-    do i = 1, n_pts
-       tmp = matinv3(real(jacinv(:,:,3),xp))
-       jacinv(:,:,i) = tmp
-    end do
-
-  end subroutine jacobian_inverse
-  ! M33INV and M44INV by David G. Simpson pure function version from
-  ! https://fortranwiki.org/fortran/show/Matrix+inversion
-  ! Invert 3x3 matrix
-  function matinv39(a11, a12, a13, a21, a22, a23, a31, a32, a33) &
-      result(B)
-    real(kind=rp), intent(in) :: a11, a12, a13, a21, a22, a23, a31, a32, a33
-    real(xp) :: A(3,3)   !! Matrix
-    real(rp) :: B(3,3)   !! Inverse matrix
-    A(1,1) = a11
-    A(1,2) = a12
-    A(1,3) = a13
-    A(2,1) = a21
-    A(2,2) = a22
-    A(2,3) = a23
-    A(3,1) = a31
-    A(3,2) = a32
-    A(3,3) = a33
-    B = matinv3(A)
-  end function matinv39
-  !! Performs a direct calculation of the inverse of a 3×3 matrix.
-  !M33INV and M44INV by David G. Simpson pure function version from https://fortranwiki.org/fortran/show/Matrix+inversion
-  ! Invert 3x3 matrix
-  function matinv3(A) result(B)
-    !! Performs a direct calculation of the inverse of a 3×3 matrix.
-    real(xp), intent(in) :: A(3,3)   !! Matrix
-    real(xp) :: B(3,3)   !! Inverse matrix
-    real(xp) :: detinv
-
-    ! Calculate the inverse determinant of the matrix
-    !first index x,y,z, second r, s, t
-    detinv = 1.0_xp/real(A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2)&
-         - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1)&
-         + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1),xp)
-    !print *, "detinv",detinv
-    ! Calculate the inverse of the matrix
-    ! first index r, s, t, second x, y, z
-    B(1,1) = +detinv * (A(2,2)*A(3,3) - A(2,3)*A(3,2))
-    B(2,1) = -detinv * (A(2,1)*A(3,3) - A(2,3)*A(3,1))
-    B(3,1) = +detinv * (A(2,1)*A(3,2) - A(2,2)*A(3,1))
-    B(1,2) = -detinv * (A(1,2)*A(3,3) - A(1,3)*A(3,2))
-    B(2,2) = +detinv * (A(1,1)*A(3,3) - A(1,3)*A(3,1))
-    B(3,2) = -detinv * (A(1,1)*A(3,2) - A(1,2)*A(3,1))
-    B(1,3) = +detinv * (A(1,2)*A(2,3) - A(1,3)*A(2,2))
-    B(2,3) = -detinv * (A(1,1)*A(2,3) - A(1,3)*A(2,1))
-    B(3,3) = +detinv * (A(1,1)*A(2,2) - A(1,2)*A(2,1))
-  end function matinv3
-
-
 end module legendre_rst_finder

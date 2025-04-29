@@ -36,36 +36,29 @@ module global_interpolation
   use num_types, only: rp, dp, xp
   use neko_config, only : NEKO_BCKND_DEVICE
   use space, only: space_t
-  use stack, only: stack_i4_t, stack_i4t2_t
+  use stack, only: stack_i4_t
   use dofmap, only: dofmap_t
-  use mesh, only: mesh_t
   use logger, only: neko_log, LOG_SIZE
   use utils, only: neko_error, neko_warning
-  use local_interpolation, only : local_interpolator_t, rst_cmp, &
-      find_rst_legendre
-  use device_local_interpolation, only: device_find_rst_legendre
-  use device, only: device_free, device_alloc, device_map, device_memcpy, &
-      device_deassociate, HOST_TO_DEVICE, DEVICE_TO_HOST, glb_cmd_queue, &
+  use local_interpolation, only : local_interpolator_t, rst_cmp
+  use device, only: device_free, device_map, device_memcpy, &
+      device_deassociate, HOST_TO_DEVICE, DEVICE_TO_HOST, &
       device_get_ptr
-  use point, only: point_t
-  use tuple, only: tuple_i4_t
   use aabb_pe_finder, only: aabb_pe_finder_t
   use aabb_el_finder, only: aabb_el_finder_t
   use legendre_rst_finder, only: legendre_rst_finder_t
-  use comm, only: NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
-  use mpi_f08, only: MPI_SUM, MPI_Reduce, MPI_COMM, MPI_Comm_rank, &
+  use comm, only: NEKO_COMM
+  use mpi_f08, only: MPI_SUM, MPI_COMM, MPI_Comm_rank, &
       MPI_Comm_size, MPI_Wtime, MPI_Allreduce, MPI_IN_PLACE, MPI_INTEGER, &
-      MPI_MIN, MPI_Allgather, MPI_Barrier, MPI_Reduce_Scatter_block, MPI_alltoall, &
-      MPI_ISend, MPI_IRecv, MPI_Request, MPI_DOUBLE_PRECISION
+      MPI_MIN, MPI_Barrier, MPI_Reduce_Scatter_block, MPI_alltoall, &
+      MPI_ISend, MPI_IRecv
   use gs_mpi, only: gs_mpi_t
-  use gs_ops, only: GS_OP_SET, GS_OP_ADD
+  use gs_ops, only: GS_OP_SET
   use vector, only: vector_t
   use matrix, only: matrix_t
-  use tensor, only: tnsr3d
-  use math, only: copy, glsum, NEKO_M_LN2, NEKO_EPS
+  use math, only: copy, NEKO_EPS
   use structs, only : array_ptr_t
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, c_associated, &
-      c_sizeof, c_bool, c_loc
+  use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, c_associated
   implicit none
   private
 
@@ -100,12 +93,12 @@ module global_interpolation
      real(kind=rp), allocatable :: rst(:,:)
      !> List of owning processes.
      integer, allocatable :: pe_owner(:)
+     !> array of stacks (to avoid expensive reinitialization)
+     type(stack_i4_t), allocatable :: points_at_pe(:)
      !> List of owning elements.
      !! Note this is 0 indexed
      integer, allocatable :: el_owner0(:)
      type(c_ptr) :: el_owner0_d = c_null_ptr
-     !> Map to original indices after communication
-     integer, allocatable :: pt_ids(:)
 
      !> Local points (points in this ranks domain)
      integer :: n_points_local
@@ -135,6 +128,7 @@ module global_interpolation
      type(aabb_pe_finder_t) :: pe_finder
      !> Structure to find element candidates
      type(aabb_el_finder_t) :: el_finder
+     !> Object to find rst coordinates
      type(legendre_rst_finder_t) :: rst_finder
      !> Things for gather-scatter operation (sending interpolated values back and forth)
      type(gs_mpi_t) :: gs_comm
@@ -142,8 +136,9 @@ module global_interpolation
      type(vector_t) :: temp_local, temp
 
    contains
-     !> Initialize the global interpolation object on a dofmap.
+     !> Initialize the global interpolation object based on a set of spectral elements.
      procedure, pass(this) :: init_xyz => global_interpolation_init_xyz
+     !> Initialize the global interpolation object based on a dofmap.
      procedure, pass(this) :: init_dof => global_interpolation_init_dof
      !> Destructor
      procedure, pass(this) :: free => global_interpolation_free
@@ -157,8 +152,13 @@ module global_interpolation
      !! Sets up correct values to be able to evalute the points
      procedure, pass(this) :: find_points_coords => &
          global_interpolation_find_coords
+     procedure, pass(this) :: find_points_coords1d => &
+         global_interpolation_find_coords1d
+     !> Subroutine to check if the points are within the tolerance
+     procedure, pass(this) :: check_points => &
+         global_interpolation_check_points
      procedure, pass(this) :: find_points_xyz => global_interpolation_find_xyz
-     generic :: find_points => find_points_xyz, find_points_coords
+     generic :: find_points => find_points_xyz, find_points_coords, find_points_coords1d
      !> Evaluate the value of the field in each point.
      procedure, pass(this) :: evaluate => global_interpolation_evaluate
 
@@ -172,11 +172,12 @@ contains
   !> Initialize the global interpolation object on a dofmap.
   !! @param dof Dofmap on which the interpolation is to be carried out.
   !! @param tol Tolerance for Newton iterations.
-  subroutine global_interpolation_init_dof(this, dof, comm, tol)
+  subroutine global_interpolation_init_dof(this, dof, comm, tol, pad)
     class(global_interpolation_t), intent(inout) :: this
     type(dofmap_t), target :: dof
     type(MPI_COMM), optional, intent(in) :: comm
     real(kind=rp), optional :: tol
+    real(kind=rp), optional :: pad
 
     ! NOTE: Passing dof%x(:,1,1,1), etc in init_xyz passes down the entire
     ! dof%x array and not a slice. It is done this way for
@@ -195,7 +196,9 @@ contains
   !! points.
   !! @param Xh Space on which to interpolate.
   !! @param tol Tolerance for Newton iterations.
-  subroutine global_interpolation_init_xyz(this, x, y, z, gdim, nelv, Xh, comm, tol)
+  !! @param pad Padding of the bounding boxes.
+  subroutine global_interpolation_init_xyz(this, x, y, z, gdim, nelv, Xh, &
+    comm, tol, pad)
     class(global_interpolation_t), intent(inout) :: this
     real(kind=rp), intent(in), target :: x(:)
     real(kind=rp), intent(in), target :: y(:)
@@ -205,14 +208,10 @@ contains
     type(MPI_COMM), intent(in), optional :: comm
     type(space_t), intent(in), target :: Xh
     real(kind=rp), intent(in), optional :: tol
-    integer :: lx, ly, lz, max_pts_per_iter, ierr, i, id1, id2, n, j
-    real(kind=dp), allocatable :: rank_xyz_max(:,:), rank_xyz_min(:,:)
-    real(kind=dp), allocatable :: max_xyz(:,:), min_xyz(:,:)
-    type(stack_i4t2_t) :: traverse_stack
-    integer :: start, last, n_box_el, lvl
-    type(tuple_i4_t) :: id_lvl, temp_id_lvl
+    real(kind=rp), intent(in), optional :: pad
+    integer :: lx, ly, lz, ierr, i, n
     character(len=8000) :: log_buf
-    real(kind=dp) :: padding = 1e-5
+    real(kind=dp) :: padding
     real(kind=rp) :: time1, time_start
 
     call this%free()
@@ -221,6 +220,12 @@ contains
        this%comm = comm
     else
        this%comm = NEKO_COMM
+    end if
+
+    if (present(pad)) then
+       padding = pad
+    else
+       padding = 1e-2 ! 1% padding of the bounding boxes
     end if
 
     time_start = MPI_Wtime()
@@ -256,6 +261,10 @@ contains
     allocate(this%n_points_offset_pe(0:(this%pe_size-1)))
     allocate(this%n_points_pe_local(0:(this%pe_size-1)))
     allocate(this%n_points_offset_pe_local(0:(this%pe_size-1)))
+    allocate(this%points_at_pe(0:(this%pe_size-1)))
+    do i = 0, this%pe_size-1
+       call this%points_at_pe(i)%init()
+    end do
     call MPI_Barrier(this%comm)
     time1 = MPI_Wtime()
     write(log_buf, '(A,E15.7)') &
@@ -267,6 +276,7 @@ contains
   !> Destructor
   subroutine global_interpolation_free(this)
     class(global_interpolation_t), intent(inout) :: this
+    integer :: i
 
     nullify(this%x%ptr)
     nullify(this%y%ptr)
@@ -278,9 +288,18 @@ contains
 
     call this%free_points()
     call this%local_interp%free()
+    call this%el_finder%free()
+    call this%pe_finder%free()
+    call this%rst_finder%free()
 
     call this%temp_local%free()
     call this%temp%free()
+   if (allocated(this%points_at_pe)) then
+       do i = 0, this%pe_size-1
+          call this%points_at_pe(i)%free()
+       end do
+       deallocate(this%points_at_pe)
+    end if
 
 
   end subroutine global_interpolation_free
@@ -300,9 +319,15 @@ contains
     if (c_associated(this%el_owner0_d)) then
        call device_free(this%el_owner0_d)
     end if
-    if (allocated(this%pt_ids)) deallocate(this%pt_ids)
 
     call this%gs_comm%free()
+
+
+  end subroutine global_interpolation_free_points
+
+
+  subroutine global_interpolation_free_points_local(this)
+    class(global_interpolation_t), intent(inout) :: this
 
     this%n_points_local = 0
     this%all_points_local = .false.
@@ -315,20 +340,13 @@ contains
        call device_free(this%el_owner0_local_d)
     end if
 
-
-  end subroutine global_interpolation_free_points
-
+  end subroutine global_interpolation_free_points_local
 
 
   !> Common routine for finding the points.
   subroutine global_interpolation_find_common(this)
     class(global_interpolation_t), intent(inout) :: this
-    !!Perhaps this should be kind dp
-    real(kind=xp) :: xdiff, ydiff, zdiff
     character(len=8000) :: log_buf
-    type(vector_t) :: x_check, x_vec
-    type(vector_t) :: y_check, y_vec
-    type(vector_t) :: z_check, z_vec
     type(vector_t) :: x_t
     type(vector_t) :: y_t
     type(vector_t) :: z_t
@@ -336,35 +354,21 @@ contains
     type(vector_t) :: resx
     type(vector_t) :: resy
     type(vector_t) :: resz
-    type(vector_t) :: x_hat, y_hat, z_hat
-    logical(kind=c_bool), allocatable, target :: conv_pts(:)
-    type(c_ptr) :: conv_pts_d = c_null_ptr
     type(c_ptr) :: el_cands_d = c_null_ptr
-    type(c_ptr) :: null_ptr = c_null_ptr
-    real(kind=rp), allocatable :: res(:,:)
-    logical :: isdiff
-    real(kind=dp) :: pt_xyz(3), res1
-    integer :: i, j, stupid_intent, iter
-    integer(kind=8) :: bytes
-    type(point_t) :: my_point
+    type(matrix_t) :: res
+    integer :: i, j, stupid_intent
     type(stack_i4_t) :: all_el_candidates
-    type(stack_i4_t), allocatable :: points_at_pe(:)
     type(stack_i4_t) :: el_candidates
     integer, allocatable :: n_el_cands(:)
     integer, pointer :: pe_cands(:) => Null()
     integer, pointer :: el_cands(:) => Null()
     integer, pointer :: point_ids(:) => NUll()
     integer, pointer :: send_recv(:) => NUll()
-    real(kind=rp), allocatable :: xyz_send_to_pe(:,:)
-    real(kind=rp), allocatable :: rst_send_to_pe(:,:)
-    real(kind=rp), allocatable :: rst_recv_from_pe(:,:)
-    real(kind=rp), allocatable :: res_recv_from_pe(:,:)
     real(kind=rp), allocatable :: res_results(:,:)
     real(kind=rp), allocatable :: rst_results(:,:)
-    integer, allocatable :: el_owner0s(:), el_send_to_pe(:), el_owner_results(:)
-    integer :: ierr, max_n_points_to_send, ii, n_point_cand, n_glb_point_cand, point_id, rank
+    integer, allocatable :: el_owner_results(:)
+    integer :: ierr, ii, n_point_cand, n_glb_point_cand, point_id, rank
     real(kind=rp) :: time1, time2, time_start
-    logical :: converged
     !Temp stuff for gs_comm
     type(stack_i4_t) :: send_pe, recv_pe
     type(gs_mpi_t) :: gs_find, gs_find_back
@@ -381,16 +385,13 @@ contains
     ! Find pe candidates that the points i want may be at
     ! Add number to n_points_pe_local
     !Working arrays
-    allocate(points_at_pe(0:(this%pe_size-1)))
     this%n_points_pe = 0
-    do i = 0, this%pe_size-1
-       call points_at_pe(i)%init()
-    end do
-    call this%pe_finder%find_batch(this%xyz, this%n_points, points_at_pe, this%n_points_pe)
+    call this%pe_finder%find_batch(this%xyz, this%n_points, &
+         this%points_at_pe, this%n_points_pe)
     call MPI_Barrier(this%comm)
     time1 = MPI_Wtime()
     write(log_buf, '(A,E15.7)') &
-         'GPU Found PE candidates time since start of findpts (s):', time1-time_start
+         'Found PE candidates time since start of findpts (s):', time1-time_start
     call neko_log%message(log_buf)
     !Send number of points I want to candidates
     ! n_points_local -> how many points might be at this rank
@@ -413,7 +414,7 @@ contains
     do i = 0, (this%pe_size-1)
        if (this%n_points_pe(i) .gt. 0) then
           call send_pe_find%push(i)
-          point_ids => points_at_pe(i)%array()
+          point_ids => this%points_at_pe(i)%array()
           do j = 1, this%n_points_pe(i)
              call gs_find%send_dof(i)%push(3*(point_ids(j)-1)+1)
              call gs_find%send_dof(i)%push(3*(point_ids(j)-1)+2)
@@ -453,8 +454,6 @@ contains
 
     if (allocated(this%xyz_local)) deallocate(this%xyz_local)
     allocate(this%xyz_local(3, this%n_points_local))
-    max_n_points_to_send = max(maxval(this%n_points_pe),1)
-    allocate(xyz_send_to_pe(3, max_n_points_to_send))
     call gs_find%sendrecv(this%xyz, this%xyz_local, this%n_points*3, this%n_points_local*3, GS_OP_SET)
 
     call MPI_Barrier(this%comm)
@@ -561,17 +560,15 @@ contains
           end if
        end do
     end do
-    allocate(res(3,this%n_points))
-    allocate(rst_recv_from_pe(3, max_n_points_to_send))
-    allocate(res_recv_from_pe(3, max_n_points_to_send))
-    allocate(el_owner0s(max_n_points_to_send))
+    call res%init(3,this%n_points)
     n_glb_point_cand = sum(this%n_points_pe)
     allocate(rst_results(3,n_glb_point_cand))
     allocate(res_results(3,n_glb_point_cand))
     allocate(el_owner_results(n_glb_point_cand))
-    res = 1e2
+    res = 1e2_rp
     this%rst = 1e2
     this%pe_owner = -1
+    this%el_owner0 = -1
     call gs_find_back%sendrecv(this%xyz_local, res_results, &
          this%n_points_local*3, n_glb_point_cand*3, GS_OP_SET)
     call gs_find_back%sendrecv(this%rst_local, rst_results, &
@@ -595,14 +592,15 @@ contains
     call gs_find_back%nbwait_no_op()
     ii = 0
     do i = 1, size(gs_find_back%recv_pe)
-       point_ids => points_at_pe(gs_find_back%recv_pe(i))%array()
+       point_ids => this%points_at_pe(gs_find_back%recv_pe(i))%array()
        do j = 1, this%n_points_pe(gs_find_back%recv_pe(i))
           point_id = point_ids(j)
           ii = ii + 1
           if (rst_cmp(this%rst(:,point_id), rst_results(:,ii), &
-               res(:,point_id), res_results(:,ii), this%tol)) then
+              res%x(:,point_id), res_results(:,ii), this%tol) .or. &
+              this%pe_owner(point_ids(j)) .eq. -1 ) then
              this%rst(:,point_ids(j)) = rst_results(:,ii)
-             res(:,point_ids(j)) = res_results(:,ii)
+             res%x(:,point_ids(j)) = res_results(:,ii)
              this%pe_owner(point_ids(j)) = gs_find_back%recv_pe(i)
              this%el_owner0(point_ids(j)) = el_owner_results(ii)
           end if
@@ -613,17 +611,20 @@ contains
     !of the points I want
     !We now send the correct rsts to the correct rank (so a point only belongs to one rank)
     do i = 0, this%pe_size-1
-       call points_at_pe(i)%clear()
+       call this%points_at_pe(i)%clear()
        this%n_points_pe(i) = 0
     end do
 
     do i = 1, this%n_points
        stupid_intent = i
-       if (this%pe_owner(i) .eq. -1) print *, 'Something is not right for global interpolation',&
-            ' rank, point coords', stupid_intent, this%xyz(:,i)
-       call points_at_pe(this%pe_owner(i))%push(stupid_intent)
-
-       this%n_points_pe(this%pe_owner(i)) =  this%n_points_pe(this%pe_owner(i)) + 1
+       if (this%pe_owner(i) .eq. -1) then
+          print *, 'No owning rank found for',&
+            ' point ', stupid_intent, ' with coords', this%xyz(:,i), &
+            ' Interpolation will always yield 0.0. Try increase padding.'
+       else
+          call this%points_at_pe(this%pe_owner(i))%push(stupid_intent)
+          this%n_points_pe(this%pe_owner(i)) =  this%n_points_pe(this%pe_owner(i)) + 1
+       end if
     end do
     call MPI_Reduce_scatter_block(this%n_points_pe, this%n_points_local, 1, MPI_INTEGER, &
          MPI_SUM, this%comm, ierr)
@@ -647,7 +648,7 @@ contains
     do i = 0, (this%pe_size-1)
        if (this%n_points_pe(i) .gt. 0) then
           call send_pe_find%push(i)
-          point_ids => points_at_pe(i)%array()
+          point_ids => this%points_at_pe(i)%array()
           do j = 1, this%n_points_pe(i)
              call gs_find%send_dof(i)%push(3*(point_ids(j)-1)+1)
              call gs_find%send_dof(i)%push(3*(point_ids(j)-1)+2)
@@ -673,7 +674,7 @@ contains
     ii = 0
     do i = 1, size(gs_find%send_pe)
        rank = gs_find%send_pe(i)
-       point_ids => points_at_pe(rank)%array()
+       point_ids => this%points_at_pe(rank)%array()
        do j = 1, this%n_points_pe(rank)
           ii = ii + 1
           el_owner_results(ii) = this%el_owner0(point_ids(j))
@@ -703,7 +704,7 @@ contains
     do i = 0, (this%pe_size-1)
        if (this%n_points_pe(i) .gt. 0) then
           call recv_pe%push(i)
-          point_ids => points_at_pe(i)%array()
+          point_ids => this%points_at_pe(i)%array()
           do j = 1, this%n_points_pe(i)
              call this%gs_comm%recv_dof(i)%push(point_ids(j))
           end do
@@ -717,63 +718,16 @@ contains
     end do
     call this%gs_comm%init(send_pe, recv_pe,this%comm)
 
-
-    if (allocated(this%pt_ids)) deallocate(this%pt_ids)
-    allocate(this%pt_ids(this%n_points))
-    ii = 0
-    do i = 0, (this%pe_size - 1)
-       point_ids => points_at_pe(i)%array()
-       do j = 1, this%n_points_pe(i)
-          ii = ii + 1
-          this%pt_ids(ii) = point_ids(j)
-       end do
-    end do
     !Initialize working arrays for evaluation
     call this%temp_local%init(this%n_points_local)
     call this%temp%init(this%n_points)
 
-    !Initialize arrays to double check interpolation
-    call x_check%init(this%n_points)
-    call y_check%init(this%n_points)
-    call z_check%init(this%n_points)
-    call this%local_interp%free()
     !Initialize interpolator for local interpolation
+    call this%local_interp%free()
     call this%local_interp%init(this%Xh, this%rst_local(1,:),&
          this%rst_local(2,:), &
          this%rst_local(3,:), this%n_points_local)
-    call this%evaluate(x_check%x, this%x%ptr, .true.)
-    call this%evaluate(y_check%x, this%y%ptr, .true.)
-    call this%evaluate(z_check%x, this%z%ptr, .true.)
 
-    j = 0
-    do i = 1 , this%n_points
-
-       ! Check validity of points
-       isdiff = .false.
-       xdiff = x_check%x(i)-this%xyz(1,i)
-       ydiff = y_check%x(i)-this%xyz(2,i)
-       zdiff = z_check%x(i)-this%xyz(3,i)
-       isdiff = norm2(real((/xdiff,ydiff,zdiff/),xp)) > this%tol
-       isdiff = isdiff .or. abs(this%rst(1,i)) > 1.0_xp + this%tol
-       isdiff = isdiff .or. abs(this%rst(2,i)) > 1.0_xp + this%tol
-       isdiff = isdiff .or. abs(this%rst(3,i)) > 1.0_xp + this%tol
-       if (isdiff ) then
-          write(*,*) 'Point with coordinates: ', &
-               this%xyz(1, i), this%xyz(2, i), this%xyz(3, i), &
-               'Differ from interpolated coords: ', &
-               x_check%x(i), y_check%x(i), z_check%x(i), &
-               'Actual difference: ', &
-               xdiff, ydiff, zdiff, norm2(real((/xdiff,ydiff,zdiff/),xp)),&
-               'Expected difference: ', &
-               res(:,i), norm2(real(res(:,i),xp)),&
-               'Process, element: ', &
-               this%pe_owner(i), this%el_owner0(i)+1, &
-               'rst coords: ', &
-               this%rst(:,i), &
-               ' radius', sqrt(this%xyz(1,i)**2.0_xp+this%xyz(2,i)**2.0_xp)
-          j = j + 1
-       end if
-    end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%el_owner0, this%el_owner0_d, &
@@ -783,18 +737,14 @@ contains
             this%n_points_local, HOST_TO_DEVICE, sync = .true.)
     end if
 
+    call this%check_points(this%x%ptr,this%y%ptr, this%z%ptr)
+
     !Free stuff
     call send_pe%free()
     call recv_pe%free()
     call gs_find_back%free()
     call send_pe_find%free()
     call recv_pe_find%free()
-    call x_check%free()
-    call x_vec%free()
-    call y_check%free()
-    call y_vec%free()
-    call z_check%free()
-    call z_vec%free()
     call x_t%free()
     call y_t%free()
     call z_t%free()
@@ -802,28 +752,13 @@ contains
     call resx%free()
     call resy%free()
     call resz%free()
-    call x_hat%free()
-    call y_hat%free()
-    call z_hat%free()
-    if (allocated(conv_pts)) deallocate(conv_pts)
-    if (allocated(res)) deallocate(res)
+    call res%free()
     call all_el_candidates%free()
-    if (allocated(points_at_pe)) then
-       do i = 0, this%pe_size-1
-          call points_at_pe(i)%free()
-       end do
-       deallocate(points_at_pe)
-    end if
-    call el_candidates%free()
+     call el_candidates%free()
     if (associated(pe_cands)) pe_cands => Null()
     if (associated(el_cands)) pe_cands => Null()
     if (associated(point_ids)) point_ids => Null()
-    if (allocated(xyz_send_to_pe)) deallocate(xyz_send_to_pe)
-    if (allocated(rst_send_to_pe)) deallocate(rst_send_to_pe)
-    if (allocated(rst_recv_from_pe)) deallocate(rst_recv_from_pe)
-    if (allocated(res_recv_from_pe)) deallocate(res_recv_from_pe)
-    if (allocated(el_owner0s)) deallocate(el_owner0s)
-    if (allocated(el_send_to_pe)) deallocate(el_send_to_pe)
+    if (allocated(el_owner_results)) deallocate(el_owner_results)
 
     call MPI_Barrier(this%comm)
     time2 = MPI_Wtime()
@@ -832,6 +767,57 @@ contains
     call neko_log%message(log_buf)
 
   end subroutine global_interpolation_find_common
+
+  !> Check the points for validity
+  !! This is used to check that the points are valid and that the interpolation
+  !! is correct. It checks that the points are within the tolerance.
+  subroutine global_interpolation_check_points(this, x, y, z)
+    class(global_interpolation_t), intent(inout) :: this
+    real(kind=rp), intent(inout) :: x(:)
+    real(kind=rp), intent(inout) :: y(:)
+    real(kind=rp), intent(inout) :: z(:)
+    integer :: i, j
+    character(len=8000) :: log_buf
+    real(kind=rp) :: xdiff, ydiff, zdiff
+    logical :: isdiff
+    type(vector_t) :: x_check, y_check, z_check
+
+    call x_check%init(this%n_points)
+    call y_check%init(this%n_points)
+    call z_check%init(this%n_points)
+
+    call this%evaluate(x_check%x, x, on_host=.true.)
+    call this%evaluate(y_check%x, y, on_host=.true.)
+    call this%evaluate(z_check%x, z, on_host=.true.)
+    write(log_buf,'(A)') 'Checking validity of points.'
+    call neko_log%message(log_buf)
+    j = 0
+    do i = 1 , this%n_points
+       ! Check validity of points
+       isdiff = .false.
+       xdiff = x_check%x(i)-this%xyz(1,i)
+       ydiff = y_check%x(i)-this%xyz(2,i)
+       zdiff = z_check%x(i)-this%xyz(3,i)
+       isdiff = norm2(real((/xdiff,ydiff,zdiff/),xp)) > this%tol
+       if (isdiff) then
+          write(*,*) 'Point ', i,'at rank ', this%pe_rank, 'with coordinates: ', &
+                this%xyz(1, i), this%xyz(2, i), this%xyz(3, i), &
+                'Differ from interpolated coords: ', &
+                x_check%x(i), y_check%x(i), z_check%x(i), &
+                'Actual difference: ', &
+                xdiff, ydiff, zdiff, norm2(real((/xdiff,ydiff,zdiff/),xp)),&
+                'Process, element: ', &
+                this%pe_owner(i), this%el_owner0(i)+1, &
+                'Calculated rst: ', &
+                this%rst(1,i), this%rst(2,i), this%rst(3,i)
+          j = j + 1
+       end if
+    end do
+    call x_check%free()
+    call y_check%free()
+    call z_check%free()
+
+  end subroutine global_interpolation_check_points
 
   !> Finds the corresponding r,s,t coordinates
   !! in the correct global element as well as which process that owns the point.
@@ -852,6 +838,7 @@ contains
     integer :: i
 
     call this%free_points()
+    call this%free_points_local()
 
     this%n_points = n_points
 
@@ -867,6 +854,39 @@ contains
     call global_interpolation_find_common(this)
 
   end subroutine global_interpolation_find_coords
+  !> Finds the corresponding r,s,t coordinates
+  !! in the correct global element as well as which process that owns the point.
+  !! After this the values at these points can be evaluated.
+  !! @param x The x-coordinates of the points.
+  !! @param y The y-coordinates of the points.
+  !! @param z The z-coordinates of the points.
+  !! @param n_points The number of points.
+  subroutine global_interpolation_find_coords1d(this, x, y, z, n_points)
+    class(global_interpolation_t), intent(inout) :: this
+    integer :: n_points
+    real(kind=rp) :: x(n_points)
+    real(kind=rp) :: y(n_points)
+    real(kind=rp) :: z(n_points)
+    integer :: i
+
+    call this%free_points()
+    call this%free_points_local()
+
+    this%n_points = n_points
+
+    call global_interpolation_init_point_arrays(this)
+
+    !Deepcopy of coordinates
+    do i = 1, n_points
+       this%xyz(1, i) = x(i)
+       this%xyz(2, i) = y(i)
+       this%xyz(3, i) = z(i)
+    end do
+
+    call global_interpolation_find_common(this)
+
+  end subroutine global_interpolation_find_coords1d
+
 
   subroutine global_interpolation_init_point_arrays(this)
     class(global_interpolation_t) :: this
@@ -896,6 +916,7 @@ contains
 
 
     call this%free_points()
+    call this%free_points_local()
 
     this%n_points = n_points
 
@@ -925,6 +946,8 @@ contains
 
 
     call this%free_points()
+    call this%free_points_local()
+
 
     this%n_points = n_points
     call global_interpolation_init_point_arrays(this)
@@ -977,6 +1000,7 @@ contains
           call device_memcpy(this%temp_local%x, this%temp_local%x_d, &
                this%n_points_local, DEVICE_TO_HOST, .true.)
        end if
+       interp_values = 0.0_rp
        call this%gs_comm%sendrecv(this%temp_local%x, interp_values, &
             this%n_points_local, this%n_points, GS_OP_SET)
        if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
