@@ -41,46 +41,46 @@ __kernel void masked_copy_kernel(__global real * __restrict__ a,
                                  __global real * __restrict__ b,
                                  __global int * __restrict__ mask,
                                  const int n,
-                                 const int m) {
+                                 const int n_mask) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
-  for (int i = idx; i < n; i += str) {
+  for (int i = idx; i < n_mask; i += str) {
     a[mask[i+1]-1] = b[mask[i+1]-1];
   }
 }
 
 /**
- * Device kernel for masked reduced copy
+ * Device kernel for masked gather copy
  */
 __kernel void masked_gather_copy_kernel(__global real * __restrict__ a,
                                      __global real * __restrict__ b,
                                      __global int * __restrict__ mask,
                                      const int n,
-                                     const int m) {
+                                     const int n_mask) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
-  for (int i = idx; i < n; i += str) {
+  for (int i = idx; i < n_mask; i += str) {
     a[i] = b[mask[i+1]-1];
   }
 }
 
 /**
- * Device kernel for masked reduced copy
+ * Device kernel for masked scatter copy
  */
 __kernel void masked_scatter_copy_kernel(__global real * __restrict__ a,
                                          __global real * __restrict__ b,
                                          __global int * __restrict__ mask,
                                          const int n,
-                                         const int m) {
+                                         const int n_mask) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
-  for (int i = idx; i < n; i += str) {
+  for (int i = idx; i < n_mask; i += str) {
     a[mask[i+1]-1] = b[i];
   }
 }
@@ -90,14 +90,14 @@ __kernel void masked_scatter_copy_kernel(__global real * __restrict__ a,
  */
 __kernel void cfill_mask_kernel(__global real * __restrict__ a,
                                 const real c,
-                                const int size,
+                                const int n,
                                 __global int * __restrict__ mask,
-                                const int mask_size) {
+                                const int n_mask) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
-    for (int i = idx; i < mask_size; i += str) { a[mask[i]-1] = c; }
+    for (int i = idx; i < n_mask; i += str) { a[mask[i]-1] = c; }
 }
 
 /**

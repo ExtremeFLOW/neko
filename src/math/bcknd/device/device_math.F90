@@ -90,61 +90,61 @@ contains
   end subroutine device_copy
 
   !> Copy a masked vector \f$ a(mask) = b(mask) \f$.
-  subroutine device_masked_copy(a_d, b_d, mask_d, n, m)
+  subroutine device_masked_copy(a_d, b_d, mask_d, n, n_mask)
     type(c_ptr) :: a_d, b_d, mask_d
-    integer :: n, m
-    if (n .lt. 1 .or. m .lt. 1) return
+    integer :: n, n_mask
+    if (n .lt. 1 .or. n_mask .lt. 1) return
 #if HAVE_HIP
-    call hip_masked_copy(a_d, b_d, mask_d, n, m)
+    call hip_masked_copy(a_d, b_d, mask_d, n, n_mask)
 #elif HAVE_CUDA
-    call cuda_masked_copy(a_d, b_d, mask_d, n, m)
+    call cuda_masked_copy(a_d, b_d, mask_d, n, n_mask)
 #elif HAVE_OPENCL
-    call opencl_masked_copy(a_d, b_d, mask_d, n, m)
+    call opencl_masked_copy(a_d, b_d, mask_d, n, n_mask)
 #else
     call neko_error('no device backend configured')
 #endif
   end subroutine device_masked_copy
 
   !> Gather a masked vector \f$ a(i) = b(mask(i)) \f$.
-  subroutine device_masked_gather_copy(a_d, b_d, mask_d, n, m)
+  subroutine device_masked_gather_copy(a_d, b_d, mask_d, n, n_mask)
     type(c_ptr) :: a_d, b_d, mask_d
-    integer :: n, m
-    if (n .lt. 1 .or. m .lt. 1) return
+    integer :: n, n_mask
+    if (n .lt. 1 .or. n_mask .lt. 1) return
 #if HAVE_HIP
-    call hip_masked_gather_copy(a_d, b_d, mask_d, n, m)
+    call hip_masked_gather_copy(a_d, b_d, mask_d, n, n_mask)
 #elif HAVE_CUDA
-    call cuda_masked_gather_copy(a_d, b_d, mask_d, n, m)
+    call cuda_masked_gather_copy(a_d, b_d, mask_d, n, n_mask)
 #elif HAVE_OPENCL
-    call opencl_masked_gather_copy(a_d, b_d, mask_d, n, m)
+    call opencl_masked_gather_copy(a_d, b_d, mask_d, n, n_mask)
 #else
     call neko_error('no device backend configured')
 #endif
   end subroutine device_masked_gather_copy
 
   !> Scatter a masked vector \f$ a((mask(i)) = b(i) \f$.
-  subroutine device_masked_scatter_copy(a_d, b_d, mask_d, n, m)
+  subroutine device_masked_scatter_copy(a_d, b_d, mask_d, n, n_mask)
     type(c_ptr) :: a_d, b_d, mask_d
-    integer :: n, m
-    if (n .lt. 1 .or. m .lt. 1) return
+    integer :: n, n_mask
+    if (n .lt. 1 .or. n_mask .lt. 1) return
 #if HAVE_HIP
-    call hip_masked_scatter_copy(a_d, b_d, mask_d, n, m)
+    call hip_masked_scatter_copy(a_d, b_d, mask_d, n, n_mask)
 #elif HAVE_CUDA
-    call cuda_masked_scatter_copy(a_d, b_d, mask_d, n, m)
+    call cuda_masked_scatter_copy(a_d, b_d, mask_d, n, n_mask)
 #elif HAVE_OPENCL
-    call opencl_masked_scatter_copy(a_d, b_d, mask_d, n, m)
+    call opencl_masked_scatter_copy(a_d, b_d, mask_d, n, n_mask)
 #else
     call neko_error('no device backend configured')
 #endif
   end subroutine device_masked_scatter_copy
 
-  subroutine device_masked_atomic_reduction(a_d, b_d, mask_d, n, m)
+  subroutine device_masked_atomic_reduction(a_d, b_d, mask_d, n, n_mask)
     type(c_ptr) :: a_d, b_d, mask_d
-    integer :: n, m
-    if (n .lt. 1 .or. m .lt. 1) return
+    integer :: n, n_mask
+    if (n .lt. 1 .or. n_mask .lt. 1) return
 #if HAVE_HIP
-    call hip_masked_atomic_reduction(a_d, b_d, mask_d, n, m)
+    call hip_masked_atomic_reduction(a_d, b_d, mask_d, n, n_mask)
 #elif HAVE_CUDA
-    call cuda_masked_atomic_reduction(a_d, b_d, mask_d, n, m)
+    call cuda_masked_atomic_reduction(a_d, b_d, mask_d, n, n_mask)
 #elif HAVE_OPENCL
     call neko_error('No OpenCL bcknd, masked atomic reduction')
 #else
@@ -154,19 +154,19 @@ contains
 
   !> @brief Fill a constant to a masked vector.
   !! \f$ a_i = c, for i in mask \f$
-  subroutine device_cfill_mask(a_d, c, size, mask_d, mask_size)
+  subroutine device_cfill_mask(a_d, c, n, mask_d, n_mask)
     type(c_ptr) :: a_d
     real(kind=rp), intent(in) :: c
-    integer :: size
+    integer :: n
     type(c_ptr) :: mask_d
-    integer :: mask_size
-    if (size .lt. 1 .or. mask_size .lt. 1) return
+    integer :: n_mask
+    if (n .lt. 1 .or. n_mask .lt. 1) return
 #if HAVE_HIP
-    call hip_cfill_mask(a_d, c, size, mask_d, mask_size)
+    call hip_cfill_mask(a_d, c, n, mask_d, n_mask)
 #elif HAVE_CUDA
-    call cuda_cfill_mask(a_d, c, size, mask_d, mask_size)
+    call cuda_cfill_mask(a_d, c, n, mask_d, n_mask)
 #elif HAVE_OPENCL
-    call opencl_cfill_mask(a_d, c, size, mask_d, mask_size)
+    call opencl_cfill_mask(a_d, c, n, mask_d, n_mask)
 #else
     call neko_error('No device backend configured')
 #endif
