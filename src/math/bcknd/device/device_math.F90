@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -579,7 +579,8 @@ contains
     call cuda_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
          w1_d, w2_d, w3_d, n)
 #elif HAVE_OPENCL
-    call neko_error("no opencl backedn vcross")
+    call opencl_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
+         w1_d, w2_d, w3_d, n)
 #else
     call neko_error('No device backend configured')
 #endif
