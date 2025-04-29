@@ -368,12 +368,6 @@ contains
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
 
-      ! Compute the grandient jump penalty term
-      if (this%if_gradient_jump_penalty .eqv. .true.) then
-         call this%gradient_jump_penalty%compute(u, v, w, s)
-         call this%gradient_jump_penalty%perform(f_Xh)
-      end if
-
       ! Apply weak boundary conditions, that contribute to the source terms.
       call this%bcs%apply_scalar(this%f_Xh%x, dm_Xh%size(), t, tstep, .false.)
 
@@ -455,15 +449,15 @@ contains
 
     n = this%dm_Xh%size()
 
-    write(log_buf,'(A,A,E15.7,A,E15.7,A,E15.7)') 'Scalar debug', &
+    write(log_buf, '(A, A, E15.7, A, E15.7, A, E15.7)') 'Scalar debug', &
          ' l2norm s', glsc2(this%s%x, this%s%x, n), &
          ' slag1', glsc2(this%slag%lf(1)%x, this%slag%lf(1)%x, n), &
          ' slag2', glsc2(this%slag%lf(2)%x, this%slag%lf(2)%x, n)
-    call neko_log%message(log_buf, lvl=NEKO_LOG_DEBUG)
-    write(log_buf,'(A,A,E15.7,A,E15.7)') 'Scalar debug2', &
+    call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
+    write(log_buf, '(A, A, E15.7, A, E15.7)') 'Scalar debug2', &
          ' l2norm abx1', glsc2(this%abx1%x, this%abx1%x, n), &
          ' abx2', glsc2(this%abx2%x, this%abx2%x, n)
-    call neko_log%message(log_buf, lvl=NEKO_LOG_DEBUG)
+    call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
   end subroutine print_debug
 
   !> Initialize boundary conditions

@@ -58,12 +58,12 @@ __global__ void masked_copy_kernel(T * __restrict__ a,
                                    T * __restrict__ b,
                                    int * __restrict__ mask,
                                    const int n,
-                                   const int m) {
+                                   const int n_mask) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  for (int i = idx; i < m; i += str) {
+  for (int i = idx; i < n_mask; i += str) {
     a[mask[i+1]-1] = b[mask[i+1]-1];
   }
 }
@@ -76,12 +76,12 @@ __global__ void masked_gather_copy_kernel(T * __restrict__ a,
                                    T * __restrict__ b,
                                    int * __restrict__ mask,
                                    const int n,
-                                   const int m) {
+                                   const int n_mask) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  for (int i = idx; i < m; i += str) {
+  for (int i = idx; i < n_mask; i += str) {
     a[i] = b[mask[i+1]-1];
   }
 }
@@ -94,12 +94,12 @@ __global__ void masked_scatter_copy_kernel(T * __restrict__ a,
                                    T * __restrict__ b,
                                    int * __restrict__ mask,
                                    const int n,
-                                   const int m) {
+                                   const int n_mask) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  for (int i = idx; i < m; i += str) {
+  for (int i = idx; i < n_mask; i += str) {
     a[mask[i+1]-1] = b[i];
   }
 }
@@ -112,12 +112,12 @@ __global__ void masked_atomic_reduction_kernel(T * __restrict__ a,
                                                T * __restrict__ b,
                                                int * __restrict__ mask,
                                                const int n,
-                                               const int m) {
+                                               const int n_mask) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  for (int i = idx; i < m; i += str) {
+  for (int i = idx; i < n_mask; i += str) {
     unsafeAtomicAdd( &(a[mask[i+1]-1]), b[i]);//a[mask[i]-1] = a[mask[i]-1] + b[i];
     //atomicAdd( &(a[mask[i+1]-1]), b[i]);//a[mask[i]-1] = a[mask[i]-1] + b[i];
   }
@@ -130,14 +130,14 @@ __global__ void masked_atomic_reduction_kernel(T * __restrict__ a,
 template< typename T >
 __global__ void cfill_mask_kernel(T* __restrict__ a,
                                   const T c,
-                                  const int size,
+                                  const int n,
                                   int* __restrict__ mask,
-                                  const int mask_size) {
+                                  const int n_mask) {
 
     const int idx = blockIdx.x * blockDim.x + threadIdx.x;
     const int str = blockDim.x * gridDim.x;
 
-    for (int i = idx; i < mask_size; i += str) { a[mask[i]-1] = c; }
+    for (int i = idx; i < n_mask; i += str) { a[mask[i]-1] = c; }
 }
 
 /**

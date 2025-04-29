@@ -43,25 +43,25 @@ module hip_math
        integer(c_int) :: n
      end subroutine hip_copy
 
-     subroutine hip_masked_copy(a_d, b_d, mask_d, n, m) &
+     subroutine hip_masked_copy(a_d, b_d, mask_d, n, n_mask) &
           bind(c, name = 'hip_masked_copy')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        type(c_ptr), value :: a_d, b_d, mask_d
-       integer(c_int) :: n, m
+       integer(c_int) :: n, n_mask
      end subroutine hip_masked_copy
 
-     subroutine hip_masked_gather_copy(a_d, b_d, mask_d, n, m) &
+     subroutine hip_masked_gather_copy(a_d, b_d, mask_d, n, n_mask) &
           bind(c, name = 'hip_masked_gather_copy')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        type(c_ptr), value :: a_d, b_d, mask_d
-       integer(c_int) :: n, m
+       integer(c_int) :: n, n_mask
      end subroutine hip_masked_gather_copy
 
-     subroutine hip_masked_scatter_copy(a_d, b_d, mask_d, n, m) &
+     subroutine hip_masked_scatter_copy(a_d, b_d, mask_d, n, n_mask) &
           bind(c, name = 'hip_masked_scatter_copy')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        type(c_ptr), value :: a_d, b_d, mask_d
-       integer(c_int) :: n, m
+       integer(c_int) :: n, n_mask
      end subroutine hip_masked_scatter_copy
 
      subroutine hip_masked_atomic_reduction(a_d, b_d, mask_d, n, m) &
@@ -71,15 +71,15 @@ module hip_math
        integer(c_int) :: n, m
      end subroutine hip_masked_atomic_reduction
 
-     subroutine hip_cfill_mask(a_d, c, size, mask_d, mask_size) &
+     subroutine hip_cfill_mask(a_d, c, n, mask_d, n_mask) &
           bind(c, name = 'hip_cfill_mask')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a_d
        real(c_rp) :: c
-       integer(c_int) :: size
+       integer(c_int) :: n
        type(c_ptr), value :: mask_d
-       integer(c_int) :: mask_size
+       integer(c_int) :: n_mask
      end subroutine hip_cfill_mask
 
      subroutine hip_cmult(a_d, c, n) &

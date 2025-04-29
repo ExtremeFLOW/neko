@@ -72,7 +72,6 @@ module scalar_scheme
   use neko_config, only : NEKO_BCKND_DEVICE
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
-  use gradient_jump_penalty, only : gradient_jump_penalty_t
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -133,9 +132,6 @@ module scalar_scheme
      real(kind=rp) :: pr_turb
      !> Is lambda varying in time? Currently only due to LES models.
      logical :: variable_material_properties = .false.
-     !> Gradient jump panelty
-     logical :: if_gradient_jump_penalty
-     type(gradient_jump_penalty_t) :: gradient_jump_penalty
    contains
      !> Constructor for the base type.
      procedure, pass(this) :: scheme_init => scalar_scheme_init
@@ -359,29 +355,6 @@ contains
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs, solver_precon)
 
-    ! Initiate gradient jump penalty
-    call json_get_or_default(params, &
-         'gradient_jump_penalty.enabled',&
-         this%if_gradient_jump_penalty, .false.)
-
-    if (this%if_gradient_jump_penalty .eqv. .true.) then
-       if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
-          call json_get_or_default(params, &
-               'gradient_jump_penalty.tau',&
-               GJP_param_a, 0.02_rp)
-          GJP_param_b = 0.0_rp
-       else
-          call json_get_or_default(params, &
-               'gradient_jump_penalty.scaling_factor',&
-               GJP_param_a, 0.8_rp)
-          call json_get_or_default(params, &
-               'gradient_jump_penalty.scaling_exponent',&
-               GJP_param_b, 4.0_rp)
-       end if
-       call this%gradient_jump_penalty%init(params, this%dm_Xh, this%c_Xh, &
-            GJP_param_a, GJP_param_b)
-    end if
-
     call neko_log%end_section()
 
   end subroutine scalar_scheme_init
@@ -413,11 +386,6 @@ contains
 
     call this%lambda_field%free()
     call this%slag%free()
-
-    ! Free gradient jump penalty
-    if (this%if_gradient_jump_penalty .eqv. .true.) then
-       call this%gradient_jump_penalty%free()
-    end if
 
   end subroutine scalar_scheme_free
 

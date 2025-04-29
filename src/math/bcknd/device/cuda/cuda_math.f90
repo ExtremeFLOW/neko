@@ -43,25 +43,25 @@ module cuda_math
        integer(c_int) :: n
      end subroutine cuda_copy
 
-     subroutine cuda_masked_copy(a_d, b_d, mask_d, n, m) &
+     subroutine cuda_masked_copy(a_d, b_d, mask_d, n, n_mask) &
           bind(c, name = 'cuda_masked_copy')
        use, intrinsic :: iso_c_binding, only: c_int, c_ptr
        type(c_ptr), value :: a_d, b_d, mask_d
-       integer(c_int) :: n, m
+       integer(c_int) :: n, n_mask
      end subroutine cuda_masked_copy
 
-     subroutine cuda_masked_gather_copy(a_d, b_d, mask_d, n, m) &
+     subroutine cuda_masked_gather_copy(a_d, b_d, mask_d, n, n_mask) &
           bind(c, name = 'cuda_masked_gather_copy')
        use, intrinsic :: iso_c_binding, only: c_int, c_ptr
        type(c_ptr), value :: a_d, b_d, mask_d
-       integer(c_int) :: n, m
+       integer(c_int) :: n, n_mask
      end subroutine cuda_masked_gather_copy
 
-     subroutine cuda_masked_scatter_copy(a_d, b_d, mask_d, n, m) &
+     subroutine cuda_masked_scatter_copy(a_d, b_d, mask_d, n, n_mask) &
           bind(c, name = 'cuda_masked_scatter_copy')
        use, intrinsic :: iso_c_binding, only: c_int, c_ptr
        type(c_ptr), value :: a_d, b_d, mask_d
-       integer(c_int) :: n, m
+       integer(c_int) :: n, n_mask
      end subroutine cuda_masked_scatter_copy
 
      subroutine cuda_masked_atomic_reduction(a_d, b_d, mask_d, n, m) &
@@ -71,15 +71,15 @@ module cuda_math
        integer(c_int) :: n, m
      end subroutine cuda_masked_atomic_reduction
 
-     subroutine cuda_cfill_mask(a_d, c, size, mask_d, mask_size) &
+     subroutine cuda_cfill_mask(a_d, c, n, mask_d, n_mask) &
           bind(c, name = 'cuda_cfill_mask')
        use, intrinsic :: iso_c_binding, only: c_int, c_ptr
        import c_rp
        type(c_ptr), value :: a_d
        real(c_rp) :: c
-       integer(c_int) :: size
+       integer(c_int) :: n
        type(c_ptr), value :: mask_d
-       integer(c_int) :: mask_size
+       integer(c_int) :: n_mask
      end subroutine cuda_cfill_mask
 
      subroutine cuda_cmult(a_d, c, n) &

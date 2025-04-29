@@ -636,16 +636,6 @@ contains
       call this%bcs_vel%apply_vector(f_x%x, f_y%x, f_z%x, &
            this%dm_Xh%size(), t, tstep, strong = .false.)
 
-      ! Compute the gradient jump penalty term
-      if (this%if_gradient_jump_penalty .eqv. .true.) then
-         call this%gradient_jump_penalty_u%compute(u, v, w, u)
-         call this%gradient_jump_penalty_v%compute(u, v, w, v)
-         call this%gradient_jump_penalty_w%compute(u, v, w, w)
-         call this%gradient_jump_penalty_u%perform(f_x)
-         call this%gradient_jump_penalty_v%perform(f_y)
-         call this%gradient_jump_penalty_w%perform(f_z)
-      end if
-
       if (oifs) then
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
@@ -730,7 +720,8 @@ contains
 
       ! Solve for the pressure increment.
       ksp_results(1) = &
-           this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, this%bclst_dp, gs_Xh)
+           this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
+           this%bclst_dp, gs_Xh)
 
 
       call profiler_end_region('Pressure_solve', 3)
