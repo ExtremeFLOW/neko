@@ -311,6 +311,7 @@ neko_fortran_SOURCES = \
 	source_terms/source_term.f90\
 	source_terms/coriolis_source_term.f90\
 	source_terms/bcknd/cpu/coriolis_source_term_cpu.f90\
+	source_terms/bcknd/device/coriolis_source_term_device.f90\
 	source_terms/source_term_handler.f90\
 	source_terms/const_source_term.f90\
 	source_terms/bcknd/cpu/const_source_term_cpu.f90\
@@ -528,7 +529,7 @@ if ENABLE_ADIOS2
 #
 # With the previous build system, the correct method was:
 #
-#io/nek_adios2.o: io/nek_adios2.cpp	
+#io/nek_adios2.o: io/nek_adios2.cpp
 #	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ -c $^
 
 #libneko_la_LIBADD = \
