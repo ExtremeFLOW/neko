@@ -554,7 +554,7 @@ contains
   !! @param p1 The first point.
   !! @param p2 The second point.
   !! @param p3 The third point.
-  !! @param p0 The point defining the origin.
+  !! @param origin The point defining the origin.
   !! @note Used to check right-handness of the elements: the volumes should be
   !! positive.
   function parallelepiped_signed_volume(p1, p2, p3, origin) result(v)
