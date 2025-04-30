@@ -1938,14 +1938,14 @@ contains
                this%elements(i)%e%pts(8)%p%x &
                )
 
-          if (v(1) .le. 0 .or. &
-               v(2) .le. 0 .or. &
-               v(3) .le. 0 .or. &
-               v(4) .le. 0 .or. &
-               v(5) .le. 0 .or. &
-               v(6) .le. 0 .or. &
-               v(7) .le. 0 .or. &
-               v(8) .le. 0 ) then
+          if (v(1) .le. 0.0_rp .or. &
+               v(2) .le. 0.0_rp .or. &
+               v(3) .le. 0.0_rp .or. &
+               v(4) .le. 0.0_rp .or. &
+               v(5) .le. 0.0_rp .or. &
+               v(6) .le. 0.0_rp .or. &
+               v(7) .le. 0.0_rp .or. &
+               v(8) .le. 0.0_rp ) then
              call neko_error("Invalid mesh element orientation")
           end if
        end do
