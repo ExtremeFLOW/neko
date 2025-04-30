@@ -69,9 +69,8 @@
 !! spatial computations.
 module aabb_tree
   use aabb
-  use tri, only: tri_t
   use num_types, only: rp, dp
-
+  use utils, only : neko_error
   implicit none
   private
 
@@ -139,9 +138,11 @@ module aabb_tree
 
      ! Initializers
      procedure, pass(this), public :: init => aabb_tree_init
-     procedure, pass(this), public :: build => aabb_tree_build_tree
+     procedure, pass(this), public :: build_generic => aabb_tree_build_tree
+     procedure, pass(this), public :: build_aabb => aabb_tree_build_tree_aabb
      procedure, pass(this), public :: insert_object => &
           aabb_tree_insert_object
+     generic :: build => build_generic, build_aabb
 
      ! Getters
      procedure, pass(this), public :: get_size => aabb_tree_get_size
@@ -342,12 +343,9 @@ contains
   end subroutine aabb_tree_init
 
   !> @brief Builds the tree.
-  subroutine aabb_tree_build_tree(this, objects, padding)
-    use utils, only: neko_error
-    implicit none
-
+  subroutine aabb_tree_build_tree_aabb(this, objects, padding)
     class(aabb_tree_t), intent(inout) :: this
-    class(*), dimension(:), intent(in) :: objects
+    type(aabb_t), intent(in) :: objects(:)
     real(kind=dp), optional, intent(in) :: padding
 
     integer :: i_obj, i_node, i
@@ -355,10 +353,13 @@ contains
 
     integer :: start_layer, end_layer
 
-    type(aabb_t), dimension(:), allocatable :: box_list
+    type(aabb_t), allocatable :: box_list(:)
     integer, dimension(:), allocatable :: sorted_indices
 
     real(kind=dp) :: aabb_padding
+
+    if (allocated(box_list)) deallocate(box_list)
+    allocate(box_list(size(objects)))
 
     call this%init(size(objects) * 2)
     if (size(objects) .eq. 0) then
@@ -370,7 +371,104 @@ contains
     ! from the sorted list
 
 
+    if (present(padding)) then
+       aabb_padding = padding
+    else
+       aabb_padding = 0.0_dp
+    end if
+
+    do i_obj = 1, size(objects)
+       box_list(i_obj) = get_aabb(objects(i_obj), aabb_padding)
+    end do
+    sorted_indices = sort(box_list)
+
+    do i = 1, size(sorted_indices)
+       i_obj = sorted_indices(i)
+       i_node = this%allocate_node()
+       this%nodes(i_node)%aabb = box_list(i_obj)
+       this%nodes(i_node)%object_index = i_obj
+    end do
+
+
+    start_layer = 1
+    end_layer = size(objects)
+    done = .false.
+    do while (.not. done)
+
+       ! build the next layer
+       do i = start_layer, end_layer - 1, 2
+          i_node = this%allocate_node()
+
+          this%nodes(i_node)%aabb = merge(this%nodes(i)%aabb, &
+               this%nodes(i + 1)%aabb)
+
+          this%nodes(i_node)%left_node_index = i
+          this%nodes(i_node)%right_node_index = i + 1
+
+          this%nodes(i)%parent_node_index = i_node
+          this%nodes(i + 1)%parent_node_index = i_node
+       end do
+
+       ! if the number of nodes is odd, we need to create a new node to hold the
+       ! last node
+       if (mod(end_layer - start_layer, 2) .eq. 0) then
+          i_node = this%allocate_node()
+          this%nodes(i_node)%aabb = this%nodes(end_layer)%aabb
+          this%nodes(i_node)%left_node_index = end_layer
+          this%nodes(i_node)%right_node_index = AABB_NULL_NODE
+
+          this%nodes(end_layer)%parent_node_index = i_node
+       end if
+
+       ! move to the next layer
+       start_layer = end_layer + 1
+       end_layer = this%allocated_node_count
+
+       ! If there is only one node left, we are done
+       done = start_layer .eq. end_layer
+    end do
+
+    ! The last node allocated is the root node
+    this%root_node_index = this%allocated_node_count
+
+    if (this%get_size() .ne. size(objects)) then
+       print *, "this%get_size() = ", this%get_size()
+       print *, "size(objects) = ", size(objects)
+       call neko_error("Invalid tree size")
+    end if
+
+  end subroutine aabb_tree_build_tree_aabb
+
+
+
+  !> @brief Builds the tree.
+  subroutine aabb_tree_build_tree(this, objects, padding)
+    class(aabb_tree_t), intent(inout) :: this
+    class(*), target, intent(in) :: objects(:)
+    real(kind=dp), optional, intent(in) :: padding
+
+    integer :: i_obj, i_node, i
+    logical :: done
+
+    integer :: start_layer, end_layer
+
+    type(aabb_t), allocatable :: box_list(:)
+    integer, dimension(:), allocatable :: sorted_indices
+
+    real(kind=dp) :: aabb_padding
+
+    if (allocated(box_list)) deallocate(box_list)
     allocate(box_list(size(objects)))
+
+    call this%init(size(objects) * 2)
+    if (size(objects) .eq. 0) then
+       return
+    end if
+
+    ! ------------------------------------------------------------------------ !
+    ! Start by sorting the list of objects, then build a balanced binary tree
+    ! from the sorted list
+
 
     if (present(padding)) then
        aabb_padding = padding
