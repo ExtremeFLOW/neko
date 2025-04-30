@@ -81,7 +81,7 @@ module vector
      procedure, pass(a) :: vector_cmult_right
      !> Pointwise vector multiplication \f$ v = a*b \f$.
      procedure, pass(a) :: vector_pointwise_mult
-     !> Pointwise vector power \f$ v = a^b \f$.
+     !> Pointwise vector power \f$ v = a*b \f$.
      procedure, pass(a) :: vector_pointwise_power
      !> Scalar-vector division \f$ v = c / a \f$.
      procedure, pass(a) :: vector_cdiv_left
@@ -178,20 +178,7 @@ contains
     class(vector_t), intent(inout) :: v
     type(vector_t), intent(in) :: w
 
-    if (allocated(v%x)) then
-       call v%free()
-    end if
-
-    if (.not. allocated(v%x)) then
-
-       v%n = w%n
-       allocate(v%x(v%n))
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_map(v%x, v%x_d, v%n)
-       end if
-
-    end if
+    if (v%n .ne. w%n) call v%alloc(w%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_copy(v%x_d, w%x_d, v%n)
@@ -223,7 +210,7 @@ contains
     class(vector_t), intent(in) :: a, b
     type(vector_t) :: v
 
-    if (a%n .ne. b%n) call neko_error("Vectors must be the same length!")
+    if (a%n .ne. b%n) call neko_error("Vectors must be the same length")
 
     call v%alloc(a%n)
 
@@ -266,7 +253,7 @@ contains
     class(vector_t), intent(in) :: a, b
     type(vector_t) :: v
 
-    if (a%n .ne. b%n) call neko_error("Vectors must be the same length!")
+    if (a%n .ne. b%n) call neko_error("Vectors must be the same length")
 
     call v%alloc(a%n)
 
@@ -356,7 +343,7 @@ contains
     class(vector_t), intent(in) :: a, b
     type(vector_t) :: v
 
-    if (a%n .ne. b%n) call neko_error("Vectors must be the same length!")
+    if (a%n .ne. b%n) call neko_error("Vectors must be the same length")
 
     call v%alloc(a%n)
 
@@ -368,7 +355,7 @@ contains
 
   end function vector_pointwise_mult
 
-  !> Pointwise vector multiplication \f$ v = a^b \f$.
+  !> Pointwise vector multiplication \f$ v = a*b \f$.
   !! Todo: Incredibly poor performance, needs to be optimized.
   function vector_pointwise_power(a, b) result(v)
     class(vector_t), intent(in) :: a
@@ -431,7 +418,7 @@ contains
     class(vector_t), intent(in) :: a, b
     type(vector_t) :: v
 
-    if (a%n .ne. b%n) call neko_error("Vectors must be the same length!")
+    if (a%n .ne. b%n) call neko_error("Vectors must be the same length")
 
     call v%alloc(a%n)
 
