@@ -93,8 +93,7 @@ contains
 
     call get_environment_variable("NEKO_LOG_FILE", log_file, envvar_len)
     if (envvar_len .gt. 0) then
-       this%unit_ = 69
-       open(unit = this%unit_, file = trim(log_file), status = 'replace', &
+       open(newunit = this%unit_, file = trim(log_file), status = 'replace', &
             action = 'write')
     else
        this%unit_ = stdout
