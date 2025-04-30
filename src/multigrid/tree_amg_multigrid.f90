@@ -44,7 +44,7 @@
 module tree_amg_multigrid
   use num_types, only: rp
   use utils, only : neko_error
-  use math, only : add2
+  use math, only : add2, rzero, glsc2, sub3, col2
   use device_math, only : device_rzero, device_col2, device_add2, device_sub3, &
        device_glsc2
   use comm
@@ -59,7 +59,8 @@ module tree_amg_multigrid
        aggregate_end
   use tree_amg_smoother, only : amg_cheby_t
   use logger, only : neko_log, LOG_SIZE
-  use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE
+  use device, only: device_map, device_free, device_memcpy, HOST_TO_DEVICE, &
+       device_get_ptr
   use neko_config, only: NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding
   implicit none
@@ -85,7 +86,6 @@ module tree_amg_multigrid
    contains
      procedure, pass(this) :: init => tamg_mg_init
      procedure, pass(this) :: solve => tamg_mg_solve
-     procedure, pass(this) :: device_solve => tamg_mg_solve_device
   end type tamg_solver_t
 
 contains
@@ -99,10 +99,11 @@ contains
   !! @param nlvls_in Number of levels for the TreeAMG hierarchy
   !! @param blst Finest level BC list
   !! @param max_iter Number of AMG iterations
-  subroutine tamg_mg_init(this, ax, Xh, coef, msh, gs_h, nlvls_in, blst, max_iter)
+  subroutine tamg_mg_init(this, ax, Xh, coef, msh, gs_h, nlvls_in, blst, &
+       max_iter)
     class(tamg_solver_t), intent(inout), target :: this
     class(ax_t), target, intent(in) :: ax
-    type(space_t),target, intent(in) :: Xh
+    type(space_t), target, intent(in) :: Xh
     type(coef_t), target, intent(in) :: coef
     type(mesh_t), target, intent(in) :: msh
     type(gs_t), target, intent(in) :: gs_h
@@ -126,7 +127,8 @@ contains
        nlvls = mlvl
     end if
 
-    write(log_buf, '(A28,I2,A8)') 'Creating AMG hierarchy with', nlvls, 'levels.'
+    write(log_buf, '(A28,I2,A8)') 'Creating AMG hierarchy with', &
+         nlvls, 'levels.'
     call neko_log%message(log_buf)
 
     allocate( this%amg )
@@ -136,12 +138,13 @@ contains
     call aggregate_finest_level(this%amg, Xh%lx, Xh%ly, Xh%lz, msh%nelv)
 
     !> Create the remaining levels
-    allocate( agg_nhbr, SOURCE=msh%facet_neigh )
+    allocate( agg_nhbr, SOURCE = msh%facet_neigh )
     do mlvl = 2, nlvls-1
        target_num_aggs = this%amg%lvl(mlvl-1)%nnodes / 8
        call print_preagg_info( mlvl, target_num_aggs)
        if ( target_num_aggs .lt. 4 ) then
-          call neko_error("TAMG: Too many levels. Not enough DOFs for coarsest grid.")
+          call neko_error( &
+               "TAMG: Too many levels. Not enough DOFs for coarsest grid.")
        end if
        call aggregate_greedy( this%amg, mlvl, target_num_aggs, agg_nhbr, asdf)
        agg_nhbr = asdf
@@ -156,7 +159,9 @@ contains
 
     this%nlvls = this%amg%nlvls!TODO: read from parameter
     if (this%nlvls .gt. this%amg%nlvls) then
-       call neko_error("Requested number multigrid levels is greater than the initialized AMG levels")
+       call neko_error( &
+            "Requested number multigrid levels &
+       & is greater than the initialized AMG levels")
     end if
 
     call get_environment_variable("NEKO_TAMG_CHEBY_DEGREE", &
@@ -170,7 +175,7 @@ contains
     allocate(this%smoo(0:(nlvls)))
     do lvl = 0, nlvls-1
        n = this%amg%lvl(lvl+1)%fine_lvl_dofs
-       call this%smoo(lvl)%init(n ,lvl, cheby_degree)
+       call this%smoo(lvl)%init(n, lvl, cheby_degree)
     end do
 
     !> Allocate work space on each level
@@ -209,42 +214,31 @@ contains
     class(tamg_solver_t), intent(inout) :: this
     real(kind=rp), dimension(n), intent(inout) :: z
     real(kind=rp), dimension(n), intent(inout) :: r
-    integer :: iter, max_iter
-
-    max_iter = this%max_iter
-
-    ! Zero out the initial guess becuase we do not handle null spaces very well...
-    z = 0d0
-
-    ! Call the amg cycle
-    do iter = 1, max_iter
-       call tamg_mg_cycle(z, r, n, 0, this%amg, this)
-    end do
-  end subroutine tamg_mg_solve
-
-  !> Solver function for the TreeAMG solver object
-  !! @param z The solution to be returned
-  !! @param r The right-hand side
-  !! @param n Number of dofs
-  subroutine tamg_mg_solve_device(this, z, r, z_d, r_d, n)
-    integer, intent(in) :: n
-    class(tamg_solver_t), intent(inout) :: this
-    real(kind=rp), dimension(n), intent(inout) :: z
-    real(kind=rp), dimension(n), intent(inout) :: r
     type(c_ptr) :: z_d
     type(c_ptr) :: r_d
     integer :: iter, max_iter
 
     max_iter = this%max_iter
 
-    ! Zero out the initial guess becuase we do not handle null spaces very well...
-    call device_rzero(z_d, n)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       z_d = device_get_ptr(z)
+       r_d = device_get_ptr(r)
+       ! Zero out the initial guess becuase we do not handle null spaces very well...
+       call device_rzero(z_d, n)
+       ! Call the amg cycle
+       do iter = 1, max_iter
+          call tamg_mg_cycle_d(z, r, z_d, r_d, n, 0, this%amg, this)
+       end do
+    else
+       ! Zero out the initial guess becuase we do not handle null spaces very well...
+       call rzero(z, n)
+       ! Call the amg cycle
+       do iter = 1, max_iter
+          call tamg_mg_cycle(z, r, n, 0, this%amg, this)
+       end do
+    end if
+  end subroutine tamg_mg_solve
 
-    ! Call the amg cycle
-    do iter = 1, max_iter
-       call tamg_mg_cycle_d(z, r, z_d, r_d, n, 0, this%amg, this)
-    end do
-  end subroutine tamg_mg_solve_device
 
   !> Recrsive multigrid cycle for the TreeAMG solver object
   !! @param x The solution to be returned
@@ -266,67 +260,39 @@ contains
     integer :: iter, num_iter
     integer :: max_lvl
     integer :: i, cyt
-
-    r = 0d0
-    rc = 0d0
-    tmp = 0d0
-
     max_lvl = mgstuff%nlvls-1
-
-    !call calc_resid(r,x,b,amg,lvl,n)!> TODO: for debug
-    !print *, "LVL:",lvl, "PRE RESID:", sqrt(glsc2(r, r, n))
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
-    call mgstuff%smoo(lvl)%solve(x,b, n, amg)
-    !call mgstuff%jsmoo(lvl)%solve(x,b, n, amg)
+    call mgstuff%smoo(lvl)%solve(x, b, n, amg, .true.)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
        return
     end if
-
     !>----------<!
     !> Residual <!
     !>----------<!
-    call calc_resid(r,x,b,amg,lvl,n)
-
+    call calc_resid(r, x, b, amg, lvl, n)
     !>----------<!
     !> Restrict <!
     !>----------<!
-    if (lvl .eq. 0) then
-       call average_duplicates(r,amg,lvl,n)
-    end if
     call amg%interp_f2c(rc, r, lvl+1)
-
     !>-------------------<!
     !> Call Coarse solve <!
     !>-------------------<!
-    tmp = 0d0
+    call rzero(tmp, n)
     call tamg_mg_cycle(tmp, rc, amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff)
-
     !>----------<!
     !> Project  <!
     !>----------<!
     call amg%interp_c2f(r, tmp, lvl+1)
-    if (lvl .eq. 0) then
-       call average_duplicates(r,amg,lvl,n)
-    end if
-
     !>----------<!
     !> Correct  <!
     !>----------<!
     call add2(x, r, n)
-
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
     call mgstuff%smoo(lvl)%solve(x,b, n, amg)
-    !call mgstuff%jsmoo(lvl)%solve(x,b, n, amg)
-
-    !>----------<!
-    !> Residual <!
-    !>----------<!
-    !call calc_resid(r,x,b,amg,lvl,n)!> TODO: for debug
-    !print *, "LVL:",lvl, "POST RESID:", sqrt(glsc2(r, r, n))
   end subroutine tamg_mg_cycle
 
   !> Recrsive multigrid cycle for the TreeAMG solver object on device
@@ -352,7 +318,7 @@ contains
     !>----------<!
     !> SMOOTH   <!
     !>----------<!
-    call mgstuff%smoo(lvl)%device_solve(x, b, x_d, b_d, n, amg)
+    call mgstuff%smoo(lvl)%device_solve(x, b, x_d, b_d, n, amg, .true.)
     if (lvl .eq. max_lvl) then !> Is coarsest grid.
        return
     end if
@@ -367,24 +333,17 @@ contains
       !>----------<!
       !> Restrict <!
       !>----------<!
-!!!    if (lvl .eq. 0) then
-!!!      call amg%gs_h%op(r, n, GS_OP_ADD)
-!!!      call device_col2(r_d, amg%coef%mult_d, n)
-!!!    end if
       call amg%interp_f2c_d(rc_d, r_d, lvl+1)
       !>-------------------<!
       !> Call Coarse solve <!
       !>-------------------<!
       call device_rzero(tmp_d, n)
-      call tamg_mg_cycle_d(tmp, rc, tmp_d, rc_d, amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff)
+      call tamg_mg_cycle_d(tmp, rc, tmp_d, rc_d, &
+           amg%lvl(lvl+1)%nnodes, lvl+1, amg, mgstuff)
       !>----------<!
       !> Project  <!
       !>----------<!
-      call amg%interp_c2f_d(r_d, tmp_d, lvl+1)
-      if (lvl .eq. 0) then
-         call amg%gs_h%op(r, n, GS_OP_ADD)
-         call device_col2(r_d, amg%coef%mult_d, n)
-      end if
+      call amg%interp_c2f_d(r_d, tmp_d, lvl+1, r)
       !>----------<!
       !> Correct  <!
       !>----------<!
@@ -412,37 +371,19 @@ contains
     type(tamg_hierarchy_t), intent(inout) :: amg
     integer, intent(in) :: lvl
     integer :: i
-    r = 0d0
     call amg%matvec(r, x, lvl)
-    do i = 1, n
-       r(i) = b(i) - r(i)
-    end do
+    call sub3(r, b, r, n)
   end subroutine calc_resid
 
-  !> Wrapper function to gather scatter and average the duplicates
-  !! @param U The target array
-  !! @param amg The TreeAMG object
-  !! @param lvl Current level of the cycle
-  !! @param n Number of dofs
-  subroutine average_duplicates(U, amg, lvl, n)
-    integer, intent(in) :: n
-    real(kind=rp), intent(inout) :: U(n)
-    type(tamg_hierarchy_t), intent(inout) :: amg
-    integer, intent(in) :: lvl
-    integer :: i
-    call amg%gs_h%op(U, n, GS_OP_ADD)
-    do i = 1, n
-       U(i) = U(i) * amg%coef%mult(i,1,1,1)
-    end do
-  end subroutine average_duplicates
 
-  subroutine print_preagg_info(lvl,nagg)
-    integer, intent(in) :: lvl,nagg
+  subroutine print_preagg_info(lvl, nagg)
+    integer, intent(in) :: lvl, nagg
     character(len=LOG_SIZE) :: log_buf
     !TODO: calculate min and max agg size
-    write(log_buf, '(A8,I2,A31)') '-- level',lvl,'-- Calling Greedy Aggregation'
+    write(log_buf, '(A8,I2,A31)') '-- level', lvl, &
+         '-- Calling Greedy Aggregation'
     call neko_log%message(log_buf)
-    write(log_buf, '(A33,I6)') 'Target Aggregates:',nagg
+    write(log_buf, '(A33,I6)') 'Target Aggregates:', nagg
     call neko_log%message(log_buf)
   end subroutine print_preagg_info
 
@@ -491,8 +432,12 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do l = 1, amg%nlvls
           amg%lvl(l)%map_finest2lvl(0) = n
-          call device_memcpy( amg%lvl(l)%map_finest2lvl, amg%lvl(l)%map_finest2lvl_d, n, HOST_TO_DEVICE, .true.)
-          call device_memcpy( amg%lvl(l)%map_f2c, amg%lvl(l)%map_f2c_d, amg%lvl(l)%fine_lvl_dofs+1, HOST_TO_DEVICE, .true.)
+          call device_memcpy( amg%lvl(l)%map_finest2lvl, &
+               amg%lvl(l)%map_finest2lvl_d, n, &
+               HOST_TO_DEVICE, .true.)
+          call device_memcpy( amg%lvl(l)%map_f2c, &
+               amg%lvl(l)%map_f2c_d, amg%lvl(l)%fine_lvl_dofs+1, &
+               HOST_TO_DEVICE, .true.)
        end do
     end if
   end subroutine fill_lvl_map

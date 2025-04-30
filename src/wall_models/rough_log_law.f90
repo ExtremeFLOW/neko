@@ -63,7 +63,7 @@ module rough_log_law
      procedure, pass(this) :: init => rough_log_law_init
      !> Constructor from components.
      procedure, pass(this) :: init_from_components => &
-       rough_log_law_init_from_components
+          rough_log_law_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => rough_log_law_free
      !> Compute the wall shear stress.
@@ -105,7 +105,7 @@ contains
   !! @param B The log-law intercept.
   !! @param z0 The roughness height.
   subroutine rough_log_law_init_from_components(this, coef, msk, facet,&
-                                                nu, h_index, kappa, B, z0)
+       nu, h_index, kappa, B, z0)
     class(rough_log_law_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: msk(:)
@@ -154,27 +154,27 @@ contains
     w => neko_field_registry%get_field("w")
 
     do i = 1, this%n_nodes
-      ! Sample the velocity
-      ui = u%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
-      vi = v%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
-      wi = w%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
+       ! Sample the velocity
+       ui = u%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
+       vi = v%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
+       wi = w%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
 
-      ! Project on tangential direction
-      normu = ui * this%n_x%x(i) + vi * this%n_y%x(i) + wi * this%n_z%x(i)
+       ! Project on tangential direction
+       normu = ui * this%n_x%x(i) + vi * this%n_y%x(i) + wi * this%n_z%x(i)
 
-      ui = ui - normu * this%n_x%x(i)
-      vi = vi - normu * this%n_y%x(i)
-      wi = wi - normu * this%n_z%x(i)
+       ui = ui - normu * this%n_x%x(i)
+       vi = vi - normu * this%n_y%x(i)
+       wi = wi - normu * this%n_z%x(i)
 
-      magu = sqrt(ui**2 + vi**2 + wi**2)
+       magu = sqrt(ui**2 + vi**2 + wi**2)
 
-      ! Compute the stress
-      utau = (magu - this%B) * this%kappa / log(this%h%x(i) / this%z0)
+       ! Compute the stress
+       utau = (magu - this%B) * this%kappa / log(this%h%x(i) / this%z0)
 
-      ! Distribute according to the velocity vector
-      this%tau_x(i) = -utau**2 * ui / magu
-      this%tau_y(i) = -utau**2 * vi / magu
-      this%tau_z(i) = -utau**2 * wi / magu
+       ! Distribute according to the velocity vector
+       this%tau_x%x(i) = -utau**2 * ui / magu
+       this%tau_y%x(i) = -utau**2 * vi / magu
+       this%tau_z%x(i) = -utau**2 * wi / magu
     end do
 
   end subroutine rough_log_law_compute

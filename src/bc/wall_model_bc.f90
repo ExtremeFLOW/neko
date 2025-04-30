@@ -115,9 +115,9 @@ contains
 
        ! Populate the 3D wall stress field for post-processing.
        do i = 1, this%msk(0)
-          magtau = sqrt(this%wall_model%tau_x(i)**2 + &
-               this%wall_model%tau_y(i)**2 + &
-               this%wall_model%tau_z(i)**2)
+          magtau = sqrt(this%wall_model%tau_x%x(i)**2 + &
+               this%wall_model%tau_y%x(i)**2 + &
+               this%wall_model%tau_z%x(i)**2)
 
           this%wall_model%tau_field%x(this%msk(i),1,1,1) = magtau
        end do
