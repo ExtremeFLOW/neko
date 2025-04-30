@@ -67,19 +67,9 @@ contains
 
     C%time%t = 0d0
     C%time%tstep = 0
-    call neko_log%section('Starting simulation')
-    write(log_buf, '(A, E15.7,A,E15.7,A)') &
-         'T  : [', 0d0, ',', C%time%end_time, ']'
-    call neko_log%message(log_buf)
     call dt_controller%init(C%params)
-    if (.not. dt_controller%if_variable_dt) then
-       write(log_buf, '(A, E15.7)') 'dt :  ', C%time%dt
-       call neko_log%message(log_buf)
-    else
-       write(log_buf, '(A, E15.7)') 'CFL :  ', dt_controller%set_cfl
-       call neko_log%message(log_buf)
-    end if
 
+    ! Restart the case if needed
     call C%params%get('case.restart_file', restart_file, found)
     if (found .and. len_trim(restart_file) .gt. 0) then
        ! Restart the case
@@ -89,7 +79,20 @@ contains
        call neko_simcomps%restart(C%time)
     end if
 
-    !> Execute outputs and user-init before time loop
+    ! Write the initial logging message
+    call neko_log%section('Starting simulation')
+    write(log_buf, '(A, E15.7,A,E15.7,A)') &
+         'T  : [', C%time%t, ',', C%time%end_time, ']'
+    call neko_log%message(log_buf)
+    if (.not. dt_controller%if_variable_dt) then
+       write(log_buf, '(A, E15.7)') 'dt :  ', C%time%dt
+       call neko_log%message(log_buf)
+    else
+       write(log_buf, '(A, E15.7)') 'CFL :  ', dt_controller%set_cfl
+       call neko_log%message(log_buf)
+    end if
+
+    ! Execute outputs and user-init before time loop
     call neko_log%section('Postprocessing')
     call C%output_controller%execute(C%time)
 
