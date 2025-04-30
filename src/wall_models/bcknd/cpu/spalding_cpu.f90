@@ -33,8 +33,6 @@
 !> Implements the CPU kernel for the `spalding_t` type.
 module spalding_cpu
   use num_types, only : rp
-  use field, only : field_t
-  use vector, only : vector_t
   implicit none
   private
 
@@ -45,48 +43,47 @@ module spalding_cpu
   !! @param t The time value.
   !! @param tstep The current time-step.
   subroutine spalding_compute_cpu(u, v, w, ind_r, ind_s, ind_t, ind_e, &
-                n_x, n_y, n_z, nu, h, tau_x, tau_y, tau_z, n_nodes)
-    type(field_t), pointer, intent(in) :: u
-    type(field_t), pointer, intent(in) :: v
-    type(field_t), pointer, intent(in) :: w
+                n_x, n_y, n_z, nu, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv)
+    integer, intent(in) :: lx, nelv
+    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u, v, w
     integer, intent(in) :: n_nodes
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
-    type(vector_t), intent(in) :: n_x, n_y, n_z, h
+    real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
     real(kind=rp), intent(in) :: nu
-    type(vector_t), intent(inout) :: tau_x, tau_y, tau_z
+    real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
 
     integer :: i
     real(kind=rp) :: ui, vi, wi, magu, utau, normu, guess
 
     do i=1, n_nodes
        ! Sample the velocity
-       ui = u%x(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       vi = v%x(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
-       wi = w%x(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       ui = u(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       vi = v(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
+       wi = w(ind_r(i), ind_s(i), ind_t(i), ind_e(i))
 
        ! Project on tangential direction
-       normu = ui * n_x%x(i) + vi * n_y%x(i) + wi * n_z%x(i)
+       normu = ui * n_x(i) + vi * n_y(i) + wi * n_z(i)
 
-       ui = ui - normu * n_x%x(i)
-       vi = vi - normu * n_y%x(i)
-       wi = wi - normu * n_z%x(i)
+       ui = ui - normu * n_x(i)
+       vi = vi - normu * n_y(i)
+       wi = wi - normu * n_z(i)
 
        magu = sqrt(ui**2 + vi**2 + wi**2)
 
        ! Get initial guess for Newton solver
        if (tstep .eq. 1) then
-          guess = sqrt(magu * nu / h%x(i))
+          guess = sqrt(magu * nu / h(i))
        else
-          guess = tau_x%x(i)**2 + tau_y%x(i)**2 + tau_z%x(i)**2
+          guess = tau_x(i)**2 + tau_y(i)**2 + tau_z(i)**2
           guess = sqrt(sqrt(guess))
        end if
 
-       utau = solve_cpu(magu, h%x(i), guess)
+       utau = solve_cpu(magu, h(i), guess)
 
        ! Distribute according to the velocity vector
-       tau_x%x(i) = -utau**2 * ui / magu
-       tau_y%x(i) = -utau**2 * vi / magu
-       tau_z%x(i) = -utau**2 * wi / magu
+       tau_x(i) = -utau**2 * ui / magu
+       tau_y(i) = -utau**2 * vi / magu
+       tau_z(i) = -utau**2 * wi / magu
     end do
 
   end subroutine spalding_compute_cpu
