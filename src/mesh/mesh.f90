@@ -35,8 +35,9 @@ module mesh
   use num_types, only : rp, dp, i8
   use point, only : point_t
   use element, only : element_t
-  use hex
-  use quad
+  use hex, only : hex_t, NEKO_HEX_NEDS, NEKO_HEX_GDIM, NEKO_HEX_NFCS, &
+       NEKO_HEX_NPTS
+  use quad, only : quad_t, NEKO_QUAD_NEDS, NEKO_QUAD_GDIM, NEKO_QUAD_NPTS
   use utils, only : neko_error, neko_warning
   use stack, only : stack_i4_t, stack_i8_t, stack_i4t4_t, stack_i4t2_t
   use tuple, only : tuple_i4_t, tuple4_i4_t
@@ -49,6 +50,7 @@ module mesh
   use uset, only : uset_i8_t
   use curve, only : curve_t
   use logger, only : LOG_SIZE
+  use, intrinsic :: iso_fortran_env, only: error_unit
   implicit none
   private
 
@@ -141,6 +143,10 @@ module mesh
      procedure, pass(this) :: create_periodic_ids => mesh_create_periodic_ids
      procedure, pass(this) :: generate_conn => mesh_generate_conn
      procedure, pass(this) :: have_point_glb_idx => mesh_have_point_glb_idx
+
+     !> Check the correct orientation of the rst coordindates.
+     procedure, pass(this) :: check_right_handedness => &
+          mesh_check_right_handedness
      !> Initialise a mesh
      generic :: init => init_nelv, init_dist
      !> Add an element to the mesh
@@ -167,7 +173,8 @@ module mesh
      end subroutine mesh_deform
   end interface
 
-  public :: mesh_deform
+  public :: mesh_deform, parallelepiped_signed_volume
+
 
 contains
 
@@ -394,6 +401,8 @@ contains
        call this%labeled_zones(i)%finalize()
     end do
     call this%curve%finalize()
+
+    call this%check_right_handedness()
 
   end subroutine mesh_finalize
 
@@ -1867,5 +1876,124 @@ contains
     shared = this%ddata%shared_facet%element(local_index)
 
   end function mesh_is_shared_facet
+
+  !> Check the correct orientation of the rst coordindates.
+  !! @note Similar algorithm as in Nek5000 `verify` routine.
+  subroutine mesh_check_right_handedness(this)
+    class(mesh_t), intent(inout) :: this
+    integer :: i
+    real(kind=rp) :: v(8)
+    type(point_t) :: centroid
+    logical :: fail
+
+    fail = .false.
+
+    if (this%gdim .eq. 3) then
+       do i = 1, this%nelv
+          v(1) = parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(2)%p%x, &
+               this%elements(i)%e%pts(3)%p%x, &
+               this%elements(i)%e%pts(5)%p%x, &
+               this%elements(i)%e%pts(1)%p%x &
+               )
+
+          v(2) = parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(4)%p%x, &
+               this%elements(i)%e%pts(1)%p%x, &
+               this%elements(i)%e%pts(6)%p%x, &
+               this%elements(i)%e%pts(2)%p%x &
+               )
+
+          v(3) = parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(1)%p%x, &
+               this%elements(i)%e%pts(4)%p%x, &
+               this%elements(i)%e%pts(7)%p%x, &
+               this%elements(i)%e%pts(3)%p%x &
+               )
+
+          v(4) = parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(3)%p%x, &
+               this%elements(i)%e%pts(2)%p%x, &
+               this%elements(i)%e%pts(8)%p%x, &
+               this%elements(i)%e%pts(4)%p%x &
+               )
+
+          v(5) = -parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(6)%p%x, &
+               this%elements(i)%e%pts(7)%p%x, &
+               this%elements(i)%e%pts(1)%p%x, &
+               this%elements(i)%e%pts(5)%p%x &
+               )
+
+          v(6) = -parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(8)%p%x, &
+               this%elements(i)%e%pts(5)%p%x, &
+               this%elements(i)%e%pts(2)%p%x, &
+               this%elements(i)%e%pts(6)%p%x &
+               )
+
+          v(7) = -parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(5)%p%x, &
+               this%elements(i)%e%pts(8)%p%x, &
+               this%elements(i)%e%pts(3)%p%x, &
+               this%elements(i)%e%pts(7)%p%x &
+               )
+
+          v(8) = -parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(7)%p%x, &
+               this%elements(i)%e%pts(6)%p%x, &
+               this%elements(i)%e%pts(4)%p%x, &
+               this%elements(i)%e%pts(8)%p%x &
+               )
+
+          if (v(1) .le. 0.0_rp .or. &
+               v(2) .le. 0.0_rp .or. &
+               v(3) .le. 0.0_rp .or. &
+               v(4) .le. 0.0_rp .or. &
+               v(5) .le. 0.0_rp .or. &
+               v(6) .le. 0.0_rp .or. &
+               v(7) .le. 0.0_rp .or. &
+               v(8) .le. 0.0_rp ) then
+
+             centroid = this%elements(i)%e%centroid()
+
+             write(error_unit, '(A, A, I0, A, 3G12.5)') "*** ERROR ***: ", &
+                  "Wrong orientation of mesh element ", i, &
+                  " with centroid ", centroid%x
+
+             fail = .true.
+          end if
+       end do
+    end if
+
+    if (fail) then
+       call neko_error("Some mesh elements are not right-handed")
+    end if
+  end subroutine mesh_check_right_handedness
+
+  !> Compute a signed volume of a parallelepiped formed by three vectors, in
+  !! turn defined via three points, `p1`, `p2`, and `p3` and an `origin`.
+  !! @param p1 The first point.
+  !! @param p2 The second point.
+  !! @param p3 The third point.
+  !! @param origin The point defining the origin.
+  !! @note Used to check right-handness of the elements: the volumes should be
+  !! positive.
+  function parallelepiped_signed_volume(p1, p2, p3, origin) result(v)
+    real(kind=dp), dimension(3), intent(in) :: p1, p2, p3, origin
+    real(kind=dp) :: v
+    real(kind=dp) :: vp1(3), vp2(3), vp3(3), cross(3)
+
+    vp1 = p1 - origin
+    vp2 = p2 - origin
+    vp3 = p3 - origin
+
+    cross(1) = vp1(2)*vp2(3) - vp2(3)*vp1(2)
+    cross(2) = vp1(3)*vp2(1) - vp1(1)*vp2(3)
+    cross(3) = vp1(1)*vp2(2) - vp1(2)*vp2(1)
+
+    v = cross(1)*vp3(1) + cross(2)*vp3(2) + cross(3)*vp3(3)
+
+  end function parallelepiped_signed_volume
 
 end module mesh
