@@ -39,7 +39,10 @@ module logger
   implicit none
   private
 
-  integer, public, parameter :: LOG_SIZE = 80
+  ! > Size of the log message buffer
+  !! @note This adjust for the leading space applied by `write`. 80 character
+  !! output log leaves 79 characters for the message.
+  integer, public, parameter :: LOG_SIZE = 79
 
   type, public :: log_t
      integer :: indent_
@@ -54,7 +57,6 @@ module logger
      procedure, pass(this) :: newline => log_newline
      procedure, pass(this) :: message => log_message
      procedure, pass(this) :: section => log_section
-     procedure, pass(this) :: status => log_status
      procedure, pass(this) :: header => log_header
      procedure, pass(this) :: error => log_error
      procedure, pass(this) :: warning => log_warning
