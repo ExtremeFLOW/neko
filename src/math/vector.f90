@@ -355,7 +355,7 @@ contains
 
   end function vector_pointwise_mult
 
-  !> Pointwise vector multiplication \f$ v = a*b \f$.
+  !> Pointwise power \f$ v = a^b \f$. OBS integer b
   !! Todo: Incredibly poor performance, needs to be optimized.
   function vector_pointwise_power(a, b) result(v)
     class(vector_t), intent(in) :: a
@@ -364,7 +364,10 @@ contains
     integer :: i
 
     call v%alloc(a%n)
-
+    if (b .eq. 0) then 
+       v = 1.0_rp
+       return
+    end if
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_copy(v%x_d, a%x_d, v%n)
     else
