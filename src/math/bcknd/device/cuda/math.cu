@@ -166,7 +166,35 @@ extern "C" {
     CUDA_CHECK(cudaGetLastError());
 
   }
+  
+  /** Fortran wrapper for cdiv
+   * Division of constant c by array \f$ a = c / a \f$
+   */
+  void cuda_cdiv(void *a, real *c, int *n) {
 
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    cdiv_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, *c, *n);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+
+  /** Fortran wrapper for cdiv2
+   * Division of constant c by array \f$ a = c / b \f$
+   */
+  void cuda_cdiv2(void *a, void *b, real *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    cdiv2_kernel<real><<<nblcks, nthrds, 0,
+      (cudaStream_t) glb_cmd_queue>>>((real *) a, (real *) b, *c, *n);
+    CUDA_CHECK(cudaGetLastError());
+
+  }
+  
   /** Fortran wrapper for cadd
    * Add a scalar to vector \f$ a_i = a_i + c \f$
    */

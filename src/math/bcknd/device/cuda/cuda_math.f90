@@ -100,6 +100,24 @@ module cuda_math
        integer(c_int) :: n
      end subroutine cuda_cmult2
 
+     subroutine cuda_cdiv(a_d, c, n) &
+          bind(c, name = 'cuda_cdiv')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine cuda_cdiv
+
+     subroutine cuda_cdiv2(a_d, b_d, c, n) &
+          bind(c, name = 'cuda_cdiv2')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, b_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine cuda_cdiv2
+
      subroutine cuda_cadd(a_d, c, n) &
           bind(c, name = 'cuda_cadd')
        use, intrinsic :: iso_c_binding, only: c_int, c_ptr
