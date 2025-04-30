@@ -33,13 +33,12 @@
 !> Defines a matrix
 module matrix
   use neko_config, only: NEKO_BCKND_DEVICE
-  use math, only: sub3, chsign, add3, cmult2, cadd2, copy, cdiv2
+  use math, only: sub3, chsign, add3, cmult2, cadd2
   use num_types, only: rp
   use device, only: device_map, device_free
   use device_math, only: device_copy, device_cfill, device_cmult, &
        device_sub3, device_cmult2, device_add3, device_cadd2
   use utils, only: neko_error
-  use vector, only: vector_t
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -77,16 +76,8 @@ module matrix
      procedure, pass(m) :: matrix_cmult_left
      !> Scalar-matrix multiplication \f$ v = c*m \f$.
      procedure, pass(m) :: matrix_cmult_right
-     !> Scalar-matrix division \f$ v = c/m \f$.
-     procedure, pass(m) :: matrix_cdiv_left
-     !> Matrix-scalar division \f$ v = m/c \f$.
-     procedure, pass(m) :: matrix_cdiv_right
-     !> Matrix-vector multiplication \f$ v = m*x \f$.
-     procedure, pass(m) :: matrix_vector_mult
      !> Inverse a matrix.
      procedure, pass(m) :: inverse => matrix_bcknd_inverse
-     !> Transpose a matrix.
-     procedure, pass(m) :: transpose => matrix_bcknd_transpose
 
      generic :: assignment(=) => matrix_assign_matrix, &
           matrix_assign_scalar
@@ -94,9 +85,7 @@ module matrix
           matrix_add_scalar_left, matrix_add_scalar_right
      generic :: operator(-) => matrix_sub_matrix, &
           matrix_sub_scalar_left, matrix_sub_scalar_right
-     generic :: operator(*) => matrix_cmult_left, matrix_cmult_right, &
-          matrix_vector_mult
-     generic :: operator(/) => matrix_cdiv_left, matrix_cdiv_right
+     generic :: operator(*) => matrix_cmult_left, matrix_cmult_right
   end type matrix_t
 
 contains
@@ -351,61 +340,6 @@ contains
 
   end function matrix_cmult_right
 
-  !> Scalar-matrix division \f$ v = c / m \f$.
-  function matrix_cdiv_right(c, m) result(v)
-    real(kind=rp), intent(in) :: c
-    class(matrix_t), intent(in) :: m
-    type(matrix_t) :: v
-
-    v%n = m%n
-    v%nrows = m%nrows
-    v%ncols = m%ncols
-    allocate(v%x(v%nrows, v%ncols))
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(v%x, v%x_d, v%n)
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       ! call device_cdiv2(v%x_d, m%x_d, c, v%n)
-       call neko_error("matrix_cdiv_right not implemented on accelarators.")
-    else
-       call cdiv2(v%x, m%x, c, v%n)
-    end if
-
-  end function matrix_cdiv_right
-
-  !> Matrix-scalar division \f$ v = m / c \f$.
-  function matrix_cdiv_left(m, c) result(v)
-    real(kind=rp), intent(in) :: c
-    class(matrix_t), intent(in) :: m
-    type(matrix_t) :: v
-
-    v = matrix_cmult_left(m, 1.0_rp / c)
-
-  end function matrix_cdiv_left
-
-  !> Matrix-vector multiplication \f$ v = m*x \f$.
-  function matrix_vector_mult(m, x) result(v)
-    class(matrix_t), intent(in) :: m
-    type(vector_t), intent(in) :: x
-    type(vector_t) :: v
-
-    if (m%ncols .ne. x%size()) then
-       call neko_error("Matrix-vector multiplication: matrix and vector sizes do not match.")
-    end if
-
-    call v%init(m%nrows)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error("Matrix-vector multiplication not implemented on accelarators.")
-    else
-       v%x = matmul(m%x, x%x)
-    end if
-
-  end function matrix_vector_mult
-
-  !> Invert a matrix.
   subroutine matrix_bcknd_inverse(m, bcknd)
     class(matrix_t), intent(inout) :: m
     integer, optional :: bcknd
@@ -419,23 +353,6 @@ contains
     end if
 
   end subroutine matrix_bcknd_inverse
-
-  !> Transpose a matrix.
-  function matrix_bcknd_transpose(m) result(v)
-    class(matrix_t), intent(in) :: m
-    type(matrix_t) :: v
-
-    call matrix_assign_matrix(v, m)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error("'Matrix transpose' not implemented on accelarators.")
-    else
-       v%x = transpose(v%x)
-       v%nrows = m%ncols
-       v%ncols = m%nrows
-    end if
-  end function matrix_bcknd_transpose
-
 
   subroutine cpu_matrix_inverse(m)
     ! Gauss-Jordan matrix inversion with full pivoting
