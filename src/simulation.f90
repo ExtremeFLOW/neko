@@ -43,6 +43,7 @@ module simulation
        profiler_start_region, profiler_end_region
   use simcomp_executor, only : neko_simcomps
   use json_utils, only : json_get_or_default
+  use time_state, only : time_state_t
   use time_step_controller, only : time_step_controller_t
   implicit none
   private
@@ -113,14 +114,10 @@ contains
        !calculate the cfl after the possibly varied dt
        cfl = C%fluid%compute_cfl(C%time%dt)
 
-       ! advance time step from t to t+dt
-       !Update to just pass time_struct
-       call simulation_settime(C%time%t, C%time%dt, C%fluid%ext_bdf, &
-            C%time%tlag, C%time%dtlag, C%time%tstep)
+       ! Advance time step from t to t+dt
+       call simulation_settime(C%time, C%fluid%ext_bdf)
 
-       call neko_log%status(C%time%t, C%time%end_time)
-       write(log_buf, '(A,I6)') 'Time-step: ', C%time%tstep
-       call neko_log%message(log_buf)
+       call C%time%status()
        call neko_log%begin()
 
        write(log_buf, '(A,E15.7,1x,A,E15.7)') 'CFL:', cfl, 'dt:', C%time%dt
@@ -219,32 +216,28 @@ contains
 
   end subroutine neko_solve
 
-  subroutine simulation_settime(t, dt, ext_bdf, tlag, dtlag, step)
-    real(kind=rp), intent(inout) :: t
-    real(kind=rp), intent(in) :: dt
+  subroutine simulation_settime(time, ext_bdf)
+    type(time_state_t), intent(inout) :: time
     type(time_scheme_controller_t), intent(inout), allocatable :: ext_bdf
-    real(kind=rp), dimension(10) :: tlag
-    real(kind=rp), dimension(10) :: dtlag
-    integer, intent(in) :: step
     integer :: i
 
     if (allocated(ext_bdf)) then
        do i = 10, 2, -1
-          tlag(i) = tlag(i-1)
-          dtlag(i) = dtlag(i-1)
+          time%tlag(i) = time%tlag(i-1)
+          time%dtlag(i) = time%dtlag(i-1)
        end do
 
-       dtlag(1) = dt
-       tlag(1) = t
+       time%dtlag(1) = time%dt
+       time%tlag(1) = time%t
        if (ext_bdf%ndiff .eq. 0) then
-          dtlag(2) = dt
-          tlag(2) = t
+          time%dtlag(2) = time%dt
+          time%tlag(2) = time%t
        end if
 
-       call ext_bdf%set_coeffs(dtlag)
+       call ext_bdf%set_coeffs(time%dtlag)
     end if
 
-    t = t + dt
+    time%t = time%t + time%dt
 
   end subroutine simulation_settime
 

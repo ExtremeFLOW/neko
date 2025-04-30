@@ -287,24 +287,6 @@ contains
 
   end subroutine log_end_section
 
-  !> Write status banner
-  !! @todo move to a future Time module
-  subroutine log_status(this, t, T_end)
-    class(log_t), intent(in) :: this
-    real(kind=rp), intent(in) :: t
-    real(kind=rp), intent(in) :: T_end
-    character(len=LOG_SIZE) :: log_buf
-    real(kind=rp) :: t_prog
-
-    t_prog = 100d0 * t / T_end
-    write(log_buf, '(A4,E15.7,34X,A2,F6.2,A3)') 't = ', t, '[ ', t_prog, '% ]'
-
-    call this%message(repeat('-', 64), NEKO_LOG_QUIET)
-    call this%message(log_buf, NEKO_LOG_QUIET)
-    call this%message(repeat('-', 64), NEKO_LOG_QUIET)
-
-  end subroutine log_status
-
   !
   ! Rudimentary C interface
   !
