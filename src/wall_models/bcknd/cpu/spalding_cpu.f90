@@ -33,6 +33,7 @@
 !> Implements the CPU kernel for the `spalding_t` type.
 module spalding_cpu
   use num_types, only : rp
+  use logger, only : neko_log, NEKO_LOG_DEBUG
   implicit none
   private
 
@@ -43,15 +44,15 @@ module spalding_cpu
   !! @param t The time value.
   !! @param tstep The current time-step.
   subroutine spalding_compute_cpu(u, v, w, ind_r, ind_s, ind_t, ind_e, &
-                n_x, n_y, n_z, nu, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv)
-    integer, intent(in) :: lx, nelv
-    real(kind=rp), dimension(lx,lx,lx,nelv), intent(in) :: u, v, w
-    integer, intent(in) :: n_nodes
+                n_x, n_y, n_z, nu, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
+                kappa, B, tstep)
+    integer, intent(in) :: n_nodes, lx, nelv, tstep
+    real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h
     real(kind=rp), intent(in) :: nu
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
-
+    real(kind=rp), intent(in) :: kappa, B
     integer :: i
     real(kind=rp) :: ui, vi, wi, magu, utau, normu, guess
 
@@ -78,7 +79,7 @@ module spalding_cpu
           guess = sqrt(sqrt(guess))
        end if
 
-       utau = solve_cpu(magu, h(i), guess)
+       utau = solve_cpu(magu, h(i), guess, nu, kappa, B)
 
        ! Distribute according to the velocity vector
        tau_x(i) = -utau**2 * ui / magu
@@ -92,17 +93,19 @@ module spalding_cpu
   !! @param u The velocity value.
   !! @param y The wall-normal distance.
   !! @param guess Initial guess.
-  function solve_cpu(u, y, guess) result(utau)
+  !! @param nu The molecular kinematic viscosity.
+  !! @param kappa The von Karman constant.
+  !! @param B The log-law intercept.
+  function solve_cpu(u, y, guess, nu, kappa, B) result(utau)
     real(kind=rp), intent(in) :: u
     real(kind=rp), intent(in) :: y
     real(kind=rp), intent(in) :: guess
-    real(kind=rp) :: yp, up, kappa, B, utau
+    real(kind=rp), intent(in) :: nu, kappa, B
+    real(kind=rp) :: yp, up, utau
     real(kind=rp) :: error, f, df, old
     integer :: niter, k, maxiter
 
     utau = guess
-    kappa = kappa
-    B = B
 
     maxiter = 100
 

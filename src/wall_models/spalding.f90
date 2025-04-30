@@ -34,6 +34,7 @@
 !> Implements `spalding_t`.
 module spalding
   use field, only: field_t
+  use vector, only: vector_t
   use num_types, only : rp
   use json_module, only : json_file
   use dofmap, only : dofmap_t
@@ -44,6 +45,8 @@ module spalding
   use json_utils, only : json_get_or_default
   use logger, only : neko_log, NEKO_LOG_DEBUG
   use utils, only : neko_error
+  use spalding_cpu, only : spalding_compute_cpu
+  use spalding_device, only : spalding_compute_device
 
   implicit none
   private
@@ -143,19 +146,21 @@ contains
     w => neko_field_registry%get_field("w")
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call spalding_compute_device(u%x_d, v%x_d, w%x_d, &
-                           this%ind_r, this%ind_s, this%ind_t, this%ind_e, &
+       call spalding_compute_device(u%x_d, v%x_d, w%x_d, this%ind_r_d, &
+                           this%ind_s_d, this%ind_t_d, this%ind_e_d, &
                            this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
                            this%nu, this%h%x_d, &
                            this%tau_x%x_d, this%tau_y%x_d, this%tau_z%x_d, &
-                           this%n_nodes, u%Xh%lx, u%msh%nelv)
+                           this%n_nodes, u%Xh%lx, u%msh%nelv, &
+                           this%kappa, this%B, tstep)
     else
        call spalding_compute_cpu(u%x, v%x, w%x, &
                            this%ind_r, this%ind_s, this%ind_t, this%ind_e, &
                            this%n_x%x, this%n_y%x, this%n_z%x, &
                            this%nu, this%h%x, &
                            this%tau_x%x, this%tau_y%x, this%tau_z%x, &
-                           this%n_nodes, u%Xh%lx, u%msh%nelv)
+                           this%n_nodes, u%Xh%lx, u%msh%nelv, &
+                           this%kappa, this%B, tstep)
     end if
 
   end subroutine spalding_compute

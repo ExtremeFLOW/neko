@@ -48,7 +48,8 @@ module wall_model
   use logger, only : neko_log, NEKO_LOG_DEBUG
   use file, only : file_t
   use field_registry, only : neko_field_registry
-
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use device, only : device_map, device_free
   implicit none
   private
 
@@ -76,12 +77,16 @@ module wall_model
      type(vector_t) :: n_z
      !> The r indices of the sampling points
      integer, allocatable :: ind_r(:)
+     type(c_ptr) :: ind_r_d = C_NULL_PTR
      !> The s indices of the sampling points
      integer, allocatable :: ind_s(:)
+     type(c_ptr) :: ind_s_d = C_NULL_PTR
      !> The t indices of the sampling points
      integer, allocatable :: ind_t(:)
+     type(c_ptr) :: ind_t_d = C_NULL_PTR
      !> The element indices of the sampling points
      integer, allocatable :: ind_e(:)
+     type(c_ptr) :: ind_e_d = C_NULL_PTR
      !> The sampling height
      type(vector_t) :: h
      !> Sampling index
@@ -214,6 +219,22 @@ contains
 
     call this%find_points
 
+    ! Initialize pointers for device
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%ind_r, this%ind_r_d, this%n_nodes)
+       call device_map(this%ind_s, this%ind_s_d, this%n_nodes)
+       call device_map(this%ind_t, this%ind_t_d, this%n_nodes)
+       call device_map(this%ind_e, this%ind_e_d, this%n_nodes)
+       call device_memcpy(this%ind_r, this%ind_r_d, this%n_nodes, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%ind_s, this%ind_s_d, this%n_nodes, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%ind_t, this%ind_t_d, this%n_nodes, &
+            HOST_TO_DEVICE, sync = .true.)
+       call device_memcpy(this%ind_e, this%ind_e_d, this%n_nodes, &
+            HOST_TO_DEVICE, sync = .true.)
+    end if
+
   end subroutine wall_model_init_base
 
   !> Destructor for the wall_model_t (base) class.
@@ -237,6 +258,19 @@ contains
     end if
     if (allocated(this%ind_t)) then
        deallocate(this%ind_t)
+    end if
+
+    if (c_associated(this%ind_r_d)) then
+       call device_free(this%ind_r_d)
+    end if
+    if (c_associated(this%ind_s_d)) then
+       call device_free(this%ind_s_d)
+    end if
+    if (c_associated(this%ind_t_d)) then
+       call device_free(this%ind_t_d)
+    end if
+    if (c_associated(this%ind_e_d)) then
+       call device_free(this%ind_e_d)
     end if
 
     call this%h%free()
