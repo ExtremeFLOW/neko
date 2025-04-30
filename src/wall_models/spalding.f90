@@ -65,8 +65,6 @@ module spalding
      procedure, pass(this) :: free => spalding_free
      !> Compute the wall shear stress.
      procedure, pass(this) :: compute => spalding_compute
-     !> Solve for the friction velocity
-     procedure, private, pass(this) :: solve
   end type spalding_t
 
 contains
@@ -112,10 +110,6 @@ contains
     real(kind=rp), intent(in) :: kappa
     real(kind=rp), intent(in) :: B
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call neko_error("Spalding's law is only available on the CPU backend.")
-    end if
-
     call this%init_base(coef, msk, facet, nu, h_index)
 
     this%kappa = kappa
@@ -148,87 +142,17 @@ contains
     v => neko_field_registry%get_field("v")
     w => neko_field_registry%get_field("w")
 
-    do i=1, this%n_nodes
-       ! Sample the velocity
-       ui = u%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
-       vi = v%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
-       wi = w%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
-
-       ! Project on tangential direction
-       normu = ui * this%n_x%x(i) + vi * this%n_y%x(i) + wi * this%n_z%x(i)
-
-       ui = ui - normu * this%n_x%x(i)
-       vi = vi - normu * this%n_y%x(i)
-       wi = wi - normu * this%n_z%x(i)
-
-       magu = sqrt(ui**2 + vi**2 + wi**2)
-
-       ! Get initial guess for Newton solver
-       if (tstep .eq. 1) then
-          guess = sqrt(magu * this%nu / this%h%x(i))
-       else
-          guess = this%tau_x%x(i)**2 + this%tau_y%x(i)**2 + this%tau_z%x(i)**2
-          guess = sqrt(sqrt(guess))
-       end if
-
-       utau = this%solve(magu, this%h%x(i), guess)
-
-       ! Distribute according to the velocity vector
-       this%tau_x%x(i) = -utau**2 * ui / magu
-       this%tau_y%x(i) = -utau**2 * vi / magu
-       this%tau_z%x(i) = -utau**2 * wi / magu
-    end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call spalding_compute_device(u, v, w, this%ind_r, this%ind_s, &
+                                 this%ind_t, this%ind_e, this%n_x, this%n_y, &
+                                 this%n_z, this%nu, this%h, this%tau_x, &
+                                 this%tau_y, this%tau_z, this%n_nodes)
+    else
+       call spalding_compute_cpu(u, v, w, this%ind_r, this%ind_s, &
+                                 this%ind_t, this%ind_e, this%n_x, this%n_y, &
+                                 this%n_z, this%nu, this%h, this%tau_x, &
+                                 this%tau_y, this%tau_z, this%n_nodes)
+    end if
 
   end subroutine spalding_compute
-
-  !> Newton solver for the algebraic equation defined by the law.
-  !! @param u The velocity value.
-  !! @param y The wall-normal distance.
-  !! @param guess Initial guess.
-  function solve(this, u, y, guess) result(utau)
-    class(spalding_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: u
-    real(kind=rp), intent(in) :: y
-    real(kind=rp), intent(in) :: guess
-    real(kind=rp) :: yp, up, kappa, B, utau
-    real(kind=rp) :: error, f, df, old
-    integer :: niter, k, maxiter
-
-    utau = guess
-    kappa = this%kappa
-    B = this%B
-
-    maxiter = 100
-
-    do k=1, maxiter
-       up = u / utau
-       yp = y * utau / this%nu
-       niter = k
-       old = utau
-
-       ! Evaluate function and its derivative
-       f = (up + exp(-kappa*B)* &
-            (exp(kappa*up) - 1.0_rp - kappa*up - 0.5_rp*(kappa*up)**2 - &
-            1.0_rp/6*(kappa*up)**3) - yp)
-
-       df = (-y / this%nu - u/utau**2 - kappa*up/utau*exp(-kappa*B) * &
-            (exp(kappa*up) - 1 - kappa*up - 0.5*(kappa*up)**2))
-
-       ! Update solution
-       utau = utau - f / df
-
-       error = abs((old - utau)/old)
-
-       if (error < 1e-3) then
-          exit
-       endif
-
-    enddo
-
-    if ((niter .eq. maxiter) .and. (neko_log%level_ .eq. NEKO_LOG_DEBUG)) then
-       write(*,*) "Newton not converged", error, f, utau, old, guess
-    end if
-  end function solve
-
-
 end module spalding
