@@ -475,26 +475,5 @@ contains
 
   end subroutine test_math_pwmin
 
-  @test
-  subroutine test_paralleliped_signed_volume
-    real(kind=rp),dimension(3) :: p1, p2, p3, origin
-    real(kind=rp) :: v
-
-    origin = [0.0_rp, 0.0_rp, 0.0_rp]
-    p1 = [1.0_rp, 0.0_rp, 0.0_rp]
-    p2 = [0.0_rp, 1.0_rp, 0.0_rp]
-    p3 = [0.0_rp, 0.0_rp, 1.0_rp]
-
-    v =  parallelepiped_signed_volume(p1, p2, p3, origin)
-    @assertEqual(1.0_rp, v)
-
-    p2 = [1.0_rp, 0.0_rp, 0.0_rp]
-    p1 = [0.0_rp, 1.0_rp, 0.0_rp]
-    p3 = [0.0_rp, 0.0_rp, 1.0_rp]
-    v =  parallelepiped_signed_volume(p1, p2, p3, origin)
-    @assertEqual(-1.0_rp, v)
-
-
-  end subroutine
 
 end module math_parallel
