@@ -364,7 +364,7 @@ contains
     integer :: i
 
     call v%alloc(a%n)
-    if (b .eq. 0) then 
+    if (b .eq. 0) then
        v = 1.0_rp
        return
     end if
