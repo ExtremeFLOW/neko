@@ -65,6 +65,7 @@ contains
     type(time_step_controller_t) :: dt_controller
     real(kind=rp) :: rho, mu, cp, lambda
 
+    ! Initialize the time and step
     C%time%t = 0d0
     C%time%tstep = 0
     call dt_controller%init(C%params)
@@ -106,20 +107,24 @@ contains
     start_time_org = MPI_WTIME()
 
     do while (C%time%t .lt. C%time%end_time .and. (.not. jobctrl_time_limit()))
+
+       ! Setup the time step, and start time
        call profiler_start_region('Time-Step')
        C%time%tstep = C%time%tstep + 1
        start_time = MPI_WTIME()
        tstep_start_time = start_time
+
+       ! Compute the next time step
        if (dt_controller%dt_last_change .eq. 0) then
           cfl_avrg = cfl
        end if
        call dt_controller%set_dt(C%time%dt, cfl, cfl_avrg, C%time%tstep)
-       !calculate the cfl after the possibly varied dt
+
+       ! Calculate the cfl after the possibly varied dt
        cfl = C%fluid%compute_cfl(C%time%dt)
 
-       ! Advance time step from t to t+dt
+       ! Advance time step from t to t+dt and print the status
        call simulation_settime(C%time, C%fluid%ext_bdf)
-
        call C%time%status()
        call neko_log%begin()
 
@@ -131,6 +136,7 @@ contains
        call neko_simcomps%preprocess(C%time)
        call neko_log%end_section()
 
+       ! Fluid step
        call neko_log%section('Fluid')
        call C%fluid%step(C%time%t, C%time%tstep, C%time%dt, C%fluid%ext_bdf, &
             dt_controller)
@@ -161,12 +167,15 @@ contains
           lambda = C%scalar%lambda
        end if
 
+       ! Postprocessing
        call neko_log%section('Postprocessing')
+
        ! Execute all simulation components
        call neko_simcomps%compute(C%time)
 
+       ! Deal with the Material properties
 
-       !> @todo Temporary fix until we have reworked the material properties
+       ! @todo Temporary fix until we have reworked the material properties
        rho = C%fluid%rho
        mu = C%fluid%mu
 
@@ -185,12 +194,16 @@ contains
           call C%scalar%update_material_properties()
        end if
 
+       ! Run the user checks
        call C%usr%user_check(C%time%t, C%time%tstep, C%fluid%u, C%fluid%v, C%fluid%w, &
             C%fluid%p, C%fluid%c_Xh, C%params)
 
+       ! Run any IO needed.
        call C%output_controller%execute(C%time)
 
        call neko_log%end_section()
+
+       ! End the step and print summary
        end_time = MPI_WTIME()
        call neko_log%section('Step summary')
        write(log_buf, '(A,I8,A,E15.7)') &
@@ -205,7 +218,8 @@ contains
     end do
     call profiler_stop
 
-    call json_get_or_default(C%params, 'case.output_at_end',&
+    ! Run a final output if specified in the json
+    call json_get_or_default(C%params, 'case.output_at_end', &
          output_at_end, .true.)
     call C%output_controller%execute(C%time, output_at_end)
 
@@ -213,6 +227,7 @@ contains
        call simulation_joblimit_chkp(C, C%time%t)
     end if
 
+    ! Finalize the user modules
     call C%usr%user_finalize_modules(C%time%t, C%params)
 
     call neko_log%end_section('Normal end.')
@@ -257,16 +272,14 @@ contains
     logical :: found, check_cont
 
     call C%params%get('case.restart_file', restart_file, found)
-    call C%params%get('case.restart_mesh_file', restart_mesh_file,&
-         found)
+    call C%params%get('case.restart_mesh_file', restart_mesh_file, found)
 
     if (found) then
        previous_meshf = file_t(trim(restart_mesh_file))
        call previous_meshf%read(C%chkp%previous_mesh)
     end if
 
-    call C%params%get('case.mesh2mesh_tolerance', tol,&
-         found)
+    call C%params%get('case.mesh2mesh_tolerance', tol, found)
 
     if (found) C%chkp%mesh2mesh_tol = tol
 
@@ -275,7 +288,7 @@ contains
     C%time%dtlag = C%chkp%dtlag
     C%time%tlag = C%chkp%tlag
 
-    !Free the previous mesh, dont need it anymore
+    ! Free the previous mesh, dont need it anymore
     do i = 1, size(C%time%dtlag)
        call C%fluid%ext_bdf%set_coeffs(C%time%dtlag)
     end do
