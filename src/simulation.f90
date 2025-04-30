@@ -87,11 +87,10 @@ contains
     call neko_log%message(log_buf)
     if (.not. dt_controller%if_variable_dt) then
        write(log_buf, '(A, E15.7)') 'dt :  ', C%time%dt
-       call neko_log%message(log_buf)
     else
        write(log_buf, '(A, E15.7)') 'CFL :  ', dt_controller%set_cfl
-       call neko_log%message(log_buf)
     end if
+    call neko_log%message(log_buf)
 
     ! Execute outputs and user-init before time loop
     call neko_log%section('Postprocessing')
