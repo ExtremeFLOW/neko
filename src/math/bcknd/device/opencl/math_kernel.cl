@@ -475,6 +475,31 @@ __kernel void vdot3_kernel(__global real * __restrict__ dot,
 }
 
 /**
+ * Device kernel for vcross
+ */
+__kernel void vcross_kernel(__global real * __restrict__ u1,
+                            __global real * __restrict__ u2,
+                            __global real * __restrict__ u3,
+                            __global const real * __restrict__ v1,
+                            __global const real * __restrict__ v2,
+                            __global const real * __restrict__ v3,
+                            __global const real * __restrict__ w1,
+                            __global const real * __restrict__ w2,
+                            __global const real * __restrict__ w3,
+                            const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    u1[i] = v2[i]*w3[i] - v3[i]*w2[i];
+    u2[i] = v3[i]*w1[i] - v1[i]*w3[i];
+    u3[i] = v1[i]*w2[i] - v2[i]*w1[i];
+  }
+
+}
+
+/**
  * Device kernel for glsc3
  */
 __kernel void glsc3_kernel(__global const real * __restrict__ a,
