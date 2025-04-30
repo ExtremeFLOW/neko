@@ -35,8 +35,9 @@ module mesh
   use num_types, only : rp, dp, i8
   use point, only : point_t
   use element, only : element_t
-  use hex
-  use quad
+  use hex, only : hex_t, NEKO_HEX_NEDS, NEKO_HEX_GDIM, NEKO_HEX_NFCS, &
+       NEKO_HEX_NPTS
+  use quad, only : quad_t, NEKO_QUAD_NEDS, NEKO_QUAD_GDIM, NEKO_QUAD_NPTS
   use utils, only : neko_error, neko_warning
   use stack, only : stack_i4_t, stack_i8_t, stack_i4t4_t, stack_i4t2_t
   use tuple, only : tuple_i4_t, tuple4_i4_t
@@ -141,6 +142,9 @@ module mesh
      procedure, pass(this) :: create_periodic_ids => mesh_create_periodic_ids
      procedure, pass(this) :: generate_conn => mesh_generate_conn
      procedure, pass(this) :: have_point_glb_idx => mesh_have_point_glb_idx
+
+     procedure, pass(this) :: check_right_handedness => &
+          mesh_check_right_handedness
      !> Initialise a mesh
      generic :: init => init_nelv, init_dist
      !> Add an element to the mesh
@@ -394,6 +398,8 @@ contains
        call this%labeled_zones(i)%finalize()
     end do
     call this%curve%finalize()
+
+    call this%check_right_handedness()
 
   end subroutine mesh_finalize
 
@@ -1867,5 +1873,83 @@ contains
     shared = this%ddata%shared_facet%element(local_index)
 
   end function mesh_is_shared_facet
+
+  !> Check the correct orientation of the rst coordindates.
+  subroutine mesh_check_right_handedness(this)
+    class(mesh_t), intent(inout) :: this
+    integer :: i
+    real(kind=rp) :: v(8)
+
+    if (this%gdim .eq. 3) then
+       do i = 1, this%nelv
+          v(1) = parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(2)%p%x, &
+               this%elements(i)%e%pts(3)%p%x, &
+               this%elements(i)%e%pts(5)%p%x, &
+               this%elements(i)%e%pts(1)%p%x &
+               )
+
+          v(2) = parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(4)%p%x, &
+               this%elements(i)%e%pts(1)%p%x, &
+               this%elements(i)%e%pts(6)%p%x, &
+               this%elements(i)%e%pts(2)%p%x &
+               )
+
+          v(3) = parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(1)%p%x, &
+               this%elements(i)%e%pts(4)%p%x, &
+               this%elements(i)%e%pts(7)%p%x, &
+               this%elements(i)%e%pts(3)%p%x &
+               )
+
+          v(4) = parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(3)%p%x, &
+               this%elements(i)%e%pts(2)%p%x, &
+               this%elements(i)%e%pts(8)%p%x, &
+               this%elements(i)%e%pts(4)%p%x &
+               )
+
+          v(5) = -parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(6)%p%x, &
+               this%elements(i)%e%pts(7)%p%x, &
+               this%elements(i)%e%pts(1)%p%x, &
+               this%elements(i)%e%pts(5)%p%x &
+               )
+
+          v(6) = -parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(8)%p%x, &
+               this%elements(i)%e%pts(5)%p%x, &
+               this%elements(i)%e%pts(2)%p%x, &
+               this%elements(i)%e%pts(6)%p%x &
+               )
+
+          v(7) = -parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(5)%p%x, &
+               this%elements(i)%e%pts(8)%p%x, &
+               this%elements(i)%e%pts(3)%p%x, &
+               this%elements(i)%e%pts(7)%p%x &
+               )
+
+          v(8) = -parallelepiped_signed_volume( &
+               this%elements(i)%e%pts(7)%p%x, &
+               this%elements(i)%e%pts(6)%p%x, &
+               this%elements(i)%e%pts(4)%p%x, &
+               this%elements(i)%e%pts(8)%p%x &
+               )
+
+          if (v(1) .le. 0 .or. &
+               v(2) .le. 0 .or. &
+               v(3) .le. 0 .or. &
+               v(4) .le. 0 .or. &
+               v(5) .le. 0 .or. &
+               v(6) .le. 0 .or. &
+               v(7) .le. 0 .or. &
+               v(8) .le. 0 ) then
+             call neko_error("Invalid mesh element orientation")
+          end if
+       end do
+    end if
+  end subroutine mesh_check_right_handedness
 
 end module mesh

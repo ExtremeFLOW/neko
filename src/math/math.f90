@@ -113,7 +113,7 @@ module math
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
        glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
        swap, reord, flipv, cadd2, masked_gather_copy, absval, pwmax, pwmin, &
-       masked_scatter_copy
+       masked_scatter_copy, parallelepiped_signed_volume
 
 contains
 
@@ -546,6 +546,30 @@ contains
     end do
 
   end subroutine vcross
+
+  !> Compute a signed volume of a parallelepiped formed by three vectors, in
+  !! turn defined via three points, `p1`, `p2`, and `p3` and an `origin`.
+  !! @param p1 The first point.
+  !! @param p2 The second point.
+  !! @param p3 The third point.
+  !! @param p0 The point defining the origin.
+  !! @note Used to check right-handness of the elements: the volumes should be
+  !! positive.
+  function parallelepiped_signed_volume(p1, p2, p3, origin) result(v)
+    real(kind=rp), dimension(3), intent(in) :: p1, p2, p3, origin
+    real(kind=rp) :: v
+    real(kind=rp) :: vp1(3), vp2(3), vp3(3), cross(3)
+
+    vp1 = p1 - origin
+    vp2 = p2 - origin
+    vp3 = p3 - origin
+
+    call vcross(cross(1), cross(2), cross(3), vp1(1), vp1(2), vp1(3), &
+         vp2(1), vp2(2), vp2(3), 1)
+
+    v = cross(1)*vp3(1) + cross(2)*vp3(2) + cross(3)*vp3(3)
+
+  end function parallelepiped_signed_volume
 
   !> Compute a dot product \f$ dot = u \cdot v \f$ (2-d version)
   !! assuming vector components \f$ u = (u_1, u_2, u_3) \f$ etc.
