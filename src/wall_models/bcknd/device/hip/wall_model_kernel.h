@@ -56,7 +56,7 @@ __global__ void wall_model_compute_mag_field(const T * __restrict__ tau_x_d,
         tau_z_d[idx] * tau_z_d[idx]);
 
         // Store the result in the tau_field array at the masked index
-        tau_field_d[msk_d[idx]] = magtau;
+        tau_field_d[msk_d[idx]-1] = magtau;
     }
 } 
 #endif // __COMMON_WALL_model_KERNEL_H__

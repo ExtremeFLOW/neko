@@ -117,7 +117,8 @@ __global__ void spalding_compute(const T * __restrict__ u_d,
 
 __device__ int linear_index(const int ind_r, const int ind_s, const int ind_t, 
                             const int ind_e, const int lx) {
-  return ind_r * lx * lx * lx + ind_s * lx * lx + ind_t * lx + ind_e;
+  return (ind_r - 1) * lx * lx * lx + (ind_s - 1) * lx * lx 
+          + (ind_t - 1) * lx + ind_e - 1;
 }
 
 template<typename T>
