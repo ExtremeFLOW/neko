@@ -236,9 +236,9 @@ contains
        call device_memcpy(this%ind_s, this%ind_s_d, this%n_nodes, &
             HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%ind_t, this%ind_t_d, this%n_nodes, &
-            HOST_TO_DEVICE, sync = .true.)
+            HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%ind_e, this%ind_e_d, this%n_nodes, &
-            HOST_TO_DEVICE, sync = .true.)
+            HOST_TO_DEVICE, sync = .false.)
     end if
 
   end subroutine wall_model_init_base
