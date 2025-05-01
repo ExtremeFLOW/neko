@@ -49,7 +49,8 @@ module wall_model
   use file, only : file_t
   use field_registry, only : neko_field_registry
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
-  use device, only : device_map, device_free
+  use device, only : device_map, device_free, device_get_ptr
+  use wall_model_device, only : wall_model_compute_mag_field_device
   implicit none
   private
 
@@ -61,6 +62,7 @@ module wall_model
      type(dofmap_t), pointer :: dof => null()
      !> The boundary condition mask. Stores the array size at index zero!
      integer, pointer :: msk(:) => null()
+     type(c_ptr), pointer :: msk_d => null()
      !> The boundary condition facet ids. Stores the array size at index zero!
      integer, pointer :: facet(:) => null()
      !> The x component of the shear stress.
@@ -102,6 +104,8 @@ module wall_model
      procedure, pass(this) :: init_base => wall_model_init_base
      !> Destructor for the wall_model_t (base) class.
      procedure, pass(this) :: free_base => wall_model_free_base
+     !> Compute the wall shear stress's magnitude.
+     procedure, pass(this) :: compute_mag_field => wall_model_compute_mag_field
      !> The common constructor.
      procedure(wall_model_init), pass(this), deferred :: init
      !> Destructor.
@@ -188,12 +192,15 @@ contains
     integer, target, intent(in) :: facet(0:)
     real(kind=rp), intent(in) :: nu
     integer, intent(in) :: index
+    type(c_ptr), target :: msk_d
 
     call this%free_base
 
     this%coef => coef
     this%dof => coef%dof
     this%msk(0:msk(0)) => msk
+    msk_d = device_get_ptr(msk)
+    this%msk_d => msk_d
     this%facet(0:msk(0)) => facet
     this%nu = nu
     this%h_index = index
@@ -243,6 +250,7 @@ contains
 
     nullify(this%coef)
     nullify(this%msk)
+    nullify(this%msk_d)
     nullify(this%facet)
     nullify(this%tau_field)
 
@@ -397,5 +405,30 @@ contains
     h_file = file_t("sampling_height.fld")
     call h_file%write(h_field)
   end subroutine wall_model_find_points
+
+  subroutine wall_model_compute_mag_field(this)
+    class(wall_model_t), intent(inout) :: this
+    integer :: i, m
+    real(kind=rp) :: magtau
+
+    m = this%msk(0)
+    if (m > 0) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call wall_model_compute_mag_field_device(this%tau_x%x_d, &
+                                                   this%tau_y%x_d, &
+                                                   this%tau_z%x_d, &
+                                                   this%tau_field%x_d, & 
+                                                   this%msk_d, m)
+       else
+          do i = 1, m
+             magtau = sqrt(this%tau_x%x(i)**2 + &
+                  this%tau_y%x(i)**2 + &
+                  this%tau_z%x(i)**2)
+             this%tau_field%x(this%msk(i),1,1,1) = magtau
+          end do
+       end if
+    end if
+
+  end subroutine wall_model_compute_mag_field
 
 end module wall_model

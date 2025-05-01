@@ -146,6 +146,7 @@ contains
     w => neko_field_registry%get_field("w")
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       write(*,*) "this%n_nodes", this%n_nodes
        call spalding_compute_device(u%x_d, v%x_d, w%x_d, this%ind_r_d, &
                            this%ind_s_d, this%ind_t_d, this%ind_e_d, &
                            this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &

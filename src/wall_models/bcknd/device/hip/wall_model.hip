@@ -10,9 +10,8 @@
      notice, this list of conditions and the following disclaimer.
 
    * Redistributions in binary form must reproduce the above
-     copyright notice, this list of conditions and the following
-     disclaimer in the documentation and/or other materials provided
-     with the distribution.
+     copyright notice, this list of conditions and/or other materials
+     provided with the distribution.
 
    * Neither the name of the authors nor the names of its
      contributors may be used to endorse or promote products derived
@@ -36,29 +35,23 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <device/device_config.h>
-#include <device/cuda/check.h>
-#include "spalding_kernel.h"
+#include <device/hip/check.h>
+#include "wall_model_kernel.h"
 
 extern "C" {
-  void cuda_spalding_compute(void *u_d, void *v_d, void *w_d,
-          void *ind_r_d, void *ind_s_d, void *ind_t_d, void *ind_e_d,
-          void *n_x_d, void *n_y_d, void *n_z_d, real *nu, void *h_d,
-          void *tau_x_d, void *tau_y_d, void *tau_z_d,
-          int *n_nodes, int *lx, real *kappa, real *B, int *tstep) {
-    
+  void hip_wall_model_compute_mag_field(void *tau_x_d, void *tau_y_d, void *tau_z_d,
+                                         void *tau_field_d, void *msk_d, int *m) {
+    // Define hip grid and block dimensions
     const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*n_nodes)+1024 - 1)/ 1024, 1, 1);
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+    const dim3 nblcks(((*m) + 1024 - 1) / 1024, 1, 1);
+    const hipStream_t stream = (hipStream_t) glb_cmd_queue;
 
-    spalding_compute<real>
-    <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) v_d, (real *) w_d,
-                                    (real *) ind_r_d, (real *) ind_s_d, 
-                                    (real *) ind_t_d, (real *) ind_e_d,
-                                    (real *) n_x_d, (real *) n_y_d, 
-                                    (real *) n_z_d, *nu, (real *) h_d,
-                                    (real *) tau_x_d, (real *) tau_y_d, 
-                                    (real *) tau_z_d,
-                                    *n_nodes, *lx, *kappa, *B, *tstep);
-    CUDA_CHECK(cudaGetLastError());
+    // Launch the hip kernel
+    wall_model_compute_mag_field<real>
+    <<<nblcks, nthrds, 0, stream>>>((real *) tau_x_d, (real *) tau_y_d, (real *) tau_z_d,
+                                    (real *) tau_field_d, (int *) msk_d, *m);
+
+    // Check for hip errors
+    HIP_CHECK(hipGetLastError());
   }
 }

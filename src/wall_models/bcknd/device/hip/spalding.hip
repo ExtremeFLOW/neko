@@ -36,11 +36,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <device/device_config.h>
-#include <device/cuda/check.h>
+#include <device/hip/check.h>
 #include "spalding_kernel.h"
 
 extern "C" {
-  void cuda_spalding_compute(void *u_d, void *v_d, void *w_d,
+  void hip_spalding_compute(void *u_d, void *v_d, void *w_d,
           void *ind_r_d, void *ind_s_d, void *ind_t_d, void *ind_e_d,
           void *n_x_d, void *n_y_d, void *n_z_d, real *nu, void *h_d,
           void *tau_x_d, void *tau_y_d, void *tau_z_d,
@@ -48,7 +48,7 @@ extern "C" {
     
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n_nodes)+1024 - 1)/ 1024, 1, 1);
-    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+    const hipStream_t stream = (hipStream_t) glb_cmd_queue;
 
     spalding_compute<real>
     <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) v_d, (real *) w_d,
@@ -59,6 +59,6 @@ extern "C" {
                                     (real *) tau_x_d, (real *) tau_y_d, 
                                     (real *) tau_z_d,
                                     *n_nodes, *lx, *kappa, *B, *tstep);
-    CUDA_CHECK(cudaGetLastError());
+    HIP_CHECK(hipGetLastError());
   }
 }

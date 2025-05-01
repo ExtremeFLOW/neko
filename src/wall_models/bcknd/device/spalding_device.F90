@@ -33,14 +33,30 @@
 !> Implements the device kernel for the `spalding_t` type.
 module spalding_device
   use num_types, only : rp, c_rp
-  use field, only : field_t
-  use vector, only : vector_t
   use, intrinsic :: iso_c_binding, only : c_ptr
   use utils, only : neko_error
   implicit none
   private
 
 #ifdef HAVE_HIP
+  interface
+     subroutine hip_spalding_compute(u_d, v_d, w_d, &
+                ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
+                n_x_d, n_y_d, n_z_d, nu, h_d, &
+                tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, &
+                kappa, B, tstep) &
+         bind(c, name = 'hip_spalding_compute')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       use num_types, only : c_rp
+       implicit none
+       type(c_ptr), value :: u_d, v_d, w_d
+       type(c_ptr), value :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
+       type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
+       real(c_rp) :: nu, kappa, B
+       type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
+       integer(c_int) :: n_nodes, lx, tstep
+     end subroutine hip_spalding_compute
+  end interface
 #elif HAVE_CUDA
   interface
      subroutine cuda_spalding_compute(u_d, v_d, w_d, &
@@ -80,8 +96,11 @@ module spalding_device
     type(c_ptr), intent(inout) :: tau_x_d, tau_y_d, tau_z_d
     real(kind=rp), intent(in) :: kappa, B
 
-#ifdef HAVE_HIP
-    call neko_error("HIP is not implemented for Spalding's model")
+#if HAVE_HIP
+    call hip_spalding_compute(u_d, v_d, w_d, &
+                ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
+                n_x_d, n_y_d, n_z_d, nu, h_d, &
+                tau_x_d, tau_y_d, tau_z_d, n_nodes, lx, kappa, B, tstep)
 #elif HAVE_CUDA
     call cuda_spalding_compute(u_d, v_d, w_d, &
                 ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
