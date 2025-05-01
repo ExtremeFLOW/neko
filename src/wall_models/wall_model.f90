@@ -265,7 +265,10 @@ contains
     if (allocated(this%ind_t)) then
        deallocate(this%ind_t)
     end if
-
+    
+    if (c_associated(this%msk_d)) then
+       call device_free(this%msk_d)
+    end if
     if (c_associated(this%ind_r_d)) then
        call device_free(this%ind_r_d)
     end if
