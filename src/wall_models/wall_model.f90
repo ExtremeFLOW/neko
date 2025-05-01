@@ -199,7 +199,7 @@ contains
     this%coef => coef
     this%dof => coef%dof
     this%msk(0:msk(0)) => msk
-    this%msk_d = device_get_ptr(msk)
+    if (NEKO_BCKND_DEVICE .eq. 1) this%msk_d = device_get_ptr(msk)
     this%facet(0:msk(0)) => facet
     this%nu = nu
     this%h_index = index
