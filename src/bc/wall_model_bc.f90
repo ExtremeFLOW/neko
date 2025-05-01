@@ -114,13 +114,7 @@ contains
        call this%wall_model%compute(t, tstep)
 
        ! Populate the 3D wall stress field for post-processing.
-       do i = 1, this%msk(0)
-          magtau = sqrt(this%wall_model%tau_x%x(i)**2 + &
-               this%wall_model%tau_y%x(i)**2 + &
-               this%wall_model%tau_z%x(i)**2)
-
-          this%wall_model%tau_field%x(this%msk(i),1,1,1) = magtau
-       end do
+       call this%wall_model%compute_mag_field()
 
        ! Set the computed stress for application by the underlying Neumann
        ! boundary conditions.
@@ -165,14 +159,7 @@ contains
        ! Compute the wall stress using the wall model.
        call this%wall_model%compute(t, tstep)
 
-      !  ! Populate the 3D wall stress field for post-processing.
-      !  do i = 1, this%msk(0)
-      !     magtau = sqrt(this%wall_model%tau_x%x(i)**2 + &
-      !          this%wall_model%tau_y%x(i)**2 + &
-      !          this%wall_model%tau_z%x(i)**2)
-
-      !     this%wall_model%tau_field%x(this%msk(i),1,1,1) = magtau
-      !  end do
+       ! Populate the 3D wall stress field for post-processing.
        call this%wall_model%compute_mag_field()
 
        ! Set the computed stress for application by the underlying Neumann
