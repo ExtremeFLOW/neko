@@ -430,9 +430,9 @@ contains
              this%tau_field%x(this%msk(i),1,1,1) = magtau
           end do
        end if
-       write(*,*) "this%tau_x%x",  maxval(this%tau_x%x)
-       write(*,*) "this%tau_y%x",  maxval(this%tau_y%x)
-       write(*,*) "this%tau_z%x",  maxval(this%tau_z%x)
+       write(*,*) "this%tau_x%x",  maxval(abs(this%tau_x%x))
+       write(*,*) "this%tau_y%x",  maxval(abs(this%tau_y%x))
+       write(*,*) "this%tau_z%x",  maxval(abs(this%tau_z%x))
     end if
 
   end subroutine wall_model_compute_mag_field
