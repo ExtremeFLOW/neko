@@ -422,6 +422,10 @@ contains
                                                    this%msk_d, m)
           call device_memcpy(this%tau_x%x, this%tau_x%x_d, this%n_nodes, DEVICE_TO_HOST, &
             sync = .true.)
+          call device_memcpy(this%tau_y%x, this%tau_y%x_d, this%n_nodes, DEVICE_TO_HOST, &
+            sync = .true.)
+          call device_memcpy(this%tau_z%x, this%tau_z%x_d, this%n_nodes, DEVICE_TO_HOST, &
+            sync = .true.)
        else
           do i = 1, m
              magtau = sqrt(this%tau_x%x(i)**2 + &
