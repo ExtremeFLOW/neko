@@ -40,7 +40,7 @@ module wall_model
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : device_memcpy, HOST_TO_DEVICE
+  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use vector, only : vector_t
   use utils, only : neko_error, nonlinear_index
   use math, only : glmin, glmax
@@ -420,6 +420,11 @@ contains
                                                    this%tau_z%x_d, &
                                                    this%tau_field%x_d, & 
                                                    this%msk_d, m)
+          call device_memcpy(this%tau_x%x, this%tau_x%x_d, this%n_nodes, DEVICE_TO_HOST, &
+            sync = .true.)
+          write(*,*) "this%tau_x%x",  maxval(this%tau_x%x)
+          write(*,*) "this%tau_y%x",  maxval(this%tau_y%x)
+          write(*,*) "this%tau_z%x",  maxval(this%tau_z%x)
        else
           do i = 1, m
              magtau = sqrt(this%tau_x%x(i)**2 + &
