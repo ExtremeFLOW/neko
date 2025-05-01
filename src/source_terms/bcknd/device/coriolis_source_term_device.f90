@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -30,53 +30,78 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements the cpu kernel for the `coriolis_source_term_t` type.
-!! Maintainer: Timofey Mukha.
-
-module coriolis_source_term_cpu
+!> Implements the device kernel for the `coriolis_source_term_t` type.
+module coriolis_source_term_device
   use num_types, only : rp
   use field_list, only : field_list_t
-  use math, only : vcross
   use field, only : field_t
+  use device_math, only : device_copy, device_add3s2, device_add2, device_cadd
+  use scratch_registry, only : neko_scratch_registry
   implicit none
   private
 
-  public :: coriolis_source_term_compute_cpu
+  public :: coriolis_source_term_compute_device
 
 contains
 
-  !> Computes the generic Coriolis source term on the cpu.
+  !> Computes the Coriolis source term on the device.
   !! @param u The x component of velocity.
   !! @param v The y component of velocity.
   !! @param w The z component of velocity.
   !! @param fields The right-hand side, which should be the velocity components.
   !! @param omega The rotation vector.
   !! @param omega The geostrophic wind.
-  subroutine coriolis_source_term_compute_cpu(u, v, w, fields, omega, u_geo)
+  subroutine coriolis_source_term_compute_device(u, v, w, fields, omega, u_geo)
     type(field_t), intent(in) :: u, v, w
     type(field_list_t), intent(inout) :: fields
     real(kind=rp), intent(in) :: omega(3)
     real(kind=rp), intent(in) :: u_geo(3)
-    integer :: i, n
+    integer :: n
     type(field_t), pointer :: fu, fv, fw
     real(kind=rp) :: ui, vi, wi
+    integer :: tmp_index(6)
+    type(field_t), pointer :: tmp_u, tmp_v, tmp_w
+    type(field_t), pointer :: tmp_fu, tmp_fv, tmp_fw
 
-    n = fields%item_size(1)
+    call neko_scratch_registry%request_field(tmp_u, tmp_index(1))
+    call neko_scratch_registry%request_field(tmp_v, tmp_index(2))
+    call neko_scratch_registry%request_field(tmp_w, tmp_index(3))
+    call neko_scratch_registry%request_field(tmp_fu, tmp_index(4))
+    call neko_scratch_registry%request_field(tmp_fv, tmp_index(5))
+    call neko_scratch_registry%request_field(tmp_fw, tmp_index(6))
 
+    ! The RHS components
     fu => fields%get_by_index(1)
     fv => fields%get_by_index(2)
     fw => fields%get_by_index(3)
 
-    do concurrent (i = 1:n)
-       ui = u%x(i,1,1,1) - u_geo(1)
-       vi = v%x(i,1,1,1) - u_geo(2)
-       wi = w%x(i,1,1,1) - u_geo(3)
+    n = fu%size()
 
-       fu%x(i,1,1,1) = fu%x(i,1,1,1) - 2.0_rp * (omega(2) * wi - omega(3) * vi)
-       fv%x(i,1,1,1) = fv%x(i,1,1,1) - 2.0_rp * (omega(3) * ui - omega(1) * wi)
-       fw%x(i,1,1,1) = fw%x(i,1,1,1) - 2.0_rp * (omega(1) * vi - omega(2) * ui)
-    end do
+    ! Copy over velocity arrays for manipulation
+    call device_copy(tmp_u%x_d, u%x_d, n)
+    call device_copy(tmp_v%x_d, v%x_d, n)
+    call device_copy(tmp_w%x_d, w%x_d, n)
 
-  end subroutine coriolis_source_term_compute_cpu
+    ! velocity minus u_geo
+    call device_cadd(tmp_u%x_d, -u_geo(1), n)
+    call device_cadd(tmp_v%x_d, -u_geo(2), n)
+    call device_cadd(tmp_w%x_d, -u_geo(3), n)
 
-end module coriolis_source_term_cpu
+    ! The Coriolis term to be added to the RHS
+    call device_add3s2(tmp_fu%x_d, tmp_w%x_d, tmp_v%x_d, -2.0_rp * omega(2), &
+         2.0_rp * omega(3), n)
+    call device_add3s2(tmp_fv%x_d, tmp_u%x_d, tmp_w%x_d, -2.0_rp * omega(3), &
+         2.0_rp * omega(1), n)
+    call device_add3s2(tmp_fw%x_d, tmp_v%x_d, tmp_u%x_d, -2.0_rp * omega(1), &
+         2.0_rp * omega(2), n)
+
+    ! Add the Coriolis term to the RHS
+    call device_add2(fu%x_d, tmp_fu%x_d, n)
+    call device_add2(fv%x_d, tmp_fv%x_d, n)
+    call device_add2(fw%x_d, tmp_fw%x_d, n)
+
+    call neko_scratch_registry%relinquish_field(tmp_index)
+
+  end subroutine coriolis_source_term_compute_device
+
+end module coriolis_source_term_device

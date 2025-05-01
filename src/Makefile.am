@@ -1,4 +1,3 @@
-
 lib_LTLIBRARIES = libneko.la
 libneko_la_LDFLAGS = -release ${PACKAGE_VERSION}
 neko_fortran_SOURCES = \
@@ -245,8 +244,6 @@ neko_fortran_SOURCES = \
 	fluid/fluid_user_source_term.f90\
 	fluid/fluid_source_term.f90\
 	common/time_step_controller.f90\
-	common/gradient_jump_penalty.f90\
-	common/bcknd/device/device_gradient_jump_penalty.F90\
 	simulation.f90\
 	math/ax_helm_fctry.f90\
 	math/ax_helm.f90\
@@ -314,6 +311,7 @@ neko_fortran_SOURCES = \
 	source_terms/source_term.f90\
 	source_terms/coriolis_source_term.f90\
 	source_terms/bcknd/cpu/coriolis_source_term_cpu.f90\
+	source_terms/bcknd/device/coriolis_source_term_device.f90\
 	source_terms/source_term_handler.f90\
 	source_terms/const_source_term.f90\
 	source_terms/bcknd/cpu/const_source_term_cpu.f90\
@@ -332,6 +330,8 @@ neko_fortran_SOURCES = \
 	source_terms/bcknd/device/cuda/cuda_filters.f90\
 	source_terms/bcknd/device/hip/hip_filters.f90\
 	source_terms/bcknd/device/opencl/opencl_filters.f90\
+	source_terms/gradient_jump_penalty.f90\
+	source_terms/bcknd/device/device_gradient_jump_penalty.F90\
 	les/les_model.f90\
 	les/les_model_fctry.f90\
 	les/vreman.f90\
@@ -403,17 +403,18 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/hip/zero_dirichlet.hip\
 	bc/bcknd/device/hip/symmetry.hip\
 	bc/bcknd/device/hip/facet_normal.hip\
+	bc/bcknd/device/hip/neumann.hip\
 	bc/bcknd/device/hip/inhom_dirichlet.hip\
 	bc/bcknd/device/hip/dong_outflow.hip\
 	common/bcknd/device/hip/rhs_maker.hip\
 	common/bcknd/device/hip/projection.hip\
-	common/bcknd/device/hip/gradient_jump_penalty.hip\
 	fluid/bcknd/device/hip/pnpn_res.hip\
 	fluid/bcknd/device/hip/euler_res.hip\
 	fluid/stress_formulation/bcknd/device/hip/pnpn_stress_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
 	sem/bcknd/device/hip/coef.hip\
 	source_terms/bcknd/device/hip/filters.hip\
+	source_terms/bcknd/device/hip/gradient_jump_penalty.hip\
 	les/bcknd/device/hip/sigma_nut.hip\
 	les/bcknd/device/hip/vreman_nut.hip\
 	les/bcknd/device/hip/smagorinsky_nut.hip\
@@ -453,13 +454,13 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/cuda/dong_outflow.cu\
 	common/bcknd/device/cuda/rhs_maker.cu\
 	common/bcknd/device/cuda/projection.cu\
-	common/bcknd/device/cuda/gradient_jump_penalty.cu\
 	fluid/bcknd/device/cuda/pnpn_res.cu\
 	fluid/bcknd/device/cuda/euler_res.cu\
 	fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
 	sem/bcknd/device/cuda/coef.cu\
 	source_terms/bcknd/device/cuda/filters.cu\
+	source_terms/bcknd/device/cuda/gradient_jump_penalty.cu\
 	les/bcknd/device/cuda/sigma_nut.cu\
 	les/bcknd/device/cuda/vreman_nut.cu\
 	les/bcknd/device/cuda/smagorinsky_nut.cu\
@@ -494,6 +495,7 @@ libneko_la_SOURCES += \
 	bc/bcknd/device/opencl/zero_dirichlet.c\
 	bc/bcknd/device/opencl/symmetry.c\
 	bc/bcknd/device/opencl/facet_normal.c\
+	bc/bcknd/device/opencl/neumann.c\
 	bc/bcknd/device/opencl/inhom_dirichlet.c\
 	bc/bcknd/device/opencl/dong_outflow.c\
 	common/bcknd/device/opencl/rhs_maker.c\
@@ -527,7 +529,7 @@ if ENABLE_ADIOS2
 #
 # With the previous build system, the correct method was:
 #
-#io/nek_adios2.o: io/nek_adios2.cpp	
+#io/nek_adios2.o: io/nek_adios2.cpp
 #	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) -o $@ -c $^
 
 #libneko_la_LIBADD = \
@@ -625,7 +627,6 @@ EXTRA_DIST = \
 	common/bcknd/device/cuda/makeext_kernel.h\
 	common/bcknd/device/cuda/makebdf_kernel.h\
 	common/bcknd/device/cuda/projection_kernel.h\
-	common/bcknd/device/cuda/gradient_jump_penalty_kernel.h\
 	fluid/bcknd/device/cuda/prs_res_kernel.h\
 	fluid/bcknd/device/cuda/vel_res_update_kernel.h\
 	fluid/bcknd/device/cuda/euler_res_kernel.h\
@@ -641,6 +642,8 @@ EXTRA_DIST = \
 	bc/bcknd/device/hip/zero_dirichlet_kernel.h\
 	bc/bcknd/device/hip/symmetry_kernel.h\
 	bc/bcknd/device/hip/facet_normal_kernel.h\
+	bc/bcknd/device/hip/neumann_kernel.h\
+	bc/bcknd/device/hip/bc_utils.h\
 	bc/bcknd/device/hip/inhom_dirichlet_kernel.h\
 	bc/bcknd/device/hip/dong_outflow_kernel.h\
 	gs/bcknd/device/hip/gs_kernels.h\
@@ -661,7 +664,6 @@ EXTRA_DIST = \
 	common/bcknd/device/hip/makeext_kernel.h\
 	common/bcknd/device/hip/makebdf_kernel.h\
 	common/bcknd/device/hip/projection_kernel.h\
-	common/bcknd/device/hip/gradient_jump_penalty_kernel.h\
 	fluid/bcknd/device/hip/prs_res_kernel.h\
 	fluid/bcknd/device/hip/vel_res_update_kernel.h\
 	fluid/bcknd/device/hip/euler_res_kernel.h\
@@ -685,6 +687,8 @@ EXTRA_DIST = \
 	bc/bcknd/device/opencl/zero_dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/symmetry_kernel.cl\
 	bc/bcknd/device/opencl/facet_normal_kernel.cl\
+	bc/bcknd/device/opencl/neumann_kernel.cl\
+	bc/bcknd/device/opencl/bc_utils.h\
 	bc/bcknd/device/opencl/inhom_dirichlet_kernel.cl\
 	bc/bcknd/device/opencl/dong_outflow_kernel.cl\
 	math/bcknd/device/opencl/math_kernel.cl\
@@ -713,6 +717,8 @@ EXTRA_DIST = \
 	source_terms/bcknd/device/cuda/filter_kernels.h\
 	source_terms/bcknd/device/hip/filter_kernels.h\
 	source_terms/bcknd/device/opencl/filter_kernels.cl\
+	source_terms/bcknd/device/cuda/gradient_jump_penalty_kernel.h\
+	source_terms/bcknd/device/hip/gradient_jump_penalty_kernel.h\
 	device/opencl/jit.h\
 	device/opencl/prgm_lib.h\
 	device/opencl/check.h\

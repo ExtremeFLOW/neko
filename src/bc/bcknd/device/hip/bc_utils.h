@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2025, The Neko Authors
+ Copyright (c) 2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -32,44 +32,24 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <hip/hip_runtime.h>
-#include <device/device_config.h>
-#include <device/hip/check.h>
-#include "inhom_dirichlet_kernel.h"
+#ifndef __BC_UTILS__
+#define __BC_UTILS__
 
-extern "C" {
-
-  /** 
-   * Fortran wrapper for device inhom_dirichlet apply vector
-   */
-  void hip_inhom_dirichlet_apply_vector(void *msk, void *x, void *y, void *z,
-                                        void *bla_x, void *bla_y, void *bla_z,
-                                        int *m) {
-    
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
-
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(inhom_dirichlet_apply_vector_kernel<real>),
-		       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                       (int *) msk, (real *) x, (real *) y, (real *) z,
-                       (real *) bla_x, (real *) bla_y, (real *) bla_z, *m);
-    HIP_CHECK(hipGetLastError());
-  }
- 
-  /** 
-   * Fortran wrapper for device inhom_dirichlet apply scalar
-   */
-  void hip_inhom_dirichlet_apply_scalar(void *msk, void *x, 
-                                        void *bla_x,  int *m) {
-    
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
-
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(inhom_dirichlet_apply_scalar_kernel<real>),
-		       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                       (int *) msk, (real *) x, (real *) bla_x, *m);
-    HIP_CHECK(hipGetLastError());
-  }
- 
-
+/**
+ * Device function to compute i,j,k,e indices from a linear index
+ * @note Assumes idx is a Fortran index
+ */
+__inline__ __device__
+void nonlinear_index(const int idx, const int lx, int *index) {
+  const int idx2 = idx -1;
+  index[3] = idx2/(lx * lx * lx) ;
+  index[2] = (idx2 - (lx*lx*lx)*index[3])/(lx * lx);
+  index[1] = (idx2 - (lx*lx*lx)*index[3] - (lx*lx) * index[2]) / lx;
+  index[0] = (idx2 - (lx*lx*lx)*index[3] - (lx*lx) * index[2]) - lx*index[1];
+  index[0]++;
+  index[1]++;
+  index[2]++;
+  index[3]++;
 }
+
+#endif 
