@@ -158,10 +158,6 @@ contains
           write(log_buf, '(A,E15.7)') &
                'Total elapsed time (s):', end_time-start_time_org
           call neko_log%end_section(log_buf)
-
-          !> @todo Temporary fix until we have reworked the material properties
-          cp = C%scalar%cp
-          lambda = C%scalar%lambda
        end if
 
        ! Postprocessing
@@ -175,6 +171,10 @@ contains
        ! @todo Temporary fix until we have reworked the material properties
        rho = C%fluid%rho
        mu = C%fluid%mu
+       if (allocated(C%scalar)) then
+          cp = C%scalar%cp
+          lambda = C%scalar%lambda
+       end if
 
        ! Update material properties
        call C%usr%material_properties(C%time%t, C%time%tstep, rho, mu, cp, lambda, &
