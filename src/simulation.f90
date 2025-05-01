@@ -137,8 +137,7 @@ contains
 
        ! Fluid step
        call neko_log%section('Fluid')
-       call C%fluid%step(C%time%t, C%time%tstep, C%time%dt, C%fluid%ext_bdf, &
-            dt_controller)
+       call C%fluid%step(C%time, dt_controller)
        end_time = MPI_WTIME()
        write(log_buf, '(A,E15.7)') &
             'Fluid step time (s):   ', end_time-start_time
@@ -151,8 +150,7 @@ contains
        if (allocated(C%scalar)) then
           start_time = MPI_WTIME()
           call neko_log%section('Scalar')
-          call C%scalar%step(C%time%t, C%time%tstep, C%time%dt, C%fluid%ext_bdf, &
-               dt_controller)
+          call C%scalar%step(C%time, C%fluid%ext_bdf, dt_controller)
           end_time = MPI_WTIME()
           write(log_buf, '(A,E15.7)') &
                'Scalar step time:      ', end_time-start_time
