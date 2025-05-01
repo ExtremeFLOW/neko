@@ -62,7 +62,7 @@ module wall_model
      type(dofmap_t), pointer :: dof => null()
      !> The boundary condition mask. Stores the array size at index zero!
      integer, pointer :: msk(:) => null()
-     type(c_ptr), pointer :: msk_d => null()
+     type(c_ptr) :: msk_d = C_NULL_PTR
      !> The boundary condition facet ids. Stores the array size at index zero!
      integer, pointer :: facet(:) => null()
      !> The x component of the shear stress.
@@ -199,8 +199,7 @@ contains
     this%coef => coef
     this%dof => coef%dof
     this%msk(0:msk(0)) => msk
-    msk_d = device_get_ptr(msk)
-    this%msk_d => msk_d
+    this%msk_d = device_get_ptr(msk)
     this%facet(0:msk(0)) => facet
     this%nu = nu
     this%h_index = index
@@ -250,7 +249,6 @@ contains
 
     nullify(this%coef)
     nullify(this%msk)
-    nullify(this%msk_d)
     nullify(this%facet)
     nullify(this%tau_field)
 

@@ -71,7 +71,7 @@ module wall_model_device
   subroutine wall_model_compute_mag_field_device(tau_x_d, tau_y_d, tau_z_d, &
                 tau_field_d, msk_d, m)
     type(c_ptr), intent(in) :: tau_x_d, tau_y_d, tau_z_d
-    type(c_ptr), intent(in), value :: msk_d
+    type(c_ptr), intent(in) :: msk_d
     type(c_ptr), intent(inout) :: tau_field_d
     integer, intent(in) :: m
 

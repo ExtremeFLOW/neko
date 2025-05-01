@@ -149,12 +149,6 @@ __device__ T solve(const T u, const T y, const T guess, const T nu,
 
         error = fabs((old - utau) / old);
 
-        // Logging for debugging
-        if (k == maxiter - 1 && error >= 1e-3) {
-            printf("Newton not converged: error = %f, f = %f, utau = %f, old = %f, guess = %f\n",
-                   error, f, utau, old, guess);
-        }
-
         if (error < 1e-3) {
             break;
         }
