@@ -153,29 +153,12 @@ contains
     v => neko_field_registry%get_field("v")
     w => neko_field_registry%get_field("w")
 
-    do i = 1, this%n_nodes
-       ! Sample the velocity
-       ui = u%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
-       vi = v%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
-       wi = w%x(this%ind_r(i), this%ind_s(i), this%ind_t(i), this%ind_e(i))
-
-       ! Project on tangential direction
-       normu = ui * this%n_x%x(i) + vi * this%n_y%x(i) + wi * this%n_z%x(i)
-
-       ui = ui - normu * this%n_x%x(i)
-       vi = vi - normu * this%n_y%x(i)
-       wi = wi - normu * this%n_z%x(i)
-
-       magu = sqrt(ui**2 + vi**2 + wi**2)
-
-       ! Compute the stress
-       utau = (magu - this%B) * this%kappa / log(this%h%x(i) / this%z0)
-
-       ! Distribute according to the velocity vector
-       this%tau_x%x(i) = -utau**2 * ui / magu
-       this%tau_y%x(i) = -utau**2 * vi / magu
-       this%tau_z%x(i) = -utau**2 * wi / magu
-    end do
+    ! Call the CPU kernel for rough log-law computation
+    call rough_log_law_compute_cpu(u%x, v%x, w%x, this%ind_r, this%ind_s, &
+         this%ind_t, this%ind_e, this%n_x%x, this%n_y%x, this%n_z%x, &
+         this%nu, this%h%x, this%tau_x%x, this%tau_y%x, this%tau_z%x, &
+         this%n_nodes, this%coef%lx, this%coef%nelv, this%kappa, &
+         this%B, this%z0, tstep)
 
   end subroutine rough_log_law_compute
 
