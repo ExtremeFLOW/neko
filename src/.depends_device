@@ -112,3 +112,7 @@ source_terms/bcknd/device/hip/filters.lo : source_terms/bcknd/device/hip/filters
 source_terms/bcknd/device/opencl/filters.lo : source_terms/bcknd/device/opencl/filters.c source_terms/bcknd/device/opencl/filter_kernels.cl.h
 wall_models/bcknd/device/cuda/wall_models.lo : wall_models/bcknd/device/cuda/wall_models.cu wall_models/bcknd/device/cuda/wall_model_kernels.h
 wall_models/bcknd/device/cuda/spalding.lo : wall_models/bcknd/device/cuda/spalding.cu wall_models/bcknd/device/cuda/spalding_kernel.h
+wall_models/bcknd/device/cuda/rough_log_law.lo : wall_models/bcknd/device/cuda/rough_log_law.cu wall_models/bcknd/device/cuda/rough_log_law_kernel.h
+wall_models/bcknd/device/hip/wall_models.lo : wall_models/bcknd/device/hip/wall_models.hip wall_models/bcknd/device/hip/wall_model_kernels.h
+wall_models/bcknd/device/hip/spalding.lo : wall_models/bcknd/device/hip/spalding.hip wall_models/bcknd/device/hip/spalding_kernel.h
+wall_models/bcknd/device/hip/rough_log_law.lo : wall_models/bcknd/device/hip/rough_log_law.hip wall_models/bcknd/device/hip/rough_log_law_kernel.h

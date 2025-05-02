@@ -351,7 +351,9 @@ les/wale.lo : les/wale.f90 common/log.lo field/field_registry.lo les/bcknd/cpu/w
 les/bcknd/cpu/wale_cpu.lo : les/bcknd/cpu/wale_cpu.f90 math/math.lo gs/gs_ops.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo field/field_list.lo config/num_types.lo 
 wall_models/wall_model.lo : wall_models/wall_model.f90 wall_models/bcknd/device/wall_model_device.lo io/file.lo common/log.lo comm/comm.lo math/math.lo common/utils.lo math/vector.lo device/device.lo config/neko_config.lo sem/coef.lo sem/dofmap.lo field/field_registry.lo field/field.lo config/num_types.lo 
 wall_models/bcknd/device/wall_model_device.lo : wall_models/bcknd/device/wall_model_device.F90 common/utils.lo config/num_types.lo 
-wall_models/rough_log_law.lo : wall_models/rough_log_law.f90 common/utils.lo common/json_utils.lo field/field_registry.lo wall_models/wall_model.lo config/neko_config.lo sem/coef.lo sem/dofmap.lo config/num_types.lo field/field.lo 
+wall_models/rough_log_law.lo : wall_models/rough_log_law.f90 wall_models/bcknd/cpu/rough_log_law_cpu.lo wall_models/bcknd/device/rough_log_law_device.lo common/utils.lo common/json_utils.lo field/field_registry.lo wall_models/wall_model.lo config/neko_config.lo sem/coef.lo sem/dofmap.lo config/num_types.lo field/field.lo 
+wall_models/bcknd/cpu/rough_log_law_cpu.lo : wall_models/bcknd/cpu/rough_log_law_cpu.f90 common/log.lo config/num_types.lo 
+wall_models/bcknd/device/rough_log_law_device.lo : wall_models/bcknd/device/rough_log_law_device.F90 common/utils.lo config/num_types.lo 
 wall_models/spalding.lo : wall_models/spalding.f90 wall_models/bcknd/device/spalding_device.lo wall_models/bcknd/cpu/spalding_cpu.lo common/utils.lo common/log.lo common/json_utils.lo field/field_registry.lo wall_models/wall_model.lo config/neko_config.lo sem/coef.lo sem/dofmap.lo config/num_types.lo math/vector.lo field/field.lo 
 wall_models/bcknd/cpu/spalding_cpu.lo : wall_models/bcknd/cpu/spalding_cpu.f90 common/log.lo config/num_types.lo 
 wall_models/bcknd/device/spalding_device.lo : wall_models/bcknd/device/spalding_device.F90 common/utils.lo config/num_types.lo 
