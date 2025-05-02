@@ -163,6 +163,9 @@ contains
 
     if (present(C)) then
 
+       !
+       ! Command line arguments
+       !
        argc = command_argument_count()
 
        if (argc .lt. 1) then
@@ -178,13 +181,6 @@ contains
           call neko_error('Invalid case file')
        end if
 
-       ! Check the device count against the number of MPI ranks
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          if (device_count() .ne. 1) then
-             call neko_error('Only one device is supported per MPI rank')
-          end if
-       end if
-
        if (argc .gt. 1) then
           write(log_buf, '(a)') 'Running with command line arguments: '
           call neko_log%message(log_buf, NEKO_LOG_QUIET)
@@ -193,6 +189,7 @@ contains
              call neko_log%message(args, NEKO_LOG_QUIET)
           end do
        end if
+
        !
        ! Job information
        !
