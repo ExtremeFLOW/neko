@@ -137,8 +137,8 @@ contains
 
        ! Fluid step
        call neko_log%section('Fluid')
-       call C%fluid%step(C%time%t, C%time%tstep, C%time%dt, C%fluid%ext_bdf, &
-            dt_controller)
+       start_time = MPI_WTIME()
+       call C%fluid%step(C%time, dt_controller)
        end_time = MPI_WTIME()
        write(log_buf, '(A,E15.7)') &
             'Fluid step time (s):   ', end_time-start_time
@@ -151,8 +151,7 @@ contains
        if (allocated(C%scalar)) then
           start_time = MPI_WTIME()
           call neko_log%section('Scalar')
-          call C%scalar%step(C%time%t, C%time%tstep, C%time%dt, C%fluid%ext_bdf, &
-               dt_controller)
+          call C%scalar%step(C%time, C%fluid%ext_bdf, dt_controller)
           end_time = MPI_WTIME()
           write(log_buf, '(A,E15.7)') &
                'Scalar step time:      ', end_time-start_time
@@ -160,10 +159,6 @@ contains
           write(log_buf, '(A,E15.7)') &
                'Total elapsed time (s):', end_time-start_time_org
           call neko_log%end_section(log_buf)
-
-          !> @todo Temporary fix until we have reworked the material properties
-          cp = C%scalar%cp
-          lambda = C%scalar%lambda
        end if
 
        ! Postprocessing
@@ -177,6 +172,10 @@ contains
        ! @todo Temporary fix until we have reworked the material properties
        rho = C%fluid%rho
        mu = C%fluid%mu
+       if (allocated(C%scalar)) then
+          cp = C%scalar%cp
+          lambda = C%scalar%lambda
+       end if
 
        ! Update material properties
        call C%usr%material_properties(C%time%t, C%time%tstep, rho, mu, cp, lambda, &
