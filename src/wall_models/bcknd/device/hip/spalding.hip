@@ -52,8 +52,8 @@ extern "C" {
 
     spalding_compute<real>
     <<<nblcks, nthrds, 0, stream>>>((real *) u_d, (real *) v_d, (real *) w_d,
-                                    (real *) ind_r_d, (real *) ind_s_d, 
-                                    (real *) ind_t_d, (real *) ind_e_d,
+                                    (int *) ind_r_d, (int *) ind_s_d, 
+                                    (int *) ind_t_d, (int *) ind_e_d,
                                     (real *) n_x_d, (real *) n_y_d, 
                                     (real *) n_z_d, *nu, (real *) h_d,
                                     (real *) tau_x_d, (real *) tau_y_d, 

@@ -420,12 +420,6 @@ contains
                                                    this%tau_z%x_d, &
                                                    this%tau_field%x_d, & 
                                                    this%msk_d, m)
-          call device_memcpy(this%tau_x%x, this%tau_x%x_d, this%n_nodes, DEVICE_TO_HOST, &
-            sync = .true.)
-          call device_memcpy(this%tau_y%x, this%tau_y%x_d, this%n_nodes, DEVICE_TO_HOST, &
-            sync = .true.)
-          call device_memcpy(this%tau_z%x, this%tau_z%x_d, this%n_nodes, DEVICE_TO_HOST, &
-            sync = .true.)
        else
           do i = 1, m
              magtau = sqrt(this%tau_x%x(i)**2 + &
@@ -434,9 +428,6 @@ contains
              this%tau_field%x(this%msk(i),1,1,1) = magtau
           end do
        end if
-       write(*,*) "this%tau_x%x",  maxval(abs(this%tau_x%x))
-       write(*,*) "this%tau_y%x",  maxval(abs(this%tau_y%x))
-       write(*,*) "this%tau_z%x",  maxval(abs(this%tau_z%x))
     end if
 
   end subroutine wall_model_compute_mag_field

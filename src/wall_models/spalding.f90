@@ -47,6 +47,7 @@ module spalding
   use utils, only : neko_error
   use spalding_cpu, only : spalding_compute_cpu
   use spalding_device, only : spalding_compute_device
+  use device, only : device_memcpy, HOST_TO_DEVICE
 
   implicit none
   private
@@ -153,6 +154,19 @@ contains
                            this%tau_x%x_d, this%tau_y%x_d, this%tau_z%x_d, &
                            this%n_nodes, u%Xh%lx, u%msh%nelv, &
                            this%kappa, this%B, tstep)
+      !  call spalding_compute_cpu(u%x, v%x, w%x, &
+      !                      this%ind_r, this%ind_s, this%ind_t, this%ind_e, &
+      !                      this%n_x%x, this%n_y%x, this%n_z%x, &
+      !                      this%nu, this%h%x, &
+      !                      this%tau_x%x, this%tau_y%x, this%tau_z%x, &
+      !                      this%n_nodes, u%Xh%lx, u%msh%nelv, &
+      !                      this%kappa, this%B, tstep)
+      !  call device_memcpy(this%tau_x%x, this%tau_x%x_d, this%n_nodes, HOST_TO_DEVICE, &
+      !       sync = .true.)
+      !  call device_memcpy(this%tau_y%x, this%tau_y%x_d, this%n_nodes, HOST_TO_DEVICE, &
+      !       sync = .true.)
+      !  call device_memcpy(this%tau_z%x, this%tau_z%x_d, this%n_nodes, HOST_TO_DEVICE, &
+      !       sync = .true.)
     else
        call spalding_compute_cpu(u%x, v%x, w%x, &
                            this%ind_r, this%ind_s, this%ind_t, this%ind_e, &

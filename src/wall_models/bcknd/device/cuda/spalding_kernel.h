@@ -39,19 +39,21 @@
  */
 #include <cmath>
 #include <algorithm>
-__device__ int linear_index(const int ind_r, const int ind_s, const int ind_t, 
-                            const int ind_e, const int lx);
 template<typename T>
-__device__ T solve(const T u, const T y, const T guess, const T nu, 
+__device__ T solve(const T u, const T y, const T guess, const T nu,
                    const T kappa, const T B);
+
+/**
+ * CUDA kernel for Spalding's wall model.
+ */
 template<typename T>
 __global__ void spalding_compute(const T * __restrict__ u_d,
                                  const T * __restrict__ v_d,
                                  const T * __restrict__ w_d,
-                                 const T * __restrict__ ind_r_d,
-                                 const T * __restrict__ ind_s_d,
-                                 const T * __restrict__ ind_t_d,
-                                 const T * __restrict__ ind_e_d,
+                                 const int * __restrict__ ind_r_d,
+                                 const int * __restrict__ ind_s_d,
+                                 const int * __restrict__ ind_t_d,
+                                 const int * __restrict__ ind_e_d,
                                  const T * __restrict__ n_x_d,
                                  const T * __restrict__ n_y_d,
                                  const T * __restrict__ n_z_d,
@@ -66,26 +68,23 @@ __global__ void spalding_compute(const T * __restrict__ u_d,
                                  const T B,
                                  const int tstep) {
     const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    const int str = blockDim.x * gridDim.x;
 
-    for (int i = idx; i < n_nodes; i += str) {
-        // Calculate the index once
-        int index = linear_index((int)ind_r_d[i], (int)ind_s_d[i], 
-                                 (int)ind_t_d[i], (int)ind_e_d[i], lx);
-
+    if (idx < n_nodes) {
         // Sample the velocity
+        const int index = (ind_e_d[idx] - 1) * lx * lx * lx +
+                          (ind_t_d[idx] - 1) * lx * lx +
+                          (ind_s_d[idx] - 1) * lx +
+                          (ind_r_d[idx] - 1);
+
         T ui = u_d[index];
         T vi = v_d[index];
         T wi = w_d[index];
 
         // Load normal vectors and wall shear stress values once
-        T nx = n_x_d[i];
-        T ny = n_y_d[i];
-        T nz = n_z_d[i];
-        T hx = h_d[i];
-        T tau_x = tau_x_d[i];
-        T tau_y = tau_y_d[i];
-        T tau_z = tau_z_d[i];
+        T nx = n_x_d[idx];
+        T ny = n_y_d[idx];
+        T nz = n_z_d[idx];
+        T h = h_d[idx];
 
         // Project on tangential direction
         T normu = ui * nx + vi * ny + wi * nz;
@@ -99,30 +98,29 @@ __global__ void spalding_compute(const T * __restrict__ u_d,
         // Get initial guess for Newton solver
         T guess;
         if (tstep == 1) {
-            guess = sqrt(magu * nu / hx);
+            guess = sqrt(magu * nu / h);
         } else {
-            guess = tau_x * tau_x + tau_y * tau_y + tau_z * tau_z;
+            guess = tau_x_d[idx] * tau_x_d[idx] +
+                    tau_y_d[idx] * tau_y_d[idx] +
+                    tau_z_d[idx] * tau_z_d[idx];
             guess = sqrt(sqrt(guess));
         }
 
         // Solve for utau using Newton's method
-        T utau = solve(magu, hx, guess, nu, kappa, B);
+        T utau = solve(magu, h, guess, nu, kappa, B);
 
         // Distribute according to the velocity vector
-        tau_x_d[i] = -utau * utau * ui / magu;
-        tau_y_d[i] = -utau * utau * vi / magu;
-        tau_z_d[i] = -utau * utau * wi / magu;
+        tau_x_d[idx] = -utau * utau * ui / magu;
+        tau_y_d[idx] = -utau * utau * vi / magu;
+        tau_z_d[idx] = -utau * utau * wi / magu;
     }
 }
 
-__device__ int linear_index(const int ind_r, const int ind_s, const int ind_t, 
-                            const int ind_e, const int lx) {
-  return (ind_r - 1) * lx * lx * lx + (ind_s - 1) * lx * lx 
-          + (ind_t - 1) * lx + ind_e - 1;
-}
-
+/**
+ * Newton solver for the algebraic equation defined by the law on GPU.
+ */
 template<typename T>
-__device__ T solve(const T u, const T y, const T guess, const T nu, 
+__device__ T solve(const T u, const T y, const T guess, const T nu,
                    const T kappa, const T B) {
     T utau = guess;
     T yp, up, f, df, old, error;
@@ -135,15 +133,15 @@ __device__ T solve(const T u, const T y, const T guess, const T nu,
 
         // Evaluate function and its derivative
         f = (up + exp(-kappa * B) *
-                  (exp(kappa * up) - 1.0 - kappa * up 
-                  - 0.5 * (kappa * up) * (kappa * up) -
-                  (1.0 / 6.0) * (kappa * up) * (kappa * up) * (kappa * up)) -
+                  (exp(kappa * up) - 1.0 - kappa * up -
+                   0.5 * (kappa * up) * (kappa * up) -
+                   (1.0 / 6.0) * (kappa * up) * (kappa * up) * (kappa * up)) -
              yp);
 
         df = (-y / nu - u / (utau * utau) -
               kappa * up / utau * exp(-kappa * B) *
-              (exp(kappa * up) - 1.0 - kappa * up 
-              - 0.5 * (kappa * up) * (kappa * up)));
+                  (exp(kappa * up) - 1.0 - kappa * up -
+                   0.5 * (kappa * up) * (kappa * up)));
 
         // Update solution
         utau -= f / df;
@@ -157,4 +155,5 @@ __device__ T solve(const T u, const T y, const T guess, const T nu,
 
     return utau;
 }
+
 #endif // __COMMON_SPALDING_KERNEL_H__
