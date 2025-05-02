@@ -137,6 +137,7 @@ contains
 
        ! Fluid step
        call neko_log%section('Fluid')
+       start_time = MPI_WTIME()
        call C%fluid%step(C%time, dt_controller)
        end_time = MPI_WTIME()
        write(log_buf, '(A,E15.7)') &
