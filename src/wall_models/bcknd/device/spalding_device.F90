@@ -87,8 +87,8 @@ module spalding_device
   subroutine spalding_compute_device(u_d, v_d, w_d, &
                 ind_r_d, ind_s_d, ind_t_d, ind_e_d, &
                 n_x_d, n_y_d, n_z_d, nu, h_d, tau_x_d, tau_y_d, tau_z_d, &
-                n_nodes, lx, nelv, kappa, B, tstep)
-    integer, intent(in) :: n_nodes, lx, nelv, tstep
+                n_nodes, lx, kappa, B, tstep)
+    integer, intent(in) :: n_nodes, lx, tstep
     type(c_ptr), intent(in) :: u_d, v_d, w_d
     type(c_ptr), intent(in) :: ind_r_d, ind_s_d, ind_t_d, ind_e_d
     type(c_ptr), intent(in) :: n_x_d, n_y_d, n_z_d, h_d
