@@ -106,6 +106,8 @@ contains
        C%time%tstep = C%time%tstep + 1
        start_time = MPI_WTIME()
        tstep_start_time = start_time
+
+       call neko_log%section('Preprocessing')
        if (dt_controller%dt_last_change .eq. 0) then
           cfl_avrg = cfl
        end if
@@ -128,7 +130,6 @@ contains
        call neko_log%message(log_buf)
 
        ! Run the preprocessing
-       call neko_log%section('Preprocessing')
        call neko_simcomps%preprocess(C%time)
        call neko_log%end_section()
 
@@ -136,11 +137,8 @@ contains
        call C%fluid%step(C%time%t, C%time%tstep, C%time%dt, C%fluid%ext_bdf, &
             dt_controller)
        end_time = MPI_WTIME()
-       write(log_buf, '(A,E15.7)') &
-            'Fluid step time (s):   ', end_time-start_time
-       call neko_log%message(log_buf)
-       write(log_buf, '(A,E15.7)') &
-            'Total elapsed time (s):', end_time-start_time_org
+       write(log_buf, '(A,3X,E15.7)') &
+            'Fluid step time (s):', end_time-start_time
        call neko_log%end_section(log_buf)
 
        ! Scalar step
@@ -150,11 +148,8 @@ contains
           call C%scalar%step(C%time%t, C%time%tstep, C%time%dt, C%fluid%ext_bdf, &
                dt_controller)
           end_time = MPI_WTIME()
-          write(log_buf, '(A,E15.7)') &
-               'Scalar step time:      ', end_time-start_time
-          call neko_log%message(log_buf)
-          write(log_buf, '(A,E15.7)') &
-               'Total elapsed time (s):', end_time-start_time_org
+          write(log_buf, '(A,6X,E15.7)') &
+               'Scalar step time:', end_time-start_time
           call neko_log%end_section(log_buf)
 
           !> @todo Temporary fix until we have reworked the material properties
