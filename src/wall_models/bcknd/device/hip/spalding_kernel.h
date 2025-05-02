@@ -44,7 +44,7 @@ __device__ T solve(const T u, const T y, const T guess, const T nu,
                    const T kappa, const T B);
 
 /**
- * CUDA kernel for Spalding's wall model.
+ * Device kernel for Spalding's wall model.
  */
 template<typename T>
 __global__ void spalding_compute(const T * __restrict__ u_d,
@@ -67,9 +67,10 @@ __global__ void spalding_compute(const T * __restrict__ u_d,
                                  const T kappa,
                                  const T B,
                                  const int tstep) {
+                                    
     const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (idx < n_nodes) {
+    const int str = blockDim.x * gridDim.x;
+    for (int i = idx; i < n; i += str) {
         // Sample the velocity
         const int index = (ind_e_d[idx] - 1) * lx * lx * lx +
                           (ind_t_d[idx] - 1) * lx * lx +
