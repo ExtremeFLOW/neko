@@ -36,13 +36,11 @@ module rough_log_law
   use field, only: field_t
   use num_types, only : rp
   use json_module, only : json_file
-  use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
   use field_registry, only : neko_field_registry
   use json_utils, only : json_get_or_default, json_get
-  use utils, only : neko_error
   use rough_log_law_device, only : rough_log_law_compute_device
   use rough_log_law_cpu, only : rough_log_law_compute_cpu
   implicit none

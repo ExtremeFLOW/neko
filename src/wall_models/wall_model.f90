@@ -40,7 +40,7 @@ module wall_model
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
+  use device, only : device_memcpy, HOST_TO_DEVICE
   use vector, only : vector_t
   use utils, only : neko_error, nonlinear_index
   use math, only : glmin, glmax

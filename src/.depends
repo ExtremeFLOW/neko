@@ -157,7 +157,7 @@ bc/facet_normal.lo : bc/facet_normal.f90 common/utils.lo bc/bc.lo sem/coef.lo ma
 bc/symmetry.lo : bc/symmetry.f90 bc/zero_dirichlet.lo sem/coef.lo adt/tuple.lo bc/bc.lo config/num_types.lo bc/dirichlet.lo bc/bcknd/device/device_symmetry.lo 
 bc/non_normal.lo : bc/non_normal.f90 sem/coef.lo adt/tuple.lo config/num_types.lo bc/symmetry.lo 
 bc/blasius.lo : bc/blasius.f90 common/json_utils.lo bc/bc.lo fluid/flow_profile.lo bc/bcknd/device/device_inhom_dirichlet.lo device/device.lo common/utils.lo sem/coef.lo config/num_types.lo 
-bc/wall_model_bc.lo : bc/wall_model_bc.f90 bc/shear_stress.lo wall_models/spalding.lo wall_models/rough_log_law.lo wall_models/wall_model.lo sem/coef.lo common/json_utils.lo common/utils.lo bc/bc.lo config/num_types.lo 
+bc/wall_model_bc.lo : bc/wall_model_bc.f90 bc/shear_stress.lo wall_models/wall_model.lo sem/coef.lo common/json_utils.lo common/utils.lo config/num_types.lo 
 krylov/precon.lo : krylov/precon.f90 config/num_types.lo 
 krylov/krylov.lo : krylov/krylov.f90 common/log.lo config/neko_config.lo krylov/bcknd/device/pc_identity_device.lo krylov/pc_identity.lo bc/bc_list.lo common/utils.lo field/field.lo mesh/mesh.lo sem/coef.lo krylov/precon.lo config/num_types.lo math/ax.lo gs/gather_scatter.lo 
 krylov/pc_identity.lo : krylov/pc_identity.f90 config/num_types.lo krylov/precon.lo math/math.lo 
@@ -351,10 +351,10 @@ les/wale.lo : les/wale.f90 common/log.lo field/field_registry.lo les/bcknd/cpu/w
 les/bcknd/cpu/wale_cpu.lo : les/bcknd/cpu/wale_cpu.f90 math/math.lo gs/gs_ops.lo sem/coef.lo math/operators.lo field/field.lo field/field_registry.lo field/scratch_registry.lo field/field_list.lo config/num_types.lo 
 wall_models/wall_model.lo : wall_models/wall_model.f90 wall_models/bcknd/device/wall_model_device.lo io/file.lo common/log.lo comm/comm.lo math/math.lo common/utils.lo math/vector.lo device/device.lo config/neko_config.lo sem/coef.lo sem/dofmap.lo field/field_registry.lo field/field.lo config/num_types.lo 
 wall_models/bcknd/device/wall_model_device.lo : wall_models/bcknd/device/wall_model_device.F90 common/utils.lo config/num_types.lo 
-wall_models/rough_log_law.lo : wall_models/rough_log_law.f90 wall_models/bcknd/cpu/rough_log_law_cpu.lo wall_models/bcknd/device/rough_log_law_device.lo common/utils.lo common/json_utils.lo field/field_registry.lo wall_models/wall_model.lo config/neko_config.lo sem/coef.lo sem/dofmap.lo config/num_types.lo field/field.lo 
+wall_models/rough_log_law.lo : wall_models/rough_log_law.f90 wall_models/bcknd/cpu/rough_log_law_cpu.lo wall_models/bcknd/device/rough_log_law_device.lo common/json_utils.lo field/field_registry.lo wall_models/wall_model.lo config/neko_config.lo sem/coef.lo config/num_types.lo field/field.lo 
 wall_models/bcknd/cpu/rough_log_law_cpu.lo : wall_models/bcknd/cpu/rough_log_law_cpu.f90 common/log.lo config/num_types.lo 
 wall_models/bcknd/device/rough_log_law_device.lo : wall_models/bcknd/device/rough_log_law_device.F90 common/utils.lo config/num_types.lo 
-wall_models/spalding.lo : wall_models/spalding.f90 wall_models/bcknd/device/spalding_device.lo wall_models/bcknd/cpu/spalding_cpu.lo common/utils.lo common/log.lo common/json_utils.lo field/field_registry.lo wall_models/wall_model.lo config/neko_config.lo sem/coef.lo sem/dofmap.lo config/num_types.lo math/vector.lo field/field.lo 
+wall_models/spalding.lo : wall_models/spalding.f90 wall_models/bcknd/device/spalding_device.lo wall_models/bcknd/cpu/spalding_cpu.lo common/json_utils.lo field/field_registry.lo wall_models/wall_model.lo config/neko_config.lo sem/coef.lo config/num_types.lo field/field.lo 
 wall_models/bcknd/cpu/spalding_cpu.lo : wall_models/bcknd/cpu/spalding_cpu.f90 common/log.lo config/num_types.lo 
 wall_models/bcknd/device/spalding_device.lo : wall_models/bcknd/device/spalding_device.F90 common/utils.lo config/num_types.lo 
 wall_models/wall_model_fctry.lo : wall_models/wall_model_fctry.f90 common/json_utils.lo common/utils.lo wall_models/rough_log_law.lo wall_models/spalding.lo les/vreman.lo wall_models/wall_model.lo 

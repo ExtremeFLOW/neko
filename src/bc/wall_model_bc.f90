@@ -34,14 +34,11 @@
 !! Maintainer: Timofey Mukha.
 module wall_model_bc
   use num_types, only : rp
-  use bc, only : bc_t
   use, intrinsic :: iso_c_binding, only : c_ptr
-  use utils, only : neko_error, nonlinear_index
+  use utils, only : neko_error
   use json_utils, only : json_get
   use coefs, only : coef_t
   use wall_model, only : wall_model_t, wall_model_factory
-  use rough_log_law, only : rough_log_law_t
-  use spalding, only : spalding_t
   use shear_stress, only : shear_stress_t
   use json_module, only : json_file
   implicit none

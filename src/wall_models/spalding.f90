@@ -34,17 +34,13 @@
 !> Implements `spalding_t`.
 module spalding
   use field, only: field_t
-  use vector, only: vector_t
   use num_types, only : rp
   use json_module, only : json_file
-  use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use wall_model, only : wall_model_t
   use field_registry, only : neko_field_registry
   use json_utils, only : json_get_or_default
-  use logger, only : neko_log, NEKO_LOG_DEBUG
-  use utils, only : neko_error
   use spalding_cpu, only : spalding_compute_cpu
   use spalding_device, only : spalding_compute_device
 
