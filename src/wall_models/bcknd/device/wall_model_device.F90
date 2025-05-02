@@ -41,8 +41,8 @@ module wall_model_device
 #ifdef HAVE_HIP
   interface
      subroutine hip_wall_model_compute_mag_field(tau_x_d, tau_y_d, tau_z_d, &
-                tau_field_d, msk_d, m) &
-         bind(c, name = 'hip_wall_model_compute_mag_field')
+          tau_field_d, msk_d, m) &
+          bind(c, name = 'hip_wall_model_compute_mag_field')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        implicit none
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d, tau_field_d, msk_d
@@ -52,8 +52,8 @@ module wall_model_device
 #elif HAVE_CUDA
   interface
      subroutine cuda_wall_model_compute_mag_field(tau_x_d, tau_y_d, tau_z_d, &
-                tau_field_d, msk_d, m) &
-         bind(c, name = 'cuda_wall_model_compute_mag_field')
+          tau_field_d, msk_d, m) &
+          bind(c, name = 'cuda_wall_model_compute_mag_field')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        implicit none
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d, tau_field_d, msk_d
@@ -64,12 +64,12 @@ module wall_model_device
 #endif
   public :: wall_model_compute_mag_field_device
 
-  contains
+contains
   !> Compute the wall shear stress's magnitude on device.
   !! @param t The time value.
   !! @param tstep The current time-step.
   subroutine wall_model_compute_mag_field_device(tau_x_d, tau_y_d, tau_z_d, &
-                tau_field_d, msk_d, m)
+       tau_field_d, msk_d, m)
     type(c_ptr), intent(in) :: tau_x_d, tau_y_d, tau_z_d
     type(c_ptr), intent(in) :: msk_d
     type(c_ptr), intent(inout) :: tau_field_d
@@ -77,10 +77,10 @@ module wall_model_device
 
 #if HAVE_HIP
     call hip_wall_model_compute_mag_field(tau_x_d, tau_y_d, tau_z_d, &
-                tau_field_d, msk_d, m)
+         tau_field_d, msk_d, m)
 #elif HAVE_CUDA
     call cuda_wall_model_compute_mag_field(tau_x_d, tau_y_d, tau_z_d, &
-                tau_field_d, msk_d, m)
+         tau_field_d, msk_d, m)
 #elif HAVE_OPENCL
     call neko_error("OPENCL is not implemented for &
     &wall_model_compute_mag_field")

@@ -147,20 +147,20 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call spalding_compute_device(u%x_d, v%x_d, w%x_d, this%ind_r_d, &
-                           this%ind_s_d, this%ind_t_d, this%ind_e_d, &
-                           this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
-                           this%nu, this%h%x_d, &
-                           this%tau_x%x_d, this%tau_y%x_d, this%tau_z%x_d, &
-                           this%n_nodes, u%Xh%lx, &
-                           this%kappa, this%B, tstep)
+            this%ind_s_d, this%ind_t_d, this%ind_e_d, &
+            this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
+            this%nu, this%h%x_d, &
+            this%tau_x%x_d, this%tau_y%x_d, this%tau_z%x_d, &
+            this%n_nodes, u%Xh%lx, &
+            this%kappa, this%B, tstep)
     else
        call spalding_compute_cpu(u%x, v%x, w%x, &
-                           this%ind_r, this%ind_s, this%ind_t, this%ind_e, &
-                           this%n_x%x, this%n_y%x, this%n_z%x, &
-                           this%nu, this%h%x, &
-                           this%tau_x%x, this%tau_y%x, this%tau_z%x, &
-                           this%n_nodes, u%Xh%lx, u%msh%nelv, &
-                           this%kappa, this%B, tstep)
+            this%ind_r, this%ind_s, this%ind_t, this%ind_e, &
+            this%n_x%x, this%n_y%x, this%n_z%x, &
+            this%nu, this%h%x, &
+            this%tau_x%x, this%tau_y%x, this%tau_z%x, &
+            this%n_nodes, u%Xh%lx, u%msh%nelv, &
+            this%kappa, this%B, tstep)
     end if
 
   end subroutine spalding_compute

@@ -39,13 +39,13 @@ module spalding_cpu
 
   public :: spalding_compute_cpu
 
-  contains
+contains
   !> Compute the wall shear stress on cpu using Spalding's model.
   !! @param t The time value.
   !! @param tstep The current time-step.
   subroutine spalding_compute_cpu(u, v, w, ind_r, ind_s, ind_t, ind_e, &
-                n_x, n_y, n_z, nu, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
-                kappa, B, tstep)
+       n_x, n_y, n_z, nu, h, tau_x, tau_y, tau_z, n_nodes, lx, nelv, &
+       kappa, B, tstep)
     integer, intent(in) :: n_nodes, lx, nelv, tstep
     real(kind=rp), dimension(lx, lx, lx, nelv), intent(in) :: u, v, w
     integer, intent(in), dimension(n_nodes) :: ind_r, ind_s, ind_t, ind_e

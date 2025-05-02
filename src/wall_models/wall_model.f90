@@ -265,7 +265,7 @@ contains
     if (allocated(this%ind_t)) then
        deallocate(this%ind_t)
     end if
-    
+
     if (c_associated(this%msk_d)) then
        call device_free(this%msk_d)
     end if
@@ -416,10 +416,10 @@ contains
     if (m > 0) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call wall_model_compute_mag_field_device(this%tau_x%x_d, &
-                                                   this%tau_y%x_d, &
-                                                   this%tau_z%x_d, &
-                                                   this%tau_field%x_d, & 
-                                                   this%msk_d, m)
+               this%tau_y%x_d, &
+               this%tau_z%x_d, &
+               this%tau_field%x_d, &
+               this%msk_d, m)
        else
           do i = 1, m
              magtau = sqrt(this%tau_x%x(i)**2 + &
