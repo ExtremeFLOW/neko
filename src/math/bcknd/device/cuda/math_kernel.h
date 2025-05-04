@@ -160,6 +160,39 @@ __global__ void cmult2_kernel(T * __restrict__ a,
 }
 
 /**
+ * Device kernel for cdiv
+ */
+template< typename T >
+__global__ void cdiv_kernel(T * __restrict__ a,
+                             const T c,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = c / a[i];
+  }
+}
+
+/**
+ * Device kernel for cdiv2
+ */
+template< typename T >
+__global__ void cdiv2_kernel(T * __restrict__ a,
+                 T * __restrict__ b, 
+                             const T c,
+                             const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    a[i] = c / b[i];
+  }
+}
+
+/**
  * Device kernel for cadd
  */
 template< typename T >

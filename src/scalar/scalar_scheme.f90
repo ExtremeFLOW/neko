@@ -72,6 +72,7 @@ module scalar_scheme
   use neko_config, only : NEKO_BCKND_DEVICE
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
+  use time_state, only : time_state_t
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -204,16 +205,13 @@ module scalar_scheme
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf, &
-          dt_controller)
+     subroutine scalar_scheme_step_intrf(this, time, ext_bdf, dt_controller)
        import scalar_scheme_t
+       import time_state_t
        import time_scheme_controller_t
        import time_step_controller_t
-       import rp
        class(scalar_scheme_t), intent(inout) :: this
-       real(kind=rp), intent(in) :: t
-       integer, intent(in) :: tstep
-       real(kind=rp), intent(in) :: dt
+       type(time_state_t), intent(in) :: time
        type(time_scheme_controller_t), intent(in) :: ext_bdf
        type(time_step_controller_t), intent(in) :: dt_controller
      end subroutine scalar_scheme_step_intrf

@@ -66,6 +66,7 @@ module scalar_pnpn
   use zero_dirichlet, only : zero_dirichlet_t
   use time_step_controller, only : time_step_controller_t
   use scratch_registry, only : neko_scratch_registry
+  use time_state, only : time_state_t
   use bc, only : bc_t
   implicit none
   private
@@ -333,11 +334,9 @@ contains
 
   end subroutine scalar_pnpn_free
 
-  subroutine scalar_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
+  subroutine scalar_pnpn_step(this, time, ext_bdf, dt_controller)
     class(scalar_pnpn_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    real(kind=rp), intent(in) :: dt
+    type(time_state_t), intent(in) :: time
     type(time_scheme_controller_t), intent(in) :: ext_bdf
     type(time_step_controller_t), intent(in) :: dt_controller
     ! Number of degrees of freedom
@@ -360,8 +359,7 @@ contains
          projection_dim => this%projection_dim, &
          msh => this%msh, res => this%res, makeoifs => this%makeoifs, &
          makeext => this%makeext, makebdf => this%makebdf, &
-         if_variable_dt => dt_controller%if_variable_dt, &
-         dt_last_change => dt_controller%dt_last_change)
+         t => time%t, tstep => time%tstep, dt => time%dt)
 
       ! Logs extra information the log level is NEKO_LOG_DEBUG or above.
       call print_debug(this)

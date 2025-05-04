@@ -10,11 +10,13 @@ cat log2
 ref1=ref1_${2}.log
 ref2=ref2_${2}.log
 #Check all residuals of last time step
-awk 'c&&c--{if(c !=17 && NF > 2){print}};/100.00%/{c=19}' log1 > l1
-awk 'c&&c--{if(c !=17 && NF > 2){print}};/100.00%/{c=19}' log2 > l2
+awk 'c&&c--{if(c !=17 && NF > 2){print}};/110.00%/{c=18}' log1 > l1
+awk 'c&&c--{if(c !=17 && NF > 2){print}};/110.00%/{c=18}' log2 > l2
 #Check all residuals of last time step
-awk 'c&&c--{if(c !=17 && NF > 2){print}};/100.00%/{c=19}' ${ref1} > r1
-awk 'c&&c--{if(c !=17 && NF > 2){print}};/100.00%/{c=19}' ${ref2} > r2
+awk 'c&&c--{if(c !=17 && NF > 2){print}};/110.00%/{c=18}' ${ref1} > r1
+#c is how many lines we want from the match of 110.00%
+#Check all residuals of last time step
+awk 'c&&c--{if(c !=17 && NF > 2){print}};/110.00%/{c=18}' ${ref2} > r2
 #Compare that they are identical to what was done before
 diff l1 r1 > res
 diff l2 r1 >> res
