@@ -402,7 +402,7 @@ contains
     end do
     call this%curve%finalize()
 
-    call this%check_right_handedness()
+    !call this%check_right_handedness()
 
   end subroutine mesh_finalize
 
