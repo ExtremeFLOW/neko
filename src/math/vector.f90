@@ -103,6 +103,7 @@ module vector
           vector_pointwise_mult
      generic :: operator(/) => vector_cdiv_left, vector_cdiv_right, &
           vector_pointwise_div
+     ! Seems to crash the cray compiler
      !generic :: operator(**) => vector_pointwise_power
 
      ! Private interfaces
@@ -370,13 +371,13 @@ contains
        return
     end if
 
-    !do i = 1, b
-    !   if (NEKO_BCKND_DEVICE .eq. 1) then
-    !      call device_col2(v%x_d, a%x_d, v%n)
-    !   else
-    !      call col2(v%x, a%x, v%n)
-    !   end if
-    !end do
+    do i = 1, b
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_col2(v%x_d, a%x_d, v%n)
+       else
+          call col2(v%x, a%x, v%n)
+       end if
+    end do
 
   end function vector_pointwise_power
 
