@@ -86,7 +86,7 @@ contains
             maxval(y(id1:id2)), &
             maxval(z(id1:id2))/))
       end do
-      call this%local_aabb_tree%build(this%local_aabb, padding)
+      call this%local_aabb_tree%build_from_aabb(this%local_aabb, padding)
    end subroutine aabb_el_finder_init
 
    !> Free the AABB element finder.

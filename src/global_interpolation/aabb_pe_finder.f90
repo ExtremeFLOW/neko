@@ -208,7 +208,7 @@ contains
     do i = 1, this%glob_map_size
        call this%global_aabb(i)%init(rank_xyz_min(:,i), rank_xyz_max(:,i))
     end do
-    call this%global_aabb_tree%build(this%global_aabb,padding)
+    call this%global_aabb_tree%build_from_aabb(this%global_aabb,padding)
   end subroutine aabb_pe_finder_init
 
 
