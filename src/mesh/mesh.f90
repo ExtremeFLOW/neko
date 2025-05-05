@@ -402,6 +402,7 @@ contains
     end do
     call this%curve%finalize()
 
+    ! Due to a bug, right handedness check disabled for the time being.
     !call this%check_right_handedness()
 
   end subroutine mesh_finalize
