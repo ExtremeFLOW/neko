@@ -93,6 +93,24 @@ module opencl_math
        integer(c_int) :: n
      end subroutine opencl_cmult2
 
+     subroutine opencl_cdiv(a_d, c, n) &
+          bind(c, name = 'opencl_cdiv')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine opencl_cdiv
+
+     subroutine opencl_cdiv2(a_d, b_d, c, n) &
+          bind(c, name = 'opencl_cdiv2')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a_d, b_d
+       real(c_rp) :: c
+       integer(c_int) :: n
+     end subroutine opencl_cdiv2
+
      subroutine opencl_cadd(a_d, c, n) &
           bind(c, name = 'opencl_cadd')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
@@ -287,6 +305,16 @@ module opencl_math
        type(c_ptr), value :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
        integer(c_int) :: n
      end subroutine opencl_vdot3
+
+     subroutine opencl_vcross(u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, &
+          w1_d, w2_d, w3_d, n) &
+          bind(c, name = 'opencl_vcross')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       type(c_ptr), value :: u1_d, u2_d, u3_d
+       type(c_ptr), value :: v1_d, v2_d, v3_d
+       type(c_ptr), value :: w1_d, w2_d, w3_d
+       integer(c_int) :: n
+     end subroutine opencl_vcross
 
      real(c_rp) function opencl_glsc3(a_d, b_d, c_d, n) &
           bind(c, name = 'opencl_glsc3')

@@ -50,7 +50,6 @@ module fluid_pnpn
   use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
   use device_mathops, only : device_opcolv, device_opadd2cm
   use fluid_aux, only : fluid_step_info
-  use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
   use projection_vel, only : projection_vel_t
   use device, only : device_memcpy, HOST_TO_DEVICE, device_event_sync, &
@@ -82,6 +81,7 @@ module fluid_pnpn
   use bc, only : bc_t
   use file, only : file_t
   use operators, only : ortho
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -583,12 +583,9 @@ contains
   !! @param dt The timestep
   !! @param ext_bdf Time integration logic.
   !! @param dt_controller timestep controller
-  subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
+  subroutine fluid_pnpn_step(this, time, dt_controller)
     class(fluid_pnpn_t), target, intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    real(kind=rp), intent(in) :: dt
-    type(time_scheme_controller_t), intent(in) :: ext_bdf
+    type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
     ! number of degrees of freedom
     integer :: n
@@ -621,9 +618,8 @@ contains
          rho => this%rho, mu => this%mu, oifs => this%oifs, &
          rho_field => this%rho_field, mu_field => this%mu_field, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
-         if_variable_dt => dt_controller%if_variable_dt, &
-         dt_last_change => dt_controller%dt_last_change, &
-         event => glb_cmd_event)
+         t => time%t, tstep => time%tstep, dt => time%dt, &
+         ext_bdf => this%ext_bdf, event => glb_cmd_event)
 
       ! Extrapolate the velocity if it's not done in nut_field estimation
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &

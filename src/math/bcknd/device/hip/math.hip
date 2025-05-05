@@ -173,6 +173,37 @@ extern "C" {
     HIP_CHECK(hipGetLastError());
 
   }
+  
+  /** Fortran wrapper for cdiv
+   * Division of constant c by array \f$ a = c / a \f$
+   */
+  void hip_cdiv(void *a, real *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(cdiv_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) a, *c, *n);
+    HIP_CHECK(hipGetLastError());
+    
+  }
+
+  /** Fortran wrapper for cdiv
+   * Division of constant c by \f$ a = c / b \f$
+   */
+  void hip_cdiv2(void *a, void *b, real *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(cdiv2_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) a,(real *) b, *c, *n);
+    HIP_CHECK(hipGetLastError());
+    
+  }
+
   /** Fortran wrapper for cadd
    * Add a scalar to vector \f$ a = \sum a_i + s \f$
    */

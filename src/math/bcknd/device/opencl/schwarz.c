@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022, The Neko Authors
+ Copyright (c) 2022-2025, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -46,18 +46,20 @@
 
 #include "schwarz_kernel.cl.h"
 
-void opencl_schwarz_extrude(void *arr1, int * l1, real * f1,
-                         void *arr2, int * l2, real * f2,
-                         int * nx, int * nel) {  
+void opencl_schwarz_extrude(void *arr1, int *l1, real *f1,
+                            void *arr2, int *l2, real *f2,
+                            int *nx, int *nel,
+                            cl_command_queue command_queue) {
   cl_int err;
 
   if (schwarz_program == NULL)
     opencl_kernel_jit(schwarz_kernel, (cl_program *) &schwarz_program);
 
-  const size_t global_item_size = 256 * (*nel);
-  const size_t local_item_size = 256;
+  const size_t local_item_size = (*nx-2)*(*nx-2);
+  const size_t global_item_size = local_item_size * (*nel);
 
-#define STR(X) #X  
+
+#define STR(X) #X
 #define CASE(NX)                                                               \
   case NX:                                                                     \
     {                                                                          \
@@ -74,8 +76,8 @@ void opencl_schwarz_extrude(void *arr1, int * l1, real * f1,
       CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), l2));                    \
       CL_CHECK(clSetKernelArg(kernel, 5, sizeof(real), f2));                   \
                                                                                \
-      CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue,        \
-                                      kernel, 1, NULL, &global_item_size,      \
+      CL_CHECK(clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL,          \
+                                      &global_item_size,                       \
                                       &local_item_size, 0, NULL, NULL));       \
      }                                                                         \
     break
@@ -99,12 +101,13 @@ void opencl_schwarz_extrude(void *arr1, int * l1, real * f1,
   }
 }
 
-void opencl_schwarz_toext3d(void *a, void *b,int * nx, int * nel) {
+void opencl_schwarz_toext3d(void *a, void *b, int *nx, int *nel,
+                            cl_command_queue command_queue) {
   cl_int err;
 
   if (schwarz_program == NULL)
     opencl_kernel_jit(schwarz_kernel, (cl_program *) &schwarz_program);
-  
+
   cl_kernel kernel = clCreateKernel(schwarz_program,
                                     "schwarz_toext3d_kernel", &err);
   CL_CHECK(err);
@@ -112,21 +115,22 @@ void opencl_schwarz_toext3d(void *a, void *b,int * nx, int * nel) {
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), nx));
-  
+
   const size_t global_item_size = 256 * (*nel);
   const size_t local_item_size = 256;
 
-  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+  CL_CHECK(clEnqueueNDRangeKernel(command_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
 }
 
-void opencl_schwarz_toreg3d(void *b, void *a,int * nx, int * nel) {
+void opencl_schwarz_toreg3d(void *b, void *a, int *nx, int *nel,
+                            cl_command_queue command_queue) {
   cl_int err;
 
   if (schwarz_program == NULL)
     opencl_kernel_jit(schwarz_kernel, (cl_program *) &schwarz_program);
-  
+
   cl_kernel kernel = clCreateKernel(schwarz_program,
                                     "schwarz_toreg3d_kernel", &err);
   CL_CHECK(err);
@@ -134,13 +138,11 @@ void opencl_schwarz_toreg3d(void *b, void *a,int * nx, int * nel) {
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &b));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &a));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), nx));
-  
+
   const size_t global_item_size = 256 * (*nel);
   const size_t local_item_size = 256;
 
-  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel, 1,
+  CL_CHECK(clEnqueueNDRangeKernel(command_queue, kernel, 1,
                                   NULL, &global_item_size, &local_item_size,
                                   0, NULL, NULL));
 }
-
-
