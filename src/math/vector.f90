@@ -103,7 +103,8 @@ module vector
           vector_pointwise_mult
      generic :: operator(/) => vector_cdiv_left, vector_cdiv_right, &
           vector_pointwise_div
-     generic :: operator(**) => vector_pointwise_power
+     ! Seems to crash the cray compiler
+     !generic :: operator(**) => vector_pointwise_power
 
      ! Private interfaces
      procedure, pass(a), private :: alloc => vector_allocate
@@ -305,9 +306,10 @@ contains
     call v%alloc(a%n)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
+       v = a
        call device_cmult(v%x_d, -1.0_rp, v%n)
     else
-       v%x = -v%x
+       v%x = -a%x
     end if
 
   end function vector_chsign
@@ -364,17 +366,12 @@ contains
     integer :: i
 
     call v%alloc(a%n)
+    v = 1.0_rp
     if (b .eq. 0) then
-       v = 1.0_rp
        return
     end if
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_copy(v%x_d, a%x_d, v%n)
-    else
-       call copy(v%x, a%x,v%n)
-    end if
 
-    do i = 2, b
+    do i = 1, b
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_col2(v%x_d, a%x_d, v%n)
        else
