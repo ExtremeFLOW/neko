@@ -36,6 +36,7 @@ module aabb_pe_finder
   use num_types, only: rp, dp, xp
   use neko_config, only : NEKO_BCKND_DEVICE
   use space, only: space_t
+  use pe_finder, only: pe_finder_t
   use stack, only: stack_i4_t, stack_i4t2_t
   use utils, only: neko_error, neko_warning
   use tuple, only: tuple_i4_t
@@ -57,13 +58,8 @@ module aabb_pe_finder
   integer, public, parameter :: GLOB_MAP_SIZE = 4096
 
   !> Implements global interpolation for arbitrary points in the domain.
-  type, public :: aabb_pe_finder_t
+  type, public, extends(pe_finder_t) :: aabb_pe_finder_t
      !> Which communicator to find things on
-     type(MPI_COMM) :: comm
-     !> pe_rank in comm
-     integer :: pe_rank
-     !> pe_size of comm
-     integer :: pe_size
      real(kind=dp) :: padding
      !> Structure to find rank candidates
      type(aabb_t), allocatable :: global_aabb(:)
@@ -134,12 +130,12 @@ contains
     do i = 1, nelv
        id1 = lx*ly*lz*(i-1)+1
        id2 = lx*ly*lz*(i)
-       call local_aabb(i)%init( (/minval(x(id1:id2)), &
+       call local_aabb(i)%init( real((/minval(x(id1:id2)), &
             minval(y(id1:id2)), &
-            minval(z(id1:id2))/), &
-            (/maxval(x(id1:id2)), &
+            minval(z(id1:id2))/),dp), &
+            real((/maxval(x(id1:id2)), &
             maxval(y(id1:id2)), &
-            maxval(z(id1:id2))/))
+            maxval(z(id1:id2))/),dp))
        call local_aabb_tree%insert_object(local_aabb(i),i)
     end do
 
@@ -225,7 +221,7 @@ contains
   !! @param pe_candidates Candidates for the point.
   subroutine aabb_pe_finder_find_candidates(this, my_point, pe_candidates)
     class(aabb_pe_finder_t), intent(inout) :: this
-    type(point_t), intent(inout) :: my_point
+    type(point_t), intent(in) :: my_point
     type(stack_i4_t), intent(inout) :: pe_candidates
     integer, pointer :: pe_cands(:) => Null()
     integer :: i
@@ -241,13 +237,13 @@ contains
   subroutine aabb_pe_finder_find_candidates_batch(this, points, n_points, points_at_pe, n_points_pe)
     class(aabb_pe_finder_t), intent(inout) :: this
     integer, intent(in) :: n_points
-    real(kind=rp), intent(inout) :: points(3,n_points)
-    type(stack_i4_t) :: points_at_pe(0:(this%pe_size-1))
+    real(kind=rp), intent(in) :: points(3,n_points)
+    type(stack_i4_t), intent(inout) :: points_at_pe(0:(this%pe_size-1))
     integer, intent(inout) :: n_points_pe(0:(this%pe_size-1))
     type(stack_i4_t) :: pe_candidates
     type(point_t) :: my_point
     integer :: i, j, temp_intent, pe_id, htable_data
-    real(kind=rp) :: pt_xyz(3)
+    real(kind=dp) :: pt_xyz(3)
     integer, pointer :: pe_cands(:) => Null()
     type(htable_i4_t) :: marked_rank
 

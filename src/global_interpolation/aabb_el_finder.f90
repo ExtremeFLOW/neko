@@ -32,118 +32,119 @@
 !
 
 module aabb_el_finder
-   use num_types, only: rp, dp, xp
-   use neko_config, only : NEKO_BCKND_DEVICE
-   use space, only: space_t
-   use stack, only: stack_i4_t
-   use tuple, only: tuple_i4_t
-   use point, only: point_t
-   use aabb, only: aabb_t
-   use aabb_tree, only: aabb_tree_t, aabb_node_t, AABB_NULL_NODE
-   implicit none
-   private
+  use num_types, only: rp, dp, xp
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use el_finder, only: el_finder_t
+  use space, only: space_t
+  use stack, only: stack_i4_t
+  use tuple, only: tuple_i4_t
+  use point, only: point_t
+  use aabb, only: aabb_t
+  use aabb_tree, only: aabb_tree_t, aabb_node_t, AABB_NULL_NODE
+  implicit none
+  private
 
-   !> Implements global interpolation for arbitrary points in the domain.
-   type, public :: aabb_el_finder_t
-      real(kind=dp) :: padding
-      !> Structure to find rank candidates
-      type(aabb_t), allocatable :: local_aabb(:)
-      type(aabb_tree_t) :: local_aabb_tree
+  !> Implements global interpolation for arbitrary points in the domain.
+  type, public, extends(el_finder_t) :: aabb_el_finder_t
+     real(kind=dp) :: padding
+     !> Structure to find rank candidates
+     type(aabb_t), allocatable :: local_aabb(:)
+     type(aabb_tree_t) :: local_aabb_tree
 
    contains
-      procedure, pass(this) :: init => aabb_el_finder_init
-      procedure, pass(this) :: free => aabb_el_finder_free
-      procedure, pass(this) :: find => aabb_el_finder_find_candidates
-      procedure, pass(this) :: find_batch => aabb_el_finder_find_candidates_batch
+     procedure, pass(this) :: init => aabb_el_finder_init
+     procedure, pass(this) :: free => aabb_el_finder_free
+     procedure, pass(this) :: find => aabb_el_finder_find_candidates
+     procedure, pass(this) :: find_batch => aabb_el_finder_find_candidates_batch
 
-   end type aabb_el_finder_t
+  end type aabb_el_finder_t
 
 contains
 
-   !> Initialize the AABB element finder.
-   subroutine aabb_el_finder_init(this, x, y, z, nel, Xh, padding)
-      class(aabb_el_finder_t), intent(inout) :: this
-      type(space_t), intent(in) :: Xh
-      real(kind=rp), intent(in), target :: x(:), y(:), z(:)
-      integer, intent(in) :: nel
-      real(kind=dp), intent(in) :: padding
-      integer :: id1, id2, i, lx, ly, lz
-      this%padding = padding
-      lx = Xh%lx
-      ly = Xh%ly
-      lz = Xh%lz
-      if (allocated(this%local_aabb)) deallocate(this%local_aabb)
-      allocate(this%local_aabb(nel))
-      !> Create a local tree for each element at this rank
-      call this%local_aabb_tree%init(nel)
-      do i = 1, nel
-         id1 = lx*ly*lz*(i-1)+1
-         id2 = lx*ly*lz*(i)
-         call this%local_aabb(i)%init( (/minval(x(id1:id2)), &
+  !> Initialize the AABB element finder.
+  subroutine aabb_el_finder_init(this, x, y, z, nel, Xh, padding)
+    class(aabb_el_finder_t), intent(inout) :: this
+    type(space_t), intent(in) :: Xh
+    real(kind=rp), intent(in), target :: x(:), y(:), z(:)
+    integer, intent(in) :: nel
+    real(kind=dp), intent(in) :: padding
+    integer :: id1, id2, i, lx, ly, lz
+    this%padding = padding
+    lx = Xh%lx
+    ly = Xh%ly
+    lz = Xh%lz
+    if (allocated(this%local_aabb)) deallocate(this%local_aabb)
+    allocate(this%local_aabb(nel))
+    !> Create a local tree for each element at this rank
+    call this%local_aabb_tree%init(nel)
+    do i = 1, nel
+       id1 = lx*ly*lz*(i-1)+1
+       id2 = lx*ly*lz*(i)
+       call this%local_aabb(i)%init( real((/minval(x(id1:id2)), &
             minval(y(id1:id2)), &
-            minval(z(id1:id2))/), &
-            (/maxval(x(id1:id2)), &
+            minval(z(id1:id2))/),dp), &
+            real((/maxval(x(id1:id2)), &
             maxval(y(id1:id2)), &
-            maxval(z(id1:id2))/))
-      end do
-      call this%local_aabb_tree%build_from_aabb(this%local_aabb, padding)
-   end subroutine aabb_el_finder_init
+            maxval(z(id1:id2))/),dp))
+    end do
+    call this%local_aabb_tree%build_from_aabb(this%local_aabb, padding)
+  end subroutine aabb_el_finder_init
 
-   !> Free the AABB element finder.
-   subroutine aabb_el_finder_free(this)
-      class(aabb_el_finder_t), intent(inout) :: this
+  !> Free the AABB element finder.
+  subroutine aabb_el_finder_free(this)
+    class(aabb_el_finder_t), intent(inout) :: this
 
-      ! Free the AABB element finder
-      if (allocated(this%local_aabb)) deallocate(this%local_aabb)
-
-
-   end subroutine aabb_el_finder_free
+    ! Free the AABB element finder
+    if (allocated(this%local_aabb)) deallocate(this%local_aabb)
 
 
-   !> It uses the AABB tree to find the elements that overlap with the point.
-   subroutine aabb_el_finder_find_candidates(this, my_point, el_candidates)
-      class(aabb_el_finder_t), intent(inout) :: this
-      type(point_t), intent(in) :: my_point
-      type(stack_i4_t), intent(inout) :: el_candidates
+  end subroutine aabb_el_finder_free
 
-      ! Find the element candidates for a given point
-      call this%local_aabb_tree%query_overlaps(my_point, -1,  el_candidates)
 
-   end subroutine aabb_el_finder_find_candidates
+  !> It uses the AABB tree to find the elements that overlap with the point.
+  subroutine aabb_el_finder_find_candidates(this, my_point, el_candidates)
+    class(aabb_el_finder_t), intent(inout) :: this
+    type(point_t), intent(in) :: my_point
+    type(stack_i4_t), intent(inout) :: el_candidates
 
-   ! Might be better to organize this slightly differently
-   ! In order to get more cache hits
-   subroutine aabb_el_finder_find_candidates_batch(this, points, n_points, all_el_candidates, n_el_cands)
-      class(aabb_el_finder_t), intent(inout) :: this
-      integer, intent(in) :: n_points
-      real(kind=rp), intent(in) :: points(3,n_points)
-      type(stack_i4_t), intent(inout) :: all_el_candidates
-      integer, intent(inout) :: n_el_cands(n_points)
-      type(stack_i4_t) :: el_candidates
-      type(point_t) :: my_point
-      integer :: i, j
-      integer, pointer :: el_cands(:)
-      integer :: stupid_intent
-      real(kind=rp) :: pt_xyz(3)
+    ! Find the element candidates for a given point
+    call this%local_aabb_tree%query_overlaps(my_point, -1,  el_candidates)
 
-      call all_el_candidates%clear()
-      call el_candidates%init()
-      n_el_cands = 0
+  end subroutine aabb_el_finder_find_candidates
 
-      do i = 1, n_points
-         pt_xyz = (/ points(1,i),points(2,i),points(3,i) /)
-         call my_point%init(pt_xyz)
-         call el_candidates%clear()
-         call this%find(my_point, el_candidates)
-         el_cands => el_candidates%array()
-         do j = 1, el_candidates%size()
-            stupid_intent = el_cands(j) - 1
-            call all_el_candidates%push(stupid_intent) !< OBS c indexing
-         end do
-         n_el_cands(i) = el_candidates%size()
-      end do
+  ! Might be better to organize this slightly differently
+  ! In order to get more cache hits
+  subroutine aabb_el_finder_find_candidates_batch(this, points, n_points, all_el_candidates, n_el_cands)
+    class(aabb_el_finder_t), intent(inout) :: this
+    integer, intent(in) :: n_points
+    real(kind=rp), intent(in) :: points(3,n_points)
+    type(stack_i4_t), intent(inout) :: all_el_candidates
+    integer, intent(inout) :: n_el_cands(n_points)
+    type(stack_i4_t) :: el_candidates
+    type(point_t) :: my_point
+    integer :: i, j
+    integer, pointer :: el_cands(:)
+    integer :: stupid_intent
+    real(kind=dp) :: pt_xyz(3)
 
-   end subroutine aabb_el_finder_find_candidates_batch
+    call all_el_candidates%clear()
+    call el_candidates%init()
+    n_el_cands = 0
+
+    do i = 1, n_points
+       pt_xyz = (/ points(1,i),points(2,i),points(3,i) /)
+       call my_point%init(pt_xyz)
+       call el_candidates%clear()
+       call this%find(my_point, el_candidates)
+       el_cands => el_candidates%array()
+       do j = 1, el_candidates%size()
+          stupid_intent = el_cands(j) - 1
+          call all_el_candidates%push(stupid_intent) !< OBS c indexing
+       end do
+       n_el_cands(i) = el_candidates%size()
+    end do
+
+  end subroutine aabb_el_finder_find_candidates_batch
 
 
 end module aabb_el_finder

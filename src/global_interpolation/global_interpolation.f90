@@ -46,7 +46,9 @@ module global_interpolation
       device_get_ptr
   use aabb_pe_finder, only: aabb_pe_finder_t
   use aabb_el_finder, only: aabb_el_finder_t
+  use cartesian_el_finder, only: cartesian_el_finder_t
   use legendre_rst_finder, only: legendre_rst_finder_t
+  use el_finder, only: el_finder_t
   use comm, only: NEKO_COMM
   use mpi_f08, only: MPI_SUM, MPI_COMM, MPI_Comm_rank, &
       MPI_Comm_size, MPI_Wtime, MPI_Allreduce, MPI_IN_PLACE, MPI_INTEGER, &
@@ -127,7 +129,7 @@ module global_interpolation
      !> Structure to find rank candidates
      type(aabb_pe_finder_t) :: pe_finder
      !> Structure to find element candidates
-     type(aabb_el_finder_t) :: el_finder
+     class(el_finder_t), allocatable :: el_finder
      !> Object to find rst coordinates
      type(legendre_rst_finder_t) :: rst_finder
      !> Things for gather-scatter operation (sending interpolated values back and forth)
@@ -213,6 +215,8 @@ contains
     character(len=8000) :: log_buf
     real(kind=dp) :: padding
     real(kind=rp) :: time1, time_start
+    character(len=255) :: mode_str
+    integer :: boxdim, envvar_len
 
     call this%free()
 
@@ -247,11 +251,35 @@ contains
     lz = Xh%lz
     n = nelv * lx*ly*lz
 
+    call neko_log%message('Initializing global interpolation')
+    call get_environment_variable("NEKO_GLOBAL_INTERP_MODE", mode_str, envvar_len)
+    if (allocated(this%el_finder)) then
+       print *, 'Freeing el_finder'
+       call this%el_finder%free()
+       deallocate(this%el_finder)
+    end if
+    if (envvar_len .gt. 0) then
+       if (mode_str(1:envvar_len) == 'unsafe') then
+          allocate(cartesian_el_finder_t :: this%el_finder)
+          boxdim = max(2*int(sqrt(real(nelv,xp))),2)
+       end if
+    end if
+    if (.not. allocated(this%el_finder)) then
+       allocate(aabb_el_finder_t :: this%el_finder)
+    end if
+    select type(el_find => this%el_finder)
+      type is (aabb_el_finder_t)
+       call neko_log%message('Using AABB element finder')
+       call el_find%init(x, y, z, nelv, Xh, padding)
+      type is (cartesian_el_finder_t)
+       call neko_log%message('Using Cartesian element finder')
+       call el_find%init(x, y, z, nelv, Xh, boxdim, padding)
+      class default
+       call neko_error('Unknown element finder type')
+    end select
 
-    call this%el_finder%init(x, y, z, nelv, Xh, padding)
     call this%pe_finder%init(x, y, z, nelv, Xh, this%comm, padding)
     call this%rst_finder%init(x, y, z, nelv, Xh, this%tol)
-
     if (allocated(this%n_points_pe)) deallocate(this%n_points_pe)
     if (allocated(this%n_points_pe_local)) deallocate(this%n_points_pe_local)
     if (allocated(this%n_points_offset_pe_local)) &
@@ -288,13 +316,16 @@ contains
 
     call this%free_points()
     call this%local_interp%free()
-    call this%el_finder%free()
+    if (allocated(this%el_finder)) then
+       call this%el_finder%free()
+       deallocate(this%el_finder)
+    end if
     call this%pe_finder%free()
     call this%rst_finder%free()
 
     call this%temp_local%free()
     call this%temp%free()
-   if (allocated(this%points_at_pe)) then
+    if (allocated(this%points_at_pe)) then
        do i = 0, this%pe_size-1
           call this%points_at_pe(i)%free()
        end do
@@ -754,7 +785,7 @@ contains
     call resz%free()
     call res%free()
     call all_el_candidates%free()
-     call el_candidates%free()
+    call el_candidates%free()
     if (associated(pe_cands)) pe_cands => Null()
     if (associated(el_cands)) pe_cands => Null()
     if (associated(point_ids)) point_ids => Null()
