@@ -51,12 +51,12 @@ __global__ void wall_model_compute_mag_field(const T * __restrict__ tau_x_d,
 
     for (int i = idx; i < m; i += str) {
         // Compute the magnitude of the shear stress vector
-        T magtau = sqrt(tau_x_d[idx] * tau_x_d[idx] +
-        tau_y_d[idx] * tau_y_d[idx] +
-        tau_z_d[idx] * tau_z_d[idx]);
+        T magtau = sqrt(tau_x_d[i] * tau_x_d[i] +
+        tau_y_d[i] * tau_y_d[i] +
+        tau_z_d[i] * tau_z_d[i]);
 
         // Store the result in the tau_field array at the masked index
-        tau_field_d[msk_d[idx]-1] = magtau;
+        tau_field_d[msk_d[i]-1] = magtau;
     }
 } 
 #endif // __COMMON_WALL_model_KERNEL_H__

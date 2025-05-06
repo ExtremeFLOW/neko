@@ -33,20 +33,20 @@ __global__ void rough_log_law_compute(const T* __restrict__ u_d,
     const int str = blockDim.x * gridDim.x;
     for (int i = idx; i < n_nodes; i += str) {
         // Sample the velocity
-        const int index = (ind_e_d[idx] - 1) * lx * lx * lx +
-                          (ind_t_d[idx] - 1) * lx * lx +
-                          (ind_s_d[idx] - 1) * lx +
-                          (ind_r_d[idx] - 1);
+        const int index = (ind_e_d[i] - 1) * lx * lx * lx +
+                          (ind_t_d[i] - 1) * lx * lx +
+                          (ind_s_d[i] - 1) * lx +
+                          (ind_r_d[i] - 1);
 
         T ui = u_d[index];
         T vi = v_d[index];
         T wi = w_d[index];
 
         // Load normal vectors and wall shear stress values once
-        T nx = n_x_d[idx];
-        T ny = n_y_d[idx];
-        T nz = n_z_d[idx];
-        T h = h_d[idx];
+        T nx = n_x_d[i];
+        T ny = n_y_d[i];
+        T nz = n_z_d[i];
+        T h = h_d[i];
 
         // Project on tangential direction
         T normu = ui * nx + vi * ny + wi * nz;
@@ -64,9 +64,9 @@ __global__ void rough_log_law_compute(const T* __restrict__ u_d,
         }
 
         // Distribute according to the velocity vector
-        tau_x_d[idx] = -utau * utau * ui / magu;
-        tau_y_d[idx] = -utau * utau * vi / magu;
-        tau_z_d[idx] = -utau * utau * wi / magu;
+        tau_x_d[i] = -utau * utau * ui / magu;
+        tau_y_d[i] = -utau * utau * vi / magu;
+        tau_z_d[i] = -utau * utau * wi / magu;
     }
 }
 
