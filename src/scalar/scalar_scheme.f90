@@ -72,8 +72,8 @@ module scalar_scheme
   use neko_config, only : NEKO_BCKND_DEVICE
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
-  use gradient_jump_penalty, only : gradient_jump_penalty_t
   use scratch_registry, only : neko_scratch_registry
+  use time_state, only : time_state_t
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -134,10 +134,6 @@ module scalar_scheme
      type(field_list_t) :: material_properties
      !> Is lambda varying in time? Currently only due to LES models.
      logical :: variable_material_properties = .false.
-     !> Gradient jump panelty
-     logical :: if_gradient_jump_penalty
-     type(gradient_jump_penalty_t) :: gradient_jump_penalty
-     !> Pointer to user material properties routine
      procedure(user_material_properties), nopass, pointer :: &
           user_material_properties => null()
    contains
@@ -212,16 +208,13 @@ module scalar_scheme
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine scalar_scheme_step_intrf(this, t, tstep, dt, ext_bdf, &
-          dt_controller)
+     subroutine scalar_scheme_step_intrf(this, time, ext_bdf, dt_controller)
        import scalar_scheme_t
+       import time_state_t
        import time_scheme_controller_t
        import time_step_controller_t
-       import rp
        class(scalar_scheme_t), intent(inout) :: this
-       real(kind=rp), intent(in) :: t
-       integer, intent(in) :: tstep
-       real(kind=rp), intent(in) :: dt
+       type(time_state_t), intent(in) :: time
        type(time_scheme_controller_t), intent(in) :: ext_bdf
        type(time_step_controller_t), intent(in) :: dt_controller
      end subroutine scalar_scheme_step_intrf
@@ -273,7 +266,7 @@ contains
 
     call json_get_or_default(params, &
          'solver.projection_space_size', &
-         this%projection_dim, 20)
+         this%projection_dim, 0)
     call json_get_or_default(params, &
          'solver.projection_hold_steps', &
          this%projection_activ_step, 5)
@@ -369,29 +362,6 @@ contains
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs, solver_precon)
 
-    ! Initiate gradient jump penalty
-    call json_get_or_default(params, &
-         'gradient_jump_penalty.enabled',&
-         this%if_gradient_jump_penalty, .false.)
-
-    if (this%if_gradient_jump_penalty .eqv. .true.) then
-       if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
-          call json_get_or_default(params, &
-               'gradient_jump_penalty.tau',&
-               GJP_param_a, 0.02_rp)
-          GJP_param_b = 0.0_rp
-       else
-          call json_get_or_default(params, &
-               'gradient_jump_penalty.scaling_factor',&
-               GJP_param_a, 0.8_rp)
-          call json_get_or_default(params, &
-               'gradient_jump_penalty.scaling_exponent',&
-               GJP_param_b, 4.0_rp)
-       end if
-       call this%gradient_jump_penalty%init(params, this%dm_Xh, this%c_Xh, &
-            GJP_param_a, GJP_param_b)
-    end if
-
     call neko_log%end_section()
 
   end subroutine scalar_scheme_init
@@ -424,11 +394,6 @@ contains
     call this%cp%free()
     call this%lambda%free()
     call this%slag%free()
-
-    ! Free gradient jump penalty
-    if (this%if_gradient_jump_penalty .eqv. .true.) then
-       call this%gradient_jump_penalty%free()
-    end if
 
   end subroutine scalar_scheme_free
 

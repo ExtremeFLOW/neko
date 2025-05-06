@@ -66,6 +66,7 @@ module scalar_pnpn
   use zero_dirichlet, only : zero_dirichlet_t
   use time_step_controller, only : time_step_controller_t
   use scratch_registry, only : neko_scratch_registry
+  use time_state, only : time_state_t
   use bc, only : bc_t
   implicit none
   private
@@ -333,11 +334,9 @@ contains
 
   end subroutine scalar_pnpn_free
 
-  subroutine scalar_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
+  subroutine scalar_pnpn_step(this, time, ext_bdf, dt_controller)
     class(scalar_pnpn_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    real(kind=rp), intent(in) :: dt
+    type(time_state_t), intent(in) :: time
     type(time_scheme_controller_t), intent(in) :: ext_bdf
     type(time_step_controller_t), intent(in) :: dt_controller
     ! Number of degrees of freedom
@@ -359,19 +358,12 @@ contains
          projection_dim => this%projection_dim, &
          msh => this%msh, res => this%res, makeoifs => this%makeoifs, &
          makeext => this%makeext, makebdf => this%makebdf, &
-         if_variable_dt => dt_controller%if_variable_dt, &
-         dt_last_change => dt_controller%dt_last_change)
+         t => time%t, tstep => time%tstep, dt => time%dt)
 
       ! Logs extra information the log level is NEKO_LOG_DEBUG or above.
       call print_debug(this)
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
-
-      ! Compute the grandient jump penalty term
-      if (this%if_gradient_jump_penalty .eqv. .true.) then
-         call this%gradient_jump_penalty%compute(u, v, w, s)
-         call this%gradient_jump_penalty%perform(f_Xh)
-      end if
 
       ! Apply weak boundary conditions, that contribute to the source terms.
       call this%bcs%apply_scalar(this%f_Xh%x, dm_Xh%size(), t, tstep, .false.)
@@ -456,15 +448,15 @@ contains
 
     n = this%dm_Xh%size()
 
-    write(log_buf,'(A,A,E15.7,A,E15.7,A,E15.7)') 'Scalar debug', &
+    write(log_buf, '(A, A, E15.7, A, E15.7, A, E15.7)') 'Scalar debug', &
          ' l2norm s', glsc2(this%s%x, this%s%x, n), &
          ' slag1', glsc2(this%slag%lf(1)%x, this%slag%lf(1)%x, n), &
          ' slag2', glsc2(this%slag%lf(2)%x, this%slag%lf(2)%x, n)
-    call neko_log%message(log_buf, lvl=NEKO_LOG_DEBUG)
-    write(log_buf,'(A,A,E15.7,A,E15.7)') 'Scalar debug2', &
+    call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
+    write(log_buf, '(A, A, E15.7, A, E15.7)') 'Scalar debug2', &
          ' l2norm abx1', glsc2(this%abx1%x, this%abx1%x, n), &
          ' abx2', glsc2(this%abx2%x, this%abx2%x, n)
-    call neko_log%message(log_buf, lvl=NEKO_LOG_DEBUG)
+    call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
   end subroutine print_debug
 
   !> Initialize boundary conditions

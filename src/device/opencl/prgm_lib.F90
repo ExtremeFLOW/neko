@@ -29,6 +29,9 @@ module opencl_prgm_lib
   !> Device Facet normal kernels
   type(c_ptr), public, bind(c) :: facet_normal_program = C_NULL_PTR
 
+  !> Device Neumann kernels
+  type(c_ptr), public, bind(c) :: neumann_program = C_NULL_PTR
+
   !> Device Blasius profile kernel
   type(c_ptr), public, bind(c) :: inhom_dirichlet_program = C_NULL_PTR
 

@@ -60,6 +60,8 @@ module probes
   private
 
   type, public, extends(simulation_component_t) :: probes_t
+     !> Time after which to start collecting probes.
+     real(kind=rp) :: start_time
      !> Number of output fields
      integer :: n_fields = 0
      type(global_interpolation_t) :: global_interp
@@ -91,8 +93,8 @@ module probes
      !> Initialize from json
      procedure, pass(this) :: init => probes_init_from_json
      ! Actual constructor
-     procedure, pass(this) :: init_from_attributes => &
-          probes_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          probes_init_from_components
      !> Destructor
      procedure, pass(this) :: free => probes_free
      !> Setup offset for I/O when using sequential write/read from rank 0
@@ -144,6 +146,7 @@ contains
     call json%info('fields', n_children = this%n_fields)
     call json_get(json, 'fields', this%which_fields)
     call json_get(json, 'output_file', output_file)
+    call json_get_or_default(json, 'start_time', this%start_time, -1.0_rp)
 
     call this%sampled_fields%init(this%n_fields)
     do i = 1, this%n_fields
@@ -202,7 +205,7 @@ contains
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
     call probes_show(this)
-    call this%init_from_attributes(case%fluid%dm_Xh, output_file)
+    call this%init_from_components(case%fluid%dm_Xh, output_file)
 
   end subroutine probes_init_from_json
 
@@ -452,7 +455,7 @@ contains
   !> Initialize without json things
   !! @param dof Dofmap to probe
   !! @output_file Name of output file, current must be CSV
-  subroutine probes_init_from_attributes(this, dof, output_file)
+  subroutine probes_init_from_components(this, dof, output_file)
     class(probes_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dof
     character(len=:), allocatable, intent(inout) :: output_file
@@ -524,7 +527,7 @@ contains
        call neko_error("Invalid data. Expected csv_file_t.")
     end select
 
-  end subroutine probes_init_from_attributes
+  end subroutine probes_init_from_components
 
   !> Destructor
   subroutine probes_free(this)
@@ -637,6 +640,9 @@ contains
     class(probes_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     integer :: i, ierr
+
+    !> Do not execute if we are below the start_time
+    if (time%t .lt. this%start_time) return
 
     !> Check controller to determine if we must write
     do i = 1, this%n_fields

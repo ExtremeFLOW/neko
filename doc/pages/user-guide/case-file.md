@@ -375,9 +375,8 @@ A more detailed description of each boundary condition is provided below.
     "zone_indices": [1, 2]
   }
   ```
-  * `user_pressure`, a boundary for specified non-uniform pressure profiles, similar in
-  essence to `d_vel_u`,`d_vel_v` and `d_vel_w`. Can be combined with other
-  complex Dirichlet conditions by specifying e.g.: `"d_vel_u/d_vel_v/d_pres"`.
+* `user_pressure`, a boundary for specified non-uniform pressure profiles, similar in
+  essence to `user_velocity`.
   ```json
   {
     "type": "user_pressure",
@@ -502,6 +501,7 @@ The following types are currently implemented.
 5. `user_vector`, the values are set inside the compiled user file, using the
    non-pointwise user file subroutine. Should be used when running on the GPU.
 6. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
+7. `gradient_jump_penalty`, perform gradient_jump_penalisation.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
@@ -603,7 +603,7 @@ the boundary mesh is computed using a step function with a cut-off distance of
 ]
 ~~~~~~~~~~~~~~~
 
-### Gradient Jump Penalty
+#### Gradient Jump Penalty
 The optional `gradient_jump_penalty` object can be used to perform gradient jump
 penalty as an continuous interior penalty option. The penalty term is performed
 on the weak form equation of quantity \f$ T \f$ (could either be velocity or
@@ -629,8 +629,6 @@ The penalty parameter  \f$ \tau \f$ could be expressed as the form \f$ \tau = a
 while \f$ a \f$ and \f$ b \f$ are user-defined parameters. The configuration
 uses the following parameters:
 
-* `enable`, the boolean to turn on and off the gradient jump penalty option,
-  default to be `false`.
 * `tau`, the penalty parameter that can be only used for \f$ P = 1 \f$, default
   to be `0.02`.
 * `scaling_factor`, the scaling parameter \f$ a \f$ for \f$ P > 1 \f$, default
@@ -729,14 +727,14 @@ concisely directly in the table.
 | `velocity_solver.preconditioner`        | Linear solver preconditioner for the momentum equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
 | `velocity_solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.                                    | Positive real                                               | -             |
 | `velocity_solver.maxiter`               | Linear solver max iteration count for the momentum equation.                                      | Positive real                                               | 800           |
-| `velocity_solver.projection_space_size` | Projection space size for the momentum equation.                                                  | Positive integer                                            | 20            |
+| `velocity_solver.projection_space_size` | Projection space size for the momentum equation.                                                  | Positive integer                                            | 0             |
 | `velocity_solver.projection_hold_steps` | Holding steps of the projection for the momentum equation.                                        | Positive integer                                            | 5             |
 | `velocity_solver.monitor`               | Monitor residuals in the linear solver for the momentum equation.                                 | `true` or `false`                                           | `false`       |
 | `pressure_solver.type`                  | Linear solver for the pressure equation.                                                          | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`                 | -             |
 | `pressure_solver.preconditioner`        | Linear solver preconditioner for the pressure equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
 | `pressure_solver.absolute_tolerance`    | Linear solver convergence criterion for the pressure equation.                                    | Positive real                                               | -             |
 | `pressure_solver.maxiter`               | Linear solver max iteration count for the pressure equation.                                      | Positive real                                               | 800           |
-| `pressure_solver.projection_space_size` | Projection space size for the pressure equation.                                                  | Positive integer                                            | 20            |
+| `pressure_solver.projection_space_size` | Projection space size for the pressure equation.                                                  | Positive integer                                            | 0             |
 | `pressure_solver.projection_hold_steps` | Holding steps of the projection for the pressure equation.                                        | Positive integer                                            | 5             |
 | `pressure_solver.monitor`               | Monitor residuals in the linear solver for the pressure equation.                                 | `true` or `false`                                           | `false`       |
 | `flow_rate_force.direction`             | Direction of the forced flow.                                                                     | 0, 1, 2                                                     | -             |
@@ -856,7 +854,7 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | `solver.preconditioner`        | Linear solver preconditioner for the momentum equation.           | `ident`, `hsmg`, `jacobi`                   | -             |
 | `solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.    | Positive real                               | -             |
 | `solver.maxiter`               | Linear solver max iteration count for the momentum equation.      | Positive real                               | 800           |
-| `solver.projection_space_size` | Projection space size for the scalar equation.                    | Positive integer                            | 20            |
+| `solver.projection_space_size` | Projection space size for the scalar equation.                    | Positive integer                            | 0            |
 | `solver.projection_hold_steps` | Holding steps of the projection for the scalar equation.          | Positive integer                            | 5             |
 
 

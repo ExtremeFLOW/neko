@@ -53,6 +53,7 @@ module fluid_scheme_base
   use utils, only : neko_error
   use bc_list, only : bc_list_t
   use field_list, only : field_list_t
+  use time_state, only: time_state_t
   implicit none
   private
   public :: fluid_scheme_base_t, fluid_scheme_base_factory
@@ -228,17 +229,12 @@ module fluid_scheme_base
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine fluid_scheme_base_step_intrf(this, t, tstep, dt, ext_bdf, &
-          dt_controller)
+     subroutine fluid_scheme_base_step_intrf(this, time, dt_controller)
+       import time_state_t
        import fluid_scheme_base_t
-       import time_scheme_controller_t
        import time_step_controller_t
-       import rp
        class(fluid_scheme_base_t), target, intent(inout) :: this
-       real(kind=rp), intent(in) :: t
-       integer, intent(in) :: tstep
-       real(kind=rp), intent(in) :: dt
-       type(time_scheme_controller_t), intent(in) :: ext_bdf
+       type(time_state_t), intent(in) :: time
        type(time_step_controller_t), intent(in) :: dt_controller
      end subroutine fluid_scheme_base_step_intrf
   end interface
@@ -247,7 +243,6 @@ module fluid_scheme_base
   abstract interface
      subroutine fluid_scheme_base_restart_intrf(this, chkp)
        import fluid_scheme_base_t
-       import rp
        import chkp_t
        class(fluid_scheme_base_t), target, intent(inout) :: this
        type(chkp_t), intent(inout) :: chkp

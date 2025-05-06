@@ -53,7 +53,6 @@ module fluid_scheme_compressible_euler
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use profiler, only : profiler_start_region, profiler_end_region
   use user_intf, only : user_t
-  use time_scheme_controller, only : time_scheme_controller_t
   use time_step_controller, only : time_step_controller_t
   use ax_product, only : ax_t, ax_helm_factory
   use field_list, only : field_list_t
@@ -70,6 +69,7 @@ module fluid_scheme_compressible_euler
   use bc, only : bc_t
   use utils, only : neko_error, neko_warning
   use logger, only : LOG_SIZE
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -246,18 +246,12 @@ contains
 
   !> Advance the fluid simulation one timestep
   !> @param this The fluid scheme object
-  !> @param t Current simulation time
-  !> @param tstep Current timestep number
-  !> @param dt Timestep size
+  !> @param time Current simulation time state
   !> @param ext_bdf Time integration controller
   !> @param dt_controller Timestep size controller
-  subroutine fluid_scheme_compressible_euler_step(this, t, tstep, dt, &
-       ext_bdf, dt_controller)
+  subroutine fluid_scheme_compressible_euler_step(this, time, dt_controller)
     class(fluid_scheme_compressible_euler_t), target, intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    real(kind=rp), intent(in) :: dt
-    type(time_scheme_controller_t), intent(in) :: ext_bdf
+    type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
     type(field_t), pointer :: temp
     integer :: temp_indices(1)
@@ -278,6 +272,8 @@ contains
          drho => this%drho, dm_x => this%dm_x, dm_y => this%dm_y, &
          dm_z => this%dm_z, dE => this%dE, &
          euler_rhs => this%euler_rhs, h => this%h, &
+         t => time%t, tstep => time%tstep, dt => time%dt, &
+         ext_bdf => this%ext_bdf, &
          c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
 
       ! Hack: If m_z is always zero, use it to visualize rho

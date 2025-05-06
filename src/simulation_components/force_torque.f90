@@ -53,8 +53,8 @@ module force_torque
   use drag_torque
   use logger, only : LOG_SIZE, neko_log
   use comm
-  use math, only : masked_red_copy, cadd, glsum, vcross
-  use device_math, only : device_masked_red_copy, device_cadd, &
+  use math, only : masked_gather_copy, cadd, glsum, vcross
+  use device_math, only : device_masked_gather_copy, device_cadd, &
        device_glsum, device_vcross
   use device
 
@@ -92,8 +92,8 @@ module force_torque
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => force_torque_init_from_json
      !> Actual constructor.
-     procedure, pass(this) :: init_from_attributes => &
-          force_torque_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          force_torque_init_from_components
      !> Destructor.
      procedure, pass(this) :: free => force_torque_free
      !> Compute the force_torque field.
@@ -123,13 +123,13 @@ contains
     call json_get_or_default(json, 'scale', scale, 1.0_rp)
     call json_get_or_default(json, 'long_print', long_print, .false.)
     call json_get(json, 'center', center)
-    call force_torque_init_from_attributes(this, zone_id, zone_name, &
+    call force_torque_init_from_components(this, zone_id, zone_name, &
          center, scale, case%fluid%c_xh, &
          long_print)
   end subroutine force_torque_init_from_json
 
   !> Actual constructor.
-  subroutine force_torque_init_from_attributes(this, zone_id, zone_name, &
+  subroutine force_torque_init_from_components(this, zone_id, zone_name, &
        center, scale, coef, long_print)
     class(force_torque_t), intent(inout) :: this
     real(kind=rp), intent(in) :: center(3)
@@ -183,11 +183,11 @@ contains
     call this%pmsk%init(n_pts)
     call setup_normals(this%coef, this%bc%msk, this%bc%facet, &
          this%n1%x, this%n2%x, this%n3%x, n_pts)
-    call masked_red_copy(this%r1%x, this%coef%dof%x, this%bc%msk, &
+    call masked_gather_copy(this%r1%x, this%coef%dof%x, this%bc%msk, &
          this%u%size(), n_pts)
-    call masked_red_copy(this%r2%x, this%coef%dof%y, this%bc%msk, &
+    call masked_gather_copy(this%r2%x, this%coef%dof%y, this%bc%msk, &
          this%u%size(), n_pts)
-    call masked_red_copy(this%r3%x, this%coef%dof%z, this%bc%msk, &
+    call masked_gather_copy(this%r3%x, this%coef%dof%z, this%bc%msk, &
          this%u%size(), n_pts)
 
     call MPI_Allreduce(n_pts, glb_n_pts, 1, &
@@ -227,7 +227,7 @@ contains
             .true.)
     end if
 
-  end subroutine force_torque_init_from_attributes
+  end subroutine force_torque_init_from_components
 
   !> Destructor.
   subroutine force_torque_free(this)
@@ -266,19 +266,19 @@ contains
 
     ! On the CPU we can actually just use the original subroutines...
     if (NEKO_BCKND_DEVICE .eq. 0) then
-       call masked_red_copy(this%s11msk%x, s11%x, this%bc%msk, &
+       call masked_gather_copy(this%s11msk%x, s11%x, this%bc%msk, &
             this%u%size(), n_pts)
-       call masked_red_copy(this%s22msk%x, s22%x, this%bc%msk, &
+       call masked_gather_copy(this%s22msk%x, s22%x, this%bc%msk, &
             this%u%size(), n_pts)
-       call masked_red_copy(this%s33msk%x, s33%x, this%bc%msk, &
+       call masked_gather_copy(this%s33msk%x, s33%x, this%bc%msk, &
             this%u%size(), n_pts)
-       call masked_red_copy(this%s12msk%x, s12%x, this%bc%msk, &
+       call masked_gather_copy(this%s12msk%x, s12%x, this%bc%msk, &
             this%u%size(), n_pts)
-       call masked_red_copy(this%s13msk%x, s13%x, this%bc%msk, &
+       call masked_gather_copy(this%s13msk%x, s13%x, this%bc%msk, &
             this%u%size(), n_pts)
-       call masked_red_copy(this%s23msk%x, s23%x, this%bc%msk, &
+       call masked_gather_copy(this%s23msk%x, s23%x, this%bc%msk, &
             this%u%size(), n_pts)
-       call masked_red_copy(this%pmsk%x, this%p%x, this%bc%msk, &
+       call masked_gather_copy(this%pmsk%x, this%p%x, this%bc%msk, &
             this%u%size(), n_pts)
        call calc_force_array(this%force1%x, this%force2%x, this%force3%x, &
             this%force4%x, this%force5%x, this%force6%x, &
@@ -323,19 +323,19 @@ contains
        dgtq(12) = glsum(this%s33msk%x, n_pts)
     else
        if (n_pts .gt. 0) then
-          call device_masked_red_copy(this%s11msk%x_d, s11%x_d, &
+          call device_masked_gather_copy(this%s11msk%x_d, s11%x_d, &
                this%bc%msk_d, this%u%size(), n_pts)
-          call device_masked_red_copy(this%s22msk%x_d, s22%x_d, &
+          call device_masked_gather_copy(this%s22msk%x_d, s22%x_d, &
                this%bc%msk_d, this%u%size(), n_pts)
-          call device_masked_red_copy(this%s33msk%x_d, s33%x_d, &
+          call device_masked_gather_copy(this%s33msk%x_d, s33%x_d, &
                this%bc%msk_d, this%u%size(), n_pts)
-          call device_masked_red_copy(this%s12msk%x_d, s12%x_d, &
+          call device_masked_gather_copy(this%s12msk%x_d, s12%x_d, &
                this%bc%msk_d, this%u%size(), n_pts)
-          call device_masked_red_copy(this%s13msk%x_d, s13%x_d, &
+          call device_masked_gather_copy(this%s13msk%x_d, s13%x_d, &
                this%bc%msk_d, this%u%size(), n_pts)
-          call device_masked_red_copy(this%s23msk%x_d, s23%x_d, &
+          call device_masked_gather_copy(this%s23msk%x_d, s23%x_d, &
                this%bc%msk_d, this%u%size(), n_pts)
-          call device_masked_red_copy(this%pmsk%x_d, this%p%x_d, &
+          call device_masked_gather_copy(this%pmsk%x_d, this%p%x_d, &
                this%bc%msk_d, this%u%size(), n_pts)
 
           call device_calc_force_array(this%force1%x_d, this%force2%x_d, &
