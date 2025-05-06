@@ -75,7 +75,8 @@ module fluid_scheme_incompressible
   use time_step_controller, only : time_step_controller_t
   use field_math, only : field_cfill, field_add2s2, field_addcol3
   use shear_stress, only : shear_stress_t
-  use device, only : device_event_sync, glb_cmd_event
+  use device, only : device_event_sync, glb_cmd_event, DEVICE_TO_HOST, &
+      device_memcpy
   implicit none
   private
 
@@ -225,7 +226,7 @@ contains
        ! Warn, no variable properties, but nut_field
        if ((params%valid_path('case.fluid.nut_field')) .and. &
             (this%variable_material_properties .eqv. .false.)) then
-          call neko_warning("You set variable_material properties to " // &
+          call neko_warning("You set variable_material_properties to " // &
                "false, the nut_field setting will have no effect.")
        end if
 
@@ -233,7 +234,7 @@ contains
        if ((.not. associated(user%material_properties, &
             dummy_user_material_properties)) .and. &
             (this%variable_material_properties .eqv. .false.)) then
-          call neko_warning("You set variable_material properties to " // &
+          call neko_warning("You set variable_material_properties to " // &
                "false, you cannot vary rho and mu in space in the user file.")
        end if
     else if (params%valid_path('case.fluid.nut_field')) then
@@ -399,11 +400,9 @@ contains
     nullify(this%w)
     nullify(this%p)
 
-    if (this%variable_material_properties) then
-       nullify(this%u_e)
-       nullify(this%v_e)
-       nullify(this%w_e)
-    end if
+    nullify(this%u_e)
+    nullify(this%v_e)
+    nullify(this%w_e)
 
     call this%ulag%free()
     call this%vlag%free()
@@ -694,18 +693,22 @@ contains
        call field_cfill(this%mu, const_mu)
        call field_cfill(this%rho, const_rho)
 
-       ! Since mu, rho is a field, and the none-stress simulation fetches
-       ! data from the host arrays, we need to mirror the constant
-       ! material properties on the host
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call cfill(this%mu%x, const_mu, this%mu%size())
-          call cfill(this%rho%x, const_rho, this%rho%size())
-       end if
 
        write(log_buf, '(A,ES13.6)') 'rho        :', const_rho
        call neko_log%message(log_buf)
        write(log_buf, '(A,ES13.6)') 'mu         :', const_mu
        call neko_log%message(log_buf)
+    end if
+
+    ! Since mu, rho is a field_t, and we use the %x(1,1,1,1)
+    ! host array data to pass constant density and viscosity
+    ! to some routines, we need to make sure that the host
+    ! values are also filled
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%rho%x, this%rho%x_d, this%rho%size(), &
+            DEVICE_TO_HOST, sync=.false.)
+       call device_memcpy(this%mu%x, this%mu%x_d, this%mu%size(), &
+            DEVICE_TO_HOST, sync=.false.)
     end if
   end subroutine fluid_scheme_set_material_properties
 
