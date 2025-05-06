@@ -411,7 +411,7 @@ contains
     call recv_pe_find%init()
     call MPI_Barrier(this%comm)
     time_start = MPI_Wtime()
-    write(log_buf,'(A)') 'Setting up global interpolation'
+    write(log_buf,'(A)') 'Global interpolation, finding points'
     call neko_log%message(log_buf)
     ! Find pe candidates that the points i want may be at
     ! Add number to n_points_pe_local
