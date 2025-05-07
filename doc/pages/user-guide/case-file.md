@@ -161,9 +161,20 @@ provided, the simulation will issue an error.
 As an alternative to providing material properties in the case file, it is
 possible to do that in a special routine in the user file. This is demonstrated
 in the `rayleigh_benard_cylinder` example. Ultimately, both `rho` and `mu` have
-to be set in the subroutine, but it can be based on arbitrary computations and
-arbitrary parameters read from the case file. Additionally, this allows to
-change the material properties in time.
+to be set in the subroutine.  Additionally, this allows to change the material
+properties in time. Yet another options is to directly manipulate the case file
+programmatically in the `user_startup` routine and inject the material
+properties there. This is demonstrated in the `rayleigh_benard` example.
+
+When material properties are constant or only vary in time, one can use the
+simplified form of the viscous stress tensor in the governing equations.
+However, when there are spatial variations, it is necessary to use the general
+(full) form. The variation may come, for example,  due to a turbulence model,
+the modifications in the above-mentioned user routine. The general form of the
+stress tensor requires solving the 3 equations for the velocity components in a
+coupled manner, which requires an appropriate linear solver. By default, Neko
+will use the simplified form of the tensor, and the full one must be selected
+by the user by setting `full_stress_formulation` to true.
 
 ### Turbulence modelling
 
@@ -625,12 +636,13 @@ The following keywords are used, with the corresponding options.
   - `pipecg`, a pipelined conjugate gradient solver.
   - `bicgstab`, a bi-conjugate gradient stabilized solver.
   - `cacg`, a communication-avoiding conjugate gradient solver.
-  - `cpldcg`, a coupled conjugate gradient solver. Must be used for velocity
+  - `coupledcg`, a coupled conjugate gradient solver. Must be used for velocity
     when viscosity varies in space.
   - `gmres`, a GMRES solver. Typically used for pressure.
   - `fusedcg`, a conjugate gradient solver optimised for accelerators using
-    kernel fusion.
-  - `fcpldcg`, a coupled conjugate gradient solver optimised for accelerators
+  - `fusedcoupledcg`, a coupled conjugate gradient solver optimised for accelerators using
+    kernel fusion. Must be used for velocity when viscosity varies in space and
+    device backened is used.
     using kernel fusion.
 * `preconditioner`, preconditioner type.
   - `jacobi`, a Jacobi preconditioner. Typically used for velocity.
@@ -720,6 +732,7 @@ concisely directly in the table.
 | `flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                           | -             |
 | `freeze`                                | Whether to fix the velocity field at initial conditions.                                          | `true` or `false`                                           | `false`       |
 | `advection`                             | Whether to compute the advection term.                                                            | `true` or `false`                                           | `true`        |
+| `full_stress_formulation`               | Whether to use the full form of the visous stress tensor term.                                    | `true` or `false`                                   | `false`               |
 
 ## Scalar {#case-file_scalar}
 The scalar object allows to add a scalar transport equation to the solution. The

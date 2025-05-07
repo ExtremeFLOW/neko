@@ -48,10 +48,11 @@ module fluid_scheme_base
   use time_scheme_controller, only : time_scheme_controller_t
   use runge_kutta_time_scheme, only : runge_kutta_time_scheme_t
   use time_step_controller, only : time_step_controller_t
-  use user_intf, only : user_t
+  use user_intf, only : user_t, user_material_properties
   use usr_inflow, only : usr_inflow_eval
   use utils, only : neko_error
   use bc_list, only : bc_list_t
+  use field_list, only : field_list_t
   use time_state, only: time_state_t
   implicit none
   private
@@ -79,10 +80,6 @@ module fluid_scheme_base
      !> Checkpoint
      type(chkp_t), pointer :: chkp => null()
 
-     !> Density
-     real(kind=rp) :: rho
-     type(field_t) :: rho_field
-
      !> X-component of the right-hand side.
      type(field_t), pointer :: f_x => null()
      !> Y-component of the right-hand side.
@@ -102,16 +99,21 @@ module fluid_scheme_base
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
 
-     !> Dynamic viscosity
-     real(kind=rp) :: mu
+     !> Density field
+     type(field_t) :: rho
 
-     !> The variable mu field
-     type(field_t) :: mu_field
+     !> The dynamic viscosity
+     type(field_t) :: mu
 
-     !> Is mu varying in time? Currently only due to LES models.
-     logical :: variable_material_properties = .false.
+     !> A helper that packs material properties to pass to the user routine.
+     type(field_list_t) :: material_properties
+
      !> Is the fluid frozen at the moment
      logical :: freeze = .false.
+
+     !> User material properties routine
+     procedure(user_material_properties), nopass, pointer :: &
+          user_material_properties => null()
 
    contains
      !> Constructor
@@ -265,11 +267,11 @@ module fluid_scheme_base
 
   !> Abstract interface to sets rho and mu
   abstract interface
-     subroutine update_material_properties(this)
-       import fluid_scheme_base_t
-       import json_file
-       import user_t
+     subroutine update_material_properties(this, t, tstep)
+       import fluid_scheme_base_t, rp
        class(fluid_scheme_base_t), intent(inout) :: this
+       real(kind=rp),intent(in) :: t
+       integer, intent(in) :: tstep
      end subroutine update_material_properties
   end interface
 
