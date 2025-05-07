@@ -192,7 +192,8 @@ contains
             call this%schwarz%compute(this%r, w)
             call device_copy(w_d, this%r_d, n)
          else
-            call this%M%solve(w, w, n)
+            call this%M%solve(this%r, w, n)
+            call device_copy(w_d, this%r_d, n)
          end if
 
          wtw = device_glsc3(w_d, coef%mult_d, w_d, n)
@@ -207,7 +208,8 @@ contains
          call this%schwarz%compute(this%r, w)
          call device_copy(w_d, this%r_d, n)
       else
-         call this%M%solve(w, w, n)
+         call this%M%solve(this%r, w, n)
+         call device_copy(w_d, this%r_d, n)
       end if
 
       dtw = device_glsc3(d_d, coef%mult_d, w_d, n)

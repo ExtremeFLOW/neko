@@ -147,7 +147,8 @@ contains
             call this%schwarz%compute(r, w)
             call copy(w, r, n)
          else
-            call this%M%solve(w, w, n)
+            call this%M%solve(r, w, n)
+            call copy(w, r, n)
          end if
 
          wtw = glsc3(w, coef%mult, w, n)
@@ -158,13 +159,13 @@ contains
       call ax%compute(w, d, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD)
       call blst%apply(w, n)
-      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!call this%M%solve(w, w, n)
-         if (associated(this%schwarz)) then
+      if (associated(this%schwarz)) then
          call this%schwarz%compute(r, w)
          call copy(w, r, n)
-         else
-         call this%M%solve(w, w, n)
-         end if
+      else
+         call this%M%solve(r, w, n)
+         call copy(w, r, n)
+      end if
 
       dtw = glsc3(d, coef%mult, w, n)
       dtd = glsc3(d, coef%mult, d, n)
