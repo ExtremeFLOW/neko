@@ -117,6 +117,24 @@ contains
     this%min_y = minval(y(1:nel*Xh%lxyz))
     this%max_z = maxval(z(1:nel*Xh%lxyz))
     this%min_z = minval(z(1:nel*Xh%lxyz))
+    
+    center_x = (this%max_x - this%min_x) /2.0_xp
+    center_y = (this%max_y - this%min_y) /2.0_xp
+    center_z = (this%max_z - this%min_z) /2.0_xp
+
+    this%max_x = this%max_x - center_x
+    this%max_y = this%max_y - center_y
+    this%max_z = this%max_z - center_z
+    this%min_x = this%min_x - center_x
+    this%min_y = this%min_y - center_y
+    this%min_z = this%min_z - center_z
+    this%max_x = this%max_x * (1.0_xp+this%padding) + center_x
+    this%max_y = this%max_y * (1.0_xp+this%padding) + center_y
+    this%max_z = this%max_z * (1.0_xp+this%padding) + center_z
+    this%min_x = this%min_x * (1.0_xp+this%padding) + center_x
+    this%min_y = this%min_y * (1.0_xp+this%padding) + center_y
+    this%min_z = this%min_z * (1.0_xp+this%padding) + center_z
+
     !Resulting resolution
     this%x_res = (this%max_x - this%min_x) / real(n_boxes, xp)
     this%y_res = (this%max_y - this%min_y) / real(n_boxes, xp)
