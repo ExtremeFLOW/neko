@@ -225,9 +225,9 @@ contains
 
     n_recv = 0
     n_send = 0
-    call marked_box%init(this%n_boxes_per_pe,htable_data)
 
     lxyz = Xh%lxyz
+    call marked_box%init(this%nelv*lxyz,htable_data)
 
     do e = 1, this%nelv
        el_x_max = maxval(x((e-1)*lxyz+1:e*lxyz))
