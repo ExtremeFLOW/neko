@@ -212,7 +212,8 @@ contains
        if (use_cheby) then
           if (NEKO_BCKND_DEVICE .eq. 1) then
              call this%phmg_hrchy%lvl(i)%cheby_device%init( &
-                  this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs)
+                  this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs, &
+                  this%phmg_hrchy%lvl(i)%device_jacobi)
              this%phmg_hrchy%lvl(i)%cheby_device%schwarz => &
                 this%phmg_hrchy%lvl(i)%schwarz
           else
@@ -266,6 +267,8 @@ contains
          call device_rzero(mglvl(0)%w%x_d, n)
          call phmg_mg_cycle(mglvl(0)%z, mglvl(0)%r, mglvl(0)%w, 0, this%nlvls -1, &
               mglvl, this%intrp, this%msh, this%Ax, this%amg_solver)
+
+         call mglvl(0)%bclst%apply_scalar(mglvl(0)%z%x, n)
          call device_copy(z_d, mglvl(0)%z%x_d, n)
       else
          !We should not work with the input
@@ -277,6 +280,7 @@ contains
          call phmg_mg_cycle(mglvl(0)%z, mglvl(0)%r, mglvl(0)%w, 0, this%nlvls -1, &
               mglvl, this%intrp, this%msh, this%Ax, this%amg_solver)
 
+         call mglvl(0)%bclst%apply_scalar(mglvl(0)%z%x, n)
          call copy(z, mglvl(0)%z%x, n)
       end if
     end associate
@@ -376,9 +380,6 @@ contains
             mg(lvl+1)%dm_Xh%size())
        call profiler_end_region('PHMG_tAMG_coarse_grid', 9)
 
-       call mg(lvl+1)%bclst%apply_scalar( &
-            mg(lvl+1)%z%x,&
-            mg(lvl+1)%dm_Xh%size())
     else
        call phmg_mg_cycle(mg(lvl+1)%z, mg(lvl+1)%r, mg(lvl+1)%w, lvl+1, &
             clvl, mg, intrp, msh, Ax, amg_solver)
@@ -399,8 +400,6 @@ contains
     else
        call col2(w%x, mg(lvl)%coef%mult, mg(lvl)%dm_Xh%size())
     end if
-
-    call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
 
     !>----------<!
     !> Correct  <!
