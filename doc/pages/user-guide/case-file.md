@@ -169,23 +169,12 @@ properties there. This is demonstrated in the `rayleigh_benard` example.
 When material properties are constant or only vary in time, one can use the
 simplified form of the viscous stress tensor in the governing equations.
 However, when there are spatial variations, it is necessary to use the general
-form. The variation may come, for example,  due to a turbulence model, the
-modifications in the user routine. The general form of the stress tensor
-requires solving the 3 equations for the velocity components in a coupled
-manner, which requires an appropriate linear solver. Neko uses the following
-logic to determine wether the material properties are varying in space:
-
-1. If the `variable_material_properties` entry is found in the case file, Neko
-   will treat that as the ground truth. The responsibility of setting up the rest
-   of the case setting appropriately then rests on the user.
-2. If the `nut_field` keyword is present in the fluid's configuration in the
-   case file (see section on turbulence modelling), or the material properties
-   user routine is active, the material properties are considered to be
-   spatially varying. Note that if you only vary the properties in time in the
-   user routine, you can safely use the `variable_material_properties` entry to
-   override, and keep the simplified viscous stress tensor formulation.
-3. Otherwise, the material properties are considered to vary only in time or be
-   constant.
+(full) form. The variation may come, for example,  due to a turbulence model,
+the modifications in the above-mentioned user routine. The general form of the
+stress tensor requires solving the 3 equations for the velocity components in a
+coupled manner, which requires an appropriate linear solver. By default, Neko
+will use the simplified form of the tensor, and the full one must be selected
+by the user by setting `full_stress_formulation` to true.
 
 ### Turbulence modelling
 
@@ -647,12 +636,13 @@ The following keywords are used, with the corresponding options.
   - `pipecg`, a pipelined conjugate gradient solver.
   - `bicgstab`, a bi-conjugate gradient stabilized solver.
   - `cacg`, a communication-avoiding conjugate gradient solver.
-  - `cpldcg`, a coupled conjugate gradient solver. Must be used for velocity
+  - `coupledcg`, a coupled conjugate gradient solver. Must be used for velocity
     when viscosity varies in space.
   - `gmres`, a GMRES solver. Typically used for pressure.
   - `fusedcg`, a conjugate gradient solver optimised for accelerators using
-    kernel fusion.
-  - `fcpldcg`, a coupled conjugate gradient solver optimised for accelerators
+  - `fusedcoupledcg`, a coupled conjugate gradient solver optimised for accelerators using
+    kernel fusion. Must be used for velocity when viscosity varies in space and
+    device backened is used.
     using kernel fusion.
 * `preconditioner`, preconditioner type.
   - `jacobi`, a Jacobi preconditioner. Typically used for velocity.
@@ -742,6 +732,7 @@ concisely directly in the table.
 | `flow_rate_force.use_averaged_flow`     | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                           | -             |
 | `freeze`                                | Whether to fix the velocity field at initial conditions.                                          | `true` or `false`                                           | `false`       |
 | `advection`                             | Whether to compute the advection term.                                                            | `true` or `false`                                           | `true`        |
+| `full_stress_formulation`               | Whether to use the full form of the visous stress tensor term.                                    | `true` or `false`                                   | `false`               |
 
 ## Scalar {#case-file_scalar}
 The scalar object allows to add a scalar transport equation to the solution. The

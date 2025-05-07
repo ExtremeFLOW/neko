@@ -185,6 +185,9 @@ module fluid_pnpn
      !> Adjust flow volume
      type(fluid_volflow_t) :: vol_flow
 
+     !> Whether to use the full formulation of the viscous stress term
+     logical :: full_stress_formulation = .false.
+
    contains
      !> Constructor.
      procedure, pass(this) :: init => fluid_pnpn_init
@@ -273,7 +276,10 @@ contains
     allocate(this%ext_bdf)
     call this%ext_bdf%init(integer_val)
 
-    if (this%variable_material_properties .eqv. .true.) then
+    call json_get_or_default(params, "case.fluid.full_stress_formulation", &
+         this%full_stress_formulation, .false.)
+
+    if (this%full_stress_formulation .eqv. .true.) then
        ! Setup backend dependent Ax routines
        call ax_helm_factory(this%Ax_vel, full_formulation = .true.)
 
@@ -291,6 +297,22 @@ contains
 
        ! Setup backend dependent vel residual routines
        call pnpn_vel_res_factory(this%vel_res)
+    end if
+
+    write(log_buf, '(A, L1)') 'Full stress : ', &
+         this%full_stress_formulation
+    call neko_log%message(log_buf)
+
+
+    if (params%valid_path('case.fluid.nut_field')) then
+       if (this%full_stress_formulation .eqv. .false.) then
+          call neko_error("You need to set full_stress_formulation to " // &
+               "true for the fluid to have a spatially varying " // &
+          "viscocity field.")
+       end if
+       call json_get(params, 'case.fluid.nut_field', this%nut_field_name)
+    else
+       this%nut_field_name = ""
     end if
 
     ! Setup Ax for the pressure
@@ -396,6 +418,8 @@ contains
     this%chkp%abz1 => this%abz1
     this%chkp%abz2 => this%abz2
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
+
+
 
     call neko_log%end_section()
 
@@ -642,7 +666,7 @@ contains
          ! additional source terms, evaluated using the velocity field from the
          ! previous time-step. Now, this value is used in the explicit time
          ! scheme to advance both terms in time.
-          
+
          call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
               this%abx2, this%aby2, this%abz2, &
               f_x%x, f_y%x, f_z%x, &

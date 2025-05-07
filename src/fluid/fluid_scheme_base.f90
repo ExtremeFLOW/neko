@@ -108,8 +108,6 @@ module fluid_scheme_base
      !> A helper that packs material properties to pass to the user routine.
      type(field_list_t) :: material_properties
 
-     !> Are material properties varying in space and time?
-     logical :: variable_material_properties = .false.
      !> Is the fluid frozen at the moment
      logical :: freeze = .false.
 

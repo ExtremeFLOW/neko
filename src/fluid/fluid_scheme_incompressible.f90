@@ -216,38 +216,6 @@ contains
     !
     call this%set_material_properties(params, user)
 
-    !
-    ! Turbulence modelling and variable material properties
-    !
-    if (params%valid_path('case.fluid.variable_material_properties')) then
-       call json_get(params, 'case.fluid.variable_material_properties', &
-            this%variable_material_properties)
-
-       ! Warn, no variable properties, but nut_field
-       if ((params%valid_path('case.fluid.nut_field')) .and. &
-            (this%variable_material_properties .eqv. .false.)) then
-          call neko_warning("You set variable_material_properties to " // &
-               "false, the nut_field setting will have no effect.")
-       end if
-
-       ! Warn, no variable properties, but user routine associated
-       if ((.not. associated(user%material_properties, &
-            dummy_user_material_properties)) .and. &
-            (this%variable_material_properties .eqv. .false.)) then
-          call neko_warning("You set variable_material_properties to " // &
-               "false, you cannot vary rho and mu in space in the user file.")
-       end if
-    else if (params%valid_path('case.fluid.nut_field')) then
-       call json_get(params, 'case.fluid.nut_field', this%nut_field_name)
-       this%variable_material_properties = .true.
-    else if (.not. associated(user%material_properties, &
-         dummy_user_material_properties)) then
-       this%nut_field_name = ""
-       this%variable_material_properties = .true.
-    end if
-
-
-
     ! Projection spaces
     call json_get_or_default(params, &
          'case.fluid.velocity_solver.projection_space_size', &
@@ -291,9 +259,6 @@ contains
     write(log_buf, '(A, L1)') 'Dealias    : ', logical_val
     call neko_log%message(log_buf)
 
-    write(log_buf, '(A, L1)') 'Var. prop. : ', &
-         this%variable_material_properties
-    call neko_log%message(log_buf)
 
     call json_get_or_default(params, 'case.output_boundary', logical_val, &
          .false.)
@@ -610,8 +575,7 @@ contains
     call this%user_material_properties(t, tstep, this%name, &
          this%material_properties)
 
-    if (this%variable_material_properties .and. &
-         len(trim(this%nut_field_name)) > 0) then
+    if (len(trim(this%nut_field_name)) > 0) then
        nut => neko_field_registry%get_field(this%nut_field_name)
        call field_addcol3(this%mu, nut, this%rho)
     end if
