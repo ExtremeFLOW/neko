@@ -188,7 +188,7 @@ contains
        do i = 1, el_npts**3
           el_idx = this%compute_idx(real(res_x(i),xp), &
                    real(res_y(i),xp), real(res_z(i),xp))
-          if (el_idx .ge. 1 .and. el_idx .le. this%n_boxes**3) then
+          if (el_idx .ge. 1 .and. el_idx .lt. this%n_boxes**3) then
              if (marked_box%get(el_idx,htable_data) .ne. 0)then
                 call marked_box%set(el_idx, htable_data)
                 call this%el_map(el_idx)%push(e)
