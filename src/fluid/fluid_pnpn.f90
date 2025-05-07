@@ -308,7 +308,7 @@ contains
        if (this%full_stress_formulation .eqv. .false.) then
           call neko_error("You need to set full_stress_formulation to " // &
                "true for the fluid to have a spatially varying " // &
-          "viscocity field.")
+               "viscocity field.")
        end if
        call json_get(params, 'case.fluid.nut_field', this%nut_field_name)
     else
