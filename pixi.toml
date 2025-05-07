@@ -1,14 +1,14 @@
 [workspace]
-authors = ["Timofey Mukha <timofey.mukha@protonmail.com>"]
+authors = ["Neko authors"]
 channels = ["conda-forge"]
-name = "pixi_neko"
+name = "neko"
 platforms = ["osx-arm64", "osx-64", "linux-64"]
-version = "0.1.0"
+version = "0.9.0"
 
 [activation.env]
 PREFIX = "$PWD/install"
-PKG_CONFIG_PATH = "$PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
-PATH = "$PATH:$PREFIX/bin"
+PKG_CONFIG_PATH = "$PREFIX/lib/pkgconfig:$CONDA_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+PATH = "$PREFIX/bin:$PATH"
 LD_LIBRARY_PATH = "$PREFIX/lib:$LD_LIBRARY_PATH"
 LIBRARY_PATH = "$PREFIX/lib:$LIBRARY_PATH"
 CPATH = "$PREFIX/include:$CPATH"
@@ -23,18 +23,17 @@ download-deps = { cmd = [
   git clone https://github.com/Nek5000/gslib.git gslib
   wget https://github.com/HDFGroup/hdf5/archive/refs/tags/hdf5_1.14.6.tar.gz
   '''
-]}
+], outputs = ["$PREFIX/deps/gslib/README.md", "$PREFIX/deps/hdf5_1.14.6.tar.gz"]}
 
 build-gslib = { cmd = [
   "sh",
   "-c",
   '''
   cd $PREFIX/deps/gslib 
-  make CC=mpicc DESTDIR=$PWD/$PREFIX 
+  make CC=mpicc DESTDIR=$PREFIX 
   make install
   '''
-  ], depends-on = ["download-deps"]
-}
+  ], depends-on = ["download-deps"], outputs = ["$PREFIX/lib/libgs.a"]}
 
 build-hdf5 = { cmd = [
   "bash", "-c",
@@ -46,32 +45,21 @@ build-hdf5 = { cmd = [
   cmake --build build/ --parallel
   cmake --install build/
   '''
-  ],
-  depends-on = ["download-deps"]
-}
+  ], depends-on = ["download-deps"], outputs = ["$PREFIX/lib/libhdf5.a"]}
 
-configure-neko = { cmd = [
+build-neko-cpu = { cmd = [
   "bash",
   "-c",
   '''
+  set -e
   ./regen.sh
   ./configure FCFLAGS="-O3" --prefix=$PREFIX --with-hdf5=$PREFIX --with-parmetis=$PREFIX --with-gslib=$PREFIX
   grep hdf5 config.log
   grep parmetis config.log
   grep gslib config.log
+  make -j install
   '''
-  ],
-  depends-on = ["build-gslib", "build-hdf5"]
-}
-
-compile-neko = { cmd = [
-  "make",
-  "-j",
-  "install"
-  ],
-  depends-on = ["configure-neko"]
-}
-
+  ], depends-on = ["build-gslib", "build-hdf5"]}
 
 [dependencies]
 gfortran = "14.*"
