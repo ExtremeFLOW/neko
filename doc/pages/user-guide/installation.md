@@ -2,7 +2,7 @@
 
 \tableofcontents
 
-Neko can be installed in various ways, either building directly from source, manually compiling all dependencies and Neko or via Spack. Pre-built Docker images are also provided for each release of Neko.
+Neko can be installed in various ways, either building directly from source, manually compiling all dependencies and Neko or via tools like Spack, pixi, and Docker. 
 
 ## Building from source
 
@@ -226,6 +226,38 @@ $ spack install neko+cuda
 
 For a more detailed guide on getting started with Spack, please refer to the offical documentation:
 https://spack.readthedocs.io/en/latest/getting_started.html
+
+## Installing using pixi
+Pixi is a package managment tool using conda under the hood. It is very easy
+to install. For more information see (pixi.sh)[pixi.sh].
+
+```bash
+curl -fsSL https://pixi.sh/install.sh | sh
+```
+
+Pixi will leverage conda to install all the dependencies, including basic ones
+like `gfortran` and `openmpi`. All of these will be installed inside an isolated
+environment. So, to install neko simply run
+
+```bash
+pixi run build-neko-cpu
+```
+
+This will give you a double-precision CPU build charged with all optional
+dependencies: hdf5, gslib, parmetis and json-fortran. For now, this is the only
+configuration that can be installed with pixi.
+
+To use Neko, you need to drop into a shell, where the pixi environment will be
+activated. For that run
+
+```bash
+pixi shell
+```
+
+The `neko` and `makeneko` executables are already be in your `PATH`, so you can
+start running cases!
+
+
 
 ## Using a Docker container
 Perhaps the easiest way to quickly give Neko a try is using a Docker container.
