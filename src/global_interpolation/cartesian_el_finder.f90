@@ -334,14 +334,15 @@ contains
     class(cartesian_el_finder_t), intent(inout) :: this
     type(point_t), intent(in) :: my_point
     type(stack_i4_t), intent(inout) :: el_candidates
-    integer :: idx, i
+    integer :: idx, i, stupid_intent
     integer, pointer :: el_cands(:)
 
     call el_candidates%clear()
     idx = this%compute_idx(my_point%x(1),my_point%x(2),my_point%x(3))
     el_cands => this%el_map(idx)%array()
     do i = 1, this%el_map(idx)%size()
-       call el_candidates%push(el_cands(i))
+       stupid_intent = el_cands(j) - 1
+       call el_candidates%push(stupid_intent)
     end do
   end subroutine cartesian_el_finder_find_candidates
 
