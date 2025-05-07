@@ -39,6 +39,7 @@
     },
     "scalars": [
       {
+        "field_name": "s1",
         "lambda": 1e-16,
         "cp": 1.0,
         "solver": {
