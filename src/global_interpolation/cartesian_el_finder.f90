@@ -64,6 +64,7 @@ module cartesian_el_finder
      procedure, pass(this) :: find => cartesian_el_finder_find_candidates
      procedure, pass(this) :: find_batch => cartesian_el_finder_find_candidates_batch
      procedure, pass(this) :: compute_idx => cartesian_el_finder_compute_idx
+     procedure, pass(this) :: compute_3idx => cartesian_el_finder_compute_xyz_idxs
   end type cartesian_el_finder_t
 
 contains
@@ -91,6 +92,13 @@ contains
     real(kind=rp) :: center_x, center_y, center_z, r_res
     integer :: current_size
     real(kind=rp) :: time_start, time_end
+    integer :: min_id(3), max_id(3)
+    integer :: lin_idx
+    integer :: i2, j2, k2
+    real(kind=rp) :: min_bb_x, max_bb_x
+    real(kind=rp) :: min_bb_y, max_bb_y
+    real(kind=rp) :: min_bb_z, max_bb_z
+
 
 
 
@@ -118,6 +126,84 @@ contains
     this%n_boxes = n_boxes
     call marked_box%init(nel)
     lxyz = Xh%lxyz
+    !do e = 1, nel
+    !   call marked_box%clear()
+    !   el_x_max = maxval(x((e-1)*lxyz+1:e*lxyz))
+    !   el_x_min = minval(x((e-1)*lxyz+1:e*lxyz))
+    !   el_y_max = maxval(y((e-1)*lxyz+1:e*lxyz))
+    !   el_y_min = minval(y((e-1)*lxyz+1:e*lxyz))
+    !   el_z_max = maxval(z((e-1)*lxyz+1:e*lxyz))
+    !   el_z_min = minval(z((e-1)*lxyz+1:e*lxyz))
+
+    !   el_x_npts = 2*max(int((el_x_max - el_x_min) / this%x_res),Xh%lx)
+    !   el_y_npts = 2*max(int((el_y_max - el_y_min) / this%y_res),Xh%ly)
+    !   el_z_npts = 2*max(int((el_z_max - el_z_min) / this%z_res),Xh%lz)
+
+    !   el_npts = max(el_x_npts, el_y_npts, el_z_npts)
+    !   ! If this happens often, we can split the element into multiple rst parts
+    !   ! This check is to avoid allocating too much memory on the stack
+    !   if (el_npts .gt. 128) then
+    !      print *, "Warning, in cartesian_el_finder el_npts: ", el_npts, "set to 128"
+    !      el_npts = 128
+    !   end if
+
+    !   !move it to close to origo
+    !   center_x = (el_x_max + el_x_min) / 2.0_xp
+    !   center_y = (el_y_max + el_y_min) / 2.0_xp
+    !   center_z = (el_z_max + el_z_min) / 2.0_xp
+    !   !Maybe this is a stupid way to do it
+
+    !   el_x = x((e-1)*lxyz+1:e*lxyz) - center_x
+    !   el_y = y((e-1)*lxyz+1:e*lxyz) - center_y
+    !   el_z = z((e-1)*lxyz+1:e*lxyz) - center_z
+    !   el_x = el_x * (1.0+padding) + center_x
+    !   el_y = el_y * (1.0+padding) + center_y
+    !   el_z = el_z * (1.0+padding) + center_z
+    !   r_res = 2.0_xp / real(el_npts-1, xp)
+    !   if (el_npts .gt. current_size) then
+    !      current_size = el_npts
+    !      if (allocated(el_rst)) deallocate(el_rst)
+    !      if (allocated(res_x)) deallocate(res_x)
+    !      if (allocated(res_y)) deallocate(res_y)
+    !      if (allocated(res_z)) deallocate(res_z)
+    !      if (allocated(interp_mat)) deallocate(interp_mat)
+    !      if (allocated(interp_matT)) deallocate(interp_matT)
+    !      allocate(res_x(el_npts**3))
+    !      allocate(res_y(el_npts**3))
+    !      allocate(res_z(el_npts**3))
+    !      allocate(interp_mat(Xh%lx, el_npts), &
+    !               interp_matT(el_npts, Xh%lx))
+    !      allocate(el_rst(el_npts))
+    !   end if
+    !   do i = 1, el_npts
+    !      el_rst(i) = -1_xp+r_res*(i-1)
+    !   end do
+
+    !   call setup_intp(interp_mat, interp_matT, &
+    !   el_rst, Xh%zg, el_npts, Xh%lx, 0)
+
+    !   call tnsr3d_cpu(res_x, el_npts, el_x, &
+    !               Xh%lx,interp_mat, &
+    !               interp_matT, interp_matT, 1)
+    !   call tnsr3d_cpu(res_y, el_npts, el_y, &
+    !               Xh%lx,interp_mat, &
+    !               interp_matT, interp_matT, 1)
+    !   call tnsr3d_cpu(res_z, el_npts, el_z, &
+    !               Xh%lx,interp_mat, &
+    !               interp_matT, interp_matT, 1)
+
+
+    !   do i = 1, el_npts**3
+    !      el_idx = this%compute_idx(real(res_x(i),xp), &
+    !               real(res_y(i),xp), real(res_z(i),xp))
+    !      if (el_idx .ge. 1 .and. el_idx .lt. this%n_boxes**3) then
+    !         if (marked_box%get(el_idx,htable_data) .ne. 0)then
+    !            call marked_box%set(el_idx, htable_data)
+    !            call this%el_map(el_idx)%push(e)
+    !         end if
+    !      end if
+    !   end do
+    !end do
     do e = 1, nel
        call marked_box%clear()
        el_x_max = maxval(x((e-1)*lxyz+1:e*lxyz))
@@ -126,18 +212,6 @@ contains
        el_y_min = minval(y((e-1)*lxyz+1:e*lxyz))
        el_z_max = maxval(z((e-1)*lxyz+1:e*lxyz))
        el_z_min = minval(z((e-1)*lxyz+1:e*lxyz))
-
-       el_x_npts = 2*max(int((el_x_max - el_x_min) / this%x_res),Xh%lx)
-       el_y_npts = 2*max(int((el_y_max - el_y_min) / this%y_res),Xh%ly)
-       el_z_npts = 2*max(int((el_z_max - el_z_min) / this%z_res),Xh%lz)
-
-       el_npts = max(el_x_npts, el_y_npts, el_z_npts)
-       ! If this happens often, we can split the element into multiple rst parts
-       ! This check is to avoid allocating too much memory on the stack
-       if (el_npts .gt. 128) then
-          print *, "Warning, in cartesian_el_finder el_npts: ", el_npts, "set to 128"
-          el_npts = 128
-       end if
 
        !move it to close to origo
        center_x = (el_x_max + el_x_min) / 2.0_xp
@@ -151,49 +225,52 @@ contains
        el_x = el_x * (1.0+padding) + center_x
        el_y = el_y * (1.0+padding) + center_y
        el_z = el_z * (1.0+padding) + center_z
-       r_res = 2.0_xp / real(el_npts-1, xp)
-       if (el_npts .gt. current_size) then
-          current_size = el_npts
-          if (allocated(el_rst)) deallocate(el_rst)
-          if (allocated(res_x)) deallocate(res_x)
-          if (allocated(res_y)) deallocate(res_y)
-          if (allocated(res_z)) deallocate(res_z)
-          if (allocated(interp_mat)) deallocate(interp_mat)
-          if (allocated(interp_matT)) deallocate(interp_matT)
-          allocate(res_x(el_npts**3))
-          allocate(res_y(el_npts**3))
-          allocate(res_z(el_npts**3))
-          allocate(interp_mat(Xh%lx, el_npts), &
-                   interp_matT(el_npts, Xh%lx))
-          allocate(el_rst(el_npts))
-       end if
-       do i = 1, el_npts
-          el_rst(i) = -1_xp+r_res*(i-1)
-       end do
+       !Padded and ready
 
-       call setup_intp(interp_mat, interp_matT, &
-       el_rst, Xh%zg, el_npts, Xh%lx, 0)
-
-       call tnsr3d_cpu(res_x, el_npts, el_x, &
-                   Xh%lx,interp_mat, &
-                   interp_matT, interp_matT, 1)
-       call tnsr3d_cpu(res_y, el_npts, el_y, &
-                   Xh%lx,interp_mat, &
-                   interp_matT, interp_matT, 1)
-       call tnsr3d_cpu(res_z, el_npts, el_z, &
-                   Xh%lx,interp_mat, &
-                   interp_matT, interp_matT, 1)
+       !Now we go the bounding boxes of all subboxes in the element
+       do i = 1, Xh%lx - 1
+          do j = 1, Xh%ly - 1
+             do k = 1, Xh%lz - 1
+                lin_idx = i + (j-1)*Xh%lx + (k-1)*Xh%lx*Xh%ly
+                max_bb_x = el_x(lin_idx)
+                min_bb_x = el_x(lin_idx)
+                max_bb_y = el_y(lin_idx)
+                min_bb_y = el_y(lin_idx)
+                max_bb_z = el_z(lin_idx)
+                min_bb_z = el_z(lin_idx)
+                do i2 = 0, 1
+                   do j2 = 0, 1
+                      do k2 = 0, 1
+                         lin_idx = i + i2 + (j-1+j2)*Xh%lx + (k-1+k2)*Xh%lx*Xh%ly
+                         max_bb_x = max(max_bb_x, el_x(lin_idx))
+                         min_bb_x = min(min_bb_x, el_x(lin_idx))
+                         max_bb_y = max(max_bb_y, el_y(lin_idx))
+                         min_bb_y = min(min_bb_y, el_y(lin_idx))
+                         max_bb_z = max(max_bb_z, el_z(lin_idx))
+                         min_bb_z = min(min_bb_z, el_z(lin_idx))
+                      end do
+                   end do
+                end do
 
 
-       do i = 1, el_npts**3
-          el_idx = this%compute_idx(real(res_x(i),xp), &
-                   real(res_y(i),xp), real(res_z(i),xp))
-          if (el_idx .ge. 1 .and. el_idx .lt. this%n_boxes**3) then
-             if (marked_box%get(el_idx,htable_data) .ne. 0)then
-                call marked_box%set(el_idx, htable_data)
-                call this%el_map(el_idx)%push(e)
-             end if
-          end if
+                min_id = this%compute_3idx(min_bb_x, min_bb_y, min_bb_z)
+                max_id = this%compute_3idx(max_bb_x, max_bb_y, max_bb_z)
+                do i2 = min_id(1), max_id(1)
+                   do j2 = min_id(2), max_id(2)
+                      do k2 = min_id(3), max_id(3)
+                         el_idx = linear_index(i2, j2, k2, 1, &
+                   this%n_boxes, this%n_boxes, this%n_boxes)
+                         if (el_idx .ge. 1 .and. el_idx .le. this%n_boxes**3) then
+                            if (marked_box%get(el_idx,htable_data) .ne. 0)then
+                               call marked_box%set(el_idx, htable_data)
+                               call this%el_map(el_idx)%push(e)
+                            end if
+                         end if
+                      end do
+                   end do
+                end do
+             end do
+          end do
        end do
     end do
     call marked_box%free()
@@ -207,13 +284,25 @@ contains
 
   function cartesian_el_finder_compute_idx(this, x, y, z) result(idx)
     class(cartesian_el_finder_t), intent(in) :: this
-    real(kind=xp), intent(in) :: x, y, z
+    real(kind=rp), intent(in) :: x, y, z
     integer :: idx
+    integer :: ids(3)
+
+    ids = this%compute_3idx(x, y, z)
+    idx = linear_index(ids(1), ids(2), ids(3), 1, &
+           this%n_boxes, this%n_boxes, this%n_boxes)
+
+  end function cartesian_el_finder_compute_idx
+
+  function cartesian_el_finder_compute_xyz_idxs(this, x, y, z) result(idxs)
+    class(cartesian_el_finder_t), intent(in) :: this
+    real(kind=rp), intent(in) :: x, y, z
+    integer :: idxs(3)
     integer :: x_id, y_id, z_id
 
-    x_id = int((x - this%min_x) / this%x_res)
-    y_id = int((y - this%min_y) / this%y_res)
-    z_id = int((z - this%min_z) / this%z_res)
+    x_id = int(real(x - this%min_x,xp) / this%x_res)
+    y_id = int(real(y - this%min_y,xp) / this%y_res)
+    z_id = int(real(z - this%min_z,xp) / this%z_res)
     if (x_id .eq. -1) then
        x_id = 0
     end if
@@ -236,11 +325,10 @@ contains
     y_id = y_id + 1
     z_id = z_id + 1
 
-    idx = linear_index(x_id, y_id, z_id, 1, &
-           this%n_boxes, this%n_boxes, this%n_boxes)
-
-  end function cartesian_el_finder_compute_idx
-
+    idxs(1) = x_id
+    idxs(2) = y_id
+    idxs(3) = z_id
+  end function cartesian_el_finder_compute_xyz_idxs
 
   subroutine cartesian_el_finder_find_candidates(this, my_point, el_candidates)
     class(cartesian_el_finder_t), intent(inout) :: this
@@ -257,7 +345,6 @@ contains
     end do
   end subroutine cartesian_el_finder_find_candidates
 
-  ! Might be better to organize this slightly differently
   ! In order to get more cache hits
   subroutine cartesian_el_finder_find_candidates_batch(this, points, n_points, &
              all_el_candidates, n_el_cands)
