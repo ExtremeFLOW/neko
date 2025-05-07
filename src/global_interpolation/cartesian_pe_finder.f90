@@ -274,6 +274,17 @@ contains
     end do
 
     call send_recv_data(this, recv_ids, n_recv, glob_ids, n_send)
+    !Buffers are likely way too large for other calls
+    do i = 0, this%pe_size-1
+       if (allocated(this%recv_buf(i)%data)) then
+          deallocate(this%recv_buf(i)%data)
+       end if
+       if (allocated(this%send_buf(i)%data)) then
+          deallocate(this%send_buf(i)%data)
+       end if
+       this%send_buf(i)%size = 0
+       this%recv_buf(i)%size = 0
+    end do
 
 
     call MPI_Barrier(this%comm, ierr)
@@ -329,6 +340,26 @@ contains
   !> Destructor
   subroutine cartesian_pe_finder_free(this)
     class(cartesian_pe_finder_t), intent(inout) :: this
+    integer :: i
+
+    if (allocated(this%send_buf)) then
+       do i = 0, this%pe_size-1
+          if (allocated(this%send_buf(i)%data)) deallocate(this%send_buf(i)%data)
+       end do
+       deallocate(this%send_buf)
+    end if
+    if (allocated(this%recv_buf)) then
+       do i = 0, this%pe_size-1
+          if (allocated(this%recv_buf(i)%data)) deallocate(this%recv_buf(i)%data)
+       end do
+       deallocate(this%recv_buf)
+    end if
+    if (allocated(this%pe_map)) then
+       do i = 0, this%n_boxes_per_pe-1
+          call this%pe_map(i)%free()
+       end do
+       deallocate(this%pe_map)
+    end if
 
   end subroutine cartesian_pe_finder_free
 
@@ -343,56 +374,34 @@ contains
     integer(kind=i8) :: pe_id
     integer(kind=i8) :: lin_glob_id
     integer(kind=i8) :: loc_id
-    type(stack_i8_t), allocatable :: my_glob_ids(:), my_pt_ids(:)
-    type(stack_i8_t), allocatable :: pe_get_from(:), pe_get_pt(:)
-    type(stack_i8_t), allocatable :: pe_candidates(:), point_ids(:)
-    type(stack_i8_t), allocatable :: pe_to_point(:), point_cand_ids(:)
-    integer, allocatable :: n_from(:)
-    integer, allocatable :: n_pe_to_point(:)
-    integer, allocatable :: n_glob_ids(:), n_pt_ids(:)
+    type(stack_i8_t), allocatable :: work_pe_ids(:), work_pt_ids(:)
+    type(stack_i8_t), allocatable :: temp_pe_ids(:), temp_pt_ids(:)
+    integer, allocatable :: n_work_ids(:), n_temp_ids(:)
     integer(i8), pointer :: ids(:) => Null()
     integer(i8), pointer :: pt_id(:) => Null()
     integer, pointer :: pe_cands(:) => Null()
     integer(i8), pointer :: pe_cands8(:) => Null()
     integer(i8), pointer :: pt_ids(:) => Null()
     integer :: ierr
-
-    if (allocated(my_glob_ids)) deallocate(my_glob_ids)
-    if (allocated(my_pt_ids)) deallocate(my_pt_ids)
-    if (allocated(pe_get_from)) deallocate(pe_get_from)
-    if (allocated(pe_get_pt)) deallocate(pe_get_pt)
-    if (allocated(n_from)) deallocate(n_from)
-    if (allocated(n_pe_to_point)) deallocate(n_pe_to_point)
-    if (allocated(n_glob_ids)) deallocate(n_glob_ids)
-    if (allocated(n_pt_ids)) deallocate(n_pt_ids)
-    if (allocated(pe_candidates)) deallocate(pe_candidates)
-    if (allocated(point_ids)) deallocate(point_ids)
-    if (allocated(pe_to_point)) deallocate(pe_to_point)
-    if (allocated(point_cand_ids)) deallocate(point_cand_ids)
-    allocate(my_glob_ids(0:this%pe_size-1))
-    allocate(my_pt_ids(0:this%pe_size-1))
-    allocate(pe_get_from(0:this%pe_size-1))
-    allocate(pe_get_pt(0:this%pe_size-1))
-    allocate(n_from(0:this%pe_size-1))
-    allocate(n_pe_to_point(0:this%pe_size-1))
-    allocate(n_glob_ids(0:this%pe_size-1))
-    allocate(n_pt_ids(0:this%pe_size-1))
-    allocate(pe_candidates(0:this%pe_size-1))
-    allocate(point_ids(0:this%pe_size-1))
-    allocate(pe_to_point(0:this%pe_size-1))
-    allocate(point_cand_ids(0:this%pe_size-1))
+    if (allocated(work_pe_ids)) deallocate(work_pe_ids)
+    if (allocated(work_pt_ids)) deallocate(work_pt_ids)
+    if (allocated(temp_pe_ids)) deallocate(temp_pe_ids)
+    if (allocated(temp_pt_ids)) deallocate(temp_pt_ids)
+    if (allocated(n_work_ids)) deallocate(n_work_ids)
+    if (allocated(n_temp_ids)) deallocate(n_temp_ids)
+    allocate(work_pe_ids(0:this%pe_size-1))
+    allocate(work_pt_ids(0:this%pe_size-1))
+    allocate(temp_pe_ids(0:this%pe_size-1))
+    allocate(temp_pt_ids(0:this%pe_size-1))
+    allocate(n_temp_ids(0:this%pe_size-1))
+    allocate(n_work_ids(0:this%pe_size-1))
     do i = 0, this%pe_size-1
-       n_glob_ids(i) = 0
-       n_pt_ids(i) = 0
-       n_pe_to_point(i) = 0
-       call my_glob_ids(i)%init()
-       call my_pt_ids(i)%init()
-       call pe_get_from(i)%init()
-       call pe_get_pt(i)%init()
-       call pe_candidates(i)%init()
-       call point_ids(i)%init()
-       call pe_to_point(i)%init()
-       call point_cand_ids(i)%init()
+       n_work_ids(i) = 0
+       n_temp_ids(i) = 0
+       call work_pt_ids(i)%init()
+       call work_pe_ids(i)%init()
+       call temp_pe_ids(i)%init()
+       call temp_pt_ids(i)%init()
     end do
 
     do i = 0, this%pe_size-1
@@ -401,7 +410,7 @@ contains
     end do
     ! Compute global ids for the points
     ! and the pe id for each point
-    n_from = 0
+    n_work_ids = 0
     do i = 1, n_points
        glob_id = get_global_idx(this, points(1,i), points(2,i), points(3,i))
        lin_glob_id = glob_id(1) + &
@@ -409,39 +418,45 @@ contains
                      glob_id(3)*this%n_boxes**2
        pe_id = get_pe_idx(this, lin_glob_id)
        if (lin_glob_id .ge. 0 .and. lin_glob_id .lt. this%glob_n_boxes) then
-          call pe_get_from(pe_id)%push(lin_glob_id)
-          call pe_get_pt(pe_id)%push(int(i,i8))
-          n_from(pe_id) = n_from(pe_id) + 1
+          call work_pe_ids(pe_id)%push(lin_glob_id)
+          call work_pt_ids(pe_id)%push(int(i,i8))
+          n_work_ids(pe_id) = n_work_ids(pe_id) + 1
        else
-            print *, 'Point found outside domain:', points(1,i), &
+          print *, 'Point found outside domain:', points(1,i), &
               points(2,i), points(3,i), &
               'Computed global id:', lin_glob_id, &
               'Global box id (x,y,z):', glob_id(1), glob_id(2), glob_id(3)
-         end if
+       end if
     end do
 
 
     ! Send the global ids to the correct pe
     ! and get the global ids from the other pes with points I own
     ! Also send point ids to the other pes
-    call send_recv_data(this, my_glob_ids, n_glob_ids, pe_get_from, n_from)
-    call send_recv_data(this, my_pt_ids, n_pt_ids, pe_get_pt, n_from)
+    call send_recv_data(this, temp_pe_ids, n_temp_ids, work_pe_ids, n_work_ids)
+    call send_recv_data(this, temp_pt_ids, n_temp_ids, work_pt_ids, n_work_ids)
     call MPI_Barrier(this%comm, ierr)
     ! Get the local ids for the points I own
     ! and the pe candidates for the points I own
-    n_points_pe = 0
+    n_work_ids = 0
+    do i = 0, this%pe_size-1
+       call work_pe_ids(i)%clear()
+       call work_pt_ids(i)%clear()
+    end do
+
     do i =0 , this%pe_size-1
-       if (n_glob_ids(i) .gt. 0) then
-          ids => my_glob_ids(i)%array()
-          pt_ids => my_pt_ids(i)%array()
-          do j = 1, n_glob_ids(i)
+
+       if (n_temp_ids(i) .gt. 0) then
+          ids => temp_pe_ids(i)%array()
+          pt_ids => temp_pt_ids(i)%array()
+          do j = 1, n_temp_ids(i)
              loc_id = ids(j) - int(this%pe_rank,i8) * &
                                int(this%n_boxes_per_pe,i8)
              pe_cands => this%pe_map(int(loc_id))%array()
              do k = 1, this%pe_map(int(loc_id))%size()
-                call pe_candidates(i)%push(int(pe_cands(k),i8))
-                call point_ids(i)%push(pt_ids(j))
-                n_points_pe(i) = n_points_pe(i) + 1
+                call work_pe_ids(i)%push(int(pe_cands(k),i8))
+                call work_pt_ids(i)%push(pt_ids(j))
+                n_work_ids(i) = n_work_ids(i) + 1
              end do
              if (this%pe_map(int(loc_id))%size() .lt. 1) then
                 print *, 'No PE candidates found for point:', points(1,pt_ids(j)), &
@@ -453,16 +468,16 @@ contains
     ! pe candidates found for the points I am responsible for
     ! Now i need to send the data to the other pes
     ! and get the candidates from the other pes for my own points
-    call send_recv_data(this, pe_to_point, n_pe_to_point, pe_candidates, n_points_pe)
-    call send_recv_data(this, point_cand_ids, n_pe_to_point, point_ids, n_points_pe)
+    call send_recv_data(this, temp_pe_ids, n_temp_ids, work_pe_ids, n_work_ids)
+    call send_recv_data(this, temp_pt_ids, n_temp_ids, work_pt_ids, n_work_ids)
     ! Gotten candidates for my points
     ! Now I organize the candidates for the points I own
     n_points_pe = 0
     do i = 0, this%pe_size-1
-       if (n_pe_to_point(i) .gt. 0) then
-          pe_cands8 => pe_to_point(i)%array()
-          pt_ids => point_cand_ids(i)%array()
-          do j = 1, n_pe_to_point(i)
+       if (n_temp_ids(i) .gt. 0) then
+          pe_cands8 => temp_pe_ids(i)%array()
+          pt_ids => temp_pt_ids(i)%array()
+          do j = 1, n_temp_ids(i)
              pe_id = pe_cands8(j)
              call points_at_pe(pe_id)%push(int(pt_ids(j)))
              n_points_pe(pe_id) = n_points_pe(pe_id) + 1
