@@ -47,8 +47,10 @@ module global_interpolation
   use aabb_pe_finder, only: aabb_pe_finder_t
   use aabb_el_finder, only: aabb_el_finder_t
   use cartesian_el_finder, only: cartesian_el_finder_t
+  use cartesian_pe_finder, only: cartesian_pe_finder_t
   use legendre_rst_finder, only: legendre_rst_finder_t
   use el_finder, only: el_finder_t
+  use pe_finder, only: pe_finder_t
   use comm, only: NEKO_COMM
   use mpi_f08, only: MPI_SUM, MPI_COMM, MPI_Comm_rank, &
       MPI_Comm_size, MPI_Wtime, MPI_Allreduce, MPI_IN_PLACE, MPI_INTEGER, &
@@ -78,6 +80,8 @@ module global_interpolation
      integer :: gdim
      !> Number of elements.
      integer :: nelv
+     !> Global number of elements.
+     integer :: glb_nelv
      !> Which communicator to do interpolation on
      type(MPI_COMM) :: comm
      !> pe_rank in comm
@@ -127,7 +131,7 @@ module global_interpolation
      integer, allocatable :: n_points_offset_pe_local(:)
      !> Finding elements
      !> Structure to find rank candidates
-     type(aabb_pe_finder_t) :: pe_finder
+     class(pe_finder_t), allocatable :: pe_finder
      !> Structure to find element candidates
      class(el_finder_t), allocatable :: el_finder
      !> Object to find rst coordinates
@@ -246,6 +250,8 @@ contains
     this%Xh => Xh
     if (present(tol)) this%tol = tol
 
+    call MPI_Allreduce(nelv, this%glb_nelv, 1, MPI_INTEGER, &
+         MPI_SUM, this%comm, ierr)
     lx = Xh%lx
     ly = Xh%ly
     lz = Xh%lz
@@ -253,19 +259,18 @@ contains
 
     call neko_log%message('Initializing global interpolation')
     call get_environment_variable("NEKO_GLOBAL_INTERP_MODE", mode_str, envvar_len)
-    if (allocated(this%el_finder)) then
-       print *, 'Freeing el_finder'
-       call this%el_finder%free()
-       deallocate(this%el_finder)
-    end if
+
     if (envvar_len .gt. 0) then
        if (mode_str(1:envvar_len) == 'unsafe') then
           allocate(cartesian_el_finder_t :: this%el_finder)
-          boxdim = max(2*int(sqrt(real(nelv,xp))),2)
+          allocate(cartesian_pe_finder_t :: this%pe_finder)
        end if
     end if
     if (.not. allocated(this%el_finder)) then
        allocate(aabb_el_finder_t :: this%el_finder)
+    end if
+    if (.not. allocated(this%pe_finder)) then
+       allocate(aabb_pe_finder_t :: this%pe_finder)
     end if
     select type(el_find => this%el_finder)
       type is (aabb_el_finder_t)
@@ -273,12 +278,25 @@ contains
        call el_find%init(x, y, z, nelv, Xh, padding)
       type is (cartesian_el_finder_t)
        call neko_log%message('Using Cartesian element finder')
+       boxdim = max(2*int(sqrt(real(nelv,xp))),2)
        call el_find%init(x, y, z, nelv, Xh, boxdim, padding)
       class default
        call neko_error('Unknown element finder type')
     end select
 
-    call this%pe_finder%init(x, y, z, nelv, Xh, this%comm, padding)
+    select type(pe_find => this%pe_finder)
+      type is (aabb_pe_finder_t)
+       call neko_log%message('Using AABB PE finder')
+       call pe_find%init(x, y, z, nelv, Xh, this%comm, padding)
+      type is (cartesian_pe_finder_t)
+       call neko_log%message('Using Cartesian PE finder')
+       boxdim = lx*int(real(this%glb_nelv,xp)**(1.0_xp/3.0_xp))
+       boxdim = max(32,boxdim)
+       call pe_find%init(x, y, z, nelv, Xh, this%comm, boxdim, padding)
+      class default
+       call neko_error('Unknown PE finder type')
+    end select
+
     call this%rst_finder%init(x, y, z, nelv, Xh, this%tol)
     if (allocated(this%n_points_pe)) deallocate(this%n_points_pe)
     if (allocated(this%n_points_pe_local)) deallocate(this%n_points_pe_local)
@@ -320,7 +338,10 @@ contains
        call this%el_finder%free()
        deallocate(this%el_finder)
     end if
-    call this%pe_finder%free()
+    if (allocated(this%pe_finder)) then
+       call this%pe_finder%free()
+       deallocate(this%pe_finder)
+    end if
     call this%rst_finder%free()
 
     call this%temp_local%free()

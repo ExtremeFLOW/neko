@@ -147,6 +147,7 @@ neko_fortran_SOURCES = \
 	global_interpolation/aabb_pe_finder.f90\
 	global_interpolation/aabb_el_finder.f90\
 	global_interpolation/cartesian_el_finder.f90\
+	global_interpolation/cartesian_pe_finder.f90\
 	global_interpolation/el_finder.f90\
 	global_interpolation/pe_finder.f90\
 	global_interpolation/legendre_rst_finder.f90\

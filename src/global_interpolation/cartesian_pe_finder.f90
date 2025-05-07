@@ -1,0 +1,539 @@
+! Copyright (c) 2020-2023, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+
+!> Implements cartesian_pe_finder given a dofmap.
+!!
+module cartesian_pe_finder
+  use num_types, only: rp, dp, xp, i8
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use space, only: space_t
+  use pe_finder, only: pe_finder_t
+  use stack, only: stack_i4_t, stack_i8_t
+  use utils, only: neko_error, neko_warning
+  use tuple, only: tuple_i4_t
+  use htable, only: htable_i8_t
+  use point, only: point_t
+  use comm, only: NEKO_COMM, MPI_REAL_PRECISION, pe_rank, pe_size
+  use mpi_f08, only: MPI_MAX, MPI_Allreduce, MPI_COMM, MPI_Comm_rank, &
+      MPI_Comm_size, MPI_Wtime, MPI_INTEGER, MPI_INTEGER8, &
+      MPI_MIN, MPI_SUM, MPI_Irecv, MPI_Isend, MPI_Wait, &
+      MPI_Exscan, MPI_Request, MPI_Status, &
+      MPI_Alltoall, MPI_IN_PLACE
+  implicit none
+  private
+
+  !> Minimum number of total boxes in the aabb tree
+  integer, public, parameter :: GLOB_MAP_SIZE = 4096
+
+  type, private :: i8_mpi_t
+     !> status of this operation
+     type(MPI_Status) :: status
+     !> unique request for this buffer
+     type(MPI_Request) :: request
+     !> flag = false when operation is in process
+     !! Set to true when operation has succeeded
+     logical :: flag
+     !> Buffer with data to send/recieve
+     real(kind=i8), allocatable :: data(:)
+     integer :: size = 0
+  end type i8_mpi_t
+
+
+
+  !> Implements global interpolation for arbitrary points in the domain.
+  type, public, extends(pe_finder_t) :: cartesian_pe_finder_t
+     !> Which communicator to find things on
+     real(kind=dp) :: padding
+     !> global number of boxes
+     integer(kind=i8) :: glob_n_boxes
+     integer(kind=i8) :: n_boxes
+     !Number of local boxes in x direction
+     integer :: n_boxes_per_pe
+     integer :: nelv
+     integer :: offset_el
+     real(kind=rp) :: max_x_global, max_y_global, max_z_global
+     real(kind=rp) :: min_x_global, min_y_global, min_z_global
+
+     ! Resolution of the boxes
+     real(kind=xp) :: res_x, res_y, res_z
+
+     type(i8_mpi_t), allocatable :: recv_buf(:)
+     type(i8_mpi_t), allocatable :: send_buf(:)
+     type(stack_i4_t), allocatable :: pe_map(:)
+
+   contains
+     procedure, pass(this) :: init => cartesian_pe_finder_init
+     procedure, pass(this) :: free => cartesian_pe_finder_free
+     procedure, pass(this) :: find => cartesian_pe_finder_find
+     procedure, pass(this) :: find_batch => cartesian_pe_finder_find_batch
+
+  end type cartesian_pe_finder_t
+
+contains
+
+  !> Initialize the global interpolation object on a set of coordinates.
+  !! @param x x-coordinates.
+  !! @param y y-coordinates.
+  !! @param z z-coordinates.
+  !! @param gdim Geometric dimension.
+  !! @param nelv Number of elements of the mesh in which to search for the
+  !! points.
+  !! @param Xh Space on which to interpolate.
+  !! @param tol Tolerance for Newton iterations.
+  subroutine cartesian_pe_finder_init(this, x, y, z, nelv, Xh, comm, n_boxes, padding)
+    class(cartesian_pe_finder_t), intent(inout) :: this
+    real(kind=rp), intent(in), target :: x(:)
+    real(kind=rp), intent(in), target :: y(:)
+    real(kind=rp), intent(in), target :: z(:)
+    integer, intent(in) :: nelv
+    type(MPI_COMM), intent(in), optional :: comm
+    type(space_t), intent(in), target :: Xh
+    integer, intent(in) :: n_boxes
+    real(kind=dp), intent(in) :: padding
+    integer :: ierr
+    integer :: i, j, k, e
+    integer :: pe_id
+    integer :: lxyz
+    integer(kind=i8) :: glob_id, loc_id
+    integer(kind=i8) :: min_id(3), max_id(3)
+    real(kind=rp) :: el_x_max, el_x_min
+    real(kind=rp) :: el_y_max, el_y_min
+    real(kind=rp) :: el_z_max, el_z_min
+    real(kind=rp) :: center_x, center_y, center_z
+    type(stack_i8_t), allocatable :: glob_ids(:), recv_ids(:)
+    integer(i8), pointer :: glb_ids(:)
+    integer(kind=i8) :: htable_data ! We just use it as a set
+    integer, allocatable :: n_recv(:), n_send(:)
+    type(htable_i8_t) :: marked_box
+
+    call this%free()
+    this%comm = comm
+    this%padding = padding
+
+    call MPI_Comm_rank(this%comm, this%pe_rank, ierr)
+    call MPI_Comm_size(this%comm, this%pe_size, ierr)
+
+    this%glob_n_boxes = int(n_boxes,i8)**3
+    this%n_boxes = n_boxes
+    this%nelv = nelv
+    this%n_boxes_per_pe = (this%glob_n_boxes+int(this%pe_size-1,i8))/int(this%pe_size,i8)
+
+    if (allocated(this%send_buf)) deallocate(this%send_buf)
+    allocate(this%send_buf(0:this%pe_size-1))
+    if (allocated(this%recv_buf)) deallocate(this%recv_buf)
+    allocate(this%recv_buf(0:this%pe_size-1))
+    if (allocated(this%pe_map)) deallocate(this%pe_map)
+    allocate(this%pe_map(0:this%n_boxes_per_pe-1))
+    do i = 0, this%n_boxes_per_pe-1
+       call this%pe_map(i)%init()
+    end do
+    call MPI_Exscan(this%nelv, this%offset_el, 1, &
+         MPI_INTEGER, MPI_SUM, this%comm, ierr)
+    if (this%nelv .gt. 0) then
+       this%max_x_global = maxval(x(1:nelv*Xh%lxyz))
+       this%max_y_global = maxval(y(1:nelv*Xh%lxyz))
+       this%max_z_global = maxval(z(1:nelv*Xh%lxyz))
+       this%min_x_global = minval(x(1:nelv*Xh%lxyz))
+       this%min_y_global = minval(y(1:nelv*Xh%lxyz))
+       this%min_z_global = minval(z(1:nelv*Xh%lxyz))
+    else
+       this%max_x_global = -1e20
+       this%max_y_global = -1e20
+       this%max_z_global = -1e20
+       this%min_x_global = 1e20
+       this%min_y_global = 1e20
+       this%min_z_global = 1e20
+    end if
+
+
+    call MPI_Allreduce(MPI_IN_PLACE, this%max_x_global, 1, MPI_REAL_PRECISION, &
+         MPI_MAX, this%comm, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, this%max_y_global, 1, MPI_REAL_PRECISION, &
+         MPI_MAX, this%comm, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, this%max_z_global, 1, MPI_REAL_PRECISION, &
+         MPI_MAX, this%comm, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, this%min_x_global, 1, MPI_REAL_PRECISION, &
+         MPI_MIN, this%comm, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, this%min_y_global, 1, MPI_REAL_PRECISION, &
+         MPI_MIN, this%comm, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, this%min_z_global, 1, MPI_REAL_PRECISION, &
+         MPI_MIN, this%comm, ierr)
+
+    center_x = (this%max_x_global + this%min_x_global) / 2.0_dp
+    center_y = (this%max_y_global + this%min_y_global) / 2.0_dp
+    center_z = (this%max_z_global + this%min_z_global) / 2.0_dp
+
+    this%max_x_global = this%max_x_global - center_x
+    this%max_y_global = this%max_y_global - center_y
+    this%max_z_global = this%max_z_global - center_z
+    this%min_x_global = this%min_x_global - center_x
+    this%min_y_global = this%min_y_global - center_y
+    this%min_z_global = this%min_z_global - center_z
+    this%max_x_global = this%max_x_global*(1.0_xp+this%padding) + center_x
+    this%max_y_global = this%max_y_global*(1.0_xp+this%padding) + center_y
+    this%max_z_global = this%max_z_global*(1.0_xp+this%padding) + center_z
+    this%min_x_global = this%min_x_global*(1.0_xp+this%padding) + center_x
+    this%min_y_global = this%min_y_global*(1.0_xp+this%padding) + center_y
+    this%min_z_global = this%min_z_global*(1.0_xp+this%padding) + center_z
+
+
+    this%res_x = (this%max_x_global - this%min_x_global) / real(this%n_boxes, xp)
+    this%res_y = (this%max_y_global - this%min_y_global) / real(this%n_boxes, xp)
+    this%res_z = (this%max_z_global - this%min_z_global) / real(this%n_boxes, xp)
+    if (allocated(recv_ids)) deallocate(recv_ids)
+    if (allocated(glob_ids)) deallocate(glob_ids)
+    if (allocated(n_recv)) deallocate(n_recv)
+    if (allocated(n_send)) deallocate(n_send)
+    allocate(n_recv(0:this%pe_size-1))
+    allocate(n_send(0:this%pe_size-1))
+    allocate(recv_ids(0:this%pe_size-1))
+    allocate(glob_ids(0:this%pe_size-1))
+    do i = 0, this%pe_size-1
+       call recv_ids(i)%init()
+       call glob_ids(i)%init()
+    end do
+
+    n_recv = 0
+    n_send = 0
+    call marked_box%init(this%n_boxes_per_pe,htable_data)
+
+    lxyz = Xh%lxyz
+
+    do e = 1, this%nelv
+       el_x_max = maxval(x((e-1)*lxyz+1:e*lxyz))
+       el_x_min = minval(x((e-1)*lxyz+1:e*lxyz))
+       el_y_max = maxval(y((e-1)*lxyz+1:e*lxyz))
+       el_y_min = minval(y((e-1)*lxyz+1:e*lxyz))
+       el_z_max = maxval(z((e-1)*lxyz+1:e*lxyz))
+       el_z_min = minval(z((e-1)*lxyz+1:e*lxyz))
+       !move it to close to origo
+       center_x = (el_x_max + el_x_min) / 2.0_xp
+       center_y = (el_y_max + el_y_min) / 2.0_xp
+       center_z = (el_z_max + el_z_min) / 2.0_xp
+       el_x_max = el_x_max - center_x
+       el_x_min = el_x_min - center_x
+       el_y_max = el_y_max - center_y
+       el_y_min = el_y_min - center_y
+       el_z_max = el_z_max - center_z
+       el_z_min = el_z_min - center_z
+       el_x_max = el_x_max*(1.0_xp+this%padding) + center_x
+       el_x_min = el_x_min*(1.0_xp+this%padding) + center_x
+       el_y_max = el_y_max*(1.0_xp+this%padding) + center_y
+       el_y_min = el_y_min*(1.0_xp+this%padding) + center_y
+       el_z_max = el_z_max*(1.0_xp+this%padding) + center_z
+       el_z_min = el_z_min*(1.0_xp+this%padding) + center_z
+
+       min_id = get_global_idx(this, el_x_min, el_y_min, el_z_min)
+       max_id = get_global_idx(this, el_x_max, el_y_max, el_z_max)
+
+       do i = min_id(1), max_id(1)
+          do j = min_id(2), max_id(2)
+             do k = min_id(3), max_id(3)
+                glob_id = i + j*this%n_boxes + k*this%n_boxes**2
+                pe_id = get_pe_idx(this, glob_id)
+                if (glob_id .ge. 0 .and. glob_id .lt. this%glob_n_boxes) then
+                   if (marked_box%get(glob_id,htable_data) .ne. 0) then
+                      call glob_ids(pe_id)%push(glob_id)
+                      n_send(pe_id) = n_send(pe_id) + 1
+                      call marked_box%set(glob_id, htable_data)
+                   end if
+                end if
+             end do
+          end do
+       end do
+    end do
+
+    call send_recv_data(this, recv_ids, n_recv, glob_ids, n_send)
+
+
+    call MPI_Barrier(this%comm, ierr)
+    do i = 0, this%pe_size-1
+       if (n_recv(i) .gt. 0) then
+          glb_ids => recv_ids(i)%array()
+          do j = 1, n_recv(i)
+             glob_id = glb_ids(j)
+             loc_id = glob_id - int(this%pe_rank,i8) * &
+                                int(this%n_boxes_per_pe,i8)
+             if (loc_id .ge. this%n_boxes_per_pe .or. loc_id < 0) then
+                call neko_warning('loc_id out of bounds')
+             end if
+             call this%pe_map(int(loc_id))%push(i)
+          end do
+       end if
+    end do
+
+  end subroutine cartesian_pe_finder_init
+
+  subroutine cartesian_pe_finder_find(this, my_point, pe_candidates)
+    class(cartesian_pe_finder_t), intent(inout) :: this
+    type(point_t), intent(in) :: my_point
+    type(stack_i4_t), intent(inout) :: pe_candidates
+
+    call neko_error('cartesian_pe_finder_find not implemented')
+  end subroutine cartesian_pe_finder_find
+
+  function get_global_idx(this, x, y, z) result(global_box_id)
+    class(cartesian_pe_finder_t), intent(in) :: this
+    real(kind=rp), intent(in) :: x, y, z
+    integer(kind=i8) :: global_box_id(3)
+    integer(kind=i8) :: pe_size, n_boxes
+
+    pe_size = this%pe_size
+    n_boxes = this%n_boxes
+
+
+    global_box_id(1) = int((x - this%min_x_global)/this%res_x,i8)
+    global_box_id(2) = int((y - this%min_y_global)/this%res_y,i8)
+    global_box_id(3) = int((z - this%min_z_global)/this%res_z,i8)
+  end function get_global_idx
+
+  function get_pe_idx(this, global_idx) result(pe_id)
+    class(cartesian_pe_finder_t), intent(in) :: this
+    integer(kind=i8), intent(in) :: global_idx
+    integer :: pe_id
+    !Get x id and then divide by the number of x boxes per rank to get the correct pe id
+    pe_id = global_idx/int(this%n_boxes_per_pe,i8)
+  end function get_pe_idx
+
+
+  !> Destructor
+  subroutine cartesian_pe_finder_free(this)
+    class(cartesian_pe_finder_t), intent(inout) :: this
+
+  end subroutine cartesian_pe_finder_free
+
+  subroutine cartesian_pe_finder_find_batch(this, points, n_points, points_at_pe, n_points_pe)
+    class(cartesian_pe_finder_t), intent(inout) :: this
+    integer, intent(in) :: n_points
+    real(kind=rp), intent(in) :: points(3,n_points)
+    type(stack_i4_t), intent(inout) :: points_at_pe(0:(this%pe_size-1))
+    integer, intent(inout) :: n_points_pe(0:(this%pe_size-1))
+    integer :: i, j, k
+    integer(kind=i8) :: glob_id(3)
+    integer(kind=i8) :: pe_id
+    integer(kind=i8) :: lin_glob_id
+    integer(kind=i8) :: loc_id
+    type(stack_i8_t), allocatable :: my_glob_ids(:), my_pt_ids(:)
+    type(stack_i8_t), allocatable :: pe_get_from(:), pe_get_pt(:)
+    type(stack_i8_t), allocatable :: pe_candidates(:), point_ids(:)
+    type(stack_i8_t), allocatable :: pe_to_point(:), point_cand_ids(:)
+    integer, allocatable :: n_from(:)
+    integer, allocatable :: n_pe_to_point(:)
+    integer, allocatable :: n_glob_ids(:), n_pt_ids(:)
+    integer(i8), pointer :: ids(:) => Null()
+    integer(i8), pointer :: pt_id(:) => Null()
+    integer, pointer :: pe_cands(:) => Null()
+    integer(i8), pointer :: pe_cands8(:) => Null()
+    integer(i8), pointer :: pt_ids(:) => Null()
+    integer :: ierr
+
+    if (allocated(my_glob_ids)) deallocate(my_glob_ids)
+    if (allocated(my_pt_ids)) deallocate(my_pt_ids)
+    if (allocated(pe_get_from)) deallocate(pe_get_from)
+    if (allocated(pe_get_pt)) deallocate(pe_get_pt)
+    if (allocated(n_from)) deallocate(n_from)
+    if (allocated(n_pe_to_point)) deallocate(n_pe_to_point)
+    if (allocated(n_glob_ids)) deallocate(n_glob_ids)
+    if (allocated(n_pt_ids)) deallocate(n_pt_ids)
+    if (allocated(pe_candidates)) deallocate(pe_candidates)
+    if (allocated(point_ids)) deallocate(point_ids)
+    if (allocated(pe_to_point)) deallocate(pe_to_point)
+    if (allocated(point_cand_ids)) deallocate(point_cand_ids)
+    allocate(my_glob_ids(0:this%pe_size-1))
+    allocate(my_pt_ids(0:this%pe_size-1))
+    allocate(pe_get_from(0:this%pe_size-1))
+    allocate(pe_get_pt(0:this%pe_size-1))
+    allocate(n_from(0:this%pe_size-1))
+    allocate(n_pe_to_point(0:this%pe_size-1))
+    allocate(n_glob_ids(0:this%pe_size-1))
+    allocate(n_pt_ids(0:this%pe_size-1))
+    allocate(pe_candidates(0:this%pe_size-1))
+    allocate(point_ids(0:this%pe_size-1))
+    allocate(pe_to_point(0:this%pe_size-1))
+    allocate(point_cand_ids(0:this%pe_size-1))
+    do i = 0, this%pe_size-1
+       n_glob_ids(i) = 0
+       n_pt_ids(i) = 0
+       n_pe_to_point(i) = 0
+       call my_glob_ids(i)%init()
+       call my_pt_ids(i)%init()
+       call pe_get_from(i)%init()
+       call pe_get_pt(i)%init()
+       call pe_candidates(i)%init()
+       call point_ids(i)%init()
+       call pe_to_point(i)%init()
+       call point_cand_ids(i)%init()
+    end do
+
+    do i = 0, this%pe_size-1
+       call points_at_pe(i)%clear()
+       n_points_pe(i) = 0
+    end do
+    ! Compute global ids for the points
+    ! and the pe id for each point
+    n_from = 0
+    do i = 1, n_points
+       glob_id = get_global_idx(this, points(1,i), points(2,i), points(3,i))
+       lin_glob_id = glob_id(1) + &
+                     glob_id(2)*this%n_boxes + &
+                     glob_id(3)*this%n_boxes**2
+       pe_id = get_pe_idx(this, lin_glob_id)
+       if (lin_glob_id .ge. 0 .and. lin_glob_id .lt. this%glob_n_boxes) then
+          call pe_get_from(pe_id)%push(lin_glob_id)
+          call pe_get_pt(pe_id)%push(int(i,i8))
+          n_from(pe_id) = n_from(pe_id) + 1
+       else
+            print *, 'Point found outside domain:', points(1,i), &
+              points(2,i), points(3,i), &
+              'Computed global id:', lin_glob_id, &
+              'Global box id (x,y,z):', glob_id(1), glob_id(2), glob_id(3)
+         end if
+    end do
+
+
+    ! Send the global ids to the correct pe
+    ! and get the global ids from the other pes with points I own
+    ! Also send point ids to the other pes
+    call send_recv_data(this, my_glob_ids, n_glob_ids, pe_get_from, n_from)
+    call send_recv_data(this, my_pt_ids, n_pt_ids, pe_get_pt, n_from)
+    call MPI_Barrier(this%comm, ierr)
+    ! Get the local ids for the points I own
+    ! and the pe candidates for the points I own
+    n_points_pe = 0
+    do i =0 , this%pe_size-1
+       if (n_glob_ids(i) .gt. 0) then
+          ids => my_glob_ids(i)%array()
+          pt_ids => my_pt_ids(i)%array()
+          do j = 1, n_glob_ids(i)
+             loc_id = ids(j) - int(this%pe_rank,i8) * &
+                               int(this%n_boxes_per_pe,i8)
+             pe_cands => this%pe_map(int(loc_id))%array()
+             do k = 1, this%pe_map(int(loc_id))%size()
+                call pe_candidates(i)%push(int(pe_cands(k),i8))
+                call point_ids(i)%push(pt_ids(j))
+                n_points_pe(i) = n_points_pe(i) + 1
+             end do
+             if (this%pe_map(int(loc_id))%size() .lt. 1) then
+                print *, 'No PE candidates found for point:', points(1,pt_ids(j)), &
+                  points(2,pt_ids(j)), points(3,pt_ids(j))
+             end if
+          end do
+       end if
+    end do
+    ! pe candidates found for the points I am responsible for
+    ! Now i need to send the data to the other pes
+    ! and get the candidates from the other pes for my own points
+    call send_recv_data(this, pe_to_point, n_pe_to_point, pe_candidates, n_points_pe)
+    call send_recv_data(this, point_cand_ids, n_pe_to_point, point_ids, n_points_pe)
+    ! Gotten candidates for my points
+    ! Now I organize the candidates for the points I own
+    n_points_pe = 0
+    do i = 0, this%pe_size-1
+       if (n_pe_to_point(i) .gt. 0) then
+          pe_cands8 => pe_to_point(i)%array()
+          pt_ids => point_cand_ids(i)%array()
+          do j = 1, n_pe_to_point(i)
+             pe_id = pe_cands8(j)
+             call points_at_pe(pe_id)%push(int(pt_ids(j)))
+             n_points_pe(pe_id) = n_points_pe(pe_id) + 1
+          end do
+       end if
+    end do
+
+  end subroutine cartesian_pe_finder_find_batch
+
+
+  subroutine send_recv_data(this, recv_values, n_recv_values, send_values, n_send_values)
+    class(cartesian_pe_finder_t), intent(inout) :: this
+    type(stack_i8_t), intent(inout) :: recv_values(0:this%pe_size-1)
+    type(stack_i8_t), intent(inout) :: send_values(0:this%pe_size-1)
+    integer, intent(inout) :: n_recv_values(0:this%pe_size-1)
+    integer, intent(inout) :: n_send_values(0:this%pe_size-1)
+    integer :: i, j, ierr
+    integer(i8) :: idx
+    integer(i8) , pointer :: sp(:)
+
+    call MPI_Alltoall(n_send_values, 1, MPI_INTEGER, &
+       n_recv_values, 1, MPI_INTEGER, this%comm, ierr)
+
+    do i = 0, this%pe_size-1
+       if (n_recv_values(i) .gt. 0) then
+          if (this%recv_buf(i)%size .lt. n_recv_values(i)) then
+             if (allocated(this%recv_buf(i)%data)) deallocate(this%recv_buf(i)%data)
+             allocate(this%recv_buf(i)%data(n_recv_values(i)))
+             this%recv_buf(i)%size = n_recv_values(i)
+          end if
+          call MPI_Irecv(this%recv_buf(i)%data, n_recv_values(i), MPI_INTEGER8, &
+              i, 0, this%comm, this%recv_buf(i)%request, ierr)
+       end if
+    end do
+
+    do i = 0, this%pe_size-1
+       if (n_send_values(i) .gt. 0) then
+          if (this%send_buf(i)%size .lt. n_send_values(i)) then
+             if (allocated(this%send_buf(i)%data)) deallocate(this%send_buf(i)%data)
+             allocate(this%send_buf(i)%data(n_send_values(i)))
+             this%send_buf(i)%size = n_send_values(i)
+          end if
+          ! Copy the data to the send buffer
+          sp => send_values(i)%array()
+          do j = 1, n_send_values(i)
+             this%send_buf(i)%data(j) = sp(j)
+          end do
+          call MPI_Isend(this%send_buf(i)%data, n_send_values(i), MPI_INTEGER8, &
+            i, 0, this%comm, this%send_buf(i)%request, ierr)
+       end if
+    end do
+    do i = 0, this%pe_size-1
+       call recv_values(i)%clear()
+    end do
+
+    do i = 0, this%pe_size-1
+       if (n_recv_values(i) .gt. 0) then
+          call MPI_Wait(this%recv_buf(i)%request, this%recv_buf(i)%status, ierr)
+          do j = 1, n_recv_values(i)
+             idx = this%recv_buf(i)%data(j)
+             call recv_values(i)%push(idx)
+          end do
+       end if
+    end do
+    do i = 0, this%pe_size-1
+       if (n_send_values(i) .gt. 0) then
+          call MPI_Wait(this%send_buf(i)%request, this%send_buf(i)%status, ierr)
+       end if
+    end do
+
+
+  end subroutine send_recv_data
+end module cartesian_pe_finder
+
