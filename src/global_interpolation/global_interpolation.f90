@@ -558,6 +558,7 @@ contains
        call device_memcpy(el_cands, el_cands_d,n_point_cand, &
             HOST_TO_DEVICE, .true.)
     end if
+    print *, n_point_cand
     call this%rst_finder%find(rst_local_cand, &
          x_t, y_t, z_t, &
          el_cands, n_point_cand, &
