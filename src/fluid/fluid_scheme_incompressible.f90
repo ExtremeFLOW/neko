@@ -76,7 +76,7 @@ module fluid_scheme_incompressible
   use field_math, only : field_cfill, field_add2s2, field_addcol3
   use shear_stress, only : shear_stress_t
   use device, only : device_event_sync, glb_cmd_event, DEVICE_TO_HOST, &
-      device_memcpy
+       device_memcpy
   implicit none
   private
 
@@ -614,6 +614,17 @@ contains
          len(trim(this%nut_field_name)) > 0) then
        nut => neko_field_registry%get_field(this%nut_field_name)
        call field_addcol3(this%mu, nut, this%rho)
+    end if
+
+    ! Since mu, rho is a field_t, and we use the %x(1,1,1,1)
+    ! host array data to pass constant density and viscosity
+    ! to some routines, we need to make sure that the host
+    ! values are also filled
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%rho%x, this%rho%x_d, this%rho%size(), &
+            DEVICE_TO_HOST, sync=.false.)
+       call device_memcpy(this%mu%x, this%mu%x_d, this%mu%size(), &
+            DEVICE_TO_HOST, sync=.false.)
     end if
   end subroutine fluid_scheme_update_material_properties
 

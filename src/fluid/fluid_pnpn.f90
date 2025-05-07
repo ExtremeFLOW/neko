@@ -621,9 +621,6 @@ contains
          t => time%t, tstep => time%tstep, dt => time%dt, &
          ext_bdf => this%ext_bdf, event => glb_cmd_event)
 
-         write(*,*) "RHO", rho%x(1,1,1,1)
-         write(*,*) "MU", mu%x(1,1,1,1)
-
       ! Extrapolate the velocity if it's not done in nut_field estimation
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%advection_coeffs, ext_bdf%nadv)

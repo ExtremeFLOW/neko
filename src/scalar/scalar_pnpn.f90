@@ -374,10 +374,10 @@ contains
               Xh, this%c_Xh, dm_Xh%size())
 
          call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
-         rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
+              rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
 
          call makeoifs%compute_scalar(this%advs%x, f_Xh%x, rho%x(1,1,1,1), dt,&
-          n)
+              n)
       else
          ! Add the advection operators to the right-hans-side.
          call this%adv%compute_scalar(u, v, w, s, f_Xh, &
@@ -388,11 +388,11 @@ contains
          ! the scalar field from the previous time-step. Now, this value is used in
          ! the explicit time scheme to advance these terms in time.
          call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, &
-         rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
+              rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
 
          ! Add the RHS contributions coming from the BDF scheme.
          call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho%x(1,1,1,1), &
-         dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
+              dt, ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
       end if
 
       call slag%update()

@@ -74,6 +74,7 @@ module scalar_scheme
   use time_step_controller, only : time_step_controller_t
   use scratch_registry, only : neko_scratch_registry
   use time_state, only : time_state_t
+  use device, only : device_memcpy, DEVICE_TO_HOST
   implicit none
 
   !> Base type for a scalar advection-diffusion solver.
@@ -522,6 +523,15 @@ contains
        call neko_scratch_registry%relinquish_field(index)
     end if
 
+    ! Since cp is a fields and we use the %x(1,1,1,1) of the
+    ! host array data to pass constant  material properties
+    ! to some routines, we need to make sure that the host
+    ! values are also filled
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%cp%x, this%cp%x_d, this%cp%size(), &
+            DEVICE_TO_HOST, sync=.false.)
+    end if
+
   end subroutine scalar_scheme_update_material_properties
 
   !> Set lamdba and cp.
@@ -593,18 +603,19 @@ contains
        call field_cfill(this%lambda, const_lambda)
        call field_cfill(this%cp, const_cp)
 
-       ! Since mu, rho is a field, and the none-stress simulation fetches
-       ! data from the host arrays, we need to mirror the constant
-       ! material properties on the host
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call cfill(this%lambda%x, const_lambda, this%lambda%size())
-          call cfill(this%cp%x, const_cp, this%cp%size())
-       end if
-
        write(log_buf, '(A,ES13.6)') 'lambda     :', const_lambda
        call neko_log%message(log_buf)
        write(log_buf, '(A,ES13.6)') 'cp         :', const_cp
        call neko_log%message(log_buf)
+    end if
+
+    ! Since cp is a field and we use the %x(1,1,1,1) of the
+    ! host array data to pass constant material properties
+    ! to some routines, we need to make sure that the host
+    ! values are also filled
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%cp%x, this%cp%x_d, this%cp%size(), &
+            DEVICE_TO_HOST, sync=.false.)
     end if
   end subroutine scalar_scheme_set_material_properties
 
