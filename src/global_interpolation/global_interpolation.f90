@@ -278,7 +278,7 @@ contains
        call el_find%init(x, y, z, nelv, Xh, padding)
       type is (cartesian_el_finder_t)
        call neko_log%message('Using Cartesian element finder')
-       boxdim = max(2*int(sqrt(real(nelv,xp))),2)
+       boxdim = max(4*int((real(nelv,xp)**(1.0_xp/3.0_xp))),2)
        call el_find%init(x, y, z, nelv, Xh, boxdim, padding)
       class default
        call neko_error('Unknown element finder type')
