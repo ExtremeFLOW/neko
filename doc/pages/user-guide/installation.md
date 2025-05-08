@@ -2,7 +2,19 @@
 
 \tableofcontents
 
-Neko can be installed in various ways, either building directly from source, manually compiling all dependencies and Neko or via tools like Spack, pixi, and Docker. 
+Neko can be installed in various ways, either building directly from source,
+manually compiling all dependencies and Neko or via tools like Spack, pixi, and
+Docker. What to use comes down to personal preference, but here are some rough
+guidelines.
+
+- Use pixi to quickly obtain a CPU build with all optional dependencies in an
+  isolated environment.
+- Spack is a more advanced package manager, targeting HPC environments. It gives
+  you a lot of control yet the possibility to easily get neko for several
+  compute backends.
+- Use Docker if you are a fan of containers.
+- Build from source if you want full control over the build parameters and
+  environment and don't want to use a package manager.
 
 ## Building from source
 
@@ -224,7 +236,8 @@ For a GPU build using e.g. CUDA, change the last line to :
 $ spack install neko+cuda
 ```
 
-For a more detailed guide on getting started with Spack, please refer to the offical documentation:
+For a more detailed guide on getting started with Spack, please refer to the
+offical documentation:
 https://spack.readthedocs.io/en/latest/getting_started.html
 
 ## Installing using pixi
@@ -240,12 +253,12 @@ like `gfortran` and `openmpi`. All of these will be installed inside an isolated
 environment. So, to install neko simply run
 
 ```bash
-pixi run build-neko-cpu
+pixi run install-neko-cpu
 ```
 
 This will give you a double-precision CPU build charged with all optional
 dependencies: hdf5, gslib, parmetis and json-fortran. For now, this is the only
-configuration that can be installed with pixi.
+configuration that can be installed automatically with pixi.
 
 To use Neko, you need to drop into a shell, where the pixi environment will be
 activated. For that run
@@ -257,6 +270,9 @@ pixi shell
 The `neko` and `makeneko` executables are already be in your `PATH`, so you can
 start running cases!
 
+Note that you can use this pixi environment as you like, including manually
+`configuring` and building Neko (as per instructions for building from source),
+for example, with single precision reals or even with a different backend.
 
 
 ## Using a Docker container

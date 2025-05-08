@@ -23,7 +23,7 @@ download-deps = { cmd = [
   git clone https://github.com/Nek5000/gslib.git gslib
   wget https://github.com/HDFGroup/hdf5/archive/refs/tags/hdf5_1.14.6.tar.gz
   '''
-], outputs = ["$PREFIX/deps/gslib/README.md", "$PREFIX/deps/hdf5_1.14.6.tar.gz"]}
+]}
 
 build-gslib = { cmd = [
   "sh",
@@ -33,7 +33,7 @@ build-gslib = { cmd = [
   make CC=mpicc DESTDIR=$PREFIX 
   make install
   '''
-  ], depends-on = ["download-deps"], outputs = ["$PREFIX/lib/libgs.a"]}
+  ]}
 
 build-hdf5 = { cmd = [
   "bash", "-c",
@@ -45,7 +45,7 @@ build-hdf5 = { cmd = [
   cmake --build build/ --parallel
   cmake --install build/
   '''
-  ], depends-on = ["download-deps"], outputs = ["$PREFIX/lib/libhdf5.a"]}
+  ]}
 
 build-neko-cpu = { cmd = [
   "bash",
@@ -59,7 +59,20 @@ build-neko-cpu = { cmd = [
   grep gslib config.log
   make -j install
   '''
-  ], depends-on = ["build-gslib", "build-hdf5"]}
+  ]}
+
+install-neko-cpu = { cmd = [
+  "bash",
+  "-c",
+  '''
+  set -e
+  pixi run download-deps
+  pixi run build-gslib
+  pixi run build-hdf5
+  pixi run build-neko-cpu
+
+  '''
+  ]}
 
 [dependencies]
 gfortran = "14.*"
