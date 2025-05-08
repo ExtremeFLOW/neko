@@ -18,6 +18,7 @@
         "fluid": {
             "scheme": "pnpn",
             "Ra": 1e8,
+            "variable_material_properties": false,
             "source_terms": [
                 {
                     "type": "boussinesq",

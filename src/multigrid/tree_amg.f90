@@ -36,7 +36,7 @@ module tree_amg
   use utils, only : neko_error
   use math, only : rzero, col2
   use device_math , only : device_rzero, device_col2, device_masked_atomic_reduction, &
-       device_masked_red_copy, device_cfill
+       device_masked_gather_copy, device_cfill
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use space, only : space_t
@@ -413,8 +413,7 @@ contains
 
        associate( wrk_in_d => this%lvl(1)%wrk_in_d, wrk_out_d => this%lvl(1)%wrk_out_d)
          !> Map input level to finest level
-         call device_masked_red_copy(wrk_in_d, vec_in_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)
-
+         call device_masked_gather_copy(wrk_in_d, vec_in_d, this%lvl(lvl)%map_finest2lvl_d, this%lvl(lvl)%nnodes, n)
          !> Average on overlapping dofs
          call this%gs_h%op(this%lvl(1)%wrk_in, n, GS_OP_ADD, glb_cmd_event)
          call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
@@ -460,7 +459,7 @@ contains
     integer :: i, n, m
     n = this%lvl(lvl)%nnodes
     m = this%lvl(lvl)%fine_lvl_dofs
-    call device_masked_red_copy(vec_out_d, vec_in_d, this%lvl(lvl)%map_f2c_d, n, m)
+    call device_masked_gather_copy(vec_out_d, vec_in_d, this%lvl(lvl)%map_f2c_d, n, m)
     if (lvl-1 .eq. 0) then
        call this%gs_h%op(vec_out, m, GS_OP_ADD, glb_cmd_event)
        call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)

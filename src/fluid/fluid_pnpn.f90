@@ -50,7 +50,6 @@ module fluid_pnpn
   use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
   use device_mathops, only : device_opcolv, device_opadd2cm
   use fluid_aux, only : fluid_step_info
-  use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
   use projection_vel, only : projection_vel_t
   use device, only : device_memcpy, HOST_TO_DEVICE, device_event_sync, &
@@ -82,6 +81,7 @@ module fluid_pnpn
   use bc, only : bc_t
   use file, only : file_t
   use operators, only : ortho
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -185,6 +185,9 @@ module fluid_pnpn
      !> Adjust flow volume
      type(fluid_volflow_t) :: vol_flow
 
+     !> Whether to use the full formulation of the viscous stress term
+     logical :: full_stress_formulation = .false.
+
    contains
      !> Constructor.
      procedure, pass(this) :: init => fluid_pnpn_init
@@ -273,7 +276,10 @@ contains
     allocate(this%ext_bdf)
     call this%ext_bdf%init(integer_val)
 
-    if (this%variable_material_properties .eqv. .true.) then
+    call json_get_or_default(params, "case.fluid.full_stress_formulation", &
+         this%full_stress_formulation, .false.)
+
+    if (this%full_stress_formulation .eqv. .true.) then
        ! Setup backend dependent Ax routines
        call ax_helm_factory(this%Ax_vel, full_formulation = .true.)
 
@@ -291,6 +297,22 @@ contains
 
        ! Setup backend dependent vel residual routines
        call pnpn_vel_res_factory(this%vel_res)
+    end if
+
+    write(log_buf, '(A, L1)') 'Full stress : ', &
+         this%full_stress_formulation
+    call neko_log%message(log_buf)
+
+
+    if (params%valid_path('case.fluid.nut_field')) then
+       if (this%full_stress_formulation .eqv. .false.) then
+          call neko_error("You need to set full_stress_formulation to " // &
+               "true for the fluid to have a spatially varying " // &
+               "viscocity field.")
+       end if
+       call json_get(params, 'case.fluid.nut_field', this%nut_field_name)
+    else
+       this%nut_field_name = ""
     end if
 
     ! Setup Ax for the pressure
@@ -396,6 +418,8 @@ contains
     this%chkp%abz1 => this%abz1
     this%chkp%abz2 => this%abz2
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
+
+
 
     call neko_log%end_section()
 
@@ -583,12 +607,9 @@ contains
   !! @param dt The timestep
   !! @param ext_bdf Time integration logic.
   !! @param dt_controller timestep controller
-  subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
+  subroutine fluid_pnpn_step(this, time, dt_controller)
     class(fluid_pnpn_t), target, intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    real(kind=rp), intent(in) :: dt
-    type(time_scheme_controller_t), intent(in) :: ext_bdf
+    type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
     ! number of degrees of freedom
     integer :: n
@@ -618,12 +639,11 @@ contains
          makeabf => this%makeabf, makebdf => this%makebdf, &
          vel_projection_dim => this%vel_projection_dim, &
          pr_projection_dim => this%pr_projection_dim, &
-         rho => this%rho, mu => this%mu, oifs => this%oifs, &
-         rho_field => this%rho_field, mu_field => this%mu_field, &
+         oifs => this%oifs, &
+         rho => this%rho, mu => this%mu, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
-         if_variable_dt => dt_controller%if_variable_dt, &
-         dt_last_change => dt_controller%dt_last_change, &
-         event => glb_cmd_event)
+         t => time%t, tstep => time%tstep, dt => time%dt, &
+         ext_bdf => this%ext_bdf, event => glb_cmd_event)
 
       ! Extrapolate the velocity if it's not done in nut_field estimation
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
@@ -636,16 +656,6 @@ contains
       call this%bcs_vel%apply_vector(f_x%x, f_y%x, f_z%x, &
            this%dm_Xh%size(), t, tstep, strong = .false.)
 
-      ! Compute the gradient jump penalty term
-      if (this%if_gradient_jump_penalty .eqv. .true.) then
-         call this%gradient_jump_penalty_u%compute(u, v, w, u)
-         call this%gradient_jump_penalty_v%compute(u, v, w, v)
-         call this%gradient_jump_penalty_w%compute(u, v, w, w)
-         call this%gradient_jump_penalty_u%perform(f_x)
-         call this%gradient_jump_penalty_v%perform(f_y)
-         call this%gradient_jump_penalty_w%perform(f_z)
-      end if
-
       if (oifs) then
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
@@ -656,15 +666,16 @@ contains
          ! additional source terms, evaluated using the velocity field from the
          ! previous time-step. Now, this value is used in the explicit time
          ! scheme to advance both terms in time.
+
          call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
               this%abx2, this%aby2, this%abz2, &
               f_x%x, f_y%x, f_z%x, &
-              rho, ext_bdf%advection_coeffs, n)
+              rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
 
          ! Now, the source terms from the previous time step are added to the RHS.
          call makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &
               f_x%x, f_y%x, f_z%x, &
-              rho, dt, n)
+              rho%x(1,1,1,1), dt, n)
       else
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
@@ -678,11 +689,11 @@ contains
          call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
               this%abx2, this%aby2, this%abz2, &
               f_x%x, f_y%x, f_z%x, &
-              rho, ext_bdf%advection_coeffs, n)
+              rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
 
          ! Add the RHS contributions coming from the BDF scheme.
          call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
-              u, v, w, c_Xh%B, rho, dt, &
+              u, v, w, c_Xh%B, rho%x(1,1,1,1), dt, &
               ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
       end if
 
@@ -694,7 +705,7 @@ contains
       call this%bc_apply_prs(t, tstep)
 
       ! Update material properties if necessary
-      call this%update_material_properties()
+      call this%update_material_properties(t, tstep)
 
       ! Compute pressure residual.
       call profiler_start_region('Pressure_residual', 18)
@@ -706,7 +717,7 @@ contains
            c_Xh, gs_Xh, &
            this%bc_prs_surface, this%bc_sym_surface,&
            Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
-           mu_field, rho_field, event)
+           mu, rho, event)
 
       ! De-mean the pressure residual when no strong pressure boundaries present
       if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n)
@@ -730,7 +741,8 @@ contains
 
       ! Solve for the pressure increment.
       ksp_results(1) = &
-           this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, this%bclst_dp, gs_Xh)
+           this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
+           this%bclst_dp, gs_Xh)
 
 
       call profiler_end_region('Pressure_solve', 3)
@@ -749,7 +761,7 @@ contains
            p, &
            f_x, f_y, f_z, &
            c_Xh, msh, Xh, &
-           mu_field, rho_field, ext_bdf%diffusion_coeffs(1), &
+           mu, rho, ext_bdf%diffusion_coeffs(1), &
            dt, dm_Xh%size())
 
       call gs_Xh%op(u_res, GS_OP_ADD, event)
@@ -789,9 +801,10 @@ contains
       end if
 
       if (this%forced_flow_rate) then
+         ! Horrible mu hack?!
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
-              c_Xh, gs_Xh, ext_bdf, rho, mu, dt, &
-              this%bclst_dp, this%bclst_du, this%bclst_dv, &
+              c_Xh, gs_Xh, ext_bdf, rho%x(1,1,1,1), mu%x(1,1,1,1), &
+              dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax_vel, Ax_prs, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
               this%ksp_vel%max_iter)

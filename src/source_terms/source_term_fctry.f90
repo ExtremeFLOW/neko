@@ -37,15 +37,17 @@ submodule (source_term) source_term_fctry
   use boussinesq_source_term, only : boussinesq_source_term_t
   use brinkman_source_term, only: brinkman_source_term_t
   use coriolis_source_term, only : coriolis_source_term_t
+  use gradient_jump_penalty, only : gradient_jump_penalty_t
   use json_utils, only : json_get
-  use utils, only : concat_string_array, neko_type_error
+  use utils, only : neko_type_error, neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SOURCE_KNOWN_TYPES(4) = [character(len=20) :: &
+  character(len=20) :: SOURCE_KNOWN_TYPES(5) = [character(len=20) :: &
        "constant", &
        "boussinesq", &
        "coriolis", &
+       "gradient_jump_penalty", &
        "brinkman"]
 
 contains
@@ -80,24 +82,27 @@ contains
     character(len=:), allocatable, intent(in) :: type_name
     integer :: i
 
-    if (trim(type_name) .eq. "constant") then
+    select case (trim(type_name))
+    case ("constant")
        allocate(const_source_term_t::object)
-    else if (trim(type_name) .eq. "boussinesq") then
+    case ("boussinesq")
        allocate(boussinesq_source_term_t::object)
-    else if (trim(type_name) .eq. "coriolis") then
+    case ("coriolis")
        allocate(coriolis_source_term_t::object)
-    else if (trim(type_name) .eq. "brinkman") then
+    case ("brinkman")
        allocate(brinkman_source_term_t::object)
-    else
+    case ("gradient_jump_penalty")
+       allocate(gradient_jump_penalty_t::object)
+    case default
        do i = 1, source_term_registry_size
-          if (trim(type_name) == trim(source_term_registry(i)%type_name)) then
+          if (trim(type_name) .eq. trim(source_term_registry(i)%type_name)) then
              call source_term_registry(i)%allocator(object)
              return
           end if
        end do
 
        call neko_type_error("source term", type_name, SOURCE_KNOWN_TYPES)
-    end if
+    end select
   end subroutine source_term_allocator
 
   !> Register a custom source term allocator.
@@ -108,9 +113,22 @@ contains
     character(len=*), intent(in) :: type_name
     procedure(source_term_allocate), pointer, intent(in) :: allocator
     type(allocator_entry), allocatable :: temp(:)
+    integer :: i
+
+    do i = 1, size(SOURCE_KNOWN_TYPES)
+       if (trim(type_name) .eq. trim(SOURCE_KNOWN_TYPES(i))) then
+          call neko_type_registration_error("source term", type_name, .true.)
+       end if
+    end do
+
+    do i = 1, source_term_registry_size
+       if (trim(type_name) .eq. trim(source_term_registry(i)%type_name)) then
+          call neko_type_registration_error("source term", type_name, .false.)
+       end if
+    end do
 
     ! Expand registry
-    if (source_term_registry_size == 0) then
+    if (source_term_registry_size .eq. 0) then
        allocate(source_term_registry(1))
     else
        allocate(temp(source_term_registry_size + 1))
