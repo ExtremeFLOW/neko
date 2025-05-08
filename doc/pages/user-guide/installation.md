@@ -250,15 +250,16 @@ curl -fsSL https://pixi.sh/install.sh | sh
 
 Pixi will leverage conda to install all the dependencies, including basic ones
 like `gfortran` and `openmpi`. All of these will be installed inside an isolated
-environment. So, to install neko simply run
+environment. So, to install Neko simply clone the repo with git,
+and run the following command inside it
 
 ```bash
 pixi run install-neko-cpu
 ```
 
 This will give you a double-precision CPU build charged with all optional
-dependencies: hdf5, gslib, parmetis and json-fortran. For now, this is the only
-configuration that can be installed automatically with pixi.
+dependencies: hdf5, gslib, and parmetis. For now, this is the only configuration
+that can be installed automatically with pixi.
 
 To use Neko, you need to drop into a shell, where the pixi environment will be
 activated. For that run
@@ -269,6 +270,8 @@ pixi shell
 
 The `neko` and `makeneko` executables are already be in your `PATH`, so you can
 start running cases!
+
+The installed executables, libraries, etc. are all located inside the `install` folder in the repo.
 
 Note that you can use this pixi environment as you like, including manually
 `configuring` and building Neko (as per instructions for building from source),
