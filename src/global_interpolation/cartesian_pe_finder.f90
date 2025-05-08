@@ -259,9 +259,11 @@ contains
        do i = min_id(1), max_id(1)
           do j = min_id(2), max_id(2)
              do k = min_id(3), max_id(3)
-                glob_id = i + j*this%n_boxes + k*this%n_boxes**2
-                pe_id = get_pe_idx(this, glob_id)
-                if (glob_id .ge. 0 .and. glob_id .lt. this%glob_n_boxes) then
+                if (i .ge. 0 .and. i .lt. this%n_boxes .and. &
+                    j .ge. 0 .and. j .lt. this%n_boxes .and. &
+                    k .ge. 0 .and. k .lt. this%n_boxes) then
+                   glob_id = i + j*this%n_boxes + k*this%n_boxes**2
+                   pe_id = get_pe_idx(this, glob_id)
                    if (marked_box%get(glob_id,htable_data) .ne. 0) then
                       call glob_ids(pe_id)%push(glob_id)
                       n_send(pe_id) = n_send(pe_id) + 1
