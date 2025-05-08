@@ -20,7 +20,10 @@
 ! The user module always needs to be named "user"!
 module user
   ! This use statement populates the scope of the module with all the types and
-  ! public procedures defined in Neko.
+  ! public procedures defined in Neko. So, this is convenient, but your scope
+  ! does get very polluted. It is generallys a good idea to `use` only the
+  ! modules you need, and moreover specify what exactly you want from those
+  ! modules using `use ..., only :`. 
   use neko
   implicit none
 
