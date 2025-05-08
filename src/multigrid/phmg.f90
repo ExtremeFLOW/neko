@@ -119,7 +119,7 @@ contains
     class(bc_t), pointer :: bc_j
     logical :: use_jacobi, use_cheby
     character(len=255) :: env_smoother_itrs
-    integer :: env_len, smoother_itrs
+    integer :: env_len, smoother_itrs, st
     use_jacobi = .true.
     use_cheby = .true.
 
@@ -209,23 +209,29 @@ contains
           end if
        end if
 
+       st = 0
        if (use_cheby) then
+          st = 1
           if (NEKO_BCKND_DEVICE .eq. 1) then
              call this%phmg_hrchy%lvl(i)%cheby_device%init( &
                   this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs, &
                   this%phmg_hrchy%lvl(i)%device_jacobi)
              this%phmg_hrchy%lvl(i)%cheby_device%schwarz => &
                 this%phmg_hrchy%lvl(i)%schwarz
+             st = 2
           else
              call this%phmg_hrchy%lvl(i)%cheby%init( &
                   this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs, &
                   this%phmg_hrchy%lvl(i)%jacobi)
              this%phmg_hrchy%lvl(i)%cheby%schwarz => &
                 this%phmg_hrchy%lvl(i)%schwarz
+             st = 2
           end if
        end if
 
     end do
+
+    call print_phmg_info(this%nlvls, st, this%phmg_hrchy)
 
     ! Create backend specific Ax operator
     call ax_helm_factory(this%ax, full_formulation = .false.)
@@ -462,7 +468,7 @@ contains
 
           call mg%device_jacobi%solve(w%x, w%x, n)
 
-          call device_add2s2(z%x_d, w%x_d, 0.7_rp, n)
+          call device_add2s2(z%x_d, w%x_d, 0.6_rp, n)
        end do
     else
        do i = 1, ni
@@ -509,5 +515,54 @@ contains
     end if
     call neko_log%message(log_buf)
   end subroutine phmg_resid_monitor
+
+  subroutine print_phmg_info(nlvls, smoo_type, phmg)
+    integer, intent(in) :: nlvls
+    integer, intent(in) :: smoo_type
+    type(phmg_hrchy_t) :: phmg
+    integer :: i, clvl
+    character(len=LOG_SIZE) :: log_buf, smoo_name
+
+    call neko_log%section('PHMG')
+
+    if (smoo_type .eq. 1) then
+       write(smoo_name, '(A16)') 'CHEBY-acc JACOBI'
+    else if (smoo_type .eq. 2) then
+       write(smoo_name, '(A17)') 'CHEBY-acc SCHWARZ'
+    else
+       write(smoo_name, '(A5)') 'CHEBY'
+    end if
+
+    write(log_buf, '(A28,I2,A8)') &
+         'Creating PHMG hierarchy with', &
+         nlvls, 'levels.'
+    call neko_log%message(log_buf)
+
+    clvl = nlvls - 1
+    do i = 0, nlvls-1
+       write(log_buf, '(A8,I2,A8,I2)') &
+             '-- level', i, '-- lx:', phmg%lvl(i)%Xh%lx
+       call neko_log%message(log_buf)
+
+       if (i .eq. clvl) then
+          write(log_buf, '(A19,A20)') &
+               'Solve:', 'tAMG'
+          call neko_log%message(log_buf)
+       else
+          write(log_buf, '(A22,A20)') &
+               'Smoother:', &
+               trim(smoo_name)
+          call neko_log%message(log_buf)
+
+          write(log_buf, '(A28,I2)') &
+               'Smoother Iters:', &
+               phmg%lvl(i)%smoother_itrs
+          call neko_log%message(log_buf)
+       end if
+    end do
+
+    call neko_log%end_section()
+
+  end subroutine print_phmg_info
 
 end module phmg
