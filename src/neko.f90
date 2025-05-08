@@ -125,7 +125,8 @@ module neko
   use field_dirichlet_vector, only : field_dirichlet_vector_t
   use runtime_stats, only : neko_rt_stats
   use json_module, only : json_file
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_extract_object
   use bc_list, only : bc_list_t
   use les_model, only : les_model_t, les_model_allocate, register_les_model, &
        les_model_factory, les_model_allocator
