@@ -232,9 +232,21 @@ contains
        el_z_min = minval(z((e-1)*lxyz+1:e*lxyz))
 
        !move it to close to origo
-       center_x = (el_x_max + el_x_min) / 2.0_xp
-       center_y = (el_y_max + el_y_min) / 2.0_xp
-       center_z = (el_z_max + el_z_min) / 2.0_xp
+       !center_x = (el_x_max + el_x_min) / 2.0_xp
+       !center_y = (el_y_max + el_y_min) / 2.0_xp
+       !center_z = (el_z_max + el_z_min) / 2.0_xp
+       center_x = 0d0
+       center_y = 0d0
+       center_z = 0d0
+       do i = 1, Xh%lxyz
+          center_x = center_x + x((e-1)*lxyz+i)
+          center_y = center_y + y((e-1)*lxyz+i)
+          center_z = center_z + z((e-1)*lxyz+i)
+       end do
+       center_x = center_x / Xh%lxyz
+       center_y = center_y / Xh%lxyz
+       center_z = center_z / Xh%lxyz
+
        !Maybe this is a stupid way to do it
 
        el_x = x((e-1)*lxyz+1:e*lxyz) - center_x
