@@ -61,8 +61,8 @@ __global__ void find_rst_legendre_kernel(T * __restrict__ rst,
   if (conv_pts[pt] == true) return;
   const int e = el_ids[pt];
   const int elx3 = e*LX*LX*LX;
-  const int str = blockDim.x;
-  const int idx = threadIdx.x;
+  const int str = blockDim.y;
+  const int idx = threadIdx.y;
 
   xT one = 1.0;
   xT two = 2.0;
@@ -403,7 +403,7 @@ extern "C" {
                               void *resx, void *resy, void *resz, 
                               int *lx, void *el_ids, int *n_pt, real *tol, void *conv_pts) {
     
-    const dim3 nthrds(128, 1, 1);
+    const dim3 nthrds(1, 128, 1);
     const dim3 nblcks((*n_pt), 1, 1);
     const hipStream_t stream = (hipStream_t) glb_cmd_queue;      
 
