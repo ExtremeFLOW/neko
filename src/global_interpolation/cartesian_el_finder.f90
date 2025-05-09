@@ -249,7 +249,7 @@ contains
        do i = 1, Xh%lx - 1
           do j = 1, Xh%ly - 1
              do k = 1, Xh%lz - 1
-                lin_idx = i + (j-1)*Xh%lx + (k-1)*Xh%lx*Xh%ly
+                lin_idx = linear_index(i,j,k, 1, Xh%lx, Xh%lx, Xh%lx)
                 max_bb_x = el_x(lin_idx)
                 min_bb_x = el_x(lin_idx)
                 max_bb_y = el_y(lin_idx)
@@ -259,7 +259,7 @@ contains
                 do i2 = 0, 1
                    do j2 = 0, 1
                       do k2 = 0, 1
-                         lin_idx = i + i2 + (j-1+j2)*Xh%lx + (k-1+k2)*Xh%lx*Xh%ly
+                         lin_idx = linear_index(i+i2,j+j2,k+k2, 1, Xh%lx, Xh%lx, Xh%lx)
                          max_bb_x = max(max_bb_x, el_x(lin_idx))
                          min_bb_x = min(min_bb_x, el_x(lin_idx))
                          max_bb_y = max(max_bb_y, el_y(lin_idx))
@@ -276,9 +276,11 @@ contains
                 do i2 = min_id(1), max_id(1)
                    do j2 = min_id(2), max_id(2)
                       do k2 = min_id(3), max_id(3)
-                         el_idx = linear_index(i2, j2, k2, 1, &
-                   this%n_boxes, this%n_boxes, this%n_boxes)
-                         if (el_idx .ge. 1 .and. el_idx .le. this%n_boxes**3) then
+                         if (i2 .ge. 1 .and. i2 .le. this%n_boxes .and. &
+                             j2 .ge. 1 .and. j2 .le. this%n_boxes .and. &
+                             k2 .ge. 1 .and. k2 .le. this%n_boxes) then
+                            el_idx = linear_index(i2, j2, k2, 1, &
+                            this%n_boxes, this%n_boxes, this%n_boxes)
                             if (marked_box%get(el_idx,htable_data) .ne. 0)then
                                call marked_box%set(el_idx, htable_data)
                                call this%el_map(el_idx)%push(e)
@@ -359,7 +361,7 @@ contains
     idx = this%compute_idx(my_point%x(1),my_point%x(2),my_point%x(3))
     el_cands => this%el_map(idx)%array()
     do i = 1, this%el_map(idx)%size()
-       stupid_intent = el_cands(j) - 1
+       stupid_intent = el_cands(i) - 1
        call el_candidates%push(stupid_intent)
     end do
   end subroutine cartesian_el_finder_find_candidates
@@ -373,22 +375,27 @@ contains
     type(stack_i4_t), intent(inout) :: all_el_candidates
     integer, intent(inout) :: n_el_cands(n_points)
     integer :: i, j, stupid_intent
-    integer :: idx
+    integer :: idx3(3), idx
     integer, pointer :: el_cands(:)
 
     call all_el_candidates%clear()
     n_el_cands = 0
 
     do i = 1, n_points
+       idx3 = this%compute_3idx(real(points(1,i),xp),&
+             real(points(2,i),xp),real(points(3,i),xp))
+       if (idx3(1) .ge. 1 .and. idx3(1) .le. this%n_boxes .and. &
+           idx3(2) .ge. 1 .and. idx3(2) .le. this%n_boxes .and. &
+           idx3(3) .ge. 1 .and. idx3(3) .le. this%n_boxes) then
        idx = this%compute_idx(real(points(1,i),xp),&
              real(points(2,i),xp),real(points(3,i),xp))
-       if (idx .lt. 1 .or. idx .gt. this%n_boxes**3) cycle
        el_cands => this%el_map(idx)%array()
        do j = 1, this%el_map(idx)%size()
           stupid_intent = el_cands(j) - 1
           call all_el_candidates%push(stupid_intent) !< OBS c indexing
        end do
        n_el_cands(i) = this%el_map(idx)%size()
+       end if
     end do
 
   end subroutine cartesian_el_finder_find_candidates_batch

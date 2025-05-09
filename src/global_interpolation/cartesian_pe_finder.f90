@@ -419,7 +419,9 @@ contains
                      glob_id(2)*this%n_boxes + &
                      glob_id(3)*this%n_boxes**2
        pe_id = get_pe_idx(this, lin_glob_id)
-       if (lin_glob_id .ge. 0 .and. lin_glob_id .lt. this%glob_n_boxes) then
+                if (glob_id(1) .ge. 0 .and. glob_id(1) .lt. this%n_boxes .and. &
+                    glob_id(2) .ge. 0 .and. glob_id(2) .lt. this%n_boxes .and. &
+                    glob_id(3) .ge. 0 .and. glob_id(3) .lt. this%n_boxes) then
           call work_pe_ids(pe_id)%push(lin_glob_id)
           call work_pt_ids(pe_id)%push(int(i,i8))
           n_work_ids(pe_id) = n_work_ids(pe_id) + 1
