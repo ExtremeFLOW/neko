@@ -118,9 +118,9 @@ contains
     this%max_z = maxval(z(1:nel*Xh%lxyz))
     this%min_z = minval(z(1:nel*Xh%lxyz))
     
-    center_x = (this%max_x - this%min_x) /2.0_xp
-    center_y = (this%max_y - this%min_y) /2.0_xp
-    center_z = (this%max_z - this%min_z) /2.0_xp
+    center_x = (this%max_x + this%min_x) /2.0_xp
+    center_y = (this%max_y + this%min_y) /2.0_xp
+    center_z = (this%max_z + this%min_z) /2.0_xp
 
     this%max_x = this%max_x - center_x
     this%max_y = this%max_y - center_y
@@ -134,6 +134,8 @@ contains
     this%min_x = this%min_x * (1.0_xp+this%padding) + center_x
     this%min_y = this%min_y * (1.0_xp+this%padding) + center_y
     this%min_z = this%min_z * (1.0_xp+this%padding) + center_z
+
+    
 
     !Resulting resolution
     this%x_res = (this%max_x - this%min_x) / real(n_boxes, xp)
@@ -252,9 +254,9 @@ contains
        el_x = x((e-1)*lxyz+1:e*lxyz) - center_x
        el_y = y((e-1)*lxyz+1:e*lxyz) - center_y
        el_z = z((e-1)*lxyz+1:e*lxyz) - center_z
-       el_x = el_x * (1.0+padding) + center_x
-       el_y = el_y * (1.0+padding) + center_y
-       el_z = el_z * (1.0+padding) + center_z
+       el_x = el_x * (1.0_rp+padding) + center_x
+       el_y = el_y * (1.0_rp+padding) + center_y
+       el_z = el_z * (1.0_rp+padding) + center_z
        !Padded and ready
 
        !Now we go the bounding boxes of all subboxes in the element
