@@ -258,14 +258,21 @@ contains
     n = nelv * lx*ly*lz
 
     call neko_log%message('Initializing global interpolation')
-    call get_environment_variable("NEKO_GLOBAL_INTERP_MODE", mode_str, envvar_len)
+    call get_environment_variable("NEKO_GLOBAL_INTERP_EL_FINDER", mode_str, envvar_len)
 
     if (envvar_len .gt. 0) then
        if (mode_str(1:envvar_len) == 'unsafe') then
           allocate(cartesian_el_finder_t :: this%el_finder)
+       end if
+    end if
+    call get_environment_variable("NEKO_GLOBAL_INTERP_PE_FINDER", mode_str, envvar_len)
+
+    if (envvar_len .gt. 0) then
+       if (mode_str(1:envvar_len) == 'unsafe') then
           allocate(cartesian_pe_finder_t :: this%pe_finder)
        end if
     end if
+
     if (.not. allocated(this%el_finder)) then
        allocate(aabb_el_finder_t :: this%el_finder)
     end if
@@ -558,7 +565,7 @@ contains
        call device_memcpy(el_cands, el_cands_d,n_point_cand, &
             HOST_TO_DEVICE, .true.)
     end if
-    print *, n_point_cand
+    print *,'N point candidates on rank', this%pe_rank,'cands:', n_point_cand
     call this%rst_finder%find(rst_local_cand, &
          x_t, y_t, z_t, &
          el_cands, n_point_cand, &
@@ -584,6 +591,7 @@ contains
     write(log_buf,'(A)') &
          'Checking validity of points and choosing best candidates.'
     call neko_log%message(log_buf)
+    call MPI_Barrier(this%comm,ierr)
 
     if (allocated(this%rst_local)) deallocate(this%rst_local)
     if (allocated(this%el_owner0_local)) deallocate(this%el_owner0_local)
@@ -598,6 +606,7 @@ contains
        this%rst_local(1,i) = 10.0
        this%rst_local(2,i) = 10.0
        this%rst_local(3,i) = 10.0
+       this%el_owner0_local(i) = -1
        do j = 1, n_el_cands(i)
           ii = ii + 1
           if (rst_cmp(this%rst_local(:,i), rst_local_cand%x(:,ii),&
@@ -611,10 +620,14 @@ contains
              this%xyz_local(3,i) = resz%x(ii)
              this%el_owner0_local(i) = el_cands(ii)
           end if
+           ! if (this%pe_rank .eq. 0) print *,i,  this%rst_local(:,i),this%xyz_local(:,i), this%el_owner0_local(i) 
        end do
     end do
     call res%init(3,this%n_points)
     n_glb_point_cand = sum(this%n_points_pe)
+    if (allocated(rst_results)) deallocate(rst_results)
+    if (allocated(res_results)) deallocate(res_results)
+    if (allocated(el_owner_results)) deallocate(el_owner_results)
     allocate(rst_results(3,n_glb_point_cand))
     allocate(res_results(3,n_glb_point_cand))
     allocate(el_owner_results(n_glb_point_cand))
@@ -657,6 +670,7 @@ contains
              this%pe_owner(point_ids(j)) = gs_find_back%recv_pe(i)
              this%el_owner0(point_ids(j)) = el_owner_results(ii)
           end if
+          !  if (this%pe_rank .eq. 0) print *,point_id,  this%rst(:,point_ids(j)),res%x(:,point_ids(j)), this%el_owner0(point_ids(j)) 
        end do
     end do
 
@@ -670,7 +684,7 @@ contains
 
     do i = 1, this%n_points
        stupid_intent = i
-       if (this%pe_owner(i) .eq. -1) then
+       if (this%pe_owner(i) .eq. -1 .or. this%el_owner0(i) .eq. -1) then
           print *, 'No owning rank found for',&
             ' point ', stupid_intent, ' with coords', this%xyz(:,i), &
             ' Interpolation will always yield 0.0. Try increase padding.'
@@ -813,7 +827,7 @@ contains
     if (associated(point_ids)) point_ids => Null()
     if (allocated(el_owner_results)) deallocate(el_owner_results)
 
-    call MPI_Barrier(this%comm)
+    call MPI_Barrier(this%comm, ierr)
     time2 = MPI_Wtime()
     write(log_buf, '(A,E15.7)') 'Global interpolation find points done, time (s):', &
          time2-time_start
@@ -838,7 +852,6 @@ contains
     call x_check%init(this%n_points)
     call y_check%init(this%n_points)
     call z_check%init(this%n_points)
-
     call this%evaluate(x_check%x, x, on_host=.true.)
     call this%evaluate(y_check%x, y, on_host=.true.)
     call this%evaluate(z_check%x, z, on_host=.true.)
