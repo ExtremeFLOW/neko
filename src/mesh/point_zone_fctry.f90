@@ -37,14 +37,14 @@ submodule (point_zone) point_zone_fctry
   use sphere_point_zone, only: sphere_point_zone_t
   use cylinder_point_zone, only: cylinder_point_zone_t
   use json_utils, only: json_get
-  use utils, only : concat_string_array
+  use utils, only : neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the factory routine
   character(len=20) :: POINTZ_KNOWN_TYPES(3) = [character(len=20) :: &
-     "box", &
-     "sphere", &
-     "cylinder"]
+       "box", &
+       "sphere", &
+       "cylinder"]
 
 contains
 
@@ -62,19 +62,7 @@ contains
 
     call json_get(json, "geometry", type_name)
 
-    if (trim(type_name) .eq. "box") then
-       allocate(box_point_zone_t::object)
-    else if (trim(type_name) .eq. "sphere") then
-       allocate(sphere_point_zone_t::object)
-    else if (trim(type_name) .eq. "cylinder") then
-       allocate(cylinder_point_zone_t::object)
-    else
-       type_string =  concat_string_array(POINTZ_KNOWN_TYPES, &
-            new_line('A') // "-  ", .true.)
-       call neko_error("Unknown point zone type: " &
-                       // trim(type_name) // ".  Known types are: " &
-                       // type_string)
-    end if
+    call point_zone_allocator(object, type_name)
 
     if (present(dof)) then
        call object%init(json, dof%size())
@@ -86,8 +74,69 @@ contains
        call object%init(json, 1)
        call object%finalize()
     end if
-
-
   end subroutine point_zone_factory
+
+  subroutine point_zone_allocator(object, type_name)
+    class(point_zone_t), allocatable, intent(inout) :: object
+    character(len=:), allocatable, intent(in) :: type_name
+    integer :: i
+
+    if (allocated(object)) deallocate(object)
+
+    select case (trim(type_name))
+    case ('box')
+       allocate(box_point_zone_t::object)
+    case ('sphere')
+       allocate(sphere_point_zone_t::object)
+    case ('cylinder')
+       allocate(cylinder_point_zone_t::object)
+    case default
+       do i = 1, point_zone_registry_size
+          if (trim(type_name) .eq. trim(point_zone_registry(i)%type_name)) then
+             call point_zone_registry(i)%allocator(object)
+             return
+          end if
+       end do
+       call neko_error("Unknown point zone type: " // trim(type_name))
+    end select
+  end subroutine point_zone_allocator
+
+  !> Register a custom point zone allocator.
+  !! Called in custom user modules inside the `module_name_register_types`
+  !! routine to add a custom type allocator to the registry.
+  !! @param type_name The name of the type to allocate.
+  !! @param allocator The allocator for the custom user type.
+  subroutine register_point_zone(type_name, allocator)
+    character(len=*), intent(in) :: type_name
+    procedure(point_zone_allocate), pointer, intent(in) :: allocator
+    type(allocator_entry), allocatable :: temp(:)
+    integer :: i
+
+    do i = 1, size(POINTZ_KNOWN_TYPES)
+       if (trim(type_name) .eq. trim(POINTZ_KNOWN_TYPES(i))) then
+          call neko_type_registration_error("point zone", type_name, .true.)
+       end if
+    end do
+
+    do i = 1, point_zone_registry_size
+       if (trim(type_name) .eq. trim(point_zone_registry(i)%type_name)) then
+          call neko_type_registration_error("point zone", type_name, .false.)
+       end if
+    end do
+
+    ! Expand registry
+    if (point_zone_registry_size .eq. 0) then
+       allocate(point_zone_registry(1))
+    else
+       allocate(temp(point_zone_registry_size + 1))
+       temp(1:point_zone_registry_size) = point_zone_registry
+       call move_alloc(temp, point_zone_registry)
+    end if
+
+    point_zone_registry_size = point_zone_registry_size + 1
+    point_zone_registry(point_zone_registry_size)%type_name = type_name
+    point_zone_registry(point_zone_registry_size)%allocator => allocator
+
+  end subroutine register_point_zone
 
 end submodule point_zone_fctry
