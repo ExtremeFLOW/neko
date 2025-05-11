@@ -76,7 +76,7 @@ contains
     end if
   end subroutine point_zone_factory
 
-  subroutine point_zone_allocator(object, type_name)
+  module subroutine point_zone_allocator(object, type_name)
     class(point_zone_t), allocatable, intent(inout) :: object
     character(len=:), allocatable, intent(in) :: type_name
     integer :: i
@@ -106,7 +106,7 @@ contains
   !! routine to add a custom type allocator to the registry.
   !! @param type_name The name of the type to allocate.
   !! @param allocator The allocator for the custom user type.
-  subroutine register_point_zone(type_name, allocator)
+  module subroutine register_point_zone(type_name, allocator)
     character(len=*), intent(in) :: type_name
     procedure(point_zone_allocate), pointer, intent(in) :: allocator
     type(allocator_entry), allocatable :: temp(:)
