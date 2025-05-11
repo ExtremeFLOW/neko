@@ -65,7 +65,7 @@ contains
     ! The actual values of the field are stored in the x array or the x_d
     ! pointer. The x_d pointer is used to access the data on the GPU. The x
     ! array has a rank of 4, corresponding to GLL points in 3 dimensions, and
-    ! the number of elements in the mesh (i,j,k,e). 
+    ! the number of elements in the mesh (i,j,k,e).
 
     ! Some operators are overloaded for the field_t type. For example, we can
     ! assign it to a scalar. At construction, the values are set to zero.
@@ -98,23 +98,23 @@ contains
     ! passed to dummy arguments that are 1D, 2D, etc. This is possible for the
     ! same reason.
     do i = 1, my_field%size() ! <- Number of GLL points.
-      my_field%x(i,1,1,1) = my_field%x(i,1,1,1) * 2.0_rp
+       my_field%x(i,1,1,1) = my_field%x(i,1,1,1) * 2.0_rp
     end do
 
     ! There is an issue with the above code: it only works on the CPU. You can
     ! not write GPU kernels as a user. Therefore, Neko has a whole range of
     ! low-level math functions that can be used. You can find them in math.f90.
-    ! Corresponding routines for the GPU are in device_math.f90, and 
+    ! Corresponding routines for the GPU are in device_math.f90, and
     ! field_math.f90 contains wrappers that dispatch correctly to either a CPU
     ! or device routine based on the current backend. The names of the routines
     ! are taken from Nek5000, so if you are familiar with that code, you will
-    ! find it easy to use. 
+    ! find it easy to use.
 
     ! A generic way to perform the computation above would be
-    if (NEKO_BCKND_DEVICE .eq. 1) then  ! <- Check if we are on the device.
-        call device_cmult(my_field%x_d, 2.0_rp, my_field%size())
+    if (NEKO_BCKND_DEVICE .eq. 1) then ! <- Check if we are on the device.
+       call device_cmult(my_field%x_d, 2.0_rp, my_field%size())
     else
-        call cmult(my_field%x, 2.0_rp, my_field%size())
+       call cmult(my_field%x, 2.0_rp, my_field%size())
     end if
 
     ! Alternatively, (and more concisely) we can use the field_math module,
@@ -123,7 +123,7 @@ contains
     ! For vector_t there are no math wrappers, so the latter approach is the
     ! one to go for. The vector_t does overload some operators though, so use
     ! those when possible.
-    
+
   end subroutine user_check
 
   ! If you declare objects at module scope that need to be destroyed, you can
@@ -132,7 +132,7 @@ contains
     real(kind=rp) :: t
     type(json_file), intent(inout) :: params
 
-    ! All types the allocate memory in Neko have a free method, which is a 
+    ! All types the allocate memory in Neko have a free method, which is a
     ! destructor.
     call my_field%free()
 

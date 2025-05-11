@@ -45,14 +45,14 @@ contains
     ! can include fields that we create in the user module. To that end, Neko
     ! provides a special singleton object of type `field_registry_t`. The name
     ! of the singleton is `neko_field_registry`. Solvers register their solution
-    ! fields there, for example. 
+    ! fields there, for example.
 
     ! Here we can grab the x-velocity from the fluid_scheme_t, which is
     ! registered as "u" in the registry.
     my_field_ptr => neko_field_registry%get_field("u")
 
     ! We can also register new fields. For that we need a dofmap_t object, just
-    ! like when we initialize a field. Once in the registry, the field is 
+    ! like when we initialize a field. Once in the registry, the field is
     ! available for access and manipulation in other modules.
     ! Practical example: you may want to run some calculations on this field and
     ! then use the field_writer simcomp to output it to disk during the
