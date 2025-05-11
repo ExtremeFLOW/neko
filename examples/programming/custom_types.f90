@@ -40,7 +40,7 @@
 !!          {
 !!            "type": "my_source_term",
 !!            "greeting": "Hello there!"
-!!  
+!!
 !!          }
 !!        ],
 !! NOTE: the module name must be the same as the file name sans the extension.
@@ -59,10 +59,10 @@ module custom_types
   private
 
   type, public, extends(source_term_t) :: my_source_term_t
-      ! We will read this greeting from the JSON file.
-      character(len=:), allocatable :: greeting
+     ! We will read this greeting from the JSON file.
+     character(len=:), allocatable :: greeting
    contains
-     !> The common constructor using a JSON object. This is where we parse 
+     !> The common constructor using a JSON object. This is where we parse
      !! the JSON object and initialize the source term.
      procedure, pass(this) :: init => my_source_term_init_from_json
      !> Destructor.
