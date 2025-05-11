@@ -145,12 +145,12 @@ contains
 
     no = this%order - 1
     call fd_weights_full(t, tlag, no, 0, wt) ! interpolation weights
-    call rzero(f_interpolated, n)
 
     do concurrent (i = 1:n)
-       do l = 0, no
-        f_interpolated(i) = f_interpolated(i) + wt(l) * f_n(i,l)
-      end do
+       f_interpolated(i) = wt(0) * f_n(i, 0)
+       do l = 1, no
+          f_interpolated(i) = f_interpolated(i) + wt(l) * f_n(i, l)
+       end do
     end do
 
   end subroutine time_interpolator_scalar
