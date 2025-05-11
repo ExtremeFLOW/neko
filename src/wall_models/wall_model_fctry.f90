@@ -99,7 +99,7 @@ contains
        end do
        call neko_type_error("wall model", trim(type_name), WALLM_KNOWN_TYPES)
     end select
-  end subroutine  wall_model_allocator
+  end subroutine wall_model_allocator
 
   !> Register a custom wall model allocator.
   !! Called in custom user modules inside the `module_name_register_types`
