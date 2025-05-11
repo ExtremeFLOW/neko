@@ -37,14 +37,18 @@
             },
             "velocity_solver": {
                 "type": "cg",
-                "preconditioner": "jacobi",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
                 "projection_space_size": 0,
                 "absolute_tolerance": 1e-6,
                 "max_iterations": 800
             },
             "pressure_solver": {
                 "type": "gmres",
-                "preconditioner": "hsmg",
+                "preconditioner": {
+                    "type": "hsmg"
+                },
                 "projection_space_size": 0,
                 "absolute_tolerance": 1e-4,
                 "max_iterations": 800
@@ -66,7 +70,9 @@
             },
             "solver": {
                 "type": "cg",
-                "preconditioner": "jacobi",
+                "preconditioner": {
+                    "type": "jacobi"
+                },
                 "projection_space_size": 0,
                 "absolute_tolerance": 1e-6,
                 "max_iterations": 800
