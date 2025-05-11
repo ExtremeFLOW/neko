@@ -215,7 +215,7 @@ module wall_model
      procedure(wall_model_allocate), pointer, nopass :: allocator
   end type allocator_entry
 
-  !> Registry of source term allocators for user-defined types
+  !> Registry of wall model allocators for user-defined types
   type(allocator_entry), allocatable :: wall_model_registry(:)
 
   !> The size of the `wall_model_registry`
