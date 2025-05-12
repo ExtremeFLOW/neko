@@ -163,7 +163,7 @@ contains
        ! Kind of hack, but maybe OK? The thing is, we need the nu for
        ! initing the wall model, and forcing the user duplicate that there
        ! would be a nightmare.
-       call json%add("nu", scheme%mu / scheme%rho)
+       call json%add("nu", scheme%mu%x(1,1,1,1) / scheme%rho%x(1,1,1,1))
 
     case ("user_velocity")
        allocate(field_dirichlet_vector_t::object)

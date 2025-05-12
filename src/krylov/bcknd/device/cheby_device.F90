@@ -42,8 +42,10 @@ module cheby_device
   use space, only : space_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
+  use schwarz, only : schwarz_t
   use device_math, only : device_cmult2, device_sub2, &
-       device_add2s1, device_add2s2, device_glsc3, device_copy
+       device_add2s1, device_add2s2, device_glsc3, device_copy, &
+       device_sub3, device_cmult, device_add2
   use device
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   implicit none
@@ -61,10 +63,12 @@ module cheby_device
      real(kind=rp) :: tha, dlt
      integer :: power_its = 150
      logical :: recompute_eigs = .true.
+     logical :: zero_initial_guess = .false.
+     type(schwarz_t), pointer :: schwarz => null() !< Schwarz decompostions
    contains
      procedure, pass(this) :: init => cheby_device_init
      procedure, pass(this) :: free => cheby_device_free
-     procedure, pass(this) :: solve => cheby_device_solve
+     procedure, pass(this) :: solve => cheby_device_impl
      procedure, pass(this) :: solve_coupled => cheby_device_solve_coupled
   end type cheby_device_t
 
@@ -161,7 +165,7 @@ contains
     type(bc_list_t), intent(inout) :: blst
     type(gs_t), intent(inout) :: gs_h
     real(kind=rp) :: lam, b, a, rn
-    real(kind=rp) :: boost = 1.2_rp
+    real(kind=rp) :: boost = 1.1_rp
     real(kind=rp) :: lam_factor = 30.0_rp
     real(kind=rp) :: wtw, dtw, dtd
     integer :: i
@@ -183,6 +187,13 @@ contains
          call ax%compute(w, d, coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
          call blst%apply(w, n)
+         if (associated(this%schwarz)) then
+            call this%schwarz%compute(this%r, w)
+            call device_copy(w_d, this%r_d, n)
+         else
+            call this%M%solve(this%r, w, n)
+            call device_copy(w_d, this%r_d, n)
+         end if
 
          wtw = device_glsc3(w_d, coef%mult_d, w_d, n)
          call device_cmult2(d_d, w_d, 1.0_rp/sqrt(wtw), n)
@@ -192,6 +203,13 @@ contains
       call ax%compute(w, d, coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
       call blst%apply(w, n)
+      if (associated(this%schwarz)) then
+         call this%schwarz%compute(this%r, w)
+         call device_copy(w_d, this%r_d, n)
+      else
+         call this%M%solve(this%r, w, n)
+         call device_copy(w_d, this%r_d, n)
+      end if
 
       dtw = device_glsc3(d_d, coef%mult_d, w_d, n)
       dtd = device_glsc3(d_d, coef%mult_d, d_d, n)
@@ -293,6 +311,87 @@ contains
       ksp_results%converged = this%is_converged(iter, rnorm)
     end associate
   end function cheby_device_solve
+
+  !> A chebyshev preconditioner
+  function cheby_device_impl(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+       result(ksp_results)
+    class(cheby_device_t), intent(inout) :: this
+    class(ax_t), intent(in) :: Ax
+    type(field_t), intent(inout) :: x
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(in) :: f
+    type(coef_t), intent(inout) :: coef
+    type(bc_list_t), intent(inout) :: blst
+    type(gs_t), intent(inout) :: gs_h
+    type(ksp_monitor_t) :: ksp_results
+    integer, optional, intent(in) :: niter
+    integer :: iter, max_iter
+    real(kind=rp) :: a, b, rtr, rnorm, norm_fac
+    real(kind=rp) :: rhok, rhokp1, sig1, tmp1, tmp2
+    type(c_ptr) :: f_d
+
+    f_d = device_get_ptr(f)
+
+    if (this%recompute_eigs) then
+       call cheby_device_power(this, Ax, x, n, coef, blst, gs_h)
+    end if
+
+    if (present(niter)) then
+       max_iter = niter
+    else
+       max_iter = this%max_iter
+    end if
+    norm_fac = 1.0_rp / sqrt(coef%volume)
+
+    associate( w => this%w, r => this%r, d => this%d, &
+         w_d => this%w_d, r_d => this%r_d, d_d => this%d_d)
+      ! calculate residual
+      if (.not.this%zero_initial_guess) then
+         call ax%compute(w, x%x, coef, x%msh, x%Xh)
+         call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
+         call blst%apply(w, n)
+         call device_sub3(r_d, f_d, w_d, n)
+      else
+         call device_copy(r_d, f_d, n)
+         this%zero_initial_guess = .false.
+      end if
+
+      ! First iteration
+      if (associated(this%schwarz)) then
+         call this%schwarz%compute(d, r)
+      else
+         call this%M%solve(d, r, n)
+      end if
+      call device_cmult( d_d, (1.0_rp / this%tha), n)
+      call device_add2( x%x_d, d_d, n)
+
+      sig1 = this%tha / this%dlt
+      rhok = 1.0_rp / sig1
+
+      ! Rest of the iterations
+      do iter = 2, max_iter
+         rhokp1 = 1.0_rp / (2.0_rp * sig1 - rhok)
+         tmp1 = rhokp1 * rhok
+         tmp2 = 2.0_rp * rhokp1 / this%dlt
+         rhok = rhokp1
+         ! calculate residual
+         call ax%compute(w, x%x, coef, x%msh, x%Xh)
+         call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
+         call blst%apply(w, n)
+         call device_sub3(r_d, f_d, w_d, n)
+
+         if (associated(this%schwarz)) then
+            call this%schwarz%compute(w, r)
+         else
+            call this%M%solve(w, r, n)
+         end if
+         call device_cmult( d_d, tmp1, n)
+         call device_add2s2( d_d, w_d, tmp2, n)
+         call device_add2( x%x_d, d_d, n)
+      end do
+
+    end associate
+  end function cheby_device_impl
 
   !> Standard Cheby_Deviceshev coupled solve
   function cheby_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
