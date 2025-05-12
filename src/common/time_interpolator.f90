@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2024, The Neko Authors
+! Copyright (c) 2022-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -100,7 +100,7 @@ contains
     if (this%order .eq. 2) then
 
        n = f%dof%size()
-       w_past   = ( t_future - t ) / ( t_future - t_past )
+       w_past = ( t_future - t ) / ( t_future - t_past )
        w_future = ( t - t_past ) / ( t_future - t_past )
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -112,7 +112,7 @@ contains
 
     else
        call neko_error("Time interpolation of required order &
-                       &is not implemented")
+       &is not implemented")
     end if
 
   end subroutine time_interpolator_interpolate
@@ -139,8 +139,8 @@ contains
     wt = 0
 
     if (this%order .gt. lwtmax) then
-      call neko_error("lwtmax is smaller than the number &
-                      &of stored convecting fields")
+       call neko_error("lwtmax is smaller than the number &
+       &of stored convecting fields")
     end if
 
     no = this%order - 1
