@@ -338,7 +338,7 @@ contains
       ! First iteration
       call device_cmult2(d_d, r_d, 1.0_rp/thet, n)
       call device_add2(x_d, d_d, n)
-      !> Rest of iterations
+      ! Rest of iterations
       do iter = 2, max_iter
          call amg%device_matvec(this%w, this%d, w_d, d_d, this%lvl)
          call device_sub2(r_d, w_d, n)
