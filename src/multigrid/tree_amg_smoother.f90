@@ -335,7 +335,7 @@ contains
       s1 = thet / delt
       rhok = 1.0_rp / s1
 
-      !> First iteration
+      ! First iteration
       call device_cmult2(d_d, r_d, 1.0_rp/thet, n)
       call device_add2(x_d, d_d, n)
       !> Rest of iterations
