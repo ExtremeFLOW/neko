@@ -157,7 +157,6 @@ module hip_math
           bind(c, name = 'hip_add2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-
        type(c_ptr), value :: a_d, b_d
        integer(c_int) :: n
      end subroutine hip_add2
@@ -166,7 +165,6 @@ module hip_math
           bind(c, name = 'hip_add4')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-
        type(c_ptr), value :: a_d, b_d, c_d, d_d
        integer(c_int) :: n
      end subroutine hip_add4
@@ -175,7 +173,6 @@ module hip_math
           bind(c, name = 'hip_add2s1')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-
        type(c_ptr), value :: a_d, b_d
        real(c_rp) :: c1
        integer(c_int) :: n
@@ -185,26 +182,15 @@ module hip_math
           bind(c, name = 'hip_add2s2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-
        type(c_ptr), value :: a_d, b_d
        real(c_rp) :: c1
        integer(c_int) :: n
      end subroutine hip_add2s2
 
-     subroutine hip_add2s2_many(y_d, x_d_d, a_d, j, n) &
-          bind(c, name = 'hip_add2s2_many')
-       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-       import c_rp
-
-       type(c_ptr), value :: y_d, x_d_d, a_d
-       integer(c_int) :: j, n
-     end subroutine hip_add2s2_many
-
      subroutine hip_addsqr2s2(a_d, b_d, c1, n) &
           bind(c, name = 'hip_addsqr2s2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-
        type(c_ptr), value :: a_d, b_d
        real(c_rp) :: c1
        integer(c_int) :: n
@@ -214,7 +200,6 @@ module hip_math
           bind(c, name = 'hip_add3s2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-
        type(c_ptr), value :: a_d, b_d, c_d
        real(c_rp) :: c1, c2
        integer(c_int) :: n
@@ -223,7 +208,6 @@ module hip_math
      subroutine hip_invcol1(a_d, n) &
           bind(c, name = 'hip_invcol1')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-
        type(c_ptr), value :: a_d
        integer(c_int) :: n
      end subroutine hip_invcol1
@@ -231,7 +215,6 @@ module hip_math
      subroutine hip_invcol2(a_d, b_d, n) &
           bind(c, name = 'hip_invcol2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-
        type(c_ptr), value :: a_d, b_d
        integer(c_int) :: n
      end subroutine hip_invcol2
@@ -239,7 +222,6 @@ module hip_math
      subroutine hip_col2(a_d, b_d, n) &
           bind(c, name = 'hip_col2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-
        type(c_ptr), value :: a_d, b_d
        integer(c_int) :: n
      end subroutine hip_col2
@@ -247,7 +229,6 @@ module hip_math
      subroutine hip_col3(a_d, b_d, c_d, n) &
           bind(c, name = 'hip_col3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-
        type(c_ptr), value :: a_d, b_d, c_d
        integer(c_int) :: n
      end subroutine hip_col3
@@ -255,7 +236,6 @@ module hip_math
      subroutine hip_subcol3(a_d, b_d, c_d, n) &
           bind(c, name = 'hip_subcol3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-
        type(c_ptr), value :: a_d, b_d, c_d
        integer(c_int) :: n
      end subroutine hip_subcol3
@@ -263,7 +243,6 @@ module hip_math
      subroutine hip_sub2(a_d, b_d, n) &
           bind(c, name = 'hip_sub2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-
        type(c_ptr), value :: a_d, b_d
        integer(c_int) :: n
      end subroutine hip_sub2
@@ -271,7 +250,6 @@ module hip_math
      subroutine hip_sub3(a_d, b_d, c_d, n) &
           bind(c, name = 'hip_sub3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-
        type(c_ptr), value :: a_d, b_d, c_d
        integer(c_int) :: n
      end subroutine hip_sub3
@@ -279,7 +257,6 @@ module hip_math
      subroutine hip_add3(a_d, b_d, c_d, n) &
           bind(c, name = 'hip_add3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-
        type(c_ptr), value :: a_d, b_d, c_d
        integer(c_int) :: n
      end subroutine hip_add3
@@ -287,7 +264,6 @@ module hip_math
      subroutine hip_addcol3(a_d, b_d, c_d, n) &
           bind(c, name = 'hip_addcol3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-
        type(c_ptr), value :: a_d, b_d, c_d
        integer(c_int) :: n
      end subroutine hip_addcol3
@@ -295,7 +271,6 @@ module hip_math
      subroutine hip_addcol4(a_d, b_d, c_d, d_d, n) &
           bind(c, name = 'hip_addcol4')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-
        type(c_ptr), value :: a_d, b_d, c_d, d_d
        integer(c_int) :: n
      end subroutine hip_addcol4
@@ -303,7 +278,6 @@ module hip_math
      subroutine hip_vdot3(dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d, n) &
           bind(c, name = 'hip_vdot3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-
        type(c_ptr), value :: dot_d, u1_d, u2_d, u3_d, v1_d, v2_d, v3_d
        integer(c_int) :: n
      end subroutine hip_vdot3
@@ -323,16 +297,22 @@ module hip_math
           bind(c, name = 'hip_vlsc3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-
        type(c_ptr), value :: u_d, v_d, w_d
        integer(c_int) :: n
      end function hip_vlsc3
+
+     subroutine hip_add2s2_many(y_d, x_d_d, a_d, j, n) &
+          bind(c, name = 'hip_add2s2_many')
+       use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: y_d, x_d_d, a_d
+       integer(c_int) :: j, n
+     end subroutine hip_add2s2_many
 
      real(c_rp) function hip_glsc3(a_d, b_d, c_d, n) &
           bind(c, name = 'hip_glsc3')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-
        type(c_ptr), value :: a_d, b_d, c_d
        integer(c_int) :: n
      end function hip_glsc3
@@ -341,7 +321,6 @@ module hip_math
           bind(c, name = 'hip_glsc3_many')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-
        type(c_ptr), value :: w_d, v_d_d, mult_d
        integer(c_int) :: j, n
        real(c_rp) :: h(j)
@@ -351,7 +330,6 @@ module hip_math
           bind(c, name = 'hip_glsc2')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-
        type(c_ptr), value :: a_d, b_d
        integer(c_int) :: n
      end function hip_glsc2
@@ -360,7 +338,6 @@ module hip_math
           bind(c, name = 'hip_glsum')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-
        type(c_ptr), value :: a_d
        integer(c_int) :: n
      end function hip_glsum
@@ -369,10 +346,78 @@ module hip_math
           bind(c, name = 'hip_absval')
        use, intrinsic :: iso_c_binding, only: c_ptr, c_int
        import c_rp
-
        type(c_ptr), value :: a_d
        integer(c_int) :: n
      end subroutine hip_absval
   end interface
 
+  ! ========================================================================== !
+  ! Interfaces for the pointwise operations.
+
+  interface
+     subroutine hip_pwmax_vec2(a_d, b_d, n) &
+          bind(c, name = 'hip_pwmax_vec2')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       type(c_ptr), value :: a_d, b_d
+       integer(c_int) :: n
+     end subroutine hip_pwmax_vec2
+
+     subroutine hip_pwmax_vec3(a_d, b_d, c_d, n) &
+          bind(c, name = 'hip_pwmax_vec3')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine hip_pwmax_vec3
+
+     subroutine hip_pwmax_sca2(a_d, c_d, n) &
+          bind(c, name = 'hip_pwmax_sca2')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c_d
+       integer(c_int) :: n
+     end subroutine hip_pwmax_sca2
+
+     subroutine hip_pwmax_sca3(a_d, b_d, c_d, n) &
+          bind(c, name = 'hip_pwmax_sca3')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, b_d
+       real(c_rp) :: c_d
+       integer(c_int) :: n
+     end subroutine hip_pwmax_sca3
+
+     subroutine hip_pwmin_vec2(a_d, b_d, n) &
+          bind(c, name = 'hip_pwmin_vec2')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       type(c_ptr), value :: a_d, b_d
+       integer(c_int) :: n
+     end subroutine hip_pwmin_vec2
+
+     subroutine hip_pwmin_vec3(a_d, b_d, c_d, n) &
+          bind(c, name = 'hip_pwmin_vec3')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       type(c_ptr), value :: a_d, b_d, c_d
+       integer(c_int) :: n
+     end subroutine hip_pwmin_vec3
+
+     subroutine hip_pwmin_sca2(a_d, c_d, n) &
+          bind(c, name = 'hip_pwmin_sca2')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d
+       real(c_rp) :: c_d
+       integer(c_int) :: n
+     end subroutine hip_pwmin_sca2
+
+     subroutine hip_pwmin_sca3(a_d, b_d, c_d, n) &
+          bind(c, name = 'hip_pwmin_sca3')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, b_d
+       real(c_rp) :: c_d
+       integer(c_int) :: n
+     end subroutine hip_pwmin_sca3
+
+  end interface
 end module hip_math
