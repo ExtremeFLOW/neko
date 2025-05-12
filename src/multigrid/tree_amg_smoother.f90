@@ -220,7 +220,7 @@ contains
       call cmult2(d, r, 1.0_rp/thet, n)
       call add2(x, d, n)
 
-      !> Rest of iterations
+      ! Rest of iterations
       do iter = 2, max_iter
          call amg%matvec(w, d, this%lvl)
          call sub2(r, w, n)
