@@ -176,7 +176,53 @@ module wall_model
      end subroutine wall_model_factory
   end interface
 
-  public :: wall_model_factory
+  interface
+     !> Wall model allocator.
+     !! @param object The object to be allocated.
+     !! @param type_name The name of the type to allocate.
+     module subroutine wall_model_allocator(object, type_name)
+       class(wall_model_t), allocatable, intent(inout) :: object
+       character(len=:), allocatable, intent(in) :: type_name
+     end subroutine wall_model_allocator
+  end interface
+
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  !> Interface for an object allocator.
+  !! Implemented in the user modules, should allocate the `obj` to the custom
+  !! user type.
+  abstract interface
+     subroutine wall_model_allocate(obj)
+       import wall_model_t
+       class(wall_model_t), allocatable, intent(inout) :: obj
+     end subroutine wall_model_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom types.
+     module subroutine register_wall_model(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(wall_model_allocate), pointer, intent(in) :: allocator
+     end subroutine register_wall_model
+  end interface
+
+  ! A name-allocator pair for user-defined types. A helper type to define a
+  ! registry of custom allocators.
+  type allocator_entry
+     character(len=20) :: type_name
+     procedure(wall_model_allocate), pointer, nopass :: allocator
+  end type allocator_entry
+
+  !> Registry of wall model allocators for user-defined types
+  type(allocator_entry), allocatable :: wall_model_registry(:)
+
+  !> The size of the `wall_model_registry`
+  integer :: wall_model_registry_size = 0
+
+  public :: wall_model_factory, wall_model_allocator, register_wall_model, &
+       wall_model_allocate
 
 contains
   !> Constructor for the wall_model_t (base) class.
