@@ -178,6 +178,8 @@ contains
     logical :: converged
     integer(kind=i8) :: bytes
 
+    if (n_pts .eq. 0) return
+
     if (allocated(conv_pts)) then
        deallocate(conv_pts)
     end if
@@ -202,6 +204,7 @@ contains
              .true., glb_cmd_queue)
        converged = .true.
        iter = iter + 1
+       
        do i = 1, n_pts
           converged = converged .and. conv_pts(i)
        end do
