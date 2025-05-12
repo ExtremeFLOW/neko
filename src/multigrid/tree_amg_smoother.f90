@@ -216,7 +216,7 @@ contains
       s1 = thet / delt
       rhok = 1.0_rp / s1
 
-      !> First iteration
+      ! First iteration
       call cmult2(d, r, 1.0_rp/thet, n)
       call add2(x, d, n)
 
