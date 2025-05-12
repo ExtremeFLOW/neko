@@ -39,7 +39,7 @@ module cartesian_pe_finder
   use space, only: space_t
   use pe_finder, only: pe_finder_t
   use stack, only: stack_i4_t, stack_i8_t
-  use utils, only: neko_error, neko_warning
+  use utils, only: neko_error, neko_warning, linear_index
   use tuple, only: tuple_i4_t
   use htable, only: htable_i8_t
   use point, only: point_t
@@ -121,20 +121,21 @@ contains
     integer, intent(in) :: n_boxes
     real(kind=dp), intent(in) :: padding
     integer :: ierr
-    integer :: i, j, k, e
-    integer :: pe_id
-    integer :: lxyz
+    integer :: i, j, k, e, i2, j2, k2
+    integer :: pe_id, lin_idx
+    integer :: lxyz, lx2
     integer(kind=i8) :: glob_id, loc_id
     integer(kind=i8) :: min_id(3), max_id(3)
-    real(kind=rp) :: el_x_max, el_x_min
-    real(kind=rp) :: el_y_max, el_y_min
-    real(kind=rp) :: el_z_max, el_z_min
     real(kind=rp) :: center_x, center_y, center_z
     type(stack_i8_t), allocatable :: glob_ids(:), recv_ids(:)
     integer(i8), pointer :: glb_ids(:)
     integer(kind=i8) :: htable_data, temp ! We just use it as a set
     integer, allocatable :: n_recv(:), n_send(:)
     type(htable_i8_t) :: marked_box
+    real(kind=rp) :: min_bb_x, max_bb_x
+    real(kind=rp) :: min_bb_y, max_bb_y
+    real(kind=rp) :: min_bb_z, max_bb_z
+    real(kind=rp) :: el_x(Xh%lxyz), el_y(Xh%lxyz), el_z(Xh%lxyz)
 
     call this%free()
     this%comm = comm
@@ -230,58 +231,87 @@ contains
     call marked_box%init(this%nelv*lxyz,htable_data)
 
     do e = 1, this%nelv
-       el_x_max = maxval(x((e-1)*lxyz+1:e*lxyz))
-       el_x_min = minval(x((e-1)*lxyz+1:e*lxyz))
-       el_y_max = maxval(y((e-1)*lxyz+1:e*lxyz))
-       el_y_min = minval(y((e-1)*lxyz+1:e*lxyz))
-       el_z_max = maxval(z((e-1)*lxyz+1:e*lxyz))
-       el_z_min = minval(z((e-1)*lxyz+1:e*lxyz))
-       !move it to close to origo
-       !center_x = (el_x_max + el_x_min) / 2.0_xp
-       !center_y = (el_y_max + el_y_min) / 2.0_xp
-       !center_z = (el_z_max + el_z_min) / 2.0_xp
-       center_x = 0d0
-       center_y = 0d0
-       center_z = 0d0
-       do i = 1, Xh%lxyz
-          center_x = center_x + x((e-1)*lxyz+i)
-          center_y = center_y + y((e-1)*lxyz+i)
-          center_z = center_z + z((e-1)*lxyz+i)
-       end do
-       center_x = center_x / Xh%lxyz
-       center_y = center_y / Xh%lxyz
-       center_z = center_z / Xh%lxyz
+       !move it to do scaling
+       lx2 = Xh%lx/2
+       if (mod(Xh%lx,2) .eq. 0) then
+          lin_idx = linear_index(lx2,lx2,lx2, e, Xh%lx, Xh%lx, Xh%lx)
+          center_x = x(lin_idx)
+          center_y = y(lin_idx)
+          center_z = z(lin_idx)
+       else
+          center_x = 0d0
+          center_y = 0d0
+          center_z = 0d0
+          do i = lx2, lx2+1
+             do j = lx2, lx2 + 1
+                do k = lx2, lx2 + 1
+                   lin_idx = linear_index(i,j,k,e, Xh%lx, Xh%lx, Xh%lx)
+                   center_x = center_x + x(lin_idx)
+                   center_y = center_y + y(lin_idx)
+                   center_z = center_z + z(lin_idx)
+                end do
+             end do
+          end do
+          center_x = center_x / 8.0_xp
+          center_y = center_y / 8.0_xp
+          center_z = center_z / 8.0_xp
+       end if
 
-       el_x_max = el_x_max - center_x
-       el_x_min = el_x_min - center_x
-       el_y_max = el_y_max - center_y
-       el_y_min = el_y_min - center_y
-       el_z_max = el_z_max - center_z
-       el_z_min = el_z_min - center_z
-       el_x_max = el_x_max*(1.0_xp+this%padding) + center_x
-       el_x_min = el_x_min*(1.0_xp+this%padding) + center_x
-       el_y_max = el_y_max*(1.0_xp+this%padding) + center_y
-       el_y_min = el_y_min*(1.0_xp+this%padding) + center_y
-       el_z_max = el_z_max*(1.0_xp+this%padding) + center_z
-       el_z_min = el_z_min*(1.0_xp+this%padding) + center_z
+       !Maybe this is a stupid way to do it
 
-       min_id = get_global_idx(this, el_x_min, el_y_min, el_z_min)
-       max_id = get_global_idx(this, el_x_max, el_y_max, el_z_max)
+       el_x = x((e-1)*lxyz+1:e*lxyz) - center_x
+       el_y = y((e-1)*lxyz+1:e*lxyz) - center_y
+       el_z = z((e-1)*lxyz+1:e*lxyz) - center_z
+       el_x = el_x * (1.0_rp+padding) + center_x
+       el_y = el_y * (1.0_rp+padding) + center_y
+       el_z = el_z * (1.0_rp+padding) + center_z
+       !Padded and ready
 
-       do i = min_id(1), max_id(1)
-          do j = min_id(2), max_id(2)
-             do k = min_id(3), max_id(3)
-                if (i .ge. 0 .and. i .lt. this%n_boxes .and. &
-                    j .ge. 0 .and. j .lt. this%n_boxes .and. &
-                    k .ge. 0 .and. k .lt. this%n_boxes) then
-                   glob_id = i + j*this%n_boxes + k*this%n_boxes**2
-                   pe_id = get_pe_idx(this, glob_id)
-                   if (marked_box%get(glob_id,htable_data) .ne. 0) then
-                      call glob_ids(pe_id)%push(glob_id)
-                      n_send(pe_id) = n_send(pe_id) + 1
-                      call marked_box%set(glob_id, htable_data)
-                   end if
-                end if
+       !Now we go the bounding boxes of all subboxes in the element
+       do i = 1, Xh%lx - 1
+          do j = 1, Xh%ly - 1
+             do k = 1, Xh%lz - 1
+                lin_idx = linear_index(i,j,k, 1, Xh%lx, Xh%lx, Xh%lx)
+                max_bb_x = el_x(lin_idx)
+                min_bb_x = el_x(lin_idx)
+                max_bb_y = el_y(lin_idx)
+                min_bb_y = el_y(lin_idx)
+                max_bb_z = el_z(lin_idx)
+                min_bb_z = el_z(lin_idx)
+                do i2 = 0, 1
+                   do j2 = 0, 1
+                      do k2 = 0, 1
+                         lin_idx = linear_index(i+i2,j+j2,k+k2, 1, Xh%lx, Xh%lx, Xh%lx)
+                         max_bb_x = max(max_bb_x, el_x(lin_idx))
+                         min_bb_x = min(min_bb_x, el_x(lin_idx))
+                         max_bb_y = max(max_bb_y, el_y(lin_idx))
+                         min_bb_y = min(min_bb_y, el_y(lin_idx))
+                         max_bb_z = max(max_bb_z, el_z(lin_idx))
+                         min_bb_z = min(min_bb_z, el_z(lin_idx))
+                      end do
+                   end do
+                end do
+
+
+                min_id = get_global_idx(this, min_bb_x, min_bb_y, min_bb_z)
+                max_id = get_global_idx(this, max_bb_x, max_bb_y, max_bb_z)
+                do i2 = min_id(1), max_id(1)
+                   do j2 = min_id(2), max_id(2)
+                      do k2 = min_id(3), max_id(3)
+                         if (i2 .ge. 0 .and. i2 .lt. this%n_boxes .and. &
+                         j2 .ge. 0 .and. j2 .lt. this%n_boxes .and. &
+                         k2 .ge. 0 .and. k2 .lt. this%n_boxes) then
+                            glob_id = i2 + j2*this%n_boxes + k2*this%n_boxes**2
+                            pe_id = get_pe_idx(this, glob_id)
+                            if (marked_box%get(glob_id,htable_data) .ne. 0) then
+                               call glob_ids(pe_id)%push(glob_id)
+                               n_send(pe_id) = n_send(pe_id) + 1
+                               call marked_box%set(glob_id, htable_data)
+                            end if
+                         end if
+                      end do
+                   end do
+                end do
              end do
           end do
        end do
@@ -292,7 +322,7 @@ contains
     !end do
     !print *, 'size of globids', temp, this%pe_rank
     call send_recv_data(this, recv_ids, n_recv, glob_ids, n_send)
-    
+
     !temp = 0
     !do i = 0, this%pe_size-1
     !   temp = temp + recv_ids(i)%size()
@@ -441,7 +471,7 @@ contains
                      glob_id(2)*this%n_boxes + &
                      glob_id(3)*this%n_boxes**2
        pe_id = get_pe_idx(this, lin_glob_id)
-                if (glob_id(1) .ge. 0 .and. glob_id(1) .lt. this%n_boxes .and. &
+       if (glob_id(1) .ge. 0 .and. glob_id(1) .lt. this%n_boxes .and. &
                     glob_id(2) .ge. 0 .and. glob_id(2) .lt. this%n_boxes .and. &
                     glob_id(3) .ge. 0 .and. glob_id(3) .lt. this%n_boxes) then
           call work_pe_ids(pe_id)%push(lin_glob_id)
