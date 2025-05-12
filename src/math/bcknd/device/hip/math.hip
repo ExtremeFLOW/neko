@@ -754,17 +754,17 @@ extern "C" {
    *
    * Compute the maximum of two vectors \f$ a = \max(a, b) \f$
    */
-  void cuda_pwmax_vec2(void *a, void *b, int *n) {
+void hip_pwmax_vec2(void* a, void* b, int* n) {
 
-      const dim3 nthrds(1024, 1, 1);
-      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
-      const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+    const dim3        nthrds(1024, 1, 1);
+    const dim3        nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const hipStream_t stream = (hipStream_t)glb_cmd_queue;
 
-      hipLaunchKernelGGL(HIP_KERNEL_NAME(pwmax_vec2_kernel<real>), 
-                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                        (real *)a, (real *)b, *n);
-      HIP_CHECK(hipGetLastError());
-  }
+    hipLaunchKernelGGL(
+        HIP_KERNEL_NAME(pwmax_vec2_kernel<real>), nblcks, nthrds, 0,
+        (hipStream_t)glb_cmd_queue, (real*)a, (real*)b, *n);
+    HIP_CHECK(hipGetLastError());
+}
 
   /** Fortran wrapper for pwmax_vec3
    *
