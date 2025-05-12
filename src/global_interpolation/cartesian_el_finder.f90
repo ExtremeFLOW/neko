@@ -79,9 +79,6 @@ contains
     type(htable_i4_t) :: marked_box
     integer :: i, j, k, e
     integer :: el_npts, el_x_npts, el_y_npts, el_z_npts
-    real(kind=rp) :: el_x_max, el_x_min
-    real(kind=rp) :: el_y_max, el_y_min
-    real(kind=rp) :: el_z_max, el_z_min
     real(kind=rp) :: el_x(Xh%lxyz), el_y(Xh%lxyz), el_z(Xh%lxyz)
     integer :: lxyz
     real(kind=rp), allocatable :: el_rst(:)
@@ -93,7 +90,7 @@ contains
     integer :: current_size
     real(kind=rp) :: time_start, time_end
     integer :: min_id(3), max_id(3)
-    integer :: lin_idx
+    integer :: lin_idx, lx2
     integer :: i2, j2, k2
     real(kind=rp) :: min_bb_x, max_bb_x
     real(kind=rp) :: min_bb_y, max_bb_y
@@ -146,109 +143,36 @@ contains
     this%n_boxes = n_boxes
     call marked_box%init(nel)
     lxyz = Xh%lxyz
-    !do e = 1, nel
-    !   call marked_box%clear()
-    !   el_x_max = maxval(x((e-1)*lxyz+1:e*lxyz))
-    !   el_x_min = minval(x((e-1)*lxyz+1:e*lxyz))
-    !   el_y_max = maxval(y((e-1)*lxyz+1:e*lxyz))
-    !   el_y_min = minval(y((e-1)*lxyz+1:e*lxyz))
-    !   el_z_max = maxval(z((e-1)*lxyz+1:e*lxyz))
-    !   el_z_min = minval(z((e-1)*lxyz+1:e*lxyz))
 
-    !   el_x_npts = 2*max(int((el_x_max - el_x_min) / this%x_res),Xh%lx)
-    !   el_y_npts = 2*max(int((el_y_max - el_y_min) / this%y_res),Xh%ly)
-    !   el_z_npts = 2*max(int((el_z_max - el_z_min) / this%z_res),Xh%lz)
-
-    !   el_npts = max(el_x_npts, el_y_npts, el_z_npts)
-    !   ! If this happens often, we can split the element into multiple rst parts
-    !   ! This check is to avoid allocating too much memory on the stack
-    !   if (el_npts .gt. 128) then
-    !      print *, "Warning, in cartesian_el_finder el_npts: ", el_npts, "set to 128"
-    !      el_npts = 128
-    !   end if
-
-    !   !move it to close to origo
-    !   center_x = (el_x_max + el_x_min) / 2.0_xp
-    !   center_y = (el_y_max + el_y_min) / 2.0_xp
-    !   center_z = (el_z_max + el_z_min) / 2.0_xp
-    !   !Maybe this is a stupid way to do it
-
-    !   el_x = x((e-1)*lxyz+1:e*lxyz) - center_x
-    !   el_y = y((e-1)*lxyz+1:e*lxyz) - center_y
-    !   el_z = z((e-1)*lxyz+1:e*lxyz) - center_z
-    !   el_x = el_x * (1.0+padding) + center_x
-    !   el_y = el_y * (1.0+padding) + center_y
-    !   el_z = el_z * (1.0+padding) + center_z
-    !   r_res = 2.0_xp / real(el_npts-1, xp)
-    !   if (el_npts .gt. current_size) then
-    !      current_size = el_npts
-    !      if (allocated(el_rst)) deallocate(el_rst)
-    !      if (allocated(res_x)) deallocate(res_x)
-    !      if (allocated(res_y)) deallocate(res_y)
-    !      if (allocated(res_z)) deallocate(res_z)
-    !      if (allocated(interp_mat)) deallocate(interp_mat)
-    !      if (allocated(interp_matT)) deallocate(interp_matT)
-    !      allocate(res_x(el_npts**3))
-    !      allocate(res_y(el_npts**3))
-    !      allocate(res_z(el_npts**3))
-    !      allocate(interp_mat(Xh%lx, el_npts), &
-    !               interp_matT(el_npts, Xh%lx))
-    !      allocate(el_rst(el_npts))
-    !   end if
-    !   do i = 1, el_npts
-    !      el_rst(i) = -1_xp+r_res*(i-1)
-    !   end do
-
-    !   call setup_intp(interp_mat, interp_matT, &
-    !   el_rst, Xh%zg, el_npts, Xh%lx, 0)
-
-    !   call tnsr3d_cpu(res_x, el_npts, el_x, &
-    !               Xh%lx,interp_mat, &
-    !               interp_matT, interp_matT, 1)
-    !   call tnsr3d_cpu(res_y, el_npts, el_y, &
-    !               Xh%lx,interp_mat, &
-    !               interp_matT, interp_matT, 1)
-    !   call tnsr3d_cpu(res_z, el_npts, el_z, &
-    !               Xh%lx,interp_mat, &
-    !               interp_matT, interp_matT, 1)
-
-
-    !   do i = 1, el_npts**3
-    !      el_idx = this%compute_idx(real(res_x(i),xp), &
-    !               real(res_y(i),xp), real(res_z(i),xp))
-    !      if (el_idx .ge. 1 .and. el_idx .lt. this%n_boxes**3) then
-    !         if (marked_box%get(el_idx,htable_data) .ne. 0)then
-    !            call marked_box%set(el_idx, htable_data)
-    !            call this%el_map(el_idx)%push(e)
-    !         end if
-    !      end if
-    !   end do
-    !end do
     do e = 1, nel
        call marked_box%clear()
-       el_x_max = maxval(x((e-1)*lxyz+1:e*lxyz))
-       el_x_min = minval(x((e-1)*lxyz+1:e*lxyz))
-       el_y_max = maxval(y((e-1)*lxyz+1:e*lxyz))
-       el_y_min = minval(y((e-1)*lxyz+1:e*lxyz))
-       el_z_max = maxval(z((e-1)*lxyz+1:e*lxyz))
-       el_z_min = minval(z((e-1)*lxyz+1:e*lxyz))
 
-       !move it to close to origo
-       !center_x = (el_x_max + el_x_min) / 2.0_xp
-       !center_y = (el_y_max + el_y_min) / 2.0_xp
-       !center_z = (el_z_max + el_z_min) / 2.0_xp
-       center_x = 0d0
-       center_y = 0d0
-       center_z = 0d0
-       do i = 1, Xh%lxyz
-          center_x = center_x + x((e-1)*lxyz+i)
-          center_y = center_y + y((e-1)*lxyz+i)
-          center_z = center_z + z((e-1)*lxyz+i)
-       end do
-       center_x = center_x / Xh%lxyz
-       center_y = center_y / Xh%lxyz
-       center_z = center_z / Xh%lxyz
-
+       !move it to do scaling
+       lx2 = Xh%lx/2
+       if (mod(Xh%lx,2) .eq. 0) then
+          lin_idx = linear_index(lx2,lx2,lx2, e, Xh%lx, Xh%lx, Xh%lx)
+          center_x = x(lin_idx)
+          center_y = y(lin_idx)
+          center_z = z(lin_idx)
+       else 
+          center_x = 0d0
+          center_y = 0d0
+          center_z = 0d0
+          do i = lx2, lx2+1
+             do j = lx2, lx2 + 1
+                do k = lx2, lx2 + 1
+                   lin_idx = linear_index(i,j,k,e, Xh%lx, Xh%lx, Xh%lx)
+                   center_x = center_x + x(lin_idx)
+                   center_y = center_y + y(lin_idx)
+                   center_z = center_z + z(lin_idx)
+                end do
+             end do
+          end do
+          center_x = center_x / 8.0_xp
+          center_y = center_y / 8.0_xp
+          center_z = center_z / 8.0_xp
+       end if
+ 
        !Maybe this is a stupid way to do it
 
        el_x = x((e-1)*lxyz+1:e*lxyz) - center_x

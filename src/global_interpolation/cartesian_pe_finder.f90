@@ -132,7 +132,7 @@ contains
     real(kind=rp) :: center_x, center_y, center_z
     type(stack_i8_t), allocatable :: glob_ids(:), recv_ids(:)
     integer(i8), pointer :: glb_ids(:)
-    integer(kind=i8) :: htable_data ! We just use it as a set
+    integer(kind=i8) :: htable_data, temp ! We just use it as a set
     integer, allocatable :: n_recv(:), n_send(:)
     type(htable_i8_t) :: marked_box
 
@@ -286,8 +286,18 @@ contains
           end do
        end do
     end do
-
+    !temp = 0
+    !do i = 0, this%pe_size-1
+    !   temp = temp + glob_ids(i)%size()
+    !end do
+    !print *, 'size of globids', temp, this%pe_rank
     call send_recv_data(this, recv_ids, n_recv, glob_ids, n_send)
+    
+    !temp = 0
+    !do i = 0, this%pe_size-1
+    !   temp = temp + recv_ids(i)%size()
+    !end do
+    !print *, 'size of globids', temp, this%pe_rank
     !Buffers are likely way too large for other calls
     do i = 0, this%pe_size-1
        if (allocated(this%recv_buf(i)%data)) then

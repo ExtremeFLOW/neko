@@ -39,7 +39,7 @@ module global_interpolation
   use stack, only: stack_i4_t
   use dofmap, only: dofmap_t
   use logger, only: neko_log, LOG_SIZE
-  use utils, only: neko_error, neko_warning
+  use utils, only: neko_error
   use local_interpolation, only : local_interpolator_t, rst_cmp
   use device, only: device_free, device_map, device_memcpy, &
       device_deassociate, HOST_TO_DEVICE, DEVICE_TO_HOST, &
@@ -119,6 +119,8 @@ module global_interpolation
      logical :: all_points_local = .false.
      !> Tolerance for Newton solve to find the correct rst coordinates.
      real(kind=rp) :: tol = NEKO_EPS*1e3_rp
+     !> Padding
+     real(kind=rp) :: padding = 1e-2_rp
 
      !> Mapping of points to ranks.
      !> n_points_pe(pe_rank) = n_points I have at this rank
@@ -189,7 +191,7 @@ contains
     ! dof%x array and not a slice. It is done this way for
     ! this%x%ptr to point to dof%x (see global_interpolation_init_xyz).
     call this%init_xyz(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
-         dof%msh%gdim, dof%msh%nelv, dof%Xh, comm,tol = tol)
+         dof%msh%gdim, dof%msh%nelv, dof%Xh, comm,tol = tol, pad=pad)
 
   end subroutine global_interpolation_init_dof
 
@@ -232,8 +234,10 @@ contains
 
     if (present(pad)) then
        padding = pad
+       this%padding = pad
     else
        padding = 1e-2 ! 1% padding of the bounding boxes
+       this%padding = 1e-2
     end if
 
     time_start = MPI_Wtime()
@@ -286,6 +290,7 @@ contains
       type is (cartesian_el_finder_t)
        call neko_log%message('Using Cartesian element finder')
        boxdim = max(lx*int(real(nelv,xp)**(1.0_xp/3.0_xp)),2)
+       boxdim = min(boxdim, 300)
        call el_find%init(x, y, z, nelv, Xh, boxdim, padding)
       class default
        call neko_error('Unknown element finder type')
@@ -298,7 +303,8 @@ contains
       type is (cartesian_pe_finder_t)
        call neko_log%message('Using Cartesian PE finder')
        boxdim = lx*int(real(this%glb_nelv,xp)**(1.0_xp/3.0_xp))
-       boxdim = max(32,boxdim)
+       boxdim = max(boxdim,32)
+       boxdim = min(boxdim,int(8.0_xp*(30000.0_xp*this%pe_size)**(1.0_xp/3.0_xp)))
        call pe_find%init(x, y, z, nelv, Xh, this%comm, boxdim, padding)
       class default
        call neko_error('Unknown PE finder type')
@@ -529,6 +535,10 @@ contains
 
 
     n_point_cand = all_el_candidates%size()
+    if (n_point_cand .gt. 1e8) then
+       print *,'Warning, many point candidates on rank', this%pe_rank,'cands:', n_point_cand, &
+               'Consider increasing number of ranks'
+    end if
     call x_t%init(n_point_cand)
     call y_t%init(n_point_cand)
     call z_t%init(n_point_cand)
@@ -559,13 +569,15 @@ contains
     el_cands => all_el_candidates%array()
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call x_t%copyto(HOST_TO_DEVICE,.false.)
+
        call y_t%copyto(HOST_TO_DEVICE,.false.)
+
        call z_t%copyto(HOST_TO_DEVICE,.false.)
        call device_map(el_cands, el_cands_d,n_point_cand)
        call device_memcpy(el_cands, el_cands_d,n_point_cand, &
             HOST_TO_DEVICE, .true.)
     end if
-    print *,'N point candidates on rank', this%pe_rank,'cands:', n_point_cand
+
     call this%rst_finder%find(rst_local_cand, &
          x_t, y_t, z_t, &
          el_cands, n_point_cand, &
@@ -610,7 +622,7 @@ contains
        do j = 1, n_el_cands(i)
           ii = ii + 1
           if (rst_cmp(this%rst_local(:,i), rst_local_cand%x(:,ii),&
-               this%xyz_local(:,i), (/resx%x(ii),resy%x(ii),resz%x(ii)/), this%tol)) then
+               this%xyz_local(:,i), (/resx%x(ii),resy%x(ii),resz%x(ii)/), this%padding)) then
              this%rst_local(1,i) = rst_local_cand%x(1,ii)
              this%rst_local(2,i) = rst_local_cand%x(2,ii)
 
@@ -663,7 +675,7 @@ contains
           point_id = point_ids(j)
           ii = ii + 1
           if (rst_cmp(this%rst(:,point_id), rst_results(:,ii), &
-              res%x(:,point_id), res_results(:,ii), this%tol) .or. &
+              res%x(:,point_id), res_results(:,ii), this%padding) .or. &
               this%pe_owner(point_ids(j)) .eq. -1 ) then
              this%rst(:,point_ids(j)) = rst_results(:,ii)
              res%x(:,point_ids(j)) = res_results(:,ii)
