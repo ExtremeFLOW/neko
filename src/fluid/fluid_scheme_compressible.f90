@@ -122,9 +122,9 @@ contains
     call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
 
     ! Fill mu and rho field with the physical value
-    call this%mu_field%init(this%dm_Xh, "mu")
-    call this%rho_field%init(this%dm_Xh, "rho")
-    call field_cfill(this%mu_field, 0.0_rp, this%mu_field%size())
+    call this%mu%init(this%dm_Xh, "mu")
+    call this%rho%init(this%dm_Xh, "rho")
+    call field_cfill(this%mu, 0.0_rp, this%mu%size())
 
     ! Assign momentum fields
     call neko_field_registry%add_field(this%dm_Xh, "m_x")
@@ -184,8 +184,8 @@ contains
     call this%c_Xh%free()
     call this%Xh%free()
 
-    call this%mu_field%free()
-    call this%rho_field%free()
+    call this%mu%free()
+    call this%rho%free()
     call this%m_x%free()
     call this%m_y%free()
     call this%m_z%free()
@@ -219,9 +219,9 @@ contains
     call this%scratch%request_field(temp, temp_indices(1))
 
     !> Initialize the momentum field
-    call field_col3(this%m_x, this%u, this%rho_field)
-    call field_col3(this%m_y, this%v, this%rho_field)
-    call field_col3(this%m_z, this%w, this%rho_field)
+    call field_col3(this%m_x, this%u, this%rho)
+    call field_col3(this%m_y, this%v, this%rho)
+    call field_col3(this%m_z, this%w, this%rho)
 
     !> Initialize total energy
     !> Total energy E := p / (gamma - 1) + 0.5 * rho * (u^2 + v^2 + w^2)
@@ -229,7 +229,7 @@ contains
     call field_col3(temp, this%u, this%u, n)
     call field_addcol3(temp, this%v, this%v, n)
     call field_addcol3(temp, this%w, this%w, n)
-    call field_col2(temp, this%rho_field, n)
+    call field_col2(temp, this%rho, n)
     call field_cmult(temp, 0.5_rp, n)
     call field_add2(this%E, temp, n)
 
@@ -253,8 +253,10 @@ contains
 
   !> Set rho and mu
   !> @param this The compressible fluid scheme object
-  subroutine fluid_scheme_compressible_update_material_properties(this)
+  subroutine fluid_scheme_compressible_update_material_properties(this, t, tstep)
     class(fluid_scheme_compressible_t), intent(inout) :: this
+    real(kind=rp),intent(in) :: t
+    integer, intent(in) :: tstep
     !> TODO: fill here, may not be used?
   end subroutine fluid_scheme_compressible_update_material_properties
 end module fluid_scheme_compressible
