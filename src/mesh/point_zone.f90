@@ -39,7 +39,7 @@ module point_zone
   use json_module, only: json_file
   use neko_config, only: NEKO_BCKND_DEVICE
   use device
-  use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr
+  use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, c_associated
   implicit none
   private
 
@@ -150,7 +150,53 @@ module point_zone
      end subroutine point_zone_factory
   end interface
 
-  public :: point_zone_factory
+  interface
+     !> Point zone allocator.
+     !! @param object The object to be allocated.
+     !! @param type_name The name of the type to allocate.
+     module subroutine point_zone_allocator(object, type_name)
+       class(point_zone_t), allocatable, intent(inout) :: object
+       character(len=:), allocatable, intent(in) :: type_name
+     end subroutine point_zone_allocator
+  end interface
+
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  !> Interface for an object allocator.
+  !! Implemented in the user modules, should allocate the `obj` to the custom
+  !! user type.
+  abstract interface
+     subroutine point_zone_allocate(obj)
+       import point_zone_t
+       class(point_zone_t), allocatable, intent(inout) :: obj
+     end subroutine point_zone_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom types.
+     module subroutine register_point_zone(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(point_zone_allocate), pointer, intent(in) :: allocator
+     end subroutine register_point_zone
+  end interface
+
+  ! A name-allocator pair for user-defined types. A helper type to define a
+  ! registry of custom allocators.
+  type allocator_entry
+     character(len=20) :: type_name
+     procedure(point_zone_allocate), pointer, nopass :: allocator
+  end type allocator_entry
+
+  !> Registry of point zone allocators for user-defined types
+  type(allocator_entry), allocatable :: point_zone_registry(:)
+
+  !> The size of the `point_zone_registry`
+  integer :: point_zone_registry_size = 0
+
+  public :: point_zone_factory, point_zone_allocator, register_point_zone, &
+       point_zone_allocate
 
 contains
 

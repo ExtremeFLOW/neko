@@ -37,7 +37,7 @@ module facet_normal
   use math
   use coefs, only : coef_t
   use bc, only : bc_t
-  use utils
+  use utils, only : neko_error, nonlinear_index
   use json_module, only : json_file
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
@@ -181,7 +181,7 @@ contains
 
   !> Apply in facet normal direction (vector valued, device version)
   subroutine facet_normal_apply_surfvec_dev(this, x_d, y_d, z_d, &
-                                            u_d, v_d, w_d, t, tstep)
+       u_d, v_d, w_d, t, tstep)
     class(facet_normal_t), intent(in), target :: this
     type(c_ptr) :: x_d, y_d, z_d, u_d, v_d, w_d
     real(kind=rp), intent(in), optional :: t
@@ -206,10 +206,18 @@ contains
   end subroutine facet_normal_free
 
   !> Finalize
-  subroutine facet_normal_finalize(this)
+  subroutine facet_normal_finalize(this, only_facets)
     class(facet_normal_t), target, intent(inout) :: this
+    logical, optional, intent(in) :: only_facets
+    logical :: only_facets_
 
-    call this%finalize_base()
+    if (present(only_facets)) then
+       if (only_facets .eqv. .false.) then
+          call neko_error("For facet_normal_t, only_facets has to be true.")
+       end if
+    end if
+
+    call this%finalize_base(.true.)
   end subroutine facet_normal_finalize
 
 end module facet_normal

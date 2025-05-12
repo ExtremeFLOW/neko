@@ -78,28 +78,50 @@ executable `bin/neko` in your local neko installation folder.
 The following user functions, if defined in the user file, will always be
 executed, regardless of what is set in the case file:
 
+- [user_startup](@ref user-file_init-and-final): For early access to the case
+  file, its manipulation or initializing simple user parameter variables.
 - [user_init_modules](@ref user-file_init-and-final): For initializing user
   variables and objects
 - [user_finalize_modules](@ref user-file_init-and-final): For finalizing, e.g
   freeing variables and terminating processes
-- [user_check](@ref user-file_user-check): Executed at the end of every time step,
-  for e.g. computing and/or outputting user defined quantities.
-- [material_properties](@ref user-file_mat-prop): For computing and setting material
-  properties such as `rho`, `mu`, `cp` and `lambda`.
-- [user_mesh_setup](@ref user-file_user-mesh-setup): For applying a deformation to
-  the mesh element nodes, before the simulation time loop.
-- [scalar_user_bc](@ref user-file_scalar-bc): For applying boundary conditions to
-  the scalar, on all zones that are not already specified with uniform dirichlet
-  values e.g. `d=1`. For more information on the scalar, see the [relevant section of the case file](@ref case-file_scalar).
+- [user_check](@ref user-file_user-check): Executed at the end of every time
+  step, for e.g. computing and/or outputting user defined quantities.
+- [material_properties](@ref user-file_mat-prop): For computing and setting
+  material properties such as `rho`, `mu`, `cp` and `lambda`.
+- [user_mesh_setup](@ref user-file_user-mesh-setup): For applying a deformation
+  to the mesh element nodes, before the simulation time loop.
+- [scalar_user_bc](@ref user-file_scalar-bc): For applying boundary conditions
+  to the scalar, on all zones that are not already specified with uniform
+  dirichlet values e.g. `d=1`. For more information on the scalar, see the
+  [relevant section of the case file](@ref case-file_scalar).
 
 ### Initializing and finalizing {#user-file_init-and-final}
 
-The two subroutines `user_init_modules` and `user_finalize_modules` may be used
-to initialize/finalize any user defined variables, external objects, or
-processes. They are respectively executed right before/after the simulation time
-loop.
+Three subroutines `user_startup`, `user_init_modules` and
+`user_finalize_modules` may be used to initialize/finalize any user defined
+variables, external objects, or processes.  The `user_startup` routine is called
+immediately after the case file is read in, meaning that no important objects
+are initialized yet (e.g. the mesh, fluid, etc.). The `user_init_modules` and
+`user_finalize_modules` are respectively executed right before/after the
+simulation time loop.
+
+In most cases, one can use `user_init_modules` routine and not the
+`user_startup`. The latter is only necessary when you want to either manipulate
+the case file programmatically before it is used in the simulation, or define
+some variables that will be used in the constructors of some of the types.
+An example of the latter is defining some material property constants that
+can be used in the user `material_properties` routine, which is run by the
+constructor of the `case%fluid` object.
+
 
 ```fortran
+  ! Manipulate the case file and define simple user variables
+  subroutine startup(params)
+    type(json_file), intent(inout) :: params
+
+    ! insert your initialization code here
+
+  end subroutine startup
 
   ! Initialize user variables or external objects
   subroutine initialize(t, u, v, w, p, coef, params)
@@ -125,9 +147,9 @@ loop.
   end subroutine initialize
 ```
 
-In the example above, the subroutines `initialize` and `finalize` contain the
-actual implementations. They must also be interfaced to the internal procedures
-`user_init_modules` and `user_finalize_modules` in `user_setup`:
+In the example above, the subroutines `startup`, `initialize` and `finalize`
+contain the actual implementations. They must also be interfaced to the internal
+procedures `user_init_modules` and `user_finalize_modules` in `user_setup`:
 
 ```fortran
 
@@ -135,6 +157,7 @@ actual implementations. They must also be interfaced to the internal procedures
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
 
+    u%user_startup => startup
     u%user_init_modules => initialize
     u%user_finalize_modules => finalize
 
@@ -142,7 +165,7 @@ actual implementations. They must also be interfaced to the internal procedures
 
 ```
 
-@note `user_init_modules` and `user_finalize_modules` are independent of each
+@note All three routines are independent of each
 other. Using one does not require the use of the other.
 
 ### Computing at every time step {#user-file_user-check}
@@ -186,24 +209,20 @@ various material properties, such as `rho`, `mu` for the fluid and `cp`,
 example](https://github.com/ExtremeFLOW/neko/blob/564686b127ff75a362a06126c6b23e9b4e21879e/examples/rayleigh_benard_cylinder/rayleigh.f90#L22C1-L38C41).
 
 ```fortran
-
-  subroutine set_material_properties(t, tstep, rho, mu, cp, lambda, params)
+  subroutine set_material_properties(t, tstep, name, properties)
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
-    real(kind=rp), intent(inout) :: rho, mu, cp, lambda
-    type(json_file), intent(inout) :: params
-    real(kind=rp) :: Re
+    character(len=*), intent(in) :: name
+    type(field_list_t), intent(inout) :: properties
 
-    call json_get(params, "case.fluid.Ra", Ra)
-    call json_get(params, "case.scalar.Pr", Pr)
-
-    Re = sqrt(Ra / Pr)
-    mu = 1.0_rp / Re
-    lambda = mu / Pr
-    rho = 1.0_rp
-    cp = 1.0_rp
+    if (name .eq. "fluid") then
+       call field_cfill(properties%get_by_name("rho"), 1.0_rp)
+       call field_cfill(properties%get_by_name("mu"), mu)
+    else if (name .eq. "scalar") then
+       call field_cfill(properties%get_by_name("cp"), 1.0_rp)
+       call field_cfill(properties%get_by_name("lambda"), mu / Pr)
+    end if
   end subroutine set_material_properties
-
 ```
 
 And of course not forgetting to register our function in `user_setup` by adding
@@ -251,11 +270,10 @@ The registering of the above function in `user_setup` should then be done as fol
 ### Scalar boundary conditions {#user-file_scalar-bc}
 
 This user function can be used to specify the scalar boundary values, on all
-zones that are not already set to uniform Dirichlet or Neumann values e.g. `d=1`
-or `n=0`. For more information on the scalar, see the
-[relevant section of the case file](@ref case-file_scalar). The example below
-sets the scalar boundary condition values to be a linear function of the `z`
-coordinate (taken from the
+boundaries of type `user_pointwise`.
+See [relevant section of the case file](@ref case-file_scalar). The example
+below sets the scalar boundary condition values to be a linear function of the
+`z` coordinate (taken from the
 [rayleigh_benard example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/rayleigh_benard_cylinder/rayleigh.f90#L41-L63)).
 
 ```fortran
@@ -471,25 +489,13 @@ u%fluid_user_ic => set_velocity
 u%scalar_user_ic => set_s_ic
 ```
 
-### Fluid inflow condition {#user-file_fluid-user-if}
+### Fluid pointwise velocity boundary values {#user-file_fluid-user-if}
 
-Enabling user defined inflow condition for the fluid is done by setting
-the `case.fluid.inflow_condition.type` to `"user"`:
-
-```.json
-
-"case": {
-    "fluid": {
-        "inflow_condition": {
-            "type": "user"
-        }
-    }
-}
-```
-
-See the [the relevant section](@ref case-file_fluid-if) in the
+This routine will be used to compute the velocity on all boundaries of type
+`user_velocity_pointwise`.
+See the [the relevant section](@ref case-file_fluid-boundary-conditions) in the
 [case file page](@ref case-file) for more details. The associated user
-function for the fluid inflow condition can then be added to the user file.
+function for the fluid velocity can then be added to the user file.
 An example inspired from the
 [lid-driven cavity example](https://github.com/ExtremeFLOW/neko/blob/aa72ad9bf34cbfbac0ee893c045639fdd095f80a/examples/lid/lid.f90#L29-L53)
 is shown below.
@@ -647,7 +653,7 @@ u%scalar_user_f_vector => set_source
 This user function can be used to specify Dirichlet boundary values for velocity
 components `u,v,w`, the pressure `p`, and/or the scalar `s`. This type of
 boundary condition allows for time-dependent velocity profiles (currently not
-possible with the `user_pointiwse` boundary condition) or non-uniform pressure
+possible with the `user_pointwise` boundary condition) or non-uniform pressure
 profiles to e.g. impose an outlet pressure computed from another simulation.
 
 The user routine is called by the `user_velocity` and `user_pressure` boundary
@@ -689,7 +695,7 @@ The header of the user function is given in the code snippet below.
 ```fortran
   subroutine dirichlet_update(field_bc_list, bc, coef, t, tstep)
     type(field_list_t), intent(inout) :: field_bc_list
-    type(bc_list_t), intent(inout) :: bc_bc_list
+    type(field_dirichlet_t), intent(inout) :: bc
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
@@ -724,12 +730,14 @@ A very simple example illustrating the above is shown below, which is taken from
 [cyl_boundary_layer example](https://github.com/ExtremeFLOW/neko/blob/feature/field_bcs/examples/cyl_boundary_layer/cyl_bl.f90)
 
 ```fortran
-  !! Initial example of using user specified dirichlet bcs
+  ! Initial example of using user specified dirichlet bcs
+  ! Note: This subroutine will be called two times, once in the fluid solver, and once
+  ! in the scalar solver (if enabled).
   !! Parameters:
   !! -----------
-  !! field_bc_list:     List of fields from which the BC conditions zill be extracted.
-  !!                    If called by the fluid, contains (u,v,w,p).
-  !!                    If called by the scalar, contains (s).
+  !! field_bc_list:     List of fields from which the BC conditions will be extracted.
+  !!                    Depending on what is set in the case file, contains either:
+  !!                    (u,v,w), (p) or (s) (or a list of scalars).
   !! bc:                The BC containing the boundary mask, etc.
   !! coef:              Coef object.
   !! t:                 Current time.

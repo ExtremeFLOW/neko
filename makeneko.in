@@ -10,32 +10,143 @@ FCFLAGS='@FCFLAGS@'
 printf "\n%s\n" 'N E K O build tool, Version @PACKAGE_VERSION@'
 printf "%s\n" '@NEKO_BUILD_INFO@'
 
-
-if [ -z "$1" ]
-  then
-      echo "No user file provided"
-      exit 1
+# Ensure user provides at least one .f90 file
+if [ $# -eq 0 ]; then
+    echo "Usage: makeneko <file1.f90> <file2.f90>"
+    exit 1
 fi
-printf '\n%s' "Building user NEKO ..."
-rm -f usr_driver.f90
-cat >> usr_driver.f90 << _ACEOF
+
+echo "Building user NEKO ..."
+
+# Remove usr_driver.f90 if it exists. Can cause compilation errors otherwise
+if [ -f usr_driver.f90 ]; then
+    rm usr_driver.f90
+fi
+
+
+# Collect user-provided .f90 files
+USER_FILES=""
+for file in "$@"; do
+    case "$file" in
+        *.f90|*.F90) USER_FILES="$USER_FILES $file" ;;
+        *) echo "Warning: Ignoring non-Fortran file '$file'" ;;
+    esac
+done
+
+if [ -z "$USER_FILES" ]; then
+    echo "ERROR: No valid .f90 files provided. Please specify at least one Fortran source file."
+    exit 2
+fi
+
+# Check if we have `module user` in one of the .f90 files
+HAS_USER_MODULE=0
+USER_MODULE_FILE=""
+for file in $USER_FILES; do
+    if @GREP@ -qi '^[[:space:]]*module[[:space:]]\+user' "$file"; then
+        HAS_USER_MODULE=1
+        USER_MODULE_FILE="$file"
+        break
+    fi
+done
+
+if [ $HAS_USER_MODULE -eq 1 ]; then
+  echo "Detected the module named 'user' in" $USER_MODULE_FILE
+else
+  echo "No module named 'user' detected."
+fi
+
+
+# Extract module names from user-provided .f90 files.
+# This excludes the `module user`, since it is special.
+USER_MODULES=$(@GREP@ -hE '^[[:space:]]*module[[:space:]]+[a-zA-Z_][a-zA-Z0-9_]*' $USER_FILES 2>/dev/null | \
+               @GREP@ -vE '^[[:space:]]*!' | \
+               @GREP@ -vE 'module procedure|module[[:space:]]+user' | \
+               @AWK@  '{print $2}' | sort -u)
+
+if [ -n "$USER_MODULES" ]; then
+  echo "Detected the following custom modules:"
+  for mod in $USER_MODULES; do
+    echo "    -" $mod
+  done
+else
+  echo "No custom modules detected."
+fi
+
+# Extract those that register types
+TYPEINJECTING_MODULES=""
+for mod in $USER_MODULES; do
+  f90file=$(echo $USER_FILES | tr ' ' '\n' | @GREP@ -i "${mod}\.f90$")
+  if @GREP@ -iq "subroutine[[:space:]]\+${mod}_register_types" "$f90file"; then
+    TYPEINJECTING_MODULES="$TYPEINJECTING_MODULES $mod"
+  fi
+done
+
+if [ -n "$TYPEINJECTING_MODULES" ]; then
+  echo "The following custom modules register types:"
+  for mod in $TYPEINJECTING_MODULES; do
+    echo "    -" $mod
+  done
+else
+  echo "No custom modules register types."
+fi
+
+# No user module and no types injection --- no need for makeneko!
+if [ $HAS_USER_MODULE -eq 0 ] && [ -z "$TYPEINJECTING_MODULES" ]; then
+    echo "ERROR: No 'user' module detected and no modules that inject custom types found."
+    echo "       There is no need for a user neko in this case, just use the default neko executable!"
+    exit 2
+fi
+
+# Create usr_driver.f90
+cat > usr_driver.f90 << _ACEOF
 program usrneko
   use neko
-  use user
+_ACEOF
+
+if [ $HAS_USER_MODULE -eq 1 ]; then
+  echo "  use user" >> usr_driver.f90
+fi
+
+# Insert `use` statements for local user .f90 files
+for mod in $USER_MODULES; do
+  echo "  use $mod" >> usr_driver.f90
+done
+
+cat >> usr_driver.f90 << _ACEOF
+
   type(case_t), target :: C
-  
-  call user_setup(C%usr)
+
+  ! Register all user-defined types
+_ACEOF
+
+if [ $HAS_USER_MODULE -eq 1 ]; then
+  echo "  call user_setup(C%usr)" >> usr_driver.f90
+fi
+
+
+# Register types from local user .f90 files
+if [ $HAS_USER_MODULE -eq 1 ] && [ -n "$TYPEINJECTING_MODULES" ]; then
+  echo "  if (C%usr%suppress_type_injection .eqv. .false.) then " >> usr_driver.f90
+  for mod in $TYPEINJECTING_MODULES; do
+    echo "     call ${mod}_register_types()" >> usr_driver.f90
+  done
+  echo "  end if" >> usr_driver.f90
+else
+  for mod in $TYPEINJECTING_MODULES; do
+    echo "  call ${mod}_register_types()" >> usr_driver.f90
+  done
+fi
+
+cat >> usr_driver.f90 << _ACEOF
   call neko_init(C)
   call neko_solve(C)
   call neko_finalize(C)
 
-
 end program usrneko
 _ACEOF
 
-$FC $FCFLAGS -I$includedir_pkg -L$libdir $@ usr_driver.f90\
-    -lneko @LDFLAGS@ @LIBS@ -o neko
+# Compile everything
+$FC $FCFLAGS -I$includedir_pkg -L$libdir $USER_FILES usr_driver.f90 -lneko @LDFLAGS@ @LIBS@ -o neko
 
 rm -f usr_driver.f90
-
-printf "%s\n" ' done!'
+printf "%s\n" ' Done!'

@@ -5,6 +5,7 @@ module user
   !> Variables to store the Rayleigh and Prandlt numbers
   real(kind=rp) :: Ra = 0
   real(kind=rp) :: Re = 0
+  real(kind=rp) :: mu = 0
   real(kind=rp) :: Pr = 0
 
   !> =============================================
@@ -16,24 +17,34 @@ contains
     u%scalar_user_ic => set_initial_conditions_for_s
     u%scalar_user_bc => set_scalar_boundary_conditions
     u%material_properties => set_material_properties
+    u%user_startup => startup
   end subroutine user_setup
 
-  subroutine set_material_properties(t, tstep, rho, mu, cp, lambda, params)
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    real(kind=rp), intent(inout) :: rho, mu, cp, lambda
+  subroutine startup(params)
     type(json_file), intent(inout) :: params
-    real(kind=rp) :: Re
 
     call json_get(params, "case.fluid.Ra", Ra)
     call json_get(params, "case.scalar.Pr", Pr)
-
-
     Re = sqrt(Ra / Pr)
     mu = 1.0_rp / Re
-    lambda = mu / Pr
-    rho = 1.0_rp
-    cp = 1.0_rp
+  end subroutine startup
+
+  ! Used here for demonstration purposes. Since the properties are
+  ! actually const, it is better to set them directly in the startup routine,
+  ! by adding the appropriate entries to the user file.
+  subroutine set_material_properties(t, tstep, name, properties)
+    real(kind=rp), intent(in) :: t
+    integer, intent(in) :: tstep
+    character(len=*), intent(in) :: name
+    type(field_list_t), intent(inout) :: properties
+
+    if (name .eq. "fluid") then
+       call field_cfill(properties%get_by_name("rho"), 1.0_rp)
+       call field_cfill(properties%get_by_name("mu"), mu)
+    else if (name .eq. "scalar") then
+       call field_cfill(properties%get_by_name("cp"), 1.0_rp)
+       call field_cfill(properties%get_by_name("lambda"), mu / Pr)
+    end if
   end subroutine set_material_properties
 
 
@@ -85,14 +96,14 @@ contains
                 r = sqrt(s%dof%x(i,j,k,e)**2+s%dof%y(i,j,k,e)**2)
                 z = s%dof%z(i,j,k,e)
                 s%x(i,j,k,e) = 1-z + 0.0001*rand*s%dof%x(i,j,k,e)*&
-                                                    sin(3*pi*r/0.05_rp)*sin(10*pi*z)
+                     sin(3*pi*r/0.05_rp)*sin(10*pi*z)
              end do
           end do
        end do
     end do
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(s%x, s%x_d, s%dof%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync=.false.)
     end if
 
   end subroutine set_initial_conditions_for_s

@@ -1,7 +1,5 @@
 module user
   use neko
-  use json_module, only : json_file
-  use json_utils, only : json_get
   implicit none
 
   real(kind=rp) :: Ra
@@ -12,29 +10,30 @@ contains
   ! Register user defined functions (see user_intf.f90)
   subroutine user_setup(u)
     type(user_t), intent(inout) :: u
-    u%fluid_user_f_vector => forcing
     u%scalar_user_ic => set_ic
+    u%fluid_user_f_vector => forcing
     u%scalar_user_bc => scalar_bc
-    u%material_properties => set_material_properties
+    u%user_startup => startup
   end subroutine user_setup
 
-  subroutine set_material_properties(t, tstep, rho, mu, cp, lambda, params)
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    real(kind=rp), intent(inout) :: rho, mu, cp, lambda
+  subroutine startup(params)
     type(json_file), intent(inout) :: params
-    real(kind=rp) :: Re
+    real(kind=rp) :: rho, mu, cp, lambda, Re
 
     call json_get(params, "case.fluid.Ra", Ra)
     call json_get(params, "case.scalar.Pr", Pr)
 
     Re = 1.0_rp / Pr
-
     mu = 1.0_rp / Re
     lambda = mu / Pr
     rho = 1.0_rp
     cp = 1.0_rp
-  end subroutine set_material_properties
+
+    call params%add("case.fluid.mu", mu)
+    call params%add("case.fluid.rho", rho)
+    call params%add("case.scalar.lambda", lambda)
+    call params%add("case.scalar.cp", cp)
+  end subroutine startup
 
   subroutine scalar_bc(s, x, y, z, nx, ny, nz, ix, iy, iz, ie, t, tstep)
     real(kind=rp), intent(inout) :: s
@@ -55,7 +54,7 @@ contains
     s = 1.0_rp-z
   end subroutine scalar_bc
 
-  !> User initial condition for the scalar field
+  !> User initial condition
   subroutine set_ic(s, params)
     type(field_t), intent(inout) :: s
     type(json_file), intent(inout) :: params
@@ -77,23 +76,22 @@ contains
                 rand = cos(real(e+s%msh%offset_el,rp)*real(i*j*k,rp))
                 z = s%dof%z(i,j,k,e)
                 s%x(i,j,k,e) = 1-z + 0.0001* rand*&
-                                     sin(4*pi/4.5*s%dof%x(i,j,k,e)) &
-                * sin(4*pi/4.5*s%dof%y(i,j,k,e))
+                     sin(4*pi/4.5*s%dof%x(i,j,k,e)) &
+                     * sin(4*pi/4.5*s%dof%y(i,j,k,e))
 
-            end do
+             end do
           end do
        end do
     end do
 
-    if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-       .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+    if ((NEKO_BCKND_DEVICE .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
+         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_memcpy(s%x, s%x_d, s%dof%size(), &
-                          HOST_TO_DEVICE, sync=.false.)
+            HOST_TO_DEVICE, sync=.false.)
     end if
 
+
   end subroutine set_ic
-
-
 
   !> Forcing
   subroutine forcing(f, t)
@@ -110,7 +108,7 @@ contains
     ta2pr = ta2*Pr
 
     if ((NEKO_BCKND_CUDA .eq. 1) .or. (NEKO_BCKND_HIP .eq. 1) &
-       .or. (NEKO_BCKND_OPENCL .eq. 1)) then
+         .or. (NEKO_BCKND_OPENCL .eq. 1)) then
        call device_cmult2(f%u_d,v%x_d,Ta2Pr,f%dm%size())
        call device_cmult2(f%v_d,u%x_d,Ta2Pr,f%dm%size())
        call device_cmult2(f%w_d,s%x_d,rapr,f%dm%size())

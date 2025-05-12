@@ -15,7 +15,7 @@ signal_test_TESTS := signal.pf
 signal_test_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko
 $(eval $(call make_pfunit_test,signal_test))
 
-
+distclean:
 clean:
 	$(RM) *.o *.mod *.a  *.inc *.F90 signal_test
 

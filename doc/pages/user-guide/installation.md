@@ -6,13 +6,13 @@ Neko can be installed in various ways, either building directly from source, man
 
 ## Building from source
 
-To build Neko, you will need a Fortran compiler supporting the Fortran-08 standard, autotools, libtool, pkg-config, a working MPI installation supporting the Fortran 2008 bindings (`mpi_f08`), BLAS/LAPACK and JSON-Fortran. Optional dependencies are PFunit, gslib and ParMETIS. 
+To build Neko, you will need a Fortran compiler supporting the Fortran-08 standard, autotools, libtool, pkg-config, a working MPI installation supporting the Fortran 2008 bindings (`mpi_f08`), BLAS/LAPACK and JSON-Fortran. Optional dependencies are PFunit, gslib, HDF5 and ParMETIS.
 
 Follow the steps below to install the less common dependencies (e.g. JSON-Fortran).
 
 ### Dependencies
 
-#### Building JSON Fortran 
+#### Building JSON Fortran
 
 Download and compile, at least version 0.7.1 of JSON Fortran from the main repository.
 @note Neko requires JSON Fortran to be configured with `USE_GNU_INSTALL_CONVENTION`.
@@ -30,6 +30,40 @@ Now ad the installation path to `PKG_CONFIG_PATH` (and if needed `LD_LIBRARY_PAT
 export PKG_CONFIG_PATH=/path/to/installation/lib/pkgconfig:$PKG_CONFIG_PATH
 export LD_LIBRARY_PATH=/path/to/installation/lib:$LD_LIBRARY_PATH
 ```
+
+#### Building HDF5 (optional, but highly recommended)
+
+Download and compile at least version 1.14 of HDF5, with Fortran and MPI
+support. Note that you may need to adjust the compilers depending on you machine
+(for example, on Cray supercomputers `mpifort` is usually replaced with `ftn`,
+and so on).
+
+```shell
+wget https://github.com/HDFGroup/hdf5/archive/refs/tags/hdf5_1.14.6.tar.gz
+tar xvf hdf5_1.14.6.tar.gz
+cd hdf5-hdf5_1.14.6/
+cmake -B build -S ./ --install-prefix /path/to/installation \
+    -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx \
+    -DCMAKE_Fortran_COMPILER=mpifort -DHDF5_ENABLE_PARALLEL=ON \
+    -DHDF5_BUILD_FORTRAN=ON -DCMAKE_BUILD_TYPE=Release
+cmake --build build/ --parallel
+cmake --install build/
+```
+
+It can be a good idea to double-check that you have files starting with
+`libhdf5_fortran` in the `lib` directory in your install path. If not, try to
+inspecting the log in the `build` directory with `cat CMakeCache.txt | grep
+FORTRAN` to identify issues.
+
+Similar to `json-fortran`, populate relevant environmental variables.
+``` bash
+export PATH=:/path/to/installation/bin:$PATH
+export PKG_CONFIG_PATH=/path/to/installation/lib/pkgconfig:$PKG_CONFIG_PATH
+export LD_LIBRARY_PATH=/path/to/installation/lib:$LD_LIBRARY_PATH
+```
+
+
+
 
 #### Building gslib (optional)
 
@@ -51,7 +85,7 @@ Check that `libgs.a` has been created:
 
 ``` shell
 $ ls build/lib
-libgs.a 
+libgs.a
 ```
 
 Now add the path to gslib to an environment variable `GSLIB`
@@ -97,7 +131,7 @@ Neko uses autotools as its build system. The first step is to run the `configure
                          --prefix=<installation path> [options]
 ```
 
-In the above command, `[options]` refers to either optional features or packages. 
+In the above command, `[options]` refers to either optional features or packages.
 
 Features are enabled and disabled by passing either `--enable-FEATURE[=arg]` or `--disable-FEATURE` to `configure`. A list of currently supported features are given in the table below.
 
@@ -140,7 +174,7 @@ Once configured, to compile and install Neko issue `make` followed by `make inst
 For a standard CPU or SX-Aurora build of Neko, simply run the `configure` script as given above, using appropriate compilers and compiler flags, e.g:
 
 ```shell
-$ ./configure FC=gfortran FCFLAGS="-O2 -pedantic -std=f2008" --prefix=/opt/pkg/neko 
+$ ./configure FC=gfortran FCFLAGS="-O2 -pedantic -std=f2008" --prefix=/opt/pkg/neko
 $ make && make install
 ```
 
@@ -155,7 +189,7 @@ $ ./configure  --with-cuda=/usr/local/cuda
 ```shell
 $ ./configure  --with-cuda=/usr/local/cuda CUDA_CFLAGS=-O3  CUDA_ARCH=-arch=sm_80 NVCC=/usr/local/cuda/bin/nvcc
 ```
-* Build using `make && make install`    
+* Build using `make && make install`
 
 #### Compiling Neko for AMD GPUs
 To compile Neko for AMD GPUs
@@ -178,7 +212,7 @@ Neko is distributed as part of the package manager Spack as `neko`. The package 
 
 To install a CPU build of Neko using Spack, follow the steps below:
 
-``` shell 
+``` shell
 $ git clone https://github.com/spack/spack.git
 $ cd spack
 $ . share/spack/setup-env.sh
@@ -190,7 +224,7 @@ For a GPU build using e.g. CUDA, change the last line to :
 $ spack install neko+cuda
 ```
 
-For a more detailed guide on getting started with Spack, please refer to the offical documentation: 
+For a more detailed guide on getting started with Spack, please refer to the offical documentation:
 https://spack.readthedocs.io/en/latest/getting_started.html
 
 ## Using a Docker container

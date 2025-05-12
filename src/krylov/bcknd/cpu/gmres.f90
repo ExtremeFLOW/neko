@@ -41,13 +41,14 @@ module gmres
   use gather_scatter, only : gs_t, GS_OP_ADD
   use bc_list, only : bc_list_t
   use math, only : glsc3, rzero, rone, copy, sub2, cmult2, abscmp
+  use neko_config, only : NEKO_BLK_SIZE
   use comm
   implicit none
   private
 
   !> Standard preconditioned generalized minimal residual method
   type, public, extends(ksp_t) :: gmres_t
-     integer :: lgmres
+     integer :: lgmres = 30
      real(kind=rp), allocatable :: w(:)
      real(kind=rp), allocatable :: r(:)
      real(kind=rp), allocatable :: z(:,:)
@@ -67,23 +68,14 @@ module gmres
 contains
 
   !> Initialise a standard GMRES solver
-  subroutine gmres_init(this, n, max_iter, M, lgmres, &
-                        rel_tol, abs_tol, monitor)
-    class(gmres_t), intent(inout) :: this
+  subroutine gmres_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
+    class(gmres_t), target, intent(inout) :: this
     integer, intent(in) :: n
     integer, intent(in) :: max_iter
     class(pc_t), optional, intent(in), target :: M
-    integer, optional, intent(in) :: lgmres
     real(kind=rp), optional, intent(in) :: rel_tol
     real(kind=rp), optional, intent(in) :: abs_tol
     logical, optional, intent(in) :: monitor
-
-    if (present(lgmres)) then
-       this%lgmres = lgmres
-    else
-       this%lgmres = 30
-    end if
-
 
     call this%free()
 
@@ -196,7 +188,7 @@ contains
     end if
 
     associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
-          v => this%v, s => this%s, gam => this%gam)
+         v => this%v, s => this%s, gam => this%gam)
 
       norm_fac = 1.0_rp / sqrt(coef%volume)
       call rzero(x%x, n)
@@ -245,21 +237,21 @@ contains
                   do l = 1, j
                      do k = 1, NEKO_BLK_SIZE
                         h(l,j) = h(l,j) + &
-                              w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
+                             w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
                      end do
                   end do
                else
                   do k = 1, n-i
                      do l = 1, j
                         h(l,j) = h(l,j) + &
-                              w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
+                             w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
                      end do
                   end do
                end if
             end do
 
             call MPI_Allreduce(MPI_IN_PLACE, h(1,j), j, &
-                  MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+                 MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
 
             alpha2 = 0.0_rp
             do i = 0, n, NEKO_BLK_SIZE
@@ -289,7 +281,7 @@ contains
             end do
 
             call MPI_Allreduce(MPI_IN_PLACE,alpha2, 1, &
-                  MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
+                 MPI_EXTRA_PRECISION, MPI_SUM, NEKO_COMM, ierr)
             alpha = sqrt(alpha2)
             do i = 1, j-1
                temp = h(i,j)
