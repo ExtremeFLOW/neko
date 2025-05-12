@@ -267,6 +267,21 @@ extern "C" {
    * Fortran wrapper for add4
    * Vector addition \f$ a = b + c + d\f$
    */
+  void hip_add3(void *a, void *b, void *c, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(add3_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) a, (real *) b, (real *) c, *n);
+    HIP_CHECK(hipGetLastError());
+  }
+
+  /**
+   * Fortran wrapper for add4
+   * Vector addition \f$ a = b + c + d\f$
+   */
   void hip_add4(void *a, void *b, void *c, void *d, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
@@ -735,10 +750,142 @@ extern "C" {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
 
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(absval_kernel<real>),
-                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(absval_kernel<real>), 
+                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a, *n);
     HIP_CHECK(hipGetLastError());
 
-  }
 }
+
+  // ======================================================================== //
+  // Point-wise operations.
+
+  /** Fortran wrapper for pwmax_vec2
+   *
+   * Compute the maximum of two vectors \f$ a = \max(a, b) \f$
+   */
+  void cuda_pwmax_vec2(void *a, void *b, int *n) {
+
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(pwmax_vec2_kernel<real>), 
+                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                        (real *)a, (real *)b, *n);
+      HIP_CHECK(hipGetLastError());
+  }
+
+  /** Fortran wrapper for pwmax_vec3
+   *
+   * Compute the maximum of two vectors \f$ a = \max(b, c) \f$
+   */
+  void hip_pwmax_vec3(void *a, void *b, void *c, int *n) {
+
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(pwmax_vec3_kernel<real>), 
+                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                        (real *)a, (real *)b, (real *)c, *n);
+      HIP_CHECK(hipGetLastError());
+  }
+
+  /** Fortran wrapper for pwmax_sca2
+   *
+   * Compute the maximum of vector and scalar \f$ a = \max(a, c) \f$
+   */
+  void hip_pwmax_sca2(void *a, real *c, int *n) {
+
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(pwmax_sca2_kernel<real>), 
+                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                        (real *)a, *c, *n);
+      HIP_CHECK(hipGetLastError());
+  }
+
+  /** Fortran wrapper for pwmax_sca3
+   *
+   * Compute the maximum of vector and scalar \f$ a = \max(b, c) \f$
+   */
+  void hip_pwmax_sca3(void *a, void *b, real *c, int *n) {
+
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(pwmax_sca3_kernel<real>), 
+                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                        (real *)a, (real *)b, *c, *n);
+      HIP_CHECK(hipGetLastError());
+  }
+
+  /** Fortran wrapper for pwmin_vec2
+   *
+   * Compute the minimum of two vectors \f$ a = \min(a, b) \f$
+   */
+  void hip_pwmin_vec2(void *a, void *b, int *n) {
+
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(pwmin_vec2_kernel<real>), 
+                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                        (real *)a, (real *)b, *n);
+      HIP_CHECK(hipGetLastError());
+  }
+
+  /** Fortran wrapper for pwmin_vec3
+   *
+   * Compute the minimum of two vectors \f$ a = \min(b, c) \f$
+   */
+  void hip_pwmin_vec3(void *a, void *b, void *c, int *n) {
+
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(pwmin_vec3_kernel<real>), 
+                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                        (real *)a, (real *)b, (real *)c, *n);
+      HIP_CHECK(hipGetLastError());
+  }
+
+  /** Fortran wrapper for pwmin_sca2
+   *
+   * Compute the minimum of vector and scalar \f$ a = \min(a, c) \f$
+   */
+  void hip_pwmin_sca2(void *a, real *c, int *n) {
+
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(pwmin_sca2_kernel<real>), 
+                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                        (real *)a, *c, *n);
+      HIP_CHECK(hipGetLastError());
+  }
+
+  /** Fortran wrapper for pwmin_sca3
+   *
+   * Compute the minimum of vector and scalar \f$ a = \min(b, c) \f$
+   */
+  void hip_pwmin_sca3(void *a, void *b, real *c, int *n) {
+
+      const dim3 nthrds(1024, 1, 1);
+      const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+      const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(pwmin_sca3_kernel<real>), 
+                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                        (real *)a, (real *)b, *c, *n);
+      HIP_CHECK(hipGetLastError());
+  }
+
+} /* extern "C" */
