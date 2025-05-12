@@ -98,7 +98,7 @@ contains
     character(len=:), allocatable :: direction
     character(len=20) :: fields(1)
 
-    ! Add fields keyword to the json so that the derivative picks it up.
+    ! Add fields keyword to the json so that the field_writer_t picks it up.
     ! Will also add fields to the registry.
     call json_get(json, "field", fieldname)
     call json_get(json, "direction", direction)

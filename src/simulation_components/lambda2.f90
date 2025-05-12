@@ -144,7 +144,6 @@ contains
     character(len=20) :: fields(1)
     fields(1) = "lambda2"
 
-
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
     call this%writer%init_from_components(case, order, preprocess_controller, &
