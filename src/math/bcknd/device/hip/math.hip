@@ -72,7 +72,6 @@ extern "C" {
 
   }
 
-
   /** Fortran wrapper for masked gather copy
    * Copy a vector \f$ a = b(mask) \f$
    */
@@ -84,7 +83,6 @@ extern "C" {
     hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_gather_copy_kernel<real>),
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a, (real *) b, (int *) mask, *n, *m);
-
     HIP_CHECK(hipGetLastError());
 
   }
@@ -240,12 +238,14 @@ extern "C" {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
     if (*n > 0) {
       hipLaunchKernelGGL(HIP_KERNEL_NAME(cfill_kernel<real>),
                          nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                          (real *) a, *c, *n);
       HIP_CHECK(hipGetLastError());
     }
+
   }
 
   /**
@@ -261,6 +261,7 @@ extern "C" {
                        nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
                        (real *) a, (real *) b, *n);
     HIP_CHECK(hipGetLastError());
+
   }
 
   /**
@@ -325,6 +326,24 @@ extern "C" {
                        (real *) a, (real *) b,
                        *c1, *n);
     HIP_CHECK(hipGetLastError());
+  }
+  
+  /**
+   * Fortran wrapper for add2s2
+   * Vector addition with scalar multiplication
+   * \f$ x = x + c_1 p1 + c_2p2 + ... + c_jpj \f$
+   * (multiplication on second argument)
+   */
+  void hip_add2s2_many(void *x, void **p, void *alpha, int *j, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(add2s2_many_kernel<real>),
+                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
+                       (real *) x, (const real **) p, (real *) alpha, *j, *n);
+    HIP_CHECK(hipGetLastError());
+
   }
 
   /**
@@ -552,6 +571,9 @@ extern "C" {
     }
   }
 
+  /**
+   * Global additive reduction
+   */
   void hip_global_reduce_add(real * bufred, void * bufred_d, int n, const hipStream_t stream) {
     #ifdef HAVE_RCCL
         device_nccl_allreduce(bufred_d, bufred_d, n, sizeof(real),
@@ -568,6 +590,7 @@ extern "C" {
         HIP_CHECK(hipStreamSynchronize(stream));
     #endif
   }
+
   /**
    * Fortran wrapper vlsc3
    * Compute multiplication sum \f$ dot = u \cdot v \cdot w \f$
@@ -596,7 +619,6 @@ extern "C" {
 
     return bufred[0];
   }
-
 
   /**
    * Fortran wrapper glsc3
@@ -658,39 +680,6 @@ extern "C" {
   }
 
   /**
-   * Fortran wrapper for add2s2
-   * Vector addition with scalar multiplication
-   * \f$ x = x + c_1 p1 + c_2p2 + ... + c_jpj \f$
-   * (multiplication on second argument)
-   */
-  void hip_add2s2_many(void *x, void **p, void *alpha, int *j, int *n) {
-
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(add2s2_many_kernel<real>),
-                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                       (real *) x, (const real **) p, (real *) alpha, *j, *n);
-    HIP_CHECK(hipGetLastError());
-
-  }
-
-  /**
-   * Fortran wrapper for add3
-   * Vector addition \f$ a = b + c \f$
-   */
-  void hip_add3(void *a, void *b, void *c, int *n) {
-
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
-
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(add3_kernel<real>),
-                       nblcks, nthrds, 0, (hipStream_t) glb_cmd_queue,
-                       (real *) a, (real *) b, (real *) c, *n);
-    HIP_CHECK(hipGetLastError());
-  }
-
-  /**
    * Fortran wrapper glsc2
    * Weighted inner product \f$ a^T b \f$
    */
@@ -742,7 +731,8 @@ extern "C" {
     return bufred[0];
   }
 
-  /** Fortran wrapper for absval
+  /**
+   * Fortran wrapper for absval
    * \f$ a = abs(a) \f$
    */
   void hip_absval(void *a, int *n) {
