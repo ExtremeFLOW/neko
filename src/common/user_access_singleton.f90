@@ -33,46 +33,41 @@
 ! Defines a singleton object available in the user file. Intended to allow
 ! unrestricted access to the entire simulation case and enable all sorts of
 ! hacking, while keeping neko proper clear.
-! The neko_user object is only initialized by makeneko, so trying to use it
+! The object is only initialized by makeneko, so trying to use it
 ! outside user code will result in a segfault---intentionally.
-module user_singleton
+module user_access_singleton
   use case, only : case_t
-  use user_intf, only : user_t
   implicit none
   private
 
   !> Helper type to give users global access to the simulation case.
-  type, public :: neko_user_t
-     type(user_t), pointer :: user
+  type, public :: user_access_t
      type(case_t), pointer :: case
    contains
      !> Constructor.
-     procedure, pass(this) :: init => neko_user_init
+     procedure, pass(this) :: init => user_access_init
      !> Destructor.
-     procedure, pass(this) :: free => neko_user_free
-  end type neko_user_t
+     procedure, pass(this) :: free => user_access_free
+  end type user_access_t
 
   !> The singleton object.
-  type(neko_user_t), target, public :: neko_user
+  type(user_access_t), target, public :: neko_user_access
 
 contains
 
   !> Consturctor.
-  subroutine neko_user_init(this, user, case)
-    class(neko_user_t), intent(inout) :: this
-    type(user_t), target :: user
+  subroutine user_access_init(this, case)
+    class(user_access_t), intent(inout) :: this
     type(case_t), target :: case
 
-    this%user => user
     this%case => case
-  end subroutine neko_user_init
+  end subroutine user_access_init
 
   !> Destructor.
-  subroutine neko_user_free(this)
-    class(neko_user_t), intent(inout) :: this
+  subroutine user_access_free(this)
+    class(user_access_t), intent(inout) :: this
 
-    if (associated(this%user)) this%user => null()
     if (associated(this%case)) this%case => null()
-  end subroutine neko_user_free
+  end subroutine user_access_free
 
-end module user_singleton
+end module user_access_singleton

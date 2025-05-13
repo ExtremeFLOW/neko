@@ -139,7 +139,7 @@ fi
 
 cat >> usr_driver.f90 << _ACEOF
   call neko_init(C)
-  call neko_user%init(C%user, C)
+  call neko_user_access%init(C)
   call neko_solve(C)
   call neko_finalize(C)
 
