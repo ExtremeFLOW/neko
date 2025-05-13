@@ -226,7 +226,7 @@ contains
   subroutine device_memcpy_r1(x, x_d, n, dir, sync, strm)
     integer, intent(in) :: n
     class(*), intent(inout), target :: x(:)
-    type(c_ptr), intent(inout) :: x_d
+    type(c_ptr), intent(inout) :make: x_d
     integer, intent(in), value :: dir
     logical :: sync
     type(c_ptr), optional :: strm
@@ -241,15 +241,15 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * c_sizeof(x)
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (integer(i8))
-       s = n * c_sizeof(x)
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     type is (real)
-       s = n * c_sizeof(x)
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
-    type is (double precision)
+    type is (c_double)
        s = n * c_sizeof(x)
        ptr_h = c_loc(x)
     class default
@@ -279,16 +279,16 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * c_sizeof(x)
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (integer(i8))
-       s = n * c_sizeof(x)
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     type is (real)
-       s = n * c_sizeof(x)
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
-    type is (double precision)
-       s = n * c_sizeof(x)
+    type is (c_double)
+       s = n * int(8, c_sie_t)
        ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
@@ -317,16 +317,16 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * c_sizeof(x)
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (integer(i8))
-       s = n * c_sizeof(x)
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     type is (real)
-       s = n * c_sizeof(x)
+       s = n * c_sizeof(c_real)
        ptr_h = c_loc(x)
     type is (double precision)
-       s = n * c_sizeof(x)
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
@@ -355,16 +355,16 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * c_sizeof(x)
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (integer(i8))
-       s = n * c_sizeof(x)
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     type is (real)
-       s = n * c_sizeof(x)
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (double precision)
-       s = n * c_sizeof(x)
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
