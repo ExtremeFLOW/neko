@@ -135,6 +135,7 @@ module neko
   use time_based_controller, only : time_based_controller_t
   use source_term, only : source_term_t, source_term_allocate, &
        register_source_term, source_term_factory, source_term_allocator
+  use user_singleton, only : neko_user
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
@@ -231,6 +232,7 @@ contains
     end if
 
     call neko_field_registry%free()
+    call neko_user%free()
     call device_finalize
     call neko_mpi_types_free
     call comm_free

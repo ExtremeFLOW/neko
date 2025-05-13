@@ -120,13 +120,13 @@ cat >> usr_driver.f90 << _ACEOF
 _ACEOF
 
 if [ $HAS_USER_MODULE -eq 1 ]; then
-  echo "  call user_setup(C%usr)" >> usr_driver.f90
+  echo "  call user_setup(C%user)" >> usr_driver.f90
 fi
 
 
 # Register types from local user .f90 files
 if [ $HAS_USER_MODULE -eq 1 ] && [ -n "$TYPEINJECTING_MODULES" ]; then
-  echo "  if (C%usr%suppress_type_injection .eqv. .false.) then " >> usr_driver.f90
+  echo "  if (C%user%suppress_type_injection .eqv. .false.) then " >> usr_driver.f90
   for mod in $TYPEINJECTING_MODULES; do
     echo "     call ${mod}_register_types()" >> usr_driver.f90
   done
@@ -139,6 +139,7 @@ fi
 
 cat >> usr_driver.f90 << _ACEOF
   call neko_init(C)
+  call neko_user%init(C%user, C)
   call neko_solve(C)
   call neko_finalize(C)
 
