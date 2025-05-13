@@ -288,7 +288,7 @@ contains
        s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (c_double)
-       s = n * int(8, c_sie_t)
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
