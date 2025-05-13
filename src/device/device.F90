@@ -719,7 +719,7 @@ contains
     type is (integer(i8))
        s = n * c_sizeof(x)
     type is (real)
-       s = n * c_sizeof(x) 
+       s = n * c_sizeof(x)
     type is (double precision)
        s = n * c_sizeof(x)
     class default
