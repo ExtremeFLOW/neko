@@ -71,6 +71,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `output_checkpoints`       | Whether to output checkpoints, i.e. restart files.                                                    | `true` or `false`                               | `false`       |
 | `checkpoint_control`       | Defines the interpretation of `checkpoint_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never` | -             |
 | `checkpoint_value`         | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                        | -             |
+| `checkpoint_filename`      | The filename of written checkpoint.                                                                   | Strings such as `my_name`                       | `fluid`       |
 | `checkpoint_format`        | The file format of checkpoints                                                                        | `chkp` or `hdf5`                                | `chkp`        |
 | `restart_file`             | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
 | `restart_mesh_file`        | If the restart file is on a different mesh, specify the .nmsh file used to generate it here           | Strings ending with `.nmsh`                     | -             |
@@ -86,22 +87,22 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                             | Positive real less than `1`                     | `0.2`         |
 | `end_time`                 | Final time at which the simulation is stopped.                                                        | Positive reals                                  | -             |
 | `job_timelimit`            | The maximum wall clock duration of the simulation.                                                    | String formatted as HH:MM:SS                    | No limit      |
-| `output_at_end`            | Whether to always write all enabled output at the end of the run.                                    | `true` or `false`                               | `true`        |
+| `output_at_end`            | Whether to always write all enabled output at the end of the run.                                     | `true` or `false`                               | `true`        |
 
 ### Restarts and joblimit
-Restarts will restart the simulation from the exact state at a given time that 
+Restarts will restart the simulation from the exact state at a given time that
 the checkpoint was written. This means that the flow field and potential scalars
 will be at the exact same values before as after restarts. However, derived
 quantities from the flow field and any observables are not guaranteed to be
 restarted. In addition, Neko does not guarantee that any files are not
 overwritten. As such, it is recommended to run in different directories
-if doing large scale simulations that require many restarts. Unless 
+if doing large scale simulations that require many restarts. Unless
 `output_at_end` is disabled Neko will also ensure that all output is written to
 file when reaching the `end_time` or the `job_timelimit`. In particular, unless
-`output_checkpoints` and `output_at_end` are set to false a checkpoint at the 
-final time will be written as to avoid losing progress as far as possible. 
+`output_checkpoints` and `output_at_end` are set to false a checkpoint at the
+final time will be written as to avoid losing progress as far as possible.
 
-@attention For simulations requiring restarts, it is recommended to run each 
+@attention For simulations requiring restarts, it is recommended to run each
 restart in a different output directory as a precaution to avoid potential overwritings of files.
 
 ### Boundary type numbering in the `output_boundary` field
@@ -182,7 +183,7 @@ solver should be used for velocity.
 =======
 ### Boundary conditions {#case-file_fluid-boundary-conditions}
 The optional `boundary_conditions` keyword can be used to specify boundary
-conditions. The reason for it being optional, is that periodic bounary
+conditions. The reason for it being optional, is that periodic boundary
 conditions are built into the definition of the  mesh, so for a periodic box
 nothings needs to be added to the case file. The TGV example is such a case, for
 instance.
@@ -352,9 +353,8 @@ A more detailed description of each boundary condition is provided below.
     "zone_indices": [1, 2]
   }
   ```
-  * `user_pressure`, a boundary for specified non-uniform pressure profiles, similar in
-  essence to `d_vel_u`,`d_vel_v` and `d_vel_w`. Can be combined with other
-  complex Dirichlet conditions by specifying e.g.: `"d_vel_u/d_vel_v/d_pres"`.
+* `user_pressure`, a boundary for specified non-uniform pressure profiles, similar in
+  essence to `user_velocity`.
   ```json
   {
     "type": "user_pressure",
@@ -373,8 +373,17 @@ The means of prescribing the values are controlled via the `type` keyword:
 file documentation.
 2. `uniform`, the value is a constant vector, looked up under the `value`
    keyword.
-3. `blasius`, a Blasius profile is prescribed. Its properties are looked up
-   in the `case.fluid.blasius` object, see below.
+3. `blasius`, a Blasius profile is prescribed. The boundary cannot be tilted
+  with respect to the coordinate axes.
+   It requires the following parameters:
+   1. `delta`, the thickness of the boundary layer.
+   2. `freestream_velocity`, the velocity value in the free stream.
+   3. `approximation`, the numerical approximation to the Blasius profile.
+      - `linear`, linear approximation.
+      - `quadratic`, quadratic approximation.
+      - `cubic`, cubic approximation.
+      - `quartic`, quartic approximation.
+      - `sin`, sine function approximation.
 4. `point_zone`, the values are set to a constant base value, supplied under the
    `base_value` keyword, and then assigned a zone value inside a point zone. The
    point zone is specified by the `name` keyword, and should be defined in the
@@ -410,20 +419,9 @@ file documentation.
    Interpolation will always be performed if `"interpolate"` is set
    to `true` even if the field file matches with the current simulation.
 
-### Blasius profile
-The `blasius` object is used to specify the Blasius profile that can be used for the
-initial and inflow condition.
-The boundary cannot be tilted with respect to the coordinate axes.
-It requires  the following parameters:
 
-1. `delta`, the thickness of the boundary layer.
-2. `freestream_velocity`, the velocity value in the free stream.
-3. `approximation`, the numerical approximation to the Blasius profile.
-   - `linear`, linear approximation.
-   - `quadratic`, quadratic approximation.
-   - `cubic`, cubic approximation.
-   - `quartic`, quartic approximation.
-   - `sin`, sine function approximation.
+
+
 
 ### Source terms {#case-file_fluid-source-term}
 The `source_terms` object should be used to specify the source terms in the
@@ -444,11 +442,11 @@ The following types are currently implemented.
 
 1. `constant`, constant forcing. Strength defined by the `values` array with 3
    reals corresponding to the 3 components of the forcing.
-2. `boussinesq`, a source term introducing boyancy based on the Boussinesq
-   approximation, \f$ \rho \beta (T - T_{ref}) \cdot \mathbf{g} \f$. Here, \f$ \rho \f$ is
-   density, \f$ \beta \f$ the thermal expansion coefficient, \f$ \mathbf{g} \f$ the
-   gravity vector, and \f$ T_{ref} \f$ a reference value of the scalar, typically
-   temperature.
+2. `boussinesq`, a source term introducing buoyancy based on the Boussinesq
+   approximation, \f$ \rho \beta (T - T_{ref}) \cdot \mathbf{g} \f$. Here, \f$
+   \rho \f$ is density, \f$ \beta \f$ the thermal expansion coefficient, \f$
+   \mathbf{g} \f$ the gravity vector, and \f$ T_{ref} \f$ a reference value of
+   the scalar, typically temperature.
 
    Reads the following entries:
    - `scalar_field`: The name of the scalar that drives the source term,
@@ -481,6 +479,7 @@ The following types are currently implemented.
 5. `user_vector`, the values are set inside the compiled user file, using the
    non-pointwise user file subroutine. Should be used when running on the GPU.
 6. `brinkman`, Brinkman permeability forcing inside a pre-defined region.
+7. `gradient_jump_penalty`, perform gradient_jump_penalisation.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
@@ -582,7 +581,7 @@ the boundary mesh is computed using a step function with a cut-off distance of
 ]
 ~~~~~~~~~~~~~~~
 
-### Gradient Jump Penalty
+#### Gradient Jump Penalty
 The optional `gradient_jump_penalty` object can be used to perform gradient jump
 penalty as an continuous interior penalty option. The penalty term is performed
 on the weak form equation of quantity \f$ T \f$ (could either be velocity or
@@ -608,8 +607,6 @@ The penalty parameter  \f$ \tau \f$ could be expressed as the form \f$ \tau = a
 while \f$ a \f$ and \f$ b \f$ are user-defined parameters. The configuration
 uses the following parameters:
 
-* `enable`, the boolean to turn on and off the gradient jump penalty option,
-  default to be `false`.
 * `tau`, the penalty parameter that can be only used for \f$ P = 1 \f$, default
   to be `0.02`.
 * `scaling_factor`, the scaling parameter \f$ a \f$ for \f$ P > 1 \f$, default
@@ -680,12 +677,14 @@ concisely directly in the table.
 | Name                                    | Description                                                                                       | Admissible values                                           | Default value |
 |-----------------------------------------|---------------------------------------------------------------------------------------------------|-------------------------------------------------------------|---------------|
 | `scheme`                                | The fluid solve type.                                                                             | `pnpn`                                                      | -             |
+| `name`                                  | The name associated to the fluid solver.                                                          | String                                                      | `fluid`       |
 | `Re`                                    | The Reynolds number.                                                                              | Positive real                                               | -             |
 | `rho`                                   | The density of the fluid.                                                                         | Positive real                                               | -             |
 | `mu`                                    | The dynamic viscosity of the fluid.                                                               | Positive real                                               | -             |
 | `nut_field`                             | The name of the turbulent viscosity field.                                                        | String                                                      | -             |
 | `output_control`                        | Defines the interpretation of `output_value` to define the frequency of writing checkpoint files. | `nsamples`, `simulationtime`, `tsteps`, `never`             | -             |
 | `output_value`                          | The frequency of sampling in terms of `output_control`.                                           | Positive real or integer                                    | -             |
+| `output_filename`                       | The output filename.                                                                              | String                                                      | `field`       |
 | `inflow_condition.type`                 | Velocity inflow condition type.                                                                   | `user`, `uniform`, `blasius`                                | -             |
 | `inflow_condition.value`                | Value of the inflow velocity.                                                                     | Vector of 3 reals                                           | -             |
 | `initial_condition.type`                | Initial condition type.                                                                           | `user`, `uniform`, `blasius`, `field`                       | -             |
@@ -706,14 +705,14 @@ concisely directly in the table.
 | `velocity_solver.preconditioner`        | Linear solver preconditioner for the momentum equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
 | `velocity_solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.                                    | Positive real                                               | -             |
 | `velocity_solver.maxiter`               | Linear solver max iteration count for the momentum equation.                                      | Positive real                                               | 800           |
-| `velocity_solver.projection_space_size` | Projection space size for the momentum equation.                                                  | Positive integer                                            | 20            |
+| `velocity_solver.projection_space_size` | Projection space size for the momentum equation.                                                  | Positive integer                                            | 0             |
 | `velocity_solver.projection_hold_steps` | Holding steps of the projection for the momentum equation.                                        | Positive integer                                            | 5             |
 | `velocity_solver.monitor`               | Monitor residuals in the linear solver for the momentum equation.                                 | `true` or `false`                                           | `false`       |
 | `pressure_solver.type`                  | Linear solver for the pressure equation.                                                          | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres`                 | -             |
 | `pressure_solver.preconditioner`        | Linear solver preconditioner for the pressure equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
 | `pressure_solver.absolute_tolerance`    | Linear solver convergence criterion for the pressure equation.                                    | Positive real                                               | -             |
 | `pressure_solver.maxiter`               | Linear solver max iteration count for the pressure equation.                                      | Positive real                                               | 800           |
-| `pressure_solver.projection_space_size` | Projection space size for the pressure equation.                                                  | Positive integer                                            | 20            |
+| `pressure_solver.projection_space_size` | Projection space size for the pressure equation.                                                  | Positive integer                                            | 0             |
 | `pressure_solver.projection_hold_steps` | Holding steps of the projection for the pressure equation.                                        | Positive integer                                            | 5             |
 | `pressure_solver.monitor`               | Monitor residuals in the linear solver for the pressure equation.                                 | `true` or `false`                                           | `false`       |
 | `flow_rate_force.direction`             | Direction of the forced flow.                                                                     | 0, 1, 2                                                     | -             |
@@ -723,12 +722,11 @@ concisely directly in the table.
 | `advection`                             | Whether to compute the advection term.                                                            | `true` or `false`                                           | `true`        |
 
 ## Scalar {#case-file_scalar}
-The scalar object allows to add a scalar transport equation to the solution.
-The solution variable is called `s`, but saved as `temperature` in the fld
- files.
-Some properties of the object are inherited from `fluid`: the properties of the
-linear solver, the value of the density, and the output
-control.
+The scalar object allows to add a scalar transport equation to the solution. The
+solution variable is called `s` by default, but can be controlled by the
+ `field_name` entry in the case file. In the fld files, it is saved as
+`temperature`. Some properties of the object are inherited from `fluid`: the
+value of the density, and the output control.
 
 ### Material properties
 
@@ -817,6 +815,8 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | Name                           | Description                                                       | Admissible values                           | Default value |
 |--------------------------------|-------------------------------------------------------------------|---------------------------------------------|---------------|
 | `enabled`                      | Whether to enable the scalar computation.                         | `true` or `false`                           | `true`        |
+| `name`                         | The name associated to the scalar solver.                         | String                                      | `scalar`      |
+| `field_name`                   | The name of the solution in the field registry.                   | A string                                    | `s`           |
 | `Pe`                           | The Peclet number.                                                | Positive real                               | -             |
 | `cp`                           | Specific heat capacity.                                           | Positive real                               | -             |
 | `lambda`                       | Thermal conductivity.                                             | Positive real                               | -             |
@@ -832,7 +832,7 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | `solver.preconditioner`        | Linear solver preconditioner for the momentum equation.           | `ident`, `hsmg`, `jacobi`                   | -             |
 | `solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.    | Positive real                               | -             |
 | `solver.maxiter`               | Linear solver max iteration count for the momentum equation.      | Positive real                               | 800           |
-| `solver.projection_space_size` | Projection space size for the scalar equation.                    | Positive integer                            | 20            |
+| `solver.projection_space_size` | Projection space size for the scalar equation.                    | Positive integer                            | 0            |
 | `solver.projection_hold_steps` | Holding steps of the projection for the scalar equation.          | Positive integer                            | 5             |
 
 

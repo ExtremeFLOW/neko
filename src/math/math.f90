@@ -75,35 +75,35 @@ module math
   real(kind=rp), public, parameter :: pi = 4._rp*atan(1._rp)
 
   interface abscmp
-     module procedure sabscmp, dabscmp, qabscmp
+    module procedure sabscmp, dabscmp, qabscmp
   end interface abscmp
 
   interface sort
-     module procedure sortrp, sorti4
+    module procedure sortrp, sorti4
   end interface sort
 
   interface swap
-     module procedure swapdp, swapi4
+    module procedure swapdp, swapi4
   end interface swap
 
   interface reord
-     module procedure reorddp, reordi4
+    module procedure reorddp, reordi4
   end interface reord
 
   interface flipv
-     module procedure flipvdp, flipvi4
+    module procedure flipvdp, flipvi4
   end interface flipv
 
   interface relcmp
-     module procedure srelcmp, drelcmp, qrelcmp
+    module procedure srelcmp, drelcmp, qrelcmp
   end interface relcmp
 
   interface pwmax
-     module procedure pwmax_vec2, pwmax_vec3, pwmax_scal2, pwmax_scal3
+    module procedure pwmax_vec2, pwmax_vec3, pwmax_scal2, pwmax_scal3
   end interface pwmax
 
   interface pwmin
-     module procedure pwmin_vec2, pwmin_vec3, pwmin_sca2, pwmin_sca3
+    module procedure pwmin_vec2, pwmin_vec3, pwmin_sca2, pwmin_sca3
   end interface pwmin
 
   public :: abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
@@ -113,7 +113,7 @@ module math
        add3s2, subcol4, addcol3, addcol4, ascol5, p_update, x_update, glsc2, &
        glsc3, glsc4, sort, masked_copy, cfill_mask, relcmp, glimax, glimin, &
        swap, reord, flipv, cadd2, masked_gather_copy, absval, pwmax, pwmin, &
-       masked_scatter_copy
+       masked_scatter_copy, cdiv, cdiv2, matinv39, matinv3
 
 contains
 
@@ -250,18 +250,18 @@ contains
   !> Copy a masked vector \f$ a(mask) = b(mask) \f$.
   !! @param a Destination array of size `n`.
   !! @param b Source array of size `n`.
-  !! @param mask Mask array of length m+1, where `mask(0) =m`
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
   !! the length of the mask array.
   !! @param n Size of the arrays `a` and `b`.
-  !! @param m Size of the mask array `mask`.
-  subroutine masked_copy(a, b, mask, n, m)
-    integer, intent(in) :: n, m
+  !! @param n_mask Size of the mask array `mask`.
+  subroutine masked_copy(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
     real(kind=rp), dimension(n), intent(in) :: b
     real(kind=rp), dimension(n), intent(inout) :: a
-    integer, dimension(0:m) :: mask
+    integer, dimension(0:n_mask) :: mask
     integer :: i, j
 
-    do i = 1, m
+    do i = 1, n_mask
        j = mask(i)
        a(j) = b(j)
     end do
@@ -270,20 +270,21 @@ contains
 
   !> Gather a masked vector to reduced contigous vector
   !! \f$ a = b(mask) \f$.
-  !! @param a Destination array of size `m`.
+  !! @param a Destination array of size `n_mask`.
   !! @param b Source array of size `n`.
-  !! @param mask Mask array of length m+1, where `mask(0) =m`
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask`
   !! the length of the mask array.
   !! @param n Size of the array `b`.
-  !! @param m Size of the mask array `mask` and `a`.
-  subroutine masked_gather_copy(a, b, mask, n, m)
-    integer, intent(in) :: n, m
+  !! @param n_mask Size of the mask array `mask` and `a`.
+  !! @note Assumes `n .ge. n_mask`.
+  subroutine masked_gather_copy(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
     real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(m), intent(inout) :: a
-    integer, dimension(0:m) :: mask
+    real(kind=rp), dimension(n_mask), intent(inout) :: a
+    integer, dimension(0:n_mask) :: mask
     integer :: i, j
 
-    do i = 1, m
+    do i = 1, n_mask
        j = mask(i)
        a(i) = b(j)
     end do
@@ -294,36 +295,36 @@ contains
   !> Scatter a contigous vector to masked positions in a target array
   !! \f$ a(mask) = b \f$.
   !! @param a Destination array of size `n`.
-  !! @param b Source array of size `m`.
-  !! @param mask Mask array of length m+1, where `mask(0) =m`
+  !! @param b Source array of size `n_mask`.
+  !! @param mask Mask array of length n_mask + 1, where `mask(0) = n_mask + 1`
   !! the length of the mask array.
-  !! @param n Size of the array `b`.
-  !! @param m Size of the mask array `mask` and `a`.
-  subroutine masked_scatter_copy(a, b, mask, n, m)
-    integer, intent(in) :: n, m
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), dimension(m), intent(inout) :: a
-    integer, dimension(0:m) :: mask
+  !! @param n Size of the array `mask`and array `b`.
+  !! @param m Size of the mask array `a`.
+  !! @note Assumes `n .ge. n_mask`.
+  subroutine masked_scatter_copy(a, b, mask, n, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n_mask), intent(in) :: b
+    real(kind=rp), dimension(n), intent(inout) :: a
+    integer, dimension(0:n_mask) :: mask
     integer :: i, j
 
-    do i = 1, m
+    do i = 1, n_mask
        j = mask(i)
        a(j) = b(i)
     end do
 
   end subroutine masked_scatter_copy
 
-
   !> @brief Fill a constant to a masked vector.
   !! \f$ a_i = c, for i in mask \f$
-  subroutine cfill_mask(a, c, size, mask, mask_size)
-    integer, intent(in) :: size, mask_size
-    real(kind=rp), dimension(size), intent(inout) :: a
+  subroutine cfill_mask(a, c, n, mask, n_mask)
+    integer, intent(in) :: n, n_mask
+    real(kind=rp), dimension(n), intent(inout) :: a
     real(kind=rp), intent(in) :: c
-    integer, dimension(mask_size), intent(in) :: mask
+    integer, dimension(n_mask), intent(in) :: mask
     integer :: i
 
-    do i = 1, mask_size
+    do i = 1, n_mask
        a(mask(i)) = c
     end do
 
@@ -340,6 +341,45 @@ contains
        a(i) = c * a(i)
     end do
   end subroutine cmult
+
+  !> Multiplication by constant c \f$ a = c \cdot b \f$
+  subroutine cmult2(a, b, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), intent(in) :: c
+    integer :: i
+
+    do i = 1, n
+       a(i) = c * b(i)
+    end do
+
+  end subroutine cmult2
+
+  !> Division of constant c by elements of a \f$ a = c / a \f$
+  subroutine cdiv(a, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), intent(in) :: c
+    integer :: i
+
+    do i = 1, n
+       a(i) = c / a(i)
+    end do
+  end subroutine cdiv
+
+  !> Division of constant c by elements of a \f$ a = c / b \f$
+  subroutine cdiv2(a, b, c, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: a
+    real(kind=rp), dimension(n), intent(in) :: b
+    real(kind=rp), intent(in) :: c
+    integer :: i
+
+    do i = 1, n
+       a(i) = c / b(i)
+    end do
+  end subroutine cdiv2
 
   !> Add a scalar to vector \f$ a_i = a_i + s \f$
   subroutine cadd(a, s, n)
@@ -718,20 +758,6 @@ contains
     end do
 
   end subroutine addsqr2s2
-
-  !> Multiplication by constant c \f$ a = c \cdot b \f$
-  subroutine cmult2(a, b, c, n)
-    integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(inout) :: a
-    real(kind=rp), dimension(n), intent(in) :: b
-    real(kind=rp), intent(in) :: c
-    integer :: i
-
-    do i = 1, n
-       a(i) = c * b(i)
-    end do
-
-  end subroutine cmult2
 
   !> Vector division \f$ a = a / b \f$
   subroutine invcol2(a, b, n)
@@ -1307,5 +1333,53 @@ contains
        a(i) = min(b(i), c)
     end do
   end subroutine pwmin_sca3
+
+  ! M33INV and M44INV by David G. Simpson pure function version from
+  ! https://fortranwiki.org/fortran/show/Matrix+inversion
+  ! Invert 3x3 matrix
+  function matinv39(a11, a12, a13, a21, a22, a23, a31, a32, a33) &
+   result(B)
+    real(kind=rp), intent(in) :: a11, a12, a13, a21, a22, a23, a31, a32, a33
+    real(xp) :: A(3,3)   !! Matrix
+    real(rp) :: B(3,3)   !! Inverse matrix
+    A(1,1) = a11
+    A(1,2) = a12
+    A(1,3) = a13
+    A(2,1) = a21
+    A(2,2) = a22
+    A(2,3) = a23
+    A(3,1) = a31
+    A(3,2) = a32
+    A(3,3) = a33
+    B = matinv3(A)
+  end function matinv39
+
+  !> Performs a direct calculation of the inverse of a 3×3 matrix.
+  !! M33INV and M44INV by David G. Simpson pure function version from
+  !! https://fortranwiki.org/fortran/show/Matrix+inversion
+  !! Invert 3x3 matrix
+  function matinv3(A) result(B)
+    !! Performs a direct calculation of the inverse of a 3×3 matrix.
+    real(kind=xp), intent(in) :: A(3,3)   !! Matrix
+    real(kind=xp) :: B(3,3)   !! Inverse matrix
+    real(kind=xp) :: detinv
+
+    ! Calculate the inverse determinant of the matrix
+    ! first index x,y,z, second r, s, t
+    detinv = 1.0_xp/real(A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2)&
+          - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1)&
+          + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1),xp)
+    ! Calculate the inverse of the matrix
+    ! first index r, s, t, second x, y, z
+    B(1,1) = +detinv * (A(2,2)*A(3,3) - A(2,3)*A(3,2))
+    B(2,1) = -detinv * (A(2,1)*A(3,3) - A(2,3)*A(3,1))
+    B(3,1) = +detinv * (A(2,1)*A(3,2) - A(2,2)*A(3,1))
+    B(1,2) = -detinv * (A(1,2)*A(3,3) - A(1,3)*A(3,2))
+    B(2,2) = +detinv * (A(1,1)*A(3,3) - A(1,3)*A(3,1))
+    B(3,2) = -detinv * (A(1,1)*A(3,2) - A(1,2)*A(3,1))
+    B(1,3) = +detinv * (A(1,2)*A(2,3) - A(1,3)*A(2,2))
+    B(2,3) = -detinv * (A(1,1)*A(2,3) - A(1,3)*A(2,1))
+    B(3,3) = +detinv * (A(1,1)*A(2,2) - A(1,2)*A(2,1))
+  end function matinv3
 
 end module math

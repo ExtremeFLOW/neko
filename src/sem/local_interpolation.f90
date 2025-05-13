@@ -44,7 +44,7 @@ module local_interpolation
   use field, only: field_t
   use field_list, only: field_list_t
   use device
-  use math
+  use math, only : matinv3, matinv39
   use tensor_cpu
   use device_math, only: device_rzero
   use neko_config, only: NEKO_BCKND_DEVICE
@@ -80,8 +80,8 @@ module local_interpolation
      procedure, pass(this) :: compute_weights => local_interpolator_compute_weights
 
   end type local_interpolator_t
-   
-  public :: find_rst_legendre, rst_cmp
+
+  public :: rst_cmp
 
 contains
 
@@ -160,9 +160,18 @@ contains
     N = size(r)
 
     do i = 1, N
-       call fd_weights_full(r(i), this%Xh%zg(:,1), lx-1, 0, this%weights_r(:,i))
-       call fd_weights_full(s(i), this%Xh%zg(:,2), lx-1, 0, this%weights_s(:,i))
-       call fd_weights_full(t(i), this%Xh%zg(:,3), lx-1, 0, this%weights_t(:,i))
+       if ((r(i) <= 1.1_rp .and. r(i) >= -1.1_rp) .and. &
+           (s(i) <= 1.1_rp .and. s(i) >= -1.1_rp) .and. &
+           (t(i) <= 1.1_rp .and. t(i) >= -1.1_rp)) then
+          call fd_weights_full(r(i), this%Xh%zg(:,1), lx-1, 0, this%weights_r(:,i))
+          call fd_weights_full(s(i), this%Xh%zg(:,2), lx-1, 0, this%weights_s(:,i))
+          call fd_weights_full(t(i), this%Xh%zg(:,3), lx-1, 0, this%weights_t(:,i))
+       else
+          this%weights_r(:,i) = 0.0_rp
+          this%weights_s(:,i) = 0.0_rp
+          this%weights_t(:,i) = 0.0_rp
+       end if
+
     end do
 
   end subroutine local_interpolator_compute_weights
@@ -208,16 +217,14 @@ contains
     real(kind=rp), intent(inout) :: y(Xh%lx, Xh%ly, Xh%lz, n_pts)
     real(kind=rp), intent(inout) :: z(Xh%lx, Xh%ly, Xh%lz, n_pts)
     real(kind=rp), intent(out) :: jac(3,3, n_pts)
-
     real(kind=rp) :: tmp(3)
-
     real(kind=rp) :: hr(Xh%lx, 2), hs(Xh%ly, 2), ht(Xh%lz, 2)
     integer :: lx, ly, lz, i
     lx = Xh%lx
     ly = Xh%ly
     lz = Xh%lz
-    
-    do i = 1, n_pts 
+
+    do i = 1, n_pts
        ! Weights
        call fd_weights_full(rst(1,i), Xh%zg(:,1), lx-1, 1, hr)
        call fd_weights_full(rst(2,i), Xh%zg(:,2), ly-1, 1, hs)
@@ -266,214 +273,8 @@ contains
     end do
 
   end subroutine jacobian_inverse
-  ! M33INV and M44INV by David G. Simpson pure function version from 
-  ! https://fortranwiki.org/fortran/show/Matrix+inversion
-  ! Invert 3x3 matrix
-  function matinv39(a11, a12, a13, a21, a22, a23, a31, a32, a33) &
-       result(B)
-    real(kind=rp), intent(in) :: a11, a12, a13, a21, a22, a23, a31, a32, a33
-    real(xp) :: A(3,3)   !! Matrix
-    real(rp) :: B(3,3)   !! Inverse matrix
-    A(1,1) = a11
-    A(1,2) = a12
-    A(1,3) = a13
-    A(2,1) = a21
-    A(2,2) = a22
-    A(2,3) = a23
-    A(3,1) = a31
-    A(3,2) = a32
-    A(3,3) = a33
-    B = matinv3(A)
-  end function matinv39
-    !! Performs a direct calculation of the inverse of a 3×3 matrix.
- !M33INV and M44INV by David G. Simpson pure function version from https://fortranwiki.org/fortran/show/Matrix+inversion
- ! Invert 3x3 matrix
-  function matinv3(A) result(B)
-    !! Performs a direct calculation of the inverse of a 3×3 matrix.
-    real(xp), intent(in) :: A(3,3)   !! Matrix
-    real(xp) :: B(3,3)   !! Inverse matrix
-    real(xp) :: detinv
 
-    ! Calculate the inverse determinant of the matrix 
-    !first index x,y,z, second r, s, t
-    detinv = 1.0_xp/real(A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2)&
-              - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1)&
-              + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1),xp)
-    !print *, "detinv",detinv
-    ! Calculate the inverse of the matrix
-    ! first index r, s, t, second x, y, z
-    B(1,1) = +detinv * (A(2,2)*A(3,3) - A(2,3)*A(3,2))
-    B(2,1) = -detinv * (A(2,1)*A(3,3) - A(2,3)*A(3,1))
-    B(3,1) = +detinv * (A(2,1)*A(3,2) - A(2,2)*A(3,1))
-    B(1,2) = -detinv * (A(1,2)*A(3,3) - A(1,3)*A(3,2))
-    B(2,2) = +detinv * (A(1,1)*A(3,3) - A(1,3)*A(3,1))
-    B(3,2) = -detinv * (A(1,1)*A(3,2) - A(1,2)*A(3,1))
-    B(1,3) = +detinv * (A(1,2)*A(2,3) - A(1,3)*A(2,2))
-    B(2,3) = -detinv * (A(1,1)*A(2,3) - A(1,3)*A(2,1))
-    B(3,3) = +detinv * (A(1,1)*A(2,2) - A(1,2)*A(2,1))
-  end function matinv3
-
- 
-  !> Using the Legendre polynomials to find the rst coordinates.
-  !! @param rst holds the computed rst values
-  !! @param pt_{x,y,z} are the computed xyz coords from rst
-  !! @param Xh is the function spacec
-  !! @param x,y,z are the actual phsyical coordinates
-  !! @param el_list are the elements in which we look for rst
-  !! @param n_pts the number of points
-  !! @param nelv the number of elements
-  !! @param res{x,y,z} are the difference between pt_{xyz} and xyz
-  !! @param tol, the specifiedd tolerance 
-  subroutine find_rst_legendre(rst, pt_x, pt_y, pt_z, Xh, x, y, z, &
-                               el_list, n_pts, nelv, resx, resy, resz, &
-                               tol)
-    integer, intent(in) :: n_pts, nelv
-    real(kind=rp), intent(inout) :: rst(3, n_pts)
-    type(space_t), intent(inout) :: Xh
-    real(kind=rp), allocatable :: pt_x(:)
-    real(kind=rp), allocatable :: pt_y(:)
-    real(kind=rp), allocatable :: pt_z(:)
-    real(kind=rp), intent(inout) :: x(Xh%lx, Xh%ly, Xh%lz, nelv)
-    real(kind=rp), intent(inout) :: y(Xh%lx, Xh%ly, Xh%lz, nelv)
-    real(kind=rp), intent(inout) :: z(Xh%lx, Xh%ly, Xh%lz, nelv)
-    real(kind=rp), intent(inout) :: resx(n_pts)
-    real(kind=rp), intent(inout) :: resy(n_pts)
-    real(kind=rp), intent(inout) :: resz(n_pts)
-    integer, intent(in) :: el_list(n_pts)
-    real(kind=rp), intent(in) :: tol 
-    real(kind=rp), allocatable :: x_hat(:, :, :, :)
-    real(kind=rp), allocatable :: y_hat(:, :, :, :)
-    real(kind=rp), allocatable :: z_hat(:, :, :, :)
-    real(kind=rp) :: r_legendre(Xh%lx) 
-    real(kind=rp) :: s_legendre(Xh%lx) 
-    real(kind=rp) :: t_legendre(Xh%lx) 
-    real(kind=rp) :: dr_legendre(Xh%lx) 
-    real(kind=rp) :: ds_legendre(Xh%lx) 
-    real(kind=rp) :: dt_legendre(Xh%lx) 
-    real(kind=rp) :: jac(3,3)
-    real(kind=xp) :: tmp(Xh%lx), tmp2(Xh%lx), rst_d(3), jacinv(3,3)
-    integer :: conv_pts
-    logical :: converged
-    integer :: i, j, e, iter, lx, lx2
-    if(allocated(x_hat)) deallocate(x_hat)
-    if(allocated(y_hat)) deallocate(y_hat)
-    if(allocated(z_hat)) deallocate(z_hat)
-    allocate(x_hat(xh%lx, xh%ly, xh%lz, nelv))
-    allocate(y_hat(xh%lx, xh%ly, xh%lz, nelv))
-    allocate(z_hat(xh%lx, xh%ly, xh%lz, nelv))
-    
-    lx = Xh%lx
-    if (n_pts .lt. 1) return
-    
-    !> Transform into legendre space
-    !> hats are in Legendre space
-    call tnsr3d_cpu(x_hat, Xh%lx, x, &
-                Xh%lx, Xh%vinv, &
-                Xh%vinvt, Xh%vinvt, nelv)
-    call tnsr3d_cpu(y_hat, Xh%lx, y, &
-                Xh%lx, Xh%vinv, &
-                Xh%vinvt, Xh%vinvt, nelv)
-    call tnsr3d_cpu(z_hat, Xh%lx, z, &
-                Xh%lx, Xh%vinv, &
-                Xh%vinvt, Xh%vinvt, nelv)
-    rst = 0.0_rp
-    do i = 1, n_pts
-       iter = 0 
-       converged = .false.
-       do while (.not. converged)
-          iter  = iter + 1
-          r_legendre(1) = 1.0
-          r_legendre(2) = rst(1,i)
-          s_legendre(1) = 1.0
-          s_legendre(2) = rst(2,i)
-          t_legendre(1) = 1.0
-          t_legendre(2) = rst(3,i)
-          dr_legendre(1) = 0.0
-          dr_legendre(2) = 1.0
-          ds_legendre(1) = 0.0
-          ds_legendre(2) = 1.0
-          dt_legendre(1) = 0.0
-          dt_legendre(2) = 1.0
-          do j = 2, lx-1
-             r_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp)*rst(1,i)*r_legendre(j) - (j-1.0_xp)*r_legendre(j-1))/(real(j,xp))
-             s_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp)*rst(2,i)*s_legendre(j) - (j-1.0_xp)*s_legendre(j-1))/(real(j,xp))
-             t_legendre(j+1) = ((2.0_xp*(j-1.0_xp)+1.0_xp)*rst(3,i)*t_legendre(j) - (j-1.0_xp)*t_legendre(j-1))/(real(j,xp))
-             dr_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * r_legendre(j) + rst(1,i)*dr_legendre(j)
-             ds_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * s_legendre(j) + rst(2,i)*ds_legendre(j)
-             dt_legendre(j+1) = ((j-1.0_xp)+1.0_xp) * t_legendre(j) + rst(3,i)*dt_legendre(j)
-          end do
-          e = el_list(i)+1
-          !print *,'leg and xhat', r_legendre(6), dr_legendre(6), x_hat(1,1,1,e), i, rst(1,i)
-          call tnsr3d_el_cpu(resx(i), 1, x_hat(1,1,1,e), Xh%lx, &
-               r_legendre, s_legendre, t_legendre)
-          call tnsr3d_el_cpu(resy(i), 1, y_hat(1,1,1,e), Xh%lx, &
-               r_legendre, s_legendre, t_legendre)
-          call tnsr3d_el_cpu(resz(i), 1, z_hat(1,1,1,e), Xh%lx, &
-               r_legendre, s_legendre, t_legendre)
-
-          call tnsr3d_el_cpu(jac(1,1), 1, x_hat(1,1,1,e), Xh%lx, &
-               dr_legendre, s_legendre(1), t_legendre)
-          call tnsr3d_el_cpu(jac(1,2), 1, y_hat(1,1,1,e), Xh%lx, &
-               dr_legendre, s_legendre(1), t_legendre)
-          call tnsr3d_el_cpu(jac(1,3), 1, z_hat(1,1,1,e), Xh%lx, &
-               dr_legendre, s_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(2,1), 1, x_hat(1,1,1,e), Xh%lx, &
-               r_legendre, ds_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(2,2), 1, y_hat(1,1,1,e), Xh%lx, &
-               r_legendre, ds_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(2,3), 1, z_hat(1,1,1,e), Xh%lx, &
-               r_legendre, ds_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(3,1), 1, x_hat(1,1,1,e), Xh%lx, &
-               r_legendre, s_legendre, dt_legendre)
-          call tnsr3d_el_cpu(jac(3,2), 1, y_hat(1,1,1,e), Xh%lx, &
-               r_legendre, s_legendre, dt_legendre)
-          call tnsr3d_el_cpu(jac(3,3), 1, z_hat(1,1,1,e), Xh%lx, &
-               r_legendre, s_legendre, dt_legendre)
-          resx(i) = pt_x(i) - resx(i)
-          resy(i) = pt_y(i) - resy(i)
-          resz(i) = pt_z(i) - resz(i)
-          jacinv = matinv39(jac(1,1),jac(1,2),jac(1,3),&
-                            jac(2,1),jac(2,2),jac(2,3),&
-                            jac(3,1),jac(3,2),jac(3,3))
-          rst_d(1) = (resx(i)*jacinv(1,1)+jacinv(2,1)*resy(i)+jacinv(3,1)*resz(i))
-          rst_d(2) = (resx(i)*jacinv(1,2)+jacinv(2,2)*resy(i)+jacinv(3,2)*resz(i))
-          rst_d(3) = (resx(i)*jacinv(1,3)+jacinv(2,3)*resy(i)+jacinv(3,3)*resz(i))
-
-          conv_pts = 0
-          if (norm2(real(rst_d,xp)) .le. tol)then
-              conv_pts = 1
-          end if
-          if (norm2(real(rst_d,xp)) .gt. 4.0)then
-              conv_pts = 1
-          end if
-          !leg_outside = real((Xh%lx-1)*Xh%lx/2,xp)**2.0_xp
-          !if (abs(r_legendre(Xh%lx)) > leg_outside) conv_pts = 1
-          !if (abs(s_legendre(Xh%lx)) > leg_outside) conv_pts = 1
-          !if (abs(t_legendre(Xh%lx)) > leg_outside) conv_pts = 1
-
-         ! if (abs(rst_d(1)) .lt. tol .and. &
-         !     abs(rst_d(2)) .lt. tol .and. &
-         !     abs(rst_d(3)) .lt. tol .and. &
-         !     abs(rst(1,i)) .le. 1.0+tol .and.&
-         !     abs(rst(2,i)) .le. 1.0+tol .and.&
-         !     abs(rst(3,i)) .le. 1.0+tol) then
-         !     conv_pts = 1
-         ! end if
-          !if (abs(real(rst(1,i),xp)) > 1.0+1e1*tol) conv_pts = 1 
-          !if (abs(real(rst(2,i),xp)) > 1.0+1e1*tol) conv_pts = 1 
-          !if (abs(real(rst(3,i),xp)) > 1.0+1e1*tol) conv_pts = 1 
-          rst(1,i) = rst(1,i) + rst_d(1)
-          rst(2,i) = rst(2,i) + rst_d(2)
-          rst(3,i) = rst(3,i) + rst_d(3)
-          
-          converged = conv_pts .eq. 1
-      !    if(pt_z(i) .gt. 0.999) print *, rst_d, resx(i), resy(i), resz(i), (norm2(real(rst_d,xp))), iter, rst(:,i)
-          if (iter .ge. 10) converged = .true.
-       end do
-       !print *,'cpu iter', iter
-    end do
-  end subroutine find_rst_legendre
-  !> Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance 
+  !> Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance
   !> res1 and res2 are the distances to the interpolated xyz coordinate and true xyz coord
   function rst_cmp(rst1, rst2,res1, res2, tol) result(rst2_better)
     real(kind=rp) :: rst1(3), res1(3)
@@ -488,18 +289,18 @@ contains
        if (abs(rst2(1)) .le. 1.0_xp+tol .and. &
            abs(rst2(2)) .le. 1.0_xp+tol .and. &
            abs(rst2(3)) .le. 1.0_xp+tol) then
-           rst2_better = .true. 
-       else 
-           rst2_better = (norm2(real(res2,xp)) .lt. norm2(real(res1,xp))) 
+          rst2_better = .true.
+       else
+          rst2_better = (norm2(real(res2,xp)) .lt. norm2(real(res1,xp)))
        end if
     else
-        !> Else we check rst2 is inside and has a smaller distance
-        rst2_better = (norm2(real(res2,xp)) .lt. norm2(real(res1,xp)) .and.&
+       !> Else we check rst2 is inside and has a smaller distance
+       rst2_better = (norm2(real(res2,xp)) .lt. norm2(real(res1,xp)) .and.&
                        abs(rst2(1)) .le. 1.0_xp+tol .and. &
                        abs(rst2(2)) .le. 1.0_xp+tol .and. &
                        abs(rst2(3)) .le. 1.0_xp+tol)
     end if
   end function rst_cmp
- 
+
 
 end module local_interpolation

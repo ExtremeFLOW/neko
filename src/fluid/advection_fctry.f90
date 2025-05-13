@@ -57,7 +57,7 @@ contains
   !! This can be used to kill the advection term.
   !! @note The factory both allocates and initializes `object`.
   module subroutine advection_factory(object, json, coef, ulag, vlag, wlag, &
-                               dtlag, tlag, time_scheme, use_dummy, slag)
+       dtlag, tlag, time_scheme, use_dummy, slag)
     class(advection_t), allocatable, intent(inout) :: object
     type(json_file), intent(inout) :: json
     type(coef_t), intent(inout), target :: coef
@@ -86,38 +86,38 @@ contains
     end if
 
     ! Read the parameters from the json file
-    call json_get(json, 'case.numerics.dealias', dealias)
-    call json_get(json, 'case.numerics.polynomial_order', order)
-    call json_get_or_default(json, 'case.numerics.oifs', oifs, .false.)
+    call json_get(json, 'dealias', dealias)
+    call json_get(json, 'polynomial_order', order)
+    call json_get_or_default(json, 'oifs', oifs, .false.)
 
-    call json_get_or_default(json, 'case.numerics.dealiased_polynomial_order', &
-                             lxd, ( 3 * (order + 1) ) / 2)
+    call json_get_or_default(json, 'dealiased_polynomial_order', &
+         lxd, ( 3 * (order + 1) ) / 2)
 
-    call json_get_or_default(json, 'case.numerics.target_cfl', ctarget, 1.9_rp)
+    call json_get_or_default(json, 'target_cfl', ctarget, 1.9_rp)
 
 
     if (oifs) then
-      allocate(adv_oifs_t::object)
+       allocate(adv_oifs_t::object)
     else
-      if (dealias) then
-         allocate(adv_dealias_t::object)
-      else
-         allocate(adv_no_dealias_t::object)
-      end if
+       if (dealias) then
+          allocate(adv_dealias_t::object)
+       else
+          allocate(adv_no_dealias_t::object)
+       end if
     end if
 
     select type (adv => object)
-      type is (adv_dealias_t)
+    type is (adv_dealias_t)
        call adv%init(lxd, coef)
-      type is (adv_no_dealias_t)
+    type is (adv_no_dealias_t)
        call adv%init(coef)
-      type is (adv_oifs_t)
+    type is (adv_oifs_t)
        if (present(slag)) then
           call adv%init(lxd, coef, ctarget, ulag, vlag, wlag, &
-                        dtlag, tlag, time_scheme, slag)
+               dtlag, tlag, time_scheme, slag)
        else
           call adv%init(lxd, coef, ctarget, ulag, vlag, wlag, &
-                        dtlag, tlag, time_scheme)
+               dtlag, tlag, time_scheme)
        end if
     end select
 

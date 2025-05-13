@@ -47,7 +47,19 @@ CONTINUATION="5"
 TARGET_BRANCH="develop"
 
 # Parse the inputs for options
-PARSED=$(getopt --options=$OPT --longoptions=$OPTIONS --name "$0" -- "$@")
+if [ $(uname) == "Darwin" ]; then
+    # Use gnu-getopt on macOS
+    if command -v gnu-getopt >/dev/null 2>&1; then
+        PARSED=$(gnu-getopt --options=$OPT --longoptions=$OPTIONS --name "$0" -- "$@")
+    else
+        echo "GNU-getopt not found." >&2
+        echo "Falling back to BSD getopt, long options are not supported." >&2
+        PARSED=$(getopt $OPT "$@")
+    fi
+else
+    # Use getopt on Linux
+    PARSED=$(getopt --options=$OPT --longoptions=$OPTIONS --name "$0" -- "$@")
+fi
 eval set -- "$PARSED"
 
 # Loop through the options and set the variables
@@ -59,13 +71,14 @@ while true; do
 
     # End of options
     "--") shift && break ;;
+    *) echo "Unknown option: $1" >&2 && help && exit 1 ;; # Unknown option
     esac
 done
 
 [ $CONTINUATION == "none" ] && CONTINUATION="-"
 
 # Set the options
-FLAGS="-Rr -i2 -d3 -f3 -s3 -c3 -w3 -t3 -j3 --ws_remred --indent_ampersand --openmp=0"
+FLAGS="-Rr -i2 -d3 -f3 -s3 -c3 -w3 -t3 -j3 --ws_remred --openmp=0"
 FLAGS="$FLAGS -k$CONTINUATION"
 
 # ---------------------------------------------------------------------------- #

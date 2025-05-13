@@ -39,10 +39,10 @@ module scalar_pnpn
   use rhs_maker, only : rhs_maker_bdf_t, rhs_maker_ext_t, rhs_maker_oifs_t, &
        rhs_maker_ext_fctry, rhs_maker_bdf_fctry, rhs_maker_oifs_fctry
   use scalar_scheme, only : scalar_scheme_t
+  use checkpoint, only : chkp_t
   use field, only : field_t
   use bc_list, only : bc_list_t
   use mesh, only : mesh_t
-  use checkpoint, only : chkp_t
   use coefs, only : coef_t
   use device, only : HOST_TO_DEVICE, device_memcpy
   use gather_scatter, only : gs_t, GS_OP_ADD
@@ -66,6 +66,7 @@ module scalar_pnpn
   use zero_dirichlet, only : zero_dirichlet_t
   use time_step_controller, only : time_step_controller_t
   use scratch_registry, only : neko_scratch_registry
+  use time_state, only : time_state_t
   use bc, only : bc_t
   implicit none
   private
@@ -141,11 +142,11 @@ module scalar_pnpn
      !! @param[inout] json JSON object for initializing the bc.
      !! @param[in] coef SEM coefficients.
      module subroutine bc_factory(object, scheme, json, coef, user)
-        class(bc_t), pointer, intent(inout) :: object
-        type(scalar_pnpn_t), intent(in) :: scheme
-        type(json_file), intent(inout) :: json
-        type(coef_t), intent(in) :: coef
-        type(user_t), intent(in) :: user
+       class(bc_t), pointer, intent(inout) :: object
+       type(scalar_pnpn_t), intent(in) :: scheme
+       type(json_file), intent(inout) :: json
+       type(coef_t), intent(in) :: coef
+       type(user_t), intent(in) :: user
      end subroutine bc_factory
   end interface
 
@@ -157,19 +158,22 @@ contains
   !! @param gs The gather-scatter.
   !! @param params The case parameter file in json.
   !! @param user Type with user-defined procedures.
+  !! @param chkp Set up checkpoint for restarts.
   !! @param ulag Lag arrays for the x velocity component.
   !! @param vlag Lag arrays for the y velocity component.
   !! @param wlag Lag arrays for the z velocity component.
   !! @param time_scheme The time-integration controller.
   !! @param rho The fluid density.
-  subroutine scalar_pnpn_init(this, msh, coef, gs, params, user, &
-       ulag, vlag, wlag, time_scheme, rho)
+  subroutine scalar_pnpn_init(this, msh, coef, gs, params, numerics_params, &
+       user, chkp, ulag, vlag, wlag, time_scheme, rho)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(in) :: msh
     type(coef_t), target, intent(in) :: coef
     type(gs_t), target, intent(inout) :: gs
     type(json_file), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: numerics_params
     type(user_t), target, intent(in) :: user
+    type(chkp_t), target, intent(inout) :: chkp
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     real(kind=rp), intent(in) :: rho
@@ -234,30 +238,35 @@ contains
 
 
     ! Initialize projection space
-    call this%proj_s%init(this%dm_Xh%size(), this%projection_dim,  &
-                            this%projection_activ_step)
-
-    ! Add lagged term to checkpoint
-    ! @todo Init chkp object, note, adding 3 slags
-    ! call this%chkp%add_lag(this%slag, this%slag, this%slag)
+    call this%proj_s%init(this%dm_Xh%size(), this%projection_dim, &
+         this%projection_activ_step)
 
     ! Determine the time-interpolation scheme
     call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
-
+    ! Point to case checkpoint
+    this%chkp => chkp
     ! Initialize advection factory
-    call json_get_or_default(params, 'case.scalar.advection', advection, .true.)
-    call advection_factory(this%adv, params, this%c_Xh, &
-                           ulag, vlag, wlag, this%chkp%dtlag, &
-                           this%chkp%tlag, time_scheme, .not. advection, &
-                           this%slag)
+    call json_get_or_default(params, 'advection', advection, .true.)
+
+    call advection_factory(this%adv, numerics_params, this%c_Xh, &
+         ulag, vlag, wlag, this%chkp%dtlag, &
+         this%chkp%tlag, time_scheme, .not. advection, &
+         this%slag)
+    ! Add scalar info to checkpoint
+    call this%chkp%add_scalar(this%s)
+    this%chkp%abs1 => this%abx1
+    this%chkp%abs2 => this%abx2
+    this%chkp%slag => this%slag
   end subroutine scalar_pnpn_init
 
-  !> I envision the arguments to this func might need to be expanded
-  subroutine scalar_pnpn_restart(this, dtlag, tlag)
+  ! Restarts the scalar from a checkpoint
+  subroutine scalar_pnpn_restart(this, chkp)
     class(scalar_pnpn_t), target, intent(inout) :: this
+    type(chkp_t), intent(inout) :: chkp
     real(kind=rp) :: dtlag(10), tlag(10)
     integer :: n
-
+    dtlag = chkp%dtlag
+    tlag = chkp%tlag
 
     n = this%s%dof%size()
 
@@ -266,17 +275,17 @@ contains
     call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%s%x, this%s%x_d, &
-                          n, HOST_TO_DEVICE, sync = .false.)
+            n, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%slag%lf(1)%x, this%slag%lf(1)%x_d, &
-                          n, HOST_TO_DEVICE, sync = .false.)
+            n, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%slag%lf(2)%x, this%slag%lf(2)%x_d, &
-                          n, HOST_TO_DEVICE, sync = .false.)
+            n, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%abx1%x, this%abx1%x_d, &
-                          n, HOST_TO_DEVICE, sync = .false.)
+            n, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%abx2%x, this%abx2%x_d, &
-                          n, HOST_TO_DEVICE, sync = .false.)
+            n, HOST_TO_DEVICE, sync = .false.)
        call device_memcpy(this%advs%x, this%advs%x_d, &
-                          n, HOST_TO_DEVICE, sync = .false.)
+            n, HOST_TO_DEVICE, sync = .false.)
     end if
 
     call this%gs_Xh%op(this%s, GS_OP_ADD)
@@ -325,11 +334,9 @@ contains
 
   end subroutine scalar_pnpn_free
 
-  subroutine scalar_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
+  subroutine scalar_pnpn_step(this, time, ext_bdf, dt_controller)
     class(scalar_pnpn_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    real(kind=rp), intent(in) :: dt
+    type(time_state_t), intent(in) :: time
     type(time_scheme_controller_t), intent(in) :: ext_bdf
     type(time_step_controller_t), intent(in) :: dt_controller
     ! Number of degrees of freedom
@@ -352,19 +359,12 @@ contains
          projection_dim => this%projection_dim, &
          msh => this%msh, res => this%res, makeoifs => this%makeoifs, &
          makeext => this%makeext, makebdf => this%makebdf, &
-         if_variable_dt => dt_controller%if_variable_dt, &
-         dt_last_change => dt_controller%dt_last_change)
+         t => time%t, tstep => time%tstep, dt => time%dt)
 
       ! Logs extra information the log level is NEKO_LOG_DEBUG or above.
       call print_debug(this)
       ! Compute the source terms
       call this%source_term%compute(t, tstep)
-
-      ! Compute the grandient jump penalty term
-      if (this%if_gradient_jump_penalty .eqv. .true.) then
-         call this%gradient_jump_penalty%compute(u, v, w, s)
-         call this%gradient_jump_penalty%perform(f_Xh)
-      end if
 
       ! Apply weak boundary conditions, that contribute to the source terms.
       call this%bcs%apply_scalar(this%f_Xh%x, dm_Xh%size(), t, tstep, .false.)
@@ -372,23 +372,23 @@ contains
       if (oifs) then
          ! Add the advection operators to the right-hans-side.
          call this%adv%compute_scalar(u, v, w, s, this%advs, &
-                                   Xh, this%c_Xh, dm_Xh%size())
+              Xh, this%c_Xh, dm_Xh%size())
 
          call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
-                                     ext_bdf%advection_coeffs, n)
+              ext_bdf%advection_coeffs, n)
 
          call makeoifs%compute_scalar(this%advs%x, f_Xh%x, rho, dt, n)
       else
          ! Add the advection operators to the right-hans-side.
          call this%adv%compute_scalar(u, v, w, s, f_Xh, &
-                                      Xh, this%c_Xh, dm_Xh%size())
+              Xh, this%c_Xh, dm_Xh%size())
 
          ! At this point the RHS contains the sum of the advection operator,
          ! Neumann boundary sources and additional source terms, evaluated using
          ! the scalar field from the previous time-step. Now, this value is used in
          ! the explicit time scheme to advance these terms in time.
          call makeext%compute_scalar(this%abx1, this%abx2, f_Xh%x, rho, &
-                                     ext_bdf%advection_coeffs, n)
+              ext_bdf%advection_coeffs, n)
 
          ! Add the RHS contributions coming from the BDF scheme.
          call makebdf%compute_scalar(slag, f_Xh%x, s, c_Xh%B, rho, dt, &
@@ -405,7 +405,7 @@ contains
 
       ! Compute scalar residual.
       call profiler_start_region('Scalar_residual', 20)
-      call res%compute(Ax, s,  s_res, f_Xh, c_Xh, msh, Xh, lambda_field, &
+      call res%compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda_field, &
            rho*cp, ext_bdf%diffusion_coeffs(1), dt, dm_Xh%size())
 
       call gs_Xh%op(s_res, GS_OP_ADD)
@@ -424,8 +424,8 @@ contains
            c_Xh, this%bclst_ds, gs_Xh)
       call profiler_end_region('Scalar_solve', 21)
 
-     call this%proj_s%post_solving(ds%x, Ax, c_Xh, this%bclst_ds, gs_Xh, &
-                                   n, tstep, dt_controller)
+      call this%proj_s%post_solving(ds%x, Ax, c_Xh, this%bclst_ds, gs_Xh, &
+           n, tstep, dt_controller)
 
       ! Update the solution
       if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -447,15 +447,15 @@ contains
 
     n = this%dm_Xh%size()
 
-    write(log_buf,'(A,A,E15.7,A,E15.7,A,E15.7)') 'Scalar debug', &
-       ' l2norm s', glsc2(this%s%x, this%s%x, n), &
-       ' slag1', glsc2(this%slag%lf(1)%x, this%slag%lf(1)%x, n), &
-       ' slag2', glsc2(this%slag%lf(2)%x, this%slag%lf(2)%x, n)
-    call neko_log%message(log_buf, lvl=NEKO_LOG_DEBUG)
-    write(log_buf,'(A,A,E15.7,A,E15.7)') 'Scalar debug2', &
-       ' l2norm abx1', glsc2(this%abx1%x, this%abx1%x, n), &
-       ' abx2', glsc2(this%abx2%x, this%abx2%x, n)
-    call neko_log%message(log_buf, lvl=NEKO_LOG_DEBUG)
+    write(log_buf, '(A, A, E15.7, A, E15.7, A, E15.7)') 'Scalar debug', &
+         ' l2norm s', glsc2(this%s%x, this%s%x, n), &
+         ' slag1', glsc2(this%slag%lf(1)%x, this%slag%lf(1)%x, n), &
+         ' slag2', glsc2(this%slag%lf(2)%x, this%slag%lf(2)%x, n)
+    call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
+    write(log_buf, '(A, A, E15.7, A, E15.7)') 'Scalar debug2', &
+         ' l2norm abx1', glsc2(this%abx1%x, this%abx1%x, n), &
+         ' abx2', glsc2(this%abx2%x, this%abx2%x, n)
+    call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
   end subroutine print_debug
 
   !> Initialize boundary conditions
@@ -473,12 +473,11 @@ contains
     logical, allocatable :: marked_zones(:)
     integer, allocatable :: zone_indices(:)
 
-
-    if (this%params%valid_path('case.scalar.boundary_conditions')) then
-       call this%params%info('case.scalar.boundary_conditions', &
+    if (this%params%valid_path('boundary_conditions')) then
+       call this%params%info('boundary_conditions', &
             n_children = n_bcs)
        call this%params%get_core(core)
-       call this%params%get('case.scalar.boundary_conditions', bc_object, found)
+       call this%params%get('boundary_conditions', bc_object, found)
 
        call this%bcs%init(n_bcs)
 
@@ -532,7 +531,17 @@ contains
           if ((this%msh%labeled_zones(i)%size .gt. 0) .and. &
                (marked_zones(i) .eqv. .false.)) then
              write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
-                "No scalar boundary condition assigned to zone ", i
+                  "No scalar boundary condition assigned to zone ", i
+             error stop
+          end if
+       end do
+    else
+       ! Check that there are no labeled zones, i.e. all are periodic.
+       do i = 1, size(this%msh%labeled_zones)
+          if (this%msh%labeled_zones(i)%size .gt. 0) then
+             write(error_unit, '(A, A, A)') "*** ERROR ***: ", &
+                  "No boundary_conditions entry in the case file for scalar ", &
+                  this%s%name
              error stop
           end if
        end do

@@ -42,6 +42,7 @@ module fluid_scheme_base
   use json_module, only : json_file
   use logger, only : LOG_SIZE
   use num_types, only : rp
+  use checkpoint, only : chkp_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBL_LEN
   use space, only : space_t, GLL
   use time_scheme_controller, only : time_scheme_controller_t
@@ -51,12 +52,16 @@ module fluid_scheme_base
   use usr_inflow, only : usr_inflow_eval
   use utils, only : neko_error
   use bc_list, only : bc_list_t
+  use time_state, only: time_state_t
   implicit none
   private
   public :: fluid_scheme_base_t, fluid_scheme_base_factory
 
   !> Base type of all fluid formulations.
   type, abstract :: fluid_scheme_base_t
+     !> A name that can be used to distinguish this solver in e.g. user routines
+     character(len=:), allocatable :: name
+
      type(space_t) :: Xh !< Function space \f$ X_h \f$
      type(dofmap_t) :: dm_Xh !< Dofmap associated with \f$ X_h \f$
      type(gs_t) :: gs_Xh !< Gather-scatter associated with \f$ X_h \f$
@@ -70,6 +75,9 @@ module fluid_scheme_base
      type(field_t), pointer :: w => null() !< z-component of Velocity
      type(field_t), pointer :: p => null() !< Pressure
      type(field_series_t) :: ulag, vlag, wlag !< fluid field (lag)
+
+     !> Checkpoint
+     type(chkp_t), pointer :: chkp => null()
 
      !> Density
      real(kind=rp) :: rho
@@ -90,7 +98,6 @@ module fluid_scheme_base
 
      type(json_file), pointer :: params !< Parameters
      type(mesh_t), pointer :: msh => null() !< Mesh
-     type(chkp_t) :: chkp !< Checkpoint
 
      !> Boundary condition labels (if any)
      character(len=NEKO_MSH_MAX_ZLBL_LEN), allocatable :: bc_labels(:)
@@ -192,17 +199,19 @@ module fluid_scheme_base
 
   !> Abstract interface to initialize a fluid formulation
   abstract interface
-     subroutine fluid_scheme_base_init_intrf(this, msh, lx, params, user)
+     subroutine fluid_scheme_base_init_intrf(this, msh, lx, params, user, chkp)
        import fluid_scheme_base_t
        import json_file
        import mesh_t
        import user_t
+       import chkp_t
        import time_scheme_controller_t
        class(fluid_scheme_base_t), target, intent(inout) :: this
        type(mesh_t), target, intent(inout) :: msh
        integer, intent(in) :: lx
        type(json_file), target, intent(inout) :: params
        type(user_t), target, intent(in) :: user
+       type(chkp_t), target, intent(inout) :: chkp
      end subroutine fluid_scheme_base_init_intrf
   end interface
 
@@ -216,29 +225,23 @@ module fluid_scheme_base
 
   !> Abstract interface to compute a time-step
   abstract interface
-     subroutine fluid_scheme_base_step_intrf(this, t, tstep, dt, ext_bdf, &
-          dt_controller)
+     subroutine fluid_scheme_base_step_intrf(this, time, dt_controller)
+       import time_state_t
        import fluid_scheme_base_t
-       import time_scheme_controller_t
        import time_step_controller_t
-       import rp
        class(fluid_scheme_base_t), target, intent(inout) :: this
-       real(kind=rp), intent(in) :: t
-       integer, intent(in) :: tstep
-       real(kind=rp), intent(in) :: dt
-       type(time_scheme_controller_t), intent(in) :: ext_bdf
+       type(time_state_t), intent(in) :: time
        type(time_step_controller_t), intent(in) :: dt_controller
      end subroutine fluid_scheme_base_step_intrf
   end interface
 
   !> Abstract interface to restart a fluid scheme
   abstract interface
-     subroutine fluid_scheme_base_restart_intrf(this, dtlag, tlag)
+     subroutine fluid_scheme_base_restart_intrf(this, chkp)
        import fluid_scheme_base_t
-       import rp
+       import chkp_t
        class(fluid_scheme_base_t), target, intent(inout) :: this
-       real(kind=rp) :: dtlag(10), tlag(10)
-
+       type(chkp_t), intent(inout) :: chkp
      end subroutine fluid_scheme_base_restart_intrf
   end interface
 

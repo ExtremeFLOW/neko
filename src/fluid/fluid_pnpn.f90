@@ -50,15 +50,15 @@ module fluid_pnpn
   use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
   use device_mathops, only : device_opcolv, device_opadd2cm
   use fluid_aux, only : fluid_step_info
-  use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
   use projection_vel, only : projection_vel_t
-  use device, only : device_memcpy, HOST_TO_DEVICE, device_event_sync,&
-       device_stream_wait_event, glb_cmd_queue, glb_cmd_event
+  use device, only : device_memcpy, HOST_TO_DEVICE, device_event_sync, &
+       glb_cmd_event
   use advection, only : advection_t, advection_factory
   use profiler, only : profiler_start_region, profiler_end_region
   use json_module, only : json_file, json_core, json_value
-  use json_utils, only : json_get, json_get_or_default, json_extract_item
+  use json_utils, only : json_get, json_get_or_default, json_extract_item, &
+       json_extract_object
   use json_module, only : json_file
   use ax_product, only : ax_t, ax_helm_factory
   use field, only : field_t
@@ -67,6 +67,7 @@ module fluid_pnpn
   use wall_model_bc, only : wall_model_bc_t
   use facet_normal, only : facet_normal_t
   use non_normal, only : non_normal_t
+  use checkpoint, only : chkp_t
   use mesh, only : mesh_t
   use user_intf, only : user_t
   use time_step_controller, only : time_step_controller_t
@@ -80,6 +81,7 @@ module fluid_pnpn
   use bc, only : bc_t
   use file, only : file_t
   use operators, only : ortho
+  use time_state, only : time_state_t
   implicit none
   private
 
@@ -235,12 +237,13 @@ module fluid_pnpn
 
 contains
 
-  subroutine fluid_pnpn_init(this, msh, lx, params, user)
+  subroutine fluid_pnpn_init(this, msh, lx, params, user, chkp)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(in) :: lx
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
+    type(chkp_t), target, intent(inout) :: chkp
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     integer :: i
     class(bc_t), pointer :: bc_i, vel_bc
@@ -250,6 +253,7 @@ contains
     character(len=:), allocatable :: solver_type, precon_type
     logical :: monitor, found
     logical :: advection
+    type(json_file) :: numerics_params
 
     call this%free()
 
@@ -343,19 +347,9 @@ contains
          this%vel_projection_activ_step)
 
 
-    ! Add lagged term to checkpoint
-    call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
 
     ! Determine the time-interpolation scheme
     call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
-
-    ! Initialize the advection factory
-    call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
-    call advection_factory(this%adv, params, this%c_Xh, &
-         this%ulag, this%vlag, this%wlag, &
-         this%chkp%dtlag, this%chkp%tlag, this%ext_bdf, &
-         .not. advection)
-
     if (params%valid_path('case.fluid.flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)
     end if
@@ -371,7 +365,7 @@ contains
          precon_type)
     call json_get(params, 'case.fluid.pressure_solver.absolute_tolerance', &
          abs_tol)
-    call json_get_or_default(params, 'case.fluid.velocity_solver.monitor', &
+    call json_get_or_default(params, 'case.fluid.pressure_solver.monitor', &
          monitor, .false.)
     call neko_log%message('Type       : ('// trim(solver_type) // &
          ', ' // trim(precon_type) // ')')
@@ -382,20 +376,44 @@ contains
          solver_type, solver_maxiter, abs_tol, monitor)
     call this%precon_factory_(this%pc_prs, this%ksp_prs, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_prs, precon_type)
+    ! Initialize the advection factory
+    call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
+    call json_extract_object(params, 'case.numerics', numerics_params)
+    call advection_factory(this%adv, numerics_params, this%c_Xh, &
+         this%ulag, this%vlag, this%wlag, &
+         chkp%dtlag, chkp%tlag, this%ext_bdf, &
+         .not. advection)
+    ! Should be in init_base maybe?
+    this%chkp => chkp
+    ! This is probably scheme specific
+    ! Should not be init really, but more like, add fluid or something...
+    call this%chkp%init(this%u, this%v, this%w, this%p)
+
+    this%chkp%abx1 => this%abx1
+    this%chkp%abx2 => this%abx2
+    this%chkp%aby1 => this%aby1
+    this%chkp%aby2 => this%aby2
+    this%chkp%abz1 => this%abz1
+    this%chkp%abz2 => this%abz2
+    call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
 
     call neko_log%end_section()
 
   end subroutine fluid_pnpn_init
 
-  subroutine fluid_pnpn_restart(this, dtlag, tlag)
+  subroutine fluid_pnpn_restart(this, chkp)
     class(fluid_pnpn_t), target, intent(inout) :: this
+    type(chkp_t), intent(inout) :: chkp
     real(kind=rp) :: dtlag(10), tlag(10)
     type(field_t) :: u_temp, v_temp, w_temp
     integer :: i, j, n
 
+    dtlag = chkp%dtlag
+    tlag = chkp%tlag
+
     n = this%u%dof%size()
-    if (allocated(this%chkp%previous_mesh%elements) .or. &
-         this%chkp%previous_Xh%lx .ne. this%Xh%lx) then
+    if (allocated(chkp%previous_mesh%elements) .or. &
+         chkp%previous_Xh%lx .ne. this%Xh%lx) then
        associate(u => this%u, v => this%v, w => this%w, p => this%p, &
             c_Xh => this%c_Xh, ulag => this%ulag, vlag => this%vlag, &
             wlag => this%wlag)
@@ -468,8 +486,8 @@ contains
     ! Do not do this for lagged rhs
     ! (derivatives are not necessairly coninous across elements)
 
-    if (allocated(this%chkp%previous_mesh%elements) &
-         .or. this%chkp%previous_Xh%lx .ne. this%Xh%lx) then
+    if (allocated(chkp%previous_mesh%elements) &
+         .or. chkp%previous_Xh%lx .ne. this%Xh%lx) then
        call this%gs_Xh%op(this%u, GS_OP_ADD)
        call this%gs_Xh%op(this%v, GS_OP_ADD)
        call this%gs_Xh%op(this%w, GS_OP_ADD)
@@ -481,62 +499,6 @@ contains
           call this%gs_Xh%op(this%wlag%lf(i), GS_OP_ADD)
        end do
     end if
-
-    !! If we would decide to only restart from lagged fields instead of saving
-    !! abx1, aby1 etc.
-    !! Observe that one also needs to recompute the focing at the old time steps
-    !u_temp = this%ulag%lf(2)
-    !v_temp = this%vlag%lf(2)
-    !w_temp = this%wlag%lf(2)
-    !! Compute the source terms
-    !call this%source_term%compute(tlag(2), -1)
-    !
-    !! Pre-multiply the source terms with the mass matrix.
-    !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, &
-    !                      this%c_Xh%B_d, this%msh%gdim, n)
-    !else
-    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, &
-    !               this%c_Xh%B, this%msh%gdim, n)
-    !end if
-
-    !! Add the advection operators to the right-hand-side.
-    !call this%adv%compute(u_temp, v_temp, w_temp, &
-    !                      this%f_x%x, this%f_y%x, this%f_z%x, &
-    !                      this%Xh, this%c_Xh, this%dm_Xh%size())
-    !this%abx2 = this%f_x
-    !this%aby2 = this%f_y
-    !this%abz2 = this%f_z
-    !
-    !u_temp = this%ulag%lf(1)
-    !v_temp = this%vlag%lf(1)
-    !w_temp = this%wlag%lf(1)
-    !call this%source_term%compute(tlag(1), 0)
-
-    !! Pre-multiply the source terms with the mass matrix.
-    !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, &
-    !                      this%c_Xh%B_d, this%msh%gdim, n)
-    !else
-    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, &
-    !               this%c_Xh%B, this%msh%gdim, n)
-    !end if
-
-    !! Pre-multiply the source terms with the mass matrix.
-    !if (NEKO_BCKND_DEVICE .eq. 1) then
-    !   call device_opcolv(this%f_x%x_d, this%f_y%x_d, this%f_z%x_d, &
-    !                      this%c_Xh%B_d, this%msh%gdim, n)
-    !else
-    !   call opcolv(this%f_x%x, this%f_y%x, this%f_z%x, &
-    !               this%c_Xh%B, this%msh%gdim, n)
-    !end if
-
-    !call this%adv%compute(u_temp, v_temp, w_temp, &
-    !                      this%f_x%x, this%f_y%x, this%f_z%x, &
-    !                      this%Xh, this%c_Xh, this%dm_Xh%size())
-    !this%abx1 = this%f_x
-    !this%aby1 = this%f_y
-    !this%abz1 = this%f_z
 
   end subroutine fluid_pnpn_restart
 
@@ -621,12 +583,9 @@ contains
   !! @param dt The timestep
   !! @param ext_bdf Time integration logic.
   !! @param dt_controller timestep controller
-  subroutine fluid_pnpn_step(this, t, tstep, dt, ext_bdf, dt_controller)
+  subroutine fluid_pnpn_step(this, time, dt_controller)
     class(fluid_pnpn_t), target, intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
-    real(kind=rp), intent(in) :: dt
-    type(time_scheme_controller_t), intent(in) :: ext_bdf
+    type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
     ! number of degrees of freedom
     integer :: n
@@ -659,9 +618,8 @@ contains
          rho => this%rho, mu => this%mu, oifs => this%oifs, &
          rho_field => this%rho_field, mu_field => this%mu_field, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
-         if_variable_dt => dt_controller%if_variable_dt, &
-         dt_last_change => dt_controller%dt_last_change, &
-         event => glb_cmd_event)
+         t => time%t, tstep => time%tstep, dt => time%dt, &
+         ext_bdf => this%ext_bdf, event => glb_cmd_event)
 
       ! Extrapolate the velocity if it's not done in nut_field estimation
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
@@ -673,16 +631,6 @@ contains
       ! Add Neumann bc contributions to the RHS
       call this%bcs_vel%apply_vector(f_x%x, f_y%x, f_z%x, &
            this%dm_Xh%size(), t, tstep, strong = .false.)
-
-      ! Compute the gradient jump penalty term
-      if (this%if_gradient_jump_penalty .eqv. .true.) then
-         call this%gradient_jump_penalty_u%compute(u, v, w, u)
-         call this%gradient_jump_penalty_v%compute(u, v, w, v)
-         call this%gradient_jump_penalty_w%compute(u, v, w, w)
-         call this%gradient_jump_penalty_u%perform(f_x)
-         call this%gradient_jump_penalty_v%perform(f_y)
-         call this%gradient_jump_penalty_w%perform(f_z)
-      end if
 
       if (oifs) then
          ! Add the advection operators to the right-hand-side.
@@ -750,9 +698,7 @@ contains
       if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n)
 
       call gs_Xh%op(p_res, GS_OP_ADD, event)
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_stream_wait_event(glb_cmd_queue, event, 0)
-      end if
+      call device_event_sync(event)
 
       ! Set the residual to zero at strong pressure boundaries.
       call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), t, tstep)
@@ -770,7 +716,8 @@ contains
 
       ! Solve for the pressure increment.
       ksp_results(1) = &
-           this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, this%bclst_dp, gs_Xh)
+           this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
+           this%bclst_dp, gs_Xh)
 
 
       call profiler_end_region('Pressure_solve', 3)
@@ -793,11 +740,11 @@ contains
            dt, dm_Xh%size())
 
       call gs_Xh%op(u_res, GS_OP_ADD, event)
+      call device_event_sync(event)
       call gs_Xh%op(v_res, GS_OP_ADD, event)
+      call device_event_sync(event)
       call gs_Xh%op(w_res, GS_OP_ADD, event)
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         call device_stream_wait_event(glb_cmd_queue, event, 0)
-      end if
+      call device_event_sync(event)
 
       ! Set residual to zero at strong velocity boundaries.
       call this%bclst_vel_res%apply(u_res, v_res, w_res, t, tstep)
@@ -908,7 +855,7 @@ contains
                 write(error_unit, '(A, A, I0, A, A, I0, A)') "*** ERROR ***: ",&
                      "Zone index ", zone_indices(j), &
                      " is invalid as this zone has 0 size, meaning it ", &
-                     "does not in the mesh. Check fluid boundary condition ", &
+                     "is not in the mesh. Check fluid boundary condition ", &
                      i, "."
                 error stop
              end if
@@ -1030,6 +977,14 @@ contains
           end if
 
        end do
+    else
+       ! Check that there are no labeled zones, i.e. all are periodic.
+       do i = 1, size(this%msh%labeled_zones)
+          if (this%msh%labeled_zones(i)%size .gt. 0) then
+             call neko_error("No boundary_conditions entry in the case file!")
+          end if
+       end do
+
     end if
 
     call this%bc_prs_surface%finalize()

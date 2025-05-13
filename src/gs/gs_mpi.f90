@@ -34,10 +34,11 @@
 module gs_mpi
   use num_types, only : rp
   use gs_comm, only : gs_comm_t, GS_COMM_MPI, GS_COMM_MPIGPU
-  use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL
+  use gs_ops, only : GS_OP_ADD, GS_OP_MAX, GS_OP_MIN, GS_OP_MUL, GS_OP_SET
   use stack, only : stack_i4_t
   use comm
   use, intrinsic :: iso_c_binding
+  use utils, only : neko_error
   !$ use omp_lib
   implicit none
   private
@@ -53,7 +54,7 @@ module gs_mpi
      logical :: flag
      !> Buffer with data to send/recieve
      real(kind=rp), allocatable :: data(:)
-   
+
   end type gs_comm_mpi_t
 
   !> Gather-scatter communication using MPI
@@ -72,6 +73,7 @@ module gs_mpi
      procedure, pass(this) :: nbrecv => gs_nbrecv_mpi
      procedure, pass(this) :: nbwait => gs_nbwait_mpi
      procedure, pass(this) :: nbwait_no_op => gs_nbwait_no_op_mpi
+     procedure, pass(this) :: sendrecv => gs_sendrecv_mpi
   end type gs_mpi_t
 
 contains
@@ -90,7 +92,7 @@ contains
     else
        this%comm = NEKO_COMM
     end if
-    
+
     call this%init_order(send_pe, recv_pe)
 
     allocate(this%send_buf(send_pe%size()))
@@ -162,7 +164,7 @@ contains
        ! great without it for GNU, Intel, NEC and Cray, but throws an
        ! ICE with NAG.
        !associate(send_data => this%send_buf(i)%data)
-         call MPI_Isend(this%send_buf(i)%data, this%send_dof(dst)%size(), &
+       call MPI_Isend(this%send_buf(i)%data, this%send_dof(dst)%size(), &
               MPI_REAL_PRECISION, this%send_pe(i), thrdid, &
               this%comm, this%send_buf(i)%request, ierr)
        !end associate
@@ -193,6 +195,22 @@ contains
     end do
 
   end subroutine gs_nbrecv_mpi
+
+  !> Wait for non-blocking operations
+  subroutine gs_sendrecv_mpi(this, send, recv, n_send, n_recv, op)
+    class(gs_mpi_t), intent(inout) :: this
+    integer, intent(in) :: n_send, n_recv
+    real(kind=rp), dimension(n_send), intent(inout) :: send
+    real(kind=rp), dimension(n_recv), intent(inout) :: recv
+    integer, intent(in) :: op
+    type(c_ptr) :: null_ptr = c_null_ptr
+
+    call this%nbrecv()
+    call this%nbsend(send, n_send, null_ptr, null_ptr)
+    call this%nbwait(recv, n_recv, op, null_ptr)
+
+  end subroutine gs_sendrecv_mpi
+
 
   !> Wait for non-blocking operations
   subroutine gs_nbwait_no_op_mpi(this)
@@ -264,30 +282,36 @@ contains
                 sp => this%recv_dof(src)%array()
                 !Do operation with data in buffer on dof specified by recv_dof
                 select case(op)
-                case (GS_OP_ADD)
-                   !Isnt this a datarace?
-                   !How do things like this ever get into the code...
+                  case (GS_OP_ADD)
                    !NEC$ IVDEP
                    do j = 1, this%recv_dof(src)%size()
 
                       u(sp(j)) = u(sp(j)) + this%recv_buf(i)%data(j)
                    end do
-                case (GS_OP_MUL)
+                  case (GS_OP_MUL)
                    !NEC$ IVDEP
                    do concurrent (j = 1:this%recv_dof(src)%size())
                       u(sp(j)) = u(sp(j)) * this%recv_buf(i)%data(j)
                    end do
-                case (GS_OP_MIN)
+                  case (GS_OP_MIN)
                    !NEC$ IVDEP
                    do concurrent (j = 1:this%recv_dof(src)%size())
                       u(sp(j)) = min(u(sp(j)), this%recv_buf(i)%data(j))
                    end do
-                case (GS_OP_MAX)
+                  case (GS_OP_MAX)
                    !NEC$ IVDEP
                    do concurrent (j = 1:this%recv_dof(src)%size())
                       u(sp(j)) = max(u(sp(j)), this%recv_buf(i)%data(j))
                    end do
+                  case (GS_OP_SET)
+                   !NEC$ IVDEP
+                   do concurrent (j = 1:this%recv_dof(src)%size())
+                      u(sp(j)) = this%recv_buf(i)%data(j)
+                   end do
+                  case default
+                   call neko_error("Unknown operation in gs_nbwait_mpi")
                 end select
+
              end if
           end if
        end do

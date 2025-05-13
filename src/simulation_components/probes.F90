@@ -40,6 +40,7 @@ module probes
   use logger, only: neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use utils, only: neko_error, nonlinear_index
   use field_list, only: field_list_t
+  use time_state, only : time_state_t
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use dofmap, only: dofmap_t
@@ -59,6 +60,8 @@ module probes
   private
 
   type, public, extends(simulation_component_t) :: probes_t
+     !> Time after which to start collecting probes.
+     real(kind=rp) :: start_time
      !> Number of output fields
      integer :: n_fields = 0
      type(global_interpolation_t) :: global_interp
@@ -90,8 +93,8 @@ module probes
      !> Initialize from json
      procedure, pass(this) :: init => probes_init_from_json
      ! Actual constructor
-     procedure, pass(this) :: init_from_attributes => &
-          probes_init_from_attributes
+     procedure, pass(this) :: init_from_components => &
+          probes_init_from_components
      !> Destructor
      procedure, pass(this) :: free => probes_free
      !> Setup offset for I/O when using sequential write/read from rank 0
@@ -143,12 +146,13 @@ contains
     call json%info('fields', n_children = this%n_fields)
     call json_get(json, 'fields', this%which_fields)
     call json_get(json, 'output_file', output_file)
+    call json_get_or_default(json, 'start_time', this%start_time, -1.0_rp)
 
     call this%sampled_fields%init(this%n_fields)
     do i = 1, this%n_fields
 
        call this%sampled_fields%assign(i, &
-            & neko_field_registry%get_field(trim(this%which_fields(i))))
+       & neko_field_registry%get_field(trim(this%which_fields(i))))
     end do
 
     ! Setup the required arrays and initialize variables.
@@ -164,7 +168,7 @@ contains
        ! This is distributed as to make it similar to parallel file
        ! formats later, Reads all into rank 0
        call read_probe_locations(this, this%xyz, this%n_local_probes, &
-                                 this%n_global_probes, input_file)
+            this%n_global_probes, input_file)
     end if
 
     ! Go through the points list and construct the probe list
@@ -177,31 +181,31 @@ contains
        call json_get_or_default(json_point, 'type', point_type, 'none')
        select case (point_type)
 
-         case ('file')
+       case ('file')
           call this%read_file(json_point)
-         case ('points')
+       case ('points')
           call this%read_point(json_point)
-         case ('line')
+       case ('line')
           call this%read_line(json_point)
-         case ('plane')
+       case ('plane')
           call neko_error('Plane probes not implemented yet.')
-         case ('circle')
+       case ('circle')
           call this%read_circle(json_point)
-         case ('point_zone')
+       case ('point_zone')
           call this%read_point_zone(json_point, case%fluid%dm_Xh)
-         case ('none')
+       case ('none')
           call json_point%print()
           call neko_error('No point type specified.')
-         case default
+       case default
           call neko_error('Unknown region type ' // point_type)
        end select
     end do
 
     call mpi_allreduce(this%n_local_probes, this%n_global_probes, 1, &
-                       MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
 
     call probes_show(this)
-    call this%init_from_attributes(case%fluid%dm_Xh, output_file)
+    call this%init_from_components(case%fluid%dm_Xh, output_file)
 
   end subroutine probes_init_from_json
 
@@ -451,7 +455,7 @@ contains
   !> Initialize without json things
   !! @param dof Dofmap to probe
   !! @output_file Name of output file, current must be CSV
-  subroutine probes_init_from_attributes(this, dof, output_file)
+  subroutine probes_init_from_components(this, dof, output_file)
     class(probes_t), intent(inout) :: this
     type(dofmap_t), intent(in) :: dof
     character(len=:), allocatable, intent(inout) :: output_file
@@ -465,7 +469,7 @@ contains
 
     !> find probes and redistribute them
     call this%global_interp%find_points_and_redist(this%xyz, &
-                                                   this%n_local_probes)
+         this%n_local_probes)
 
     !> Allocate output array
     allocate(this%out_values(this%n_local_probes, this%n_fields))
@@ -476,7 +480,7 @@ contains
        do i = 1, this%n_fields
           this%out_values_d(i) = c_null_ptr
           call device_map(this%out_values(:,i), this%out_values_d(i), &
-                          this%n_local_probes)
+               this%n_local_probes)
        end do
     end if
 
@@ -484,7 +488,7 @@ contains
     this%fout = file_t(trim(output_file))
 
     select type (ft => this%fout%file_type)
-      type is (csv_file_t)
+    type is (csv_file_t)
 
        this%seq_io = .true.
 
@@ -505,7 +509,7 @@ contains
           allocate(global_output_coords(3, this%n_global_probes))
           call this%mat_out%init(this%n_global_probes, this%n_fields)
           allocate(this%global_output_values(this%n_fields, &
-                                             this%n_global_probes))
+               this%n_global_probes))
           call mat_coords%init(this%n_global_probes,3)
        end if
        call MPI_Gatherv(this%xyz, 3*this%n_local_probes, &
@@ -515,15 +519,15 @@ contains
                         MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
        if (pe_rank .eq. 0) then
           call trsp(mat_coords%x, this%n_global_probes, &
-                    global_output_coords, 3)
+               global_output_coords, 3)
           !! Write the data to the file
           call this%fout%write(mat_coords)
        end if
-      class default
+    class default
        call neko_error("Invalid data. Expected csv_file_t.")
     end select
 
-  end subroutine probes_init_from_attributes
+  end subroutine probes_init_from_components
 
   !> Destructor
   subroutine probes_free(this)
@@ -614,14 +618,14 @@ contains
     this%n_local_probes_tot_offset = 0
     this%n_probes_offset = 0
     call MPI_Gather(this%n_local_probes, 1, MPI_INTEGER, &
-                    this%n_local_probes_tot, 1, MPI_INTEGER, &
-                    0, NEKO_COMM, ierr)
+         this%n_local_probes_tot, 1, MPI_INTEGER, &
+         0, NEKO_COMM, ierr)
 
     call MPI_Exscan(this%n_local_probes, this%n_probes_offset, 1, &
-                    MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
+         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
     call MPI_Gather(this%n_probes_offset, 1, MPI_INTEGER, &
-                    this%n_local_probes_tot_offset, 1, MPI_INTEGER, &
-                    0, NEKO_COMM, ierr)
+         this%n_local_probes_tot_offset, 1, MPI_INTEGER, &
+         0, NEKO_COMM, ierr)
 
 
 
@@ -631,12 +635,14 @@ contains
   !! @note The final interpolated field is only available on rank 0.
   !! @param t Current simulation time.
   !! @param tstep Current time step.
-  subroutine probes_evaluate_and_write(this, t, tstep)
+  subroutine probes_evaluate_and_write(this, time)
     class(probes_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
-    integer, intent(in) :: tstep
+    type(time_state_t), intent(in) :: time
     integer :: i, ierr
     logical :: do_interp_on_host = .false.
+
+    !> Do not execute if we are below the start_time
+    if (time%t .lt. this%start_time) return
 
     !> Check controller to determine if we must write
     do i = 1, this%n_fields
@@ -648,16 +654,16 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, this%n_fields
           call device_memcpy(this%out_values(:,i), this%out_values_d(i), &
-                             this%n_local_probes, DEVICE_TO_HOST, sync = .true.)
+               this%n_local_probes, DEVICE_TO_HOST, sync = .true.)
        end do
     end if
 
-    if (this%output_controller%check(t, tstep)) then
+    if (this%output_controller%check(time)) then
        ! Gather all values to rank 0
        ! If io is only done at root
        if (this%seq_io) then
           call trsp(this%out_vals_trsp, this%n_fields, &
-                    this%out_values, this%n_local_probes)
+               this%out_values, this%n_local_probes)
           call MPI_Gatherv(this%out_vals_trsp, &
                            this%n_fields*this%n_local_probes, &
                            MPI_REAL_PRECISION, this%global_output_values, &
@@ -666,8 +672,8 @@ contains
                            MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
           if (pe_rank .eq. 0) then
              call trsp(this%mat_out%x, this%n_global_probes, &
-                       this%global_output_values, this%n_fields)
-             call this%fout%write(this%mat_out, t)
+                  this%global_output_values, this%n_fields)
+             call this%fout%write(this%mat_out, time%t)
           end if
        else
           call neko_error('probes sim comp, parallel io need implementation')
@@ -682,7 +688,7 @@ contains
   !> Initialize the physical coordinates from a `csv` input file
   !! @param points_file A csv file containing probes.
   subroutine read_probe_locations(this, xyz, n_local_probes, n_global_probes, &
-                                  points_file)
+       points_file)
     class(probes_t), intent(inout) :: this
     character(len=:), allocatable :: points_file
     real(kind=rp), allocatable :: xyz(:,:)
@@ -694,10 +700,10 @@ contains
     file_in = file_t(trim(points_file))
     !> Reads on rank 0 and distributes the probes across the different ranks
     select type (ft => file_in%file_type)
-      type is (csv_file_t)
+    type is (csv_file_t)
        call read_xyz_from_csv(xyz, n_local_probes, n_global_probes, ft)
        this%seq_io = .true.
-      class default
+    class default
        call neko_error("Invalid data. Expected csv_file_t.")
     end select
 

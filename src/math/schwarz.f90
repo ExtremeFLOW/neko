@@ -59,20 +59,22 @@
 !
 !> Overlapping schwarz solves
 module schwarz
-  use num_types
-  use math
-  use mesh
-  use space
+  use num_types, only : rp, i8
+  use math, only : rzero, rone
+  use mesh, only : mesh_t
+  use space, only : space_t, GLL
   use dofmap, only : dofmap_t
-  use bc
-  use gather_scatter
+  use gather_scatter, only : gs_t, GS_OP_ADD
   use device_schwarz
-  use device_math
+  use device_math, only : device_rzero, device_col2
   use fdm, only : fdm_t
-  use device
-  use neko_config
+  use device, only : device_map, device_alloc, device_memcpy, &
+       device_event_create, HOST_TO_DEVICE, DEVICE_TO_HOST, &
+       device_get_ptr, glb_cmd_queue, aux_cmd_queue, &
+       device_event_record, device_event_sync, device_stream_wait_event
+  use neko_config, only : NEKO_BCKND_DEVICE
   use bc_list, only : bc_list_t
-  use, intrinsic :: iso_c_binding
+  use, intrinsic :: iso_c_binding, only : c_sizeof, c_ptr, C_NULL_PTR
   implicit none
   private
 
@@ -135,7 +137,8 @@ contains
 
     call schwarz_setup_wt(this)
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_alloc(this%wt_d,int(this%dof%size()*rp, i8))
+       call device_alloc(this%wt_d, &
+            int(this%dof%size() * c_sizeof(this%work1(1)), i8))
        call rone(this%work1, this%dof%size())
        call schwarz_wt3d(this%work1, this%wt, Xh%lx, msh%nelv)
        call device_memcpy(this%work1, this%wt_d, this%dof%size(), &
@@ -172,7 +175,7 @@ contains
     associate(work1 => this%work1, work2 => this%work2, msh => this%msh, &
          Xh => this%Xh, Xh_schwarz => this%Xh_schwarz)
 
-      n  = this%dof%size()
+      n = this%dof%size()
 
       enx = Xh_schwarz%lx
       eny = Xh_schwarz%ly
@@ -386,7 +389,7 @@ contains
     associate(work1 => this%work1, work1_d => this%work1_d,&
               work2 => this%work2, work2_d => this%work2_d)
 
-      n  = this%dof%size()
+      n = this%dof%size()
       enx=this%Xh_schwarz%lx
       eny=this%Xh_schwarz%ly
       enz=this%Xh_schwarz%lz
@@ -467,32 +470,32 @@ contains
   subroutine schwarz_wt3d(e,wt,n, nelv)
     integer, intent(in) :: n, nelv
     real(kind=rp), intent(inout) :: e(n,n,n,nelv)
-    real(kind=rp), intent(inout) ::  wt(n,n,4,3,nelv)
+    real(kind=rp), intent(inout) :: wt(n,n,4,3,nelv)
     integer :: ie, i, j, k
 
     do ie = 1, nelv
        do k = 1, n
           do j = 1, n
-             e(1  ,j,k,ie) = e(1  ,j,k,ie) * wt(j,k,1,1,ie)
-             e(2  ,j,k,ie) = e(2  ,j,k,ie) * wt(j,k,2,1,ie)
+             e(1,j,k,ie) = e(1,j,k,ie) * wt(j,k,1,1,ie)
+             e(2,j,k,ie) = e(2,j,k,ie) * wt(j,k,2,1,ie)
              e(n-1,j,k,ie) = e(n-1,j,k,ie) * wt(j,k,3,1,ie)
-             e(n  ,j,k,ie) = e(n  ,j,k,ie) * wt(j,k,4,1,ie)
+             e(n,j,k,ie) = e(n,j,k,ie) * wt(j,k,4,1,ie)
           end do
        end do
        do k = 1, n
           do i = 3, n-2
-             e(i,1  ,k,ie) = e(i,1  ,k,ie) * wt(i,k,1,2,ie)
-             e(i,2  ,k,ie) = e(i,2  ,k,ie) * wt(i,k,2,2,ie)
+             e(i,1,k,ie) = e(i,1,k,ie) * wt(i,k,1,2,ie)
+             e(i,2,k,ie) = e(i,2,k,ie) * wt(i,k,2,2,ie)
              e(i,n-1,k,ie) = e(i,n-1,k,ie) * wt(i,k,3,2,ie)
-             e(i,n  ,k,ie) = e(i,n  ,k,ie) * wt(i,k,4,2,ie)
+             e(i,n,k,ie) = e(i,n,k,ie) * wt(i,k,4,2,ie)
           end do
        end do
        do j = 3, n-2
           do i = 3, n-2
-             e(i,j,1  ,ie) = e(i,j,1  ,ie) * wt(i,j,1,3,ie)
-             e(i,j,2  ,ie) = e(i,j,2  ,ie) * wt(i,j,2,3,ie)
+             e(i,j,1,ie) = e(i,j,1,ie) * wt(i,j,1,3,ie)
+             e(i,j,2,ie) = e(i,j,2,ie) * wt(i,j,2,3,ie)
              e(i,j,n-1,ie) = e(i,j,n-1,ie) * wt(i,j,3,3,ie)
-             e(i,j,n  ,ie) = e(i,j,n  ,ie) * wt(i,j,4,3,ie)
+             e(i,j,n,ie) = e(i,j,n,ie) * wt(i,j,4,3,ie)
           end do
        end do
     end do

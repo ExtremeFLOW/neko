@@ -244,7 +244,7 @@ contains
     implicit none
     integer, intent(in) :: n_to, n_from, derivative
     real(kind=rp), intent(inout) :: jh(n_to, n_from), jht(n_from, n_to)
-    real(kind=rp), intent(inout) :: z_to(n_to), z_from(n_from)
+    real(kind=rp), intent(in) :: z_to(n_to), z_from(n_from)
     real(kind=rp) ::  w(n_from, 0:derivative)
     integer :: i, j
     do i = 1, n_to
