@@ -130,6 +130,66 @@ contains
 
   end subroutine neko_api_case_free
 
+  !> Retrive the current time of a case
+  !! @param case_iptr Opaque pointer for the Neko case
+  !! @param time The case's current time
+  subroutine neko_api_case_time(case_iptr, time) &
+    bind(c, name="neko_case_time")
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    real(kind=c_double), intent(inout) :: time
+    type(case_t), pointer :: C
+    type(c_ptr) :: cptr
+
+    cptr = transfer(case_iptr, c_null_ptr)
+    if (c_associated(cptr)) then
+       call c_f_pointer(cptr, C)
+       time = C%time%t
+    else
+       call neko_error('Invalid Neko case')
+    end if
+
+  end subroutine neko_api_case_time
+
+  !> Retrive the end time of a case
+  !! @param case_iptr Opaque pointer for the Neko case
+  !! @param end_time The end time of a case
+  subroutine neko_api_case_end_time(case_iptr, end_time) &
+    bind(c, name="neko_case_end_time")
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    real(kind=c_double), intent(inout) :: end_time
+    type(case_t), pointer :: C
+    type(c_ptr) :: cptr
+
+    cptr = transfer(case_iptr, c_null_ptr)
+    if (c_associated(cptr)) then
+       call c_f_pointer(cptr, C)
+       end_time = C%time%end_time
+    else
+       call neko_error('Invalid Neko case')
+    end if
+
+  end subroutine neko_api_case_end_time  
+
+  !> Retrive the time-step of a case
+  !! @param case_iptr Opaque pointer for the Neko case
+  !! @param tstep The current time-step of a case
+  subroutine neko_api_case_tstep(case_iptr, tstep) &
+    bind(c, name="neko_case_tstep")
+    integer(c_intptr_t), intent(inout) :: case_iptr
+    type(case_t), pointer :: C
+    type(c_ptr) :: cptr
+    integer(c_int) :: tstep
+
+    cptr = transfer(case_iptr, c_null_ptr)
+    if (c_associated(cptr)) then
+       call c_f_pointer(cptr, C)
+       tstep = C%time%tstep
+    else
+       call neko_error('Invalid Neko case')
+    end if
+
+  end subroutine neko_api_case_tstep
+
   !> Solve a neko case
   !! @param case_iptr Opaque pointer for the Neko case
   subroutine neko_api_solve(case_iptr) bind(c, name="neko_solve")
@@ -149,117 +209,56 @@ contains
 
   !> Compute a time-step for a neko case
   !! @param case_iptr Opaque pointer for the Neko case
-  !! @param time The time value
-  !! @param tstep The current time-stepper iteration
-  subroutine neko_api_step(case_iptr, time, tstep) bind(c, name="neko_step")
+  subroutine neko_api_step(case_iptr) &
+       bind(c, name="neko_step")
     use time_step_controller, only : time_step_controller_t
     integer(c_intptr_t), intent(inout) :: case_iptr
-    real(kind=c_double), value :: time
-    integer(c_int), value :: tstep
     type(case_t), pointer :: C
     type(c_ptr) :: cptr
-    character(len=LOG_SIZE) :: log_buf
-    real(kind=rp) :: rho, mu, cp, lambda
-    type(time_step_controller_t) :: dt_controller
-    real(kind=rp) :: cfl_avrg = 0.0_rp
-    real(kind=rp) :: cfl, t
-    integer :: i
-
-    C%time%t = real(time, rp)
-
+    type(time_step_controller_t), save, allocatable :: dt_controller
+    real(kind=dp), save :: step_loop_start = 0.0_dp
+    real(kind=rp), save :: cfl
+    
     cptr = transfer(case_iptr, c_null_ptr)
     if (c_associated(cptr)) then
        call c_f_pointer(cptr, C)
+
+       if (.not. allocated(dt_controller)) then
+          allocate(dt_controller)
+          call dt_controller%init(C%params)
+       end if
+
+       if (C%time%tstep .eq. 0) then
+          call simulation_init(C, dt_controller)
+          
+          cfl = C%fluid%compute_cfl(C%time%dt)                 
+          step_loop_start = MPI_Wtime()
+       end if
+
+       if (C%time%t .lt. C%time%end_time) then
+          call simulation_step(C, dt_controller, cfl, step_loop_start)
+       end if
+
+       if (C%time%t .ge. C%time%end_time) then
+          call simulation_finalize(C)
+          if (allocated(dt_controller)) then
+             deallocate(dt_controller)
+          end if
+       end if
+       
     else
        call neko_error('Invalid Neko case')
     end if
-
-    call dt_controller%init(C%params)
-
-    write(log_buf, '(A4,E15.7)') 't = ', t
-    call neko_log%message(repeat('-', 64), NEKO_LOG_QUIET)
-    call neko_log%message(log_buf, NEKO_LOG_QUIET)
-    call neko_log%message(repeat('-', 64), NEKO_LOG_QUIET)
-
-    call neko_log%begin()
-
-    cfl = C%fluid%compute_cfl(C%time%dt)
-    call dt_controller%set_dt(C%time%dt, cfl, cfl_avrg, tstep)
-
-    do i = 10, 2, -1
-       C%time%tlag(i) = C%time%tlag(i-1)
-       C%time%dtlag(i) = C%time%dtlag(i-1)
-    end do
-
-    C%time%dtlag(i) = C%time%dt
-    C%time%tlag(1) = C%time%t
-    if (C%fluid%ext_bdf%ndiff .eq. 0 ) then
-       C%time%dtlag(2) = C%time%dt
-       C%time%tlag(2) = C%time%t
-    end if
-
-    C%time%t = C%time%t + C%time%dt
-
-    call C%fluid%ext_bdf%set_coeffs(C%time%dtlag)
-
-    ! Run the preprocessing
-    call neko_log%section('Preprocessing')
-    call neko_simcomps%preprocess(C%time)
-    call neko_log%end_section()
-
-    call neko_log%section('Fluid')
-    call C%fluid%step(t, tstep, C%time%dt, C%fluid%ext_bdf, dt_controller)
-    call neko_log%end_section()
-
-    ! Scalar step
-    if (allocated(C%scalar)) then
-       call neko_log%section('Scalar')
-       call C%scalar%step(t, tstep, C%time%dt, C%fluid%ext_bdf, dt_controller)
-       call neko_log%end_section()
-
-       !> @todo Temporary fix until we have reworked the material properties
-       cp = C%scalar%cp
-       lambda = C%scalar%lambda
-    end if
-
-    call neko_log%section('Postprocessing')
-    ! Execute all simulation components
-    call neko_simcomps%compute(C%time)
-    call neko_log%end_section()
-
-
-    !> @todo Temporary fix until we have reworked the material properties
-    rho = C%fluid%rho
-    mu = C%fluid%mu
-
-    ! Update material properties
-    call C%usr%material_properties(t, tstep, rho, mu, cp, lambda, C%params)
-
-    !> @todo Temporary fix until we have reworked the material properties
-    C%fluid%rho = rho
-    C%fluid%mu = mu
-    call C%fluid%update_material_properties()
-
-    if (allocated(C%scalar)) then
-       C%scalar%cp = cp
-       C%scalar%lambda = lambda
-       call C%scalar%update_material_properties()
-    end if
-
-    call neko_log%end()
-    call neko_log%newline()
-
+    
   end subroutine neko_api_step
 
   !> Execute the Case's output controller
   !! @param case_iptr Opaque pointer for the Neko case
   !! @param t The time value
   !! @param tstep The current time-stepper iteration
-  subroutine neko_api_output_ctrl_execute(case_iptr, t, tstep, force_output) &
+  subroutine neko_api_output_ctrl_execute(case_iptr, force_output) &
        bind(c, name="neko_output_ctrl_execute")
     integer(c_intptr_t), intent(inout) :: case_iptr
-    real(kind=c_double), value :: t
-    integer(c_int), value :: tstep
     logical(kind=c_bool), value :: force_output
     logical :: f_force_output
     type(case_t), pointer :: C
@@ -274,9 +273,7 @@ contains
     end if
 
     f_force_output = transfer(force_output, f_force_output)
-    f_time%t = real(t, rp)
-
-    call C%output_controller%execute(f_time, f_force_output)
+    call C%output_controller%execute(C%time, f_force_output)
 
   end subroutine neko_api_output_ctrl_execute
 

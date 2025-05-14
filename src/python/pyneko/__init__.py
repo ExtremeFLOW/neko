@@ -10,4 +10,16 @@ r"""
 
 """
 
-from pyneko.intf import init, finalize, job_info, case_init, case_free, solve, step, output
+from pyneko.intf import (
+    init,
+    finalize,
+    job_info,
+    case_init,
+    case_free,
+    time,
+    end_time,
+    tstep,
+    solve,
+    step,
+    output    
+)

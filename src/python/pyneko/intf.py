@@ -13,19 +13,28 @@ libneko.neko_case_init.resType = c_int
 libneko.neko_case_free.argtypes = [POINTER(c_int)]
 libneko.neko_case_free.resType = None
 
+libneko.neko_case_time.argtypes = [POINTER(c_int), POINTER(c_double)]
+libneko.neko_case_time.resType = c_double
+
+libneko.neko_case_end_time.argtypes = [POINTER(c_int), POINTER(c_double)]
+libneko.neko_case_end_time.resType = c_double
+
+libneko.neko_case_tstep.argtypes = [POINTER(c_int), c_int]
+libneko.neko_case_tstep.resType = c_int
+
 libneko.neko_solve.argtypes = [POINTER(c_int)]
 libneko.neko_solve.resType = None
 
-libneko.neko_step.argtypes = [POINTER(c_int), c_double, c_int]
+libneko.neko_step.argtypes = [POINTER(c_int)]
+libneko.neko_step.resType = None
 
-libneko.neko_output_ctrl_execute.argtypes = [POINTER(c_int), c_double, c_int, c_bool]
+libneko.neko_output_ctrl_execute.argtypes = [POINTER(c_int), c_bool]
 
 def init():
     libneko.neko_init()
 
 def finalize():
     libneko.neko_finalize()
-
 
 def job_info():
     libneko.neko_job_info()
@@ -40,14 +49,29 @@ def case_init(case_json):
 def case_free(case_descr):
     libneko.neko_case_free(byref(case_descr))
 
+def time(case_descr):
+    time = c_double()
+    libneko.neko_case_time(byref(case_descr), byref(time))
+    return time.value
+
+def end_time(case_descr):
+    end_time = c_double()
+    libneko.neko_case_end_time(byref(case_descr), byref(end_time))
+    return end_time.value
+
+def tstep(case_descr):
+    tstep = c_int()
+    libneko.neko_case_tstep(byref(case_descr), tstep)    
+    return tstep   
+
 def solve(case_descr):
     libneko.neko_solve(byref(case_descr))
 
-def step(case_descr, t, tstep):
-    libneko.neko_step(byref(case_descr), t, tstep)
+def step(case_descr):
+    libneko.neko_step(byref(case_descr))
 
-def output(case_descr, t, tstep, force = False):
-    libneko.neko_output_ctrl_execute(byref(case_descr), t, tstep, force)
+def output(case_descr, force = False):
+    libneko.neko_output_ctrl_execute(byref(case_descr), force)
 
 
 #
