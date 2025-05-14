@@ -40,7 +40,7 @@ module div_simcomp
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use time_state, only : time_state_t
-  use operators, only : div 
+  use operators, only : div
   use case, only : case_t
   use fld_file_output, only : fld_file_output_t
   use json_utils, only : json_get, json_get_or_default
@@ -109,7 +109,7 @@ contains
        call neko_error("The div simcomp requires exactly 3 entries in " // &
             "field_names.")
     end if
-    
+
     fields(1) = trim(registered_name)
 
     ! This is needed for the field writer to pick up the fields.
@@ -192,8 +192,8 @@ contains
   !! to single precision.
   subroutine div_init_from_controllers_properties(this, &
        case, order, preprocess_control, preprocess_value, compute_control, &
-       compute_value, output_control, output_value, field_names, registered_name, &
-       filename, precision)
+       compute_value, output_control, output_value, field_names, &
+       registered_name, filename, precision)
     class(div_t), intent(inout) :: this
     class(case_t), intent(inout), target :: case
     integer :: order
