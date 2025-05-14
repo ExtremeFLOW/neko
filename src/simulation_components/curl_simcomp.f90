@@ -40,7 +40,7 @@ module curl_simcomp
   use field_registry, only : neko_field_registry
   use field, only : field_t
   use time_state, only : time_state_t
-  use operators, only : curl 
+  use operators, only : curl
   use case, only : case_t
   use fld_file_output, only : fld_file_output_t
   use json_utils, only : json_get, json_get_or_default
@@ -107,13 +107,13 @@ contains
 
 
     call json_get_or_default(json, "registered_name", registered_name, "curl")
-    call json_get(json, "field_names", field_names)
+    call json_get(json, "fields", field_names)
 
     if (size(field_names) .ne. 3) then
        call neko_error("The curl simcomp requires exactly 3 entries in " // &
             "field_names.")
     end if
-    
+
     fields(1) = trim(registered_name) // "_x"
     fields(2) = trim(registered_name) // "_y"
     fields(3) = trim(registered_name) // "_z"
@@ -127,7 +127,9 @@ contains
     call curl_init_common(this, field_names, registered_name)
   end subroutine curl_init_from_json
 
-  !> Actual constructor.
+  !> Common part of the constructors.
+  !! @param field_names The names of the fields to compute the curl of.
+  !! @param registered_name The base name of the curl field components.
   subroutine curl_init_common(this, field_names, registered_name)
     class(curl_t), intent(inout) :: this
     character(len=*) :: field_names(3)
@@ -172,7 +174,7 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(1)
+    character(len=20) :: fields(3)
 
     fields(1) = trim(registered_name) // "_x"
     fields(2) = trim(registered_name) // "_y"
@@ -220,7 +222,7 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(1)
+    character(len=20) :: fields(3)
 
     fields(1) = trim(registered_name) // "_x"
     fields(2) = trim(registered_name) // "_y"
