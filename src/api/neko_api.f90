@@ -168,7 +168,7 @@ contains
        call neko_error('Invalid Neko case')
     end if
 
-  end subroutine neko_api_case_end_time  
+  end subroutine neko_api_case_end_time
 
   !> Retrive the time-step of a case
   !! @param case_iptr Opaque pointer for the Neko case
@@ -218,7 +218,7 @@ contains
     type(time_step_controller_t), save, allocatable :: dt_controller
     real(kind=dp), save :: step_loop_start = 0.0_dp
     real(kind=rp), save :: cfl
-    
+
     cptr = transfer(case_iptr, c_null_ptr)
     if (c_associated(cptr)) then
        call c_f_pointer(cptr, C)
@@ -230,8 +230,8 @@ contains
 
        if (C%time%tstep .eq. 0) then
           call simulation_init(C, dt_controller)
-          
-          cfl = C%fluid%compute_cfl(C%time%dt)                 
+
+          cfl = C%fluid%compute_cfl(C%time%dt)
           step_loop_start = MPI_Wtime()
        end if
 
@@ -245,11 +245,11 @@ contains
              deallocate(dt_controller)
           end if
        end if
-       
+
     else
        call neko_error('Invalid Neko case')
     end if
-    
+
   end subroutine neko_api_step
 
   !> Execute the Case's output controller
