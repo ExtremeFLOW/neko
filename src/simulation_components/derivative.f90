@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,6 @@ module derivative
   use field, only : field_t
   use operators, only : dudxyz
   use case, only : case_t
-  use fld_file_output, only : fld_file_output_t
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
   use utils, only : neko_error

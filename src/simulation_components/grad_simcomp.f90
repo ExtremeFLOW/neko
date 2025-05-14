@@ -41,7 +41,6 @@ module grad_simcomp
   use operators, only : grad
   use time_state, only : time_state_t
   use case, only : case_t
-  use fld_file_output, only : fld_file_output_t
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
   use time_based_controller, only : time_based_controller_t

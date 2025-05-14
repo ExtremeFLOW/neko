@@ -1,4 +1,4 @@
-! Copyright (c) 2023, The Neko Authors
+! Copyright (c) 2025, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -42,11 +42,8 @@ module div_simcomp
   use time_state, only : time_state_t
   use operators, only : div
   use case, only : case_t
-  use fld_file_output, only : fld_file_output_t
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
-  use device, only : glb_cmd_event
-  use scratch_registry, only : neko_scratch_registry
   use time_based_controller, only : time_based_controller_t
   use utils, only : neko_error
   implicit none
