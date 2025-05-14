@@ -33,18 +33,19 @@
 !
 !> Implements the `weak_grad_t` type.
 
-module weak_grad
+module weak_grad_simcomp
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use field, only : field_t
-  use operators, only : opgrad
+  use operators, only : weak_grad
   use time_state, only : time_state_t
   use case, only : case_t
   use fld_file_output, only : fld_file_output_t
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
+  use time_based_controller, only : time_based_controller_t
   implicit none
   private
 
@@ -134,8 +135,8 @@ contains
     class(weak_grad_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    call opgrad(this%grad_x%x, this%grad_y%x, this%grad_z%x, this%u%x,&
+    call weak_grad(this%grad_x%x, this%grad_y%x, this%grad_z%x, this%u%x,&
          this%case%fluid%c_Xh)
   end subroutine weak_grad_compute
 
-end module weak_grad
+end module weak_grad_simcomp
