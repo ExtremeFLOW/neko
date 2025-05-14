@@ -52,7 +52,7 @@ module curl_simcomp
   implicit none
   private
 
-  !> A simulation component that computes the curl field.
+  !> A simulation component that computes the curl of a vector field.
   !! Added to the field registry as `curl_x`, `curl_y``, and `curl_z` by
   !! default, but can be controlled by the registered_name keyword.
   type, public, extends(simulation_component_t) :: curl_t
