@@ -42,21 +42,25 @@ submodule (simulation_component) simulation_component_fctry
   use field_writer, only : field_writer_t
   use curl_simcomp, only : curl_t
   use weak_grad_simcomp, only : weak_grad_t
+  use grad_simcomp, only : grad_t
+  use div_simcomp, only : div_t
   use derivative, only : derivative_t
   use spectral_error, only: spectral_error_t
   use utils, only : neko_type_error, neko_type_registration_error
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: SIMCOMPS_KNOWN_TYPES(10) = [character(len=20) :: &
+  character(len=20) :: SIMCOMPS_KNOWN_TYPES(12) = [character(len=20) :: &
        "lambda2", &
        "probes", &
        "les_model", &
        "field_writer", &
        "fluid_stats", &
-       "weak_grad", &
+       "grad", &
+       "div", &
        "curl", &
        "derivative", &
+       "weak_grad", &
        "force_torque", &
        "spectral_error"]
 
@@ -108,10 +112,14 @@ contains
        allocate(field_writer_t::object)
     case ("weak_grad")
        allocate(weak_grad_t::object)
+    case ("grad")
+       allocate(grad_t::object)
     case ("derivative")
        allocate(derivative_t::object)
     case ("curl")
        allocate(curl_t::object)
+    case ("div")
+       allocate(div_t::object)
     case ("force_torque")
        allocate(force_torque_t::object)
     case ("fluid_stats")

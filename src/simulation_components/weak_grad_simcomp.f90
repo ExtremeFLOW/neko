@@ -99,7 +99,7 @@ contains
     ! Will also add fields to the registry.
     call json_get(json, "field", field_name)
     call json_get_or_default(json, "registered_name", registered_name, &
-         "weak_grad_" // trim(field_name))
+         "weak_grad" // trim(field_name))
 
     fields(1) = registered_name // "_x"
     fields(2) = registered_name // "_y"
@@ -156,7 +156,7 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(1)
+    character(len=20) :: fields(3)
 
     fields(1) = trim(registered_name) // "_x"
     fields(2) = trim(registered_name) // "_y"
@@ -204,7 +204,7 @@ contains
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(1)
+    character(len=20) :: fields(3)
 
     fields(1) = trim(registered_name) // "_x"
     fields(2) = trim(registered_name) // "_y"
