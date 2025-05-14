@@ -104,7 +104,9 @@ module neko
   use matrix, only : matrix_t
   use tensor
   use simulation_component, only : simulation_component_t, &
-       simulation_component_wrapper_t
+       simulation_component_wrapper_t, simulation_component_factory, &
+       simulation_component_allocator, simulation_component_allocate, &
+       register_simulation_component
   use probes, only : probes_t
   use spectral_error
   use system, only : system_cpu_name, system_cpuid
@@ -125,7 +127,14 @@ module neko
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use bc_list, only : bc_list_t
-  use les_model, only : les_model_t
+  use les_model, only : les_model_t, les_model_allocate, register_les_model, &
+       les_model_factory, les_model_allocator
+  use field_writer, only : field_writer_t
+  use derivative, only : derivative_t
+  use lambda2, only : lambda2_t
+  use time_based_controller, only : time_based_controller_t
+  use source_term, only : source_term_t, source_term_allocate, &
+       register_source_term, source_term_factory, source_term_allocator
   use, intrinsic :: iso_fortran_env
   !$ use omp_lib
   implicit none
@@ -156,6 +165,9 @@ contains
 
     if (present(C)) then
 
+       !
+       ! Command line arguments
+       !
        argc = command_argument_count()
 
        if (argc .lt. 1) then
@@ -171,21 +183,15 @@ contains
           call neko_error('Invalid case file')
        end if
 
-       ! Check the device count against the number of MPI ranks
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          if (device_count() .ne. 1) then
-             call neko_error('Only one device is supported per MPI rank')
-          end if
-       end if
-
        if (argc .gt. 1) then
           write(log_buf, '(a)') 'Running with command line arguments: '
           call neko_log%message(log_buf, NEKO_LOG_QUIET)
-          do i = 2,argc
+          do i = 2, argc
              call get_command_argument(i, args)
              call neko_log%message(args, NEKO_LOG_QUIET)
           end do
        end if
+
        !
        ! Job information
        !

@@ -55,6 +55,7 @@ contains
     class(*), target, intent(inout) :: data
     type(map_t), pointer :: nm
     integer :: j, k, neli, nnzi, ierr
+    integer :: file_unit
 
     call this%check_exists()
 
@@ -65,20 +66,20 @@ contains
        call neko_error("Invalid output data")
     end select
 
-    open(unit=10, file=trim(this%fname), status='old', iostat=ierr)
+    open(newunit=file_unit, file=trim(this%fname), status='old', iostat=ierr)
     if (pe_rank .eq. 0) then
        write(*, '(A,A)') " Reading NEKTON map file ", this%fname
     end if
 
-    read(10, *) neli, nnzi
+    read(file_unit, *) neli, nnzi
 
     !> @todo Check if neli matches map%nel
 
     do j = 1, nm%nel
-       read(10, *) nm%imap(j),(nm%vertex(k, j), k=1,nm%nlv)
+       read(file_unit, *) nm%imap(j),(nm%vertex(k, j), k=1,nm%nlv)
     end do
 
-    close(unit=10)
+    close(unit=file_unit)
 
   end subroutine map_file_read
 

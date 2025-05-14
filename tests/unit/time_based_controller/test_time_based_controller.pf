@@ -46,6 +46,8 @@ subroutine test_assign()
   @assertEqual(ctrl1%frequency, ctrl2%frequency, tolerance=1e-6_rp)
   @assertEqual(ctrl1%nsteps, ctrl2%nsteps)
   @assertEqual(ctrl1%nexecutions, ctrl2%nexecutions)
+  @assertEqual(ctrl1%control_value, ctrl2%control_value)
+  @assertEqual(ctrl1%control_mode, ctrl2%control_mode)
 
 end subroutine test_assign
 

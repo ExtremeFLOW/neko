@@ -73,10 +73,10 @@ module fluid_scheme_incompressible
   use utils, only : neko_error, neko_warning
   use field_series, only : field_series_t
   use time_step_controller, only : time_step_controller_t
-  use field_math, only : field_cfill, field_add2s2
+  use field_math, only : field_cfill, field_add2s2, field_addcol3
   use shear_stress, only : shear_stress_t
-  use gradient_jump_penalty, only : gradient_jump_penalty_t
-  use device, only : device_event_sync, glb_cmd_event
+  use device, only : device_event_sync, glb_cmd_event, DEVICE_TO_HOST, &
+       device_memcpy
   implicit none
   private
 
@@ -93,11 +93,6 @@ module fluid_scheme_incompressible
      integer :: vel_projection_activ_step !< Steps to activate projection for ksp_vel
      integer :: pr_projection_activ_step !< Steps to activate projection for ksp_pr
      logical :: strict_convergence !< Strict convergence for the velocity solver
-     !> Gradient jump panelty
-     logical :: if_gradient_jump_penalty
-     type(gradient_jump_penalty_t) :: gradient_jump_penalty_u
-     type(gradient_jump_penalty_t) :: gradient_jump_penalty_v
-     type(gradient_jump_penalty_t) :: gradient_jump_penalty_w
      !> Extrapolation velocity fields for LES
      type(field_t), pointer :: u_e => null() !< Extrapolated x-Velocity
      type(field_t), pointer :: v_e => null() !< Extrapolated y-Velocity
@@ -173,6 +168,7 @@ contains
     type(json_file) :: wm_json
     character(len=:), allocatable :: string_val1, string_val2
     real(kind=rp) :: GJP_param_a, GJP_param_b
+    type(json_file) :: json_subdict
 
     !
     ! SEM simulation fundamentals
@@ -208,44 +204,26 @@ contains
     write(log_buf, '(A, A)') 'Name       : ', trim(this%name)
     call neko_log%message(log_buf)
 
+    ! Assign velocity fields
+    call neko_field_registry%add_field(this%dm_Xh, 'u')
+    call neko_field_registry%add_field(this%dm_Xh, 'v')
+    call neko_field_registry%add_field(this%dm_Xh, 'w')
+    this%u => neko_field_registry%get_field('u')
+    this%v => neko_field_registry%get_field('v')
+    this%w => neko_field_registry%get_field('w')
+
     !
     ! Material properties
     !
     call this%set_material_properties(params, user)
 
-    !
-    ! Turbulence modelling and variable material properties
-    !
-    if (params%valid_path('case.fluid.nut_field')) then
-       call json_get(params, 'case.fluid.nut_field', this%nut_field_name)
-       this%variable_material_properties = .true.
-    else
-       this%nut_field_name = ""
-    end if
-
-    ! Fill mu and rho field with the physical value
-
-    call this%mu_field%init(this%dm_Xh, "mu")
-    call this%rho_field%init(this%dm_Xh, "rho")
-    call field_cfill(this%mu_field, this%mu, this%mu_field%size())
-    call field_cfill(this%rho_field, this%rho, this%mu_field%size())
-
-    ! Since mu, rho is a field, and the none-stress simulation fetches
-    ! data from the host arrays, we need to mirror the constant
-    ! material properties on the host
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call cfill(this%mu_field%x, this%mu, this%mu_field%size())
-       call cfill(this%rho_field%x, this%rho, this%rho_field%size())
-    end if
-
-
     ! Projection spaces
     call json_get_or_default(params, &
          'case.fluid.velocity_solver.projection_space_size', &
-         this%vel_projection_dim, 20)
+         this%vel_projection_dim, 0)
     call json_get_or_default(params, &
          'case.fluid.pressure_solver.projection_space_size', &
-         this%pr_projection_dim, 20)
+         this%pr_projection_dim, 0)
     call json_get_or_default(params, &
          'case.fluid.velocity_solver.projection_hold_steps', &
          this%vel_projection_activ_step, 5)
@@ -277,17 +255,11 @@ contains
     write(log_buf, '(A, I0)') 'Unique pts.: ', this%glb_unique_points
     call neko_log%message(log_buf)
 
-    write(log_buf, '(A,ES13.6)') 'rho        :', this%rho
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.6)') 'mu         :', this%mu
-    call neko_log%message(log_buf)
 
     call json_get(params, 'case.numerics.dealias', logical_val)
     write(log_buf, '(A, L1)') 'Dealias    : ', logical_val
     call neko_log%message(log_buf)
 
-    write(log_buf, '(A, L1)') 'LES        : ', this%variable_material_properties
-    call neko_log%message(log_buf)
 
     call json_get_or_default(params, 'case.output_boundary', logical_val, &
          .false.)
@@ -304,10 +276,6 @@ contains
     call this%f_y%init(this%dm_Xh, fld_name = "fluid_rhs_y")
     call this%f_z%init(this%dm_Xh, fld_name = "fluid_rhs_z")
 
-    ! Initialize the source term
-    call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user)
-    call this%source_term%add(params, 'case.fluid.source_terms')
-
     ! Initialize velocity solver
     if (kspv_init) then
        call neko_log%section("Velocity solver")
@@ -315,8 +283,10 @@ contains
             'case.fluid.velocity_solver.max_iterations', &
             integer_val, KSP_MAX_ITER)
        call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
-       call json_get(params, 'case.fluid.velocity_solver.preconditioner', &
+       call json_get(params, 'case.fluid.velocity_solver.preconditioner.type', &
             string_val2)
+       call json_extract_object(params, &
+            'case.fluid.velocity_solver.preconditioner', json_subdict)
        call json_get(params, 'case.fluid.velocity_solver.absolute_tolerance', &
             real_val)
        call json_get_or_default(params, &
@@ -331,7 +301,8 @@ contains
        call this%solver_factory(this%ksp_vel, this%dm_Xh%size(), &
             string_val1, integer_val, real_val, logical_val)
        call this%precon_factory_(this%pc_vel, this%ksp_vel, &
-            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_vel, string_val2)
+            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_vel, &
+            string_val2, json_subdict)
        call neko_log%end_section()
     end if
 
@@ -339,45 +310,11 @@ contains
     call json_get_or_default(params, 'case.fluid.strict_convergence', &
          this%strict_convergence, .false.)
 
-    ! Assign velocity fields
-    call neko_field_registry%add_field(this%dm_Xh, 'u')
-    call neko_field_registry%add_field(this%dm_Xh, 'v')
-    call neko_field_registry%add_field(this%dm_Xh, 'w')
-    this%u => neko_field_registry%get_field('u')
-    this%v => neko_field_registry%get_field('v')
-    this%w => neko_field_registry%get_field('w')
 
     !! Initialize time-lag fields
     call this%ulag%init(this%u, 2)
     call this%vlag%init(this%v, 2)
     call this%wlag%init(this%w, 2)
-
-    ! Initiate gradient jump penalty
-    call json_get_or_default(params, &
-         'case.fluid.gradient_jump_penalty.enabled',&
-         this%if_gradient_jump_penalty, .false.)
-
-    if (this%if_gradient_jump_penalty .eqv. .true.) then
-       if ((this%dm_Xh%xh%lx - 1) .eq. 1) then
-          call json_get_or_default(params, &
-               'case.fluid.gradient_jump_penalty.tau',&
-               GJP_param_a, 0.02_rp)
-          GJP_param_b = 0.0_rp
-       else
-          call json_get_or_default(params, &
-               'case.fluid.gradient_jump_penalty.scaling_factor',&
-               GJP_param_a, 0.8_rp)
-          call json_get_or_default(params, &
-               'case.fluid.gradient_jump_penalty.scaling_exponent',&
-               GJP_param_b, 4.0_rp)
-       end if
-       call this%gradient_jump_penalty_u%init(params, this%dm_Xh, this%c_Xh, &
-            GJP_param_a, GJP_param_b)
-       call this%gradient_jump_penalty_v%init(params, this%dm_Xh, this%c_Xh, &
-            GJP_param_a, GJP_param_b)
-       call this%gradient_jump_penalty_w%init(params, this%dm_Xh, this%c_Xh, &
-            GJP_param_a, GJP_param_b)
-    end if
 
     call neko_field_registry%add_field(this%dm_Xh, 'u_e')
     call neko_field_registry%add_field(this%dm_Xh, 'v_e')
@@ -385,6 +322,10 @@ contains
     this%u_e => neko_field_registry%get_field('u_e')
     this%v_e => neko_field_registry%get_field('v_e')
     this%w_e => neko_field_registry%get_field('w_e')
+
+    ! Initialize the source term
+    call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user)
+    call this%source_term%add(params, 'case.fluid.source_terms')
 
     call neko_log%end_section()
 
@@ -428,11 +369,9 @@ contains
     nullify(this%w)
     nullify(this%p)
 
-    if (this%variable_material_properties) then
-       nullify(this%u_e)
-       nullify(this%v_e)
-       nullify(this%w_e)
-    end if
+    nullify(this%u_e)
+    nullify(this%v_e)
+    nullify(this%w_e)
 
     call this%ulag%free()
     call this%vlag%free()
@@ -455,15 +394,8 @@ contains
     nullify(this%f_y)
     nullify(this%f_z)
 
-    call this%rho_field%free()
-    call this%mu_field%free()
-
-    ! Free gradient jump penalty
-    if (this%if_gradient_jump_penalty .eqv. .true.) then
-       call this%gradient_jump_penalty_u%free()
-       call this%gradient_jump_penalty_v%free()
-       call this%gradient_jump_penalty_w%free()
-    end if
+    call this%rho%free()
+    call this%mu%free()
 
   end subroutine fluid_scheme_free
 
@@ -551,11 +483,11 @@ contains
     b => null()
 
     call this%bcs_prs%apply(this%p, t, tstep)
-    call this%gs_Xh%op(this%p,GS_OP_MIN, glb_cmd_event)
+    call this%gs_Xh%op(this%p, GS_OP_MIN, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
 
     call this%bcs_prs%apply(this%p, t, tstep)
-    call this%gs_Xh%op(this%p,GS_OP_MAX, glb_cmd_event)
+    call this%gs_Xh%op(this%p, GS_OP_MAX, glb_cmd_event)
     call device_event_sync(glb_cmd_event)
 
     do i = 1, this%bcs_prs%size()
@@ -584,7 +516,7 @@ contains
 
   !> Initialize a Krylov preconditioner
   subroutine fluid_scheme_precon_factory(this, pc, ksp, coef, dof, gs, bclst, &
-       pctype)
+       pctype, pcparams)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
@@ -593,6 +525,7 @@ contains
     type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
+    type(json_file), intent(inout) :: pcparams
 
     call precon_factory(pc, pctype)
 
@@ -604,16 +537,7 @@ contains
     type is (device_jacobi_t)
        call pcp%init(coef, dof, gs)
     type is (hsmg_t)
-       if (len_trim(pctype) .gt. 4) then
-          if (index(pctype, '+') .eq. 5) then
-             call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst, &
-                  trim(pctype(6:)))
-          else
-             call neko_error('Unknown coarse grid solver')
-          end if
-       else
-          call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
-       end if
+       call pcp%init(coef, bclst, pcparams)
     type is (phmg_t)
        call pcp%init(dof%msh, dof%Xh, coef, dof, gs, bclst)
     end select
@@ -634,17 +558,33 @@ contains
   end function fluid_compute_cfl
 
 
-  !> Update the values of `mu_field` if necessary.
-  subroutine fluid_scheme_update_material_properties(this)
+  !> Call user material properties routine and update the values of `mu`
+  !! if necessary.
+  !! @param t Time value.
+  !! @param tstep Current time step.
+  subroutine fluid_scheme_update_material_properties(this, t, tstep)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
+    real(kind=rp),intent(in) :: t
+    integer, intent(in) :: tstep
     type(field_t), pointer :: nut
-    integer :: n
 
-    this%mu_field = this%mu
-    if (this%variable_material_properties) then
+    call this%user_material_properties(t, tstep, this%name, &
+         this%material_properties)
+
+    if (len(trim(this%nut_field_name)) > 0) then
        nut => neko_field_registry%get_field(this%nut_field_name)
-       n = nut%size()
-       call field_add2s2(this%mu_field, nut, this%rho, n)
+       call field_addcol3(this%mu, nut, this%rho)
+    end if
+
+    ! Since mu, rho is a field_t, and we use the %x(1,1,1,1)
+    ! host array data to pass constant density and viscosity
+    ! to some routines, we need to make sure that the host
+    ! values are also filled
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%rho%x, this%rho%x_d, this%rho%size(), &
+            DEVICE_TO_HOST, sync=.false.)
+       call device_memcpy(this%mu%x, this%mu%x_d, this%mu%size(), &
+            DEVICE_TO_HOST, sync=.false.)
     end if
   end subroutine fluid_scheme_update_material_properties
 
@@ -660,27 +600,38 @@ contains
     procedure(user_material_properties), pointer :: dummy_mp_ptr
     logical :: nondimensional
     real(kind=rp) :: dummy_lambda, dummy_cp
+    real(kind=rp) :: const_mu, const_rho
+
 
     dummy_mp_ptr => dummy_user_material_properties
+
+    call this%mu%init(this%dm_Xh, "mu")
+    call this%rho%init(this%dm_Xh, "rho")
+    call this%material_properties%init(2)
+    call this%material_properties%assign_to_field(1, this%rho)
+    call this%material_properties%assign_to_field(2, this%mu)
 
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
 
        write(log_buf, '(A)') "Material properties must be set in the user&
        & file!"
        call neko_log%message(log_buf)
-       call user%material_properties(0.0_rp, 0, this%rho, this%mu, &
-            dummy_cp, dummy_lambda, params)
+       this%user_material_properties => user%material_properties
+
+       call user%material_properties(0.0_rp, 0, this%name, &
+            this%material_properties)
+
     else
+       this%user_material_properties => dummy_user_material_properties
        ! Incorrect user input
        if (params%valid_path('case.fluid.Re') .and. &
             (params%valid_path('case.fluid.mu') .or. &
             params%valid_path('case.fluid.rho'))) then
-          call neko_error("To set the material properties for the fluid," // &
-               " either provide Re OR mu and rho in the case file.")
+          call neko_error("To set the material properties for the fluid, " // &
+               "either provide Re OR mu and rho in the case file.")
 
-          ! Non-dimensional case
        else if (params%valid_path('case.fluid.Re')) then
-
+          ! Non-dimensional case
           write(log_buf, '(A)') 'Non-dimensional fluid material properties &
           & input.'
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
@@ -689,22 +640,46 @@ contains
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
           ! Read Re into mu for further manipulation.
-          call json_get(params, 'case.fluid.Re', this%mu)
+          call json_get(params, 'case.fluid.Re', const_mu)
           write(log_buf, '(A)') 'Read non-dimensional material properties'
           call neko_log%message(log_buf)
-          write(log_buf, '(A,ES13.6)') 'Re         :', this%mu
+          write(log_buf, '(A,ES13.6)') 'Re         :', const_mu
           call neko_log%message(log_buf)
 
           ! Set rho to 1 since the setup is non-dimensional.
-          this%rho = 1.0_rp
+          const_rho = 1.0_rp
           ! Invert the Re to get viscosity.
-          this%mu = 1.0_rp/this%mu
-          ! Dimensional case
+          const_mu = 1.0_rp/const_mu
        else
-          call json_get(params, 'case.fluid.mu', this%mu)
-          call json_get(params, 'case.fluid.rho', this%rho)
+          ! Dimensional case
+          call json_get(params, 'case.fluid.mu', const_mu)
+          call json_get(params, 'case.fluid.rho', const_rho)
        end if
+    end if
 
+    ! We need to fill the fields based on the parsed const values
+    ! if the user routine is not used.
+    if (associated(user%material_properties, dummy_mp_ptr)) then
+       ! Fill mu and rho field with the physical value
+       call field_cfill(this%mu, const_mu)
+       call field_cfill(this%rho, const_rho)
+
+
+       write(log_buf, '(A,ES13.6)') 'rho        :', const_rho
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,ES13.6)') 'mu         :', const_mu
+       call neko_log%message(log_buf)
+    end if
+
+    ! Since mu, rho is a field_t, and we use the %x(1,1,1,1)
+    ! host array data to pass constant density and viscosity
+    ! to some routines, we need to make sure that the host
+    ! values are also filled
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%rho%x, this%rho%x_d, this%rho%size(), &
+            DEVICE_TO_HOST, sync=.false.)
+       call device_memcpy(this%mu%x, this%mu%x_d, this%mu%size(), &
+            DEVICE_TO_HOST, sync=.false.)
     end if
   end subroutine fluid_scheme_set_material_properties
 

@@ -46,6 +46,7 @@ module derivative
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
   use utils, only : neko_error
+  use time_based_controller, only : time_based_controller_t
   implicit none
   private
 
@@ -68,9 +69,18 @@ module derivative
    contains
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => derivative_init_from_json
-     !> Actual constructor.
-     procedure, pass(this) :: init_from_components => &
-          derivative_init_from_components
+     !> Generic for constructing from components.
+     generic :: init_from_components => &
+          init_from_controllers, init_from_controllers_properties
+     !> Constructor from components, passing time_based_controllers.
+     procedure, pass(this) :: init_from_controllers => &
+          derivative_init_from_controllers
+     !> Constructor from components, passing the properties of
+     !! time_based_controllers.
+     procedure, pass(this) :: init_from_controllers_properties => &
+          derivative_init_from_controllers_properties
+     !> Common part of both constructors.
+     procedure, private, pass(this) :: init_common => derivative_init_common
      !> Destructor.
      procedure, pass(this) :: free => derivative_free
      !> Compute the derivative field.
@@ -88,7 +98,7 @@ contains
     character(len=:), allocatable :: direction
     character(len=20) :: fields(1)
 
-    ! Add fields keyword to the json so that the field_writer picks it up.
+    ! Add fields keyword to the json so that the field_writer_t picks it up.
     ! Will also add fields to the registry.
     call json_get(json, "field", fieldname)
     call json_get(json, "direction", direction)
@@ -99,11 +109,13 @@ contains
     call this%init_base(json, case)
     call this%writer%init(json, case)
 
-    call derivative_init_from_components(this, fieldname, direction)
+    call this%init_common(fieldname, direction)
   end subroutine derivative_init_from_json
 
-  !> Actual constructor.
-  subroutine derivative_init_from_components(this, fieldname, direction)
+  !> Common part of constructors from components.
+  !! @param fieldname The name of the field to compute the derivative of.
+  !! @param direction The direction of the derivative, one of x, y or z.
+  subroutine derivative_init_common(this, fieldname, direction)
     class(derivative_t), intent(inout) :: this
     character(len=*) :: fieldname
     character(len=*) :: direction
@@ -128,7 +140,93 @@ contains
     else
        call neko_error("The direction of the derivative must be x, y or z")
     end if
-  end subroutine derivative_init_from_components
+  end subroutine derivative_init_common
+
+  !> Constructor from components, passing controllers.
+  !! @param case The simulation case object.
+  !! @param order The execution oder priority of the simcomp.
+  !! @param preprocess_controller The controller for running preprocessing.
+  !! @param compute_controller The controller for running compute.
+  !! @param output_controller The controller for producing output.
+  !! @param fieldname The name of the field to compute the derivative of.
+  !! @param direction The direction of the derivative, one of x, y or z.
+  !! @param filename The name of the file save the fields to. Optional, if not
+  !! @param precision The real precision of the output data. Optional, defaults
+  !! to single precision.
+  subroutine derivative_init_from_controllers(this, case, order, &
+       preprocess_controller, compute_controller, output_controller, &
+       fieldname, direction, filename, precision)
+    class(derivative_t), intent(inout) :: this
+    class(case_t), intent(inout), target :: case
+    integer :: order
+    type(time_based_controller_t), intent(in) :: preprocess_controller
+    type(time_based_controller_t), intent(in) :: compute_controller
+    type(time_based_controller_t), intent(in) :: output_controller
+    character(len=*) :: fieldname
+    character(len=*) :: direction
+    character(len=*), intent(in), optional :: filename
+    integer, intent(in), optional :: precision
+
+    character(len=20) :: fields(1)
+
+    fields(1) = "d" // trim(fieldname) // "_d" // direction
+
+    call this%init_base_from_components(case, order, preprocess_controller, &
+         compute_controller, output_controller)
+    call this%init_common(fieldname, direction)
+    call this%writer%init_from_components(case, order, preprocess_controller, &
+         compute_controller, output_controller, fields, filename, precision)
+
+  end subroutine derivative_init_from_controllers
+
+  !> Constructor from components, passing properties to the
+  !! time_based_controller` components in the base type.
+  !! @param case The simulation case object.
+  !! @param order The execution oder priority of the simcomp.
+  !! @param preprocess_controller Control mode for preprocessing.
+  !! @param preprocess_value Value parameter for preprocessing.
+  !! @param compute_controller Control mode for computing.
+  !! @param compute_value Value parameter for computing.
+  !! @param output_controller Control mode for output.
+  !! @param output_value Value parameter for output.
+  !! @param fieldname The name of the field to compute the derivative of.
+  !! @param direction The direction of the derivative, one of x, y or z.
+  !! @param filename The name of the file save the fields to. Optional, if not
+  !! provided, fields are added to the main output file.
+  !! @param precision The real precision of the output data. Optional, defaults
+  !! to single precision.
+  subroutine derivative_init_from_controllers_properties(this, &
+       case, order, preprocess_control, preprocess_value, compute_control, &
+       compute_value, output_control, output_value, fieldname, direction, &
+       filename, precision)
+    class(derivative_t), intent(inout) :: this
+    class(case_t), intent(inout), target :: case
+    integer :: order
+    character(len=*), intent(in) :: preprocess_control
+    real(kind=rp), intent(in) :: preprocess_value
+    character(len=*), intent(in) :: compute_control
+    real(kind=rp), intent(in) :: compute_value
+    character(len=*), intent(in) :: output_control
+    real(kind=rp), intent(in) :: output_value
+    character(len=*) :: fieldname
+    character(len=*) :: direction
+    character(len=*), intent(in), optional :: filename
+    integer, intent(in), optional :: precision
+
+    character(len=20) :: fields(1)
+
+    fields(1) = "d" // trim(fieldname) // "_d" // direction
+
+    call this%init_base_from_components(case, order, preprocess_control, &
+         preprocess_value, compute_control, compute_value, output_control, &
+         output_value)
+    call this%init_common(fieldname, direction)
+    call this%writer%init_from_components(case, order, preprocess_control, &
+         preprocess_value, compute_control, compute_value, output_control, &
+         output_value, fields, filename, precision)
+
+  end subroutine derivative_init_from_controllers_properties
+
 
   !> Destructor.
   subroutine derivative_free(this)
