@@ -241,16 +241,16 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
@@ -279,16 +279,16 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
@@ -317,16 +317,16 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
@@ -355,16 +355,16 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
        ptr_h = c_loc(x)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
        ptr_h = c_loc(x)
     class default
        call neko_error('Unknown Fortran type')
@@ -715,13 +715,13 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
     class default
        call neko_error('Unknown Fortran type')
     end select
@@ -744,13 +744,13 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
     class default
        call neko_error('Unknown Fortran type')
     end select
@@ -773,13 +773,13 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
     class default
        call neko_error('Unknown Fortran type')
     end select
@@ -802,13 +802,13 @@ contains
 
     select type (x)
     type is (integer)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (integer(i8))
-       s = n * 8
+       s = n * int(8, c_size_t)
     type is (real)
-       s = n * 4
+       s = n * int(4, c_size_t)
     type is (double precision)
-       s = n * 8
+       s = n * int(8, c_size_t)
     class default
        call neko_error('Unknown Fortran type')
     end select
