@@ -39,7 +39,7 @@ module weak_grad_simcomp
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use field, only : field_t
-  use operators, only : weak_grad
+  use operators, only : opgrad
   use time_state, only : time_state_t
   use case, only : case_t
   use fld_file_output, only : fld_file_output_t
@@ -66,9 +66,18 @@ module weak_grad_simcomp
    contains
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => weak_grad_init_from_json
-     !> Actual constructor.
-     procedure, pass(this) :: init_from_components => &
-          weak_grad_init_from_components
+     !> Generic for constructing from components.
+     generic :: init_from_components => &
+          init_from_controllers, init_from_controllers_properties
+     !> Constructor from components, passing time_based_controllers.
+     procedure, pass(this) :: init_from_controllers => &
+          weak_grad_init_from_controllers
+     !> Constructor from components, passing the properties of
+     !! time_based_controllers.
+     procedure, pass(this) :: init_from_controllers_properties => &
+          weak_grad_init_from_controllers_properties
+     !> Common part of both constructors.
+     procedure, private, pass(this) :: init_common => weak_grad_init_common
      !> Destructor.
      procedure, pass(this) :: free => weak_grad_free
      !> Compute the weak_grad field.
@@ -82,41 +91,134 @@ contains
     class(weak_grad_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
-    character(len=:), allocatable :: fieldname
+    character(len=:), allocatable :: field_name
     character(len=20) :: fields(3)
+    character(len=:), allocatable :: registered_name
 
     ! Add fields keyword to the json so that the field_writer picks it up.
     ! Will also add fields to the registry.
-    call json_get(json, "field", fieldname)
+    call json_get(json, "field", field_name)
+    call json_get_or_default(json, "registered_name", registered_name, &
+         "weak_grad_" // trim(field_name))
 
-    fields(1) = "weak_grad_" // trim(fieldname) // "_x"
-    fields(2) = "weak_grad_" // trim(fieldname) // "_y"
-    fields(3) = "weak_grad_" // trim(fieldname) // "_z"
+    fields(1) = registered_name // "_x"
+    fields(2) = registered_name // "_y"
+    fields(3) = registered_name // "_z"
 
     call json%add("fields", fields)
 
     call this%init_base(json, case)
     call this%writer%init(json, case)
 
-    call weak_grad_init_from_components(this, fieldname)
+    call this%init_common(field_name, registered_name)
   end subroutine weak_grad_init_from_json
 
-  !> Actual constructor.
-  subroutine weak_grad_init_from_components(this, fieldname)
+  !> Common part of the constructors.
+  subroutine weak_grad_init_common(this, field_name, registered_name)
     class(weak_grad_t), intent(inout) :: this
-    character(len=*) :: fieldname
+    character(len=*) :: field_name
+    character(len=*) :: registered_name
 
-    this%u => neko_field_registry%get_field_by_name(trim(fieldname))
+    this%u => neko_field_registry%get_field_by_name(trim(field_name))
 
-    this%grad_x => neko_field_registry%get_field_by_name(&
-         "weak_grad_" // fieldname // "_x")
-    this%grad_y => neko_field_registry%get_field_by_name(&
-         "weak_grad_" // fieldname // "_y")
-    this%grad_z => neko_field_registry%get_field_by_name(&
-         "weak_grad_" // fieldname // "_z")
+    this%grad_x => neko_field_registry%get_field_by_name( &
+         registered_name // "_x")
+    this%grad_y => neko_field_registry%get_field_by_name( &
+         registered_name // "_y")
+    this%grad_z => neko_field_registry%get_field_by_name( &
+         registered_name // "_z")
 
 
-  end subroutine weak_grad_init_from_components
+  end subroutine weak_grad_init_common
+
+  !> Constructor from components, passing controllers.
+  !! @param case The simulation case object.
+  !! @param order The execution oder priority of the simcomp.
+  !! @param preprocess_controller The controller for running preprocessing.
+  !! @param compute_controller The controller for running compute.
+  !! @param output_controller The controller for producing output.
+  !! @param field_name The name of the field to compute the weak_grad of.
+  !! @param registered_name The base name of the weak_grad field components.
+  !! @param filename The name of the file save the fields to. Optional, if not
+  !! @param precision The real precision of the output data. Optional, defaults
+  !! to single precision.
+  subroutine weak_grad_init_from_controllers(this, case, order, &
+       preprocess_controller, compute_controller, output_controller, &
+       field_name, registered_name, filename, precision)
+    class(weak_grad_t), intent(inout) :: this
+    class(case_t), intent(inout), target :: case
+    integer :: order
+    type(time_based_controller_t), intent(in) :: preprocess_controller
+    type(time_based_controller_t), intent(in) :: compute_controller
+    type(time_based_controller_t), intent(in) :: output_controller
+    character(len=*) :: field_name
+    character(len=*) :: registered_name
+    character(len=*), intent(in), optional :: filename
+    integer, intent(in), optional :: precision
+
+    character(len=20) :: fields(1)
+
+    fields(1) = trim(registered_name) // "_x"
+    fields(2) = trim(registered_name) // "_y"
+    fields(3) = trim(registered_name) // "_z"
+
+    call this%init_base_from_components(case, order, preprocess_controller, &
+         compute_controller, output_controller)
+    call this%writer%init_from_components(case, order, preprocess_controller, &
+         compute_controller, output_controller, fields, filename, precision)
+    call this%init_common(field_name, registered_name)
+
+  end subroutine weak_grad_init_from_controllers
+
+  !> Constructor from components, passing properties to the
+  !! time_based_controller` components in the base type.
+  !! @param case The simulation case object.
+  !! @param order The execution oder priority of the simcomp.
+  !! @param preprocess_controller Control mode for preprocessing.
+  !! @param preprocess_value Value parameter for preprocessing.
+  !! @param compute_controller Control mode for computing.
+  !! @param compute_value Value parameter for computing.
+  !! @param output_controller Control mode for output.
+  !! @param output_value Value parameter for output.
+  !! @param field_name The name of the field to compute the weak_grad of.
+  !! @param registered_name The base name of the weak_grad field components.
+  !! @param filename The name of the file save the fields to. Optional, if not
+  !! provided, fields are added to the main output file.
+  !! @param precision The real precision of the output data. Optional, defaults
+  !! to single precision.
+  subroutine weak_grad_init_from_controllers_properties(this, &
+       case, order, preprocess_control, preprocess_value, compute_control, &
+       compute_value, output_control, output_value, field_name, &
+       registered_name, filename, precision)
+    class(weak_grad_t), intent(inout) :: this
+    class(case_t), intent(inout), target :: case
+    integer :: order
+    character(len=*), intent(in) :: preprocess_control
+    real(kind=rp), intent(in) :: preprocess_value
+    character(len=*), intent(in) :: compute_control
+    real(kind=rp), intent(in) :: compute_value
+    character(len=*), intent(in) :: output_control
+    real(kind=rp), intent(in) :: output_value
+    character(len=*) :: field_name
+    character(len=*) :: registered_name
+    character(len=*), intent(in), optional :: filename
+    integer, intent(in), optional :: precision
+
+    character(len=20) :: fields(1)
+
+    fields(1) = trim(registered_name) // "_x"
+    fields(2) = trim(registered_name) // "_y"
+    fields(3) = trim(registered_name) // "_z"
+
+    call this%init_base_from_components(case, order, preprocess_control, &
+         preprocess_value, compute_control, compute_value, output_control, &
+         output_value)
+    call this%writer%init_from_components(case, order, preprocess_control, &
+         preprocess_value, compute_control, compute_value, output_control, &
+         output_value, fields, filename, precision)
+    call this%init_common(field_name, registered_name)
+
+  end subroutine weak_grad_init_from_controllers_properties
 
   !> Destructor.
   subroutine weak_grad_free(this)
@@ -135,7 +237,7 @@ contains
     class(weak_grad_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    call weak_grad(this%grad_x%x, this%grad_y%x, this%grad_z%x, this%u%x,&
+    call opgrad(this%grad_x%x, this%grad_y%x, this%grad_z%x, this%u%x,&
          this%case%fluid%c_Xh)
   end subroutine weak_grad_compute
 

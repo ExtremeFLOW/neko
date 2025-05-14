@@ -76,6 +76,7 @@ module curl_simcomp
    contains
      !> Constructor from json, wrapping the actual constructor.
      procedure, pass(this) :: init => curl_init_from_json
+     !> Generic for constructing from components.
      generic :: init_from_components => &
           init_from_controllers, init_from_controllers_properties
      !> Constructor from components, passing time_based_controllers.
@@ -166,7 +167,7 @@ contains
     type(time_based_controller_t), intent(in) :: preprocess_controller
     type(time_based_controller_t), intent(in) :: compute_controller
     type(time_based_controller_t), intent(in) :: output_controller
-    character(len=*) :: field_names
+    character(len=*) :: field_names(3)
     character(len=*) :: registered_name
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
@@ -179,9 +180,9 @@ contains
 
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
-    call this%init_common(field_names, registered_name)
     call this%writer%init_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller, fields, filename, precision)
+    call this%init_common(field_names, registered_name)
 
   end subroutine curl_init_from_controllers
 
@@ -214,7 +215,7 @@ contains
     real(kind=rp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
     real(kind=rp), intent(in) :: output_value
-    character(len=*) :: field_names
+    character(len=*) :: field_names(3)
     character(len=*) :: registered_name
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
@@ -228,10 +229,10 @@ contains
     call this%init_base_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
          output_value)
-    call this%init_common(field_names, registered_name)
     call this%writer%init_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
          output_value, fields, filename, precision)
+    call this%init_common(field_names, registered_name)
 
   end subroutine curl_init_from_controllers_properties
 
