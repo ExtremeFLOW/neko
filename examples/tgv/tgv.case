@@ -45,7 +45,9 @@
   "simulation_components": 
   [
     {
-      "type": "vorticity",
+      "type": "curl",
+      "fields": ["u", "v", "w"],
+      "registered_name": "omega",
       "compute_control": "tsteps",
       "compute_value": 50
     }

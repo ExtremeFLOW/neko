@@ -23,16 +23,21 @@ of objects called `simulation_components`, which resides directly under the
 The following is a list of simulation components that are currently available
 in Neko. The list will be updated as new simcomps are added.
 
-- Computation of vorticity field \ref simcomp_vorticity
+- Differential operators
+  - Computation of the curl of a vector field \ref simcomp_curl
+  - Computation of the gradient of a scalar field \ref simcomp_grad
+  - Computation of the weak gradient of a field \ref simcomp_weak_grad
+  - Computation of the derivative of a scalar field \ref simcomp_derivative
+  - Computation of the divergence of a vector field \ref simcomp_div
 - Computation of \f$ \lambda_2 \f$ \ref simcomp_lambda2
 - Probing of fields at selected points \ref simcomp_probes
 - Output of registered fields to an `.fld` file \ref simcomp_field_writer
-- Computation of the derivative of a field \ref simcomp_derivative
 - Computation of forces and torque on a surface \ref simcomp_force_torque
-- Computation of the weak gradient of a field \ref simcomp_weak_grad
-- Computation of subgrid-scale (SGS) eddy viscosity via a SGS model \ref simcomp_les_model
+- Computation of subgrid-scale (SGS) eddy viscosity via a SGS model \ref
+  simcomp_les_model
 - User defined components \ref user-file_simcomps
-- Fluid statistics simcomp, "fluid_stats", for more details see the [statistics guide](@ref statistics-guide)
+- Fluid statistics simcomp, "fluid_stats", for more details see the [statistics
+  guide](@ref statistics-guide)
 - Computation of the spectral error indicator \ref simcomp_speri
 
 ## Controling execution and file output
@@ -54,25 +59,102 @@ the latter, the `output_filename` keyword should be provided. One can
 additionally provide the `precision` keyword, which can be set to either
 `single` or `double` to control the precision of the written data.
 
-For example, in the `tgv` example case the `vorticity` component is executed
+For example, in the `tgv` example case the `curl` component is executed
 once per 50 time steps. The `output_` parameters are synced to that, and the
 vorticity fields will be added to the main `.fld` file.
 ~~~~~~~~~~~~~~~{.json}
 {
-    "type": "vorticity",
-    "compute_control": "tsteps",
-    "compute_value": 50
+  "type": "curl",
+  "field_names": ["u", "v", "w"],
+  "registered_name": "vorticity"
+  "compute_control": "tsteps",
+  "compute_value": 50
 }
 ~~~~~~~~~~~~~~~
 
-### vorticity {#simcomp_vorticity}
-Computes the vorticity field an stores in the field registry as `omega_x`,
-`omega_y` and `omega_z`. By default, appends the 3 vorticity fields to the field files as
-scalars. To output in a different `fld` series, use the `"output_filename"` parameter.
+### Differential operators
+
+There is a set of simcomps that allow one to apply various differential
+operators on registered fields. They share common configuration traits. The
+field or fields that the operators is applied to us controlled, respectively, by
+the `field` or `feilds` keyword. The produced fields are also added to the
+registry, and each operator provides a default name. However, it can be
+overriden using the `registered_name` keyword. Operators that output a vector
+field will register three fields, adding `_x`, `_y`, and `_z` to the base of the
+name.
+
+All of these simcomps also support saving the result to `.fld` files. The \ref
+simcomp_field_writer simcomp is used for that under the hood, so the associated
+JSON keywords can be found in its documentation (`output_filename`, 
+`precision`).
+
+#### derivative {#simcomp_derivative}
+Computes the derivative of field along a chosen direction (x, y, or z). The
+field to derivate is controlled by the `field` keyword and the direction by the
+`direction` keyword. The simcomp will, by default, register the computed
+derivative in the registry as `d[field]_d[direction]`, where the values in the
+brackets correspond to the choice of the user keywords. 
 
  ~~~~~~~~~~~~~~~{.json}
  {
-   "type": "vorticity"
+   "type": "derivative",
+   "field": "u",
+   "direction": "y"
+   "registered_name": "dudy"
+ }
+ ~~~~~~~~~~~~~~~
+
+#### curl {#simcomp_curl}
+Takes a list of three field names from the `fields` keyword, and computes
+the curl.  By default, registers the result in `curl_x`, `curl_y` and `curl_z`.
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "curl"
+   "fields": ["u", "v", "w"],
+   "registered_name": "vorticity"
+ }
+ ~~~~~~~~~~~~~~~
+
+#### div {#simcomp_div}
+Takes a list of three field names from the `fields` keyword, and computes
+the divergence.  By default, registers the result in `div`.
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "div"
+   "fields": ["u", "v", "w"],
+   "registered_name": "continuity"
+ }
+ ~~~~~~~~~~~~~~~
+
+### grad {#simcomp_grad}
+Computes the gradient of a field.
+The field to derivate is controlled by the `field` keyword. The simcomp will, by
+default, register the computed components of the gradients in the registry as
+`grad_[field]_x`, `grad_[field]_y`, `grad_[field]_z` where the
+value in the brackets corresponds to the choice of the user keyword. 
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "grad"
+   "field": "u",
+ }
+ ~~~~~~~~~~~~~~~
+
+### weak_grad {#simcomp_weak_grad}
+Computes the weak gradient of a field. The weak gradient is value of the
+gradient multiplied by the local value of the mass matrix. This is how a
+gradient term appears in the weak formulation of the governing equations. The
+field to derivate is controlled by the `field` keyword. The simcomp will, by
+default, register the computed components of the gradients in the registry as
+`weak_grad_[field]_x`, `weak_grad_[field]_y`, `weak_grad_[field]_z` where the
+value in the brackets corresponds to the choice of the user keyword. 
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "weak_grad"
+   "field": "u",
  }
  ~~~~~~~~~~~~~~~
 
@@ -217,23 +299,6 @@ irrelevant.
  }
  ~~~~~~~~~~~~~~~
 
-### derivative {#simcomp_derivative}
-Computes the derivative of field along a chosen direction (x, y, or z). The
-field to derivate is controlled by the `field` keyword and the direction by the
-`direction` keyword. The simcomp will register the computed derivatives in the
-registry as `d[field]_d[direction]`, where the values in the brackets
-correspond to the choice of the user keywords. Supports writing the computed
-fields to disk via the usual common keywords. The resulting field will be
-appended as a scalar to the field files. To output in a different `fld` series,
-use the `"output_filename"` parameter.
-
- ~~~~~~~~~~~~~~~{.json}
- {
-   "type": "derivative",
-   "field": "u",
-   "direction": "y"
- }
- ~~~~~~~~~~~~~~~
 
 ### force_torque {#simcomp_force_torque}
 Computes the force on a specified zone and the corresponding torque
@@ -255,23 +320,6 @@ Subroutines used in the simcomp can be found in src/qoi/drag_torque.f90
  }
  ~~~~~~~~~~~~~~~
 
-### weak_grad {#simcomp_weak_grad}
-Computes the weak gradient of a field. The weak gradient is value of the
-gradient multiplied by the local value of the mass matrix. This is how a
-gradient term appears in the weak formulation of the governing equations. The
-field to derivate is controlled by the `field` keyword. The simcomp will
-register the computed components of the gradients in the registry as
-`weak_grad_[field]_x`, `weak_grad_[field]_y`, `weak_grad_[field]_z` where the
-value in the brackets corresponds to the choice of the user keyword. Supports
-writing the computed fields to disk via the usual common keywords.
-
- ~~~~~~~~~~~~~~~{.json}
- {
-   "type": "weak_grad"
-   "field": "u",
-   "output_control" : "never"
- }
- ~~~~~~~~~~~~~~~
 
 ### les_model {#simcomp_les_model}
 Computes a subgrid eddy viscosity field using an SGS model. **Note*:* The simcomp
