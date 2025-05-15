@@ -111,7 +111,7 @@ contains
 
     if (size(field_names) .ne. 3) then
        call neko_error("The curl simcomp requires exactly 3 entries in " // &
-            "field_names.")
+            "fields.")
     end if
 
     fields(1) = trim(computed_field) // "_x"
