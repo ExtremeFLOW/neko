@@ -751,8 +751,12 @@ EXTRA_DIST = \
 	comm/comm.h\
 	common/neko_log.h
 
+
 # Expose the listed headers in the package
 nobase_pkginclude_HEADERS = ${EXTRA_DIST}
+
+# Expose API header
+include_HEADERS = api/neko.h
 
 # Fortran deps. (updated with makedepf90 via target 'depend')
 include	.depends
