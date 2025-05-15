@@ -98,10 +98,14 @@ EXTRA_DIST = \
 	examples/rayleigh_benard_cylinder/rayleigh.geo\
 	examples/rayleigh_benard_cylinder/rayleigh.case\
 	examples/rayleigh_benard_cylinder/postprocess_probes.py\
-	examples/pyneko/README.md\
-	examples/pyneko/hemi.case\
-	examples/pyneko/hemi.py\
-	examples/pyneko/hemi.nmsh\
+	examples/api/pyneko/README.md\
+	examples/api/pyneko/cylinder.case\
+	examples/api/pyneko/cylinder.py\
+	examples/api/pyneko/cylinder.nmsh\
+	examples/api/c/README.md\
+	examples/api/c/cylinder.case\
+	examples/api/c/cylinder.c\
+	examples/api/c/cylinder.nmsh\
 	tests/reframe/checks.py\
 	tests/reframe/settings.py\
 	tests/reframe/README.md\

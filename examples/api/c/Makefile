@@ -2,8 +2,8 @@ CFLAGS  = `pkg-config --cflags jansson,neko`
 LIBS    = `pkg-config --libs jansson,neko`
 CC      = mpicc
 
-DEST    = demo
-SRC	= driver.c
+DEST    = cylinder
+SRC	= cylinder.c
 OBJ	= ${SRC:.c=.o}
 
 all: $(DEST)
