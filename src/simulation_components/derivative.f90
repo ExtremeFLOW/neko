@@ -95,7 +95,7 @@ contains
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: field_name
     character(len=:), allocatable :: direction
-    character(len=:), allocatable :: registered_name
+    character(len=:), allocatable :: computed_field
     character(len=20) :: fields(1)
 
     ! Add fields keyword to the json so that the field_writer_t picks it up.
@@ -103,27 +103,27 @@ contains
     call json_get(json, "field", field_name)
     call json_get(json, "direction", direction)
 
-    call json_get_or_default(json, "registered_name", registered_name, &
+    call json_get_or_default(json, "computed_field", computed_field, &
          "d" // trim(field_name) // "_d" // direction)
 
-    fields(1) = trim(registered_name)
+    fields(1) = trim(computed_field)
     call json%add("fields", fields)
 
     call this%init_base(json, case)
     call this%writer%init(json, case)
 
-    call this%init_common(field_name, registered_name, direction)
+    call this%init_common(field_name, computed_field, direction)
   end subroutine derivative_init_from_json
 
   !> Common part of constructors from components.
   !! @param field_name The name of the field to compute the derivative of.
-  !! @param registered_name The base name of the curl field components.
+  !! @param computed_field The base name of the curl field components.
   !! @param direction The direction of the derivative, one of x, y or z.
-  subroutine derivative_init_common(this, field_name, registered_name, &
+  subroutine derivative_init_common(this, field_name, computed_field, &
        direction)
     class(derivative_t), intent(inout) :: this
     character(len=*) :: field_name
-    character(len=*) :: registered_name
+    character(len=*) :: computed_field
     character(len=*) :: direction
 
     this%u => neko_field_registry%get_field_by_name(trim(field_name))
@@ -155,14 +155,14 @@ contains
   !! @param compute_controller The controller for running compute.
   !! @param output_controller The controller for producing output.
   !! @param field_name The name of the field to compute the derivative of.
-  !! @param registered_name The base name of the curl field components.
+  !! @param computed_field The base name of the curl field components.
   !! @param direction The direction of the derivative, one of x, y or z.
   !! @param filename The name of the file save the fields to. Optional, if not
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
   subroutine derivative_init_from_controllers(this, case, order, &
        preprocess_controller, compute_controller, output_controller, &
-       field_name, registered_name, direction, filename, precision)
+       field_name, computed_field, direction, filename, precision)
     class(derivative_t), intent(inout) :: this
     class(case_t), intent(inout), target :: case
     integer :: order
@@ -170,20 +170,20 @@ contains
     type(time_based_controller_t), intent(in) :: compute_controller
     type(time_based_controller_t), intent(in) :: output_controller
     character(len=*) :: field_name
-    character(len=*) :: registered_name
+    character(len=*) :: computed_field
     character(len=*) :: direction
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
     character(len=20) :: fields(1)
 
-    fields(1) = trim(registered_name)
+    fields(1) = trim(computed_field)
 
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
     call this%writer%init_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller, fields, filename, precision)
-    call this%init_common(field_name, registered_name, direction)
+    call this%init_common(field_name, computed_field, direction)
 
   end subroutine derivative_init_from_controllers
 
@@ -198,7 +198,7 @@ contains
   !! @param output_controller Control mode for output.
   !! @param output_value Value parameter for output.
   !! @param field_name The name of the field to compute the derivative of.
-  !! @param registered_name The base name of the curl field components.
+  !! @param computed_field The base name of the curl field components.
   !! @param direction The direction of the derivative, one of x, y or z.
   !! @param filename The name of the file save the fields to. Optional, if not
   !! provided, fields are added to the main output file.
@@ -207,7 +207,7 @@ contains
   subroutine derivative_init_from_controllers_properties(this, &
        case, order, preprocess_control, preprocess_value, compute_control, &
        compute_value, output_control, output_value, field_name, &
-       registered_name, direction, filename, precision)
+       computed_field, direction, filename, precision)
     class(derivative_t), intent(inout) :: this
     class(case_t), intent(inout), target :: case
     integer :: order
@@ -218,14 +218,14 @@ contains
     character(len=*), intent(in) :: output_control
     real(kind=rp), intent(in) :: output_value
     character(len=*) :: field_name
-    character(len=*) :: registered_name
+    character(len=*) :: computed_field
     character(len=*) :: direction
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
     character(len=20) :: fields(1)
 
-    fields(1) = trim(registered_name)
+    fields(1) = trim(computed_field)
 
     call this%init_base_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
@@ -233,7 +233,7 @@ contains
     call this%writer%init_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
          output_value, fields, filename, precision)
-    call this%init_common(field_name, registered_name, direction)
+    call this%init_common(field_name, computed_field, direction)
 
   end subroutine derivative_init_from_controllers_properties
 

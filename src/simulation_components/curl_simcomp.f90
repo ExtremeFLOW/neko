@@ -54,7 +54,7 @@ module curl_simcomp
 
   !> A simulation component that computes the curl of a vector field.
   !! Added to the field registry as `curl_x`, `curl_y``, and `curl_z` by
-  !! default, but can be controlled by the registered_name keyword.
+  !! default, but can be controlled by the computed_field keyword.
   type, public, extends(simulation_component_t) :: curl_t
      !> X input vector field component.
      type(field_t), pointer :: u
@@ -103,10 +103,10 @@ contains
     class(case_t), intent(inout), target :: case
     character(len=20) :: fields(3)
     character(len=20), allocatable :: field_names(:)
-    character(len=:), allocatable :: registered_name
+    character(len=:), allocatable :: computed_field
 
 
-    call json_get_or_default(json, "registered_name", registered_name, "curl")
+    call json_get_or_default(json, "computed_field", computed_field, "curl")
     call json_get(json, "fields", field_names)
 
     if (size(field_names) .ne. 3) then
@@ -114,9 +114,9 @@ contains
             "field_names.")
     end if
 
-    fields(1) = trim(registered_name) // "_x"
-    fields(2) = trim(registered_name) // "_y"
-    fields(3) = trim(registered_name) // "_z"
+    fields(1) = trim(computed_field) // "_x"
+    fields(2) = trim(computed_field) // "_y"
+    fields(3) = trim(computed_field) // "_z"
 
     ! This is needed for the field writer to pick up the fields.
     call json%add("fields", fields)
@@ -124,27 +124,27 @@ contains
     call this%init_base(json, case)
     call this%writer%init(json, case)
 
-    call curl_init_common(this, field_names, registered_name)
+    call curl_init_common(this, field_names, computed_field)
   end subroutine curl_init_from_json
 
   !> Common part of the constructors.
   !! @param field_names The names of the fields to compute the curl of.
-  !! @param registered_name The base name of the curl field components.
-  subroutine curl_init_common(this, field_names, registered_name)
+  !! @param computed_field The base name of the curl field components.
+  subroutine curl_init_common(this, field_names, computed_field)
     class(curl_t), intent(inout) :: this
     character(len=*) :: field_names(3)
-    character(len=*) :: registered_name
+    character(len=*) :: computed_field
 
     this%u => neko_field_registry%get_field_by_name(field_names(1))
     this%v => neko_field_registry%get_field_by_name(field_names(2))
     this%w => neko_field_registry%get_field_by_name(field_names(3))
 
-    this%curl_x => neko_field_registry%get_field_by_name(registered_name // &
+    this%curl_x => neko_field_registry%get_field_by_name(computed_field // &
          "_x")
-    this%curl_y => neko_field_registry%get_field_by_name(registered_name // &
+    this%curl_y => neko_field_registry%get_field_by_name(computed_field // &
 
          "_y")
-    this%curl_z => neko_field_registry%get_field_by_name(registered_name // &
+    this%curl_z => neko_field_registry%get_field_by_name(computed_field // &
          "_z")
 
   end subroutine curl_init_common
@@ -156,13 +156,13 @@ contains
   !! @param compute_controller The controller for running compute.
   !! @param output_controller The controller for producing output.
   !! @param field_names The name of the fields to compute the curl of.
-  !! @param registered_name The base name of the curl field components.
+  !! @param computed_field The base name of the curl field components.
   !! @param filename The name of the file save the fields to. Optional, if not
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
   subroutine curl_init_from_controllers(this, case, order, &
        preprocess_controller, compute_controller, output_controller, &
-       field_names, registered_name, filename, precision)
+       field_names, computed_field, filename, precision)
     class(curl_t), intent(inout) :: this
     class(case_t), intent(inout), target :: case
     integer :: order
@@ -170,21 +170,21 @@ contains
     type(time_based_controller_t), intent(in) :: compute_controller
     type(time_based_controller_t), intent(in) :: output_controller
     character(len=*) :: field_names(3)
-    character(len=*) :: registered_name
+    character(len=*) :: computed_field
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
     character(len=20) :: fields(3)
 
-    fields(1) = trim(registered_name) // "_x"
-    fields(2) = trim(registered_name) // "_y"
-    fields(3) = trim(registered_name) // "_z"
+    fields(1) = trim(computed_field) // "_x"
+    fields(2) = trim(computed_field) // "_y"
+    fields(3) = trim(computed_field) // "_z"
 
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
     call this%writer%init_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller, fields, filename, precision)
-    call this%init_common(field_names, registered_name)
+    call this%init_common(field_names, computed_field)
 
   end subroutine curl_init_from_controllers
 
@@ -199,14 +199,14 @@ contains
   !! @param output_controller Control mode for output.
   !! @param output_value Value parameter for output.
   !! @param field_names The name of the field to compute the curl of.
-  !! @param registered_name The base name of the curl field components.
+  !! @param computed_field The base name of the curl field components.
   !! @param filename The name of the file save the fields to. Optional, if not
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
   subroutine curl_init_from_controllers_properties(this, &
        case, order, preprocess_control, preprocess_value, compute_control, &
-       compute_value, output_control, output_value, field_names, registered_name, &
+       compute_value, output_control, output_value, field_names, computed_field, &
        filename, precision)
     class(curl_t), intent(inout) :: this
     class(case_t), intent(inout), target :: case
@@ -218,15 +218,15 @@ contains
     character(len=*), intent(in) :: output_control
     real(kind=rp), intent(in) :: output_value
     character(len=*) :: field_names(3)
-    character(len=*) :: registered_name
+    character(len=*) :: computed_field
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
     character(len=20) :: fields(3)
 
-    fields(1) = trim(registered_name) // "_x"
-    fields(2) = trim(registered_name) // "_y"
-    fields(3) = trim(registered_name) // "_z"
+    fields(1) = trim(computed_field) // "_x"
+    fields(2) = trim(computed_field) // "_y"
+    fields(3) = trim(computed_field) // "_z"
 
     call this%init_base_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
@@ -234,7 +234,7 @@ contains
     call this%writer%init_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
          output_value, fields, filename, precision)
-    call this%init_common(field_names, registered_name)
+    call this%init_common(field_names, computed_field)
 
   end subroutine curl_init_from_controllers_properties
 

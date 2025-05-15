@@ -66,7 +66,7 @@ vorticity fields will be added to the main `.fld` file.
 {
   "type": "curl",
   "field_names": ["u", "v", "w"],
-  "registered_name": "vorticity"
+  "computed_field": "vorticity"
   "compute_control": "tsteps",
   "compute_value": 50
 }
@@ -79,7 +79,7 @@ operators on registered fields. They share common configuration traits. The
 field or fields that the operators is applied to us controlled, respectively, by
 the `field` or `feilds` keyword. The produced fields are also added to the
 registry, and each operator provides a default name. However, it can be
-overriden using the `registered_name` keyword. Operators that output a vector
+overriden using the `computed_field` keyword. Operators that output a vector
 field will register three fields, adding `_x`, `_y`, and `_z` to the base of the
 name.
 
@@ -100,7 +100,7 @@ brackets correspond to the choice of the user keywords.
    "type": "derivative",
    "field": "u",
    "direction": "y"
-   "registered_name": "dudy"
+   "computed_field": "dudy"
  }
  ~~~~~~~~~~~~~~~
 
@@ -112,7 +112,7 @@ the curl.  By default, registers the result in `curl_x`, `curl_y` and `curl_z`.
  {
    "type": "curl"
    "fields": ["u", "v", "w"],
-   "registered_name": "vorticity"
+   "computed_field": "vorticity"
  }
  ~~~~~~~~~~~~~~~
 
@@ -124,7 +124,7 @@ the divergence.  By default, registers the result in `div`.
  {
    "type": "div"
    "fields": ["u", "v", "w"],
-   "registered_name": "continuity"
+   "computed_field": "continuity"
  }
  ~~~~~~~~~~~~~~~
 

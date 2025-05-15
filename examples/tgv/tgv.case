@@ -47,7 +47,7 @@
     {
       "type": "curl",
       "fields": ["u", "v", "w"],
-      "registered_name": "omega",
+      "computed_field": "omega",
       "compute_control": "tsteps",
       "compute_value": 50
     }

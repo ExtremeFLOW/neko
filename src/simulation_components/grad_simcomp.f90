@@ -91,18 +91,18 @@ contains
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: field_name
     character(len=20) :: fields(3)
-    character(len=:), allocatable :: registered_name
+    character(len=:), allocatable :: computed_field
 
     call json_get(json, "field", field_name)
 
     ! Add fields keyword to the json so that the field_writer picks it up.
     ! Will also add fields to the registry.
-    call json_get_or_default(json, "registered_name", registered_name, &
+    call json_get_or_default(json, "computed_field", computed_field, &
          "grad" // trim(field_name))
 
-    fields(1) = registered_name // "_x"
-    fields(2) = registered_name // "_y"
-    fields(3) = registered_name // "_z"
+    fields(1) = computed_field // "_x"
+    fields(2) = computed_field // "_y"
+    fields(3) = computed_field // "_z"
     write(*,*) fields(1), fields(2), fields(3)
 
     call json%add("fields", fields)
@@ -110,23 +110,23 @@ contains
     call this%init_base(json, case)
     call this%writer%init(json, case)
 
-    call this%init_common(field_name, registered_name)
+    call this%init_common(field_name, computed_field)
   end subroutine grad_init_from_json
 
   !> Common part of the constructors.
-  subroutine grad_init_common(this, field_name, registered_name)
+  subroutine grad_init_common(this, field_name, computed_field)
     class(grad_t), intent(inout) :: this
     character(len=*) :: field_name
-    character(len=*) :: registered_name
+    character(len=*) :: computed_field
 
     this%u => neko_field_registry%get_field_by_name(trim(field_name))
 
     this%grad_x => neko_field_registry%get_field_by_name( &
-         registered_name // "_x")
+         computed_field // "_x")
     this%grad_y => neko_field_registry%get_field_by_name( &
-         registered_name // "_y")
+         computed_field // "_y")
     this%grad_z => neko_field_registry%get_field_by_name( &
-         registered_name // "_z")
+         computed_field // "_z")
 
 
   end subroutine grad_init_common
@@ -138,13 +138,13 @@ contains
   !! @param compute_controller The controller for running compute.
   !! @param output_controller The controller for producing output.
   !! @param field_name The name of the field to compute the grad of.
-  !! @param registered_name The base name of the grad field components.
+  !! @param computed_field The base name of the grad field components.
   !! @param filename The name of the file save the fields to. Optional, if not
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
   subroutine grad_init_from_controllers(this, case, order, &
        preprocess_controller, compute_controller, output_controller, &
-       field_name, registered_name, filename, precision)
+       field_name, computed_field, filename, precision)
     class(grad_t), intent(inout) :: this
     class(case_t), intent(inout), target :: case
     integer :: order
@@ -152,21 +152,21 @@ contains
     type(time_based_controller_t), intent(in) :: compute_controller
     type(time_based_controller_t), intent(in) :: output_controller
     character(len=*) :: field_name
-    character(len=*) :: registered_name
+    character(len=*) :: computed_field
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
     character(len=20) :: fields(3)
 
-    fields(1) = trim(registered_name) // "_x"
-    fields(2) = trim(registered_name) // "_y"
-    fields(3) = trim(registered_name) // "_z"
+    fields(1) = trim(computed_field) // "_x"
+    fields(2) = trim(computed_field) // "_y"
+    fields(3) = trim(computed_field) // "_z"
 
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
     call this%writer%init_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller, fields, filename, precision)
-    call this%init_common(field_name, registered_name)
+    call this%init_common(field_name, computed_field)
 
   end subroutine grad_init_from_controllers
 
@@ -181,7 +181,7 @@ contains
   !! @param output_controller Control mode for output.
   !! @param output_value Value parameter for output.
   !! @param field_name The name of the field to compute the grad of.
-  !! @param registered_name The base name of the grad field components.
+  !! @param computed_field The base name of the grad field components.
   !! @param filename The name of the file save the fields to. Optional, if not
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
@@ -189,7 +189,7 @@ contains
   subroutine grad_init_from_controllers_properties(this, &
        case, order, preprocess_control, preprocess_value, compute_control, &
        compute_value, output_control, output_value, field_name, &
-       registered_name, filename, precision)
+       computed_field, filename, precision)
     class(grad_t), intent(inout) :: this
     class(case_t), intent(inout), target :: case
     integer :: order
@@ -200,15 +200,15 @@ contains
     character(len=*), intent(in) :: output_control
     real(kind=rp), intent(in) :: output_value
     character(len=*) :: field_name
-    character(len=*) :: registered_name
+    character(len=*) :: computed_field
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
     character(len=20) :: fields(3)
 
-    fields(1) = trim(registered_name) // "_x"
-    fields(2) = trim(registered_name) // "_y"
-    fields(3) = trim(registered_name) // "_z"
+    fields(1) = trim(computed_field) // "_x"
+    fields(2) = trim(computed_field) // "_y"
+    fields(3) = trim(computed_field) // "_z"
 
     call this%init_base_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
@@ -216,7 +216,7 @@ contains
     call this%writer%init_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
          output_value, fields, filename, precision)
-    call this%init_common(field_name, registered_name)
+    call this%init_common(field_name, computed_field)
 
   end subroutine grad_init_from_controllers_properties
 
