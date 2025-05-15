@@ -235,7 +235,9 @@ table below.
 | velocity_value          | A Dirichlet condition for velocity.                                                                                                                     |
 | no_slip                 | A no-slip wall.                                                                                                                                         |
 | outflow                 | A pressure outlet.                                                                                                                                      |
-| normal_outflow          | An Neumann condition  for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. Must be axis-aligned. |
+| normal_outflow          | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. Must be axis-aligned.  |
+| outflow+user            | Same as `outflow` but with user-specified pressure.                                                                                                     |
+| normal_outflow+user     | Same as `normal_outflow` but with user-specified pressure.                                                                                              |
 | outflow+dong            | A pressure outlet with the Dong condition applied.                                                                                                      |
 | normal_outflow+dong     | The `normal_outflow` with the Dong condition applied. Must be axis-aligned.                                                                             |
 | shear_stress            | Prescribed wall shear stress. Must be axis-aligned.                                                                                                     |
@@ -288,6 +290,23 @@ A more detailed description of each boundary condition is provided below.
   component, but fixes the values of the surface-parallel components. The latter
   values are not prescribed in the boundary condition's JSON, but are instead
   taken from the initial conditions. The boundary must be axis-aligned.
+  ```json
+  {
+    "type": "normal_outflow",
+    "zone_indices": [1, 2]
+  }
+  ```
+* `outflow+user`. Same as `outflow`, but with user-specified
+  pressure. The pressure is specified via the same interface as `user_pressure`,
+  see the 
+  [relevant section](#user-file_field-dirichlet-update) for more information.
+
+* `normal_outflow+user`. Same as `normal_outflow`, but with user-specified
+  pressure. The pressure profile is specified via the same interface as 
+  `user_pressure`, see
+  the [relevant section](#user-file_field-dirichlet-update) for more information.
+  Note that, similarly to `normal_outflow`, surface-parallel velocity components
+  are taken from the initial conditions. 
 
 * `outflow+dong`. Same as `outflow`, but additionally applies the Dong boundary
   condition on the pressure. This is a way to prevent backflow and therefore

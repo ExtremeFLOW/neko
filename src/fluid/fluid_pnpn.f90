@@ -299,9 +299,6 @@ contains
        call pnpn_vel_res_factory(this%vel_res)
     end if
 
-    write(log_buf, '(A, L1)') 'Full stress : ', &
-         this%full_stress_formulation
-    call neko_log%message(log_buf)
 
 
     if (params%valid_path('case.fluid.nut_field')) then
@@ -401,6 +398,8 @@ contains
     call this%precon_factory_(this%pc_prs, this%ksp_prs, &
          this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_prs, &
          precon_type, precon_params)
+    call neko_log%end_section()
+
     ! Initialize the advection factory
     call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
     call json_extract_object(params, 'case.numerics', numerics_params)
