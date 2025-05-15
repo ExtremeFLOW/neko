@@ -33,6 +33,7 @@
 !> Defines a registry for storing solution fields
 !
 module field_registry
+  use, intrinsic :: iso_fortran_env, only: error_unit
   use field, only : field_t
   use dofmap, only : dofmap_t
   use utils, only : neko_error
@@ -222,10 +223,10 @@ contains
 
     if (.not. found) then
        if (pe_rank .eq. 0) then
-          write(*,*) "Current field_registry contents:"
+          write(error_unit,*) "Current field_registry contents:"
 
           do i=1, this%n_fields()
-             write(*,*) "- ", this%fields(i)%name
+             write(error_unit,*) "- ", this%fields(i)%name
           end do
        end if
        call neko_error("Field " // name // " could not be found in the registry")
