@@ -133,10 +133,10 @@ contains
   !> Retrive the current time of a case
   !! @param case_iptr Opaque pointer for the Neko case
   !! @param time The case's current time
-  subroutine neko_api_case_time(case_iptr, time) &
-    bind(c, name="neko_case_time")
+  function neko_api_case_time(case_iptr) result(time) &
+       bind(c, name="neko_case_time")
     integer(c_intptr_t), intent(inout) :: case_iptr
-    real(kind=c_double), intent(inout) :: time
+    real(kind=c_double) :: time
     type(case_t), pointer :: C
     type(c_ptr) :: cptr
 
@@ -148,15 +148,15 @@ contains
        call neko_error('Invalid Neko case')
     end if
 
-  end subroutine neko_api_case_time
+  end function neko_api_case_time
 
   !> Retrive the end time of a case
   !! @param case_iptr Opaque pointer for the Neko case
   !! @param end_time The end time of a case
-  subroutine neko_api_case_end_time(case_iptr, end_time) &
-    bind(c, name="neko_case_end_time")
+  function neko_api_case_end_time(case_iptr) result(end_time) &
+       bind(c, name="neko_case_end_time")
     integer(c_intptr_t), intent(inout) :: case_iptr
-    real(kind=c_double), intent(inout) :: end_time
+    real(kind=c_double) :: end_time
     type(case_t), pointer :: C
     type(c_ptr) :: cptr
 
@@ -168,12 +168,12 @@ contains
        call neko_error('Invalid Neko case')
     end if
 
-  end subroutine neko_api_case_end_time
+  end function neko_api_case_end_time
 
   !> Retrive the time-step of a case
   !! @param case_iptr Opaque pointer for the Neko case
   !! @param tstep The current time-step of a case
-  subroutine neko_api_case_tstep(case_iptr, tstep) &
+  function neko_api_case_tstep(case_iptr) result(tstep) &
     bind(c, name="neko_case_tstep")
     integer(c_intptr_t), intent(inout) :: case_iptr
     type(case_t), pointer :: C
@@ -188,7 +188,7 @@ contains
        call neko_error('Invalid Neko case')
     end if
 
-  end subroutine neko_api_case_tstep
+  end function neko_api_case_tstep
 
   !> Solve a neko case
   !! @param case_iptr Opaque pointer for the Neko case

@@ -8,25 +8,25 @@ libneko.neko_finalize.resType = None
 libneko.neko_job_info.resType = None
 
 libneko.neko_case_init.argtypes = [POINTER(c_char_p), c_int, POINTER(c_int)]
-libneko.neko_case_init.resType = c_int
+libneko.neko_case_init.restype = c_int
 
 libneko.neko_case_free.argtypes = [POINTER(c_int)]
-libneko.neko_case_free.resType = None
+libneko.neko_case_free.restype = None
 
-libneko.neko_case_time.argtypes = [POINTER(c_int), POINTER(c_double)]
-libneko.neko_case_time.resType = c_double
+libneko.neko_case_time.argtypes = [POINTER(c_int)]
+libneko.neko_case_time.restype = c_double
 
-libneko.neko_case_end_time.argtypes = [POINTER(c_int), POINTER(c_double)]
-libneko.neko_case_end_time.resType = c_double
+libneko.neko_case_end_time.argtypes = [POINTER(c_int)]
+libneko.neko_case_end_time.restype = c_double
 
-libneko.neko_case_tstep.argtypes = [POINTER(c_int), c_int]
-libneko.neko_case_tstep.resType = c_int
+libneko.neko_case_tstep.argtypes = [POINTER(c_int)]
+libneko.neko_case_tstep.restype = c_int
 
 libneko.neko_solve.argtypes = [POINTER(c_int)]
-libneko.neko_solve.resType = None
+libneko.neko_solve.restype = None
 
 libneko.neko_step.argtypes = [POINTER(c_int)]
-libneko.neko_step.resType = None
+libneko.neko_step.restype = None
 
 libneko.neko_output_ctrl_execute.argtypes = [POINTER(c_int), c_bool]
 
@@ -50,19 +50,16 @@ def case_free(case_descr):
     libneko.neko_case_free(byref(case_descr))
 
 def time(case_descr):
-    time = c_double()
-    libneko.neko_case_time(byref(case_descr), byref(time))
-    return time.value
+    time = libneko.neko_case_time(byref(case_descr))
+    return time
 
 def end_time(case_descr):
-    end_time = c_double()
-    libneko.neko_case_end_time(byref(case_descr), byref(end_time))
-    return end_time.value
+    end_time = libneko.neko_case_end_time(byref(case_descr))
+    return end_time
 
 def tstep(case_descr):
-    tstep = c_int()
-    libneko.neko_case_tstep(byref(case_descr), tstep)    
-    return tstep   
+    tstep = libneko.neko_case_tstep(byref(case_descr))
+    return tstep
 
 def solve(case_descr):
     libneko.neko_solve(byref(case_descr))
