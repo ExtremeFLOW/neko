@@ -608,8 +608,39 @@ depend:
 	$(MAKEDEPF90) $(neko_fortran_SOURCES) | $(SED) 's/\.o/\.lo/g'  > .depends
 endif
 
-# Note we need to list any headers etc here for the dist. script
+# Note we need to list any none headers etc here for the dist. script
 EXTRA_DIST = \
+	bc/bcknd/device/opencl/dirichlet_kernel.cl\
+	bc/bcknd/device/opencl/inflow_kernel.cl\
+	bc/bcknd/device/opencl/zero_dirichlet_kernel.cl\
+	bc/bcknd/device/opencl/symmetry_kernel.cl\
+	bc/bcknd/device/opencl/facet_normal_kernel.cl\
+	bc/bcknd/device/opencl/neumann_kernel.cl\
+	bc/bcknd/device/opencl/inhom_dirichlet_kernel.cl\
+	bc/bcknd/device/opencl/dong_outflow_kernel.cl\
+	math/bcknd/device/opencl/math_kernel.cl\
+	math/bcknd/device/opencl/schwarz_kernel.cl\
+	math/bcknd/device/opencl/tensor_kernel.cl\
+	math/bcknd/device/opencl/fdm_kernel.cl\
+	math/bcknd/device/opencl/mathops_kernel.cl\
+	math/bcknd/device/opencl/dudxyz_kernel.cl\
+	math/bcknd/device/opencl/ax_helm_kernel.cl\
+	math/bcknd/device/opencl/cdtp_kernel.cl\
+	math/bcknd/device/opencl/opgrad_kernel.cl\
+	math/bcknd/device/opencl/conv1_kernel.cl\
+	math/bcknd/device/opencl/lambda2_kernel.cl\
+	math/bcknd/device/opencl/cfl_kernel.cl\
+	common/bcknd/device/opencl/rhs_maker_kernel.cl\
+	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\
+	fluid/bcknd/device/opencl/euler_res_kernel.cl\
+	scalar/bcknd/device/opencl/scalar_residual_kernel.cl\
+	gs/bcknd/device/opencl/gs_kernels.cl\
+	krylov/bcknd/device/opencl/jacobi_kernel.cl\
+	sem/bcknd/device/opencl/coef_kernel.cl\
+	source_terms/bcknd/device/opencl/filter_kernels.cl
+
+# Expose the listed headers in the package
+nobase_pkginclude_HEADERS = \
 	bc/bcknd/device/cuda/dirichlet_kernel.h\
 	bc/bcknd/device/cuda/inflow_kernel.h\
 	bc/bcknd/device/cuda/zero_dirichlet_kernel.h\
@@ -699,41 +730,13 @@ EXTRA_DIST = \
 	wall_models/bcknd/device/hip/wall_model_kernel.h\
 	wall_models/bcknd/device/hip/spalding_kernel.h\
 	wall_models/bcknd/device/hip/rough_log_law_kernel.h\
-	bc/bcknd/device/opencl/dirichlet_kernel.cl\
-	bc/bcknd/device/opencl/inflow_kernel.cl\
-	bc/bcknd/device/opencl/zero_dirichlet_kernel.cl\
-	bc/bcknd/device/opencl/symmetry_kernel.cl\
-	bc/bcknd/device/opencl/facet_normal_kernel.cl\
-	bc/bcknd/device/opencl/neumann_kernel.cl\
 	bc/bcknd/device/opencl/bc_utils.h\
-	bc/bcknd/device/opencl/inhom_dirichlet_kernel.cl\
-	bc/bcknd/device/opencl/dong_outflow_kernel.cl\
-	math/bcknd/device/opencl/math_kernel.cl\
-	math/bcknd/device/opencl/schwarz_kernel.cl\
-	math/bcknd/device/opencl/tensor_kernel.cl\
-	math/bcknd/device/opencl/fdm_kernel.cl\
-	math/bcknd/device/opencl/mathops_kernel.cl\
-	math/bcknd/device/opencl/dudxyz_kernel.cl\
-	math/bcknd/device/opencl/ax_helm_kernel.cl\
-	math/bcknd/device/opencl/cdtp_kernel.cl\
-	math/bcknd/device/opencl/opgrad_kernel.cl\
-	math/bcknd/device/opencl/conv1_kernel.cl\
-	math/bcknd/device/opencl/lambda2_kernel.cl\
-	math/bcknd/device/opencl/cfl_kernel.cl\
-	common/bcknd/device/opencl/rhs_maker_kernel.cl\
-	fluid/bcknd/device/opencl/pnpn_res_kernel.cl\
-	fluid/bcknd/device/opencl/euler_res_kernel.cl\
-	scalar/bcknd/device/opencl/scalar_residual_kernel.cl\
-	gs/bcknd/device/opencl/gs_kernels.cl\
-	krylov/bcknd/device/opencl/jacobi_kernel.cl\
-	sem/bcknd/device/opencl/coef_kernel.cl\
 	math/bcknd/device/device_mpi_reduce.h\
 	math/bcknd/device/device_mpi_op.h\
 	math/bcknd/device/device_nccl_reduce.h\
 	math/bcknd/device/device_nccl_op.h\
 	source_terms/bcknd/device/cuda/filter_kernels.h\
 	source_terms/bcknd/device/hip/filter_kernels.h\
-	source_terms/bcknd/device/opencl/filter_kernels.cl\
 	source_terms/bcknd/device/cuda/gradient_jump_penalty_kernel.h\
 	source_terms/bcknd/device/hip/gradient_jump_penalty_kernel.h\
 	device/opencl/jit.h\
@@ -744,9 +747,6 @@ EXTRA_DIST = \
 	comm/comm_nccl.h\
 	comm/comm.h\
 	common/neko_log.h
-
-# Expose the listed headers in the package
-nobase_pkginclude_HEADERS = ${EXTRA_DIST}
 
 # Fortran deps. (updated with makedepf90 via target 'depend')
 include	.depends
