@@ -1,5 +1,11 @@
 #ifndef __NEKO_H
 
+/**
+ * Floating point precision in the Neko API
+ * @note Set to the same C/C++ equivalent type as @a rp
+ */
+typedef @NEKO_DEV_REAL_TYPE@ neko_real;
+
 /* Initialise Neko */
 void neko_init();
 
@@ -29,5 +35,8 @@ void neko_solve(int *case_iptr);
 
 /* Compute a time-step for a neko case */
 void neko_step(int *case_iptr);
+
+/* Retrive a pointer to a flow field */
+neko_real *neko_field(char *field_name);
 
 #endif

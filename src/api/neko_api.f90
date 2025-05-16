@@ -277,6 +277,28 @@ contains
 
   end subroutine neko_api_output_ctrl_execute
 
+  !> Retrive a pointer to a flow field
+  !! @param field_name Field registry entry
+  function neko_api_field(field_name) result(field_ptr) &
+       bind(c, name='neko_field')
+    character(kind=c_char), dimension(*), intent(in) :: field_name
+    character(len=8192) :: name
+    type(field_t), pointer :: field
+    type(c_ptr) :: field_ptr
+    integer :: len 
 
+    len = 0
+    do
+       if (field_name(len+1) .eq. C_NULL_CHAR) exit
+       len = len + 1
+       name(len:len) = field_name(len)
+    end do
+    
+    field => neko_field_registry%get_field(trim(name(1:len)))
+
+    field_ptr = c_loc(field%x)
+    
+  end function neko_api_field
+    
 
 end module neko_api
