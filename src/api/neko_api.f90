@@ -285,7 +285,7 @@ contains
     character(len=8192) :: name
     type(field_t), pointer :: field
     type(c_ptr) :: field_ptr
-    integer :: len 
+    integer :: len
 
     len = 0
     do
@@ -293,12 +293,12 @@ contains
        len = len + 1
        name(len:len) = field_name(len)
     end do
-    
+
     field => neko_field_registry%get_field(trim(name(1:len)))
 
     field_ptr = c_loc(field%x)
-    
+
   end function neko_api_field
-    
+
 
 end module neko_api
