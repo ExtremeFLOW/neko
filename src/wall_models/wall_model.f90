@@ -48,7 +48,9 @@ module wall_model
   use logger, only : neko_log, NEKO_LOG_DEBUG
   use file, only : file_t
   use field_registry, only : neko_field_registry
-
+  use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
+  use device, only : device_map, device_free, device_get_ptr
+  use wall_model_device, only : wall_model_compute_mag_field_device
   implicit none
   private
 
@@ -60,6 +62,7 @@ module wall_model
      type(dofmap_t), pointer :: dof => null()
      !> The boundary condition mask. Stores the array size at index zero!
      integer, pointer :: msk(:) => null()
+     type(c_ptr) :: msk_d = C_NULL_PTR
      !> The boundary condition facet ids. Stores the array size at index zero!
      integer, pointer :: facet(:) => null()
      !> The x component of the shear stress.
@@ -76,12 +79,16 @@ module wall_model
      type(vector_t) :: n_z
      !> The r indices of the sampling points
      integer, allocatable :: ind_r(:)
+     type(c_ptr) :: ind_r_d = C_NULL_PTR
      !> The s indices of the sampling points
      integer, allocatable :: ind_s(:)
+     type(c_ptr) :: ind_s_d = C_NULL_PTR
      !> The t indices of the sampling points
      integer, allocatable :: ind_t(:)
+     type(c_ptr) :: ind_t_d = C_NULL_PTR
      !> The element indices of the sampling points
      integer, allocatable :: ind_e(:)
+     type(c_ptr) :: ind_e_d = C_NULL_PTR
      !> The sampling height
      type(vector_t) :: h
      !> Sampling index
@@ -97,6 +104,8 @@ module wall_model
      procedure, pass(this) :: init_base => wall_model_init_base
      !> Destructor for the wall_model_t (base) class.
      procedure, pass(this) :: free_base => wall_model_free_base
+     !> Compute the wall shear stress's magnitude.
+     procedure, pass(this) :: compute_mag_field => wall_model_compute_mag_field
      !> The common constructor.
      procedure(wall_model_init), pass(this), deferred :: init
      !> Destructor.
@@ -167,7 +176,53 @@ module wall_model
      end subroutine wall_model_factory
   end interface
 
-  public :: wall_model_factory
+  interface
+     !> Wall model allocator.
+     !! @param object The object to be allocated.
+     !! @param type_name The name of the type to allocate.
+     module subroutine wall_model_allocator(object, type_name)
+       class(wall_model_t), allocatable, intent(inout) :: object
+       character(len=:), allocatable, intent(in) :: type_name
+     end subroutine wall_model_allocator
+  end interface
+
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  !> Interface for an object allocator.
+  !! Implemented in the user modules, should allocate the `obj` to the custom
+  !! user type.
+  abstract interface
+     subroutine wall_model_allocate(obj)
+       import wall_model_t
+       class(wall_model_t), allocatable, intent(inout) :: obj
+     end subroutine wall_model_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom types.
+     module subroutine register_wall_model(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(wall_model_allocate), pointer, intent(in) :: allocator
+     end subroutine register_wall_model
+  end interface
+
+  ! A name-allocator pair for user-defined types. A helper type to define a
+  ! registry of custom allocators.
+  type allocator_entry
+     character(len=20) :: type_name
+     procedure(wall_model_allocate), pointer, nopass :: allocator
+  end type allocator_entry
+
+  !> Registry of wall model allocators for user-defined types
+  type(allocator_entry), allocatable :: wall_model_registry(:)
+
+  !> The size of the `wall_model_registry`
+  integer :: wall_model_registry_size = 0
+
+  public :: wall_model_factory, wall_model_allocator, register_wall_model, &
+       wall_model_allocate
 
 contains
   !> Constructor for the wall_model_t (base) class.
@@ -183,12 +238,14 @@ contains
     integer, target, intent(in) :: facet(0:)
     real(kind=rp), intent(in) :: nu
     integer, intent(in) :: index
+    type(c_ptr), target :: msk_d
 
     call this%free_base
 
     this%coef => coef
     this%dof => coef%dof
     this%msk(0:msk(0)) => msk
+    if (NEKO_BCKND_DEVICE .eq. 1) this%msk_d = device_get_ptr(msk)
     this%facet(0:msk(0)) => facet
     this%nu = nu
     this%h_index = index
@@ -214,6 +271,22 @@ contains
 
     call this%find_points
 
+    ! Initialize pointers for device
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%ind_r, this%ind_r_d, this%n_nodes)
+       call device_map(this%ind_s, this%ind_s_d, this%n_nodes)
+       call device_map(this%ind_t, this%ind_t_d, this%n_nodes)
+       call device_map(this%ind_e, this%ind_e_d, this%n_nodes)
+       call device_memcpy(this%ind_r, this%ind_r_d, this%n_nodes, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%ind_s, this%ind_s_d, this%n_nodes, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%ind_t, this%ind_t_d, this%n_nodes, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_memcpy(this%ind_e, this%ind_e_d, this%n_nodes, &
+            HOST_TO_DEVICE, sync = .false.)
+    end if
+
   end subroutine wall_model_init_base
 
   !> Destructor for the wall_model_t (base) class.
@@ -237,6 +310,22 @@ contains
     end if
     if (allocated(this%ind_t)) then
        deallocate(this%ind_t)
+    end if
+
+    if (c_associated(this%msk_d)) then
+       call device_free(this%msk_d)
+    end if
+    if (c_associated(this%ind_r_d)) then
+       call device_free(this%ind_r_d)
+    end if
+    if (c_associated(this%ind_s_d)) then
+       call device_free(this%ind_s_d)
+    end if
+    if (c_associated(this%ind_t_d)) then
+       call device_free(this%ind_t_d)
+    end if
+    if (c_associated(this%ind_e_d)) then
+       call device_free(this%ind_e_d)
     end if
 
     call this%h%free()
@@ -363,5 +452,30 @@ contains
     h_file = file_t("sampling_height.fld")
     call h_file%write(h_field)
   end subroutine wall_model_find_points
+
+  subroutine wall_model_compute_mag_field(this)
+    class(wall_model_t), intent(inout) :: this
+    integer :: i, m
+    real(kind=rp) :: magtau
+
+    m = this%msk(0)
+    if (m > 0) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call wall_model_compute_mag_field_device(this%tau_x%x_d, &
+               this%tau_y%x_d, &
+               this%tau_z%x_d, &
+               this%tau_field%x_d, &
+               this%msk_d, m)
+       else
+          do i = 1, m
+             magtau = sqrt(this%tau_x%x(i)**2 + &
+                  this%tau_y%x(i)**2 + &
+                  this%tau_z%x(i)**2)
+             this%tau_field%x(this%msk(i),1,1,1) = magtau
+          end do
+       end if
+    end if
+
+  end subroutine wall_model_compute_mag_field
 
 end module wall_model

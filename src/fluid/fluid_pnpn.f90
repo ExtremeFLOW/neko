@@ -185,6 +185,9 @@ module fluid_pnpn
      !> Adjust flow volume
      type(fluid_volflow_t) :: vol_flow
 
+     !> Whether to use the full formulation of the viscous stress term
+     logical :: full_stress_formulation = .false.
+
    contains
      !> Constructor.
      procedure, pass(this) :: init => fluid_pnpn_init
@@ -253,7 +256,7 @@ contains
     character(len=:), allocatable :: solver_type, precon_type
     logical :: monitor, found
     logical :: advection
-    type(json_file) :: numerics_params
+    type(json_file) :: numerics_params, precon_params
 
     call this%free()
 
@@ -273,7 +276,10 @@ contains
     allocate(this%ext_bdf)
     call this%ext_bdf%init(integer_val)
 
-    if (this%variable_material_properties .eqv. .true.) then
+    call json_get_or_default(params, "case.fluid.full_stress_formulation", &
+         this%full_stress_formulation, .false.)
+
+    if (this%full_stress_formulation .eqv. .true.) then
        ! Setup backend dependent Ax routines
        call ax_helm_factory(this%Ax_vel, full_formulation = .true.)
 
@@ -291,6 +297,22 @@ contains
 
        ! Setup backend dependent vel residual routines
        call pnpn_vel_res_factory(this%vel_res)
+    end if
+
+    write(log_buf, '(A, L1)') 'Full stress : ', &
+         this%full_stress_formulation
+    call neko_log%message(log_buf)
+
+
+    if (params%valid_path('case.fluid.nut_field')) then
+       if (this%full_stress_formulation .eqv. .false.) then
+          call neko_error("You need to set full_stress_formulation to " // &
+               "true for the fluid to have a spatially varying " // &
+               "viscocity field.")
+       end if
+       call json_get(params, 'case.fluid.nut_field', this%nut_field_name)
+    else
+       this%nut_field_name = ""
     end if
 
     ! Setup Ax for the pressure
@@ -361,8 +383,10 @@ contains
          'case.fluid.pressure_solver.max_iterations', &
          solver_maxiter, 800)
     call json_get(params, 'case.fluid.pressure_solver.type', solver_type)
-    call json_get(params, 'case.fluid.pressure_solver.preconditioner', &
+    call json_get(params, 'case.fluid.pressure_solver.preconditioner.type', &
          precon_type)
+    call json_extract_object(params, &
+         'case.fluid.pressure_solver.preconditioner', precon_params)
     call json_get(params, 'case.fluid.pressure_solver.absolute_tolerance', &
          abs_tol)
     call json_get_or_default(params, 'case.fluid.pressure_solver.monitor', &
@@ -375,7 +399,8 @@ contains
     call this%solver_factory(this%ksp_prs, this%dm_Xh%size(), &
          solver_type, solver_maxiter, abs_tol, monitor)
     call this%precon_factory_(this%pc_prs, this%ksp_prs, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_prs, precon_type)
+         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_prs, &
+         precon_type, precon_params)
     ! Initialize the advection factory
     call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
     call json_extract_object(params, 'case.numerics', numerics_params)
@@ -396,6 +421,8 @@ contains
     this%chkp%abz1 => this%abz1
     this%chkp%abz2 => this%abz2
     call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
+
+
 
     call neko_log%end_section()
 
@@ -615,8 +642,8 @@ contains
          makeabf => this%makeabf, makebdf => this%makebdf, &
          vel_projection_dim => this%vel_projection_dim, &
          pr_projection_dim => this%pr_projection_dim, &
-         rho => this%rho, mu => this%mu, oifs => this%oifs, &
-         rho_field => this%rho_field, mu_field => this%mu_field, &
+         oifs => this%oifs, &
+         rho => this%rho, mu => this%mu, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
          t => time%t, tstep => time%tstep, dt => time%dt, &
          ext_bdf => this%ext_bdf, event => glb_cmd_event)
@@ -642,15 +669,16 @@ contains
          ! additional source terms, evaluated using the velocity field from the
          ! previous time-step. Now, this value is used in the explicit time
          ! scheme to advance both terms in time.
+
          call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
               this%abx2, this%aby2, this%abz2, &
               f_x%x, f_y%x, f_z%x, &
-              rho, ext_bdf%advection_coeffs, n)
+              rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
 
          ! Now, the source terms from the previous time step are added to the RHS.
          call makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &
               f_x%x, f_y%x, f_z%x, &
-              rho, dt, n)
+              rho%x(1,1,1,1), dt, n)
       else
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
@@ -664,11 +692,11 @@ contains
          call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
               this%abx2, this%aby2, this%abz2, &
               f_x%x, f_y%x, f_z%x, &
-              rho, ext_bdf%advection_coeffs, n)
+              rho%x(1,1,1,1), ext_bdf%advection_coeffs, n)
 
          ! Add the RHS contributions coming from the BDF scheme.
          call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
-              u, v, w, c_Xh%B, rho, dt, &
+              u, v, w, c_Xh%B, rho%x(1,1,1,1), dt, &
               ext_bdf%diffusion_coeffs, ext_bdf%ndiff, n)
       end if
 
@@ -680,7 +708,7 @@ contains
       call this%bc_apply_prs(t, tstep)
 
       ! Update material properties if necessary
-      call this%update_material_properties()
+      call this%update_material_properties(t, tstep)
 
       ! Compute pressure residual.
       call profiler_start_region('Pressure_residual', 18)
@@ -692,7 +720,7 @@ contains
            c_Xh, gs_Xh, &
            this%bc_prs_surface, this%bc_sym_surface,&
            Ax_prs, ext_bdf%diffusion_coeffs(1), dt, &
-           mu_field, rho_field, event)
+           mu, rho, event)
 
       ! De-mean the pressure residual when no strong pressure boundaries present
       if (.not. this%prs_dirichlet) call ortho(p_res%x, this%glb_n_points, n)
@@ -736,7 +764,7 @@ contains
            p, &
            f_x, f_y, f_z, &
            c_Xh, msh, Xh, &
-           mu_field, rho_field, ext_bdf%diffusion_coeffs(1), &
+           mu, rho, ext_bdf%diffusion_coeffs(1), &
            dt, dm_Xh%size())
 
       call gs_Xh%op(u_res, GS_OP_ADD, event)
@@ -776,9 +804,10 @@ contains
       end if
 
       if (this%forced_flow_rate) then
+         ! Horrible mu hack?!
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
-              c_Xh, gs_Xh, ext_bdf, rho, mu, dt, &
-              this%bclst_dp, this%bclst_du, this%bclst_dv, &
+              c_Xh, gs_Xh, ext_bdf, rho%x(1,1,1,1), mu%x(1,1,1,1), &
+              dt, this%bclst_dp, this%bclst_du, this%bclst_dv, &
               this%bclst_dw, this%bclst_vel_res, Ax_vel, Ax_prs, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
               this%ksp_vel%max_iter)
