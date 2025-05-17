@@ -300,5 +300,74 @@ contains
 
   end function neko_api_field
 
+  !> Retrive the order of a field
+  !! @param field_name Field registry entry
+  function neko_api_field_order(field_name) result(field_lx) &
+       bind(c, name='neko_field_order')
+    character(kind=c_char), dimension(*), intent(in) :: field_name
+    character(len=8192) :: name
+    type(field_t), pointer :: field
+    integer(c_int) :: field_lx
+    integer :: len
+
+    len = 0
+    do
+       if (field_name(len+1) .eq. C_NULL_CHAR) exit
+       len = len + 1
+       name(len:len) = field_name(len)
+    end do
+
+    field => neko_field_registry%get_field(trim(name(1:len)))
+
+    field_lx = field%Xh%lx
+
+  end function neko_api_field_order
+
+  !> Retrive the number of elements in a field
+  !! @param field_name Field registry entry
+  function neko_api_field_nelements(field_name) result(field_nelv) &
+       bind(c, name='neko_field_nelements')
+    character(kind=c_char), dimension(*), intent(in) :: field_name
+    character(len=8192) :: name
+    type(field_t), pointer :: field
+    integer(c_int) :: field_nelv
+    integer :: len
+
+    len = 0
+    do
+       if (field_name(len+1) .eq. C_NULL_CHAR) exit
+       len = len + 1
+       name(len:len) = field_name(len)
+    end do
+
+    field => neko_field_registry%get_field(trim(name(1:len)))
+
+    field_nelv = field%msh%nelv
+
+  end function neko_api_field_nelements
+
+  !> Retrive the total number of degrees of freedom of a field
+  !! @param field_name Field registry entry
+  function neko_api_field_size(field_name) result(field_size) &
+       bind(c, name='neko_field_size')
+    character(kind=c_char), dimension(*), intent(in) :: field_name
+    character(len=8192) :: name
+    type(field_t), pointer :: field
+    integer(c_int) :: field_size
+    integer :: len
+
+    len = 0
+    do
+       if (field_name(len+1) .eq. C_NULL_CHAR) exit
+       len = len + 1
+       name(len:len) = field_name(len)
+    end do
+
+    field => neko_field_registry%get_field(trim(name(1:len)))
+
+    field_size = field%dof%size()
+
+  end function neko_api_field_size
+
 
 end module neko_api

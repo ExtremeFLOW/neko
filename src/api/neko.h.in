@@ -39,4 +39,13 @@ void neko_step(int *case_iptr);
 /* Retrive a pointer to a flow field */
 neko_real *neko_field(char *field_name);
 
+/* Retrive the order of a field */
+int neko_field_order(char *field_name);
+
+/* Retrive the number of elements in a field */
+int neko_field_nelements(char *field_name);
+
+/* Retrive the total number of degrees of freedom of a field */
+int neko_field_size(char *field_name);
+
 #endif
