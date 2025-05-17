@@ -21,5 +21,9 @@ from pyneko.intf import (
     tstep,
     solve,
     step,
+    field,
+    field_order,
+    field_nelements,
+    field_size,
     output    
 )

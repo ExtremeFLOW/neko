@@ -196,6 +196,7 @@ if test "x$enable_real" = xssp; then
    AC_SUBST(NEKO_C_XREAL_TYPE, "c_float")
    AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_REAL")
    AC_SUBST(NEKO_DEV_XREAL_TYPE, "float")
+   AC_SUBST(NEKO_PY_REAL_TYPE, "c_float")
 elif test "x$enable_real" = xsp; then
    AC_SUBST(NEKO_REAL_TYPE, "sp")
    AC_SUBST(NEKO_C_REAL_TYPE, "c_float")
@@ -205,6 +206,7 @@ elif test "x$enable_real" = xsp; then
    AC_SUBST(NEKO_C_XREAL_TYPE, "c_double")
    AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_DOUBLE_PRECISION")
    AC_SUBST(NEKO_DEV_XREAL_TYPE, "double") 
+   AC_SUBST(NEKO_PY_REAL_TYPE, "c_float")
 elif test "x$enable_real" = xdp; then
    AC_SUBST(NEKO_REAL_TYPE, "dp")
    AC_SUBST(NEKO_C_REAL_TYPE, "c_double")
@@ -214,6 +216,7 @@ elif test "x$enable_real" = xdp; then
    AC_SUBST(NEKO_C_XREAL_TYPE, "c_double")
    AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_DOUBLE_PRECISION")
    AC_SUBST(NEKO_DEV_XREAL_TYPE, "double")   				
+   AC_SUBST(NEKO_PY_REAL_TYPE, "c_double")
 elif test "x$enable_real" = xqp; then
    AC_SUBST(NEKO_REAL_TYPE, "qp")
    AC_SUBST(NEKO_C_REAL_TYPE, "c_long_double")
@@ -223,6 +226,7 @@ elif test "x$enable_real" = xqp; then
    AC_SUBST(NEKO_C_XREAL_TYPE, "c_long_double")
    AC_SUBST(NEKO_MPI_XREAL_TYPE, "MPI_REAL16")
    AC_SUBST(NEKO_DEV_XREAL_TYPE, "long double")
+   AC_SUBST(NEKO_PY_REAL_TYPE, "c_longdouble")
 else
    AC_MSG_ERROR([Invalid working precision])
 fi
@@ -358,6 +362,7 @@ AC_CONFIG_FILES([Makefile\
 	 	 src/config/neko_config.f90\
 		 src/config/num_types.f90\
 		 src/device/device_config.h\
+                 src/python/pyneko/intf.py\
 		 src/scripts/cltostring.sh\
                  src/api/neko.h\
 		 makeneko\
@@ -417,25 +422,3 @@ AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])
 
 AC_OUTPUT
 
-
-# Display help text (if needed)
-if test "x${found_python}" = xyes; then
-echo \
-"
----------------------------------------------------------
-                 _  __ ____ __ __ ____ 
-     ___  __ __ / |/ // __// //_// __ \\
-    / _ \/ // //    // _/ / ,<  / /_/ /
-   / .__/\\_, //_/|_//___//_/|_| \____/ (v${PACKAGE_VERSION})
-  /_/   /___/                         
-
-  Python modules will be installed in:
-
-        ${pythondir}
-
-  with \${prefix} = ${prefix} .
-
-  Do not forget to set the PYTHONPATH variable.
----------------------------------------------------------
-"
-fi
