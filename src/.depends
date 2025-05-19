@@ -1,3 +1,4 @@
+api/neko_api.lo : api/neko_api.f90 common/time_step_controller.lo neko.lo 
 config/num_types.lo : config/num_types.f90 
 common/structs.lo : common/structs.f90 config/num_types.lo 
 io/format/nmsh.lo : io/format/nmsh.f90 config/num_types.lo 
