@@ -68,7 +68,7 @@ module neko
   use case, only : case_t, case_init, case_free
   use output_controller, only : output_controller_t
   use output, only : output_t
-  use simulation, only : neko_solve
+  use simulation, only : simulation_step, simulation_init, simulation_finalize
   use operators, only : dudxyz, opgrad, ortho, cdtp, conv1, curl, cfl,&
        lambda2op, strain_rate, div, grad
   use mathops, only : opchsign, opcolv, opcolv3c, opadd2cm, opadd2col
@@ -96,6 +96,8 @@ module neko
        register_simulation_component
   use probes, only : probes_t
   use spectral_error
+  use profiler, only : profiler_start, profiler_stop, &
+       profiler_start_region, profiler_end_region
   use system, only : system_cpu_name, system_cpuid
   use drag_torque, only : drag_torque_zone, drag_torque_facet, drag_torque_pt
   use field_registry, only : neko_field_registry
@@ -120,6 +122,7 @@ module neko
   use derivative, only : derivative_t
   use lambda2, only : lambda2_t
   use time_based_controller, only : time_based_controller_t
+  use time_step_controller, only : time_step_controller_t
   use source_term, only : source_term_t, source_term_allocate, &
        register_source_term, source_term_factory, source_term_allocator
   use, intrinsic :: iso_fortran_env
@@ -203,6 +206,32 @@ contains
     end if
 
   end subroutine neko_init
+
+  !> Main driver to solve a case @a C
+  subroutine neko_solve(C)
+    type(case_t), target, intent(inout) :: C
+    type(time_step_controller_t) :: dt_controller
+    real(kind=dp) :: tstep_loop_start_time
+    character(len=LOG_SIZE) :: log_buf
+    real(kind=rp) :: cfl
+    logical :: output_at_end
+
+    call dt_controller%init(C%params)
+
+    call simulation_init(C, dt_controller)
+
+    call profiler_start
+    cfl = C%fluid%compute_cfl(C%time%dt)
+    tstep_loop_start_time = MPI_WTIME()
+
+    do while (C%time%t .lt. C%time%end_time .and. (.not. jobctrl_time_limit()))
+       call simulation_step(C, dt_controller, cfl, tstep_loop_start_time)
+    end do
+    call profiler_stop
+
+    call simulation_finalize(C)
+
+  end subroutine neko_solve
 
   !> Finalize Neko
   subroutine neko_finalize(C)
