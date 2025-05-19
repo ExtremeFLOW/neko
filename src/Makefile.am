@@ -1,6 +1,7 @@
 lib_LTLIBRARIES = libneko.la
 libneko_la_LDFLAGS = -release ${PACKAGE_VERSION}
 neko_fortran_SOURCES = \
+	api/neko_api.f90\
 	config/num_types.f90\
 	common/structs.f90\
 	io/format/nmsh.f90\
@@ -608,6 +609,11 @@ depend:
 	$(MAKEDEPF90) $(neko_fortran_SOURCES) | $(SED) 's/\.o/\.lo/g'  > .depends
 endif
 
+if ENABLE_PYTHON
+nobase_python_PYTHON = python/pyneko/__init__.py\
+		       python/pyneko/intf.py
+endif
+
 # Note we need to list any headers etc here for the dist. script
 EXTRA_DIST = \
 	bc/bcknd/device/cuda/dirichlet_kernel.h\
@@ -745,8 +751,12 @@ EXTRA_DIST = \
 	comm/comm.h\
 	common/neko_log.h
 
+
 # Expose the listed headers in the package
 nobase_pkginclude_HEADERS = ${EXTRA_DIST}
+
+# Expose API header
+include_HEADERS = api/neko.h
 
 # Fortran deps. (updated with makedepf90 via target 'depend')
 include	.depends
