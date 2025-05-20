@@ -160,7 +160,7 @@ contains
     call json_get_or_default(hsmg_params, 'coarse_grid.preconditioner', &
          crs_pc, "jacobi")
 
-        call json_get_or_default(hsmg_params, 'coarse_grid.monitor', &
+    call json_get_or_default(hsmg_params, 'coarse_grid.monitor', &
          crs_monitor, .false.)
 
     call this%init_from_components(coef, bclst, crs_solver, crs_pc, crs_monitor)
