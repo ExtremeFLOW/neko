@@ -266,6 +266,12 @@ contains
     write(log_buf, '(A, L1)') 'Save bdry  : ', logical_val
     call neko_log%message(log_buf)
 
+    call json_get_or_default(params, "case.fluid.full_stress_formulation", &
+         logical_val, .false.)
+    write(log_buf, '(A, L1)') 'Full stress: ', logical_val
+    call neko_log%message(log_buf)
+
+
     !
     ! Setup right-hand side fields.
     !
@@ -327,7 +333,6 @@ contains
     call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user)
     call this%source_term%add(params, 'case.fluid.source_terms')
 
-    call neko_log%end_section()
 
   end subroutine fluid_scheme_init_base
 
