@@ -308,7 +308,7 @@ neko_fortran_SOURCES = \
 	simulation_components/div_simcomp.f90\
 	simulation_components/weak_grad_simcomp.f90\
 	simulation_components/grad_simcomp.f90\
-	simulation_components/derivative.f90\
+	simulation_components/derivative_simcomp.f90\
 	simulation_components/les_simcomp.f90\
 	simulation_components/simulation_component_fctry.f90\
 	source_terms/source_term.f90\

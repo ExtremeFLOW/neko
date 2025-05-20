@@ -44,7 +44,7 @@ submodule (simulation_component) simulation_component_fctry
   use weak_grad_simcomp, only : weak_grad_t
   use grad_simcomp, only : grad_t
   use div_simcomp, only : div_t
-  use derivative, only : derivative_t
+  use derivative_simcomp, only : derivative_t
   use spectral_error, only: spectral_error_t
   use utils, only : neko_type_error, neko_type_registration_error
   implicit none

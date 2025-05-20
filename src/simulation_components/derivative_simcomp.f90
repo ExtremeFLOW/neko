@@ -33,7 +33,7 @@
 !
 !> Implements the `derivative_t` type.
 
-module derivative
+module derivative_simcomp
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
@@ -260,4 +260,4 @@ contains
          this%case%fluid%c_Xh)
   end subroutine derivative_compute
 
-end module derivative
+end module derivative_simcomp

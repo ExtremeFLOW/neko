@@ -132,7 +132,11 @@ module neko
   use les_model, only : les_model_t, les_model_allocate, register_les_model, &
        les_model_factory, les_model_allocator
   use field_writer, only : field_writer_t
-  use derivative, only : derivative_t
+  use derivative_simcomp, only : derivative_t
+  use div_simcomp, only : div_t
+  use curl_simcomp, only : curl_t
+  use grad_simcomp, only : grad_t
+  use weak_grad_simcomp, only : weak_grad_t
   use lambda2, only : lambda2_t
   use time_based_controller, only : time_based_controller_t
   use time_step_controller, only : time_step_controller_t
