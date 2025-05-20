@@ -48,12 +48,14 @@ submodule(fluid_pnpn) fluid_pnpn_bc_fctry
   implicit none
 
   ! List of all possible types created by the boundary condition factories
-  character(len=25) :: FLUID_PNPN_KNOWN_BCS(13) = [character(len=25) :: &
+  character(len=25) :: FLUID_PNPN_KNOWN_BCS(15) = [character(len=25) :: &
        "symmetry", &
        "velocity_value", &
        "no_slip", &
        "outflow", &
        "normal_outflow", &
+       "outflow+user", &
+       "normal_outflow+user", &
        "outflow+dong", &
        "normal_outflow+dong", &
        "shear_stress", &
@@ -152,7 +154,7 @@ contains
        allocate(inflow_t::object)
     case ("no_slip")
        allocate(zero_dirichlet_t::object)
-    case ("normal_outflow", "normal_outflow+dong", "normal_outflow+usr")
+    case ("normal_outflow", "normal_outflow+dong", "normal_outflow+user")
        allocate(non_normal_t::object)
     case ("blasius_profile")
        allocate(blasius_t::object)
