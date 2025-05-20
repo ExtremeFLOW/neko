@@ -104,7 +104,7 @@ contains
 
     if (size(field_names) .ne. 3) then
        call neko_error("The div simcomp requires exactly 3 entries in " // &
-            "field_names.")
+            "fields.")
     end if
 
     fields(1) = trim(computed_field)
