@@ -148,6 +148,7 @@ contains
     type(bc_list_t), intent(inout), target :: bclst
     type(json_file), intent(inout) :: hsmg_params
     character(len=:), allocatable :: crs_solver, crs_pc
+    logical :: crs_monitor
 
     ! Exract coarse grid parameters
     call json_get_or_default(hsmg_params, 'coarse_grid.iterations', &
@@ -159,15 +160,20 @@ contains
     call json_get_or_default(hsmg_params, 'coarse_grid.preconditioner', &
          crs_pc, "jacobi")
 
-    call this%init_from_components(coef, bclst, crs_solver, crs_pc)
+    call json_get_or_default(hsmg_params, 'coarse_grid.monitor', &
+         crs_monitor, .false.)
+
+    call this%init_from_components(coef, bclst, crs_solver, crs_pc, crs_monitor)
 
   end subroutine hsmg_init
 
-  subroutine hsmg_init_from_components(this, coef, bclst, crs_solver, crs_pc)
+  subroutine hsmg_init_from_components(this, coef, bclst, crs_solver, crs_pc, &
+       crs_monitor)
     class(hsmg_t), intent(inout), target :: this
     type(coef_t), intent(in), target :: coef
     type(bc_list_t), intent(inout), target :: bclst
     character(len=:), intent(inout), allocatable :: crs_solver, crs_pc
+    logical, intent(inout) :: crs_monitor
     integer :: n, i
     integer :: lx_crs, lx_mid
     class(bc_t), pointer :: bc_i
@@ -324,7 +330,7 @@ contains
 
        call krylov_solver_factory(this%crs_solver, &
             this%dm_crs%size(), trim(crs_solver), KSP_MAX_ITER, &
-            M = this%pc_crs)
+            M = this%pc_crs, monitor = crs_monitor)
     end if
 
     call neko_log%end_section()
