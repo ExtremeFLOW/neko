@@ -31,108 +31,105 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> Implements the `div_t` type.
-
-module div_simcomp
+!> Implements the `gradient_t` type.
+module gradient_simcomp
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use field_registry, only : neko_field_registry
   use field, only : field_t
+  use operators, only : grad
   use time_state, only : time_state_t
-  use operators, only : div
   use case, only : case_t
   use json_utils, only : json_get, json_get_or_default
   use field_writer, only : field_writer_t
   use time_based_controller, only : time_based_controller_t
-  use utils, only : neko_error
   implicit none
   private
 
-  !> A simulation component that computes the divergence of a vector field.
-  !! Added to the field registry as `div` by default, bu can be controlled by
-  !! the computed_field keyword.
-  type, public, extends(simulation_component_t) :: div_t
-     !> X input vector field component.
+  !> A simulation component that computes the gradient of a field.
+  !! Wraps the `gradient` operator.
+  type, public, extends(simulation_component_t) :: gradient_t
+     !> The scalar field to compute the weak gradient of.
      type(field_t), pointer :: u
-     !> Y input vector field component.
-     type(field_t), pointer :: v
-     !> Z input vector field component.
-     type(field_t), pointer :: w
-
-     !> The divergence field.
-     type(field_t), pointer :: div
-
+     !> X weak gradient component.
+     type(field_t), pointer :: gradient_x
+     !> Y weak gradient component.
+     type(field_t), pointer :: gradient_y
+     !> Z weak gradient component.
+     type(field_t), pointer :: gradient_z
      !> Output writer.
      type(field_writer_t) :: writer
 
    contains
      !> Constructor from json, wrapping the actual constructor.
-     procedure, pass(this) :: init => div_init_from_json
+     procedure, pass(this) :: init => gradient_init_from_json
      !> Generic for constructing from components.
      generic :: init_from_components => &
           init_from_controllers, init_from_controllers_properties
      !> Constructor from components, passing time_based_controllers.
      procedure, pass(this) :: init_from_controllers => &
-          div_init_from_controllers
+          gradient_init_from_controllers
      !> Constructor from components, passing the properties of
      !! time_based_controllers.
      procedure, pass(this) :: init_from_controllers_properties => &
-          div_init_from_controllers_properties
+          gradient_init_from_controllers_properties
      !> Common part of both constructors.
-     procedure, private, pass(this) :: init_common => div_init_common
+     procedure, private, pass(this) :: init_common => gradient_init_common
      !> Destructor.
-     procedure, pass(this) :: free => div_free
-     !> Compute the div field.
-     procedure, pass(this) :: compute_ => div_compute
-  end type div_t
+     procedure, pass(this) :: free => gradient_free
+     !> Compute the gradient field.
+     procedure, pass(this) :: compute_ => gradient_compute
+  end type gradient_t
 
 contains
 
   !> Constructor from json.
-  subroutine div_init_from_json(this, json, case)
-    class(div_t), intent(inout) :: this
+  subroutine gradient_init_from_json(this, json, case)
+    class(gradient_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
-    character(len=20) :: fields(1)
-    character(len=20), allocatable :: field_names(:)
+    character(len=:), allocatable :: field_name
+    character(len=20) :: fields(3)
     character(len=:), allocatable :: computed_field
 
+    call json_get(json, "field", field_name)
 
-    call json_get_or_default(json, "computed_field", computed_field, "div")
-    call json_get(json, "fields", field_names)
+    ! Add fields keyword to the json so that the field_writer picks it up.
+    ! Will also add fields to the registry.
+    call json_get_or_default(json, "computed_field", computed_field, &
+         "gradient" // trim(field_name))
 
-    if (size(field_names) .ne. 3) then
-       call neko_error("The div simcomp requires exactly 3 entries in " // &
-            "fields.")
-    end if
+    fields(1) = computed_field // "_x"
+    fields(2) = computed_field // "_y"
+    fields(3) = computed_field // "_z"
+    write(*,*) fields(1), fields(2), fields(3)
 
-    fields(1) = trim(computed_field)
-
-    ! This is needed for the field writer to pick up the fields.
     call json%add("fields", fields)
 
     call this%init_base(json, case)
     call this%writer%init(json, case)
 
-    call div_init_common(this, field_names, computed_field)
-  end subroutine div_init_from_json
+    call this%init_common(field_name, computed_field)
+  end subroutine gradient_init_from_json
 
-  !> Actual constructor.
-  !! @param field_names The name of the fields to compute the div of.
-  !! @param computed_field The base name of the div field components.
-  subroutine div_init_common(this, field_names, computed_field)
-    class(div_t), intent(inout) :: this
-    character(len=*) :: field_names(3)
+  !> Common part of the constructors.
+  subroutine gradient_init_common(this, field_name, computed_field)
+    class(gradient_t), intent(inout) :: this
+    character(len=*) :: field_name
     character(len=*) :: computed_field
 
-    this%u => neko_field_registry%get_field_by_name(field_names(1))
-    this%v => neko_field_registry%get_field_by_name(field_names(2))
-    this%w => neko_field_registry%get_field_by_name(field_names(3))
+    this%u => neko_field_registry%get_field_by_name(trim(field_name))
 
-    this%div => neko_field_registry%get_field_by_name(computed_field)
+    this%gradient_x => neko_field_registry%get_field_by_name( &
+         computed_field // "_x")
+    this%gradient_y => neko_field_registry%get_field_by_name( &
+         computed_field // "_y")
+    this%gradient_z => neko_field_registry%get_field_by_name( &
+         computed_field // "_z")
 
-  end subroutine div_init_common
+
+  end subroutine gradient_init_common
 
   !> Constructor from components, passing controllers.
   !! @param case The simulation case object.
@@ -140,36 +137,38 @@ contains
   !! @param preprocess_controller The controller for running preprocessing.
   !! @param compute_controller The controller for running compute.
   !! @param output_controller The controller for producing output.
-  !! @param field_names The name of the fields to compute the div of.
-  !! @param computed_field The base name of the div field components.
+  !! @param field_name The name of the field to compute the gradient of.
+  !! @param computed_field The base name of the gradient field components.
   !! @param filename The name of the file save the fields to. Optional, if not
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine div_init_from_controllers(this, case, order, &
+  subroutine gradient_init_from_controllers(this, case, order, &
        preprocess_controller, compute_controller, output_controller, &
-       field_names, computed_field, filename, precision)
-    class(div_t), intent(inout) :: this
+       field_name, computed_field, filename, precision)
+    class(gradient_t), intent(inout) :: this
     class(case_t), intent(inout), target :: case
     integer :: order
     type(time_based_controller_t), intent(in) :: preprocess_controller
     type(time_based_controller_t), intent(in) :: compute_controller
     type(time_based_controller_t), intent(in) :: output_controller
-    character(len=*) :: field_names(3)
+    character(len=*) :: field_name
     character(len=*) :: computed_field
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(1)
+    character(len=20) :: fields(3)
 
-    fields(1) = trim(computed_field)
+    fields(1) = trim(computed_field) // "_x"
+    fields(2) = trim(computed_field) // "_y"
+    fields(3) = trim(computed_field) // "_z"
 
     call this%init_base_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller)
     call this%writer%init_from_components(case, order, preprocess_controller, &
          compute_controller, output_controller, fields, filename, precision)
-    call this%init_common(field_names, computed_field)
+    call this%init_common(field_name, computed_field)
 
-  end subroutine div_init_from_controllers
+  end subroutine gradient_init_from_controllers
 
   !> Constructor from components, passing properties to the
   !! time_based_controller` components in the base type.
@@ -181,17 +180,17 @@ contains
   !! @param compute_value Value parameter for computing.
   !! @param output_controller Control mode for output.
   !! @param output_value Value parameter for output.
-  !! @param field_names The name of the field to compute the div of.
-  !! @param computed_field The base name of the div field components.
+  !! @param field_name The name of the field to compute the gradient of.
+  !! @param computed_field The base name of the gradient field components.
   !! @param filename The name of the file save the fields to. Optional, if not
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine div_init_from_controllers_properties(this, &
+  subroutine gradient_init_from_controllers_properties(this, &
        case, order, preprocess_control, preprocess_value, compute_control, &
-       compute_value, output_control, output_value, field_names, &
+       compute_value, output_control, output_value, field_name, &
        computed_field, filename, precision)
-    class(div_t), intent(inout) :: this
+    class(gradient_t), intent(inout) :: this
     class(case_t), intent(inout), target :: case
     integer :: order
     character(len=*), intent(in) :: preprocess_control
@@ -200,14 +199,16 @@ contains
     real(kind=rp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
     real(kind=rp), intent(in) :: output_value
-    character(len=*) :: field_names(3)
+    character(len=*) :: field_name
     character(len=*) :: computed_field
     character(len=*), intent(in), optional :: filename
     integer, intent(in), optional :: precision
 
-    character(len=20) :: fields(1)
+    character(len=20) :: fields(3)
 
     fields(1) = trim(computed_field) // "_x"
+    fields(2) = trim(computed_field) // "_y"
+    fields(3) = trim(computed_field) // "_z"
 
     call this%init_base_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
@@ -215,29 +216,29 @@ contains
     call this%writer%init_from_components(case, order, preprocess_control, &
          preprocess_value, compute_control, compute_value, output_control, &
          output_value, fields, filename, precision)
-    call this%init_common(field_names, computed_field)
+    call this%init_common(field_name, computed_field)
 
-  end subroutine div_init_from_controllers_properties
+  end subroutine gradient_init_from_controllers_properties
 
   !> Destructor.
-  subroutine div_free(this)
-    class(div_t), intent(inout) :: this
+  subroutine gradient_free(this)
+    class(gradient_t), intent(inout) :: this
     call this%free_base()
     call this%writer%free()
-
+    nullify(this%gradient_x)
+    nullify(this%gradient_y)
+    nullify(this%gradient_z)
     nullify(this%u)
-    nullify(this%v)
-    nullify(this%w)
-    nullify(this%div)
-  end subroutine div_free
+  end subroutine gradient_free
 
-  !> Compute the div field.
-  subroutine div_compute(this, time)
-    class(div_t), intent(inout) :: this
+  !> Compute the gradient field.
+  !! @param time The current time value
+  subroutine gradient_compute(this, time)
+    class(gradient_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    call div(this%div%x, this%u%x, this%v%x, this%w%x, this%case%fluid%c_Xh)
+    call grad(this%gradient_x%x, this%gradient_y%x, this%gradient_z%x, this%u%x,&
+         this%case%fluid%c_Xh)
+  end subroutine gradient_compute
 
-  end subroutine div_compute
-
-end module div_simcomp
+end module gradient_simcomp

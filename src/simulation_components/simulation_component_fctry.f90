@@ -41,9 +41,9 @@ submodule (simulation_component) simulation_component_fctry
   use utils, only : concat_string_array, neko_error
   use field_writer, only : field_writer_t
   use curl_simcomp, only : curl_t
-  use weak_grad_simcomp, only : weak_grad_t
-  use grad_simcomp, only : grad_t
-  use div_simcomp, only : div_t
+  use weak_gradient_simcomp, only : weak_gradient_t
+  use gradient_simcomp, only : gradient_t
+  use divergence_simcomp, only : divergence_t
   use derivative_simcomp, only : derivative_t
   use spectral_error, only: spectral_error_t
   use utils, only : neko_type_error, neko_type_registration_error
@@ -111,15 +111,15 @@ contains
     case ("field_writer")
        allocate(field_writer_t::object)
     case ("weak_grad")
-       allocate(weak_grad_t::object)
+       allocate(weak_gradient_t::object)
     case ("grad")
-       allocate(grad_t::object)
+       allocate(gradient_t::object)
     case ("derivative")
        allocate(derivative_t::object)
     case ("curl")
        allocate(curl_t::object)
     case ("div")
-       allocate(div_t::object)
+       allocate(divergence_t::object)
     case ("force_torque")
        allocate(force_torque_t::object)
     case ("fluid_stats")

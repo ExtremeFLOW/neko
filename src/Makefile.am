@@ -305,9 +305,9 @@ neko_fortran_SOURCES = \
 	simulation_components/spectral_error.f90\
 	simulation_components/lambda2.f90\
 	simulation_components/curl_simcomp.f90\
-	simulation_components/div_simcomp.f90\
-	simulation_components/weak_grad_simcomp.f90\
-	simulation_components/grad_simcomp.f90\
+	simulation_components/divergence_simcomp.f90\
+	simulation_components/weak_gradient_simcomp.f90\
+	simulation_components/gradient_simcomp.f90\
 	simulation_components/derivative_simcomp.f90\
 	simulation_components/les_simcomp.f90\
 	simulation_components/simulation_component_fctry.f90\

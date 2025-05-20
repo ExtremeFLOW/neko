@@ -31,9 +31,9 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !
-!> Implements the `weak_grad_t` type.
+!> Implements the `weak_gradient_t` type.
 
-module weak_grad_simcomp
+module weak_gradient_simcomp
   use num_types, only : rp, dp, sp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
@@ -50,45 +50,45 @@ module weak_grad_simcomp
   private
 
   !> A simulation component that computes the weak gradient of a field.
-  !! Wraps the `opgrad` operator.
-  type, public, extends(simulation_component_t) :: weak_grad_t
+  !! Wraps the `opgradient` operator.
+  type, public, extends(simulation_component_t) :: weak_gradient_t
      !> The scalar field to compute the weak gradient of.
      type(field_t), pointer :: u
-     !> X weak grad component.
-     type(field_t), pointer :: grad_x
-     !> Y weak grad component.
-     type(field_t), pointer :: grad_y
-     !> Z weak grad component.
-     type(field_t), pointer :: grad_z
+     !> X weak gradient component.
+     type(field_t), pointer :: gradient_x
+     !> Y weak gradient component.
+     type(field_t), pointer :: gradient_y
+     !> Z weak gradient component.
+     type(field_t), pointer :: gradient_z
      !> Output writer.
      type(field_writer_t) :: writer
 
    contains
      !> Constructor from json, wrapping the actual constructor.
-     procedure, pass(this) :: init => weak_grad_init_from_json
+     procedure, pass(this) :: init => weak_gradient_init_from_json
      !> Generic for constructing from components.
      generic :: init_from_components => &
           init_from_controllers, init_from_controllers_properties
      !> Constructor from components, passing time_based_controllers.
      procedure, pass(this) :: init_from_controllers => &
-          weak_grad_init_from_controllers
+          weak_gradient_init_from_controllers
      !> Constructor from components, passing the properties of
      !! time_based_controllers.
      procedure, pass(this) :: init_from_controllers_properties => &
-          weak_grad_init_from_controllers_properties
+          weak_gradient_init_from_controllers_properties
      !> Common part of both constructors.
-     procedure, private, pass(this) :: init_common => weak_grad_init_common
+     procedure, private, pass(this) :: init_common => weak_gradient_init_common
      !> Destructor.
-     procedure, pass(this) :: free => weak_grad_free
-     !> Compute the weak_grad field.
-     procedure, pass(this) :: compute_ => weak_grad_compute
-  end type weak_grad_t
+     procedure, pass(this) :: free => weak_gradient_free
+     !> Compute the weak_gradient field.
+     procedure, pass(this) :: compute_ => weak_gradient_compute
+  end type weak_gradient_t
 
 contains
 
   !> Constructor from json.
-  subroutine weak_grad_init_from_json(this, json, case)
-    class(weak_grad_t), intent(inout) :: this
+  subroutine weak_gradient_init_from_json(this, json, case)
+    class(weak_gradient_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     class(case_t), intent(inout), target :: case
     character(len=:), allocatable :: field_name
@@ -99,7 +99,7 @@ contains
     ! Will also add fields to the registry.
     call json_get(json, "field", field_name)
     call json_get_or_default(json, "computed_field", computed_field, &
-         "weak_grad" // trim(field_name))
+         "weak_gradient" // trim(field_name))
 
     fields(1) = computed_field // "_x"
     fields(2) = computed_field // "_y"
@@ -111,25 +111,25 @@ contains
     call this%writer%init(json, case)
 
     call this%init_common(field_name, computed_field)
-  end subroutine weak_grad_init_from_json
+  end subroutine weak_gradient_init_from_json
 
   !> Common part of the constructors.
-  subroutine weak_grad_init_common(this, field_name, computed_field)
-    class(weak_grad_t), intent(inout) :: this
+  subroutine weak_gradient_init_common(this, field_name, computed_field)
+    class(weak_gradient_t), intent(inout) :: this
     character(len=*) :: field_name
     character(len=*) :: computed_field
 
     this%u => neko_field_registry%get_field_by_name(trim(field_name))
 
-    this%grad_x => neko_field_registry%get_field_by_name( &
+    this%gradient_x => neko_field_registry%get_field_by_name( &
          computed_field // "_x")
-    this%grad_y => neko_field_registry%get_field_by_name( &
+    this%gradient_y => neko_field_registry%get_field_by_name( &
          computed_field // "_y")
-    this%grad_z => neko_field_registry%get_field_by_name( &
+    this%gradient_z => neko_field_registry%get_field_by_name( &
          computed_field // "_z")
 
 
-  end subroutine weak_grad_init_common
+  end subroutine weak_gradient_init_common
 
   !> Constructor from components, passing controllers.
   !! @param case The simulation case object.
@@ -137,15 +137,15 @@ contains
   !! @param preprocess_controller The controller for running preprocessing.
   !! @param compute_controller The controller for running compute.
   !! @param output_controller The controller for producing output.
-  !! @param field_name The name of the field to compute the weak_grad of.
-  !! @param computed_field The base name of the weak_grad field components.
+  !! @param field_name The name of the field to compute the weak_gradient of.
+  !! @param computed_field The base name of the weak_gradient field components.
   !! @param filename The name of the file save the fields to. Optional, if not
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine weak_grad_init_from_controllers(this, case, order, &
+  subroutine weak_gradient_init_from_controllers(this, case, order, &
        preprocess_controller, compute_controller, output_controller, &
        field_name, computed_field, filename, precision)
-    class(weak_grad_t), intent(inout) :: this
+    class(weak_gradient_t), intent(inout) :: this
     class(case_t), intent(inout), target :: case
     integer :: order
     type(time_based_controller_t), intent(in) :: preprocess_controller
@@ -168,7 +168,7 @@ contains
          compute_controller, output_controller, fields, filename, precision)
     call this%init_common(field_name, computed_field)
 
-  end subroutine weak_grad_init_from_controllers
+  end subroutine weak_gradient_init_from_controllers
 
   !> Constructor from components, passing properties to the
   !! time_based_controller` components in the base type.
@@ -180,17 +180,17 @@ contains
   !! @param compute_value Value parameter for computing.
   !! @param output_controller Control mode for output.
   !! @param output_value Value parameter for output.
-  !! @param field_name The name of the field to compute the weak_grad of.
-  !! @param computed_field The base name of the weak_grad field components.
+  !! @param field_name The name of the field to compute the weak_gradient of.
+  !! @param computed_field The base name of the weak_gradient field components.
   !! @param filename The name of the file save the fields to. Optional, if not
   !! provided, fields are added to the main output file.
   !! @param precision The real precision of the output data. Optional, defaults
   !! to single precision.
-  subroutine weak_grad_init_from_controllers_properties(this, &
+  subroutine weak_gradient_init_from_controllers_properties(this, &
        case, order, preprocess_control, preprocess_value, compute_control, &
        compute_value, output_control, output_value, field_name, &
        computed_field, filename, precision)
-    class(weak_grad_t), intent(inout) :: this
+    class(weak_gradient_t), intent(inout) :: this
     class(case_t), intent(inout), target :: case
     integer :: order
     character(len=*), intent(in) :: preprocess_control
@@ -218,27 +218,27 @@ contains
          output_value, fields, filename, precision)
     call this%init_common(field_name, computed_field)
 
-  end subroutine weak_grad_init_from_controllers_properties
+  end subroutine weak_gradient_init_from_controllers_properties
 
   !> Destructor.
-  subroutine weak_grad_free(this)
-    class(weak_grad_t), intent(inout) :: this
+  subroutine weak_gradient_free(this)
+    class(weak_gradient_t), intent(inout) :: this
     call this%free_base()
     call this%writer%free()
-    nullify(this%grad_x)
-    nullify(this%grad_y)
-    nullify(this%grad_z)
+    nullify(this%gradient_x)
+    nullify(this%gradient_y)
+    nullify(this%gradient_z)
     nullify(this%u)
-  end subroutine weak_grad_free
+  end subroutine weak_gradient_free
 
-  !> Compute the weak_grad field.
+  !> Compute the weak_gradient field.
   !! @param time The current time value
-  subroutine weak_grad_compute(this, time)
-    class(weak_grad_t), intent(inout) :: this
+  subroutine weak_gradient_compute(this, time)
+    class(weak_gradient_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    call opgrad(this%grad_x%x, this%grad_y%x, this%grad_z%x, this%u%x,&
+    call opgrad(this%gradient_x%x, this%gradient_y%x, this%gradient_z%x, this%u%x,&
          this%case%fluid%c_Xh)
-  end subroutine weak_grad_compute
+  end subroutine weak_gradient_compute
 
-end module weak_grad_simcomp
+end module weak_gradient_simcomp

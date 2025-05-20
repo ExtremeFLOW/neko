@@ -25,10 +25,10 @@ in Neko. The list will be updated as new simcomps are added.
 
 - Differential operators
   - Computation of the curl of a vector field \ref simcomp_curl
-  - Computation of the gradient of a scalar field \ref simcomp_grad
-  - Computation of the weak gradient of a field \ref simcomp_weak_grad
+  - Computation of the gradient of a scalar field \ref simcomp_gradient
+  - Computation of the weak gradient of a field \ref simcomp_weak_gradient
   - Computation of the derivative of a scalar field \ref simcomp_derivative
-  - Computation of the divergence of a vector field \ref simcomp_div
+  - Computation of the divergence of a vector field \ref simcomp_divergence
 - Computation of \f$ \lambda_2 \f$ \ref simcomp_lambda2
 - Probing of fields at selected points \ref simcomp_probes
 - Output of registered fields to an `.fld` file \ref simcomp_field_writer
@@ -116,19 +116,19 @@ the curl.  By default, registers the result in `curl_x`, `curl_y` and `curl_z`.
  }
  ~~~~~~~~~~~~~~~
 
-#### div {#simcomp_div}
+#### divergence {#simcomp_divergence}
 Takes a list of three field names from the `fields` keyword, and computes
 the divergence.  By default, registers the result in `div`.
 
  ~~~~~~~~~~~~~~~{.json}
  {
-   "type": "div"
+   "type": "divergence"
    "fields": ["u", "v", "w"],
    "computed_field": "continuity"
  }
  ~~~~~~~~~~~~~~~
 
-### grad {#simcomp_grad}
+### gradient {#simcomp_gradient}
 Computes the gradient of a field.
 The field to derivate is controlled by the `field` keyword. The simcomp will, by
 default, register the computed components of the gradients in the registry as
@@ -137,12 +137,12 @@ value in the brackets corresponds to the choice of the user keyword.
 
  ~~~~~~~~~~~~~~~{.json}
  {
-   "type": "grad"
+   "type": "gradient"
    "field": "u",
  }
  ~~~~~~~~~~~~~~~
 
-### weak_grad {#simcomp_weak_grad}
+### weak_gradient {#simcomp_weak_gradient}
 Computes the weak gradient of a field. The weak gradient is value of the
 gradient multiplied by the local value of the mass matrix. This is how a
 gradient term appears in the weak formulation of the governing equations. The
@@ -153,7 +153,7 @@ value in the brackets corresponds to the choice of the user keyword.
 
  ~~~~~~~~~~~~~~~{.json}
  {
-   "type": "weak_grad"
+   "type": "weak_gradient"
    "field": "u",
  }
  ~~~~~~~~~~~~~~~
