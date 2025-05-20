@@ -197,7 +197,7 @@ contains
                                HOST_TO_DEVICE, sync=.false.)
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
             call device_memcpy(l, this%swplen_d, this%dof%size(), &
-                               DEVICE_TO_HOST, sync=.false.)
+                               DEVICE_TO_HOST, sync=.true.)
          else
             call this%gs_h%op(l, this%dof%size(), GS_OP_ADD)
          end if
