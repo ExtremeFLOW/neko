@@ -33,11 +33,13 @@
 !> Defines a registry for storing solution fields
 !
 module field_registry
+  use, intrinsic :: iso_fortran_env, only: error_unit
   use field, only : field_t
   use dofmap, only : dofmap_t
   use utils, only : neko_error
   use htable, only : h_cptr_t
   use utils, only: neko_error
+  use comm, only : pe_rank
   implicit none
   private
 
@@ -138,12 +140,12 @@ contains
     logical, optional, intent(in) :: ignore_existing
 
     if (this%field_exists(fld_name)) then
-      if (present(ignore_existing) .and. ignore_existing .eqv. .true.) then
-         return
-      else
-         call neko_error("Field with name " // fld_name // &
-                         " is already registered")
-      end if
+       if (present(ignore_existing) .and. ignore_existing .eqv. .true.) then
+          return
+       else
+          call neko_error("Field with name " // fld_name // &
+               " is already registered")
+       end if
     end if
 
     if (this%n_fields() == size(this%fields)) then
@@ -210,7 +212,7 @@ contains
     integer :: i
 
     found = .false.
-   
+
     do i=1, this%n_fields()
        if (this%fields(i)%name == name) then
           f => this%fields(i)
@@ -220,8 +222,14 @@ contains
     end do
 
     if (.not. found) then
-       call neko_error("Field " // name // &
-            " could not be found in the registry")
+       if (pe_rank .eq. 0) then
+          write(error_unit,*) "Current field_registry contents:"
+
+          do i=1, this%n_fields()
+             write(error_unit,*) "- ", this%fields(i)%name
+          end do
+       end if
+       call neko_error("Field " // name // " could not be found in the registry")
     end if
   end function get_field_by_name
 
