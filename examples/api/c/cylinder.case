@@ -73,7 +73,8 @@
       "type": "lambda2"
     },
     {
-      "type": "vorticity"
+      "type": "curl",
+      "fields": ["u", "v", "w"]
     },
     {
       "type": "force_torque",
