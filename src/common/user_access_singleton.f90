@@ -55,7 +55,7 @@ module user_access_singleton
 
 contains
 
-  !> Consturctor.
+  !> Constructor.
   subroutine user_access_init(this, case)
     class(user_access_t), intent(inout) :: this
     type(case_t), target :: case
