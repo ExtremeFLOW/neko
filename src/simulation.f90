@@ -96,7 +96,7 @@ contains
     call neko_log%section('Postprocessing')
     call C%output_controller%execute(C%time)
 
-    call C%user%user_init_modules(C%time%t, C%fluid%u, C%fluid%v, C%fluid%w,&
+    call C%user%user_init_modules(C%time%t, C%fluid%u, C%fluid%v, C%fluid%w, &
          C%fluid%p, C%fluid%c_Xh, C%params)
     call neko_log%end_section()
     call neko_log%newline()
