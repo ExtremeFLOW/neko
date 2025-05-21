@@ -30,11 +30,12 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 
-! Defines a singleton object available in the user file. Intended to allow
-! unrestricted access to the entire simulation case and enable all sorts of
-! hacking, while keeping neko proper clear.
-! The object is only initialized by makeneko, so trying to use it
-! outside user code will result in a segfault---intentionally.
+!> User access singleton
+!! Defines a singleton object available in the user file. Intended to allow
+!! unrestricted access to the entire simulation case and enable all sorts of
+!! hacking, while keeping neko proper clear.
+!! The object is only initialized by makeneko, so trying to use it
+!! outside user code will result in a segfault---intentionally.
 module user_access_singleton
   use case, only : case_t
   implicit none
