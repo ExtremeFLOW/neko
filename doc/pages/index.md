@@ -11,9 +11,10 @@ structure and numerical methods are adopted.
 ## Structure of the Manual
 
 In order to facilitate reading of the documentation. The manual is divided into
-several sections. The [user guides](@ref user-guide) are intended for users of the code, while the
-[developer guides](@ref developer-guide) are intended for developers of the code. The [appendix](@ref appendices) contains
-additional information that is not directly related to the usage of the code.
+several sections. The [user guides](@ref user-guide) are intended for users of
+the code, while the [developer guides](@ref developer-guide) are intended for
+developers of the code. The [appendix](@ref appendices) contains additional
+information that is not directly related to the usage of the code.
 
 - \subpage user-guide
   - [Installation](@ref installation) explains how to download and compile Neko
@@ -31,6 +32,7 @@ application of source terms, initial conditions, etc.
 3D and 2D field statistics.
   - [Input/Output](@ref io) explains how to read and write various types of data
 using the Neko framework.
+  - [Extending Neko](@ref extending) explains how to extend Neko with additional types to provide new capabilities.
 - \subpage developer-guide
   - [Contributing](@ref contributing) presents basic instructions to add
 your contributions to Neko.
@@ -43,8 +45,8 @@ related to coding style and IDEs.
 code base with pFUnit.
   - [Accelerators](@ref accelerators) discusses important concepts and 
 conventions related to GPU programming in the Neko framework.
-  - [Run-time selectable types](@ref rts_types) presents the standard programming
-pattern used to select object types at run time.
+  - [Run-time selectable types](@ref rts_types) presents the standard
+programming pattern used to select object types at run time.
 - \subpage appendices
   - [Governing Equations](@ref governing-equations) used in our solvers.
   - [Publications](@ref publications)
