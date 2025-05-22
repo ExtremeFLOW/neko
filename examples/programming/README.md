@@ -22,3 +22,6 @@ Explains how to work with `field_t` and `vector_t` types in Neko, including
 ### `registries.f90`
 Shows how to use registries in Neko to manage fields and temporary data
   efficiently.
+
+### `output.f90`
+Shows how to output simulation data to .fld and .csv files.
