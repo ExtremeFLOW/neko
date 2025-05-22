@@ -73,7 +73,8 @@
       "type": "lambda2",// stored in the temperature field, check docs for more details on sim_comps
     },
     {
-      "type": "vorticity", // Stored in scalar 1,2,3. Changes order if simcomp is added before lambda2
+      "type": "curl", // Stored in scalar 1,2,3. Changes order if simcomp is added before lambda2
+      "fields": ["u", "v", "w"]
     },
     {
       "type": "force_torque",

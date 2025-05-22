@@ -48,6 +48,7 @@ module phmg
   use cheby_device, only : cheby_device_t
   use jacobi, only : jacobi_t
   use device_jacobi, only : device_jacobi_t
+  use schwarz, only : schwarz_t
   use ax_product, only : ax_t, ax_helm_factory
   use tree_amg_multigrid, only : tamg_solver_t
   use interpolation, only : interpolator_t
@@ -72,6 +73,7 @@ module phmg
      type(space_t), pointer :: Xh
      type(dofmap_t), pointer :: dm_Xh
      type(gs_t), pointer :: gs_h
+     type(schwarz_t) :: schwarz
      type(cheby_t) :: cheby
      type(cheby_device_t) :: cheby_device
      type(jacobi_t) :: jacobi
@@ -117,7 +119,7 @@ contains
     class(bc_t), pointer :: bc_j
     logical :: use_jacobi, use_cheby
     character(len=255) :: env_smoother_itrs
-    integer :: env_len, smoother_itrs
+    integer :: env_len, smoother_itrs, st
     use_jacobi = .true.
     use_cheby = .true.
 
@@ -139,6 +141,7 @@ contains
     !do i = 1, this%nlvls -1
     !   lx_lvls(i) = Xh%lx - i
     !end do
+    !lx_lvls(1) = 6
     lx_lvls(1) = 4
     lx_lvls(2) = 2
 
@@ -171,28 +174,6 @@ contains
        call this%phmg_hrchy%lvl(i)%w%init(this%phmg_hrchy%lvl(i)%dm_Xh)
        call this%phmg_hrchy%lvl(i)%z%init(this%phmg_hrchy%lvl(i)%dm_Xh)
 
-       if (use_cheby) then
-          if (NEKO_BCKND_DEVICE .eq. 1) then
-             call this%phmg_hrchy%lvl(i)%cheby_device%init( &
-                  this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs)
-          else
-             call this%phmg_hrchy%lvl(i)%cheby%init( &
-                  this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs)
-          end if
-       end if
-
-       if (use_jacobi) then
-          if (NEKO_BCKND_DEVICE .eq. 1) then
-             call this%phmg_hrchy%lvl(i)%device_jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
-                  this%phmg_hrchy%lvl(i)%dm_Xh, &
-                  this%phmg_hrchy%lvl(i)%gs_h)
-          else
-             call this%phmg_hrchy%lvl(i)%jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
-                  this%phmg_hrchy%lvl(i)%dm_Xh, &
-                  this%phmg_hrchy%lvl(i)%gs_h)
-          end if
-       end if
-
        this%phmg_hrchy%lvl(i)%coef%ifh2 = coef%ifh2
        call copy(this%phmg_hrchy%lvl(i)%coef%h1, coef%h1, &
             this%phmg_hrchy%lvl(i)%dm_Xh%size())
@@ -208,7 +189,49 @@ contains
        call this%phmg_hrchy%lvl(i)%bc%set_g(0.0_rp)
        call this%phmg_hrchy%lvl(i)%bclst%init()
        call this%phmg_hrchy%lvl(i)%bclst%append(this%phmg_hrchy%lvl(i)%bc)
+
+       !> Initialize Smoothers
+       call this%phmg_hrchy%lvl(i)%schwarz%init( &
+            this%phmg_hrchy%lvl(i)%Xh, &
+            this%phmg_hrchy%lvl(i)%dm_Xh, &
+            this%phmg_hrchy%lvl(i)%gs_h, &
+            this%phmg_hrchy%lvl(i)%bclst, &
+            msh)
+       if (use_jacobi) then
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call this%phmg_hrchy%lvl(i)%device_jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
+                  this%phmg_hrchy%lvl(i)%dm_Xh, &
+                  this%phmg_hrchy%lvl(i)%gs_h)
+          else
+             call this%phmg_hrchy%lvl(i)%jacobi%init(this%phmg_hrchy%lvl(i)%coef, &
+                  this%phmg_hrchy%lvl(i)%dm_Xh, &
+                  this%phmg_hrchy%lvl(i)%gs_h)
+          end if
+       end if
+
+       st = 0
+       if (use_cheby) then
+          st = 1
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call this%phmg_hrchy%lvl(i)%cheby_device%init( &
+                  this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs, &
+                  this%phmg_hrchy%lvl(i)%device_jacobi)
+             this%phmg_hrchy%lvl(i)%cheby_device%schwarz => &
+                this%phmg_hrchy%lvl(i)%schwarz
+             st = 2
+          else
+             call this%phmg_hrchy%lvl(i)%cheby%init( &
+                  this%phmg_hrchy%lvl(i)%dm_Xh%size(), smoother_itrs, &
+                  this%phmg_hrchy%lvl(i)%jacobi)
+             this%phmg_hrchy%lvl(i)%cheby%schwarz => &
+                this%phmg_hrchy%lvl(i)%schwarz
+             st = 2
+          end if
+       end if
+
     end do
+
+    call print_phmg_info(this%nlvls, st, this%phmg_hrchy)
 
     ! Create backend specific Ax operator
     call ax_helm_factory(this%ax, full_formulation = .false.)
@@ -250,6 +273,8 @@ contains
          call device_rzero(mglvl(0)%w%x_d, n)
          call phmg_mg_cycle(mglvl(0)%z, mglvl(0)%r, mglvl(0)%w, 0, this%nlvls -1, &
               mglvl, this%intrp, this%msh, this%Ax, this%amg_solver)
+
+         call mglvl(0)%bclst%apply_scalar(mglvl(0)%z%x, n)
          call device_copy(z_d, mglvl(0)%z%x_d, n)
       else
          !We should not work with the input
@@ -261,6 +286,7 @@ contains
          call phmg_mg_cycle(mglvl(0)%z, mglvl(0)%r, mglvl(0)%w, 0, this%nlvls -1, &
               mglvl, this%intrp, this%msh, this%Ax, this%amg_solver)
 
+         call mglvl(0)%bclst%apply_scalar(mglvl(0)%z%x, n)
          call copy(z, mglvl(0)%z%x, n)
       end if
     end associate
@@ -286,7 +312,7 @@ contains
     logical :: use_jacobi
     real(kind=rp) :: val
 
-    use_jacobi = .true.
+    use_jacobi = .false.
     call profiler_start_region('PHMG_cycle', 8)
     !>----------<!
     !> SMOOTH   <!
@@ -297,11 +323,13 @@ contains
             mg(lvl)%dm_Xh%size(), lvl)
     else
        if (NEKO_BCKND_DEVICE .eq. 1) then
+          mg(lvl)%cheby_device%zero_initial_guess = .true.
           ksp_results = mg(lvl)%cheby_device%solve(Ax, z, &
                r%x, mg(lvl)%dm_Xh%size(), &
                mg(lvl)%coef, mg(lvl)%bclst, &
                mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
        else
+          mg(lvl)%cheby%zero_initial_guess = .true.
           ksp_results = mg(lvl)%cheby%solve(Ax, z, &
                r%x, mg(lvl)%dm_Xh%size(), &
                mg(lvl)%coef, mg(lvl)%bclst, &
@@ -314,7 +342,8 @@ contains
     !> Residual <!
     !>----------<!
     call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
-    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
+    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+    call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
     call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -336,7 +365,8 @@ contains
     call intrp(lvl+1)%map(mg(lvl+1)%r%x, w%x, msh%nelv, mg(lvl+1)%Xh)
     call profiler_end_region('PHMG_map_to_coarse', 9)
 
-    call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD)
+    call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+    call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
 
     call mg(lvl+1)%bclst%apply_scalar( &
          mg(lvl+1)%r%x, &
@@ -356,9 +386,6 @@ contains
             mg(lvl+1)%dm_Xh%size())
        call profiler_end_region('PHMG_tAMG_coarse_grid', 9)
 
-       call mg(lvl+1)%bclst%apply_scalar( &
-            mg(lvl+1)%z%x,&
-            mg(lvl+1)%dm_Xh%size())
     else
        call phmg_mg_cycle(mg(lvl+1)%z, mg(lvl+1)%r, mg(lvl+1)%w, lvl+1, &
             clvl, mg, intrp, msh, Ax, amg_solver)
@@ -371,15 +398,14 @@ contains
     call intrp(lvl+1)%map(w%x, mg(lvl+1)%z%x, msh%nelv, mg(lvl)%Xh)
     call profiler_end_region('PHMG_map_to_fine', 9)
 
-    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
+    call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
+    call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_col2(w%x_d, mg(lvl)%coef%mult_d, mg(lvl)%dm_Xh%size())
     else
        call col2(w%x, mg(lvl)%coef%mult, mg(lvl)%dm_Xh%size())
     end if
-
-    call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
 
     !>----------<!
     !> Correct  <!
@@ -431,7 +457,7 @@ contains
     integer, intent(in) :: n, lvl
     integer :: i, iblk, ni, niblk
 
-    ni = 3
+    ni = 6
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, ni
           call Ax%compute(w%x, z%x, mg%coef, msh, mg%Xh)
@@ -442,7 +468,7 @@ contains
 
           call mg%device_jacobi%solve(w%x, w%x, n)
 
-          call device_add2s2(z%x_d, w%x_d, 0.7_rp, n)
+          call device_add2s2(z%x_d, w%x_d, 0.6_rp, n)
        end do
     else
        do i = 1, ni
@@ -453,7 +479,7 @@ contains
 
           call mg%jacobi%solve(w%x, w%x, n)
 
-          call add2s2(z%x, w%x, 0.7_rp, n)
+          call add2s2(z%x, w%x, 0.6_rp, n)
        end do
     end if
   end subroutine phmg_jacobi_smoother
@@ -489,5 +515,54 @@ contains
     end if
     call neko_log%message(log_buf)
   end subroutine phmg_resid_monitor
+
+  subroutine print_phmg_info(nlvls, smoo_type, phmg)
+    integer, intent(in) :: nlvls
+    integer, intent(in) :: smoo_type
+    type(phmg_hrchy_t) :: phmg
+    integer :: i, clvl
+    character(len=LOG_SIZE) :: log_buf, smoo_name
+
+    call neko_log%section('PHMG')
+
+    if (smoo_type .eq. 1) then
+       write(smoo_name, '(A16)') 'CHEBY-acc JACOBI'
+    else if (smoo_type .eq. 2) then
+       write(smoo_name, '(A17)') 'CHEBY-acc SCHWARZ'
+    else
+       write(smoo_name, '(A5)') 'CHEBY'
+    end if
+
+    write(log_buf, '(A28,I2,A8)') &
+         'Creating PHMG hierarchy with', &
+         nlvls, 'levels.'
+    call neko_log%message(log_buf)
+
+    clvl = nlvls - 1
+    do i = 0, nlvls-1
+       write(log_buf, '(A8,I2,A8,I2)') &
+             '-- level', i, '-- lx:', phmg%lvl(i)%Xh%lx
+       call neko_log%message(log_buf)
+
+       if (i .eq. clvl) then
+          write(log_buf, '(A19,A20)') &
+               'Solve:', 'tAMG'
+          call neko_log%message(log_buf)
+       else
+          write(log_buf, '(A22,A20)') &
+               'Smoother:', &
+               trim(smoo_name)
+          call neko_log%message(log_buf)
+
+          write(log_buf, '(A28,I2)') &
+               'Smoother Iters:', &
+               phmg%lvl(i)%smoother_itrs
+          call neko_log%message(log_buf)
+       end if
+    end do
+
+    call neko_log%end_section()
+
+  end subroutine print_phmg_info
 
 end module phmg
