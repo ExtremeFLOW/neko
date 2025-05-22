@@ -33,22 +33,22 @@ contains
     call neko_log%message(log_buf)
 
     write(log_buf, out_format) &
-         t, ' | ' , 'Press.'   , ksp_results(1)%iter, &
+         t, ' | ' , 'Press.' , ksp_results(1)%iter, &
          ksp_results(1)%res_start, ksp_results(1)%res_final
     call neko_log%message(log_buf)
 
     write(log_buf, out_format) &
-         t, ' | ' , 'X-Vel.'   , ksp_results(2)%iter, &
+         t, ' | ' , 'X-Vel.' , ksp_results(2)%iter, &
          ksp_results(2)%res_start, ksp_results(2)%res_final
     call neko_log%message(log_buf)
 
     write(log_buf, out_format) &
-         t, ' | ' , 'Y-Vel.'   , ksp_results(3)%iter, &
+         t, ' | ' , 'Y-Vel.' , ksp_results(3)%iter, &
          ksp_results(3)%res_start, ksp_results(3)%res_final
     call neko_log%message(log_buf)
 
     write(log_buf, out_format) &
-         t, ' | ' , 'Z-Vel.'   , ksp_results(4)%iter, &
+         t, ' | ' , 'Z-Vel.' , ksp_results(4)%iter, &
          ksp_results(4)%res_start, ksp_results(4)%res_final
     call neko_log%message(log_buf)
 
