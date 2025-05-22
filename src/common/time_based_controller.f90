@@ -47,15 +47,15 @@ module time_based_controller
   !! step.
   type, public :: time_based_controller_t
      !> Frequency of execution.
-     real(kind=rp) :: frequency = 0
+     real(kind=rp) :: frequency = 0.0_rp
      !> Time interval between executions.
-     real(kind=rp) :: time_interval = 0
+     real(kind=rp) :: time_interval = 0.0_rp
      !> Number of time steps in between executions.
      integer :: nsteps = 0
      !> Simulation start time.
-     real(kind=rp) :: start_time = 0
+     real(kind=rp) :: start_time = 0.0_rp
      !> Simulation end time.
-     real(kind=rp) :: end_time = 0
+     real(kind=rp) :: end_time = 0.0_rp
      !> Number of times already executed.
      integer :: nexecutions = 0
      !> Whether to never output.
