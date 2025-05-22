@@ -119,7 +119,7 @@ contains
     type(case_t), intent(inout) :: C
     real(kind=rp), intent(inout) :: cfl
     type(time_step_controller_t), intent(inout) :: dt_controller
-    real(kind=dp), intent(in) :: tstep_loop_start_time
+    real(kind=dp), optional, intent(in) :: tstep_loop_start_time
     real(kind=dp) :: start_time, end_time, tstep_start_time
     real(kind=rp) :: cfl_avrg
     character(len=LOG_SIZE) :: log_buf
@@ -193,8 +193,11 @@ contains
     write(log_buf, '(A,I8,A,E15.7)') &
          'Total time for step ', C%time%tstep, ' (s): ', end_time-tstep_start_time
     call neko_log%message(log_buf)
-    write(log_buf, '(A,E15.7)') &
-         'Total elapsed time (s):           ', end_time-tstep_loop_start_time
+
+    if (present(tstep_loop_start_time)) then
+       write(log_buf, '(A,E15.7)') &
+            'Total elapsed time (s):           ', end_time-tstep_loop_start_time
+    end if
     call neko_log%message(log_buf)
 
     call neko_log%end_section()
