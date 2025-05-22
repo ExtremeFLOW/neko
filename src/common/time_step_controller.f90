@@ -67,7 +67,7 @@ contains
     class(time_step_controller_t), intent(inout) :: this
     type(json_file), intent(inout) :: params
 
-    this%dt_last_change = 0
+    this%dt_last_change = -1
     call json_get_or_default(params, 'variable_timestep', &
          this%is_variable_dt, .false.)
     call json_get_or_default(params, 'target_cfl', &
@@ -113,9 +113,14 @@ contains
        this%cfl_avg = cfl
     end if
 
-    if (time%tstep .eq. 1) then
+    if (this%dt_last_change .eq. -1) then
+
        ! set the first dt for desired cfl
-       time%dt = min(this%cfl_trg / cfl * time%dt, this%max_dt)
+       time%dt = max(min(this%cfl_trg / cfl * time%dt, &
+            this%max_dt), this%min_dt)
+       this%dt_last_change = 0
+       this%cfl_avg = cfl
+
     else
        ! Calculate the average of cfl over the desired interval
        this%cfl_avg = this%alpha * cfl + (1 - this%alpha) * this%cfl_avg

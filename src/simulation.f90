@@ -126,7 +126,6 @@ contains
 
     ! Setup the time step, and start time
     call profiler_start_region('Time-Step')
-    C%time%tstep = C%time%tstep + 1
     start_time = MPI_WTIME()
     tstep_start_time = start_time
 
@@ -227,6 +226,7 @@ contains
        call ext_bdf%set_coeffs(time%dtlag)
     end if
 
+    time%tstep = time%tstep + 1
     time%t = time%t + time%dt
 
   end subroutine simulation_settime
