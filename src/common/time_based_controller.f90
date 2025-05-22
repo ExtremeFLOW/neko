@@ -89,7 +89,7 @@ contains
   !> Constructor.
   !! @param end_time The final simulation time.
   !! @param control_mode The way to interpret the `control_value` parameter.
-  !! @param control_value The value definining the execution frequency.
+  !! @param control_value The value defining the execution frequency.
   subroutine time_based_controller_init(this, start_time, end_time, &
        control_mode, control_value)
     class(time_based_controller_t), intent(inout) :: this
@@ -147,7 +147,7 @@ contains
     logical :: check
     logical :: ifforce
 
-    t = time%t - this%start_time
+    t = time%t - time%start_time
     dt = time%dt
     tstep = time%tstep
 
@@ -163,8 +163,10 @@ contains
        check = .true.
     else if (this%never) then
        check = .false.
+    else if (time%t .lt. this%start_time .or. time%t .gt. this%end_time) then
+       check = .false.
     else if ( (this%nsteps .eq. 0) .and. &
-         (t .ge. this%nexecutions * this%time_interval - 0.1 * dt) ) then
+         (t .ge. this%nexecutions * this%time_interval - 0.1_rp * dt) ) then
        check = .true.
     else if (this%nsteps .gt. 0) then
        if (mod(tstep, this%nsteps) .eq. 0) then
