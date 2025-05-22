@@ -43,6 +43,8 @@ module time_state
   type, public :: time_state_t
      real(kind=rp), dimension(10) :: tlag = 0.0_rp !< Old times
      real(kind=rp), dimension(10) :: dtlag = 0.0_rp !< Old dts
+     ! @note Might be good to make these of kind=xp in the future.
+     ! Would ensure that the time is not subject to stagnation.
      real(kind=rp) :: t = 0.0_rp !< Current time
      real(kind=rp) :: dt = 0.0_rp !< Current dt
      real(kind=rp) :: start_time = 0.0_rp !< Start time
